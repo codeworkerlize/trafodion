@@ -1,0 +1,1088 @@
+>>obey TEST127(set_up);
+>>create resource group group1 nodes ('edev05');
+
+--- SQL operation complete.
+>>create resource group group2 nodes ('edev05') authorization sql_user1;
+
+--- SQL operation complete.
+>>create resource group group3 nodes ('node1', 'node3', 'node4', 'node8', 'node5');
+
+--- SQL operation complete.
+>>
+>>create tenant tenant1 resource groups (group1);
+
+--- SQL operation complete.
+>>create tenant tenant2 resource groups (group2);
+
+--- SQL operation complete.
+>>create tenant tenant3 resource groups (group1, group2);
+
+--- SQL operation complete.
+>>create tenant tenant4 resource groups (group3);
+
+--- SQL operation complete.
+>>
+>>obey TEST127(show_cmds);
+>>log LOG127;
+>>cqd SHOWDDL_DISPLAY_PRIVILEGE_GRANTS 'ON';
+
+--- SQL operation complete.
+>>
+>>get resource groups;
+
+Resource Groups
+===============
+
+DB__RGROUP_DEFAULT
+GROUP1
+GROUP2
+GROUP3
+
+--- SQL operation complete.
+>>showddl resource group group1;
+
+CREATE RESOURCE GROUP GROUP1 NODES('edev05') AUTHORIZATION DB__ROOT;
+
+--- SQL operation complete.
+>>showddl resource group group2;
+
+CREATE RESOURCE GROUP GROUP2 NODES('edev05') AUTHORIZATION SQL_USER1;
+
+--- SQL operation complete.
+>>showddl resource group group3;
+
+CREATE RESOURCE GROUP GROUP3 NODES('node1', 'node3', 'node4', 'node5', 'node8')
+  AUTHORIZATION DB__ROOT;
+
+--- SQL operation complete.
+>>showddl resource group db__rgroup_default;
+
+CREATE RESOURCE GROUP DB__RGROUP_DEFAULT NODES('') AUTHORIZATION DB__ROOT;
+
+--- SQL operation complete.
+>>showddl resource group group_noexists;
+
+*** ERROR[1088] Resource group GROUP_NOEXISTS does not exist.
+
+--- SQL operation failed with errors.
+>>
+>>get nodes;
+
+Tenant Nodes
+============
+
+edev05
+node1
+node3
+node4
+node5
+node8
+
+--- SQL operation complete.
+>>get nodes in resource group group1;
+
+Nodes in Resource Group GROUP1
+==============================
+
+edev05
+
+--- SQL operation complete.
+>>get nodes in resource group group2;
+
+Nodes in Resource Group GROUP2
+==============================
+
+edev05
+
+--- SQL operation complete.
+>>get nodes in resource group group3;
+
+Nodes in Resource Group GROUP3
+==============================
+
+node1
+node3
+node4
+node5
+node8
+
+--- SQL operation complete.
+>>get nodes in resource group db__rgroup_default;
+
+--- SQL operation complete.
+>>get nodes in resource group group_noexists;
+
+--- SQL operation complete.
+>>
+>>get tenants;
+
+Tenants
+=======
+
+ESGYNDB
+TENANT1
+TENANT2
+TENANT3
+TENANT4
+
+--- SQL operation complete.
+>>showddl tenant tenant1;
+
+CREATE TENANT TENANT1 TENANT SIZE 4, RESOURCE GROUPS (GROUP1);
+  -- Tenant node assignments:  node 'edev05' (4) units
+
+--- SQL operation complete.
+>>showddl tenant tenant2;
+
+CREATE TENANT TENANT2 TENANT SIZE 4, RESOURCE GROUPS (GROUP2);
+  -- Tenant node assignments:  node 'edev05' (4) units
+
+--- SQL operation complete.
+>>showddl tenant tenant3;
+
+CREATE TENANT TENANT3 TENANT SIZE 4, RESOURCE GROUPS (GROUP1, GROUP2);
+  -- Tenant node assignments:  node 'edev05' (4) units
+
+--- SQL operation complete.
+>>showddl tenant tenant4;
+
+CREATE TENANT TENANT4 TENANT SIZE 4, RESOURCE GROUPS (GROUP3);
+  -- Tenant node assignments:  node 'node1' (0) units, node 'node3' (0) units, node 'node4' (0) units, node 'node5' (0) units, node 'node8' (4) units
+
+--- SQL operation complete.
+>>showddl tenant esgyndb;
+
+CREATE TENANT ESGYNDB TENANT SIZE 4294967295, AFFINITY 0, CLUSTER SIZE -1,
+  ADMIN ROLE DB__ROOTROLE;
+
+--- SQL operation complete.
+>>showddl tenant tenant_noexists;
+
+*** ERROR[1008] Tenant TENANT_NOEXISTS does not exist.
+
+--- SQL operation failed with errors.
+>>
+>>get nodes for tenant tenant1;
+
+Nodes for Tenant TENANT1
+========================
+
+edev05
+
+--- SQL operation complete.
+>>get nodes for tenant tenant2;
+
+Nodes for Tenant TENANT2
+========================
+
+edev05
+
+--- SQL operation complete.
+>>get nodes for tenant tenant3;
+
+Nodes for Tenant TENANT3
+========================
+
+edev05
+
+--- SQL operation complete.
+>>get nodes for tenant tenant4;
+
+Nodes for Tenant TENANT4
+========================
+
+node1
+node3
+node4
+node5
+node8
+
+--- SQL operation complete.
+>>get nodes for tenant esgyndb;
+
+--- SQL operation complete.
+>>get nodes for tenant tenant_noexists;
+
+--- SQL operation complete.
+>>
+>>get tenants on resource group group1;
+
+Tenants on Resource Group GROUP1
+=================================
+
+TENANT1
+TENANT3
+
+--- SQL operation complete.
+>>get tenants on resource group group2;
+
+Tenants on Resource Group GROUP2
+=================================
+
+TENANT2
+TENANT3
+
+--- SQL operation complete.
+>>get tenants on resource group group3;
+
+Tenants on Resource Group GROUP3
+=================================
+
+TENANT4
+
+--- SQL operation complete.
+>>get tenants on resource group db__rgroup_default;
+
+--- SQL operation complete.
+>>get tenants on resource group group_noexists;
+
+--- SQL operation complete.
+>>
+>>sh sqlci -i "TEST127(show_cmds)" -u sql_user1;
+>>cqd SHOWDDL_DISPLAY_PRIVILEGE_GRANTS 'ON';
+
+--- SQL operation complete.
+>>
+>>get resource groups;
+
+Resource Groups
+===============
+
+GROUP2
+
+--- SQL operation complete.
+>>showddl resource group group1;
+
+*** ERROR[1017] You are not authorized to perform this operation.
+
+--- SQL operation failed with errors.
+>>showddl resource group group2;
+
+CREATE RESOURCE GROUP GROUP2 NODES('edev05') AUTHORIZATION SQL_USER1;
+
+--- SQL operation complete.
+>>showddl resource group group3;
+
+*** ERROR[1017] You are not authorized to perform this operation.
+
+--- SQL operation failed with errors.
+>>showddl resource group db__rgroup_default;
+
+*** ERROR[1017] You are not authorized to perform this operation.
+
+--- SQL operation failed with errors.
+>>showddl resource group group_noexists;
+
+*** ERROR[1088] Resource group GROUP_NOEXISTS does not exist.
+
+--- SQL operation failed with errors.
+>>
+>>get nodes;
+
+--- SQL operation complete.
+>>get nodes in resource group group1;
+
+--- SQL operation complete.
+>>get nodes in resource group group2;
+
+Nodes in Resource Group GROUP2
+==============================
+
+edev05
+
+--- SQL operation complete.
+>>get nodes in resource group group3;
+
+--- SQL operation complete.
+>>get nodes in resource group db__rgroup_default;
+
+--- SQL operation complete.
+>>get nodes in resource group group_noexists;
+
+--- SQL operation complete.
+>>
+>>get tenants;
+
+Tenants
+=======
+
+ESGYNDB
+
+--- SQL operation complete.
+>>showddl tenant tenant1;
+
+*** ERROR[1017] You are not authorized to perform this operation.
+
+--- SQL operation failed with errors.
+>>showddl tenant tenant2;
+
+*** ERROR[1017] You are not authorized to perform this operation.
+
+--- SQL operation failed with errors.
+>>showddl tenant tenant3;
+
+*** ERROR[1017] You are not authorized to perform this operation.
+
+--- SQL operation failed with errors.
+>>showddl tenant tenant4;
+
+*** ERROR[1017] You are not authorized to perform this operation.
+
+--- SQL operation failed with errors.
+>>showddl tenant esgyndb;
+
+CREATE TENANT ESGYNDB TENANT SIZE 4294967295, AFFINITY 0, CLUSTER SIZE -1,
+  ADMIN ROLE DB__ROOTROLE;
+
+--- SQL operation complete.
+>>showddl tenant tenant_noexists;
+
+*** ERROR[1017] You are not authorized to perform this operation.
+
+--- SQL operation failed with errors.
+>>
+>>get nodes for tenant tenant1;
+
+*** ERROR[4218] The options specified in the 'NODES FOR TENANT' command are incorrect, inconsistent or not supported. You are only authorized to get nodes for the current tenant (ESGYNDB).
+
+--- SQL operation failed with errors.
+>>get nodes for tenant tenant2;
+
+*** ERROR[4218] The options specified in the 'NODES FOR TENANT' command are incorrect, inconsistent or not supported. You are only authorized to get nodes for the current tenant (ESGYNDB).
+
+--- SQL operation failed with errors.
+>>get nodes for tenant tenant3;
+
+*** ERROR[4218] The options specified in the 'NODES FOR TENANT' command are incorrect, inconsistent or not supported. You are only authorized to get nodes for the current tenant (ESGYNDB).
+
+--- SQL operation failed with errors.
+>>get nodes for tenant tenant4;
+
+*** ERROR[4218] The options specified in the 'NODES FOR TENANT' command are incorrect, inconsistent or not supported. You are only authorized to get nodes for the current tenant (ESGYNDB).
+
+--- SQL operation failed with errors.
+>>get nodes for tenant esgyndb;
+
+--- SQL operation complete.
+>>get nodes for tenant tenant_noexists;
+
+*** ERROR[4218] The options specified in the 'NODES FOR TENANT' command are incorrect, inconsistent or not supported. You are only authorized to get nodes for the current tenant (ESGYNDB).
+
+--- SQL operation failed with errors.
+>>
+>>get tenants on resource group group1;
+
+--- SQL operation complete.
+>>get tenants on resource group group2;
+
+Tenants on Resource Group GROUP2
+=================================
+
+TENANT2
+TENANT3
+
+--- SQL operation complete.
+>>get tenants on resource group group3;
+
+--- SQL operation complete.
+>>get tenants on resource group db__rgroup_default;
+
+--- SQL operation complete.
+>>get tenants on resource group group_noexists;
+
+--- SQL operation complete.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>sh sqlci -i "TEST127(show_cmds)" -u sql_user1 -t tenant1;
+>>cqd SHOWDDL_DISPLAY_PRIVILEGE_GRANTS 'ON';
+
+--- SQL operation complete.
+>>
+>>get resource groups;
+
+Resource Groups
+===============
+
+DB__RGROUP_DEFAULT
+GROUP1
+GROUP2
+GROUP3
+
+--- SQL operation complete.
+>>showddl resource group group1;
+
+CREATE RESOURCE GROUP GROUP1 NODES('edev05') AUTHORIZATION DB__ROOT;
+
+--- SQL operation complete.
+>>showddl resource group group2;
+
+CREATE RESOURCE GROUP GROUP2 NODES('edev05') AUTHORIZATION SQL_USER1;
+
+--- SQL operation complete.
+>>showddl resource group group3;
+
+CREATE RESOURCE GROUP GROUP3 NODES('node1', 'node3', 'node4', 'node5', 'node8')
+  AUTHORIZATION DB__ROOT;
+
+--- SQL operation complete.
+>>showddl resource group db__rgroup_default;
+
+CREATE RESOURCE GROUP DB__RGROUP_DEFAULT NODES('') AUTHORIZATION DB__ROOT;
+
+--- SQL operation complete.
+>>showddl resource group group_noexists;
+
+*** ERROR[1088] Resource group GROUP_NOEXISTS does not exist.
+
+--- SQL operation failed with errors.
+>>
+>>get nodes;
+
+Tenant Nodes
+============
+
+edev05
+node1
+node3
+node4
+node5
+node8
+
+--- SQL operation complete.
+>>get nodes in resource group group1;
+
+Nodes in Resource Group GROUP1
+==============================
+
+edev05
+
+--- SQL operation complete.
+>>get nodes in resource group group2;
+
+Nodes in Resource Group GROUP2
+==============================
+
+edev05
+
+--- SQL operation complete.
+>>get nodes in resource group group3;
+
+Nodes in Resource Group GROUP3
+==============================
+
+node1
+node3
+node4
+node5
+node8
+
+--- SQL operation complete.
+>>get nodes in resource group db__rgroup_default;
+
+--- SQL operation complete.
+>>get nodes in resource group group_noexists;
+
+--- SQL operation complete.
+>>
+>>get tenants;
+
+Tenants
+=======
+
+ESGYNDB
+TENANT1
+TENANT2
+TENANT3
+TENANT4
+
+--- SQL operation complete.
+>>showddl tenant tenant1;
+
+CREATE TENANT TENANT1 TENANT SIZE 4, RESOURCE GROUPS (GROUP1);
+  -- Tenant node assignments:  node 'edev05' (4) units
+
+--- SQL operation complete.
+>>showddl tenant tenant2;
+
+CREATE TENANT TENANT2 TENANT SIZE 4, RESOURCE GROUPS (GROUP2);
+  -- Tenant node assignments:  node 'edev05' (4) units
+
+--- SQL operation complete.
+>>showddl tenant tenant3;
+
+CREATE TENANT TENANT3 TENANT SIZE 4, RESOURCE GROUPS (GROUP1, GROUP2);
+  -- Tenant node assignments:  node 'edev05' (4) units
+
+--- SQL operation complete.
+>>showddl tenant tenant4;
+
+CREATE TENANT TENANT4 TENANT SIZE 4, RESOURCE GROUPS (GROUP3);
+  -- Tenant node assignments:  node 'node1' (0) units, node 'node3' (0) units, node 'node4' (0) units, node 'node5' (0) units, node 'node8' (4) units
+
+--- SQL operation complete.
+>>showddl tenant esgyndb;
+
+CREATE TENANT ESGYNDB TENANT SIZE 4294967295, AFFINITY 0, CLUSTER SIZE -1,
+  ADMIN ROLE DB__ROOTROLE;
+
+--- SQL operation complete.
+>>showddl tenant tenant_noexists;
+
+*** ERROR[1008] Tenant TENANT_NOEXISTS does not exist.
+
+--- SQL operation failed with errors.
+>>
+>>get nodes for tenant tenant1;
+
+Nodes for Tenant TENANT1
+========================
+
+edev05
+
+--- SQL operation complete.
+>>get nodes for tenant tenant2;
+
+Nodes for Tenant TENANT2
+========================
+
+edev05
+
+--- SQL operation complete.
+>>get nodes for tenant tenant3;
+
+Nodes for Tenant TENANT3
+========================
+
+edev05
+
+--- SQL operation complete.
+>>get nodes for tenant tenant4;
+
+Nodes for Tenant TENANT4
+========================
+
+node1
+node3
+node4
+node5
+node8
+
+--- SQL operation complete.
+>>get nodes for tenant esgyndb;
+
+--- SQL operation complete.
+>>get nodes for tenant tenant_noexists;
+
+--- SQL operation complete.
+>>
+>>get tenants on resource group group1;
+
+Tenants on Resource Group GROUP1
+=================================
+
+TENANT1
+TENANT3
+
+--- SQL operation complete.
+>>get tenants on resource group group2;
+
+Tenants on Resource Group GROUP2
+=================================
+
+TENANT2
+TENANT3
+
+--- SQL operation complete.
+>>get tenants on resource group group3;
+
+Tenants on Resource Group GROUP3
+=================================
+
+TENANT4
+
+--- SQL operation complete.
+>>get tenants on resource group db__rgroup_default;
+
+--- SQL operation complete.
+>>get tenants on resource group group_noexists;
+
+--- SQL operation complete.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>grant component privilege MANAGE_TENANTS on sql_operations to sql_user1;
+
+--- SQL operation complete.
+>>-- sql_user1 should see everything
+>>get privileges on component sql_operations for sql_user1 cascade;
+
+Privilege information on Component SQL_OPERATIONS for SQL_USER1
+===============================================================
+
+CREATE_SCHEMA
+MANAGE_TENANTS
+
+--- SQL operation complete.
+>>sh sqlci -i "TEST127(show_cmds)" -u sql_user1 -t tenant1;
+>>cqd SHOWDDL_DISPLAY_PRIVILEGE_GRANTS 'ON';
+
+--- SQL operation complete.
+>>
+>>get resource groups;
+
+Resource Groups
+===============
+
+DB__RGROUP_DEFAULT
+GROUP1
+GROUP2
+GROUP3
+
+--- SQL operation complete.
+>>showddl resource group group1;
+
+CREATE RESOURCE GROUP GROUP1 NODES('edev05') AUTHORIZATION DB__ROOT;
+
+--- SQL operation complete.
+>>showddl resource group group2;
+
+CREATE RESOURCE GROUP GROUP2 NODES('edev05') AUTHORIZATION SQL_USER1;
+
+--- SQL operation complete.
+>>showddl resource group group3;
+
+CREATE RESOURCE GROUP GROUP3 NODES('node1', 'node3', 'node4', 'node5', 'node8')
+  AUTHORIZATION DB__ROOT;
+
+--- SQL operation complete.
+>>showddl resource group db__rgroup_default;
+
+CREATE RESOURCE GROUP DB__RGROUP_DEFAULT NODES('') AUTHORIZATION DB__ROOT;
+
+--- SQL operation complete.
+>>showddl resource group group_noexists;
+
+*** ERROR[1088] Resource group GROUP_NOEXISTS does not exist.
+
+--- SQL operation failed with errors.
+>>
+>>get nodes;
+
+Tenant Nodes
+============
+
+edev05
+node1
+node3
+node4
+node5
+node8
+
+--- SQL operation complete.
+>>get nodes in resource group group1;
+
+Nodes in Resource Group GROUP1
+==============================
+
+edev05
+
+--- SQL operation complete.
+>>get nodes in resource group group2;
+
+Nodes in Resource Group GROUP2
+==============================
+
+edev05
+
+--- SQL operation complete.
+>>get nodes in resource group group3;
+
+Nodes in Resource Group GROUP3
+==============================
+
+node1
+node3
+node4
+node5
+node8
+
+--- SQL operation complete.
+>>get nodes in resource group db__rgroup_default;
+
+--- SQL operation complete.
+>>get nodes in resource group group_noexists;
+
+--- SQL operation complete.
+>>
+>>get tenants;
+
+Tenants
+=======
+
+ESGYNDB
+TENANT1
+TENANT2
+TENANT3
+TENANT4
+
+--- SQL operation complete.
+>>showddl tenant tenant1;
+
+CREATE TENANT TENANT1 TENANT SIZE 4, RESOURCE GROUPS (GROUP1);
+  -- Tenant node assignments:  node 'edev05' (4) units
+
+--- SQL operation complete.
+>>showddl tenant tenant2;
+
+CREATE TENANT TENANT2 TENANT SIZE 4, RESOURCE GROUPS (GROUP2);
+  -- Tenant node assignments:  node 'edev05' (4) units
+
+--- SQL operation complete.
+>>showddl tenant tenant3;
+
+CREATE TENANT TENANT3 TENANT SIZE 4, RESOURCE GROUPS (GROUP1, GROUP2);
+  -- Tenant node assignments:  node 'edev05' (4) units
+
+--- SQL operation complete.
+>>showddl tenant tenant4;
+
+CREATE TENANT TENANT4 TENANT SIZE 4, RESOURCE GROUPS (GROUP3);
+  -- Tenant node assignments:  node 'node1' (0) units, node 'node3' (0) units, node 'node4' (0) units, node 'node5' (0) units, node 'node8' (4) units
+
+--- SQL operation complete.
+>>showddl tenant esgyndb;
+
+CREATE TENANT ESGYNDB TENANT SIZE 4294967295, AFFINITY 0, CLUSTER SIZE -1,
+  ADMIN ROLE DB__ROOTROLE;
+
+--- SQL operation complete.
+>>showddl tenant tenant_noexists;
+
+*** ERROR[1008] Tenant TENANT_NOEXISTS does not exist.
+
+--- SQL operation failed with errors.
+>>
+>>get nodes for tenant tenant1;
+
+Nodes for Tenant TENANT1
+========================
+
+edev05
+
+--- SQL operation complete.
+>>get nodes for tenant tenant2;
+
+Nodes for Tenant TENANT2
+========================
+
+edev05
+
+--- SQL operation complete.
+>>get nodes for tenant tenant3;
+
+Nodes for Tenant TENANT3
+========================
+
+edev05
+
+--- SQL operation complete.
+>>get nodes for tenant tenant4;
+
+Nodes for Tenant TENANT4
+========================
+
+node1
+node3
+node4
+node5
+node8
+
+--- SQL operation complete.
+>>get nodes for tenant esgyndb;
+
+--- SQL operation complete.
+>>get nodes for tenant tenant_noexists;
+
+--- SQL operation complete.
+>>
+>>get tenants on resource group group1;
+
+Tenants on Resource Group GROUP1
+=================================
+
+TENANT1
+TENANT3
+
+--- SQL operation complete.
+>>get tenants on resource group group2;
+
+Tenants on Resource Group GROUP2
+=================================
+
+TENANT2
+TENANT3
+
+--- SQL operation complete.
+>>get tenants on resource group group3;
+
+Tenants on Resource Group GROUP3
+=================================
+
+TENANT4
+
+--- SQL operation complete.
+>>get tenants on resource group db__rgroup_default;
+
+--- SQL operation complete.
+>>get tenants on resource group group_noexists;
+
+--- SQL operation complete.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>revoke component privilege MANAGE_TENANTS on sql_operations from sql_user1;
+
+--- SQL operation complete.
+>>grant component privilege "SHOW" on sql_operations to sql_user1;
+
+--- SQL operation complete.
+>>-- sql_user1 should see everything
+>>get privileges on component sql_operations for sql_user1 cascade;
+
+Privilege information on Component SQL_OPERATIONS for SQL_USER1
+===============================================================
+
+CREATE_SCHEMA
+SHOW
+
+--- SQL operation complete.
+>>sh sqlci -i "TEST127(show_cmds)" -u sql_user1;
+>>cqd SHOWDDL_DISPLAY_PRIVILEGE_GRANTS 'ON';
+
+--- SQL operation complete.
+>>
+>>get resource groups;
+
+Resource Groups
+===============
+
+DB__RGROUP_DEFAULT
+GROUP1
+GROUP2
+GROUP3
+
+--- SQL operation complete.
+>>showddl resource group group1;
+
+CREATE RESOURCE GROUP GROUP1 NODES('edev05') AUTHORIZATION DB__ROOT;
+
+--- SQL operation complete.
+>>showddl resource group group2;
+
+CREATE RESOURCE GROUP GROUP2 NODES('edev05') AUTHORIZATION SQL_USER1;
+
+--- SQL operation complete.
+>>showddl resource group group3;
+
+CREATE RESOURCE GROUP GROUP3 NODES('node1', 'node3', 'node4', 'node5', 'node8')
+  AUTHORIZATION DB__ROOT;
+
+--- SQL operation complete.
+>>showddl resource group db__rgroup_default;
+
+CREATE RESOURCE GROUP DB__RGROUP_DEFAULT NODES('') AUTHORIZATION DB__ROOT;
+
+--- SQL operation complete.
+>>showddl resource group group_noexists;
+
+*** ERROR[1088] Resource group GROUP_NOEXISTS does not exist.
+
+--- SQL operation failed with errors.
+>>
+>>get nodes;
+
+Tenant Nodes
+============
+
+edev05
+node1
+node3
+node4
+node5
+node8
+
+--- SQL operation complete.
+>>get nodes in resource group group1;
+
+Nodes in Resource Group GROUP1
+==============================
+
+edev05
+
+--- SQL operation complete.
+>>get nodes in resource group group2;
+
+Nodes in Resource Group GROUP2
+==============================
+
+edev05
+
+--- SQL operation complete.
+>>get nodes in resource group group3;
+
+Nodes in Resource Group GROUP3
+==============================
+
+node1
+node3
+node4
+node5
+node8
+
+--- SQL operation complete.
+>>get nodes in resource group db__rgroup_default;
+
+--- SQL operation complete.
+>>get nodes in resource group group_noexists;
+
+--- SQL operation complete.
+>>
+>>get tenants;
+
+Tenants
+=======
+
+ESGYNDB
+TENANT1
+TENANT2
+TENANT3
+TENANT4
+
+--- SQL operation complete.
+>>showddl tenant tenant1;
+
+CREATE TENANT TENANT1 TENANT SIZE 4, RESOURCE GROUPS (GROUP1);
+  -- Tenant node assignments:  node 'edev05' (4) units
+
+--- SQL operation complete.
+>>showddl tenant tenant2;
+
+CREATE TENANT TENANT2 TENANT SIZE 4, RESOURCE GROUPS (GROUP2);
+  -- Tenant node assignments:  node 'edev05' (4) units
+
+--- SQL operation complete.
+>>showddl tenant tenant3;
+
+CREATE TENANT TENANT3 TENANT SIZE 4, RESOURCE GROUPS (GROUP1, GROUP2);
+  -- Tenant node assignments:  node 'edev05' (4) units
+
+--- SQL operation complete.
+>>showddl tenant tenant4;
+
+CREATE TENANT TENANT4 TENANT SIZE 4, RESOURCE GROUPS (GROUP3);
+  -- Tenant node assignments:  node 'node1' (0) units, node 'node3' (0) units, node 'node4' (0) units, node 'node5' (0) units, node 'node8' (4) units
+
+--- SQL operation complete.
+>>showddl tenant esgyndb;
+
+CREATE TENANT ESGYNDB TENANT SIZE 4294967295, AFFINITY 0, CLUSTER SIZE -1,
+  ADMIN ROLE DB__ROOTROLE;
+
+--- SQL operation complete.
+>>showddl tenant tenant_noexists;
+
+*** ERROR[1008] Tenant TENANT_NOEXISTS does not exist.
+
+--- SQL operation failed with errors.
+>>
+>>get nodes for tenant tenant1;
+
+Nodes for Tenant TENANT1
+========================
+
+edev05
+
+--- SQL operation complete.
+>>get nodes for tenant tenant2;
+
+Nodes for Tenant TENANT2
+========================
+
+edev05
+
+--- SQL operation complete.
+>>get nodes for tenant tenant3;
+
+Nodes for Tenant TENANT3
+========================
+
+edev05
+
+--- SQL operation complete.
+>>get nodes for tenant tenant4;
+
+Nodes for Tenant TENANT4
+========================
+
+node1
+node3
+node4
+node5
+node8
+
+--- SQL operation complete.
+>>get nodes for tenant esgyndb;
+
+--- SQL operation complete.
+>>get nodes for tenant tenant_noexists;
+
+--- SQL operation complete.
+>>
+>>get tenants on resource group group1;
+
+Tenants on Resource Group GROUP1
+=================================
+
+TENANT1
+TENANT3
+
+--- SQL operation complete.
+>>get tenants on resource group group2;
+
+Tenants on Resource Group GROUP2
+=================================
+
+TENANT2
+TENANT3
+
+--- SQL operation complete.
+>>get tenants on resource group group3;
+
+Tenants on Resource Group GROUP3
+=================================
+
+TENANT4
+
+--- SQL operation complete.
+>>get tenants on resource group db__rgroup_default;
+
+--- SQL operation complete.
+>>get tenants on resource group group_noexists;
+
+--- SQL operation complete.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>revoke component privilege "SHOW" on sql_operations from sql_user1;
+
+--- SQL operation complete.
+>>log;

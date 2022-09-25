@@ -1,0 +1,392 @@
+#!/bin/bash
+#
+# @@@ START COPYRIGHT @@@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+#
+# @@@ END COPYRIGHT @@@
+#
+
+function Usage {
+    echo 
+    echo "Usage: `basename $0` [ -a | [-w <node>]... | -h ] <command> "
+    echo 
+    echo "-a             Execute the <command> on all the nodes of the EsgynDB cluster"
+    echo "-w <node name> Name of the node on which to execute the <command>"
+    echo "-h             Help"
+    echo
+}
+
+function GetOpts {
+
+    declare -i lv_index
+    let lv_index=0
+
+    while getopts "aw:h" arg
+      do
+	case $arg in 
+	    a)
+		lv_nids=`get_nodeinfo -attach`
+		lv_ret_stat=$?
+		if [[ $lv_ret_stat != "0" ]]; then
+		    echo "Error ${lv_ret_stat} returned by get_nodeinfo."
+		    exit 1
+		fi
+		for lv_nid in $lv_nids; do
+		    gv_nids[lv_index]=$lv_nid
+		    ((lv_index++))
+		done
+                gv_opt_index=$OPTIND
+		;;
+	    w)
+		lv_tmp_in_node_name=${OPTARG}
+		lv_tmp_in_short_node_name=`echo ${lv_tmp_in_node_name} | cut -f1 -d'.'`
+		#echo "node names, in: ${lv_tmp_in_node_name}, being used: ${lv_tmp_in_short_node_name}"
+		lv_nid=`get_nodeinfo -attach -n ${lv_tmp_in_short_node_name}`
+		lv_ret_stat=$?
+		if [[ $lv_ret_stat != "0" ]]; then
+                    if [[ $lv_ret_stat == 255 ]]; then
+                        echo "${lv_tmp_in_short_node_name}: ssh exited with exit code 255. EsgynDB not up."
+			gv_ret=255
+			lv_nid=-1
+                    else 
+		        echo "Error ${lv_ret_stat} returned by get_nodeinfo."
+		        exit 1
+                    fi
+		fi
+		if [[ -z $lv_nid ]]; then
+		    echo "${OPTARG}: Could not resolve hostname ${OPTARG}: Name or service not known. Not found in EsgynDB configuration."
+		    exit 1
+		fi
+		if [[ $lv_nid != "-1" ]]; then 
+		    #echo "nid added: ${lv_nid}"
+		    gv_nids[lv_index]=$lv_nid
+		    ((lv_index++))
+                fi
+                gv_opt_index=$OPTIND
+		;;
+	    h)
+		Usage;
+		exit 0;
+	esac
+    done
+
+}
+
+function generate_command {
+    
+    lv_nid=$1
+    shift
+    lv_gen_in_file=$1
+    #echo "generate_command: infile: ${lv_gen_in_file}"
+    shift
+    lv_cmd=${TRAF_HOME}/sql/scripts/run_command
+    lv_exec="exec { nid $lv_nid } ${lv_cmd} -c $*"
+    echo $lv_exec >> ${lv_gen_in_file}
+
+}
+
+# New work function
+function perform_work_new {
+ 
+    lv_work_on_in_file=$1
+    lv_work_on_out_file=$2
+    #echo ${lv_work_on_in_file}
+#    sqshell -i ${lv_work_on_in_file} | grep "^.*:" | grep -v "^\[\$.*\].*\- Process \$.* terminated normally" > ${lv_work_on_out_file} &
+    export SQ_QUIET_SHELL=1
+    sqshell -i ${lv_work_on_in_file} | grep "^.*:" > ${lv_work_on_out_file} &
+    
+}
+
+function cleanup_files {
+
+    # Cleanup the in files
+    if [[ ! -z $gv_in_file ]]; then
+        let lv_arg_index=0
+        let lv_all_in_files_done=0
+        while ( [ $lv_all_in_files_done '==' 0 ] ); do
+            
+	    #echo "Going to rm ${gv_in_file[$lv_arg_index]}"
+	    #echo "Going to rm ${gv_out_file[$lv_arg_index]}"
+	    rm ${gv_in_file[$lv_arg_index]}
+	    rm ${gv_out_file[$lv_arg_index]}
+	    
+	    if ( [ $lv_arg_index == ${gv_tmp_file_index} ] ); then
+	        lv_all_in_files_done=1
+	    else
+	        ((++lv_arg_index))
+	    fi
+            
+        done
+    fi
+
+    rm -f ${gv_rc_out_file}
+
+}
+
+function print_out_files {
+
+    # print the content of the out files
+    let lv_arg_index=0
+    let lv_all_out_files_done=0
+    while ( [ $lv_all_out_files_done '==' 0 ] ); do
+
+	#echo "Going to cat ${gv_out_file[$lv_arg_index]}"
+	cat ${gv_out_file[$lv_arg_index]}
+	
+	if ( [ $lv_arg_index == ${gv_tmp_file_index} ] ); then
+	    lv_all_out_files_done=1
+	else
+	    ((++lv_arg_index))
+	fi
+
+    done
+
+}
+
+function cleanup_background_jobs {
+
+    #echo "Current background jobs:"
+    #jobs
+    #echo "Done - printing current background jobs"
+    if [[ -z ${gv_tmp_file_index} ]]; then
+        return;
+    fi
+
+    let lv_bg_index=0
+    let lv_all_jobs_done=0
+    while ( [ $lv_all_jobs_done '==' 0 ] ); do
+
+	let lv_job_number=$lv_bg_index
+	((++lv_job_number))
+	#echo "Going to kill job %${lv_job_number}"
+	kill %${lv_job_number}
+	
+	if ( [ $lv_bg_index == ${gv_tmp_file_index} ] ); then
+	    lv_all_jobs_done=1
+	else
+	    ((++lv_bg_index))
+	fi
+
+    done
+
+}
+
+function execute_commands {
+
+    # Execute the commands
+    declare -i lv_arg_index=0
+    declare -i lv_all_in_files_done=0
+    while ( [ $lv_all_in_files_done == 0 ] ); do
+
+	#cat ${gv_in_file[$lv_arg_index]}
+	#echo "calling perform_work_new: ${gv_in_file[$lv_arg_index]}"
+	perform_work_new ${gv_in_file[$lv_arg_index]} ${gv_out_file[$lv_arg_index]} 
+	if ( [ $lv_arg_index == ${gv_tmp_file_index} ] ); then
+	    lv_all_in_files_done=1
+	else
+	    ((++lv_arg_index))
+	fi
+
+    done
+
+}
+
+function generate_files
+{
+
+    # Generate in files
+    declare -i lv_nids_in_this_batch=0
+    declare -i lv_create_files=1
+
+    for lv_nid in ${gv_nids[*]}; do
+
+	if ( [ $lv_create_files == 1 ] ); then
+            let lv_create_files=0
+	    ((gv_tmp_file_index++))
+	    #echo "index: $gv_tmp_file_index"
+	    gv_in_file[$gv_tmp_file_index]=`mktemp --tmpdir=${TRAF_VAR} --suffix=.in tmp_edb_XXXXXX`
+	    gv_out_file[$gv_tmp_file_index]=`mktemp --tmpdir=${TRAF_VAR} --suffix=.out tmp_edb_XXXXXX`
+	    let lv_nids_in_this_batch=0
+	    #echo ${gv_in_file[$gv_tmp_file_index]}
+	fi
+
+	set -f
+	generate_command ${lv_nid} ${gv_in_file[$gv_tmp_file_index]} $*
+	set +f
+
+	((lv_nids_in_this_batch++))
+	if ( [ $lv_nids_in_this_batch == ${gv_nids_in_a_batch} ] ); then
+	    #        echo "index: $gv_tmp_file_index"
+            let lv_create_files=1
+	    let lv_nids_in_this_batch=0
+	fi
+
+    done
+
+}
+
+function get_nids_in_a_batch 
+{
+    if [ ! -z $EDB_PDSH_FANOUT ]; then
+	let gv_nids_in_a_batch=${EDB_PDSH_FANOUT}
+    fi
+    #echo "gv_nids_in_a_batch: ${gv_nids_in_a_batch} "
+}
+
+function cleanup_on_sigint
+{
+    #echo
+    #echo "Got SIGINT. Performing cleanup."
+    cleanup_background_jobs
+    cleanup_files
+    exit
+}
+
+if [[ -z $TRAF_HOME ]]; then
+    echo
+    echo "The TRAF_HOME environment variable does not exist."
+    echo "Please ensure sqenv.sh has been sourced."
+    echo
+    exit 1;
+fi
+
+# Use eval for single node (workstation mode)
+if [[ -z $TRAF_AGENT && ! -e /usr/bin/pdsh ]];then
+    # Local node only, remove -a / -w arguments
+    while [[ "$1" =~ ^- ]]; do
+      if [[ "$1" == "-w" ]]; then
+        shift 2
+      else
+        shift
+      fi
+    done
+    # ouput in same format as pdsh
+    eval "$@" | sed -e "s/^/$(hostname -s): /"
+    exit $?
+fi
+# Use PDSH for Non-cluster-mgr installation
+if [[ -z $TRAF_AGENT && "$1" != '-h' ]]; then
+    if [[ "$1" == "-a" ]]; then
+      nodelist="$(trafconf -wname)"
+      shift
+    else
+      nodelist="" # use -w options passed on command line
+    fi
+    export PDSH_SSH_ARGS_APPEND="-q -n $SSH_OPTS"
+    /usr/bin/pdsh $PDSH_OPTS $nodelist "$@"
+    exit $?
+fi
+# Otherwise, continue with EsgynDB remote command functionality
+
+# setup trap handler
+trap 'cleanup_on_sigint' SIGINT SIGPIPE SIGHUP SIGTERM
+
+gv_ret=0
+
+USE_NEW_EDB_PDSH=${USE_NEW_EDB_PDSH:-1}
+if ( [ ! -z ${USE_NEW_EDB_PDSH} ] &&
+     [ ${USE_NEW_EDB_PDSH} == 1 ] ); then
+#    echo "Using new edb_pdsh"
+    whitespace="[[:space:]]"
+    lv_var="rc_client "
+    if ( [ ! -z ${RC_CLIENT_VERBOSE_LEVEL} ] &&
+	 [ ${RC_CLIENT_VERBOSE_LEVEL} > 0 ] ); then
+	lv_var="$lv_var -v ${RC_CLIENT_VERBOSE_LEVEL}"
+    fi
+    if ( [ ! -z ${RC_CLIENT_THREADS} ] &&
+	 [ ${RC_CLIENT_THREADS} > 0 ] ); then
+	lv_var="$lv_var -maxc ${RC_CLIENT_THREADS}"
+    fi
+    set -f
+    for i in "$@"
+    do
+        if [[ $i =~ $whitespace ]]
+        then
+            i=\"$i\"
+        fi
+        lv_var="$lv_var $i"
+    done
+    
+    #echo $lv_var
+    gv_rc_out_file=`mktemp --tmpdir=${TRAF_VAR} --suffix=.out tmp_edb_rc_XXXXXX`
+
+    eval $lv_var > ${gv_rc_out_file}
+    lv_ret_stat=$?
+    set +f
+
+    cat ${gv_rc_out_file}
+    
+    cleanup_files
+
+    exit ${lv_ret_stat}
+fi
+
+declare -i gv_nids_in_a_batch=32
+get_nids_in_a_batch
+
+let gv_opt_index=1
+declare -i gv_nids_in_a_batch=32
+if [ ! -z $EDB_PDSH_FANOUT ]; then
+    let gv_nids_in_a_batch=${EDB_PDSH_FANOUT}
+fi
+#echo "gv_nids_in_a_batch: ${gv_nids_in_a_batch} "
+
+GetOpts $*
+if ( [ $gv_opt_index == 1 ] ); then
+    Usage;
+    exit 1
+fi
+
+#echo "number of nids: ${#gv_nids[@]}"
+if [[ ${#gv_nids[@]} == 0 ]]; then
+    exit $gv_ret;
+fi
+
+# Shift the current arg pointer. The following block 
+# should be in global scope of this script AFAIK.
+declare -i lv_argindex
+let lv_argindex=0
+let lv_shift_arg_done=0
+while [ $lv_shift_arg_done '==' 0 ]; do
+    ((++lv_argindex))
+    if ( [ $lv_argindex == $gv_opt_index ] ); then
+	lv_shift_arg_done=1
+    else
+	shift
+    fi
+done
+    
+declare -i gv_tmp_file_index=-1
+
+
+set -f
+generate_files $*
+set +f
+
+execute_commands
+
+# wait for the responses
+wait
+
+print_out_files
+
+cleanup_files
+
+exit $gv_ret

@@ -1,0 +1,15 @@
+#!/bin/bash
+#
+# @@@ START COPYRIGHT @@@
+#
+#(C) Copyright 2015-2016 Esgyn Corporation
+#
+# @@@ END COPYRIGHT @@@
+
+if [ -z ${WMS_INSTALL_DIR} ]; then
+   echo "WMS Install dir not found."
+   exit 1;
+fi
+echo "Shutting down the WMS environment now..."
+edb_pdsh -a "ps -u $USER -o pid,cmd | grep -v grep |grep wms_ | awk '{print $1}' | xargs -r kill -9 2>/dev/null"
+cds

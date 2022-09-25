@@ -1,0 +1,25 @@
+#!/bin/sh
+if [ "$1" == "" ]; then
+  echo "[dcsclean]It should be one parameter at least. Previous Active Master host name"
+  exit 1
+fi
+brokenHostName="`grep -i $1 $TRAF_CONF/dcs/masters|head -n 1`"
+activeMaster=`dcscheck |grep 'Active DcsMaster(s)'| awk '{print $4}'`
+if [ "${brokenHostName}" != ${activeMaster} ]; then
+  echo "[dcsclean]Active DcsMaster has changed from $1 to ${activeMaster}"
+  exit 1
+fi
+wname=""
+for mHostName in $(cat $TRAF_CONF/dcs/masters) ; do
+  if [ "${brokenHostName}" != ${mHostName} ]; then
+    wname="${wname} -w ${mHostName}"
+  fi
+done
+midList=`edb_pdsh $wname "grep -r 'a follower' $TRAF_LOG/dcs/dcs-trafodion-master*.log|tail -n 1" | sed -r 's/.*leader-n_([0-9]+).*/\1/g'|sort`
+minMid=`echo ${midList}|head -n 1|awk '{print int($0)}'`
+let "nid=$minMid"
+let "nid=nid-1"
+leaderNid=`printf "leader-n_%010d" $nid`
+echo "[dcsclean]Tried to remove /trafodion/1/dcs/leader/${leaderNid} from zookeeper!"
+hbase zkcli rmr /trafodion/1/dcs/leader/${leaderNid} 2>/dev/null
+

@@ -1,0 +1,243 @@
+-- Test: TEST076 (CompGeneral)
+-- @@@ START COPYRIGHT @@@
+--
+-- Licensed to the Apache Software Foundation (ASF) under one
+-- or more contributor license agreements.  See the NOTICE file
+-- distributed with this work for additional information
+-- regarding copyright ownership.  The ASF licenses this file
+-- to you under the Apache License, Version 2.0 (the
+-- "License"); you may not use this file except in compliance
+-- with the License.  You may obtain a copy of the License at
+--
+--   http://www.apache.org/licenses/LICENSE-2.0
+--
+-- Unless required by applicable law or agreed to in writing,
+-- software distributed under the License is distributed on an
+-- "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+-- KIND, either express or implied.  See the License for the
+-- specific language governing permissions and limitations
+-- under the License.
+--
+-- @@@ END COPYRIGHT @@@
+--
+-- Functionality: Oracle ROWID compatible statement
+-- Expected file: EXPECTED076
+-- Filter file: FILTER076
+-- Tables created: test_rowid, test_rowid_pk
+-- Limitations: 
+-- Revision history:
+--     (01/28/19) - Created for Oracle compatible ROWID
+
+
+log LOG076 clear;
+
+cqd MODE_COMPATIBLE_1 'on';
+set terminal_charset utf8;
+
+obey TEST076(clnup);
+obey TEST076(ddl);
+obey TEST076(common);
+obey TEST076(order_by);
+obey TEST076(subquery_rowid);
+obey TEST076(where_condition);
+obey TEST076(join_rowid);
+obey TEST076(index_rowid);
+obey TEST076(delete_rowid);
+
+obey TEST076(clnup);
+
+exit;
+
+
+
+?section common
+--------------------------------------------------------------------------
+select rowid from test_rowid;
+select rowid from test_rowid_pk;
+select test_rowid.rowid from test_rowid;
+select test_rowid_pk.rowid from test_rowid_pk;
+select t1.rowid from test_rowid t1 ;
+select t1.rowid from test_rowid_pk t1 ;
+
+select t1.*, rowid from test_rowid t1;
+select t1.*, rowid from test_rowid_pk t1;
+
+select t1.*, char_length(rowid) from test_rowid t1;
+select t1.*, char_length(rowid) from test_rowid_pk t1;
+
+
+?section order_by
+--------------------------------------------------------------------------
+select rowid,t1.* from test_rowid t1 order by rowid;
+select rowid,t1.* from test_rowid_pk t1 order by rowid;
+
+select t1.* from test_rowid t1 order by rowid desc;
+select t1.* from test_rowid_pk t1 order by rowid desc;
+
+select t1.* from test_rowid t1 order by rowid, b;
+select t1.* from test_rowid t1 order by b, rowid;
+
+select t1.* from test_rowid_pk t1 order by rowid, b;
+select t1.* from test_rowid_pk t1 order by b, rowid;
+
+
+?section subquery_rowid
+--------------------------------------------------------------------------
+select t1.*, rowid from (select * from test_rowid) t1;
+select t1.*, rowid as RI from (select * from test_rowid) t1;
+select rowid, * from (select * from test_rowid) ;
+select rowid, * from (select *, rowid from test_rowid) ;
+select rowid2, t1.* from (select t.*, rowid as rowid2 from test_rowid t) t1;
+
+select * from (select * from test_rowid) order by rowid;
+select t1.*, rowid from (select * from test_rowid) t1 order by rowid desc;
+select t1.*, rowid from (select test_rowid.*, rowid as inner_rowid from test_rowid) t1 order by rowid desc;
+select t1.*, rowid from (select * from (select test_rowid.*, rowid as inner_rowid from test_rowid)) t1 order by rowid desc;
+
+
+?section where_condition
+--------------------------------------------------------------------------
+prepare s1 from
+select * from test_rowid where rowid = '8000000307E20A05B0303030303136333131';
+explain s1;
+execute s1;
+
+prepare s2 from
+select * from test_rowid where rowid between '8000000607E20A0BB0303030303132373537' and '8000000D07E20A19000000B0303030303132333531';
+explain s2;
+execute s2;
+
+prepare s3 from
+select * from test_rowid where rowid = '8000000307E20A05B0303030303136333131'
+                            or rowid = '8000000F07E20A1DB0303030303136373131';
+explain s3;
+execute s3;
+							
+select * from (select * from test_rowid) where rowid = '8000000307E20A05B0303030303136333131';
+select * from (select * from test_rowid) t1 where t1.rowid = '8000000E07E20A1BB0303030303133393735';
+prepare s4 from
+select * from (select * from (select * from test_rowid)) t1 where t1.rowid = '8000000E07E20A1BB0303030303133393735';
+explain s4;
+execute s4;
+
+select * from test_rowid_pk where rowid = '0000000007E20A1B0000008000000E8000000807E20A1BB0303030303133393735E985ACE58BA400000000';
+select * from test_rowid_pk where rowid between '0000000107E20A11800000098000000807E20A11B0303030303135393130457367796E6462000000' 
+                                                and '0000000107E20A158000000B8000000A07E20A15B03030303031343738374D6F6E65790000000000';
+
+
+?section join_rowid
+--------------------------------------------------------------------------
+select t1.*, t2.*, rowid from test_rowid t1, test_rowid t2; --fail ambiguously
+select t1.*, t2.* from test_rowid t1, test_rowid_pk t2 order by rowid; --fail ambiguously
+
+select t1.*, t2.*, t1.rowid, t2.rowid from test_rowid t1, test_rowid t2 limit 30;
+select test_rowid.*, test_rowid_pk.*, test_rowid.rowid, test_rowid_pk.rowid from test_rowid, test_rowid_pk limit 30;
+
+select t1.*, t2.* from test_rowid t1, test_rowid_pk t2 order by t2.rowid limit 30;
+
+select t1.rowid, t3.rowid, t1.*, t2.*, t3.* from test_rowid t1, test_rowid t2, test_rowid t3 limit 30;
+
+select rowid from (select t1.a, t2.b from test_rowid_pk t1, test_rowid t2) limit 30;--pick first table's rowid
+
+
+?section index_rowid
+--------------------------------------------------------------------------
+create index test_rowid_idx on test_rowid(c);
+prepare rowid_index from
+select * from test_rowid where rowid='8000000707E20A0DB0303030303133313633' and c='2018-10-13';
+explain rowid_index;
+execute rowid_index;
+
+prepare rowid_index from
+select * from test_rowid where c='2018-10-13' order by rowid;
+explain rowid_index;
+execute rowid_index;
+
+prepare rowid_index from
+select rowid,* from test_rowid where rowid='8000000707E20A0DB0303030303133313633' and c='2018-10-13' order by rowid;
+explain rowid_index;
+execute rowid_index;
+
+
+?section delete_rowid
+--------------------------------------------------------------------------
+delete from delete_rowid
+where rowid not in (select min(rowid)
+                       from delete_rowid
+					   where a = 2);
+select * from delete_rowid;
+
+
+?section ddl
+--------------------------------------------------------------------------
+
+create schema IF NOT EXISTS t076sch_rowid ;
+
+set schema t076sch_rowid;
+
+drop table if exists test_rowid ;
+create table test_rowid (a int, b int, c date, d decimal(10,2), e varchar(10), primary key (a,c,d))
+store by (a,c,d);
+
+drop table if exists test_rowid_pk ;
+create table test_rowid_pk (a int, b int, c date, d decimal(10,2), e varchar2(10 bytes) character set utf8, 
+                            primary key (a,b,c,d,e))
+salt using 4 partitions on (a,b)
+DIVISION BY (date_trunc('day', c))
+;
+
+insert into test_rowid values(2 ,1 ,'2018-10-03', 111.33 ,'Andy');
+insert into test_rowid values(10,2 ,'2018-10-19', 115.39 ,'Money');
+insert into test_rowid values(1 ,8 ,'2018-10-01', 119.45 ,'John');
+insert into test_rowid values(13,4 ,'2018-10-25', 123.51 ,'John');
+insert into test_rowid values(6 ,5 ,'2018-10-11', 127.57 ,'Json');
+insert into test_rowid values(7 ,6 ,'2018-10-13', 131.63 ,'Mayday');
+insert into test_rowid values(5 ,6 ,'2018-10-09', 135.69 ,'Jason');
+insert into test_rowid values(14,8 ,'2018-10-27', 139.75 ,'John');
+insert into test_rowid values(8 ,8 ,'2018-10-15', 143.81 ,'trafodion');
+insert into test_rowid values(11,10,'2018-10-21', 147.87 ,'Money');
+insert into test_rowid values(4 ,6, '2018-10-07', 151.93 ,'stale');
+insert into test_rowid values(12,12,'2018-10-23', 155.99 ,'John');
+insert into test_rowid values(9 ,8 ,'2018-10-17', 159.105,'Esgyndb');
+insert into test_rowid values(3 ,14,'2018-10-05', 163.111,'Money');
+insert into test_rowid values(15,6, '2018-10-29', 167.117,'trafodion');
+
+insert into test_rowid_pk values(2 ,1 ,'2018-10-03',111.33 ,'幸福'     );
+insert into test_rowid_pk values(10,2 ,'2018-10-19',115.39 ,'吉祥'     );
+insert into test_rowid_pk values(1 ,8 ,'2018-10-01',119.45 ,'安康'     );
+insert into test_rowid_pk values(13,4 ,'2018-10-25',123.51 ,'快乐'     );
+insert into test_rowid_pk values(6 ,5 ,'2018-10-11',127.57 ,'坚持'     );
+insert into test_rowid_pk values(7 ,6 ,'2018-10-13',131.63 ,'韧性'     );
+insert into test_rowid_pk values(5 ,6 ,'2018-10-09',135.69 ,'励志'     );
+insert into test_rowid_pk values(14,8 ,'2018-10-27',139.75 ,'酬勤'     );
+insert into test_rowid_pk values(8 ,8 ,'2018-10-15',143.81 ,'trafodion');
+insert into test_rowid_pk values(11,10,'2018-10-21',147.87 ,'Money'    );
+insert into test_rowid_pk values(4 ,6, '2018-10-07',151.93 ,'stale'    );
+insert into test_rowid_pk values(12,12,'2018-10-23',155.99 ,'John'     );
+insert into test_rowid_pk values(9 ,8 ,'2018-10-17',159.105,'Esgyndb'  );
+insert into test_rowid_pk values(3 ,14,'2018-10-05',163.111,'Money'    );
+insert into test_rowid_pk values(15,6, '2018-10-29',167.117,'trafodion');
+
+drop table if exists delete_rowid ;
+create table if not exists delete_rowid ( a int , b int )
+salt using 4 partitions on ( a,b )
+store by (a,b);
+
+insert into delete_rowid values(1,1);
+insert into delete_rowid values(1,1);
+insert into delete_rowid values(1,1);
+insert into delete_rowid values(1,1);
+insert into delete_rowid values(1,1);
+insert into delete_rowid values(2,2);
+insert into delete_rowid values(2,2);
+insert into delete_rowid values(2,2);
+insert into delete_rowid values(2,2);
+insert into delete_rowid values(2,2);
+insert into delete_rowid values(2,2);
+
+
+
+?section clnup
+--------------------------------------------------------------------------
+
+drop schema IF EXISTS t076sch_rowid cascade;

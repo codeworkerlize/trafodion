@@ -1,0 +1,2068 @@
+>>obey TEST301(getpkg);
+>>
+>>set schema schtest301;
+
+--- SQL operation complete.
+>>set terminal_charset iso88591;
+>>drop package if exists pkg;
+
+--- SQL operation complete.
+>>drop package if exists pkg_user_test301;
+
+--- SQL operation complete.
+>>
+>>create package body pkg as //
+  procedure hello is
+  begin
+    print 'Hello';
+  end;
+end//;
+
+--- SQL operation complete.
+>>
+>>get packages;
+
+Packages in Schema TRAFODION.SCHTEST301
+=======================================
+
+PKG
+
+=======================
+ 1 row(s) returned
+
+--- SQL operation complete.
+>>get packages in schema schtest301;
+
+Packages in Schema TRAFODION.SCHTEST301
+=======================================
+
+PKG
+
+=======================
+ 1 row(s) returned
+
+--- SQL operation complete.
+>>--get packages for user sql_test301_user1;
+>>--get packages for user sql_test301_user2;
+>>sh sqlci -i "TEST301(createpkg)" -u sql_test301_user1;
+>>get packages;
+
+Packages in Schema TRAFODION.SCHTEST301
+=======================================
+
+PKG
+PKG_USER_TEST301
+
+=======================
+ 2 row(s) returned
+
+--- SQL operation complete.
+>>get packages in schema schtest301;
+
+Packages in Schema TRAFODION.SCHTEST301
+=======================================
+
+PKG
+PKG_USER_TEST301
+
+=======================
+ 2 row(s) returned
+
+--- SQL operation complete.
+>>--get packages for user sql_test301_user1;
+>>--get packages for user sql_test301_user2;
+>>
+>>set schema $$TEST_SCHEMA$$;
+
+--- SQL operation complete.
+>>
+>>obey TEST301(sch);
+>>
+>>create schema t301sch1;
+
+--- SQL operation complete.
+>>create schema t301sch2;
+
+--- SQL operation complete.
+>>
+>>set schema t301sch1;
+
+--- SQL operation complete.
+>>
+>>create table ts1 (a varchar(50));
+
+--- SQL operation complete.
+>>
+>>create package pkg1 as //
+  function f1(a varchar) return varchar;
+  procedure p1;
+  procedure p2;
+end//;
+
+--- SQL operation complete.
+>>
+>>create package body pkg1 as //
+  function f1(a varchar) returns varchar is
+  begin
+    declare r varchar := 'Not equal';
+    if a = 't301sch1.pkg1' then
+      set r = 'Equal';
+    end if;
+    insert into ts1 values(r);
+    return r;
+  end;
+
+  procedure p1 is
+  begin
+    insert into ts1 values('t301sch1.pkg1.p1');
+    set schema t301sch2;
+    p2();
+  end;
+
+  procedure p2 is
+  begin
+    insert into ts1 values('t301sch1.pkg1.p2');
+    dbms_output.put_line(f1('t301sch1.pkg1'));
+    dbms_output.put_line(pkg1.f1('t301sch1.pkg1'));
+    dbms_output.put_line(t301sch1.pkg1.f1('t301sch1.pkg1'));
+    dbms_output.put_line(trafodion.t301sch1.pkg1.f1('t301sch1.pkg1'));
+    dbms_output.put_line(t301sch2.pkg2.f1('t301sch2.pkg2'));
+    dbms_output.put_line(trafodion.t301sch2.pkg2.f1('t301sch2.pkg2'));
+  end;
+end//;
+
+--- SQL operation complete.
+>>
+>>set schema t301sch2;
+
+--- SQL operation complete.
+>>
+>>create table ts2 (a varchar(50));
+
+--- SQL operation complete.
+>>
+>>create package pkg2 as //
+  function f1(a varchar) returns varchar;
+  procedure p1;
+  procedure p2;
+end//;
+
+--- SQL operation complete.
+>>
+>>create package body pkg2 as //
+  function f1(a varchar) returns varchar is
+  begin
+    declare r varchar := 'Not equal';
+    if a = 't301sch2.pkg2' then
+      set r = 'Equal';
+    end if;
+    insert into ts2 values (r);
+    return r;
+  end;
+
+  procedure p1 is
+  begin
+    insert into ts2 values('t301sch2.pkg2.p1');
+    p2();
+  end;
+
+  procedure p2 is
+  begin
+    insert into ts2 values('t301sch2.pkg2.p2');
+  end;
+end//;
+
+--- SQL operation complete.
+>>
+>>set schema $$TEST_SCHEMA$$;
+
+--- SQL operation complete.
+>>
+>>drop table if exists ts;
+
+--- SQL operation complete.
+>>drop package if exists pkg;
+
+--- SQL operation complete.
+>>
+>>create table ts (a varchar(50));
+
+--- SQL operation complete.
+>>
+>>create package pkg as //
+  function f1(a varchar) returns varchar;
+  procedure p1;
+  procedure p2;
+end//;
+
+--- SQL operation complete.
+>>
+>>create package body pkg as //
+  function f1(a varchar) returns varchar is
+  begin
+    declare r varchar := 'Not equal';
+    if a = 'pkg' then
+      set r = 'Equal';
+    end if;
+    insert into ts values (r);
+    return r;
+  end;
+
+  procedure p1 is
+  begin
+    insert into ts values('pkg.p1');
+    dbms_output.put_line(f1('pkg'));
+    dbms_output.put_line(pkg.f1('pkg'));
+    dbms_output.put_line(sch.pkg.f1('pkg'));
+    dbms_output.put_line(trafodion.sch.pkg.f1('pkg'));
+    p2();
+    t301sch1.pkg1.p1();
+    trafodion.t301sch1.pkg1.p1();
+    t301sch2.pkg2.p1();
+    trafodion.t301sch2.pkg2.p1();
+
+    set schema t301sch1;
+    insert into ts1 values('pkg.p1');
+    dbms_output.put_line(f1('pkg')); /* this will resolve to pkg.f1 */
+    dbms_output.put_line(pkg1.f1('t301sch1.pkg1'));
+    dbms_output.put_line(t301sch1.pkg1.f1('t301sch1.pkg1'));
+    dbms_output.put_line(trafodion.t301sch1.pkg1.f1('t301sch1.pkg1'));
+    dbms_output.put_line(t301sch2.pkg2.f1('t301sch2.pkg2'));
+    dbms_output.put_line(trafodion.t301sch2.pkg2.f1('t301sch2.pkg2'));
+    pkg1.p1();
+    t301sch1.pkg1.p1();
+    trafodion.t301sch1.pkg1.p1();
+    t301sch2.pkg2.p1();
+    trafodion.t301sch2.pkg2.p1();
+
+    set schema trafodion.t301sch2;
+    insert into ts2 values('pkg.p1');
+    dbms_output.put_line(f1('pkg')); /* this will resolve to pkg.f1 */
+    dbms_output.put_line(pkg2.f1('t301sch2.pkg2'));
+    dbms_output.put_line(t301sch1.pkg1.f1('t301sch1.pkg1'));
+    dbms_output.put_line(trafodion.t301sch1.pkg1.f1('t301sch1.pkg1'));
+    dbms_output.put_line(t301sch2.pkg2.f1('t301sch2.pkg2'));
+    dbms_output.put_line(trafodion.t301sch2.pkg2.f1('t301sch2.pkg2'));
+    pkg2.p1();
+    t301sch1.pkg1.p1();
+    trafodion.t301sch1.pkg1.p1();
+    t301sch2.pkg2.p1();
+    trafodion.t301sch2.pkg2.p1();
+  end;
+
+  procedure p2 is
+  begin
+    insert into ts values('pkg.p2');
+  end;
+end//;
+
+--- SQL operation complete.
+>>
+>>call pkg.p1();
+
+--- SQL operation complete.
+>>
+>>select * from ts;
+
+A                                                 
+--------------------------------------------------
+
+pkg.p1                                            
+Equal                                             
+Equal                                             
+Equal                                             
+Equal                                             
+pkg.p2                                            
+Equal                                             
+Equal                                             
+
+--- 8 row(s) selected.
+>>select * from t301sch1.ts1;
+
+A                                                 
+--------------------------------------------------
+
+t301sch1.pkg1.p1                                  
+t301sch1.pkg1.p2                                  
+Equal                                             
+Equal                                             
+Equal                                             
+Equal                                             
+t301sch1.pkg1.p1                                  
+t301sch1.pkg1.p2                                  
+Equal                                             
+Equal                                             
+Equal                                             
+Equal                                             
+pkg.p1                                            
+Equal                                             
+Equal                                             
+Equal                                             
+t301sch1.pkg1.p1                                  
+t301sch1.pkg1.p2                                  
+Equal                                             
+Equal                                             
+Equal                                             
+Equal                                             
+t301sch1.pkg1.p1                                  
+t301sch1.pkg1.p2                                  
+Equal                                             
+Equal                                             
+Equal                                             
+Equal                                             
+t301sch1.pkg1.p1                                  
+t301sch1.pkg1.p2                                  
+Equal                                             
+Equal                                             
+Equal                                             
+Equal                                             
+Equal                                             
+Equal                                             
+t301sch1.pkg1.p1                                  
+t301sch1.pkg1.p2                                  
+Equal                                             
+Equal                                             
+Equal                                             
+Equal                                             
+t301sch1.pkg1.p1                                  
+t301sch1.pkg1.p2                                  
+Equal                                             
+Equal                                             
+Equal                                             
+Equal                                             
+
+--- 48 row(s) selected.
+>>select * from t301sch2.ts2;
+
+A                                                 
+--------------------------------------------------
+
+Equal                                             
+Equal                                             
+Equal                                             
+Equal                                             
+t301sch2.pkg2.p1                                  
+t301sch2.pkg2.p2                                  
+t301sch2.pkg2.p1                                  
+t301sch2.pkg2.p2                                  
+Equal                                             
+Equal                                             
+Equal                                             
+Equal                                             
+Equal                                             
+Equal                                             
+Equal                                             
+Equal                                             
+t301sch2.pkg2.p1                                  
+t301sch2.pkg2.p2                                  
+t301sch2.pkg2.p1                                  
+t301sch2.pkg2.p2                                  
+pkg.p1                                            
+Equal                                             
+Equal                                             
+Equal                                             
+t301sch2.pkg2.p1                                  
+t301sch2.pkg2.p2                                  
+Equal                                             
+Equal                                             
+Equal                                             
+Equal                                             
+t301sch2.pkg2.p1                                  
+t301sch2.pkg2.p2                                  
+t301sch2.pkg2.p1                                  
+t301sch2.pkg2.p2                                  
+
+--- 34 row(s) selected.
+>>
+>>obey TEST301(replace);
+>>
+>>drop package if exists pkg;
+
+--- SQL operation complete.
+>>
+>>create package pkg as //
+  procedure hello;
+end//;
+
+--- SQL operation complete.
+>>
+>>-- 1 row
+>>select sub_id, cast(text as varchar(200)) from "_MD_".OBJECTS join "_MD_".TEXT on object_uid = text_uid where schema_name = 'SCH' and object_name = 'PKG';
+
+SUB_ID       (EXPR)
+-----------  --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+          1  CREATE PACKAGE TRAFODION.SCH.PKG AS 
+  procedure hello;
+end;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
+
+--- 1 row(s) selected.
+>>
+>>create package body pkg as //
+  procedure hello is
+  begin
+    print 'Hello';
+  end;
+end//;
+
+--- SQL operation complete.
+>>
+>>-- 2 rows
+>>select sub_id, cast(text as varchar(200)) from "_MD_".OBJECTS join "_MD_".TEXT on object_uid = text_uid where schema_name = 'SCH' and object_name = 'PKG';
+
+SUB_ID       (EXPR)
+-----------  --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+          1  CREATE PACKAGE TRAFODION.SCH.PKG AS 
+  procedure hello;
+end;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
+          2  CREATE PACKAGE BODY TRAFODION.SCH.PKG AS 
+  procedure hello is
+  begin
+    print 'Hello';
+  end;
+end;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+
+--- 2 row(s) selected.
+>>
+>>-- error 1390
+>>create package pkg as //
+  procedure hi;
+end//;
+
+*** ERROR[1390] Object TRAFODION.SCH.PKG already exists in Trafodion.
+
+--- SQL operation failed with errors.
+>>
+>>-- 2 row
+>>select sub_id, cast(text as varchar(200)) from "_MD_".OBJECTS join "_MD_".TEXT on object_uid = text_uid where schema_name = 'SCH' and object_name = 'PKG';
+
+SUB_ID       (EXPR)
+-----------  --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+          1  CREATE PACKAGE TRAFODION.SCH.PKG AS 
+  procedure hello;
+end;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
+          2  CREATE PACKAGE BODY TRAFODION.SCH.PKG AS 
+  procedure hello is
+  begin
+    print 'Hello';
+  end;
+end;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+
+--- 2 row(s) selected.
+>>
+>>-- error 1390
+>>create package body pkg as //
+  procedure hi is
+  begin
+    print 'Hi';
+  end;
+end//;
+
+*** ERROR[1390] Object TRAFODION.SCH.PKG already exists in Trafodion.
+
+--- SQL operation failed with errors.
+>>
+>>-- 2 rows
+>>select sub_id, cast(text as varchar(200)) from "_MD_".OBJECTS join "_MD_".TEXT on object_uid = text_uid where schema_name = 'SCH' and object_name = 'PKG';
+
+SUB_ID       (EXPR)
+-----------  --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+          1  CREATE PACKAGE TRAFODION.SCH.PKG AS 
+  procedure hello;
+end;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
+          2  CREATE PACKAGE BODY TRAFODION.SCH.PKG AS 
+  procedure hello is
+  begin
+    print 'Hello';
+  end;
+end;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+
+--- 2 row(s) selected.
+>>
+>>create or replace package pkg as //
+  procedure hello;
+end//;
+
+--- SQL operation complete.
+>>
+>>-- error 1389
+>>call pkg.hello();
+
+*** ERROR[1389] Object HELLO does not exist in Trafodion.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>
+>>create or replace package body pkg as //
+  procedure hello is
+  begin
+    print 'Hello';
+  end;
+end//;
+
+--- SQL operation complete.
+>>
+>>call pkg.hello();
+
+(EXPR)
+------
+
+Hello 
+
+--- 1 row(s) selected.
+
+--- SQL operation complete.
+>>
+>>create or replace package pkg as //
+  procedure hi;
+end//;
+
+--- SQL operation complete.
+>>
+>>-- 1 row
+>>select sub_id, cast(text as varchar(200)) from "_MD_".OBJECTS join "_MD_".TEXT on object_uid = text_uid where schema_name = 'SCH' and object_name = 'PKG';
+
+SUB_ID       (EXPR)
+-----------  --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+          1  CREATE PACKAGE TRAFODION.SCH.PKG AS 
+  procedure hi;
+end;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
+
+--- 1 row(s) selected.
+>>
+>>-- error 1389
+>>call pkg.hello();
+
+*** ERROR[1389] Object HELLO does not exist in Trafodion.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>
+>>-- error 1389
+>>call pkg.hi();
+
+*** ERROR[1389] Object HI does not exist in Trafodion.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>
+>>create or replace package body pkg as //
+  procedure hi is
+  begin
+    print 'Hi';
+  end;
+end//;
+
+--- SQL operation complete.
+>>
+>>-- 2 rows
+>>select sub_id, cast(text as varchar(200)) from "_MD_".OBJECTS join "_MD_".TEXT on object_uid = text_uid where schema_name = 'SCH' and object_name = 'PKG';
+
+SUB_ID       (EXPR)
+-----------  --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+          1  CREATE PACKAGE TRAFODION.SCH.PKG AS 
+  procedure hi;
+end;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
+          2  CREATE PACKAGE BODY TRAFODION.SCH.PKG AS 
+  procedure hi is
+  begin
+    print 'Hi';
+  end;
+end;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 
+
+--- 2 row(s) selected.
+>>
+>>call pkg.hi();
+
+(EXPR)
+------
+
+Hi    
+
+--- 1 row(s) selected.
+
+--- SQL operation complete.
+>>
+>>-- error 1389
+>>call pkg.hello();
+
+*** ERROR[1389] Object HELLO does not exist in Trafodion.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>
+>>create or replace package pkg as //
+  procedure hello;
+end//;
+
+--- SQL operation complete.
+>>
+>>-- error 1389
+>>call pkg.hi();
+
+*** ERROR[1389] Object HI does not exist in Trafodion.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>
+>>-- error 1389
+>>call pkg.hello();
+
+*** ERROR[1389] Object HELLO does not exist in Trafodion.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>
+>>create or replace package body pkg as //
+  procedure hello is
+  begin
+    print 'Hello';
+  end;
+end//;
+
+--- SQL operation complete.
+>>
+>>call pkg.hello();
+
+(EXPR)
+------
+
+Hello 
+
+--- 1 row(s) selected.
+
+--- SQL operation complete.
+>>
+>>-- error 1389
+>>call pkg.hi();
+
+*** ERROR[1389] Object HI does not exist in Trafodion.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>
+>>-- error 1390
+>>create package pkg as //
+  procedure hi;
+end//;
+
+*** ERROR[1390] Object TRAFODION.SCH.PKG already exists in Trafodion.
+
+--- SQL operation failed with errors.
+>>
+>>call pkg.hello();
+
+(EXPR)
+------
+
+Hello 
+
+--- 1 row(s) selected.
+
+--- SQL operation complete.
+>>
+>>-- error 1389
+>>call pkg.hi();
+
+*** ERROR[1389] Object HI does not exist in Trafodion.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>
+>>-- error 1390
+>>create package body pkg as //
+  procedure hi is
+  begin
+    print 'Hi';
+  end;
+end//;
+
+*** ERROR[1390] Object TRAFODION.SCH.PKG already exists in Trafodion.
+
+--- SQL operation failed with errors.
+>>
+>>call pkg.hello();
+
+(EXPR)
+------
+
+Hello 
+
+--- 1 row(s) selected.
+
+--- SQL operation complete.
+>>
+>>-- error 1389
+>>call pkg.hi();
+
+*** ERROR[1389] Object HI does not exist in Trafodion.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>
+>>obey TEST301(datatypes);
+>>
+>>set pattern $$VALUE1$$ 123;
+>>set pattern $$VALUE2$$ 456;
+>>set pattern $$TYPE$$ tinyint;
+>>obey TEST301(datatype);
+>>
+>>drop package if exists pkg;
+
+--- SQL operation complete.
+>>
+>>create package pkg as //
+  procedure test1(in a $$TYPE$$, inout b $$TYPE$$, out c $$TYPE$$);
+end//;
+
+--- SQL operation complete.
+>>
+>>create package body pkg as //
+  procedure test1(in a $$TYPE$$, inout b $$TYPE$$, out c $$TYPE$$) is
+  begin
+    set c = b;
+    set b = a;
+  end;
+end//;
+
+--- SQL operation complete.
+>>
+>>set param ?a $$VALUE1$$;
+>>set param ?b $$VALUE2$$;
+>>
+>>call pkg.test1(?a, ?b, ?);
+
+B            C          
+-----------  -----------
+
+        123          456
+
+--- SQL operation complete.
+>>
+>>set pattern $$TYPE$$ smallint;
+>>obey TEST301(datatype);
+>>
+>>drop package if exists pkg;
+
+--- SQL operation complete.
+>>
+>>create package pkg as //
+  procedure test1(in a $$TYPE$$, inout b $$TYPE$$, out c $$TYPE$$);
+end//;
+
+--- SQL operation complete.
+>>
+>>create package body pkg as //
+  procedure test1(in a $$TYPE$$, inout b $$TYPE$$, out c $$TYPE$$) is
+  begin
+    set c = b;
+    set b = a;
+  end;
+end//;
+
+--- SQL operation complete.
+>>
+>>set param ?a $$VALUE1$$;
+>>set param ?b $$VALUE2$$;
+>>
+>>call pkg.test1(?a, ?b, ?);
+
+B            C          
+-----------  -----------
+
+        123          456
+
+--- SQL operation complete.
+>>
+>>set pattern $$TYPE$$ int;
+>>obey TEST301(datatype);
+>>
+>>drop package if exists pkg;
+
+--- SQL operation complete.
+>>
+>>create package pkg as //
+  procedure test1(in a $$TYPE$$, inout b $$TYPE$$, out c $$TYPE$$);
+end//;
+
+--- SQL operation complete.
+>>
+>>create package body pkg as //
+  procedure test1(in a $$TYPE$$, inout b $$TYPE$$, out c $$TYPE$$) is
+  begin
+    set c = b;
+    set b = a;
+  end;
+end//;
+
+--- SQL operation complete.
+>>
+>>set param ?a $$VALUE1$$;
+>>set param ?b $$VALUE2$$;
+>>
+>>call pkg.test1(?a, ?b, ?);
+
+B            C          
+-----------  -----------
+
+        123          456
+
+--- SQL operation complete.
+>>
+>>set pattern $$TYPE$$ int2;
+>>obey TEST301(datatype);
+>>
+>>drop package if exists pkg;
+
+--- SQL operation complete.
+>>
+>>create package pkg as //
+  procedure test1(in a $$TYPE$$, inout b $$TYPE$$, out c $$TYPE$$);
+end//;
+
+--- SQL operation complete.
+>>
+>>create package body pkg as //
+  procedure test1(in a $$TYPE$$, inout b $$TYPE$$, out c $$TYPE$$) is
+  begin
+    set c = b;
+    set b = a;
+  end;
+end//;
+
+--- SQL operation complete.
+>>
+>>set param ?a $$VALUE1$$;
+>>set param ?b $$VALUE2$$;
+>>
+>>call pkg.test1(?a, ?b, ?);
+
+B            C          
+-----------  -----------
+
+        123          456
+
+--- SQL operation complete.
+>>
+>>set pattern $$TYPE$$ int4;
+>>obey TEST301(datatype);
+>>
+>>drop package if exists pkg;
+
+--- SQL operation complete.
+>>
+>>create package pkg as //
+  procedure test1(in a $$TYPE$$, inout b $$TYPE$$, out c $$TYPE$$);
+end//;
+
+--- SQL operation complete.
+>>
+>>create package body pkg as //
+  procedure test1(in a $$TYPE$$, inout b $$TYPE$$, out c $$TYPE$$) is
+  begin
+    set c = b;
+    set b = a;
+  end;
+end//;
+
+--- SQL operation complete.
+>>
+>>set param ?a $$VALUE1$$;
+>>set param ?b $$VALUE2$$;
+>>
+>>call pkg.test1(?a, ?b, ?);
+
+B            C          
+-----------  -----------
+
+        123          456
+
+--- SQL operation complete.
+>>
+>>set pattern $$TYPE$$ int8;
+>>obey TEST301(datatype);
+>>
+>>drop package if exists pkg;
+
+--- SQL operation complete.
+>>
+>>create package pkg as //
+  procedure test1(in a $$TYPE$$, inout b $$TYPE$$, out c $$TYPE$$);
+end//;
+
+--- SQL operation complete.
+>>
+>>create package body pkg as //
+  procedure test1(in a $$TYPE$$, inout b $$TYPE$$, out c $$TYPE$$) is
+  begin
+    set c = b;
+    set b = a;
+  end;
+end//;
+
+--- SQL operation complete.
+>>
+>>set param ?a $$VALUE1$$;
+>>set param ?b $$VALUE2$$;
+>>
+>>call pkg.test1(?a, ?b, ?);
+
+B                     C                   
+--------------------  --------------------
+
+                 123                   456
+
+--- SQL operation complete.
+>>
+>>set pattern $$TYPE$$ bigint;
+>>obey TEST301(datatype);
+>>
+>>drop package if exists pkg;
+
+--- SQL operation complete.
+>>
+>>create package pkg as //
+  procedure test1(in a $$TYPE$$, inout b $$TYPE$$, out c $$TYPE$$);
+end//;
+
+--- SQL operation complete.
+>>
+>>create package body pkg as //
+  procedure test1(in a $$TYPE$$, inout b $$TYPE$$, out c $$TYPE$$) is
+  begin
+    set c = b;
+    set b = a;
+  end;
+end//;
+
+--- SQL operation complete.
+>>
+>>set param ?a $$VALUE1$$;
+>>set param ?b $$VALUE2$$;
+>>
+>>call pkg.test1(?a, ?b, ?);
+
+B                     C                   
+--------------------  --------------------
+
+                 123                   456
+
+--- SQL operation complete.
+>>
+>>set pattern $$TYPE$$ float;
+>>obey TEST301(datatype);
+>>
+>>drop package if exists pkg;
+
+--- SQL operation complete.
+>>
+>>create package pkg as //
+  procedure test1(in a $$TYPE$$, inout b $$TYPE$$, out c $$TYPE$$);
+end//;
+
+--- SQL operation complete.
+>>
+>>create package body pkg as //
+  procedure test1(in a $$TYPE$$, inout b $$TYPE$$, out c $$TYPE$$) is
+  begin
+    set c = b;
+    set b = a;
+  end;
+end//;
+
+--- SQL operation complete.
+>>
+>>set param ?a $$VALUE1$$;
+>>set param ?b $$VALUE2$$;
+>>
+>>call pkg.test1(?a, ?b, ?);
+
+B                          C                        
+-------------------------  -------------------------
+
+ 1.23000000000000000E+002   4.56000000000000064E+002
+
+--- SQL operation complete.
+>>
+>>set pattern $$TYPE$$ real;
+>>obey TEST301(datatype);
+>>
+>>drop package if exists pkg;
+
+--- SQL operation complete.
+>>
+>>create package pkg as //
+  procedure test1(in a $$TYPE$$, inout b $$TYPE$$, out c $$TYPE$$);
+end//;
+
+--- SQL operation complete.
+>>
+>>create package body pkg as //
+  procedure test1(in a $$TYPE$$, inout b $$TYPE$$, out c $$TYPE$$) is
+  begin
+    set c = b;
+    set b = a;
+  end;
+end//;
+
+--- SQL operation complete.
+>>
+>>set param ?a $$VALUE1$$;
+>>set param ?b $$VALUE2$$;
+>>
+>>call pkg.test1(?a, ?b, ?);
+
+B                C              
+---------------  ---------------
+
+ 1.2300000E+002   4.5600000E+002
+
+--- SQL operation complete.
+>>
+>>set pattern $$TYPE$$ double;
+>>obey TEST301(datatype);
+>>
+>>drop package if exists pkg;
+
+--- SQL operation complete.
+>>
+>>create package pkg as //
+  procedure test1(in a $$TYPE$$, inout b $$TYPE$$, out c $$TYPE$$);
+end//;
+
+--- SQL operation complete.
+>>
+>>create package body pkg as //
+  procedure test1(in a $$TYPE$$, inout b $$TYPE$$, out c $$TYPE$$) is
+  begin
+    set c = b;
+    set b = a;
+  end;
+end//;
+
+--- SQL operation complete.
+>>
+>>set param ?a $$VALUE1$$;
+>>set param ?b $$VALUE2$$;
+>>
+>>call pkg.test1(?a, ?b, ?);
+
+B                          C                        
+-------------------------  -------------------------
+
+ 1.23000000000000000E+002   4.56000000000000064E+002
+
+--- SQL operation complete.
+>>
+>>set pattern $$TYPE$$ 'double precision';
+>>obey TEST301(datatype);
+>>
+>>drop package if exists pkg;
+
+--- SQL operation complete.
+>>
+>>create package pkg as //
+  procedure test1(in a $$TYPE$$, inout b $$TYPE$$, out c $$TYPE$$);
+end//;
+
+--- SQL operation complete.
+>>
+>>create package body pkg as //
+  procedure test1(in a $$TYPE$$, inout b $$TYPE$$, out c $$TYPE$$) is
+  begin
+    set c = b;
+    set b = a;
+  end;
+end//;
+
+--- SQL operation complete.
+>>
+>>set param ?a $$VALUE1$$;
+>>set param ?b $$VALUE2$$;
+>>
+>>call pkg.test1(?a, ?b, ?);
+
+B                          C                        
+-------------------------  -------------------------
+
+ 1.23000000000000000E+002   4.56000000000000064E+002
+
+--- SQL operation complete.
+>>
+>>set pattern $$TYPE$$ number;
+>>obey TEST301(datatype);
+>>
+>>drop package if exists pkg;
+
+--- SQL operation complete.
+>>
+>>create package pkg as //
+  procedure test1(in a $$TYPE$$, inout b $$TYPE$$, out c $$TYPE$$);
+end//;
+
+--- SQL operation complete.
+>>
+>>create package body pkg as //
+  procedure test1(in a $$TYPE$$, inout b $$TYPE$$, out c $$TYPE$$) is
+  begin
+    set c = b;
+    set b = a;
+  end;
+end//;
+
+--- SQL operation complete.
+>>
+>>set param ?a $$VALUE1$$;
+>>set param ?b $$VALUE2$$;
+>>
+>>call pkg.test1(?a, ?b, ?);
+
+B            C          
+-----------  -----------
+
+        123          456
+
+--- SQL operation complete.
+>>
+>>set pattern $$TYPE$$ number(10,2);
+>>obey TEST301(datatype);
+>>
+>>drop package if exists pkg;
+
+--- SQL operation complete.
+>>
+>>create package pkg as //
+  procedure test1(in a $$TYPE$$, inout b $$TYPE$$, out c $$TYPE$$);
+end//;
+
+--- SQL operation complete.
+>>
+>>create package body pkg as //
+  procedure test1(in a $$TYPE$$, inout b $$TYPE$$, out c $$TYPE$$) is
+  begin
+    set c = b;
+    set b = a;
+  end;
+end//;
+
+--- SQL operation complete.
+>>
+>>set param ?a $$VALUE1$$;
+>>set param ?b $$VALUE2$$;
+>>
+>>call pkg.test1(?a, ?b, ?);
+
+B                      C                    
+---------------------  ---------------------
+
+                  123                    456
+
+--- SQL operation complete.
+>>
+>>set pattern $$TYPE$$ numeric;
+>>obey TEST301(datatype);
+>>
+>>drop package if exists pkg;
+
+--- SQL operation complete.
+>>
+>>create package pkg as //
+  procedure test1(in a $$TYPE$$, inout b $$TYPE$$, out c $$TYPE$$);
+end//;
+
+--- SQL operation complete.
+>>
+>>create package body pkg as //
+  procedure test1(in a $$TYPE$$, inout b $$TYPE$$, out c $$TYPE$$) is
+  begin
+    set c = b;
+    set b = a;
+  end;
+end//;
+
+--- SQL operation complete.
+>>
+>>set param ?a $$VALUE1$$;
+>>set param ?b $$VALUE2$$;
+>>
+>>call pkg.test1(?a, ?b, ?);
+
+B            C          
+-----------  -----------
+
+        123          456
+
+--- SQL operation complete.
+>>
+>>set pattern $$TYPE$$ numeric(10,3);
+>>obey TEST301(datatype);
+>>
+>>drop package if exists pkg;
+
+--- SQL operation complete.
+>>
+>>create package pkg as //
+  procedure test1(in a $$TYPE$$, inout b $$TYPE$$, out c $$TYPE$$);
+end//;
+
+--- SQL operation complete.
+>>
+>>create package body pkg as //
+  procedure test1(in a $$TYPE$$, inout b $$TYPE$$, out c $$TYPE$$) is
+  begin
+    set c = b;
+    set b = a;
+  end;
+end//;
+
+--- SQL operation complete.
+>>
+>>set param ?a $$VALUE1$$;
+>>set param ?b $$VALUE2$$;
+>>
+>>call pkg.test1(?a, ?b, ?);
+
+B                      C                    
+---------------------  ---------------------
+
+                  123                    456
+
+--- SQL operation complete.
+>>
+>>set pattern $$TYPE$$ decimal;
+>>obey TEST301(datatype);
+>>
+>>drop package if exists pkg;
+
+--- SQL operation complete.
+>>
+>>create package pkg as //
+  procedure test1(in a $$TYPE$$, inout b $$TYPE$$, out c $$TYPE$$);
+end//;
+
+--- SQL operation complete.
+>>
+>>create package body pkg as //
+  procedure test1(in a $$TYPE$$, inout b $$TYPE$$, out c $$TYPE$$) is
+  begin
+    set c = b;
+    set b = a;
+  end;
+end//;
+
+--- SQL operation complete.
+>>
+>>set param ?a $$VALUE1$$;
+>>set param ?b $$VALUE2$$;
+>>
+>>call pkg.test1(?a, ?b, ?);
+
+B           C         
+----------  ----------
+
+       123         456
+
+--- SQL operation complete.
+>>
+>>set pattern $$TYPE$$ decimal(10,5);
+>>obey TEST301(datatype);
+>>
+>>drop package if exists pkg;
+
+--- SQL operation complete.
+>>
+>>create package pkg as //
+  procedure test1(in a $$TYPE$$, inout b $$TYPE$$, out c $$TYPE$$);
+end//;
+
+--- SQL operation complete.
+>>
+>>create package body pkg as //
+  procedure test1(in a $$TYPE$$, inout b $$TYPE$$, out c $$TYPE$$) is
+  begin
+    set c = b;
+    set b = a;
+  end;
+end//;
+
+--- SQL operation complete.
+>>
+>>set param ?a $$VALUE1$$;
+>>set param ?b $$VALUE2$$;
+>>
+>>call pkg.test1(?a, ?b, ?);
+
+B             C           
+------------  ------------
+
+         123           456
+
+--- SQL operation complete.
+>>
+>>set pattern $$VALUE1$$ 'Trafodion';
+>>set pattern $$VALUE2$$ 'Esgyn';
+>>set pattern $$TYPE$$ CHAR;
+>>obey TEST301(datatype);
+>>
+>>drop package if exists pkg;
+
+--- SQL operation complete.
+>>
+>>create package pkg as //
+  procedure test1(in a $$TYPE$$, inout b $$TYPE$$, out c $$TYPE$$);
+end//;
+
+--- SQL operation complete.
+>>
+>>create package body pkg as //
+  procedure test1(in a $$TYPE$$, inout b $$TYPE$$, out c $$TYPE$$) is
+  begin
+    set c = b;
+    set b = a;
+  end;
+end//;
+
+--- SQL operation complete.
+>>
+>>set param ?a $$VALUE1$$;
+>>set param ?b $$VALUE2$$;
+>>
+>>call pkg.test1(?a, ?b, ?);
+
+*** WARNING[8402] A string overflow occurred during the evaluation of a character expression.
+
+*** WARNING[8402] A string overflow occurred during the evaluation of a character expression.
+
+B  C
+-  -
+
+T  E
+
+--- SQL operation completed with warnings.
+>>
+>>set pattern $$TYPE$$ CHAR(100);
+>>obey TEST301(datatype);
+>>
+>>drop package if exists pkg;
+
+--- SQL operation complete.
+>>
+>>create package pkg as //
+  procedure test1(in a $$TYPE$$, inout b $$TYPE$$, out c $$TYPE$$);
+end//;
+
+--- SQL operation complete.
+>>
+>>create package body pkg as //
+  procedure test1(in a $$TYPE$$, inout b $$TYPE$$, out c $$TYPE$$) is
+  begin
+    set c = b;
+    set b = a;
+  end;
+end//;
+
+--- SQL operation complete.
+>>
+>>set param ?a $$VALUE1$$;
+>>set param ?b $$VALUE2$$;
+>>
+>>call pkg.test1(?a, ?b, ?);
+
+B                                                                                                     C
+----------------------------------------------------------------------------------------------------  ----------------------------------------------------------------------------------------------------
+
+Trafodion                                                                                             Esgyn                                                                                               
+
+--- SQL operation complete.
+>>
+>>set pattern $$TYPE$$ VARCHAR;
+>>obey TEST301(datatype);
+>>
+>>drop package if exists pkg;
+
+--- SQL operation complete.
+>>
+>>create package pkg as //
+  procedure test1(in a $$TYPE$$, inout b $$TYPE$$, out c $$TYPE$$);
+end//;
+
+--- SQL operation complete.
+>>
+>>create package body pkg as //
+  procedure test1(in a $$TYPE$$, inout b $$TYPE$$, out c $$TYPE$$) is
+  begin
+    set c = b;
+    set b = a;
+  end;
+end//;
+
+--- SQL operation complete.
+>>
+>>set param ?a $$VALUE1$$;
+>>set param ?b $$VALUE2$$;
+>>
+>>call pkg.test1(?a, ?b, ?);
+
+B                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 C
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------  ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Trafodion                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         Esgyn                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+
+--- SQL operation complete.
+>>
+>>set pattern $$TYPE$$ VARCHAR(100);
+>>obey TEST301(datatype);
+>>
+>>drop package if exists pkg;
+
+--- SQL operation complete.
+>>
+>>create package pkg as //
+  procedure test1(in a $$TYPE$$, inout b $$TYPE$$, out c $$TYPE$$);
+end//;
+
+--- SQL operation complete.
+>>
+>>create package body pkg as //
+  procedure test1(in a $$TYPE$$, inout b $$TYPE$$, out c $$TYPE$$) is
+  begin
+    set c = b;
+    set b = a;
+  end;
+end//;
+
+--- SQL operation complete.
+>>
+>>set param ?a $$VALUE1$$;
+>>set param ?b $$VALUE2$$;
+>>
+>>call pkg.test1(?a, ?b, ?);
+
+B                                                                                                     C
+----------------------------------------------------------------------------------------------------  ----------------------------------------------------------------------------------------------------
+
+Trafodion                                                                                             Esgyn                                                                                               
+
+--- SQL operation complete.
+>>
+>>set pattern $$TYPE$$ NVARCHAR;
+>>obey TEST301(datatype);
+>>
+>>drop package if exists pkg;
+
+--- SQL operation complete.
+>>
+>>create package pkg as //
+  procedure test1(in a $$TYPE$$, inout b $$TYPE$$, out c $$TYPE$$);
+end//;
+
+--- SQL operation complete.
+>>
+>>create package body pkg as //
+  procedure test1(in a $$TYPE$$, inout b $$TYPE$$, out c $$TYPE$$) is
+  begin
+    set c = b;
+    set b = a;
+  end;
+end//;
+
+--- SQL operation complete.
+>>
+>>set param ?a $$VALUE1$$;
+>>set param ?b $$VALUE2$$;
+>>
+>>call pkg.test1(?a, ?b, ?);
+
+B                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 C
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------  --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Trafodion                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         Esgyn                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+
+--- SQL operation complete.
+>>
+>>set pattern $$TYPE$$ NVARCHAR(100);
+>>obey TEST301(datatype);
+>>
+>>drop package if exists pkg;
+
+--- SQL operation complete.
+>>
+>>create package pkg as //
+  procedure test1(in a $$TYPE$$, inout b $$TYPE$$, out c $$TYPE$$);
+end//;
+
+--- SQL operation complete.
+>>
+>>create package body pkg as //
+  procedure test1(in a $$TYPE$$, inout b $$TYPE$$, out c $$TYPE$$) is
+  begin
+    set c = b;
+    set b = a;
+  end;
+end//;
+
+--- SQL operation complete.
+>>
+>>set param ?a $$VALUE1$$;
+>>set param ?b $$VALUE2$$;
+>>
+>>call pkg.test1(?a, ?b, ?);
+
+B                                                                                                                                                                                                         C
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------  --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Trafodion                                                                                                                                                                                                 Esgyn                                                                                                                                                                                                   
+
+--- SQL operation complete.
+>>
+>>set pattern $$TYPE$$ NCHAR(100);
+>>obey TEST301(datatype);
+>>
+>>drop package if exists pkg;
+
+--- SQL operation complete.
+>>
+>>create package pkg as //
+  procedure test1(in a $$TYPE$$, inout b $$TYPE$$, out c $$TYPE$$);
+end//;
+
+--- SQL operation complete.
+>>
+>>create package body pkg as //
+  procedure test1(in a $$TYPE$$, inout b $$TYPE$$, out c $$TYPE$$) is
+  begin
+    set c = b;
+    set b = a;
+  end;
+end//;
+
+--- SQL operation complete.
+>>
+>>set param ?a $$VALUE1$$;
+>>set param ?b $$VALUE2$$;
+>>
+>>call pkg.test1(?a, ?b, ?);
+
+B                                                                                                                                                                                                         C
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------  --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Trafodion                                                                                                                                                                                                 Esgyn                                                                                                                                                                                                   
+
+--- SQL operation complete.
+>>
+>>set pattern $$VALUE1$$ 'T';
+>>set pattern $$VALUE2$$ 'E';
+>>set pattern $$TYPE$$ NCHAR;
+>>obey TEST301(datatype);
+>>
+>>drop package if exists pkg;
+
+--- SQL operation complete.
+>>
+>>create package pkg as //
+  procedure test1(in a $$TYPE$$, inout b $$TYPE$$, out c $$TYPE$$);
+end//;
+
+--- SQL operation complete.
+>>
+>>create package body pkg as //
+  procedure test1(in a $$TYPE$$, inout b $$TYPE$$, out c $$TYPE$$) is
+  begin
+    set c = b;
+    set b = a;
+  end;
+end//;
+
+--- SQL operation complete.
+>>
+>>set param ?a $$VALUE1$$;
+>>set param ?b $$VALUE2$$;
+>>
+>>call pkg.test1(?a, ?b, ?);
+
+B   C 
+--  --
+
+T   E 
+
+--- SQL operation complete.
+>>
+>>set pattern $$TYPE$$ date;
+>>set pattern $$VALUE1$$ '1979-07-29';
+>>set pattern $$VALUE2$$ '2012-01-12';
+>>obey TEST301(datatype);
+>>
+>>drop package if exists pkg;
+
+--- SQL operation complete.
+>>
+>>create package pkg as //
+  procedure test1(in a $$TYPE$$, inout b $$TYPE$$, out c $$TYPE$$);
+end//;
+
+--- SQL operation complete.
+>>
+>>create package body pkg as //
+  procedure test1(in a $$TYPE$$, inout b $$TYPE$$, out c $$TYPE$$) is
+  begin
+    set c = b;
+    set b = a;
+  end;
+end//;
+
+--- SQL operation complete.
+>>
+>>set param ?a $$VALUE1$$;
+>>set param ?b $$VALUE2$$;
+>>
+>>call pkg.test1(?a, ?b, ?);
+
+B           C         
+----------  ----------
+
+1979-07-29  2012-01-12
+
+--- SQL operation complete.
+>>
+>>set pattern $$TYPE$$ time;
+>>set pattern $$VALUE1$$ '17:01:10';
+>>set pattern $$VALUE2$$ '22:12:30';
+>>obey TEST301(datatype);
+>>
+>>drop package if exists pkg;
+
+--- SQL operation complete.
+>>
+>>create package pkg as //
+  procedure test1(in a $$TYPE$$, inout b $$TYPE$$, out c $$TYPE$$);
+end//;
+
+--- SQL operation complete.
+>>
+>>create package body pkg as //
+  procedure test1(in a $$TYPE$$, inout b $$TYPE$$, out c $$TYPE$$) is
+  begin
+    set c = b;
+    set b = a;
+  end;
+end//;
+
+--- SQL operation complete.
+>>
+>>set param ?a $$VALUE1$$;
+>>set param ?b $$VALUE2$$;
+>>
+>>call pkg.test1(?a, ?b, ?);
+
+B         C       
+--------  --------
+
+17:01:10  22:12:30
+
+--- SQL operation complete.
+>>
+>>set pattern $$TYPE$$ timestamp;
+>>set pattern $$VALUE1$$ '''1979-07-29 17:01:10''';
+>>set pattern $$VALUE2$$ '''2012-01-12 22:12:30''';
+>>obey TEST301(datatype);
+>>
+>>drop package if exists pkg;
+
+--- SQL operation complete.
+>>
+>>create package pkg as //
+  procedure test1(in a $$TYPE$$, inout b $$TYPE$$, out c $$TYPE$$);
+end//;
+
+--- SQL operation complete.
+>>
+>>create package body pkg as //
+  procedure test1(in a $$TYPE$$, inout b $$TYPE$$, out c $$TYPE$$) is
+  begin
+    set c = b;
+    set b = a;
+  end;
+end//;
+
+--- SQL operation complete.
+>>
+>>set param ?a $$VALUE1$$;
+>>set param ?b $$VALUE2$$;
+>>
+>>call pkg.test1(?a, ?b, ?);
+
+B                           C                         
+--------------------------  --------------------------
+
+1979-07-29 17:01:10.000000  2012-01-12 22:12:30.000000
+
+--- SQL operation complete.
+>>
+>>set pattern $$TYPE$$ datetime;
+>>set pattern $$VALUE1$$ '''1979-07-29 17:01:10''';
+>>set pattern $$VALUE2$$ '''2012-01-12 22:12:30''';
+>>obey TEST301(datatype);
+>>
+>>drop package if exists pkg;
+
+--- SQL operation complete.
+>>
+>>create package pkg as //
+  procedure test1(in a $$TYPE$$, inout b $$TYPE$$, out c $$TYPE$$);
+end//;
+
+--- SQL operation complete.
+>>
+>>create package body pkg as //
+  procedure test1(in a $$TYPE$$, inout b $$TYPE$$, out c $$TYPE$$) is
+  begin
+    set c = b;
+    set b = a;
+  end;
+end//;
+
+--- SQL operation complete.
+>>
+>>set param ?a $$VALUE1$$;
+>>set param ?b $$VALUE2$$;
+>>
+>>call pkg.test1(?a, ?b, ?);
+
+B                           C                         
+--------------------------  --------------------------
+
+1979-07-29 17:01:10.000000  2012-01-12 22:12:30.000000
+
+--- SQL operation complete.
+>>
+>>
+>>obey TEST301(test);
+>>
+>>create or replace package pkg as //
+  procedure hi;
+  procedure hello(name varchar);
+end//;
+
+--- SQL operation complete.
+>>
+>>create or replace package body pkg as //
+  procedure hi
+  is
+  begin
+    print 'Hi';
+  end;
+
+  procedure hello(name varchar)
+  is
+  begin
+    print greeting(name);
+  end;
+
+  function greeting(name varchar) return varchar
+  is
+  begin
+    return 'Hello, ' || name || '!';
+  end;
+end//;
+
+--- SQL operation complete.
+>>
+>>call pkg.hi();
+
+(EXPR)
+------
+
+Hi    
+
+--- 1 row(s) selected.
+
+--- SQL operation complete.
+>>call pkg.hello('World');
+
+(EXPR)       
+-------------
+
+Hello, World!
+
+--- 1 row(s) selected.
+
+--- SQL operation complete.
+>>
+>>create package users as //
+  session_count int := 0;
+  function get_count() return int; 
+  procedure add_user(name varchar(100));
+end//;
+
+--- SQL operation complete.
+>>
+>>create package body users as //
+  function get_count() return int
+  is
+  begin
+    return session_count;
+  end; 
+  procedure add_user(name varchar(100))
+  is 
+  begin
+    session_count = session_count + 1;
+  end;
+  procedure print_count()
+  is
+  begin
+    print 'Number of users: ' || get_count();
+  end;
+end//;
+
+--- SQL operation complete.
+>>
+>>call users.add_user('John');
+
+--- SQL operation complete.
+>>call users.add_user('Sarah');
+
+--- SQL operation complete.
+>>call users.add_user('Paul');
+
+--- SQL operation complete.
+>>call users.print_count();
+
+(EXPR)            
+------------------
+
+Number of users: 3
+
+--- 1 row(s) selected.
+
+--- SQL operation complete.
+>>
+>>obey TEST301(pkgschema);
+>>
+>>create schema if not exists pkg;
+
+--- SQL operation complete.
+>>
+>>create or replace package body pkg as //
+  procedure hello is
+  begin
+    print 'Hello from package pkg';
+  end;
+end//;
+
+--- SQL operation complete.
+>>
+>>-- Hello from package pkg
+>>call pkg.hello();
+
+(EXPR)                
+----------------------
+
+Hello from package pkg
+
+--- 1 row(s) selected.
+
+--- SQL operation complete.
+>>-- error 1389
+>>call pkg.pkg.hello();
+
+*** ERROR[1002] Catalog PKG does not exist.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>-- error 1389
+>>call trafodion.pkg.hello();
+
+*** ERROR[1389] Object HELLO does not exist in Trafodion.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>-- error 1389
+>>call trafodion.pkg.pkg.hello();
+
+*** ERROR[1389] Object PKG.HELLO does not exist in Trafodion.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>-- Hello from package pkg
+>>call sch.pkg.hello();
+
+(EXPR)                
+----------------------
+
+Hello from package pkg
+
+--- 1 row(s) selected.
+
+--- SQL operation complete.
+>>-- Hello from package pkg
+>>call trafodion.sch.pkg.hello();
+
+(EXPR)                
+----------------------
+
+Hello from package pkg
+
+--- 1 row(s) selected.
+
+--- SQL operation complete.
+>>
+>>set schema pkg;
+
+--- SQL operation complete.
+>>
+>>create or replace procedure hello() as //
+begin
+  print 'Hello from schema pkg';
+end//;
+
+--- SQL operation complete.
+>>
+>>create or replace package body pkg as //
+  procedure hello is
+  begin
+    print 'Hello from package pkg of schema pkg';
+  end;
+end//;
+
+--- SQL operation complete.
+>>
+>>set schema $$TEST_SCHEMA$$;
+
+--- SQL operation complete.
+>>
+>>-- Hello from schema pkg
+>>call pkg.hello();
+
+(EXPR)               
+---------------------
+
+Hello from schema pkg
+
+--- 1 row(s) selected.
+
+--- SQL operation complete.
+>>-- Hello from package pkg of schema pkg
+>>call pkg.pkg.hello();
+
+(EXPR)                              
+------------------------------------
+
+Hello from package pkg of schema pkg
+
+--- 1 row(s) selected.
+
+--- SQL operation complete.
+>>-- Hello from schema pkg
+>>call trafodion.pkg.hello();
+
+(EXPR)                              
+------------------------------------
+
+Hello from schema pkg               
+
+--- 1 row(s) selected.
+
+--- SQL operation complete.
+>>-- Hello from package pkg of schema pkg
+>>call trafodion.pkg.pkg.hello();
+
+(EXPR)                              
+------------------------------------
+
+Hello from package pkg of schema pkg
+
+--- 1 row(s) selected.
+
+--- SQL operation complete.
+>>-- Hello from package pkg
+>>call sch.pkg.hello();
+
+(EXPR)                
+----------------------
+
+Hello from package pkg
+
+--- 1 row(s) selected.
+
+--- SQL operation complete.
+>>-- Hello from package pkg
+>>call trafodion.sch.pkg.hello();
+
+(EXPR)                
+----------------------
+
+Hello from package pkg
+
+--- 1 row(s) selected.
+
+--- SQL operation complete.
+>>
+>>obey TEST301(pkgfunc);
+>>
+>>drop package if exists pkg;
+
+--- SQL operation complete.
+>>create package pkg as //
+  function doubleit(a int) return int;
+end//;
+
+--- SQL operation complete.
+>>
+>>create package body pkg as //
+  function doubleit(a int) return int is
+  begin
+    return a * 2;
+  end;
+end//;
+
+--- SQL operation complete.
+>>
+>>select pkg.doubleit(1) from dual;
+
+R          
+-----------
+
+          2
+
+--- 1 row(s) selected.
+>>select sch.pkg.doubleit(2) from dual;
+
+R          
+-----------
+
+          4
+
+--- 1 row(s) selected.
+>>select trafodion.sch.pkg.doubleit(3) from dual;
+
+R          
+-----------
+
+          6
+
+--- 1 row(s) selected.
+>>select not_exist.doubleit(1) from dual;
+
+*** ERROR[4450] Function TRAFODION.NOT_EXIST.DOUBLEIT is not a built-in function or registered user-defined function.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>select not_exist.pkg.doubleit(1) from dual;
+
+*** ERROR[1002] Catalog NOT_EXIST does not exist.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>select not_exist.sch.pkg.doubleit(1) from dual;
+
+*** ERROR[1002] Catalog NOT_EXIST does not exist.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>
+>>log;

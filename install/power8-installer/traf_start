@@ -1,0 +1,93 @@
+#!/bin/bash
+
+# @@@ START COPYRIGHT @@@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+# @@@ END COPYRIGHT @@@
+
+
+
+export TRAF_CONFIG=/etc/trafodion/trafodion_config
+
+source $TRAF_CONFIG
+
+if [[ "$all_node_count" -eq "1" ]]; then
+    STARTING_NODE=$NODE_LIST
+else
+    STARTING_NODE=$(echo $MY_NODES | awk '{print $2}')
+fi
+
+#==========================================
+
+echo "***INFO: starting Trafodion instance" | tee -a $INSTALL_LOG
+
+ssh $STARTING_NODE "cd $TRAF_HOME/sql/scripts; sqstart"
+SQSTART_RC=$?
+
+if [ "$SQSTART_RC" != "0" ]; then
+   echo "***ERROR: sqstart failed with RC=$SQSTART_RC. Check $TRAF_HOME/sqmon.log file for details." | tee -a $INSTALL_LOG
+   exit -1;
+fi
+
+echo 
+echo
+echo "***INFO: Trafodion is initializing...this will take a few minutes."
+echo 
+echo
+ssh $STARTING_NODE "cd $TRAF_HOME/sql/scripts;  echo \"initialize Trafodion;\" | sqlci" | tee -a $TRAF_HOME/initializeErrors.txt
+
+foundError=$(grep "1392" $TRAF_HOME/initializeErrors.txt | wc -l)
+
+if [ "$foundError" -ge "1" ]; then
+   ssh $STARTING_NODE "cd $TRAF_HOME/sql/scripts;  echo \"get version of metadata;\" | sqlci" | tee -a $TRAF_HOME/initalizeErrors.txt
+   metadataCurrent=$(grep "Metadata is current" $TRAF_HOME/initializeErrors.txt | wc -l)
+   if [[ "$metadataCurrent" -ne "1" ]]; then
+      ssh $STARTING_NODE "cd $TRAF_HOME/sql/scripts;  echo \"initialize Trafodion, upgrade;\" | sqlci" | tee -a $TRAF_HOME/initializeErrors.txt
+   fi
+fi
+
+if [ "$?" != "0" ]; then
+   echo "***ERROR: initialize Trafodion failed.  Check install log files for details." | tee -a $INSTALL_LOG
+   exit -1;
+fi
+    
+   # alter users if LDAP_SECURITY is 'Y'
+   if [ "$LDAP_SECURITY" == "Y" ]; then
+      if [ -z "$DB_ADMIN_NAME" ]; then
+         echo "***INFO:  Associating LDAP user $DB_ROOT_NAME with DB user DB__ROOT" | tee -a $INSTALL_LOG
+         ssh $STARTING_NODE "cd $TRAF_HOME/sql/scripts; sqlci <<eof
+            alter user DB__ROOT set external name \"$DB_ROOT_NAME\";
+            exit;
+eof" | tee -a $TRAF_HOME/initializeErrors.txt
+      else
+         echo "***INFO:  Associating LDAP users $DB_ROOT_NAME and $DB_ADMIN_NAME to DB users DB__ROOT and DB__ADMIN" | tee -a $INSTALL_LOG
+         ssh $STARTING_NODE "cd $TRAF_HOME/sql/scripts; sqlci <<eof
+            alter user DB__ROOT set external name \"$DB_ROOT_NAME\";
+            alter user DB__ADMIN set external name \"$DB_ADMIN_NAME\";
+            exit;
+eof" | tee -a $TRAF_HOME/initializeErrors.txt
+      fi
+      # if this script is run multiple times, then the mapping may already be completed,
+      # if the mapping has already been completed, then an error is returned.
+      # for now, continue with the installation
+      echo "***INFO: Please check the install log ($INSTALL_LOG) for any issues" | tee -a $INSTALL_LOG
+    fi
+
+#==========================================
+echo "***INFO: Installation setup completed successfully." | tee -a $INSTALL_LOG

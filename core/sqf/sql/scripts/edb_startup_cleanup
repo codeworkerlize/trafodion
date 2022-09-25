@@ -1,0 +1,44 @@
+#!/bin/bash
+
+if [[ -z $TRAF_HOME ]]; then
+    echo
+    echo "The TRAF_HOME environment variable does not exist."
+    echo "Please ensure sqenv.sh has been sourced."
+    echo
+    exit 1;
+fi
+
+cd $TRAF_HOME/sql/scripts
+
+# cleanup processes
+if [ $1 == "k" ]; then
+    shift
+    pkillall
+fi
+
+#  sqgen if needed
+if ( [ ! -e sqconfig.db ] || [ $1 == "f" ] ); then
+   # cleanup configuration
+    if [ ! -z ${MPI_TMPDIR} ]; then
+	rm $MPI_TMPDIR/*
+    fi
+
+    rm $TRAF_VAR/ms.env
+    echo "`date`: executing sqgen"
+    sqgen
+    lv_ret=$?
+    echo "`date`:sqgen done, return code= ${lv_ret}"
+    if [[ ${lv_ret} != 0 ]]; then
+	echo "`date`: Exitting..."
+	exit $lv_ret
+    fi
+fi
+
+# cleanup IPC constructs
+echo "`date`: executing sqipcrm"
+sqipcrm -local
+lv_ret=$?
+echo "`date`:sqipcrm done, return code= ${lv_ret}"
+
+exit ${lv_ret}
+

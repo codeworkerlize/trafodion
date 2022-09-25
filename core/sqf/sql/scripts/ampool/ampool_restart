@@ -1,0 +1,13 @@
+. $TRAF_HOME/sql/scripts/ampool/setup_ampool_env
+
+echo "Going to execute ampool_shutdown"
+${AMPOOL_SCRIPTS}/ampool_shutdown
+
+echo "Sleeping 10 seconds before starting up ampool"
+sleep 10
+
+echo "Going to execute ampool_startup"
+${AMPOOL_SCRIPTS}/ampool_startup
+
+echo "Going to execute ampool_status"
+${AMPOOL_SCRIPTS}/ampool_status

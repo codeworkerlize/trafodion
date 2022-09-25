@@ -1,0 +1,20 @@
+DROP TABLE INVENTORY;
+drop table LI1;
+drop table LI2;
+drop table LI3;
+
+CREATE TABLE INVENTORY
+  (
+    ITEM_ID      INT UNSIGNED NO DEFAULT NOT NULL
+  , ITEM_TYPE INT UNSIGNED NO DEFAULT NOT NULL
+  , ITEM_COUNT       INT UNSIGNED NO DEFAULT NOT NULL
+  , PRIMARY KEY (ITEM_ID ASC)
+  )  SALT USING 8 PARTITIONS
+  ;
+
+CREATE TABLE LI1 (a int no default not null, b int, primary key (a))
+  salt using 8 partitions;
+CREATE TABLE LI2 (a int no default not null, b int, primary key (a))
+  salt using 8 partitions;
+CREATE TABLE LI3 (a int no default not null, b int, primary key (a))
+  salt using 8 partitions;

@@ -1,0 +1,11 @@
+set schema seabase;
+
+drop table p2;
+
+create table p2 (a int no default not null, b int, primary key (a))
+salt using 2 partitions
+attributes storage monarch
+;
+
+insert into p2 values (20, 100);
+

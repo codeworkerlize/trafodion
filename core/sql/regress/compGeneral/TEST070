@@ -1,0 +1,231 @@
+-- @@@ START COPYRIGHT @@@
+--
+-- Licensed to the Apache Software Foundation (ASF) under one
+-- or more contributor license agreements.  See the NOTICE file
+-- distributed with this work for additional information
+-- regarding copyright ownership.  The ASF licenses this file
+-- to you under the Apache License, Version 2.0 (the
+-- "License"); you may not use this file except in compliance
+-- with the License.  You may obtain a copy of the License at
+--
+--   http://www.apache.org/licenses/LICENSE-2.0
+--
+-- Unless required by applicable law or agreed to in writing,
+-- software distributed under the License is distributed on an
+-- "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+-- KIND, either express or implied.  See the License for the
+-- specific language governing permissions and limitations
+-- under the License.
+--
+-- @@@ END COPYRIGHT @@@
+--
+
+-- tests for various misc fixes 
+
+drop table if exists t070t1;
+
+log LOG070 clear;
+
+-- dummy lookahead token removal from parser should not crash these explains
+explain options 'fc' begin;
+explain options 'fc' bt;
+explain options 'fc' et;
+explain options 'fc' select * from dual limit 2;
+
+-- mantis 11148: comparison of ucs2 and numeric
+create table t070t1(a char(2) character set ucs2);
+select * from t070t1 where a = 1;
+
+-- mantis
+obey TEST070(M15935);
+obey TEST070(M17253);
+obey TEST070(M17245);
+obey TEST070(M17254);
+obey TEST070(M16250);
+
+
+log;
+
+
+?section M15935
+
+cqd * reset ;
+
+drop table if exists T15935;
+CREATE TABLE T15935
+  ( 
+    BAOWENLS                         VARCHAR(32 BYTES) CHARACTER SET UTF8
+      COLLATE DEFAULT DEFAULT NULL NOT SERIALIZED
+  , JIAOYIRQ                         VARCHAR(8 BYTES) CHARACTER SET UTF8
+      COLLATE DEFAULT DEFAULT NULL NOT SERIALIZED
+  , QUANJULS                         VARCHAR(32 BYTES) CHARACTER SET UTF8
+      COLLATE DEFAULT DEFAULT NULL NOT SERIALIZED
+  , JIAOYIMA                         VARCHAR(20 BYTES) CHARACTER SET UTF8
+      COLLATE DEFAULT NO DEFAULT NOT NULL NOT DROPPABLE NOT SERIALIZED
+  , JIAOYIGY                         VARCHAR(8 BYTES) CHARACTER SET UTF8
+      COLLATE DEFAULT DEFAULT NULL NOT SERIALIZED
+  , KAISSHIJ                         NUMERIC(16, 0) DEFAULT NULL NOT SERIALIZED
+  , JIESSHIJ                         NUMERIC(16, 0) DEFAULT NULL NOT SERIALIZED
+  , JIAOYIHS                         NUMERIC(16, 0) DEFAULT NULL NOT SERIALIZED
+  , JIAOYIJG                         VARCHAR(12 BYTES) CHARACTER SET UTF8
+      COLLATE DEFAULT DEFAULT NULL NOT SERIALIZED
+  , ZHUJIPDZ                         VARCHAR(32 BYTES) CHARACTER SET UTF8
+      COLLATE DEFAULT DEFAULT NULL NOT SERIALIZED
+  , YINGYHAO                         VARCHAR(32 BYTES) CHARACTER SET UTF8
+      COLLATE DEFAULT DEFAULT NULL NOT SERIALIZED
+  , TONGDAOH                         VARCHAR(32 BYTES) CHARACTER SET UTF8
+      COLLATE DEFAULT DEFAULT NULL NOT SERIALIZED
+  , CUOWDAIM                         VARCHAR(32 BYTES) CHARACTER SET UTF8
+      COLLATE DEFAULT DEFAULT NULL NOT SERIALIZED
+  , CUOWXINX                         VARCHAR(1000 BYTES) CHARACTER SET UTF8
+      COLLATE DEFAULT DEFAULT NULL NOT SERIALIZED
+  , CUOWDUIZ                         VARCHAR(4000 BYTES) CHARACTER SET UTF8
+      COLLATE DEFAULT DEFAULT NULL NOT SERIALIZED
+  , WEIHRIQI                         VARCHAR(8 BYTES) CHARACTER SET UTF8
+      COLLATE DEFAULT NO DEFAULT NOT NULL NOT DROPPABLE NOT SERIALIZED
+  , WEIHSHIJ                         VARCHAR(9 BYTES) CHARACTER SET UTF8
+      COLLATE DEFAULT DEFAULT NULL NOT SERIALIZED
+  , SHIJCHUO                         NUMERIC(16, 0) NO DEFAULT NOT NULL NOT
+      DROPPABLE NOT SERIALIZED
+  )
+ ATTRIBUTES ALIGNED FORMAT
+;
+
+INSERT INTO T15935 (BAOWENLS,JIAOYIRQ,QUANJULS,JIAOYIMA,JIAOYIGY,KAISSHIJ,JIESSHIJ,JIAOYIHS,JIAOYIJG,ZHUJIPDZ,YINGYHAO,TONGDAOH,CUOWDAIM,CUOWXINX,CUOWDUIZ,WEIHRIQI,WEIHSHIJ,SHIJCHUO) VALUES ('00000000000168795989','20200610','20200610000201652125001','1853','99957006',132233696,132340440,66744,'6421','10.10.4.7','onlApp3','LTTS_297','Aplt.E0000','[Aplt.E0000][[Sys.E101]交易耗时超过[25]!，请检查相关超时配置！--交易超时异常]!','cn.sunline.ltts.core.api.exception.LttsBusinessException:[Aplt.E0000][[Sys.E101]交易耗时超过[25]!，请检查相关超时配置！--交易超时异常]!','20200610','132233703',1592198620443);
+INSERT INTO T15935 (BAOWENLS,JIAOYIRQ,QUANJULS,JIAOYIMA,JIAOYIGY,KAISSHIJ,JIESSHIJ,JIAOYIHS,JIAOYIJG,ZHUJIPDZ,YINGYHAO,TONGDAOH,CUOWDAIM,CUOWXINX,CUOWDUIZ,WEIHRIQI,WEIHSHIJ,SHIJCHUO) VALUES ('00000000000169038648','20200610','20200610000201928164001','5104','93151112',151706300,151706824,524,'3151','10.10.4.6','onlApp5','LTTS_297','SYS.E0006','[SYS.E0005]commit错误[FRWDB]！e:Remote Process: \gyyhsx-db07.esgyn.com:1.$Z000100CL2V. *** ERROR[8616] A conflict was detected during commit processing. Transaction has been aborted. Detail :CONFLICT ERROR [2020-06-15 15:17:06] |','cn.sunline.ltts.core.api.exception.ChainedException:[SYS.E0005]commit错误[FRWDB]！e:Remote Process: \gyyhsx-db07.esgyn.com:1.$Z000100CL2V. *** ERROR[8616] A conflict was detected during commit processing. Transaction has been aborted. Detail :CONFLICT ERROR [2020-06-15 15:17:06] | ','20200610','151706305',1592205427189);
+
+SELECT * FROM
+(
+    SELECT JIAOYIRQ,CUOWDUIZ FROM (SELECT ROW_NUMBER() OVER (), * FROM T15935 WHERE JIAOYIRQ = '20200610') GROUP BY JIAOYIRQ, CUOWDUIZ
+) tbaa
+,
+(
+    SELECT JIAOYIRQ,CUOWDUIZ FROM (SELECT ROW_NUMBER() OVER (), * FROM T15935 WHERE JIAOYIRQ = '20200610') GROUP BY JIAOYIRQ, CUOWDUIZ
+) tbbb
+WHERE tbaa.JIAOYIRQ = tbbb.JIAOYIRQ;
+
+SELECT * FROM
+(
+    SELECT JIAOYIRQ,CUOWDUIZ FROM (SELECT MAX(JIAOYIRQ) OVER (), * FROM T15935 WHERE JIAOYIRQ = '20200610') GROUP BY JIAOYIRQ, CUOWDUIZ
+) tbaa
+,
+(
+    SELECT JIAOYIRQ,CUOWDUIZ FROM (SELECT MAX(JIAOYIRQ) OVER (), * FROM T15935 WHERE JIAOYIRQ = '20200610') GROUP BY JIAOYIRQ, CUOWDUIZ
+) tbbb
+WHERE tbaa.JIAOYIRQ = tbbb.JIAOYIRQ;
+
+prepare ss from
+SELECT * FROM
+(
+    SELECT JIAOYIRQ,CUOWDUIZ FROM (SELECT ROW_NUMBER() OVER (), * FROM T15935 WHERE JIAOYIRQ = ?) GROUP BY JIAOYIRQ, CUOWDUIZ
+) tbaa
+,
+(
+    SELECT JIAOYIRQ,CUOWDUIZ FROM (SELECT ROW_NUMBER() OVER (), * FROM T15935 WHERE JIAOYIRQ = ?) GROUP BY JIAOYIRQ, CUOWDUIZ
+) tbbb
+WHERE tbaa.JIAOYIRQ = tbbb.JIAOYIRQ;
+execute ss using '20200610', '20200610';
+
+
+-- GRCB 1.按照交易日期、失败类型汇总（交易未去重）
+SELECT tbaa.JIAOYIRQ, tbaa.ERR_TYPE, tbaa.CNT, tbbb.CNT_DISTINCT 
+        FROM (
+                SELECT JIAOYIRQ, ERR_TYPE, COUNT (*) CNT 
+                FROM ( 
+                        SELECT CASE WHEN CUOWDUIZ LIKE '%交易耗时超过%' THEN '交易超时'  
+                                WHEN CUOWDUIZ LIKE '%ERROR[8616]%' THEN '交易冲突'  
+                                WHEN CUOWDUIZ LIKE '%ERROR[8102]%' THEN '唯一约束'  
+                                WHEN CUOWDUIZ LIKE '%ERROR[8007]%' THEN '操作取消'  
+                                WHEN CUOWDUIZ LIKE '%ERROR[8411]%' THEN '数据溢出'  
+                                WHEN CUOWDUIZ LIKE '%ERROR[8448]%' THEN 'Hbase接口异常'   
+                                WHEN CUOWDUIZ LIKE '%commit失败[FRWDB]%' THEN '提交失败'  
+                                WHEN CUOWDUIZ LIKE '%NULL cannot be assigned to a NOT NULL column%' THEN '非空约束'   
+                                WHEN CUOWDUIZ LIKE '%rollback失败[FRWDB]%' THEN '回滚失败' 
+                                ELSE '其他'
+                                END ERR_TYPE
+                                , R_NO, BAOWENLS,JIAOYIRQ,QUANJULS,JIAOYIMA,JIAOYIGY,KAISSHIJ,JIESSHIJ,JIAOYIHS,JIAOYIJG,ZHUJIPDZ,YINGYHAO,TONGDAOH
+                                , CUOWDAIM,'' CUOWXINX, '' CUOWDUIZ
+                                -- , CUOWDAIM,CUOWXINX,CUOWDUIZ
+                                , WEIHRIQI,WEIHSHIJ,DATEADD(SECOND, (SHIJCHUO)/1000, TIMESTAMP '1970-01-01 08:00:00') SHIJCHUO_DATE
+                        FROM (
+                                SELECT * FROM (
+                                        SELECT ROW_NUMBER() OVER (PARTITION BY QUANJULS ORDER BY QUANJULS, KAISSHIJ) R_NO
+                                                , *
+                                                FROM T15935 
+                                                WHERE 1=1
+                                                AND JIAOYIRQ = '20200610'
+                                ) tba
+                                WHERE 1=1
+                        ) tbb
+                ) tbc
+                WHERE 1=1
+                GROUP BY JIAOYIRQ, ERR_TYPE
+        ) tbaa
+        ,
+        (
+        SELECT JIAOYIRQ, ERR_TYPE, COUNT (*) CNT_DISTINCT 
+        FROM ( 
+                SELECT CASE WHEN CUOWDUIZ LIKE '%交易耗时超过%' THEN '交易超时'  
+                        WHEN CUOWDUIZ LIKE '%ERROR[8616]%' THEN '交易冲突'  
+                        WHEN CUOWDUIZ LIKE '%ERROR[8102]%' THEN '唯一约束'  
+                        WHEN CUOWDUIZ LIKE '%ERROR[8007]%' THEN '操作取消'  
+                        WHEN CUOWDUIZ LIKE '%ERROR[8411]%' THEN '数据溢出'  
+                        WHEN CUOWDUIZ LIKE '%ERROR[8448]%' THEN 'Hbase接口异常'   
+                        WHEN CUOWDUIZ LIKE '%commit失败[FRWDB]%' THEN '提交失败'  
+                        WHEN CUOWDUIZ LIKE '%NULL cannot be assigned to a NOT NULL column%' THEN '非空约束'   
+                        WHEN CUOWDUIZ LIKE '%rollback失败[FRWDB]%' THEN '回滚失败' 
+                        ELSE '其他'
+                        END ERR_TYPE
+                        , R_NO, BAOWENLS,JIAOYIRQ,QUANJULS,JIAOYIMA,JIAOYIGY,KAISSHIJ,JIESSHIJ,JIAOYIHS,JIAOYIJG,ZHUJIPDZ,YINGYHAO,TONGDAOH
+                        , CUOWDAIM,'' CUOWXINX, '' CUOWDUIZ
+                        -- , CUOWDAIM,CUOWXINX,CUOWDUIZ
+                        , WEIHRIQI,WEIHSHIJ,DATEADD(SECOND, (SHIJCHUO)/1000, TIMESTAMP '1970-01-01 08:00:00') SHIJCHUO_DATE
+                FROM (
+                        SELECT * FROM (
+                                SELECT ROW_NUMBER() OVER (PARTITION BY QUANJULS ORDER BY QUANJULS, KAISSHIJ) R_NO
+                                        , *
+                                        FROM T15935 
+                                        WHERE 1=1
+                                        AND JIAOYIRQ = '20200610'
+                        ) tba
+                        WHERE tba.R_NO < 2
+                ) tbb
+        ) tbc
+        WHERE 1=1
+        GROUP BY JIAOYIRQ, ERR_TYPE
+) tbbb
+WHERE tbaa.JIAOYIRQ =  tbbb.JIAOYIRQ AND tbaa.ERR_TYPE =  tbbb.ERR_TYPE
+ORDER BY 1, 2, 3 DESC 
+;
+
+drop table if exists T15935;
+
+?section M17253
+set param ?p 11.27;
+set param ?q -1;
+select round(?p,?q) from dual;
+
+?section M17245
+cqd MODE_COMPATIBLE_1 'off';
+SELECT ROUND(2.5), ROUND(25E-1) from dual;
+cqd MODE_COMPATIBLE_1 'on';
+SELECT ROUND(2.5), ROUND(25E-1) from dual;
+
+?section M17254
+select round(to_date('2020-10-28'), 'YEAR') from dual;
+select round(to_date('2020-06-28'), 'YEAR') from dual;
+select round(to_date('2020-10-28'), 'MM') from dual;
+select round(to_date('2020-10-10'), 'MM') from dual;
+select round(to_date('2020-10-28'), 'DD') from dual;
+select round(to_date('2020-10-28'),'DAY') from dual;
+select round(to_timestamp('2020-10-28 15:12:54'), 'DD') from dual;
+select round(to_timestamp('2020-10-28 10:12:54'), 'HH') from dual;
+select round(to_timestamp('2020-10-28 10:59:54'), 'HH') from dual;
+select round(to_timestamp('2020-10-28 10:12:54'), 'MI') from dual;
+select round(to_timestamp('2020-10-28 10:12:20'), 'MI') from dual;
+select round(to_timestamp('2020-10-28 12:12:12'),'DAY') from dual;
+select round(to_timestamp('2020-10-28 11:12:12'),'DAY') from dual;
+
+?section M16250
+select repeat('aa',2) from dual;
+select repeat('aa',3) from dual;

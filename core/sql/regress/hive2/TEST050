@@ -1,0 +1,249 @@
+-- Tests for Hive ALTER TABLE ADD COLUMN
+
+log LOG050 clear;
+
+set schema hive.hive;
+set terminal_charset utf8;
+
+cqd HIVE_MAX_STRING_LENGTH_IN_BYTES '32' ;
+cqd hist_missing_stats_warning_level '0';
+cqd HIST_ROWCOUNT_REQUIRING_STATS '50000';
+
+-- create a Parquet table, put some data into it, then add a column to it, put more data into it,
+-- and verify that EsgynDB can handle missing columns
+
+-- we test this with both parallel and serial plans so we force the one file and two file
+-- code paths through the parquet reader
+
+drop table if exists time_dim_parquet_added_col;
+create table time_dim_parquet_added_col like time_dim_parquet ;
+insert into table time_dim_parquet_added_col select * from time_dim_parquet;
+select count(*) from time_dim_parquet_added_col ;
+alter table time_dim_parquet_added_col add columns (new_col int) ;
+insert into table time_dim_parquet_added_col select *,1 from time_dim_parquet;
+select count(*) from time_dim_parquet_added_col ;
+
+cqd attempt_esp_parallelism 'ON';
+control query shape exchange(cut);
+prepare s1 from
+select * from time_dim_parquet_added_col where t_time_sk = 3;
+control query shape cut;
+
+explain options 'f' s1;  -- parallel plan expected
+
+execute s1;
+
+select count(*) from time_dim_parquet_added_col where new_col is null;
+
+select t_time_sk,new_col from time_dim_parquet_added_col where new_col is not null and t_time_sk = 3;
+
+select t_time_sk,new_col from time_dim_parquet_added_col where new_col = 1 and t_time_sk = 3;
+
+cqd attempt_esp_parallelism 'OFF';
+
+prepare s1 from
+select * from time_dim_parquet_added_col where t_time_sk = 3;
+
+explain options 'f' s1;  -- serial plan expected
+
+execute s1;
+
+select count(*) from time_dim_parquet_added_col where new_col is null;
+
+select t_time_sk,new_col from time_dim_parquet_added_col where new_col is not null and t_time_sk = 3;
+
+select t_time_sk,new_col from time_dim_parquet_added_col where new_col = 1 and t_time_sk = 3;
+
+cqd attempt_esp_parallelism reset;
+
+-- test Parquet again, this time using the straw scan code path
+
+prepare explainIt from
+  select 'Straw scan found in explain'     
+    from table (explain(NULL,'S1'))
+    where description like '%HIVE_STRAW_SCAN: ON%';
+
+-- make a copy of store_sales_parquet_p and populate it
+
+drop table if exists ssppcopy;
+create table ssppcopy like store_sales_parquet_p;
+
+-- adds 15215 rows
+insert into ssppcopy select * from store_sales_parquet_p
+  where ss_sold_date_sk <= 2450900;  
+
+-- add a column to it and add some rows with that column populated
+
+alter table ssppcopy add columns (newcol int);
+
+-- adds 889 rows; select *,14 doesn't work; it sticks 14 in the partitioning column;
+-- partitioning column always comes last in Hive even with added columns
+insert into ssppcopy 
+  select SS_SOLD_TIME_SK
+  , SS_ITEM_SK
+  , SS_CUSTOMER_SK
+  , SS_CDEMO_SK
+  , SS_HDEMO_SK
+  , SS_ADDR_SK
+  , SS_STORE_SK
+  , SS_PROMO_SK
+  , SS_TICKET_NUMBER
+  , SS_QUANTITY
+  , SS_WHOLESALE_COST
+  , SS_LIST_PRICE
+  , SS_SALES_PRICE
+  , SS_EXT_DISCOUNT_AMT
+  , SS_EXT_SALES_PRICE
+  , SS_EXT_WHOLESALE_COST
+  , SS_EXT_LIST_PRICE
+  , SS_EXT_TAX
+  , SS_COUPON_AMT
+  , SS_NET_PAID
+  , SS_NET_PAID_INC_TAX
+  , SS_NET_PROFIT
+  , 14
+  , ss_sold_date_sk 
+  from store_sales_parquet_p
+  where ss_sold_date_sk = 2450901;
+
+cqd HIVE_STRAW_SCAN 'ON';
+
+prepare s1 from select ss_sold_date_sk, ss_item_sk, newcol from ssppcopy 
+  where ss_sold_date_sk in (?,?,?,?)
+    and ss_item_sk between 10000 and 12000;
+-- check the explain for straw scan ON
+execute explainIt; 
+execute s1 using 2450899, 2450901, 0, 0;
+
+cqd HIVE_STRAW_SCAN reset;
+
+-- do the same for ORC
+
+drop table if exists time_dim_orc_added_col;
+create table time_dim_orc_added_col like time_dim_orc ;
+insert into table time_dim_orc_added_col select * from time_dim_orc;
+select count(*) from time_dim_orc_added_col ;
+alter table time_dim_orc_added_col add columns (new_col int) ;
+insert into table time_dim_orc_added_col select *,1 from time_dim_orc;
+select count(*) from time_dim_orc_added_col ;
+
+cqd attempt_esp_parallelism 'ON';
+control query shape exchange(cut);
+prepare s1 from
+select * from time_dim_orc_added_col where t_time_sk < 4;
+control query shape cut;
+
+explain options 'f' s1;  -- parallel plan expected
+
+execute s1;
+
+select count(*) from time_dim_orc_added_col where new_col is null;
+
+select t_time_sk,new_col from time_dim_orc_added_col where new_col is not null and t_time_sk = 3;
+
+select t_time_sk,new_col from time_dim_orc_added_col where new_col = 1 and t_time_sk = 3;
+
+cqd attempt_esp_parallelism 'OFF';
+
+prepare s1 from
+select * from time_dim_orc_added_col where t_time_sk < 4;
+
+explain options 'f' s1;  -- serial plan expected
+
+execute s1;
+
+select count(*) from time_dim_orc_added_col where new_col is null;
+
+select t_time_sk,new_col from time_dim_orc_added_col where new_col is not null and t_time_sk = 3;
+
+select t_time_sk,new_col from time_dim_orc_added_col where new_col = 1 and t_time_sk = 3;
+
+cqd attempt_esp_parallelism reset;
+
+-- ORC uses a different code path for different types, so do it again for
+-- other types
+
+drop table if exists time_dim_orc_added_col;
+create table time_dim_orc_added_col like time_dim_orc ;
+insert into table time_dim_orc_added_col select * from time_dim_orc;
+select count(*) from time_dim_orc_added_col ;
+alter table time_dim_orc_added_col add columns (new_col float, new_col2 string, new_col3 date) ;
+insert into table time_dim_orc_added_col select *,1.5, 'hi there!', date '2019-01-23' from time_dim_orc;
+select count(*) from time_dim_orc_added_col ;
+select * from time_dim_orc_added_col where t_time_sk = 3;
+
+-- do the same for AVRO
+
+drop table if exists time_dim_avro_added_col;
+CREATE TABLE time_dim_avro_added_col
+  (
+    T_TIME_SK                        int
+  , T_TIME_ID                        string
+  , T_TIME                           int
+  , T_HOUR                           int
+  , T_MINUTE                         int
+  , T_SECOND                         int
+  , T_AM_PM                          string
+  , T_SHIFT                          string
+  , T_SUB_SHIFT                      string
+  , T_MEAL_TIME                      string
+  )
+  stored as avro
+;
+insert into table time_dim_avro_added_col select * from time_dim;
+select count(*) from time_dim_avro_added_col ;
+alter table time_dim_avro_added_col add columns (new_col int) ;
+insert into table time_dim_avro_added_col select *,1 from time_dim;
+select count(*) from time_dim_avro_added_col ;
+
+cqd attempt_esp_parallelism 'ON';
+
+prepare s1 from
+select * from time_dim_avro_added_col where t_time_sk = 3;
+
+explain options 'f' s1;  -- parallel plan expected
+
+execute s1;
+
+select count(*) from time_dim_avro_added_col where new_col is null;
+
+select t_time_sk,new_col from time_dim_avro_added_col where new_col is not null and t_time_sk = 3;
+
+select t_time_sk,new_col from time_dim_avro_added_col where new_col = 1 and t_time_sk = 3;
+
+cqd attempt_esp_parallelism 'OFF';
+
+prepare s1 from
+select * from time_dim_avro_added_col where t_time_sk = 3;
+
+explain options 'f' s1;  -- serial plan expected
+
+execute s1;
+
+-- do the same for text
+
+drop table if exists time_dim_text_added_col;
+create table time_dim_text_added_col like time_dim ;
+insert into table time_dim_text_added_col select * from time_dim where t_time_sk = 4;
+select count(*) from time_dim_text_added_col ;
+alter table time_dim_text_added_col add columns (new_col int) ;
+insert into table time_dim_text_added_col select *,1 from time_dim where t_time_sk = 4 ;
+select count(*) from time_dim_text_added_col ;
+select * from time_dim_text_added_col ;
+
+select count(*) from time_dim_text_added_col where new_col is null;
+
+select t_time_sk,new_col from time_dim_text_added_col where new_col is not null and t_time_sk = 4;
+
+select t_time_sk,new_col from time_dim_text_added_col where new_col = 1 and t_time_sk = 4;
+
+-- clean up
+
+drop table time_dim_text_added_col;
+drop table time_dim_avro_added_col;
+drop table time_dim_orc_added_col;
+drop table time_dim_parquet_added_col;
+drop table ssppcopy;
+
+log;
+

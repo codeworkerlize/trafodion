@@ -1,0 +1,18 @@
+localCluster_: 0
+localSMP_: 0
+clusterToCPUMap_: 1 :
+  clusterNum  cpuList
+           0  6 :   0   1   2   3   4   5 
+nodeIdAndNodeNameMap: 6
+5 nap006
+4 nap005
+3 nap004
+2 nap003
+1 nap002
+0 nap001
+frequency_: 2400
+iorate_: 75
+seekTime_: 0.0038
+pageSize_: 4
+totalMemoryAvailable_: 264420576
+numCPUcoresPerNode_: 32

@@ -1,0 +1,257 @@
+-- Test: TEST024 (CompGeneral)
+-- Functionality: Tests of the expression histogram feature.
+--
+-- @@@ START COPYRIGHT @@@
+--
+-- Licensed to the Apache Software Foundation (ASF) under one
+-- or more contributor license agreements.  See the NOTICE file
+-- distributed with this work for additional information
+-- regarding copyright ownership.  The ASF licenses this file
+-- to you under the Apache License, Version 2.0 (the
+-- "License"); you may not use this file except in compliance
+-- with the License.  You may obtain a copy of the License at
+--
+--   http://www.apache.org/licenses/LICENSE-2.0
+--
+-- Unless required by applicable law or agreed to in writing,
+-- software distributed under the License is distributed on an
+-- "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+-- KIND, either express or implied.  See the License for the
+-- specific language governing permissions and limitations
+-- under the License.
+--
+-- @@@ END COPYRIGHT @@@
+
+?section clean_up
+
+set schema compgeneral_TEST024;
+
+drop schema compgeneral_TEST024 cascade;
+
+?section create_db
+
+log LOG024 clear;
+
+-- TODO: remove this when support for expression histograms in
+-- stored descriptors is available
+cqd traf_use_stored_stats 'OFF';
+
+-- keep ULOGs whenever there are severe errors
+update statistics log system;
+
+-- create the database used for the tests
+
+create schema compgeneral_TEST024;
+
+set schema compgeneral_TEST024;
+
+get tables;
+
+CREATE TABLE stest
+(
+c1 integer not null,
+c2 integer not null,
+c3 integer not null,
+c4 char(8) not null,
+c5 varchar(1000) not null,  -- to exercise long varchar code paths
+c6 timestamp not null,
+PRIMARY KEY (C1 ASC)
+)
+SALT USING 4 PARTITIONS
+ON (C1)
+;
+
+create table stest_empty like stest;
+
+create table stest_empty_partitioned like stest with partitions;
+
+upsert using load into stest
+select 
+  x1+10*x2+100*x3+1000*x4,
+  x2,
+  x3,
+  cast(2008 + x1 as char(4)) || '0' || cast(mod(x2,9) as char(1)) || '0' || cast(mod(x3,9) as char(1)),
+-- the from clause below creates 10,000 rows, the cross product of
+-- 5 copies of { 0, ... 9 } 
+  'This is a really long string. ' || cast(x4 as char(1)) || ' 0123456789012345678901234567890123456789' ||
+  '0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789' ||
+  '0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789' ||
+  '0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789',
+  timestamp '2018-08-22 10:48:00.000000'
+  from (values(0),(1),(2),(3),(4),(5),(6),(7),(8),(9)) T(x1)
+transpose 0,1,2,3,4,5,6,7,8,9 as x2
+transpose 0,1,2,3,4,5,6,7,8,9 as x3
+transpose 0,1,2,3,4,5,6,7,8,9 as x4;
+;
+
+
+get tables;  -- should be stest, stest_empty, stest_empty_partitioned
+
+?section ustat1p
+
+-- UPDATE STATISTICS and SHOWSTATS positive tests
+
+showstats for table stest on existing columns;
+
+-- create expression histogram for a table with no stats
+update statistics for table stest on c1, c2, c3, expression (c1 + 10), c5, expression(lower(c5));
+
+showstats for table stest on existing columns;
+
+insert into stest values (10001,0,0,'20190101','hi there!',timestamp '2018-08-22 10:49:00.000000'),
+  (10002,0,1,'20190101','hi there!',timestamp '2018-08-22 10:49:00.000000'),
+  (10003,0,2,'20190102','hi there!',timestamp '2018-08-22 10:49:00.000000'),
+  (10004,0,3,'20190103','hi there!',timestamp '2018-08-22 10:49:00.000000');
+
+-- create same expression histograms and same other columns for a table with existing stats
+update statistics for table stest on c1, c2, c3, expression (c1 + 10), c5, expression(lower(c5));
+
+showstats for table stest on existing columns;
+
+-- create more expression histograms on the same table
+
+update statistics for table stest on expression (c2+5),expression (substr(c4,1,4));
+
+showstats for table stest on existing columns;
+
+-- clear all the histograms; verify expressions histograms are cleared
+
+update statistics for table stest clear;
+
+showstats for table stest on existing columns;
+
+-- next force external sort paths, creating histograms
+
+CQD USTAT_INTERNAL_SORT 'OFF';
+CQD USTAT_MIN_ROWCOUNT_FOR_SAMPLE '10';  -- allow sample table to be used even on small table
+
+update statistics for table stest on every column, 
+  expression(c1+9), expression(substr(c4,1,4)), c5, expression(trim(c5)), expression(year(c6));
+
+showstats for table stest on existing columns;
+
+update statistics for table stest clear;
+
+CQD USTAT_INTERNAL_SORT RESET;
+CQD USTAT_MIN_ROWCOUNT_FOR_SAMPLE RESET;
+
+-- do some histograms on empty tables
+
+update statistics for table stest_empty on c1, c2, c3, expression(substr(c4,1,4));
+
+showstats for table stest_empty on existing columns;
+
+update statistics for table stest_empty_partitioned on expression(c1+10),c1,c2,c3,expression(c3+12),c4;
+
+showstats for table stest_empty_partitioned on existing columns;
+
+?section usehistograms
+
+-- put our test table back to 10000 rows and give it the stats we want
+delete from stest where c1 > 10000;
+update statistics for table stest clear;
+update statistics for table stest on every column, expression(substr(c4,1,4));
+
+-- just in case we decide to make the default 'OFF'
+CQD EXPRESSION_HISTOGRAMS 'ON';
+
+prepare s1 from select * from stest where substr(c4,1,4) = '2008';
+
+-- expect a selectivity of 1.00E+003
+explain options 'f' s1;
+
+prepare s2 from select * from stest x join stest y
+  on substr(x.c4,1,4) = substr(y.c4,1,4);
+
+-- expect a selectivity of 1.00E+007
+explain options 'f' s2;
+
+-- white box test to show that ItemExpr:: getLeafValueIfUseStats gets invoked
+-- (there is no expression histogram on lower(c4))
+prepare s3 from select * from stest where lower(c4) = '20080101';
+
+-- expect a selectivity of 1.29E+001
+explain options 'f' s3;
+
+prepare s4 from select * from stest where c4 = '20080101';
+
+-- expect a selectivity of 1.29E+001, the same as with s3 above
+explain options 'f' s4;
+
+CQD EXPRESSION_HISTOGRAMS 'OFF';
+
+-- show that we get a different cardinality with expressions histograms off
+prepare s1 from select * from stest where substr(c4,1,4) = '2008';
+
+-- expect a selectivity of 2.00E+001 (different from 1.00E+003)
+explain options 'f' s1;
+
+-- expect an answer of 1000 ( = 1.00E+003 )
+select count(*) From stest where substr(c4,1,4) = '2008';
+
+prepare s2 from select * from stest x join stest y
+  on substr(x.c4,1,4) = substr(y.c4,1,4);
+
+-- expect a selectivity of 1.34E+005 (different from the true cardinality, which is 1.00E+007)
+explain options 'f' s2;
+
+-- expect an answer of 10 million ( = 1.00E+007 )
+select count(*) From stest x join stest y
+  on substr(x.c4,1,4) = substr(y.c4,1,4);
+
+CQD EXPRESSION_HISTOGRAMS reset;
+
+?section ustat1n
+
+-- negative tests
+
+-- lexical tests
+
+-- bad expression syntax
+
+update statistics for table stest on expression (+);
+
+update statistics for table stest on c1, expression (substr(+,22));
+
+update statistics for table stest on expression (;
+
+-- show that expression can be used as a column name
+
+update statistics for table stest on expression, c2;
+
+-- bad expression semantics
+
+update statistics for table stest on expression (c4 || date '2018-01-01'), c2, c3;
+
+update statistics for table stest on expression (max(c1)), c2, c3;
+
+update statistics for table stest on expression (current_timestamp);
+
+update statistics for table stest on expression (case when exists (select c1 from stest) then 1 else 0 end);
+
+-- multi-column expression histograms not yet supported
+
+update statistics for table stest on expression (c1 + 4, c2/3), c3;
+
+?section ustat1w
+
+-- should give a warning; expression histograms not supported by IUS
+
+update statistics for table stest on expression (case when c1 < 0 then 1 else 0 end) 
+sample random 90 percent persistent;
+
+showstats for table stest on existing columns;
+
+
+
+?section clnup
+
+drop table stest;
+drop table stest_empty;
+drop table stest_empty_partitioned;
+
+get tables;
+
+drop schema compgeneral_TEST024 cascade;
+
+log;

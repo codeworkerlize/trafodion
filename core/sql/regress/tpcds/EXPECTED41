@@ -1,0 +1,114 @@
+>>obey stdcqds;
+>>
+>>set schema hive.tpcds_sf1000;
+
+--- SQL operation complete.
+>>
+>>control osim simulate continue './osim.all.sf1000.09022016';
+
+--- SQL operation complete.
+>>
+>>cqd orc_njs 'on';
+
+--- SQL operation complete.
+>>cqd parallel_num_esps '48';
+
+--- SQL operation complete.
+>>cqd QUERY_CACHE '200000';
+
+--- SQL operation complete.
+>>cqd HIVE_METADATA_REFRESH_INTERVAL '-1';
+
+--- SQL operation complete.
+>>cqd  HIVE_LOCALITY_BALANCE_LEVEL '-1';
+
+--- SQL operation complete.
+>>cqd  METADATA_CACHE_SIZE '200';
+
+--- SQL operation complete.
+>>cqd partitioning_scheme_sharing '2';
+
+--- SQL operation complete.
+>>cqd COMP_BOOL_208 'ON';
+
+--- SQL operation complete.
+>>obey q41;
+>>
+>>--==QID: 41
+>>
+>>prepare xx from
++>select  distinct(i_product_name)
++> from item i1
++> where i_manufact_id between 784 and 784+40 
++>   and (select count(*) as item_cnt
++>        from item
++>        where (i_manufact = i1.i_manufact and
++>        ((i_category = 'Women' and 
++>        (i_color = 'bisque' or i_color = 'thistle') and 
++>        (i_units = 'Lb' or i_units = 'Pallet') and
++>        (i_size = 'medium' or i_size = 'economy')
++>        ) or
++>        (i_category = 'Women' and
++>        (i_color = 'tomato' or i_color = 'dark') and
++>        (i_units = 'Gross' or i_units = 'Box') and
++>        (i_size = 'small' or i_size = 'N/A')
++>        ) or
++>        (i_category = 'Men' and
++>        (i_color = 'frosted' or i_color = 'indian') and
++>        (i_units = 'Tsp' or i_units = 'Bunch') and
++>        (i_size = 'petite' or i_size = 'extra large')
++>        ) or
++>        (i_category = 'Men' and
++>        (i_color = 'firebrick' or i_color = 'lawn') and
++>        (i_units = 'Tbl' or i_units = 'Cup') and
++>        (i_size = 'medium' or i_size = 'economy')
++>        ))) or
++>       (i_manufact = i1.i_manufact and
++>        ((i_category = 'Women' and 
++>        (i_color = 'mint' or i_color = 'white') and 
++>        (i_units = 'Unknown' or i_units = 'Pound') and
++>        (i_size = 'medium' or i_size = 'economy')
++>        ) or
++>        (i_category = 'Women' and
++>        (i_color = 'ivory' or i_color = 'forest') and
++>        (i_units = 'Gram' or i_units = 'Ounce') and
++>        (i_size = 'small' or i_size = 'N/A')
++>        ) or
++>        (i_category = 'Men' and
++>        (i_color = 'light' or i_color = 'olive') and
++>        (i_units = 'Bundle' or i_units = 'Carton') and
++>        (i_size = 'petite' or i_size = 'extra large')
++>        ) or
++>        (i_category = 'Men' and
++>        (i_color = 'wheat' or i_color = 'saddle') and
++>        (i_units = 'Each' or i_units = 'Case') and
++>        (i_size = 'medium' or i_size = 'economy')
++>        )))) > 0
++> order by i_product_name
++> limit 100;
+
+--- SQL command prepared.
+>>obey explains;
+>>explain options 'f' xx;
+
+LC   RC   OP   OPERATOR              OPT       DESCRIPTION           CARD
+---- ---- ---- --------------------  --------  --------------------  ---------
+
+11   .    12   root                                                  1.38E+003
+10   .    11   firstn                                                1.38E+003
+9    .    10   sort_groupby                                          1.38E+003
+8    .    9    sort                                                  1.38E+003
+7    .    8    hash_groupby                                          1.38E+003
+3    6    7    left_merge_join                                       4.14E+003
+5    .    6    esp_exchange                    1:48(hash2) (m)       1.06E+002
+4    .    5    sort                                                  1.06E+002
+.    .    4    orc_scan                        ITEM                  1.06E+002
+2    .    3    esp_exchange                    1:48(hash2) (m)       3.77E+003
+1    .    2    sort                                                  3.77E+003
+.    .    1    orc_scan                        ITEM                  3.77E+003
+
+--- SQL operation complete.
+>>exit;
+
+End of MXCI Session
+

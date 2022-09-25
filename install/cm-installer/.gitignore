@@ -1,0 +1,11 @@
+*.parcel
+cm_ext/
+CM/
+csd-esgyndb/descriptor/service.sdl
+csd-esgyndb/aux
+csd
+ha
+QIANBASE-*/
+QIANBASE_TRX-*/
+QIANBASE-*.jar
+manifest.json

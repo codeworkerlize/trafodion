@@ -1,0 +1,2 @@
+
+thrift --gen cpp -out . parquet.thrift

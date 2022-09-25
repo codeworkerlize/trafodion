@@ -1,0 +1,10 @@
+#!/bin/bash
+# @@@ START COPYRIGHT @@@
+#
+# (C) Copyright 2016 Esgyn Corportation
+#
+# @@@ END COPYRIGHT @@@
+
+echo -n "All processes: "
+
+ps -eo user,pid,ppid,wchan,rss,vsz,time,stat,cmd | awk -f $TRAF_HOME/tools/awki_memory

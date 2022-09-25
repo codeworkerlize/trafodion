@@ -1,0 +1,612 @@
+>>
+>>set schema trafodion.t017_sch;
+
+--- SQL operation complete.
+>>create schema trafodion.t017_sch;
+
+--- SQL operation complete.
+>>
+>>-- these tests do not automatically make the first col to be NNND and
+>>-- the pkey of the volatile table.
+>>-- they also test for nullable primary keys for volatile tables.
+>>control query default volatile_table_find_suitable_key 'ON';
+
+--- SQL operation complete.
+>>control query default POS 'MULTI_NODE';
+
+--- SQL operation complete.
+>>
+>>-- NULLABLE unique constraints (primary key, unique key constr)
+>>drop volatile table t017t1;
+
+*** ERROR[1389] Object TRAFODION.T017_SCH.T017T1 does not exist in Trafodion.
+
+--- SQL operation failed with errors.
+>>create volatile table t017t1 (a int, primary key(a));
+
+--- SQL operation complete.
+>>showddl t017t1, external;
+
+CREATE VOLATILE TABLE T017T1
+  (
+    A                                INT DEFAULT NULL
+  , PRIMARY KEY NULLABLE (A ASC)
+  )
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_RSRVD_4' USE ENCRYPTION OPTIONS 'd'
+;
+
+--- SQL operation complete.
+>>
+>>drop volatile table t017t1;
+
+--- SQL operation complete.
+>>create volatile table t017t1 (a int, primary key(a) droppable);
+
+--- SQL operation complete.
+>>showddl t017t1, external;
+
+CREATE VOLATILE TABLE T017T1
+  (
+    A                                INT DEFAULT NULL
+  , PRIMARY KEY NULLABLE (A ASC)
+  )
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_RSRVD_4' USE ENCRYPTION OPTIONS 'd'
+;
+
+--- SQL operation complete.
+>>
+>>drop volatile table t017t1;
+
+--- SQL operation complete.
+>>create volatile table t017t1 (a int) store by (a);
+
+--- SQL operation complete.
+>>showddl t017t1, external;
+
+CREATE VOLATILE TABLE T017T1
+  (
+    A                                INT DEFAULT NULL
+  )
+  STORE BY NULLABLE (A ASC)
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_RSRVD_4' USE ENCRYPTION OPTIONS 'd'
+;
+
+--- SQL operation complete.
+>>
+>>drop volatile table t017t1;
+
+--- SQL operation complete.
+>>create volatile table t017t1 (a int, primary key(a))
++>;
+
+--- SQL operation complete.
+>>showddl t017t1, external;
+
+CREATE VOLATILE TABLE T017T1
+  (
+    A                                INT DEFAULT NULL
+  , PRIMARY KEY NULLABLE (A ASC)
+  )
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_RSRVD_4' USE ENCRYPTION OPTIONS 'd'
+;
+
+--- SQL operation complete.
+>>
+>>drop volatile table t017t1;
+
+--- SQL operation complete.
+>>create volatile table t017t1 (a int) store by (a)
++>;
+
+--- SQL operation complete.
+>>showddl t017t1, external;
+
+CREATE VOLATILE TABLE T017T1
+  (
+    A                                INT DEFAULT NULL
+  )
+  STORE BY NULLABLE (A ASC)
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_RSRVD_4' USE ENCRYPTION OPTIONS 'd'
+;
+
+--- SQL operation complete.
+>>
+>>drop volatile table t017t1;
+
+--- SQL operation complete.
+>>create volatile table t017t1 (a int unique);
+
+*** ERROR[1283] The specified constraint or file option is not supported on a volatile table.
+
+--- SQL operation failed with errors.
+>>showddl t017t1, external;
+
+*** ERROR[4082] Object TRAFODION.T017_SCH.T017T1 does not exist or is inaccessible.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>
+>>
+>>-- store by a, 4 partns
+>>drop volatile table t017t1;
+
+*** ERROR[1389] Object T017T1 does not exist in Trafodion.
+
+--- SQL operation failed with errors.
+>>create volatile table t017t1 (a int);
+
+--- SQL operation complete.
+>>showddl t017t1, external;
+
+CREATE VOLATILE TABLE T017T1
+  (
+    A                                INT DEFAULT NULL
+  )
+  STORE BY NULLABLE (A ASC)
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_RSRVD_4' USE ENCRYPTION OPTIONS 'd'
+;
+
+--- SQL operation complete.
+>>
+>>-- store by b, 4 partns
+>>drop volatile table t017t1;
+
+--- SQL operation complete.
+>>create volatile table t017t1 (a char(10), b int);
+
+--- SQL operation complete.
+>>showddl t017t1, external;
+
+CREATE VOLATILE TABLE T017T1
+  (
+    A                                CHAR(10) CHARACTER SET ISO88591 COLLATE
+      DEFAULT DEFAULT NULL
+  , B                                INT DEFAULT NULL
+  )
+  STORE BY NULLABLE (B ASC)
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_RSRVD_4' USE ENCRYPTION OPTIONS 'd'
+;
+
+--- SQL operation complete.
+>>
+>>-- store by a, 4 partns
+>>drop volatile table t017t1;
+
+--- SQL operation complete.
+>>create volatile table t017t1 (a int not null);
+
+--- SQL operation complete.
+>>showddl t017t1, external;
+
+CREATE VOLATILE TABLE T017T1
+  (
+    A                                INT NO DEFAULT NOT NULL NOT DROPPABLE
+  )
+  STORE BY (A ASC)
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_RSRVD_4' USE ENCRYPTION OPTIONS 'd'
+;
+
+--- SQL operation complete.
+>>
+>>-- store by b, 4 partns
+>>drop volatile table t017t1;
+
+--- SQL operation complete.
+>>create volatile table t017t1 (a char(10) not null, b int not null);
+
+--- SQL operation complete.
+>>showddl t017t1, external;
+
+CREATE VOLATILE TABLE T017T1
+  (
+    A                                CHAR(10) CHARACTER SET ISO88591 COLLATE
+      DEFAULT NO DEFAULT NOT NULL NOT DROPPABLE
+  , B                                INT NO DEFAULT NOT NULL NOT DROPPABLE
+  )
+  STORE BY (B ASC)
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_RSRVD_4' USE ENCRYPTION OPTIONS 'd'
+;
+
+--- SQL operation complete.
+>>
+>>-- store by c, 4 partns
+>>drop volatile table t017t1;
+
+--- SQL operation complete.
+>>create volatile table t017t1 (a int, b char(10) not null, c int not null, d date, e int not null);
+
+--- SQL operation complete.
+>>showddl t017t1, external;
+
+CREATE VOLATILE TABLE T017T1
+  (
+    A                                INT DEFAULT NULL
+  , B                                CHAR(10) CHARACTER SET ISO88591 COLLATE
+      DEFAULT NO DEFAULT NOT NULL NOT DROPPABLE
+  , C                                INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , D                                DATE DEFAULT NULL
+  , E                                INT NO DEFAULT NOT NULL NOT DROPPABLE
+  )
+  STORE BY (C ASC)
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_RSRVD_4' USE ENCRYPTION OPTIONS 'd'
+;
+
+--- SQL operation complete.
+>>
+>>-- store by b, 4 partns
+>>drop volatile table t017t1;
+
+--- SQL operation complete.
+>>create volatile table t017t1 (a date, b char(10), c date not null);
+
+--- SQL operation complete.
+>>showddl t017t1, external;
+
+CREATE VOLATILE TABLE T017T1
+  (
+    A                                DATE DEFAULT NULL
+  , B                                CHAR(10) CHARACTER SET ISO88591 COLLATE
+      DEFAULT DEFAULT NULL
+  , C                                DATE NO DEFAULT NOT NULL NOT DROPPABLE
+  )
+  STORE BY NULLABLE (B ASC)
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_RSRVD_4' USE ENCRYPTION OPTIONS 'd'
+;
+
+--- SQL operation complete.
+>>
+>>-- store by b, 4 partns
+>>drop volatile table t017t1;
+
+--- SQL operation complete.
+>>create volatile table t017t1 (a date, b date not null);
+
+--- SQL operation complete.
+>>showddl t017t1, external;
+
+CREATE VOLATILE TABLE T017T1
+  (
+    A                                DATE DEFAULT NULL
+  , B                                DATE NO DEFAULT NOT NULL NOT DROPPABLE
+  )
+  STORE BY (B ASC)
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_RSRVD_4' USE ENCRYPTION OPTIONS 'd'
+;
+
+--- SQL operation complete.
+>>
+>>-- store by b, 4 partitions
+>>drop volatile table t017t1;
+
+--- SQL operation complete.
+>>create volatile table t017t1 (a real not null, b char(10));
+
+--- SQL operation complete.
+>>showddl t017t1, external;
+
+CREATE VOLATILE TABLE T017T1
+  (
+    A                                REAL NO DEFAULT NOT NULL NOT DROPPABLE
+  , B                                CHAR(10) CHARACTER SET ISO88591 COLLATE
+      DEFAULT DEFAULT NULL
+  )
+  STORE BY NULLABLE (B ASC)
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_RSRVD_4' USE ENCRYPTION OPTIONS 'd'
+;
+
+--- SQL operation complete.
+>>
+>>-- store by d, 4 partns
+>>drop volatile table t017t1;
+
+--- SQL operation complete.
+>>create volatile table t017t1 (a real not null, b varchar(10) not null, c char(10), d largeint);
+
+--- SQL operation complete.
+>>showddl t017t1, external;
+
+CREATE VOLATILE TABLE T017T1
+  (
+    A                                REAL NO DEFAULT NOT NULL NOT DROPPABLE
+  , B                                VARCHAR(10) CHARACTER SET ISO88591 COLLATE
+      DEFAULT NO DEFAULT NOT NULL NOT DROPPABLE
+  , C                                CHAR(10) CHARACTER SET ISO88591 COLLATE
+      DEFAULT DEFAULT NULL
+  , D                                LARGEINT DEFAULT NULL
+  )
+  STORE BY NULLABLE (D ASC)
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_RSRVD_4' USE ENCRYPTION OPTIONS 'd'
+;
+
+--- SQL operation complete.
+>>
+>>-- store by b, 4 partns
+>>drop volatile table t017t1;
+
+--- SQL operation complete.
+>>create volatile table t017t1 (a real not null, b interval second, c varchar(10));
+
+--- SQL operation complete.
+>>showddl t017t1, external;
+
+CREATE VOLATILE TABLE T017T1
+  (
+    A                                REAL NO DEFAULT NOT NULL NOT DROPPABLE
+  , B                                INTERVAL SECOND(2,6) DEFAULT NULL
+  , C                                VARCHAR(10) CHARACTER SET ISO88591 COLLATE
+      DEFAULT DEFAULT NULL
+  )
+  STORE BY NULLABLE (B ASC)
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_RSRVD_4' USE ENCRYPTION OPTIONS 'd'
+;
+
+--- SQL operation complete.
+>>
+>>-- store by c, 4 partns
+>>drop volatile table t017t1;
+
+--- SQL operation complete.
+>>create volatile table t017t1 (a real not null, b interval second, c interval year, d varchar(10) not null);
+
+--- SQL operation complete.
+>>showddl t017t1, external;
+
+CREATE VOLATILE TABLE T017T1
+  (
+    A                                REAL NO DEFAULT NOT NULL NOT DROPPABLE
+  , B                                INTERVAL SECOND(2,6) DEFAULT NULL
+  , C                                INTERVAL YEAR(2) DEFAULT NULL
+  , D                                VARCHAR(10) CHARACTER SET ISO88591 COLLATE
+      DEFAULT NO DEFAULT NOT NULL NOT DROPPABLE
+  )
+  STORE BY NULLABLE (C ASC)
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_RSRVD_4' USE ENCRYPTION OPTIONS 'd'
+;
+
+--- SQL operation complete.
+>>
+>>-- NO PARTITION, float keys not supported
+>>drop volatile table t017t1;
+
+--- SQL operation complete.
+>>create volatile table t017t1 (a real not null);
+
+--- SQL operation complete.
+>>showddl t017t1, external;
+
+CREATE VOLATILE TABLE T017T1
+  (
+    A                                REAL NO DEFAULT NOT NULL NOT DROPPABLE
+  )
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_RSRVD_4' USE ENCRYPTION OPTIONS 'd'
+;
+
+--- SQL operation complete.
+>>drop volatile table t017t1;
+
+--- SQL operation complete.
+>>create volatile table t017t1 (a real);
+
+--- SQL operation complete.
+>>showddl t017t1, external;
+
+CREATE VOLATILE TABLE T017T1
+  (
+    A                                REAL DEFAULT NULL
+  )
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_RSRVD_4' USE ENCRYPTION OPTIONS 'd'
+;
+
+--- SQL operation complete.
+>>
+>>-- store by a, 4 partns
+>>drop volatile table t017t1;
+
+--- SQL operation complete.
+>>create volatile table t017t1 (a varchar(10) not null);
+
+--- SQL operation complete.
+>>showddl t017t1, external;
+
+CREATE VOLATILE TABLE T017T1
+  (
+    A                                VARCHAR(10) CHARACTER SET ISO88591 COLLATE
+      DEFAULT NO DEFAULT NOT NULL NOT DROPPABLE
+  )
+  STORE BY (A ASC)
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_RSRVD_4' USE ENCRYPTION OPTIONS 'd'
+;
+
+--- SQL operation complete.
+>>drop volatile table t017t1;
+
+--- SQL operation complete.
+>>create volatile table t017t1 (a varchar(10));
+
+--- SQL operation complete.
+>>showddl t017t1, external;
+
+CREATE VOLATILE TABLE T017T1
+  (
+    A                                VARCHAR(10) CHARACTER SET ISO88591 COLLATE
+      DEFAULT DEFAULT NULL
+  )
+  STORE BY NULLABLE (A ASC)
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_RSRVD_4' USE ENCRYPTION OPTIONS 'd'
+;
+
+--- SQL operation complete.
+>>
+>>-- store by b, 4 partns
+>>drop volatile table t017t1;
+
+--- SQL operation complete.
+>>create volatile table t017t1 (a real not null, b varchar(10) not null);
+
+--- SQL operation complete.
+>>showddl t017t1, external;
+
+CREATE VOLATILE TABLE T017T1
+  (
+    A                                REAL NO DEFAULT NOT NULL NOT DROPPABLE
+  , B                                VARCHAR(10) CHARACTER SET ISO88591 COLLATE
+      DEFAULT NO DEFAULT NOT NULL NOT DROPPABLE
+  )
+  STORE BY (B ASC)
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_RSRVD_4' USE ENCRYPTION OPTIONS 'd'
+;
+
+--- SQL operation complete.
+>>
+>>-- NON-NULLABLE columns to get preferenace over nullable columns
+>>
+>>-- store by b, 4 partns
+>>drop volatile table t017t1;
+
+--- SQL operation complete.
+>>create volatile table t017t1 (a int, b int not null);
+
+--- SQL operation complete.
+>>showddl t017t1, external;
+
+CREATE VOLATILE TABLE T017T1
+  (
+    A                                INT DEFAULT NULL
+  , B                                INT NO DEFAULT NOT NULL NOT DROPPABLE
+  )
+  STORE BY (B ASC)
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_RSRVD_4' USE ENCRYPTION OPTIONS 'd'
+;
+
+--- SQL operation complete.
+>>
+>>-- store by a, 4 partns
+>>drop volatile table t017t1;
+
+--- SQL operation complete.
+>>create volatile table t017t1 (a int not null, b int);
+
+--- SQL operation complete.
+>>showddl t017t1, external;
+
+CREATE VOLATILE TABLE T017T1
+  (
+    A                                INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , B                                INT DEFAULT NULL
+  )
+  STORE BY (A ASC)
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_RSRVD_4' USE ENCRYPTION OPTIONS 'd'
+;
+
+--- SQL operation complete.
+>>
+>>-- both nullable cols, choose the first one. store by a, 4 partns
+>>drop volatile table t017t1;
+
+--- SQL operation complete.
+>>create volatile table t017t1 (a int, b int);
+
+--- SQL operation complete.
+>>showddl t017t1, external;
+
+CREATE VOLATILE TABLE T017T1
+  (
+    A                                INT DEFAULT NULL
+  , B                                INT DEFAULT NULL
+  )
+  STORE BY NULLABLE (A ASC)
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_RSRVD_4' USE ENCRYPTION OPTIONS 'd'
+;
+
+--- SQL operation complete.
+>>
+>>-- USER specified clauses will disable auto-selection of keys
+>>
+>>-- store by b, 4 partitions.
+>>drop volatile table t017t1;
+
+--- SQL operation complete.
+>>create volatile table t017t1 (a int not null, b int, primary key(b));
+
+--- SQL operation complete.
+>>showddl t017t1, external;
+
+CREATE VOLATILE TABLE T017T1
+  (
+    A                                INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , B                                INT DEFAULT NULL
+  , PRIMARY KEY NULLABLE (B ASC)
+  )
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_RSRVD_4' USE ENCRYPTION OPTIONS 'd'
+;
+
+--- SQL operation complete.
+>>
+>>-- store by b, 4 partitions.
+>>drop volatile table t017t1;
+
+--- SQL operation complete.
+>>create volatile table t017t1 (a int not null, b int not null) store by (b);
+
+--- SQL operation complete.
+>>showddl t017t1, external;
+
+CREATE VOLATILE TABLE T017T1
+  (
+    A                                INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , B                                INT NO DEFAULT NOT NULL NOT DROPPABLE
+  )
+  STORE BY (B ASC)
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_RSRVD_4' USE ENCRYPTION OPTIONS 'd'
+;
+
+--- SQL operation complete.
+>>
+>>-- store by b, 4 partitions.
+>>drop volatile table t017t1;
+
+--- SQL operation complete.
+>>create volatile table t017t1 (a int not null, b int not null) 
++>;
+
+--- SQL operation complete.
+>>describe t017t1, external;
+
+CREATE VOLATILE TABLE T017T1
+  (
+    A                                INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , B                                INT NO DEFAULT NOT NULL NOT DROPPABLE
+  )
+  STORE BY (A ASC)
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_RSRVD_4' USE ENCRYPTION OPTIONS 'd'
+;
+
+--- SQL operation complete.
+>>
+>>-- rollback of volatile schema created within a transaction
+>>set parserflags 131072;
+
+--- SQL operation complete.
+>>drop implicit volatile schema cascade;
+
+--- SQL operation complete.
+>>begin work;
+
+--- SQL operation complete.
+>>create volatile table t (a int);
+
+--- SQL operation complete.
+>>rollback work;
+
+--- SQL operation complete.
+>>begin work;
+
+--- SQL operation complete.
+>>create volatile table t (a int);
+
+--- SQL operation complete.
+>>rollback work;
+
+--- SQL operation complete.
+>>
+>>log;

@@ -1,0 +1,561 @@
+#!/bin/bash
+#
+# @@@ START COPYRIGHT @@@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+# @@@ END COPYRIGHT @@@
+#
+
+function LogIt {
+    echo  "`date`: $1" >> $TRAF_LOG/startup.log
+}
+
+function Usage {
+
+    echo
+    echo "Usage: $script_name { -c } -x"
+    echo
+    echo "-c Perform a Cold Start"
+    echo "-x Perform Extra Checks (chk_dbperms) before allowing startup"
+    echo
+    exit 1;
+}
+
+
+
+
+function GetOpts {
+
+    while getopts "chx" arg
+      do
+       case $arg in
+          c)
+             sq_start=c;
+             ;;
+          x)
+             run_chk_dbperms=1;
+             ;;
+          h)
+             Usage;
+             ;;
+          *)
+             Usage;
+             ;;
+       esac
+    done
+}
+
+function echoLog {
+
+    echo "$1" | tee -a $SQMON_LOG
+}
+
+function gomonColdStart {
+    monreg=$MPI_TMPDIR/monitor.registry.*.`uname -n`
+    echoLog "Forcing a Cold Start: rm $monreg"
+    rm -f $monreg 2>&1
+    echoLog "Performing a Cold Start"
+    SQSCRIPT_FILE=$COLD_STARTFILE
+}
+
+function gomonColdRecoveryStart {
+
+    SQSCRIPT_FILE=$COLD_STARTFILE
+}
+
+function CheckMonitorLink {
+
+    if [ ! -e monitor ]; then
+        if [ -h monitor ]; then
+            echoLog "The monitor link $TRAF_HOME/sql/scripts/monitor points to a non-existent target:"
+            ls -al monitor
+        else
+            echoLog "A soft link to 'monitor' is missing in $TRAF_HOME/sql/scripts"
+        fi
+        echoLog "Aborting startup."
+        LogIt "End $script_name $sq_start, exit code: 1"
+        exit 1
+    fi
+
+}
+
+# Sets the variable gv_job_pid with the pid of the job (passed as an argument)
+function getJobInfo {
+
+    if [ -z "$1" ]; then
+        exit 1
+    fi
+
+    lv_job=$1
+    gv_job_pid=""
+
+    lv_jobinfo=`jobs -l $lv_job`
+
+    if [ ! -z "$lv_jobinfo" ]; then
+        let lv_count=0
+        for lv_item in $lv_jobinfo; do
+            if [ $lv_count '==' 1 ]; then
+                gv_job_pid=$lv_item
+            fi
+            let ++lv_count
+        done
+    fi
+
+}
+
+function TrafodionStartProcesses {
+
+    echoLog "Starting the Trafodion Environment (Executing $SQSCRIPT_FILE)"
+    echoLog
+    $SQSCRIPT_FILE > $SQMON_LOG 2>&1
+
+    sqstart_stat=$?
+    echo
+    if [[ $sqstart_stat == 0 ]]; then
+        echoLog "Trafodion Startup script ($SQSCRIPT_FILE) ran successfully. Performing further checks..."
+        return 0
+    else
+        echoLog "Error while executing the startup script!!!"
+        # Bypass if in agent mode
+        if [[ -z ${TRAF_AGENT} ]]; then
+            sqcheck -f
+            sq_stat=$?
+            if [[ $sq_stat == 0 ]]; then
+                echoLog "Even though all the Trafodion processes started up, the startup did not succeed!"
+            fi
+        fi
+        echoLog
+        echoLog "Please check the Trafodion shell log file : $SQMON_LOG"
+        echoLog
+        echoLog "For additional information, please check the monitor mon.*.log file in $TRAF_LOG"
+        echoLog
+        echoLog "Trafodion Startup (from $PWD) Failed"
+        echoLog
+        return 1
+    fi
+
+}
+
+function TrafodionCheckOrphanProcesses {
+
+    let lv_orphans_exist=0
+    let lv_orphan_process_count=0
+    let lv_sqcop_done=0
+    let lv_num_checks=0
+    let lv_max_checks=10
+
+    echo -n "Checking orphan processes"
+    while [ $lv_sqcop_done '==' 0 ]; do
+    echo -n "."
+    if [[ -z ${TRAF_AGENT} ]]; then
+        lv_orphan_process_count=`cstat -h | wc -l`
+    else     
+        lv_orphan_process_count=`pstat -h | wc -l`
+    fi
+    let lv_orphans_exist=(lv_orphan_process_count '>' 2)
+
+    if [ $lv_orphans_exist '==' 1 ]; then
+        let lv_actual_orphan_count=(lv_orphan_process_count '-' 2)
+            echo -ne "\rChecking orphan processes: $lv_actual_orphan_count"
+        let ++lv_num_checks
+        let lv_sqcop_done=(lv_num_checks '>' lv_max_checks)
+        if [ $lv_sqcop_done '==' 0 ]; then
+            sleep 5
+        fi
+    else
+        let lv_sqcop_done=1
+    fi
+    done
+
+    echo
+    if [ $lv_orphans_exist '==' 1 ]; then
+        lv_msg1="There are orphan processes from a previous Trafodion instance."
+        echo "$lv_msg1"
+        if [[ -z ${TRAF_AGENT} ]]; then
+            cstat
+        else
+            pstat
+        fi
+        echo
+        lv_msg2="Trafodion startup has not been initiated. Exiting..."
+        echo "$lv_msg"
+        LogIt "End $script_name, exit code: 1, $lv_msg1 $lv_msg2"
+        exit 1
+    fi
+
+}
+
+function checkKerberos {
+
+   # Check to see if kerberos is enabled in Hadoop
+   cat /etc/hadoop/conf/core-site.xml | while read a; do
+     found=`echo $a | grep "hadoop.security.authentication" | wc -l`
+     if [[ $found -eq 1 ]]; then
+       read b
+       enabled=`echo $b | grep kerberos | wc -l`
+       if [[ $enabled -eq 1 ]]; then
+         exit 1
+       else
+         exit 0
+       fi
+     fi
+   done
+   retcode=$?
+
+   if [[ $retcode -eq 1 ]]; then
+      # Check to see if TGT exists (ticket granting ticket)
+      tktExists=`krb5service status | grep "Ticket information not found" | wc -l`
+      return $tktExists
+   fi
+   return 0
+}
+
+function checkUlimit {
+
+ #check ulimit -l
+ maxLockMem=`ulimit -l`
+ if [[ $maxLockMem -lt 65536 ]] ; then
+  if [[  "$maxLockMem" -ne "unlimited" ]]; then
+    echoLog ""
+    echoLog "ERROR: issue detected during startup. Please make sure your ulimit -l is set up correctly."
+    echoLog "ERROR: max locked memory is smaller than 64M"
+    echoLog ""
+    return 
+  fi
+ fi
+  
+ #check ulimit -l
+ if [[ $maxLockMem -lt 327680 ]] ; then
+  if [[  "$maxLockMem" -ne "unlimited" ]]; then
+    echoLog ""
+    echoLog "WARNING: issue detected during startup, please make sure your ulimit -l is set up correctly."
+    echoLog "WARNING: max locked memory is smaller than 320M "
+    echoLog ""
+    return 
+  fi
+ fi
+
+}
+
+#########################################################
+# MAIN portion of sqstart begins here
+#########################################################
+
+script_name=`basename $0`
+sq_start=$SQ_STARTUP;
+run_chk_dbperms=0
+
+GetOpts $BASH_ARGV
+
+if [[ ! -z $TRAF_HOME ]]; then
+    cd $TRAF_HOME/sql/scripts
+else
+    echoLog
+    echoLog "The TRAF_HOME environment variable does not exist."
+    echoLog "Please ensure sqenv.sh has been sourced, and re-run $script_name."
+    echoLog
+    exit 1;
+fi
+
+checkUlimit
+
+let nameserver_configured=`trafconf -ns | grep nodes | wc -l`
+
+if [[ "$SQ_NAMESERVER_ENABLED" == "1" ]]; then
+   if [ $nameserver_configured '<' 1 ]; then
+     echoLog
+     echoLog "SQ_NAMESERVER_ENABLED is enabled and the Name Server is not configured."
+     echoLog "Please ensure the name-server section is in the 'sqconfig' file, and re-run 'sqgen'."
+     echoLog
+     exit 1;
+   fi
+fi
+
+if [[ $SECURE_HADOOP == "Y" ]]; then
+   checkKerberos
+   if [[ $? -ne 0 ]]; then
+      echo
+      echo "Kerberos is enabled on the system but cannot find a valid TGT (ticket granting ticket) for the Trafodion ID"
+      echo "Please run trafodion_secure_install to enable Kerberos for Trafodion"
+
+      echo
+      exit -1
+   fi
+fi
+
+declare -i lv_len_mysqroot
+declare -i lv_max_mysqroot_len
+lv_max_mysqroot_len=78
+lv_len_mysqroot=${#TRAF_HOME}
+if [ $lv_len_mysqroot '>' $lv_max_mysqroot_len ]; then
+    lv_msg="Length of the string \$TRAF_HOME ($TRAF_HOME) should be less than $lv_max_mysqroot_len. Exiting...";
+    echoLog "$lv_msg"
+    LogIt "End $script_name $sq_start, exit code: 1, $lv_msg"
+    exit 1;
+fi
+
+# Bypass if in agent mode
+if [[ -z ${TRAF_AGENT} ]]; then
+    LogIt "Begin $script_name $sq_start"
+    sqcheck -i 1 -d 1 > /dev/null 2>&1
+    sq_stat=$?
+    if [[ $sq_stat == 0 ]]; then
+        lv_msg="Trafodion environment is already up."
+        echoLog "$lv_msg"
+        LogIt "End $script_name $sq_start, exit code: 1, $lv_msg"
+        exit 1
+    elif [[ $sq_stat == 1 ]]; then
+        lv_msg="Trafodion environment is partially up."
+        echoLog "$lv_msg"
+        LogIt "End $script_name $sq_start, exit code: 1, $lv_msg"
+        exit 1
+    fi
+
+    if ( [[ ! -z CHECK_ORPHANS ]] &&
+         [[ ${CHECK_ORPHANS} == 0 ]] ); then
+        echo "Not checking for orphans." 
+    else
+        TrafodionCheckOrphanProcesses
+    fi
+fi
+
+if [[ $run_chk_dbperms == 1 ]]; then
+    chk_dbperms=$TRAF_HOME/sql/scripts/chk_dbperms
+    if [ -x $chk_dbperms ]; then
+        echo
+        echo "Checking ownership and permissions."
+        echo -n "This will take a few minutes..."
+        $chk_dbperms --busy
+        chk_res=$?
+        echo
+        if [ $chk_res -gt 0 ]; then
+            lv_msg="Ownership and/or Permissions issues found.. aborting."
+            echoLog "$lv_msg"
+            LogIt "End $script_name $sq_start, exit code: $chk_res, $lv_msg"
+            exit 1
+        fi
+        echo
+    fi
+fi
+
+
+
+SQLOG_DIR=$TRAF_LOG
+SQMON_LOG=$SQLOG_DIR/sqmon.log
+SQSTART_EXIT_STATUS=$TRAF_VAR/sqstart.exit_status
+
+if [[ -z $SQSCRIPTS_DIR ]]; then
+    SQSCRIPTS_DIR=$TRAF_HOME/sql/scripts
+fi
+
+mkdir -p $SQLOG_DIR
+mkdir -p $MPI_TMPDIR
+
+if [ ! -d $MPI_TMPDIR ]; then
+    lv_msg="Error: The MPI_TMPDIR: $MPI_TMPDIR does not exist. Exiting."
+    echoLog "$lv_msg"
+    LogIt "End $script_name $sqstart, exit code: 1, $lv_msg"
+    exit 1
+fi
+
+if [ ! -w $MPI_TMPDIR ]; then
+    lv_msg="Error: The MPI_TMPDIR: $MPI_TMPDIR is not writable by $USER. Exiting."
+    echoLog "$lv_msg"
+    LogIt "End $script_name $sqstart, exit code: 1, $lv_msg"
+    exit 1
+fi
+
+echo "Checking if HBase is available"
+run_util hbcheck 4 30
+
+echo "env variable TRAF_CLUSTER_ID set to ${TRAF_CLUSTER_ID}"
+
+#directly read flag from the file
+ENABLE_ROW_LEVEL_LOCK=0
+LOCK_FLAGE=`grep "^[ 	]*ENABLE_ROW_LEVEL_LOCK=.*" ${TRAF_CONF}/ms.env.custom | tail -n 1 |awk '{split($1,n,"=");print n[2]}'`
+if [ "${LOCK_FLAGE}" != "" ] ; then
+    expr match "${LOCK_FLAGE}" "[0|1]" &>/dev/null
+    if [ $? != 0 ]; then
+        #only support for ENABLE_ROW_LEVEL_LOCK=0 or ENABLE_ROW_LEVEL_LOCK=1
+        echoLog "WARNING: ENABLE_ROW_LEVEL_LOCK is invaild on ${TRAF_CONF}/ms.env.custom"
+    else
+        ENABLE_ROW_LEVEL_LOCK=1
+    fi
+fi
+
+if [[ ${ENABLE_ROW_LEVEL_LOCK} -eq 1 ]]; then
+    lv_msg="clean all transactions in hbase"
+    echo
+    lock_clean=`rsci -t lock_clean -force`
+    echoLog "$lv_msg, result: $lock_clean"
+    LogIt "End rsci -t lock_clean -force, result: $lock_clean, $lv_msg"
+    RETRIES_TIMES=`grep "^[ 	]*LOCK_CLIENT_RETRIES_TIMES=.*" ${TRAF_CONF}/ms.env.custom | tail -n 1 |awk '{split($1,n,"=");print n[2]}'`
+    if [ "$RETRIES_TIMES" != "" ]; then
+        #number check
+        expr $RETRIES_TIMES + 0 &>/dev/null
+        if [ $? != 0 ]; then
+            echoLog "WARNING: LOCK_CLIENT_RETRIES_TIMES is invaild on ${TRAF_CONF}/ms.env.custom"
+        else
+            setExtLmParms=`rsci -t LOCK_PARAMETER -cp LOCK_CLIENT_RETRIES_TIMES=${RETRIES_TIMES} -force`
+            echoLog "rsci -t LOCK_PARAMETER -cp LOCK_CLIENT_RETRIES_TIMES=${RETRIES_TIMES} -force"
+            echoLog "set extra parameters to lockmanager, result: ${setExtLmParms}"
+            LogIt "End rsci -t LOCK_PARAMETER, result: ${setExtLmParms}, set extra parameters to lockmanager"
+        fi
+    fi
+    echo
+fi
+
+#don't check memories of regionServer when jenkis test
+if [[ -n ${SQLMX_REGRESS} ]]; then
+    lockci -t LOCK_PARAMETER -cp REGION_MEMORY_HIGHLOAD_THRESHOLD=100
+fi
+
+#echo "Listing my info and my peer(s) info"
+xdc -list
+
+#echo "Checking if peers are available"
+xdc_peer_check
+if [[ $? != 0 ]]
+then
+  echoLog "************"
+  echoLog "ERROR: XDC peer check failed."
+  echoLog "     To start EsgynDB without the peer cluster,"
+  echoLog "     first use xdc_peer_down command, then start EsgynDB."
+  echoLog "************"
+  exit 1
+fi
+
+if [[ -z ${TRAF_AGENT} ]]; then
+    #echoLog "Executing cleanMonZNodes (output to cleanMonZNodes.out)"
+    cleanMonZNodes > $TRAF_LOG/cleanMonZNodes.out 2>&1
+fi
+
+COLD_STARTFILE=$SQSCRIPTS_DIR/gomon.cold
+
+# If -c option is set, start based on the option supplied
+if [[ $sq_start == "c" ]]; then
+    gomonColdStart
+else
+    gomonColdRecoveryStart
+fi
+
+#echoLog "Removing old mpijob* files from $MPI_TMPDIR"
+#echoLog  ""
+rm -f $MPI_TMPDIR/mpijob*
+
+# Bypass if in agent mode
+if [[ -z ${TRAF_AGENT} ]]; then
+    # This code assumes that gomon.cold executes 'shell startup' to create the 
+    # monitor processes. 
+    # This pre-startup cleanup must be done in the CSD script monitor.sh.
+    #echoLog "Removing old monitor.port* files from $MPI_TMPDIR"
+    #echoLog  ""
+    rm -f $MPI_TMPDIR/monitor.port.*
+
+
+    # Clean HBase classpath cache file
+    #echo "Clean up HBase classpath cache file: $TRAF_VAR/hbase_classpath"
+    edb_pdsh -a "rm -rf $TRAF_VAR/hbase_classpath"
+
+    # Clear unique strings
+    edb_pdsh -a "cd $TRAF_VAR; utilConfigDb -u"
+
+    #echoLog "Executing sqipcrm (output to sqipcrm.out)"
+    #sqipcrm > $TRAF_LOG/sqipcrm.out 2>&1
+fi
+
+#echoLog "Executing cleanZKNodes (output to cleanZKNodes.out)"
+cleanZKNodes > $TRAF_LOG/cleanZKNodes.out 2>&1
+
+spawnCount(){
+    stat=pstat
+    [ "$TRAF_AGENT" ]||stat=cstat
+    $stat 2>/dev/null | grep -v "\-\-\-   \-\-\-\-" | grep -v 'pid   ppid' | wc -l
+}
+
+TrafodionStartProcesses
+lv_startup_status=$?
+echo "# of Trafodion processes: `spawnCount`"
+
+declare -i lv_recovery_tx_cnt
+declare -i lv_num_checks
+declare -i lv_max_checks
+declare -i lv_done
+declare -i lv_process_count_curr
+declare -i lv_process_count_last
+declare -i lv_TM0_started
+declare -i lv_max_iterations
+declare -i lv_num_iterations
+declare -i lv_sleep_per_iteration
+
+let lv_recovery_tx_cnt=-1
+let lv_num_checks=0
+#Long recoveries on a cluster could delay TX services
+let lv_max_checks=600
+let lv_done=0
+let lv_process_count_curr=0
+let lv_process_count_last=0
+let lv_TM0_started=0
+let lv_tm_svc_ready=0
+let lv_max_iterations=5
+let lv_num_iterations=0
+let lv_sleep_per_iteration=5
+let tx_srvc_ready_printed=0
+
+if [ $lv_startup_status '==' 0 ]; then
+#   Minimize the wait time as much as possible by regularly checking,
+#   but don't wait forever either
+    let lv_done=0
+    while [[ $lv_done -eq 0 ]] && [[ $lv_num_iterations -lt $lv_max_iterations ]];
+    do
+        # sqcheck will return:
+        #    -1 - Not up ($?=255) 
+        #     0 - Fully up and operational
+        #     1 - Partially up and operational
+        #     2 - Partially up and NOT operational
+        #  On a return of 1, we loop for a while to let it come fully up
+        sqcheck > /dev/null 2>&1
+        sq_stat=$?
+        if ([ $sq_stat '!=' 1 ]); then
+            let lv_done=1
+            break
+        else
+            if [ $lv_num_iterations '==' 0 ]; then
+                echo "The Trafodion environment is partially up! Continuing checks."
+                echo -n "Checking"
+            fi
+            echo -n "."
+            let ++lv_num_iterations
+        fi
+        sleep $lv_sleep_per_iteration
+    done
+    if [ $lv_num_iterations -eq $lv_max_iterations ]; then
+        echo
+    fi
+#   Official sqcheck that will be displayed
+    #sqcheck | tee -a $SQMON_LOG
+    #echoLog "`date`"
+fi
+
+if [ $lv_startup_status '!=' 0 ]; then
+  LogIt "Please check the log files in $SQLOG_DIR for errors."
+fi
+
+LogIt "End $script_name $sq_start, exit code: ${lv_startup_status}"
+exit ${lv_startup_status}

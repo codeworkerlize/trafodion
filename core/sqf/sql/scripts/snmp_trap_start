@@ -1,0 +1,3 @@
+#!/bin/bash
+
+java com.esgyn.snmp.MySnmpTrapReceiver $* >> ${TRAF_LOG}/snmp_trap_receiver.log 2>&1 &

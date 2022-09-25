@@ -1,0 +1,826 @@
+-- Test: TEST130 (Executor)
+-- @@@ START COPYRIGHT @@@
+--
+-- Licensed to the Apache Software Foundation (ASF) under one
+-- or more contributor license agreements.  See the NOTICE file
+-- distributed with this work for additional information
+-- regarding copyright ownership.  The ASF licenses this file
+-- to you under the Apache License, Version 2.0 (the
+-- "License"); you may not use this file except in compliance
+-- with the License.  You may obtain a copy of the License at
+--
+--   http://www.apache.org/licenses/LICENSE-2.0
+--
+-- Unless required by applicable law or agreed to in writing,
+-- software distributed under the License is distributed on an
+-- "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+-- KIND, either express or implied.  See the License for the
+-- specific language governing permissions and limitations
+-- under the License.
+--
+-- @@@ END COPYRIGHT @@@
+--
+-- Functionality: LOBs
+-- Expected files: EXPECTED130
+-- Table created: 
+-- Limitations: 
+-- 
+-- To Do:   
+--      
+-- Revision history:
+--     (10/21/2014) - Created.
+-- 
+
+log LOG130 clear;
+
+cqd TRAF_LOB_VERSION2 'OFF';
+set envvar TESTNUM '130';
+
+initialize trafodion, create lob metadata;
+
+obey $$REGRTSTDIR$$/../executor/TEST130(clnup);
+obey $$REGRTSTDIR$$/../executor/TEST130(setup);
+obey $$REGRTSTDIR$$/../executor/TEST130(dml_insert);
+obey $$REGRTSTDIR$$/../executor/TEST130(dml_join);
+obey $$REGRTSTDIR$$/../executor/TEST130(dml_update);
+obey $$REGRTSTDIR$$/../executor/TEST130(dml_update_append);
+obey $$REGRTSTDIR$$/../executor/TEST130(dml_delete);
+obey $$REGRTSTDIR$$/../executor/TEST130(update_stats);
+obey $$REGRTSTDIR$$/../executor/TEST130(clob_specific_tests);
+obey $$REGRTSTDIR$$/../executor/TEST130(lob_local_cleanup);
+obey $$REGRTSTDIR$$/../executor/TEST130(lob_local_file);
+obey $$REGRTSTDIR$$/../executor/TEST130(lob_hdfs_cleanup);
+obey $$REGRTSTDIR$$/../executor/TEST130(lob_hdfs_file);
+obey $$REGRTSTDIR$$/../executor/TEST130(lob_misc_cleanup);
+obey $$REGRTSTDIR$$/../executor/TEST130(lob_miscfile_test);
+obey $$REGRTSTDIR$$/../executor/TEST130(lob_alter);
+obey $$REGRTSTDIR$$/../executor/TEST130(lob_gc_cleanup);
+obey $$REGRTSTDIR$$/../executor/TEST130(lob_gc_test);
+obey $$REGRTSTDIR$$/../executor/TEST130(lob_get_cleanup);
+obey $$REGRTSTDIR$$/../executor/TEST130(lob_get_test);
+obey $$REGRTSTDIR$$/../executor/TEST130(lob_external);
+obey $$REGRTSTDIR$$/../executor/TEST130(update_lob_handle);
+obey $$REGRTSTDIR$$/../executor/TEST130(update_lob_handle_ext);
+obey $$REGRTSTDIR$$/../executor/TEST130(lob_drop_table_schema);
+obey $$REGRTSTDIR$$/../executor/TEST130(fix_mantis_8944);
+obey $$REGRTSTDIR$$/../executor/TEST130(lob_general_cleanup);
+
+log;
+exit;
+
+?section clnup
+set schema trafodion.lob$$TESTNUM$$;
+drop table if exists t$$TESTNUM$$lob1 cascade;
+drop table if exists t$$TESTNUM$$lob2 cascade;
+drop table if exists t$$TESTNUM$$lob3 cascade;
+drop table if exists t$$TESTNUM$$lob4 cascade;
+drop table if exists t$$TESTNUM$$lob5 cascade;
+drop table if exists tlob$$TESTNUM$$ext cascade;
+drop table if exists t$$TESTNUM$$char cascade;
+drop table if exists t$$TESTNUM$$var cascade;
+drop table if exists myloben cascade;
+drop external table if exists date_dim for hive.hive.date_dim;
+
+?section setup
+drop schema if exists trafodion.lob$$TESTNUM$$ cascade;
+create schema trafodion.lob$$TESTNUM$$;
+set schema trafodion.lob$$TESTNUM$$;
+create table t$$TESTNUM$$lob1 (c1 blob);
+create table t$$TESTNUM$$lob2 (c1 int not null, c2 blob , primary key (c1));
+create table t$$TESTNUM$$lob3 (c1 int not null,
+c2 blob, c3 blob, primary key (c1));
+create table t$$TESTNUM$$lob4 (c1 int not null,
+c2 char(10), c3 clob(10M) , primary key (c1));
+create table t$$TESTNUM$$lob5 (c1 int not null,
+c2 clob(10M) character set utf8, c3 clob(20M) character set iso88591 , primary key (c1));
+create table t$$TESTNUM$$char(c1 int not null, c2 char (20), primary key (c1));
+create table t$$TESTNUM$$var(c1 int not null, c2 varchar(100), primary key (c1));
+create external table date_dim
+  (d_date_sk int, d_date_id varchar(100 bytes) character set utf8, d_date date)
+  for hive.hive.date_dim;
+
+sh cp -f $scriptsdir/executor/TEST$$TESTNUM$$_argfile* $rundir/executor/;
+
+?section dml_insert
+insert into t$$TESTNUM$$lob1 values(NULL);
+select * from t$$TESTNUM$$lob1;
+delete from t$$TESTNUM$$lob2;
+insert into t$$TESTNUM$$lob2 values(1,stringtolob('inserted row11'));
+insert into t$$TESTNUM$$lob2 values(2,stringtolob('inserted row12'));
+insert into t$$TESTNUM$$lob2 values(3,stringtolob('inserted row13'));
+insert into t$$TESTNUM$$lob2 values(3,stringtolob('xxxx'));
+select * from t$$TESTNUM$$lob2;
+select lobtostring(c2,10) from t$$TESTNUM$$lob2;
+select lobtostring(c2,2) from t$$TESTNUM$$lob2;
+select c1,lobtostring(c2,100) from t$$TESTNUM$$lob2;
+
+delete from t$$TESTNUM$$lob2;
+--test insert with param (assumes that caller will pass in string format.)
+prepare s from insert into t$$TESTNUM$$lob2 values (1, ?);
+execute s using 'fgfgfhfhfhfhhfhfhfhjfkkfkffllflflfll';
+select lobtostring(c2,50) from t$$TESTNUM$$lob2;
+
+-- this will succeed
+prepare s from insert into t$$TESTNUM$$lob2 values (1,'gg');
+prepare s from insert into t$$TESTNUM$$lob2 values (2,'hh');
+
+--negative test for values tuple list
+prepare s from insert into t$$TESTNUM$$lob2 values (1,stringtolob('hh')),(2,stringtolob('gg'));
+
+--test update with param 
+prepare s from update t$$TESTNUM$$lob2 set c2=? where c1 =1;
+execute s using 'xyxyxyxyxyxyx';
+select lobtostring(c2,50) from t$$TESTNUM$$lob2;
+
+--test insert select from a source char column to lob
+delete from t$$TESTNUM$$lob2;
+insert into t$$TESTNUM$$char values (1,'fixed char 1'),(2,'fixed char 2'),(3,'fixed char 3');
+insert into t$$TESTNUM$$lob2(c1,c2) select c1,c2 from t$$TESTNUM$$char;
+select lobtostring(c2,50) from t$$TESTNUM$$lob2;
+
+--test insert select from a source varchar column to lob
+delete from t$$TESTNUM$$lob2;
+insert into t$$TESTNUM$$var values (1,'var char 1'),(2,'var char 22222222222222222222222'),(3,'var char 33333333333333333333333333333333333333333333333333333');
+insert into t$$TESTNUM$$lob2(c1,c2) select c1,c2 from t$$TESTNUM$$var;
+select lobtostring(c2,100) from t$$TESTNUM$$lob2;
+
+--insert select from a source lob column to a target varchar column.
+delete from t$$TESTNUM$$var;
+insert into t$$TESTNUM$$var select c1, lobtostring(c2,100) from t$$TESTNUM$$lob2;
+delete from t$$TESTNUM$$var;
+----negative case
+insert into t$$TESTNUM$$var select c1,c2 from t$$TESTNUM$$lob2;
+delete from t$$TESTNUM$$var;
+delete from t$$TESTNUM$$lob2;
+
+--test insert select from a source hive varchar column to lob
+delete from t$$TESTNUM$$lob2;
+insert into t$$TESTNUM$$lob2 select [first 10] d_date_sk,d_date_id from hive.hive.date_dim;
+select lobtostring(c2,4) from t$$TESTNUM$$lob2 order by c1;
+delete from t$$TESTNUM$$lob2;
+
+
+--insert select from a source lob column to a target lob column
+delete from t$$TESTNUM$$lob3;
+insert into t$$TESTNUM$$lob2 values(1,stringtolob('inserted row11'));
+insert into t$$TESTNUM$$lob2 values(2,stringtolob('inserted row12'));
+insert into t$$TESTNUM$$lob2 values(3,stringtolob('inserted row13'));
+insert into t$$TESTNUM$$lob3 select c1,c2,c2 from t$$TESTNUM$$lob2;
+select c1, lobtostring(c2,100),lobtostring(c3,100) from t$$TESTNUM$$lob3;
+delete from t$$TESTNUM$$lob3;
+delete from t$$TESTNUM$$lob2;
+
+
+--test values clause
+values((select * from t$$TESTNUM$$lob1));
+
+--test empty_blob(), empty_clob()
+delete from t$$TESTNUM$$lob2;
+insert into t$$TESTNUM$$lob2 values(0,stringtolob('inserted row10'));
+insert into t$$TESTNUM$$lob2 values (1, empty_blob());
+select lobtostring(c2,10) from t$$TESTNUM$$lob2;
+delete from t$$TESTNUM$$lob2;
+insert into t$$TESTNUM$$lob2 values(0,stringtolob('inserted row10'));
+insert into t$$TESTNUM$$lob2 values (1, empty_clob());
+select lobtostring(c2,10) from t$$TESTNUM$$lob2;
+update t$$TESTNUM$$lob2 set c2=stringtolob('inserted row11');
+select lobtostring(c2,30) from t$$TESTNUM$$lob2;
+update t$$TESTNUM$$lob2 set c2=empty_blob();
+select lobtostring(c2,10) from t$$TESTNUM$$lob2;
+update t$$TESTNUM$$lob2 set c2=stringtolob('inserted row11',append);
+select lobtostring(c2,30) from t$$TESTNUM$$lob2;
+update t$$TESTNUM$$lob2 set c2=stringtolob('more inserted row11',append);
+select lobtostring(c2,50) from t$$TESTNUM$$lob2;
+update t$$TESTNUM$$lob2 set c2=empty_blob();
+select lobtostring(c2,10) from t$$TESTNUM$$lob2;
+
+?section dml_join
+insert into t$$TESTNUM$$lob3 values (1,stringtolob('inserted row21a'),stringtolob('inserted row21b'));
+insert into t$$TESTNUM$$lob3 values (2,stringtolob('inserted row22a'),stringtolob('inserted row22b'));
+insert into t$$TESTNUM$$lob3 values (3,stringtolob('inserted row23a'),stringtolob('inserted row23b'));
+insert into t$$TESTNUM$$lob3 values (4,stringtolob('inserted row24a'),stringtolob('inserted row24b'));
+
+prepare s from 
+select c1, lobtostring(c2,25), lobtostring(c3,25)  from t$$TESTNUM$$lob3;
+
+
+
+select lobtostring(t$$TESTNUM$$lob2.c2,30) from t$$TESTNUM$$lob2, t$$TESTNUM$$lob3 where t$$TESTNUM$$lob2.c1 = t$$TESTNUM$$lob3.c1;
+
+values (filetolob('./myfile.txt'));
+values( stringtolob('xxxxxx'));
+
+?section dml_update
+
+update t$$TESTNUM$$lob2 set c2=stringtolob('updated c2 in all rows');
+select c1, lobtostring(c2,30) from t$$TESTNUM$$lob2;
+
+update t$$TESTNUM$$lob2 set c2=stringtolob('updated row21a') where c1=1;
+select c1, lobtostring(c2,30) from t$$TESTNUM$$lob2;
+select c1, lobtostring(c2,30) from t$$TESTNUM$$lob2 where c1=1;
+
+-- update primary key 
+-- return error
+update t$$TESTNUM$$lob2 set c1 = 10, c2=stringtolob('updated c2 in all rows');
+
+-- update successfully
+update t$$TESTNUM$$lob2 set c1 = c1 + 100;
+
+?section dml_update_append
+
+update t$$TESTNUM$$lob2 set c2=stringtolob('appended row21a',append) where c1=101;
+select c1, lobtostring(c2,100) from t$$TESTNUM$$lob2;
+select c1, lobtostring(c2,100) from t$$TESTNUM$$lob2 where c1=101;
+
+update t$$TESTNUM$$lob2 set c2=stringtolob(' appended c2 to all rows',append);
+select c1, lobtostring(c2,60) from t$$TESTNUM$$lob2;
+
+?section dml_delete
+
+delete from t$$TESTNUM$$lob3 where c1=1;
+select c1, lobtostring(c2,30), lobtostring(c3,30)  from t$$TESTNUM$$lob3;
+
+delete from t$$TESTNUM$$lob2 ;
+select * from t$$TESTNUM$$lob2;
+
+insert into t$$TESTNUM$$lob2 values(1, NULL);
+select c1 from (delete from t$$TESTNUM$$lob2) x;
+select * from t$$TESTNUM$$lob2;
+
+?section update_stats
+
+-- positive tests; LOB columns should be silently skipped
+update statistics for table t$$TESTNUM$$lob1 on every column;
+
+update statistics for table t$$TESTNUM$$lob4 on c1 to c2;
+
+-- negative tests; attempts to explicitly create stats on LOB
+-- columns should fail with error 9246
+update statistics for table t$$TESTNUM$$lob4 on c3;
+
+update statistics for table t$$TESTNUM$$lob2 on (c1,c2);
+
+update statistics for table t$$TESTNUM$$lob4 on c2 to c3;
+
+
+?section clob_specific_tests
+
+insert into t$$TESTNUM$$lob4 values (1, 'one',stringtolob('gggggghhhhhhhh'));
+insert into t$$TESTNUM$$lob4 values (2,'two', stringtolob('fff')) ;
+select c1,substring(c3,1,1) from t$$TESTNUM$$lob4 order by c1;
+select c1,substring(c3,3,2) from t$$TESTNUM$$lob4 order by c1;
+select c1,instr(c3,'g') from t$$TESTNUM$$lob4 order by c1;
+select c1,instr(c3,'h') from t$$TESTNUM$$lob4 order by c1;
+select c1,instr(c3,'a') from t$$TESTNUM$$lob4 order by c1;
+select * from t$$TESTNUM$$lob4 where c3 like 'ggg%';
+select * from t$$TESTNUM$$lob4 where c3='fff';
+invoke t$$TESTNUM$$lob5;
+insert into t$$TESTNUM$$lob5 values (1,stringtolob('fff'), stringtolob('fff'));
+insert into t$$TESTNUM$$lob5 values (2,stringtolob('aaa'),stringtolob('bbb'));
+select lobtostring(c2,12),lobtostring(c3,12) from t$$TESTNUM$$lob5 order by c1;
+select c1 from t$$TESTNUM$$lob5 where c2=c3;
+obey $$REGRTSTDIR$$/../executor/TEST130(clnup);
+
+
+?section lob_local_cleanup
+drop table if exists tlob$$TESTNUM$$txt1; 
+drop table if exists tlob$$TESTNUM$$bin1;
+drop table if exists tlob$$TESTNUM$$_limit50;
+sh rm -f TMPLOG;
+sh rm -f tlob$$TESTNUM$$txt1;
+sh rm -f tlob$$TESTNUM$$_txt1.txt;
+sh rm -f tlob$$TESTNUM$$_deep.jpg;
+sh rm -f tlob$$TESTNUM$$_anoush.jpg;
+
+
+-- Test for local input
+?section lob_local_file
+log LOG$$TESTNUM$$;
+--setup
+sh echo "Test for file input and extract";
+create table tlob$$TESTNUM$$txt1 (c1 int not null, c2 clob, primary key (c1));
+create table tlob$$TESTNUM$$bin1 (c1 int not null, c2 blob, primary key (c1));
+create table tlob$$TESTNUM$$txt_limit50(c1 int not null, c2 clob(50), primary key (c1));
+create table tlob$$TESTNUM$$bin_limit1K(c1 int not null, c2 blob(1 K), primary key (c1));
+
+sh cp -f $scriptsdir/executor/deep.jpg $rundir/executor/;
+sh cp -f $scriptsdir/executor/anoush.jpg $rundir/executor/;
+sh cp -f $scriptsdir/executor/lob_input_* $rundir/executor/;
+sh cp -f $scriptsdir/executor/TEST$$TESTNUM$$_argfile* $rundir/executor/;
+
+-- inserts
+-- first line
+insert into tlob$$TESTNUM$$txt1 values (1, filetolob('lob_input_a1.txt'));
+
+-- second line
+insert into tlob$$TESTNUM$$txt1 values (2, filetolob('lob_input_b1.txt'));
+
+-- third line
+insert into tlob$$TESTNUM$$txt1 values (3, filetolob('lob_input_c1.txt'));
+
+select lobtostring(c2, 40 ) from tlob$$TESTNUM$$txt1;
+
+--updates
+
+--should update with full poem
+update tlob$$TESTNUM$$txt1 set c2=filetolob('lob_input_d1.txt', append) where c1 = 3;
+
+select lobtostring(c2, 200 ) from tlob$$TESTNUM$$txt1;
+
+-- should see wrong text in the last few lines
+update tlob$$TESTNUM$$txt1 set c2=filetolob('lob_input_e1.txt') where c1 =3 ;
+
+select lobtostring(c2, 200 ) from tlob$$TESTNUM$$txt1;
+
+--delete
+
+-- go back to having just the first  line. 
+delete from tlob$$TESTNUM$$txt1 where c1 =2;
+delete from tlob$$TESTNUM$$txt1 where c1 =3;
+
+--test limits
+
+insert into tlob$$TESTNUM$$txt_limit50 values(1,filetolob('lob_input_e1.txt'));
+insert into tlob$$TESTNUM$$bin_limit1K values(1,filetolob('anoush.jpg'));
+--test extract 
+
+log;
+log TMPLOG clear;
+select c2 from tlob$$TESTNUM$$txt1;
+log;
+
+log LOG$$TESTNUM$$;
+sh rm -f tLOB_extract_command;
+
+select c2 from tlob$$TESTNUM$$txt1;
+sh grep "^LOBH" TMPLOG | sed "s/^/extract lobtofile(LOB '/g" | sed "s/$/' , 'tlob"$TESTNUM"_txt1.txt');/g" >> tLOB_extract_command;
+
+obey tLOB_extract_command;
+
+--binary input/update
+
+insert into tlob$$TESTNUM$$bin1 values (1 , filetolob('deep.jpg'));
+--extract // should have a viewable picture file
+
+log;
+log TMPLOG clear;
+select c2 from tlob$$TESTNUM$$bin1;
+log;
+
+log LOG$$TESTNUM$$;
+sh rm -f tLOB_extract_command;
+select c2 from tlob$$TESTNUM$$bin1;
+sh grep "^LOBH" TMPLOG | sed "s/^/extract lobtofile(LOB '/g" | sed "s/$/' , 'tlob"$TESTNUM"_deep.jpg');/g" >> tLOB_extract_command;
+
+
+obey tLOB_extract_command;
+
+update tlob$$TESTNUM$$bin1 set c2=filetolob('anoush.jpg') ;
+
+--extract into a different file // should have a different viewable picture.
+
+log;
+log TMPLOG clear ;
+select c2 from tlob$$TESTNUM$$bin1;
+log;
+
+log LOG$$TESTNUM$$;
+sh rm -f tLOB_extract_command;
+select c2 from tlob$$TESTNUM$$bin1;
+sh grep "^LOBH" TMPLOG | sed "s/^/extract lobtofile(LOB '/g" | sed "s/$/' , 'tlob"$TESTNUM"_anoush.jpg');/g" >> tLOB_extract_command;
+
+obey tLOB_extract_command;
+
+
+-- Test for hdfs input
+--cleanup -- comment the following lines out if you want to debug this test and save intermediate files.
+
+?section lob_hdfs_cleanup
+drop table if exists tlob$$TESTNUM$$txt2; 
+drop table if exists tlob$$TESTNUM$$bin2;
+sh rm -f TMPLOG;
+sh rm -f tlob$$TESTNUM$$txt2;
+sh rm -f tlob$$TESTNUM$$_txt2.txt;
+sh regrhadoop.ksh fs -rm /user/trafodion/lobs/tlob$$TESTNUM$$_deep.jpg;
+sh regrhadoop.ksh fs -rm /user/trafodion/lobs/tlob$$TESTNUM$$_anoush.jpg;
+sh regrhadoop.ksh fs -rm /user/trafodion/lobs/tlob$$TESTNUM$$_txt2.txt;
+
+
+?section lob_hdfs_file
+create table tlob$$TESTNUM$$txt2 (c1 int not null, c2 clob, primary key (c1));
+create table tlob$$TESTNUM$$bin2 (c1 int not null, c2 blob, primary key (c1));
+
+sh regrhadoop.ksh fs -copyFromLocal lob_input_a1.txt /user/trafodion/lobs/lob_input_a1.txt;
+sh regrhadoop.ksh fs -copyFromLocal lob_input_b1.txt /user/trafodion/lobs/lob_input_b1.txt;
+sh regrhadoop.ksh fs -copyFromLocal lob_input_c1.txt /user/trafodion/lobs/lob_input_c1.txt;
+sh regrhadoop.ksh fs -copyFromLocal lob_input_d1.txt /user/trafodion/lobs/lob_input_d1.txt;
+sh regrhadoop.ksh fs -copyFromLocal lob_input_e1.txt /user/trafodion/lobs/lob_input_e1.txt;
+sh regrhadoop.ksh fs -copyFromLocal deep.jpg /user/trafodion/lobs/deep.jpg;
+sh regrhadoop.ksh fs -copyFromLocal anoush.jpg /user/trafodion/lobs/anoush.jpg;
+-- the next one is a really long file name intended to test error message 8557
+sh regrhadoop.ksh fs -copyFromLocal lob_input_a1.txt /user/trafodion/lobs/reallyLongDirectoryName0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789/lob_input_a1012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789.txt;
+sh sleep(20);
+
+
+insert into tlob$$TESTNUM$$txt2 values (1, filetolob('hdfs:///user/trafodion/lobs/lob_input_a1.txt'));
+
+-- second line
+insert into tlob$$TESTNUM$$txt2 values (2, filetolob('hdfs:///user/trafodion/lobs/lob_input_b1.txt'));
+
+-- third line
+insert into tlob$$TESTNUM$$txt2 values (3, filetolob('hdfs:///user/trafodion/lobs/lob_input_c1.txt'));
+select lobtostring(c2, 40 ) from tlob$$TESTNUM$$txt2;
+
+--updates
+
+--should update with full poem
+update tlob$$TESTNUM$$txt2 set c2=filetolob('hdfs:///user/trafodion/lobs/lob_input_d1.txt', append) where c1 = 3;
+select lobtostring(c2, 200 ) from tlob$$TESTNUM$$txt2;
+update tlob$$TESTNUM$$txt2 set c2=NULL where c1=3;
+select * from tlob$$TESTNUM$$txt2;
+update tlob$$TESTNUM$$txt2 set c2=filetolob('hdfs:///user/trafodion/lobs/lob_input_d1.txt', append) where c1 = 3;
+select lobtostring(c2, 200 ) from tlob$$TESTNUM$$txt2;
+
+-- should see wrong text in the last few lines
+update tlob$$TESTNUM$$txt2 set c2=filetolob('hdfs:///user/trafodion/lobs/lob_input_e1.txt') where c1 =3 ;
+select lobtostring(c2, 200 ) from tlob$$TESTNUM$$txt2;
+
+--delete
+
+ 
+-- go back to having just the first  line. 
+delete from tlob$$TESTNUM$$txt2 where c1 =2;
+delete from tlob$$TESTNUM$$txt2 where c1 =3;
+-- test extract 
+
+log;
+log TMPLOG clear;
+select c2 from tlob$$TESTNUM$$txt2;
+log;
+
+log LOG$$TESTNUM$$;
+sh rm -f tLOB_extract_command;
+select c2 from tlob$$TESTNUM$$txt2;
+sh grep "^LOBH" TMPLOG | sed "s/^/extract lobtofile(LOB '/g" | sed "s/$/' , 'hdfs:\/\/\/user\/trafodion\/lobs\/tlob"$TESTNUM"_txt2.txt');/g" >> tLOB_extract_command;
+obey tLOB_extract_command;
+
+--binary input/update
+
+insert into tlob$$TESTNUM$$bin2 values (1 , filetolob('deep.jpg'));
+--extract // should have a viewable picture file
+
+log;
+log TMPLOG clear ;
+select c2 from tlob$$TESTNUM$$bin2;
+log;
+
+log LOG$$TESTNUM$$;
+select c2 from tlob$$TESTNUM$$bin2;
+
+sh rm -f tLOB_extract_command;
+sh grep "^LOBH" TMPLOG | sed "s/^/extract lobtofile(LOB '/g" | sed "s/$/' , 'hdfs:\/\/\/user\/trafodion\/lobs\/tlob"$TESTNUM"_deep.jpg');/g" >> tLOB_extract_command;
+obey tLOB_extract_command;
+
+update tlob$$TESTNUM$$bin2 set c2=filetolob('anoush.jpg') ;
+
+--extract into a different file // should have a different viewable picture.
+
+log;
+log TMPLOG clear;
+select c2 from tlob$$TESTNUM$$bin1;
+log;
+
+log LOG$$TESTNUM$$;
+sh rm -f tLOB_extract_command;
+select c2 from tlob$$TESTNUM$$bin1;
+sh grep "^LOBH" TMPLOG | sed "s/^/extract lobtofile(LOB '/g" | sed "s/$/' , 'hdfs:\/\/\/user\/trafodion\/lobs\/tlob"$TESTNUM"_anoush.jpg');/g" >> tLOB_extract_command;
+
+obey tLOB_extract_command;
+
+
+sh clitestdriver 2 < TEST$$TESTNUM$$_argfile 2>/dev/null | tee -a LOG$$TESTNUM$$;
+
+
+
+------------------------------------------------------------------------------
+
+?section lob_misc_cleanup
+drop table if exists tlob$$TESTNUM$$txt3;
+drop table if exists tlob$$TESTNUM$$bin3;
+drop table if exists tlob$$TESTNUM$$bt;
+sh rm -f tlob$$TETSNUM$$_deep2.jpg;
+sh rm -f tlob$$TESTNUM$$_txt1.txt;
+sh regrhadoop.ksh fs -rm /user/trafodion/lobs/tlob$$TESTNUM$$_anoush2.jpg;
+sh rm -f tlob$$TESTNUM$$_anoush3.jpg;
+
+
+?section lob_miscfile_test
+log LOG$$TESTNUM$$;
+-- 2 clob columns
+create table tlob$$TESTNUM$$txt3 (c1 int not null, c2 int, c3 clob, c4 clob, primary key (c1));
+insert into tlob$$TESTNUM$$txt3 values (1, 1,filetolob('lob_input_a1.txt'), filetolob('lob_input_b1.txt'));
+insert into tlob$$TESTNUM$$txt3 values (2, 2,filetolob('lob_input_c1.txt'), filetolob('lob_input_d1.txt'));
+select lobtostring(c3,100), lobtostring(c4,100)from tlob$$TESTNUM$$txt3;
+
+-- 2 blob columns
+create table tlob$$TESTNUM$$bin3 (c1 int not null, c2 int, c3 blob, c4 blob, primary key (c1));
+insert into tlob$$TESTNUM$$bin3 values (1, 1, filetolob('deep.jpg'), filetolob('anoush.jpg'));
+
+log;
+log TMPLOG clear;
+select c3 from tlob$$TESTNUM$$bin3;
+log;
+
+log LOG$$TESTNUM$$;
+select c3 from tlob$$TESTNUM$$bin3;
+
+sh rm -f tLOB_extract_command;
+sh grep "^LOBH" TMPLOG | sed "s/^/extract lobtofile(LOB '/g" | sed "s/$/' , 'tlob"$TESTNUM"_deep2.jpg');/g" >> tLOB_extract_command;
+obey tLOB_extract_command;
+
+log;
+log TMPLOG clear;
+select c4 from tlob$$TESTNUM$$bin3;
+log;
+
+log LOG$$TESTNUM$$;
+sh rm -f tLOB_extract_command;
+select c4 from tlob$$TESTNUM$$bin3;
+sh grep "^LOBH" TMPLOG | sed "s/^/extract lobtofile(LOB '/g" | sed "s/$/' , 'hdfs:\/\/\/user\/trafodion\/lobs\/tlob"$TESTNUM"_anoush2.jpg');/g" >> tLOB_extract_command;
+obey tLOB_extract_command;
+
+-- combination blob and clob columns
+create table tlob$$TESTNUM$$bt (c1 int not null, c2 int, c3 blob, c4 clob, primary key (c1));
+insert into tlob$$TESTNUM$$bt values (1,1, filetolob('lob_input_a1.txt'), filetolob('anoush.jpg'));
+
+select lobtostring(c3,40) from tlob$$TESTNUM$$bt;
+
+log;
+log TMPLOG clear;
+select c4 from tlob$$TESTNUM$$bt;
+log;
+
+log LOG$$TESTNUM$$;
+sh rm -f tLOB_extract_command;
+select c4 from tlob$$TESTNUM$$bt;
+sh grep "^LOBH" TMPLOG | sed "s/^/extract lobtofile(LOB '/g" | sed "s/$/' , 'tlob"$TESTNUM"_anoush3.jpg',create,truncate);/g" >> tLOB_extract_command;
+obey tLOB_extract_command;
+
+?section lob_alter
+log LOG$$TESTNUM$$;
+--test alter 
+create table if not exists tlob$$TESTNUM$$bt (c1 int not null, c2 int, c3 blob, c4 clob, primary key (c1));
+delete from tlob$$TESTNUM$$bt;
+insert into tlob$$TESTNUM$$bt values (1,1, stringtolob('lob_input_a1.txt'), stringtolob('anoush.jpg'));
+alter table tlob$$TESTNUM$$bt add column c5 blob;
+--should show default value NULL
+select c5 from tlob$$TESTNUM$$bt; 
+
+?section lob_gc_cleanup
+drop table if exists tlob$$TESTNUM$$gc;
+
+?section lob_gc_test
+log LOG$$TESTNUM$$;
+create table tlob$$TESTNUM$$gc (c1 int not null, c2 blob, c3 blob, primary key (c1));
+--insert a few rows
+insert into tlob$$TESTNUM$$gc values (1, stringtolob('aaaa'), stringtolob('bbbbb'));
+insert into tlob$$TESTNUM$$gc values (2, stringtolob('aaaa'), stringtolob('bbbbb'));
+insert into tlob$$TESTNUM$$gc values (3, stringtolob('aaaa'), stringtolob('bbbbb'));
+insert into tlob$$TESTNUM$$gc values (4, stringtolob('aaaa'), stringtolob('bbbbb'));
+insert into tlob$$TESTNUM$$gc values (5, stringtolob('aaaa'), stringtolob('bbbbb'));
+insert into tlob$$TESTNUM$$gc values (6, stringtolob('aaaa'), stringtolob('bbbbb'));
+insert into tlob$$TESTNUM$$gc values (7, stringtolob('aaaa'), stringtolob('bbbbb'));
+insert into tlob$$TESTNUM$$gc values (8, stringtolob('aaaa'), stringtolob('bbbbb'));
+--create holes in the lob data file
+delete from tlob$$TESTNUM$$gc where c1=2;
+delete from tlob$$TESTNUM$$gc where c1=6;
+update tlob$$TESTNUM$$gc set c2=stringtolob('xxxx')where c1=7;
+--check contents of table
+select c1,lobtostring(c2,10),lobtostring(c3,10) from tlob$$TESTNUM$$gc;
+cqd LOB_GC_LIMIT_SIZE '0';
+--this next insert should trigger a GC
+insert into tlob$$TESTNUM$$gc values(9,stringtolob('aaaa'), stringtolob('bbbbb'));
+--check contents of table. Should have one extra row compared to above select
+select c1,lobtostring(c2,10),lobtostring(c3,10) from tlob$$TESTNUM$$gc;
+cqd LOB_GC_LIMIT_SIZE reset;
+
+?section lob_get_cleanup
+drop table if exists tlob$$TESTNUM$$gt;
+
+?section lob_get_test
+log LOG$$TESTNUM$$;
+
+drop table if exists tlob$$TESTNUM$$gt;
+drop table if exists tlob$$TESTNUM$$gt2;
+create table tlob$$TESTNUM$$gt2 (c1 int not null, c2 blob, c3 clob, c4 blob storage 'external', primary key (c1));
+get lob stats for table tlob$$TESTNUM$$gt2;
+select catalog_name,schema_name,object_name,column_name,lob_location,lob_data_file
+ from table(lob stats(tlob$$TESTNUM$$gt2)) order by 1,2,3,4,5,6;
+select sum(lob_data_file_size_eod), sum(lob_data_file_size_used)
+  from table(lob stats(tlob$$TESTNUM$$gt2));
+
+create table tlob$$TESTNUM$$gt (c1 int not null, c2 blob, c3 clob, c4 blob, primary key (c1));
+insert into tlob$$TESTNUM$$gt values (1, stringtolob('xxxx'), stringtolob('yyyy'), stringtolob('zzzzzzzzzzzzzz'));
+insert into tlob$$TESTNUM$$gt values (2, stringtolob('xxxxx'), stringtolob('yyyyy'), stringtolob('zzzzzzzzzzzzzzz'));
+insert into tlob$$TESTNUM$$gt values (3, stringtolob('xxxxxx'), stringtolob('yyyyyy'), stringtolob('zzzzzzzzzzzzzzzz'));
+get lob stats for table tlob$$TESTNUM$$gt;
+select catalog_name,schema_name,object_name,column_name,lob_location,lob_data_file
+ from table(lob stats(tlob$$TESTNUM$$gt)) order by 1,2,3,4,5,6;
+select sum(lob_data_file_size_eod), sum(lob_data_file_size_used)
+  from table(lob stats(tlob$$TESTNUM$$gt));
+
+delete from tlob$$TESTNUM$$gt where c1=2;
+insert into tlob$$TESTNUM$$gt values (2, stringtolob('xxxxxxxxxxxxxxx'), stringtolob('yyyyyyyyyyyyyyyy'), stringtolob('zzzzzzzzzzzzzzzzzzzzzzzzzz'));
+get lob stats for table tlob$$TESTNUM$$gt;
+select catalog_name,schema_name,object_name,column_name,lob_location,lob_data_file
+ from table(lob stats(tlob$$TESTNUM$$gt)) order by 1,2,3,4,5,6;
+select sum(lob_data_file_size_eod), sum(lob_data_file_size_used)
+  from table(lob stats(tlob$$TESTNUM$$gt));
+
+?section lob_external
+--test external lobs
+create table tlob$$TESTNUM$$ext (c1 int not null, c2 blob, c3 clob, c4 blob storage 'external', primary key (c1));
+
+create table tlob$$TESTNUM$$ext2 (c1 int not null, c2 blob, c3 clob, c4 blob storage 'external', primary key (c1));
+create table tlob$$TESTNUM$$_not_external (c1 int not null , c2 blob, c3 blob, c4 blob, primary key (c1));
+insert into tlob$$TESTNUM$$ext values(1, stringtolob('first lob'), filetolob('hdfs:///user/trafodion/lobs/lob_input_a1.txt'),externaltolob('hdfs:///user/trafodion/lobs/lob_input_a1.txt'));
+insert into tlob$$TESTNUM$$ext values(2, stringtolob('second lob'), filetolob('hdfs:///user/trafodion/lobs/lob_input_b1.txt'),externaltolob('hdfs:///user/trafodion/lobs/lob_input_b1.txt'));
+insert into tlob$$TESTNUM$$ext values(3, stringtolob('third lob'), filetolob('hdfs:///user/trafodion/lobs/lob_input_c1.txt'),externaltolob('hdfs:///user/trafodion/lobs/lob_input_c1.txt'));
+
+--log;
+--log TMP130 clear;
+--select c3 from tlob130ext where c1=3;
+--log;
+
+--log LOG130;
+--sh rm -f t130_extract_command;
+--sh grep "^LOBH" TMP130 | sed "s/^/extract name(LOB '/g" | sed "s/$/');/g" >> t130_extract_command;
+--obey t130_extract_command;
+--sh rm -f t130_extract_command;
+--sh grep "^LOBH" TMP130 | sed "s/^/extract offset(LOB '/g" | sed "s/$/');/g" >> t130_extract_command;
+--obey t130_extract_command;
+
+--negative cases
+insert into tlob$$TESTNUM$$ext values(2, externaltolob('first lob'), filetolob('hdfs:///user/trafodion/lobs/lob_input_a1.txt'),externaltolob('hdfs:///user/trafodion/lobs/lob_input_a1.txt'));
+insert into tlob$$TESTNUM$$ext values(3, stringtolob('first lob'), filetolob('hdfs:///user/trafodion/lobs/lob_input_a1.txt'),filetolob('hdfs:///user/trafodion/lobs/lob_input_a1.txt'));
+update tlob$$TESTNUM$$ext set c4=stringtolob('hdfs:///user/trafodion/lobs/lob_input_a1.txt', append) where c1=1;
+update tlob$$TESTNUM$$ext set c4=externaltolob('hdfs:///user/trafodion/lobs/lob_input_a1.txt', append) where c1=1;
+update tlob$$TESTNUM$$ext set c3=externaltolob('hdfs:///user/trafodion/lobs/lob_input_b1.txt') where c1=1;
+update tlob$$TESTNUM$$ext set c4=stringtolob('cannot allow this') where c1=1;
+delete from tlob$$TESTNUM$$ext where c1=1;
+insert into tlob$$TESTNUM$$ext values(1, stringtolob('first lob'),externaltolob('hdfs:///user/trafodion/lobs/lob_input_a1.txt'),externaltolob('hdfs:///user/trafodion/lobs/lob_input_a1.txt'));
+insert into tlob$$TESTNUM$$ext values(1, stringtolob('first lob'), filetolob('hdfs:///user/trafodion/lobs/lob_input_a1.txt'),externaltolob('hdfs:///user/trafodion/lobs/lob_input_a1.txt'));
+-- the next one should see error 8557
+insert into tlob$$TESTNUM$$ext values(1, stringtolob('first lob'), filetolob('hdfs:///user/trafodion/lobs/lob_input_a1.txt'),
+externaltolob('hdfs:///user/trafodion/lobs/reallyLongDirectoryName0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789/lob_input_a1012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789.txt'));
+
+select lobtostring(c2,50),lobtostring(c3,50),lobtostring(c4,50) from tlob$$TESTNUM$$ext;
+update tlob$$TESTNUM$$ext set c3=stringtolob('can allow this') where c1=1;
+select lobtostring(c2,50),lobtostring(c3,50),lobtostring(c4,50) from tlob$$TESTNUM$$ext;
+
+
+
+update tlob$$TESTNUM$$ext set c4=externaltolob('hdfs:///user/trafodion/lobs/lob_input_d1.txt') where c1=2;
+select lobtostring(c2,50),lobtostring(c3,50),lobtostring(c4,50) from tlob$$TESTNUM$$ext;
+
+
+update tlob$$TESTNUM$$ext set c2=filetolob('hdfs:///user/trafodion/lobs/lob_input_b1.txt') where c1=2;
+select lobtostring(c2,50),lobtostring(c3,50),lobtostring(c3,50) from tlob$$TESTNUM$$ext;
+get lob stats for table tlob$$TESTNUM$$ext;
+select catalog_name,schema_name,object_name,column_name,lob_location,lob_data_file
+ from table(lob stats(tlob$$TESTNUM$$ext)) order by 1,2,3,4,5,6;
+select sum(lob_data_file_size_eod), sum(lob_data_file_size_used)
+  from table(lob stats(tlob$$TESTNUM$$ext));
+
+sh clitestdriver 2 < TEST$$TESTNUM$$_argfile2 2>/dev/null | tee -a LOG$$TESTNUM$$;
+sh cat lobc4ext.txt |tee -a LOG$$TESTNUM$$;
+
+--insert select from a source external lob column to a target external lob column
+select lobtostring(c2,50),lobtostring(c3,50),lobtostring(c3,50) from tlob$$TESTNUM$$ext;
+insert into tlob$$TESTNUM$$ext2 select * from tlob$$TESTNUM$$ext;
+select lobtostring(c2,50),lobtostring(c3,50),lobtostring(c3,50) from tlob$$TESTNUM$$ext2;
+----negative test
+insert into tlob$$TESTNUM$$_not_external select * from tlob$$TESTNUM$$ext; 
+
+?section update_lob_handle
+-- test lob update via "update lob" command
+set schema trafodion.lob$$TESTNUM$$;
+drop table if exists t$$TESTNUM$$lob5;
+create table t$$TESTNUM$$lob5 (c1 int not null, c2 blob, c3 blob, primary key (c1));
+insert into t$$TESTNUM$$lob5 values (1,empty_blob(), empty_blob());
+sh clitestdriver 6 < TEST$$TESTNUM$$_argfile3 2>/dev/null | tee -a LOG$$TESTNUM$$;
+select lobtostring(c2,20) from t$$TESTNUM$$lob5;
+sh clitestdriver 7 < TEST$$TESTNUM$$_argfile3 2>/dev/null | tee -a LOG$$TESTNUM$$;
+select lobtostring(c2,47) from t$$TESTNUM$$lob5;
+sh clitestdriver 8 < TEST$$TESTNUM$$_argfile3 2>/dev/null | tee -a LOG$$TESTNUM$$;
+select lobtostring(c2,20) from t$$TESTNUM$$lob5;
+sh clitestdriver 6 < TEST$$TESTNUM$$_argfile3 2>/dev/null | tee -a LOG$$TESTNUM$$;
+select lobtostring(c2,40) from t$$TESTNUM$$lob5;
+
+sh clitestdriver 1 < TEST$$TESTNUM$$_argfile3 2>/dev/null | tee -a LOG$$TESTNUM$$;
+select length(c2), lobtostring(c2,100) from t$$TESTNUM$$lob5;
+
+-- update 2 columns
+select length(c2), lobtostring(c2,50), length(c3), lobtostring(c3,50) from t$$TESTNUM$$lob5;
+sh clitestdriver 10 < TEST$$TESTNUM$$_argfile4 2>/dev/null | tee -a LOG$$TESTNUM$$;
+select length(c2), lobtostring(c2,50), length(c3), lobtostring(c3,50) from t$$TESTNUM$$lob5;
+
+delete from t$$TESTNUM$$lob5;
+
+?section update_lob_handle_ext
+-- test_empty_blob() with external tables
+delete from tlob$$TESTNUM$$ext;
+-- following empty_blob will be of type 'external'
+insert into tlob$$TESTNUM$$ext values(1,empty_blob(),empty_clob(),empty_blob());
+select c2 from tlob$$TESTNUM$$ext;
+-- following should return error since only external lobs will be allowed
+update tlob$$TESTNUM$$ext set c4=stringtolob('gggg'); 
+-- following should work. 
+update tlob$$TESTNUM$$ext set c4=externaltolob('hdfs:///user/trafodion/lobs/lob_input_b1.txt');
+delete from tlob$$TESTNUM$$ext;
+
+-- test to ensure all lob dependent tables and schemas containing lob tables
+-- get dropped cleanly.
+
+?section lob_drop_table_schema
+drop schema if exists trafodion.lobsch cascade;
+cleanup schema trafodion.lobsch;
+create schema trafodion.lobsch;
+set schema trafodion.lobsch;
+create table tlob$$TESTNUM$$ts1 (c1 int not null, c2 blob, primary key (c1));
+create table tlob$$TESTNUM$$ts2 (c1 int not null, c2 blob, primary key (c1));
+drop table tlob$$TESTNUM$$ts1;
+get tables;
+drop schema trafodion.lobsch cascade;
+select OBJECT_NAME,OBJECT_TYPE from TRAFODION."_MD_".OBJECTS where catalog_name='TRAFODION' AND schema_name='LOBSCH';
+--go back to the schema used for the rest of the tests.
+set schema trafodion.lob$$TESTNUM$$;
+
+?section fix_mantis_8944
+create table myloben (id int, data clob);
+insert into table myloben values (0, stringtolob('data'));
+extract loblength(LOB 'select data from myloben');
+
+?section inline_length
+cqd traf_lob_inlined_data_maxbytes '204801';
+
+-- should return error
+create table tlob$$TESTNUM$$tinline(a blob, b clob character set utf8);
+
+cqd traf_lob_inlined_data_maxbytes '32000';
+create table tlob$$TESTNUM$$tinline(a blob, b clob, c clob character set utf8,
+     d clob character set ucs2);
+prepare s from select * from tlob$$TESTNUM$$tinline;
+describe statement s;
+
+prepare s from select * from (select *, row_number() over() as rowNumber from 
+ tlob$$TESTNUM$$tinline) as t;
+describe statement s;
+
+
+-- cleanup
+?section lob_general_cleanup
+sh rm -f t$$TESTNUM$$_*;
+sh regrhadoop.ksh fs -rm -f /user/trafodion/lobs/tlob$$TESTNUM$$*
+sh regrhadoop.ksh fs -rm -f /user/trafodion/lobs/lobinput_a1.txt
+sh regrhadoop.ksh fs -rm -f /user/trafodion/lobs/lobinput_b1.txt
+sh regrhadoop.ksh fs -rm -f /user/trafodion/lobs/lobinput_c1.txt
+sh regrhadoop.ksh fs -rm -f /user/trafodion/lobs/lobinput_d1.txt
+sh regrhadoop.ksh fs -rm -f /user/trafodion/lobs/lobinput_e1.txt
+sh regrhadoop.ksh fs -rm -f /user/trafodion/lobs/reallyLongDirectoryName0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789/lob_input_a1012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789.txt;
+sh rm -f lobinput_*;
+sh rm -f deep.jpg;
+sh rm -f anoush.jpg;
+drop table if exists tlob$$TESTNUM$$txt1; 
+drop table if exists tlob$$TESTNUM$$bin1;
+drop table if exists tlob$$TESTNUM$$txt_limit50;
+drop table if exists tlob$$TESTNUM$$bin_limit1K;
+sh rm -f TMPLOG;
+sh rm -f tlob$$TESTNUM$$txt1;
+
+sh rm -f tlob$$TESTNUM$$_txt*.txt;
+sh rm -f tlob$$TESTNUM$$_deep*.jpg;
+sh rm -f tlob$$TESTNUM$$_anoush*.jpg;
+drop table if exists tlob$$TESTNUM$$txt3;
+drop table if exists tlob$$TESTNUM$$bin3;
+drop table if exists tlob$$TESTNUM$$bt;
+drop table if exists tlob$$TESTNUM$$txt2;
+drop table if exists tlob$$TESTNUM$$bin2; 
+drop table if exists tlob$$TESTNUM$$ext;
+drop table if exists tlob$$TESTNUM$$ext2;
+sh rm -f TMPLOG;
+sh rm -f tlob$$TESTNUM$$txt2;
+sh rm -f lobc2out.jpg;
+sh rm -f lobc4ext.txt;
+sh rm -f TEST$$TESTNUM$$_argfile*;
+drop table if exists tlob$$TESTNUM$$gc;
+drop table if exists tlob$$TESTNUM$$gt;
+drop table if exists tlob$$TESTNUM$$t5;
+drop table if exists tlob$$TESTNUM$$_not_external;
+drop table if exists myloben cascade;
+drop external table if exists date_dim for hive.hive.date_dim;
+drop table if exists tlob$$TESTNUM$$tinline;
+drop schema if exists trafodion.lob$$TESTNUM$$ cascade;
+
+
+

@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="FATAL" shutdownHook="disable" packages="com.gemstone.gemfire.internal.logging.log4j">
+
+  <Properties>
+    <Property name="log-pattern">[%level{lowerCase=true} %date{yyyy/MM/dd HH:mm:ss.SSS z} &lt;%thread&gt; tid=%tid] %message%n%throwable%n</Property>
+    <Property name="log-path">${env:TRAF_LOG}</Property>
+  </Properties>
+
+  <Appenders>
+
+    <RollingFile name="ampool-file-log" fileName="${log-path}/ampool.log"
+		 filePattern="${log-path}/ampool_%d{yyyy-MM-dd}.log">
+      <PatternLayout>
+	<pattern>[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %c{1} - %msg%n</pattern>
+      </PatternLayout>
+      <Policies>
+	<TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+      </Policies>
+    </RollingFile>
+
+    <RollingFile name="gemstone-file-log" fileName="${log-path}/gemstone.log"
+		 filePattern="${log-path}/gemstone_%d{yyyy-MM-dd}.log">
+      <PatternLayout>
+	<pattern>[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %c{1} - %msg%n</pattern>
+      </PatternLayout>
+      <Policies>
+	<TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+      </Policies>
+    </RollingFile>
+
+    <RollingFile name="esgyn-tm-file-log" fileName="${log-path}/esgyn_tm.log"
+		 filePattern="${log-path}/esgyn_tm_%d{yyyy-MM-dd}.log">
+      <PatternLayout>
+	<pattern>[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %c{1} - %msg%n</pattern>
+      </PatternLayout>
+      <Policies>
+	<TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+      </Policies>
+    </RollingFile>
+
+    <RollingFile name="esgyn-catchall-file-log" fileName="${log-path}/esgyn_catchall_logs.log"
+		 filePattern="${log-path}/esgyn_catchall_logs_%d{yyyy-MM-dd}.log">
+      <PatternLayout>
+	<pattern>[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %c{1} - %msg%n</pattern>
+      </PatternLayout>
+      <Policies>
+	<TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+      </Policies>
+    </RollingFile>
+
+    <Console name="STDOUT" target="SYSTEM_OUT">
+      <PatternLayout pattern="${log-pattern}"/>
+    </Console>
+
+  </Appenders>
+
+  <Loggers>
+
+    <Logger name="io.esgyn.client" level="INFO" additivity="true">
+      <appender-ref ref="esgyn-tm-file-log" level="INFO"/>
+    </Logger>
+
+    <Logger name="io.esgyn.client.MTransactionManager" level="INFO" additivity="false">
+      <appender-ref ref="esgyn-tm-file-log" level="INFO"/>
+    </Logger>
+
+    <Logger name="io.esgyn.utils" level="INFO" additivity="false">
+      <appender-ref ref="esgyn-tm-file-log" level="INFO"/>
+    </Logger>
+
+    <Logger name="io.ampool.monarch.table" level="INFO" additivity="true">
+      <appender-ref ref="ampool-file-log" level="INFO"/>
+    </Logger>
+
+    <Logger name="com.gemstone.gemfire.cache" level="INFO" additivity="true">
+      <appender-ref ref="gemstone-file-log" level="INFO"/>
+    </Logger>
+
+    <Logger name="org.apache.hbase.client.transactional" level="INFO" additivity="true">
+      <appender-ref ref="esgyn-tm-file-log" level="INFO"/>
+    </Logger>
+
+    <Logger name="org.trafodion.dtm" level="ERROR" additivity="false">
+      <appender-ref ref="esgyn-tm-file-log" level="ERROR"/>
+    </Logger>
+
+    <Logger name="org.trafodion.dtm.HBaseTxClient" level="INFO" additivity="false">
+      <appender-ref ref="esgyn-tm-file-log" level="INFO"/>
+    </Logger>
+
+    <Root level="ERROR">
+      <AppenderRef ref="esgyn-catchall-file-log" level="ERROR"/>
+    </Root>
+
+  </Loggers>
+
+</Configuration>

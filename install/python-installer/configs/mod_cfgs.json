@@ -1,0 +1,152 @@
+{
+    "//comments": "default config",
+    "MOD_CFGS": {
+        "hbase-site": {
+            "hbase.table.sanity.checks": "false",
+            "hbase.snapshot.master.timeoutMillis": "600000",
+            "hbase.hregion.impl": "org.apache.hadoop.hbase.regionserver.transactional.TransactionalRegion",
+            "hbase.regionserver.region.split.policy": "org.apache.hadoop.hbase.regionserver.ConstantSizeRegionSplitPolicy",
+            "hbase.client.scanner.timeout.period": "3600000",
+            "hbase.snapshot.enabled": "true",
+            "hbase.snapshot.region.timeout": "600000",
+            "hbase.hregion.memstore.flush.size": "268435456",
+            "hbase.hregion.memstore.block.multiplier": "7",
+            "hbase.hstore.blockingStoreFiles": "200",
+            "hbase.rootdir.perms": "750",
+            "hbase.coprocessor.regionserver.classes": "org.apache.hadoop.hbase.coprocessor.transactional.TrxRegionServerObserver"
+        },
+        "hdfs-site": { "dfs.namenode.acls.enabled": "true" },
+        "zoo.cfg": { "maxClientCnxns": "0" }
+    },
+    "SERVER_CONFIG":[
+        {
+            "serviceName":"hdfs",
+            "config": {
+                "items": [
+                    {
+                        "name": "dfs_namenode_acls_enabled",
+                        "value": "true"
+                    }
+                ]
+            }
+        },
+        {
+            "serviceName":"yarn",
+            "config": {
+                "items": [
+                    {
+                        "name": "yarn_log_aggregation_retain_seconds",
+                        "value": "2592000"
+                    }
+                ]
+            }
+        }
+    ],
+    "SERVICE_CONFIG_SITE":[
+    ],
+    "ROLE_CONFIG_GROUP":[
+        {
+            "serviceName":"hbase",
+            "roleType":"MASTER",
+            "config": {
+                "items": [
+                    {
+                        "name": "rlimit_fds",
+                        "value": "65536"
+                    }
+                ]
+            }
+        },
+        {
+            "serviceName":"hbase",
+            "roleType":"REGIONSERVER",
+            "config": {
+                "items": [
+                    {
+                        "name": "hbase_regionserver_lease_period",
+                        "value": "3600000"
+                    },
+                    {
+                        "name": "hbase_hregion_memstore_flush_size",
+                        "value": "268435456"
+                    },
+                    {
+                        "name": "hbase_hregion_memstore_block_multiplier",
+                        "value": "7"
+                    },
+                    {
+                        "name": "hbase_hstore_blockingStoreFiles",
+                        "value": "200"
+                    },
+                    {
+                        "name": "rlimit_fds",
+                        "value": "65536"
+                    }
+                ]
+            }
+        },
+        {
+            "serviceName":"yarn",
+            "roleType":"NODEMANAGER",
+            "config": {
+                "items": [
+                    {
+                        "name": "yarn_nodemanager_remote_app_log_dir",
+                        "value": "/tmp/logs"
+                    }
+                ]
+            }
+        },
+        {
+            "serviceName":"zookeeper",
+            "roleType":"SERVER",
+            "config": {
+                "items": [
+                    {
+                        "name": "maxClientCnxns",
+                        "value": "0"
+                    }
+                ]
+            }
+        }
+    ],
+    "ROLE_CONFIG_GROUP_SITE":[
+        {
+            "serviceName":"hbase",
+            "roleType":"MASTER",
+            "config": {
+                "items": [
+                    {
+                        "name": "hbase_master_config_safety_valve",
+                        "value": "<property><name>hbase.snapshot.master.timeoutMillis</name><value>600000</value></property> <property><name>hbase.rootdir.perms</name><value>750</value></property> <property><name>hbase.table.sanity.checks</name><value>false</value></property>"
+                    }
+                ]
+            }
+        },
+        {
+            "serviceName":"hbase",
+            "roleType":"REGIONSERVER",
+            "config": {
+                "items": [
+                    {
+                        "name": "hbase_regionserver_config_safety_valve",
+                        "value": "<property><name>hbase.hregion.impl</name><value>org.apache.hadoop.hbase.regionserver.transactional.TransactionalRegion</value></property> <property><name>hbase.regionserver.region.split.policy</name><value>org.apache.hadoop.hbase.regionserver.ConstantSizeRegionSplitPolicy</value></property> <property><name>hbase.snapshot.enabled</name><value>true</value></property> <property><name>hbase.snapshot.region.timeout</name><value>600000</value></property><property><name>hbase.coprocessor.regionserver.classes</name><value>org.apache.hadoop.hbase.coprocessor.transactional.TrxRegionServerObserver</value></property>"
+                    }
+                ]
+            }
+        }
+    ],
+    "ENV_CONFIG":[
+        {
+            "serviceName":"hbase",
+            "config": {
+                "items": [
+                    {
+                        "name": "hbase_service_env_safety_valve",
+                        "value": "RECORD_TIME_COST_COPRO=-1\nRECORD_TIME_COST_COPRO_ALL=-1"
+                    }
+                ]
+            }
+        }
+    ]
+}

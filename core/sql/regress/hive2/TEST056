@@ -1,0 +1,228 @@
+-- Tests for min/max extension to type1 HASHJ
+--
+-- @@@ START COPYRIGHT @@@
+--
+-- Licensed to the Apache Software Foundation (ASF) under one
+-- or more contributor license agreements.  See the NOTICE file
+-- distributed with this work for additional information
+-- regarding copyright ownership.  The ASF licenses this file
+-- to you under the Apache License, Version 2.0 (the
+-- "License"); you may not use this file except in compliance
+-- with the License.  You may obtain a copy of the License at
+--
+--   http://www.apache.org/licenses/LICENSE-2.0
+--
+-- Unless required by applicable law or agreed to in writing,
+-- software distributed under the License is distributed on an
+-- "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+-- KIND, either express or implied.  See the License for the
+-- specific language governing permissions and limitations
+-- under the License.
+--
+-- @@@ END COPYRIGHT @@@
+
+log LOG056 clear;
+
+prepare minmax_report from
+select seq_num, operator, cast(substring(description from mm_pos for mm_end - mm_pos +1) as char(140 bytes) character set utf8) minmax_details
+from  
+  (select seq_num, 
+          operator,
+          description,
+          mm_pos,
+          mm_end
+   from
+     (select seq_num, operator, 
+             cast(description as varchar(3000 bytes) character set utf8) as description,
+
+            -- search the beginning pos 
+            case when position(' min_max_hostvars' IN description) > 0
+                   then position(' min_max_hostvars' IN description) + 19
+            else 
+            case when position(' orc_search_arguments' IN description) > 0 
+                   then position(' orc_search_arguments' IN description) + 23
+             else 0
+             end end as mm_pos,
+
+            -- search the end pos
+             case when position('_sys_MaxVal0' IN description) > 0
+                   then position('_sys_MaxVal0' IN description) + 12 
+            else 
+            case when position(' executor_predicates' IN description) > 0 
+                   then position(' executor_predicates' IN description) - 1
+             else 0
+             end end as mm_end
+      from table(explain(null,'XX')) 
+     ) X(seq_num, operator, description, mm_pos, mm_end)
+      where mm_pos > 1
+   )Y (seq_num, operator, description, mm_pos, mm_end)
+   order by seq_num
+;
+
+set schema hive.hive;
+
+cqd HIST_MISSING_STATS_WARNING_LEVEL '0';
+cqd parallel_num_esps '4';
+cqd HJ_BROADCAST_INNER_THRESHOLD_MB '0.001';
+cqd GEN_HSHJ_MIN_MAX_OPT 'On';
+cqd RANGE_OPTIMIZED_SCAN '519168';
+
+-- test character join column
+prepare xx from 
+select count(*) from warehouse ,store_orc  <<+ cardinality 10e8>>
+where w_country = s_country
+;
+
+
+execute minmax_report;
+explain options 'f' xx;
+execute xx;
+
+
+-- test int join column
+prepare xx from
+ select count(*) from
+ hive.hive.customer_orc <<+ cardinality 10e6 >>
+ , hive.hive.store_sales_sorted_orc <<+ cardinality 10e9 >>
+ where ss_customer_sk = c_customer_sk
+ and c_first_shipto_date_sk  = 2450618
+ ;
+
+execute minmax_report;
+explain options 'f' xx;
+execute xx;
+
+-- test date join column
+cqd parallel_num_esps '2';
+
+prepare xx from
+select count(*) from
+hive.hive.store_orc a <<+ cardinality 10e8 >>
+, hive.hive.store_orc b <<+ cardinality 10e6 >>
+where
+a.s_rec_start_date = b.s_rec_start_date
+;
+
+execute minmax_report;
+explain options 'f' xx;
+execute xx;
+
+-- test timestamp join column
+prepare xx from 
+select count(*) from 
+date_dim_orc_decimal_ts a <<+ cardinality 10e8 >> 
+, date_dim_orc_decimal_ts b <<+ cardinality 10e8 >>
+where a.d_date = b.d_date 
+and a.d_date < timestamp '1900-12-12 00:00:00'
+;
+
+execute minmax_report;
+explain options 'f' xx;
+execute xx;
+
+-- decimal join column, type1 hj
+prepare xx from
+select count(*) from
+date_dim_orc_decimal_ts a <<+ cardinality 10e8 >> ,  
+date_dim_orc_decimal_ts b <<+ cardinality  10e6 >> 
+where a.d_date_sk = b.d_date_sk
+and a.d_date < date '1900-12-12'
+;
+
+execute minmax_report;
+explain options 'f' xx;
+execute xx;
+
+
+-- decimal join column, type2 hj
+prepare xx from
+select count(*) from
+date_dim_orc_decimal_ts a,
+date_dim_orc_decimal_ts b 
+where a.d_date_sk = b.d_date_sk
+and a.d_date < date '1900-12-12'
+;
+
+execute minmax_report;
+explain options 'f' xx;
+execute xx;
+
+-- test outer table scan for parquet
+prepare xx from 
+select count(*) from warehouse ,store_parquet <<+ cardinality 10e8>>
+where w_country = s_country
+;
+
+execute minmax_report;
+explain options 'f' xx;
+execute xx;
+
+cqd parallel_num_esps reset;
+
+-- test range spec filters, negative.
+
+cqd GEN_HSHJ_MIN_MAX_OPT 'ON';
+cqd RANGE_OPTIMIZED_SCAN '100';
+
+prepare xx from
+select  dt.d_year
+       ,i_brand_id brand_id
+       ,i_brand brand
+       ,sum(ss_net_profit) sum_agg
+ from  date_dim_parquet dt
+      ,store_sales_parquet_p ss
+      ,item_parquet
+ where dt.d_date_sk = ss.ss_sold_date_sk
+   and ss.ss_item_sk = i_item_sk
+   and i_manufact_id = 955
+   and dt.d_moy in (12)
+ group by dt.d_year
+      ,i_brand
+      ,i_brand_id
+ order by dt.d_year
+         ,sum_agg desc
+         ,brand_id
+ limit 100;
+
+execute xx; -- should not core
+
+-- test scan filters, positive.
+
+cqd GEN_HSHJ_MIN_MAX_OPT 'ON';
+cqd RANGE_OPTIMIZED_SCAN '500000';
+
+prepare xx from 
+select count(*) from 
+customer_orc << + cardinality 10e6 >>
+, store_sales_parquet_p << + cardinality 10e7 >>
+    where ss_sold_time_sk = c_customer_sk and
+          c_current_cdemo_sk <= 10000
+;
+
+execute xx;
+
+
+prepare xx from 
+select count(*) from 
+customer_orc <<+ cardinality 10e6 >>
+, store_sales_parquet_p <<+ cardinality 10e7 >>
+    where ss_sold_time_sk = c_customer_sk and
+    ss_sold_time_sk  != 4
+;
+
+execute xx;
+
+-- test min/max only, no scan filters.
+
+cqd RANGE_OPTIMIZED_SCAN reset;
+
+prepare xx from 
+select count(*) from 
+customer_orc << + cardinality 10e6 >>
+, store_sales_parquet_p << + cardinality 10e7 >>
+    where ss_sold_time_sk = c_customer_sk and
+          c_current_cdemo_sk <= 10000
+;
+
+execute xx;
+

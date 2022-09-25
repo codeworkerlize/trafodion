@@ -1,0 +1,794 @@
+>>obey TEST001(test);
+>>
+>>CQD TRAF_ALLOW_DISABLE_ENABLE_INDEXES 'ON';
+
+--- SQL operation complete.
+>>
+>>create table t1 (a int, b varchar(20));
+
+--- SQL operation complete.
+>>sh sqlci -i "TEST001(insert1)";
+>>insert into t1 values (1, 'b');
+
+--- 1 row(s) inserted.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>select * from t1;
+
+A            B                   
+-----------  --------------------
+
+          1  b                   
+
+--- 1 row(s) selected.
+>>
+>>alter table t1 add column c varchar(20);
+
+--- SQL operation complete.
+>>sh sqlci -i "TEST001(insert2)";
+>>insert into t1 values (2, 'bb', 'cc');
+
+--- 1 row(s) inserted.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>select * from t1;
+
+A            B                     C                   
+-----------  --------------------  --------------------
+
+          1  b                     ?                   
+          2  bb                    cc                  
+
+--- 2 row(s) selected.
+>>
+>>alter table t1 drop column c;
+
+--- SQL operation complete.
+>>sh sqlci -i "TEST001(insert3)";
+>>insert into t1 values (3, 'bbb');
+
+--- 1 row(s) inserted.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>select * from t1;
+
+A            B                   
+-----------  --------------------
+
+          1  b                   
+          2  bb                  
+          3  bbb                 
+
+--- 3 row(s) selected.
+>>
+>>alter table t1 alter column b varchar(30);
+
+--- SQL operation complete.
+>>sh sqlci -i "TEST001(insert4)";
+>>insert into t1 values (4, 'bbbb');
+
+--- 1 row(s) inserted.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>select * from t1;
+
+A            B                             
+-----------  ------------------------------
+
+          1  b                             
+          2  bb                            
+          3  bbb                           
+          4  bbbb                          
+
+--- 4 row(s) selected.
+>>
+>>alter table t1 alter column b varchar(20);
+
+--- SQL operation complete.
+>>sh sqlci -i "TEST001(select1)";
+>>select * from t1;
+
+A            B                   
+-----------  --------------------
+
+          1  b                   
+          2  bb                  
+          3  bbb                 
+          4  bbbb                
+
+--- 4 row(s) selected.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>invoke t1;
+
+-- Definition of Trafodion table TRAFODION.CCSCH001.T1
+-- Definition current  Fri Apr 17 08:03:02 2020
+
+  (
+    SYSKEY                           LARGEINT NO DEFAULT NOT NULL NOT DROPPABLE
+  , A                                INT DEFAULT NULL
+  , B                                VARCHAR(20) CHARACTER SET ISO88591 COLLATE
+      DEFAULT DEFAULT NULL /*altered_col*/
+  )
+
+--- SQL operation complete.
+>>
+>>alter table t1 alter column b varchar(50);
+
+--- SQL operation complete.
+>>sh sqlci -i "TEST001(select1)";
+>>select * from t1;
+
+A            B                                                 
+-----------  --------------------------------------------------
+
+          1  b                                                 
+          2  bb                                                
+          3  bbb                                               
+          4  bbbb                                              
+
+--- 4 row(s) selected.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>invoke t1;
+
+-- Definition of Trafodion table TRAFODION.CCSCH001.T1
+-- Definition current  Fri Apr 17 08:03:06 2020
+
+  (
+    SYSKEY                           LARGEINT NO DEFAULT NOT NULL NOT DROPPABLE
+  , A                                INT DEFAULT NULL
+  , B                                VARCHAR(50) CHARACTER SET ISO88591 COLLATE
+      DEFAULT DEFAULT NULL /*altered_col*/
+  )
+
+--- SQL operation complete.
+>>
+>>begin work;
+
+--- SQL operation complete.
+>>alter table t1 alter column b varchar(70);
+
+--- SQL operation complete.
+>>sh sqlci -i "TEST001(select1)";
+>>select * from t1;
+
+*** ERROR[8202] Unable to obtain object DML lock on TRAFODION.CCSCH001.T1, due to a concurrent DDL operation on node 0 process 13094.
+
+--- 0 row(s) selected.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>invoke t1;
+
+-- Definition of Trafodion table TRAFODION.CCSCH001.T1
+-- Definition current  Fri Apr 17 08:03:39 2020
+
+  (
+    SYSKEY                           LARGEINT NO DEFAULT NOT NULL NOT DROPPABLE
+  , A                                INT DEFAULT NULL
+  , B                                VARCHAR(70) CHARACTER SET ISO88591 COLLATE
+      DEFAULT DEFAULT NULL /*altered_col*/
+  )
+
+--- SQL operation complete.
+>>alter table t1 alter column b varchar(60);
+
+*** ERROR[20125] This ALTER operation cannot be performed if a user-defined transaction has been started or AUTOCOMMIT is OFF.
+
+--- SQL operation failed with errors.
+>>sh sqlci -i "TEST001(select1)";
+>>select * from t1;
+
+*** ERROR[8202] Unable to obtain object DML lock on TRAFODION.CCSCH001.T1, due to a concurrent DDL operation on node 0 process 13094.
+
+--- 0 row(s) selected.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>invoke t1;
+
+-- Definition of Trafodion table TRAFODION.CCSCH001.T1
+-- Definition current  Fri Apr 17 08:04:12 2020
+
+  (
+    SYSKEY                           LARGEINT NO DEFAULT NOT NULL NOT DROPPABLE
+  , A                                INT DEFAULT NULL
+  , B                                VARCHAR(70) CHARACTER SET ISO88591 COLLATE
+      DEFAULT DEFAULT NULL /*altered_col*/
+  )
+
+--- SQL operation complete.
+>>commit;
+
+--- SQL operation complete.
+>>sh sqlci -i "TEST001(select1)";
+>>select * from t1;
+
+A            B
+-----------  ----------------------------------------------------------------------
+
+          1  b                                                                     
+          2  bb                                                                    
+          3  bbb                                                                   
+          4  bbbb                                                                  
+
+--- 4 row(s) selected.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>invoke t1;
+
+-- Definition of Trafodion table TRAFODION.CCSCH001.T1
+-- Definition current  Fri Apr 17 08:04:16 2020
+
+  (
+    SYSKEY                           LARGEINT NO DEFAULT NOT NULL NOT DROPPABLE
+  , A                                INT DEFAULT NULL
+  , B                                VARCHAR(70) CHARACTER SET ISO88591 COLLATE
+      DEFAULT DEFAULT NULL /*altered_col*/
+  )
+
+--- SQL operation complete.
+>>
+>>alter table t1 alter column b char(30);
+
+--- SQL operation complete.
+>>sh sqlci -i "TEST001(insert5)";
+>>insert into t1 values (5, 'bbbbb');
+
+--- 1 row(s) inserted.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>select * from t1;
+
+A            B                             
+-----------  ------------------------------
+
+          1  b                             
+          2  bb                            
+          3  bbb                           
+          4  bbbb                          
+          5  bbbbb                         
+
+--- 5 row(s) selected.
+>>
+>>-- Add a NULL value so that adding NOT NULL constraint will fail
+>>insert into t1 values (6, NULL);
+
+--- 1 row(s) inserted.
+>>alter table t1 alter column b char(30) not null;
+
+*** ERROR[1404] Column B cannot be altered. Reason: Old data could not be updated using the altered column definition.
+
+--- SQL operation failed with errors.
+>>sh sqlci -i "TEST001(insert6NULL)";
+>>insert into t1 values (6, NULL);
+
+--- 1 row(s) inserted.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>select * from t1;
+
+A            B                             
+-----------  ------------------------------
+
+          1  b                             
+          2  bb                            
+          6  ?                             
+          3  bbb                           
+          4  bbbb                          
+          5  bbbbb                         
+          6  ?                             
+
+--- 7 row(s) selected.
+>>
+>>-- Remove rows with NULL column b so we can add the NOT NULL constraint
+>>delete from t1 where b is NULL;
+
+--- 2 row(s) deleted.
+>>select * from t1;
+
+A            B                             
+-----------  ------------------------------
+
+          1  b                             
+          2  bb                            
+          3  bbb                           
+          4  bbbb                          
+          5  bbbbb                         
+
+--- 5 row(s) selected.
+>>
+>>alter table t1 alter column b char(30) not null;
+
+--- SQL operation complete.
+>>sh sqlci -i "TEST001(insert6NULL)";
+>>insert into t1 values (6, NULL);
+
+*** ERROR[8421] NULL cannot be assigned to a NOT NULL column.
+
+--- 0 row(s) inserted.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>select * from t1;
+
+A            B                             
+-----------  ------------------------------
+
+          1  b                             
+          2  bb                            
+          3  bbb                           
+          4  bbbb                          
+          5  bbbbb                         
+
+--- 5 row(s) selected.
+>>
+>>alter table t1 add constraint conUnique unique (b);
+
+--- SQL operation complete.
+>>sh sqlci -i "TEST001(insert6)";
+>>insert into t1 values (6, 'bbbbbb');
+
+--- 1 row(s) inserted.
+>>exit;
+
+End of MXCI Session
+
+>>select * from t1;
+
+A            B                             
+-----------  ------------------------------
+
+          1  b                             
+          2  bb                            
+          3  bbb                           
+          4  bbbb                          
+          5  bbbbb                         
+          6  bbbbbb                        
+
+--- 6 row(s) selected.
+>>
+>>alter table t1 drop constraint conUnique;
+
+--- SQL operation complete.
+>>sh sqlci -i "TEST001(insert6)";
+>>insert into t1 values (6, 'bbbbbb');
+
+--- 1 row(s) inserted.
+>>exit;
+
+End of MXCI Session
+
+>>select * from t1;
+
+A            B                             
+-----------  ------------------------------
+
+          1  b                             
+          2  bb                            
+          3  bbb                           
+          4  bbbb                          
+          5  bbbbb                         
+          6  bbbbbb                        
+          6  bbbbbb                        
+
+--- 7 row(s) selected.
+>>
+>>-- This will fail for duplicated rows
+>>alter table t1 add constraint conPK PRIMARY KEY (a);
+
+*** ERROR[8102] The operation is prevented by a unique constraint.
+
+--- SQL operation failed with errors.
+>>sh sqlci -i "TEST001(select1)";
+>>select * from t1;
+
+A            B                             
+-----------  ------------------------------
+
+          1  b                             
+          2  bb                            
+          3  bbb                           
+          4  bbbb                          
+          5  bbbbb                         
+          6  bbbbbb                        
+          6  bbbbbb                        
+
+--- 7 row(s) selected.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>
+>>-- Remove duplicated rows and try again
+>>delete from t1 where a = 6;
+
+--- 2 row(s) deleted.
+>>alter table t1 add constraint conPK PRIMARY KEY (a);
+
+--- SQL operation complete.
+>>sh sqlci -i "TEST001(insert6)";
+>>insert into t1 values (6, 'bbbbbb');
+
+--- 1 row(s) inserted.
+>>exit;
+
+End of MXCI Session
+
+>>select * from t1;
+
+A            B                             
+-----------  ------------------------------
+
+          1  b                             
+          2  bb                            
+          3  bbb                           
+          4  bbbb                          
+          5  bbbbb                         
+          6  bbbbbb                        
+
+--- 6 row(s) selected.
+>>
+>>-- Add a reference constraint
+>>create table t2 (a int);
+
+--- SQL operation complete.
+>>sh sqlci -i "TEST001(select2)";
+>>select * from t2;
+
+--- 0 row(s) selected.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>insert into t2 values (1);
+
+--- 1 row(s) inserted.
+>>select * from t2;
+
+A          
+-----------
+
+          1
+
+--- 1 row(s) selected.
+>>alter table t2 add constraint fk2 foreign key (a) references t1 (a);
+
+--- SQL operation complete.
+>>sh sqlci -i "TEST001(select2)";
+>>select * from t2;
+
+A          
+-----------
+
+          1
+
+--- 1 row(s) selected.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>alter table t2 drop constraint fk2;
+
+--- SQL operation complete.
+>>sh sqlci -i "TEST001(select2)";
+>>select * from t2;
+
+A          
+-----------
+
+          1
+
+--- 1 row(s) selected.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>drop table t2;
+
+--- SQL operation complete.
+>>sh sqlci -i "TEST001(select2)";
+>>select * from t2;
+
+*** ERROR[4082] Object TRAFODION.CCSCH001.T2 does not exist or is inaccessible.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>
+>>exit;
+
+End of MXCI Session
+
+>>
+>>create index idx1 on t1 (b);
+
+--- SQL operation complete.
+>>sh sqlci -i "TEST001(select1)";
+>>select * from t1;
+
+A            B                             
+-----------  ------------------------------
+
+          1  b                             
+          2  bb                            
+          3  bbb                           
+          4  bbbb                          
+          5  bbbbb                         
+          6  bbbbbb                        
+
+--- 6 row(s) selected.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>
+>>alter table t1 disable index idx1;
+
+--- SQL operation complete.
+>>sh sqlci -i "TEST001(select1)";
+>>select * from t1;
+
+A            B                             
+-----------  ------------------------------
+
+          1  b                             
+          2  bb                            
+          3  bbb                           
+          4  bbbb                          
+          5  bbbbb                         
+          6  bbbbbb                        
+
+--- 6 row(s) selected.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>
+>>alter table t1 enable index idx1;
+
+--- SQL operation complete.
+>>sh sqlci -i "TEST001(select1)";
+>>select * from t1;
+
+A            B                             
+-----------  ------------------------------
+
+          1  b                             
+          2  bb                            
+          3  bbb                           
+          4  bbbb                          
+          5  bbbbb                         
+          6  bbbbbb                        
+
+--- 6 row(s) selected.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>
+>>alter table t1 disable all index;
+
+--- SQL operation complete.
+>>sh sqlci -i "TEST001(select1)";
+>>select * from t1;
+
+A            B                             
+-----------  ------------------------------
+
+          1  b                             
+          2  bb                            
+          3  bbb                           
+          4  bbbb                          
+          5  bbbbb                         
+          6  bbbbbb                        
+
+--- 6 row(s) selected.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>
+>>alter table t1 enable all index;
+
+--- SQL operation complete.
+>>sh sqlci -i "TEST001(select1)";
+>>select * from t1;
+
+A            B                             
+-----------  ------------------------------
+
+          1  b                             
+          2  bb                            
+          3  bbb                           
+          4  bbbb                          
+          5  bbbbb                         
+          6  bbbbbb                        
+
+--- 6 row(s) selected.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>
+>>drop index idx1;
+
+--- SQL operation complete.
+>>sh sqlci -i "TEST001(select1)";
+>>select * from t1;
+
+A            B                             
+-----------  ------------------------------
+
+          1  b                             
+          2  bb                            
+          3  bbb                           
+          4  bbbb                          
+          5  bbbbb                         
+          6  bbbbbb                        
+
+--- 6 row(s) selected.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>
+>>alter table t1 rename to t2;
+
+--- SQL operation complete.
+>>sh sqlci -i "TEST001(select2)";
+>>select * from t2;
+
+A            B                             
+-----------  ------------------------------
+
+          1  b                             
+          2  bb                            
+          3  bbb                           
+          4  bbbb                          
+          5  bbbbb                         
+          6  bbbbbb                        
+
+--- 6 row(s) selected.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>
+>>-- Drop table cascade with foreign key constraints referencing this
+>>-- table
+>>create table t1 (a int);
+
+--- SQL operation complete.
+>>alter table t1 add constraint fk1 foreign key (a) references t2 (a);
+
+--- SQL operation complete.
+>>showddl t1;
+
+CREATE TABLE TRAFODION.CCSCH001.T1
+  (
+    A                                INT DEFAULT NULL
+  )
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_1500000'
+;
+
+-- The following index is a system created index --
+CREATE INDEX FK1 ON TRAFODION.CCSCH001.T1
+  (
+    A ASC
+  )
+;
+
+ALTER TABLE TRAFODION.CCSCH001.T1 ADD CONSTRAINT TRAFODION.CCSCH001.FK1
+  FOREIGN KEY
+  (
+    A
+  )
+ REFERENCES TRAFODION.CCSCH001.T2
+  (
+    A
+  )
+;
+
+--- SQL operation complete.
+>>drop table t2 cascade;
+
+--- SQL operation complete.
+>>showddl t1;
+
+CREATE TABLE TRAFODION.CCSCH001.T1
+  (
+    A                                INT DEFAULT NULL
+  )
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_1500000'
+;
+
+--- SQL operation complete.
+>>
+>>-- drop not existing table
+>>showddl t3;
+
+*** ERROR[4082] Object TRAFODION.CCSCH001.T3 does not exist or is inaccessible.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>drop table t3;
+
+*** ERROR[1389] Object TRAFODION.CCSCH001.T3 does not exist in Trafodion.
+
+--- SQL operation failed with errors.
+>>sh sqlci -i "TEST001(create3)";
+>>create table t3 (a int);
+
+--- SQL operation complete.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>insert into t3 values (1);
+
+--- 1 row(s) inserted.
+>>sh sqlci -i "TEST001(select3)";
+>>select * from t1;
+
+--- 0 row(s) selected.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>select * from t3;
+
+A          
+-----------
+
+          1
+
+--- 1 row(s) selected.
+>>
+>>log;

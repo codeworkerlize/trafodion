@@ -1,0 +1,66 @@
+ 
+# ------------------------------------------------------------------------------
+# *** removes any tables ending in "_OLD_MD" or "_OLD"
+#
+# If the Old table do not exist, an error that they do not exist is returned 
+# from HBase; these errors can be ignored.
+disable 'TRAF_RSRVD_1:TRAFODION._MD_.AUTHS_OLD_MD'                              
+disable 'TRAF_RSRVD_1:TRAFODION._MD_.COLUMNS_OLD_MD'                            
+disable 'TRAF_RSRVD_1:TRAFODION._MD_.DEFAULTS_OLD_MD'                           
+disable 'TRAF_RSRVD_1:TRAFODION._MD_.INDEXES_OLD_MD'                            
+disable 'TRAF_RSRVD_1:TRAFODION._MD_.KEYS_OLD_MD'                               
+disable 'TRAF_RSRVD_1:TRAFODION._MD_.LIBRARIES_OLD'
+disable 'TRAF_RSRVD_1:TRAFODION._MD_.LIBRARIES_USAGE_OLD_MD'                    
+disable 'TRAF_RSRVD_1:TRAFODION._MD_.OBJECTS_OLD_MD'                            
+disable 'TRAF_RSRVD_1:TRAFODION._MD_.OBJECTS_UNIQ_IDX_OLD_MD'                            
+disable 'TRAF_RSRVD_1:TRAFODION._MD_.REF_CONSTRAINTS_OLD_MD'                    
+disable 'TRAF_RSRVD_1:TRAFODION._MD_.ROUTINES_OLD_MD'                           
+disable 'TRAF_RSRVD_1:TRAFODION._MD_.SEQ_GEN_OLD_MD'                            
+disable 'TRAF_RSRVD_1:TRAFODION._MD_.TABLES_OLD_MD'                             
+disable 'TRAF_RSRVD_1:TRAFODION._MD_.TABLE_CONSTRAINTS_OLD_MD'                  
+disable 'TRAF_RSRVD_1:TRAFODION._MD_.TABLE_CONSTRAINTS_IDX_OLD_MD'                  
+disable 'TRAF_RSRVD_1:TRAFODION._MD_.TEXT_OLD_MD'                               
+disable 'TRAF_RSRVD_1:TRAFODION._MD_.UNIQUE_REF_CONSTR_USAGE_OLD_MD'            
+disable 'TRAF_RSRVD_1:TRAFODION._MD_.VERSIONS_OLD_MD'                           
+disable 'TRAF_RSRVD_1:TRAFODION._MD_.VIEWS_OLD_MD'                              
+disable 'TRAF_RSRVD_1:TRAFODION._MD_.VIEWS_USAGE_OLD_MD'     
+
+disable 'TRAF_RSRVD_1:TRAFODION._PRIVMGR_MD_.COLUMN_PRIVILEGES_OLD_MD'
+disable 'TRAF_RSRVD_1:TRAFODION._PRIVMGR_MD_.COMPONENTS_OLD_MD'
+disable 'TRAF_RSRVD_1:TRAFODION._PRIVMGR_MD_.COMPONENT_OPERATIONS_OLD_MD'
+disable 'TRAF_RSRVD_1:TRAFODION._PRIVMGR_MD_.COMPONENT_PRIVILEGES_OLD_MD'
+disable 'TRAF_RSRVD_1:TRAFODION._PRIVMGR_MD_.OBJECT_PRIVILEGES_OLD_MD'
+disable 'TRAF_RSRVD_1:TRAFODION._PRIVMGR_MD_.ROLE_USAGE_OLD_MD'
+disable 'TRAF_RSRVD_1:TRAFODION._PRIVMGR_MD_.SCHEMA_PRIVILEGES_OLD_MD'
+
+drop 'TRAF_RSRVD_1:TRAFODION._MD_.AUTHS_OLD_MD'                                 
+drop 'TRAF_RSRVD_1:TRAFODION._MD_.COLUMNS_OLD_MD'                               
+drop 'TRAF_RSRVD_1:TRAFODION._MD_.DEFAULTS_OLD_MD'                              
+drop 'TRAF_RSRVD_1:TRAFODION._MD_.INDEXES_OLD_MD'                               
+drop 'TRAF_RSRVD_1:TRAFODION._MD_.KEYS_OLD_MD'                                  
+drop 'TRAF_RSRVD_1:TRAFODION._MD_.LIBRARIES_OLD'
+drop 'TRAF_RSRVD_1:TRAFODION._MD_.LIBRARIES_USAGE_OLD_MD'                       
+drop 'TRAF_RSRVD_1:TRAFODION._MD_.OBJECTS_OLD_MD'                               
+drop 'TRAF_RSRVD_1:TRAFODION._MD_.OBJECTS_UNIQ_IDX_OLD_MD'                               
+drop 'TRAF_RSRVD_1:TRAFODION._MD_.REF_CONSTRAINTS_OLD_MD'                       
+drop 'TRAF_RSRVD_1:TRAFODION._MD_.ROUTINES_OLD_MD'                              
+drop 'TRAF_RSRVD_1:TRAFODION._MD_.SEQ_GEN_OLD_MD'                               
+drop 'TRAF_RSRVD_1:TRAFODION._MD_.TABLES_OLD_MD'                                
+drop 'TRAF_RSRVD_1:TRAFODION._MD_.TABLE_CONSTRAINTS_OLD_MD'                     
+drop 'TRAF_RSRVD_1:TRAFODION._MD_.TABLE_CONSTRAINTS_IDX_OLD_MD'                     
+drop 'TRAF_RSRVD_1:TRAFODION._MD_.TEXT_OLD_MD'                                  
+drop 'TRAF_RSRVD_1:TRAFODION._MD_.UNIQUE_REF_CONSTR_USAGE_OLD_MD'               
+drop 'TRAF_RSRVD_1:TRAFODION._MD_.VERSIONS_OLD_MD'                              
+drop 'TRAF_RSRVD_1:TRAFODION._MD_.VIEWS_OLD_MD'                                 
+drop 'TRAF_RSRVD_1:TRAFODION._MD_.VIEWS_USAGE_OLD_MD'            
+
+drop 'TRAF_RSRVD_1:TRAFODION._PRIVMGR_MD_.COLUMN_PRIVILEGES_OLD_MD'
+drop 'TRAF_RSRVD_1:TRAFODION._PRIVMGR_MD_.COMPONENTS_OLD_MD'
+drop 'TRAF_RSRVD_1:TRAFODION._PRIVMGR_MD_.COMPONENT_OPERATIONS_OLD_MD'
+drop 'TRAF_RSRVD_1:TRAFODION._PRIVMGR_MD_.COMPONENT_PRIVILEGES_OLD_MD'
+drop 'TRAF_RSRVD_1:TRAFODION._PRIVMGR_MD_.OBJECT_PRIVILEGES_OLD_MD'
+drop 'TRAF_RSRVD_1:TRAFODION._PRIVMGR_MD_.ROLE_USAGE_OLD_MD'
+drop 'TRAF_RSRVD_1:TRAFODION._PRIVMGR_MD_.SCHEMA_PRIVILEGES_OLD_MD'
+exit
+# ------------------------------------------------------------------------------
+

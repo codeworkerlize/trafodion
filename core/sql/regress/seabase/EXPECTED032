@@ -1,0 +1,1761 @@
+>>
+>>-- add/enable support for syntax and functions
+>>drop table if exists t032t1 cascade;
+
+--- SQL operation complete.
+>>drop table if exists t032t2 cascade;
+
+--- SQL operation complete.
+>>
+>>create table t032t1 (a int not null primary key, 
++>                     b byteint, 
++>                     c int not null enable,  
++>                     d date, e time, f timestamp,
++>                     g real);
+
+--- SQL operation complete.
+>>
+>>create table t032t2 (c1 int, c2 int);
+
+--- SQL operation complete.
+>>
+>>invoke t032t1;
+
+-- Definition of Trafodion table TRAFODION.SCH.T032T1
+-- Definition of hbase table TRAF_regr:TRAFODION.SCH.T032T1
+-- Definition current  Fri Dec  6 04:45:59 2019
+
+  (
+    A                                INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , B                                TINYINT DEFAULT NULL
+  , C                                INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , D                                DATE DEFAULT NULL
+  , E                                TIME(0) DEFAULT NULL
+  , F                                TIMESTAMP(6) DEFAULT NULL
+  , G                                REAL DEFAULT NULL
+  )
+  PRIMARY KEY (A ASC)
+
+--- SQL operation complete.
+>>
+>>insert into t032t1 values (1, 2, 3, date '2016-08-15',  time '10:11:12',
++>                           timestamp '2016-08-15 10:11:12', 4e0);
+
+--- 1 row(s) inserted.
+>>insert into t032t1 values (2, 3, 3, date '2016-08-15',  time '10:11:12',
++>                           timestamp '2016-08-15 10:11:12', 4e0);
+
+--- 1 row(s) inserted.
+>>
+>>insert into t032t2 values (1,1),(2,2),(101,101),(102,102);
+
+--- 4 row(s) inserted.
+>>
+>>select unique b from t032t1;
+
+B   
+----
+
+   2
+   3
+
+--- 2 row(s) selected.
+>>
+>>select greatest(a, 10) from t032t1;
+
+(EXPR)     
+-----------
+
+         10
+         10
+
+--- 2 row(s) selected.
+>>select least(a, 10) from t032t1;
+
+(EXPR)     
+-----------
+
+          1
+          2
+
+--- 2 row(s) selected.
+>>
+>>select ceil(g), ceiling(g) from t032t1;
+
+(EXPR)                     (EXPR)                   
+-------------------------  -------------------------
+
+ 4.00000000000000000E+000   4.00000000000000000E+000
+ 4.00000000000000000E+000   4.00000000000000000E+000
+
+--- 2 row(s) selected.
+>>
+>>select months_between(d, date '2016-01-01') from t032t1;
+
+(EXPR)               
+---------------------
+
+          7.451612903
+          7.451612903
+
+--- 2 row(s) selected.
+>>select months_between(date '2016-01-01', d) from t032t1;
+
+(EXPR)               
+---------------------
+
+         -7.451612903
+         -7.451612903
+
+--- 2 row(s) selected.
+>>
+>>select months_between(d, date '2016-01-15') from t032t1;
+
+(EXPR)               
+---------------------
+
+                    7
+                    7
+
+--- 2 row(s) selected.
+>>select months_between(date '2016-01-15', d) from t032t1;
+
+(EXPR)               
+---------------------
+
+                   -7
+                   -7
+
+--- 2 row(s) selected.
+>>
+>>select last_day(d), last_day(f) from t032t1;
+
+(EXPR)      (EXPR)    
+----------  ----------
+
+2016-08-31  2016-08-31
+2016-08-31  2016-08-31
+
+--- 2 row(s) selected.
+>>select next_day(d, 'sunday'), next_day(f, 'wednesday') from t032t1;
+
+(EXPR)      (EXPR)                    
+----------  --------------------------
+
+2016-08-21  2016-08-17 10:11:12.000000
+2016-08-21  2016-08-17 10:11:12.000000
+
+--- 2 row(s) selected.
+>>
+>>select 'RANDOMVAL=' ||  trim(cast(rand() as varchar(20) not null)) from (values(1)) x(a);
+
+(EXPR)                        
+------------------------------
+
+RANDOMVAL=478387516           
+
+--- 1 row(s) selected.
+>>select 'RANDOMVAL=' ||  trim(cast(random() as varchar(20) not null)) from (values(1)) x(a);
+
+(EXPR)                        
+------------------------------
+
+RANDOMVAL=620663              
+
+--- 1 row(s) selected.
+>>
+>>select rand(100) from (values(1)) x(a);
+
+(EXPR)    
+----------
+
+   1680700
+
+--- 1 row(s) selected.
+>>
+>>select * from dual;
+
+(EXPR)
+------
+
+     0
+
+--- 1 row(s) selected.
+>>
+>>-- error 8413 enhancement
+>>select cast('a' as int) from dual;
+
+*** ERROR[8413] The string argument contains characters that cannot be converted. Source data(in hex): 61
+
+--- 0 row(s) selected.
+>>
+>>-- group by, order by enhancements
+>>select a aa from t032t1 group by aa;
+
+AA         
+-----------
+
+          1
+          2
+
+--- 2 row(s) selected.
+>>select a+1 from t032t1 group by a+1;
+
+(EXPR)              
+--------------------
+
+                   2
+                   3
+
+--- 2 row(s) selected.
+>>select a+1 from t032t1 order by a+1;
+
+(EXPR)              
+--------------------
+
+                   2
+                   3
+
+--- 2 row(s) selected.
+>>select a+1 aa from t032t1 order by a+1;
+
+AA                  
+--------------------
+
+                   2
+                   3
+
+--- 2 row(s) selected.
+>>select a+1 aa from t032t1 order by aa;
+
+AA                  
+--------------------
+
+                   2
+                   3
+
+--- 2 row(s) selected.
+>>select a+1 aa from t032t1 order by 1;
+
+AA                  
+--------------------
+
+                   2
+                   3
+
+--- 2 row(s) selected.
+>>select * from (select b from t032t1 order by b desc) x(z);
+
+Z   
+----
+
+   2
+   3
+
+--- 2 row(s) selected.
+>>select * from (select [first 1] a from t032t1) x(z);
+
+Z          
+-----------
+
+          1
+
+--- 1 row(s) selected.
+>>select count(*) from t032t1 order by count(*);
+
+(EXPR)              
+--------------------
+
+                   2
+
+--- 1 row(s) selected.
+>>select count(*) from t032t1 order by count(*) desc;
+
+(EXPR)              
+--------------------
+
+                   2
+
+--- 1 row(s) selected.
+>>select count(*) cc from t032t1 order by count(*) desc;
+
+CC                  
+--------------------
+
+                   2
+
+--- 1 row(s) selected.
+>>select count(distinct a) from t032t1 order by count(distinct a);
+
+(EXPR)              
+--------------------
+
+                   2
+
+--- 1 row(s) selected.
+>>select count(*), max(c1) from t032t2 group by mod(c1,10);
+
+(EXPR)                (EXPR)     
+--------------------  -----------
+
+                   2          101
+                   2          102
+
+--- 2 row(s) selected.
+>>
+>>-- error cases
+>>select count(a) from t032t1 order by count(distinct a);
+
+*** ERROR[4120] In a query with a GROUP BY, DISTINCT, or aggregate function, each column in the ORDER BY clause must be one of the columns explicitly SELECTed by the query. Column in error: A.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>select sum(a), b from t032t1 group by sum(a), b;
+
+*** ERROR[4197] This expression cannot be used in the GROUP BY clause.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>select sum(a) from t032t1 group by 1;
+
+*** ERROR[4185] Select list index is not allowed to be specified in the GROUP BY clause for this query.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>
+>>-- expression support in order by list
+>>select e from t032t1 order by a+b+c;
+
+E       
+--------
+
+10:11:12
+10:11:12
+
+--- 2 row(s) selected.
+>>select e from t032t1 order by a+b, c*g desc;
+
+E       
+--------
+
+10:11:12
+10:11:12
+
+--- 2 row(s) selected.
+>>select e from t032t1 order by ABS (a);
+
+E       
+--------
+
+10:11:12
+10:11:12
+
+--- 2 row(s) selected.
+>>select e from t032t1 order by MOD(CAST(POWER(a, 3) AS DECIMAL(10,0)), 5) desc;
+
+E       
+--------
+
+10:11:12
+10:11:12
+
+--- 2 row(s) selected.
+>>select e from t032t1 order by substr(cast(f as varchar(20)), 7, 1);
+
+E       
+--------
+
+10:11:12
+10:11:12
+
+--- 2 row(s) selected.
+>>select e from t032t1 order by concat(cast(f as varchar(20)), '1') desc, a;
+
+E       
+--------
+
+10:11:12
+10:11:12
+
+--- 2 row(s) selected.
+>>select e from t032t1 order by char_length(substr(repeat(cast(f as varchar(20)), 3), 8, 14));
+
+E       
+--------
+
+10:11:12
+10:11:12
+
+--- 2 row(s) selected.
+>>select a from t032t1 where a = 1 order by CURRENT(3);
+
+A          
+-----------
+
+          1
+
+--- 1 row(s) selected.
+>>select a from t032t1 order by DATE_TRUNC('DAY', d), DATE_TRUNC('DAY', f) desc;
+
+A          
+-----------
+
+          2
+          1
+
+--- 2 row(s) selected.
+>>select a from t032t1 order by JULIANTIMESTAMP(d), JULIANTIMESTAMP(f) desc;
+
+A          
+-----------
+
+          2
+          1
+
+--- 2 row(s) selected.
+>>select a from t032t1 order by MONTHNAME (d), MONTHNAME (f) desc;
+
+A          
+-----------
+
+          2
+          1
+
+--- 2 row(s) selected.
+>>select a from t032t1 order by case when b > 3 then 1 when b < 3 then 2 end , c;
+
+A          
+-----------
+
+          1
+          2
+
+--- 2 row(s) selected.
+>>-- expression not support in order by list
+>>select max(a) from t032t1 order by max(a);
+
+*** ERROR[4120] In a query with a GROUP BY, DISTINCT, or aggregate function, each column in the ORDER BY clause must be one of the columns explicitly SELECTed by the query. Column in error: A.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>select min(a) from t032t1 order by min(a);
+
+*** ERROR[4120] In a query with a GROUP BY, DISTINCT, or aggregate function, each column in the ORDER BY clause must be one of the columns explicitly SELECTed by the query. Column in error: A.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>select avg(a) from t032t1 order by avg(a);
+
+(EXPR)              
+-----------------------------------------------------------
+
+                                                        1.5
+
+--- 1 row(s) selected.
+>>select a from t032t1 group by a order by max(c);
+
+*** ERROR[4121] In a query with a GROUP BY, DISTINCT, or aggregate function, each column in the ORDER BY clause must be one of the columns explicitly SELECTed by the query.  Column in error: C.  Table in scope: TRAFODION.SCH.T032T1.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>select a,max(c) from t032t1 group by a order by max(c);
+
+*** ERROR[4121] In a query with a GROUP BY, DISTINCT, or aggregate function, each column in the ORDER BY clause must be one of the columns explicitly SELECTed by the query.  Column in error: C.  Table in scope: TRAFODION.SCH.T032T1.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>select a        from t032t1 group by a order by max(c);
+
+*** ERROR[4121] In a query with a GROUP BY, DISTINCT, or aggregate function, each column in the ORDER BY clause must be one of the columns explicitly SELECTed by the query.  Column in error: C.  Table in scope: TRAFODION.SCH.T032T1.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>select a,avg(c) from t032t1 group by a order by avg(c);
+
+A            (EXPR)              
+-----------  --------------------
+
+          2                     3
+          1                     3
+
+--- 2 row(s) selected.
+>>select a        from t032t1 group by a order by avg(c);
+
+*** ERROR[4121] In a query with a GROUP BY, DISTINCT, or aggregate function, each column in the ORDER BY clause must be one of the columns explicitly SELECTed by the query.  Column in error: C.  Table in scope: TRAFODION.SCH.T032T1.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>select a,sum(c) from t032t1 group by a order by sum(c);
+
+A            (EXPR)              
+-----------  --------------------
+
+          2                     3
+          1                     3
+
+--- 2 row(s) selected.
+>>select a        from t032t1 group by a order by sum(c);
+
+*** ERROR[4121] In a query with a GROUP BY, DISTINCT, or aggregate function, each column in the ORDER BY clause must be one of the columns explicitly SELECTed by the query.  Column in error: C.  Table in scope: TRAFODION.SCH.T032T1.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>
+>>-- incompatible operations
+>>select a from t032t1 where a = '2';
+
+A          
+-----------
+
+          2
+
+--- 1 row(s) selected.
+>>select b from t032t1 where b = '2';
+
+B   
+----
+
+   2
+
+--- 1 row(s) selected.
+>>select a + '1' from t032t1;
+
+(EXPR)              
+--------------------
+
+                   2
+                   3
+
+--- 2 row(s) selected.
+>>select a || '1' from t032t1;
+
+(EXPR)      
+------------
+
+11          
+21          
+
+--- 2 row(s) selected.
+>>insert into t032t1 values ('3', 3, 3, date '2016-08-15',  time '10:11:12',
++>                           timestamp '2016-08-15 10:11:12', 4e0);
+
+--- 1 row(s) inserted.
+>>select * from t032t1;
+
+A            B     C            D           E         F                           G
+-----------  ----  -----------  ----------  --------  --------------------------  ---------------
+
+          1     2            3  2016-08-15  10:11:12  2016-08-15 10:11:12.000000   4.0000000E+000
+          2     3            3  2016-08-15  10:11:12  2016-08-15 10:11:12.000000   4.0000000E+000
+          3     3            3  2016-08-15  10:11:12  2016-08-15 10:11:12.000000   4.0000000E+000
+
+--- 3 row(s) selected.
+>>
+>>select * from (values(1)) x(a) where current_date = cast(current_timestamp as date);
+
+A   
+----
+
+   1
+
+--- 1 row(s) selected.
+>>select * from (values(1)) x(a) where current_timestamp(0) = cast(current_timestamp(6) as timestamp(0));
+
+A   
+----
+
+   1
+
+--- 1 row(s) selected.
+>>
+>>select cast(1e0 as interval year) from dual;
+
+(EXPR)
+------
+
+     1
+
+--- 1 row(s) selected.
+>>
+>>
+>>-- auto create schema
+>>drop schema if exists t032sch cascade;
+
+--- SQL operation complete.
+>>
+>>-- should fail, schema doesnt exist
+>>create table t032sch.t032t2 (a int);
+
+*** ERROR[1003] Schema TRAFODION.T032SCH does not exist.
+
+--- SQL operation failed with errors.
+>>
+>>-- should succeed, schema will be automatically created
+>>cqd TRAF_LOCK_DDL 'off';
+
+--- SQL operation complete.
+>>cqd traf_auto_create_schema 'ON';
+
+--- SQL operation complete.
+>>create table t032sch.t032t2 (a int);
+
+--- SQL operation complete.
+>>set schema t032sch;
+
+--- SQL operation complete.
+>>invoke t032t2;
+
+-- Definition of Trafodion table TRAFODION.T032SCH.T032T2
+-- Definition of hbase table TRAF_regr:TRAFODION.T032SCH.T032T2
+-- Definition current  Fri Dec  6 04:46:16 2019
+
+  (
+    SYSKEY                           LARGEINT NO DEFAULT NOT NULL NOT DROPPABLE
+  , A                                INT DEFAULT NULL
+  )
+
+--- SQL operation complete.
+>>insert into t032t2 values (1);
+
+--- 1 row(s) inserted.
+>>
+>>-- alter add column should use charset from cqd, if specified
+>>drop table t032t2;
+
+--- SQL operation complete.
+>>create table t032t2 (a char(10), b char(10) character set iso88591, 
++>   c varchar(10) character set utf8);
+
+--- SQL operation complete.
+>>invoke t032t2;
+
+-- Definition of Trafodion table TRAFODION.T032SCH.T032T2
+-- Definition of hbase table TRAF_regr:TRAFODION.T032SCH.T032T2
+-- Definition current  Fri Dec  6 04:46:26 2019
+
+  (
+    SYSKEY                           LARGEINT NO DEFAULT NOT NULL NOT DROPPABLE
+  , A                                CHAR(10) CHARACTER SET ISO88591 COLLATE
+      DEFAULT DEFAULT NULL
+  , B                                CHAR(10) CHARACTER SET ISO88591 COLLATE
+      DEFAULT DEFAULT NULL
+  , C                                VARCHAR(10 CHARS) CHARACTER SET UTF8
+      COLLATE DEFAULT DEFAULT NULL
+  )
+
+--- SQL operation complete.
+>>alter table t032t2 add column d char(10);
+
+--- SQL operation complete.
+>>invoke t032t2;
+
+-- Definition of Trafodion table TRAFODION.T032SCH.T032T2
+-- Definition of hbase table TRAF_regr:TRAFODION.T032SCH.T032T2
+-- Definition current  Fri Dec  6 04:46:28 2019
+
+  (
+    SYSKEY                           LARGEINT NO DEFAULT NOT NULL NOT DROPPABLE
+  , A                                CHAR(10) CHARACTER SET ISO88591 COLLATE
+      DEFAULT DEFAULT NULL
+  , B                                CHAR(10) CHARACTER SET ISO88591 COLLATE
+      DEFAULT DEFAULT NULL
+  , C                                VARCHAR(10 CHARS) CHARACTER SET UTF8
+      COLLATE DEFAULT DEFAULT NULL
+  , D                                CHAR(10) CHARACTER SET ISO88591 COLLATE
+      DEFAULT DEFAULT NULL /*added_col*/
+  )
+
+--- SQL operation complete.
+>>alter table t032t2 add column e char(10) character set utf8;
+
+--- SQL operation complete.
+>>invoke t032t2;
+
+-- Definition of Trafodion table TRAFODION.T032SCH.T032T2
+-- Definition of hbase table TRAF_regr:TRAFODION.T032SCH.T032T2
+-- Definition current  Fri Dec  6 04:46:29 2019
+
+  (
+    SYSKEY                           LARGEINT NO DEFAULT NOT NULL NOT DROPPABLE
+  , A                                CHAR(10) CHARACTER SET ISO88591 COLLATE
+      DEFAULT DEFAULT NULL
+  , B                                CHAR(10) CHARACTER SET ISO88591 COLLATE
+      DEFAULT DEFAULT NULL
+  , C                                VARCHAR(10 CHARS) CHARACTER SET UTF8
+      COLLATE DEFAULT DEFAULT NULL
+  , D                                CHAR(10) CHARACTER SET ISO88591 COLLATE
+      DEFAULT DEFAULT NULL /*added_col*/
+  , E                                CHAR(10 CHARS) CHARACTER SET UTF8 COLLATE
+      DEFAULT DEFAULT NULL /*added_col*/
+  )
+
+--- SQL operation complete.
+>>cqd traf_default_col_charset 'ISO88591';
+
+--- SQL operation complete.
+>>alter table t032t2 add column f varchar(10);
+
+--- SQL operation complete.
+>>invoke t032t2;
+
+-- Definition of Trafodion table TRAFODION.T032SCH.T032T2
+-- Definition of hbase table TRAF_regr:TRAFODION.T032SCH.T032T2
+-- Definition current  Fri Dec  6 04:46:31 2019
+
+  (
+    SYSKEY                           LARGEINT NO DEFAULT NOT NULL NOT DROPPABLE
+  , A                                CHAR(10) CHARACTER SET ISO88591 COLLATE
+      DEFAULT DEFAULT NULL
+  , B                                CHAR(10) CHARACTER SET ISO88591 COLLATE
+      DEFAULT DEFAULT NULL
+  , C                                VARCHAR(10 CHARS) CHARACTER SET UTF8
+      COLLATE DEFAULT DEFAULT NULL
+  , D                                CHAR(10) CHARACTER SET ISO88591 COLLATE
+      DEFAULT DEFAULT NULL /*added_col*/
+  , E                                CHAR(10 CHARS) CHARACTER SET UTF8 COLLATE
+      DEFAULT DEFAULT NULL /*added_col*/
+  , F                                VARCHAR(10) CHARACTER SET ISO88591 COLLATE
+      DEFAULT DEFAULT NULL /*added_col*/
+  )
+
+--- SQL operation complete.
+>>cqd traf_default_col_charset 'UTF8';
+
+--- SQL operation complete.
+>>alter table t032t2 add column g varchar(10);
+
+--- SQL operation complete.
+>>invoke t032t2;
+
+-- Definition of Trafodion table TRAFODION.T032SCH.T032T2
+-- Definition of hbase table TRAF_regr:TRAFODION.T032SCH.T032T2
+-- Definition current  Fri Dec  6 04:46:32 2019
+
+  (
+    SYSKEY                           LARGEINT NO DEFAULT NOT NULL NOT DROPPABLE
+  , A                                CHAR(10) CHARACTER SET ISO88591 COLLATE
+      DEFAULT DEFAULT NULL
+  , B                                CHAR(10) CHARACTER SET ISO88591 COLLATE
+      DEFAULT DEFAULT NULL
+  , C                                VARCHAR(10 CHARS) CHARACTER SET UTF8
+      COLLATE DEFAULT DEFAULT NULL
+  , D                                CHAR(10) CHARACTER SET ISO88591 COLLATE
+      DEFAULT DEFAULT NULL /*added_col*/
+  , E                                CHAR(10 CHARS) CHARACTER SET UTF8 COLLATE
+      DEFAULT DEFAULT NULL /*added_col*/
+  , F                                VARCHAR(10) CHARACTER SET ISO88591 COLLATE
+      DEFAULT DEFAULT NULL /*added_col*/
+  , G                                VARCHAR(10 CHARS) CHARACTER SET UTF8
+      COLLATE DEFAULT DEFAULT NULL /*added_col*/
+  )
+
+--- SQL operation complete.
+>>
+>>-- MD indexes
+>>initialize trafodion, update metadata indexes;
+
+--- SQL operation complete.
+>>get indexes on table trafodion."_MD_".indexes;
+
+--- SQL operation complete.
+>>get indexes on table trafodion."_MD_".table_constraints;
+
+Indexes on Table _MD_.TABLE_CONSTRAINTS
+=======================================
+
+TABLE_CONSTRAINTS_IDX
+
+=======================
+ 1 row(s) returned
+
+--- SQL operation complete.
+>>
+>>-- string operations on numeric datatype
+>>select char_length(1), char_length(12345) from dual;
+
+(EXPR)      (EXPR)    
+----------  ----------
+
+         1           5
+
+--- 1 row(s) selected.
+>>select octet_length(1), octet_length(12345) from dual;
+
+(EXPR)      (EXPR)    
+----------  ----------
+
+         1           5
+
+--- 1 row(s) selected.
+>>select length(1), length(12345), length('a'), length('abc') from dual;
+
+(EXPR)      (EXPR)      (EXPR)      (EXPR)    
+----------  ----------  ----------  ----------
+
+         1           5           1           3
+
+--- 1 row(s) selected.
+>>select 1 || 2 from dual;
+
+(EXPR)  
+--------
+
+12      
+
+--- 1 row(s) selected.
+>>select cast(1 as int) || cast(2 as largeint) from dual;
+
+(EXPR)                         
+-------------------------------
+
+12                             
+
+--- 1 row(s) selected.
+>>select 'a' || cast(2 as int) from dual;
+
+(EXPR)      
+------------
+
+a2          
+
+--- 1 row(s) selected.
+>>select 'a' || cast(2 as int) || 'b' from dual;
+
+(EXPR)       
+-------------
+
+a2b          
+
+--- 1 row(s) selected.
+>>select * from dual where '1' = 1;
+
+(EXPR)
+------
+
+     0
+
+--- 1 row(s) selected.
+>>select * from dual where 'a' = 1;
+
+--- 0 row(s) selected.
+>>
+>>-- unique pkey pred on scaled numerics
+>>cqd query_cache '0';
+
+--- SQL operation complete.
+>>drop table if exists t032t33;
+
+--- SQL operation complete.
+>>create table if not exists t032t33 (a numeric(2,1) not null primary key);
+
+--- SQL operation complete.
+>>insert into t032t33 values (1.0), (-1.0), (0), (0.1), (-0.1), (2), (-2);
+
+--- 7 row(s) inserted.
+>>select * from t032t33 where a = 1.0;
+
+A    
+-----
+
+    1
+
+--- 1 row(s) selected.
+>>select * from t032t33 where a = -1.0;
+
+A    
+-----
+
+   -1
+
+--- 1 row(s) selected.
+>>select * from t032t33 where a = 0;
+
+A    
+-----
+
+    0
+
+--- 1 row(s) selected.
+>>select * from t032t33 where a = 0.1;
+
+A    
+-----
+
+   .1
+
+--- 1 row(s) selected.
+>>select * from t032t33 where a = -0.1;
+
+A    
+-----
+
+  -.1
+
+--- 1 row(s) selected.
+>>select * from t032t33 where a = 2;
+
+A    
+-----
+
+    2
+
+--- 1 row(s) selected.
+>>select * from t032t33 where a = -2;
+
+A    
+-----
+
+   -2
+
+--- 1 row(s) selected.
+>>
+>>drop table if exists t032t34;
+
+--- SQL operation complete.
+>>create table t032t34 (c1 float not null primary key);
+
+--- SQL operation complete.
+>>insert into t032t34 values (-1.0);
+
+--- 1 row(s) inserted.
+>>select * from t032t34 where c1=-1.0;
+
+C1                       
+-------------------------
+
+-1.00000000000000000E+000
+
+--- 1 row(s) selected.
+>>select * from t032t34 where c1 = -1.0e0;
+
+C1                       
+-------------------------
+
+-1.00000000000000000E+000
+
+--- 1 row(s) selected.
+>>select * from t032t34 where c1>= -1.0;
+
+C1                       
+-------------------------
+
+-1.00000000000000000E+000
+
+--- 1 row(s) selected.
+>>select * from t032t34 where c1>= -1.0e0;
+
+C1                       
+-------------------------
+
+-1.00000000000000000E+000
+
+--- 1 row(s) selected.
+>>
+>>cqd query_cache reset;
+
+--- SQL operation complete.
+>>-- auto NOT NULL attr for pkey columns
+>>create schema if not exists t032sch;
+
+--- SQL operation complete.
+>>set schema t032sch;
+
+--- SQL operation complete.
+>>drop table if exists t032t1;
+
+--- SQL operation complete.
+>>drop table if exists t032t2;
+
+--- SQL operation complete.
+>>drop table if exists t032t3;
+
+--- SQL operation complete.
+>>drop table if exists t032t4 cascade;
+
+--- SQL operation complete.
+>>drop table if exists t032t5 cascade;
+
+--- SQL operation complete.
+>>
+>>-- NOT NULL attr for pkey columns
+>>create table t032t1 (a int primary key);
+
+--- SQL operation complete.
+>>showddl t032t1;
+
+CREATE TABLE TRAFODION.T032SCH.T032T1
+  (
+    A                                INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , PRIMARY KEY (A ASC)
+  )
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_regr'
+;
+
+--- SQL operation complete.
+>>drop table t032t1;
+
+--- SQL operation complete.
+>>create table t032t1 (a int, primary key(a));
+
+--- SQL operation complete.
+>>showddl t032t1;
+
+CREATE TABLE TRAFODION.T032SCH.T032T1
+  (
+    A                                INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , PRIMARY KEY (A ASC)
+  )
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_regr'
+;
+
+--- SQL operation complete.
+>>drop table t032t1;
+
+--- SQL operation complete.
+>>create table t032t1 (a int) primary key(a);
+
+--- SQL operation complete.
+>>showddl t032t1;
+
+CREATE TABLE TRAFODION.T032SCH.T032T1
+  (
+    A                                INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , PRIMARY KEY (A ASC)
+  )
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_regr'
+;
+
+--- SQL operation complete.
+>>drop table t032t1;
+
+--- SQL operation complete.
+>>create table t032t1 primary key(a) as select cast(1 as nullable) a from dual;
+
+--- 1 row(s) inserted.
+>>showddl t032t1;
+
+CREATE TABLE TRAFODION.T032SCH.T032T1
+  (
+    A                                NUMERIC(1, 0) NO DEFAULT NOT NULL NOT
+      DROPPABLE
+  , PRIMARY KEY (A ASC)
+  )
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_regr'
+;
+
+--- SQL operation complete.
+>>
+>>-- no NOT NULL attr if nullable pkey is specified
+>>create table t032t2 (a int constraint t2pk primary key nullable);
+
+--- SQL operation complete.
+>>showddl t032t2;
+
+CREATE TABLE TRAFODION.T032SCH.T032T2
+  (
+    A                                INT DEFAULT NULL
+ , CONSTRAINT TRAFODION.T032SCH.T2PK PRIMARY KEY NULLABLE (A ASC)
+  )
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_regr'
+;
+
+--- SQL operation complete.
+>>insert into t032t2 values (1), (null);
+
+--- 2 row(s) inserted.
+>>select * from t032t2 order by a;
+
+A          
+-----------
+
+          1
+          ?
+
+--- 2 row(s) selected.
+>>drop table t032t2;
+
+--- SQL operation complete.
+>>create table t032t2 (a int, b int);
+
+--- SQL operation complete.
+>>alter table t032t2 add constraint pkt2 primary key nullable (a);
+
+--- SQL operation complete.
+>>showddl t032t2;
+
+CREATE TABLE TRAFODION.T032SCH.T032T2
+  (
+    A                                INT DEFAULT NULL
+  , B                                INT DEFAULT NULL
+ , CONSTRAINT TRAFODION.T032SCH.PKT2 PRIMARY KEY NULLABLE (A ASC)
+  )
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_regr'
+;
+
+--- SQL operation complete.
+>>-- store by nullable
+>>create table t032sbt1 (a int primary key, b int) store by nullable (a);
+
+--- SQL operation complete.
+>>showddl t032sbt1;
+
+CREATE TABLE TRAFODION.T032SCH.T032SBT1
+  (
+    A                                INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , B                                INT DEFAULT NULL
+  , PRIMARY KEY (A ASC)
+  )
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_regr'
+;
+
+--- SQL operation complete.
+>>drop table t032sbt1;
+
+--- SQL operation complete.
+>>create table t032sbt1(a int , b int, primary key(a,b)) store by nullable (a,b);
+
+--- SQL operation complete.
+>>showddl t032sbt1;
+
+CREATE TABLE TRAFODION.T032SCH.T032SBT1
+  (
+    A                                INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , B                                INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , PRIMARY KEY (A ASC, B ASC)
+  )
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_regr'
+;
+
+--- SQL operation complete.
+>>drop table t032sbt1;
+
+--- SQL operation complete.
+>>create table t032sbt1(a int , b int, primary key nullable(a,b)) store by nullable(a,b);
+
+--- SQL operation complete.
+>>showddl t032sbt1;
+
+CREATE TABLE TRAFODION.T032SCH.T032SBT1
+  (
+    A                                INT DEFAULT NULL
+  , B                                INT DEFAULT NULL
+  , PRIMARY KEY NULLABLE (A ASC, B ASC)
+  )
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_regr'
+;
+
+--- SQL operation complete.
+>>insert into t032sbt1 values(null,null);
+
+--- 1 row(s) inserted.
+>>drop table t032sbt1;
+
+--- SQL operation complete.
+>>create table t032sbt1(a int, b int primary key nullable) store by nullable(b);
+
+--- SQL operation complete.
+>>showddl t032sbt1;
+
+CREATE TABLE TRAFODION.T032SCH.T032SBT1
+  (
+    A                                INT DEFAULT NULL
+  , B                                INT DEFAULT NULL
+  , PRIMARY KEY NULLABLE (B ASC)
+  )
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_regr'
+;
+
+--- SQL operation complete.
+>>insert into t032sbt1 values(1,null);
+
+--- 1 row(s) inserted.
+>>drop table t032sbt1;
+
+--- SQL operation complete.
+>>create table t032sbt1(a int not null, b int not null) store by nullable(a);
+
+--- SQL operation complete.
+>>showddl t032sbt1;
+
+CREATE TABLE TRAFODION.T032SCH.T032SBT1
+  (
+    A                                INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , B                                INT NO DEFAULT NOT NULL NOT DROPPABLE
+  )
+  STORE BY (A ASC)
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_regr'
+;
+
+--- SQL operation complete.
+>>drop table t032sbt1;
+
+--- SQL operation complete.
+>>create table t032sbt1(a int , b int ) store by nullable(a,b);
+
+--- SQL operation complete.
+>>showddl t032sbt1;
+
+CREATE TABLE TRAFODION.T032SCH.T032SBT1
+  (
+    A                                INT DEFAULT NULL
+  , B                                INT DEFAULT NULL
+  )
+  STORE BY NULLABLE (A ASC, B ASC)
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_regr'
+;
+
+--- SQL operation complete.
+>>insert into t032sbt1 values(null,null);
+
+--- 1 row(s) inserted.
+>>drop table t032sbt1;
+
+--- SQL operation complete.
+>>create table t032sbt1 (a varchar(500) not null, b varchar(500), primary key nullable(a,b));
+
+--- SQL operation complete.
+>>create table t032sblike like t032sbt1 limit column length to 256;
+
+--- SQL operation complete.
+>>showddl t032sblike;
+
+CREATE TABLE TRAFODION.T032SCH.T032SBLIKE
+  (
+    A                                VARCHAR(256 BYTES) CHARACTER SET UTF8
+      COLLATE DEFAULT NO DEFAULT NOT NULL NOT DROPPABLE
+  , B                                VARCHAR(256 BYTES) CHARACTER SET UTF8
+      COLLATE DEFAULT DEFAULT NULL
+  )
+  STORE BY NULLABLE (A ASC, B ASC)
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_regr'
+;
+
+--- SQL operation complete.
+>>drop table t032sblike;
+
+--- SQL operation complete.
+>>drop table t032sbt1;
+
+--- SQL operation complete.
+>>-- should return unique violation
+>>insert into t032t2 values (null, 1), (null, 2);
+
+*** ERROR[8102] The operation is prevented by a unique constraint.
+
+--- 0 row(s) inserted.
+>>
+>>create table t032t2like like t032t2;
+
+--- SQL operation complete.
+>>showddl t032t2like;
+
+CREATE TABLE TRAFODION.T032SCH.T032T2LIKE
+  (
+    A                                INT DEFAULT NULL
+  , B                                INT DEFAULT NULL
+  , PRIMARY KEY NULLABLE (A ASC)
+  )
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_regr'
+;
+
+--- SQL operation complete.
+>>insert into t032t2like values (1, 1), (null, null);
+
+--- 2 row(s) inserted.
+>>
+>>select * from t032t2like where a is null;
+
+A            B          
+-----------  -----------
+
+          ?            ?
+
+--- 1 row(s) selected.
+>>update t032t2like set b = 10 where a is null;
+
+--- 1 row(s) updated.
+>>select * from t032t2like;
+
+A            B          
+-----------  -----------
+
+          1            1
+          ?           10
+
+--- 2 row(s) selected.
+>>delete from t032t2like where a is null;
+
+--- 1 row(s) deleted.
+>>select * from t032t2like;
+
+A            B          
+-----------  -----------
+
+          1            1
+
+--- 1 row(s) selected.
+>>
+>>alter table t032t2like alter column b largeint;
+
+--- SQL operation complete.
+>>invoke t032t2like;
+
+-- Definition of Trafodion table TRAFODION.T032SCH.T032T2LIKE
+-- Definition of hbase table TRAF_regr:TRAFODION.T032SCH.T032T2LIKE
+-- Definition current  Fri Dec  6 04:48:38 2019
+
+  (
+    A                                INT DEFAULT NULL
+  , B                                LARGEINT DEFAULT NULL /*altered_col*/
+  )
+  PRIMARY KEY NULLABLE (A ASC)
+
+--- SQL operation complete.
+>>
+>>-- alter/add pkey on empty table
+>>create table t032t3 (a int, b int not null);
+
+--- SQL operation complete.
+>>alter table t032t3 add constraint pkt3 primary key(a);
+
+--- SQL operation complete.
+>>invoke t032t3;
+
+-- Definition of Trafodion table TRAFODION.T032SCH.T032T3
+-- Definition of hbase table TRAF_regr:TRAFODION.T032SCH.T032T3
+-- Definition current  Fri Dec  6 04:48:50 2019
+
+  (
+    A                                INT DEFAULT NULL NOT NULL NOT DROPPABLE
+  , B                                INT NO DEFAULT NOT NULL NOT DROPPABLE
+  )
+  PRIMARY KEY (A ASC)
+
+--- SQL operation complete.
+>>
+>>-- alter/add pkey on non-empty table
+>>create table t032t4 (a int, b int not null);
+
+--- SQL operation complete.
+>>insert into t032t4 values (1,1);
+
+--- 1 row(s) inserted.
+>>alter table t032t4 add constraint pkt4 primary key(a);
+
+--- SQL operation complete.
+>>invoke t032t4;
+
+-- Definition of Trafodion table TRAFODION.T032SCH.T032T4
+-- Definition of hbase table TRAF_regr:TRAFODION.T032SCH.T032T4
+-- Definition current  Fri Dec  6 04:50:06 2019
+
+  (
+    A                                INT DEFAULT NULL NOT NULL NOT DROPPABLE
+  , B                                INT NO DEFAULT NOT NULL NOT DROPPABLE
+  )
+  PRIMARY KEY (A ASC)
+
+--- SQL operation complete.
+>>
+>>-- pkey not allowed with dependent objects
+>>create table t032t5 (a int, b int);
+
+--- SQL operation complete.
+>>create view v032t5 as select * from t032t5;
+
+--- SQL operation complete.
+>>alter table t032t5 add constraint pkt5 primary key(a);
+
+*** ERROR[3242] This statement is not supported. Reason: Cannot alter/add primary key constraint on a table with dependencies. Drop all dependent objects (views, indexes, unique, trigger and referential constraints) on the specified table and recreate them after adding the primary key.
+
+--- SQL operation failed with errors.
+>>
+>>-- pkey created as unique constraint if cqd is set
+>>cqd traf_alter_add_pkey_as_unique_constraint 'ON';
+
+--- SQL operation complete.
+>>alter table t032t5 add constraint pkt5 primary key(a);
+
+--- SQL operation complete.
+>>showddl t032t5;
+
+CREATE TABLE TRAFODION.T032SCH.T032T5
+  (
+    A                                INT DEFAULT NULL
+  , B                                INT DEFAULT NULL
+  )
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_regr'
+;
+
+-- The following index is a system created index --
+CREATE UNIQUE INDEX PKT5 ON TRAFODION.T032SCH.T032T5
+  (
+    A ASC
+  )
+;
+
+ALTER TABLE TRAFODION.T032SCH.T032T5 ADD CONSTRAINT TRAFODION.T032SCH.PKT5
+  UNIQUE
+  (
+    A
+  )
+;
+
+--- SQL operation complete.
+>>
+>>-- unnamed constraints
+>>drop table if exists t032t6;
+
+--- SQL operation complete.
+>>create table t032t6 (a int primary key, 
++>                     b int constraint t032t6check check (b > 0),
++>                     c int unique) attribute synchronous replication;
+
+--- SQL operation complete.
+>>showddl t032t6;
+
+CREATE TABLE TRAFODION.T032SCH.T032T6
+  (
+    A                                INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , B                                INT DEFAULT NULL
+  , C                                INT DEFAULT NULL
+  , PRIMARY KEY (A ASC)
+  )
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_regr' SYNCHRONOUS REPLICATION
+;
+
+-- The following index is a system created index --
+CREATE UNIQUE INDEX "_Traf_UC_1_T032T6" ON TRAFODION.T032SCH.T032T6
+  (
+    C ASC
+  )
+;
+
+ALTER TABLE TRAFODION.T032SCH.T032T6 ADD CONSTRAINT
+  TRAFODION.T032SCH."_Traf_UC_1_T032T6" UNIQUE
+  (
+    C
+  )
+;
+
+ALTER TABLE TRAFODION.T032SCH.T032T6 ADD CONSTRAINT
+  TRAFODION.T032SCH.T032T6CHECK CHECK (TRAFODION.T032SCH.T032T6.B > 0)
+;
+
+--- SQL operation complete.
+>>
+>>-- should return no rows
+>>select object_name from "_MD_".objects where schema_name = 'T032SCH' and
++>   object_name  like '\_Traf\_%T032T6' escape '\' and object_type = 'PK';
+
+--- 0 row(s) selected.
+>>
+>>insert into t032t6 values (1,1,1);
+
+--- 1 row(s) inserted.
+>>insert into t032t6 values (2,0,1);
+
+*** ERROR[8101] The operation is prevented by check constraint TRAFODION.T032SCH.T032T6CHECK on table TRAFODION.T032SCH.T032T6.
+
+--- 0 row(s) inserted.
+>>insert into t032t6 values (2,1,1);
+
+*** ERROR[8102] The operation is prevented by a unique constraint.
+
+--- 0 row(s) inserted.
+>>
+>>delete from t032t6;
+
+--- 1 row(s) deleted.
+>>create table t032t62(a int primary key, b int) attribute synchronous replication;
+
+--- SQL operation complete.
+>>alter table t032t6 add foreign key (b) references t032t62(a);
+
+--- SQL operation complete.
+>>showddl t032t6;
+
+CREATE TABLE TRAFODION.T032SCH.T032T6
+  (
+    A                                INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , B                                INT DEFAULT NULL
+  , C                                INT DEFAULT NULL
+  , PRIMARY KEY (A ASC)
+  )
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_regr' SYNCHRONOUS REPLICATION
+;
+
+-- The following index is a system created index --
+CREATE UNIQUE INDEX "_Traf_UC_1_T032T6" ON TRAFODION.T032SCH.T032T6
+  (
+    C ASC
+  )
+;
+
+-- The following index is a system created index --
+CREATE INDEX "_Traf_UC_2_T032T6" ON TRAFODION.T032SCH.T032T6
+  (
+    B ASC
+  )
+;
+
+ALTER TABLE TRAFODION.T032SCH.T032T6 ADD CONSTRAINT
+  TRAFODION.T032SCH."_Traf_UC_1_T032T6" UNIQUE
+  (
+    C
+  )
+;
+
+ALTER TABLE TRAFODION.T032SCH.T032T6 ADD CONSTRAINT
+  TRAFODION.T032SCH."_Traf_UC_2_T032T6" FOREIGN KEY
+  (
+    B
+  )
+ REFERENCES TRAFODION.T032SCH.T032T62
+  (
+    A
+  )
+;
+
+ALTER TABLE TRAFODION.T032SCH.T032T6 ADD CONSTRAINT
+  TRAFODION.T032SCH.T032T6CHECK CHECK (TRAFODION.T032SCH.T032T6.B > 0)
+;
+
+--- SQL operation complete.
+>>
+>>alter table t032t6 rename to t032t6ren;
+
+*** ERROR[1427] Table cannot be renamed. Reason: Operation not allowed if check constraints are present. Drop the constraints and recreate them after rename.
+
+--- SQL operation failed with errors.
+>>alter table t032t6 drop constraint t032t6check;
+
+--- SQL operation complete.
+>>alter table t032t6 rename to t032t6ren;
+
+--- SQL operation complete.
+>>showddl t032t6ren;
+
+CREATE TABLE TRAFODION.T032SCH.T032T6REN
+  (
+    A                                INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , B                                INT DEFAULT NULL
+  , C                                INT DEFAULT NULL
+  , PRIMARY KEY (A ASC)
+  )
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_regr' SYNCHRONOUS REPLICATION
+;
+
+-- The following index is a system created index --
+CREATE UNIQUE INDEX "_Traf_UC_1_T032T6REN" ON TRAFODION.T032SCH.T032T6REN
+  (
+    C ASC
+  )
+;
+
+-- The following index is a system created index --
+CREATE INDEX "_Traf_UC_2_T032T6REN" ON TRAFODION.T032SCH.T032T6REN
+  (
+    B ASC
+  )
+;
+
+ALTER TABLE TRAFODION.T032SCH.T032T6REN ADD CONSTRAINT
+  TRAFODION.T032SCH."_Traf_UC_1_T032T6REN" UNIQUE
+  (
+    C
+  )
+;
+
+ALTER TABLE TRAFODION.T032SCH.T032T6REN ADD CONSTRAINT
+  TRAFODION.T032SCH."_Traf_UC_2_T032T6REN" FOREIGN KEY
+  (
+    B
+  )
+ REFERENCES TRAFODION.T032SCH.T032T62
+  (
+    A
+  )
+;
+
+--- SQL operation complete.
+>>alter table t032t6ren add check (c > 0);
+
+--- SQL operation complete.
+>>showddl t032t6ren;
+
+CREATE TABLE TRAFODION.T032SCH.T032T6REN
+  (
+    A                                INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , B                                INT DEFAULT NULL
+  , C                                INT DEFAULT NULL
+  , PRIMARY KEY (A ASC)
+  )
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_regr' SYNCHRONOUS REPLICATION
+;
+
+-- The following index is a system created index --
+CREATE UNIQUE INDEX "_Traf_UC_1_T032T6REN" ON TRAFODION.T032SCH.T032T6REN
+  (
+    C ASC
+  )
+;
+
+-- The following index is a system created index --
+CREATE INDEX "_Traf_UC_2_T032T6REN" ON TRAFODION.T032SCH.T032T6REN
+  (
+    B ASC
+  )
+;
+
+ALTER TABLE TRAFODION.T032SCH.T032T6REN ADD CONSTRAINT
+  TRAFODION.T032SCH."_Traf_UC_1_T032T6REN" UNIQUE
+  (
+    C
+  )
+;
+
+ALTER TABLE TRAFODION.T032SCH.T032T6REN ADD CONSTRAINT
+  TRAFODION.T032SCH."_Traf_UC_2_T032T6REN" FOREIGN KEY
+  (
+    B
+  )
+ REFERENCES TRAFODION.T032SCH.T032T62
+  (
+    A
+  )
+;
+
+ALTER TABLE TRAFODION.T032SCH.T032T6REN ADD CONSTRAINT
+  TRAFODION.T032SCH.T032T6REN_596755463_1315 CHECK
+  (TRAFODION.T032SCH.T032T6REN.C > 0)
+;
+
+--- SQL operation complete.
+>>
+>>create table t032t6 (a int primary key, b int check (b > 0),
++>                     c int unique) attribute synchronous replication;
+
+--- SQL operation complete.
+>>showddl t032t6;
+
+CREATE TABLE TRAFODION.T032SCH.T032T6
+  (
+    A                                INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , B                                INT DEFAULT NULL
+  , C                                INT DEFAULT NULL
+  , PRIMARY KEY (A ASC)
+  )
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_regr' SYNCHRONOUS REPLICATION
+;
+
+-- The following index is a system created index --
+CREATE UNIQUE INDEX "_Traf_UC_1_T032T6" ON TRAFODION.T032SCH.T032T6
+  (
+    C ASC
+  )
+;
+
+ALTER TABLE TRAFODION.T032SCH.T032T6 ADD CONSTRAINT
+  TRAFODION.T032SCH."_Traf_UC_1_T032T6" UNIQUE
+  (
+    C
+  )
+;
+
+ALTER TABLE TRAFODION.T032SCH.T032T6 ADD CONSTRAINT
+  TRAFODION.T032SCH."_Traf_UC_2_T032T6" CHECK (TRAFODION.T032SCH.T032T6.B > 0)
+;
+
+--- SQL operation complete.
+>>
+>>create table "t032t6" (a int primary key, c int unique) 
++>         attribute synchronous replication;
+
+--- SQL operation complete.
+>>showddl "t032t6";
+
+CREATE TABLE TRAFODION.T032SCH."t032t6"
+  (
+    A                                INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , C                                INT DEFAULT NULL
+  , PRIMARY KEY (A ASC)
+  )
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_regr' SYNCHRONOUS REPLICATION
+;
+
+-- The following index is a system created index --
+CREATE UNIQUE INDEX "_Traf_UC_1_t032t6" ON TRAFODION.T032SCH."t032t6"
+  (
+    C ASC
+  )
+;
+
+ALTER TABLE TRAFODION.T032SCH."t032t6" ADD CONSTRAINT
+  TRAFODION.T032SCH."_Traf_UC_1_t032t6" UNIQUE
+  (
+    C
+  )
+;
+
+--- SQL operation complete.
+>>
+>>-- should return error. Invalid constraint name prefix.
+>>create table t032terr (a int constraint "_Traf_UC_1_a" primary key);
+
+*** ERROR[3242] This statement is not supported. Reason: The prefix "_Traf_UC_" is reserved for unnamed constraints. It cannot be specified for a named constraint.
+
+--- SQL operation failed with errors.
+>>
+>>-- should return error. Invalid unnamed constr name generated due to the
+>>-- long tablename.
+>>create table tttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt(a int unique) attribute synchronous replication;
+
+*** ERROR[3242] This statement is not supported. Reason: An invalid name(TRAFODION.T032SCH."_Traf_UC_1_TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT") was generated for this unnamed UNIQUE constraint. Reissue the query after providing an explicit name for this constraint.
+
+*** ERROR[1029] Object TRAFODION.T032SCH.TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT could not be created.
+
+--- SQL operation failed with errors.
+>>
+>>-- preload objects
+>>cqd TRAF_ENABLE_METADATA_LOAD_IN_CACHE 'ON';
+
+--- SQL operation complete.
+>>create table t032t10(a int, b clob, c int, d int, e blob) attribute stored desc;
+
+--- SQL operation complete.
+>>create index t032t10i1 on t032t10(a);
+
+--- SQL operation complete.
+>>alter table t032t10 generate stored desc;
+
+--- SQL operation complete.
+>>alter table t032t10 generate stored stats;
+
+--- SQL operation complete.
+>>prepare s from select * from t032t10;
+
+--- SQL command prepared.
+>>prepare s1 from update t032t10 set a = a + 1;
+
+--- SQL command prepared.
+>>
+>>load trafodion metadata in cache;
+
+--- SQL operation complete.
+>>
+>>alter schema t032sch generate stored desc;
+
+--- SQL operation complete.
+>>alter schema t032sch delete stored desc;
+
+--- SQL operation complete.
+>>cqd TRAF_ENABLE_METADATA_LOAD_IN_CACHE 'OFF';
+
+--- SQL operation complete.
+>>
+>>drop schema t032sch cascade;
+
+--- SQL operation complete.
+>>
+>>log;

@@ -1,0 +1,194 @@
+-- ============================================================================
+-- Fixup Privs
+--
+-- Run the following script to adjust user and roles IDs that come from
+-- the source backup system to match the target system during a restore.
+--
+-- To execute:
+--    bring up sqlci and obey:  obey fixup_privs(fixup)
+--    check the log results, if everything looks good, then commit the change,
+--    there should be no orphaned IDs
+--
+-- Three logs are created:
+--    fixup_privs_initial - contains the current state
+--    fixup_privs_update  - contains result of fixing up orphaned IDs
+--    fixup_privs_final   - contains the final state (what will be committed)
+-- ============================================================================
+
+?section fixup
+-- report existing entries
+log fixup_privs_initial clear;
+obey fixup_privs(list_auths);
+obey fixup_privs(list_mappings);
+obey fixup_privs(orphaned_authids);
+
+-- update mappings
+set parserflags 131072;
+begin work;
+log;
+log fixup_privs_update clear;
+obey fixup_privs(update_mappings);
+reset parserflags 131072;
+
+-- report updated entries
+log;
+log fixup_privs_final clear;
+obey fixup_privs(list_mappings);
+obey fixup_privs(orphaned_authids);
+
+-- if everything looks okay commit operation
+--commit work;
+--exit;
+
+?section update_mappings
+-- ============================================================================
+-- Update object and schema owners from objects
+merge into trafodion."_MD_".objects using 
+   (select distinct grantee_id as source_id, auth_id as target_id
+    from trafodion."_PRIVMGR_MD_".object_privileges,  trafodion."_MD_".auths
+    where grantor_id = -2 and auth_db_name = grantee_name and grantee_id <> auth_id) as a
+  on object_owner = a.source_id
+  when matched then update set object_owner = a.target_id;
+
+merge into trafodion."_MD_".objects using
+   (select distinct grantee_id as source_id, auth_id as target_id
+    from trafodion."_PRIVMGR_MD_".object_privileges,  trafodion."_MD_".auths
+    where grantor_id = -2 and auth_db_name = grantee_name and grantee_id <> auth_id) as a
+  on schema_owner = a.source_id
+  when matched then update set schema_owner = a.target_id;
+
+-- ============================================================================
+-- Update grantee_id and grantor_id from object_privileges;
+update trafodion."_PRIVMGR_MD_".object_privileges
+ set
+   grantee_id =
+    (select auth_id from trafodion."_MD_".auths a
+     where grantee_name = a.auth_db_name)
+ where grantee_id not in (-1, 33332, 33333 ,1000000, 1490000, 1490001);
+;
+
+update trafodion."_PRIVMGR_MD_".object_privileges
+ set
+   grantor_id =
+    (select auth_id from trafodion."_MD_".auths a
+     where grantor_name = a.auth_db_name)
+ where grantor_id not in (-2, 33332, 33333 ,1000000, 1490000, 1490001);
+
+-- ============================================================================
+-- Update grantee_id and grantor_id from column_privileges;
+update trafodion."_PRIVMGR_MD_".column_privileges
+ set
+   grantee_id =
+    (select auth_id from trafodion."_MD_".auths a
+     where grantee_name = a.auth_db_name)
+ where grantee_id not in (-1, 33332, 33333 ,1000000, 1490000, 1490001);
+
+update trafodion."_PRIVMGR_MD_".column_privileges
+ set
+   grantor_id =
+    (select auth_id from trafodion."_MD_".auths a
+     where grantor_name = a.auth_db_name)
+ where grantor_id not in (-2, 33332, 33333 ,1000000, 1490000, 1490001);
+
+-- ============================================================================
+-- Update grantee_id and grantor_id from schema_privileges;
+update trafodion."_PRIVMGR_MD_".schema_privileges
+ set
+   grantee_id =
+    (select auth_id from trafodion."_MD_".auths a
+     where grantee_name = a.auth_db_name)
+ where grantee_id not in (-1, 33332, 33333 ,1000000, 1490000, 1490001);
+
+update trafodion."_PRIVMGR_MD_".schema_privileges
+ set
+   grantor_id =
+    (select auth_id from trafodion."_MD_".auths a
+     where grantor_name = a.auth_db_name)
+ where grantor_id not in (-2, 33332, 33333 ,1000000, 1490000, 1490001);
+
+?section list_auths
+-- ============================================================================
+-- list target authid and authname mapping from auths table
+select 
+   case
+    when auth_type = 'U' then 'User: '
+    else 'Role: '
+   end || auth_id as id,
+   auth_db_name
+from trafodion."_MD_".auths
+where auth_type in ('U', 'R')
+order by auth_id;
+
+?section list_mappings
+-- ============================================================================
+-- list mapping between authorization IDs and names
+select distinct
+  grantor_id as grant_id, grantor_name as grant_name
+from trafodion."_PRIVMGR_MD_".object_privileges
+union
+  (select grantee_id, grantee_name
+   from trafodion."_PRIVMGR_MD_".object_privileges)
+union
+  (select grantor_id as gid, grantor_name
+   from trafodion."_PRIVMGR_MD_".column_privileges)
+union
+  (select grantee_id, grantee_name
+   from trafodion."_PRIVMGR_MD_".column_privileges)
+union
+  (select grantor_id as gid, grantor_name
+   from trafodion."_PRIVMGR_MD_".schema_privileges)
+union
+  (select grantee_id, grantee_name
+   from trafodion."_PRIVMGR_MD_".schema_privileges)
+order by 1,2;
+
+-- ============================================================================
+-- list mapping between object and schema owners that may need adjustment
+select distinct
+  schema_owner, object_owner,
+  object_uid, schema_name, object_name
+from trafodion."_MD_".objects
+where object_type in ('BT', 'VI', 'SG', 'LB', 'UR', 'PA')
+  and (schema_owner not in (33332, 33333, 1000000, 1490000, 1490001)
+   or  object_owner not in (33332, 33333, 1000000, 1490000, 1490001))
+order by 2,3 ;
+
+?section orphaned_authids
+-- ============================================================================
+-- display any authids in privilege tables that do not exists in auths table
+select grantee_id from trafodion."_PRIVMGR_MD_".object_privileges
+where grantee_id not in (select auth_id from trafodion."_MD_".auths)
+  and grantee_id not in (-2, -1, 33332,33333, 1000000, 1490000, 1490001)
+union
+ (select grantor_id from trafodion."_PRIVMGR_MD_".object_privileges
+  where grantor_id not in (select auth_id from trafodion."_MD_".auths)
+    and grantor_id not in (-2, -1, 33332,33333, 1000000, 1490000, 1490001))
+union
+ (select grantee_id from trafodion."_PRIVMGR_MD_".column_privileges
+  where grantee_id not in (select auth_id from trafodion."_MD_".auths)
+    and grantee_id not in (-2, -1, 33332,33333, 1000000, 1490000, 1490001))
+union
+ (select grantor_id from trafodion."_PRIVMGR_MD_".column_privileges
+  where grantor_id not in (select auth_id from trafodion."_MD_".auths)
+    and grantor_id not in (-2, -1, 33332,33333, 1000000, 1490000, 1490001))
+union
+ (select grantee_id from trafodion."_PRIVMGR_MD_".schema_privileges
+  where grantee_id not in (select auth_id from trafodion."_MD_".auths)
+    and grantee_id not in (-2, -1, 33332,33333, 1000000, 1490000, 1490001))
+union
+ (select grantor_id from trafodion."_PRIVMGR_MD_".schema_privileges
+  where grantor_id not in (select auth_id from trafodion."_MD_".auths)
+    and grantor_id not in (-2, -1, 33332,33333, 1000000, 1490000, 1490001))
+order by 1;
+
+select
+  trim(cast (schema_name as char(20) character set iso88591)) || '.' ||
+  trim(cast (object_name as char(40) character set iso88591)) as oname,
+  schema_owner,
+  object_owner
+from trafodion."_MD_".objects
+where schema_owner not in (select auth_id from trafodion."_MD_".auths)
+   or object_owner not in (select auth_id from trafodion."_MD_".auths)
+order by 1,2,3
+;
+

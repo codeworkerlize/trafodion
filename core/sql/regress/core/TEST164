@@ -1,0 +1,180 @@
+-- Tests for Nested Join Probe Cache
+-- Added April 2018
+--
+-- @@@ START COPYRIGHT @@@
+--
+-- Licensed to the Apache Software Foundation (ASF) under one
+-- or more contributor license agreements.  See the NOTICE file
+-- distributed with this work for additional information
+-- regarding copyright ownership.  The ASF licenses this file
+-- to you under the Apache License, Version 2.0 (the
+-- "License"); you may not use this file except in compliance
+-- with the License.  You may obtain a copy of the License at
+--
+--   http://www.apache.org/licenses/LICENSE-2.0
+--
+-- Unless required by applicable law or agreed to in writing,
+-- software distributed under the License is distributed on an
+-- "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+-- KIND, either express or implied.  See the License for the
+-- specific language governing permissions and limitations
+-- under the License.
+--
+-- @@@ END COPYRIGHT @@@
+
+obey TEST164(setup);
+log LOG164 clear;
+obey TEST164(tests);
+obey TEST164(clean_up);
+log;
+exit;
+
+?section setup
+--------------------------------------------------------------------------
+
+DROP TABLE IF EXISTS normal_table;
+DROP TABLE IF EXISTS normal_table_deliminted;
+DROP TABLE IF EXISTS chinese_column_name;
+DROP TABLE IF EXISTS chinese_column_name_deliminted;
+DROP TABLE IF EXISTS chinese_prefix;
+DROP TABLE IF EXISTS chinese_prefix_deliminted;
+DROP TABLE IF EXISTS chinese_suffix;
+DROP TABLE IF EXISTS chinese_suffix_deliminted;
+DROP TABLE IF EXISTS chinese_middle;
+DROP TABLE IF EXISTS chinese_middle_deliminted;
+DROP TABLE IF EXISTS chinese_with_underline;
+DROP TABLE IF EXISTS chinese_with_underline_deliminted;
+DROP TABLE IF EXISTS chinese_with_prefix_c;
+DROP TABLE IF EXISTS chinese_with_prefix_c_deliminted;
+DROP TABLE IF EXISTS chinese_with_prefix_G;
+DROP TABLE IF EXISTS chinese_with_prefix_G_deliminted;
+DROP TABLE IF EXISTS chinese_with_prefix_n;
+DROP TABLE IF EXISTS chinese_with_prefix_n_deliminted;
+DROP TABLE IF EXISTS chinese_with_prefix_P;
+DROP TABLE IF EXISTS chinese_with_prefix_P_deliminted;
+DROP TABLE IF EXISTS chinese_with_prefix_Z;
+DROP TABLE IF EXISTS chinese_with_prefix_Z_deliminted;
+DROP TABLE IF EXISTS table_pk;
+DROP TABLE IF EXISTS table_salt;
+DROP TABLE IF EXISTS table_store;
+DROP TABLE IF EXISTS table_division;
+DROP TABLE IF EXISTS chinese_constraint_test_1;
+DROP TABLE IF EXISTS chinese_constraint_test_2;
+DROP TABLE IF EXISTS tb_view;
+
+DROP VIEW IF EXISTS test_view_1;
+DROP VIEW IF EXISTS test_view_2;
+
+?section tests
+--------------------------------------------------------------------------
+SET TERMINAL_CHARSET UTF8;
+CQD DEFAULT_CHARSET 'UTF8';
+
+-- test create table
+CREATE TABLE normal_table(normal_column INT);
+CREATE TABLE normal_table_deliminted("normal_column" INT);
+CREATE TABLE chinese_column_name(中文列名 INT);
+CREATE TABLE chinese_column_name_deliminted("中文列名" INT);
+CREATE TABLE chinese_prefix(中文前缀end INT);
+CREATE TABLE chinese_prefix_deliminted("中文前缀end" INT);
+CREATE TABLE chinese_suffix(pre中文后缀 INT);
+CREATE TABLE chinese_suffix_deliminted("pre中文后缀" INT);
+CREATE TABLE chinese_middle(pre中文end INT);
+CREATE TABLE chinese_middle_deliminted("pre中文end" INT);
+CREATE TABLE chinese_with_underline(_中文 INT);
+CREATE TABLE chinese_with_underline_deliminted("_中文" INT);
+CREATE TABLE chinese_with_prefix_c(c中文 INT);
+CREATE TABLE chinese_with_prefix_c_deliminted("c中文" INT);
+CREATE TABLE chinese_with_prefix_G(G中文 INT);
+CREATE TABLE chinese_with_prefix_G_deliminted("G中文" INT);
+CREATE TABLE chinese_with_prefix_n(n中文 INT);
+CREATE TABLE chinese_with_prefix_n_deliminted("n中文" INT);
+CREATE TABLE chinese_with_prefix_P(P中文 INT);
+CREATE TABLE chinese_with_prefix_P_deliminted("P中文" INT);
+CREATE TABLE chinese_with_prefix_Z(Z中文 INT);
+CREATE TABLE chinese_with_prefix_Z_deliminted("Z中文" INT);
+
+-- test primary key
+CREATE TABLE table_pk(主键 INT, _主键 INT, 主键_ INT, data VARCHAR(10), PRIMARY KEY(主键, _主键, 主键_));
+INSERT INTO table_pk(主键, _主键, 主键_) VALUES(1,1,1),(2,2,2),(2,2,3),(3,3,3);
+SELECT 主键, _主键, 主键_, data FROM table_pk;
+SELECT * FROM table_pk WHERE 主键 = 2 AND _主键 = 2 AND 主键_ = 2;
+SELECT 主键, _主键, SUM(主键_) FROM table_pk GROUP BY 主键, _主键 HAVING _主键 <> 1;
+
+-- test salt
+CREATE TABLE table_salt(分区 INT, p分区 INT, 分区p INT, data VARCHAR(10)) STORE BY(分区, p分区, 分区p) SALT USING 2 PARTITIONS ON(分区, p分区, 分区p);
+INSERT INTO table_salt(分区, p分区, 分区p) VALUES(1,1,1),(2,2,2),(2,2,3),(3,3,3);
+SELECT * FROM table_salt;
+SELECT * FROM table_salt WHERE 分区 = 2 AND p分区 = 2 AND 分区p = 3;
+
+-- test store by
+CREATE TABLE table_store(存储 INT, c存储 INT, 存储c INT, data VARCHAR(10)) STORE BY(存储, c存储, 存储c);
+INSERT INTO table_store(存储, c存储, 存储c) VALUES(1,1,1),(2,2,2),(2,2,3),(3,3,3);
+SELECT * FROM table_store;
+SELECT * FROM table_store WHERE 存储 = 2 AND c存储 = 2 AND 存储c = 3;
+
+-- test division by
+CREATE TABLE table_division(区 INT, a区 TIMESTAMP(6) NOT NULL, 区n INT, data VARCHAR(10)) STORE BY(区, a区, 区n) DIVISION BY(date_trunc('day', a区));
+INSERT INTO table_division(区, a区, 区n) VALUES(1,'2018-09-08 23:43:13.663343',1),(2,'2018-09-08 23:43:13.663343',2),(2,'2018-09-08 23:43:13.663343',3),(3,'2018-09-08 23:43:13.663343',3);
+SELECT * FROM table_division;
+SELECT * FROM table_division WHERE 区 = 2 AND a区 = '2018-09-08 23:43:13.663343' AND 区n = 3;
+
+-- test check
+CREATE TABLE  chinese_constraint_test_1 (标志 CHAR(40) CHECK (标志 = 'test'));
+CREATE TABLE  chinese_constraint_test_2 ("标志" CHAR(40) CHECK ("标志" = 'test'));
+
+-- test view
+CREATE TABLE tb_view(c1 VARCHAR(10) CHARACTER SET UTF8, c2 int, c3 int);
+INSERT INTO tb_view VALUES('测试十', 1, 1);
+INSERT INTO tb_view VALUES('测试九', 2, 2);
+
+CREATE OR REPLACE VIEW test_view_1(列一,列二,列三) AS SELECT * FROM tb_view WHERE c1 = '测试十' ORDER BY c3 WITH CHECK OPTION;
+SELECT * FROM test_view_1;
+SHOWDDL test_view_1;
+
+CREATE OR REPLACE VIEW test_view_2("列一","列二","列三") AS SELECT * FROM tb_view WHERE c1 = '测试九' ORDER BY c3 WITH CHECK OPTION;
+SELECT * FROM test_view_2;
+SHOWDDL test_view_2;
+
+INSERT INTO tb_view VALUES('测试十', 1, 0);
+INSERT INTO tb_view VALUES('测试九', 2, 1);
+
+SELECT * FROM test_view_1;
+
+SELECT * FROM test_view_2;
+
+?section clean_up
+--------------------------------------------------------------------------
+
+DROP TABLE normal_table;
+DROP TABLE normal_table_deliminted;
+DROP TABLE chinese_column_name;
+DROP TABLE chinese_column_name_deliminted;
+DROP TABLE chinese_prefix;
+DROP TABLE chinese_prefix_deliminted;
+DROP TABLE chinese_suffix;
+DROP TABLE chinese_suffix_deliminted;
+DROP TABLE chinese_middle;
+DROP TABLE chinese_middle_deliminted;
+DROP TABLE chinese_with_underline;
+DROP TABLE chinese_with_underline_deliminted;
+DROP TABLE chinese_with_prefix_c;
+DROP TABLE chinese_with_prefix_c_deliminted;
+DROP TABLE chinese_with_prefix_G;
+DROP TABLE chinese_with_prefix_G_deliminted;
+DROP TABLE chinese_with_prefix_n;
+DROP TABLE chinese_with_prefix_n_deliminted;
+DROP TABLE chinese_with_prefix_P;
+DROP TABLE chinese_with_prefix_P_deliminted;
+DROP TABLE chinese_with_prefix_Z;
+DROP TABLE chinese_with_prefix_Z_deliminted;
+DROP TABLE table_pk;
+DROP TABLE table_salt;
+DROP TABLE table_store;
+DROP TABLE table_division;
+DROP TABLE chinese_constraint_test_1;
+DROP TABLE chinese_constraint_test_2;
+
+DROP VIEW test_view_1;
+DROP VIEW test_view_2;
+DROP TABLE tb_view;

@@ -1,0 +1,155 @@
+-- Test Optimizer Simulater for hive table.
+-- Compare capturing time plans and histograms to simulating time.
+-- Capturing time log is printed as EXPECTED file.
+-- Simulating time log is printed as LOG file.
+-- @@@ START COPYRIGHT @@@
+--
+-- Licensed to the Apache Software Foundation (ASF) under one
+-- or more contributor license agreements.  See the NOTICE file
+-- distributed with this work for additional information
+-- regarding copyright ownership.  The ASF licenses this file
+-- to you under the Apache License, Version 2.0 (the
+-- "License"); you may not use this file except in compliance
+-- with the License.  You may obtain a copy of the License at
+--
+--   http://www.apache.org/licenses/LICENSE-2.0
+--
+-- Unless required by applicable law or agreed to in writing,
+-- software distributed under the License is distributed on an
+-- "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+-- KIND, either express or implied.  See the License for the
+-- specific language governing permissions and limitations
+-- under the License.
+--
+-- @@@ END COPYRIGHT @@@
+
+sh sqlci -i "TEST034(create_tables)";
+sh sqlci -i "TEST034(test_capture)";
+sh sqlci -i "TEST034(test_simulate)";
+exit;
+
+?section prepare_check
+--check sb_histograms
+prepare check_histograms from 
+select 
+  col_position
+, column_number
+, colcount
+, interval_count
+, rowcount
+, total_uec
+, stats_time
+, low_value
+, high_value 
+, read_time 
+, read_count 
+, sample_secs
+, col_secs
+, sample_percent
+, cv
+, reason
+from TRAFODION."_HIVESTATS_".SB_HISTOGRAMS where 
+table_uid = (select object_uid from TRAFODION."_MD_".objects where object_name = ? and schema_name = ?);
+
+--check sb_histogram_intervals
+prepare check_histogram_intervals from 
+select 
+interval_number,
+interval_rowcount,
+interval_uec,
+interval_boundary,
+std_dev_of_freq
+from TRAFODION."_HIVESTATS_".SB_HISTOGRAM_INTERVALS 
+where table_uid = 
+(select object_uid from TRAFODION."_MD_".objects where object_name = ? and schema_name = ?);
+
+
+?section create_tables;
+--delete existing external table and statistics;
+drop table if exists TRAFODION."_HV_REGR_".myorc;
+drop table if exists TRAFODION."_HV_HIVE_".myorc;
+drop table if exists TRAFODION."_HV_REGR_".tbl_no_hist;
+
+--create and populate hive partitioned and bucketing orc table
+sh regrhive.ksh -v -f $REGRTSTDIR/TEST034_myorc.hive.sql;
+
+--create statistics data and exteranl table
+update statistics for table hive.regr.myorc on every column;
+update statistics for table hive.hive.myorc on every column;
+
+CREATE EXTERNAL TABLE HIVE.REGR.TBL_NO_HIST
+(
+  ID                  INT DEFAULT NULL NOT SERIALIZED
+, COL1                INT DEFAULT NULL NOT SERIALIZED
+, COL2                INT DEFAULT NULL NOT SERIALIZED
+, COL3                DATE DEFAULT NULL NOT SERIALIZED
+)
+FOR HIVE.REGR.TBL_NO_HIST;
+
+?section test_capture
+--start capture
+sh rm -rf osim;
+obey TEST034(prepare_check);
+control osim capture location 'osim';
+log EXPECTED034 clear;
+
+---------------------------MYORC IN HIVE REGR SCHEMA----------------------------
+set schema hive.regr;
+prepare xx from select * from myorc where id > 2 and id < 9;
+explain options 'f' xx;
+
+execute check_histograms using 'MYORC', '_HV_REGR_';
+
+execute check_histogram_intervals using 'MYORC', '_HV_REGR_';
+
+showddl TRAFODION."_HV_REGR_".tbl_no_hist;
+prepare xx from select * from tbl_no_hist;
+
+---------------------------MYORC IN HIVE DEFAULT SCHEMA----------------------------
+set schema hive.hive;
+prepare xx from select * from myorc where id > 2 and id < 9;
+explain options 'f' xx;
+
+execute check_histograms using 'MYORC', '_HV_HIVE_';
+
+execute check_histogram_intervals using 'MYORC', '_HV_HIVE_';
+
+log;
+control osim capture stop;
+
+
+?section test_simulate
+--delete existing external table and statistics;
+drop table if exists TRAFODION."_HV_REGR_".myorc;
+drop table if exists TRAFODION."_HV_HIVE_".myorc;
+
+--start simulation
+obey TEST034(prepare_check);
+control osim load from 'osim';
+control osim simulate start;
+log LOG034 clear;
+
+---------------------------MYORC IN HIVE REGR SCHEMA----------------------------
+set schema hive.regr;
+prepare xx from select * from myorc where id > 2 and id < 9;
+explain options 'f' xx;
+
+execute check_histograms using 'MYORC', '_HV_REGR_';
+
+execute check_histogram_intervals using 'MYORC', '_HV_REGR_';
+
+showddl TRAFODION."_HV_REGR_".tbl_no_hist;
+prepare xx from select * from tbl_no_hist;
+
+---------------------------MYORC IN HIVE DEFAULT SCHEMA----------------------------
+set schema hive.hive;
+prepare xx from select * from myorc where id > 2 and id < 9;
+explain options 'f' xx;
+
+execute check_histograms using 'MYORC', '_HV_HIVE_';
+
+execute check_histogram_intervals using 'MYORC', '_HV_HIVE_';
+
+log;
+
+

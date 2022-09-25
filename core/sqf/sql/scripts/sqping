@@ -1,0 +1,116 @@
+#!/bin/bash
+#
+# @@@ START COPYRIGHT @@@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+# @@@ END COPYRIGHT @@@
+#
+
+#Get All Envirioment Script. 
+
+logroot="/tmp"
+packages=1
+interval=5
+nodehost=""
+
+# the functions
+usage(){
+	echo -e "    命令: $0 [OPTIONS]"
+	echo -e ""
+	echo -e "    语法："
+	echo -e "    $0 [-c packages] [-i interval] [-w nodehost] [-l logroot] [-v | -h]"
+	echo -e ""
+	echo -e "    选项："
+	echo -e "    -c <packages>    一次PING发送包个数，默认是：${packages}"
+	echo -e "    -i <interval>    两次PING的间隔时间，默认是：${interval}秒"
+	echo -e "    -l <logroot>     指定PING的日志保存的根路径，默认是: ${logroot}"
+	echo -e "    -w <nodehost>    指定一个要PING的节点IP或者节点名"
+	echo -e ""
+	echo -e "    -v               打印[$0]版本信息并退出"
+	echo -e "    -h               打印[$0]帮助信息并退出"
+
+	exit 0
+}
+
+version(){
+    echo -e "    sqping的版本号[0.1.0]"
+    exit 0
+}
+
+while getopts ":c:i:l:w:vh" opt
+do
+    case "$opt" in
+		c)
+			echo "-c ${OPTARG}"
+			packages=${OPTARG}
+			;;
+
+		i)
+			echo "-i ${OPTARG}"
+			interval=${OPTARG}
+			;;
+
+		l)
+			echo "-l ${OPTARG}"
+			logroot=${OPTARG}
+			;;
+
+		w)
+			echo "-w ${OPTARG}"
+			nodeshost=("${nodeshost[@]}" "${OPTARG}")
+			;;
+
+		v)
+			version ;;
+
+        h|*) 
+			usage ;;
+    esac
+done
+
+function ping_node
+{
+	ipaddr=$1
+	pingresult=`ping -c ${packages} -w 1 -i 0.2 ${ipaddr} | grep "packets transmitted"`
+	curtime=`date '+%Y-%m-%d %H:%M:%S'`
+	echo "${ipaddr} ${curtime} ${pingresult}">> ${logfile}
+}
+
+function ping_nodes
+{
+	for nodehost in ${nodeshost[@]}
+	do
+		ping_node ${nodehost} &
+	done
+	wait
+}
+
+logfile="${logroot}/sqping.log"
+nodesnum=${#nodeshost[@]} 
+
+if [ ${nodesnum} -le 0 ]; then
+	usage
+fi
+
+while [ 1 ]
+do
+	ping_nodes
+	tail -n ${nodesnum} ${logfile}
+    sleep ${interval}
+done

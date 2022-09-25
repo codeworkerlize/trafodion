@@ -1,0 +1,129 @@
+>>obey stdcqds;
+>>
+>>set schema hive.tpcds_sf1000;
+
+--- SQL operation complete.
+>>
+>>control osim simulate continue './osim.all.sf1000.09022016';
+
+--- SQL operation complete.
+>>
+>>cqd orc_njs 'on';
+
+--- SQL operation complete.
+>>cqd parallel_num_esps '48';
+
+--- SQL operation complete.
+>>cqd QUERY_CACHE '200000';
+
+--- SQL operation complete.
+>>cqd HIVE_METADATA_REFRESH_INTERVAL '-1';
+
+--- SQL operation complete.
+>>cqd  HIVE_LOCALITY_BALANCE_LEVEL '-1';
+
+--- SQL operation complete.
+>>cqd  METADATA_CACHE_SIZE '200';
+
+--- SQL operation complete.
+>>cqd partitioning_scheme_sharing '2';
+
+--- SQL operation complete.
+>>cqd COMP_BOOL_208 'ON';
+
+--- SQL operation complete.
+>>obey q29;
+>>
+>>--==QID: 29
+>>prepare xx from
++>select
++>     i_item_id
++>    ,i_item_desc
++>    ,s_store_id
++>    ,s_store_name
++>    ,stddev_samp(ss_quantity)        as store_sales_quantity
++>    ,stddev_samp(sr_return_quantity) as store_returns_quantity
++>    ,stddev_samp(cs_quantity)        as catalog_sales_quantity
++> from
++>    store_sales
++>   ,store_returns
++>   ,catalog_sales
++>   ,date_dim             d1
++>   ,date_dim             d2
++>   ,date_dim             d3
++>   ,store
++>   ,item
++> where
++>     d1.d_moy               = 4
++> and d1.d_year              = 1999
++> and d1.d_date_sk           = ss_sold_date_sk
++> and i_item_sk              = ss_item_sk
++> and s_store_sk             = ss_store_sk
++> and ss_customer_sk         = sr_customer_sk
++> and ss_item_sk             = sr_item_sk
++> and ss_ticket_number       = sr_ticket_number
++> and sr_returned_date_sk    = d2.d_date_sk
++> and d2.d_moy               between 4 and  4 + 3
++> and d2.d_year              = 1999
++> and sr_customer_sk         = cs_bill_customer_sk
++> and sr_item_sk             = cs_item_sk
++> and cs_sold_date_sk        = d3.d_date_sk
++> and d3.d_year              in (1999,1999+1,1999+2)
++> group by
++>    i_item_id
++>   ,i_item_desc
++>   ,s_store_id
++>   ,s_store_name
++> order by
++>    i_item_id
++>   ,i_item_desc
++>   ,s_store_id
++>   ,s_store_name
++> limit 100;
+
+--- SQL command prepared.
+>>
+>>
+>>obey explains;
+>>explain options 'f' xx;
+
+LC   RC   OP   OPERATOR              OPT       DESCRIPTION           CARD
+---- ---- ---- --------------------  --------  --------------------  ---------
+
+30   .    31   root                                                  2.42E+007
+29   .    30   firstn                                                2.42E+007
+28   .    29   esp_exchange                    1:48(hash2) (m)       2.42E+007
+27   .    28   sort_partial_groupby                                  2.42E+007
+26   .    27   sort                                                  2.42E+007
+25   .    26   esp_exchange                    48(hash2):48(hash2)   2.42E+007
+24   .    25   hash_partial_groupby                                  2.42E+007
+23   2    24   hybrid_hash_join                                      2.42E+007
+22   4    23   hybrid_hash_join                                      2.42E+007
+21   .    22   esp_exchange                    48(hash2):48(hash2)   2.42E+007
+20   6    21   hybrid_hash_join                                      2.42E+007
+19   18   20   hybrid_hash_join                                      4.31E+007
+.    .    19   orc_scan                        CATALOG_SALES         1.42E+009
+17   .    18   esp_exchange                    48(rep-b):48(hash2)   3.56E+005
+16   8    17   hybrid_hash_join                                      3.56E+005
+15   10   16   hybrid_hash_join                                      4.87E+006
+14   .    15   esp_exchange                    48(hash2):48(hash2)   4.82E+007
+13   12   14   hybrid_hash_join                                      4.82E+007
+.    .    13   orc_scan                        STORE_SALES           2.75E+009
+11   .    12   esp_exchange                    48(rep-b):2(hash2)    3.20E+001
+.    .    11   orc_scan                        DATE_DIM              3.20E+001
+9    .    10   esp_exchange                    48(hash2):48(hash2)   2.77E+008
+.    .    9    orc_scan                        STORE_RETURNS         2.77E+008
+7    .    8    esp_exchange                    48(rep-b):2(hash2)    1.46E+002
+.    .    7    orc_scan                        DATE_DIM              1.46E+002
+5    .    6    esp_exchange                    48(rep-b):2(hash2)    1.03E+003
+.    .    5    orc_scan                        DATE_DIM              1.03E+003
+3    .    4    esp_exchange                    48(hash2):2(hash2)    3.00E+005
+.    .    3    orc_scan                        ITEM                  3.00E+005
+1    .    2    esp_exchange                    48(rep-b):2(hash2)    1.00E+003
+.    .    1    orc_scan                        STORE                 1.00E+003
+
+--- SQL operation complete.
+>>exit;
+
+End of MXCI Session
+

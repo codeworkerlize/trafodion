@@ -1,0 +1,154 @@
+<hhdfs_table_stats position='-1' numBlocks='49' numFiles='49' totalRows='696000000' numStripes='11' totalStringLengths='0' totalSize='1075922452' modificationTS='1471182143' sampledBytes='0' sampledRows='0' tableDir='hdfs://nap001.esgyn.local:8020/user/hive/warehouse/tpcds_sf1000.db/inventory' numOfPartCols='0' totalNumPartitions='1' recordTerminator='10' fieldTerminator='1' validationJTimestamp='212339595096222567' hiveStatsSize='0' type='3'>
+    <hhdfs_list_part_stats position='0' numBlocks='49' numFiles='49' totalRows='696000000' numStripes='11' totalStringLengths='0' totalSize='1075922452' modificationTS='1471182139' sampledBytes='0' sampledRows='0' partitionDir='hdfs://nap001.esgyn.local:8020/user/hive/warehouse/tpcds_sf1000.db/inventory' partIndex='0' defaultBucketIdx='0' recordTerminator='10'>
+        <hhdfs_bucket_stats position='0' numBlocks='49' numFiles='49' totalRows='696000000' numStripes='11' totalStringLengths='0' totalSize='1075922452' modificationTS='1471182139' sampledBytes='0' sampledRows='0' scount='0'>
+            <hhdfs_orc_file_stats position='0' numBlocks='1' numFiles='1' totalRows='17832578' numStripes='1' totalStringLengths='0' totalSize='27600472' modificationTS='1471182123' sampledBytes='0' sampledRows='0' fileName='hdfs://nap001.esgyn.local:8020/user/hive/warehouse/tpcds_sf1000.db/inventory/000000_0' replication='3' blockSize='268435456' blockHosts='4|5|2' 
+numOfRows='17832578' offsets='3' totalBytes='27600186'>
+            </hhdfs_orc_file_stats>
+            <hhdfs_orc_file_stats position='1' numBlocks='1' numFiles='1' totalRows='17834665' numStripes='1' totalStringLengths='0' totalSize='27602920' modificationTS='1471182122' sampledBytes='0' sampledRows='0' fileName='hdfs://nap001.esgyn.local:8020/user/hive/warehouse/tpcds_sf1000.db/inventory/000001_0' replication='3' blockSize='268435456' blockHosts='2|4|5' 
+numOfRows='17834665' offsets='3' totalBytes='27602632'>
+            </hhdfs_orc_file_stats>
+            <hhdfs_orc_file_stats position='2' numBlocks='1' numFiles='1' totalRows='17872841' numStripes='1' totalStringLengths='0' totalSize='27494894' modificationTS='1471182134' sampledBytes='0' sampledRows='0' fileName='hdfs://nap001.esgyn.local:8020/user/hive/warehouse/tpcds_sf1000.db/inventory/000002_0' replication='3' blockSize='268435456' blockHosts='2|3|5' 
+numOfRows='17872841' offsets='3' totalBytes='27494606'>
+            </hhdfs_orc_file_stats>
+            <hhdfs_orc_file_stats position='3' numBlocks='1' numFiles='1' totalRows='17872671' numStripes='1' totalStringLengths='0' totalSize='27657078' modificationTS='1471182136' sampledBytes='0' sampledRows='0' fileName='hdfs://nap001.esgyn.local:8020/user/hive/warehouse/tpcds_sf1000.db/inventory/000003_0' replication='3' blockSize='268435456' blockHosts='5|1|2' 
+numOfRows='17872671' offsets='3' totalBytes='27656790'>
+            </hhdfs_orc_file_stats>
+            <hhdfs_orc_file_stats position='4' numBlocks='1' numFiles='1' totalRows='17853404' numStripes='1' totalStringLengths='0' totalSize='27632420' modificationTS='1471182137' sampledBytes='0' sampledRows='0' fileName='hdfs://nap001.esgyn.local:8020/user/hive/warehouse/tpcds_sf1000.db/inventory/000004_0' replication='3' blockSize='268435456' blockHosts='5|3|4' 
+numOfRows='17853404' offsets='3' totalBytes='27632132'>
+            </hhdfs_orc_file_stats>
+            <hhdfs_orc_file_stats position='5' numBlocks='1' numFiles='1' totalRows='17872531' numStripes='1' totalStringLengths='0' totalSize='27650737' modificationTS='1471182136' sampledBytes='0' sampledRows='0' fileName='hdfs://nap001.esgyn.local:8020/user/hive/warehouse/tpcds_sf1000.db/inventory/000005_0' replication='3' blockSize='268435456' blockHosts='3|5|1' 
+numOfRows='17872531' offsets='3' totalBytes='27650449'>
+            </hhdfs_orc_file_stats>
+            <hhdfs_orc_file_stats position='6' numBlocks='1' numFiles='1' totalRows='17851284' numStripes='1' totalStringLengths='0' totalSize='27630004' modificationTS='1471182122' sampledBytes='0' sampledRows='0' fileName='hdfs://nap001.esgyn.local:8020/user/hive/warehouse/tpcds_sf1000.db/inventory/000006_0' replication='3' blockSize='268435456' blockHosts='3|4|2' 
+numOfRows='17851284' offsets='3' totalBytes='27629717'>
+            </hhdfs_orc_file_stats>
+            <hhdfs_orc_file_stats position='7' numBlocks='1' numFiles='1' totalRows='17836455' numStripes='1' totalStringLengths='0' totalSize='27605704' modificationTS='1471182123' sampledBytes='0' sampledRows='0' fileName='hdfs://nap001.esgyn.local:8020/user/hive/warehouse/tpcds_sf1000.db/inventory/000007_0' replication='3' blockSize='268435456' blockHosts='1|2|3' 
+numOfRows='17836455' offsets='3' totalBytes='27605416'>
+            </hhdfs_orc_file_stats>
+            <hhdfs_orc_file_stats position='8' numBlocks='1' numFiles='1' totalRows='17856299' numStripes='1' totalStringLengths='0' totalSize='27628766' modificationTS='1471182124' sampledBytes='0' sampledRows='0' fileName='hdfs://nap001.esgyn.local:8020/user/hive/warehouse/tpcds_sf1000.db/inventory/000008_0' replication='3' blockSize='268435456' blockHosts='1|2|4' 
+numOfRows='17856299' offsets='3' totalBytes='27628478'>
+            </hhdfs_orc_file_stats>
+            <hhdfs_orc_file_stats position='9' numBlocks='1' numFiles='1' totalRows='17817186' numStripes='1' totalStringLengths='0' totalSize='27569904' modificationTS='1471182136' sampledBytes='0' sampledRows='0' fileName='hdfs://nap001.esgyn.local:8020/user/hive/warehouse/tpcds_sf1000.db/inventory/000009_0' replication='3' blockSize='268435456' blockHosts='5|1|2' 
+numOfRows='17817186' offsets='3' totalBytes='27569618'>
+            </hhdfs_orc_file_stats>
+            <hhdfs_orc_file_stats position='10' numBlocks='1' numFiles='1' totalRows='17821929' numStripes='1' totalStringLengths='0' totalSize='27574803' modificationTS='1471182122' sampledBytes='0' sampledRows='0' fileName='hdfs://nap001.esgyn.local:8020/user/hive/warehouse/tpcds_sf1000.db/inventory/000010_0' replication='3' blockSize='268435456' blockHosts='5|3|4' 
+numOfRows='17821929' offsets='3' totalBytes='27574515'>
+            </hhdfs_orc_file_stats>
+            <hhdfs_orc_file_stats position='11' numBlocks='1' numFiles='1' totalRows='17821715' numStripes='0' totalStringLengths='0' totalSize='27414862' modificationTS='1471182122' sampledBytes='0' sampledRows='0' fileName='hdfs://nap001.esgyn.local:8020/user/hive/warehouse/tpcds_sf1000.db/inventory/000011_0' replication='3' blockSize='268435456' blockHosts='3|4|1' 
+numOfRows='no_entry' offsets='no_entry' totalBytes='no_entry'>
+            </hhdfs_orc_file_stats>
+            <hhdfs_orc_file_stats position='12' numBlocks='1' numFiles='1' totalRows='17855752' numStripes='0' totalStringLengths='0' totalSize='27458190' modificationTS='1471182123' sampledBytes='0' sampledRows='0' fileName='hdfs://nap001.esgyn.local:8020/user/hive/warehouse/tpcds_sf1000.db/inventory/000012_0' replication='3' blockSize='268435456' blockHosts='2|5|1' 
+numOfRows='no_entry' offsets='no_entry' totalBytes='no_entry'>
+            </hhdfs_orc_file_stats>
+            <hhdfs_orc_file_stats position='13' numBlocks='1' numFiles='1' totalRows='17819306' numStripes='0' totalStringLengths='0' totalSize='27572749' modificationTS='1471182124' sampledBytes='0' sampledRows='0' fileName='hdfs://nap001.esgyn.local:8020/user/hive/warehouse/tpcds_sf1000.db/inventory/000013_0' replication='3' blockSize='268435456' blockHosts='1|4|5' 
+numOfRows='no_entry' offsets='no_entry' totalBytes='no_entry'>
+            </hhdfs_orc_file_stats>
+            <hhdfs_orc_file_stats position='14' numBlocks='1' numFiles='1' totalRows='17836445' numStripes='0' totalStringLengths='0' totalSize='27598798' modificationTS='1471182122' sampledBytes='0' sampledRows='0' fileName='hdfs://nap001.esgyn.local:8020/user/hive/warehouse/tpcds_sf1000.db/inventory/000014_0' replication='3' blockSize='268435456' blockHosts='1|3|4' 
+numOfRows='no_entry' offsets='no_entry' totalBytes='no_entry'>
+            </hhdfs_orc_file_stats>
+            <hhdfs_orc_file_stats position='15' numBlocks='1' numFiles='1' totalRows='12810326' numStripes='0' totalStringLengths='0' totalSize='19823427' modificationTS='1471182132' sampledBytes='0' sampledRows='0' fileName='hdfs://nap001.esgyn.local:8020/user/hive/warehouse/tpcds_sf1000.db/inventory/000015_0' replication='3' blockSize='268435456' blockHosts='5|3|4' 
+numOfRows='no_entry' offsets='no_entry' totalBytes='no_entry'>
+            </hhdfs_orc_file_stats>
+            <hhdfs_orc_file_stats position='16' numBlocks='1' numFiles='1' totalRows='12836269' numStripes='0' totalStringLengths='0' totalSize='19860338' modificationTS='1471182118' sampledBytes='0' sampledRows='0' fileName='hdfs://nap001.esgyn.local:8020/user/hive/warehouse/tpcds_sf1000.db/inventory/000016_0' replication='3' blockSize='268435456' blockHosts='5|2|4' 
+numOfRows='no_entry' offsets='no_entry' totalBytes='no_entry'>
+            </hhdfs_orc_file_stats>
+            <hhdfs_orc_file_stats position='17' numBlocks='1' numFiles='1' totalRows='12831709' numStripes='0' totalStringLengths='0' totalSize='19850931' modificationTS='1471182116' sampledBytes='0' sampledRows='0' fileName='hdfs://nap001.esgyn.local:8020/user/hive/warehouse/tpcds_sf1000.db/inventory/000017_0' replication='3' blockSize='268435456' blockHosts='2|5|1' 
+numOfRows='no_entry' offsets='no_entry' totalBytes='no_entry'>
+            </hhdfs_orc_file_stats>
+            <hhdfs_orc_file_stats position='18' numBlocks='1' numFiles='1' totalRows='12834101' numStripes='0' totalStringLengths='0' totalSize='19861704' modificationTS='1471182117' sampledBytes='0' sampledRows='0' fileName='hdfs://nap001.esgyn.local:8020/user/hive/warehouse/tpcds_sf1000.db/inventory/000018_0' replication='3' blockSize='268435456' blockHosts='2|5|1' 
+numOfRows='no_entry' offsets='no_entry' totalBytes='no_entry'>
+            </hhdfs_orc_file_stats>
+            <hhdfs_orc_file_stats position='19' numBlocks='1' numFiles='1' totalRows='12810075' numStripes='0' totalStringLengths='0' totalSize='19799978' modificationTS='1471182132' sampledBytes='0' sampledRows='0' fileName='hdfs://nap001.esgyn.local:8020/user/hive/warehouse/tpcds_sf1000.db/inventory/000019_0' replication='3' blockSize='268435456' blockHosts='2|4|5' 
+numOfRows='no_entry' offsets='no_entry' totalBytes='no_entry'>
+            </hhdfs_orc_file_stats>
+            <hhdfs_orc_file_stats position='20' numBlocks='1' numFiles='1' totalRows='12810318' numStripes='0' totalStringLengths='0' totalSize='19705338' modificationTS='1471182117' sampledBytes='0' sampledRows='0' fileName='hdfs://nap001.esgyn.local:8020/user/hive/warehouse/tpcds_sf1000.db/inventory/000020_0' replication='3' blockSize='268435456' blockHosts='1|2|4' 
+numOfRows='no_entry' offsets='no_entry' totalBytes='no_entry'>
+            </hhdfs_orc_file_stats>
+            <hhdfs_orc_file_stats position='21' numBlocks='1' numFiles='1' totalRows='12829662' numStripes='0' totalStringLengths='0' totalSize='19732467' modificationTS='1471182130' sampledBytes='0' sampledRows='0' fileName='hdfs://nap001.esgyn.local:8020/user/hive/warehouse/tpcds_sf1000.db/inventory/000021_0' replication='3' blockSize='268435456' blockHosts='5|1|2' 
+numOfRows='no_entry' offsets='no_entry' totalBytes='no_entry'>
+            </hhdfs_orc_file_stats>
+            <hhdfs_orc_file_stats position='22' numBlocks='1' numFiles='1' totalRows='12834097' numStripes='0' totalStringLengths='0' totalSize='19741456' modificationTS='1471182117' sampledBytes='0' sampledRows='0' fileName='hdfs://nap001.esgyn.local:8020/user/hive/warehouse/tpcds_sf1000.db/inventory/000022_0' replication='3' blockSize='268435456' blockHosts='5|1|2' 
+numOfRows='no_entry' offsets='no_entry' totalBytes='no_entry'>
+            </hhdfs_orc_file_stats>
+            <hhdfs_orc_file_stats position='23' numBlocks='1' numFiles='1' totalRows='12831500' numStripes='0' totalStringLengths='0' totalSize='19735320' modificationTS='1471182117' sampledBytes='0' sampledRows='0' fileName='hdfs://nap001.esgyn.local:8020/user/hive/warehouse/tpcds_sf1000.db/inventory/000023_0' replication='3' blockSize='268435456' blockHosts='4|5|3' 
+numOfRows='no_entry' offsets='no_entry' totalBytes='no_entry'>
+            </hhdfs_orc_file_stats>
+            <hhdfs_orc_file_stats position='24' numBlocks='1' numFiles='1' totalRows='12834011' numStripes='0' totalStringLengths='0' totalSize='19813674' modificationTS='1471182131' sampledBytes='0' sampledRows='0' fileName='hdfs://nap001.esgyn.local:8020/user/hive/warehouse/tpcds_sf1000.db/inventory/000024_0' replication='3' blockSize='268435456' blockHosts='3|5|1' 
+numOfRows='no_entry' offsets='no_entry' totalBytes='no_entry'>
+            </hhdfs_orc_file_stats>
+            <hhdfs_orc_file_stats position='25' numBlocks='1' numFiles='1' totalRows='12809823' numStripes='0' totalStringLengths='0' totalSize='19820981' modificationTS='1471182117' sampledBytes='0' sampledRows='0' fileName='hdfs://nap001.esgyn.local:8020/user/hive/warehouse/tpcds_sf1000.db/inventory/000025_0' replication='3' blockSize='268435456' blockHosts='2|3|4' 
+numOfRows='no_entry' offsets='no_entry' totalBytes='no_entry'>
+            </hhdfs_orc_file_stats>
+            <hhdfs_orc_file_stats position='26' numBlocks='1' numFiles='1' totalRows='12829663' numStripes='0' totalStringLengths='0' totalSize='19850320' modificationTS='1471182117' sampledBytes='0' sampledRows='0' fileName='hdfs://nap001.esgyn.local:8020/user/hive/warehouse/tpcds_sf1000.db/inventory/000026_0' replication='3' blockSize='268435456' blockHosts='1|4|5' 
+numOfRows='no_entry' offsets='no_entry' totalBytes='no_entry'>
+            </hhdfs_orc_file_stats>
+            <hhdfs_orc_file_stats position='27' numBlocks='1' numFiles='1' totalRows='12836355' numStripes='0' totalStringLengths='0' totalSize='19859471' modificationTS='1471182116' sampledBytes='0' sampledRows='0' fileName='hdfs://nap001.esgyn.local:8020/user/hive/warehouse/tpcds_sf1000.db/inventory/000027_0' replication='3' blockSize='268435456' blockHosts='4|2|3' 
+numOfRows='no_entry' offsets='no_entry' totalBytes='no_entry'>
+            </hhdfs_orc_file_stats>
+            <hhdfs_orc_file_stats position='28' numBlocks='1' numFiles='1' totalRows='12850745' numStripes='0' totalStringLengths='0' totalSize='19882796' modificationTS='1471182132' sampledBytes='0' sampledRows='0' fileName='hdfs://nap001.esgyn.local:8020/user/hive/warehouse/tpcds_sf1000.db/inventory/000028_0' replication='3' blockSize='268435456' blockHosts='5|1|2' 
+numOfRows='no_entry' offsets='no_entry' totalBytes='no_entry'>
+            </hhdfs_orc_file_stats>
+            <hhdfs_orc_file_stats position='29' numBlocks='1' numFiles='1' totalRows='12831516' numStripes='0' totalStringLengths='0' totalSize='19851832' modificationTS='1471182130' sampledBytes='0' sampledRows='0' fileName='hdfs://nap001.esgyn.local:8020/user/hive/warehouse/tpcds_sf1000.db/inventory/000029_0' replication='3' blockSize='268435456' blockHosts='2|5|1' 
+numOfRows='no_entry' offsets='no_entry' totalBytes='no_entry'>
+            </hhdfs_orc_file_stats>
+            <hhdfs_orc_file_stats position='30' numBlocks='1' numFiles='1' totalRows='12810416' numStripes='0' totalStringLengths='0' totalSize='19822961' modificationTS='1471182118' sampledBytes='0' sampledRows='0' fileName='hdfs://nap001.esgyn.local:8020/user/hive/warehouse/tpcds_sf1000.db/inventory/000030_0' replication='3' blockSize='268435456' blockHosts='2|4|1' 
+numOfRows='no_entry' offsets='no_entry' totalBytes='no_entry'>
+            </hhdfs_orc_file_stats>
+            <hhdfs_orc_file_stats position='31' numBlocks='1' numFiles='1' totalRows='12850954' numStripes='0' totalStringLengths='0' totalSize='19882314' modificationTS='1471182133' sampledBytes='0' sampledRows='0' fileName='hdfs://nap001.esgyn.local:8020/user/hive/warehouse/tpcds_sf1000.db/inventory/000031_0' replication='3' blockSize='268435456' blockHosts='1|2|4' 
+numOfRows='no_entry' offsets='no_entry' totalBytes='no_entry'>
+            </hhdfs_orc_file_stats>
+            <hhdfs_orc_file_stats position='32' numBlocks='1' numFiles='1' totalRows='12851097' numStripes='0' totalStringLengths='0' totalSize='19884711' modificationTS='1471182128' sampledBytes='0' sampledRows='0' fileName='hdfs://nap001.esgyn.local:8020/user/hive/warehouse/tpcds_sf1000.db/inventory/000032_0' replication='3' blockSize='268435456' blockHosts='2|4|5' 
+numOfRows='no_entry' offsets='no_entry' totalBytes='no_entry'>
+            </hhdfs_orc_file_stats>
+            <hhdfs_orc_file_stats position='33' numBlocks='1' numFiles='1' totalRows='12816794' numStripes='0' totalStringLengths='0' totalSize='19827943' modificationTS='1471182135' sampledBytes='0' sampledRows='0' fileName='hdfs://nap001.esgyn.local:8020/user/hive/warehouse/tpcds_sf1000.db/inventory/000033_0' replication='3' blockSize='268435456' blockHosts='5|2|3' 
+numOfRows='no_entry' offsets='no_entry' totalBytes='no_entry'>
+            </hhdfs_orc_file_stats>
+            <hhdfs_orc_file_stats position='34' numBlocks='1' numFiles='1' totalRows='12810506' numStripes='0' totalStringLengths='0' totalSize='19824685' modificationTS='1471182134' sampledBytes='0' sampledRows='0' fileName='hdfs://nap001.esgyn.local:8020/user/hive/warehouse/tpcds_sf1000.db/inventory/000034_0' replication='3' blockSize='268435456' blockHosts='3|1|2' 
+numOfRows='no_entry' offsets='no_entry' totalBytes='no_entry'>
+            </hhdfs_orc_file_stats>
+            <hhdfs_orc_file_stats position='35' numBlocks='1' numFiles='1' totalRows='12829475' numStripes='0' totalStringLengths='0' totalSize='19853884' modificationTS='1471182117' sampledBytes='0' sampledRows='0' fileName='hdfs://nap001.esgyn.local:8020/user/hive/warehouse/tpcds_sf1000.db/inventory/000035_0' replication='3' blockSize='268435456' blockHosts='2|5|1' 
+numOfRows='no_entry' offsets='no_entry' totalBytes='no_entry'>
+            </hhdfs_orc_file_stats>
+            <hhdfs_orc_file_stats position='36' numBlocks='1' numFiles='1' totalRows='12850974' numStripes='0' totalStringLengths='0' totalSize='19884686' modificationTS='1471182118' sampledBytes='0' sampledRows='0' fileName='hdfs://nap001.esgyn.local:8020/user/hive/warehouse/tpcds_sf1000.db/inventory/000036_0' replication='3' blockSize='268435456' blockHosts='3|4|2' 
+numOfRows='no_entry' offsets='no_entry' totalBytes='no_entry'>
+            </hhdfs_orc_file_stats>
+            <hhdfs_orc_file_stats position='37' numBlocks='1' numFiles='1' totalRows='12814337' numStripes='0' totalStringLengths='0' totalSize='19830286' modificationTS='1471182136' sampledBytes='0' sampledRows='0' fileName='hdfs://nap001.esgyn.local:8020/user/hive/warehouse/tpcds_sf1000.db/inventory/000037_0' replication='3' blockSize='268435456' blockHosts='1|2|3' 
+numOfRows='no_entry' offsets='no_entry' totalBytes='no_entry'>
+            </hhdfs_orc_file_stats>
+            <hhdfs_orc_file_stats position='38' numBlocks='1' numFiles='1' totalRows='12811877' numStripes='0' totalStringLengths='0' totalSize='19821661' modificationTS='1471182135' sampledBytes='0' sampledRows='0' fileName='hdfs://nap001.esgyn.local:8020/user/hive/warehouse/tpcds_sf1000.db/inventory/000038_0' replication='3' blockSize='268435456' blockHosts='1|2|3' 
+numOfRows='no_entry' offsets='no_entry' totalBytes='no_entry'>
+            </hhdfs_orc_file_stats>
+            <hhdfs_orc_file_stats position='39' numBlocks='1' numFiles='1' totalRows='12815204' numStripes='0' totalStringLengths='0' totalSize='19828712' modificationTS='1471182137' sampledBytes='0' sampledRows='0' fileName='hdfs://nap001.esgyn.local:8020/user/hive/warehouse/tpcds_sf1000.db/inventory/000039_0' replication='3' blockSize='268435456' blockHosts='5|2|4' 
+numOfRows='no_entry' offsets='no_entry' totalBytes='no_entry'>
+            </hhdfs_orc_file_stats>
+            <hhdfs_orc_file_stats position='40' numBlocks='1' numFiles='1' totalRows='12833953' numStripes='0' totalStringLengths='0' totalSize='19858251' modificationTS='1471182131' sampledBytes='0' sampledRows='0' fileName='hdfs://nap001.esgyn.local:8020/user/hive/warehouse/tpcds_sf1000.db/inventory/000040_0' replication='3' blockSize='268435456' blockHosts='5|1|4' 
+numOfRows='no_entry' offsets='no_entry' totalBytes='no_entry'>
+            </hhdfs_orc_file_stats>
+            <hhdfs_orc_file_stats position='41' numBlocks='1' numFiles='1' totalRows='12814990' numStripes='0' totalStringLengths='0' totalSize='19823945' modificationTS='1471182117' sampledBytes='0' sampledRows='0' fileName='hdfs://nap001.esgyn.local:8020/user/hive/warehouse/tpcds_sf1000.db/inventory/000041_0' replication='3' blockSize='268435456' blockHosts='4|5|2' 
+numOfRows='no_entry' offsets='no_entry' totalBytes='no_entry'>
+            </hhdfs_orc_file_stats>
+            <hhdfs_orc_file_stats position='42' numBlocks='1' numFiles='1' totalRows='12831155' numStripes='0' totalStringLengths='0' totalSize='19851640' modificationTS='1471182137' sampledBytes='0' sampledRows='0' fileName='hdfs://nap001.esgyn.local:8020/user/hive/warehouse/tpcds_sf1000.db/inventory/000042_0' replication='3' blockSize='268435456' blockHosts='3|4|1' 
+numOfRows='no_entry' offsets='no_entry' totalBytes='no_entry'>
+            </hhdfs_orc_file_stats>
+            <hhdfs_orc_file_stats position='43' numBlocks='1' numFiles='1' totalRows='12831543' numStripes='0' totalStringLengths='0' totalSize='19853705' modificationTS='1471182138' sampledBytes='0' sampledRows='0' fileName='hdfs://nap001.esgyn.local:8020/user/hive/warehouse/tpcds_sf1000.db/inventory/000043_0' replication='3' blockSize='268435456' blockHosts='1|4|5' 
+numOfRows='no_entry' offsets='no_entry' totalBytes='no_entry'>
+            </hhdfs_orc_file_stats>
+            <hhdfs_orc_file_stats position='44' numBlocks='1' numFiles='1' totalRows='12836287' numStripes='0' totalStringLengths='0' totalSize='19863419' modificationTS='1471182136' sampledBytes='0' sampledRows='0' fileName='hdfs://nap001.esgyn.local:8020/user/hive/warehouse/tpcds_sf1000.db/inventory/000044_0' replication='3' blockSize='268435456' blockHosts='1|2|5' 
+numOfRows='no_entry' offsets='no_entry' totalBytes='no_entry'>
+            </hhdfs_orc_file_stats>
+            <hhdfs_orc_file_stats position='45' numBlocks='1' numFiles='1' totalRows='12829812' numStripes='0' totalStringLengths='0' totalSize='19853197' modificationTS='1471182135' sampledBytes='0' sampledRows='0' fileName='hdfs://nap001.esgyn.local:8020/user/hive/warehouse/tpcds_sf1000.db/inventory/000045_0' replication='3' blockSize='268435456' blockHosts='3|1|2' 
+numOfRows='no_entry' offsets='no_entry' totalBytes='no_entry'>
+            </hhdfs_orc_file_stats>
+            <hhdfs_orc_file_stats position='46' numBlocks='1' numFiles='1' totalRows='12851054' numStripes='0' totalStringLengths='0' totalSize='19883294' modificationTS='1471182139' sampledBytes='0' sampledRows='0' fileName='hdfs://nap001.esgyn.local:8020/user/hive/warehouse/tpcds_sf1000.db/inventory/000046_0' replication='3' blockSize='268435456' blockHosts='5|3|4' 
+numOfRows='no_entry' offsets='no_entry' totalBytes='no_entry'>
+            </hhdfs_orc_file_stats>
+            <hhdfs_orc_file_stats position='47' numBlocks='1' numFiles='1' totalRows='12829395' numStripes='0' totalStringLengths='0' totalSize='19850818' modificationTS='1471182138' sampledBytes='0' sampledRows='0' fileName='hdfs://nap001.esgyn.local:8020/user/hive/warehouse/tpcds_sf1000.db/inventory/000047_0' replication='3' blockSize='268435456' blockHosts='4|5|3' 
+numOfRows='no_entry' offsets='no_entry' totalBytes='no_entry'>
+            </hhdfs_orc_file_stats>
+            <hhdfs_orc_file_stats position='48' numBlocks='1' numFiles='1' totalRows='5004946' numStripes='0' totalStringLengths='0' totalSize='7740006' modificationTS='1471182127' sampledBytes='0' sampledRows='0' fileName='hdfs://nap001.esgyn.local:8020/user/hive/warehouse/tpcds_sf1000.db/inventory/000048_0' replication='3' blockSize='268435456' blockHosts='2|5|1' 
+numOfRows='no_entry' offsets='no_entry' totalBytes='no_entry'>
+            </hhdfs_orc_file_stats>
+        </hhdfs_bucket_stats>
+    </hhdfs_list_part_stats>
+</hhdfs_table_stats>
+

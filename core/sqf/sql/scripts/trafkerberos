@@ -1,0 +1,203 @@
+#!/bin/bash
+# @@@ START COPYRIGHT @@@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+# @@@ END COPYRIGHT @@@
+
+# -----------------------------------------------------------------------------
+# script: trafKerberos
+#
+# This script performs krb5service requests for all nodes in the cluster
+# ------------------------------------------------------------------------------
+
+if [[ -e /etc/trafodion/trafodion_config ]]; then
+        source /etc/trafodion/trafodion_config
+fi 
+
+# =========================================================
+# function msg
+#   creates a message in log4cxx format
+# =========================================================
+function msg
+{
+  # to use SQL event log reader, message needs to look like:
+  # 2018-02-01 00:07:31,123, INFO, KERBEROS,,,62034,krb5service,,, starting service (krb5check)
+  #  date (day, time, nanoseconds), severity, component (KERBEROS),
+  #  node-id, cpu, pin, program (krb5check), sql_code, query_id, message
+  hostName=$( hostname -f )
+  nodeId=$( trafconf -node  | grep $hostName | cut -d '=' -f2 | cut -d ';' -f1 )
+  echo "`date +"%Y-%m-%d %H:%M:%S,%N"`, INFO, KERBEROS, Node Number: $nodeId,, PID: $$, Process Name: trafkerberos,,, $1" 
+}
+
+# =========================================================
+# startService
+#   Calls 'krb5service restart' in all nodes
+#   Restart performs a stop followed by a start
+#   Stopping the service removes any oprhaned krb5check
+#   processes, and starting the service renews or 
+#   initializes any out-of-date or missing TGT's 
+# =========================================================
+function startService
+{
+  # Start the krb5check process in each node
+  # krb5check renews or initializes tickets when required
+  # if using an agent, this request fails if EsgynDB is down
+  # You must use the agent start script to initialize TGTs
+
+  msg "service start requested"
+  # the start option starts a process in the background, 
+  # need to close its stdout, etc.  Otherwise command hangs
+  PDSH_OPTS="-u 30"  edb_pdsh -a 'krb5service restart &>/dev/null'
+  msg "service start request sent"
+  PDSH_OPTS="-u 30"  edb_pdsh -a 'krb5service status'
+  return 0
+}
+
+# =========================================================
+# statusService
+#   Calls 'krb5service status' to get the status of the 
+#   Trafodion Kerberos tickets for the requested nodes.
+#
+# optional parameters:
+#   $1 - number of errors to report 
+#     if not specified, defaults to 10 or the number of 
+#     nodes in the cluster, whatever is bigger
+#   $2 - { <nodes> }
+#
+#  <nodes> is a space separated list of nodes, if not 
+#    specified then all nodes are assumed
+#
+# returns:
+#   list of nodes and their TGT status
+# =========================================================
+function statusService
+{
+  NODES=""
+  maxErrors=$( echo "$NODE_LIST" | wc -w )
+  if [[ $maxErrors -lt 10 ]]; then
+    maxErrors=10
+  fi
+  numParams=$#
+  if [[ $numParams -ge 2 ]]; then
+    maxErrors=$1
+    shift
+    NODES="$@"
+  elif [[ $numParams -eq 1 ]]; then
+    maxErrors=$1
+    NODES=$( trafconf -name | sed -e 's/[[:space:]]\{1,\}/ /' )
+  else
+    NODES=$( trafconf -name | sed -e 's/[[:space:]]\{1,\}/ /' )
+  fi
+
+  message="Kerbero ticket status `date +"%Y-%m-%d %H:%M:%S"`"
+  message=$message"\n"
+
+  IFS=" ";
+  arr=( $NODES )
+  retcode=0
+  numErrors=1
+  for i in "${arr[@]}";
+    do
+      result=$( PDSH_OPTS="-u 10" edb_pdsh -w $i 'krb5service status; echo "retcode: $?"' )
+
+      status=$( echo "$result" | grep "Ticket expires" | cut -d ':' -f2- )
+      retcode=$( echo "$result" | grep ": retcode" | cut -d ' ' -f3 )
+      #echo "result: $result"
+      #echo "status: $status"
+      #echo "retcode: $retcode"
+
+      #   1 = ticket information not found
+      #   2 = ticket has expired but can be renewed
+      #   3 = ticket has expired and cannot be renewed
+      if [[ $retcode -eq 0 ]]; then
+        message=$message"$i: $status"
+      elif [[ $retcode -eq 1 ]]; then
+        message=$message"$i: Kerberos ticket is not found (retcode $retcode)" 
+      elif [[ $retcode -eq 2 ]]; then
+        message=$message"$i: Kerberos ticket has expired (retcode $retcode)"
+      else 
+        message=$message"$i: Kerberos ticket is invalid (retcode $retcode)"
+      fi
+      message=$message"\n"
+
+      if [[ $numErrors -ge $maxErrors ]]; then
+         break
+      fi
+      let numErrors=numErrors+1
+  done
+
+  return $retcode
+}
+
+# =========================================================
+# stopService
+#   Calls 'krb5service stop' in all nodes. This stops the
+#   krb5check but does not destroy any active TGT for the
+#   Trafodion ID.  TGT expire according to Kerberos 
+#   ticket lifetimes. 
+# =========================================================
+function stopService
+{
+  # stop the krb5check process in each node
+  edb_pdsh -a 'krb5service stop'
+  return 0
+}
+
+# =========================================================
+# run krb5service requests for nodes on the cluster
+# =========================================================
+doStatus=0
+doStop=0
+doStart=0
+
+message=""
+
+case "$1" in
+    status)
+        doStatus=1
+        shift
+        ;;
+    stop)
+        doStop=1
+        ;;
+    start)
+        doStart=1
+        ;;
+    *)
+        echo $"Usage: $0 {status | stop | start}"
+        exit 1
+        ;;
+esac
+
+retcode=0
+if [[ $doStatus -eq 1 ]]; then
+  statusService "$@" 
+  retcode=$?
+  echo -e $message
+fi
+
+if [[ $doStop -eq 1 ]]; then
+  stopService
+  retcode=$?
+fi
+
+if [[ $doStart -eq 1 ]]; then
+  startService $#
+  retcode=$?
+fi
+
+exit $retcode

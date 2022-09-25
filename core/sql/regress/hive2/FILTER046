@@ -1,0 +1,38 @@
+#! /bin/bash
+# @@@ START COPYRIGHT @@@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+# @@@ END COPYRIGHT @@@
+
+# Like the pattern-masking of QACOMP, here we filter out such stuff as
+# transaction id.  Called by the runregr script before doing diff.
+
+fil=$1
+sed "
+s/^\([ ]*RootDir:[ ]*[\.]*\) .*/\1RootDir removed /g
+s/^\([ ]*FilePath:[ ]*[\.]*\) .*/\1FilePath removed /g
+s/^\([ ]*FileName:[ ]*[\.]*\) .*/\1FileName removed /g
+s/^\([ ]*CompressedSize:[ ]*[\.]*\) .*/\1CompressedSize removed /g
+s/^\([ ]*ActualSize:[ ]*[\.]*\) .*/\1ActualSize removed /g
+s/^\([ ]*TotalCompressedSize:[ ]*[\.]*\) .*/\1 TotalCompressedSize removed /
+s/^\([ ]*TotalActualSize:[ ]*[\.]*\) .*/\1 TotalActualSize removed /g
+s/TotalSize: [ ]*[0-9]*/TotalSize: removed /g
+s/\/\* ObjectUID = *[0-9]*/ObjectUID = <UID removed>/g
+s/optional int32 o (INT_8)/optional int32 o/g
+" $fil

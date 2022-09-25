@@ -1,0 +1,491 @@
+-- @@@ START COPYRIGHT @@@
+--
+-- Licensed to the Apache Software Foundation (ASF) under one
+-- or more contributor license agreements.  See the NOTICE file
+-- distributed with this work for additional information
+-- regarding copyright ownership.  The ASF licenses this file
+-- to you under the Apache License, Version 2.0 (the
+-- "License"); you may not use this file except in compliance
+-- with the License.  You may obtain a copy of the License at
+--
+--   http://www.apache.org/licenses/LICENSE-2.0
+--
+-- Unless required by applicable law or agreed to in writing,
+-- software distributed under the License is distributed on an
+-- "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+-- KIND, either express or implied.  See the License for the
+-- specific language governing permissions and limitations
+-- under the License.
+--
+-- @@@ END COPYRIGHT @@@
+--
+-- test for composite datatypes
+--
+
+obey TEST060(clean_up);
+
+log LOG060 clear;
+
+cqd traf_composite_datatype_support 'ON';
+cqd hive_composite_datatype_support 'OFF';
+obey TEST060(tests1);
+obey TEST060(tests1_errors);
+
+obey TEST060(tests2_ddl);
+obey TEST060(tests2_ddl_errors);
+obey TEST060(tests2);
+obey TEST060(tests2_errors);
+
+obey TEST060(tests_unnest);
+
+log;
+
+exit;
+
+?section tests1
+
+-- array and row constructors
+select row(10) from dual;
+select array[10] from dual;
+select row('ab', 10, date '2018-12-07', 1.2e0, interval '10:10' hour to minute)
+  from dual;
+select array[10, 12.34, 0.0, -23] from dual;
+select array[10, 12.34, 0.0, 4e0] from dual;
+select array['ab', cast('cdd' as varchar(3))] from dual;
+
+select array[row(10, 'abc'), row(23456, 'a')] from dual;
+select array[row('ab', 10), row('cdef', -10.2)] from dual;
+
+select row(array[10,20000000]) from dual;
+select row('ab', array[1.2, 4.0001], 10) from dual;
+
+-- empty strings
+select array[''] from dual;
+select row('') from dual;
+
+-- cast stmt on array and row constructors
+select cast(row(1000000) as row(a int)) from dual;
+select cast(array[10000] as int array[1]) from dual;
+
+select cast(array[10,20] as int array[2]) from dual;
+
+select cast(row('ab', row('cd')) as row(aa char(2), bb row(b11 char(2))))  
+ from dual;
+select cast(row('ab', array['cdef']) as row(b10 char(2), b11 char(4) array[1])) 
+ from dual;
+
+select cast(row('ab', array[cast('cde' as char(4))]) as row(b10 char(2), b11 char(4) array[1])) 
+ from dual;
+
+select cast(array[row('ab', 'cde')] as row(a char(2), b char(3)) array[1]) from dual;
+
+select cast(array[row(cast('abc' as char(2)), 'cde')] as row(a char(2), b char(3)) array[1]) from dual;
+
+prepare s from select cast(array[row(cast(1 as int), cast('ab' as char(7))), 
+                                 row(cast(1234 as int), 'gggg   ')]  
+                           as row(a int, b char(7)) array[2]) from dual;
+
+select array[null] from dual;
+select row(null) from dual;
+select array[null, 10, null] from dual;
+select row(10, null, 20) from dual;
+
+select cast(row(array[null]) as row(a int array[1])) from dual;
+select cast(row(null) as row(a int)) from dual;
+select cast(array[row(null)] as row(a int) array[1]) from dual;
+select cast(array[row(20), row(null)] as row(a int) array[2]) from dual;
+
+select case when 1 = 1 then row('ab') else null end from dual;
+
+-- array expand and truncate
+select cast(array[10,20,30] as array[10]) from dual;
+select cast(array[10,20,30] as array[2]) from dual;
+
+select * from (values(row('ab')))x(a), (values(array[1]))y(b);
+
+select composite_extract(row(1, 'ab'), 1) from dual;
+select composite_extract(row(1, 'ab'), 2) from dual;
+select composite_extract(array[1,2,3], 2) from dual;
+select 1 + composite_extract(row(1, 'ab'), 1) from dual;
+select composite_extract(row(1, 'ab'), 1) + 1 from dual;
+
+select cast(array['abcd'] as char(2)) from dual;
+select cast(array['abcd'] as varchar(20)) from dual;
+
+select array[10] || array[30] from dual;
+select array[10,20] || array[30] from dual;
+
+prepare s from select cast(array[cast(? as int)] as largeint array[1]) 
+   from dual;
+execute s using 10;
+prepare s from select cast(array[cast(? as char(3))] as char(2) array[1])
+   from dual;
+execute s using 'abc';
+prepare s from select array[?] from dual;
+execute s using 'ab';
+
+prepare s from select cast(row(cast(? as int)) as row(a1 largeint))
+   from dual;
+execute s using 10;
+prepare s from select cast(row(cast(? as char(3))) as row(a2 char(2)))
+   from dual;
+execute s using 'abc';
+prepare s from select row(?) from dual;
+execute s using 'ab';
+
+select array[1] from dual union all select array[2] from dual;
+select row('ab') from dual union all select row('cd') from dual;
+
+drop view if exists t060v1;
+create view t060v1 as select array['ab'] a, row(10) b  from dual; 
+invoke t060v1;
+drop view t060v1;
+
+create view t060v1 as select row(10) b  from dual union all 
+                      select row(20) c from dual;
+invoke t060v1;
+drop view t060v1;
+
+create view t060v1(z) as select row(10) b  from dual union all 
+                      select row(20) c from dual;
+invoke t060v1;
+drop view t060v1;
+
+select cast(row('ab', array['cde']) as row(b10 char(2), b11 char(4) array[1])) 
+ from dual;
+select cast(array[row('abc', 'cde')] as row(a char(2), b char(3)) array[1]) from dual;
+prepare s from select cast(array[row(1, 'ab'), row(1234, 'gggg')]  as row(a int,
+ b char(7)) array[2]) from dual;
+
+
+?section tests1_errors
+-- case then/else must match
+select case when 1 = 1 then row('ab') else array['ab'] end from dual;
+
+select composite_extract(row(1, 'ab'), 3) from dual;
+select composite_extract(array[1,2,3], 4) from dual;
+
+select * from (values(array['a']), (array[20]));
+select * from (values(array[10,20]), (array['b','a']));
+select * from (values(row('a')), (row(1)));
+select * from (values(row('a',1)), (row('a','b')));
+select * from (values(row('a')), (array['a']));
+
+-- comp cols cannot be used in a predicate
+select * from (values(row('ab')))x(a), (values(array[1]))y(b) where x.a = y.b;
+select * from (values(row('ab'))) x(a), (values(row('ab'))) y(b) 
+    where x.a = y.b;
+
+-- concatenated elements must match
+select array[10] || array['ab'] from dual;
+
+-- error: nesting levels exceeded
+select array[row(array['ab'])] from dual;
+
+-- overflow error
+prepare s from select cast(array[cast(? as int)] as smallint array[1]) 
+   from dual;
+execute s using 10000000;
+
+-- cannot typecast param as composite type
+prepare s from select cast(? as row(a int)) from dual;
+prepare s from select cast(? as int array[1]) from dual;
+
+-- cannot use composite type in order by or group by
+select a from (values(array[10]),(array[5])) x(a) group by a;
+select a from (values(array[10]),(array[5])) x(a) order by a;
+select distinct a from (values(array[10]),(array[5])) x(a);
+select 1 from (select array[1] a from dual order by a) x;
+
+select array[1] from dual union select array[2] from dual;
+select row('ab') from dual union select row('cd') from dual;
+
+select sum(a) from dual having array[1] = array[1];
+
+
+?section tests2_ddl
+create table if not exists t060t1
+(
+  a1 row(a1 int),
+  a2 int array[2],
+  a3 row(a31 int, a32 char(2)) array[2],
+  a4 row(a30 char(2), a31 int array[2]),
+  a5 row(a30 row(a30 int, a32 char(2)))
+);
+invoke t060t1;
+showddl t060t1;
+
+drop view if exists t060v1;
+create view t060v1 as select * from t060t1;
+showddl t060v1;
+select * from t060v1;
+
+drop view if exists t060v2;
+create view t060v2 as select a3.a31 from t060t1;
+showddl t060v2;
+select * from t060v2;
+
+alter table t060t1 add column a6 row(a61 int, a62 char(2) array[2]);
+invoke t060t1;
+select * from t060t1;
+
+alter table t060t1 drop column a6;
+invoke t060t1;
+select * from t060t1;
+
+drop table if exists t060t2;
+create table t060t2(
+  a int not null primary key, 
+  b int array [3],
+  c row (c1 int, c2 date) array[2], 
+  d row (d1 int, d2 char(1) character set iso88591),
+  e char(2));
+showddl t060t2;
+drop table if exists t060t2_like;
+create table t060t2_like like t060t2;
+showddl t060t2_like;
+select * from t060t2_like;
+
+drop table if exists t060t3;
+create table t060t3 (
+  a int array[3],
+  b row(b1 char(2), b2 int) array[2]);
+insert into t060t3 values (array[1], array[row('ab',10), row('cd',200)]);
+insert into t060t3 values (array[11,22], array[row('cd',200)]);
+insert into t060t3 values (array[11,22, null], 
+              array[row('cd',200), cast(null as row(b char(2), b1 int))]);
+insert into t060t3 values (array[111,222,333], 
+              array[row(cast(null as char(2)), null), 
+                        cast(null as row(b char(2), b1 int))]);
+insert into t060t3 values (array[null, null, null], array[row(cast(null as char(2)), null), cast(null as row(b char(2), b1 int))]);
+insert into t060t3 values (array[null, null, null], array[row(cast(null as char(2)), null)]);
+
+select * from t060t3;
+select a[3] from t060t3;
+
+select b[1] from t060t3;
+select composite_extract(b,1) from t060t3;
+select b[2].b1 from t060t3;
+
+-- error
+select a[4] from t060t3;
+select b.b1 from t060t3;
+
+delete from t060t3;
+insert into t060t3 values (array[1], array[row('ab',10)]);
+select * from t060t3;
+select array_length(a), array_length(b) from t060t3;
+select a || array[2] from t060t3;
+select b || array[row('cd',20)] from t060t3;
+?ignore
+-- this statement returns errors, comment it out for now.
+update t060t3 set a = a || array[2], b = b || array[row('cd',20)];
+select * from t060t3;
+?ignore
+
+?section tests2_ddl_errors
+-- must be nullable with default NULL
+create table t060terr(a row(a1 int) not null);
+
+-- cannot be primary key
+create table t060terr(a row(a1 int) primary key);
+create table t060terr(a row(a1 int) primary key nullable);
+
+create index t060t1i1 on t060t1(a1);
+create table t060terr(a row(a1 int) unique);
+create table t060terr(a row(a1 int) check (a > row(1)));
+
+create table t060terr(a row(a1 int) references t060t1(a1));
+
+create table t060terr(a row(a int, a int));
+
+?section tests2
+insert into t060t1 values
+(
+  row(13), 
+  array[1,2], 
+  array[row(123456, 'ab'), row(-23, 'z')],
+  row('ab', array[1,2]),
+  row(row(789, 'cd'))
+);
+
+insert into t060t1 values
+(
+  row(10), 
+  array[1.2,2], 
+  array[row(1234564, ' '), row(-23, 'zzzz')],
+  row('cd', array[10000,2]),
+  row(row(789, cast('cd' as varchar(4))))
+);
+
+insert into t060t1 values (null, null, null, null, null);
+insert into t060t1 values (
+       row(null), 
+       array[null,null], 
+       array[row(null,cast(null as char(2))), row(null,cast(null as varchar(1)))],
+       row(cast(null as char(10)), array[null,null]),
+       row(row(null, cast(null as varchar(4)))));
+
+select * from t060t1;
+select a1, a1.a1, a2, a2[1], a3, a3[1], a3[1].a31, a4, a4.a30, a4.a31[2],
+       a5, a5.a30, a5.a30.a30 from t060t1;
+
+-- isnull, isnotnull cannot be used on composite types.
+select * from t060t1 where a1 is null;
+select * from t060t1 where a1 is not null;
+select * from t060t1 where (a1,a1) is null;
+select * from t060t1 where (a1,a1) is not null;
+select * from t060t1 where a5.a30 is null;
+
+-- isnull, isnotnull can be used on primitive fields of composite types
+select * from t060t1 where a1.a1 is null;
+select * from t060t1 where a1.a1 is not null;
+select * from t060t1 where a5.a30.a30 is null;
+
+select sum(a1.a1) from t060t1;
+
+select a5.a30.a30 from t060t1;
+select cast(a5.a30.a30 as int)  from t060t1;
+select a3[1].a32 from t060t1;
+
+select a2 || a2 from t060t1;
+
+select a4 from t060t1;
+select a4.a31 from t060t1;
+select a2 || a4.a31 from t060t1;
+
+
+?section tests2_errors
+
+-- column syskey is not a composite col
+select syskey[1] from t060t1;
+
+--overflow error
+insert into t060t1 values
+(
+  row(10), 
+  array[1.2,2], 
+  array[row(1234564, ' '), row(-23, 'zzzz')],
+  row('cd', array[10000,2]),
+  row(row(7899999999999, cast('cd' as varchar(4))))
+);
+
+select a1 from t060t1 group by a1;
+select a1 from t060t1 group by 1;
+select a1.a1 from t060t1 group by a1.a1;
+select a1 from t060t1 group by a1.a1;
+select a1.a1 from t060t1 group by 1;
+
+select * from t060t1 order by a1;
+select * from t060t1 order by a1.a1;
+select * from t060t1 order by a2;
+select * from t060t1 order by a2[1];
+
+select distinct a1 from t060t1;
+select distinct a1.a1 from t060t1;
+
+select sum(a1) from t060t1;
+
+select * from t060t1 where a1 = row(10);
+
+select a3[3].a32 from t060t1;
+
+-- cannot use composite type in predicate list comparison
+select * from t060t1 where (a1,a1) = (a1,a1);
+
+-- index must be >= 1
+select a3[0].a32 from t060t1;
+select a3[-1].a32 from t060t1;
+
+?section tests_unnest
+drop table if exists t060t1 cascade;
+create table t060t1 (a int primary key, b char(3) array[3],
+                     c row(c1 int, c2 varchar(5)) array[2]);
+insert into t060t1 values (1, array['ab', 'cd', 'efg'],
+                           array[row(10, 'xyz'), row(200, ' ')]);
+insert into t060t1 values (2, array['aaa', 'b'],
+                           array[row(20, 'xyz'), row(30, 'zz')]);
+insert into t060t1 values (3, null,  null);
+
+select * from t060t1;
+select * from unnest(t060t1, t060t1.b) x;
+select * from unnest(t060t1, c) x;
+select z.a, x.* from t060t1 as z lateral view unnest(b) x;
+select z.a, x.* from t060t1 as z lateral view outer unnest(b) x;
+select z.a, x.* from t060t1 as z lateral view unnest(c) x;
+select z.a, x.*,y.* from t060t1 as z lateral view unnest(b) x lateral view unnest(c) y;
+select z.a, x.*,y.* from t060t1 as z lateral view unnest(c) x lateral view unnest(c) y;
+select z.a, x.*,y.* from t060t1 as z lateral view unnest(c) x(cc1,cc2) lateral view unnest(c) y(dd1,dd2);
+
+select z.a, x.* from t060t1 as z lateral view unnest(b, show pos) x;
+select z.a, x.* from t060t1 as z lateral view unnest(b, show pos) x 
+  where "_POS_" = 3;
+
+select z.a, x."_POS_" from t060t1 as z lateral view outer unnest(b, show pos) x order by 2;
+select z.a, x."_POS_" from t060t1 as z lateral view outer unnest(b, show pos) x 
+  where "_POS_" = 3 order  by 2;;
+select z.a, x."_POS_" from t060t1 as z lateral view outer unnest(b, show pos) x 
+  where "_POS_" is null order  by 2;;
+
+cqd hive_array_index_mode 'ON';
+select b[0], b[1], b[2] from t060t1 order by 1;
+select z.a, x."_POS_" from t060t1 as z lateral view outer unnest(b, show pos) x order by 2;
+cqd hive_array_index_mode reset;
+
+drop table if exists tarr8;
+create table tarr8 (a int primary key, b row(b1 int) array[2]);
+insert into tarr8 select 10, array[row(10), row(20)] from dual;
+insert into tarr8 select 20, array[row(null), row(30)] from dual;
+insert into tarr8 values (30, null);
+insert into tarr8 select 40, array[cast(null as row(a1 int)), row(50)] from dual;
+select * from tarr8;
+
+select * from tarr8 lateral view outer unnest(b) x;
+select b,x.* from tarr8 lateral view outer unnest(b) x;
+select b,x.* from tarr8 lateral view outer unnest(b) x where b is null;
+select b,x.* from tarr8 lateral view outer unnest(b) x where b is not null;
+select b,x.* from tarr8 lateral view unnest(b) x where x.b1 is null;
+select b,x.* from tarr8 lateral view outer unnest(b) x where x.b1 is null;
+select b,x.* from tarr8 lateral view outer  unnest(b) x where x.b1 is not null;
+
+select cast(array[cast(null as row(a1 int))] as row(b1 int) array[1]) from dual;
+
+-- needs to be fixed, should display null instead of 0
+select cast(array[cast(null as row(a1 int))] as row(b1 int) array[2]) from dual;
+
+?section clean_up
+drop table if exists t060t1 cascade;
+
+?section crashes
+
+?ignore
+
+create table tarr5 (a char(2) array[10]);
+insert into tarr5 values (array['ab']);
+prepare s from update tarr5 set a = a || array['cd'];
+execute s;
+
+drop table tarr6;
+create table tarr6 (a row(a1 char(2)) array[2]);
+insert into tarr6 values (array[row('ab')]);
+prepare s from update tarr6 set a = a || array[row('cd')];
+execute s;
+-- crashes
+select cast(a || array[row('cd')] as row(a1 char(3)) array[2]) from tarr6;
+
+aborts
+select array_length(cast(a || array[row('cd')] as row(a1 char(2)) array[2])) from tarr6;
+
+-- returns incorrect result
+select cast(a || array[row('cd')] as row(a1 char(2)) array[2]) from tarr6;
+
+-- returns incorrect result
+select cast(array[row('ab'), row('ba')] || array[row('cd')] as row(a1 char(2)) array[3]) from dual;
+select array[row('ab'), row('ba')] || array[row('cd')] from dual;
+
+--crashes
+select cast(array[row('ab'), row('ba')] || array[row('cd')] as row(a1 char(2)) array[3]) from dual;
+
+
+?ignore
+

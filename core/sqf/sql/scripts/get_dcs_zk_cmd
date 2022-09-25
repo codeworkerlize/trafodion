@@ -1,0 +1,20 @@
+#!/bin/bash
+#
+# Helper script used by rm_hbase_rs_zknode_execute
+#
+# This generates a Zookeeper "delete <znode>" script for all
+#  registered mxosrvrs running on a particular node
+#  Node name is passed in via rm_hbase_rs_zknode_execute
+
+cd $TRAF_HOME/sql/scripts
+$DCS_INSTALL_DIR/bin/dcs zkcli <<EOF > ${TRAF_LOG}/ls_dcs_reg.out 2>${TRAF_LOG}/ls_dcs_reg.err
+ls ${TRAF_ROOT_ZNODE}/${TRAF_INSTANCE_ID}/dcs/servers/registered
+EOF
+
+if [ -s ${TRAF_LOG}/ls_dcs_reg.out ]; then
+    cat ${TRAF_LOG}/ls_dcs_reg.out | grep -A1 "ls ${TRAF_ROOT_ZNODE}/${TRAF_INSTANCE_ID}/dcs/servers/registered" | tail -1 | sed -e 's/\[//' | sed -e 's/\]//' | sed -e 's/, /\n/g' > ${TRAF_LOG}/dcs_reg_zk_list 
+fi
+
+if [ -s ${TRAF_LOG}/dcs_reg_zk_list ]; then
+    cat ${TRAF_LOG}/dcs_reg_zk_list| grep -w $1 | sed -e "s,^\(.*\),delete ${TRAF_ROOT_ZNODE}/${TRAF_INSTANCE_ID}/dcs/servers/registered/\1," > ${TRAF_LOG}/dcs_reg_zk_cmd
+fi

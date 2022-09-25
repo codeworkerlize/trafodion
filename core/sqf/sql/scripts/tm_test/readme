@@ -1,0 +1,12 @@
+- make sure that the Esgyn env is up and running (trafcheck)
+
+- export EXEC_DDL=1
+
+- ./run_test <number of streams> <starting row id> <number of rows per streams>
+
+   E.g.:
+
+  ./run_test 1 1 1000      # 1 stream, starting row id 1, 1000 txns
+
+  ./run_test 4 1 1000      # 4 streams, starting row id 1, 1000 txns/stream
+  

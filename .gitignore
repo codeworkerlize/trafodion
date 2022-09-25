@@ -1,0 +1,13 @@
+/distribution/
+/.idea/
+*.log
+/RPMROOT/
+/products/
+/licenses/LICENSE*
+/licenses/NOTICE*
+/licenses/DISCLAIMER*
+LICENSE
+/apache-*incubating/
+/RPMROOT/
+rat.out
+core/sqf/export/include/authEvents.h

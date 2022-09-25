@@ -1,0 +1,967 @@
+>>obey TEST077(setup);
+>>create schema replica;
+
+--- SQL operation complete.
+>>set schema replica;
+
+--- SQL operation complete.
+>>
+>>create table rt1 (a int not null default 5 primary key) replicate 2 ways ;
+
+--- SQL operation complete.
+>>create table rt2 (a int not null primary key) salt using 2 partitions  replicate 3 ways ;
+
+--- SQL operation complete.
+>>create table rt3 (a int not null primary key, b char(3) not null) replicate 2 ways ;
+
+--- SQL operation complete.
+>>create index ix3_1 on rt3(b) ;
+
+--- SQL operation complete.
+>>create table rt4 (a int not null primary key, b char(3) not null) salt using 2 partitions replicate 2 ways ;
+
+--- SQL operation complete.
+>>create index ix4_1 on rt4(b) ;
+
+--- SQL operation complete.
+>>create index ix4_2 on rt4(b) salt like table ;
+
+--- SQL operation complete.
+>>create table rt5(store_id integer not null,
++>                  item_id  integer not null,
++>                  sale_date date default date '2000-01-01' not null,
++>                  sale_amt numeric(10,2))
++>                  store by (store_id,  sale_date)
++>division by (date_part('YEARMONTH', sale_date))
++>replicate 3 ways;
+
+--- SQL operation complete.
+>>create unique index ix5_1 on rt5(item_id) ;
+
+--- SQL operation complete.
+>>
+>>create table updsys(id int not null, name varchar(10) not null, schid int not null) store by (id) replicate 2 ways;
+
+--- SQL operation complete.
+>>create unique index updsys_idx1 on updsys(schid);
+
+--- SQL operation complete.
+>>
+>>
+>>
+>>set param ?sch 'REPLICA';
+>>set param ?pat '%RT%';
+>>
+>>prepare smdquery from
++>select cast(substring(objects.object_name, 1,15) as char(15 bytes) character set utf8)  as table_name,
++>       objects.object_type as typ,
++>       cast(cols.column_number as smallint) colnum,
++>       cast(substring(cols.column_name,1,20) as char(20 bytes) character set utf8) as column_name,
++>       keys.ordering as ord,
++>       cast(column_size as smallint) colsiz,
++>       column_class colclass, default_class defclass,
++>       coalesce(cast(keys.keyseq_number as char(4)),'none') as ckey_col,
++>       coalesce(substring(text.text,1,60),'none') comp_expression
++>from "_MD_".OBJECTS objects
++>     join "_MD_".COLUMNS cols
++>       on objects.object_uid = cols.object_uid
++>     left outer join "_MD_".keys keys
++>       on objects.object_uid = keys.object_uid and
++>          cols.column_number = keys.column_number
++>     left outer join "_MD_".TEXT text
++>       on objects.object_uid = text.text_uid and
++>          text.text_type = 4 and
++>          text.sub_id = cols.column_number
++>where objects.schema_name = ?sch and
++>      objects.object_name like ?pat and
++>      objects.object_type in ('BT', 'VI')
++>order by 1, 2, 3
++>;
+
+--- SQL command prepared.
+>>
+>>execute smdquery;
+
+TABLE_NAME       TYP  COLNUM  COLUMN_NAME           ORD          COLSIZ  COLCLASS  DEFCLASS     CKEY_COL  COMP_EXPRESSION
+---------------  ---  ------  --------------------  -----------  ------  --------  -----------  --------  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+RT1              BT        0  A                               0       4  U                   3  2         none                                                                                                                                                                                                                                            
+RT1              BT        1  _REPLICA_                       0       2  S                   3  1         none                                                                                                                                                                                                                                            
+RT2              BT        0  A                               0       4  U                   1  3         none                                                                                                                                                                                                                                            
+RT2              BT        1  _SALT_                          0       4  S                   7  2         HASH2PARTFUNC(CAST("A" AS INT NOT NULL) FOR 2)                                                                                                                                                                                                  
+RT2              BT        2  _REPLICA_                       0       2  S                   3  1         none                                                                                                                                                                                                                                            
+RT3              BT        0  A                               0       4  U                   1  2         none                                                                                                                                                                                                                                            
+RT3              BT        1  B                               ?       3  U                   1  none      none                                                                                                                                                                                                                                            
+RT3              BT        2  _REPLICA_                       0       2  S                   3  1         none                                                                                                                                                                                                                                            
+RT4              BT        0  A                               0       4  U                   1  3         none                                                                                                                                                                                                                                            
+RT4              BT        1  B                               ?       3  U                   1  none      none                                                                                                                                                                                                                                            
+RT4              BT        2  _SALT_                          0       4  S                   7  2         HASH2PARTFUNC(CAST("A" AS INT NOT NULL) FOR 2)                                                                                                                                                                                                  
+RT4              BT        3  _REPLICA_                       0       2  S                   3  1         none                                                                                                                                                                                                                                            
+RT5              BT        0  SYSKEY                          0       8  S                   1  5         none                                                                                                                                                                                                                                            
+RT5              BT        1  STORE_ID                        0       4  U                   1  3         none                                                                                                                                                                                                                                            
+RT5              BT        2  ITEM_ID                         ?       4  U                   1  none      none                                                                                                                                                                                                                                            
+RT5              BT        3  SALE_DATE                       0       4  U                   3  4         none                                                                                                                                                                                                                                            
+RT5              BT        4  SALE_AMT                        ?       8  U                   2  none      none                                                                                                                                                                                                                                            
+RT5              BT        5  _REPLICA_                       0       2  S                   3  1         none                                                                                                                                                                                                                                            
+RT5              BT        6  _DIVISION_1_                    0       4  S                   7  2         DATE_PART('YEARMONTH',SALE_DATE)                                                                                                                                                                                                                
+
+--- 19 row(s) selected.
+>>
+>>set param ?STM 'S';
+>>
+>>prepare skeyquery from
++>select OPERATOR,
++>       TNAME,
++>       cast(substring(description from begin_key_pos for begin_key_len) as char(600)) bkey,
++>       cast(substring(description from end_key_pos for end_key_len) as char(600)) ekey
++>from
++>  (select operator,
++>          tname,
++>          description,
++>          begin_key_pos,
++>          end_key_pos-begin_key_pos-1 as begin_key_len,
++>          end_key_pos,
++>          case when end_key_len_or_0 = 0 then char_length(description) + 1 - end_key_pos
++>                                         else end_key_len_or_0 + 10 end end_key_len
++>   from
++>     (select operator,
++>             tname,
++>             cast(description as varchar(3000) character set iso88591) as description,
++>             position(' begin_key: ' IN description) + 1 as begin_key_pos,
++>             position(' end_key: '   IN description) + 1 as end_key_pos,
++>             position(': ' IN substring(description from position(' end_key: '   IN description) + 10)) end_key_len_or_0
++>      from table(explain(null,?STM))
++>      where TNAME like '%RT%') X) Y;
+
+--- SQL command prepared.
+>>
+>>obey TEST077(tests);
+>>
+>>set schema replica;
+
+--- SQL operation complete.
+>>
+>>showddl rt1 ;
+
+CREATE TABLE TRAFODION.REPLICA.RT1
+  (
+    A                                INT DEFAULT 5 NOT NULL NOT DROPPABLE
+  , PRIMARY KEY (A ASC)
+  )
+  REPLICATE 2 WAYS
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_1500000'
+;
+
+--- SQL operation complete.
+>>showddl rt2 ;
+
+CREATE TABLE TRAFODION.REPLICA.RT2
+  (
+    A                                INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , PRIMARY KEY (A ASC)
+  )
+  SALT USING 2 PARTITIONS
+       ON (A)
+  REPLICATE 3 WAYS
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_1500000'
+;
+
+--- SQL operation complete.
+>>showddl rt3 ;
+
+CREATE TABLE TRAFODION.REPLICA.RT3
+  (
+    A                                INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , B                                CHAR(3) CHARACTER SET ISO88591 COLLATE
+      DEFAULT NO DEFAULT NOT NULL NOT DROPPABLE
+  , PRIMARY KEY (A ASC)
+  )
+  REPLICATE 2 WAYS
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_1500000'
+;
+
+CREATE INDEX IX3_1 ON TRAFODION.REPLICA.RT3
+  (
+    B ASC
+  )
+;
+
+--- SQL operation complete.
+>>showddl rt4 ;
+
+CREATE TABLE TRAFODION.REPLICA.RT4
+  (
+    A                                INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , B                                CHAR(3) CHARACTER SET ISO88591 COLLATE
+      DEFAULT NO DEFAULT NOT NULL NOT DROPPABLE
+  , PRIMARY KEY (A ASC)
+  )
+  SALT USING 2 PARTITIONS
+       ON (A)
+  REPLICATE 2 WAYS
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_1500000'
+;
+
+CREATE INDEX IX4_1 ON TRAFODION.REPLICA.RT4
+  (
+    B ASC
+  )
+;
+
+CREATE INDEX IX4_2 ON TRAFODION.REPLICA.RT4
+  (
+    B ASC
+  )
+ SALT LIKE TABLE
+;
+
+--- SQL operation complete.
+>>showddl rt5 ;
+
+CREATE TABLE TRAFODION.REPLICA.RT5
+  (
+    STORE_ID                         INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , ITEM_ID                          INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , SALE_DATE                        DATE DEFAULT DATE '2000-01-01' NOT NULL
+      NOT DROPPABLE
+  , SALE_AMT                         NUMERIC(10, 2) DEFAULT NULL
+  )
+  STORE BY (STORE_ID ASC, SALE_DATE ASC)
+  REPLICATE 3 WAYS
+  DIVISION BY (DATE_PART('YEARMONTH',SALE_DATE)
+     NAMED AS ("_DIVISION_1_"))
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_1500000'
+;
+
+CREATE UNIQUE INDEX IX5_1 ON TRAFODION.REPLICA.RT5
+  (
+    ITEM_ID ASC
+  )
+;
+
+--- SQL operation complete.
+>>
+>>invoke rt3 ;
+
+-- Definition of Trafodion table TRAFODION.REPLICA.RT3
+-- Definition current  Fri Dec 20 23:07:30 2019
+
+  (
+    A                                INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , B                                CHAR(3) CHARACTER SET ISO88591 COLLATE
+      DEFAULT NO DEFAULT NOT NULL NOT DROPPABLE
+  , "_REPLICA_"                      SMALLINT UNSIGNED DEFAULT 2  NOT NULL NOT
+      DROPPABLE
+  )
+  PRIMARY KEY ("_REPLICA_" ASC, A ASC)
+
+--- SQL operation complete.
+>>
+>>get region statistics for table rt1 ;
+
+
+Stats Summary
+=============
+
+  ObjectName:              TRAF_1500000:TRAFODION.REPLICA.RT1
+  NumRegions:              2
+  RegionsLocation:         /hbase/data/default
+  TotalNumStores:          2
+  TotalNumStoreFiles:      0
+  TotalUncompressedSize:   0
+  TotalStoreFileSize:      0
+  TotalMemStoreSize:       0
+  TotalReadRequestsCount:  0
+  TotalWriteRequestsCount: 0
+
+Stats Details
+=============
+
+  RegionServer:       edev05:35444
+  RegionNum:          1
+  RegionName:         TRAF_1500000:TRAFODION.REPLICA.RT1/1576883181179
+  NumStores:          1
+  NumStoreFiles:      0
+  UncompressedSize:   0 (less than 1MB)
+  StoreFileSize:      0 (less than 1MB)
+  MemStoreSize:       0 (less than 1MB)
+  ReadRequestsCount:  0
+  WriteRequestsCount: 0
+
+  RegionServer:       edev05:35444
+  RegionNum:          2
+  RegionName:         TRAF_1500000:TRAFODION.REPLICA.RT1/1576883181179
+  NumStores:          1
+  NumStoreFiles:      0
+  UncompressedSize:   0 (less than 1MB)
+  StoreFileSize:      0 (less than 1MB)
+  MemStoreSize:       0 (less than 1MB)
+  ReadRequestsCount:  0
+  WriteRequestsCount: 0
+
+
+--- SQL operation complete.
+>>get region statistics for table rt2 ;
+
+
+Stats Summary
+=============
+
+  ObjectName:              TRAF_1500000:TRAFODION.REPLICA.RT2
+  NumRegions:              6
+  RegionsLocation:         /hbase/data/default
+  TotalNumStores:          6
+  TotalNumStoreFiles:      0
+  TotalUncompressedSize:   0
+  TotalStoreFileSize:      0
+  TotalMemStoreSize:       0
+  TotalReadRequestsCount:  0
+  TotalWriteRequestsCount: 0
+
+Stats Details
+=============
+
+  RegionServer:       edev05:35444
+  RegionNum:          1
+  RegionName:         TRAF_1500000:TRAFODION.REPLICA.RT2/1576883185278
+  NumStores:          1
+  NumStoreFiles:      0
+  UncompressedSize:   0 (less than 1MB)
+  StoreFileSize:      0 (less than 1MB)
+  MemStoreSize:       0 (less than 1MB)
+  ReadRequestsCount:  0
+  WriteRequestsCount: 0
+
+  RegionServer:       edev05:35444
+  RegionNum:          2
+  RegionName:         TRAF_1500000:TRAFODION.REPLICA.RT2/1576883185278
+  NumStores:          1
+  NumStoreFiles:      0
+  UncompressedSize:   0 (less than 1MB)
+  StoreFileSize:      0 (less than 1MB)
+  MemStoreSize:       0 (less than 1MB)
+  ReadRequestsCount:  0
+  WriteRequestsCount: 0
+
+  RegionServer:       edev05:35444
+  RegionNum:          3
+  RegionName:         TRAF_1500000:TRAFODION.REPLICA.RT2/1576883185278
+  NumStores:          1
+  NumStoreFiles:      0
+  UncompressedSize:   0 (less than 1MB)
+  StoreFileSize:      0 (less than 1MB)
+  MemStoreSize:       0 (less than 1MB)
+  ReadRequestsCount:  0
+  WriteRequestsCount: 0
+
+  RegionServer:       edev05:35444
+  RegionNum:          4
+  RegionName:         TRAF_1500000:TRAFODION.REPLICA.RT2/1576883185278
+  NumStores:          1
+  NumStoreFiles:      0
+  UncompressedSize:   0 (less than 1MB)
+  StoreFileSize:      0 (less than 1MB)
+  MemStoreSize:       0 (less than 1MB)
+  ReadRequestsCount:  0
+  WriteRequestsCount: 0
+
+  RegionServer:       edev05:35444
+  RegionNum:          5
+  RegionName:         TRAF_1500000:TRAFODION.REPLICA.RT2/1576883185278
+  NumStores:          1
+  NumStoreFiles:      0
+  UncompressedSize:   0 (less than 1MB)
+  StoreFileSize:      0 (less than 1MB)
+  MemStoreSize:       0 (less than 1MB)
+  ReadRequestsCount:  0
+  WriteRequestsCount: 0
+
+  RegionServer:       edev05:35444
+  RegionNum:          6
+  RegionName:         TRAF_1500000:TRAFODION.REPLICA.RT2/1576883185278
+  NumStores:          1
+  NumStoreFiles:      0
+  UncompressedSize:   0 (less than 1MB)
+  StoreFileSize:      0 (less than 1MB)
+  MemStoreSize:       0 (less than 1MB)
+  ReadRequestsCount:  0
+  WriteRequestsCount: 0
+
+
+--- SQL operation complete.
+>>get region statistics for table rt3 ;
+
+
+Stats Summary
+=============
+
+  ObjectName:              TRAF_1500000:TRAFODION.REPLICA.RT3
+  NumRegions:              2
+  RegionsLocation:         /hbase/data/default
+  TotalNumStores:          2
+  TotalNumStoreFiles:      0
+  TotalUncompressedSize:   0
+  TotalStoreFileSize:      0
+  TotalMemStoreSize:       0
+  TotalReadRequestsCount:  0
+  TotalWriteRequestsCount: 0
+
+Stats Details
+=============
+
+  RegionServer:       edev05:35444
+  RegionNum:          1
+  RegionName:         TRAF_1500000:TRAFODION.REPLICA.RT3/1576883189145
+  NumStores:          1
+  NumStoreFiles:      0
+  UncompressedSize:   0 (less than 1MB)
+  StoreFileSize:      0 (less than 1MB)
+  MemStoreSize:       0 (less than 1MB)
+  ReadRequestsCount:  0
+  WriteRequestsCount: 0
+
+  RegionServer:       edev05:35444
+  RegionNum:          2
+  RegionName:         TRAF_1500000:TRAFODION.REPLICA.RT3/1576883189145
+  NumStores:          1
+  NumStoreFiles:      0
+  UncompressedSize:   0 (less than 1MB)
+  StoreFileSize:      0 (less than 1MB)
+  MemStoreSize:       0 (less than 1MB)
+  ReadRequestsCount:  0
+  WriteRequestsCount: 0
+
+
+--- SQL operation complete.
+>>get region statistics for table rt4 ;
+
+
+Stats Summary
+=============
+
+  ObjectName:              TRAF_1500000:TRAFODION.REPLICA.RT4
+  NumRegions:              4
+  RegionsLocation:         /hbase/data/default
+  TotalNumStores:          4
+  TotalNumStoreFiles:      0
+  TotalUncompressedSize:   0
+  TotalStoreFileSize:      0
+  TotalMemStoreSize:       0
+  TotalReadRequestsCount:  0
+  TotalWriteRequestsCount: 0
+
+Stats Details
+=============
+
+  RegionServer:       edev05:35444
+  RegionNum:          1
+  RegionName:         TRAF_1500000:TRAFODION.REPLICA.RT4/1576883203318
+  NumStores:          1
+  NumStoreFiles:      0
+  UncompressedSize:   0 (less than 1MB)
+  StoreFileSize:      0 (less than 1MB)
+  MemStoreSize:       0 (less than 1MB)
+  ReadRequestsCount:  0
+  WriteRequestsCount: 0
+
+  RegionServer:       edev05:35444
+  RegionNum:          2
+  RegionName:         TRAF_1500000:TRAFODION.REPLICA.RT4/1576883203318
+  NumStores:          1
+  NumStoreFiles:      0
+  UncompressedSize:   0 (less than 1MB)
+  StoreFileSize:      0 (less than 1MB)
+  MemStoreSize:       0 (less than 1MB)
+  ReadRequestsCount:  0
+  WriteRequestsCount: 0
+
+  RegionServer:       edev05:35444
+  RegionNum:          3
+  RegionName:         TRAF_1500000:TRAFODION.REPLICA.RT4/1576883203318
+  NumStores:          1
+  NumStoreFiles:      0
+  UncompressedSize:   0 (less than 1MB)
+  StoreFileSize:      0 (less than 1MB)
+  MemStoreSize:       0 (less than 1MB)
+  ReadRequestsCount:  0
+  WriteRequestsCount: 0
+
+  RegionServer:       edev05:35444
+  RegionNum:          4
+  RegionName:         TRAF_1500000:TRAFODION.REPLICA.RT4/1576883203318
+  NumStores:          1
+  NumStoreFiles:      0
+  UncompressedSize:   0 (less than 1MB)
+  StoreFileSize:      0 (less than 1MB)
+  MemStoreSize:       0 (less than 1MB)
+  ReadRequestsCount:  0
+  WriteRequestsCount: 0
+
+
+--- SQL operation complete.
+>>get region statistics for table rt5 ;
+
+
+Stats Summary
+=============
+
+  ObjectName:              TRAF_1500000:TRAFODION.REPLICA.RT5
+  NumRegions:              3
+  RegionsLocation:         /hbase/data/default
+  TotalNumStores:          3
+  TotalNumStoreFiles:      0
+  TotalUncompressedSize:   0
+  TotalStoreFileSize:      0
+  TotalMemStoreSize:       0
+  TotalReadRequestsCount:  0
+  TotalWriteRequestsCount: 0
+
+Stats Details
+=============
+
+  RegionServer:       edev05:35444
+  RegionNum:          1
+  RegionName:         TRAF_1500000:TRAFODION.REPLICA.RT5/1576883223411
+  NumStores:          1
+  NumStoreFiles:      0
+  UncompressedSize:   0 (less than 1MB)
+  StoreFileSize:      0 (less than 1MB)
+  MemStoreSize:       0 (less than 1MB)
+  ReadRequestsCount:  0
+  WriteRequestsCount: 0
+
+  RegionServer:       edev05:35444
+  RegionNum:          2
+  RegionName:         TRAF_1500000:TRAFODION.REPLICA.RT5/1576883223411
+  NumStores:          1
+  NumStoreFiles:      0
+  UncompressedSize:   0 (less than 1MB)
+  StoreFileSize:      0 (less than 1MB)
+  MemStoreSize:       0 (less than 1MB)
+  ReadRequestsCount:  0
+  WriteRequestsCount: 0
+
+  RegionServer:       edev05:35444
+  RegionNum:          3
+  RegionName:         TRAF_1500000:TRAFODION.REPLICA.RT5/1576883223411
+  NumStores:          1
+  NumStoreFiles:      0
+  UncompressedSize:   0 (less than 1MB)
+  StoreFileSize:      0 (less than 1MB)
+  MemStoreSize:       0 (less than 1MB)
+  ReadRequestsCount:  0
+  WriteRequestsCount: 0
+
+
+--- SQL operation complete.
+>>
+>>get region statistics for index ix3_1 ;
+
+
+Stats Summary
+=============
+
+  ObjectName:              TRAF_1500000:TRAFODION.REPLICA.IX3_1
+  NumRegions:              2
+  RegionsLocation:         /hbase/data/default
+  TotalNumStores:          2
+  TotalNumStoreFiles:      0
+  TotalUncompressedSize:   0
+  TotalStoreFileSize:      0
+  TotalMemStoreSize:       0
+  TotalReadRequestsCount:  0
+  TotalWriteRequestsCount: 0
+
+Stats Details
+=============
+
+  RegionServer:       edev05:35444
+  RegionNum:          1
+  RegionName:         TRAF_1500000:TRAFODION.REPLICA.IX3_1/1576883195336
+  NumStores:          1
+  NumStoreFiles:      0
+  UncompressedSize:   0 (less than 1MB)
+  StoreFileSize:      0 (less than 1MB)
+  MemStoreSize:       0 (less than 1MB)
+  ReadRequestsCount:  0
+  WriteRequestsCount: 0
+
+  RegionServer:       edev05:35444
+  RegionNum:          2
+  RegionName:         TRAF_1500000:TRAFODION.REPLICA.IX3_1/1576883195336
+  NumStores:          1
+  NumStoreFiles:      0
+  UncompressedSize:   0 (less than 1MB)
+  StoreFileSize:      0 (less than 1MB)
+  MemStoreSize:       0 (less than 1MB)
+  ReadRequestsCount:  0
+  WriteRequestsCount: 0
+
+
+--- SQL operation complete.
+>>get region statistics for index ix4_1 ;
+
+
+Stats Summary
+=============
+
+  ObjectName:              TRAF_1500000:TRAFODION.REPLICA.IX4_1
+  NumRegions:              2
+  RegionsLocation:         /hbase/data/default
+  TotalNumStores:          2
+  TotalNumStoreFiles:      0
+  TotalUncompressedSize:   0
+  TotalStoreFileSize:      0
+  TotalMemStoreSize:       0
+  TotalReadRequestsCount:  0
+  TotalWriteRequestsCount: 0
+
+Stats Details
+=============
+
+  RegionServer:       edev05:35444
+  RegionNum:          1
+  RegionName:         TRAF_1500000:TRAFODION.REPLICA.IX4_1/1576883210689
+  NumStores:          1
+  NumStoreFiles:      0
+  UncompressedSize:   0 (less than 1MB)
+  StoreFileSize:      0 (less than 1MB)
+  MemStoreSize:       0 (less than 1MB)
+  ReadRequestsCount:  0
+  WriteRequestsCount: 0
+
+  RegionServer:       edev05:35444
+  RegionNum:          2
+  RegionName:         TRAF_1500000:TRAFODION.REPLICA.IX4_1/1576883210689
+  NumStores:          1
+  NumStoreFiles:      0
+  UncompressedSize:   0 (less than 1MB)
+  StoreFileSize:      0 (less than 1MB)
+  MemStoreSize:       0 (less than 1MB)
+  ReadRequestsCount:  0
+  WriteRequestsCount: 0
+
+
+--- SQL operation complete.
+>>get region statistics for index ix4_2 ;
+
+
+Stats Summary
+=============
+
+  ObjectName:              TRAF_1500000:TRAFODION.REPLICA.IX4_2
+  NumRegions:              4
+  RegionsLocation:         /hbase/data/default
+  TotalNumStores:          4
+  TotalNumStoreFiles:      0
+  TotalUncompressedSize:   0
+  TotalStoreFileSize:      0
+  TotalMemStoreSize:       0
+  TotalReadRequestsCount:  0
+  TotalWriteRequestsCount: 0
+
+Stats Details
+=============
+
+  RegionServer:       edev05:35444
+  RegionNum:          1
+  RegionName:         TRAF_1500000:TRAFODION.REPLICA.IX4_2/1576883217777
+  NumStores:          1
+  NumStoreFiles:      0
+  UncompressedSize:   0 (less than 1MB)
+  StoreFileSize:      0 (less than 1MB)
+  MemStoreSize:       0 (less than 1MB)
+  ReadRequestsCount:  0
+  WriteRequestsCount: 0
+
+  RegionServer:       edev05:35444
+  RegionNum:          2
+  RegionName:         TRAF_1500000:TRAFODION.REPLICA.IX4_2/1576883217777
+  NumStores:          1
+  NumStoreFiles:      0
+  UncompressedSize:   0 (less than 1MB)
+  StoreFileSize:      0 (less than 1MB)
+  MemStoreSize:       0 (less than 1MB)
+  ReadRequestsCount:  0
+  WriteRequestsCount: 0
+
+  RegionServer:       edev05:35444
+  RegionNum:          3
+  RegionName:         TRAF_1500000:TRAFODION.REPLICA.IX4_2/1576883217777
+  NumStores:          1
+  NumStoreFiles:      0
+  UncompressedSize:   0 (less than 1MB)
+  StoreFileSize:      0 (less than 1MB)
+  MemStoreSize:       0 (less than 1MB)
+  ReadRequestsCount:  0
+  WriteRequestsCount: 0
+
+  RegionServer:       edev05:35444
+  RegionNum:          4
+  RegionName:         TRAF_1500000:TRAFODION.REPLICA.IX4_2/1576883217777
+  NumStores:          1
+  NumStoreFiles:      0
+  UncompressedSize:   0 (less than 1MB)
+  StoreFileSize:      0 (less than 1MB)
+  MemStoreSize:       0 (less than 1MB)
+  ReadRequestsCount:  0
+  WriteRequestsCount: 0
+
+
+--- SQL operation complete.
+>>get region statistics for index ix5_1 ;
+
+
+Stats Summary
+=============
+
+  ObjectName:              TRAF_1500000:TRAFODION.REPLICA.IX5_1
+  NumRegions:              3
+  RegionsLocation:         /hbase/data/default
+  TotalNumStores:          3
+  TotalNumStoreFiles:      0
+  TotalUncompressedSize:   0
+  TotalStoreFileSize:      0
+  TotalMemStoreSize:       0
+  TotalReadRequestsCount:  0
+  TotalWriteRequestsCount: 0
+
+Stats Details
+=============
+
+  RegionServer:       edev05:35444
+  RegionNum:          1
+  RegionName:         TRAF_1500000:TRAFODION.REPLICA.IX5_1/1576883228044
+  NumStores:          1
+  NumStoreFiles:      0
+  UncompressedSize:   0 (less than 1MB)
+  StoreFileSize:      0 (less than 1MB)
+  MemStoreSize:       0 (less than 1MB)
+  ReadRequestsCount:  0
+  WriteRequestsCount: 0
+
+  RegionServer:       edev05:35444
+  RegionNum:          2
+  RegionName:         TRAF_1500000:TRAFODION.REPLICA.IX5_1/1576883228044
+  NumStores:          1
+  NumStoreFiles:      0
+  UncompressedSize:   0 (less than 1MB)
+  StoreFileSize:      0 (less than 1MB)
+  MemStoreSize:       0 (less than 1MB)
+  ReadRequestsCount:  0
+  WriteRequestsCount: 0
+
+  RegionServer:       edev05:35444
+  RegionNum:          3
+  RegionName:         TRAF_1500000:TRAFODION.REPLICA.IX5_1/1576883228044
+  NumStores:          1
+  NumStoreFiles:      0
+  UncompressedSize:   0 (less than 1MB)
+  StoreFileSize:      0 (less than 1MB)
+  MemStoreSize:       0 (less than 1MB)
+  ReadRequestsCount:  0
+  WriteRequestsCount: 0
+
+
+--- SQL operation complete.
+>>
+>>insert into rt1 values (1) ;
+
+--- 1 row(s) inserted.
+>>upsert using load into rt2 values (100),(101),(102),(103),(104),(105) ;
+
+--- 6 row(s) inserted.
+>>insert into rt3 values (11,'aaa') ;
+
+--- 1 row(s) inserted.
+>>upsert into rt4 values (12, 'bbb') ;
+
+--- 1 row(s) inserted.
+>>upsert into rt5 select a+10, a, date '2001-01-01', 8.2 from rt2 ;
+
+--- 6 row(s) inserted.
+>>
+>>select * from rt1 ;
+
+A          
+-----------
+
+          1
+
+--- 1 row(s) selected.
+>>select "_REPLICA_", "_SALT_", * from rt2 ;
+
+_REPLICA_  _SALT_      A          
+---------  ----------  -----------
+
+        0           0          100
+        0           0          101
+        0           0          102
+        0           0          103
+        0           1          104
+        0           1          105
+
+--- 6 row(s) selected.
+>>select * from rt3 ;
+
+A            B  
+-----------  ---
+
+         11  aaa
+
+--- 1 row(s) selected.
+>>select * from rt4, rt5 ;
+
+A            B    STORE_ID     ITEM_ID      SALE_DATE   SALE_AMT
+-----------  ---  -----------  -----------  ----------  ---------------------
+
+         12  bbb          110          100  2001-01-01                   8.2
+         12  bbb          111          101  2001-01-01                   8.2
+         12  bbb          112          102  2001-01-01                   8.2
+         12  bbb          113          103  2001-01-01                   8.2
+         12  bbb          114          104  2001-01-01                   8.2
+         12  bbb          115          105  2001-01-01                   8.2
+
+--- 6 row(s) selected.
+>>
+>>set parserflags 1 ;
+
+--- SQL operation complete.
+>>
+>>select * from table(index_table ix3_1) ;
+
+_REPLICA_@  B@   A          
+----------  ---  -----------
+
+         0  aaa           11
+         1  aaa           11
+
+--- 2 row(s) selected.
+>>select * from table(index_table ix4_1) ;
+
+_REPLICA_@  B@   _SALT_      A          
+----------  ---  ----------  -----------
+
+         0  bbb           0           12
+         1  bbb           0           12
+
+--- 2 row(s) selected.
+>>select * from table(index_table ix4_2) ;
+
+_REPLICA_@  _SALT_@     B@   A          
+----------  ----------  ---  -----------
+
+         0           0  bbb           12
+         1           0  bbb           12
+
+--- 2 row(s) selected.
+>>select * from table(index_table ix5_1) ;
+
+_REPLICA_@  ITEM_ID@     _DIVISION_1_  STORE_ID     SALE_DATE   SYSKEY
+----------  -----------  ------------  -----------  ----------  --------------------
+
+         0          100        200101          110  2001-01-01   1891723354308556548
+         0          101        200101          111  2001-01-01   1891723354308556727
+         0          102        200101          112  2001-01-01   1891723354308556849
+         0          103        200101          113  2001-01-01   1891723354308557233
+         0          104        200101          114  2001-01-01   1891723354308557358
+         0          105        200101          115  2001-01-01   1891723354308557407
+         1          100        200101          110  2001-01-01   1891723354308556607
+         1          101        200101          111  2001-01-01   1891723354308556768
+         1          102        200101          112  2001-01-01   1891723354308556890
+         1          103        200101          113  2001-01-01   1891723354308557285
+         1          104        200101          114  2001-01-01   1891723354308557385
+         1          105        200101          115  2001-01-01   1891723354308557418
+         2          100        200101          110  2001-01-01   1891723354308556684
+         2          101        200101          111  2001-01-01   1891723354308556809
+         2          102        200101          112  2001-01-01   1891723354308556916
+         2          103        200101          113  2001-01-01   1891723354308557323
+         2          104        200101          114  2001-01-01   1891723354308557396
+         2          105        200101          115  2001-01-01   1891723354308557430
+
+--- 18 row(s) selected.
+>>
+>>
+>>truncate rt1 ;
+
+--- SQL operation complete.
+>>select * from rt1 ;
+
+--- 0 row(s) selected.
+>>
+>>delete from rt2 where a < 102;
+
+--- 2 row(s) deleted.
+>>select * from rt2 ;
+
+A          
+-----------
+
+        102
+        103
+        104
+        105
+
+--- 4 row(s) selected.
+>>
+>>update rt5 set sale_amt = sale_amt + 1 ;
+
+--- 6 row(s) updated.
+>>select * from rt5 ;
+
+STORE_ID     ITEM_ID      SALE_DATE   SALE_AMT             
+-----------  -----------  ----------  ---------------------
+
+        110          100  2001-01-01                   9.2
+        111          101  2001-01-01                   9.2
+        112          102  2001-01-01                   9.2
+        113          103  2001-01-01                   9.2
+        114          104  2001-01-01                   9.2
+        115          105  2001-01-01                   9.2
+
+--- 6 row(s) selected.
+>>
+>>update rt3 set a = 101 where a = 11 ;
+
+--- 1 row(s) updated.
+>>select * from rt3 ;
+
+A            B  
+-----------  ---
+
+        101  aaa
+
+--- 1 row(s) selected.
+>>select * from table(index_table ix3_1) ;
+
+_REPLICA_@  B@   A          
+----------  ---  -----------
+
+         0  aaa          101
+         1  aaa          101
+
+--- 2 row(s) selected.
+>>
+>>insert into updsys values(1, 'abcd', 100);
+
+--- 1 row(s) inserted.
+>>update updsys set (id, name, schid)=(2,'abc',200);
+
+--- 1 row(s) updated.
+>>select * from updsys where syskey = (select syskey from table(index_table updsys_idx1) where "_REPLICA_@" = 0);
+
+ID           NAME        SCHID      
+-----------  ----------  -----------
+
+          2  abc                 200
+
+--- 1 row(s) selected.
+>>select * from updsys where syskey = (select syskey from table(index_table updsys_idx1) where "_REPLICA_@" = 1);
+
+--- 0 row(s) selected.
+>>
+>>set parserflags 0;
+
+--- SQL operation complete.
+>>--obey TEST077(clean_up);
+>>log;

@@ -1,0 +1,21 @@
+#!/bin/bash
+# @@@ START COPYRIGHT @@@
+#
+# (C) Copyright 2016-2020 Esgyn Corportation
+#
+# @@@ END COPYRIGHT @@@
+
+if [[ -z $1 ]]; then
+    echo "Usage $0 <program file>"
+    exit 1
+fi
+
+if [[ $2 == "detail" ]]; then
+   lv_cmd="pstat | grep '$1 ' | grep -v rc_client | grep -v grep | awk -f ${TRAF_HOME}/tools/awki_prog_memory"
+   eval ${lv_cmd}
+else
+   echo -n "$1: "
+   lv_cmd="pstat | grep '$1 ' | grep -v rc_client | grep -v grep | awk -f ${TRAF_HOME}/tools/awki_memory"
+   eval ${lv_cmd}
+fi
+

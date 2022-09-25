@@ -1,0 +1,105 @@
+# -----------------------------------------------------------------------------
+# Upgrade test
+#
+# Can be run to test error injections when running upgrade for the 
+# "_PRIVMGR_MD_" schema
+#
+# prior to running:  "backup system, tag 'bk-system'"
+# -----------------------------------------------------------------------------
+
+rm UPGLOG
+date 
+echo "Starting upgrade failure tests" 
+echo
+echo "Restoring metadata from backup"
+sqlci -q 'initialize trafodion, drop' >> UPGLOG
+sqlci -q "restore system, tag 'bk-system25'" >> UPGLOG
+sqlci -q "get version of metadata" >> UPGLOG
+date 
+echo 
+echo "Forcing error injection 1, check for old tables" 
+sqlci -i "UPGTEST(step1)" >> UPGLOG
+swhbase < hbase_cmd | grep 'TRAF_RSRVD_1:TRAFODION._PRIVMGR_MD_.'  | grep -v '"'  | grep "TRAF" >> UPGLOG
+date 
+echo
+echo "Forcing error injection 2, revoke from orig tables" 
+sqlci -i "UPGTEST(step2)" >> UPGLOG
+swhbase < hbase_cmd | grep 'TRAF_RSRVD_1:TRAFODION._PRIVMGR_MD_.'  | grep -v '"'  | grep "TRAF" >> UPGLOG
+date 
+echo
+echo "Forcing error injection 3, rename orig to new" 
+sqlci -i "UPGTEST(step3)" >> UPGLOG
+swhbase < hbase_cmd | grep 'TRAF_RSRVD_1:TRAFODION._PRIVMGR_MD_.'  | grep -v '"'  | grep "TRAF" >> UPGLOG
+date 
+echo
+echo "Forcing error injection 4, create PM tables" 
+sqlci -i "UPGTEST(step4)" >> UPGLOG
+swhbase < hbase_cmd | grep 'TRAF_RSRVD_1:TRAFODION._PRIVMGR_MD_.'  | grep -v '"'  | grep "TRAF" >> UPGLOG
+date 
+echo
+echo "Forcing error injection 5, grant to new tables" 
+sqlci -i "UPGTEST(step5)" >> UPGLOG
+swhbase < hbase_cmd | grep 'TRAF_RSRVD_1:TRAFODION._PRIVMGR_MD_.'  | grep -v '"'  | grep "TRAF" >> UPGLOG
+date 
+echo
+echo "Forcing error injection 6, copy old to new" 
+sqlci -i "UPGTEST(step6)" >> UPGLOG
+swhbase < hbase_cmd | grep 'TRAF_RSRVD_1:TRAFODION._PRIVMGR_MD_.'  | grep -v '"'  | grep "TRAF" >> UPGLOG
+date 
+
+echo "Successful" 
+sqlci -i "UPGTEST(step7)" >> UPGLOG
+swhbase < hbase_cmd | grep 'TRAF_RSRVD_1:TRAFODION._PRIVMGR_MD_.'  | grep -v '"'  | grep "TRAF" >> UPGLOG
+date 
+return 0
+
+?section step0
+get version of metadata;
+
+?section step1
+-- step1 fail during check old files
+sh date;
+set envvar UPGRADE_PRIVMGR_INJECT_1 '1';
+initialize trafodion, upgrade;
+get version of metadata;
+
+?section step2
+-- step2 fail during revoke orig privs
+sh date;
+set envvar UPGRADE_PRIVMGR_INJECT_2 '1';
+initialize trafodion, upgrade;
+get version of metadata;
+
+?section step3
+-- step3 fail suring rename orig to old
+sh date;
+set envvar UPGRADE_PRIVMGR_INJECT_3 '1';
+initialize trafodion, upgrade;
+get version of metadata;
+
+?section step4
+-- step4 fail create new
+sh date;
+set envvar UPGRADE_PRIVMGR_INJECT_4 '1';
+initialize trafodion, upgrade;
+get version of metadata;
+
+?section step5
+-- step5 fail during grant privs to new
+sh date;
+set envvar UPGRADE_PRIVMGR_INJECT_5 '1';
+initialize trafodion, upgrade;
+get version of metadata;
+
+?section step6
+-- step6 fail during copy old to new
+sh date;
+set envvar UPGRADE_PRIVMGR_INJECT_6 '1';
+initialize trafodion, upgrade;
+get version of metadata;
+
+?section step7
+-- step7 successful
+sh date;
+initialize trafodion, upgrade;
+get version of metadata;

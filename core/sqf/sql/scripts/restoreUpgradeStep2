@@ -1,0 +1,37 @@
+ 
+# ------------------------------------------------------------------------------
+# *** verify that the original metadata tables contains correct data.
+#
+# The createUpgradeSnapshot step gets counts of each table; compare the results
+# of these counts with those retrieved earlier.  They should match.
+count 'TRAF_RSRVD_1:TRAFODION._MD_.AUTHS'                                        
+count 'TRAF_RSRVD_1:TRAFODION._MD_.COLUMNS'                                      
+count 'TRAF_RSRVD_1:TRAFODION._MD_.DEFAULTS'                                     
+count 'TRAF_RSRVD_1:TRAFODION._MD_.INDEXES'                                      
+count 'TRAF_RSRVD_1:TRAFODION._MD_.KEYS'                                         
+count 'TRAF_RSRVD_1:TRAFODION._MD_.LIBRARIES'                                    
+count 'TRAF_RSRVD_1:TRAFODION._MD_.LIBRARIES_USAGE'                              
+count 'TRAF_RSRVD_1:TRAFODION._MD_.OBJECTS'                                      
+count 'TRAF_RSRVD_1:TRAFODION._MD_.OBJECTS_UNIQ_IDX'                                      
+count 'TRAF_RSRVD_1:TRAFODION._MD_.REF_CONSTRAINTS'                              
+count 'TRAF_RSRVD_1:TRAFODION._MD_.ROUTINES'                                     
+count 'TRAF_RSRVD_1:TRAFODION._MD_.SEQ_GEN'                                      
+count 'TRAF_RSRVD_1:TRAFODION._MD_.TABLES'                                       
+count 'TRAF_RSRVD_1:TRAFODION._MD_.TABLE_CONSTRAINTS'                            
+count 'TRAF_RSRVD_1:TRAFODION._MD_.TABLE_CONSTRAINTS_IDX'                            
+count 'TRAF_RSRVD_1:TRAFODION._MD_.TEXT'                                         
+count 'TRAF_RSRVD_1:TRAFODION._MD_.UNIQUE_REF_CONSTR_USAGE'                      
+count 'TRAF_RSRVD_1:TRAFODION._MD_.VERSIONS'                                     
+count 'TRAF_RSRVD_1:TRAFODION._MD_.VIEWS'                                        
+count 'TRAF_RSRVD_1:TRAFODION._MD_.VIEWS_USAGE'       
+
+count 'TRAF_RSRVD_1:TRAFODION._PRIVMGR_MD_.COLUMN_PRIVILEGES'
+count 'TRAF_RSRVD_1:TRAFODION._PRIVMGR_MD_.COMPONENTS'
+count 'TRAF_RSRVD_1:TRAFODION._PRIVMGR_MD_.COMPONENT_OPERATIONS'
+count 'TRAF_RSRVD_1:TRAFODION._PRIVMGR_MD_.COMPONENT_PRIVILEGES'
+count 'TRAF_RSRVD_1:TRAFODION._PRIVMGR_MD_.OBJECT_PRIVILEGES'
+count 'TRAF_RSRVD_1:TRAFODION._PRIVMGR_MD_.ROLE_USAGE'
+count 'TRAF_RSRVD_1:TRAFODION._PRIVMGR_MD_.SCHEMA_PRIVILEGES'
+exit
+# ------------------------------------------------------------------------------
+

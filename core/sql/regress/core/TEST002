@@ -1,0 +1,761 @@
+-- Test: TEST002 (Core)
+-- @@@ START COPYRIGHT @@@
+--
+-- Licensed to the Apache Software Foundation (ASF) under one
+-- or more contributor license agreements.  See the NOTICE file
+-- distributed with this work for additional information
+-- regarding copyright ownership.  The ASF licenses this file
+-- to you under the Apache License, Version 2.0 (the
+-- "License"); you may not use this file except in compliance
+-- with the License.  You may obtain a copy of the License at
+--
+--   http://www.apache.org/licenses/LICENSE-2.0
+--
+-- Unless required by applicable law or agreed to in writing,
+-- software distributed under the License is distributed on an
+-- "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+-- KIND, either express or implied.  See the License for the
+-- specific language governing permissions and limitations
+-- under the License.
+--
+-- @@@ END COPYRIGHT @@@
+--
+-- Functionality: Union all with joins and aggregates, various joins,
+--                subqueries with aggregates, correlated subqueries.
+-- Table created: t002t1, t002t2, t002t3, t002ut1, t002ut2,
+--                t002ZZ, t002ZZI, t002FU, t002FUI
+-- Expected files: EXPECTED002, EXPECTED002.MP
+-- Limitations:
+-- To do: - Remove DIFF002.KNOWN.NSK when Unicode is supported on MX tables
+--          while Unicode may never be supported on MP tables
+--          (Done 5/19/02)
+-- Revision history:
+--     (2/20/02) - Created with most subquery tests from TEST002 (Executor)
+--     (3/01/02) - Comment off Unicode tests for MP tables
+--     (5/19/02) - Removed DIFF002.KNOWN.NSK as unicode is supported.
+
+?section ddl
+
+obey TEST002(clnup);
+
+log LOG002 clear;
+
+create table t002t1 (a int, b char(9), c int, d char(4));
+create table t002t2 (a int not null, b char(9), c int, d char(4), primary key (a));
+create table t002t3 (a int not null, b char(9) not null, c int, d char(4), primary key (a, b));
+create table t002bad(a int, b int, c int);
+
+#ifMX
+create table t002ut1 (a int, b nchar(9), c int, d nchar(4));
+create table t002ut2 (a int not null, b nchar(9), c int, d nchar(4), primary key (a));
+#ifMX
+
+create table t002main (a int not null, b int, primary key (a));
+create table t002sub  (x int not null, y int, primary key (x));
+
+create table t002x1(val integer);
+create table t002x2(val integer);
+
+create table t002t2840(a int not null, b int, primary key (a));
+
+create table t002t4(val integer);
+
+create table t002t5(a int, b int);
+create table t002t6(a int, b int);
+
+?section dml
+-- INSERT queries
+insert into t002t1 values (10, 'abc', 20, 'xy');
+insert into t002t1(b,d,a,c) values ('defg', 'wx', 10+10, 30);
+insert into t002t2 select * from t002t1;
+insert into t002t3(a,b,c,d) select a,b,c,d from t002t2;
+
+#ifMX
+insert into t002ut1 values (10, N'abc', 20, N'xy');
+insert into t002ut1(b,d,a,c) values (N'defg', N'wx', 10+10, 30);
+insert into t002ut2 select * from t002ut1;
+#ifMX
+
+insert into t002main values (1,1);
+insert into t002sub values (1,1), (2,1);
+
+insert into t002x1 values(994707150),(1923979352),(-1865644273);
+insert into t002x2 values(994707150),(1923979352),(-1865644273);
+
+insert into t002t2840 values (1,1),(2,2),(3,3),(4,4),(5,5),(6,6);
+
+insert into t002t4 values(994707150),(1923979352),(-1865644273);
+
+?section subqtests
+-- Expect 2 identical rows saying "2 2";
+-- thus certain queries following expect 2 identical rows
+-- (duplicates of the fixed subquery result)
+select (select count(*) from t002t1), (select count(*) from t002t2) from t002t1;
+-- Expect 1 row
+select * from t002t2 where a=(select min(a) from t002t2);
+select * from t002t2 where b=(select min(b) from t002t2);
+select * from t002t2 where c=(select min(c) from t002t2);
+
+-- Expect 2 identical rows saying "2 2";
+-- thus certain queries following expect 2 identical rows
+-- (duplicates of the fixed subquery result)
+#ifMX
+select (select count(*) from t002ut1), (select count(*) from t002ut2) from t002ut1;
+#ifMX
+
+
+--
+-- Illegal, a delimited identifier must contain at least one character.
+SELECT A FROM T002T2 "";
+
+
+-- Illegal, subquery in select list must be scalar
+SELECT (SELECT A,B FROM T002T2 WHERE b=(select min(b) from t002t2)) FROM T002T1 OUTT;
+--
+
+-- Outer ref in agg; but 2-row subquery should cause a CardinalityViolation
+SELECT (SELECT A FROM T002T2 WHERE MAX(OUTT.C)>1) FROM T002T1 OUTT;
+-- Expect 2 NULL rows
+SELECT (SELECT A FROM T002T2 WHERE 1>1) FROM T002T1 OUTT;
+-- Ok, outer ref in agg; expect 1 NULL row (7.9 GR1a(i))
+SELECT (SELECT A FROM T002T2 WHERE MAX(OUTT.C)>100000) FROM T002T1 OUTT;
+SELECT (SELECT B FROM T002T2 WHERE MAX(OUTT.C)>100000) FROM T002T1 OUTT;
+SELECT (SELECT MAX(OUTT.C) FROM T002T2 WHERE MAX(OUTT.C)>100000) FROM T002T1 OUTT;
+
+-- Err 8401 (CardinalityViolation)
+SELECT (SELECT MAX(OUTT.C) FROM T002T2) FROM T002T1 OUTT;
+
+-- Ok, 1 row
+SELECT MIN(A) FROM T002T1 HAVING (SELECT COUNT(*) FROM T002T2) > 0;
+SELECT MIN(A) FROM T002T1 HAVING MIN(A) > 0;
+select 54 from (values(0))x where exists(select 99 from T002T1) and 1=1;
+select 54 from (values(0))x having 1=1;
+select 54 from T002T1       having 1=1;
+
+-- Ok, expect 2 identical nonnull rows
+SELECT (SELECT A FROM T002T2 WHERE b='abc') FROM T002T1 OUTT;
+-- Ok, outer ref in agg; expect 1 nonnull row (7.9 GR1a(i))
+SELECT (SELECT A FROM T002T2 WHERE MAX(OUTT.C)>1
+   and b='abc') FROM T002T1 OUTT;
+SELECT (SELECT A FROM T002T2 WHERE MAX(OUTT.C)>1
+   and b=(select min(b) from t002t2)) FROM T002T1 OUTT;
+--
+-- Ok, outer ref and constant in agg; expect 1 nonnull row (7.9 GR1a(i))
+SELECT (SELECT A FROM T002T2 WHERE MAX(3+OUTT.C-2-2+1)>1
+   and b=(select min(b) from t002t2)) FROM T002T1 OUTT;
+-- Ok, two outer refs in agg but from same scope; expect 1 nonnull row (7.9 ...)
+SELECT (SELECT A FROM T002T2 WHERE MAX(OUTT.C+OUTT.C)>1
+   and b=(select min(b) from t002t2)) FROM T002T1 OUTT;
+SELECT (SELECT A FROM T002T2 WHERE MAX(3+OUTT.C+OUTT.C-2-2+1)>1
+   and b=(select min(b) from t002t2)) FROM T002T1 OUTT;
+SELECT (SELECT A FROM T002T2 WHERE MAX(3+OUTT.C+OUTT.C-2-2+1)>1
+   and b='abc') FROM T002T1 OUTT;
+--
+-- Ok, outer ref in agg on a grby; expect 1 NULL and 1 nonnull row
+SELECT (SELECT A FROM T002T2 WHERE OUTT.A > A AND MAX(OUTT.B)>'C') FROM T002T1 OUTT
+GROUP BY OUTT.A;
+--
+--
+
+-- Illegal, local refs in agg
+SELECT (SELECT A FROM T002T2 WHERE 
+	AVG(C)+MIN(C)+SUM(T002T2.A)+COUNT(D)+COUNT(7)+COUNT(*)
+	>2) FROM T002T1 OUTT;
+-- Illegal, local refs in agg
+SELECT (SELECT A FROM T002T2 WHERE MAX(C+C)>1) FROM T002T1 OUTT;
+-- Illegal, in an agg all column refs must come from the same scope.
+SELECT (SELECT A FROM T002T2 WHERE MAX(OUTT.C+C)>1) FROM T002T1 OUTT;
+--
+--
+
+-- Ok, all scalar subqueries of cardinality 0 or 1
+-- Only the 2 "NULLx" columns should contain nulls!
+SELECT 
+   A,(SELECT A FROM T002T1 WHERE A=(SELECT MAX(A) FROM T002T1)) AS AMAX,
+   B,(SELECT B FROM T002T1 WHERE B=(SELECT MAX(B) FROM T002T1)) AS BMAX,
+   C,(SELECT C FROM T002T1 WHERE C=(SELECT MAX(C) FROM T002T1)) AS CMAX,
+   D,(SELECT D FROM T002T1 WHERE D=(SELECT MAX(D) FROM T002T1)) AS DMAX,
+   A,(SELECT A FROM T002T1 WHERE A IS NULL) AS NULLA,
+   D,(SELECT D FROM T002T1 WHERE D IS NULL) AS NULLD
+   FROM T002T1;
+
+-- Ok, outer ref in agg; expect 1 NULL row (7.9 GR1a(i))
+#ifMX
+SELECT (SELECT B FROM T002UT2 WHERE MAX(TUT.C)>100000) FROM T002UT1 TUT;
+
+-- Ok, expect 2 identical nonnull rows
+SELECT (SELECT A FROM T002UT2 WHERE b=N'abc') FROM T002UT1 TUT;
+-- Ok, outer ref in agg; expect 1 nonnull row (7.9 GR1a(i))
+SELECT (SELECT A FROM T002UT2 WHERE MAX(TUT.C)>1
+   and b=N'abc') FROM T002UT1 TUT;
+SELECT (SELECT A FROM T002UT2 WHERE MAX(TUT.C)>1
+   and b=(select min(b) from t002ut2)) FROM T002UT1 TUT;
+
+-- Ok, outer ref and constant in agg; expect 1 nonnull row (7.9 GR1a(i))
+SELECT (SELECT A FROM T002UT2 WHERE MAX(3+TUT.C-2-2+1)>1
+   and b=(select min(b) from t002ut2)) FROM T002UT1 TUT;
+-- Ok, two outer refs in agg but from same scope; expect 1 nonnull row (7.9 ...)
+SELECT (SELECT A FROM T002UT2 WHERE MAX(TUT.C+TUT.C)>1
+   and b=(select min(b) from t002ut2)) FROM T002UT1 TUT;
+SELECT (SELECT A FROM T002UT2 WHERE MAX(3+TUT.C+TUT.C-2-2+1)>1
+   and b=(select min(b) from t002ut2)) FROM T002UT1 TUT;
+SELECT (SELECT A FROM T002UT2 WHERE MAX(3+TUT.C+TUT.C-2-2+1)>1
+   and b=N'abc') FROM T002UT1 TUT;
+
+-- Ok, outer ref in agg on a grby; expect 1 NULL and 1 nonnull row
+SELECT (SELECT A FROM T002UT2 WHERE TUT.A > A AND MAX(TUT.B)>N'C') FROM T002UT1 TUT
+GROUP BY TUT.A;
+--
+--
+
+-- Ok, all scalar subqueries of cardinality 0 or 1
+-- Only the 2 "NULLx" columns should contain nulls!
+SELECT 
+   A,(SELECT A FROM T002UT1 WHERE A=(SELECT MAX(A) FROM T002UT1)) AS AMAX,
+   B,(SELECT B FROM T002UT1 WHERE B=(SELECT MAX(B) FROM T002UT1)) AS BMAX,
+   C,(SELECT C FROM T002UT1 WHERE C=(SELECT MAX(C) FROM T002UT1)) AS CMAX,
+   D,(SELECT D FROM T002UT1 WHERE D=(SELECT MAX(D) FROM T002UT1)) AS DMAX,
+   A,(SELECT A FROM T002UT1 WHERE A IS NULL) AS NULLA,
+   D,(SELECT D FROM T002UT1 WHERE D IS NULL) AS NULLD
+   FROM T002UT1;
+#ifMX
+
+
+------------------------------------------------------------------------
+-- This test disabled since it is non -deterministic.
+-- It will be enabled after further investigation.
+-- ?section Genesis_10_000222_6892_p1
+-- SELECT 1 FROM T002T3 T1
+-- GROUP BY T1.A
+-- HAVING T1.A >ANY
+--  ( SELECT 2 FROM T002T1 T2
+--    WHERE T2.C >SOME
+--      ( SELECT AVG (T1.A) FROM T002T1 T3 )
+--  );
+
+?section Genesis_10_000222_6892_p2
+SELECT 1 FROM T002T1 T1
+GROUP BY T1.A
+HAVING T1.A >ANY
+  ( SELECT 2 FROM T002T1 T2
+    WHERE T2.C =ANY
+      ( SELECT AVG (T1.A) FROM T002T1 T3 )
+  );
+
+?section Genesis_10_000222_6892_p3
+SELECT 1 FROM T002T1 T1
+GROUP BY T1.A
+HAVING T1.A >ANY
+  ( SELECT T2.C FROM T002T1 T2
+    WHERE T2.C =ANY
+      ( SELECT AVG (T1.A) FROM T002T1 T3 )
+  );
+
+?section Genesis_10_000222_6892_p4
+SELECT 1 FROM T002T1 T1
+GROUP BY T1.A
+HAVING T1.A =ANY
+  ( SELECT T2.C FROM T002T1 T2
+    WHERE T2.C =ANY
+      ( SELECT COUNT (T1.C) FROM T002T1 T3 )
+  );
+
+?section Genesis_10_000222_6892_p5
+SELECT 1 FROM T002T1 T1
+GROUP BY T1.A
+HAVING T1.A =ANY
+      ( SELECT AVG (T1.C) FROM T002T2 T3 )
+   ;
+
+?section Genesis_10_000222_6892_p5a
+SELECT 1 FROM T002T1 T1
+GROUP BY T1.A
+HAVING T1.A =ANY
+      ( SELECT COUNT (T1.C) FROM T002T2 T3 )
+   ;
+
+?section Genesis_10_000222_6892_p6
+SELECT T1.A FROM T002T1 T1
+GROUP BY T1.A
+HAVING T1.A =ANY
+      ( SELECT COUNT (T1.C) FROM T002T2 T3 )
+   ;
+
+?section Genesis_10_000222_6892_p7
+SELECT T1.A FROM T002T1 T1
+GROUP BY T1.A
+HAVING T1.A =ANY
+      ( SELECT SUM (T1.C) / COUNT(T1.C) FROM T002T2 T3 )
+   ;
+
+?section Genesis_10_000222_6892_q1
+SELECT 1 FROM T002T3 T1
+GROUP BY T1.A
+HAVING T1.A >
+  ( SELECT 2 FROM T002T1 T2
+    WHERE T2.C >
+      ( SELECT AVG (T1.A) FROM T002T1 T3 )
+  );
+
+?section Genesis_10_000222_6892_q2
+SELECT 1 FROM T002T1 T1
+GROUP BY T1.A
+HAVING T1.A >
+  ( SELECT 2 FROM T002T1 T2
+   WHERE T2.C =
+      ( SELECT AVG (T1.A) FROM T002T1 T3 )
+  );
+
+?section Genesis_10_000222_6892_q3
+SELECT 1 FROM T002T1 T1
+GROUP BY T1.A
+HAVING T1.A >
+  ( SELECT T2.C FROM T002T1 T2
+   WHERE T2.C =
+      ( SELECT AVG (T1.A) FROM T002T1 T3 )
+  );
+
+?section Genesis_10_000222_6892_q4
+SELECT 1 FROM T002T1 T1
+GROUP BY T1.A
+HAVING T1.A =
+  ( SELECT T2.C FROM T002T1 T2
+    WHERE T2.C =
+      ( SELECT COUNT (T1.C) FROM T002T1 T3 )
+  );
+
+?section Genesis_10_000222_6892_q5
+SELECT T1.A FROM T002T1 T1
+GROUP BY T1.A
+HAVING T1.A =
+      ( SELECT AVG (T1.C) FROM T002T2 T3 )
+   ;
+
+?section Genesis_10_000222_6892_q6
+SELECT T1.A FROM T002T1 T1
+GROUP BY T1.A
+HAVING T1.A =
+      ( SELECT COUNT (T1.C) FROM T002T2 T3 )
+   ;
+
+?section Genesis_10_000222_6892_q7
+SELECT T1.A FROM T002T1 T1
+GROUP BY T1.A
+HAVING T1.A =
+      ( SELECT SUM (T1.C) / COUNT(T1.C) FROM T002T2 T3 )
+   ;
+
+?section Genesis_10_000222_6892_r1
+SELECT 1 FROM T002T3 T1
+GROUP BY T1.A
+HAVING T1.A >ANY
+  ( SELECT 2 FROM T002T1 T2
+    WHERE T2.C >SOME
+      ( SELECT AVG (A) FROM T002T1 T3 )
+  );
+
+?section Genesis_10_000222_6892_r2
+SELECT 1 FROM T002T1 T1
+GROUP BY T1.A
+HAVING T1.A >ANY
+  ( SELECT 2 FROM T002T1 T2
+    WHERE T2.C =ANY
+      ( SELECT AVG (A) FROM T002T1 T3 )
+  );
+
+?section Genesis_10_000222_6892_r3
+SELECT 1 FROM T002T1 T1
+GROUP BY T1.A
+HAVING T1.A >ANY
+  ( SELECT T2.C FROM T002T1 T2
+    WHERE T2.C =ANY
+      ( SELECT AVG (A) FROM T002T1 T3 )
+  );
+
+?section Genesis_10_000222_6892_r4	-- none of these SELECTs should fail
+
+select count(*) from t002t1;		-- nonzero
+SELECT T1.A FROM T002T1 T1
+GROUP BY T1.A
+HAVING T1.A =ANY
+  ( SELECT T2.C FROM T002T1 T2
+    WHERE T2.C =ANY
+      ( SELECT COUNT (C) FROM T002T1 T3 )
+  );
+
+delete from T002bad;
+
+SELECT T1.A FROM T002bad T1
+GROUP BY T1.A
+HAVING T1.A =ANY
+  ( SELECT T2.C FROM T002bad T2
+    WHERE T2.C =ANY
+      ( SELECT COUNT (C) FROM T002bad T3 )
+  );
+
+insert into T002bad values (11,21,61);	-- nonzero
+
+control query default optimization_level 'minimum';
+SELECT T1.A FROM T002bad T1
+GROUP BY T1.A
+HAVING T1.A =ANY
+  ( SELECT T2.C FROM T002bad T2
+    WHERE T2.C =ANY
+      ( SELECT COUNT (C) FROM T002bad T3 )
+  );
+
+control query default optimization_level 'reset';
+SELECT T1.A FROM T002bad T1				-- should not fail
+GROUP BY T1.A
+HAVING T1.A =ANY
+  ( SELECT T2.C FROM T002bad T2
+    WHERE T2.C =ANY
+      ( SELECT COUNT (C) FROM T002bad T3 )
+  );
+
+?section Genesis_10_000222_6892_r5
+SELECT T1.A FROM T002T1 T1
+GROUP BY T1.A
+HAVING T1.A =ANY
+      ( SELECT AVG (C) FROM T002T2 T3 )
+   ;
+
+?section Genesis_10_000222_6892_r6
+SELECT T1.A FROM T002T1 T1
+GROUP BY T1.A
+HAVING T1.A =ANY
+      ( SELECT COUNT (C) FROM T002T2 T3 )
+   ;
+
+?section Genesis_10_000222_6892_r7
+SELECT T1.A FROM T002T1 T1
+GROUP BY T1.A
+HAVING T1.A =ANY
+      ( SELECT SUM (C) / COUNT(C) FROM T002T2 T3 )
+   ;
+
+?section Genesis_10_000222_6892_s1
+SELECT 1 FROM T002T3 T1
+GROUP BY T1.A
+HAVING T1.A >
+  ( SELECT 2 FROM T002T1 T2
+    WHERE T2.C >
+      ( SELECT AVG (A) FROM T002T1 T3 )
+  );
+
+?section Genesis_10_000222_6892_s2
+SELECT 1 FROM T002T1 T1
+GROUP BY T1.A
+HAVING T1.A >
+  ( SELECT 2 FROM T002T1 T2
+    WHERE T2.C =
+      ( SELECT AVG (A) FROM T002T1 T3 )
+  );
+
+?section Genesis_10_000222_6892_s3
+SELECT 1 FROM T002T1 T1
+GROUP BY T1.A
+HAVING T1.A >
+  ( SELECT T2.C FROM T002T1 T2
+    WHERE T2.C =
+      ( SELECT AVG (A) FROM T002T1 T3 )
+  );
+
+?section Genesis_10_000222_6892_s4
+SELECT 1 FROM T002T1 T1
+GROUP BY T1.A
+HAVING T1.A =
+  ( SELECT T2.C FROM T002T1 T2
+    WHERE T2.C =
+      ( SELECT COUNT (C) FROM T002T1 T3 )
+  );
+
+?section Genesis_10_000222_6892_s5
+SELECT T1.A FROM T002T1 T1
+GROUP BY T1.A
+HAVING T1.A =
+      ( SELECT AVG (C) FROM T002T2 T3 )
+   ;
+
+?section Genesis_10_000222_6892_s6
+SELECT T1.A FROM T002T1 T1
+GROUP BY T1.A
+HAVING T1.A =
+      ( SELECT COUNT (C) FROM T002T2 T3 )
+   ;
+
+?section Genesis_10_000222_6892_s7
+SELECT T1.A FROM T002T1 T1
+GROUP BY T1.A
+HAVING T1.A =
+      ( SELECT SUM (C) / COUNT(C) FROM T002T2 T3 )
+   ;
+------------------------------------------------------------------------
+
+--log BR0198.log clear;
+create table t002ZZ (x int);
+create table t002ZZI(x int);
+create table t002FU (x int);
+create table t002FUI(x int);
+create table t002sol(x int);
+insert into  t002FU  values(3),(4);
+insert into  t002FUI values(13);
+insert into  t002sol values(2),(5),(4),(3),(7);
+
+-- Tables t002ZZ and t002ZZI are empty (have zero rows), tables t002FU and t002FUI are full.
+--
+-- "[?]" means one null row is returned,
+-- "[0]" means one row containing zero is returned,
+-- "sum" means one row containing the sum (7) is returned,
+-- "cnt" means one row containing the cnt (2) is returned,
+-- "0 rows" means no rows are returned.
+
+select SUM  (O.X) from t002ZZ O having exists(select SUM  (123) from t002ZZI I); -- [?]
+select SUM  (O.X) from t002ZZ O having exists(select      (123) from t002ZZI I);--0 rows
+select SUM  (O.X) from t002ZZ O having exists(select SUM  (O.X) from t002ZZI I);--0 rows
+select COUNT(O.X) from t002ZZ O having exists(select SUM  (O.X) from t002ZZI I);--0 rows
+select SUM  (O.X) from t002FU O having exists(select SUM  (O.X) from t002ZZI I);--0 rows
+select COUNT(O.X) from t002FU O having exists(select SUM  (O.X) from t002ZZI I);--0 rows
+select SUM  (O.X) from t002ZZ O having exists(select COUNT(O.X) from t002ZZI I);--0 rows
+select COUNT(O.X) from t002ZZ O having exists(select COUNT(O.X) from t002ZZI I);--0 rows
+select SUM  (O.X) from t002FU O having exists(select COUNT(O.X) from t002ZZI I);--0 rows
+select COUNT(O.X) from t002FU O having exists(select COUNT(O.X) from t002ZZI I);--0 rows
+
+
+select SUM  (O.X) from t002ZZ O having exists(select SUM  (I.X) from t002ZZI I); -- [?]
+select COUNT(O.X) from t002ZZ O having exists(select SUM  (I.X) from t002ZZI I); -- [0]
+select SUM  (O.X) from t002FU O having exists(select SUM  (I.X) from t002ZZI I); -- sum
+select COUNT(O.X) from t002FU O having exists(select SUM  (I.X) from t002ZZI I); -- cnt
+
+
+select SUM  (O.X) from t002ZZ O having exists(select COUNT(I.X) from t002ZZI I); -- [?]
+select COUNT(O.X) from t002ZZ O having exists(select COUNT(I.X) from t002ZZI I); -- [0]
+select SUM  (O.X) from t002FU O having exists(select COUNT(I.X) from t002ZZI I); -- sum
+select COUNT(O.X) from t002FU O having exists(select COUNT(I.X) from t002ZZI I); -- cnt
+
+
+select SUM  (O.X) from t002ZZ O having exists(select SUM  (O.X) from t002FUI I); -- [?]
+select COUNT(O.X) from t002ZZ O having exists(select SUM  (O.X) from t002FUI I); -- [0]
+select SUM  (O.X) from t002FU O having exists(select SUM  (O.X) from t002FUI I); -- sum
+select COUNT(O.X) from t002FU O having exists(select SUM  (O.X) from t002FUI I); -- cnt
+
+
+select SUM  (O.X) from t002ZZ O having exists(select COUNT(O.X) from t002FUI I); -- [?]
+select COUNT(O.X) from t002ZZ O having exists(select COUNT(O.X) from t002FUI I); -- [0]
+select SUM  (O.X) from t002FU O having exists(select COUNT(O.X) from t002FUI I); -- sum
+select COUNT(O.X) from t002FU O having exists(select COUNT(O.X) from t002FUI I); -- cnt
+
+
+select SUM  (O.X) from t002ZZ O having exists(select SUM  (I.X) from t002FUI I); -- [?]
+select COUNT(O.X) from t002ZZ O having exists(select SUM  (I.X) from t002FUI I); -- [0]
+select SUM  (O.X) from t002FU O having exists(select SUM  (I.X) from t002FUI I); -- sum
+select COUNT(O.X) from t002FU O having exists(select SUM  (I.X) from t002FUI I); -- cnt
+
+
+select SUM  (O.X) from t002ZZ O having exists(select COUNT(I.X) from t002FUI I); -- [?]
+select COUNT(O.X) from t002ZZ O having exists(select COUNT(I.X) from t002FUI I); -- [0]
+select SUM  (O.X) from t002FU O having exists(select COUNT(I.X) from t002FUI I); -- sum
+select COUNT(O.X) from t002FU O having exists(select COUNT(I.X) from t002FUI I); -- cnt
+------------------------------------------------------------------------
+
+-- Tests of the interaction of [first n] etc. with subqueries
+
+-- Should return 1
+select 
+(select [FIRST 1] y aa from t002sub b where b.x = a.b) as result_value
+from t002main a;
+
+-- Should return null
+select 
+(select [last 0] y aa from t002sub b where b.x = a.b) as result_value
+from t002main a;
+
+-- Should get a cardinality violation (error 8401)
+select 
+(select [first 2] y aa from t002sub b where b.y = a.b) as result_value
+from t002main a;
+
+-- Should return 1
+select 
+(select [first 1] y aa from t002sub b where b.y = a.b) as result_value
+from t002main a;
+
+-- Should return 1
+select 
+(select [last 1] y aa from t002sub b where b.y = a.b) as result_value
+from t002main a;
+
+-- Should return null
+select 
+(select [last 0] y aa from t002sub b where b.y = a.b) as result_value
+from t002main a;
+
+-- Should return null
+select
+(select [last 0] count(*) from t002sub) as result_value
+from t002main;
+
+-- Should return 2
+select
+(select [first 20] count(*) from t002sub) as result_value
+from t002main;
+
+-- Should return null
+select
+(select [last 0] x from t002sub) as result_value
+from t002main;
+
+-- Should return 7
+select x from (select [first 1] x from t002sol order by x desc );
+
+-- Should return 1,2
+select x from t002sub where y=(select [first 1] x from t002sub);
+
+-- Should return 1
+select [first 1] x from t002sub where y=(select [first 1] x from t002sub);
+
+-- Should return 1
+select x from t002sub where x=(select [first 1] x from t002sub);
+
+
+-- Tests of limit n in subqueries
+
+-- Should return 1
+select 
+(select y aa from t002sub b where b.x = a.b limit 1) as result_value
+from t002main a;
+
+-- Should get a cardinality violation (error 8401)
+select 
+(select y aa from t002sub b where b.y = a.b limit 2) as result_value
+from t002main a;
+
+-- Should return 1
+select 
+(select y aa from t002sub b where b.y = a.b limit 1) as result_value
+from t002main a;
+
+-- Should return 2
+select
+(select count(*) from t002sub limit 20) as result_value
+from t002main;
+
+-- Should return 2
+select x from (select x from t002sol order by x desc limit 1);
+
+-- Tests of [first/any/last n] and limit n with ORDER BY in subqueries
+-- (Note that limit n is the same as [any n])
+
+prepare xx from select val from t002x1 where val in (select [first 1] val from t002x2 order by val);
+
+-- query plan should be a sequence plan, not a firstn plan; the ORDER BY causes a rewrite
+explain options 'f' xx;
+
+-- should return one row, -1865644273
+execute xx;
+
+prepare xx from select val from t002x1 where val in (select [any 1] val from t002x2 order by val);
+
+-- query plan should be a firstn plan
+explain options 'f' xx;
+
+-- should fail with error 4484
+prepare xx from select val from t002x1 where val in (select [last 1] val from t002x2 order by val);
+
+-- limit n has same semantics as [any n]
+prepare xx from select val from t002x1 where val in (select val from t002x2 order by val limit 1);
+
+-- query plan should be a firstn plan
+explain options 'f' xx;
+
+prepare xx from select b from t002t2840 where b in (select [first 2] b+1 from t002t2840
+ order by b+1);
+
+-- query plan should be a sequence plan (the query gets rewritten)
+explain options 'f' xx;
+
+-- should get 2 rows, with values 2 and 3
+execute xx;
+
+-- test for mantis 10800
+prepare xx from select val from (select val from t002t4 limit ?) as t;
+
+-- should have a firstn node
+explain options 'f' xx;
+
+-- should return 1 row
+execute xx using 1;
+
+-- should return 2 rows
+execute xx using 2;
+
+prepare xx from select (select val from t002t4 limit ?) from t002t4;
+
+-- should have a firstn node
+explain options 'f' xx;
+
+-- should return 3 rows
+execute xx using 1;
+
+-- should raise a cardinality violation error
+execute xx using 2;
+
+-- should return 3 rows
+execute xx using 0;
+
+prepare xx from select val from t002t4 where val in (select val from t002t4 limit ?);
+
+-- should have a firstn node
+explain options 'f' xx;
+
+-- should return 1 rows
+execute xx using 1;
+
+prepare xx from select * from (select val from t002t4 limit ?), (select val from t002t4 limit ?) order by 1, 2;
+
+explain options 'f' xx;
+
+execute xx using 3, 3;
+
+--test mantis 13737
+insert into t002t5 values(1,1),(2,2),(3,3),(4,4),(5,5);
+insert into t002t6 values(1,1),(2,2),(3,3),(4,4),(5,5);
+prepare xx1 from select * from (select t002t5.a as c1, t002t6.a as c2 from t002t5, t002t6 where t002t5.a = t002t6.a) c where 1=?;
+execute xx1 using 0;
+select TDB_NAME, cast(tokenstr('AccessedRows:',variable_info) as varchar(10)) ROWS_ACCESSED from table (statistics(NULL, 'STMT=XX1')) where TDB_NAME = 'EX_TRAF_SELECT';
+execute xx1 using 1;
+select TDB_NAME, cast(tokenstr('AccessedRows:',variable_info) as varchar(10)) ROWS_ACCESSED from table (statistics(NULL, 'STMT=XX1')) where TDB_NAME = 'EX_TRAF_SELECT';
+log;
+obey TEST002(clnup);
+exit;
+
+
+?section clnup
+-- CLEANUP database
+drop table t002t1;
+drop table t002t2;
+drop table t002t3;
+drop table t002bad;
+drop table t002ZZ;
+drop table t002ZZI;
+drop table t002FU;
+drop table t002FUI;
+drop table t002sol;
+
+#ifMX
+drop table t002ut1;
+drop table t002ut2;
+#ifMX
+
+drop table t002main;
+drop table t002sub;
+drop table t002x1;
+drop table t002x2;
+drop table t002t2840;
+drop table t002t4;
+drop table t002t5;
+drop table t002t6;
+
+?section clnup_end
+
+

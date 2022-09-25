@@ -1,0 +1,141 @@
+-- @@@ START COPYRIGHT @@@
+--
+-- Licensed to the Apache Software Foundation (ASF) under one
+-- or more contributor license agreements.  See the NOTICE file
+-- distributed with this work for additional information
+-- regarding copyright ownership.  The ASF licenses this file
+-- to you under the Apache License, Version 2.0 (the
+-- "License"); you may not use this file except in compliance
+-- with the License.  You may obtain a copy of the License at
+--
+--   http://www.apache.org/licenses/LICENSE-2.0
+--
+-- Unless required by applicable law or agreed to in writing,
+-- software distributed under the License is distributed on an
+-- "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+-- KIND, either express or implied.  See the License for the
+-- specific language governing permissions and limitations
+-- under the License.
+--
+-- @@@ END COPYRIGHT @@@
+
+obey TEST003(clean);
+obey TEST003(setup);
+log LOG003 clear;
+obey TEST003(test);
+log;
+obey TEST003(delay);
+obey TEST003(clean);
+exit;
+
+?section delay
+select sleep(60) from dual;
+cqd TRAF_OBJECT_LOCK_DDL_RETRY_DELAY '1000';
+cqd TRAF_OBJECT_LOCK_DDL_RETRY_LIMIT '120';
+
+?section clean
+drop schema ccsch003 cascade;
+
+?section setup
+create schema ccsch003;
+set schema ccsch003;
+
+create table t_ddl_xx (a int primary key);
+create table t_ddl_xx_seq (a int primary key);
+insert into t_ddl_xx_seq values (0);
+
+?section test
+
+sh sqlci -i "TEST003(ddl)"&;
+select sleep(5) from dual;
+obey TEST003(dml);
+
+?section ddl
+set schema ccsch003;
+
+CQD TRAF_LOCK_DDL 'OFF';
+CQD TRAF_OBJECT_LOCK_DDL_RETRY_DELAY '100';
+CQD TRAF_OBJECT_LOCK_DDL_RETRY_LIMIT '300';
+
+create index t_idx_xx2 on t_ddl_xx(a);
+drop index t_idx_xx2 cascade;
+create index t_idx_xx2 on t_ddl_xx(a);
+drop index t_idx_xx2 cascade;
+create index t_idx_xx2 on t_ddl_xx(a);
+drop index t_idx_xx2 cascade;
+create index t_idx_xx2 on t_ddl_xx(a);
+drop index t_idx_xx2 cascade;
+create index t_idx_xx2 on t_ddl_xx(a);
+drop index t_idx_xx2 cascade;
+
+?section dml
+set schema ccsch003;
+
+CQD TRAF_LOCK_DDL 'OFF';
+
+prepare xx from insert into t_ddl_xx select a from t_ddl_xx_seq;
+begin work;
+update t_ddl_xx_seq set a = a+1;
+select a from t_ddl_xx_seq;
+execute xx;
+select a from t_ddl_xx;
+commit;
+select sleep(1) from dual;
+begin work;
+update t_ddl_xx_seq set a = a+1;
+select a from t_ddl_xx_seq;
+execute xx;
+select a from t_ddl_xx;
+commit;
+select sleep(1) from dual;
+begin work;
+update t_ddl_xx_seq set a = a+1;
+select a from t_ddl_xx_seq;
+execute xx;
+select a from t_ddl_xx;
+commit;
+select sleep(1) from dual;
+begin work;
+update t_ddl_xx_seq set a = a+1;
+select a from t_ddl_xx_seq;
+execute xx;
+select a from t_ddl_xx;
+commit;
+select sleep(1) from dual;
+begin work;
+update t_ddl_xx_seq set a = a+1;
+select a from t_ddl_xx_seq;
+execute xx;
+select a from t_ddl_xx;
+commit;
+select sleep(1) from dual;
+begin work;
+update t_ddl_xx_seq set a = a+1;
+select a from t_ddl_xx_seq;
+execute xx;
+select a from t_ddl_xx;
+commit;
+begin work;
+update t_ddl_xx_seq set a = a+1;
+select a from t_ddl_xx_seq;
+execute xx;
+select a from t_ddl_xx;
+commit;
+begin work;
+update t_ddl_xx_seq set a = a+1;
+select a from t_ddl_xx_seq;
+execute xx;
+select a from t_ddl_xx;
+commit;
+begin work;
+update t_ddl_xx_seq set a = a+1;
+select a from t_ddl_xx_seq;
+execute xx;
+select a from t_ddl_xx;
+commit;
+begin work;
+update t_ddl_xx_seq set a = a+1;
+select a from t_ddl_xx_seq;
+execute xx;
+select a from t_ddl_xx;
+commit;

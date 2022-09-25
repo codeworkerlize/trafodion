@@ -1,0 +1,3056 @@
+>>
+>>obey TEST310(test);
+>>
+>>set schema t310sch;
+
+--- SQL operation complete.
+>>
+>>--
+>>-- Mantis 16081 [assignment] 使用SET (var [, var2, ...]) = (SELECT col [, col2, ... ] FROM ...);赋值语句，执行SPSQL时返回java.lang.NumberFormatException异常错误
+>>--
+>>
+>>create or replace procedure m16081p1() as //
+declare
+   code char(3) := 'A';
+   status int = 1;
+   count1 int;
+   limit1 int default -1;
+begin
+   print('code = '||code);
+   print('status = '||status);
+   print('count1 = '||count1);
+   print('limit1 = '||limit1);
+   
+   set code = (select 'C' from dual);
+   set status=(select 3 from dual), count1=(select 3 from dual);
+   set (count1, limit1) = (select 4,300 from dual);
+   print('code = '||code);
+   print('status = '||status);
+   print('count1 = '||count1);
+   print('limit1 = '||limit1);
+end//;
+
+--- SQL operation complete.                                
+>> 
+>>call m16081p1();
+
+(EXPR)                                                     
+--------                                                   
+
+code = A                                                   
+
+--- 1 row(s) selected.                                     
+
+(EXPR)                                                     
+----------                                                 
+
+status = 1                                                 
+
+--- 1 row(s) selected.                                     
+
+(EXPR)                                                     
+---------                                                  
+
+count1 =                                                   
+
+--- 1 row(s) selected.                                     
+
+(EXPR)                                                     
+-----------                                                
+
+limit1 = -1                                                
+
+--- 1 row(s) selected.                                     
+
+(EXPR)                                                     
+--------                                                   
+
+code = C                                                   
+
+--- 1 row(s) selected.                                     
+
+(EXPR)                                                     
+----------                                                 
+
+status = 3                                                 
+
+--- 1 row(s) selected.                                     
+
+(EXPR)                                                     
+----------                                                 
+
+count1 = 4                                                 
+
+--- 1 row(s) selected.                                     
+
+(EXPR)                                                     
+------------                                               
+
+limit1 = 300                                               
+
+--- 1 row(s) selected.                                     
+
+--- SQL operation complete.                                
+>>
+>>---
+>>--- Mantis 13293 Expression evaluated in the wrong orde in if statement
+>>---
+>>
+>>create or replace procedure m13293p1() as //
+begin
+  print(10-1+2-3*4-5+6);
+  print(10-1+2-3*(4-5)+6);
+end//;
+
+--- SQL operation complete.
+>>
+>>call m13293p1();
+
+(EXPR)
+------
+
+     0
+
+--- 1 row(s) selected.
+
+(EXPR)
+------
+
+    20
+
+--- 1 row(s) selected.
+
+--- SQL operation complete.
+>>
+>>--
+>>-- Mantis 13127 An error occurred when the stored procedure encountered "'case \' | code"
+>>--
+>>
+>>create or replace procedure m13127p1() as //
+begin
+  select 'a\b\c\' from dual;
+end//;
+
+--- SQL operation complete.
+>>
+>>call m13127p1();
+
+(EXPR)
+------
+
+a\b\c\
+
+--- 1 row(s) selected.
+
+--- SQL operation complete.
+>>
+>>--
+>>-- Mantis 12584 SPSQL compatible treat empty string as null
+>>-- Mantis 12783 SPSQL function NVL() wrong result if variable is NULL
+>>--
+>>
+>>create or replace procedure m12584p1() as //
+declare
+  vEmpty varchar(10) := '';
+  vNull varchar(10) := null;
+begin
+  if vEmpty = vNull then
+    print 'vEmpty == vNull';
+  else
+    print 'vEmpty != vNull';
+  end if;
+
+  if vNull = vEmpty then
+    print 'vNull == vEmpty';
+  else
+    print 'vNull != vEmpty';
+  end if;
+
+  if vEmpty is null then
+    print 'vEmpty is null';
+  else
+    print 'vEmpty is not null';
+  end if;
+
+  if vEmpty = null then
+    print 'vEmpty == null';
+  else
+    print 'vEmpty != null';
+  end if;
+
+  if vEmpty = '' then
+    print 'vEmpty == empty';
+  else
+    print 'vEmpty != empty';
+  end if;
+
+  if vNull is null then
+    print 'vNull is null';
+  else
+    print 'vNull is not null';
+  end if;
+
+  if vNull = null then
+    print 'vNull == null';
+  else
+    print 'vNull != null';
+  end if;
+
+  if vNull = '' then
+    print 'vNull == empty';
+  else
+    print 'vNull != empty';
+  end if;
+end//;
+
+--- SQL operation complete.
+>>
+>>create or replace procedure m12783p1() as //
+declare
+  vNull varchar(20);
+  vEmpty varchar(20) := '';
+begin
+  print nvl(null, 'null is null');
+  print nvl('', 'empty is null');
+  print nvl(vEmpty, 'vEmpty is null');
+  print nvl(vNull, 'vNull is null');
+
+  print nvl2(null, 'null is not null', 'null is null');
+  print nvl2('', 'empty is not null', 'empty is null');
+  print nvl2(vEmpty, 'vEmpty is not null', 'vEmpty is null');
+  print nvl2(vNull, 'vNull is not null', 'vNull is null');
+end//;
+
+--- SQL operation complete.
+>>
+>>
+>>EXECUTE //
+SET "hplsql.empty.is.null" = true;
+//;
+
+--- SQL operation complete.
+>>
+>>call m12584p1();
+
+(EXPR)         
+---------------
+
+vEmpty == vNull
+
+--- 1 row(s) selected.
+
+(EXPR)         
+---------------
+
+vNull == vEmpty
+
+--- 1 row(s) selected.
+
+(EXPR)        
+--------------
+
+vEmpty is null
+
+--- 1 row(s) selected.
+
+(EXPR)        
+--------------
+
+vEmpty != null
+
+--- 1 row(s) selected.
+
+(EXPR)         
+---------------
+
+vEmpty == empty
+
+--- 1 row(s) selected.
+
+(EXPR)       
+-------------
+
+vNull is null
+
+--- 1 row(s) selected.
+
+(EXPR)       
+-------------
+
+vNull != null
+
+--- 1 row(s) selected.
+
+(EXPR)        
+--------------
+
+vNull == empty
+
+--- 1 row(s) selected.
+
+--- SQL operation complete.
+>>call m12783p1();
+
+(EXPR)         
+---------------
+
+null is null   
+
+--- 1 row(s) selected.
+
+(EXPR)       
+-------------
+
+empty is null
+
+--- 1 row(s) selected.
+
+(EXPR)        
+--------------
+
+vEmpty is null
+
+--- 1 row(s) selected.
+
+(EXPR)       
+-------------
+
+vNull is null
+
+--- 1 row(s) selected.
+
+(EXPR)      
+------------
+
+null is null
+
+--- 1 row(s) selected.
+
+(EXPR)       
+-------------
+
+empty is null
+
+--- 1 row(s) selected.
+
+(EXPR)        
+--------------
+
+vEmpty is null
+
+--- 1 row(s) selected.
+
+(EXPR)       
+-------------
+
+vNull is null
+
+--- 1 row(s) selected.
+
+--- SQL operation complete.
+>>
+>>EXECUTE //
+SET "hplsql.empty.is.null" = false;
+//;
+
+--- SQL operation complete.
+>>
+>>call m12584p1();
+
+(EXPR)         
+---------------
+
+vEmpty != vNull
+
+--- 1 row(s) selected.
+
+(EXPR)         
+---------------
+
+vNull != vEmpty
+
+--- 1 row(s) selected.
+
+(EXPR)            
+------------------
+
+vEmpty is not null
+
+--- 1 row(s) selected.
+
+(EXPR)        
+--------------
+
+vEmpty != null
+
+--- 1 row(s) selected.
+
+(EXPR)         
+---------------
+
+vEmpty == empty
+
+--- 1 row(s) selected.
+
+(EXPR)       
+-------------
+
+vNull is null
+
+--- 1 row(s) selected.
+
+(EXPR)       
+-------------
+
+vNull != null
+
+--- 1 row(s) selected.
+
+(EXPR)        
+--------------
+
+vNull != empty
+
+--- 1 row(s) selected.
+
+--- SQL operation complete.
+>>call m12783p1();
+
+(EXPR)         
+---------------
+
+null is null   
+
+--- 1 row(s) selected.
+
+(EXPR)              
+--------------------
+
+                   ?
+
+--- 1 row(s) selected.
+
+(EXPR)              
+--------------------
+
+                   ?
+
+--- 1 row(s) selected.
+
+(EXPR)       
+-------------
+
+vNull is null
+
+--- 1 row(s) selected.
+
+(EXPR)      
+------------
+
+null is null
+
+--- 1 row(s) selected.
+
+(EXPR)           
+-----------------
+
+empty is not null
+
+--- 1 row(s) selected.
+
+(EXPR)            
+------------------
+
+vEmpty is not null
+
+--- 1 row(s) selected.
+
+(EXPR)       
+-------------
+
+vNull is null
+
+--- 1 row(s) selected.
+
+--- SQL operation complete.
+>>
+>>--
+>>-- Test case for Mantis-11365
+>>--
+>>
+>>create or replace function m11365f1(a int) return int as //
+begin
+  return a*2;
+end//;
+
+--- SQL operation complete.
+>>
+>>exec //
+print m11365f1(123);
+//;
+
+--- SQL operation complete.
+>>
+>>--
+>>-- Test UPDATE/DELETE with variables
+>>--
+>>
+>>drop table if exists udt1;
+
+--- SQL operation complete.
+>>create table udt1 (a int, b int, c varchar(30));
+
+--- SQL operation complete.
+>>insert into udt1 values (1, 1, 'aaa'),(2, 2, 'bbb'),(3, 3, 'ccc');
+
+--- 3 row(s) inserted.
+>>create or replace procedure update_with_var(pa int, pb int, pc varchar(10)) as //
+begin
+  update udt1 set b=b+10*pb where a=pa;
+  update udt1 set b=b+100*pb, c=c||pc where a=pa;
+  update udt1 set (b,c) = (b+1000*pb,c||pc) where a=pa;
+  update udt1 set (b,c) = (select b+10000*pb,c||pc from udt1 where a=pa+1) where a=pa-1;
+  update udt1 set c = (select c||pc from udt1 where a=pa) where a=pa+1;
+end
+//;
+
+--- SQL operation complete.
+>>
+>>call update_with_var(2, 2, 'BBB');
+
+--- SQL operation complete.
+>>select * from udt1;
+
+A            B            C                             
+-----------  -----------  ------------------------------
+
+          1        20003  cccBBB                        
+          2         2222  bbbBBBBBB                     
+          3            3  bbbBBBBBBBBB                  
+
+--- 3 row(s) selected.
+>>
+>>create or replace procedure delete_with_var(pa int) as //
+begin
+  delete from udt1 where a = pa + 1;
+end
+//;
+
+--- SQL operation complete.
+>>
+>>call delete_with_var(2);
+
+--- SQL operation complete.
+>>select * from udt1;
+
+A            B            C                             
+-----------  -----------  ------------------------------
+
+          1        20003  cccBBB                        
+          2         2222  bbbBBBBBB                     
+
+--- 2 row(s) selected.
+>>
+>>--
+>>-- Test SELECT GROUP BY AND ORDER BY clause with variables
+>>--
+>>
+>>drop table if exists t301_t1;
+
+--- SQL operation complete.
+>>create table t301_t1(a int, b varchar(10));
+
+--- SQL operation complete.
+>>insert into t301_t1 values(1, 'hello');
+
+--- 1 row(s) inserted.
+>>insert into t301_t1 values(2, 'hello');
+
+--- 1 row(s) inserted.
+>>insert into t301_t1 values(3, 'hello');
+
+--- 1 row(s) inserted.
+>>insert into t301_t1 values(11, 'world');
+
+--- 1 row(s) inserted.
+>>insert into t301_t1 values(12, 'world');
+
+--- 1 row(s) inserted.
+>>create or replace procedure select_clause_with_var() as//
+begin
+  declare c varchar = 'a';
+  declare d int = 1;
+
+  select * from t301_t1 order by d;
+
+  select a from t301_t1 group by d;
+  select a from t301_t1 order by d;
+  select a, substr(b,3) || c from t301_t1 group by substr(b,3) || c, a;
+  select a, substr(b,3) || c from t301_t1 order by substr(b,3) || c, a;
+end//;
+
+--- SQL operation complete.
+>>call select_clause_with_var();
+
+A            B         
+-----------  ----------
+
+          1  hello     
+          2  hello     
+          3  hello     
+         11  world     
+         12  world     
+
+--- 5 row(s) selected.
+
+A          
+-----------
+
+          1
+          2
+          3
+         11
+         12
+
+--- 5 row(s) selected.
+
+A          
+-----------
+
+          1
+          2
+          3
+         11
+         12
+
+--- 5 row(s) selected.
+
+A            (EXPR)   
+-----------  ---------
+
+          1  lloa     
+          2  lloa     
+          3  lloa     
+         11  rlda     
+         12  rlda     
+
+--- 5 row(s) selected.
+
+A            (EXPR)   
+-----------  ---------
+
+          1  lloa     
+          2  lloa     
+          3  lloa     
+         11  rlda     
+         12  rlda     
+
+--- 5 row(s) selected.
+
+--- SQL operation complete.
+>>
+>>--
+>>-- Test [NOT] IN operation
+>>--
+>>create or replace procedure t310_in() as //
+declare
+  a int := 3;
+  b varchar := 'hello';
+  c double := 12.3;
+begin
+  if a in (1,2,3,4,5) then
+    print a || ' IN (1,2,3,4,5)';
+  end if;
+  if a not in (1,2,4,5) then
+    print a || ' NOT IN (1,2,4,5)';
+  end if;
+  if b in ('hello', 'world') then
+    print b || ' IN (hello, world)';
+  end if;
+  if b NOT in ('Hello', 'World') then
+    print b || ' NOT IN (Hello, World)';
+  end if;
+  if c in (1.23, 3.12, 12.3) then
+    print c || ' IN (1.23, 3.12, 12.3)';
+  end if;
+  if c not in (1.23) then
+    print c || ' NOT IN (1.23)';
+  end if;
+  if 1.23 in (1.23) then
+    print '1.23 IN (1.23)';
+  end if;
+  if '1.23' in (1.23) then
+    print '''1.23'' IN (1.23)';
+  end if;
+  if 1.23 in ('1.23') then
+    print '1.23 IN (''1.23'')';
+  end if;
+end//;
+
+--- SQL operation complete.
+>>
+>>call t310_in();
+
+(EXPR)          
+----------------
+
+3 IN (1,2,3,4,5)
+
+--- 1 row(s) selected.
+
+(EXPR)            
+------------------
+
+3 NOT IN (1,2,4,5)
+
+--- 1 row(s) selected.
+
+(EXPR)                 
+-----------------------
+
+hello IN (hello, world)
+
+--- 1 row(s) selected.
+
+(EXPR)                     
+---------------------------
+
+hello NOT IN (Hello, World)
+
+--- 1 row(s) selected.
+
+(EXPR)                        
+------------------------------
+
+12.3 IN (1.23, 3.12, 12.3)
+
+--- 1 row(s) selected.
+
+(EXPR)            
+------------------
+
+12.3 NOT IN (1.23)
+
+--- 1 row(s) selected.
+
+(EXPR)        
+--------------
+
+1.23 IN (1.23)
+
+--- 1 row(s) selected.
+
+(EXPR)              
+----------------
+
+'1.23' IN (1.23)
+
+--- 1 row(s) selected.
+
+(EXPR)                
+----------------
+
+1.23 IN ('1.23')
+
+--- 1 row(s) selected.
+
+--- SQL operation complete.
+>>
+>>CREATE OR REPLACE PROCEDURE t310_in_bool() AS //
+BEGIN
+  IF true IN (true, true) THEN
+    PRINT 'PASS';
+  ELSE
+    PRINT 'FAIL';
+  END IF;
+  IF true IN (false, true) THEN
+    PRINT 'PASS';
+  ELSE
+    PRINT 'FAIL';
+  END IF;
+  IF false NOT IN (true, true) THEN
+    PRINT 'PASS';
+  ELSE
+    PRINT 'FAIL';
+  END IF;
+  IF true NOT IN (false, true) THEN
+    PRINT 'FAIL';
+  ELSE
+    PRINT 'PASS';
+  END IF;
+  IF false NOT IN (false, true) THEN
+    PRINT 'FAIL';
+  ELSE
+    PRINT 'PASS';
+  END IF;
+  IF false NOT IN ('false', 'true', 0, 1) THEN
+    PRINT 'PASS';
+  ELSE
+    PRINT 'FAIL';
+  END IF;
+  IF true NOT IN ('false', 'true', 0, 1) THEN
+    PRINT 'PASS';
+  ELSE
+    PRINT 'FAIL';
+  END IF;
+END//;
+
+--- SQL operation complete.
+>>
+>>call t310_in_bool();
+
+(EXPR)          
+----------------
+
+PASS            
+
+--- 1 row(s) selected.
+
+(EXPR)
+------
+
+PASS  
+
+--- 1 row(s) selected.
+
+(EXPR)
+------
+
+PASS  
+
+--- 1 row(s) selected.
+
+(EXPR)
+------
+
+PASS  
+
+--- 1 row(s) selected.
+
+(EXPR)
+------
+
+PASS  
+
+--- 1 row(s) selected.
+
+(EXPR)
+------
+
+PASS  
+
+--- 1 row(s) selected.
+
+(EXPR)
+------
+
+PASS  
+
+--- 1 row(s) selected.
+
+--- SQL operation complete.
+>>
+>>CREATE OR REPLACE PROCEDURE t310_in_datetime() AS //
+BEGIN
+  IF DATE('2019-06-08') IN (DATE '2019-06-08') THEN
+    print 'PASS';
+  ELSE
+    print 'FAIL';
+  END IF;
+  IF DATE('2019-06-08') IN (DATE '2019-06-07', DATE '2018-06-08', TIMESTAMP '2018-06-08 12:00:00.123456') THEN
+    print 'FAIL';
+  ELSE
+    print 'PASS';
+  END IF;
+  IF TIMESTAMP '2019-06-08 12:00:00.123456' NOT IN (TIMESTAMP '2019-06-08 12:00:00.123456') THEN
+    print 'FAIL';
+  ELSE
+    print 'PASS';
+  END IF;
+  IF TIMESTAMP '2019-06-08 12:00:00.123456'
+     NOT IN (TIMESTAMP '2019-06-08 12:00:00.123455'
+            ,TIMESTAMP '2019-06-08 12:00:01.123456'
+            ,TIMESTAMP '2019-06-08 12:00:01.12345'
+            ,TIMESTAMP '2019-06-08 12:00:01'
+            ,TIMESTAMP '2019-06-07 12:00:00.123456'
+            ,TIME '12:00:00.123456'
+            ,DATE '2019-06-08')
+  THEN
+    print 'PASS';
+  ELSE
+    print 'FAIL';
+  END IF;
+  IF TIME '12:00:00.123456' NOT IN (TIME '12:00:00.123456') THEN
+    print 'FAIL';
+  ELSE
+    print 'PASS';
+  END IF;
+  IF TIME '12:00:00.123456'
+    NOT IN (TIME '12:00:00.12346'
+           ,TIME '12:00:00.1234'
+           ,TIME '12:00:00'
+           ,TIMESTAMP '2019-06-08 12:00:00.123456')
+  THEN
+    print 'PASS';
+  ELSE
+    print 'FAIL';
+  END IF;
+END//;
+
+--- SQL operation complete.
+>>
+>>call t310_in_datetime();
+
+(EXPR)          
+----------------
+
+PASS            
+
+--- 1 row(s) selected.
+
+(EXPR)
+------
+
+PASS  
+
+--- 1 row(s) selected.
+
+(EXPR)
+------
+
+PASS  
+
+--- 1 row(s) selected.
+
+(EXPR)
+------
+
+PASS  
+
+--- 1 row(s) selected.
+
+(EXPR)
+------
+
+PASS  
+
+--- 1 row(s) selected.
+
+(EXPR)
+------
+
+PASS  
+
+--- 1 row(s) selected.
+
+--- SQL operation complete.
+>>
+>>--
+>>-- Test SUBSTR function
+>>--
+>>create procedure t310_substr(out a varchar(10),
++>                             out b varchar(10),
++>                             out c varchar(10),
++>                             out d varchar(10),
++>                             out e varchar(10),
++>                             out f varchar(10),
++>                             out g varchar(10),
++>                             out h varchar(10),
++>                             out i varchar(10),
++>                             out j varchar(10),
++>                             out k varchar(10),
++>                             out l varchar(10),
++>                             out m varchar(10),
++>                             out n varchar(10),
++>                             out o varchar(10),
++>                             out p varchar(10)) as //
+declare
+  s varchar := 'ABCDEFGHIJ';
+begin
+  set a := substr(s, 0, 3);
+  set b := substr(s, 1, 3);
+  set c := substr(s, 5, 10);
+  set d := substr(s, 9, 2);
+  set e := substr(s, 10, 1);
+  set f := substr(s, 11, 1);
+  set g := substr(s, 11, 1);
+  set h := substr(s, 2, 0);
+  set i := substr(s, 11, 0);
+  set j := substr(s, -1, 1);
+  set k := substr(s, -3, 2);
+  set l := substr(s, 5, 20);
+  set m := substr(s, -3, 20);
+  set n := substr(s, -3, 0);
+  set o := substr(s, -3, -1);
+  set p := substr(s, 1, -10);
+end//;
+
+--- SQL operation complete.
+>>
+>>call t310_substr(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);
+
+A           B           C           D           E           F           G           H           I           J           K           L           M           N           O           P
+----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------
+
+ABC         ABC         EFGHIJ      IJ          J           ?           ?           ?           ?           J           HI          EFGHIJ      HIJ         ?           ?           ?         
+
+--- SQL operation complete.
+>>
+>>--
+>>-- Test SUBSTR FROM FOR function
+>>--
+>>create procedure t310_substr_from(out a varchar(10),
++>                                  out b varchar(10),
++>                                  out c varchar(10),
++>                                  out d varchar(10),
++>                                  out e varchar(10),
++>                                  out f varchar(10),
++>                                  out g varchar(10),
++>                                  out h varchar(10),
++>                                  out i varchar(10),
++>                                  out j varchar(10),
++>                                  out k varchar(10),
++>                                  out l varchar(10),
++>                                  out m varchar(10),
++>                                  out n varchar(10),
++>                                  out o varchar(10),
++>                                  out p varchar(10)) as //
+declare
+  s varchar := 'ABCDEFGHIJ';
+begin
+  set a := substr(s from 0  for 3);
+  set b := substr(s from 1  for 3);
+  set c := substr(s from 5);
+  set d := substr(s from 9  for 2);
+  set e := substr(s from 10 for 1);
+  set f := substr(s from 11 for 1);
+  set g := substr(s from 11 for 1);
+  set h := substr(s from 2  for 0);
+  set i := substr(s from 11 for 0);
+  set j := substr(s from -1 for 1);
+  set k := substr(s from -3 for 2);
+  set l := substr(s from 5  for 20);
+  set m := substr(s from -3 for 20);
+  set n := substr(s from -3 for 0);
+  set o := substr(s from -3 for -1);
+  set p := substr(s from 1  for -10);
+end//;
+
+--- SQL operation complete.
+>>
+>>call t310_substr_from(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);
+
+A                                         B                                         C                                         D                                         E                                         F                                         G                                         H                                         I                                         J                                         K                                         L                                         M                                         N                                         O                                         P
+----------------------------------------  ----------------------------------------  ----------------------------------------  ----------------------------------------  ----------------------------------------  ----------------------------------------  ----------------------------------------  ----------------------------------------  ----------------------------------------  ----------------------------------------  ----------------------------------------  ----------------------------------------  ----------------------------------------  ----------------------------------------  ----------------------------------------  ----------------------------------------
+
+ABC                                       ABC                                       EFGHIJ                                    IJ                                        J                                         ?                                         ?                                         ?                                         ?                                         J                                         HI                                        EFGHIJ                                    HIJ                                       ?                                         ?                                         ?                                       
+
+--- SQL operation complete.
+>>
+>>--
+>>-- Test for mantis-11398 function with utf8/ucs2 param
+>>--
+>>set terminal_charset utf8;
+>>
+>>create or replace function f1(a varchar(10) character set utf8)
++>  return varchar(10) character set utf8 as //
+begin
+  return '你好，' || a || '!';
+end//;
+
+--- SQL operation complete.
+>>
+>>select f1('易鲸捷') from dual;
+
+(EXPR)                                  
+----------------------------------------
+
+你好，易鲸捷!                     
+
+--- 1 row(s) selected.
+>>select f1('Esgyn') from dual;
+
+(EXPR)                                  
+----------------------------------------
+
+你好，Esgyn!                         
+
+--- 1 row(s) selected.
+>>
+>>create or replace function f2(a varchar(10) character set ucs2)
++>  return varchar(10) character set ucs2 as //
+begin
+  return '你好，' || a || '!';
+end//;
+
+--- SQL operation complete.
+>>
+>>select f2('易鲸捷') from dual;
+
+(EXPR)    
+----------
+
+你好，易鲸捷!   
+
+--- 1 row(s) selected.
+>>select f2('Esgyn') from dual;
+
+(EXPR)    
+----------
+
+你好，Esgyn! 
+
+--- 1 row(s) selected.
+>>
+>>--
+>>-- Test for mantis-11397 package function with utf8/ucs2 param
+>>--
+>>set terminal_charset utf8;
+>>
+>>create or replace package pkg1 as//
+  function f1(a varchar(10) character set utf8)
+    return varchar(10) character set utf8;
+  function f2(a varchar(10) character set ucs2)
+    return varchar(10) character set ucs2;
+end//;
+
+--- SQL operation complete.
+>>
+>>create or replace package body pkg1 as//
+  function f1(a varchar(10) character set utf8)
+    return varchar(10) character set utf8 as
+  begin
+    return '你好，' || a || '!';
+  end;
+
+  function f2(a varchar(10) character set ucs2)
+    return varchar(10) character set ucs2 as
+  begin
+    return '你好，' || a || '!';
+  end;
+end//;
+
+--- SQL operation complete.
+>>
+>>select pkg1.f1('易鲸捷') from dual;
+
+R                                       
+----------------------------------------
+
+你好，易鲸捷!                     
+
+--- 1 row(s) selected.
+>>select pkg1.f1('Esgyn') from dual;
+
+R                                       
+----------------------------------------
+
+你好，Esgyn!                         
+
+--- 1 row(s) selected.
+>>
+>>select pkg1.f2('易鲸捷') from dual;
+
+R         
+----------
+
+你好，易鲸捷!   
+
+--- 1 row(s) selected.
+>>select pkg1.f2('Esgyn') from dual;
+
+R         
+----------
+
+你好，Esgyn! 
+
+--- 1 row(s) selected.
+>>
+>>--
+>>-- Test SYS_CONTEXT function
+>>--
+>>create procedure t310_sys_context() as //
+begin
+  print  sys_context('userenv', 'session_user');
+  print  sys_context('userenv', 'host');
+  print  sys_context('userenv', 'ip_address');
+  print  sys_context('userenv', 'sessionid');
+  select sys_context('userenv', 'session_user'),
+         sys_context('userenv', 'host'),
+         sys_context('userenv', 'ip_address'),
+         sys_context('userenv', 'sessionid') from dual;
+end//;
+
+--- SQL operation complete.
+>>
+>>call t310_sys_context();
+
+(EXPR)          
+----------------
+
+DB__ROOT        
+
+--- 1 row(s) selected.
+
+(EXPR)   
+---------
+
+localhost
+
+--- 1 row(s) selected.
+
+(EXPR)   
+---------
+
+127.0.0.1
+
+--- 1 row(s) selected.
+
+(EXPR)                                                         
+---------------------------------------------------------------
+
+MXID11000017094212428995523679085000000000206U3333308T150000000
+
+--- 1 row(s) selected.
+
+(EXPR)    (EXPR)     (EXPR)     (EXPR)
+--------  ---------  ---------  ---------------------------------------------------------------
+
+DB__ROOT  localhost  127.0.0.1  MXID11000017094212428995523679085000000000206U3333308T150000000
+
+--- 1 row(s) selected.
+
+--- SQL operation complete.
+>>
+>>--
+>>-- Mantis 11948
+>>--
+>>
+>>create table if not exists m11948t1 (a int);
+
+--- SQL operation complete.
+>>create or replace function m11948f1(a timestamp) return varchar(8) as //
+begin
+  return '20190808';
+end//;
+
+--- SQL operation complete.
+>>
+>>create or replace procedure m11948p1(a int) as //
+begin
+  b := m11948f1(a);
+exception
+  when others then
+  begin
+    insert into m11948t1 (a) values (a);
+  end;
+end//;
+
+--- SQL operation complete.
+>>
+>>create or replace procedure m11948p2(a timestamp) as //
+begin
+  null;
+end//;
+
+--- SQL operation complete.
+>>
+>>create or replace procedure m11948p3(a int) as //
+begin
+  m11948p2(a);
+exception
+  when others then
+  begin
+    insert into m11948t1 (a) values (a);
+  end;
+end//;
+
+--- SQL operation complete.
+>>
+>>call m11948p1(11948);
+
+--- SQL operation complete.
+>>select * from m11948t1;
+
+A          
+-----------
+
+      11948
+
+--- 1 row(s) selected.
+>>call m11948p3(11948);
+
+--- SQL operation complete.
+>>select * from m11948t1;
+
+A          
+-----------
+
+      11948
+      11948
+
+--- 2 row(s) selected.
+>>
+>>--
+>>-- Mantis 12044 EXECUTE IMMEDIATE INTO
+>>--
+>>
+>>create table m12044t1 (a int);
+
+--- SQL operation complete.
+>>
+>>create procedure m12044p1() as //
+declare
+  va int;
+begin
+  declare continue handler for not found
+    print 'NOT FOUND';
+
+  declare continue handler for sqlexception
+  begin
+    get diagnostics exception 1 errmsg = message_text;
+    print 'SQLEXCEPTION: ' || errmsg;
+  end;
+
+  execute immediate 'select a from m12044t1' into va;
+  print activity_count;
+  print va;
+
+  insert into m12044t1 values (12044);
+  execute immediate 'select a from m12044t1' into va;
+  print activity_count;
+  print va;
+
+  execute immediate 'select a from m12044t1' into v_not_exist;
+  print activity_count;
+  print v_not_exist;
+
+  insert into m12044t1 values (12044);
+  execute immediate 'select a from m12044t1' into va;
+  print activity_count;
+  print va;
+
+  execute immediate 'select a from not_exist_table' into va;
+  print activity_count;
+  print va;
+end//;
+
+--- SQL operation complete.
+>>
+>>call m12044p1();
+
+(EXPR)          
+----------------
+
+NOT FOUND       
+
+--- 1 row(s) selected.
+
+(EXPR)
+------
+
+     0
+
+--- 1 row(s) selected.
+
+VA                   
+---------------------
+
+                    ?
+
+--- 1 row(s) selected.
+
+(EXPR)
+------
+
+     1
+
+--- 1 row(s) selected.
+
+VA         
+-----------
+
+      12044
+
+--- 1 row(s) selected.
+
+(EXPR)                                       
+---------------------------------------------
+
+SQLEXCEPTION: Variable not found: v_not_exist
+
+--- 1 row(s) selected.
+
+(EXPR)
+------
+
+     0
+
+--- 1 row(s) selected.
+
+V_NOT_EXIST          
+---------------------
+
+                    ?
+
+--- 1 row(s) selected.
+
+(EXPR)                                      
+--------------------------------------------
+
+SQLEXCEPTION: more than one row was returned
+
+--- 1 row(s) selected.
+
+(EXPR)
+------
+
+     0
+
+--- 1 row(s) selected.
+
+VA         
+-----------
+
+      12044
+
+--- 1 row(s) selected.
+
+(EXPR)
+---------------------------------------------------------------------------------------------------------
+
+SQLEXCEPTION: *** ERROR[4082] Object TRAFODION.T310SCH.NOT_EXIST_TABLE does not exist or is inaccessible.
+
+--- 1 row(s) selected.
+
+(EXPR)
+------
+
+    -1
+
+--- 1 row(s) selected.
+
+VA         
+-----------
+
+      12044
+
+--- 1 row(s) selected.
+
+--- SQL operation complete.
+>>
+>>
+>>drop table if exists "m12038t1" cascade;
+
+--- SQL operation complete.
+>>create table if not exists "m12038t1"
++>(
++>"oper_desc" varchar(30),
++>"oper_query" varchar(600)
++>);
+
+--- SQL operation complete.
+>>insert into "m12038t1" values(NULL,NULL);
+
+--- 1 row(s) inserted.
+>>insert into "m12038t1" values(NULL, 'delete');
+
+--- 1 row(s) inserted.
+>>
+>>create or replace procedure m12038p1() as //
+declare
+  i VARCHAR(30);
+begin
+  select cast(count(*) as varchar(30)) into i from "m12038t1" where "oper_desc" is NULL and "oper_query" is NULL;
+  insert into "m12038t1" ("oper_desc", "oper_query") values ('insert'||i, 'insert');
+  update "m12038t1" set "oper_desc" = 'update' where "oper_query" is NULL;
+  delete from "m12038t1" where "oper_query"='delete';
+end//;
+
+--- SQL operation complete.
+>>
+>>call m12038p1();
+
+--- SQL operation complete.
+>>select * from "m12038t1" order by "oper_desc";
+
+oper_desc                       oper_query
+------------------------------  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+insert1                         insert                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  
+update                          ?                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
+
+--- 2 row(s) selected.
+>>
+>>--
+>>-- Mantis 12176 Support minus and upsert
+>>--
+>>create table m12176t1(a int);
+
+--- SQL operation complete.
+>>insert into m12176t1 values(1);
+
+--- 1 row(s) inserted.
+>>insert into m12176t1 values(1);
+
+--- 1 row(s) inserted.
+>>insert into m12176t1 values(2);
+
+--- 1 row(s) inserted.
+>>insert into m12176t1 values(2);
+
+--- 1 row(s) inserted.
+>>create table m12176t2(a int);
+
+--- SQL operation complete.
+>>insert into m12176t2 values(2);
+
+--- 1 row(s) inserted.
+>>insert into m12176t2 values(2);
+
+--- 1 row(s) inserted.
+>>insert into m12176t2 values(3);
+
+--- 1 row(s) inserted.
+>>insert into m12176t2 values(3);
+
+--- 1 row(s) inserted.
+>>
+>>create procedure m12176p1() as//
+begin
+  select * from m12176t1 minus select * from m12176t2;
+  select * from m12176t1 except select * from m12176t2;
+  select * from m12176t1 intersect select * from m12176t2;
+  select * from m12176t1 union select * from m12176t2;
+  select * from m12176t1 union all select * from m12176t2;
+end//;
+
+--- SQL operation complete.
+>>call m12176p1();
+
+A          
+-----------
+
+          1
+
+--- 1 row(s) selected.
+
+A          
+-----------
+
+          1
+
+--- 1 row(s) selected.
+
+A          
+-----------
+
+          2
+
+--- 1 row(s) selected.
+
+A          
+-----------
+
+          2
+          1
+          3
+
+--- 3 row(s) selected.
+
+A          
+-----------
+
+          2
+          1
+          2
+          1
+          3
+          2
+          3
+          2
+
+--- 8 row(s) selected.
+
+--- SQL operation complete.
+>>
+>>create procedure m12176p2() as//
+begin
+  upsert into m12176t1 values(4);
+  upsert using load into m12176t1 values(5);
+  upsert into m12176t1 select 6 from dual;
+  upsert using load into m12176t1 select 7 from dual;
+end//;
+
+--- SQL operation complete.
+>>call m12176p2();
+
+--- SQL operation complete.
+>>select * from m12176t1;
+
+A          
+-----------
+
+          1
+          1
+          2
+          2
+          4
+          5
+          6
+          7
+
+--- 8 row(s) selected.
+>>
+>>--
+>>-- Mantis 12278 Support variable in ON clause
+>>--
+>>
+>>create table m12278t1 (a int, b varchar(10));
+
+--- SQL operation complete.
+>>create table m12278t2 (a int, b varchar(10));
+
+--- SQL operation complete.
+>>
+>>insert into m12278t1 values (1, 'a');
+
+--- 1 row(s) inserted.
+>>insert into m12278t1 values (2, 'b');
+
+--- 1 row(s) inserted.
+>>insert into m12278t1 values (3, 'c');
+
+--- 1 row(s) inserted.
+>>
+>>insert into m12278t2 values (1, 'A');
+
+--- 1 row(s) inserted.
+>>insert into m12278t2 values (2, 'B');
+
+--- 1 row(s) inserted.
+>>insert into m12278t2 values (3, 'C');
+
+--- 1 row(s) inserted.
+>>
+>>create or replace procedure m12278p1() as //
+declare
+  v_a int := 2;
+begin
+  select t1.*, t2.*
+    from m12278t1 t1 left join m12278t2 t2
+    on t1.a = t2.a and t1.a = v_a;
+end//;
+
+--- SQL operation complete.
+>>
+>>call m12278p1();
+
+A            B           A            B         
+-----------  ----------  -----------  ----------
+
+          1  a                     ?  ?         
+          2  b                     2  B         
+          3  c                     ?  ?         
+
+--- 3 row(s) selected.
+
+--- SQL operation complete.
+>>
+>>--
+>>-- Mantis 12283 function will not rollback after call function fail
+>>--
+>>
+>>create table m12283t1 (a int primary key, b boolean);
+
+--- SQL operation complete.
+>>create or replace function m12283f1() return int as //
+begin
+  insert into m12283t1 values (1, true);
+  /* This will fail */
+  insert into m12283t1 values (1, false);
+end//;
+
+--- SQL operation complete.
+>>
+>>select m12283f1() from dual;
+
+*** ERROR[11220] A Java method completed with an uncaught java.sql.SQLException with invalid SQLSTATE. The uncaught exception had a SQLCODE of -8102 and SQLSTATE of 23000. Details: java.sql.SQLException: *** ERROR[8102] The operation is prevented by a unique constraint.
+
+--- 0 row(s) selected.
+>>select * from m12283t1;
+
+--- 0 row(s) selected.
+>>
+>>--
+>>-- Mantis 12361 Custom function execution appears core
+>>--
+>>
+>>create table m12361t1 (a varchar(10));
+
+--- SQL operation complete.
+>>insert into m12361t1 values ('a'), ('b'), ('c');
+
+--- 3 row(s) inserted.
+>>
+>>create or replace function m12361f1(a varchar2(30000)) return int as //
+begin
+  return 1;
+end//;
+
+--- SQL operation complete.
+>>
+>>select m12361f1(a) from m12361t1;
+
+(EXPR)     
+-----------
+
+          1
+          1
+          1
+
+--- 3 row(s) selected.
+>>
+>>--
+>>-- Mantis 12166 Function still get the old data when the function was
+>>-- recreated in another session
+>>--
+>>
+>>create or replace function m12166f1() return int as //
+begin
+  return 1;
+end//;
+
+--- SQL operation complete.
+>>
+>>select m12166f1() from dual;
+
+(EXPR)     
+-----------
+
+          1
+
+--- 1 row(s) selected.
+>>
+>>sh sqlci -q "create or replace function t310sch.m12166f1() return int as //begin return 10; end//;";
+>>
+>>select m12166f1() from dual;
+
+(EXPR)     
+-----------
+
+         10
+
+--- 1 row(s) selected.
+>>
+>>--
+>>-- Mantis 12567 Fetch/Select no data cannot exit loop
+>>--
+>>
+>>create table m12567t1 (a int);
+
+--- SQL operation complete.
+>>create or replace procedure m12567p1() as //
+declare
+  va int;
+begin
+  loop
+    select a into va from m12567t1;
+  end loop;
+end//;
+
+--- SQL operation complete.
+>>
+>>call m12567p1();
+
+*** ERROR[11220] A Java method completed with an uncaught java.sql.SQLException with invalid SQLSTATE. The uncaught exception had a SQLCODE of 0 and SQLSTATE of . Details: java.sql.SQLException: select into statement not found data.
+
+--- SQL operation failed with errors.
+>>
+>>--
+>>-- Mantis 12782 funciton LENGTH cause NullPointerException
+>>--
+>>
+>>create or replace procedure m12782p1() as //
+begin
+  print char(null);
+  print instr('abc', null);
+  print instr(null, 'a');
+  print instr(null, null);
+  print instr('abcabcabc', 'c', 5, 2);
+  print instr('abcabcabc', 'c', null, 2);
+  print instr('abcabcabc', 'c', 5, null);
+  print instr('abcabcabc', 'c', null, null);
+  print instr('abcabcabc', 'c', '5', '2');
+  print len(null);
+  print length(null);
+  print lower(null);
+  print replace('abcde', 'b', null);
+  print replace('abcde', null, 'B');
+  print replace('abcde', null, null);
+  print replace(null, 'b', 'B');
+  print replace(null, null, 'B');
+  print replace(null, null, null);
+  print substr('abcde', 2, null);
+  print substr('abcde', null, 3);
+  print substr('abcde', null, null);
+  print substr(null, 2, 3);
+  print substr(null, null, 3);
+  print substr(null, null, null);
+  print substr('abcabcabc', '3', '5');
+  print substring('abcabcabc', '3', '5');
+  print substring('abcabcabc' from '3' for '5');
+  print trim(null);
+  print to_char(null);
+  print upper(null);
+end//;
+
+--- SQL operation complete.
+>>
+>>call m12782p1();
+
+(EXPR)               
+---------------------
+
+                    ?
+
+--- 1 row(s) selected.
+
+(EXPR)               
+---------------------
+
+                    ?
+
+--- 1 row(s) selected.
+
+(EXPR)               
+---------------------
+
+                    ?
+
+--- 1 row(s) selected.
+
+(EXPR)               
+---------------------
+
+                    ?
+
+--- 1 row(s) selected.
+
+(EXPR)
+------
+
+     9
+
+--- 1 row(s) selected.
+
+(EXPR)               
+---------------------
+
+                    ?
+
+--- 1 row(s) selected.
+
+(EXPR)               
+---------------------
+
+                    ?
+
+--- 1 row(s) selected.
+
+(EXPR)               
+---------------------
+
+                    ?
+
+--- 1 row(s) selected.
+
+(EXPR)
+------
+
+     9
+
+--- 1 row(s) selected.
+
+(EXPR)               
+---------------------
+
+                    ?
+
+--- 1 row(s) selected.
+
+(EXPR)               
+---------------------
+
+                    ?
+
+--- 1 row(s) selected.
+
+(EXPR)               
+---------------------
+
+                    ?
+
+--- 1 row(s) selected.
+
+(EXPR)
+------
+
+acde  
+
+--- 1 row(s) selected.
+
+(EXPR)
+------
+
+abcde 
+
+--- 1 row(s) selected.
+
+(EXPR)
+------
+
+abcde 
+
+--- 1 row(s) selected.
+
+(EXPR)               
+---------------------
+
+                    ?
+
+--- 1 row(s) selected.
+
+(EXPR)               
+---------------------
+
+                    ?
+
+--- 1 row(s) selected.
+
+(EXPR)               
+---------------------
+
+                    ?
+
+--- 1 row(s) selected.
+
+(EXPR)               
+---------------------
+
+                    ?
+
+--- 1 row(s) selected.
+
+(EXPR)               
+---------------------
+
+                    ?
+
+--- 1 row(s) selected.
+
+(EXPR)               
+---------------------
+
+                    ?
+
+--- 1 row(s) selected.
+
+(EXPR)               
+---------------------
+
+                    ?
+
+--- 1 row(s) selected.
+
+(EXPR)               
+---------------------
+
+                    ?
+
+--- 1 row(s) selected.
+
+(EXPR)               
+---------------------
+
+                    ?
+
+--- 1 row(s) selected.
+
+(EXPR)
+------
+
+cabca 
+
+--- 1 row(s) selected.
+
+(EXPR)
+------
+
+cabca 
+
+--- 1 row(s) selected.
+
+(EXPR)
+------
+
+cabca 
+
+--- 1 row(s) selected.
+
+(EXPR)               
+---------------------
+
+                    ?
+
+--- 1 row(s) selected.
+
+(EXPR)               
+---------------------
+
+                    ?
+
+--- 1 row(s) selected.
+
+(EXPR)               
+---------------------
+
+                    ?
+
+--- 1 row(s) selected.
+
+--- SQL operation complete.
+>>
+>>exec // instr('abcabcabc', 'c', '5a', '2'); //;
+
+*** ERROR[11220] A Java method completed with an uncaught java.sql.SQLException with invalid SQLSTATE. The uncaught exception had a SQLCODE of 0 and SQLSTATE of . Details: java.sql.SQLException: For input string: "5a"
+
+--- SQL operation failed with errors.
+>>exec // instr('abcabcabc', 'c', '5', '2a'); //;
+
+*** ERROR[11220] A Java method completed with an uncaught java.sql.SQLException with invalid SQLSTATE. The uncaught exception had a SQLCODE of 0 and SQLSTATE of . Details: java.sql.SQLException: For input string: "2a"
+
+--- SQL operation failed with errors.
+>>
+>>exec // substr('abcabcabc', '3a', '5'); //;
+
+*** ERROR[11220] A Java method completed with an uncaught java.sql.SQLException with invalid SQLSTATE. The uncaught exception had a SQLCODE of 0 and SQLSTATE of . Details: java.sql.SQLException: For input string: "3a"
+
+--- SQL operation failed with errors.
+>>exec // substr('abcabcabc', '3', '5a'); //;
+
+*** ERROR[11220] A Java method completed with an uncaught java.sql.SQLException with invalid SQLSTATE. The uncaught exception had a SQLCODE of 0 and SQLSTATE of . Details: java.sql.SQLException: For input string: "5a"
+
+--- SQL operation failed with errors.
+>>
+>>exec // substring('abcabcabc', '3a', '5'); //;
+
+*** ERROR[11220] A Java method completed with an uncaught java.sql.SQLException with invalid SQLSTATE. The uncaught exception had a SQLCODE of 0 and SQLSTATE of . Details: java.sql.SQLException: For input string: "3a"
+
+--- SQL operation failed with errors.
+>>exec // substring('abcabcabc', '3', '5a'); //;
+
+*** ERROR[11220] A Java method completed with an uncaught java.sql.SQLException with invalid SQLSTATE. The uncaught exception had a SQLCODE of 0 and SQLSTATE of . Details: java.sql.SQLException: For input string: "5a"
+
+--- SQL operation failed with errors.
+>>
+>>exec // substring('abcabcabc' from '3a' for '5'); //;
+
+*** ERROR[11220] A Java method completed with an uncaught java.sql.SQLException with invalid SQLSTATE. The uncaught exception had a SQLCODE of 0 and SQLSTATE of . Details: java.sql.SQLException: For input string: "3a"
+
+--- SQL operation failed with errors.
+>>exec // substring('abcabcabc' from '3' for '5a'); //;
+
+*** ERROR[11220] A Java method completed with an uncaught java.sql.SQLException with invalid SQLSTATE. The uncaught exception had a SQLCODE of 0 and SQLSTATE of . Details: java.sql.SQLException: For input string: "5a"
+
+--- SQL operation failed with errors.
+>>
+>>--
+>>-- Mantis 12963 call procedure with unsupported data type params will core dump
+>>--
+>>
+>>create or replace procedure m12963p1(i smallint, out h smallint) as //
+begin
+  set h = i;
+end//;
+
+--- SQL operation complete.
+>>
+>>call m12963p1(1, ?);
+
+*** ERROR[11223] The Language Manager encountered an internal error: Unknown parameter type at parameter position 2.
+
+--- SQL operation failed with errors.
+>>
+>>--
+>>-- Mantis 11112 REAL data type with cursor will cause ERROR[11220]
+>>--
+>>
+>>create table m11112(v_real real);
+
+--- SQL operation complete.
+>>insert into m11112 values(0.5);
+
+--- 1 row(s) inserted.
+>>create or replace procedure m11112p1() as //
+declare
+  var_real real;
+  cursor c1 is select * from m11112;
+begin
+  open c1;
+  fetch c1 into var_real;
+  print var_real;
+  close c1;
+end//;
+
+--- SQL operation complete.
+>>call m11112p1();
+
+VAR_REAL
+--------
+
+      .5
+
+--- 1 row(s) selected.
+
+--- SQL operation complete.
+>>
+>>--
+>>-- Mantis 10958 :new:col_nam in trigger can not cause an error when create trigger, and it will cause insert get error [3049]
+>>--
+>>
+>>drop table if exists t_10958;
+
+--- SQL operation complete.
+>>create table if not exists t_10958(c1 int);
+
+--- SQL operation complete.
+>>create or replace procedure p10958() as //
+begin
+  insert into t_10958 values (1);
+end//;
+
+--- SQL operation complete.
+>>call p10958();
+
+--- SQL operation complete.
+>>create or replace procedure p10958() as //
+begin
+  insert into t_10958 values (t.c1);
+end//;
+
+--- SQL operation complete.
+>>call p10958();
+
+*** ERROR[11220] A Java method completed with an uncaught java.sql.SQLException with invalid SQLSTATE. The uncaught exception had a SQLCODE of -4002 and SQLSTATE of 42000. Details: java.sql.SQLException: *** ERROR[4002] Column T.C1 is not found.  Table T not exposed.  Tables in scope: NONE.  Default schema: TRAFODION.T310SCH.
+
+*** ERROR[11224] The Java virtual machine raised an exception. Details: java.sql.SQLException: *** ERROR[8822] The statement was not prepared.
+
+--- SQL operation failed with errors.
+>>create or replace procedure p10958() as //
+begin
+  insert into t_10958 values (:t.c1);
+end//;
+
+--- SQL operation complete.
+>>call p10958();
+
+*** ERROR[11220] A Java method completed with an uncaught java.sql.SQLException with invalid SQLSTATE. The uncaught exception had a SQLCODE of -4002 and SQLSTATE of 42000. Details: java.sql.SQLException: *** ERROR[4002] Column T.C1 is not found.  Table T not exposed.  Tables in scope: NONE.  Default schema: TRAFODION.T310SCH.
+
+*** ERROR[11224] The Java virtual machine raised an exception. Details: java.sql.SQLException: *** ERROR[8822] The statement was not prepared.
+
+--- SQL operation failed with errors.
+>>drop table if exists t_10958;
+
+--- SQL operation complete.
+>>drop procedure p10958;
+
+--- SQL operation complete.
+>>
+>>--
+>>-- Mantis 12233 Stored Procedures Write File Content in Chinese with Chaotic Code
+>>--
+>>
+>>create table m12233t1 (a varchar(50) character set utf8);
+
+--- SQL operation complete.
+>>create or replace procedure m12233p1() as //
+declare
+  s1 varchar(50);
+  s2 varchar(50);
+  s3 varchar(50);
+  f1 UTL_FILE.FILE_TYPE;
+  f2 UTL_FILE.FILE_TYPE;
+begin
+  f1 := UTL_FILE.FOPEN('/tmp', 'm12233file.txt', 'w');
+  UTL_FILE.PUT_LINE(f1, 'Mantis 12233 测试字符串1!');
+  UTL_FILE.PUT_LINE(f1, 'Mantis 12233 测试字符串2!');
+  UTL_FILE.PUT_LINE(f1, 'Mantis 12233 测试字符串3!');
+  UTL_FILE.FCLOSE(f1);
+  f2 := UTL_FILE.FOPEN('/tmp', 'm12233file.txt', 'r');
+  UTL_FILE.GET_LINE(f2, s1, 50);
+  insert into m12233t1 values (s1);
+  UTL_FILE.GET_LINE(f2, s2, 50);
+  insert into m12233t1 values (s2);
+  UTL_FILE.GET_LINE(f2, s3, 50);
+  insert into m12233t1 values (s3);
+end//;
+
+--- SQL operation complete.
+>>
+>>call m12233p1();
+
+--- SQL operation complete.
+>>select * from m12233t1;
+
+A
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Mantis 12233 测试字符串1!                                                                                                                                                                          
+Mantis 12233 测试字符串2!                                                                                                                                                                          
+Mantis 12233 测试字符串3!                                                                                                                                                                          
+
+--- 3 row(s) selected.
+>>
+>>--
+>>-- Mantis 12834 SPSQL length () returns incorrect result when the column type is char/nchar/national char
+>>--
+>>
+>>create table m12834t1 (c1 char(10) character set iso88591,
++>                       c2 char(10) character set utf8,
++>                       c3 char(10) character set ucs2,
++>                       c4 varchar(10) character set iso88591,
++>                       c5 varchar(10) character set utf8,
++>                       c6 varchar(10) character set ucs2);
+
+--- SQL operation complete.
+>>
+>>insert into m12834t1 values ('Esgyn', '易鲸捷', '易鲸捷', 'Esgyn', '易鲸捷', '易鲸捷');
+
+--- 1 row(s) inserted.
+>>
+>>select length(c1), length(c2), length(c3),
++>       length(c4), length(c5), length(c6) from m12834t1;
+
+(EXPR)      (EXPR)      (EXPR)      (EXPR)      (EXPR)      (EXPR)    
+----------  ----------  ----------  ----------  ----------  ----------
+
+        10          10          10           5           3           3
+
+--- 1 row(s) selected.
+>>
+>>create or replace procedure m12834p1() as //
+begin
+  for item in select * from m12834t1 loop
+    print(length(item.c1));
+    print(length(item.c2));
+    print(length(item.c3));
+    print(length(item.c4));
+    print(length(item.c5));
+    print(length(item.c6));
+  end loop;
+end//;
+
+--- SQL operation complete.
+>>
+>>call m12834p1();
+
+(EXPR)
+------
+
+    10
+
+--- 1 row(s) selected.
+
+(EXPR)
+------
+
+    10
+
+--- 1 row(s) selected.
+
+(EXPR)
+------
+
+    10
+
+--- 1 row(s) selected.
+
+(EXPR)
+------
+
+     5
+
+--- 1 row(s) selected.
+
+(EXPR)
+------
+
+     3
+
+--- 1 row(s) selected.
+
+(EXPR)
+------
+
+     3
+
+--- 1 row(s) selected.
+
+--- SQL operation complete.
+>>
+>>create table test_ly(a int, b int);
+
+--- SQL operation complete.
+>>insert into test_ly values(1,1);
+
+--- 1 row(s) inserted.
+>>create or replace procedure m14921()
++>as
++>//
+begin
+delete from test_ly a where a.b=1;
+end;//;
+
+--- SQL operation complete.
+>>
+>>create or replace procedure m14921_1()
++>as
++>//
+begin
+select * from test_ly a where a.b=1;
+end;//;
+
+--- SQL operation complete.
+>>
+>>call m14921_1();
+
+A            B          
+-----------  -----------
+
+          1            1
+
+--- 1 row(s) selected.
+
+--- SQL operation complete.
+>>call m14921();
+
+--- SQL operation complete.
+>>
+>>--
+>>-- Mantis 14922 存储过程变量赋值转换
+>>--
+>>
+>>create or replace procedure m14922p1() as //
+declare
+ a int;
+ b varchar(8);
+begin
+ a = '3';
+ b = 3;
+
+ print a;
+ print b;
+
+ if a = b then
+ print 'pass';
+ else
+ print 'fail';
+ end if;
+
+ if b = a then
+ print 'pass';
+ else
+ print 'fail';
+ end if;
+end//;
+
+--- SQL operation complete.
+>>
+>>call m14922p1();
+
+A
+----------
+
+ 3
+
+--- 1 row(s) selected.
+
+B
+-
+
+3
+
+--- 1 row(s) selected.
+
+(EXPR)
+----------
+
+pass
+
+--- 1 row(s) selected.
+
+(EXPR)
+----------
+
+pass
+
+--- 1 row(s) selected.
+
+--- SQL operation complete.
+>>
+>>--
+>>-- Mantis 15890 字符与整数使用> , >=比较符时返回结果不正确
+>>-- Mantis 15899 字符与小数使用>, >=, <, <= 比较符时导致call procedure 返回Details: java.sql.SQLException错误
+>>--
+>>
+>>create or replace procedure m15890p1() as //
+declare
+  a int;
+begin
+  print '11.23' + 20.3;
+  print 20 + '11.23';
+  print ' 11.23 ' + 20;
+  a = '11.23' + 20;
+  print a;
+  a = 20 + ' 11.23 ';
+  print a;
+  a = 20.8 + '11.23 ';
+  print a;
+  a = '11.23' + 20.8;
+  print a;
+
+  if ' 11.0 ' = 11 then
+    print 'pass';
+  else
+    print 'fail';
+  end if;
+
+  if 11 = ' 11.00 ' then
+    print 'pass';
+  else
+    print 'fail';
+  end if;
+
+  if 11.0 = ' 11.00 ' then
+    print 'pass';
+  else
+    print 'fail';
+  end if;
+
+  if 10.1 > '10.00' then
+    print('pass');
+  else
+    print('fail');
+  end if;
+
+  if 10.0 < '10.01' then
+    print('pass');
+  else
+    print('fail');
+  end if;
+
+  if 10 < '10.01' then
+    print('pass');
+  else
+    print('fail');
+  end if;
+
+  if 10 <= '10' then
+    print('pass');
+  else
+    print('fail');
+  end if;
+
+  if 10 <= '10.00' then
+    print('pass');
+  else
+    print('fail');
+  end if;
+
+  if '10.1' > 10 then
+    print('pass');
+  else
+    print('fail');
+  end if;
+
+  if '11' > 10 then
+    print('pass');
+  else
+    print('fail');
+  end if;
+
+  if '11' >= 10 then
+    print('pass');
+  else
+    print('fail');
+  end if;
+
+  if '11' >= 11 then
+    print('pass');
+  else
+    print('fail');
+  end if;
+
+  if 11 > '10' then
+    print('pass');
+  else
+    print('fail');
+  end if;
+
+  if 11 >= '10' then
+    print('pass');
+  else
+    print('fail');
+  end if;
+
+  if 11 >= '11' then
+    print('pass');
+  else
+    print('fail');
+  end if;
+end//;
+
+--- SQL operation complete.
+>>
+>>call m15890p1();
+
+(EXPR) 
+-------
+
+  31.53
+
+--- 1 row(s) selected.
+
+(EXPR) 
+-------
+
+  31.23
+
+--- 1 row(s) selected.
+
+(EXPR) 
+-------
+
+  31.23
+
+--- 1 row(s) selected.
+
+A     
+------
+
+    31
+
+--- 1 row(s) selected.
+
+A     
+------
+
+    31
+
+--- 1 row(s) selected.
+
+A     
+------
+
+    32
+
+--- 1 row(s) selected.
+
+A     
+------
+
+    32
+
+--- 1 row(s) selected.
+
+(EXPR)
+------
+
+pass  
+
+--- 1 row(s) selected.
+
+(EXPR)
+------
+
+pass  
+
+--- 1 row(s) selected.
+
+(EXPR)
+------
+
+pass  
+
+--- 1 row(s) selected.
+
+(EXPR)
+------
+
+pass  
+
+--- 1 row(s) selected.
+
+(EXPR)
+------
+
+pass  
+
+--- 1 row(s) selected.
+
+(EXPR)
+------
+
+pass  
+
+--- 1 row(s) selected.
+
+(EXPR)
+------
+
+pass  
+
+--- 1 row(s) selected.
+
+(EXPR)
+------
+
+pass  
+
+--- 1 row(s) selected.
+
+(EXPR)
+------
+
+pass  
+
+--- 1 row(s) selected.
+
+(EXPR)
+------
+
+pass  
+
+--- 1 row(s) selected.
+
+(EXPR)
+------
+
+pass  
+
+--- 1 row(s) selected.
+
+(EXPR)
+------
+
+pass  
+
+--- 1 row(s) selected.
+
+(EXPR)
+------
+
+pass  
+
+--- 1 row(s) selected.
+
+(EXPR)
+------
+
+pass  
+
+--- 1 row(s) selected.
+
+(EXPR)
+------
+
+pass  
+
+--- 1 row(s) selected.
+
+--- SQL operation complete.
+>>
+>>--
+>>-- Mantis 15905 字符与整数使用<, <=比较符, 条件不成立时返回结果不正确
+>>--
+>>
+>>create or replace procedure m15905p1() as //
+begin
+  if 'a' > 11 then
+    null;
+  end if;
+end//;
+
+--- SQL operation complete.
+>>
+>>-- ERROR 11220 number format error
+>>call m15905p1();
+
+*** ERROR[11220] A Java method completed with an uncaught java.sql.SQLException with invalid SQLSTATE. The uncaught exception had a SQLCODE of 0 and SQLSTATE of . Details: java.sql.SQLException: number format error
+
+--- SQL operation failed with errors.
+>>
+>>--
+>>-- Mantis 16092 spsql 变量名使用双引号，执行spsql时返回Details: java.sql.SQLException: at most one declaration for 'abc' is permitted.错误
+>>--
+>>
+>>create or replace procedure m16092p1() as //
+declare
+   abc int;
+   "abc" int;
+begin
+   abc = 1;
+   "abc" = 2;
+   
+   print('abc = '|| abc);
+   print('"abc" = '||"abc");
+end//;
+
+--- SQL operation complete.
+>>
+>>call m16092p1();
+
+(EXPR) 
+-------
+
+abc = 1
+
+--- 1 row(s) selected.
+
+(EXPR)   
+---------
+
+"abc" = 2
+
+--- 1 row(s) selected.
+
+--- SQL operation complete.
+>>
+>>--
+>>-- Mantis 16103 [declare] 定义变量指定NOT NULL 无效， 仍然可以给变量赋值为NULL
+>>--
+>>
+>>create or replace procedure m16103p1() as //             
+declare                                                    
+  count1 smallint not null := 3;                           
+begin
+   declare continue handler for sqlexception               
+   begin
+     GET DIAGNOSTICS EXCEPTION 1 errmsg = MESSAGE_TEXT;
+     print 'Error: ' + errmsg;
+   end;
+
+   count1 = null;
+   count1 := null;
+   set count1 = null;
+   select null into count1 from dual;
+   declare count2 smallint not null;
+end//;
+
+--- SQL operation complete.                                
+>>                                                         
+>>call m16103p1();                                         
+
+(EXPR)                              
+------------------------------------
+
+Error: cannot assign NULL value to NOT NULL variable 'COUNT1'
+
+--- 1 row(s) selected.                                     
+
+(EXPR)                              
+------------------------------------
+
+Error: cannot assign NULL value to NOT NULL variable 'COUNT1'
+
+--- 1 row(s) selected.                                     
+
+(EXPR)                              
+------------------------------------
+
+Error: cannot assign NULL value to NOT NULL variable 'COUNT1'
+
+--- 1 row(s) selected.                                     
+
+(EXPR)                              
+------------------------------------
+
+Error: cannot assign NULL value to NOT NULL variable 'COUNT1'
+
+--- 1 row(s) selected.                                     
+
+(EXPR)                              
+------------------------------------
+
+Error: cannot assign NULL value to NOT NULL variable 'count2'
+
+--- 1 row(s) selected.                                     
+
+--- SQL operation complete.                                
+>>
+>>--
+>>-- Mantis 16212 存储过程执行整数数学运算,会出现小数点
+>>--
+>>
+>>create or replace PROCEDURE m16212p1() as //
+declare
+  v_a int;
+  v_b varchar(20);
+begin
+  v_a:=20;
+  select to_number(nvl(cast(v_a as varchar(20)),'0'))-1 into v_b from dual;
+  print v_b;
+end//;
+
+--- SQL operation complete.
+>>
+>>call m16212p1();
+
+V_B
+---
+
+19 
+
+--- 1 row(s) selected.
+
+--- SQL operation complete.
+>>
+>>--
+>>-- Mantis 16741 [RegressionIssue]使用情况时，语句赋值，当条件表达式中常量与然后常量而不是同一类型且当条件不成立时，返回java.sql.SQLException：数字格式错误错误
+>>--
+>>
+>>create or replace PROCEDURE m16741p1() as //
+declare
+  v1 varchar(20);
+  v2 int;
+begin
+   v1 = case 3
+           when 0 then 'failed'
+           when 1 then 'failed'
+           else 'correct'
+         end ;
+   print v1;
+
+   v2 = case 'a'
+           When 'b' then 1
+           when 'c' then 2
+           else 3
+         end ;
+   print v2;
+end//;
+
+--- SQL operation complete.
+>>
+>>call m16741p1();
+
+V1     
+-------
+
+correct
+
+--- 1 row(s) selected.
+
+V2    
+------
+
+     3
+
+--- 1 row(s) selected.
+
+--- SQL operation complete.
+>>
+>>--
+>>-- Mantis 13546 The application cannot read the DDL of the changed stored procedure
+>>--
+>>
+>>create or replace procedure m13546p1() as //
+begin
+  print 'Hello';
+end//;
+
+--- SQL operation complete.
+>>
+>>create or replace package body m13546pkg as //
+  procedure p1
+  begin
+    print 'Hello';
+  end;
+
+  procedure p2
+  begin
+    print 'World';
+  end;
+end//;
+
+--- SQL operation complete.
+>>
+>>call m13546p1();
+
+(EXPR)
+------
+
+Hello
+
+--- 1 row(s) selected.
+
+--- SQL operation complete.
+>>call m13546pkg.p1();
+
+(EXPR)
+------
+
+Hello
+
+--- 1 row(s) selected.
+
+--- SQL operation complete.
+>>
+>>sh sqlci -i "TEST310(replace1)";
+>>
+>>call m13546p1();
+
+(EXPR)
+------
+
+Hi    
+
+--- 1 row(s) selected.
+
+--- SQL operation complete.
+>>call m13546pkg.p1();
+
+(EXPR)
+------
+
+Hello 
+
+--- 1 row(s) selected.
+
+--- SQL operation complete.
+>>call m13546pkg.p2();
+
+(EXPR)
+------
+
+World 
+
+--- 1 row(s) selected.
+
+--- SQL operation complete.
+>>
+>>sh sqlci -i "TEST310(replace2)";
+>>
+>>-- ERROR 4302
+>>call m13546p1();
+
+*** ERROR[4302] Procedure TRAFODION.T310SCH.M13546P1 expects 1 parameters but was called with 0 parameters.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>call m13546p1('Esgyn');
+
+(EXPR)   
+---------
+
+Hi, Esgyn
+
+--- 1 row(s) selected.
+
+--- SQL operation complete.
+>>call m13546pkg.p1();
+
+(EXPR)
+------
+
+Hello 
+
+--- 1 row(s) selected.
+
+--- SQL operation complete.
+>>call m13546pkg.p2();
+
+(EXPR)
+------
+
+World 
+
+--- 1 row(s) selected.
+
+--- SQL operation complete.
+>>
+>>sh sqlci -i "TEST310(replace3)";
+>>
+>>call m13546p1('Esgyn');
+
+(EXPR)   
+---------
+
+Hi, Esgyn
+
+--- 1 row(s) selected.
+
+--- SQL operation complete.
+>>call m13546pkg.p1();
+
+(EXPR)
+------
+
+Hi    
+
+--- 1 row(s) selected.
+
+--- SQL operation complete.
+>>call m13546pkg.p2();
+
+(EXPR)
+------
+
+There 
+
+--- 1 row(s) selected.
+
+--- SQL operation complete.
+>>
+>>sh sqlci -i "TEST310(replace4)";
+>>
+>>call m13546p1('Esgyn');
+
+(EXPR)   
+---------
+
+Hi, Esgyn
+
+--- 1 row(s) selected.
+
+--- SQL operation complete.
+>>-- ERROR 4302
+>>call m13546pkg.p1();
+
+*** ERROR[4302] Procedure TRAFODION.T310SCH.M13546PKG.P1 expects 1 parameters but was called with 0 parameters.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>call m13546pkg.p1('Esgyn');
+
+(EXPR)   
+---------
+
+Hi, Esgyn
+
+--- 1 row(s) selected.
+
+--- SQL operation complete.
+>>call m13546pkg.p2();
+
+(EXPR)
+------
+
+There 
+
+--- 1 row(s) selected.
+
+--- SQL operation complete.
+>>
+>>
+>>log;

@@ -1,0 +1,6 @@
+*.log
+*.log.old
+*.o
+*.jar
+trafodion*.tgz
+sqf/sql/scripts/DUMPENVS

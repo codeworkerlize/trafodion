@@ -1,0 +1,1476 @@
+>>obey TEST200(setup);
+>>create table t200t1(a int, b int);
+
+--- SQL operation complete.
+>>create table t200t2(a int primary key, b int);
+
+--- SQL operation complete.
+>>create table t200t3(a int primary key, b int);
+
+--- SQL operation complete.
+>>insert into t200t3 values(1,1);
+
+--- 1 row(s) inserted.
+>>insert into t200t3 values(2,2);
+
+--- 1 row(s) inserted.
+>>
+>>obey TEST200(test);
+>>-- test select and select
+>>obey TEST200(truncatetable);
+>>truncate table t200t1;
+
+--- SQL operation complete.
+>>insert into t200t1 values(1,1);
+
+--- 1 row(s) inserted.
+>>
+>>begin work;
+
+--- SQL operation complete.
+>>select * from t200t1;
+
+A            B          
+-----------  -----------
+
+          1            1
+
+--- 1 row(s) selected.
+>>sh sqlci -i TEST200\(selecttable\) >> LOG200;
+EsgynDB Advanced Conversational Interface 2.7.0
+Copyright (c) 2015-2019 Esgyn Corporation
+>>?section selecttable
+>>begin work;
+
+--- SQL operation complete.
+>>select * from t200t1;
+
+A            B          
+-----------  -----------
+
+          1            1
+
+--- 1 row(s) selected.
+>>commit work;
+
+--- SQL operation complete.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>commit;
+
+--- SQL operation complete.
+>>
+>>-- test select and update
+>>obey TEST200(truncatetable);
+>>truncate table t200t1;
+
+--- SQL operation complete.
+>>insert into t200t1 values(1,1);
+
+--- 1 row(s) inserted.
+>>
+>>begin work;
+
+--- SQL operation complete.
+>>select * from t200t1;
+
+A            B          
+-----------  -----------
+
+          1            1
+
+--- 1 row(s) selected.
+>>sh sqlci -i TEST200\(updatetable\) >> LOG200;
+EsgynDB Advanced Conversational Interface 2.7.0
+Copyright (c) 2015-2019 Esgyn Corporation
+>>?section updatetable
+>>begin work;
+
+--- SQL operation complete.
+>>update t200t1 set a = 2, b = 2;
+
+--- 1 row(s) updated.
+>>commit work;
+
+--- SQL operation complete.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>commit work;
+
+--- SQL operation complete.
+>>
+>>-- test update and select
+>>obey TEST200(truncatetable);
+>>truncate table t200t1;
+
+--- SQL operation complete.
+>>insert into t200t1 values(1,1);
+
+--- 1 row(s) inserted.
+>>
+>>begin work;
+
+--- SQL operation complete.
+>>update t200t1 set a = 2, b = 2;
+
+--- 1 row(s) updated.
+>>sh sqlci -i TEST200\(selecttable\) >> LOG200;
+EsgynDB Advanced Conversational Interface 2.7.0
+Copyright (c) 2015-2019 Esgyn Corporation
+>>?section selecttable
+>>begin work;
+
+--- SQL operation complete.
+>>select * from t200t1;
+
+A            B          
+-----------  -----------
+
+          1            1
+
+--- 1 row(s) selected.
+>>commit work;
+
+--- SQL operation complete.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>commit work;
+
+--- SQL operation complete.
+>>
+>>-- test update and update
+>>obey TEST200(truncatetable);
+>>truncate table t200t1;
+
+--- SQL operation complete.
+>>insert into t200t1 values(1,1);
+
+--- 1 row(s) inserted.
+>>
+>>begin work;
+
+--- SQL operation complete.
+>>update t200t1 set a = 2, b = 2;
+
+--- 1 row(s) updated.
+>>sh sqlci -i TEST200\(updatetable\) >> LOG200;
+EsgynDB Advanced Conversational Interface 2.7.0
+Copyright (c) 2015-2019 Esgyn Corporation
+>>?section updatetable
+>>begin work;
+
+--- SQL operation complete.
+>>update t200t1 set a = 2, b = 2;
+
+*** ERROR[30052] ROW LEVEL LOCK TIMEOUT ERROR
+
+*** ERROR[8839] Transaction was aborted.
+
+--- 0 row(s) updated.
+>>commit work;
+
+--- SQL operation complete.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>commit work;
+
+--- SQL operation complete.
+>>
+>>-- test select and select ... for update
+>>obey TEST200(truncatetable);
+>>truncate table t200t1;
+
+--- SQL operation complete.
+>>insert into t200t1 values(1,1);
+
+--- 1 row(s) inserted.
+>>
+>>begin work;
+
+--- SQL operation complete.
+>>select * from t200t1;
+
+A            B          
+-----------  -----------
+
+          1            1
+
+--- 1 row(s) selected.
+>>sh sqlci -i TEST200\(selectforupdate\) >> LOG200;
+EsgynDB Advanced Conversational Interface 2.7.0
+Copyright (c) 2015-2019 Esgyn Corporation
+>>?section selectforupdate
+>>begin work;
+
+--- SQL operation complete.
+>>select * from t200t1 for update;
+
+*** ERROR[30052] ROW LEVEL LOCK TIMEOUT ERROR
+
+*** ERROR[8839] Transaction was aborted.
+
+--- 0 row(s) selected.
+>>commit work;
+
+--- SQL operation complete.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>commit work;
+
+--- SQL operation complete.
+>>
+>>-- test select ... for update and select
+>>obey TEST200(truncatetable);
+>>truncate table t200t1;
+
+--- SQL operation complete.
+>>insert into t200t1 values(1,1);
+
+--- 1 row(s) inserted.
+>>
+>>begin work;
+
+--- SQL operation complete.
+>>select * from t200t1 for update;
+
+A            B          
+-----------  -----------
+
+          1            1
+
+--- 1 row(s) selected.
+>>sh sqlci -i TEST200\(selecttable\) >> LOG200;
+EsgynDB Advanced Conversational Interface 2.7.0
+Copyright (c) 2015-2019 Esgyn Corporation
+>>?section selecttable
+>>begin work;
+
+--- SQL operation complete.
+>>select * from t200t1;
+
+*** ERROR[30052] ROW LEVEL LOCK TIMEOUT ERROR
+
+*** ERROR[8839] Transaction was aborted.
+
+--- 0 row(s) selected.
+>>commit work;
+
+--- SQL operation complete.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>commit work;
+
+--- SQL operation complete.
+>>
+>>-- test select ... for update and select ... for update
+>>obey TEST200(truncatetable);
+>>truncate table t200t1;
+
+--- SQL operation complete.
+>>insert into t200t1 values(1,1);
+
+--- 1 row(s) inserted.
+>>
+>>begin work;
+
+--- SQL operation complete.
+>>select * from t200t1 for update;
+
+A            B          
+-----------  -----------
+
+          1            1
+
+--- 1 row(s) selected.
+>>sh sqlci -i TEST200\(selectforupdate\) >> LOG200;
+EsgynDB Advanced Conversational Interface 2.7.0
+Copyright (c) 2015-2019 Esgyn Corporation
+>>?section selectforupdate
+>>begin work;
+
+--- SQL operation complete.
+>>select * from t200t1 for update;
+
+*** ERROR[30052] ROW LEVEL LOCK TIMEOUT ERROR
+
+*** ERROR[8839] Transaction was aborted.
+
+--- 0 row(s) selected.
+>>commit work;
+
+--- SQL operation complete.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>commit work;
+
+--- SQL operation complete.
+>>
+>>-- test update and select ... for update
+>>obey TEST200(truncatetable);
+>>truncate table t200t1;
+
+--- SQL operation complete.
+>>insert into t200t1 values(1,1);
+
+--- 1 row(s) inserted.
+>>
+>>begin work;
+
+--- SQL operation complete.
+>>update t200t1 set a = 2, b = 2;
+
+--- 1 row(s) updated.
+>>sh sqlci -i TEST200\(selectforupdate\) >> LOG200;
+EsgynDB Advanced Conversational Interface 2.7.0
+Copyright (c) 2015-2019 Esgyn Corporation
+>>?section selectforupdate
+>>begin work;
+
+--- SQL operation complete.
+>>select * from t200t1 for update;
+
+*** ERROR[30052] ROW LEVEL LOCK TIMEOUT ERROR
+
+*** ERROR[8839] Transaction was aborted.
+
+--- 0 row(s) selected.
+>>commit work;
+
+--- SQL operation complete.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>commit work;
+
+--- SQL operation complete.
+>>
+>>-- test select ... for update and update
+>>obey TEST200(truncatetable);
+>>truncate table t200t1;
+
+--- SQL operation complete.
+>>insert into t200t1 values(1,1);
+
+--- 1 row(s) inserted.
+>>
+>>begin work;
+
+--- SQL operation complete.
+>>select * from t200t1 for update;
+
+A            B          
+-----------  -----------
+
+          1            1
+
+--- 1 row(s) selected.
+>>sh sqlci -i TEST200\(updatetable\) >> LOG200;
+EsgynDB Advanced Conversational Interface 2.7.0
+Copyright (c) 2015-2019 Esgyn Corporation
+>>?section updatetable
+>>begin work;
+
+--- SQL operation complete.
+>>update t200t1 set a = 2, b = 2;
+
+*** ERROR[30052] ROW LEVEL LOCK TIMEOUT ERROR
+
+*** ERROR[8839] Transaction was aborted.
+
+--- 0 row(s) updated.
+>>commit work;
+
+--- SQL operation complete.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>commit work;
+
+--- SQL operation complete.
+>>
+>>obey TEST200(containwherecondition);
+>>-- test table contain primary key and select statement contain where condition
+>>-- test select and select
+>>obey TEST200(truncatetablet2);
+>>truncate table t200t2;
+
+--- SQL operation complete.
+>>insert into t200t2 values(1,1);
+
+--- 1 row(s) inserted.
+>>insert into t200t2 values(2,2);
+
+--- 1 row(s) inserted.
+>>
+>>begin work;
+
+--- SQL operation complete.
+>>select * from t200t2 where a = 1;
+
+A            B          
+-----------  -----------
+
+          1            1
+
+--- 1 row(s) selected.
+>>sh sqlci -i TEST200\(selecttablet2\) >> LOG200;
+EsgynDB Advanced Conversational Interface 2.7.0
+Copyright (c) 2015-2019 Esgyn Corporation
+>>?section selecttablet2
+>>begin work;
+
+--- SQL operation complete.
+>>select * from t200t2 where a = 1;
+
+A            B          
+-----------  -----------
+
+          1            1
+
+--- 1 row(s) selected.
+>>commit work;
+
+--- SQL operation complete.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>commit;
+
+--- SQL operation complete.
+>>
+>>-- test select and update
+>>obey TEST200(truncatetablet2);
+>>truncate table t200t2;
+
+--- SQL operation complete.
+>>insert into t200t2 values(1,1);
+
+--- 1 row(s) inserted.
+>>insert into t200t2 values(2,2);
+
+--- 1 row(s) inserted.
+>>
+>>begin work;
+
+--- SQL operation complete.
+>>select * from t200t2 where a = 1;
+
+A            B          
+-----------  -----------
+
+          1            1
+
+--- 1 row(s) selected.
+>>sh sqlci -i TEST200\(updatetablet2\) >> LOG200;
+EsgynDB Advanced Conversational Interface 2.7.0
+Copyright (c) 2015-2019 Esgyn Corporation
+>>?section updatetablet2
+>>begin work;
+
+--- SQL operation complete.
+>>update t200t2 set a = 3, b = 3 where a = 1;
+
+--- 1 row(s) updated.
+>>commit work;
+
+--- SQL operation complete.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>commit work;
+
+--- SQL operation complete.
+>>
+>>-- test update and select
+>>obey TEST200(truncatetablet2);
+>>truncate table t200t2;
+
+--- SQL operation complete.
+>>insert into t200t2 values(1,1);
+
+--- 1 row(s) inserted.
+>>insert into t200t2 values(2,2);
+
+--- 1 row(s) inserted.
+>>
+>>begin work;
+
+--- SQL operation complete.
+>>update t200t2 set a = 3, b = 3 where a = 1;
+
+--- 1 row(s) updated.
+>>sh sqlci -i TEST200\(selecttablet2\) >> LOG200;
+EsgynDB Advanced Conversational Interface 2.7.0
+Copyright (c) 2015-2019 Esgyn Corporation
+>>?section selecttablet2
+>>begin work;
+
+--- SQL operation complete.
+>>select * from t200t2 where a = 1;
+
+A            B          
+-----------  -----------
+
+          1            1
+
+--- 1 row(s) selected.
+>>commit work;
+
+--- SQL operation complete.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>commit work;
+
+--- SQL operation complete.
+>>
+>>-- test update and update
+>>obey TEST200(truncatetablet2);
+>>truncate table t200t2;
+
+--- SQL operation complete.
+>>insert into t200t2 values(1,1);
+
+--- 1 row(s) inserted.
+>>insert into t200t2 values(2,2);
+
+--- 1 row(s) inserted.
+>>
+>>begin work;
+
+--- SQL operation complete.
+>>update t200t2 set a = 3, b = 3 where a = 1;
+
+--- 1 row(s) updated.
+>>sh sqlci -i TEST200\(updatetablet2\) >> LOG200;
+EsgynDB Advanced Conversational Interface 2.7.0
+Copyright (c) 2015-2019 Esgyn Corporation
+>>?section updatetablet2
+>>begin work;
+
+--- SQL operation complete.
+>>update t200t2 set a = 3, b = 3 where a = 1;
+
+*** ERROR[30052] ROW LEVEL LOCK TIMEOUT ERROR
+
+*** ERROR[8839] Transaction was aborted.
+
+--- 0 row(s) updated.
+>>commit work;
+
+--- SQL operation complete.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>commit work;
+
+--- SQL operation complete.
+>>
+>>-- test select and select ... for update
+>>obey TEST200(truncatetablet2);
+>>truncate table t200t2;
+
+--- SQL operation complete.
+>>insert into t200t2 values(1,1);
+
+--- 1 row(s) inserted.
+>>insert into t200t2 values(2,2);
+
+--- 1 row(s) inserted.
+>>
+>>begin work;
+
+--- SQL operation complete.
+>>select * from t200t2 where a = 1;
+
+A            B          
+-----------  -----------
+
+          1            1
+
+--- 1 row(s) selected.
+>>sh sqlci -i TEST200\(selectforupdatet2\) >> LOG200;
+EsgynDB Advanced Conversational Interface 2.7.0
+Copyright (c) 2015-2019 Esgyn Corporation
+>>?section selectforupdatet2
+>>begin work;
+
+--- SQL operation complete.
+>>select * from t200t2 where a = 1 for update;
+
+A            B          
+-----------  -----------
+
+          1            1
+
+--- 1 row(s) selected.
+>>commit work;
+
+--- SQL operation complete.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>commit work;
+
+--- SQL operation complete.
+>>
+>>-- test select ... for update and select
+>>obey TEST200(truncatetablet2);
+>>truncate table t200t2;
+
+--- SQL operation complete.
+>>insert into t200t2 values(1,1);
+
+--- 1 row(s) inserted.
+>>insert into t200t2 values(2,2);
+
+--- 1 row(s) inserted.
+>>
+>>begin work;
+
+--- SQL operation complete.
+>>select * from t200t2 where a = 1 for update;
+
+A            B          
+-----------  -----------
+
+          1            1
+
+--- 1 row(s) selected.
+>>sh sqlci -i TEST200\(selecttablet2\) >> LOG200;
+EsgynDB Advanced Conversational Interface 2.7.0
+Copyright (c) 2015-2019 Esgyn Corporation
+>>?section selecttablet2
+>>begin work;
+
+--- SQL operation complete.
+>>select * from t200t2 where a = 1;
+
+A            B          
+-----------  -----------
+
+          1            1
+
+--- 1 row(s) selected.
+>>commit work;
+
+--- SQL operation complete.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>commit work;
+
+--- SQL operation complete.
+>>
+>>-- test select ... for update and select ... for update
+>>obey TEST200(truncatetablet2);
+>>truncate table t200t2;
+
+--- SQL operation complete.
+>>insert into t200t2 values(1,1);
+
+--- 1 row(s) inserted.
+>>insert into t200t2 values(2,2);
+
+--- 1 row(s) inserted.
+>>
+>>begin work;
+
+--- SQL operation complete.
+>>select * from t200t2 where a = 1 for update;
+
+A            B          
+-----------  -----------
+
+          1            1
+
+--- 1 row(s) selected.
+>>sh sqlci -i TEST200\(selectforupdatet2\) >> LOG200;
+EsgynDB Advanced Conversational Interface 2.7.0
+Copyright (c) 2015-2019 Esgyn Corporation
+>>?section selectforupdatet2
+>>begin work;
+
+--- SQL operation complete.
+>>select * from t200t2 where a = 1 for update;
+
+*** ERROR[30052] ROW LEVEL LOCK TIMEOUT ERROR
+
+*** ERROR[8839] Transaction was aborted.
+
+--- 0 row(s) selected.
+>>commit work;
+
+--- SQL operation complete.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>commit work;
+
+--- SQL operation complete.
+>>
+>>-- test update and select ... for update
+>>obey TEST200(truncatetablet2);
+>>truncate table t200t2;
+
+--- SQL operation complete.
+>>insert into t200t2 values(1,1);
+
+--- 1 row(s) inserted.
+>>insert into t200t2 values(2,2);
+
+--- 1 row(s) inserted.
+>>
+>>begin work;
+
+--- SQL operation complete.
+>>update t200t2 set a = 3, b = 3 where a = 1;
+
+--- 1 row(s) updated.
+>>sh sqlci -i TEST200\(selectforupdatet2\) >> LOG200;
+EsgynDB Advanced Conversational Interface 2.7.0
+Copyright (c) 2015-2019 Esgyn Corporation
+>>?section selectforupdatet2
+>>begin work;
+
+--- SQL operation complete.
+>>select * from t200t2 where a = 1 for update;
+
+*** ERROR[30052] ROW LEVEL LOCK TIMEOUT ERROR
+
+*** ERROR[8839] Transaction was aborted.
+
+--- 0 row(s) selected.
+>>commit work;
+
+--- SQL operation complete.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>commit work;
+
+--- SQL operation complete.
+>>
+>>-- test select ... for update and update
+>>obey TEST200(truncatetablet2);
+>>truncate table t200t2;
+
+--- SQL operation complete.
+>>insert into t200t2 values(1,1);
+
+--- 1 row(s) inserted.
+>>insert into t200t2 values(2,2);
+
+--- 1 row(s) inserted.
+>>
+>>begin work;
+
+--- SQL operation complete.
+>>select * from t200t2 where a = 1 for update;
+
+A            B          
+-----------  -----------
+
+          1            1
+
+--- 1 row(s) selected.
+>>sh sqlci -i TEST200\(updatetablet2\) >> LOG200;
+EsgynDB Advanced Conversational Interface 2.7.0
+Copyright (c) 2015-2019 Esgyn Corporation
+>>?section updatetablet2
+>>begin work;
+
+--- SQL operation complete.
+>>update t200t2 set a = 3, b = 3 where a = 1;
+
+*** ERROR[30052] ROW LEVEL LOCK TIMEOUT ERROR
+
+*** ERROR[8839] Transaction was aborted.
+
+--- 0 row(s) updated.
+>>commit work;
+
+--- SQL operation complete.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>commit work;
+
+--- SQL operation complete.
+>>
+>>obey TEST200(testSelectBeginTransaction);
+>>obey TEST200(truncatetable);
+>>truncate table t200t1;
+
+--- SQL operation complete.
+>>insert into t200t1 values(1,1);
+
+--- 1 row(s) inserted.
+>>
+>>set transaction autocommit off;
+
+--- SQL operation complete.
+>>select * from t200t1;
+
+A            B          
+-----------  -----------
+
+          1            1
+
+--- 1 row(s) selected.
+>>commit;
+
+--- SQL operation complete.
+>>set transaction autocommit on;
+
+--- SQL operation complete.
+>>
+>>obey TEST200(truncatetable);
+>>truncate table t200t1;
+
+--- SQL operation complete.
+>>insert into t200t1 values(1,1);
+
+--- 1 row(s) inserted.
+>>
+>>begin work;
+
+--- SQL operation complete.
+>>select * from t200t1 for update;
+
+A            B          
+-----------  -----------
+
+          1            1
+
+--- 1 row(s) selected.
+>>sh sqlci -i TEST200\(selectforupdatet1\) >> LOG200;
+EsgynDB Advanced Conversational Interface 2.7.0
+Copyright (c) 2015-2019 Esgyn Corporation
+>>?section selectforupdatet1
+>>select * from t200t1 for update;
+
+*** ERROR[30052] ROW LEVEL LOCK TIMEOUT ERROR
+
+--- 0 row(s) selected.
+>>
+>>-- test lock timeout, transaction rollback
+>>begin work;
+
+--- SQL operation complete.
+>>select * from t200t3 for update;
+
+A            B          
+-----------  -----------
+
+          1            1
+          2            2
+
+--- 2 row(s) selected.
+>>sh sqlci -i TEST200\(insertt200t3\) >> LOG200;
+EsgynDB Advanced Conversational Interface 2.7.0
+Copyright (c) 2015-2019 Esgyn Corporation
+>>?section insertt200t3
+>>begin work;
+
+--- SQL operation complete.
+>>insert into t200t3 values(3,3);
+
+*** ERROR[30052] ROW LEVEL LOCK TIMEOUT ERROR
+
+*** ERROR[8839] Transaction was aborted.
+
+--- 0 row(s) inserted.
+>>commit;
+
+--- SQL operation complete.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>sh sqlci -i TEST200\(deletet200t3\) >> LOG200;
+EsgynDB Advanced Conversational Interface 2.7.0
+Copyright (c) 2015-2019 Esgyn Corporation
+>>?section deletet200t3
+>>begin work;
+
+--- SQL operation complete.
+>>delete from t200t3;
+
+*** ERROR[30052] ROW LEVEL LOCK TIMEOUT ERROR
+
+*** ERROR[8839] Transaction was aborted.
+
+--- 0 row(s) deleted.
+>>commit;
+
+--- SQL operation complete.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>sh sqlci -i TEST200\(updatet200t3\) >> LOG200;
+EsgynDB Advanced Conversational Interface 2.7.0
+Copyright (c) 2015-2019 Esgyn Corporation
+>>?section updatet200t3
+>>begin work;
+
+--- SQL operation complete.
+>>update t200t3 set b = 3;
+
+*** ERROR[30052] ROW LEVEL LOCK TIMEOUT ERROR
+
+*** ERROR[8839] Transaction was aborted.
+
+--- 0 row(s) updated.
+>>commit;
+
+--- SQL operation complete.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>sh sqlci -i TEST200\(selectt200t3\) >> LOG200;
+EsgynDB Advanced Conversational Interface 2.7.0
+Copyright (c) 2015-2019 Esgyn Corporation
+>>?section selectt200t3
+>>begin work;
+
+--- SQL operation complete.
+>>select * from t200t3;
+
+*** ERROR[30052] ROW LEVEL LOCK TIMEOUT ERROR
+
+*** ERROR[8839] Transaction was aborted.
+
+--- 0 row(s) selected.
+>>commit;
+
+--- SQL operation complete.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>sh sqlci -i TEST200\(selectforupdatet200t3\) >> LOG200;
+EsgynDB Advanced Conversational Interface 2.7.0
+Copyright (c) 2015-2019 Esgyn Corporation
+>>?section selectforupdatet200t3
+>>begin work;
+
+--- SQL operation complete.
+>>select * from t200t3 for update;
+
+*** ERROR[30052] ROW LEVEL LOCK TIMEOUT ERROR
+
+*** ERROR[8839] Transaction was aborted.
+
+--- 0 row(s) selected.
+>>commit;
+
+--- SQL operation complete.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>commit;
+
+--- SQL operation complete.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>commit;
+
+--- SQL operation complete.
+>>
+>>obey TEST200(savepoint_test);
+>>-- savepoint
+>>-- test commit savepoint
+>>obey TEST200(truncatetablet2);
+>>truncate table t200t2;
+
+--- SQL operation complete.
+>>insert into t200t2 values(1,1);
+
+--- 1 row(s) inserted.
+>>insert into t200t2 values(2,2);
+
+--- 1 row(s) inserted.
+>>
+>>cqd traf_savepoints 'on';
+
+--- SQL operation complete.
+>>begin work;
+
+--- SQL operation complete.
+>>begin savepoint;
+
+--- SQL operation complete.
+>>insert into t200t2 values(3,3);
+
+--- 1 row(s) inserted.
+>>sh sqlci -i TEST200\(savepointInsert\) >> LOG200;
+EsgynDB Advanced Conversational Interface 2.7.0
+Copyright (c) 2015-2019 Esgyn Corporation
+>>?section savepointInsert
+>>cqd traf_savepoints 'on';
+
+--- SQL operation complete.
+>>begin work;
+
+--- SQL operation complete.
+>>begin savepoint;
+
+--- SQL operation complete.
+>>insert into t200t2 values(3,3);
+
+*** ERROR[30052] ROW LEVEL LOCK TIMEOUT ERROR
+
+*** ERROR[8839] Transaction was aborted.
+
+--- 0 row(s) inserted.
+>>commit savepoint;
+
+*** ERROR[8611] Savepoint operations must be done within a user transaction.
+
+--- SQL operation failed with errors.
+>>commit;
+
+--- SQL operation complete.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>commit savepoint;
+
+--- SQL operation complete.
+>>sh sqlci -i TEST200\(savepointInsert\) >> LOG200;
+EsgynDB Advanced Conversational Interface 2.7.0
+Copyright (c) 2015-2019 Esgyn Corporation
+>>?section savepointInsert
+>>cqd traf_savepoints 'on';
+
+--- SQL operation complete.
+>>begin work;
+
+--- SQL operation complete.
+>>begin savepoint;
+
+--- SQL operation complete.
+>>insert into t200t2 values(3,3);
+
+*** ERROR[30052] ROW LEVEL LOCK TIMEOUT ERROR
+
+*** ERROR[8839] Transaction was aborted.
+
+--- 0 row(s) inserted.
+>>commit savepoint;
+
+*** ERROR[8611] Savepoint operations must be done within a user transaction.
+
+--- SQL operation failed with errors.
+>>commit;
+
+--- SQL operation complete.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>commit;
+
+--- SQL operation complete.
+>>
+>>-- test rollback savepoint
+>>obey TEST200(truncatetablet2);
+>>truncate table t200t2;
+
+--- SQL operation complete.
+>>insert into t200t2 values(1,1);
+
+--- 1 row(s) inserted.
+>>insert into t200t2 values(2,2);
+
+--- 1 row(s) inserted.
+>>
+>>cqd traf_savepoints 'on';
+
+--- SQL operation complete.
+>>begin work;
+
+--- SQL operation complete.
+>>begin savepoint;
+
+--- SQL operation complete.
+>>insert into t200t2 values(3,3);
+
+--- 1 row(s) inserted.
+>>sh sqlci -i TEST200\(savepointInsert\) >> LOG200;
+EsgynDB Advanced Conversational Interface 2.7.0
+Copyright (c) 2015-2019 Esgyn Corporation
+>>?section savepointInsert
+>>cqd traf_savepoints 'on';
+
+--- SQL operation complete.
+>>begin work;
+
+--- SQL operation complete.
+>>begin savepoint;
+
+--- SQL operation complete.
+>>insert into t200t2 values(3,3);
+
+*** ERROR[30052] ROW LEVEL LOCK TIMEOUT ERROR
+
+*** ERROR[8839] Transaction was aborted.
+
+--- 0 row(s) inserted.
+>>commit savepoint;
+
+*** ERROR[8611] Savepoint operations must be done within a user transaction.
+
+--- SQL operation failed with errors.
+>>commit;
+
+--- SQL operation complete.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>rollback savepoint;
+
+--- SQL operation complete.
+>>sh sqlci -i TEST200\(savepointInsert\) >> LOG200;
+EsgynDB Advanced Conversational Interface 2.7.0
+Copyright (c) 2015-2019 Esgyn Corporation
+>>?section savepointInsert
+>>cqd traf_savepoints 'on';
+
+--- SQL operation complete.
+>>begin work;
+
+--- SQL operation complete.
+>>begin savepoint;
+
+--- SQL operation complete.
+>>insert into t200t2 values(3,3);
+
+--- 1 row(s) inserted.
+>>commit savepoint;
+
+--- SQL operation complete.
+>>commit;
+
+--- SQL operation complete.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>commit;
+
+--- SQL operation complete.
+>>
+>>-- test rollback savepoint and startscan interface
+>>obey TEST200(truncatetablet2);
+>>truncate table t200t2;
+
+--- SQL operation complete.
+>>insert into t200t2 values(1,1);
+
+--- 1 row(s) inserted.
+>>insert into t200t2 values(2,2);
+
+--- 1 row(s) inserted.
+>>
+>>cqd traf_savepoints 'on';
+
+--- SQL operation complete.
+>>begin work;
+
+--- SQL operation complete.
+>>begin savepoint;
+
+--- SQL operation complete.
+>>select * from t200t2;
+
+A            B          
+-----------  -----------
+
+          1            1
+          2            2
+
+--- 2 row(s) selected.
+>>delete from t200t2;
+
+--- 2 row(s) deleted.
+>>sh sqlci -i TEST200\(savepointDelete\) >> LOG200;
+EsgynDB Advanced Conversational Interface 2.7.0
+Copyright (c) 2015-2019 Esgyn Corporation
+>>?section savepointDelete
+>>cqd traf_savepoints 'on';
+
+--- SQL operation complete.
+>>begin work;
+
+--- SQL operation complete.
+>>begin savepoint;
+
+--- SQL operation complete.
+>>delete from t200t2;
+
+*** ERROR[30052] ROW LEVEL LOCK TIMEOUT ERROR
+
+*** ERROR[8839] Transaction was aborted.
+
+--- 0 row(s) deleted.
+>>commit savepoint;
+
+*** ERROR[8611] Savepoint operations must be done within a user transaction.
+
+--- SQL operation failed with errors.
+>>commit;
+
+--- SQL operation complete.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>rollback savepoint;
+
+--- SQL operation complete.
+>>sh sqlci -i TEST200\(savepointDelete\) >> LOG200;
+EsgynDB Advanced Conversational Interface 2.7.0
+Copyright (c) 2015-2019 Esgyn Corporation
+>>?section savepointDelete
+>>cqd traf_savepoints 'on';
+
+--- SQL operation complete.
+>>begin work;
+
+--- SQL operation complete.
+>>begin savepoint;
+
+--- SQL operation complete.
+>>delete from t200t2;
+
+--- 2 row(s) deleted.
+>>commit savepoint;
+
+--- SQL operation complete.
+>>commit;
+
+--- SQL operation complete.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>commit;
+
+--- SQL operation complete.
+>>
+>>-- test not execute commit savepoint
+>>obey TEST200(truncatetablet2);
+>>truncate table t200t2;
+
+--- SQL operation complete.
+>>insert into t200t2 values(1,1);
+
+--- 1 row(s) inserted.
+>>insert into t200t2 values(2,2);
+
+--- 1 row(s) inserted.
+>>
+>>cqd traf_savepoints 'on';
+
+--- SQL operation complete.
+>>begin work;
+
+--- SQL operation complete.
+>>begin savepoint;
+
+--- SQL operation complete.
+>>insert into t200t2 values(3,3);
+
+--- 1 row(s) inserted.
+>>commit;
+
+--- SQL operation complete.
+>>sh sqlci -i TEST200\(savepointDelete\) >> LOG200;
+EsgynDB Advanced Conversational Interface 2.7.0
+Copyright (c) 2015-2019 Esgyn Corporation
+>>?section savepointDelete
+>>cqd traf_savepoints 'on';
+
+--- SQL operation complete.
+>>begin work;
+
+--- SQL operation complete.
+>>begin savepoint;
+
+--- SQL operation complete.
+>>delete from t200t2;
+
+--- 3 row(s) deleted.
+>>commit savepoint;
+
+--- SQL operation complete.
+>>commit;
+
+--- SQL operation complete.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>
+>>-- Mantis-12282
+>>obey TEST200(truncatetablet2);
+>>truncate table t200t2;
+
+--- SQL operation complete.
+>>insert into t200t2 values(1,1);
+
+--- 1 row(s) inserted.
+>>insert into t200t2 values(2,2);
+
+--- 1 row(s) inserted.
+>>
+>>cqd traf_savepoints 'on';
+
+--- SQL operation complete.
+>>begin work;
+
+--- SQL operation complete.
+>>insert into t200t2 values(3,3);
+
+--- 1 row(s) inserted.
+>>begin savepoint;
+
+--- SQL operation complete.
+>>insert into t200t2 values(4,4);
+
+--- 1 row(s) inserted.
+>>rollback savepoint;
+
+--- SQL operation complete.
+>>commit;
+
+--- SQL operation complete.
+>>select * from t200t2 for update;
+
+A            B          
+-----------  -----------
+
+          1            1
+          2            2
+          3            3
+
+--- 3 row(s) selected.
+>>
+>>-- test lock conflict in SPSQL
+>>obey TEST200(truncatetablet2);
+>>truncate table t200t2;
+
+--- SQL operation complete.
+>>insert into t200t2 values(1,1);
+
+--- 1 row(s) inserted.
+>>insert into t200t2 values(2,2);
+
+--- 1 row(s) inserted.
+>>
+>>begin work;
+
+--- SQL operation complete.
+>>select * from t200t2 for update;
+
+A            B          
+-----------  -----------
+
+          1            1
+          2            2
+
+--- 2 row(s) selected.
+>>sh sqlci -i TEST200\(SPSQLSelectForUpdate\) >> LOG200;
+EsgynDB Advanced Conversational Interface 2.7.0
+Copyright (c) 2015-2019 Esgyn Corporation
+>>?section SPSQLSelectForUpdate
+>>create or replace procedure p_selectForUpdate() as//
+begin
+  select * from t200t2;
+end//;
+
+--- SQL operation complete.
+>>call p_selectForUpdate();
+
+*** ERROR[30052] ROW LEVEL LOCK TIMEOUT ERROR
+
+*** ERROR[8839] Transaction was aborted.
+
+--- 0 row(s) selected.
+
+--- SQL operation failed with errors.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>commit;
+
+--- SQL operation complete.
+>>
+>>log;

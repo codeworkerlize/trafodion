@@ -1,0 +1,110 @@
+#!/bin/bash
+#
+# @@@ START COPYRIGHT @@@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+# @@@ END COPYRIGHT @@@
+#
+#
+
+function Usage {
+    echo "Usage: `basename $0` <-p <peer id>> [-v]"
+    echo
+    echo "-p <peer id>  : ID of the peer (A number between 1 and 100 (inclusive))"
+    echo "-v            : Verbose"
+    echo
+}
+
+if [ -z $JAVA_HOME ]; then
+    echo "The environment variable \$JAVA_HOME has not been set"
+    echo "Please ensure \$TRAF_HOME/sqenv.sh has been sourced."
+    echo
+    exit 1;
+fi
+
+mkdir -p $TRAF_LOG
+lv_stderr_file="$TRAF_LOG/xdc_peer_down.log"
+
+declare -i lv_peer_id=0
+declare -i lv_verbose=0
+lv_verbose_string=""
+
+while getopts "p:vh" lv_arg $1 $2 $3 $4 $5 $6 $7 $8 $9
+do
+    case $lv_arg in
+        p)
+            lv_peer_id=${OPTARG}
+            if (
+                    [ $lv_peer_id -lt 1 ] ||
+                    [ $lv_peer_id -gt 100 ]
+                ); then
+                echo "Please provide a peer id in the range 1-100"
+                exit 1
+            fi
+            ;;
+
+        v)
+            let lv_verbose=1
+            lv_verbose_string="-v"
+            ;;
+
+        h)
+            lv_help=1
+            Usage
+            exit 0
+            ;;
+    esac
+done
+
+if [ ${lv_peer_id} -eq 0 ]; then
+    Usage
+    exit 1
+fi
+
+# set it to 0 within this script execution else the invocation of 
+# other scripts might result in some extraneous output that can
+# confuse the execution of this one.
+SQ_VERBOSE=0
+
+echo "`date`: start peer down ${lv_peer_id}"
+
+export LD_PRELOAD=${JAVA_HOME}/jre/lib/${JRE_LIB_DIR}/libjsig.so:${TRAF_HOME}/export/lib${SQ_MBTYPE}/libseabasesig.so
+
+# Create a xdc marker record
+lv_curr_time=`date +%Y%m%d_%H%M`;
+lv_snapshot="SNAPSHOT_PEER_${lv_peer_id}_DOWN_${lv_curr_time}"
+
+echo "`date`: Create xdc marker record: ${lv_snapshot}" | tee -a ${lv_stderr_file}
+
+if [ ${lv_verbose} '==' 1 ]; then
+   xdc -v -down ${lv_peer_id} -cdc 1 -snapshot ${lv_snapshot} 
+else
+   xdc -down ${lv_peer_id} -cdc 1 -snapshot ${lv_snapshot} 
+fi
+
+lv_exit=${PIPESTATUS[0]}
+if [ ${lv_exit} '!=' 0 ]; then
+    echo "Error in xdc_peer_down. Please retry after the problem is fixed. Exitting..."
+    exit 1
+fi
+
+echo "`date`: complete peer down ${lv_peer_id}"
+
+
+

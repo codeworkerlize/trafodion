@@ -1,0 +1,141 @@
+-- @@@ START COPYRIGHT @@@
+--
+-- Licensed to the Apache Software Foundation (ASF) under one
+-- or more contributor license agreements.  See the NOTICE file
+-- distributed with this work for additional information
+-- regarding copyright ownership.  The ASF licenses this file
+-- to you under the Apache License, Version 2.0 (the
+-- "License"); you may not use this file except in compliance
+-- with the License.  You may obtain a copy of the License at
+--
+--   http://www.apache.org/licenses/LICENSE-2.0
+--
+-- Unless required by applicable law or agreed to in writing,
+-- software distributed under the License is distributed on an
+-- "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+-- KIND, either express or implied.  See the License for the
+-- specific language governing permissions and limitations
+-- under the License.
+--
+-- @@@ END COPYRIGHT @@@
+--
+-- test for BACKUP and RESTORE for lobs and procedures
+--
+
+sh echo $HDFS_URL;
+sh export HDFS_URL=`regr_hdfs.ksh getconf -confKey fs.defaultFS`;
+sh echo $HDFS_URL;
+
+sh regr_hdfs.ksh dfs -rm -r -f `$HDFS_URL`/user/trafodion/backups;
+sh regr_hdfs.ksh dfs -rm -r -f `$HDFS_URL`/user/trafodion/schgsexport;
+sh regr_hdfs.ksh dfs -rm -r -f `$HDFS_URL`/user/trafodion/backupsys/*;
+
+cqd traf_lob_version2 'ON';
+set schema sch057;
+obey TEST057(clean_up);
+
+log LOG057 clear;
+obey TEST057(make_patterns);
+obey TEST057(java_compile);
+obey TEST057(tests);
+log;
+
+obey TEST057(clean_up);
+exit;
+
+?section clean_up
+drop procedure proc1;
+drop library TEST057;
+sh rm -f TEST057.class TEST057.jar TEST057.patterns;
+drop view vt1;
+drop table t1 cascade;
+drop schema sch057 cascade;
+cleanup schema sch057;
+cleanup metadata, return details;
+cleanup backup, tag 'test057tag1';
+
+?section java_compile
+--------------------------------------------------------------------------
+log;
+sh sh $$scriptsdir$$/tools/java-compile.ksh TEST057.java 2> LOG101-SECONDARY | tee -a LOG101;
+sh sh $$scriptsdir$$/tools/java-archive.ksh TEST057.jar TEST057.class 2>> LOG057-SECONDARY | tee -a LOG057;
+log LOG057;
+
+---------------------------------------------------------------------
+?section make_patterns
+---------------------------------------------------------------------
+log;
+sh rm -f TEST057.patterns;
+sh sh make-quoted-pattern.ksh JARFILE_Q 
+   $$REGRRUNDIR$$/TEST057.jar > TEST057.patterns;
+obey TEST057.patterns;
+show pattern;
+log LOG057;
+
+?section create_library
+--------------------------------------------------------------------------
+create library TEST057 file $$JARFILE_Q$$;
+
+?section create_procs
+create procedure proc1 (
+  in onOrAfterDate char(20),
+  out Num_Orders largeint
+)
+language java parameter style java reads sql data dynamic result sets 2
+external name 'TEST057.proc1' library TEST057;
+
+?section tests
+create schema if not exists sch057;
+set schema sch057;
+
+obey TEST057(create_library);
+obey TEST057(create_procs);
+
+create table t1 (a int primary key, b blob(100), c clob(100));
+insert into t1 values (1, 'a', 'b');
+select * from t1;
+truncate table t1;
+select * from t1;
+insert into t1 values (1, 'a', 'b');
+create view vt1 as select * from t1;
+
+showddl "_MD_".libraries, lob details;
+showddl t1, lob details;
+showddl procedure proc1;
+showddl library test057;
+showddl vt1;
+
+get tables;
+get procedures;
+get libraries;
+get views;
+
+get objects in schema sch057;
+
+backup trafodion, schema (sch057), tag 'test057tag1', override, show objects;
+backup trafodion, schema (sch057), tag 'test057tag1', override;
+
+sh echo "export backup to location '$HDFS_URL/user/trafodion/schgsexport' , tag 'test057tag1';" > tmp_export_test057;
+obey tmp_export_test057;
+
+drop schema sch057 cascade;
+get objects in schema sch057;
+
+drop backup tag, tag 'test057tag1';
+
+sh echo "import backup from location '$HDFS_URL/user/trafodion/schgsexport', tag 'test057tag1', override;" > tmp_import_test057;
+obey tmp_import_test057;
+
+restore trafodion, schema (sch057), tag 'test057tag1', show objects;
+restore trafodion, schema (sch057), tag 'test057tag1';
+
+get objects in schema sch057;
+
+showddl "_MD_".libraries, lob details;
+
+showddl t1, lob details;
+showddl procedure proc1;
+showddl library test057;
+showddl vt1;
+
+select * from t1;

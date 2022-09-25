@@ -1,0 +1,179 @@
+---
+- name: Make sure Trafodion is installed
+  shell: "rpm -qa|grep -q {{ traf_basename }}"
+  register: traf_installed
+  failed_when: traf_installed.rc==1
+
+- name: Get RPM full name
+  shell: "echo {{ dbmgr_rpm }} | awk -F/ '{print $NF}'"
+  register: fullname
+
+- name: Set esgynDB manager RPM name
+  set_fact:
+    dbmgr_rpmname: "{{ fullname.stdout }}"
+
+- name: Copy esgynDB manager RPM to all nodes
+  copy: src={{ dbmgr_rpm }} dest=/tmp/ force=yes
+
+- name: Install esgynDB manager RPM - CentOS/RedHat
+  yum: name="/tmp/{{ dbmgr_rpmname }}" state=present
+  become: yes
+  when: ansible_os_family == 'RedHat' or ansible_os_family == 'CentOS'
+
+# use zypper command directly since zypper module has bug
+# which has been fixed only in later version of ansible
+# https://github.com/ansible/ansible-modules-extras/pull/1256
+- name: Install esgynDB manager RPM - SuSE
+  shell: "zypper install -y /tmp/{{ dbmgr_rpmname }}"
+  become: yes
+  when: ansible_os_family == 'Suse'
+
+#- name: Install esgynDB manager RPM - SuSE
+#  zypper: name="/tmp/{{ dbmgr_rpmname }}" state=present
+#  become: yes
+#  when: ansible_os_family == 'Suse'
+
+- name: Get esgynDB manager RPM install location
+  shell: "rpm -ql {{ dbmgr_basename }}-{{ dbmgr_version }}|head -1"
+  register: dbmgr_loc
+
+
+- name: Set mgblty and dbmgr install directory
+  set_fact:
+    mgblty_install_dir: "{{ dbmgr_loc.stdout }}"
+    mgblty_tools_dir: "{{ dbmgr_loc.stdout }}/opentsdb/tools"
+    opentsdb_conf_file: "{{ dbmgr_loc.stdout }}/opentsdb/etc/opentsdb/opentsdb.conf"
+    dbmgr_install_dir: "{{ dbmgr_loc.stdout }}"
+    dcs_master_host: "{{ groups['firstnode'][0] }}"
+
+- name: Set dcs master hostname if DCS HA enabled
+  set_fact:
+    dcs_master_host: "{{ dcs_ip }}"
+  when: dcs_ip is defined
+
+- name: Export mgblty install dir to bashrc
+  lineinfile: dest=/home/trafodion/.bashrc
+              line="export MGBLTY_INSTALL_DIR={{ mgblty_install_dir }}"
+  become: yes
+
+- name: Export dbmgr install dir to bashrc
+  lineinfile: dest=/home/trafodion/.bashrc
+              line="export DBMGR_INSTALL_DIR={{ dbmgr_install_dir }}"
+  become: yes
+
+# This script will use hbase shell, so it should be better to run on regionserver node
+# But esgyndb manager will be installed on the same node as Trafodion, so we have to run it on first trafodion node
+- name: Create OpenTSDB tables
+  shell: "export HBASE_HOME=/usr; export COMPRESSION=GZ; {{ mgblty_tools_dir }}/create_table.sh"
+  become_user: trafodion
+  become: yes
+  when: inventory_hostname in groups['firstnode']
+
+- name: Check ports
+  script: check_ports.py
+  register: ports
+
+- name: Get esgynDB manager ports
+  set_fact:
+    dm_http_port: "{{ ports.stdout_lines[0] }}"
+    dm_https_port: "{{ ports.stdout_lines[1] }}"
+    tsd_port: "{{ ports.stdout_lines[2] }}"
+    http_port: "{{ ports.stdout_lines[3] }}"
+    rest_port: 4200
+    dcs_port: 23400
+    dcs_info_port: 24400
+
+- name: Edit bosun.conf for http port
+  replace: dest={{ mgblty_install_dir }}/bosun/conf/bosun.conf
+           regexp='tsdbHost = .*'
+           replace="tsdbHost = {{ dcs_master_host }}:{{ tsd_port }}"
+  become: yes
+  become_user: trafodion
+
+- name: Edit opentsdb.conf for tsd port
+  replace: dest={{ opentsdb_conf_file }}
+           regexp='tsd.network.port = .*'
+           replace="tsd.network.port = {{ tsd_port }}"
+  become_user: trafodion
+  become: yes
+
+- name: Get timezone
+  shell: "{{ dbmgr_install_dir }}/bin/gettimezone.sh"
+  register: tz
+  become_user: trafodion
+  become: yes
+
+- name: Edit opentsdb.conf for time zone
+  replace: dest={{ opentsdb_conf_file }}
+           regexp='tsd.core.timezone = .*'
+           replace="tsd.core.timezone = {{ tz.stdout_lines[0] }}"
+  become_user: trafodion
+  become: yes
+
+- name: Get zookeeper hostname
+  set_fact:
+    zkhosts: "{% for n in zookeeper_quorum.stdout.split(',') %} {{ n + ':2181' }} {% endfor %}"
+
+- name: Edit opentsdb.conf for zookeeper nodes
+  replace: dest={{ opentsdb_conf_file }}
+           regexp='tsd.storage.hbase.zk_quorum = .*'
+           replace="tsd.storage.hbase.zk_quorum = {{ ','.join(zkhosts.split()) }}"
+  become_user: trafodion
+  become: yes
+
+- name: Edit opentsdb.conf for hbase root
+  replace: dest={{ opentsdb_conf_file }}
+           regexp='tsd.storage.hbase.zk_basedir = /hbase'
+           replace='tsd.storage.hbase.zk_basedir = /hbase-unsecure'
+  become_user: trafodion
+  become: yes
+  when: "'HDP' in distro"
+
+- name: Registering Metrics
+  shell: "source /home/trafodion/.bashrc; if [[ -f {{ mgblty_tools_dir }}/registerMetrics.py ]]; then python {{ mgblty_tools_dir }}/registerMetrics.py; else {{ mgblty_tools_dir }}/register_metrics.sh; fi"
+  become_user: trafodion
+  become: yes
+  when: inventory_hostname in groups['firstnode']
+
+- name: Edit tcollector startstop
+  replace: dest={{ mgblty_install_dir }}/tcollector/startstop
+           regexp='TSDPORT=.*'
+           replace="TSDPORT={{ tsd_port }}"
+  become_user: trafodion
+  become: yes
+
+- name: Edit tcollector trafcanqry
+  replace: dest={{ mgblty_install_dir }}/tcollector/collectors/300/trafcanqry.py
+           regexp='DCS_MASTER_HOST:DCS_PORT' replace="{{ dcs_master_host }}:{{ dcs_port }}"
+  become_user: trafodion
+  become: yes
+
+- name: Edit tcollector hbase_master
+  replace: dest={{ mgblty_install_dir }}/tcollector/collectors/0/hbase_master.py
+           regexp='60010' replace='16010'
+  become_user: trafodion
+  become: yes
+  when: "'HDP' in distro"
+
+- name: Edit tcollector hbase_regionserver
+  replace: dest={{ mgblty_install_dir }}/tcollector/collectors/0/hbase_regionserver.py
+           regexp='60030' replace='16030'
+  become_user: trafodion
+  become: yes
+  when: "'HDP' in distro"
+
+- name: Get zookeeper quorum
+  shell: "grep 'hbase.zookeeper.quorum' -A1 {{ hbase_xml_file }} |tail -n1|sed s'/.*<value>\\(.*\\)<\\/value>/\\1/g'"
+  register: zookeeper_quorum
+
+- name: Edit openTSDB logback.xml
+  replace: dest={{ mgblty_install_dir }}/opentsdb/etc/opentsdb/logback.xml
+           regexp='/var/log/opentsdb' replace='../../log'
+  become_user: trafodion
+  become: yes
+
+
+- name: Configure esgynDB manager
+  shell: "source /home/trafodion/.bashrc; {{ dbmgr_install_dir }}/bin/configure.py --httpport {{ dm_http_port }} --httpsport {{ dm_https_port }} --dcshost {{ ansible_hostname }} --dcsport {{ dcs_port }} --password dbmgr23400 --dcsinfoport {{ dcs_info_port }} --resthost {{ ansible_hostname }} --restport {{ rest_port }} --tsdhost {{ ansible_hostname }} --tsdport {{ tsd_port }} --bosunhost {{ ansible_hostname }} --bosunport {{ http_port }} --timezone {{ tz.stdout_lines[0] }} --adminuser {{ db_admin_user }} --adminpassword {{ db_admin_pwd }}"
+  become: yes
+  become_user: trafodion

@@ -1,0 +1,2108 @@
+>>obey TEST132(test_libraries);
+>>-- =================================================================
+>>-- run tests to make sure users that create libraries have correct
+>>-- privileges.  To create a library, you must:
+>>--   be DB__ROOT
+>>--   be granted DB__ROOTROLE
+>>--   have the MANAGE_LIBRARY and CREATE/CREATE_LIBARARY privileges
+>>-- =================================================================
+>>
+>>set schema t132sch;
+
+--- SQL operation complete.
+>>get libraries;
+
+--- SQL operation complete.
+>>get privileges on component sql_operations for "PUBLIC";
+
+Privilege information on Component SQL_OPERATIONS for PUBLIC
+============================================================
+
+CREATE_SCHEMA
+DML_SELECT_METADATA
+SHOW
+
+=======================
+ 3 row(s) returned
+
+--- SQL operation complete.
+>>
+>>-- succeed: DB__ROOT can create a library
+>>obey TEST132(manage_library);
+>>
+>>set schema t132sch;
+
+--- SQL operation complete.
+>>get libraries in schema t132sch;
+
+--- SQL operation complete.
+>>create library t132_l1 file 'etest132.dll';
+
+--- SQL operation complete.
+>>get libraries in schema t132sch;
+
+Libraries in Schema TRAFODION.T132SCH
+=====================================
+
+T132_L1
+
+=======================
+ 1 row(s) returned
+
+--- SQL operation complete.
+>>drop library t132_l1;
+
+--- SQL operation complete.
+>>get libraries in schema t132sch;
+
+--- SQL operation complete.
+>>
+>>
+>>-- fail: sql_user1 cannot create a library
+>>changeuser sql_user1;
+>>obey TEST132(manage_library);
+>>
+>>set schema t132sch;
+
+--- SQL operation complete.
+>>get libraries in schema t132sch;
+
+--- SQL operation complete.
+>>create library t132_l1 file 'etest132.dll';
+
+*** ERROR[1017] You are not authorized to perform this operation.
+
+--- SQL operation failed with errors.
+>>get libraries in schema t132sch;
+
+--- SQL operation complete.
+>>drop library t132_l1;
+
+*** ERROR[1389] Object TRAFODION.T132SCH.T132_L1 does not exist in Trafodion.
+
+--- SQL operation failed with errors.
+>>get libraries in schema t132sch;
+
+--- SQL operation complete.
+>>
+>>changeuser db__root;
+>>
+>>-- succeed: grant DB__ROOTROLE to sql_user1
+>>grant role DB__ROOTROLE to sql_user1;
+
+--- SQL operation complete.
+>>changeuser sql_user1;
+>>obey TEST132(manage_library);
+>>
+>>set schema t132sch;
+
+--- SQL operation complete.
+>>get libraries in schema t132sch;
+
+--- SQL operation complete.
+>>create library t132_l1 file 'etest132.dll';
+
+--- SQL operation complete.
+>>get libraries in schema t132sch;
+
+Libraries in Schema TRAFODION.T132SCH
+=====================================
+
+T132_L1
+
+=======================
+ 1 row(s) returned
+
+--- SQL operation complete.
+>>drop library t132_l1;
+
+--- SQL operation complete.
+>>get libraries in schema t132sch;
+
+--- SQL operation complete.
+>>
+>>changeuser DB__ROOT;
+>>
+>>-- fail: just grant the create privilege
+>>grant component privilege CREATE_LIBRARY on sql_operations to sql_user2;
+
+--- SQL operation complete.
+>>changeuser sql_user2;
+>>obey TEST132(manage_library);
+>>
+>>set schema t132sch;
+
+--- SQL operation complete.
+>>get libraries in schema t132sch;
+
+--- SQL operation complete.
+>>create library t132_l1 file 'etest132.dll';
+
+*** ERROR[1017] You are not authorized to perform this operation.
+
+--- SQL operation failed with errors.
+>>get libraries in schema t132sch;
+
+--- SQL operation complete.
+>>drop library t132_l1;
+
+*** ERROR[1389] Object TRAFODION.T132SCH.T132_L1 does not exist in Trafodion.
+
+--- SQL operation failed with errors.
+>>get libraries in schema t132sch;
+
+--- SQL operation complete.
+>>
+>>changeuser DB__ROOT;
+>>
+>>-- succeed: now grant the manage_library privilege
+>>grant component privilege MANAGE_LIBRARY on sql_operations to sql_user2;
+
+--- SQL operation complete.
+>>get privileges on component sql_operation for sql_user2;
+
+--- SQL operation complete.
+>>changeuser sql_user2;
+>>obey TEST132(manage_library);
+>>
+>>set schema t132sch;
+
+--- SQL operation complete.
+>>get libraries in schema t132sch;
+
+--- SQL operation complete.
+>>create library t132_l1 file 'etest132.dll';
+
+--- SQL operation complete.
+>>get libraries in schema t132sch;
+
+Libraries in Schema TRAFODION.T132SCH
+=====================================
+
+T132_L1
+
+=======================
+ 1 row(s) returned
+
+--- SQL operation complete.
+>>drop library t132_l1;
+
+--- SQL operation complete.
+>>get libraries in schema t132sch;
+
+--- SQL operation complete.
+>>
+>>changeuser DB__ROOT;
+>>
+>>-- reset 
+>>revoke role DB__ROOTROLE from sql_user1;
+
+--- SQL operation complete.
+>>revoke component privilege MANAGE_LIBRARY on sql_operations from sql_user2;
+
+--- SQL operation complete.
+>>revoke component privilege CREATE_LIBRARY on sql_operations from sql_user2;
+
+--- SQL operation complete.
+>>get privileges on component sql_operations for "PUBLIC";
+
+Privilege information on Component SQL_OPERATIONS for PUBLIC
+============================================================
+
+CREATE_SCHEMA
+DML_SELECT_METADATA
+SHOW
+
+=======================
+ 3 row(s) returned
+
+--- SQL operation complete.
+>>
+>>obey TEST132(test_popindex);
+>>-- =================================================================
+>>-- run tests to make sure users that populate indexes have correct
+>>-- privileges.  To populate an index, you must:
+>>--   be DB__ROOT
+>>--   be table owner
+>>--   have the SELECT and INSERT privilege
+>>-- =================================================================
+>>
+>>set schema t132sch;
+
+--- SQL operation complete.
+>>--set parserflags 131072;
+>>--cqd DDL_TRANSACTIONS 'ON';
+>>
+>>get tables, match '%T132%';
+
+--- SQL operation complete.
+>>
+>>create table t132t1 (c1 int not null primary key, c2 int);
+
+--- SQL operation complete.
+>>create index t132t1_ndx1 on t132t1 (c2) no populate;
+
+--- SQL operation complete.
+>>create table t132t2 (c1 int not null primary key, c2 int)
++>  attribute by sql_user1;
+
+--- SQL operation complete.
+>>create index t132t2_ndx1 on t132t2(c2) no populate;
+
+--- SQL operation complete.
+>>
+>>insert into t132t1 values (1,1), (2,2), (3,3),(4,4), (5,5),(6,6), (7,7),(8,8);
+
+--- 8 row(s) inserted.
+>>insert into t132t2 values (1,1), (2,2), (3,3),(4,4), (5,5),(6,6), (7,7),(8,8);
+
+--- 8 row(s) inserted.
+>>
+>>get tables, match '%T132%';
+
+Tables in Schema TRAFODION.T132SCH
+==================================
+
+T132T1
+T132T2
+
+=======================
+ 2 row(s) returned
+
+--- SQL operation complete.
+>>cqd SHOWDDL_DISPLAY_PRIVILEGE_GRANTS 'ON';
+
+--- SQL operation complete.
+>>showddl t132t1;
+
+CREATE TABLE TRAFODION.T132SCH.T132T1
+  (
+    C1                               INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , C2                               INT DEFAULT NULL
+  , PRIMARY KEY (C1 ASC)
+  )
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_1500000'
+;
+
+-- GRANT SELECT, INSERT, DELETE, UPDATE, REFERENCES, ALTER, DROP ON TRAFODION.T132SCH.T132T1 TO DB__ROOT WITH GRANT OPTION;
+
+--- SQL operation complete.
+>>showddl t132t2;
+
+CREATE TABLE TRAFODION.T132SCH.T132T2
+  (
+    C1                               INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , C2                               INT DEFAULT NULL
+  , PRIMARY KEY (C1 ASC)
+  )
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_1500000'
+;
+
+-- GRANT SELECT, INSERT, DELETE, UPDATE, REFERENCES, ALTER, DROP ON TRAFODION.T132SCH.T132T2 TO SQL_USER1 WITH GRANT OPTION;
+
+--- SQL operation complete.
+>>
+>>-- DB__ROOT can populate indexes
+>>obey TEST132(populate_index);
+>>set schema t132sch;
+
+--- SQL operation complete.
+>>
+>>populate index t132t1_ndx1 on t132t1;
+
+--- SQL operation complete.
+>>populate index t132t2_ndx1 on t132t2;
+
+--- SQL operation complete.
+>>
+>>obey TEST132(popindex_check_reset);
+>>set schema t132sch;
+
+--- SQL operation complete.
+>>set parserflags 1;
+
+--- SQL operation complete.
+>>
+>>select count(*) from table (index_table t132t1_ndx1);
+
+(EXPR)              
+--------------------
+
+                   8
+
+--- 1 row(s) selected.
+>>select count(*) from table (index_table t132t2_ndx1);
+
+(EXPR)              
+--------------------
+
+                   8
+
+--- 1 row(s) selected.
+>>
+>>cleanup index t132t1_ndx1;
+
+--- SQL operation complete.
+>>create index t132t1_ndx1 on t132t1 (c2) no populate;
+
+--- SQL operation complete.
+>>cleanup index t132t2_ndx1;
+
+--- SQL operation complete.
+>>create index t132t2_ndx1 on t132t2 (c2) no populate;
+
+--- SQL operation complete.
+>>
+>>
+>>-- object owner can populate
+>>-- sql_user1 owns t132t2 but not t132t1
+>>--  popindex fails for t132t1 but works for the rest
+>>changeuser sql_user1;
+>>obey TEST132(populate_index);
+>>set schema t132sch;
+
+--- SQL operation complete.
+>>
+>>populate index t132t1_ndx1 on t132t1;
+
+*** ERROR[4481] The user does not have SELECT privilege on table or view TRAFODION.T132SCH.T132T1.
+
+*** ERROR[4481] The user does not have INSERT privilege on table or view TRAFODION.T132SCH.T132T1.
+
+--- SQL operation failed with errors.
+>>populate index t132t2_ndx1 on t132t2;
+
+--- SQL operation complete.
+>>
+>>changeuser db__root;
+>>obey TEST132(popindex_check_reset);
+>>set schema t132sch;
+
+--- SQL operation complete.
+>>set parserflags 1;
+
+--- SQL operation complete.
+>>
+>>select count(*) from table (index_table t132t1_ndx1);
+
+(EXPR)              
+--------------------
+
+                   0
+
+--- 1 row(s) selected.
+>>select count(*) from table (index_table t132t2_ndx1);
+
+(EXPR)              
+--------------------
+
+                   8
+
+--- 1 row(s) selected.
+>>
+>>cleanup index t132t1_ndx1;
+
+--- SQL operation complete.
+>>create index t132t1_ndx1 on t132t1 (c2) no populate;
+
+--- SQL operation complete.
+>>cleanup index t132t2_ndx1;
+
+--- SQL operation complete.
+>>create index t132t2_ndx1 on t132t2 (c2) no populate;
+
+--- SQL operation complete.
+>>
+>>
+>>-- if user belongs to DB__ROOTROLE, DB__ROOTROLE does not have DML privileges
+>>grant role DB__ROOTROLE to sql_user2;
+
+--- SQL operation complete.
+>>changeuser sql_user2;
+>>obey TEST132(populate_index);
+>>set schema t132sch;
+
+--- SQL operation complete.
+>>
+>>populate index t132t1_ndx1 on t132t1;
+
+*** ERROR[4481] The user does not have SELECT privilege on table or view TRAFODION.T132SCH.T132T1.
+
+*** ERROR[4481] The user does not have INSERT privilege on table or view TRAFODION.T132SCH.T132T1.
+
+--- SQL operation failed with errors.
+>>populate index t132t2_ndx1 on t132t2;
+
+*** ERROR[4481] The user does not have SELECT privilege on table or view TRAFODION.T132SCH.T132T2.
+
+*** ERROR[4481] The user does not have INSERT privilege on table or view TRAFODION.T132SCH.T132T2.
+
+--- SQL operation failed with errors.
+>>
+>>changeuser db__root;
+>>obey TEST132(popindex_check_reset);
+>>set schema t132sch;
+
+--- SQL operation complete.
+>>set parserflags 1;
+
+--- SQL operation complete.
+>>
+>>select count(*) from table (index_table t132t1_ndx1);
+
+(EXPR)              
+--------------------
+
+                   0
+
+--- 1 row(s) selected.
+>>select count(*) from table (index_table t132t2_ndx1);
+
+(EXPR)              
+--------------------
+
+                   0
+
+--- 1 row(s) selected.
+>>
+>>cleanup index t132t1_ndx1;
+
+--- SQL operation complete.
+>>create index t132t1_ndx1 on t132t1 (c2) no populate;
+
+--- SQL operation complete.
+>>cleanup index t132t2_ndx1;
+
+--- SQL operation complete.
+>>create index t132t2_ndx1 on t132t2 (c2) no populate;
+
+--- SQL operation complete.
+>>
+>>revoke role DB__ROOTROLE from sql_user2;
+
+--- SQL operation complete.
+>>
+>>-- sql_user3 requires both SELECT and INSERT privileges
+>>-- only t132t2 has granted both privileges
+>>grant SELECT on t132t1 to sql_user3;
+
+--- SQL operation complete.
+>>grant SELECT, INSERT on t132t2 to sql_user3 by sql_user1;
+
+--- SQL operation complete.
+>>changeuser sql_user3;
+>>obey TEST132(populate_index);
+>>set schema t132sch;
+
+--- SQL operation complete.
+>>
+>>populate index t132t1_ndx1 on t132t1;
+
+*** ERROR[4481] The user does not have INSERT privilege on table or view TRAFODION.T132SCH.T132T1.
+
+--- SQL operation failed with errors.
+>>populate index t132t2_ndx1 on t132t2;
+
+--- SQL operation complete.
+>>
+>>changeuser db__root;
+>>obey TEST132(popindex_check_reset);
+>>set schema t132sch;
+
+--- SQL operation complete.
+>>set parserflags 1;
+
+--- SQL operation complete.
+>>
+>>select count(*) from table (index_table t132t1_ndx1);
+
+(EXPR)              
+--------------------
+
+                   0
+
+--- 1 row(s) selected.
+>>select count(*) from table (index_table t132t2_ndx1);
+
+(EXPR)              
+--------------------
+
+                   8
+
+--- 1 row(s) selected.
+>>
+>>cleanup index t132t1_ndx1;
+
+--- SQL operation complete.
+>>create index t132t1_ndx1 on t132t1 (c2) no populate;
+
+--- SQL operation complete.
+>>cleanup index t132t2_ndx1;
+
+--- SQL operation complete.
+>>create index t132t2_ndx1 on t132t2 (c2) no populate;
+
+--- SQL operation complete.
+>>
+>>
+>>-- reset
+>>drop table t132t1 cascade;
+
+--- SQL operation complete.
+>>drop table t132t2 cascade;
+
+--- SQL operation complete.
+>>get tables, match 'T132%';
+
+--- SQL operation complete.
+>>
+>>obey TEST132(test_show);
+>>-- =================================================================
+>>-- run tests to make sure users that perform show commands have correct
+>>-- privileges.  To perform show commands, you must:
+>>--   be DB__ROOT
+>>--   be object owner
+>>--   have the SHOW privilege (PUBLIC & DB__ROOTROLE has priv)
+>>--   have SELECT privileges on object
+>>--
+>>-- To perform get commands, you must:
+>>--   be DB__ROOT
+>>--   have the SHOW privilege
+>>-- =================================================================
+>>
+>>set schema t132sch;
+
+--- SQL operation complete.
+>>
+>>create table t132_teams
++>  (team_number int not null primary key,
++>   team_name char(20) not null,
++>   team_contact varchar(50) not null,
++>   team_contact_number char (10) not null
++>   )
++>  ;
+
+--- SQL operation complete.
+>>
+>>alter table t132_teams add constraint valid_team_no check (team_number > 0);
+
+--- SQL operation complete.
+>>
+>>insert into t132_teams values
++>   (1, 'White Socks', 'Sam','4082282222'),
++>   (2, 'Giants', 'Joe', '5102839483'),
++>   (3, 'Cardinals', 'Stella', '9513849384'),
++>   (4, 'Indians', 'Matt', '5128383748'),
++>   (5, 'Tigers', 'Ronit', '6198273827');
+
+--- 5 row(s) inserted.
+>>
+>>create table t132_games
++>   ( home_team_number int not null,
++>     visitor_team_number int not null,
++>     game_number int not null primary key,
++>     game_time timestamp not null,
++>     game_location varchar(50) not null)
++>     attribute by sql_user1
++>  ;
+
+--- SQL operation complete.
+>>create index t132_home_games on t132_games (home_team_number);
+
+--- SQL operation complete.
+>>
+>>alter table t132_games add constraint valid_game_number check (game_number > 0);
+
+--- SQL operation complete.
+>>
+>>insert into t132_games values
++>   (1, 2, 1, timestamp '2009-04-23 19:30:00', 'California'),
++>   (1, 3, 2, timestamp '2009-04-24 19:30:00', 'California'),
++>   (1, 4, 3, timestamp '2009-04-25 10:00:00', 'Oklahoma'),
++>   (2, 3, 4, timestamp '2009-04-25 13:30:00', 'Michigan'),
++>   (1, 5, 5, timestamp '2009-04-25 15:00:00', 'Oklahoma'),
++>   (2, 5, 6, timestamp '2009-04-27 17:00:00', 'New York'),
++>   (3, 4, 7, timestamp '2009-04-28 17:00:00', 'Florida'),
++>   (4, 2, 8, current_timestamp, 'Missouri');
+
+--- 8 row(s) inserted.
+>>
+>>create view t132_giants_games as 
++>  select game_number, game_time, game_location
++>  from t132_games
++>  where home_team_number = 2
++>  order by 1,2,3;
+
+--- SQL operation complete.
+>>select * from t132_giants_games;
+
+GAME_NUMBER  GAME_TIME                   GAME_LOCATION
+-----------  --------------------------  --------------------------------------------------
+
+          4  2009-04-25 13:30:00.000000  Michigan                                          
+          6  2009-04-27 17:00:00.000000  New York                                          
+
+--- 2 row(s) selected.
+>>
+>>create view t132_home_teams_games as
++>  select t.team_number, g.game_number, g.game_time
++>  from "T132_TEAMS" t,
++>       "T132_GAMES" g
++>  where t.team_number = g.home_team_number
++>  order by 1, game_number, game_time;
+
+--- SQL operation complete.
+>>select team_number, game_number from t132_home_teams_games;
+
+TEAM_NUMBER  GAME_NUMBER
+-----------  -----------
+
+          1            1
+          1            2
+          1            3
+          1            5
+          2            4
+          2            6
+          3            7
+          4            8
+
+--- 8 row(s) selected.
+>>
+>>create sequence t132_team_number_sequence;
+
+--- SQL operation complete.
+>>
+>>-- revoke show prvilege from PUBLIC
+>>get privileges on component sql_operations for "PUBLIC";
+
+Privilege information on Component SQL_OPERATIONS for PUBLIC
+============================================================
+
+CREATE_SCHEMA
+DML_SELECT_METADATA
+SHOW
+
+=======================
+ 3 row(s) returned
+
+--- SQL operation complete.
+>>revoke component privilege "SHOW" on sql_operations from "PUBLIC";
+
+--- SQL operation complete.
+>>get privileges on component sql_operations for "PUBLIC";
+
+Privilege information on Component SQL_OPERATIONS for PUBLIC
+============================================================
+
+CREATE_SCHEMA
+DML_SELECT_METADATA
+
+=======================
+ 2 row(s) returned
+
+--- SQL operation complete.
+>>
+>>-- DB__ROOT has all privileges
+>>obey TEST132(show_objects);
+>>
+>>set schema t132sch;
+
+--- SQL operation complete.
+>>cqd SHOWDDL_DISPLAY_PRIVILEGE_GRANTS 'ON';
+
+--- SQL operation complete.
+>>
+>>get tables;
+
+Tables in Schema TRAFODION.T132SCH
+==================================
+
+SB_HISTOGRAMS
+SB_HISTOGRAM_INTERVALS
+SB_PERSISTENT_SAMPLES
+T132_GAMES
+T132_TEAMS
+
+=======================
+ 5 row(s) returned
+
+--- SQL operation complete.
+>>
+>>showddl t132_games;
+
+CREATE TABLE TRAFODION.T132SCH.T132_GAMES
+  (
+    HOME_TEAM_NUMBER                 INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , VISITOR_TEAM_NUMBER              INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , GAME_NUMBER                      INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , GAME_TIME                        TIMESTAMP(6) NO DEFAULT NOT NULL NOT
+      DROPPABLE
+  , GAME_LOCATION                    VARCHAR(50) CHARACTER SET ISO88591 COLLATE
+      DEFAULT NO DEFAULT NOT NULL NOT DROPPABLE
+  , PRIMARY KEY (GAME_NUMBER ASC)
+  )
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_1500000'
+;
+
+CREATE INDEX T132_HOME_GAMES ON TRAFODION.T132SCH.T132_GAMES
+  (
+    HOME_TEAM_NUMBER ASC
+  )
+;
+
+ALTER TABLE TRAFODION.T132SCH.T132_GAMES ADD CONSTRAINT
+  TRAFODION.T132SCH.VALID_GAME_NUMBER CHECK
+  (TRAFODION.T132SCH.T132_GAMES.GAME_NUMBER > 0)
+;
+
+-- GRANT SELECT, INSERT, DELETE, UPDATE, REFERENCES, ALTER, DROP ON TRAFODION.T132SCH.T132_GAMES TO SQL_USER1 WITH GRANT OPTION;
+
+--- SQL operation complete.
+>>showddl t132_teams;
+
+CREATE TABLE TRAFODION.T132SCH.T132_TEAMS
+  (
+    TEAM_NUMBER                      INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , TEAM_NAME                        CHAR(20) CHARACTER SET ISO88591 COLLATE
+      DEFAULT NO DEFAULT NOT NULL NOT DROPPABLE
+  , TEAM_CONTACT                     VARCHAR(50) CHARACTER SET ISO88591 COLLATE
+      DEFAULT NO DEFAULT NOT NULL NOT DROPPABLE
+  , TEAM_CONTACT_NUMBER              CHAR(10) CHARACTER SET ISO88591 COLLATE
+      DEFAULT NO DEFAULT NOT NULL NOT DROPPABLE
+  , PRIMARY KEY (TEAM_NUMBER ASC)
+  )
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_1500000'
+;
+
+ALTER TABLE TRAFODION.T132SCH.T132_TEAMS ADD CONSTRAINT
+  TRAFODION.T132SCH.VALID_TEAM_NO CHECK
+  (TRAFODION.T132SCH.T132_TEAMS.TEAM_NUMBER > 0)
+;
+
+-- GRANT SELECT, INSERT, DELETE, UPDATE, REFERENCES, ALTER, DROP ON TRAFODION.T132SCH.T132_TEAMS TO DB__ROOT WITH GRANT OPTION;
+
+--- SQL operation complete.
+>>showddl t132_giants_games;
+
+CREATE VIEW TRAFODION.T132SCH.T132_GIANTS_GAMES AS
+  SELECT TRAFODION.T132SCH.T132_GAMES.GAME_NUMBER,
+    TRAFODION.T132SCH.T132_GAMES.GAME_TIME,
+    TRAFODION.T132SCH.T132_GAMES.GAME_LOCATION FROM
+    TRAFODION.T132SCH.T132_GAMES WHERE
+    TRAFODION.T132SCH.T132_GAMES.HOME_TEAM_NUMBER = 2 ORDER BY 1, 2, 3 ;
+
+-- GRANT SELECT, DELETE, UPDATE, REFERENCES, ALTER, DROP ON TRAFODION.T132SCH.T132_GIANTS_GAMES TO DB__ROOT WITH GRANT OPTION;
+
+--- SQL operation complete.
+>>showddl t132_home_teams_games;
+
+CREATE VIEW TRAFODION.T132SCH.T132_HOME_TEAMS_GAMES AS
+  SELECT T.TEAM_NUMBER, G.GAME_NUMBER, G.GAME_TIME FROM
+    TRAFODION.T132SCH.T132_TEAMS T, TRAFODION.T132SCH.T132_GAMES G WHERE
+    T.TEAM_NUMBER = G.HOME_TEAM_NUMBER ORDER BY 1, G.GAME_NUMBER, G.GAME_TIME
+    ;
+
+-- GRANT SELECT, REFERENCES, ALTER, DROP ON TRAFODION.T132SCH.T132_HOME_TEAMS_GAMES TO DB__ROOT WITH GRANT OPTION;
+
+--- SQL operation complete.
+>>showddl sequence t132_team_number_sequence;
+
+CREATE SEQUENCE TRAFODION.T132SCH.T132_TEAM_NUMBER_SEQUENCE
+  START WITH 1
+  INCREMENT BY 1
+  MAXVALUE 9223372036854775806
+  MINVALUE 1
+  CACHE 25
+  NOORDER
+  NO CYCLE
+  LARGEINT
+;
+
+-- GRANT USAGE, ALTER, DROP ON SEQUENCE TRAFODION.T132SCH.T132_TEAM_NUMBER_SEQUENCE TO DB__ROOT WITH GRANT OPTION;
+
+--- SQL operation complete.
+>>
+>>invoke t132_games;
+
+-- Definition of Trafodion table TRAFODION.T132SCH.T132_GAMES
+-- Definition of hbase table TRAF_1500000:TRAFODION.T132SCH.T132_GAMES
+-- Definition current  Wed Apr  3 18:26:12 2019
+
+  (
+    HOME_TEAM_NUMBER                 INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , VISITOR_TEAM_NUMBER              INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , GAME_NUMBER                      INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , GAME_TIME                        TIMESTAMP(6) NO DEFAULT NOT NULL NOT
+      DROPPABLE
+  , GAME_LOCATION                    VARCHAR(50) CHARACTER SET ISO88591 COLLATE
+      DEFAULT NO DEFAULT NOT NULL NOT DROPPABLE
+  )
+  PRIMARY KEY (GAME_NUMBER ASC)
+
+--- SQL operation complete.
+>>invoke t132_teams;
+
+-- Definition of Trafodion table TRAFODION.T132SCH.T132_TEAMS
+-- Definition of hbase table TRAF_1500000:TRAFODION.T132SCH.T132_TEAMS
+-- Definition current  Wed Apr  3 18:26:14 2019
+
+  (
+    TEAM_NUMBER                      INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , TEAM_NAME                        CHAR(20) CHARACTER SET ISO88591 COLLATE
+      DEFAULT NO DEFAULT NOT NULL NOT DROPPABLE
+  , TEAM_CONTACT                     VARCHAR(50) CHARACTER SET ISO88591 COLLATE
+      DEFAULT NO DEFAULT NOT NULL NOT DROPPABLE
+  , TEAM_CONTACT_NUMBER              CHAR(10) CHARACTER SET ISO88591 COLLATE
+      DEFAULT NO DEFAULT NOT NULL NOT DROPPABLE
+  )
+  PRIMARY KEY (TEAM_NUMBER ASC)
+
+--- SQL operation complete.
+>>invoke t132_giants_games;
+
+-- Definition of Trafodion view TRAFODION.T132SCH.T132_GIANTS_GAMES
+-- Definition current  Wed Apr  3 18:26:16 2019
+
+  (
+    GAME_NUMBER                      INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , GAME_TIME                        TIMESTAMP(6) NO DEFAULT NOT NULL NOT
+      DROPPABLE
+  , GAME_LOCATION                    VARCHAR(50) CHARACTER SET ISO88591 COLLATE
+      DEFAULT NO DEFAULT NOT NULL NOT DROPPABLE
+  )
+
+--- SQL operation complete.
+>>invoke t132_home_teams_games;
+
+-- Definition of Trafodion view TRAFODION.T132SCH.T132_HOME_TEAMS_GAMES
+-- Definition current  Wed Apr  3 18:26:17 2019
+
+  (
+    TEAM_NUMBER                      INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , GAME_NUMBER                      INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , GAME_TIME                        TIMESTAMP(6) NO DEFAULT NOT NULL NOT
+      DROPPABLE
+  )
+
+--- SQL operation complete.
+>>
+>>
+>>-- sql_user1 owns some of the objects but not all
+>>changeuser sql_user1;
+>>obey TEST132(show_objects);
+>>
+>>set schema t132sch;
+
+--- SQL operation complete.
+>>cqd SHOWDDL_DISPLAY_PRIVILEGE_GRANTS 'ON';
+
+--- SQL operation complete.
+>>
+>>get tables;
+
+Tables in Schema TRAFODION.T132SCH
+==================================
+
+T132_GAMES
+
+=======================
+ 1 row(s) returned
+
+--- SQL operation complete.
+>>
+>>showddl t132_games;
+
+CREATE TABLE TRAFODION.T132SCH.T132_GAMES
+  (
+    HOME_TEAM_NUMBER                 INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , VISITOR_TEAM_NUMBER              INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , GAME_NUMBER                      INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , GAME_TIME                        TIMESTAMP(6) NO DEFAULT NOT NULL NOT
+      DROPPABLE
+  , GAME_LOCATION                    VARCHAR(50) CHARACTER SET ISO88591 COLLATE
+      DEFAULT NO DEFAULT NOT NULL NOT DROPPABLE
+  , PRIMARY KEY (GAME_NUMBER ASC)
+  )
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_1500000'
+;
+
+CREATE INDEX T132_HOME_GAMES ON TRAFODION.T132SCH.T132_GAMES
+  (
+    HOME_TEAM_NUMBER ASC
+  )
+;
+
+ALTER TABLE TRAFODION.T132SCH.T132_GAMES ADD CONSTRAINT
+  TRAFODION.T132SCH.VALID_GAME_NUMBER CHECK
+  (TRAFODION.T132SCH.T132_GAMES.GAME_NUMBER > 0)
+;
+
+-- GRANT SELECT, INSERT, DELETE, UPDATE, REFERENCES, ALTER, DROP ON TRAFODION.T132SCH.T132_GAMES TO SQL_USER1 WITH GRANT OPTION;
+
+--- SQL operation complete.
+>>showddl t132_teams;
+
+*** ERROR[1017] You are not authorized to perform this operation.
+
+--- SQL operation failed with errors.
+>>showddl t132_giants_games;
+
+*** ERROR[1017] You are not authorized to perform this operation.
+
+--- SQL operation failed with errors.
+>>showddl t132_home_teams_games;
+
+*** ERROR[1017] You are not authorized to perform this operation.
+
+--- SQL operation failed with errors.
+>>showddl sequence t132_team_number_sequence;
+
+*** ERROR[1017] You are not authorized to perform this operation.
+
+--- SQL operation failed with errors.
+>>
+>>invoke t132_games;
+
+-- Definition of Trafodion table TRAFODION.T132SCH.T132_GAMES
+-- Definition of hbase table TRAF_1500000:TRAFODION.T132SCH.T132_GAMES
+-- Definition current  Wed Apr  3 18:26:32 2019
+
+  (
+    HOME_TEAM_NUMBER                 INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , VISITOR_TEAM_NUMBER              INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , GAME_NUMBER                      INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , GAME_TIME                        TIMESTAMP(6) NO DEFAULT NOT NULL NOT
+      DROPPABLE
+  , GAME_LOCATION                    VARCHAR(50) CHARACTER SET ISO88591 COLLATE
+      DEFAULT NO DEFAULT NOT NULL NOT DROPPABLE
+  )
+  PRIMARY KEY (GAME_NUMBER ASC)
+
+--- SQL operation complete.
+>>invoke t132_teams;
+
+*** ERROR[1017] You are not authorized to perform this operation.
+
+--- SQL operation failed with errors.
+>>invoke t132_giants_games;
+
+*** ERROR[1017] You are not authorized to perform this operation.
+
+--- SQL operation failed with errors.
+>>invoke t132_home_teams_games;
+
+*** ERROR[1017] You are not authorized to perform this operation.
+
+--- SQL operation failed with errors.
+>>
+>>
+>>-- sql_user2 get privileges through DB__ROOTROLE role SHOW privilege
+>>-- first illustrate that sql_user2 has no privileges
+>>changeuser sql_user2;
+>>obey TEST132(show_objects);
+>>
+>>set schema t132sch;
+
+--- SQL operation complete.
+>>cqd SHOWDDL_DISPLAY_PRIVILEGE_GRANTS 'ON';
+
+--- SQL operation complete.
+>>
+>>get tables;
+
+--- SQL operation complete.
+>>
+>>showddl t132_games;
+
+*** ERROR[1017] You are not authorized to perform this operation.
+
+--- SQL operation failed with errors.
+>>showddl t132_teams;
+
+*** ERROR[1017] You are not authorized to perform this operation.
+
+--- SQL operation failed with errors.
+>>showddl t132_giants_games;
+
+*** ERROR[1017] You are not authorized to perform this operation.
+
+--- SQL operation failed with errors.
+>>showddl t132_home_teams_games;
+
+*** ERROR[1017] You are not authorized to perform this operation.
+
+--- SQL operation failed with errors.
+>>showddl sequence t132_team_number_sequence;
+
+*** ERROR[1017] You are not authorized to perform this operation.
+
+--- SQL operation failed with errors.
+>>
+>>invoke t132_games;
+
+*** ERROR[1017] You are not authorized to perform this operation.
+
+--- SQL operation failed with errors.
+>>invoke t132_teams;
+
+*** ERROR[1017] You are not authorized to perform this operation.
+
+--- SQL operation failed with errors.
+>>invoke t132_giants_games;
+
+*** ERROR[1017] You are not authorized to perform this operation.
+
+--- SQL operation failed with errors.
+>>invoke t132_home_teams_games;
+
+*** ERROR[1017] You are not authorized to perform this operation.
+
+--- SQL operation failed with errors.
+>>
+>>changeuser db__root;
+>>grant role DB__ROOTROLE to sql_user2;
+
+--- SQL operation complete.
+>>
+>>-- now sql_user2 has privileges with the grant
+>>changeuser sql_user2;
+>>obey TEST132(show_objects);
+>>
+>>set schema t132sch;
+
+--- SQL operation complete.
+>>cqd SHOWDDL_DISPLAY_PRIVILEGE_GRANTS 'ON';
+
+--- SQL operation complete.
+>>
+>>get tables;
+
+Tables in Schema TRAFODION.T132SCH
+==================================
+
+SB_HISTOGRAMS
+SB_HISTOGRAM_INTERVALS
+SB_PERSISTENT_SAMPLES
+T132_GAMES
+T132_TEAMS
+
+=======================
+ 5 row(s) returned
+
+--- SQL operation complete.
+>>
+>>showddl t132_games;
+
+CREATE TABLE TRAFODION.T132SCH.T132_GAMES
+  (
+    HOME_TEAM_NUMBER                 INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , VISITOR_TEAM_NUMBER              INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , GAME_NUMBER                      INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , GAME_TIME                        TIMESTAMP(6) NO DEFAULT NOT NULL NOT
+      DROPPABLE
+  , GAME_LOCATION                    VARCHAR(50) CHARACTER SET ISO88591 COLLATE
+      DEFAULT NO DEFAULT NOT NULL NOT DROPPABLE
+  , PRIMARY KEY (GAME_NUMBER ASC)
+  )
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_1500000'
+;
+
+CREATE INDEX T132_HOME_GAMES ON TRAFODION.T132SCH.T132_GAMES
+  (
+    HOME_TEAM_NUMBER ASC
+  )
+;
+
+ALTER TABLE TRAFODION.T132SCH.T132_GAMES ADD CONSTRAINT
+  TRAFODION.T132SCH.VALID_GAME_NUMBER CHECK
+  (TRAFODION.T132SCH.T132_GAMES.GAME_NUMBER > 0)
+;
+
+-- GRANT SELECT, INSERT, DELETE, UPDATE, REFERENCES, ALTER, DROP ON TRAFODION.T132SCH.T132_GAMES TO SQL_USER1 WITH GRANT OPTION;
+
+--- SQL operation complete.
+>>showddl t132_teams;
+
+CREATE TABLE TRAFODION.T132SCH.T132_TEAMS
+  (
+    TEAM_NUMBER                      INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , TEAM_NAME                        CHAR(20) CHARACTER SET ISO88591 COLLATE
+      DEFAULT NO DEFAULT NOT NULL NOT DROPPABLE
+  , TEAM_CONTACT                     VARCHAR(50) CHARACTER SET ISO88591 COLLATE
+      DEFAULT NO DEFAULT NOT NULL NOT DROPPABLE
+  , TEAM_CONTACT_NUMBER              CHAR(10) CHARACTER SET ISO88591 COLLATE
+      DEFAULT NO DEFAULT NOT NULL NOT DROPPABLE
+  , PRIMARY KEY (TEAM_NUMBER ASC)
+  )
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_1500000'
+;
+
+ALTER TABLE TRAFODION.T132SCH.T132_TEAMS ADD CONSTRAINT
+  TRAFODION.T132SCH.VALID_TEAM_NO CHECK
+  (TRAFODION.T132SCH.T132_TEAMS.TEAM_NUMBER > 0)
+;
+
+-- GRANT SELECT, INSERT, DELETE, UPDATE, REFERENCES, ALTER, DROP ON TRAFODION.T132SCH.T132_TEAMS TO DB__ROOT WITH GRANT OPTION;
+
+--- SQL operation complete.
+>>showddl t132_giants_games;
+
+CREATE VIEW TRAFODION.T132SCH.T132_GIANTS_GAMES AS
+  SELECT TRAFODION.T132SCH.T132_GAMES.GAME_NUMBER,
+    TRAFODION.T132SCH.T132_GAMES.GAME_TIME,
+    TRAFODION.T132SCH.T132_GAMES.GAME_LOCATION FROM
+    TRAFODION.T132SCH.T132_GAMES WHERE
+    TRAFODION.T132SCH.T132_GAMES.HOME_TEAM_NUMBER = 2 ORDER BY 1, 2, 3 ;
+
+-- GRANT SELECT, DELETE, UPDATE, REFERENCES, ALTER, DROP ON TRAFODION.T132SCH.T132_GIANTS_GAMES TO DB__ROOT WITH GRANT OPTION;
+
+--- SQL operation complete.
+>>showddl t132_home_teams_games;
+
+CREATE VIEW TRAFODION.T132SCH.T132_HOME_TEAMS_GAMES AS
+  SELECT T.TEAM_NUMBER, G.GAME_NUMBER, G.GAME_TIME FROM
+    TRAFODION.T132SCH.T132_TEAMS T, TRAFODION.T132SCH.T132_GAMES G WHERE
+    T.TEAM_NUMBER = G.HOME_TEAM_NUMBER ORDER BY 1, G.GAME_NUMBER, G.GAME_TIME
+    ;
+
+-- GRANT SELECT, REFERENCES, ALTER, DROP ON TRAFODION.T132SCH.T132_HOME_TEAMS_GAMES TO DB__ROOT WITH GRANT OPTION;
+
+--- SQL operation complete.
+>>showddl sequence t132_team_number_sequence;
+
+CREATE SEQUENCE TRAFODION.T132SCH.T132_TEAM_NUMBER_SEQUENCE
+  START WITH 1
+  INCREMENT BY 1
+  MAXVALUE 9223372036854775806
+  MINVALUE 1
+  CACHE 25
+  NOORDER
+  NO CYCLE
+  LARGEINT
+;
+
+-- GRANT USAGE, ALTER, DROP ON SEQUENCE TRAFODION.T132SCH.T132_TEAM_NUMBER_SEQUENCE TO DB__ROOT WITH GRANT OPTION;
+
+--- SQL operation complete.
+>>
+>>invoke t132_games;
+
+-- Definition of Trafodion table TRAFODION.T132SCH.T132_GAMES
+-- Definition of hbase table TRAF_1500000:TRAFODION.T132SCH.T132_GAMES
+-- Definition current  Wed Apr  3 18:27:07 2019
+
+  (
+    HOME_TEAM_NUMBER                 INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , VISITOR_TEAM_NUMBER              INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , GAME_NUMBER                      INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , GAME_TIME                        TIMESTAMP(6) NO DEFAULT NOT NULL NOT
+      DROPPABLE
+  , GAME_LOCATION                    VARCHAR(50) CHARACTER SET ISO88591 COLLATE
+      DEFAULT NO DEFAULT NOT NULL NOT DROPPABLE
+  )
+  PRIMARY KEY (GAME_NUMBER ASC)
+
+--- SQL operation complete.
+>>invoke t132_teams;
+
+-- Definition of Trafodion table TRAFODION.T132SCH.T132_TEAMS
+-- Definition of hbase table TRAF_1500000:TRAFODION.T132SCH.T132_TEAMS
+-- Definition current  Wed Apr  3 18:27:07 2019
+
+  (
+    TEAM_NUMBER                      INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , TEAM_NAME                        CHAR(20) CHARACTER SET ISO88591 COLLATE
+      DEFAULT NO DEFAULT NOT NULL NOT DROPPABLE
+  , TEAM_CONTACT                     VARCHAR(50) CHARACTER SET ISO88591 COLLATE
+      DEFAULT NO DEFAULT NOT NULL NOT DROPPABLE
+  , TEAM_CONTACT_NUMBER              CHAR(10) CHARACTER SET ISO88591 COLLATE
+      DEFAULT NO DEFAULT NOT NULL NOT DROPPABLE
+  )
+  PRIMARY KEY (TEAM_NUMBER ASC)
+
+--- SQL operation complete.
+>>invoke t132_giants_games;
+
+-- Definition of Trafodion view TRAFODION.T132SCH.T132_GIANTS_GAMES
+-- Definition current  Wed Apr  3 18:27:08 2019
+
+  (
+    GAME_NUMBER                      INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , GAME_TIME                        TIMESTAMP(6) NO DEFAULT NOT NULL NOT
+      DROPPABLE
+  , GAME_LOCATION                    VARCHAR(50) CHARACTER SET ISO88591 COLLATE
+      DEFAULT NO DEFAULT NOT NULL NOT DROPPABLE
+  )
+
+--- SQL operation complete.
+>>invoke t132_home_teams_games;
+
+-- Definition of Trafodion view TRAFODION.T132SCH.T132_HOME_TEAMS_GAMES
+-- Definition current  Wed Apr  3 18:27:08 2019
+
+  (
+    TEAM_NUMBER                      INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , GAME_NUMBER                      INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , GAME_TIME                        TIMESTAMP(6) NO DEFAULT NOT NULL NOT
+      DROPPABLE
+  )
+
+--- SQL operation complete.
+>>
+>>changeuser db__root;
+>>revoke role DB__ROOTROLE from sql_user2;
+
+--- SQL operation complete.
+>>
+>>-- sql_user3 gets some privileges through SELECT grant
+>>set schema t132sch;
+
+--- SQL operation complete.
+>>grant SELECT on t132_teams to sql_user3;
+
+--- SQL operation complete.
+>>changeuser sql_user3;
+>>obey TEST132(show_objects);
+>>
+>>set schema t132sch;
+
+--- SQL operation complete.
+>>cqd SHOWDDL_DISPLAY_PRIVILEGE_GRANTS 'ON';
+
+--- SQL operation complete.
+>>
+>>get tables;
+
+Tables in Schema TRAFODION.T132SCH
+==================================
+
+T132_TEAMS
+
+=======================
+ 1 row(s) returned
+
+--- SQL operation complete.
+>>
+>>showddl t132_games;
+
+*** ERROR[1017] You are not authorized to perform this operation.
+
+--- SQL operation failed with errors.
+>>showddl t132_teams;
+
+CREATE TABLE TRAFODION.T132SCH.T132_TEAMS
+  (
+    TEAM_NUMBER                      INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , TEAM_NAME                        CHAR(20) CHARACTER SET ISO88591 COLLATE
+      DEFAULT NO DEFAULT NOT NULL NOT DROPPABLE
+  , TEAM_CONTACT                     VARCHAR(50) CHARACTER SET ISO88591 COLLATE
+      DEFAULT NO DEFAULT NOT NULL NOT DROPPABLE
+  , TEAM_CONTACT_NUMBER              CHAR(10) CHARACTER SET ISO88591 COLLATE
+      DEFAULT NO DEFAULT NOT NULL NOT DROPPABLE
+  , PRIMARY KEY (TEAM_NUMBER ASC)
+  )
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_1500000'
+;
+
+ALTER TABLE TRAFODION.T132SCH.T132_TEAMS ADD CONSTRAINT
+  TRAFODION.T132SCH.VALID_TEAM_NO CHECK
+  (TRAFODION.T132SCH.T132_TEAMS.TEAM_NUMBER > 0)
+;
+
+-- GRANT SELECT, INSERT, DELETE, UPDATE, REFERENCES, ALTER, DROP ON TRAFODION.T132SCH.T132_TEAMS TO DB__ROOT WITH GRANT OPTION;
+  GRANT SELECT ON TRAFODION.T132SCH.T132_TEAMS TO SQL_USER3;
+
+--- SQL operation complete.
+>>showddl t132_giants_games;
+
+*** ERROR[1017] You are not authorized to perform this operation.
+
+--- SQL operation failed with errors.
+>>showddl t132_home_teams_games;
+
+*** ERROR[1017] You are not authorized to perform this operation.
+
+--- SQL operation failed with errors.
+>>showddl sequence t132_team_number_sequence;
+
+*** ERROR[1017] You are not authorized to perform this operation.
+
+--- SQL operation failed with errors.
+>>
+>>invoke t132_games;
+
+*** ERROR[1017] You are not authorized to perform this operation.
+
+--- SQL operation failed with errors.
+>>invoke t132_teams;
+
+-- Definition of Trafodion table TRAFODION.T132SCH.T132_TEAMS
+-- Definition of hbase table TRAF_1500000:TRAFODION.T132SCH.T132_TEAMS
+-- Definition current  Wed Apr  3 18:27:28 2019
+
+  (
+    TEAM_NUMBER                      INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , TEAM_NAME                        CHAR(20) CHARACTER SET ISO88591 COLLATE
+      DEFAULT NO DEFAULT NOT NULL NOT DROPPABLE
+  , TEAM_CONTACT                     VARCHAR(50) CHARACTER SET ISO88591 COLLATE
+      DEFAULT NO DEFAULT NOT NULL NOT DROPPABLE
+  , TEAM_CONTACT_NUMBER              CHAR(10) CHARACTER SET ISO88591 COLLATE
+      DEFAULT NO DEFAULT NOT NULL NOT DROPPABLE
+  )
+  PRIMARY KEY (TEAM_NUMBER ASC)
+
+--- SQL operation complete.
+>>invoke t132_giants_games;
+
+*** ERROR[1017] You are not authorized to perform this operation.
+
+--- SQL operation failed with errors.
+>>invoke t132_home_teams_games;
+
+*** ERROR[1017] You are not authorized to perform this operation.
+
+--- SQL operation failed with errors.
+>>
+>>changeuser db__root;
+>>set schema t132sch;
+
+--- SQL operation complete.
+>>revoke select on t132_teams from sql_user3;
+
+--- SQL operation complete.
+>>
+>>-- regrant the show privs - everyone has privs
+>>get privileges on component sql_operations for "PUBLIC";
+
+Privilege information on Component SQL_OPERATIONS for PUBLIC
+============================================================
+
+CREATE_SCHEMA
+DML_SELECT_METADATA
+
+=======================
+ 2 row(s) returned
+
+--- SQL operation complete.
+>>grant component privilege "SHOW" on sql_operations to "PUBLIC";
+
+--- SQL operation complete.
+>>get privileges on component sql_operations for "PUBLIC";
+
+Privilege information on Component SQL_OPERATIONS for PUBLIC
+============================================================
+
+CREATE_SCHEMA
+DML_SELECT_METADATA
+SHOW
+
+=======================
+ 3 row(s) returned
+
+--- SQL operation complete.
+>>changeuser sql_user1;
+>>obey TEST132(show_objects);
+>>
+>>set schema t132sch;
+
+--- SQL operation complete.
+>>cqd SHOWDDL_DISPLAY_PRIVILEGE_GRANTS 'ON';
+
+--- SQL operation complete.
+>>
+>>get tables;
+
+Tables in Schema TRAFODION.T132SCH
+==================================
+
+SB_HISTOGRAMS
+SB_HISTOGRAM_INTERVALS
+SB_PERSISTENT_SAMPLES
+T132_GAMES
+T132_TEAMS
+
+=======================
+ 5 row(s) returned
+
+--- SQL operation complete.
+>>
+>>showddl t132_games;
+
+CREATE TABLE TRAFODION.T132SCH.T132_GAMES
+  (
+    HOME_TEAM_NUMBER                 INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , VISITOR_TEAM_NUMBER              INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , GAME_NUMBER                      INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , GAME_TIME                        TIMESTAMP(6) NO DEFAULT NOT NULL NOT
+      DROPPABLE
+  , GAME_LOCATION                    VARCHAR(50) CHARACTER SET ISO88591 COLLATE
+      DEFAULT NO DEFAULT NOT NULL NOT DROPPABLE
+  , PRIMARY KEY (GAME_NUMBER ASC)
+  )
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_1500000'
+;
+
+CREATE INDEX T132_HOME_GAMES ON TRAFODION.T132SCH.T132_GAMES
+  (
+    HOME_TEAM_NUMBER ASC
+  )
+;
+
+ALTER TABLE TRAFODION.T132SCH.T132_GAMES ADD CONSTRAINT
+  TRAFODION.T132SCH.VALID_GAME_NUMBER CHECK
+  (TRAFODION.T132SCH.T132_GAMES.GAME_NUMBER > 0)
+;
+
+-- GRANT SELECT, INSERT, DELETE, UPDATE, REFERENCES, ALTER, DROP ON TRAFODION.T132SCH.T132_GAMES TO SQL_USER1 WITH GRANT OPTION;
+
+--- SQL operation complete.
+>>showddl t132_teams;
+
+CREATE TABLE TRAFODION.T132SCH.T132_TEAMS
+  (
+    TEAM_NUMBER                      INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , TEAM_NAME                        CHAR(20) CHARACTER SET ISO88591 COLLATE
+      DEFAULT NO DEFAULT NOT NULL NOT DROPPABLE
+  , TEAM_CONTACT                     VARCHAR(50) CHARACTER SET ISO88591 COLLATE
+      DEFAULT NO DEFAULT NOT NULL NOT DROPPABLE
+  , TEAM_CONTACT_NUMBER              CHAR(10) CHARACTER SET ISO88591 COLLATE
+      DEFAULT NO DEFAULT NOT NULL NOT DROPPABLE
+  , PRIMARY KEY (TEAM_NUMBER ASC)
+  )
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_1500000'
+;
+
+ALTER TABLE TRAFODION.T132SCH.T132_TEAMS ADD CONSTRAINT
+  TRAFODION.T132SCH.VALID_TEAM_NO CHECK
+  (TRAFODION.T132SCH.T132_TEAMS.TEAM_NUMBER > 0)
+;
+
+-- GRANT SELECT, INSERT, DELETE, UPDATE, REFERENCES, ALTER, DROP ON TRAFODION.T132SCH.T132_TEAMS TO DB__ROOT WITH GRANT OPTION;
+
+--- SQL operation complete.
+>>showddl t132_giants_games;
+
+CREATE VIEW TRAFODION.T132SCH.T132_GIANTS_GAMES AS
+  SELECT TRAFODION.T132SCH.T132_GAMES.GAME_NUMBER,
+    TRAFODION.T132SCH.T132_GAMES.GAME_TIME,
+    TRAFODION.T132SCH.T132_GAMES.GAME_LOCATION FROM
+    TRAFODION.T132SCH.T132_GAMES WHERE
+    TRAFODION.T132SCH.T132_GAMES.HOME_TEAM_NUMBER = 2 ORDER BY 1, 2, 3 ;
+
+-- GRANT SELECT, DELETE, UPDATE, REFERENCES, ALTER, DROP ON TRAFODION.T132SCH.T132_GIANTS_GAMES TO DB__ROOT WITH GRANT OPTION;
+
+--- SQL operation complete.
+>>showddl t132_home_teams_games;
+
+CREATE VIEW TRAFODION.T132SCH.T132_HOME_TEAMS_GAMES AS
+  SELECT T.TEAM_NUMBER, G.GAME_NUMBER, G.GAME_TIME FROM
+    TRAFODION.T132SCH.T132_TEAMS T, TRAFODION.T132SCH.T132_GAMES G WHERE
+    T.TEAM_NUMBER = G.HOME_TEAM_NUMBER ORDER BY 1, G.GAME_NUMBER, G.GAME_TIME
+    ;
+
+-- GRANT SELECT, REFERENCES, ALTER, DROP ON TRAFODION.T132SCH.T132_HOME_TEAMS_GAMES TO DB__ROOT WITH GRANT OPTION;
+
+--- SQL operation complete.
+>>showddl sequence t132_team_number_sequence;
+
+CREATE SEQUENCE TRAFODION.T132SCH.T132_TEAM_NUMBER_SEQUENCE
+  START WITH 1
+  INCREMENT BY 1
+  MAXVALUE 9223372036854775806
+  MINVALUE 1
+  CACHE 25
+  NOORDER
+  NO CYCLE
+  LARGEINT
+;
+
+-- GRANT USAGE, ALTER, DROP ON SEQUENCE TRAFODION.T132SCH.T132_TEAM_NUMBER_SEQUENCE TO DB__ROOT WITH GRANT OPTION;
+
+--- SQL operation complete.
+>>
+>>invoke t132_games;
+
+-- Definition of Trafodion table TRAFODION.T132SCH.T132_GAMES
+-- Definition of hbase table TRAF_1500000:TRAFODION.T132SCH.T132_GAMES
+-- Definition current  Wed Apr  3 18:27:57 2019
+
+  (
+    HOME_TEAM_NUMBER                 INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , VISITOR_TEAM_NUMBER              INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , GAME_NUMBER                      INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , GAME_TIME                        TIMESTAMP(6) NO DEFAULT NOT NULL NOT
+      DROPPABLE
+  , GAME_LOCATION                    VARCHAR(50) CHARACTER SET ISO88591 COLLATE
+      DEFAULT NO DEFAULT NOT NULL NOT DROPPABLE
+  )
+  PRIMARY KEY (GAME_NUMBER ASC)
+
+--- SQL operation complete.
+>>invoke t132_teams;
+
+-- Definition of Trafodion table TRAFODION.T132SCH.T132_TEAMS
+-- Definition of hbase table TRAF_1500000:TRAFODION.T132SCH.T132_TEAMS
+-- Definition current  Wed Apr  3 18:27:57 2019
+
+  (
+    TEAM_NUMBER                      INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , TEAM_NAME                        CHAR(20) CHARACTER SET ISO88591 COLLATE
+      DEFAULT NO DEFAULT NOT NULL NOT DROPPABLE
+  , TEAM_CONTACT                     VARCHAR(50) CHARACTER SET ISO88591 COLLATE
+      DEFAULT NO DEFAULT NOT NULL NOT DROPPABLE
+  , TEAM_CONTACT_NUMBER              CHAR(10) CHARACTER SET ISO88591 COLLATE
+      DEFAULT NO DEFAULT NOT NULL NOT DROPPABLE
+  )
+  PRIMARY KEY (TEAM_NUMBER ASC)
+
+--- SQL operation complete.
+>>invoke t132_giants_games;
+
+-- Definition of Trafodion view TRAFODION.T132SCH.T132_GIANTS_GAMES
+-- Definition current  Wed Apr  3 18:27:58 2019
+
+  (
+    GAME_NUMBER                      INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , GAME_TIME                        TIMESTAMP(6) NO DEFAULT NOT NULL NOT
+      DROPPABLE
+  , GAME_LOCATION                    VARCHAR(50) CHARACTER SET ISO88591 COLLATE
+      DEFAULT NO DEFAULT NOT NULL NOT DROPPABLE
+  )
+
+--- SQL operation complete.
+>>invoke t132_home_teams_games;
+
+-- Definition of Trafodion view TRAFODION.T132SCH.T132_HOME_TEAMS_GAMES
+-- Definition current  Wed Apr  3 18:27:58 2019
+
+  (
+    TEAM_NUMBER                      INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , GAME_NUMBER                      INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , GAME_TIME                        TIMESTAMP(6) NO DEFAULT NOT NULL NOT
+      DROPPABLE
+  )
+
+--- SQL operation complete.
+>>
+>>
+>>changeuser db__root;
+>>set schema t132sch;
+
+--- SQL operation complete.
+>>drop table t132_teams cascade;
+
+--- SQL operation complete.
+>>drop table t132_games cascade;
+
+--- SQL operation complete.
+>>drop sequence t132_team_number_sequence;
+
+--- SQL operation complete.
+>>
+>>obey TEST132(test_stats);
+>>-- =================================================================
+>>-- run tests to make sure users that update statistics have correct
+>>-- privileges.  To update stats, you must:
+>>--   be DB__ROOT
+>>--   be table owner
+>>--   have SELECT privilege 
+>>--   have the MANAGE_STATISTICS privilege (DB__ROOTROLE has priv)
+>>-- =================================================================
+>>
+>>set schema t132sch;
+
+--- SQL operation complete.
+>>get tables, match '%T132%';
+
+--- SQL operation complete.
+>>
+>>create table t132t1 (c1 int, c2 int);
+
+--- SQL operation complete.
+>>create table t132t2 (c1 int, c2 int) attribute by sql_user1;
+
+--- SQL operation complete.
+>>insert into t132t1 values (1,1), (2,2), (3,3),(4,4), (5,5),(6,6), (7,7),(8,8);
+
+--- 8 row(s) inserted.
+>>insert into t132t2 values (1,1), (2,2), (3,3),(4,4), (5,5),(6,6), (7,7),(8,8);
+
+--- 8 row(s) inserted.
+>>
+>>get tables, match '%T132%';
+
+Tables in Schema TRAFODION.T132SCH
+==================================
+
+T132T1
+T132T2
+
+=======================
+ 2 row(s) returned
+
+--- SQL operation complete.
+>>select count(*) from t132t1;
+
+(EXPR)              
+--------------------
+
+                   8
+
+--- 1 row(s) selected.
+>>select count(*) from t132t2;
+
+(EXPR)              
+--------------------
+
+                   8
+
+--- 1 row(s) selected.
+>>
+>>-- update statistics as DB__ROOT
+>>obey TEST132(update_stats);
+>>set schema t132sch;
+
+--- SQL operation complete.
+>>
+>>update statistics for table t132t1 on every column;
+
+--- SQL operation complete.
+>>update statistics for table t132t2 on every column;
+
+--- SQL operation complete.
+>>
+>>
+>>-- DB__ROOTROLE is granted MANAGE_STATISTICS privilege by default
+>>-- first show that sql_user2 cannot perform operations
+>>changeuser sql_user2;
+>>obey TEST132(update_stats);
+>>set schema t132sch;
+
+--- SQL operation complete.
+>>
+>>update statistics for table t132t1 on every column;
+
+*** ERROR[4481] The user does not have SELECT or MANAGE_STATISTICS privilege on table or view TRAFODION.T132SCH.T132T1.
+
+*** ERROR[9241] Insufficient privileges to perform the statistics request for table TRAFODION.T132SCH.T132T1.
+
+--- SQL operation failed with errors.
+>>update statistics for table t132t2 on every column;
+
+*** ERROR[4481] The user does not have SELECT or MANAGE_STATISTICS privilege on table or view TRAFODION.T132SCH.T132T2.
+
+*** ERROR[9241] Insufficient privileges to perform the statistics request for table TRAFODION.T132SCH.T132T2.
+
+--- SQL operation failed with errors.
+>>
+>>changeuser db__root;
+>>
+>>-- now show privileges after being granted DB__ROOTROLE role
+>>grant role DB__ROOTROLE to sql_user2;
+
+--- SQL operation complete.
+>>changeuser sql_user2;
+>>obey TEST132(update_stats);
+>>set schema t132sch;
+
+--- SQL operation complete.
+>>
+>>update statistics for table t132t1 on every column;
+
+--- SQL operation complete.
+>>update statistics for table t132t2 on every column;
+
+--- SQL operation complete.
+>>
+>>changeuser DB__ROOT;
+>>revoke role DB__ROOTROLE from sql_user2;
+
+--- SQL operation complete.
+>>
+>>-- run as table owner, sql_user1 owns one table
+>>-- update stats only works for t132t2, showstats works on both tables
+>>changeuser sql_user1;
+>>obey TEST132(show_update_stats);
+>>obey TEST132(update_stats);
+>>set schema t132sch;
+
+--- SQL operation complete.
+>>
+>>update statistics for table t132t1 on every column;
+
+*** ERROR[4481] The user does not have SELECT or MANAGE_STATISTICS privilege on table or view TRAFODION.T132SCH.T132T1.
+
+*** ERROR[9241] Insufficient privileges to perform the statistics request for table TRAFODION.T132SCH.T132T1.
+
+--- SQL operation failed with errors.
+>>update statistics for table t132t2 on every column;
+
+--- SQL operation complete.
+>>
+>>obey TEST132(show_stats);
+>>set schema t132sch;
+
+--- SQL operation complete.
+>>
+>>showstats for table t132t1 on every column;
+
+Histogram data for Table TRAFODION.T132SCH.T132T1
+Table ID: 4091709204534495040
+
+   Hist ID # Ints    Rowcount         UEC Colname(s)
+========== ====== =========== =========== ===========================
+1644436481      8           8           8 SYSKEY
+1644436474      8           8           8 C1
+1644436471      8           8           8 C2
+
+
+--- SQL operation complete.
+>>showstats for table t132t2 on every column;
+
+Histogram data for Table TRAFODION.T132SCH.T132T2
+Table ID: 4091709204534495233
+
+   Hist ID # Ints    Rowcount         UEC Colname(s)
+========== ====== =========== =========== ===========================
+1656672743      8           8           8 SYSKEY
+1656672738      8           8           8 C1
+1656672733      8           8           8 C2
+
+
+--- SQL operation complete.
+>>
+>>changeuser DB__ROOT;
+>>
+>>-- revoke SHOW privilege from public for the next set of tests
+>>get privileges on component sql_operations for "PUBLIC";
+
+Privilege information on Component SQL_OPERATIONS for PUBLIC
+============================================================
+
+CREATE_SCHEMA
+DML_SELECT_METADATA
+SHOW
+
+=======================
+ 3 row(s) returned
+
+--- SQL operation complete.
+>>revoke component privilege "SHOW" on sql_operations from "PUBLIC";
+
+--- SQL operation complete.
+>>get privileges on component sql_operations for "PUBLIC";
+
+Privilege information on Component SQL_OPERATIONS for PUBLIC
+============================================================
+
+CREATE_SCHEMA
+DML_SELECT_METADATA
+
+=======================
+ 2 row(s) returned
+
+--- SQL operation complete.
+>>
+>>-- Run with MANAGE_STATISTICS and no SHOW
+>>-- first illustrate that sql_user3 has no privs
+>>get privileges on component sql_operations for sql_user3;
+
+--- SQL operation complete.
+>>changeuser sql_user3;
+>>obey TEST132(show_update_stats);
+>>obey TEST132(update_stats);
+>>set schema t132sch;
+
+--- SQL operation complete.
+>>
+>>update statistics for table t132t1 on every column;
+
+*** ERROR[4481] The user does not have SELECT or MANAGE_STATISTICS privilege on table or view TRAFODION.T132SCH.T132T1.
+
+*** ERROR[9241] Insufficient privileges to perform the statistics request for table TRAFODION.T132SCH.T132T1.
+
+--- SQL operation failed with errors.
+>>update statistics for table t132t2 on every column;
+
+*** ERROR[4481] The user does not have SELECT or MANAGE_STATISTICS privilege on table or view TRAFODION.T132SCH.T132T2.
+
+*** ERROR[9241] Insufficient privileges to perform the statistics request for table TRAFODION.T132SCH.T132T2.
+
+--- SQL operation failed with errors.
+>>
+>>obey TEST132(show_stats);
+>>set schema t132sch;
+
+--- SQL operation complete.
+>>
+>>showstats for table t132t1 on every column;
+
+*** ERROR[4481] The user does not have SELECT or MANAGE_STATISTICS privilege on table or view TRAFODION.T132SCH.T132T1.
+
+*** ERROR[9241] Insufficient privileges to perform the statistics request for table TRAFODION.T132SCH.T132T1.
+
+--- SQL operation failed with errors.
+>>showstats for table t132t2 on every column;
+
+*** ERROR[4481] The user does not have SELECT or MANAGE_STATISTICS privilege on table or view TRAFODION.T132SCH.T132T2.
+
+*** ERROR[9241] Insufficient privileges to perform the statistics request for table TRAFODION.T132SCH.T132T2.
+
+--- SQL operation failed with errors.
+>>
+>>changeuser db__root;
+>>
+>>-- now show privileges after being granted MANAGE_STATISTICS
+>>grant component privilege MANAGE_STATISTICS on sql_operations to sql_user3;
+
+--- SQL operation complete.
+>>get privileges on component sql_operations for sql_user3;
+
+Privilege information on Component SQL_OPERATIONS for SQL_USER3
+===============================================================
+
+MANAGE_STATISTICS
+
+=======================
+ 1 row(s) returned
+
+--- SQL operation complete.
+>>changeuser sql_user3;
+>>obey TEST132(show_update_stats);
+>>obey TEST132(update_stats);
+>>set schema t132sch;
+
+--- SQL operation complete.
+>>
+>>update statistics for table t132t1 on every column;
+
+--- SQL operation complete.
+>>update statistics for table t132t2 on every column;
+
+--- SQL operation complete.
+>>
+>>obey TEST132(show_stats);
+>>set schema t132sch;
+
+--- SQL operation complete.
+>>
+>>showstats for table t132t1 on every column;
+
+Histogram data for Table TRAFODION.T132SCH.T132T1
+Table ID: 4091709204534495040
+
+   Hist ID # Ints    Rowcount         UEC Colname(s)
+========== ====== =========== =========== ===========================
+1644436480      8           8           8 SYSKEY
+1644436475      8           8           8 C1
+1644436470      8           8           8 C2
+
+
+--- SQL operation complete.
+>>showstats for table t132t2 on every column;
+
+Histogram data for Table TRAFODION.T132SCH.T132T2
+Table ID: 4091709204534495233
+
+   Hist ID # Ints    Rowcount         UEC Colname(s)
+========== ====== =========== =========== ===========================
+1656672742      8           8           8 SYSKEY
+1656672739      8           8           8 C1
+1656672732      8           8           8 C2
+
+
+--- SQL operation complete.
+>>
+>>changeuser db__root;
+>>revoke component privilege MANAGE_STATISTICS on sql_operations from sql_user3;
+
+--- SQL operation complete.
+>>get privileges on component sql_operations for sql_user3;
+
+--- SQL operation complete.
+>>
+>>-- test showstats
+>>-- showstats should no longer work
+>>changeuser sql_user3;
+>>obey TEST132(show_stats);
+>>set schema t132sch;
+
+--- SQL operation complete.
+>>
+>>showstats for table t132t1 on every column;
+
+*** ERROR[4481] The user does not have SELECT or MANAGE_STATISTICS privilege on table or view TRAFODION.T132SCH.T132T1.
+
+*** ERROR[9241] Insufficient privileges to perform the statistics request for table TRAFODION.T132SCH.T132T1.
+
+--- SQL operation failed with errors.
+>>showstats for table t132t2 on every column;
+
+*** ERROR[4481] The user does not have SELECT or MANAGE_STATISTICS privilege on table or view TRAFODION.T132SCH.T132T2.
+
+*** ERROR[9241] Insufficient privileges to perform the statistics request for table TRAFODION.T132SCH.T132T2.
+
+--- SQL operation failed with errors.
+>>changeuser db__root;
+>>
+>>-- grant select to allow showstats to work
+>>set schema t132sch;
+
+--- SQL operation complete.
+>>grant SELECT on t132t1 to sql_user4;
+
+--- SQL operation complete.
+>>cqd SHOWDDL_DISPLAY_PRIVILEGE_GRANTS 'ON';
+
+--- SQL operation complete.
+>>showddl t132t1;
+
+CREATE TABLE TRAFODION.T132SCH.T132T1
+  (
+    C1                               INT DEFAULT NULL
+  , C2                               INT DEFAULT NULL
+  )
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_1500000'
+;
+
+-- GRANT SELECT, INSERT, DELETE, UPDATE, REFERENCES, ALTER, DROP ON TRAFODION.T132SCH.T132T1 TO DB__ROOT WITH GRANT OPTION;
+  GRANT SELECT ON TRAFODION.T132SCH.T132T1 TO SQL_USER4;
+
+--- SQL operation complete.
+>>changeuser sql_user4;
+>>obey TEST132(show_stats);
+>>set schema t132sch;
+
+--- SQL operation complete.
+>>
+>>showstats for table t132t1 on every column;
+
+Histogram data for Table TRAFODION.T132SCH.T132T1
+Table ID: 4091709204534495040
+
+   Hist ID # Ints    Rowcount         UEC Colname(s)
+========== ====== =========== =========== ===========================
+1644436480      8           8           8 SYSKEY
+1644436475      8           8           8 C1
+1644436470      8           8           8 C2
+
+
+--- SQL operation complete.
+>>showstats for table t132t2 on every column;
+
+*** ERROR[4481] The user does not have SELECT or MANAGE_STATISTICS privilege on table or view TRAFODION.T132SCH.T132T2.
+
+*** ERROR[9241] Insufficient privileges to perform the statistics request for table TRAFODION.T132SCH.T132T2.
+
+--- SQL operation failed with errors.
+>>changeuser db__root;
+>>
+>>-- testcase for trafodion-2188 fix
+>>create schema t132sch_private;
+
+--- SQL operation complete.
+>>set schema t132sch_private;
+
+--- SQL operation complete.
+>>CREATE TABLE t132t3
++>( c1 char(12) not null, c2 char(12) not null, c3 char(12) not null, 
++>  PRIMARY KEY (C1 ASC))
++>SALT USING 4 PARTITIONS
++>ON (C1);
+
+--- SQL operation complete.
+>>
+>>upsert using load into t132t3
++>select
++>  x1 || x2 || x3 || x4 || x5,
++>  x2 || x4 || x1,
++>  x5 || x3
++>-- the from clause below creates 100,000 rows, the cross product of
++>-- 5 copies of { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j' }
++>  from (values('a'),('b'),('c'),('d'),('e'),('f'),('g'),('h'),('i'),('j')) T(x1)
++>transpose 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j' as x2
++>transpose 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j' as x3
++>transpose 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j' as x4
++>transpose 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j' as x5;
+
+--- 100000 row(s) inserted.
+>>
+>>select count(*) from t132t3;
+
+(EXPR)              
+--------------------
+
+              100000
+
+--- 1 row(s) selected.
+>>
+>>grant component privilege MANAGE_STATISTICS on sql_operations to sql_user3;
+
+--- SQL operation complete.
+>>get privileges on component sql_operations for sql_user3;
+
+Privilege information on Component SQL_OPERATIONS for SQL_USER3
+===============================================================
+
+MANAGE_STATISTICS
+
+=======================
+ 1 row(s) returned
+
+--- SQL operation complete.
+>>changeuser sql_user3;
+>>obey TEST132(update_stats1);
+>>set schema t132sch_private;
+
+--- SQL operation complete.
+>>update statistics for table t132t3 create sample random 10 percent;
+
+--- SQL operation complete.
+>>
+>>changeuser db__root;
+>>set schema t132sch_private;
+
+--- SQL operation complete.
+>>revoke component privilege MANAGE_STATISTICS on sql_operations from sql_user3;
+
+--- SQL operation complete.
+>>cleanup schema t132sch_private;
+
+--- SQL operation complete.
+>>set schema t132sch;
+
+--- SQL operation complete.
+>>
+>>-- reset
+>>revoke SELECT on t132t1 from sql_user4;
+
+--- SQL operation complete.
+>>grant component privilege "SHOW" on sql_operations to "PUBLIC";
+
+--- SQL operation complete.
+>>get privileges on component sql_operations for "PUBLIC";
+
+Privilege information on Component SQL_OPERATIONS for PUBLIC
+============================================================
+
+CREATE_SCHEMA
+DML_SELECT_METADATA
+SHOW
+
+=======================
+ 3 row(s) returned
+
+--- SQL operation complete.
+>>
+>>drop table t132t1;
+
+--- SQL operation complete.
+>>drop table t132t2;
+
+--- SQL operation complete.
+>>
+>>get tables, match 'T132%';
+
+--- SQL operation complete.
+>>
+>>log;

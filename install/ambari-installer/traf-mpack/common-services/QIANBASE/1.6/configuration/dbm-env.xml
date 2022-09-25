@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+ 
+<configuration supports_final="false">
+
+  <!-- Define configuration paramaters for service: property name, default value and description (shown as help text) -->
+  
+  <property>
+    <name>esgyndb_admin_password</name>
+    <display-name>Esgyn Database Admin Password</display-name>
+    <value>none</value>
+    <description>Password for the Database Admin User (e.g., LDAP password) for use by DB manager tool</description>
+    <value-attributes>
+      <type>password</type>
+    </value-attributes>
+  </property>
+  <property>
+    <name>enable_https</name>
+    <display-name>Enable HTTPS for DB Manager and REST Server</display-name>
+    <value>true</value>
+    <description>Enable HTTPS for DB Manager and REST Server</description>
+    <value-attributes>
+      <type>boolean</type>
+    </value-attributes>
+  </property>
+  <property>
+    <name>keystore_pwd</name>
+    <display-name>Esgyn keystore password</display-name>
+    <value></value>
+    <description>Esgyn keystore password for HTTPS connections</description>
+    <value-attributes>
+      <type>password</type>
+    </value-attributes>
+    <depends-on>
+       <property>
+         <type>dbm-env</type>
+         <name>enable_https</name>
+       </property>
+    </depends-on>
+  </property>
+  <property>
+    <name>dbmgr.http.port</name>
+    <display-name>Esgyn DB Manager HTTP Port</display-name>
+    <value>4205</value>
+    <description>The port used to connect with DB manager web interface.</description>
+    <value-attributes>
+      <type>int</type>
+    </value-attributes>
+  </property>
+  <property>
+    <name>dbmgr.https.port</name>
+    <display-name>Esgyn DB Manager HTTPS Port</display-name>
+    <value>4206</value>
+    <description>The port used to connect with DB manager secure web interface.</description>
+    <value-attributes>
+      <type>int</type>
+    </value-attributes>
+  </property>
+</configuration>

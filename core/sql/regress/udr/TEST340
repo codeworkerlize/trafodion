@@ -1,0 +1,506 @@
+obey TEST340(clean);
+log LOG340 clear;
+obey TEST340(setup);
+obey TEST340(test);
+obey TEST340(testshow);
+log;
+obey TEST340(clean);
+exit;
+
+?section setup;
+CREATE TABLE T340_orders (item VARCHAR(100),description VARCHAR(100));
+INSERT INTO T340_orders VALUES('aitem','adescription');
+INSERT INTO T340_orders VALUES('bitem','bdescription');
+
+
+CREATE OR REPLACE PROCEDURE testp() AS
+//BEGIN
+	/*
+	 Defining variables for assignment
+	*/
+	DECLARE code CHAR(10) = 'code';
+	DECLARE status, status2 INT DEFAULT 1;
+	DECLARE limit1 INT DEFAULT 100;
+	DECLARE num INT := 1;
+	DECLARE num2 INT = 2;
+	PRINT code;
+	PRINT status;
+	PRINT status2;
+	PRINT limit1;
+	PRINT num;
+	PRINT num2;
+	  
+	/* 
+	 BREAK statement exits the innermost loop.
+	*/
+	DECLARE flow_control_count INT DEFAULT 3;
+	WHILE 1=1 BEGIN
+	  SET flow_control_count = flow_control_count - 1;
+	  PRINT flow_control_count;
+	  IF flow_control_count = 0
+	    BREAK;
+	END;
+	/* 
+	 EXIT WHEN statement exits the loop or block marked by the given label. If the label is not specified, EXIT leaves the innermost loop.
+	*/
+	<<lbl>>
+	WHILE 1=1 LOOP
+	  <<lbl1>>
+	  WHILE 1=1 LOOP
+	  	PRINT 'If not print error then correct';
+			EXIT lbl;
+	  END LOOP;
+	  PRINT 'error';
+	END LOOP;
+
+	DECLARE count2 INT DEFAULT 3;
+	WHILE count2 > 0 LOOP
+	  count2 := count2 - 1;
+	  PRINT count2; 
+	  EXIT WHEN count2 = 0;
+	END LOOP;
+
+	/* 
+	 FOR statement opens a cursor, executes one or more statements repeatedly for each row and closes the cursor.
+	*/
+	FOR ordersrows IN (
+	    SELECT item, description
+	    FROM T340_orders
+	    WHERE item LIKE '%a%')
+	LOOP
+	  PRINT ordersrows.item;
+		PRINT ordersrows.description;
+	END LOOP;
+
+	/* 
+	 FOR statement executes one or more statements repeatedly for the specified range of integer values.
+	*/
+	FOR i IN 1..10 LOOP
+	    PRINT i;
+	END LOOP;
+
+	/* 
+	 IF statement executes a set of statements depending on the value of a boolean expression.
+	*/
+	DECLARE ifelse_code INT;
+	DECLARE state VARCHAR(10) = 'CA';
+	IF state = 'CA' THEN
+	  ifelse_code := 1;
+	ELSIF state = 'NY' THEN
+	  ifelse_code := 2;
+	ELSIF state = 'MA' THEN
+	  ifelse_code := 3;
+	ELSE
+	  ifelse_code := 5;
+	END IF;
+	PRINT ifelse_code;
+
+	/* 
+	 LEAVE statement exits the loop or block marked by the given label. If the label is not specified, LEAVE exists the innermost loop.
+	*/
+	DECLARE leave_count INT = 3;
+	lbl:
+	WHILE leave_count > 0 DO
+	  SET leave_count = leave_count - 1;
+	  PRINT leave_count;
+	  IF leave_count = 0 THEN
+	    LEAVE lbl;
+	  END IF;
+	END WHILE;
+
+	/* 
+	 WHILE statement executes one or more statements while the condition is true.
+	*/
+	DECLARE while_count INT = 3;
+	WHILE while_count > 0 BEGIN
+	  while_count := while_count - 1;
+	  PRINT while_count;
+	END;
+
+	/* 
+	 CLOSE statement closes a cursor
+	*/
+	DECLARE close_id VARCHAR(100);
+	DECLARE close_cur CURSOR FOR 'SELECT item FROM T340_orders';
+	OPEN close_cur;
+	FETCH close_cur INTO close_id;
+	PRINT close_id;
+	CLOSE close_cur;
+
+	/* 
+	 Cursor attributes allow you to get information about the current cursor state.
+	*/
+	DECLARE CURSOR cursor_attributes_c1 IS SELECT item FROM T340_orders LIMIT 1;
+	DECLARE cursor_attributes_v1 VARCHAR(100);
+	BEGIN
+	DECLARE CONTINUE HANDLER FOR NOT FOUND
+		PRINT 'Wrong number of rows';
+		
+	  OPEN cursor_attributes_c1;
+	  IF cursor_attributes_c1%ISOPEN THEN
+	    PRINT 'Cursor open';
+	  END IF; 
+	  FETCH cursor_attributes_c1 INTO cursor_attributes_v1;
+	  IF cursor_attributes_c1%FOUND THEN
+	    PRINT 'Row found';
+	  END IF;  
+	  FETCH cursor_attributes_c1 INTO cursor_attributes_v1;
+	  IF cursor_attributes_c1%NOTFOUND THEN
+	    PRINT 'Row not found';
+	  END IF;  
+	  CLOSE cursor_attributes_c1; 
+	END;
+
+	/* 
+	 You can use DECLARE CURSOR statement to declare a cursor using a dynamic SQL.
+	 FETCH statement retrieves the next row from a cursor and assigns column values to local variable.
+	 OPEN statement opens a cursor.
+	*/
+	DECLARE fetch_tabname VARCHAR DEFAULT 'T340_orders';
+	DECLARE fetch_item VARCHAR(100);
+	DECLARE fetch_cur CURSOR FOR 'SELECT item FROM ' || fetch_tabname;
+	OPEN fetch_cur;
+	FETCH fetch_cur INTO fetch_item;
+	WHILE SQLCODE=0 THEN
+	  PRINT fetch_item;
+	  FETCH fetch_cur INTO fetch_item;
+	END WHILE;
+	CLOSE fetch_cur;
+
+	/* 
+	 EXECUTE (EXEC or EXECUTE IMMEDIATE) statement executes a dynamic SQL statement and can return the scalar result to local variables.
+	*/
+	DECLARE DynamicSQL_cnt INT;
+	EXECUTE 'SELECT COUNT(*) FROM T340_orders' INTO dynamicsql_cnt;
+	PRINT DynamicSQL_cnt;
+	DECLARE tabname VARCHAR(100) DEFAULT 'tab1';
+	EXECUTE IMMEDIATE 'CREATE TABLE ' || tabname || ' (c1 INT)';
+	INSERT INTO tab1 VALUES(1);
+	EXECUTE 'SELECT COUNT(*) FROM T340_orders' INTO DynamicSQL_cnt;
+	PRINT DynamicSQL_cnt;
+        
+  /*
+   EsgynDB PL/SQL allows you to handle exceptions in your programs.
+  */
+  DECLARE EXCEPTION_BLOCK_v VARCHAR(200);
+  BEGIN
+    OPEN EXCEPTION_BLOCK_cur FOR 'SELECT c1 FROM t1';
+    FETCH EXCEPTION_BLOCK_cur INTO EXCEPTION_BLOCK_v;
+    CLOSE EXCEPTION_BLOCK_cur;
+  EXCEPTION WHEN OTHERS THEN
+    PRINT 'Error';
+  END;
+
+        
+  /*
+   %ROWTYPE attribute lets you declare a record variable that has the same columns and data types as the specified database table.
+   %TYPE attribute lets you declare a variable that has the same data type as the specified referenced column.
+  */
+  DECLARE ROWTYPE_TYPE_v T340_orders%ROWTYPE;
+
+  SELECT * INTO ROWTYPE_TYPE_v FROM T340_orders LIMIT 1;
+  PRINT ROWTYPE_TYPE_v.item;
+	PRINT ROWTYPE_TYPE_v.description;
+
+  DECLARE ROWTYPE_TYPE_v1 T340_orders%ROWTYPE;
+  DECLARE CURSOR ROWTYPE_TYPE_c1 IS SELECT * FROM T340_orders;
+  OPEN ROWTYPE_TYPE_c1;
+  FETCH ROWTYPE_TYPE_c1 INTO ROWTYPE_TYPE_v1;
+  PRINT ROWTYPE_TYPE_v1.item;
+	PRINT ROWTYPE_TYPE_v1.description;
+  CLOSE ROWTYPE_TYPE_c1;
+
+  DECLARE ROWTYPE_TYPE_v2 T340_orders%ROWTYPE;
+  FOR ROWTYPE_TYPE_v2 IN (SELECT * FROM T340_orders)
+  LOOP
+    PRINT ROWTYPE_TYPE_v2.item;
+		PRINT ROWTYPE_TYPE_v2.description;
+  END LOOP;
+
+  DECLARE ROWTYPE_TYPE_v3 T340_orders%ROWTYPE;
+  EXECUTE IMMEDIATE 'SELECT * FROM T340_orders LIMIT 1' INTO ROWTYPE_TYPE_v3;
+  PRINT ROWTYPE_TYPE_v3.item;
+	PRINT ROWTYPE_TYPE_v3.description;
+
+  DECLARE ROWTYPE_TYPE_i T340_orders.item%TYPE;
+  SELECT item INTO ROWTYPE_TYPE_i FROM T340_orders LIMIT 1;
+  PRINT ROWTYPE_TYPE_i;
+
+	/*
+	 CAST function converts an expression to the specified data type.
+	*/
+	DECLARE cast1 VARCHAR(10) = CAST('Abc' AS CHAR(1));
+	DECLARE cast2 VARCHAR(50) = CAST(TIMESTAMP '2015-03-12 10:58:34.111' AS CHAR(50));
+	PRINT cast1;
+	PRINT cast2;
+	
+	/*
+	 CHAR function converts a number to string.
+	*/
+	DECLARE c_s string = CHAR(66);
+	PRINT c_s;
+
+	/*
+	 CONCAT function concatenates two or more strings.
+	*/
+	DECLARE concat_s string;
+	concat_s = CONCAT('a', 'b', NULL, 'c');
+	PRINT concat_s;
+
+	/*
+	CURRENT_DATE function returns the current date (year, month and day).
+	*/
+	DECLARE c_date date = CURRENT_DATE;
+	PRINT c_date;
+	
+	/*
+	CURRENT_TIMESTAMP function returns the current date and time (year, month, day, hour, minute, seconds and fractional seconds).
+	*/
+	DECLARE t1 string;
+	DECLARE t2 string;
+	DECLARE t3 string;
+	t1 = TO_CHAR(TO_TIMESTAMP('2015-04-02', 'YYYY-MM-DD'));
+	t2 = TO_CHAR(TO_TIMESTAMP('04/02/2015', 'mm/dd/yyyy'));
+	t3 = TO_CHAR(TO_TIMESTAMP('2015-04-02 13:51:31', 'YYYY-MM-DD HH24:MI:SS'));
+	PRINT t1;
+	PRINT t2;
+	PRINT t3;
+
+	/*
+	CURRENT_USER function returns the name of the user executing the current EsgynDB PL/SQL script.
+	*/
+	DECLARE uname string = CURRENT_USER;
+	PRINT uname;
+
+	/*
+	 DATE function converts an expression to DATE data type.
+	*/
+	DECLARE d1 date = DATE('2015-03-12');
+	DECLARE d2 date = DATE('2015' || '-03-' || '12');
+	DECLARE d3 date = DATE(TIMESTAMP '2015-03-12 10:58:34.111');
+	PRINTd1;
+	PRINTd2;
+	PRINTd3;
+	
+	/*
+	 DECODE function allows you to implement IF-THEN-ELSE logic.
+	*/
+	DECLARE var1 INT DEFAULT 3;
+	DECLARE i1 string = DECODE (var1, 1, 'A', 2, 'B', 3, 'C');
+	DECLARE i2 string = DECODE (var1, 1, 'A', 2, 'B', 'C');
+	SET var1 = NULL;
+	DECLARE i3 string = DECODE (var1, 1, 'A', 2, 'B', NULL, 'C');
+	PRINT i1;
+	PRINT i2;
+	PRINT i3;
+
+	/*
+	 FROM_UNIXTIME function converts the specified number of seconds since 1970-01-01 00:00:00 to timestamp value.
+	*/
+	DECLARE from_unixtime string = from_unixtime(1447141681);
+	DECLARE from_unixtime2 string = from_unixtime(1447141681, 'yyyy-MM-dd');
+	PRINT from_unixtime;
+	PRINT from_unixtime2;
+	
+	/*
+	 LOWER function converts a string expression to lower case.
+	*/
+	DECLARE lower_s string = lower('ABC');
+	PRINT lower_s;
+
+	/*
+	 NOW function returns the current date and time (year, month, day, hour, minute, seconds and fractional seconds)
+	*/
+	DECLARE now_s string = now();
+	PRINT now_s;
+        
+	/*
+	 NVL function returns first non-NULL expression.
+	*/
+	DECLARE nvl_s INT = NVL(NULL, 1);
+	PRINT nvl_s;
+
+	/*
+	 If the first expression is NOT NULL, NVL2 function returns the result of the second expression, otherwise it returns the result of the third expression.
+	*/
+	DECLARE nvl2_s INT = NVL2(NULL, 1, 2);
+	PRINT nvl2_s; 
+
+	/*
+	 SUBSTR function returns a substring from string.
+	*/
+	DECLARE SUBSTR1 string = SUBSTR('Remark', 3);
+	DECLARE SUBSTR2 string = SUBSTR('Remark', 3, 3);
+	PRINT SUBSTR1;
+	PRINT SUBSTR2;
+
+	/*
+	 SYSDATE function returns the current date and time (year, month, day, hour, minute and seconds).
+	*/
+	DECLARE sysd string = TO_CHAR(sysdate);
+	PRINT sysd;
+
+	/*
+	 TO_CHAR function converts an expression to string.
+	*/
+	DECLARE current_date_s string = TO_CHAR(CURRENT_DATE);
+	PRINT current_date_s;
+
+	/*
+	 TO_TIMESTAMP function converts a string to TIMESTAMP data type using the specified format.
+	*/
+	DECLARE t_tochar string = TO_CHAR(TO_TIMESTAMP('2015-04-02', 'YYYY-MM-DD'));
+	PRINT t_tochar;
+
+	/*
+	 TRIM function removes leading and trailing characters from a string.
+	*/
+	DECLARE trim_s string = '#' || TRIM(' Hello ') || '#';
+	PRINT trim_s;
+
+	/*
+	UPPER function converts a string expression to upper case.
+	*/
+	DECLARE upper_s string = UPPER('abc');
+	PRINT upper_s;
+
+    /*
+    test operators
+    */
+    IF 3=3 THEN
+      PRINT '3=3 TRUE';
+    ELSE
+      PRINT '3=3 FALSE';
+    END IF;
+    IF 3=1 THEN
+      PRINT '3=1 TRUE';
+    ELSE
+      PRINT '3=1 FALSE';
+    END IF;
+    IF 'CA'=NULL THEN
+      PRINT 'CA=NULL TRUE';
+    ELSE
+      PRINT 'CA=NULL FALSE';
+    END IF;
+    IF 3==3 THEN
+      PRINT '3==3 TRUE';
+    ELSE
+      PRINT '3==3 FALSE';
+    END IF;
+      IF 3<>3 THEN
+    PRINT '3<>3 TRUE';
+    ELSE
+      PRINT '3<>3 FALSE';
+    END IF;
+    IF 3!=3 THEN
+      PRINT '3!=3 TRUE';
+    ELSE
+      PRINT '3!=3 FALSE';
+    END IF;
+    IF 3>1 THEN
+      PRINT '3>1 TRUE';
+    ELSE
+      PRINT '3>1 FALSE';
+    END IF;
+    IF 3<1 THEN
+      PRINT '3<1 TRUE';
+    ELSE
+      PRINT '3<1 FALSE';
+    END IF;
+    IF 3>=1 THEN
+      PRINT '3>=1 TRUE';
+    ELSE
+      PRINT '3>=1 FALSE';
+    END IF;
+    IF 3<=1 THEN
+      PRINT '3<=1 TRUE';
+    ELSE
+      PRINT '3<=1 FALSE';
+    END IF;
+
+END//;
+
+CREATE PACKAGE T340_package AS//
+  procedure T340_pack_proc;
+END//;
+
+CREATE PACKAGE BODY T340_package AS//
+  procedure T340_pack_proc
+  IS
+  BEGIN
+        /*one line include 136 character
+        0test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000
+        1test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000
+        2test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000
+        3test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000
+        4test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000
+        5test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000
+        6test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000
+        7test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000
+        8test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000
+        9test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000
+        10test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000
+        11test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000
+        12test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000
+        13test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000
+        14test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000
+        15test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000
+        16test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000
+        17test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000
+        18test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000
+        19test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000
+        20test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000
+        21test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000   
+	*/
+        NULL;
+  END;
+END//;
+
+
+CREATE FUNCTION T340_function(text VARCHAR(20))
+ RETURNS VARCHAR(20) AS//
+ BEGIN
+        /*one line include 136 character
+        0test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000
+        1test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000
+        2test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000
+        3test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000
+        4test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000
+        5test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000
+        6test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000
+        7test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000
+        8test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000
+        9test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000
+        10test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000
+        11test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000
+        12test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000
+        13test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000
+        14test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000
+        15test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000
+        16test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000
+        17test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000
+        18test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000
+        19test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000
+        20test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000
+        21test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000test showddl length more than 3000
+	*/
+        RETURN 'NULL';
+END//;
+
+
+?section test;
+call testp();
+SELECT * FROM tab1;
+
+?section testshow;
+showddl procedure testp;
+showddl package T340_package;
+showddl function T340_function;
+
+?section clean
+DROP PROCEDURE testp;
+DROP PACKAGE T340_package;
+DROP FUNCTION T340_function;
+DROP TABLE T340_orders;
+DROP TABLE T340_orders cascade;
+DROP TABLE tab1;

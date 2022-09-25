@@ -1,0 +1,247 @@
+-- ============================================================================
+-- TEST065 - tests caches and stored descriptors with schema privs
+--
+-- @@@ START COPYRIGHT @@@
+--
+-- Licensed to the Apache Software Foundation (ASF) under one
+-- or more contributor license agreements.  See the NOTICE file
+-- distributed with this work for additional information
+-- regarding copyright ownership.  The ASF licenses this file
+-- to you under the Apache License, Version 2.0 (the
+-- "License"); you may not use this file except in compliance
+-- with the License.  You may obtain a copy of the License at
+--
+--   http://www.apache.org/licenses/LICENSE-2.0
+--
+-- Unless required by applicable law or agreed to in writing,
+-- software distributed under the License is distributed on an
+-- "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+-- KIND, either express or implied.  See the License for the
+-- specific language governing permissions and limitations
+-- under the License.
+--
+-- @@@ END COPYRIGHT @@@
+--
+-- Tests the following commands:
+--    get and showddl stmts
+-- ============================================================================
+
+cqd SHOWDDL_DISPLAY_PRIVILEGE_GRANTS 'ON';
+-- Don't rely on queries cached to get accurate details from NATable cache
+cqd QUERY_CACHE '0';
+
+obey TEST065(clean_up);
+log LOG065 clear;
+obey TEST065(set_up);
+obey TEST065(tests);
+log;
+obey TEST065(clean_up);
+exit;
+
+?section clean_up
+drop schema t065sch1 cascade;
+drop schema t065sch2 cascade;
+drop table sch.t065_table1;
+revoke component privilege DML_SELECT_METADATA on sql_operations from sql_user1;
+revoke component privilege DML_SELECT_METADATA on sql_operations from sql_user2;
+
+?section set_up
+set schema sch;
+create table if not exists sch.t065_table1 (a int, b int) attribute stored desc;
+
+create schema t065sch1 stored desc;
+set schema t065sch1;
+create table t1 (a int);
+create table t2 (a int, b int);
+create index t2_ndx on t2(a);
+create table t3 (a int, b int, c int);
+
+create schema t065sch2 stored desc;
+set schema t065sch2;
+create table t1 (a int, b int);
+create table t2 (a int, b int, c int);
+create index t2_ndx on t2(a);
+create table t3 (a int, b int, c int);
+
+grant all on schema t065sch1 to sql_user1;
+grant all on schema t065sch1 to sql_user2;
+grant select on schema t065sch2 to sql_user1;
+grant select on schema t065sch2 to sql_user2;
+grant select on sch.t065_table1 to sql_user1;
+grant select on sch.t065_table1 to sql_user2;
+
+get privileges for user sql_user1, match '%T065%';
+get privileges for user sql_user2, match '%T065%';
+
+grant component privilege DML_SELECT_METADATA on sql_operations to sql_user1;
+grant component privilege DML_SELECT_METADATA on sql_operations to sql_user2;
+
+showddl schema t065sch1;
+showddl schema t065sch2;
+
+prepare descs from
+select distinct 
+   cast (schema_name as char(30) character set iso88591) as sch_name,
+   cast (object_name as char(50) character set iso88591) as obj_name,
+   cast (object_type as char(3)) as ot
+from "_MD_".text t, "_MD_".objects o
+where o.object_uid = t.text_uid
+  and schema_name in ('T065SCH1', 'T065SCH2')
+  and t.text_type = 7
+order by 1,2,3;
+
+execute descs;
+
+prepare mdCacheEntries from
+select cast (schema_name as char(30) character set iso88591) as sch_name,
+       cast (object_name as char(30) character set iso88591) as obj_name
+from table(natablecacheentries('user','local')) 
+where schema_name in ('T065SCH1', 'T065SCH2', 'SCH')
+order by 1,2;
+
+?section populate_cache
+delete all from table(natablecache('remove'));
+execute mdCacheEntries;
+
+set schema t065sch1;
+select * from t1;
+select * from t2;
+select * from t3;
+set schema t065sch2;
+select * from t1;
+select * from t2;
+select * from sch.t065_table1;
+-- should return 0 entries
+execute mdCacheEntries;
+
+?section tests
+-- ****************************************************************************
+-- verify that sql_user1 and sql_user2 can access tables and that 
+-- metadata cache entries do not change. 
+-- 9 rows: db_root owns SCH and has privs
+obey TEST065 (populate_cache);
+
+changeuser sql_user1;
+values (current_user);
+-- 8 entries: sql_user1 doesn't have schema privs on schema SCH
+execute mdCacheEntries;
+obey TEST065 (access_objects);
+
+changeuser db__root;
+values (current_user);
+-- 9 rows: db_root owns SCH and has privs
+execute mdCacheEntries;
+
+-- ****************************************************************************
+-- revoke privileges and verify caches are correctl
+-- the revoke removes all entries for schema T065sch1 through a QI request
+revoke select on schema t065sch1 from sql_user2;
+get privileges for user sql_user2, match '%T065%';
+
+changeuser sql_user1;
+values (current_user);
+-- 4 rows: schema T065SCH1 entries are removed from previous revoke
+execute mdCacheEntries;
+-- 8 rows: sql_user1 still has privs, they get reloaded during access_objects
+obey TEST065(access_objects);
+
+changeuser sql_user2;
+values (current_user);
+-- 8 rows: user2 still has schema privileges on objects in T065SCH1 
+execute mdCacheEntries;
+-- select priv on T065SCH1 was revoked so user2 selects FAIL
+-- When a priv error occurs, all the schema entries in metadata cache are
+-- removed and NATable regenerated.  When the NATable is regenerated, the schema
+-- entry is added. 
+-- The schema entry for T065SCH2 is not re-added because the NATable info
+-- did not change - so only 7 rows are in cache
+obey TEST065(access_objects);
+
+changeuser db__root;
+values (current_user);
+-- 7 rows:  cache is not affected.
+execute mdCacheEntries;
+
+-- revoke from sql_user1
+revoke select on schema t065sch2 from sql_user1;
+get privileges for user sql_user1, match '%T065%';
+
+changeuser sql_user1;
+values (current_user);
+-- 5 rows: user1 has no privileges for T065SCH2
+execute mdCacheEntries;
+-- selects on schema T065SCH2 fail.  Retry of the select statements
+-- removes schema entry for T065SCH1 so 4 rows returned.
+obey TEST065(access_objects);
+
+changeuser sql_user2;
+values (current_user);
+-- 7 rows: user2 has privs on both schemas and table in schema SCH
+execute mdCacheEntries;
+-- 7 rows:  does not change even though recompiled
+obey TEST065(access_objects);
+
+changeuser db__root;
+values (current_user);
+-- 7 rows: no change
+execute mdCacheEntries;
+
+-- revoke from other schema
+-- neither user can select from tables in these schemas
+revoke select on schema t065sch1 from sql_user1;
+revoke select on schema t065sch2 from sql_user2;
+get privileges for user sql_user1, match '%T065%';
+get privileges for user sql_user2, match '%T065%';
+-- 1 row:  the revokes removed entries for the other schemas
+execute mdCacheEntries;
+
+changeuser sql_user1;
+values (current_user);
+-- 4 rows:  sql_user1 still has non-select privs for schema T065SCH1
+obey TEST065(access_objects);
+
+changeuser sql_user2;
+values (current_user);
+-- 4 rows:  sql_user2 still has non-select privs for schema T065SCH1
+obey TEST065(access_objects);
+
+changeuser db__root;
+values (current_user);
+-- 9 rows
+obey TEST065(populate_cache);
+
+-- grant back
+grant select on schema t065sch1 to sql_user1;
+grant select on schema t065sch1 to sql_user2;
+grant select on schema t065sch2 to sql_user1;
+grant select on schema t065sch2 to sql_user2;
+get privileges for user sql_user1, match '%T065%';
+get privileges for user sql_user2, match '%T065%';
+
+changeuser sql_user1;
+values (current_user);
+-- 7 rows, cache not affected.
+obey TEST065(access_objects);
+
+changeuser sql_user2;
+values (current_user);
+-- 7 rows, cache not affected.
+obey TEST065(access_objects);
+
+changeuser db__root;
+values (current_user);
+-- 7 rows: no change
+execute mdCacheEntries;
+
+
+?section access_objects
+set schema t065sch1;
+select * from t1;
+select * from t2;
+select * from t3;
+
+set schema t065sch2;
+select * from t1;
+select * from t2;
+execute mdCacheEntries;
+

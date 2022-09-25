@@ -1,0 +1,74 @@
+#!/bin/bash
+#
+# @@@ START COPYRIGHT @@@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+# @@@ END COPYRIGHT @@@
+#
+
+generate(){
+  distro=$1
+  version=$2
+  version_string=$3
+
+  case $distro in
+      CDH)
+	  distro_string="cdh"
+	  suffix="nopb"
+	  ;;
+
+      HDP)
+	  distro_string="hdp"
+	  suffix="pb"
+	  ;;
+
+      *)
+	  echo "[ERROR] the distro error [$distro]"
+	  exit 1
+	  ;;
+  esac
+
+  cd $BUILD_PATH
+  make clean
+  mkdir -p target
+  # clean exists files
+  ./reinstate_orig
+
+  # generate the java files
+  ./uncomment_string ${distro}${version}
+
+  mvn compile -f pom.xml.${distro_string}${version_string} -DskipTests -Dcompile-protobuf
+  cd $BUILD_PATH/src/main/java/org/apache/hadoop/hbase/coprocessor/transactional/generated/
+  cp -p TrxRegionProtos.java TrxRegionProtos.java.${suffix}
+  cp -p SsccRegionProtos.java SsccRegionProtos.java.${suffix}
+}
+
+BUILD_PATH=$(cd `dirname $0`; pwd)
+echo "[INFO] current path $BUILD_PATH"
+
+cd $BUILD_PATH
+
+PROTOBUF_VERSION=${PROTOBUF_VERSION-"2.5.0"}
+if [ ! -f $BUILD_PATH/pom.xml.cdh57 -o ! -f $BUILD_PATH/pom.xml.hdp263 ]; then
+   echo "[ERROR] the generate script must be stored in the core/sqf/src/seatrans/hbase-trx, current is [$BUILD_PATH]"
+   exit 1
+fi
+
+generate CDH 5.7 57
+generate HDP 2.3 263

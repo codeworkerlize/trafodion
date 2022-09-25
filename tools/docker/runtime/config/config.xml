@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<!-- @@@ START COPYRIGHT @@@
+ 
+     (C) Copyright 2016 Esgyn Corporation
+ 
+     @@@ END COPYRIGHT @@@
+-->
+
+<properties>
+
+	<!-- The JDBC url for the Trafodion/EsgynDB instance that you are connecting to -->
+	<entry key="jdbcUrl">jdbc:t4jdbc://localhost:23400/:</entry>
+	
+	<!-- The JDBC driver class name for the Trafodion/EsgynDB JDBC driver -->
+	<entry key="jdbcDriverClass">org.trafodion.jdbc.t4.T4Driver</entry>
+	
+	<!--  Minimum number of connections for jdbc connection pool -->
+	<entry key="minPoolSize">1</entry>
+	
+	<!--  Max number of connections for jdbc connection pool -->
+	<entry key="maxPoolSize">8</entry>
+	
+	<!--  Connection timeout in seconds for jdbc connections -->
+	<entry key="connectionTimeout">60</entry>
+
+	<!--   maxIdleTime in seconds for jdbc connection pool -->
+	<entry key="maxIdleTime">1200</entry>
+	
+	<!--  Max number of statements for jdbc statement caching -->
+	<entry key="maxStatementsCache">100</entry>
+	
+	<!-- The Admin User ID used by DBManager for its internal queries-->
+	<entry key="adminUserID">DB__ADMIN</entry>
+	
+	<!-- The Admin User's password-->
+	<entry key="adminPassword">DB__ADMIN</entry>
+	
+	<!-- The Trafodion REST Server URI -->
+	<entry key="trafodionRestServerUri">http://localhost:4200</entry>
+	
+	<!-- Session Timeout in minutes. Your EsgynDB Manager browser session to the server will be 
+		time out after this interval and you will be asked to login again -->
+	<entry key="sessionTimeoutMinutes">120</entry>
+	
+	<!-- The TimeZone name of the EsgynDB server. Enter in java time zone format like America/New_York -->
+	<entry key="timeZoneName">$TIMEZONE</entry>
+	
+	<!-- The openTSDB HTTP URI-->
+	<entry key="openTSDBUri">http://localhost:5242</entry>
+	
+	<!-- The Alerts HTTP URI-->
+	<entry key="alertsUri">http://localhost:8070</entry>
+	
+	<!-- Enable/Disable WMS Features-->
+	<entry key="enableWMS">true</entry>
+	
+	<!--HTTP read timeout in seconds for external REST calls issued by dbmgr server-->
+	<entry key="httpReadTimeOutSeconds">120</entry>
+	
+	<!--Maximum number of rows allowed to be fetched in Query Workbench-->
+	<entry key="qwbMaxRows">100000</entry>
+
+<!--Multi-tenancy related properties-->
+
+	<!--Minimum number of cores that makes up a compute slice-->
+	<entry key="coresPerSlice">4</entry>
+	
+	<!--Minimum memory in GB that makes up a compute slice-->
+	<entry key="memoryGBPerSlice">32</entry>
+	
+	<!--Minimum scale factor of compute slices per tenant-->
+	<entry key="minSlicesPerTenant">4</entry>
+
+	<!--Max weight for compute slices per node-->
+	<entry key="maxWeightForSlicesPerNode">4</entry>
+	
+<!-- The following properties are only required and used by the embedded jetty server -->
+	
+	<!--Enable/Disable HTTPS-->
+	<entry key="enableHTTPS">False</entry>	
+	
+	<!-- The HTTP Port for the EsgynDB Manager embedded jetty server -->
+	<entry key="httpPort">4205</entry>
+
+	<!-- The HTTPS Port for the EsgynDB Manager embedded jetty server -->
+	<entry key="httpsPort">4206</entry>
+
+	<!-- The SSL keystore file for the EsgynDB Manager embedded jetty server -->
+	<entry key="keyStoreFile">/opt/trafodion/sqcert/server.keystore</entry>
+    
+	<!-- The SSL keystore password for the EsgynDB Manager embedded jetty server -->
+	<entry key="securePassword">SECURE_PASSWORD</entry>
+
+	<!-- The HTTP request header size for the EsgynDB Manager embedded jetty server -->
+	<entry key="requestHeaderSize">98304</entry>
+	
+	<!-- 16 bit length integers -->
+	<entry key="aesPassword">AES_ENCRP_PASSWD</entry>
+	
+	<!-- password used for aes encription -->
+	<entry key="actionSchedulerSleepTime">5000</entry>
+	
+	<!-- password used for aes encription -->
+	<entry key="heartbeatMonitorSleepTime">10000</entry>
+	
+	<!-- password used for aes encription -->
+	<entry key="heartbeatProcessPoolsize">1</entry>
+	
+	<!-- password used for aes encription -->
+	<entry key="heartbeatProcessTaskDelay">5000</entry>
+	
+	<!-- password used for aes encription -->
+	<entry key="heartbeatProcessTaskPeriod">1000</entry>
+
+	<!-- URL secret key for login page, the encrypt method  is jasypt-->
+	<entry key="loginSecretKey">loginSecretKey</entry>
+
+</properties>

@@ -1,0 +1,256 @@
+>>obey stdcqds;
+>>
+>>set schema hive.tpcds_sf1000;
+
+--- SQL operation complete.
+>>
+>>control osim simulate continue './osim.all.sf1000.09022016';
+
+--- SQL operation complete.
+>>
+>>cqd orc_njs 'on';
+
+--- SQL operation complete.
+>>cqd parallel_num_esps '48';
+
+--- SQL operation complete.
+>>cqd QUERY_CACHE '200000';
+
+--- SQL operation complete.
+>>cqd HIVE_METADATA_REFRESH_INTERVAL '-1';
+
+--- SQL operation complete.
+>>cqd  HIVE_LOCALITY_BALANCE_LEVEL '-1';
+
+--- SQL operation complete.
+>>cqd  METADATA_CACHE_SIZE '200';
+
+--- SQL operation complete.
+>>cqd partitioning_scheme_sharing '2';
+
+--- SQL operation complete.
+>>cqd COMP_BOOL_208 'ON';
+
+--- SQL operation complete.
+>>obey q88;
+>>
+>>--==QID: 88
+>>
+>>prepare xx from
++>select  *
++>from
++> (select count(*) h8_30_to_9
++> from store_sales_1stripeperfile, household_demographics , time_dim, store
++> where ss_sold_time_sk = time_dim.t_time_sk   
++>     and ss_hdemo_sk = household_demographics.hd_demo_sk 
++>     and ss_store_sk = s_store_sk
++>     and time_dim.t_hour = 8
++>     and time_dim.t_minute >= 30
++>     and ((household_demographics.hd_dep_count = 3 and household_demographics.hd_vehicle_count<=3+2) or
++>          (household_demographics.hd_dep_count = 2 and household_demographics.hd_vehicle_count<=2+2) or
++>          (household_demographics.hd_dep_count = 1 and household_demographics.hd_vehicle_count<=1+2)) 
++>     and store.s_store_name = 'ese') s1,
++> (select count(*) h9_to_9_30 
++> from store_sales_1stripeperfile, household_demographics , time_dim, store
++> where ss_sold_time_sk = time_dim.t_time_sk
++>     and ss_hdemo_sk = household_demographics.hd_demo_sk
++>     and ss_store_sk = s_store_sk 
++>     and time_dim.t_hour = 9 
++>     and time_dim.t_minute < 30
++>     and ((household_demographics.hd_dep_count = 3 and household_demographics.hd_vehicle_count<=3+2) or
++>          (household_demographics.hd_dep_count = 2 and household_demographics.hd_vehicle_count<=2+2) or
++>          (household_demographics.hd_dep_count = 1 and household_demographics.hd_vehicle_count<=1+2))
++>     and store.s_store_name = 'ese') s2,
++> (select count(*) h9_30_to_10 
++> from store_sales_1stripeperfile, household_demographics , time_dim, store
++> where ss_sold_time_sk = time_dim.t_time_sk
++>     and ss_hdemo_sk = household_demographics.hd_demo_sk
++>     and ss_store_sk = s_store_sk
++>     and time_dim.t_hour = 9
++>     and time_dim.t_minute >= 30
++>     and ((household_demographics.hd_dep_count = 3 and household_demographics.hd_vehicle_count<=3+2) or
++>          (household_demographics.hd_dep_count = 2 and household_demographics.hd_vehicle_count<=2+2) or
++>          (household_demographics.hd_dep_count = 1 and household_demographics.hd_vehicle_count<=1+2))
++>     and store.s_store_name = 'ese') s3,
++> (select count(*) h10_to_10_30
++> from store_sales_1stripeperfile, household_demographics , time_dim, store
++> where ss_sold_time_sk = time_dim.t_time_sk
++>     and ss_hdemo_sk = household_demographics.hd_demo_sk
++>     and ss_store_sk = s_store_sk
++>     and time_dim.t_hour = 10 
++>     and time_dim.t_minute < 30
++>     and ((household_demographics.hd_dep_count = 3 and household_demographics.hd_vehicle_count<=3+2) or
++>          (household_demographics.hd_dep_count = 2 and household_demographics.hd_vehicle_count<=2+2) or
++>          (household_demographics.hd_dep_count = 1 and household_demographics.hd_vehicle_count<=1+2))
++>     and store.s_store_name = 'ese') s4,
++> (select count(*) h10_30_to_11
++> from store_sales_1stripeperfile, household_demographics , time_dim, store
++> where ss_sold_time_sk = time_dim.t_time_sk
++>     and ss_hdemo_sk = household_demographics.hd_demo_sk
++>     and ss_store_sk = s_store_sk
++>     and time_dim.t_hour = 10 
++>     and time_dim.t_minute >= 30
++>     and ((household_demographics.hd_dep_count = 3 and household_demographics.hd_vehicle_count<=3+2) or
++>          (household_demographics.hd_dep_count = 2 and household_demographics.hd_vehicle_count<=2+2) or
++>          (household_demographics.hd_dep_count = 1 and household_demographics.hd_vehicle_count<=1+2))
++>     and store.s_store_name = 'ese') s5,
++> (select count(*) h11_to_11_30
++> from store_sales_1stripeperfile, household_demographics , time_dim, store
++> where ss_sold_time_sk = time_dim.t_time_sk
++>     and ss_hdemo_sk = household_demographics.hd_demo_sk
++>     and ss_store_sk = s_store_sk 
++>     and time_dim.t_hour = 11
++>     and time_dim.t_minute < 30
++>     and ((household_demographics.hd_dep_count = 3 and household_demographics.hd_vehicle_count<=3+2) or
++>          (household_demographics.hd_dep_count = 2 and household_demographics.hd_vehicle_count<=2+2) or
++>          (household_demographics.hd_dep_count = 1 and household_demographics.hd_vehicle_count<=1+2))
++>     and store.s_store_name = 'ese') s6,
++> (select count(*) h11_30_to_12
++> from store_sales_1stripeperfile, household_demographics , time_dim, store
++> where ss_sold_time_sk = time_dim.t_time_sk
++>     and ss_hdemo_sk = household_demographics.hd_demo_sk
++>     and ss_store_sk = s_store_sk
++>     and time_dim.t_hour = 11
++>     and time_dim.t_minute >= 30
++>     and ((household_demographics.hd_dep_count = 3 and household_demographics.hd_vehicle_count<=3+2) or
++>          (household_demographics.hd_dep_count = 2 and household_demographics.hd_vehicle_count<=2+2) or
++>          (household_demographics.hd_dep_count = 1 and household_demographics.hd_vehicle_count<=1+2))
++>     and store.s_store_name = 'ese') s7,
++> (select count(*) h12_to_12_30
++> from store_sales_1stripeperfile, household_demographics , time_dim, store
++> where ss_sold_time_sk = time_dim.t_time_sk
++>     and ss_hdemo_sk = household_demographics.hd_demo_sk
++>     and ss_store_sk = s_store_sk
++>     and time_dim.t_hour = 12
++>     and time_dim.t_minute < 30
++>     and ((household_demographics.hd_dep_count = 3 and household_demographics.hd_vehicle_count<=3+2) or
++>          (household_demographics.hd_dep_count = 2 and household_demographics.hd_vehicle_count<=2+2) or
++>          (household_demographics.hd_dep_count = 1 and household_demographics.hd_vehicle_count<=1+2))
++>     and store.s_store_name = 'ese') s8
++>;
+
+--- SQL command prepared.
+>>obey explains;
+>>explain options 'f' xx;
+
+LC   RC   OP   OPERATOR              OPT       DESCRIPTION           CARD
+---- ---- ---- --------------------  --------  --------------------  ---------
+
+111  .    112  root                                                  1.00E+000
+110  13   111  hybrid_hash_join                                      1.00E+000
+109  26   110  hybrid_hash_join                                      1.00E+000
+108  39   109  hybrid_hash_join                                      1.00E+000
+107  52   108  hybrid_hash_join                                      1.00E+000
+106  65   107  hybrid_hash_join                                      1.00E+000
+105  78   106  hybrid_hash_join                                      1.00E+000
+104  91   105  hybrid_hash_join                                      1.00E+000
+103  .    104  sort_partial_aggr_ro                                  1.00E+000
+102  .    103  esp_exchange                    1:48(hash2)           1.00E+000
+101  .    102  sort_partial_aggr_le                                  1.00E+000
+100  93   101  hybrid_hash_join                                      7.09E+006
+99   95   100  hybrid_hash_join                                      2.44E+007
+98   97   99   hybrid_hash_join                                      9.74E+007
+.    .    98   orc_scan                        STORE_SALES_1STRIPEP  2.68E+009
+96   .    97   esp_exchange                    48(rep-b):2(hash2)    1.69E+003
+.    .    96   orc_scan                        TIME_DIM              1.69E+003
+94   .    95   esp_exchange                    48(rep-b):2(hash2)    1.26E+002
+.    .    94   orc_scan                        STORE                 1.26E+002
+92   .    93   esp_exchange                    48(rep-b):2(hash2)    2.08E+003
+.    .    92   orc_scan                        HOUSEHOLD_DEMOGRAPHI  2.08E+003
+90   .    91   sort_partial_aggr_ro                                  1.00E+000
+89   .    90   esp_exchange                    1:48(hash2)           1.00E+000
+88   .    89   sort_partial_aggr_le                                  1.00E+000
+87   80   88   hybrid_hash_join                                      7.59E+006
+86   82   87   hybrid_hash_join                                      2.61E+007
+85   84   86   hybrid_hash_join                                      1.04E+008
+.    .    85   orc_scan                        STORE_SALES_1STRIPEP  2.68E+009
+83   .    84   esp_exchange                    48(rep-b):2(hash2)    1.81E+003
+.    .    83   orc_scan                        TIME_DIM              1.81E+003
+81   .    82   esp_exchange                    48(rep-b):2(hash2)    1.26E+002
+.    .    81   orc_scan                        STORE                 1.26E+002
+79   .    80   esp_exchange                    48(rep-b):2(hash2)    2.08E+003
+.    .    79   orc_scan                        HOUSEHOLD_DEMOGRAPHI  2.08E+003
+77   .    78   sort_partial_aggr_ro                                  1.00E+000
+76   .    77   esp_exchange                    1:48(hash2)           1.00E+000
+75   .    76   sort_partial_aggr_le                                  1.00E+000
+74   67   75   hybrid_hash_join                                      7.28E+006
+73   69   74   hybrid_hash_join                                      2.51E+007
+72   71   73   hybrid_hash_join                                      1.00E+008
+.    .    72   orc_scan                        STORE_SALES_1STRIPEP  2.68E+009
+70   .    71   esp_exchange                    48(rep-b):2(hash2)    1.74E+003
+.    .    70   orc_scan                        TIME_DIM              1.74E+003
+68   .    69   esp_exchange                    48(rep-b):2(hash2)    1.26E+002
+.    .    68   orc_scan                        STORE                 1.26E+002
+66   .    67   esp_exchange                    48(rep-b):2(hash2)    2.08E+003
+.    .    66   orc_scan                        HOUSEHOLD_DEMOGRAPHI  2.08E+003
+64   .    65   sort_partial_aggr_ro                                  1.00E+000
+63   .    64   esp_exchange                    1:48(hash2)           1.00E+000
+62   .    63   sort_partial_aggr_le                                  1.00E+000
+61   54   62   hybrid_hash_join                                      7.44E+006
+60   56   61   hybrid_hash_join                                      2.56E+007
+59   58   60   hybrid_hash_join                                      1.02E+008
+.    .    59   orc_scan                        STORE_SALES_1STRIPEP  2.68E+009
+57   .    58   esp_exchange                    48(rep-b):2(hash2)    1.78E+003
+.    .    57   orc_scan                        TIME_DIM              1.78E+003
+55   .    56   esp_exchange                    48(rep-b):2(hash2)    1.26E+002
+.    .    55   orc_scan                        STORE                 1.26E+002
+53   .    54   esp_exchange                    48(rep-b):2(hash2)    2.08E+003
+.    .    53   orc_scan                        HOUSEHOLD_DEMOGRAPHI  2.08E+003
+51   .    52   sort_partial_aggr_ro                                  1.00E+000
+50   .    51   esp_exchange                    1:48(hash2)           1.00E+000
+49   .    50   sort_partial_aggr_le                                  1.00E+000
+48   41   49   hybrid_hash_join                                      7.31E+006
+47   43   48   hybrid_hash_join                                      2.52E+007
+46   45   47   hybrid_hash_join                                      1.00E+008
+.    .    46   orc_scan                        STORE_SALES_1STRIPEP  2.68E+009
+44   .    45   esp_exchange                    48(rep-b):2(hash2)    1.75E+003
+.    .    44   orc_scan                        TIME_DIM              1.75E+003
+42   .    43   esp_exchange                    48(rep-b):2(hash2)    1.26E+002
+.    .    42   orc_scan                        STORE                 1.26E+002
+40   .    41   esp_exchange                    48(rep-b):2(hash2)    2.08E+003
+.    .    40   orc_scan                        HOUSEHOLD_DEMOGRAPHI  2.08E+003
+38   .    39   sort_partial_aggr_ro                                  1.00E+000
+37   .    38   esp_exchange                    1:48(hash2)           1.00E+000
+36   .    37   sort_partial_aggr_le                                  1.00E+000
+35   28   36   hybrid_hash_join                                      7.48E+006
+34   30   35   hybrid_hash_join                                      2.58E+007
+33   32   34   hybrid_hash_join                                      1.02E+008
+.    .    33   orc_scan                        STORE_SALES_1STRIPEP  2.68E+009
+31   .    32   esp_exchange                    48(rep-b):2(hash2)    1.79E+003
+.    .    31   orc_scan                        TIME_DIM              1.79E+003
+29   .    30   esp_exchange                    48(rep-b):2(hash2)    1.26E+002
+.    .    29   orc_scan                        STORE                 1.26E+002
+27   .    28   esp_exchange                    48(rep-b):2(hash2)    2.08E+003
+.    .    27   orc_scan                        HOUSEHOLD_DEMOGRAPHI  2.08E+003
+25   .    26   sort_partial_aggr_ro                                  1.00E+000
+24   .    25   esp_exchange                    1:48(hash2)           1.00E+000
+23   .    24   sort_partial_aggr_le                                  1.00E+000
+22   15   23   hybrid_hash_join                                      7.74E+006
+21   17   22   hybrid_hash_join                                      2.67E+007
+20   19   21   hybrid_hash_join                                      1.06E+008
+.    .    20   orc_scan                        STORE_SALES_1STRIPEP  2.68E+009
+18   .    19   esp_exchange                    48(rep-b):2(hash2)    1.85E+003
+.    .    18   orc_scan                        TIME_DIM              1.85E+003
+16   .    17   esp_exchange                    48(rep-b):2(hash2)    1.26E+002
+.    .    16   orc_scan                        STORE                 1.26E+002
+14   .    15   esp_exchange                    48(rep-b):2(hash2)    2.08E+003
+.    .    14   orc_scan                        HOUSEHOLD_DEMOGRAPHI  2.08E+003
+12   .    13   sort_partial_aggr_ro                                  1.00E+000
+11   .    12   esp_exchange                    1:48(hash2)           1.00E+000
+10   .    11   sort_partial_aggr_le                                  1.00E+000
+9    2    10   hybrid_hash_join                                      7.92E+006
+8    4    9    hybrid_hash_join                                      2.73E+007
+7    6    8    hybrid_hash_join                                      1.08E+008
+.    .    7    orc_scan                        STORE_SALES_1STRIPEP  2.68E+009
+5    .    6    esp_exchange                    48(rep-b):2(hash2)    1.89E+003
+.    .    5    orc_scan                        TIME_DIM              1.89E+003
+3    .    4    esp_exchange                    48(rep-b):2(hash2)    1.26E+002
+.    .    3    orc_scan                        STORE                 1.26E+002
+1    .    2    esp_exchange                    48(rep-b):2(hash2)    2.08E+003
+.    .    1    orc_scan                        HOUSEHOLD_DEMOGRAPHI  2.08E+003
+
+--- SQL operation complete.
+>>exit;
+
+End of MXCI Session
+

@@ -1,0 +1,150 @@
+# @@@ START COPYRIGHT @@@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+# @@@ END COPYRIGHT @@@
+
+begin persist
+
+#
+# The following PROCESS_TYPEs are persistent and have special process management:
+#
+#    DTM
+#    TMID
+#    SSMP
+#    PSD
+#    WDG
+#    TNS
+#
+# Generic persistent processes are of PROCESS_TYPE:
+#
+#    PERSIST
+#
+
+PERSIST_PROCESS_KEYS = DTM,GSID,TMID,SSCP,SSMP,PSD,WDG,CMON,NMON,TNFY,TNS,RCS
+
+DTM_PROCESS_NAME     = $TM%nid+
+DTM_PROCESS_TYPE     = DTM
+DTM_PROGRAM_NAME     = tm
+DTM_PROGRAM_ARGS     =
+DTM_REQUIRES_DTM     = N
+DTM_STDOUT           = stdout_DTM%nid
+DTM_PERSIST_RETRIES  = 2,30
+DTM_PERSIST_ZONES    = %zid
+
+GSID_PROCESS_NAME    = $GSID0
+GSID_PROCESS_TYPE    = TMID
+GSID_PROGRAM_NAME    = idtmsrv
+GSID_PROGRAM_ARGS    = -norefresh
+GSID_REQUIRES_DTM    = N
+GSID_STDOUT          = stdout_GSID0
+GSID_PERSIST_RETRIES = 2,30
+GSID_PERSIST_ZONES   = %zid+
+
+TMID_PROCESS_NAME    = $TSID0
+TMID_PROCESS_TYPE    = TMID
+TMID_PROGRAM_NAME    = idtmsrv
+TMID_PROGRAM_ARGS    =
+TMID_REQUIRES_DTM    = N
+TMID_STDOUT          = stdout_TSID0
+TMID_PERSIST_RETRIES = 2,30
+TMID_PERSIST_ZONES   = %zid+
+
+SSCP_PROCESS_NAME    = $ZSC%nid+
+SSCP_PROCESS_TYPE    = PERSIST
+SSCP_PROGRAM_NAME    = mxsscp
+SSCP_PROGRAM_ARGS    =
+SSCP_REQUIRES_DTM    = Y
+SSCP_STDOUT          = stdout_ZSC%nid
+SSCP_PERSIST_RETRIES = 10,60
+SSCP_PERSIST_ZONES   = %zid
+
+SSMP_PROCESS_NAME    = $ZSM%nid+
+SSMP_PROCESS_TYPE    = SSMP
+SSMP_PROGRAM_NAME    = mxssmp
+SSMP_PROGRAM_ARGS    =
+SSMP_REQUIRES_DTM    = Y
+SSMP_STDOUT          = stdout_ZSM%nid
+SSMP_PERSIST_RETRIES = 10,60
+SSMP_PERSIST_ZONES   = %zid
+
+PSD_PROCESS_NAME     = $PSD%nid+
+PSD_PROCESS_TYPE     = PSD
+PSD_PROGRAM_NAME     = pstartd
+PSD_PROGRAM_ARGS     =
+PSD_REQUIRES_DTM     = N
+PSD_STDOUT           = stdout_PSD%nid
+PSD_PERSIST_RETRIES  = 10,60
+PSD_PERSIST_ZONES    = %zid
+
+WDG_PROCESS_NAME     = $WDG%nid+
+WDG_PROCESS_TYPE     = WDG
+WDG_PROGRAM_NAME     = sqwatchdog
+WDG_PROGRAM_ARGS     =
+WDG_REQUIRES_DTM     = N
+WDG_STDOUT           = stdout_WDG%nid
+WDG_PERSIST_RETRIES  = 10,60
+WDG_PERSIST_ZONES    = %zid
+
+CMON_PROCESS_NAME    = $CMON
+CMON_PROCESS_TYPE    = PERSIST
+CMON_PROGRAM_NAME    = service_monitor
+CMON_PROGRAM_ARGS    = -t 60 -f cluster_monitor.cmd
+CMON_REQUIRES_DTM    = N
+CMON_STDOUT          = stdout_CMON
+CMON_PERSIST_RETRIES = 2,30
+CMON_PERSIST_ZONES   = %zid+
+
+NMON_PROCESS_NAME    = $NMON%nid+
+NMON_PROCESS_TYPE    = PERSIST
+NMON_PROGRAM_NAME    = service_monitor
+NMON_PROGRAM_ARGS    = -t 60 -f node_monitor.cmd
+NMON_REQUIRES_DTM    = N
+NMON_STDOUT          = stdout_NMON%nid
+NMON_PERSIST_RETRIES = 2,30
+NMON_PERSIST_ZONES   = %zid
+
+TNFY_PROCESS_NAME    = $TNOTIFY%nid+
+TNFY_PROCESS_TYPE    = PERSIST
+TNFY_PROGRAM_NAME    = traf_notify
+TNFY_PROGRAM_ARGS    =
+TNFY_REQUIRES_DTM    = N
+TNFY_STDOUT          = stdout_TNOTIFY%nid
+TNFY_PERSIST_RETRIES = 2,30
+TNFY_PERSIST_ZONES   = %zid
+
+TNS_PROCESS_NAME     = $TNS%nid+
+TNS_PROCESS_TYPE     = TNS
+TNS_PROGRAM_NAME     = trafns
+TNS_PROGRAM_ARGS     =
+TNS_REQUIRES_DTM     = N
+TNS_STDOUT           = stdout_TNS%nid
+TNS_PERSIST_RETRIES  = 10,60
+TNS_PERSIST_ZONES    = %zid
+
+RCS_PROCESS_NAME     = $RCSVR%nid+
+RCS_PROCESS_TYPE     = PERSIST
+RCS_PROGRAM_NAME     = rc_server
+RCS_PROGRAM_ARGS     = -maxs 8
+RCS_REQUIRES_DTM     = N
+RCS_STDOUT           = stdout_RCSVR%nid
+RCS_PERSIST_RETRIES  = 10,60
+RCS_PERSIST_ZONES    = %zid
+
+end persist
+

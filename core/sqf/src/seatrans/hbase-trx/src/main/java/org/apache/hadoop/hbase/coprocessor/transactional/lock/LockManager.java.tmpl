@@ -1,0 +1,3756 @@
+package org.apache.hadoop.hbase.coprocessor.transactional.lock;
+
+import com.google.protobuf.ByteString;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.hbase.Cell;
+import org.apache.hadoop.hbase.CellUtil;
+import org.apache.hadoop.hbase.KeyValue;
+
+import lombok.Getter;
+import org.apache.hadoop.hbase.coprocessor.transactional.lock.deadlock.LockWait;
+import org.apache.hadoop.hbase.coprocessor.transactional.lock.deadlock.LockWaitStatus;
+import org.apache.hadoop.hbase.coprocessor.transactional.lock.generated.LockManagerProtos.*;
+import org.apache.hadoop.hbase.coprocessor.transactional.server.RSServer;
+import org.apache.hadoop.hbase.util.Bytes;
+import org.apache.hadoop.hbase.coprocessor.transactional.lock.utils.LockSizeof;
+import org.apache.hadoop.hbase.coprocessor.transactional.lock.utils.LockUtils;
+import org.apache.log4j.Logger;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import org.apache.hadoop.hbase.regionserver.HRegion;
+import org.apache.hadoop.hbase.HRegionInfo;
+import org.apache.hadoop.hbase.coprocessor.transactional.TrxRegionEndpoint;
+import org.apache.hadoop.hbase.io.hfile.*;
+import org.apache.hadoop.hbase.HColumnDescriptor;
+import org.apache.hadoop.fs.Path;
+
+public class LockManager implements LockSizeof {
+    private static Logger LOG = Logger.getLogger(LockManager.class);
+
+    @Getter
+    private String regionName;
+    @Getter
+    private byte[] regionInfo;
+    @Getter
+    private String regionEncodedName;
+    private ConcurrentHashMap<RowKey, Lock> lockMap = new ConcurrentHashMap();
+    @Getter
+    private ConcurrentHashMap<Long, Transaction> transactionMap = new ConcurrentHashMap();
+    @Getter
+    private volatile ConcurrentHashMap<Long, LockWait> waitGraph = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<RowKey, LinkedBlockingQueue<Long>> rowWaitTxQueue = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, LinkedBlockingQueue<Long>> tableWaitTxQueue = new ConcurrentHashMap<>();
+
+    private Lock tableLock = null;
+
+    private ReentrantLock lockMapLock = new ReentrantLock();
+    private ReentrantLock transactionMapLock = new ReentrantLock();
+
+    private RSServer rsServer;
+    private ConcurrentHashMap<Integer, Long> LOCK_WAIT_COUNT = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<Integer, Long> LOCK_NOTIFY_COUNT = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<Long, Long> transElapsTime = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<Long, Boolean> enableEscaMap = new ConcurrentHashMap<>();
+    private boolean m_isTrafodionMetadata = false;
+    private volatile CopyOnWriteArraySet<Long> rollbackTxs = new CopyOnWriteArraySet<>();
+    private volatile CopyOnWriteArraySet<Long> commitPendingTxs = new CopyOnWriteArraySet<>();
+    private AtomicBoolean blockAll = new AtomicBoolean(false);
+    private volatile Set<Long> abortTxIDs = new HashSet<>();
+
+    public LockManager(String regionName, boolean m_isTrafodionMetadata) {
+        this.regionName = regionName;
+
+        this.m_isTrafodionMetadata = m_isTrafodionMetadata;
+        init();
+    }
+
+    public LockManager(String regionName, String regionEncodedName, byte[] regionInfo, boolean m_isTrafodionMetadata) {
+        this.regionName = regionName;
+        this.regionEncodedName = regionEncodedName;
+        this.regionInfo = regionInfo;
+
+        this.m_isTrafodionMetadata = m_isTrafodionMetadata;
+        init();
+    }
+
+    private void init() {
+        rsServer = RSServer.getInstance();
+        //typeof tableLock is same as rowLock
+        //tableLock = rsServer.getLockFromVectorCache(null, this.regionName);
+        tableLock = new Lock(null, this.regionName);
+        rsServer.addLockManager(regionName, this);
+    }
+
+    /**
+     * table lock
+     *
+     * @param txID        transaction ID
+     * @param dwLockModes lock mode
+     * @param timeout     unit: second
+     * @return
+     */
+    public RetCode lockAcquire(long txID, int dwLockModes, int timeout, String query) {
+        return lockAcquire(txID, -2, -2, dwLockModes, timeout, false, false, false, query);
+    }
+
+    public RetCode lockAcquire(long txID, int dwLockModes, int timeout, boolean isEsca, String query) {
+        return lockAcquire(txID, -2, -2, dwLockModes, timeout, isEsca, false, false, query);
+    }
+
+    public RetCode lockAcquire(long txID, long svptID, int dwLockMode, int timeout, String query) {
+        return lockAcquire(txID, svptID, -2, dwLockMode, timeout, false/*isEsca*/, false, false, query);
+    }
+
+    public RetCode lockAcquire(long txID, long svptID, long parentSvptID, int dwLockMode, int timeout, String query) {
+        return lockAcquire(txID, svptID, parentSvptID, dwLockMode, timeout, false/*isEsca*/, false, false, query);
+    }
+
+    public RetCode lockAcquire(long txID, long svptID, long parentSvptID, int dwLockMode, int timeout, boolean implicitSavepoint, String query) {
+        return lockAcquire(txID, svptID, parentSvptID, dwLockMode, timeout, false/*isEsca*/, false, implicitSavepoint, query);
+    }
+
+    /**
+     * table lock
+     *
+     * @param txID       transaction ID
+     * @param svptID     savepoint ID
+     * @param dwLockMode lock mode
+     * @param timeout    unit: second
+     * @return
+     */
+    public RetCode lockAcquire(long txID, long svptID, long parentSvptID, int dwLockMode, int timeout, boolean isEsca, boolean isIntention, boolean implicitSavepoint, String query) {
+        if (dwLockMode == LockMode.LOCK_NO) {
+            return RetCode.OK;
+        }
+        if (blockAll.get()) {
+            addAbortTransaction(txID);
+            LOG.warn("txID: " + txID + " svtpID: " + svptID + " region: " + regionName + " is canceled for closing region (loc 1)");
+        }
+        recordTxStart(txID);
+        StringBuffer debugInfo = null;
+        if (LockLogLevel.enableDebugLevel || (LockLogLevel.enableDebugLevel1 && !isIntention && !isEsca)) {
+            debugInfo = new StringBuffer(300);
+            debugInfo.append("table lockAcquire ").append("txID:").append(txID);
+            debugInfo.append(",svptID:").append(svptID).append(",parentSvptID:").append(parentSvptID);
+            debugInfo.append(",implicitSavepoint:").append(implicitSavepoint).append(",lockMode:").append(dwLockMode);
+            debugInfo.append(",regionName:").append(regionName);
+            LOG.info(debugInfo);
+        }
+        if (LockLogLevel.enableGenTestCaseLevel && !isIntention && !isEsca) {
+            StringBuffer testCaseInfo = new StringBuffer(300);
+            testCaseInfo.append("testcase \n").append("lockObject.setTable(\"").append(regionName).append("\");\n");
+            testCaseInfo.append("lockObject.setTxID(").append(txID).append("L);\n");
+            testCaseInfo.append("lockObject.setSvptID(").append(svptID).append(");\n");
+            testCaseInfo.append("lockObject.setParentSvptID(").append(parentSvptID).append(");\n");
+            testCaseInfo.append("lockObject.setLockMode(").append(dwLockMode).append(");\n");
+            testCaseInfo.append("lockObject.setImplicitSavepoint(").append(implicitSavepoint).append(");\n");
+            testCaseInfo.append("acquireTableLock(lockManager, lockObject, 0);\n");
+            LOG.info(testCaseInfo);
+        }
+
+        long start = System.currentTimeMillis();
+        boolean isSvpt = false;
+        if (svptID > 0 && LockConstants.ENABLE_SAVEPOINT) {
+            isSvpt = true;
+        }
+        int sleepTotalTime = 0;
+        //for debug
+        boolean emptyHolderTxIdOccupied = false;
+
+        Transaction transaction = getTransaction(txID, false, null);
+        if (transaction != null) {
+            synchronized (transaction) {
+                if (rollbackTxs.contains(txID)) {
+                    cleanRelatedState(null, txID, null, LockWaitStatus.CANCEL_FOR_ROLLBACK, 1);
+                    checkTransactionReference(debugInfo, transaction, "table decrease transaction reference (loc 12) ");
+                    if (LockLogLevel.enableDebugLevel) {
+                        LOG.info(debugInfo.toString() + " exit table lock acquire (loc 11)");
+                    }
+                    return RetCode.CANCEL_FOR_ROLLBACK;
+                }
+            }
+            if (dwLockMode != LockMode.LOCK_RS && dwLockMode != LockMode.LOCK_RX) {
+                commitLastImplicitSavepoint(txID, svptID);
+            }
+        }
+        transaction = getTransaction(txID, query);
+        if (LockLogLevel.enableTraceLevel) {
+            LOG.info(debugInfo.toString() + "\n table increase transaction reference " + transaction.getReferenceNum() + " " + transaction.hashCode());
+        }
+        boolean newHolder = false;
+        boolean canAcquireLock = false;
+        boolean isRetry = false;
+        boolean isQueueHead = false;
+        while (true) {
+            LockHolder curHolder = null;
+            newHolder = false;
+            canAcquireLock = false;
+            synchronized (transaction) {
+                if (svptID > 0 && implicitSavepoint) {
+                    transaction.setImplicitSavepointID(svptID);
+                }
+                synchronized (tableLock) {
+                    if (rollbackTxs.contains(txID)) {
+                        cleanRelatedState(transaction, txID, tableLock, LockWaitStatus.CANCEL_FOR_ROLLBACK, 2);
+                        checkTransactionReference(debugInfo, transaction, "table decrease transaction reference (loc 13) ");
+                        if (LockLogLevel.enableDebugLevel) {
+                            LOG.info(debugInfo.toString() + " exit table lock acquire (loc 12)");
+                        }
+                        return RetCode.CANCEL_FOR_ROLLBACK;
+                    }
+                    synchronized (waitGraph) {
+                        LockWait lockWait = waitGraph.get(txID);
+                        if (lockWait != null) {
+                            isRetry = true;
+                        }
+                        if (blockAll.get()) {
+                            addAbortTransaction(txID);
+                            LOG.warn("txID: " + txID + " svtpID: " + svptID + " region: " + regionName + " is canceled for closing region (loc 2 return)");
+                            if (lockWait != null) {
+                                cleanRelatedState(transaction, txID, tableLock, lockWait.getWaitStatus(), 3);
+                            } else {
+                                transaction.decreaseReferenceNum(regionName + " (loc 1)");
+                            }
+                            return RetCode.CANCEL_FOR_CLOSING_REGION;
+                        }
+                        if (lockWait != null && lockWait.getWaitStatus() != LockWaitStatus.WAITING
+                                && lockWait.getWaitStatus() != LockWaitStatus.LOCK_TIMEOUT) {
+                            cleanRelatedState(transaction, txID, tableLock, lockWait.getWaitStatus(), 4);
+                            checkTransactionReference(debugInfo, transaction, "table decrease transaction reference (loc 1) ");
+                            if (LockLogLevel.enableDebugLevel) {
+                                LOG.info(debugInfo.toString() + " exit table lock acquire (loc 1)");
+                            }
+                            return getRetCode(lockWait, tableLock, txID);
+                        }
+                    }
+                    // check table lock
+                    if (checkLock(transaction, tableLock, dwLockMode, svptID, parentSvptID, null, implicitSavepoint)) {
+                        LockHolder svptTableLock = svptID > 0 ? transaction.getSvptTableHolder(svptID) : null;
+                        if (svptTableLock == null && svptID > 0) {
+                            if (LockLogLevel.enableTraceLevel) {
+                                LOG.info("table lockAcquire txID: " + txID + " svptID: " + svptID + " parentSvptID: "
+                                        + parentSvptID + " lockMode: " + dwLockMode + " region: " + regionName
+                                        + " checkLock return true,but add a new table lock for savepoint.");
+                            }
+                            if (tableLock == null) {
+                                LOG.error("table lockAcquire txID: " + txID + " " + svptID + " " + implicitSavepoint
+                                        + ",regionName: " + regionName + " tableLock is null");
+                                //typeof tableLock is same as rowLock
+                                tableLock = rsServer.getLockFromVectorCache(null, this.regionName);
+                            }
+                            LockHolder svptHolder = getLockHolder(tableLock, transaction.getTableHolder(), transaction,
+                                    svptID, parentSvptID, implicitSavepoint);
+                            if (null == svptHolder) {
+                                checkTransactionReference(debugInfo, transaction, "table decrease transaction reference (loc 20) ");
+                                if (LockLogLevel.enableDebugLevel) {
+                                    LOG.info(debugInfo.toString() + " exit table lock acquire (loc 19)");
+                                }
+                                return notEnoughLocksReturn(transaction, txID, tableLock);
+                            }
+                            if (!implicitSavepoint) {
+                                transaction.setSvptID(svptID);
+                            }
+                        }
+                        if (LockLogLevel.enableTraceLevel) {
+                            LOG.info("table lockAcquire txID: " + txID + " svptID: " + svptID + " parentSvptID: " + parentSvptID + " lockMode: " + dwLockMode + " region: " + regionName + " checkLock return true");
+                        }
+                        cleanRelatedState(transaction, txID, tableLock, LockWaitStatus.OK, 5);
+                        checkTransactionReference(debugInfo, transaction, "table decrease transaction reference (loc 2) ");
+                        if (LockLogLevel.enableDebugLevel) {
+                            LOG.info(debugInfo.toString() + " exit table lock acquire (loc 2) checkLock return true");
+                        }
+                        return isRetry ? RetCode.OK_WITHRETRY : RetCode.OK_LOCKED;
+                    }
+
+                    curHolder = transaction.getTableHolder();
+                    if (tableLock == null) {
+                        LOG.error("table lockAcquire txID: " + txID + " " + svptID + " " + implicitSavepoint + ",regionName: " + regionName + " tableLock is null");
+                        //typeof tableLock is same as rowLock
+                        tableLock = rsServer.getLockFromVectorCache(null, this.regionName);
+                    }
+                    if (curHolder != null && curHolder.canHold(dwLockMode)) {
+                        canAcquireLock = true;
+                    }
+                    if (curHolder == null) {
+                        //try to lock
+                        curHolder = getLockHolder(tableLock, transaction);
+                        if (curHolder == null) {
+                            checkTransactionReference(debugInfo, transaction, "table decrease transaction reference (loc 19) ");
+                            if (LockLogLevel.enableDebugLevel) {
+                                LOG.info(debugInfo.toString() + " exit table lock acquire (loc 18)");
+                            }
+                            return notEnoughLocksReturn(transaction, txID, tableLock);
+                        }
+                        newHolder = true;
+                    }
+                    if (curHolder.getLock() == null) {
+                        LOG.error("table lockAcquire txID: " + txID + " " + svptID + " " + implicitSavepoint + ",regionName: " + regionName + " curHolder.getLock() is null");
+                        curHolder.setLock(tableLock);
+                    }
+                    if (!LockConstants.LOCK_ENABLE_DEADLOCK_DETECT && curHolder.canHold(dwLockMode)) {
+                        canAcquireLock = true;
+                    }
+                    if (!canAcquireLock) {
+                        List<Long> currentTxIDs = getHeadFromWaitQueue(tableLock, txID);
+                        //When locking, you must first determine whether the waiting queue is empty.
+                        // If it is not empty, then determine whether the current transaction is the
+                        // head of the team. The head of the team can continue to lock,
+                        // otherwise enter the wait queue
+                        isQueueHead = (currentTxIDs != null && currentTxIDs.contains(txID));
+                        if (isQueueHead && curHolder.canHold(dwLockMode)) {
+                            canAcquireLock = true;
+                        }
+                        if (!canAcquireLock && currentTxIDs == null && curHolder.canHold(dwLockMode)) {
+                            canAcquireLock = true;
+                        }
+                    }
+                    if (!canAcquireLock && newHolder) {
+                        if (LockLogLevel.enableTraceLevel) {
+                            LOG.info("txId "+ String.valueOf(txID) + " dwLockMode: " + String.valueOf(dwLockMode) + " is blocked by "
+                                    + String.valueOf(tableLock.getMaskGrant()));
+                        }
+                        rsServer.returnLock(transaction.getTxID(), curHolder);
+                        curHolder = null;
+                        newHolder = false;
+                        canAcquireLock = false;
+                    }
+
+                    if (canAcquireLock) {
+                        if (newHolder) {
+                            transaction.setTableHolder(curHolder);
+                        }
+                        // increase holding
+                        if (isSvpt) {
+                            LockHolder svptHolder = getLockHolder(tableLock, curHolder, transaction, svptID, parentSvptID, implicitSavepoint);
+                            if (svptHolder == null) {
+                                //release LockHolder on transaction
+                                if (newHolder) {
+                                    transaction.setTableHolder(null);
+                                    rsServer.returnLock(transaction.getTxID(), curHolder);
+                                }
+                                checkTransactionReference(debugInfo, transaction, "table decrease transaction reference (loc 15) ");
+                                if (LockLogLevel.enableDebugLevel) {
+                                    LOG.info(debugInfo.toString() + " exit table lock acquire (loc 14)");
+                                }
+                                return notEnoughLocksReturn(transaction, txID, tableLock);
+                            }
+                            svptHolder.increaseHolding(dwLockMode);
+                            if (!implicitSavepoint) {
+                                transaction.setSvptID(svptID);
+                            }
+                        } else {
+                            curHolder.increaseHolding(dwLockMode);
+                        }
+                        cleanRelatedState(transaction, txID, tableLock, LockWaitStatus.OK, 6);
+                        updateLockWait(tableLock);
+                        checkTransactionReference(debugInfo, transaction, "table decrease transaction reference (loc 3) ");
+                        if (LockLogLevel.enableDebugLevel) {
+                            LOG.info(debugInfo.toString() + " exit table lock acquire (loc 3)");
+                        }
+                        return isRetry ? RetCode.OK_WITHRETRY : RetCode.OK;
+                    }
+                }
+                if (LockConstants.LOCK_ENABLE_DEADLOCK_DETECT && !isEsca) {
+                    transaction.decreaseReferenceNum(regionName + " (loc 2)");
+                    checkTransactionReference(debugInfo, transaction, "table decrease transaction reference (loc 4) ");
+                }
+            }
+
+            if (LockConstants.LOCK_ENABLE_DEADLOCK_DETECT && !isEsca) {
+                synchronized (transaction) {
+                    if (rollbackTxs.contains(txID)) {
+                        synchronized (tableLock) {
+                            cleanRelatedState(null/*transaction*/, txID, tableLock, LockWaitStatus.CANCEL_FOR_ROLLBACK, 7);
+                        }
+                        checkTransactionReference(debugInfo, transaction, "table decrease transaction reference (loc 16) ");
+                        if (LockLogLevel.enableDebugLevel) {
+                            LOG.info(debugInfo.toString() + " exit table lock acquire (loc 15)");
+                        }
+                        return RetCode.CANCEL_FOR_ROLLBACK;
+                    }
+                }
+                boolean flag = false;
+                synchronized (tableLock) {
+                    LockWait lockWait = null;
+                    createLockWait(tableLock, transaction, dwLockMode, svptID, parentSvptID, implicitSavepoint);
+                    synchronized (waitGraph) {
+                        lockWait = waitGraph.get(txID);
+                        if (lockWait == null) {
+                            checkTransactionReference(debugInfo, transaction, "table decrease transaction reference (loc 5) ");
+                            if (LockLogLevel.enableDebugLevel) {
+                                LOG.info(debugInfo.toString() + " exit table lock acquire (loc 4)");
+                            }
+                            return RetCode.CANCEL_FOR_OTHER_REASON;
+                        }
+                        int holderTxIDNum = lockWait.getHolderTxIDs().size();
+                        if (LockLogLevel.enableDebugLevel && isRetry && holderTxIDNum == 0) {
+                            String errorMsg = null;
+                            if (debugInfo != null) {
+                                errorMsg = debugInfo.toString();
+                            } else {
+                                errorMsg = "table lockAcquire txID: " + txID + " svptID: " + svptID + " regionName: " + regionName;
+                            }
+                            LOG.warn(errorMsg + " isQueueHead: " + isQueueHead + " isRetry: " + isRetry + " number of lockWait's  HolderTxID is " + holderTxIDNum);
+                        }
+                        flag = ( holderTxIDNum > 0);
+                    }
+                    if (flag || isRetry) {
+                        long victimTxID = rsServer.localDeadLockDetect(regionName, txID);
+                        if (victimTxID == txID) {
+                            cleanRelatedState(null/*transaction*/, txID, tableLock, LockWaitStatus.CANCEL_FOR_DEADLOCK, 8);
+                            checkTransactionReference(debugInfo, transaction, "table decrease transaction reference (loc 6) ");
+                            if (LockLogLevel.enableDebugLevel) {
+                                LOG.info("local table deadlocks detect victim " + regionName + "," + txID + " " + debugInfo);
+                                LOG.info(debugInfo.toString() + " exit table lock acquire (loc 5)");
+                            }
+                            return RetCode.CANCEL_FOR_DEADLOCK;
+                        } else if (victimTxID != -1) {
+                            setDeadLockStatus(victimTxID, tableLock);
+                        }
+                        synchronized (waitGraph) {
+                            lockWait = waitGraph.get(txID);
+                        }
+                        if (lockWait != null && lockWait.getWaitStatus() == LockWaitStatus.WAITING) {
+                            long waitStart = 0;
+                            if (LockLogLevel.enableTraceLevel) {
+                                waitStart = System.currentTimeMillis();
+                            }
+                            putIntoWaitQueue(tableLock, txID);
+                            waitToContinue(tableLock, txID, lockWait, start, timeout, isRetry, isQueueHead);
+                            if (LockLogLevel.enableTraceLevel) {
+                                LOG.info(debugInfo + " wait elaps: " + (System.currentTimeMillis() - waitStart));
+                            }
+                            synchronized (waitGraph) {
+                                lockWait = waitGraph.get(txID);
+                                if (lockWait == null) {
+                                    checkTransactionReference(debugInfo, transaction, "table decrease transaction reference (loc 7) ");
+                                    if (LockLogLevel.enableDebugLevel) {
+                                        LOG.info(debugInfo.toString() + " exit table lock acquire (loc 6)");
+                                    }
+                                    return RetCode.CANCEL_FOR_OTHER_REASON;
+                                } else {
+                                    LockWaitStatus waitStatus = lockWait.getWaitStatus();
+                                    if (waitStatus == null) {
+                                        checkTransactionReference(debugInfo, transaction, "table decrease transaction reference (loc 8) ");
+                                        if (LockLogLevel.enableDebugLevel) {
+                                            LOG.info(debugInfo.toString() + " exit table lock acquire (loc 7)");
+                                        }
+                                        return RetCode.CANCEL_FOR_OTHER_REASON;
+                                    }
+                                    if (waitStatus != LockWaitStatus.WAITING) {
+                                        if (waitStatus != LockWaitStatus.LOCK_TIMEOUT) {
+                                            waitGraph.remove(txID);
+                                            rsServer.checkAndRecordLockWait(lockWait);
+                                        } else {
+                                            dealWithTimeoutLockwait(lockWait);
+                                        }
+                                        checkTransactionReference(debugInfo, transaction, "table decrease transaction reference (loc 9)");
+                                        if (LockLogLevel.enableDebugLevel) {
+                                            LOG.info(debugInfo.toString() + " exit table lock acquire (loc 8)");
+                                        }
+                                        return getRetCode(lockWait, tableLock, txID);
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        if (LockLogLevel.enableDebugLevel && !emptyHolderTxIdOccupied) {
+                            String errorMsg = null;
+                            if (debugInfo != null) {
+                                errorMsg = debugInfo.toString();
+                            } else {
+                                errorMsg = "table lockAcquire txID: " + txID + " svptID: " + svptID + " regionName: " + regionName;
+                            }
+                            LOG.warn(errorMsg + " The HolderTxId of txID: " + txID + " is empty");
+                        }
+                        emptyHolderTxIdOccupied = true;
+                        synchronized (waitGraph) {
+                            lockWait = waitGraph.get(txID);
+                            if (lockWait != null && lockWait.getWaitStatus() == LockWaitStatus.CANCEL_FOR_ROLLBACK) {
+                                //came from notifyWaitThreads
+                                waitGraph.remove(txID);
+                                rsServer.checkAndRecordLockWait(lockWait);
+                                checkTransactionReference(debugInfo, transaction, "table decrease transaction reference (loc 17) ");
+                                if (LockLogLevel.enableDebugLevel) {
+                                    LOG.info(debugInfo.toString() + " exit table lock acquire (loc 16)");
+                                }
+                                return getRetCode(lockWait, tableLock, txID);
+                            }
+                        }
+                        int lockTimeElps = (int) (System.currentTimeMillis() - start);
+                        if (lockTimeElps >= timeout) {
+                            synchronized (waitGraph) {
+                                lockWait = waitGraph.get(txID);
+                                if (lockWait != null) {
+                                    lockWait.setWaitStatus(LockWaitStatus.LOCK_TIMEOUT);
+                                    dealWithTimeoutLockwait(lockWait);
+                                    checkTransactionReference(debugInfo, transaction, "table decrease transaction reference (loc 10) ");
+                                    if (LockLogLevel.enableDebugLevel) {
+                                        LOG.info(debugInfo.toString() + " exit table lock acquire (loc 9)");
+                                    }
+                                    return getRetCode(lockWait, tableLock, txID);
+                                } else {
+                                    return RetCode.FINAL_TIMEOUT;
+                                }
+                            }
+                        }
+                    }
+                }
+                synchronized (transaction) {
+                    if (rollbackTxs.contains(txID)) {
+                        synchronized (tableLock) {
+                            cleanRelatedState(null/*transaction*/, txID, tableLock, LockWaitStatus.CANCEL_FOR_ROLLBACK, 9);
+                        }
+                        checkTransactionReference(debugInfo, transaction, "table decrease transaction reference (loc 18) ");
+                        if (LockLogLevel.enableDebugLevel) {
+                            LOG.info(debugInfo.toString() + " exit table lock acquire (loc 17)");
+                        }
+                        return RetCode.CANCEL_FOR_ROLLBACK;
+                    }
+                    transaction.increaseReferenceNum();
+                }
+                if (LockLogLevel.enableTraceLevel) {
+                    LOG.info(debugInfo + "\n table increase transaction reference (loc 1) " + transaction.getReferenceNum());
+                }
+            } else {
+                if (timeout > sleepTotalTime) {
+                    createLockWait(tableLock, transaction, dwLockMode, svptID, parentSvptID, implicitSavepoint);
+
+                    try {
+                        Thread.sleep(1);
+                        sleepTotalTime += 1;
+                    } catch (InterruptedException e) {
+                        //logger.error(e.getMessage(), e);
+                    }
+                } else {
+                    transaction.decreaseReferenceNum(regionName + " (loc 3)");
+                    if (!LockConstants.LOCK_ENABLE_DEADLOCK_DETECT) {
+                        synchronized (waitGraph) {
+                            LockWait lockWait = waitGraph.remove(txID);
+                            lockWait.setWaitStatus(LockWaitStatus.LOCK_TIMEOUT);
+                            dealWithTimeoutLockwait(lockWait);
+                        }
+                    }
+                    if (LockLogLevel.enableTraceLevel) {
+                        long end = System.currentTimeMillis();
+                        LOG.info(debugInfo.toString() + " elaps : " + (end - start));
+                    }
+                    checkTransactionReference(debugInfo, transaction, "table decrease transaction reference (loc 11) ");
+                    if (LockLogLevel.enableDebugLevel) {
+                        LOG.info(debugInfo.toString() + " exit table lock acquire (loc 10)");
+                    }
+                    return RetCode.TIMEOUT;
+                }
+            }
+        }
+    }
+
+    public RetCode lockAcquire(long txID, RowKey rowID, int dwLockMode, int timeout, String query) {
+        return lockAcquire(txID, -2, -2, rowID, dwLockMode, timeout, false, query);
+    }
+
+    public RetCode lockAcquire(long txID, long svptID, RowKey rowID, int dwLockMode, int timeout, String query) {
+        return lockAcquire(txID, svptID, -2, rowID, dwLockMode, timeout, false, query);
+    }
+
+    public RetCode lockAcquire(long txID, long svptID, long parentSvptID, RowKey rowID, int dwLockMode, int timeout, String query) {
+        return lockAcquire(txID, svptID, parentSvptID, rowID, dwLockMode, timeout, false, query);
+    }
+
+    /**
+     * lock row
+     *
+     * @param txID       transaction ID
+     * @param rowID      rowkey or primarykey of row
+     * @param dwLockMode lock mode
+     * @param timeout    unit: second
+     * @return
+     */
+    public RetCode lockAcquire(long txID, long svptID, long parentSvptID, RowKey rowID, int dwLockMode, int timeout, boolean implicitSavepoint, String query) {
+        if (dwLockMode == LockMode.LOCK_NO) {
+            return RetCode.OK;
+        }
+        if (blockAll.get()) {
+            addAbortTransaction(txID);
+            LOG.warn("txID: " + txID + " svtpID: " + svptID + " rowID: " + rowID + " region: " + regionName + " is canceled for closing region (loc 3)");
+        }
+        recordTxStart(txID);
+        StringBuffer debugInfo = null;
+        if (LockLogLevel.enableDebugLevel || LockLogLevel.enableDebugLevel1) {
+            debugInfo = new StringBuffer(300);
+            debugInfo.append("row lockAcquire").append("txID:").append(txID);
+            debugInfo.append(",rowID:").append(rowID);
+            debugInfo.append(",svptID:").append(svptID).append(",parentSvptID:").append(parentSvptID);
+            debugInfo.append(",implicitSavepoint:").append(implicitSavepoint).append(",lockMode:").append(dwLockMode);
+            debugInfo.append(",regionName:").append(regionName);
+            LOG.info(debugInfo);
+        }
+        if (LockLogLevel.enableGenTestCaseLevel) {
+            StringBuffer testCaseInfo = new StringBuffer(300);
+            testCaseInfo.append("testcase \n").append("lockObject.setTable(\"").append(regionName).append("\");\n");
+            testCaseInfo.append("lockObject.setTxID(").append(txID).append("L);\n");
+            testCaseInfo.append("lockObject.setSvptID(").append(svptID).append(");\n");
+            testCaseInfo.append("lockObject.setParentSvptID(").append(parentSvptID).append(");\n");
+            testCaseInfo.append("lockObject.setLockMode(").append(dwLockMode).append(");\n");
+            testCaseInfo.append("lockObject.setRowID(new RowKey(\"").append(rowID).append("\"));\n");
+            testCaseInfo.append("lockObject.setImplicitSavepoint(").append(implicitSavepoint).append(");\n");
+            testCaseInfo.append("acquireRowLock(lockManager, lockObject, 0);\n");
+            LOG.info(testCaseInfo);
+        }
+
+        long start = System.currentTimeMillis();
+        boolean isSvpt = false;
+        if (svptID > 0 && LockConstants.ENABLE_SAVEPOINT) {
+            isSvpt = true;
+        }
+
+        int sleepTotalTime = 0;
+        Transaction transaction = getTransaction(txID, false, null);
+        if (transaction != null) {
+            synchronized (transaction) {
+                if (rollbackTxs.contains(txID)) {
+                    cleanRelatedState(null, txID, null, LockWaitStatus.CANCEL_FOR_ROLLBACK, 10);
+                    return RetCode.CANCEL_FOR_ROLLBACK;
+                }
+            }
+            if (dwLockMode != LockMode.LOCK_RS && dwLockMode != LockMode.LOCK_RX) {
+                commitLastImplicitSavepoint(txID, svptID);
+            }
+        }
+        transaction = getTransaction(txID, query);
+        if (LockLogLevel.enableTraceLevel) {
+            LOG.info(debugInfo.toString() + "\n row increase transaction reference " + transaction.getReferenceNum() + " " + transaction.hashCode());
+        }
+        Lock rowLock = getRowLock(rowID);
+        boolean newHolder = false;
+        boolean intentLockAcquired = false;
+        boolean hasAppliedIntentLock = false;
+        boolean canEscaLock = false;
+        boolean canAcquireLock = false;
+        //for debug
+        boolean emptyHolderTxIdOccupied = false;
+        boolean isRetry = false;
+        boolean isQueueHead = false;
+        while (true) {
+            LockHolder curHolder = null;
+            newHolder = false;
+            canEscaLock = false;
+            canAcquireLock = false;
+            synchronized (transaction) {
+                if (svptID > 0 && implicitSavepoint) {
+                    transaction.setImplicitSavepointID(svptID);
+                }
+                synchronized (rowLock) {
+                    if (rollbackTxs.contains(txID)) {
+                        cleanRelatedState(transaction, txID, rowLock, LockWaitStatus.CANCEL_FOR_ROLLBACK, 11);
+                        releaseIntentLock(transaction, svptID, dwLockMode, hasAppliedIntentLock);
+                        checkTransactionReference(debugInfo, transaction, "row decrease transaction reference (loc 15) ");
+                        if (LockLogLevel.enableDebugLevel) {
+                            LOG.info(debugInfo.toString() + " exit row lock acquire (loc 14)");
+                        }
+                        return RetCode.CANCEL_FOR_ROLLBACK;
+                    }
+                    // check if current transaction has been
+                    LockWait lockWait = null;
+                    synchronized (waitGraph) {
+                        lockWait = waitGraph.get(txID);
+                        if (lockWait != null) {
+                            isRetry = true;
+                        }
+                    }
+                    if (blockAll.get()) {
+                        addAbortTransaction(txID);
+                        LOG.warn("txID: " + txID + " svtpID: " + svptID + " rowID: " + rowID + " region: " + regionName + " is canceled for closing region (loc 4 return)");
+                        if (lockWait != null) {
+                            cleanRelatedState(transaction, txID, rowLock, lockWait.getWaitStatus(), 12);
+                        } else {
+                            transaction.decreaseReferenceNum(regionName + " (loc 4)");
+                            rowLock.decreaseReferenceNum();
+                        }
+                        releaseIntentLock(transaction, svptID, dwLockMode, hasAppliedIntentLock);
+                        return RetCode.CANCEL_FOR_CLOSING_REGION;
+                    }
+                    if (lockWait != null && lockWait.getWaitStatus() != LockWaitStatus.WAITING
+                            && lockWait.getWaitStatus() != LockWaitStatus.LOCK_TIMEOUT) {
+                        cleanRelatedState(transaction, txID, rowLock, lockWait.getWaitStatus(), 13);
+                        checkTransactionReference(debugInfo, transaction, "row decrease transaction reference (loc 1) ");
+                        if (LockLogLevel.enableDebugLevel) {
+                            LOG.info(debugInfo.toString() + " exit row lock acquire (loc 1)");
+                        }
+                        if (lockWait.getWaitStatus() != LockWaitStatus.OK) {
+                            releaseIntentLock(transaction, svptID, dwLockMode, hasAppliedIntentLock);
+                        }
+                        return getRetCode(lockWait, rowLock, txID);
+                    }
+                }
+                // check table lock
+                if (checkTableLock(transaction, rowLock, dwLockMode, svptID)) {
+                    checkTransactionReference(debugInfo, transaction, "row decrease transaction reference (loc 2) ");
+                    if (LockLogLevel.enableDebugLevel) {
+                        LOG.info(debugInfo.toString() + " exit row lock acquire (loc 2)");
+                    }
+                    return isRetry ? RetCode.OK_WITHRETRY : RetCode.OK_LOCKED;
+                }
+
+                int rowLockNum = transaction.getRowHolderNumber(svptID);
+                if (LockLogLevel.enableTraceLevel) {
+                    LOG.info("txID: " + txID + " svptID: " + svptID + " regionName: " + regionName + " rowLockNum: " + rowLockNum + " ,isSvpt is " + isSvpt);
+                    LOG.info("m_isTrafodionMetadata is " + m_isTrafodionMetadata + " ,LockConstants.LOCK_ESCALATION_THRESHOLD is " + LockConstants.LOCK_ESCALATION_THRESHOLD + " ,enableEscaMap.get(txID) == null is " + (enableEscaMap.get(txID) == null) + " ,enableEscaMap.get(txID) is " + enableEscaMap.get(txID));
+                }
+                if (!m_isTrafodionMetadata
+                        && LockConstants.LOCK_ESCALATION_THRESHOLD > 0
+                        && rowLockNum >= LockConstants.LOCK_ESCALATION_THRESHOLD
+                        && (enableEscaMap.get(txID) == null || enableEscaMap.get(txID))) {
+                    canEscaLock = true;
+                }
+            }
+            if (LockLogLevel.enableTraceLevel) {
+                LOG.info(debugInfo + " canEscaLock: " + canEscaLock + " enableEsca: " + enableEscaMap.get(txID) + " " + enableEscaMap);
+            }
+            if (canEscaLock) {
+                int escaLockMode = transaction.getEscaLockMode(svptID);
+                RetCode escaLockRes = lockAcquire(txID, svptID, parentSvptID, escaLockMode == LockMode.LOCK_U ? LockMode.LOCK_X : escaLockMode, 0, true/*isEsca*/, false/*isIntention*/, implicitSavepoint, query);
+                if ((escaLockRes == RetCode.OK) || (escaLockRes == RetCode.OK_LOCKED) || (escaLockRes == RetCode.OK_WITHRETRY)) {
+                    synchronized (transaction) {
+                        escaLock(transaction, svptID, escaLockMode, dwLockMode);
+                        if (checkTableLock(transaction, rowLock, dwLockMode, svptID)) {
+                            updateLockWait(rowLock);
+                            checkTransactionReference(debugInfo, transaction, "row decrease transaction reference (loc 3) ");
+                            if (LockLogLevel.enableDebugLevel) {
+                                LOG.info(debugInfo.toString() + " exit row lock acquire (loc 3)");
+                            }
+                            //need to remove intent lock
+                            releaseIntentLock(transaction, svptID, dwLockMode, true, true);
+                            return isRetry ? RetCode.OK_WITHRETRY : escaLockRes;
+                        }
+                    }
+                }
+            }
+            if (!intentLockAcquired) {
+                // add intent lock
+                RetCode intentRetCode = lockAcquire(txID, svptID, parentSvptID, getIntentionLockMode(dwLockMode), (int) (timeout - (System.currentTimeMillis() - start)), false/*isEsca*/, true/*isIntention*/, implicitSavepoint, query);
+                intentLockAcquired = ((intentRetCode == RetCode.OK) || (intentRetCode == RetCode.OK_LOCKED) || (intentRetCode == RetCode.OK_WITHRETRY));
+                if (!intentLockAcquired && LockConstants.LOCK_ENABLE_DEADLOCK_DETECT) {
+                    transaction.decreaseReferenceNum(regionName + " (loc 5)");
+                    rowLock.decreaseReferenceNum();
+                    synchronized (waitGraph) {
+                        LockWait lockWait = waitGraph.get(txID);
+                        if (lockWait != null) {
+                            removeFromWaitQueue(lockWait, txID);
+                        }
+                        //no log remove only
+                        rsServer.checkAndRecordLockWait(lockWait);
+                    }
+                    checkTransactionReference(debugInfo, transaction, "row decrease transaction reference (loc 4) ");
+                    if (LockLogLevel.enableDebugLevel) {
+                        LOG.info(debugInfo.toString() + " exit row lock acquire (loc 4)");
+                    }
+                    return intentRetCode;
+                }
+                hasAppliedIntentLock = (intentRetCode != RetCode.OK_LOCKED);
+            }
+            synchronized (transaction) {
+                if (rollbackTxs.contains(txID)) {
+                    synchronized (rowLock) {
+                        cleanRelatedState(transaction, txID, rowLock, LockWaitStatus.CANCEL_FOR_ROLLBACK, 14);
+                        releaseIntentLock(transaction, svptID, dwLockMode, hasAppliedIntentLock);
+                        checkTransactionReference(debugInfo, transaction, "row decrease transaction reference (loc 16) ");
+                        if (LockLogLevel.enableDebugLevel) {
+                            LOG.info(debugInfo.toString() + " exit row lock acquire (loc 15)");
+                        }
+                        return RetCode.CANCEL_FOR_ROLLBACK;
+                    }
+                }
+                // check row lock
+                if (checkLock(transaction, rowLock, dwLockMode, svptID, parentSvptID, rowID, implicitSavepoint)) {
+                    tryRemoveRowLock(rowLock.getRowKey());
+                    cleanRelatedState(transaction, transaction.getTxID(), rowLock, LockWaitStatus.OK, 15);
+
+                    checkTransactionReference(debugInfo, transaction, "row decrease transaction reference (loc 5) ");
+                    if (LockLogLevel.enableDebugLevel) {
+                        LOG.info(debugInfo.toString() + " exit row lock acquire (loc 5)");
+                    }
+                    //need to remove intent lock
+                    releaseIntentLock(transaction, svptID, dwLockMode, hasAppliedIntentLock);
+                    return isRetry ? RetCode.OK_WITHRETRY : RetCode.OK_LOCKED;
+                }
+
+                synchronized (rowLock) {
+                    curHolder = transaction.getRowHolderMap().get(rowID);
+                    if (curHolder != null && curHolder.canHold(dwLockMode)) {
+                        canAcquireLock = true;
+                    }
+                    if (curHolder == null) {
+                        curHolder = getLockHolder(rowLock, transaction);
+                        if (curHolder == null) {
+                            checkTransactionReference(debugInfo, transaction, "row decrease transaction reference (loc 22) ");
+                            if (LockLogLevel.enableDebugLevel) {
+                                LOG.info(debugInfo.toString() + " exit row lock acquire (loc 21)");
+                            }
+                            releaseIntentLock(transaction, svptID, dwLockMode, hasAppliedIntentLock);
+                            return notEnoughLocksReturn(transaction, txID, rowLock);
+                        }
+                        newHolder = true;
+                    }
+                    if (!LockConstants.LOCK_ENABLE_DEADLOCK_DETECT && curHolder.canHold(dwLockMode)) {
+                        canAcquireLock = true;
+                    }
+                    if (!canAcquireLock) {
+                        List<Long> currentTxIDs = getHeadFromWaitQueue(rowLock, txID);
+                        //When locking, you must first determine whether the waiting queue is empty.
+                        // If it is not empty, then determine whether the current transaction is the
+                        // head of the team. The head of the team can continue to lock,
+                        // otherwise enter the wait queue
+                        isQueueHead = (currentTxIDs != null && currentTxIDs.contains(txID));
+                        if (isQueueHead && curHolder.canHold(dwLockMode)) {
+                            canAcquireLock = true;
+                        }
+                        if (!canAcquireLock && currentTxIDs == null && curHolder.canHold(dwLockMode)) {
+                            canAcquireLock = true;
+                        }
+                        if (!canAcquireLock && newHolder) {
+                            if (LockLogLevel.enableTraceLevel && debugInfo != null) {
+                                LOG.info(debugInfo.toString() + "txId "+ String.valueOf(txID) + " dwLockMode: " + String.valueOf(dwLockMode) + " is blocked by "
+                                        + String.valueOf(rowLock.getMaskGrant()));
+                            }
+                            rsServer.returnLock(transaction.getTxID(), curHolder);
+                            curHolder = null;
+                            newHolder = false;
+                            canAcquireLock = false;
+                        }
+                    }
+
+                    if (canAcquireLock && intentLockAcquired) {
+                        if (newHolder) {
+                            addRowLockHolderToLinkedList(curHolder, transaction, rowLock);
+                            transaction.getRowHolderMap().put(rowID, curHolder);
+                        }
+                        if (isSvpt) {
+                            LockHolder svptHolder = getLockHolder(rowLock, curHolder, transaction, svptID, parentSvptID, implicitSavepoint);
+                            if (svptHolder == null) {
+                                //release LockHolder on transaction
+                                if (newHolder) {
+                                    dropRowLockHolder(transaction, rowLock, curHolder, 0);
+                                    //curHolder has been returned in dropRowLockHolder
+                                    //rsServer.returnLock(transaction.getTxID(), curHolder);
+                                }
+                                checkTransactionReference(debugInfo, transaction, "row decrease transaction reference (loc 18) ");
+                                if (LockLogLevel.enableDebugLevel) {
+                                    LOG.info(debugInfo.toString() + " exit row lock acquire (loc 17)");
+                                }
+                                releaseIntentLock(transaction, svptID, dwLockMode, hasAppliedIntentLock);
+                                return notEnoughLocksReturn(transaction, txID, rowLock);
+                            }
+                            svptHolder.increaseHolding(dwLockMode);
+                            if (!implicitSavepoint) {
+                                transaction.setSvptID(svptID);
+                            }
+                        } else {
+                            curHolder.increaseHolding(dwLockMode);
+                        }
+                        cleanRelatedState(transaction, txID, rowLock, LockWaitStatus.OK, 16);
+                        updateLockWait(rowLock);
+                        checkTransactionReference(debugInfo, transaction, "row decrease transaction reference (loc 6) ");
+                        if (LockLogLevel.enableDebugLevel) {
+                            LOG.info(debugInfo.toString() + " exit row lock acquire (loc 6)");
+                        }
+                        return isRetry ? RetCode.OK_WITHRETRY : RetCode.OK;
+                    } else if (canAcquireLock && !intentLockAcquired) {
+                        if (newHolder) {
+                            rsServer.returnLock(transaction.getTxID(), curHolder);
+                            curHolder = null;
+                        }
+                    }
+                }
+                if (LockConstants.LOCK_ENABLE_DEADLOCK_DETECT) {
+                    transaction.decreaseReferenceNum(regionName + " (loc 6)");
+                    checkTransactionReference(debugInfo, transaction, "row decrease transaction reference (loc 7) ");
+                }
+            }
+
+            if (LockConstants.LOCK_ENABLE_DEADLOCK_DETECT) {
+                synchronized (transaction) {
+                    if (rollbackTxs.contains(txID)) {
+                        synchronized (rowLock) {
+                            cleanRelatedState(null, txID, rowLock, LockWaitStatus.CANCEL_FOR_ROLLBACK, 17);
+                        }
+                        checkTransactionReference(debugInfo, transaction, "row decrease transaction reference (loc 19) ");
+                        if (LockLogLevel.enableDebugLevel) {
+                            LOG.info(debugInfo.toString() + " exit row lock acquire (loc 18)");
+                        }
+                        releaseIntentLock(transaction, svptID, dwLockMode, hasAppliedIntentLock);
+                        return RetCode.CANCEL_FOR_ROLLBACK;
+                    }
+                }
+                synchronized (rowLock) {
+                    boolean flag = false;
+                    LockWait lockWait = null;
+                    createLockWait(rowLock, transaction, dwLockMode, svptID, parentSvptID, implicitSavepoint);
+                    synchronized (waitGraph) {
+                        lockWait = waitGraph.get(txID);
+                        if (lockWait != null) {
+                            int holderTxIDNum = lockWait.getHolderTxIDs().size();
+                            if (LockLogLevel.enableDebugLevel && isRetry && holderTxIDNum == 0) {
+                                String errorMsg = null;
+                                if (debugInfo != null) {
+                                    errorMsg = debugInfo.toString();
+                                } else {
+                                    errorMsg = "row lockAcquire txID: " + txID + " svptID: " + svptID + " rowID: " + rowID + " regionName: " + regionName;
+                                }
+                                LOG.warn(errorMsg + " isQueueHead: " + isQueueHead + " isRetry: " + isRetry + " number of lockWait's HolderTxID is " + holderTxIDNum);
+                            }
+                            flag = ( holderTxIDNum > 0);
+                        }
+                    }
+                    if (lockWait == null) {
+                        checkTransactionReference(debugInfo, transaction, "row decrease transaction reference (loc 8) ");
+                        if (LockLogLevel.enableDebugLevel) {
+                            LOG.info(debugInfo.toString() + " exit row lock acquire (loc 7)");
+                        }
+                        releaseIntentLock(transaction, svptID, dwLockMode, hasAppliedIntentLock);
+                        return RetCode.CANCEL_FOR_OTHER_REASON;
+                    }
+                    if (flag || isRetry) {
+                        long victimTxID = rsServer.localDeadLockDetect(regionName, txID);
+                        if (victimTxID == txID) {
+                            cleanRelatedState(null/*transaction*/, txID, rowLock, LockWaitStatus.CANCEL_FOR_DEADLOCK, 18);
+                            checkTransactionReference(debugInfo, transaction, "row decrease transaction reference (loc 9) ");
+                            if (LockLogLevel.enableDebugLevel) {
+                                LOG.info("local row deadlocks detect victim " + regionName + "," + txID + "," + rowID + " " + debugInfo);
+                                LOG.info(debugInfo.toString() + " exit row lock acquire (loc 8)");
+                            }
+                            releaseIntentLock(transaction, svptID, dwLockMode, hasAppliedIntentLock);
+                            return RetCode.CANCEL_FOR_DEADLOCK;
+                        } else if (victimTxID != -1) {
+                            setDeadLockStatus(victimTxID, rowLock);
+                        }
+                        synchronized (waitGraph) {
+                            lockWait = waitGraph.get(txID);
+                        }
+                        if (lockWait != null && lockWait.getWaitStatus() == LockWaitStatus.WAITING) {
+                            long waitStart = 0;
+                            if (LockLogLevel.enableTraceLevel) {
+                                waitStart = System.currentTimeMillis();
+                            }
+                            putIntoWaitQueue(rowLock, txID);
+                            waitToContinue(rowLock, txID, lockWait, start, timeout, isRetry, isQueueHead);
+                            if (LockLogLevel.enableTraceLevel) {
+                                LOG.info(debugInfo + " wait elaps: " + (System.currentTimeMillis() - waitStart));
+                            }
+                            synchronized (waitGraph) {
+                                lockWait = waitGraph.get(txID);
+                            }
+                            if (lockWait == null) {
+                                releaseIntentLock(transaction, svptID, dwLockMode, hasAppliedIntentLock);
+                                if (LockLogLevel.enableDebugLevel) {
+                                checkTransactionReference(debugInfo, transaction, "row decrease transaction reference (loc 10) ");
+                                    LOG.info(debugInfo.toString() + " exit row lock acquire (loc 9)");
+                                }
+                                return RetCode.CANCEL_FOR_OTHER_REASON;
+                            } else {
+                                LockWaitStatus waitStatus = lockWait.getWaitStatus();
+                                if (waitStatus == null) {
+                                    releaseIntentLock(transaction, svptID, dwLockMode, hasAppliedIntentLock);
+                                    if (LockLogLevel.enableDebugLevel) {
+                                    checkTransactionReference(debugInfo, transaction, "row decrease transaction reference (loc 11) ");
+                                        LOG.info(debugInfo.toString() + " exit row lock acquire (loc 10)");
+                                    }
+                                    return RetCode.CANCEL_FOR_OTHER_REASON;
+                                }
+                                if (waitStatus != LockWaitStatus.WAITING) {
+                                    if (waitStatus != LockWaitStatus.LOCK_TIMEOUT) {
+                                        synchronized (waitGraph) {
+                                            waitGraph.remove(txID);
+                                            rsServer.checkAndRecordLockWait(lockWait);
+                                        }
+                                    } else {
+                                        dealWithTimeoutLockwait(lockWait);
+                                    }
+
+                                    rowLock.decreaseReferenceNum();
+
+                                    checkTransactionReference(debugInfo, transaction, "row decrease transaction reference (loc 12) ");
+                                    if (LockLogLevel.enableDebugLevel) {
+                                        LOG.info(debugInfo.toString() + " exit row lock acquire (loc 11)");
+                                    }
+                                    if (waitStatus != LockWaitStatus.OK) {
+                                        releaseIntentLock(transaction, svptID, dwLockMode, hasAppliedIntentLock);
+                                    }
+                                    return getRetCode(lockWait, rowLock, txID);
+                                }
+                            }
+                        }
+                    } else {
+                        if (LockLogLevel.enableDebugLevel && !emptyHolderTxIdOccupied) {
+                            String errorMsg = "";
+                            if (debugInfo != null) {
+                                errorMsg = debugInfo.toString();
+                            } else {
+                                errorMsg = "row lockAcquire txID: " + txID + " svptID: " + svptID + " regionName: " + regionName;
+                            }
+                            LOG.warn(errorMsg + " The HolderTxId of txID: " + txID + " is empty");
+                        }
+                        emptyHolderTxIdOccupied = true;
+                        synchronized (waitGraph) {
+                            lockWait = waitGraph.get(txID);
+                        }
+                        if (lockWait != null && lockWait.getWaitStatus() == LockWaitStatus.CANCEL_FOR_ROLLBACK) {
+                            releaseIntentLock(transaction, svptID, dwLockMode, hasAppliedIntentLock);
+                            synchronized (waitGraph) {
+                                //came from notifyWaitThreads
+                                waitGraph.remove(txID);
+                                rsServer.checkAndRecordLockWait(lockWait);
+                                checkTransactionReference(debugInfo, transaction, "row decrease transaction reference (loc 20) ");
+                                if (LockLogLevel.enableDebugLevel) {
+                                    LOG.info(debugInfo.toString() + " exit row lock acquire (loc 19)");
+                                }
+                                return getRetCode(lockWait, rowLock, txID);
+                            }
+                        }
+                        int lockTimeElps = (int) (System.currentTimeMillis() - start);
+                        if (lockTimeElps >= timeout) {
+                            releaseIntentLock(transaction, svptID, dwLockMode, hasAppliedIntentLock);
+                            synchronized (waitGraph) {
+                                lockWait = waitGraph.get(txID);
+                                if (lockWait == null) {
+                                    return RetCode.FINAL_TIMEOUT;
+                                }
+                                lockWait.setWaitStatus(LockWaitStatus.LOCK_TIMEOUT);
+                                dealWithTimeoutLockwait(lockWait);
+                                checkTransactionReference(debugInfo, transaction, "row decrease transaction reference (loc 13) ");
+                                if (LockLogLevel.enableDebugLevel) {
+                                    LOG.info(debugInfo.toString() + " exit row lock acquire (loc 12)");
+                                }
+                                return getRetCode(lockWait, rowLock, txID);
+                            }
+                        }
+                    }
+                }
+                synchronized (transaction) {
+                    if (rollbackTxs.contains(txID)) {
+                        synchronized (rowLock) {
+                            cleanRelatedState(null, txID, rowLock, LockWaitStatus.CANCEL_FOR_ROLLBACK, 19);
+                        }
+                        checkTransactionReference(debugInfo, transaction, "row decrease transaction reference (loc 21) ");
+                        if (LockLogLevel.enableDebugLevel) {
+                            LOG.info(debugInfo.toString() + " exit row lock acquire (loc 20)");
+                        }
+                        releaseIntentLock(transaction, svptID, dwLockMode, hasAppliedIntentLock);
+                        return RetCode.CANCEL_FOR_ROLLBACK;
+                    }
+                    transaction.increaseReferenceNum();
+                }
+                if (LockLogLevel.enableTraceLevel) {
+                    LOG.info(debugInfo + "\n row increase transaction reference (loc 1) " + transaction.getReferenceNum());
+                }
+            } else {
+                if (timeout > sleepTotalTime) {
+                    createLockWait(rowLock, transaction, dwLockMode, svptID, parentSvptID, implicitSavepoint);
+                    try {
+                        Thread.sleep(1);
+                        sleepTotalTime += 1;
+                    } catch (InterruptedException e) {
+                        //logger.error(e.getMessage(), e);
+                    }
+                } else {
+                    transaction.decreaseReferenceNum(regionName + " (loc 8)");
+                    rowLock.decreaseReferenceNum();
+                    synchronized (waitGraph) {
+                        LockWait lockWait = waitGraph.remove(txID);
+                        lockWait.setWaitStatus(LockWaitStatus.LOCK_TIMEOUT);
+                        dealWithTimeoutLockwait(lockWait);
+                    }
+                    if (LockLogLevel.enableTraceLevel) {
+                        long end = System.currentTimeMillis();
+                        LOG.info("LOCKMANAGER row failed lockAcquire time : " + (end - start));
+
+                        StringBuffer errMsg = new StringBuffer(3000);
+                        errMsg.append("failed to get row lock(").append(regionName).append(", ").append(rowID).append(",").append(dwLockMode).append("): existing lock");
+                        LockHolder rowHolder = rowLock.getHead();
+                        while (rowHolder != null) {
+                            errMsg.append("                  \n").append(rowHolder);
+                            rowHolder = rowHolder.getLockNext();
+                        }
+                        LOG.error(errMsg);
+                    }
+                    checkTransactionReference(debugInfo, transaction, "row decrease transaction reference (loc 14) ");
+                    if (LockLogLevel.enableDebugLevel) {
+                        LOG.info(debugInfo.toString() + " exit row lock acquire (loc 13)");
+                    }
+                    releaseIntentLock(transaction, svptID, dwLockMode, hasAppliedIntentLock);
+                    return RetCode.TIMEOUT;
+                }
+            }
+        }
+    }
+
+    private void escaLockRelease(Transaction transaction, long svptID, int escaLockMode, LockHolder lockHolder) {
+        Lock rowLock = lockHolder.getLock();
+        RowKey rowKey = rowLock.getRowKey();
+        lockRelease(transaction, svptID, rowKey, escaLockMode, (lockHolder.getHolding())[LockMode.getIndex(escaLockMode)]);
+        if (escaLockMode == LockMode.LOCK_U) {
+            lockRelease(transaction, svptID, rowKey, LockMode.LOCK_X, (lockHolder.getHolding())[LockMode.getIndex(LockMode.LOCK_X)]);
+            lockRelease(transaction, svptID, rowKey, LockMode.LOCK_S, (lockHolder.getHolding())[LockMode.getIndex(LockMode.LOCK_S)]);
+        } else if (escaLockMode == LockMode.LOCK_X) {
+            lockRelease(transaction, svptID, rowKey, LockMode.LOCK_U, (lockHolder.getHolding())[LockMode.getIndex(LockMode.LOCK_U)]);
+            lockRelease(transaction, svptID, rowKey, LockMode.LOCK_S, (lockHolder.getHolding())[LockMode.getIndex(LockMode.LOCK_S)]);
+        }
+    }
+
+    private void escaLock(Transaction transaction, long svptID, int escaLockMode, int beEscaLockMode) {
+        LockHolder lockHolder = null;
+        if (svptID > 0) {
+            lockHolder = transaction.getSubTxTableHolderHeaderMap().get(svptID);
+            do {
+                svptID = lockHolder.getSvptID();
+                escaSvptLock(transaction, svptID, escaLockMode, beEscaLockMode);
+            } while ((lockHolder = lockHolder.getNextNeighbor()) != null);
+
+            return;
+        }
+        for (Map.Entry<RowKey, LockHolder> entry : transaction.getRowHolderMap().entrySet()) {
+            lockHolder = entry.getValue();
+            escaLockRelease(transaction, svptID, escaLockMode, lockHolder);
+        }
+    }
+
+    private void escaSvptLock(Transaction transaction, long svptID, int escaLockMode, int beEscaLockMode) {
+        LockHolder lockHolder = null;
+        LockHolder tmpLockHolder = null;
+        lockHolder = transaction.getSubTxTableHolderHeaderMap().get(svptID);
+        if (lockHolder != null) {
+            LockHolder childHolder = lockHolder.getLastChild();
+            ConcurrentHashMap<RowKey, LockHolder> svptRowHolders = null;
+            if (childHolder != null) {
+                while (childHolder.getParent() != lockHolder) {
+                    svptRowHolders = transaction.getSubTxRowHolderHeaderMap().get(childHolder.getSvptID());
+                    if (svptRowHolders != null) {
+                        for (Map.Entry<RowKey, LockHolder> entry : svptRowHolders.entrySet()) {
+                            tmpLockHolder = entry.getValue();
+                            escaLockRelease(transaction, tmpLockHolder.getSvptID(), escaLockMode, tmpLockHolder);
+                        }
+                    }
+                    childHolder = childHolder.getParent();
+                }
+            }
+
+            svptRowHolders = transaction.getSubTxRowHolderHeaderMap().get(lockHolder.getSvptID());
+            if (svptRowHolders != null) {
+                for (Map.Entry<RowKey, LockHolder> entry : svptRowHolders.entrySet()) {
+                    tmpLockHolder = entry.getValue();
+                    escaLockRelease(transaction, tmpLockHolder.getSvptID(), escaLockMode, tmpLockHolder);
+                }
+            }
+        }
+    }
+
+    public boolean lockReleaseAll(final List<Long> txIDs) {
+        if (txIDs == null || txIDs.size() == 0) {
+            return true;
+        }
+        try {
+            List<Long> tmpIDs = new ArrayList<>(txIDs);
+            tmpIDs.removeAll(commitPendingTxs);
+            tmpIDs.removeAll(rollbackTxs);
+            tmpIDs.retainAll(transactionMap.keySet());
+            LOG.info("lockReleaseAll: txIDs: " + txIDs + " commitPendingTxs: " + commitPendingTxs + " tmpIDs: " + tmpIDs + " regionName: " + regionName);
+            for (long txID : tmpIDs) {
+                lockReleaseAll(txID);
+            }
+            cleanWaitTxQueue(tmpIDs);
+        } catch (Exception e) {
+            LOG.error("failed to lockReleaseAll: txIDs: " + txIDs + " commitPendingTxs: " + commitPendingTxs + " regionName: " + regionName, e);
+            return false;
+        }
+        return true;
+    }
+
+    public boolean lockReleaseAll(long txID) {
+        return lockReleaseAll(txID, -2);
+    }
+
+    /**
+     * release table lock
+     *
+     * @param txID transaction ID
+     * @return
+     */
+    public boolean lockReleaseAll(long txID, long svptID) {
+        if (blockAll.get()) {
+            addAbortTransaction(txID);
+            LOG.warn("txID: " + txID + " svtpID: " + svptID + " region: " + regionName + " is canceled for closing region (loc 5 lockReleaseAll)");
+        }
+        StringBuffer debugInfo = null;
+        if (LockLogLevel.enableDebugLevel || LockLogLevel.enableDebugLevel1) {
+            debugInfo = new StringBuffer(200);
+            debugInfo.append("lockReleaseAll txID: ").append(txID).append(",svptID: ").append(svptID).append(",regionName: ").append(regionName);
+            LOG.info(debugInfo);
+        }
+        if (LockLogLevel.enableGenTestCaseLevel) {
+            debugInfo = new StringBuffer(300);
+            debugInfo.append("testcase \n").append("lockObject.setTable(\"").append(regionName).append("\");\n");
+            debugInfo.append("lockObject.setTxID(").append(txID).append("L);\n");
+            debugInfo.append("lockObject.setSvptID(").append(svptID).append(");\n");
+            debugInfo.append("releaseAll(lockManager, lockObject);\n");
+            LOG.info(debugInfo);
+        }
+
+        long start = 0;
+        if (LockLogLevel.enableTraceLevel) {
+            start = System.currentTimeMillis();
+        }
+        boolean isSvpt = false;
+        if (svptID > 0) {
+            isSvpt = true;
+        } else {
+            if (LockLogLevel.enableTraceLevel) {
+                LOG.info("enter lockReleaseAll: " + txID + " " + regionName);
+            }
+            // notify first then remove lockWait from waitGraph, to process the case (release transaction when lockAcquire of the same transaction is in waiting state)
+            if (LockConstants.LOCK_ENABLE_DEADLOCK_DETECT) {
+                notifyWaitThreads(txID, LockWaitStatus.CANCEL_FOR_ROLLBACK);
+            }
+        }
+
+        Transaction transaction = getTransaction(txID, false, null);
+        if (transaction == null) {
+            removeCommitPendingTx(txID);
+            removeAbortTransaction(txID);
+            LOG.warn("lockReleaseAll txID: " + txID + " savepointID: " + svptID + " region: " + regionName + " transaction not exists!");
+            return true;
+        }
+
+
+        synchronized (transaction) {
+            if (blockAll.get()) {
+                addAbortTransaction(txID);
+                LOG.warn("txID: " + txID + " svtpID: " + svptID + " region: " + regionName + " is canceled for closing region (loc 6 lockReleaseAll)");
+            }
+            if (rollbackTxs.contains(txID)) {
+                //don't removeAbortTransaction
+                LOG.warn("duplicate lockReleaseAll txID: " + txID + " svtpID: " + svptID + " region: " + regionName + " loc 1");
+                return true;
+            }
+            if (txID != transaction.getTxID()) {
+                removeAbortTransaction(txID);
+                LOG.warn("lockReleaseAll for transaction txID: " + txID + " svtpID: " + svptID + " region: " + regionName + " already done in another thread loc 1");
+                return true;
+            }
+            if (svptID < 0) {
+                rollbackTxs.add(txID);
+            }
+            boolean inLockAcquireProcess = false;
+            int retryCount = 0;
+            do {
+                inLockAcquireProcess = (transaction.getReferenceNum() > 0);
+                if (inLockAcquireProcess) {
+                    try {
+                        transaction.wait(1000);
+                    } catch (InterruptedException e) {
+                        LOG.error("lockReleaseAll failed to wait transaction", e);
+                    }
+                }
+                retryCount++;
+            } while (inLockAcquireProcess && retryCount <=10);
+            if (LockConstants.LOCK_ENABLE_DEADLOCK_DETECT) {
+                notifyWaitThreads(txID, LockWaitStatus.CANCEL_FOR_ROLLBACK);
+            }
+            if (transaction.getReferenceNum() != 0) {
+                removeAbortTransaction(txID);
+                throw new RuntimeException("lock leaks, the ReferenceNum does not equals zero ( " + transaction.getReferenceNum() + " ) when release transaction ( " + txID + " ) or savepoint ( " + svptID + " ) regionName: " + regionName);
+            }
+            if (isSvpt) {
+                if (LockLogLevel.enableTraceLevel) {
+                    LOG.info("lockReleaseAll is savepoint.");
+                }
+                lockReleaseRowLocks(transaction, svptID, true, true);
+                long subSvptID = transaction.getSubRowSvptID(svptID);
+                while (subSvptID > 0) {
+                    lockReleaseRowLocks(transaction, subSvptID, true, true);
+                    subSvptID = transaction.getSubRowSvptID(svptID);
+                }
+                // remove table svptholding
+                // Performance optimizing : Do not release tableHolder, when adding any lock, it is needed.
+                lockReleaseTableLocks(transaction, svptID, true, true);
+                subSvptID = transaction.getSubTableSvptID(svptID);
+                while (subSvptID > 0) {
+                    lockReleaseTableLocks(transaction, subSvptID, true, true);
+                    subSvptID = transaction.getSubTableSvptID(svptID);
+                }
+                transaction.resetSvptID();
+            } else {
+                if (LockLogLevel.enableTraceLevel) {
+                    LOG.info("lockReleaseAll not is savepoint.");
+                }
+                // remove row holder
+                LockHolder lockHolder = null;
+                LockHolder childHolder = null;
+                Lock rowLock = null;
+                while (transaction.getHead() != null) {
+                    lockHolder = transaction.getHead();
+                    rowLock = lockHolder.getLock();
+                    RowKey rowKey = rowLock.getRowKey();
+                    synchronized (rowLock) {
+                        childHolder = lockHolder.getChild();
+                        while (childHolder != null) {
+                            lockReleaseRowLocks(transaction, childHolder.getSvptID(), false, false, lockHolder, rowKey);
+                            childHolder = lockHolder.getChild();
+                        }
+                        rowLock.removeHold(transaction.getHead(), transaction, regionName);
+                        dropRowLockHolder(transaction, rowLock);
+                        if (LockLogLevel.enableTraceLevel) {
+                            rowLock.validateLock(regionName, transactionMap, "Row lock lockReleaseAll rowKey: " + rowKey);
+                        }
+                        if (LockConstants.LOCK_ENABLE_DEADLOCK_DETECT) {
+                            logNotify(txID, rowLock);
+                            updateLockWait(rowLock);
+                            rowLock.notifyAll();
+                        }
+                    }
+                    tryRemoveRowLock(rowKey);
+                }
+                //remove table holder
+                synchronized (tableLock) {
+                    LockHolder tableHolder = transaction.getTableHolder();
+                    if (tableHolder != null) {
+                        childHolder = tableHolder.getChild();
+                        while (childHolder != null) {
+                            lockReleaseTableLocks(transaction, childHolder.getSvptID(), false, false);
+                            childHolder = tableHolder.getChild();
+                        }
+                        tableLock.removeHold(tableHolder, transaction, regionName);
+                        rsServer.returnLock(transaction.getTxID(), tableHolder);
+                        transaction.setTableHolder(null);
+                        if (LockLogLevel.enableTraceLevel) {
+                            tableLock.validateLock(regionName, transactionMap, "Table lock lockReleaseAll");
+                        }
+                        if (LockConstants.LOCK_ENABLE_DEADLOCK_DETECT) {
+                            logNotify(txID, tableLock);
+                            updateLockWait(tableLock);
+                            tableLock.notifyAll();
+                        }
+                    }
+                }
+            }
+        }
+
+        if (!isSvpt) {
+            LockWait lockWait = null;
+            synchronized (waitGraph) {
+                lockWait = waitGraph.remove(txID);
+                if (lockWait != null) {
+                    removeFromWaitQueue(lockWait, txID);
+                    lockWait.setWaitStatus(LockWaitStatus.CANCEL_FOR_ROLLBACK);
+                    rsServer.checkAndRecordLockWait(lockWait);
+                }
+            }
+            synchronized (enableEscaMap) {
+                enableEscaMap.remove(txID);
+            }
+            //remove only if it has no savepoint
+            removeTransaction(txID);
+        }
+        if (LockLogLevel.enableTraceLevel) {
+            LOG.info("lockReleaseAll: " + txID + " " + svptID + " " + regionName + " done");
+            long end = System.currentTimeMillis();
+            LOG.info("LOCKMANAGER table lockRelease time : " + (end - start));
+        }
+        if (LockLogLevel.enableInfoLevel) {
+            LOG.info("lockReleaseAll: " + txID + " " + svptID + " " + regionName + " done");
+        }
+        return true;
+    }
+
+    public boolean lockRelease(long txID, RowKey rowID, int dwLockMode) {
+        return lockRelease(txID, -2, rowID, dwLockMode);
+    }
+
+    public boolean lockRelease(long txID, long svptID, RowKey rowID, int dwLockMode) {
+        if (dwLockMode == LockMode.LOCK_NO) {
+            return true;
+        }
+        Transaction transaction = getTransaction(txID, false, null);
+        if (transaction == null) {
+            LOG.warn("lockRelease txID: " + txID + " savepointID: " + svptID + " rowID: " + rowID + " region: " + regionName + " transaction not exists!");
+            return true;
+        }
+        synchronized (transaction) {
+            if (rollbackTxs.contains(txID)) {
+                LOG.warn("transaction txID: " + txID + " svtpID: " + svptID + " region: " + regionName + " is processing lockReleaseAll in another thread loc 2");
+                return true;
+            }
+            if (txID != transaction.getTxID()) {
+                LOG.warn("lockReleaseAll for transaction txID: " + txID + " svtpID: " + svptID + " region: " + regionName + " is already done in another thread loc 2");
+                return true;
+            }
+        }
+
+        return lockRelease(transaction, svptID, rowID, dwLockMode);
+    }
+
+    public boolean lockRelease(Transaction transaction, RowKey rowID, int dwLockMode) {
+        return lockRelease(transaction, -2, rowID, dwLockMode);
+    }
+
+    public boolean lockRelease(Transaction transaction, long svptID, RowKey rowID, int dwLockMode, long LockNum) {
+        for (int i = 0; i < LockNum; i++) {
+            if (lockRelease(transaction, svptID, rowID, dwLockMode) == false) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public boolean lockRelease(Transaction transaction, long svptID, RowKey rowID, int dwLockMode) {
+        if (dwLockMode == LockMode.LOCK_NO) {
+            return true;
+        }
+        if (blockAll.get()) {
+            addAbortTransaction(transaction.getTxID());
+            LOG.warn("txID: " + transaction.getTxID() + " svtpID: " + svptID + " region: " + regionName + " is canceled for closing region (loc 7)");
+        }
+        long start = 0;
+        if (LockLogLevel.enableTraceLevel) {
+            start = System.currentTimeMillis();
+        }
+        boolean isSvpt = false;
+        if (svptID > 0 && LockConstants.ENABLE_SAVEPOINT) {
+            isSvpt = true;
+        }
+        long txID = transaction.getTxID();
+
+        if (LockLogLevel.enableTraceLevel || LockLogLevel.enableDebugLevel1) {
+            LOG.info("lockRelease txID: " + txID + ",svptID: " + svptID + ",rowID: " + rowID + ",lockMode: " + dwLockMode + ",regionName: " + regionName);
+        }
+
+        if (LockLogLevel.enableGenTestCaseLevel) {
+            StringBuffer debugInfo = new StringBuffer(300);
+            debugInfo.append("testcase \n").append("lockObject.setTable(\"").append(regionName).append("\");\n");
+            debugInfo.append("lockObject.setTxID(").append(txID).append("L);\n");
+            debugInfo.append("lockObject.setSvptID(").append(svptID).append(");\n");
+            debugInfo.append("lockObject.setRowID(new RowKey(\"").append(rowID).append("\"));\n");
+            debugInfo.append("lockObject.setLockMode(").append(dwLockMode).append(");\n");
+            debugInfo.append("releaseRowLock(lockManager, lockObject);\n");
+            LOG.info(debugInfo);
+        }
+
+        synchronized (transaction) {
+            if (blockAll.get()) {
+                addAbortTransaction(txID);
+                LOG.warn("txID: " + txID + " svtpID: " + svptID + " region: " + regionName + " is canceled for closing region (loc 8)");
+            }
+            LockHolder rowHolder = null;
+            if (isSvpt) {
+                rowHolder = transaction.getSvptRowHolder(svptID, rowID);
+            } else {
+                rowHolder = transaction.getRowHolderMap().get(rowID);
+            }
+            if (rowHolder == null) {
+                return true;
+            }
+            Lock rowLock = rowHolder.getLock();
+            int holderMaskHold = 0;
+            RowKey rowKey = rowLock.getRowKey();
+            synchronized (rowLock) {
+                rowHolder.decreaseHolding(dwLockMode);
+                holderMaskHold = rowHolder.getMaskHold();
+                if (holderMaskHold == 0) {
+                    LockHolder parentHolder = rowHolder.getParent();
+                    //free self
+                    rowLock.removeHold(rowHolder, transaction, regionName);
+                    dropRowLockHolder(transaction, rowLock, rowHolder, svptID);
+                    //free the empty lock of parent
+                    while (parentHolder != null) {
+                        LockHolder tmp = parentHolder.getParent();
+                        if (parentHolder.getMaskHold() == 0 && parentHolder.getChild() == null) {
+                            dropRowLockHolder(transaction, rowLock, parentHolder, parentHolder.getSvptID());
+                        } else {
+                            break;
+                        }
+                        parentHolder = tmp;
+                    }
+                }
+                if (LockLogLevel.enableTraceLevel) {
+                    rowLock.validateLock(regionName, transactionMap, "Row lock release rowKey: " + rowKey);
+                }
+                if (LockConstants.LOCK_ENABLE_DEADLOCK_DETECT) {
+                    logNotify(txID, rowLock);
+                    updateLockWait(rowLock);
+                    rowLock.notifyAll();
+                }
+            }
+            if (holderMaskHold == 0 && !isSvpt && rowHolder.getChild() == null) {
+                tryRemoveRowLock(rowKey);
+            }
+        }
+        if (LockLogLevel.enableTraceLevel) {
+            long end = System.currentTimeMillis();
+            LOG.info("LOCKMANAGER row lockRelease time : " + (end - start));
+        }
+        return true;
+    }
+
+    public boolean lockRelease(long txID, long svptID, int dwLockMode) {
+        if (dwLockMode == LockMode.LOCK_NO) {
+            return true;
+        }
+        Transaction transaction = getTransaction(txID, false, null);
+        if (transaction == null) {
+            LOG.warn("lockRelease txID: " + txID + " savepointID: " + svptID + " region: " + regionName + " transaction not exists!");
+            return true;
+        }
+
+        synchronized (transaction) {
+            if (rollbackTxs.contains(txID)) {
+                LOG.warn("transaction txID: " + txID + " svtpID: " + svptID + " region: " + regionName + " is processing lockReleaseAll in another thread loc 3");
+                return true;
+            }
+            if (txID != transaction.getTxID()) {
+                LOG.warn("lockReleaseAll for transaction txID: " + txID + " svtpID: " + svptID + " region: " + regionName + " is already done in another thread loc 3");
+                return true;
+            }
+        }
+        return lockRelease(transaction, svptID, dwLockMode);
+    }
+
+    public boolean lockRelease(Transaction transaction, long svptID, int dwLockMode) {
+        if (dwLockMode == LockMode.LOCK_NO) {
+            return true;
+        }
+
+        long txID = transaction.getTxID();
+        if (blockAll.get()) {
+            addAbortTransaction(txID);
+            LOG.warn("txID: " + txID + " svtpID: " + svptID + " region: " + regionName + " is canceled for closing region (loc 9)");
+        }
+        if (LockLogLevel.enableTraceLevel || LockLogLevel.enableDebugLevel1) {
+            LOG.info("lockRelease txID: " + txID + ",svptID: " + svptID + ",lockMode: " + dwLockMode + ",regionName: " + regionName);
+        }
+
+        if (LockLogLevel.enableGenTestCaseLevel) {
+            StringBuffer debugInfo = new StringBuffer(300);
+            debugInfo.append("testcase \n").append("lockObject.setTable(\"").append(regionName).append("\");\n");
+            debugInfo.append("lockObject.setTxID(").append(txID).append("L);\n");
+            debugInfo.append("lockObject.setSvptID(").append(svptID).append(");\n");
+            debugInfo.append("lockObject.setLockMode(").append(dwLockMode).append(");\n");
+            debugInfo.append("releaseTableLock(lockManager, lockObject);\n");
+            LOG.info(debugInfo);
+        }
+
+        boolean isSvpt = false;
+        if (svptID > 0 && LockConstants.ENABLE_SAVEPOINT) {
+            isSvpt = true;
+        }
+        synchronized (transaction) {
+            if (blockAll.get()) {
+                addAbortTransaction(txID);
+                LOG.warn("txID: " + txID + " svtpID: " + svptID + " region: " + regionName + " is canceled for closing region (loc 10)");
+            }
+            LockHolder tableHolder = null;
+            if (isSvpt) {
+                tableHolder = transaction.getSvptTableHolder(svptID);
+            } else {
+                tableHolder = transaction.getTableHolder();
+            }
+            if (tableHolder == null) {
+                return true;
+            }
+            synchronized (tableLock) {
+                tableHolder.decreaseHolding(dwLockMode);
+                if (tableHolder.getMaskHold() == 0) {
+                    LockHolder parentHolder = tableHolder.getParent();
+                    //free self
+                    dropTableLockHolder(transaction, tableLock, tableHolder, svptID);
+                    //free the empty lock of parent
+                    while (parentHolder != null) {
+                        LockHolder tmp = parentHolder.getParent();
+                        if (parentHolder.getMaskHold() == 0 && parentHolder.getChild() == null) {
+                            dropTableLockHolder(transaction, tableLock, parentHolder, parentHolder.getSvptID());
+                        } else {
+                            break;
+                        }
+                        parentHolder = tmp;
+                    }
+                }
+                if (LockConstants.LOCK_ENABLE_DEADLOCK_DETECT) {
+                    logNotify(txID, tableLock);
+                    updateLockWait(tableLock);
+                    tableLock.notifyAll();
+                }
+            }
+        }
+        return true;
+    }
+
+    public boolean lockRelease(long txID, int dwLockMode) {
+        if (dwLockMode == LockMode.LOCK_NO) {
+            return true;
+        }
+        return lockRelease(txID, -2, dwLockMode);
+    }
+
+    private void lockReleaseTableLocks(Transaction transaction, long svptID, boolean removePresetedHolder, boolean notify) {
+        LockHolder lockHolder = transaction.getSvptTableHolder(svptID);
+        if (lockHolder == null) {
+            return;
+        }
+        LockHolder childHolder = lockHolder.getLastChild();
+        Lock tableLock = lockHolder.getLock();
+        synchronized (tableLock) {
+            if (childHolder != null) {
+                LockHolder tmpParent = null;
+                do {
+                    tmpParent = childHolder.getParent();
+                    if (childHolder.getSvptID() >= svptID) {
+                        lockRelease(transaction, tableLock, childHolder, svptID);
+                    }
+                    childHolder = tmpParent;
+                } while (tmpParent != lockHolder);
+            }
+            LockHolder parentHolder = lockHolder.getParent();
+            //free self
+            lockRelease(transaction, tableLock, lockHolder, svptID);
+            if (removePresetedHolder) {
+                //free the empty lock of parent
+                while (parentHolder != null) {
+                    LockHolder tmp = parentHolder.getParent();
+                    if (parentHolder.getMaskHold() == 0 && parentHolder.getChild() == null) {
+                        dropTableLockHolder(transaction, tableLock, parentHolder, parentHolder.getSvptID());
+                    } else {
+                        break;
+                    }
+                    parentHolder = tmp;
+                }
+            }
+            if (LockConstants.LOCK_ENABLE_DEADLOCK_DETECT && notify) {
+                logNotify(transaction.getTxID(), tableLock);
+                updateLockWait(tableLock);
+                tableLock.notifyAll();
+            }
+        }
+    }
+
+    private void lockReleaseRowLocks(Transaction transaction, long svptID, boolean removePresetedHolder, boolean notify, LockHolder rootHolder, RowKey rowID) {
+        ConcurrentHashMap<RowKey, LockHolder> subTxRowHolderMap = transaction.getSubTxRowHolderHeaderMap().get(svptID);
+        if (subTxRowHolderMap == null) {
+            return;
+        }
+        if (LockLogLevel.enableTraceLevel) {
+            LOG.info("lockReleaseRowLocks txID: " + transaction.getTxID() + ", svptID: " + svptID + ", rowID: " + rowID + ", SvptRowHolderMap size: " + (subTxRowHolderMap == null ? 0 : subTxRowHolderMap.size()) + ", region: " + regionName + ", thread: " + Thread.currentThread().getName());
+        }
+        if (subTxRowHolderMap.size() == 0) {
+            LockHolder rootChildHolder = rootHolder.getChild();
+            if (rootChildHolder.getTransaction() == null && rootChildHolder.getNextNeighbor() == null && rootChildHolder.getParent() == null && rootChildHolder.getChild() == null) {
+                LOG.warn("txID: " + transaction.getTxID() + " svptID: " + svptID + " child is already inited, region: " + regionName + ", thread: " + Thread.currentThread().getName());
+                rootHolder.setChild(null);
+            } else {
+                LOG.warn("lockReleaseRowLocks: txID: " + transaction.getTxID() + ", svptID: " + svptID + ", rowID: " + rowID + ",region: " + regionName + ", thread: " + Thread.currentThread().getName() + "\nrootHolder: " + rootHolder);
+            }
+            return;
+        }
+        Iterator<Map.Entry<RowKey, LockHolder>> iterator = subTxRowHolderMap.entrySet().iterator();
+        LockHolder lockHolder = null;
+        LockHolder childHolder = null;
+        while (iterator.hasNext()) {
+            Map.Entry<RowKey, LockHolder> entry = iterator.next();
+            lockHolder = entry.getValue();
+            Lock rowLock = lockHolder.getLock();
+            RowKey rowKey = rowLock.getRowKey();
+            childHolder = lockHolder.getLastChild();
+            synchronized (rowLock) {
+                if (childHolder != null) {
+                    LockHolder tmpParent = null;
+                    do {
+                        tmpParent = childHolder.getParent();
+                        if (childHolder.getSvptID() >= svptID) {
+                            lockRelease(transaction, rowLock, childHolder, svptID);
+                        }
+                        childHolder = tmpParent;
+                    } while (tmpParent != lockHolder);
+                }
+                LockHolder parentHolder = lockHolder.getParent();
+                //free self
+                lockRelease(transaction, rowLock, lockHolder, svptID);
+                if (removePresetedHolder) {
+                    //free the empty lock of parent
+                    while (parentHolder != null) {
+                        LockHolder tmp = parentHolder.getParent();
+                        if (parentHolder.getMaskHold() == 0 && parentHolder.getChild() == null) {
+                            dropRowLockHolder(transaction, rowLock, parentHolder, parentHolder.getSvptID());
+                        } else {
+                            break;
+                        }
+                        parentHolder = tmp;
+                    }
+                }
+                if (LockConstants.LOCK_ENABLE_DEADLOCK_DETECT && notify) {
+                    logNotify(transaction.getTxID(), rowLock);
+                    updateLockWait(rowLock);
+                    rowLock.notifyAll();
+                }
+            }
+            if (LockLogLevel.enableTraceLevel) {
+                LOG.info("lockReleaseRowLocks is savepoint rowKey: " + rowKey);
+            }
+            if (lockHolder.getMaskHold() == 0 && lockHolder.getChild() == null) {
+                iterator.remove();
+            }
+        }
+    }
+
+    private void lockReleaseRowLocks(Transaction transaction, long svptID, boolean removePresetedHolder, boolean notify) {
+        ConcurrentHashMap<RowKey, LockHolder> subTxRowHolderMap = transaction.getSubTxRowHolderHeaderMap().get(svptID);
+        if (subTxRowHolderMap == null) {
+            return;
+        }
+        if (LockLogLevel.enableTraceLevel) {
+            LOG.info("lockReleaseRowLocks txID: " + transaction.getTxID() + ", svptID: " + svptID + ",SvptRowHolderMap size: " + (subTxRowHolderMap == null ? 0 : subTxRowHolderMap.size()) + " thread: " + Thread.currentThread().getName());
+        }
+        if (subTxRowHolderMap.size() == 0) {
+            return;
+        }
+        Iterator<Map.Entry<RowKey, LockHolder>> iterator = subTxRowHolderMap.entrySet().iterator();
+        LockHolder lockHolder = null;
+        LockHolder childHolder = null;
+        while (iterator.hasNext()) {
+            Map.Entry<RowKey, LockHolder> entry = iterator.next();
+            lockHolder = entry.getValue();
+            Lock rowLock = lockHolder.getLock();
+            RowKey rowKey = rowLock.getRowKey();
+            childHolder = lockHolder.getLastChild();
+            synchronized (rowLock) {
+                if (childHolder != null) {
+                    LockHolder tmpParent = null;
+                    do {
+                        tmpParent = childHolder.getParent();
+                        if (childHolder.getSvptID() >= svptID) {
+                            lockRelease(transaction, rowLock, childHolder, svptID);
+                        }
+                        childHolder = tmpParent;
+                    } while (tmpParent != lockHolder);
+                }
+                LockHolder parentHolder = lockHolder.getParent();
+                //free self
+                lockRelease(transaction, rowLock, lockHolder, svptID);
+                if (removePresetedHolder) {
+                    //free the empty lock of parent
+                    while (parentHolder != null) {
+                        LockHolder tmp = parentHolder.getParent();
+                        if (parentHolder.getMaskHold() == 0 && parentHolder.getChild() == null) {
+                            dropRowLockHolder(transaction, rowLock, parentHolder, parentHolder.getSvptID());
+                        } else {
+                            break;
+                        }
+                        parentHolder = tmp;
+                    }
+                }
+                if (LockConstants.LOCK_ENABLE_DEADLOCK_DETECT && notify) {
+                    logNotify(transaction.getTxID(), rowLock);
+                    updateLockWait(rowLock);
+                    rowLock.notifyAll();
+                }
+            }
+            if (LockLogLevel.enableTraceLevel) {
+                LOG.info("lockReleaseRowLocks is savepoint rowKey: " + rowKey);
+            }
+            if (lockHolder.getMaskHold() == 0 && lockHolder.getChild() == null) {
+                iterator.remove();
+            }
+        }
+    }
+
+    private void commitRowLocks(Transaction transaction, long svptID) {
+        ConcurrentHashMap<RowKey, LockHolder> subTxRowHolderMap = transaction.getSubTxRowHolderHeaderMap().get(svptID);
+        if (subTxRowHolderMap == null) {
+            return;
+        }
+        if (LockLogLevel.enableTraceLevel) {
+            LOG.info("commitRowLocks SvptRowHolderMap size: " + (subTxRowHolderMap == null ? 0 : subTxRowHolderMap.size()));
+        }
+        Iterator<Map.Entry<RowKey, LockHolder>> iterator = subTxRowHolderMap.entrySet().iterator();
+        LockHolder lockHolder = null;
+        LockHolder childHolder = null;
+        LockHolder parentHolder = null;
+        while (iterator.hasNext()) {
+            Map.Entry<RowKey, LockHolder> entry = iterator.next();
+            lockHolder = entry.getValue();
+            parentHolder = lockHolder.getParent();
+            Lock rowLock = lockHolder.getLock();
+            RowKey rowKey = rowLock.getRowKey();
+            childHolder = lockHolder.getLastChild();
+            synchronized (rowLock) {
+                if (childHolder != null) {
+                    LockHolder tmpParent = null;
+                    while (childHolder.getParent() != lockHolder) {
+                        tmpParent = childHolder.getParent();
+                        commitLock(transaction, rowLock, childHolder, parentHolder, svptID);
+                        childHolder = tmpParent;
+                    }
+                    commitLock(transaction, rowLock, childHolder, parentHolder, svptID);
+                }
+                commitLock(transaction, rowLock, lockHolder, parentHolder, svptID);
+            }
+            if (LockLogLevel.enableTraceLevel) {
+                LOG.info("commitRowLocks is savepoint rowKey: " + rowKey);
+            }
+            if (lockHolder.getMaskHold() == 0 && lockHolder.getChild() == null) {
+                iterator.remove();
+            }
+        }
+        transaction.tryRemoveSubTxRowHolderHeaderMap(svptID);
+    }
+
+    private void commitTableLocks(Transaction transaction, long svptID) {
+        LockHolder lockHolder = transaction.getSvptTableHolder(svptID);
+        if (lockHolder == null) {
+            return;
+        }
+        LockHolder parentHolder = lockHolder.getParent();
+        LockHolder childHolder = lockHolder.getLastChild();
+        Lock tableLock = lockHolder.getLock();
+        synchronized (tableLock) {
+            if (childHolder != null) {
+                LockHolder tmpParent = null;
+                while (childHolder.getParent() != lockHolder) {
+                    tmpParent = childHolder.getParent();
+                    commitLock(transaction, tableLock, childHolder, parentHolder, svptID);
+                    childHolder = tmpParent;
+                }
+                commitLock(transaction, tableLock, childHolder, parentHolder, svptID);
+            }
+            commitLock(transaction, tableLock, lockHolder, parentHolder, svptID);
+        }
+    }
+
+    private void commitLock(Transaction transaction, Lock lock, LockHolder lockHolder, LockHolder parentHolder, long svptID) {
+        RowKey rowKey = lock.getRowKey();
+        LockHolder tmpHolder = null;
+        while (lockHolder != null) {
+            tmpHolder = lockHolder.getNextNeighbor();
+            if (lockHolder.getSvptID() >= svptID) {
+                lockHolder.commitTo(parentHolder);
+                if (rowKey != null) {
+                    dropRowLockHolder(transaction, lock, lockHolder, lockHolder.getSvptID());
+                } else {
+                    dropTableLockHolder(transaction, lock, lockHolder, lockHolder.getSvptID());
+                }
+            }
+            lockHolder = tmpHolder;
+        }
+    }
+
+    private void lockRelease(Transaction transaction, Lock lock, LockHolder lockHolder, long svptID) {
+        RowKey rowKey = lock.getRowKey();
+        LockHolder tmpHolder = lockHolder;
+        while (tmpHolder != null) {
+            if (tmpHolder.getChild() != null) {
+                LockHolder childHolder = tmpHolder.getLastChild();
+                LockHolder tmpParent = null;
+                // release all child of tmpHolder
+                do {
+                    tmpParent = childHolder.getParent();
+                    if (childHolder.getSvptID() >= svptID) {
+                        lockRelease(transaction, lock, childHolder, svptID);
+                    }
+                    childHolder = tmpParent;
+                } while (tmpParent != tmpHolder);
+            }
+
+            LockHolder releaseHolder = tmpHolder;
+            // svptID equals current LockHolder, only remove current Holder, otherwise remove the neighbor lockholders(these are svptID's childs)
+            if (tmpHolder.getSvptID() == svptID) {
+                tmpHolder = null;
+            } else {
+                tmpHolder = tmpHolder.getNextNeighbor();
+            }
+
+            lock.removeHold(releaseHolder, transaction, regionName);
+            if (rowKey != null) {
+                dropRowLockHolder(transaction, lock, releaseHolder, releaseHolder.getSvptID());
+            } else {
+                dropTableLockHolder(transaction, lock, releaseHolder, releaseHolder.getSvptID());
+            }
+        }
+    }
+
+    private void commitLastImplicitSavepoint(long txID, long svptID) {
+        if (LockLogLevel.enableTraceLevel) {
+            LOG.info("commitLastImplicitSavepoint txID: " + txID + ",svptID: " + svptID + ",regionName:" + regionName);
+        }
+        Transaction transaction = getTransaction(txID, false, null);
+        if (transaction == null) {
+            LOG.warn("commitLastImplicitSavepoint txID: " + txID + " savepointID: " + svptID + " region: " + regionName + " transaction not exists!");
+            return;
+        }
+
+        if (transaction.getImplicitSavepointID() > 0 && svptID != transaction.getImplicitSavepointID()) {
+            flushSvptToTx(transaction, transaction.getImplicitSavepointID());
+        }
+    }
+
+    public boolean flushSvptToTx(long txID, long svptID) {
+        if (LockLogLevel.enableGenTestCaseLevel) {
+            StringBuffer debugInfo = new StringBuffer(300);
+            debugInfo.append("testcase \n").append("lockObject.setTable(\"").append(regionName).append("\");\n");
+            debugInfo.append("lockObject.setTxID(").append(txID).append("L);\n");
+            debugInfo.append("lockObject.setSvptID(").append(svptID).append(");\n");
+            debugInfo.append("assertTrue(flushSvptToTx(lockManager, lockObject));\n");
+            LOG.info(debugInfo);
+        }
+
+        Transaction transaction = getTransaction(txID, false, null);
+        if (transaction == null) {
+            LOG.warn("flushSvptToTx txID: " + txID + " savepointID: " + svptID + " region: " + regionName + " transaction not exists!");
+            return true;
+        }
+
+        return flushSvptToTx(transaction, svptID);
+    }
+
+    public boolean flushSvptToTx(Transaction transaction, long svptID) {
+        long txID = transaction.getTxID();
+        if (blockAll.get()) {
+            addAbortTransaction(txID);
+            LOG.warn("txID: " + txID + " svtpID: " + svptID + " region: " + regionName + " is canceled for closing region (loc 11)");
+        }
+        if (LockLogLevel.enableTraceLevel || LockLogLevel.enableDebugLevel1) {
+            LOG.info("flushSvptToTx txID: " + txID + ",svptID: " + svptID + ",regionName:" + regionName);
+        }
+
+        if (LockLogLevel.enableGenTestCaseLevel) {
+            StringBuffer debugInfo = new StringBuffer(300);
+            debugInfo.append("testcase \n").append("lockObject.setTable(\"").append(regionName).append("\");\n");
+            debugInfo.append("lockObject.setTxID(").append(txID).append("L);\n");
+            debugInfo.append("lockObject.setSvptID(").append(svptID).append(");\n");
+            debugInfo.append("flushSvptToTx(lockManager, lockObject);\n");
+            LOG.info(debugInfo);
+        }
+        synchronized (transaction) {
+            if (blockAll.get()) {
+                addAbortTransaction(txID);
+                LOG.warn("txID: " + txID + " svtpID: " + svptID + " region: " + regionName + " is canceled for closing region (loc 12 return)");
+                return false;
+            }
+            if (rollbackTxs.contains(txID)) {
+                LOG.warn("transaction txID: " + txID + " svtpID: " + svptID + " region: " + regionName + " is processing lockReleaseAll in another thread loc 4");
+                return true;
+            }
+            if (txID != transaction.getTxID()) {
+                LOG.warn("lockReleaseAll for transaction txID: " + txID + " svtpID: " + svptID + " region: " + regionName + " is already done in another thread loc 4");
+                return true;
+            }
+            try {
+                commitRowLocks(transaction, svptID);
+                commitTableLocks(transaction, svptID);
+                if (transaction.getImplicitSavepointID() > 0 && svptID == transaction.getImplicitSavepointID()) {
+                    transaction.resetImplicitSavepointID();
+                }
+            } catch (Exception e) {
+                LOG.error("failed to flushSvptToTX " + txID + " " + svptID, e);
+            }
+            if (LockLogLevel.enableTraceLevel) {
+                LOG.info("flushSvptToTx txID: " + txID + " svptID:" + svptID + " region " + regionName + " decrease reference " + transaction.getReferenceNum());
+            }
+        }
+        return true;
+    }
+
+    public void flushToFS(String regionName, HFileContext context, FileSystem fs, Configuration config, Path flushPath, boolean isSplit) throws IOException {
+        if (LockLogLevel.enableDebugLevel || LockLogLevel.enableDebugLevel1) {
+            LOG.info("flushToFS regionName: " + regionName + " context: " + context + " fs : " + fs + " config: " + config + " flushPath: " + flushPath + " isSplit: " + isSplit);
+        }
+        fs.delete(flushPath, true);
+        if (transactionMap.size() == 0) {
+            LOG.info("flushToFS regionName: " + regionName + " flushPath: " + flushPath + " isSplit: " + isSplit + " no lock to flush!");
+            return;
+        }
+
+        if(LOG.isInfoEnabled())
+            LOG.info("flushToFS regionName : " + regionName + " flushPath : " + flushPath + " waiting for abort transactions done!");
+        int abortTxTransSize = 0;
+        do  {
+            synchronized (abortTxIDs) {
+                abortTxTransSize = abortTxIDs.size();
+            }
+        } while (abortTxTransSize > 0);
+        if(LOG.isInfoEnabled())
+            LOG.info("flushToFS regionName : " + regionName + " flushPath : " + flushPath + " all abort transactions is done!");
+
+        notifyAllWaitThreads(isSplit ? LockWaitStatus.CANCEL_FOR_SPLIT : LockWaitStatus.CANCEL_FOR_MOVE);
+        // wait until no transaction is in the process of locking
+        boolean canContinue = true;
+        int failedTimes = 0;
+        int failedTotal = transactionMap.size() * 5;
+        do {
+            Transaction transaction = null;
+            for (Map.Entry<Long, Transaction> entry : transactionMap.entrySet()) {
+                transaction = entry.getValue();
+                if (transaction.getReferenceNum() > 0) {
+                    canContinue = false;
+                    failedTimes++;
+                    break;
+                }
+            }
+        } while (!canContinue && failedTimes < failedTotal);
+
+        fs.createNewFile(flushPath);
+        notifyAllWaitThreads(isSplit ? LockWaitStatus.CANCEL_FOR_SPLIT : LockWaitStatus.CANCEL_FOR_MOVE);
+        HFileWriterV2 hFileWriterV2 = (HFileWriterV2) HFile.getWriterFactory(config, new CacheConfig(config)).withPath(fs, flushPath).withFileContext(context).create();
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        LockManagerMsg.Builder lockManagerBuilder = LockManagerMsg.newBuilder();
+        // regionName
+        lockManagerBuilder.setRegionName(regionName);
+        // rowLockMap
+        LockManagerMsg.LockMapMsg.Builder lockMapMsgBuilder = LockManagerMsg.LockMapMsg.newBuilder();
+        Lock lock = null;
+        RowKey rowKey = null;
+        LockMsg.Builder lockMsgBuilder = null;
+        for (Map.Entry<RowKey, Lock> entry : lockMap.entrySet()) {
+            lockMsgBuilder = LockMsg.newBuilder();
+            lock = entry.getValue();
+            rowKey = entry.getKey();
+            // set rowkey
+            lockMapMsgBuilder.setRowKey(ByteString.copyFrom(rowKey.getData()));
+            // set lock
+            lockMsgBuilder.setReferenceNum(lock.getReferenceNum());
+            lockMsgBuilder.setRowKey(ByteString.copyFrom(lock.getRowKey().getData()));
+            for (int i = 0; i < LockConstants.LOCK_MAX_MODES; i++) {
+                lockMsgBuilder.addGranted(lock.getGranted()[i]);
+            }
+            lockMsgBuilder.setMaskGrant(lock.getMaskGrant());
+            lockMapMsgBuilder.setLock(lockMsgBuilder);
+            lockManagerBuilder.addRowLockMap(lockMapMsgBuilder);
+            if (LockLogLevel.enableTraceLevel) {
+                LOG.info("flushToFS regionName : " + regionName + " rowKey : " + rowKey + " lock : " + lock);
+            }
+        }
+        Set<Long> flushTxs = new HashSet<>();
+        // transaction map
+        LockManagerMsg.TransactionMapMsg.Builder transactionMapMsgBuilder = LockManagerMsg.TransactionMapMsg.newBuilder();
+        for (Map.Entry<Long, Transaction> entry : transactionMap.entrySet()) {
+            TransactionMsg.Builder transactionMsg = TransactionMsg.newBuilder();
+            long txId = entry.getKey();
+            Transaction transaction = entry.getValue();
+            flushTxs.add(txId);
+            transactionMsg.setTxID(transaction.getTxID());
+            transactionMsg.setReferenceNum(transaction.getReferenceNum());
+            transactionMsg.setRemovedFlag(transaction.isRemovedFlag());
+            if (transaction.getQueryContext() != null) {
+                transactionMsg.setQueryContext(ByteString.copyFrom(transaction.getQueryContext().getBytes()));
+            }
+            //rowHolderMap
+            for (Map.Entry<RowKey, LockHolder> entryHolder : transaction.getRowHolderMap().entrySet()) {
+                TransactionMsg.RowHolderMap.Builder rowHolderMap = TransactionMsg.RowHolderMap.newBuilder();
+                LockHolderMsg.Builder lockHolderMsg = LockHolderMsg.newBuilder();
+                rowHolderMap.setRowKey(ByteString.copyFrom(entryHolder.getKey().getData()));
+                for (int i = 0; i < LockConstants.LOCK_MAX_MODES; i++) {
+                    lockHolderMsg.addHolding(entryHolder.getValue().getHolding()[i]);
+                }
+                lockHolderMsg.setMaskHold(entryHolder.getValue().getMaskHold());
+                rowHolderMap.setLockHolder(lockHolderMsg);
+                transactionMsg.addRowHolderMap(rowHolderMap);
+            }
+            // svpt row Holder Map
+            for (Map.Entry<Long, ConcurrentHashMap<RowKey, LockHolder>> rowHolderMapEntry : transaction.getSubTxRowHolderHeaderMap().entrySet()) {
+                for (Map.Entry<RowKey, LockHolder> rowHolderEntry : rowHolderMapEntry.getValue().entrySet()) {
+                    TransactionMsg.SavepointHolderMap.Builder savepointHolderMapMap = TransactionMsg.SavepointHolderMap.newBuilder();
+                    savepointHolderMapMap.setSvptID(rowHolderMapEntry.getKey());
+
+                    TransactionMsg.RowHolderMap.Builder svptRowHolderMap = TransactionMsg.RowHolderMap.newBuilder();
+                    LockHolderMsg.Builder lockHolderMsg = LockHolderMsg.newBuilder();
+                    svptRowHolderMap.setRowKey(ByteString.copyFrom(rowHolderEntry.getKey().getData()));
+                    for (int i = 0; i < LockConstants.LOCK_MAX_MODES; i++) {
+                        lockHolderMsg.addHolding(rowHolderEntry.getValue().getHolding()[i]);
+                    }
+                    lockHolderMsg.setMaskHold(rowHolderEntry.getValue().getMaskHold());
+                    lockHolderMsg.setSvptID(rowHolderEntry.getValue().getSvptID());
+                    lockHolderMsg.setParentSvptID(rowHolderEntry.getValue().getParentSvptID());
+                    lockHolderMsg.setImplicitSavepoint(rowHolderEntry.getValue().isImplicitSavepoint());
+                    svptRowHolderMap.setLockHolder(lockHolderMsg);
+
+                    savepointHolderMapMap.setRowHolderMap(svptRowHolderMap);
+                    transactionMsg.addSubTxRowHolderMap(savepointHolderMapMap);
+                }
+            }
+            // svpt table Holder Map
+            for (Map.Entry<Long, LockHolder> entryHolder : transaction.getSubTxTableHolderHeaderMap().entrySet()) {
+                TransactionMsg.TableHolderMap.Builder svptTableHolderMap = TransactionMsg.TableHolderMap.newBuilder();
+                LockHolderMsg.Builder lockHolderMsg = LockHolderMsg.newBuilder();
+                svptTableHolderMap.setSvptID(entryHolder.getKey());
+                for (int i = 0; i < LockConstants.LOCK_MAX_MODES; i++) {
+                    lockHolderMsg.addHolding(entryHolder.getValue().getHolding()[i]);
+                }
+                lockHolderMsg.setMaskHold(entryHolder.getValue().getMaskHold());
+                lockHolderMsg.setSvptID(entryHolder.getValue().getSvptID());
+                lockHolderMsg.setParentSvptID(entryHolder.getValue().getParentSvptID());
+                lockHolderMsg.setImplicitSavepoint(entryHolder.getValue().isImplicitSavepoint());
+                svptTableHolderMap.setLockHolder(lockHolderMsg);
+
+                transactionMsg.addSubTxTableHolderMap(svptTableHolderMap);
+            }
+            // table holder
+            LockHolderMsg.Builder tableLockHolderMsg = LockHolderMsg.newBuilder();
+            if (transaction.getTableHolder() != null) {
+                for (int i = 0; i < LockConstants.LOCK_MAX_MODES; i++) {
+                    tableLockHolderMsg.addHolding(transaction.getTableHolder().getHolding()[i]);
+                }
+                tableLockHolderMsg.setMaskHold(transaction.getTableHolder().getMaskHold());
+            } else {
+                for (int i = 0; i < LockConstants.LOCK_MAX_MODES; i++) {
+                    tableLockHolderMsg.addHolding(0);
+                }
+                tableLockHolderMsg.setMaskHold(0);
+            }
+            transactionMsg.setTableHolder(tableLockHolderMsg);
+
+            transactionMapMsgBuilder.setTxid(txId);
+            transactionMapMsgBuilder.setTransaction(transactionMsg);
+            lockManagerBuilder.addTransactionMap(transactionMapMsgBuilder);
+            if (LockLogLevel.enableTraceLevel) {
+                LOG.info("flushToFS regionName : " + regionName + "txid : " + txId + " tableHolding : " + ((transaction.getTableHolder() == null) ? "null" : transaction.getTableHolder().getHolding()));
+            }
+        }
+
+        // tableLock
+        LockMsg.Builder tableLockMsgBuilder = LockMsg.newBuilder();
+        tableLockMsgBuilder.setReferenceNum(tableLock.getReferenceNum());
+        for (int i = 0; i < LockConstants.LOCK_MAX_MODES; i++) {
+            tableLockMsgBuilder.addGranted(tableLock.getGranted()[i]);
+        }
+        tableLockMsgBuilder.setMaskGrant(tableLock.getMaskGrant());
+        lockManagerBuilder.setTableLock(tableLockMsgBuilder);
+
+        // write to FS
+        lockManagerBuilder.build().writeTo(output);
+        byte[] data = output.toByteArray();
+        hFileWriterV2.append(new KeyValue(Bytes.toBytes(LockConstants.LOCKMANAGER_KEY), Bytes.toBytes("cf"), Bytes.toBytes("qual"), data));
+        hFileWriterV2.close();
+        
+        for (Map.Entry<Long, Transaction> entry : transactionMap.entrySet()) {
+            lockReleaseAll(entry.getKey());
+        }
+        
+        if (LockLogLevel.enableTraceLevel) {
+            String fileName = "/tmp/traf_lock_" + System.currentTimeMillis() + ".out";
+            fs.copyToLocalFile(flushPath, new Path(fileName));
+            LOG.info("flushToFS done regionName : " + regionName + " context : " + context + " fs : " + fs + " config : " + config + " flushPath : " + flushPath + " localFile: " + fileName);
+        }
+        if(LOG.isInfoEnabled())
+            LOG.info("flushToFS done regionName : " + regionName + " context : " + context + " fs : " + fs + " config : " + config + " flushPath : " + flushPath + " flushTxs " + flushTxs);
+    }
+
+    public void readLockInfo(FileSystem fs, Configuration config, Path flushPath, TrxRegionEndpoint endpoint, HRegion m_Region, HRegionInfo regionInfo) throws IOException {
+        if (LockLogLevel.enableDebugLevel) {
+            LOG.info("readLockInfo fs : " + fs + " config : " + config + " flushPath : " + flushPath + " endpoint : " + endpoint + " m_Region : " + m_Region + " regionInfo : " + regionInfo);
+        }
+        if (!fs.exists(flushPath)) {
+            return;
+        }
+        Cell lockManagerValue = null;
+        try {
+            HColumnDescriptor family = new HColumnDescriptor();
+            family.setBlockCacheEnabled(false);
+            HFile.Reader reader = HFile.createReader(fs, flushPath, new CacheConfig(config, family), config);
+            HFileScanner scanner = reader.getScanner(false, false);
+            scanner.seekTo();
+            lockManagerValue = scanner.getKeyValue();
+            if (lockManagerValue == null) {
+                LOG.error("Invalid values read from HFile in readLockInfo");
+                return;
+            }
+        } catch (Exception e) {
+            LOG.error("loakmanager readLockInfo error", e);
+            return;
+        }
+        ByteArrayInputStream input = new ByteArrayInputStream(CellUtil.cloneValue(lockManagerValue));
+        LockManagerMsg lockManagerMsg = LockManagerMsg.parseFrom(input);
+        String flushRegionName = lockManagerMsg.getRegionName(); // the name of region which is splited
+        String newRegionName = regionInfo.getRegionNameAsString();
+        boolean same = false;
+        if (flushRegionName.equals(newRegionName)) {
+            if (LockLogLevel.enableTraceLevel) {
+                LOG.info("readLockInfo same : " + same);
+            }
+            same = true;
+        }
+        boolean hasRowUorXLock = false;
+        // rowLock Map
+        for (LockManagerMsg.LockMapMsg lockMapMsg : lockManagerMsg.getRowLockMapList()) {
+            byte[] bytes = lockMapMsg.getRowKey().toByteArray();
+            RowKey rowKey = new RowKey(bytes);
+#ifdef APACHE1 .2 CDH5 .7
+            if (!same && !endpoint.rowIsInRange(regionInfo, bytes)) {
+                continue;
+            }
+#else
+            if (!same && !m_Region.rowIsInRange(regionInfo, bytes)) {
+                continue;
+            }
+#endif
+            LockMsg rowLockMsg = lockMapMsg.getLock();
+            Lock rowLock = rsServer.getLockFromVectorCache(rowKey, this.regionName);
+            //rowLock.setReferenceNum(rowLockMsg.getReferenceNum());
+            rowLock.setRowKey(rowKey);
+            for (int i = 0; i < LockConstants.LOCK_MAX_MODES; i++) {
+                rowLock.getGranted()[i] = rowLockMsg.getGranted(i);
+            }
+            rowLock.setMaskGrant(rowLockMsg.getMaskGrant());
+            if (!hasRowUorXLock) {
+                hasRowUorXLock = (LockUtils.existsU(rowLock.getMaskGrant()) || LockUtils.existsX(rowLock.getMaskGrant()));
+            }
+            if (LockLogLevel.enableTraceLevel) {
+                LOG.info("readLockInfo rowLockMap.put rowKey: " + rowKey + " region:" + this.regionName);
+            }
+            putRowLock(rowKey, rowLock);
+        }
+
+        // tableLock
+        LockMsg tableLockMsg = lockManagerMsg.getTableLock();
+        int idxOfIX = LockMode.getIndex(LockMode.LOCK_IX);
+        if (tableLock == null) {
+            LOG.error("readLockInfo tableLock is null regionName: " + regionName);
+            //typeof tableLock is same as rowLock
+            tableLock = rsServer.getLockFromVectorCache(null, this.regionName);
+        }
+        //tableLock.setReferenceNum(tableLockMsg.getReferenceNum());
+        for (int i = 0; i < LockConstants.LOCK_MAX_MODES; i++) {
+            if (!hasRowUorXLock && i == idxOfIX) {
+                continue;
+            }
+            if (tableLock.getGranted()[i] == 0) {
+                tableLock.getGranted()[i] += tableLockMsg.getGranted(i);
+            }
+        }
+        Set<Long> readTxs = new HashSet<>();
+        tableLock.setMaskGrant(LockUtils.getMask(tableLock.getGranted()));
+        // transactionMap
+        for (LockManagerMsg.TransactionMapMsg transactionMapMsg : lockManagerMsg.getTransactionMapList()) {
+            long txId = transactionMapMsg.getTxid();
+            Transaction transaction = getTransaction(txId, false, null);
+            if (transaction == null) {
+                transaction = rsServer.getTransactionFromVectorCache(txId);
+            }
+            transaction.setTxID(transactionMapMsg.getTransaction().getTxID());
+
+            //transaction.setReferenceNum(transactionMapMsg.getTransaction().getReferenceNum());
+            ByteString bquery = transactionMapMsg.getTransaction().getQueryContext();
+            if (bquery != null) {
+                String query = Bytes.toString(bquery.toByteArray());
+                transaction.setQueryContext(query);
+            }
+            transaction.setReferenceNum(transactionMapMsg.getTransaction().getReferenceNum());
+            transaction.setRemovedFlag(transactionMapMsg.getTransaction().getRemovedFlag());
+            for (TransactionMsg.RowHolderMap rowHolderMap : transactionMapMsg.getTransaction().getRowHolderMapList()) {
+                byte[] bytes = rowHolderMap.getRowKey().toByteArray();
+                RowKey rowKey = new RowKey(bytes);
+                Lock rowLock = getRowLock(rowKey, false);
+                if (!same && rowLock == null) {
+                    continue;
+                }
+
+                if (rowLock == null) {
+                    LOG.error("readLockInfo rowLock is null " + regionName + ", " + rowKey);
+                    continue;
+                }
+                LockHolder curHolder = rsServer.applyLock(transaction.getTxID(), true);
+                curHolder.reInit(rowLock, transaction);
+                for (int i = 0; i < LockConstants.LOCK_MAX_MODES; i++) {
+                    curHolder.getHolding()[i] = rowHolderMap.getLockHolder().getHolding(i);
+                }
+                curHolder.setMaskHold(rowHolderMap.getLockHolder().getMaskHold());
+                curHolder.setLock(rowLock);
+                curHolder.setTransaction(transaction);
+                transaction.getRowHolderMap().put(rowKey, curHolder);
+                addRowLockHolderToLinkedList(curHolder, transaction, rowLock);
+            }
+            // svpt row Holder Map
+            long svptID = -1;
+            TransactionMsg.RowHolderMap rowHolderMap = null;
+            RowKey rowKey = null;
+            Lock rowLock = null;
+            LockHolderMsg lockHolderMsg = null;
+            long parentSvptID = -1;
+            LockHolder svptHolder = null;
+            LockHolder lockHolder = null;
+            for (TransactionMsg.SavepointHolderMap savepointHolderMap : transactionMapMsg.getTransaction().getSubTxRowHolderMapList()) {
+                svptID = savepointHolderMap.getSvptID();
+                rowHolderMap = savepointHolderMap.getRowHolderMap();
+                lockHolderMsg = rowHolderMap.getLockHolder();
+                parentSvptID = lockHolderMsg.getParentSvptID();
+                rowKey = new RowKey(rowHolderMap.getRowKey().toByteArray());
+                rowLock = getRowLock(rowKey, false);
+                if (!same && rowLock == null) {
+                    continue;
+                }
+
+                if (rowLock == null) {
+                    LOG.error("readLockInfo rowLock is null " + regionName + ", " + rowKey);
+                    continue;
+                }
+
+                lockHolder = transaction.getRowHolderMap().get(rowKey);
+                svptHolder = getLockHolder(rowLock, lockHolder, transaction, svptID, parentSvptID, lockHolderMsg.getImplicitSavepoint(), true);
+                for (int i = 0; i < LockConstants.LOCK_MAX_MODES; i++) {
+                    svptHolder.getHolding()[i] = lockHolderMsg.getHolding(i);
+                }
+                svptHolder.setMaskHold(lockHolderMsg.getMaskHold());
+                if (!svptHolder.isImplicitSavepoint()) {
+                    transaction.setSvptID(svptID);
+                }
+            }
+
+            // table holder
+            LockHolderMsg tableHolderMsg = transactionMapMsg.getTransaction().getTableHolder();
+            LockHolder tableHolder = transaction.getTableHolder();
+            if (tableHolder == null) {
+                tableHolder = rsServer.applyLock(transaction.getTxID(), true);
+                tableHolder.reInit(tableLock, transaction);
+            }
+            for (int i = 0; i < LockConstants.LOCK_MAX_MODES; i++) {
+                if (!hasRowUorXLock && i == idxOfIX) {
+                    continue;
+                }
+                if (tableHolder.getHolding()[i] == 0) {
+                    tableHolder.getHolding()[i] += tableHolderMsg.getHolding(i);
+                }
+            }
+            tableHolder.setMaskHold(LockUtils.getMask(tableHolder.getHolding()));
+            transaction.setTableHolder(tableHolder);
+
+            // svpt table Holder Map
+            for (TransactionMsg.TableHolderMap savepointHolderMap : transactionMapMsg.getTransaction().getSubTxTableHolderMapList()) {
+                svptID = savepointHolderMap.getSvptID();
+                lockHolderMsg = savepointHolderMap.getLockHolder();
+                parentSvptID = lockHolderMsg.getParentSvptID();
+
+                svptHolder = getLockHolder(tableLock, transaction.getTableHolder(), transaction, svptID, parentSvptID, lockHolderMsg.getImplicitSavepoint(), true);
+                for (int i = 0; i < LockConstants.LOCK_MAX_MODES; i++) {
+                    if (!hasRowUorXLock && i == idxOfIX) {
+                        continue;
+                    }
+                    if (svptHolder.getHolding()[i] == 0) {
+                        svptHolder.getHolding()[i] += lockHolderMsg.getHolding(i);
+                    }
+                }
+                svptHolder.setMaskHold(LockUtils.getMask(svptHolder.getHolding()));
+                if (!svptHolder.isImplicitSavepoint()) {
+                    transaction.setSvptID(svptID);
+                }
+            }
+
+            if (LockLogLevel.enableTraceLevel) {
+                LOG.info("readLockInfo txid : " + txId + " tableHolder Holding : " + tableHolder.getHolding());
+            }
+            transactionMap.put(txId, transaction);
+        }
+
+        if(LOG.isInfoEnabled())
+            LOG.info("readLockInfo fs : " + fs + " config : " + config + " flushPath : " + flushPath + " endpoint : " + endpoint + " m_Region : " + m_Region + " regionInfo : " + regionInfo + " readTxs " + readTxs);
+
+        if (LockLogLevel.enableTraceLevel) {
+            validateAllLocks("readLockInfo");
+        }
+    }
+
+    private Transaction getTransaction(long txID, final String query) {
+        return getTransaction(txID, true, query);
+    }
+
+    private Transaction getTransaction(long txID, boolean increaseReferenceNum, final String query) {
+        Transaction transaction = null;
+        try {
+            transactionMapLock.lock();
+            transaction = transactionMap.get(txID);
+            if (transaction == null && increaseReferenceNum) {
+                transaction = rsServer.getTransactionFromVectorCache(txID);
+                if (query != null) {
+                    if (LockLogLevel.enableDebugLevel) {
+                        LOG.info("getTransaction query: " + query); 
+                    }
+                    transaction.setQueryContext(query);
+                }
+                transactionMap.put(txID, transaction);
+            }
+            if (increaseReferenceNum) {
+                transaction.increaseReferenceNum();
+            }
+        } finally {
+            transactionMapLock.unlock();
+        }
+        return transaction;
+    }
+
+    private void removeTransaction(long txID) {
+        Transaction transaction = null;
+        try {
+            transactionMapLock.lock();
+            transaction = transactionMap.get(txID);
+            if (transaction == null) {
+                return;
+            }
+            synchronized (transaction) {
+                if (txID != transaction.getTxID()) {
+                    LOG.warn("lockReleaseAll for transaction txID: " + txID + " region: " + regionName + " already done in another thread loc 4");
+                    return;
+                }
+                if (transaction.getReferenceNum() == 0) {
+                    transactionMap.remove(txID);
+                    rollbackTxs.remove(txID);
+                    transaction.reInit(-1L);
+                    rsServer.returnTransactionToVectorCache(transaction);
+                    removeCommitPendingTx(txID);
+                    cleanWaitTxQueue(txID);
+                    removeAbortTransaction(txID);
+                }
+            }
+            synchronized (rsServer.lockHolderMap) {
+                AtomicInteger num = rsServer.lockHolderMap.get(txID);
+                if (num != null && num.intValue() == 0) {
+                    rsServer.lockHolderMap.remove(txID);
+                }
+            }
+        } finally {
+            transactionMapLock.unlock();
+        }
+        recordTxEnd(txID);
+    }
+
+    private void putRowLock(RowKey rowID, Lock rowLock) {
+        try {
+            lockMapLock.lock();
+            lockMap.put(rowID, rowLock);
+        } finally {
+            lockMapLock.unlock();
+        }
+    }
+
+    private Lock getRowLock(RowKey rowID) {
+        return getRowLock(rowID, true);
+    }
+
+    private Lock getRowLock(RowKey rowID, boolean createLock) {
+        Lock rowLock = null;
+        try {
+            lockMapLock.lock();
+            rowLock = lockMap.get(rowID);
+            if (rowLock == null && createLock) {
+                rowLock = rsServer.getLockFromVectorCache(rowID, this.regionName);
+                lockMap.put(rowID, rowLock);
+            }
+            if (rowLock != null && createLock) {
+                rowLock.increaseReferenceNum();
+            }
+        } catch (Exception e) {
+            LOG.error("failed to getRowLock for rowID " + rowID, e);
+        } finally {
+            lockMapLock.unlock();
+        }
+        return rowLock;
+    }
+
+    private void tryRemoveRowLock(RowKey rowID) {
+        boolean removed = false;
+        Lock rowLock = null;
+        try {
+            lockMapLock.lock();
+            // without holder for this rowLock
+            rowLock = lockMap.get(rowID);
+            if (rowLock != null) {
+                synchronized (rowLock) {
+                    if (rowLock.getReferenceNum() == 0 && rowLock.getMaskGrant() == 0 && rowLock.getHead() == null) {
+                        lockMap.remove(rowID);
+                        removed = true;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            LOG.error("failed to tryRemoveRowLock for rowID " + rowID, e);
+        } finally {
+            lockMapLock.unlock();
+        }
+        if (rowLock != null && removed) {
+            rsServer.returnLockToVectorCache(rowLock);
+        }
+    }
+
+    private void addRowLockHolderToLinkedList(LockHolder lockHolder, Transaction transaction, Lock rowLock) {
+        if (transaction.getHead() == null) {
+            transaction.setHead(lockHolder);
+        } else {
+            lockHolder.setTransNext(transaction.getHead());
+            transaction.getHead().setTransPrev(lockHolder);
+            transaction.setHead(lockHolder);
+        }
+        if (rowLock.getHead() == null) {
+            rowLock.setHead(lockHolder);
+        } else {
+            lockHolder.setLockNext(rowLock.getHead());
+            rowLock.getHead().setLockPrev(lockHolder);
+            rowLock.setHead(lockHolder);
+        }
+    }
+
+    // remove transaction.getHead lockHolder
+    private void dropRowLockHolder(Transaction transaction, Lock rowLock) {
+        LockHolder lockHolder = transaction.getHead();
+
+        if(lockHolder == null) {
+            return;
+        }
+
+        // row lock
+        if (lockHolder.getLockPrev() == null) {
+            rowLock.setHead(lockHolder.getLockNext());
+            if (lockHolder.getLockNext() != null) {
+                lockHolder.getLockNext().setLockPrev(null);
+            }
+        } else if (lockHolder.getLockNext() == null) {
+            lockHolder.getLockPrev().setLockNext(null);
+        } else {
+            lockHolder.getLockPrev().setLockNext(lockHolder.getLockNext());
+            lockHolder.getLockNext().setLockPrev(lockHolder.getLockPrev());
+        }
+        // tx
+        if (lockHolder.getTransPrev() == null) {
+            transaction.setHead(lockHolder.getTransNext());
+            if (lockHolder.getTransNext() != null) {
+                lockHolder.getTransNext().setTransPrev(null);
+            }
+        } else if (lockHolder.getTransNext() == null) {
+            lockHolder.getTransPrev().setTransNext(null);
+        } else {
+            lockHolder.getTransPrev().setTransNext(lockHolder.getTransNext());
+            lockHolder.getTransNext().setTransPrev(lockHolder.getTransPrev());
+        }
+        transaction.getRowHolderMap().remove(rowLock.getRowKey());
+        rsServer.returnLock(transaction.getTxID(), lockHolder);
+    }
+
+    // remove the lockHolder
+    private void dropRowLockHolder(Transaction transaction, Lock rowLock, LockHolder lockHolder, long svptID) {
+        if (lockHolder.getChild() != null) {
+            return;
+        }
+        if (svptID > 0) {
+            // first child
+            if (lockHolder.getPreNeighbor() == null) {
+                lockHolder.getParent().setChild(lockHolder.getNextNeighbor());
+                if (lockHolder.getNextNeighbor() != null) {
+                    lockHolder.getNextNeighbor().setPreNeighbor(null);
+                }
+            } else if (lockHolder.getNextNeighbor() == null) {
+                lockHolder.getPreNeighbor().setNextNeighbor(null);
+            } else {
+                lockHolder.getPreNeighbor().setNextNeighbor(lockHolder.getNextNeighbor());
+                lockHolder.getNextNeighbor().setPreNeighbor(lockHolder.getPreNeighbor());
+            }
+            lockHolder.setParent(null);
+            transaction.removeSvptRowHolder(svptID, rowLock.getRowKey());
+            rsServer.returnLock(transaction.getTxID(), lockHolder);
+            return;
+        }
+        // row lock
+        if (lockHolder.getLockPrev() == null) {
+            rowLock.setHead(lockHolder.getLockNext());
+            if (lockHolder.getLockNext() != null) {
+                lockHolder.getLockNext().setLockPrev(null);
+            }
+        } else if (lockHolder.getLockNext() == null) {
+            lockHolder.getLockPrev().setLockNext(null);
+        } else {
+            lockHolder.getLockPrev().setLockNext(lockHolder.getLockNext());
+            lockHolder.getLockNext().setLockPrev(lockHolder.getLockPrev());
+        }
+        // tx
+        if (lockHolder.getTransPrev() == null) {
+            transaction.setHead(lockHolder.getTransNext());
+            if (lockHolder.getTransNext() != null) {
+                lockHolder.getTransNext().setTransPrev(null);
+            }
+        } else if (lockHolder.getTransNext() == null) {
+            lockHolder.getTransPrev().setTransNext(null);
+        } else {
+            lockHolder.getTransPrev().setTransNext(lockHolder.getTransNext());
+            lockHolder.getTransNext().setTransPrev(lockHolder.getTransPrev());
+        }
+        transaction.getRowHolderMap().remove(rowLock.getRowKey());
+        rsServer.returnLock(transaction.getTxID(), lockHolder);
+    }
+
+    private void dropTableLockHolder(Transaction transaction, Lock tableLock, LockHolder tableHolder, long svptID) {
+        if (tableHolder.getChild() != null) {
+            return;
+        }
+        if (svptID <= 0) {
+            transaction.setTableHolder(null);
+            rsServer.returnLock(transaction.getTxID(), tableHolder);
+            return;
+        }
+        if (tableHolder.getPreNeighbor() == null) {
+            tableHolder.getParent().setChild(tableHolder.getNextNeighbor());
+            if (tableHolder.getNextNeighbor() != null) {
+                tableHolder.getNextNeighbor().setPreNeighbor(null);
+            }
+        } else if (tableHolder.getNextNeighbor() == null) {
+            tableHolder.getPreNeighbor().setNextNeighbor(null);
+        } else {
+            tableHolder.getPreNeighbor().setNextNeighbor(tableHolder.getNextNeighbor());
+            tableHolder.getNextNeighbor().setPreNeighbor(tableHolder.getPreNeighbor());
+        }
+        tableHolder.setParent(null);
+        transaction.removeSvptTableHolder(svptID);
+        rsServer.returnLock(transaction.getTxID(), tableHolder);
+    }
+
+    private int getIntentionLockMode(int dwLockModes) {
+        int tableLockModes = LockMode.LOCK_NO;
+        if ((dwLockModes & LockMode.LOCK_X) == LockMode.LOCK_X || (dwLockModes & LockMode.LOCK_U) == LockMode.LOCK_U) {
+            tableLockModes = LockMode.LOCK_IX;
+        } else if ((dwLockModes & LockMode.LOCK_S) == LockMode.LOCK_S) {
+            tableLockModes = LockMode.LOCK_IS;
+        }
+        return tableLockModes;
+    }
+
+    private boolean checkTableLock(Transaction transaction, Lock rowLock, int dwLockMode, long svptID) {
+        synchronized (rowLock) {
+            LockHolder tableHolder = null;
+            if (svptID > 0) {
+                tableHolder = transaction.getSubTxTableHolderHeaderMap().get(svptID);
+                boolean findLock = false;
+                // if not find lock in current holder, find whether in parent holder
+                while (tableHolder != null) {
+                    if (tableHolder.tableLockContain(dwLockMode)) {
+                        findLock = true;
+                        break;
+                    }
+                    tableHolder = tableHolder.getParent();
+                }
+                if (!findLock) {
+                    return false;
+                }
+            } else {
+                tableHolder = transaction.getTableHolder();
+                if (tableHolder == null || !tableHolder.tableLockContain(dwLockMode)) {
+                    return false;
+                }
+            }
+        }
+        tryRemoveRowLock(rowLock.getRowKey());
+        cleanRelatedState(transaction, transaction.getTxID(), rowLock, LockWaitStatus.OK, 20);
+        return true;
+    }
+
+    // if rowID is null, table row
+    private boolean checkLock(Transaction transaction, Lock lock, int dwLockMode, long svptID, long parentSvptID, RowKey rowID, boolean implicitSavepoint) {
+        synchronized (lock) {
+            LockHolder lockHolder = null;
+            ConcurrentHashMap<RowKey, LockHolder> svptRowHolders = null;
+            if (svptID > 0) {
+                if (rowID != null) {
+                    svptRowHolders = transaction.getSubTxRowHolderHeaderMap().get(svptID);
+                    if (svptRowHolders != null) {
+                        lockHolder = svptRowHolders.get(rowID);
+                    }
+                    if (lockHolder == null) {
+                        svptRowHolders = transaction.getSubTxRowHolderHeaderMap().get(parentSvptID);
+                        if (svptRowHolders != null) {
+                            lockHolder = svptRowHolders.get(rowID);
+                        }
+                    }
+                } else {
+                    lockHolder = transaction.getSubTxTableHolderHeaderMap().get(svptID);
+                    if (lockHolder == null) {
+                        lockHolder = transaction.getSubTxTableHolderHeaderMap().get(parentSvptID);
+                    }
+                }
+            }
+
+            if (lockHolder == null) {
+                if (rowID != null) {
+                    lockHolder = transaction.getRowHolderMap().get(rowID);
+                } else {
+                    lockHolder = transaction.getTableHolder();
+                }
+            }
+
+            while (lockHolder != null) {
+                if (lockHolder.lockContain(dwLockMode)) {
+                    if (rowID == null) {
+                        lockHolder = transaction.getSubTxTableHolderHeaderMap().get(svptID);
+                        if (svptID > 0 && parentSvptID > 0 && !implicitSavepoint && lockHolder == null) {
+                            getLockHolder(lock, transaction.getTableHolder(), transaction, svptID, parentSvptID, implicitSavepoint);
+                        }
+                    }
+                    return true;
+                }
+                lockHolder = lockHolder.getParent();
+            }
+        }
+
+        return false;
+    }
+
+    public boolean validateAllLocks(String info) {
+        long[] granted = {0, 0, 0, 0, 0, 0, 0};
+        try {
+            tableLock.validateLock(regionName, transactionMap, info);
+            Set<RowKey> keySet = lockMap.keySet();
+            Iterator<RowKey> iterator = keySet.iterator();
+            while (iterator.hasNext()) {
+                RowKey key = iterator.next();
+                Lock value = lockMap.get(key);
+                value.validateLock(regionName, transactionMap, info);
+            }
+        } catch (Exception e) {}
+        if (waitGraph.size() != 0 ||
+                (tableWaitTxQueue.size() != 0 && tableWaitTxQueue.get(regionName) != null && tableWaitTxQueue.get(regionName).size() > 0) ||
+                tableLock.getMaskGrant() != 0 ||
+                !Arrays.equals(granted, tableLock.getGranted())) {
+            return false;
+        }
+        if (rowWaitTxQueue.size() != 0) {
+            for (LinkedBlockingQueue<Long> queue : rowWaitTxQueue.values()) {
+                if (queue.size() > 0) {
+                    return false;
+                }
+            }
+        }
+        if (lockMap.size() > 0) {
+            Lock lock = null;
+            for (Map.Entry<RowKey, Lock> entry : lockMap.entrySet()) {
+                lock = entry.getValue();
+                if (lock.getMaskGrant() != 0 || !Arrays.equals(granted, lock.getGranted())) {
+                    return false;
+                }
+            }
+        }
+        if (transactionMap.size() > 0) {
+            Transaction transaction = null;
+            for (Map.Entry<Long, Transaction> entry : transactionMap.entrySet()) {
+                transaction = entry.getValue();
+                if (transaction.getTableHolder() != null && transaction.getTableHolder().getMaskHold() != 0) {
+                    return false;
+                }
+                if (transaction.getRowHolderMap().size() != 0) {
+                    for (LockHolder lockHolder : transaction.getRowHolderMap().values()) {
+                        if (lockHolder.getMaskHold() != 0 || !Arrays.equals(granted, lockHolder.getHolding())) {
+                            return false;
+                        }
+                    }
+                }
+                if (transaction.getSubTxTableHolderHeaderMap().size() != 0) {
+                    for (LockHolder lockHolder : transaction.getSubTxTableHolderHeaderMap().values()) {
+                        if (lockHolder.getMaskHold() != 0 || !Arrays.equals(granted, lockHolder.getHolding())) {
+                            return false;
+                        }
+                    }
+                }
+                if (transaction.getSubTxRowHolderHeaderMap().size() != 0) {
+                    for (ConcurrentHashMap<RowKey, LockHolder> subTxRowHoldersMap : transaction.getSubTxRowHolderHeaderMap().values()) {
+                        for (LockHolder lockHolder : subTxRowHoldersMap.values()) {
+                            if (lockHolder.getMaskHold() != 0 || !Arrays.equals(granted, lockHolder.getHolding())) {
+                                return false;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    public LockWait getLockWait(Long txID) {
+        synchronized (waitGraph) {
+            return waitGraph.get(txID);
+        }
+    }
+
+    private void logWait(long txID, Lock lock, LockWait lockWait) {
+        if (!LockLogLevel.enableTraceLevel) {
+            return;
+        }
+        synchronized (LOCK_WAIT_COUNT) {
+            int hashCode = lock.hashCode();
+            Long waitCount = LOCK_WAIT_COUNT.get(hashCode);
+            if (waitCount == null) {
+                waitCount = 1L;
+            } else {
+                waitCount += 1L;
+            }
+            LOCK_WAIT_COUNT.put(hashCode, waitCount);
+            LOG.info("to wait-- txID:" + txID + " lock.hashCode:" + hashCode + " waitCount:" + waitCount + " time:" + System.nanoTime() + " regionName:" + regionName + " rowKey:" + (lock.getRowKey() == null ? "" : lock.getRowKey()));
+        }
+    }
+
+    public void logNotify(long txID, Lock lock) {
+        if (!LockLogLevel.enableTraceLevel) {
+            return;
+        }
+        synchronized (LOCK_NOTIFY_COUNT) {
+            int hashCode = lock.hashCode();
+            Long waitCount = LOCK_NOTIFY_COUNT.get(hashCode);
+            if (waitCount == null) {
+                waitCount = 1L;
+            } else {
+                waitCount += 1L;
+            }
+            LOCK_NOTIFY_COUNT.put(hashCode, waitCount);
+            LOG.info("to notify--txID:" + txID + " " + hashCode + " waitCount:" + waitCount + " time:" + System.nanoTime() + " regionName:" + regionName + " rowKey:" + (lock.getRowKey() == null ? "" : lock.getRowKey()) + " thread: " + Thread.currentThread().getName());
+        }
+    }
+
+    private void createLockWait(Lock lock, Transaction transaction, int dwLockMode, long svptID, long parentSvptID, boolean implicitSavepoint) {
+        synchronized (lock) {
+            synchronized (waitGraph) {
+                long txID = transaction.getTxID();
+                LockWait lockWait = waitGraph.get(txID);
+                if (lockWait == null) {
+                    lockWait = new LockWait(lock, transaction, regionName, svptID, parentSvptID, implicitSavepoint);
+                    lockWait.getHolding()[LockMode.getIndex(dwLockMode)] += 1;
+                    lockWait.setMaskHold(dwLockMode);
+                    lockWait.setCreateTimestamp(System.currentTimeMillis());
+                    if (LockLogLevel.enableTraceLevel) {
+                        int hashCode = lock.hashCode();
+                        LOG.info("put Into Waitgraph txID: " + txID + " " + hashCode + " region:" + regionName + " thread: " + Thread.currentThread().getName());
+                    }
+                    waitGraph.put(txID, lockWait);
+                } else {
+                    lockWait.setWaitStatus(LockWaitStatus.WAITING);
+                }
+                if (lock.getRowKey() == null) {
+                    getTableConflictTransaction(txID, lockWait);
+                } else {
+                    getRowConflictTransaction(txID, lockWait);
+                }
+                rsServer.checkAndRecordLockWait(lockWait, false);
+            }
+        }
+    }
+
+    private void updateLockWait(Lock lock) {
+        LinkedBlockingQueue<Long> queue = null;
+        RowKey rowKey = lock.getRowKey();
+        if (rowKey == null) {
+            synchronized (tableWaitTxQueue) {
+                queue = tableWaitTxQueue.get(regionName);
+            }
+        } else {
+            synchronized (rowWaitTxQueue) {
+                queue = rowWaitTxQueue.get(rowKey);
+            }
+        }
+        if (queue == null) {
+            return;
+        }
+        Iterator iter = queue.iterator();
+        Long txID = null;
+        LockWait lockWait = null;
+        Lock tmpLock = null;
+        while (iter.hasNext()) {
+            txID = (Long) iter.next();
+            lockWait = waitGraph.get(txID);
+            if (lockWait == null) {
+                continue;
+            }
+            tmpLock = lockWait.getLock();
+            synchronized(lockWait) {
+                updateLockWait(txID, lockWait, tmpLock.getRowKey() == null);
+            }
+        }
+    }
+
+    private void updateLockWait(long txID, LockWait lockWait, boolean isTable) {
+        if (isTable) {
+            getTableConflictTransaction(txID, lockWait);
+        } else {
+            getRowConflictTransaction(txID, lockWait);
+        }
+    }
+
+    public Set<Long> getTableConflictTransaction(long txID, LockWait lockWait) {
+        lockWait.getHolderTxIDs().clear();
+        LockHolder lockHolder = null;
+        long conflictTxID = -1;
+
+        for (Map.Entry<Long, Transaction> entry : transactionMap.entrySet()) {
+            lockHolder = entry.getValue().getTableHolder();
+            if (lockHolder == null || lockHolder.getTransaction() == null) {
+                continue;
+            }
+            conflictTxID = lockHolder.getTransaction().getTxID();
+            if (conflictTxID == txID) {
+                continue;
+            }
+            int conflictMask = rsServer.conflictMaskTab[lockWait.getMaskHold()];
+            getConflictForOneTransaction(txID, conflictTxID, conflictMask, lockHolder, lockWait);
+        }
+        return lockWait.getHolderTxIDs();
+    }
+
+    private void getConflictForOneTransaction(long txID, long conflictTxID, int conflictMask, LockHolder lockHolder, LockWait lockWait) {
+        if (lockHolder != null) {
+            Stack<LockHolder> stack = new Stack<>();
+            stack.push(lockHolder);
+            LockHolder tmpHolder = null;
+            while (stack.size() > 0) {
+                tmpHolder = stack.pop();
+                if (conflictTxID != txID && (tmpHolder.getMaskHold() & conflictMask) != 0) {
+                    lockWait.getHolderTxIDs().add(tmpHolder.getTransaction().getTxID());
+                    return;
+                }
+                if (tmpHolder.getNextNeighbor() != null) {
+                    stack.push(tmpHolder.getNextNeighbor());
+                }
+                if (tmpHolder.getChild() != null) {
+                    stack.push(tmpHolder.getChild());
+                }
+            }
+        }
+    }
+
+    public Set<Long> getRowConflictTransaction(long txID, LockWait lockWait) {
+        lockWait.getHolderTxIDs().clear();
+        Lock lock = lockWait.getLock();
+        LockHolder lockHolder = lock.getHead();
+        long conflictTxID = -1;
+        while (lockHolder != null) {
+            if (lockHolder.getTransaction() != null) {
+                conflictTxID = lockHolder.getTransaction().getTxID();
+                int conflictMask = rsServer.conflictMaskTab[lockWait.getMaskHold()];
+                getConflictForOneTransaction(txID, conflictTxID, conflictMask, lockHolder, lockWait);
+            }
+            lockHolder = lockHolder.getLockNext();
+        }
+        return lockWait.getHolderTxIDs();
+    }
+
+    private void waitToContinue(Lock lock, long txID, LockWait lockWait, long start, int timeout, boolean isRetry, boolean isQueueHead) {
+        boolean needWait = true;
+        while (needWait) {
+            try {
+                synchronized(lockWait) {
+                    logWait(txID, lock, lockWait);
+                    updateLockWait(txID, lockWait, lock.getRowKey() == null);
+                }
+                int sleepTime = (int) (timeout - (System.currentTimeMillis() - start));
+                if (sleepTime <= 0) {
+                    lockWait.setWaitStatus(LockWaitStatus.LOCK_TIMEOUT);
+                    return;
+                }
+                if ((!isRetry || isQueueHead) && lockWait.getHolderTxIDs().size() == 0) {
+                    return;
+                }
+                lock.wait(sleepTime);
+                if (LockLogLevel.enableTraceLevel) {
+                    LOG.info("txID: " + txID + " awake after wait");
+                }
+
+                switch (lockWait.getWaitStatus()) {
+                    case WAITING:
+                        sleepTime = (int) (timeout - (System.currentTimeMillis() - start));
+                        if (sleepTime <= 0) {
+                            lockWait.setWaitStatus(LockWaitStatus.LOCK_TIMEOUT);
+                            return;
+                        }
+                        List<Long> notifyTxIDs = getHeadFromWaitQueue(lock, txID);
+                        if (LockLogLevel.enableTraceLevel) {
+                            LOG.info("txID:" + txID + " notifyTxID: " + notifyTxIDs + " " + lock);
+                        }
+                        if (notifyTxIDs == null || notifyTxIDs.contains(txID)) {
+                            needWait = false;
+                        } else {
+                            needWait = true;
+                        }
+                        break;
+                    case CANCEL_FOR_NEW_RPC_REQUEST:
+                        needWait = false;
+                        break;
+                    default:
+                        needWait = false;
+                }
+            } catch (Exception e) {
+                LOG.error("failed in waitToContinue", e);
+            }
+        }
+    }
+
+    private void putIntoWaitQueue(Lock lock, long txID) {
+        RowKey rowKey = lock.getRowKey();
+        LinkedBlockingQueue<Long> lockWaitQueue = null;
+        if (rowKey == null) {
+            synchronized (tableWaitTxQueue) {
+                lockWaitQueue = tableWaitTxQueue.get(regionName);
+                if (lockWaitQueue == null) {
+                    lockWaitQueue = new LinkedBlockingQueue<>();
+                    tableWaitTxQueue.put(regionName, lockWaitQueue);
+                }
+            }
+        } else {
+            synchronized (rowWaitTxQueue) {
+                lockWaitQueue = rowWaitTxQueue.get(rowKey);
+                if (lockWaitQueue == null) {
+                    lockWaitQueue = new LinkedBlockingQueue<>();
+                    rowWaitTxQueue.put(rowKey, lockWaitQueue);
+                }
+            }
+        }
+        if (!lockWaitQueue.contains(txID)) {
+            try {
+                lockWaitQueue.put(txID);
+            } catch (Exception e) {
+                LOG.error("failed to put wait transaction into wait queue");
+            }
+        }
+    }
+
+    private List<Long> getHeadFromWaitQueue(Lock lock, long currentTxID) {
+        RowKey rowKey = lock.getRowKey();
+        LinkedBlockingQueue<Long> lockWaitQueue = null;
+        Long txID = null;
+        if (rowKey == null) {
+            synchronized (tableWaitTxQueue) {
+                lockWaitQueue = tableWaitTxQueue.get(regionName);
+                if (lockWaitQueue == null) {
+                    return null;
+                }
+                if (!lockWaitQueue.contains(currentTxID)) {
+                    return null;
+                }
+                txID = lockWaitQueue.peek();
+                if (txID == null) {
+                    return null;
+                }
+
+            }
+        } else {
+            synchronized (rowWaitTxQueue) {
+                lockWaitQueue = rowWaitTxQueue.get(rowKey);
+                if (lockWaitQueue == null) {
+                    return null;
+                }
+                if (!lockWaitQueue.contains(currentTxID)) {
+                    return null;
+                }
+                txID = lockWaitQueue.peek();
+                if (txID == null) {
+                    return null;
+                }
+            }
+        }
+        List<Long> headWaitTxs = new ArrayList<>();
+        synchronized (waitGraph) {
+            synchronized (lockWaitQueue) {
+                LockWait lockWait = waitGraph.get(txID);
+                if (lockWait == null) {
+                    return null;
+                }
+                headWaitTxs.add(txID);
+                int lockMode = lockWait.getMaskHold();
+                Iterator<Long> iterator = lockWaitQueue.iterator();
+                while (iterator.hasNext()) {
+                    txID = iterator.next();
+                    lockWait = waitGraph.get(txID);
+                    int tmpLockMode = lockWait.getMaskHold();
+                    if (isConflict(lockMode, tmpLockMode)) {
+                        break;
+                    }
+                    headWaitTxs.add(txID);
+                }
+                return headWaitTxs;
+            }
+        }
+    }
+
+    private void removeFromWaitQueue(LockWait lockWait, Long txID) {
+        if (lockWait == null) {
+            return;
+        }
+        RowKey rowKey = lockWait.getRowKey();
+        LinkedBlockingQueue<Long> lockWaitQueue = null;
+        if (rowKey == null) {
+            synchronized (tableWaitTxQueue) {
+                lockWaitQueue = tableWaitTxQueue.get(regionName);
+            }
+        } else {
+            synchronized (rowWaitTxQueue) {
+                lockWaitQueue = rowWaitTxQueue.get(rowKey);
+            }
+        }
+        if (lockWaitQueue == null) {
+            return;
+        }
+        synchronized (lockWaitQueue) {
+            lockWaitQueue.remove(txID);
+        }
+    }
+
+    private void recordTxStart(long txID) {
+        if (!LockLogLevel.enableTraceLevel && !LockConstants.ENABLE_LOCK_STATISTICS) {
+            return;
+        }
+        synchronized (transElapsTime) {
+            if (transElapsTime.get(txID) == null) {
+                transElapsTime.put(txID, System.currentTimeMillis());
+            }
+        }
+    }
+
+    private void recordTxLocks(long txID) {
+        if (!LockLogLevel.enableTraceLevel && !LockConstants.ENABLE_LOCK_STATISTICS) {
+            return;
+        }
+        Transaction transaction = getTransaction(txID, false, null);
+        if (transaction == null) {
+            return;
+        }
+
+        StringBuffer message = new StringBuffer(1000);
+        message.append("txID: ").append(txID);
+        int tableLockNum = 0;
+        synchronized (tableLock) {
+            for (int i = 0; i < LockConstants.LOCK_MAX_MODES; i++) {
+                tableLockNum += tableLock.getGranted()[i];
+            }
+        }
+        synchronized (lockMap) {
+            for (Map.Entry<RowKey, Lock> rowLockEntry : lockMap.entrySet()) {
+
+            }
+        }
+        LOG.info(message.toString());
+    }
+
+    private void recordTxEnd(long txID) {
+        if (!LockLogLevel.enableTraceLevel && !LockConstants.ENABLE_LOCK_STATISTICS) {
+            return;
+        }
+        Long start = null;
+        synchronized (transElapsTime) {
+            start = transElapsTime.get(txID);
+        }
+        if (start == null || start <= 0) {
+            LOG.info("txID: " + txID + " does not start!");
+        } else {
+            long end = System.currentTimeMillis();
+            LOG.info("txID: " + txID + " region: " + regionName + " start: " + start + " end: " + end + " elaps: " + (end - start));
+        }
+    }
+
+    public void forceLockReleaseAll() {
+        lockReleaseAllWaits();
+        Transaction transaction = null;
+        for (long txID : transactionMap.keySet()) {
+            transaction = getTransaction(txID, false, null);
+            if (transaction == null) {
+                continue;
+            }
+            transaction.setReferenceNum(0);
+            try {
+                lockReleaseAll(txID);
+            } catch (Exception e) {
+                LOG.error("failed to release tx: " + txID, e);
+            }
+        }
+        lockMap.clear();
+        transactionMap.clear();
+        waitGraph.clear();
+        tableWaitTxQueue.clear();
+        rowWaitTxQueue.clear();
+        commitPendingTxs.clear();
+        rollbackTxs.clear();
+        abortTxIDs.clear();
+        blockAll.set(false);
+        LOCK_WAIT_COUNT.clear();
+        LOCK_NOTIFY_COUNT.clear();
+        transElapsTime.clear();
+        enableEscaMap.clear();
+        tableLock.reInit(null, null);
+    }
+
+    public void printAllLocks() {
+        StringBuffer message = new StringBuffer(1000);
+        message.append("regionName: ").append(regionName).append("\n");
+        message.append("waitTxQueue: ");
+        for (Map.Entry<String, LinkedBlockingQueue<Long>> entry : tableWaitTxQueue.entrySet()) {
+            message.append("table lock: ").append(entry.getKey()).append(" wait transactionIDs:").append(entry.getValue()).append("\n");
+        }
+        for (Map.Entry<RowKey, LinkedBlockingQueue<Long>> entry : rowWaitTxQueue.entrySet()) {
+            message.append("row lock: ").append(entry.getKey()).append(" wait transactionIDs:").append(entry.getValue()).append("\n");
+        }
+        message.append("\n");
+        message.append("lockWaits: ");
+        for (Map.Entry<Long, LockWait> entry : waitGraph.entrySet()) {
+            message.append("txID: ").append(entry.getKey()).append(" lockWait:").append(entry.getValue()).append("\n");
+        }
+        message.append("\n");
+        message.append("commitPendingTxs:").append(commitPendingTxs).append("\n");
+        message.append("rollbackTxs:").append(rollbackTxs).append("\n");
+        message.append("abortTxIDs:").append(abortTxIDs).append("\n");
+        message.append("transactions: ");
+        for (Transaction transaction : transactionMap.values()) {
+            message.append("transactionId: " + transaction.getTxID()).append(" ReferenceNum: ").append(transaction.getReferenceNumUnSafe()).append("\n");
+        }
+        message.append("\n");
+        message.append("tableLocks: ");
+        LockHolder curHolder = null;
+        StringBuffer tableMessage = new StringBuffer(500);
+        tableMessage.append(tableLock);
+        for (Transaction transaction : transactionMap.values()) {
+            curHolder = transaction.getTableHolder();
+            if (curHolder == null) {
+                continue;
+            }
+            if (curHolder.getLock() == tableLock) {
+                tableMessage.append(curHolder);
+            }
+        }
+        message.append(tableMessage);
+        message.append("rowLocks: ");
+        for (Map.Entry<RowKey, Lock> entry : lockMap.entrySet()) {
+            message.append(entry.getKey()).append("\n").append(entry.getValue());
+        }
+        LOG.info(message);
+    }
+
+    /**
+     *
+     * @param waitStatus set LockWait status to {waitStatus}
+     */
+    private void notifyWaitThreads(long txID, LockWaitStatus waitStatus) {
+        Lock notifyLock = null;
+        synchronized (waitGraph) {
+            LockWait lockWait = waitGraph.get(txID);
+            if (lockWait != null) {
+                notifyLock = lockWait.getLock();
+                lockWait.setWaitStatus(waitStatus);
+            } else {
+                return;
+            }
+        }
+        if (notifyLock != null) {
+            logNotify(txID, notifyLock);
+            synchronized (notifyLock) {
+                notifyLock.notifyAll();
+            }
+        }
+        LockWait lockWait = null;
+        synchronized (waitGraph) {
+            lockWait = waitGraph.get(txID);
+        }
+
+        int sleepTimes = 0;
+        while (lockWait != null) {
+            try {
+                Thread.sleep(1);
+            } catch (Exception e) {
+            }
+            sleepTimes++;
+            if (sleepTimes > 10) {
+                LOG.warn("notifyWaitThreads txID:" + txID + " region:" + regionName + " waitStatus: " + waitStatus + " thread: " + Thread.currentThread().getName());
+                break;
+            }
+            synchronized (waitGraph) {
+                lockWait = waitGraph.get(txID);
+            }
+        }
+    }
+
+    /**
+     *
+     * @param waitStatus set LockWait status to {waitStatus}
+     */
+    private void notifyAllWaitThreads(LockWaitStatus waitStatus) {
+        ConcurrentHashMap<Long, Lock> notifyLockList = new ConcurrentHashMap<>();
+
+        synchronized (waitGraph) {
+            LockWait lockWait = null;
+            Lock notifyLock = null;
+            for (Map.Entry<Long, LockWait> entry : waitGraph.entrySet()) {
+                lockWait = entry.getValue();
+                if (lockWait != null) {
+                    notifyLock = lockWait.getLock();
+                    lockWait.setWaitStatus(waitStatus);
+                }
+                if (notifyLock != null) {
+                    notifyLockList.put(entry.getKey(), notifyLock);
+                }
+            }
+        }
+
+        for (Map.Entry<Long, Lock> entry : notifyLockList.entrySet()) {
+            logNotify(entry.getKey(), entry.getValue());
+            synchronized (entry.getValue()) {
+                entry.getValue().notifyAll();
+            }
+            LockWait lockWait = null;
+            synchronized (waitGraph) {
+                lockWait = waitGraph.get(entry.getKey());
+            }
+            long sleepTimes = 0;
+            while (lockWait != null) {
+                try {
+                    Thread.sleep(1);
+                } catch (Exception e) {
+                }
+                sleepTimes++;
+                if (sleepTimes > 100) {
+                    LOG.warn("notifyAllWaitThreads txID:" + entry.getKey() + " region:" + regionName + " waitStatus: " + waitStatus + " thread: " + Thread.currentThread().getName());
+                    break;
+                }
+                synchronized (waitGraph) {
+                    lockWait = waitGraph.get(entry.getKey());
+                }
+            }
+        }
+    }
+
+    private RetCode getRetCode(LockWait lockWait, Lock lock, long txID) {
+        if (lockWait.getWaitStatus() != LockWaitStatus.LOCK_TIMEOUT &&
+                lockWait.getWaitStatus() != LockWaitStatus.WAITING) {
+            removeFromWaitQueue(lockWait, txID);
+        }
+        switch (lockWait.getWaitStatus()) {
+            case LOCK_TIMEOUT:
+                return RetCode.TIMEOUT;
+            case FINAL_LOCK_TIMEOUT:
+                return RetCode.FINAL_TIMEOUT;
+            case CANCEL_FOR_DEADLOCK:
+                return RetCode.CANCEL_FOR_DEADLOCK;
+            case CANCEL_FOR_NEW_RPC_REQUEST:
+                return RetCode.CANCEL_FOR_NEW_RPC_REQUEST;
+            case CANCEL_FOR_ROLLBACK:
+                return RetCode.CANCEL_FOR_ROLLBACK;
+            case CANCEL_FOR_SPLIT:
+                return RetCode.CANCEL_FOR_SPLIT;
+            case CANCEL_FOR_MOVE:
+                return RetCode.CANCEL_FOR_MOVE;
+            case CANCEL_FOR_NOT_ENOUGH_LOCK_RESOURCES:
+                return RetCode.CANCEL_FOR_NOT_ENOUGH_LOCK_RESOURCES;
+            default:
+                return RetCode.CANCEL_FOR_OTHER_REASON;
+        }
+    }
+
+    private void cleanRelatedState(Transaction transaction, Long txID, Lock lock, LockWaitStatus cleanReason, int loc) {
+        if (transaction != null) {
+            transaction.decreaseReferenceNum(regionName + " cleanRelatedState (loc " + loc + ")");
+        }
+        if (lock != null && lock.getRowKey() != null) {
+            lock.decreaseReferenceNum();
+        }
+        LockWait lockWait = null;
+        synchronized (waitGraph) {
+            lockWait = waitGraph.get(txID);
+            if (lockWait != null) {
+                if (lockWait.getLock() == lock) {
+                    lockWait.setWaitStatus(cleanReason);
+                    waitGraph.remove(txID);
+                    rsServer.checkAndRecordLockWait(lockWait);
+                    removeFromWaitQueue(lockWait, txID);
+                }
+            }
+        }
+    }
+
+    public void enableEsca(Long txID) {
+        synchronized (enableEscaMap) {
+            enableEscaMap.put(txID, true);
+        }
+    }
+
+    public void disableEsca(Long txID) {
+        synchronized (enableEscaMap) {
+            enableEscaMap.put(txID, false);
+        }
+    }
+
+    public void lockReleaseAll() {
+        lockReleaseAllWaits();
+        for (long txID : transactionMap.keySet()) {
+            try {
+                lockReleaseAll(txID);
+            } catch (Exception e) {
+                LOG.error("failed to release transaction: " + txID, e);
+            }
+        }
+    }
+
+    private void lockReleaseAllWaits() {
+        int count = waitGraph.size();
+        while (count > 0) {
+            for (Map.Entry<Long, LockWait> entry : waitGraph.entrySet()) {
+                if (entry.getValue() != null && entry.getValue().getHolderTxIDs().size() == 0) {
+                    try {
+                        lockReleaseAll(entry.getKey());
+                    } catch (Exception e) {
+                        LOG.error("failed to release transaction: " + entry.getKey(), e);
+                    }
+                    break;
+                }
+            }
+            count--;
+        }
+    }
+
+    private void setDeadLockStatus(long victimTxID, Lock lock) {
+        LockWait lockWait = null;
+        synchronized (waitGraph) {
+            lockWait = waitGraph.get(victimTxID);
+            if (lockWait != null) {
+                lockWait.setWaitStatus(LockWaitStatus.CANCEL_FOR_DEADLOCK);
+                try {
+                    lock.notifyAll();
+                } catch (Exception e) {
+                    LOG.error("failed to notify", e);
+                }
+            }
+        }
+    }
+
+    private LockHolder getLockHolder(Lock lock, Transaction transaction) {
+        return getLockHolder(lock, transaction, false);
+    }
+
+    private LockHolder getLockHolder(Lock lock, Transaction transaction, boolean doOverUsed) {
+        LockHolder curHolder = rsServer.applyLock(transaction.getTxID(), doOverUsed);
+        if (curHolder != null) {
+            curHolder.reInit(lock, transaction);
+        }
+        return curHolder;
+    }
+
+    private LockHolder getLockHolder(Lock lock, LockHolder transHolder, Transaction transaction, long svptID, long parentSvptID, boolean implicitSavepoint) {
+        return getLockHolder(lock, transHolder, transaction, svptID, parentSvptID, implicitSavepoint, false);
+    }
+
+    private LockHolder getLockHolder(Lock lock, LockHolder transHolder, Transaction transaction, long svptID, long parentSvptID, boolean implicitSavepoint, boolean doOverUsed) {
+        RowKey rowKey = lock.getRowKey();
+        boolean isTable = (rowKey == null);
+        LockHolder parentLockHolder = null;
+        LockHolder currentLockHolder = null;
+
+        if (LockLogLevel.enableTraceLevel) {
+            LOG.info("region " + regionName + " getLockHolder rowKey:" + rowKey + " svptID:" + svptID + " parentSvptID:" + parentSvptID + " implicitSavepoint:" + implicitSavepoint);
+        }
+        if (parentSvptID > 0) {
+            if (isTable) {
+                parentLockHolder = transaction.getSvptTableHolder(parentSvptID);
+            } else {
+                parentLockHolder = transaction.getSvptRowHolder(parentSvptID, rowKey);
+            }
+            if (LockLogLevel.enableTraceLevel) {
+                LOG.info("region " + regionName + " getLockHolder rowKey:" + rowKey + " svptID:" + svptID + " parentSvptID:" + parentSvptID + " implicitSavepoint:" + implicitSavepoint + " parentLockHolder is null:" + (parentLockHolder == null));
+            }
+            if (parentLockHolder == null) {
+                parentLockHolder = getLockHolder(lock, transaction, doOverUsed);
+                if (parentLockHolder == null) {
+                    return null;
+                }
+                parentLockHolder.setSvptID(parentSvptID);
+                transHolder.addChild(parentLockHolder);
+                if (isTable) {
+                    transaction.addSvptTableHolder(parentSvptID, parentLockHolder);
+                } else {
+                    transaction.addSvptRowHolder(parentSvptID, rowKey, parentLockHolder);
+                }
+            }
+        } else {
+            parentLockHolder = transHolder;
+        }
+        if (isTable) {
+            currentLockHolder = transaction.getSvptTableHolder(svptID);
+        } else {
+            currentLockHolder = transaction.getSvptRowHolder(svptID, rowKey);
+        }
+        if (LockLogLevel.enableTraceLevel) {
+            LOG.info("region " + regionName + " getLockHolder rowKey:" + rowKey + " svptID:" + svptID + " parentSvptID:" + parentSvptID + " implicitSavepoint:" + implicitSavepoint + " currentLockHolder is null:" + (currentLockHolder == null));
+        }
+        if (currentLockHolder == null) {
+            currentLockHolder = getLockHolder(lock, transaction, doOverUsed);
+            if (currentLockHolder == null) {
+                return null;
+            }
+            currentLockHolder.setSvptID(svptID);
+            currentLockHolder.setParentSvptID(parentSvptID);
+            currentLockHolder.setImplicitSavepoint(implicitSavepoint);
+            parentLockHolder.addChild(currentLockHolder);
+            if (isTable) {
+                transaction.addSvptTableHolder(svptID, currentLockHolder);
+            } else {
+                transaction.addSvptRowHolder(svptID, rowKey, currentLockHolder);
+            }
+        }
+
+        return currentLockHolder;
+    }
+
+    private void checkTransactionReference(StringBuffer debugInfo, Transaction transaction, String message) {
+        if (LockLogLevel.enableTraceLevel) {
+            LOG.info((debugInfo == null ? "" : debugInfo.toString() + "\n") + message + "(" + transaction.getReferenceNum() + ")");
+        }
+    }
+
+    private RetCode notEnoughLocksReturn(Transaction trans, long txID, Lock lock) {
+        cleanRelatedState(trans, txID, lock, LockWaitStatus.CANCEL_FOR_NOT_ENOUGH_LOCK_RESOURCES, 21);
+        updateLockWait(lock);
+        notifyAllWaitThreads(LockWaitStatus.CANCEL_FOR_NOT_ENOUGH_LOCK_RESOURCES);
+        AtomicInteger counter = null;
+        synchronized(rsServer.lockHolderMap) {
+            counter = rsServer.lockHolderMap.get(txID);
+            if (counter != null && counter.intValue() > 0) {
+                counter.set(0 - counter.intValue());//do rollback
+                return RetCode.CANCEL_FOR_OOM;
+            }
+        }
+        return RetCode.CANCEL_FOR_NOT_ENOUGH_LOCK_RESOURCES;
+    }
+
+    private void dealWithTimeoutLockwait(LockWait lockWait) {
+        if (lockWait != null && lockWait.getWaitStatus() == LockWaitStatus.LOCK_TIMEOUT) {
+            lockWait.updateClientRetryCount();
+            if (lockWait.getClientRetryCount() <= 0) {
+                lockWait.setWaitStatus(LockWaitStatus.FINAL_LOCK_TIMEOUT);
+                //The client has run out of lock retries
+                synchronized(waitGraph) {
+                    waitGraph.remove(lockWait.getTxID());
+                    rsServer.checkAndRecordLockWait(lockWait);
+                }
+                removeFromWaitQueue(lockWait, lockWait.getTxID());
+            }
+        }
+    }
+
+    @Override
+    public long sizeof() {
+        long size = Size_Object;
+        //header
+        //14 attributes
+        size += (14 * Size_Reference);
+        //9 Map
+        size += (9 * Size_ConcurrentHashMap);
+        //2 Object -> ReentrantLock
+        size += 32;
+        //1 boolean
+        size += 4;
+
+        //lockMap
+        //in case of unknown exception
+        try {
+            lockMapLock.lock();
+            if (!lockMap.isEmpty()) {
+                Iterator<Map.Entry<RowKey, Lock>> itor = lockMap.entrySet().iterator();
+                if (itor.hasNext()) {
+                    Map.Entry<RowKey, Lock> subEntry = itor.next();
+                    size += (subEntry.getKey().sizeof() + subEntry.getValue().sizeof() + Size_Pair) * lockMap.size();
+                }
+            }
+        } catch (Exception e) {
+            LOG.error("failed in Sizeof", e);
+        } finally {
+            lockMapLock.unlock();
+        }
+        //transactionMap
+        //in case of unknown exception
+        try {
+            transactionMapLock.lock();
+            if (!transactionMap.isEmpty()) {
+                for (Map.Entry<Long, Transaction> entry : transactionMap.entrySet()) {
+                    size += (Size_Long + entry.getValue().sizeof() + Size_Pair);
+                }
+            }
+        } catch (Exception e) {
+            LOG.error("failed in Sizeof", e);
+        } finally {
+            transactionMapLock.unlock();
+        }
+        //waitGraph
+        synchronized (waitGraph) {
+            if (!waitGraph.isEmpty()) {
+                for (Map.Entry<Long, LockWait> entry : waitGraph.entrySet()) {
+                    size += (Size_Long + entry.getValue().sizeof() + Size_Pair);
+                }
+            }
+        }
+        //rowWaitTxQueue
+        synchronized (rowWaitTxQueue) {
+            if (!rowWaitTxQueue.isEmpty()) {
+                for (Map.Entry<RowKey, LinkedBlockingQueue<Long>> entry : rowWaitTxQueue.entrySet()) {
+                    //sizeof LinkedBlockingQueue<Long>
+                    LinkedBlockingQueue<Long> queue = entry.getValue();
+                    long size_queue = Size_LinkedBlockingQueue + (Size_Reference + Size_Long) * queue.size();
+                    size += (entry.getKey().sizeof() + size_queue + Size_Pair);
+                }
+            }
+        }
+        //tableWaitTxQueue
+        synchronized (tableWaitTxQueue) {
+            if (!tableWaitTxQueue.isEmpty()) {
+                for (Map.Entry<String, LinkedBlockingQueue<Long>> entry : tableWaitTxQueue.entrySet()) {
+                    //sizeof LinkedBlockingQueue<Long>
+                    LinkedBlockingQueue<Long> queue = entry.getValue();
+                    long size_queue = Size_LinkedBlockingQueue + (Size_Reference + Size_Boolean) * queue.size();
+                    size += (Size_Reference + size_queue + Size_Pair);
+                }
+            }
+        }
+        //tableLock
+        size += tableLock.sizeof();
+        //debug
+        {
+            //LOCK_WAIT_COUNT
+            synchronized (LOCK_WAIT_COUNT) {
+                size += (Size_Integer + Size_Long + Size_Pair) * LOCK_WAIT_COUNT.size();
+            }
+            //LOCK_NOTIFY_COUNT
+            synchronized (LOCK_NOTIFY_COUNT) {
+                size += (Size_Integer + Size_Long + Size_Pair) * LOCK_NOTIFY_COUNT.size();
+            }
+            //transElapsTime
+            synchronized (transElapsTime) {
+                size += (Size_Long + Size_Long + Size_Pair) * transElapsTime.size();
+            }
+            //enableEscaMap
+            synchronized (enableEscaMap) {
+                size += (Size_Long + Size_Boolean + Size_Pair) * transElapsTime.size();
+            }
+        }
+        return LockUtils.alignLockObjectSize(size);
+    }
+
+    public void recordCommitPendingTx(long txID) {
+        synchronized (commitPendingTxs) {
+            commitPendingTxs.add(txID);
+        }
+    }
+
+    private void removeCommitPendingTx(long txID) {
+        synchronized (commitPendingTxs) {
+            commitPendingTxs.remove(txID);
+        }
+    }
+
+    public CopyOnWriteArraySet<Long> getCommitPendingTx() {
+        synchronized (commitPendingTxs) {
+            return commitPendingTxs;
+        }
+    }
+
+    public void cleanWaitTxQueue(List<Long> txIDs) {
+        if (txIDs == null || txIDs.size() == 0) {
+            return;
+        }
+        synchronized (tableWaitTxQueue) {
+            for (Map.Entry<String, LinkedBlockingQueue<Long>> entry : tableWaitTxQueue.entrySet()) {
+                if (entry.getValue() != null) {
+                    entry.getValue().removeAll(txIDs);
+                }
+            }
+        }
+
+        synchronized (rowWaitTxQueue) {
+            for (Map.Entry<RowKey, LinkedBlockingQueue<Long>> entry : rowWaitTxQueue.entrySet()) {
+                if (entry.getValue() != null) {
+                    entry.getValue().removeAll(txIDs);
+                }
+            }
+        }
+    }
+
+    public void cleanWaitTxQueue(long txID) {
+        synchronized (tableWaitTxQueue) {
+            for (Map.Entry<String, LinkedBlockingQueue<Long>> entry : tableWaitTxQueue.entrySet()) {
+                if (entry.getValue() != null) {
+                    entry.getValue().remove(txID);
+                }
+            }
+        }
+
+        synchronized (rowWaitTxQueue) {
+            for (Map.Entry<RowKey, LinkedBlockingQueue<Long>> entry : rowWaitTxQueue.entrySet()) {
+                if (entry.getValue() != null) {
+                    entry.getValue().remove(txID);
+                }
+            }
+        }
+    }
+
+    public boolean isConflict(int lockMode1, int lockMode2) {
+        int conflictMask = rsServer.conflictMaskTab[lockMode1];
+        return ((conflictMask & lockMode2) != 0);
+    }
+
+    public void releaseTableLock() {
+        if (this.tableLock != null) {
+            //synchronized (this.tableLock) {
+            //    rsServer.returnLockToVectorCache(this.tableLock);
+            //}
+            this.tableLock = null;
+        }
+    }
+
+    public void setBlockAll(boolean value) {
+        blockAll.set(value);
+    }
+
+    private void addAbortTransaction(long txID) {
+        synchronized (abortTxIDs) {
+            abortTxIDs.add(txID);
+        }
+    }
+
+    private void removeAbortTransaction(long txID) {
+        synchronized (abortTxIDs) {
+            abortTxIDs.remove(txID);
+        }
+    }
+
+    private void releaseIntentLock(Transaction transaction, long savepointID, int dwLockMode, boolean hasAppliedIntentLock) {
+        releaseIntentLock(transaction, savepointID, dwLockMode, hasAppliedIntentLock, false);
+    }
+
+    private void releaseIntentLock(Transaction transaction, long savepointID, int dwLockMode, boolean hasAppliedIntentLock, boolean isEsca) {
+        LockHolder tableLockHolder = null;
+        if (!hasAppliedIntentLock) {
+            return;
+        }
+        synchronized (transaction) {
+            if (savepointID > 0) {
+                tableLockHolder = transaction.getSubTxTableHolderHeaderMap().get(savepointID);
+            } else {
+                tableLockHolder = transaction.getTableHolder();
+            }
+            if (tableLockHolder != null) {
+                Lock tableLock = tableLockHolder.getLock();
+                synchronized (tableLock) {
+                    int lockMask = tableLockHolder.getMaskHold();
+                    int intentionLockMask = getIntentionLockMode(dwLockMode);
+                    if (LockUtils.isIntentionLock(lockMask)) {
+                        if (lockMask == intentionLockMask) {
+                            lockRelease(transaction, savepointID, intentionLockMask);
+                        } else {
+                            if (isEsca) {
+                                //for escalation lock
+                                if (tableLockHolder.tableLockContain(intentionLockMask)) {
+                                    tableLockHolder.decreaseHolding(intentionLockMask);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+}

@@ -1,0 +1,2533 @@
+>>
+>>set schema hive.hive;
+
+--- SQL operation complete.
+>>
+>>set terminal_charset utf8;
+>>
+>>cqd AUTO_QUERY_RETRY_WARNINGS 'ON';
+
+--- SQL operation complete.
+>>
+>>cqd HIVE_MAX_STRING_LENGTH_IN_BYTES '32' ;
+
+--- SQL operation complete.
+>>
+>>cqd HIST_ROWCOUNT_REQUIRING_STATS '50000';
+
+--- SQL operation complete.
+>>
+>>------------------------------------------------------------
+>>-- Testing query plan invalidation in the compiler, but
+>>-- not the executor. Perform DML/DDL operations on a
+>>-- table and try re-executing the old plan as well as
+>>-- getting a query cache hit and updating the changed
+>>-- Hive and HDFS metadata
+>>------------------------------------------------------------
+>>prepare s1 from 
++>  select c_preferred_cust_flag,
++>         count(*) 
++>  from customer_temp
++>  group by 1 
++>  order by 1
++>  ;
+
+--- SQL command prepared.
+>>execute s1;
+
+--- 0 row(s) selected.
+>>-- expect 0 rows
+>>
+>>prepare s1part from 
++>  select c_preferred_cust_flag,
++>         count(*) 
++>  from customer_p 
++>  group by 1 
++>  order by 1
++>  ;
+
+--- SQL command prepared.
+>>execute s1part;
+
+--- 0 row(s) selected.
+>>-- expect 0 rows
+>>
+>>insert into hive.hive.hivenonp
++>values -- partition 1,one
++>       (1,1,1,'one', timestamp '2001-01-01 01:23:45.678901', date '2001-01-01'),
++>       (11,11,1,'one', timestamp '2001-01-01 01:23:45.678901', date '2001-01-01'),
++>       -- partition 2,two
++>       (2,2,2,'two', timestamp '2002-02-02 02:34:56.789012', date '2020-02-29'),
++>       (22,22,2,'two', timestamp '2002-02-02 00:00:00.000000', date '2020-02-29'),
++>       (222,222,2,'two', timestamp '2002-02-02 02:34:56.789012', date '2020-02-29'),
++>       -- partition 3,three
++>       (3,3,3,'three', timestamp '2003-03-03 03:45:57.890123', date '2003-03-31'),
++>       -- partition 3 or partition 3,four
++>       (34,34,3,'four', timestamp '2004-04-04 04:56:18', date '2004-04-04'),
++>       -- partition -5,five
++>       (-55,-55,-5,'five', timestamp '2004-04-04 04:56:18', date '2005-05-05');
+
+--- 8 row(s) inserted.
+>>select * from hive.hive.hivenonp;
+
+ID           COL2         P1           P2                                P1T                            P1D
+-----------  -----------  -----------  --------------------------------  -----------------------------  ----------
+
+          1            1            1  one                               2001-01-01 01:23:45.678901000  2001-01-01
+         11           11            1  one                               2001-01-01 01:23:45.678901000  2001-01-01
+          2            2            2  two                               2002-02-02 02:34:56.789012000  2020-02-29
+         22           22            2  two                               2002-02-02 00:00:00.000000000  2020-02-29
+        222          222            2  two                               2002-02-02 02:34:56.789012000  2020-02-29
+          3            3            3  three                             2003-03-03 03:45:57.890123000  2003-03-31
+         34           34            3  four                              2004-04-04 04:56:18.000000000  2004-04-04
+        -55          -55           -5  five                              2004-04-04 04:56:18.000000000  2005-05-05
+
+--- 8 row(s) selected.
+>>
+>>set schema trafodion.sch;
+
+--- SQL operation complete.
+>>create external table hivepi for hive.hive.hivepi;
+
+--- SQL operation complete.
+>>set schema hive.hive;
+
+--- SQL operation complete.
+>>
+>>-- turn parallelism off, we need one file per partition,
+>>-- otherwise we get false failures when selecting input__range__number below
+>>cqd attempt_esp_parallelism 'off';
+
+--- SQL operation complete.
+>>insert into hive.hive.hivepis select id, col2, p1, p2 from hive.hive.hivenonp;
+
+--- 8 row(s) inserted.
+>>cqd attempt_esp_parallelism reset;
+
+--- SQL operation complete.
+>>cqd HIVE_PARTITION_INSERT_REPART '4';
+
+--- SQL operation complete.
+>>insert into hive.hive.hivepts select id, col2, p1t, p2 from hive.hive.hivenonp;
+
+--- 8 row(s) inserted.
+>>cqd HIVE_PARTITION_INSERT_REPART reset;
+
+--- SQL operation complete.
+>>cqd attempt_esp_parallelism 'off';
+
+--- SQL operation complete.
+>>insert into hive.hive.hivepi  select id, col2, p1 from hive.hive.hivepis;
+
+--- 8 row(s) inserted.
+>>cqd attempt_esp_parallelism reset;
+
+--- SQL operation complete.
+>>insert overwrite table hive.hive.hivepi  select id, col2, p1 from hive.hive.hivepis;
+
+*** ERROR[4223] INSERT OVERWRITE TABLE into partitioned Hive tables is not supported in this software version or edition.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>-- error, insert overwrite table not allowed for partitioned tables
+>>
+>>prepare display_rows_accessed from
++>select val4_txt, val4
++>from table(statistics(null,null))
++>where tdb_name like '%_SCAN %';
+
+--- SQL command prepared.
+>>
+>>select * from hivepi;
+
+ID           COL2         P1         
+-----------  -----------  -----------
+
+        -55          -55           -5
+          1            1            1
+         11           11            1
+          2            2            2
+         22           22            2
+        222          222            2
+         34           34            3
+          3            3            3
+
+--- 8 row(s) selected.
+>>select count(*) from hivepis;
+
+(EXPR)              
+--------------------
+
+                   8
+
+--- 1 row(s) selected.
+>>select * from hivepts where p2 = 'two';
+
+ID           COL2         P1T                            P2
+-----------  -----------  -----------------------------  --------------------------------
+
+         22           22  2002-02-02 00:00:00.000000000  two                             
+          2            2  2002-02-02 02:34:56.789012000  two                             
+        222          222  2002-02-02 02:34:56.789012000  two                             
+
+--- 3 row(s) selected.
+>>execute display_rows_accessed;
+
+VAL4_TXT          VAL4                
+----------------  --------------------
+
+ActRowsAccessed                      3
+
+--- 1 row(s) selected.
+>>select * from hivepi join hivepis on hivepi.p1 = hivepis.p1;
+
+ID           COL2         P1           ID           COL2         P1           P2
+-----------  -----------  -----------  -----------  -----------  -----------  --------------------------------
+
+        -55          -55           -5          -55          -55           -5  five                            
+          1            1            1            1            1            1  one                             
+         11           11            1            1            1            1  one                             
+          1            1            1           11           11            1  one                             
+         11           11            1           11           11            1  one                             
+          2            2            2            2            2            2  two                             
+        222          222            2            2            2            2  two                             
+         22           22            2            2            2            2  two                             
+          2            2            2           22           22            2  two                             
+        222          222            2           22           22            2  two                             
+         22           22            2           22           22            2  two                             
+          2            2            2          222          222            2  two                             
+        222          222            2          222          222            2  two                             
+         22           22            2          222          222            2  two                             
+         34           34            3           34           34            3  four                            
+          3            3            3           34           34            3  four                            
+         34           34            3            3            3            3  three                           
+          3            3            3            3            3            3  three                           
+
+--- 18 row(s) selected.
+>>
+>>-- min/max optimization, leading to partition elimination
+>>cqd GEN_HSHJ_MIN_MAX_OPT 'on';
+
+--- SQL operation complete.
+>>control query shape hash_join(scan('P'), scan('N'));
+
+--- SQL operation complete.
+>>
+>>prepare s from
++>select p.id, n.id, p.p1, n.p1
++>from hive.hive.hivepi p join hive.hive.hivenonp n
++>  on p.p1 = n.p1
++>where n.id in (2, 22);
+
+--- SQL command prepared.
+>>
+>>-- validate that the min/max values are actually used
+>>select operator, tname
++>from table(explain(null, 'S'))
++>where description like '%:_sys_MinVal0%'
++>  and description like '%:_sys_MaxVal0%';
+
+OPERATOR                        TNAME
+------------------------------  ------------------------------------------------------------
+
+HIVE_SCAN                       P (HIVE.HIVE.HIVEPI)                                        
+HYBRID_HASH_JOIN                                                                            
+
+--- 2 row(s) selected.
+>>
+>>execute s;
+
+ID           ID           P1           P1         
+-----------  -----------  -----------  -----------
+
+          2            2            2            2
+          2           22            2            2
+         22            2            2            2
+         22           22            2            2
+        222            2            2            2
+        222           22            2            2
+
+--- 6 row(s) selected.
+>>
+>>-- min/max optimization with an ESP exchange between the join and the scan
+>>
+>>-- force a parallel type 2 join with repartitioning on the left side
+>>control query shape esp_exchange(hash_join(esp_exchange(scan('P'), 2), cut, type2), 4);
+
+--- SQL operation complete.
+>>
+>>prepare s from
++>select p.id, n.id, p.p1, n.p1
++>from hive.hive.hivepi p join hive.hive.hivenonp n
++>  on p.p1 = n.p1
++>where n.id in (2, 22);
+
+--- SQL command prepared.
+>>
+>>explain options 'f' s;
+
+LC   RC   OP   OPERATOR              OPT       DESCRIPTION           CARD
+---- ---- ---- --------------------  --------  --------------------  ---------
+
+6    .    7    root                                                  1.00E+003
+5    .    6    esp_exchange                    1:4(hash2)            1.00E+003
+4    2    5    hybrid_hash_join                                      1.00E+003
+3    .    4    esp_exchange                    4(hash2):2(hash2)     1.00E+002
+.    .    3    hive_scan                       HIVEPI                1.00E+002
+1    .    2    esp_exchange                    4(rep-b):2(hash2)     2.00E+001
+.    .    1    hive_scan                       HIVENONP              2.00E+001
+
+--- SQL operation complete.
+>>
+>>-- validate that the min/max values are actually used
+>>select operator, tname
++>from table(explain(null, 'S'))
++>where description like '%:_sys_MinVal0%'
++>  and description like '%:_sys_MaxVal0%';
+
+OPERATOR                        TNAME
+------------------------------  ------------------------------------------------------------
+
+HIVE_SCAN                       P (HIVE.HIVE.HIVEPI)                                        
+HYBRID_HASH_JOIN                                                                            
+
+--- 2 row(s) selected.
+>>-- still should do min/max optimization, since this is a type 2 join
+>>
+>>execute s;
+
+ID           ID           P1           P1         
+-----------  -----------  -----------  -----------
+
+         22            2            2            2
+         22           22            2            2
+        222            2            2            2
+        222           22            2            2
+          2            2            2            2
+          2           22            2            2
+
+--- 6 row(s) selected.
+>>
+>>-- force a parallel type 2 join with repartitioning on the left side
+>>control query shape esp_exchange(hash_join(esp_exchange(scan('P'), 2), cut, type1), 4);
+
+--- SQL operation complete.
+>>
+>>prepare s from
++>select p.id, n.id, p.p1, n.p1
++>from hive.hive.hivepi p join hive.hive.hivenonp n
++>  on p.p1 = n.p1
++>where n.id in (2, 22);
+
+--- SQL command prepared.
+>>
+>>explain options 'f' s;
+
+LC   RC   OP   OPERATOR              OPT       DESCRIPTION           CARD
+---- ---- ---- --------------------  --------  --------------------  ---------
+
+6    .    7    root                                                  1.00E+003
+5    .    6    esp_exchange                    1:4(hash2)            1.00E+003
+4    2    5    hybrid_hash_join                                      1.00E+003
+3    .    4    esp_exchange                    4(hash2):2(hash2)     1.00E+002
+.    .    3    hive_scan                       HIVEPI                1.00E+002
+1    .    2    esp_exchange                    4(hash2):2(hash2)     2.00E+001
+.    .    1    hive_scan                       HIVENONP              2.00E+001
+
+--- SQL operation complete.
+>>
+>>-- validate that the min/max values are actually used
+>>select operator, tname
++>from table(explain(null, 'S'))
++>where description like '%:_sys_MinVal0%'
++>  and description like '%:_sys_MaxVal0%';
+
+OPERATOR                        TNAME
+------------------------------  ------------------------------------------------------------
+
+HIVE_SCAN                       P (HIVE.HIVE.HIVEPI)                                        
+HYBRID_HASH_JOIN                                                                            
+
+--- 2 row(s) selected.
+>>-- should not see min/max optimization, not supported
+>>-- for this kind of type 1 join and repartitioning
+>>
+>>execute s;
+
+ID           ID           P1           P1         
+-----------  -----------  -----------  -----------
+
+          2            2            2            2
+          2           22            2            2
+         22            2            2            2
+         22           22            2            2
+        222            2            2            2
+        222           22            2            2
+
+--- 6 row(s) selected.
+>>
+>>control query shape cut;
+
+--- SQL operation complete.
+>>
+>>-- allow VEG between varchars
+>>cqd comp_bool_158 'on';
+
+--- SQL operation complete.
+>>
+>>control query shape hash_join(scan('P'), scan('N'));
+
+--- SQL operation complete.
+>>
+>>prepare s from
++>select p.id, n.id, p.p1, n.p1, p.p2
++>from hive.hive.hivepis p join hive.hive.hivenonp n
++>  on p.p1 = n.p1 and p.p2 = n.p2
++>where n.id in (2, 22) and p.p2 like '%w%';
+
+--- SQL command prepared.
+>>
+>>-- validate that the min/max values are actually used
+>>select operator, tname
++>from table(explain(null, 'S'))
++>where description like '%:_sys_MinVal0%'
++>  and description like '%:_sys_MaxVal0%'
++>  and description like '%:_sys_MinVal1%'
++>  and description like '%:_sys_MaxVal1%';
+
+OPERATOR                        TNAME
+------------------------------  ------------------------------------------------------------
+
+HIVE_SCAN                       P (HIVE.HIVE.HIVEPIS)                                       
+HYBRID_HASH_JOIN                                                                            
+
+--- 2 row(s) selected.
+>>
+>>execute s;
+
+ID           ID           P1           P1           P2
+-----------  -----------  -----------  -----------  --------------------------------
+
+          2            2            2            2  two                             
+          2           22            2            2  two                             
+         22            2            2            2  two                             
+         22           22            2            2  two                             
+        222            2            2            2  two                             
+        222           22            2            2  two                             
+
+--- 6 row(s) selected.
+>>
+>>control query shape cut;
+
+--- SQL operation complete.
+>>
+>>-- insert some data and add one more partition
+>>sh regrhive.ksh -v -f $REGRTSTDIR/TEST005_b.hive.sql;
+>>
+>>-- customer_ddl table is about 3 MB, make a plan with >= 2 ESPs
+>>cqd HIVE_MIN_BYTES_PER_ESP_PARTITION '1000000';
+
+--- SQL operation complete.
+>>cqd hive_max_string_length_in_bytes '32000';
+
+--- SQL operation complete.
+>>cqd HIVE_PARTITION_INSERT_REPART '4';
+
+--- SQL operation complete.
+>>
+>>prepare partinsert from
++>insert into hive.hive.customer_p
++>select 
++>    c_customer_sk,
++>    c_customer_id,
++>    c_current_cdemo_sk,
++>    c_current_hdemo_sk,
++>    c_current_addr_sk,
++>    c_first_shipto_date_sk,
++>    c_first_sales_date_sk,
++>    c_salutation,
++>    c_first_name,
++>    c_last_name,
++>    c_birth_day,
++>    c_birth_month,
++>    c_birth_year,
++>    c_birth_country,
++>    c_login,
++>    c_email_address,
++>    c_last_review_date,
++>    c_preferred_cust_flag
++>from hive.hive.customer_ddl <<+cardinality 2.5e4 >>
++>where c_customer_sk < 20000
++>      -- blank partition column values not yet supported
++>      and char_length(c_preferred_cust_flag) <> 0;
+
+--- SQL command prepared.
+>>
+>>-- go back to the smaller string length
+>>cqd HIVE_MAX_STRING_LENGTH_IN_BYTES '32' ;
+
+--- SQL operation complete.
+>>cqd HIVE_PARTITION_INSERT_REPART reset;
+
+--- SQL operation complete.
+>>
+>>-- verify that we are indeed seeing a parallel plan
+>>select count(*)
++>from table(explain(null,'PARTINSERT'))
++>where operator = 'ESP_EXCHANGE';
+
+(EXPR)              
+--------------------
+
+                   2
+
+--- 1 row(s) selected.
+>>
+>>execute partinsert;
+
+--- 19314 row(s) inserted.
+>>
+>>insert into customer_temp 
++>select * from customer 
++>where c_customer_sk between 20000 and 39999;
+
+*** WARNING[6008] Statistics for column (C_CUSTOMER_SK) from table HIVE.HIVE.CUSTOMER were not available. As a result, the access path chosen might not be the best possible.
+
+--- 20000 row(s) inserted.
+>>
+>>-- query cache hit, no validation at all
+>>  select c_preferred_cust_flag,
++>         count(*) 
++>  from customer_ddl 
++>  group by 1 
++>  order by 1
++>  ;
+
+C_PREFERRED_CUST_FLAG             (EXPR)              
+--------------------------------  --------------------
+
+                                                   856
+N                                                12265
+Y                                                11878
+
+--- 3 row(s) selected.
+>>
+>>-- vary query to avoid query cache hit
+>>prepare s2 from 
++>  select c_preferred_cust_flag,
++>         count(c_customer_sk) 
++>  from customer_ddl 
++>  group by 1 
++>  order by 1
++>  ;
+
+--- SQL command prepared.
+>>
+>>prepare s2part from
++>  select c_preferred_cust_flag,
++>         count(c_customer_sk) -- avoid query cache
++>  from customer_p 
++>  group by 1 
++>  order by 1
++>  ;
+
+--- SQL command prepared.
+>>execute s1;
+
+*** WARNING[8597] Statement was automatically retried 1 time(s). Delay before each retry was 0 seconds. See next entry for the error that caused this retry. 
+
+*** WARNING[8436] Mismatch detected between compiletime and runtime hive table definitions. DataModMismatchDetails: compiledModTS = 1554913644000, failedModTS = 1554913783262, failedLoc = hdfs://localhost:31000/user/trafodion/hive/exttables/customer_temp
+
+C_PREFERRED_CUST_FLAG             (EXPR)              
+--------------------------------  --------------------
+
+                                                   699
+N                                                 9842
+Y                                                 9459
+
+--- 3 row(s) selected.
+>>
+>>execute s2;
+
+C_PREFERRED_CUST_FLAG             (EXPR)              
+--------------------------------  --------------------
+
+                                                   856
+N                                                12265
+Y                                                11878
+
+--- 3 row(s) selected.
+>>-- should get an NATable cache
+>>-- hit, we should notice the change in the table
+>>-- and return the correct result
+>>
+>>execute s1part;
+
+*** WARNING[8597] Statement was automatically retried 1 time(s). Delay before each retry was 0 seconds. See next entry for the error that caused this retry. 
+
+*** WARNING[8436] Mismatch detected between compiletime and runtime hive table definitions. DataModMismatchDetails: compiledModTS = 1554913646000, failedModTS = 1554913781531, failedLoc = hdfs://localhost:31000/user/hive/warehouse/customer_p
+
+C_PREFERRED_CUST_FLAG             (EXPR)              
+--------------------------------  --------------------
+
+N                                                 9789
+Y                                                 9525
+
+--- 2 row(s) selected.
+>>
+>>execute s2part;
+
+C_PREFERRED_CUST_FLAG             (EXPR)              
+--------------------------------  --------------------
+
+N                                                 9789
+Y                                                 9525
+
+--- 2 row(s) selected.
+>>-- although this should get an NATable cache
+>>-- hit, we should notice the change in the table
+>>-- and return the correct result
+>>
+>>select * from newtable;
+
+--- 0 row(s) selected.
+>>-- no rows, but should know the new table
+>>insert into newtable values ('abc');
+
+--- 1 row(s) inserted.
+>>select * from newtable;
+
+*** WARNING[8597] Statement was automatically retried 1 time(s). Delay before each retry was 0 seconds. See next entry for the error that caused this retry. 
+
+*** WARNING[8436] Mismatch detected between compiletime and runtime hive table definitions. DataModMismatchDetails: compiledModTS = 1554913759122, failedModTS = 1554913787582, failedLoc = hdfs://localhost:31000/user/hive/warehouse/newtable
+
+A                               
+--------------------------------
+
+abc                             
+
+--- 1 row(s) selected.
+>>-- expect to see the row, but only because query cache is off
+>>
+>>insert into hiveregr5.newtable2 values ('xyz');
+
+--- 1 row(s) inserted.
+>>select * from hiveregr5.newtable2;
+
+A                               
+--------------------------------
+
+xyz                             
+
+--- 1 row(s) selected.
+>>
+>>-- recreate newtable and drop hive schema hiveregr5
+>>sh regrhive.ksh -v -f $REGRTSTDIR/TEST005_c.hive.sql;
+>>
+>>-- add duplicate rows to customer_p
+>>insert into customer_p
++>select 
++>    c_customer_sk,
++>    c_customer_id,
++>    c_current_cdemo_sk,
++>    c_current_hdemo_sk,
++>    c_current_addr_sk,
++>    c_first_shipto_date_sk,
++>    c_first_sales_date_sk,
++>    c_salutation,
++>    c_first_name,
++>    c_last_name,
++>    c_birth_day,
++>    c_birth_month,
++>    c_birth_year,
++>    c_birth_country,
++>    c_login,
++>    c_email_address,
++>    c_last_review_date,
++>    c_preferred_cust_flag
++>from customer_ddl
++>where c_customer_sk between 20000 and 24999
++>      -- blank partition column values not yet supported
++>      and char_length(c_preferred_cust_flag) <> 0;
+
+--- 4829 row(s) inserted.
+>>
+>>-- no query cache hit, but NATable cache hit
+>>prepare s3 from 
++>  select count(*) 
++>  from customer_ddl 
++>  ;
+
+--- SQL command prepared.
+>>
+>>-- no query cache hit, but NATable cache hit
+>>prepare s3part from
++>  select c_preferred_cust_flag,
++>         count(c_customer_id) 
++>  from customer_p 
++>  group by 1 
++>  order by 1
++>  ;
+
+--- SQL command prepared.
+>>execute s1;
+
+C_PREFERRED_CUST_FLAG             (EXPR)              
+--------------------------------  --------------------
+
+                                                   699
+N                                                 9842
+Y                                                 9459
+
+--- 3 row(s) selected.
+>>execute s2;
+
+C_PREFERRED_CUST_FLAG             (EXPR)              
+--------------------------------  --------------------
+
+                                                   856
+N                                                12265
+Y                                                11878
+
+--- 3 row(s) selected.
+>>execute s3;
+
+(EXPR)              
+--------------------
+
+               24999
+
+--- 1 row(s) selected.
+>>execute s1part;
+
+*** WARNING[8597] Statement was automatically retried 1 time(s). Delay before each retry was 0 seconds. See next entry for the error that caused this retry. 
+
+*** WARNING[8436] Mismatch detected between compiletime and runtime hive table definitions. DataModMismatchDetails: compiledModTS = 1554913781531, failedModTS = 1554913802202, failedLoc = hdfs://localhost:31000/user/hive/warehouse/customer_p
+
+C_PREFERRED_CUST_FLAG             (EXPR)              
+--------------------------------  --------------------
+
+N                                                12265
+Y                                                11878
+
+--- 2 row(s) selected.
+>>execute s2part;
+
+*** WARNING[8597] Statement was automatically retried 1 time(s). Delay before each retry was 0 seconds. See next entry for the error that caused this retry. 
+
+*** WARNING[8436] Mismatch detected between compiletime and runtime hive table definitions. DataModMismatchDetails: compiledModTS = 1554913781531, failedModTS = 1554913802202, failedLoc = hdfs://localhost:31000/user/hive/warehouse/customer_p
+
+C_PREFERRED_CUST_FLAG             (EXPR)              
+--------------------------------  --------------------
+
+N                                                12265
+Y                                                11878
+
+--- 2 row(s) selected.
+>>execute s3part;
+
+C_PREFERRED_CUST_FLAG             (EXPR)              
+--------------------------------  --------------------
+
+N                                                12265
+Y                                                11878
+
+--- 2 row(s) selected.
+>>
+>>select a,b from newtable;
+
+--- 0 row(s) selected.
+>>-- should return 0 rows
+>>
+>>insert into newtable values (1, 'def');
+
+--- 1 row(s) inserted.
+>>select a,b from newtable;
+
+*** WARNING[8597] Statement was automatically retried 1 time(s). Delay before each retry was 0 seconds. See next entry for the error that caused this retry. 
+
+*** WARNING[8436] Mismatch detected between compiletime and runtime hive table definitions. DataModMismatchDetails: compiledModTS = 1554913800846, failedModTS = 1554913806545, failedLoc = hdfs://localhost:31000/user/hive/warehouse/newtable
+
+A            B                               
+-----------  --------------------------------
+
+          1  def                             
+
+--- 1 row(s) selected.
+>>
+>>-- overwrite customer_p and tbl_utf8p with auto-generated partitions
+>>sh regrhive.ksh -v -f $REGRTSTDIR/TEST005_d.hive.sql;
+>>
+>>prepare s4 from 
++>  select c_preferred_cust_flag,
++>         count(*) 
++>  from customer_ddl 
++>  group by 1 
++>  order by 1
++>  ;
+
+--- SQL command prepared.
+>>prepare s4part from
++>  select c_preferred_cust_flag,
++>         count(*) 
++>  from customer_p 
++>  group by 1 
++>  order by 1
++>  ;
+
+--- SQL command prepared.
+>>execute s2;
+
+C_PREFERRED_CUST_FLAG             (EXPR)              
+--------------------------------  --------------------
+
+                                                   856
+N                                                12265
+Y                                                11878
+
+--- 3 row(s) selected.
+>>execute s4;
+
+C_PREFERRED_CUST_FLAG             (EXPR)              
+--------------------------------  --------------------
+
+                                                   856
+N                                                12265
+Y                                                11878
+
+--- 3 row(s) selected.
+>>execute s2part;
+
+*** WARNING[8597] Statement was automatically retried 1 time(s). Delay before each retry was 0 seconds. See next entry for the error that caused this retry. 
+
+*** WARNING[8436] Mismatch detected between compiletime and runtime hive table definitions. DataModMismatchDetails: compiledModTS = 1554913802202, failedModTS = 1554913821363, failedLoc = hdfs://localhost:31000/user/hive/warehouse/customer_p
+
+C_PREFERRED_CUST_FLAG             (EXPR)              
+--------------------------------  --------------------
+
+N                                                 9789
+Y                                                 9525
+
+--- 2 row(s) selected.
+>>-- error 8442 since the files we are trying to open no longer exist
+>>execute s4part;
+
+C_PREFERRED_CUST_FLAG             (EXPR)              
+--------------------------------  --------------------
+
+N                                                 9789
+Y                                                 9525
+
+--- 2 row(s) selected.
+>>select count(*) from tbl_utf8;
+
+(EXPR)              
+--------------------
+
+                  75
+
+--- 1 row(s) selected.
+>>select * from tbl_utf8 where id between 8 and 12;
+
+ID           CHAPTER                           ENGLISH                           TRANSLATOR
+-----------  --------------------------------  --------------------------------  --------------------------------
+
+          8  Shin fukatoku 心不可得        The Mind Cannot Be Got            (Bielefeldt)                    
+          9  Kobutsushin 古佛心             The Old Buddha Mind               (Bielefeldt)                    
+         10  Daigo 大悟                      Great Awakening                   (Bielefeldt)                    
+         11  Zazen gi 坐禪儀                Principles of Zazen               (Bielefeldt)                    
+         12  Zazen shin 坐禪箴              Lancet of Zazen                   (Bielefeldt)                    
+
+--- 5 row(s) selected.
+>>select * from tbl_utf8 where chapter like '%三%';
+
+ID           CHAPTER                           ENGLISH                           TRANSLATOR
+-----------  --------------------------------  --------------------------------  --------------------------------
+
+         13  Kaiin zanmai 海印三昧         The Ocean Seal Samadhi            (Bielefeldt & Radich)           
+         41  Sangai yuishin 三界唯心       The Three Realms Are Only Mind    (Weinstein)                     
+         60  Sanjûshichihon bodai bunpō 三                                    (Weinstein)                     
+         66  Zanmai ō zanmai 三昧王三昧  The King of Samadhis Samadhi      (Bielefeldt)                    
+         69  Jishō zanmai 自證三昧        The Samadhi of Self Verification  (Bielefeldt)                    
+
+--- 5 row(s) selected.
+>>select * from tbl_utf8 where chapter like '%海印_昧%';
+
+ID           CHAPTER                           ENGLISH                           TRANSLATOR
+-----------  --------------------------------  --------------------------------  --------------------------------
+
+         13  Kaiin zanmai 海印三昧         The Ocean Seal Samadhi            (Bielefeldt & Radich)           
+
+--- 1 row(s) selected.
+>>
+>>insert into tbl_utf8_temp 
++>select * from tbl_utf8;
+
+--- 75 row(s) inserted.
+>>
+>>select count(*) from tbl_utf8_temp;
+
+(EXPR)              
+--------------------
+
+                  75
+
+--- 1 row(s) selected.
+>>select * from tbl_utf8_temp where id between 8 and 12;
+
+ID           CHAPTER                           ENGLISH                           TRANSLATOR
+-----------  --------------------------------  --------------------------------  --------------------------------
+
+          8  Shin fukatoku 心不可得        The Mind Cannot Be Got            (Bielefeldt)                    
+          9  Kobutsushin 古佛心             The Old Buddha Mind               (Bielefeldt)                    
+         10  Daigo 大悟                      Great Awakening                   (Bielefeldt)                    
+         11  Zazen gi 坐禪儀                Principles of Zazen               (Bielefeldt)                    
+         12  Zazen shin 坐禪箴              Lancet of Zazen                   (Bielefeldt)                    
+
+--- 5 row(s) selected.
+>>select * from tbl_utf8_temp where chapter like '%海印_昧%';
+
+ID           CHAPTER                           ENGLISH                           TRANSLATOR
+-----------  --------------------------------  --------------------------------  --------------------------------
+
+         13  Kaiin zanmai 海印三昧         The Ocean Seal Samadhi            (Bielefeldt & Radich)           
+
+--- 1 row(s) selected.
+>>
+>>select count(*) from tbl_utf8p;
+
+(EXPR)              
+--------------------
+
+                  75
+
+--- 1 row(s) selected.
+>>select * from tbl_utf8p where id between 8 and 12;
+
+ID           CHAPTER                           ENGLISH                           TRANSLATOR
+-----------  --------------------------------  --------------------------------  --------------------------------
+
+          8  Shin fukatoku 心不可得        The Mind Cannot Be Got            (Bielefeldt)                    
+          9  Kobutsushin 古佛心             The Old Buddha Mind               (Bielefeldt)                    
+         10  Daigo 大悟                      Great Awakening                   (Bielefeldt)                    
+         11  Zazen gi 坐禪儀                Principles of Zazen               (Bielefeldt)                    
+         12  Zazen shin 坐禪箴              Lancet of Zazen                   (Bielefeldt)                    
+
+--- 5 row(s) selected.
+>>select * from tbl_utf8p where chapter like '%海印_昧%';
+
+ID           CHAPTER                           ENGLISH                           TRANSLATOR
+-----------  --------------------------------  --------------------------------  --------------------------------
+
+         13  Kaiin zanmai 海印三昧         The Ocean Seal Samadhi            (Bielefeldt & Radich)           
+
+--- 1 row(s) selected.
+>>
+>>invoke tbl_type;
+
+-- Definition of hive table HIVE.HIVE.TBL_TYPE
+-- Definition current  Wed Apr 10 16:30:29 2019
+
+  (
+    TINT                             TINYINT
+  , SM                               SMALLINT
+  , I                                INT
+  , BIG                              LARGEINT
+  , STR                              VARCHAR(32 BYTES) CHARACTER SET UTF8
+      COLLATE DEFAULT
+  , F                                REAL
+  , D                                FLOAT(54)
+  , T                                TIMESTAMP(9)
+  , DT                               DATE
+  , VC                               VARCHAR(10 CHARS) CHARACTER SET UTF8
+      COLLATE DEFAULT
+  , D10                              NUMERIC(10, 0)
+  , D18                              NUMERIC(8, 2)
+  , D181                             NUMERIC(10, 0)
+  , D30                              NUMERIC(30, 0)
+  )
+  /* stored as textfile */
+
+--- SQL operation complete.
+>>showddl tbl_type;
+
+/* Hive DDL */
+CREATE EXTERNAL TABLE HIVE.HIVE.TBL_TYPE
+  (
+    TINT                             tinyint
+  , SM                               smallint
+  , I                                int
+  , BIG                              bigint
+  , STR                              string
+  , F                                float
+  , D                                double
+  , T                                timestamp
+  , DT                               date
+  , VC                               varchar(10)
+  , D10                              decimal(10,0)
+  , D18                              decimal(8,2)
+  , D181                             decimal(10,0)
+  , D30                              decimal(30,0)
+  )
+  stored as textfile
+;
+
+/* Trafodion DDL */
+
+REGISTER /*INTERNAL*/ HIVE TABLE HIVE.HIVE.TBL_TYPE;
+/* ObjectUID = 6242178624724294123 */
+
+--- SQL operation complete.
+>>select * from tbl_type;
+
+TINT  SM      I            BIG                   STR                               F                D                          T                              DT          VC                                        D10                   D18           D181                  D30
+----  ------  -----------  --------------------  --------------------------------  ---------------  -------------------------  -----------------------------  ----------  ----------------------------------------  --------------------  ------------  --------------------  -------------------------------
+
+ 101     202          203                   204  two hundred                        2.0000000E+002   2.00000000000000000E+002  2022-02-02 22:22:22.222222000  2022-02-02  varchar                                             1234567890     123456.11                 12345    11111111111111111111111111111
+
+--- 1 row(s) selected.
+>>insert into tbl_type_temp select * from tbl_type;
+
+--- 1 row(s) inserted.
+>>select * from tbl_type_temp;
+
+TINT  SM      I            BIG                   STR                               F                D                          T                              DT          VC                                        D10                   D18           D181                  D30
+----  ------  -----------  --------------------  --------------------------------  ---------------  -------------------------  -----------------------------  ----------  ----------------------------------------  --------------------  ------------  --------------------  -------------------------------
+
+ 101     202          203                   204  two hundred                        2.0000000E+002   2.00000000000000000E+002  2022-02-02 22:22:22.222222000  2022-02-02  varchar                                             1234567890     123456.11                 12345    11111111111111111111111111111
+
+--- 1 row(s) selected.
+>>
+>>cqd traf_enable_orc_format 'ON';
+
+--- SQL operation complete.
+>>select * from hivenonp;
+
+ID           COL2         P1           P2                                P1T                            P1D
+-----------  -----------  -----------  --------------------------------  -----------------------------  ----------
+
+          1            1            1  one                               2001-01-01 01:23:45.678901000  2001-01-01
+         11           11            1  one                               2001-01-01 01:23:45.678901000  2001-01-01
+          2            2            2  two                               2002-02-02 02:34:56.789012000  2020-02-29
+         22           22            2  two                               2002-02-02 00:00:00.000000000  2020-02-29
+        222          222            2  two                               2002-02-02 02:34:56.789012000  2020-02-29
+          3            3            3  three                             2003-03-03 03:45:57.890123000  2003-03-31
+         34           34            3  four                              2004-04-04 04:56:18.000000000  2004-04-04
+        -55          -55           -5  five                              2004-04-04 04:56:18.000000000  2005-05-05
+
+--- 8 row(s) selected.
+>>select * from hivepi;
+
+ID           COL2         P1         
+-----------  -----------  -----------
+
+        -55          -55           -5
+          1            1            1
+         11           11            1
+          2            2            2
+         22           22            2
+        222          222            2
+         34           34            3
+          3            3            3
+
+--- 8 row(s) selected.
+>>select * from hiveps;
+
+ID           COL2         P2                              
+-----------  -----------  --------------------------------
+
+        -55          -55  five                            
+         34           34  four                            
+          1            1  one                             
+         11           11  one                             
+          3            3  three                           
+          2            2  two                             
+         22           22  two                             
+        222          222  two                             
+
+--- 8 row(s) selected.
+>>select * from hivepis;
+
+ID           COL2         P1           P2                              
+-----------  -----------  -----------  --------------------------------
+
+        -55          -55           -5  five                            
+          1            1            1  one                             
+         11           11            1  one                             
+          2            2            2  two                             
+         22           22            2  two                             
+        222          222            2  two                             
+         34           34            3  four                            
+          3            3            3  three                           
+
+--- 8 row(s) selected.
+>>select * from hivepts;
+
+ID           COL2         P1T                            P2
+-----------  -----------  -----------------------------  --------------------------------
+
+          1            1  2001-01-01 01:23:45.678901000  one                             
+         11           11  2001-01-01 01:23:45.678901000  one                             
+         22           22  2002-02-02 00:00:00.000000000  two                             
+          2            2  2002-02-02 02:34:56.789012000  two                             
+        222          222  2002-02-02 02:34:56.789012000  two                             
+          3            3  2003-03-03 03:45:57.890123000  three                           
+        -55          -55  2004-04-04 04:56:18.000000000  five                            
+         34           34  2004-04-04 04:56:18.000000000  four                            
+
+--- 8 row(s) selected.
+>>select * from hivepio;
+
+ID           COL2         P1         
+-----------  -----------  -----------
+
+        -55          -55           -5
+          1            1            1
+         11           11            1
+          2            2            2
+         22           22            2
+        222          222            2
+          3            3            3
+         34           34            3
+
+--- 8 row(s) selected.
+>>select * from hivepdo;
+
+ID           COL2         P1D       
+-----------  -----------  ----------
+
+          1            1  2001-01-01
+         11           11  2001-01-01
+          3            3  2003-03-31
+         34           34  2004-04-04
+        -55          -55  2005-05-05
+          2            2  2020-02-29
+         22           22  2020-02-29
+        222          222  2020-02-29
+
+--- 8 row(s) selected.
+>>select * from hivepiso;
+
+ID           COL2         P1           P2                              
+-----------  -----------  -----------  --------------------------------
+
+        -55          -55           -5  five                            
+          1            1            1  one                             
+         11           11            1  one                             
+          2            2            2  two                             
+         22           22            2  two                             
+        222          222            2  two                             
+         34           34            3  four                            
+          3            3            3  three                           
+
+--- 8 row(s) selected.
+>>
+>>prepare s from
++>select * 
++>from hive.hive.hivepis
++>where id=2 and p1=2 and p2 = 'two' and p2 > ? and (id<100 or p2='three');
+
+--- SQL command prepared.
+>>--             compile  compile        runtime     not a part elim pred
+>>select count(*)
++>from table(explain(null,'S'))
++>where operator like '%SCAN%'
++>  and description like '%part_elim_compiled%';
+
+(EXPR)              
+--------------------
+
+                   1
+
+--- 1 row(s) selected.
+>>select count(*)
++>from table(explain(null,'S'))
++>where operator like '%SCAN%'
++>  and description like '%part_elim_runtime%';
+
+(EXPR)              
+--------------------
+
+                   1
+
+--- 1 row(s) selected.
+>>select * from hive.hive.hivepts where p1t > timestamp '2002-01-01 00:00:00.000000000' and p2 <> 'four';
+
+ID           COL2         P1T                            P2
+-----------  -----------  -----------------------------  --------------------------------
+
+         22           22  2002-02-02 00:00:00.000000000  two                             
+          2            2  2002-02-02 02:34:56.789012000  two                             
+        222          222  2002-02-02 02:34:56.789012000  two                             
+          3            3  2003-03-03 03:45:57.890123000  three                           
+        -55          -55  2004-04-04 04:56:18.000000000  five                            
+
+--- 5 row(s) selected.
+>>execute display_rows_accessed;
+
+VAL4_TXT          VAL4                
+----------------  --------------------
+
+ActRowsAccessed                      5
+
+--- 1 row(s) selected.
+>>select * from hive.hive.hivepts where p1t < current_timestamp;
+
+ID           COL2         P1T                            P2
+-----------  -----------  -----------------------------  --------------------------------
+
+          1            1  2001-01-01 01:23:45.678901000  one                             
+         11           11  2001-01-01 01:23:45.678901000  one                             
+         22           22  2002-02-02 00:00:00.000000000  two                             
+          2            2  2002-02-02 02:34:56.789012000  two                             
+        222          222  2002-02-02 02:34:56.789012000  two                             
+          3            3  2003-03-03 03:45:57.890123000  three                           
+        -55          -55  2004-04-04 04:56:18.000000000  five                            
+         34           34  2004-04-04 04:56:18.000000000  four                            
+
+--- 8 row(s) selected.
+>>execute display_rows_accessed;
+
+VAL4_TXT          VAL4                
+----------------  --------------------
+
+ActRowsAccessed                      8
+
+--- 1 row(s) selected.
+>>
+>>select *,
++>       block__offset__inside__file,
++>       input__range__number,
++>       row__number__in__range
++>       --, cast(substring(input__file__name,1,100) as char(100)) file_name
++>from hive.hive.hivepis;
+
+ID           COL2         P1           P2                                BLOCK__OFFSET__INSIDE__FILE  INPUT__RANGE__NUMBER  ROW__NUMBER__IN__RANGE
+-----------  -----------  -----------  --------------------------------  ---------------------------  --------------------  ----------------------
+
+        -55          -55           -5  five                                                        8                     0                       0
+          1            1            1  one                                                         4                     1                       0
+         11           11            1  one                                                        10                     1                       1
+          2            2            2  two                                                         4                     2                       0
+         22           22            2  two                                                        10                     2                       1
+        222          222            2  two                                                        18                     2                       2
+         34           34            3  four                                                        6                     3                       0
+          3            3            3  three                                                       4                     4                       0
+
+--- 8 row(s) selected.
+>>select input__range__number, row__number__in__range, block__offset__inside__file
++>from hive.hive.hivenonp;
+
+INPUT__RANGE__NUMBER  ROW__NUMBER__IN__RANGE  BLOCK__OFFSET__INSIDE__FILE
+--------------------  ----------------------  ---------------------------
+
+                   0                       0                           51
+                   0                       1                          104
+                   0                       2                          155
+                   0                       3                          208
+                   0                       4                          263
+                   0                       5                          316
+                   0                       6                          370
+                   0                       7                          427
+
+--- 8 row(s) selected.
+>>select input__range__number, row__number__in__range, block__offset__inside__file
++>from hive.hive.hivepi;
+
+INPUT__RANGE__NUMBER  ROW__NUMBER__IN__RANGE  BLOCK__OFFSET__INSIDE__FILE
+--------------------  ----------------------  ---------------------------
+
+                   0                       0                            8
+                   1                       0                            4
+                   1                       1                           10
+                   2                       0                            4
+                   2                       1                           10
+                   2                       2                           18
+                   3                       0                            6
+                   3                       1                           10
+
+--- 8 row(s) selected.
+>>
+>>prepare s from select * from hive.hive.hivepio;
+
+--- SQL command prepared.
+>>execute s;
+
+ID           COL2         P1         
+-----------  -----------  -----------
+
+        -55          -55           -5
+          1            1            1
+         11           11            1
+          2            2            2
+         22           22            2
+        222          222            2
+          3            3            3
+         34           34            3
+
+--- 8 row(s) selected.
+>>select * from hive.hive.hivepiso;
+
+ID           COL2         P1           P2                              
+-----------  -----------  -----------  --------------------------------
+
+        -55          -55           -5  five                            
+          1            1            1  one                             
+         11           11            1  one                             
+          2            2            2  two                             
+         22           22            2  two                             
+        222          222            2  two                             
+         34           34            3  four                            
+          3            3            3  three                           
+
+--- 8 row(s) selected.
+>>
+>>-- partition elimination on ORC table
+>>select * from hive.hive.hivepio where p1=2;
+
+ID           COL2         P1         
+-----------  -----------  -----------
+
+          2            2            2
+         22           22            2
+        222          222            2
+
+--- 3 row(s) selected.
+>>execute display_rows_accessed;
+
+VAL4_TXT          VAL4                
+----------------  --------------------
+
+ActRowsAccessed                      3
+
+--- 1 row(s) selected.
+>>select * from hive.hive.hivepio where p1 in (1,3);
+
+ID           COL2         P1         
+-----------  -----------  -----------
+
+          1            1            1
+         11           11            1
+          3            3            3
+         34           34            3
+
+--- 4 row(s) selected.
+>>execute display_rows_accessed;
+
+VAL4_TXT          VAL4                
+----------------  --------------------
+
+ActRowsAccessed                      4
+
+--- 1 row(s) selected.
+>>select * from hive.hive.hivepdo where p1d >= date '2002-12-31';
+
+ID           COL2         P1D       
+-----------  -----------  ----------
+
+          3            3  2003-03-31
+         34           34  2004-04-04
+        -55          -55  2005-05-05
+          2            2  2020-02-29
+         22           22  2020-02-29
+        222          222  2020-02-29
+
+--- 6 row(s) selected.
+>>execute display_rows_accessed;
+
+VAL4_TXT          VAL4                
+----------------  --------------------
+
+ActRowsAccessed                      6
+
+--- 1 row(s) selected.
+>>
+>>-- this pred can neither be pushed to ORC nor used as
+>>-- a partition elimination predicate
+>>select * from hive.hive.hivepio where p1=1 or col2<10;
+
+ID           COL2         P1         
+-----------  -----------  -----------
+
+        -55          -55           -5
+          1            1            1
+         11           11            1
+          2            2            2
+          3            3            3
+
+--- 5 row(s) selected.
+>>
+>>-- test partition elimination for predicates that don't
+>>-- rely on any partition column
+>>select * from hive.hive.hivenonp where 1=0;
+
+--- 0 row(s) selected.
+>>select * from hive.hive.hivepi where 2=3;
+
+--- 0 row(s) selected.
+>>select * from hive.hive.hivepiso where 4=5;
+
+--- 0 row(s) selected.
+>>
+>>update statistics for table hive.hive.hivepi on every column;
+
+--- SQL operation complete.
+>>update statistics for table hivepis on every column;
+
+--- SQL operation complete.
+>>update statistics for table hivepiso on every column;
+
+--- SQL operation complete.
+>>
+>>select cast(substring(o.object_name, 1, 20) as
++>            char(20) character set iso88591) object_name,
++>       cast(substring(c.column_name, 1, 20) as
++>            char(20) character set iso88591) col_name
++>  from trafodion."_MD_".objects o
++>  join table(hivemd(columns)) c
++>         on lower(o.catalog_name) = trim(c.catalog_name) and
++>            lower(o.schema_name) = trim(c.schema_name) and
++>            lower(o.object_name) = trim(c.table_name)
++>  join trafodion."_HIVESTATS_".sb_histograms g on g.table_uid = o.object_uid
++>                       and g.column_number = c.column_number
++>  where o.object_type = 'BT'
++>    and o.object_name in ('HIVEPI', 'HIVEPIS', 'HIVEPISO')
++>order by 1,2;
+
+OBJECT_NAME           COL_NAME            
+--------------------  --------------------
+
+HIVEPI                col2                
+HIVEPI                id                  
+HIVEPI                p1                  
+HIVEPIS               col2                
+HIVEPIS               id                  
+HIVEPIS               p1                  
+HIVEPIS               p2                  
+HIVEPISO              col2                
+HIVEPISO              id                  
+HIVEPISO              p1                  
+HIVEPISO              p2                  
+
+--- 11 row(s) selected.
+>>
+>>drop external table hivepi for hive.hive.hivepi;
+
+--- SQL operation complete.
+>>
+>>-- clear statistics, so other test results won't change
+>>update statistics for table hive.hive.hivepi clear;
+
+--- SQL operation complete.
+>>update statistics for table hivepis clear;
+
+--- SQL operation complete.
+>>update statistics for table hivepiso clear;
+
+--- SQL operation complete.
+>>
+>>cqd HIVE_FILE_CHARSET 'GBK';
+
+--- SQL operation complete.
+>>select c1, CONVERTTOHEX(c2) from tbl_gbk;
+
+C1           (EXPR)
+-----------  ----------------------------------------------------------------
+
+          3  EC8B90EC978E                                                    
+          5  EC8B90EC978E                                                    
+          2  EC8B90EC978E                                                    
+          4  EC8B90EC978E                                                    
+          6  EC8B90EC978E                                                    
+          7  EC8B90EC978E                                                    
+          8  EC8B90EC978E                                                    
+          3  ECBB93EB9F8FECAB97EB9B91                                        
+          2  ECBB93EB9F8FECAB97EB9B91                                        
+          6  ECBB93EB9F8FECAB97EB9B91                                        
+         19  ECBB93EB9F8FECAB97EB9B91                                        
+          8  ECBB93EB9F8FECAB97EB9B91                                        
+
+--- 12 row(s) selected.
+>>cqd HIVE_FILE_CHARSET reset;
+
+--- SQL operation complete.
+>>
+>>cqd HIVE_SCAN_SPECIAL_MODE '1';
+
+--- SQL operation complete.
+>>select * from tbl_dos;
+
+C1           C2           C3           C4                              
+-----------  -----------  -----------  --------------------------------
+
+          0        39478         8147  2008-07-17                      
+          1        21944         8327  2005-05-12                      
+          2        32730         9999  2000-11-05                      
+          3        19653         5727  2005-06-24                      
+          4        67794         6012  2008-07-01                      
+          5        93265         5823  2012-06-26                      
+          6        28219          909  2009-04-26                      
+          7        23967         8290  2006-02-21                      
+          8        24265         8663  2006-10-06                      
+          9        70273         3363  2001-03-17                      
+
+--- 10 row(s) selected.
+>>cqd HIVE_SCAN_SPECIAL_MODE '0';
+
+--- SQL operation complete.
+>>drop table if exists trafodion.seabase.tbl_dos_num;
+
+--- SQL operation complete.
+>>create table trafodion.seabase.tbl_dos_num (c1 int, c2 int);
+
+--- SQL operation complete.
+>>load with NO OUTPUT into trafodion.seabase.tbl_dos_num select * from tbl_dos_num;
+
+*** ERROR[8413] The string argument contains characters that cannot be converted. Source data(in hex): 33393437380d
+
+--- 0 row(s) loaded.
+>>cqd HIVE_SCAN_SPECIAL_MODE '1';
+
+--- SQL operation complete.
+>>load with no output into trafodion.seabase.tbl_dos_num select * from tbl_dos_num;
+
+--- 10 row(s) loaded.
+>>select * from trafodion.seabase.tbl_dos_num;
+
+C1           C2         
+-----------  -----------
+
+          0        39478
+          1        21944
+          2        32730
+          3        19653
+          4        67794
+          5        93265
+          6            ?
+          7            ?
+          8            ?
+          9           17
+
+--- 10 row(s) selected.
+>>cqd HIVE_SCAN_SPECIAL_MODE '0';
+
+--- SQL operation complete.
+>>select * from tbl_bad;
+
+*** ERROR[8413] The string argument contains characters that cannot be converted. Source data(in hex): 61
+
+--- 0 row(s) selected.
+>>cqd HIVE_SCAN_SPECIAL_MODE '2';
+
+--- SQL operation complete.
+>>select * from tbl_bad;
+
+C1           C2                    C3                                C4               C5      C6                             C7                         C8
+-----------  --------------------  --------------------------------  ---------------  ------  -----------------------------  -------------------------  ----
+
+          ?                     ?  c                                               ?       ?  ?                                                      ?     ?
+          ?                     ?  c                                               ?       ?  2017-01-01 10:10:10.000000000   1.01000000000000000E+000     1
+          ?                     ?                                                  ?       ?  ?                                                      ?     ?
+          1                     1  averylongstring                   -1.0000000E+000       0  2017-01-01 10:10:10.000000000   1.00010000000000000E+002     1
+          2                     2  good                               1.1000000E+000       2  2017-01-01 10:10:10.000000000   2.00000000000000000E+002   100
+          3                     3  good                               1.0000000E+000       2  2017-01-01 10:10:10.000000000   2.10000000000000000E+002    10
+          ?            4294967295  good                               3.3999999E+038       ?  2017-01-01 10:10:10.000000000   1.69999999999999968E+308    10
+          0            9999999999  bad                                             ?       ?  ?                                                      ?     ?
+
+--- 8 row(s) selected.
+>>cqd HIVE_SCAN_SPECIAL_MODE '0';
+
+--- SQL operation complete.
+>>drop table if exists trafodion.seabase.traf_tbl_bad;
+
+--- SQL operation complete.
+>>create table trafodion.seabase.traf_tbl_bad (
++>c1 int,
++>c2 largeint,
++>c3 varchar(25),
++>c4 real,
++>c5 smallint,
++>c6 timestamp(6),
++>c7 float(54),
++>c8 smallint
++>);
+
+--- SQL operation complete.
+>>load with no output into trafodion.seabase.traf_tbl_bad select * from tbl_bad;
+
+*** ERROR[8413] The string argument contains characters that cannot be converted. Source data(in hex): 61
+
+--- 0 row(s) loaded.
+>>select count(*) from trafodion.seabase.traf_tbl_bad;
+
+(EXPR)              
+--------------------
+
+                   0
+
+--- 1 row(s) selected.
+>>load with continue on error into trafodion.seabase.traf_tbl_bad select * from tbl_bad;
+Task:  LOAD            Status: Started    Object: TRAFODION.SEABASE.TRAF_TBL_BAD
+Task:  CLEANUP         Status: Started    Time: 2019-04-10 16:31:33.730508
+Task:  CLEANUP         Status: Ended      Time: 2019-04-10 16:31:33.743198
+Task:  CLEANUP         Status: Ended      Elapsed Time:    00:00:00.013
+Task:  LOADING DATA    Status: Started    Time: 2019-04-10 16:31:33.743247
+       Rows Processed: 8 
+       Error Rows:     5 
+Task:  LOADING DATA    Status: Ended      Time: 2019-04-10 16:31:35.864206
+Task:  LOADING DATA    Status: Ended      Elapsed Time:    00:00:02.121
+Task:  COMPLETION      Status: Started    Time: 2019-04-10 16:31:35.864249
+       Rows Loaded:    3 
+Task:  COMPLETION      Status: Ended      Time: 2019-04-10 16:31:36.733922
+Task:  COMPLETION      Status: Ended      Elapsed Time:    00:00:00.870
+
+--- 3 row(s) loaded.
+>>select count(*) from trafodion.seabase.traf_tbl_bad;
+
+(EXPR)              
+--------------------
+
+                   3
+
+--- 1 row(s) selected.
+>>delete from trafodion.seabase.traf_tbl_bad ;
+
+--- 3 row(s) deleted.
+>>load with log error rows into trafodion.seabase.traf_tbl_bad select * from tbl_bad;
+Task:  LOAD            Status: Started    Object: TRAFODION.SEABASE.TRAF_TBL_BAD
+Task:  CLEANUP         Status: Started    Time: 2019-04-10 16:31:37.673242
+Task:  CLEANUP         Status: Ended      Time: 2019-04-10 16:31:37.686334
+Task:  CLEANUP         Status: Ended      Elapsed Time:    00:00:00.013
+       Logging Location: /user/trafodion/bulkload/logs/ERR_TRAFODION.SEABASE.TRAF_TBL_BAD_20190410_163137
+Task:  LOADING DATA    Status: Started    Time: 2019-04-10 16:31:37.686408
+       Rows Processed: 8 
+       Error Rows:     5 
+Task:  LOADING DATA    Status: Ended      Time: 2019-04-10 16:31:39.810563
+Task:  LOADING DATA    Status: Ended      Elapsed Time:    00:00:02.124
+Task:  COMPLETION      Status: Started    Time: 2019-04-10 16:31:39.810620
+       Rows Loaded:    3 
+Task:  COMPLETION      Status: Ended      Time: 2019-04-10 16:31:40.705085
+Task:  COMPLETION      Status: Ended      Elapsed Time:    00:00:00.894
+
+--- 3 row(s) loaded.
+>>select count(*) from trafodion.seabase.traf_tbl_bad;
+
+(EXPR)              
+--------------------
+
+                   3
+
+--- 1 row(s) selected.
+>>load with log error rows to '/user/trafodion/bulkload/logs/TEST005' into trafodion.seabase.traf_tbl_bad select * from tbl_bad;
+Task:  LOAD            Status: Started    Object: TRAFODION.SEABASE.TRAF_TBL_BAD
+Task:  CLEANUP         Status: Started    Time: 2019-04-10 16:31:41.553246
+Task:  CLEANUP         Status: Ended      Time: 2019-04-10 16:31:41.562545
+Task:  CLEANUP         Status: Ended      Elapsed Time:    00:00:00.009
+       Logging Location: /user/trafodion/bulkload/logs/TEST005/ERR_TRAFODION.SEABASE.TRAF_TBL_BAD_20190410_163141
+Task:  LOADING DATA    Status: Started    Time: 2019-04-10 16:31:41.562586
+       Rows Processed: 8 
+       Error Rows:     5 
+Task:  LOADING DATA    Status: Ended      Time: 2019-04-10 16:31:43.831368
+Task:  LOADING DATA    Status: Ended      Elapsed Time:    00:00:02.269
+Task:  COMPLETION      Status: Started    Time: 2019-04-10 16:31:43.831432
+       Rows Loaded:    3 
+Task:  COMPLETION      Status: Ended      Time: 2019-04-10 16:31:44.664180
+Task:  COMPLETION      Status: Ended      Elapsed Time:    00:00:00.833
+
+--- 3 row(s) loaded.
+>>select count(*) from trafodion.seabase.traf_tbl_bad;
+
+(EXPR)              
+--------------------
+
+                   6
+
+--- 1 row(s) selected.
+>>delete from trafodion.seabase.traf_tbl_bad ;
+
+--- 6 row(s) deleted.
+>>load with stop after 3 error rows into trafodion.seabase.traf_tbl_bad select * from tbl_bad;
+Task:  LOAD            Status: Started    Object: TRAFODION.SEABASE.TRAF_TBL_BAD
+Task:  CLEANUP         Status: Started    Time: 2019-04-10 16:31:45.531343
+Task:  CLEANUP         Status: Ended      Time: 2019-04-10 16:31:45.544099
+Task:  CLEANUP         Status: Ended      Elapsed Time:    00:00:00.013
+Task:  LOADING DATA    Status: Started    Time: 2019-04-10 16:31:45.544152
+
+*** ERROR[8113] The maximum number of error rows is exceeded.
+
+--- 0 row(s) loaded.
+>>select count(*) from trafodion.seabase.traf_tbl_bad;
+
+(EXPR)              
+--------------------
+
+                   0
+
+--- 1 row(s) selected.
+>>load with log error rows, stop after 3 error rows into trafodion.seabase.traf_tbl_bad select * from tbl_bad;
+Task:  LOAD            Status: Started    Object: TRAFODION.SEABASE.TRAF_TBL_BAD
+Task:  CLEANUP         Status: Started    Time: 2019-04-10 16:31:48.451842
+Task:  CLEANUP         Status: Ended      Time: 2019-04-10 16:31:48.462463
+Task:  CLEANUP         Status: Ended      Elapsed Time:    00:00:00.011
+       Logging Location: /user/trafodion/bulkload/logs/ERR_TRAFODION.SEABASE.TRAF_TBL_BAD_20190410_163148
+Task:  LOADING DATA    Status: Started    Time: 2019-04-10 16:31:48.462522
+
+*** ERROR[8113] The maximum number of error rows is exceeded.
+
+--- 0 row(s) loaded.
+>>select count(*) from trafodion.seabase.traf_tbl_bad;
+
+(EXPR)              
+--------------------
+
+                   0
+
+--- 1 row(s) selected.
+>>insert into trafodion.seabase.traf_tbl_bad select * from tbl_bad;
+
+*** ERROR[8413] The string argument contains characters that cannot be converted. Source data(in hex): 61
+
+--- 0 row(s) inserted.
+>>upsert into trafodion.seabase.traf_tbl_bad select * from tbl_bad;
+
+*** ERROR[8413] The string argument contains characters that cannot be converted. Source data(in hex): 61
+
+--- 0 row(s) inserted.
+>>cqd HIVE_SCAN_SPECIAL_MODE '2';
+
+--- SQL operation complete.
+>>load with no output into trafodion.seabase.traf_tbl_bad select * from tbl_bad;
+
+--- 8 row(s) loaded.
+>>insert into trafodion.seabase.traf_tbl_bad select * from tbl_bad;
+
+--- 8 row(s) inserted.
+>>upsert into trafodion.seabase.traf_tbl_bad select * from tbl_bad;
+
+--- 8 row(s) inserted.
+>>cqd HIVE_SCAN_SPECIAL_MODE '0';
+
+--- SQL operation complete.
+>>drop table if exists trafodion.seabase.traf_tbl_bad;
+
+--- SQL operation complete.
+>>create table trafodion.seabase.traf_tbl_bad (
++>c1 int not null,
++>c2 largeint not null,
++>c3 varchar(25),
++>c4 real,
++>c5 smallint,
++>c6 timestamp(6) not null,
++>c7 float(54) not null,
++>c8 smallint
++>);
+
+--- SQL operation complete.
+>>cqd HIVE_SCAN_SPECIAL_MODE '2';
+
+--- SQL operation complete.
+>>insert into trafodion.seabase.traf_tbl_bad select * from tbl_bad;
+
+*** ERROR[8421] NULL cannot be assigned to a NOT NULL column.
+
+--- 0 row(s) inserted.
+>>cqd HIVE_SCAN_SPECIAL_MODE reset;
+
+--- SQL operation complete.
+>>
+>>-- tests for hive timestamp mismatch check
+>>cqd auto_query_retry_warnings 'ON';
+
+--- SQL operation complete.
+>>
+>>drop table if exists hive.hive.thive;
+
+--- SQL operation complete.
+>>create table hive.hive.thive(a int);
+
+--- SQL operation complete.
+>>
+>>select a from hive.hive.thive;
+
+--- 0 row(s) selected.
+>>
+>>--process hive statement 'insert into thive values (1)';
+>>insert into hive.hive.thive values (1);
+
+--- 1 row(s) inserted.
+>>
+>>select a from hive.hive.thive;
+
+*** WARNING[8597] Statement was automatically retried 1 time(s). Delay before each retry was 0 seconds. See next entry for the error that caused this retry. 
+
+*** WARNING[8436] Mismatch detected between compiletime and runtime hive table definitions. DataModMismatchDetails: compiledModTS = 1554913926640, failedModTS = 1554913927410, failedLoc = hdfs://localhost:31000/user/hive/warehouse/thive
+
+A          
+-----------
+
+          1
+
+--- 1 row(s) selected.
+>>insert into hive.hive.thive values (2);
+
+--- 1 row(s) inserted.
+>>select a from hive.hive.thive;
+
+A          
+-----------
+
+          1
+          2
+
+--- 2 row(s) selected.
+>>
+>>drop table hive.hive.thive;
+
+--- SQL operation complete.
+>>create table hive.hive.thive(a int, b int);
+
+--- SQL operation complete.
+>>
+>>--process hive statement 'insert into thive values (1,2)';
+>>insert into hive.hive.thive values (1,2);
+
+--- 1 row(s) inserted.
+>>
+>>select a from hive.hive.thive;
+
+A          
+-----------
+
+          1
+
+--- 1 row(s) selected.
+>>
+>>select * from hive.hive.thive;
+
+A            B          
+-----------  -----------
+
+          1            2
+
+--- 1 row(s) selected.
+>>
+>>-- truncate of regular hive table
+>>truncate table hive.hive.thive;
+
+--- SQL operation complete.
+>>select * from hive.hive.thive;
+
+*** WARNING[8597] Statement was automatically retried 1 time(s). Delay before each retry was 0 seconds. See next entry for the error that caused this retry. 
+
+*** WARNING[8436] Mismatch detected between compiletime and runtime hive table definitions. DataModMismatchDetails: compiledModTS = 1554913931547, failedModTS = 1554913932230, failedLoc = hdfs://localhost:31000/user/hive/warehouse/thive
+
+--- 0 row(s) selected.
+>>insert into hive.hive.thive values (10, 20);
+
+--- 1 row(s) inserted.
+>>select * from hive.hive.thive;
+
+A            B          
+-----------  -----------
+
+         10           20
+
+--- 1 row(s) selected.
+>>truncate table hive.hive.thive;
+
+--- SQL operation complete.
+>>truncate table hive.hive.thive;
+
+--- SQL operation complete.
+>>select * from hive.hive.thive;
+
+*** WARNING[8597] Statement was automatically retried 1 time(s). Delay before each retry was 0 seconds. See next entry for the error that caused this retry. 
+
+*** WARNING[8436] Mismatch detected between compiletime and runtime hive table definitions. DataModMismatchDetails: compiledModTS = 1554913932915, failedModTS = 1554913934464, failedLoc = hdfs://localhost:31000/user/hive/warehouse/thive
+
+--- 0 row(s) selected.
+>>
+>>-- truncate of partitioned hive table
+>>-- When partitioned hive tables are supported, then inserts and selects below
+>>-- can be executed directly from traf instead of through hive shell.
+>>cqd auto_query_retry_warnings 'OFF';
+
+--- SQL operation complete.
+>>drop table if exists hive.hive.t005part;
+
+--- SQL operation complete.
+>>create table hive.hive.t005part(a int) partitioned by (b int, c int);
+
+--- SQL operation complete.
+>>
+>>sh echo "insert into t005part partition (b=10,c=11) values (5);" > TEST005_junk;
+>>sh regrhive.ksh -f TEST005_junk;
+>>sh echo "select * from t005part;" > TEST005_junk;
+>>sh regrhive.ksh -f TEST005_junk | tee -a LOG005;
+t005part.a	t005part.b	t005part.c
+5	10	11
+>>
+>>truncate table hive.hive.t005part;
+
+--- SQL operation complete.
+>>sh echo "select * from t005part;" > TEST005_junk;
+>>sh regrhive.ksh -f TEST005_junk | tee -a LOG005;
+t005part.a	t005part.b	t005part.c
+>>
+>>sh echo "insert into t005part partition (b=10,c=11) values (5);" > TEST005_junk;
+>>sh regrhive.ksh -f TEST005_junk;
+>>truncate table hive.hive.t005part partition (b=10);
+
+--- SQL operation complete.
+>>sh echo "select * from t005part;" > TEST005_junk;
+>>sh regrhive.ksh -f TEST005_junk | tee -a LOG005;
+t005part.a	t005part.b	t005part.c
+>>
+>>sh echo "insert into t005part partition (b=10,c=11) values (5);" > TEST005_junk;
+>>sh regrhive.ksh -f TEST005_junk;
+>>truncate table hive.hive.t005part partition (b=10,c=11);
+
+--- SQL operation complete.
+>>sh echo "select * from t005part;" > TEST005_junk;
+>>sh regrhive.ksh -f TEST005_junk | tee -a LOG005;
+t005part.a	t005part.b	t005part.c
+>>
+>>sh echo "insert into t005part partition (b=10,c=11) values (5);" > TEST005_junk;
+>>sh regrhive.ksh -f TEST005_junk;
+>>sh echo "insert into t005part partition (b=10,c=12) values (6);" > TEST005_junk;
+>>sh regrhive.ksh -f TEST005_junk;
+>>sh echo "select * from t005part;" > TEST005_junk;
+>>sh regrhive.ksh -f TEST005_junk | tee -a LOG005;
+t005part.a	t005part.b	t005part.c
+5	10	11
+6	10	12
+>>
+>>truncate table hive.hive.t005part partition (b=10,c=11);
+
+--- SQL operation complete.
+>>sh echo "select * from t005part;" > TEST005_junk;
+>>sh regrhive.ksh -f TEST005_junk | tee -a LOG005;
+t005part.a	t005part.b	t005part.c
+6	10	12
+>>
+>>truncate table hive.hive.t005part partition (b=10);
+
+--- SQL operation complete.
+>>sh echo "select * from t005part;" > TEST005_junk;
+>>sh regrhive.ksh -f TEST005_junk | tee -a LOG005;
+t005part.a	t005part.b	t005part.c
+>>
+>>-- should return error, partition doesnt exist
+>>truncate hive.hive.t005part partition (b=10,c=13);
+
+*** ERROR[1214] Error encountered when executing HiveQL statement "truncate table `default`.T005PART PARTITION ( B = 10 , C = 13 ) ". Details: org.apache.hive.service.cli.HiveSQLException: Error while compiling statement: FAILED: SemanticException [Error 10006]: Partition not found {b=10, c=13}
+
+--- SQL operation failed with errors.
+>>
+>>truncate table hive.hive.t005part;
+
+--- SQL operation complete.
+>>insert into t005part values (1, 10, 13);
+
+--- 1 row(s) inserted.
+>>select * from t005part;
+
+A            B            C          
+-----------  -----------  -----------
+
+          1           10           13
+
+--- 1 row(s) selected.
+>>
+>>-- should return error, col doesn't exist
+>>truncate hive.hive.t005part partition (z = 10);
+
+*** ERROR[3242] This statement is not supported. Reason: Column 'Z' does not exist in the specified table.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>-- should return error, col not a partitioning column
+>>truncate hive.hive.t005part partition (a = 10);
+
+*** ERROR[3242] This statement is not supported. Reason: Column 'A' is not a partitioning column for the specified table.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>
+>>insert overwrite table t005part drop if exists partition (b=10,c=13) values (2,10,13);
+
+--- 1 row(s) inserted.
+>>select * from t005part;
+
+A            B            C          
+-----------  -----------  -----------
+
+          2           10           13
+
+--- 1 row(s) selected.
+>>
+>>-- inserts into partitioned table with drop partitions and truncation
+>>
+>>-- managed (non-external) tables
+>>process hive ddl 'drop table t005tnpm';
+
+--- SQL operation complete.
+>>process hive ddl 'create table t005tnpm (a int, b int, c int)';
+
+--- SQL operation complete.
+>>
+>>sh regrhadoop.ksh fs -rm -r /user/trafodion/hive/exttables/t005tpm;
+>>process hive ddl 'drop table t005tpm';
+
+--- SQL operation complete.
+>>process hive ddl 'create table t005tpm (a int) partitioned by (b int, c int) location ''/user/trafodion/hive/exttables/t005tpm'' ';
+
+--- SQL operation complete.
+>>process hive ddl 'msck repair table t005tpm';
+
+--- SQL operation complete.
+>>set envvar TNP 't005tnpm';
+
+--- SQL operation complete.
+>>set envvar TP 't005tpm';
+
+--- SQL operation complete.
+>>obey TEST005(iot_tests);
+>>set schema hive.hive;
+
+--- SQL operation complete.
+>>
+>>insert into $$TP$$ values (1,2,3);
+
+--- 1 row(s) inserted.
+>>
+>>cqd traf_reload_natable_cache 'ON';
+
+--- SQL operation complete.
+>>select * from $$TP$$;
+
+A            B            C          
+-----------  -----------  -----------
+
+          1            2            3
+
+--- 1 row(s) selected.
+>>
+>>insert overwrite table $$TP$$ drop if exists partition (b=10,c=20) values (10,20,30);
+
+--- 1 row(s) inserted.
+>>select * from $$TP$$;
+
+A            B            C          
+-----------  -----------  -----------
+
+          1            2            3
+         10           20           30
+
+--- 2 row(s) selected.
+>>cqd traf_reload_natable_cache reset;
+
+--- SQL operation complete.
+>>
+>>insert overwrite table $$TP$$ drop if exists partition (b=10) values (10,21,31);
+
+--- 1 row(s) inserted.
+>>select * from $$TP$$;
+
+A            B            C          
+-----------  -----------  -----------
+
+          1            2            3
+         10           20           30
+         10           21           31
+
+--- 3 row(s) selected.
+>>
+>>insert overwrite table $$TP$$ drop if exists partition (b=21) values (10,22,32);
+
+--- 1 row(s) inserted.
+>>select * from $$TP$$;
+
+A            B            C          
+-----------  -----------  -----------
+
+          1            2            3
+         10           20           30
+         10           22           32
+
+--- 3 row(s) selected.
+>>
+>>insert overwrite table $$TP$$ drop if exists partition (c=32) values (10,22,33);
+
+--- 1 row(s) inserted.
+>>select * from $$TP$$;
+
+A            B            C          
+-----------  -----------  -----------
+
+          1            2            3
+         10           20           30
+         10           22           33
+
+--- 3 row(s) selected.
+>>
+>>insert overwrite table $$TP$$ drop if exists partition (b=22,c=33) values (10,24,34);
+
+--- 1 row(s) inserted.
+>>select * from $$TP$$;
+
+A            B            C          
+-----------  -----------  -----------
+
+          1            2            3
+         10           20           30
+         10           24           34
+
+--- 3 row(s) selected.
+>>
+>>insert into $$TP$$ values (100,240,340);
+
+--- 1 row(s) inserted.
+>>
+>>select * from $$TP$$;
+
+A            B            C          
+-----------  -----------  -----------
+
+          1            2            3
+         10           20           30
+         10           24           34
+        100          240          340
+
+--- 4 row(s) selected.
+>>cqd traf_reload_natable_cache reset;
+
+--- SQL operation complete.
+>>
+>>truncate table $$TP$$;
+
+--- SQL operation complete.
+>>select * from $$TP$$;
+
+--- 0 row(s) selected.
+>>
+>>-- non-partitioned tables
+>>insert into $$TNP$$ values (1,2,3);
+
+--- 1 row(s) inserted.
+>>select * from $$TNP$$;
+
+A            B            C          
+-----------  -----------  -----------
+
+          1            2            3
+
+--- 1 row(s) selected.
+>>insert overwrite table $$TNP$$ values (11,22,33);
+
+--- 1 row(s) inserted.
+>>select * from $$TNP$$;
+
+A            B            C          
+-----------  -----------  -----------
+
+         11           22           33
+
+--- 1 row(s) selected.
+>>truncate table $$TNP$$;
+
+--- SQL operation complete.
+>>select * from $$TNP$$;
+
+--- 0 row(s) selected.
+>>
+>>
+>>-- external tables
+>>process hive ddl 'drop table t005tnpe';
+
+--- SQL operation complete.
+>>process hive ddl 'create external table t005tnpe (a int, b int, c int)';
+
+--- SQL operation complete.
+>>
+>>sh regrhadoop.ksh fs -rm -r /user/trafodion/hive/exttables/t005tpe;
+>>process hive ddl 'drop table t005tpe';
+
+--- SQL operation complete.
+>>process hive ddl 'create external table t005tpe (a int) partitioned by (b int, c int) location ''/user/trafodion/hive/exttables/t005tpe'' ';
+
+--- SQL operation complete.
+>>process hive ddl 'msck repair table t005tpe';
+
+--- SQL operation complete.
+>>set envvar TNP 't005tnpe';
+
+--- SQL operation complete.
+>>set envvar TP 't005tpe';
+
+--- SQL operation complete.
+>>obey TEST005(iot_tests);
+>>set schema hive.hive;
+
+--- SQL operation complete.
+>>
+>>insert into $$TP$$ values (1,2,3);
+
+--- 1 row(s) inserted.
+>>
+>>cqd traf_reload_natable_cache 'ON';
+
+--- SQL operation complete.
+>>select * from $$TP$$;
+
+A            B            C          
+-----------  -----------  -----------
+
+          1            2            3
+
+--- 1 row(s) selected.
+>>
+>>insert overwrite table $$TP$$ drop if exists partition (b=10,c=20) values (10,20,30);
+
+--- 1 row(s) inserted.
+>>select * from $$TP$$;
+
+A            B            C          
+-----------  -----------  -----------
+
+          1            2            3
+         10           20           30
+
+--- 2 row(s) selected.
+>>cqd traf_reload_natable_cache reset;
+
+--- SQL operation complete.
+>>
+>>insert overwrite table $$TP$$ drop if exists partition (b=10) values (10,21,31);
+
+--- 1 row(s) inserted.
+>>select * from $$TP$$;
+
+A            B            C          
+-----------  -----------  -----------
+
+          1            2            3
+         10           20           30
+         10           21           31
+
+--- 3 row(s) selected.
+>>
+>>insert overwrite table $$TP$$ drop if exists partition (b=21) values (10,22,32);
+
+--- 1 row(s) inserted.
+>>select * from $$TP$$;
+
+A            B            C          
+-----------  -----------  -----------
+
+          1            2            3
+         10           20           30
+         10           22           32
+
+--- 3 row(s) selected.
+>>
+>>insert overwrite table $$TP$$ drop if exists partition (c=32) values (10,22,33);
+
+--- 1 row(s) inserted.
+>>select * from $$TP$$;
+
+A            B            C          
+-----------  -----------  -----------
+
+          1            2            3
+         10           20           30
+         10           22           33
+
+--- 3 row(s) selected.
+>>
+>>insert overwrite table $$TP$$ drop if exists partition (b=22,c=33) values (10,24,34);
+
+--- 1 row(s) inserted.
+>>select * from $$TP$$;
+
+A            B            C          
+-----------  -----------  -----------
+
+          1            2            3
+         10           20           30
+         10           24           34
+
+--- 3 row(s) selected.
+>>
+>>insert into $$TP$$ values (100,240,340);
+
+--- 1 row(s) inserted.
+>>
+>>select * from $$TP$$;
+
+A            B            C          
+-----------  -----------  -----------
+
+          1            2            3
+         10           20           30
+         10           24           34
+        100          240          340
+
+--- 4 row(s) selected.
+>>cqd traf_reload_natable_cache reset;
+
+--- SQL operation complete.
+>>
+>>truncate table $$TP$$;
+
+--- SQL operation complete.
+>>select * from $$TP$$;
+
+--- 0 row(s) selected.
+>>
+>>-- non-partitioned tables
+>>insert into $$TNP$$ values (1,2,3);
+
+--- 1 row(s) inserted.
+>>select * from $$TNP$$;
+
+A            B            C          
+-----------  -----------  -----------
+
+          1            2            3
+
+--- 1 row(s) selected.
+>>insert overwrite table $$TNP$$ values (11,22,33);
+
+--- 1 row(s) inserted.
+>>select * from $$TNP$$;
+
+A            B            C          
+-----------  -----------  -----------
+
+         11           22           33
+
+--- 1 row(s) selected.
+>>truncate table $$TNP$$;
+
+--- SQL operation complete.
+>>select * from $$TNP$$;
+
+--- 0 row(s) selected.
+>>
+>>
+>>obey TEST005(iot_error);
+>>-- error cases
+>>-- partition list cannot be specified with 'insert into' syntax
+>>insert into $$TP$$ drop if exists partition (b=22,c=33) values (10,24,34);
+
+*** ERROR[15001] A syntax error occurred at or before: 
+insert into t005tpe drop if exists partition (b=22,c=33) values (10,24,34);
+                          ^ (27 characters from start of SQL statement)
+
+*** ERROR[8822] The statement was not prepared.
+
+>>
+>>-- partition list cannot be specified for non-partitioned tables
+>>insert overwrite table $$TNP$$ drop if exists partition (b=2, c=3) values (1,2,3);
+
+*** ERROR[3242] This statement is not supported. Reason: Cannot specify drop partition list for a non-partitioned table.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>
+>>-- insert overwrite without drop partition list cannot be specified for a partitioned table
+>>insert overwrite table $$TP$$ values (10,25,36);
+
+*** ERROR[4223] INSERT OVERWRITE TABLE into partitioned Hive tables is not supported in this software version or edition.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>
+>>-- specified column in PARTITION clause must exist and be a partitioning column
+>>insert overwrite table $$TP$$ drop if exists partition (b=22,z=33) values (10,24,34);
+
+*** ERROR[3242] This statement is not supported. Reason: Column 'Z' does not exist in the specified table.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>insert overwrite table $$TP$$ drop if exists partition (a=22,c=33) values (10,24,34);
+
+*** ERROR[3242] This statement is not supported. Reason: Column 'A' is not a partitioning column for the specified table.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>
+>>
+>>-- should return error
+>>purgedata hive.hive.thive;
+
+*** ERROR[3242] This statement is not supported. Reason: Purgedata is not allowed for Hive tables. Use 'Truncate Table' command.
+
+--- SQL operation failed with errors.
+>>
+>>-- tests for hive insert error modes
+>>invoke hive.hive.thive_insert_smallint;
+
+-- Definition of hive table HIVE.HIVE.THIVE_INSERT_SMALLINT
+-- Definition current  Wed Apr 10 16:35:20 2019
+
+  (
+    A                                SMALLINT
+  )
+  /* stored as textfile */
+
+--- SQL operation complete.
+>>showddl hive.hive.thive_insert_smallint;
+
+/* Hive DDL */
+CREATE TABLE HIVE.HIVE.THIVE_INSERT_SMALLINT
+  (
+    A                                smallint
+  )
+  stored as textfile
+;
+
+/* Trafodion DDL */
+
+REGISTER /*INTERNAL*/ HIVE TABLE HIVE.HIVE.THIVE_INSERT_SMALLINT;
+/* ObjectUID = 6242178624724295429 */
+
+--- SQL operation complete.
+>>
+>>truncate table hive.hive.thive_insert_smallint;
+
+--- SQL operation complete.
+>>cqd hive_insert_error_mode '0';
+
+--- SQL operation complete.
+>>insert into hive.hive.thive_insert_smallint select * from 
++> (values (10), (11111111), (21), (22222222));
+
+--- 4 row(s) inserted.
+>>select * from hive.hive.thive_insert_smallint;
+
+A     
+------
+
+    10
+
+*** ERROR[8411] A numeric overflow occurred during an arithmetic computation or data conversion. Conversion of Source Type:VARCHAR(REC_BYTE_V_ASCII,8 BYTES,ISO88591) Source Value:11111111 to Target Type:SMALLINT SIGNED(REC_BIN16_SIGNED).
+
+--- 1 row(s) selected.
+>>
+>>truncate table hive.hive.thive_insert_smallint;
+
+--- SQL operation complete.
+>>cqd hive_insert_error_mode '1';
+
+--- SQL operation complete.
+>>insert into hive.hive.thive_insert_smallint select * from
++> (values (10), (11111111), (21), (22222222));
+
+*** ERROR[8411] A numeric overflow occurred during an arithmetic computation or data conversion. Source Type:INTEGER SIGNED(MBIN32S) Source Value:11111111 Target Type:LARGEINT(IBIN64S) Max Target Value:32767. Instruction:RANGE_HIGH_S32S64 Operation:RANGE_HIGH.
+
+--- 0 row(s) inserted.
+>>select * from hive.hive.thive_insert_smallint;
+
+--- 0 row(s) selected.
+>>
+>>truncate table hive.hive.thive_insert_smallint;
+
+--- SQL operation complete.
+>>cqd hive_insert_error_mode '2';
+
+--- SQL operation complete.
+>>insert into hive.hive.thive_insert_smallint select * from 
++> (values (10), (11111111), (21), (22222222));
+
+--- 2 row(s) inserted.
+>>select * from hive.hive.thive_insert_smallint;
+
+A     
+------
+
+    10
+    21
+
+--- 2 row(s) selected.
+>>
+>>truncate table hive.hive.thive_insert_smallint;
+
+--- SQL operation complete.
+>>cqd hive_insert_error_mode '3';
+
+--- SQL operation complete.
+>>insert into hive.hive.thive_insert_smallint select * from
++> (values (10), (11111111), (21), (22222222));
+
+--- 4 row(s) inserted.
+>>select * from hive.hive.thive_insert_smallint;
+
+A     
+------
+
+    10
+     ?
+    21
+     ?
+
+--- 4 row(s) selected.
+>>
+>>cqd hive_max_string_length_in_bytes '2';
+
+--- SQL operation complete.
+>>invoke hive.hive.thive_insert_varchar;
+
+-- Definition of hive table HIVE.HIVE.THIVE_INSERT_VARCHAR
+-- Definition current  Wed Apr 10 16:35:25 2019
+
+  (
+    A                                VARCHAR(1 CHAR) CHARACTER SET UTF8 COLLATE
+      DEFAULT
+  , B                                VARCHAR(2 BYTES) CHARACTER SET UTF8
+      COLLATE DEFAULT
+  )
+  /* stored as textfile */
+
+--- SQL operation complete.
+>>showddl hive.hive.thive_insert_varchar;
+
+/* Hive DDL */
+CREATE TABLE HIVE.HIVE.THIVE_INSERT_VARCHAR
+  (
+    A                                varchar(1)
+  , B                                string
+  )
+  stored as textfile
+;
+
+/* Trafodion DDL */
+
+REGISTER /*INTERNAL*/ HIVE TABLE HIVE.HIVE.THIVE_INSERT_VARCHAR;
+/* ObjectUID = 6242178624724295510 */
+
+--- SQL operation complete.
+>>cqd hive_insert_error_mode '1';
+
+--- SQL operation complete.
+>>truncate table hive.hive.thive_insert_varchar;
+
+--- SQL operation complete.
+>>insert into hive.hive.thive_insert_varchar values ('abcddcba','efghijkl');
+
+--- 1 row(s) inserted.
+>>
+>>cqd hive_max_string_length_in_bytes '20';
+
+--- SQL operation complete.
+>>select * from hive.hive.thive_insert_varchar;
+
+A     B                   
+----  --------------------
+
+abcd  efghijkl            
+
+--- 1 row(s) selected.
+>>
+>>log;

@@ -1,0 +1,179 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+ 
+<configuration>
+
+   <property>
+    <name>hbase.coprocessor.region.classes</name>
+    <display-name>HBase Transactional Coprocessor Classes</display-name>
+    <description>
+      TRX coprocessor classes (comma separated) for HBase tables. 
+    </description>
+    <value>org.apache.hadoop.hbase.coprocessor.transactional.TrxRegionObserver,org.apache.hadoop.hbase.coprocessor.transactional.TrxRegionEndpoint,org.apache.hadoop.hbase.coprocessor.AggregateImplementation</value>
+    <value-attributes>
+      <type>string</type>
+    </value-attributes>
+   </property>
+   <property>
+    <name>hbase.client.scanner.timeout.period</name>
+    <display-name>HBase scanner timeout</display-name>
+    <description>
+      HBase scanner timeout for EsgynDB tables.
+    </description>
+    <value>3600000</value>
+    <value-attributes>
+      <type>int</type>
+      <minimum>0</minimum>
+      <unit>milliseconds</unit>
+    </value-attributes>
+   </property>
+   <property>
+    <name>hbase.client.keyvalue.maxsize</name>
+    <display-name>HBase keyvalue max size</display-name>
+    <description>
+      HBase keyvalue size for EsgynDB tables should be unlimited.
+    </description>
+    <value>0</value>
+    <value-attributes>
+      <type>int</type>
+      <minimum>0</minimum>
+    </value-attributes>
+   </property>
+   <property>
+    <name>parquet.filter.record-level.enabled</name>
+    <display-name>Parquet filter record-level</display-name>
+    <description>
+      Parquet filter should be at record level for EsgynDB tables.
+    </description>
+    <value>true</value>
+    <value-attributes>
+      <type>boolean</type>
+    </value-attributes>
+   </property>
+   <property>
+    <name>parquet.filter.dictionary.enabled</name>
+    <display-name>Parquet filter dictionary</display-name>
+    <description>
+      Parquet filter dictionary should be disabled for EsgynDB tables.
+    </description>
+    <value>false</value>
+    <value-attributes>
+      <type>boolean</type>
+    </value-attributes>
+   </property>
+   <property>
+    <name>parquet.filter.statistics.enabled</name>
+    <display-name>Parquet filter statistics</display-name>
+    <description>
+      Parquet filter statistics should be enabled for EsgynDB tables.
+    </description>
+    <value>true</value>
+    <value-attributes>
+      <type>boolean</type>
+    </value-attributes>
+   </property>
+   <property>
+    <name>org.trafodion.sql.parquet.doublebuffer.enabled</name>
+    <display-name>EsgynDB Parquet Double-Buffer</display-name>
+    <description>
+      Enable double buffering of Parquet reads. When enabled, EsgynDB issues a parquet read in another thread while the
+      previously read parquet buffer gets processed by the EsgynDB engine.
+    </description>
+    <value>false</value>
+    <value-attributes>
+      <type>boolean</type>
+    </value-attributes>
+   </property>
+   <property>
+    <name>org.trafodion.sql.parquet.fastserialize.enabled</name>
+    <display-name>EsgynDB Parquet Fast-Serialize</display-name>
+    <description>
+      Enable faster serialization of parquet records to EsgynDB structures by assuming a flat record schema
+      instead of a complex nested schema that the stock parquet reader supports.
+    </description>
+    <value>true</value>
+    <value-attributes>
+      <type>boolean</type>
+    </value-attributes>
+   </property>
+   <property>
+    <name>org.trafodion.sql.parquet.concatblocks.enabled</name>
+    <display-name>EsgynDB Parquet Concat-Blocks</display-name>
+    <description>
+      When enabled, logically reduce the number of parquet blocks presented to the EsgynDB engine and
+      possibly help with the query execution performance.
+    </description>
+    <value>false</value>
+    <value-attributes>
+      <type>boolean</type>
+    </value-attributes>
+   </property>
+   <property>
+    <name>org.trafodion.sql.parquet.concatblocks.size_mb</name>
+    <display-name>EsgynDB Parquet Concat-Blocks Size</display-name>
+    <description>
+      The size of the parquet block below which to concatenate blocks.
+    </description>
+    <value>8</value>
+    <value-attributes>
+      <type>int</type>
+      <unit>MB</unit>
+      <minimum>0</minimum>
+    </value-attributes>
+   </property>
+   <property>
+    <name>org.trafodion.sql.parquet.concatblocks.max</name>
+    <display-name>EsgynDB Parquet Concat-Blocks Maximum</display-name>
+    <description>
+      The maximum number of parquet blocks to logically concatenate.
+    </description>
+    <value>16</value>
+    <value-attributes>
+      <type>int</type>
+      <minimum>0</minimum>
+    </value-attributes>
+   </property>
+   <property>
+    <name>org.trafodion.sql.littlejetty.port</name>
+    <display-name>EsgynDB SQL Scan Optimization Port</display-name>
+    <description>
+      The port number used for SQL scan optimization.
+    </description>
+    <value>8680</value>
+    <value-attributes>
+      <type>int</type>
+      <minimum>0</minimum>
+    </value-attributes>
+   </property>
+   <property>
+    <name>org.trafodion.sql.littlejetty.cleanupintervalmn</name>
+    <display-name>EsgynDB SQL Scan Optimization Cleanup Interval</display-name>
+    <description>
+      The time interval that SQL scan optimization data is cleaned. Defaults to 1 day.
+    </description>
+    <value>1440</value>
+    <value-attributes>
+      <type>int</type>
+      <minimum>1</minimum>
+      <unit>minutes</unit>
+    </value-attributes>
+   </property>
+   <property>
+    <name>org.apache.parquet.hadoop.parquetfilereader.use_direct_bytebuffer</name>
+    <display-name>EsgynDB Parquet Reader Use DirectByteBuffer</display-name>
+    <description>
+      Whether to use direct bytebuffers when reading parquet files (instead of using memory from Java heap).
+      Default (true) is to use direct bytebuffers.
+    </description>
+    <value>true</value>
+    <value-attributes>
+      <type>boolean</type>
+    </value-attributes>
+   </property>
+  <property>
+      <name>backup.retention.period</name>
+      <value>2</value>
+      <description>The number of days to retain the backups before aging them out</description>
+  </property>
+
+</configuration>

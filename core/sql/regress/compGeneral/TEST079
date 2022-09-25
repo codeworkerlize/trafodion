@@ -1,0 +1,298 @@
+-------------------------------------------------------------------------
+-- Replica tests. This is replication within the same cluster and not xDC.
+-- This test also does not include REGION_REPLICATION HBase option.
+-- Simple test case to set up a table with replicas,
+-- do simple inserts, updates, deletes, merges.
+-------------------------------------------------------------------------
+-- @@@ START COPYRIGHT @@@
+--
+-- Licensed to the Apache Software Foundation (ASF) under one
+-- or more contributor license agreements.  See the NOTICE file
+-- distributed with this work for additional information
+-- regarding copyright ownership.  The ASF licenses this file
+-- to you under the Apache License, Version 2.0 (the
+-- "License"); you may not use this file except in compliance
+-- with the License.  You may obtain a copy of the License at
+--
+--   http://www.apache.org/licenses/LICENSE-2.0
+--
+-- Unless required by applicable law or agreed to in writing,
+-- software distributed under the License is distributed on an
+-- "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+-- KIND, either express or implied.  See the License for the
+-- specific language governing permissions and limitations
+-- under the License.
+--
+-- @@@ END COPYRIGHT @@@
+
+
+obey TEST079(clean_up);
+
+log LOG079 clear;
+obey TEST079(create_range_partition_table);
+obey TEST079(range_partition_table_check_constraint);
+log;
+
+obey TEST079(clean_up);
+exit;
+
+
+?section create_range_partition_table
+
+create schema rangepartition079;
+set schema rangepartition079;
+
+create table rangePart079T1(
+  c1   numeric(10),
+  c2   varchar(30)
+) partition by range(c1)(
+  partition p1 values less than(1000),
+  partition p2 values less than(2000)
+);
+
+showddl rangePart079T1;
+
+create table rangePart079T2(
+  c1   numeric(10),
+  c2   varchar(30)
+) partition by range(c1)(
+  partition p1 values less than(1000),
+  partition p2 values less than(2000),
+  partition p3 values less than(maxvalue)
+);
+
+showddl rangePart079T2;
+
+create table rangePart079T3(
+  c1    numeric(10),
+  c2    varchar(30),
+  c3    timestamp,
+  c4    date
+) partition by range(c3, c4)(
+  partition p1 values less than(timestamp '2020-12-27 00:01:03', date '2020-12-24'),
+  partition p2 values less than(timestamp '2021-12-27 00:01:03', date '2019-12-24'),
+  partition p3 values less than(MAXVALUE, MAXVALUE)
+);
+
+--showddl rangePart079T3;
+
+create table rangePart079T4(
+  c1    numeric(10),
+  c2    varchar(30),
+  c3    timestamp,
+  c4    date
+) partition by range(c3, c4)(
+  partition p1 values less than(to_timestamp('2020-12-27 00:01:03'), to_date('2016-12-07')),
+  partition p2 values less than(to_timestamp('2020-12-28 00:01:03'), to_date('2016-12-07'))
+);
+
+showddl rangePart079T4;
+
+create table rangePart079T5(
+  c1    numeric(10),
+  c2    varchar(30),
+  c3    timestamp,
+  c4    date
+) partition by range(c3, c4)(
+  partition p1 values less than(to_timestamp('2020-12-27 00:01:03'), to_date('2016-12-07', 'yyyy-mm-dd')),
+  partition p2 values less than(to_timestamp('2020-12-28 00:01:03'), to_date('2017-12-07', 'yyyy-mm-dd')),
+  partition p3 values less than(MAXVALUE, to_date('2018-12-07', 'yyyy-mm-dd'))
+);
+
+--showddl rangePart079T5;
+
+create table rangePart079T6(
+  c1    int,
+  c2    int
+) partition by range(c1)(
+  partition p1 values less than(maxvalue)
+);
+
+create table rangePart079T7(
+  c1    int,
+  c2    int,
+  c3    int
+) partition by range(c1, c2, c3)(
+  partition p1 values less than(10, 100, 1),
+  partition p2 values less than(11, 50, 1),
+  partition p3 values less than(11, 51, 1)
+);
+
+create table rangePart079T10(
+  c1    int,
+  c2    int,
+  c3    int
+) partition by range(c1, c2, c3)(
+  partition p1 values less than(10, 100, 1),
+  partition p2 values less than(11, maxvalue, 1),
+  partition p3 values less than(12, 51, 1)
+);
+
+--error case
+create table rangePart079Terr(
+  c1    int,
+  c2    int
+) partition by range(c1)(
+  partition p1 values less than(100),
+  partition p1 values less than(maxvalue)
+);
+
+create table rangePart079Terr(
+  c1    int,
+  c2    int
+) partition by range(c3)(
+  partition p1 values less than(100),
+  partition p2 values less than(maxvalue)
+);
+
+create table rangePart079Terr(
+  c1    int,
+  c2    int
+) partition by range(c1, c1)(
+  partition p1 values less than(100, 100),
+  partition p2 values less than(200, maxvalue)
+);
+
+create table rangePart079Terr(
+  c1    int,
+  c2    int
+) partition by range(c1, c2)(
+  partition p1 values less than(100),
+  partition p2 values less than(maxvalue)
+);
+
+create table rangePart079Terr(
+  c1    int,
+  c2    int
+) partition by range(c1)(
+  partition p1 values less than('a'),
+  partition p2 values less than(maxvalue)
+);
+
+create table rangePart079Terr(
+  c1    int,
+  c2    int,
+  c3    int
+) partition by range(c1, c2, c3)(
+  partition p1 values less than(10, 100, 1),
+  partition p2 values less than(10, 100, 1)
+);
+
+create table rangePart079Terr(
+  c1    int,
+  c2    int,
+  c3    int
+) partition by range(c1, c2, c3)(
+  partition p1 values less than(10, 100, 1),
+  partition p2 values less than(maxvalue, 100, 1),
+  partition p3 values less than(100, 200, 2)
+);
+
+create table rangePart079Terr(
+  c1    int,
+  c2    int,
+  c3    int
+) partition by range(c1, c2, c3)(
+  partition p1 values less than(10, 100, 1),
+  partition p2 values less than(9, 150, 2),
+  partition p3 values less than(100, 200, 3)
+);
+
+create table rangePart079Terr(
+  c1    int,
+  c2    int,
+  c3    int
+) partition by range(c1, c2, c3)(
+  partition p1 values less than(10, 100, 1),
+  partition p2 values less than(10, 99, 1),
+  partition p3 values less than(100, 200, 2)
+);
+
+create table rangePart079Terr(
+  c1    int,
+  c2    int,
+  c3    int
+) partition by range(c1, c2, c3)(
+  partition p1 values less than(10, 100, 1),
+  partition p2 values less than(maxvalue, 99, 1),
+  partition p3 values less than(maxvalue, 200, 2)
+);
+
+?section range_partition_table_check_constraint
+
+create table rangePart079T8(
+  c1 int check(c1 >50),
+  c2 int,
+  c3 int
+) partition by range(c1)(
+  partition p1 values less than (10),
+  partition p2 values less than (20),
+  partition p3 values less than (30)
+);
+
+showddl rangePart079T8;
+showddl part_rangePart079T8_p1_;
+
+alter table rangePart079T1 add constraint rangePart079T1_chk
+check (c1 > 10);
+ 
+showddl rangePart079T1;
+showddl part_rangePart079T1_p1_;
+
+create index idx1 on rangePart079T1(c1) local;
+create index idx2 on rangePart079T1(c1) partition (p1); 
+create unique index idx3 on rangePart079T1(c1) local;
+create unique index idx4 on rangePart079T1(c1) partition (p1); 
+
+ 
+cqd TRAF_ALLOW_DISABLE_ENABLE_INDEXES 'on';
+alter table  rangePart079T1 disable all unique indexes;
+showddl rangePart079T1;
+alter table  rangePart079T1 enable all unique indexes;
+
+alter table  rangePart079T1 disable all indexes; 
+showddl rangePart079T1;
+alter table  rangePart079T1 enable all indexes; 
+
+alter table  rangePart079T1 disable  index idx1; 
+showddl rangePart079T1;
+alter table  rangePart079T1 enable  index idx1; 
+
+alter table  rangePart079T1 disable  index idx2  partition(p1); 
+showddl rangePart079T1;
+alter table  rangePart079T1 enable  index idx2 partition(p1); 
+
+alter table  rangePart079T1 disable all indexes;
+
+populate index idx2 on rangePart079T1 partition(p1);
+populate index idx1 on rangePart079T1;
+populate all unique indexes on rangePart079T1;
+showddl rangePart079T1;
+populate all indexes on rangePart079T1;
+showddl rangePart079T1;
+
+create table rangePart079T9(store_id integer not null,
+                  item_id  integer not null,
+                  sale_date date default date '2000-01-01' not null,
+                  sale_amt numeric(10,2))
+store by (store_id, item_id, sale_date)
+partition by range(store_id)
+(
+  partition p1 values less than (10),
+  partition p2 values less than (20),
+  partition p3 values less than (30)
+)
+division by (date_part('YEARMONTH', sale_date));
+
+
+insert into rangePart079T9 values(1 ,1,date'2020-12-12', 1);
+insert into rangePart079T9 values(10,1,date'2021-12-12', 1);
+insert into rangePart079T9 values(20,1,date'2022-12-12', 1);
+
+select * from rangePart079T9;
+select *,syskey from rangePart079T9;
+select *,syskey, "_DIVISION_1_"  from rangePart079T9;
+
+?section clean_up
+
+drop schema if exists rangepartition079 cascade;

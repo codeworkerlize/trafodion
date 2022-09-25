@@ -1,0 +1,2222 @@
+/**
+* @@@ START COPYRIGHT @@@
+*
+* Licensed to the Apache Software Foundation (ASF) under one
+* or more contributor license agreements.  See the NOTICE file
+* distributed with this work for additional information
+* regarding copyright ownership.  The ASF licenses this file
+* to you under the Apache License, Version 2.0 (the
+* "License"); you may not use this file except in compliance
+* with the License.  You may obtain a copy of the License at
+*
+*   http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing,
+* software distributed under the License is distributed on an
+* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+* KIND, either express or implied.  See the License for the
+* specific language governing permissions and limitations
+* under the License.
+*
+* @@@ END COPYRIGHT @@@
+**/
+
+package org.apache.hadoop.hbase.regionserver.transactional;
+
+import java.io.IOException;
+
+import java.lang.Class;
+
+import java.lang.reflect.InvocationTargetException;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.SortedMap;
+import java.util.TreeMap;
+import java.util.NavigableMap;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.SortedMap; 
+import java.util.TreeMap; 
+import java.util.NavigableMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.ListIterator;
+import java.util.LinkedList;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.NavigableMap;
+import java.util.NavigableSet;
+import java.util.Set;
+//import java.util.UUID;
+import java.util.concurrent.atomic.AtomicLong;
+
+import org.apache.commons.codec.binary.Hex;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.hadoop.hbase.Cell;
+import org.apache.hadoop.hbase.CellUtil;
+import org.apache.hadoop.hbase.HConstants;
+import org.apache.hadoop.hbase.HRegionInfo;
+//import org.apache.hadoop.hbase.KeyValueUtil;
+import org.apache.hadoop.hbase.KeyValue;
+import org.apache.hadoop.hbase.HTableDescriptor;
+import org.apache.hadoop.hbase.client.Delete;
+import org.apache.hadoop.hbase.client.Put;
+import org.apache.hadoop.hbase.client.Scan;
+import org.apache.hadoop.hbase.wal.WAL;
+import org.apache.hadoop.hbase.wal.WALKey;
+import org.apache.hadoop.hbase.KeepDeletedCells;
+import org.apache.hadoop.hbase.regionserver.InternalScanner;
+import org.apache.hadoop.hbase.regionserver.KeyValueScanner;
+import org.apache.hadoop.hbase.regionserver.RegionCoprocessorHost;
+import org.apache.hadoop.hbase.regionserver.ScanQueryMatcher;
+import org.apache.hadoop.hbase.regionserver.ScanType;
+import org.apache.hadoop.hbase.regionserver.ScanInfo;
+#ifdef HDP2.3 APACHE1.1 CDH5.5 CDH5.7 APACHE1.2 CDH5.16
+import org.apache.hadoop.hbase.regionserver.ScannerContext;
+#endif
+import org.apache.hadoop.hbase.HBaseConfiguration;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hbase.regionserver.HRegion;
+import org.apache.hadoop.hbase.regionserver.wal.WALEdit;
+import org.apache.hadoop.hbase.util.Bytes;
+import org.apache.hadoop.hbase.util.VersionInfo;
+import org.apache.hadoop.hbase.util.ByteArrayKey;
+import org.apache.hadoop.hbase.util.TrxEnvironmentEdgeManager;
+import org.apache.hadoop.io.DataInputBuffer;
+#ifdef CDH5.7 APACHE1.2 CDH5.16
+import org.apache.hadoop.hbase.regionserver.MultiVersionConcurrencyControl;
+#endif
+
+import org.apache.hadoop.hbase.client.transactional.ATRConfig;
+
+/**
+ * Holds the state of a transaction. This includes a buffer of all writes, a record of all reads / scans, and
+ * information about which other transactions we need to check against.
+ */
+public class TrxTransactionState extends TransactionState {
+
+    protected static final Log LOG = LogFactory.getLog(TrxTransactionState.class);
+
+    public static final long NULL_SAVEPOINT = -1;
+/*    static final int NULL_SVPT_STATE = -1;
+    static final int ACTIVE_SVPT_STATE = 0;
+    static final int COMMIT_SVPT_STATE = 1;
+    static final int ABORT_SVPT_STATE = 2;
+
+    static final int NULL_SVPT_OP = -1;
+    static final int DML_SVPT_OP = 0;
+    static final int COMMIT_SVPT_OP = 1;
+    static final int ABORT_SVPT_OP = 2;
+*/    
+    public enum SavepointState {
+        NULL_SVPT_STATE,
+        ACTIVE_SVPT_STATE,
+        COMMIT_SVPT_STATE,
+        ABORT_SVPT_STATE
+    }
+    
+    public enum SavepointOp {
+        NULL_SVPT_OP,
+        DML_SVPT_OP,
+        COMMIT_SVPT_OP,
+        ABORT_SVPT_OP
+    }    
+    
+    static final int OK_SVPT_ERROR = 0;
+    static final int LATE_CHECKIN_SVPT_ERROR = -2;
+    static final int COMMIT_INCONSISTENT_SVPT_ERROR = -3; 
+    static final int ABORT_INCONSISTENT_SVPT_ERROR = -4; 
+    static final int INVALID_OP_SVPT_ERROR = -5;
+    static final int DUP_COMMIT_SVPT_ERROR = 1;
+    static final int DUP_ABORT_SVPT_ERROR = 2;
+    static final int COMMIT_NOTFOUND_SVPT_ERROR = 3;
+    static final int ABORT_NOTFOUND_SVPT_ERROR = 4;
+
+    private static final String UPDATE_DELETE_TS = "hbase.update.delete.timestamp";
+    private static final String BATCH_SIZE_TO_USE_WRITEMAP = "hbase.update.batch.number"; 
+    static final boolean DEFAULT_UPDATE_DELETE_TIMESTAMP = true;
+    static final int DEFAULT_BATCH_SIZE_TO_USE_WRITEMAP = 5000; 
+    static boolean updateDeleteTimestamp = true;
+    
+    static java.lang.reflect.Constructor c1_0 = null;
+    static Configuration config = HBaseConfiguration.create();
+
+    static int batchSizeToUseWriteMap = 5000;
+
+    static long SP_FLAG_MASK_SVPT_ID     = 0x00FFFFFFFFFFFFFFL;
+    static long SP_FLAG_MASK_IS_IMPLICIT = 0x0100000000000000L;
+
+    public static long getSavepointId(long savepointIdWithFlag)
+    {
+      if (savepointIdWithFlag > 0)
+        return (savepointIdWithFlag & SP_FLAG_MASK_SVPT_ID);
+      else
+        return savepointIdWithFlag;
+    }
+    public static boolean isImplicitSavepoint(long savepointIdWithFlag)
+    {
+      if (savepointIdWithFlag > 0)
+        return ((savepointIdWithFlag & SP_FLAG_MASK_IS_IMPLICIT) != 0);
+      else
+        return false;
+    }
+
+    static {
+        String version = VersionInfo.getVersion();// the hbase version string, eg. "0.6.3-dev"
+        if (LOG.isInfoEnabled()) {
+            LOG.info("Got info of Class ScanQueryMatcher for HBase version :" + version);
+        }
+         try {
+             c1_0 = ScanQueryMatcher.class.getConstructor(
+                                   new Class [] {
+                                       Scan.class,
+                                       ScanInfo.class,
+                                       java.util.NavigableSet.class,
+                                       ScanType.class,
+                                       long.class,
+                                       long.class,
+                                       long.class,
+                                       long.class,
+                                       RegionCoprocessorHost.class
+                                   });
+             if (c1_0 != null)
+                 if (LOG.isInfoEnabled()) {
+                     LOG.info("Got info of Class ScanQueryMatcher for HBase 1.0");
+                 }
+             
+             }
+             catch (NoSuchMethodException exc_nsm) {
+                 if (LOG.isInfoEnabled()) {
+                     LOG.info("TrxRegionEndpoint coprocessor, No matching ScanQueryMatcher : Threw an exception");
+                 }
+             }
+            updateDeleteTimestamp = config.getBoolean(UPDATE_DELETE_TS, DEFAULT_UPDATE_DELETE_TIMESTAMP);
+            batchSizeToUseWriteMap = config.getInt(BATCH_SIZE_TO_USE_WRITEMAP, DEFAULT_BATCH_SIZE_TO_USE_WRITEMAP); 
+         }
+    /**
+     * Simple container of the range of the scanners we've opened. Used to check for conflicting writes.
+     */
+    public class ScanRange {
+
+        protected byte[] startRow;
+        protected byte[] endRow;
+        protected long savepointNumber = NULL_SAVEPOINT; // SAV
+        protected long pSavepointNumber = NULL_SAVEPOINT; // SAV
+        protected boolean ignoreScanConflict = false; // ignoreScanConflict set to true by specific metadata
+                                                      // scans in SQL where they know the rows should not conflict.
+        protected boolean scMigrate = false; // does this scan range need to be migrated during split/balance
+                                             // only get/scan will explicitly migrate, put/delete through mutation reinstated
+        public ScanRange(final byte[] startRow, final byte[] endRow, long svpt, long psvpt, boolean migrate, boolean ignoreScanConflict) {
+            this.startRow = startRow == HConstants.EMPTY_START_ROW ? null : startRow;
+            this.endRow = endRow == HConstants.EMPTY_END_ROW ? null : endRow;
+            this.savepointNumber = svpt;
+            this.pSavepointNumber = psvpt;
+            this.scMigrate = migrate;
+            this.ignoreScanConflict = ignoreScanConflict;
+        }
+        
+        public byte[] getStartRow() {
+            return startRow;
+        }
+        
+        public byte[] getEndRow() {
+            return endRow;
+        }                
+        
+        public long getSavepoint() {
+            return savepointNumber;
+        }
+        public long getPSavepoint() {
+            return pSavepointNumber;
+        }
+
+        public boolean getScMigrate() {
+            return scMigrate;
+        }	
+
+        public void setIgnoreScanConflict(boolean value) {
+            ignoreScanConflict = value;
+        }
+
+        public boolean getIgnoreScanConflict() {
+            return ignoreScanConflict;
+        }
+
+        /**
+         * Check if this scan range contains the given key.
+         * 
+         * @param rowKey
+         * @return boolean
+         */
+        public boolean contains(final byte[] rowKey) {
+            if (startRow != null && Bytes.compareTo(rowKey, startRow) < 0) {
+                return false;
+            }
+            if (endRow != null && Bytes.compareTo(endRow, rowKey) < 0) {
+                return false;
+            }
+            return true;
+        }
+
+        @Override
+        public String toString() {
+            return "startRow: " + (startRow == null ? "null" : (Bytes.equals(startRow, HConstants.EMPTY_START_ROW) ?
+                   "INFINITE" : Hex.encodeHexString(startRow))) + ", endRow:"
+           + (endRow == null ? "null" : (Bytes.equals(endRow, HConstants.EMPTY_END_ROW) ?
+                   "INFINITE" : Hex.encodeHexString(endRow)));
+        }
+    }
+    
+     /**
+     * Simple container of the savepoint context we've received. Used to check if an request with savepoint is valid.
+     * Later it could be expanded to include all the writeAction/Scanner within this savepoint scope.
+     */
+    public class SavepointContext {
+
+        protected long savepointNumber = NULL_SAVEPOINT; // SAV
+        public SavepointState savepointState = SavepointState.NULL_SVPT_STATE; // TBD rename needed
+
+        public SavepointContext(final long svpt, final SavepointState state) {
+            this.savepointNumber = svpt;
+            this.savepointState = state; // phase 0
+        }
+       
+        public long getSavepointNumber() {
+            return savepointNumber;
+        }
+        
+        public SavepointState getSavepointState() {
+            return savepointState;
+        }
+        
+        public synchronized void setSavepointState(final SavepointState state) {
+            this.savepointState = state;
+        }
+        
+    } // class SavepointContext
+
+    private List<ScanRange> scans = Collections.synchronizedList(new LinkedList<ScanRange>());
+    private List<WriteAction> writeOrdering = Collections.synchronizedList(new LinkedList<WriteAction>());
+    private long waListLen = 0;//length of writeOrdering - cached
+    private Set<TrxTransactionState> transactionsToCheck = Collections.synchronizedSet(new HashSet<TrxTransactionState>());
+    private List<SavepointContext> savepoints = Collections.synchronizedList(new ArrayList<SavepointContext>());
+    private Map<ByteArrayKey, WriteAction> delMap = Collections.synchronizedMap(new HashMap<ByteArrayKey, WriteAction>());
+    private TreeMap<ByteArrayKey, WriteAction> writeMap = new TreeMap<ByteArrayKey, WriteAction>();
+    public List<ByteArrayKey> listOfLockedRowsSelForUpdate = Collections.synchronizedList(new LinkedList<ByteArrayKey>()); 
+    public List<ByteArrayKey> listOfWLockedRows= Collections.synchronizedList(new LinkedList<ByteArrayKey>()); 
+    public Set setOfRangeLock = Collections.synchronizedSet(new HashSet()) ;
+    private Set<ByteArrayKey> checkAndPutSet = Collections.synchronizedSet(new HashSet<ByteArrayKey>());
+
+    public List<ScanRange> insRowsCheckWithForUpdateLock = Collections.synchronizedList(new LinkedList<ScanRange>());
+    private WALEdit e;
+    private WALEdit pe;
+    private boolean dropTableRecorded;
+    private HRegion h_Region = null;
+    public long prepareEditSize = 0;
+    public long endEditSize = 0;
+    public boolean savepointActiviated = false;
+    public boolean updateSameRow = false;
+    public boolean activeCommitOrAbortSavepoint = false;
+    public int checkedInDML = 0;
+    public String queryContext = null;
+    public boolean lockProtected = false;
+    public IOException conflictException;
+    private short totalNum = 1;
+    private int ddlNum = 0;
+    private long currWid= -1;
+    private boolean readFromHdfs = false;
+
+    public TrxTransactionState(final long transactionId, final long rLogStartSequenceId, AtomicLong hlogSeqId,
+            final HRegionInfo regionInfo, HTableDescriptor htd, WAL hLog, 
+#ifdef CDH5.7 APACHE1.2 CDH5.16
+									  boolean logging, HRegion hRegion,
+#else									  
+									  boolean logging,
+#endif									  
+			       final long startId, String m_regionName) {
+
+       super(transactionId,
+             rLogStartSequenceId,
+             hlogSeqId,
+             regionInfo,
+             htd,
+             hLog,
+             logging,
+             startId,
+             false, false, m_regionName);  // not a region transaction
+        this.e = new WALEdit();
+        dropTableRecorded = false;
+#ifdef CDH5.7 APACHE1.2	CDH5.16
+	this.h_Region = hRegion;
+#endif	
+    }
+
+    public TrxTransactionState(final long transactionId, final long rLogStartSequenceId, AtomicLong hlogSeqId,
+            final HRegionInfo regionInfo, HTableDescriptor htd, WAL hLog,
+#ifdef CDH5.7 APACHE1.2 CDH5.16
+									  boolean logging, HRegion hRegion,
+#else									  
+									  boolean logging,
+#endif									  			       
+			       final long startId, boolean regionTx, boolean ibr, String m_regionName) {
+        super(transactionId, rLogStartSequenceId, hlogSeqId, regionInfo, htd, hLog, logging, startId, regionTx, ibr, m_regionName);
+        this.e = new WALEdit();
+        dropTableRecorded = false;
+#ifdef CDH5.7 APACHE1.2 CDH5.16
+	this.h_Region = hRegion;
+#endif	
+    }
+
+    public void setDropTableRecorded(boolean dropTableRecord) {
+        if (LOG.isTraceEnabled()) LOG.trace("setDropTableRecorded:" + dropTableRecord + " Region " + regionInfo.getRegionNameAsString());
+        dropTableRecorded = dropTableRecord;
+    }
+    
+    public void resetDropTableRecorded() {
+        if (LOG.isTraceEnabled()) LOG.trace("resetDropTableRecorded,  Region :" + regionInfo.getRegionNameAsString());
+        dropTableRecorded = false;
+    }
+    
+    public boolean dropTableRecorded() {
+        return dropTableRecorded;
+    }
+
+    public boolean isLockProtected() {
+        return lockProtected;
+    }
+
+    public void setLockProtected(boolean v) {
+        lockProtected = v;
+    }
+
+    public synchronized int savepointCheckout(long svpt, SavepointOp op) {
+        
+        if (LOG.isDebugEnabled()) LOG.debug("Savepoint checkout on tid " + this.transactionId + " svpt " + svpt + " op " + op
+                                                       + " Region " + regionInfo.getRegionNameAsString());         
+
+        //Assume the caller will check if valid savepointId, > 0
+        
+        switch(op) {
+            case DML_SVPT_OP:
+                if (checkedInDML <= 0) {
+                    if (LOG.isWarnEnabled()) {
+                        LOG.warn("Savepoint checkin count inconsistency detected on tid " + this.transactionId + " svpt " + svpt + " op " + op
+                                                       + " Region " + regionInfo.getRegionNameAsString());        
+                    }
+                }
+                else {
+                    checkedInDML--;
+                }
+                break; 
+            case ABORT_SVPT_OP: case COMMIT_SVPT_OP:
+                activeCommitOrAbortSavepoint = false;
+            default:               
+        } // switch op
+        return 0;
+    }
+    
+    public synchronized int savepointCheckin(long svpt, SavepointOp op) {
+        
+        // Assumed svpt > 0 
+        // Checkin + Checkout must be obeyed in the correct order, otherwise, it will lock up data processing
+        
+        if (LOG.isDebugEnabled()) LOG.debug("Start Savepoint checkin on tid " + this.transactionId + " svpt " + svpt + " op " + op
+                                                       + " Region " + regionInfo.getRegionNameAsString());
+        
+        boolean found = false;
+        SavepointState state = SavepointState.NULL_SVPT_STATE;
+        
+        //Assume the caller will check if valid savepointId, > 0               
+        
+        // step 1. if there is an outstanding DML/SCAN with svpt , can't do commit/abort savepoint (no outstanding I/Os)  
+        // step 2. DML/SCAN then bumps checkin count, while will block incoming xa svpt operations
+        // step 3. if there is no active DML/SCAN, set progress = true to block all the future DML/SCAN, and perform XA savepoint
+        // step 4. checkout by reseting progress (xa svpt), or decrement checkin count (DML)
+        // Note. if there is an outstand xa svpt action, can't do 2PC (i.e. shoud block ET or AT in client side, violation of outstanding I/Os)
+        // key. for commit or abort savepoint, client should wait until its completion before next statement or ET      
+        
+        ListIterator<SavepointContext> savepointIter = null;
+        for (savepointIter = savepoints.listIterator(); savepointIter.hasNext();) {
+            SavepointContext svptContext = savepointIter.next();
+            if (LOG.isDebugEnabled()) LOG.debug("SavepointContext : " + svptContext.getSavepointNumber() + " state : " +svptContext.getSavepointState() );
+            if (svptContext.getSavepointNumber() == svpt) {
+                found = true;
+                state = svptContext.getSavepointState();
+                break;
+            }
+        } // iterator 
+
+        // now we will have savepoint not register with inner-savepoint used
+        if (!found) {
+            SavepointContext svptContext = new SavepointContext(svpt, SavepointState.ACTIVE_SVPT_STATE);
+            savepoints.add(svptContext);
+            state = svptContext.getSavepointState();
+            found = true;
+        }
+
+        switch(op) {
+            case DML_SVPT_OP:
+                if (state != SavepointState.ACTIVE_SVPT_STATE) {
+                     if (LOG.isWarnEnabled()) {
+                         LOG.warn("Late Savepoint checkin with DML for tid " + this.transactionId + " svpt " + svpt + " state " + state
+                                        + " Region " + regionInfo.getRegionNameAsString());
+                     }
+                     return LATE_CHECKIN_SVPT_ERROR;
+                     //throw new IOException("Late savepoint checkin with DML for tid " + this.transactionId + " svpt " + svpt + " state " + state
+                     //                   + " Region " + regionInfo.getRegionNameAsString());
+                }
+                checkedInDML++;
+                break;
+            case COMMIT_SVPT_OP:
+                if ((state == SavepointState.ABORT_SVPT_STATE)) {
+                     LOG.error("Commit Savepoint on already aborted savepointContext for tid " + this.transactionId + " svpt " + svpt + " state " + state
+                                        + " Region " + regionInfo.getRegionNameAsString());
+                     return COMMIT_INCONSISTENT_SVPT_ERROR;                                           
+                     //throw new IOException("Commit savepoint on already aborted savepointContext for tid " + this.transactionId + " svpt " + svpt + " state " + state
+                     //                   + " Region " + regionInfo.getRegionNameAsString());                                                                             
+                }
+                else if ((state == SavepointState.COMMIT_SVPT_STATE) || (!found)) {
+                      if (LOG.isDebugEnabled()) LOG.debug("Multiple Commit Savepoint requests received for tid " + this.transactionId + " svpt " + svpt + " state " + state
+                                        + " Region " + regionInfo.getRegionNameAsString());
+                      // TBD should we just return directly w/o doing replicate work, even with multiple ESPs, for Region, just 1 commit
+                      //  or abort svpt is good enough for all the mutations made by all the ESPs
+                      if (!found) return COMMIT_NOTFOUND_SVPT_ERROR;
+                      return DUP_COMMIT_SVPT_ERROR;
+                }
+                activeCommitOrAbortSavepoint = true;
+                break;
+            case ABORT_SVPT_OP:
+                if ((state == SavepointState.COMMIT_SVPT_STATE)) {
+                     LOG.error("Abort Savepoint on already committed savepointContext for tid " + this.transactionId + " svpt " + svpt + " state " + state
+                                        + " Region " + regionInfo.getRegionNameAsString());
+                     return ABORT_INCONSISTENT_SVPT_ERROR;                                           
+                     //throw new IOException("Abort savepoint on already committed savepointContext for tid " + this.transactionId + " svpt " + svpt + " state " + state
+                     //                   + " Region " + regionInfo.getRegionNameAsString());                                    
+                }
+                else if ((state == SavepointState.ABORT_SVPT_STATE) || (!found)) {
+                      if (LOG.isDebugEnabled()) LOG.debug("Multiple Abort Savepoint requests received for tid " + this.transactionId + " svpt " + svpt + " state " + state
+                                        + " Region " + regionInfo.getRegionNameAsString());   
+                      // TBD should we just return directly w/o doing replicate work, even with multiple ESPs, for Region, just 1 commit
+                      //  or abort svpt is good enough for all the mutations made by all the ESPs
+                      if (!found) return ABORT_NOTFOUND_SVPT_ERROR;
+                      return DUP_ABORT_SVPT_ERROR;
+                }
+                activeCommitOrAbortSavepoint = true; 
+                break;
+            default:
+                if (LOG.isWarnEnabled()) {
+                    LOG.warn("Invalid Savepoint operation received for tid " + this.transactionId + " svpt " + svpt + " state " + state
+                                        + " Region " + regionInfo.getRegionNameAsString());
+                }
+                return INVALID_OP_SVPT_ERROR;
+                //throw new IOException("Invalid savepoint operation received for tid " + this.transactionId + " svpt " + svpt + " state " + state
+                //                        + " Region " + regionInfo.getRegionNameAsString());                                        
+        }
+
+        if (LOG.isDebugEnabled()) LOG.debug("Complete Savepoint checkin on tid " + this.transactionId + " svpt " + svpt + " op " + op
+                                                       + " Region " + regionInfo.getRegionNameAsString());
+        return OK_SVPT_ERROR;
+    }
+    public synchronized void addSelForUpdLock(final ByteArrayKey rowkey)
+    {
+      if(listOfLockedRowsSelForUpdate.contains(rowkey) == false)
+      {
+        listOfLockedRowsSelForUpdate.add(rowkey);
+       }
+    }
+    public synchronized void addTmpWLock(final ByteArrayKey rowkey)
+    {
+      if(listOfWLockedRows.contains(rowkey) == false)
+      {
+        listOfWLockedRows.add(rowkey);
+       }
+    }
+    public synchronized void addRangeLock(final Object o)
+    {
+      setOfRangeLock.add(o);
+    }
+    public synchronized void addInsRowsForUpdate(final byte[] rowkey)
+    {
+      ScanRange s = new ScanRange(rowkey, rowkey, NULL_SAVEPOINT, NULL_SAVEPOINT, false, false) ;
+      insRowsCheckWithForUpdateLock.add(s);
+    }
+
+    public synchronized void addRead(final byte[] rowKey) {
+        scans.add(new ScanRange(rowKey, rowKey, NULL_SAVEPOINT, NULL_SAVEPOINT, /* migrate */ false, /* ignoreScanConflict */ false));
+    }
+    
+    public synchronized void addRead(final byte[] rowKey, long svpt, long psvpt) {
+        scans.add(new ScanRange(rowKey, rowKey, svpt, psvpt, /* migrate */ false, /* ignoreScanConflict */ false));
+    }
+
+    public synchronized void addRead(final byte[] rowKey, long svpt, long psvpt, boolean skipConfCheck) {
+        scans.add(new ScanRange(rowKey, rowKey, svpt, psvpt, /* migrate */ false, skipConfCheck));
+    }
+    
+    public synchronized void addWrite(final Put put, final boolean useStartId, final boolean ignore_lateCheckin, boolean doConflictCheck) throws IOException {	
+        addWrite(put, useStartId, ignore_lateCheckin, NULL_SAVEPOINT, NULL_SAVEPOINT, doConflictCheck);
+    }
+
+    public synchronized void addWrite(final Put put, final boolean useStartId, final boolean ignore_lateCheckin, long svpt, long psvpt) throws IOException   {	
+        addWrite(put, useStartId, ignore_lateCheckin, svpt, psvpt, false);
+    }
+
+    public synchronized void addWrite(final Put put, final boolean useStartId, final boolean ignore_lateCheckin ) throws IOException {	
+        addWrite(put, useStartId, ignore_lateCheckin, NULL_SAVEPOINT, NULL_SAVEPOINT, false);
+    }
+
+    public synchronized void addWrite(Put put, final boolean useStartId, final boolean ignore_lateCheckin, long svpt, long psvpt, boolean doConflictCheck) throws IOException {
+       if (!this.getStatus().equals(Status.PENDING)) { // Active
+           if (this.getStatus().equals(Status.SHIELDED)) {
+              if (LOG.isTraceEnabled()) LOG.trace("addWrite,  Region :" + m_regionDetails + " is shielded " + this );
+           }
+           else {
+              if (ignore_lateCheckin) {
+                 if (LOG.isTraceEnabled()) LOG.trace("addWrite ignoring late checkin for transaction " + this + " Region :" + m_regionDetails);
+              }
+              else {
+                 LOG.error("addWrite late checkin for transaction " + this + " ignore late Checkin " + ignore_lateCheckin +
+                                        " in table " + this.regionInfo.getTable().getNameAsString());
+                 try {
+                    throw new IOException("Region addWrite late checkin error, on trans id " + transactionId +
+                                        " in region " + m_regionDetails);  
+                 }
+                 catch (Throwable t) {
+                    LOG.error("addWrite late checkin stack ", t);
+                 }
+              }
+           }
+        }
+
+#ifdef CDH5.7 APACHE1.2	 CDH5.16
+        MultiVersionConcurrencyControl.WriteEntry writeEntry = null;
+        long mvccNum = 0;
+#endif
+
+        String skey = (Bytes.equals(this.regionInfo.getStartKey(), HConstants.EMPTY_START_ROW)) ? "skey=null" : ("skey=" + Hex.encodeHexString(regionInfo.getStartKey()));
+        String ekey = (Bytes.equals(this.regionInfo.getEndKey(), HConstants.EMPTY_END_ROW)) ? "ekey=null" : ("ekey=" + Hex.encodeHexString(regionInfo.getEndKey()));
+        String m_regionDetails = new String(regionInfo.getRegionNameAsString() + "," + skey + "," + ekey);
+
+        if (LOG.isDebugEnabled()) LOG.debug("HAX - WWW -- addWrite, addWrite put key: "
+                          + Hex.encodeHexString(put.getRow()) 
+                          + " trans id: " + this.transactionId
+						  + " svpt id: " + svpt
+                          + " region info: " + m_regionDetails  );      
+
+        if (LOG.isTraceEnabled()) LOG.trace("addWrite -- ENTRY: useStartId: " + useStartId + " put: " + put.toString());
+        WriteAction waction;
+        KeyValue kv;
+        WALEdit e1 = new WALEdit();
+        // If useStartId is true we use the startId as the timestamp,
+        // otherwise we use the current timestamp
+        long now;
+        if (useStartId == true) {
+           now = getStartId();
+           unconditionalUpdateLatestTimestamp(put.getFamilyCellMap().values(), now);
+        }
+        else {
+           now = TrxEnvironmentEdgeManager.currentTime();
+           updateLatestTimestamp(put.getFamilyCellMap().values(), now);
+        }
+
+        put.setAttribute("OPID",Bytes.toBytes(svpt));
+
+        WriteAction pendingDel = null;
+        pendingDel = delMap.get(new ByteArrayKey(put.getRow()));
+        if (pendingDel != null){
+           setUpdatedSameRow(true);
+
+           // We want to try to separate the delete and put by at least 1 millisecond so they
+           // appear as separate operations.  We force the delete to get a real timestamp in
+           // addDelete, but the new put has HConstants.LATEST_TIMESTAMP, which wont get a real
+           // timestamp until we do the HBase put.  So we compare the value of now to the delete timestamp
+           if (! useStartId && ((now - pendingDel.getDelete().getTimeStamp()) < 1)){
+              int retryCnt = 0;
+              do {
+                 try {
+                    retryCnt++;
+                    Thread.sleep(1);
+                    break;
+                 } catch (InterruptedException ie) {
+                    if (LOG.isInfoEnabled()) LOG.info("addWrite -- caught InterrupteException " + this.transactionId + " in region " + m_regionDetails);
+                 }
+              } while (retryCnt < 5);
+
+              if (LOG.isInfoEnabled()) LOG.info("addWrite -- stalling put to avoid conflicting delete for transaction "
+                  + this.transactionId + " after " + retryCnt + " sleep attempts in region " + m_regionDetails);
+
+              // Update now
+              now = TrxEnvironmentEdgeManager.currentTime();
+           }
+           else{
+              if (LOG.isDebugEnabled()) LOG.debug("addWrite -- updated same key, but no need to stall put"
+                  + "; difference between now and delete is "
+                  + (now - pendingDel.getDelete().getTimeStamp()));
+           }
+
+           Put newPut = new Put(put.getRow(), now);
+           NavigableMap<byte[], List<Cell>> familyCellMap = put.getFamilyCellMap();
+           for (Entry<byte[], List<Cell>> entry : familyCellMap.entrySet()) {
+              for (Iterator<Cell> iterator = entry.getValue().iterator(); iterator.hasNext();) {
+                 Cell cell = iterator.next();
+                 byte[] family = CellUtil.cloneFamily(cell);
+                 byte[] qualifier = CellUtil.cloneQualifier(cell);
+                 byte[] value = CellUtil.cloneValue(cell);
+                 newPut.addColumn(family,qualifier,now,value);
+                 newPut.setAttribute("OPID",Bytes.toBytes(svpt));
+                 put = newPut;
+              }
+           }
+
+           if (LOG.isDebugEnabled()) LOG.debug("addWrite -- now is " + now + " put time " + put.getTimeStamp()
+                 + " delete time " + pendingDel.getDelete().getTimeStamp()
+                 + "; difference between put and delete is "
+                 + (put.getTimeStamp() - pendingDel.getDelete().getTimeStamp()));
+        }
+
+        // Adding read scan on a write action
+        if(doConflictCheck == false)  //do conflict check for this row
+         addRead(new WriteAction(put, svpt, psvpt).getRow(), svpt, psvpt);
+        ListIterator<WriteAction> writeOrderIter = writeOrdering.listIterator(writeOrdering.size());
+        writeOrderIter.add(waction = new WriteAction(put, svpt, psvpt));
+        addToWriteMap(new ByteArrayKey(put.getRow()), waction); 
+
+        if (this.earlyLogging) { // immediately write edit out to HLOG during DML (active transaction state)
+           for (Cell value : waction.getCells()) {
+             //KeyValue kv = KeyValueUtil.ensureKeyValue(value);
+             kv = KeyValue.cloneAndAddTags(value, tagList);
+             if (LOG.isTraceEnabled()) LOG.trace("addWrite kv hex dump " + Hex.encodeHexString(kv.getValueArray() /*kv.getBuffer()*/));
+             e1.add(kv);
+             e.add(kv);
+            }
+           try {
+           //long txid = this.tHLog.appendNoSync(this.regionInfo, this.regionInfo.getTable(),
+           //         e1, new ArrayList<UUID>(), TrxEnvironmentEdgeManager.currentTimeMillis(), this.tabledescriptor,
+           //         this.logSeqId, false, HConstants.NO_NONCE, HConstants.NO_NONCE);
+
+#ifdef CDH5.7 APACHE1.2 CDH5.16
+		WALKey wk = new WALKey(this.regionInfo.getEncodedNameAsBytes(), 
+					     this.regionInfo.getTable(), 
+					     WALKey.NO_SEQUENCE_ID,
+					     TrxEnvironmentEdgeManager.currentTime(),
+					     WALKey.EMPTY_UUIDS,
+					     HConstants.NO_NONCE,
+					     HConstants.NO_NONCE,
+					     this.h_Region.getMVCC());		
+		long txid = this.tHLog.append(this.tabledescriptor,this.regionInfo, wk, e1, false);
+		
+		writeEntry = wk.getWriteEntry();
+		mvccNum = writeEntry.getWriteNumber();
+		
+		if (writeEntry != null) {
+		    this.h_Region.getMVCC().completeAndWait(writeEntry);
+		    writeEntry = null;
+		}
+
+#else
+           	final WALKey wk = new WALKey(this.regionInfo.getEncodedNameAsBytes(), this.regionInfo.getTable(), now);
+		long txid = this.tHLog.append(this.tabledescriptor,this.regionInfo, wk , e1,	this.logSeqId, false, null);
+#endif
+           //if (LOG.isTraceEnabled()) LOG.trace("Trafodion Recovery: Y11 write edit to HLOG during put with txid " + txid + " ts flush id " + this.flushTxId);
+           if (txid > this.flushTxId) this.flushTxId = txid; // save the log txid into TS object, later sync on largestSeqid during phase 1
+           }
+           catch (IOException exp1) {
+           if (LOG.isInfoEnabled()) {
+               LOG.info("TrxRegionEndpoint coprocessor addWrite writing to HLOG for early logging: Threw an exception");
+           }
+           //throw exp1;
+           }
+#ifdef CDH5.7 APACHE1.2 CDH5.16
+	    finally {
+	       if (writeEntry != null) {
+                   this.h_Region.getMVCC().completeAndWait(writeEntry);
+                   writeEntry = null;
+	       }	  
+	    } // finally
+#endif           
+        }
+        else { // edits are buffered in ts and written out to HLOG in phase 1
+	    if (svpt > 0) { // valid savepoint is acitviated, defer the edit construction 
+                if (LOG.isDebugEnabled()) LOG.debug("Savepoint Info-1: savepoint detected in addWrite, defer edit, tid " + transactionId + " svpt " + svpt
+                + " Region " + regionInfo.getRegionNameAsString());
+		savepointActiviated = true;
+	    }
+	    else {
+               for (Cell value : waction.getCells()) {
+                    kv = KeyValue.cloneAndAddTags(value, tagList);
+                    if (LOG.isTraceEnabled()) LOG.trace("addWrite addWrite put key "
+                          + Hex.encodeHexString(put.getRow()) + " kv hex dump "
+                          + " key: " + Hex.encodeHexString(kv.getKey())
+                          + " timestamp: " + kv.getTimestamp() + " value: "
+                          + Hex.encodeHexString(kv.getValueArray() /*kv.getBuffer()*/));
+                    e.add(kv);
+                }
+	    }
+        }
+        if (LOG.isTraceEnabled())
+            LOG.trace("addWrite -- EXIT");
+    }
+
+    public synchronized void addDelete2(final Delete delete) {
+
+        if (LOG.isTraceEnabled()) LOG.trace("addDelete2 -- ENTRY: delete: " + delete.toString());
+        WriteAction waction;
+        KeyValue kv;
+        WALEdit e1 = new WALEdit();
+
+        // use the current timestamp
+        long now;
+        now = TrxEnvironmentEdgeManager.currentTime();
+        updateLatestTimestamp(delete.getFamilyCellMap().values(), now);
+        delete.setAttribute("OPID",Bytes.toBytes(0l));
+
+        ListIterator<WriteAction> writeOrderIter = writeOrdering.listIterator(writeOrdering.size());
+        writeOrderIter.add(waction = new WriteAction(delete, NULL_SAVEPOINT, NULL_SAVEPOINT));
+        addToWriteMap(new ByteArrayKey(delete.getRow()), waction); 
+
+        for (Cell value : waction.getCells()) {
+                    kv = KeyValue.cloneAndAddTags(value, tagList);
+                    if (LOG.isTraceEnabled()) LOG.trace("addDelete2  kv hex dump "
+                          + " key: " + Hex.encodeHexString(kv.getKey())
+                          + " timestamp: " + kv.getTimestamp() + " value: "
+                          + Hex.encodeHexString(kv.getValueArray() /*kv.getBuffer()*/));
+                    e.add(kv);
+        }
+        
+        if (LOG.isTraceEnabled())
+            LOG.trace("addDelete2 -- EXIT");
+    }
+
+   public synchronized void addWrite2(final Put put) {
+
+        if (LOG.isTraceEnabled()) LOG.trace("addWrite2 -- ENTRY: put: " + put.toString());
+        WriteAction waction;
+        KeyValue kv;
+        WALEdit e1 = new WALEdit();
+
+        // use the current timestamp
+        long now;
+        now = TrxEnvironmentEdgeManager.currentTime();
+        updateLatestTimestamp(put.getFamilyCellMap().values(), now);
+        put.setAttribute("OPID",Bytes.toBytes(0l));
+
+        ListIterator<WriteAction> writeOrderIter = writeOrdering.listIterator(writeOrdering.size());
+        writeOrderIter.add(waction = new WriteAction(put, NULL_SAVEPOINT, NULL_SAVEPOINT));
+        addToWriteMap(new ByteArrayKey(put.getRow()), waction); 
+
+        for (Cell value : waction.getCells()) {
+                    kv = KeyValue.cloneAndAddTags(value, tagList);
+                    if (LOG.isTraceEnabled()) LOG.trace("addWrite2  kv hex dump "
+                          + " key: " + Hex.encodeHexString(kv.getKey())
+                          + " timestamp: " + kv.getTimestamp() + " value: "
+                          + Hex.encodeHexString(kv.getValueArray() /*kv.getBuffer()*/));
+                    e.add(kv);
+        }
+        
+        if (LOG.isTraceEnabled())
+            LOG.trace("addWrite2 -- EXIT");
+    }
+
+    public short getTotalNum() {
+      return totalNum;
+    }
+
+    public void setTotalNum(short i) { totalNum = i; }
+
+    public int getDdlNum() {
+      return ddlNum;
+    }
+
+    public void setDdlNum(int i) { ddlNum = i; }
+
+    public void setWid(long w) { currWid = w; }
+
+    public long getWid() { return currWid; }
+
+    public boolean hasWrite() {
+        return writeOrdering.size() > 0;
+    }
+
+    public int writeSize() {
+        return writeOrdering.size();
+    }
+
+    public int deleteSize() {
+       return delMap.size();
+    }
+
+    public boolean isSavepointActiviated() {
+        return savepointActiviated;
+    }
+
+    public boolean isReadFromHdfs() {
+        return readFromHdfs;
+    }
+
+    public void setReadFromHdfs(boolean newVal) {
+        readFromHdfs = newVal;
+    }
+
+    public boolean getUpdatedSameRow() {
+        return updateSameRow;
+    }
+
+    public void setUpdatedSameRow(boolean value) {
+        updateSameRow = value;
+    }
+
+    public String getQueryContext() {
+        return queryContext;
+    }
+
+    public void setQueryContext(String value) {
+        queryContext = value;
+    }
+    
+    public synchronized void addDelete(final Delete delete, final boolean useStartId, final boolean ignore_lateCheckin) throws IOException {
+        addDelete(delete, useStartId, ignore_lateCheckin, NULL_SAVEPOINT, NULL_SAVEPOINT);
+    }
+
+    public synchronized void addDelete(final Delete delete, final boolean useStartId, final boolean ignore_lateCheckin, long svpt, long psvpt) throws IOException {
+       if (!this.getStatus().equals(Status.PENDING)) { // Active
+          if (this.getStatus().equals(Status.SHIELDED)) {
+             if (LOG.isTraceEnabled()) LOG.trace("addDelete,  Region :" + m_regionDetails + " is shielded " + this );
+          }
+          else {
+             if (ignore_lateCheckin) {
+                if (LOG.isTraceEnabled()) LOG.trace("addDelete ignoring late checkin for transaction " + this + " Region :" + m_regionDetails);
+             }
+             else {
+                LOG.error("addDelete late checkin for transaction " + this + " ignore late Checkin " + ignore_lateCheckin +
+                                        " in table " + this.regionInfo.getTable().getNameAsString());
+                try {
+                   throw new IOException("Region addDelete late checkin error, on trans id " + transactionId +
+                                        " in region " + m_regionDetails);
+                }
+                catch (Throwable t) {
+                   LOG.error("addDelete late checkin stack ", t);
+                }
+             }
+          }
+       }
+#ifdef CDH5.7 APACHE1.2	CDH5.16
+        MultiVersionConcurrencyControl.WriteEntry writeEntry = null;
+        long mvccNum = 0;
+#endif
+      
+        String skey = (Bytes.equals(this.regionInfo.getStartKey(), HConstants.EMPTY_START_ROW)) ? "skey=null" : ("skey=" + Hex.encodeHexString(regionInfo.getStartKey()));
+        String ekey = (Bytes.equals(this.regionInfo.getEndKey(), HConstants.EMPTY_END_ROW)) ? "ekey=null" : ("ekey=" + Hex.encodeHexString(regionInfo.getEndKey()));
+        String m_regionDetails = new String(regionInfo.getRegionNameAsString() + "," + skey + "," + ekey);
+            
+        if (LOG.isDebugEnabled()) LOG.debug("HAX DDD -- addDelete, addDelete delete key: "
+                          + Hex.encodeHexString(delete.getRow()) 
+                          + " trans id: " + this.transactionId
+                          + " region info: " + m_regionDetails  ); 
+        
+        if (LOG.isTraceEnabled()) LOG.trace("addDelete -- ENTRY: useStartId: " + useStartId + " delete: " + delete.toString());
+
+        WriteAction waction;
+        KeyValue kv;
+        WALEdit e1  = new WALEdit();
+        // If useStartId is true we use the startId as the timestamp,
+        // otherwise we use the current timestamp
+        long now;
+        if (useStartId == true) {
+           now = getStartId();
+           unconditionalUpdateLatestTimestamp(delete.getFamilyCellMap().values(), now);
+           if (LOG.isInfoEnabled()) {
+               LOG.info("TrxRegionEndpoint coprocessor addDelete using startId for now " + now);
+           }
+        }
+        else {
+           now = TrxEnvironmentEdgeManager.currentTime();
+           updateLatestTimestamp(delete.getFamilyCellMap().values(), now);
+           if (LOG.isTraceEnabled()) 
+              LOG.trace("TrxRegionEndpoint coprocessor addDelete updated cell map to now " + now);
+           if (updateDeleteTimestamp || delete.getTimeStamp() == HConstants.LATEST_TIMESTAMP){
+              delete.setTimestamp(now);
+              if (LOG.isTraceEnabled())
+                 LOG.trace("TrxRegionEndpoint coprocessor addDelete updated delete to now " + now);
+           }
+        }
+
+        // Adding read scan on a delete action
+        addRead(new WriteAction(delete, svpt, psvpt).getRow(), svpt, psvpt);
+        ListIterator<WriteAction> writeOrderIter = writeOrdering.listIterator(writeOrdering.size());
+        writeOrderIter.add(waction = new WriteAction(delete, svpt, psvpt, false /* ignoreDelete */));
+        ByteArrayKey k = new ByteArrayKey(delete.getRow());
+        delete.setAttribute("OPID",Bytes.toBytes(svpt));
+        addToDeleteMap( k , waction);
+        addToWriteMap( k , waction);
+
+        if (this.earlyLogging) {
+           for (Cell value : waction.getCells()) {
+               kv = KeyValue.cloneAndAddTags(value, tagList);
+               e1.add(kv);
+               e.add(kv);
+           }
+           try {
+           //long txid = this.tHLog.appendNoSync(this.regionInfo, this.regionInfo.getTable(),
+           //         e1, new ArrayList<UUID>(), TrxEnvironmentEdgeManager.currentTimeMillis(), this.tabledescriptor,
+           //         this.logSeqId, false, HConstants.NO_NONCE, HConstants.NO_NONCE);
+
+#ifdef CDH5.7 APACHE1.2 CDH5.16
+		WALKey wk = new WALKey(this.regionInfo.getEncodedNameAsBytes(), 
+					     this.regionInfo.getTable(), 
+					     WALKey.NO_SEQUENCE_ID,
+					     TrxEnvironmentEdgeManager.currentTime(),
+					     WALKey.EMPTY_UUIDS,
+					     HConstants.NO_NONCE,
+					     HConstants.NO_NONCE,
+					     this.h_Region.getMVCC());		
+		long txid = this.tHLog.append(this.tabledescriptor,this.regionInfo, wk, e1, false);
+		
+		writeEntry = wk.getWriteEntry();
+		mvccNum = writeEntry.getWriteNumber();
+		
+		if (writeEntry != null) {
+		    this.h_Region.getMVCC().completeAndWait(writeEntry);
+		    writeEntry = null;
+		}
+
+#else
+           	final WALKey wk = new WALKey(this.regionInfo.getEncodedNameAsBytes(), this.regionInfo.getTable(), now);
+		long txid = this.tHLog.append(this.tabledescriptor,this.regionInfo, wk , e1,	this.logSeqId, false, null);
+#endif
+
+                    //if (LOG.isTraceEnabled()) LOG.trace("Trafodion Recovery: Y00 write edit to HLOG during delete with txid " + txid + " ts flush id " + this.flushTxId);
+           if (txid > this.flushTxId) this.flushTxId = txid; // save the log txid into TS object, later sync on largestSeqid during phase 1
+           }
+           catch (IOException exp1) {
+               if (LOG.isInfoEnabled()) {
+                   LOG.info("TrxRegionEndpoint coprocessor addDelete writing to HLOG for early logging: Threw an exception");
+               }
+           }
+#ifdef CDH5.7 APACHE1.2 CDH5.16
+	    finally {
+	       if (writeEntry != null) {
+                   this.h_Region.getMVCC().completeAndWait(writeEntry);
+                   writeEntry = null;
+	       }	  
+	    } // finally
+#endif           
+       }
+       else {
+            if (svpt > 0) { // valid savepoint is activated, defer the edit construction
+                if (LOG.isDebugEnabled()) LOG.debug("Savepoint Info-2: savepoint detected in addDelete, defer edit, tid " + transactionId + " svpt " + svpt
+                + " Region " + regionInfo.getRegionNameAsString());
+                savepointActiviated = true;
+            }
+            else {
+               for (Cell value : waction.getCells()) {
+                    kv = KeyValue.cloneAndAddTags(value, tagList);
+                    e.add(kv);
+                } // all cells
+             } // svpt < 0
+        } // not early logging
+    
+       if (LOG.isTraceEnabled()) LOG.trace("addDelete -- EXIT");
+    }
+
+    public synchronized void addToDeleteMap(final ByteArrayKey key, final WriteAction waDel) {
+       delMap.put(key, waDel);
+       if (LOG.isTraceEnabled()) LOG.trace("addToDeleteMap -- EXIT");
+    }
+
+    public synchronized void addToWriteMap(final ByteArrayKey key, final WriteAction waAction) { 
+         if(writeOrdering.size() > batchSizeToUseWriteMap )
+         {
+           if(writeMap.size() ==  0)
+           {
+             ListIterator<WriteAction> writeOrderIter = null;
+             for (writeOrderIter = writeOrdering.listIterator(); writeOrderIter.hasNext();) {
+                WriteAction wa = writeOrderIter.next();
+                ByteArrayKey k = new ByteArrayKey(wa.getRow());
+                writeMap.put(k,wa);
+             } // for all writeActions
+           }
+           writeMap.put(key, waAction);
+         }
+    }
+
+    public synchronized void addToCheckAndPutSet(final byte[] capValue) {
+        ByteArrayKey bak = new ByteArrayKey(capValue);
+        checkAndPutSet.add(bak);
+    }
+
+    public synchronized boolean getFromCheckAndPutSet(final byte[] capValue) {
+        ByteArrayKey bak = new ByteArrayKey(capValue);
+        return checkAndPutSet.contains(bak);
+    }
+
+
+    public synchronized void applyDeletes(final List<Cell> input, final long minTime, final long maxTime) {
+        if (delMap.isEmpty()) {
+            return;
+        }
+        for (ListIterator<Cell> itr = input.listIterator(); itr.hasNext();) {
+            Cell included = applyDeletes(itr.next(), minTime, maxTime);
+            if (null == included) {
+                itr.remove();
+            }
+        }
+    }
+
+    public synchronized Cell applyDeletes(final Cell kv, final long minTime, final long maxTime) {
+        if (delMap.isEmpty()) {
+            return kv;
+        }
+
+        ByteArrayKey rk = new ByteArrayKey(kv.getRow());
+        if(delMap.containsKey(rk)) {
+            Delete delete = delMap.get(rk).getDelete(); 
+            if (kv.getTimestamp() > delete.getTimeStamp()
+                    || delete.getTimeStamp() > maxTime || delete.getTimeStamp() < minTime) {
+                return kv;
+            }
+            else
+            {
+              // Whole-row delete
+              if (delete.isEmpty()) {
+                return null;
+              }
+              for (Entry<byte[], List<Cell>> deleteEntry : delete.getFamilyCellMap().entrySet()) {
+                byte[] family = deleteEntry.getKey();
+                if (!Bytes.equals(kv.getFamilyArray(), family)) {
+                    continue;
+                }
+                List<Cell> familyDeletes = deleteEntry.getValue();
+                if (familyDeletes == null) {
+                    return null;
+                }
+                for (Cell keyDeletes : familyDeletes) {
+                    byte[] deleteQualifier = keyDeletes.getQualifierArray();
+                    byte[] kvQualifier = kv.getQualifierArray();
+                    if (keyDeletes.getTimestamp() > kv.getTimestamp() && Bytes.equals(deleteQualifier, kvQualifier)) {
+                        return null;
+                    }
+                }
+              }
+              return kv;
+            }
+        }
+        else
+           return kv;
+    }
+    
+    public synchronized WALEdit editConstructFirstWriteAction() {
+
+	WALEdit ed  = new WALEdit();
+	KeyValue kv;
+        if (LOG.isTraceEnabled()) LOG.trace("edit construct for 1st write action of transaction: tid " + transactionId);
+        if (LOG.isDebugEnabled()) LOG.debug("Savepoint Info-3: edit construct for 1st write action of transaction: tid " + transactionId
+        + " Region " + regionInfo.getRegionNameAsString());
+	
+        if (writeOrdering.size() > 0) {
+            WriteAction wa = writeOrdering.get(0);
+            for (Cell value : wa.getCells()) {
+                    kv = KeyValue.cloneAndAddTags(value, tagList);
+                    if (LOG.isTraceEnabled()) LOG.trace("addWrite kv hex dump "
+                                   + " key: " + Hex.encodeHexString(kv.getKey())
+                                   + " timestamp: " + kv.getTimestamp() + " value: "
+                                   + Hex.encodeHexString(kv.getValueArray() /*kv.getBuffer()*/));
+                    ed.add(kv);
+            }
+        }
+        else {
+            LOG.error("edit construct consistrency error for tid: " + transactionId);
+        }
+	return ed;
+    }
+
+    public synchronized void rebuildEdits() {
+
+       if (LOG.isDebugEnabled()) LOG.debug("rebuildEdits for transaction: tid " + transactionId
+             + " Region " + regionInfo.getRegionNameAsString());
+
+       this.e  = new WALEdit();
+       KeyValue kv;
+       ListIterator<WriteAction> writeOrderIter = null;
+
+       for (writeOrderIter = writeOrdering.listIterator(); writeOrderIter.hasNext();) {
+          WriteAction wa = writeOrderIter.next();
+          if (! wa.getIgnoreDelete()){
+             for (Cell value : wa.getCells()) {
+                kv = KeyValue.cloneAndAddTags(value, tagList);
+                if (LOG.isTraceEnabled()) LOG.trace("addWrite kv hex dump "
+                      + " key: " + Hex.encodeHexString(kv.getKey())
+                      + " timestamp: " + kv.getTimestamp()
+                      + " transaction: tid " + transactionId + " value: "
+                      + Hex.encodeHexString(kv.getValueArray() /*kv.getBuffer()*/));
+                e.add(kv);
+             }
+          } // (! wa.ignoreDelete())
+       } // for all writeActions
+    }
+
+    public synchronized void editConstructSavepointIntoTS(long svpt) {
+        
+        if (LOG.isDebugEnabled()) LOG.debug("Savepoint Info-5: edit construct for transaction: tid " + transactionId + " svpt " + svpt
+        + " Region " + regionInfo.getRegionNameAsString());
+	
+        KeyValue kv;
+        ListIterator<WriteAction> writeOrderIter = null;
+        if (LOG.isTraceEnabled()) LOG.trace("edit construct for savepoint: tid " + transactionId + " svpt " + svpt);
+	
+	// WAL edit for a mutation is constructed at commitSavepoint time rather than default put/delete time if savepoint is present
+	// the edit construction could also be deferred until preparing time (TBD)
+	
+        for (writeOrderIter = writeOrdering.listIterator(); writeOrderIter.hasNext();) {
+              WriteAction wa = writeOrderIter.next();
+	      if (wa.getSavepoint() <= svpt ||
+                  wa.getPSavepoint() == svpt) {  // this mutation will be added to edit
+                   for (Cell value : wa.getCells()) {
+                        kv = KeyValue.cloneAndAddTags(value, tagList);
+                        if (LOG.isTraceEnabled()) LOG.trace("addWrite kv hex dump "
+                                   + " key: " + Hex.encodeHexString(kv.getKey())
+                                   + " timestamp: " + kv.getTimestamp() + " value: "
+                                   + Hex.encodeHexString(kv.getValueArray() /*kv.getBuffer()*/));
+                        this.e.add(kv);
+                   }
+              } // wa's savepoint to be added
+	} // for all writeActions		
+    }
+
+    public synchronized void rollbackSavepoint(long svpt) {
+        
+        WriteAction wa = null;
+        ScanRange sr = null;
+        
+        if (LOG.isWarnEnabled()) {
+            LOG.warn("Savepoint Info-6: rollback savepoint: tid " + transactionId + " svpt " + svpt
+        + " Region " + regionInfo.getRegionNameAsString());
+        }
+        if (LOG.isTraceEnabled()) LOG.trace("rollback savepoint: tid " + transactionId + " svpt " + svpt);
+	
+	// add this savepoint into archived list (list of int) to guard late checked in DML with savepoint alreday rolled-back
+	// if (!rollbackSavepointSet.add(new Integer(svpt))) {
+	//    if (LOG.isTraceEnabled()) LOG.trace("Duplicate rollback savepoint: tid " + transactionId + " svpt " + svpt);
+	// return; // savepoint svpt has been rolled-back, likely a duplicate request
+	//}
+
+        ListIterator<WriteAction> witer = writeOrdering.listIterator();
+        while (witer.hasNext()) {
+           wa = witer.next();
+           if (wa.getSavepoint() >= svpt) {  // this mutation will be rolled-back
+              Delete delete = wa.getDelete();
+              if (delete != null) {
+                 delMap.remove(new ByteArrayKey(delete.getRow()));
+                 witer.remove();
+              }
+              else {
+                 ByteArrayKey putKey = new ByteArrayKey(wa.getPut().getRow());
+                 // this is a put, the scanRange added by addWrite will be removed in next scanner for loop
+                 // Check to see if the key from this put matches a row from the deleteMap which was previously
+                 // set to ignore because this put arrived after it.  Now, if we roll this put back, we need
+                 // to reinstate the delete otherwise it would be missing as well.
+                 if (getUpdatedSameRow()){
+                    // We have updated the same row in this transaction, so we may need to reinstate a delete
+                    // as part of this savepoint rollback.
+                    WriteAction pendingDel = null;
+                    pendingDel = delMap.get(putKey);
+                    if (pendingDel != null){
+                       // There is a delete pending for this same row.  If this delete is part of the same
+                       // savepoint then it will be deleted in the delete portion of the write action handling.
+                       // But if the delete was from a prior savepoint (unlikely), then we need to reinstate the delete
+                       if (pendingDel.getSavepoint() == (svpt - 1)){
+                          // This is a delete that needs to be reinstated
+                          pendingDel.setIgnoreDelete(false);
+                          delMap.put(new ByteArrayKey(pendingDel.getRow()),pendingDel);
+                       }
+                    }
+                 } // updatedSameRow
+
+                 // Now rollback the put
+                 if (LOG.isDebugEnabled()) LOG.debug("Savepoint Info-7: rollback savepoint: tid " + transactionId
+                            + " svpt " + svpt + " Region " + m_regionDetails + " remove put " + wa.getPut());
+
+                 witer.remove();
+              }
+           } // wa's savepoint to be rolled-back matched
+        } // for all writeActions
+
+        ListIterator<ScanRange> siter = scans.listIterator();
+        while (siter.hasNext()) {
+           sr = siter.next();
+           if (sr.getSavepoint() >= svpt) {  // this scanRange will be rolled-back
+              if (LOG.isDebugEnabled()) LOG.debug("Savepoint Info-8: rollback savepoint: tid " + transactionId + " svpt " + svpt
+                   + " Region " + m_regionDetails + " remove scan range " + sr);
+              siter.remove();
+           } //  savepoint to be rolled-back matched
+        } // for all scan ranges
+
+        // reinit writeMap after rollback savepoint
+        writeMap.clear();
+        if (writeOrdering.size() > batchSizeToUseWriteMap)
+        {
+          ListIterator<WriteAction> writeOrderIter = null;
+          for (writeOrderIter = writeOrdering.listIterator(); writeOrderIter.hasNext();) {
+            WriteAction waction = writeOrderIter.next();
+            ByteArrayKey k = new ByteArrayKey(waction.getRow());
+            writeMap.put(k,waction);
+          }
+        }
+
+        setSavepointContextState(svpt, SavepointState.ACTIVE_SVPT_STATE);
+    }
+    
+    public int setSavepointContextState(final long svpt, final SavepointState state) {
+
+        boolean found = false;
+        
+        ListIterator<SavepointContext> savepointIter = null;
+        for (savepointIter = savepoints.listIterator(); savepointIter.hasNext();) {
+            SavepointContext svptContext = savepointIter.next();
+            if (svptContext.getSavepointNumber() == svpt) {
+                found = true;
+                svptContext.setSavepointState(state);
+                break;
+            }
+        } // iterator         
+        if (!found) { //  should not happen since it has to check in first
+            LOG.error("Savepoint not found in set savepoint state for tid " + this.transactionId + " svpt " + svpt + " state " + state
+                               + " Region " + regionInfo.getRegionNameAsString());
+            return -1;
+        }
+        
+        return 0;        
+    }
+
+
+    public void clearState() {
+
+        clearTransactionsToCheck();
+        clearWriteOrdering();
+        clearScanRange();
+        clearDeletes();
+        clearWriteMap(); 
+        clearTags();
+        clearWALEdit();
+        dropTableRecorded = false;
+        clearCheckAndPutSet();
+    }
+
+    public void clearTransactionsToCheck() {
+        transactionsToCheck.clear();
+    }
+
+    public void clearSelForUpdLocks() {
+        listOfLockedRowsSelForUpdate.clear();
+    }
+    public void clearTmpWLocks() {
+        listOfWLockedRows.clear();
+    }
+
+    public void clearInsRowsForUpdate() {
+        insRowsCheckWithForUpdateLock.clear();
+    }
+
+    public boolean rowIsNotInsertBefore(byte[] r) {
+      ListIterator<ScanRange> scansIter = null;
+      for(scansIter = insRowsCheckWithForUpdateLock.listIterator(); scansIter.hasNext();)
+      {
+        ScanRange scanRange = scansIter.next();
+        if(scanRange.contains(r) ) 
+        {
+           return false;
+        }
+      } 
+      return true;
+    }
+
+    public void clearWriteMap() {
+        writeMap.clear();
+    }
+
+    public void clearWriteOrdering() {
+        writeOrdering.clear();
+    }
+
+    public void clearScanRange() {
+        scans.clear();
+    }
+
+    public void clearDeletes() {
+        delMap.clear();
+    }
+
+    public void clearTags() {
+        tagList.clear();
+    }
+
+    public void clearWALEdit() {
+        if (e.size() > 0) {
+
+            DataInputBuffer in = new DataInputBuffer();
+            try {
+                e.readFields(in);
+                e.getCells().clear();
+            } catch (java.io.EOFException eeof) {
+                // DataInputBuffer was empty, successfully emptied kvs
+            } catch (Exception e) {
+                if (LOG.isTraceEnabled())
+                    LOG.trace("TrxTransactionState clearWALEdit:  Clearing WALEdit caught an exception for transaction "
+                            + this.transactionId + ", regionInfo is [" + regionInfo.getRegionNameAsString() + "]" + ": exception "
+                            + e.toString());
+            } finally {
+                try {
+                    in.close();
+                } catch (IOException io) {
+                }
+            }
+        }
+        if (e.size() > 0)
+            if (LOG.isTraceEnabled())
+                LOG.trace("TrxTransactionState clearWALEdit:  Possible leak with kvs entries in WALEDIT, for transaction "
+                        + this.transactionId + ", regionInfo is [" + regionInfo.getRegionNameAsString() + "], e is "
+                        + e.toString());
+    }
+    
+    public void clearCheckAndPutSet() {
+        checkAndPutSet.clear();
+    }
+
+
+    public void addTransactionToCheck(final TrxTransactionState transaction) {
+        transactionsToCheck.add(transaction);
+    }
+
+    public synchronized void checkConflict() throws IOException {
+
+        for (TrxTransactionState transactionState : transactionsToCheck) {
+              if(transactionState.isLockProtected() == false) 
+              checkConflict(transactionState);
+        }
+    }
+
+    private void checkConflict(final TrxTransactionState checkAgainst) 
+                                                           throws IOException {
+        if (checkAgainst.getStatus().equals(TransactionState.Status.ABORTED)) {
+            return; // Cannot conflict with aborted transactions
+        }
+
+        ListIterator<WriteAction> writeOrderIter = null;
+
+        for (writeOrderIter = checkAgainst.writeOrdering.listIterator(); writeOrderIter.hasNext();) {
+            WriteAction otherUpdate = writeOrderIter.next();
+
+            try {
+                byte[] row = otherUpdate.getRow();
+                if (row == null) {
+                    if (LOG.isWarnEnabled()) {
+                        LOG.warn("TrxTransactionState hasConflict: row is null - this Transaction [" + this.toString()
+                            + "] checkAgainst Transaction [" + checkAgainst.toString() + "] ");
+                    }
+                    //continue; ??
+                }
+                if (this.getTransactionId() == checkAgainst.getTransactionId()) {
+                    if (LOG.isTraceEnabled())
+                        LOG.trace("TrxTransactionState hasConflict: Continuing - this Transaction [" + this.toString()
+                                + "] is the same as the against Transaction [" + checkAgainst.toString() + "]");
+                    continue;
+                }
+                if (this.scans != null && !this.scans.isEmpty()) {
+                    ListIterator<ScanRange> scansIter = null;
+
+                    for (scansIter = this.scans.listIterator(); scansIter.hasNext();) {
+                        ScanRange scanRange = scansIter.next();
+
+                        if (scanRange == null)
+                            if (LOG.isTraceEnabled())
+                                LOG.trace("Transaction [" + this.toString() + "] scansRange is null");
+                            ByteArrayKey rowInHex = new ByteArrayKey(row);
+ 
+                        if (scanRange != null && (scanRange.getIgnoreScanConflict() == false) && scanRange.contains(row)) {
+                            //NOTE: remove this after test done
+                            //if the row is in listOfLockedRowsSelForUpdate not conflict
+                           // ByteArrayKey rowInHex = new ByteArrayKey(row);
+                            if(listOfLockedRowsSelForUpdate.contains(rowInHex) ==false ) 
+			    {
+                            String tmp = (otherUpdate.isDelete())? ", deleted":", inserted";
+                            String msg = "This Transaction [" + this.toString()
+                                    + "] has a scan, scanRange[" + scanRange.toString()
+                                    + "] that conflicts with a committed Transaction ["
+                                    + checkAgainst.toString() + "] which " + tmp 
+                                    + " a row with key[" + Bytes.toStringBinary(row)
+                                    + "], key in hex " + Hex.encodeHexString(row)
+                                    + " in the region [" + m_regionDetails + "]";
+                            throw new IOException(msg);
+			    }
+                            else if(rowIsNotInsertBefore(row) == false  ||
+                                    checkAgainst.listOfLockedRowsSelForUpdate.contains(rowInHex) == false // the other ts don't have lock
+                            ) {
+                            String tmp = (otherUpdate.isDelete())? ", deleted":", inserted";
+                            String msg = "This Transaction [" + this.toString()
+                                    + "] has a scan, scanRange[" + scanRange.toString()
+                                    + "] that conflicts with a committed Transaction ["
+                                    + checkAgainst.toString() + "] which " + tmp 
+                                    + " a row with key[" + Bytes.toStringBinary(row)
+                                    + "], key in hex " + Hex.encodeHexString(row)
+                                    + " in the region [" + m_regionDetails + "]" + " and update data before take the for-update lock";
+                            throw new IOException(msg);
+                            }
+                        }
+                    }
+                } else {
+                    if (LOG.isTraceEnabled()) {
+                        if (this.scans == null)
+                            LOG.trace("Transaction [" + this.toString() + "] scans was equal to null");
+                        else
+                            LOG.trace("Transaction [" + this.toString() + "] scans was empty ");
+                    }
+                }
+            } catch (IOException e) {
+               if (checkAgainst.getStatus().equals(TransactionState.Status.ABORTED)){
+                  return;
+               }
+               else {
+                  if (LOG.isWarnEnabled()) {
+                      LOG.warn("TrxTransactionState hasConflict: Exception: ", e);
+                  }
+                  throw e;
+               }
+            }
+        }
+        return;
+    }
+
+    public WALEdit getEdit() {
+        return e;
+    }
+    
+    public WALEdit getPreparedEdit() {
+        return pe;
+    }    
+
+    @Override
+    public String toString() {
+        StringBuilder result = new StringBuilder();
+        result.append("[transactionId: ");
+        result.append(transactionId);
+        result.append(" regionTX: ");
+        result.append(getIsRegionTx());
+        result.append(" status: ");
+        result.append(status.name());
+        result.append(" neverReadOnly: ");
+        result.append(getNeverReadOnly());
+        result.append(" scan Size: ");
+        result.append(scans.size());
+        result.append(" write Size: ");
+        result.append(getWriteOrdering().size());
+        result.append(" startSQ: ");
+        result.append(startSequenceNumber);
+        result.append(" prepareEditSize: ");
+        result.append(prepareEditSize);
+        result.append(" endEditSize: ");
+        result.append(endEditSize);
+        result.append(" editSize: ");
+        result.append(getEdit().getCells().size());
+        result.append(" Query Context: ");
+        result.append(queryContext);
+        if (sequenceNumber != null) {
+            result.append(" commitedSQ:");
+            result.append(sequenceNumber);
+        }
+        result.append("]");
+
+        return result.toString();
+    }
+
+    public synchronized void addScan(final Scan scan, final boolean ignoreConflict) {
+        addScan(scan, NULL_SAVEPOINT, NULL_SAVEPOINT, ignoreConflict);
+    }
+    
+    public synchronized void addScan(final Scan scan, long svpt, long psvpt, final boolean ignoreConflict) {
+        ScanRange scanRange = new ScanRange(scan.getStartRow(), scan.getStopRow(), svpt, psvpt,
+                                             /* migate */ true, ignoreConflict);
+        if (LOG.isTraceEnabled())
+            LOG.trace(String.format("Adding scan for transaction [%s], from startRow [%s] to endRow [%s]", transactionId,
+                    scanRange.startRow == null ? "null" : Bytes.toStringBinary(scanRange.startRow),
+                    scanRange.endRow == null ? "null" : Bytes.toStringBinary(scanRange.endRow)));
+        scans.add(scanRange);
+    }
+    
+    public synchronized void reinstateScan(byte[] start, byte[] end, long svpt, long psvpt) {
+        ScanRange scanRange = new ScanRange(start, end, svpt, psvpt, /* migate */ true, /* ignoreConflict */ false);
+        if (LOG.isTraceEnabled())
+            LOG.trace(String.format("Reinstate scan range for transaction [%s], from startRow [%s] to endRow [%s]", transactionId,
+                    scanRange.startRow == null ? "null" : Bytes.toStringBinary(scanRange.startRow),
+                    scanRange.endRow == null ? "null" : Bytes.toStringBinary(scanRange.endRow)));
+        scans.add(scanRange);
+    }    
+
+    /**
+     * Get a scanner to go through the puts and deletes from this transaction. Used to weave together the local trx puts
+     * with the global state.
+     * 
+     * @return scanner
+     */
+    public KeyValueScanner getScanner(final Scan scan) {
+        return new TransactionScanner(scan);
+    }
+
+    private synchronized Cell[] getAllCells(final Scan scan) {
+        // if (LOG.isTraceEnabled()) LOG.trace("getAllCells -- ENTRY");
+        List<Cell> kvList = new ArrayList<Cell>();
+
+        ListIterator<WriteAction> writeOrderIter = null;
+
+        for (writeOrderIter = writeOrdering.listIterator(); writeOrderIter.hasNext();) {
+            WriteAction action = writeOrderIter.next();
+            byte[] row = action.getRow();
+            List<Cell> kvs = action.getCells();
+
+            if (scan.getStartRow() != null && !Bytes.equals(scan.getStartRow(), HConstants.EMPTY_START_ROW)
+                    && Bytes.compareTo(row, scan.getStartRow()) < 0) {
+                continue;
+            }
+            if (scan.getStopRow() != null && !Bytes.equals(scan.getStopRow(), HConstants.EMPTY_END_ROW)
+                    && Bytes.compareTo(row, scan.getStopRow()) > 0) {
+                continue;
+            }
+
+            if (!scan.hasFamilies()) {
+                kvList.addAll(kvs);
+                continue;
+            }
+            // Pick only the Cell's that match the 'scan' specifications
+            for (Cell lv_kv : kvs) {
+                byte[] lv_kv_family = lv_kv.getFamilyArray();
+                Map<byte[], NavigableSet<byte[]>> lv_familyMap = scan.getFamilyMap();
+                NavigableSet<byte[]> set = lv_familyMap.get(lv_kv_family);
+                if (set == null || set.size() == 0) {
+                    kvList.add(lv_kv);
+                    continue;
+                }
+                if (set.contains(lv_kv.getQualifierArray())) {
+                    kvList.add(lv_kv);
+                }
+            }
+        }
+
+        if (LOG.isTraceEnabled())
+            LOG.trace("getAllCells -- EXIT kvList size = " + kvList.size());
+        return kvList.toArray(new Cell[kvList.size()]);
+    }
+
+    private synchronized KeyValue[] getAllKVs(final Scan scan) {
+        if (LOG.isTraceEnabled()) LOG.trace("getAllKVs -- ENTRY for transId " + this.getTransactionId()
+            + " with writeOrdering size " + this.getWriteOrdering().size());
+        List<Cell> kvList = new ArrayList<Cell>();
+        if(writeMap.size() >0 && 
+           ( scan.getStartRow() != null && !Bytes.equals(scan.getStartRow(), HConstants.EMPTY_START_ROW) )  && 
+           (scan.getStopRow() != null && !Bytes.equals(scan.getStopRow(), HConstants.EMPTY_END_ROW)) 
+           ) //use map instead of writeOrdering List
+        { 
+           if (Bytes.compareTo(scan.getStartRow(), scan.getStopRow()) == 0 ) { 
+             ByteArrayKey bk = new ByteArrayKey(scan.getStartRow()) ; 
+             if(writeMap.containsKey( bk ) ) { 
+               WriteAction action = writeMap.get( bk ); 
+               List<Cell> kvs = action.getKeyValues(); 
+               if (!scan.hasFamilies()) { 
+                 kvList.addAll(kvs); 
+               } 
+               // Pick only the Cell's that match the 'scan' specifications 
+               Map<byte[], NavigableSet<byte[]>> lv_familyMap = scan.getFamilyMap(); 
+               for (Cell lv_kv : kvs) { 
+                 byte[] lv_kv_family = CellUtil.cloneFamily(lv_kv); 
+                 NavigableSet<byte[]> set = lv_familyMap.get(lv_kv_family); 
+                 if (set == null || set.size() == 0) { 
+                    kvList.add(lv_kv); 
+		    continue;
+                 } 
+                 if (set.contains(CellUtil.cloneQualifier(lv_kv))) { 
+                    kvList.add(lv_kv); 
+                 } 
+               } 
+             } 
+           } 
+           else //range scan 
+           { 
+             ByteArrayKey bks = new ByteArrayKey(scan.getStartRow()) ; 
+             ByteArrayKey bke = new ByteArrayKey(scan.getStopRow()) ; 
+             SortedMap<ByteArrayKey,WriteAction> sm = writeMap.subMap(bks, true, bke, true); 
+             for( WriteAction action : sm.values()) { 
+               List<Cell> kvs = action.getKeyValues(); 
+               if (!scan.hasFamilies()) { 
+                 kvList.addAll(kvs); 
+               } 
+               // Pick only the Cell's that match the 'scan' specifications 
+               Map<byte[], NavigableSet<byte[]>> lv_familyMap = scan.getFamilyMap(); 
+               for (Cell lv_kv : kvs) { 
+                 byte[] lv_kv_family = CellUtil.cloneFamily(lv_kv); 
+                 NavigableSet<byte[]> set = lv_familyMap.get(lv_kv_family); 
+                 if (set == null || set.size() == 0) { 
+                    kvList.add(lv_kv); 
+		    continue;
+                 } 
+                 if (set.contains(CellUtil.cloneQualifier(lv_kv))) { 
+                    kvList.add(lv_kv); 
+                 } 
+               } 
+             } 
+           } 
+        } 
+        else //original code path 
+        { 
+          ListIterator<WriteAction> writeOrderIter = null;  
+          for (writeOrderIter = writeOrdering.listIterator(); writeOrderIter.hasNext();) {  
+            WriteAction action = writeOrderIter.next();  
+            byte[] row = action.getRow();  
+            List<Cell> kvs = action.getKeyValues();  
+
+            if (scan.getStartRow() != null && !Bytes.equals(scan.getStartRow(), HConstants.EMPTY_START_ROW)  
+                    && Bytes.compareTo(row, scan.getStartRow()) < 0) {  
+                continue;  
+            }  
+            if (scan.getStopRow() != null && !Bytes.equals(scan.getStopRow(), HConstants.EMPTY_END_ROW)  
+                    && Bytes.compareTo(row, scan.getStopRow()) > 0) {  
+                continue;  
+            }  
+
+            if (!scan.hasFamilies()) {  
+                kvList.addAll(kvs);  
+                continue;  
+            }  
+
+            // Pick only the Cell's that match the 'scan' specifications  
+            Map<byte[], NavigableSet<byte[]>> lv_familyMap = scan.getFamilyMap();  
+            for (Cell lv_kv : kvs) {  
+                byte[] lv_kv_family = CellUtil.cloneFamily(lv_kv);  
+                NavigableSet<byte[]> set = lv_familyMap.get(lv_kv_family);  
+                if (set == null || set.size() == 0) {  
+                    kvList.add(lv_kv);  
+                    continue;  
+                }  
+                if (set.contains(CellUtil.cloneQualifier(lv_kv))) {  
+                    kvList.add(lv_kv);  
+                }  
+            }  
+          } 
+        } 
+
+        if (LOG.isTraceEnabled())
+            LOG.trace("getAllCells -- EXIT kvList size = " + kvList.size());
+
+        return kvList.toArray(new KeyValue[kvList.size()]);
+    }
+
+    private synchronized int getTransactionSequenceIndex(final Cell kv) {
+        ListIterator<WriteAction> writeOrderIter = null;
+        int i = 0;
+
+        for (writeOrderIter = writeOrdering.listIterator(); writeOrderIter.hasNext();) {
+            i++;
+            WriteAction action = writeOrderIter.next();
+            if (isKvInPut(kv, action.getPut())) {
+                return i;
+            }
+            if (isKvInDelete(kv, action.getDelete())) {
+                return i;
+            }
+        }
+        throw new IllegalStateException("Can not find kv in transaction writes");
+    }
+
+    /**
+     * Scanner of the puts and deletes that occur during this transaction.
+     * 
+     * @author clint.morgan
+     */
+    public class TransactionScanner extends KeyValueListScanner implements InternalScanner {
+
+        private ScanQueryMatcher matcher;
+
+        TransactionScanner(final Scan scan) {
+            super(new KeyValue.KVComparator() {            	
+                @Override
+                public int compare(final Cell left, final Cell right) {
+                    int result = super.compare(left, right);
+                    if (result != 0) {
+                        return result;
+                    }
+                    if (left == right) {
+                        return 0;
+                    }
+                    int put1Number = getTransactionSequenceIndex(left);
+                    int put2Number = getTransactionSequenceIndex(right);
+                    return put2Number - put1Number;
+                }
+            }, getAllKVs(scan));
+           
+            // We want transaction scanner to always take priority over store
+            // scanners.
+            super.setSequenceID(Long.MAX_VALUE);
+            
+            //Store.ScanInfo scaninfo = new Store.ScanInfo(null, 0, 1, HConstants.FOREVER, false, 0, Cell.COMPARATOR);
+#ifdef CDH5.7 APACHE1.2 CDH5.16
+            ScanInfo scaninfo = new ScanInfo(getConfig(), null, 0, 1, HConstants.FOREVER,KeepDeletedCells.FALSE, 0, KeyValue.COMPARATOR);
+#else
+            ScanInfo scaninfo = new ScanInfo(null, 0, 1, HConstants.FOREVER,KeepDeletedCells.FALSE, 0, KeyValue.COMPARATOR);
+#endif
+           
+#ifdef HDP2.3 APACHE1.1 CDH5.7 APACHE1.2 CDH5.16
+            //Hbase 1.1.2 and beyond has optimization in TimeRange.compare(cell) to return true for all time ranges if TimeRange.isAllTime() is true.
+            //scan.setTimeRange(min, max) instantiates TimeRange with a different constructor (isAllTime is false in this case). This is set 
+            //in scan object by the client if specific time range is needed. In all other cases, a default TimeRange() (isAllTime is true)
+            //instance is used. 
+            //In Trx set of KVs, there is an extra cell ( with timestamp of Long.MAX_VALUE) for every row. TimeRange.compare(cell) returns true
+            //even for this cell when default TimeRange instance is involved(isAlltime is true). This causes scanQueryMatcher
+            //to return "INCLUDE" verses "SKIP" for this specific cell. Fix is to instantiate a TimeRange instance by calling the constructor
+            //that sets TimeRange.isAllTime() to be false.
+            //Setting this here only affects Trx scanner applicable to Trx KVs.
+            if(scan.getTimeRange().isAllTime())
+            	try{
+            		scan.setTimeRange(0,Long.MAX_VALUE);
+            	}catch (Exception e) {
+            		LOG.error("error setting time range" + e);
+            }
+#endif 
+           
+        if(c1_0 != null) {
+        	try {
+    		    matcher = (ScanQueryMatcher) c1_0.newInstance(scan,
+    								   scaninfo,
+    								   null,
+    								   ScanType.USER_SCAN,
+    								   Long.MAX_VALUE,
+    								   HConstants.LATEST_TIMESTAMP,
+    								   (long) 0,
+    								   TrxEnvironmentEdgeManager.currentTime(),
+    								   null);
+    		    if (LOG.isTraceEnabled()) LOG.trace("Created matcher using reflection for HBase 1.0");
+    		    }
+    		    catch (InstantiationException exc_ins) {
+    			LOG.error("InstantiationException: " + exc_ins);
+    		    }
+    		    catch (IllegalAccessException exc_ill_acc) {
+    			LOG.error("IllegalAccessException: " + exc_ill_acc);
+    		    }
+    		    catch (InvocationTargetException exc_inv_tgt) {
+    			LOG.error("InvocationTargetException: " + exc_inv_tgt);
+    		    }
+        	    catch (Exception e) {
+        	    LOG.error("error while instantiating the ScanQueryMatcher()" + e);
+        	    }
+         	}
+        }
+
+        /**
+         * Get the next row of values from this transaction.
+         * 
+         * @param outResult
+         * @param limit
+         * @return true if there are more rows, false if scanner is done
+         */
+#ifdef APACHE1.0 CDH5.4
+        @Override
+#endif
+        public synchronized boolean next(final List<Cell> outResult, final int limit) throws IOException {          	
+            Cell peeked = this.peek();            
+            if (peeked == null) {            
+                close();
+                return false;
+            }
+            
+            matcher.setRow(peeked.getRowArray(), peeked.getRowOffset(), peeked.getRowLength());
+            
+            KeyValue kv;
+            List<Cell> results = new ArrayList<Cell>();
+            LOOP: while ((kv = this.peek()) != null) {
+                ScanQueryMatcher.MatchCode qcode = matcher.match(kv);
+                switch (qcode) {
+                    case INCLUDE:
+                        Cell next = this.next();
+                        results.add(next);
+                        if (limit > 0 && results.size() == limit) {
+                            break LOOP;
+                        }
+                        continue;
+
+                    case DONE:
+                        // copy jazz
+                        outResult.addAll(0, results);
+                        return true;
+
+                    case DONE_SCAN:
+                        close();
+
+                        // copy jazz
+                        outResult.addAll(0, results);
+
+                        return false;
+
+                    case SEEK_NEXT_ROW:
+                        this.next();
+                        break;
+
+                    case SEEK_NEXT_COL:
+                        this.next();
+                        break;
+
+                    case SKIP:
+                        this.next();
+                        break;
+
+                    default:
+                        throw new RuntimeException("UNEXPECTED");
+                }
+            }
+
+            if (!results.isEmpty()) {
+                // copy jazz
+                outResult.addAll(0, results);
+                return true;
+            }
+
+            // No more keys
+            close();
+            return false;
+        }
+
+#ifndef HDP2.3 APACHE1.1
+        @Override
+#endif
+        public synchronized boolean next(final List<Cell> results) throws IOException {
+          return next(results, -1);
+        }
+#ifdef HDP2.3 APACHE1.1 CDH5.5 CDH5.7 APACHE1.2 CDH5.16
+        @Override
+        public boolean next(List<Cell> results, ScannerContext scannerContext) throws IOException {
+            return next(results, -1);
+        }
+#endif
+    }
+
+    private synchronized boolean isKvInPut(final Cell kv, final Put put) {
+        if (null != put) {
+            for (List<Cell> putKVs : put.getFamilyCellMap().values()) {
+                for (Cell putKV : putKVs) {
+                    if (putKV == kv) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    private synchronized boolean isKvInDelete(final Cell kv, final Delete delete) {
+        if (null != delete) {
+            for (List<Cell> putKVs : delete.getFamilyCellMap().values()) {
+                for (Cell deleteKv : putKVs) {
+                    if (deleteKv == kv) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Get the puts and deletes in transaction order.
+     * 
+     * @return Return the writeOrdering.
+     */
+    public List<WriteAction> getWriteOrdering() {
+        return writeOrdering;
+    }
+    
+    public long getWriteOrderingLength() {
+        if (waListLen > 0)
+            return waListLen;
+        for (WriteAction entry : writeOrdering) {
+          if (!entry.getIgnoreDelete()) {
+            //get Cells
+            waListLen += entry.getCellsMemSize();
+          }
+        }
+        return waListLen;
+    }
+
+    public List<ScanRange> getScans() {
+        return scans;
+    }    
+
+    /*
+     * Get the puts and deletes in transaction order.
+     * 
+     * @return Return the writeOrdering as an iterator.
+     */
+    public ListIterator<WriteAction> getWriteOrderingIter() {
+        return writeOrdering.listIterator();
+    }
+
+    public static int getCellsMemSize(Put newPut, Delete newDelete, HTableDescriptor htd) {
+        int payloadMemSize = 0;
+        Collection<List<Cell>> kvsList;
+
+        if (newPut != null) {
+            kvsList = newPut.getFamilyCellMap().values();
+        } else if (newDelete != null) {
+            //TODO we should calculate the size of preValue later
+            if (newDelete.getFamilyCellMap().isEmpty()) {
+                // If whole-row delete then we need to expand for each
+                // family
+                kvsList = new ArrayList<List<Cell>>(1);
+                for (byte[] family : htd.getFamiliesKeys()) {
+                    Cell familyDelete = new KeyValue(newDelete.getRow(), family, null, newDelete.getTimeStamp(),
+                            KeyValue.Type.DeleteFamily);
+                    kvsList.add(Collections.singletonList(familyDelete));
+                }
+            } else {
+                kvsList = newDelete.getFamilyCellMap().values();
+            }
+        } else {
+            return payloadMemSize;
+        }
+
+        for (List<Cell> kvs : kvsList) {
+            for (Cell kv : kvs) {
+                payloadMemSize += (int)CellUtil.estimatedHeapSizeOf(kv);
+            }
+        }
+
+        return payloadMemSize;
+    }
+
+
+    /**
+     * Simple wrapper for Put and Delete since they don't have a common enough interface.
+     */
+    public class WriteAction {
+
+        private Put put;
+        private Delete delete;
+        private long savepointNumber = NULL_SAVEPOINT; // SAV, -1 (NULL_SAVEPOINT)
+        private long pSavepointNumber = NULL_SAVEPOINT;
+        private int cellMemSize = 0;
+        private boolean ignoreDelete = false;
+      
+        public WriteAction(final Put put, long svpt, long psvpt) {
+            if (null == put) {
+                throw new IllegalArgumentException("WriteAction requires a Put or a Delete.");
+            }
+            this.put = put;
+            this.savepointNumber = svpt;
+            this.pSavepointNumber = psvpt;
+            this.ignoreDelete = false;
+        }
+
+        public WriteAction(final Delete delete, long svpt, long psvpt) {
+           this(delete, svpt, psvpt, false);
+        }
+
+        public WriteAction(final Delete delete, long svpt, long psvpt, boolean ignoreIt) {
+            if (null == delete) {
+                throw new IllegalArgumentException("WriteAction requires a Put or a Delete.");
+            }
+            this.delete = delete;
+            this.savepointNumber = svpt;
+            this.pSavepointNumber = psvpt;
+            this.ignoreDelete = ignoreIt;
+        }
+
+        public Put getPut() {
+            return put;
+        }
+
+        public Delete getDelete() {
+            return delete;
+        }
+        
+        public boolean isDelete() {
+          if (put != null) {
+            return false;
+        } else if (delete != null) {
+            return true;
+          }
+          throw new IllegalStateException("WriteAction is invalid");
+        }
+
+        public long getSavepoint() {
+            return savepointNumber;
+        }
+
+        public void setSavepoint(long sid) {
+            savepointNumber = sid;
+        }
+
+        public long getPSavepoint() {
+            return pSavepointNumber;
+        }
+
+        public synchronized byte[] getRow() {
+            if (put != null) {
+                return put.getRow();
+            } else if (delete != null) {
+                return delete.getRow();
+            }
+            throw new IllegalStateException("WriteAction is invalid");
+        }
+
+        public void setIgnoreDelete(boolean ignoreIt) {
+            ignoreDelete = ignoreIt;
+        }
+
+        public boolean getIgnoreDelete() {
+            return ignoreDelete;
+        }
+
+        synchronized List<Cell> getCells() {
+            List<Cell> edits = new ArrayList<Cell>();
+            Collection<List<Cell>> kvsList;
+
+            if (put != null) {
+                kvsList = put.getFamilyCellMap().values();
+            } else if (delete != null) {
+                if (delete.getFamilyCellMap().isEmpty()) {
+                    // If whole-row delete then we need to expand for each
+                    // family
+                    kvsList = new ArrayList<List<Cell>>(1);
+                    for (byte[] family : tabledescriptor.getFamiliesKeys()) {
+                        Cell familyDelete = new KeyValue(delete.getRow(), family, null, delete.getTimeStamp(),
+                                KeyValue.Type.DeleteFamily);
+                        kvsList.add(Collections.singletonList(familyDelete));
+                    }
+                } else {
+                    kvsList = delete.getFamilyCellMap().values();
+                }
+            } else {
+                throw new IllegalStateException("WriteAction is invalid");
+            }
+
+            for (List<Cell> kvs : kvsList) {
+                for (Cell kv : kvs) {
+                    edits.add(kv);
+                    // if (LOG.isDebugEnabled()) LOG.debug("Trafodion Recovery: " + regionInfo.getRegionNameAsString() +
+                    // " create edits for transaction: "
+                    // + transactionId + " with Op " + kv.getType());
+                }
+            }
+            return edits;
+        }
+
+        public synchronized int getCellsMemSize() {
+            int payloadMemSize = 0;
+            if (cellMemSize > 0)
+               return cellMemSize;
+
+            List<Cell> cells = getCells();
+            //Cell.heapSize() is API on hbase2.0
+            for (Cell cell : cells)
+                payloadMemSize += (int)CellUtil.estimatedHeapSizeOf(cell);
+            cells = null;
+            //preValue
+            if (delete != null) {
+                //is delete
+                byte[] attr = delete.getAttribute("KEEP_DEL_ROW");
+                if (attr != null) {
+                    payloadMemSize += attr.length;
+                    //timestamp
+                    attr = delete.getAttribute("KEEP_DEL_ROW_TS");
+                    if (attr != null)
+                        payloadMemSize += attr.length;
+                }
+            }
+            cellMemSize = payloadMemSize;
+            return payloadMemSize;
+        }
+
+        synchronized List<Cell> getKeyValues() {
+            List<Cell> edits = new ArrayList<Cell>();
+            Collection<List<Cell>> kvsList = null;
+
+            if (put != null) {
+                if (!put.getFamilyCellMap().isEmpty()) {
+                    kvsList = put.getFamilyCellMap().values();
+                }
+            } else if (delete != null) {
+                if (delete.getFamilyCellMap().isEmpty()) {
+                    // If whole-row delete then we need to expand for each
+                    // family
+                    kvsList = new ArrayList<List<Cell>>(1);
+                    for (byte[] family : tabledescriptor.getFamiliesKeys()) {
+                        Cell familyDelete = new KeyValue(delete.getRow(), family, null, delete.getTimeStamp(),
+                                KeyValue.Type.DeleteFamily);
+                        kvsList.add(Collections.singletonList(familyDelete));
+                    }
+                } else {
+                    kvsList = delete.getFamilyCellMap().values();
+                }
+            } else {
+                throw new IllegalStateException("WriteAction is invalid");
+            }
+
+            if (kvsList != null) {
+                for (List<Cell> kvs : kvsList) {
+                    for (Cell kv : kvs) {
+                        edits.add(kv);
+                        // if (LOG.isDebugEnabled()) LOG.debug("Trafodion getKeyValues: " +
+                        // regionInfo.getRegionNameAsString() + " create edits for transaction: "
+                        // + transactionId + " with Op " + kv.getType());
+                    }
+                }
+            } else if (LOG.isTraceEnabled())
+                LOG.trace("Trafodion getKeyValues:   " + regionInfo.getRegionNameAsString() + " kvsList was null");
+            return edits;
+        }
+    }
+
+    public Set<TrxTransactionState> getTransactionsToCheck() {
+        return transactionsToCheck;
+    }
+
+    public void resetEdit() {
+       this.pe = this.e;
+       this.e = new WALEdit();
+    }
+
+    public byte[] getIsUpsertBytes(byte[] rk) {
+        //return the ISUPSERT attr by searching the writeMap
+        byte[] attribute = null;
+        if (writeOrdering.size() > batchSizeToUseWriteMap && writeMap.size() > 0) {
+            ByteArrayKey k = new ByteArrayKey(rk);
+            WriteAction wa = writeMap.get(k);
+            if (wa != null && wa.getPut() != null ) {
+                attribute = wa.getPut().getAttribute("ISUPSERT");
+            }
+        } else {
+            ListIterator<WriteAction> writeOrderIter = null;
+            try {
+                for (writeOrderIter = writeOrdering.listIterator(); writeOrderIter.hasNext();) {
+                    WriteAction wa = writeOrderIter.next();
+                    if(Arrays.equals(rk, wa.getRow()) && (wa.getPut() != null)){
+                        attribute = wa.getPut().getAttribute("ISUPSERT");
+                        break;
+                    }
+                }
+            } catch(Exception e) {
+                LOG.error("getIsUpsertBytes failed due to :", e);
+            }
+        }
+        return attribute;
+    }
+
+    public void clearEdit() {
+       this.e = new WALEdit();
+    }
+
+#ifdef CDH5.7 APACHE1.2 CDH5.16
+    public Configuration getConfig() {
+      return config;
+    }
+#endif
+}

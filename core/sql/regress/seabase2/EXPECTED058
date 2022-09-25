@@ -1,0 +1,194 @@
+>>obey TEST058(create_db);
+>>create schema test058sch authorization sql_user1;
+
+--- SQL operation complete.
+>>set schema test058sch;
+
+--- SQL operation complete.
+>>create table t1incr(a int not null primary key, b int)
++>  attribute incremental backup;
+
+--- SQL operation complete.
+>>showddl t1incr;
+
+CREATE TABLE TRAFODION.TEST058SCH.T1INCR
+  (
+    A                                INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , B                                INT DEFAULT NULL
+  , PRIMARY KEY (A ASC)
+  )
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_regr' INCREMENTAL BACKUP
+;
+
+--- SQL operation complete.
+>>insert into t1incr values (1,1), (2,2), (3,3), (4,4), (5,5), (6,6);
+
+--- 6 row(s) inserted.
+>>get privileges for user sql_user1, match '%058%';
+
+Privileges for User SQL_USER1
+=============================
+
+SIDU-R--AD    TRAFODION.TEST058SCH.SB_HISTOGRAMS
+SIDU-R--AD    TRAFODION.TEST058SCH.SB_HISTOGRAM_INTERVALS
+SIDU-R--AD    TRAFODION.TEST058SCH.SB_PERSISTENT_SAMPLES
+SIDU-R--AD    TRAFODION.TEST058SCH.T1INCR
+
+=======================
+ 4 row(s) returned
+
+--- SQL operation complete.
+>>
+>>obey TEST058(dbroot_tests);
+>>-- ============================================================================
+>>-- DB__ROOT can perform back ups
+>>-- ============================================================================
+>>VALUES(CURRENT_USER);
+
+(EXPR)
+--------------------------------------------------------------------------------------------------------------------------------
+
+DB__ROOT                                                                                                                        
+
+--- 1 row(s) selected.
+>>backup system, tag 'bk-sys-058';
+
+--- SQL operation complete.
+>>get all backup snapshots, match '%058%';
+
+BackupTag    BackupTime           BackupStatus  BackupOperation        BackupOwner
+====================================================================================
+
+bk-sys-058   2019-07-09:08:53:05  VALID         SYSTEM                 DB__ROOT
+
+--- SQL operation complete.
+>>get version of backup, tag 'bk-sys-058';
+
+  Current Database Version: EsgynDB Advanced 2.7.0.   Expected Database Version: EsgynDB Advanced 2.7.0
+  Current Metadata Version: Metadata Version 2.6.0.   Expected Metadata Version: Metadata Version 2.6.0
+  Current Product Version : EsgynDB 2.7.0.   Expected Product Version : EsgynDB 2.7.0
+  Backup is current.
+
+--- SQL operation complete.
+>>--restore system, tag 'bk-sys-058', show objects;
+>>
+>>-- error cases
+>>restore system, tag 'bk-sys-058';
+
+*** ERROR[1021] SQL is already initialized on system .This operation is not permitted.
+
+*** ERROR[5050] RESTORE command could not be completed. Reason: Trafodion must be dropped before restoring a SYSTEM backup.
+
+--- SQL operation failed with errors.
+>>restore trafodion, tag 'bk-sys-058', tables(t1incr);
+
+*** ERROR[5050] RESTORE command could not be completed. Reason: Trafodion must be dropped before restoring a SYSTEM backup.
+
+--- SQL operation failed with errors.
+>>restore system, tag 'bk-sys-058', tables(t1incr);
+
+*** ERROR[1021] SQL is already initialized on system .This operation is not permitted.
+
+*** ERROR[5050] RESTORE command could not be completed. Reason: Trafodion must be dropped before restoring a SYSTEM backup.
+
+--- SQL operation failed with errors.
+>>restore system, tag 'bk-no-exists';
+
+*** ERROR[1021] SQL is already initialized on system .This operation is not permitted.
+
+*** ERROR[5050] RESTORE command could not be completed. Reason: Specified tag does not exist.
+
+--- SQL operation failed with errors.
+>>
+>>drop backup snapshot, tag 'bk-sys-058';
+
+--- SQL operation complete.
+>>get all backup snapshots, match '%058%';
+
+--- SQL operation complete.
+>>
+>>-- there should not be any locks.
+>>get all locked objects;
+
+--- SQL operation complete.
+>>
+>>-- should not be any orphans in metadata at this point
+>>cleanup metadata, check, return details;
+Metadata Cleanup: started, check only
+
+  Start: Cleanup Orphan Objects Entries
+  End:   Cleanup Orphan Objects Entries (0 entries found)
+
+  Start: Cleanup Orphan Hbase Entries
+  End:   Cleanup Orphan Hbase Entries (0 entries found)
+
+  Start: Cleanup Inconsistent Objects Entries
+  End:   Cleanup Inconsistent Objects Entries (0 entries found)
+
+  Start: Cleanup Inconsistent Views Entries
+  End:   Cleanup Inconsistent Views Entries (0 entries found)
+
+  Start: Cleanup Inconsistent Hive Entries
+  End:   Cleanup Inconsistent Hive Entries (0 entries found)
+
+  Start: Cleanup Inconsistent Privilege Entries
+  End:   Cleanup Inconsistent Privilege Entries (0 entries found)
+
+  Start: Cleanup Inconsistent User Group Entries
+  End:   Cleanup Inconsistent User Group Entries (0 entries found)
+
+Metadata Cleanup: done
+
+
+--- SQL operation complete.
+>>
+>>sh sqlci -i "TEST058(user_tests)" -u sql_user1;
+>>VALUES(CURRENT_USER);
+
+(EXPR)
+--------------------------------------------------------------------------------------------------------------------------------
+
+SQL_USER1                                                                                                                       
+
+--- 1 row(s) selected.
+>>
+>>backup system, tag 'bk-sys-058';
+
+*** ERROR[1017] You are not authorized to perform this operation.
+
+*** ERROR[5050] BACKUP command could not be completed. Reason: No privilege.
+
+--- SQL operation failed with errors.
+>>get all backup snapshots, match '%058%';
+
+--- SQL operation complete.
+>>exit;
+
+End of MXCI Session
+
+>>sh sqlci -i "TEST058(user_tests)" -u db__admin;
+>>VALUES(CURRENT_USER);
+
+(EXPR)
+--------------------------------------------------------------------------------------------------------------------------------
+
+DB__ADMIN                                                                                                                       
+
+--- 1 row(s) selected.
+>>
+>>backup system, tag 'bk-sys-058';
+
+--- SQL operation complete.
+>>get all backup snapshots, match '%058%';
+
+BackupTag    BackupTime           BackupStatus  BackupOperation        BackupOwner
+====================================================================================
+
+bk-sys-058   2019-07-09:08:56:02  VALID         SYSTEM                 DB__ADMIN
+
+--- SQL operation complete.
+>>exit;
+
+End of MXCI Session
+
+>>log;

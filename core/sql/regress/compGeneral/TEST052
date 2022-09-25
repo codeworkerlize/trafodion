@@ -1,0 +1,189 @@
+-- Test: TEST052 (CompGeneral)
+-- Functionality: Support for resource groups
+--
+-- support single node resource groups for tenants
+-- tests that zookeeper status is set correctly
+--
+-- @@@ START COPYRIGHT @@@
+--
+-- Licensed to the Apache Software Foundation (ASF) under one
+-- or more contributor license agreements.  See the NOTICE file
+-- distributed with this work for additional information
+-- regarding copyright ownership.  The ASF licenses this file
+-- to you under the Apache License, Version 2.0 (the
+-- "License"); you may not use this file except in compliance
+-- with the License.  You may obtain a copy of the License at
+--
+--   http://www.apache.org/licenses/LICENSE-2.0
+--
+-- Unless required by applicable law or agreed to in writing,
+-- software distributed under the License is distributed on an
+-- "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+-- KIND, either express or implied.  See the License for the
+-- specific language governing permissions and limitations
+-- under the License.
+--
+-- @@@ END COPYRIGHT @@@
+
+cqd TENANT_OVERSUBSCRIBE_ERR_NODE_RATIO '60.1';
+
+obey TEST052(clean_up);
+log LOG052 clear;
+obey TEST052(set_up);
+obey TEST052(create_env);
+obey TEST052(update_attrs);
+log;
+obey TEST052(clean_up);
+exit;
+
+?section clean_up
+drop tenant t052_tenant1;
+drop tenant t052_tenant2;
+drop tenant t052_tenant3;
+get tenants;
+
+drop resource group t052_group1;
+drop resource group t052_group2;
+get resource groups;
+
+drop library compgeneral_t052 cascade;
+
+?section set_up
+
+-- Resource group details
+prepare rgInfo from
+select 
+       case (resource_type)
+       when 'N' then 'NODE' || 'FILTER:' || cast (resource_name as char (20) character set iso88591)
+       else cast (resource_name as char (20) character set iso88591) 
+       end as resource_name,
+       resource_type
+from "_TENANT_MD_".resources
+order by resource_type, resource_name;
+
+-- nodes assigned to resource groups
+prepare rgNodes from
+SELECT
+       cast (resource_name as char(15) character set iso88591) as rgroupname,
+       'NODE' || 'FILTER:' || cast (usage_name as char(15) character set iso88591) as nodename
+       FROM TRAFODION."_TENANT_MD_".resource_usage u
+       WHERE usage_type = 'N' and resource_name like 'T052%'
+       ORDER BY 1, 2;
+
+-- Tenant details
+prepare tenantInfo from
+SELECT cast (a.auth_db_name as char(20) character set iso88591) as tenant_name,
+       affinity,
+       tenant_size,
+       case
+         when (o.object_uid is NULL) then '?'
+         else
+           cast (o.schema_name as char(20) character set iso88591)
+       end as default_schema,
+       cluster_size
+FROM TRAFODION."_TENANT_MD_".tenants t left join "_MD_".objects o 
+        on t.default_schema_uid = o.object_uid,
+     TRAFODION."_MD_".auths a
+WHERE t.tenant_id = a.auth_id and a.auth_db_name like 'T052%'
+order by 1;
+
+-- resource groups for tenant
+prepare tenantRG from
+select usage_type,
+       cast (auth_db_name as char (15) character set iso88591) as tname,
+       cast (resource_name as char (25) character set iso88591) as rname
+from "_TENANT_MD_".tenants t, "_TENANT_MD_".tenant_usage u,
+     "_TENANT_MD_".resources r, "_MD_".auths a
+where t.tenant_id = u.tenant_id
+  and u.usage_uid = r.resource_uid
+  and t.tenant_id = a.auth_id
+  and r.resource_name like 'T052%'
+order by 2, 3
+;
+
+-- nodes for tenant
+prepare tenantNodes from
+select
+       cast (usage_name as char(15) character set iso88591) as uname,
+       usage_type,
+       usage_value as units,
+       'NODE' || 'FILTER:' || cast (resource_name as char (15) character set iso88591) as rname
+from "_TENANT_MD_".resource_usage
+where usage_type = 'T' and usage_name like 'T052%'
+order by 2, 1;
+
+?section create_env
+-- create functions
+set pattern $$QUOTE$$ '''';
+sh rm -f ./etest052.dll;
+sh sh $$scriptsdir$$/tools/dll-compile.ksh etest052.cpp
+  2>&1 | tee -a LOG107-SECONDARY;
+set pattern $$DLL$$ etest052.dll;
+
+create library compGeneral_t052 file $$QUOTE$$ $$REGRRUNDIR$$/$$DLL$$ $$QUOTE$$ ;
+
+create function get_node_name() returns (hostName char (100))
+language c parameter style sql external name 'getNodeName'
+library compGeneral_t052
+deterministic no sql final call allow any parallelism state area size 1024 ;
+
+create function get_zookeeper_status(tenantName char(256)) returns (status char(500))
+language c parameter style sql external name 'getZookeeperTenantStatus'
+library compGeneral_t052
+deterministic no sql final call allow any parallelism state area size 1024 ;
+
+-- generate resource group stmt
+log;
+log TEMP1_LOG052 clear;
+select [first 2] 'create resource ' ||
+       'group t052_group' ||
+       component_uid ||
+       ' nodes (' || trim(get_node_name()) || 
+       ');' 
+from "_PRIVMGR_MD_".components;
+log;
+log LOG052;
+
+sh cat $REGRRUNDIR/TEMP1_LOG052 | tr -d '\000' | grep resource | grep group > TEMP2_LOG052;
+obey TEMP2_LOG052;
+sh rm $REGRRUNDIR/TEMP?_LOG052;
+sh rm $REGRTSTDIR/TEMP?_LOG052;
+log LOG052;
+
+execute rgInfo;
+execute rgNodes;
+
+create tenant t052_tenant1 admin role tenant1_admin, schemas (tenant1_sch), sessions -2, cluster size 1, affinity 1, tenant size 8;
+showddl tenant t052_tenant1;
+--select get_zookeeper_status('T052_TENANT1') from (values(1));
+select 'NODE' || 'FILTER:' || cast (a as char(20) character set iso88591) as nodename from (get nodes for tenant t052_tenant1) x(a);
+
+create tenant t052_tenant2 admin role tenant2_admin, schemas (tenant2_sch1, tenant2_sch2 default), 
+       resource groups (t052_group1), sessions -1, tenant size 10;
+showddl tenant t052_tenant1;
+--select get_zookeeper_status('T052_TENANT2') from (values(1));
+select 'NODE' || 'FILTER:' || cast (a as char(20) character set iso88591) as nodename from (get nodes for tenant t052_tenant2) x(a);
+
+create tenant t052_tenant3 admin role tenant3_admin, resource groups (t052_group1, t052_group2), sessions 10, tenant size 16;
+showddl tenant t052_tenant1;
+--select get_zookeeper_status('T052_TENANT3') from (values(1));
+select 'NODE' || 'FILTER:' || cast (a as char(20) character set iso88591) as nodename from (get nodes for tenant t052_tenant3) x(a);
+
+execute tenantInfo;
+execute tenantRG;
+execute tenantNodes;
+
+?section update_attrs
+alter tenant t052_tenant1 sessions 10, tenant size 4, cluster size 1, affinity 0;
+showddl tenant t052_tenant1;
+--select get_zookeeper_status('T052_TENANT1') from (values(1));
+
+alter tenant t052_tenant2 sessions -2, default schema tenant2_sch1, tenant size 16;
+showddl tenant t052_tenant1;
+--select get_zookeeper_status('T052_TENANT2') from (values(1));
+
+alter tenant t052_tenant3 sessions 20, schemas(tenant3_sch), tenant size 8;
+showddl tenant t052_tenant1;
+--select get_zookeeper_status('T052_TENANT3') from (values(1));
+
+execute tenantInfo;

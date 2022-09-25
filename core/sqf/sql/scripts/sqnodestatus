@@ -1,0 +1,130 @@
+#!/usr/bin/perl
+#
+# @@@ START COPYRIGHT @@@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+# @@@ END COPYRIGHT @@@
+#
+
+#
+# Implements:
+#   ssh -M "ConnectTimeout 1" -o "ConnectionAttempts 3" n028 hostinfo 2>&1
+#
+# Uses the following enviroment variables:
+#   export SQ_MON_SSH_OPTIONS=' -o "ConnectTimeout 1" -o "ConnectionAttempts 3" '
+#
+
+my $node_context=readpipe("trafconf -name");
+my %node_hash=();
+my $sq_mon_ssh_options=readpipe("echo -n \$SQ_MON_SSH_OPTIONS");
+my $json=$ARGV[0];
+my $node_name=$ARGV[1];
+
+&main();
+
+sub main()
+{
+  #print "json=${json}\n";
+  #print "node_name=${node_name}\n";
+  if ($ARGV[0] ne '-n')
+  {
+     #print "node_context=${node_context}";
+     chomp($node_context);
+     my @nodes=split(' ',$node_context);
+     foreach my $node(@nodes)
+     {
+        $check_flag=check_node_status($node);
+     }
+  }
+  else
+  {
+     $check_flag=check_node_status($node_name);
+  }
+  print_node_status();
+}
+
+sub print_node_status()
+{
+    if ($json eq '-json')
+    {
+        $comma="";
+        print "[";
+        foreach my $node(sort keys %node_hash)
+        {
+           if($comma)
+           {
+             print ",";
+           }
+           my $status=$node_hash{$node}{"status"};
+           print "{\"NODE\":\"${node}\",\"STATUS\":\"${status}\"}";
+           $comma="1"
+        }
+        print "]";
+    }
+    else
+    {
+        foreach my $node(sort keys %node_hash)
+        {
+           my $status=$node_hash{$node}{"status"};
+           print "${node} \[ ${status} \]\n";
+        }
+    }
+}
+
+sub check_node_status($)
+{
+    my $node_id, $node_status;
+    my $check_node=shift;
+
+    #print "node=${check_node}\n";
+    my $command="ssh -M -q $sq_mon_ssh_options $check_node hostname 2>&1";
+    #print "command=${command}\n";
+    my $down_character="";
+
+    my $check_results_1=readpipe($command);
+    chomp($check_results_1);
+    #print("check_results_1=${check_results_1}\n");
+    my @check_results=lc($check_results_1);
+
+    foreach my $check_result(@check_results)
+    {
+        if ((length($check_result) > 0) && 
+            (length($check_node) > 0) && 
+            (($check_result =~ /^$check_node/) || ($check_node =~ /^$check_result/)))
+        {
+           #print "up:check_node=${check_node}\n";
+           #print "up:check_result=${check_result}";
+           $node_id=$check_node;
+           $node_status="UP";
+        }
+        else
+        {
+           #print "dn:check_node=${check_node}\n";
+           #print "dn:check_result=${check_result}\n";
+           $node_id=$check_node;
+           $node_status="DOWN";
+        }
+
+        #print "${node_id} [ ${node_status} ]\n";
+        $node_hash{$node_id}{"status"}=$node_status;
+    }
+
+    return 1;
+}
+

@@ -1,0 +1,64 @@
+{
+  "services": [
+    {
+      "name": "QIANBASE",
+      "identities": [
+        {
+          "name": "/QIANBASE/QIANBASE_NODE/trafodion"
+        }
+      ],
+      "configurations": [
+        {
+          "trafodion-env": {
+            "traf_security_enabled": "Y"
+          }
+        }
+      ],
+      "components": [
+        {
+          "name":  "QIANBASE_NODE",
+          "identities": [
+            {
+              "name": "trafodion",
+              "principal": {
+                    "value": "trafodion/_HOST@${realm}",
+                    "type" : "service" ,
+                    "local_username" : "trafodion",
+                    "configuration" : "trafodion-env/traf.principal"
+               },
+               "keytab": {
+                  "file": "${keytab_dir}/esgyn.keytab",
+                  "configuration" : "trafodion-env/traf.keytab",
+                  "owner": {
+                    "name": "trafodion",
+                    "access": "r"
+                  },
+                  "group": {
+                    "name": "${cluster-env/user_group}",
+                    "access": "r"
+                  }
+                }
+            }
+          ]
+        },
+        {
+          "name":  "QIANBASE_DCS",
+          "identities": [
+            {
+              "name": "/QIANBASE/QIANBASE_NODE/trafodion"
+            }
+          ]
+        },
+        {
+          "name":  "QIANBASE_DBMGR",
+          "identities": [
+            {
+              "name": "/QIANBASE/QIANBASE_NODE/trafodion"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+

@@ -1,0 +1,23 @@
+#!/bin/bash
+
+#
+# Wrapper script for 'parquet-tools'
+#
+#  Supports 6 tools to look at a parquet table/file
+#  (cat, head, schema, meta, dump, merge) 
+#
+# Can just run it first as follows to get the parameters:
+#   parquet_tools
+#   parquet_tools [ cat | head | schema | meta | dump | merge ]
+#
+# E.g.:
+#   parquet_tools meta [options] <path to the parquet table (obtained via 'hive->describe formatted <table name>') >
+#   parquet_tools dump [options] <path to the parquet table file >
+# 
+
+lv_cmd=hadoop
+if [[ -e $TRAF_HOME/sql/scripts/swhadoop ]]; then
+   lv_cmd=swhadoop
+fi
+
+${lv_cmd} jar ${TRAF_HOME}/export/lib/parquet-tools-${PARQUET_VERSION}.jar $*

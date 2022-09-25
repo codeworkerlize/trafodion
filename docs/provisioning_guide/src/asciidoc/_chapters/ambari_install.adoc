@@ -1,0 +1,142 @@
+////
+/**
+* @@@ START COPYRIGHT @@@
+*
+* Licensed to the Apache Software Foundation (ASF) under one
+* or more contributor license agreements.  See the NOTICE file
+* distributed with this work for additional information
+* regarding copyright ownership.  The ASF licenses this file
+* to you under the Apache License, Version 2.0 (the
+* "License"); you may not use this file except in compliance
+* with the License.  You may obtain a copy of the License at
+*
+*   http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing,
+* software distributed under the License is distributed on an
+* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+* KIND, either express or implied.  See the License for the
+* specific language governing permissions and limitations
+* under the License.
+*
+* @@@ END COPYRIGHT @@@
+  */
+////
+
+[[install-ambari]]
+= Install with Ambari
+
+This method of installation uses RPM packages rather than tar files. There are two packages:
+
+* traf_ambari - Ambari management pack (plug-in) that is installed on the Ambari Server node
+* apache-trafodion_server - {project-name} package that is installed on every data node
+
+You can either set up a local yum repository (requires a web server) or install the RPMs
+manually on each node.
+
+image:{images}/amb4.PNG[width=400,height=400,alt="Ambari Services"]
+
+== Local Repository
+
+On your web server host, be sure the *createrepo* package is installed.
+Copy the two RPM files into a directory served to the web and run the createrepo command.
+
+ $ createrepo -d .
+
+The command must be used to update repo meta-data any time new RPMs are added or replaced.
+
+Note the {project-name} repository URL for later use.
+
+== Install Ambari Management Pack for {project-name}
+
+On your Ambari server host:
+
+. If Ambari Server is not already installed, be sure to download a yum repo file for Ambari.
+For example: http://docs.hortonworks.com/HDPDocuments/Ambari-2.4.2.0/bk_ambari-installation/content/download_the_ambari_repo_lnx6.html[Ambari-2.4.2 repo].
+
+. Add a yum repo file with the URL of your local repository, or copy the traf_ambari RPM locally.
+
+. Install the {project-name} Ambari management pack RPM. Ambari server will be installed as a dependency, if not already installed.
+
+ $ sudo yum install traf_ambari
+
+. Set-up Ambari
+.. If Ambari server was previously running, restart it.
+
+ $ sudo ambari-server restart
+
+.. If Ambari server was not previously running, initialize and start it.
+
+ $ sudo ambari-server setup
+ ...
+ $ sudo ambari-server start
+
+== Install {project-name}
+
+Unlike the command-line installer, {project-name} can be provisioned at time of creating a new cluster.
+
+=== Initial Cluster Creation
+
+If you are creating a new cluster and you have the {project-name} server RPM hosted on a local yum repository, then
+create the cluster as normal, and select a stack version that includs the {project-name} service.
+
+image:{images}/amb1.PNG[width=600,height=400,alt="Ambari Stack Versions"]
+
+When selecting HDP stack version, Ambari prompts for the repository URLs, be *sure to update the {project-name} URL
+to the URL for your local repository*.
+
+image:{images}/amb2.PNG[width=600,height=120,alt="Repo URL"]
+
+If you plan to install the server RPM manually, set the {project-name} URL to some other valid repository, otherwise the
+the invalid URL will cause errors later.
+Any valid repo URL will do. You may copy the HDP URL and paste it into the {project-name} URL.
+In this case, do not select the {project-name} service on the "Choose Services" step. First, create a cluster
+without the {project-name} service and follow instructions below for an existing cluster.
+
+=== Existing Cluster
+
+If you are not using a local yum repository, manually copy the apache-trafodion_server RPM to each data node and
+install it using yum install.
+
+Using Ambari, select the cluster and then from the Actions menu choose "Add Service" and select {project-name}.
+
+image:{images}/amb3.PNG[width=300,height=300,alt="Add Service"]
+
+WARNING: You may get a configuration warning regarding a hbase-site setting. In this case, follow the warning message
+instructions to go back to the HBase advanced configuration, hbase-site section and use the button to revert to
+the recommended value for "hbase.coprocessor.region.classes".
+
+Several services will need to be restarted before the {project-name} service can be started.
+Choose cluster "Actions" menu option "Restart All Required".
+
+== Initialize Meta-Data
+
+After {project-name} is installed and started, it must be initialized before use. Select the {project-name} service
+and then from the Service Actions menu choose "Initialize" and confirm the action.
+
+image:{images}/amb5.PNG[width=300,height=250,alt="Initialize"]
+
+== Upgrade from Prior Version
+
+First, be sure to stop the trafodion service prior to upgrading.
+
+Upgrade the traf_ambari package and re-start ambari-server service.
+
+ $ sudo ambari-server restart
+
+=== Upgrade Entire HDP Stack
+
+Ambari requires version upgrades to be an entire stack, not single components. If you want to
+include a trafodion upgrade in entire stack version upgrade, first upgrade the traf_ambari
+package and restart Ambari server.
+
+Once that is done, proceed with the upgrade following Ambari instructions. Be sure to
+define the Trafodion-2.2 URL that points to a repo server with the new apache-trafodion_server
+package.
+
+=== Upgrade Only Trafodion
+
+In this case, Ambari will not upgrade a single component, so the apache-trafodion_server
+package must be installed on each node directly (via yum command). Once that is done, the
+service can be started as usual.
+

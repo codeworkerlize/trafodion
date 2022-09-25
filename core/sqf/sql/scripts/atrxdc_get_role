@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+if [ $# != 0 ]; then
+    echo "***ERROR no correct parameter provided"
+    echo ""
+    echo "usage: atxxdc_get_role"
+    exit 1
+fi
+
+atrxdc -get role

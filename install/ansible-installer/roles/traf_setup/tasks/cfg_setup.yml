@@ -1,0 +1,143 @@
+---
+- name: Disable iptables
+  service: name=iptables state=stopped
+  when: ansible_os_family == 'RedHat' and ansible_distribution_major_version != '7'
+
+- name: Set max Kernel pid
+  shell: "sysctl -w kernel.pid_max=65535 2>&1 > /dev/null"
+  become_user: root
+  become: yes
+
+- name: Set max Kernel pid to sysctl.conf
+  lineinfile: dest=/etc/sysctl.conf line="kernel.pid_max=65535"
+  become_user: root
+  become: yes
+
+- stat: path=/tmp/hsperfdata_trafodion
+  register: hsperfdata
+
+- name: Set ownership for /tmp/hsperfdata_trafodion folder
+  file: path=/tmp/hsperfdata_trafodion owner=trafodion group=trafodion mode=0755
+  become: yes
+  when: hsperfdata.stat.exists==True
+
+# set as default value
+- name: Set default HBase lib path
+  set_fact:
+    hbase_lib_path: "/usr/lib/hbase/lib"
+
+# use the default parcel dir
+- name: Detect Hbase lib path for CDH parcel
+  stat: path=/opt/cloudera/parcels/CDH/lib/hbase/lib
+  register: parcel
+
+- name: Set CDH parcel Hbase lib path if exists
+  set_fact:
+    hbase_lib_path: "/opt/cloudera/parcels/CDH/lib/hbase/lib"
+  when: parcel.stat.exists==True
+
+- name: Set HDP Hbase lib path if exists
+  set_fact:
+    hbase_lib_path: "/usr/hdp/current/hbase-regionserver/lib"
+  when: "'HDP' in distro"
+
+- name: Copy HBase trx jar file to all nodes - CDH
+  shell: "cp /home/trafodion/{{ traf_basename }}-{{ traf_version }}/export/lib/hbase-trx-cdh* {{ hbase_lib_path }} 2>/dev/null; echo -n"
+  become: yes
+  when: "'CDH' in distro"
+
+- name: Copy HBase trx jar file to all nodes - HDP
+  shell: "cp /home/trafodion/{{ traf_basename }}-{{ traf_version }}/export/lib/hbase-trx-hdp* {{ hbase_lib_path }} 2>/dev/null; echo -n"
+  become: yes
+  when: "'HDP' in distro"
+
+- name: Copy trafodion utility jar file to all nodes
+  shell: "cp /home/trafodion/{{ traf_basename }}-{{ traf_version }}/export/lib/trafodion-utility* {{ hbase_lib_path }} 2>/dev/null; echo -n"
+  become: yes
+
+# dcs
+- name: Get network interface
+  shell: "netstat -rn | grep '^0.0.0.0' | awk '{print $8}'"
+  register: net_interface
+
+- name: Get zookeeper quorum
+  shell: "grep 'hbase.zookeeper.quorum' -A1 {{ hbase_xml_file }} |tail -n1|sed s'/.*<value>\\(.*\\)<\\/value>/\\1/g'"
+  register: zookeeper_quorum
+
+- name: Set variables
+  set_fact:
+    interface: "{{ net_interface.stdout }}"
+    zk_hosts: "{{ zookeeper_quorum.stdout }}"
+    dcs_srv_file: "{{ sq_root }}/dcs-{{ traf_version }}/conf/servers"
+    dcs_master_file: "{{ sq_root }}/dcs-{{ traf_version }}/conf/master"
+    dcs_bkmaster_file: "{{ sq_root }}/dcs-{{ traf_version }}/conf/backup-masters"
+    dcs_env_file: "{{ sq_root }}/dcs-{{ traf_version }}/conf/dcs-env.sh"
+    dcs_site_file: "{{ sq_root }}/dcs-{{ traf_version }}/conf/dcs-site.xml"
+    rest_site_file: "{{ sq_root }}/rest-{{ traf_version }}/conf/rest-site.xml"
+
+- set_fact:
+    dcs_backup_nodes: "{{ dcs_bknodes.split() }}"
+  when: dcs_bknodes is defined
+
+- name: Modify dcs master file
+  lineinfile: dest={{ dcs_master_file }} line={{ groups['firstnode'][0] }}
+  ignore_errors: true
+  become: yes
+
+- name: Modify dcs-env.sh
+  replace: dest={{ dcs_env_file }} regexp='# export DCS_MANAGES_ZK=true' replace='export DCS_MANAGES_ZK=false'
+  become: yes
+
+- name: Generate dcs-site.xml
+  template: src=dcs-site.xml.j2 dest={{ dcs_site_file }}
+  become: yes
+  when: dcs_ha=='N'
+
+- name: Generate dcs-site.xml for DCS HA
+  template: src=dcs-site-ha.xml.j2 dest={{ dcs_site_file }}
+  become: yes
+  when: dcs_ha=='Y'
+
+- name: Generate sudoers config for trafodion user
+  copy: src=trafodion_sudoer_cfg dest=/etc/sudoers.d/
+  become: yes
+  when: dcs_ha=='Y'
+
+- name: Mod trafci for DCS HA
+  replace: dest={{ sq_root }}/trafci/bin/trafci regexp='localhost' replace={{ dcs_ip }}
+  become: yes
+  when: dcs_ha=='Y'
+
+- name: Mod backup-master file
+  lineinfile: dest={{ dcs_bkmaster_file }} line={{ item }}
+  with_items: dcs_backup_nodes
+  become: yes
+  when: dcs_ha=='Y'
+
+- name: Generate rest-site.xml
+  template: src=rest-site.xml.j2 dest={{ rest_site_file }}
+  become: yes
+
+- name: Clean up servers file
+  lineinfile: dest={{ dcs_srv_file }} line="localhost 2" state=absent
+  become: yes
+
+- name: Generate servers file
+  lineinfile: dest={{ dcs_srv_file }} line="{{ item }} {{ dcs_cnt_per_node }}"
+  with_items: node_list.split()
+  become: yes
+
+- name: Set dcs install path in sqenvcom.sh
+  lineinfile: dest={{ sq_root }}/sqenvcom.sh
+              line="export DCS_INSTALL_DIR={{ sq_root }}/dcs-{{ traf_version }}"
+  become: yes
+
+- name: Set rest install path in sqenvcom.sh
+  lineinfile: dest={{ sq_root }}/sqenvcom.sh
+              line="export REST_INSTALL_DIR={{ sq_root }}/rest-{{ traf_version }}"
+  become: yes
+
+- name: Run sqcertgen for generating cert file on all nodes 
+  shell: 'source /home/trafodion/.bashrc; sqcertgen'
+  become: yes
+  become_user: trafodion

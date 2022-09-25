@@ -1,0 +1,22 @@
+1836c1836
+<  22 0 22
+---
+>  21 0 21
+1849c1849
+<  22 0 22
+---
+>  21 0 21
+1945c1945
+<  0 0 Query (see log file)
+---
+>  0 1 Query (see log file)
+1952d1951
+<  1 1 Query (see log file)
+1971c1970
+< --- 25 row(s) selected.
+---
+> --- 24 row(s) selected.
+1981c1980
+<  100
+---
+>  99

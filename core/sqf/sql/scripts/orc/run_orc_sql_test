@@ -1,0 +1,4 @@
+#!/bin/bash
+sqlci -i orctest.in > orctest.out
+echo "Output in the file orctest.out"
+

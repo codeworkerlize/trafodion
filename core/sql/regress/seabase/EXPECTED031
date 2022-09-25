@@ -1,0 +1,1714 @@
+>>-- tests for PRIMARY KEY constraint usage
+>>drop table if exists t031t1 cascade;
+
+--- SQL operation complete.
+>>create table t031t1 (a int not null, b int not null, constraint ppk primary key(a));
+
+--- SQL operation complete.
+>>alter table t031t1 add constraint ppk primary key(b);
+
+*** ERROR[1256] PRIMARY KEY constraint cannot be added since table TRAFODION.SCH.T031T1 already has a user specified clustering key.
+
+--- SQL operation failed with errors.
+>>alter table t031t1 add constraint ppk2 primary key(b);
+
+*** ERROR[1256] PRIMARY KEY constraint cannot be added since table TRAFODION.SCH.T031T1 already has a user specified clustering key.
+
+--- SQL operation failed with errors.
+>>alter table t031t1 add constraint ppk unique(b);
+
+*** ERROR[1043] Constraint TRAFODION.SCH.PPK already exists.
+
+--- SQL operation failed with errors.
+>>alter table t031t1 drop constraint ppk;
+
+*** ERROR[1255] Constraint TRAFODION.SCH.PPK is the clustering key constraint for table TRAFODION.SCH.T031T1 and cannot be dropped.
+
+--- SQL operation failed with errors.
+>>
+>>drop table if exists t031t1;
+
+--- SQL operation complete.
+>>create table t031t1 (a int not null, b int not null);
+
+--- SQL operation complete.
+>>alter table t031t1 add constraint ppk primary key(a);
+
+--- SQL operation complete.
+>>alter table t031t1 add constraint ppk primary key(b);
+
+*** ERROR[1256] PRIMARY KEY constraint cannot be added since table TRAFODION.SCH.T031T1 already has a user specified clustering key.
+
+--- SQL operation failed with errors.
+>>alter table t031t1 add constraint ppk2 primary key(b);
+
+*** ERROR[1256] PRIMARY KEY constraint cannot be added since table TRAFODION.SCH.T031T1 already has a user specified clustering key.
+
+--- SQL operation failed with errors.
+>>alter table t031t1 add constraint ppk unique(b);
+
+*** ERROR[1043] Constraint TRAFODION.SCH.PPK already exists.
+
+--- SQL operation failed with errors.
+>>alter table t031t1 drop constraint ppk;
+
+*** ERROR[1255] Constraint TRAFODION.SCH.PPK is the clustering key constraint for table TRAFODION.SCH.T031T1 and cannot be dropped.
+
+--- SQL operation failed with errors.
+>>
+>>drop table if exists t031t1;
+
+--- SQL operation complete.
+>>create table t031t1 (a int not null, b int not null) store by (a);
+
+--- SQL operation complete.
+>>alter table t031t1 add constraint ppk primary key(a);
+
+*** ERROR[1256] PRIMARY KEY constraint cannot be added since table TRAFODION.SCH.T031T1 already has a user specified clustering key.
+
+--- SQL operation failed with errors.
+>>alter table t031t1 add constraint ppk unique(b);
+
+--- SQL operation complete.
+>>alter table t031t1 drop constraint ppk;
+
+--- SQL operation complete.
+>>
+>>drop table if exists t031t1;
+
+--- SQL operation complete.
+>>create table t031t1 (a int not null primary key, b int not null);
+
+--- SQL operation complete.
+>>alter table t031t1 add constraint ppk primary key(a);
+
+*** ERROR[1256] PRIMARY KEY constraint cannot be added since table TRAFODION.SCH.T031T1 already has a user specified clustering key.
+
+--- SQL operation failed with errors.
+>>alter table t031t1 add constraint ppk primary key(b);
+
+*** ERROR[1256] PRIMARY KEY constraint cannot be added since table TRAFODION.SCH.T031T1 already has a user specified clustering key.
+
+--- SQL operation failed with errors.
+>>
+>>-- primary key update transformed into delete/insert incorrectly 
+>>-- deletes row after conflict
+>>create table if not exists t031t1 (a int not null primary key, b int not null);
+
+--- SQL operation complete.
+>>delete from t031t1;
+
+--- 0 row(s) deleted.
+>>insert into t031t1 values (1,1), (2,2), (3,3), (4,4);
+
+--- 4 row(s) inserted.
+>>update t031t1 set a = 4 where a = 2;
+
+*** ERROR[8102] The operation is prevented by a unique constraint.
+
+--- 0 row(s) updated.
+>>select * from t031t1;
+
+A            B          
+-----------  -----------
+
+          1            1
+          2            2
+          3            3
+          4            4
+
+--- 4 row(s) selected.
+>>
+>>-- incorrect ddl with salt clause should not crash
+>>drop table if exists t031t1;
+
+--- SQL operation complete.
+>>create table t031t1 (
++>T2C1 int not null not droppable,
++>T2C1 int not null not droppable,
++>T2C1 int)
++>salt using 2 partitions on (T2C1, T2C2)
++>store by (T2C1, T2C2);
+
+*** ERROR[1009] Column T2C2 does not exist in the specified table.
+
+--- SQL operation failed with errors.
+>>
+>>-- cannot rename table with check constraints.
+>>-- cascade option with rename not supported.
+>>drop table if exists t031t1;
+
+--- SQL operation complete.
+>>create table t031t1 (a int);
+
+--- SQL operation complete.
+>>alter table t031t1 add constraint t031t1_c1 check (a > 0);
+
+--- SQL operation complete.
+>>alter table t031t1 rename to t031t1_ren cascade;
+
+*** ERROR[1427] Table cannot be renamed. Reason: Cascade option not supported.
+
+--- SQL operation failed with errors.
+>>alter table t031t1 rename to t031t1_ren;
+
+*** ERROR[1427] Table cannot be renamed. Reason: Operation not allowed if check constraints are present. Drop the constraints and recreate them after rename.
+
+--- SQL operation failed with errors.
+>>
+>>-- time datatype conversion was returning incorrect results
+>>drop table if exists t031t1;
+
+--- SQL operation complete.
+>>create table t031t1
++>(id int not null,
++>time1 time default null,
++>time2 time default null,
++>type1 time default null,
++>type2 char(5) default null,
++>diff char(6) default null,
++>primary key (id));
+
+--- SQL operation complete.
+>>insert into t031t1 (id, time1, time2, diff) values (1, time '00:00:30.758788', time '00:00:29.615308', 'MATCH');
+
+--- 1 row(s) inserted.
+>>select * from t031t1 order by 1;
+
+ID           TIME1     TIME2     TYPE1     TYPE2  DIFF  
+-----------  --------  --------  --------  -----  ------
+
+          1  00:00:31  00:00:30  ?         ?      MATCH 
+
+--- 1 row(s) selected.
+>>update t031t1
++>set type1 =
++>case when (time1 + interval '1' second) < time2 then time1 else time2
++>end,
++>type2 =
++>case when (time1 + interval '1' second) < time2 then 'T1' else 'T2'
++>end
++>where id = 1;
+
+--- 1 row(s) updated.
+>>select
++>type2, diff, type1,
++>case
++>when diff = 'MATCH' then 'PASS' else 'FAIL'
++>end
++>from t031t1
++>where id = 1;
+
+TYPE2  DIFF    TYPE1     (EXPR)
+-----  ------  --------  ------
+
+T2     MATCH   00:00:30  PASS  
+
+--- 1 row(s) selected.
+>>select * from t031t1;
+
+ID           TIME1     TIME2     TYPE1     TYPE2  DIFF  
+-----------  --------  --------  --------  -----  ------
+
+          1  00:00:31  00:00:30  00:00:30  T2     MATCH 
+
+--- 1 row(s) selected.
+>>
+>>-- varchar default values were not being handled correctly
+>>drop table if exists t031t1;
+
+--- SQL operation complete.
+>>create  table t031t1 (a varchar(6) not null default 'ABC',
++>                      b varchar(6) default 'ABC');
+
+--- SQL operation complete.
+>>insert into t031t1 default values;
+
+--- 1 row(s) inserted.
+>>upsert into t031t1 default values;
+
+--- 1 row(s) inserted.
+>>select * from t031t1;
+
+A       B     
+------  ------
+
+ABC     ABC   
+ABC     ABC   
+
+--- 2 row(s) selected.
+>>
+>>-- long varchars
+>>cqd AUTO_ADJUST_CACHEROWS 'OFF';
+
+--- SQL operation complete.
+>>cqd traf_max_character_col_length '1000000';
+
+--- SQL operation complete.
+>>drop table if exists t031t1;
+
+--- SQL operation complete.
+>>create table t031t1 (z int not null primary key, a varchar(1000000), b char(1000000));
+
+--- SQL operation complete.
+>>insert into t031t1 values (1, repeat('a', 1000000, 1000000) , 'def');
+
+--- 1 row(s) inserted.
+>>insert into t031t1 values (2, repeat('a', 1000, 1000) , 'zzz');
+
+--- 1 row(s) inserted.
+>>insert into t031t1 values (3, repeat('a', 10000, 10000) , 'zzz');
+
+--- 1 row(s) inserted.
+>>insert into t031t1 values (4, repeat('a', 100000, 100000) , 'zzz');
+
+--- 1 row(s) inserted.
+>>insert into t031t1 values (5, repeat('a', 100, 100) , 'zzz');
+
+--- 1 row(s) inserted.
+>>insert into t031t1 values (6, repeat('a', 10, 10) , 'zzz');
+
+--- 1 row(s) inserted.
+>>insert into t031t1 values (7, repeat('a', 1, 1) , 'zzz');
+
+--- 1 row(s) inserted.
+>>insert into t031t1 values (8, repeat('a', 1000000, 1000000) , null);
+
+--- 1 row(s) inserted.
+>>insert into t031t1 values (9, repeat('a', 500000, 500000) , null);
+
+--- 1 row(s) inserted.
+>>insert into t031t1 values (10, repeat('a', 100, 100) , null);
+
+--- 1 row(s) inserted.
+>>
+>>-- should return error, maxlength not sufficient
+>>insert into t031t1 values (11, repeat('a', 100, 10), null);
+
+*** ERROR[8402] A string overflow occurred during the evaluation of a character expression.
+
+--- 0 row(s) inserted.
+>>
+>>select char_length(a), char_length(b) from t031t1;
+
+(EXPR)      (EXPR)    
+----------  ----------
+
+   1000000     1000000
+      1000     1000000
+     10000     1000000
+    100000     1000000
+       100     1000000
+        10     1000000
+         1     1000000
+   1000000           ?
+    500000           ?
+       100           ?
+
+--- 10 row(s) selected.
+>>select substring(a, 1, 10), cast(b as char(10)) from t031t1;
+
+(EXPR)      (EXPR)    
+----------  ----------
+
+aaaaaaaaaa  def       
+aaaaaaaaaa  zzz       
+aaaaaaaaaa  zzz       
+aaaaaaaaaa  zzz       
+aaaaaaaaaa  zzz       
+aaaaaaaaaa  zzz       
+a           zzz       
+aaaaaaaaaa  ?         
+aaaaaaaaaa  ?         
+aaaaaaaaaa  ?         
+
+--- 10 row(s) selected.
+>>select [last 0] * from t031t1;
+
+--- 0 row(s) selected.
+>>
+>>drop table if exists t031t2;
+
+--- SQL operation complete.
+>>create table t031t2 (z int, a varchar(1000000), b char(1000000)) attribute aligned format;
+
+--- SQL operation complete.
+>>insert into t031t2 select * from t031t1;
+
+--- 10 row(s) inserted.
+>>select char_length(a), char_length(b) from t031t2;
+
+(EXPR)      (EXPR)    
+----------  ----------
+
+   1000000     1000000
+      1000     1000000
+     10000     1000000
+    100000     1000000
+       100     1000000
+        10     1000000
+         1     1000000
+   1000000           ?
+    500000           ?
+       100           ?
+
+--- 10 row(s) selected.
+>>select substring(a, 1, 10), cast(b as char(10)) from t031t2;
+
+(EXPR)      (EXPR)    
+----------  ----------
+
+aaaaaaaaaa  def       
+aaaaaaaaaa  zzz       
+aaaaaaaaaa  zzz       
+aaaaaaaaaa  zzz       
+aaaaaaaaaa  zzz       
+aaaaaaaaaa  zzz       
+a           zzz       
+aaaaaaaaaa  ?         
+aaaaaaaaaa  ?         
+aaaaaaaaaa  ?         
+
+--- 10 row(s) selected.
+>>select [last 0] * from t031t2;
+
+--- 0 row(s) selected.
+>>
+>>select count(*) from t031t1 x, t031t2 y where x.a = y.a;
+
+(EXPR)              
+--------------------
+
+                  14
+
+--- 1 row(s) selected.
+>>select x.z, y.z, substring(x.a, 1, 5), substring(y.a,1,5) 
++>  from t031t1 x, t031t2 y where x.a = y.a
++>  order by x.z, y.z;
+
+Z            Z            (EXPR)  (EXPR)
+-----------  -----------  ------  ------
+
+          1            1  aaaaa   aaaaa 
+          1            8  aaaaa   aaaaa 
+          2            2  aaaaa   aaaaa 
+          3            3  aaaaa   aaaaa 
+          4            4  aaaaa   aaaaa 
+          5            5  aaaaa   aaaaa 
+          5           10  aaaaa   aaaaa 
+          6            6  aaaaa   aaaaa 
+          7            7  a       a     
+          8            1  aaaaa   aaaaa 
+          8            8  aaaaa   aaaaa 
+          9            9  aaaaa   aaaaa 
+         10            5  aaaaa   aaaaa 
+         10           10  aaaaa   aaaaa 
+
+--- 14 row(s) selected.
+>>select x.z, y.z, substring(x.a, 1, 5), substring(y.a,1,5) 
++>  from t031t1 x, t031t2 y where x.a = y.a and x.b = y.b
++>  order by x.z, y.z;
+
+Z            Z            (EXPR)  (EXPR)
+-----------  -----------  ------  ------
+
+          1            1  aaaaa   aaaaa 
+          2            2  aaaaa   aaaaa 
+          3            3  aaaaa   aaaaa 
+          4            4  aaaaa   aaaaa 
+          5            5  aaaaa   aaaaa 
+          6            6  aaaaa   aaaaa 
+          7            7  a       a     
+
+--- 7 row(s) selected.
+>>
+>>process hive statement 'drop table t031hive';
+
+--- SQL operation complete.
+>>process hive statement 'create table t031hive(z int, a string, b string)';
+
+--- SQL operation complete.
+>>
+>>-- really large columns
+>>drop table if exists t031t10;
+
+--- SQL operation complete.
+>>
+>>-- should fail, exceeds max
+>>create table t031t10 (a varchar(20485760));
+
+*** ERROR[4247] Specified size in bytes (20485760) exceeds the maximum size allowed (1000000) for column A.
+
+--- SQL operation failed with errors.
+>>cqd traf_max_character_col_length_override 'ON';
+
+--- SQL operation complete.
+>>cqd traf_max_character_col_length '25000000';
+
+--- SQL operation complete.
+>>create table t031t10 (a varchar(20485760));
+
+--- SQL operation complete.
+>>invoke t031t10;
+
+-- Definition of Trafodion table TRAFODION.SCH.T031T10
+-- Definition of hbase table TRAF_regr:TRAFODION.SCH.T031T10
+-- Definition current  Tue Oct 22 02:36:29 2019
+
+  (
+    SYSKEY                           LARGEINT NO DEFAULT NOT NULL NOT DROPPABLE
+  , A                                VARCHAR(20485760) CHARACTER SET ISO88591
+      COLLATE DEFAULT DEFAULT NULL
+  )
+
+--- SQL operation complete.
+>>cqd traf_max_character_col_length_override 'OFF';
+
+--- SQL operation complete.
+>>
+>>-- should fail, exceeds max
+>>drop table if exists t031t11;
+
+--- SQL operation complete.
+>>create table t031t11 (a varchar(20485760));
+
+*** ERROR[4247] Specified size in bytes (20485760) exceeds the maximum size allowed (16777216) for column A.
+
+--- SQL operation failed with errors.
+>>create table t031t11 (a varchar(10485760));
+
+--- SQL operation complete.
+>>prepare s from select repeat('1234567890', 1048576 ) from dual;
+
+--- SQL command prepared.
+>>
+>>-- should fail, exceeds max
+>>prepare s from select repeat('11234567890', 1648576 ) from dual;
+
+*** ERROR[4129] The character-typed result of the function REPEAT is longer than the maximum supported size.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>
+>>-- should fail, exceeds max. TBD.
+>>prepare s from select ' ' || repeat('1234567890', 1048576) from dual;
+
+--- SQL command prepared.
+>>
+>>-- Reset this value before continuing. I've seen cases
+>>-- where we fail when we resend the above CQDs to a secondary
+>>-- compiler. The reason is that we send this:
+>>-- cqd traf_max_character_col_length '25000000';
+>>-- cqd traf_max_character_col_length_override 'OFF';
+>>-- Note the missing CQD that sets the override to ON.
+>>-- We probably optimize this and send only the latest
+>>-- CQD setting for each one. So, this design with the
+>>-- two interacting CQDs does not work very well.
+>>cqd traf_max_character_col_length reset;
+
+--- SQL operation complete.
+>>
+>>-- hive tables
+>>sh echo "drop table t031hive;" > TEST031_junk;
+>>sh regrhive.ksh -f TEST031_junk;
+>>
+>>sh echo "create table t031hive(z int, a string, b string);" > TEST031_junk;
+>>sh regrhive.ksh -f TEST031_junk;
+>>
+>>cqd hive_max_string_length_in_bytes '1000000';
+
+--- SQL operation complete.
+>>insert into hive.hive.t031hive select * from t031t1;
+
+--- 10 row(s) inserted.
+>>select count(*) from hive.hive.t031hive;
+
+(EXPR)              
+--------------------
+
+                  10
+
+--- 1 row(s) selected.
+>>select substring(a, 1, 10), cast(b as char(10)) from hive.hive.t031hive;
+
+(EXPR)                                    (EXPR)
+----------------------------------------  ----------------------------------------
+
+aaaaaaaaaa                                def                                     
+aaaaaaaaaa                                zzz                                     
+aaaaaaaaaa                                zzz                                     
+aaaaaaaaaa                                zzz                                     
+aaaaaaaaaa                                zzz                                     
+aaaaaaaaaa                                zzz                                     
+a                                         zzz                                     
+aaaaaaaaaa                                ?                                       
+aaaaaaaaaa                                ?                                       
+aaaaaaaaaa                                ?                                       
+
+--- 10 row(s) selected.
+>>select [last 0] * from hive.hive.t031hive;
+
+--- 0 row(s) selected.
+>>
+>>drop external table if exists t031hive for hive.hive.t031hive;
+
+--- SQL operation complete.
+>>create external table t031hive (z int, a varchar(1000000), b varchar(1000000))
++>for hive.hive.t031hive;
+
+--- SQL operation complete.
+>>delete from t031t1;
+
+--- 10 row(s) deleted.
+>>insert into t031t1 select * from hive.hive.t031hive;
+
+--- 10 row(s) inserted.
+>>select count(*) from t031t1;
+
+(EXPR)              
+--------------------
+
+                  10
+
+--- 1 row(s) selected.
+>>
+>>control query shape sort_groupby(exchange(cut));
+
+--- SQL operation complete.
+>>cqd hive_min_bytes_per_esp_partition '2000000' ;
+
+--- SQL operation complete.
+>>prepare s2 from select count(*) from hive.hive.t031hive;
+
+--- SQL command prepared.
+>>explain options 'f' s2 ;
+
+LC   RC   OP   OPERATOR              OPT       DESCRIPTION           CARD
+---- ---- ---- --------------------  --------  --------------------  ---------
+
+4    .    5    root                                                  1.00E+000
+3    .    4    sort_partial_aggr_ro                                  1.00E+000
+2    .    3    esp_exchange                    1:2(hash2)            1.00E+000
+1    .    2    sort_partial_aggr_le                                  1.00E+000
+.    .    1    hive_scan                       T031HIVE              1.00E+002
+
+--- SQL operation complete.
+>>execute s2 ;
+
+(EXPR)              
+--------------------
+
+                  10
+
+--- 1 row(s) selected.
+>>
+>>cqd hive_min_bytes_per_esp_partition '1000000' ;
+
+--- SQL operation complete.
+>>prepare s2 from select count(*) from hive.hive.t031hive;
+
+--- SQL command prepared.
+>>explain options 'f' s2 ;
+
+LC   RC   OP   OPERATOR              OPT       DESCRIPTION           CARD
+---- ---- ---- --------------------  --------  --------------------  ---------
+
+4    .    5    root                                                  1.00E+000
+3    .    4    sort_partial_aggr_ro                                  1.00E+000
+2    .    3    esp_exchange                    1:3(hash2)            1.00E+000
+1    .    2    sort_partial_aggr_le                                  1.00E+000
+.    .    1    hive_scan                       T031HIVE              1.00E+002
+
+--- SQL operation complete.
+>>execute s2 ;
+
+(EXPR)              
+--------------------
+
+                  10
+
+--- 1 row(s) selected.
+>>
+>>-- test error
+>>cqd hdfs_io_buffersize '3' ;
+
+--- SQL operation complete.
+>>prepare s2 from select count(*) from hive.hive.t031hive;
+
+*** ERROR[4226] Table HIVE.HIVE.T031HIVE has a maximum record length of 2004120 which is greater than the HDFS_IO_BUFFERSIZE default. Increase buffer size setting, or reduce the HIVE_MAX_STRING_LENGTH default.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>
+>>control query shape cut ;
+
+--- SQL operation complete.
+>>cqd hdfs_io_buffersize reset ;
+
+--- SQL operation complete.
+>>cqd hive_min_bytes_per_esp_partition reset;
+
+--- SQL operation complete.
+>>
+>>-- should not return error.
+>>process hive statement 'drop table t';
+
+--- SQL operation complete.
+>>process hive statement 'create table t (a int)';
+
+--- SQL operation complete.
+>>process hive statement 'drop table t';
+
+--- SQL operation complete.
+>>
+>>-- insert through "process hive statement" returns an error on HDP platform. 
+>>-- Disable it until that issue is fixed.
+>>--process hive statement 'insert into t values (1)';
+>>
+>>-- default USER
+>>drop table if exists t031t1;
+
+--- SQL operation complete.
+>>create table t031t1 (a int, b varchar(20) default user);
+
+--- SQL operation complete.
+>>invoke t031t1;
+
+-- Definition of Trafodion table TRAFODION.SCH.T031T1
+-- Definition of hbase table TRAF_regr:TRAFODION.SCH.T031T1
+-- Definition current  Tue Oct 22 02:37:32 2019
+
+  (
+    SYSKEY                           LARGEINT NO DEFAULT NOT NULL NOT DROPPABLE
+  , A                                INT DEFAULT NULL
+  , B                                VARCHAR(20) CHARACTER SET ISO88591 COLLATE
+      DEFAULT DEFAULT USER
+  )
+
+--- SQL operation complete.
+>>insert into t031t1 (a) values (10);
+
+--- 1 row(s) inserted.
+>>insert into t031t1 default values;
+
+--- 1 row(s) inserted.
+>>select * from t031t1;
+
+A            B                   
+-----------  --------------------
+
+         10  DB__ROOT            
+          ?  DB__ROOT            
+
+--- 2 row(s) selected.
+>>alter table t031t1 add column c char(20) default user;
+
+--- SQL operation complete.
+>>invoke t031t1;
+
+-- Definition of Trafodion table TRAFODION.SCH.T031T1
+-- Definition of hbase table TRAF_regr:TRAFODION.SCH.T031T1
+-- Definition current  Tue Oct 22 02:37:35 2019
+
+  (
+    SYSKEY                           LARGEINT NO DEFAULT NOT NULL NOT DROPPABLE
+  , A                                INT DEFAULT NULL
+  , B                                VARCHAR(20) CHARACTER SET ISO88591 COLLATE
+      DEFAULT DEFAULT USER
+  , C                                CHAR(20) CHARACTER SET ISO88591 COLLATE
+      DEFAULT DEFAULT USER /*added_col*/
+  )
+
+--- SQL operation complete.
+>>select * from t031t1;
+
+A            B                     C                   
+-----------  --------------------  --------------------
+
+         10  DB__ROOT                                  
+          ?  DB__ROOT                                  
+
+--- 2 row(s) selected.
+>>insert into t031t1 default values;
+
+--- 1 row(s) inserted.
+>>select * from t031t1;
+
+A            B                     C                   
+-----------  --------------------  --------------------
+
+         10  DB__ROOT                                  
+          ?  DB__ROOT                                  
+          ?  DB__ROOT              DB__ROOT            
+
+--- 3 row(s) selected.
+>>
+>>-- metadata stored descriptor tests
+>>cqd traf_store_object_desc 'OFF';
+
+--- SQL operation complete.
+>>cqd traf_read_object_desc 'OFF';
+
+--- SQL operation complete.
+>>drop table if exists t031t1 cascade;
+
+--- SQL operation complete.
+>>create table t031t1 (a int);
+
+--- SQL operation complete.
+>>invoke t031t1;
+
+-- Definition of Trafodion table TRAFODION.SCH.T031T1
+-- Definition of hbase table TRAF_regr:TRAFODION.SCH.T031T1
+-- Definition current  Tue Oct 22 02:37:44 2019
+
+  (
+    SYSKEY                           LARGEINT NO DEFAULT NOT NULL NOT DROPPABLE
+  , A                                INT DEFAULT NULL
+  )
+
+--- SQL operation complete.
+>>alter table t031t1 check stored descriptor;
+
+*** ERROR[4493] Stored Descriptor Status: Does not exist. It needs to be regenerated.
+
+--- SQL operation failed with errors.
+>>
+>>cqd traf_store_object_desc 'ON';
+
+--- SQL operation complete.
+>>cqd traf_read_object_desc 'ON';
+
+--- SQL operation complete.
+>>drop table if exists t031t1;
+
+--- SQL operation complete.
+>>create table t031t1 (a int);
+
+--- SQL operation complete.
+>>invoke t031t1;
+
+-- Definition of Trafodion table TRAFODION.SCH.T031T1
+-- Definition of hbase table TRAF_regr:TRAFODION.SCH.T031T1
+-- Definition current  Tue Oct 22 02:37:52 2019
+
+  (
+    SYSKEY                           LARGEINT NO DEFAULT NOT NULL NOT DROPPABLE
+  , A                                INT DEFAULT NULL
+  )
+
+--- SQL operation complete.
+>>alter table t031t1 check stored descriptor;
+
+*** WARNING[4493] Stored Descriptor Status: Uptodate and current.
+
+--- SQL operation complete.
+>>
+>>alter table t031t1 delete stored descriptor;
+
+--- SQL operation complete.
+>>alter table t031t1 check stored descriptor;
+
+*** ERROR[4493] Stored Descriptor Status: Does not exist. It needs to be regenerated.
+
+--- SQL operation failed with errors.
+>>invoke t031t1;
+
+-- Definition of Trafodion table TRAFODION.SCH.T031T1
+-- Definition of hbase table TRAF_regr:TRAFODION.SCH.T031T1
+-- Definition current  Tue Oct 22 02:37:54 2019
+
+  (
+    SYSKEY                           LARGEINT NO DEFAULT NOT NULL NOT DROPPABLE
+  , A                                INT DEFAULT NULL
+  )
+
+--- SQL operation complete.
+>>
+>>alter table t031t1 generate stored descriptor;
+
+--- SQL operation complete.
+>>alter table t031t1 check stored descriptor;
+
+*** WARNING[4493] Stored Descriptor Status: Uptodate and current.
+
+--- SQL operation complete.
+>>invoke t031t1;
+
+-- Definition of Trafodion table TRAFODION.SCH.T031T1
+-- Definition of hbase table TRAF_regr:TRAFODION.SCH.T031T1
+-- Definition current  Tue Oct 22 02:37:56 2019
+
+  (
+    SYSKEY                           LARGEINT NO DEFAULT NOT NULL NOT DROPPABLE
+  , A                                INT DEFAULT NULL
+  )
+
+--- SQL operation complete.
+>>
+>>create view t031v1 as select * from t031t1;
+
+--- SQL operation complete.
+>>invoke t031v1;
+
+-- Definition of Trafodion view TRAFODION.SCH.T031V1
+-- Definition current  Tue Oct 22 02:37:58 2019
+
+  (
+    A                                INT DEFAULT NULL
+  )
+
+--- SQL operation complete.
+>>alter table t031v1 check stored descriptor;
+
+*** ERROR[1127] The specified table TRAFODION.SCH.T031V1 does not exist, is inaccessible or is not a base table. Please verify that the correct table was specified.
+
+--- SQL operation failed with errors.
+>>alter table t031v1 delete stored descriptor;
+
+*** ERROR[1127] The specified table TRAFODION.SCH.T031V1 does not exist, is inaccessible or is not a base table. Please verify that the correct table was specified.
+
+--- SQL operation failed with errors.
+>>alter table t031v1 check stored descriptor;
+
+*** ERROR[1127] The specified table TRAFODION.SCH.T031V1 does not exist, is inaccessible or is not a base table. Please verify that the correct table was specified.
+
+--- SQL operation failed with errors.
+>>invoke t031v1;
+
+-- Definition of Trafodion view TRAFODION.SCH.T031V1
+-- Definition current  Tue Oct 22 02:37:59 2019
+
+  (
+    A                                INT DEFAULT NULL
+  )
+
+--- SQL operation complete.
+>>alter table t031v1 generate stored descriptor;
+
+*** ERROR[1127] The specified table TRAFODION.SCH.T031V1 does not exist, is inaccessible or is not a base table. Please verify that the correct table was specified.
+
+--- SQL operation failed with errors.
+>>alter table t031v1 check stored descriptor;
+
+*** ERROR[1127] The specified table TRAFODION.SCH.T031V1 does not exist, is inaccessible or is not a base table. Please verify that the correct table was specified.
+
+--- SQL operation failed with errors.
+>>invoke t031v1;
+
+-- Definition of Trafodion view TRAFODION.SCH.T031V1
+-- Definition current  Tue Oct 22 02:37:59 2019
+
+  (
+    A                                INT DEFAULT NULL
+  )
+
+--- SQL operation complete.
+>>
+>>create index t031t1i1 on t031t1(a);
+
+--- SQL operation complete.
+>>showddl t031t1;
+
+CREATE TABLE TRAFODION.SCH.T031T1
+  (
+    A                                INT DEFAULT NULL
+  )
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_regr'
+;
+
+CREATE INDEX T031T1I1 ON TRAFODION.SCH.T031T1
+  (
+    A ASC
+  )
+;
+
+--- SQL operation complete.
+>>alter table t031t1 check stored descriptor;
+
+*** WARNING[4493] Stored Descriptor Status: Uptodate and current.
+
+--- SQL operation complete.
+>>alter table t031t1 delete stored descriptor;
+
+--- SQL operation complete.
+>>alter table t031t1 check stored descriptor;
+
+*** ERROR[4493] Stored Descriptor Status: Does not exist. It needs to be regenerated.
+
+--- SQL operation failed with errors.
+>>showddl t031t1;
+
+CREATE TABLE TRAFODION.SCH.T031T1
+  (
+    A                                INT DEFAULT NULL
+  )
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_regr'
+;
+
+CREATE INDEX T031T1I1 ON TRAFODION.SCH.T031T1
+  (
+    A ASC
+  )
+;
+
+--- SQL operation complete.
+>>alter table t031t1 generate stored descriptor;
+
+--- SQL operation complete.
+>>alter table t031t1 check stored descriptor;
+
+*** WARNING[4493] Stored Descriptor Status: Uptodate and current.
+
+--- SQL operation complete.
+>>showddl t031t1;
+
+CREATE TABLE TRAFODION.SCH.T031T1
+  (
+    A                                INT DEFAULT NULL
+  )
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_regr'
+;
+
+CREATE INDEX T031T1I1 ON TRAFODION.SCH.T031T1
+  (
+    A ASC
+  )
+;
+
+--- SQL operation complete.
+>>
+>>set parserflags 1;
+
+--- SQL operation complete.
+>>invoke table(index_table t031t1i1);
+
+-- Definition of Trafodion table TRAFODION.SCH.T031T1I1
+-- Definition of hbase table TRAF_regr:TRAFODION.SCH.T031T1I1
+-- Definition current  Tue Oct 22 02:38:12 2019
+
+  (
+    "A@"                             INT NO DEFAULT
+  , SYSKEY                           LARGEINT NO DEFAULT NOT NULL NOT DROPPABLE
+  )
+  PRIMARY KEY NULLABLE ("A@" ASC, SYSKEY ASC)
+
+--- SQL operation complete.
+>>reset parserflags;
+
+--- SQL operation complete.
+>>
+>>-- purgedata of table with delimited name
+>>drop table if exists "tT";
+
+--- SQL operation complete.
+>>create table "tT" (a int);
+
+--- SQL operation complete.
+>>purgedata "tT";
+
+--- SQL operation complete.
+>>
+>>-- group by rollup would sometimes crash compiler.
+>>drop table if exists mytable;
+
+--- SQL operation complete.
+>>create table mytable(a char(10), b char(10), c int, d int);
+
+--- SQL operation complete.
+>>insert into mytable values
++>('A1', 'B1', 1, 1),
++>('A1', 'B1', 1, 2),
++>('A1', 'B1', 2, 3),
++>('A1', 'B1', 2, 4),
++>('A1', 'B2', 3, 5),
++>('A1', 'B2', 3, 6),
++>('A1', 'B2', 4, 7),
++>('A1', 'B2', 4, 8),
++>('A2', 'B3', 5, 9),
++>('A2', 'B3', 5, 10),
++>('A2', 'B3', 6, 11),
++>('A2', 'B3', 6, 12),
++>('A2', 'B4', 7, 13),
++>('A2', 'B4', 7, 14),
++>('A2', 'B4', 8, 15),
++>('A2', 'B4', 8, 16);
+
+--- 16 row(s) inserted.
+>>select a, b, c, sum(d) as newcol from mytable where a in ('A1') 
++>  group by(a, b, c);
+
+A           B           C            NEWCOL              
+----------  ----------  -----------  --------------------
+
+A1          B1                    1                     3
+A1          B2                    3                    11
+A1          B2                    4                    15
+A1          B1                    2                     7
+
+--- 4 row(s) selected.
+>>select a, b, c, sum(d) as newcol from mytable where d > 5 
++>  group by rollup(a, b, c);
+
+A           B           C            NEWCOL              
+----------  ----------  -----------  --------------------
+
+A1          B2                    3                     6
+A1          B2                    4                    15
+A1          B2                    ?                    21
+A1          ?                     ?                    21
+A2          B3                    5                    19
+A2          B3                    6                    23
+A2          B3                    ?                    42
+A2          B4                    7                    27
+A2          B4                    8                    31
+A2          B4                    ?                    58
+A2          ?                     ?                   100
+?           ?                     ?                   121
+
+--- 12 row(s) selected.
+>>select a, b, c, sum(d) as newcol from mytable where a in ('A1') 
++>  group by rollup(a, b, c);
+
+A           B           C            NEWCOL              
+----------  ----------  -----------  --------------------
+
+A1          B1                    1                     3
+A1          B1                    2                     7
+A1          B1                    ?                    10
+A1          B2                    3                    11
+A1          B2                    4                    15
+A1          B2                    ?                    26
+A1          ?                     ?                    36
+A1          ?                     ?                    36
+
+--- 8 row(s) selected.
+>>
+>>-- GET CATALOGS support
+>>get catalogs;
+
+Catalogs
+========
+
+TRAFODION
+HIVE
+
+=======================
+ 2 row(s) returned
+
+--- SQL operation complete.
+>>
+>>-- external and hive table mismatch on hive 'string' datatype
+>>process hive statement 'drop table t031hivet1';
+
+--- SQL operation complete.
+>>process hive statement 'create table t031hivet1 (a string)';
+
+--- SQL operation complete.
+>>drop external table if exists t031hivet1 for hive.hive.t031hivet1;
+
+--- SQL operation complete.
+>>create external table t031hivet1 for hive.hive.t031hivet1;
+
+--- SQL operation complete.
+>>cqd hive_max_string_length_in_bytes '10';
+
+--- SQL operation complete.
+>>showddl hive.hive.t031hivet1;
+
+/* Hive DDL */
+CREATE TABLE HIVE.HIVE.T031HIVET1
+  (
+    A                                string
+  )
+  stored as textfile
+;
+
+/* Trafodion DDL */
+
+REGISTER /*INTERNAL*/ HIVE TABLE HIVE.HIVE.T031HIVET1;
+/* ObjectUID = 5680371369212773600 */
+
+CREATE EXTERNAL TABLE T031HIVET1
+  FOR HIVE.HIVE.T031HIVET1
+;
+
+--- SQL operation complete.
+>>
+>>-- volatile and external table operation in default hive schema
+>>drop external table t031hive for hive.hive.t031hive;
+
+--- SQL operation complete.
+>>set schema hive.hive;
+
+--- SQL operation complete.
+>>create volatile table vtt (a int);
+
+--- SQL operation complete.
+>>create volatile index vtti on vtt(a);
+
+--- SQL operation complete.
+>>drop volatile index vtti;
+
+--- SQL operation complete.
+>>drop volatile table vtt;
+
+--- SQL operation complete.
+>>
+>>create external table t031hive for t031hive;
+
+--- SQL operation complete.
+>>drop external table t031hive for t031hive;
+
+--- SQL operation complete.
+>>
+>>-- create index on an added column 
+>>set schema trafodion.sch;
+
+--- SQL operation complete.
+>>drop table if exists t031t1 cascade;
+
+--- SQL operation complete.
+>>create table t031t1 (a char(5) not null primary key);
+
+--- SQL operation complete.
+>>insert into t031t1 values ('abcde');
+
+--- 1 row(s) inserted.
+>>select a from t031t1;
+
+A    
+-----
+
+abcde
+
+--- 1 row(s) selected.
+>>alter table t031t1 add column b char(5);
+
+--- SQL operation complete.
+>>select a from t031t1;
+
+A    
+-----
+
+abcde
+
+--- 1 row(s) selected.
+>>create index t031t1i on t031t1(b);
+
+--- SQL operation complete.
+>>explain options 'f' select a from t031t1;
+
+LC   RC   OP   OPERATOR              OPT       DESCRIPTION           CARD
+---- ---- ---- --------------------  --------  --------------------  ---------
+
+1    .    2    root                                                  1.00E+002
+.    .    1    trafodion_index_scan            T031T1I               1.00E+002
+
+--- SQL operation complete.
+>>select a from t031t1;
+
+A    
+-----
+
+abcde
+
+--- 1 row(s) selected.
+>>
+>>-- index with additional table columns that are not part of key
+>>drop table if exists t031t11 cascade;
+
+--- SQL operation complete.
+>>create table t031t11 (a int not null primary key, b int not null, 
++>                    c int not null, 
++>                    d int not null, e int not null, f int not null);
+
+--- SQL operation complete.
+>>insert into t031t11 values (1,2,3,4,5,6);
+
+--- 1 row(s) inserted.
+>>insert into t031t11 values (2,3,3,4,5,6);
+
+--- 1 row(s) inserted.
+>>
+>>create index t031t11i1 on t031t11(b) with table columns (c,f);
+
+--- SQL operation complete.
+>>create unique index t031t11i2 on t031t11(b) with table columns (c,f);
+
+--- SQL operation complete.
+>>create index t031t11i3 on t031t11(b) with table columns (c,c,f);
+
+--- SQL operation complete.
+>>
+>>-- should return error. Column 'nocol' does not exist in base table
+>>create index t031t11i111 on t031t11(b) with table columns (nocol);
+
+*** ERROR[1009] Column NOCOL does not exist in the specified table.
+
+--- SQL operation failed with errors.
+>>
+>>select * from t031t11;
+
+A            B            C            D            E            F
+-----------  -----------  -----------  -----------  -----------  -----------
+
+          1            2            3            4            5            6
+          2            3            3            4            5            6
+
+--- 2 row(s) selected.
+>>
+>>invoke t031t11;
+
+-- Definition of Trafodion table TRAFODION.SCH.T031T11
+-- Definition of hbase table TRAF_regr:TRAFODION.SCH.T031T11
+-- Definition current  Tue Oct 22 02:40:31 2019
+
+  (
+    A                                INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , B                                INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , C                                INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , D                                INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , E                                INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , F                                INT NO DEFAULT NOT NULL NOT DROPPABLE
+  )
+  PRIMARY KEY (A ASC)
+
+--- SQL operation complete.
+>>showddl t031t11;
+
+CREATE TABLE TRAFODION.SCH.T031T11
+  (
+    A                                INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , B                                INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , C                                INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , D                                INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , E                                INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , F                                INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , PRIMARY KEY (A ASC)
+  )
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_regr'
+;
+
+CREATE INDEX T031T11I1 ON TRAFODION.SCH.T031T11
+  (
+    B ASC
+  )
+ WITH TABLE COLUMNS
+  (C, F)
+;
+
+CREATE UNIQUE INDEX T031T11I2 ON TRAFODION.SCH.T031T11
+  (
+    B ASC
+  )
+ WITH TABLE COLUMNS
+  (C, F)
+;
+
+CREATE INDEX T031T11I3 ON TRAFODION.SCH.T031T11
+  (
+    B ASC
+  )
+ WITH TABLE COLUMNS
+  (C, F)
+;
+
+--- SQL operation complete.
+>>
+>>prepare s from select a,f from t031t11 order by a;
+
+--- SQL command prepared.
+>>explain options 'f' s;
+
+LC   RC   OP   OPERATOR              OPT       DESCRIPTION           CARD
+---- ---- ---- --------------------  --------  --------------------  ---------
+
+1    .    2    root                                                  1.00E+002
+.    .    1    trafodion_scan                  T031T11               1.00E+002
+
+--- SQL operation complete.
+>>
+>>prepare s from select b,f from t031t11 order by b;
+
+--- SQL command prepared.
+>>explain options 'f' s;
+
+LC   RC   OP   OPERATOR              OPT       DESCRIPTION           CARD
+---- ---- ---- --------------------  --------  --------------------  ---------
+
+1    .    2    root                                                  1.00E+002
+.    .    1    trafodion_index_scan            T031T11I1             1.00E+002
+
+--- SQL operation complete.
+>>
+>>insert into t031t11 values (3,4,5,6,7,8);
+
+--- 1 row(s) inserted.
+>>select * from t031t11;
+
+A            B            C            D            E            F
+-----------  -----------  -----------  -----------  -----------  -----------
+
+          1            2            3            4            5            6
+          2            3            3            4            5            6
+          3            4            5            6            7            8
+
+--- 3 row(s) selected.
+>>
+>>set parserflags 131072;
+
+--- SQL operation complete.
+>>select * from table(index_table t031t11i1);
+
+B@           A            C            F          
+-----------  -----------  -----------  -----------
+
+          2            1            3            6
+          3            2            3            6
+          4            3            5            8
+
+--- 3 row(s) selected.
+>>select * from table(index_table t031t11i2);
+
+B@           A            C            F          
+-----------  -----------  -----------  -----------
+
+          2            1            3            6
+          3            2            3            6
+          4            3            5            8
+
+--- 3 row(s) selected.
+>>select * from table(index_table t031t11i3);
+
+B@           A            C            F          
+-----------  -----------  -----------  -----------
+
+          2            1            3            6
+          3            2            3            6
+          4            3            5            8
+
+--- 3 row(s) selected.
+>>reset parserflags 131072;
+
+--- SQL operation complete.
+>>
+>>drop table if exists t031t11s cascade;
+
+--- SQL operation complete.
+>>create table t031t11s (a int not null primary key, b int not null, 
++>                    c int not null, 
++>                    d int not null, e int not null, f int not null)
++>salt using 4 partitions;
+
+--- SQL operation complete.
+>>insert into t031t11s values (1,2,3,4,5,6);
+
+--- 1 row(s) inserted.
+>>insert into t031t11s values (2,3,3,4,5,6);
+
+--- 1 row(s) inserted.
+>>
+>>create index t031t11si1 on t031t11s(b) salt like table with table columns (c,f);
+
+--- SQL operation complete.
+>>showddl t031t11s;
+
+CREATE TABLE TRAFODION.SCH.T031T11S
+  (
+    A                                INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , B                                INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , C                                INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , D                                INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , E                                INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , F                                INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , PRIMARY KEY (A ASC)
+  )
+  SALT USING 4 PARTITIONS
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_regr'
+;
+
+CREATE INDEX T031T11SI1 ON TRAFODION.SCH.T031T11S
+  (
+    B ASC
+  )
+ SALT LIKE TABLE
+ WITH TABLE COLUMNS
+  (C, F)
+;
+
+--- SQL operation complete.
+>>
+>>insert into t031t11s values (3,4,5,6,7,8);
+
+--- 1 row(s) inserted.
+>>select * from t031t11s;
+
+A            B            C            D            E            F
+-----------  -----------  -----------  -----------  -----------  -----------
+
+          2            3            3            4            5            6
+          1            2            3            4            5            6
+          3            4            5            6            7            8
+
+--- 3 row(s) selected.
+>>
+>>set parserflags 131072;
+
+--- SQL operation complete.
+>>select * from table(index_table t031t11si1);
+
+_SALT_@     B@           A            C            F          
+----------  -----------  -----------  -----------  -----------
+
+         0            3            2            3            6
+         1            2            1            3            6
+         3            4            3            5            8
+
+--- 3 row(s) selected.
+>>reset parserflags 131072;
+
+--- SQL operation complete.
+>>
+>>-- drop column on table with unique/ref constraint not allowed.
+>>drop table if exists t031t111 cascade;
+
+--- SQL operation complete.
+>>create table t031t111 (a int, b int, constraint t031const111  unique (a));
+
+--- SQL operation complete.
+>>insert into t031t111 values (1,1), (2,2);
+
+--- 2 row(s) inserted.
+>>showddl t031t111;
+
+CREATE TABLE TRAFODION.SCH.T031T111
+  (
+    A                                INT DEFAULT NULL
+  , B                                INT DEFAULT NULL
+  )
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_regr'
+;
+
+-- The following index is a system created index --
+CREATE UNIQUE INDEX T031CONST111 ON TRAFODION.SCH.T031T111
+  (
+    A ASC
+  )
+;
+
+ALTER TABLE TRAFODION.SCH.T031T111 ADD CONSTRAINT TRAFODION.SCH.T031CONST111
+  UNIQUE
+  (
+    A
+  )
+;
+
+--- SQL operation complete.
+>>alter table t031t111 drop column b;
+
+*** ERROR[1425] This operation could not be performed on TRAFODION.SCH.T031T111. Reason: Cannot drop a column on a table with check, unique or referential constraints. Drop those constraints before dropping the column and then recreate them afterwards. Use SHOWDDL to find out the unique and referential constraints.
+
+--- SQL operation failed with errors.
+>> -- return error.
+>>
+>>-- drop column on table with indexes
+>>alter table t031t111 drop constraint t031const111;
+
+--- SQL operation complete.
+>>create unique index t031t111i1 on t031t111(a);
+
+--- SQL operation complete.
+>>alter table t031t111 drop column b;
+
+--- SQL operation complete.
+>>showddl t031t111;
+
+CREATE TABLE TRAFODION.SCH.T031T111
+  (
+    A                                INT DEFAULT NULL
+  )
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_regr'
+;
+
+CREATE UNIQUE INDEX T031T111I1 ON TRAFODION.SCH.T031T111
+  (
+    A ASC
+  )
+;
+
+--- SQL operation complete.
+>>select * from t031t111;
+
+A          
+-----------
+
+          1
+          2
+
+--- 2 row(s) selected.
+>>set parserflags 1;
+
+--- SQL operation complete.
+>>select * from table(index_table t031t111i1);
+
+A@           SYSKEY              
+-----------  --------------------
+
+          1   5287432302167697885
+          2   5287432302167702282
+
+--- 2 row(s) selected.
+>>
+>>-- tuple list inserts with incompatible types
+>>drop table if exists t031t1 cascade;
+
+--- SQL operation complete.
+>>create table t031t1 (a int, b timestamp, c char(4) character set iso88591);
+
+--- SQL operation complete.
+>>insert into t031t1 values ('1', '2017-01-01 10:10:10', 2);
+
+--- 1 row(s) inserted.
+>>insert into t031t1 values ('2', '2017-01-02 11:11:11', 3),
++>                          ('3', '2017-01-03 11:11:11', 4),
++>                          (4, timestamp '2017-01-04 11:11:11', '5');
+
+--- 3 row(s) inserted.
+>>select * from t031t1;
+
+A            B                           C   
+-----------  --------------------------  ----
+
+          1  2017-01-01 10:10:10.000000  2   
+          2  2017-01-02 11:11:11.000000  3   
+          3  2017-01-03 11:11:11.000000  4   
+          4  2017-01-04 11:11:11.000000  5   
+
+--- 4 row(s) selected.
+>>
+>>-- tuple list incompatible type inserts into hive tables
+>>cqd hive_max_string_length_in_bytes '10';
+
+--- SQL operation complete.
+>>process hive statement 'drop table if exists t031hive1';
+
+--- SQL operation complete.
+>>process hive statement 'create table t031hive1 (a int, b timestamp, c string)';
+
+--- SQL operation complete.
+>>insert into hive.hive.t031hive1 values ('1', '2017-01-01 10:10:10', 2);
+
+--- 1 row(s) inserted.
+>>insert into hive.hive.t031hive1 values ('2', '2017-01-02 11:11:11', 3),
++>                          ('3', '2017-01-03 11:11:11', 4),
++>                          (4, timestamp '2017-01-04 11:11:11', '5');
+
+--- 3 row(s) inserted.
+>>
+>>-- this insert should return overflow error
+>>insert into hive.hive.t031hive1 values (2, '2017-01-02 11:11:11', 'a'),
++>                          (111111111111, '2017-01-03 11:11:11', 'b');
+
+*** ERROR[8411] A numeric overflow occurred during an arithmetic computation or data conversion. Conversion of Source Type:LARGEINT(REC_BIN64_SIGNED) Source Value:111111111111 to Target Type:INTEGER SIGNED(REC_BIN32_SIGNED). Column Name: A
+
+--- 0 row(s) inserted.
+>>
+>>-- commenting out this select as it sometimes returns incorrect results.
+>>-- There is a known diff file but that doesn't cover all cases.
+>>-- need to diagnose this issue.
+>>--select * from hive.hive.t031hive1;
+>>
+>>-- delimited and reserved word tests
+>>drop view "HOUR";
+
+*** ERROR[1389] Object TRAFODION.SCH."HOUR" does not exist in Trafodion.
+
+--- SQL operation failed with errors.
+>>drop view "A-B";
+
+*** ERROR[1389] Object TRAFODION.SCH."A-B" does not exist in Trafodion.
+
+--- SQL operation failed with errors.
+>>drop table if exists "MONTH" cascade;
+
+--- SQL operation complete.
+>>drop table if exists "DELETE" cascade;
+
+--- SQL operation complete.
+>>create table "MONTH" ("YEAR" int constraint "SELECT" unique);
+
+--- SQL operation complete.
+>>create table if not exists "MONTH" ("YEAR" int constraint "SELECT" unique);
+
+--- SQL operation complete.
+>>create table "DELETE" like "MONTH";
+
+--- SQL operation complete.
+>>invoke "DELETE";
+
+-- Definition of Trafodion table TRAFODION.SCH."DELETE"
+-- Definition of hbase table TRAF_regr:TRAFODION.SCH.DELETE
+-- Definition current  Tue Oct 22 02:43:09 2019
+
+  (
+    SYSKEY                           LARGEINT NO DEFAULT NOT NULL NOT DROPPABLE
+  , "YEAR"                           INT DEFAULT NULL
+  )
+
+--- SQL operation complete.
+>>prepare s from insert into "DELETE" values (1);
+
+--- SQL command prepared.
+>>create view "HOUR" as select * from "DELETE";
+
+--- SQL operation complete.
+>>select * from "HOUR";
+
+--- 0 row(s) selected.
+>>create index "SECOND" on "MONTH"( "YEAR") no populate;
+
+--- SQL operation complete.
+>>populate index "SECOND" on "MONTH";
+
+--- SQL operation complete.
+>>create view "A-B" as select * from "MONTH";
+
+--- SQL operation complete.
+>>prepare s from insert into "MONTH" values (1);
+
+--- SQL command prepared.
+>>select * from "A-B";
+
+--- 0 row(s) selected.
+>>
+>>-- caching of zero length strings
+>>drop table if exists t031t1 cascade;
+
+--- SQL operation complete.
+>>CREATE TABLE t031t1
++>  ( 
++>    a CHAR(1) not null 
++>  , b CHAR(1 BYTE) CHARACTER SET UTF8 not null
++>);
+
+--- SQL operation complete.
+>>
+>>cqd mode_compatible_1 'off';
+
+--- SQL operation complete.
+>>-- should not crash
+>>prepare s from INSERT INTO t031t1 VALUES (DECODE('9', '9', 'F'), '');
+
+*** ERROR[4122] NULL cannot be assigned to NOT NULL column TRAFODION.SCH.T031T1.B.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>
+>>cqd mode_compatible_1 reset;
+
+--- SQL operation complete.
+>>cqd AUTO_ADJUST_CACHEROWS reset;
+
+--- SQL operation complete.
+>>log;

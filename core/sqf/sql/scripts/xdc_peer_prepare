@@ -1,0 +1,191 @@
+#!/bin/bash
+#
+# @@@ START COPYRIGHT @@@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+# @@@ END COPYRIGHT @@@
+#
+#
+
+function Usage {
+    echo "Usage: `basename $0` <-p <peer id>> [-v]"
+    echo
+    echo "-p <peer id>  : ID of the peer (A number between 1 and 100 (inclusive))"
+    echo "-v            : Verbose"
+    echo
+}
+
+if [ -z $JAVA_HOME ]; then
+    echo "The environment variable \$JAVA_HOME has not been set"
+    echo "Please ensure \$TRAF_HOME/sqenv.sh has been sourced."
+    echo
+    exit 1;
+fi
+
+mkdir -p $TRAF_LOG
+lv_stderr_file="$TRAF_LOG/xdc_peer_prepare.log"
+
+declare -i lv_peer_id=0
+declare -i lv_verbose=0
+lv_verbose_string=""
+
+while getopts "p:vh" lv_arg $1 $2 $3 $4 $5 $6 $7 $8 $9
+do
+    case $lv_arg in
+        p)
+            lv_peer_id=${OPTARG}
+            if (
+                    [ $lv_peer_id -lt 1 ] ||
+                    [ $lv_peer_id -gt 100 ]
+                ); then
+                echo "Please provide a peer id in the range 1-100"
+                exit 1
+            fi
+            ;;
+
+        v)
+            let lv_verbose=1
+            lv_verbose_string="-v"
+            ;;
+
+        h)
+            lv_help=1
+            Usage
+            exit 0
+            ;;
+    esac
+done
+
+if [ ${lv_peer_id} -eq 0 ]; then
+    Usage
+    exit 1
+fi
+
+# set it to 0 within this script execution else the invocation of 
+# other scripts might result in some extraneous output that can
+# confuse the execution of this one.
+SQ_VERBOSE=0
+
+echo "`date`: step 1: xdc -getmyid " | tee -a ${lv_stderr_file}
+
+lv_my_cluster_id=`xdc -getmyid`
+if [ $? '!=' 0 ]; then
+    echo "Error getting my cluster id."
+    echo "Please check the health of the local Zookeeper/HBase instance and retry after the problem is fixed."
+    exit 1
+fi
+
+if [ ${lv_my_cluster_id} '==' ${lv_peer_id} ]; then
+    echo "Error: cannot execute `basename $0` on itself (peer id: ${lv_my_cluster_id}). Exitting..."
+    exit 1
+fi
+
+
+echo "`basename $0` ${lv_peer_id} will perform the following steps:"
+echo " - Create change data capture marker for all the synchronous tables on this cluster"
+echo " - Enable change data capture on this local cluster"
+echo
+
+export LD_PRELOAD=${JAVA_HOME}/jre/lib/${JRE_LIB_DIR}/libjsig.so:${TRAF_HOME}/export/lib${SQ_MBTYPE}/libseabasesig.so
+
+if [ ${lv_verbose} '==' 1 ]; then
+    echo "Stderr being written to the file: ${lv_stderr_file}"
+fi
+
+# Checking if the peer id exists
+lv_num=`xdc -get ${lv_peer_id} | wc -l`
+if [ $lv_num == '1' ]; then
+    lv_peer_info=`xdc -get ${lv_peer_id} -complete_status`
+    echo ${lv_peer_info} | grep '\-sdn\-' >/dev/null
+    lv_exit=$?
+    if [ ${lv_exit} '!=' 0 ]; then
+        echo "`date`: peer id: ${lv_peer_id} info: ${lv_peer_info}" | tee -a ${lv_stderr_file}
+        echo "`date`: Error: XDC status of peer id: ${lv_peer_id} should be SDN. Exitting..." | tee -a ${lv_stderr_file}
+        exit 1;
+    fi
+    echo "peer id: ${lv_peer_id} exists and is in the correct state. Proceeding..."
+else
+    echo "peer id: ${lv_peer_id} does not exist. Please provide the correct peer id. Exitting..."
+    exit 1
+fi
+
+#echo "`date`: step 2: sqlci get_synchronous_tables " | tee -a ${lv_stderr_file}
+
+# Get the list of synchronous tables
+#if [ ${lv_verbose} '==' 1 ]; then
+#    echo "Getting the list of synchronous tables"
+#fi
+
+#lv_synchronous_tables=`get_synchronous_tables`
+#lv_exit=$?
+#if [ ${lv_exit} '!=' 0 ]; then
+#    echo "Error getting the list of synchronous tables. Please retry after the problem is fixed. Exitting..."
+#    exit 1
+#fi
+
+#if [ ${lv_verbose} '==' 1 ]; then
+
+#    echo "`date`: step 2a: list synchronous tables " | tee -a ${lv_stderr_file}
+#    echo "List of synchronous tables: "
+#    echo ${lv_synchronous_tables}
+#    echo
+#fi
+
+#Old style of create xdc marker record for every table
+#echo "`date`: Creating a marker record: ${lv_snapshot}" | tee -a ${lv_stderr_file}
+#$JAVA_HOME/bin/java org.apache.hadoop.hbase.pit.XDC ${lv_verbose_string} m ${lv_snapshot} ${lv_synchronous_tables} 2>${lv_stderr_file} | tee -a ${lv_stderr_file}
+
+echo "`date`: step 2: create xdc marker for all sync tables " | tee -a ${lv_stderr_file}
+
+#Create a cluster-wide xdc marker record for all sync file
+lv_curr_time=`date +%Y%m%d_%H%M`;
+lv_snapshot="SNAPSHOT_PEER_${lv_peer_id}_DOWN_${lv_curr_time}"
+
+#echo "`date`: Creating a marker record: ${lv_snapshot}" | tee -a ${lv_stderr_file}
+$JAVA_HOME/bin/java org.apache.hadoop.hbase.pit.XDC ${lv_verbose_string} m ${lv_snapshot} 2>${lv_stderr_file} | tee -a ${lv_stderr_file}
+lv_exit=${PIPESTATUS[0]}
+if [ ${lv_exit} '!=' 0 ]; then
+    echo "Error creating a xdc marker record. Please retry after the problem is fixed. Exitting..."
+    exit 1
+fi
+echo "`date`: Done: Creating a xdc marker record: ${lv_snapshot}, exit code: ${lv_exit}" | tee -a ${lv_stderr_file}
+echo
+
+
+echo "`date`: step 3: enable CDC in local cluster " | tee -a ${lv_stderr_file}
+
+# Set peer attribute to a00, so start mutation capture in local cluster
+echo "`date`: Setting the attribute to a00" | tee -a ${lv_stderr_file}
+xdc -set -id ${lv_peer_id} -peer_attribute a00
+if [ $? '!=' 0 ]; then
+    echo "Error setting the peer attribute to a00 in local cluster."
+    echo "Please check the health of the local Zookeeper/HBase instance and retry after the problem is fixed.."
+    exit 1
+fi
+if [ ${lv_verbose} '==' 1 ]; then
+    echo "Done: Setting the attribute of peer id: ${lv_peer_id} to a00" | tee -a ${lv_stderr_file}
+fi
+echo
+echo "`date`: Cluster info after setting peer id: ${lv_peer_id} to attribute to a00:" | tee -a ${lv_stderr_file}
+xdc -list -complete_status | tee -a ${lv_stderr_file}
+echo
+
+
+echo "`date`: Done: `basename $0`. Detailed output in the file ${lv_stderr_file}."
+

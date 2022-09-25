@@ -1,0 +1,1806 @@
+[[SQL-10]]
+== SQL 10
+初始化JVM或者JNI环境失败
+*Cause:* 初始化JVM或者JNI环境失败
+*Effect:* 无法调用JNI相关功能
+*Recovery:* HTableClient_JNI调用initJNIEnv返回失败，请检查JVM相关参数或者TRAF_JNIHANDLE_CAPACITY环境变量是否设置正确
+1. 查看环境变量TRAF_JNIHANDLE_CAPACITY设置是否正确，该值默认为：32，必须大于0
+2. 参考JOI_ERROR_CHECK_JVM错误码检查相关的JVM相关参数设置
+
+[[SQL-11]]
+== SQL 11
+HTC_ERROR_INIT_EXCEPTION                      = 11    // 目前没有用
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-12]]
+== SQL 12
+HTC_ERROR_SETTRANS_EXCEPTION                  = 12    // 目前没有用
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-13]]
+== SQL 13
+HTC_ERROR_CLEANUP_EXCEPTION                   = 13    // 目前没有用
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-14]]
+== SQL 14
+HTC_ERROR_CLOSE_EXCEPTION                     = 14    // 目前没有用
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-15]]
+== SQL 15
+调用HTableClient_JNI的方法startScan时传递了错误的参数
+*Cause:* 调用HTableClient_JNI的方法startScan时传递了错误的参数
+*Effect:* 开始一个扫描操作失败
+*Recovery:* 需要检查如下参数是否正确
+1. 通过explain查看计划中的begin_keys是否正确
+2. 通过explain查看计划中的end_keys是否正确
+3. 通过explain查看计划中的snapshot_name是否正确
+4. 通过explain查看计划中的snapshot_temp_location是否正确
+5. 查看表的HBASE AUTHORIZATION属性是否正确
+
+[[SQL-16]]
+== SQL 16
+HTableClient_JNI的startScan方法调用HBase接口是抛出异常
+*Cause:* HTableClient_JNI的startScan方法调用HBase接口是抛出异常
+*Effect:* 调用HBase的startScan操作失败
+*Recovery:* 调用HBase操作失败
+1. 检查HBase服务是否正常
+2. 检查HBase日志中是否抛出了异常
+
+[[SQL-17]]
+== SQL 17
+HTableClient_JNI的fetchRows方法调用HBase接口是抛出异常
+*Cause:* HTableClient_JNI的fetchRows方法调用HBase接口是抛出异常
+*Effect:* 调用HBase的fetchRows获取数据操作失败
+*Recovery:* 调用HBase获取数据失败
+1. 检查HBase服务是否正常
+2. 检查HBase日志中是否抛出了异常
+
+[[SQL-18]]
+== SQL 18
+HTableClient_JNI的nextRow方法正在FETCH数据时被DDL打断
+*Cause:* HTableClient_JNI的nextRow方法正在FETCH数据时被DDL打断
+*Effect:* 调用HBase的nextRow获取数据操作被取消
+*Recovery:* 调用HBase获取数据失败
+1. 检查是否有并发的DDL操作
+
+[[SQL-19]]
+== SQL 19
+HTC_ERROR_SCANCLOSE_EXCEPTION                 = 19       // 目前没有用
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-20]]
+== SQL 20
+HTC_ERROR_GETCLOSE_EXCEPTION                  = 20       // 目前没有用
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-21]]
+== SQL 21
+调用HTableClient_JNI的方法deleteRow时传递了错误的参数
+*Cause:* 调用HTableClient_JNI的方法deleteRow时传递了错误的参数
+*Effect:* 删除操作失败
+*Recovery:* 需要检查如下参数是否正确
+1. 通过explain查看计划和数据库日志确定rowid是否正确
+2. 查看表的HBASE AUTHORIZATION属性是否正确
+3. 确定执行的语句是否有特殊编码
+4. 查看内存是否出现资源不足，尝试增大mxosrvr的HEAPSIZE
+
+[[SQL-22]]
+== SQL 22
+HTableClient_JNI的deleteRow方法调用HBase接口是抛出异常
+*Cause:* HTableClient_JNI的deleteRow方法调用HBase接口是抛出异常
+*Effect:* 调用HBase的deleteRow删除数据操作失败
+*Recovery:* 调用HBase删除数据失败
+1. 检查HBase服务是否正常
+2. 检查HBase日志中是否抛出了异常
+
+[[SQL-23]]
+== SQL 23
+HTC_ERROR_CREATE_PARAM                        = 23      // 目前没有用
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-24]]
+== SQL 24
+HTC_ERROR_CREATE_EXCEPTION                    = 24      // 目前没有用
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-25]]
+== SQL 25
+HTC_ERROR_DROP_PARAM                          = 25      // 目前没有用
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-26]]
+== SQL 26
+HTC_ERROR_DROP_EXCEPTION                      = 26      // 目前没有用
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-27]]
+== SQL 27
+HTC_ERROR_EXISTS_PARAM                        = 27      // 目前没有用
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-28]]
+== SQL 28
+HTC_ERROR_EXISTS_EXCEPTION                    = 28      // 目前没有用
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-29]]
+== SQL 29
+调用HTableClient_JNI的方法coProcAggr时传递了错误的参数
+*Cause:* 调用HTableClient_JNI的方法coProcAggr时传递了错误的参数
+*Effect:* 聚集查询操作失败
+*Recovery:* 需要检查如下参数是否正确
+1. 通过explain查看计划中的begin_keys是否正确
+2. 通过explain查看计划中的end_keys是否正确
+3. 请确认columnFamilly是否正确
+4. 请确认columnNames是否正确
+5. 确认查询语句是否有特殊编码
+
+[[SQL-30]]
+== SQL 30
+HTableClient_JNI的coProcAggr方法调用HBase接口是抛出异常
+*Cause:* HTableClient_JNI的coProcAggr方法调用HBase接口是抛出异常
+*Effect:* 调用HBase的coProcAggr聚集操作失败
+*Recovery:* 调用HBase聚集失败
+1. 检查HBase服务是否正常
+2. 检查HBase日志中是否抛出了异常
+
+[[SQL-31]]
+== SQL 31
+HTC_ERROR_GRANT_PARAM                         = 31      // 目前没有用
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-32]]
+== SQL 32
+HTC_ERROR_GRANT_EXCEPTION                     = 32      // 目前没有用
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-33]]
+== SQL 33
+HTC_ERROR_REVOKE_PARAM                        = 33      // 目前没有用
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-34]]
+== SQL 34
+HTC_ERROR_REVOKE_EXCEPTION                    = 34      // 目前没有用
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-35]]
+== SQL 35
+HTableClient_JNI的调用HBase接口时抛出锁超时异常
+*Cause:* HTableClient_JNI的调用HBase接口时抛出锁超时异常
+*Effect:* 调用HBase过程中加锁操作失败
+*Recovery:* 调用HBase查询或者修改过程中加锁失败，请检查有没有并发冲突
+1. 检查HBase的日志，查看该事务在等待那些事务
+
+[[SQL-36]]
+== SQL 36
+HTableClient_JNI的调用HBase接口时抛出回滚异常
+*Cause:* HTableClient_JNI的调用HBase接口时抛出回滚异常
+*Effect:* 调用HBase过程中加锁操作失败
+*Recovery:* 调用HBase查询或者修改时其它线程正在释放当前事务，即加锁和释放锁同时发生了
+1. 检查HBase的日志，查看什么原因导致行锁被释放了（可能是事务被回滚或人为主动释放锁）
+
+[[SQL-37]]
+== SQL 37
+HTableClient_JNI的调用HBase接口时抛出死锁异常
+*Cause:* HTableClient_JNI的调用HBase接口时抛出死锁异常
+*Effect:* 调用HBase过程中加锁操作失败
+*Recovery:* 调用HBase查询或者修改发生了死锁，并牺牲掉当前事务
+1. 检查HBase的日志，查看当前事务与哪些事务之间发生了死锁，关键字deadlocks
+
+[[SQL-38]]
+== SQL 38
+HTableClient_JNI的调用HBase接口时抛出Region移动异常
+*Cause:* HTableClient_JNI的调用HBase接口时抛出Region移动异常
+*Effect:* 调用HBase过程中加锁操作失败
+*Recovery:* 调用HBase查询或者修改发生了Region移动
+1. 检查HBase的日志，确认是否发生了Region移动，Region移动过程中的加锁动作都会报这个异常
+
+[[SQL-39]]
+== SQL 39
+HTableClient_JNI的调用HBase接口时抛出Region分裂异常
+*Cause:* HTableClient_JNI的调用HBase接口时抛出Region分裂异常
+*Effect:* 调用HBase过程中加锁操作失败
+*Recovery:* 调用HBase查询或者修改发生了Region分裂
+1. 检查HBase的日志，确认是否发生了Region分裂，Region分裂过程中的加锁动作都会报这个异常
+
+[[SQL-40]]
+== SQL 40
+HTableClient_JNI的调用HBase接口时抛出RPCTimeOutException异常
+*Cause:* HTableClient_JNI的调用HBase接口时抛出RPCTimeOutException异常
+*Effect:* 调用HBase的RPC操作失败
+*Recovery:* 调用HBase查询或者修改发生超时
+1. 检查网络有没有出现瞬间的高峰
+2. 检查HBase的状态是否正常
+3. 检查网络设备有没有出现故障
+
+[[SQL-41]]
+== SQL 41
+HTC_GET_COLNAME_EXCEPTION                     = 41      // 目前没有用
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-42]]
+== SQL 42
+HTableClient_JNI的调用getColVal接口时出现异常
+*Cause:* HTableClient_JNI的调用getColVal接口时出现异常
+*Effect:* 调用HBase过程中获取列的值失败
+*Recovery:* 调用HBase查询过程中获取列的值失败，可能的原因如下：
+1. 调用getColVal时传递的参数不对，获取到的列的值为空或者给的列号大于列的总数
+2. 目前仅对齐格式支持加密，在这种情况下，'nullable' 参数应为 FALSE，因为空信息嵌入在对齐格式中。如果可空参数在加密时为真，则返回该错误。
+3. 如果对列进行了加密，但在解密列数据时出现了错误，也会报该错误
+
+
+[[SQL-43]]
+== SQL 43
+HTableClient_JNI的调用getRowID接口时出现异常
+*Cause:* HTableClient_JNI的调用getRowID接口时出现异常
+*Effect:* 调用HBase过程中获取ROWID的值失败
+*Recovery:* 调用HBase查询过程中获取ROWID的值失败，原因如下：
+1. 调用getRowID时传递的参数不对
+2. 内存不足，调用JNI的NewGlobalRef接口操作失败
+
+[[SQL-44]]
+== SQL 44
+HTC_NEXTCELL_EXCEPTION                        = 44      // 目前没有用
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-45]]
+== SQL 45
+HTableClient_JNI的调用completeAsyncOperation接口时出现异常
+*Cause:* HTableClient_JNI的调用completeAsyncOperation接口时出现异常
+*Effect:* 调用JNI的接口失败
+*Recovery:* 调用JNI的接口失败，原因如下：
+1. 内存不足，调用JNI的NewBooleanArray接口操作失败
+
+[[SQL-46]]
+== SQL 46
+HTableClient_JNI的调用completeAsyncOperation接口时出现异常
+*Cause:* HTableClient_JNI的调用completeAsyncOperation接口时出现异常
+*Effect:* 调用HBase的COMPLETE_PUT接口失败
+*Recovery:* 调用HBase的COMPLETE_PUT接口失败，原因如下：
+1. 请检查HBase状态是否正常
+2. 请检查HBase的日志是否抛出异常
+
+[[SQL-47]]
+== SQL 47
+HTableClient_JNI的调用setWriteToWAL接口时出现异常
+*Cause:* HTableClient_JNI的调用setWriteToWAL接口时出现异常
+*Effect:* 调用HBase的SET_WRITE_TO_WAL接口失败
+*Recovery:* 调用HBase的SET_WRITE_TO_WAL接口失败，原因如下：
+1. 请检查HBase状态是否正常
+2. 请检查HBase的日志是否抛出异常
+
+[[SQL-48]]
+== SQL 48
+HTableClient_JNI的调用setWriteBufferSize接口时出现异常
+*Cause:* HTableClient_JNI的调用setWriteBufferSize接口时出现异常
+*Effect:* 调用HBase的SET_WB_SIZE接口失败
+*Recovery:* 调用HBase的SET_WB_SIZE接口失败，原因如下：
+1. 请检查HBase状态是否正常
+2. 请检查HBase的日志是否抛出异常
+
+[[SQL-49]]
+== SQL 49
+HTableClient_JNI的调用prepareForNextCell接口时出现异常
+*Cause:* HTableClient_JNI的调用prepareForNextCell接口时出现异常
+*Effect:* 调用JNI的接口失败
+*Recovery:* 调用JNI的接口失败，可能原因是内存不足：
+1. JNI调用GetObjectArrayElement出现异常
+2. JNI调用NewGlobalRef出现异常
+
+[[SQL-50]]
+== SQL 50
+HTableClient_JNI的调用HBase接口时抛出Cancel异常
+*Cause:* HTableClient_JNI的调用HBase接口时抛出Cancel异常
+*Effect:* 调用HBase过程中加锁操作失败
+*Recovery:* 调用HBase查询或者修改时当前操作被Cancel
+1. 检查数据库日志，操作在加锁阶段被Cancel时都会报这个异常
+
+[[SQL-51]]
+== SQL 51
+HTableClient_JNI的调用HBase接口时抛出锁资源不足异常
+*Cause:* HTableClient_JNI的调用HBase接口时抛出锁资源不足异常
+*Effect:* 调用HBase过程中加锁操作失败
+*Recovery:* 调用HBase查询或者修改时发生了锁资源不足的情况
+1. 查看Hbase的日志
+2. 查看锁资源不够的Region及事务
+3. 通过行锁客户端命令行查看锁资源，使用历史情况确认是否达到了锁资源最大值
+
+[[SQL-52]]
+== SQL 52
+--ununsed--
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-53]]
+== SQL 53
+HBC_ERROR_INIT_PARAM                 = 53                                 
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-54]]
+== SQL 54
+HBC_ERROR_INIT_EXCEPTION                      = 54
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-55]]
+== SQL 55
+HBC_ERROR_GET_HTC_EXCEPTION                   = 55
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-56]]
+== SQL 56
+HBC_ERROR_REL_HTC_EXCEPTION                   = 56
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-57]]
+== SQL 57
+HBC_ERROR_CREATE_PARAM                        = 57
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-58]]
+== SQL 58
+HBC_ERROR_CREATE_EXCEPTION                    = 58
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-59]]
+== SQL 59
+HBC_ERROR_ALTER_PARAM                         = 59
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-60]]
+== SQL 60
+HBC_ERROR_ALTER_EXCEPTION                     = 60
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-61]]
+== SQL 61
+HBC_ERROR_DROP_PARAM                          = 61
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-62]]
+== SQL 62
+HBC_ERROR_DROP_EXCEPTION                      = 62
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-63]]
+== SQL 63
+HBC_ERROR_LIST_PARAM                          = 63
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-64]]
+== SQL 64
+HBC_ERROR_LIST_EXCEPTION                      = 64
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-65]]
+== SQL 65
+HBC_ERROR_EXISTS_PARAM                        = 65
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-66]]
+== SQL 66
+HBC_ERROR_EXISTS_EXCEPTION                    = 66
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-67]]
+== SQL 67
+HBC_ERROR_GRANT_PARAM                         = 67
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-68]]
+== SQL 68
+HBC_ERROR_GRANT_EXCEPTION                     = 68
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-69]]
+== SQL 69
+HBC_ERROR_REVOKE_PARAM                        = 69
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-70]]
+== SQL 70
+HBC_ERROR_REVOKE_EXCEPTION                    = 70
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-71]]
+== SQL 71
+HBC_ERROR_THREAD_CREATE                       = 71
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-72]]
+== SQL 72
+HBC_ERROR_THREAD_REQ_ALLOC                    = 72
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-73]]
+== SQL 73
+HBC_ERROR_THREAD_SIGMASK                      = 73
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-74]]
+== SQL 74
+HBC_ERROR_ATTACH_JVM                          = 74
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-75]]
+== SQL 75
+HBC_ERROR_GET_HBLC_EXCEPTION                  = 75
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+
+[[SQL-76]]
+== SQL 76
+HBC_ERROR_GET_BRC_EXCEPTION                   = 76
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-77]]
+== SQL 77
+HBC_ERROR_ROWCOUNT_EST_PARAM                  = 77
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-78]]
+== SQL 78
+HBC_ERROR_ROWCOUNT_EST_EXCEPTION              = 78
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-79]]
+== SQL 79
+HBC_ERROR_ROWCOUNT_EST_FALSE                  = 79
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-80]]
+== SQL 80
+HBC_ERROR_REL_HBLC_EXCEPTION                  = 80
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-81]]
+== SQL 81
+HBC_ERROR_REL_BRC_EXCEPTION                   = 81
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-82]]
+== SQL 82
+HBC_ERROR_GET_CACHE_FRAC_EXCEPTION            = 82
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-83]]
+== SQL 83
+HBC_ERROR_GET_LATEST_SNP_PARAM                = 83
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-84]]
+== SQL 84
+HBC_ERROR_GET_LATEST_SNP_EXCEPTION            = 84
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-85]]
+== SQL 85
+HBC_ERROR_CLEAN_SNP_TMP_LOC_PARAM             = 85
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-86]]
+== SQL 86
+HBC_ERROR_CLEAN_SNP_TMP_LOC_EXCEPTION         = 86
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-87]]
+== SQL 87
+HBC_ERROR_SET_ARC_PERMS_PARAM                 = 87
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-88]]
+== SQL 88
+HBC_ERROR_SET_ARC_PERMS_EXCEPTION             = 88
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-89]]
+== SQL 89
+HBC_ERROR_STARTGET_PARAM                      = 89
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-90]]
+== SQL 90
+HBC_ERROR_STARTGET_EXCEPTION                  = 90
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-91]]
+== SQL 91
+HBC_ERROR_STARTGETS_PARAM                     = 91
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-92]]
+== SQL 92
+HBC_ERROR_STARTGETS_EXCEPTION                 = 92
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-93]]
+== SQL 93
+HBC_ERROR_GET_HBTI_PARAM                      = 93
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-94]]
+== SQL 94
+HBC_ERROR_GET_HBTI_EXCEPTION                  = 94
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-95]]
+== SQL 95
+HBC_ERROR_CREATE_COUNTER_PARAM                = 95
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-96]]
+== SQL 96
+HBC_ERROR_CREATE_COUNTER_EXCEPTION            = 96
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-97]]
+== SQL 97
+HBC_ERROR_INCR_COUNTER_PARAM                  = 97
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-98]]
+== SQL 98
+HBC_ERROR_INCR_COUNTER_EXCEPTION              = 98
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-99]]
+== SQL 99
+HBC_ERROR_INSERTROW_PARAM                     = 99
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-100]]
+== SQL 100
+HBC_ERROR_INSERTROW_EXCEPTION                 = 100
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-101]]
+== SQL 101
+HBC_ERROR_INSERTROW_DUP_ROWID                 = 101
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-102]]
+== SQL 102
+HBC_ERROR_INSERTROW_INVALID_DDL               = 102
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-103]]
+== SQL 103
+HBC_ERROR_INSERTROWS_PARAM                    = 103
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-104]]
+== SQL 104
+HBC_ERROR_INSERTROWS_EXCEPTION                = 104
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-105]]
+== SQL 105
+HBC_ERROR_INSERTROWS_INVALID_DDL              = 105
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-106]]
+== SQL 106
+HBC_ERROR_UPDATEVISIBILITY_PARAM              = 106
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-107]]
+== SQL 107
+HBC_ERROR_UPDATEVISIBILITY_EXCEPTION          = 107
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-108]]
+== SQL 108
+HBC_ERROR_CHECKANDUPDATEROW_PARAM             = 108
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-109]]
+== SQL 109
+HBC_ERROR_CHECKANDUPDATEROW_EXCEPTION         = 109
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-110]]
+== SQL 110
+HBC_ERROR_CHECKANDUPDATEROW_NOTFOUND          = 110
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-111]]
+== SQL 111
+HBC_ERROR_DELETEROW_PARAM                     = 111
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-112]]
+== SQL 112
+HBC_ERROR_DELETEROW_EXCEPTION                 = 112
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-113]]
+== SQL 113
+HBC_ERROR_DELETEROW_INVALID_DDL               = 113
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-114]]
+== SQL 114
+HBC_ERROR_DELETEROWS_PARAM                    = 114
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-115]]
+== SQL 115
+HBC_ERROR_DELETEROWS_EXCEPTION                = 115
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-116]]
+== SQL 116
+HBC_ERROR_DELETEROWS_INVALID_DDL              = 116
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-117]]
+== SQL 117
+HBC_ERROR_CHECKANDDELETEROW_PARAM             = 117
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-118]]
+== SQL 118
+HBC_ERROR_CHECKANDDELETEROW_EXCEPTION         = 118
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-119]]
+== SQL 119
+HBC_ERROR_CHECKANDDELETEROW_NOTFOUND          = 119
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-120]]
+== SQL 120
+HBC_ERROR_CHECKANDDELETEROW_INVALID_DDL       = 120
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-121]]
+== SQL 121
+HBC_ERROR_ADDHDFSCACHE_EXCEPTION              = 121
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-122]]
+== SQL 122
+HBC_ERROR_REMOVEHDFSCACHE_EXCEPTION           = 122
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-123]]
+== SQL 123
+HBC_ERROR_SHOWHDFSCACHE_EXCEPTION             = 123
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-124]]
+== SQL 124
+HBC_ERROR_POOL_NOT_EXIST_EXCEPTION            = 124
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-125]]
+== SQL 125
+HBC_ERROR_LISTALL                             = 125
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-126]]
+== SQL 126
+HBC_ERROR_GETKEYS                             = 126
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-127]]
+== SQL 127
+HBC_ERROR_REGION_STATS                        = 127
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-128]]
+== SQL 128
+HBC_ERROR_CREATE_SNAPSHOT_PARAM               = 128
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-129]]
+== SQL 129
+HBC_ERROR_CREATE_SNAPSHOT_EXCEPTION           = 129
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-130]]
+== SQL 130
+HBC_ERROR_RESTORE_SNAPSHOT_PARAM	=130
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-131]]
+== SQL 131
+HBC_ERROR_RESTORE_SNAPSHOT_EXCEPTION	=131
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-132]]
+== SQL 132
+HBC_ERROR_DELETE_SNAPSHOT_PARAM               = 132
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-133]]
+== SQL 133
+HBC_ERROR_DELETE_SNAPSHOT_EXCEPTION           = 133
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-134]]
+== SQL 134
+HBC_ERROR_VERIFY_SNAPSHOT_PARAM               = 134
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-135]]
+== SQL 135
+HBC_ERROR_VERIFY_SNAPSHOT_EXCEPTION           = 135
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-136]]
+== SQL 136
+HBC_ERROR_SAVEPOINT_COMMIT_OR_ROLLBACK        = 136
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-137]]
+== SQL 137
+HBC_ERROR_NAMESPACE_PARAM                     = 137
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-138]]
+== SQL 138
+HBC_ERROR_NAMESPACE_OPER_ERROR                = 138
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-139]]
+== SQL 139
+HBC_ERROR_NAMESPACE_NOT_EXIST                 = 139
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-140]]
+== SQL 140
+HBC_ERROR_TRUNCATE_PARAM                      = 140
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-141]]
+== SQL 141
+HBC_ERROR_TRUNCATE_EXCEPTION                  = 141
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-142]]
+== SQL 142
+HBC_ERROR_LOCK_TIME_OUT_EXCEPTION             = 142
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-143]]
+== SQL 143
+HBC_ERROR_LOCK_ROLLBACK_EXCEPTION             = 143
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-144]]
+== SQL 144
+HBC_ERROR_LOCKREQUIRED_EXCEPTION              = 144
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-145]]
+== SQL 145
+HBC_ERROR_DEAD_LOCK_EXCEPTION                 = 145
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-146]]
+== SQL 146
+HBC_ERROR_LOCK_REGION_MOVE                    = 146
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-147]]
+== SQL 147
+HBC_ERROR_LOCK_REGION_SPLIT                   = 147
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-148]]
+== SQL 148
+HBC_ERROR_RPC_TIME_OUT_EXCEPTION              = 148
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-149]]
+== SQL 149
+HBC_ERROR_TRIGGER_EXECUTE_EXCEPTION           = 149
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-150]]
+== SQL 150
+HBC_ERROR_TRIGGER_PARAMETER_EXCEPTION         = 150
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-151]]
+== SQL 151
+HBC_ERROR_RECONNECT_PARAM                     = 151
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-152]]
+== SQL 152
+HBC_ERROR_RECONNECT_EXCEPTION                 = 152
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-153]]
+== SQL 153
+HBC_ERROR_GET_NEXT_VALUE_PARAM                = 153
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-154]]
+== SQL 154
+HBC_ERROR_GET_NEXT_VALUE_EXCEPTION            = 154
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-155]]
+== SQL 155
+HBC_ERROR_DELETE_SEQ_ROW_PARAM                = 155
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-156]]
+== SQL 156
+HBC_ERROR_DELETE_SEQ_ROW_EXCEPTION            = 156
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-157]]
+== SQL 157
+HBC_ERROR_CANCLE_OPERATION_EXCEPTION          = 157
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-158]]
+== SQL 158
+HBC_ERROR_CANCLE_OPERATION                    = 158
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-159]]
+== SQL 159
+HBC_ERROR_LOCK_NOT_ENOUGH_RESOURCS_EXCEPTION  = 159
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-160]]
+== SQL 160
+HBC_ERROR_GET_TABLE_DEF_FOR_BINLOG            = 160
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-161]]
+== SQL 161
+HBC_ERROR_GET_TABLE_DEF_FOR_BINLOG_PARAM      = 161
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-162]]
+== SQL 162
+HBC_ERROR_GET_TABLE_DEF_FOR_BINLOG_ERROR      = 162
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-163]]
+== SQL 163
+--unused--
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-164]]
+== SQL 164
+初始化JVM或者JNI环境失败
+*Cause:* 初始化JVM或者JNI环境失败
+*Effect:* 无法调用JNI相关功能
+*Recovery:* HBulkLoadClient_JNI调用initJNIEnv返回失败，请检查JVM相关参数或者TRAF_JNIHANDLE_CAPACITY环境变量是否设置正确
+1. 查看环境变量TRAF_JNIHANDLE_CAPACITY设置是否正确，该值默认为：32，必须大于0
+2. 参考JOI_ERROR_CHECK_JVM错误码检查相关的JVM相关参数设置
+
+[[SQL-165]]
+== SQL 165
+HBLC_ERROR_INIT_EXCEPTION                     = 165   // 目前没有再使用
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-166]]
+== SQL 166
+HBLC_ERROR_CLEANUP_EXCEPTION                  = 166   // 目前没有再使用
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-167]]
+== SQL 167
+HBLC_ERROR_CLOSE_EXCEPTION                    = 167   // 目前没有再使用
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-168]]
+== SQL 168
+初始化HFile时有一些参数指定错误
+*Cause:* 初始化HFile时有一些参数指定错误
+*Effect:* 初始化HFile的参数失败
+*Recovery:* HBulkLoadClient_JNI调用initHFileParams返回失败
+1. NewStringUTF：获取HFile的本地路径、HFile的名称、HFile的样例路径和HFile的样例名称的UTF8编码失败，请检查指定的HFile的参数是否正确
+
+[[SQL-169]]
+== SQL 169
+初始化HFile时JNI调用抛出异常
+*Cause:* 初始化HFile时JNI调用抛出异常
+*Effect:* 初始化HFile的参数失败
+*Recovery:* HBulkLoadClient_JNI调用initHFileParams初始化HFile时抛出异常
+1.调用NewStringUTF或者CallBooleanMethod时抛出了异常
+
+[[SQL-170]]
+== SQL 170
+把记录加入HFile时有一些参数指定错误
+*Cause:* 把记录加入HFile时有一些参数指定错误
+*Effect:* 记录加入HFile失败
+*Recovery:* HBulkLoadClient_JNI调用addToHFile返回失败
+1. NewDirectByteBuffer：给数据ROWID申请BUFFER或者给数据申请BUFFER失败，请检查ROWID或者数据参数是否正确
+
+[[SQL-171]]
+== SQL 171
+把记录加入HFile时抛出异常
+*Cause:* 把记录加入HFile时抛出异常
+*Effect:* 记录加入HFile失败
+*Recovery:* HBulkLoadClient_JNI调用addToHFile时抛出异常
+1.调用NewDirectByteBuffer或者CallBooleanMethod时抛出了异常
+
+[[SQL-172]]
+== SQL 172
+HBLC_ERROR_CLOSE_HFILE_PARAM                  = 172    // 目前没有再使用
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-173]]
+== SQL 173
+关闭HFile时抛出异常
+*Cause:* 关闭HFile时抛出异常
+*Effect:* 关闭HFile失败
+*Recovery:* HBulkLoadClient_JNI调用closeHFile时抛出异常
+1.调用CallBooleanMethod时抛出了异
+
+[[SQL-174]]
+== SQL 174
+执行BulkLoad时有一些参数指定错误
+*Cause:* 执行BulkLoad时有一些参数指定错误
+*Effect:* BulkLoad失败
+*Recovery:* HBulkLoadClient_JNI调用doBulkLoad返回失败
+1。 获取HDFS路径和表名的UTF8编码时调用NewStringUTF失败，请检查指定的路径或者表名是否正确
+
+[[SQL-175]]
+== SQL 175
+执行BulkLoad时抛出异常
+*Cause:* 执行BulkLoad时抛出异常
+*Effect:* 执行BulkLoad失败
+*Recovery:* HBulkLoadClient_JNI调用doBulkLoad时抛出异常
+1.调用CallBooleanMethod时抛出了异常
+
+[[SQL-176]]
+== SQL 176
+执行BulkLoad清理操作时有一些参数指定错误
+*Cause:* 执行BulkLoad清理操作时有一些参数指定错误
+*Effect:* 执行BulkLoad清理操作失败
+*Recovery:* HBulkLoadClient_JNI调用bulkLoadCleanup返回失败
+1。 获取HDFS路径的UTF8编码时调用NewStringUTF失败，请检查指定的路径是否正确
+
+[[SQL-177]]
+== SQL 177
+执行BulkLoad清理操作时抛出异常
+*Cause:* 执行BulkLoad清理操作时抛出异常
+*Effect:* 执行BulkLoad清理操作失败
+*Recovery:* HBulkLoadClient_JNI调用bulkLoadCleanup时抛出异常
+1.调用CallBooleanMethod时抛出了异常
+
+[[SQL-178]]
+== SQL 178
+HBLC_ERROR_INIT_HBLC_PARAM                    = 178     // 目前没有再使用
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-179]]
+== SQL 179
+执行initHBLC时抛出异常
+*Cause:* 执行initHBLC时抛出异常
+*Effect:* 执行initHBLC失败
+*Recovery:* HBulkLoadClient_JNI调用initHBLC时抛出异常
+1.调用getHBulkLoadClient时抛出了异常
+
+[[SQL-180]]
+== SQL 180
+--unused--
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-181]]
+== SQL 181
+初始化JVM或者JNI环境失败
+*Cause:* 初始化JVM或者JNI环境失败
+*Effect:* 无法调用JNI相关功能
+*Recovery:* BackupRestoreClient_JNI调用initJNIEnv返回失败，请检查JVM相关参数或者TRAF_JNIHANDLE_CAPACITY环境变量是否设置正确
+1. 查看环境变量TRAF_JNIHANDLE_CAPACITY设置是否正确，该值默认为：32，必须大于0
+2. 参考JOI_ERROR_CHECK_JVM错误码检查相关的JVM相关参数设置
+
+[[SQL-182]]
+== SQL 182
+备份过程中调用JNI接口失败
+*Cause:* 备份过程中调用JNI接口失败
+*Effect:* 无法调用JNI相关功能
+*Recovery:* 该错误一般BackupRestoreClient_JNI是调用JNI的如下接口失败，请检查下面项是否都指定正确：
+1. NewStringUTF：获取备份的tag名称、扩展的备份属性、备份类型的UTF8编码失败，请检查指定的tag名称，扩展的备份熟悉以及备份的类型字符串是否正确
+2. CallBooleanMethod：调用生成对象的快照、快照的增量信息以及最终信息时相关的JNI方法抛出了异常
+3. 调用convertToStringObjectArray转换表名时返回了空
+
+[[SQL-183]]
+== SQL 183
+恢复过程中调用JNI接口失败
+*Cause:* 恢复过程中调用JNI接口失败
+*Effect:* 无法调用JNI相关功能
+*Recovery:* 该错误一般BackupRestoreClient_JNI是调用JNI的如下接口失败，请检查下面项是否都指定正确：
+1. NewStringUTF：获取恢复的tag名称、时间戳、恢复类型的UTF8编码失败，请检查指定的tag名称，时间戳以及恢复类型字符串是否正确
+2. CallBooleanMethod：调用恢复对象的快照、快照的增量信息以及最终信息时JNI方法时抛出了异常
+
+[[SQL-184]]
+== SQL 184
+恢复过程中调用JNI接口失败
+*Cause:* 恢复过程中调用JNI接口失败
+*Effect:* 无法调用JNI相关功能
+*Recovery:* 该错误一般BackupRestoreClient_JNI是调用JNI的如下接口失败，请检查下面项是否都指定正确：
+1. NewStringUTF：获取删除的tag名称的UTF8编码失败，请检查指定的tag名称是否正确
+2. CallBooleanMethod：调用删除备份相关的JNI方法时抛出了异常
+
+[[SQL-185]]
+== SQL 185
+BRC_ERROR_GET_BACKUP_TYPE_EXCEPTION           = 185 // 该错误码暂时没用
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-186]]
+== SQL 186
+BRC_ERROR_GET_EXTENDED_ATTRIBUTES_EXCEPTION   = 186 // 该错误码暂时没用
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-187]]
+== SQL 187
+BRC_ERROR_GET_BACKUP_STATUS_EXCEPTION         = 187 // 该错误码暂时没用
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-188]]
+== SQL 188
+列举备份的tag时调用JNI接口失败
+*Cause:* 列举备份的tag时调用JNI接口失败
+*Effect:* 无法调用JNI相关功能
+*Recovery:* 该错误一般BackupRestoreClient_JNI是调用JNI的如下接口失败，请检查下面项是否都指定正确：
+1. CallBooleanMethod：调用列举所有备份相关的JNI方法时抛出了异常
+
+[[SQL-189]]
+== SQL 189
+导入导出过程中调用JNI接口失败
+*Cause:* 导入导出过程中调用JNI接口失败
+*Effect:* 无法调用JNI相关功能
+*Recovery:* 该错误一般BackupRestoreClient_JNI是调用JNI的如下接口失败，请检查下面项是否都指定正确：
+1. NewStringUTF：获取导入导出的tag名称、位置的UTF8编码失败，请检查指定的tag名称和位置是否正确
+2. CallBooleanMethod：调用导入导出相关的JNI方法时抛出了异常
+
+[[SQL-190]]
+== SQL 190
+初始化备份恢复和HBase的连接时失败
+*Cause:* 初始化备份恢复和HBase的连接时失败
+*Effect:* 无法创建和HBase的连接
+*Recovery:* 该错误是调用getBackupRestoreClient接口失败，可能是如下原因所致：：
+1. JVM或者JNI初始化失败，请参考JOI_ERROR_CHECK_JVM检查相关设置是否正确
+2. CallBooleanMethod：调用GET_BRC相关的JNI方法时抛出了异常
+3. 备份恢复模块和HBase建立连接失败，请检查HBase服务是否正常
+4. 备份恢复模块初始化失败，请检查JVM和JNI相关参数
+
+[[SQL-191]]
+== SQL 191
+BRC_ERROR_LOCK_HOLDER_EXCEPTION               = 191 // 该错误码暂时没用
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-192]]
+== SQL 192
+备份恢复过程中调用加锁操作失败
+*Cause:* 备份恢复过程中调用加锁操作失败
+*Effect:* 没有获得备份恢复相关对象的锁
+*Recovery:* 该错误是BackupRestoreClient_JNI调用operationLock失败，请检查下面项是否都指定正确：
+1. NewStringUTF：获取备份恢复的tag名称的UTF编码失败，请检查指定的tag名称是否正确
+2. CallBooleanMethod：调用备份恢复的加锁方法时抛出了异常
+
+[[SQL-193]]
+== SQL 193
+备份恢复过程中调用解锁操作失败
+*Cause:* 备份恢复过程中调用解锁操作失败
+*Effect:* 没有释放备份恢复相关对象的锁
+*Recovery:* 该错误是BackupRestoreClient_JNI调用operationUnlock失败，请检查下面项是否都指定正确：
+1. NewStringUTF：获取备份恢复的tag名称的UTF编码失败，请检查指定的tag名称是否正确
+2. CallBooleanMethod：调用备份恢复的解锁方法时抛出了异常
+
+[[SQL-194]]
+== SQL 194
+BRC_ERROR_BACKUP_NONFATAL                     = 194
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-195]]
+== SQL 195
+设置备份恢复的Hiatus状态时获取表名的UTF编码失败
+*Cause:* 设置备份恢复的Hiatus状态时获取表名的UTF编码失败
+*Effect:* 设置备份恢复的Hiatus状态失败
+*Recovery:* 该错误是BackupRestoreClient_JNI调用setHiatus失败，请检查下面项是否都指定正确：
+1. NewStringUTF：获取相关表名称的UTF编码失败，请检查表名称是否正确
+
+[[SQL-196]]
+== SQL 196
+清理备份恢复的Hiatus状态时获取表名的UTF编码失败
+*Cause:* 清理备份恢复的Hiatus状态时获取表名的UTF编码失败
+*Effect:* 清理备份恢复的Hiatus状态失败
+*Recovery:* 该错误是BackupRestoreClient_JNI调用clearHiatus失败，请检查下面项是否都指定正确：
+1. NewStringUTF：获取相关表名称的UTF编码失败，请检查表名称是否正确
+
+[[SQL-197]]
+== SQL 197
+获取regular备份的增量备份tags的名称的UTF编码失败
+*Cause:* 获取regular备份的增量备份tags的名称的UTF编码失败
+*Effect:* 获取regular备份相关的增量备份tags的名称失败
+*Recovery:* 该错误是BackupRestoreClient_JNI调用getLinkedBackupTags失败，请检查下面项是否都指定正确：
+1. NewStringUTF：获取相关tag名称的UTF编码失败，请检查tag名称是否正确
+
+[[SQL-701]]
+== SQL 701
+HBASE_CREATE_ERROR                            = 701: 执行过程中调用HBase的如下接口抛出异常，1） create
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-702]]
+== SQL 702
+HBASE_ALTER_ERROR                             = 702,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-703]]
+== SQL 703
+HBASE_DROP_ERROR                              = 703,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-704]]
+== SQL 704
+HBASE_OPEN_ERROR                              = 704,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-705]]
+== SQL 705
+HBASE_CLOSE_ERROR                             = 705,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-706]]
+== SQL 706
+HBASE_ACCESS_ERROR                            = 706,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-707]]
+== SQL 707
+HBASE_CREATE_ROW_ERROR                        = 707,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-708]]
+== SQL 708
+HBASE_DUP_ROW_ERROR                           = 708,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-709]]
+== SQL 709
+HBASE_ROW_NOTFOUND_ERROR                      = 709,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-710]]
+== SQL 710
+HBASE_CREATE_OPTIONS_ERROR                    = 710,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-711]]
+== SQL 711
+HBASE_COPY_ERROR                              = 711,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-712]]
+== SQL 712
+HBASE_CREATE_HFILE_ERROR                      = 712,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-713]]
+== SQL 713
+HBASE_ADD_TO_HFILE_ERROR                      = 713,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-714]]
+== SQL 714
+HBASE_CLOSE_HFILE_ERROR                       = 714,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-715]]
+== SQL 715
+HBASE_DOBULK_LOAD_ERROR                       = 715,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-716]]
+== SQL 716
+HBASE_CLEANUP_HFILE_ERROR                     = 716,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-717]]
+== SQL 717
+HBASE_INIT_HBLC_ERROR                         = 717,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-718]]
+== SQL 718
+HBASE_INIT_BRC_ERROR                          = 718,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-719]]
+== SQL 719
+HBASE_RETRY_AGAIN                             = 719,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-720]]
+== SQL 720
+HBASE_CREATE_SNAPSHOT_ERROR                   = 720,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-721]]
+== SQL 721
+HBASE_DELETE_SNAPSHOT_ERROR                   = 721,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-722]]
+== SQL 722
+HBASE_VERIFY_SNAPSHOT_ERROR                   = 722,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-723]]
+== SQL 723
+HBASE_RESTORE_SNAPSHOT_ERROR                  = 723,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-724]]
+== SQL 724
+HBASE_BACKUP_NONFATAL_ERROR                   = 724,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-725]]
+== SQL 725
+HBASE_BACKUP_LOCK_TIMEOUT_ERROR               = 725,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-726]]
+== SQL 726
+HBASE_DELETE_BACKUP_ERROR                     = 726,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-727]]
+== SQL 727
+HBASE_EXPORT_IMPORT_BACKUP_ERROR              = 727,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-728]]
+== SQL 728
+HBASE_REGISTER_TENANT_ERROR                   = 728,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-729]]
+== SQL 729
+HBASE_ALTER_TENANT_ERROR                      = 729,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-730]]
+== SQL 730
+HBASE_UNREGISTER_TENANT_ERROR                 = 730,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-731]]
+== SQL 731
+HBASE_GET_BACKUP_ERROR                        = 731,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-732]]
+== SQL 732
+HBASE_BACKUP_OPERATION_ERROR                  = 732,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-733]]
+== SQL 733
+HBASE_LOCK_TIME_OUT_ERROR                     = 733,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-734]]
+== SQL 734
+HBASE_LOCK_ROLLBACK_ERROR                     = 734,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-735]]
+== SQL 735
+HBASE_LOCK_REQUIRED_NOT_INT_TRANSACTION       = 735,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-736]]
+== SQL 736
+HBASE_DEAD_LOCK_ERROR                         = 736,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-737]]
+== SQL 737
+HBASE_LOCK_REGION_MOVE_ERROR                  = 737,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-738]]
+== SQL 738
+HBASE_LOCK_REGION_SPLIT_ERROR.                = 738,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-739]]
+== SQL 739
+HBASE_RPC_TIME_OUT_ERROR                      = 739,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-740]]
+== SQL 740
+HBASE_CANCLE_OPERATION                        = 740,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-741]]
+== SQL 741
+HBASE_GENERIC_ERROR                           = 741,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-742]]
+== SQL 742
+HBASE_EXEC_TRIGGER_ERROR                      = 742,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-743]]
+== SQL 743
+HBASE_INVALID_DDL                             = 743,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-744]]
+== SQL 744
+HBASE_LOCK_NOT_ENOUGH_RESOURCS                = 744,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-100000]]
+== SQL 100000
+--- unused ---
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-100001]]
+== SQL 100001
+JNI调用过程中创建JVM失败
+*Cause:* JNI调用过程中创建JVM失败
+*Effect:* JVM初始化失败，无法调用JNI相关功能
+*Recovery:* 
+数据库执行过程中调用JNI_GetCreatedJavaVMs创建JVM失败，JVM接口用法请参考：https://docs.oracle.com/en/java/javase/16/docs/specs/jni/invocation.html
+1. 数据库在JavaObjectInterfaceTM::initJVM方法中调用JNI_GetCreatedJavaVMs (&jvm_, 1, &jvm_count)返回错误，请检查以下环境变量：
+   DTM_JVM_MAX_HEAP_SIZE_MB、JDK参数-XX:-LoopUnswitching、CLASSPATH、JVM的DEBUG、JVM_COMPRESSED_CLASS_SPACE_SIZE、JVM_MAX_METASPACE_SIZE、JVM_GC_OPTION、JVM_GC_OPTION_PT、JVM_GC_OPTION_CPT。
+2. 数据库在JavaObjectInterface::initJVM方法中调用JNI_GetCreatedJavaVMs (&jvm_, 1, &jvm_count)返回错误
+3. 数据库在JavaObjectInterface::createJVM(方法中调用JNI_CreateJavaVM(&jvm_, (void**)&jenv_, &jvm_args)返回错误，请检查相关的参数或者环境变量是否正确
+   需要检查1中除了a和b之外的所有参数，还需要检查如下参数：
+   TRAF_LOG、HOSTNAME、log4j的配置、JVM_MAX_HEAP_SIZE、JVM_PRESERVE_FP、JVM_INIT_HEAP_SIZE_MB、HEAP的DUMP。
+4. 如果是UDR Server还会附加一些参数，请检查UDR Server附加的相关参数设置是否正确
+另外如果启动过程中一直无法启动成功，请将日志级别设置为DEBUG，重新启动系统会打印JVM相关的参数值，也方便进一步定位和重现问题。
+
+[[SQL-100002]]
+== SQL 100002
+JVM附加到了一个错误的版本
+*Cause:* JVM附加到了一个错误的版本
+*Effect:* JVM初始化失败，无法调用JNI相关功能
+*Recovery:* 目前我们还用的是JNI版本是1.6，如果太低或者太高的JDK也可能是JDK版本不匹配导致的，请检查当前JDK版本，JVM接口用法请参考：https://docs.oracle.com/en/java/javase/16/docs/specs/jni/invocation.html:
+1. 数据库在JavaObjectInterfaceTM::initJVM方法中，调用jvm_->GetEnv((void**) &_tlp_jenv, JNI_VERSION_1_6)返回JNI_EVERSION错误
+2. 数据库在JavaObjectInterface::initJVM方法中，调用jvm_->GetEnv((void**) &jenv_, JNI_VERSION_1_6)返回JNI_EVERSION错误
+
+[[SQL-100003]]
+== SQL 100003
+JVM附加到当前线程时返回错误
+*Cause:* JVM附加到当前线程时返回错误
+*Effect:* 附加JVM失败，无法调用JNI相关功能
+*Recovery:* JVM接口用法请参考：https://docs.oracle.com/en/java/javase/16/docs/specs/jni/invocation.html:
+1. 数据库在JavaObjectInterfaceTM::attachThread方法中，调用jvm_->AttachCurrentThread((void**) &_tlp_jenv, NULL)时返回错误
+2. 数据库在JavaObjectInterfaceTM::detachThread方法中，调用jvm_->DetachCurrentThread()时返回错误
+3. 数据库在JavaObjectInterfaceTM::initJVM方法中，调用jvm_->GetEnv((void**) &_tlp_jenv, JNI_VERSION_1_6)时返回JNI_EDETACHED错误，但调用jvm_->AttachCurrentThread((void**) &_tlp_jenv, NULL)尝试Attach时，也返回了错误
+4. 数据库在JavaObjectInterfaceTM::initJVM方法中，调用jvm_->GetEnv((void**) &_tlp_jenv, JNI_VERSION_1_6)时返回除JNI_EVERSION和JNI_EDETACHED之外的错误码
+5. 数据库在JavaObjectInterface::initJVM方法中，调用jvm_->GetEnv((void**) &_tlp_jenv, JNI_VERSION_1_6)时返回JNI_EDETACHED错误，但调用jvm_->AttachCurrentThread((void**) &_tlp_jenv, NULL)尝试Attach时，也返回了错误
+6. 数据库在JavaObjectInterface::initJVM方法中，调用jvm_->GetEnv((void**) &_tlp_jenv, JNI_VERSION_1_6)时返回除JNI_EVERSION和JNI_EDETACHED之外的错误码
+
+[[SQL-100004]]
+== SQL 100004
+JNI初始化过程中创建JVM失败
+*Cause:* JNI初始化过程中创建JVM失败
+*Effect:* 创建JVM失败，相关进程会产生core文件
+*Recovery:* 正常情况下都不会产生该错误，因为从代码上在返回该错误前已经调用了abort接口产生了core文件
+
+[[SQL-100005]]
+== SQL 100005
+JNI初始化过程中查找类返回失败
+*Cause:* JNI初始化过程中查找类返回失败
+*Effect:* 初始化JVM失败，无法调用JNI相关功能
+*Recovery:* 从日志中查看是查找那个类失败，请确认该类是否在CLASSPATH中，或者该类对应的JAR或者CLASS文件是否可用，该方法的具体用法见官方文档：https://docs.oracle.com/en/java/javase/16/docs/specs/jni/functions.html
+1. 数据库在JavaObjectInterfaceTM::init方法中调用_tlp_jenv->FindClass(className)查找相关类时返回错误，请查看TM的日志是否有"JavaObjectInterfaceTM::init()"相关的错误信息进一步确定问题
+2. 数据库在JavaObjectInterface::init方法中调用jenv_->FindClass(className)查找相关类时返回错误，请查看相关进程的日志是否有"Exception in FindClass"或者"Error in FindClass"相关的错误信息进一步确定问题
+
+[[SQL-100006]]
+== SQL 100006
+JVM初始化过程中获取方法ID失败
+*Cause:* JVM初始化过程中获取方法ID失败
+*Effect:* 初始化JVM失败，无法调用JNI相关功能
+*Recovery:* 该方法的使用，请参考官方文档：https://docs.oracle.com/en/java/javase/16/docs/specs/jni/functions.html
+1. 数据库在JavaObjectInterfaceTM::init方法中调用 _tlp_jenv->GetMethodID(javaClass, JavaMethods[i].jm_name.data(), JavaMethods[i].jm_signature.data())获取方法ID时返回错误，请查看TM的日志是否有"JNIEnv->GetMethodID()"相关的错误信息进一步确定问题
+2. 数据库在JavaObjectInterface::init方法中调用jenv_->GetMethodID(javaClass, JavaMethods[i].jm_name, JavaMethods[i].jm_signature)或者jenv_->GetStaticMethodID(javaClass, JavaMethods[i].jm_name, JavaMethods[i].jm_signature)获取静态方法ID时返回错误，请查看相关进程的日志是否有"GetMethodId()"相关的错误信息进一步确定问题
+
+[[SQL-100007]]
+== SQL 100007
+JVM初始化过程中获取申请对象失败
+*Cause:* JVM初始化过程中获取申请对象失败
+*Effect:* 初始化JVM失败，无法调用JNI相关功能
+*Recovery:* 在JVM初始化或者调用过程中申请对象失败，该方法的具体用法见官方文档：https://docs.oracle.com/en/java/javase/16/docs/specs/jni/functions.html
+1. 数据库在JavaObjectInterfaceTM::init方法中调用 _tlp_jenv->NewObject(javaClass, JavaMethods[0].methodID)申请对象时返回错误，请查看TM的日志是否有"JavaObjectInterfaceTM::init()"相关的错误信息进一步确定问题
+2. 数据库在BackupRestoreClient_JNI类中调用jenv_->NewStringUTF方法时返回空指针错误，请检查系统内存或者JVM的HEAPSIZE是否已经不足
+3. 数据库在JavaObjectInterface::init方法中调用jenv_->NewObject(javaClass, JavaMethods[0].methodID)申请对象时返回错误，请查看相关进程的日志是否有"Error in NewObject() for class"相关的错误信息进一步确定问题
+
+[[SQL-100008]]
+== SQL 100008
+初始化JNI失败
+*Cause:* 初始化JNI失败
+*Effect:* 初始化JNI的环境失败，无法调用JNI相关功能
+*Recovery:* 通过JNI调用PushLocalFrame接口失败，可能是指定的参数错误，该方法的参数一定是大于0的，具体参考官方文档：https://docs.oracle.com/en/java/javase/16/docs/specs/jni/functions.html
+1. 数据库在JavaObjectInterfaceTM::initJNIEnv方法中调用_tlp_jenv->PushLocalFrame(jniHandleCapacity_)返回错误，请查看TM的环境变量TRAF_JNIHANDLE_CAPACITY设置是否正确，该值默认为：32
+2. 数据库在JavaObjectInterface::initJNIEnv方法中调用jenv_->PushLocalFrame(jniHandleCapacity_)返回错误，请查看相关进程的环境变量TRAF_JNIHANDLE_CAPACITY设置是否正确，该值默认为：32
+
+[[SQL-100009]]
+== SQL 100009
+*Cause:* 
+*Effect:* 
+*Recovery:* 

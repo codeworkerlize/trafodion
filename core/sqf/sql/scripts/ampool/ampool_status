@@ -1,0 +1,20 @@
+. $TRAF_HOME/sql/scripts/ampool/setup_ampool_env
+
+echo "Excuting jps before status check"
+jps
+
+echo
+
+${AMPOOL_HOME}/bin/mash <<EOF
+
+connect --locator=localhost[${AMPOOL_LOCATOR_PORT}]
+
+list members
+
+list tables
+
+list deployed
+
+list functions
+
+EOF

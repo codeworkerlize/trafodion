@@ -1,0 +1,492 @@
+>>
+>>create schema testmemtable;
+
+--- SQL operation complete.
+>>set schema testmemtable;
+
+--- SQL operation complete.
+>>
+>>cqd TRAF_ENABLE_DATA_LOAD_IN_SHARED_CACHE 'off';
+
+--- SQL operation complete.
+>>create table tb10( c1 int unique) attributes read_only;
+
+*** ERROR[3242] This statement is not supported. Reason: The data caching function is disabled
+
+--- SQL operation failed with errors.
+>>create table tb10( c1 int unique);
+
+--- SQL operation complete.
+>>alter table tb10 attribute read_only;
+
+*** ERROR[3242] This statement is not supported. Reason: The data caching function is disabled
+
+--- SQL operation failed with errors.
+>>
+>>cqd TRAF_ENABLE_DATA_LOAD_IN_SHARED_CACHE 'on';
+
+--- SQL operation complete.
+>>LOAD TRAFODION DATA INTO SHARED CACHE;
+
+--- SQL operation complete.
+>>
+>>-- test create table 
+>>create table tb11( c1 int unique) attributes read_only;
+
+--- SQL operation complete.
+>>create table tb12( c1 int check(c1 <>0) ) attributes read_only;
+
+--- SQL operation complete.
+>>create table tb13( c1 int not null) attributes read_only;
+
+--- SQL operation complete.
+>>create table tb14( c1 int primary key) attributes read_only;
+
+--- SQL operation complete.
+>>create table tb15( c1 int references tb14(c1)) attributes read_only;
+
+--- SQL operation complete.
+>>create table tb16( c1 int references tb14(c1));
+
+--- SQL operation complete.
+>>create table tb17( c1 int ) attributes hbase format read_only;
+
+*** ERROR[3242] This statement is not supported. Reason: Hbase format tables can not build as a read only table
+
+--- SQL operation failed with errors.
+>>create table tb18( c1 int primary key, c2 int) salt using 4 partitions on (c1) ATTRIBUTES read_only;
+
+*** ERROR[3242] This statement is not supported. Reason: Partition tables can not build as a read only table
+
+--- SQL operation failed with errors.
+>>
+>>create table salt_tab(c1 int primary key,c2 int,c3 int) salt using 3 partitions;
+
+--- SQL operation complete.
+>>alter table salt_tab attribute read_only;
+
+*** ERROR[3242] This statement is not supported. Reason: Unsupported table types: PARTITION TABLE
+
+--- SQL operation failed with errors.
+>>
+>>create table hb_f_tab (c1 int primary key,c2 int,c3 int) attribute hbase format;
+
+--- SQL operation complete.
+>>alter table hb_f_tab attribute read_only;
+
+*** ERROR[3242] This statement is not supported. Reason: Unsupported table types: HBASE FORMAT TABLE
+
+--- SQL operation failed with errors.
+>>
+>>-- testDML
+>>
+>>create table tb_read_only (c1 int, c2 int, c3 int);
+
+--- SQL operation complete.
+>>create index ix1 on tb_read_only(c1);
+
+--- SQL operation complete.
+>>insert into tb_read_only select element,element,element from udf(series(1,10));
+
+--- 10 row(s) inserted.
+>>alter table tb_read_only ATTRIBUTES READ_ONLY;
+
+--- SQL operation complete.
+>>showddl tb_read_only;
+
+CREATE TABLE TRAFODION.TESTMEMTABLE.TB_READ_ONLY
+  (
+    C1                               INT DEFAULT NULL
+  , C2                               INT DEFAULT NULL
+  , C3                               INT DEFAULT NULL
+  )
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_regr' READ_ONLY
+;
+
+CREATE INDEX IX1 ON TRAFODION.TESTMEMTABLE.TB_READ_ONLY
+  (
+    C1 ASC
+  )
+;
+
+--- SQL operation complete.
+>>
+>>-- test NOT ALLOWED SQL
+>>drop index ix1;
+
+*** ERROR[8644] DDL operations are not allowed on readonly table. Remove READ_ONLY attribute first.
+
+--- SQL operation failed with errors.
+>>cleanup index ix1;
+
+*** ERROR[8644] DDL operations are not allowed on readonly table. Remove READ_ONLY attribute first.
+
+--- SQL operation failed with errors.
+>>create index ix2 on tb_read_only(c2);
+
+*** ERROR[8644] DDL operations are not allowed on readonly table. Remove READ_ONLY attribute first.
+
+--- SQL operation failed with errors.
+>>populate index  ix1 on tb_read_only;
+
+*** ERROR[8644] DDL operations are not allowed on readonly table. Remove READ_ONLY attribute first.
+
+--- SQL operation failed with errors.
+>>truncate tb_read_only;
+
+*** ERROR[8644] DDL operations are not allowed on readonly table. Remove READ_ONLY attribute first.
+
+--- SQL operation failed with errors.
+>>purgedata tb_read_only;
+
+*** ERROR[8644] DDL operations are not allowed on readonly table. Remove READ_ONLY attribute first.
+
+--- SQL operation failed with errors.
+>>alter table tb_read_only add column c4 int;
+
+*** ERROR[8644] DDL operations are not allowed on readonly table. Remove READ_ONLY attribute first.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>alter table tb_read_only drop c3;
+
+*** ERROR[8644] DDL operations are not allowed on readonly table. Remove READ_ONLY attribute first.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>alter table tb_read_only alter column c3 largeint;
+
+*** ERROR[8644] DDL operations are not allowed on readonly table. Remove READ_ONLY attribute first.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>alter table tb_read_only add constraint conUnique unique (c3);
+
+*** ERROR[8644] DDL operations are not allowed on readonly table. Remove READ_ONLY attribute first.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>alter table tb_read_only rename to tb_read_only1;
+
+*** ERROR[8644] DDL operations are not allowed on readonly table. Remove READ_ONLY attribute first.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>alter table tb_read_only ATTRIBUTES stored desc;
+
+*** ERROR[3072] The STORED DESC clause is not allowed in the ALTER TABLE ... ATTRIBUTE(S) statement.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>alter table tb_read_only ATTRIBUTES incremental backup;
+
+*** ERROR[8644] DDL operations are not allowed on readonly table. Remove READ_ONLY attribute first.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>alter table tb_read_only enable index ix2;
+
+*** ERROR[8644] DDL operations are not allowed on readonly table. Remove READ_ONLY attribute first.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>alter table tb_read_only disable index ix2;
+
+*** ERROR[8644] DDL operations are not allowed on readonly table. Remove READ_ONLY attribute first.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>
+>>insert into tb_read_only VALUES(1,2,3);
+
+*** ERROR[4223] Insert/Update/Delete/Merge on READ_ONLY table is not supported in this software version or edition.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>delete from tb_read_only;
+
+*** ERROR[4223] Insert/Update/Delete/Merge on READ_ONLY table is not supported in this software version or edition.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>update tb_read_only set c1 = 1;
+
+*** ERROR[4223] Insert/Update/Delete/Merge on READ_ONLY table is not supported in this software version or edition.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>
+>>-- test allowd sql
+>>ALTER TRAFODION DATA SHARED CACHE FOR TABLE tb_read_only disable;
+
+--- SQL operation complete.
+>>set parserflags 1;
+
+--- SQL operation complete.
+>>select * from tb_read_only limit 1;
+
+C1           C2           C3         
+-----------  -----------  -----------
+
+          1            1            1
+
+--- 1 row(s) selected.
+>>select * from table(index_table ix1) limit 1;
+
+C1@          SYSKEY              
+-----------  --------------------
+
+          1   6448304230786679735
+
+--- 1 row(s) selected.
+>>ALTER TRAFODION DATA SHARED CACHE FOR TABLE tb_read_only enable;
+
+--- SQL operation complete.
+>>set statistics on;
+>>select * from tb_read_only limit 1;
+
+C1           C2           C3         
+-----------  -----------  -----------
+
+          1            1            1
+
+--- 1 row(s) selected.
+
+Start Time             2021/12/30 11:59:02.663446
+End Time               2021/12/30 11:59:02.665520
+Elapsed Time                      00:00:00.002074
+Compile Time                      00:00:00.000461
+Execution Time                    00:00:00.001500
+
+
+Table Name             Records        Records      Hdfs       Hdfs I/O    Hdfs Access
+                      Accessed           Used      I/Os          Bytes     Time(usec)
+TRAF_regr:TRAFODION.TESTMEMTABLE.TB_READ_ONLY
+                             0              1         0              0              0
+
+--- SQL operation complete.
+>>select * from table(index_table ix1) limit 1;
+
+C1@          SYSKEY              
+-----------  --------------------
+
+          1   6448304230786679735
+
+--- 1 row(s) selected.
+
+Start Time             2021/12/30 11:59:02.704559
+End Time               2021/12/30 11:59:02.706070
+Elapsed Time                      00:00:00.001511
+Compile Time                      00:00:00.000339
+Execution Time                    00:00:00.001090
+
+
+Table Name             Records        Records      Hdfs       Hdfs I/O    Hdfs Access
+                      Accessed           Used      I/Os          Bytes     Time(usec)
+TRAF_regr:TRAFODION.TESTMEMTABLE.IX1
+                             0              1         0              0              0
+
+--- SQL operation complete.
+>>set statistics off;
+>>ALTER TRAFODION DATA SHARED CACHE FOR TABLE tb_read_only delete;
+
+--- SQL operation complete.
+>>select * from tb_read_only limit 1;
+
+C1           C2           C3         
+-----------  -----------  -----------
+
+          1            1            1
+
+--- 1 row(s) selected.
+>>select * from table(index_table ix1) limit 1;
+
+C1@          SYSKEY              
+-----------  --------------------
+
+          1   6448304230786679735
+
+--- 1 row(s) selected.
+>>ALTER TRAFODION DATA SHARED CACHE FOR TABLE tb_read_only delete;
+
+--- SQL operation complete.
+>>ALTER TRAFODION DATA SHARED CACHE FOR TABLE tb_read_only insert;
+
+--- SQL operation complete.
+>>select * from tb_read_only limit 1;
+
+C1           C2           C3         
+-----------  -----------  -----------
+
+          1            1            1
+
+--- 1 row(s) selected.
+>>select * from table(index_table ix1) limit 1;
+
+C1@          SYSKEY              
+-----------  --------------------
+
+          1   6448304230786679735
+
+--- 1 row(s) selected.
+>>ALTER TRAFODION DATA SHARED CACHE FOR TABLE tb_read_only update;
+
+--- SQL operation complete.
+>>select * from tb_read_only limit 1;
+
+C1           C2           C3         
+-----------  -----------  -----------
+
+          1            1            1
+
+--- 1 row(s) selected.
+>>select * from table(index_table ix1) limit 1;
+
+C1@          SYSKEY              
+-----------  --------------------
+
+          1   6448304230786679735
+
+--- 1 row(s) selected.
+>>
+>>select * from tb_read_only where c1 > 10;
+
+--- 0 row(s) selected.
+>>select * from tb_read_only where c1 < 0;
+
+--- 0 row(s) selected.
+>>select * from tb_read_only where c1 = 10;
+
+C1           C2           C3         
+-----------  -----------  -----------
+
+         10           10           10
+
+--- 1 row(s) selected.
+>>
+>>select /*+MEMORY_TABLE_SCAN('OFF')*/ * from tb_read_only where c1 > 10;
+
+--- 0 row(s) selected.
+>>select /*+MEMORY_TABLE_SCAN('OFF')*/ * from tb_read_only where c1 < 0;
+
+--- 0 row(s) selected.
+>>select /*+MEMORY_TABLE_SCAN('OFF')*/ * from tb_read_only where c1 = 10;
+
+C1           C2           C3         
+-----------  -----------  -----------
+
+         10           10           10
+
+--- 1 row(s) selected.
+>>
+>>drop table tb_read_only;
+
+--- SQL operation complete.
+>>create table tb_read_only (c1 int, c2 int, c3 int);
+
+--- SQL operation complete.
+>>create index ix1 on tb_read_only(c1);
+
+--- SQL operation complete.
+>>select * from tb_read_only limit 1;
+
+--- 0 row(s) selected.
+>>select * from table(index_table ix1) limit 1;
+
+--- 0 row(s) selected.
+>>insert into tb_read_only select element,element,element from udf(series(1,10));
+
+--- 10 row(s) inserted.
+>>alter table tb_read_only ATTRIBUTES READ_ONLY;
+
+--- SQL operation complete.
+>>
+>>cleanup table tb_read_only;
+
+--- SQL operation complete.
+>>create table tb_read_only (c1 int, c2 int, c3 int);
+
+--- SQL operation complete.
+>>create index ix1 on tb_read_only(c1);
+
+--- SQL operation complete.
+>>select * from tb_read_only limit 1;
+
+--- 0 row(s) selected.
+>>select * from table(index_table ix1) limit 1;
+
+--- 0 row(s) selected.
+>>insert into tb_read_only select element,element,element from udf(series(1,10));
+
+--- 10 row(s) inserted.
+>>alter table tb_read_only ATTRIBUTES READ_ONLY;
+
+--- SQL operation complete.
+>>
+>>create view v1 as select * from tb_read_only;
+
+--- SQL operation complete.
+>>select * from v1;
+
+C1           C2           C3         
+-----------  -----------  -----------
+
+          1            1            1
+          2            2            2
+          3            3            3
+          4            4            4
+          5            5            5
+          6            6            6
+          7            7            7
+          8            8            8
+          9            9            9
+         10           10           10
+
+--- 10 row(s) selected.
+>>insert into v1 VALUES(1,2,3);
+
+*** ERROR[4223] Insert/Update/Delete/Merge on READ_ONLY table is not supported in this software version or edition.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>delete from v1;
+
+*** ERROR[4223] Insert/Update/Delete/Merge on READ_ONLY table is not supported in this software version or edition.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>update v1 set c1 = 1;
+
+*** ERROR[4223] Insert/Update/Delete/Merge on READ_ONLY table is not supported in this software version or edition.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>
+>>--M24469
+>>create table m24469(c1 int, c2 int, c3 int);
+
+--- SQL operation complete.
+>>create index idxm24469_1 on m24469(c1) no populate;
+
+--- SQL operation complete.
+>>create index idxm24469_2 on m24469(c2);
+
+--- SQL operation complete.
+>>alter table m24469 attribute read_only;
+
+--- SQL operation complete.
+>>drop index idxm24469_1;
+
+--- SQL operation complete.
+>>drop index idxm24469_2;
+
+*** ERROR[8644] DDL operations are not allowed on readonly table. Remove READ_ONLY attribute first.
+
+--- SQL operation failed with errors.
+>>
+>>drop schema testmemtable cascade;
+
+--- SQL operation complete.
+>>
+>>
+>>log;

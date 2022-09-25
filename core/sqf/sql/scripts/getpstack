@@ -1,0 +1,18 @@
+#!/bin/bash
+
+if [ "$1" = "--help" ] || [ -z $1 ]; then
+   echo "Usage: $0 <pid> [<host>]"
+   echo "   <pid>  : Process id for which the pstack is to be obtained"
+   echo "   <host> : Hostname on which the process is running. If not specified, current host is used"
+   exit 0
+fi
+
+PID=$1
+HOST=$2
+
+if [[ -z $HOST ]];then
+   pstacksq $PID
+else
+   edb_pdsh -w $HOST pstacksq $PID |cut -d' ' -f 2-
+fi
+

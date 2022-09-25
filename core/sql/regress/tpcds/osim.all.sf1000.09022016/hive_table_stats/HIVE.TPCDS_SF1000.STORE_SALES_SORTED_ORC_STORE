@@ -1,0 +1,5 @@
+<hhdfs_table_stats position='-1' numBlocks='0' numFiles='0' totalRows='0' numStripes='0' totalStringLengths='0' totalSize='0' modificationTS='1470642837' sampledBytes='0' sampledRows='0' tableDir='hdfs://nap001.esgyn.local:8020/user/hive/warehouse/tpcds_sf1000.db/store_sales_sorted_orc_store' numOfPartCols='1' totalNumPartitions='1' recordTerminator='10' fieldTerminator='1' validationJTimestamp='212339595206501590' hiveStatsSize='0' type='3'>
+    <hhdfs_list_part_stats position='0' numBlocks='0' numFiles='0' totalRows='0' numStripes='0' totalStringLengths='0' totalSize='0' modificationTS='0' sampledBytes='0' sampledRows='0' partitionDir='hdfs://nap001.esgyn.local:8020/user/hive/warehouse/tpcds_sf1000.db/store_sales_sorted_orc_store' partIndex='0' defaultBucketIdx='1' recordTerminator='10'>
+    </hhdfs_list_part_stats>
+</hhdfs_table_stats>
+

@@ -1,0 +1,120 @@
+-- Tests for HotCold feature
+--
+-- @@@ START COPYRIGHT @@@
+--
+--(C) Copyright 2016-2018 Esgyn Corporation
+--
+-- @@@ END COPYRIGHT @@@
+drop table trafodion.hotcoldtest.tbl;
+drop table trafodion.hotcoldtest.tbl2;
+
+log LOG057 clear;
+set catalog trafodion;
+CREATE SCHEMA IF NOT EXISTS HOTCOLDTEST;
+CREATE TABLE TRAFODION.HOTCOLDTEST.TBL
+  (
+    A                                CHAR(10) CHARACTER SET ISO88591 COLLATE
+      DEFAULT DEFAULT NULL NOT SERIALIZED
+  , K2                               INT NO DEFAULT NOT NULL NOT DROPPABLE NOT
+      SERIALIZED
+  , K1                               INT NO DEFAULT NOT NULL NOT DROPPABLE NOT
+      SERIALIZED
+  , TS                               TIMESTAMP(6) NO DEFAULT NOT NULL NOT
+      DROPPABLE NOT SERIALIZED
+  , B                                VARCHAR(30) CHARACTER SET ISO88591 COLLATE
+      DEFAULT DEFAULT NULL NOT SERIALIZED
+  , C                                LARGEINT DEFAULT NULL NOT SERIALIZED
+  , PRIMARY KEY (K1 ASC, K2 ASC, TS ASC)
+  )
+  SALT USING 4 PARTITIONS
+       ON (K1, K2, TS)
+  DIVISION BY (DATE_PART('YEARMONTH',TS))
+ 
+;
+
+CREATE INDEX TBL_A_IDX_BY_A ON TRAFODION.HOTCOLDTEST.TBL
+  (
+    A ASC
+  )
+ SALT LIKE TABLE
+;
+
+upsert using load into HOTCOLDTEST.tbl
+select cast(num as char(10)), num, num/1000,  DATEADD(SECOND,-num,CURRENT_TIMESTAMP), cast(num as varchar(30)), num*1000
+from (select 10000000*x10000000+1000000*x1000000+100000*x100000+10000*x10000+1000*x1000+100*x100+10*x10+x1 as num
+      from (values (0)) seed(c)
+      transpose 0,1 as x1
+      transpose 0,1 as x10
+      transpose 0,1 as x100
+      transpose 0,1 as x1000
+      transpose 0,1 as x10000
+      transpose 0,1,2,3,4,5,6,7,8,9 as x100000	
+      transpose 0,1,2,3,4,5,6,7,8,9 as x1000000
+      transpose 0,1,2,3,4,5,6,7,8,9 as x10000000	
+	) T
+;
+
+cqd hive_timestamp_precision_in_usec 'ON';
+update statistics for table HOTCOLDTEST.tbl on every column;
+call trafodion."_LIBMGR_".hotcold_create('HOTCOLDTEST','TBL','date_part(''YEARMONTH'', CURRENT_TIMESTAMP - INTERVAL ''2'' MONTH)');
+update statistics for table hive.hotcoldtest.tbl on every column;
+prepare s from select sum(c) from hotcoldtest.tbl_view where ts < extract(year from current_date)||'-01-01 00:00:00'; --cold only see if union leg of hot is gone
+explain options 'fc' s;
+explain s;--see if compile time partition elimination works
+prepare s from select sum(c) from hotcoldtest.tbl_view where ts >'2040-01-01 00:00:00'; --hot only see if union leg of cold is gone
+explain options 'fc' s;
+select sum(c) from hotcoldtest.tbl_view where ts > '2000-01-01 00:00:00';
+call trafodion."_LIBMGR_".hotcold_cleanup('HOTCOLDTEST','TBL','DROP_COLD');
+
+CREATE TABLE TRAFODION.HOTCOLDTEST.TBL2
+  (
+    A                                CHAR(10) CHARACTER SET ISO88591 COLLATE
+      DEFAULT DEFAULT NULL NOT SERIALIZED
+  , K2                               INT NO DEFAULT NOT NULL NOT DROPPABLE NOT
+      SERIALIZED
+  , K1                               INT NO DEFAULT NOT NULL NOT DROPPABLE NOT
+      SERIALIZED
+  , TS                               TIMESTAMP(6) NO DEFAULT NOT NULL NOT
+      DROPPABLE NOT SERIALIZED
+  , B                                VARCHAR(30) CHARACTER SET ISO88591 COLLATE
+      DEFAULT DEFAULT NULL NOT SERIALIZED
+  , C                                LARGEINT DEFAULT NULL NOT SERIALIZED
+  , PRIMARY KEY (K1 ASC, K2 ASC, TS ASC)
+  )
+  SALT USING 2 PARTITIONS
+       ON (K1, K2, TS)
+;
+
+upsert using load into HOTCOLDTEST.tbl2
+select cast(num as char(10)), num, num/10000000,  DATEADD(SECOND,-num,CURRENT_TIMESTAMP), cast(num as varchar(30)), num*1000
+from (select 10000000*x10000000+1000000*x1000000+100000*x100000+10000*x10000+1000*x1000+100*x100+10*x10+x1 as num
+      from (values (0)) seed(c)
+      transpose 0,1 as x1
+      transpose 0,1 as x10
+      transpose 0,1 as x100
+      transpose 0,1 as x1000
+      transpose 0,1 as x10000
+      transpose 0,1,2,3,4,5,6,7,8,9 as x100000	
+      transpose 0,1,2,3,4,5,6,7,8,9 as x1000000
+      transpose 0,1,2,3,4,5,6,7,8,9 as x10000000	
+	) T
+;
+
+update statistics for table HOTCOLDTEST.tbl2 on every column;
+call trafodion."_LIBMGR_".hotcold_create_advanced('HOTCOLDTEST','TBL2','floor(datediff(DAY, DATE ''2010-01-01'', CURRENT_DATE)/1000)','PARQUET',2,NULL,4);
+update statistics for table hive.hotcoldtest.tbl2 on every column;
+prepare s from select sum(c) from hotcoldtest.tbl2_view where k1 < 2; --cold only see if union leg of hot is gone
+explain options 'fc' s;
+explain s;--see if compile time partition elimination works
+prepare s from select sum(c) from hotcoldtest.tbl2_view where k1 > 9; --hot only see if union leg of cold is gone
+explain options 'fc' s;
+select sum(c) from hotcoldtest.tbl2_view where k1 >= 0;
+call trafodion."_LIBMGR_".hotcold_cleanup('HOTCOLDTEST','TBL2','DEFAULT');
+process hive statement 'DROP TABLE IF EXISTS HOTCOLDTEST.TBL2';
+unregister hive table hive.hotcoldtest.tbl2 cleanup;
+process hive statement 'DROP SCHEMA IF EXISTS HOTCOLDTEST';
+--cleanup
+log;
+drop schema trafodion.hotcoldtest cascade;
+exit;
+

@@ -1,0 +1,796 @@
+-- tests for access to external native hbase tables.
+--
+-- @@@ START COPYRIGHT @@@
+--
+-- Licensed to the Apache Software Foundation (ASF) under one
+-- or more contributor license agreements.  See the NOTICE file
+-- distributed with this work for additional information
+-- regarding copyright ownership.  The ASF licenses this file
+-- to you under the Apache License, Version 2.0 (the
+-- "License"); you may not use this file except in compliance
+-- with the License.  You may obtain a copy of the License at
+--
+--   http://www.apache.org/licenses/LICENSE-2.0
+--
+-- Unless required by applicable law or agreed to in writing,
+-- software distributed under the License is distributed on an
+-- "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+-- KIND, either express or implied.  See the License for the
+-- specific language governing permissions and limitations
+-- under the License.
+--
+-- @@@ END COPYRIGHT @@@
+
+obey TEST022(clean_up);
+
+log LOG022 clear;
+obey TEST022(hbase_mapped_tests);
+obey TEST022(mantis_tests);
+obey TEST022(error_tests);
+log;
+exit;
+
+?section hbase_mapped_tests
+cqd hbase_native_iud 'ON';
+cqd hbase_filter_preds 'ON';
+cqd traf_hbase_mapped_tables_iud 'ON';
+
+drop hbase table T022HBT1;
+create hbase table T022HBT1 (column family 'cf');
+
+drop hbase table T022HBT2;
+create hbase table T022HBT2 (column family 'cf');
+
+drop table if exists t022t1;
+create table if not exists t022t1 (a int not null primary key, b int not null);
+
+insert into hbase."_CELL_".t022hbt1 values ('1', 'cf', '1a', -1, '101');
+insert into hbase."_ROW_".t022hbt1 values ('2', column_create('cf:2b', '201')),
+                              ('1', column_create('cf:1b', '102'));
+prepare s from insert into hbase."_ROW_".t022hbt1 values 
+         (?, column_create((?, ?), ('cf:3b', '302')));
+execute s using '3', 'cf:3a', '301';
+
+select left(row_id, 10) row_id, column_display(column_details, 40) column_details
+           from hbase."_ROW_".t022hbt1;
+select left(row_id, 10) row_id, left(column_display(column_details), 40) 
+           from hbase."_ROW_".t022hbt1;
+select left(row_id, 10) row_id, left(column_display(column_details, ('cf:2b', 'cf:1b')), 40) 
+           from hbase."_ROW_".t022hbt1;
+
+-- no rows updated. where pred fails.
+update  hbase."_ROW_".t022hbt1 set column_details = column_create ('cf:a', 
+          (cast(column_lookup(column_details, 'cf:a') as varchar(10)) || '0103'))
+   where row_id = '3' and column_lookup(column_details, 'cf:3b') = '3021';
+
+-- no rows updated. column not found in set clause.
+update  hbase."_ROW_".t022hbt1 set column_details = column_create ('cf:a', 
+          (cast(column_lookup(column_details, 'cf:a') as varchar(10)) || '0103'))
+   where row_id = '3' and column_lookup(column_details, 'cf:3b') = '302';
+
+begin work;
+-- one row updated
+update  hbase."_ROW_".t022hbt1 set column_details = column_create ('cf:3a', 
+          (cast(column_lookup(column_details, 'cf:3a') as varchar(10)) || '0103'))
+   where row_id = '3' and column_lookup(column_details, 'cf:3b') = '302';
+
+select left(row_id, 10) row_id, left(column_display(column_details), 50) 
+           from hbase."_ROW_".t022hbt1;
+rollback work;
+
+select left(row_id, 10) row_id, left(column_display(column_details), 50) 
+           from hbase."_ROW_".t022hbt1;
+
+begin work;
+-- one row updated
+update  hbase."_ROW_".t022hbt1 set column_details = column_create ('cf:3a', 
+          (cast(column_lookup(column_details, 'cf:3a') as varchar(10)) || '0103'))
+   where row_id = '3' and column_lookup(column_details, 'cf:3b') = '302';
+
+select left(row_id, 10) row_id, left(column_display(column_details), 50) 
+           from hbase."_ROW_".t022hbt1;
+commit work;
+
+select left(row_id, 10) row_id, left(column_display(column_details), 50) 
+           from hbase."_ROW_".t022hbt1;
+
+begin work;
+insert into hbase."_ROW_".t022hbt1 values 
+       ('4', column_create(('cf:4a', '301'), ('cf:4b', '302')));
+select left(row_id, 10) row_id, left(column_display(column_details), 40) 
+           from hbase."_ROW_".t022hbt1 where row_id = '4';
+rollback work;
+
+select col_family, col_name, left(col_value, 20) from hbase."_CELL_".t022hbt1;
+select left(row_id, 10) row_id, left(column_display(column_details), 40) 
+           from hbase."_ROW_".t022hbt1 where row_id = '4';
+
+select left(column_lookup (column_details, 'cf:1a'), 20) from hbase."_ROW_".t022hbt1;
+
+select left(column_lookup (column_details, 'cf:3a'), 20) from hbase."_ROW_".t022hbt1
+  where column_lookup (column_details, 'cf:3b') = '302';
+
+select left(column_lookup (column_details, 'cf:3a'), 20) from hbase."_ROW_".t022hbt1
+  where column_lookup (column_details, 'cf:3a') = '301' 
+     and column_lookup (column_details, 'cf:3b') = '302';
+
+select left(column_lookup (column_details, 'cf:3a'), 20) from hbase."_ROW_".t022hbt1
+  where column_lookup (column_details, 'cf:3a') = '3010103' 
+     and column_lookup (column_details, 'cf:3b') = '302';
+
+select left(column_lookup (column_details, 'cf:3c'), 20) from hbase."_ROW_".t022hbt1
+  where column_lookup (column_details, 'cf:3b') = '3020';
+
+select left(column_lookup (column_details, 'cf:3c'), 20) from hbase."_ROW_".t022hbt1
+  where column_lookup (column_details, 'cf:3b') = '302';
+
+select column_lookup (column_details, 'cf:3a', cast as int),
+       column_lookup (column_details, 'cf:3a', cast as int) + 1 
+  from hbase."_ROW_".t022hbt1;
+
+select column_lookup (column_details, 'cf:3a', cast as int),
+       column_lookup (column_details, 'cf:3a', cast as int) + 1 
+  from hbase."_ROW_".t022hbt1
+   where 
+       column_lookup (column_details, 'cf:3b', cast as int) = 302;
+
+begin work;
+delete from hbase."_ROW_".t022hbt1 where row_id = '3';
+select left(row_id, 10) from hbase."_ROW_".t022hbt1;
+commit work;
+select left(row_id, 10) from hbase."_ROW_".t022hbt1;
+
+delete columns ('cf:1a') from hbase."_ROW_".t022hbt1  where row_id  = '1';
+select left(row_id, 10) row_id, column_display(column_details, 40) column_details
+           from hbase."_ROW_".t022hbt1;
+
+delete from hbase."_ROW_".t022hbt1;
+select count(*) from hbase."_ROW_".t022hbt1;
+
+-- operations between trafodion and hbase tables
+begin work;
+insert into t022t1 values (1, 100);
+insert into hbase."_ROW_".t022hbt1 values ('1', column_create('cf:a', '100'));
+select count(*) from t022t1;
+select count(*) from hbase."_ROW_".t022hbt1;
+rollback work;
+select count(*) from t022t1;
+select count(*) from hbase."_ROW_".t022hbt1;
+
+insert into hbase."_ROW_".t022hbt1 values 
+       ('3', column_create(('cf:3a', '301'), ('cf:3b', '302')));
+update hbase."_ROW_".t022hbt1 set column_details = column_create('cf:3b', '3022')
+  where row_id = '3' and column_lookup(column_details, 'cf:3a', cast as int) = 3011;
+update hbase."_ROW_".t022hbt1 set column_details = column_create('cf:3b', '3022')
+  where row_id = '3' and column_lookup(column_details, 'cf:3a', cast as int) = 301;
+select left(row_id, 10) row_id, left(column_display(column_details), 40) 
+           from hbase."_ROW_".t022hbt1;
+
+-- negative tests
+delete from hbase."_CELL_".t022hbt1;
+insert into hbase."_ROW_".t022hbt1 values ('2', column_create(':b', '201'));
+insert into hbase."_ROW_".t022hbt1 values ('2', '100');
+insert into hbase."_ROW_".t022hbt1 select * from hbase."_ROW_".t022hbt2;
+
+-- tests with large rows
+invoke hbase."_CELL_".t022hbt2;
+invoke hbase."_ROW_".t022hbt2;
+cqd hbase_max_column_val_length '100000';
+cqd hbase_max_column_info_length '100000';
+invoke hbase."_CELL_".t022hbt2;
+invoke hbase."_ROW_".t022hbt2;
+insert into hbase."_CELL_".t022hbt2 values ('1', 'cf', 'a', -1, repeat('a', 100000));
+insert into hbase."_ROW_".t022hbt2 values 
+                              ('2', column_create(
+                                       ('cf:1a', repeat('a', 40000)),
+                                       ('cf:1b', repeat('z', 40000))));
+select count(*) from hbase."_CELL_".t022hbt2;
+select char_length(col_value) from hbase."_CELL_".t022hbt2 order by 1;
+select count(*) from hbase."_CELL_".t022hbt2;
+select char_length(col_value) from hbase."_CELL_".t022hbt2 order by 1;
+select count(*) from hbase."_ROW_".t022hbt2;
+select char_length(column_details) from hbase."_ROW_".t022hbt2 order by 1;
+select left(row_id, 10) row_id, left(column_display(column_details), 40) 
+           from hbase."_ROW_".t022hbt2;
+
+
+-- tests to map hbase tables to relational traf tables
+cqd traf_hbase_mapped_tables 'ON';
+
+drop hbase table t022hbm1;
+create hbase table t022hbm1 (column family 'cf');
+insert into hbase."_ROW_".t022hbm1 values ('a1', 
+                 column_create(('cf:B', '100 ')));
+insert into hbase."_ROW_".t022hbm1 values ('a2', column_create(('cf:A', 'a2')));
+
+drop table if exists t022hbm1 cascade;
+drop external table if exists t022hbm1;
+create external table t022hbm1 (a varchar(4) not null, b char(4))
+        primary key (a)
+        attribute default column family 'cf'
+        map to hbase table t022hbm1;
+invoke t022hbm1;
+
+-- if no schema is specified, table is looked in regular and then mapped schema
+invoke t022hbm1;
+create table t022hbm1 (a int);
+invoke t022hbm1;
+
+-- join between traf and hbase table with the same name.
+prepare s from select * from t022hbm1, hbase."_MAP_".t022hbm1;
+explain options 'f' s;
+
+drop table t022hbm1;
+invoke t022hbm1;
+
+-- should return error 4056
+prepare s from select * from t022hbm1, hbase."_MAP_".t022hbm1;
+
+prepare s from select * from t022hbm1 x, hbase."_MAP_".t022hbm1 y;
+
+prepare s from select * from t022hbm1;
+execute s;
+select * from t022hbm1 where a = 'a1';
+select a, cast(b as int) from t022hbm1;
+
+alter table t022hbm1 add column "cf".c int;
+invoke t022hbm1;
+
+-- create a traf table like a mapped table
+cqd schema reset;
+create table t022hbm1_like like t022hbm1;
+invoke t022hbm1_like;
+
+insert into t022hbm1_like select * from t022hbm1;
+select * from t022hbm1_like;
+
+create table t022hbm1_ctas as select * from t022hbm1;
+select * from t022hbm1_ctas;
+
+-- create view on mapped table
+create view t022v1 as select * from t022hbm1;
+
+drop external table t022hbm1 cascade;
+invoke t022hbm1;
+create external table t022hbm1 ("cf".a varchar(4) not null,
+            b int)
+        primary key (a)
+        map to hbase table t022hbm1;
+invoke t022hbm1;
+
+alter table t022hbm1 drop column b;
+invoke t022hbm1;
+
+alter table t022hbm1 add column "cf".b int;
+invoke t022hbm1;
+
+-- IUD operations on mapped tables
+cqd schema reset;
+
+--delete from t022hbm1;
+delete from hbase."_ROW_".t022hbm1;
+
+drop external table t022hbm1;
+create external table t022hbm1 (a varchar(4) not null, b int) 
+        primary key (a)
+        attribute default column family 'cf'
+        map to hbase table t022hbm1
+        data format native;
+
+insert into t022hbm1 values ('a', 1);
+select * from t022hbm1;
+
+update t022hbm1 set b = b + 1;
+select * from t022hbm1;
+
+-- next insert should fail with dup key violation
+insert into t022hbm1 values ('a', 1);  
+
+insert into t022hbm1 values ('b', null);
+select * from t022hbm1;
+
+delete from t022hbm1 where a = 'a';
+select * from t022hbm1;
+update t022hbm1 set b = 10;
+select * from t022hbm1;
+update t022hbm1 set b = null;
+select * from t022hbm1;
+update t022hbm1 set b = 20 where a = 'a';
+update t022hbm1 set b = 20 where a = 'b';
+select * from t022hbm1;
+delete from t022hbm1;
+select * from t022hbm1;
+
+
+-- tests to map hbase tables in a namespace to relational traf tables
+drop hbase table "TRAF_regr:t022hbmns";
+create hbase table "TRAF_regr:t022hbmns" (column family 'cf');
+insert into hbase."_ROW_"."TRAF_regr:t022hbmns" values ('a1', 
+                 column_create(('cf:B', '100 ')));
+insert into hbase."_ROW_"."TRAF_regr:t022hbmns" values ('a2', column_create(('cf:A', 'a2')));
+
+drop external table if exists "t022hbmns";
+create external table "t022hbmns" (a varchar(4) not null, b char(4))
+        primary key (a)
+        attribute default column family 'cf'
+        map to hbase table "TRAF_regr:t022hbmns";
+invoke "t022hbmns";
+showddl "t022hbmns";
+select * from "t022hbmns";
+insert into "t022hbmns" values ('a3', '200');
+select * from "t022hbmns";
+
+-- should return error, external table was not created with explicit namespace
+invoke "TRAF_regr:t022hbmns";
+
+-- map to table in user namespace
+drop hbase table "test022_ns:t022hbuns";
+drop external namespace 'test022_ns';
+create external namespace 'test022_ns';
+create hbase table "test022_ns:t022hbuns" (column family 'cf');
+insert into hbase."_ROW_"."test022_ns:t022hbuns" values ('a1', 
+                 column_create(('cf:B', '100 ')));
+insert into hbase."_ROW_"."test022_ns:t022hbuns" values ('a2', 
+                 column_create(('cf:A', 'a2')));
+drop external table if exists "t022hbuns";
+create external table "t022hbuns" (a varchar(4) not null, b char(4))
+        primary key (a)
+        attribute default column family 'cf'
+        namespace 'test022_ns'
+        map to hbase table "test022_ns:t022hbuns";
+invoke "t022hbuns";
+showddl "t022hbuns";
+showddl hbase."_MAP_"."t022hbuns";
+update statistics for table hbase."_ROW_"."test022_ns:t022hbuns" on every column;
+update statistics for table hbase."_MAP_"."t022hbuns" on every column sample;
+--update statistics for table hbase."_MAP_"."test022_ns:t022hbuns" on every column sample;
+showstats for table hbase."_MAP_"."t022hbuns" on every column;
+
+select cast(a as char(25) character set iso88591) from 
+       (get hbase map tables) x(a) where a like 'test022|_ns:%' escape '|';
+
+cqd DYNAMIC_PARAM_DEFAULT_CHARSET 'UTF8';
+
+set param ?P5 '%\_%';
+set param ?ESC '\';
+
+SELECT 1 FROM DUAL WHERE 'ONE_TWO' LIKE UPSHIFT(?P5) ESCAPE ?ESC;
+SELECT 1 FROM DUAL WHERE 'ONE\_\TWO' LIKE UPSHIFT(?P5) ESCAPE ?ESC;
+
+CQD DYNAMIC_PARAM_DEFAULT_CHARSET RESET;
+
+-- force use of sample table
+cqd ustat_min_rowcount_for_sample '1';
+cqd ustat_internal_sort 'OFF';
+cqd ustat_force_temp 'ON';
+--update statistics for table hbase."_MAP_"."test022_ns:t022hbuns" on every column sample;
+update statistics for table hbase."_MAP_"."t022hbuns" on every column sample;
+showstats for table hbase."_MAP_"."t022hbuns" on every column;
+cqd ustat_min_rowcount_for_sample reset;
+cqd ustat_internal_sort reset;
+cqd ustat_force_temp reset;
+
+
+-- more tests
+drop external table t022hbm1;
+
+create external table t022hbm1 (a int not null, b int not null, c int) 
+        primary key (a, b)
+        attribute default column family 'cf'
+        map to hbase table t022hbm1
+        data format native;
+invoke t022hbm1;
+insert into t022hbm1 values (1,2,3);
+insert into t022hbm1 values (1,2,3);
+insert into t022hbm1 values (1, 1, 1);
+insert into t022hbm1 values (-1, -2, -3);
+select * from t022hbm1 order by 1;
+upsert into t022hbm1 values (1,2,4);
+select * from t022hbm1 order by 1;
+
+-- various serialization options
+drop external table t022hbm1;
+create external table t022hbm1 (a varchar(4) not null, primary key not serialized (a), b int) 
+        attribute default column family 'cf'
+        map to hbase table t022hbm1;
+invoke t022hbm1;
+
+drop external table t022hbm1;
+create external table t022hbm1 (a char(4) not null, primary key serialized (a), b int) 
+        attribute default column family 'cf'
+        map to hbase table t022hbm1
+        data format native;
+invoke t022hbm1;
+
+drop external table t022hbm1;
+create external table t022hbm1 (a varchar(4) not null, primary key(a), b int) 
+        attribute default column family 'cf'
+        map to hbase table t022hbm1;
+invoke t022hbm1;
+
+drop external table t022hbm1;
+create external table t022hbm1 (a varchar(4) not null primary key, b int) 
+        attribute default column family 'cf'
+        map to hbase table t022hbm1;
+invoke t022hbm1;
+
+drop external table t022hbm1;
+create external table t022hbm1 (a varchar(4) not null, b int) 
+        primary key not serialized (a)
+        attribute default column family 'cf'
+        map to hbase table t022hbm1;
+invoke t022hbm1;
+
+drop external table t022hbm1;
+create external table t022hbm1 (a char(4) not null, b int) 
+        primary key serialized (a) 
+        attribute default column family 'cf'
+        map to hbase table t022hbm1
+        data format native;
+invoke t022hbm1;
+
+drop external table t022hbm1;
+create external table t022hbm1 (a varchar(4) not null, b int) 
+        primary key (a)
+        attribute default column family 'cf'
+        map to hbase table t022hbm1;
+invoke t022hbm1;
+
+drop hbase table t022hbm1;
+create hbase table t022hbm1 (column family 'cf');
+drop external table if exists t022hbm1;
+create external table t022hbm1 (a varchar(4) not null, b int) 
+        primary key (a) 
+        attribute default column family 'cf'
+        map to hbase table t022hbm1;
+insert into hbase."_ROW_".t022hbm1 values ('a1', column_create(('cf:B', '10')));
+
+-- empty string converted to null value
+insert into hbase."_ROW_".t022hbm1 values ('a2', column_create(('cf:B', '')));
+select * from t022hbm1;
+cqd traf_hbmt_treat_empty_string_as_null 'OFF';
+select * from t022hbm1;
+cqd traf_hbmt_treat_empty_string_as_null reset;
+
+-- multi column families in mapped table
+drop external table if exists t022hbm2;
+drop hbase table t022hbm2;
+create hbase table t022hbm2 (column family 'cf1', column family 'cf2');
+create external table t022hbm2 ("cf1".A int, "cf2".B int, 
+                           "cf1".Z varchar(4) not null primary key) 
+     map to hbase table t022hbm2;
+insert into hbase."_ROW_".t022hbm2 values ('a11', 
+           column_create(('cf1:A', '10'), ('cf2:B', '20')));
+invoke t022hbm2;
+select * from t022hbm2;
+cleanup hbase table t022hbm2;
+
+-- registration of external hbase tables
+drop external table if exists t022hbm2;
+drop hbase table t022hbm2;
+create hbase table t022hbm2 (column family 'cf1', column family 'cf2');
+create external table t022hbm2 ("cf1".A int, "cf2".B int, 
+                           "cf1".Z varchar(4) not null primary key) 
+     map to hbase table t022hbm2;
+
+insert into hbase."_ROW_".t022hbm2 values ('a11', 
+           column_create(('cf1:A', '10'), ('cf2:B', '20')));
+invoke t022hbm2;
+select * from t022hbm2;
+
+showddl hbase."_CELL_".t022hbm2;
+get hbase registered tables in catalog trafodion, match '%T022HBM2%';
+unregister hbase table t022hbm2;
+register hbase table t022hbm2;
+get hbase registered tables in catalog trafodion, match '%T022HBM2%';
+showddl hbase."_CELL_".t022hbm2;
+showddl hbase."_ROW_".t022hbm2;
+unregister hbase table t022hbm2;
+get hbase registered tables in catalog trafodion, match '%T022HBM2%';
+showddl hbase."_CELL_".t022hbm2;
+
+--showstats for table hbase."_CELL_".t022hbm2 on every column;
+update statistics for table hbase."_CELL_".t022hbm2 on every column;
+showstats for table hbase."_CELL_".t022hbm2 on every column;
+get hbase registered tables in catalog trafodion, match '%T022HBM2%';
+showddl hbase."_CELL_".t022hbm2;
+
+showstats for table hbase."_ROW_".t022hbm2 on every column;
+update statistics for table hbase."_CELL_".t022hbm2 on every column;
+showstats for table hbase."_CELL_".t022hbm2 on every column;
+get hbase registered tables in catalog trafodion, match '%T022HBM2%';
+showddl hbase."_CELL_".t022hbm2;
+
+showstats for table hbase."_MAP_".t022hbm2 on every column;
+update statistics for table hbase."_MAP_".t022hbm2 on every column;
+showstats for table hbase."_MAP_".t022hbm2 on every column;
+showddl hbase."_MAP_".t022hbm2;
+
+create table t022hbm2like like hbase."_CELL_".t022hbm2;
+showddl t022hbm2like;
+
+?section mantis_tests
+-- mantis fixes
+cqd traf_hbase_mapped_tables 'ON';
+cqd hbase_native_iud 'ON';
+cqd hbase_filter_preds 'ON';
+cqd traf_hbase_mapped_tables_iud 'ON';
+
+drop hbase table t022hbm3;
+create hbase table t022hbm3 (column family 'CF');
+
+-- m8405: better error handling of hbase mapped table drop
+drop external table hbase."_MAP_".tnotexists;
+
+-- m8457/8999: alter table add/drop column should work on hbase mapped tables
+drop external table if exists t022hbm3;
+create external table t022hbm3 (a varchar(10) not null, b int)
+primary key (a)
+attribute default column family 'CF'
+map to hbase table t022hbm3;
+alter table t022hbm3 drop column b;
+alter table t022hbm3 drop column b;
+alter table t022hbm3 add column b int;
+alter table t022hbm3 add column b int;
+alter table hbase."_MAP_".t022hbm3 drop column b;
+alter table hbase."_MAP_".t022hbm3 drop column b;
+alter table hbase."_MAP_".t022hbm3 add column b int;
+alter table hbase."_MAP_".t022hbm3 add column b int;
+
+-- m8458: hbase mapped cols must be nullable with default null
+drop external table if exists t022hbm3;
+
+-- should fail, default must be null
+create external table t022hbm3 (a varchar(10) not null, b int, c1 int default 12345)
+primary key (a)
+attribute default column family 'CF'
+map to hbase table t022hbm3;
+
+create external table t022hbm3 (a varchar(10) not null, b int, c2 int default null)
+primary key (a)
+attribute default column family 'CF'
+map to hbase table t022hbm3;
+
+-- should fail, default must be null
+alter table t022hbm3 add column d2 int default 12345;
+
+alter table t022hbm3 add column d1 int default null;
+
+-- m8624: datatype and default value types must match
+create table t022t(a int, b time default current_date, c time default sysdate);
+create table t022t(a int, b date default current_time,c date default systimestamp);
+
+
+-- m8637: ctas cannot be used to create an external table
+create external table t022t as select 1 a from dual;
+
+-- m8647: load should not fail when loading into a table with user specified column family
+drop table if exists t022t1;
+create table t022t1 (a int);
+insert into t022t1 values (1);
+drop table if exists t022t2;
+create table t022t2 (a int) attribute default column family 'cf';
+load into t022t2 select * from t022t1;
+
+-- m8648: cannot create external table with blob/clob datatype
+drop external table if exists t022hbm3;
+create external table t022hbm3(a varchar(10) not null, b blob) primary key (a)
+attribute default column family 'cf'
+map to hbase table t022hbm3;
+
+-- m8712: get stmts for objects in "_MAP_" schema should return error
+set schema hbase."_MAP_";
+get functions for library mylib;
+get functions for library "_MAP_".mylib;
+get functions for library hbase."_MAP_".mylib;
+get procedures for library mylib;
+get procedures for library "_MAP_".mylib;
+get procedures for library hbase."_MAP_".mylib;
+get table_mapping functions for library mylib;
+get table_mapping functions for library "_MAP_".mylib;
+get table_mapping functions for library hbase."_MAP_".mylib;
+set schema trafodion.sch;
+
+-- m9031: insert into traf select from hbase mapped table should work
+drop table if exists trafodion.sch.t022hbm3;
+drop external table if exists t022hbm3;
+create external table t022hbm3 (a varchar(10) not null, b int)
+primary key (a)
+attribute default column family 'CF'
+map to hbase table t022hbm3;
+insert into t022hbm3 values ('abc', 10);
+create table trafodion.sch.t022hbm3 (a varchar(10) not null, b int);
+insert into trafodion.sch.t022hbm3 select * from hbase."_MAP_".t022hbm3;
+select * from hbase."_MAP_".t022hbm3;
+select * from trafodion.sch.t022hbm3;
+
+-- m9511: handle hive schema names that are traf reserved words
+-- this will fail, reserved words need to be double quoted
+create schema if not exists hive.test;
+create schema if not exists hive."test";
+-- this will fail, reserved words need to be double quoetd
+set schema hive.test;
+set schema hive."test";
+
+-- m9695: alter operations on hbase "_CELL_","_ROW_" should return error
+alter table hbase."_CELL_".t022hbm3 add column z int;
+alter table hbase."_CELL_".t022hbm3 drop column z;
+set schema hbase."_ROW_";
+alter table t022hbm3 add column z int;
+alter table t022hbm3 drop column z;
+alter table t022hbm3 rename to zz;
+alter table hbase."_ROW_".t022hbm3 alter column row_id rename to zz;
+unregister hbase table t022hbm3;
+alter table t022hbm3 add constraint ttc1 check (row_id > 0);
+register hbase table t022hbm3;
+alter table t022hbm3 add constraint ttc1 check (row_id > 0);
+set schema trafodion.sch;
+
+-- m8636: drop external table should not drop traf table with the same name
+drop external table if exists t022hbm3;
+create external table t022hbm3 (a varchar(10) not null, b int)
+primary key (a)
+attribute default column family 'CF'
+map to hbase table t022hbm3;
+showddl t022hbm3;
+
+drop table if exists t022hbm3;
+create table t022hbm3 (c int);
+showddl t022hbm3;
+
+drop external table t022hbm3;
+showddl t022hbm3;
+
+create table t022hbm3 (c int);
+drop external table sch.t022hbm3;
+
+create table t022hbm3 (c int);
+drop external table trafodion.sch.t022hbm3;
+
+-- m10628
+cqd query_cache '0';
+drop table if exists t022hbm3;
+create table t022hbm3 (a varchar(2), b int, primary key(a,b));
+insert into t022hbm3 values ('a', 10);
+
+-- this query should not return any rows
+select * from t022hbm3 where a = '';
+cqd query_cache reset;
+
+?section error_tests
+-- error cases
+
+-- primary key cannot be missing
+select * from t022hbm1;
+
+-- operations not allowed
+alter table t022hbm1 alter column "cf".b largeint;
+invoke t022hbm1;
+
+set schema trafodion."_HB_MAP_";
+
+-- cannot invoke using map schema name
+invoke "_HB_MAP_".t022hbm1;
+
+-- cannot use "_HB_MAP_" in a table name
+prepare s from select * from t022hbm1;
+prepare s from select * from "_HB_MAP_".t022hbm1;
+
+drop table "_HB_MAP_".t022hbm1;
+alter table trafodion."_HB_MAP_".t022hbm1 drop column b;
+
+set schema trafodion.sch;
+
+drop external table if exists t022hbm1;
+
+-- cannot specify serialized option
+create external table t022hbm1 (a varchar(4) not null, b int) 
+        primary key serialized (a) 
+        attribute default column family 'cf'
+        map to hbase table t022hbm1;
+
+-- cannot be aligned format
+create external table t022hbm1 (a varchar(4) not null primary key) 
+  attribute aligned format map to hbase table t022hbm1;
+
+-- must specify pkey
+create external table t022hbm1 (a char(4)) map to hbase table t022hbm1;
+
+-- external and hbase table names must be the same
+create external table t022hbm11 (a char(4) not null primary key) 
+        map to hbase table t022hbm1;
+
+-- all non-pkey columns must be nullable
+create external table t022hbm1 (a varchar(4) not null primary key,
+              b int not null)
+              map to hbase table t022hbm1;
+
+-- all non-pkey columns must have default value of null
+create external table t022hbm1 (a varchar(4) not null primary key,
+              b int default 10)
+              map to hbase table t022hbm1;
+
+-- mapped table already exist
+create external table t022hbm1 (a varchar(4) not null primary key) 
+              map to hbase table t022hbm1;
+create external table t022hbm1 (a varchar(4) not null primary key) 
+              map to hbase table t022hbm1;
+
+-- hbase table doesn't exist
+create external table t022hbm11 (a char(4) not null primary key) 
+                map to hbase table t022hbm11;
+
+-- cannot create view in HB_MAP schema
+create view "_HB_MAP_".v as select * from t022hbm1;
+
+-- cannot create index on an hbase external table
+create index ti on t022hbm1 (a);
+
+drop external table if exists t022hbm1;
+drop hbase table t022hbm1;
+create hbase table t022hbm1 (column family 'cf');
+create external table t022hbm1 (a varchar(4) not null, b int) 
+        primary key (a) 
+        attribute default column family 'cf'
+        map to hbase table t022hbm1;
+insert into hbase."_ROW_".t022hbm1 values ('a1', 
+                               column_create(('cf:A', '10')));
+-- rowID must match pkey col contents
+select * from t022hbm1;
+
+drop hbase table t022hbm1;
+create hbase table t022hbm1 (column family 'cf');
+create external table t022hbm1 (a varchar(4) not null, b int)
+        primary key (a)
+        attribute default column family 'cf'
+        map to hbase table t022hbm1;
+insert into hbase."_ROW_".t022hbm1 values ('a1234567', 
+                               column_create(('cf:B', '10')));
+-- primary key col length must be big enough to hold rowID
+select * from t022hbm1;
+
+drop hbase table t022hbm1;
+create hbase table t022hbm1 (column family 'cf');
+create external table t022hbm1 (a varchar(4) not null, b int)
+        primary key (a)
+        attribute default column family 'cf'
+        map to hbase table t022hbm1;
+insert into hbase."_ROW_".t022hbm1 values ('a1', 
+                               column_create(('cf:B', '1000000')));
+-- buffer to retrieve column value must be big enough
+cqd hbase_max_column_val_length '5';
+select * from t022hbm1;
+
+-- namespace errors
+create external table "hbns2:HB" (a varchar(4) primary key, b int) attribute default column family 'cf' namespace 'hbns' map to hbase table "hbns:HB";
+create external table "HB" (a varchar(4) primary key, b int) attribute default column family 'cf' namespace 'hbns2' map to hbase table "hbns:HB";
+create external table "hbns:HB" (a varchar(4) primary key, b int) attribute default column family 'cf' namespace 'hbns' map to hbase table "HB";
+
+
+?section clean_up
+cqd schema reset;
+drop view t022v1;
+drop hbase table t022hbt1;
+drop hbase table t022hbt2;
+drop hbase table t022hbm1;
+drop hbase table t022hbm11;
+drop hbase table t022hbm2;
+drop table t022hbm1_like;
+drop table t022hbm1_ctas;
+drop table t022t1;
+drop table t022hbm1 cascade;
+drop table t022hbm2like;
+drop table t022hbm2;
+drop table t022hbm3;
+
+drop hbase table t022hbm2;
+drop external table if exists t022hbm2;
+
+drop hbase table t022hbm3;
+drop external table if exists t022hbm3;
+
+drop hbase table "TRAF_regr:t022hbmns";
+drop external table if exists "t022hbmns";
+
+drop hbase table "test022_ns:t022hbuns";
+drop external namespace 'test022_ns';

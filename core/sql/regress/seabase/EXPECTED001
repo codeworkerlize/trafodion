@@ -1,0 +1,313 @@
+>>obey TEST001(setup);
+>>create table t001t1(a int not null primary key, b int, c int default 10 not null)
++>   hbase_options (max_versions = '3')
++>   attributes hbase format;
+
+--- SQL operation complete.
+>>
+>>create table t001t2 (name char(10) not null primary key,
++>                     "position" char(10),
++>                     empid int not null) hbase_options (max_versions = '4')
++>  attributes hbase format;
+
+--- SQL operation complete.
+>>
+>>create table t001t3 (name char(10) not null primary key,
++>       addr varchar(50)) hbase_options (max_versions = '4')
++>  attributes hbase format;
+
+--- SQL operation complete.
+>>
+>>create table t001t4 (name char(10) not null primary key,
++>       addr varchar(50)) hbase_options (max_versions = '4')
++>  attributes aligned format;
+
+--- SQL operation complete.
+>>
+>>obey TEST001(dml);
+>>select * from t001t1 {hbase versions max};
+
+--- 0 row(s) selected.
+>>insert into t001t1 values (1,1,1);
+
+--- 1 row(s) inserted.
+>>select * from t001t1 {hbase versions max};
+
+A            B            C          
+-----------  -----------  -----------
+
+          1            1            1
+
+--- 1 row(s) selected.
+>>insert into t001t1(a) values (2);
+
+--- 1 row(s) inserted.
+>>select * from t001t1 {hbase versions max};
+
+A            B            C          
+-----------  -----------  -----------
+
+          1            1            1
+          2            ?           10
+
+--- 2 row(s) selected.
+>>update t001t1 set b = 2;
+
+--- 2 row(s) updated.
+>>select * from t001t1 {hbase versions 4};
+
+A            B            C          
+-----------  -----------  -----------
+
+          1            2            1
+          1            1            1
+          2            2           10
+
+--- 3 row(s) selected.
+>>select * from t001t1 {hbase versions max};
+
+A            B            C          
+-----------  -----------  -----------
+
+          1            2            1
+          1            1            1
+          2            2           10
+
+--- 3 row(s) selected.
+>>
+>>control table t001t1 hbase_versions '-1';
+
+--- SQL operation complete.
+>>select * from t001t1;
+
+A            B            C          
+-----------  -----------  -----------
+
+          1            2            1
+          1            1            1
+          2            2           10
+
+--- 3 row(s) selected.
+>>
+>>control table t001t1 hbase_versions reset;
+
+--- SQL operation complete.
+>>
+>>control table t001t2 hbase_timestamp_set '2000-01-02 10:10:10';
+
+--- SQL operation complete.
+>>insert into t001t2 values ('Deepika', 'Manager', 1);
+
+--- 1 row(s) inserted.
+>>control table t001t3 hbase_timestamp_set '2000-01-02 10:10:10';
+
+--- SQL operation complete.
+>>insert into t001t3 values ('Deepika', 'Delhi');
+
+--- 1 row(s) inserted.
+>>
+>>control table * hbase_timestamp_set '2001-01-02 09:09:09';
+
+--- SQL operation complete.
+>>insert into t001t2 values ('Jack', 'Programmer', 2);
+
+--- 1 row(s) inserted.
+>>insert into t001t2 values ('Jill', 'Programmer', 3);
+
+--- 1 row(s) inserted.
+>>update t001t3 set addr = 'California' where name = 'Deepika';
+
+--- 1 row(s) updated.
+>>
+>>control table t001t2 hbase_timestamp_set '2002-01-02 09:09:09';
+
+--- SQL operation complete.
+>>update t001t2 set "position" = 'Architect' where name = 'Jill';
+
+--- 1 row(s) updated.
+>>
+>>control table t001t2 hbase_timestamp_set reset;
+
+--- SQL operation complete.
+>>control table * hbase_timestamp_set reset;
+
+--- SQL operation complete.
+>>
+>>select * from t001t2 order by empid;
+
+NAME        position    EMPID      
+----------  ----------  -----------
+
+Deepika     Manager               1
+Jack        Programmer            2
+Jill        Architect             3
+
+--- 3 row(s) selected.
+>>select * from t001t2 {hbase versions max} order by empid;
+
+NAME        position    EMPID      
+----------  ----------  -----------
+
+Deepika     Manager               1
+Jack        Programmer            2
+Jill        Architect             3
+Jill        Programmer            3
+
+--- 4 row(s) selected.
+>>select empid, name, "position", hbase_timestamp("position", localtime) from t001t2
++>  {hbase versions max} order by 1;
+
+EMPID        NAME        position    (EXPR)                 
+-----------  ----------  ----------  -----------------------
+
+          1  Deepika     Manager     2000-01-02 10:10:10.000
+          2  Jack        Programmer  2001-01-02 09:09:09.000
+          3  Jill        Architect   2002-01-02 09:09:09.000
+          3  Jill        Programmer  2001-01-02 09:09:09.000
+
+--- 4 row(s) selected.
+>>select empid, hbase_version("position"), hbase_timestamp("position", localtime),* 
++>        from t001t2 {hbase timestamp as of '1999-09-10 17:54:16', hbase versions max}
++>        order by 1;
+
+--- 0 row(s) selected.
+>>select empid, hbase_version("position"), hbase_timestamp("position", localtime),* 
++>        from t001t2 {hbase timestamp as of '2000-09-10 17:54:16', hbase versions max}
++>        order by 1;
+
+EMPID        (EXPR)                (EXPR)                   NAME        position    EMPID
+-----------  --------------------  -----------------------  ----------  ----------  -----------
+
+          1                     1  2000-01-02 10:10:10.000  Deepika     Manager               1
+
+--- 1 row(s) selected.
+>>select empid, hbase_version("position"), hbase_timestamp("position", localtime),* 
++>        from t001t2 {hbase timestamp as of '2001-09-10 17:54:16', hbase versions max}
++>        order by 1;
+
+EMPID        (EXPR)                (EXPR)                   NAME        position    EMPID
+-----------  --------------------  -----------------------  ----------  ----------  -----------
+
+          1                     1  2000-01-02 10:10:10.000  Deepika     Manager               1
+          2                     1  2001-01-02 09:09:09.000  Jack        Programmer            2
+          3                     1  2001-01-02 09:09:09.000  Jill        Programmer            3
+
+--- 3 row(s) selected.
+>>select empid, hbase_version("position"), hbase_timestamp("position", localtime),* 
++>        from t001t2 {hbase timestamp as of '2015-09-10 17:54:16', hbase versions max}
++>        order by 1;
+
+EMPID        (EXPR)                (EXPR)                   NAME        position    EMPID
+-----------  --------------------  -----------------------  ----------  ----------  -----------
+
+          1                     1  2000-01-02 10:10:10.000  Deepika     Manager               1
+          2                     1  2001-01-02 09:09:09.000  Jack        Programmer            2
+          3                     1  2002-01-02 09:09:09.000  Jill        Architect             3
+          3                     2  2001-01-02 09:09:09.000  Jill        Programmer            3
+
+--- 4 row(s) selected.
+>>
+>>control table * hbase_timestamp_as_of '2000-09-10 17:54:16';
+
+--- SQL operation complete.
+>>select * from t001t2, t001t3 where t001t2.name = t001t3.name;
+
+NAME        position    EMPID        NAME        ADDR
+----------  ----------  -----------  ----------  --------------------------------------------------
+
+Deepika     Manager               1  Deepika     Delhi                                             
+
+--- 1 row(s) selected.
+>>
+>>control table t001t2 hbase_timestamp_set '2003-01-02 09:09:09';
+
+--- SQL operation complete.
+>>update t001t2 set "position" = 'VP' where name = 'Deepika';
+
+--- 1 row(s) updated.
+>>
+>>control table * hbase_timestamp_as_of '2004-09-10 17:54:16';
+
+--- SQL operation complete.
+>>select * from t001t2, t001t3 where t001t2.name = t001t3.name;
+
+NAME        position    EMPID        NAME        ADDR
+----------  ----------  -----------  ----------  --------------------------------------------------
+
+Deepika     VP                    1  Deepika     California                                        
+
+--- 1 row(s) selected.
+>>
+>>control table * hbase_timestamp_as_of reset;
+
+--- SQL operation complete.
+>>control table * hbase_timestamp_set reset;
+
+--- SQL operation complete.
+>>
+>>create index t001t2i1 on t001t2(empid);
+
+--- SQL operation complete.
+>>update statistics for table t001t2 on every column;
+
+--- SQL operation complete.
+>>
+>>-- should not choose index access
+>>explain options 'f' select empid 
++>        from t001t2 {hbase timestamp as of '2000-09-10 17:54:16'};
+
+LC   RC   OP   OPERATOR              OPT       DESCRIPTION           CARD
+---- ---- ---- --------------------  --------  --------------------  ---------
+
+1    .    2    root                                                  3.00E+000
+.    .    1    trafodion_scan                  T001T2                3.00E+000
+
+--- SQL operation complete.
+>>explain options 'f' select hbase_timestamp(empid) from t001t2;
+
+LC   RC   OP   OPERATOR              OPT       DESCRIPTION           CARD
+---- ---- ---- --------------------  --------  --------------------  ---------
+
+1    .    2    root                                                  3.00E+000
+.    .    1    trafodion_scan                  T001T2                3.00E+000
+
+--- SQL operation complete.
+>>explain options 'f' select empid from t001t2 where hbase_timestamp(empid) > 0;
+
+LC   RC   OP   OPERATOR              OPT       DESCRIPTION           CARD
+---- ---- ---- --------------------  --------  --------------------  ---------
+
+1    .    2    root                                                  1.00E+000
+.    .    1    trafodion_scan                  T001T2                1.00E+000
+
+--- SQL operation complete.
+>>
+>>-- should choose index access
+>>explain options 'f' select empid from t001t2;
+
+LC   RC   OP   OPERATOR              OPT       DESCRIPTION           CARD
+---- ---- ---- --------------------  --------  --------------------  ---------
+
+1    .    2    root                                                  3.00E+000
+.    .    1    trafodion_index_scan            T001T2I1              3.00E+000
+
+--- SQL operation complete.
+>>explain options 'f' select empid from t001t2 where abs(empid) > 0;
+
+LC   RC   OP   OPERATOR              OPT       DESCRIPTION           CARD
+---- ---- ---- --------------------  --------  --------------------  ---------
+
+1    .    2    root                                                  1.00E+000
+.    .    1    trafodion_index_scan            T001T2I1              1.00E+000
+
+--- SQL operation complete.
+>>
+>>-- error case, not supported on aligned format
+>>select * from t001t4 {hbase versions max};
+
+*** ERROR[3242] This statement is not supported. Reason: versions option cannot be used on an aligned format table.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>
+>>log;

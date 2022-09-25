@@ -1,0 +1,140 @@
+#!/bin/bash
+
+#
+# @@@ START COPYRIGHT @@@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+# 
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+# 
+# @@@ END COPYRIGHT @@@
+# 
+
+function Usage {
+    echo "Usage: `basename $0` <-s | -u > [-v]"
+    echo
+    echo "-s                      : shield "
+    echo "-u                      : unshield "
+    echo "-t <table>              : act on this table else all the user tables (default)"
+    echo "-v                      : Verbose"
+    echo "-h                      : Help"
+    echo
+}
+
+if [ -z $JAVA_HOME ]; then
+    echo "The environment variable \$JAVA_HOME has not been set"
+    echo "Please ensure \$TRAF_HOME/sqenv.sh has been sourced."
+    echo
+    exit 1;
+fi
+
+mkdir -p $TRAF_LOG
+lv_stderr_file="$TRAF_LOG/trx_broadcast.log"
+
+declare -i lv_peer_id=0
+declare -i lv_verbose=0
+declare -i lv_broadcast_cmd=0
+lv_verbose_string=""
+lv_user_tables=""
+
+while getopts "t:suvh" lv_arg $1 $2 $3 $4 $5 $6 $7 $8 $9
+do
+    case $lv_arg in
+        t)  lv_user_tables=${OPTARG}
+            ;;
+
+        s)
+            lv_broadcast_cmd=1
+            lv_broadcast_cmd_param=1
+            lv_broadcast_cmd_str="SHIELD ON"
+            echo "command: $lv_broadcast_cmd, param: $lv_broadcast_cmd_param, str: $lv_broadcast_cmd_str"
+            ;;
+
+        u)
+            lv_broadcast_cmd=1
+            lv_broadcast_cmd_param=0
+            lv_broadcast_cmd_str="SHIELD OFF"
+            echo "command: $lv_broadcast_cmd, param: $lv_broadcast_cmd_param, str: $lv_broadcast_cmd_str"
+            ;;
+
+        v)
+            let lv_verbose=1
+            lv_verbose_string="-v"
+            ;;
+
+        h)
+            lv_help=1
+            Usage
+            exit 0
+            ;;
+
+        *)
+            Usage
+            exit 1
+	    ;;
+
+    esac
+done
+
+if [ ${lv_broadcast_cmd} -eq 0 ]; then
+    Usage
+    exit 1
+fi
+
+date
+echo "`basename $0` will perform the following steps:"
+echo " - ${lv_broadcast_cmd_str} the tables on this cluster."
+echo
+
+export LD_PRELOAD=${JAVA_HOME}/jre/lib/${JRE_LIB_DIR}/libjsig.so:${TRAF_HOME}/export/lib${SQ_MBTYPE}/libseabasesig.so
+
+if [ ${lv_verbose} '==' 1 ]; then
+    echo "Stderr being written to the file: ${lv_stderr_file}"
+fi
+
+if [[ ${lv_user_tables} == "" ]]; then
+# Get the list of user tables
+    if [ ${lv_verbose} '==' 1 ]; then
+        echo "Getting the list of user tables"
+    fi
+    lv_user_tables=`get_user_tables`
+    lv_exit=$?
+    if [ ${lv_exit} '!=' 0 ]; then
+        echo "Error getting the list of user tables. Please retry after the problem is fixed. Exitting..."
+        exit 1
+    fi
+fi
+
+echo "List of user tables: " | tee -a ${lv_stderr_file}
+echo ${lv_user_tables} | tee -a ${lv_stderr_file}
+echo
+
+echo "Broadcast action:${lv_broadcast_cmd_str}" | tee -a ${lv_stderr_file}
+for lv_table in ${lv_user_tables} ; do
+    if [ ${lv_verbose} '==' 1 ]; then
+        echo "Broadcast action:${lv_broadcast_cmd_str},  table: ${lv_table}" | tee -a ${lv_stderr_file}
+    fi
+    $JAVA_HOME/bin/java org.apache.hadoop.hbase.client.transactional.TransactionalTable ${lv_verbose_string} -c ${lv_broadcast_cmd} -f ${lv_broadcast_cmd_param} -t ${lv_table} 2>> ${lv_stderr_file} | tee -a ${lv_stderr_file}
+    lv_exit=${PIPESTATUS[0]}
+    if ( [ ${lv_verbose} '==' 1 ] || [ $lv_exit '!=' 0 ] ); then
+        echo "Done: Broadcast action:${lv_broadcast_cmd_str}, table: ${lv_table}, exit code: ${lv_exit}" | tee -a ${lv_stderr_file}
+        echo
+    fi
+done
+echo
+
+echo "`date`: Done with `basename $0`. Detailed output in the file ${lv_stderr_file}."
+

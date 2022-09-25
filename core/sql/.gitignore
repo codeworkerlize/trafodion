@@ -1,0 +1,8 @@
+/lib/
+target/
+*.jar.mf
+
+orc/src/wrap/orc_proto.pb.cc
+orc/src/wrap/orc_proto.pb.h
+
+dependency-reduced-pom*.xml

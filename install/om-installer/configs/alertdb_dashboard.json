@@ -1,0 +1,1622 @@
+{
+  "dashboard": {
+    "annotations": {
+      "list": [
+        {
+          "builtIn": 1,
+          "datasource": "-- Grafana --",
+          "enable": true,
+          "hide": true,
+          "iconColor": "rgba(0, 211, 255, 1)",
+          "name": "Annotations & Alerts",
+          "type": "dashboard"
+        }
+      ]
+    },
+    "editable": true,
+    "gnetId": null,
+    "graphTooltip": 0,
+    "id": null,
+    "links": [],
+    "panels": [
+      {
+        "alert": {
+          "conditions": [
+            {
+              "evaluator": {
+                "params": [
+                  -0.01,
+                  0.01
+                ],
+                "type": "outside_range"
+              },
+              "operator": {
+                "type": "and"
+              },
+              "query": {
+                "params": [
+                  "A",
+                  "30s",
+                  "now"
+                ]
+              },
+              "reducer": {
+                "params": [],
+                "type": "avg"
+              },
+              "type": "query"
+            }
+          ],
+          "executionErrorState": "alerting",
+          "for": "0m",
+          "frequency": "30s",
+          "handler": 1,
+          "message": "DTM状态告警",
+          "name": "Number of DTM alert",
+          "noDataState": "no_data",
+          "notifications": [
+            {
+              "uid": "message-broker-batch"
+            }
+          ]
+        },
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "Prometheus",
+        "fill": 1,
+        "gridPos": {
+          "h": 6,
+          "w": 8,
+          "x": 0,
+          "y": 0
+        },
+        "id": 2,
+        "legend": {
+          "avg": false,
+          "current": false,
+          "max": false,
+          "min": false,
+          "show": true,
+          "total": false,
+          "values": false
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "null",
+        "options": {},
+        "percentage": false,
+        "pointradius": 2,
+        "points": false,
+        "renderer": "flot",
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "expr": "sum(esgyn_db_status_tm_configure) - sum(esgyn_db_status_tm)",
+            "format": "time_series",
+            "intervalFactor": 1,
+            "legendFormat": "Number of DTM",
+            "refId": "A"
+          }
+        ],
+        "thresholds": [
+          {
+            "colorMode": "critical",
+            "fill": true,
+            "line": true,
+            "op": "lt",
+            "value": -0.01
+          },
+          {
+            "colorMode": "critical",
+            "fill": true,
+            "line": true,
+            "op": "gt",
+            "value": 0.01
+          }
+        ],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "DTM alert",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
+      },
+      {
+        "alert": {
+          "conditions": [
+            {
+              "evaluator": {
+                "params": [
+                  -0.01,
+                  0.01
+                ],
+                "type": "outside_range"
+              },
+              "operator": {
+                "type": "and"
+              },
+              "query": {
+                "params": [
+                  "A",
+                  "30s",
+                  "now"
+                ]
+              },
+              "reducer": {
+                "params": [],
+                "type": "avg"
+              },
+              "type": "query"
+            }
+          ],
+          "executionErrorState": "alerting",
+          "for": "0m",
+          "frequency": "30s",
+          "handler": 1,
+          "message": "Mxosrvr状态告警",
+          "name": "Number of Mxosrvr alert",
+          "noDataState": "no_data",
+          "notifications": [
+            {
+              "uid": "message-broker-batch"
+            }
+          ]
+        },
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "Prometheus",
+        "fill": 1,
+        "gridPos": {
+          "h": 6,
+          "w": 8,
+          "x": 8,
+          "y": 0
+        },
+        "id": 4,
+        "legend": {
+          "avg": false,
+          "current": false,
+          "max": false,
+          "min": false,
+          "show": true,
+          "total": false,
+          "values": false
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "null",
+        "options": {},
+        "percentage": false,
+        "pointradius": 2,
+        "points": false,
+        "renderer": "flot",
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "expr": "sum(esgyn_db_status_mxosrvr_configure) - sum(esgyn_db_status_mxosrvr)",
+            "format": "time_series",
+            "intervalFactor": 1,
+            "legendFormat": "Number of Mxosrvr",
+            "refId": "A"
+          }
+        ],
+        "thresholds": [
+          {
+            "colorMode": "critical",
+            "fill": true,
+            "line": true,
+            "op": "lt",
+            "value": -0.01
+          },
+          {
+            "colorMode": "critical",
+            "fill": true,
+            "line": true,
+            "op": "gt",
+            "value": 0.01
+          }
+        ],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "Mxosrvr alert",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
+      },
+      {
+        "alert": {
+          "conditions": [
+            {
+              "evaluator": {
+                "params": [
+                  -0.01,
+                  0.01
+                ],
+                "type": "outside_range"
+              },
+              "operator": {
+                "type": "and"
+              },
+              "query": {
+                "params": [
+                  "A",
+                  "30s",
+                  "now"
+                ]
+              },
+              "reducer": {
+                "params": [],
+                "type": "avg"
+              },
+              "type": "query"
+            }
+          ],
+          "executionErrorState": "alerting",
+          "for": "0m",
+          "frequency": "30s",
+          "handler": 1,
+          "message": "RMS状态告警",
+          "name": "Number of RMS alert",
+          "noDataState": "no_data",
+          "notifications": [
+            {
+              "uid": "message-broker-batch"
+            }
+          ]
+        },
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "Prometheus",
+        "fill": 1,
+        "gridPos": {
+          "h": 6,
+          "w": 8,
+          "x": 16,
+          "y": 0
+        },
+        "id": 6,
+        "legend": {
+          "avg": false,
+          "current": false,
+          "max": false,
+          "min": false,
+          "show": true,
+          "total": false,
+          "values": false
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "null",
+        "options": {},
+        "percentage": false,
+        "pointradius": 2,
+        "points": false,
+        "renderer": "flot",
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "expr": "sum(esgyn_db_status_rms_configure) - sum(esgyn_db_status_rms)",
+            "format": "time_series",
+            "intervalFactor": 1,
+            "legendFormat": "Number of RMS",
+            "refId": "A"
+          }
+        ],
+        "thresholds": [
+          {
+            "colorMode": "critical",
+            "fill": true,
+            "line": true,
+            "op": "lt",
+            "value": -0.01
+          },
+          {
+            "colorMode": "critical",
+            "fill": true,
+            "line": true,
+            "op": "gt",
+            "value": 0.01
+          }
+        ],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "RMS alert",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
+      },
+      {
+        "alert": {
+          "conditions": [
+            {
+              "evaluator": {
+                "params": [
+                  -0.01,
+                  0.01
+                ],
+                "type": "outside_range"
+              },
+              "operator": {
+                "type": "and"
+              },
+              "query": {
+                "params": [
+                  "A",
+                  "30s",
+                  "now"
+                ]
+              },
+              "reducer": {
+                "params": [],
+                "type": "avg"
+              },
+              "type": "query"
+            }
+          ],
+          "executionErrorState": "alerting",
+          "for": "0m",
+          "frequency": "30s",
+          "handler": 1,
+          "message": "DCS Master状态告警",
+          "name": "Number of DCS Master alert",
+          "noDataState": "no_data",
+          "notifications": [
+            {
+              "uid": "o89OxUGWz"
+            },
+            {
+              "uid": "message-broker-batch"
+            }
+          ]
+        },
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "Prometheus",
+        "fill": 1,
+        "gridPos": {
+          "h": 6,
+          "w": 8,
+          "x": 0,
+          "y": 6
+        },
+        "id": 8,
+        "legend": {
+          "avg": false,
+          "current": false,
+          "max": false,
+          "min": false,
+          "show": true,
+          "total": false,
+          "values": false
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "null",
+        "options": {},
+        "percentage": false,
+        "pointradius": 2,
+        "points": false,
+        "renderer": "flot",
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "expr": "avg(esgyn_db_status_dcsm_configure) - sum(esgyn_db_status_dcsm)",
+            "format": "time_series",
+            "intervalFactor": 1,
+            "legendFormat": "Number of DCS Master",
+            "refId": "A"
+          }
+        ],
+        "thresholds": [
+          {
+            "colorMode": "critical",
+            "fill": true,
+            "line": true,
+            "op": "lt",
+            "value": -0.01
+          },
+          {
+            "colorMode": "critical",
+            "fill": true,
+            "line": true,
+            "op": "gt",
+            "value": 0.01
+          }
+        ],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "DCS Master alert",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
+      },
+      {
+        "alert": {
+          "conditions": [
+            {
+              "evaluator": {
+                "params": [
+                  80
+                ],
+                "type": "gt"
+              },
+              "operator": {
+                "type": "and"
+              },
+              "query": {
+                "params": [
+                  "A",
+                  "5m",
+                  "now"
+                ]
+              },
+              "reducer": {
+                "params": [],
+                "type": "avg"
+              },
+              "type": "query"
+            }
+          ],
+          "executionErrorState": "alerting",
+          "for": "5m",
+          "frequency": "1m",
+          "handler": 1,
+          "message": "根目录使用率告警",
+          "name": "Root directory usage alert",
+          "noDataState": "no_data",
+          "notifications": [
+            {
+              "uid": "message-broker-batch"
+            }
+          ]
+        },
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "Prometheus",
+        "fill": 1,
+        "gridPos": {
+          "h": 6,
+          "w": 8,
+          "x": 8,
+          "y": 6
+        },
+        "id": 10,
+        "legend": {
+          "avg": false,
+          "current": false,
+          "max": false,
+          "min": false,
+          "show": true,
+          "total": false,
+          "values": false
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "null",
+        "options": {},
+        "percentage": false,
+        "pointradius": 2,
+        "points": false,
+        "renderer": "flot",
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "expr": "avg(1-(node_filesystem_free_bytes{mountpoint=\"/\", fstype=~\"ext4|xfs\"} / node_filesystem_size_bytes{mountpoint=\"/\", fstype=~\"ext4|xfs\"}))*100",
+            "format": "time_series",
+            "intervalFactor": 1,
+            "legendFormat": "Root directory usage",
+            "refId": "A"
+          }
+        ],
+        "thresholds": [
+          {
+            "colorMode": "critical",
+            "fill": true,
+            "line": true,
+            "op": "gt",
+            "value": 80
+          }
+        ],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "Root directory usage",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
+      },
+      {
+        "collapsed": false,
+        "gridPos": {
+          "h": 1,
+          "w": 24,
+          "x": 0,
+          "y": 12
+        },
+        "id": 18,
+        "panels": [],
+        "title": "Backup",
+        "type": "row"
+      },
+      {
+        "alert": {
+          "conditions": [
+            {
+              "evaluator": {
+                "params": [
+                  -0.01,
+                  0.01
+                ],
+                "type": "outside_range"
+              },
+              "operator": {
+                "type": "and"
+              },
+              "query": {
+                "params": [
+                  "A",
+                  "30s",
+                  "now"
+                ]
+              },
+              "reducer": {
+                "params": [],
+                "type": "avg"
+              },
+              "type": "query"
+            }
+          ],
+          "executionErrorState": "alerting",
+          "for": "0m",
+          "frequency": "30s",
+          "handler": 1,
+          "message": "数据导出状态告警",
+          "name": "Import status alert",
+          "noDataState": "no_data",
+          "notifications": [
+            {
+              "uid": "message-broker-batch"
+            }
+          ]
+        },
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "Prometheus",
+        "fill": 1,
+        "gridPos": {
+          "h": 6,
+          "w": 8,
+          "x": 0,
+          "y": 13
+        },
+        "id": 12,
+        "legend": {
+          "avg": false,
+          "current": false,
+          "max": false,
+          "min": false,
+          "show": true,
+          "total": false,
+          "values": false
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "null",
+        "options": {},
+        "percentage": false,
+        "pointradius": 2,
+        "points": false,
+        "renderer": "flot",
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "expr": "esgyn_br_status_import",
+            "format": "time_series",
+            "intervalFactor": 1,
+            "legendFormat": "Import status",
+            "refId": "A"
+          }
+        ],
+        "thresholds": [
+          {
+            "colorMode": "critical",
+            "fill": true,
+            "line": true,
+            "op": "lt",
+            "value": -0.01
+          },
+          {
+            "colorMode": "critical",
+            "fill": true,
+            "line": true,
+            "op": "gt",
+            "value": 0.01
+          }
+        ],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "Import status",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
+      },
+      {
+        "alert": {
+          "conditions": [
+            {
+              "evaluator": {
+                "params": [
+                  -0.01,
+                  0.01
+                ],
+                "type": "outside_range"
+              },
+              "operator": {
+                "type": "and"
+              },
+              "query": {
+                "params": [
+                  "A",
+                  "30s",
+                  "now"
+                ]
+              },
+              "reducer": {
+                "params": [],
+                "type": "avg"
+              },
+              "type": "query"
+            }
+          ],
+          "executionErrorState": "alerting",
+          "for": "0m",
+          "frequency": "30s",
+          "handler": 1,
+          "message": "数据恢复状态告警",
+          "name": "Restore status alert",
+          "noDataState": "no_data",
+          "notifications": [
+            {
+              "uid": "message-broker-batch"
+            }
+          ]
+        },
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "Prometheus",
+        "fill": 1,
+        "gridPos": {
+          "h": 6,
+          "w": 8,
+          "x": 8,
+          "y": 13
+        },
+        "id": 16,
+        "legend": {
+          "avg": false,
+          "current": false,
+          "max": false,
+          "min": false,
+          "show": true,
+          "total": false,
+          "values": false
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "null",
+        "options": {},
+        "percentage": false,
+        "pointradius": 2,
+        "points": false,
+        "renderer": "flot",
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "expr": "esgyn_br_status_restore",
+            "format": "time_series",
+            "intervalFactor": 1,
+            "legendFormat": "Restore status",
+            "refId": "A"
+          }
+        ],
+        "thresholds": [
+          {
+            "colorMode": "critical",
+            "fill": true,
+            "line": true,
+            "op": "lt",
+            "value": -0.01
+          },
+          {
+            "colorMode": "critical",
+            "fill": true,
+            "line": true,
+            "op": "gt",
+            "value": 0.01
+          }
+        ],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "Restore status",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
+      },
+      {
+        "alert": {
+          "conditions": [
+            {
+              "evaluator": {
+                "params": [
+                  -0.01,
+                  0.01
+                ],
+                "type": "outside_range"
+              },
+              "operator": {
+                "type": "and"
+              },
+              "query": {
+                "params": [
+                  "A",
+                  "30s",
+                  "now"
+                ]
+              },
+              "reducer": {
+                "params": [],
+                "type": "avg"
+              },
+              "type": "query"
+            }
+          ],
+          "executionErrorState": "alerting",
+          "for": "0m",
+          "frequency": "30s",
+          "handler": 1,
+          "message": "全量备份状态告警",
+          "name": "Regular backup status alert",
+          "noDataState": "no_data",
+          "notifications": [
+            {
+              "uid": "message-broker-batch"
+            }
+          ]
+        },
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "Prometheus",
+        "fill": 1,
+        "gridPos": {
+          "h": 6,
+          "w": 8,
+          "x": 16,
+          "y": 13
+        },
+        "id": 14,
+        "legend": {
+          "avg": false,
+          "current": false,
+          "max": false,
+          "min": false,
+          "show": true,
+          "total": false,
+          "values": false
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "null",
+        "options": {},
+        "percentage": false,
+        "pointradius": 2,
+        "points": false,
+        "renderer": "flot",
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "expr": "esgyn_br_status_regular_backup",
+            "format": "time_series",
+            "intervalFactor": 1,
+            "legendFormat": "Regular backup status",
+            "refId": "A"
+          }
+        ],
+        "thresholds": [
+          {
+            "colorMode": "critical",
+            "fill": true,
+            "line": true,
+            "op": "lt",
+            "value": -0.01
+          },
+          {
+            "colorMode": "critical",
+            "fill": true,
+            "line": true,
+            "op": "gt",
+            "value": 0.01
+          }
+        ],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "Regular backup status",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
+      },
+      {
+        "alert": {
+          "conditions": [
+            {
+              "evaluator": {
+                "params": [
+                  -0.01,
+                  0.01
+                ],
+                "type": "outside_range"
+              },
+              "operator": {
+                "type": "and"
+              },
+              "query": {
+                "params": [
+                  "A",
+                  "30s",
+                  "now"
+                ]
+              },
+              "reducer": {
+                "params": [],
+                "type": "avg"
+              },
+              "type": "query"
+            }
+          ],
+          "executionErrorState": "alerting",
+          "for": "0m",
+          "frequency": "30s",
+          "handler": 1,
+          "message": "全量备份导出状态告警",
+          "name": "Regular export status alert",
+          "noDataState": "no_data",
+          "notifications": [
+            {
+              "uid": "message-broker-batch"
+            }
+          ]
+        },
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "Prometheus",
+        "fill": 1,
+        "gridPos": {
+          "h": 6,
+          "w": 8,
+          "x": 0,
+          "y": 19
+        },
+        "id": 20,
+        "legend": {
+          "avg": false,
+          "current": false,
+          "max": false,
+          "min": false,
+          "show": true,
+          "total": false,
+          "values": false
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "null",
+        "options": {},
+        "percentage": false,
+        "pointradius": 2,
+        "points": false,
+        "renderer": "flot",
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "expr": "esgyn_br_status_regular_export",
+            "format": "time_series",
+            "intervalFactor": 1,
+            "legendFormat": "Regular export status",
+            "refId": "A"
+          }
+        ],
+        "thresholds": [
+          {
+            "colorMode": "critical",
+            "fill": true,
+            "line": true,
+            "op": "lt",
+            "value": -0.01
+          },
+          {
+            "colorMode": "critical",
+            "fill": true,
+            "line": true,
+            "op": "gt",
+            "value": 0.01
+          }
+        ],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "Regular export status",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
+      },
+      {
+        "alert": {
+          "conditions": [
+            {
+              "evaluator": {
+                "params": [
+                  -0.01,
+                  0.01
+                ],
+                "type": "outside_range"
+              },
+              "operator": {
+                "type": "and"
+              },
+              "query": {
+                "params": [
+                  "A",
+                  "30s",
+                  "now"
+                ]
+              },
+              "reducer": {
+                "params": [],
+                "type": "avg"
+              },
+              "type": "query"
+            }
+          ],
+          "executionErrorState": "alerting",
+          "for": "0m",
+          "frequency": "30s",
+          "handler": 1,
+          "message": "增量备份状态告警",
+          "name": "Incremental backup status alert",
+          "noDataState": "no_data",
+          "notifications": [
+            {
+              "uid": "message-broker-batch"
+            }
+          ]
+        },
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "Prometheus",
+        "fill": 1,
+        "gridPos": {
+          "h": 6,
+          "w": 8,
+          "x": 8,
+          "y": 19
+        },
+        "id": 22,
+        "legend": {
+          "avg": false,
+          "current": false,
+          "max": false,
+          "min": false,
+          "show": true,
+          "total": false,
+          "values": false
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "null",
+        "options": {},
+        "percentage": false,
+        "pointradius": 2,
+        "points": false,
+        "renderer": "flot",
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "expr": "esgyn_br_status_incr_backup",
+            "format": "time_series",
+            "intervalFactor": 1,
+            "legendFormat": "Incremental backup status",
+            "refId": "A"
+          }
+        ],
+        "thresholds": [
+          {
+            "colorMode": "critical",
+            "fill": true,
+            "line": true,
+            "op": "lt",
+            "value": -0.01
+          },
+          {
+            "colorMode": "critical",
+            "fill": true,
+            "line": true,
+            "op": "gt",
+            "value": 0.01
+          }
+        ],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "Incremental backup status",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
+      },
+      {
+        "alert": {
+          "conditions": [
+            {
+              "evaluator": {
+                "params": [
+                  -0.01,
+                  0.01
+                ],
+                "type": "outside_range"
+              },
+              "operator": {
+                "type": "and"
+              },
+              "query": {
+                "params": [
+                  "A",
+                  "30s",
+                  "now"
+                ]
+              },
+              "reducer": {
+                "params": [],
+                "type": "avg"
+              },
+              "type": "query"
+            }
+          ],
+          "executionErrorState": "alerting",
+          "for": "0m",
+          "frequency": "30s",
+          "handler": 1,
+          "message": "增量备份导出状态告警",
+          "name": "Incremental export status alert",
+          "noDataState": "no_data",
+          "notifications": [
+            {
+              "uid": "message-broker-batch"
+            }
+          ]
+        },
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "Prometheus",
+        "fill": 1,
+        "gridPos": {
+          "h": 6,
+          "w": 8,
+          "x": 16,
+          "y": 19
+        },
+        "id": 24,
+        "legend": {
+          "avg": false,
+          "current": false,
+          "max": false,
+          "min": false,
+          "show": true,
+          "total": false,
+          "values": false
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "null",
+        "options": {},
+        "percentage": false,
+        "pointradius": 2,
+        "points": false,
+        "renderer": "flot",
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "expr": "esgyn_br_status_incr_export",
+            "format": "time_series",
+            "intervalFactor": 1,
+            "legendFormat": "Incremental export status",
+            "refId": "A"
+          }
+        ],
+        "thresholds": [
+          {
+            "colorMode": "critical",
+            "fill": true,
+            "line": true,
+            "op": "lt",
+            "value": -0.01
+          },
+          {
+            "colorMode": "critical",
+            "fill": true,
+            "line": true,
+            "op": "gt",
+            "value": 0.01
+          }
+        ],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "Incremental export status",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
+      }
+    ],
+    "schemaVersion": 18,
+    "style": "dark",
+    "tags": [],
+    "templating": {
+      "list": []
+    },
+    "time": {
+      "from": "now-6h",
+      "to": "now"
+    },
+    "timepicker": {
+      "refresh_intervals": [
+        "5s",
+        "10s",
+        "30s",
+        "1m",
+        "5m",
+        "15m",
+        "30m",
+        "1h",
+        "2h",
+        "1d"
+      ],
+      "time_options": [
+        "5m",
+        "15m",
+        "1h",
+        "6h",
+        "12h",
+        "24h",
+        "2d",
+        "7d",
+        "30d"
+      ]
+    },
+    "timezone": "",
+    "title": "Alert Metrics",
+    "uid": "alertdb",
+    "version": 1
+  }
+}

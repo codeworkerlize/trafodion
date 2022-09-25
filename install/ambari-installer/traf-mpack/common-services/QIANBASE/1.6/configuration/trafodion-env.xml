@@ -1,0 +1,619 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<!--
+* @@@ START COPYRIGHT @@@
+*
+* Licensed to the Apache Software Foundation (ASF) under one
+* or more contributor license agreements.  See the NOTICE file
+* distributed with this work for additional information
+* regarding copyright ownership.  The ASF licenses this file
+* to you under the Apache License, Version 2.0 (the
+* "License"); you may not use this file except in compliance
+* with the License.  You may obtain a copy of the License at
+*
+*   http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing,
+* software distributed under the License is distributed on an
+* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+* KIND, either express or implied.  See the License for the
+* specific language governing permissions and limitations
+* under the License.
+*
+* @@@ END COPYRIGHT @@@
+-->
+ 
+<configuration supports_final="false">
+
+  <!-- Define configuration paramaters for service: property name, default value and description (shown as help text) -->
+  
+  <property>
+    <name>esgyndb_license_key</name>
+    <display-name>EsgynDB License Key</display-name>
+    <value></value>
+    <description>License string from Esgyn. A short grace period is allowed with no license key.</description>
+    <value-attributes>
+      <type>string</type>
+      <empty-value-valid>true</empty-value-valid>
+    </value-attributes>
+  </property>
+  <property>
+    <name>traf.db.admin</name>
+    <display-name>EsgynDB DB Admin User</display-name>
+    <value>DB__ADMIN</value>
+    <description>External (LDAP) user name to associate with the Database Admin Role</description>
+    <value-attributes>
+      <type>string</type>
+    </value-attributes>
+  </property>
+  <property>
+    <name>traf.db.root</name>
+    <display-name>EsgynDB DB Root User</display-name>
+    <value>DB__ROOT</value>
+    <description>External (LDAP) user name to associate with the Database Root Role</description>
+    <value-attributes>
+      <type>string</type>
+    </value-attributes>
+  </property>
+  <property>
+    <name>traf.node.dir</name>
+    <display-name>EsgynDB local working directories</display-name>
+    <value>/hadoop/trafodion/work</value>
+    <description>List of directories (comma seperated) for trafodion scratch space</description>
+    <value-attributes>
+      <type>string</type>
+    </value-attributes>
+  </property>
+  <property>
+    <name>traf.log.dir</name>
+    <display-name>Trafodion logs directory</display-name>
+    <value>/var/log/trafodion</value>
+    <description>Directory path where log files are created</description>
+    <value-attributes>
+      <type>string</type>
+    </value-attributes>
+  </property>
+  <property>
+    <name>traf.var.dir</name>
+    <display-name>Trafodion temporary working directory</display-name>
+    <value>/var/lib/trafodion</value>
+    <description>Directory path where small generated files are stored</description>
+    <value-attributes>
+      <type>string</type>
+    </value-attributes>
+  </property>
+  <property>
+    <name>traf.cluster.id</name>
+    <display-name>EsgynDB Cluster ID</display-name>
+    <value>1</value>
+    <description>Numeric identifier for use in cross-cluster (xDC) configuration</description>
+    <value-attributes>
+      <type>int</type>
+      <minimum>1</minimum>
+      <maximum>100</maximum>
+    </value-attributes>
+  </property>
+  <property>
+    <name>traf.monitor.comm.port</name>
+    <display-name>EsgynDB node communication port</display-name>
+    <value>23399</value>
+    <description>Port number used to establish cross-node process monitoring</description>
+    <value-attributes>
+      <type>int</type>
+    </value-attributes>
+  </property>
+  <property>
+    <name>traf.limit.cpu</name>
+    <display-name>EsgynDB CPU Limit</display-name>
+    <value>100</value>
+    <description>Percentage of CPU resources EsgynDB processes are allowed to use</description>
+    <value-attributes>
+      <type>int</type>
+      <minimum>20</minimum>
+      <maximum>100</maximum>
+    </value-attributes>
+  </property>
+  <property>
+    <name>traf.limit.mem</name>
+    <display-name>EsgynDB Memory Limit</display-name>
+    <value>100</value>
+    <description>Percentage of Memory resources EsgynDB processes are allowed to use</description>
+    <value-attributes>
+      <type>int</type>
+      <minimum>20</minimum>
+      <maximum>100</maximum>
+    </value-attributes>
+  </property>
+  <property>
+    <name>om.ha.enabled</name>
+    <display-name>OM High Availability Enabled</display-name>
+    <value>false</value>
+    <description>Enable OM High Availability, which provide failover for Elasticsearch and Logstash (requires a virtual IP address).</description>
+    <value-attributes>
+       <type>value-list</type>
+       <entries>
+           <entry>
+             <value>true</value>
+             <label>Enabled</label>
+           </entry>
+           <entry>
+             <value>false</value>
+             <label>Disabled</label>
+           </entry>
+       </entries>
+       <selection-cardinality>1</selection-cardinality>
+    </value-attributes>
+  </property>
+  <property>
+    <name>om.virtual.ip</name>
+    <display-name>OM High Availability - Virtual IP address</display-name>
+    <value>0.0.0.0</value>
+    <description>Provides failover for Elasticsearch and Logstash</description>
+    <value-attributes>
+       <type>string</type>
+    </value-attributes>
+    <depends-on>
+       <property>
+         <type>trafodion-env</type>
+         <name>om.ha.enabled</name>
+       </property>
+    </depends-on>
+  </property>
+  <property>
+    <name>elasticsearch.url</name>
+    <display-name>Elasticsearch URL</display-name>
+    <value>0.0.0.0:9200</value>
+    <description>Store SQL information and Core File information</description>
+    <value-attributes>
+       <type>string</type>
+    </value-attributes>
+    <depends-on>
+       <property>
+         <type>dcs-site</type>
+         <name>dcs.server.user.program.mds.enabled</name>
+       </property>
+    </depends-on>
+  </property>
+  <property>
+    <name>logstash.url</name>
+    <display-name>Logstash URL</display-name>
+    <value>0.0.0.0:5044</value>
+    <description>Store Log information for Trafodion</description>
+    <value-attributes>
+       <type>string</type>
+    </value-attributes>
+  </property>
+
+  <property>
+    <name>traf.ldap.enabled</name>
+    <display-name>LDAP authentication enabled</display-name>
+    <value>false</value>
+    <description>Enable EsgynDB user authentication via LDAP</description>
+    <value-attributes>
+      <type>value-list</type>
+       <entries>
+           <entry>
+             <value>true</value>
+             <label>Enabled</label>
+           </entry>
+           <entry>
+             <value>false</value>
+             <label>Disabled</label>
+           </entry>
+       </entries>
+       <selection-cardinality>1</selection-cardinality>
+    </value-attributes>
+  </property>
+  <property>
+    <name>traf.db.admin.pwd</name>
+    <display-name>LDAP user password to be assigned DB Admin privileges</display-name>
+    <value></value>
+    <description>Password for external (LDAP) user name to associate with the Database Admin Rol</description>
+    <value-attributes>
+      <type>password</type>
+      <empty-value-valid>false</empty-value-valid>
+    </value-attributes>
+    <depends-on>
+       <property>
+          <type>trafodion-env</type>
+          <name>traf.ldap.enabled</name>
+       </property>
+    </depends-on>
+  </property>
+  <property>
+    <name>traf.ldap.domain</name>
+    <display-name>LDAP default domain</display-name>
+    <value>local</value>
+    <description>Name of default LDAP domain. To configure multiple domains, add additional LDAP sections to the "trafodion ldap template" in the Advanced trafodion-env configuration.</description>
+    <value-attributes>
+      <type>string</type>
+    </value-attributes>
+    <depends-on>
+       <property>
+         <type>trafodion-env</type>
+         <name>traf.ldap.enabled</name>
+       </property>
+    </depends-on>
+  </property>
+  <property>
+    <name>traf.ldap.hosts</name>
+    <display-name>LDAP server list</display-name>
+    <value></value>
+    <description>List of LDAP hostnames (comma separated)</description>
+    <depends-on>
+       <property>
+          <type>trafodion-env</type>
+          <name>traf.ldap.enabled</name>
+       </property>
+    </depends-on>
+    <value-attributes>
+      <type>string</type>
+      <empty-value-valid>true</empty-value-valid>
+    </value-attributes>
+  </property>
+  <property>
+    <name>traf.ldap.port</name>
+    <display-name>LDAP port number</display-name>
+    <value>389</value>
+    <description>LDAP server(s) port number (Example: 389 for no encryption or TLS, 636 for SSL)</description>
+    <value-attributes>
+      <type>int</type>
+    </value-attributes>
+    <depends-on>
+       <property>
+          <type>trafodion-env</type>
+          <name>traf.ldap.enabled</name>
+       </property>
+    </depends-on>
+  </property>
+  <property>
+    <name>traf.ldap.identifiers</name>
+    <display-name>LDAP unique identifiers</display-name>
+    <value></value>
+    <description>All LDAP unique identifiers (semi-colon separated)</description>
+    <value-attributes>
+      <type>string</type>
+      <empty-value-valid>true</empty-value-valid>
+    </value-attributes>
+    <depends-on>
+       <property>
+          <type>trafodion-env</type>
+          <name>traf.ldap.enabled</name>
+       </property>
+    </depends-on>
+  </property>
+  <property>
+    <name>traf.ldap.encrypt</name>
+    <display-name>LDAP encryption level</display-name>
+    <value>0</value>
+    <description>LDAP encryption level must match LDAP server(s)</description>
+    <value-attributes>
+      <type>value-list</type>
+      <entries>
+          <entry>
+            <value>0</value>
+            <label>Encryption not used</label>
+          </entry>
+          <entry>
+            <value>1</value>
+            <label>SSL Encryption</label>
+          </entry>
+          <entry>
+            <value>2</value>
+            <label>TLS Encryption</label>
+          </entry>
+      </entries>
+      <selection-cardinality>1</selection-cardinality>
+    </value-attributes>
+    <depends-on>
+       <property>
+          <type>trafodion-env</type>
+          <name>traf.ldap.enabled</name>
+       </property>
+    </depends-on>
+  </property>
+  <property>
+    <name>traf.ldap.certpath</name>
+    <display-name>LDAP encryption certificate file path</display-name>
+    <value></value>
+    <description>File path of SSL/TLS certificate file (*.pem)</description>
+    <depends-on>
+       <property>
+          <type>trafodion-env</type>
+          <name>traf.ldap.enabled</name>
+       </property>
+       <property>
+          <type>trafodion-env</type>
+          <name>traf.ldap.encrypt</name>
+       </property>
+    </depends-on>
+    <value-attributes>
+      <type>string</type>
+      <empty-value-valid>true</empty-value-valid>
+    </value-attributes>
+  </property>
+  <property>
+    <name>traf.ldap.search.id</name>
+    <display-name>LDAP search user name</display-name>
+    <value></value>
+    <description>User name for LDAP search (if required by LDAP server)</description>
+    <value-attributes>
+      <type>string</type>
+      <empty-value-valid>true</empty-value-valid>
+    </value-attributes>
+    <depends-on>
+       <property>
+          <type>trafodion-env</type>
+          <name>traf.ldap.enabled</name>
+       </property>
+    </depends-on>
+  </property>
+  <property>
+    <name>traf.ldap.pwd</name>
+    <display-name>LDAP search password</display-name>
+    <value></value>
+    <description>Password for LDAP search (if required by LDAP server)</description>
+    <value-attributes>
+      <type>password</type>
+      <empty-value-valid>true</empty-value-valid>
+    </value-attributes>
+    <depends-on>
+       <property>
+          <type>trafodion-env</type>
+          <name>traf.ldap.enabled</name>
+       </property>
+    </depends-on>
+  </property>
+  <property>
+    <name>traf.ldap.search.group.base</name>
+    <display-name>LDAP search group base</display-name>
+    <value></value>
+    <description>Group base name for LDAP search (if required by LDAP server)</description>
+    <value-attributes>
+      <type>string</type>
+      <empty-value-valid>true</empty-value-valid>
+    </value-attributes>
+    <depends-on>
+       <property>
+          <type>trafodion-env</type>
+          <name>traf.ldap.enabled</name>
+       </property>
+    </depends-on>
+  </property>
+  <property>
+    <name>traf.ldap.search.group.object.class</name>
+    <display-name>LDAP search group object class</display-name>
+    <value></value>
+    <description>Group object class for LDAP search (if required by LDAP server)</description>
+    <value-attributes>
+      <type>string</type>
+      <empty-value-valid>true</empty-value-valid>
+    </value-attributes>
+    <depends-on>
+       <property>
+          <type>trafodion-env</type>
+          <name>traf.ldap.enabled</name>
+       </property>
+    </depends-on>
+  </property>
+  <property>
+    <name>traf.ldap.search.group.member.attribute</name>
+    <display-name>LDAP search group member attribute</display-name>
+    <value></value>
+    <description>Group member attribute for LDAP search (if required by LDAP server)</description>
+    <value-attributes>
+      <type>string</type>
+      <empty-value-valid>true</empty-value-valid>
+    </value-attributes>
+    <depends-on>
+       <property>
+          <type>trafodion-env</type>
+          <name>traf.ldap.enabled</name>
+       </property>
+    </depends-on>
+  </property>
+  <property>
+    <name>traf.ldap.search.group.name.attribute</name>
+    <display-name>LDAP search group name attribute</display-name>
+    <value></value>
+    <description>Group name attribute for LDAP search (if required by LDAP server)</description>
+    <value-attributes>
+      <type>string</type>
+      <empty-value-valid>true</empty-value-valid>
+    </value-attributes>
+    <depends-on>
+       <property>
+          <type>trafodion-env</type>
+          <name>traf.ldap.enabled</name>
+       </property>
+    </depends-on>
+  </property>
+  <property>
+    <name>traf.scaling.factor</name>
+    <display-name>Cluster Scaling Factor</display-name>
+    <value>1.2</value>
+    <description>Multiplier used for start up of large clusters. Must be a floating point number greater than zero.</description>
+    <value-attributes>
+      <type>float</type>
+      <minimum>0</minimum>
+    </value-attributes>
+  </property>
+  <property>
+    <name>traf.security.enabled</name>
+    <display-name>Kerberos Security Enabled</display-name>
+    <value>N</value>
+    <description>Kerberos Authentication Enabled (cluster-wide)</description>
+    <value-attributes>
+      <type>value-list</type>
+      <entries>
+          <entry>
+            <value>Y</value>
+            <label>Kerberos Enabled</label>
+          </entry>
+          <entry>
+            <value>N</value>
+            <label>Kerberos Disabled</label>
+          </entry>
+      </entries>
+      <selection-cardinality>1</selection-cardinality>
+    </value-attributes>
+  </property>
+  <property>
+    <name>traf.principal</name>
+    <display-name>Kerberos Principal</display-name>
+    <property-type>KERBEROS_PRINCIPAL</property-type>
+    <value></value>
+    <value-attributes>
+      <empty-value-valid>true</empty-value-valid>
+    </value-attributes>
+    <on-ambari-upgrade add="true"/>
+  </property>
+  <property>
+    <name>traf.keytab</name>
+    <display-name>Kerberos Keytab</display-name>
+    <description>Path to Keytab file</description>
+    <value></value>
+    <value-attributes>
+      <type>string</type>
+      <empty-value-valid>true</empty-value-valid>
+    </value-attributes>
+  </property>
+  <property>
+    <name>traf.hive.ssl</name>
+    <display-name>Hive Server SSL</display-name>
+    <description>Whether HiveServer2 uses SSL connection (if Kerberos is enabled)</description>
+    <value></value>
+    <value-attributes>
+       <type>value-list</type>
+       <entries>
+           <entry>
+             <value>true</value>
+             <label>SSL=true</label>
+           </entry>
+           <entry>
+             <value>false</value>
+             <label>SSL=false</label>
+           </entry>
+       </entries>
+       <selection-cardinality>1</selection-cardinality>
+    </value-attributes>
+  </property>
+
+  <property>
+    <name>content</name>
+    <display-name>trafodion-env template</display-name>
+    <description>Template for trafodion-env.sh file</description>
+    <value>
+# sourced from /etc/trafodion/trafodion_config
+export JAVA_HOME={{java_home}}
+
+export TRAF_USER={{traf_user}}
+
+export TRAF_CONF={{traf_conf_dir}}
+export TRAF_LOG={{traf_logdir}}
+export TRAF_VAR={{traf_vardir}}
+export MPI_TMPDIR={{traf_vardir}}
+export REST_CONF_DIR=$TRAF_CONF/rest
+export DCS_CONF_DIR=$TRAF_CONF/dcs
+
+export DB_ADMIN_USER={{traf_db_admin}}
+export DB_ROOT_USER={{traf_db_root}}
+
+export HADOOP_TYPE="hortonworks"
+export TRAF_CLUSTER_ID=1
+export TRAF_CLUSTER_NAME="{{cluster_name}}"
+export TRAF_INSTANCE_ID={{traf_instance_id}}
+export TRAF_INSTANCE_NAME=QIANBASE
+export TRAF_ROOT_ZNODE="/{{traf_user}}"
+
+export TRAFODION_ENABLE_AUTHENTICATION={{traf_ldap_enabled}}
+export SECURE_HADOOP={{security_enabled}}
+
+if [[ ( $SECURE_HADOOP == "True" ) || ( $SECURE_HADOOP == "true" ) || ( $SECURE_HADOOP == "Y" ) ]]; then
+   export SECURE_HADOOP=Y
+else
+   export SECURE_HADOOP=N
+fi
+
+export SENTRY_SECURITY_FOR_HIVE="FALSE"
+export SENTRY_SECURITY_GROUP_MODE="NONE"
+
+export ZOOKEEPER_NODES={{zookeeper_quorum_hosts}}
+export ZOOKEEPER_PORT={{zookeeper_clientPort}}
+
+export TRAFAUTH_CONFIGFILE_FORMAT={{ldapvers}}
+  
+export ENABLE_HA="{{dcs_enable_ha}}"
+export KEEPALIVED="{{dcs_keepalived}}"
+
+export TRAF_AGENT="CM"
+export MONITOR_COMM_PORT="{{monitor_comm_port}}"
+
+export HIVE_PRINCIPAL="{{hive_principal}}"
+export HIVESERVER2_URL="{{hive_url}}"
+export HIVESERVER2_SSL="{{hive_ssl}}"
+
+export KEYTAB="{{traf_keytab}}"
+
+    </value>
+    <value-attributes>
+      <type>content</type>
+    </value-attributes>
+  </property>
+  <property>
+    <name>ldap_content</name>
+    <display-name>trafodion ldap template</display-name>
+    <description>Template for .traf_authentication_config file</description>
+    <value>
+SECTION: Defaults
+  DefaultSectionName: {{ldap_domain}}
+  RefreshTime: 1800
+  TLS_CACERTFilename: {{ldap_certpath}}
+
+SECTION: {{ldap_domain}}
+  # one name: value pair for each host.
+  # LdapHostname:
+{{ldap_hosts}}
+
+  # Default is port 389, change if using 636 or any other port
+  LdapPort: {{ldap_port}}
+
+  # Must specify one or more unique identifiers, one name: value pair for each
+  # UniqueIdentifier:
+{{ldap_identifiers}}
+
+  # If the configured LDAP server requires a username and password to
+  # to perform name lookup, provide those here.
+  LDAPSearchDN: {{ldap_search_id}}
+  LDAPSearchPwd: {{ldap_pwd}}
+
+  # If the configured LDAP server requires a user group
+  # to perform name lookup, provide those here.
+  LDAPSearchGroupBase: {{ldap_search_group_base}}
+  LDAPSearchGroupObjectClass: {{ldap_search_group_object_class}}
+  LDAPSearchGroupMemberAttr: {{ldap_search_group_member_attribute}}
+  LDAPSearchGroupNameAttr: {{ldap_search_group_name_attribute}}
+
+  # If configured LDAP server requires TLS(2) or SSL (1), update this value
+  LDAPSSL: {{ldap_encrypt}}
+
+  # Default timeout values in seconds
+  #LDAPNetworkTimeout: 30
+  #LDAPTimeout: 30
+  #LDAPTimeLimit: 30
+  #RetryCount: 5
+  #RetryDelay: 2
+  #PreserveConnection: No
+  #ExcludeBadHosts: Yes
+  #MaxExcludeListSize: 3
+
+#SECTION: (name)
+#  LdapHostname: (host)
+#  UniqueIdentifier: (cn=...)
+#  ...
+    </value>
+    <value-attributes>
+      <type>content</type>
+    </value-attributes>
+  </property>
+</configuration>

@@ -1,0 +1,192 @@
+
+-- @@@ START COPYRIGHT @@@
+--
+-- Licensed to the Apache Software Foundation (ASF) under one
+-- or more contributor license agreements.  See the NOTICE file
+-- distributed with this work for additional information
+-- regarding copyright ownership.  The ASF licenses this file
+-- to you under the Apache License, Version 2.0 (the
+-- "License"); you may not use this file except in compliance
+-- with the License.  You may obtain a copy of the License at
+--
+--   http://www.apache.org/licenses/LICENSE-2.0
+--
+-- Unless required by applicable law or agreed to in writing,
+-- software distributed under the License is distributed on an
+-- "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+-- KIND, either express or implied.  See the License for the
+-- specific language governing permissions and limitations
+-- under the License.
+--
+-- @@@ END COPYRIGHT @@@
+--
+-- test for EXPORT and IMPORT of BACKUP and RESTORE
+--
+
+cqd TRAF_BACKUP_SKIP_GET_TAGS_OWNER_LOOKUP 'OFF';
+drop all backup snapshots, match 'test059%';
+drop all backup tags, match 'test059%';
+drop table if exists test059t1 cascade;
+cleanup table sch059.t1incr;
+cleanup schema sch059;
+
+sh rm -rf /tmp/test059;
+cleanup metadata, return details;
+
+sh export HDFS_URL=`regr_hdfs.ksh getconf -confKey fs.defaultFS`;
+
+sh regr_hdfs.ksh dfs -rm -r -f `$HDFS_URL`/user/trafodion/backups;
+sh regr_hdfs.ksh dfs -rm -r -f `$HDFS_URL`/user/trafodion/schgsexport;
+sh regr_hdfs.ksh dfs -rm -r -f `$HDFS_URL`/user/trafodion/backupsys/*;
+--sh rm_snapshots.sh
+
+log LOG059 clear;
+
+-- should not show any entries
+cleanup metadata, check, return details;
+
+cqd traf_blob_as_varchar 'OFF';
+
+-- return error, tag doesn't exist
+drop backup snapshot, tag 'test059';
+
+drop schema if exists sch059 cascade;
+create schema sch059;
+set schema sch059;
+cqd traf_restore_parallel '1';
+
+-- precreate tags
+backup trafodion, create tags ('test059reg', 'test059incr1', 'test059incr2');
+
+-- incremental backup tests
+drop schema if exists sch059 cascade;
+create schema if not exists sch059;
+showddl schema sch059;
+
+set schema sch059;
+
+create table t1incr(a int not null primary key, b int) 
+  attribute incremental backup;
+showddl t1incr;
+alter table t1incr attribute no incremental backup;
+showddl t1incr;
+alter table t1incr attribute incremental backup;
+create table t2noincr(a int);
+showddl t2noincr;
+create table t2incr(a int not null primary key, b int, c blob) 
+  attribute incremental backup;
+showddl t2incr;
+
+insert into t2noincr values (1);
+
+insert into t1incr values (1, 10);
+explain options 'f' insert into t1incr values (1,10);
+insert into t2incr values (1, 10, '50');
+backup trafodion, tag 'test059reg', tables (t1incr, t2incr, t2noincr), override;
+upsert into t1incr values (1,10), (2,20), (3,30);
+upsert into t2incr values (1,10,'10');
+upsert into t2incr values (2,20,'20');
+upsert into t2incr values (3,30,'30');
+backup trafodion, tag 'test059incr1', tables (t2noincr, t1incr, t2incr), incremental, override;
+update t1incr set b = 30 where a = 2;
+update t2incr set b = 30 where a = 2;
+update t2incr set c = '30' where a = 2;
+delete from t1incr where a = 1 and b = 20;
+delete from t2incr where a = 1 and b = 20;
+-- expect (1, 10), (2, 30), (3, 30)
+select * from t1incr;
+-- expect (1, 10, '10'), (2, 30, '30'), (3, 30, '30')
+select a, b, lobtostring(c,100) from t2incr;
+-- Here we have pending mutations for t1incr and t2incr.  When we restore a subset of
+-- incremental tables from the incremental backup we should see mutations for t1incr
+-- removed, but mutations for t2incr left untouched.  A subsequent backup will prove.
+-- Mantis 7197
+
+backup trafodion, tag 'test059incr2', tables (t2noincr, t1incr, t2incr), incremental, override;
+update t1incr set b = 40 where a = 2;
+update t2incr set b = 40 where a = 2;
+update t2incr set c = '40' where a = 2;
+
+showddl t1incr;
+select * from t1incr;
+
+--- export/import of incremental backup and restore, involves mutations.
+get all backup snapshots, match 'test059%';
+select a, b, lobtostring(c,100) from t2incr;
+sh echo "export backup to location '$HDFS_URL/user/trafodion/backups' , tag 'test059reg';" > tmp_export_test59;
+obey tmp_export_test59;
+sh echo "export backup to location '$HDFS_URL/user/trafodion/backups' , tag 'test059incr1';" > tmp_export_test59;
+obey tmp_export_test59;
+sh echo "export backup to location '$HDFS_URL/user/trafodion/backups' , tag 'test059incr2';" > tmp_export_test59;
+obey tmp_export_test59;
+drop backup snapshot, tag 'test059incr2';
+drop table t2incr cascade;
+get all backup snapshots, match 'test059%';
+get tables;
+sh echo "import backup from location '$HDFS_URL/user/trafodion/backups' , tag 'test059incr2', override;" > tmp_import_test59;
+obey tmp_import_test59;
+get all backup snapshots, match 'test059%';;
+get version of backup, tag 'test059incr2';
+restore trafodion, tag 'test059incr2';
+get tables;
+showddl t2incr;
+-- expect (1, 10, '10'), (2, 30, '30'), (3, 30, '30')
+select a, b, lobtostring(c,100) from t2incr;
+
+--- error case: export import must have valid hdfs url.
+sh echo "export backup to location '/user/trafodion/backups' , tag 'test059incr2';" > tmp_export_test59;
+obey tmp_export_test59;
+
+-- expect (1, 10), (2, 30), (3, 30)
+select * from t1incr;
+-- need to drop incr backup first as cascade option doesn't work yet. TBD.
+drop backup snapshot, tag 'test059incr2';
+drop backup snapshot, tag 'test059incr1';
+drop backup snapshot, tag 'test059reg', force, cascade;
+
+-- BREI progress status
+set parserflags 131072;
+truncate "_REPOS_".brei_progress_status_table;
+reset parserflags 131072;
+
+set schema sch059;
+drop table if exists test059t1 cascade;
+create table test059t1 (a int primary key, b int);
+insert into test059t1 values (100, 200);
+
+--backup trafodion, tag 'test059tag3', table (test059t1), override;
+backup trafodion, tag 'test059tag3', schema (sch059), override;
+get progress status for current backup;
+
+sh echo "export backup to location '$HDFS_URL/user/trafodion/schgsexport', tag 'test059tag3';" > tmp_export_test059;
+obey tmp_export_test059;
+get progress status of current export;
+
+drop table test059t1 cascade;
+drop backup tag, tag 'test059tag3';
+
+sh echo "import backup from location '$HDFS_URL/user/trafodion/schgsexport', tag 'test059tag3', override;" > tmp_export_test059;
+obey tmp_export_test059;
+get progress status for current import;
+
+restore trafodion, tag 'test059tag3';
+get progress status for current restore;
+
+select * from test059t1;
+
+get progress status for last backup;
+get progress status for last restore;
+get progress status of last export;
+get progress status of last import;
+
+-- end state
+get all backup snapshots, match 'test059%';
+get all backup tags, show details, match 'test059%';
+drop all backup snapshots, match 'test059%';
+get all backup tags, show details, match 'test059%';
+get all backup metadata, match 'test059%';
+
+log;
+
+-- clean up
+

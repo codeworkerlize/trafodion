@@ -1,0 +1,73 @@
+#! /bin/bash
+# @@@ START COPYRIGHT @@@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+# @@@ END COPYRIGHT @@@
+
+
+fil=$1
+if [ "$fil" = "" ]; then
+  echo "Usage: $0 filename"
+  exit 1
+fi
+
+sed "
+s/^\([ ]*PLAN_ID[ ]*[\.]*\) .*/\1 removed/g
+s/Fragment ID: 0, Length: [0-9]*/Fragment ID: 0, Length: AnyLength/g
+s/^\([ ]*EST_TOTAL_COST[ ]*[\.]*\) .*/EST_TOTAL_COST... removed/g
+s/^\([ ]*EST_OPER_COST[ ]*[\.]*\) .*/EST_OPER_COST... removed/g
+s/^\(ROWS_OUT[ ]*[\.]*\) .*/ROWS_OUT... removed/g
+s/explain_plan_size = [0-9]*/explain_plan_size = removed/g
+s/max_card_est[ ]*[\.]* .*/max_card_est... removed/g
+s/max_max_cardinality[ ]*[\.]* .*/max_max_cardinality... removed/g
+s/max_max_cardinalit[ ]*[\.]* .*/max_max_cardinality... removed/g
+s/max_max_cardinali[ ]*[\.]* .*/max_max_cardinality... removed/g
+s/max_max_cardinal[ ]*[\.]* .*/max_max_cardinality... removed/g
+s/est_memory_per_cpu[ ]*[\.]* .*/est_memory_per_cpu... removed/g
+s/probes[ ]*[\.]* .*/probes... removed/g
+s/duplicated_succ_pr[ ]*[\.]* .*/duplicated_succ_pr... removed/g
+s/rows_accessed[ ]*[\.]* .*/rows_accessed... removed/g
+s/buffer_size[ ]*[\.]* .*/buffer_size... removed/g
+s/num_cache_entries[ ]* .*/num_cache_entries... removed/g
+s/num_inner_tuples[ ]* .*/num_inner_tuples... removed/g
+s/REQUESTS_IN[ ]*[\.]* .*/REQUESTS_IN... removed/g
+s/ROWS\/REQUEST[ ]*[\.]* .*/ROWS\/REQUESTS... removed/g
+s/estimatedRowUsed = [0-9.]*/estimatedRowUsed = removed/g
+s/estimatedRowsAccessed = [0-9.]*/estimatedRowsAccessed = removed/g
+s/hdfsBufSize_ = [0-9]*/hdfsBufSize_ = removed/g
+s/rangeTailIOSize_ = [0-9]*/rangeTailIOSize_ = removed/g
+s/hdfsSqlMaxRecLen_ = [0-9]*/hdfsSqlMaxRecLen_ = removed/g
+s/columnDelimiter_ = [0-9]*/columnDelimiter_ = removed/g
+s/modTSforDir_ = [0-9]*/modTSforDir_ = removed/g
+s/Summary of bytes read per ESP .*/Summary of bytes read per ESP: removed/g
+s/ESP[ ]*[0-9]*[ ]*reads[ ]*[0-9]* bytes .*/ESP bytes read: removed/g
+s/[0-9]*[.][0-9]*E+[0-9]*/card/g
+s/[0-9]*[ ]*[0-9]*[ ]*store/9999 store/g
+s/est_memory_per_node[ ]*[\.]* .*/est_memory_per_node... removed/g
+s/est_memory_per_cpu[ ]*[\.]* .*/est_memory_per_cpu... removed/g
+s/est_memory_per_instance[ ]*[\.]* .*/est_memory_per_instance... removed/g
+s/hdfsRootDir:[ ]*[\.]* .*/hdfsRootDir... removed/g
+s/hostName_[ ]*[\.]* .*/hostName_... removed/g
+s/\/\* ObjectUID = *[0-9]*/ObjectUID = <UID removed>/g
+s/esp_2_node_map[ ]*[\.]* .*/esp_2_node_map...removed/g
+s/buffer_size[ ]*[\.]* .*/buffer_size...removed/g
+s/child_processes[ ]*[\.]* .*/child_processes...removed/g
+s/child_partitioning_func[ ]* .*/child_partitioning_func removed/g
+s/\(esp_exchange.*\)1:[1-9](hash2)/\1 1:N(hash2)/g
+" $fil

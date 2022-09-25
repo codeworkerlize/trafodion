@@ -1,0 +1,161 @@
+                  END-USER LICENSE AGREEMENT
+
+Read this document carefully.  This End-User License Agreement (EULA) is a
+legally binding contract between you, the recipient (You or Customer) of the
+software provided with this EULA (the Licensed Software), and Esgyn
+Corporation (Esgyn).  This EULA sets forth the terms and conditions governing
+your use of the Licensed Software.    
+
+BY CLICKING AN ON-SCREEN "ACCEPT" OR “AGREE” BUTTON, AND/OR BY INSTALLING,
+COPYING OR OTHERWISE USING ANY OF THE LICENSED SOFTWARE, CUSTOMER IS AGREEING
+TO THE TERMS AND CONDITIONS OF THIS EULA, INCLUDING ITS WARRANTY AND LIABILITY
+DISCLAIMERS.  IF YOU DO NOT AGREE TO THESE TERMS AND CONDITIONS, YOU SHOULD
+NOT ACCEPT THIS EULA.
+
+THE EFFECTIVE DATE OF THIS EULA IS THE DATE YOU ACCEPT THIS EULA OR THE DATE
+YOU FIRST USE THE LICENSED SOFTWARE, WHICHEVER OCCURS FIRST.
+
+1.  APACHE LICENSE.  Excluding those elements within the Licensed Software that
+    are Esgyn Code (defined below) and notwithstanding anything to the contrary
+    herein, Customer’s use of the Licensed Software is subject to the Apache
+    Software License, Version 2 (as posted at http://www.apache.org/licenses/LICENSE-2.0
+    as of August 1, 2015, the Apache License) and Sections 3 through 8 below. 
+    With respect to any software developed by Esgyn (the Esgyn Code), except as
+    indicated in this Section 1, all terms and conditions of this EULA shall
+    apply.  Esgyn hereby grants to you a worldwide, nonexclusive, no-charge,
+    and royalty-free license to use the Licensed Software, in accordance with
+    and subject to the terms and conditions of this EULA.    
+
+2.  ESGYN LICENSE.  With respect to the Esgyn Code, Esgyn hereby grants to you
+    a no-charge and royalty free, worldwide, nonexclusive, nontransferable,
+    nonsublicensable, revocable and limited license to use the Esgyn Code
+    solely for Customer’s evaluation purposes.
+
+3.  ESGYN LICENSE RESTRICTIONS.  The Esgyn Code is not subject to the Apache
+    License.  With respect to the Esgyn Code, Customer will  not (a) modify,
+    improve, translate or create derivative works; (b) decompile, reverse
+    engineer or reverse assemble any portion of the Esgyn Code or attempt to
+    discover any source code or underlying ideas or algorithms of same;
+    (c) sell, assign, sublicense, rent, lease, loan, provide, distribute or
+    otherwise transfer all or any portion of the Esgyn Code; (d) make, have
+    made, reproduce or copy the Esgyn Code; (e) remove or alter any trademark,
+    logo, copyright or other proprietary notices associated with the Esgyn
+    Code; or (f) cause or permit any other party to do any of the foregoing.
+
+4.  OWNERSHIP.  As between Customer and Esgyn and subject to the grants under
+    this EULA, Esgyn owns all right, title, and interest in and to the Esgyn
+    Code including, without limitation, any modifications or improvements made
+    thereto, as well as all copyrights, trademarks, and other intellectual
+    property rights in or on the Esgyn Code.  Except as expressly granted under
+    this EULA, Esgyn reserves all rights.
+
+5.  INDEMNIFICATION.  Customer will indemnify and hold harmless Esgyn, its
+    affiliates, directors, officers, employees, and suppliers from any and all
+    lawsuits, claims, liabilities, damages, costs, and expenses (including
+    attorneys’ fees), arising from or in connection with any third party claim
+    (i) resulting from or relating to Customer’s breach of Section 1.3;
+    (ii) alleging that Customer’s use of the Esgyn Code or portion thereof
+    infringes any third party's copyright, patent, trade secret or other
+    ownership or intellectual property right; or (iii) arising out of or
+    relating to Customer’s failure to comply with the Apache License.
+
+6.  WARRANTY DISCLAIMER.  THE LICENSED SOFTWARE (INCLUDING, WITHOUT LIMITATION,
+    THE ESGYN CODE) IS PROVIDED ON AN “AS IS” BASIS WITHOUT ANY REPRESENTATIONS,
+    WARRANTIES, COVENANTS OR CONDITIONS OF ANY KIND. ESGYN AND ITS SUPPLIERS DO
+    NOT WARRANT THAT ANY OF THE LICENSED SOFTWARE WILL BE FREE FROM ALL BUGS,
+    ERRORS, OR OMISSIONS. ESGYN AND ITS SUPPLIERS DISCLAIM ANY AND ALL OTHER
+    WARRANTIES AND REPRESENTATIONS (EXPRESS, IMPLIED, OR STATUTORY) WITH RESPECT
+    TO THE LICENSED SOFTWARE WHETHER ALLEGED TO ARISE BY OPERATION OF LAW, BY
+    REASON OF CUSTOM OR USAGE IN THE TRADE, BY COURSE OF DEALING OR OTHERWISE,
+    INCLUDING ANY AND ALL (I) WARRANTIES OF MERCHANTABILITY, (II) WARRANTIES OF
+    FITNESS OR SUITABILITY FOR ANY PURPOSE, AND (III) WARRANTIES OF
+    NONINFRINGEMENT OR CONDITION OF TITLE. CUSTOMER ACKNOWLEDGES AND AGREES THAT
+    CUSTOMER HAS RELIED ON NO WARRANTIES.
+
+7.  LIMITATION OF LIABILITY.  IN NO EVENT WILL ESGYN OR ITS SUPPLIERS BE LIABLE
+    TO YOU OR ANY OTHER PERSON FOR ANY DIRECT OR INDIRECT, SPECIAL, INCIDENTAL,
+    EXEMPLARY, PUNITIVE, OR CONSQUENTIAL DAMAGES OF ANY KIND OR NATURE,
+    INCLUDING, WITHOUT LIMITATION, ANY LOSS OF PROFITS, LOSS OF USE, LOSS OF
+    REVENUE, LOSS OF GOODWILL, OR ANY INTERRUPTION OF BUSINESS, WHETHER IN
+    CONTRACT, TORT, STRICT LIABILITY OR OTHERWISE, EVEN IF ESGYN HAS BEEN
+    ADVISED OR IS OTHERWISE AWARE OF THE POSSIBILITY OF SUCH DAMAGES.  THE
+    FOREGOING LIMITATIONS, EXCLUSIONS, AND DISCLAIMERS SHALL APPLY TO THE
+    MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, EVEN IF ANY REMEDY FAILS ITS
+    ESSENTIAL PURPOSE.
+
+8.  APACHE DISCLAIMER.  In addition to the provisions of Sections 6 and 7 above,
+    and specifically with respect to those elements of the Licensed Software
+    that are subject to the Apache License, pursuant to Section 1 above,
+    Customer acknowledges that the “Licensor” and each “Contributor” (as both
+    terms are defined in the Apache License) disclaim and make no
+    representations or warranties with respect to the Licensed Software or any
+    portion thereof, and that Licensor and each Contributor assume no liability
+    for any claim that may arise with respect to the Licensed Software or
+    Customer’s use or inability to use the Licensed Software.  
+
+9.  EXPORT CONTROL & CRYPTOGRAPHIC SOFTWARE NOTICE.  You shall not export or
+    re-export any Licensed Software or portion thereof in any way outside the
+    country where it was originally delivered, or otherwise use any Licensed
+    Software in violation of any state or federal laws or regulations, including
+    but not limited to the United States export control laws or regulations. 
+    No Licensed Software may be sent to or used within any country designated by
+    the United States Government as an embargoed or export-restricted country. 
+    Without limiting the generality of the foregoing, the Licensed Software
+    includes cryptographic software.  The country in which you reside may have
+    restrictions on the import, possession, use, and/or re-export to another
+    country of encryption software.  Please check Your country’s laws,
+    regulations and policies concerning the import, possession, use, and/or
+    re-export, prior to using any encryption software.  
+
+10. GENERAL PROVISIONS.  This EULA is the complete and exclusive statement of
+    the agreement between Esgyn and Customer regarding Customer’s download and
+    use of the Licensed Software.  Should any provision of this EULA be declared
+    unenforceable in any jurisdiction, that provision shall be deemed severable
+    and severed from this EULA which shall otherwise remain in full force and
+    effect.
+
+11. GOVERNING LAW.  This EULA is governed by the laws of the State of California,
+    without regard to its conflicts of law provisions.  Any action at law or in
+    equity arising out of or relating to this EULA will be filed only in the
+    state and federal courts located in Santa Clara County, and Customer hereby
+    irrevocably and unconditionally consents and submits to the exclusive
+    jurisdiction of such courts. 
+
+12. CHINA.  Notwithstanding Section 11 of this EULA, if the Customer is located
+    in the PRC (as defined below), this Section 12 sets forth specific
+    provisions as well as exceptions to the above terms and conditions.  The
+    PRC means the People’s Republic of China, but excludes the Hong Kong Special
+    Administrative Region, the Macau Special Administrative Region, and Chinese
+    Tapei/Taiwan.  If you are located in the PRC and any of the provisions set
+    forth in this Section 10 (a Local Provision) conflicts with any other term
+    or provision of this EULA, the Local Provision supersedes such other term
+    or condition with respect to any Licensed Software used in the PRC.
+
+      GOVERNING LAW (SECTION 9): The following replaces this Section in its
+      entirety: 
+
+      Any conflicts arising out of this EULA shall be governed by the relevant
+      officially promulgated laws, regulations, measures, and rules of the PRC,
+      without regard to the United Nations Convention on Contracts for the
+      International Sale of Goods.  If a lawsuit arising out of this EULA is
+      filed in the PRC, the parties hereby stipulate and agree that (a) any
+      such suit or appeal therefrom must be brought in a division of the
+      Supreme People’s Court of Shanghai, and (b) this EULA was executed and
+      performed solely in the Shanghai Municipality.  In addition, you are
+      solely responsible for (a) any registration, filing, disclosure, or
+      approval of this Agreement required under the laws of the PRC, together
+      with any and all associated costs and expenses, and (b) you understand
+      and agree that Esgyn will be relieved from performance under this EULA
+      if you fail to properly register, file, or disclose this EULA with local
+      authorities in accordance with PRC law.  If you execute this EULA in
+      Chinese, the Chinese version of this EULA controls over any English
+      translation of the same.
+
+13. CHANGING THE LICENSED SOFTWARE.  Esgyn reserves the right at any time to
+    modify this EULA and to impose new or additional terms or conditions on
+    your use of the Licensed Software. Such modifications and additional terms
+    and conditions will be communicated to you and will be effective immediately
+    and will be incorporated into this EULA. You agree that Esgyn shall not be
+    liable to you or any third party for any modification or cessation of the
+    Licensed Software.
+

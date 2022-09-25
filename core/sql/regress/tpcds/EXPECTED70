@@ -1,0 +1,233 @@
+>>obey stdcqds;
+>>
+>>set schema hive.tpcds_sf1000;
+
+--- SQL operation complete.
+>>
+>>control osim simulate continue './osim.all.sf1000.09022016';
+
+--- SQL operation complete.
+>>
+>>cqd orc_njs 'on';
+
+--- SQL operation complete.
+>>cqd parallel_num_esps '48';
+
+--- SQL operation complete.
+>>cqd QUERY_CACHE '200000';
+
+--- SQL operation complete.
+>>cqd HIVE_METADATA_REFRESH_INTERVAL '-1';
+
+--- SQL operation complete.
+>>cqd  HIVE_LOCALITY_BALANCE_LEVEL '-1';
+
+--- SQL operation complete.
+>>cqd  METADATA_CACHE_SIZE '200';
+
+--- SQL operation complete.
+>>cqd partitioning_scheme_sharing '2';
+
+--- SQL operation complete.
+>>cqd COMP_BOOL_208 'ON';
+
+--- SQL operation complete.
+>>obey q70;
+>>
+>>--==QID: 70
+>>
+>>prepare xx from
++>select  
++>    total_sum
++>   ,s_state
++>   ,s_county
++>   ,lochierarchy
++>   ,rank() over (
++>        partition by lochierarchy,
++>        case when t_county = 0 then s_state end 
++>        order by total_sum desc) as rank_within_parent
++> from
++>   (
++>    select sum(ss_net_profit) as total_sum
++>      ,s_state
++>      ,s_county
++>      ,0 as t_state
++>      ,0 as t_county
++>      ,0 as lochierarchy
++>   from
++>      store_sales_1stripeperfile
++>      ,date_dim       d1
++>      ,store
++>   where
++>      d1.d_month_seq between 1197 and 1197+11
++>      and d1.d_date_sk = ss_sold_date_sk
++>      and s_store_sk  = ss_store_sk
++>      and s_state in
++>             ( select s_state
++>               from  (select s_state as s_state,
++>                            rank() over ( partition by s_state order by sum(ss_net_profit) desc) as ranking
++>                      from   store_sales_1stripeperfile, store, date_dim
++>                      where  d_month_seq between 1197 and 1197+11
++>                            and d_date_sk = ss_sold_date_sk
++>                            and s_store_sk  = ss_store_sk
++>                      group by s_state
++>                     ) tmp1 
++>               where ranking <= 5
++>             )
++>   group by (s_state,s_county)
++>union all
++>   select sum(ss_net_profit) as total_sum
++>      ,s_state
++>      ,null as s_county
++>      ,0 as t_state
++>      ,1 as t_county
++>      ,1 as lochierarchy
++>   from
++>      store_sales_1stripeperfile
++>      ,date_dim       d1
++>      ,store
++>   where
++>      d1.d_month_seq between 1197 and 1197+11
++>      and d1.d_date_sk = ss_sold_date_sk
++>      and s_store_sk  = ss_store_sk
++>      and s_state in
++>             ( select s_state
++>               from  (select s_state as s_state,
++>                            rank() over ( partition by s_state order by sum(ss_net_profit) desc) as ranking
++>                      from   store_sales_1stripeperfile, store, date_dim
++>                      where  d_month_seq between 1197 and 1197+11
++>                            and d_date_sk = ss_sold_date_sk
++>                            and s_store_sk  = ss_store_sk
++>                      group by s_state
++>                     ) tmp1 
++>               where ranking <= 5
++>             )
++>   group by (s_state)
++>union all
++>   select sum(ss_net_profit) as total_sum
++>      ,null as s_state
++>      ,null as s_county
++>      ,1 as t_state
++>      ,1 as t_county
++>      ,2 as lochierarchy
++>   from
++>      store_sales_1stripeperfile
++>      ,date_dim       d1
++>      ,store
++>   where
++>      d1.d_month_seq between 1197 and 1197+11
++>      and d1.d_date_sk = ss_sold_date_sk
++>      and s_store_sk  = ss_store_sk
++>      and s_state in
++>             ( select s_state
++>               from  (select s_state as s_state,
++>                            rank() over ( partition by s_state order by sum(ss_net_profit) desc) as ranking
++>                      from   store_sales_1stripeperfile, store, date_dim
++>                      where  d_month_seq between 1197 and 1197+11
++>                            and d_date_sk = ss_sold_date_sk
++>                            and s_store_sk  = ss_store_sk
++>                      group by s_state
++>                     ) tmp1 
++>               where ranking <= 5
++>             )   
++>   )
++> order by
++>   lochierarchy desc
++>  ,rank_within_parent
++>  limit 100
++> ;
+
+--- SQL command prepared.
+>>obey explains;
+>>explain options 'f' xx;
+
+LC   RC   OP   OPERATOR              OPT       DESCRIPTION           CARD
+---- ---- ---- --------------------  --------  --------------------  ---------
+
+80   .    81   root                                                  4.40E+001
+79   .    80   firstn                                                4.40E+001
+78   .    79   sort                                                  4.40E+001
+77   .    78   sequence                                              4.40E+001
+51   76   77   merge_union                                           4.40E+001
+75   .    76   sort                                                  1.00E+000
+74   .    75   sort_partial_aggr_ro                                  1.00E+000
+73   .    74   esp_exchange                    1:48(hash2)           1.00E+000
+72   .    73   sort_partial_aggr_le                                  1.00E+000
+71   53   72   hybrid_hash_join                                      2.09E+008
+70   69   71   hybrid_hash_join                                      1.00E+009
+.    .    70   orc_scan                        STORE_SALES_1STRIPEP  2.75E+009
+68   .    69   esp_exchange                    48(rep-b):48(hash2)   3.64E+002
+67   66   68   hybrid_hash_semi_joi                                  3.64E+002
+.    .    67   orc_scan                        STORE                 1.00E+003
+65   .    66   esp_exchange                    48(rep-b):48(hash2)   8.00E+000
+64   .    65   sequence                                              8.00E+000
+63   .    64   sort                                                  2.20E+001
+62   .    63   hash_partial_groupby                                  2.20E+001
+61   .    62   esp_exchange                    48(hash2):48(hash2)   2.20E+001
+60   .    61   hash_partial_groupby                                  2.20E+001
+59   55   60   hybrid_hash_join                                      5.75E+008
+58   57   59   hybrid_hash_join                                      5.75E+008
+.    .    58   orc_scan                        STORE_SALES_1STRIPEP  2.75E+009
+56   .    57   esp_exchange                    48(rep-b):2(hash2)    3.80E+002
+.    .    56   orc_scan                        DATE_DIM              3.80E+002
+54   .    55   esp_exchange                    48(rep-b):2(hash2)    1.00E+003
+.    .    54   orc_scan                        STORE                 1.00E+003
+52   .    53   esp_exchange                    48(rep-b):2(hash2)    3.80E+002
+.    .    52   orc_scan                        DATE_DIM              3.80E+002
+25   50   51   merge_union                                           4.30E+001
+49   .    50   sort                                                  8.00E+000
+48   .    49   hash_partial_groupby                                  8.00E+000
+47   .    48   esp_exchange                    1:48(hash2)           8.00E+000
+46   .    47   hash_partial_groupby                                  8.00E+000
+45   38   46   hybrid_hash_semi_joi                                  2.09E+008
+44   40   45   hybrid_hash_join                                      5.75E+008
+43   42   44   hybrid_hash_join                                      5.75E+008
+.    .    43   orc_scan                        STORE_SALES_1STRIPEP  2.75E+009
+41   .    42   esp_exchange                    48(rep-b):2(hash2)    3.80E+002
+.    .    41   orc_scan                        DATE_DIM              3.80E+002
+39   .    40   esp_exchange                    48(rep-b):2(hash2)    1.00E+003
+.    .    39   orc_scan                        STORE                 1.00E+003
+37   .    38   esp_exchange                    48(rep-b):48(hash2)   8.00E+000
+36   .    37   sequence                                              8.00E+000
+35   .    36   sort                                                  2.20E+001
+34   .    35   hash_partial_groupby                                  2.20E+001
+33   .    34   esp_exchange                    48(hash2):48(hash2)   2.20E+001
+32   .    33   hash_partial_groupby                                  2.20E+001
+31   27   32   hybrid_hash_join                                      5.75E+008
+30   29   31   hybrid_hash_join                                      5.75E+008
+.    .    30   orc_scan                        STORE_SALES_1STRIPEP  2.75E+009
+28   .    29   esp_exchange                    48(rep-b):2(hash2)    3.80E+002
+.    .    28   orc_scan                        DATE_DIM              3.80E+002
+26   .    27   esp_exchange                    48(rep-b):2(hash2)    1.00E+003
+.    .    26   orc_scan                        STORE                 1.00E+003
+24   .    25   sort                                                  3.50E+001
+23   .    24   hash_partial_groupby                                  3.50E+001
+22   .    23   esp_exchange                    1:48(hash2)           3.50E+001
+21   .    22   hash_partial_groupby                                  3.50E+001
+20   13   21   hybrid_hash_semi_joi                                  2.09E+008
+19   15   20   hybrid_hash_join                                      5.75E+008
+18   17   19   hybrid_hash_join                                      5.75E+008
+.    .    18   orc_scan                        STORE_SALES_1STRIPEP  2.75E+009
+16   .    17   esp_exchange                    48(rep-b):2(hash2)    3.80E+002
+.    .    16   orc_scan                        DATE_DIM              3.80E+002
+14   .    15   esp_exchange                    48(rep-b):2(hash2)    1.00E+003
+.    .    14   orc_scan                        STORE                 1.00E+003
+12   .    13   esp_exchange                    48(rep-b):48(hash2)   8.00E+000
+11   .    12   sequence                                              8.00E+000
+10   .    11   sort                                                  2.20E+001
+9    .    10   hash_partial_groupby                                  2.20E+001
+8    .    9    esp_exchange                    48(hash2):48(hash2)   2.20E+001
+7    .    8    hash_partial_groupby                                  2.20E+001
+6    2    7    hybrid_hash_join                                      5.75E+008
+5    4    6    hybrid_hash_join                                      5.75E+008
+.    .    5    orc_scan                        STORE_SALES_1STRIPEP  2.75E+009
+3    .    4    esp_exchange                    48(rep-b):2(hash2)    3.80E+002
+.    .    3    orc_scan                        DATE_DIM              3.80E+002
+1    .    2    esp_exchange                    48(rep-b):2(hash2)    1.00E+003
+.    .    1    orc_scan                        STORE                 1.00E+003
+
+--- SQL operation complete.
+>>exit;
+
+End of MXCI Session
+

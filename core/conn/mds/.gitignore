@@ -1,0 +1,4 @@
+vendor/
+*.tar.gz
+go.sum
+.idea

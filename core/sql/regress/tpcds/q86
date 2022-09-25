@@ -1,0 +1,67 @@
+
+--==QID: 86
+
+prepare xx from
+select   
+    total_sum
+   ,i_category
+   ,i_class
+   ,lochierarchy
+   ,rank() over (
+        partition by lochierarchy,
+        case when t_class = 0 then i_category end 
+        order by total_sum desc) as rank_within_parent
+ from
+    (
+         select sum(ws_net_paid) as total_sum
+       ,i_category
+       ,i_class
+       ,0 as t_category
+       ,0 as t_class
+       ,0 as lochierarchy
+     from 
+       web_sales
+       ,date_dim       d1
+       ,item
+     where
+       d1.d_month_seq between 1188 and 1188+11
+       and d1.d_date_sk = ws_sold_date_sk
+       and i_item_sk  = ws_item_sk
+       group by (i_category,i_class)
+union all
+     select sum(ws_net_paid) as total_sum
+       ,i_category
+       ,null as i_class
+       ,0 as t_category
+       ,1 as t_class
+       ,1 as lochierarchy
+     from 
+       web_sales
+       ,date_dim       d1
+       ,item
+     where
+       d1.d_month_seq between 1188 and 1188+11
+       and d1.d_date_sk = ws_sold_date_sk
+       and i_item_sk  = ws_item_sk
+       group by (i_category)
+union all
+     select sum(ws_net_paid) as total_sum
+       ,null as i_category
+       ,null as i_class
+       ,1 as t_category
+       ,1 as t_class
+       ,2 as lochierarchy
+     from 
+       web_sales
+       ,date_dim       d1
+       ,item
+     where
+       d1.d_month_seq between 1188 and 1188+11
+       and d1.d_date_sk = ws_sold_date_sk
+       and i_item_sk  = ws_item_sk
+        )
+order by
+   lochierarchy desc,
+   rank_within_parent
+  limit 100
+ ;

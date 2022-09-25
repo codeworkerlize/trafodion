@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+if [[ $# != 0 ]]; then
+    echo "usage: atrxdc_init"
+    echo "description: initialize atrxdc configuration"
+    exit 1
+fi
+
+atrxdc -init

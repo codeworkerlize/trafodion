@@ -1,0 +1,70 @@
+#!/bin/bash
+
+#All rights reserved by Esgyn Corporation 2016
+#this script will check if current installation has a valid license or not
+silent=0
+if [[ $1 = "-s" ]];then
+  silent=1
+fi
+
+encstring=""
+
+if [[ -f ./esgyn.el ]]; then
+  encstring=`cat ./esgyn.el`
+elif [[ -f ../esgyn.el ]]; then
+  encstring=`cat ../esgyn.el`
+elif [[ -f $TRAF_HOME/esgyn.el ]]; then
+  encstring=`cat  $TRAF_HOME/esgyn.el`
+elif [[ -f $HOME/esgyn.el ]]; then
+  encstring=`cat  $HOME/esgyn.el`
+fi
+
+if [[ $encstring = "" ]]; then
+  #no license file
+  #print warning and continue
+  echo "***  WARNING  *** "
+  echo "***Your license to use the ${TRAFODION_VER_PROD} Edition is either unavailable or the file is corrupt."
+  if [[ silent -eq 0 ]];then
+    echo -n " Do you want to continue [y/N]:"
+    read answer
+    if [ "$answer" != "y" ] && [ "$answer" != "Y" ] && [ "$answer" != "yes" ]  && [ "$answer" != "YES" ]; then
+      echo "Please contact your Esgyn support representative"
+	exit 1 
+    else
+      echo "Please contact your Esgyn support representative"
+        exit 0
+    fi
+  else
+    exit 0
+  fi
+fi
+
+#now we have the enc string 
+#decode the enc string to check
+#for this release, we only check the node number
+if [[ -f $1/traf_sqconfig ]]; then
+  #this is invoked from installer  
+  nodenumber=`$1/decoder -n -s $encstring`
+else
+  nodenumber=`decoder -n -s $encstring`
+fi
+
+#get the real nodenumber from $NODE_LIST
+node_count=$(echo $NODE_LIST | wc -w)
+
+if [[ $node_count -gt $nodenumber ]]; then
+  echo "***  WARNING  *** "
+  echo "***Your license for use of ${TRAFODION_VER_PROD} Edition only supports " $nodenumber " hosts."
+  echo -n " Do you want to continue [y/N]:"
+  read answer
+  if [ "$answer" != "y" ] && [ "$answer" != "Y" ] && [ "$answer" != "yes" ]  && [ "$answer" != "YES" ]; then
+    echo "Please contact your Esgyn support representative"
+    exit 1
+  else
+    echo "Please contact your Esgyn support representative"
+    exit 0
+  fi
+fi
+
+exit 0
+

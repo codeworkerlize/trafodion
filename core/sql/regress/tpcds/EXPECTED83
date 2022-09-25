@@ -1,0 +1,169 @@
+>>obey stdcqds;
+>>
+>>set schema hive.tpcds_sf1000;
+
+--- SQL operation complete.
+>>
+>>control osim simulate continue './osim.all.sf1000.09022016';
+
+--- SQL operation complete.
+>>
+>>cqd orc_njs 'on';
+
+--- SQL operation complete.
+>>cqd parallel_num_esps '48';
+
+--- SQL operation complete.
+>>cqd QUERY_CACHE '200000';
+
+--- SQL operation complete.
+>>cqd HIVE_METADATA_REFRESH_INTERVAL '-1';
+
+--- SQL operation complete.
+>>cqd  HIVE_LOCALITY_BALANCE_LEVEL '-1';
+
+--- SQL operation complete.
+>>cqd  METADATA_CACHE_SIZE '200';
+
+--- SQL operation complete.
+>>cqd partitioning_scheme_sharing '2';
+
+--- SQL operation complete.
+>>cqd COMP_BOOL_208 'ON';
+
+--- SQL operation complete.
+>>obey q83;
+>>
+>>--==QID: 83
+>>
+>>prepare xx from
++>select  sr_items.item_id
++>       ,sr_item_qty
++>       ,sr_item_qty/(sr_item_qty+cr_item_qty+wr_item_qty)/3.0 * 100 sr_dev
++>       ,cr_item_qty
++>       ,cr_item_qty/(sr_item_qty+cr_item_qty+wr_item_qty)/3.0 * 100 cr_dev
++>       ,wr_item_qty
++>       ,wr_item_qty/(sr_item_qty+cr_item_qty+wr_item_qty)/3.0 * 100 wr_dev
++>       ,(sr_item_qty+cr_item_qty+wr_item_qty)/3.0 average
++> from (select i_item_id item_id,
++>        sum(sr_return_quantity) sr_item_qty
++> from store_returns,
++>      item,
++>      date_dim
++> where sr_item_sk = i_item_sk
++> and   d_date    in 
++>        (select d_date
++>        from date_dim
++>        where d_week_seq in 
++>                (select d_week_seq
++>                from date_dim
++>          where d_date in (date'1998-02-25',date'1998-10-10',date'1998-11-10')))
++> and   sr_returned_date_sk   = d_date_sk
++> group by i_item_id) sr_items
++>     ,(select i_item_id item_id,
++>        sum(cr_return_quantity) cr_item_qty
++> from catalog_returns,
++>      item,
++>      date_dim
++> where cr_item_sk = i_item_sk
++> and   d_date    in 
++>        (select d_date
++>        from date_dim
++>        where d_week_seq in 
++>                (select d_week_seq
++>                from date_dim
++>          where d_date in (date'1998-02-25',date'1998-10-10',date'1998-11-10')))
++> and   cr_returned_date_sk   = d_date_sk
++> group by i_item_id) cr_items
++>     ,(select i_item_id item_id,
++>        sum(wr_return_quantity) wr_item_qty
++> from web_returns,
++>      item,
++>      date_dim
++> where wr_item_sk = i_item_sk
++> and   d_date    in 
++>        (select d_date
++>        from date_dim
++>        where d_week_seq in 
++>                (select d_week_seq
++>                from date_dim
++>                where d_date in (date'1998-02-25',date'1998-10-10',date'1998-11-10')))
++> and   wr_returned_date_sk   = d_date_sk
++> group by i_item_id) wr_items
++> where sr_items.item_id=cr_items.item_id
++>   and sr_items.item_id=wr_items.item_id 
++> order by sr_items.item_id
++>         ,sr_item_qty
++> limit 100
++> ;
+
+--- SQL command prepared.
+>>obey explains;
+>>explain options 'f' xx;
+
+LC   RC   OP   OPERATOR              OPT       DESCRIPTION           CARD
+---- ---- ---- --------------------  --------  --------------------  ---------
+
+56   .    57   root                                                  1.82E+004
+55   .    56   firstn                                                1.82E+004
+54   .    55   esp_exchange                    1:48(hash2) (m)       1.82E+004
+53   .    54   sort                                                  1.82E+004
+52   17   53   hybrid_hash_join                                      1.82E+004
+51   34   52   hybrid_hash_join                                      3.38E+004
+50   .    51   hash_partial_groupby                                  1.32E+005
+49   .    50   esp_exchange                    48(hash2):48(hash2)   1.32E+005
+48   .    49   hash_partial_groupby                                  1.32E+005
+47   36   48   hybrid_hash_join                                      1.36E+005
+46   .    47   esp_exchange                    48(hash2):48(hash2)   1.36E+005
+45   44   46   hybrid_hash_join                                      1.36E+005
+.    .    45   orc_scan                        STORE_RETURNS         2.77E+008
+43   .    44   esp_exchange                    48(rep-b):48(hash2)   3.59E+001
+42   41   43   hybrid_hash_semi_joi  u                               3.59E+001
+.    .    42   orc_scan                        DATE_DIM              7.30E+004
+40   .    41   esp_exchange                    48(rep-b):48(hash2)   3.59E+001
+39   38   40   hybrid_hash_semi_joi  u                               3.59E+001
+.    .    39   orc_scan                        DATE_DIM              7.30E+004
+37   .    38   esp_exchange                    48(rep-b):2(hash2)    3.00E+000
+.    .    37   orc_scan                        DATE_DIM              3.00E+000
+35   .    36   esp_exchange                    48(hash2):2(hash2)    3.00E+005
+.    .    35   orc_scan                        ITEM                  3.00E+005
+33   .    34   hash_partial_groupby                                  3.38E+004
+32   .    33   esp_exchange                    48(hash2):48(hash2)   3.38E+004
+31   .    32   hash_partial_groupby                                  3.38E+004
+30   19   31   hybrid_hash_join                                      3.38E+004
+29   .    30   esp_exchange                    48(hash2):48(hash2)   3.38E+004
+28   27   29   hybrid_hash_join                                      3.38E+004
+.    .    28   orc_scan                        WEB_RETURNS           6.87E+007
+26   .    27   esp_exchange                    48(rep-b):48(hash2)   3.59E+001
+25   24   26   hybrid_hash_semi_joi  u                               3.59E+001
+.    .    25   orc_scan                        DATE_DIM              7.30E+004
+23   .    24   esp_exchange                    48(rep-b):48(hash2)   3.59E+001
+22   21   23   hybrid_hash_semi_joi  u                               3.59E+001
+.    .    22   orc_scan                        DATE_DIM              7.30E+004
+20   .    21   esp_exchange                    48(rep-b):2(hash2)    3.00E+000
+.    .    20   orc_scan                        DATE_DIM              3.00E+000
+18   .    19   esp_exchange                    48(hash2):2(hash2)    3.00E+005
+.    .    18   orc_scan                        ITEM                  3.00E+005
+16   .    17   hash_partial_groupby                                  7.09E+004
+15   .    16   esp_exchange                    48(hash2):48(hash2)   7.09E+004
+14   .    15   hash_partial_groupby                                  7.09E+004
+13   2    14   hybrid_hash_join                                      7.09E+004
+12   .    13   esp_exchange                    48(hash2):48(hash2)   7.09E+004
+11   10   12   hybrid_hash_join                                      7.09E+004
+.    .    11   orc_scan                        CATALOG_RETURNS       1.43E+008
+9    .    10   esp_exchange                    48(rep-b):48(hash2)   3.59E+001
+8    7    9    hybrid_hash_semi_joi  u                               3.59E+001
+.    .    8    orc_scan                        DATE_DIM              7.30E+004
+6    .    7    esp_exchange                    48(rep-b):48(hash2)   3.59E+001
+5    4    6    hybrid_hash_semi_joi  u                               3.59E+001
+.    .    5    orc_scan                        DATE_DIM              7.30E+004
+3    .    4    esp_exchange                    48(rep-b):2(hash2)    3.00E+000
+.    .    3    orc_scan                        DATE_DIM              3.00E+000
+1    .    2    esp_exchange                    48(hash2):2(hash2)    3.00E+005
+.    .    1    orc_scan                        ITEM                  3.00E+005
+
+--- SQL operation complete.
+>>exit;
+
+End of MXCI Session
+

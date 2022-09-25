@@ -1,0 +1,24 @@
+DROP TABLE INVENTORY;
+drop table LI1;
+drop table LI2;
+drop table LI3;
+
+CREATE TABLE INVENTORY
+  (
+    ITEM_ID      INT UNSIGNED NO DEFAULT NOT NULL
+  , ITEM_TYPE INT UNSIGNED NO DEFAULT NOT NULL
+  , ITEM_COUNT       INT UNSIGNED NO DEFAULT NOT NULL
+  , PRIMARY KEY (ITEM_ID ASC)
+  )
+  attributes synchronous replication
+  ;
+
+CREATE TABLE LI1 (a int no default not null, b int, primary key (a))
+  attributes synchronous replication
+;
+CREATE TABLE LI2 (a int no default not null, b int, primary key (a))
+  attributes synchronous replication
+;
+CREATE TABLE LI3 (a int no default not null, b int, primary key (a))
+  attributes synchronous replication
+;

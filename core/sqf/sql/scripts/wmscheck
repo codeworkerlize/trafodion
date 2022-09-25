@@ -1,0 +1,63 @@
+#!/bin/bash
+#
+# @@@ START COPYRIGHT @@@
+#
+# (C) Copyright 2015-2016 Esgyn Corporation
+#
+# @@@ END COPYRIGHT @@@
+
+function showTotalCount() {
+
+   #Check for the number of wms_*.py process
+   actual_wms_cnt=`edb_pdsh -a "ps -ef |grep -v grep |grep wms_" 2>/dev/null |grep $USER |wc -l`
+   if [[ $actual_wms_cnt > 0 ]]; then
+     echo "WMS internal scripts dir : $WMS_INSTALL_DIR/scripts/bin"
+     echo "WMS custom scripts dir   : $WMS_SCRIPTS_DIR"
+     echo "Total scripts running    : $actual_wms_cnt"
+   else
+     echo "WMS is not started..."
+   fi
+}
+
+function showSLA() {
+   echo "List of scripts with mapped sla are :"
+   echo
+      edb_pdsh -a "ps -ef |grep $USER |grep wms_ |grep '\-\-sla'" 2>/dev/null | awk '{print "\t"$10 " ("$12") "}'
+}
+
+function showAllScripts() {
+   echo "--------------------------------------------------------------------------"
+   echo "PID      Script Name                                                 "
+   echo "--------------------------------------------------------------------------"
+   edb_pdsh -a "ps -ef |grep $USER |grep wms_" 2>/dev/null | awk '{print $3 "\t" $10 " " $11 " " $12}'
+}
+
+function showHelp() {
+
+   prog=`basename $0`
+   echo "$prog { all | sla }"
+   echo "  all  --- Displays the pid/directory of all wms scripts that are active"
+   echo "  sla  --- Displays the list of scripts that have a mapped SLA"
+}
+
+if [[ ! -z ${TRAF_HOME} ]]; then
+   echo
+   case "$1" in
+       sla)
+       showSLA
+       ;;
+       all)
+       showTotalCount
+       echo
+       showAllScripts
+       ;;
+       h|help)
+       showHelp
+       ;;
+       *)
+       showTotalCount
+       ;;
+   esac
+   echo
+fi
+exit 0

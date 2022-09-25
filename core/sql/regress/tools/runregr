@@ -1,0 +1,339 @@
+#! /bin/bash
+#
+# @@@ START COPYRIGHT @@@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+# @@@ END COPYRIGHT @@@
+
+# Some test suites contain tests that cannot be run concurrently with other tests.
+# These test suites are executed in two passes.  The first pass executes tests
+# concurrently with other tests.  The second pass executes exclusive tests sequentially.
+# The -concurrent and -exclusive command line options indicate which pass to execute.
+# Most test suites execute completely during the -concurrent pass.  The -exclusive
+# pass is used only for test suites containing tests that cannot be executed concurrently
+# with other tests.
+
+# Set defaults: MX-format tables; sequential execution
+sqlmxtbls=1
+table_format='sb'
+ssd='../tools'
+concurrent_execution=0
+exclusive_execution=0
+log_qualifier=
+diffs=0
+failed=0
+
+# Parse command line options.  Options must appear on the command line before
+# test names.
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    -concurrent)
+      concurrent_execution=1
+      shift
+      ;;
+
+    -exclusive)
+      exclusive_execution=1
+      log_qualifier='.excl'
+      shift
+      ;;
+
+    -sb)
+      sqlmxtbls=1
+      table_format='sb'
+      export SEABASE_REGRESS=2
+      shift
+      ;;
+
+    -diff)
+      diffs=1
+      shift
+      ;;
+
+    -failed)
+      failed=1
+      shift
+      ;;
+
+    -ssd)
+      ssd=${2:?'The -ssd option requires an argument'}
+      shift 2
+      ;;
+
+    *)
+      break
+      ;;
+  esac
+done
+
+if [ "$diffs" -eq 1 -a "$table_format" == "sb" ]; then
+  export SEABASE_REGRESS_DIFFS=1
+fi
+
+export SQLMX_REGRESS=1
+export SQLMX_NAMETYPE=ANSI
+echo "***** Running SQL regressions *****"
+
+$REGR_PREOP		# you can set this envvar to any command you like
+			# e.g.  export REGR_PREOP="cp $HOME/setupnskenv $RGRT"
+
+export NULL=/dev/null
+export NSK=0
+export LINUX=1
+if [ "$scriptsdir" != "" ]; then
+  pushd $scriptsdir/tools > $NULL 
+  . ./setuplnxenv
+  popd > $NULL
+fi
+
+if [ -r $ssd/setupenv ]; then	# second, generic pan-platform setup
+  . $ssd/setupenv
+elif [ "$scriptsdir" != "" ]; then
+  . $scriptsdir/tools/setupenv
+fi
+
+test "$scriptsdir" = "" && echo Scripts root dir env var \$scriptsdir not set. && exit 1
+test "$rundir" = "" && echo Run root dir env var \$rundir not set. && exit 1
+
+export mxcmpdir=${mxcmpdir:-$arkcmpdir}
+export TEMP=${TMP:-${TEMP:-$rundir/tmp}}
+test -f $TEMP -a ! -d $TEMP && TEMP=$rundir/tmpdir
+test ! -d $TEMP && mkdir -p $TEMP
+test ! -d $TEMP -o ! -w $TEMP && TEMP=/tmp
+
+if [ ! -e $scriptsdir/tools/logsort_linux.exe ]; then
+  if [ "$scriptsdir/tools/logsort_src" != "" ]; then
+    pushd $scriptsdir/tools/logsort_src > $NULL
+    /bin/bash makeit_linux.ksh
+    popd > $NULL
+    mv -f $scriptsdir/tools/logsort_src/logsort.exe $scriptsdir/tools/logsort_linux.exe
+  fi
+fi
+
+export LOGSORT=$scriptsdir/tools/logsort_linux.exe
+export  FILTER=$scriptsdir/tools/regress-filter-linux
+
+export MAKEPARAMS="$mxcmpdir $mxcidir"
+export MAKEOBJTYP=o
+export mxci=$mxcidir/sqlci
+export mxcmp=$mxcmpdir/tdm_arkcmp
+export mxudr=$mxcmpdir/tdm_udrserv
+export javahome=${JAVA_HOME}
+export java=$javahome/bin/java
+export javac=$javahome/bin/javac
+export jar=$javahome/bin/jar
+export NSK_SYS=NSK
+linuxinit=$scriptsdir/tools/linuxinit
+
+# export synonyms for convenience
+export sqlci=$mxci
+export arkcmp=$mxcmp
+export arkcmpdir=$mxcmpdir
+export nsk=$NSK
+export TMP=$TEMP
+
+# determine regression directories and logs
+export REGRBASDIR=$(basename $PWD)
+export REGRRUNDIR=$rundir/$REGRBASDIR
+export REGRTSTDIR=$scriptsdir/$REGRBASDIR
+export rgrlog=$REGRRUNDIR/runregr-${table_format}${log_qualifier}.log
+export rgrStats=$REGRRUNDIR/runregr-${table_format}${log_qualifier}.stats
+export REGRTOOLSDIR=$scriptsdir/tools
+
+export REGRCONCURRENT="$concurrent_execution"
+export REGREXCLUSIVE="$exclusive_execution"
+
+# setup up make file script, same for mx and mp
+export MAKESCRIPT=$scriptsdir/tools/makefileall.ksh
+
+# Single-quoted versions of the REGR* variables
+export REGRBASDIR_Q="'$REGRBASDIR'"
+export REGRRUNDIR_Q="'$REGRRUNDIR'"
+export REGRTSTDIR_Q="'$REGRTSTDIR'"
+export REGRRUNDIR_QCleanup="'$REGRRUNDIR/cleanup'"
+export REGRRUNDIR_QAB="'$REGRRUNDIR/A/B'"
+
+######################################################
+#these tests are run as part of checktests. Used by runregr_checktest*.ksh
+#They are skipped by individual tests if 'runallsb' script is used to
+#run multiple suites and checktests is part of it.
+#That way we avoid running the same tests multiple times: once as part of
+#checktests and then as part of individual test.
+
+# "orig" tests are the original tests that need to be run.
+# non-orig are the ones currently being run due to existing issues with
+# some tests in the orig list.
+# TODO: remove the CT fail cases
+#export coreCT="TEST000 TEST001 TEST002 TEST005 TEST032 TEST056 TEST116 TESTRTS"
+export coreCT="TEST000 TEST001 TEST002 TEST005 TEST032 TEST056 TEST131 TESTRTS"
+export compGeneralCT="TEST006 TEST015 TEST042 TESTTOK"
+export charsetsCT="TEST001 TEST311"
+export executorCT="TEST013 TEST015 TEST022 TEST023 TEST107"
+export fullstack2CT="TEST062"
+
+export hiveCTorig="TEST001 TEST005 TEST009 TEST015 TEST021 TEST030 TEST031 TEST041 TEST046 TEST055 TEST057"
+export hiveCT="TEST001 TEST009 TEST015 TEST021"
+export hive2CT="TEST030 TEST031 TEST041 TEST046"
+
+export seabaseCT="TEST003 TEST010 TEST011 TEST015 TEST022 TEST025 TEST030 TEST031 TEST032 TEST034"
+export seabase2CT="TEST057"
+export udrCT="TEST002 TEST333"
+export udrCT="TEST001 TEST340"
+#export privs1CT="TEST121 TEST137"
+export privs1CT="TEST137"
+
+export privs2CTorig="TEST145"
+export privs2CT="TEST145"
+####################################
+
+tmplocal=$TMP/`basename $0 .ksh`.tmp
+
+# Make sure sed commands in $FILTER work --
+# otherwise all regressions will come up with ostensible zero diffs
+# (falsely reporting SUCCESS)
+# because all .flt files will contain the same sed error message!
+#
+# This can happen when the $FILTER is not write-protected by ClearCase,
+# for instance on NSK, and you inadvertently type a stray character
+# while looking at the file in an editor.
+#
+test ! -x $FILTER && chmod +rwx $FILTER		# ensure we can run it
+$FILTER $NULL					# run it (emits errmsg if bad)
+test $? -ne 0 && echo && echo "ERROR: Your copy of $FILTER is broken." && exit 1
+
+flavor1=
+if [ "$diffs" -ne 1 -o "$table_format" != "sb" ]; then
+  echo 'select TESTEXIT;' > $tmplocal.flavor.tmp
+  flavor1=`$sqlci -i $tmplocal.flavor.tmp | grep 15001`
+fi
+flavor2=
+if [ "$flavor1" = "" ]; then
+  flavor1=DEBUG
+  # enable NA memory overflow checking during test
+  export MEMDEBUG=2
+else
+  flavor1=RELEASE
+fi
+export BUILD_FLAVOR_TEXT="($flavor1$flavor2 build)"
+export BUILD_FLAVOR=`echo $flavor1 | tr A-Z a-z`	# case-sensitive filename lookup (most runregr_xxx.ksh use lowercase for "expectednnn.nsk*")
+
+
+tool=$scriptsdir/tools/runregr_$REGRBASDIR.ksh
+if [ ! -f $tool ]; then
+  tool=$scriptsdir/tools/runregr_other.ksh
+fi
+if [ "$diffs" -eq 1 ]; then
+  echo "Command requested: $tool -diff $*"
+else
+  echo "pwd: $PWD"
+  echo "Command requested: $tool $*"
+fi
+echo "Build flavor is: $BUILD_FLAVOR_TEXT"
+export PATH="$scriptsdir/tools:$PATH"
+
+if [ ! -d "$REGRRUNDIR" ]
+then
+    echo "Creating directory $REGRRUNDIR"
+    mkdir $REGRRUNDIR
+fi
+
+# Create the FilteredLogs directory
+FilteredLogs=$scriptsdir/FilteredLogs
+if [ ! -d "$FilteredLogs" ]; then
+  echo "Creating directory $FilteredLogs"
+  mkdir $FilteredLogs
+fi
+
+if [ ! -d "$FilteredLogs/win" ]; then
+  echo "Creating directory $FilteredLogs/win"
+  mkdir $FilteredLogs/win
+fi
+FilteredLogs=$FilteredLogs/win
+
+if [ ! -d "$FilteredLogs/$REGRBASDIR" ]; then
+  echo "Creating directory $FilteredLogs/$REGRBASDIR"
+  mkdir $FilteredLogs/$REGRBASDIR
+fi
+export FilteredLogs="$FilteredLogs/$REGRBASDIR"
+
+#Delete files left from previous run
+rm -f dumpfile sh_histo ZZSA*
+
+
+#Establish log, exp and bsl directories
+if [ ! -d "$FilteredLogs/logfiles" ]; then
+  echo "Creating directory $FilteredLogs/logfiles"
+  mkdir $FilteredLogs/logfiles
+fi
+if [ ! -d "$FilteredLogs/expfiles" ]; then
+  echo "Creating directory $FilteredLogs/expfiles"
+  mkdir $FilteredLogs/expfiles
+fi
+echo "Using the following directory for filtered logs:   $FilteredLogs"
+
+if [ "$failed" -eq 1 ]; then
+  rm -f $REGRRUNDIR/runregr-failed.log 2>$NULL
+  echo "Command executed: $tool -diff $* "
+  $tool -diff $* > $REGRRUNDIR/runregr-failed.log
+  ff=`cat $REGRRUNDIR/runregr-failed.log | grep ' ### FAIL ' | cut -c 22-28 ` 2>$NULL
+
+  if [ "$ff" == "" ]; then
+     echo "No failed tests, nothing to execute."
+     rm -f $REGRRUNDIR/runregr-failed.log 2>$NULL
+     echo "No failed tests." > $REGRRUNDIR/runregr-failed.log
+  else
+    failedTests=
+    for i in $ff; do
+      failedTests="$failedTests $i"
+    done
+    echo "Command executed: $tool $failedTests"
+    $tool $failedTests
+    rm -f $REGRRUNDIR/runregr-failed.log 2>$NULL
+    cp $rgrlog $REGRRUNDIR/runregr-failed.log 2>$NULL
+  fi
+elif [ "$diffs" -eq 1 ]; then
+  echo "Command executed: $tool -diff $*"
+  $tool -diff $*
+else
+  echo "Command executed: $tool $*"
+  $tool $*
+fi
+
+
+# Concatentate logs for test suites that are executed in separate
+# concurrent and sequential phases.  The exclusive phase is executed
+# after the concurrent phase, so the logs are concatenated at the end
+# of the exclusive phase.
+if [ "$REGREXCLUSIVE" -ne 0 ]; then
+  normal_log="$REGRRUNDIR/runregr-mx.log"
+  if [ -a "$normal_log" ]; then
+    exclusive_log="$rgrlog"
+    echo 'Exclusive (sequential) tests:' | \
+      cat - "$exclusive_log" >>"$normal_log" && rm "$exclusive_log"
+    rgrlog="$normal_log"
+  else
+    echo "Error: Log file $normal_log doesn't exist!"
+  fi
+fi
+
+export REGR_POSTOP="$scriptsdir/tools/rgrCleanup"
+echo $REGR_POSTOP
+$REGR_POSTOP		# you can set this envvar to any command you like
+			# e.g.  export REGR_POSTOP="$HOME/bin/rgrCleanup"
+echo "***** Done running regressions *****"

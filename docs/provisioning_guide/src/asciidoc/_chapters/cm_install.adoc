@@ -1,0 +1,278 @@
+
+[[cm-install]]
+= Cloudera Manager Installation
+
+== Prerequisites
+
+.Linux OS
+
+The current release of {project-name} has been tested with:
+
+* 64-bit Red Hat Enterprise Linux (RHEL) or CentOS 6.5, 6.6, 6.7, 6.8, 7.2
+
+.Cloudera CDH Parcel
+
+Parcel installation of {project-name} requires a parcel installation of CDH.
+
+* Cloudera CDH 5.4, 5.5, 5.7, 5.8, 5.9, 5.10
+
+.Hadoop Services
+
+{project-name} requires at least client access to Hadoop cluster with the following services:
+
+* HDFS
+* HBase
+* Hive
+* Zookeeper
+
+.Package Dependencies
+
+{project-name} expects the following RPM packages are installed, and gives an error
+at start-up if they are not found.
+
+ apr apr-util sqlite expect perl-DBD-SQLite protobuf xerces-c
+ perl-Params-Validate perl-Time-HiRes gzip lzo lzop unzip gcc-c++
+ unixODBC unixODBC-devel libiodbc libiodbc-devel openldap-clients
+ snappy lsof gnuplot
+
+.EsgynDB License 
+
+An EsgynDB license key is required.
+
+.JDK 1.8.x.
+
+Particularly the HBase and EsgynDB services should be using Java 1.8. The Java Home Directory
+is defined either in the Cloudera Manager configuration file (/etc/default/cloudera-scm-server) or in
+the web interface Hosts Configuration screen (Hosts menu, All Hosts option, Configuration button).
+https://www.cloudera.com/documentation/enterprise/5-5-x/topics/cdh_cm_upgrading_to_jdk8.html[Cloudera JDK Upgrade documentation]
+
+== Plug {project-name} Software into Cloudera Manager
+
+The {project-name} software is comprised of a Custom Service Descriptor (CSD), two Parcels, and a parcel manifest.
+A configuration helper script (cm_settings.sh) is also provided. Use of the helper script is optional, as all of
+the needed configurations are described in this document (see xref:hconfig[Hadoop Configuration]).
+
+These will be provided in a single compressed tar-file download, such as esgyndb-CM-2.2.3-1.tgz.
+
+Reference: https://www.cloudera.com/documentation/enterprise/latest/topics/cm_mc_addon_services.html[Cloudera CSD documentation]
+
+=== Installing CSD
+
+The CSD is a jar file, named ESGYNDB-_version_.jar, such as ESGYNDB-2.2.3-1.jar. This file must be placed on the 
+Cloudera Manager Server host in the Local Descriptor Repository directory, which defaults to +/opt/cloudera/csd+.
+
+If Cloudera Manager is not yet installed, the directory may be pre-created and the EsgynDB CSD placed there. When
+Cloudera Manager is installed, it will be automatically picked up.
+
+If Cloudera Manager is already installed, then the server process (cloudera-scm-server) must be re-started to
+pick up the CSD.
+
+=== Installing Parcels
+
+The ESGYNDB_TRX parcel is a HBase plug-in for transaction processing.
+
+The ESGYNDB parcel is the main service providing the SQL engine and other database services.
+
+Reference: https://www.cloudera.com/documentation/enterprise/latest/topics/cm_ig_parcels.html[Cloudera Parcel documentation]
+
+The parcel files and parcel manifest file must be placed in a remote parcel repository.
+This may be any regular web-server location or a temporary web-server location.
+
+Reference: https://www.cloudera.com/documentation/enterprise/latest/topics/cm_ig_create_local_parcel_repo.html[Cloudera Parcel Repo documentation]
+
+To configure the parcel location, click the parcel icon in the Cloudera Manager menu bar, and then the *Configuration*
+button in the upper right. Add a new Remote Parcel Repository URL, referencing your EsgynDB parcels location.
+
+On the main Parcels screen, click the *Check for New Parcels* button.
+
+== Cluster Installation
+
+Now that Cloudera Manager knows about the EsgynDB service and where to find EsgynDB parcels, the EsgynDB service is
+available to be installed.
+
+=== Adding EsgynDB to an Existing Cluster
+
+For an existing cluster, follow these steps:
+
+. Go to the Parcels screen (package icon on title menu), select the cluster.
+. For both the ESGYNDB_TRX and ESGYNDB parcels,
+.. Download
+.. Distribute
+.. Activate 
+. Modify the required xref:hconfig[Hadoop Configuration] settings, and restart services as necessary (at least HBase).
+. Use the cluster Actions menu to *Add Service*, then select EsgynDB.
+
+Note: ESGYNDB_TRX must be activated on all HBase Regionserver hosts.
+
+=== Creating a New EsgynDB Cluster
+
+EsgynDB can also be installed when adding a new cluster.
+
+When selecting parcels, select CDH, ESGYNDB, and ESGYNDB_TRX.
+
+When selecting services, select EsgynDB from the Custom Service list. The dependent
+services, such as HBase, will automatically be included. 
+
+[NOTE]
+========================================
+In this scenario, EsgynDB service will give an error and fail to start until HBase required
+configuration settings are deployed and HBase is restarted, as indicated in xref:hconfig[Hadoop Configuration].
+========================================
+
+When EsgynDB start-up gives the TRX configuration error, Cloudera Manager will give options to Retry or go Back.
+Instead, click on the title menu bar to go to the main screen. From there you can xref:hconfig[configure Hadoop]
+and restart services as necessary.
+
+That should also start EsgynDB, but you must then use the EsgynDB Actions menu to select *Initialize/Upgrade EsgynDB MetaData*.
+
+=== Host Selection
+
+===== EsgynDB Node
+
+This is the main worker role, which runs database queries and interfaces with other Hadoop components (HDFS, HBase, Hive).
+
+EsgynDB nodes are usually placed on HBase Regionserver nodes, but may be placed on any HBase Gateway, Regionserver, or Master nodes.
+EsgynDB nodes also act as Hive clients, so need to be co-located with Hive Gateway or Server roles.
+
+===== Connection Master
+
+This role routes outside requiests (JDBC/ODBC connections) to specific nodes. For availability, more than one node
+should be selected. These roles must be co-located with EsgynDB Nodes.
+
+If configured, a floating IP address can be used to refer to the active DCS master node.
+Use of this feature will use the "sudo" command for a couple of network administration commands.
+Otherwise, the client driver (JDBC/ODBC) needs to be configured with a list of the server nodes instead
+of a single floating IP address.
+
+===== DB Manager
+
+This role provides an administrative interface to monitor and interact with your EsgynDB cluster.
+This role must be co-located with an EsgynDB Node.
+
+[[hconfig]]
+=== Hadoop Configuration
+
+EsgynDB depends on certain configuration settings for HDFS, Zookeeper, and HBase. They are all important for
+proper operation, but EsgynDB will not start at all without the required settings.
+The cluster administrator must change these values.
+
+They can be modified manually via Cloudera Manager web interface, or via the xref:tool[provided tool].
+
+==== Required
+
+These *HBase* settings are required before starting EsgynDB service:
+
+* hbase.coprocessor.region.classes
+** org.apache.hadoop.hbase.coprocessor.transactional.TrxRegionObserver
+** org.apache.hadoop.hbase.coprocessor.transactional.TrxRegionEndpoint
+** org.apache.hadoop.hbase.coprocessor.AggregateImplementation
+* Region Server Advanced Configuration Snippet for hbase-site.xml
+** Name: hbase.hregion.impl
+** Value: org.apache.hadoop.hbase.regionserver.transactional.TransactionalRegion
+** Name: hbase.regionserver.region.split.policy
+** Value: org.apache.hadoop.hbase.regionserver.ConstantSizeRegionSplitPolicy
+
+Note: The ESGYNDB_TRX parcel nust be activated on all HBase Regionserver nodes, or these settings
+      will cause HBase errors.
+
+==== Important
+
+These *HBase* settings are recommended:
+
+* hbase.regionserver.lease.period
+** 1 (hour)
+* hbase.hregion.memstore.flush.size
+** 256 (MiB)
+* hbase.hregion.memstore.block.multiplier
+** 7
+* hbase.hstore.blockingStoreFiles
+** 200
+* hbase.rootdir.perms
+** 750
+* hbase.snapshot.enabled
+** true
+* hbase.snapshot.region.timeout
+** 10 (minutes)
+* hbase.snapshot.master.timeoutMillis
+** 10 (minutes)
+* hbase.superuser
+** trafodion
+
+These *Zookeeper* settings are recommended:
+
+* maxClientCnxns
+** 0
+
+If the *Sentry* service is in use, then these settings are necessary:
+
+* sentry.service.admin.group
+** trafodion
+* sentry.service.allow.connect
+** trafodion
+
+[[tool]]
+==== Automated Configuration
+
+The required and important Hadoop settings can be set via the cm_settings.sh tool. The
+tool can be run on any linux system with network access to the cluster manager host. Use
+the -h option for a full list of options.
+
+The tool presents the current and proposed settings of each parameter and prompts for confirmation
+unless a force option is given to skip the prompts.
+
+.Example Usage
+-----
+cm_settings.sh -s https://myhost.domain.net:7180 -c "Cluster5" -u joe_admin
+-----
+
+This tool requires you to autenticate with cloudera manager. After initial autentication, a
+session cookie is used for the remainder of the script and then deleted.
+Three options are available to provide the password:
+
+. Default option allows the underlying "curl" command to prompt for your password.
+. The -n option allows lookup of the password in a standard ~/.netrc file.
+. The -p option allows a password to be passed in via the command line. This option is not
+  recommended as it is less secure.
+
+Use Cloudera Manager web interface to restart services as needed after using this tool.
+
+=== EsgynDB Configuration
+
+==== License Key
+
+When installing the EsgynDB service, you will be prompted for an EsgynDB License Key.
+
+In 2.3.x release, a valid 2.2.x license may be used, but certain features will not
+be available until an updated 2.3.x license string is obtained.
+
+For initial installation, leave the license key blank and continue with installation.
+A short grace period is allowed to obtain a license key.
+
+To obtain a 2.3.x license key, you need to send a copy of the file /etc/trafodion/esgyndb_id
+file to Esgyn. It is a very small binary file which provides a unique cluster identity.
+
+==== Others
+
+Other features may be configured after initial installation, including LDAP connection and
+Connectivity HA.
+
+If Hive is Sentry enabled, be sure to indicate this by setting the "Hive Sentry enabled"
+(traf.sentry.enabled) parameter to true via the checkbox.
+
+=== Meta-Data Initialization
+
+After initial installation or a installing a new version of EsgynDB, meta-data needs to be initialized.
+
+In Cloudera Manager, go to the EsgynDB service, then use the Actions menu to select *Initialize/Upgrade EsgynDB MetaData*.
+
+It does not hurt to re-run this command. If initialization steps have already been run, then nothing is done.
+
+If some ODBC/JDBC connections have been made (DBmanager, for example), they may continue to report that the database 
+has not been initialized, even after a successful initialization. This may be cleared by re-starting EsgynDB service.
+
+=== EsgynDB Start Up
+
+Even after Cloudera Manager has reported that EsgynDB roles have started successfully, it may take a couple minutes
+for the all the EsgynDB subsystems to start up and start accepting requests.
+
+Detailed status may be seen using the *Check EsgynDB Status* command, found on the EsgynDB service Actions menu.

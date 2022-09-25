@@ -1,0 +1,591 @@
+>>
+>>sh filter_test >> LOG058;
+Page filter test: PASS
+Value filter test: PASS
+Skip vector merging test: PASS
+>>
+>>set schema hive.hive;
+
+--- SQL operation complete.
+>>
+>>cqd parquet_use_cpp_reader 'on';
+
+--- SQL operation complete.
+>>cqd PARQUET_CPP_READER_PARALLELISM '10';
+
+--- SQL operation complete.
+>>
+>>cqd GEN_HSHJ_MIN_MAX_OPT 'ON';
+
+--- SQL operation complete.
+>>
+>>cqd HJ_BROADCAST_INNER_THRESHOLD_MB '0.01';
+
+--- SQL operation complete.
+>>cqd RANGE_OPTIMIZED_SCAN '500000';
+
+--- SQL operation complete.
+>>
+>>cqd parallel_num_esps '4';
+
+--- SQL operation complete.
+>>
+>>cqd HIST_MISSING_STATS_WARNING_LEVEL '0';
+
+--- SQL operation complete.
+>>
+>>-----------------------------------------------
+>>-- test joins
+>>-----------------------------------------------
+>>prepare xx from 
++>select count(*) from 
++>date_dim_parquet
++>, store_sales_parquet_p << + cardinality 10e7 >>
++>    where ss_sold_date_sk = d_date_sk 
++>;
+
+--- SQL command prepared.
+>>
+>>explain options 'p' xx;
+
+------------------------------------------------------------------ PLAN SUMMARY
+STATEMENT_NAME ........... XX
+STATEMENT ................ select count(*)
+                           from date_dim_parquet , store_sales_parquet_p << +
+                             cardinality 10e7 >>
+                           where ss_sold_date_sk = d_date_sk ;
+
+
+------------------------------------------------------------------ NODE LISTING
+ROOT ======================================  SEQ_NO 8        ONLY CHILD 7
+DESCRIPTION
+  fragment_id ............ 0
+  parent_frag ............ (none)
+  fragment_type .......... master
+  record_length .......... 8
+  xn_access_mode ......... read_only
+  auto_query_retry ....... enabled
+  embedded_arkcmp ........ used
+  IS_SQLCI ............... ON
+  LDAP_USERNAME .......... NOT AVAILABLE
+  HBASE_FILTER_PREDS ..... 2
+  TRAF_INDEX_CREATE_OPT    ON
+  SCHEMA ................. HIVE.HIVE
+  PARQUET_USE_CPP_READER   ON
+  PARQUET_CPP_READER_PAR  10
+  GEN_HSHJ_MIN_MAX_OPT ... ON
+  HJ_BROADCAST_INNER_THRE  0.01
+  RANGE_OPTIMIZED_S  500,000
+  PARALLEL_NUM_ESPS ...... 4
+  HIST_MISSING_STATS_WARN  0
+  select_list ............ cast(sum(count(1 )))
+  input_variables ........ execution_count
+
+
+SORT_PARTIAL_AGGR_ROOT ====================  SEQ_NO 7        ONLY CHILD 6
+DESCRIPTION
+  fragment_id ............ 0
+  parent_frag ............ (none)
+  fragment_type .......... master
+  record_length .......... 8
+  aggregates ............. sum(count(1 ))
+
+
+ESP_EXCHANGE ==============================  SEQ_NO 6        ONLY CHILD 5
+DESCRIPTION
+  fragment_id ............ 2
+  parent_frag ............ 0
+  fragment_type .......... esp
+  record_length .......... 8
+
+
+SORT_PARTIAL_AGGR_LEAF ====================  SEQ_NO 5        ONLY CHILD 4
+DESCRIPTION
+  fragment_id ............ 2
+  parent_frag ............ 0
+  fragment_type .......... esp
+  record_length .......... 8
+  aggregates ............. count(1 )
+
+
+HYBRID_HASH_JOIN ==========================  SEQ_NO 4        CHILDREN 3, 2
+DESCRIPTION
+  fragment_id ............ 2
+  parent_frag ............ 0
+  fragment_type .......... esp
+  record_length .......... 0
+  join_type .............. inner
+  join_method ............ hash
+  parallel_join_type ..... 2
+  min_max_cols ........... HIVE.DATE_DIM_PARQUET.D_DATE_SK
+  min_max_hostvars ....... \:_sys_MinVal0, \:_sys_MaxVal0,
+                             \:_sys_RangeOfValues0(488.281KB)
+  hash_join_predicates ... (HIVE.STORE_SALES_PARQUET_P.SS_SOLD_DATE_SK =
+                             HIVE.DATE_DIM_PARQUET.D_DATE_SK)
+
+
+PARQUET_SCAN ==============================  SEQ_NO 3        NO CHILDREN
+TABLE_NAME ............... HIVE.HIVE.STORE_SALES_PARQUET_P
+DESCRIPTION
+  fragment_id ............ 2
+  parent_frag ............ 0
+  fragment_type .......... esp
+  record_length .......... 6
+  scan_type .............. full scan of table HIVE.HIVE.STORE_SALES_PARQUET_P
+  object_type ............ Hive_Parquet
+  scan_direction ......... forward
+  lock_mode .............. not specified, defaulted to lock cursor
+  access_mode ............ not specified, defaulted to read committed
+  columns_retrieved ...... 0
+  min_max_hashj_cols ..... HIVE.STORE_SALES_PARQUET_P.SS_SOLD_DATE_SK
+  use_cpp_reader ......... yes
+  native_bloomfilter ..... yes
+  executor_predicates .... HIVE.STORE_SALES_PARQUET_P.SS_SOLD_DATE_SK is not
+                             null
+  part_elim_runtime ...... (HIVE.STORE_SALES_PARQUET_P.SS_SOLD_DATE_SK >=
+                             \:_sys_MinVal0) and (HIVE.STORE_SALES_PARQUET_P.SS
+                             _SOLD_DATE_SK <= \:_sys_MaxVal0) and
+                             (HIVE.STORE_SALES_PARQUET_P.SS_SOLD_DATE_SK
+                             range_in \:_sys_RangeOfValues0(488.281KB))
+
+
+ESP_EXCHANGE ==============================  SEQ_NO 2        ONLY CHILD 1
+DESCRIPTION
+  fragment_id ............ 3
+  parent_frag ............ 2
+  fragment_type .......... esp
+  record_length .......... 6
+
+
+PARQUET_SCAN ==============================  SEQ_NO 1        NO CHILDREN
+TABLE_NAME ............... HIVE.HIVE.DATE_DIM_PARQUET
+DESCRIPTION
+  fragment_id ............ 3
+  parent_frag ............ 2
+  fragment_type .......... esp
+  record_length .......... 6
+  scan_type .............. full scan of table HIVE.HIVE.DATE_DIM_PARQUET
+  object_type ............ Hive_Parquet
+  scan_direction ......... forward
+  lock_mode .............. not specified, defaulted to lock cursor
+  access_mode ............ not specified, defaulted to read committed
+  columns_retrieved ...... 1
+  use_cpp_reader ......... yes
+  native_bloomfilter ..... yes
+  parquet_pred_pushdown    yes
+  parquet_search_argument  and( not( HIVE.DATE_DIM_PARQUET.D_DATE_SK is null )
+                             )
+
+--- SQL operation complete.
+>>execute xx;
+
+(EXPR)              
+--------------------
+
+              380400
+
+--- 1 row(s) selected.
+>>
+>>-- join on char column
+>>
+>>cqd parallel_num_esps '1';
+
+--- SQL operation complete.
+>>
+>>prepare xx from 
++>select count(*) from 
++>date_dim_parquet S,
++>date_dim_parquet T <<+ cardinality 10e7 >> 
++>    where S.d_date_id = T.d_date_id
++>;
+
+--- SQL command prepared.
+>>
+>>explain options 'p' xx;
+
+------------------------------------------------------------------ PLAN SUMMARY
+STATEMENT_NAME ........... XX
+STATEMENT ................ select count(*)
+                           from date_dim_parquet S, date_dim_parquet T <<+
+                             cardinality 10e7 >>
+                           where S.d_date_id = T.d_date_id ;
+
+
+------------------------------------------------------------------ NODE LISTING
+ROOT ======================================  SEQ_NO 5        ONLY CHILD 4
+DESCRIPTION
+  fragment_id ............ 0
+  parent_frag ............ (none)
+  fragment_type .......... master
+  record_length .......... 8
+  xn_access_mode ......... read_only
+  auto_query_retry ....... enabled
+  embedded_arkcmp ........ used
+  IS_SQLCI ............... ON
+  LDAP_USERNAME .......... NOT AVAILABLE
+  HBASE_FILTER_PREDS ..... 2
+  TRAF_INDEX_CREATE_OPT    ON
+  SCHEMA ................. HIVE.HIVE
+  PARQUET_USE_CPP_READER   ON
+  PARQUET_CPP_READER_PAR  10
+  GEN_HSHJ_MIN_MAX_OPT ... ON
+  HJ_BROADCAST_INNER_THRE  0.01
+  RANGE_OPTIMIZED_S  500,000
+  HIST_MISSING_STATS_WARN  0
+  PARALLEL_NUM_ESPS ...... 1
+  select_list ............ count(1 )
+  input_variables ........ execution_count
+
+
+SORT_SCALAR_AGGR ==========================  SEQ_NO 4        ONLY CHILD 3
+DESCRIPTION
+  fragment_id ............ 0
+  parent_frag ............ (none)
+  fragment_type .......... master
+  record_length .......... 8
+  aggregates ............. count(1 )
+
+
+HYBRID_HASH_JOIN ==========================  SEQ_NO 3        CHILDREN 2, 1
+DESCRIPTION
+  fragment_id ............ 0
+  parent_frag ............ (none)
+  fragment_type .......... master
+  record_length .......... 0
+  join_type .............. inner
+  join_method ............ hash
+  variable_length_tuples   yes
+  min_max_cols ........... HIVE.DATE_DIM_PARQUET.D_DATE_ID
+  min_max_hostvars ....... \:_sys_MinVal0, \:_sys_MaxVal0,
+                             \:_sys_RangeOfValues0(488.281KB)
+  hash_join_predicates ... (HIVE.DATE_DIM_PARQUET.D_DATE_ID =
+                             HIVE.DATE_DIM_PARQUET.D_DATE_ID)
+
+
+PARQUET_SCAN ==============================  SEQ_NO 2        NO CHILDREN
+TABLE_NAME ............... T (HIVE.HIVE.DATE_DIM_PARQUET)
+DESCRIPTION
+  fragment_id ............ 0
+  parent_frag ............ (none)
+  fragment_type .......... master
+  record_length ..... 32,003
+  scan_type .............. full scan of table HIVE.HIVE.DATE_DIM_PARQUET T
+  object_type ............ Hive_Parquet
+  scan_direction ......... forward
+  lock_mode .............. not specified, defaulted to lock cursor
+  access_mode ............ not specified, defaulted to read committed
+  columns_retrieved ...... 1
+  min_max_hashj_cols ..... HIVE.DATE_DIM_PARQUET.D_DATE_ID
+  use_cpp_reader ......... yes
+  native_bloomfilter ..... yes
+  parquet_pred_pushdown    yes
+  parquet_search_argument  and( not( HIVE.DATE_DIM_PARQUET.D_DATE_ID is null )
+                             not( HIVE.DATE_DIM_PARQUET.D_DATE_ID <
+                             \:_sys_MinVal0 ) HIVE.DATE_DIM_PARQUET.D_DATE_ID
+                             <= \:_sys_MaxVal0 HIVE.DATE_DIM_PARQUET.D_DATE_ID
+                             in \:_sys_RangeOfValues0(488.281KB) )
+
+
+PARQUET_SCAN ==============================  SEQ_NO 1        NO CHILDREN
+TABLE_NAME ............... S (HIVE.HIVE.DATE_DIM_PARQUET)
+DESCRIPTION
+  fragment_id ............ 0
+  parent_frag ............ (none)
+  fragment_type .......... master
+  record_length ..... 32,003
+  scan_type .............. full scan of table HIVE.HIVE.DATE_DIM_PARQUET S
+  object_type ............ Hive_Parquet
+  scan_direction ......... forward
+  lock_mode .............. not specified, defaulted to lock cursor
+  access_mode ............ not specified, defaulted to read committed
+  columns_retrieved ...... 1
+  use_cpp_reader ......... yes
+  native_bloomfilter ..... yes
+  parquet_pred_pushdown    yes
+  parquet_search_argument  and( not( HIVE.DATE_DIM_PARQUET.D_DATE_ID is null )
+                             )
+
+--- SQL operation complete.
+>>execute xx;
+
+(EXPR)              
+--------------------
+
+               73049
+
+--- 1 row(s) selected.
+>>
+>>cqd parallel_num_esps '4';
+
+--- SQL operation complete.
+>>
+>>-----------------------------------------------
+>>-- test full scan, with scan predicate A
+>>-----------------------------------------------
+>>prepare xx from 
++>select count(*) from 
++>store_sales_parquet_p << + cardinality 10e7 >>
++>  where ss_sold_time_sk <= 40000 --[28800, 75599]
++>;
+
+--- SQL command prepared.
+>>
+>>explain options 'p' xx;
+
+------------------------------------------------------------------ PLAN SUMMARY
+STATEMENT_NAME ........... XX
+STATEMENT ................ select count(*)
+                           from store_sales_parquet_p << + cardinality 10e7 >>
+                           where ss_sold_time_sk <= 40000 ;
+
+
+------------------------------------------------------------------ NODE LISTING
+ROOT ======================================  SEQ_NO 5        ONLY CHILD 4
+DESCRIPTION
+  fragment_id ............ 0
+  parent_frag ............ (none)
+  fragment_type .......... master
+  record_length .......... 8
+  xn_access_mode ......... read_only
+  auto_query_retry ....... enabled
+  embedded_arkcmp ........ used
+  IS_SQLCI ............... ON
+  LDAP_USERNAME .......... NOT AVAILABLE
+  HBASE_FILTER_PREDS ..... 2
+  TRAF_INDEX_CREATE_OPT    ON
+  SCHEMA ................. HIVE.HIVE
+  PARQUET_USE_CPP_READER   ON
+  PARQUET_CPP_READER_PAR  10
+  GEN_HSHJ_MIN_MAX_OPT ... ON
+  HJ_BROADCAST_INNER_THRE  0.01
+  RANGE_OPTIMIZED_S  500,000
+  HIST_MISSING_STATS_WARN  0
+  PARALLEL_NUM_ESPS ...... 4
+  select_list ............ cast(sum(count(1 )))
+
+
+SORT_PARTIAL_AGGR_ROOT ====================  SEQ_NO 4        ONLY CHILD 3
+DESCRIPTION
+  fragment_id ............ 0
+  parent_frag ............ (none)
+  fragment_type .......... master
+  record_length .......... 8
+  aggregates ............. sum(count(1 ))
+
+
+ESP_EXCHANGE ==============================  SEQ_NO 3        ONLY CHILD 2
+DESCRIPTION
+  fragment_id ............ 2
+  parent_frag ............ 0
+  fragment_type .......... esp
+  record_length .......... 8
+
+
+SORT_PARTIAL_AGGR_LEAF ====================  SEQ_NO 2        ONLY CHILD 1
+DESCRIPTION
+  fragment_id ............ 2
+  parent_frag ............ 0
+  fragment_type .......... esp
+  record_length .......... 8
+  aggregates ............. count(1 )
+
+
+PARQUET_SCAN ==============================  SEQ_NO 1        NO CHILDREN
+TABLE_NAME ............... HIVE.HIVE.STORE_SALES_PARQUET_P
+DESCRIPTION
+  fragment_id ............ 2
+  parent_frag ............ 0
+  fragment_type .......... esp
+  record_length .......... 0
+  scan_type .............. full scan of table HIVE.HIVE.STORE_SALES_PARQUET_P
+  object_type ............ Hive_Parquet
+  scan_direction ......... forward
+  lock_mode .............. not specified, defaulted to lock cursor
+  access_mode ............ not specified, defaulted to read committed
+  columns_retrieved ...... 1
+  use_cpp_reader ......... yes
+  native_bloomfilter ..... yes
+  parquet_pred_pushdown    yes
+  parquet_search_argument  and( HIVE.STORE_SALES_PARQUET_P.SS_SOLD_TIME_SK <=
+                             40000 )
+
+--- SQL operation complete.
+>>execute xx;
+
+(EXPR)              
+--------------------
+
+               91765
+
+--- 1 row(s) selected.
+>>
+>>-----------------------------------------------
+>>-- test full scan, with scan predicate B
+>>-----------------------------------------------
+>>prepare xx from 
++>select count(*) from 
++>store_sales_parquet_p << + cardinality 10e7 >>
++>    where ss_sold_time_sk <= 60000 --[28800, 75599]
++>;
+
+--- SQL command prepared.
+>>
+>>explain options 'p' xx;
+
+------------------------------------------------------------------ PLAN SUMMARY
+STATEMENT_NAME ........... XX
+STATEMENT ................ select count(*)
+                           from store_sales_parquet_p << + cardinality 10e7 >>
+                           where ss_sold_time_sk <= 60000 ;
+
+
+------------------------------------------------------------------ NODE LISTING
+ROOT ======================================  SEQ_NO 5        ONLY CHILD 4
+DESCRIPTION
+  fragment_id ............ 0
+  parent_frag ............ (none)
+  fragment_type .......... master
+  record_length .......... 8
+  xn_access_mode ......... read_only
+  auto_query_retry ....... enabled
+  embedded_arkcmp ........ used
+  IS_SQLCI ............... ON
+  LDAP_USERNAME .......... NOT AVAILABLE
+  HBASE_FILTER_PREDS ..... 2
+  TRAF_INDEX_CREATE_OPT    ON
+  SCHEMA ................. HIVE.HIVE
+  PARQUET_USE_CPP_READER   ON
+  PARQUET_CPP_READER_PAR  10
+  GEN_HSHJ_MIN_MAX_OPT ... ON
+  HJ_BROADCAST_INNER_THRE  0.01
+  RANGE_OPTIMIZED_S  500,000
+  HIST_MISSING_STATS_WARN  0
+  PARALLEL_NUM_ESPS ...... 4
+  select_list ............ cast(sum(count(1 )))
+
+
+SORT_PARTIAL_AGGR_ROOT ====================  SEQ_NO 4        ONLY CHILD 3
+DESCRIPTION
+  fragment_id ............ 0
+  parent_frag ............ (none)
+  fragment_type .......... master
+  record_length .......... 8
+  aggregates ............. sum(count(1 ))
+
+
+ESP_EXCHANGE ==============================  SEQ_NO 3        ONLY CHILD 2
+DESCRIPTION
+  fragment_id ............ 2
+  parent_frag ............ 0
+  fragment_type .......... esp
+  record_length .......... 8
+
+
+SORT_PARTIAL_AGGR_LEAF ====================  SEQ_NO 2        ONLY CHILD 1
+DESCRIPTION
+  fragment_id ............ 2
+  parent_frag ............ 0
+  fragment_type .......... esp
+  record_length .......... 8
+  aggregates ............. count(1 )
+
+
+PARQUET_SCAN ==============================  SEQ_NO 1        NO CHILDREN
+TABLE_NAME ............... HIVE.HIVE.STORE_SALES_PARQUET_P
+DESCRIPTION
+  fragment_id ............ 2
+  parent_frag ............ 0
+  fragment_type .......... esp
+  record_length .......... 0
+  scan_type .............. full scan of table HIVE.HIVE.STORE_SALES_PARQUET_P
+  object_type ............ Hive_Parquet
+  scan_direction ......... forward
+  lock_mode .............. not specified, defaulted to lock cursor
+  access_mode ............ not specified, defaulted to read committed
+  columns_retrieved ...... 1
+  use_cpp_reader ......... yes
+  native_bloomfilter ..... yes
+  parquet_pred_pushdown    yes
+  parquet_search_argument  and( HIVE.STORE_SALES_PARQUET_P.SS_SOLD_TIME_SK <=
+                             60000 )
+
+--- SQL operation complete.
+>>execute xx;
+
+(EXPR)              
+--------------------
+
+              248685
+
+--- 1 row(s) selected.
+>>
+>>---------------------------------------
+>>-- test direct copy
+>>---------------------------------------
+>>cqd PARQUET_CPP_READER_DIRECT_COPY 'ON';
+
+--- SQL operation complete.
+>>cqd parallel_num_esps '1';
+
+--- SQL operation complete.
+>>
+>>prepare xx from 
++>select [first 10]
++>d_date_sk, cast(d_day_name as char(20)), cast(d_date_id as char(20))
++>from date_dim_parquet
++>order by 1, 2, 3
++>;
+
+--- SQL command prepared.
+>>
+>>execute xx;
+
+D_DATE_SK    (EXPR)                                                                            (EXPR)
+-----------  --------------------------------------------------------------------------------  --------------------------------------------------------------------------------
+
+    2415022  Monday                                                                            AAAAAAAAOKJNECAA                                                                
+    2415023  Tuesday                                                                           AAAAAAAAPKJNECAA                                                                
+    2415024  Wednesday                                                                         AAAAAAAAALJNECAA                                                                
+    2415025  Thursday                                                                          AAAAAAAABLJNECAA                                                                
+    2415026  Friday                                                                            AAAAAAAACLJNECAA                                                                
+    2415027  Saturday                                                                          AAAAAAAADLJNECAA                                                                
+    2415028  Sunday                                                                            AAAAAAAAELJNECAA                                                                
+    2415029  Monday                                                                            AAAAAAAAFLJNECAA                                                                
+    2415030  Tuesday                                                                           AAAAAAAAGLJNECAA                                                                
+    2415031  Wednesday                                                                         AAAAAAAAHLJNECAA                                                                
+
+--- 10 row(s) selected.
+>>
+>>prepare xx from 
++>select [first 10]
++>cast(i_current_price as char(20))
++>from item_parquet
++>order by 1
++>;
+
+--- SQL command prepared.
+>>
+>>execute xx;
+
+(EXPR)              
+--------------------
+
+1.0000000E+000      
+1.0000000E+000      
+1.0000000E+000      
+1.0000000E+000      
+1.0000000E+000      
+1.0000000E+000      
+1.0000000E+000      
+1.0000000E+000      
+1.0000000E+000      
+1.0000000E+000      
+
+--- 10 row(s) selected.
+>>
+>>
+>>
+>>exit;
+
+End of MXCI Session
+

@@ -1,0 +1,35 @@
+# ------------------------------------------------------------------------------
+# *** removes any snapshots created during upgrade processing
+# ------------------------------------------------------------------------------
+delete_snapshot 'SNAPSHOT_TRAFODION._MD_.AUTHS'                                
+delete_snapshot 'SNAPSHOT_TRAFODION._MD_.COLUMNS'                              
+delete_snapshot 'SNAPSHOT_TRAFODION._MD_.DEFAULTS'                             
+delete_snapshot 'SNAPSHOT_TRAFODION._MD_.INDEXES'                              
+delete_snapshot 'SNAPSHOT_TRAFODION._MD_.KEYS'                                 
+delete_snapshot 'SNAPSHOT_TRAFODION._MD_.LIBRARIES'                            
+delete_snapshot 'SNAPSHOT_TRAFODION._MD_.LIBRARIES_USAGE'                      
+delete_snapshot 'SNAPSHOT_TRAFODION._MD_.OBJECTS'                              
+delete_snapshot 'SNAPSHOT_TRAFODION._MD_.OBJECTS_UNIQ_IDX'                              
+delete_snapshot 'SNAPSHOT_TRAFODION._MD_.REF_CONSTRAINTS'                      
+delete_snapshot 'SNAPSHOT_TRAFODION._MD_.ROUTINES'                             
+delete_snapshot 'SNAPSHOT_TRAFODION._MD_.SEQ_GEN'                              
+delete_snapshot 'SNAPSHOT_TRAFODION._MD_.TABLES'                               
+delete_snapshot 'SNAPSHOT_TRAFODION._MD_.TABLE_CONSTRAINTS'                    
+delete_snapshot 'SNAPSHOT_TRAFODION._MD_.TABLE_CONSTRAINTS_IDX'                    
+delete_snapshot 'SNAPSHOT_TRAFODION._MD_.TEXT'                                 
+delete_snapshot 'SNAPSHOT_TRAFODION._MD_.UNIQUE_REF_CONSTR_USAGE'              
+delete_snapshot 'SNAPSHOT_TRAFODION._MD_.VERSIONS'                             
+delete_snapshot 'SNAPSHOT_TRAFODION._MD_.VIEWS'                                
+delete_snapshot 'SNAPSHOT_TRAFODION._MD_.VIEWS_USAGE'            
+
+delete_snapshot 'SNAPSHOT_TRAFODION._PRIVMGR_MD_.COLUMN_PRIVILEGES'
+delete_snapshot 'SNAPSHOT_TRAFODION._PRIVMGR_MD_.COMPONENTS'
+delete_snapshot 'SNAPSHOT_TRAFODION._PRIVMGR_MD_.COMPONENT_OPERATIONS'
+delete_snapshot 'SNAPSHOT_TRAFODION._PRIVMGR_MD_.COMPONENT_PRIVILEGES'
+delete_snapshot 'SNAPSHOT_TRAFODION._PRIVMGR_MD_.OBJECT_PRIVILEGES'
+delete_snapshot 'SNAPSHOT_TRAFODION._PRIVMGR_MD_.ROLE_USAGE'
+delete_snapshot 'SNAPSHOT_TRAFODION._PRIVMGR_MD_.SCHEMA_PRIVILEGES'
+
+list_snapshots
+exit
+# ------------------------------------------------------------------------------

@@ -1,0 +1,9 @@
+mvn.out
+target/*
+/target/
+/.idea/
+dcs.iml
+*.log
+/LICENSE
+/LICENSE_Esgyn
+/NOTICE

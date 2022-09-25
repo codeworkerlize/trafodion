@@ -1,0 +1,1893 @@
+[[SQL-10]]
+== SQL 10
+Failed to initialize JVM or JNI environment.
+*Cause:* Failed to initialize JVM or JNI environment.
+*Effect:* Failed to call the related functions of JNI
+*Recovery:* 
+HTableClient_JNI failed to call initJNIEnv. Please check that the JVM releated parameters
+or TRAF_JNIHANDLE_CAPACITY environment variable are set correctly.
+1. To check TRAF_JNIHANDLE_CAPACITY environment variable is set correctly.
+   Its default value is 32 and it must be large than 0.
+2. Refer to JOI_ERROR_CHECK_JVM error code to check JVM related parameters.
+
+[[SQL-11]]
+== SQL 11
+HTC_ERROR_INIT_EXCEPTION                      = 11    // 目前没有用
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-12]]
+== SQL 12
+HTC_ERROR_SETTRANS_EXCEPTION                  = 12    // 目前没有用
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-13]]
+== SQL 13
+HTC_ERROR_CLEANUP_EXCEPTION                   = 13    // 目前没有用
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-14]]
+== SQL 14
+HTC_ERROR_CLOSE_EXCEPTION                     = 14    // 目前没有用
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-15]]
+== SQL 15
+Htableclient_jni.startScan was called with the wrong argument passed.
+*Cause:* Htableclient_jni.startScan was called with the wrong argument passed.
+*Effect:* Failed to start a scan operation.
+*Recovery:* To check if the following parameters are set correctly.
+1. To check begin_keys in plan is set correctly by explain.
+2. To check end_keys in plan is set correctly by explain.
+3. To check snapshot_name in plan is set correctly by explain.
+4. To check snapshot_temp_location in plan is set correctly by explain.
+5. To check the attribute HBASE AUTHORIZATION in table is set correctly.
+
+[[SQL-16]]
+== SQL 16
+It throws exception when HTableClient_JNI.startScan calls HBase interface.
+*Cause:* It throws exception when HTableClient_JNI.startScan calls HBase interface.
+*Effect:* Failed to call HTableClient_JNI.startScan in HBase.
+*Recovery:* Failed to call HBase.
+1. To check if the service is working properly.
+2. To check if there has exception in HBase log.
+
+[[SQL-17]]
+== SQL 17
+Method HTableClient_JNI.fetchRows throws exception when calls HBase interface.
+*Cause:* Method HTableClient_JNI.fetchRows throws exception when calls HBase interface.
+*Effect:* Failed to retrieve data when calls HBase method fetchRows.
+*Recovery:* Failed to retrieve data.
+1. To check if the service is working properly.
+2. To check if there has exception in HBase log.
+
+[[SQL-18]]
+== SQL 18
+Method HTableClient_JNI.nextRow is breaked by DDL when it fetchs data.
+*Cause:* Method HTableClient_JNI.nextRow is breaked by DDL when it fetchs data.
+*Effect:* The opertion HTableClient_JNI.nextRow was canceled.
+*Recovery:* Failed to call HBase and retrieve data.
+1. To check if there has concurrent DDL operation.
+
+[[SQL-19]]
+== SQL 19
+HTC_ERROR_SCANCLOSE_EXCEPTION                 = 19       // 目前没有用
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-20]]
+== SQL 20
+HTC_ERROR_GETCLOSE_EXCEPTION                  = 20       // 目前没有用
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-21]]
+== SQL 21
+Htableclient_jni.deleteScan was called with the wrong argument passed.
+*Cause:* Htableclient_jni.deleteScan was called with the wrong argument passed.
+*Effect:* The delete operation failed.
+*Recovery:* To check if the following parameters are set correclty.
+1. To check if rowid is correct from the plan by explain and the database log.
+2. To check if the attribute of table's HBASE AUTHORIZATION is correct.
+3. To check if the executed statement has special coding.
+4. To check if memory is running out of resources, try to increase the HEAPSIZE of mxosrvr.
+
+[[SQL-22]]
+== SQL 22
+The method HTableClient_JNI.deleteRow throws exception when calls HBase interface.
+*Cause:* The method HTableClient_JNI.deleteRow throws exception when calls HBase interface.
+*Effect:* Failed to delete data when calls HBase deleteRow.
+*Recovery:* 
+Failed to delete data by calling HBase deleteRow.
+1. To check if HBase service is running.
+2. To check if there has exception in HBase log.
+
+[[SQL-23]]
+== SQL 23
+HTC_ERROR_CREATE_PARAM                        = 23      // 目前没有用
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-24]]
+== SQL 24
+HTC_ERROR_CREATE_EXCEPTION                    = 24      // 目前没有用
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-25]]
+== SQL 25
+HTC_ERROR_DROP_PARAM                          = 25      // 目前没有用
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-26]]
+== SQL 26
+HTC_ERROR_DROP_EXCEPTION                      = 26      // 目前没有用
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-27]]
+== SQL 27
+HTC_ERROR_EXISTS_PARAM                        = 27      // 目前没有用
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-28]]
+== SQL 28
+HTC_ERROR_EXISTS_EXCEPTION                    = 28      // 目前没有用
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-29]]
+== SQL 29
+HTableClient_JNI.coProcAggr was called with the wrong argument passed
+*Cause:* HTableClient_JNI.coProcAggr was called with the wrong argument passed
+*Effect:* Aggregation query operation failed.
+*Recovery:* It need to check if the following parameters are set correclty.
+1. To check if begin_keys in the plan is correct by explain.
+2. To check if end_keys in the plan is correct by explain.
+3. To verify that columnFamilly is right.
+4. To verify that columnNames is right.
+5. To verify that query statement has special encoding.
+
+[[SQL-30]]
+== SQL 30
+The method HTableClient_JNI.coProcAggr throws exception when calls HBase interface.
+*Cause:* The method HTableClient_JNI.coProcAggr throws exception when calls HBase interface.
+*Effect:* Failed to call operation HBase's coProcAggr
+*Recovery:* Failed to call HBase aggregate function.
+1. To check if HBase service is running.
+2. To check if there has exception in HBase log.
+
+[[SQL-31]]
+== SQL 31
+HTC_ERROR_GRANT_PARAM                         = 31      // 目前没有用
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-32]]
+== SQL 32
+HTC_ERROR_GRANT_EXCEPTION                     = 32      // 目前没有用
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-33]]
+== SQL 33
+HTC_ERROR_REVOKE_PARAM                        = 33      // 目前没有用
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-34]]
+== SQL 34
+HTC_ERROR_REVOKE_EXCEPTION                    = 34      // 目前没有用
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-35]]
+== SQL 35
+HTableClient_JNI throws exceptions when it calls HBase interface.
+*Cause:* HTableClient_JNI throws exceptions when it calls HBase interface.
+*Effect:*The lock operation fails when it calls HBase.
+*Recovery:* The lock operation fails when it calls HBase to query or update. 
+Please check if there has intercurrent conflict.
+1. To check HBase log and find which transactions are waitting.
+
+[[SQL-36]]
+== SQL 36
+HTableClient_JNI throws rollback exception when it calls HBase interface.
+*Cause:* HTableClient_JNI throws rollback exception when it calls HBase interface.
+*Effect:* The lock operation fails when it calls HBase.
+*Recovery:* When it calls HBase to query or update, other thread is releasing its transaction, 
+so there simultaneously happened to lock and unlock.
+1. Check HBase log and find which reason to release the lock.
+(Maybe transaction rollback or manually release lock)
+
+[[SQL-37]]
+== SQL 37
+HTableClient_JNI throws deadlock exception when it calls HBase interface.
+*Cause:* HTableClient_JNI throws deadlock exception when it calls HBase interface.
+*Effect:* The lock operation fails when it calls HBase.
+*Recovery:* The deadlock happened when it calls HBase to query or update, then killed the current transaction.
+1. To check HBase log and find which transactions happened the deadlock. The key word: deadlocks. 
+
+[[SQL-38]]
+== SQL 38
+HTableClient_JNI throws region moved exception when it calls HBase interface.
+*Cause:* HTableClient_JNI throws region moved exception when it calls HBase interface.
+*Effect:* The lock operation fails when it calls HBase.
+*Recovery:* The regions moved when it is calling HBase to query or update.
+1. to check HBase log and make sure if regions moved. It will throws this exception
+   if try to get lock when region is moving.
+
+[[SQL-39]]
+== SQL 39
+HTableClient_JNI throws region splited exception when it calls HBase interface.
+*Cause:* HTableClient_JNI throws region splited exception when it calls HBase interface.
+*Effect:* The lock operation fails when it calls HBase.
+*Recovery:* The region splited when it is calling HBase to query or update.
+1. To check HBase log and make sure if the region splited. It will throw this exception
+   if try to get lock when the region is splitting.
+
+[[SQL-40]]
+== SQL 40
+HTableClient_JNI throws RPCTimeOutException exception when it calls HBase interface.
+*Cause:* HTableClient_JNI throws RPCTimeOutException exception when it calls HBase interface.
+*Effect:* The RPC operation fails when it calls HBase.
+*Recovery:* It is overtime when it calls HBase to query or update.
+1. To check if the network is in a moments busy status.
+2. To check if the HBase status is working properly.
+3. Tocheck if the network is in trouble.
+
+[[SQL-41]]
+== SQL 41
+HTC_GET_COLNAME_EXCEPTION                     = 41      // 目前没有用
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-42]]
+== SQL 42
+HTableClient_JNI throws exception when it calls getColVal interface.
+*Cause:* HTableClient_JNI throws exception when it calls getColVal interface.
+*Effect:* Failed to get column's value when it calls HBase.
+*Recovery:* Failed to get column's value when it calls HBase to query. The reasons maybe are below:
+1. getColVal was called with the wrong argument passed. The retrieved value is null
+   or the column number is large than total columns.
+2. Now only align format support encryption. In this case, the parameter 'nullable' should be false,
+   because it will return this error if try to encrypt nullable parameter.
+3. If it encrypt a column and meet error when decrypt, it will return this error too.
+
+[[SQL-43]]
+== SQL 43
+HTableClient_JNI throws exception when it calls getRowID interface.
+*Cause:* HTableClient_JNI throws exception when it calls getRowID interface.
+*Effect:* Failed to get ROWID's value when it calls HBase.
+*Recovery:* Failed to get ROWID's value when it calls HBase to query. Below are the reasons:
+1. getRowID was called with the wrong parameters passed.
+2. No enough memory, so failed to call JNI's NewGlobalRef interface.
+
+[[SQL-44]]
+== SQL 44
+HTC_NEXTCELL_EXCEPTION                        = 44      // 目前没有用
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-45]]
+== SQL 45
+HTableClient_JNI throws exception when it calls completeAsyncOperation interface.
+*Cause:* HTableClient_JNI throws exception when it calls completeAsyncOperation interface.
+*Effect:* Failed to call JNI interface.
+*Recovery:* Failed to call JNI interface. Below are the reasons:
+1. No enough memory, Failed to call JNI's NewBooleanArray interface.
+
+[[SQL-46]]
+== SQL 46
+HTableClient_JNI throws exception when it calls completeAsyncOperation interface.
+*Cause:* HTableClient_JNI throws exception when it calls completeAsyncOperation interface.
+*Effect:* Failed to call Hbase's COMPLETE_PUT interface.
+*Recovery:* Failed to call Hbase's COMPLETE_PUT interface. Below are the reasons:
+1. To check if HBase's status is working properly.
+2. To check if there has exceptions in HBase log.
+
+[[SQL-47]]
+== SQL 47
+HTableClient_JNI throws exception when it calls setWriteToWAL interface.
+*Cause:* HTableClient_JNI throws exception when it calls setWriteToWAL interface.
+*Effect:* Failed to call HBase's SET_WRITE_TO_WAL interface.
+*Recovery:* Failed to call HBase's SET_WRITE_TO_WAL interface. Below are the reasons:
+1. To check if HBase's status is working properly.
+2. To check if there have exceptions in HBase log.
+
+[[SQL-48]]
+== SQL 48
+HTableClient_JNI throws exception when it calls setWriteBufferSize interface.
+*Cause:* HTableClient_JNI throws exception when it calls setWriteBufferSize interface.
+*Effect:* Failed to call HBase's SET_WB_SIZE interface.
+*Recovery:* Failed to call HBase's SET_WB_SIZE interface. Below are the reasons:
+1. To check if HBase's status is working properly.
+2. To check if there have exceptions in HBase log.
+
+[[SQL-49]]
+== SQL 49
+HTableClient_JNI throws exception when it calls prepareForNextCell interface.
+*Cause:* HTableClient_JNI throws exception when it calls prepareForNextCell interface.
+*Effect:* Failed to call JNI interface.
+*Recovery:* Failed to call JNI interface. The reasons maybe are no enough memory.
+1. It throws exception when JNI calls GetObjectArrayElement.
+2. It throws exception when JNI calls NewGlobalRef.
+
+[[SQL-50]]
+== SQL 50
+HTableClient_JNI throws Cancel exception when it calls HBase interface.
+*Cause:* HTableClient_JNI throws Cancel exception when it calls HBase interface.
+*Effect:* The lock operation fails when it calls HBase.
+*Recovery:* The current operation is cancel when it calls HBase to query or update.
+1. Check the database log. If the operation was cancel in locking process,
+   it will throw this exception.
+
+[[SQL-51]]
+== SQL 51
+HTableClient_JNI throws no enough resource exception when it calls HBase interface.
+*Cause:* HTableClient_JNI throws no enough resource exception when it calls HBase interface.
+*Effect:* The operation lock fails when it calls HBase.
+*Recovery:* It has not enough lock resource when it calls HBase to query or update.
+1. To check HBase log;
+2. To check the region or transaction without enough lock resource.
+3. By row lock client command line, to check lock resource usage history and 
+   make sure if it has arrived the max value of lock resource.
+
+[[SQL-52]]
+== SQL 52
+--ununsed--
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-53]]
+== SQL 53
+HBC_ERROR_INIT_PARAM                 = 53                                 
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-54]]
+== SQL 54
+HBC_ERROR_INIT_EXCEPTION                      = 54
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-55]]
+== SQL 55
+HBC_ERROR_GET_HTC_EXCEPTION                   = 55
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-56]]
+== SQL 56
+HBC_ERROR_REL_HTC_EXCEPTION                   = 56
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-57]]
+== SQL 57
+HBC_ERROR_CREATE_PARAM                        = 57
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-58]]
+== SQL 58
+HBC_ERROR_CREATE_EXCEPTION                    = 58
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-59]]
+== SQL 59
+HBC_ERROR_ALTER_PARAM                         = 59
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-60]]
+== SQL 60
+HBC_ERROR_ALTER_EXCEPTION                     = 60
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-61]]
+== SQL 61
+HBC_ERROR_DROP_PARAM                          = 61
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-62]]
+== SQL 62
+HBC_ERROR_DROP_EXCEPTION                      = 62
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-63]]
+== SQL 63
+HBC_ERROR_LIST_PARAM                          = 63
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-64]]
+== SQL 64
+HBC_ERROR_LIST_EXCEPTION                      = 64
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-65]]
+== SQL 65
+HBC_ERROR_EXISTS_PARAM                        = 65
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-66]]
+== SQL 66
+HBC_ERROR_EXISTS_EXCEPTION                    = 66
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-67]]
+== SQL 67
+HBC_ERROR_GRANT_PARAM                         = 67
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-68]]
+== SQL 68
+HBC_ERROR_GRANT_EXCEPTION                     = 68
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-69]]
+== SQL 69
+HBC_ERROR_REVOKE_PARAM                        = 69
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-70]]
+== SQL 70
+HBC_ERROR_REVOKE_EXCEPTION                    = 70
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-71]]
+== SQL 71
+HBC_ERROR_THREAD_CREATE                       = 71
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-72]]
+== SQL 72
+HBC_ERROR_THREAD_REQ_ALLOC                    = 72
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-73]]
+== SQL 73
+HBC_ERROR_THREAD_SIGMASK                      = 73
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-74]]
+== SQL 74
+HBC_ERROR_ATTACH_JVM                          = 74
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-75]]
+== SQL 75
+HBC_ERROR_GET_HBLC_EXCEPTION                  = 75
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+
+[[SQL-76]]
+== SQL 76
+HBC_ERROR_GET_BRC_EXCEPTION                   = 76
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-77]]
+== SQL 77
+HBC_ERROR_ROWCOUNT_EST_PARAM                  = 77
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-78]]
+== SQL 78
+HBC_ERROR_ROWCOUNT_EST_EXCEPTION              = 78
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-79]]
+== SQL 79
+HBC_ERROR_ROWCOUNT_EST_FALSE                  = 79
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-80]]
+== SQL 80
+HBC_ERROR_REL_HBLC_EXCEPTION                  = 80
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-81]]
+== SQL 81
+HBC_ERROR_REL_BRC_EXCEPTION                   = 81
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-82]]
+== SQL 82
+HBC_ERROR_GET_CACHE_FRAC_EXCEPTION            = 82
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-83]]
+== SQL 83
+HBC_ERROR_GET_LATEST_SNP_PARAM                = 83
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-84]]
+== SQL 84
+HBC_ERROR_GET_LATEST_SNP_EXCEPTION            = 84
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-85]]
+== SQL 85
+HBC_ERROR_CLEAN_SNP_TMP_LOC_PARAM             = 85
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-86]]
+== SQL 86
+HBC_ERROR_CLEAN_SNP_TMP_LOC_EXCEPTION         = 86
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-87]]
+== SQL 87
+HBC_ERROR_SET_ARC_PERMS_PARAM                 = 87
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-88]]
+== SQL 88
+HBC_ERROR_SET_ARC_PERMS_EXCEPTION             = 88
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-89]]
+== SQL 89
+HBC_ERROR_STARTGET_PARAM                      = 89
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-90]]
+== SQL 90
+HBC_ERROR_STARTGET_EXCEPTION                  = 90
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-91]]
+== SQL 91
+HBC_ERROR_STARTGETS_PARAM                     = 91
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-92]]
+== SQL 92
+HBC_ERROR_STARTGETS_EXCEPTION                 = 92
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-93]]
+== SQL 93
+HBC_ERROR_GET_HBTI_PARAM                      = 93
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-94]]
+== SQL 94
+HBC_ERROR_GET_HBTI_EXCEPTION                  = 94
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-95]]
+== SQL 95
+HBC_ERROR_CREATE_COUNTER_PARAM                = 95
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-96]]
+== SQL 96
+HBC_ERROR_CREATE_COUNTER_EXCEPTION            = 96
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-97]]
+== SQL 97
+HBC_ERROR_INCR_COUNTER_PARAM                  = 97
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-98]]
+== SQL 98
+HBC_ERROR_INCR_COUNTER_EXCEPTION              = 98
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-99]]
+== SQL 99
+HBC_ERROR_INSERTROW_PARAM                     = 99
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-100]]
+== SQL 100
+HBC_ERROR_INSERTROW_EXCEPTION                 = 100
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-101]]
+== SQL 101
+HBC_ERROR_INSERTROW_DUP_ROWID                 = 101
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-102]]
+== SQL 102
+HBC_ERROR_INSERTROW_INVALID_DDL               = 102
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-103]]
+== SQL 103
+HBC_ERROR_INSERTROWS_PARAM                    = 103
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-104]]
+== SQL 104
+HBC_ERROR_INSERTROWS_EXCEPTION                = 104
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-105]]
+== SQL 105
+HBC_ERROR_INSERTROWS_INVALID_DDL              = 105
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-106]]
+== SQL 106
+HBC_ERROR_UPDATEVISIBILITY_PARAM              = 106
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-107]]
+== SQL 107
+HBC_ERROR_UPDATEVISIBILITY_EXCEPTION          = 107
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-108]]
+== SQL 108
+HBC_ERROR_CHECKANDUPDATEROW_PARAM             = 108
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-109]]
+== SQL 109
+HBC_ERROR_CHECKANDUPDATEROW_EXCEPTION         = 109
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-110]]
+== SQL 110
+HBC_ERROR_CHECKANDUPDATEROW_NOTFOUND          = 110
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-111]]
+== SQL 111
+HBC_ERROR_DELETEROW_PARAM                     = 111
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-112]]
+== SQL 112
+HBC_ERROR_DELETEROW_EXCEPTION                 = 112
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-113]]
+== SQL 113
+HBC_ERROR_DELETEROW_INVALID_DDL               = 113
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-114]]
+== SQL 114
+HBC_ERROR_DELETEROWS_PARAM                    = 114
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-115]]
+== SQL 115
+HBC_ERROR_DELETEROWS_EXCEPTION                = 115
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-116]]
+== SQL 116
+HBC_ERROR_DELETEROWS_INVALID_DDL              = 116
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-117]]
+== SQL 117
+HBC_ERROR_CHECKANDDELETEROW_PARAM             = 117
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-118]]
+== SQL 118
+HBC_ERROR_CHECKANDDELETEROW_EXCEPTION         = 118
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-119]]
+== SQL 119
+HBC_ERROR_CHECKANDDELETEROW_NOTFOUND          = 119
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-120]]
+== SQL 120
+HBC_ERROR_CHECKANDDELETEROW_INVALID_DDL       = 120
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-121]]
+== SQL 121
+HBC_ERROR_ADDHDFSCACHE_EXCEPTION              = 121
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-122]]
+== SQL 122
+HBC_ERROR_REMOVEHDFSCACHE_EXCEPTION           = 122
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-123]]
+== SQL 123
+HBC_ERROR_SHOWHDFSCACHE_EXCEPTION             = 123
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-124]]
+== SQL 124
+HBC_ERROR_POOL_NOT_EXIST_EXCEPTION            = 124
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-125]]
+== SQL 125
+HBC_ERROR_LISTALL                             = 125
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-126]]
+== SQL 126
+HBC_ERROR_GETKEYS                             = 126
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-127]]
+== SQL 127
+HBC_ERROR_REGION_STATS                        = 127
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-128]]
+== SQL 128
+HBC_ERROR_CREATE_SNAPSHOT_PARAM               = 128
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-129]]
+== SQL 129
+HBC_ERROR_CREATE_SNAPSHOT_EXCEPTION           = 129
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-130]]
+== SQL 130
+HBC_ERROR_RESTORE_SNAPSHOT_PARAM	=130
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-131]]
+== SQL 131
+HBC_ERROR_RESTORE_SNAPSHOT_EXCEPTION	=131
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-132]]
+== SQL 132
+HBC_ERROR_DELETE_SNAPSHOT_PARAM               = 132
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-133]]
+== SQL 133
+HBC_ERROR_DELETE_SNAPSHOT_EXCEPTION           = 133
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-134]]
+== SQL 134
+HBC_ERROR_VERIFY_SNAPSHOT_PARAM               = 134
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-135]]
+== SQL 135
+HBC_ERROR_VERIFY_SNAPSHOT_EXCEPTION           = 135
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-136]]
+== SQL 136
+HBC_ERROR_SAVEPOINT_COMMIT_OR_ROLLBACK        = 136
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-137]]
+== SQL 137
+HBC_ERROR_NAMESPACE_PARAM                     = 137
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-138]]
+== SQL 138
+HBC_ERROR_NAMESPACE_OPER_ERROR                = 138
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-139]]
+== SQL 139
+HBC_ERROR_NAMESPACE_NOT_EXIST                 = 139
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-140]]
+== SQL 140
+HBC_ERROR_TRUNCATE_PARAM                      = 140
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-141]]
+== SQL 141
+HBC_ERROR_TRUNCATE_EXCEPTION                  = 141
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-142]]
+== SQL 142
+HBC_ERROR_LOCK_TIME_OUT_EXCEPTION             = 142
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-143]]
+== SQL 143
+HBC_ERROR_LOCK_ROLLBACK_EXCEPTION             = 143
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-144]]
+== SQL 144
+HBC_ERROR_LOCKREQUIRED_EXCEPTION              = 144
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-145]]
+== SQL 145
+HBC_ERROR_DEAD_LOCK_EXCEPTION                 = 145
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-146]]
+== SQL 146
+HBC_ERROR_LOCK_REGION_MOVE                    = 146
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-147]]
+== SQL 147
+HBC_ERROR_LOCK_REGION_SPLIT                   = 147
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-148]]
+== SQL 148
+HBC_ERROR_RPC_TIME_OUT_EXCEPTION              = 148
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-149]]
+== SQL 149
+HBC_ERROR_TRIGGER_EXECUTE_EXCEPTION           = 149
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-150]]
+== SQL 150
+HBC_ERROR_TRIGGER_PARAMETER_EXCEPTION         = 150
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-151]]
+== SQL 151
+HBC_ERROR_RECONNECT_PARAM                     = 151
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-152]]
+== SQL 152
+HBC_ERROR_RECONNECT_EXCEPTION                 = 152
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-153]]
+== SQL 153
+HBC_ERROR_GET_NEXT_VALUE_PARAM                = 153
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-154]]
+== SQL 154
+HBC_ERROR_GET_NEXT_VALUE_EXCEPTION            = 154
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-155]]
+== SQL 155
+HBC_ERROR_DELETE_SEQ_ROW_PARAM                = 155
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-156]]
+== SQL 156
+HBC_ERROR_DELETE_SEQ_ROW_EXCEPTION            = 156
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-157]]
+== SQL 157
+HBC_ERROR_CANCLE_OPERATION_EXCEPTION          = 157
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-158]]
+== SQL 158
+HBC_ERROR_CANCLE_OPERATION                    = 158
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-159]]
+== SQL 159
+HBC_ERROR_LOCK_NOT_ENOUGH_RESOURCS_EXCEPTION  = 159
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-160]]
+== SQL 160
+HBC_ERROR_GET_TABLE_DEF_FOR_BINLOG            = 160
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-161]]
+== SQL 161
+HBC_ERROR_GET_TABLE_DEF_FOR_BINLOG_PARAM      = 161
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-162]]
+== SQL 162
+HBC_ERROR_GET_TABLE_DEF_FOR_BINLOG_ERROR      = 162
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-163]]
+== SQL 163
+--unused--
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-164]]
+== SQL 164
+Failed to initialize JVM or JNI environment.
+*Cause:* Failed to initialize JVM or JNI environment.
+*Effect:* Failed to call JNI's functions.
+*Recovery:* HBulkLoadClient_JNI returns error when it calls initJNIEnv. Please check related JVM parameters
+or environment variable TRAF_JNIHANDLE_CAPACITY and make sure they are set correct.
+1. To check  environment variable TRAF_JNIHANDLE_CAPACITY and make sure it is right.
+   Its default value is 32 and must large than 0.
+2. To refer to JOI_ERROR_CHECK_JVM error coding and check related parameters' setting for JVM.
+
+[[SQL-165]]
+== SQL 165
+HBLC_ERROR_INIT_EXCEPTION                     = 165   // 目前没有再使用
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-166]]
+== SQL 166
+HBLC_ERROR_CLEANUP_EXCEPTION                  = 166   // 目前没有再使用
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-167]]
+== SQL 167
+HBLC_ERROR_CLOSE_EXCEPTION                    = 167   // 目前没有再使用
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-168]]
+== SQL 168
+Here inputs some wrong parameters when initializes HFile.
+*Cause:* Here inputs some wrong parameters when initializes HFile.
+*Effect:* Failed to initialize HFile's parameters.
+*Recovery:* HBulkLoadClient_JNI returns error when it calls initHFileParams.
+1. NewStringUTF： Failed to get UTF8 code of HFile's local path, name, example path and example name.
+   Please check if the parameter of HFile is set correct.
+
+[[SQL-169]]
+== SQL 169
+JNI throws exception when initializes HFile.
+*Cause:* JNI throws exception when initializes HFile.
+*Effect:* Failed to initialize HFile's parameter.
+*Recovery:* It throws exception when HBulkLoadClient_JNI calls initHFileParams to initialize HFile.
+1. It throws exception when it calls NewStringUTF or CallBooleanMethod.
+
+[[SQL-170]]
+== SQL 170
+There add records to HFile with some wrong parameters.
+*Cause:* There add records to HFile with some wrong parameters.
+*Effect:* Failed to add records into HFile.
+*Recovery:* It returns fail when HBulkLoadClient_JNI calls addToHFile.
+1. NewDirectByteBuffer: Failed to apply BUFFER for ROWID or data, 
+   please check if the parameter for ROWID or data is right.
+
+[[SQL-171]]
+== SQL 171
+It throws exception when add records into HFile.
+*Cause:* It throws exception when add records into HFile.
+*Effect:* Failed to add records into HFile.
+*Recovery:* It throws exception when HBulkLoadClient_JNI calls addToHFile.
+1.It throws exception when calls NewDirectByteBuffer or CallBooleanMethod.
+
+[[SQL-172]]
+== SQL 172
+HBLC_ERROR_CLOSE_HFILE_PARAM                  = 172    // 目前没有再使用
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-173]]
+== SQL 173
+It throws exception when close HFile.
+*Cause:* It throws exception when close HFile.
+*Effect:* Failed to close HFile.
+*Recovery:* It throws exception when HBulkLoadClient_JNI calls closeHFile.
+1. It throws exception when calls CallBooleanMethod.
+
+[[SQL-174]]
+== SQL 174
+There executes BulkLoad with some wrong parameters.
+*Cause:* There executes BulkLoad with some wrong parameters.
+*Effect:* Failed to execute BulkLoad.
+*Recovery:* It returns fail when HBulkLoadClient_JNI calls doBulkLoad.
+1. Failed to get UTF8 code of HDFS path or table name when calls NewStringUTF.
+   Please check the path or table name are set correct.
+
+[[SQL-175]]
+== SQL 175
+It throws exception when execute BulkLoad.
+*Cause:* It throws exception when execute BulkLoad.
+*Effect:* Failed to execute BulkLoad.
+*Recovery:* It throws exception when HBulkLoadClient_JNI calls doBulkLoad.
+1. It throws exception when call CallBooleanMethod.
+
+[[SQL-176]]
+== SQL 176
+There execute BulkLoad cleanup with some wrong parameters.
+*Cause:* There execute BulkLoad cleanup with some wrong parameters.
+*Effect:* Failed to execute BulkLoad cleanup.
+*Recovery:* It returns fail when HBulkLoadClient_JNI calls bulkLoadCleanup.
+1. Failed to get UTF8 code of HDFS path when calls NewStringUTF.
+   Please check if the path is correct.
+
+[[SQL-177]]
+== SQL 177
+It returns exception when execute BulkLoad cleanup.
+*Cause:* It returns exception when execute BulkLoad cleanup.
+*Effect:* Failed to execute BulkLoad cleanup.
+*Recovery:* It throws exception when HBulkLoadClient_JNI calls bulkLoadCleanup.
+1. It throws exception when calls CallBooleanMethod.
+
+[[SQL-178]]
+== SQL 178
+HBLC_ERROR_INIT_HBLC_PARAM                    = 178     // 目前没有再使用
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-179]]
+== SQL 179
+It throws exception when execute initHBLC.
+*Cause:* It throws exception when execute initHBLC.
+*Effect:* Failed to execute initHBLC.
+*Recovery:* It throws exception when HBulkLoadClient_JNI calls initHBLC.
+1. It throws exception when calls getHBulkLoadClient.
+
+[[SQL-180]]
+== SQL 180
+--unused--
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-181]]
+== SQL 181
+Failed to initialize JVM or JNI environment.
+*Cause:* Failed to initialize JVM or JNI environment.
+*Effect:* Failed to call related functions of JNI.
+*Recovery:* It returns error when BackupRestoreClient_JNI calls initJNIEnv. 
+Please check the setting for the related parameters of JVM or environment variable TRAF_JNIHANDLE_CAPACITY is right.
+1. To check if the setting for environment variable TRAF_JNIHANDLE_CAPACITYis right.
+   The default value is 32 and must large than 0.
+2. To refer error code JOI_ERROR_CHECK_JVM and check the setting for related parameters of JVM.
+
+[[SQL-182]]
+== SQL 182
+Failed to call JNI interface in the process of backup.
+*Cause:* Failed to call JNI interface in the process of backup.
+*Effect:* Failed to call related functions of JNI.
+*Recovery:* The reason for this error is that BackupRestoreClient_JNI fails to call JNI interface.
+Please check the following items are set correct.
+1. NewStringUTF: Failed to get UTF8 code of backup's tag name, backup's extended attributes, backup's type.
+   Please check the tag name, extended attribute and type string are set correct.
+2. CallBooleanMethod: It throws exception when calls the JNI functions of the snapshot of generated object,
+   increment information and final information of snapshot.
+3. It returns null when calls convertToStringObjectArray to convert table's name.
+
+[[SQL-183]]
+== SQL 183
+Failed to call JNI interface in the process of restore.
+*Cause:* Failed to call JNI interface in the process of restore.
+*Effect:* Failed to call the related functions of JNI.
+*Recovery:* The reason for this error is that BackupRestoreClient_JNI fails to call JNI interface.
+Please check the following items are set correct.
+1. NewStringUTF: Failed to get UTF8 code of restore tag name, timestamp and type string.
+   Please to check if the tag name, timestamp and type string are set correct.
+2. CallBooleanMethod: It throws exception when calls JNI functions for restore objects's snapshot,
+   snapshot increment information and the final information.
+
+[[SQL-184]]
+== SQL 184
+Failed to call JNI interface in the process restore.
+*Cause:* Failed to call JNI interface in the process restore.
+*Effect:* Failed to call the related JNI functions.
+*Recovery:* The reason for this error is BackupRestoreClient_JNI fails to call JNI interface.
+Please check the following items are set correct.
+1. NewStringUTF: Failed to get UTF8 code of the deleted tag name. Please check the tag name is correct.
+2. CallBooleanMethod: It throws exception when calls the related JNI function of deleting backup.
+
+[[SQL-185]]
+== SQL 185
+BRC_ERROR_GET_BACKUP_TYPE_EXCEPTION           = 185 // 该错误码暂时没用
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-186]]
+== SQL 186
+BRC_ERROR_GET_EXTENDED_ATTRIBUTES_EXCEPTION   = 186 // 该错误码暂时没用
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-187]]
+== SQL 187
+BRC_ERROR_GET_BACKUP_STATUS_EXCEPTION         = 187 // 该错误码暂时没用
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-188]]
+== SQL 188
+Failed to call JNI interface when lists backup's tag.
+*Cause:* Failed to call JNI interface when lists backup's tag.
+*Effect:* Failed to call related JNI functions.
+*Recovery:* The reason for this error is that BackupRestoreClient_JNI fails to call JNI interface.
+Please check the following items are right.
+1. CallBooleanMethod: it throws exceptions when lists all related backup's JNI functions.
+
+[[SQL-189]]
+== SQL 189
+Failed to call JNI interface in the processing importing and exporting.
+*Cause:* Failed to call JNI interface in the processing importing and exporting.
+*Effect:* Failed to call JNI functions.
+*Recovery:* The reason for this error is that BackupRestoreClient_JNI fails to call JNI interface.
+Please check the following items are correct.
+1. NewStringUTF: Failed to get the import or export tag name, position's UTF8 code.
+   Please check the tag name and position are right.
+2. CallBooleanMethod: it throws exception when calls related import and export JNI functions.
+
+[[SQL-190]]
+== SQL 190
+Failed to connect HBase when initializes backup or restore.
+*Cause:* Failed to connect HBase when initializes backup or restore.
+*Effect:* Unable to create connection with HBase.
+*Recovery:* The reason for this error is that it fails to call getBackupRestoreClient interface.
+Below is the possible reasons:
+1. Failed to initialize JVM or JNI. Please refer JOI_ERROR_CHECK_JVM and check the related setting is correct.
+2. CallBooleanMethod: It returns exception when calls related JNI methods of GET_BRC.
+3. The backup and restore moudle fails to connect HBase. Please check HBase service is working properly.
+4. Failed to initialize backup and restore moudle. Please check the related parameters for JVM and JNI.
+
+[[SQL-191]]
+== SQL 191
+BRC_ERROR_LOCK_HOLDER_EXCEPTION               = 191 // 该错误码暂时没用
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-192]]
+== SQL 192
+The lock operation fails in the process backup and restore.
+*Cause:* The lock operation fails in the process backup and restore.
+*Effect:* Failed to obtain the related object's lock for backup or restore.
+*Recovery:* The reason for this error is that BackupRestoreClient_JNI fails to call the lock operation.
+Please check following items are correct:
+1. NewStringUTF: Failed to obtain tag name's UTF8 code for backup and restore.
+   Please check tag name is right.
+2. CallBooleanMethod: It throws exception when calls the functions to obtain locks for bakcup and restore.
+
+[[SQL-193]]
+== SQL 193
+Failed to release lock in the process of backup or restore.
+*Cause:* Failed to release lock in the process of backup or restore.
+*Effect:* Failed to release related objects' locks for backup or restore.
+*Recovery:* 
+The error is that BackupRestoreClient_JNI fails to call operationUnlock.
+Please check the following items are correct:
+1. NewStringUTF: Failed to obtain tag name's UTF code for backup or restore.
+   Please check the tag name is right.
+2. CallBooleanMethod: It throws exception when calls the functions to release locks for bakcup and restore.
+
+[[SQL-194]]
+== SQL 194
+BRC_ERROR_BACKUP_NONFATAL                     = 194
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-195]]
+== SQL 195
+Failed to get UTF code of table name when sets Hiatus status for backup or restore.
+*Cause:* Failed to get UTF code of table name when sets Hiatus status for backup or restore.
+*Effect:* Failed to set Hiatus status for backup or restore.
+*Recovery:* The error is that BackupRestoreClient_JNI fails to call setHiatus.
+Please check following items are correct.
+1. NewStringUTF: Failed to get UTF code of table name. Please check table name is correct.
+
+[[SQL-196]]
+== SQL 196
+Failed to get UTF code of table name when cleans Hiatus status for backup or restore.
+*Cause:* Failed to get UTF code of table name when cleans Hiatus status for backupor restore.
+*Effect:* Failed to clean Hiatus status for backup or restore.
+*Recovery:* The error is that BackupRestoreClient_JNI fails to call clearHiatus.
+Please to check following items are correct:
+1. NewStringUTF: Failed to get UTF code of table name. Please check table name is correct.
+
+[[SQL-197]]
+== SQL 197
+Failed to get tag name's UTF code for regular backup's increment backup. 
+*Cause:* Failed to get tag name's UTF code for regular backup's increment backup.
+*Effect:* Failed to get tag name for regular backup's related increment backup.
+*Recovery:* The error is that BackupRestoreClient_JNI fails to call getLinkedBackupTags.
+Please to check following items are correct:
+1. NewStringUTF: Failed to obtain UTF code of table name. Please check table name is correct.
+
+[[SQL-701]]
+== SQL 701
+HBASE_CREATE_ERROR                            = 701: 执行过程中调用HBase的如下接口抛出异常，1） create
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-702]]
+== SQL 702
+HBASE_ALTER_ERROR                             = 702,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-703]]
+== SQL 703
+HBASE_DROP_ERROR                              = 703,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-704]]
+== SQL 704
+HBASE_OPEN_ERROR                              = 704,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-705]]
+== SQL 705
+HBASE_CLOSE_ERROR                             = 705,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-706]]
+== SQL 706
+HBASE_ACCESS_ERROR                            = 706,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-707]]
+== SQL 707
+HBASE_CREATE_ROW_ERROR                        = 707,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-708]]
+== SQL 708
+HBASE_DUP_ROW_ERROR                           = 708,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-709]]
+== SQL 709
+HBASE_ROW_NOTFOUND_ERROR                      = 709,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-710]]
+== SQL 710
+HBASE_CREATE_OPTIONS_ERROR                    = 710,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-711]]
+== SQL 711
+HBASE_COPY_ERROR                              = 711,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-712]]
+== SQL 712
+HBASE_CREATE_HFILE_ERROR                      = 712,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-713]]
+== SQL 713
+HBASE_ADD_TO_HFILE_ERROR                      = 713,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-714]]
+== SQL 714
+HBASE_CLOSE_HFILE_ERROR                       = 714,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-715]]
+== SQL 715
+HBASE_DOBULK_LOAD_ERROR                       = 715,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-716]]
+== SQL 716
+HBASE_CLEANUP_HFILE_ERROR                     = 716,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-717]]
+== SQL 717
+HBASE_INIT_HBLC_ERROR                         = 717,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-718]]
+== SQL 718
+HBASE_INIT_BRC_ERROR                          = 718,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-719]]
+== SQL 719
+HBASE_RETRY_AGAIN                             = 719,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-720]]
+== SQL 720
+HBASE_CREATE_SNAPSHOT_ERROR                   = 720,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-721]]
+== SQL 721
+HBASE_DELETE_SNAPSHOT_ERROR                   = 721,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-722]]
+== SQL 722
+HBASE_VERIFY_SNAPSHOT_ERROR                   = 722,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-723]]
+== SQL 723
+HBASE_RESTORE_SNAPSHOT_ERROR                  = 723,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-724]]
+== SQL 724
+HBASE_BACKUP_NONFATAL_ERROR                   = 724,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-725]]
+== SQL 725
+HBASE_BACKUP_LOCK_TIMEOUT_ERROR               = 725,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-726]]
+== SQL 726
+HBASE_DELETE_BACKUP_ERROR                     = 726,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-727]]
+== SQL 727
+HBASE_EXPORT_IMPORT_BACKUP_ERROR              = 727,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-728]]
+== SQL 728
+HBASE_REGISTER_TENANT_ERROR                   = 728,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-729]]
+== SQL 729
+HBASE_ALTER_TENANT_ERROR                      = 729,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-730]]
+== SQL 730
+HBASE_UNREGISTER_TENANT_ERROR                 = 730,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-731]]
+== SQL 731
+HBASE_GET_BACKUP_ERROR                        = 731,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-732]]
+== SQL 732
+HBASE_BACKUP_OPERATION_ERROR                  = 732,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-733]]
+== SQL 733
+HBASE_LOCK_TIME_OUT_ERROR                     = 733,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-734]]
+== SQL 734
+HBASE_LOCK_ROLLBACK_ERROR                     = 734,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-735]]
+== SQL 735
+HBASE_LOCK_REQUIRED_NOT_INT_TRANSACTION       = 735,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-736]]
+== SQL 736
+HBASE_DEAD_LOCK_ERROR                         = 736,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-737]]
+== SQL 737
+HBASE_LOCK_REGION_MOVE_ERROR                  = 737,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-738]]
+== SQL 738
+HBASE_LOCK_REGION_SPLIT_ERROR.                = 738,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-739]]
+== SQL 739
+HBASE_RPC_TIME_OUT_ERROR                      = 739,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-740]]
+== SQL 740
+HBASE_CANCLE_OPERATION                        = 740,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-741]]
+== SQL 741
+HBASE_GENERIC_ERROR                           = 741,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-742]]
+== SQL 742
+HBASE_EXEC_TRIGGER_ERROR                      = 742,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-743]]
+== SQL 743
+HBASE_INVALID_DDL                             = 743,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-744]]
+== SQL 744
+HBASE_LOCK_NOT_ENOUGH_RESOURCS                = 744,
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-100000]]
+== SQL 100000
+--- unused ---
+*Cause:* 
+*Effect:* 
+*Recovery:* 
+
+[[SQL-100001]]
+== SQL 100001
+Failed to create JVM in the process of JNI calling.
+*Cause:* Failed to create JVM in the process of JNI calling.
+*Effect:* Failed to initialize JVM, so can not call JNI functions.
+*Recovery:* 
+When database running, Failed to create JVM bu calling JNI_GetCreatedJavaVMs.
+Please refer https://docs.oracle.com/en/java/javase/16/docs/specs/jni/invocation.html.
+1. It return error when database call JNI_GetCreatedJavaVMs (&jvm_, 1, &jvm_count)
+ in method JavaObjectInterfaceTM::initJVM. Please check flowwing environment variable:
+   DTM_JVM_MAX_HEAP_SIZE_MB、JDK参数-XX:-LoopUnswitching、CLASSPATH、JVM的DEBUG、JVM_COMPRESSED_CLASS_SPACE_SIZE、JVM_MAX_METASPACE_SIZE、JVM_GC_OPTION、JVM_GC_OPTION_PT、JVM_GC_OPTION_CPT.
+2. The database return error when it call JNI_GetCreatedJavaVMs (&jvm_, 1, &jvm_count) in JavaObjectInterface::initJVM method.
+3. The database return error when it call JNI_CreateJavaVM(&jvm_, (void**)&jenv_, &jvm_args) in JavaObjectInterface::createJVM.
+   Please check the input parameters and environment variable are right.
+   Except the all parameters a and b, you need to check following parameters too.
+   TRAF_LOG、HOSTNAME、log4j的配置、JVM_MAX_HEAP_SIZE、JVM_PRESERVE_FP、JVM_INIT_HEAP_SIZE_MB、HEAP的DUMP.
+      The input value for JNI_CreateJavaVM is: -XX:HeapDumpPath=${TRAF_LOG}.
+4. If UDR Server attach more parameters, please check the setting of releated parameters of UDR server is right.
+   If it can not pass to start in start process, please set the log level to DEBUG and restart the system
+   to print the related parameters of JVM. It will make it easy to locate and reappear the problem.
+
+[[SQL-100002]]
+== SQL 100002
+JVM attatched to a wrong version.
+*Cause:* JVM attatched to a wrong version.
+*Effect:* JVM failed to initialize and can not call the functions of JNI.
+*Recovery:* Now we use the version 1.6 for JNI. If the version is high or low than 1.6, it will dismatch the JDK.
+Please check the JDK version and refer to follow http page:
+https://docs.oracle.com/en/java/javase/16/docs/specs/jni/invocation.html.
+1. The database return error when call jvm_->GetEnv((void**) &_tlp_jenv, JNI_VERSION_1_6)
+   in method JavaObjectInterfaceTM::initJVM.
+2. The database return error when call jvm_->GetEnv((void**) &jenv_, JNI_VERSION_1_6)
+   in method JavaObjectInterfaceTM::initJVM.
+
+[[SQL-100003]]
+== SQL 100003
+It return error when JVM try to attach to current thread.
+*Cause:* It return error when JVM try to attach to current thread.
+*Effect:* JVM failed to attach, failed to call functions of JNI.
+*Recovery:* Please following reference: https://docs.oracle.com/en/java/javase/16/docs/specs/jni/invocation.html
+1. The database return error when call jvm_->AttachCurrentThread((void**) &_tlp_jenv, NULL)
+   in method JavaObjectInterfaceTM::attachThread.
+2. The database return error when call jvm_->AttachCurrentThread((void**) &_tlp_jenv, NULL)
+   in method JavaObjectInterfaceTM::attachThread.
+3. The database return error JNI_EDETACHED when call jvm_->GetEnv((void**) &_tlp_jenv, JNI_VERSION_1_6)
+   in method JavaObjectInterfaceTM::initJVM. But it return error too when call 
+   jvm_->AttachCurrentThread((void**) &_tlp_jenv, NULL) to attach.
+4. The database return error except JNI_EVERSION and JNI_EDETACHED when call
+   jvm_->GetEnv((void**) &_tlp_jenv, JNI_VERSION_1_6) in method JavaObjectInterfaceTM::initJVM.
+5. The database return error JNI_EDETACHED when call jvm_->GetEnv((void**) &_tlp_jenv, JNI_VERSION_1_6)
+   in method JavaObjectInterface::initJVM. But it return error too when call
+   jvm_->AttachCurrentThread((void**) &_tlp_jenv, NULL) to try attach.
+6. The database return error with id except JNI_EVERSION and JNI_EDETACHED when call
+   jvm_->GetEnv((void**) &_tlp_jenv, JNI_VERSION_1_6) in method JavaObjectInterface::initJVM.
+
+[[SQL-100004]]
+== SQL 100004
+Faield to create JVM in the process of JNI initialization.
+*Cause:* Faield to create JVM when the process of JNI initialization.
+*Effect:* Failed to create JVM and the related process will generate core file.
+*Recovery:* In normal time it will not return error, due to it will call abort and generate core file before return error.
+
+[[SQL-100005]]
+== SQL 100005
+It failed to find class and return error in the process of JNI initialization.
+*Cause:* It failed to find class and return error in the process of JNI initialization.
+*Effect:* Failed to initialize JVM and can not call the related functions of JNI.
+*Recovery:* 
+To find which class can not be found, then make sure if the class exist in CLASSPATH or
+the JAR file or class file can be used. The detail usage for this method can be find in office=ial document:
+https://docs.oracle.com/en/java/javase/16/docs/specs/jni/functions.html
+1. The database return error when call _tlp_jenv->FindClass(className) in JavaObjectInterfaceTM::init to find the class.
+   Please check the TM's log if there has releated error information for JavaObjectInterfaceTM::init()
+   to get next step for the error.
+2. The database return error when call jenv_->FindClass(className)
+   in method JavaObjectInterface::init to find the related class.
+   Please check the log for related process and find if it has the error information
+   "Exception in FindClass" or "Error in FindClass" and get next step for the problem.
+
+[[SQL-100006]]
+== SQL 100006
+Failed to get method id in the process of JNI initialization.
+*Cause:* Failed to get method id in the process of JNI initialization.
+*Effect:* Failed to initialize JVM and can not call the related functions of JNI.
+*Recovery:* The usage for this method, please refer the official document:
+https://docs.oracle.com/en/java/javase/16/docs/specs/jni/functions.html
+1. The database return error when call _tlp_jenv->GetMethodID(javaClass,
+   JavaMethods[i].jm_name.data(), JavaMethods[i].jm_signature.data()) to
+   get method id in method JavaObjectInterfaceTM::init. Please check TM's 
+   log and find if there has releated information "JNIEnv->GetMethodID()"
+   and get the next step for the problem.
+2. The database return error when call
+   jenv_->GetMethodID(javaClass, JavaMethods[i].jm_name, JavaMethods[i].jm_signature)
+   or jenv_->GetStaticMethodID(javaClass, JavaMethods[i].jm_name, JavaMethods[i].jm_signature)
+   to get the static method id. Please check the related process's log and find 
+   if there has related information "GetMethodId()" and get next step for the problem.
+
+[[SQL-100007]]
+== SQL 100007
+Failed to apply objects in the process of JNI initialization.
+*Cause:* Failed to apply objects in the process of JNI initialization.
+*Effect:* Failed to initialize JVM and can not call the related functions of JNI.
+*Recovery:* Failed to apply objects in the process of JNI initialization or methods calling.
+The detail usage can be fount in official documents:
+https://docs.oracle.com/en/java/javase/16/docs/specs/jni/functions.html
+1. The database return error when call _tlp_jenv->NewObject(javaClass, JavaMethods[0].methodID)
+   in the method JavaObjectInterfaceTM::init. Please check TM's log and find if there has 
+   related information "JavaObjectInterfaceTM::init()" and get next step fot the problem.
+2. The database return null pointer error when call jenv_->NewStringUTF in the class
+   BackupRestoreClient_JNI. Please check system memory and JVM HEAPSIZE and make sure if it is enough.
+3. The database return error when call jenv_->NewObject(javaClass, JavaMethods[0].methodID) 
+   in method JavaObjectInterface::init. Please check the related process's log and find if
+   there has error information "Error in NewObject() for class" and get next step for the problem.
+
+[[SQL-100008]]
+== SQL 100008
+Failed to initialize JNI.
+*Cause:* Failed to initialize JNI.
+*Effect:* Failed to initialize JVM and can not call the related functions of JNI.
+*Recovery:* Failed to call interface PushLocalFrame by JNI, maybe input error parameters. 
+The method's parameter must be large than 0. Please refer the offical documents:
+https://docs.oracle.com/en/java/javase/16/docs/specs/jni/functions.html
+1. The database return error when call _tlp_jenv->PushLocalFrame(jniHandleCapacity_)
+   in method JavaObjectInterfaceTM::initJNIEnv. Please check if the setting for environment
+   variable TRAF_JNIHANDLE_CAPACITY in TM is right. The default value is 32.
+2. The database return error when call jenv_->PushLocalFrame(jniHandleCapacity_)
+   in method JavaObjectInterfaceTM::initJNIEnv. Please check if the setting for environment
+   variable TRAF_JNIHANDLE_CAPACITY in related process is right. The default value is 32.
+
+[[SQL-100009]]
+== SQL 100009
+--- unused ---
+*Cause:* 
+*Effect:* 
+*Recovery:* 

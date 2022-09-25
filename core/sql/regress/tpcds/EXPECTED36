@@ -1,0 +1,183 @@
+>>obey stdcqds;
+>>
+>>set schema hive.tpcds_sf1000;
+
+--- SQL operation complete.
+>>
+>>control osim simulate continue './osim.all.sf1000.09022016';
+
+--- SQL operation complete.
+>>
+>>cqd orc_njs 'on';
+
+--- SQL operation complete.
+>>cqd parallel_num_esps '48';
+
+--- SQL operation complete.
+>>cqd QUERY_CACHE '200000';
+
+--- SQL operation complete.
+>>cqd HIVE_METADATA_REFRESH_INTERVAL '-1';
+
+--- SQL operation complete.
+>>cqd  HIVE_LOCALITY_BALANCE_LEVEL '-1';
+
+--- SQL operation complete.
+>>cqd  METADATA_CACHE_SIZE '200';
+
+--- SQL operation complete.
+>>cqd partitioning_scheme_sharing '2';
+
+--- SQL operation complete.
+>>cqd COMP_BOOL_208 'ON';
+
+--- SQL operation complete.
+>>obey q36;
+>>
+>>--==QID: 36
+>>
+>>prepare xx from
++>select 
++>  gross_margin ,i_category ,i_class, lochierarchy,rank() over (
++>        partition by lochierarchy, case when t_class = 0 then i_category end 
++>        order by gross_margin asc) as rank_within_parent 
++> from 
++>  (
++>  select gross_margin ,i_category ,i_class,0 as t_category, 0 as t_class, 0 as lochierarchy 
++>    from 
++>        (select 
++>      sum(ss_net_profit) as ss_net_profit, sum(ss_ext_sales_price) as ss_ext_sales_price,
++>      sum(ss_net_profit)/sum(ss_ext_sales_price) as gross_margin
++>     ,i_category
++>     ,i_class
++>     ,0 as g_category, 0 as g_class
++>        from
++>      store_sales_1stripeperfile
++>     ,date_dim       d1
++>     ,item
++>     ,store
++>        where
++>      d1.d_year = 1998
++>      and d1.d_date_sk = ss_sold_date_sk
++>      and i_item_sk  = ss_item_sk 
++>      and s_store_sk  = ss_store_sk
++>      and s_state in ('AL','SD','TN','SD',
++>                 'SD','SD','SD','SD')
++>        group by i_category,i_class)
++> union all
++> select sum(ss_net_profit)/sum(ss_ext_sales_price) as gross_margin,
++>   i_category, NULL AS i_class, 0 as t_category, 1 as t_class, 1 as lochierarchy 
++>    from 
++>        (select 
++>      sum(ss_net_profit) as ss_net_profit, sum(ss_ext_sales_price) as ss_ext_sales_price,
++>      sum(ss_net_profit)/sum(ss_ext_sales_price) as gross_margin
++>     ,i_category
++>     ,i_class
++>     ,0 as g_category, 0 as g_class
++>        from
++>      store_sales_1stripeperfile
++>     ,date_dim       d1
++>     ,item
++>     ,store
++>        where
++>      d1.d_year = 1998
++>      and d1.d_date_sk = ss_sold_date_sk
++>      and i_item_sk  = ss_item_sk 
++>      and s_store_sk  = ss_store_sk
++>      and s_state in ('AL','SD','TN','SD',
++>                 'SD','SD','SD','SD')
++>        group by i_category,i_class)
++>   group by i_category
++> union all
++> select sum(ss_net_profit)/sum(ss_ext_sales_price) as gross_margin,
++>   NULL AS i_category ,NULL AS i_class, 1 as t_category, 1 as t_class, 2 as lochierarchy 
++>    from 
++>        (select 
++>      sum(ss_net_profit) as ss_net_profit, sum(ss_ext_sales_price) as ss_ext_sales_price,
++>      sum(ss_net_profit)/sum(ss_ext_sales_price) as gross_margin
++>     ,i_category
++>     ,i_class
++>     ,0 as g_category, 0 as g_class
++>        from
++>      store_sales_1stripeperfile
++>     ,date_dim       d1
++>     ,item
++>     ,store
++>        where
++>      d1.d_year = 1998
++>      and d1.d_date_sk = ss_sold_date_sk
++>      and i_item_sk  = ss_item_sk 
++>      and s_store_sk  = ss_store_sk
++>      and s_state in ('AL','SD','TN','SD',
++>                 'SD','SD','SD','SD')
++>        group by i_category,i_class)
++> )
++> order by
++>   lochierarchy desc
++>  ,rank_within_parent
++> limit 100;
+
+--- SQL command prepared.
+>>obey explains;
+>>explain options 'f' xx;
+
+LC   RC   OP   OPERATOR              OPT       DESCRIPTION           CARD
+---- ---- ---- --------------------  --------  --------------------  ---------
+
+50   .    51   root                                                  1.29E+002
+49   .    50   firstn                                                1.29E+002
+48   .    49   sort                                                  1.29E+002
+47   .    48   sequence                                              1.29E+002
+31   46   47   merge_union                                           1.29E+002
+45   .    46   sort                                                  1.00E+000
+44   .    45   sort_partial_aggr_ro                                  1.00E+000
+43   .    44   esp_exchange                    1:48(hash2)           1.00E+000
+42   .    43   sort_partial_aggr_le                                  1.00E+000
+41   33   42   hybrid_hash_join                                      1.35E+008
+40   .    41   esp_exchange                    48(hash2):48(hash2)   1.55E+008
+39   35   40   hybrid_hash_join                                      1.55E+008
+38   37   39   hybrid_hash_join                                      4.63E+008
+.    .    38   orc_scan                        STORE_SALES_1STRIPEP  2.75E+009
+36   .    37   esp_exchange                    48(rep-b):2(hash2)    3.07E+002
+.    .    36   orc_scan                        DATE_DIM              3.07E+002
+34   .    35   esp_exchange                    48(rep-b):2(hash2)    1.67E+002
+.    .    34   orc_scan                        STORE                 1.67E+002
+32   .    33   esp_exchange                    48(hash2):2(hash2)    3.00E+005
+.    .    32   orc_scan                        ITEM                  3.00E+005
+15   30   31   merge_union                                           1.28E+002
+29   .    30   sort                                                  1.10E+001
+28   .    29   hash_partial_groupby                                  1.10E+001
+27   .    28   esp_exchange                    1:48(hash2)           1.10E+001
+26   .    27   hash_partial_groupby                                  1.10E+001
+25   17   26   hybrid_hash_join                                      1.35E+008
+24   .    25   esp_exchange                    48(hash2):48(hash2)   1.55E+008
+23   19   24   hybrid_hash_join                                      1.55E+008
+22   21   23   hybrid_hash_join                                      4.63E+008
+.    .    22   orc_scan                        STORE_SALES_1STRIPEP  2.75E+009
+20   .    21   esp_exchange                    48(rep-b):2(hash2)    3.07E+002
+.    .    20   orc_scan                        DATE_DIM              3.07E+002
+18   .    19   esp_exchange                    48(rep-b):2(hash2)    1.67E+002
+.    .    18   orc_scan                        STORE                 1.67E+002
+16   .    17   esp_exchange                    48(hash2):2(hash2)    3.00E+005
+.    .    16   orc_scan                        ITEM                  3.00E+005
+14   .    15   sort                                                  1.18E+002
+13   .    14   hash_partial_groupby                                  1.18E+002
+12   .    13   esp_exchange                    1:48(hash2)           1.18E+002
+11   .    12   hash_partial_groupby                                  1.18E+002
+10   2    11   hybrid_hash_join                                      1.35E+008
+9    .    10   esp_exchange                    48(hash2):48(hash2)   1.55E+008
+8    4    9    hybrid_hash_join                                      1.55E+008
+7    6    8    hybrid_hash_join                                      4.63E+008
+.    .    7    orc_scan                        STORE_SALES_1STRIPEP  2.75E+009
+5    .    6    esp_exchange                    48(rep-b):2(hash2)    3.07E+002
+.    .    5    orc_scan                        DATE_DIM              3.07E+002
+3    .    4    esp_exchange                    48(rep-b):2(hash2)    1.67E+002
+.    .    3    orc_scan                        STORE                 1.67E+002
+1    .    2    esp_exchange                    48(hash2):2(hash2)    3.00E+005
+.    .    1    orc_scan                        ITEM                  3.00E+005
+
+--- SQL operation complete.
+>>exit;
+
+End of MXCI Session
+

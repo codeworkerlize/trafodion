@@ -1,0 +1,4 @@
+904c904
+< *** ERROR[8402] A string overflow occurred during the evaluation of a character expression.
+---
+> *** ERROR[8966] Unable to create partition hdfs:(removed) for partitioned Hive table. Details: hive partition concurrent create error.

@@ -1,0 +1,357 @@
+-- @@@ START COPYRIGHT @@@
+--
+-- Licensed to the Apache Software Foundation (ASF) under one
+-- or more contributor license agreements.  See the NOTICE file
+-- distributed with this work for additional information
+-- regarding copyright ownership.  The ASF licenses this file
+-- to you under the Apache License, Version 2.0 (the
+-- "License"); you may not use this file except in compliance
+-- with the License.  You may obtain a copy of the License at
+--
+--   http://www.apache.org/licenses/LICENSE-2.0
+--
+-- Unless required by applicable law or agreed to in writing,
+-- software distributed under the License is distributed on an
+-- "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+-- KIND, either express or implied.  See the License for the
+-- specific language governing permissions and limitations
+-- under the License.
+--
+-- @@@ END COPYRIGHT @@@
+--
+
+-- Misc tests.
+
+log LOG032 clear;
+
+-- add/enable support for syntax and functions
+drop table if exists t032t1 cascade;
+drop table if exists t032t2 cascade;
+
+create table t032t1 (a int not null primary key, 
+                     b byteint, 
+                     c int not null enable,  
+                     d date, e time, f timestamp,
+                     g real);
+
+create table t032t2 (c1 int, c2 int);
+
+invoke t032t1;
+
+insert into t032t1 values (1, 2, 3, date '2016-08-15',  time '10:11:12',
+                           timestamp '2016-08-15 10:11:12', 4e0);
+insert into t032t1 values (2, 3, 3, date '2016-08-15',  time '10:11:12',
+                           timestamp '2016-08-15 10:11:12', 4e0);
+
+insert into t032t2 values (1,1),(2,2),(101,101),(102,102);
+
+select unique b from t032t1;
+
+select greatest(a, 10) from t032t1;
+select least(a, 10) from t032t1;
+
+select ceil(g), ceiling(g) from t032t1;
+
+select months_between(d, date '2016-01-01') from t032t1;
+select months_between(date '2016-01-01', d) from t032t1;
+
+select months_between(d, date '2016-01-15') from t032t1;
+select months_between(date '2016-01-15', d) from t032t1;
+
+select last_day(d), last_day(f) from t032t1;
+select next_day(d, 'sunday'), next_day(f, 'wednesday') from t032t1;
+
+select 'RANDOMVAL=' ||  trim(cast(rand() as varchar(20) not null)) from (values(1)) x(a);
+select 'RANDOMVAL=' ||  trim(cast(random() as varchar(20) not null)) from (values(1)) x(a);
+
+select rand(100) from (values(1)) x(a);
+
+select * from dual;
+
+-- error 8413 enhancement
+select cast('a' as int) from dual;
+
+-- group by, order by enhancements
+select a aa from t032t1 group by aa;
+select a+1 from t032t1 group by a+1;
+select a+1 from t032t1 order by a+1;
+select a+1 aa from t032t1 order by a+1;
+select a+1 aa from t032t1 order by aa;
+select a+1 aa from t032t1 order by 1;
+select * from (select b from t032t1 order by b desc) x(z);
+select * from (select [first 1] a from t032t1) x(z);
+select count(*) from t032t1 order by count(*);
+select count(*) from t032t1 order by count(*) desc;
+select count(*) cc from t032t1 order by count(*) desc;
+select count(distinct a) from t032t1 order by count(distinct a);
+select count(*), max(c1) from t032t2 group by mod(c1,10);
+
+-- error cases
+select count(a) from t032t1 order by count(distinct a);
+select sum(a), b from t032t1 group by sum(a), b;
+select sum(a) from t032t1 group by 1;
+
+-- expression support in order by list
+select e from t032t1 order by a+b+c;
+select e from t032t1 order by a+b, c*g desc;
+select e from t032t1 order by ABS (a);
+select e from t032t1 order by MOD(CAST(POWER(a, 3) AS DECIMAL(10,0)), 5) desc;
+select e from t032t1 order by substr(cast(f as varchar(20)), 7, 1);
+select e from t032t1 order by concat(cast(f as varchar(20)), '1') desc, a;
+select e from t032t1 order by char_length(substr(repeat(cast(f as varchar(20)), 3), 8, 14));
+select a from t032t1 where a = 1 order by CURRENT(3);
+select a from t032t1 order by DATE_TRUNC('DAY', d), DATE_TRUNC('DAY', f) desc;
+select a from t032t1 order by JULIANTIMESTAMP(d), JULIANTIMESTAMP(f) desc;
+select a from t032t1 order by MONTHNAME (d), MONTHNAME (f) desc;
+select a from t032t1 order by case when b > 3 then 1 when b < 3 then 2 end , c;
+-- expression not support in order by list
+select max(a) from t032t1 order by max(a);
+select min(a) from t032t1 order by min(a);
+select avg(a) from t032t1 order by avg(a);
+select a from t032t1 group by a order by max(c);
+select a,max(c) from t032t1 group by a order by max(c);
+select a        from t032t1 group by a order by max(c);
+select a,avg(c) from t032t1 group by a order by avg(c);
+select a        from t032t1 group by a order by avg(c);
+select a,sum(c) from t032t1 group by a order by sum(c);
+select a        from t032t1 group by a order by sum(c);
+
+-- incompatible operations
+select a from t032t1 where a = '2';
+select b from t032t1 where b = '2';
+select a + '1' from t032t1;
+select a || '1' from t032t1;
+insert into t032t1 values ('3', 3, 3, date '2016-08-15',  time '10:11:12',
+                           timestamp '2016-08-15 10:11:12', 4e0);
+select * from t032t1;
+
+select * from (values(1)) x(a) where current_date = cast(current_timestamp as date);
+select * from (values(1)) x(a) where current_timestamp(0) = cast(current_timestamp(6) as timestamp(0));
+
+select cast(1e0 as interval year) from dual;
+
+
+-- auto create schema
+drop schema if exists t032sch cascade;
+
+-- should fail, schema doesnt exist
+create table t032sch.t032t2 (a int);
+
+-- should succeed, schema will be automatically created
+cqd TRAF_LOCK_DDL 'off';
+cqd traf_auto_create_schema 'ON';
+create table t032sch.t032t2 (a int);
+set schema t032sch;
+invoke t032t2;
+insert into t032t2 values (1);
+
+-- alter add column should use charset from cqd, if specified
+drop table t032t2;
+create table t032t2 (a char(10), b char(10) character set iso88591, 
+   c varchar(10) character set utf8);
+invoke t032t2;
+alter table t032t2 add column d char(10);
+invoke t032t2;
+alter table t032t2 add column e char(10) character set utf8;
+invoke t032t2;
+cqd traf_default_col_charset 'ISO88591';
+alter table t032t2 add column f varchar(10);
+invoke t032t2;
+cqd traf_default_col_charset 'UTF8';
+alter table t032t2 add column g varchar(10);
+invoke t032t2;
+
+-- MD indexes
+initialize trafodion, update metadata indexes;
+get indexes on table trafodion."_MD_".indexes;
+get indexes on table trafodion."_MD_".table_constraints;
+
+-- string operations on numeric datatype
+select char_length(1), char_length(12345) from dual;
+select octet_length(1), octet_length(12345) from dual;
+select length(1), length(12345), length('a'), length('abc') from dual;
+select 1 || 2 from dual;
+select cast(1 as int) || cast(2 as largeint) from dual;
+select 'a' || cast(2 as int) from dual;
+select 'a' || cast(2 as int) || 'b' from dual;
+select * from dual where '1' = 1;
+select * from dual where 'a' = 1;
+
+-- unique pkey pred on scaled numerics
+cqd query_cache '0';
+drop table if exists t032t33;
+create table if not exists t032t33 (a numeric(2,1) not null primary key);
+insert into t032t33 values (1.0), (-1.0), (0), (0.1), (-0.1), (2), (-2);
+select * from t032t33 where a = 1.0;
+select * from t032t33 where a = -1.0;
+select * from t032t33 where a = 0;
+select * from t032t33 where a = 0.1;
+select * from t032t33 where a = -0.1;
+select * from t032t33 where a = 2;
+select * from t032t33 where a = -2;
+
+drop table if exists t032t34;
+create table t032t34 (c1 float not null primary key);
+insert into t032t34 values (-1.0);
+select * from t032t34 where c1=-1.0;
+select * from t032t34 where c1 = -1.0e0;
+select * from t032t34 where c1>= -1.0;
+select * from t032t34 where c1>= -1.0e0;
+
+cqd query_cache reset;
+-- auto NOT NULL attr for pkey columns
+create schema if not exists t032sch;
+set schema t032sch;
+drop table if exists t032t1;
+drop table if exists t032t2;
+drop table if exists t032t3;
+drop table if exists t032t4 cascade;
+drop table if exists t032t5 cascade;
+
+-- NOT NULL attr for pkey columns
+create table t032t1 (a int primary key);
+showddl t032t1;
+drop table t032t1;
+create table t032t1 (a int, primary key(a));
+showddl t032t1;
+drop table t032t1;
+create table t032t1 (a int) primary key(a);
+showddl t032t1;
+drop table t032t1;
+create table t032t1 primary key(a) as select cast(1 as nullable) a from dual;
+showddl t032t1;
+
+-- no NOT NULL attr if nullable pkey is specified
+create table t032t2 (a int constraint t2pk primary key nullable);
+showddl t032t2;
+insert into t032t2 values (1), (null);
+select * from t032t2 order by a;
+drop table t032t2;
+create table t032t2 (a int, b int);
+alter table t032t2 add constraint pkt2 primary key nullable (a);
+showddl t032t2;
+-- store by nullable
+create table t032sbt1 (a int primary key, b int) store by nullable (a);
+showddl t032sbt1;
+drop table t032sbt1;
+create table t032sbt1(a int , b int, primary key(a,b)) store by nullable (a,b);
+showddl t032sbt1;
+drop table t032sbt1;
+create table t032sbt1(a int , b int, primary key nullable(a,b)) store by nullable(a,b);
+showddl t032sbt1;
+insert into t032sbt1 values(null,null);
+drop table t032sbt1;
+create table t032sbt1(a int, b int primary key nullable) store by nullable(b);
+showddl t032sbt1;
+insert into t032sbt1 values(1,null);
+drop table t032sbt1;
+create table t032sbt1(a int not null, b int not null) store by nullable(a);
+showddl t032sbt1;
+drop table t032sbt1;
+create table t032sbt1(a int , b int ) store by nullable(a,b);
+showddl t032sbt1;
+insert into t032sbt1 values(null,null);
+drop table t032sbt1;
+create table t032sbt1 (a varchar(500) not null, b varchar(500), primary key nullable(a,b));
+create table t032sblike like t032sbt1 limit column length to 256;
+showddl t032sblike;
+drop table t032sblike;
+drop table t032sbt1;
+-- should return unique violation
+insert into t032t2 values (null, 1), (null, 2);
+
+create table t032t2like like t032t2;
+showddl t032t2like;
+insert into t032t2like values (1, 1), (null, null);
+
+select * from t032t2like where a is null;
+update t032t2like set b = 10 where a is null;
+select * from t032t2like;
+delete from t032t2like where a is null;
+select * from t032t2like;
+
+alter table t032t2like alter column b largeint;
+invoke t032t2like;
+
+-- alter/add pkey on empty table
+create table t032t3 (a int, b int not null);
+alter table t032t3 add constraint pkt3 primary key(a);
+invoke t032t3;
+
+-- alter/add pkey on non-empty table
+create table t032t4 (a int, b int not null);
+insert into t032t4 values (1,1);
+alter table t032t4 add constraint pkt4 primary key(a);
+invoke t032t4;
+
+-- pkey not allowed with dependent objects
+create table t032t5 (a int, b int);
+create view v032t5 as select * from t032t5;
+alter table t032t5 add constraint pkt5 primary key(a);
+
+-- pkey created as unique constraint if cqd is set
+cqd traf_alter_add_pkey_as_unique_constraint 'ON';
+alter table t032t5 add constraint pkt5 primary key(a);
+showddl t032t5;
+
+-- unnamed constraints
+drop table if exists t032t6;
+create table t032t6 (a int primary key, 
+                     b int constraint t032t6check check (b > 0),
+                     c int unique) attribute synchronous replication;
+showddl t032t6;
+
+-- should return no rows
+select object_name from "_MD_".objects where schema_name = 'T032SCH' and
+   object_name  like '\_Traf\_%T032T6' escape '\' and object_type = 'PK';
+
+insert into t032t6 values (1,1,1);
+insert into t032t6 values (2,0,1);
+insert into t032t6 values (2,1,1);
+
+delete from t032t6;
+create table t032t62(a int primary key, b int) attribute synchronous replication;
+alter table t032t6 add foreign key (b) references t032t62(a);
+showddl t032t6;
+
+alter table t032t6 rename to t032t6ren;
+alter table t032t6 drop constraint t032t6check;
+alter table t032t6 rename to t032t6ren;
+showddl t032t6ren;
+alter table t032t6ren add check (c > 0);
+showddl t032t6ren;
+
+create table t032t6 (a int primary key, b int check (b > 0),
+                     c int unique) attribute synchronous replication;
+showddl t032t6;
+
+create table "t032t6" (a int primary key, c int unique) 
+         attribute synchronous replication;
+showddl "t032t6";
+
+-- should return error. Invalid constraint name prefix.
+create table t032terr (a int constraint "_Traf_UC_1_a" primary key);
+
+-- should return error. Invalid unnamed constr name generated due to the
+-- long tablename.
+create table tttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt(a int unique) attribute synchronous replication;  
+
+-- preload objects
+cqd TRAF_ENABLE_METADATA_LOAD_IN_CACHE 'ON';
+create table t032t10(a int, b clob, c int, d int, e blob) attribute stored desc;
+create index t032t10i1 on t032t10(a);
+alter table t032t10 generate stored desc;
+alter table t032t10 generate stored stats;
+prepare s from select * from t032t10;
+prepare s1 from update t032t10 set a = a + 1;
+
+load trafodion metadata in cache;
+
+alter schema t032sch generate stored desc;
+alter schema t032sch delete stored desc;
+cqd TRAF_ENABLE_METADATA_LOAD_IN_CACHE 'OFF';
+
+drop schema t032sch cascade;
+
+log;
+

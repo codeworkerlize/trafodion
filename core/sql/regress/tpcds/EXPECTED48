@@ -1,0 +1,136 @@
+>>obey stdcqds;
+>>
+>>set schema hive.tpcds_sf1000;
+
+--- SQL operation complete.
+>>
+>>control osim simulate continue './osim.all.sf1000.09022016';
+
+--- SQL operation complete.
+>>
+>>cqd orc_njs 'on';
+
+--- SQL operation complete.
+>>cqd parallel_num_esps '48';
+
+--- SQL operation complete.
+>>cqd QUERY_CACHE '200000';
+
+--- SQL operation complete.
+>>cqd HIVE_METADATA_REFRESH_INTERVAL '-1';
+
+--- SQL operation complete.
+>>cqd  HIVE_LOCALITY_BALANCE_LEVEL '-1';
+
+--- SQL operation complete.
+>>cqd  METADATA_CACHE_SIZE '200';
+
+--- SQL operation complete.
+>>cqd partitioning_scheme_sharing '2';
+
+--- SQL operation complete.
+>>cqd COMP_BOOL_208 'ON';
+
+--- SQL operation complete.
+>>obey q48;
+>>
+>>--==QID: 48
+>>
+>>prepare xx from
++>select sum (ss_quantity)
++> from store_sales_1stripeperfile, store, customer_demographics, customer_address, date_dim
++> where s_store_sk = ss_store_sk
++> and  ss_sold_date_sk = d_date_sk and d_year = 2001
++> and  
++> (
++>  (
++>   cd_demo_sk = ss_cdemo_sk
++>   and 
++>   cd_marital_status = 'S'
++>   and 
++>   cd_education_status = '4 yr Degree'
++>   and 
++>   ss_sales_price between 100.00 and 150.00  
++>   )
++> or
++>  (
++>  cd_demo_sk = ss_cdemo_sk
++>   and 
++>   cd_marital_status = 'W'
++>   and 
++>   cd_education_status = 'College'
++>   and 
++>   ss_sales_price between 50.00 and 100.00   
++>  )
++> or 
++> (
++>  cd_demo_sk = ss_cdemo_sk
++>  and 
++>   cd_marital_status = 'U'
++>   and 
++>   cd_education_status = 'Secondary'
++>   and 
++>   ss_sales_price between 150.00 and 200.00  
++> )
++> )
++> and
++> (
++>  (
++>  ss_addr_sk = ca_address_sk
++>  and
++>  ca_country = 'United States'
++>  and
++>  ca_state in ('GA', 'TN', 'IN')
++>  and ss_net_profit between 0 and 2000  
++>  )
++> or
++>  (ss_addr_sk = ca_address_sk
++>  and
++>  ca_country = 'United States'
++>  and
++>  ca_state in ('VA', 'TX', 'MT')
++>  and ss_net_profit between 150 and 3000 
++>  )
++> or
++>  (ss_addr_sk = ca_address_sk
++>  and
++>  ca_country = 'United States'
++>  and
++>  ca_state in ('MS', 'NE', 'IL')
++>  and ss_net_profit between 50 and 25000 
++>  )
++> )
++>;
+
+--- SQL command prepared.
+>>obey explains;
+>>explain options 'f' xx;
+
+LC   RC   OP   OPERATOR              OPT       DESCRIPTION           CARD
+---- ---- ---- --------------------  --------  --------------------  ---------
+
+18   .    19   root                                                  1.00E+000
+17   .    18   sort_partial_aggr_ro                                  1.00E+000
+16   .    17   esp_exchange                    1:48(hash2)           1.00E+000
+15   .    16   sort_partial_aggr_le                                  1.00E+000
+14   2    15   hybrid_hash_join                                      1.38E+005
+13   4    14   hybrid_hash_join                                      1.38E+005
+12   .    13   esp_exchange                    48(hash2):48(hash2)   4.69E+006
+11   6    12   hybrid_hash_join                                      4.69E+006
+10   .    11   esp_exchange                    48(hash2):48(hash2)   4.95E+008
+9    8    10   hybrid_hash_join                                      4.95E+008
+.    .    9    orc_scan                        STORE_SALES_1STRIPEP  2.68E+009
+7    .    8    esp_exchange                    48(rep-b):2(hash2)    3.35E+002
+.    .    7    orc_scan                        DATE_DIM              3.35E+002
+5    .    6    esp_exchange                    48(hash2):2(hash2)    1.92E+006
+.    .    5    orc_scan                        CUSTOMER_DEMOGRAPHIC  1.92E+006
+3    .    4    esp_exchange                    48(hash2):2(hash2)    5.82E+006
+.    .    3    orc_scan                        CUSTOMER_ADDRESS      5.82E+006
+1    .    2    esp_exchange                    48(rep-b):2(hash2)    1.00E+003
+.    .    1    orc_scan                        STORE                 1.00E+003
+
+--- SQL operation complete.
+>>exit;
+
+End of MXCI Session
+

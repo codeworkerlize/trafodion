@@ -1,0 +1,2056 @@
+>>
+>>obey TEST300(utf8);
+>>
+>>set terminal_charset utf8;
+>>
+>>create or replace procedure hello(in name varchar(30) character set utf8,
++>                                  out greeting varchar(30) character set utf8) as //
+begin
+  set greeting = '你好，' || name || '！';
+end//;
+
+--- SQL operation complete.
+>>
+>>showddl procedure hello;
+
+CREATE PROCEDURE TRAFODION.SCH.HELLO
+  (
+    IN NAME VARCHAR(30 CHARS) CHARACTER SET UTF8
+  , OUT GREETING VARCHAR(30 CHARS) CHARACTER SET UTF8
+  )
+  EXTERNAL SECURITY INVOKER
+  LANGUAGE SQL
+  CONTAINS SQL
+  DYNAMIC RESULT SETS 255
+  TRANSACTION REQUIRED
+  ISOLATE
+ AS 
+begin
+  set greeting = '你好，' || name || '！';
+end;
+
+--- SQL operation complete.
+>>
+>>create or replace package pkg is //
+  procedure hello(in name varchar(30) character set utf8,
+                  out greeting varchar(30) character set utf8);
+end;
+//;
+
+--- SQL operation complete.
+>>
+>>create or replace package body pkg is //
+  procedure hello(in name varchar(30) character set utf8,
+                  out greeting varchar(30) character set utf8) is
+  begin  
+    set greeting = name ||'，你好！';
+  end;
+end;
+//;
+
+--- SQL operation complete.
+>>
+>>showddl package pkg;
+
+CREATE PACKAGE TRAFODION.SCH.PKG AS 
+  procedure hello(in name varchar(30) character set utf8,
+                  out greeting varchar(30) character set utf8);
+end;
+;
+CREATE PACKAGE BODY TRAFODION.SCH.PKG AS 
+  procedure hello(in name varchar(30) character set utf8,
+                  out greeting varchar(30) character set utf8) is
+  begin  
+    set greeting = name ||'，你好！';
+  end;
+end;
+;
+
+--- SQL operation complete.
+>>
+>>call hello('易鲸捷', ?);
+
+GREETING
+------------------------------------------------------------------------------------------------------------------------
+
+你好，易鲸捷！                                                                                                   
+
+--- SQL operation complete.
+>>call pkg.hello('易鲸捷', ?);
+
+GREETING
+------------------------------------------------------------------------------------------------------------------------
+
+易鲸捷，你好！                                                                                                   
+
+--- SQL operation complete.
+>>
+>>set terminal_charset iso88591;
+>>
+>>obey TEST300(priv);
+>>
+>>create procedure t300p1() as //
+begin
+  print 'Hello';
+end//;
+
+--- SQL operation complete.
+>>
+>>call t300p1();
+
+(EXPR)
+------
+
+Hello 
+
+--- 1 row(s) selected.
+
+--- SQL operation complete.
+>>
+>>sh sqlci -i "TEST300(priv1)" -u sql_user2;
+>>
+>>call t300p1();
+
+*** ERROR[4482] The user does not have EXECUTE privilege on user-defined routine TRAFODION.SCH.T300P1.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>drop procedure t300p1;
+
+*** ERROR[1017] You are not authorized to perform this operation.
+
+--- SQL operation failed with errors.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>
+>>grant execute on procedure t300p1 to sql_user2;
+
+--- SQL operation complete.
+>>
+>>sh sqlci -i "TEST300(priv1)" -u sql_user2;
+>>
+>>call t300p1();
+
+(EXPR)
+------
+
+Hello 
+
+--- 1 row(s) selected.
+
+--- SQL operation complete.
+>>drop procedure t300p1;
+
+*** ERROR[1017] You are not authorized to perform this operation.
+
+--- SQL operation failed with errors.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>
+>>obey TEST300(setup);
+>>
+>>reset parserflags 131072;
+
+--- SQL operation complete.
+>>initialize trafodion, upgrade library management;
+
+--- SQL operation complete.
+>>-- Test upgrading can update the internal SPJs
+>>select COLUMN_SIZE from TRAFODION."_MD_".COLUMNS where OBJECT_UID=(select OBJECT_UID from TRAFODION."_MD_".OBJECTS where OBJECT_NAME='CREATESPSQL');
+
+COLUMN_SIZE
+-----------
+
+    4000000
+
+--- 1 row(s) selected.
+>>set parserflags 131072;
+
+--- SQL operation complete.
+>>update TRAFODION."_MD_".COLUMNS set COLUMN_SIZE=1000000 where OBJECT_UID=(select OBJECT_UID from TRAFODION."_MD_".OBJECTS where OBJECT_NAME='CREATESPSQL');
+
+--- 1 row(s) updated.
+>>select COLUMN_SIZE from TRAFODION."_MD_".COLUMNS where OBJECT_UID=(select OBJECT_UID from TRAFODION."_MD_".OBJECTS where OBJECT_NAME='CREATESPSQL');
+
+COLUMN_SIZE
+-----------
+
+    1000000
+
+--- 1 row(s) selected.
+>>reset parserflags 131072;
+
+--- SQL operation complete.
+>>initialize trafodion, upgrade library management;
+
+--- SQL operation complete.
+>>select COLUMN_SIZE from TRAFODION."_MD_".COLUMNS where OBJECT_UID=(select OBJECT_UID from TRAFODION."_MD_".OBJECTS where OBJECT_NAME='CREATESPSQL');
+
+COLUMN_SIZE
+-----------
+
+    4000000
+
+--- 1 row(s) selected.
+>>
+>>create table users (name varchar(100));
+
+--- SQL operation complete.
+>>create procedure adduser(in name varchar(100), out cnt int) as //
+declare
+  query varchar(1000);
+begin
+  query := 'select count(*) from users';
+  insert into users values(name);
+  execute immediate query into cnt;
+end//;
+
+--- SQL operation complete.
+>>
+>>create procedure plus(in a int, in b int, out c int) as //begin set c = a + b; end//;
+
+--- SQL operation complete.
+>>create procedure concat(in s varchar(100), inout t varchar(100)) as //begin set t = s || ', ' ||  t; end//;
+
+--- SQL operation complete.
+>>
+>>-- The catalog is wrong, will trigger error on invocation
+>>create procedure adduserBad1(in name varchar(100)) as //
+begin
+  insert into trafodin.sch.users values(name);
+end//;
+
+--- SQL operation complete.
+>>
+>>-- Syntax error in SP body
+>>-- expect error 1231
+>>create procedure adduserBad2(in name varchar(100)) as //
+begin
+  insert into trafodin.sch.users value(name);
+end//;
+
+*** ERROR[11220] A Java method completed with an uncaught java.sql.SQLException with invalid SQLSTATE. The uncaught exception had a SQLCODE of 0 and SQLSTATE of . Details: java.sql.SQLException: line 3:33 extraneous input 'value' expecting {'.', T_SEL, T_SELECT, T_VALUES, T_WITH, '('}
+  insert into trafodin.sch.users value(name);
+                                 ^^^^^
+
+*** ERROR[1231] User-defined routine TRAFODION.SCH.ADDUSERBAD2 could not be created.
+
+--- SQL operation failed with errors.
+>>
+>>create procedure addFloat(in a float, in b float, out c float) as //begin set c = a + b; end//;
+
+--- SQL operation complete.
+>>create procedure subFloat(in a float, in b float, out c float) as //begin set c = a - b; end//;
+
+--- SQL operation complete.
+>>create procedure mulFloat(in a float, in b float, out c float) as //begin set c = a * b; end//;
+
+--- SQL operation complete.
+>>create procedure divFloat(in a float, in b float, out c float) as //begin set c = a / b; end//;
+
+--- SQL operation complete.
+>>
+>>create procedure addFloatInt(in a float, in b int, out c float) as //begin set c = a + b; end//;
+
+--- SQL operation complete.
+>>create procedure subFloatInt(in a float, in b int, out c float) as //begin set c = a - b; end//;
+
+--- SQL operation complete.
+>>create procedure mulFloatInt(in a float, in b int, out c float) as //begin set c = a * b; end//;
+
+--- SQL operation complete.
+>>create procedure divFloatInt(in a float, in b int, out c float) as //begin set c = a / b; end//;
+
+--- SQL operation complete.
+>>
+>>create procedure addIntFloat(in a int, in b float, out c float) as //begin set c = a + b; end//;
+
+--- SQL operation complete.
+>>create procedure subIntFloat(in a int, in b float, out c float) as //begin set c = a - b; end//;
+
+--- SQL operation complete.
+>>create procedure mulIntFloat(in a int, in b float, out c float) as //begin set c = a * b; end//;
+
+--- SQL operation complete.
+>>create procedure divIntFloat(in a int, in b float, out c float) as //begin set c = a / b; end//;
+
+--- SQL operation complete.
+>>
+>>create procedure addReal(in a real, in b real, out c real) as //begin set c = a + b; end//;
+
+--- SQL operation complete.
+>>create procedure subReal(in a real, in b real, out c real) as //begin set c = a - b; end//;
+
+--- SQL operation complete.
+>>create procedure mulReal(in a real, in b real, out c real) as //begin set c = a * b; end//;
+
+--- SQL operation complete.
+>>create procedure divReal(in a real, in b real, out c real) as //begin set c = a / b; end//;
+
+--- SQL operation complete.
+>>
+>>create procedure addDecimal(in a decimal(9,3), in b decimal(9,3), out c decimal(9,3)) as //begin set c = a + b; end//;
+
+--- SQL operation complete.
+>>create procedure subDecimal(in a decimal(9,3), in b decimal(9,3), out c decimal(9,3)) as //begin set c = a - b; end//;
+
+--- SQL operation complete.
+>>create procedure mulDecimal(in a decimal(9,3), in b decimal(9,3), out c decimal(9,3)) as //begin set c = a * b; end//;
+
+--- SQL operation complete.
+>>create procedure divDecimal(in a decimal(9,3), in b decimal(9,3), out c decimal(9,3)) as //begin set c = a / b; end//;
+
+--- SQL operation complete.
+>>
+>>create procedure getSysDate(out t TIMESTAMP) as //begin set t = sysdate; end//;
+
+--- SQL operation complete.
+>>
+>>create procedure selectIntoDate(out d DATE) as //
+begin
+  select current_date into d from dual;
+end//;
+
+--- SQL operation complete.
+>>create procedure selectIntoTimestamp(out t TIMESTAMP) as //
+begin
+  select current_timestamp into t from dual;
+end//;
+
+--- SQL operation complete.
+>>create procedure selectIntoTime(out t TIME) as//
+begin
+  select current_time into t from dual;
+end//;
+
+--- SQL operation complete.
+>>
+>>create or replace procedure castFunc (out a char(50), out b numeric(10,2)) as //
+declare
+   n1 double := 123.45;
+   n2 char(50) := '543.21';
+begin
+   select cast(n1 as char(64)) into a from dual;
+   select cast(n2 as numeric(10,2)) into b from dual;
+end//;
+
+--- SQL operation complete.
+>>
+>>-- create table
+>>drop table if exists t1;
+
+--- SQL operation complete.
+>>create table t1(a1 int);
+
+--- SQL operation complete.
+>>insert into t1(a1) values(1);
+
+--- 1 row(s) inserted.
+>>select * from t1;
+
+A1         
+-----------
+
+          1
+
+--- 1 row(s) selected.
+>>
+>>obey TEST300(test);
+>>
+>>select * from users;
+
+--- 0 row(s) selected.
+>>call adduser('Trafodion', ?);
+
+CNT        
+-----------
+
+          1
+
+--- SQL operation complete.
+>>select * from users;
+
+NAME
+----------------------------------------------------------------------------------------------------
+
+Trafodion                                                                                           
+
+--- 1 row(s) selected.
+>>
+>>-- expect error 11218
+>>call adduserBad1('Blabla');
+
+*** ERROR[11220] A Java method completed with an uncaught java.sql.SQLException with invalid SQLSTATE. The uncaught exception had a SQLCODE of -1002 and SQLSTATE of X0102. Details: java.sql.SQLException: *** ERROR[1002] Catalog TRAFODIN does not exist.
+
+*** ERROR[11224] The Java virtual machine raised an exception. Details: java.sql.SQLException: *** ERROR[8822] The statement was not prepared.
+
+--- SQL operation failed with errors.
+>>select * from users;
+
+NAME
+----------------------------------------------------------------------------------------------------
+
+Trafodion                                                                                           
+
+--- 1 row(s) selected.
+>>
+>>-- expect error 1389
+>>call adduserBad2('Blablabla');
+
+*** ERROR[1389] Object ADDUSERBAD2 does not exist in Trafodion.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>select * from users;
+
+NAME
+----------------------------------------------------------------------------------------------------
+
+Trafodion                                                                                           
+
+--- 1 row(s) selected.
+>>
+>>call plus(1,2,?);
+
+C          
+-----------
+
+          3
+
+--- SQL operation complete.
+>>
+>>set param ?p 'world';
+>>call concat('hello ', ?p);
+
+T
+----------------------------------------------------------------------------------------------------
+
+hello , world                                                                                       
+
+--- SQL operation complete.
+>>
+>>call addFloat(101.32, 212.839265, ?);
+
+C                        
+-------------------------
+
+ 3.14159265000000000E+002
+
+--- SQL operation complete.
+>>call subFloat(101.32, 212.839265, ?);
+
+C                        
+-------------------------
+
+-1.11519265000000016E+002
+
+--- SQL operation complete.
+>>call mulFloat(101.32, 212.839265, ?);
+
+C                        
+-------------------------
+
+ 2.15648743298000000E+004
+
+--- SQL operation complete.
+>>call divFloat(101.32, 212.839265, ?);
+
+C                        
+-------------------------
+
+ 4.76039982566186624E-001
+
+--- SQL operation complete.
+>>
+>>call addFloatInt(101.32, 212, ?);
+
+C                        
+-------------------------
+
+ 3.13320000000000000E+002
+
+--- SQL operation complete.
+>>call subFloatInt(101.32, 212, ?);
+
+C                        
+-------------------------
+
+-1.10680000000000000E+002
+
+--- SQL operation complete.
+>>call mulFloatInt(101.32, 212, ?);
+
+C                        
+-------------------------
+
+ 2.14798400000000000E+004
+
+--- SQL operation complete.
+>>call divFloatInt(101.32, 212, ?);
+
+C                        
+-------------------------
+
+ 4.77924528301886720E-001
+
+--- SQL operation complete.
+>>
+>>call addIntFloat(101, 212.839265, ?);
+
+C                        
+-------------------------
+
+ 3.13839265000000000E+002
+
+--- SQL operation complete.
+>>call subIntFloat(101, 212.839265, ?);
+
+C                        
+-------------------------
+
+-1.11839265000000016E+002
+
+--- SQL operation complete.
+>>call mulIntFloat(101, 212.839265, ?);
+
+C                        
+-------------------------
+
+ 2.14967657650000000E+004
+
+--- SQL operation complete.
+>>call divIntFloat(101, 212.839265, ?);
+
+C                        
+-------------------------
+
+ 4.74536500584138048E-001
+
+--- SQL operation complete.
+>>
+>>call addReal(101.32, 212.839265, ?);
+
+C              
+---------------
+
+ 3.1415927E+002
+
+--- SQL operation complete.
+>>call subReal(101.32, 212.839265, ?);
+
+C              
+---------------
+
+-1.1151926E+002
+
+--- SQL operation complete.
+>>call mulReal(101.32, 212.839265, ?);
+
+C              
+---------------
+
+ 2.1564875E+004
+
+--- SQL operation complete.
+>>call divReal(101.32, 212.839265, ?);
+
+C              
+---------------
+
+ 4.7603997E-001
+
+--- SQL operation complete.
+>>
+>>call addDecimal(1, 2, ?);
+
+C          
+-----------
+
+          3
+
+--- SQL operation complete.
+>>call subDecimal(1, 2, ?);
+
+C          
+-----------
+
+         -1
+
+--- SQL operation complete.
+>>call mulDecimal(1, 2, ?);
+
+C          
+-----------
+
+          2
+
+--- SQL operation complete.
+>>call divDecimal(1, 2, ?);
+
+C          
+-----------
+
+         .5
+
+--- SQL operation complete.
+>>
+>>call addDecimal(111111.111, 222222.222, ?);
+
+C          
+-----------
+
+ 333333.333
+
+--- SQL operation complete.
+>>call subDecimal(111111.111, 222222.222, ?);
+
+C          
+-----------
+
+-111111.111
+
+--- SQL operation complete.
+>>call mulDecimal(111111.111, 222222.222, ?);
+
+*** ERROR[11216] Java execution: Data overflow occurred while retrieving data at parameter position 3.
+
+--- SQL operation failed with errors.
+>>call divDecimal(111111.111, 222222.222, ?);
+
+C          
+-----------
+
+         .5
+
+--- SQL operation complete.
+>>
+>>call addDecimal(111111.1119, 222222.2229, ?);
+
+C          
+-----------
+
+ 333333.333
+
+--- SQL operation complete.
+>>call subDecimal(111111.1119, 222222.2229, ?);
+
+C          
+-----------
+
+-111111.111
+
+--- SQL operation complete.
+>>call mulDecimal(111111.1119, 222222.2229, ?);
+
+*** ERROR[11216] Java execution: Data overflow occurred while retrieving data at parameter position 3.
+
+--- SQL operation failed with errors.
+>>call divDecimal(111111.1119, 222222.2229, ?);
+
+C          
+-----------
+
+         .5
+
+--- SQL operation complete.
+>>
+>>call getSysDate(?);
+
+T                         
+--------------------------
+
+2019-12-30 07:29:24.484000
+
+--- SQL operation complete.
+>>call selectIntoDate(?);
+
+D         
+----------
+
+2019-12-30
+
+--- SQL operation complete.
+>>call selectIntoTimestamp(?);
+
+T                         
+--------------------------
+
+2019-12-30 07:29:25.046392
+
+--- SQL operation complete.
+>>call selectIntoTime(?);
+
+T       
+--------
+
+07:29:25
+
+--- SQL operation complete.
+>>
+>>call castFunc(?,?);
+
+A                                                   B
+--------------------------------------------------  ---------------------
+
+123.45                                                             543.21
+
+--- SQL operation complete.
+>>
+>>-- Test TO_TIME function
+>>create table totime(l1 varchar(60),l2 char(24),l3 time);
+
+--- SQL operation complete.
+>>create procedure totimeFunc() as //
+declare
+   c1 char(20) := '17:01:23';
+begin
+   insert into totime values ('c1',c1,null);
+   insert into totime select 'TO_TIME(c1,''HH24:MI:SS'') is',c1,TO_TIME(c1,'HH24:MI:SS') from dual;
+   insert into totime values ('TO_TIME(c1,'||''''||'HH24:MI:SS'||''''||') is',c1,TO_TIME(c1,'HH24:MI:SS'));
+end//;
+
+--- SQL operation complete.
+>>
+>>call totimeFunc();
+
+--- SQL operation complete.
+>>select * from totime;
+
+L1                                                            L2                        L3
+------------------------------------------------------------  ------------------------  --------
+
+c1                                                            17:01:23                  ?       
+TO_TIME(c1,'HH24:MI:SS') is                                   17:01:23                  17:01:23
+TO_TIME(c1,'HH24:MI:SS') is                                   17:01:23                  17:01:23
+
+--- 3 row(s) selected.
+>>
+>>drop PROCEDURE if exists plus_one;
+
+--- SQL operation complete.
+>>
+>>-- should fail
+>>CREATE OR REPLACE PROCEDURE if NOT EXISTS plus_one(para1 INT)
++>LANGUAGE SQL AS //
+BEGIN
+update t1 set a1 = a1 + 1;
+END //;
+
+*** ERROR[15002] Internal parser error: OR REPLACE and IF NOT EXISTS cannot appear together.
+.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>
+>>
+>>CREATE PROCEDURE plus_one(para1 INT)
++>LANGUAGE SQL AS //
+BEGIN
+update t1 set a1 = a1 + 1;
+END //;
+
+--- SQL operation complete.
+>>
+>>-- CALL
+>>call plus_one(1);
+
+--- SQL operation complete.
+>>
+>>-- check the result
+>>select * from t1;
+
+A1         
+-----------
+
+          2
+
+--- 1 row(s) selected.
+>>
+>>-- CALL
+>>call plus_one(1);
+
+--- SQL operation complete.
+>>
+>>-- check the result
+>>select * from t1;
+
+A1         
+-----------
+
+          3
+
+--- 1 row(s) selected.
+>>
+>>CREATE OR REPLACE PROCEDURE plus_one(para1 INT)
++>LANGUAGE SQL AS //
+BEGIN
+update t1 set a1 = a1 * 2;
+END //;
+
+--- SQL operation complete.
+>>
+>>-- CALL
+>>call plus_one(1);
+
+--- SQL operation complete.
+>>
+>>-- check the result
+>>select * from t1;
+
+A1         
+-----------
+
+          6
+
+--- 1 row(s) selected.
+>>
+>>-- CALL
+>>call plus_one(1);
+
+--- SQL operation complete.
+>>
+>>-- check the result
+>>select * from t1;
+
+A1         
+-----------
+
+         12
+
+--- 1 row(s) selected.
+>>
+>>--
+>>-- test cases for functions
+>>--
+>>drop table if exists t1;
+
+--- SQL operation complete.
+>>create table t1 (a int, b int);
+
+--- SQL operation complete.
+>>insert into t1 values (1,1),(2,2),(3,3),(4,4),(5,5);
+
+--- 5 row(s) inserted.
+>>
+>>drop table if exists t2;
+
+--- SQL operation complete.
+>>create table t2 (c int);
+
+--- SQL operation complete.
+>>
+>>drop function if exists f1;
+
+--- SQL operation complete.
+>>create function f1(a int, b int) returns (f1 int) as //
+begin
+  declare  c int;
+  c := a + b;
+  if c < 10 then 
+    insert into t2 values (c);
+  end if;
+  return c;
+end//;
+
+--- SQL operation complete.
+>>
+>>begin work;
+
+--- SQL operation complete.
+>>select f1(a, b) from t1;
+
+F1         
+-----------
+
+          2
+          4
+          6
+          8
+         10
+
+--- 5 row(s) selected.
+>>rollback;
+
+--- SQL operation complete.
+>>select * from t2;
+
+--- 0 row(s) selected.
+>>select * from t1;
+
+A            B          
+-----------  -----------
+
+          1            1
+          2            2
+          3            3
+          4            4
+          5            5
+
+--- 5 row(s) selected.
+>>
+>>begin work;
+
+--- SQL operation complete.
+>>select f1(a, b) from t1;
+
+F1         
+-----------
+
+          2
+          4
+          6
+          8
+         10
+
+--- 5 row(s) selected.
+>>commit;
+
+--- SQL operation complete.
+>>select * from t2;
+
+C          
+-----------
+
+          2
+          4
+          6
+          8
+
+--- 4 row(s) selected.
+>>select * from t1;
+
+A            B          
+-----------  -----------
+
+          1            1
+          2            2
+          3            3
+          4            4
+          5            5
+
+--- 5 row(s) selected.
+>>
+>>-- support LOOP in SPSQL
+>>CREATE OR REPLACE PROCEDURE test_loop() AS //
+BEGIN
+    declare x int := 0;
+    LOOP
+        x = x + 1;
+        print(x);
+        if x == 3
+            break;
+    end loop;
+END//;
+
+--- SQL operation complete.
+>>
+>>call test_loop();
+
+(EXPR)
+------
+
+     1
+
+--- 1 row(s) selected.
+
+(EXPR)
+------
+
+     2
+
+--- 1 row(s) selected.
+
+(EXPR)
+------
+
+     3
+
+--- 1 row(s) selected.
+
+--- SQL operation complete.
+>>
+>>-- create or replace function
+>>create or replace function f1(a int) return (f1 int) as //
+begin
+  return a * 2;
+end//;
+
+--- SQL operation complete.
+>>
+>>select f1(1) from dual;
+
+F1         
+-----------
+
+          2
+
+--- 1 row(s) selected.
+>>
+>>create or replace function f1(a int) return (f1 int) as //
+begin
+  return a * 3;
+end//;
+
+--- SQL operation complete.
+>>
+>>select f1(1) from dual;
+
+F1         
+-----------
+
+          3
+
+--- 1 row(s) selected.
+>>
+>>obey TEST300(showddltest);
+>>
+>>drop procedure if exists p1;
+
+--- SQL operation complete.
+>>create procedure p1(in a varchar(100), out b varchar(100)) as //
+begin
+  set b = 'Hello ' || b || '!';
+end//;
+
+--- SQL operation complete.
+>>
+>>showddl procedure p1;
+
+CREATE PROCEDURE TRAFODION.SCH.P1
+  (
+    IN A VARCHAR(100) CHARACTER SET ISO88591
+  , OUT B VARCHAR(100) CHARACTER SET ISO88591
+  )
+  EXTERNAL SECURITY INVOKER
+  LANGUAGE SQL
+  CONTAINS SQL
+  DYNAMIC RESULT SETS 255
+  TRANSACTION REQUIRED
+  ISOLATE
+ AS 
+begin
+  set b = 'Hello ' || b || '!';
+end;
+
+--- SQL operation complete.
+>>
+>>drop function if exists f1;
+
+--- SQL operation complete.
+>>create function f1(a int) return (f1 int) as //
+begin
+  return a * 2;
+end//;
+
+--- SQL operation complete.
+>>
+>>showddl function f1;
+
+CREATE FUNCTION TRAFODION.SCH.F1
+  (
+    IN A INTEGER
+  )
+  RETURNS
+  (
+    OUT F1 INTEGER
+  )
+  LANGUAGE SQL
+  NO SQL
+  ALLOW ANY PARALLELISM
+  NOT DETERMINISTIC
+  SAFE EXECUTION MODE
+ AS 
+begin
+  return a * 2;
+end;
+
+--- SQL operation complete.
+>>
+>>create or replace package pkg is //
+  procedure hello(in name varchar(30) character set utf8,
+                  out greeting varchar(30) character set utf8);
+end;
+//;
+
+--- SQL operation complete.
+>>
+>>create or replace package body pkg is //
+  procedure hello(in name varchar(30) character set utf8,
+                  out greeting varchar(30) character set utf8) is
+  begin  
+    set greeting = 'Hello, ' || name || '!';
+  end;
+end;
+//;
+
+--- SQL operation complete.
+>>
+>>showddl package pkg;
+
+CREATE PACKAGE TRAFODION.SCH.PKG AS 
+  procedure hello(in name varchar(30) character set utf8,
+                  out greeting varchar(30) character set utf8);
+end;
+;
+CREATE PACKAGE BODY TRAFODION.SCH.PKG AS 
+  procedure hello(in name varchar(30) character set utf8,
+                  out greeting varchar(30) character set utf8) is
+  begin  
+    set greeting = 'Hello, ' || name || '!';
+  end;
+end;
+;
+
+--- SQL operation complete.
+>>
+>>
+>>-- The result set test case will be run several times with different
+>>-- result sets number
+>>obey TEST300(rssetup);
+>>drop table if exists t1;
+
+--- SQL operation complete.
+>>drop table if exists t2;
+
+--- SQL operation complete.
+>>drop procedure if exists p1;
+
+--- SQL operation complete.
+>>create table t1 (a int);
+
+--- SQL operation complete.
+>>insert into t1 values (1),(2),(3);
+
+--- 3 row(s) inserted.
+>>create table t2 (b int);
+
+--- SQL operation complete.
+>>insert into t2 values (4),(5),(6);
+
+--- 3 row(s) inserted.
+>>
+>>set pattern $$NUM$$ 0;
+>>obey TEST300(resultset);
+>>create or replace procedure p1() dynamic result sets $$NUM$$ as //
+begin
+  select * from t1;
+  select * from t2;
+end//;
+
+--- SQL operation complete.
+>>
+>>-- Call the procedure twice to make sure the result sets are cleared
+>>-- before each call
+>>call p1();
+
+--- SQL operation complete.
+>>call p1();
+
+--- SQL operation complete.
+>>
+>>set pattern $$NUM$$ 1;
+>>obey TEST300(resultset);
+>>create or replace procedure p1() dynamic result sets $$NUM$$ as //
+begin
+  select * from t1;
+  select * from t2;
+end//;
+
+--- SQL operation complete.
+>>
+>>-- Call the procedure twice to make sure the result sets are cleared
+>>-- before each call
+>>call p1();
+
+A          
+-----------
+
+          1
+          2
+          3
+
+--- 3 row(s) selected.
+
+--- SQL operation complete.
+>>call p1();
+
+A          
+-----------
+
+          1
+          2
+          3
+
+--- 3 row(s) selected.
+
+--- SQL operation complete.
+>>
+>>set pattern $$NUM$$ 2;
+>>obey TEST300(resultset);
+>>create or replace procedure p1() dynamic result sets $$NUM$$ as //
+begin
+  select * from t1;
+  select * from t2;
+end//;
+
+--- SQL operation complete.
+>>
+>>-- Call the procedure twice to make sure the result sets are cleared
+>>-- before each call
+>>call p1();
+
+A          
+-----------
+
+          1
+          2
+          3
+
+--- 3 row(s) selected.
+
+B          
+-----------
+
+          4
+          5
+          6
+
+--- 3 row(s) selected.
+
+--- SQL operation complete.
+>>call p1();
+
+A          
+-----------
+
+          1
+          2
+          3
+
+--- 3 row(s) selected.
+
+B          
+-----------
+
+          4
+          5
+          6
+
+--- 3 row(s) selected.
+
+--- SQL operation complete.
+>>
+>>set pattern $$NUM$$ 3;
+>>obey TEST300(resultset);
+>>create or replace procedure p1() dynamic result sets $$NUM$$ as //
+begin
+  select * from t1;
+  select * from t2;
+end//;
+
+--- SQL operation complete.
+>>
+>>-- Call the procedure twice to make sure the result sets are cleared
+>>-- before each call
+>>call p1();
+
+A          
+-----------
+
+          1
+          2
+          3
+
+--- 3 row(s) selected.
+
+B          
+-----------
+
+          4
+          5
+          6
+
+--- 3 row(s) selected.
+
+--- SQL operation complete.
+>>call p1();
+
+A          
+-----------
+
+          1
+          2
+          3
+
+--- 3 row(s) selected.
+
+B          
+-----------
+
+          4
+          5
+          6
+
+--- 3 row(s) selected.
+
+--- SQL operation complete.
+>>
+>>set pattern $$NUM$$ 255;
+>>obey TEST300(resultset);
+>>create or replace procedure p1() dynamic result sets $$NUM$$ as //
+begin
+  select * from t1;
+  select * from t2;
+end//;
+
+--- SQL operation complete.
+>>
+>>-- Call the procedure twice to make sure the result sets are cleared
+>>-- before each call
+>>call p1();
+
+A          
+-----------
+
+          1
+          2
+          3
+
+--- 3 row(s) selected.
+
+B          
+-----------
+
+          4
+          5
+          6
+
+--- 3 row(s) selected.
+
+--- SQL operation complete.
+>>call p1();
+
+A          
+-----------
+
+          1
+          2
+          3
+
+--- 3 row(s) selected.
+
+B          
+-----------
+
+          4
+          5
+          6
+
+--- 3 row(s) selected.
+
+--- SQL operation complete.
+>>
+>>
+>>-- Test PRINT statement
+>>obey TEST300(print);
+>>create or replace procedure p1() as //
+declare
+  i int := 1;
+  s varchar(100) := 'Hello';
+begin
+  declare continue handler for sqlexception
+  begin
+    print sqlcode;
+    print sqlcode;
+    print sqlstate;
+    print sqlstate;
+  end;
+  PRINT i;
+  PRINT 1+1;
+  PRINT s;
+  PRINT 'Hi';
+  select * from table_not_exit;
+  select 1 into i from dual;
+  print activity_count;
+  print activity_count;
+end//;
+
+--- SQL operation complete.
+>>
+>>call p1();
+
+I     
+------
+
+     1
+
+--- 1 row(s) selected.
+
+(EXPR)
+------
+
+     2
+
+--- 1 row(s) selected.
+
+S    
+-----
+
+Hello
+
+--- 1 row(s) selected.
+
+(EXPR)
+------
+
+Hi    
+
+--- 1 row(s) selected.
+
+SQLCODE    
+-----------
+
+      -4082
+
+--- 1 row(s) selected.
+
+SQLCODE    
+-----------
+
+      -4082
+
+--- 1 row(s) selected.
+
+SQLSTATE
+--------
+
+42000   
+
+--- 1 row(s) selected.
+
+SQLSTATE
+--------
+
+42000   
+
+--- 1 row(s) selected.
+
+(EXPR)
+------
+
+     1
+
+--- 1 row(s) selected.
+
+(EXPR)
+------
+
+     1
+
+--- 1 row(s) selected.
+
+--- SQL operation complete.
+>>
+>>
+>>obey TEST300(anonymous);
+>>
+>>drop table if exists t1;
+
+--- SQL operation complete.
+>>create table t1 (a int);
+
+--- SQL operation complete.
+>>
+>>exec //
+begin
+  insert into t1 values (1);
+end
+//;
+
+--- SQL operation complete.
+>>
+>>exec //
+declare
+  a INT := 2;
+begin
+  insert into t1 values (a);
+end
+//;
+
+--- SQL operation complete.
+>>
+>>execute // insert into t1 values (3) //;
+
+--- SQL operation complete.
+>>
+>>select * from t1;
+
+A          
+-----------
+
+          1
+          2
+          3
+
+--- 3 row(s) selected.
+>>
+>>obey TEST300(sch);
+>>
+>>create schema t300sch1;
+
+--- SQL operation complete.
+>>set schema t300sch1;
+
+--- SQL operation complete.
+>>
+>>create table ts1 (a varchar(50));
+
+--- SQL operation complete.
+>>
+>>create function f1(a varchar(50)) return (f1 varchar(50)) as //
+begin
+  insert into ts1 values (a);
+  return a;
+end//;
+
+--- SQL operation complete.
+>>
+>>create procedure p1() as //
+begin
+  insert into ts1 values('t300sch1.p1');
+  p2();
+end//;
+
+--- SQL operation complete.
+>>
+>>create procedure p2() as //
+begin
+  insert into ts1 values('t300sch1.p2');
+end//;
+
+--- SQL operation complete.
+>>
+>>set schema $$TEST_SCHEMA$$;
+
+--- SQL operation complete.
+>>
+>>drop table if exists ts;
+
+--- SQL operation complete.
+>>drop procedure if exists p1;
+
+--- SQL operation complete.
+>>drop procedure if exists f1;
+
+--- SQL operation complete.
+>>drop procedure if exists t300p;
+
+--- SQL operation complete.
+>>create table ts (a varchar(50));
+
+--- SQL operation complete.
+>>
+>>create procedure p1() as //
+begin
+  insert into ts values('p1');
+  t300sch1.p1();
+  trafodion.t300sch1.p1();
+end//;
+
+--- SQL operation complete.
+>>
+>>create procedure t300p() as //
+begin
+  insert into ts values('t300p');
+  p1();
+  t300sch1.p1();
+  insert into ts values('t300p');
+  p1();
+  trafodion.t300sch1.p1();
+  insert into ts values('t300p');
+  p1();
+  select t300sch1.f1('t300p') from dual;
+  select trafodion.t300sch1.f1('t300p') from dual;
+  select t300sch1.f1(a) from ts;
+  select trafodion.t300sch1.f1(a) from ts;
+
+  set schema t300sch1;
+  insert into ts1 values('t300p');
+  select f1('t300p') from dual;
+  select t300sch1.f1('t300p') from dual;
+  select trafodion.t300sch1.f1('t300p') from dual;
+  select f1(a) from $$TEST_SCHEMA$$.ts;
+  select t300sch1.f1(a) from $$TEST_SCHEMA$$.ts;
+  select trafodion.t300sch1.f1(a) from $$TEST_SCHEMA$$.ts;
+  p1();
+end//;
+
+--- SQL operation complete.
+>>
+>>call t300p();
+
+F1                                                
+--------------------------------------------------
+
+t300p                                             
+
+--- 1 row(s) selected.
+
+F1                                                
+--------------------------------------------------
+
+t300p                                             
+
+--- 1 row(s) selected.
+
+F1                                                
+--------------------------------------------------
+
+t300p                                             
+p1                                                
+t300p                                             
+p1                                                
+t300p                                             
+p1                                                
+
+--- 6 row(s) selected.
+
+F1                                                
+--------------------------------------------------
+
+t300p                                             
+p1                                                
+t300p                                             
+p1                                                
+t300p                                             
+p1                                                
+
+--- 6 row(s) selected.
+
+F1                                                
+--------------------------------------------------
+
+t300p                                             
+
+--- 1 row(s) selected.
+
+F1                                                
+--------------------------------------------------
+
+t300p                                             
+
+--- 1 row(s) selected.
+
+F1                                                
+--------------------------------------------------
+
+t300p                                             
+
+--- 1 row(s) selected.
+
+F1                                                
+--------------------------------------------------
+
+t300p                                             
+p1                                                
+t300p                                             
+p1                                                
+t300p                                             
+p1                                                
+
+--- 6 row(s) selected.
+
+F1                                                
+--------------------------------------------------
+
+t300p                                             
+p1                                                
+t300p                                             
+p1                                                
+t300p                                             
+p1                                                
+
+--- 6 row(s) selected.
+
+F1                                                
+--------------------------------------------------
+
+t300p                                             
+p1                                                
+t300p                                             
+p1                                                
+t300p                                             
+p1                                                
+
+--- 6 row(s) selected.
+
+--- SQL operation complete.
+>>
+>>select * from ts;
+
+A                                                 
+--------------------------------------------------
+
+t300p                                             
+p1                                                
+t300p                                             
+p1                                                
+t300p                                             
+p1                                                
+
+--- 6 row(s) selected.
+>>select * from t300sch1.ts1;
+
+A                                                 
+--------------------------------------------------
+
+t300p                                             
+t300p                                             
+t300p                                             
+p1                                                
+t300p                                             
+p1                                                
+t300p                                             
+p1                                                
+t300p                                             
+p1                                                
+t300p                                             
+p1                                                
+t300p                                             
+p1                                                
+t300p                                             
+t300p                                             
+t300sch1.p1                                       
+t300sch1.p2                                       
+t300sch1.p1                                       
+t300sch1.p2                                       
+t300sch1.p1                                       
+t300sch1.p2                                       
+t300sch1.p1                                       
+t300sch1.p2                                       
+t300sch1.p1                                       
+t300sch1.p2                                       
+t300sch1.p1                                       
+t300sch1.p2                                       
+t300sch1.p1                                       
+t300sch1.p2                                       
+t300sch1.p1                                       
+t300sch1.p2                                       
+t300p                                             
+t300sch1.p1                                       
+t300sch1.p2                                       
+t300p                                             
+t300p                                             
+p1                                                
+t300p                                             
+p1                                                
+t300p                                             
+p1                                                
+t300p                                             
+p1                                                
+t300p                                             
+p1                                                
+t300p                                             
+p1                                                
+t300p                                             
+p1                                                
+t300p                                             
+p1                                                
+t300p                                             
+p1                                                
+
+--- 54 row(s) selected.
+>>
+>>obey TEST300(loadtest);
+>>
+>>drop procedure if exists t300p;
+
+--- SQL operation complete.
+>>drop procedure if exists t300p1;
+
+--- SQL operation complete.
+>>drop function if exists t300f;
+
+--- SQL operation complete.
+>>drop package if exists t300pkg;
+
+--- SQL operation complete.
+>>drop table if exists t1;
+
+--- SQL operation complete.
+>>
+>>create table t1 (a int);
+
+--- SQL operation complete.
+>>insert into t1 values (1),(2),(3);
+
+--- 3 row(s) inserted.
+>>
+>>obey TEST300(loadcall);
+>>
+>>call t300p(?);
+
+*** ERROR[1389] Object T300P does not exist in Trafodion.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>call t300pkg.hello(?);
+
+*** ERROR[1389] Object HELLO does not exist in Trafodion.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>select t300f(a) from t1;
+
+*** ERROR[4450] Function TRAFODION.SCH.T300F is not a built-in function or registered user-defined function.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>
+>>
+>>sh sqlci -i "TEST300(loadtest1)";
+>>
+>>create procedure t300p(out a varchar(100)) as //
+begin
+  set a = 't300p';
+  t300p1(a);
+end//;
+
+--- SQL operation complete.
+>>
+>>create procedure t300p1(inout a varchar(100)) as //
+begin
+  set a = a || ' t300p1';
+end//;
+
+--- SQL operation complete.
+>>
+>>create function t300f(a int) return (t300f int) as //
+begin
+  return a * 2;
+end//;
+
+--- SQL operation complete.
+>>
+>>create package body t300pkg as //
+  procedure hello(out a varchar(100)) is
+  begin
+    set a = 'Hello';
+  end;
+end//;
+
+--- SQL operation complete.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>
+>>obey TEST300(loadcall);
+>>
+>>call t300p(?);
+
+A
+----------------------------------------------------------------------------------------------------
+
+t300p t300p1                                                                                        
+
+--- SQL operation complete.
+>>call t300pkg.hello(?);
+
+A
+----------------------------------------------------------------------------------------------------
+
+Hello                                                                                               
+
+--- SQL operation complete.
+>>select t300f(a) from t1;
+
+T300F      
+-----------
+
+          2
+          4
+          6
+
+--- 3 row(s) selected.
+>>
+>>
+>>sh sqlci -i "TEST300(loadtest2)";
+>>
+>>create or replace procedure t300p(out a varchar(100)) as //
+begin
+  set a = 'T300P';
+  t300p1(a);
+end//;
+
+--- SQL operation complete.
+>>
+>>create or replace procedure t300p1(inout a varchar(100)) as //
+begin
+  set a = a || ' T300P1';
+end//;
+
+--- SQL operation complete.
+>>
+>>create or replace function t300f(a int) return (t300f int) as //
+begin
+  return a * 3;
+end//;
+
+--- SQL operation complete.
+>>
+>>create or replace package body t300pkg as //
+  procedure hello(out a varchar(100)) is
+  begin
+    set a = 'Hi';
+  end;
+end//;
+
+--- SQL operation complete.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>
+>>exec //invalidate procedure t300p//;
+
+--- SQL operation complete.
+>>obey TEST300(loadcall);
+>>
+>>call t300p(?);
+
+A
+----------------------------------------------------------------------------------------------------
+
+T300P t300p1                                                                                        
+
+--- SQL operation complete.
+>>call t300pkg.hello(?);
+
+A
+----------------------------------------------------------------------------------------------------
+
+Hello                                                                                               
+
+--- SQL operation complete.
+>>select t300f(a) from t1;
+
+T300F      
+-----------
+
+          3
+          6
+          9
+
+--- 3 row(s) selected.
+>>
+>>
+>>exec //invalidate function t300f//;
+
+--- SQL operation complete.
+>>obey TEST300(loadcall);
+>>
+>>call t300p(?);
+
+A
+----------------------------------------------------------------------------------------------------
+
+T300P t300p1                                                                                        
+
+--- SQL operation complete.
+>>call t300pkg.hello(?);
+
+A
+----------------------------------------------------------------------------------------------------
+
+Hello                                                                                               
+
+--- SQL operation complete.
+>>select t300f(a) from t1;
+
+T300F      
+-----------
+
+          3
+          6
+          9
+
+--- 3 row(s) selected.
+>>
+>>
+>>exec //invalidate package t300pkg//;
+
+--- SQL operation complete.
+>>obey TEST300(loadcall);
+>>
+>>call t300p(?);
+
+A
+----------------------------------------------------------------------------------------------------
+
+T300P t300p1                                                                                        
+
+--- SQL operation complete.
+>>call t300pkg.hello(?);
+
+A
+----------------------------------------------------------------------------------------------------
+
+Hi                                                                                                  
+
+--- SQL operation complete.
+>>select t300f(a) from t1;
+
+T300F      
+-----------
+
+          3
+          6
+          9
+
+--- 3 row(s) selected.
+>>
+>>
+>>exec //invalidate all//;
+
+--- SQL operation complete.
+>>obey TEST300(loadcall);
+>>
+>>call t300p(?);
+
+A
+----------------------------------------------------------------------------------------------------
+
+T300P T300P1                                                                                        
+
+--- SQL operation complete.
+>>call t300pkg.hello(?);
+
+A
+----------------------------------------------------------------------------------------------------
+
+Hi                                                                                                  
+
+--- SQL operation complete.
+>>select t300f(a) from t1;
+
+T300F      
+-----------
+
+          3
+          6
+          9
+
+--- 3 row(s) selected.
+>>
+>>
+>>
+>>log;

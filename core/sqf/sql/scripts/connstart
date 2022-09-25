@@ -1,0 +1,50 @@
+#!/bin/bash
+#
+# @@@ START COPYRIGHT @@@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+# @@@ END COPYRIGHT @@@
+#
+
+# Connectivity service start up script
+SQLOG_DIR=$TRAF_LOG
+SQMON_LOG=$SQLOG_DIR/sqmon.log
+
+echo  "***"
+echo  "*** Starting DCS"
+echo  "***"
+dcsstart
+sleep 10
+
+if [[ -z $CLUSTERNAME ]]; then
+   reststart
+fi
+
+#comment out since it's unused right now
+#echo  "***"
+#echo  "*** Starting LOB Service"
+#echo  "***"
+#lobstart
+
+if [[ -z $CLUSTERNAME ]]; then
+   reststart
+fi
+
+
+sqcheck | tee -a $SQMON_LOG

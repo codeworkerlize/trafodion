@@ -1,0 +1,460 @@
+#
+# @@@ START COPYRIGHT @@@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+# @@@ END COPYRIGHT @@@
+#
+MSENV_GENDATE=`date`
+echo "## SQ env. environment variables. Generated on $MSENV_GENDATE"
+echo "## setting the default for ax_reg"
+echo "############################################################################"
+echo "# DO NOT MODIFY VARIABLES IN THIS BOX. THIS IS FOR COMMENTARY ONLY"
+echo "#"
+echo "# The following are TM Flags that can be set"
+echo "#"
+echo "# DTM_TM_PARTIC, default 0 (ax_reg is in use), other option is 1 (xa_start)"
+echo "# DTM_TLOG_PER_TM sets whether there should be a TLOG per DTM (1) or not (0 - default)"
+echo "# TM_ENABLE_TLOG_WRITES set whether we use the TLOG (default 1 = yes)"
+echo "# TM_TLOG_SYNCHRONOUS_WRITES sets synchronous writes"
+echo "# TM_TLOG_DISABLE_BLOCK_CACHE disable block cache "
+echo "# TM_SKIP_CONFLICT_CHECK skip conflict checking"
+echo "# TM_TLOG_MAX_VERSIONS set how many version to return (max), anything less than 3 will be ignored"
+echo "# TM_USE_SSCC if 1, use SSCC, otherwise MVCC"
+echo "# TM_TLOG_RETRY_DELAY audit retry delay in ms"
+echo "# TM_TLOG_RETRY_COUNT how many times to retry"
+echo "# TM_IDTMSRV_REFRESH_DELAY_SECONDS tm_tdtmsrv refresh"
+echo "# TM_USE_PIT_RECOVERY determines if PIT is in use"
+echo "# TM_MAX_SNAPSHOT_VERSIONS for PIT"
+echo "#"
+echo "# Modidy values below for desired tracing outcomes"
+echo "###########################################################################"
+echo "DTM_RM_PARTIC=0"
+echo "DTM_TLOG_PER_TM=0"
+echo "TM_ENABLE_TLOG_WRITES=1"
+echo "TM_TLOG_SYNCHRONOUS_WRITES=1"
+echo "TM_TLOG_DISABLE_BLOCK_CACHE=0"
+echo "TM_SKIP_CONFLICT_CHECK=0"
+echo "#TM_TLOG_MAX_VERSIONS less than 3 will be ignored"
+echo "TM_TLOG_MAX_VERSIONS=10"
+echo "TM_TX_CLEANUP_DELAY=30"
+echo "TM_USE_SSCC=0"
+echo "TM_IDTM_TIMEOUT=15000"
+echo "TM_TLOG_RETRY_DELAY=5000"
+echo "TM_TLOG_RETRY_COUNT=100"
+echo "TM_IDTMSRV_REFRESH_DELAY_SECONDS=3"
+echo "TM_USE_PIT_RECOVERY=0"
+echo "TM_LOG_COMMITS=0"
+echo "TM_MAX_SNAPSHOT_VERSIONS=10"
+echo "TMRECOV_CRASH_RECOVERY=0"
+echo "LANG="`echo $LANG`
+
+echo "MS_TRACE_ENABLE=0"
+echo "FS_TRACE_ENABLE=0"
+echo "HOOK_ENABLE=0"
+echo "LIBHDFS_OPTS=-Xmx512m"
+echo ""
+echo "ABANDON_TX_AFTER_3_RETRIES=0"
+echo "#Launch SQL processes hooked or unhooked"
+echo "IPC_LAUNCH_UNHOOKED=1"
+echo ""
+echo "#Use Robust semaphore for SB disconnect processing"
+echo "MS_DISC_SEM_ROBUST=1"
+echo ""
+echo "#Use sock-transport"
+echo "#SQ_TRANS_SOCK=1"
+echo ""
+echo "############################################################################"
+echo "# DO NOT MODIFY VARIABLES IN THIS BOX. THIS IS FOR COMMENTARY ONLY"
+echo "#"
+echo "# - ALL MS_TRACE vars listed here"
+echo "# To turn on MS Tracing for Seabed, MS_TRACE_ENABLE must be set to 1 (above) AND"
+echo "#    MS_TRACE=1 must be uncommented"
+echo "#"
+echo "# MS_TRACE - turn on tracing if MS_TRACE_ENABLED is 1"
+echo "# MS_TRACE_ABANDON - trace msg abandon message"
+echo "# MS_TRACE_AGGR - unused?"
+echo "# MS_TRACE_ALLOC - trace memory allocation/deallocation methods"
+echo "# MS_TRACE_DATA - trace MS data"
+echo "# MS_TRACE_DATA_MAX - upper limit for data tracing"
+echo "# MS_TRACE_DETAIL - enhace tracing with additional details"
+echo "# MS_TRACE_DIALECT"
+echo "# MS_TRACE_ENVIRON - trace environment"
+echo "# MS_TRACE_ERRORS - trace error conditions"
+echo "# MS_TRACE_EVENTS - trace events"
+echo "# MS_TRACE_EVLOG - trace event log"
+echo "# MS_TRACE_FILE_DELTA "
+echo "# MS_TRACE_FILE_FB"
+echo "# MS_TRACE_FILE modifiable default trace file name"
+echo "# MS_TRACE_FILE_INMEM"
+echo "# MS_TRACE_FILE_MAXSIZE - max tracing file size"
+echo "# MS_TRACE_FILE_NOLOCK - turn on or off locking for tracing"
+echo "# MS_TRACE_FILE_SIGNAL - init signal"
+echo "# MS_TRACE_FILE_UNIQUE - specifies unique file per pid"
+echo "# MS_TRACE_IC - trace interceptors"
+echo "# MS_TRACE_LOCIO - trace local io"
+echo "# MS_TRACE_MD - trace message descriptors"
+echo "# MS_TRACE_MON - trace monitor messages"
+echo "# MS_TRACE_MPI - trace mpi"
+echo "# MS_TRACE_MPI_CONN - trace mpi connection"
+echo "# MS_TRACE_MPI_DATA - trace additional mpi data"
+echo "# MS_TRACE_MPI_DATA_MAX "
+echo "# MS_TRACE_MPI_TEST "
+echo "# MS_TRACE_MPI_TIME"
+echo "# MS_TRACE_NAME - trace name, pid, nid(if applicable)"
+echo "# MS_TRACE_PARAMS - trace parameters"
+echo "# MS_TRACE_PTHREAD - trace pthreads"
+echo "# MS_TRACE_QALLOC - queue allocation tracing (additional requirements)"
+echo "# MS_TRACE_REF- trace reference counting for streams"
+echo "# MS_TRACE_RPC "
+echo "# MS_TRACE_RPC_DATA "
+echo "# MS_TRACE_RPC_DATA_MAX "
+echo "# MS_TRACE_RPC_MSG "
+echo "# MS_TRACE_SM - trace sock message"
+echo "# MS_TRACE_SOCK - more detailed sock tracing"
+echo "# MS_TRACE_STATS - trace various stats"
+echo "# MS_TRACE_THREAD - trace threads"
+echo "# MS_TRACE_TIMER - trace timers"
+echo "# MS_TRACE_TIMERMAP - trace timermap"
+echo "# MS_TRACE_TRANS - trace transaction related ifnormation"
+echo "# MS_TRACE_VERBOSE - turn on verbose tracing"
+echo "# MS_TRACE_WAIT - trace wait states"
+echo "#"
+echo "# Change values below for desierd tracing outcomes"
+echo "############################################################################"
+echo ""
+echo "# - ALL MS_TRACE vars listed here"
+echo "#MS_TRACE=1"
+echo "#MS_TRACE_ABANDON=1"
+echo "#MS_TRACE_AGGR=1"
+echo "#MS_TRACE_ALLOC=1"
+echo "#MS_TRACE_DATA=1"
+echo "#MS_TRACE_DATA_MAX=16"
+echo "#MS_TRACE_DETAIL=1"
+echo "#MS_TRACE_DIALECT=1"
+echo "#MS_TRACE_ENVIRON=1"
+echo "#MS_TRACE_ERRORS=1"
+echo "#MS_TRACE_EVENTS=1"
+echo "#MS_TRACE_EVLOG=1"
+echo "#MS_TRACE_FILE_DELTA=1"
+echo "#MS_TRACE_FILE_FB=65536"
+echo "#MS_TRACE_FILE=mstrace"
+echo "#MS_TRACE_FILE_INMEM=65536"
+echo "#MS_TRACE_FILE_MAXSIZE=10000000000"
+echo "#MS_TRACE_FILE_NOLOCK=1"
+echo "#MS_TRACE_FILE_SIGNAL=1"
+echo "#MS_TRACE_FILE_UNIQUE=1"
+echo "#MS_TRACE_IC=1"
+echo "#MS_TRACE_LOCIO=1"
+echo "#MS_TRACE_MD=1"
+echo "#MS_TRACE_MON=1"
+echo "#MS_TRACE_MPI=1"
+echo "#MS_TRACE_MPI_CONN=1"
+echo "#MS_TRACE_MPI_DATA=1"
+echo "#MS_TRACE_MPI_DATA_MAX=16"
+echo "#MS_TRACE_MPI_TEST=1"
+echo "#MS_TRACE_MPI_TIME=1"
+echo "#MS_TRACE_NAME=1"
+echo "#MS_TRACE_PARAMS=1"
+echo "#MS_TRACE_PTHREAD=1"
+echo "#MS_TRACE_QALLOC=1"
+echo "#MS_TRACE_REF=1"
+echo "#MS_TRACE_RPC=1"
+echo "#MS_TRACE_RPC_DATA=1"
+echo "#MS_TRACE_RPC_DATA_MAX=16"
+echo "#MS_TRACE_RPC_MSG=1"
+echo "#MS_TRACE_SM=1"
+echo "#MS_TRACE_SOCK=1"
+echo "#MS_TRACE_STATS=1"
+echo "#MS_TRACE_THREAD=1"
+echo "#MS_TRACE_TIMER=1"
+echo "#MS_TRACE_TIMERMAP=1"
+echo "#MS_TRACE_TRANS=1"
+echo "#MS_TRACE_VERBOSE"
+echo "#MS_TRACE_WAIT=1"
+echo ""
+echo "############################################################################"
+echo "# DO NOT MODIFY VARIABLES IN THIS BOX. THIS IS FOR COMMENTARY ONLY"
+echo "#"
+echo "# ALL FS_TRACE vars listed here with explanation"
+echo "# To turn on FS Tracing for Seabed, FS_TRACE_ENABLE must be set to 1 (above) AND"
+echo "#    FS_TRACE=1 must be uncommented"
+echo "#"
+echo "# FS_TRACE - turns on FS tracing, if FS_TRACE_ENABLE is set to 1"
+echo "# FS_TRACE_DATA - trace FS data"
+echo "# FS_TRACE_DATA_MAX - upper limit for data tracing"
+echo "# FS_TRACE_DETAIL - enhace tracing with additional details"
+echo "# FS_TRACE_ERRORS - trace error conditions"
+echo "# FS_TRACE_FC "
+echo "# FS_TRACE_FILE - modifiable name of trace file, default only.  "
+echo "# FS_TRACE_FILE_DELTA"
+echo "# FS_TRACE_FILE_FB"
+echo "# FS_TRACE_FILE_MAXSIZE - max size for trace file"
+echo "# FS_TRACE_FILE_NOLOCK - locking for trace file, default (1) is no locking"
+echo "# FS_TRACE_FILE_UNIQUE - create a new trace file for each pid"
+echo "# FS_TRACE_MON "
+echo "# FS_TRACE_MT "
+echo "# FS_TRACE_PARAMS trace method parameters"
+echo "# FS_TRACE_PARAMS0 turn off entry/where tracing"
+echo "# FS_TRACE_VERBOSE verbose tracing"
+echo "#"
+echo "# Change values below for desierd tracing outcomes"
+echo "############################################################################"
+echo ""
+echo "# - if there's an FS error, this causes an assert"
+echo "FS_ASSERT_ERROR=1"
+echo ""
+echo "# - ALL FS_TRACE vars listed here"
+echo "#FS_TRACE=1"
+echo "#FS_TRACE_DATA=1"
+echo "#FS_TRACE_DATA_MAX=16"
+echo "#FS_TRACE_DETAIL=1"
+echo "#FS_TRACE_ERRORS=1"
+echo "#FS_TRACE_FC=1"
+echo "#FS_TRACE_FILE=fstrace"
+echo "#FS_TRACE_FILE_DELTA=1"
+echo "#FS_TRACE_FILE_FB=65536"
+echo "#FS_TRACE_FILE_MAXSIZE=10000000000"
+echo "#FS_TRACE_FILE_NOLOCK=1"
+echo "#FS_TRACE_FILE_UNIQUE=1"
+echo "#FS_TRACE_MON=1"
+echo "#FS_TRACE_MT=1"
+echo "#FS_TRACE_PARAMS=1"
+echo "#FS_TRACE_PARAMS0=1"
+echo "#FS_TRACE_VERBOSE=1"
+echo ""
+
+echo "#########################################################################################"
+echo "# To enable standard DTM Tracing:"
+echo "#"
+echo "# Uncomment TM_TRACE=1 below"
+echo "# If you want your trace files to be unique per pid, uncomment TM_TRACE_UNIQUE=1"
+echo "# If you want to name your trace files uniquely, then uncomment TM_TRACE_FILE=<file_name> and then "
+echo "#    enter what you want <file_name> to be.  The default is zzttm."
+echo "# In general, keep XATM_TRACE uncommented unless there is a reason to uncomment."
+echo "# TM_TRACE_DETAIL has 3 levels:"
+echo "#       1: Very minimal tracing.  General error and severe conditions."
+echo "#       2: Includes level 1 and ENTRY/EXIT tracing"
+echo "#       3: Includes levels 1 & 2, and additionally will include verbose data tracing"
+echo "#"
+echo "#########################################################################################"
+echo "#TM_TRACE=1"
+echo "#XATM_TRACE=0xf"
+echo "#TM_TRACE_DETAIL=3"
+echo "#TM_TRACE_UNIQUE=1"
+echo "#TM_TRACE_FILE=zzttm."
+echo ""
+
+echo "#ENABLE_EMBEDDED_ARKCMP=1"
+echo ""
+
+echo "# Create the arkcmp process on the same node as the master executor"
+echo "CMP_NODE_AFFINITY=1"
+echo ""
+echo "SEAQUEST=1"
+echo "SEAQUEST_NO_ROLLBACK_TXN=0"
+echo "SQLMX_MESSAGEFILE=\$TRAF_HOME/export/bin\$SQ_MBTYPE/mxcierrors_en.cat"
+echo "SUBERROR_HBASE_FILE=\$TRAF_HOME/export/bin\$SQ_MBTYPE/SuberrorHbase_en.cat"
+echo "SUBERROR_TM_FILE=\$TRAF_HOME/export/bin\$SQ_MBTYPE/SuberrorTM_en.cat"
+echo "YYERROR_QUIET=1"
+echo ""
+echo "# this is purely for measure use case analysis at this point"
+echo "SQL_MEASURE_ENABLE=0"
+echo "#SQ_STATS_ESP=0"
+echo ""
+echo ""
+echo "# property file for tdm_arkcmp"
+echo "SQ_PROPS_TDM_ARKCMP=tdm_arkcmp.env"
+echo ""
+echo "# property file for tdm_arkesp"
+echo "SQ_PROPS_TDM_ARKESP=tdm_arkesp.env"
+echo ""
+
+# echo "STFS_HDD_LOCATION=\$TRAF_VAR"
+echo ""
+echo "RECORD_TIME_COST_SQL=-1"
+echo "RECORD_TIME_COST_TRANS=-1"
+echo ""
+echo "RECORD_TIME_COST_JNI=-1"
+echo "RECORD_TIME_COST_JNI_ALL=-1"
+echo ""
+echo "RECORD_TIME_COST_HBASE=-1"
+echo "RECORD_TIME_COST_HBASE_ALL=-1"
+echo ""
+echo "RECORD_TIME_COST_SCAN=-1"
+echo "RECORD_TIME_COST_TM=-1"
+echo "RECORD_TIME_COST_EXE_SNIPPET=-1"
+echo ""
+if [ ! -d "$TRAF_VAR/udr" ]; then
+  mkdir $TRAF_VAR/udr 2>/dev/null
+fi
+
+echo "UDR_CACHE_LIBDIR=cached_libs"
+
+echo ""
+echo "#creating sqllogs folder for capturing osim data"
+sqllogdir=$HOME/sqllogs
+if [ ! -d $sqllogdir ]; then
+    mkdir --mode=770 $sqllogdir 2>/dev/null
+fi
+echo "TAR_DOWNLOAD_ROOT=$sqllogdir"
+
+echo ""
+echo "#setting CACERTS_DIR for storing CA certificates"
+cacertsdir=$HOME/cacerts
+if [ ! -d $cacertsdir ]; then
+    mkdir --mode=700 $cacertsdir 2>/dev/null
+fi
+echo "CACERTS_DIR=$cacertsdir"
+
+dcsinstalldir=$DCS_INSTALL_DIR
+echo "DCS_INSTALL_DIR=$dcsinstalldir"
+
+restinstalldir=$REST_INSTALL_DIR
+echo "REST_INSTALL_DIR=$restinstalldir"
+
+echo "CLUSTERNAME=$CLUSTERNAME"
+echo "TRAF_VAR=$TRAF_VAR"
+echo "TRAF_LOG=$TRAF_LOG"
+echo "TRAF_CONF=$TRAF_CONF"
+
+#Added for multi-instance support
+echo "TRAF_CLUSTER_ID=$TRAF_CLUSTER_ID"
+echo "TRAF_INSTANCE_ID=$TRAF_INSTANCE_ID"
+echo "TRAF_ROOT_ZNODE=$TRAF_ROOT_ZNODE"
+
+mgbltyinstalldir=$MGBLTY_INSTALL_DIR
+echo "MGBLTY_INSTALL_DIR=$mgbltyinstalldir"
+
+dbmgrinstalldir=$DBMGR_INSTALL_DIR
+echo "DBMGR_INSTALL_DIR=$dbmgrinstalldir"
+
+wmsinstalldir=$WMS_INSTALL_DIR
+echo "WMS_INSTALL_DIR=$wmsinstalldir"
+
+sentryconfigdir=$SENTRY_CNF_DIR
+echo "SENTRY_CNF_DIR=$sentryconfigdir"
+
+hivesentryenabled=$SENTRY_SECURITY_FOR_HIVE
+echo "SENTRY_SECURITY_FOR_HIVE=$hivesentryenabled"
+
+sentrygroupmode=$SENTRY_SECURITY_GROUP_MODE
+echo "SENTRY_SECURITY_GROUP_MODE=$sentrygroupmode"
+
+if [[ ! -z "$ZOOKEEPER_NODES" ]]; then
+   echo "ZOOKEEPER_NODES=$ZOOKEEPER_NODES"
+fi
+
+if [[ ! -z "$ZOOKEEPER_PORT" ]]; then
+   echo "ZOOKEEPER_PORT=$ZOOKEEPER_PORT"
+fi
+
+# cgroups
+echo "ESGYN_CG_CPU=$ESGYN_CG_CPU"
+echo "ESGYN_CGP_CPU=$ESGYN_CGP_CPU"
+
+echo "ESGYN_CG_CPUACCT=$ESGYN_CG_CPUACCT"
+echo "ESGYN_CGP_CPUACCT=$ESGYN_CGP_CPUACCT"
+
+echo "ESGYN_CG_MEM=$ESGYN_CG_MEM"
+echo "ESGYN_CGP_MEM=$ESGYN_CGP_MEM"
+echo "DIST_TYPE='$DIST_TYPE'"
+
+echo ""
+echo "#ORC_READER_ALLOCATE_MB=1"
+echo "#ORC_READER_MAX_ROWS_TO_FILL=128"
+
+echo ""
+echo "#### Begin Seabed TCP KeepAlive configuration ####"
+echo "# Set SQ_SB_KEEPALIVE to 0 to disable TCP Keep Alive"
+echo "SQ_SB_KEEPALIVE=1"
+echo ""
+echo "# When SQ_SB_KEEPALIVE is 1, then the following formula determines"
+echo "# the time (in seconds) after a network partition (or linux node failure)"
+echo "# that seabed would raise an error:"
+echo "#    SQ_SB_KEEPIDLE + (SQ_SB_KEEPINTVL X SQ_SB_KEEPCNT)"
+echo ""
+echo "SQ_SB_KEEPIDLE=240"
+echo "SQ_SB_KEEPINTVL=6"
+echo "SQ_SB_KEEPCNT=10"
+echo "#### End Seabed TCP KeepAlive configuration ####"
+echo ""
+echo "#### Ignore ENOENT from epoll_ctl"
+echo "SQ_SB_IGNORE_ENOENT=1"
+
+ACT_PID_MAX=`/sbin/sysctl -a 2>/dev/null|grep pid_max|awk '{print $NF}'`
+if [[ $ACT_PID_MAX -gt 131072 ]]; then
+   echo "PID_MAX=$ACT_PID_MAX"
+fi
+
+if [[ ! -z "$PID_MAX" ]]; then
+   echo "PID_MAX=$PID_MAX"
+fi
+
+if [[ ! -z "$RMS_SHARED_SEG_SIZE_MB" ]]; then
+   echo "RMS_SHARED_SEG_SIZE_MB=$RMS_SHARED_SEG_SIZE_MB"
+fi
+
+if [[ ! -z "$RMS_SHARED_MEMORY_ADDR" ]]; then
+   echo "RMS_SHARED_MEMORY_ADDR=$RMS_SHARED_MEMORY_ADDR"
+fi
+
+echo "# default tuning parameters for Core Banking"
+echo "JVM_MAX_HEAP_SIZE_MB=128"
+echo "ESP_JVM_MAX_HEAP_SIZE_MB=128"
+echo "TM_JAVA_THREAD_POOL_SIZE=32"
+echo "TM_JAVA_CP_THREAD_POOL_SIZE=32"
+echo "TMCLIENT_POOL_PUT_SIZE=32"
+echo "HBASE_HCONNECTION_THREADS_MAX=256"
+echo "HBASE_HCONNECTION_THREADS_CORE=32"
+echo "MS_ASSERT_CHK=0"
+echo "RMS_SHARED_SEG_SIZE_MB=512"
+echo "_MX_RTS_LDONE_RETRY_TIMES=12"
+echo "START_GET_TRACE=0"
+
+ARCH=`arch`
+if [ $ARCH == 'aarch64' ]; then
+   echo "RMS_SHARED_MEMORY_ADDR=0x44000000"
+fi
+
+if [[ ! -z "$SECURE_HADOOP" ]]; then
+   echo "SECURE_HADOOP=$SECURE_HADOOP"
+fi
+
+if [[ ! -z "$HIVESERVER2_URL" ]]; then
+   echo "HIVESERVER2_URL=$HIVESERVER2_URL"
+fi
+
+if [[ ! -z "$HIVESERVER2_SSL" ]]; then
+   echo "HIVESERVER2_SSL=$HIVESERVER2_SSL"
+fi
+
+if [[ ! -z "$HIVE_PRINCIPAL" ]]; then
+   echo "HIVE_PRINCIPAL=$HIVE_PRINCIPAL"
+fi
+
+echo "#### Ignore ENOENT from epoll_ctl"
+echo "SQ_SB_IGNORE_ENOENT=1"
+
+echo ""
+echo "# distinct 'a' and 'a ' for varchar"
+echo "VARCHAR_TRAILING_BLANK_SENSITIVE=1"
+echo ""
+
+echo ""
+echo "# Added by gensq.pl"

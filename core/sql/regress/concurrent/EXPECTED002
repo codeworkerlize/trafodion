@@ -1,0 +1,972 @@
+>>obey TEST002(test);
+>>
+>>obey TEST002(createindex);
+>>
+>>begin work;
+
+--- SQL operation complete.
+>>sh sqlci -i "TEST002(dml)";
+>>select * from t1;
+
+A            B                   
+-----------  --------------------
+
+          1  t1                  
+
+--- 1 row(s) selected.
+>>select * from t2;
+
+A            B                   
+-----------  --------------------
+
+          1  t2                  
+
+--- 1 row(s) selected.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>create index idx1a on t1 (a);
+
+--- SQL operation complete.
+>>sh sqlci -i "TEST002(dml)";
+>>select * from t1;
+
+*** ERROR[8202] Unable to obtain object DML lock on TRAFODION.CCSCH002.T1, due to a concurrent DDL operation on node 0 process 21567.
+
+--- 0 row(s) selected.
+>>select * from t2;
+
+A            B                   
+-----------  --------------------
+
+          1  t2                  
+
+--- 1 row(s) selected.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>create index idx2a on t2 (a);
+
+--- SQL operation complete.
+>>sh sqlci -i "TEST002(dml)";
+>>select * from t1;
+
+*** ERROR[8202] Unable to obtain object DML lock on TRAFODION.CCSCH002.T1, due to a concurrent DDL operation on node 0 process 21567.
+
+--- 0 row(s) selected.
+>>select * from t2;
+
+*** ERROR[8202] Unable to obtain object DML lock on TRAFODION.CCSCH002.T2, due to a concurrent DDL operation on node 0 process 21567.
+
+--- 0 row(s) selected.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>create index idx1b on t1 (b);
+
+--- SQL operation complete.
+>>sh sqlci -i "TEST002(dml)";
+>>select * from t1;
+
+*** ERROR[8202] Unable to obtain object DML lock on TRAFODION.CCSCH002.T1, due to a concurrent DDL operation on node 0 process 21567.
+
+--- 0 row(s) selected.
+>>select * from t2;
+
+*** ERROR[8202] Unable to obtain object DML lock on TRAFODION.CCSCH002.T2, due to a concurrent DDL operation on node 0 process 21567.
+
+--- 0 row(s) selected.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>create index idx2b on t2 (b);
+
+--- SQL operation complete.
+>>sh sqlci -i "TEST002(dml)";
+>>select * from t1;
+
+*** ERROR[8202] Unable to obtain object DML lock on TRAFODION.CCSCH002.T1, due to a concurrent DDL operation on node 0 process 21567.
+
+--- 0 row(s) selected.
+>>select * from t2;
+
+*** ERROR[8202] Unable to obtain object DML lock on TRAFODION.CCSCH002.T2, due to a concurrent DDL operation on node 0 process 21567.
+
+--- 0 row(s) selected.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>commit;
+
+--- SQL operation complete.
+>>sh sqlci -i "TEST002(dml)";
+>>select * from t1;
+
+A            B                   
+-----------  --------------------
+
+          1  t1                  
+
+--- 1 row(s) selected.
+>>select * from t2;
+
+A            B                   
+-----------  --------------------
+
+          1  t2                  
+
+--- 1 row(s) selected.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>
+>>obey TEST002(dropindex);
+>>
+>>begin work;
+
+--- SQL operation complete.
+>>sh sqlci -i "TEST002(dml)";
+>>select * from t1;
+
+A            B                   
+-----------  --------------------
+
+          1  t1                  
+
+--- 1 row(s) selected.
+>>select * from t2;
+
+A            B                   
+-----------  --------------------
+
+          1  t2                  
+
+--- 1 row(s) selected.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>drop index idx1a;
+
+--- SQL operation complete.
+>>sh sqlci -i "TEST002(dml)";
+>>select * from t1;
+
+*** ERROR[8202] Unable to obtain object DML lock on TRAFODION.CCSCH002.T1, due to a concurrent DDL operation on node 0 process 21567.
+
+--- 0 row(s) selected.
+>>select * from t2;
+
+A            B                   
+-----------  --------------------
+
+          1  t2                  
+
+--- 1 row(s) selected.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>drop index idx2a;
+
+--- SQL operation complete.
+>>sh sqlci -i "TEST002(dml)";
+>>select * from t1;
+
+*** ERROR[8202] Unable to obtain object DML lock on TRAFODION.CCSCH002.T1, due to a concurrent DDL operation on node 0 process 21567.
+
+--- 0 row(s) selected.
+>>select * from t2;
+
+*** ERROR[8202] Unable to obtain object DML lock on TRAFODION.CCSCH002.T2, due to a concurrent DDL operation on node 0 process 21567.
+
+--- 0 row(s) selected.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>drop index idx1b;
+
+--- SQL operation complete.
+>>sh sqlci -i "TEST002(dml)";
+>>select * from t1;
+
+*** ERROR[8202] Unable to obtain object DML lock on TRAFODION.CCSCH002.T1, due to a concurrent DDL operation on node 0 process 21567.
+
+--- 0 row(s) selected.
+>>select * from t2;
+
+*** ERROR[8202] Unable to obtain object DML lock on TRAFODION.CCSCH002.T2, due to a concurrent DDL operation on node 0 process 21567.
+
+--- 0 row(s) selected.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>drop index idx2b;
+
+--- SQL operation complete.
+>>sh sqlci -i "TEST002(dml)";
+>>select * from t1;
+
+*** ERROR[8202] Unable to obtain object DML lock on TRAFODION.CCSCH002.T1, due to a concurrent DDL operation on node 0 process 21567.
+
+--- 0 row(s) selected.
+>>select * from t2;
+
+*** ERROR[8202] Unable to obtain object DML lock on TRAFODION.CCSCH002.T2, due to a concurrent DDL operation on node 0 process 21567.
+
+--- 0 row(s) selected.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>commit;
+
+--- SQL operation complete.
+>>sh sqlci -i "TEST002(dml)";
+>>select * from t1;
+
+A            B                   
+-----------  --------------------
+
+          1  t1                  
+
+--- 1 row(s) selected.
+>>select * from t2;
+
+A            B                   
+-----------  --------------------
+
+          1  t2                  
+
+--- 1 row(s) selected.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>
+>>obey TEST002(mixdmlddl);
+>>
+>>-- Mix DML and DDL in a transaction, make sure DML/DDL in one
+>>-- transaction does not block each other
+>>
+>>delete from t1;
+
+--- 1 row(s) deleted.
+>>begin work;
+
+--- SQL operation complete.
+>>insert into t1 values (1, 'mixdmlddl');
+
+--- 1 row(s) inserted.
+>>create index idx1 on t1 (b);
+
+--- SQL operation complete.
+>>insert into t1 values (2, 'mixdmlddl');
+
+--- 1 row(s) inserted.
+>>commit;
+
+--- SQL operation complete.
+>>select * from t1;
+
+A            B                   
+-----------  --------------------
+
+          1  mixdmlddl           
+          2  mixdmlddl           
+
+--- 2 row(s) selected.
+>>
+>>obey TEST002(spsqldml);
+>>
+>>drop table if exists t1;
+
+--- SQL operation complete.
+>>create table t1 (a int);
+
+--- SQL operation complete.
+>>create or replace procedure p1() as //
+begin
+  insert into t1 values (1);
+end;
+//;
+
+--- SQL operation complete.
+>>
+>>call p1();
+
+--- SQL operation complete.
+>>drop table t1;
+
+--- SQL operation complete.
+>>
+>>create table t1 (a int);
+
+--- SQL operation complete.
+>>call p1();
+
+--- SQL operation complete.
+>>sh sqlci -i "TEST002(spsqldmldroptable)";
+>>
+>>drop table t1;
+
+--- SQL operation complete.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>
+>>create table t1 (a int);
+
+--- SQL operation complete.
+>>begin work;
+
+--- SQL operation complete.
+>>call p1();
+
+--- SQL operation complete.
+>>drop table t1;
+
+--- SQL operation complete.
+>>commit;
+
+--- SQL operation complete.
+>>
+>>create table t1 (a int);
+
+--- SQL operation complete.
+>>begin work;
+
+--- SQL operation complete.
+>>call p1();
+
+--- SQL operation complete.
+>>
+>>-- ERROR[8201]
+>>sh sqlci -i "TEST002(spsqldmldroptable)";
+>>
+>>drop table t1;
+
+*** ERROR[8201] Unable to obtain object DDL lock on TRAFODION.CCSCH002.T1, due to a concurrent DML operation on node 0 process 21567.
+
+--- SQL operation failed with errors.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>insert into t1 values (2);
+
+--- 1 row(s) inserted.
+>>
+>>-- ERROR[8201]
+>>sh sqlci -i "TEST002(spsqldmldroptable)";
+>>
+>>drop table t1;
+
+*** ERROR[8201] Unable to obtain object DDL lock on TRAFODION.CCSCH002.T1, due to a concurrent DML operation on node 0 process 21567.
+
+--- SQL operation failed with errors.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>select count(1) from t1;
+
+(EXPR)              
+--------------------
+
+                   2
+
+--- 1 row(s) selected.
+>>commit;
+
+--- SQL operation complete.
+>>sh sqlci -i "TEST002(spsqldmldroptable)";
+>>
+>>drop table t1;
+
+--- SQL operation complete.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>
+>>obey TEST002(ddlddl);
+>>
+>>drop table if exists t1;
+
+--- SQL operation complete.
+>>create table t1 (a int, b varchar(20));
+
+--- SQL operation complete.
+>>insert into t1 values (1, 'a');
+
+--- 1 row(s) inserted.
+>>
+>>begin work;
+
+--- SQL operation complete.
+>>alter table t1 add column c char(30);
+
+--- SQL operation complete.
+>>
+>>-- ERROR[8201]
+>>sh sqlci -i "TEST002(ddlddlaltertable1)";
+>>
+>>alter table t1 add column d char(30);
+
+*** ERROR[8201] Unable to obtain object DDL lock on TRAFODION.CCSCH002.T1, due to a concurrent DDL operation on node 0 process 21567.
+
+--- SQL operation failed with errors.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>invoke t1;
+
+-- Definition of Trafodion table TRAFODION.CCSCH002.T1
+-- Definition current  Mon May 18 08:19:42 2020
+
+  (
+    SYSKEY                           LARGEINT NO DEFAULT NOT NULL NOT DROPPABLE
+  , A                                INT DEFAULT NULL
+  , B                                VARCHAR(20) CHARACTER SET ISO88591 COLLATE
+      DEFAULT DEFAULT NULL
+  , C                                CHAR(30) CHARACTER SET ISO88591 COLLATE
+      DEFAULT DEFAULT NULL /*added_col*/
+  )
+
+--- SQL operation complete.
+>>commit;
+
+--- SQL operation complete.
+>>invoke t1;
+
+-- Definition of Trafodion table TRAFODION.CCSCH002.T1
+-- Definition current  Mon May 18 08:19:42 2020
+
+  (
+    SYSKEY                           LARGEINT NO DEFAULT NOT NULL NOT DROPPABLE
+  , A                                INT DEFAULT NULL
+  , B                                VARCHAR(20) CHARACTER SET ISO88591 COLLATE
+      DEFAULT DEFAULT NULL
+  , C                                CHAR(30) CHARACTER SET ISO88591 COLLATE
+      DEFAULT DEFAULT NULL /*added_col*/
+  )
+
+--- SQL operation complete.
+>>sh sqlci -i "TEST002(ddlddlaltertable1)";
+>>
+>>alter table t1 add column d char(30);
+
+--- SQL operation complete.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>invoke t1;
+
+-- Definition of Trafodion table TRAFODION.CCSCH002.T1
+-- Definition current  Mon May 18 08:19:51 2020
+
+  (
+    SYSKEY                           LARGEINT NO DEFAULT NOT NULL NOT DROPPABLE
+  , A                                INT DEFAULT NULL
+  , B                                VARCHAR(20) CHARACTER SET ISO88591 COLLATE
+      DEFAULT DEFAULT NULL
+  , C                                CHAR(30) CHARACTER SET ISO88591 COLLATE
+      DEFAULT DEFAULT NULL /*added_col*/
+  , D                                CHAR(30) CHARACTER SET ISO88591 COLLATE
+      DEFAULT DEFAULT NULL /*added_col*/
+  )
+
+--- SQL operation complete.
+>>
+>>obey TEST002(populateindex);
+>>
+>>CQD AUTO_QUERY_RETRY 'OFF';
+
+--- SQL operation complete.
+>>
+>>drop table if exists t1 cascade;
+
+--- SQL operation complete.
+>>create table t1 (a int, b varchar(20));
+
+--- SQL operation complete.
+>>create index idx1 on t1 (b) no populate;
+
+--- SQL operation complete.
+>>populate index idx1 on t1;
+
+--- SQL operation complete.
+>>prepare s from insert into t1 values (?, ?);
+
+--- SQL command prepared.
+>>
+>>begin work;
+
+--- SQL operation complete.
+>>commit;
+
+--- SQL operation complete.
+>>
+>>begin work;
+
+--- SQL operation complete.
+>>execute s using 1, 'b';
+
+--- 1 row(s) inserted.
+>>commit;
+
+--- SQL operation complete.
+>>
+>>CQD AUTO_QUERY_RETRY 'SYSTEM';
+
+--- SQL operation complete.
+>>
+>>obey TEST002(cleanupobjects);
+>>
+>>create schema ccsch002private;
+
+--- SQL operation complete.
+>>set schema ccsch002private;
+
+--- SQL operation complete.
+>>
+>>drop table if exists t1 cascade;
+
+--- SQL operation complete.
+>>drop table if exists t2 cascade;
+
+--- SQL operation complete.
+>>create table t1 (c1 int not null primary key, c2 int);
+
+--- SQL operation complete.
+>>create index t1_ndx1 on t1 (c2) no populate;
+
+--- SQL operation complete.
+>>create table t2 (c1 int not null primary key, c2 int);
+
+--- SQL operation complete.
+>>create index t2_ndx1 on t2(c2) no populate;
+
+--- SQL operation complete.
+>>insert into t1 values (1,1), (2,2), (3,3),(4,4), (5,5),(6,6), (7,7),(8,8);
+
+--- 8 row(s) inserted.
+>>insert into t2 values (1,1), (2,2), (3,3),(4,4), (5,5),(6,6), (7,7),(8,8);
+
+--- 8 row(s) inserted.
+>>populate index t1_ndx1 on t1;
+
+--- SQL operation complete.
+>>populate index t2_ndx1 on t2;
+
+--- SQL operation complete.
+>>cleanup index t1_ndx1;
+
+--- SQL operation complete.
+>>cleanup index t2_ndx1;
+
+--- SQL operation complete.
+>>
+>>select count(*) from t1;
+
+(EXPR)              
+--------------------
+
+                   8
+
+--- 1 row(s) selected.
+>>select count(*) from t2;
+
+(EXPR)              
+--------------------
+
+                   8
+
+--- 1 row(s) selected.
+>>cleanup schema ccsch002private;
+
+--- SQL operation complete.
+>>
+>>-- restore default schema for this test file
+>>set schema ccsch002;
+
+--- SQL operation complete.
+>>
+>>obey TEST002(m15277);
+>>
+>>drop table if exists t1;
+
+--- SQL operation complete.
+>>create table t1 (a int, b varchar(20));
+
+--- SQL operation complete.
+>>create view v1 as select * from t1;
+
+--- SQL operation complete.
+>>insert into t1 values (1, 'bbbbb');
+
+--- 1 row(s) inserted.
+>>alter table t1 alter column b char(1);
+
+*** ERROR[1404] Column B cannot be altered. Reason: Old data could not be updated using the altered column definition.
+
+--- SQL operation failed with errors.
+>>
+>>obey TEST002(m15112);
+>>
+>>CQD ALLOW_TRUNCATE_IN_USER_XN 'ON';
+
+--- SQL operation complete.
+>>
+>>drop table if exists t1 cascade;
+
+--- SQL operation complete.
+>>create table t1 (a int, b varchar(20));
+
+--- SQL operation complete.
+>>insert into t1 values (1, 'm15112');
+
+--- 1 row(s) inserted.
+>>
+>>begin work;
+
+--- SQL operation complete.
+>>truncate table t1;
+
+--- SQL operation complete.
+>>sh sqlci -i "TEST002(m15112select)";
+>>
+>>select * from t1;
+
+*** ERROR[8202] Unable to obtain object DML lock on TRAFODION.CCSCH002.T1, due to a concurrent DDL operation on node 0 process 11954.
+
+--- 0 row(s) selected.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>select * from t1;
+
+--- 0 row(s) selected.
+>>commit;
+
+--- SQL operation complete.
+>>sh sqlci -i "TEST002(m15112select)";
+>>
+>>select * from t1;
+
+--- 0 row(s) selected.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>
+>>insert into t1 values (2, 'm15112');
+
+--- 1 row(s) inserted.
+>>create or replace procedure p1() as //
+begin
+  select * from t1;
+  execute 'CQD ALLOW_TRUNCATE_IN_USER_XN ''ON''';
+  truncate table t1;
+  select * from t1;
+end//;
+
+--- SQL operation complete.
+>>
+>>call p1();
+
+A            B                   
+-----------  --------------------
+
+          2  m15112              
+
+--- 1 row(s) selected.
+
+--- 0 row(s) selected.
+
+--- SQL operation complete.
+>>sh sqlci -i "TEST002(m15112select)";
+>>
+>>select * from t1;
+
+--- 0 row(s) selected.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>select * from t1;
+
+--- 0 row(s) selected.
+>>
+>>
+>>obey TEST002(m15664);
+>>
+>>drop table if exists t1;
+
+--- SQL operation complete.
+>>drop table if exists t2;
+
+--- SQL operation complete.
+>>create table t1 (a int, b varchar(10));
+
+--- SQL operation complete.
+>>create unique index idx1 on t1 (b);
+
+--- SQL operation complete.
+>>create table t2 (a int primary key);
+
+--- SQL operation complete.
+>>
+>>insert into t1 values (1, 'a');
+
+--- 1 row(s) inserted.
+>>-- 0 lock
+>>get lock statistics of t1;
+
+
+Object Lock Stats
+==================
+
+Object Lock Entries:          0
+
+
+--- SQL operation complete.
+>>-- ERROR 8102 8839
+>>insert into t1 values (1, 'a');
+
+*** ERROR[8102] The operation is prevented by a unique constraint.
+
+--- 0 row(s) inserted.
+>>-- 0 lock
+>>get lock statistics of t1;
+
+
+Object Lock Stats
+==================
+
+Object Lock Entries:          0
+
+
+--- SQL operation complete.
+>>
+>>insert into t2 values (1);
+
+--- 1 row(s) inserted.
+>>-- 0 lock
+>>get lock statistics of t2;
+
+
+Object Lock Stats
+==================
+
+Object Lock Entries:          0
+
+
+--- SQL operation complete.
+>>-- ERROR 8102
+>>insert into t2 values (1);
+
+*** ERROR[8102] The operation is prevented by a unique constraint.
+
+--- 0 row(s) inserted.
+>>-- 0 lock
+>>get lock statistics of t2;
+
+
+Object Lock Stats
+==================
+
+Object Lock Entries:          0
+
+
+--- SQL operation complete.
+>>
+>>truncate t1;
+
+--- SQL operation complete.
+>>-- 0 lock
+>>get lock statistics of t1;
+
+
+Object Lock Stats
+==================
+
+Object Lock Entries:          0
+
+
+--- SQL operation complete.
+>>truncate t2;
+
+--- SQL operation complete.
+>>-- 0 lock
+>>get lock statistics of t2;
+
+
+Object Lock Stats
+==================
+
+Object Lock Entries:          0
+
+
+--- SQL operation complete.
+>>
+>>begin work;
+
+--- SQL operation complete.
+>>insert into t1 values (1, 'a');
+
+--- 1 row(s) inserted.
+>>insert into t2 values (1);
+
+--- 1 row(s) inserted.
+>>-- 1 lock
+>>get lock statistics of t1;
+
+
+Object Lock Stats
+==================
+
+Object Lock Entries:          1
+
+
+Node Id:                      0
+Process ID:                   21567
+Object Name:                  TRAFODION.CCSCH002.T1
+Object Type:                  TABLE
+Lock Type:                    DML
+Locked By:                    0 21567
+
+
+--- SQL operation complete.
+>>-- 1 lock
+>>get lock statistics of t2;
+
+
+Object Lock Stats
+==================
+
+Object Lock Entries:          1
+
+
+Node Id:                      0
+Process ID:                   21567
+Object Name:                  TRAFODION.CCSCH002.T2
+Object Type:                  TABLE
+Lock Type:                    DML
+Locked By:                    0 21567
+
+
+--- SQL operation complete.
+>>-- ERROR 8102
+>>insert into t2 values (1);
+
+*** ERROR[8102] The operation is prevented by a unique constraint.
+
+--- 0 row(s) inserted.
+>>-- 1 lock
+>>get lock statistics of t1;
+
+
+Object Lock Stats
+==================
+
+Object Lock Entries:          1
+
+
+Node Id:                      0
+Process ID:                   21567
+Object Name:                  TRAFODION.CCSCH002.T1
+Object Type:                  TABLE
+Lock Type:                    DML
+Locked By:                    0 21567
+
+
+--- SQL operation complete.
+>>-- 1 lock
+>>get lock statistics of t2;
+
+
+Object Lock Stats
+==================
+
+Object Lock Entries:          1
+
+
+Node Id:                      0
+Process ID:                   21567
+Object Name:                  TRAFODION.CCSCH002.T2
+Object Type:                  TABLE
+Lock Type:                    DML
+Locked By:                    0 21567
+
+
+--- SQL operation complete.
+>>-- ERROR 8102 8839
+>>insert into t1 values (2, 'a');
+
+*** ERROR[8102] The operation is prevented by a unique constraint.
+
+*** ERROR[8839] Transaction was aborted.
+
+--- 0 row(s) inserted.
+>>-- 0 lock
+>>get lock statistics of t1;
+
+
+Object Lock Stats
+==================
+
+Object Lock Entries:          0
+
+
+--- SQL operation complete.
+>>-- 0 lock
+>>get lock statistics of t2;
+
+
+Object Lock Stats
+==================
+
+Object Lock Entries:          0
+
+
+--- SQL operation complete.
+>>rollback;
+
+--- SQL operation complete.
+>>
+>>log;

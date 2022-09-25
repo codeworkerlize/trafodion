@@ -1,0 +1,169 @@
+>>obey TEST081(test_init);
+>>create schema if not exists TESTDML;
+
+--- SQL operation complete.
+>>set schema TESTDML;
+
+--- SQL operation complete.
+>>
+>>drop table if exists T081_TA cascade;
+
+--- SQL operation complete.
+>>drop table if exists T081_TB cascade;
+
+--- SQL operation complete.
+>>drop table if exists T081_TC cascade;
+
+--- SQL operation complete.
+>>drop table if exists T081_TD cascade;
+
+--- SQL operation complete.
+>>
+>>CREATE TABLE T081_TA
++>  (
++>    C1 INT, C2 INT, PRIMARY KEY (C1 ASC)
++>  )
++>  PARTITION BY RANGE (C1)
++>  (
++>    PARTITION P1 VALUES LESS THAN (10), PARTITION P2 VALUES LESS THAN (20), PARTITION P3 VALUES LESS THAN (30), PARTITION PMAX VALUES LESS THAN (MAXVALUE)
++>  )
++>;
+
+--- SQL operation complete.
+>>
+>>CREATE TABLE T081_TB
++>  (
++>    C1 INT, C2 INT, C3 INT, PRIMARY KEY (C1 ASC)
++>  )
++>  PARTITION BY RANGE (C1)
++>  (
++>    PARTITION P1 VALUES LESS THAN (10), PARTITION P2 VALUES LESS THAN (20), PARTITION P3 VALUES LESS THAN (30), PARTITION PMAX VALUES LESS THAN (MAXVALUE)
++>  )
++>;
+
+--- SQL operation complete.
+>>
+>>CREATE TABLE T081_TC
++>  (
++>    C1 INT, C2 INT, C3 INT, C4 INT, PRIMARY KEY (C1 ASC)
++>  )
++>  PARTITION BY RANGE (C1)
++>  (
++>    PARTITION P1 VALUES LESS THAN (10), PARTITION P2 VALUES LESS THAN (20), PARTITION P3 VALUES LESS THAN (30), PARTITION PMAX VALUES LESS THAN (MAXVALUE)
++>  )
++>;
+
+--- SQL operation complete.
+>>
+>>-- CREATE TABLE T081_TD
+>>--   (
+>>--     C1 INT, C2 INT, C3 INT, C4 INT, C5 INT, PRIMARY KEY (C1 ASC)
+>>--   )
+>>--   PARTITION BY RANGE (C1)
+>>--   (
+>>--     PARTITION P1 VALUES LESS THAN (10), PARTITION P2 VALUES LESS THAN (20), PARTITION P3 VALUES LESS THAN (30), PARTITION PMAX VALUES LESS THAN (MAXVALUE)
+>>--   )
+>>-- ;
+>>
+>>obey TEST081(test_upsert);
+>>-- upsert will lost data on some session, fix it
+>>
+>>
+>>UPSERT INTO T081_TA SELECT ELEMENT, ELEMENT FROM UDF(SERIES(1,60));
+
+--- 60 row(s) inserted.
+>>SELECT COUNT(*) FROM T081_TA;
+
+(EXPR)              
+--------------------
+
+                  60
+
+--- 1 row(s) selected.
+>> -- 60 
+>>UPSERT INTO T081_TA SELECT ELEMENT * 3, ELEMENT  FROM UDF(SERIES(1,60));
+
+--- 60 row(s) inserted.
+>>SELECT COUNT(*) FROM T081_TA;
+
+(EXPR)              
+--------------------
+
+                 100
+
+--- 1 row(s) selected.
+>> -- 100
+>>
+>>delete from T081_TA where c1 > 60;
+
+--- 40 row(s) deleted.
+>>
+>>UPSERT INTO T081_TB SELECT C1 * 10, * FROM T081_TA;
+
+--- 60 row(s) inserted.
+>>SELECT COUNT(*) FROM T081_TB;
+
+(EXPR)              
+--------------------
+
+                  60
+
+--- 1 row(s) selected.
+>> -- 60
+>>SELECT COUNT(*) FROM T081_TB PARTITION(P2);
+
+(EXPR)              
+--------------------
+
+                   1
+
+--- 1 row(s) selected.
+>> -- 1
+>>SELECT COUNT(*) FROM T081_TB PARTITION(P3);
+
+(EXPR)              
+--------------------
+
+                   1
+
+--- 1 row(s) selected.
+>> -- 1
+>>SELECT COUNT(*) FROM T081_TB PARTITION(PMAX);
+
+(EXPR)              
+--------------------
+
+                  58
+
+--- 1 row(s) selected.
+>> -- 58
+>>
+>>UPSERT INTO T081_TC SELECT *, * FROM T081_TA;
+
+--- 60 row(s) inserted.
+>>SELECT COUNT(*) FROM T081_TC;
+
+(EXPR)              
+--------------------
+
+                  60
+
+--- 1 row(s) selected.
+>> -- 60
+>>
+>>DELETE FROM T081_TC;
+
+--- 60 row(s) deleted.
+>>UPSERT INTO T081_TC SELECT MOD(C1,30), ABS(C1), RAND(), MOD(C1,5) FROM T081_TA;
+
+--- 60 row(s) inserted.
+>>SELECT COUNT(*) FROM T081_TC;
+
+(EXPR)              
+--------------------
+
+                  30
+
+--- 1 row(s) selected.
+>>
+>>log;

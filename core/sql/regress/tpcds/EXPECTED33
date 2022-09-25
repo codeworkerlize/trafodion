@@ -1,0 +1,195 @@
+>>obey stdcqds;
+>>
+>>set schema hive.tpcds_sf1000;
+
+--- SQL operation complete.
+>>
+>>control osim simulate continue './osim.all.sf1000.09022016';
+
+--- SQL operation complete.
+>>
+>>cqd orc_njs 'on';
+
+--- SQL operation complete.
+>>cqd parallel_num_esps '48';
+
+--- SQL operation complete.
+>>cqd QUERY_CACHE '200000';
+
+--- SQL operation complete.
+>>cqd HIVE_METADATA_REFRESH_INTERVAL '-1';
+
+--- SQL operation complete.
+>>cqd  HIVE_LOCALITY_BALANCE_LEVEL '-1';
+
+--- SQL operation complete.
+>>cqd  METADATA_CACHE_SIZE '200';
+
+--- SQL operation complete.
+>>cqd partitioning_scheme_sharing '2';
+
+--- SQL operation complete.
+>>cqd COMP_BOOL_208 'ON';
+
+--- SQL operation complete.
+>>obey q33;
+>>
+>>--==QID: 33
+>>
+>>prepare xx from
++>select  i_manufact_id ,sum(total_sales) total_sales
++> from  (select * from (
++> select
++>          i_manufact_id,sum(ss_ext_sales_price) total_sales
++> from
++>        store_sales_1stripeperfile,
++>        date_dim,
++>         customer_address,
++>         item
++> where
++>         i_manufact_id in (select
++>  i_manufact_id
++>from
++> item
++>where i_category in ('Home'))
++> and     ss_item_sk              = i_item_sk
++> and     ss_sold_date_sk         = d_date_sk
++> and     d_year                  = 2001
++> and     d_moy                   = 4
++> and     ss_addr_sk              = ca_address_sk
++> and     ca_gmt_offset           = -5  
++> group by i_manufact_id) 
++>        union all
++>        select * from (
++> select
++>          i_manufact_id,sum(cs_ext_sales_price) total_sales
++> from
++>        catalog_sales,
++>        date_dim,
++>         customer_address,
++>         item
++> where
++>         i_manufact_id               in (select
++>  i_manufact_id
++>from
++> item
++>where i_category in ('Home'))
++> and     cs_item_sk              = i_item_sk
++> and     cs_sold_date_sk         = d_date_sk
++> and     d_year                  = 2001
++> and     d_moy                   = 4
++> and     cs_bill_addr_sk         = ca_address_sk
++> and     ca_gmt_offset           = -5  
++> group by i_manufact_id) 
++>        union all
++>        select * from (
++> select
++>          i_manufact_id,sum(ws_ext_sales_price) total_sales
++> from
++>        web_sales,
++>        date_dim,
++>         customer_address,
++>         item
++> where
++>         i_manufact_id               in (select
++>  i_manufact_id
++>from
++> item
++>where i_category in ('Home'))
++> and     ws_item_sk              = i_item_sk
++> and     ws_sold_date_sk         = d_date_sk
++> and     d_year                  = 2001
++> and     d_moy                   = 4
++> and     ws_bill_addr_sk         = ca_address_sk
++> and     ca_gmt_offset           = -5 
++> group by i_manufact_id)) tmp1
++> group by i_manufact_id
++> order by total_sales
++>limit 100;
+
+--- SQL command prepared.
+>>obey explains;
+>>explain options 'f' xx;
+
+LC   RC   OP   OPERATOR              OPT       DESCRIPTION           CARD
+---- ---- ---- --------------------  --------  --------------------  ---------
+
+72   .    73   root                                                  1.00E+003
+71   .    72   firstn                                                1.00E+003
+70   .    71   esp_exchange                    1:48(hash2) (m)       1.00E+003
+69   .    70   sort                                                  1.00E+003
+68   .    69   hash_groupby                                          1.00E+003
+45   67   68   merge_union                                           3.00E+003
+66   .    67   hash_partial_groupby                                  1.00E+003
+65   .    66   esp_exchange                    48(hash2):48(hash2)   1.00E+003
+64   .    65   hash_partial_groupby                                  1.00E+003
+63   54   64   hybrid_hash_join                                      4.80E+006
+62   .    63   esp_exchange                    48(hash2):48(hash2)   4.80E+006
+61   56   62   hybrid_hash_join                                      4.80E+006
+60   .    61   esp_exchange                    48(hash2):48(hash2)   1.22E+007
+59   58   60   hybrid_hash_join                                      1.22E+007
+.    .    59   orc_scan                        WEB_SALES             7.19E+008
+57   .    58   esp_exchange                    48(rep-b):2(hash2)    3.09E+001
+.    .    57   orc_scan                        DATE_DIM              3.09E+001
+55   .    56   esp_exchange                    48(hash2):2(hash2)    2.19E+006
+.    .    55   orc_scan                        CUSTOMER_ADDRESS      2.19E+006
+53   .    54   esp_exchange                    48(hash2):48(hash2)   2.99E+005
+52   51   53   hybrid_hash_join      u                               2.99E+005
+.    .    52   orc_scan                        ITEM                  3.00E+005
+50   .    51   esp_exchange                    48(rep-b):48(hash2)   1.00E+003
+49   .    50   hash_partial_groupby                                  1.00E+003
+48   .    49   esp_exchange                    48(hash2):48(hash2)   1.00E+003
+47   .    48   sort_partial_groupby                                  1.00E+003
+46   .    47   sort                                                  2.91E+004
+.    .    46   orc_scan                        ITEM                  2.91E+004
+22   44   45   merge_union                                           2.00E+003
+43   .    44   hash_partial_groupby                                  1.00E+003
+42   .    43   esp_exchange                    48(hash2):48(hash2)   1.00E+003
+41   .    42   hash_partial_groupby                                  1.00E+003
+40   31   41   hybrid_hash_join                                      8.98E+006
+39   .    40   esp_exchange                    48(hash2):48(hash2)   8.99E+006
+38   33   39   hybrid_hash_join                                      8.99E+006
+37   .    38   esp_exchange                    48(hash2):48(hash2)   2.41E+007
+36   35   37   hybrid_hash_join                                      2.41E+007
+.    .    36   orc_scan                        CATALOG_SALES         1.42E+009
+34   .    35   esp_exchange                    48(rep-b):2(hash2)    3.09E+001
+.    .    34   orc_scan                        DATE_DIM              3.09E+001
+32   .    33   esp_exchange                    48(hash2):2(hash2)    2.19E+006
+.    .    32   orc_scan                        CUSTOMER_ADDRESS      2.19E+006
+30   .    31   esp_exchange                    48(hash2):48(hash2)   2.99E+005
+29   28   30   hybrid_hash_join      u                               2.99E+005
+.    .    29   orc_scan                        ITEM                  3.00E+005
+27   .    28   esp_exchange                    48(rep-b):48(hash2)   1.00E+003
+26   .    27   hash_partial_groupby                                  1.00E+003
+25   .    26   esp_exchange                    48(hash2):48(hash2)   1.00E+003
+24   .    25   sort_partial_groupby                                  1.00E+003
+23   .    24   sort                                                  2.91E+004
+.    .    23   orc_scan                        ITEM                  2.91E+004
+21   .    22   hash_partial_groupby                                  1.00E+003
+20   .    21   esp_exchange                    48(hash2):48(hash2)   1.00E+003
+19   .    20   hash_partial_groupby                                  1.00E+003
+18   9    19   hybrid_hash_join                                      1.49E+007
+17   .    18   esp_exchange                    48(hash2):48(hash2)   1.71E+007
+16   11   17   hybrid_hash_join                                      1.71E+007
+15   .    16   esp_exchange                    48(hash2):48(hash2)   4.67E+007
+14   13   15   hybrid_hash_join                                      4.67E+007
+.    .    14   orc_scan                        STORE_SALES_1STRIPEP  2.75E+009
+12   .    13   esp_exchange                    48(rep-b):2(hash2)    3.09E+001
+.    .    12   orc_scan                        DATE_DIM              3.09E+001
+10   .    11   esp_exchange                    48(hash2):2(hash2)    2.19E+006
+.    .    10   orc_scan                        CUSTOMER_ADDRESS      2.19E+006
+8    .    9    esp_exchange                    48(hash2):48(hash2)   2.99E+005
+7    6    8    hybrid_hash_join      u                               2.99E+005
+.    .    7    orc_scan                        ITEM                  3.00E+005
+5    .    6    esp_exchange                    48(rep-b):48(hash2)   1.00E+003
+4    .    5    hash_partial_groupby                                  1.00E+003
+3    .    4    esp_exchange                    48(hash2):48(hash2)   1.00E+003
+2    .    3    sort_partial_groupby                                  1.00E+003
+1    .    2    sort                                                  2.91E+004
+.    .    1    orc_scan                        ITEM                  2.91E+004
+
+--- SQL operation complete.
+>>exit;
+
+End of MXCI Session
+

@@ -1,0 +1,160 @@
+#!/bin/bash
+#
+# @@@ START COPYRIGHT @@@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+# @@@ END COPYRIGHT @@@
+#
+
+function sqshell_node_info {
+  lv_num_up_nodes=$(sqshell -c node info | grep Any | grep Up | wc -l)
+  echo $lv_num_up_nodes > $1
+}
+
+function cleanup_temp_file {
+    echo "`date`: deleting the temp file: ${tmp_sqshell_node_info}" >> ${lv_log_file}
+    rm -f ${tmp_sqshell_node_info}
+}
+
+function wait_for_output {
+
+  echo "`date`: Enter wait_for_output" >> ${lv_log_file}
+  echo "`date`: Info about the temp file containing the sqshell -c node info output:" >> ${lv_log_file}
+  ls -al ${tmp_sqshell_node_info} >>${lv_log_file}
+
+  let lv_count=0
+  let lv_done=0
+  let lv_ret=0
+
+  while [ $lv_done '==' 0 ]; 
+  do
+    lv_file_size=$(stat -c%s ${tmp_sqshell_node_info})
+    if [ ${lv_file_size} '==' 0 ]; then
+        echo -n "." >>${lv_log_file}
+        let ++lv_count
+        if ((lv_count>${NODE_HC_TIMEOUT})); then
+            echo >>${lv_log_file}
+            echo "`date`: Timed out." >>${lv_log_file}
+            lv_ret=1
+            lv_done=1
+        fi
+        sleep 1
+    else
+        echo >>${lv_log_file}
+        echo "`date`: Got some data in the temp file." >>${lv_log_file}
+        lv_done=1
+    fi
+    
+  done
+
+  echo "`date`: Info about the temp file containing the sqshell -c node info output:" >> ${lv_log_file}
+  ls -al ${tmp_sqshell_node_info} >>${lv_log_file}
+
+  echo "`date`: Exit wait_for_output" >>${lv_log_file}
+    
+  return ${lv_ret}
+}
+
+if [[ -z $TRAF_VAR ]]; then
+    echo "The environment variable TRAF_VAR is not present."
+    echo "Looks like the EsgynDB environment has not been configured. Exiting... "
+    exit 1;
+fi
+
+SQCONFIGDB_FILE="$TRAF_VAR/sqconfig.db"
+if [[ ! -e ${SQCONFIGDB_FILE} ]]; then
+    echo "Cannot find the EsgynDB configuration DB file ${SQCONFIGDB_FILE}. Exiting... "
+    exit 1;
+fi
+
+# check if a monitor process exists
+grep_out=`pstat | grep "monitor COLD"`
+if [[ $? == '0' ]]; then
+   echo "The EsgynDB monitor seems to be running on this node - let's check further... "
+else
+   echo "EsgynDB is not running on the current node: `hostname`. Exiting... "
+   exit 1
+fi
+
+# set the default timeout to check for 'sqshell -c node info' to 120 seconds
+NODE_HC_TIMEOUT=${NODE_HC_TIMEOUT:-120}
+
+mkdir $TRAF_LOG 2>/dev/null
+lv_log_file="$TRAF_LOG/node_hc.log"
+
+# trap handler to cleanup the temp file where the function:sqshell_node_info writes to
+trap 'cleanup_temp_file' INT TERM PIPE HUP ERR
+
+tmp_sqshell_node_info=`mktemp --tmpdir=${TRAF_VAR} --suffix=.tmp node_hc_XXXXXXX`
+
+sqshell_node_info ${tmp_sqshell_node_info} &
+lv_script_pid=$!
+echo "`date`: sqshell node info script pid: ${lv_script_pid}" > ${lv_log_file}
+
+$(wait_for_output)
+lv_return=$?
+if [ $lv_return '==' 0 ]; then
+    echo -n ""
+else
+   echo "Did not receive any output from the sqshell -c node info command after ${NODE_HC_TIMEOUT} seconds. Exiting... "
+   kill %1 >/dev/null 2>&1
+   pstat | grep "\-c node info"  | awk '{system("kill " $3); system("kill " $2);}' >/dev/null 2>&1 
+   exit 1
+fi
+
+gv_num_nodes_up=$(cat $tmp_sqshell_node_info)
+echo "The number of up nodes: ${gv_num_nodes_up}"
+
+sqregck -r SQ_TXNSVC_READY  >/dev/null
+sqr_stat=$?
+
+if [[ ${sqr_stat} == 1 ]]; then
+   echo "The property:SQ_TXNSVC_READY is set to 1"
+else 
+   echo "The property:SQ_TXNSVC_READY is not set to 1. Exiting... "
+   exit 1
+fi
+
+if [[ ${SQ_START_RMS} -eq 1 ]]; then
+   let sleep_duration=10
+   let num_checks=6
+
+   while [ $num_checks -gt 0 ];
+   do
+      rms_count=$(node_sqcheck -c rms | awk '{print $2}')
+
+      if [[ ${rms_count} -eq 2 ]]; then
+         break
+      fi
+      let --num_checks
+      if [ $num_checks -gt 0 ]; then
+         echo "RMS processes are not up on this node. Will retry after $sleep_duration seconds... "
+         sleep $sleep_duration
+      fi
+   done
+
+   if [[ ${rms_count} -eq 2 ]]; then
+      echo "RMS processes are up on this node"
+   else
+      echo "RMS processes are not up on this node. Exiting... "
+      exit 1
+   fi
+fi
+
+exit 0

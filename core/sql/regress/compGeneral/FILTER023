@@ -1,0 +1,49 @@
+#! /bin/bash
+# @@@ START COPYRIGHT @@@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+# @@@ END COPYRIGHT @@@
+
+# The names of sample tables are generated from non-deterministic
+# criteria; we filter that out. This is a bit hard, though,
+# because unfortunately some of them wrap lines. Also, a sampling
+# rate needs to be filtered out due to non-determinism.
+
+fil=$1
+if [ "$fil" = "" ]; then
+  echo "Usage: $0 filename"
+  exit 1
+fi
+
+sed "
+s/TRAF_SAMPLE_[0-9]*_[0-9]*_[0-9]*/TRAF_SAMPLE_nn_nnnnnnnnnn_nnnnnn/g
+s/TRAF_SAMPLE_[0-9]*_[0-9]*/TRAF_SAMPLE_nn_nnnnnnnnnn/g
+s/TRAF_SAMPLE_[0-9]*/TRAF_SAMPLE_nn/g
+s/[0-9]*_[0-9]*_[0-9]* WHERE/nn_nnnnnnnnnn_nnnnnn WHERE/g
+s/[0-9]*\.[0-9]* PERCENT/nn.nn PERCENT/g
+s/[0-9]*_[0-9]*_[0-9]*_I/nn_nnnnnnnnnn_nnnnnn_I/g
+s/[0-9]*_[0-9]*_I/nnnnnnnnnn_nnnnnn_I/g
+s/[0-9]*_I/nnnnnn_I/g
+s/Start Time[ ]*[0-9]*\/[0-9]*\/[0-9]* [0-9]*:[0-9]*:[0-9]*.[0-9]*/Start Time @StartTime@/
+s/End Time[ ]*[0-9]*\/[0-9]*\/[0-9]* [0-9]*:[0-9]*:[0-9]*.[0-9]*/End Time @EndTime@/
+s/Elapsed Time[ ]*[0-9]*:[0-9]*:[0-9]*.[0-9]*/Elapsed Time @ElpasedTime@/
+s/Compile Time[ ]*[0-9]*:[0-9]*:[0-9]*.[0-9]*/Compile Time @CompileTime@/
+s/Execution Time[ ]*[0-9]*:[0-9]*:[0-9]*.[0-9]*/Execution Time @ExecutionTime@/
+" $fil
+

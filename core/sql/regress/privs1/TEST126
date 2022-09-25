@@ -1,0 +1,323 @@
+-- ============================================================================
+-- TEST126 - tests user groups
+--
+-- @@@ START COPYRIGHT @@@
+--
+-- Licensed to the Apache Software Foundation (ASF) under one
+-- or more contributor license agreements.  See the NOTICE file
+-- distributed with this work for additional information
+-- regarding copyright ownership.  The ASF licenses this file
+-- to you under the Apache License, Version 2.0 (the
+-- "License"); you may not use this file except in compliance
+-- with the License.  You may obtain a copy of the License at
+--
+--   http://www.apache.org/licenses/LICENSE-2.0
+--
+-- Unless required by applicable law or agreed to in writing,
+-- software distributed under the License is distributed on an
+-- "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+-- KIND, either express or implied.  See the License for the
+-- specific language governing permissions and limitations
+-- under the License.
+--
+-- @@@ END COPYRIGHT @@@
+--
+-- commands:
+--   REGISTER GROUP
+--   UNREGISTER GROUP
+--   ALTER GROUP
+--   SHOWDDL GROUP group
+--  
+--   REGISTER TENANT groups(group list)
+--   ALTER TENANT [add | drop] groups (group list)
+--   SHOWDDL TENANT tenant
+-- ============================================================================
+cqd SHOWDDL_DISPLAY_PRIVILEGE_GRANTS 'ON';
+cqd ALLOW_ROLE_GRANTS_TO_GROUPS 'ON';
+cqd TENANT_OVERSUBSCRIBE_WARN_NODE_RATIO '1e6';
+cqd TENANT_OVERSUBSCRIBE_ERR_NODE_RATIO  '1e6';
+obey TEST126(clean_up);
+log LOG126 clear;
+obey TEST126(set_up);
+obey TEST126(group_tests);
+obey TEST126(tenant_tests);
+obey TEST126(role_tests);
+obey TEST126(negative_tests);
+log;
+obey TEST126(clean_up);
+exit;
+
+?section clean_up
+drop schema t126_sch1 cascade;
+delete from "_MD_".defaults where attribute = 'USER_GROUPNAMES';
+
+revoke role t126_role1 from t126_grp1;
+revoke role t126_role2 from t126_grp2;
+revoke role t126_role3 from "t126-grp3";
+revoke role t126_role1 from t126_grp4;
+revoke role t126_role2 from t126_grp4;
+revoke role t126_role3 from t126_grp4;
+
+unregister group t126_grp1;
+unregister group t126_grp2;
+unregister group "t126-grp3";
+unregister group t126_grp4;
+unregister group t126_grp5;
+unregister group t126_grp6;
+unregister tenant tenant1;
+unregister tenant tenant2;
+sh rmdir $$ESGYN_CGP_MEM$$/TENANT2 $$ESGYN_CGP_CPU$$/TENANT2 $$ESGYN_CGP_CPUACCT$$/TENANT2;
+
+drop role t126_role1;
+drop role t126_role2;
+drop role t126_role3;
+
+delete from "_MD_".defaults where attribute = 'ALLOW_ROLE_GRANTS_TO_GROUPS';
+
+?section set_up
+prepare tenants from
+  select distinct
+         cast(trim(a.auth_db_name) as char(15) character set iso88591) as tenant_name,
+         case
+           when (admin_role_id = 0) then '0'
+           else cast(trim(authname(admin_role_id)) as char(15) character set iso88591)
+         end as admin_role,
+         case
+           when (u.usage_uid is null) then '?'
+           when (u.usage_type = 'G') then
+             'G: ' ||
+             cast(trim(authname(usage_uid)) as char(15) character set iso88591)
+           else 
+             'S: ' ||
+             (select cast(trim(schema_name) as char(15) character set iso88591) 
+              from "_MD_".objects where object_uid = u.usage_uid)
+         end as tenant_usage,
+         case
+           when (default_schema_uid = usage_uid) then '*'
+           else ' '
+         end as defsch
+   from "_TENANT_MD_".tenants t left join "_TENANT_MD_".tenant_usage u on t.tenant_id = u.tenant_id
+        ,"_MD_".auths a
+   where a.auth_id = t.tenant_id
+     and a.auth_id <> 1500000
+   order by 1, 3, 2
+;
+
+insert into "_MD_".defaults values ('ALLOW_ROLE_GRANTS_TO_GROUPS', 'ON', 'testing', 0);
+
+-- for now create the cgroups via shell command here
+sh mkdir $$ESGYN_CGP_MEM$$/TENANT2 $$ESGYN_CGP_CPU$$/TENANT2 $$ESGYN_CGP_CPUACCT$$/TENANT2;
+
+?section group_tests
+-- =============================================================================
+-- tests register, alter, and unregister groups
+-- =============================================================================
+-- register user group
+control query default showcontrol_show_all 'ON';
+showcontrol default ALLOW_ROLE_GRANTS_TO_GROUPS; 
+register group t126_grp1;
+register group t126_grp2 config 'section 1';
+register group "t126-grp3";
+get groups, match 'T126%';      
+showddl group t126_grp1;
+showddl group t126_grp2;
+showddl group "t126-grp3";
+
+-- alter user group
+alter group "t126-grp3" set config 'section2';
+showddl group "t126-grp3";
+
+-- unregister user group
+unregister group t126_grp1;
+unregister group t126_grp2;
+unregister group "t126-grp3";
+get groups, match 'T126%';      
+
+?section tenant_tests
+-- =============================================================================
+-- tests GROUPS(group list) for REGISTER TENANT
+-- tests ADD GROUPS(group list), DROP GROUPS(group list) for ALTER TENANT
+--  TRAF_AUTO_REGISTER group is turned on
+-- =============================================================================
+-- specify groups when register tenant
+-- if group does not exist, it will be regsitered
+cqd TRAF_AUTO_REGISTER_GROUP 'on';
+cqd ALLOW_ROLE_GRANTS_TO_GROUPS 'ON';
+register group t126_grp1;
+register group "t126-grp3";
+get groups, match 'T126%';      
+register tenant tenant1 admin role tenant1_admin, groups ("t126-grp3");
+register tenant tenant2 admin role tenant2_admin, groups ("t126-grp3", t126_grp4);
+showddl tenant tenant1;
+showddl tenant tenant2;
+
+-- tenant1 -> groups 3
+-- tenant2 -> groups 3 & 4
+get groups, match 'T126%';      
+get groups for tenant tenant1;
+get groups for tenant tenant2;
+execute tenants;
+
+-- change tenant/group relationships through alter tenant
+-- add groups
+alter tenant tenant1 add groups(t126_grp1, t126_grp5);
+alter tenant tenant2 add groups(t126_grp2);
+showddl tenant tenant1;
+showddl tenant tenant2;
+
+-- tenant1 -> groups 1, 3, & 5
+-- tenant2 -> groups 2, 3, &4
+get groups, match 'T126%';      
+get groups for tenant tenant1;
+get groups for tenant tenant2;
+execute tenants;
+
+-- change tenant/group relationships through alter tenant
+-- drop groups
+alter tenant tenant1 drop groups ("t126-grp3");
+alter tenant tenant2 drop groups(t126_grp2, t126_grp4);
+
+-- tenant1 -> groups 1 & 5
+-- tenant2 -> groups 3
+get groups for tenant tenant1;
+get groups for tenant tenant2;
+execute tenants;
+
+-- alter multiple options
+get roles, match 'T126%';     
+get schemas, match 'TENANT%';
+alter tenant tenant2 affinity 2, tenant size 2, cluster size 1, 
+                     groups (t126_grp4, t126_grp6);
+alter tenant tenant2 add schemas (tenant2_sch2, tenant2_sch1);
+
+-- tenant2 -> groups 3, 4, & 6 
+--         -> schemas tenant2_sch1 & tenant2_sch2
+--         -> admin role tenant2_admin
+get groups for tenant tenant2;
+execute tenants;
+get roles, match 'T126%';     
+get schemas, match 'TENANT%';
+
+unregister tenant tenant1;
+unregister tenant tenant2;
+unregister group t126_grp1;
+unregister group t126_grp2;
+unregister group "t126-grp3";
+unregister group t126_grp4;
+unregister group t126_grp5;
+unregister group t126_grp6;
+get tenants;
+get groups, match 'T126%';
+get roles, match 'T126%';     
+show databases, match 'TENANT%';
+
+?section role_tests
+-- =============================================================================
+-- tests granting and revoking roles to groups
+-- =============================================================================
+register group t126_grp1;
+register group t126_grp2;
+register group "t126-grp3";
+register group t126_grp4;
+get groups, match 'T126%';
+
+create role t126_role1;
+create role t126_role2;
+create role t126_role3;
+get roles, match 'T126%';     
+
+grant role t126_role1 to t126_grp1;
+grant role t126_role2 to t126_grp2;
+grant role t126_role3 to "t126-grp3";
+grant role t126_role1 to t126_grp4;
+grant role t126_role2 to t126_grp4;
+grant role t126_role3 to t126_grp4;
+showddl role t126_role1;
+showddl role t126_role2;
+showddl role t126_role3;
+get roles for group t126_grp4;
+
+create schema t126_sch1;
+set schema t126_sch1;
+create table t1 (a int, b int not null primary key);
+insert into t1 values (1,1), (2,2), (3,3), (4,4);
+select * from t1;
+create table t2 (a int, b int not null primary key);
+insert into t2 values (1,1), (2,2), (3,3), (4,4);
+select * from t2;
+grant select on schema t126_sch1 to t126_role1;
+grant all on t1 to t126_role2;
+grant select (a) on t2 to t126_role3;
+showddl schema t126_sch1;
+showddl t1;
+showddl t2;
+
+-- sql_user1 is part of t126_grp1, can select on all tables in schema
+insert into "_MD_".DEFAULTS values ('USER_GROUPNAMES', 'T126_GRP1', 'Privs TEST126', 0);
+sh sqlci -i "TEST126(do_dml)" -u sql_user1;
+
+-- sql_user2 is part of t126_grp2, can select and update table t1
+update "_MD_".DEFAULTS set attr_value = 'T126_GRP2' where attribute = 'USER_GROUPNAMES';
+sh sqlci -i "TEST126(do_dml)" -u sql_user2;
+
+-- sql_user3 is part of "t126-grp3", can select from column t1(a)
+update "_MD_".DEFAULTS set attr_value = 'T126-GRP3' where attribute = 'USER_GROUPNAMES';
+sh sqlci -i "TEST126(do_dml)" -u sql_user3;
+
+-- sql_user4 is part of t126_grp4, can do all above operations
+update "_MD_".DEFAULTS set attr_value = 'T126_GRP4' where attribute = 'USER_GROUPNAMES';
+sh sqlci -i "TEST126(do_dml)" -u sql_user4;
+
+drop schema t126_sch1 cascade;
+
+revoke role t126_role1 from t126_grp1;
+revoke role t126_role2 from t126_grp2;
+revoke role t126_role3 from "t126-grp3";
+revoke role t126_role1 from t126_grp4;
+revoke role t126_role2 from t126_grp4;
+revoke role t126_role3 from t126_grp4;
+
+drop role t126_role1;
+drop role t126_role2;
+drop role t126_role3;
+
+unregister group t126_grp1;
+unregister group t126_grp2;
+unregister group "t126-grp3";
+unregister group t126_grp4;
+
+?section do_dml
+-- =============================================================================
+-- performs DML request 
+-- =============================================================================
+cqd ALLOW_ROLE_GRANTS_TO_GROUPS 'ON';
+log LOG126;
+values (current_user);
+get active roles;
+
+set schema t126_sch1;
+select * from t1;
+select a from t2;
+select b from t2;
+delete from t1 where a = 1;
+insert into t1 values (1,1);
+
+?section negative_tests
+-- =============================================================================
+-- tests error conditions for groups and tenants
+-- =============================================================================
+register tenant tenant1 admin role tenant1_admin;
+
+-- specify the same group twice
+register tenant tenant2 admin role tenant2_admin, add groups (t126_grp2, "t126-grp3", t126_grp2);
+alter tenant tenant1 add groups (t126_grp1, t126_grp2, t126_grp2, "t126-grp3");
+get groups, match 'T126%';      
+
+-- specify add and drop groups in same statement
+alter tenant tenant1 add groups (t126_grp6), drop groups (t126_grp1);
+
+-- turn off cqd:  TRAF_AUTO_REGISTER_GROUP
+cqd TRAF_AUTO_REGISTER_GROUP 'OFF';
+register tenant tenant2 admin role tenant2_admin, add groups(t126_grp1);
+alter tenant tenant1 add groups (t126_grp2, t126_grp1);
+cqd TRAF_AUTO_REGISTER_GROUP 'ON';

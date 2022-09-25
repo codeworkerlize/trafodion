@@ -1,0 +1,6 @@
+1065,1066d1064
+< *** WARNING[6008] Statistics for column (T_TIME) from table HIVE.HIVE.TIME_DIM were not available. As a result, the access path chosen might not be the best possible.
+< 
+1193,1194d1190
+< 
+< *** WARNING[6008] Statistics for column (D_DATE) from table HIVE.HIVE.DATE_DIM were not available. As a result, the access path chosen might not be the best possible.

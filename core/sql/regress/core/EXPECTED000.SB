@@ -1,0 +1,2 @@
+>>-- not logging since setup operations may already have been done
+>>log;

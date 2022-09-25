@@ -1,0 +1,19 @@
+{
+"install": [
+    {
+        "script": "traf_mods.py",
+        "desc": "Trafodion modification",
+        "node": "trafnodes"
+    },
+    {
+        "script": "hadoop_mods.py",
+        "desc": "Hadoop modification",
+        "node": "first"
+    },
+    {
+        "script": "restart_CDH.py",
+        "desc": "Restart Cloudera cluster",
+        "node": "first"
+    }
+]
+}

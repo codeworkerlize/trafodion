@@ -1,0 +1,9 @@
+#!/bin/bash
+
+. $TRAF_HOME/sql/scripts/ampool/setup_ampool_env
+
+echo "At the mash prompt, please issue the following to connect:"
+echo "connect --locator=localhost[${AMPOOL_LOCATOR_PORT}]"
+sleep 5
+
+${AMPOOL_HOME}/bin/mash

@@ -1,0 +1,132 @@
+-- @@@ START COPYRIGHT @@@
+--
+-- Licensed to the Apache Software Foundation (ASF) under one
+-- or more contributor license agreements.  See the NOTICE file
+-- distributed with this work for additional information
+-- regarding copyright ownership.  The ASF licenses this file
+-- to you under the Apache License, Version 2.0 (the
+-- "License"); you may not use this file except in compliance
+-- with the License.  You may obtain a copy of the License at
+--
+--   http://www.apache.org/licenses/LICENSE-2.0
+--
+-- Unless required by applicable law or agreed to in writing,
+-- software distributed under the License is distributed on an
+-- "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+-- KIND, either express or implied.  See the License for the
+-- specific language governing permissions and limitations
+-- under the License.
+--
+-- @@@ END COPYRIGHT @@@
+
+-- Tests for hbase timestamp and hbase version functionality
+
+obey TEST001(clean_up);
+
+create trafodion namespace 'regr' if not exists;
+
+log LOG001 clear;
+obey TEST001(setup);
+obey TEST001(dml);
+log;
+exit;
+
+?section setup
+create table t001t1(a int not null primary key, b int, c int default 10 not null)
+   hbase_options (max_versions = '3')
+   attributes hbase format;
+
+create table t001t2 (name char(10) not null primary key,
+                     "position" char(10),
+                     empid int not null) hbase_options (max_versions = '4')
+  attributes hbase format;
+
+create table t001t3 (name char(10) not null primary key,
+       addr varchar(50)) hbase_options (max_versions = '4')
+  attributes hbase format;
+
+create table t001t4 (name char(10) not null primary key,
+       addr varchar(50)) hbase_options (max_versions = '4')
+  attributes aligned format;
+
+?section dml
+select * from t001t1 {hbase versions max};
+insert into t001t1 values (1,1,1);
+select * from t001t1 {hbase versions max};
+insert into t001t1(a) values (2);
+select * from t001t1 {hbase versions max};
+update t001t1 set b = 2;
+select * from t001t1 {hbase versions 4};
+select * from t001t1 {hbase versions max};
+
+control table t001t1 hbase_versions '-1';
+select * from t001t1;
+
+control table t001t1 hbase_versions reset;
+
+control table t001t2 hbase_timestamp_set '2000-01-02 10:10:10';
+insert into t001t2 values ('Deepika', 'Manager', 1);
+control table t001t3 hbase_timestamp_set '2000-01-02 10:10:10';
+insert into t001t3 values ('Deepika', 'Delhi');
+
+control table * hbase_timestamp_set '2001-01-02 09:09:09';
+insert into t001t2 values ('Jack', 'Programmer', 2);
+insert into t001t2 values ('Jill', 'Programmer', 3);
+update t001t3 set addr = 'California' where name = 'Deepika';
+
+control table t001t2 hbase_timestamp_set '2002-01-02 09:09:09';
+update t001t2 set "position" = 'Architect' where name = 'Jill';
+
+control table t001t2 hbase_timestamp_set reset;
+control table * hbase_timestamp_set reset;
+
+select * from t001t2 order by empid;
+select * from t001t2 {hbase versions max} order by empid;
+select empid, name, "position", hbase_timestamp("position", localtime) from t001t2
+  {hbase versions max} order by 1;
+select empid, hbase_version("position"), hbase_timestamp("position", localtime),* 
+        from t001t2 {hbase timestamp as of '1999-09-10 17:54:16', hbase versions max}
+        order by 1;
+select empid, hbase_version("position"), hbase_timestamp("position", localtime),* 
+        from t001t2 {hbase timestamp as of '2000-09-10 17:54:16', hbase versions max}
+        order by 1;
+select empid, hbase_version("position"), hbase_timestamp("position", localtime),* 
+        from t001t2 {hbase timestamp as of '2001-09-10 17:54:16', hbase versions max}
+        order by 1;
+select empid, hbase_version("position"), hbase_timestamp("position", localtime),* 
+        from t001t2 {hbase timestamp as of '2015-09-10 17:54:16', hbase versions max}
+        order by 1;
+
+control table * hbase_timestamp_as_of '2000-09-10 17:54:16';
+select * from t001t2, t001t3 where t001t2.name = t001t3.name;
+
+control table t001t2 hbase_timestamp_set '2003-01-02 09:09:09';
+update t001t2 set "position" = 'VP' where name = 'Deepika';
+
+control table * hbase_timestamp_as_of '2004-09-10 17:54:16';
+select * from t001t2, t001t3 where t001t2.name = t001t3.name;
+
+control table * hbase_timestamp_as_of reset;
+control table * hbase_timestamp_set reset;
+
+create index t001t2i1 on t001t2(empid);
+update statistics for table t001t2 on every column;
+
+-- should not choose index access
+explain options 'f' select empid 
+        from t001t2 {hbase timestamp as of '2000-09-10 17:54:16'};
+explain options 'f' select hbase_timestamp(empid) from t001t2;
+explain options 'f' select empid from t001t2 where hbase_timestamp(empid) > 0;
+
+-- should choose index access
+explain options 'f' select empid from t001t2;
+explain options 'f' select empid from t001t2 where abs(empid) > 0;
+
+-- error case, not supported on aligned format
+select * from t001t4 {hbase versions max};
+
+?section clean_up
+drop table t001t1;
+drop table t001t2;
+drop table t001t3;
+drop table t001t4;

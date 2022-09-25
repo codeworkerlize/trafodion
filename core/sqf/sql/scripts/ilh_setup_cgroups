@@ -1,0 +1,135 @@
+#!/bin/bash
+
+# This script is for environments that use install_local_hadoop.
+# It handles two different cases:
+# a) a shared system where the user does not have sudo privileges
+#    and where a cgroup for the user has been created in
+#    /cgroup/<subsys>/$USER for all the relevant values of <subsys>
+# b) A non-shared system where the user does have sudo privilege.
+#    cgroups will be mounted in /cgroup/<subsys> on such systems.
+
+function add_vars_to_sw_env()
+{
+  mpcpu=$(lssubsys -m cpu | cut -f2 -d' ' -s)
+  mpcpa=$(lssubsys -m cpuacct | cut -f2 -d' ' -s)
+  mpmem=$(lssubsys -m memory | cut -f2 -d' ' -s)
+
+  if [[ -d "${mpcpu}" ]]; then
+    echo -e "export ESGYN_CG_CPU=cpu:/${CG_PATH}\n\
+export ESGYN_CGP_CPU=${mpcpu}/${CG_PATH}\n\
+export ESGYN_CG_CPUACCT=cpuacct:/${CG_PATH}\n\
+export ESGYN_CGP_CPUACCT=${mpcpa}/${CG_PATH}\n\
+export ESGYN_CG_MEM=memory:/${CG_PATH}\n\
+export ESGYN_CGP_MEM=${mpmem}/${CG_PATH}\n" >>$SW_ENV_SCRIPT
+  else
+    echo "cgroups are not yet mounted, please rerun this script"
+    echo "after successful setup".
+  fi
+}
+
+SW_ENV_SCRIPT=$TRAF_HOME/sql/scripts/sw_env.sh
+CG_PATH="$USER"
+Y_N=n
+
+mpcpu=$(lssubsys -m cpu | cut -f2 -d' ' -s)
+
+if [[ ! -d "$mpcpu" ]]; then
+  # cgroups are not mounted on this system
+  if [[ -f /etc/cgconfig.conf ]]; then
+    echo "cgroups are set up on this system, but maybe the"
+    echo "cgconfig service is not running, please start with"
+    echo "sudo service cgconfig start"
+    echo "exiting..."
+    exit 1
+  fi
+
+  echo "cgroups are not mounted on this system."
+  echo -n "Would you like to set them up? (y/[n]): "
+  read Y_N
+
+  if [[ "$Y_N" == "y" || "$Y_N" == "Y" ]]; then
+    echo "Setting up cgroups, this requires sudo privileges..."
+    TMPFILE=`mktemp /tmp/$USER.ilh_setup_cgroups.XXXXXX`
+    cat <<EOF >$TMPFILE
+group ${USER} {
+        perm {
+          task {
+            uid = ${USER};
+            gid = ${USER};
+          }
+          admin {
+            uid = ${USER};
+            gid = ${USER};
+          }
+        }
+        cpu {
+                cpu.shares="1024";
+        }
+        cpuacct {
+                cpuacct.usage="0";
+        }
+        memory {
+                memory.limit_in_bytes="8G";
+                memory.memsw.limit_in_bytes="12G";
+        }
+}
+EOF
+
+    echo "To install cgroups, run the following commands:"
+    echo " "
+    # once tested, remove the "echo" and do it for the user
+    echo sudo yum install -y libcgroup-devel
+    if [[ `expr match "$(uname -a)" ".*el7.*"` != 0 ]]; then
+      echo sudo yum install -y libcgroup-tools
+    fi
+    echo sudo cp $TMPFILE /etc/cgconfig.d/${USER}
+    echo sudo service cgconfig start
+    echo sudo chkconfig cgconfig on
+
+    # echo "installed cgconfig service successfully"
+    echo " "
+    echo -n "Press ENTER when done: "
+    read Y_N
+  else
+    echo exiting...
+    exit 1
+  fi
+fi
+
+if [[ ! -f $SW_ENV_SCRIPT ]]; then
+  echo "You can now run the install_local_hadoop command, exiting..."
+  exit 1
+fi
+
+# check whether the environment variables are set
+NUM_ENV_VARS=`grep ESGYN_CG $SW_ENV_SCRIPT | wc -l`
+if [[ $NUM_ENV_VARS -lt 6 ]]; then
+  echo "ESGYN_CGP_* environment variables not set, adding them to $SW_ENV_SCRIPT"
+  add_vars_to_sw_env
+fi
+
+source $SW_ENV_SCRIPT
+
+if [[ ! -d "$ESGYN_CGP_CPU" ]]; then
+  mpcpu=$(lssubsys -m cpu | cut -f2 -d' ' -s)
+  if [[ -d "${mpcpu}" ]]; then
+    # ESGYN_CG_ variables don't point to the right cgroups
+    echo "The ESGYN_CG_* variables in $SW_ENV_SCRIPT"
+    echo "don't point to the actual cgroups (e.g. ${mpcpu})."
+    echo -n "Would you like to fix this? (y/[n]): "
+    read Y_N
+
+    if [[ "$Y_N" == "y" || "$Y_N" == "Y" ]]; then
+      TMPFILE2=`mktemp /tmp/$USER.ilh_setup_cgroups.XXXXXX`
+
+      cat $SW_ENV_SCRIPT | grep -v ESGYN_CG >$TMPFILE2
+      mv $SW_ENV_SCRIPT $SW_ENV_SCRIPT.bak
+      cp $TMPFILE2 $SW_ENV_SCRIPT
+      add_vars_to_sw_env
+    else
+      echo "exiting..."
+    fi
+  fi
+fi
+
+

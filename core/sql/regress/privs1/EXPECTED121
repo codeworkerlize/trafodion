@@ -1,0 +1,906 @@
+>>obey TEST121(set_up);
+>>grant component privilege manage_tenants, manage_roles, manage_users on sql_operations to sql_user10;
+
+--- SQL operation complete.
+>>grant component privilege manage_roles, manage_users on sql_operations to sql_user1;
+
+--- SQL operation complete.
+>>prepare tenants from 
++>  select distinct 
++>         cast(trim(a.auth_db_name) as char(15) character set iso88591) as tenant_name,
++>         case
++>           when (admin_role_id = 0) then '0'
++>           else (select cast(trim(auth_db_name) as char(15) character set iso88591) from "_MD_".auths where admin_role_id = auth_id)
++>         end as admin_role,
++>         case
++>           when (u.usage_uid is null) then '?'
++>           else (select cast(trim(schema_name) as char(15) character set iso88591) from "_MD_".objects where object_uid = u.usage_uid)
++>         end as schema_usage,
++>         case
++>           when (default_schema_uid = usage_uid) then '*'
++>           else ' '
++>         end as defsch
++>   from "_TENANT_MD_".tenants t left join "_TENANT_MD_".tenant_usage u on t.tenant_id = u.tenant_id 
++>        ,"_MD_".auths a
++>        , "_MD_".objects o
++>   where a.auth_id = t.tenant_id
++>     and a.auth_id <> 1500000
++>   order by 1, 3, 2 
++>;
+
+--- SQL command prepared.
+>>get namespaces, match 'TRAF_1500%';
+
+TRAF_1500000
+
+--- SQL operation complete.
+>>
+>>sh sqlci -i "TEST121(setup_tenants)" -u sql_user10;
+>>cqd TENANT_OVERSUBSCRIBE_WARN_NODE_RATIO '1e6';
+
+--- SQL operation complete.
+>>cqd TENANT_OVERSUBSCRIBE_ERR_NODE_RATIO  '1e6';
+
+--- SQL operation complete.
+>>values (current_user);
+
+(EXPR)
+--------------------------------------------------------------------------------------------------------------------------------
+
+SQL_USER10                                                                                                                      
+
+--- 1 row(s) selected.
+>>cqd SHOWDDL_DISPLAY_PRIVILEGE_GRANTS 'ON';
+
+--- SQL operation complete.
+>>
+>>register tenant tenant1 admin role tenant1_admin;
+
+--- SQL operation complete.
+>>grant role tenant1_admin to sql_user1;
+
+--- SQL operation complete.
+>>
+>>register tenant tenant2 admin role tenant2_admin;
+
+--- SQL operation complete.
+>>grant role tenant2_admin to sql_user4;
+
+--- SQL operation complete.
+>>grant role tenant2_admin to sql_user5;
+
+--- SQL operation complete.
+>>
+>>-- a user can administrate multiple tenants
+>>grant role tenant2_admin to sql_user1;
+
+--- SQL operation complete.
+>>
+>>-- fails, a tenant cannot be associated with more than on admin role
+>>create admin role tenant1_admin1 for tenant1;
+
+*** ERROR[1019] Auth TENANT1 has already been granted admin role TENANT1_ADMIN.
+
+--- SQL operation failed with errors.
+>>
+>>showddl tenant tenant1;
+
+CREATE TENANT TENANT1 TENANT SIZE 4, AFFINITY 0, CLUSTER SIZE 1, ADMIN ROLE
+  TENANT1_ADMIN;
+
+--- SQL operation complete.
+>>showddl tenant tenant2;
+
+CREATE TENANT TENANT2 TENANT SIZE 4, AFFINITY 0, CLUSTER SIZE 1, ADMIN ROLE
+  TENANT2_ADMIN;
+
+--- SQL operation complete.
+>>showddl role tenant1_admin;
+
+CREATE ROLE "TENANT1_ADMIN" WITH ADMIN "SQL_USER10";
+GRANT ROLE "TENANT1_ADMIN"
+  TO "SQL_USER1" GRANTED BY "SQL_USER10";
+  -- GRANT ROLE "TENANT1_ADMIN" TO "SQL_USER10" WITH ADMIN OPTION;
+  -- Admin role for tenant TENANT1
+
+--- SQL operation complete.
+>>showddl role tenant2_admin;
+
+CREATE ROLE "TENANT2_ADMIN" WITH ADMIN "SQL_USER10";
+GRANT ROLE "TENANT2_ADMIN"
+  TO "SQL_USER1" GRANTED BY "SQL_USER10";
+  -- GRANT ROLE "TENANT2_ADMIN" TO "SQL_USER10" WITH ADMIN OPTION;
+GRANT ROLE
+  "TENANT2_ADMIN" TO "SQL_USER4" GRANTED BY "SQL_USER10";
+GRANT ROLE
+  "TENANT2_ADMIN" TO "SQL_USER5" GRANTED BY "SQL_USER10";
+  -- Admin role for tenant TENANT2
+
+--- SQL operation complete.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>obey TEST121(basic_tests);
+>>-- =================================================================
+>>-- sql_user10 is the security adminstrator
+>>-- tenant1:
+>>--   sql_user1 is tenant administrator for tenant1
+>>--   sql_user2 & sentry_user1 are users for tenant1
+>>--   tenant1_sch1 and  tenant1_sch2 are their schemas
+>>--   roles for tenant1 include tenant1_role1, tenant1_role2
+>>-- tenant2:
+>>--   sql_user4 & sql_user4 are tenant administrators for tenant2
+>>--   sql_user6, tenant2_user1, and tenant2_user2 are tenant2 users
+>>--   tenant2_sch1 (private) is the schema for tenant2
+>>--   roles include tenant2_role1, tenant2_role2, and tenant2_role3
+>>-- =================================================================
+>>select substring (a1.auth_db_name,1,20) as role_name, 
++>       substring (a2.auth_db_name,1,20) as role_creator, 
++>       a1.flags 
++>from "_MD_".auths a1, "_MD_".auths a2 
++>where a1.auth_db_name in ('TENANT1_ADMIN', 'TENANT2_ADMIN')
++> and a1.auth_creator = a2.auth_id;
+
+ROLE_NAME                                                                         ROLE_CREATOR                                                                      FLAGS
+--------------------------------------------------------------------------------  --------------------------------------------------------------------------------  --------------------
+
+TENANT1_ADMIN                                                                     SQL_USER10                                                                                           1
+TENANT2_ADMIN                                                                     SQL_USER10                                                                                           1
+
+--- 2 row(s) selected.
+>>
+>>create admin role tenant1_role1 for tenant1;
+
+*** ERROR[1019] Auth TENANT1 has already been granted admin role TENANT1_ADMIN.
+
+--- SQL operation failed with errors.
+>>
+>>get roles for user sql_user1;
+
+Roles for User SQL_USER1
+========================
+
+PUBLIC
+TENANT1_ADMIN
+TENANT2_ADMIN
+
+=======================
+ 3 row(s) returned
+
+--- SQL operation complete.
+>>sh sqlci -i "TEST121(user1)" -u sql_user1 -t tenant1;
+>>values (current_user);
+
+(EXPR)
+--------------------------------------------------------------------------------------------------------------------------------
+
+SQL_USER1                                                                                                                       
+
+--- 1 row(s) selected.
+>>values (current_tenant);
+
+(EXPR)
+--------------------------------------------------------------------------------------------------------------------------------
+
+TENANT1                                                                                                                         
+
+--- 1 row(s) selected.
+>>cqd SHOWDDL_DISPLAY_PRIVILEGE_GRANTS 'ON';
+
+--- SQL operation complete.
+>>create role tenant1_role1;
+
+--- SQL operation complete.
+>>create role tenant1_role2;
+
+--- SQL operation complete.
+>>grant role tenant1_role1 to sql_user2;
+
+--- SQL operation complete.
+>>register user sentry_user1;
+
+--- SQL operation complete.
+>>grant role tenant1_role1 to sql_user2;
+
+--- SQL operation complete.
+>>register user sentry_user2;
+
+--- SQL operation complete.
+>>grant role tenant1_role2 to sql_user3;
+
+--- SQL operation complete.
+>>
+>>
+>>exit;
+
+End of MXCI Session
+
+>>sh sqlci -i "TEST121(tenant1)" -u sql_user1 -t tenant1;
+>>values(current_tenant);
+
+(EXPR)
+--------------------------------------------------------------------------------------------------------------------------------
+
+TENANT1                                                                                                                         
+
+--- 1 row(s) selected.
+>>select current_tenant from dual where current_tenant='TENANT1';
+
+(EXPR)
+--------------------------------------------------------------------------------------------------------------------------------
+
+TENANT1                                                                                                                         
+
+--- 1 row(s) selected.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>get users;
+
+Users
+=====
+
+DB__ADMIN
+DB__ROOT
+SENTRY_USER1
+SENTRY_USER2
+SQL_USER1
+SQL_USER10
+SQL_USER2
+SQL_USER3
+SQL_USER4
+SQL_USER5
+SQL_USER6
+SQL_USER7
+SQL_USER8
+SQL_USER9
+
+=======================
+ 14 row(s) returned
+
+--- SQL operation complete.
+>>get roles;
+
+Roles
+=====
+
+DB__ADMINROLE
+DB__HBASEROLE
+DB__HIVEROLE
+DB__LIBMGRROLE
+DB__ROOTROLE
+DB__SERVICESROLE
+PUBLIC
+TENANT1_ADMIN
+TENANT1_ROLE1
+TENANT1_ROLE2
+TENANT2_ADMIN
+
+=======================
+ 11 row(s) returned
+
+--- SQL operation complete.
+>>get tenants;
+
+Tenants
+=======
+
+ESGYNDB
+TENANT1
+TENANT2
+
+=======================
+ 3 row(s) returned
+
+--- SQL operation complete.
+>>
+>>
+>>-- try to run as tenant1
+>>alter tenant tenant1 add schemas (tenant1_sch1);
+
+--- SQL operation complete.
+>>sh sqlci -i "TEST121(user2)" -u sql_user2 -t tenant1;
+>>set schema tenant1_sch1;
+
+--- SQL operation complete.
+>>values (current_user);
+
+(EXPR)
+--------------------------------------------------------------------------------------------------------------------------------
+
+SQL_USER2                                                                                                                       
+
+--- 1 row(s) selected.
+>>-- prepare a statement that uses both ESPs and UDR servers
+>>-- enable this later, right now we get a privilege error
+>>-- prepare s from
+>>-- select [last 0] 1 from udf(event_log_reader());
+>>-- execute s;
+>>values (10);
+
+(EXPR)
+------
+
+    10
+
+--- 1 row(s) selected.
+>>-- list the tasks associated with this tenant's CPU cgroup
+>>sh cat $$ESGYN_CGP_CPU$$/TENANT1/tasks >t121_cpu_tasks.log;
+>>-- don't list the actual pids of tasks, just whether it's a non-zero number
+>>-- Expect empty output. If this displays "0" that means a test failure!
+>>log;
+0
+>>
+>>obey TEST121(schema_tests);
+>>
+>>-- tenant with no associated schema
+>>register tenant tenant4 admin role tenant4_admin;
+
+--- SQL operation complete.
+>>showddl tenant tenant4;
+
+CREATE TENANT TENANT4 TENANT SIZE 4, AFFINITY 0, CLUSTER SIZE 1, ADMIN ROLE
+  TENANT4_ADMIN;
+
+--- SQL operation complete.
+>>execute tenants;
+
+TENANT_NAME      ADMIN_ROLE       SCHEMA_USAGE     DEFSCH
+---------------  ---------------  ---------------  ------
+
+TENANT1          TENANT1_ADMIN    TENANT1_SCH1     *     
+TENANT2          TENANT2_ADMIN    ?                      
+TENANT4          TENANT4_ADMIN    ?                      
+
+--- 3 row(s) selected.
+>>
+>>-- add schema and make it the default
+>>-- first alter fails because schema tenant4_sch2 has not been created
+>>alter tenant tenant4 default schema tenant4_sch2;
+
+*** ERROR[1003] Schema TRAFODION.TENANT4_SCH2 does not exist.
+
+--- SQL operation failed with errors.
+>>alter tenant tenant4 add schemas (tenant4_sch2);
+
+--- SQL operation complete.
+>>alter tenant tenant4 default schema tenant4_sch2;
+
+--- SQL operation complete.
+>>showddl tenant tenant4;
+
+CREATE TENANT TENANT4 TENANT SIZE 4, AFFINITY 0, CLUSTER SIZE 1, DEFAULT SCHEMA
+  TRAFODION.TENANT4_SCH2, ADMIN ROLE TENANT4_ADMIN, SCHEMAS
+  (TRAFODION.TENANT4_SCH2);
+
+--- SQL operation complete.
+>>execute tenants;
+
+TENANT_NAME      ADMIN_ROLE       SCHEMA_USAGE     DEFSCH
+---------------  ---------------  ---------------  ------
+
+TENANT1          TENANT1_ADMIN    TENANT1_SCH1     *     
+TENANT2          TENANT2_ADMIN    ?                      
+TENANT4          TENANT4_ADMIN    TENANT4_SCH2     *     
+
+--- 3 row(s) selected.
+>>get namespaces, match 'TRAF_1500%';
+
+TRAF_1500000
+TRAF_1500100
+TRAF_1500101
+TRAF_1500102
+
+--- SQL operation complete.
+>>
+>>-- add multiple schemas and change the default
+>>alter tenant tenant4 add schemas (tenant4_sch1, tenant4_sch3 default);
+
+--- SQL operation complete.
+>>showddl tenant tenant4;
+
+CREATE TENANT TENANT4 TENANT SIZE 4, AFFINITY 0, CLUSTER SIZE 1, DEFAULT SCHEMA
+  TRAFODION.TENANT4_SCH3, ADMIN ROLE TENANT4_ADMIN, SCHEMAS
+  (TRAFODION.TENANT4_SCH2, TRAFODION.TENANT4_SCH1, TRAFODION.TENANT4_SCH3);
+
+--- SQL operation complete.
+>>execute tenants;
+
+TENANT_NAME      ADMIN_ROLE       SCHEMA_USAGE     DEFSCH
+---------------  ---------------  ---------------  ------
+
+TENANT1          TENANT1_ADMIN    TENANT1_SCH1     *     
+TENANT2          TENANT2_ADMIN    ?                      
+TENANT4          TENANT4_ADMIN    TENANT4_SCH1           
+TENANT4          TENANT4_ADMIN    TENANT4_SCH2           
+TENANT4          TENANT4_ADMIN    TENANT4_SCH3     *     
+
+--- 5 row(s) selected.
+>>
+>>-- set the default schema to an existing usage
+>>alter tenant tenant4 default schema tenant4_sch1;
+
+--- SQL operation complete.
+>>showddl tenant tenant4;
+
+CREATE TENANT TENANT4 TENANT SIZE 4, AFFINITY 0, CLUSTER SIZE 1, DEFAULT SCHEMA
+  TRAFODION.TENANT4_SCH1, ADMIN ROLE TENANT4_ADMIN, SCHEMAS
+  (TRAFODION.TENANT4_SCH2, TRAFODION.TENANT4_SCH1, TRAFODION.TENANT4_SCH3);
+
+--- SQL operation complete.
+>>execute tenants;
+
+TENANT_NAME      ADMIN_ROLE       SCHEMA_USAGE     DEFSCH
+---------------  ---------------  ---------------  ------
+
+TENANT1          TENANT1_ADMIN    TENANT1_SCH1     *     
+TENANT2          TENANT2_ADMIN    ?                      
+TENANT4          TENANT4_ADMIN    TENANT4_SCH1     *     
+TENANT4          TENANT4_ADMIN    TENANT4_SCH2           
+TENANT4          TENANT4_ADMIN    TENANT4_SCH3           
+
+--- 5 row(s) selected.
+>>
+>>-- drop a schema usage that is not the default
+>>alter tenant tenant4 drop schemas (tenant4_sch2);
+
+--- SQL operation complete.
+>>showddl tenant tenant4;
+
+CREATE TENANT TENANT4 TENANT SIZE 4, AFFINITY 0, CLUSTER SIZE 1, DEFAULT SCHEMA
+  TRAFODION.TENANT4_SCH1, ADMIN ROLE TENANT4_ADMIN, SCHEMAS
+  (TRAFODION.TENANT4_SCH1, TRAFODION.TENANT4_SCH3);
+
+--- SQL operation complete.
+>>execute tenants;
+
+TENANT_NAME      ADMIN_ROLE       SCHEMA_USAGE     DEFSCH
+---------------  ---------------  ---------------  ------
+
+TENANT1          TENANT1_ADMIN    TENANT1_SCH1     *     
+TENANT2          TENANT2_ADMIN    ?                      
+TENANT4          TENANT4_ADMIN    TENANT4_SCH1     *     
+TENANT4          TENANT4_ADMIN    TENANT4_SCH3           
+
+--- 4 row(s) selected.
+>>
+>>-- drop a schema that is the default
+>>alter tenant tenant4 drop schemas (tenant4_sch1);
+
+--- SQL operation complete.
+>>showddl tenant tenant4;
+
+CREATE TENANT TENANT4 TENANT SIZE 4, AFFINITY 0, CLUSTER SIZE 1, DEFAULT SCHEMA
+  TRAFODION.TENANT4_SCH3, ADMIN ROLE TENANT4_ADMIN, SCHEMAS
+  (TRAFODION.TENANT4_SCH3);
+
+--- SQL operation complete.
+>>execute tenants;
+
+TENANT_NAME      ADMIN_ROLE       SCHEMA_USAGE     DEFSCH
+---------------  ---------------  ---------------  ------
+
+TENANT1          TENANT1_ADMIN    TENANT1_SCH1     *     
+TENANT2          TENANT2_ADMIN    ?                      
+TENANT4          TENANT4_ADMIN    TENANT4_SCH3     *     
+
+--- 3 row(s) selected.
+>>
+>>-- drop all schemas
+>>alter tenant tenant4 drop schemas (tenant4_sch3);
+
+--- SQL operation complete.
+>>showddl tenant tenant4;
+
+CREATE TENANT TENANT4 TENANT SIZE 4, AFFINITY 0, CLUSTER SIZE 1, ADMIN ROLE
+  TENANT4_ADMIN;
+
+--- SQL operation complete.
+>>execute tenants;
+
+TENANT_NAME      ADMIN_ROLE       SCHEMA_USAGE     DEFSCH
+---------------  ---------------  ---------------  ------
+
+TENANT1          TENANT1_ADMIN    TENANT1_SCH1     *     
+TENANT2          TENANT2_ADMIN    ?                      
+TENANT4          TENANT4_ADMIN    ?                      
+
+--- 3 row(s) selected.
+>>-- register a tenant with a schema list without default schema
+>>
+>>unregister tenant tenant4;
+
+--- SQL operation complete.
+>>get namespaces, match 'TRAF_1500%';
+
+TRAF_1500000
+TRAF_1500100
+TRAF_1500101
+
+--- SQL operation complete.
+>>register tenant tenant4 admin role tenant4_admin, 
++>                        schema tenant4_sch1,
++>                               tenant4_sch2,
++>                               tenant4_sch3;
+
+--- SQL operation complete.
+>>showddl tenant tenant4;
+
+CREATE TENANT TENANT4 TENANT SIZE 4, AFFINITY 0, CLUSTER SIZE 1, ADMIN ROLE
+  TENANT4_ADMIN, SCHEMAS (TRAFODION.TENANT4_SCH1, TRAFODION.TENANT4_SCH2,
+  TRAFODION.TENANT4_SCH3);
+
+--- SQL operation complete.
+>>execute tenants;
+
+TENANT_NAME      ADMIN_ROLE       SCHEMA_USAGE     DEFSCH
+---------------  ---------------  ---------------  ------
+
+TENANT1          TENANT1_ADMIN    TENANT1_SCH1     *     
+TENANT2          TENANT2_ADMIN    ?                      
+TENANT4          TENANT4_ADMIN    TENANT4_SCH1           
+TENANT4          TENANT4_ADMIN    TENANT4_SCH2           
+TENANT4          TENANT4_ADMIN    TENANT4_SCH3           
+
+--- 5 row(s) selected.
+>>get schemas, match 'TENANT%';
+
+Schemas in Catalog TRAFODION
+============================
+
+TENANT1_SCH1
+TENANT4_SCH1
+TENANT4_SCH2
+TENANT4_SCH3
+
+=======================
+ 4 row(s) returned
+
+--- SQL operation complete.
+>>get namespaces, match 'TRAF_1500%';
+
+TRAF_1500000
+TRAF_1500100
+TRAF_1500101
+TRAF_1500102
+
+--- SQL operation complete.
+>>
+>>-- register a tenant with a schema list assign default schema
+>>unregister tenant tenant4;
+
+--- SQL operation complete.
+>>get namespaces, match 'TRAF_1500%';
+
+TRAF_1500000
+TRAF_1500100
+TRAF_1500101
+
+--- SQL operation complete.
+>>get schemas, match 'TENANT%';
+
+Schemas in Catalog TRAFODION
+============================
+
+TENANT1_SCH1
+
+=======================
+ 1 row(s) returned
+
+--- SQL operation complete.
+>>register tenant tenant4 tenant size 2,
++>                        admin role tenant4_admin,
++>                        schema tenant4_sch1, 
++>                               tenant4_sch2 default,
++>                               tenant4_sch3;
+
+--- SQL operation complete.
+>>showddl tenant tenant4;
+
+CREATE TENANT TENANT4 TENANT SIZE 2, AFFINITY 0, CLUSTER SIZE 1, DEFAULT SCHEMA
+  TRAFODION.TENANT4_SCH2, ADMIN ROLE TENANT4_ADMIN, SCHEMAS
+  (TRAFODION.TENANT4_SCH1, TRAFODION.TENANT4_SCH2, TRAFODION.TENANT4_SCH3);
+
+--- SQL operation complete.
+>>execute tenants;
+
+TENANT_NAME      ADMIN_ROLE       SCHEMA_USAGE     DEFSCH
+---------------  ---------------  ---------------  ------
+
+TENANT1          TENANT1_ADMIN    TENANT1_SCH1     *     
+TENANT2          TENANT2_ADMIN    ?                      
+TENANT4          TENANT4_ADMIN    TENANT4_SCH1           
+TENANT4          TENANT4_ADMIN    TENANT4_SCH2     *     
+TENANT4          TENANT4_ADMIN    TENANT4_SCH3           
+
+--- 5 row(s) selected.
+>>get namespaces, match 'TRAF_1500%';
+
+TRAF_1500000
+TRAF_1500100
+TRAF_1500101
+TRAF_1500102
+
+--- SQL operation complete.
+>>
+>>-- drop a single schema
+>>alter tenant tenant4 drop schemas (tenant4_sch3);
+
+--- SQL operation complete.
+>>showddl tenant tenant4;
+
+CREATE TENANT TENANT4 TENANT SIZE 2, AFFINITY 0, CLUSTER SIZE 1, DEFAULT SCHEMA
+  TRAFODION.TENANT4_SCH2, ADMIN ROLE TENANT4_ADMIN, SCHEMAS
+  (TRAFODION.TENANT4_SCH1, TRAFODION.TENANT4_SCH2);
+
+--- SQL operation complete.
+>>execute tenants;
+
+TENANT_NAME      ADMIN_ROLE       SCHEMA_USAGE     DEFSCH
+---------------  ---------------  ---------------  ------
+
+TENANT1          TENANT1_ADMIN    TENANT1_SCH1     *     
+TENANT2          TENANT2_ADMIN    ?                      
+TENANT4          TENANT4_ADMIN    TENANT4_SCH1           
+TENANT4          TENANT4_ADMIN    TENANT4_SCH2     *     
+
+--- 4 row(s) selected.
+>>
+>>-- errors
+>>-- specify the same schema twice (error 3103)
+>>register tenant tenant5 admin role tenant5_admin, schema tenant5_sch1, tenant5_sch2, tenant5_sch1;
+
+*** ERROR[3103] Duplicate TRAFODION.TENANT5_SCH1 schema clauses were specified.
+
+--- SQL operation failed with errors.
+>>alter tenant tenant4 add schemas (tenant4_sch3, tenant4_sch3);
+
+*** ERROR[3103] Duplicate TRAFODION.TENANT4_SCH3 schema clauses were specified.
+
+--- SQL operation failed with errors.
+>>alter tenant tenant4 drop schemas (tenant4_sch1, tenant4_sch1);
+
+*** ERROR[3103] Duplicate TRAFODION.TENANT4_SCH1 schema clauses were specified.
+
+--- SQL operation failed with errors.
+>>-- number of nodes exceeds that of the cluster (7030)
+>>register tenant tenant5 admin role tenant5_admin, cluster size 4, tenant size 5, affinity 2;
+
+*** ERROR[7033] The specified nodes for the tenant of size 5 are not valid. Reason: Number of nodes is greater than the number of nodes in the cluster.
+
+--- SQL operation failed with errors.
+>>alter tenant tenant4 cluster size 7;
+
+*** ERROR[7033] The specified nodes for the tenant of size 2 are not valid. Reason: Number of nodes is greater than the number of nodes in the cluster.
+
+--- SQL operation failed with errors.
+>>
+>>-- drop a non-existent schema (error 1003)
+>>alter tenant tenant4 drop schemas (tenant4_nonexistent1,
++>                                 tenant4_nonexistent2,
++>                                 tenant4_sch1);
+
+*** ERROR[1003] Schema TRAFODION.TENANT4_NONEXISTENT1 does not exist.
+
+--- SQL operation failed with errors.
+>>
+>>-- make two schemas the default (error 3103)
+>>register tenant tenant5 admin role tenant5_admin, 
++>                        schema tenant4_sch1 default, 
++>                               tenant4_sch2 default;
+
+*** ERROR[3103] Duplicate DEFAULT clauses were specified.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>alter tenant tenant4 add schemas (tenant4_sch1, 
++>                                tenant4_sch2 default, 
++>                                tenant4_sch3 default);
+
+*** ERROR[3103] Duplicate DEFAULT clauses were specified.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>
+>>-- can't alter admin role (error 3001)
+>>alter tenant tenant4 admin role tenant4_admin;
+
+*** ERROR[3001] Syntax error at or before ADMIN ROLE
+
+*** ERROR[8822] The statement was not prepared.
+
+>>
+>>-- set default schema to an invalid schema
+>>alter tenant tenant4 default schema trafodion.sch;
+
+*** ERROR[1091] Schema SCH cannot be specified as the default schema for tenant TENANT4 because admin role TENANT4_ADMIN has not been granted any privileges.  In order to set a default schema for a tenant, the tenant's admin role must be able to access objects in the schema.
+
+--- SQL operation failed with errors.
+>>grant select on schema trafodion.sch to tenant4_admin;
+
+--- SQL operation complete.
+>>alter tenant tenant4 default schema trafodion.sch;
+
+--- SQL operation complete.
+>>showddl tenant tenant4;
+
+CREATE TENANT TENANT4 TENANT SIZE 2, AFFINITY 0, CLUSTER SIZE 1, DEFAULT SCHEMA
+  TRAFODION.SCH, ADMIN ROLE TENANT4_ADMIN, SCHEMAS (TRAFODION.TENANT4_SCH1,
+  TRAFODION.TENANT4_SCH2);
+
+--- SQL operation complete.
+>>revoke select on schema trafodion.sch from tenant4_admin;
+
+--- SQL operation complete.
+>>
+>>unregister tenant tenant4;
+
+--- SQL operation complete.
+>>
+>>obey TEST121(option_tests);
+>>
+>>-- tenant with all options set
+>>create schema tenant_sch;
+
+--- SQL operation complete.
+>>register tenant tenant4 admin role tenant4_admin, affinity 10, tenant size 10, cluster size 1, default schema tenant_sch;
+
+--- SQL operation complete.
+>>showddl tenant tenant4;
+
+CREATE TENANT TENANT4 TENANT SIZE 10, AFFINITY 10, CLUSTER SIZE 1, DEFAULT
+  SCHEMA TRAFODION.TENANT_SCH, ADMIN ROLE TENANT4_ADMIN;
+
+--- SQL operation complete.
+>>execute tenants;
+
+TENANT_NAME      ADMIN_ROLE       SCHEMA_USAGE     DEFSCH
+---------------  ---------------  ---------------  ------
+
+TENANT1          TENANT1_ADMIN    TENANT1_SCH1     *     
+TENANT2          TENANT2_ADMIN    ?                      
+TENANT4          TENANT4_ADMIN    ?                      
+
+--- 3 row(s) selected.
+>>
+>>-- alter options
+>>alter tenant tenant4 affinity 10, cluster size 1, tenant size 20;
+
+--- SQL operation complete.
+>>showddl tenant tenant4;
+
+CREATE TENANT TENANT4 TENANT SIZE 20, AFFINITY 10, CLUSTER SIZE 1, DEFAULT
+  SCHEMA TRAFODION.TENANT_SCH, ADMIN ROLE TENANT4_ADMIN;
+
+--- SQL operation complete.
+>>execute tenants;
+
+TENANT_NAME      ADMIN_ROLE       SCHEMA_USAGE     DEFSCH
+---------------  ---------------  ---------------  ------
+
+TENANT1          TENANT1_ADMIN    TENANT1_SCH1     *     
+TENANT2          TENANT2_ADMIN    ?                      
+TENANT4          TENANT4_ADMIN    ?                      
+
+--- 3 row(s) selected.
+>>drop schema tenant_sch;
+
+--- SQL operation complete.
+>>alter tenant tenant4 affinity 1234567890;
+
+--- SQL operation complete.
+>>showddl tenant tenant4;
+
+CREATE TENANT TENANT4 TENANT SIZE 20, AFFINITY 1234567890, CLUSTER SIZE 1,
+  DEFAULT SCHEMA ?, ADMIN ROLE TENANT4_ADMIN;
+
+--- SQL operation complete.
+>>
+>>-- test oversubscription warnings and errors
+>>cqd TENANT_OVERSUBSCRIBE_ERR_NODE_RATIO  '1e6';
+
+--- SQL operation complete.
+>>cqd TENANT_OVERSUBSCRIBE_WARN_NODE_RATIO '1.1';
+
+--- SQL operation complete.
+>>-- oversubscribed 10%
+>>-- resource groups DB__RGROUP_DEFAULT includes all of nodes
+>>-- tenant esgynDB has already used 1 node
+>>register tenant tenant5 admin role tenant5_admin, tenant size 100, resource groups(DB__RGROUP_DEFAULT);
+
+*** WARNING[1092] With the new tenant definition for tenant TENANT5, at least 1 of the 1 nodes of this cluster or resource group are oversubscribed. The cluster or resource group(s) has or have a capacity of 1 units, of which 128 are allocated to tenants. For example: Node 0 has a capacity of 1 units and has 128 units allocated.
+
+--- SQL operation complete.
+>>-- expect an oversubscription warning
+>>showddl tenant tenant5;
+
+CREATE TENANT TENANT5 TENANT SIZE 100, ADMIN ROLE TENANT5_ADMIN, RESOURCE
+  GROUPS (DB__RGROUP_DEFAULT);
+
+
+--- SQL operation complete.
+>>execute tenants;
+
+TENANT_NAME      ADMIN_ROLE       SCHEMA_USAGE     DEFSCH
+---------------  ---------------  ---------------  ------
+
+TENANT1          TENANT1_ADMIN    TENANT1_SCH1     *     
+TENANT2          TENANT2_ADMIN    ?                      
+TENANT4          TENANT4_ADMIN    ?                      
+TENANT5          TENANT5_ADMIN    ?                      
+
+--- 4 row(s) selected.
+>>
+>>cqd TENANT_OVERSUBSCRIBE_ERR_NODE_RATIO  '1.0';
+
+--- SQL operation complete.
+>>
+>>register tenant tenant6 admin role tenant6_admin, tenant size 20, resource groups(DB__RGROUP_DEFAULT);
+
+*** ERROR[1093] With the new tenant definition for tenant TENANT6, at least 1 of the 1 nodes of this cluster or resource group would be oversubscribed. The cluster or resource group(s) has or have a capacity of 1 units, of which 148 would be allocated to tenants. For example: Node 0 has a capacity of 1 units and would have 148 units allocated.
+
+--- SQL operation failed with errors.
+>>-- expect an oversubscription error
+>>execute tenants;
+
+TENANT_NAME      ADMIN_ROLE       SCHEMA_USAGE     DEFSCH
+---------------  ---------------  ---------------  ------
+
+TENANT1          TENANT1_ADMIN    TENANT1_SCH1     *     
+TENANT2          TENANT2_ADMIN    ?                      
+TENANT4          TENANT4_ADMIN    ?                      
+TENANT5          TENANT5_ADMIN    ?                      
+
+--- 4 row(s) selected.
+>>
+>>alter tenant tenant5 tenant size 80;
+
+*** ERROR[1093] With the new tenant definition for tenant TENANT5, at least 1 of the 1 nodes of this cluster or resource group would be oversubscribed. The cluster or resource group(s) has or have a capacity of 1 units, of which 108 would be allocated to tenants. For example: Node 0 has a capacity of 1 units and would have 108 units allocated.
+
+--- SQL operation failed with errors.
+>>-- expect an oversubscription error (even though this alter would make
+>>-- the cluster less oversubscribed, sorry)
+>>showddl tenant tenant5;
+
+CREATE TENANT TENANT5 TENANT SIZE 100, ADMIN ROLE TENANT5_ADMIN, RESOURCE
+  GROUPS (DB__RGROUP_DEFAULT);
+
+
+--- SQL operation complete.
+>>execute tenants;
+
+TENANT_NAME      ADMIN_ROLE       SCHEMA_USAGE     DEFSCH
+---------------  ---------------  ---------------  ------
+
+TENANT1          TENANT1_ADMIN    TENANT1_SCH1     *     
+TENANT2          TENANT2_ADMIN    ?                      
+TENANT4          TENANT4_ADMIN    ?                      
+TENANT5          TENANT5_ADMIN    ?                      
+
+--- 4 row(s) selected.
+>>
+>>cqd TENANT_OVERSUBSCRIBE_WARN_NODE_RATIO '1e6';
+
+--- SQL operation complete.
+>>cqd TENANT_OVERSUBSCRIBE_ERR_NODE_RATIO  '1e6';
+
+--- SQL operation complete.
+>>
+>>unregister tenant tenant5;
+
+--- SQL operation complete.
+>>execute tenants;
+
+TENANT_NAME      ADMIN_ROLE       SCHEMA_USAGE     DEFSCH
+---------------  ---------------  ---------------  ------
+
+TENANT1          TENANT1_ADMIN    TENANT1_SCH1     *     
+TENANT2          TENANT2_ADMIN    ?                      
+TENANT4          TENANT4_ADMIN    ?                      
+
+--- 3 row(s) selected.
+>>log;

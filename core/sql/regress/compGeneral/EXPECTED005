@@ -1,0 +1,2086 @@
+>>
+>>?section create_tables
+>>create table t005t01(eno int not null ,
++>                 dno largeint,
++>                 primary key(eno) );
+
+--- SQL operation complete.
+>>
+>>create table t005t02(dno largeint not null ,
++>                 dname char(20) not null,
++>                 primary key (dno) );
+
+--- SQL operation complete.
+>>
+>>
+>>create table t005t03
++>(
++> seqno integer  not null not droppable,
++> smin1 smallint  default null,
++> pict1 pic s9(13)v9(5)  default null,
++> primary key (seqno)
++>) ;
+
+--- SQL operation complete.
+>>
+>>create table t005t04
++>(
++> seqno integer  not null not droppable,
++> smin1 smallint  default null,
++> pict1 pic s9(13)v9(5)  default null,
++> primary key (seqno)
++>) ;
+
+--- SQL operation complete.
+>>
+>>
+>>create table t005t05(seqno integer not null primary key  ) ;
+
+--- SQL operation complete.
+>>
+>>create table t005_ex (
++>           e1 decimal(10,0) not null,
++>           e2 decimal(10,0) not null,
++>           e3 decimal(10,0) not null
++>        ) no partition;
+
+--- SQL operation complete.
+>>
+>>
+>>create table t005_fx (
++>    f1 decimal(10,0) not null,
++>    f2 decimal(10,0) not null,
++>    f3 decimal(10,0) not null
++>) no partition;
+
+--- SQL operation complete.
+>>
+>>
+>>create table t005_gx (
++>    g1 decimal(10,0) default null,
++>    g2 decimal(10,0) default null
++>) no partition;
+
+--- SQL operation complete.
+>>
+>>create table t005_hx (
++>	h1 decimal(10,0) not null,
++>	h2 decimal(10,0) not null,
++>	h3 decimal(10,0) not null
++>) no partition;
+
+--- SQL operation complete.
+>>
+>>create table t005_tx (
++>     c1 date not null,
++>     c2 time not null,
++>     c3 timestamp not null
++>) no partition;
+
+--- SQL operation complete.
+>>
+>>create table witht1 (c1 int, c2 int);
+
+--- SQL operation complete.
+>>create table witht2 (c1 int, c2 int);
+
+--- SQL operation complete.
+>>
+>>create table test_modNormal (a int, b numeric(18,9), c numeric(18,9));
+
+--- SQL operation complete.
+>>create table test_modBignumber (a int, b numeric(128,56), c numeric(128,56));
+
+--- SQL operation complete.
+>>
+>>?section populate_tables 
+>>-- Populate t005t01
+>>insert into t005t01 values (30, 33);
+
+--- 1 row(s) inserted.
+>>insert into t005t01 values (3, 33);
+
+--- 1 row(s) inserted.
+>>insert into t005t01 values (4, 44);
+
+--- 1 row(s) inserted.
+>>insert into t005t01 values (5, 55);
+
+--- 1 row(s) inserted.
+>>insert into t005t01 values (6, 66);
+
+--- 1 row(s) inserted.
+>>
+>>-- Populate t005t02
+>>insert into t005t02 values (33, 'Sales'),
++>                       (44, 'Marketing'),
++>                       (55, 'Production'),
++>		       (77, 'R&D');
+
+--- 4 row(s) inserted.
+>>
+>>insert into t005_ex (e1, e2, e3) values(1,1,1);
+
+--- 1 row(s) inserted.
+>>insert into t005_ex (e1, e2, e3) values(1,1,2);
+
+--- 1 row(s) inserted.
+>>insert into t005_ex (e1, e2, e3) values(1,1,3);
+
+--- 1 row(s) inserted.
+>>insert into t005_ex (e1, e2, e3) values(1,2,1);
+
+--- 1 row(s) inserted.
+>>insert into t005_ex (e1, e2, e3) values(1,2,2);
+
+--- 1 row(s) inserted.
+>>insert into t005_ex (e1, e2, e3) values(1,2,4);
+
+--- 1 row(s) inserted.
+>>insert into t005_ex (e1, e2, e3) values(1,3,1);
+
+--- 1 row(s) inserted.
+>>insert into t005_ex (e1, e2, e3) values(1,3,2);
+
+--- 1 row(s) inserted.
+>>insert into t005_ex (e1, e2, e3) values(1,3,3);
+
+--- 1 row(s) inserted.
+>>
+>>insert into t005_fx select * from t005_ex;
+
+--- 9 row(s) inserted.
+>>
+>>insert into t005_gx values(1,2);
+
+--- 1 row(s) inserted.
+>>insert into t005_gx values(2,2);
+
+--- 1 row(s) inserted.
+>>insert into t005_gx values(3,2);
+
+--- 1 row(s) inserted.
+>>insert into t005_gx values(4,1);
+
+--- 1 row(s) inserted.
+>>
+>>insert into t005_hx values(1,1,1);
+
+--- 1 row(s) inserted.
+>>insert into t005_hx values(1,1,2);
+
+--- 1 row(s) inserted.
+>>insert into t005_hx values(1,1,3);
+
+--- 1 row(s) inserted.
+>>insert into t005_hx values(1,1,4);
+
+--- 1 row(s) inserted.
+>>insert into t005_hx values(1,2,1);
+
+--- 1 row(s) inserted.
+>>insert into t005_hx values(1,2,2);
+
+--- 1 row(s) inserted.
+>>insert into t005_hx values(1,2,3);
+
+--- 1 row(s) inserted.
+>>insert into t005_hx values(1,3,2);
+
+--- 1 row(s) inserted.
+>>insert into t005_hx values(1,3,3);
+
+--- 1 row(s) inserted.
+>>insert into t005_hx values(1,3,4);
+
+--- 1 row(s) inserted.
+>>insert into t005_hx values(2,1,1);
+
+--- 1 row(s) inserted.
+>>insert into t005_hx values(2,1,2);
+
+--- 1 row(s) inserted.
+>>insert into t005_hx values(2,1,3);
+
+--- 1 row(s) inserted.
+>>insert into t005_hx values(2,1,4);
+
+--- 1 row(s) inserted.
+>>insert into t005_hx values(2,2,1);
+
+--- 1 row(s) inserted.
+>>insert into t005_hx values(2,2,2);
+
+--- 1 row(s) inserted.
+>>insert into t005_hx values(2,2,3);
+
+--- 1 row(s) inserted.
+>>
+>>insert into t005_tx values(date'2019-09-10',time'18:19:20',timestamp'2019-09-10 18:19:20');
+
+--- 1 row(s) inserted.
+>>
+>>insert into witht1 values(1,1);
+
+--- 1 row(s) inserted.
+>>insert into witht1 values(2,2);
+
+--- 1 row(s) inserted.
+>>insert into witht1 values(3,3);
+
+--- 1 row(s) inserted.
+>>insert into witht1 values(4,4);
+
+--- 1 row(s) inserted.
+>>insert into witht1 values(5,5);
+
+--- 1 row(s) inserted.
+>>insert into witht2 values(3,3);
+
+--- 1 row(s) inserted.
+>>insert into witht2 values(4,4);
+
+--- 1 row(s) inserted.
+>>insert into witht2 values(5,5);
+
+--- 1 row(s) inserted.
+>>insert into witht2 values(6,6);
+
+--- 1 row(s) inserted.
+>>insert into witht2 values(7,7);
+
+--- 1 row(s) inserted.
+>>
+>>insert into test_modNormal values (1 , 1, 1);
+
+--- 1 row(s) inserted.
+>>insert into test_modNormal values (2 , -1, -1);
+
+--- 1 row(s) inserted.
+>>insert into test_modNormal values (3 ,100, 21);
+
+--- 1 row(s) inserted.
+>>insert into test_modNormal values (4 ,100.123,71.564);
+
+--- 1 row(s) inserted.
+>>insert into test_modNormal values (5 ,987654321.987654321, 123456789.123456789);
+
+--- 1 row(s) inserted.
+>>insert into test_modNormal values (6 ,9.12345678945645, 1.545187845315);
+
+--- 1 row(s) inserted.
+>>
+>>insert into test_modBignumber values (1, 1, 1);
+
+--- 1 row(s) inserted.
+>>insert into test_modBignumber values (2, -1, -1);
+
+--- 1 row(s) inserted.
+>>insert into test_modBignumber values (3, 200, 0.21);
+
+--- 1 row(s) inserted.
+>>insert into test_modBignumber values (4, 88746548765465746584.264556644456458, 74654654641.564545454);
+
+--- 1 row(s) inserted.
+>>insert into test_modBignumber values (5, 98765432198765432198586447654321.98765454321, 12345612345678912345654546789.6454123456789);
+
+--- 1 row(s) inserted.
+>>insert into test_modBignumber values (6, 9123465487456789456459123456789456459.12345678945645, 1545145646587845315451878453151.545187845315);
+
+--- 1 row(s) inserted.
+>>insert into test_modBignumber values (7, 999999999999999846545749864954654645644354667946599, 0.0000000000000000000000000000999999999999465446488888865899);
+
+--- 1 row(s) inserted.
+>>insert into test_modBignumber values (8, 48546454656987499999999999999984654574986495465446454698745664564.645644354667946599, 0.000000000000000000000000000099999465464599999994654464888888658);
+
+--- 1 row(s) inserted.
+>>
+>>?section prep
+>>control query default query_cache '0';
+
+--- SQL operation complete.
+>>control query default comp_bool_199 'on';
+
+--- SQL operation complete.
+>>
+>>?section positive_tests
+>>
+>>-- FOJ1 - Natural Full Outer Join 
+>>-- t005t01 FOJ t005t02
+>>select * from t005t01 natural full outer join t005t02 order by 1,2 DESC;
+
+DNO                   ENO          DNAME               
+--------------------  -----------  --------------------
+
+                  33           30  Sales               
+                  33            3  Sales               
+                  44            4  Marketing           
+                  55            5  Production          
+                  66            6  ?                   
+                  77            ?  R&D                 
+
+--- 6 row(s) selected.
+>>
+>>-- FOJ2 - Natural Full Outer Join 
+>>-- t005t02 FOJ t005t01
+>>select * from t005t02 natural full outer join t005t01 order by 1,3;
+
+DNO                   DNAME                 ENO        
+--------------------  --------------------  -----------
+
+                  33  Sales                           3
+                  33  Sales                          30
+                  44  Marketing                       4
+                  55  Production                      5
+                  66  ?                               6
+                  77  R&D                             ?
+
+--- 6 row(s) selected.
+>>
+>>-- FOJ3 - Use ON clause - non equijoin predicate
+>>-- t005t02 FOJ t005t01 
+>>select * from t005t02 full outer join t005t01 on t005t01.dno = 33 order by 1,3;
+
+DNO                   DNAME                 ENO          DNO
+--------------------  --------------------  -----------  --------------------
+
+                  33  Sales                           3                    33
+                  33  Sales                          30                    33
+                  44  Marketing                       3                    33
+                  44  Marketing                      30                    33
+                  55  Production                      3                    33
+                  55  Production                     30                    33
+                  77  R&D                             3                    33
+                  77  R&D                            30                    33
+                   ?  ?                               4                    44
+                   ?  ?                               5                    55
+                   ?  ?                               6                    66
+
+--- 11 row(s) selected.
+>>
+>>-- FOJ4 - Use ON clause - non equijoin predicate
+>>-- t005t01 FOJ t005t02
+>>select * from t005t01 full outer join t005t02 on t005t02.dno = 33 order by 1,4;
+
+ENO          DNO                   DNO                   DNAME
+-----------  --------------------  --------------------  --------------------
+
+          3                    33                    33  Sales               
+          4                    44                    33  Sales               
+          5                    55                    33  Sales               
+          6                    66                    33  Sales               
+         30                    33                    33  Sales               
+          ?                     ?                    44  Marketing           
+          ?                     ?                    55  Production          
+          ?                     ?                    77  R&D                 
+
+--- 8 row(s) selected.
+>>
+>>
+>>-- FOJ5 - Use ON clause - equijoin predicate
+>>-- t005t02 FOJ t005t01 
+>>select * from t005t02 full outer join t005t01 on t005t02.dno = t005t01.dno order by 1,3;
+
+DNO                   DNAME                 ENO          DNO
+--------------------  --------------------  -----------  --------------------
+
+                  33  Sales                           3                    33
+                  33  Sales                          30                    33
+                  44  Marketing                       4                    44
+                  55  Production                      5                    55
+                  77  R&D                             ?                     ?
+                   ?  ?                               6                    66
+
+--- 6 row(s) selected.
+>>
+>>-- FOJ6 - Use ON clause - equijoin predicate
+>>-- t005t01 FOJ t005t02
+>>select * from t005t01 full outer join t005t02 on t005t01.dno = t005t02.dno order by 1;
+
+ENO          DNO                   DNO                   DNAME
+-----------  --------------------  --------------------  --------------------
+
+          3                    33                    33  Sales               
+          4                    44                    44  Marketing           
+          5                    55                    55  Production          
+          6                    66                     ?  ?                   
+         30                    33                    33  Sales               
+          ?                     ?                    77  R&D                 
+
+--- 6 row(s) selected.
+>>
+>>-- FOJ7 - Use WHERE clause on Full Outer 
+>>-- Join t005t02 FOJ t005t01
+>>-- WHERE clause on t005t02 and the column is part of a join column
+>>-- Must Convert FOJ to LJ - TBD - Hema
+>>select * from t005t02 full outer join t005t01 on t005t01.dno = t005t02.dno 
++>		where t005t02.dno = 33 order by 3;
+
+DNO                   DNAME                 ENO          DNO
+--------------------  --------------------  -----------  --------------------
+
+                  33  Sales                           3                    33
+                  33  Sales                          30                    33
+
+--- 2 row(s) selected.
+>>
+>>-- FOJ8 - Use WHERE clause on Full Outer 
+>>-- Join t005t02 FOJ t005t01
+>>-- WHERE clause on t005t01 and the column is part of a join column
+>>-- Must Convert FOJ to RJ - TBD - Hema
+>>select * from t005t02 full outer join t005t01 on t005t01.dno = t005t02.dno 
++>		where t005t01.dno = 33 order by 3;
+
+DNO                   DNAME                 ENO          DNO
+--------------------  --------------------  -----------  --------------------
+
+                  33  Sales                           3                    33
+                  33  Sales                          30                    33
+
+--- 2 row(s) selected.
+>>
+>>
+>>-- FOJ9 - Use AND in ON clause on Full Outer 
+>>-- Join t005t02 FOJ t005t01
+>>select * from t005t02 full outer join t005t01 on t005t01.dno = t005t02.dno 
++>		AND t005t01.dno = 33 order by 1,3;
+
+DNO                   DNAME                 ENO          DNO
+--------------------  --------------------  -----------  --------------------
+
+                  33  Sales                           3                    33
+                  33  Sales                          30                    33
+                  44  Marketing                       ?                     ?
+                  55  Production                      ?                     ?
+                  77  R&D                             ?                     ?
+                   ?  ?                               4                    44
+                   ?  ?                               5                    55
+                   ?  ?                               6                    66
+
+--- 8 row(s) selected.
+>>
+>>-- FOJ10 - Use AND in ON clause on Full Outer 
+>>-- Join t005t01 FOJ t005t02
+>>select * from t005t01 full outer join t005t02 on t005t01.dno = t005t02.dno 
++>		AND t005t01.dno = 33 order by 1,4;
+
+ENO          DNO                   DNO                   DNAME
+-----------  --------------------  --------------------  --------------------
+
+          3                    33                    33  Sales               
+          4                    44                     ?  ?                   
+          5                    55                     ?  ?                   
+          6                    66                     ?  ?                   
+         30                    33                    33  Sales               
+          ?                     ?                    44  Marketing           
+          ?                     ?                    55  Production          
+          ?                     ?                    77  R&D                 
+
+--- 8 row(s) selected.
+>>
+>>
+>>-- FOJ11 - Use OR in ON clause on Full Outer 
+>>-- Join t005t02 FOJ t005t01
+>>select * from t005t02 full outer join t005t01 on t005t01.dno = t005t02.dno 
++>		OR t005t01.dno = 33 order by 1,3;
+
+DNO                   DNAME                 ENO          DNO
+--------------------  --------------------  -----------  --------------------
+
+                  33  Sales                           3                    33
+                  33  Sales                          30                    33
+                  44  Marketing                       3                    33
+                  44  Marketing                       4                    44
+                  44  Marketing                      30                    33
+                  55  Production                      3                    33
+                  55  Production                      5                    55
+                  55  Production                     30                    33
+                  77  R&D                             3                    33
+                  77  R&D                            30                    33
+                   ?  ?                               6                    66
+
+--- 11 row(s) selected.
+>>
+>>-- FOJ12 - Use OR in ON clause on Full Outer 
+>>-- Join t005t01 FOJ t005t02
+>>select * from t005t01 full outer join t005t02 on t005t01.dno = t005t02.dno 
++>		OR t005t01.dno = 33 order by 1, 3;
+
+ENO          DNO                   DNO                   DNAME
+-----------  --------------------  --------------------  --------------------
+
+          3                    33                    33  Sales               
+          3                    33                    44  Marketing           
+          3                    33                    55  Production          
+          3                    33                    77  R&D                 
+          4                    44                    44  Marketing           
+          5                    55                    55  Production          
+          6                    66                     ?  ?                   
+         30                    33                    33  Sales               
+         30                    33                    44  Marketing           
+         30                    33                    55  Production          
+         30                    33                    77  R&D                 
+
+--- 11 row(s) selected.
+>>
+>>
+>>?section DERIVED_TABLE
+>>-- FOJ13 - use derived table syntax
+>>-- Join t005t02 FOJ t005t01
+>>-- WHERE clause
+>>select * from (select * from t005t02 full outer join t005t01 
++>	on t005t01.dno = t005t02.dno) as T(a,b,c,d) where T.a = 33 order by 3;
+
+A                     B                     C            D
+--------------------  --------------------  -----------  --------------------
+
+                  33  Sales                           3                    33
+                  33  Sales                          30                    33
+
+--- 2 row(s) selected.
+>>
+>>-- FOJ13 - use derived table syntax
+>>-- Join t005t02 FOJ t005t01
+>>select * from (select * from t005t02 full outer join 
++>     t005t01 on t005t01.dno = t005t02.dno) as T(a,b,c,d) order by 3;
+
+A                     B                     C            D
+--------------------  --------------------  -----------  --------------------
+
+                  33  Sales                           3                    33
+                  44  Marketing                       4                    44
+                  55  Production                      5                    55
+                   ?  ?                               6                    66
+                  33  Sales                          30                    33
+                  77  R&D                             ?                     ?
+
+--- 6 row(s) selected.
+>>
+>>
+>>?section predicates
+>>delete from t005t03;
+
+--- 0 row(s) deleted.
+>>delete from t005t04;
+
+--- 0 row(s) deleted.
+>>
+>>insert INTO t005t03 values (1, 1,1);
+
+--- 1 row(s) inserted.
+>>insert INTO t005t03 values (2, 1,1);
+
+--- 1 row(s) inserted.
+>>insert INTO t005t03 (seqno) values (3);
+
+--- 1 row(s) inserted.
+>>insert INTO t005t03 values (4,-32768,1);
+
+--- 1 row(s) inserted.
+>>insert INTO t005t03 values (5, 32767,1);
+
+--- 1 row(s) inserted.
+>>insert INTO t005t03 values (6,7892,1);
+
+--- 1 row(s) inserted.
+>>insert INTO t005t03 values (7,2834,1);
+
+--- 1 row(s) inserted.
+>>insert INTO t005t03 values (8,123,1);
+
+--- 1 row(s) inserted.
+>>
+>>
+>>insert INTO t005t04 values (1, 1,1);
+
+--- 1 row(s) inserted.
+>>insert INTO t005t04 values (2, 1,1);
+
+--- 1 row(s) inserted.
+>>insert INTO t005t04 values (3,24923,1);
+
+--- 1 row(s) inserted.
+>>insert INTO t005t04 values (4,-32768,1);
+
+--- 1 row(s) inserted.
+>>insert INTO t005t04 values (5,25065,1);
+
+--- 1 row(s) inserted.
+>>insert INTO t005t04 values (6,7892,1);
+
+--- 1 row(s) inserted.
+>>insert INTO t005t04 values (12,9374,1);
+
+--- 1 row(s) inserted.
+>>
+>>-- FOJ14 - selection predicate on left table columns
+>>-- Join t005t03 FOJ t005t04
+>>select a.seqno, a.smin1, b.seqno, b.smin1 FROM 
++>	t005t03 a 
++>	FULL OUTER JOIN                                                   
++>       t005t04 b ON a.seqno = b.seqno 
++>       where (a.seqno > 3 and a.smin1 < 123) or a.seqno < 5                
++>ORDER BY a.seqno, b.seqno, a.smin1, b.smin1 ;
+
+SEQNO        SMIN1   SEQNO        SMIN1 
+-----------  ------  -----------  ------
+
+          1       1            1       1
+          2       1            2       1
+          3       ?            3   24923
+          4  -32768            4  -32768
+
+--- 4 row(s) selected.
+>>
+>>-- FOJ15 - selection predicate on right table columns
+>>-- Join t005t03 FOJ t005t04
+>>select a.seqno, a.smin1, b.seqno, b.smin1 FROM t005t03 a 
++>	FULL OUTER JOIN 
++>t005t04 b ON a.seqno = b.seqno 
++>where (b.seqno > 3 and b.smin1 < 123) or b.seqno = 2 order by a.seqno;
+
+SEQNO        SMIN1   SEQNO        SMIN1 
+-----------  ------  -----------  ------
+
+          2       1            2       1
+          4  -32768            4  -32768
+
+--- 2 row(s) selected.
+>>
+>>
+>>delete from t005t03;
+
+--- 8 row(s) deleted.
+>>delete from t005t04;
+
+--- 7 row(s) deleted.
+>>
+>>insert INTO t005t04 values(0, 1,1);
+
+--- 1 row(s) inserted.
+>>insert INTO t005t04 values(1,1,1);
+
+--- 1 row(s) inserted.
+>>insert INTO t005t04 (seqno) values (3);
+
+--- 1 row(s) inserted.
+>>insert INTO t005t04 values(-2147483648, -32768,1);
+
+--- 1 row(s) inserted.
+>>insert INTO t005t04 values(2147483647, 32767,1);
+
+--- 1 row(s) inserted.
+>>insert INTO t005t04 values(293847923, 7892,1);
+
+--- 1 row(s) inserted.
+>>insert INTO t005t04 values(450,2834,1);
+
+--- 1 row(s) inserted.
+>>insert INTO t005t04 values(789,123,1);
+
+--- 1 row(s) inserted.
+>>
+>>
+>>insert INTO  t005t04 values(2,1,1);
+
+--- 1 row(s) inserted.
+>>
+>>-- FOJ15 - selection predicate on left and right table columns
+>>-- Join t005t03 FOJ t005t04
+>>select a.seqno, a.smin1, b.seqno, b.smin1 FROM t005t03 a 
++>	FULL OUTER JOIN 
++>t005t04 b ON a.seqno = b.seqno 
++>where (a.seqno > 3 and a.seqno < 123) or b.seqno = 2 order by a.seqno;
+
+SEQNO        SMIN1   SEQNO        SMIN1 
+-----------  ------  -----------  ------
+
+          ?       ?            2       1
+
+--- 1 row(s) selected.
+>>
+>>?section PIC_Datatype
+>>delete from t005t03;
+
+--- 0 row(s) deleted.
+>>delete from t005t04;
+
+--- 9 row(s) deleted.
+>>
+>>insert INTO t005t03 values(0,1, 0);
+
+--- 1 row(s) inserted.
+>>insert INTO t005t04 values(0,1, 2);
+
+--- 1 row(s) inserted.
+>>
+>>select a.pict1, b.pict1 FROM t005t03 a 
++>	FULL OUTER JOIN t005t04 b 
++>ON a.pict1 = b.pict1 where  ( b.pict1  > 1 or a.pict1  < 1 ) order by 1;
+
+PICT1                 PICT1               
+--------------------  --------------------
+
+                   0                     ?
+                   ?                     2
+
+--- 2 row(s) selected.
+>>
+>>?section 3-way FOJ
+>>delete from t005t03;
+
+--- 1 row(s) deleted.
+>>delete from t005t04;
+
+--- 1 row(s) deleted.
+>>delete from t005t05;
+
+--- 0 row(s) deleted.
+>>
+>>insert INTO t005t03 values (1, 1,1);
+
+--- 1 row(s) inserted.
+>>insert INTO t005t03 values (2, 1,1);
+
+--- 1 row(s) inserted.
+>>insert INTO t005t03 (seqno) values (3);
+
+--- 1 row(s) inserted.
+>>insert INTO t005t03 values (4,-32768,1);
+
+--- 1 row(s) inserted.
+>>insert INTO t005t03 values (5, 32767,1);
+
+--- 1 row(s) inserted.
+>>insert INTO t005t03 values (6,7892,1);
+
+--- 1 row(s) inserted.
+>>insert INTO t005t03 values (7,2834,1);
+
+--- 1 row(s) inserted.
+>>insert INTO t005t03 values (8,123,1);
+
+--- 1 row(s) inserted.
+>>
+>>
+>>insert INTO t005t04 values (1, 1,1);
+
+--- 1 row(s) inserted.
+>>insert INTO t005t04 values (2, 1,1);
+
+--- 1 row(s) inserted.
+>>insert INTO t005t04 values (3,24923,1);
+
+--- 1 row(s) inserted.
+>>insert INTO t005t04 values (4,-32768,1);
+
+--- 1 row(s) inserted.
+>>insert INTO t005t04 values (5,25065,1);
+
+--- 1 row(s) inserted.
+>>insert INTO t005t04 values (6,7892,1);
+
+--- 1 row(s) inserted.
+>>insert INTO t005t04 values (12,9374,1);
+
+--- 1 row(s) inserted.
+>>
+>>
+>>insert into t005t05 values (7);
+
+--- 1 row(s) inserted.
+>>
+>>-- FOJ16 - columns projected from the left table only.
+>>-- Join t005t03 FOJ t005t04 FOJ t005t05
+>>SELECT a.seqno, b.seqno FROM t005t03 a       
++>  FULL OUTER JOIN  t005t04 b ON a.seqno = b.seqno      
++>       FULL OUTER JOIN t005t05 e ON b.seqno = e.seqno order by 1,2;
+
+SEQNO        SEQNO      
+-----------  -----------
+
+          1            1
+          2            2
+          3            3
+          4            4
+          5            5
+          6            6
+          7            ?
+          8            ?
+          ?           12
+          ?            ?
+
+--- 10 row(s) selected.
+>>
+>>-- FOJ17 - columns projected from the left table only, with a WHERE clasue
+>>-- on the right column.
+>>-- Join t005t03 FOJ t005t04 FOJ t005t05
+>>SELECT a.seqno, e.seqno FROM t005t03 a       
++>  FULL OUTER JOIN  t005t04 b ON a.seqno = b.seqno      
++>       FULL OUTER JOIN t005t05 e ON b.seqno = e.seqno where e.seqno = 7;
+
+SEQNO        SEQNO      
+-----------  -----------
+
+          ?            7
+
+--- 1 row(s) selected.
+>>
+>>
+>>-- FOJ18 - columns projected from the right table only.
+>>-- Join t005t03 FOJ t005t04 FOJ t005t05
+>>SELECT e.seqno FROM t005t03 a       
++>  FULL OUTER JOIN  t005t04 b ON a.seqno = b.seqno 
++>       FULL OUTER JOIN t005t05 e ON b.seqno = e.seqno order by 1;
+
+SEQNO      
+-----------
+
+          7
+          ?
+          ?
+          ?
+          ?
+          ?
+          ?
+          ?
+          ?
+          ?
+
+--- 10 row(s) selected.
+>>
+>>
+>>-- FOJ19 - columns projected from the right table only with a WHERE clause
+>>-- on the right table column.
+>>-- Join t005t03 FOJ t005t04 FOJ t005t05
+>>SELECT e.seqno FROM t005t03 a       
++>  FULL OUTER JOIN  t005t04 b ON a.seqno = b.seqno 
++>       FULL OUTER JOIN t005t05 e ON b.seqno = e.seqno where e.seqno = 7;
+
+SEQNO      
+-----------
+
+          7
+
+--- 1 row(s) selected.
+>>
+>>
+>>?section FOJ_other_join_combination
+>>delete from t005t03;
+
+--- 8 row(s) deleted.
+>>delete from t005t04;
+
+--- 7 row(s) deleted.
+>>delete from t005t05;
+
+--- 1 row(s) deleted.
+>>
+>>insert INTO t005t03 values (0, 1,1);
+
+--- 1 row(s) inserted.
+>>insert INTO t005t03 values (1, 1,1);
+
+--- 1 row(s) inserted.
+>>insert INTO t005t03 (seqno) values (3);
+
+--- 1 row(s) inserted.
+>>insert INTO t005t03 values (4,-32768,1);
+
+--- 1 row(s) inserted.
+>>
+>>
+>>insert INTO t005t04 values (0, 1,1);
+
+--- 1 row(s) inserted.
+>>insert INTO t005t04 values (1, 1,1);
+
+--- 1 row(s) inserted.
+>>insert INTO t005t04 (seqno) values (3);
+
+--- 1 row(s) inserted.
+>>insert INTO t005t04 values (4,-32768,1);
+
+--- 1 row(s) inserted.
+>>
+>>insert into t005t05 values (1);
+
+--- 1 row(s) inserted.
+>>insert into t005t05 values (2);
+
+--- 1 row(s) inserted.
+>>insert into t005t05 values (3);
+
+--- 1 row(s) inserted.
+>>
+>>-- FOJ20 - FOJ-INNER with ON clause
+>>-- Join t005t03 FOJ t005t04 INNER t005t05
+>>SELECT seqno, smin1     
++>        FROM                                                             
++>     t005t03                                                        
++>   FULL OUTER JOIN                                                   
++>        (select t005t04.seqno  as b                                            
++>              from t005t04 INNER JOIN t005t05                         
++>              ON t005t04.seqno = t005t05.seqno                      
++>         ) as t2                                                      
++>on t005t03.seqno = t2.b 
++>order by 1,2;
+
+SEQNO        SMIN1 
+-----------  ------
+
+          0       1
+          1       1
+          3       ?
+          4  -32768
+
+--- 4 row(s) selected.
+>>
+>>-- FOJ21 - FOJ-INNER with ON clause
+>>-- and WHERE clause on left table
+>>-- Join t005t03 FOJ t005t04 INNER t005t05
+>>SELECT seqno, smin1     
++>        FROM                                                             
++>     t005t03 t1                                                    
++>   FULL OUTER JOIN                                                   
++>        (select t005t04.seqno  as b                                            
++>              from t005t04 INNER JOIN  t005t05
++>              ON t005t04.seqno = t005t05.seqno                      
++>         ) as t2 
++>on t1.seqno = t2.b                                                     
++>where  t1.seqno < 4 order by 1;
+
+SEQNO        SMIN1 
+-----------  ------
+
+          0       1
+          1       1
+          3       ?
+
+--- 3 row(s) selected.
+>>
+>>
+>>-- FOJ22 - FOJ-INNER with ON clause
+>>-- and WHERE clause on right table
+>>-- Join t005t03 FOJ t005t04 INNER t005t05
+>>SELECT seqno, smin1     
++>        FROM                                                             
++>     t005t03 t1                                                    
++>   FULL OUTER JOIN                                                   
++>        (select t005t04.seqno  as b                                            
++>              from t005t04 INNER JOIN  t005t05                         
++>              ON t005t04.seqno = t005t05.seqno                      
++>         ) as t2 
++>on t1.seqno = t2.b                                                     
++>where  t2.b < 4 order by 1;
+
+SEQNO        SMIN1 
+-----------  ------
+
+          1       1
+          3       ?
+
+--- 2 row(s) selected.
+>>
+>>-- FOJ23, FOJ, INNER and LOJ.
+>>-- Soln 10-081027-6839 
+>>-- predicate was lost because a column was incorrectly flagged as NOT outerrerfernce
+>>
+>>select * from t005_ex left outer join t005_fx
++>on (t005_ex.e3 = t005_fx.f3 and t005_ex.e2 = t005_fx.f2 and t005_ex.e1 = t005_fx.f1)
++>join t005_gx on (t005_ex.e1 = t005_gx.g1)
++>full outer join t005_hx on (t005_gx.g2 = t005_hx.h1 and t005_ex.e3 = t005_hx.h3 and t005_ex.e2 = t005_hx.h2)
++>order by t005_ex.e1 asc, t005_ex.e2 asc, t005_ex.e3 asc, t005_hx.h1, t005_hx.h2, t005_hx.h3;
+
+E1           E2           E3           F1           F2           F3           G1           G2           H1           H2           H3
+-----------  -----------  -----------  -----------  -----------  -----------  -----------  -----------  -----------  -----------  -----------
+
+          1            1            1            1            1            1            1            2            2            1            1
+          1            1            2            1            1            2            1            2            2            1            2
+          1            1            3            1            1            3            1            2            2            1            3
+          1            2            1            1            2            1            1            2            2            2            1
+          1            2            2            1            2            2            1            2            2            2            2
+          1            2            4            1            2            4            1            2            ?            ?            ?
+          1            3            1            1            3            1            1            2            ?            ?            ?
+          1            3            2            1            3            2            1            2            ?            ?            ?
+          1            3            3            1            3            3            1            2            ?            ?            ?
+          ?            ?            ?            ?            ?            ?            ?            ?            1            1            1
+          ?            ?            ?            ?            ?            ?            ?            ?            1            1            2
+          ?            ?            ?            ?            ?            ?            ?            ?            1            1            3
+          ?            ?            ?            ?            ?            ?            ?            ?            1            1            4
+          ?            ?            ?            ?            ?            ?            ?            ?            1            2            1
+          ?            ?            ?            ?            ?            ?            ?            ?            1            2            2
+          ?            ?            ?            ?            ?            ?            ?            ?            1            2            3
+          ?            ?            ?            ?            ?            ?            ?            ?            1            3            2
+          ?            ?            ?            ?            ?            ?            ?            ?            1            3            3
+          ?            ?            ?            ?            ?            ?            ?            ?            1            3            4
+          ?            ?            ?            ?            ?            ?            ?            ?            2            1            4
+          ?            ?            ?            ?            ?            ?            ?            ?            2            2            3
+
+--- 21 row(s) selected.
+>>
+>>-- FOJ24
+>>-- actual query from previous solution. Order of FOJ is different
+>>
+>>select * from t005_ex full outer join t005_fx
++>on (t005_ex.e3 = t005_fx.f3 and t005_ex.e2 = t005_fx.f2 and t005_ex.e1 = t005_fx.f1)
++>join t005_gx on (t005_ex.e1 = t005_gx.g1)
++>left outer join t005_hx on (t005_gx.g2 = t005_hx.h1 and t005_ex.e3 = t005_hx.h3 and t005_ex.e2 = t005_hx.h2)
++>order by t005_ex.e1 asc, t005_ex.e2 asc, t005_ex.e3 asc;
+
+E1           E2           E3           F1           F2           F3           G1           G2           H1           H2           H3
+-----------  -----------  -----------  -----------  -----------  -----------  -----------  -----------  -----------  -----------  -----------
+
+          1            1            1            1            1            1            1            2            2            1            1
+          1            1            2            1            1            2            1            2            2            1            2
+          1            1            3            1            1            3            1            2            2            1            3
+          1            2            1            1            2            1            1            2            2            2            1
+          1            2            2            1            2            2            1            2            2            2            2
+          1            2            4            1            2            4            1            2            ?            ?            ?
+          1            3            1            1            3            1            1            2            ?            ?            ?
+          1            3            2            1            3            2            1            2            ?            ?            ?
+          1            3            3            1            3            3            1            2            ?            ?            ?
+
+--- 9 row(s) selected.
+>>
+>>
+>>?section NEGATIVE_VALUES
+>>
+>>insert into t005t01 values (-1, -5);
+
+--- 1 row(s) inserted.
+>>insert into t005t02 values (-5, 'REWS');
+
+--- 1 row(s) inserted.
+>>
+>>select * from t005t02 full outer join t005t01 on t005t01.dno = t005t02.dno order by 3;
+
+DNO                   DNAME                 ENO          DNO
+--------------------  --------------------  -----------  --------------------
+
+                  -5  REWS                           -1                    -5
+                  33  Sales                           3                    33
+                  44  Marketing                       4                    44
+                  55  Production                      5                    55
+                   ?  ?                               6                    66
+                  33  Sales                          30                    33
+                  77  R&D                             ?                     ?
+
+--- 7 row(s) selected.
+>>
+>>delete from t005t01 where dno = -5;
+
+--- 1 row(s) deleted.
+>>delete from t005t02 where dno = -5;
+
+--- 1 row(s) deleted.
+>>
+>>?section 3-Way Join
+>>
+>>?section FOJ_restrictions
+>>-- FOJ50 - Must raise an error? FOJ is only supported for Hash Joins.
+>>-- control query default hash_joins 'off';
+>>
+>>-- FOJ51 - Subquery in the join predicate of FOJ is not supported.
+>>select * from t005t02 full outer join t005t01 on t005t01.dno = (select min(dno
++>) from t005t01);
+
+*** ERROR[4339] Subqueries are not supported in the join predicate of a Full Outer Join.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>
+>>-- FOJ52 - Broadcast join is not supported for FOJ.
+>>
+>>-- FOJ503 - MV not supported
+>>create materialized view T_MV1
++>        Refresh on request
++>        initialize on create
++>        AS
++>        select A.dno,B.eno
++>        from t005t02 A full outer join t005t01 B on A.dno = B.dno;
+
+*** ERROR[3131] The statement just entered is currently not supported.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>
+>>create materialized view T_MV1
++>        Refresh on statement
++>        initialize on create
++>        AS
++>        select A.dno,B.eno
++>        from t005t02 A full outer join t005t01 B on A.dno = B.dno;
+
+*** ERROR[3131] The statement just entered is currently not supported.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>
+>>with w1 as (select * from witht1),
++>w2 as (select * from w1)
++>select * from w2;
+
+C1           C2         
+-----------  -----------
+
+          1            1
+          2            2
+          3            3
+          4            4
+          5            5
+
+--- 5 row(s) selected.
+>>
+>>with w1 as (select c1, c2 from witht1),
++>w2 as (select c1,c2 from witht2)
++>select * from w1 , w2 where w1.c1 = w2.c1;
+
+C1           C2           C1           C2         
+-----------  -----------  -----------  -----------
+
+          3            3            3            3
+          4            4            4            4
+          5            5            5            5
+
+--- 3 row(s) selected.
+>>
+>>with w1 as (select * from witht1)
++>select * from w1
++>union all
++>select * from w1;
+
+C1           C2         
+-----------  -----------
+
+          1            1
+          1            1
+          2            2
+          2            2
+          3            3
+          3            3
+          4            4
+          4            4
+          5            5
+          5            5
+
+--- 10 row(s) selected.
+>>
+>>with recursive w1 as (select c1, c2 from witht1 union all select origin.c1 , origin.c2 from w1 join t1 origin on origin.c1 = w1.c1 );
+
+*** ERROR[3022] The WITH RECURSIVE operator is not yet supported.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>with w1 as (select * from witht1), w1 as (select * from witht2) select * from w1;
+
+*** ERROR[3288] A syntax error occurred. WITH clause redefined. WITH name W1 .
+
+*** ERROR[8822] The statement was not prepared.
+
+>>
+>>--TEST TRUNC(NUMERIC)
+>>select trunc(1/3,0) from dual;
+
+(EXPR)                                  
+----------------------------------------
+
+                                       0
+
+--- 1 row(s) selected.
+>>SELECT trunc(55E-1) from dual;
+
+(EXPR)              
+--------------------
+
+                   5
+
+--- 1 row(s) selected.
+>>SELECT trunc(55E-1,0) from dual;
+
+(EXPR)              
+--------------------
+
+                   5
+
+--- 1 row(s) selected.
+>>SELECT trunc(55E-2,1) from dual;
+
+(EXPR)               
+---------------------
+
+                   .5
+
+--- 1 row(s) selected.
+>>SELECT trunc(55E-2,3) from dual;
+
+(EXPR)               
+---------------------
+
+                  .55
+
+--- 1 row(s) selected.
+>>SELECT trunc(55E-2,16) from dual;
+
+(EXPR)               
+---------------------
+
+                  .55
+
+--- 1 row(s) selected.
+>>create table testUnExact (c1 real, c2 float, c3 double);
+
+--- SQL operation complete.
+>>insert into testUnExact values(-1.1,-1.1,-1.1);
+
+--- 1 row(s) inserted.
+>>insert into testUnExact values(0,0,0);
+
+--- 1 row(s) inserted.
+>>insert into testUnExact values(55.55,55.55,55.55);
+
+--- 1 row(s) inserted.
+>>insert into testUnExact values(0.55555555555555555,0.55555555555555555,0.55555555555555555);
+
+--- 1 row(s) inserted.
+>>select * from testUnExact;
+
+C1               C2                         C3                       
+---------------  -------------------------  -------------------------
+
+-1.1000000E+000  -1.10000000000000016E+000  -1.10000000000000016E+000
+ 0.0000000E+000   0.00000000000000000E+000   0.00000000000000000E+000
+ 5.5549999E+001   5.55500000000000000E+001   5.55500000000000000E+001
+ 5.5555558E-001   5.55555555555555456E-001   5.55555555555555456E-001
+
+--- 4 row(s) selected.
+>>select trunc(c1,0) from testUnExact;
+
+(EXPR)              
+--------------------
+
+                  -1
+                   0
+                  55
+                   0
+
+--- 4 row(s) selected.
+>>select trunc(c1,1) from testUnExact;
+
+(EXPR)               
+---------------------
+
+                 -1.1
+                    0
+                 55.5
+                   .5
+
+--- 4 row(s) selected.
+>>select trunc(c2,0) from testUnExact;
+
+(EXPR)              
+--------------------
+
+                  -1
+                   0
+                  55
+                   0
+
+--- 4 row(s) selected.
+>>select trunc(c2,1) from testUnExact;
+
+(EXPR)               
+---------------------
+
+                 -1.1
+                    0
+                 55.5
+                   .5
+
+--- 4 row(s) selected.
+>>select trunc(c2,2) from testUnExact;
+
+(EXPR)               
+---------------------
+
+                 -1.1
+                    0
+                55.55
+                  .55
+
+--- 4 row(s) selected.
+>>select trunc(c2,14) from testUnExact;
+
+(EXPR)               
+---------------------
+
+                 -1.1
+                    0
+                55.55
+      .55555555555555
+
+--- 4 row(s) selected.
+>>select trunc(c3,0) from testUnExact;
+
+(EXPR)              
+--------------------
+
+                  -1
+                   0
+                  55
+                   0
+
+--- 4 row(s) selected.
+>>select trunc(c3,1) from testUnExact;
+
+(EXPR)               
+---------------------
+
+                 -1.1
+                    0
+                 55.5
+                   .5
+
+--- 4 row(s) selected.
+>>select trunc(c3,2) from testUnExact;
+
+(EXPR)               
+---------------------
+
+                 -1.1
+                    0
+                55.55
+                  .55
+
+--- 4 row(s) selected.
+>>select trunc(c3,14) from testUnExact;
+
+(EXPR)               
+---------------------
+
+                 -1.1
+                    0
+                55.55
+      .55555555555555
+
+--- 4 row(s) selected.
+>>drop table testUnExact;
+
+--- SQL operation complete.
+>>SELECT trunc(55.55,-1) from dual;
+
+(EXPR)     
+-----------
+
+         50
+
+--- 1 row(s) selected.
+>>SELECT trunc(55.55,-2) from dual;
+
+(EXPR)
+------
+
+     0
+
+--- 1 row(s) selected.
+>>SELECT trunc(55.55,-3) from dual;
+
+(EXPR)
+------
+
+     0
+
+--- 1 row(s) selected.
+>>SELECT trunc(999999999.99999,-6) from dual;
+
+(EXPR)              
+--------------------
+
+           999000000
+
+--- 1 row(s) selected.
+>>SELECT trunc(123456789012345678901234567890,-5) from dual;
+
+(EXPR)                               
+-------------------------------------
+
+       123456789012345678901234500000
+
+--- 1 row(s) selected.
+>>SELECT trunc(123456789012345678901234567890,-19) from dual;
+
+(EXPR)                                             
+---------------------------------------------------
+
+                     123456789010000000000000000000
+
+--- 1 row(s) selected.
+>>SELECT trunc(123456789012345678901234567890,-29) from dual;
+
+(EXPR)                                                       
+-------------------------------------------------------------
+
+                               100000000000000000000000000000
+
+--- 1 row(s) selected.
+>>SELECT trunc(123456789012345678901234567890,-30) from dual;
+
+(EXPR)
+------
+
+     0
+
+--- 1 row(s) selected.
+>>SELECT trunc(123456789012345678901234567890,-31) from dual;
+
+(EXPR)
+------
+
+     0
+
+--- 1 row(s) selected.
+>>
+>>prepare s from select trunc(?) from t005_tx;
+
+*** ERROR[4059] The first operand of function TRUNC must be numeric.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>prepare s from select trunc(c1) from t005_tx;
+
+--- SQL command prepared.
+>>prepare s from select trunc(c2) from t005_tx;
+
+*** ERROR[4035] Type TIME(0) cannot be cast to type DATE.
+
+*** ERROR[4062] The preceding error actually occurred in function TRUNC.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>prepare s from select trunc(c3) from t005_tx;
+
+--- SQL command prepared.
+>>-- TEST TRUNC(DATETIME)
+>>select trunc(date'2019-08-19') from t005_tx;
+
+(EXPR)
+-------------------
+
+2019-08-19 00:00:00
+
+--- 1 row(s) selected.
+>>select trunc(time'18:19:20') from t005_tx;
+
+*** ERROR[4035] Type TIME(0) cannot be cast to type DATE.
+
+*** ERROR[4062] The preceding error actually occurred in function TRUNC.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>select trunc(timestamp'2019-09-10 18:19:20') from t005_tx;
+
+(EXPR)
+-------------------
+
+2019-09-10 00:00:00
+
+--- 1 row(s) selected.
+>>
+>>-- TEST DATE_TRUNC WITHOUT CQD MODE_COMPATIBLE_1
+>>cqd MODE_COMPATIBLE_1 'off';
+
+--- SQL operation complete.
+>>prepare s from select date_trunc('yyyy',c1) from t005_tx;
+
+*** ERROR[3415] The first operand of function DATE_TRUNC is not valid.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>prepare s from select date_trunc('mm',c2) from t005_tx;
+
+*** ERROR[3415] The first operand of function DATE_TRUNC is not valid.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>prepare s from select date_trunc('dd',c3) from t005_tx;
+
+*** ERROR[3415] The first operand of function DATE_TRUNC is not valid.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>prepare s from select date_trunc('hh',c1) from t005_tx;
+
+*** ERROR[3415] The first operand of function DATE_TRUNC is not valid.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>prepare s from select date_trunc('mi',c2) from t005_tx;
+
+*** ERROR[3415] The first operand of function DATE_TRUNC is not valid.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>prepare s from select date_trunc('ss',c3) from t005_tx;
+
+*** ERROR[3415] The first operand of function DATE_TRUNC is not valid.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>prepare s from select date_trunc('cc',c3) from t005_tx;
+
+*** ERROR[3415] The first operand of function DATE_TRUNC is not valid.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>
+>>-- TEST DATE_TRUNC WITHIN CQD MODE_COMPATIBLE_1
+>>cqd MODE_COMPATIBLE_1 'on';
+
+--- SQL operation complete.
+>>prepare s from select date_trunc('yyyy',c1) from t005_tx;
+
+--- SQL command prepared.
+>>prepare s from select date_trunc('mm',c2) from t005_tx;
+
+*** ERROR[4182] Function DATE_TRUNC operand 2 must be of type DATE or TIMESTAMP.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>prepare s from select date_trunc('dd',c3) from t005_tx;
+
+--- SQL command prepared.
+>>prepare s from select date_trunc('hh',c1) from t005_tx;
+
+--- SQL command prepared.
+>>prepare s from select date_trunc('mi',c2) from t005_tx;
+
+*** ERROR[4182] Function DATE_TRUNC operand 2 must be of type DATE or TIMESTAMP.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>prepare s from select date_trunc('ss',c3) from t005_tx;
+
+--- SQL command prepared.
+>>prepare s from select date_trunc('cc',c3) from t005_tx;
+
+--- SQL command prepared.
+>>
+>>select date_trunc('yyyy',c3) from t005_tx;
+
+(EXPR)
+-------------------
+
+2019-01-01 00:00:00
+
+--- 1 row(s) selected.
+>>select date_trunc('mm',c3) from t005_tx;
+
+(EXPR)
+-------------------
+
+2019-09-01 00:00:00
+
+--- 1 row(s) selected.
+>>select date_trunc('dd',c3) from t005_tx;
+
+(EXPR)
+-------------------
+
+2019-09-10 00:00:00
+
+--- 1 row(s) selected.
+>>select date_trunc('hh',c3) from t005_tx;
+
+(EXPR)
+-------------------
+
+2019-09-10 18:00:00
+
+--- 1 row(s) selected.
+>>select date_trunc('mi',c3) from t005_tx;
+
+(EXPR)
+-------------------
+
+2019-09-10 18:19:00
+
+--- 1 row(s) selected.
+>>select date_trunc('ss',c3) from t005_tx;
+
+(EXPR)
+-------------------
+
+2019-09-10 18:19:20
+
+--- 1 row(s) selected.
+>>select date_trunc('cc',c3) from t005_tx;
+
+(EXPR)
+-------------------
+
+2000-01-01 00:00:00
+
+--- 1 row(s) selected.
+>>
+>>create table  trunc1(id largeint,birthday date,  primary key(id, birthday)) division by (date_trunc('year',birthday));
+
+--- SQL operation complete.
+>>insert into trunc1 values(1,date'2020-01-02');
+
+--- 1 row(s) inserted.
+>>select * from trunc1 where id = 1  and birthday = '2020-01-02';
+
+ID                    BIRTHDAY  
+--------------------  ----------
+
+                   1  2020-01-02
+
+--- 1 row(s) selected.
+>>drop table trunc1;
+
+--- SQL operation complete.
+>>
+>>cqd MODE_COMPATIBLE_1 reset;
+
+--- SQL operation complete.
+>>
+>>select mod(5, 3) from dual;
+
+(EXPR)
+------
+
+     2
+
+--- 1 row(s) selected.
+>>select mod(5.123, 3.321) from dual;
+
+(EXPR) 
+-------
+
+  1.802
+
+--- 1 row(s) selected.
+>>select mod(999999999999999999, 0.99999999999999999) from dual;
+
+(EXPR)               
+---------------------
+
+   .00000000000000009
+
+--- 1 row(s) selected.
+>>select mod(-789654321, 654321) from dual;
+
+(EXPR)     
+-----------
+
+    -543195
+
+--- 1 row(s) selected.
+>>select mod(-789456.3215, 258741) from dual;
+
+(EXPR)               
+---------------------
+
+          -13233.3215
+
+--- 1 row(s) selected.
+>>
+>>prepare s from select a, mod(b, c) from test_modNormal;
+
+--- SQL command prepared.
+>>execute s;
+
+A            (EXPR)               
+-----------  ---------------------
+
+          1                      0
+          2                      0
+          3                     16
+          4                 28.559
+          5            9.000000009
+          6            1.397517564
+
+--- 6 row(s) selected.
+>>prepare s from select a, mod(b, c) from test_modBignumber;
+
+--- SQL command prepared.
+>>execute s;
+
+A            (EXPR)
+-----------  ----------------------------------------------------------------------------------------------------------------------------------
+
+          1                                                                                                                                   0
+          2                                                                                                                                   0
+          3                                                                                                                                0.08
+          4                                                                                                         65531263583.448426330456458
+          5                                                                                             533433334133433350073337158.68888911201
+          6                                                                                        47759844594687277394189295894.51719768577145
+          7                                                                          0.00000000000000000000000000008220515726422202570644790018
+          8                                                                          0.00000000000000000000000000000225372066325433248609659749
+
+--- 8 row(s) selected.
+>>
+>>-- error 4045
+>>prepare s from select a, mod(b, '321.2') from test_modNormal;
+
+*** ERROR[4046] The operands of function MOD must be exact numeric.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>-- error 4046
+>>prepare s from select a, mod(b, cast(c as double precision)) from test_modNormal;
+
+*** ERROR[4046] The operands of function MOD must be exact numeric.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>
+>>?section test_chatset_utf8
+>>--CQD TRAF_DEFAULT_COL_CHARSET UTF8 test begin
+>>drop table if exists t_cqd_charset_default_test;
+
+--- SQL operation complete.
+>>drop table if exists t_cqd_charset_default_upshift_test;
+
+--- SQL operation complete.
+>>drop table if exists t_cqd_charset_utf8_test;
+
+--- SQL operation complete.
+>>drop table if exists t_cqd_charset_utf8_upshift_test;
+
+--- SQL operation complete.
+>>
+>>delete from "_MD_".DEFAULTS where ATTRIBUTE = 'TRAF_DEFAULT_COL_CHARSET';
+
+--- 0 row(s) deleted.
+>>create table t_cqd_charset_default_upshift_test(c13 pic xxxxxxxxxxxx display upshift default 'defaULT');
+
+--- SQL operation complete.
+>>showddl t_cqd_charset_default_upshift_test;
+
+CREATE TABLE TRAFODION.SCH.T_CQD_CHARSET_DEFAULT_UPSHIFT_TEST
+  (
+    C13                              CHAR(12) CHARACTER SET ISO88591 COLLATE
+      DEFAULT UPSHIFT DEFAULT _ISO88591'defaULT'
+  )
+ ATTRIBUTES ALIGNED FORMAT
+;
+
+--- SQL operation complete.
+>>create table t_cqd_charset_default_test(c13 pic xxxxxxxxxxxx default 'defaULT');
+
+--- SQL operation complete.
+>>showddl t_cqd_charset_default_test;
+
+CREATE TABLE TRAFODION.SCH.T_CQD_CHARSET_DEFAULT_TEST
+  (
+    C13                              CHAR(12) CHARACTER SET ISO88591 COLLATE
+      DEFAULT DEFAULT _ISO88591'defaULT'
+  )
+ ATTRIBUTES ALIGNED FORMAT
+;
+
+--- SQL operation complete.
+>>
+>>insert into t_cqd_charset_default_upshift_test(c13) values('中文测试');
+
+*** ERROR[2109] Invalid Character error converting SQL statement from character set UTF8 to character set ISO88591 (character position 1, byte offset 3).
+
+*** ERROR[8822] The statement was not prepared.
+
+>>insert into t_cqd_charset_default_upshift_test(c13) values('中文测试！');
+
+*** ERROR[2109] Invalid Character error converting SQL statement from character set UTF8 to character set ISO88591 (character position 1, byte offset 3).
+
+*** ERROR[8822] The statement was not prepared.
+
+>>insert into t_cqd_charset_default_upshift_test(c13) values('english test');
+
+--- 1 row(s) inserted.
+>>insert into t_cqd_charset_default_upshift_test(c13) values('english test!');
+
+*** ERROR[8402] A string overflow occurred during the evaluation of a character expression. Conversion of Source Type:CHAR(13) CHARACTER SET ISO88591(REC_BYTE_F_ASCII) Source Value:ENGLISH TEST! to Target Type:CHAR(12) CHARACTER SET ISO88591(REC_BYTE_F_ASCII).
+
+--- 0 row(s) inserted.
+>>select * from t_cqd_charset_default_upshift_test;
+
+C13         
+------------
+
+ENGLISH TEST
+
+--- 1 row(s) selected.
+>>
+>>insert into t_cqd_charset_default_test(c13) values('中文测试');
+
+*** ERROR[2109] Invalid Character error converting SQL statement from character set UTF8 to character set ISO88591 (character position 1, byte offset 3).
+
+*** ERROR[8822] The statement was not prepared.
+
+>>insert into t_cqd_charset_default_test(c13) values('中文测试！');
+
+*** ERROR[2109] Invalid Character error converting SQL statement from character set UTF8 to character set ISO88591 (character position 1, byte offset 3).
+
+*** ERROR[8822] The statement was not prepared.
+
+>>insert into t_cqd_charset_default_test(c13) values('english test');
+
+--- 1 row(s) inserted.
+>>insert into t_cqd_charset_default_test(c13) values('english test!');
+
+*** ERROR[8402] A string overflow occurred during the evaluation of a character expression. Conversion of Source Type:CHAR(13) CHARACTER SET ISO88591(REC_BYTE_F_ASCII) Source Value:english test! to Target Type:CHAR(12) CHARACTER SET ISO88591(REC_BYTE_F_ASCII). Column Name: C13
+
+--- 0 row(s) inserted.
+>>select * from t_cqd_charset_default_test;
+
+C13         
+------------
+
+english test
+
+--- 1 row(s) selected.
+>>
+>>CQD TRAF_DEFAULT_COL_CHARSET 'UTF8';
+
+--- SQL operation complete.
+>>create table t_cqd_charset_utf8_upshift_test(c13 pic xxxxxxxxxxxx display upshift default 'defaULT');
+
+--- SQL operation complete.
+>>showddl t_cqd_charset_utf8_upshift_test;
+
+CREATE TABLE TRAFODION.SCH.T_CQD_CHARSET_UTF8_UPSHIFT_TEST
+  (
+    C13                              CHAR(12 BYTES) CHARACTER SET UTF8 COLLATE
+      DEFAULT UPSHIFT DEFAULT _ISO88591'defaULT'
+  )
+ ATTRIBUTES ALIGNED FORMAT
+;
+
+--- SQL operation complete.
+>>create table t_cqd_charset_utf8_test(c13 pic xxxxxxxxxxxx default 'defaULT');
+
+--- SQL operation complete.
+>>showddl t_cqd_charset_utf8_test;
+
+CREATE TABLE TRAFODION.SCH.T_CQD_CHARSET_UTF8_TEST
+  (
+    C13                              CHAR(12 BYTES) CHARACTER SET UTF8 COLLATE
+      DEFAULT DEFAULT _ISO88591'defaULT'
+  )
+ ATTRIBUTES ALIGNED FORMAT
+;
+
+--- SQL operation complete.
+>>
+>>insert into t_cqd_charset_utf8_upshift_test(c13) values('测试');
+
+--- 1 row(s) inserted.
+>>insert into t_cqd_charset_utf8_upshift_test(c13) values('中文测试');
+
+--- 1 row(s) inserted.
+>>insert into t_cqd_charset_utf8_upshift_test(c13) values('english test');
+
+--- 1 row(s) inserted.
+>>insert into t_cqd_charset_utf8_upshift_test(c13) values('english test!');
+
+*** ERROR[8402] A string overflow occurred during the evaluation of a character expression. Conversion of Source Type:CHAR(13 BYTES) CHARACTER SET UTF8(REC_BYTE_F_ASCII) Source Value:ENGLISH TEST! to Target Type:CHAR(12 BYTES) CHARACTER SET UTF8(REC_BYTE_F_ASCII).
+
+--- 0 row(s) inserted.
+>>
+>>select * from t_cqd_charset_utf8_upshift_test;
+
+C13         
+------------
+
+测试      
+中文测试
+ENGLISH TEST
+
+--- 3 row(s) selected.
+>>insert into t_cqd_charset_utf8_test(c13) values('测试');
+
+--- 1 row(s) inserted.
+>>insert into t_cqd_charset_utf8_test(c13) values('中文测试');
+
+--- 1 row(s) inserted.
+>>insert into t_cqd_charset_utf8_test(c13) values('english test');
+
+--- 1 row(s) inserted.
+>>insert into t_cqd_charset_utf8_test(c13) values('english test!');
+
+*** ERROR[8402] A string overflow occurred during the evaluation of a character expression. Conversion of Source Type:CHAR(13 BYTES) CHARACTER SET UTF8(REC_BYTE_F_ASCII) Source Value:english test! to Target Type:CHAR(12 BYTES) CHARACTER SET UTF8(REC_BYTE_F_ASCII). Column Name: C13
+
+--- 0 row(s) inserted.
+>>select * from t_cqd_charset_utf8_test;
+
+C13         
+------------
+
+测试      
+中文测试
+english test
+
+--- 3 row(s) selected.
+>>
+>>create table t_cqd_col_UTF8 (
++>char_1 char(1) default null, var_char_3 varchar(3) default null
++>, small_int smallint default null
++>, medium_int integer unsigned default null
++>, large_int largeint signed default null
++>, float_basic float (4) default null
++>, y_to_d date default null
++>) no partition;
+
+--- SQL operation complete.
+>>insert into t_cqd_col_UTF8 values ('1' , '123', 3 , 4 , 5, 6.2,date '1991-09-28');
+
+--- 1 row(s) inserted.
+>>insert into t_cqd_col_UTF8 values ('2' , '246', 33 , 44 , 5, 66.2,date '1991-12-27');
+
+--- 1 row(s) inserted.
+>>insert into t_cqd_col_UTF8 values ('3' , '333', 333, 333 , 333, 333.0,date '1933-03-03');
+
+--- 1 row(s) inserted.
+>>insert into t_cqd_col_UTF8 (char_1) values ( NULL ) ;
+
+--- 1 row(s) inserted.
+>>insert into t_cqd_col_UTF8 values ('5' , '55', 32767, 2147483647 , 9223372036854775807, 333.0, date '1999-12-12');
+
+--- 1 row(s) inserted.
+>>insert into t_cqd_col_UTF8 values ('9' , '999', -32768, 0 , -9223372036854775808, -5125e-1, date '2000-01-01');
+
+--- 1 row(s) inserted.
+>>select * from t_cqd_col_UTF8 ;
+
+CHAR_1  VAR_CHAR_3    SMALL_INT  MEDIUM_INT  LARGE_INT             FLOAT_BASIC                Y_TO_D
+------  ------------  ---------  ----------  --------------------  -------------------------  ----------
+
+1       123                   3           4                     5   6.20000000000000000E+000  1991-09-28
+2       246                  33          44                     5   6.62000000000000128E+001  1991-12-27
+3       333                 333         333                   333   3.33000000000000000E+002  1933-03-03
+?       ?                     ?           ?                     ?                          ?  ?         
+5       55                32767  2147483647   9223372036854775807   3.33000000000000000E+002  1999-12-12
+9       999              -32768           0  -9223372036854775808  -5.12500000000000000E+002  2000-01-01
+
+--- 6 row(s) selected.
+>>select char_1, small_int from t_cqd_col_UTF8 where char_1 in ( select cast (small_int as char(6)) from t_cqd_col_UTF8 ) ;
+
+CHAR_1  SMALL_INT
+------  ---------
+
+3             333
+
+--- 1 row(s) selected.
+>>
+>>cqd TRAF_DEFAULT_COL_CHARSET reset;
+
+--- SQL operation complete.
+>>
+>>cqd DEFAULT_CHARSET 'UTF8';
+
+--- SQL operation complete.
+>>create table t_cqd_default_UTF8 (
++>char_1 char(1) default null, var_char_3 varchar(3) default null
++>, small_int smallint default null
++>, medium_int integer unsigned default null
++>, large_int largeint signed default null
++>, float_basic float (4) default null
++>, y_to_d date default null
++>) no partition;
+
+--- SQL operation complete.
+>>insert into t_cqd_default_UTF8 values ('1' , '123', 3 , 4 , 5, 6.2,date '1991-09-28');
+
+--- 1 row(s) inserted.
+>>insert into t_cqd_default_UTF8 values ('2' , '246', 33 , 44 , 5, 66.2,date '1991-12-27');
+
+--- 1 row(s) inserted.
+>>insert into t_cqd_default_UTF8 values ('3' , '333', 333, 333 , 333, 333.0,date '1933-03-03');
+
+--- 1 row(s) inserted.
+>>insert into t_cqd_default_UTF8 (char_1) values ( NULL ) ;
+
+--- 1 row(s) inserted.
+>>select char_1, small_int from t_cqd_default_UTF8 where cast (char_1 as char(20)) in ( select cast (small_int as char(3)) from t_cqd_default_UTF8 ) ;
+
+CHAR_1  SMALL_INT
+------  ---------
+
+3             333
+
+--- 1 row(s) selected.
+>>cqd DEFAULT_CHARSET 'reset';
+
+--- SQL operation complete.
+>>
+>>drop table if exists t_cqd_charset_default_test;
+
+--- SQL operation complete.
+>>drop table if exists t_cqd_charset_default_upshift_test;
+
+--- SQL operation complete.
+>>drop table if exists t_cqd_charset_utf8_test;
+
+--- SQL operation complete.
+>>drop table if exists t_cqd_charset_utf8_upshift_test;
+
+--- SQL operation complete.
+>>drop table if exists t_cqd_default_UTF8;
+
+--- SQL operation complete.
+>>drop table if exists t_cqd_col_UTF8;
+
+--- SQL operation complete.
+>>--CQD TRAF_DEFAULT_COL_CHARSET UTF8 test end
+>>
+>>?section cleanup
+>>
+>>-- Clean up test
+>>drop table t005t01;
+
+--- SQL operation complete.
+>>drop table t005t02;
+
+--- SQL operation complete.
+>>
+>>drop table t005t03;
+
+--- SQL operation complete.
+>>drop table t005t04;
+
+--- SQL operation complete.
+>>drop table t005t05;
+
+--- SQL operation complete.
+>>
+>>drop table t005_ex;
+
+--- SQL operation complete.
+>>drop table t005_gx;
+
+--- SQL operation complete.
+>>drop table t005_hx;
+
+--- SQL operation complete.
+>>drop table t005_fx;
+
+--- SQL operation complete.
+>>drop table t005_tx;
+
+--- SQL operation complete.
+>>drop table witht1;
+
+--- SQL operation complete.
+>>drop table witht2;
+
+--- SQL operation complete.
+>>drop table test_modNormal;
+
+--- SQL operation complete.
+>>drop table test_modBignumber;
+
+--- SQL operation complete.
+>>exit;
+
+End of MXCI Session
+

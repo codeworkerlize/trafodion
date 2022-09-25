@@ -1,0 +1,349 @@
+# @@@ START COPYRIGHT @@@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+# @@@ END COPYRIGHT @@@
+#
+
+-----------------------------
+ test user search            
+ all searches succeed        
+-----------------------------
+
+*** Search user defined in multiple config - no verbose
+ldapcheck --username=sentry_user1
+Lookup request: externalName sentry_user1, configName 'local' (configNumber 0), result 0 (Authentication successful)
+
+*** Search user defined in multiple config - verbose returns multiple sections
+ldapcheck --username=sentry_user1 --verbose
+Search host name: esgyn-ad2012.esgyn.local
+
+Performance details (in microseconds): 
+  User search connection time:    2511
+  User search time:               3796
+
+User sentry_user1 exists in multiple configurations including configNumbers (0, 1, 3) authenticating with configNumber 0
+Lookup request: externalName sentry_user1, configName 'local' (configNumber 0), result 0 (Authentication successful)
+
+*** Search user defined in multiple config - specify config number
+ldapcheck --username=sentry_user1 --confignumber=3 --verbose
+Search host name: esgyn-ad2012.esgyn.local
+
+Performance details (in microseconds): 
+  User search connection time:    1947
+  User search time:               665
+
+Lookup request: externalName sentry_user1, configName 'ad' (configNumber 3), result 0 (Authentication successful)
+
+*** Search user defined in multiple config - specify config name
+ldapcheck --username=sentry_user1 --configname=ad --verbose
+Search host name: esgyn-ad2012.esgyn.local
+
+Performance details (in microseconds): 
+  User search connection time:    2413
+  User search time:               636
+
+Lookup request: externalName sentry_user1, configName 'ad' (configNumber 3), result 0 (Authentication successful)
+
+*** Search user defined in only one config - no verbose
+ldapcheck --username=ldap2_user1 
+Lookup request: externalName ldap2_user1, configName 'ldap2' (configNumber 2), result 0 (Authentication successful)
+
+*** Search user defined in only one config - verbose does not return multiple configs event
+ldapcheck --username=ldap2_user1 --verbose
+Search host name: esgyn-ad2012.esgyn.local
+
+Performance details (in microseconds): 
+  User search connection time:    2726
+  User search time:               3692
+
+Lookup request: externalName ldap2_user1, configName 'ldap2' (configNumber 2), result 0 (Authentication successful)
+
+-----------------------------
+ test user authentications   
+ all authentications succeed 
+-----------------------------
+
+*** Authenticate user defined in multiple config - no verbose
+ldapcheck --username=sentry_user1 --password=traf123
+Authentication request: externalName sentry_user1, configName 'local' (configNumber 0), result 0 (Authentication successful)
+
+Member of group: sentry_admins
+Member of group: sentry_managers
+
+*** Authenticate user defined in multiple config - verbose returns multiple sections
+ldapcheck --username=sentry_user1 --password=traf123 --verbose
+
+Performance details (in microseconds): 
+  User search connection time:       2402
+  User search time:                  3887
+  User authenticate connection time: 21
+  User authenticate time:            1449
+  Group lookup time:                 749
+
+Search host name: esgyn-ad2012.esgyn.local
+Auth host name: ldap1.esgyn.local
+User sentry_user1 exists in multiple configurations including configNumbers (0, 1, 3) authenticating with configNumber 0
+Groups returned for user uid=sentry_user1,ou=users,dc=esgyn,dc=local: sentry_admins sentry_managers 
+Authentication request: externalName sentry_user1, configName 'local' (configNumber 0), result 0 (Authentication successful)
+
+Member of group: sentry_admins
+Member of group: sentry_managers
+
+*** Authenticate user defined in multiple config - specify config number
+ldapcheck --username=sentry_user1 --password=traf123 --confignumber=3 --verbose
+
+Performance details (in microseconds): 
+  User search connection time:       2344
+  User search time:                  682
+  User authenticate connection time: 47
+  User authenticate time:            4752
+  Group lookup time:                 2287
+
+Search host name: esgyn-ad2012.esgyn.local
+Auth host name: esgyn-ad2012.esgyn.local
+Groups returned for user cn=sentry_user1,ou=Testing,dc=esgyn,dc=local: sentry_admins sentry_users 
+Authentication request: externalName sentry_user1, configName 'ad' (configNumber 3), result 0 (Authentication successful)
+
+Member of group: sentry_admins
+Member of group: sentry_users
+
+*** Authenticate user defined in multiple config - specify config name
+ldapcheck --username=sentry_user1 --password=traf123 --configname=ad --verbose
+
+Performance details (in microseconds): 
+  User search connection time:       2683
+  User search time:                  673
+  User authenticate connection time: 74
+  User authenticate time:            1916
+  Group lookup time:                 479
+
+Search host name: esgyn-ad2012.esgyn.local
+Auth host name: esgyn-ad2012.esgyn.local
+Groups returned for user cn=sentry_user1,ou=Testing,dc=esgyn,dc=local: sentry_admins sentry_users 
+Authentication request: externalName sentry_user1, configName 'ad' (configNumber 3), result 0 (Authentication successful)
+
+Member of group: sentry_admins
+Member of group: sentry_users
+
+*** Authenticate user defined in single config - no verbose
+ldapcheck --username=ldap2_user1 --password=traf123
+Authentication request: externalName ldap2_user1, configName 'ldap2' (configNumber 2), result 0 (Authentication successful)
+
+
+*** Authenticate user defined in single config - verbose does not return multiple configs event
+ldapcheck --username=ldap2_user1 --password=traf123 --verbose
+
+Performance details (in microseconds): 
+  User search connection time:       2174
+  User search time:                  4219
+  User authenticate connection time: 27
+  User authenticate time:            2713
+  Group lookup time:                 1778
+
+Search host name: esgyn-ad2012.esgyn.local
+Auth host name: ldap2.esgyn.local
+Groups returned for user uid=ldap2_user1,ou=users,dc=esgyn,dc=local: 
+Authentication request: externalName ldap2_user1, configName 'ldap2' (configNumber 2), result 0 (Authentication successful)
+
+
+-----------------------------
+ test group searches         
+ all searches succeed        
+-----------------------------
+
+*** Search group defined in multiple configs, no verbose
+ldapcheck --groupname=sentry_managers
+Lookup request: externalName sentry_managers, configName 'local' (configNumber 0), result 0 (Authentication successful)
+
+*** Search group defined in multiple configs, verbose
+ldapcheck --groupname=sentry_managers --verbose
+Search host name: esgyn-ad2012.esgyn.local
+
+Performance details (in microseconds): 
+  Group search connection time:  2600
+  Group search time:             4536
+  Group lookup time:             7452
+
+Group sentry_managers exists in multiple configurations including configNumbers (0, 1) searching configNumber 0
+Lookup request: externalName sentry_managers, configName 'local' (configNumber 0), result 0 (Authentication successful)
+
+*** Search group defined in multiple configs, specify config name
+ldapcheck --groupname=sentry_managers --configname=ldap1  --verbose
+Search host name: ldap1.esgyn.local
+
+Performance details (in microseconds): 
+  Group search connection time:  953
+  Group search time:             1936
+  Group lookup time:             2897
+
+Lookup request: externalName sentry_managers, configName 'ldap1' (configNumber 1), result 0 (Authentication successful)
+
+*** Search group defined in multiple configs, specify config number
+ldapcheck --groupname=sentry_managers --confignumber=1  --verbose
+Search host name: ldap1.esgyn.local
+
+Performance details (in microseconds): 
+  Group search connection time:  721
+  Group search time:             981
+  Group lookup time:             1713
+
+Lookup request: externalName sentry_managers, configName 'ldap1' (configNumber 1), result 0 (Authentication successful)
+
+*** Search group defined in one config, verbose
+ldapcheck --groupname=sentry_users  --verbose
+Search host name: esgyn-ad2012.esgyn.local
+
+Performance details (in microseconds): 
+  Group search connection time:  3349
+  Group search time:             4086
+  Group lookup time:             7680
+
+Lookup request: externalName sentry_users, configName 'ad' (configNumber 3), result 0 (Authentication successful)
+
+-----------------------------
+ negative tests              
+ all authentications fail    
+-----------------------------
+
+*** Invalid username/groupname or password
+ldapcheck --username=invalidName --verbose
+Search host name: esgyn-ad2012.esgyn.local
+
+Performance details (in microseconds): 
+  User search connection time:    2236
+  User search time:               3706
+
+Lookup request: externalName invalidName, configName 'not available' (configNumber -2), result 1 (Invalid username/groupname or password)
+
+*** Invalid username/groupname or password
+ldapcheck --username=sentry_user1 --password=badpw --verbose
+
+Performance details (in microseconds): 
+  User search connection time:       2336
+  User search time:                  3232
+  User authenticate connection time: 15
+  User authenticate time:            751
+  Group lookup time:                 0
+
+Search host name: esgyn-ad2012.esgyn.local
+Auth host name: ldap1.esgyn.local
+User sentry_user1 exists in multiple configurations including configNumbers (0, 1, 3) authenticating with configNumber 0
+Authentication request: externalName sentry_user1, configName 'local' (configNumber 0), result 1 (Invalid username/groupname or password)
+
+
+*** Invalid username/groupname or password
+ldapcheck --username=sentry_user1 --password=badpw --configname=ad --verbose
+
+Performance details (in microseconds): 
+  User search connection time:       2357
+  User search time:                  670
+  User authenticate connection time: 37
+  User authenticate time:            1559
+  Group lookup time:                 0
+
+Search host name: esgyn-ad2012.esgyn.local
+Auth host name: esgyn-ad2012.esgyn.local
+Authentication request: externalName sentry_user1, configName 'ad' (configNumber 3), result 1 (Invalid username/groupname or password)
+
+
+*** Invalid username/groupname or password
+ldapcheck --username=ldap2_user1 --password=traf123 --configname=ad --verbose
+Search host name: esgyn-ad2012.esgyn.local
+Auth host name: 
+Authentication request: externalName ldap2_user1, configName 'ad' (configNumber 3), result 1 (Invalid username/groupname or password)
+
+
+*** Invalid username/groupname or password
+ldapcheck --username=ldap2_user1 --password=traf123 --confignumber=1 --verbose
+Search host name: ldap1.esgyn.local
+Auth host name: 
+Authentication request: externalName ldap2_user1, configName 'ldap1' (configNumber 1), result 1 (Invalid username/groupname or password)
+
+
+*** Unexpected error returned from LDAP - Invalid configuration number 5 specified
+ldapcheck --username=sentry_user1 --confignumber=5 --verbose
+Search host name: 
+
+Performance details (in microseconds): 
+  User search connection time:    11
+  User search time:               0
+
+****** Invalid configuration number 5 specified
+
+Lookup request: externalName sentry_user1, configName 'not available' (configNumber 5), result 2 (Unexpected error returned from LDAP)
+
+*** Unexpected error returned from LDAP, Invalid configuration name 'something' specified
+ldapcheck --username=sentry_user1 --configname=something --verbose
+Search host name: 
+
+Performance details (in microseconds): 
+  User search connection time:    301
+  User search time:               0
+
+****** Invalid configuration name 'something' specified
+
+Lookup request: externalName sentry_user1, configName 'not available' (configNumber -2), result 2 (Unexpected error returned from LDAP)
+
+*** Invalid username/groupname or password
+ldapcheck --groupname=invalidname --verbose
+Search host name: esgyn-ad2012.esgyn.local
+
+Performance details (in microseconds): 
+  Group search connection time:  2087
+  Group search time:             7976
+  Group lookup time:             10306
+
+Lookup request: externalName invalidname, configName 'not available' (configNumber -2), result 1 (Invalid username/groupname or password)
+
+*** Invalid username/groupname or password
+ldapcheck --groupname=sentry_admins, --configname=ldap2 --verbose
+Search host name: ldap2.esgyn.local
+
+Performance details (in microseconds): 
+  Group search connection time:  863
+  Group search time:             1283
+  Group lookup time:             2154
+
+Lookup request: externalName sentry_admins,, configName 'ldap2' (configNumber 2), result 1 (Invalid username/groupname or password)
+
+*** Unexpected error returned from LDAP, Invalid configuration name 'abc' specified
+ldapcheck --groupname=sentry_managers --configname=abc --verbose
+Search host name: 
+
+Performance details (in microseconds): 
+  Group search connection time:  255
+  Group search time:             0
+  Group lookup time:             261
+
+****** Invalid configuration name 'abc' specified
+
+Lookup request: externalName sentry_managers, configName 'not available' (configNumber -2), result 2 (Unexpected error returned from LDAP)
+
+*** Unexpected error returned from LDAP, Invalid configuration number 10 specified
+ldapcheck --groupname=sentry_managers --confignumber=10 --verbose
+Search host name: 
+
+Performance details (in microseconds): 
+  Group search connection time:  232
+  Group search time:             0
+  Group lookup time:             318
+
+****** Invalid configuration number 10 specified
+
+Lookup request: externalName sentry_managers, configName 'not available' (configNumber 10), result 2 (Unexpected error returned from LDAP)

@@ -1,0 +1,357 @@
+-- Test: TEST200 (Core)
+-- @@@ START COPYRIGHT @@@
+--
+-- Licensed to the Apache Software Foundation (ASF) under one
+-- or more contributor license agreements.  See the NOTICE file
+-- distributed with this work for additional information
+-- regarding copyright ownership.  The ASF licenses this file
+-- to you under the Apache License, Version 2.0 (the
+-- "License"); you may not use this file except in compliance
+-- with the License.  You may obtain a copy of the License at
+--
+--   http://www.apache.org/licenses/LICENSE-2.0
+--
+-- Unless required by applicable law or agreed to in writing,
+-- software distributed under the License is distributed on an
+-- "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+-- KIND, either express or implied.  See the License for the
+-- specific language governing permissions and limitations
+-- under the License.
+--
+-- @@@ END COPYRIGHT @@@
+--
+-- Functionality: Test lock mode
+-- Expected files: EXPECTED200
+-- Table created: t200t1
+-- Limitations:
+-- To do:
+-- Revision history:
+
+obey TEST200(clean);
+log LOG200 clear;
+obey TEST200(setup);
+obey TEST200(test);
+obey TEST200(containwherecondition);
+obey TEST200(testSelectBeginTransaction);
+obey TEST200(savepoint_test);
+log;
+obey TEST200(clean);
+exit;
+
+?section setup
+create table t200t1(a int, b int);
+create table t200t2(a int primary key, b int);
+create table t200t3(a int primary key, b int);
+insert into t200t3 values(1,1);
+insert into t200t3 values(2,2);
+
+?section truncatetable
+truncate table t200t1;
+insert into t200t1 values(1,1);
+
+?section truncatetablet2
+truncate table t200t2;
+insert into t200t2 values(1,1);
+insert into t200t2 values(2,2);
+
+?section test
+-- test select and select
+obey TEST200(truncatetable);
+begin work;
+select * from t200t1;
+sh sqlci -i TEST200\(selecttable\) >> LOG200;
+commit;
+
+-- test select and update
+obey TEST200(truncatetable);
+begin work;
+select * from t200t1;
+sh sqlci -i TEST200\(updatetable\) >> LOG200;
+commit work;
+
+-- test update and select
+obey TEST200(truncatetable);
+begin work;
+update t200t1 set a = 2, b = 2;
+sh sqlci -i TEST200\(selecttable\) >> LOG200;
+commit work;
+
+-- test update and update
+obey TEST200(truncatetable);
+begin work;
+update t200t1 set a = 2, b = 2;
+sh sqlci -i TEST200\(updatetable\) >> LOG200;
+commit work;
+
+-- test select and select ... for update
+obey TEST200(truncatetable);
+begin work;
+select * from t200t1;
+sh sqlci -i TEST200\(selectforupdate\) >> LOG200;
+commit work;
+
+-- test select ... for update and select
+obey TEST200(truncatetable);
+begin work;
+select * from t200t1 for update;
+sh sqlci -i TEST200\(selecttable\) >> LOG200;
+commit work;
+
+-- test select ... for update and select ... for update
+obey TEST200(truncatetable);
+begin work;
+select * from t200t1 for update;
+sh sqlci -i TEST200\(selectforupdate\) >> LOG200;
+commit work;
+
+-- test update and select ... for update
+obey TEST200(truncatetable);
+begin work;
+update t200t1 set a = 2, b = 2;
+sh sqlci -i TEST200\(selectforupdate\) >> LOG200;
+commit work;
+
+-- test select ... for update and update
+obey TEST200(truncatetable);
+begin work;
+select * from t200t1 for update;
+sh sqlci -i TEST200\(updatetable\) >> LOG200;
+commit work;
+
+?section selecttable
+begin work;
+select * from t200t1;
+commit work;
+
+?section updatetable
+begin work;
+update t200t1 set a = 2, b = 2;
+commit work;
+
+?section selectforupdate
+begin work;
+select * from t200t1 for update;
+commit work;
+
+?section containwherecondition
+-- test table contain primary key and select statement contain where condition
+-- test select and select
+obey TEST200(truncatetablet2);
+begin work;
+select * from t200t2 where a = 1;
+sh sqlci -i TEST200\(selecttablet2\) >> LOG200;
+commit;
+
+-- test select and update
+obey TEST200(truncatetablet2);
+begin work;
+select * from t200t2 where a = 1;
+sh sqlci -i TEST200\(updatetablet2\) >> LOG200;
+commit work;
+
+-- test update and select
+obey TEST200(truncatetablet2);
+begin work;
+update t200t2 set a = 3, b = 3 where a = 1;
+sh sqlci -i TEST200\(selecttablet2\) >> LOG200;
+commit work;
+
+-- test update and update
+obey TEST200(truncatetablet2);
+begin work;
+update t200t2 set a = 3, b = 3 where a = 1;
+sh sqlci -i TEST200\(updatetablet2\) >> LOG200;
+commit work;
+
+-- test select and select ... for update
+obey TEST200(truncatetablet2);
+begin work;
+select * from t200t2 where a = 1;
+sh sqlci -i TEST200\(selectforupdatet2\) >> LOG200;
+commit work;
+
+-- test select ... for update and select
+obey TEST200(truncatetablet2);
+begin work;
+select * from t200t2 where a = 1 for update;
+sh sqlci -i TEST200\(selecttablet2\) >> LOG200;
+commit work;
+
+-- test select ... for update and select ... for update
+obey TEST200(truncatetablet2);
+begin work;
+select * from t200t2 where a = 1 for update;
+sh sqlci -i TEST200\(selectforupdatet2\) >> LOG200;
+commit work;
+
+-- test update and select ... for update
+obey TEST200(truncatetablet2);
+begin work;
+update t200t2 set a = 3, b = 3 where a = 1;
+sh sqlci -i TEST200\(selectforupdatet2\) >> LOG200;
+commit work;
+
+-- test select ... for update and update
+obey TEST200(truncatetablet2);
+begin work;
+select * from t200t2 where a = 1 for update;
+sh sqlci -i TEST200\(updatetablet2\) >> LOG200;
+commit work;
+
+?section selecttablet2
+begin work;
+select * from t200t2 where a = 1;
+commit work;
+
+?section updatetablet2
+begin work;
+update t200t2 set a = 3, b = 3 where a = 1;
+commit work;
+
+?section selectforupdatet2
+begin work;
+select * from t200t2 where a = 1 for update;
+commit work;
+
+?section testSelectBeginTransaction
+obey TEST200(truncatetable);
+set transaction autocommit off;
+select * from t200t1;
+commit;
+set transaction autocommit on;
+
+obey TEST200(truncatetable);
+begin work;
+select * from t200t1 for update;
+sh sqlci -i TEST200\(selectforupdatet1\) >> LOG200;
+commit;
+
+?section selectforupdatet1
+select * from t200t1 for update;
+
+-- test lock timeout, transaction rollback
+begin work;
+select * from t200t3 for update;
+sh sqlci -i TEST200\(insertt200t3\) >> LOG200;
+sh sqlci -i TEST200\(deletet200t3\) >> LOG200;
+sh sqlci -i TEST200\(updatet200t3\) >> LOG200;
+sh sqlci -i TEST200\(selectt200t3\) >> LOG200;
+sh sqlci -i TEST200\(selectforupdatet200t3\) >> LOG200;
+commit;
+
+?section insertt200t3
+begin work;
+insert into t200t3 values(3,3);
+commit;
+
+?section deletet200t3
+begin work;
+delete from t200t3;
+commit;
+
+?section updatet200t3
+begin work;
+update t200t3 set b = 3;
+commit;
+
+?section selectt200t3
+begin work;
+select * from t200t3;
+commit;
+
+?section selectforupdatet200t3
+begin work;
+select * from t200t3 for update;
+commit;
+
+?section savepoint_test
+-- savepoint
+-- test commit savepoint
+obey TEST200(truncatetablet2);
+cqd traf_savepoints 'on';
+begin work;
+begin savepoint;
+insert into t200t2 values(3,3);
+sh sqlci -i TEST200\(savepointInsert\) >> LOG200;
+commit savepoint;
+sh sqlci -i TEST200\(savepointInsert\) >> LOG200;
+commit;
+
+-- test rollback savepoint
+obey TEST200(truncatetablet2);
+cqd traf_savepoints 'on';
+begin work;
+begin savepoint;
+insert into t200t2 values(3,3);
+sh sqlci -i TEST200\(savepointInsert\) >> LOG200;
+rollback savepoint;
+sh sqlci -i TEST200\(savepointInsert\) >> LOG200;
+commit;
+
+-- test rollback savepoint and startscan interface
+obey TEST200(truncatetablet2);
+cqd traf_savepoints 'on';
+begin work;
+begin savepoint;
+select * from t200t2;
+delete from t200t2;
+sh sqlci -i TEST200\(savepointDelete\) >> LOG200;
+rollback savepoint;
+sh sqlci -i TEST200\(savepointDelete\) >> LOG200;
+commit;
+
+-- test not execute commit savepoint
+obey TEST200(truncatetablet2);
+cqd traf_savepoints 'on';
+begin work;
+begin savepoint;
+insert into t200t2 values(3,3);
+commit;
+sh sqlci -i TEST200\(savepointDelete\) >> LOG200;
+
+-- Mantis-12282
+obey TEST200(truncatetablet2);
+cqd traf_savepoints 'on';
+begin work;
+insert into t200t2 values(3,3);
+begin savepoint;
+insert into t200t2 values(4,4);
+rollback savepoint;
+commit;
+select * from t200t2 for update;
+
+-- test lock conflict in SPSQL
+obey TEST200(truncatetablet2);
+begin work;
+select * from t200t2 for update;
+sh sqlci -i TEST200\(SPSQLSelectForUpdate\) >> LOG200;
+commit;
+
+?section savepointInsert
+cqd traf_savepoints 'on';
+begin work;
+begin savepoint;
+insert into t200t2 values(3,3);
+commit savepoint;
+commit;
+
+?section savepointDelete
+cqd traf_savepoints 'on';
+begin work;
+begin savepoint;
+delete from t200t2;
+commit savepoint;
+commit;
+
+?section SPSQLSelectForUpdate
+create or replace procedure p_selectForUpdate() as//
+begin
+  select * from t200t2;
+end//;
+call p_selectForUpdate();
+
+?section clean
+drop table if exists t200t1;
+drop table if exists t200t2;
+drop table if exists t200t3;
+drop procedure if exists p_selectForUpdate;

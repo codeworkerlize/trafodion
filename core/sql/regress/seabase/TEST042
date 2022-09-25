@@ -1,0 +1,73 @@
+-- @@@ START COPYRIGHT @@@
+--
+-- Licensed to the Apache Software Foundation (ASF) under one
+-- or more contributor license agreements.  See the NOTICE file
+-- distributed with this work for additional information
+-- regarding copyright ownership.  The ASF licenses this file
+-- to you under the Apache License, Version 2.0 (the
+-- "License"); you may not use this file except in compliance
+-- with the License.  You may obtain a copy of the License at
+--
+--   http://www.apache.org/licenses/LICENSE-2.0
+--
+-- Unless required by applicable law or agreed to in writing,
+-- software distributed under the License is distributed on an
+-- "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+-- KIND, either express or implied.  See the License for the
+-- specific language governing permissions and limitations
+-- under the License.
+--
+-- @@@ END COPYRIGHT @@@
+--
+-- Tests for multi-tenant on hbase tables
+--
+
+create schema if not exists test042_sch;
+set schema test042_sch;
+
+obey TEST042(clean_up);
+
+log LOG042 clear;
+obey TEST042(setup);
+obey TEST042(test);
+log;
+
+obey TEST042(clean_up);
+exit;
+
+
+?section clean_up
+
+drop table T042_SK;
+drop table t042_seed;
+
+?section setup
+
+create table t042_seed(a int not null, primary key(a));
+
+CREATE TABLE T042_SK (sid int not null, ssn largeint NOT NULL) STORE BY (sid)
+salt using 4 partitions;
+
+insert into t042_seed values(1);
+
+insert into t042_SK
+(
+select c10,c1 from t042_seed
+  transpose 1,1,1,1,1,1,1,1,0,0 as c1
+  transpose 0,1,2,3,4,5,6,7,8,9 as c2
+  transpose 0,1,2,3,4,5,6,7,8,9 as c3
+  transpose 0,1,2,3,4,5,6,7,8,9 as c10
+);
+
+?section test
+
+cqd segment_size '17';
+cqd affinity_value '10';
+cqd merge_joins 'off';
+cqd nested_joins 'off';
+
+prepare xx from
+select a.ssn, b.ssn from t042_sk a <<+ cardinality 10e9 >> , t042_sk b <<+ cardinality 10e8 >>
+where a.ssn = b.ssn order by a.ssn;
+
+explain options 'f' xx;

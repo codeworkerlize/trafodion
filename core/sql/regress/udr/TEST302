@@ -1,0 +1,1064 @@
+-- @@@ START COPYRIGHT @@@
+--
+-- Licensed to the Apache Software Foundation (ASF) under one
+-- or more contributor license agreements.  See the NOTICE file
+-- distributed with this work for additional information
+-- regarding copyright ownership.  The ASF licenses this file
+-- to you under the Apache License, Version 2.0 (the
+-- "License"); you may not use this file except in compliance
+-- with the License.  You may obtain a copy of the License at
+--
+--   http://www.apache.org/licenses/LICENSE-2.0
+--
+-- Unless required by applicable law or agreed to in writing,
+-- software distributed under the License is distributed on an
+-- "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+-- KIND, either express or implied.  See the License for the
+-- specific language governing permissions and limitations
+-- under the License.
+--
+-- @@@ END COPYRIGHT @@@
+
+obey TEST302(clean);
+
+log LOG302 clear;
+obey TEST302(setup);
+obey TEST302(test);
+log;
+
+obey TEST302(clean);
+exit;
+
+?section setup
+
+create table t1 (a varchar(100));
+create table t2 (a varchar(100));
+insert into t2 values (' abcdef ');
+create table t3 (p int);
+create table t4 (a int);
+create table t5(a int);
+insert into t5 values(1);
+create table t302_tab_test_cursor_with_params(a int, b varchar(10));
+insert into t302_tab_test_cursor_with_params values(1,'a');
+insert into t302_tab_test_cursor_with_params values(2,'b');
+create table T302_transaction(a int);
+create table table_test_execute_proc(a int);
+create table table_test_prepare_stmt(a varchar(10), b int);
+create table t6 (a varchar(100));
+insert into t6 values('test');
+create table t302_table_test_for_cursor(a int);
+insert into t302_table_test_for_cursor values(1);
+insert into t302_table_test_for_cursor values(2);
+create table t302_table_test_for_cursor2(a int);
+insert into t302_table_test_for_cursor2 values(1);
+insert into t302_table_test_for_cursor2 values(2);
+insert into t302_table_test_for_cursor2 values(3);
+create table t302_table_test_for_update(a int);
+insert into t302_table_test_for_update values(1);
+create table t302_table_test_update_stmt_alias(a int);
+insert into t302_table_test_update_stmt_alias values(1);
+create table t302_table_test_select_into_errmsg(a int);
+
+?section test
+
+create or replace procedure test_interval() as //
+begin
+  print time '00:00:00.000000000' - interval 1 microsecond;
+  print time '00:00:00.000000000' - interval 2000001 microsecond;
+  print time '23:59:59.999999999' + interval 1 microsecond;
+  print time '23:59:59.999999999' + interval 2000001 microsecond;
+
+  print timestamp '2018-01-01 00:00:00.000000000' - interval 1 microsecond;
+  print timestamp '2018-01-01 00:00:00.000000000' - interval 2000001 microsecond;
+  print timestamp '2017-12-31 23:59:59.999999999' + interval 1 microsecond;
+  print timestamp '2017-12-31 23:59:59.999999999' + interval 2000001 microsecond;
+end//;
+
+call test_interval();
+
+create or replace package pkg as //
+  i  INT := 6;
+  j  NUMERIC(10,2) ;
+  k  INT;
+  t2row t2%ROWTYPE;
+  t2a  t2.a%TYPE;
+  t2cur CURSOR for select * from t2;
+end//;
+
+create or replace procedure test_pack_vars() as //
+begin
+  open pkg.t2cur;
+  fetch pkg.t2cur into pkg.t2row;
+  print pkg.t2row.a;
+  close pkg.t2cur;
+end//;
+
+call test_pack_vars();
+
+create or replace procedure test_null() as //
+begin
+  null;
+end//;
+
+call test_null();
+
+create or replace procedure greeting() as //
+begin
+  print 'Hello';
+end greeting//;
+
+create or replace  package body pkg as //
+  procedure hello is
+  begin
+    print 'Hello';
+  end hello;
+end greeting//;
+
+call greeting();
+call pkg.hello();
+
+create or replace function decimal_func() return decimal(5,3) as //
+begin
+  return 12.3456;
+end
+//;
+
+create or replace procedure test_decimal(a decimal(5,3)) as //
+begin
+  select a from dual;
+  select decimal_func() from dual;
+end//;
+
+call test_decimal(12.3456);
+
+create or replace procedure test_decimal() as //
+declare
+  d decimal(5,3);
+  e decimal(5,2);
+  f decimal(3,1);
+begin
+  select decimal_func() from dual;
+  select decimal_func() into d from dual;
+  select decimal_func() into e from dual;
+  select decimal_func() into f from dual;
+  print d;
+  print e;
+  print f;
+end
+//;
+
+call test_decimal();
+
+exec //
+declare
+  i number = 1.1;
+  j number = 10.2;
+begin
+  delete from t3;
+  for k in i..j loop
+    insert into t3 values (k);
+  end loop;
+end;
+//;
+
+select * from t3;
+
+create or replace procedure print_sqlcode() as //
+begin
+  declare cnt int;
+  declare continue handler for sqlexception
+  begin
+    print sqlcode;
+    print sqlcode;
+  end;
+
+  select count(*) into cnt from dual;
+  print activity_count;
+  print cnt;
+  print activity_count;
+
+  select * from table_not_exist;
+  print sqlcode;
+  print sqlcode;
+end//;
+
+call print_sqlcode();
+
+create or replace procedure test_nullifzero() as //
+declare
+  n1 int = 5;
+  n2 int = 0;
+  m1 int = 1;
+  m2 int = 1;
+begin
+  insert into t3 values (n1);
+  insert into t3 values (n2);
+  insert into t3 values (nullifzero(n1));
+  insert into t3 values (nullifzero(n2));
+  select nullifzero(n1) from dual;
+  select nullifzero(n2) from dual;
+  select nullifzero(n1) into m1 from dual;
+  select nullifzero(n2) into m2 from dual;
+  insert into t3 values (m1);
+  insert into t3 values (m2);
+end//;
+
+delete from t3;
+call test_nullifzero();
+select * from t3;
+
+drop table if exists t302_datetime;
+create table t302_datetime (c1 time, c2 timestamp, c3 date);
+
+create or replace procedure test_datetime() as //
+declare
+  a time := '21:57:33';
+  b timestamp := '2018-07-10 21:57:33';
+  c date := '2018-07-10';
+  d int := 1;
+  e varchar := '7';
+begin
+  insert into t302_datetime values (a, b, c);
+  insert into t302_datetime values (a, add_months(b, 1), c);
+  insert into t302_datetime values (a, add_months(b, 1), date_add(c, INTERVAL '7' DAY));
+  insert into t302_datetime values (a, add_months(b, d), date_add(c, INTERVAL e DAY));
+
+  select * from t302_datetime;
+  select c1, add_months(c2, 1), c3 from t302_datetime;
+  select c1, add_months(c2, 1), date_add(c3, INTERVAL '7' DAY) from t302_datetime;
+  select c1, add_months(c2, 1), date_add(c3, INTERVAL e DAY) from t302_datetime;
+
+  select extract(hour from a) from dual;
+  select extract(minute from a) from dual;
+  select extract(second from a) from dual;
+
+  select extract(year from b) from dual;
+  select extract(month from b) from dual;
+  select extract(day from b) from dual;
+  select extract(hour from b) from dual;
+  select extract(minute from b) from dual;
+  select extract(second from b) from dual;
+
+  select extract(year from c) from dual;
+  select extract(month from c) from dual;
+  select extract(day from c) from dual;
+
+  select extract(hour from c1) from t302_datetime;
+  select extract(minute from c1) from t302_datetime;
+  select extract(second from c1) from t302_datetime;
+
+  select extract(year from c2) from t302_datetime;
+  select extract(month from c2) from t302_datetime;
+  select extract(day from c2) from t302_datetime;
+  select extract(hour from c2) from t302_datetime;
+  select extract(minute from c2) from t302_datetime;
+  select extract(second from c2) from t302_datetime;
+
+  select extract(year from c3) from t302_datetime;
+  select extract(month from c3) from t302_datetime;
+  select extract(day from c3) from t302_datetime;
+
+  print extract(hour from a);
+  print extract(minute from b);
+  print extract(second from b);
+  print extract(year from b);
+  print extract(month from c);
+  print extract(day from c);
+end//;
+
+call test_datetime();
+
+create or replace procedure test_position() as //
+begin
+  declare s varchar(100) = ' abcdef ';
+  declare t char = 'a';
+  select position(t in s) from dual;
+  select position(t in a) from t2;
+  insert into t3 values (position(t in s));
+end//;
+
+delete from t3;
+call test_position();
+select * from t3;
+
+create or replace procedure test_substr() as //
+begin
+  declare s varchar(100) = ' abcdef ';
+  declare i int = 3;
+  declare j int = 3;
+  declare k int = 0;
+  declare l int = 1;
+  select substr(' abcdef ', 3, 3) from dual;
+  select substr(' abcdef ' from 3 for 3) from dual;
+  select substring(' abcdef ', 3, 3) from dual;
+  select substring(' abcdef ' from 3 for 3) from dual;
+
+  select substr(s, i, j) from dual;
+  select substr(s from i for j) from dual;
+  select substring(s, i, j) from dual;
+  select substring(s from i for j) from dual;
+
+  select substr(a, i, j) from t2;
+  select substr(a from i for j) from t2;
+  select substring(a, i, j) from t2;
+  select substring(a from i for j) from t2;
+
+  insert into t1 values (substr(s, 3, 3));
+  insert into t1 values (substr(s from 3 for 3));
+  insert into t1 values (substring(s, 3, 3));
+  insert into t1 values (substring(s from 3 for 3));
+
+  insert into t1 values (substr(s, i, j));
+  insert into t1 values (substr(s from i for j));
+  insert into t1 values (substring(s, i, j));
+  insert into t1 values (substring(s from i for j));
+end//;
+
+call test_substr();
+
+select * from t1;
+
+create or replace procedure test_trim() as //
+begin
+  declare s varchar(100) = ' abcdef ';
+  select trim(s) from dual;
+  select trim(a) from t2;
+  select concat(trim(a), ' ABCD') from t2;
+  select trim(a) || ' ABCD' from t2;
+  select trim(concat (a, ' ABCD')) from t2;
+  select trim(a || ' ABCD') from t2;
+  insert into t1 values (trim(s));
+end//;
+
+call test_trim();
+
+select * from t1;
+
+create or replace procedure create_temporary_table() as //
+begin
+  create temporary table tmp1 (a int);
+  insert into tmp1 values (1),(2),(3);
+  select * from tmp1;
+end//;
+
+call create_temporary_table();
+
+create procedure test_select_into() as//
+BEGIN 
+  DECLARE id int;
+  SELECT a INTO id FROM t4 LIMIT 2;
+  print('id = '||id);
+END//;
+truncate table t4;
+insert into t4 values (1);
+insert into t4 values (2);
+call test_select_into();
+truncate table t4;
+insert into t4 values (1);
+call test_select_into();
+
+create procedure test_datatype_error() as//
+DECLARE 
+  empno numeri(6);
+BEGIN
+  null;
+EXCEPTION
+  WHEN OTHERS THEN
+    PRINT 'ERROR';
+END//;
+call test_datatype_error();
+
+CREATE PROCEDURE t_p() AS//    
+BEGIN
+	print ('aa');
+	nvl(null,null);
+END//;
+CALL t_p();
+
+CREATE OR REPLACE PROCEDURE t_p() AS//
+begin
+  declare continue handler for sqlexception
+    print 'sqlexception';
+  select * from no_exist_table;
+  print ('aa');
+  nvl(null,null);
+end//;
+CALL t_p();
+
+CREATE OR REPLACE PROCEDURE t_p() AS//
+begin
+  declare continue handler for sqlexception
+    print 'sqlexception';
+  insert into no_exist_table values(1);
+  print ('aa');
+  nvl(null,null);
+end//;
+CALL t_p();
+ 
+CREATE OR REPLACE PROCEDURE t_p() AS//
+begin
+  declare continue handler for sqlexception
+    print 'sqlexception';
+  update no_exist_table set a = 1;
+  print ('aa');
+  nvl(null,null);
+end//;
+CALL t_p();
+
+CREATE OR REPLACE PROCEDURE t_p() AS//
+begin
+  declare continue handler for sqlexception
+    print 'sqlexception';
+  delete from no_exist_table where a = 1;
+  print ('aa');
+  nvl(null,null);
+end//;
+CALL t_p();
+
+CREATE OR REPLACE PROCEDURE t_p() NO TRANSACTION REQUIRED AS//
+begin
+  declare continue handler for sqlexception
+    print 'sqlexception';
+  create table no_exist_table(a int);
+  create table no_exist_table(a int);
+  print ('aa');
+  nvl(null,null);
+end//;
+CALL t_p();
+
+CREATE OR REPLACE PROCEDURE t_p() NO TRANSACTION REQUIRED AS//
+begin
+  declare continue handler for sqlexception
+    print 'sqlexception';
+  create schema sch;
+  print ('aa');
+  nvl(null,null);
+end//;
+CALL t_p();
+
+CREATE OR REPLACE PROCEDURE t_p() NO TRANSACTION REQUIRED AS//
+begin
+  declare continue handler for sqlexception
+    print 'sqlexception';
+  CREATE VOLATILE TABLE no_exist_table(a int);
+  CREATE VOLATILE TABLE no_exist_table(a int);
+  print ('aa');
+  nvl(null,null);
+end//;
+CALL t_p();
+
+CREATE OR REPLACE PROCEDURE t_p() AS//
+begin
+  declare continue handler for sqlexception
+    print 'sqlexception';
+  desc no_exist_table1;
+  print ('aa');
+  nvl(null,null);
+end//;
+CALL t_p();
+
+CREATE OR REPLACE PROCEDURE t_p() AS//
+begin
+  declare continue handler for sqlexception
+    print 'sqlexception';
+  drop VOLATILE TABLE no_exist_table1;
+  print ('aa');
+  nvl(null,null);
+end//;
+CALL t_p();
+
+CREATE OR REPLACE PROCEDURE t_p() AS//
+begin
+  declare continue handler for sqlexception
+    print 'sqlexception';
+  truncate TABLE no_exist_table1;
+  print ('aa');
+  nvl(null,null);
+end//;
+CALL t_p();
+
+CREATE OR REPLACE PROCEDURE t_p() AS//
+begin
+  declare cursor cur for select * from no_exist_table1;
+  declare continue handler for sqlexception
+    print 'sqlexception';
+  open cur;
+  print ('aa');
+  nvl(null,null);
+end//;
+CALL t_p();
+
+CREATE OR REPLACE PROCEDURE t_p() AS//
+begin
+  declare continue handler for sqlexception
+    print 'sqlexception';
+  exec 'select * from no_exist_table1';
+  print ('aa');
+  nvl(null,null);
+end//;
+CALL t_p();
+
+CREATE OR REPLACE PROCEDURE t_p() AS//
+begin
+  declare continue handler for sqlexception
+    print 'sqlexception';
+  MERGE INTO t USING
+    (SELECT * FROM t1) on a = z.a
+    WHEN MATCHED THEN UPDATE SET b = z.b
+    WHEN NOT MATCHED THEN INSERT VALUES (z.a, z.b);
+  print ('aa');
+  nvl(null,null);
+end//;
+CALL t_p();
+
+CREATE OR REPLACE PROCEDURE t_p() AS//
+BEGIN
+   DECLARE id INT;
+   DECLARE t_row t5%ROWTYPE;;
+   DECLARE CURSOR cur FOR SELECT * FROM t5;
+   PRINT('open cursor now!');
+   OPEN cur;
+   FETCH cur INTO t_row;
+   LOOP
+     SET id = t_row.a;
+     print id;
+     FETCH cur INTO t_row;
+     EXIT WHEN cur%NOTFOUND;
+   END LOOP;
+   CLOSE cur;
+END//;
+CALL t_p();
+
+create or replace procedure test_cursor_with_params() as//
+begin
+  declare v1 int;
+  declare v2 varchar(10);
+  declare c(i int,j varchar) cursor is select * from t302_tab_test_cursor_with_params where a = i and b = j;
+  open c(1, 'a');
+  fetch c into v1,v2;
+  print v1;
+  print v2;
+  close c;
+  /* close cursor and open */
+  open c(2, 'b');
+  fetch c into v1,v2;
+  print v1;
+  print v2;
+  close c;
+end//;
+call test_cursor_with_params();
+
+create or replace procedure test_cursor_with_params() as//
+begin
+  declare v1 int;
+  declare v2 varchar(10);
+  declare c(i int,j varchar) cursor is select * from t302_tab_test_cursor_with_params where a = i and b = j;
+  open c(1, 'a');
+  fetch c into v1,v2;
+  print v1;
+  print v2;
+  /* don't close cursor and open */
+  open c(2, 'b');
+  fetch c into v1,v2;
+  print v1;
+  print v2;
+  close c;
+end//;
+call test_cursor_with_params();
+create or replace procedure test_outparam_isnull(out r int) as //begin set r = null; end//;
+
+call test_outparam_isnull(?);
+
+create or replace procedure test_outparam_isnull(out r int) as //begin null; end//;
+
+call test_outparam_isnull(?);
+
+create procedure test_mod() as//
+begin
+ print mod(15,4);
+ print mod(15,0);
+ print mod(11.6,2);
+ print mod(11.6,2.1);
+ print mod(15,2.1);
+ print mod(-15,4);
+ print mod(-15,0);
+ print 15%4;
+ print 15%0;
+ print 11.6%2;
+ print 11.6%2.1;
+ print 15%2.1;
+ print -15%4;
+ print -15%0;
+end//;
+call test_mod();
+
+truncate table T302_transaction;
+create or replace procedure test_transaction() no transaction required as//
+begin
+  begin work;
+  insert into T302_transaction values(1);
+  commit;
+  select * from T302_transaction;
+end//;
+call test_transaction();
+select * from T302_transaction;
+
+truncate table T302_transaction;
+create or replace procedure test_transaction() no transaction required as//
+begin
+  begin work;
+  insert into T302_transaction values(1);
+  commit work;
+  select * from T302_transaction;
+end//;
+call test_transaction();
+select * from T302_transaction;
+
+truncate table T302_transaction;
+create or replace procedure test_transaction() no transaction required as//
+begin
+  begin transaction;
+  insert into T302_transaction values(1);
+  commit;
+  select * from T302_transaction;
+end//;
+call test_transaction();
+select * from T302_transaction;
+
+truncate table T302_transaction;
+create or replace procedure test_transaction() no transaction required as//
+begin
+  begin transaction;
+  insert into T302_transaction values(1);
+  commit work;
+  select * from T302_transaction;
+end//;
+call test_transaction();
+select * from T302_transaction;
+
+truncate table T302_transaction;
+create or replace procedure test_transaction() no transaction required as//
+begin
+  begin transaction;
+  insert into T302_transaction values(1);
+  rollback;
+  select * from T302_transaction;
+end//;
+call test_transaction();
+select * from T302_transaction;
+
+truncate table T302_transaction;
+create or replace procedure test_transaction() no transaction required as//
+begin
+  begin transaction;
+  insert into T302_transaction values(1);
+  rollback work;
+  select * from T302_transaction;
+end//;
+call test_transaction();
+select * from T302_transaction;
+
+truncate table T302_transaction;
+create or replace procedure test_transaction() no transaction required as//
+begin
+  begin transaction;
+  insert into T302_transaction values(1);
+  rollback work;
+  /* arise error*/
+  select * from T302_transaction_not_exists;
+end//;
+call test_transaction();
+select * from T302_transaction;
+
+truncate table T302_transaction;
+create or replace procedure test_transaction() no transaction required as//
+begin
+  begin transaction;
+  insert into T302_transaction values(1);
+  commit;
+  /* arise error*/
+  select * from T302_transaction_not_exists;
+end//;
+call test_transaction();
+select * from T302_transaction;
+
+begin;
+
+begin ;
+
+begin n;
+
+begin transaction;
+
+commit work;
+
+create procedure test_exec_stmt() as//
+begin
+    execute 'select ''a.b'', ''c.d'' from dual;';
+end//;
+call test_exec_stmt();
+
+create or replace procedure test_execute_proc() as//
+begin
+  insert into table_test_execute_proc values(1);
+end//;
+
+truncate table table_test_execute_proc;
+create or replace procedure test_execute_proc1() as//
+begin
+ test_execute_proc;
+end//;
+call test_execute_proc1();
+select * from table_test_execute_proc;
+
+truncate table table_test_execute_proc;
+create or replace procedure test_execute_proc1() as//
+begin
+ test_execute_proc();
+end//;
+call test_execute_proc1();
+select * from table_test_execute_proc;
+create or replace procedure test_prepare_stmt() as//
+begin
+  prepare a from 'insert into table_test_prepare_stmt values(?,?)';
+  execute a using 'aa', 1;
+
+  declare a1 string := 'aa';
+  declare a2 int := 2;
+  execute a using a1, a2;
+
+  prepare b from 'insert into table_test_prepare_stmt values(?,3)';
+  declare b1 string := 'bb';
+  execute b using b1;
+
+  prepare c from 'insert into table_test_prepare_stmt values(?,4)';
+  declare c1 string := 'cc';
+  execute c using c1;
+
+  close prepare a;
+  /* 
+    don't close prepare b and c
+    test close all connections of prepare 
+  */
+end//;
+call test_prepare_stmt();
+select * from table_test_prepare_stmt;
+
+create or replace procedure test_prepare_stmt() as//
+begin
+  prepare c from 'select * from table_test_prepare_stmt where b = 2';
+  execute c;
+  execute c;
+end//;
+call test_prepare_stmt();
+
+create or replace procedure test_prepare_stmt() as//
+begin
+  /* error */
+  prepare a from 'insert into table_test_prepare_stmt values(?,?)';
+  execute a using 'aa';
+end//;
+call test_prepare_stmt();
+
+create or replace procedure test_prepare_stmt() as//
+begin
+  /* error */
+  prepare a from 'insert into table_test_prepare_stmt values(?)';
+  execute a using 'aa',1;
+end//;
+call test_prepare_stmt();
+
+CREATE OR REPLACE FUNCTION get1(CODE VARCHAR2(40)) RETURN (f VARCHAR2(40)) AS//
+   TMPVAR VARCHAR2(10);
+BEGIN
+  DECLARE CONTINUE HANDLER FOR NOT FOUND
+    RETURN '00080000';
+  TMPVAR := '';
+  IF TRIM(CODE) = '' THEN
+    RETURN '00080000';
+  ELSE
+   RETURN TRIM(CODE);
+  END IF;
+EXCEPTION
+  WHEN OTHERS THEN
+    RETURN '0000';
+END//;
+
+SELECT get1('ASFDE') FROM DUAL;
+SELECT get1('     ') FROM DUAL;
+create procedure test_activity_count() as//
+begin
+  DECLARE b varchar(100);
+  select a into b from t6;
+  INSERT INTO t6 VALUES('ACTIVITY_COUNT IS ' || ACTIVITY_COUNT || ' SQLCODE IS ' || sqlcode || ' ERRORCODE IS ' || errorcode || ' SQLSTATE IS ' || sqlstate);
+  select * from t6 order by a;
+END//;
+call test_activity_count();
+create or replace procedure t302test_md() as//
+begin
+  select CATALOG_NAME, SCHEMA_NAME from "_MD_".objects where OBJECT_NAME='CREATESPSQL';
+end//;
+call t302test_md();
+-- for range
+CREATE OR REPLACE PROCEDURE test_for_range() AS//
+BEGIN
+  FOR i IN 1..10 LOOP
+    EXIT WHEN i > 5;
+    PRINT(i);
+  END LOOP;
+  PRINT('TEST DONE');
+END//;
+CALL test_for_range();
+
+CREATE OR REPLACE PROCEDURE test_for_range() AS//
+BEGIN
+  <<label>>
+  FOR i IN 1..10 LOOP
+    IF i > 5 THEN
+      EXIT label;
+    END IF;
+    PRINT(i);
+  END LOOP;
+  PRINT('TEST DONE');
+END//;
+CALL test_for_range();
+
+-- for cursor
+CREATE OR REPLACE PROCEDURE test_for_cursor() AS//
+BEGIN
+   FOR i IN (select a from t302_table_test_for_cursor) LOOP
+     EXIT WHEN i.a = 2;
+     PRINT(i.a);
+   END LOOP;
+   PRINT('test done'); 
+END//;
+CALL test_for_cursor();
+
+CREATE OR REPLACE PROCEDURE test_for_cursor() AS//
+BEGIN
+   <<label>>
+   FOR i IN (select a from t302_table_test_for_cursor) LOOP
+     IF i.a = 2 THEN
+       EXIT label;
+     END IF;
+     PRINT(i.a);
+   END LOOP;
+   PRINT('test done');
+END//;
+CALL test_for_cursor();
+
+CREATE OR REPLACE PROCEDURE test_for_cursor2() AS//
+BEGIN
+  DECLARE CURSOR c1 (maxnum NUMBER(8,2)) IS 
+    SELECT * FROM t302_table_test_for_cursor2 where a > maxnum;
+  FOR c IN c1(1.1)
+  LOOP
+    PRINT (c.a);
+  END LOOP;
+END//;
+CALL test_for_cursor2();
+
+CREATE OR REPLACE PROCEDURE test_for_cursor2() AS//
+BEGIN
+  DECLARE CURSOR c1 (maxnum NUMBER(8,2) DEFAULT 2) IS
+    SELECT * FROM t302_table_test_for_cursor2 where a > maxnum;
+  FOR c IN c1(1.1)
+  LOOP
+    PRINT (c.a);
+  END LOOP;
+
+  FOR c IN c1
+  LOOP
+    PRINT (c.a);
+  END LOOP;
+END//;
+CALL test_for_cursor2();
+
+CREATE OR REPLACE PROCEDURE test_for_cursor2() AS//
+BEGIN
+  DECLARE CURSOR c1 (minnum int, maxnum NUMBER(8,2) DEFAULT 2) IS
+    SELECT * FROM t302_table_test_for_cursor2 where a > minnum AND a < maxnum;
+  FOR c IN c1(0)
+  LOOP
+    PRINT (c.a);
+  END LOOP;
+
+  FOR c IN c1(0, 3)
+  LOOP
+    PRINT (c.a);
+  END LOOP;
+END//;
+CALL test_for_cursor2();
+
+CREATE OR REPLACE PROCEDURE test_for_cursor2() AS//
+BEGIN
+  DECLARE CURSOR c1 (minnum int, maxnum NUMBER(8,2) DEFAULT 2) IS
+    SELECT * FROM t302_table_test_for_cursor2 where a > minnum AND a < maxnum;
+  FOR c IN c1
+  LOOP
+    PRINT (c.a);
+  END LOOP;
+END//;
+CALL test_for_cursor2();
+
+CREATE OR REPLACE PROCEDURE test_for_cursor2() AS//
+BEGIN
+  DECLARE CURSOR c1 (minnum int, maxnum NUMBER(8,2) DEFAULT 2) IS
+    SELECT * FROM t302_table_test_for_cursor2 where a > minnum AND a < maxnum;
+  FOR c IN c1(0,1,2)
+  LOOP
+    PRINT (c.a);
+  END LOOP;
+END//;
+CALL test_for_cursor2();
+
+CREATE OR REPLACE PROCEDURE test_for_cursor2() AS//
+BEGIN
+  DECLARE CURSOR c1 (maxnum NUMBER(8,2)) IS
+    SELECT * FROM t302_table_test_for_cursor2 where a > maxnum;
+
+  open c1(1.1);
+  FOR c IN c1(1.1)
+  LOOP
+    PRINT (c.a);
+  END LOOP;
+END//;
+CALL test_for_cursor2();
+
+CREATE OR REPLACE PROCEDURE test_for_cursor2() AS//
+BEGIN
+  DECLARE CURSOR c1 IS
+    SELECT * FROM t302_table_test_for_cursor2 where a > 1;
+
+  FOR c IN c1
+  LOOP
+    PRINT (c.a);
+  END LOOP;
+END//;
+CALL test_for_cursor2();
+
+CREATE OR REPLACE PROCEDURE test_assignment_operator() AS//
+BEGIN
+  DECLARE i INT:=1;
+  i:=2;
+  PRINT i;
+END//;
+CALL test_assignment_operator();
+
+CREATE OR REPLACE PROCEDURE test_for_update() AS//
+BEGIN
+  SELECT * FROM t302_table_test_for_update FOR UPDATE;
+END//;
+CALL test_for_update();
+
+CREATE OR REPLACE PROCEDURE test_update_stmt_alias() AS//
+BEGIN
+  SELECT * FROM t302_table_test_update_stmt_alias;
+  UPDATE t302_table_test_update_stmt_alias update_stmt_alias set a = 2 where update_stmt_alias.a = 1;
+  SELECT * FROM t302_table_test_update_stmt_alias;
+END//;
+CALL test_update_stmt_alias();
+CREATE OR REPLACE PROCEDURE test_select_into_errmsg() AS//
+BEGIN
+  DECLARE i INT;
+  SELECT a into i from t302_table_test_select_into_errmsg;
+EXCEPTION
+WHEN OTHERS THEN
+  DECLARE errmsg VARCHAR(50);
+  GET DIAGNOSTICS EXCEPTION 1 errmsg = MESSAGE_TEXT;
+  print errmsg;
+END//;
+CALL test_select_into_errmsg();
+
+CREATE OR REPLACE PROCEDURE test_same_variable_name() AS//
+DECLARE
+  i INT;
+  i NUMBER;
+BEGIN
+  NULL;
+END//;
+CALL test_same_variable_name();
+
+CREATE OR REPLACE PROCEDURE test_date_type() AS//
+DECLARE 
+  CURSOR c (k int) is select * from t where a > k;
+BEGIN
+  open c('a');
+  declare i int;
+  fetch c into i;
+  print i;
+  close c;
+END//;
+CALL test_date_type();
+
+CREATE OR REPLACE PROCEDURE test_with_stmt() AS//
+BEGIN
+ WITH tmp AS (select
+    to_char(TIMESTAMP '2019-06-24 00:00:00.000000', 'yyyy') as yyyy
+    from dual)
+select
+   CASE 'yyyy' 
+   WHEN 'yyyy' THEN yyyy
+   ELSE 'date format ' || coalesce('yyyymmdd', '  ') || ' not recognized.' END
+ from tmp;
+END//;
+CALL test_with_stmt();
+
+?section clean
+
+drop table if exists t1;
+drop table if exists t2;
+drop table if exists t3;
+drop table if exists t4;
+drop table if exists t5;
+drop table if exists t6;
+drop table if exists t302_datetime;
+drop table if exists no_exist_table;
+drop table if exists t302_tab_test_cursor_with_params;
+drop table if exists T302_transaction;
+drop table if exists table_test_execute_proc;
+drop table if exists table_test_prepare_stmt;
+drop table if exists t302_table_test_for_cursor;
+drop table if exists t302_table_test_for_cursor2;
+drop table if exists t302_table_test_for_update;
+drop table if exists t302_table_test_update_stmt_alias;
+drop table if exists t302_table_test_select_into_errmsg;
+drop procedure if exists test_interval;
+drop procedure if exists test_pack_vars;
+drop procedure if exists test_null;
+drop procedure if exists greeting;
+drop package if exists pkg;
+drop function if exists decimal_func;
+drop procedure if exists test_decimal;
+drop procedure if exists test_nullifzero;
+drop procedure if exists test_datetime;
+drop procedure if exists test_position;
+drop procedure if exists test_substr;
+drop procedure if exists test_trim;
+drop procedure if exists print_spec_functions;
+drop procedure if exists print_sqlcode;
+drop procedure if exists create_temporary_table;
+drop procedure if exists test_select_into;
+drop procedure if exists test_datatype_error;
+drop procedure if exists t_p;
+drop procedure if exists test_cursor_with_params;
+drop procedure if exists test_outparam_isnull;
+drop procedure if exists test_mod;
+drop procedure if exists test_transaction;
+drop procedure if exists test_exec_stmt;
+drop procedure if exists test_execute_proc;
+drop procedure if exists test_execute_proc1;
+drop procedure if exists test_prepare_stmt;
+drop function if exists get1;
+drop procedure if exists test_activity_count;
+drop procedure if exists t302test_md;
+drop procedure if exists test_for_range;
+drop procedure if exists test_for_cursor;
+drop procedure if exists test_for_cursor2;
+drop procedure if exists test_assignment_operator;
+drop procedure if exists test_for_update;
+drop procedure if exists test_update_stmt_alias;
+drop procedure if exists test_select_into_errmsg;
+drop procedure if exists test_same_variable_name;
+drop procedure if exists test_date_type;
+drop procedure if exists test_with_stmt;

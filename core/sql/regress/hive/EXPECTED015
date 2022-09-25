@@ -1,0 +1,1645 @@
+>>
+>>
+>>obey TEST015(setup);
+>>--------------------------------------------------------------------------
+>>create table customer_demographics
++>(
++>  cd_demo_sk              int not null,
++>  cd_gender               char(1),
++>  cd_marital_status       char(1),
++>  cd_education_status     char(20),
++>  cd_purchase_estimate    int,
++>  cd_credit_rating        char(10),
++>  cd_dep_count            int,
++>  cd_dep_employed_count   int,
++>  cd_dep_college_count    int,
++>  primary key (cd_demo_sk)
++>);
+
+--- SQL operation complete.
+>>
+>>create table customer_demographics_salt
++>(
++>  cd_demo_sk              int not null,
++>  cd_gender               char(1),
++>  cd_marital_status       char(1),
++>  cd_education_status     char(20),
++>  cd_purchase_estimate    int,
++>  cd_credit_rating        char(10),
++>  cd_dep_count            int,
++>  cd_dep_employed_count   int,
++>  cd_dep_college_count    int,
++>  primary key (cd_demo_sk)
++>)
++>salt using 4 partitions on (cd_demo_sk);
+
+--- SQL operation complete.
+>>
+>>
+>>create table customer_address
++>(
++>  ca_address_sk        int not null,
++>  ca_address_id        char(16),
++>  ca_street_number     char(10),
++>  ca_street_name       varchar(60),
++>  ca_street_type       char(15),
++>  ca_suite_number      char(10),
++>  ca_city              varchar(60),
++>  ca_county            varchar(30),
++>  ca_state             char(2),
++>  ca_zip               char(10),
++>  ca_country           varchar(30),
++>  ca_gmt_offset        decimal(5,2),
++>  ca_location_type     char(20),
++>  primary key (ca_address_sk)
++>);
+
+--- SQL operation complete.
+>>
+>>
+>>create table customer_address_NOPK
++>(
++>  ca_address_sk        int not null,
++>  ca_address_id        char(16),
++>  ca_street_number     char(10),
++>  ca_street_name       varchar(60),
++>  ca_street_type       char(15),
++>  ca_suite_number      char(10),
++>  ca_city              varchar(60),
++>  ca_county            varchar(30),
++>  ca_state             char(2),
++>  ca_zip               char(10),
++>  ca_country           varchar(30),
++>  ca_gmt_offset        decimal(5,2),
++>  ca_location_type     char(20)
++>);
+
+--- SQL operation complete.
+>>
+>>
+>>create table t015t1 (a int) ;
+
+--- SQL operation complete.
+>>create table t015t2 (a int) ;
+
+--- SQL operation complete.
+>>create table t015t3 ( a int not null primary key, b int, c int);
+
+--- SQL operation complete.
+>>create table t015t4 ( a int not null primary key, b int, c int) salt using 2 partitions on (a);
+
+--- SQL operation complete.
+>>create table t015t5 ( a int not null , b int, c int) store by (a);
+
+--- SQL operation complete.
+>>create table t015t6 ( a int not null , b int, c int);
+
+--- SQL operation complete.
+>>
+>>delete from t015t1;
+
+--- 0 row(s) deleted.
+>>insert into t015t1 values (1),(2),(3),(4),(5);
+
+--- 5 row(s) inserted.
+>>
+>>
+>>
+>>
+>>cqd COMPRESSED_INTERNAL_FORMAT 'ON';
+
+--- SQL operation complete.
+>>cqd COMPRESSED_INTERNAL_FORMAT_BMO 'ON';
+
+--- SQL operation complete.
+>>cqd COMPRESSED_INTERNAL_FORMAT_DEFRAG_RATIO '100';
+
+--- SQL operation complete.
+>>cqd HIVE_NUM_ESPS_PER_DATANODE '3';
+
+--- SQL operation complete.
+>>
+>>cqd auto_query_retry_warnings 'ON';
+
+--- SQL operation complete.
+>>
+>>obey TEST015(test_bulk_load_simple);
+>>--------------------------------------------------------------------------
+>>
+>>
+>>prepare s from load cleanup for table t015t2;
+
+--- SQL command prepared.
+>>explain options 'f' s;
+
+LC   RC   OP   OPERATOR              OPT       DESCRIPTION           CARD
+---- ---- ---- --------------------  --------  --------------------  ---------
+
+1    .    2    root                                                  1.00E+000
+.    .    1    cleanup                                               1.00E+000
+
+--- SQL operation complete.
+>>execute s;
+
+--- SQL operation complete.
+>>
+>>prepare s from load transform into t015t2 select * from t015t1;
+
+--- SQL command prepared.
+>>explain options 'f' s;
+
+LC   RC   OP   OPERATOR              OPT       DESCRIPTION           CARD
+---- ---- ---- --------------------  --------  --------------------  ---------
+
+3    .    4    root                                                  1.00E+002
+1    2    3    tuple_flow                                            1.00E+002
+.    .    2    trafodion_load_prepa            T015T2                1.00E+000
+.    .    1    trafodion_scan                  T015T1                1.00E+002
+
+--- SQL operation complete.
+>>execute s;
+
+--- 5 row(s) inserted.
+>>
+>>
+>>prepare s from load complete for table t015t2;
+
+--- SQL command prepared.
+>>explain options 'f' s;
+
+LC   RC   OP   OPERATOR              OPT       DESCRIPTION           CARD
+---- ---- ---- --------------------  --------  --------------------  ---------
+
+1    .    2    root                                                  1.00E+000
+.    .    1    complete                                              1.00E+000
+
+--- SQL operation complete.
+>>execute s;
+
+--- SQL operation complete.
+>>
+>>
+>>select * from t015t2 order by a;
+
+A          
+-----------
+
+          1
+          2
+          3
+          4
+          5
+
+--- 5 row(s) selected.
+>>
+>>prepare s from load into t015t2 select * from t015t1;
+
+--- SQL command prepared.
+>>explain options 'f' s;
+
+LC   RC   OP   OPERATOR              OPT       DESCRIPTION           CARD
+---- ---- ---- --------------------  --------  --------------------  ---------
+
+1    .    2    root                                                  1.00E+000
+.    .    1    hbase_bulk_load                                       1.00E+000
+
+--- SQL operation complete.
+>>execute s;
+Task:  LOAD            Status: Started    Object: TRAFODION.HBASE.T015T2
+Task:  CLEANUP         Status: Started    Time: 2019-11-07 10:49:59.162731
+Task:  CLEANUP         Status: Ended      Time: 2019-11-07 10:49:59.171489
+Task:  CLEANUP         Status: Ended      Elapsed Time:    00:00:00.009
+Task:  LOADING DATA    Status: Started    Time: 2019-11-07 10:49:59.171543
+       Rows Processed: 5 
+       Error Rows:     0 
+Task:  LOADING DATA    Status: Ended      Time: 2019-11-07 10:50:03.19016
+Task:  LOADING DATA    Status: Ended      Elapsed Time:    00:00:03.847
+Task:  COMPLETION      Status: Started    Time: 2019-11-07 10:50:03.19082
+       Rows Loaded:    5 
+Task:  COMPLETION      Status: Ended      Time: 2019-11-07 10:50:04.282845
+Task:  COMPLETION      Status: Ended      Elapsed Time:    00:00:01.264
+
+--- 5 row(s) loaded.
+>>
+>>prepare s from load with no recovery into t015t2 select * from t015t1;
+
+--- SQL command prepared.
+>>explain options 'f' s;
+
+LC   RC   OP   OPERATOR              OPT       DESCRIPTION           CARD
+---- ---- ---- --------------------  --------  --------------------  ---------
+
+1    .    2    root                                                  1.00E+000
+.    .    1    hbase_bulk_load                                       1.00E+000
+
+--- SQL operation complete.
+>>execute s;
+Task:  LOAD            Status: Started    Object: TRAFODION.HBASE.T015T2
+Task:  CLEANUP         Status: Started    Time: 2019-11-07 10:50:05.150805
+Task:  CLEANUP         Status: Ended      Time: 2019-11-07 10:50:05.161981
+Task:  CLEANUP         Status: Ended      Elapsed Time:    00:00:00.011
+Task:  LOADING DATA    Status: Started    Time: 2019-11-07 10:50:05.162046
+       Rows Processed: 5 
+       Error Rows:     0 
+Task:  LOADING DATA    Status: Ended      Time: 2019-11-07 10:50:08.925217
+Task:  LOADING DATA    Status: Ended      Elapsed Time:    00:00:03.763
+Task:  COMPLETION      Status: Started    Time: 2019-11-07 10:50:08.925257
+       Rows Loaded:    5 
+Task:  COMPLETION      Status: Ended      Time: 2019-11-07 10:50:09.102651
+Task:  COMPLETION      Status: Ended      Elapsed Time:    00:00:00.177
+
+--- 5 row(s) loaded.
+>>
+>>--log error rows
+>>prepare s from load with log error rows into t015t2 select * from t015t1;
+
+--- SQL command prepared.
+>>explain options 'f' s;
+
+LC   RC   OP   OPERATOR              OPT       DESCRIPTION           CARD
+---- ---- ---- --------------------  --------  --------------------  ---------
+
+1    .    2    root                                                  1.00E+000
+.    .    1    hbase_bulk_load                                       1.00E+000
+
+--- SQL operation complete.
+>>execute s;
+Task:  LOAD            Status: Started    Object: TRAFODION.HBASE.T015T2
+Task:  CLEANUP         Status: Started    Time: 2019-11-07 10:50:10.9993
+Task:  CLEANUP         Status: Ended      Time: 2019-11-07 10:50:10.21629
+Task:  CLEANUP         Status: Ended      Elapsed Time:    00:00:00.012
+       Logging Location: /user/trafodion/bulkload/logs/ERR_TRAFODION.HBASE.T015T2_20191107_185010
+Task:  LOADING DATA    Status: Started    Time: 2019-11-07 10:50:10.21685
+       Rows Processed: 5 
+       Error Rows:     0 
+Task:  LOADING DATA    Status: Ended      Time: 2019-11-07 10:50:13.806929
+Task:  LOADING DATA    Status: Ended      Elapsed Time:    00:00:03.785
+Task:  COMPLETION      Status: Started    Time: 2019-11-07 10:50:13.806973
+       Rows Loaded:    5 
+Task:  COMPLETION      Status: Ended      Time: 2019-11-07 10:50:15.43216
+Task:  COMPLETION      Status: Ended      Elapsed Time:    00:00:01.236
+
+--- 5 row(s) loaded.
+>>
+>>delete from t015t2;
+
+--- 20 row(s) deleted.
+>>insert into t015t2 values (100),(200),(300);
+
+--- 3 row(s) inserted.
+>>select * from t015t2 order by a;
+
+A          
+-----------
+
+        100
+        200
+        300
+
+--- 3 row(s) selected.
+>>load with truncate table into t015t2 select * from t015t1;
+Task:  LOAD            Status: Started    Object: TRAFODION.HBASE.T015T2
+Task:  PURGE DATA      Status: Started    Time: 2019-11-07 10:50:15.583525
+Task:  PURGE DATA      Status: Ended      Time: 2019-11-07 10:50:19.80475
+Task:  PURGE DATA      Status: Ended      Elapsed Time:    00:00:03.497
+Task:  CLEANUP         Status: Started    Time: 2019-11-07 10:50:19.400047
+Task:  CLEANUP         Status: Ended      Time: 2019-11-07 10:50:19.411498
+Task:  CLEANUP         Status: Ended      Elapsed Time:    00:00:00.011
+Task:  LOADING DATA    Status: Started    Time: 2019-11-07 10:50:19.411538
+       Rows Processed: 5 
+       Error Rows:     0 
+Task:  LOADING DATA    Status: Ended      Time: 2019-11-07 10:50:23.66081
+Task:  LOADING DATA    Status: Ended      Elapsed Time:    00:00:03.655
+Task:  COMPLETION      Status: Started    Time: 2019-11-07 10:50:23.66138
+       Rows Loaded:    5 
+Task:  COMPLETION      Status: Ended      Time: 2019-11-07 10:50:24.832655
+Task:  COMPLETION      Status: Ended      Elapsed Time:    00:00:01.767
+
+--- 5 row(s) loaded.
+>>
+>>select * from t015t2 order by a;
+
+A          
+-----------
+
+          1
+          2
+          3
+          4
+          5
+
+--- 5 row(s) selected.
+>>
+>>
+>>load transform into t015t3 select a,a,a from t015t1;
+
+--- 5 row(s) inserted.
+>>
+>>create index t015t3idx on t015t3(b);
+
+--- SQL operation complete.
+>>
+>>load transform into t015t3 select a,a,a from t015t1;
+
+--- 5 row(s) inserted.
+>>
+>>
+>>drop index t015t3idx ;
+
+--- SQL operation complete.
+>>
+>>alter table t015t3  add  constraint t015t3_cnst check (b>100);
+
+--- SQL operation complete.
+>>
+>>load transform into t015t3 select a,a,a from t015t1;
+
+*** ERROR[4486] Constraints are not supported with bulk load. Use INSERT, UPSERT or UPSERT USING LOAD instead.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>
+>>
+>>alter table t015t3  drop  constraint t015t3_cnst;
+
+--- SQL operation complete.
+>>
+>>prepare s3 from load transform into t015t3 select a,a,a from t015t1  <<+ cardinality 10e0 >> ;
+
+--- SQL command prepared.
+>>explain options 'f' s3;
+
+LC   RC   OP   OPERATOR              OPT       DESCRIPTION           CARD
+---- ---- ---- --------------------  --------  --------------------  ---------
+
+4    .    5    root                                                  1.00E+001
+2    3    4    tuple_flow                                            1.00E+001
+.    .    3    trafodion_load_prepa            T015T3                1.00E+000
+1    .    2    sort                                                  1.00E+001
+.    .    1    trafodion_scan                  T015T1                1.00E+001
+
+--- SQL operation complete.
+>>log LOG015_plan.log clear;
+  sort_key ............... TRAFODION.HBASE.T015T1.A
+>>prepare s4 from load transform into t015t4 select a,a,a from t015t1  <<+ cardinality 10e0 >> ;
+
+--- SQL command prepared.
+>>explain options 'f' s4;
+
+LC   RC   OP   OPERATOR              OPT       DESCRIPTION           CARD
+---- ---- ---- --------------------  --------  --------------------  ---------
+
+6    .    7    root                                                  1.00E+001
+5    .    6    esp_exchange                    1:2(range)            1.00E+001
+3    4    5    tuple_flow                                            1.00E+001
+.    .    4    trafodion_load_prepa            T015T4                1.00E+000
+2    .    3    sort                                                  1.00E+001
+1    .    2    esp_exchange                    2(range):1            1.00E+001
+.    .    1    trafodion_scan                  T015T1                1.00E+001
+
+--- SQL operation complete.
+>>log;
+  sort_key ............... (HashDistPartHash(cast(TRAFODION.HBASE.T015T1.A))
+                             Hash2Distrib cast(cast(%(2)))),
+                             TRAFODION.HBASE.T015T1.A
+>>prepare s5 from load transform into t015t5 select a,a,a from t015t1  <<+ cardinality 10e0 >> ;
+
+--- SQL command prepared.
+>>explain options 'f' s5;
+
+LC   RC   OP   OPERATOR              OPT       DESCRIPTION           CARD
+---- ---- ---- --------------------  --------  --------------------  ---------
+
+4    .    5    root                                                  1.00E+001
+2    3    4    tuple_flow                                            1.00E+001
+.    .    3    trafodion_load_prepa            T015T5                1.00E+000
+1    .    2    sort                                                  1.00E+001
+.    .    1    trafodion_scan                  T015T1                1.00E+001
+
+--- SQL operation complete.
+>>log;
+  sort_key ............... TRAFODION.HBASE.T015T1.A
+>>prepare s6 from load transform into t015t6 select a,a,a from t015t1;
+
+--- SQL command prepared.
+>>explain options 'f' s6;
+
+LC   RC   OP   OPERATOR              OPT       DESCRIPTION           CARD
+---- ---- ---- --------------------  --------  --------------------  ---------
+
+3    .    4    root                                                  1.00E+002
+1    2    3    tuple_flow                                            1.00E+002
+.    .    2    trafodion_load_prepa            T015T6                1.00E+000
+.    .    1    trafodion_scan                  T015T1                1.00E+002
+
+--- SQL operation complete.
+>>
+>>--------------------------------------------------------------------------
+>>
+>>select count(*) from hive.hive.customer_address where ca_address_sk <= 5000;
+
+(EXPR)              
+--------------------
+
+                5000
+
+--- 1 row(s) selected.
+>>select count(*) from customer_address;
+
+(EXPR)              
+--------------------
+
+                   0
+
+--- 1 row(s) selected.
+>>
+>>prepare s from 
++>load transform into customer_address 
++>select * from hive.hive.customer_address where ca_address_sk <= 5000;
+
+--- SQL command prepared.
+>>explain options 'f' s;
+
+LC   RC   OP   OPERATOR              OPT       DESCRIPTION           CARD
+---- ---- ---- --------------------  --------  --------------------  ---------
+
+6    .    7    root                                                  1.72E+004
+5    .    6    esp_exchange                    1:2(hash2)            1.72E+004
+3    4    5    tuple_flow                                            1.72E+004
+.    .    4    trafodion_load_prepa            CUSTOMER_ADDRESS      1.00E+000
+2    .    3    sort                                                  1.73E+004
+1    .    2    esp_exchange                    2(hash2):2(hash2)     1.73E+004
+.    .    1    hive_scan                       CUSTOMER_ADDRESS      1.73E+004
+
+--- SQL operation complete.
+>>
+>>load   into customer_address 
++>select * from hive.hive.customer_address where ca_address_sk <= 5000;
+Task:  LOAD            Status: Started    Object: TRAFODION.HBASE.CUSTOMER_ADDRESS
+Task:  CLEANUP         Status: Started    Time: 2019-11-07 10:51:29.73387
+Task:  CLEANUP         Status: Ended      Time: 2019-11-07 10:51:29.83850
+Task:  CLEANUP         Status: Ended      Elapsed Time:    00:00:00.010
+Task:  LOADING DATA    Status: Started    Time: 2019-11-07 10:51:29.83939
+       Rows Processed: 5000 
+       Error Rows:     0 
+Task:  LOADING DATA    Status: Ended      Time: 2019-11-07 10:51:36.948839
+Task:  LOADING DATA    Status: Ended      Elapsed Time:    00:00:07.865
+Task:  COMPLETION      Status: Started    Time: 2019-11-07 10:51:36.948875
+       Rows Loaded:    5000 
+Task:  COMPLETION      Status: Ended      Time: 2019-11-07 10:51:38.121780
+Task:  COMPLETION      Status: Ended      Elapsed Time:    00:00:01.173
+
+--- 5000 row(s) loaded.
+>>
+>>select count(*) from customer_address;
+
+(EXPR)              
+--------------------
+
+                5000
+
+--- 1 row(s) selected.
+>>
+>>select [first 20] * from customer_address  where ca_address_sk <= 5000 order by ca_address_sk ;
+
+CA_ADDRESS_SK  CA_ADDRESS_ID     CA_STREET_NUMBER  CA_STREET_NAME                                                CA_STREET_TYPE   CA_SUITE_NUMBER  CA_CITY                                                       CA_COUNTY                       CA_STATE  CA_ZIP      CA_COUNTRY                      CA_GMT_OFFSET  CA_LOCATION_TYPE
+-------------  ----------------  ----------------  ------------------------------------------------------------  ---------------  ---------------  ------------------------------------------------------------  ------------------------------  --------  ----------  ------------------------------  -------------  --------------------
+
+            1  AAAAAAAABAAAAAAA  18                Jackson                                                       Parkway          Suite 280        Fairfield                                                     Maricopa County                 AZ        86192       United States                              -7  condo               
+            2  AAAAAAAACAAAAAAA  362               Washington 6th                                                RD               Suite 80         Fairview                                                      Taos County                     NM        85709       United States                              -7  condo               
+            3  AAAAAAAADAAAAAAA  585               Dogwood Washington                                            Circle           Suite Q          Pleasant Valley                                               York County                     PA        12477       United States                              -5  single family       
+            4  AAAAAAAAEAAAAAAA  111               Smith                                                         Wy               Suite A          Oak Ridge                                                     Kit Carson County               CO        88371       United States                              -7  condo               
+            5  AAAAAAAAFAAAAAAA  31                College                                                       Blvd             Suite 180        Glendale                                                      Barry County                    MO        63951       United States                              -6  single family       
+            6  AAAAAAAAGAAAAAAA  59                Williams Sixth                                                Parkway          Suite 100        Lakeview                                                      Chelan County                   WA        98579       United States                              -8  single family       
+            7  AAAAAAAAHAAAAAAA                    Hill 7th                                                      Road             Suite U          Farmington                                                                                              39145       United States                               ?                      
+            8  AAAAAAAAIAAAAAAA  875               Lincoln                                                       Ct.              Suite Y          Union                                                         Bledsoe County                  TN        38721       United States                              -5  apartment           
+            9  AAAAAAAAJAAAAAAA  819               1st Laurel                                                    Ave              Suite 70         New Hope                                                      Perry County                    AL        39431       United States                              -6  condo               
+           10  AAAAAAAAKAAAAAAA  851               Woodland Poplar                                               ST               Suite Y          Martinsville                                                  Haines Borough                  AK        90419       United States                              -9  condo               
+           11  AAAAAAAALAAAAAAA  189               13th 2nd                                                      Street           Suite 470        Maple Grove                                                   Madison County                  MT        68252       United States                              -7  single family       
+           12  AAAAAAAAMAAAAAAA  76                Ash 8th                                                       Ct.              Suite O          Edgewood                                                      Mifflin County                  PA        10069       United States                              -5  apartment           
+           13  AAAAAAAANAAAAAAA  424               Main Second                                                   Ln               Suite 130        Greenville                                                    Noxubee County                  MS        51387       United States                              -6  single family       
+           14  AAAAAAAAOAAAAAAA  923               Pine Oak                                                      Dr.              Suite 100                                                                      Lipscomb County                 TX        77752                                                  -6                      
+           15  AAAAAAAAPAAAAAAA  314               Spring                                                        Ct.              Suite B          Oakland                                                       Washington County               OH        49843       United States                              -5  apartment           
+           16  AAAAAAAAABAAAAAA  576               Adams Center                                                  Street           Suite J          Valley View                                                   Oldham County                   TX        75124       United States                              -6  condo               
+           17  AAAAAAAABBAAAAAA  801               Green                                                         Dr.              Suite 0          Montpelier                                                    Richland County                 OH        48930       United States                              -5  single family       
+           18  AAAAAAAACBAAAAAA  460               Maple Spruce                                                  Court            Suite 480        Somerville                                                    Potter County                   SD        57783       United States                              -7  condo               
+           19  AAAAAAAADBAAAAAA  611               Wilson                                                        Way              Suite O          Oakdale                                                       Tangipahoa Parish               LA        79584       United States                              -6  apartment           
+           20  AAAAAAAAEBAAAAAA  675               Elm Wilson                                                    Street           Suite I          Hopewell                                                      Williams County                 OH        40587       United States                              -5  condo               
+
+--- 20 row(s) selected.
+>>
+>>--------------------------------------------------------------------------
+>>--select count(*) from hive.hive.customer_address;
+>>select count(*) from customer_address_NOPK;
+
+(EXPR)              
+--------------------
+
+                   0
+
+--- 1 row(s) selected.
+>>
+>>prepare s from 
++>load transform into customer_address_NOPK 
++>select * from hive.hive.customer_address  where ca_address_sk <= 5000;
+
+--- SQL command prepared.
+>>explain options 'f' s;
+
+LC   RC   OP   OPERATOR              OPT       DESCRIPTION           CARD
+---- ---- ---- --------------------  --------  --------------------  ---------
+
+5    .    6    root                                                  1.72E+004
+4    .    5    esp_exchange                    1:2(hash2)            1.72E+004
+2    3    4    tuple_flow                                            1.72E+004
+.    .    3    trafodion_load_prepa            CUSTOMER_ADDRESS_NOP  1.00E+000
+1    .    2    esp_exchange                    2(hash2):2(hash2)     1.73E+004
+.    .    1    hive_scan                       CUSTOMER_ADDRESS      1.73E+004
+
+--- SQL operation complete.
+>>
+>>load   into customer_address_NOPK 
++>select * from hive.hive.customer_address where ca_address_sk <= 5000;
+Task:  LOAD            Status: Started    Object: TRAFODION.HBASE.CUSTOMER_ADDRESS_NOPK
+Task:  CLEANUP         Status: Started    Time: 2019-11-07 10:51:40.948447
+Task:  CLEANUP         Status: Ended      Time: 2019-11-07 10:51:40.962455
+Task:  CLEANUP         Status: Ended      Elapsed Time:    00:00:00.014
+Task:  LOADING DATA    Status: Started    Time: 2019-11-07 10:51:40.962507
+       Rows Processed: 5000 
+       Error Rows:     0 
+Task:  LOADING DATA    Status: Ended      Time: 2019-11-07 10:51:44.104324
+Task:  LOADING DATA    Status: Ended      Elapsed Time:    00:00:03.142
+Task:  COMPLETION      Status: Started    Time: 2019-11-07 10:51:44.104361
+       Rows Loaded:    5000 
+Task:  COMPLETION      Status: Ended      Time: 2019-11-07 10:51:45.342524
+Task:  COMPLETION      Status: Ended      Elapsed Time:    00:00:01.238
+
+--- 5000 row(s) loaded.
+>>
+>>select count(*) from customer_address_NOPK;
+
+(EXPR)              
+--------------------
+
+                5000
+
+--- 1 row(s) selected.
+>>
+>>select [first 20] * from customer_address_NOPK order by ca_address_sk ;
+
+CA_ADDRESS_SK  CA_ADDRESS_ID     CA_STREET_NUMBER  CA_STREET_NAME                                                CA_STREET_TYPE   CA_SUITE_NUMBER  CA_CITY                                                       CA_COUNTY                       CA_STATE  CA_ZIP      CA_COUNTRY                      CA_GMT_OFFSET  CA_LOCATION_TYPE
+-------------  ----------------  ----------------  ------------------------------------------------------------  ---------------  ---------------  ------------------------------------------------------------  ------------------------------  --------  ----------  ------------------------------  -------------  --------------------
+
+            1  AAAAAAAABAAAAAAA  18                Jackson                                                       Parkway          Suite 280        Fairfield                                                     Maricopa County                 AZ        86192       United States                              -7  condo               
+            2  AAAAAAAACAAAAAAA  362               Washington 6th                                                RD               Suite 80         Fairview                                                      Taos County                     NM        85709       United States                              -7  condo               
+            3  AAAAAAAADAAAAAAA  585               Dogwood Washington                                            Circle           Suite Q          Pleasant Valley                                               York County                     PA        12477       United States                              -5  single family       
+            4  AAAAAAAAEAAAAAAA  111               Smith                                                         Wy               Suite A          Oak Ridge                                                     Kit Carson County               CO        88371       United States                              -7  condo               
+            5  AAAAAAAAFAAAAAAA  31                College                                                       Blvd             Suite 180        Glendale                                                      Barry County                    MO        63951       United States                              -6  single family       
+            6  AAAAAAAAGAAAAAAA  59                Williams Sixth                                                Parkway          Suite 100        Lakeview                                                      Chelan County                   WA        98579       United States                              -8  single family       
+            7  AAAAAAAAHAAAAAAA                    Hill 7th                                                      Road             Suite U          Farmington                                                                                              39145       United States                               ?                      
+            8  AAAAAAAAIAAAAAAA  875               Lincoln                                                       Ct.              Suite Y          Union                                                         Bledsoe County                  TN        38721       United States                              -5  apartment           
+            9  AAAAAAAAJAAAAAAA  819               1st Laurel                                                    Ave              Suite 70         New Hope                                                      Perry County                    AL        39431       United States                              -6  condo               
+           10  AAAAAAAAKAAAAAAA  851               Woodland Poplar                                               ST               Suite Y          Martinsville                                                  Haines Borough                  AK        90419       United States                              -9  condo               
+           11  AAAAAAAALAAAAAAA  189               13th 2nd                                                      Street           Suite 470        Maple Grove                                                   Madison County                  MT        68252       United States                              -7  single family       
+           12  AAAAAAAAMAAAAAAA  76                Ash 8th                                                       Ct.              Suite O          Edgewood                                                      Mifflin County                  PA        10069       United States                              -5  apartment           
+           13  AAAAAAAANAAAAAAA  424               Main Second                                                   Ln               Suite 130        Greenville                                                    Noxubee County                  MS        51387       United States                              -6  single family       
+           14  AAAAAAAAOAAAAAAA  923               Pine Oak                                                      Dr.              Suite 100                                                                      Lipscomb County                 TX        77752                                                  -6                      
+           15  AAAAAAAAPAAAAAAA  314               Spring                                                        Ct.              Suite B          Oakland                                                       Washington County               OH        49843       United States                              -5  apartment           
+           16  AAAAAAAAABAAAAAA  576               Adams Center                                                  Street           Suite J          Valley View                                                   Oldham County                   TX        75124       United States                              -6  condo               
+           17  AAAAAAAABBAAAAAA  801               Green                                                         Dr.              Suite 0          Montpelier                                                    Richland County                 OH        48930       United States                              -5  single family       
+           18  AAAAAAAACBAAAAAA  460               Maple Spruce                                                  Court            Suite 480        Somerville                                                    Potter County                   SD        57783       United States                              -7  condo               
+           19  AAAAAAAADBAAAAAA  611               Wilson                                                        Way              Suite O          Oakdale                                                       Tangipahoa Parish               LA        79584       United States                              -6  apartment           
+           20  AAAAAAAAEBAAAAAA  675               Elm Wilson                                                    Street           Suite I          Hopewell                                                      Williams County                 OH        40587       United States                              -5  condo               
+
+--- 20 row(s) selected.
+>>
+>>---------------------
+>>
+>>select count(*) from hive.hive.customer_demographics where cd_demo_sk <= 5000;
+
+(EXPR)              
+--------------------
+
+                5000
+
+--- 1 row(s) selected.
+>>select count(*) from customer_demographics;
+
+(EXPR)              
+--------------------
+
+                   0
+
+--- 1 row(s) selected.
+>>
+>>prepare s from 
++>load transform into customer_demographics 
++>select * from hive.hive.customer_demographics where cd_demo_sk <= 5000;
+
+--- SQL command prepared.
+>>explain options 'f' s;
+
+LC   RC   OP   OPERATOR              OPT       DESCRIPTION           CARD
+---- ---- ---- --------------------  --------  --------------------  ---------
+
+6    .    7    root                                                  8.96E+005
+5    .    6    esp_exchange                    1:2(hash2)            8.96E+005
+3    4    5    tuple_flow                                            8.96E+005
+.    .    4    trafodion_load_prepa            CUSTOMER_DEMOGRAPHIC  1.00E+000
+2    .    3    sort                                                  8.96E+005
+1    .    2    esp_exchange                    2(hash2):2(hash2)     8.96E+005
+.    .    1    hive_scan                       CUSTOMER_DEMOGRAPHIC  8.96E+005
+
+--- SQL operation complete.
+>>
+>>log LOG015_plan.log clear;
+ESP_EXCHANGE ==============================  SEQ_NO 6        ONLY CHILD 5
+  child_partitioning_func  hash2 partitioned 2 ways on
+                             (HIVE.CUSTOMER_DEMOGRAPHICS.CD_DEMO_SK)
+ESP_EXCHANGE ==============================  SEQ_NO 2        ONLY CHILD 1
+  parent_partitioning_fun  hash2 partitioned 2 ways on
+                             (HIVE.CUSTOMER_DEMOGRAPHICS.CD_DEMO_SK)
+>>
+>>load   into customer_demographics 
++>select * from hive.hive.customer_demographics where cd_demo_sk <= 5000;
+Task:  LOAD            Status: Started    Object: TRAFODION.HBASE.CUSTOMER_DEMOGRAPHICS
+Task:  CLEANUP         Status: Started    Time: 2019-11-07 10:51:55.639320
+Task:  CLEANUP         Status: Ended      Time: 2019-11-07 10:51:55.652939
+Task:  CLEANUP         Status: Ended      Elapsed Time:    00:00:00.014
+Task:  LOADING DATA    Status: Started    Time: 2019-11-07 10:51:55.652991
+       Rows Processed: 5000 
+       Error Rows:     0 
+Task:  LOADING DATA    Status: Ended      Time: 2019-11-07 10:52:12.291225
+Task:  LOADING DATA    Status: Ended      Elapsed Time:    00:00:16.638
+Task:  COMPLETION      Status: Started    Time: 2019-11-07 10:52:12.291294
+       Rows Loaded:    5000 
+Task:  COMPLETION      Status: Ended      Time: 2019-11-07 10:52:14.42502
+Task:  COMPLETION      Status: Ended      Elapsed Time:    00:00:01.751
+
+--- 5000 row(s) loaded.
+>>
+>>select count(*) from customer_demographics;
+
+(EXPR)              
+--------------------
+
+                5000
+
+--- 1 row(s) selected.
+>>
+>>select [first 20] * from customer_demographics order by cd_demo_sk  ;
+
+CD_DEMO_SK   CD_GENDER  CD_MARITAL_STATUS  CD_EDUCATION_STATUS   CD_PURCHASE_ESTIMATE  CD_CREDIT_RATING  CD_DEP_COUNT  CD_DEP_EMPLOYED_COUNT  CD_DEP_COLLEGE_COUNT
+-----------  ---------  -----------------  --------------------  --------------------  ----------------  ------------  ---------------------  --------------------
+
+          1  M          M                  Primary                                500  Good                         0                      0                     0
+          2  F          M                  Primary                                500  Good                         0                      0                     0
+          3  M          S                  Primary                                500  Good                         0                      0                     0
+          4  F          S                  Primary                                500  Good                         0                      0                     0
+          5  M          D                  Primary                                500  Good                         0                      0                     0
+          6  F          D                  Primary                                500  Good                         0                      0                     0
+          7  M          W                  Primary                                500  Good                         0                      0                     0
+          8  F          W                  Primary                                500  Good                         0                      0                     0
+          9  M          U                  Primary                                500  Good                         0                      0                     0
+         10  F          U                  Primary                                500  Good                         0                      0                     0
+         11  M          M                  Secondary                              500  Good                         0                      0                     0
+         12  F          M                  Secondary                              500  Good                         0                      0                     0
+         13  M          S                  Secondary                              500  Good                         0                      0                     0
+         14  F          S                  Secondary                              500  Good                         0                      0                     0
+         15  M          D                  Secondary                              500  Good                         0                      0                     0
+         16  F          D                  Secondary                              500  Good                         0                      0                     0
+         17  M          W                  Secondary                              500  Good                         0                      0                     0
+         18  F          W                  Secondary                              500  Good                         0                      0                     0
+         19  M          U                  Secondary                              500  Good                         0                      0                     0
+         20  F          U                  Secondary                              500  Good                         0                      0                     0
+
+--- 20 row(s) selected.
+>>
+>>
+>>---------------------
+>>select count(*) from hive.hive.customer_demographics where cd_demo_sk <= 5000;
+
+(EXPR)              
+--------------------
+
+                5000
+
+--- 1 row(s) selected.
+>>select count(*) from customer_demographics_salt;
+
+(EXPR)              
+--------------------
+
+                   0
+
+--- 1 row(s) selected.
+>>
+>>prepare s from 
++>load transform into customer_demographics_salt 
++>select * from hive.hive.customer_demographics where cd_demo_sk <= 5000;
+
+--- SQL command prepared.
+>>
+>>explain options 'f' s;
+
+LC   RC   OP   OPERATOR              OPT       DESCRIPTION           CARD
+---- ---- ---- --------------------  --------  --------------------  ---------
+
+6    .    7    root                                                  8.96E+005
+5    .    6    esp_exchange                    1:4(range)            8.96E+005
+3    4    5    tuple_flow                                            8.96E+005
+.    .    4    trafodion_load_prepa            CUSTOMER_DEMOGRAPHIC  1.00E+000
+2    .    3    sort                                                  8.96E+005
+1    .    2    esp_exchange                    4(range):2(hash2)     8.96E+005
+.    .    1    hive_scan                       CUSTOMER_DEMOGRAPHIC  8.96E+005
+
+--- SQL operation complete.
+>>
+>>log LOG015_plan.log clear;
+ESP_EXCHANGE ==============================  SEQ_NO 6        ONLY CHILD 5
+  child_partitioning_func  range partitioned 4 ways on
+                             ((HashDistPartHash(cast(HIVE.CUSTOMER_DEMOGRAPHICS
+                             .CD_DEMO_SK)) Hash2Distrib cast(cast(%(4)))),
+                             HIVE.HIVE.CUSTOMER_DEMOGRAPHICS.CD_DEMO_SK) with
+ESP_EXCHANGE ==============================  SEQ_NO 2        ONLY CHILD 1
+  parent_partitioning_fun  range partitioned 4 ways on
+                             ((HashDistPartHash(cast(HIVE.CUSTOMER_DEMOGRAPHICS
+                             .CD_DEMO_SK)) Hash2Distrib cast(cast(%(4)))),
+                             HIVE.HIVE.CUSTOMER_DEMOGRAPHICS.CD_DEMO_SK) with
+>>
+>>load   into customer_demographics_salt 
++>select * from hive.hive.customer_demographics where cd_demo_sk <= 5000;
+Task:  LOAD            Status: Started    Object: TRAFODION.HBASE.CUSTOMER_DEMOGRAPHICS_SALT
+Task:  CLEANUP         Status: Started    Time: 2019-11-07 10:52:23.948713
+Task:  CLEANUP         Status: Ended      Time: 2019-11-07 10:52:23.961930
+Task:  CLEANUP         Status: Ended      Elapsed Time:    00:00:00.013
+Task:  LOADING DATA    Status: Started    Time: 2019-11-07 10:52:23.961974
+       Rows Processed: 5000 
+       Error Rows:     0 
+Task:  LOADING DATA    Status: Ended      Time: 2019-11-07 10:52:51.522002
+Task:  LOADING DATA    Status: Ended      Elapsed Time:    00:00:27.560
+Task:  COMPLETION      Status: Started    Time: 2019-11-07 10:52:51.522076
+       Rows Loaded:    5000 
+Task:  COMPLETION      Status: Ended      Time: 2019-11-07 10:52:54.452833
+Task:  COMPLETION      Status: Ended      Elapsed Time:    00:00:02.931
+
+--- 5000 row(s) loaded.
+>>
+>>
+>>select count(*) from customer_demographics_salt;
+
+(EXPR)              
+--------------------
+
+                5000
+
+--- 1 row(s) selected.
+>>
+>>select [first 20] * from customer_demographics_salt order by cd_demo_sk  ;
+
+CD_DEMO_SK   CD_GENDER  CD_MARITAL_STATUS  CD_EDUCATION_STATUS   CD_PURCHASE_ESTIMATE  CD_CREDIT_RATING  CD_DEP_COUNT  CD_DEP_EMPLOYED_COUNT  CD_DEP_COLLEGE_COUNT
+-----------  ---------  -----------------  --------------------  --------------------  ----------------  ------------  ---------------------  --------------------
+
+          1  M          M                  Primary                                500  Good                         0                      0                     0
+          2  F          M                  Primary                                500  Good                         0                      0                     0
+          3  M          S                  Primary                                500  Good                         0                      0                     0
+          4  F          S                  Primary                                500  Good                         0                      0                     0
+          5  M          D                  Primary                                500  Good                         0                      0                     0
+          6  F          D                  Primary                                500  Good                         0                      0                     0
+          7  M          W                  Primary                                500  Good                         0                      0                     0
+          8  F          W                  Primary                                500  Good                         0                      0                     0
+          9  M          U                  Primary                                500  Good                         0                      0                     0
+         10  F          U                  Primary                                500  Good                         0                      0                     0
+         11  M          M                  Secondary                              500  Good                         0                      0                     0
+         12  F          M                  Secondary                              500  Good                         0                      0                     0
+         13  M          S                  Secondary                              500  Good                         0                      0                     0
+         14  F          S                  Secondary                              500  Good                         0                      0                     0
+         15  M          D                  Secondary                              500  Good                         0                      0                     0
+         16  F          D                  Secondary                              500  Good                         0                      0                     0
+         17  M          W                  Secondary                              500  Good                         0                      0                     0
+         18  F          W                  Secondary                              500  Good                         0                      0                     0
+         19  M          U                  Secondary                              500  Good                         0                      0                     0
+         20  F          U                  Secondary                              500  Good                         0                      0                     0
+
+--- 20 row(s) selected.
+>>
+>>----------------
+>>
+>>-- with no duplicats option 
+>>
+>>
+>>cqd  comp_bool_226 'on';
+
+--- SQL operation complete.
+>>drop table t015t3 cascade;
+
+--- SQL operation complete.
+>>drop table t015t4 cascade;
+
+--- SQL operation complete.
+>>drop table t015t5 cascade;
+
+--- SQL operation complete.
+>>drop table t015t6 cascade;
+
+--- SQL operation complete.
+>>
+>>create table t015t3 ( a int not null primary key, b int, c int);
+
+--- SQL operation complete.
+>>create table t015t4 ( a int not null primary key, b int, c int) salt using 2 partitions on (a);
+
+--- SQL operation complete.
+>>create table t015t5 ( a int not null , b int, c int) store by (a);
+
+--- SQL operation complete.
+>>create table t015t6 ( a int not null , b int, c int);
+
+--- SQL operation complete.
+>>delete from t015t1;
+
+--- 5 row(s) deleted.
+>>insert into  t015t1 values (25),(24),(23),(7),(5),(5),(2),(10),(11),(12),(13),(14),(15);
+
+--- 13 row(s) inserted.
+>>
+>>
+>>----produces error 
+>>prepare s from load transform into t015t3 select a,a,a from t015t1;
+
+--- SQL command prepared.
+>>explain options 'f' s;
+
+LC   RC   OP   OPERATOR              OPT       DESCRIPTION           CARD
+---- ---- ---- --------------------  --------  --------------------  ---------
+
+4    .    5    root                                                  1.00E+002
+2    3    4    tuple_flow                                            1.00E+002
+.    .    3    trafodion_load_prepa            T015T3                1.00E+000
+1    .    2    sort                                                  1.00E+002
+.    .    1    trafodion_scan                  T015T1                1.00E+002
+
+--- SQL operation complete.
+>>execute s;
+
+*** ERROR[8110] Duplicate rows detected.
+
+--- 0 row(s) inserted.
+>>load with no output into t015t3 select a,a,a from t015t1;
+
+*** ERROR[8110] Duplicate rows detected.
+
+--- 0 row(s) loaded.
+>>select * from t015t3 order by a;
+
+--- 0 row(s) selected.
+>>---produces eror
+>>prepare s from load transform into t015t4 select a,a,a from t015t1 <<+ cardinality 10e8 >>;
+
+--- SQL command prepared.
+>>explain options 'f' s;
+
+LC   RC   OP   OPERATOR              OPT       DESCRIPTION           CARD
+---- ---- ---- --------------------  --------  --------------------  ---------
+
+6    .    7    root                                                  1.00E+009
+5    .    6    esp_exchange                    1:2(range)            1.00E+009
+3    4    5    tuple_flow                                            1.00E+009
+.    .    4    trafodion_load_prepa            T015T4                1.00E+000
+2    .    3    sort                                                  1.00E+009
+1    .    2    esp_exchange                    2(range):1            1.00E+009
+.    .    1    trafodion_scan                  T015T1                1.00E+009
+
+--- SQL operation complete.
+>>execute s;
+
+*** ERROR[8110] Duplicate rows detected.
+
+--- 0 row(s) inserted.
+>>load with no output into t015t4 select a,a,a from t015t1 <<+ cardinality 10e8 >>;
+
+*** ERROR[8110] Duplicate rows detected.
+
+--- 0 row(s) loaded.
+>>select * from t015t4 order by a;
+
+--- 0 row(s) selected.
+>>---
+>>prepare s from load transform into t015t5 select a,a,a from t015t1 ;
+
+--- SQL command prepared.
+>>explain options 'f' s;
+
+LC   RC   OP   OPERATOR              OPT       DESCRIPTION           CARD
+---- ---- ---- --------------------  --------  --------------------  ---------
+
+4    .    5    root                                                  1.00E+002
+2    3    4    tuple_flow                                            1.00E+002
+.    .    3    trafodion_load_prepa            T015T5                1.00E+000
+1    .    2    sort                                                  1.00E+002
+.    .    1    trafodion_scan                  T015T1                1.00E+002
+
+--- SQL operation complete.
+>>execute s;
+
+--- 13 row(s) inserted.
+>>load with no output into t015t5 select a,a,a from t015t1 ;
+
+--- 13 row(s) loaded.
+>>select * from t015t5 order by a;
+
+A            B            C          
+-----------  -----------  -----------
+
+          2            2            2
+          5            5            5
+          5            5            5
+          7            7            7
+         10           10           10
+         11           11           11
+         12           12           12
+         13           13           13
+         14           14           14
+         15           15           15
+         23           23           23
+         24           24           24
+         25           25           25
+
+--- 13 row(s) selected.
+>>---
+>>prepare s from load transform into t015t6 select a,a,a from t015t1 ;
+
+--- SQL command prepared.
+>>explain options 'f' s;
+
+LC   RC   OP   OPERATOR              OPT       DESCRIPTION           CARD
+---- ---- ---- --------------------  --------  --------------------  ---------
+
+3    .    4    root                                                  1.00E+002
+1    2    3    tuple_flow                                            1.00E+002
+.    .    2    trafodion_load_prepa            T015T6                1.00E+000
+.    .    1    trafodion_scan                  T015T1                1.00E+002
+
+--- SQL operation complete.
+>>execute s;
+
+--- 13 row(s) inserted.
+>>load with no output into t015t6 select a,a,a from t015t1 ;
+
+--- 13 row(s) loaded.
+>>select * from t015t6 order by a;
+
+A            B            C          
+-----------  -----------  -----------
+
+          2            2            2
+          5            5            5
+          5            5            5
+          7            7            7
+         10           10           10
+         11           11           11
+         12           12           12
+         13           13           13
+         14           14           14
+         15           15           15
+         23           23           23
+         24           24           24
+         25           25           25
+
+--- 13 row(s) selected.
+>>------------------------------
+>>
+>>----
+>>cqd TRAF_LOAD_PREP_SKIP_DUPLICATES 'ON';
+
+--- SQL operation complete.
+>>prepare s from load transform into t015t3 select a,a,a from t015t1;
+
+--- SQL command prepared.
+>>explain options 'f' s;
+
+LC   RC   OP   OPERATOR              OPT       DESCRIPTION           CARD
+---- ---- ---- --------------------  --------  --------------------  ---------
+
+4    .    5    root                                                  1.00E+002
+2    3    4    tuple_flow                                            1.00E+002
+.    .    3    trafodion_load_prepa            T015T3                1.00E+000
+1    .    2    sort                                                  1.00E+002
+.    .    1    trafodion_scan                  T015T1                1.00E+002
+
+--- SQL operation complete.
+>>execute s;
+
+--- 12 row(s) inserted.
+>>cqd TRAF_LOAD_PREP_SKIP_DUPLICATES reset;
+
+--- SQL operation complete.
+>>load with no output, no duplicate check  into t015t3 select a,a,a from t015t1;
+
+--- 12 row(s) loaded.
+>>select * from t015t3 order by a;
+
+A            B            C          
+-----------  -----------  -----------
+
+          2            2            2
+          5            5            5
+          7            7            7
+         10           10           10
+         11           11           11
+         12           12           12
+         13           13           13
+         14           14           14
+         15           15           15
+         23           23           23
+         24           24           24
+         25           25           25
+
+--- 12 row(s) selected.
+>>---
+>>cqd TRAF_LOAD_PREP_SKIP_DUPLICATES 'ON';
+
+--- SQL operation complete.
+>>prepare s from load transform into t015t4 select a,a,a from t015t1 <<+ cardinality 10e8 >>;
+
+--- SQL command prepared.
+>>explain options 'f' s;
+
+LC   RC   OP   OPERATOR              OPT       DESCRIPTION           CARD
+---- ---- ---- --------------------  --------  --------------------  ---------
+
+6    .    7    root                                                  1.00E+009
+5    .    6    esp_exchange                    1:2(range)            1.00E+009
+3    4    5    tuple_flow                                            1.00E+009
+.    .    4    trafodion_load_prepa            T015T4                1.00E+000
+2    .    3    sort                                                  1.00E+009
+1    .    2    esp_exchange                    2(range):1            1.00E+009
+.    .    1    trafodion_scan                  T015T1                1.00E+009
+
+--- SQL operation complete.
+>>execute s;
+
+--- 12 row(s) inserted.
+>>cqd TRAF_LOAD_PREP_SKIP_DUPLICATES reset;
+
+--- SQL operation complete.
+>>load with no output, no duplicate check into t015t4 select a,a,a from t015t1 <<+ cardinality 10e8 >>;
+
+--- 12 row(s) loaded.
+>>select * from t015t4 order by a;
+
+A            B            C          
+-----------  -----------  -----------
+
+          2            2            2
+          5            5            5
+          7            7            7
+         10           10           10
+         11           11           11
+         12           12           12
+         13           13           13
+         14           14           14
+         15           15           15
+         23           23           23
+         24           24           24
+         25           25           25
+
+--- 12 row(s) selected.
+>>---
+>>cqd TRAF_LOAD_PREP_SKIP_DUPLICATES 'ON';
+
+--- SQL operation complete.
+>>prepare s from load transform into t015t5 select a,a,a from t015t1 ;
+
+--- SQL command prepared.
+>>explain options 'f' s;
+
+LC   RC   OP   OPERATOR              OPT       DESCRIPTION           CARD
+---- ---- ---- --------------------  --------  --------------------  ---------
+
+4    .    5    root                                                  1.00E+002
+2    3    4    tuple_flow                                            1.00E+002
+.    .    3    trafodion_load_prepa            T015T5                1.00E+000
+1    .    2    sort                                                  1.00E+002
+.    .    1    trafodion_scan                  T015T1                1.00E+002
+
+--- SQL operation complete.
+>>execute s;
+
+--- 13 row(s) inserted.
+>>cqd TRAF_LOAD_PREP_SKIP_DUPLICATES reset;
+
+--- SQL operation complete.
+>>load with no output, no duplicate check into t015t5 select a,a,a from t015t1 ;
+
+--- 13 row(s) loaded.
+>>select * from t015t5 order by a;
+
+A            B            C          
+-----------  -----------  -----------
+
+          2            2            2
+          2            2            2
+          5            5            5
+          5            5            5
+          5            5            5
+          5            5            5
+          7            7            7
+          7            7            7
+         10           10           10
+         10           10           10
+         11           11           11
+         11           11           11
+         12           12           12
+         12           12           12
+         13           13           13
+         13           13           13
+         14           14           14
+         14           14           14
+         15           15           15
+         15           15           15
+         23           23           23
+         23           23           23
+         24           24           24
+         24           24           24
+         25           25           25
+         25           25           25
+
+--- 26 row(s) selected.
+>>---
+>>cqd TRAF_LOAD_PREP_SKIP_DUPLICATES 'ON';
+
+--- SQL operation complete.
+>>prepare s from load transform into t015t6 select a,a,a from t015t1 ;
+
+--- SQL command prepared.
+>>explain options 'f' s;
+
+LC   RC   OP   OPERATOR              OPT       DESCRIPTION           CARD
+---- ---- ---- --------------------  --------  --------------------  ---------
+
+3    .    4    root                                                  1.00E+002
+1    2    3    tuple_flow                                            1.00E+002
+.    .    2    trafodion_load_prepa            T015T6                1.00E+000
+.    .    1    trafodion_scan                  T015T1                1.00E+002
+
+--- SQL operation complete.
+>>execute s;
+
+--- 13 row(s) inserted.
+>>cqd TRAF_LOAD_PREP_SKIP_DUPLICATES reset;
+
+--- SQL operation complete.
+>>load with no output, no duplicate check into t015t6 select a,a,a from t015t1 ;
+
+--- 13 row(s) loaded.
+>>select * from t015t4 order by a;
+
+A            B            C          
+-----------  -----------  -----------
+
+          2            2            2
+          5            5            5
+          7            7            7
+         10           10           10
+         11           11           11
+         12           12           12
+         13           13           13
+         14           14           14
+         15           15           15
+         23           23           23
+         24           24           24
+         25           25           25
+
+--- 12 row(s) selected.
+>>
+>>
+>>--Add  tests with indexes on bulkoaded tables
+>>drop table customer_demographics_salt cascade;
+
+--- SQL operation complete.
+>>drop table customer_demographics cascade;
+
+--- SQL operation complete.
+>>create table customer_demographics
++>(
++>  cd_demo_sk              int not null,
++>  cd_gender               char(1),
++>  cd_marital_status       char(1),
++>  cd_education_status     char(20),
++>  cd_purchase_estimate    int,
++>  cd_credit_rating        char(10),
++>  cd_dep_count            int,
++>  cd_dep_employed_count   int,
++>  cd_dep_college_count    int
++>) store by (cd_demo_sk);
+
+--- SQL operation complete.
+>>
+>>create table customer_demographics_salt
++>(
++>  cd_demo_sk              int not null,
++>  cd_gender               char(1),
++>  cd_marital_status       char(1),
++>  cd_education_status     char(20),
++>  cd_purchase_estimate    int,
++>  cd_credit_rating        char(10),
++>  cd_dep_count            int,
++>  cd_dep_employed_count   int,
++>  cd_dep_college_count    int,
++>  primary key (cd_demo_sk)
++>)
++>salt using 4 partitions on (cd_demo_sk);
+
+--- SQL operation complete.
+>>create index cd_dep_count_IDX on customer_demographics(cd_dep_count);
+
+--- SQL operation complete.
+>>create index cd_dep_college_count_IDX on customer_demographics(cd_dep_college_count);
+
+--- SQL operation complete.
+>>
+>>explain options 'f' 
++>load  transform into customer_demographics
++>select * from hive.hive.customer_demographics where cd_demo_sk <= 5000;
+
+LC   RC   OP   OPERATOR              OPT       DESCRIPTION           CARD
+---- ---- ---- --------------------  --------  --------------------  ---------
+
+14   .    15   root                                                  8.96E+005
+13   .    14   esp_exchange                    1:2(hash2)            8.96E+005
+11   12   13   nested_join                                           8.96E+005
+.    .    12   trafodion_load_prepa            CD_DEP_COUNT_IDX      1.00E+000
+10   .    11   sort                                                  8.96E+005
+9    .    10   esp_exchange                    2(hash2):2(hash2)     8.96E+005
+7    8    9    nested_join                                           8.96E+005
+.    .    8    trafodion_load_prepa            CD_DEP_COLLEGE_COUNT  1.00E+000
+6    .    7    sort                                                  8.96E+005
+5    .    6    esp_exchange                    2(hash2):2(hash2)     8.96E+005
+3    4    5    nested_join                                           8.96E+005
+.    .    4    trafodion_load_prepa            CUSTOMER_DEMOGRAPHIC  1.00E+000
+2    .    3    sort                                                  8.96E+005
+1    .    2    esp_exchange                    2(hash2):2(hash2)     8.96E+005
+.    .    1    hive_scan                       CUSTOMER_DEMOGRAPHIC  8.96E+005
+
+--- SQL operation complete.
+>>
+>>load  into customer_demographics 
++>select * from hive.hive.customer_demographics where cd_demo_sk <= 5000;
+Task:  LOAD            Status: Started    Object: TRAFODION.HBASE.CUSTOMER_DEMOGRAPHICS
+Task:  CLEANUP         Status: Started    Time: 2019-11-07 10:55:36.408397
+Task:  CLEANUP         Status: Ended      Time: 2019-11-07 10:55:36.422769
+Task:  CLEANUP         Status: Ended      Elapsed Time:    00:00:00.014
+Task:  LOADING DATA    Status: Started    Time: 2019-11-07 10:55:36.422804
+       Rows Processed: 5000 
+       Error Rows:     0 
+Task:  LOADING DATA    Status: Ended      Time: 2019-11-07 10:55:51.619969
+Task:  LOADING DATA    Status: Ended      Elapsed Time:    00:00:15.197
+Task:  COMPLETION      Status: Started    Time: 2019-11-07 10:55:51.620029
+       Rows Loaded:    5000 
+Task:  COMPLETION      Status: Ended      Time: 2019-11-07 10:55:57.21949
+Task:  COMPLETION      Status: Ended      Elapsed Time:    00:00:05.402
+
+--- 5000 row(s) loaded.
+>>
+>>set parserflags 1;
+
+--- SQL operation complete.
+>>select count(*) from customer_demographics;
+
+(EXPR)              
+--------------------
+
+                5000
+
+--- 1 row(s) selected.
+>>select count(*) from table(index_table cd_dep_count_IDX);
+
+(EXPR)              
+--------------------
+
+                5000
+
+--- 1 row(s) selected.
+>>select count(*) from table(index_table cd_dep_college_count_IDX);
+
+(EXPR)              
+--------------------
+
+                5000
+
+--- 1 row(s) selected.
+>>
+>>load  with rebuild indexes into customer_demographics 
++>select * from hive.hive.customer_demographics where cd_demo_sk > 5000 and cd_demo_sk <= 6000 ;
+Task:  LOAD            Status: Started    Object: TRAFODION.HBASE.CUSTOMER_DEMOGRAPHICS
+Task:  CLEANUP         Status: Started    Time: 2019-11-07 10:55:58.493690
+Task:  CLEANUP         Status: Ended      Time: 2019-11-07 10:55:58.503918
+Task:  CLEANUP         Status: Ended      Elapsed Time:    00:00:00.010
+Task:  DISABLE INDEXE  Status: Started    Time: 2019-11-07 10:55:58.503971
+Task:  DISABLE INDEXE  Status: Ended      Time: 2019-11-07 10:56:06.905921
+Task:  DISABLE INDEXE  Status: Ended      Elapsed Time:    00:00:08.402
+Task:  LOADING DATA    Status: Started    Time: 2019-11-07 10:56:06.905960
+       Rows Processed: 1000 
+       Error Rows:     0 
+Task:  LOADING DATA    Status: Ended      Time: 2019-11-07 10:56:16.954923
+Task:  LOADING DATA    Status: Ended      Elapsed Time:    00:00:10.049
+Task:  COMPLETION      Status: Started    Time: 2019-11-07 10:56:16.954972
+       Rows Loaded:    1000 
+Task:  COMPLETION      Status: Ended      Time: 2019-11-07 10:56:22.377101
+Task:  COMPLETION      Status: Ended      Elapsed Time:    00:00:05.422
+Task:  POPULATE INDEX  Status: Started    Time: 2019-11-07 10:56:22.377145
+Task:  POPULATE INDEX  Status: Ended      Time: 2019-11-07 10:57:00.930432
+Task:  POPULATE INDEX  Status: Ended      Elapsed Time:    00:00:38.553
+
+--- 1000 row(s) loaded.
+>>
+>>select count(*) from customer_demographics;
+
+(EXPR)              
+--------------------
+
+                6000
+
+--- 1 row(s) selected.
+>>select count(*) from table(index_table cd_dep_count_IDX);
+
+(EXPR)              
+--------------------
+
+                6000
+
+--- 1 row(s) selected.
+>>select count(*) from table(index_table cd_dep_college_count_IDX);
+
+(EXPR)              
+--------------------
+
+                6000
+
+--- 1 row(s) selected.
+>>
+>>create index cd_dep_count_IDX2 on customer_demographics_salt(cd_dep_count);
+
+--- SQL operation complete.
+>>create index cd_dep_college_count_IDX2 on customer_demographics_salt(cd_dep_college_count);
+
+--- SQL operation complete.
+>>---------------------------
+>>load  into customer_demographics_salt 
++>select * from hive.hive.customer_demographics where cd_demo_sk <= 5000;
+Task:  LOAD            Status: Started    Object: TRAFODION.HBASE.CUSTOMER_DEMOGRAPHICS_SALT
+Task:  CLEANUP         Status: Started    Time: 2019-11-07 10:57:13.636684
+Task:  CLEANUP         Status: Ended      Time: 2019-11-07 10:57:13.651804
+Task:  CLEANUP         Status: Ended      Elapsed Time:    00:00:00.015
+Task:  DISABLE INDEXE  Status: Started    Time: 2019-11-07 10:57:13.651878
+Task:  DISABLE INDEXE  Status: Ended      Time: 2019-11-07 10:57:22.845639
+Task:  DISABLE INDEXE  Status: Ended      Elapsed Time:    00:00:09.194
+Task:  LOADING DATA    Status: Started    Time: 2019-11-07 10:57:22.845681
+       Rows Processed: 5000 
+       Error Rows:     0 
+Task:  LOADING DATA    Status: Ended      Time: 2019-11-07 10:57:41.581220
+Task:  LOADING DATA    Status: Ended      Elapsed Time:    00:00:18.736
+Task:  COMPLETION      Status: Started    Time: 2019-11-07 10:57:41.581300
+       Rows Loaded:    5000 
+Task:  COMPLETION      Status: Ended      Time: 2019-11-07 10:57:42.803594
+Task:  COMPLETION      Status: Ended      Elapsed Time:    00:00:01.222
+Task:  POPULATE INDEX  Status: Started    Time: 2019-11-07 10:57:42.803629
+Task:  POPULATE INDEX  Status: Ended      Time: 2019-11-07 10:58:08.460174
+Task:  POPULATE INDEX  Status: Ended      Elapsed Time:    00:00:25.657
+
+--- 5000 row(s) loaded.
+>>
+>>set parserflags 1;
+
+--- SQL operation complete.
+>>select count(*) from customer_demographics_salt;
+
+(EXPR)              
+--------------------
+
+                5000
+
+--- 1 row(s) selected.
+>>select count(*) from table(index_table cd_dep_count_IDX2);
+
+(EXPR)              
+--------------------
+
+                5000
+
+--- 1 row(s) selected.
+>>select count(*) from table(index_table cd_dep_college_count_IDX2);
+
+(EXPR)              
+--------------------
+
+                5000
+
+--- 1 row(s) selected.
+>>
+>>drop index cd_dep_count_IDX2;
+
+--- SQL operation complete.
+>>drop index cd_dep_college_count_IDX2;
+
+--- SQL operation complete.
+>>
+>>-- --load with upsert using load
+>>-- drop table customer_demographics_salt cascade;
+>>-- drop table customer_demographics cascade;
+>>-- create table customer_demographics
+>>-- (
+>>--   cd_demo_sk              int not null,
+>>--   cd_gender               char(1),
+>>--   cd_marital_status       char(1),
+>>--   cd_education_status     char(20),
+>>--   cd_purchase_estimate    int,
+>>--   cd_credit_rating        char(10),
+>>--   cd_dep_count            int,
+>>--   cd_dep_employed_count   int,
+>>--   cd_dep_college_count    int,
+>>--   primary key (cd_demo_sk)
+>>-- ); 
+>>-- 
+>>-- create table customer_demographics_salt
+>>-- (
+>>--   cd_demo_sk              int not null,
+>>--   cd_gender               char(1),
+>>--   cd_marital_status       char(1),
+>>--   cd_education_status     char(20),
+>>--   cd_purchase_estimate    int,
+>>--   cd_credit_rating        char(10),
+>>--   cd_dep_count            int,
+>>--   cd_dep_employed_count   int,
+>>--   cd_dep_college_count    int,
+>>--   primary key (cd_demo_sk)
+>>-- )
+>>-- salt using 4 partitions on (cd_demo_sk);
+>>-- create index cd_dep_count_IDX on customer_demographics(cd_dep_count) no populate ;
+>>-- create index cd_dep_college_count_IDX on customer_demographics(cd_dep_college_count) no populate;
+>>-- 
+>>-- load with upsert using load into customer_demographics 
+>>-- select * from hive.hive.customer_demographics where cd_demo_sk <= 5000;
+>>-- 
+>>-- set parserflags 1;
+>>-- select count(*) from customer_demographics;
+>>-- select count(*) from table(index_table cd_dep_count_IDX);
+>>-- select count(*) from table(index_table cd_dep_college_count_IDX);
+>>-- 
+>>-- drop index cd_dep_count_IDX;
+>>-- drop index cd_dep_college_count_IDX;
+>>-- 
+>>-- create index cd_dep_count_IDX2 on customer_demographics_salt(cd_dep_count) no populate ;
+>>-- create index cd_dep_college_count_IDX2 on customer_demographics_salt(cd_dep_college_count) no populate;
+>>-- ---------------------------
+>>-- load with upsert using load into customer_demographics_salt 
+>>-- select * from hive.hive.customer_demographics where cd_demo_sk <= 5000;
+>>-- 
+>>-- set parserflags 1;
+>>-- select count(*) from customer_demographics_salt;
+>>-- select count(*) from table(index_table cd_dep_count_IDX2);
+>>-- select count(*) from table(index_table cd_dep_college_count_IDX2);
+>>-- 
+>>-- drop index cd_dep_count_IDX2;
+>>-- drop index cd_dep_college_count_IDX2;
+>>
+>>-----
+>>drop table customer_address cascade;
+
+--- SQL operation complete.
+>>
+>>create table "customer_address_delim"
++>(
++>  ca_address_sk        int not null,
++>  ca_address_id        char(16),
++>  ca_street_number     char(10),
++>  ca_street_name       varchar(60),
++>  ca_street_type       char(15),
++>  ca_suite_number      char(10),
++>  ca_city              varchar(60),
++>  ca_county            varchar(30),
++>  ca_state             char(2),
++>  ca_zip               char(10),
++>  ca_country           varchar(30),
++>  ca_gmt_offset        decimal(5,2),
++>  ca_location_type     char(20),
++>  primary key (ca_address_sk)
++>)
++>salt using 4 partitions
++>HBASE_OPTIONS (data_block_encoding = 'FAST_DIFF', compression = 'GZ') 
++>;
+
+--- SQL operation complete.
+>>
+>>select count(*) from hive.hive.customer_address  where ca_address_sk <= 5000;
+
+(EXPR)              
+--------------------
+
+                5000
+
+--- 1 row(s) selected.
+>>select count(*) from "customer_address_delim";
+
+(EXPR)              
+--------------------
+
+                   0
+
+--- 1 row(s) selected.
+>>
+>>prepare s from 
++>load transform into "customer_address_delim" 
++>select * from hive.hive.customer_address  where ca_address_sk <= 5000;
+
+--- SQL command prepared.
+>>explain options 'f' s;
+
+LC   RC   OP   OPERATOR              OPT       DESCRIPTION           CARD
+---- ---- ---- --------------------  --------  --------------------  ---------
+
+6    .    7    root                                                  1.72E+004
+5    .    6    esp_exchange                    1:4(range)            1.72E+004
+3    4    5    tuple_flow                                            1.72E+004
+.    .    4    trafodion_load_prepa            customer_address_del  1.00E+000
+2    .    3    sort                                                  1.73E+004
+1    .    2    esp_exchange                    4(range):2(hash2)     1.73E+004
+.    .    1    hive_scan                       CUSTOMER_ADDRESS      1.73E+004
+
+--- SQL operation complete.
+>>
+>>load   into "customer_address_delim" 
++>select * from hive.hive.customer_address  where ca_address_sk <= 5000;
+Task:  LOAD            Status: Started    Object: TRAFODION.HBASE."customer_address_delim"
+Task:  CLEANUP         Status: Started    Time: 2019-11-07 10:58:51.140533
+Task:  CLEANUP         Status: Ended      Time: 2019-11-07 10:58:51.153532
+Task:  CLEANUP         Status: Ended      Elapsed Time:    00:00:00.013
+Task:  LOADING DATA    Status: Started    Time: 2019-11-07 10:58:51.153584
+       Rows Processed: 5000 
+       Error Rows:     0 
+Task:  LOADING DATA    Status: Ended      Time: 2019-11-07 10:58:55.167164
+Task:  LOADING DATA    Status: Ended      Elapsed Time:    00:00:04.014
+Task:  COMPLETION      Status: Started    Time: 2019-11-07 10:58:55.167219
+       Rows Loaded:    5000 
+Task:  COMPLETION      Status: Ended      Time: 2019-11-07 10:58:58.703273
+Task:  COMPLETION      Status: Ended      Elapsed Time:    00:00:03.536
+
+--- 5000 row(s) loaded.
+>>
+>>select count(*) from "customer_address_delim";
+
+(EXPR)              
+--------------------
+
+                5000
+
+--- 1 row(s) selected.
+>>
+>>select [first 20] * from "customer_address_delim" order by ca_address_sk ;
+
+CA_ADDRESS_SK  CA_ADDRESS_ID     CA_STREET_NUMBER  CA_STREET_NAME                                                CA_STREET_TYPE   CA_SUITE_NUMBER  CA_CITY                                                       CA_COUNTY                       CA_STATE  CA_ZIP      CA_COUNTRY                      CA_GMT_OFFSET  CA_LOCATION_TYPE
+-------------  ----------------  ----------------  ------------------------------------------------------------  ---------------  ---------------  ------------------------------------------------------------  ------------------------------  --------  ----------  ------------------------------  -------------  --------------------
+
+            1  AAAAAAAABAAAAAAA  18                Jackson                                                       Parkway          Suite 280        Fairfield                                                     Maricopa County                 AZ        86192       United States                              -7  condo               
+            2  AAAAAAAACAAAAAAA  362               Washington 6th                                                RD               Suite 80         Fairview                                                      Taos County                     NM        85709       United States                              -7  condo               
+            3  AAAAAAAADAAAAAAA  585               Dogwood Washington                                            Circle           Suite Q          Pleasant Valley                                               York County                     PA        12477       United States                              -5  single family       
+            4  AAAAAAAAEAAAAAAA  111               Smith                                                         Wy               Suite A          Oak Ridge                                                     Kit Carson County               CO        88371       United States                              -7  condo               
+            5  AAAAAAAAFAAAAAAA  31                College                                                       Blvd             Suite 180        Glendale                                                      Barry County                    MO        63951       United States                              -6  single family       
+            6  AAAAAAAAGAAAAAAA  59                Williams Sixth                                                Parkway          Suite 100        Lakeview                                                      Chelan County                   WA        98579       United States                              -8  single family       
+            7  AAAAAAAAHAAAAAAA                    Hill 7th                                                      Road             Suite U          Farmington                                                                                              39145       United States                               ?                      
+            8  AAAAAAAAIAAAAAAA  875               Lincoln                                                       Ct.              Suite Y          Union                                                         Bledsoe County                  TN        38721       United States                              -5  apartment           
+            9  AAAAAAAAJAAAAAAA  819               1st Laurel                                                    Ave              Suite 70         New Hope                                                      Perry County                    AL        39431       United States                              -6  condo               
+           10  AAAAAAAAKAAAAAAA  851               Woodland Poplar                                               ST               Suite Y          Martinsville                                                  Haines Borough                  AK        90419       United States                              -9  condo               
+           11  AAAAAAAALAAAAAAA  189               13th 2nd                                                      Street           Suite 470        Maple Grove                                                   Madison County                  MT        68252       United States                              -7  single family       
+           12  AAAAAAAAMAAAAAAA  76                Ash 8th                                                       Ct.              Suite O          Edgewood                                                      Mifflin County                  PA        10069       United States                              -5  apartment           
+           13  AAAAAAAANAAAAAAA  424               Main Second                                                   Ln               Suite 130        Greenville                                                    Noxubee County                  MS        51387       United States                              -6  single family       
+           14  AAAAAAAAOAAAAAAA  923               Pine Oak                                                      Dr.              Suite 100                                                                      Lipscomb County                 TX        77752                                                  -6                      
+           15  AAAAAAAAPAAAAAAA  314               Spring                                                        Ct.              Suite B          Oakland                                                       Washington County               OH        49843       United States                              -5  apartment           
+           16  AAAAAAAAABAAAAAA  576               Adams Center                                                  Street           Suite J          Valley View                                                   Oldham County                   TX        75124       United States                              -6  condo               
+           17  AAAAAAAABBAAAAAA  801               Green                                                         Dr.              Suite 0          Montpelier                                                    Richland County                 OH        48930       United States                              -5  single family       
+           18  AAAAAAAACBAAAAAA  460               Maple Spruce                                                  Court            Suite 480        Somerville                                                    Potter County                   SD        57783       United States                              -7  condo               
+           19  AAAAAAAADBAAAAAA  611               Wilson                                                        Way              Suite O          Oakdale                                                       Tangipahoa Parish               LA        79584       United States                              -6  apartment           
+           20  AAAAAAAAEBAAAAAA  675               Elm Wilson                                                    Street           Suite I          Hopewell                                                      Williams County                 OH        40587       United States                              -5  condo               
+
+--- 20 row(s) selected.
+>>
+>>cqd attempt_esp_parallelism 'off';
+
+--- SQL operation complete.
+>>load with no output into t015t4 select a,a,a from t015t1;
+
+*** ERROR[4490] BULK LOAD into a salted table is not supported if ESP parallelism is turned off.
+
+*** ERROR[8822] The statement was not prepared.
+
+--- 0 row(s) loaded.
+>>
+>>
+>>
+>>
+>>
+>>
+>>
+>>
+>>log;

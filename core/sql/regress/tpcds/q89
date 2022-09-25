@@ -1,0 +1,35 @@
+
+--==QID: 89
+
+prepare xx from
+select *                                                                                                      
+from 
+(                                                                                                                    
+  select *, sum_sales - avg_monthly_sales as extraCol                                                                                       
+  from(                                                                                                                     
+  select i_category, i_class, i_brand,                                                                                      
+         s_store_name, s_company_name,                                                                                      
+         d_moy,                                                                                                             
+         sum(ss_sales_price) sum_sales,                                                                                     
+         avg(sum(ss_sales_price)) over                                                                                      
+           (partition by i_category, i_brand, s_store_name, s_company_name)                                                 
+           avg_monthly_sales
+  from item, store_sales_1stripeperfile, date_dim, store                                                                                   
+  where ss_item_sk = i_item_sk and                                                                                          
+        ss_sold_date_sk = d_date_sk and                                                                                     
+        ss_store_sk = s_store_sk and                                                                                        
+        d_year in (2002) and                                                                                                
+          ((i_category in ('Music','Home','Men') and                                                                        
+            i_class in ('country','lighting','accessories')                                                                 
+           )                                                                                                                
+        or (i_category in ('Women','Sports','Books') and                                                                    
+            i_class in ('maternity','camping','history')                                                                    
+          ))                                                                                                                
+  group by i_category, i_class, i_brand,                                                                                    
+           s_store_name, s_company_name, d_moy
+   ) tmp1
+  where case when (avg_monthly_sales <> 0) then (abs(sum_sales - avg_monthly_sales) / avg_monthly_sales) else null end > 0.1
+)     
+order by extraCol, s_store_name                                                                                     
+limit 100
+;                                      

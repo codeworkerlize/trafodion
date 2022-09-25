@@ -1,0 +1,17 @@
+#!/bin/bash
+
+function getMyHMaster {
+    jps | grep HMaster | cut -d' ' -f1
+}
+
+lv_pid=`getMyHMaster`
+if [[ -z $lv_pid ]]; then
+    echo "No HMaster process"
+    exit 1
+fi
+
+echo -n "`date +%Y%m%d_%H%M` : jmap -histo:live for pid ($lv_pid): "
+$JAVA_HOME/bin/jmap -histo:live $lv_pid 
+
+
+

@@ -1,0 +1,495 @@
+-- @@@ START COPYRIGHT @@@
+--
+-- Licensed to the Apache Software Foundation (ASF) under one
+-- or more contributor license agreements.  See the NOTICE file
+-- distributed with this work for additional information
+-- regarding copyright ownership.  The ASF licenses this file
+-- to you under the Apache License, Version 2.0 (the
+-- "License"); you may not use this file except in compliance
+-- with the License.  You may obtain a copy of the License at
+--
+--   http://www.apache.org/licenses/LICENSE-2.0
+--
+-- Unless required by applicable law or agreed to in writing,
+-- software distributed under the License is distributed on an
+-- "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+-- KIND, either express or implied.  See the License for the
+-- specific language governing permissions and limitations
+-- under the License.
+--
+-- @@@ END COPYRIGHT @@@
+--
+
+-- tests for various misc fixes
+
+drop view "HOUR";
+drop view "A-B";
+
+log LOG031 clear;
+-- tests for PRIMARY KEY constraint usage
+drop table if exists t031t1 cascade;
+create table t031t1 (a int not null, b int not null, constraint ppk primary key(a));
+alter table t031t1 add constraint ppk primary key(b);
+alter table t031t1 add constraint ppk2 primary key(b);
+alter table t031t1 add constraint ppk unique(b);
+alter table t031t1 drop constraint ppk;
+
+drop table if exists t031t1;
+create table t031t1 (a int not null, b int not null);
+alter table t031t1 add constraint ppk primary key(a);
+alter table t031t1 add constraint ppk primary key(b);
+alter table t031t1 add constraint ppk2 primary key(b);
+alter table t031t1 add constraint ppk unique(b);
+alter table t031t1 drop constraint ppk;
+
+drop table if exists t031t1;
+create table t031t1 (a int not null, b int not null) store by (a);
+alter table t031t1 add constraint ppk primary key(a);
+alter table t031t1 add constraint ppk unique(b);
+alter table t031t1 drop constraint ppk;
+
+drop table if exists t031t1;
+create table t031t1 (a int not null primary key, b int not null);
+alter table t031t1 add constraint ppk primary key(a);
+alter table t031t1 add constraint ppk primary key(b);
+
+-- primary key update transformed into delete/insert incorrectly 
+-- deletes row after conflict
+create table if not exists t031t1 (a int not null primary key, b int not null);
+delete from t031t1;
+insert into t031t1 values (1,1), (2,2), (3,3), (4,4);
+update t031t1 set a = 4 where a = 2;
+select * from t031t1;
+
+-- incorrect ddl with salt clause should not crash
+drop table if exists t031t1;
+create table t031t1 (
+T2C1 int not null not droppable,
+T2C1 int not null not droppable,
+T2C1 int)
+salt using 2 partitions on (T2C1, T2C2)
+store by (T2C1, T2C2);
+
+-- cannot rename table with check constraints.
+-- cascade option with rename not supported.
+drop table if exists t031t1;
+create table t031t1 (a int);
+alter table t031t1 add constraint t031t1_c1 check (a > 0);
+alter table t031t1 rename to t031t1_ren cascade;
+alter table t031t1 rename to t031t1_ren;
+
+-- time datatype conversion was returning incorrect results
+drop table if exists t031t1;
+create table t031t1
+(id int not null,
+time1 time default null,
+time2 time default null,
+type1 time default null,
+type2 char(5) default null,
+diff char(6) default null,
+primary key (id));
+insert into t031t1 (id, time1, time2, diff) values (1, time '00:00:30.758788', time '00:00:29.615308', 'MATCH');
+select * from t031t1 order by 1;
+update t031t1
+set type1 =
+case when (time1 + interval '1' second) < time2 then time1 else time2
+end,
+type2 =
+case when (time1 + interval '1' second) < time2 then 'T1' else 'T2'
+end
+where id = 1;
+select
+type2, diff, type1,
+case
+when diff = 'MATCH' then 'PASS' else 'FAIL'
+end
+from t031t1
+where id = 1;
+select * from t031t1;
+
+-- varchar default values were not being handled correctly
+drop table if exists t031t1;
+create  table t031t1 (a varchar(6) not null default 'ABC',
+                      b varchar(6) default 'ABC');
+insert into t031t1 default values;
+upsert into t031t1 default values;
+select * from t031t1;
+
+-- long varchars
+cqd AUTO_ADJUST_CACHEROWS 'OFF';
+cqd traf_max_character_col_length '1000000';
+drop table if exists t031t1;
+create table t031t1 (z int not null primary key, a varchar(1000000), b char(1000000));
+insert into t031t1 values (1, repeat('a', 1000000, 1000000) , 'def');
+insert into t031t1 values (2, repeat('a', 1000, 1000) , 'zzz');
+insert into t031t1 values (3, repeat('a', 10000, 10000) , 'zzz');
+insert into t031t1 values (4, repeat('a', 100000, 100000) , 'zzz');
+insert into t031t1 values (5, repeat('a', 100, 100) , 'zzz');
+insert into t031t1 values (6, repeat('a', 10, 10) , 'zzz');
+insert into t031t1 values (7, repeat('a', 1, 1) , 'zzz');
+insert into t031t1 values (8, repeat('a', 1000000, 1000000) , null);
+insert into t031t1 values (9, repeat('a', 500000, 500000) , null);
+insert into t031t1 values (10, repeat('a', 100, 100) , null);
+
+-- should return error, maxlength not sufficient
+insert into t031t1 values (11, repeat('a', 100, 10), null);
+
+select char_length(a), char_length(b) from t031t1;
+select substring(a, 1, 10), cast(b as char(10)) from t031t1;
+select [last 0] * from t031t1;
+
+drop table if exists t031t2;
+create table t031t2 (z int, a varchar(1000000), b char(1000000)) attribute aligned format;
+insert into t031t2 select * from t031t1;
+select char_length(a), char_length(b) from t031t2;
+select substring(a, 1, 10), cast(b as char(10)) from t031t2;
+select [last 0] * from t031t2;
+
+select count(*) from t031t1 x, t031t2 y where x.a = y.a;
+select x.z, y.z, substring(x.a, 1, 5), substring(y.a,1,5) 
+  from t031t1 x, t031t2 y where x.a = y.a
+  order by x.z, y.z;
+select x.z, y.z, substring(x.a, 1, 5), substring(y.a,1,5) 
+  from t031t1 x, t031t2 y where x.a = y.a and x.b = y.b
+  order by x.z, y.z;
+
+process hive statement 'drop table t031hive';
+process hive statement 'create table t031hive(z int, a string, b string)';
+
+-- really large columns
+drop table if exists t031t10;
+
+-- should fail, exceeds max
+create table t031t10 (a varchar(20485760));
+cqd traf_max_character_col_length_override 'ON';
+cqd traf_max_character_col_length '25000000';
+create table t031t10 (a varchar(20485760));
+invoke t031t10;
+cqd traf_max_character_col_length_override 'OFF';
+
+-- should fail, exceeds max
+drop table if exists t031t11;
+create table t031t11 (a varchar(20485760));
+create table t031t11 (a varchar(10485760));
+prepare s from select repeat('1234567890', 1048576 ) from dual;
+
+-- should fail, exceeds max
+prepare s from select repeat('11234567890', 1648576 ) from dual;
+
+-- should fail, exceeds max. TBD.
+prepare s from select ' ' || repeat('1234567890', 1048576) from dual;
+
+-- Reset this value before continuing. I've seen cases
+-- where we fail when we resend the above CQDs to a secondary
+-- compiler. The reason is that we send this:
+-- cqd traf_max_character_col_length '25000000';
+-- cqd traf_max_character_col_length_override 'OFF';
+-- Note the missing CQD that sets the override to ON.
+-- We probably optimize this and send only the latest
+-- CQD setting for each one. So, this design with the
+-- two interacting CQDs does not work very well.
+cqd traf_max_character_col_length reset;
+
+-- hive tables
+sh echo "drop table t031hive;" > TEST031_junk;
+sh regrhive.ksh -f TEST031_junk;
+
+sh echo "create table t031hive(z int, a string, b string);" > TEST031_junk;
+sh regrhive.ksh -f TEST031_junk;
+
+cqd hive_max_string_length_in_bytes '1000000';
+insert into hive.hive.t031hive select * from t031t1;
+select count(*) from hive.hive.t031hive;
+select substring(a, 1, 10), cast(b as char(10)) from hive.hive.t031hive;
+select [last 0] * from hive.hive.t031hive;
+
+drop external table if exists t031hive for hive.hive.t031hive;
+create external table t031hive (z int, a varchar(1000000), b varchar(1000000))
+for hive.hive.t031hive;
+delete from t031t1;
+insert into t031t1 select * from hive.hive.t031hive;
+select count(*) from t031t1;
+
+control query shape sort_groupby(exchange(cut));
+cqd hive_min_bytes_per_esp_partition '2000000' ;
+prepare s2 from select count(*) from hive.hive.t031hive;
+explain options 'f' s2 ;
+execute s2 ;
+
+cqd hive_min_bytes_per_esp_partition '1000000' ;
+prepare s2 from select count(*) from hive.hive.t031hive;
+explain options 'f' s2 ;
+execute s2 ;
+
+-- test error
+cqd hdfs_io_buffersize '3' ;
+prepare s2 from select count(*) from hive.hive.t031hive;
+
+control query shape cut ;
+cqd hdfs_io_buffersize reset ;
+cqd hive_min_bytes_per_esp_partition reset;
+
+-- should not return error.
+process hive statement 'drop table t';
+process hive statement 'create table t (a int)';
+process hive statement 'drop table t';
+
+-- insert through "process hive statement" returns an error on HDP platform. 
+-- Disable it until that issue is fixed.
+--process hive statement 'insert into t values (1)';
+
+-- default USER
+drop table if exists t031t1;
+create table t031t1 (a int, b varchar(20) default user);
+invoke t031t1;
+insert into t031t1 (a) values (10);
+insert into t031t1 default values;
+select * from t031t1;
+alter table t031t1 add column c char(20) default user;
+invoke t031t1;
+select * from t031t1;
+insert into t031t1 default values;
+select * from t031t1;
+
+-- metadata stored descriptor tests
+cqd traf_store_object_desc 'OFF';
+cqd traf_read_object_desc 'OFF';
+drop table if exists t031t1 cascade;
+create table t031t1 (a int);
+invoke t031t1;
+alter table t031t1 check stored descriptor;
+
+cqd traf_store_object_desc 'ON';
+cqd traf_read_object_desc 'ON';
+drop table if exists t031t1;
+create table t031t1 (a int);
+invoke t031t1;
+alter table t031t1 check stored descriptor;
+
+alter table t031t1 delete stored descriptor;
+alter table t031t1 check stored descriptor;
+invoke t031t1;
+
+alter table t031t1 generate stored descriptor;
+alter table t031t1 check stored descriptor;
+invoke t031t1;
+
+create view t031v1 as select * from t031t1;
+invoke t031v1;
+alter table t031v1 check stored descriptor;
+alter table t031v1 delete stored descriptor;
+alter table t031v1 check stored descriptor;
+invoke t031v1;
+alter table t031v1 generate stored descriptor;
+alter table t031v1 check stored descriptor;
+invoke t031v1;
+
+create index t031t1i1 on t031t1(a);
+showddl t031t1;
+alter table t031t1 check stored descriptor;
+alter table t031t1 delete stored descriptor;
+alter table t031t1 check stored descriptor;
+showddl t031t1;
+alter table t031t1 generate stored descriptor;
+alter table t031t1 check stored descriptor;
+showddl t031t1;
+
+set parserflags 1;
+invoke table(index_table t031t1i1);
+reset parserflags;
+
+-- purgedata of table with delimited name
+drop table if exists "tT";
+create table "tT" (a int);
+purgedata "tT";
+
+-- group by rollup would sometimes crash compiler.
+drop table if exists mytable;
+create table mytable(a char(10), b char(10), c int, d int);
+insert into mytable values
+('A1', 'B1', 1, 1),
+('A1', 'B1', 1, 2),
+('A1', 'B1', 2, 3),
+('A1', 'B1', 2, 4),
+('A1', 'B2', 3, 5),
+('A1', 'B2', 3, 6),
+('A1', 'B2', 4, 7),
+('A1', 'B2', 4, 8),
+('A2', 'B3', 5, 9),
+('A2', 'B3', 5, 10),
+('A2', 'B3', 6, 11),
+('A2', 'B3', 6, 12),
+('A2', 'B4', 7, 13),
+('A2', 'B4', 7, 14),
+('A2', 'B4', 8, 15),
+('A2', 'B4', 8, 16);
+select a, b, c, sum(d) as newcol from mytable where a in ('A1') 
+  group by(a, b, c);
+select a, b, c, sum(d) as newcol from mytable where d > 5 
+  group by rollup(a, b, c);
+select a, b, c, sum(d) as newcol from mytable where a in ('A1') 
+  group by rollup(a, b, c);
+
+-- GET CATALOGS support
+get catalogs;
+
+-- external and hive table mismatch on hive 'string' datatype
+process hive statement 'drop table t031hivet1';
+process hive statement 'create table t031hivet1 (a string)';
+drop external table if exists t031hivet1 for hive.hive.t031hivet1;
+create external table t031hivet1 for hive.hive.t031hivet1;
+cqd hive_max_string_length_in_bytes '10';
+showddl hive.hive.t031hivet1;
+
+-- volatile and external table operation in default hive schema
+drop external table t031hive for hive.hive.t031hive;
+set schema hive.hive;
+create volatile table vtt (a int);
+create volatile index vtti on vtt(a);
+drop volatile index vtti;
+drop volatile table vtt;
+
+create external table t031hive for t031hive;
+drop external table t031hive for t031hive;
+
+-- create index on an added column 
+set schema trafodion.sch;
+drop table if exists t031t1 cascade;
+create table t031t1 (a char(5) not null primary key);
+insert into t031t1 values ('abcde');
+select a from t031t1;
+alter table t031t1 add column b char(5);
+select a from t031t1;
+create index t031t1i on t031t1(b);
+explain options 'f' select a from t031t1;
+select a from t031t1;
+
+-- index with additional table columns that are not part of key
+drop table if exists t031t11 cascade;
+create table t031t11 (a int not null primary key, b int not null, 
+                    c int not null, 
+                    d int not null, e int not null, f int not null);
+insert into t031t11 values (1,2,3,4,5,6);
+insert into t031t11 values (2,3,3,4,5,6);
+
+create index t031t11i1 on t031t11(b) with table columns (c,f);
+create unique index t031t11i2 on t031t11(b) with table columns (c,f);
+create index t031t11i3 on t031t11(b) with table columns (c,c,f);
+
+-- should return error. Column 'nocol' does not exist in base table
+create index t031t11i111 on t031t11(b) with table columns (nocol);
+
+select * from t031t11;
+
+invoke t031t11;
+showddl t031t11;
+
+prepare s from select a,f from t031t11 order by a;
+explain options 'f' s;
+
+prepare s from select b,f from t031t11 order by b;
+explain options 'f' s;
+
+insert into t031t11 values (3,4,5,6,7,8);
+select * from t031t11;
+
+set parserflags 131072;
+select * from table(index_table t031t11i1);
+select * from table(index_table t031t11i2);
+select * from table(index_table t031t11i3);
+reset parserflags 131072;
+
+drop table if exists t031t11s cascade;
+create table t031t11s (a int not null primary key, b int not null, 
+                    c int not null, 
+                    d int not null, e int not null, f int not null)
+salt using 4 partitions;
+insert into t031t11s values (1,2,3,4,5,6);
+insert into t031t11s values (2,3,3,4,5,6);
+
+create index t031t11si1 on t031t11s(b) salt like table with table columns (c,f);
+showddl t031t11s;
+
+insert into t031t11s values (3,4,5,6,7,8);
+select * from t031t11s;
+
+set parserflags 131072;
+select * from table(index_table t031t11si1);
+reset parserflags 131072;
+
+-- drop column on table with unique/ref constraint not allowed.
+drop table if exists t031t111 cascade;
+create table t031t111 (a int, b int, constraint t031const111  unique (a));
+insert into t031t111 values (1,1), (2,2);
+showddl t031t111;
+alter table t031t111 drop column b; -- return error.
+
+-- drop column on table with indexes
+alter table t031t111 drop constraint t031const111;
+create unique index t031t111i1 on t031t111(a);
+alter table t031t111 drop column b;
+showddl t031t111;
+select * from t031t111;
+set parserflags 1;
+select * from table(index_table t031t111i1);
+
+-- tuple list inserts with incompatible types
+drop table if exists t031t1 cascade;
+create table t031t1 (a int, b timestamp, c char(4) character set iso88591);
+insert into t031t1 values ('1', '2017-01-01 10:10:10', 2);
+insert into t031t1 values ('2', '2017-01-02 11:11:11', 3),
+                          ('3', '2017-01-03 11:11:11', 4),
+                          (4, timestamp '2017-01-04 11:11:11', '5');
+select * from t031t1;
+
+-- tuple list incompatible type inserts into hive tables
+cqd hive_max_string_length_in_bytes '10';
+process hive statement 'drop table if exists t031hive1';
+process hive statement 'create table t031hive1 (a int, b timestamp, c string)';
+insert into hive.hive.t031hive1 values ('1', '2017-01-01 10:10:10', 2);
+insert into hive.hive.t031hive1 values ('2', '2017-01-02 11:11:11', 3),
+                          ('3', '2017-01-03 11:11:11', 4),
+                          (4, timestamp '2017-01-04 11:11:11', '5');
+
+-- this insert should return overflow error
+insert into hive.hive.t031hive1 values (2, '2017-01-02 11:11:11', 'a'),
+                          (111111111111, '2017-01-03 11:11:11', 'b');
+
+-- commenting out this select as it sometimes returns incorrect results.
+-- There is a known diff file but that doesn't cover all cases.
+-- need to diagnose this issue.
+--select * from hive.hive.t031hive1;
+
+-- delimited and reserved word tests
+drop view "HOUR";
+drop view "A-B";
+drop table if exists "MONTH" cascade;
+drop table if exists "DELETE" cascade;
+create table "MONTH" ("YEAR" int constraint "SELECT" unique);
+create table if not exists "MONTH" ("YEAR" int constraint "SELECT" unique);
+create table "DELETE" like "MONTH";
+invoke "DELETE";
+prepare s from insert into "DELETE" values (1);
+create view "HOUR" as select * from "DELETE";
+select * from "HOUR";
+create index "SECOND" on "MONTH"( "YEAR") no populate;
+populate index "SECOND" on "MONTH";
+create view "A-B" as select * from "MONTH";
+prepare s from insert into "MONTH" values (1);
+select * from "A-B";
+
+-- caching of zero length strings
+drop table if exists t031t1 cascade;
+CREATE TABLE t031t1
+  ( 
+    a CHAR(1) not null 
+  , b CHAR(1 BYTE) CHARACTER SET UTF8 not null
+);
+
+cqd mode_compatible_1 'off';
+-- should not crash
+prepare s from INSERT INTO t031t1 VALUES (DECODE('9', '9', 'F'), '');
+
+cqd mode_compatible_1 reset;
+cqd AUTO_ADJUST_CACHEROWS reset;
+log;

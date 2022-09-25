@@ -1,0 +1,801 @@
+-- -*- mode: sql; coding: utf-8 -*-
+-- Tests for SQL on Hadoop PoC
+-- Test simple cases of partitioned tables
+-- Very basic test of data types and Unicode
+-- Basic test of metadata invalidation
+-- Added April 2013
+--
+-- @@@ START COPYRIGHT @@@
+--
+-- Licensed to the Apache Software Foundation (ASF) under one
+-- or more contributor license agreements.  See the NOTICE file
+-- distributed with this work for additional information
+-- regarding copyright ownership.  The ASF licenses this file
+-- to you under the Apache License, Version 2.0 (the
+-- "License"); you may not use this file except in compliance
+-- with the License.  You may obtain a copy of the License at
+--
+--   http://www.apache.org/licenses/LICENSE-2.0
+--
+-- Unless required by applicable law or agreed to in writing,
+-- software distributed under the License is distributed on an
+-- "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+-- KIND, either express or implied.  See the License for the
+-- specific language governing permissions and limitations
+-- under the License.
+--
+-- @@@ END COPYRIGHT @@@
+
+sh regrhadoop.ksh fs -mkdir  /user/trafodion/hive/exttables/customer_ddl;
+sh regrhadoop.ksh fs -mkdir  /user/trafodion/hive/exttables/customer_temp;
+sh regrhadoop.ksh fs -mkdir  /user/trafodion/hive/exttables/tbl_utf8;
+sh regrhadoop.ksh fs -mkdir  /user/trafodion/hive/exttables/tbl_type;
+sh regrhadoop.ksh fs -mkdir  /user/trafodion/hive/exttables/tbl_gbk;
+sh regrhadoop.ksh fs -mkdir  /user/trafodion/hive/exttables/tbl_dos;
+sh regrhadoop.ksh fs -mkdir  /user/trafodion/hive/exttables/tbl_dos_num;
+sh regrhadoop.ksh fs -mkdir  /user/trafodion/hive/exttables/tbl_bad;
+--empty folders
+sh regrhadoop.ksh fs -rm   /user/trafodion/hive/exttables/customer_ddl/*;
+sh regrhadoop.ksh fs -rm   /user/trafodion/hive/exttables/customer_temp/*;
+sh regrhadoop.ksh fs -rm   /user/trafodion/hive/exttables/tbl_utf8/*;
+sh regrhadoop.ksh fs -rm   /user/trafodion/hive/exttables/tbl_type/*;
+sh regrhadoop.ksh fs -rm   /user/trafodion/hive/exttables/tbl_gbk/*;
+sh regrhadoop.ksh fs -rm   /user/trafodion/hive/exttables/tbl_dos/*;
+sh regrhadoop.ksh fs -rm   /user/trafodion/hive/exttables/tbl_dos_num/*;
+sh regrhadoop.ksh fs -rm   /user/trafodion/hive/exttables/tbl_bad/*;
+
+--- setup Hive tables
+sh sqlci -i"$REGRTSTDIR/TEST005_a.hive.sql";
+
+sh regrhadoop.ksh fs -put $REGRTSTDIR/tbl_utf8.data /user/trafodion/hive/exttables/tbl_utf8;
+sh regrhadoop.ksh fs -put $REGRTSTDIR/tbl_type.data /user/trafodion/hive/exttables/tbl_type;
+sh regrhadoop.ksh fs -put $REGRTSTDIR/tbl_gbk.data /user/trafodion/hive/exttables/tbl_gbk;
+sh regrhadoop.ksh fs -put $REGRTSTDIR/tbl_dos.data /user/trafodion/hive/exttables/tbl_dos;
+sh regrhadoop.ksh fs -put $REGRTSTDIR/tbl_dos_numeric.data /user/trafodion/hive/exttables/tbl_dos_num;
+sh regrhadoop.ksh fs -put $REGRTSTDIR/tbl_bad.data /user/trafodion/hive/exttables/tbl_bad;
+
+-- cleanup any left-over Trafodion objects
+drop external table hivepi for hive.hive.hivepi;
+drop external table hivepis for hive.hive.hivepis;
+drop external table hivepiso for hive.hive.hivepiso;
+update statistics for table hive.hive.hivepi clear;
+update statistics for table hivepis clear;
+update statistics for table hivepiso clear;
+
+log LOG005 clear;
+
+set schema hive.hive;
+
+set terminal_charset utf8;
+
+cqd AUTO_QUERY_RETRY_WARNINGS 'ON';
+
+cqd HIVE_MAX_STRING_LENGTH_IN_BYTES '32' ;
+
+cqd HIST_ROWCOUNT_REQUIRING_STATS '50000';
+
+------------------------------------------------------------
+-- Testing query plan invalidation in the compiler, but
+-- not the executor. Perform DML/DDL operations on a
+-- table and try re-executing the old plan as well as
+-- getting a query cache hit and updating the changed
+-- Hive and HDFS metadata
+------------------------------------------------------------
+prepare s1 from 
+  select c_preferred_cust_flag,
+         count(*) 
+  from customer_temp
+  group by 1 
+  order by 1
+  ;
+execute s1;
+-- expect 0 rows
+
+prepare s1part from 
+  select c_preferred_cust_flag,
+         count(*) 
+  from customer_p 
+  group by 1 
+  order by 1
+  ;
+execute s1part;
+-- expect 0 rows
+
+insert into hive.hive.hivenonp
+values -- partition 1,one
+       (1,1,1,'one', timestamp '2001-01-01 01:23:45.678901', date '2001-01-01'),
+       (11,11,1,'one', timestamp '2001-01-01 01:23:45.678901', date '2001-01-01'),
+       -- partition 2,two
+       (2,2,2,'two', timestamp '2002-02-02 02:34:56.789012', date '2020-02-29'),
+       (22,22,2,'two', timestamp '2002-02-02 00:00:00.000000', date '2020-02-29'),
+       (222,222,2,'two', timestamp '2002-02-02 02:34:56.789012', date '2020-02-29'),
+       -- partition 3,three
+       (3,3,3,'three', timestamp '2003-03-03 03:45:57.890123', date '2003-03-31'),
+       -- partition 3 or partition 3,four
+       (34,34,3,'four', timestamp '2004-04-04 04:56:18', date '2004-04-04'),
+       -- partition -5,five
+       (-55,-55,-5,'five', timestamp '2004-04-04 04:56:18', date '2005-05-05');
+select * from hive.hive.hivenonp;
+
+set schema trafodion.sch;
+create external table hivepi for hive.hive.hivepi;
+set schema hive.hive;
+
+-- turn parallelism off, we need one file per partition,
+-- otherwise we get false failures when selecting input__range__number below
+cqd attempt_esp_parallelism 'off';
+insert into hive.hive.hivepis select id, col2, p1, p2 from hive.hive.hivenonp;
+cqd attempt_esp_parallelism reset;
+cqd HIVE_PARTITION_INSERT_REPART '4';
+insert into hive.hive.hivepts select id, col2, p1t, p2 from hive.hive.hivenonp;
+cqd HIVE_PARTITION_INSERT_REPART reset;
+cqd attempt_esp_parallelism 'off';
+insert into hive.hive.hivepi  select id, col2, p1 from hive.hive.hivepis;
+cqd attempt_esp_parallelism reset;
+insert overwrite table hive.hive.hivepi  select id, col2, p1 from hive.hive.hivepis;
+-- error, insert overwrite table not allowed for partitioned tables
+
+prepare display_rows_accessed from
+select val4_txt, val4
+from table(statistics(null,null))
+where tdb_name like '%_SCAN %';
+
+select * from hivepi;
+select count(*) from hivepis;
+select * from hivepts where p2 = 'two';
+execute display_rows_accessed;
+select * from hivepi join hivepis on hivepi.p1 = hivepis.p1;
+
+-- min/max optimization, leading to partition elimination
+cqd GEN_HSHJ_MIN_MAX_OPT 'on';
+control query shape hash_join(scan('P'), scan('N'));
+
+prepare s from
+select p.id, n.id, p.p1, n.p1
+from hive.hive.hivepi p join hive.hive.hivenonp n
+  on p.p1 = n.p1
+where n.id in (2, 22);
+
+-- validate that the min/max values are actually used
+select operator, tname
+from table(explain(null, 'S'))
+where description like '%:_sys_MinVal0%'
+  and description like '%:_sys_MaxVal0%';
+
+execute s;
+
+-- min/max optimization with an ESP exchange between the join and the scan
+
+-- force a parallel type 2 join with repartitioning on the left side
+control query shape esp_exchange(hash_join(esp_exchange(scan('P'), 2), cut, type2), 4);
+
+prepare s from
+select p.id, n.id, p.p1, n.p1
+from hive.hive.hivepi p join hive.hive.hivenonp n
+  on p.p1 = n.p1
+where n.id in (2, 22);
+
+explain options 'f' s;
+
+-- validate that the min/max values are actually used
+select operator, tname
+from table(explain(null, 'S'))
+where description like '%:_sys_MinVal0%'
+  and description like '%:_sys_MaxVal0%';
+-- still should do min/max optimization, since this is a type 2 join
+
+execute s;
+
+-- force a parallel type 2 join with repartitioning on the left side
+control query shape esp_exchange(hash_join(esp_exchange(scan('P'), 2), cut, type1), 4);
+
+prepare s from
+select p.id, n.id, p.p1, n.p1
+from hive.hive.hivepi p join hive.hive.hivenonp n
+  on p.p1 = n.p1
+where n.id in (2, 22);
+
+explain options 'f' s;
+
+-- validate that the min/max values are actually used
+select operator, tname
+from table(explain(null, 'S'))
+where description like '%:_sys_MinVal0%'
+  and description like '%:_sys_MaxVal0%';
+-- should not see min/max optimization, not supported
+-- for this kind of type 1 join and repartitioning
+
+execute s;
+
+control query shape cut;
+
+-- allow VEG between varchars
+cqd comp_bool_158 'on';
+
+control query shape hash_join(scan('P'), scan('N'));
+
+prepare s from
+select p.id, n.id, p.p1, n.p1, p.p2
+from hive.hive.hivepis p join hive.hive.hivenonp n
+  on p.p1 = n.p1 and p.p2 = n.p2
+where n.id in (2, 22) and p.p2 like '%w%';
+
+-- validate that the min/max values are actually used
+select operator, tname
+from table(explain(null, 'S'))
+where description like '%:_sys_MinVal0%'
+  and description like '%:_sys_MaxVal0%'
+  and description like '%:_sys_MinVal1%'
+  and description like '%:_sys_MaxVal1%';
+
+execute s;
+
+control query shape cut;
+
+-- insert some data and add one more partition
+sh regrhive.ksh -v -f $REGRTSTDIR/TEST005_b.hive.sql;
+
+-- customer_ddl table is about 3 MB, make a plan with >= 2 ESPs
+cqd HIVE_MIN_BYTES_PER_ESP_PARTITION '1000000';
+cqd hive_max_string_length_in_bytes '32000';
+cqd HIVE_PARTITION_INSERT_REPART '4';
+
+prepare partinsert from
+insert into hive.hive.customer_p
+select 
+    c_customer_sk,
+    c_customer_id,
+    c_current_cdemo_sk,
+    c_current_hdemo_sk,
+    c_current_addr_sk,
+    c_first_shipto_date_sk,
+    c_first_sales_date_sk,
+    c_salutation,
+    c_first_name,
+    c_last_name,
+    c_birth_day,
+    c_birth_month,
+    c_birth_year,
+    c_birth_country,
+    c_login,
+    c_email_address,
+    c_last_review_date,
+    c_preferred_cust_flag
+from hive.hive.customer_ddl <<+cardinality 2.5e4 >>
+where c_customer_sk < 20000
+      -- blank partition column values not yet supported
+      and char_length(c_preferred_cust_flag) <> 0;
+
+-- go back to the smaller string length
+cqd HIVE_MAX_STRING_LENGTH_IN_BYTES '32' ;
+cqd HIVE_PARTITION_INSERT_REPART reset;
+
+-- verify that we are indeed seeing a parallel plan
+select count(*)
+from table(explain(null,'PARTINSERT'))
+where operator = 'ESP_EXCHANGE';
+
+execute partinsert;
+
+insert into customer_temp 
+select * from customer 
+where c_customer_sk between 20000 and 39999;
+
+-- query cache hit, no validation at all
+  select c_preferred_cust_flag,
+         count(*) 
+  from customer_ddl 
+  group by 1 
+  order by 1
+  ;
+
+-- vary query to avoid query cache hit
+prepare s2 from 
+  select c_preferred_cust_flag,
+         count(c_customer_sk) 
+  from customer_ddl 
+  group by 1 
+  order by 1
+  ;
+
+prepare s2part from
+  select c_preferred_cust_flag,
+         count(c_customer_sk) -- avoid query cache
+  from customer_p 
+  group by 1 
+  order by 1
+  ;
+execute s1;
+
+execute s2;
+-- should get an NATable cache
+-- hit, we should notice the change in the table
+-- and return the correct result
+
+execute s1part;
+
+execute s2part;
+-- although this should get an NATable cache
+-- hit, we should notice the change in the table
+-- and return the correct result
+
+select * from newtable;
+-- no rows, but should know the new table
+insert into newtable values ('abc');
+select * from newtable;
+-- expect to see the row, but only because query cache is off
+
+insert into hiveregr5.newtable2 values ('xyz');
+select * from hiveregr5.newtable2;
+
+-- recreate newtable and drop hive schema hiveregr5
+sh regrhive.ksh -v -f $REGRTSTDIR/TEST005_c.hive.sql;
+
+-- add duplicate rows to customer_p
+insert into customer_p
+select 
+    c_customer_sk,
+    c_customer_id,
+    c_current_cdemo_sk,
+    c_current_hdemo_sk,
+    c_current_addr_sk,
+    c_first_shipto_date_sk,
+    c_first_sales_date_sk,
+    c_salutation,
+    c_first_name,
+    c_last_name,
+    c_birth_day,
+    c_birth_month,
+    c_birth_year,
+    c_birth_country,
+    c_login,
+    c_email_address,
+    c_last_review_date,
+    c_preferred_cust_flag
+from customer_ddl
+where c_customer_sk between 20000 and 24999
+      -- blank partition column values not yet supported
+      and char_length(c_preferred_cust_flag) <> 0;
+
+-- no query cache hit, but NATable cache hit
+prepare s3 from 
+  select count(*) 
+  from customer_ddl 
+  ;
+
+-- no query cache hit, but NATable cache hit
+prepare s3part from
+  select c_preferred_cust_flag,
+         count(c_customer_id) 
+  from customer_p 
+  group by 1 
+  order by 1
+  ;
+execute s1;
+execute s2;
+execute s3;
+execute s1part;
+execute s2part;
+execute s3part;
+
+select a,b from newtable;
+-- should return 0 rows
+
+insert into newtable values (1, 'def');
+select a,b from newtable;
+
+-- overwrite customer_p and tbl_utf8p with auto-generated partitions
+sh regrhive.ksh -v -f $REGRTSTDIR/TEST005_d.hive.sql;
+
+prepare s4 from 
+  select c_preferred_cust_flag,
+         count(*) 
+  from customer_ddl 
+  group by 1 
+  order by 1
+  ;
+prepare s4part from
+  select c_preferred_cust_flag,
+         count(*) 
+  from customer_p 
+  group by 1 
+  order by 1
+  ;
+execute s2;
+execute s4;
+execute s2part;
+-- error 8442 since the files we are trying to open no longer exist
+execute s4part;
+select count(*) from tbl_utf8;
+select * from tbl_utf8 where id between 8 and 12;
+select * from tbl_utf8 where chapter like '%三%';
+select * from tbl_utf8 where chapter like '%海印_昧%';
+
+insert into tbl_utf8_temp 
+select * from tbl_utf8;
+
+select count(*) from tbl_utf8_temp;
+select * from tbl_utf8_temp where id between 8 and 12;
+select * from tbl_utf8_temp where chapter like '%海印_昧%';
+
+select count(*) from tbl_utf8p;
+select * from tbl_utf8p where id between 8 and 12;
+select * from tbl_utf8p where chapter like '%海印_昧%';
+
+invoke tbl_type;
+showddl tbl_type;
+select * from tbl_type;
+insert into tbl_type_temp select * from tbl_type;
+select * from tbl_type_temp;
+
+cqd traf_enable_orc_format 'ON';
+select * from hivenonp;
+select * from hivepi;
+select * from hiveps;
+select * from hivepis;
+select * from hivepts;
+select * from hivepio;
+select * from hivepdo;
+select * from hivepiso;
+
+prepare s from
+select * 
+from hive.hive.hivepis
+where id=2 and p1=2 and p2 = 'two' and p2 > ? and (id<100 or p2='three');
+--             compile  compile        runtime     not a part elim pred
+select count(*)
+from table(explain(null,'S'))
+where operator like '%SCAN%'
+  and description like '%part_elim_compiled%';
+select count(*)
+from table(explain(null,'S'))
+where operator like '%SCAN%'
+  and description like '%part_elim_runtime%';
+select * from hive.hive.hivepts where p1t > timestamp '2002-01-01 00:00:00.000000000' and p2 <> 'four';
+execute display_rows_accessed;
+select * from hive.hive.hivepts where p1t < current_timestamp;
+execute display_rows_accessed;
+
+select *,
+       block__offset__inside__file,
+       input__range__number,
+       row__number__in__range
+       --, cast(substring(input__file__name,1,100) as char(100)) file_name
+from hive.hive.hivepis;
+select input__range__number, row__number__in__range, block__offset__inside__file
+from hive.hive.hivenonp;
+select input__range__number, row__number__in__range, block__offset__inside__file
+from hive.hive.hivepi;
+
+prepare s from select * from hive.hive.hivepio;
+execute s;
+select * from hive.hive.hivepiso;
+
+-- partition elimination on ORC table
+select * from hive.hive.hivepio where p1=2;
+execute display_rows_accessed;
+select * from hive.hive.hivepio where p1 in (1,3);
+execute display_rows_accessed;
+select * from hive.hive.hivepdo where p1d >= date '2002-12-31';
+execute display_rows_accessed;
+
+-- this pred can neither be pushed to ORC nor used as
+-- a partition elimination predicate
+select * from hive.hive.hivepio where p1=1 or col2<10;
+
+-- test partition elimination for predicates that don't
+-- rely on any partition column
+select * from hive.hive.hivenonp where 1=0;
+select * from hive.hive.hivepi where 2=3;
+select * from hive.hive.hivepiso where 4=5;
+
+update statistics for table hive.hive.hivepi on every column;
+update statistics for table hivepis on every column;
+update statistics for table hivepiso on every column;
+
+select cast(substring(o.object_name, 1, 20) as
+            char(20) character set iso88591) object_name,
+       cast(substring(c.column_name, 1, 20) as
+            char(20) character set iso88591) col_name
+  from trafodion."_MD_".objects o
+  join table(hivemd(columns)) c
+         on lower(o.catalog_name) = trim(c.catalog_name) and
+            lower(o.schema_name) = trim(c.schema_name) and
+            lower(o.object_name) = trim(c.table_name)
+  join trafodion."_HIVESTATS_".sb_histograms g on g.table_uid = o.object_uid
+                       and g.column_number = c.column_number
+  where o.object_type = 'BT'
+    and o.object_name in ('HIVEPI', 'HIVEPIS', 'HIVEPISO')
+order by 1,2;
+
+drop external table hivepi for hive.hive.hivepi;
+
+-- clear statistics, so other test results won't change
+update statistics for table hive.hive.hivepi clear;
+update statistics for table hivepis clear;
+update statistics for table hivepiso clear;
+
+cqd HIVE_FILE_CHARSET 'GBK';
+select c1, CONVERTTOHEX(c2) from tbl_gbk;
+cqd HIVE_FILE_CHARSET reset;
+
+cqd HIVE_SCAN_SPECIAL_MODE '1';
+select * from tbl_dos;
+cqd HIVE_SCAN_SPECIAL_MODE '0';
+drop table if exists trafodion.seabase.tbl_dos_num;
+create table trafodion.seabase.tbl_dos_num (c1 int, c2 int);
+load with NO OUTPUT into trafodion.seabase.tbl_dos_num select * from tbl_dos_num;
+cqd HIVE_SCAN_SPECIAL_MODE '1';
+load with no output into trafodion.seabase.tbl_dos_num select * from tbl_dos_num;
+select * from trafodion.seabase.tbl_dos_num;
+cqd HIVE_SCAN_SPECIAL_MODE '0';
+select * from tbl_bad;
+cqd HIVE_SCAN_SPECIAL_MODE '2';
+select * from tbl_bad;
+cqd HIVE_SCAN_SPECIAL_MODE '0';
+drop table if exists trafodion.seabase.traf_tbl_bad;
+create table trafodion.seabase.traf_tbl_bad (
+c1 int,
+c2 largeint,
+c3 varchar(25),
+c4 real,
+c5 smallint,
+c6 timestamp(6),
+c7 float(54),
+c8 smallint
+);
+load with no output into trafodion.seabase.traf_tbl_bad select * from tbl_bad;
+select count(*) from trafodion.seabase.traf_tbl_bad;
+load with continue on error into trafodion.seabase.traf_tbl_bad select * from tbl_bad;
+select count(*) from trafodion.seabase.traf_tbl_bad;
+delete from trafodion.seabase.traf_tbl_bad ;
+load with log error rows into trafodion.seabase.traf_tbl_bad select * from tbl_bad;
+select count(*) from trafodion.seabase.traf_tbl_bad;
+load with log error rows to '/user/trafodion/bulkload/logs/TEST005' into trafodion.seabase.traf_tbl_bad select * from tbl_bad;
+select count(*) from trafodion.seabase.traf_tbl_bad;
+delete from trafodion.seabase.traf_tbl_bad ;
+load with stop after 3 error rows into trafodion.seabase.traf_tbl_bad select * from tbl_bad;
+select count(*) from trafodion.seabase.traf_tbl_bad;
+load with log error rows, stop after 3 error rows into trafodion.seabase.traf_tbl_bad select * from tbl_bad;
+select count(*) from trafodion.seabase.traf_tbl_bad;
+insert into trafodion.seabase.traf_tbl_bad select * from tbl_bad;
+upsert into trafodion.seabase.traf_tbl_bad select * from tbl_bad;
+cqd HIVE_SCAN_SPECIAL_MODE '2';
+load with no output into trafodion.seabase.traf_tbl_bad select * from tbl_bad;
+insert into trafodion.seabase.traf_tbl_bad select * from tbl_bad;
+upsert into trafodion.seabase.traf_tbl_bad select * from tbl_bad;
+cqd HIVE_SCAN_SPECIAL_MODE '0';
+drop table if exists trafodion.seabase.traf_tbl_bad;
+create table trafodion.seabase.traf_tbl_bad (
+c1 int not null,
+c2 largeint not null,
+c3 varchar(25),
+c4 real,
+c5 smallint,
+c6 timestamp(6) not null,
+c7 float(54) not null,
+c8 smallint
+);
+cqd HIVE_SCAN_SPECIAL_MODE '2';
+insert into trafodion.seabase.traf_tbl_bad select * from tbl_bad;
+cqd HIVE_SCAN_SPECIAL_MODE reset;
+
+-- tests for hive timestamp mismatch check
+cqd auto_query_retry_warnings 'ON';
+
+drop table if exists hive.hive.thive;
+create table hive.hive.thive(a int);
+
+select a from hive.hive.thive;
+
+--process hive statement 'insert into thive values (1)';
+insert into hive.hive.thive values (1);
+
+select a from hive.hive.thive;
+insert into hive.hive.thive values (2);
+select a from hive.hive.thive;
+
+drop table hive.hive.thive;
+create table hive.hive.thive(a int, b int);
+
+--process hive statement 'insert into thive values (1,2)';
+insert into hive.hive.thive values (1,2);
+
+select a from hive.hive.thive;
+
+select * from hive.hive.thive;
+
+-- truncate of regular hive table
+truncate table hive.hive.thive;
+select * from hive.hive.thive;
+insert into hive.hive.thive values (10, 20);
+select * from hive.hive.thive;
+truncate table hive.hive.thive;
+truncate table hive.hive.thive;
+select * from hive.hive.thive;
+
+-- truncate of partitioned hive table
+-- When partitioned hive tables are supported, then inserts and selects below
+-- can be executed directly from traf instead of through hive shell.
+cqd auto_query_retry_warnings 'OFF';
+drop table if exists hive.hive.t005part;
+create table hive.hive.t005part(a int) partitioned by (b int, c int);
+
+sh echo "insert into t005part partition (b=10,c=11) values (5);" > TEST005_junk;
+sh regrhive.ksh -f TEST005_junk;
+sh echo "select * from t005part;" > TEST005_junk;
+sh regrhive.ksh -f TEST005_junk | tee -a LOG005;
+
+truncate table hive.hive.t005part;
+sh echo "select * from t005part;" > TEST005_junk;
+sh regrhive.ksh -f TEST005_junk | tee -a LOG005;
+
+sh echo "insert into t005part partition (b=10,c=11) values (5);" > TEST005_junk;
+sh regrhive.ksh -f TEST005_junk;
+truncate table hive.hive.t005part partition (b=10);
+sh echo "select * from t005part;" > TEST005_junk;
+sh regrhive.ksh -f TEST005_junk | tee -a LOG005;
+
+sh echo "insert into t005part partition (b=10,c=11) values (5);" > TEST005_junk;
+sh regrhive.ksh -f TEST005_junk;
+truncate table hive.hive.t005part partition (b=10,c=11);
+sh echo "select * from t005part;" > TEST005_junk;
+sh regrhive.ksh -f TEST005_junk | tee -a LOG005;
+
+sh echo "insert into t005part partition (b=10,c=11) values (5);" > TEST005_junk;
+sh regrhive.ksh -f TEST005_junk;
+sh echo "insert into t005part partition (b=10,c=12) values (6);" > TEST005_junk;
+sh regrhive.ksh -f TEST005_junk;
+sh echo "select * from t005part;" > TEST005_junk;
+sh regrhive.ksh -f TEST005_junk | tee -a LOG005;
+
+truncate table hive.hive.t005part partition (b=10,c=11);
+sh echo "select * from t005part;" > TEST005_junk;
+sh regrhive.ksh -f TEST005_junk | tee -a LOG005;
+
+truncate table hive.hive.t005part partition (b=10);
+sh echo "select * from t005part;" > TEST005_junk;
+sh regrhive.ksh -f TEST005_junk | tee -a LOG005;
+
+-- should return error, partition doesnt exist
+truncate hive.hive.t005part partition (b=10,c=13);
+
+truncate table hive.hive.t005part;
+insert into t005part values (1, 10, 13);
+select * from t005part;
+
+-- should return error, col doesn't exist
+truncate hive.hive.t005part partition (z = 10);
+-- should return error, col not a partitioning column
+truncate hive.hive.t005part partition (a = 10);
+
+insert overwrite table t005part drop if exists partition (b=10,c=13) values (2,10,13);
+select * from t005part;
+
+-- inserts into partitioned table with drop partitions and truncation
+
+-- managed (non-external) tables
+process hive ddl 'drop table t005tnpm';
+process hive ddl 'create table t005tnpm (a int, b int, c int)';
+
+sh regrhadoop.ksh fs -rm -r /user/trafodion/hive/exttables/t005tpm;
+process hive ddl 'drop table t005tpm';
+process hive ddl 'create table t005tpm (a int) partitioned by (b int, c int) location ''/user/trafodion/hive/exttables/t005tpm'' ';
+process hive ddl 'msck repair table t005tpm';
+set envvar TNP 't005tnpm';
+set envvar TP 't005tpm';
+obey TEST005(iot_tests);
+
+-- external tables
+process hive ddl 'drop table t005tnpe';
+process hive ddl 'create external table t005tnpe (a int, b int, c int)';
+
+sh regrhadoop.ksh fs -rm -r /user/trafodion/hive/exttables/t005tpe;
+process hive ddl 'drop table t005tpe';
+process hive ddl 'create external table t005tpe (a int) partitioned by (b int, c int) location ''/user/trafodion/hive/exttables/t005tpe'' ';
+process hive ddl 'msck repair table t005tpe';
+set envvar TNP 't005tnpe';
+set envvar TP 't005tpe';
+obey TEST005(iot_tests);
+
+obey TEST005(iot_error);
+
+-- should return error
+purgedata hive.hive.thive;
+
+-- tests for hive insert error modes
+invoke hive.hive.thive_insert_smallint;
+showddl hive.hive.thive_insert_smallint;
+
+truncate table hive.hive.thive_insert_smallint;
+cqd hive_insert_error_mode '0';
+insert into hive.hive.thive_insert_smallint select * from 
+ (values (10), (11111111), (21), (22222222));
+select * from hive.hive.thive_insert_smallint;
+
+truncate table hive.hive.thive_insert_smallint;
+cqd hive_insert_error_mode '1';
+insert into hive.hive.thive_insert_smallint select * from
+ (values (10), (11111111), (21), (22222222));
+select * from hive.hive.thive_insert_smallint;
+
+truncate table hive.hive.thive_insert_smallint;
+cqd hive_insert_error_mode '2';
+insert into hive.hive.thive_insert_smallint select * from 
+ (values (10), (11111111), (21), (22222222));
+select * from hive.hive.thive_insert_smallint;
+
+truncate table hive.hive.thive_insert_smallint;
+cqd hive_insert_error_mode '3';
+insert into hive.hive.thive_insert_smallint select * from
+ (values (10), (11111111), (21), (22222222));
+select * from hive.hive.thive_insert_smallint;
+
+cqd hive_max_string_length_in_bytes '2';
+invoke hive.hive.thive_insert_varchar;
+showddl hive.hive.thive_insert_varchar;
+cqd hive_insert_error_mode '1';
+truncate table hive.hive.thive_insert_varchar;
+insert into hive.hive.thive_insert_varchar values ('abcddcba','efghijkl');
+
+cqd hive_max_string_length_in_bytes '20';
+select * from hive.hive.thive_insert_varchar;
+
+log;
+exit;
+
+?section iot_tests
+set schema hive.hive;
+
+insert into $$TP$$ values (1,2,3);
+
+cqd traf_reload_natable_cache 'ON';
+select * from $$TP$$;
+
+insert overwrite table $$TP$$ drop if exists partition (b=10,c=20) values (10,20,30);
+select * from $$TP$$;
+cqd traf_reload_natable_cache reset;
+
+insert overwrite table $$TP$$ drop if exists partition (b=10) values (10,21,31);
+select * from $$TP$$;
+
+insert overwrite table $$TP$$ drop if exists partition (b=21) values (10,22,32);
+select * from $$TP$$;
+
+insert overwrite table $$TP$$ drop if exists partition (c=32) values (10,22,33);
+select * from $$TP$$;
+
+insert overwrite table $$TP$$ drop if exists partition (b=22,c=33) values (10,24,34);
+select * from $$TP$$;
+
+insert into $$TP$$ values (100,240,340);
+
+select * from $$TP$$;
+cqd traf_reload_natable_cache reset;
+
+truncate table $$TP$$;
+select * from $$TP$$;
+
+-- non-partitioned tables
+insert into $$TNP$$ values (1,2,3);
+select * from $$TNP$$;
+insert overwrite table $$TNP$$ values (11,22,33);
+select * from $$TNP$$;
+truncate table $$TNP$$;
+select * from $$TNP$$;
+
+?section iot_error
+-- error cases
+-- partition list cannot be specified with 'insert into' syntax
+insert into $$TP$$ drop if exists partition (b=22,c=33) values (10,24,34);
+
+-- partition list cannot be specified for non-partitioned tables
+insert overwrite table $$TNP$$ drop if exists partition (b=2, c=3) values (1,2,3);
+
+-- insert overwrite without drop partition list cannot be specified for a partitioned table
+insert overwrite table $$TP$$ values (10,25,36);
+
+-- specified column in PARTITION clause must exist and be a partitioning column
+insert overwrite table $$TP$$ drop if exists partition (b=22,z=33) values (10,24,34);
+insert overwrite table $$TP$$ drop if exists partition (a=22,c=33) values (10,24,34);
+

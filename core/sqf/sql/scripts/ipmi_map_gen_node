@@ -1,0 +1,33 @@
+#!/bin/bash
+
+########################################################
+#
+# Generates this IPMI host map for this node: <IPMI IP Address> <Host Name>
+#
+# Does this for a couple of LAN channels: 1 and 8
+#
+# Requisite Software:
+#   yum install ipmitool
+#   modprobe ipmi_devintf
+#
+# Need to run this as root
+#   Execute 'visudo' and add this line if this is being executed by a non-root user: 
+#      trafodion ALL=(ALL) SETENV:NOPASSWD:/opt/trafodion/esgynDB/sql/scripts/ipmi_map_gen_node   
+# 
+########################################################
+
+function gen_map_for_channel {
+
+    lv_ipmi_ip=$(ipmitool lan print $1 2>/dev/null | grep "IP Address" | grep -v "Source" | awk '{print $4;}')
+
+    if [ ! -z $lv_ipmi_ip ]; then
+        if [ ! $lv_ipmi_ip == "0.0.0.0" ]; then
+	   echo "$lv_ipmi_ip `hostname -f`"	
+        fi
+    fi
+}
+
+gen_map_for_channel 1
+gen_map_for_channel 8
+
+

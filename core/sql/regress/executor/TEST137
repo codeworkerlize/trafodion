@@ -1,0 +1,148 @@
+-- Test: TEST137 (Executor)
+-- @@@ START COPYRIGHT @@@
+--
+-- Licensed to the Apache Software Foundation (ASF) under one
+-- or more contributor license agreements.  See the NOTICE file
+-- distributed with this work for additional information
+-- regarding copyright ownership.  The ASF licenses this file
+-- to you under the Apache License, Version 2.0 (the
+-- "License"); you may not use this file except in compliance
+-- with the License.  You may obtain a copy of the License at
+--
+--   http://www.apache.org/licenses/LICENSE-2.0
+--
+-- Unless required by applicable law or agreed to in writing,
+-- software distributed under the License is distributed on an
+-- "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+-- KIND, either express or implied.  See the License for the
+-- specific language governing permissions and limitations
+-- under the License.
+--
+-- @@@ END COPYRIGHT @@@
+--
+-- Functionality: Various lob related fixes
+-- Expected files: EXPECTED137
+-- Table created: 
+-- Limitations: 
+-- 
+-- To Do:   
+--      
+-- Revision history:
+--
+
+log LOG137 clear;
+
+create schema if not exists sch137;
+set schema sch137;
+
+cqd traf_lob_version2 'ON';
+obey TEST137(tests);
+
+cqd traf_lob_version2 'OFF';
+obey TEST137(tests);
+
+log;
+exit;
+
+?section tests
+set schema sch137;
+
+drop table if exists tlob1;
+create table if not exists tlob1 (a blob(100), b clob(100), c clob(100));
+delete from tlob1;
+
+insert into tlob1 values ('10', 'abc', ' xyz '), ('20', 'tt', 'yyyy');
+
+insert into tlob1 values ('10', 'abc', ' xyz ');
+insert into tlob1 values ('20', 'tt', 'yyyy');
+
+-- should return error. Command not supported from sqlci/trafci
+extract lobtobuffer(lob 'LOBH00001', location 123, size 123);
+
+prepare s from update using upsert tlob1 set b = 'abc';
+explain options 'f' s;
+
+-- return error. minus not allowed on blob cols.
+select a from tlob1 minus select a from tlob1;
+
+--should succeed
+select b from tlob1 minus select b from tlob1;
+
+select octet_length(a), char_length(b), octet_length(c) from tlob1;
+
+select b || c, substring(b,2,1), trim(c), overlay(b placing 'rr' from 2)    
+  from tlob1;
+
+-- union cannot be used on blob/clob cols
+select * from tlob1 union select * from tlob1;
+select a from tlob1 union select a from tlob1;
+select b,c from tlob1 union select b,c from tlob1;
+
+-- update queries
+
+delete from tlob1;
+set param ?p NULL;
+
+--row does not exist. nothing to update.
+  delete from tlob1;
+  update tlob1 set b = null;
+  select lobtostring(a,10) from tlob1;
+
+
+--row exists. no existing handle.  new value null.  insert null in row.
+  delete from tlob1;
+  insert into tlob1 values (null, null, null);
+  update tlob1 set b = null;
+  select lobtostring(b,10) from tlob1;
+
+--row exists. no existing handle.  new value nonull. gen handle. insert nonull.
+  delete from tlob1;
+  insert into tlob1 values (null, null, null);
+  update tlob1 set b = 'abc';
+  select lobtostring(b,10) from tlob1;
+
+
+--row exists. existing handle. new value null. delete handle. insert null in row.
+  delete from tlob1;
+  insert into tlob1 values ('a', 'b', 'c');
+  update tlob1 set b = null;
+  select lobtostring(b,10) from tlob1;
+  
+
+--row exists. existing handle. new value nonull. update nonull value.
+  delete from tlob1;
+  insert into tlob1 values ('a', 'b', 'c');
+  update tlob1 set b = 'bb';
+  select lobtostring(b,10) from tlob1;
+
+
+--update a null value. no append. Should result in a null value.
+  delete from tlob1;
+  insert into tlob1 values ('a', 'b', 'c');
+  update tlob1 set b = stringtolob(cast(?p as char(10)));
+  select lobtostring(b,10) from tlob1;
+
+
+--update append a null value. Should result in a null value.
+  delete from tlob1;
+  insert into tlob1 values ('a', 'b', 'c');
+  update tlob1 set b = stringtolob(cast(?p as char(10)), append);
+  select lobtostring(b,10) from tlob1;
+
+
+-- alter drop on tables with lob columns
+drop table if exists t031t1 cascade;
+create table t031t1 (z int primary key, a int, b blob, c int, d blob);
+insert into t031t1 values (10, 1, 'bb', 2, 'dd');
+select z, a,lobtostring(b,10),c,lobtostring(d,10)  from t031t1;
+alter table t031t1 drop column c;
+select z, a,lobtostring(b,10), lobtostring(d,10) from t031t1;
+alter table t031t1 drop column a;
+select z, lobtostring(b,10), lobtostring(d,10) from t031t1;
+alter table t031t1 drop column b;
+select z, lobtostring(d,10) from t031t1;
+alter table t031t1 drop column d;
+select z from t031t1;
+
+
+

@@ -1,0 +1,247 @@
+{
+    "//comments": "enhance-ha. enable HA or switch to HA",
+    "MOD_CFGS": {
+        "hbase-site": {
+            "hbase.client.pause": "1000",
+            "hbase.client.retries.number": "3",
+            "zookeeper.recovery.retry": "1",
+            "zookeeper.session.timeout": "90000",
+            "hbase.regionserver.executor.openregion.threads": "50",
+            "hbase.rpc.timeout": "60000",
+            "hbase.lease.recovery.first.pause": "1000",
+            "hbase.lease.recovery.pause": "500",
+            "hbase.regionserver.hlog.splitlog.writer.threads": "20",
+            "hbase.regionserver.wal.max.splitters": "20",
+            "hbase.regionserver.hlog.blocksize": "104857600",
+            "hbase.regionserver.executor.closeregion.threads": "50",
+            "hbase.regionserver.logroll.multiplier": "0.9",
+            "hbase.wal.meta_provider": "multiwal",
+            "hbase.procedure.store.wal.max.retries.before.roll": "2",
+            "hbase.procedure.store.wal.sync.failure.roll.max": "2",
+            "hbase.rpc.write.timeout": "10000",
+            "hbase.master.executor.openregion.threads": "10",
+            "hbase.master.executor.closeregion.threads": "10",
+            "hbase.master.executor.serverops.threads": "10",
+            "hbase.shutdown.hook": "true",
+            "hbase.trafodion.async.wal": "2",
+            "hbase.regionserver.metahandler.count": "200",
+            "hbase.abort.kill.rs":"true",
+            "hbase.rs.abort.timeout":"40000"
+        },
+        "hbase-site-master": {
+            "zookeeper.session.timeout": "60000",
+            "hbase.master.retries.number":"3",
+            "hbase.assignment.maximum.attempts":"3",
+            "hbase.master.cleaner.interval": "300000",
+            "hbase.master.hfilecleaner.ttl": "7200000"
+        },
+        "hdfs-site": {
+            "dfs.namenode.avoid.read.stale.datanode": "true",
+            "dfs.namenode.avoid.write.stale.datanode": "true",
+            "dfs.namenode.write.stale.datanode.ratio": "1.0f",
+            "dfs.namenode.check.stale.datanode": "true",
+            "dfs.datanode.socket.write.timeout": "10000",
+            "ipc.client.connect.max.retries.on.timeouts": "2",
+            "dfs.namenode.stale.datanode.interval": "15000",
+            "dfs.client.block.write.replace-datanode-on-failure.policy": "never",
+            "dfs.client.block.write.replace-datanode-on-failure.enable": "true",
+            "ipc.client.rpc-timeout.ms": "60000"
+        },
+        "zoo.cfg": { 
+            "maxSessionTimeout": "90000",
+            "tickTime": "2000",
+            "syncLimit": "15"
+        }
+    },
+    "SERVER_CONFIG":[
+        {
+            "serviceName":"hbase",
+            "config": {
+                "items": [
+                    {
+                        "name":"hbase_client_pause",
+                        "value":"1000"
+                    },
+                    {
+                        "name":"hbase_client_retries_number",
+                        "value":"3"
+                    },
+                    {
+                        "name":"zookeeper_session_timeout",
+                        "value":"90000"
+                    },
+                    {
+                        "name":"hbase_rpc_timeout",
+                        "value":"60000"
+                    }
+                ]
+            }
+        },
+        {
+            "serviceName":"zookeeper",
+            "config": {
+                "items": [
+                    {
+                        "name":"syncLimit",
+                        "value":"15"
+                    },
+                    {
+                        "name":"tickTime",
+                        "value":"2000"
+                    }
+                ]
+            }
+        }
+    ],
+    "SERVICE_CONFIG_SITE":[
+        {
+            "serviceName":"hbase",
+            "config": {
+                "items": [
+                    {
+                        "name":"hbase_service_config_safety_valve",
+                        "value":"<property><name>zookeeper.recovery.retry</name><value>1</value></property> <property><name>hbase.regionserver.executor.openregion.threads</name><value>50</value></property> <property><name>hbase.lease.recovery.first.pause</name><value>1000</value></property> <property><name>hbase.lease.recovery.pause</name><value>500</value></property> <property><name>hbase.regionserver.hlog.splitlog.writer.threads</name><value>20</value></property> <property><name>hbase.regionserver.wal.max.splitters</name><value>20</value></property> <property><name>hbase.regionserver.hlog.blocksize</name><value>104857600</value></property> <property><name>hbase.regionserver.executor.closeregion.threads</name><value>50</value></property> <property><name>hbase.regionserver.logroll.multiplier</name><value>0.9</value></property> <property><name>hbase.wal.meta_provider</name><value>multiwal</value></property> <property><name>hbase.procedure.store.wal.max.retries.before.roll</name><value>2</value></property> <property><name>hbase.procedure.store.wal.sync.failure.roll.max</name><value>2</value></property> <property><name>hbase.shutdown.hook</name><value>true</value></property>"
+                    }
+                ]
+            }
+        },
+        {
+            "serviceName":"hdfs",
+            "config": {
+                "items": [
+                    {
+                        "name":"hdfs_service_config_safety_valve",
+                        "value":"<property><name>dfs.namenode.check.stale.datanode</name><value>true</value></property> <property><name>dfs.datanode.socket.write.timeout</name><value>10000</value></property> <property><name>ipc.client.connect.max.retries.on.timeouts</name><value>2</value></property>"
+                    }
+                ]
+            }
+        }
+    ],
+    "ROLE_CONFIG_GROUP":[
+        {
+            "serviceName":"hbase",
+            "roleType":"MASTER",
+            "config": {
+                "items": [
+                    {
+                        "name":"hbase_master_executor_openregion_threads",
+                        "value":"10"
+                    },
+                    {
+                        "name":"hbase_master_executor_closeregion_threads",
+                        "value":"10"
+                    },
+                    {
+                        "name":"hbase_master_executor_serverops_threads",
+                        "value":"10"
+                    }
+                ]
+            }
+        },
+        {
+            "serviceName":"hbase",
+            "roleType":"REGIONSERVER",
+            "config": {
+                "items": [
+                    {
+                        "name":"hbase_regionserver_regionmover_thread_count",
+                        "value":"10"
+                    },
+                    {
+                        "name":"hbase_regionserver_metahandler_count",
+                        "value":"200"
+                    }
+                ]
+            }
+        },
+        {
+            "serviceName":"hdfs",
+            "roleType":"NAMENODE",
+            "config": {
+                "items": [
+                    {
+                        "name":"dfs_namenode_avoid_read_stale_datanode",
+                        "value":"true"
+                    },
+                    {
+                        "name":"dfs_namenode_avoid_write_stale_datanode",
+                        "value":"true"
+                    },
+                    {
+                        "name":"dfs_namenode_write_stale_datanode_ratio",
+                        "value":"1.0"
+                    },
+                    {
+                        "name":"dfs_namenode_stale_datanode_interval",
+                        "value":"15000"
+                    }
+                ]
+            }
+        },
+        {
+            "serviceName":"zookeeper",
+            "roleType":"SERVER",
+            "config": {
+                "items": [
+                    {
+                        "name":"maxSessionTimeout",
+                        "value":"90000"
+                    }
+                ]
+            }
+        }
+    ],
+    "ROLE_CONFIG_GROUP_SITE":[
+        {
+            "serviceName":"hbase",
+            "roleType":"MASTER",
+            "config": {
+                "items": [
+                    {
+                        "name":"hbase_master_config_safety_valve",
+                        "value":"<property><name>zookeeper.session.timeout</name><value>60000</value></property> <property><name>hbase.master.retries.number</name><value>3</value></property> <property><name>hbase.assignment.maximum.attempts</name><value>3</value></property> <property><name>hbase.master.cleaner.interval</name><value>300000</value></property> <property><name>hbase.master.hfilecleaner.ttl</name><value>7200000</value></property>"
+                    }
+                ]
+            }
+        },
+        {
+            "serviceName":"hbase",
+            "roleType":"REGIONSERVER",
+            "config": {
+                "items": [
+                    {
+                        "name": "hbase_regionserver_config_safety_valve",
+                        "value": "<property><name>hbase.trafodion.async.wal</name><value>2</value></property> <property><name>hbase.abort.kill.rs</name><value>true</value></property> <property><name>hbase.rs.abort.timeout</name><value>40000</value></property>"
+                    }
+                ]
+            }
+        },
+        {
+            "serviceName":"hbase",
+            "roleType":"GATEWAY",
+            "config": {
+                "items": [
+                    {
+                        "name":"hbase_client_config_safety_valve",
+                        "value":"<property><name>hbase.rpc.write.timeout</name><value>10000</value></property>"
+                    }
+                ]
+            }
+        },
+        {
+            "serviceName":"hdfs",
+            "roleType":"GATEWAY",
+            "config": {
+                "items": [
+                    {
+                        "name":"hdfs_client_config_safety_valve",
+                        "value":"<property><name>dfs.client.block.write.replace-datanode-on-failure.policy</name><value>never</value></property> <property><name>dfs.client.block.write.replace-datanode-on-failure.enable</name><value>true</value></property> <property><name>ipc.client.rpc-timeout.ms</name><value>60000</value></property> "
+                    }
+                ]
+            }
+        }
+    ],
+    "ENV_CONFIG":[
+        
+    ]
+}

@@ -1,0 +1,97 @@
+# see: git help ignore
+# Leading slash indicates path is rooted in current dir
+# Trailing slash indicates must be directory
+/export/bin64/*
+/export/lib64/
+/export/bin64d/*
+/export/lib64d/
+
+# genverhdr
+/export/include/SCMBuild*
+/export/include/buildId
+# dbsecurity
+/export/include/auth.h
+/export/include/dbUserAuth.h
+/export/include/secsrvrmxo.h
+#license
+/export/include/licensecommon.h
+# mpi
+/export/include/mpi.h
+# seamonster
+/export/include/sm.h
+
+/export/include/nsk/
+/export/include/sql/
+/export/lib/mx_ustat/
+/export/lib/org/
+
+/opt/
+/trafci/
+
+# objects dir occurs in many sub-dirs
+Linux-x86_64/
+Linux-aarch64/
+
+# from sql/scripts/makemsg.ksh
+/sql/scripts/SqlciErrors*
+/sql/scripts/Suberror*
+# from dbsecurity
+/sql/scripts/sqcertgen
+/sql/scripts/update_auth
+/sql/scripts/distcacert
+/sql/scripts/certcheck
+
+# install_local_hadoop
+/sql/scripts/sw*
+/sql/local_hadoop/
+/etc/
+
+# get_libhdfs_files
+/sql/libhdfs_files/
+/export/include/hdfs.h
+
+# gperftool
+/export/include/heap-*.h
+/export/include/malloc*.h
+/export/include/nallocx.h
+/export/include/profiler.h
+/export/include/stacktrace.h
+/export/include/tcmalloc.h
+
+# sqgen / sqstart
+/logs/
+/sqcert/
+/sql/scripts/DUMPENVS
+/sql/scripts/bosun.state
+/sql/scripts/ledis_data/
+/tmp/*
+
+# sql regressions
+/rundir/
+
+# hbase_utilities
+/hbase_utilities/src/main/resources/
+/hbase_utilities/target/
+
+# mgblty
+/sql/scripts/mgblty_download/
+# derived license
+/LICENSE
+/LICENSE_Esgyn
+/NOTICE
+
+# bundled component links
+/dcs
+/rest
+/dbmgr
+/mgblty
+/wms
+
+#sqlines
+/tools/sqlines
+
+# component default conf files
+/conf/dcs
+/conf/rest
+/conf/dbmgr
+/conf/mgblty

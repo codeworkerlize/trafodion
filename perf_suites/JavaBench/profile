@@ -1,0 +1,5 @@
+export JAVABENCH_HOME=$TRAF_HOME/../../perf_suites/JavaBench
+export CLASSPATH=$CLASSPATH:$JAVABENCH_HOME/clients/ycsb-0.1.4/core/lib/core-0.1.4.jar:$JAVABENCH_HOME/lib
+export PATH=$JAVABENCH_HOME/bin:$JAVABENCH_HOME/measure:$PATH
+
+

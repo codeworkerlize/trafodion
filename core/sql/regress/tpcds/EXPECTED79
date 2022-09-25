@@ -1,0 +1,93 @@
+>>obey stdcqds;
+>>
+>>set schema hive.tpcds_sf1000;
+
+--- SQL operation complete.
+>>
+>>control osim simulate continue './osim.all.sf1000.09022016';
+
+--- SQL operation complete.
+>>
+>>cqd orc_njs 'on';
+
+--- SQL operation complete.
+>>cqd parallel_num_esps '48';
+
+--- SQL operation complete.
+>>cqd QUERY_CACHE '200000';
+
+--- SQL operation complete.
+>>cqd HIVE_METADATA_REFRESH_INTERVAL '-1';
+
+--- SQL operation complete.
+>>cqd  HIVE_LOCALITY_BALANCE_LEVEL '-1';
+
+--- SQL operation complete.
+>>cqd  METADATA_CACHE_SIZE '200';
+
+--- SQL operation complete.
+>>cqd partitioning_scheme_sharing '2';
+
+--- SQL operation complete.
+>>cqd COMP_BOOL_208 'ON';
+
+--- SQL operation complete.
+>>obey q79;
+>>--==QID: 79
+>>prepare xx from
++>select
++>  c_last_name,c_first_name,substr(s_city,1,30) as s_city_sub,ss_ticket_number,amt,profit
++>  from
++>   (select ss_ticket_number
++>          ,ss_customer_sk
++>          ,store.s_city
++>          ,sum(ss_coupon_amt) amt
++>          ,sum(ss_net_profit) profit
++>    from store_sales_1stripeperfile,date_dim,store,household_demographics
++>    where store_sales_1stripeperfile.ss_sold_date_sk = date_dim.d_date_sk
++>    and store_sales_1stripeperfile.ss_store_sk = store.s_store_sk
++>    and store_sales_1stripeperfile.ss_hdemo_sk = household_demographics.hd_demo_sk
++>    and (household_demographics.hd_dep_count = 0 or household_demographics.hd_vehicle_count > 0)
++>    and date_dim.d_dow = 1
++>    and date_dim.d_year in (1999,1999+1,1999+2)
++>    and store.s_number_employees between 200 and 295
++>    group by ss_ticket_number,ss_customer_sk,ss_addr_sk,store.s_city) ms,customer
++>    where ss_customer_sk = c_customer_sk
++> order by c_last_name,c_first_name,s_city_sub, profit
++>limit 100;
+
+--- SQL command prepared.
+>>
+>>obey explains;
+>>explain options 'f' xx;
+
+LC   RC   OP   OPERATOR              OPT       DESCRIPTION           CARD
+---- ---- ---- --------------------  --------  --------------------  ---------
+
+20   .    21   root                                                  1.53E+008
+19   .    20   firstn                                                1.53E+008
+18   .    19   esp_exchange                    1:48(hash2) (m)       1.53E+008
+17   .    18   sort                                                  1.53E+008
+16   2    17   hybrid_hash_join                                      1.53E+008
+15   .    16   esp_exchange                    48(hash2):48(hash2)   1.53E+008
+14   .    15   hash_partial_groupby                                  1.53E+008
+13   .    14   esp_exchange                    48(hash2):48(hash2)   1.53E+008
+12   .    13   hash_partial_groupby                                  1.53E+008
+11   4    12   hybrid_hash_join                                      1.53E+008
+10   6    11   hybrid_hash_join                                      1.53E+008
+8    9    10   nested_join                                           2.19E+008
+.    .    9    orc_scan                        STORE_SALES_1STRIPEP  1.47E+006
+7    .    8    esp_exchange                    48(hash2):2(hash2)    1.49E+002
+.    .    7    orc_scan                        DATE_DIM              1.49E+002
+5    .    6    esp_exchange                    48(rep-b):2(hash2)    5.03E+003
+.    .    5    orc_scan                        HOUSEHOLD_DEMOGRAPHI  5.03E+003
+3    .    4    esp_exchange                    48(rep-b):2(hash2)    9.39E+002
+.    .    3    orc_scan                        STORE                 9.39E+002
+1    .    2    esp_exchange                    48(hash2):8(hash2)    1.20E+007
+.    .    1    orc_scan                        CUSTOMER              1.20E+007
+
+--- SQL operation complete.
+>>exit;
+
+End of MXCI Session
+

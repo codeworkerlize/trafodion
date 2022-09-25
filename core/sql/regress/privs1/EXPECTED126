@@ -1,0 +1,1036 @@
+>>obey TEST126(set_up);
+>>prepare tenants from
++>  select distinct
++>         cast(trim(a.auth_db_name) as char(15) character set iso88591) as tenant_name,
++>         case
++>           when (admin_role_id = 0) then '0'
++>           else cast(trim(authname(admin_role_id)) as char(15) character set iso88591)
++>         end as admin_role,
++>         case
++>           when (u.usage_uid is null) then '?'
++>           when (u.usage_type = 'G') then
++>             'G: ' ||
++>             cast(trim(authname(usage_uid)) as char(15) character set iso88591)
++>           else 
++>             'S: ' ||
++>             (select cast(trim(schema_name) as char(15) character set iso88591) 
++>              from "_MD_".objects where object_uid = u.usage_uid)
++>         end as tenant_usage,
++>         case
++>           when (default_schema_uid = usage_uid) then '*'
++>           else ' '
++>         end as defsch
++>   from "_TENANT_MD_".tenants t left join "_TENANT_MD_".tenant_usage u on t.tenant_id = u.tenant_id
++>        ,"_MD_".auths a
++>   where a.auth_id = t.tenant_id
++>     and a.auth_id <> 1500000
++>   order by 1, 3, 2
++>;
+
+--- SQL command prepared.
+>>
+>>insert into "_MD_".defaults values ('ALLOW_ROLE_GRANTS_TO_GROUPS', 'ON', 'testing', 0);
+
+--- 1 row(s) inserted.
+>>
+>>-- for now create the cgroups via shell command here
+>>sh mkdir $$ESGYN_CGP_MEM$$/TENANT2 $$ESGYN_CGP_CPU$$/TENANT2 $$ESGYN_CGP_CPUACCT$$/TENANT2;
+>>
+>>obey TEST126(group_tests);
+>>-- =============================================================================
+>>-- tests register, alter, and unregister groups
+>>-- =============================================================================
+>>-- register user group
+>>control query default showcontrol_show_all 'ON';
+
+--- SQL operation complete.
+>>showcontrol default ALLOW_ROLE_GRANTS_TO_GROUPS;
+
+CONTROL QUERY DEFAULT
+  ALLOW_ROLE_GRANTS_TO_GROUPS   	ON
+
+Current DEFAULTS
+  ALLOW_ROLE_GRANTS_TO_GROUPS   	ON
+
+--- SQL operation complete.
+>>register group t126_grp1;
+
+--- SQL operation complete.
+>>register group t126_grp2 config 'section 1';
+
+--- SQL operation complete.
+>>register group "t126-grp3";
+
+--- SQL operation complete.
+>>get groups, match 'T126%';
+
+User Groups
+===========
+
+T126-GRP3
+T126_GRP1
+T126_GRP2
+
+=======================
+ 3 row(s) returned
+
+--- SQL operation complete.
+>>showddl group t126_grp1;
+
+REGISTER GROUP T126_GRP1;
+
+--- SQL operation complete.
+>>showddl group t126_grp2;
+
+REGISTER GROUP T126_GRP2;
+
+--- SQL operation complete.
+>>showddl group "t126-grp3";
+
+REGISTER GROUP "T126-GRP3";
+
+--- SQL operation complete.
+>>
+>>-- alter user group
+>>alter group "t126-grp3" set config 'section2';
+
+--- SQL operation complete.
+>>showddl group "t126-grp3";
+
+REGISTER GROUP "T126-GRP3";
+
+--- SQL operation complete.
+>>
+>>-- unregister user group
+>>unregister group t126_grp1;
+
+--- SQL operation complete.
+>>unregister group t126_grp2;
+
+--- SQL operation complete.
+>>unregister group "t126-grp3";
+
+--- SQL operation complete.
+>>get groups, match 'T126%';
+
+--- SQL operation complete.
+>>
+>>obey TEST126(tenant_tests);
+>>-- =============================================================================
+>>-- tests GROUPS(group list) for REGISTER TENANT
+>>-- tests ADD GROUPS(group list), DROP GROUPS(group list) for ALTER TENANT
+>>--  TRAF_AUTO_REGISTER group is turned on
+>>-- =============================================================================
+>>-- specify groups when register tenant
+>>-- if group does not exist, it will be regsitered
+>>cqd TRAF_AUTO_REGISTER_GROUP 'on';
+
+--- SQL operation complete.
+>>cqd ALLOW_ROLE_GRANTS_TO_GROUPS 'ON';
+
+--- SQL operation complete.
+>>register group t126_grp1;
+
+--- SQL operation complete.
+>>register group "t126-grp3";
+
+--- SQL operation complete.
+>>get groups, match 'T126%';
+
+User Groups
+===========
+
+T126-GRP3
+T126_GRP1
+
+=======================
+ 2 row(s) returned
+
+--- SQL operation complete.
+>>register tenant tenant1 admin role tenant1_admin, groups ("t126-grp3");
+
+--- SQL operation complete.
+>>register tenant tenant2 admin role tenant2_admin, groups ("t126-grp3", t126_grp4);
+
+--- SQL operation complete.
+>>showddl tenant tenant1;
+
+CREATE TENANT TENANT1 TENANT SIZE 4, AFFINITY 0, CLUSTER SIZE 1, ADMIN ROLE
+  TENANT1_ADMIN, GROUPS ("T126-GRP3");
+
+--- SQL operation complete.
+>>showddl tenant tenant2;
+
+CREATE TENANT TENANT2 TENANT SIZE 4, AFFINITY 0, CLUSTER SIZE 1, ADMIN ROLE
+  TENANT2_ADMIN, GROUPS ("T126-GRP3", T126_GRP4);
+
+--- SQL operation complete.
+>>
+>>-- tenant1 -> groups 3
+>>-- tenant2 -> groups 3 & 4
+>>get groups, match 'T126%';
+
+User Groups
+===========
+
+T126-GRP3
+T126_GRP1
+T126_GRP4
+
+=======================
+ 3 row(s) returned
+
+--- SQL operation complete.
+>>get groups for tenant tenant1;
+
+User Groups for Tenant TENANT1
+==============================
+
+T126-GRP3
+
+=======================
+ 1 row(s) returned
+
+--- SQL operation complete.
+>>get groups for tenant tenant2;
+
+User Groups for Tenant TENANT2
+==============================
+
+T126-GRP3
+T126_GRP4
+
+=======================
+ 2 row(s) returned
+
+--- SQL operation complete.
+>>execute tenants;
+
+TENANT_NAME      ADMIN_ROLE       TENANT_USAGE        DEFSCH
+---------------  ---------------  ------------------  ------
+
+TENANT1          TENANT1_ADMIN    G: T126-GRP3              
+TENANT2          TENANT2_ADMIN    G: T126-GRP3              
+TENANT2          TENANT2_ADMIN    G: T126_GRP4              
+
+--- 3 row(s) selected.
+>>
+>>-- change tenant/group relationships through alter tenant
+>>-- add groups
+>>alter tenant tenant1 add groups(t126_grp1, t126_grp5);
+
+--- SQL operation complete.
+>>alter tenant tenant2 add groups(t126_grp2);
+
+--- SQL operation complete.
+>>showddl tenant tenant1;
+
+CREATE TENANT TENANT1 TENANT SIZE 4, AFFINITY 0, CLUSTER SIZE 1, ADMIN ROLE
+  TENANT1_ADMIN, GROUPS (T126_GRP1, "T126-GRP3", T126_GRP5);
+
+--- SQL operation complete.
+>>showddl tenant tenant2;
+
+CREATE TENANT TENANT2 TENANT SIZE 4, AFFINITY 0, CLUSTER SIZE 1, ADMIN ROLE
+  TENANT2_ADMIN, GROUPS ("T126-GRP3", T126_GRP4, T126_GRP2);
+
+--- SQL operation complete.
+>>
+>>-- tenant1 -> groups 1, 3, & 5
+>>-- tenant2 -> groups 2, 3, &4
+>>get groups, match 'T126%';
+
+User Groups
+===========
+
+T126-GRP3
+T126_GRP1
+T126_GRP2
+T126_GRP4
+T126_GRP5
+
+=======================
+ 5 row(s) returned
+
+--- SQL operation complete.
+>>get groups for tenant tenant1;
+
+User Groups for Tenant TENANT1
+==============================
+
+T126_GRP1
+T126-GRP3
+T126_GRP5
+
+=======================
+ 3 row(s) returned
+
+--- SQL operation complete.
+>>get groups for tenant tenant2;
+
+User Groups for Tenant TENANT2
+==============================
+
+T126-GRP3
+T126_GRP4
+T126_GRP2
+
+=======================
+ 3 row(s) returned
+
+--- SQL operation complete.
+>>execute tenants;
+
+TENANT_NAME      ADMIN_ROLE       TENANT_USAGE        DEFSCH
+---------------  ---------------  ------------------  ------
+
+TENANT1          TENANT1_ADMIN    G: T126-GRP3              
+TENANT1          TENANT1_ADMIN    G: T126_GRP1              
+TENANT1          TENANT1_ADMIN    G: T126_GRP5              
+TENANT2          TENANT2_ADMIN    G: T126-GRP3              
+TENANT2          TENANT2_ADMIN    G: T126_GRP2              
+TENANT2          TENANT2_ADMIN    G: T126_GRP4              
+
+--- 6 row(s) selected.
+>>
+>>-- change tenant/group relationships through alter tenant
+>>-- drop groups
+>>alter tenant tenant1 drop groups ("t126-grp3");
+
+--- SQL operation complete.
+>>alter tenant tenant2 drop groups(t126_grp2, t126_grp4);
+
+--- SQL operation complete.
+>>
+>>-- tenant1 -> groups 1 & 5
+>>-- tenant2 -> groups 3
+>>get groups for tenant tenant1;
+
+User Groups for Tenant TENANT1
+==============================
+
+T126_GRP1
+T126_GRP5
+
+=======================
+ 2 row(s) returned
+
+--- SQL operation complete.
+>>get groups for tenant tenant2;
+
+User Groups for Tenant TENANT2
+==============================
+
+T126-GRP3
+
+=======================
+ 1 row(s) returned
+
+--- SQL operation complete.
+>>execute tenants;
+
+TENANT_NAME      ADMIN_ROLE       TENANT_USAGE        DEFSCH
+---------------  ---------------  ------------------  ------
+
+TENANT1          TENANT1_ADMIN    G: T126_GRP1              
+TENANT1          TENANT1_ADMIN    G: T126_GRP5              
+TENANT2          TENANT2_ADMIN    G: T126-GRP3              
+
+--- 3 row(s) selected.
+>>
+>>-- alter multiple options
+>>get roles, match 'T126%';
+
+--- SQL operation complete.
+>>get schemas, match 'TENANT%';
+
+--- SQL operation complete.
+>>alter tenant tenant2 affinity 2, tenant size 2, cluster size 1, 
++>                     groups (t126_grp4, t126_grp6);
+
+--- SQL operation complete.
+>>alter tenant tenant2 add schemas (tenant2_sch2, tenant2_sch1);
+
+--- SQL operation complete.
+>>
+>>-- tenant2 -> groups 3, 4, & 6 
+>>--         -> schemas tenant2_sch1 & tenant2_sch2
+>>--         -> admin role tenant2_admin
+>>get groups for tenant tenant2;
+
+User Groups for Tenant TENANT2
+==============================
+
+T126-GRP3
+T126_GRP4
+T126_GRP6
+
+=======================
+ 3 row(s) returned
+
+--- SQL operation complete.
+>>execute tenants;
+
+TENANT_NAME      ADMIN_ROLE       TENANT_USAGE        DEFSCH
+---------------  ---------------  ------------------  ------
+
+TENANT1          TENANT1_ADMIN    G: T126_GRP1              
+TENANT1          TENANT1_ADMIN    G: T126_GRP5              
+TENANT2          TENANT2_ADMIN    G: T126-GRP3              
+TENANT2          TENANT2_ADMIN    G: T126_GRP4              
+TENANT2          TENANT2_ADMIN    G: T126_GRP6              
+TENANT2          TENANT2_ADMIN    S: TENANT2_SCH1           
+TENANT2          TENANT2_ADMIN    S: TENANT2_SCH2           
+
+--- 7 row(s) selected.
+>>get roles, match 'T126%';
+
+--- SQL operation complete.
+>>get schemas, match 'TENANT%';
+
+Schemas in Catalog TRAFODION
+============================
+
+TENANT2_SCH1
+TENANT2_SCH2
+
+=======================
+ 2 row(s) returned
+
+--- SQL operation complete.
+>>
+>>unregister tenant tenant1;
+
+--- SQL operation complete.
+>>unregister tenant tenant2;
+
+--- SQL operation complete.
+>>unregister group t126_grp1;
+
+--- SQL operation complete.
+>>unregister group t126_grp2;
+
+--- SQL operation complete.
+>>unregister group "t126-grp3";
+
+--- SQL operation complete.
+>>unregister group t126_grp4;
+
+--- SQL operation complete.
+>>unregister group t126_grp5;
+
+--- SQL operation complete.
+>>unregister group t126_grp6;
+
+--- SQL operation complete.
+>>get tenants;
+
+Tenants
+=======
+
+ESGYNDB
+
+=======================
+ 1 row(s) returned
+
+--- SQL operation complete.
+>>get groups, match 'T126%';
+
+--- SQL operation complete.
+>>get roles, match 'T126%';
+
+--- SQL operation complete.
+>>show databases, match 'TENANT%';
+
+--- SQL operation complete.
+>>
+>>obey TEST126(role_tests);
+>>-- =============================================================================
+>>-- tests granting and revoking roles to groups
+>>-- =============================================================================
+>>register group t126_grp1;
+
+--- SQL operation complete.
+>>register group t126_grp2;
+
+--- SQL operation complete.
+>>register group "t126-grp3";
+
+--- SQL operation complete.
+>>register group t126_grp4;
+
+--- SQL operation complete.
+>>get groups, match 'T126%';
+
+User Groups
+===========
+
+T126-GRP3
+T126_GRP1
+T126_GRP2
+T126_GRP4
+
+=======================
+ 4 row(s) returned
+
+--- SQL operation complete.
+>>
+>>create role t126_role1;
+
+--- SQL operation complete.
+>>create role t126_role2;
+
+--- SQL operation complete.
+>>create role t126_role3;
+
+--- SQL operation complete.
+>>get roles, match 'T126%';
+
+Roles
+=====
+
+T126_ROLE1
+T126_ROLE2
+T126_ROLE3
+
+=======================
+ 3 row(s) returned
+
+--- SQL operation complete.
+>>
+>>grant role t126_role1 to t126_grp1;
+
+--- SQL operation complete.
+>>grant role t126_role2 to t126_grp2;
+
+--- SQL operation complete.
+>>grant role t126_role3 to "t126-grp3";
+
+--- SQL operation complete.
+>>grant role t126_role1 to t126_grp4;
+
+--- SQL operation complete.
+>>grant role t126_role2 to t126_grp4;
+
+--- SQL operation complete.
+>>grant role t126_role3 to t126_grp4;
+
+--- SQL operation complete.
+>>showddl role t126_role1;
+
+CREATE ROLE "T126_ROLE1";
+  -- GRANT ROLE "T126_ROLE1" TO "DB__ROOT" WITH ADMIN OPTION;
+GRANT ROLE
+  "T126_ROLE1" TO "T126_GRP1";
+GRANT ROLE "T126_ROLE1" TO "T126_GRP4";
+
+--- SQL operation complete.
+>>showddl role t126_role2;
+
+CREATE ROLE "T126_ROLE2";
+  -- GRANT ROLE "T126_ROLE2" TO "DB__ROOT" WITH ADMIN OPTION;
+GRANT ROLE
+  "T126_ROLE2" TO "T126_GRP2";
+GRANT ROLE "T126_ROLE2" TO "T126_GRP4";
+
+--- SQL operation complete.
+>>showddl role t126_role3;
+
+CREATE ROLE "T126_ROLE3";
+  -- GRANT ROLE "T126_ROLE3" TO "DB__ROOT" WITH ADMIN OPTION;
+GRANT ROLE
+  "T126_ROLE3" TO "T126-GRP3";
+GRANT ROLE "T126_ROLE3" TO "T126_GRP4";
+
+--- SQL operation complete.
+>>get roles for group t126_grp4;
+
+Roles for Group T126_GRP4
+=========================
+
+PUBLIC
+T126_ROLE1
+T126_ROLE2
+T126_ROLE3
+
+=======================
+ 4 row(s) returned
+
+--- SQL operation complete.
+>>
+>>create schema t126_sch1;
+
+--- SQL operation complete.
+>>set schema t126_sch1;
+
+--- SQL operation complete.
+>>create table t1 (a int, b int not null primary key);
+
+--- SQL operation complete.
+>>insert into t1 values (1,1), (2,2), (3,3), (4,4);
+
+--- 4 row(s) inserted.
+>>select * from t1;
+
+A            B          
+-----------  -----------
+
+          1            1
+          2            2
+          3            3
+          4            4
+
+--- 4 row(s) selected.
+>>create table t2 (a int, b int not null primary key);
+
+--- SQL operation complete.
+>>insert into t2 values (1,1), (2,2), (3,3), (4,4);
+
+--- 4 row(s) inserted.
+>>select * from t2;
+
+A            B          
+-----------  -----------
+
+          1            1
+          2            2
+          3            3
+          4            4
+
+--- 4 row(s) selected.
+>>grant select on schema t126_sch1 to t126_role1;
+
+--- SQL operation complete.
+>>grant all on t1 to t126_role2;
+
+--- SQL operation complete.
+>>grant select (a) on t2 to t126_role3;
+
+--- SQL operation complete.
+>>showddl schema t126_sch1;
+
+CREATE PRIVATE SCHEMA TRAFODION.T126_SCH1 AUTHORIZATION DB__ROOT NAMESPACE
+  'TRAF_1500000' ;
+-- GRANT SELECT, INSERT, DELETE, UPDATE, USAGE, REFERENCES, EXECUTE, CREATE, ALTER, DROP ON SCHEMA TRAFODION.T126_SCH1 TO DB__ROOT WITH GRANT OPTION;
+  GRANT SELECT ON SCHEMA TRAFODION.T126_SCH1 TO T126_ROLE1;
+
+--- SQL operation complete.
+>>showddl t1;
+
+CREATE TABLE TRAFODION.T126_SCH1.T1
+  (
+    A                                INT DEFAULT NULL
+  , B                                INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , PRIMARY KEY (B ASC)
+  )
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_1500000'
+;
+
+-- GRANT SELECT, INSERT, DELETE, UPDATE, REFERENCES, ALTER, DROP ON TRAFODION.T126_SCH1.T1 TO DB__ROOT WITH GRANT OPTION;
+  GRANT SELECT, INSERT, DELETE, UPDATE, REFERENCES, ALTER, DROP ON
+  TRAFODION.T126_SCH1.T1 TO T126_ROLE2;
+
+--- SQL operation complete.
+>>showddl t2;
+
+CREATE TABLE TRAFODION.T126_SCH1.T2
+  (
+    A                                INT DEFAULT NULL
+  , B                                INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , PRIMARY KEY (B ASC)
+  )
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_1500000'
+;
+
+-- GRANT SELECT, INSERT, DELETE, UPDATE, REFERENCES, ALTER, DROP ON TRAFODION.T126_SCH1.T2 TO DB__ROOT WITH GRANT OPTION;
+  GRANT SELECT(A) ON TRAFODION.T126_SCH1.T2 TO T126_ROLE3;
+
+--- SQL operation complete.
+>>
+>>-- sql_user1 is part of t126_grp1, can select on all tables in schema
+>>insert into "_MD_".DEFAULTS values ('USER_GROUPNAMES', 'T126_GRP1', 'Privs TEST126', 0);
+
+--- 1 row(s) inserted.
+>>sh sqlci -i "TEST126(do_dml)" -u sql_user1;
+>>values (current_user);
+
+(EXPR)
+--------------------------------------------------------------------------------------------------------------------------------
+
+SQL_USER1                                                                                                                       
+
+--- 1 row(s) selected.
+>>get active roles;
+
+Active Roles                            Role Grantees
+=====================================================
+
+PUBLIC                                  *
+T126_ROLE1                              T126_GRP1
+
+=======================
+ 2 row(s) returned
+
+--- SQL operation complete.
+>>
+>>set schema t126_sch1;
+
+--- SQL operation complete.
+>>select * from t1;
+
+A            B          
+-----------  -----------
+
+          1            1
+          2            2
+          3            3
+          4            4
+
+--- 4 row(s) selected.
+>>select a from t2;
+
+A          
+-----------
+
+          1
+          2
+          3
+          4
+
+--- 4 row(s) selected.
+>>select b from t2;
+
+B          
+-----------
+
+          1
+          2
+          3
+          4
+
+--- 4 row(s) selected.
+>>delete from t1 where a = 1;
+
+*** ERROR[4481] The user does not have DELETE privilege on table or view TRAFODION.T126_SCH1.T1.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>insert into t1 values (1,1);
+
+*** ERROR[4481] The user does not have INSERT privilege on table or view TRAFODION.T126_SCH1.T1.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>
+>>exit;
+
+End of MXCI Session
+
+>>
+>>-- sql_user2 is part of t126_grp2, can select and update table t1
+>>update "_MD_".DEFAULTS set attr_value = 'T126_GRP2' where attribute = 'USER_GROUPNAMES';
+
+--- 1 row(s) updated.
+>>sh sqlci -i "TEST126(do_dml)" -u sql_user2;
+>>values (current_user);
+
+(EXPR)
+--------------------------------------------------------------------------------------------------------------------------------
+
+SQL_USER2                                                                                                                       
+
+--- 1 row(s) selected.
+>>get active roles;
+
+Active Roles                            Role Grantees
+=====================================================
+
+PUBLIC                                  *
+T126_ROLE2                              T126_GRP2
+
+=======================
+ 2 row(s) returned
+
+--- SQL operation complete.
+>>
+>>set schema t126_sch1;
+
+--- SQL operation complete.
+>>select * from t1;
+
+A            B          
+-----------  -----------
+
+          1            1
+          2            2
+          3            3
+          4            4
+
+--- 4 row(s) selected.
+>>select a from t2;
+
+*** ERROR[4481] The user does not have SELECT privilege on table or view TRAFODION.T126_SCH1.T2.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>select b from t2;
+
+*** ERROR[4481] The user does not have SELECT privilege on table or view TRAFODION.T126_SCH1.T2.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>delete from t1 where a = 1;
+
+--- 1 row(s) deleted.
+>>insert into t1 values (1,1);
+
+--- 1 row(s) inserted.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>
+>>-- sql_user3 is part of "t126-grp3", can select from column t1(a)
+>>update "_MD_".DEFAULTS set attr_value = 'T126-GRP3' where attribute = 'USER_GROUPNAMES';
+
+--- 1 row(s) updated.
+>>sh sqlci -i "TEST126(do_dml)" -u sql_user3;
+>>values (current_user);
+
+(EXPR)
+--------------------------------------------------------------------------------------------------------------------------------
+
+SQL_USER3                                                                                                                       
+
+--- 1 row(s) selected.
+>>get active roles;
+
+Active Roles                            Role Grantees
+=====================================================
+
+PUBLIC                                  *
+T126_ROLE3                              T126-GRP3
+
+=======================
+ 2 row(s) returned
+
+--- SQL operation complete.
+>>
+>>set schema t126_sch1;
+
+--- SQL operation complete.
+>>select * from t1;
+
+*** ERROR[4481] The user does not have SELECT privilege on table or view TRAFODION.T126_SCH1.T1.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>select a from t2;
+
+A          
+-----------
+
+          1
+          2
+          3
+          4
+
+--- 4 row(s) selected.
+>>select b from t2;
+
+*** ERROR[4481] The user does not have SELECT privilege on table or view TRAFODION.T126_SCH1.T2(columns: B).
+
+*** ERROR[8822] The statement was not prepared.
+
+>>delete from t1 where a = 1;
+
+*** ERROR[4481] The user does not have SELECT privilege on table or view TRAFODION.T126_SCH1.T1.
+
+*** ERROR[4481] The user does not have DELETE privilege on table or view TRAFODION.T126_SCH1.T1.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>insert into t1 values (1,1);
+
+*** ERROR[4481] The user does not have INSERT privilege on table or view TRAFODION.T126_SCH1.T1.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>
+>>exit;
+
+End of MXCI Session
+
+>>
+>>-- sql_user4 is part of t126_grp4, can do all above operations
+>>update "_MD_".DEFAULTS set attr_value = 'T126_GRP4' where attribute = 'USER_GROUPNAMES';
+
+--- 1 row(s) updated.
+>>sh sqlci -i "TEST126(do_dml)" -u sql_user4;
+>>values (current_user);
+
+(EXPR)
+--------------------------------------------------------------------------------------------------------------------------------
+
+SQL_USER4                                                                                                                       
+
+--- 1 row(s) selected.
+>>get active roles;
+
+Active Roles                            Role Grantees
+=====================================================
+
+PUBLIC                                  *
+T126_ROLE1                              T126_GRP4
+T126_ROLE2                              T126_GRP4
+T126_ROLE3                              T126_GRP4
+
+=======================
+ 4 row(s) returned
+
+--- SQL operation complete.
+>>
+>>set schema t126_sch1;
+
+--- SQL operation complete.
+>>select * from t1;
+
+A            B          
+-----------  -----------
+
+          1            1
+          2            2
+          3            3
+          4            4
+
+--- 4 row(s) selected.
+>>select a from t2;
+
+A          
+-----------
+
+          1
+          2
+          3
+          4
+
+--- 4 row(s) selected.
+>>select b from t2;
+
+B          
+-----------
+
+          1
+          2
+          3
+          4
+
+--- 4 row(s) selected.
+>>delete from t1 where a = 1;
+
+--- 1 row(s) deleted.
+>>insert into t1 values (1,1);
+
+--- 1 row(s) inserted.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>
+>>drop schema t126_sch1 cascade;
+
+--- SQL operation complete.
+>>
+>>revoke role t126_role1 from t126_grp1;
+
+--- SQL operation complete.
+>>revoke role t126_role2 from t126_grp2;
+
+--- SQL operation complete.
+>>revoke role t126_role3 from "t126-grp3";
+
+--- SQL operation complete.
+>>revoke role t126_role1 from t126_grp4;
+
+--- SQL operation complete.
+>>revoke role t126_role2 from t126_grp4;
+
+--- SQL operation complete.
+>>revoke role t126_role3 from t126_grp4;
+
+--- SQL operation complete.
+>>
+>>drop role t126_role1;
+
+--- SQL operation complete.
+>>drop role t126_role2;
+
+--- SQL operation complete.
+>>drop role t126_role3;
+
+--- SQL operation complete.
+>>
+>>unregister group t126_grp1;
+
+--- SQL operation complete.
+>>unregister group t126_grp2;
+
+--- SQL operation complete.
+>>unregister group "t126-grp3";
+
+--- SQL operation complete.
+>>unregister group t126_grp4;
+
+--- SQL operation complete.
+>>
+>>obey TEST126(negative_tests);
+>>-- =============================================================================
+>>-- tests error conditions for groups and tenants
+>>-- =============================================================================
+>>register tenant tenant1 admin role tenant1_admin;
+
+--- SQL operation complete.
+>>
+>>-- specify the same group twice
+>>register tenant tenant2 admin role tenant2_admin, add groups (t126_grp2, "t126-grp3", t126_grp2);
+
+*** ERROR[3103] Duplicate T126_GRP2 group clauses were specified.
+
+--- SQL operation failed with errors.
+>>alter tenant tenant1 add groups (t126_grp1, t126_grp2, t126_grp2, "t126-grp3");
+
+*** ERROR[3103] Duplicate T126_GRP2 group clauses were specified.
+
+--- SQL operation failed with errors.
+>>get groups, match 'T126%';
+
+--- SQL operation complete.
+>>
+>>-- specify add and drop groups in same statement
+>>alter tenant tenant1 add groups (t126_grp6), drop groups (t126_grp1);
+
+*** ERROR[3009] Cannot ADD tenant options, DROP drop tenant options, and/or REPLACE resource groups in a single ALTER TENANT statement.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>
+>>-- turn off cqd:  TRAF_AUTO_REGISTER_GROUP
+>>cqd TRAF_AUTO_REGISTER_GROUP 'OFF';
+
+--- SQL operation complete.
+>>register tenant tenant2 admin role tenant2_admin, add groups(t126_grp1);
+
+*** ERROR[1336] User group T126_GRP1 does not exist.
+
+--- SQL operation failed with errors.
+>>alter tenant tenant1 add groups (t126_grp2, t126_grp1);
+
+*** ERROR[1336] User group T126_GRP2 does not exist.
+
+--- SQL operation failed with errors.
+>>cqd TRAF_AUTO_REGISTER_GROUP 'ON';
+
+--- SQL operation complete.
+>>log;

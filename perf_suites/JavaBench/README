@@ -1,0 +1,9 @@
+To compile performance test suite, you checkout the workspace
+and install_local_hadoop as usual.
+
+cd $TRAF_HOME/../../perf_suites/JavaBench
+. ./profile
+cd src
+javac *.java -d ../lib
+
+

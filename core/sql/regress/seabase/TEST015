@@ -1,0 +1,326 @@
+-- @@@ START COPYRIGHT @@@
+--
+-- Licensed to the Apache Software Foundation (ASF) under one
+-- or more contributor license agreements.  See the NOTICE file
+-- distributed with this work for additional information
+-- regarding copyright ownership.  The ASF licenses this file
+-- to you under the Apache License, Version 2.0 (the
+-- "License"); you may not use this file except in compliance
+-- with the License.  You may obtain a copy of the License at
+--
+--   http://www.apache.org/licenses/LICENSE-2.0
+--
+-- Unless required by applicable law or agreed to in writing,
+-- software distributed under the License is distributed on an
+-- "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+-- KIND, either express or implied.  See the License for the
+-- specific language governing permissions and limitations
+-- under the License.
+--
+-- @@@ END COPYRIGHT @@@
+
+-- Tests for pre-splitting HBase tables
+-- Added August 2015
+
+obey TEST015(clean_up);
+
+prepare explainIt from
+  select substring(cast(SEQ_NUM+100 as char(3)),2,2) s,
+         substring(operator,1,16) operator,
+         cast(LEFT_CHILD_SEQ_NUM as char(2)) lc,
+         cast(RIGHT_CHILD_SEQ_NUM as char(2)) rc,
+         substring
+         (substring(tname from (1+locate('.',tname))),
+         (1+locate('.',substring(tname from (1+locate('.',tname))))),
+         10
+        ) tab_name,
+        cast(cardinality as char(11)) cardinal
+         from table (explain(NULL,'XX'))
+         order by 1 desc;
+
+
+log LOG015 clear;
+
+obey TEST015(tests);
+obey TEST015(clean_up);
+log;
+exit;
+
+?section clean_up
+--------------------------------------------------------------------------
+
+drop table if exists t015presp1;
+drop table if exists t015presp2;
+drop table if exists t015presp3;
+drop table if exists t015presp4;
+drop table if exists t015presp5;
+drop table if exists t015presp6;
+drop table if exists t015slt1;
+drop table if exists t015slt2;
+drop table if exists t015slt3;
+drop table if exists t015slt4;
+drop table if exists t015p20;
+drop table if exists t015p4;
+
+
+?section tests
+--------------------------------------------------------------------------
+
+---------------------
+-- SPLIT BY clause --
+---------------------
+
+create table t015presp1(a integer not null primary key,
+                        b integer)
+range split by (a)
+  (add first key 1000,
+   add first key 2000);
+
+create table t015presp2(a integer not null,
+                        "b" date not null,
+                        c integer,
+                        primary key (a,"b" desc))
+range split by (a, "b" desc)
+  (add first key (1000, date '2000-01-01'),
+   add first key 2000);
+
+create table t015presp3 like t015presp2 with partitions;
+
+create table t015presp4 
+                      (a integer not null,
+                        "b" date not null,
+                        c integer,
+                        primary key (a,"b" desc))
+range split by (a, "b" desc)
+  (add first key (4000, date '2015-01-01'),
+   add first key (5000),
+   add first key (6000, date '2000-12-31'),
+   add first key (6000, date '2000-06-30'));
+
+create table t015presp5(si smallint not null,
+                     ii integer not null,
+                     li largeint not null,
+                     n8 numeric(8,2) not null,
+                     dt date not null,
+                     tm time not null,
+                     ts timestamp(3) not null,
+                     ci char(5) character set iso88591 not null,
+                     vc varchar(7 bytes) character set utf8 not null,
+                     nc varchar(10) character set ucs2 not null,
+                     iym interval year to month not null,
+                     idf interval day to second(6) not null,
+                     ihm interval hour(6) to minute not null,
+                     i8  interval second(12,6) not null,
+                     primary key (si, ii, li, n8, dt, tm, ts, ci, vc, nc, iym, idf, ihm, i8))
+range split by(si, ii, li, n8, dt, tm, ts, ci, vc, nc, iym, idf, ihm, i8)
+ (add first key (1,1,1, 1.11, date '2015-01-01',
+                 time '08:15:00', timestamp '2015-01-01 08:15:00.000000',
+                 'abcd', _utf8'abcde', _ucs2'ABCDE',
+                 interval '1-11' year to month,
+                 interval '1 11:11:11.111111' day to second,
+                 interval '111111:11' hour(6) to minute,
+                 interval '111111.111111' second(12,6)),
+  add first key (2,2,2, 1.11, date '2015-01-01',
+                 time '08:15:00', timestamp '2015-01-01 08:15:00.000000',
+                 'abcd', _utf8'abcde', _ucs2'ABCDE',
+                 interval '1-11' year to month,
+                 interval '1 11:11:11.111111' day to second,
+                 interval '111111:11' hour(6) to minute,
+                 interval '111111.111111' second(12,6)));
+
+create table t015presp6(a integer not null,
+                        b timestamp not null,
+                        c varchar(20),
+                        primary key(a,b))
+division by (date_part('yearmonth', b))
+range split by ("_DIVISION_1_", a)
+  (add first key (201508, 1),
+   add first key (201508, 100),
+   add first key (201509, 1));
+
+select substring(o.object_name, 1, 10),
+       t.num_salt_partns,
+       x.text_type, x.sub_id, x.seq_num, x.flags,
+       substring(x.text, 1, 256)
+from "_MD_".objects o
+     join "_MD_".tables t on o.object_uid = t.table_uid
+     join "_MD_".text x on t.table_uid = x.text_uid
+where o.schema_name = 'SCH'
+  and o.object_name like 'T015PRESP_'
+  and x.text_type <> 7
+  and x.text_type <> 9 -- ignore namespace
+order by 1, 3, 4;
+
+showddl t015presp1;
+showddl t015presp2;
+showddl t015presp3;
+showddl t015presp4;
+showddl t015presp5;
+showddl t015presp6;
+
+insert into t015presp1 values (1,1), (100,100);
+insert into t015presp2 select a, date '2001-01-01', b from t015presp1;
+insert into t015presp4 select * from t015presp2;
+insert into t015presp5
+         values (1,1,1, 1.11, date '2015-01-01',
+                 time '08:15:00', timestamp '2015-01-01 08:15:00.000000',
+                 'abcd', _utf8'abcde', _ucs2'ABCDE',
+                 interval '1-11' year to month,
+                 interval '1 11:11:11.111111' day to second,
+                 interval '111111:11' hour(6) to minute,
+                 interval '111111.111111' second(12,6));
+insert into t015presp6 values (1, timestamp '2015-08-11 15:43:00.123456', 'abcd'),
+                              (2, timestamp '2015-08-11 15:43:00.123456', 'abcd') ;
+
+select * from t015presp1;
+select * from t015presp2;
+select * from t015presp3;
+select * from t015presp4;
+select * from t015presp5;
+select * from t015presp6;
+
+-- negative test cases
+create index t015presp2ix1err on t015presp2(c)
+range split by (c)
+  (add first key 1000,
+   add first key 2000);
+-- split by not supported for indexes
+
+create table terr3(a integer not null,
+                   b char(10 bytes) character set utf8 not null,
+                   c date,
+                   primary key (a,b))
+range split by (b,a)
+  (add first key (1,'a'));
+-- split by must be a prefix of clustering key
+
+create table terr4(a integer not null,
+                   b char(10 bytes) character set utf8 not null,
+                   c date,
+                   primary key (a,b))
+range split by (a,b,c)
+  (add first key (1,'a',date '2015-01-01'));
+-- split by must be a prefix of clustering key
+
+create table terr5(a integer not null primary key)
+range split by (a)
+ (add first key 10,
+  add first key 12,
+  add first key 11);
+-- keys are not in increasing order
+
+create table terr6(a integer not null,
+                   b int not null,
+                   primary key (a, b desc))
+range split by (a, b desc)
+ (add first key (10,1),
+  add first key (11,11),
+  add first key (11,22),  -- out of sequence
+  add first key 20);
+-- keys are not in increasing order
+
+create table terr7 like t015presp2 with partitions
+range split by (a, "b")
+  (add first key (4000, date '2015-01-01'),
+   add first key (5000),
+   add first key (6000, date '2000-12-31'),
+   add first key (6000, date '2000-06-30'));
+-- with partitions and split by not allowed in a LIKE stmt.
+
+---------------------------------------------
+-- SALT with more salt values than regions --
+---------------------------------------------
+
+create table t015slt1(a int not null primary key,
+                      b int)
+salt using 8 partitions in 4 regions;
+
+create table t015slt2(a int not null,
+                      b varchar(10) character set utf8 not null,
+                      c int,
+                      primary key (a,b))
+salt using 9 partitions in 4 regions on(b);
+
+create index t015slt2ix1 on t015slt2(b)
+salt like table;
+
+create index t015slt2ix2 on t015slt2(c);
+
+cqd TRAF_NUM_OF_SALT_PARTNS '4';
+create table t015slt3(a int not null primary key,
+                      b int); 
+create index t015slt3ix1 on t015slt3(b);
+cqd TRAF_NUM_OF_SALT_REGIONS '3';
+create table t015slt4("a" int not null primary key,
+                      "b""" int); 
+create index t015slt4ix1 on t015slt4("b""");
+
+cqd TRAF_NUM_OF_SALT_PARTNS reset;
+cqd TRAF_NUM_OF_SALT_REGIONS reset;
+
+
+showddl t015slt1;
+showddl t015slt2;
+showddl t015slt3;
+showddl t015slt4;
+
+select substring(o.object_name, 1, 10),
+       t.num_salt_partns,
+       x.text_type, x.sub_id, x.seq_num, x.flags,
+       substring(x.text, 1, 128)
+from "_MD_".objects o
+     join "_MD_".tables t on o.object_uid = t.table_uid
+     join "_MD_".text x on t.table_uid = x.text_uid
+where o.schema_name = 'SCH'
+  and o.object_name like 'T015SLT_'
+  and x.text_type <> 7
+  and x.text_type <> 9 -- ignore namespace
+order by 1, 3, 4;
+
+---------------------------------------------
+-- Scan DoP for HBase tables               --
+---------------------------------------------
+
+create table t015p20 (a char(5) not null ,
+                     b smallint not null ,
+                     c char(4),
+                     d integer,
+                     primary key (a,b) )
+                     salt using 20 partitions ;
+insert into t015p20 values ('AAAA ',11,'AAAA',11);
+insert into t015p20 values ('BBBB ',12,'BBBB',12);
+insert into t015p20 values ('MMMM ',21,'MMMM',21);
+insert into t015p20 values ('XXXXX',22,'XXXX', 22);
+
+
+create table t015p4 (a char(5) not null ,
+                     b smallint not null ,
+                     c char(4),
+                     d integer,
+                     primary key (a,b) )
+                     salt using 4 partitions ;
+insert into t015p4 values ('AAAA ',11,'AAAA',11);
+insert into t015p4 values ('BBBB ',12,'BBBB',12);
+insert into t015p4 values ('MMMM ',21,'MMMM',21);
+insert into t015p4 values ('XXXXX',22,'XXXX', 22);
+
+-- expect to see a parallel plan
+prepare xx from select * from t015p20 <<+ cardinality 10e8 >>  ;
+execute explainIt;
+
+-- expect to see a serial plan
+prepare xx from select * from t015p20 ;
+execute explainIt;
+
+-- expect to see a parallel plan
+prepare xx from select t015p20.* from
+t015p20 <<+ cardinality 10e8 >>, t015p4
+where t015p20.c = t015p4.c ;
+execute explainIt;
+
+-- expect to see a serial plan
+prepare xx from select t015p20.* from
+t015p20, t015p4
+where t015p20.c = t015p4.c ;
+execute explainIt;
+

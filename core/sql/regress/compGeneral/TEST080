@@ -1,0 +1,354 @@
+-------------------------------------------------------------------------
+-- part 02 of new range partition test:
+--  * merge partitions
+--  * exchange partitions
+-------------------------------------------------------------------------
+-- @@@ START COPYRIGHT @@@
+--
+-- Licensed to the Apache Software Foundation (ASF) under one
+-- or more contributor license agreements.  See the NOTICE file
+-- distributed with this work for additional information
+-- regarding copyright ownership.  The ASF licenses this file
+-- to you under the Apache License, Version 2.0 (the
+-- "License"); you may not use this file except in compliance
+-- with the License.  You may obtain a copy of the License at
+--
+--   http://www.apache.org/licenses/LICENSE-2.0
+--
+-- Unless required by applicable law or agreed to in writing,
+-- software distributed under the License is distributed on an
+-- "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+-- KIND, either express or implied.  See the License for the
+-- specific language governing permissions and limitations
+-- under the License.
+--
+-- @@@ END COPYRIGHT @@@
+
+
+obey TEST080(clean_up);
+log LOG080 clear;
+obey TEST080(test_init);
+obey TEST080(test_MERGE);
+obey TEST080(test_EXCHANGE);
+obey TEST080(M20998);
+obey TEST080(unique_constraint);
+log;
+obey TEST080(clean_up);
+exit;
+
+
+
+?section test_init
+create schema if not exists testpartition_part2;
+set schema testpartition_part2;
+
+?section test_MERGE
+drop table if exists part_tab70 cascade;
+drop table if exists part_tab70_idx cascade;
+
+--table without index
+create table part_tab70 (c1 int,c2 int,c3 int)
+partition by range(c1)
+(
+partition p1 values less than (10),
+partition p2 values less than (20),
+partition p3 values less than (30),
+partition p4 values less than (40),
+partition p5 values less than (50),
+partition p6 values less than (60),
+partition p7 values less than (70),
+partition p8 values less than (80),
+partition p9 values less than (90),
+--partition p10 values less than (100),
+--partition p11 values less than (110),
+--partition p12 values less than (120),
+--partition p13 values less than (130),
+--partition p14 values less than (140),
+--partition p15 values less than (150),
+partition p100 values less than(MAXVALUE)
+);
+
+insert into part_tab70 select element, element, element from udf(series(1,149));
+insert into part_tab70 values(139,139,149);
+
+--table with indexes
+
+create table part_tab70_idx (c1 int,c2 int,c3 int)
+partition by range(c1)
+(
+partition p1 values less than (10),
+partition p2 values less than (20),
+partition p3 values less than (30),
+partition p4 values less than (40),
+partition p5 values less than (50),
+partition p6 values less than (60),
+partition p7 values less than (70),
+partition p8 values less than (80),
+partition p9 values less than (90),
+--partition p10 values less than (100),
+--partition p11 values less than (110),
+--partition p12 values less than (120),
+--partition p13 values less than (130),
+partition p14 values less than (140),
+partition p15 values less than (150)
+,partition p100 values less than(MAXVALUE)
+);
+
+create index tab70_local_idx2 on part_tab70_idx(c3 desc, c2 asc, c1 desc) local;
+create index p6_idx on part_tab70_idx(c3) partition (p6);
+--create index p11_idx on part_tab70_idx(c3) partition (p11);
+--create index p13_idx on part_tab70_idx(c3) partition (p13);
+create unique index p15_idx on part_tab70_idx(c3) partition (p15);
+
+insert into part_tab70_idx select element, element, element from udf(series(1,149));
+insert into part_tab70_idx values(139,139,149);
+
+--error cases
+alter table part_tab70_not_exist merge partitions p5,p6 into partition p8 ;
+alter table part_tab70 merge partitions p5,p6 into partition p8 ;
+alter table part_tab70 merge partitions p5,p8 into partition p5 ;
+
+--success
+--01 without index
+alter table part_tab70 merge partitions p1 into partition p2 ;
+alter table part_tab70 merge partitions p2 into partition p2 ;
+alter table part_tab70 merge partitions for(15) into partition p2 ;
+alter table part_tab70 merge partitions for(48),p7,for(58),p8 into partition p6;
+alter table part_tab70 merge partitions p3,p4 into partition p1_new;
+alter table part_tab70 merge partitions p9,p1_new,for(77);--,p10,for(105),for(115);
+--alter table part_tab70 merge partitions p14 into partition p15;
+
+select substring(PARTITION_NAME,1,5), PARTITION_ORDINAL_POSITION, substring(PARTITION_EXPRESSION,1,5), STATUS 
+from "_MD_".TABLE_PARTITIONS P, "_MD_".OBJECTS O
+where P.PARENT_UID = O.OBJECT_UID and O.OBJECT_NAME = 'PART_TAB70' and O.SCHEMA_NAME = CURRENT_SCHEMA
+order by PARTITION_ORDINAL_POSITION;
+
+select count(*) from part_tab70;
+
+--02 with indexes
+alter table part_tab70_idx merge partitions p1 into partition p2 ;
+alter table part_tab70_idx merge partitions p8,for(48),for(58),p7 into partition p6;
+alter table part_tab70_idx merge partitions p3,p4 into partition p1_new;
+alter table part_tab70_idx merge partitions p1_new,for(77),p9;--,p10,for(105),for(115);
+alter table part_tab70_idx merge partitions p14 into partition p15;--should fail by unique index on p15
+alter table part_tab70_idx merge partitions p14 into partition p15;--redo to check unique index is still online
+
+select substring(PARTITION_NAME,1,5), PARTITION_ORDINAL_POSITION, substring(PARTITION_EXPRESSION,1,5), STATUS 
+from "_MD_".TABLE_PARTITIONS P, "_MD_".OBJECTS O
+where P.PARENT_UID = O.OBJECT_UID and O.OBJECT_NAME = 'PART_TAB70_IDX' and O.SCHEMA_NAME = CURRENT_SCHEMA
+order by PARTITION_ORDINAL_POSITION;
+
+select count(*) from part_tab70_idx;
+
+
+?section test_EXCHANGE
+create table part_tab71 (c1 int,c2 tinyint,c3 largeint, 
+                         c4 char(10), c5 char(10) character set utf8, c6 char(10 bytes) character set utf8,
+                         c7 varchar(10), c8 varchar(10) character set utf8, c9 varchar(16 bytes) character set utf8,
+                         c10 decimal(18,4), c11 numeric(18,4), c12 numeric(24,6), c13 date, c14 time(4), c15 timestamp(4))
+store by (c1, c2)
+partition by range(c1)
+(
+--partition p1 values less than (10),
+--partition p2 values less than (20),
+partition p3 values less than (30),
+partition p4 values less than (40),
+--partition p5 values less than (50),
+--partition p6 values less than (60),
+partition p7 values less than (maxvalue)
+);
+
+create index part_tab71_idx on part_tab71(c3,c1) local;
+
+insert into part_tab71 values(1, 1, 1, 'test', 'test测试', 'test测试', '2test', '2test测试', '2test测试', 100.1234, 200.1234, 300.123456, '2021-04-09', '12:00:00.1023', '2021-04-09 12:00:00.1023');
+insert into part_tab71 values(2, 1, 1, 'test', 'test测试', 'test测试', '2test', '2test测试', '2test测试', 100.1234, 200.1234, 300.123456, '2021-04-09', '12:00:00.1023', '2021-04-09 12:00:00.1023');
+insert into part_tab71 values(3, 1, 1, 'test', 'test测试', 'test测试', '2test', '2test测试', '2test测试', 100.1234, 200.1234, 300.123456, '2021-04-09', '12:00:00.1023', '2021-04-09 12:00:00.1023');
+insert into part_tab71 values(11, 1, 1, 'test', 'test测试', 'test测试', '2test', '2test测试', '2test测试', 100.1234, 200.1234, 300.123456, '2021-04-09', '12:00:00.1023', '2021-04-09 12:00:00.1023');
+insert into part_tab71 values(12, 1, 1, 'test', 'test测试', 'test测试', '2test', '2test测试', '2test测试', 100.1234, 200.1234, 300.123456, '2021-04-09', '12:00:00.1023', '2021-04-09 12:00:00.1023');
+insert into part_tab71 values(13, 1, 1, 'test', 'test测试', 'test测试', '2test', '2test测试', '2test测试', 100.1234, 200.1234, 300.123456, '2021-04-09', '12:00:00.1023', '2021-04-09 12:00:00.1023');
+insert into part_tab71 values(21, 1, 1, 'test', 'test测试', 'test测试', '2test', '2test测试', '2test测试', 100.1234, 200.1234, 300.123456, '2021-04-09', '12:00:00.1023', '2021-04-09 12:00:00.1023');
+insert into part_tab71 values(22, 1, 1, 'test', 'test测试', 'test测试', '2test', '2test测试', '2test测试', 100.1234, 200.1234, 300.123456, '2021-04-09', '12:00:00.1023', '2021-04-09 12:00:00.1023');
+insert into part_tab71 values(23, 1, 1, 'test', 'test测试', 'test测试', '2test', '2test测试', '2test测试', 100.1234, 200.1234, 300.123456, '2021-04-09', '12:00:00.1023', '2021-04-09 12:00:00.1023');
+insert into part_tab71 values(31, 1, 1, 'test', 'test测试', 'test测试', '2test', '2test测试', '2test测试', 100.1234, 200.1234, 300.123456, '2021-04-09', '12:00:00.1023', '2021-04-09 12:00:00.1023');
+insert into part_tab71 values(32, 1, 1, 'test', 'test测试', 'test测试', '2test', '2test测试', '2test测试', 100.1234, 200.1234, 300.123456, '2021-04-09', '12:00:00.1023', '2021-04-09 12:00:00.1023');
+insert into part_tab71 values(33, 1, 1, 'test', 'test测试', 'test测试', '2test', '2test测试', '2test测试', 100.1234, 200.1234, 300.123456, '2021-04-09', '12:00:00.1023', '2021-04-09 12:00:00.1023');
+insert into part_tab71 values(41, 1, 1, 'test', 'test测试', 'test测试', '2test', '2test测试', '2test测试', 100.1234, 200.1234, 300.123456, '2021-04-09', '12:00:00.1023', '2021-04-09 12:00:00.1023');
+insert into part_tab71 values(42, 1, 1, 'test', 'test测试', 'test测试', '2test', '2test测试', '2test测试', 100.1234, 200.1234, 300.123456, '2021-04-09', '12:00:00.1023', '2021-04-09 12:00:00.1023');
+insert into part_tab71 values(43, 1, 1, 'test', 'test测试', 'test测试', '2test', '2test测试', '2test测试', 100.1234, 200.1234, 300.123456, '2021-04-09', '12:00:00.1023', '2021-04-09 12:00:00.1023');
+insert into part_tab71 values(51, 1, 1, 'test', 'test测试', 'test测试', '2test', '2test测试', '2test测试', 100.1234, 200.1234, 300.123456, '2021-04-09', '12:00:00.1023', '2021-04-09 12:00:00.1023');
+insert into part_tab71 values(52, 1, 1, 'test', 'test测试', 'test测试', '2test', '2test测试', '2test测试', 100.1234, 200.1234, 300.123456, '2021-04-09', '12:00:00.1023', '2021-04-09 12:00:00.1023');
+insert into part_tab71 values(53, 1, 1, 'test', 'test测试', 'test测试', '2test', '2test测试', '2test测试', 100.1234, 200.1234, 300.123456, '2021-04-09', '12:00:00.1023', '2021-04-09 12:00:00.1023');
+
+
+create table common_tab72 (cc1 int,c2 tinyint,c3 largeint, 
+                         c4 char(10), cc5 char(10) character set utf8, c6 char(10 bytes) character set utf8,
+                         cc7 varchar(10), c8 varchar(10) character set utf8, c9 varchar(16 bytes) character set utf8,
+                         c10 decimal(18,4), cc11 numeric(18,4), c12 numeric(24,6), c13 date, cc14 time(4), cc15 timestamp(4))
+    store by (cc1, c2);
+
+create index common_tab72_idx on common_tab72(cc11, c3);
+
+insert into common_tab72 values(28, 1, 1, 'test', 'test测试', 'test测试', '2test', '2test测试', '2test测试', 100.1234, 200.1234, 300.123456, '2021-04-09', '12:00:00.1023', '2021-04-09 12:00:00.1023');
+insert into common_tab72 values(35, 1, 1, 'test', 'test测试', 'test测试', '2test', '2test测试', '2test测试', 100.1234, 200.1234, 300.123456, '2021-04-09', '12:00:00.1023', '2021-04-09 12:00:00.1023');
+insert into common_tab72 values(36, 1, 1, 'test', 'test测试', 'test测试', '2test', '2test测试', '2test测试', 100.1234, 200.1234, 300.123456, '2021-04-09', '12:00:00.1023', '2021-04-09 12:00:00.1023');
+insert into common_tab72 values(37, 1, 1, 'test', 'test测试', 'test测试', '2test', '2test测试', '2test测试', 100.1234, 200.1234, 300.123456, '2021-04-09', '12:00:00.1023', '2021-04-09 12:00:00.1023');
+insert into common_tab72 values(38, 1, 1, 'test', 'test测试', 'test测试', '2test', '2test测试', '2test测试', 100.1234, 200.1234, 300.123456, '2021-04-09', '12:00:00.1023', '2021-04-09 12:00:00.1023');
+insert into common_tab72 values(39, 1, 1, 'test', 'test测试', 'test测试', '2test', '2test测试', '2test测试', 100.1234, 200.1234, 300.123456, '2021-04-09', '12:00:00.1023', '2021-04-09 12:00:00.1023');
+
+create table common_tab72_01 (c1 largeint,c2 tinyint,c3 largeint, 
+                         c4 char(10), c5 char(10) character set utf8, c6 char(10 bytes) character set utf8,
+                         c7 varchar(10), c8 varchar(10) character set utf8, c9 varchar(16 bytes) character set utf8,
+                         c10 decimal(18,4), c11 numeric(18,4), c12 numeric(24,6), c13 date, c14 time(4), c15 timestamp(4))
+    store by (c1, c2);
+create table common_tab72_05 (c1 int,c2 tinyint,c3 largeint, 
+                         c4 char(10), c5 char(10) character set utf8, c6 char(10 bytes) character set utf8,
+                         c7 varchar(10), c8 varchar(10) character set utf8, c9 varchar(16 chars) character set utf8,
+                         c10 decimal(18,4), c11 numeric(18,4), c12 numeric(24,6), c13 date, c14 time(4), c15 timestamp(4))
+    store by (c1, c2);
+create table common_tab72_09 (c1 int,c2 tinyint,c3 largeint, 
+                         c4 char(10), c5 char(10) character set utf8, c6 char(10 bytes) character set utf8,
+                         c7 varchar(10), c8 varchar(10) character set utf8, c9 varchar(16 bytes) character set utf8,
+                         c10 decimal(18,4), c11 numeric(16,4), c12 numeric(24,6), c13 date, c14 time(4), c15 timestamp(4))
+    store by (c1, c2);
+create table common_tab72_13 (c1 int,c2 tinyint,c3 largeint, 
+                         c4 char(10), c5 char(10) character set utf8, c6 char(10 bytes) character set utf8,
+                         c7 varchar(10), c8 varchar(10) character set utf8, c9 varchar(16 bytes) character set utf8,
+                         c10 decimal(18,4), c11 numeric(18,4), c12 numeric(24,6), c13 date, c14 time(4), c15 timestamp(4))
+    store by (c1, c3);
+
+--error
+alter table part_tab71 exchange partition p4 with table common_tab72;
+alter table part_tab71 exchange partition p4 with table part_tab71.p5;--ORA-00942: table or view does not exist
+alter table part_tab71 exchange partition p4 with partition part_tab71.p5;--ORA-00966: missing TABLE keyword
+
+alter table part_tab71 exchange partition p4 with table common_tab72_01;
+alter table part_tab71 exchange partition p4 with table common_tab72_05;
+alter table part_tab71 exchange partition p4 with table common_tab72_09;
+alter table part_tab71 exchange partition p4 with table common_tab72_13;
+
+--success
+delete from common_tab72 where cc1 = 28;
+
+select * from part_tab71 partition(p4);
+select * from common_tab72;
+
+alter table part_tab71 exchange partition p4 with table common_tab72;
+
+select * from part_tab71 partition(p4);
+select * from common_tab72;
+
+alter table part_tab71 exchange partition p4 with table common_tab72;
+
+select * from part_tab71 partition(p4);
+select * from common_tab72;
+
+alter table part_tab71 exchange partition p4 with table common_tab72;
+
+select * from part_tab71 partition(p4);
+select * from common_tab72;
+
+set parserflags 131072;
+
+select * from table(index_table INDEX_PART_TAB71_IDX_PART_PART_TAB71_P4_);
+select * from table(index_table common_tab72_idx);
+
+
+?section M20998
+create table m20998 (c1 int primary key,c2 int,c3 int)
+partition by range(c1)
+(
+partition p1 values less than (10),
+partition p2 values less than (20),
+partition p3 values less than (30)
+);
+
+cqd TRAF_PARTITIONV2_CONSTRAINT_RAISE_ERROR 'off';
+insert into m20998 partition (p3) values(22,2,3),(1,2,3);
+insert into m20998 partition for(28) values(23,2,3),(1,2,3);
+insert into m20998 values(13,2,3),(100,2,3);
+delete from m20998;
+
+cqd TRAF_PARTITIONV2_CONSTRAINT_RAISE_ERROR 'on';
+insert into m20998 partition (p3) values(22,2,3),(1,2,3);
+insert into m20998 partition for(28) values(22,2,3),(1,2,3);
+insert into m20998 values(13,2,3),(100,2,3);
+
+?section unique_constraint
+drop table if exists pt3 cascade;
+create table pt3(c1 int, c2 numeric(10,2), c3 varchar(10))
+partition by range(c1)
+(
+partition p1 values less than (10),
+partition p2 values less than (20),
+partition p3 values less than (30),
+partition pmax values less than (maxvalue)
+);
+----------------ddl-----------------------
+alter table pt3 add constraint unq_pt3 unique(c1);
+showddl pt3;
+alter table pt3 drop constraint unq_pt3;
+showddl pt3;
+create index unq_pt3 on pt3(c1) global;
+showddl pt3;
+drop index unq_pt3;
+showddl pt3;
+
+----------------dml-----------------------
+alter table pt3 add constraint unq_pt3 unique(c1);
+showddl pt3;
+insert into pt3 values(1,1.1,'aaaaa');
+insert into pt3 values(11, 2.2, 'bbbbb');
+insert into pt3 values(21, 3.3, 'ccccc');
+
+--error 8102
+insert into pt3 values(1,1.1,'aaaaa');
+insert into pt3 values(11,1.1,'aaaaa');
+insert into pt3 values(21,1.1,'aaaaa');
+
+set parserflags 1;
+select * from table (index_table unq_pt3);
+delete from pt3 partition(p1);
+select * from table (index_table unq_pt3);
+delete from pt3 partition(p2);
+select * from table (index_table unq_pt3);
+delete from pt3 partition(p3);
+select * from table (index_table unq_pt3);
+
+insert into pt3 values(1,1.1,'aaaaa');
+insert into pt3 values(11, 2.2, 'bbbbb');
+insert into pt3 values(21, 3.3, 'ccccc');
+insert into pt3 values(2,1.1,'aaaaa');
+insert into pt3 values(12,2.2,'bbbbb');
+insert into pt3 values(22,3.3,'ccccc');
+--error 8102
+update pt3 set c1 = 1 where c1 = 2;
+update pt3 set c1 = 11 where c1 = 12;
+update pt3 set c1 = 21 where c1 = 22;
+
+--success
+update pt3 set c1 = 3 where c1 = 2;
+update pt3 set c1 = 13 where c1 = 12;
+update pt3 set c1 = 23 where c1 = 22;
+select * from pt3;
+select * from table (index_table unq_pt3);
+delete from pt3;
+
+insert into pt3 values(1,1.1,'aaaaa');
+insert into pt3 values(11, 2.2,'bbbbb');
+insert into pt3 values(21, 3.3,'ccccc');
+insert into pt3 values(2,1.1,'aaaaa');
+insert into pt3 values(12,2.2,'bbbbb');
+insert into pt3 values(22,3.3,'ccccc');
+--error 8102
+upsert into pt3 values(1,1.1,'aaaaa');
+upsert into pt3 values(11,2.2,'bbbbb');
+
+--success
+upsert into pt3 values(10,3.4,'upsert');
+upsert into pt3 values(4, 5.6,'upsert');
+select * from pt3;
+select * from table (index_table unq_pt3);
+reset parserflags 131072;
+
+?section clean_up
+drop schema if exists testpartition_part2 cascade;

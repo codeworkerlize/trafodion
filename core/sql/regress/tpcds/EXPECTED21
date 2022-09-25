@@ -1,0 +1,97 @@
+>>obey stdcqds;
+>>
+>>set schema hive.tpcds_sf1000;
+
+--- SQL operation complete.
+>>
+>>control osim simulate continue './osim.all.sf1000.09022016';
+
+--- SQL operation complete.
+>>
+>>cqd orc_njs 'on';
+
+--- SQL operation complete.
+>>cqd parallel_num_esps '48';
+
+--- SQL operation complete.
+>>cqd QUERY_CACHE '200000';
+
+--- SQL operation complete.
+>>cqd HIVE_METADATA_REFRESH_INTERVAL '-1';
+
+--- SQL operation complete.
+>>cqd  HIVE_LOCALITY_BALANCE_LEVEL '-1';
+
+--- SQL operation complete.
+>>cqd  METADATA_CACHE_SIZE '200';
+
+--- SQL operation complete.
+>>cqd partitioning_scheme_sharing '2';
+
+--- SQL operation complete.
+>>cqd COMP_BOOL_208 'ON';
+
+--- SQL operation complete.
+>>obey q21;
+>>
+>>--==QID: 21
+>>
+>>prepare xx from
++>select  *
++> from(select w_warehouse_name
++>            ,i_item_id
++>            ,sum(case when (cast(d_date as date) < cast ('2000-04-05' as date))
++>                        then inv_quantity_on_hand
++>                      else 0 end) as inv_before
++>            ,sum(case when (cast(d_date as date) >= cast ('2000-04-05' as date))
++>                      then inv_quantity_on_hand
++>                      else 0 end) as inv_after
++>   from inventory
++>       ,warehouse
++>       ,item
++>       ,date_dim
++>   where i_current_price between 0.99 and 1.49
++>     and i_item_sk          = inv_item_sk
++>     and inv_warehouse_sk   = w_warehouse_sk
++>     and inv_date_sk    = d_date_sk
++>     and d_date between (date'2000-04-05' - interval '30' day)
++>                    and (date'2000-04-05' + interval '30' day)
++>   group by w_warehouse_name, i_item_id) x
++> where (case when inv_before > 0
++>             then inv_after / inv_before
++>             else null
++>             end) between 2.0/3.0 and 3.0/2.0
++> order by w_warehouse_name
++>         ,i_item_id
++> limit 100;
+
+--- SQL command prepared.
+>>
+>>obey explains;
+>>explain options 'f' xx;
+
+LC   RC   OP   OPERATOR              OPT       DESCRIPTION           CARD
+---- ---- ---- --------------------  --------  --------------------  ---------
+
+15   .    16   root                                                  3.94E+004
+14   .    15   firstn                                                3.94E+004
+13   .    14   esp_exchange                    1:48(hash2) (m)       3.94E+004
+12   .    13   sort                                                  3.94E+004
+11   .    12   hash_groupby                                          3.94E+004
+10   .    11   esp_exchange                    48(hash2):48(hash2)   1.09E+007
+9    2    10   hybrid_hash_join                                      1.09E+007
+8    4    9    hybrid_hash_join                                      1.09E+007
+7    6    8    hybrid_hash_join                                      4.11E+007
+.    .    7    orc_scan                        INVENTORY             6.96E+008
+5    .    6    esp_exchange                    48(rep-b):2(hash2)    1.77E+004
+.    .    5    orc_scan                        ITEM                  1.77E+004
+3    .    4    esp_exchange                    48(rep-b):2(hash2)    6.19E+001
+.    .    3    orc_scan                        DATE_DIM              6.19E+001
+1    .    2    esp_exchange                    48(rep-b):2(hash2)    2.00E+001
+.    .    1    orc_scan                        WAREHOUSE             2.00E+001
+
+--- SQL operation complete.
+>>exit;
+
+End of MXCI Session
+

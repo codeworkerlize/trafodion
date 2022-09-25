@@ -1,0 +1,98 @@
+>>obey stdcqds;
+>>
+>>set schema hive.tpcds_sf1000;
+
+--- SQL operation complete.
+>>
+>>control osim simulate continue './osim.all.sf1000.09022016';
+
+--- SQL operation complete.
+>>
+>>cqd orc_njs 'on';
+
+--- SQL operation complete.
+>>cqd parallel_num_esps '48';
+
+--- SQL operation complete.
+>>cqd QUERY_CACHE '200000';
+
+--- SQL operation complete.
+>>cqd HIVE_METADATA_REFRESH_INTERVAL '-1';
+
+--- SQL operation complete.
+>>cqd  HIVE_LOCALITY_BALANCE_LEVEL '-1';
+
+--- SQL operation complete.
+>>cqd  METADATA_CACHE_SIZE '200';
+
+--- SQL operation complete.
+>>cqd partitioning_scheme_sharing '2';
+
+--- SQL operation complete.
+>>cqd COMP_BOOL_208 'ON';
+
+--- SQL operation complete.
+>>obey q32;
+>>
+>>--==QID: 32
+>>
+>>prepare xx from
++>select  sum(cs_ext_discount_amt)  as "excess discount amount"
++>from
++>   catalog_sales
++>   ,item
++>   ,date_dim
++>where
++>i_manufact_id = 368
++>and i_item_sk = cs_item_sk
++>and d_date between date'2002-02-09' and
++>        (date'2002-02-09' + interval '90' day)
++>and d_date_sk = cs_sold_date_sk
++>and cs_ext_discount_amt
++>     > (
++>         select
++>            1.3 * avg(cs_ext_discount_amt)
++>         from
++>            catalog_sales
++>           ,date_dim
++>         where
++>              cs_item_sk = i_item_sk
++>          and d_date between date'2002-02-09' and
++>                             (date'2002-02-09' + interval '90' day)
++>          and d_date_sk = cs_sold_date_sk
++>      )
++>limit 100;
+
+--- SQL command prepared.
+>>obey explains;
+>>explain options 'f' xx;
+
+LC   RC   OP   OPERATOR              OPT       DESCRIPTION           CARD
+---- ---- ---- --------------------  --------  --------------------  ---------
+
+19   .    20   root                                                  1.00E+000
+18   .    19   firstn                                                1.00E+000
+17   .    18   sort_partial_aggr_ro                                  1.00E+000
+16   .    17   esp_exchange                    1:48(hash2)           1.00E+000
+15   .    16   sort_partial_aggr_le                                  1.00E+000
+14   .    15   hash_groupby                                          4.52E+006
+13   .    14   esp_exchange                    48(hash2):48(hash2)   1.35E+007
+12   2    13   hybrid_hash_join                                      1.35E+007
+11   10   12   hybrid_hash_join                                      2.77E+008
+.    .    11   orc_scan                        CATALOG_SALES         1.43E+009
+9    .    10   esp_exchange                    48(rep-b):48(hash2)   6.25E+004
+8    4    9    hybrid_hash_join                                      6.25E+004
+6    7    8    nested_join                                           7.02E+007
+.    .    7    orc_scan                        CATALOG_SALES         7.80E+005
+5    .    6    esp_exchange                    48(hash2):2(hash2)    9.00E+001
+.    .    5    orc_scan                        DATE_DIM              9.00E+001
+3    .    4    esp_exchange                    48(rep-b):2(hash2)    2.67E+002
+.    .    3    orc_scan                        ITEM                  2.67E+002
+1    .    2    esp_exchange                    48(rep-b):2(hash2)    9.00E+001
+.    .    1    orc_scan                        DATE_DIM              9.00E+001
+
+--- SQL operation complete.
+>>exit;
+
+End of MXCI Session
+

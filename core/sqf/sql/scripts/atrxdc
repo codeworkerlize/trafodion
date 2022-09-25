@@ -1,0 +1,1029 @@
+#!/usr/bin/env bash
+
+bin=`dirname "$0"`
+bin=`cd "$bin">/dev/null; pwd`
+
+function usage {
+    echo ""
+    echo "USAGE:"
+    echo "  atrxdc <command> <component> <args>"
+    echo "  where <command> could be:"
+    echo "    start  - start <component> process"
+    echo "    stop   - stop all atrxdc process, stop ignore rest args"
+    echo "    check  - check process status(now only do basic process check)"
+    echo "    -checkconf [remote]        - check local atrxdc configuration if remote not provided, otherwise check remote configuration."
+    echo "    -enable                    - enable atrxdc function"
+    echo "    -disable                   - disable atrxdc function"
+    echo "    -set { attribute value }   - set attribute related to atrxdc"
+    echo "                                 supported attribute:"
+    echo "                                   bp       - binlog partition number"
+    echo "                                   role     - cluster role"
+    echo "                                   mode     - atr sync mode: 1 for maxPerformance mode, 2 for maxReliability mode, 3 for maxProtection mode, 4 for maxStrictReliability mode. Default is 4 (maxStrictReliability)."
+    echo "                                   bwsz     - binlog mutator write buffer size, this parameter used in maxPerformance mode"
+    echo "                                   dual     - atr dual mode: true or false. Can be set to true only while bcstr is set. Write binlog both at local and remote when set to true."
+    echo "                                   bcstr    - binlog cluster connection string, value syntax: quorum[:port]"
+    echo "                                   rcp      - binlog replayer checkpoint, value syntax: salt,wid,cid"
+    echo "                                   skipwal  - binlog skip WAL option, value syntax: {t | true | f | false}"
+    echo "                                   fintvl   - binlog flush interval, only used in local mode, value is number of ms"
+    echo "                                   fcintvl  - binlog flush check interval"
+    echo "                                   fctimes  - binlog flush check retry times"
+    echo "                                   rtr      - binlog recover time range in second(s)"
+    echo "                                   wfi      - binlog writeid flush interval"
+    echo "                                   sblimiter - binlog safebuffer limiter in max performance mode"
+    echo "    -get { attribute }         - get attribute related to atrxdc"
+    echo "                                 supported attribute:"
+    echo "                                   bp       - binlog partition number"
+    echo "                                   mode     - atr sync mode"
+    echo "                                   dual     - atr dual mode"
+    echo "                                   role     - cluster role"
+    echo "                                   bwsz     - binlog mutator write buffer size, this parameter used in maxPerformance mode"
+    echo "                                   bcstr    - binlog cluster connection string"
+    echo "                                   rcp      - binlog replayer checkpoint"
+    echo "                                   skipwal  - binlog skip WAL option"
+    echo "                                   fintvl   - binlog flush interval, only used in maxPerformance mode, value is number of ms"
+    echo "                                   fcintvl   - binlog flush check interval"
+    echo "                                   fctimes   - binlog flush check retry times"
+    echo "                                   rtr      - binlog recover time range in second(s)"
+    echo "                                   wfi      - binlog writeid flush interval"
+    echo "                                   sblimiter - binlog safebuffer limiter in max performance mode"
+    echo "    -sl [remote]               - scan local binlog table if remote not privided, otherwise scan remote binlog table."
+    echo "    -slr [remote]              - scan local binlog_reader table if remote not provided, otherwise scan remote binlog_reader table."
+    echo "    -stat [remote]             - print local binlog statistics if remote not provided, otherwise print remote binlog statistics."
+    echo "    -init [remote]             - initialize local atrxdc configuration if remote not provided, otherwise rebuild remote binlog with partition number of local only."
+    echo "    -replayseq                 - replay sequence"
+    echo "    -resetbl                   - rebuild binlog"
+    echo "    -resetrcp                  - reset atrxdc replay checkpoint"
+    echo "    -resetsm                   - reset binlog salt and host map"
+    echo "    -setttl                    - set binlog TTL"
+    echo "    -getttl                    - get binlog TTL"
+    echo "    -switch                    - do disaster fail over switch"
+    echo "    -h | -help | help          - show this usage"
+    echo "  <component> could be:"
+    echo "    manager"
+    echo "    worker"
+    echo "    replayer"
+    echo "  <args> could be:"
+    echo "    hostname    - the hostname proccess will be started"
+    echo "    partionnum  - the partition number worker will replay and copy,"
+    echo "                  this option is for worker process"
+    echo "  example: atrxdc start manager"
+    echo "           atrxdc start worker host1 2"
+    echo "           atrxdc start replayer host1 [quorumstr]"
+    echo ""
+}
+
+REPLAYER_JVM_OPTS="-Xms2G -Xmx8G -XX:+UseG1GC"
+WORKER_JVM_OPTS=""
+MANAGER_JVM_OPTS=""
+
+function make_sure_atrxdc_service_down {
+    # make sure atrxdc service down
+    cluster_role=$(atrxdc_get_role)
+    if [[ ${cluster_role} == "secondary" ]]; then
+        atrxdc_process_num=$(atrxdc_check)
+        if [[  ${atrxdc_process_num} != "" ]]; then
+            echo "ATRXDC services are running, stop it first."
+            echo "running atrxdc process: "
+            echo " ${atrxdc_process_num}"
+            exit 1
+        fi
+    fi
+}
+
+function make_sure_atrxdc_in_mode1 {
+    mode=$(atrxdc_get_mode)
+    if [[ ${mode} == "remote_mode" ]]; then
+       echo 'current atrxdc mode is remote, not allowed to continue the operation'
+       exit 1
+    fi
+}
+
+function start_components {
+
+    # check cluster role, only secondary cluster can run service.
+    cluster_role=$(atrxdc_get_role)
+    if [[ ${cluster_role} != "secondary" ]]; then
+        echo "Services have to be run on secondary cluster"
+        exit 1
+    fi
+
+    startStop=$1
+    component=$2
+    hostname=$3
+    salt=$4
+
+    case $component in
+        (manager)
+            startClass="org.apache.hadoop.hbase.client.transactional.AsyncXDCManager"
+            ;;
+        (worker)
+            startClass="org.apache.hadoop.hbase.client.transactional.AsyncXDCWorker"
+            ;;
+        (replayer)
+            startClass="org.apache.hadoop.hbase.pit.HBaseBinlogReplayer"
+            ;;
+        (seqreplayer)
+            startClass="org.apache.hadoop.hbase.pit.TrafHbaseTableReplayer"
+            ;;
+        (*)
+            ;;
+    esac
+
+    case $startStop in
+        (start)
+            if [[ $startClass == "" ]]; then
+                echo "***ERROR start command expect a component"
+                usage
+                exit 1
+            fi
+
+            # atrxdc service should not be start many times
+            if [[ $component == "manager" ]]; then
+                atrxdc_process_num=$(atrxdc_check)
+                if [[  ${atrxdc_process_num} != "" ]]; then
+                    echo "Service already started. stop it first."
+                    echo "running atrxdc process: "
+                    echo " ${atrxdc_process_num}"
+                    exit 1
+                fi
+            elif [[ $component == "replayer" ]]; then
+                replayer_process=$(atrxdc checkreplayer)
+                if [[  ${replayer_process} != "" ]]; then
+                    echo "***ERROR binlog replayer already started. stop it first."
+                    echo "running binlog replayer process: "
+                    echo " ${replayer_process}"
+                    exit 1
+                fi
+                hostname=""
+            elif [[ $component == "seqreplayer" ]]; then
+                seqreplayer_process=$(atrxdc checkseqreplayer)
+                if [[  ${seqreplayer_process} != "" ]]; then
+                    echo "***ERROR binlog sequence replayer already started. stop it first."
+                    echo "running binlog sequence replayer process: "
+                    echo " ${seqreplayer_process}"
+                    exit 1
+                fi
+                hostname=""
+            fi
+
+            if [[ $hostname == "" ]]; then
+                hostname=$(hostname -s)
+                echo "INFO no host name provided, use current hostname: " $hostname
+            fi
+
+            echo "starting $component"
+            if [[ $hostname == $(hostname -s) ]]; then
+                if [[ $component == "manager" ]]; then
+                    $JAVA_HOME/bin/java ${MANAGER_JVM_OPTS} $startClass $4 $deamon &
+                elif [[ $component == "replayer" ]]; then
+                    if [[ $3 == "" ]]; then
+                        echo "INFO replay binlog from local cluster"
+                    else
+                        echo "INFO replay binlog from $3"
+                    fi
+                    $JAVA_HOME/bin/java ${REPLAYER_JVM_OPTS} $startClass replay $3 $deamon &
+                elif [[ $component == "seqreplayer" ]]; then
+                    $JAVA_HOME/bin/java ${REPLAYER_JVM_OPTS} $startClass $deamon &
+                else
+                    $JAVA_HOME/bin/java ${WORKER_JVM_OPTS} $startClass $4 $5 $deamon
+                fi
+            else
+                echo "INFO start on remote host: " $hostname
+                edb_pdsh -w $hostname "$JAVA_HOME/bin/java ${WORKER_JVM_OPTS} $startClass $4 $5"
+            fi
+            ;;
+        (stop)
+            if [[ $component == "replayer" ]]; then
+                echo "stopping binlog replayer"
+                edb_pdsh $(trafconf -wname) "ps -aef | grep -E \"(HBaseBinlogReplayer)\" | grep -v grep | grep -v sh | awk '{print \$2}' | xargs kill"
+            elif [[ $component == "seqreplayer" ]]; then
+                echo "stopping binlog sequence replayer"
+                edb_pdsh $(trafconf -wname) "ps -aef | grep -E \"(TrafHbaseTableReplayer)\" | grep -v grep | grep -v sh | awk '{print \$2}' | xargs kill"
+            else
+                echo "stopping atrxdc sync services"
+                edb_pdsh $(trafconf -wname) "ps -aef | grep -E \"(AsyncXDCManager|AsyncXDCWorker)\" | grep -v grep | grep -v sh | awk '{print \$2}' | xargs kill"
+            fi
+            ;;
+        (check)
+            atrxdc checksyncer
+            atrxdc checkreplayer
+            atrxdc checkseqreplayer
+            ;;
+        (checksyncer)
+            edb_pdsh $(trafconf -wname) "ps -aef | grep -E \"(AsyncXDCManager|AsyncXDCWorker)\" | grep -v grep | grep -v sh | awk '{print \$2 \" -- \" \$9 \" -- running\"}'"
+            ;;
+        (checkreplayer)
+            edb_pdsh $(trafconf -wname) "ps -aef | grep -E \"(HBaseBinlogReplayer)\" | grep -v grep | grep -v sh | awk '{print \$2 \" -- \" \$12 \" -- running\"}'"
+            ;;
+        (checkseqreplayer)
+            edb_pdsh $(trafconf -wname) "ps -aef | grep -E \"(TrafHbaseTableReplayer)\" | grep -v grep | grep -v sh | awk '{print \$2 \" -- \" \$12 \" -- running\"}'"
+            ;;
+        (*)
+            echo "***ERROR unsupported command: " $startStop
+            usage
+            exit 1
+            ;;
+    esac
+}
+
+function major_compact_binlog() {
+    if ! command -v hbase &> /dev/null; then
+        HBASE_SHELL_CMD="swhbase shell"
+    else
+        HBASE_SHELL_CMD="hbase shell"
+    fi
+
+    echo -en "major_compact 'TRAF_RSRVD_5:TRAFODION._DTM_.TRAFODION_BINLOG'\n" |  ${HBASE_SHELL_CMD}
+}
+
+
+function truncate_binlog {
+    if ! command -v hbase &> /dev/null; then
+        HBASE_SHELL_CMD="swhbase shell"
+    else
+        HBASE_SHELL_CMD="hbase shell"
+    fi
+
+    echo -en "truncate_preserve 'TRAF_RSRVD_5:TRAFODION._DTM_.TRAFODION_BINLOG'\n" |  ${HBASE_SHELL_CMD}
+}
+
+function set_ttl {
+
+    if [ -z "$1" ]; then
+      echo "You must give a number as TTL"
+      return
+    fi
+
+    expr $1 + 1 &> /dev/null
+    if [ $? -ne 0 ] ; then
+      echo "You must give a number as TTL"
+      return
+    fi
+  
+    if ! command -v hbase &> /dev/null; then
+        HBASE_SHELL_CMD="swhbase shell"
+    else
+        HBASE_SHELL_CMD="hbase shell"
+    fi
+
+    ALTER_TTL_CMD="disable 'TRAF_RSRVD_5:TRAFODION._DTM_.TRAFODION_BINLOG'\nalter 'TRAF_RSRVD_5:TRAFODION._DTM_.TRAFODION_BINLOG', NAME => 'mf' , TTL => $1 \nenable 'TRAF_RSRVD_5:TRAFODION._DTM_.TRAFODION_BINLOG'\n "
+
+    echo -en "${ALTER_TTL_CMD}\n" |  ${HBASE_SHELL_CMD} 
+}
+
+function clear_binlog {
+    make_sure_atrxdc_service_down
+
+    while true; do
+        read -p "**WARNING** this command will clear binlog, atrxdc services depend on this log, continue?[y/n]: " yn
+        case $yn in
+            [Yy]* ) break;;
+            [Nn]* ) echo "Exiting..."; exit;;
+            * ) echo "Please answer yes or no.";;
+        esac
+    done
+
+    if [[ $1 == ""  ]]; then
+        echo `date` "        atrxdc -cl_dev" >> $TRAF_LOG/atrxdcop.log
+        truncate_binlog
+    else
+        while true; do
+            readable_date=$(date --date="$*" "+%F %T")
+            read -p "**WARNING** the binlog before '${readable_date}' will be deleted, continue?[y/n]: " yn
+            case $yn in
+                [Yy]* ) break;;
+                [Nn]* ) echo "Exiting..."; exit;;
+                * ) echo "Please answer yes or no.";;
+            esac
+        done
+        echo `date` "        atrxdc -cl_dev ${readable_date}" >> $TRAF_LOG/atrxdcop.log
+        $JAVA_HOME/bin/java org.apache.hadoop.hbase.pit.HBaseBinlog clearbinlog $(date --date="$*" +%s) 2>${lv_stderr_file}
+        major_compact_binlog
+    fi
+
+    if [[ $? == 0 ]]; then
+        while true; do
+            read -p "binlog cleared, do you also want to reset replay checkpoint?[y/n]: " yn
+            case $yn in
+                [Yy]* ) reset_replay_checkpoint; break;;
+                [Nn]* ) break;;
+                * ) echo "Please answer yes or no.";;
+            esac
+        done
+        if [[ $? == 0  ]]; then
+            echo "--- Operation success."
+        else
+            echo "--- reset replay checkpoint failed."
+        fi
+    else
+        echo "***ERROR*** operation failed."
+    fi
+}
+
+function set_binlog_partialnum() {
+    $JAVA_HOME/bin/java org.apache.hadoop.hbase.client.transactional.ATRConfig setpartnum $1 2>${lv_stderr_file}
+}
+
+function create_binlog_reader {
+    if ! command -v hbase &> /dev/null; then
+        HBASE_SHELL_CMD="swhbase shell"
+    else
+        HBASE_SHELL_CMD="hbase shell"
+    fi
+
+    EXISTS_BINLOG_READER_STMT="exists 'TRAF_RSRVD_5:TRAFODION._DTM_.BINLOG_READER'"
+
+    EXISTS_RESULTS=`echo -en "${EXISTS_BINLOG_READER_STMT}\n" | ${HBASE_SHELL_CMD}`
+
+    if [[ $EXISTS_RESULTS =~ "not exist" ]];
+    then
+        echo -en "Table 'TRAF_RSRVD_5:TRAFODION._DTM_.BINLOG_READER' does not exist.\nCREATE 'TRAF_RSRVD_5:TRAFODION._DTM_.BINLOG_READER'\n"
+        CREATE_BINLOG_READER_STMT="create 'TRAF_RSRVD_5:TRAFODION._DTM_.BINLOG_READER', {NAME => 'mf' }, {NAME => 'mt_', VERSIONS => 1000} "
+        echo -en "${CREATE_BINLOG_READER_STMT}\n" |  ${HBASE_SHELL_CMD} > ${lv_stderr_file}
+
+        INSTALL_BINLOG_READER_COPROCESSOR_STMT="disable 'TRAF_RSRVD_5:TRAFODION._DTM_.BINLOG_READER'\nalter 'TRAF_RSRVD_5:TRAFODION._DTM_.BINLOG_READER', METHOD => 'table_att', 'coprocessor'=>'|org.apache.hadoop.hbase.coprocessor.binlog.BinlogReaderObserver||'\nenable 'TRAF_RSRVD_5:TRAFODION._DTM_.BINLOG_READER'"
+        echo -en "${INSTALL_BINLOG_READER_COPROCESSOR_STMT}\n" |  ${HBASE_SHELL_CMD} > ${lv_stderr_file}
+        echo " --- operation success."
+    else
+        echo -en "Table 'TRAF_RSRVD_5:TRAFODION._DTM_.BINLOG_READER' does exist.\n"
+    fi
+
+}
+
+function rebuild_binlog {
+    make_sure_atrxdc_service_down
+    reset_salt_map
+
+    while true; do
+        read -p "**WARNING** this command will rebuild binlog, continue?[y/n]: " yn
+        case $yn in
+            [Yy]* ) break;;
+            [Nn]* ) echo "Exiting..."; exit;;
+            * ) echo "Please answer yes or no.";;
+        esac
+    done
+
+    if ! command -v hbase &> /dev/null; then
+        HBASE_SHELL_CMD="swhbase shell"
+    else
+        HBASE_SHELL_CMD="hbase shell"
+    fi
+
+    NODE_COUNT=$(trafconf -nid-count)
+    set_binlog_partialnum $NODE_COUNT
+    $JAVA_HOME/bin/java org.apache.hadoop.hbase.pit.HBaseBinlog createbinlog $NODE_COUNT 2>${lv_stderr_file}
+
+    status=$?
+    if [[ $status != 0 ]]; then
+        echo "***WARNING*** The command failed while trying to create binlog table, see ${lv_stderr_file} for details."
+    else
+        echo " --- operation success."
+    fi
+}
+
+function set_binlog_partition_num_and_rebuild_binlog {
+    if [[ $1 == "" ]]; then
+        echo "***ERROR expected a partition number between 1 to 1000"
+        usage
+        exit 1
+    fi
+
+    # TODO: really support customize binlog partition number
+    NODE_COUNT=$(trafconf -nid-count)
+    if [[ $1 != ${NODE_COUNT} ]]; then
+        echo "now partition number can only be your cluster node number: ${NODE_COUNT}"
+        exit
+    fi
+    rebuild_binlog
+}
+
+atrxdc_initialize_config() {
+    $JAVA_HOME/bin/java org.apache.hadoop.hbase.client.transactional.ATRConfig init
+    if [[ $? != 0 ]]; then
+        exit 1
+    fi
+    atrxdc_enable
+}
+
+
+function atrxdc_initialize {
+    echo `date` '        atrxdc -init' >> $TRAF_LOG/atrxdcop.log
+    atrxdc_initialize_config
+    if [[ $? != 0 ]]; then
+        exit
+    fi
+    sqlci -i << EOF
+initialize trafodion, create xdc metadata;
+set parserflags 131072;
+create table if not exists TRAFODION."_XDC_MD_".XDC_DDL_DUP like TRAFODION."_XDC_MD_".XDC_DDL;
+EOF
+    create_binlog_reader
+    rebuild_binlog
+}
+
+
+function atrxdc_initialize_remote {
+    echo `date` '        atrxdc -init remote' >> $TRAF_LOG/atrxdcop.log
+
+    NODE_COUNT=$(trafconf -nid-count)
+    while true; do
+        read -p "**WARNING** this operation will rebuild remote binlog with partion number $NODE_COUNT, continue?[y/n]: " yn
+        case $yn in
+            [Yy]* ) break;;
+            [Nn]* ) echo "Exiting..."; exit;;
+            * ) echo "Please answer yes or no.";;
+        esac
+    done
+
+    $JAVA_HOME/bin/java org.apache.hadoop.hbase.pit.HBaseBinlog createbinlog $NODE_COUNT remote 2>${lv_stderr_file}
+
+    status=$?
+    if [[ $status != 0 ]]; then
+        echo "***WARNING*** The command failed while trying to create binlog table, see ${lv_stderr_file} for details."
+    else
+        echo " --- operation success."
+    fi
+}
+
+
+function set_my_cluster_role() {
+    $JAVA_HOME/bin/java org.apache.hadoop.hbase.client.transactional.ATRConfig setrole $1 2>${lv_stderr_file}
+    if [[ $? == 0  ]]; then
+        echo "***WARN***: operation success, restart EsgynDB to take affect."
+    else
+        echo "***ERROR***: operation failed, look ${lv_stderr_file} for details."
+    fi
+}
+
+function print_my_cluster_role() {
+    $JAVA_HOME/bin/java org.apache.hadoop.hbase.client.transactional.ATRConfig getrole 2>${lv_stderr_file}
+}
+
+function set_atr_sync_mode() {
+    $JAVA_HOME/bin/java org.apache.hadoop.hbase.client.transactional.ATRConfig setmode $1 2>${lv_stderr_file}
+}
+
+function set_atr_dual_mode() {
+    if [ $# != 1 ] || ( [ $1 != "true" ] && [ $1 != "false" ] );then
+        echo "***ERROR***: expected a parameter true or false."
+        exit 1
+    fi
+    bcstr=$($JAVA_HOME/bin/java org.apache.hadoop.hbase.client.transactional.ATRConfig getbinlogconn)
+    if [[ ! $bcstr ]]; then
+        echo "***ERROR***: operation failed, cannot set dual mode when bcstr is not set."
+    else
+        $JAVA_HOME/bin/java org.apache.hadoop.hbase.client.transactional.ATRConfig setdual $1 2>${lv_stderr_file}
+    fi
+}
+
+function print_atr_dual_mode() {
+    $JAVA_HOME/bin/java org.apache.hadoop.hbase.client.transactional.ATRConfig isDual 2>${lv_stderr_file}
+}
+
+function print_atr_sync_mode() {
+    $JAVA_HOME/bin/java org.apache.hadoop.hbase.client.transactional.ATRConfig getmode 2>${lv_stderr_file}
+}
+
+function set_replay_checkpoint() {
+    $JAVA_HOME/bin/java org.apache.hadoop.hbase.pit.HBaseBinlogReplayer setcheckpoint $1 2>${lv_stderr_file}
+}
+
+function print_replay_checkpoint() {
+    $JAVA_HOME/bin/java org.apache.hadoop.hbase.pit.HBaseBinlogReplayer printcheckpoint 2>${lv_stderr_file}
+}
+
+function reset_replay_checkpoint() {
+    $JAVA_HOME/bin/java org.apache.hadoop.hbase.pit.HBaseBinlogReplayer resetcheckpoint 2>${lv_stderr_file}
+}
+
+
+function print_binlog_partition_num {
+    $JAVA_HOME/bin/java org.apache.hadoop.hbase.pit.HBaseBinlog partnum $@ 2>${lv_stderr_file}
+    if [[ $? != 0  ]]; then
+        echo "***ERROR***: operation failed, look ${lv_stderr_file} for details."
+    fi
+}
+
+function set_binlog_write_buff_size
+{
+    make_sure_atrxdc_in_mode1
+    $JAVA_HOME/bin/java org.apache.hadoop.hbase.client.transactional.ATRConfig setbinlogbufsize $1 2>${lv_stderr_file}
+    if [[ $? == 0  ]]; then
+        echo "***WARN***: operation success, restart HBase and EsgynDB to take affect."
+    else
+        echo "***ERROR***: operation failed, look ${lv_stderr_file} for details."
+    fi
+}
+
+function set_binlog_total_number_algo
+{
+    $JAVA_HOME/bin/java org.apache.hadoop.hbase.client.transactional.ATRConfig settnalgo $1 2>${lv_stderr_file}
+    if [[ $? == 0  ]]; then
+        echo "***WARN***: operation success."
+    else
+        echo "***ERROR***: operation failed, look ${lv_stderr_file} for details."
+    fi
+}
+
+function get_binlog_total_number_algo
+{
+    $JAVA_HOME/bin/java org.apache.hadoop.hbase.client.transactional.ATRConfig gettnalgo 2>${lv_stderr_file}
+}
+
+function get_binlog_write_buff_size
+{
+    $JAVA_HOME/bin/java org.apache.hadoop.hbase.client.transactional.ATRConfig getbinlogbufsize 2>${lv_stderr_file}
+}
+
+function set_binlog_skip_WAL
+{
+    skipOpt="false"
+
+    if [[ $1 == "t" || $1 == "true"  ]]; then
+        skipOpt="true"
+    fi
+
+    $JAVA_HOME/bin/java org.apache.hadoop.hbase.client.transactional.ATRConfig setbinlogskipwal $skipOpt 2>${lv_stderr_file}
+    if [[ $? == 0  ]]; then
+        echo "operation success"
+    else
+        echo "***ERROR***: operation failed, look ${lv_stderr_file} for details."
+    fi
+}
+
+function get_binlog_skip_WAL
+{
+    $JAVA_HOME/bin/java org.apache.hadoop.hbase.client.transactional.ATRConfig getbinlogskipwal 2>${lv_stderr_file}
+    if [[ $? != 0  ]]; then
+        echo "***ERROR***: operation failed, look ${lv_stderr_file} for details."
+    fi
+}
+
+function get_binlog_flush_check_times
+{
+    $JAVA_HOME/bin/java org.apache.hadoop.hbase.client.transactional.ATRConfig getflushchktimes $1 2>${lv_stderr_file}
+}
+
+function set_binlog_flush_check_times
+{
+    $JAVA_HOME/bin/java org.apache.hadoop.hbase.client.transactional.ATRConfig setflushchktimes $1 2>${lv_stderr_file}
+    if [[ $? == 0  ]]; then
+        echo "***WARN***: operation success."
+    else
+        echo "***ERROR***: operation failed, look ${lv_stderr_file} for details."
+    fi
+}
+
+function get_binlog_flush_check_intvl
+{
+    $JAVA_HOME/bin/java org.apache.hadoop.hbase.client.transactional.ATRConfig getflushchkinterval $1 2>${lv_stderr_file}
+}
+
+function set_binlog_flush_check_intvl
+{
+    $JAVA_HOME/bin/java org.apache.hadoop.hbase.client.transactional.ATRConfig setflushchkinterval $1 2>${lv_stderr_file}
+    if [[ $? == 0  ]]; then
+        echo "***WARN***: operation success."
+    else
+        echo "***ERROR***: operation failed, look ${lv_stderr_file} for details."
+    fi
+}
+
+function get_binlog_flush_intvl
+{
+    $JAVA_HOME/bin/java org.apache.hadoop.hbase.client.transactional.ATRConfig getbinlogflushintvl $1 2>${lv_stderr_file}
+}
+
+function set_binlog_flush_intvl
+{
+    $JAVA_HOME/bin/java org.apache.hadoop.hbase.client.transactional.ATRConfig setbinlogflushintvl $1 2>${lv_stderr_file}
+    if [[ $? == 0  ]]; then
+        echo "***WARN***: operation success, restart HBase and EsgynDB to take affect."
+    else
+        echo "***ERROR***: operation failed, look ${lv_stderr_file} for details."
+    fi
+}
+
+function set_binlog_recover_time_range
+{
+    $JAVA_HOME/bin/java org.apache.hadoop.hbase.client.transactional.ATRConfig setrecovertimerange $1 2>${lv_stderr_file}
+    if [[ $? == 0  ]]; then
+        echo "***WARN***: operation success, restart HBase and EsgynDB to take affect."
+    else
+        echo "***ERROR***: operation failed, look ${lv_stderr_file} for details."
+    fi
+}
+
+function get_binlog_recover_time_range
+{
+    $JAVA_HOME/bin/java org.apache.hadoop.hbase.client.transactional.ATRConfig getrecovertimerange 2>${lv_stderr_file}
+}
+
+function set_binlog_safebuffer_limiter
+{
+    $JAVA_HOME/bin/java org.apache.hadoop.hbase.client.transactional.ATRConfig setsblimiter $1 2>${lv_stderr_file}
+    if [[ $? == 0  ]]; then
+        echo "***WARN***: operation success."
+    else
+        echo "***ERROR***: operation failed, look ${lv_stderr_file} for details."
+    fi
+}
+
+function get_binlog_safebuffer_limiter
+{
+    $JAVA_HOME/bin/java org.apache.hadoop.hbase.client.transactional.ATRConfig getsblimiter 2>${lv_stderr_file}
+}
+
+function set_binlog_writeid_update_interval
+{
+    $JAVA_HOME/bin/java org.apache.hadoop.hbase.client.transactional.ATRConfig setwidflushinterval $1 2>${lv_stderr_file}
+    if [[ $? != 0  ]]; then
+        echo "***ERROR***: operation failed, look ${lv_stderr_file} for details."
+    fi
+}
+
+function get_binlog_writeid_update_interval
+{
+    $JAVA_HOME/bin/java org.apache.hadoop.hbase.client.transactional.ATRConfig getwidflushinterval 2>${lv_stderr_file}
+}
+
+function set_binlog_conn_str {
+    $JAVA_HOME/bin/java org.apache.hadoop.hbase.client.transactional.ATRConfig setbinlogconn $1 2>${lv_stderr_file}
+    if [[ $? == 0  ]]; then
+        echo "***WARN***: operation success, restart HBase and EsgynDB to take affect."
+    else
+        echo "***ERROR***: operation failed, look ${lv_stderr_file} for details."
+    fi
+}
+
+function get_binlog_conn_str {
+    $JAVA_HOME/bin/java org.apache.hadoop.hbase.client.transactional.ATRConfig getbinlogconn 2>${lv_stderr_file}
+}
+
+function set_third_binlog_conn_str {
+    $JAVA_HOME/bin/java org.apache.hadoop.hbase.client.transactional.ATRConfig setthirdbinlogconn $1 2>${lv_stderr_file}
+    if [[ $? == 0  ]]; then
+        echo "***WARN***: operation success, restart HBase and EsgynDB to take affect."
+    else
+        echo "***ERROR***: operation failed, look ${lv_stderr_file} for details."
+    fi
+}
+
+function get_third_binlog_conn_str {
+    $JAVA_HOME/bin/java org.apache.hadoop.hbase.client.transactional.ATRConfig getthirdbinlogconn 2>${lv_stderr_file}
+}
+
+function print_highest_binlog_stat {
+    $JAVA_HOME/bin/java org.apache.hadoop.hbase.pit.HBaseBinlog stats $@ 2>${lv_stderr_file}
+}
+
+function reset_salt_map {
+    $JAVA_HOME/bin/java org.apache.hadoop.hbase.pit.HBaseBinlog resetsm 2>${lv_stderr_file}
+}
+
+function scan_log {
+    $JAVA_HOME/bin/java org.apache.hadoop.hbase.pit.HBaseBinlog scanbinlog $(tput cols) $@ 2>${lv_stderr_file}
+    if [[ $? != 0  ]]; then
+        echo "***ERROR***: scan operation failed, look ${lv_stderr_file} for details."
+    fi
+}
+
+function scan_reader {
+    $JAVA_HOME/bin/java org.apache.hadoop.hbase.pit.HBaseBinlog scanbinlogreader $(tput cols) $@ 2>${lv_stderr_file}
+    if [[ $? != 0  ]]; then
+        echo "***ERROR***: scan operation failed, look ${lv_stderr_file} for details."
+    fi
+}
+
+function replay_sequence {
+    $JAVA_HOME/bin/java org.apache.hadoop.hbase.client.transactional.SQLInterface replaySequence 2>${lv_stderr_file}
+}
+
+function get_ttl {
+    $JAVA_HOME/bin/java org.apache.hadoop.hbase.pit.HBaseBinlog getttl 2>${lv_stderr_file}
+}
+
+function atrxdc_checkconf() {
+    $JAVA_HOME/bin/java org.apache.hadoop.hbase.client.transactional.ATRConfig check $@ 2>${lv_stderr_file}
+    if [[ $? != 0 ]]; then
+        echo "***ERROR***: see ${lv_stderr_file} for details"
+    fi
+}
+
+function atrxdc_enable() {
+    $JAVA_HOME/bin/java org.apache.hadoop.hbase.client.transactional.ATRConfig enable 2>${lv_stderr_file}
+    if [[ $? != 0 ]]; then
+        echo "***ERROR***: see ${lv_stderr_file} for details"
+    else
+        echo "operation success!"
+    fi
+}
+
+function atrxdc_disable() {
+    $JAVA_HOME/bin/java org.apache.hadoop.hbase.client.transactional.ATRConfig disable 2>${lv_stderr_file}
+    if [[ $? != 0 ]]; then
+        echo "***ERROR***: see ${lv_stderr_file} for details"
+    else
+        echo "operation success!"
+    fi
+}
+
+function set_binlog_log_time_limiter
+{
+    $JAVA_HOME/bin/java org.apache.hadoop.hbase.client.transactional.ATRConfig setlogtimelimiter $1 2>${lv_stderr_file}
+    if [[ $? == 0  ]]; then
+        echo "***WARN***: operation success."
+    else
+        echo "***ERROR***: operation failed, look ${lv_stderr_file} for details."
+    fi
+}
+
+
+function get_binlog_log_time_limiter
+{
+    $JAVA_HOME/bin/java org.apache.hadoop.hbase.client.transactional.ATRConfig getlogtimelimiter 2>${lv_stderr_file}
+}
+
+if [[ $# < 1 ]]; then
+    echo "***ERROR arguments miss"
+    usage
+    exit 1
+fi
+
+if [ -z $JAVA_HOME ]; then
+    echo "The environment variable \$JAVA_HOME has not been set"
+    echo "Please ensure \$TRAF_HOME/sqenv.sh has been sourced."
+    echo
+    exit 1;
+fi
+
+mkdir $TRAF_LOG 2>/dev/null
+lv_stderr_file="$TRAF_LOG/atrxdc.log"
+if [[ $SQ_VERBOSE == "1" ]]; then
+    echo "Stderr being written to the file: ${lv_stderr_file}"
+fi
+
+command=$1
+
+case $command in
+    (-init)
+        if [[ $2 == "remote" ]]; then
+            atrxdc_initialize_remote
+        else
+            atrxdc_initialize
+        fi
+        exit 0
+        ;;
+    (-checkconf)
+        shift
+        atrxdc_checkconf $@
+        exit 0
+        ;;
+    (-enable)
+        atrxdc_enable
+        exit 0
+        ;;
+    (-disable)
+        echo `date` "        atrxdc $@" >> $TRAF_LOG/atrxdcop.log
+        atrxdc_disable
+        exit 0
+        ;;
+    (-get)
+        if [[ $2 == "role" ]]; then
+            print_my_cluster_role
+            exit 0
+        fi
+        ;;
+    (-h)
+        usage
+        exit 0
+        ;;
+    (help)
+        usage
+        exit 0
+        ;;
+    (-help)
+        usage
+        exit 0
+        ;;
+    (*)
+        ;;
+esac
+
+atrxdc_enable_str=$(atrxdc -checkconf)
+if [[ ${atrxdc_enable_str} == "ATRXDC configuration not initialized"  ]]; then
+    echo "***ERROR the command \"$command\" can be run only if atrxdc enabled, did you run atrxdc_init?"
+    exit 1
+fi
+
+# command can run only if atrxdc enabled
+case $command in
+    (-replayseq)
+        replay_sequence
+        ;;
+    (-resetbl)
+        echo `date` "        atrxdc $@" >> $TRAF_LOG/atrxdcop.log
+        rebuild_binlog
+        ;;
+    (-resetrcp)
+        echo `date` "        atrxdc $@" >> $TRAF_LOG/atrxdcop.log
+        reset_replay_checkpoint
+        ;;
+    (-setttl)
+        echo `date` "        atrxdc $@" >> $TRAF_LOG/atrxdcop.log
+        shift
+        set_ttl $@
+        ;;
+    (-getttl)
+        get_ttl
+        ;;
+    (-switch)
+        echo 'currently , no action to do'
+        ;;
+    (-cl_dev)
+        shift
+        clear_binlog $@
+        ;;
+    (-set)
+        echo `date` "        atrxdc $@" >> $TRAF_LOG/atrxdcop.log
+        shift
+        attr=$1
+        case $attr in
+            (bp)
+                shift
+                set_binlog_partition_num_and_rebuild_binlog $@
+                ;;
+            (bwsz)
+                shift
+                set_binlog_write_buff_size $@
+                ;;
+            (bcstr)
+                shift
+                set_binlog_conn_str $@
+                ;;
+            (thirdbinlogstr)
+                shift
+                set_third_binlog_conn_str $@
+                ;;
+            (role)
+                shift
+                set_my_cluster_role $@
+                ;;
+            (mode)
+                shift
+                set_atr_sync_mode $@
+                ;;
+            (dual)
+                shift
+                set_atr_dual_mode $@
+                ;;
+            (rcp)
+                shift
+                set_replay_checkpoint $@
+                ;;
+            (skipwal)
+                shift
+                set_binlog_skip_WAL $@
+                ;;
+            (fintvl)
+                shift
+                set_binlog_flush_intvl $@
+                ;;
+            (fcintvl)
+                shift
+                set_binlog_flush_check_intvl $@
+                ;;
+            (fctimes)
+                shift
+                set_binlog_flush_check_times $@
+                ;;
+            (rtr)
+                shift
+                set_binlog_recover_time_range $@
+                ;;
+            (wfi)
+                shift
+                set_binlog_writeid_update_interval $@
+                ;;
+            (sblimiter)
+                shift
+                set_binlog_safebuffer_limiter $@
+                ;;
+            (tnalgo)
+                shift
+                set_binlog_total_number_algo $@
+                ;;
+            (logtlimiter)
+                shift
+                set_binlog_log_time_limiter $@
+                ;;
+            (*)
+                echo "***ERROR unsupported attribute " $attr
+                usage
+                exit 1
+                ;;
+        esac
+        ;;
+    (-get)
+        shift
+        attr=$1
+        case $attr in
+            (bp)
+                shift
+                print_binlog_partition_num $@
+                ;;
+            (bwsz)
+                shift
+                get_binlog_write_buff_size
+                ;;
+            (bcstr)
+                shift
+                get_binlog_conn_str $@
+                ;;
+            (thirdbinlogstr)
+                shift
+                get_third_binlog_conn_str $@
+                ;;
+            (mode)
+                print_atr_sync_mode
+                ;;
+            (dual)
+                print_atr_dual_mode
+                ;;
+            (rcp)
+                print_replay_checkpoint
+                ;;
+            (skipwal)
+                get_binlog_skip_WAL
+                ;;
+            (fcintvl)
+                get_binlog_flush_check_intvl
+                ;;
+            (fctimes)
+                get_binlog_flush_check_times
+                ;;
+            (fintvl)
+                get_binlog_flush_intvl
+                ;;
+            (rtr)
+                get_binlog_recover_time_range
+                ;;
+            (wfi)
+                get_binlog_writeid_update_interval
+                ;;
+            (sblimiter)
+                get_binlog_safebuffer_limiter
+                ;;
+            (tnalgo)
+                get_binlog_total_number_algo 
+                ;;
+            (logtlimiter)
+                get_binlog_log_time_limiter
+                ;;
+            (*)
+                echo "***ERROR unsupported attribute " $attr
+                usage
+                exit 1
+                ;;
+        esac
+        ;;
+    (-sl)
+        shift
+        scan_log $@
+        ;;
+    (-slr)
+        shift
+        scan_reader $@
+        ;;
+    (-stat)
+        shift
+        print_highest_binlog_stat $@
+        ;;
+    (-resetsm)
+        echo `date` "        atrxdc resetsm" >> $TRAF_LOG/atrxdcop.log
+        reset_salt_map
+        ;;
+    (start)
+        echo `date` "        atrxdc $@" >> $TRAF_LOG/atrxdcop.log
+        start_components $@
+        ;;
+    (stop)
+        echo `date` "        atrxdc $@" >> $TRAF_LOG/atrxdcop.log
+        start_components $@
+        ;;
+    (check)
+        start_components $@
+        ;;
+    (checkreplayer)
+        start_components $@
+        ;;
+    (checkseqreplayer)
+        start_components $@
+        ;;
+    (checksyncer)
+        start_components $@
+        ;;
+    (*)
+        echo "***ERROR unsupported option or command: " $@
+        ;;
+esac

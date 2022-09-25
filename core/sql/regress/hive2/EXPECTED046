@@ -1,0 +1,959 @@
+>>
+>>set schema hive.hive;
+
+--- SQL operation complete.
+>>set terminal_charset utf8;
+>>
+>>cqd parquet_legacy_timestamp_format 'ON';
+
+--- SQL operation complete.
+>>
+>>cqd AUTO_QUERY_RETRY_WARNINGS 'ON';
+
+--- SQL operation complete.
+>>cqd HIVE_MAX_STRING_LENGTH_IN_BYTES '32' ;
+
+--- SQL operation complete.
+>>cqd hist_missing_stats_warning_level '0';
+
+--- SQL operation complete.
+>>cqd HIST_ROWCOUNT_REQUIRING_STATS '50000';
+
+--- SQL operation complete.
+>>
+>>-- tests for parquet timestamp mismatch check
+>>cqd auto_query_retry_warnings 'ON';
+
+--- SQL operation complete.
+>>
+>>process hive statement 'drop table tparquet';
+
+--- SQL operation complete.
+>>process hive statement 'create table tparquet(a int) stored as parquet';
+
+--- SQL operation complete.
+>>
+>>select a from hive.hive.tparquet;
+
+--- 0 row(s) selected.
+>>
+>>sh echo "insert into tparquet values (1);" > TEST046_junk;
+>>sh regrhive.ksh -f TEST046_junk;
+>>
+>>select a from hive.hive.tparquet;
+
+*** WARNING[8597] Statement was automatically retried 1 time(s). Delay before each retry was 0 seconds. See next entry for the error that caused this retry. 
+
+*** WARNING[8436] Mismatch detected between compiletime and runtime hive table definitions. DataModMismatchDetails: compiledModTS = 1547757304180, failedModTS = 1547757326846, failedLoc = hdfs://localhost:26000/user/hive/warehouse/tparquet
+
+A          
+-----------
+
+          1
+
+--- 1 row(s) selected.
+>>insert into hive.hive.tparquet values (2);
+
+--- 1 row(s) inserted.
+>>select a from hive.hive.tparquet;
+
+A          
+-----------
+
+          1
+          2
+
+--- 2 row(s) selected.
+>>
+>>process hive statement 'drop table tparquet';
+
+--- SQL operation complete.
+>>process hive statement 'create table tparquet(a int, b smallint) stored as parquet';
+
+--- SQL operation complete.
+>>
+>>sh echo "insert into tparquet values (1,2);" > TEST046_junk;
+>>sh regrhive.ksh -f TEST046_junk;
+>>
+>>--sh echo "select * from tparquet;" > TEST046_junk;
+>>--sh regrhive.ksh -f TEST046_junk | tee -a LOG046;
+>>
+>>select a from hive.hive.tparquet;
+
+*** WARNING[8597] Statement was automatically retried 1 time(s). Delay before each retry was 0 seconds. See next entry for the error that caused this retry. 
+
+*** WARNING[8436] Mismatch detected between compiletime and runtime hive table definitions. DataModMismatchDetails: compiledModTS = 1547757329356, failedModTS = 1547757358299, failedLoc = hdfs://localhost:26000/user/hive/warehouse/tparquet
+
+A          
+-----------
+
+          1
+
+--- 1 row(s) selected.
+>>select b from hive.hive.tparquet;
+
+B     
+------
+
+     2
+
+--- 1 row(s) selected.
+>>
+>>select * from hive.hive.tparquet order by a,b;
+
+A            B     
+-----------  ------
+
+          1       2
+
+--- 1 row(s) selected.
+>>
+>>insert into hive.hive.tparquet values (3,4);
+
+--- 1 row(s) inserted.
+>>--sh echo "select * from tparquet;" > TEST046_junk;
+>>--sh regrhive.ksh -f TEST046_junk | tee -a LOG046;
+>>select * from hive.hive.tparquet order by a,b;
+
+*** WARNING[8597] Statement was automatically retried 1 time(s). Delay before each retry was 0 seconds. See next entry for the error that caused this retry. 
+
+*** WARNING[8436] Mismatch detected between compiletime and runtime hive table definitions. DataModMismatchDetails: compiledModTS = 1547757358299, failedModTS = 1547757360077, failedLoc = hdfs://localhost:26000/user/hive/warehouse/tparquet
+
+A            B     
+-----------  ------
+
+          1       2
+          3       4
+
+--- 2 row(s) selected.
+>>
+>>-- tests for various parquet datatypes
+>>cqd auto_query_retry_warnings 'ON';
+
+--- SQL operation complete.
+>>cqd hive_max_string_length_in_bytes '5';
+
+--- SQL operation complete.
+>>
+>>-- run against PARQUET table
+>>drop external table if exists tparquet10 for hive.hive.tparquet10;
+
+--- SQL operation complete.
+>>process hive statement 'drop table tparquet10';
+
+--- SQL operation complete.
+>>process hive statement 'create table tparquet10(a char(2), b varchar(3), c char(5), d varchar(6), e string, f string, g char(2), h varchar(3), i char(3), j varchar(3), k decimal(5,2), l decimal(19,0), m decimal, n boolean, o tinyint, p float, q double, r timestamp) stored as parquet';
+
+--- SQL operation complete.
+>>
+>>invoke hive.hive.tparquet10;
+
+-- Definition of hive table HIVE.HIVE.TPARQUET10
+-- Definition current  Thu Jan 17 20:36:06 2019
+
+  (
+    A                                CHAR(2 CHARS) CHARACTER SET UTF8 COLLATE
+      DEFAULT
+  , B                                VARCHAR(3 CHARS) CHARACTER SET UTF8
+      COLLATE DEFAULT
+  , C                                CHAR(5 CHARS) CHARACTER SET UTF8 COLLATE
+      DEFAULT
+  , D                                VARCHAR(6 CHARS) CHARACTER SET UTF8
+      COLLATE DEFAULT
+  , E                                VARCHAR(5 BYTES) CHARACTER SET UTF8
+      COLLATE DEFAULT
+  , F                                VARCHAR(5 BYTES) CHARACTER SET UTF8
+      COLLATE DEFAULT
+  , G                                CHAR(2 CHARS) CHARACTER SET UTF8 COLLATE
+      DEFAULT
+  , H                                VARCHAR(3 CHARS) CHARACTER SET UTF8
+      COLLATE DEFAULT
+  , I                                CHAR(3 CHARS) CHARACTER SET UTF8 COLLATE
+      DEFAULT
+  , J                                VARCHAR(3 CHARS) CHARACTER SET UTF8
+      COLLATE DEFAULT
+  , K                                NUMERIC(5, 2)
+  , L                                NUMERIC(19, 0)
+  , M                                NUMERIC(10, 0)
+  , N                                BOOLEAN
+  , O                                TINYINT
+  , P                                REAL
+  , Q                                FLOAT(54)
+  , R                                TIMESTAMP(9)
+  )
+  /* stored as parquet */
+
+--- SQL operation complete.
+>>showddl hive.hive.tparquet10;
+
+/* Hive DDL */
+CREATE TABLE HIVE.HIVE.TPARQUET10
+  (
+    A                                char(2)
+  , B                                varchar(3)
+  , C                                char(5)
+  , D                                varchar(6)
+  , E                                string
+  , F                                string
+  , G                                char(2)
+  , H                                varchar(3)
+  , I                                char(3)
+  , J                                varchar(3)
+  , K                                decimal(5,2)
+  , L                                decimal(19,0)
+  , M                                decimal(10,0)
+  , N                                boolean
+  , O                                tinyint
+  , P                                float
+  , Q                                double
+  , R                                timestamp
+  )
+  stored as parquet
+;
+
+/* Trafodion DDL */
+
+--- SQL operation complete.
+>>
+>>insert into hive.hive.tparquet10 values 
++>   ('ab', 'cde', 'ab', 'cde', 'ab', 'cde', 'ab', 'cde', '11', '222',
++>   123.24, 1234567890123456789, 123456, true, 1, 2.34, 3.45, 
++>   timestamp '2017-01-01 10:10:10');
+
+--- 1 row(s) inserted.
+>>
+>>sh echo  "insert into tparquet10 values ('ab', 'cde', 'ab', 'cde', 'ab', 'cde', 'ab', 'cde', '11', '222', 123.24, 1234567890123456789, 123456, true, 1, 2.34, 3.45, '2017-01-01 10:10:10');" > TEST046_junk;
+>>sh regrhive.ksh -f TEST046_junk;
+>>
+>>select * from hive.hive.tparquet10 order by 1;
+
+A         B             C                     D                         E      F      G         H             I             J             K             L                     M                     N      O     P                Q                          R
+--------  ------------  --------------------  ------------------------  -----  -----  --------  ------------  ------------  ------------  ------------  --------------------  --------------------  -----  ----  ---------------  -------------------------  -----------------------------
+
+ab        cde           ab                    cde                       ab     cde    ab        cde           11            222                 123.24   1234567890123456789                123456  TRUE      1   2.3399999E+000   3.45000000000000000E+000  2017-01-01 10:10:10.000000000
+ab        cde           ab                    cde                       ab     cde    ab        cde           11            222                 123.24   1234567890123456789                123456  TRUE      1   2.3399999E+000   3.45000000000000000E+000  2017-01-01 10:10:10.000000000
+
+--- 2 row(s) selected.
+>>
+>>-- test predicate pushdown
+>>cqd attempt_esp_parallelism 'OFF';
+
+--- SQL operation complete.
+>>cqd query_cache '0';
+
+--- SQL operation complete.
+>>prepare s from 
++>select * from hive.hive.tparquet10 where
++> a = 'ab' and b = 'cde' and c = 'ab' and d = 'cde' and e = 'ab' and f = 'cde  '
++>and n = true and o = 1 and p = 2.34 and q = 3.45;
+
+--- SQL command prepared.
+>>select left(tokenstr('parquet_search_arguments', description, 'executor_predicates'), 1000)
++>  from table(explain(null, 'S')) where operator = 'PARQUET_SCAN';
+
+(EXPR)
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+and( HIVE.TPARQUET10.B = 'cde' HIVE.TPARQUET10.D = 'cde' HIVE.TPARQUET10.A = 'ab' HIVE.TPARQUET10.C = 'ab' HIVE.TPARQUET10.E = 'ab' HIVE.TPARQUET10.F = 'cde  ' HIVE.TPARQUET10.N = TRUE HIVE.TPARQUET10.O = 1 HIVE.TPARQUET10.P = 2.3399999E+000 HIVE.TPARQUET10.Q = 3.45 )                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
+
+--- 1 row(s) selected.
+>>execute s;
+
+A         B             C                     D                         E      F      G         H             I             J             K             L                     M                     N      O     P                Q                          R
+--------  ------------  --------------------  ------------------------  -----  -----  --------  ------------  ------------  ------------  ------------  --------------------  --------------------  -----  ----  ---------------  -------------------------  -----------------------------
+
+ab        cde           ab                    cde                       ab     cde    ab        cde           11            222                 123.24   1234567890123456789                123456  TRUE      1   2.3399999E+000   3.45000000000000000E+000  2017-01-01 10:10:10.000000000
+ab        cde           ab                    cde                       ab     cde    ab        cde           11            222                 123.24   1234567890123456789                123456  TRUE      1   2.3399999E+000   3.45000000000000000E+000  2017-01-01 10:10:10.000000000
+
+--- 2 row(s) selected.
+>>
+>>-- pushdown on decimal cols not yet supported
+>>prepare s from 
++>select * from hive.hive.tparquet10 where
++>k = 123.24 and l = 1234567890123456789 and m = 123456;
+
+--- SQL command prepared.
+>>select left(tokenstr('parquet_search_arguments:', description, 'parquet_pred_pushdown:'), 1000)
++>  from table(explain(null, 'S')) where operator = 'PARQUET_SCAN';
+
+*** ERROR[8438] Could not find token 'parquet_search_arguments: ' in the provided string.
+
+--- 0 row(s) selected.
+>>
+>>-- should not pushdown min/max aggr on character, decimal or timestamp columns
+>>explain options 'f' select min(a) from hive.hive.tparquet10;
+
+LC   RC   OP   OPERATOR              OPT       DESCRIPTION           CARD
+---- ---- ---- --------------------  --------  --------------------  ---------
+
+2    .    3    root                                                  1.00E+000
+1    .    2    sort_scalar_aggr                                      1.00E+000
+.    .    1    parquet_scan                    TPARQUET10            1.00E+002
+
+--- SQL operation complete.
+>>explain options 'f' select min(b) from hive.hive.tparquet10;
+
+LC   RC   OP   OPERATOR              OPT       DESCRIPTION           CARD
+---- ---- ---- --------------------  --------  --------------------  ---------
+
+2    .    3    root                                                  1.00E+000
+1    .    2    sort_scalar_aggr                                      1.00E+000
+.    .    1    parquet_scan                    TPARQUET10            1.00E+002
+
+--- SQL operation complete.
+>>explain options 'f' select min(e) from hive.hive.tparquet10;
+
+LC   RC   OP   OPERATOR              OPT       DESCRIPTION           CARD
+---- ---- ---- --------------------  --------  --------------------  ---------
+
+2    .    3    root                                                  1.00E+000
+1    .    2    sort_scalar_aggr                                      1.00E+000
+.    .    1    parquet_scan                    TPARQUET10            1.00E+002
+
+--- SQL operation complete.
+>>explain options 'f' select min(k) from hive.hive.tparquet10;
+
+LC   RC   OP   OPERATOR              OPT       DESCRIPTION           CARD
+---- ---- ---- --------------------  --------  --------------------  ---------
+
+2    .    3    root                                                  1.00E+000
+1    .    2    sort_scalar_aggr                                      1.00E+000
+.    .    1    parquet_scan                    TPARQUET10            1.00E+002
+
+--- SQL operation complete.
+>>explain options 'f' select min(r) from hive.hive.tparquet10;
+
+LC   RC   OP   OPERATOR              OPT       DESCRIPTION           CARD
+---- ---- ---- --------------------  --------  --------------------  ---------
+
+2    .    3    root                                                  1.00E+000
+1    .    2    sort_scalar_aggr                                      1.00E+000
+.    .    1    parquet_scan                    TPARQUET10            1.00E+002
+
+--- SQL operation complete.
+>>
+>>drop external table if exists tparquet10 for hive.hive.tparquet10;
+
+--- SQL operation complete.
+>>create external table tparquet10 
++>        (a char(2), b varchar(3),
++>         c char(5), d varchar(6), 
++>         e char(2), f varchar(3),
++>         g char(2) character set utf8, h varchar(3) character set utf8,
++>         i tinyint, j int)
++>     for hive.hive.tparquet10;
+
+--- SQL operation complete.
+>>
+>>showddl hive.hive.tparquet10;
+
+/* Hive DDL */
+CREATE TABLE HIVE.HIVE.TPARQUET10
+  (
+    A                                char(2)
+  , B                                varchar(3)
+  , C                                char(5)
+  , D                                varchar(6)
+  , E                                string
+  , F                                string
+  , G                                char(2)
+  , H                                varchar(3)
+  , I                                char(3)
+  , J                                varchar(3)
+  , K                                decimal(5,2)
+  , L                                decimal(19,0)
+  , M                                decimal(10,0)
+  , N                                boolean
+  , O                                tinyint
+  , P                                float
+  , Q                                double
+  , R                                timestamp
+  )
+  stored as parquet
+;
+
+/* Trafodion DDL */
+
+REGISTER /*INTERNAL*/ HIVE TABLE HIVE.HIVE.TPARQUET10;
+/* ObjectUID = 2345431890874374396 */
+
+CREATE EXTERNAL TABLE TPARQUET10
+  (
+    A                                CHAR(2) CHARACTER SET ISO88591 COLLATE
+      DEFAULT DEFAULT NULL
+  , B                                VARCHAR(3) CHARACTER SET ISO88591 COLLATE
+      DEFAULT DEFAULT NULL
+  , C                                CHAR(5) CHARACTER SET ISO88591 COLLATE
+      DEFAULT DEFAULT NULL
+  , D                                VARCHAR(6) CHARACTER SET ISO88591 COLLATE
+      DEFAULT DEFAULT NULL
+  , E                                CHAR(2) CHARACTER SET ISO88591 COLLATE
+      DEFAULT DEFAULT NULL
+  , F                                VARCHAR(3) CHARACTER SET ISO88591 COLLATE
+      DEFAULT DEFAULT NULL
+  , G                                CHAR(2 CHARS) CHARACTER SET UTF8 COLLATE
+      DEFAULT DEFAULT NULL
+  , H                                VARCHAR(3 CHARS) CHARACTER SET UTF8
+      COLLATE DEFAULT DEFAULT NULL
+  , I                                TINYINT DEFAULT NULL
+  , J                                INT DEFAULT NULL
+  , K                                NUMERIC(5, 2) DEFAULT NULL
+  , L                                NUMERIC(19, 0) DEFAULT NULL
+  , M                                NUMERIC(10, 0) DEFAULT NULL
+  , N                                BOOLEAN DEFAULT NULL
+  , O                                TINYINT DEFAULT NULL
+  , P                                REAL DEFAULT NULL
+  , Q                                DOUBLE PRECISION DEFAULT NULL
+  , R                                TIMESTAMP(9) DEFAULT NULL
+  )
+  FOR HIVE.HIVE.TPARQUET10
+;
+
+--- SQL operation complete.
+>>select * from hive.hive.tparquet10 order by 1;
+
+A   B    C      D       E   F    G         H             I     J            K             L                     M                     N      O     P                Q                          R
+--  ---  -----  ------  --  ---  --------  ------------  ----  -----------  ------------  --------------------  --------------------  -----  ----  ---------------  -------------------------  -----------------------------
+
+ab  cde  ab     cde     ab  cde  ab        cde             11          222        123.24   1234567890123456789                123456  TRUE      1   2.3399999E+000   3.45000000000000000E+000  2017-01-01 10:10:10.000000000
+ab  cde  ab     cde     ab  cde  ab        cde             11          222        123.24   1234567890123456789                123456  TRUE      1   2.3399999E+000   3.45000000000000000E+000  2017-01-01 10:10:10.000000000
+
+--- 2 row(s) selected.
+>>
+>>insert into hive.hive.tparquet10 values
++>  ('x', 'yz', 'x', 'yz', 'x', 'yz', 'x', 'yz', 33, 444,
++>   123.24, 1234567890123456789, 123456, false, 1,
++>   2.34, 3.45, timestamp '2017-01-01 10:10:10'  );
+
+--- 1 row(s) inserted.
+>>insert into hive.hive.tparquet10 values
++>  ('y', 'yz', 'x', 'yz', 'x', 'yz', 'x', 'yz', 33, 444,
++>   123.24, NULL, 123456, false, 1,
++>   2.34, 3.45, timestamp '1017-01-01 10:10:10' );
+
+--- 1 row(s) inserted.
+>>
+>>select * from hive.hive.tparquet10 order by 1;
+
+A   B    C      D       E   F    G         H             I     J            K             L                     M                     N      O     P                Q                          R
+--  ---  -----  ------  --  ---  --------  ------------  ----  -----------  ------------  --------------------  --------------------  -----  ----  ---------------  -------------------------  -----------------------------
+
+ab  cde  ab     cde     ab  cde  ab        cde             11          222        123.24   1234567890123456789                123456  TRUE      1   2.3399999E+000   3.45000000000000000E+000  2017-01-01 10:10:10.000000000
+ab  cde  ab     cde     ab  cde  ab        cde             11          222        123.24   1234567890123456789                123456  TRUE      1   2.3399999E+000   3.45000000000000000E+000  2017-01-01 10:10:10.000000000
+x   yz   x      yz      x   yz   x         yz              33          444        123.24   1234567890123456789                123456  FALSE     1   2.3399999E+000   3.45000000000000000E+000  2017-01-01 10:10:10.000000000
+y   yz   x      yz      x   yz   x         yz              33          444        123.24                     ?                123456  FALSE     1   2.3399999E+000   3.45000000000000000E+000  1017-01-01 10:10:10.000000000
+
+--- 4 row(s) selected.
+>>
+>>-- pushdown on timestamp col
+>>-- next prepare should pushdown
+>>prepare s from 
++>select * from hive.hive.tparquet10 where
++> r = timestamp '2017-01-01 10:10:10';
+
+--- SQL command prepared.
+>>select left(tokenstr('parquet_search_arguments:', description, 'executor_predicates:'), 1000)
++>  from table(explain(null, 'S')) where operator = 'PARQUET_SCAN';
+
+(EXPR)
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+and( HIVE.TPARQUET10.R = 2017-01-01 10:10:10 )                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
+
+--- 1 row(s) selected.
+>>execute s;
+
+A   B    C      D       E   F    G         H             I     J            K             L                     M                     N      O     P                Q                          R
+--  ---  -----  ------  --  ---  --------  ------------  ----  -----------  ------------  --------------------  --------------------  -----  ----  ---------------  -------------------------  -----------------------------
+
+ab  cde  ab     cde     ab  cde  ab        cde             11          222        123.24   1234567890123456789                123456  TRUE      1   2.3399999E+000   3.45000000000000000E+000  2017-01-01 10:10:10.000000000
+ab  cde  ab     cde     ab  cde  ab        cde             11          222        123.24   1234567890123456789                123456  TRUE      1   2.3399999E+000   3.45000000000000000E+000  2017-01-01 10:10:10.000000000
+x   yz   x      yz      x   yz   x         yz              33          444        123.24   1234567890123456789                123456  FALSE     1   2.3399999E+000   3.45000000000000000E+000  2017-01-01 10:10:10.000000000
+
+--- 3 row(s) selected.
+>>
+>>-- should not pushdown as timestamp val cannot be converted to 'r date'
+>>drop external table if exists tparquet10 for hive.hive.tparquet10;
+
+--- SQL operation complete.
+>>create external table tparquet10 (r date) for hive.hive.tparquet10;
+
+--- SQL operation complete.
+>>prepare s from 
++>select * from hive.hive.tparquet10 where
++> r = timestamp '2017-01-01 10:10:10';
+
+--- SQL command prepared.
+>>select left(tokenstr('parquet_search_arguments:', description, 'executor_predicates:'), 1000)
++>  from table(explain(null, 'S')) where operator = 'PARQUET_SCAN';
+
+*** ERROR[8438] Could not find token 'parquet_search_arguments: ' in the provided string.
+
+--- 0 row(s) selected.
+>>
+>>-- should pushdown, return no rows
+>>prepare s from 
++>select * from hive.hive.tparquet10 where
++> r = date '2017-01-01';
+
+--- SQL command prepared.
+>>select left(tokenstr('parquet_search_arguments:', description, 'executor_predicates:'), 1000)
++>  from table(explain(null, 'S')) where operator = 'PARQUET_SCAN';
+
+(EXPR)
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+and( HIVE.TPARQUET10.R = 2017-01-01 )                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
+
+--- 1 row(s) selected.
+>>execute s;
+
+--- 0 row(s) selected.
+>>
+>>-- should pushdown, return rows
+>>prepare s from 
++>select * from hive.hive.tparquet10 where
++> r > date '2017-01-01';
+
+--- SQL command prepared.
+>>select left(tokenstr('parquet_search_arguments:', description, 'executor_predicates:'), 1000)
++>  from table(explain(null, 'S')) where operator = 'PARQUET_SCAN';
+
+(EXPR)
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+and( not( HIVE.TPARQUET10.R <= 2017-01-01 ) )                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+
+--- 1 row(s) selected.
+>>execute s;
+
+A         B             C                     D                         E      F      G         H             I             J             K             L                     M                     N      O     P                Q                          R
+--------  ------------  --------------------  ------------------------  -----  -----  --------  ------------  ------------  ------------  ------------  --------------------  --------------------  -----  ----  ---------------  -------------------------  ----------
+
+ab        cde           ab                    cde                       ab     cde    ab        cde           11            222                 123.24   1234567890123456789                123456  TRUE      1   2.3399999E+000   3.45000000000000000E+000  2017-01-01
+ab        cde           ab                    cde                       ab     cde    ab        cde           11            222                 123.24   1234567890123456789                123456  TRUE      1   2.3399999E+000   3.45000000000000000E+000  2017-01-01
+x         yz            x                     yz                        x      yz     x         yz            33            444                 123.24   1234567890123456789                123456  FALSE     1   2.3399999E+000   3.45000000000000000E+000  2017-01-01
+
+--- 3 row(s) selected.
+>>
+>>cqd attempt_esp_parallelism reset;
+
+--- SQL operation complete.
+>>
+>>drop external table if exists tparquet10 for hive.hive.tparquet10;
+
+--- SQL operation complete.
+>>create external table tparquet10 
++>        (a char(2), b varchar(3),
++>         c char(5), d varchar(6), 
++>         e char(2), f varchar(3),
++>         g char(2) character set utf8, h varchar(3) character set utf8,
++>         i tinyint, j int)
++>     for hive.hive.tparquet10;
+
+--- SQL operation complete.
+>>
+>>-- read parquet schema
+>>get parquet read schema for table hive.hive.tparquet10;
+
+
+Parquet Read schema
+==================
+
+Table: HIVE.HIVE.TPARQUET10
+
+message HIVE.HIVE.TPARQUET10 {
+ optional binary a (UTF8);
+ optional binary b (UTF8);
+ optional binary c (UTF8);
+ optional binary d (UTF8);
+ optional binary e (UTF8);
+ optional binary f (UTF8);
+ optional binary g (UTF8);
+ optional binary h (UTF8);
+ optional binary i (UTF8);
+ optional binary j (UTF8);
+ optional fixed_len_byte_array(3) k (DECIMAL(5,2));
+ optional fixed_len_byte_array(9) l (DECIMAL(19,0));
+ optional fixed_len_byte_array(5) m (DECIMAL(10,0));
+ optional boolean n;
+ optional int32 o;
+ optional float p;
+ optional double q;
+ optional int96 r;
+}
+
+--- SQL operation complete.
+>>get parquet write schema for table hive.hive.tparquet10;
+
+
+Parquet Write schema
+==================
+
+Table: HIVE.HIVE.TPARQUET10
+
+message HIVE.HIVE.TPARQUET10 {
+  optional binary a (UTF8);
+  optional binary b (UTF8);
+  optional binary c (UTF8);
+  optional binary d (UTF8);
+  optional binary e (UTF8);
+  optional binary f (UTF8);
+  optional binary g (UTF8);
+  optional binary h (UTF8);
+  optional binary i (UTF8);
+  optional binary j (UTF8);
+  optional fixed_len_byte_array(3) k (DECIMAL(5,2));
+  optional fixed_len_byte_array(9) l (DECIMAL(19,0));
+  optional fixed_len_byte_array(5) m (DECIMAL(10,0));
+  optional boolean n;
+  optional int32 o;
+  optional float p;
+  optional double q;
+  optional int96 r;
+}
+
+--- SQL operation complete.
+>>get parquet schema for table hive.hive.tparquet10;
+
+
+Parquet Read schema
+==================
+
+Table: HIVE.HIVE.TPARQUET10
+
+message HIVE.HIVE.TPARQUET10 {
+ optional binary a (UTF8);
+ optional binary b (UTF8);
+ optional binary c (UTF8);
+ optional binary d (UTF8);
+ optional binary e (UTF8);
+ optional binary f (UTF8);
+ optional binary g (UTF8);
+ optional binary h (UTF8);
+ optional binary i (UTF8);
+ optional binary j (UTF8);
+ optional fixed_len_byte_array(3) k (DECIMAL(5,2));
+ optional fixed_len_byte_array(9) l (DECIMAL(19,0));
+ optional fixed_len_byte_array(5) m (DECIMAL(10,0));
+ optional boolean n;
+ optional int32 o;
+ optional float p;
+ optional double q;
+ optional int96 r;
+}
+
+Parquet Write schema
+==================
+
+Table: HIVE.HIVE.TPARQUET10
+
+message HIVE.HIVE.TPARQUET10 {
+  optional binary a (UTF8);
+  optional binary b (UTF8);
+  optional binary c (UTF8);
+  optional binary d (UTF8);
+  optional binary e (UTF8);
+  optional binary f (UTF8);
+  optional binary g (UTF8);
+  optional binary h (UTF8);
+  optional binary i (UTF8);
+  optional binary j (UTF8);
+  optional fixed_len_byte_array(3) k (DECIMAL(5,2));
+  optional fixed_len_byte_array(9) l (DECIMAL(19,0));
+  optional fixed_len_byte_array(5) m (DECIMAL(10,0));
+  optional boolean n;
+  optional int32 o;
+  optional float p;
+  optional double q;
+  optional int96 r;
+}
+
+--- SQL operation complete.
+>>
+>>-- error cases
+>>
+>>-- overflow error during insert. Not currently detected.
+>>insert into hive.hive.tparquet10 values
++>  ('de', 'yz', 'x', 'yz', 'x', 'yz', 'x', 'yz', 333, 444, 1, NULL, 1, true, 1,
++>   2.34, 3.45, timestamp '2017-01-01 10:10:10');
+
+--- 1 row(s) inserted.
+>>
+>>-- incommpatible datatype against external table
+>>cqd allow_incompatible_assignment 'OFF';
+
+--- SQL operation complete.
+>>insert into hive.hive.tparquet10 values 
++>   ('ab', 'cde', 'ab', 'cde', 'ab', 'cde', 'ab', 'cde', '11', '222', 1, 1, 1, 
++>    true, 1, 2.34, 3.45, timestamp '2017-01-01 10:10:10');
+
+*** ERROR[4039] Column I is of type TINYINT, incompatible with the value's type, CHAR(2).
+
+*** ERROR[8822] The statement was not prepared.
+
+*** WARNING[8597] Statement was automatically retried 1 time(s). Delay before each retry was 0 seconds. See next entry for the error that caused this retry. 
+
+*** WARNING[4039] Column I is of type TINYINT, incompatible with the value's type, CHAR(2).
+
+>>cqd allow_incompatible_assignment reset;
+
+--- SQL operation complete.
+>>
+>>-- number of values less than number of columns
+>>insert into hive.hive.tparquet10 values 
++>   ('ab', 'cde', 'ab', 'cde', 'ab', 'cde', 'ab', 'cde');
+
+*** ERROR[4023] The degree of each row value constructor (8) must equal the degree of the target table column list (18).
+
+*** ERROR[8822] The statement was not prepared.
+
+*** WARNING[8597] Statement was automatically retried 1 time(s). Delay before each retry was 0 seconds. See next entry for the error that caused this retry. 
+
+*** WARNING[4023] The degree of each row value constructor (8) must equal the degree of the target table column list (18).
+
+>>
+>>-- overflow error detected during select
+>>truncate table hive.hive.tparquet10;
+
+--- SQL operation complete.
+>>sh echo "insert into tparquet10 values ('a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', '555', '666', 1, 1, 1, false, 1, 2.34, 3.45, '2017-01-01 10:10:10');" > TEST046_junk;
+>>sh regrhive.ksh -f TEST046_junk;
+>>select * from hive.hive.tparquet10 order by 1;
+
+*** ERROR[8411] A numeric overflow occurred during an arithmetic computation or data conversion. Conversion of Source Type:CHAR(REC_BYTE_F_ASCII,12 BYTES,UTF8) Source Value:555          to Target Type:TINYINT SIGNED(REC_BIN8_SIGNED).
+
+--- 0 row(s) selected.
+>>
+>>-- incompatible values in hive table validated and detected during select
+>>truncate table hive.hive.tparquet10;
+
+--- SQL operation complete.
+>>sh echo "insert into tparquet10 values ('a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 1, 1, 1, false, 1, 2.34, 3.45, '2017-01-01 10:10:10');" > TEST046_junk;
+>>sh regrhive.ksh -f TEST046_junk;
+>>select * from hive.hive.tparquet10 order by 1;
+
+*** ERROR[8413] The string argument contains characters that cannot be converted. Source data(in hex): 612020202020202020202020
+
+--- 0 row(s) selected.
+>>
+>>-- get stats
+>>process hive statement 'drop table tparquet';
+
+--- SQL operation complete.
+>>process hive statement 'create table tparquet(a int, b smallint) stored as parquet';
+
+--- SQL operation complete.
+>>insert into tparquet values (1,2);
+
+--- 1 row(s) inserted.
+>>invoke table(parquet stats());
+
+-- Definition of Trafodion table HIVE.HIVE.EXE_UTIL_PARQUET_STATS__
+-- Definition of hbase table HIVE.HIVE.EXE_UTIL_PARQUET_STATS__
+-- Definition current  Thu Jan 17 20:38:17 2019
+
+  (
+    CATALOG_NAME                     CHAR(256 BYTES) CHARACTER SET UTF8 COLLATE
+      DEFAULT NO DEFAULT NOT NULL NOT DROPPABLE
+  , SCHEMA_NAME                      CHAR(256 BYTES) CHARACTER SET UTF8 COLLATE
+      DEFAULT NO DEFAULT NOT NULL NOT DROPPABLE
+  , OBJECT_NAME                      CHAR(256 BYTES) CHARACTER SET UTF8 COLLATE
+      DEFAULT NO DEFAULT NOT NULL NOT DROPPABLE
+  , ROOT_DIR                         CHAR(512 BYTES) CHARACTER SET UTF8 COLLATE
+      DEFAULT NO DEFAULT NOT NULL NOT DROPPABLE
+  , FILE_PATH                        CHAR(512 BYTES) CHARACTER SET UTF8 COLLATE
+      DEFAULT NO DEFAULT NOT NULL NOT DROPPABLE
+  , FILE_NAME                        CHAR(256 BYTES) CHARACTER SET UTF8 COLLATE
+      DEFAULT NO DEFAULT NOT NULL NOT DROPPABLE
+  , FILE_NUM                         LARGEINT NO DEFAULT NOT NULL NOT DROPPABLE
+  , BLOCK_NAME                       CHAR(256 BYTES) CHARACTER SET UTF8 COLLATE
+      DEFAULT NO DEFAULT NOT NULL NOT DROPPABLE
+  , BLOCK_NUM                        LARGEINT NO DEFAULT NOT NULL NOT DROPPABLE
+  , COMPRESSED_SIZE                  LARGEINT NO DEFAULT NOT NULL NOT DROPPABLE
+  , TOTAL_SIZE                       LARGEINT NO DEFAULT NOT NULL NOT DROPPABLE
+  , ROW_COUNT                        LARGEINT NO DEFAULT NOT NULL NOT DROPPABLE
+  , STARTING_POS                     LARGEINT NO DEFAULT NOT NULL NOT DROPPABLE
+  )
+
+--- SQL operation complete.
+>>select left(trim(schema_name) || '.' || trim(object_name), 14),
++>  file_num, 'TotalSize: ' || cast(total_size as varchar(10)), row_count
++>from table(parquet stats(hive.hive.tparquet));
+
+(EXPR)                                                    FILE_NUM              (EXPR)                 ROW_COUNT
+--------------------------------------------------------  --------------------  ---------------------  --------------------
+
+HIVE.TPARQUET                                                                1  TotalSize: 86                             1
+
+--- 1 row(s) selected.
+>>get parquet stats for table hive.hive.tparquet;
+
+
+File Stats Details
+==================
+
+  ObjectName:        HIVE.HIVE.TPARQUET
+  FileFormat:        parquet
+  RootDir:           hdfs://localhost:36000/user/hive/warehouse/tparquet
+
+  FileNum:           1
+  FilePath:          /user/hive/warehouse/tparquet
+  FileName:          TPARQUET-0-20190117203817266833-332
+  BlockNum:          1
+  CompressedSize:    86 Bytes
+  ActualSize:        86 Bytes
+  RowCount:          1
+
+
+File Stats Summary
+==================
+
+  ObjectName:              HIVE.HIVE.TPARQUET
+  FileFormat:              parquet
+  RootDir:                 hdfs://localhost:36000/user/hive/warehouse/tparquet
+  TotalNumFiles:           1
+  TotalNumBlocks:          1
+  TotalCompressedSize:     86
+  TotalActualSize:         86
+  TotalRowCount:           1
+
+--- SQL operation complete.
+>>
+>>-- test decimal(28,12) read
+>>process hive statement 'drop table tparquet_decimal_28_12';
+
+--- SQL operation complete.
+>>process hive statement 'create table tparquet_decimal_28_12(a decimal(28,12)) stored as parquet';
+
+--- SQL operation complete.
+>>sh echo "insert into tparquet_decimal_28_12 values (12045.123456789012),(100.1),(1.000032),(0.1),(0),(-0.1),(0.0011),(-0.0011),(-0.00012);" > TEST046_junk;
+>>sh regrhive.ksh -f TEST046_junk;
+>>select * from hive.hive.tparquet_decimal_28_12 order by a;
+
+A                             
+------------------------------
+
+                          -0.1
+                       -0.0011
+                      -0.00012
+                             0
+                        0.0011
+                           0.1
+                      1.000032
+                         100.1
+            12045.123456789012
+
+--- 9 row(s) selected.
+>>select * from hive.hive.tparquet_decimal_28_12 where a < -0.00012 order by a;
+
+A                             
+------------------------------
+
+                          -0.1
+                       -0.0011
+
+--- 2 row(s) selected.
+>>select sum(a) from hive.hive.tparquet_decimal_28_12;
+
+(EXPR)                                  
+----------------------------------------
+
+                      12146.223368789012
+
+--- 1 row(s) selected.
+>>select min(a) from hive.hive.tparquet_decimal_28_12;
+
+(EXPR)                        
+------------------------------
+
+                          -0.1
+
+--- 1 row(s) selected.
+>>select max(a) from hive.hive.tparquet_decimal_28_12;
+
+(EXPR)                        
+------------------------------
+
+            12045.123456789012
+
+--- 1 row(s) selected.
+>>
+>>-- test decimal(28,12) writes by sqlci
+>>process hive statement 'drop table tparquet_decimal_28_12';
+
+--- SQL operation complete.
+>>process hive statement 'create table tparquet_decimal_28_12(a decimal(28,12)) stored as parquet';
+
+--- SQL operation complete.
+>>insert into hive.hive.tparquet_decimal_28_12 values (12045.123456789012),(100.1),(1.000032),(0.1),(0),(-0.1),(0.0011),(-0.0011),(-0.00012);
+
+--- 9 row(s) inserted.
+>>select * from hive.hive.tparquet_decimal_28_12 order by a;
+
+A                             
+------------------------------
+
+                          -0.1
+                       -0.0011
+                      -0.00012
+                             0
+                        0.0011
+                           0.1
+                      1.000032
+                         100.1
+            12045.123456789012
+
+--- 9 row(s) selected.
+>>select * from hive.hive.tparquet_decimal_28_12 where a < -0.00012 order by a;
+
+A                             
+------------------------------
+
+                          -0.1
+                       -0.0011
+
+--- 2 row(s) selected.
+>>select sum(a) from hive.hive.tparquet_decimal_28_12;
+
+(EXPR)                                  
+----------------------------------------
+
+                      12146.223368789012
+
+--- 1 row(s) selected.
+>>select min(a) from hive.hive.tparquet_decimal_28_12;
+
+(EXPR)                        
+------------------------------
+
+                          -0.1
+
+--- 1 row(s) selected.
+>>select max(a) from hive.hive.tparquet_decimal_28_12;
+
+(EXPR)                        
+------------------------------
+
+            12045.123456789012
+
+--- 1 row(s) selected.
+>>
+>>-- drop tables
+>>drop external table if exists tparquet10 for hive.hive.tparquet10;
+
+--- SQL operation complete.
+>>process hive statement 'drop table tparquet10';
+
+--- SQL operation complete.
+>>process hive statement 'drop table tparquet';
+
+--- SQL operation complete.
+>>cleanup table hive.hive.tparquet10;
+
+--- SQL operation complete.
+>>process hive statement 'drop table tparquet_decimal_28_12';
+
+--- SQL operation complete.
+>>
+>>log;

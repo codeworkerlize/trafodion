@@ -1,0 +1,108 @@
+# ------------------------------------------------------------------------------
+# *** this assumes that snapshots exist
+#
+# if upgrade fails and did not undo the operation properly
+# restore original tables from snapshot
+#
+# Adjust these steps depending on where upgrade failed.
+#   for example, if operation failed during "_MD_" upgrade
+#     remove LIBRARIES and "_PRIVMGR_MD_" steps.
+# ------------------------------------------------------------------------------
+
+# files to recover if failed during system schema upgrade
+# adjust these lists to only include files where their "_OLD_MD" counterpart 
+#   exists
+disable 'TRAF_RSRVD_1:TRAFODION._MD_.AUTHS'                                     
+disable 'TRAF_RSRVD_1:TRAFODION._MD_.COLUMNS'                                   
+disable 'TRAF_RSRVD_1:TRAFODION._MD_.DEFAULTS'                                  
+disable 'TRAF_RSRVD_1:TRAFODION._MD_.INDEXES'                                   
+disable 'TRAF_RSRVD_1:TRAFODION._MD_.KEYS'                                      
+disable 'TRAF_RSRVD_1:TRAFODION._MD_.LIBRARIES_USAGE'                           
+disable 'TRAF_RSRVD_1:TRAFODION._MD_.OBJECTS'                                   
+disable 'TRAF_RSRVD_1:TRAFODION._MD_.OBJECTS_UNIQ_IDX'                                   
+disable 'TRAF_RSRVD_1:TRAFODION._MD_.REF_CONSTRAINTS'                           
+disable 'TRAF_RSRVD_1:TRAFODION._MD_.ROUTINES'                                  
+disable 'TRAF_RSRVD_1:TRAFODION._MD_.SEQ_GEN'                                   
+disable 'TRAF_RSRVD_1:TRAFODION._MD_.TABLES'                                    
+disable 'TRAF_RSRVD_1:TRAFODION._MD_.TABLE_CONSTRAINTS'                         
+disable 'TRAF_RSRVD_1:TRAFODION._MD_.TABLE_CONSTRAINTS_IDX'                         
+disable 'TRAF_RSRVD_1:TRAFODION._MD_.TEXT'                                      
+disable 'TRAF_RSRVD_1:TRAFODION._MD_.UNIQUE_REF_CONSTR_USAGE'                   
+disable 'TRAF_RSRVD_1:TRAFODION._MD_.VERSIONS'                                  
+disable 'TRAF_RSRVD_1:TRAFODION._MD_.VIEWS'                                     
+disable 'TRAF_RSRVD_1:TRAFODION._MD_.VIEWS_USAGE'         
+
+restore_snapshot 'SNAPSHOT_TRAFODION._MD_.AUTHS'
+restore_snapshot 'SNAPSHOT_TRAFODION._MD_.COLUMNS'
+restore_snapshot 'SNAPSHOT_TRAFODION._MD_.DEFAULTS'
+restore_snapshot 'SNAPSHOT_TRAFODION._MD_.INDEXES'
+restore_snapshot 'SNAPSHOT_TRAFODION._MD_.KEYS'
+restore_snapshot 'SNAPSHOT_TRAFODION._MD_.LIBRARIES_USAGE'
+restore_snapshot 'SNAPSHOT_TRAFODION._MD_.OBJECTS'
+restore_snapshot 'SNAPSHOT_TRAFODION._MD_.OBJECTS_UNIQ_IDX'
+restore_snapshot 'SNAPSHOT_TRAFODION._MD_.REF_CONSTRAINTS'
+restore_snapshot 'SNAPSHOT_TRAFODION._MD_.ROUTINES'
+restore_snapshot 'SNAPSHOT_TRAFODION._MD_.SEQ_GEN'
+restore_snapshot 'SNAPSHOT_TRAFODION._MD_.TABLES'
+restore_snapshot 'SNAPSHOT_TRAFODION._MD_.TABLE_CONSTRAINTS'
+restore_snapshot 'SNAPSHOT_TRAFODION._MD_.TABLE_CONSTRAINTS_IDX'
+restore_snapshot 'SNAPSHOT_TRAFODION._MD_.TEXT'
+restore_snapshot 'SNAPSHOT_TRAFODION._MD_.UNIQUE_REF_CONSTR_USAGE'
+restore_snapshot 'SNAPSHOT_TRAFODION._MD_.VERSIONS'
+restore_snapshot 'SNAPSHOT_TRAFODION._MD_.VIEWS'
+restore_snapshot 'SNAPSHOT_TRAFODION._MD_.VIEWS_USAGE'
+
+enable 'TRAF_RSRVD_1:TRAFODION._MD_.AUTHS'
+enable 'TRAF_RSRVD_1:TRAFODION._MD_.COLUMNS'
+enable 'TRAF_RSRVD_1:TRAFODION._MD_.DEFAULTS'
+enable 'TRAF_RSRVD_1:TRAFODION._MD_.INDEXES'
+enable 'TRAF_RSRVD_1:TRAFODION._MD_.KEYS'
+enable 'TRAF_RSRVD_1:TRAFODION._MD_.LIBRARIES_USAGE'
+enable 'TRAF_RSRVD_1:TRAFODION._MD_.OBJECTS'
+enable 'TRAF_RSRVD_1:TRAFODION._MD_.OBJECTS_UNIQ_IDX'
+enable 'TRAF_RSRVD_1:TRAFODION._MD_.REF_CONSTRAINTS'
+enable 'TRAF_RSRVD_1:TRAFODION._MD_.ROUTINES'
+enable 'TRAF_RSRVD_1:TRAFODION._MD_.SEQ_GEN'
+enable 'TRAF_RSRVD_1:TRAFODION._MD_.TABLES'
+enable 'TRAF_RSRVD_1:TRAFODION._MD_.TABLE_CONSTRAINTS'
+enable 'TRAF_RSRVD_1:TRAFODION._MD_.TABLE_CONSTRAINTS_IDX'
+enable 'TRAF_RSRVD_1:TRAFODION._MD_.TEXT'
+enable 'TRAF_RSRVD_1:TRAFODION._MD_.UNIQUE_REF_CONSTR_USAGE'
+enable 'TRAF_RSRVD_1:TRAFODION._MD_.VERSIONS'
+enable 'TRAF_RSRVD_1:TRAFODION._MD_.VIEWS'
+enable 'TRAF_RSRVD_1:TRAFODION._MD_.VIEWS_USAGE'
+
+# files to recover if failed during library management.  Run this steps
+# if the "_OLD" counterpart exists.  Run the previous step also
+disable 'TRAF_RSRVD_1:TRAFODION._MD_.LIBRARIES'                                 
+restore_snapshot 'SNAPSHOT_TRAFODION._MD_.LIBRARIES'                            
+enable 'TRAF_RSRVD_1:TRAFODION._MD_.LIBRARIES'                                  
+
+# files to recover if failed during Privilege Manager upgrade.
+# run these steps if the "_OLD_MD" counterpart exists. Run all previous steps
+disable 'TRAF_RSRVD_1:TRAFODION._PRIVMGR_MD_.COLUMN_PRIVILEGES'
+disable 'TRAF_RSRVD_1:TRAFODION._PRIVMGR_MD_.COMPONENTS'
+disable 'TRAF_RSRVD_1:TRAFODION._PRIVMGR_MD_.COMPONENT_OPERATIONS'
+disable 'TRAF_RSRVD_1:TRAFODION._PRIVMGR_MD_.COMPONENT_PRIVILEGES'
+disable 'TRAF_RSRVD_1:TRAFODION._PRIVMGR_MD_.OBJECT_PRIVILEGES'
+disable 'TRAF_RSRVD_1:TRAFODION._PRIVMGR_MD_.ROLE_USAGE'
+disable 'TRAF_RSRVD_1:TRAFODION._PRIVMGR_MD_.SCHEMA_PRIVILEGES'
+
+restore_snapshot 'SNAPSHOT_TRAFODION._PRIVMGR_MD_.COLUMN_PRIVILEGES'
+restore_snapshot 'SNAPSHOT_TRAFODION._PRIVMGR_MD_.COMPONENTS'
+restore_snapshot 'SNAPSHOT_TRAFODION._PRIVMGR_MD_.COMPONENT_OPERATIONS'
+restore_snapshot 'SNAPSHOT_TRAFODION._PRIVMGR_MD_.COMPONENT_PRIVILEGES'
+restore_snapshot 'SNAPSHOT_TRAFODION._PRIVMGR_MD_.OBJECT_PRIVILEGES'
+restore_snapshot 'SNAPSHOT_TRAFODION._PRIVMGR_MD_.ROLE_USAGE'
+restore_snapshot 'SNAPSHOT_TRAFODION._PRIVMGR_MD_.SCHEMA_PRIVILEGES'
+
+enable 'TRAF_RSRVD_1:TRAFODION._PRIVMGR_MD_.COLUMN_PRIVILEGES'
+enable 'TRAF_RSRVD_1:TRAFODION._PRIVMGR_MD_.COMPONENTS'
+enable 'TRAF_RSRVD_1:TRAFODION._PRIVMGR_MD_.COMPONENT_OPERATIONS'
+enable 'TRAF_RSRVD_1:TRAFODION._PRIVMGR_MD_.COMPONENT_PRIVILEGES'
+enable 'TRAF_RSRVD_1:TRAFODION._PRIVMGR_MD_.OBJECT_PRIVILEGES'
+enable 'TRAF_RSRVD_1:TRAFODION._PRIVMGR_MD_.ROLE_USAGE'
+enable 'TRAF_RSRVD_1:TRAFODION._PRIVMGR_MD_.SCHEMA_PRIVILEGES'
+exit
+# ------------------------------------------------------------------------------
+

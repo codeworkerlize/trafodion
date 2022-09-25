@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# Checks if the SNMP Trap Receiver process is running
+# If not, then it starts it up.
+
+lv_pid=$(ps -ax | grep MySnmpTrapReceiver | grep -v grep | awk '{print $1;}')
+
+if [[ $1 == "-v" ]]; then
+  lv_verbose=1
+  shift
+fi
+
+if [ ${#lv_pid} '>' 0 ]; then
+    if [[ $lv_verbose == 1 ]]; then
+        echo "`date`: The SNMP Trap Receiver is running - pid: ${lv_pid}"
+    fi
+    exit 0
+fi
+
+echo "`date`: Did not find any SNMP Trap Receiver process. Trying to start it."
+
+$TRAF_HOME/sql/scripts/snmp_trap_start $*

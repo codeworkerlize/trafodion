@@ -1,0 +1,111 @@
+>>obey stdcqds;
+>>
+>>set schema hive.tpcds_sf1000;
+
+--- SQL operation complete.
+>>
+>>control osim simulate continue './osim.all.sf1000.09022016';
+
+--- SQL operation complete.
+>>
+>>cqd orc_njs 'on';
+
+--- SQL operation complete.
+>>cqd parallel_num_esps '48';
+
+--- SQL operation complete.
+>>cqd QUERY_CACHE '200000';
+
+--- SQL operation complete.
+>>cqd HIVE_METADATA_REFRESH_INTERVAL '-1';
+
+--- SQL operation complete.
+>>cqd  HIVE_LOCALITY_BALANCE_LEVEL '-1';
+
+--- SQL operation complete.
+>>cqd  METADATA_CACHE_SIZE '200';
+
+--- SQL operation complete.
+>>cqd partitioning_scheme_sharing '2';
+
+--- SQL operation complete.
+>>cqd COMP_BOOL_208 'ON';
+
+--- SQL operation complete.
+>>obey q76;
+>>
+>>--==QID: 76
+>>prepare xx from
++>select  channel, col_name, d_year, d_qoy, i_category, COUNT(*) sales_cnt, SUM(ext_sales_price) sales_amt FROM (
++>        SELECT 'store' as channel, 'ss_addr_sk' col_name, d_year, d_qoy, i_category, ss_ext_sales_price ext_sales_price
++>         FROM store_sales_1stripeperfile, item, date_dim
++>         WHERE ss_addr_sk IS NULL
++>           AND ss_sold_date_sk=d_date_sk
++>           AND ss_item_sk=i_item_sk
++>        UNION ALL
++>        SELECT 'web' as channel, 'ws_ship_mode_sk' col_name, d_year, d_qoy, i_category, ws_ext_sales_price ext_sales_price
++>         FROM web_sales, item, date_dim
++>         WHERE ws_ship_mode_sk IS NULL
++>           AND ws_sold_date_sk=d_date_sk
++>           AND ws_item_sk=i_item_sk
++>        UNION ALL
++>        SELECT 'catalog' as channel, 'cs_ship_cdemo_sk' col_name, d_year, d_qoy, i_category, cs_ext_sales_price ext_sales_price
++>         FROM catalog_sales, item, date_dim
++>         WHERE cs_ship_cdemo_sk IS NULL
++>           AND cs_sold_date_sk=d_date_sk
++>           AND cs_item_sk=i_item_sk) foo
++>GROUP BY channel, col_name, d_year, d_qoy, i_category
++>ORDER BY channel, col_name, d_year, d_qoy, i_category
++>limit 100;
+
+--- SQL command prepared.
+>>obey explains;
+>>explain options 'f' xx;
+
+LC   RC   OP   OPERATOR              OPT       DESCRIPTION           CARD
+---- ---- ---- --------------------  --------  --------------------  ---------
+
+37   .    38   root                                                  5.98E+007
+36   .    37   firstn                                                5.98E+007
+35   .    36   esp_exchange                    1:48(hash2) (m)       5.98E+007
+34   .    35   sort_groupby                                          5.98E+007
+22   33   34   merge_union                                           5.98E+007
+32   .    33   sort                                                  3.61E+006
+31   .    32   esp_exchange                    48(hash2):48(hash2)   3.61E+006
+30   24   31   hybrid_hash_join                                      3.61E+006
+29   .    30   esp_exchange                    48(hash2):48(hash2)   3.61E+006
+28   26   29   hybrid_hash_join                                      3.61E+006
+27   .    28   esp_exchange                    48(hash2):48(hash2)   3.61E+006
+.    .    27   orc_scan                        CATALOG_SALES         3.61E+006
+25   .    26   esp_exchange                    48(hash2):2(hash2)    7.30E+004
+.    .    25   orc_scan                        DATE_DIM              7.30E+004
+23   .    24   esp_exchange                    48(hash2):2(hash2)    3.00E+005
+.    .    23   orc_scan                        ITEM                  3.00E+005
+11   21   22   merge_union                                           5.62E+007
+20   .    21   sort                                                  8.34E+004
+19   .    20   esp_exchange                    48(hash2):48(hash2)   8.34E+004
+18   13   19   hybrid_hash_join                                      8.34E+004
+17   .    18   esp_exchange                    48(hash2):48(hash2)   8.34E+004
+16   15   17   hybrid_hash_join                                      8.34E+004
+.    .    16   orc_scan                        ITEM                  3.00E+005
+14   .    15   esp_exchange                    48(rep-b):48(hash2)   8.34E+004
+.    .    14   orc_scan                        WEB_SALES             8.34E+004
+12   .    13   esp_exchange                    48(hash2):2(hash2)    7.30E+004
+.    .    12   orc_scan                        DATE_DIM              7.30E+004
+10   .    11   sort                                                  5.61E+007
+9    .    10   esp_exchange                    48(hash2):48(hash2)   5.61E+007
+8    2    9    hybrid_hash_join                                      5.61E+007
+7    .    8    esp_exchange                    48(hash2):48(hash2)   6.43E+007
+6    4    7    hybrid_hash_join                                      6.43E+007
+5    .    6    esp_exchange                    48(hash2):48(hash2)   6.43E+007
+.    .    5    orc_scan                        STORE_SALES_1STRIPEP  6.43E+007
+3    .    4    esp_exchange                    48(hash2):2(hash2)    7.30E+004
+.    .    3    orc_scan                        DATE_DIM              7.30E+004
+1    .    2    esp_exchange                    48(hash2):2(hash2)    3.00E+005
+.    .    1    orc_scan                        ITEM                  3.00E+005
+
+--- SQL operation complete.
+>>exit;
+
+End of MXCI Session
+

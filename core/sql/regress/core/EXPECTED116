@@ -1,0 +1,1986 @@
+>>control query default DDL_TRANSACTIONS 'ON';
+
+--- SQL operation complete.
+>>cqd TRAF_ENABLE_METADATA_LOAD_IN_CACHE 'OFF';
+
+--- SQL operation complete.
+>>cqd SKIP_CONFLICT_CHECK_FOR_INDEX 'OFF';
+
+--- SQL operation complete.
+>>
+>>create schema t116sch namespace 'TRAF_regr';
+
+--- SQL operation complete.
+>>set schema t116sch;
+
+--- SQL operation complete.
+>>
+>>-- Simple create then rollback
+>>------------------------------
+>>begin work;
+
+--- SQL operation complete.
+>>create table t116t1(a1 int, c1 int, b1 char(6));
+
+--- SQL operation complete.
+>>showddl t116t1;
+
+CREATE TABLE TRAFODION.T116SCH.T116T1
+  (
+    A1                               INT DEFAULT NULL
+  , C1                               INT DEFAULT NULL
+  , B1                               CHAR(6) CHARACTER SET ISO88591 COLLATE
+      DEFAULT DEFAULT NULL
+  )
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_regr' USE ENCRYPTION OPTIONS 'd'
+;
+
+--- SQL operation complete.
+>>create table t116t2(a2 int, c2 int, b2 char(6));
+
+--- SQL operation complete.
+>>get user hbase objects, match '%TRAFODION.T116SCH.T116T1';
+
+External HBase objects
+======================
+
+TRAF_regr:TRAFODION.T116SCH.T116T1
+
+--- SQL operation complete.
+>>get user hbase objects, match '%TRAFODION.T116SCH.T116T2';
+
+External HBase objects
+======================
+
+TRAF_regr:TRAFODION.T116SCH.T116T2
+
+--- SQL operation complete.
+>>
+>>rollback work;
+
+--- SQL operation complete.
+>>get user hbase objects, match '%TRAFODION.T116SCH.T116T1';
+
+External HBase objects
+======================
+
+
+--- SQL operation complete.
+>>get user hbase objects, match '%TRAFODION.T116SCH.T116T2';
+
+External HBase objects
+======================
+
+
+--- SQL operation complete.
+>>
+>>--repeat the same tables again
+>>------------------------------
+>>begin work;
+
+--- SQL operation complete.
+>>create table t116t1(a1 int, c1 int, b1 char(6));
+
+--- SQL operation complete.
+>>create table t116t2(a2 int, c2 int, b2 char(6));
+
+--- SQL operation complete.
+>>get user hbase objects, match '%TRAFODION.T116SCH.T116T1';
+
+External HBase objects
+======================
+
+TRAF_regr:TRAFODION.T116SCH.T116T1
+
+--- SQL operation complete.
+>>get user hbase objects, match '%TRAFODION.T116SCH.T116T2';
+
+External HBase objects
+======================
+
+TRAF_regr:TRAFODION.T116SCH.T116T2
+
+--- SQL operation complete.
+>>rollback work;
+
+--- SQL operation complete.
+>>get user hbase objects, match '%TRAFODION.T116SCH.T116T1';
+
+External HBase objects
+======================
+
+
+--- SQL operation complete.
+>>get user hbase objects, match '%TRAFODION.T116SCH.T116T2';
+
+External HBase objects
+======================
+
+
+--- SQL operation complete.
+>>
+>>-- unique constraint
+>>---------------------
+>>begin work;
+
+--- SQL operation complete.
+>>create table t116t1(a1 int, c1 int, b1 char(6));
+
+--- SQL operation complete.
+>>alter table t116t1 add constraint tc1 unique (c1);
+
+--- SQL operation complete.
+>>get user hbase objects, match '%TRAFODION.T116SCH.T116T1';
+
+External HBase objects
+======================
+
+TRAF_regr:TRAFODION.T116SCH.T116T1
+
+--- SQL operation complete.
+>>get user hbase objects, match '%TRAFODION.T116SCH.TC1';
+
+External HBase objects
+======================
+
+TRAF_regr:TRAFODION.T116SCH.TC1
+
+--- SQL operation complete.
+>>rollback work;
+
+--- SQL operation complete.
+>>get user hbase objects, match '%TRAFODION.T116SCH.T116T1';
+
+External HBase objects
+======================
+
+
+--- SQL operation complete.
+>>get user hbase objects, match '%TRAFODION.T116SCH.TC1';
+
+External HBase objects
+======================
+
+
+--- SQL operation complete.
+>>
+>>--setup two tables
+>>-------------------
+>>begin work;
+
+--- SQL operation complete.
+>>create table t116t1(a1 int, c1 int, b1 char(6));
+
+--- SQL operation complete.
+>>insert into t116t1 values(1,1,'a');
+
+--- 1 row(s) inserted.
+>>create table t116t2(a1 int, c1 int, b1 char(6));
+
+--- SQL operation complete.
+>>insert into t116t2 values(1,1,'a');
+
+--- 1 row(s) inserted.
+>>commit work;
+
+--- SQL operation complete.
+>>showddl t116t1;
+
+CREATE TABLE TRAFODION.T116SCH.T116T1
+  (
+    A1                               INT DEFAULT NULL
+  , C1                               INT DEFAULT NULL
+  , B1                               CHAR(6) CHARACTER SET ISO88591 COLLATE
+      DEFAULT DEFAULT NULL
+  )
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_regr' USE ENCRYPTION OPTIONS 'd'
+;
+
+--- SQL operation complete.
+>>
+>>--drop table simple case
+>>--------------------------
+>>get user hbase objects, match '%TRAFODION.T116SCH.T116T1';
+
+External HBase objects
+======================
+
+TRAF_regr:TRAFODION.T116SCH.T116T1
+
+--- SQL operation complete.
+>>begin work;
+
+--- SQL operation complete.
+>>drop table t116t1;
+
+--- SQL operation complete.
+>>get user hbase objects, match '%TRAFODION.T116SCH.T116T1';
+
+External HBase objects
+======================
+
+TRAF_regr:TRAFODION.T116SCH.T116T1
+
+--- SQL operation complete.
+>>commit work;
+
+--- SQL operation complete.
+>>get user hbase objects, match '%TRAFODION.T116SCH.T116T1';
+
+External HBase objects
+======================
+
+
+--- SQL operation complete.
+>>
+>>--drop table with rollback
+>>----------------------------
+>>--sh `echo "exists '$TEST_SCHEMA.T116T2'" | regrhbase.ksh >> LOG116`;
+>>get user hbase objects, match '%TRAFODION.T116SCH.T116T2';
+
+External HBase objects
+======================
+
+TRAF_regr:TRAFODION.T116SCH.T116T2
+
+--- SQL operation complete.
+>>begin work;
+
+--- SQL operation complete.
+>>insert into t116t2 values(3,3,'c');
+
+--- 1 row(s) inserted.
+>>select * from t116t2;
+
+A1           C1           B1
+-----------  -----------  ------
+
+          1            1  a
+          3            3  c
+
+--- 2 row(s) selected.
+>>drop table t116t2;
+
+--- SQL operation complete.
+>>insert into t116t2 values(1,1,'a');
+
+*** ERROR[4082] Object TRAFODION.T116SCH.T116T2 does not exist or is inaccessible.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>select * from t116t2;
+
+*** ERROR[4082] Object TRAFODION.T116SCH.T116T2 does not exist or is inaccessible.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>get user hbase objects, match '%TRAFODION.T116SCH.T116T2';
+
+External HBase objects
+======================
+
+TRAF_regr:TRAFODION.T116SCH.T116T2
+
+--- SQL operation complete.
+>>rollback work;
+
+--- SQL operation complete.
+>>get user hbase objects, match '%TRAFODION.T116SCH.T116T2';
+
+External HBase objects
+======================
+
+TRAF_regr:TRAFODION.T116SCH.T116T2
+
+--- SQL operation complete.
+>>select * from t116t2;
+
+A1           C1           B1
+-----------  -----------  ------
+
+          1            1  a
+
+--- 1 row(s) selected.
+>>insert into t116t2 values(1,1,'a');
+
+--- 1 row(s) inserted.
+>>select * from t116t2;
+
+A1           C1           B1
+-----------  -----------  ------
+
+          1            1  a
+          1            1  a
+
+--- 2 row(s) selected.
+>>
+>>--create table1 with dml, drop table2
+>>-------------------------------------
+>>get user hbase objects, match '%TRAFODION.T116SCH.T116T2';
+
+External HBase objects
+======================
+
+TRAF_regr:TRAFODION.T116SCH.T116T2
+
+--- SQL operation complete.
+>>get user hbase objects, match '%TRAFODION.T116SCH.T116T3';
+
+External HBase objects
+======================
+
+
+--- SQL operation complete.
+>>begin work;
+
+--- SQL operation complete.
+>>create table t116t3(a1 int, c1 int, b1 char(6));
+
+--- SQL operation complete.
+>>insert into t116t3 values(2,2,'b');
+
+--- 1 row(s) inserted.
+>>get user hbase objects, match '%TRAFODION.T116SCH.T116T2';
+
+External HBase objects
+======================
+
+TRAF_regr:TRAFODION.T116SCH.T116T2
+
+--- SQL operation complete.
+>>get user hbase objects, match '%TRAFODION.T116SCH.T116T3';
+
+External HBase objects
+======================
+
+TRAF_regr:TRAFODION.T116SCH.T116T3
+
+--- SQL operation complete.
+>>drop table t116t2;
+
+--- SQL operation complete.
+>>commit work;
+
+--- SQL operation complete.
+>>get user hbase objects, match '%TRAFODION.T116SCH.T116T2';
+
+External HBase objects
+======================
+
+
+--- SQL operation complete.
+>>get user hbase objects, match '%TRAFODION.T116SCH.T116T3';
+
+External HBase objects
+======================
+
+TRAF_regr:TRAFODION.T116SCH.T116T3
+
+--- SQL operation complete.
+>>
+>>--create table1 with dml , drop table2 and rollback
+>>---------------------------------------------------
+>>get user hbase objects, match '%TRAFODION.T116SCH.T116T3';
+
+External HBase objects
+======================
+
+TRAF_regr:TRAFODION.T116SCH.T116T3
+
+--- SQL operation complete.
+>>get user hbase objects, match '%TRAFODION.T116SCH.T116T4';
+
+External HBase objects
+======================
+
+
+--- SQL operation complete.
+>>begin work;
+
+--- SQL operation complete.
+>>create table t116t4(a1 int, c1 int, b1 char(6));
+
+--- SQL operation complete.
+>>insert into t116t4 values(2,2,'b');
+
+--- 1 row(s) inserted.
+>>get user hbase objects, match '%TRAFODION.T116SCH.T116T3';
+
+External HBase objects
+======================
+
+TRAF_regr:TRAFODION.T116SCH.T116T3
+
+--- SQL operation complete.
+>>get user hbase objects, match '%TRAFODION.T116SCH.T116T4';
+
+External HBase objects
+======================
+
+TRAF_regr:TRAFODION.T116SCH.T116T4
+
+--- SQL operation complete.
+>>select * from t116t3;
+
+A1           C1           B1
+-----------  -----------  ------
+
+          2            2  b
+
+--- 1 row(s) selected.
+>>drop table t116t3;
+
+--- SQL operation complete.
+>>insert into t116t3 values(2,2,'b');
+
+*** ERROR[4082] Object TRAFODION.T116SCH.T116T3 does not exist or is inaccessible.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>get user hbase objects, match '%TRAFODION.T116SCH.T116T3';
+
+External HBase objects
+======================
+
+TRAF_regr:TRAFODION.T116SCH.T116T3
+
+--- SQL operation complete.
+>>rollback work;
+
+--- SQL operation complete.
+>>get user hbase objects, match '%TRAFODION.T116SCH.T116T3';
+
+External HBase objects
+======================
+
+TRAF_regr:TRAFODION.T116SCH.T116T3
+
+--- SQL operation complete.
+>>get user hbase objects, match '%TRAFODION.T116SCH.T116T4';
+
+External HBase objects
+======================
+
+
+--- SQL operation complete.
+>>select * from t116t3;
+
+A1           C1           B1
+-----------  -----------  ------
+
+          2            2  b
+
+--- 1 row(s) selected.
+>>insert into t116t3 values(2,2,'b');
+
+--- 1 row(s) inserted.
+>>
+>>-- tests to validate ddl definitions are correctly loaded
+>>drop table if exists t116t1;
+
+--- SQL operation complete.
+>>create table t116t1(a int not null, b varchar(2),
++>   c varchar(4) character set utf8 not null);
+
+--- SQL operation complete.
+>>create view t116v1 as select * from t116t1;
+
+--- SQL operation complete.
+>>invoke t116t1;
+
+-- Definition of Trafodion table TRAFODION.T116SCH.T116T1
+-- Definition of hbase table TRAF_regr:TRAFODION.T116SCH.T116T1
+-- Definition current  Sat Oct 26 02:00:03 2019
+
+  (
+    SYSKEY                           LARGEINT NO DEFAULT NOT NULL NOT DROPPABLE
+  , A                                INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , B                                VARCHAR(2) CHARACTER SET ISO88591 COLLATE
+      DEFAULT DEFAULT NULL
+  , C                                VARCHAR(4 CHARS) CHARACTER SET UTF8
+      COLLATE DEFAULT NO DEFAULT NOT NULL NOT DROPPABLE
+  )
+
+--- SQL operation complete.
+>>begin work;
+
+--- SQL operation complete.
+>>invoke t116t1;
+
+-- Definition of Trafodion table TRAFODION.T116SCH.T116T1
+-- Definition of hbase table TRAF_regr:TRAFODION.T116SCH.T116T1
+-- Definition current  Sat Oct 26 02:00:03 2019
+
+  (
+    SYSKEY                           LARGEINT NO DEFAULT NOT NULL NOT DROPPABLE
+  , A                                INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , B                                VARCHAR(2) CHARACTER SET ISO88591 COLLATE
+      DEFAULT DEFAULT NULL
+  , C                                VARCHAR(4 CHARS) CHARACTER SET UTF8
+      COLLATE DEFAULT NO DEFAULT NOT NULL NOT DROPPABLE
+  )
+
+--- SQL operation complete.
+>>invoke t116v1;
+
+-- Definition of Trafodion view TRAFODION.T116SCH.T116V1
+-- Definition current  Sat Oct 26 02:00:03 2019
+
+  (
+    A                                INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , B                                VARCHAR(2) CHARACTER SET ISO88591 COLLATE
+      DEFAULT DEFAULT NULL
+  , C                                VARCHAR(4 CHARS) CHARACTER SET UTF8
+      COLLATE DEFAULT NO DEFAULT NOT NULL NOT DROPPABLE
+  )
+
+--- SQL operation complete.
+>>alter table t116t1 alter column b varchar(3);
+
+--- SQL operation complete.
+>>invoke t116t1;
+
+-- Definition of Trafodion table TRAFODION.T116SCH.T116T1
+-- Definition of hbase table TRAF_regr:TRAFODION.T116SCH.T116T1
+-- Definition current  Sat Oct 26 02:00:07 2019
+
+  (
+    SYSKEY                           LARGEINT NO DEFAULT NOT NULL NOT DROPPABLE
+  , A                                INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , B                                VARCHAR(3) CHARACTER SET ISO88591 COLLATE
+      DEFAULT DEFAULT NULL /*altered_col*/
+  , C                                VARCHAR(4 CHARS) CHARACTER SET UTF8
+      COLLATE DEFAULT NO DEFAULT NOT NULL NOT DROPPABLE
+  )
+
+--- SQL operation complete.
+>>invoke t116v1;
+
+-- Definition of Trafodion view TRAFODION.T116SCH.T116V1
+-- Definition current  Sat Oct 26 02:00:07 2019
+
+  (
+    A                                INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , B                                VARCHAR(3) CHARACTER SET ISO88591 COLLATE
+      DEFAULT DEFAULT NULL
+  , C                                VARCHAR(4 CHARS) CHARACTER SET UTF8
+      COLLATE DEFAULT NO DEFAULT NOT NULL NOT DROPPABLE
+  )
+
+--- SQL operation complete.
+>>commit work;
+
+--- SQL operation complete.
+>>invoke t116t1;
+
+-- Definition of Trafodion table TRAFODION.T116SCH.T116T1
+-- Definition of hbase table TRAF_regr:TRAFODION.T116SCH.T116T1
+-- Definition current  Sat Oct 26 02:00:07 2019
+
+  (
+    SYSKEY                           LARGEINT NO DEFAULT NOT NULL NOT DROPPABLE
+  , A                                INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , B                                VARCHAR(3) CHARACTER SET ISO88591 COLLATE
+      DEFAULT DEFAULT NULL /*altered_col*/
+  , C                                VARCHAR(4 CHARS) CHARACTER SET UTF8
+      COLLATE DEFAULT NO DEFAULT NOT NULL NOT DROPPABLE
+  )
+
+--- SQL operation complete.
+>>invoke t116v1;
+
+-- Definition of Trafodion view TRAFODION.T116SCH.T116V1
+-- Definition current  Sat Oct 26 02:00:07 2019
+
+  (
+    A                                INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , B                                VARCHAR(3) CHARACTER SET ISO88591 COLLATE
+      DEFAULT DEFAULT NULL
+  , C                                VARCHAR(4 CHARS) CHARACTER SET UTF8
+      COLLATE DEFAULT NO DEFAULT NOT NULL NOT DROPPABLE
+  )
+
+--- SQL operation complete.
+>>
+>>begin work;
+
+--- SQL operation complete.
+>>invoke t116t1;
+
+-- Definition of Trafodion table TRAFODION.T116SCH.T116T1
+-- Definition of hbase table TRAF_regr:TRAFODION.T116SCH.T116T1
+-- Definition current  Sat Oct 26 02:00:07 2019
+
+  (
+    SYSKEY                           LARGEINT NO DEFAULT NOT NULL NOT DROPPABLE
+  , A                                INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , B                                VARCHAR(3) CHARACTER SET ISO88591 COLLATE
+      DEFAULT DEFAULT NULL /*altered_col*/
+  , C                                VARCHAR(4 CHARS) CHARACTER SET UTF8
+      COLLATE DEFAULT NO DEFAULT NOT NULL NOT DROPPABLE
+  )
+
+--- SQL operation complete.
+>>invoke t116v1;
+
+-- Definition of Trafodion view TRAFODION.T116SCH.T116V1
+-- Definition current  Sat Oct 26 02:00:07 2019
+
+  (
+    A                                INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , B                                VARCHAR(3) CHARACTER SET ISO88591 COLLATE
+      DEFAULT DEFAULT NULL
+  , C                                VARCHAR(4 CHARS) CHARACTER SET UTF8
+      COLLATE DEFAULT NO DEFAULT NOT NULL NOT DROPPABLE
+  )
+
+--- SQL operation complete.
+>>alter table t116t1 alter column b varchar(4);
+
+--- SQL operation complete.
+>>invoke t116t1;
+
+-- Definition of Trafodion table TRAFODION.T116SCH.T116T1
+-- Definition of hbase table TRAF_regr:TRAFODION.T116SCH.T116T1
+-- Definition current  Sat Oct 26 02:00:11 2019
+
+  (
+    SYSKEY                           LARGEINT NO DEFAULT NOT NULL NOT DROPPABLE
+  , A                                INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , B                                VARCHAR(4) CHARACTER SET ISO88591 COLLATE
+      DEFAULT DEFAULT NULL /*altered_col*/
+  , C                                VARCHAR(4 CHARS) CHARACTER SET UTF8
+      COLLATE DEFAULT NO DEFAULT NOT NULL NOT DROPPABLE
+  )
+
+--- SQL operation complete.
+>>invoke t116v1;
+
+-- Definition of Trafodion view TRAFODION.T116SCH.T116V1
+-- Definition current  Sat Oct 26 02:00:11 2019
+
+  (
+    A                                INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , B                                VARCHAR(4) CHARACTER SET ISO88591 COLLATE
+      DEFAULT DEFAULT NULL
+  , C                                VARCHAR(4 CHARS) CHARACTER SET UTF8
+      COLLATE DEFAULT NO DEFAULT NOT NULL NOT DROPPABLE
+  )
+
+--- SQL operation complete.
+>>rollback work;
+
+--- SQL operation complete.
+>>
+>>invoke t116t1;
+
+-- Definition of Trafodion table TRAFODION.T116SCH.T116T1
+-- Definition of hbase table TRAF_regr:TRAFODION.T116SCH.T116T1
+-- Definition current  Sat Oct 26 02:00:11 2019
+
+  (
+    SYSKEY                           LARGEINT NO DEFAULT NOT NULL NOT DROPPABLE
+  , A                                INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , B                                VARCHAR(3) CHARACTER SET ISO88591 COLLATE
+      DEFAULT DEFAULT NULL /*altered_col*/
+  , C                                VARCHAR(4 CHARS) CHARACTER SET UTF8
+      COLLATE DEFAULT NO DEFAULT NOT NULL NOT DROPPABLE
+  )
+
+--- SQL operation complete.
+>>invoke t116v1;
+
+-- Definition of Trafodion view TRAFODION.T116SCH.T116V1
+-- Definition current  Sat Oct 26 02:00:11 2019
+
+  (
+    A                                INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , B                                VARCHAR(3) CHARACTER SET ISO88591 COLLATE
+      DEFAULT DEFAULT NULL
+  , C                                VARCHAR(4 CHARS) CHARACTER SET UTF8
+      COLLATE DEFAULT NO DEFAULT NOT NULL NOT DROPPABLE
+  )
+
+--- SQL operation complete.
+>>
+>>-- concurrent ddl operations
+>>drop table if exists t116t1 cascade;
+
+--- SQL operation complete.
+>>begin work;
+
+--- SQL operation complete.
+>>create table t116t1 (a int);
+
+--- SQL operation complete.
+>>
+>>sh sqlci -iTEST116\(concurrent_ddl\) >> LOG116;
+EsgynDB Advanced Conversational Interface 2.7.0
+Copyright (c) 2015-2019 Esgyn Corporation
+>>?section concurrent_ddl
+>>cqd ddl_transactions 'ON';
+
+--- SQL operation complete.
+>>begin work;
+
+--- SQL operation complete.
+>>
+>>-- should fail
+>>create table trafodion.t116sch.t116t1 (a int);
+
+*** ERROR[1431] Object TRAF_regr:TRAFODION.T116SCH.T116T1 exists in HBase. This could be due to a concurrent transactional ddl operation in progress on this table.
+
+*** ERROR[8839] Transaction was aborted.
+
+--- SQL operation failed with errors.
+>>begin work;
+
+--- SQL operation complete.
+>>commit work;
+
+--- SQL operation complete.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>
+>>commit work;
+
+--- SQL operation complete.
+>>invoke t116t1;
+
+-- Definition of Trafodion table TRAFODION.T116SCH.T116T1
+-- Definition of hbase table TRAF_regr:TRAFODION.T116SCH.T116T1
+-- Definition current  Sat Oct 26 02:00:28 2019
+
+  (
+    SYSKEY                           LARGEINT NO DEFAULT NOT NULL NOT DROPPABLE
+  , A                                INT DEFAULT NULL
+  )
+
+--- SQL operation complete.
+>>cleanup table t116t1;
+
+--- SQL operation complete.
+>>
+>>-- test table/schema drops and get stmts with read uncommitted access
+>>create schema if not exists t116sch1 namespace 'regr';
+
+--- SQL operation complete.
+>>set schema t116sch1;
+
+--- SQL operation complete.
+>>drop table if exists t116t1;
+
+--- SQL operation complete.
+>>drop table if exists t116t2;
+
+--- SQL operation complete.
+>>
+>>create table t116t1 (a int);
+
+--- SQL operation complete.
+>>showddl t116t1;
+
+CREATE TABLE TRAFODION.T116SCH1.T116T1
+  (
+    A                                INT DEFAULT NULL
+  )
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_regr' USE ENCRYPTION OPTIONS 'd'
+;
+
+--- SQL operation complete.
+>>begin work;
+
+--- SQL operation complete.
+>>get tables in schema t116sch1, match '%T116T1';
+
+Tables in Schema TRAFODION.T116SCH1
+===================================
+
+T116T1
+
+=======================
+ 1 row(s) returned
+
+--- SQL operation complete.
+>>drop table t116t1;
+
+--- SQL operation complete.
+>>get user hbase objects, match '%TRAFODION.T116SCH.T116T1';
+
+External HBase objects
+======================
+
+
+--- SQL operation complete.
+>>get user hbase objects, match '%TRAFODION.T116SCH1.T116T1';
+
+External HBase objects
+======================
+
+TRAF_regr:TRAFODION.T116SCH1.T116T1
+
+--- SQL operation complete.
+>>get tables in schema t116sch1;
+
+Tables in Schema TRAFODION.T116SCH1
+===================================
+
+SB_HISTOGRAMS
+SB_HISTOGRAM_INTERVALS
+SB_PERSISTENT_SAMPLES
+
+=======================
+ 3 row(s) returned
+
+--- SQL operation complete.
+>>create table t116t2 (a int);
+
+--- SQL operation complete.
+>>get tables in schema t116sch1;
+
+Tables in Schema TRAFODION.T116SCH1
+===================================
+
+SB_HISTOGRAMS
+SB_HISTOGRAM_INTERVALS
+SB_PERSISTENT_SAMPLES
+T116T2
+
+=======================
+ 4 row(s) returned
+
+--- SQL operation complete.
+>>drop schema t116sch1 cascade;
+
+--- SQL operation complete.
+>>get tables in schema t116sch1;
+
+--- SQL operation complete.
+>>select count(*) from "_MD_".objects where schema_name = 'T116SCH1'
++>   for read uncommitted access;
+
+(EXPR)
+--------------------
+
+                   0
+
+--- 1 row(s) selected.
+>>rollback work;
+
+--- SQL operation complete.
+>>get tables in schema t116sch1;
+
+Tables in Schema TRAFODION.T116SCH1
+===================================
+
+SB_HISTOGRAMS
+SB_HISTOGRAM_INTERVALS
+SB_PERSISTENT_SAMPLES
+T116T1
+
+=======================
+ 4 row(s) returned
+
+--- SQL operation complete.
+>>get user hbase objects, match '%TRAFODION.T116SCH.T116T1';
+
+External HBase objects
+======================
+
+
+--- SQL operation complete.
+>>get user hbase objects, match '%TRAFODION.T116SCH1.T116T1';
+
+External HBase objects
+======================
+
+TRAF_regr:TRAFODION.T116SCH1.T116T1
+
+--- SQL operation complete.
+>>
+>>set schema t116sch;
+
+--- SQL operation complete.
+>>
+>>-- ddl with autocommit off
+>>set transaction autocommit off;
+
+--- SQL operation complete.
+>>drop table if exists t116t2;
+
+--- SQL operation complete.
+>>commit work;
+
+--- SQL operation complete.
+>>invoke t116t2;
+
+*** ERROR[4082] Object TRAFODION.T116SCH.T116T2 does not exist or is inaccessible.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>create table t116t2 (a int);
+
+--- SQL operation complete.
+>>invoke t116t2;
+
+-- Definition of Trafodion table TRAFODION.T116SCH.T116T2
+-- Definition of hbase table TRAF_regr:TRAFODION.T116SCH.T116T2
+-- Definition current  Sat Oct 26 02:01:09 2019
+
+  (
+    SYSKEY                           LARGEINT NO DEFAULT NOT NULL NOT DROPPABLE
+  , A                                INT DEFAULT NULL
+  )
+
+--- SQL operation complete.
+>>rollback work;
+
+--- SQL operation complete.
+>>invoke t116t2;
+
+*** ERROR[4082] Object TRAFODION.T116SCH.T116T2 does not exist or is inaccessible.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>create table t116t2 (a int);
+
+--- SQL operation complete.
+>>commit work;
+
+--- SQL operation complete.
+>>invoke t116t2;
+
+-- Definition of Trafodion table TRAFODION.T116SCH.T116T2
+-- Definition of hbase table TRAF_regr:TRAFODION.T116SCH.T116T2
+-- Definition current  Sat Oct 26 02:01:18 2019
+
+  (
+    SYSKEY                           LARGEINT NO DEFAULT NOT NULL NOT DROPPABLE
+  , A                                INT DEFAULT NULL
+  )
+
+--- SQL operation complete.
+>>showddl t116t2;
+
+CREATE TABLE TRAFODION.T116SCH.T116T2
+  (
+    A                                INT DEFAULT NULL
+  )
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_regr' USE ENCRYPTION OPTIONS 'd'
+;
+
+--- SQL operation complete.
+>>-- ddl not allowed with autocommit off
+>>purgedata t116t2;
+
+*** ERROR[20124] This DDL operation cannot be performed if AUTOCOMMIT is OFF.
+
+--- SQL operation failed with errors.
+>>alter table t116t2 alter column a largeint;
+
+*** ERROR[20125] This ALTER operation cannot be performed if a user-defined transaction has been started or AUTOCOMMIT is OFF.
+
+--- SQL operation failed with errors.
+>>cleanup table t116t2;
+
+*** ERROR[20124] This DDL operation cannot be performed if AUTOCOMMIT is OFF.
+
+--- SQL operation failed with errors.
+>>rollback work;
+
+--- SQL operation complete.
+>>set transaction autocommit on;
+
+--- SQL operation complete.
+>>drop table if exists t116t2;
+
+--- SQL operation complete.
+>>create table t116t2 (a int) attribute hbase format;
+
+--- SQL operation complete.
+>>set transaction autocommit off;
+
+--- SQL operation complete.
+>>alter table t116t2 alter column a largeint;
+
+*** ERROR[20125] This ALTER operation cannot be performed if a user-defined transaction has been started or AUTOCOMMIT is OFF.
+
+--- SQL operation failed with errors.
+>>rollback work;
+
+--- SQL operation complete.
+>>set transaction autocommit on;
+
+--- SQL operation complete.
+>>
+>>-- index creation checking
+>>-- index creation is done with multiple transactions
+>>-- to avoid populating the index within the transaction
+>>create table t116t5 (c1 int not null primary key, c2 int, c3 int) ;
+
+--- SQL operation complete.
+>>insert into t116t5 values (1,1,1), (2,2,2), (3,3,2);
+
+--- 3 row(s) inserted.
+>>-- create index - Second attempt should fail
+>>create index t116t5_i1 on t116t5(c2);
+
+--- SQL operation complete.
+>>create index t116t5_i1 on t116t5(c2);
+
+*** ERROR[1390] Object TRAFODION.T116SCH.T116T5_I1 already exists in Trafodion.
+
+--- SQL operation failed with errors.
+>>set parserflags 1;
+
+--- SQL operation complete.
+>>select count(*) from table(index_table t116t5_i1);
+
+(EXPR)
+--------------------
+
+                   3
+
+--- 1 row(s) selected.
+>>-- create unique index - Both attempts should fail with the same error
+>>create unique index t116t5_i2 on t116t5(c3);
+
+*** ERROR[8110] Duplicate rows detected.
+
+*** ERROR[1053] Unique index TRAFODION.T116SCH.T116T5_I2 could not be created because the specified column(s) contain duplicate data.
+
+*** ERROR[1389] Object T116T5_I2 does not exist in Trafodion.
+
+--- SQL operation failed with errors.
+>>create unique index t116t5_i2 on t116t5(c3);
+
+*** ERROR[8110] Duplicate rows detected.
+
+*** ERROR[1053] Unique index TRAFODION.T116SCH.T116T5_I2 could not be created because the specified column(s) contain duplicate data.
+
+*** ERROR[1389] Object T116T5_I2 does not exist in Trafodion.
+
+--- SQL operation failed with errors.
+>>-- create unique index with no populate
+>>create unique index t116t5_i2 on t116t5(c3) no populate;
+
+--- SQL operation complete.
+>>-- Both attempts should fail with the same error
+>>populate index t116t5_i2 on t116t5;
+
+*** ERROR[8110] Duplicate rows detected.
+
+*** ERROR[1053] Unique index TRAFODION.T116SCH.T116T5_I2 could not be created because the specified column(s) contain duplicate data.
+
+--- SQL operation failed with errors.
+>>populate index t116t5_i2 on t116t5;
+
+*** ERROR[8110] Duplicate rows detected.
+
+*** ERROR[1053] Unique index TRAFODION.T116SCH.T116T5_I2 could not be created because the specified column(s) contain duplicate data.
+
+--- SQL operation failed with errors.
+>>
+>>-- region transactions support
+>>create table t116t6 (a int not null primary key, b int);
+
+--- SQL operation complete.
+>>showddl t116t6;
+
+CREATE TABLE TRAFODION.T116SCH.T116T6
+  (
+    A                                INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , B                                INT DEFAULT NULL
+  , PRIMARY KEY (A ASC)
+  )
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_regr' USE ENCRYPTION OPTIONS 'd'
+;
+
+--- SQL operation complete.
+>>
+>>-- scenario 1, concurrent hbase transaction with insert(checkAndPut)
+>>begin work;
+
+--- SQL operation complete.
+>>insert into t116t6 values (1,1);
+
+--- 1 row(s) inserted.
+>>
+>>-- insert a row using a concurrent hbase xn
+>>showddl t116t6;
+
+CREATE TABLE TRAFODION.T116SCH.T116T6
+  (
+    A                                INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , B                                INT DEFAULT NULL
+  , PRIMARY KEY (A ASC)
+  )
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_regr' USE ENCRYPTION OPTIONS 'd'
+;
+
+--- SQL operation complete.
+>>sh sqlci -iTEST116\(concurrent_hbase_xn_ins\) >> LOG116;
+EsgynDB Advanced Conversational Interface 2.7.0
+Copyright (c) 2015-2019 Esgyn Corporation
+>>?section concurrent_hbase_xn_ins
+>>cqd traf_use_region_xn 'OFF';
+
+--- SQL operation complete.
+>>cqd traf_unique_iud_xn_opt 'ON';
+
+--- SQL operation complete.
+>>cqd SKIP_CONFLICT_CHECK_FOR_INDEX 'OFF';
+
+--- SQL operation complete.
+>>showddl trafodion.t116sch.t116t6;
+
+CREATE TABLE TRAFODION.T116SCH.T116T6
+  (
+    A                                INT NO DEFAULT NOT NULL NOT DROPPABLE
+  , B                                INT DEFAULT NULL
+  , PRIMARY KEY (A ASC)
+  )
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_regr' USE ENCRYPTION OPTIONS 'd'
+;
+
+--- SQL operation complete.
+>>prepare s from insert into trafodion.t116sch.t116t6 values (1,2);
+
+--- SQL command prepared.
+>>explain options 'f' s;
+
+LC   RC   OP   OPERATOR              OPT       DESCRIPTION           CARD
+---- ---- ---- --------------------  --------  --------------------  ---------
+
+1    .    2    root                  o                               1.00E+000
+.    .    1    trafodion_insert                T116T6                1.00E+000
+
+--- SQL operation complete.
+>>execute s;
+
+--- 1 row(s) inserted.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>
+>>-- should not show conflict
+>>commit work;
+
+--- SQL operation complete.
+>>select * from t116t6;
+
+A            B
+-----------  -----------
+
+          1            2
+
+--- 1 row(s) selected.
+>>
+>>-- scenario 2, concurrent region transaction with insert(checkAndPut)
+>>delete from t116t6;
+
+--- 1 row(s) deleted.
+>>begin work;
+
+--- SQL operation complete.
+>>insert into t116t6 values (1,1);
+
+--- 1 row(s) inserted.
+>>
+>>-- insert a row using a concurrent region xn
+>>sh sqlci -iTEST116\(concurrent_region_xn_ins\) >> LOG116;
+EsgynDB Advanced Conversational Interface 2.7.0
+Copyright (c) 2015-2019 Esgyn Corporation
+>>?section concurrent_region_xn_ins
+>>cqd traf_use_region_xn 'ON';
+
+--- SQL operation complete.
+>>cqd traf_unique_iud_xn_opt 'ON';
+
+--- SQL operation complete.
+>>cqd SKIP_CONFLICT_CHECK_FOR_INDEX 'OFF';
+
+--- SQL operation complete.
+>>prepare s from insert into trafodion.t116sch.t116t6 values (1,2);
+
+--- SQL command prepared.
+>>explain options 'f' s;
+
+LC   RC   OP   OPERATOR              OPT       DESCRIPTION           CARD
+---- ---- ---- --------------------  --------  --------------------  ---------
+
+1    .    2    root                  o                               1.00E+000
+.    .    1    trafodion_insert      r         T116T6                1.00E+000
+
+--- SQL operation complete.
+>>execute s;
+
+--- 1 row(s) inserted.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>
+>>-- should show conflict
+>>commit work;
+
+*** ERROR[8616] A conflict was detected during commit processing. Transaction has been aborted. Detail :CONFLICT ERROR
+
+--- SQL operation failed with errors.
+>>select * from t116t6;
+
+A            B
+-----------  -----------
+
+          1            2
+
+--- 1 row(s) selected.
+>>
+>>-- scenario 3, concurrent hbase transaction with upsert(put)
+>>delete from t116t6;
+
+--- 1 row(s) deleted.
+>>begin work;
+
+--- SQL operation complete.
+>>upsert into t116t6 values (1,1);
+
+--- 1 row(s) inserted.
+>>
+>>-- upsert a row using a concurrent hbase xn
+>>sh sqlci -iTEST116\(concurrent_hbase_xn_ups\) >> LOG116;
+EsgynDB Advanced Conversational Interface 2.7.0
+Copyright (c) 2015-2019 Esgyn Corporation
+>>?section concurrent_hbase_xn_ups
+>>cqd traf_use_region_xn 'OFF';
+
+--- SQL operation complete.
+>>cqd traf_unique_iud_xn_opt 'ON';
+
+--- SQL operation complete.
+>>cqd SKIP_CONFLICT_CHECK_FOR_INDEX 'OFF';
+
+--- SQL operation complete.
+>>prepare s from upsert into trafodion.t116sch.t116t6 values (1,2);
+
+--- SQL command prepared.
+>>explain options 'f' s;
+
+LC   RC   OP   OPERATOR              OPT       DESCRIPTION           CARD
+---- ---- ---- --------------------  --------  --------------------  ---------
+
+1    .    2    root                  o                               1.00E+000
+.    .    1    trafodion_upsert                T116T6                1.00E+000
+
+--- SQL operation complete.
+>>execute s;
+
+--- 1 row(s) inserted.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>
+>>-- should not show conflict
+>>commit work;
+
+--- SQL operation complete.
+>>select * from t116t6;
+
+A            B
+-----------  -----------
+
+          1            2
+
+--- 1 row(s) selected.
+>>
+>>-- scenario 4, concurrent region transaction with upsert(put)
+>>delete from t116t6;
+
+--- 1 row(s) deleted.
+>>begin work;
+
+--- SQL operation complete.
+>>upsert into t116t6 values (1,1);
+
+--- 1 row(s) inserted.
+>>
+>>-- insert a row using a concurrent region xn
+>>sh sqlci -iTEST116\(concurrent_region_xn_ups\) >> LOG116;
+EsgynDB Advanced Conversational Interface 2.7.0
+Copyright (c) 2015-2019 Esgyn Corporation
+>>?section concurrent_region_xn_ups
+>>cqd traf_use_region_xn 'ON';
+
+--- SQL operation complete.
+>>cqd traf_unique_iud_xn_opt 'ON';
+
+--- SQL operation complete.
+>>cqd SKIP_CONFLICT_CHECK_FOR_INDEX 'OFF';
+
+--- SQL operation complete.
+>>prepare s from upsert into trafodion.t116sch.t116t6 values (1,2);
+
+--- SQL command prepared.
+>>explain options 'f' s;
+
+LC   RC   OP   OPERATOR              OPT       DESCRIPTION           CARD
+---- ---- ---- --------------------  --------  --------------------  ---------
+
+1    .    2    root                  o                               1.00E+000
+.    .    1    trafodion_upsert      r         T116T6                1.00E+000
+
+--- SQL operation complete.
+>>execute s;
+
+--- 1 row(s) inserted.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>
+>>-- should show conflict
+>>commit work;
+
+*** ERROR[8616] A conflict was detected during commit processing. Transaction has been aborted. Detail :CONFLICT ERROR
+
+--- SQL operation failed with errors.
+>>select * from t116t6;
+
+A            B
+-----------  -----------
+
+          1            2
+
+--- 1 row(s) selected.
+>>
+>>-- scenario 5, concurrent hbase transaction with delete
+>>delete from t116t6;
+
+--- 1 row(s) deleted.
+>>insert into t116t6 values (1,1);
+
+--- 1 row(s) inserted.
+>>begin work;
+
+--- SQL operation complete.
+>>delete from t116t6 where a = 1 and b > 0;
+
+--- 1 row(s) deleted.
+>>
+>>-- delete a row using a concurrent hbase xn
+>>sh sqlci -iTEST116\(concurrent_hbase_xn_del\) >> LOG116;
+EsgynDB Advanced Conversational Interface 2.7.0
+Copyright (c) 2015-2019 Esgyn Corporation
+>>?section concurrent_hbase_xn_del
+>>cqd traf_use_region_xn 'OFF';
+
+--- SQL operation complete.
+>>cqd traf_unique_iud_xn_opt 'ON';
+
+--- SQL operation complete.
+>>cqd SKIP_CONFLICT_CHECK_FOR_INDEX 'OFF';
+
+--- SQL operation complete.
+>>prepare s from delete from trafodion.t116sch.t116t6 where a = 1 and b > 0;
+
+--- SQL command prepared.
+>>explain options 'f' s;
+
+LC   RC   OP   OPERATOR              OPT       DESCRIPTION           CARD
+---- ---- ---- --------------------  --------  --------------------  ---------
+
+1    .    2    root                  o                               1.00E+000
+.    .    1    trafodion_delete                T116T6                1.00E+000
+
+--- SQL operation complete.
+>>execute s;
+
+--- 1 row(s) deleted.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>
+>>-- should not show conflict
+>>commit work;
+
+--- SQL operation complete.
+>>select * from t116t6;
+
+--- 0 row(s) selected.
+>>
+>>-- scenario 6, concurrent region transaction with delete
+>>delete from t116t6;
+
+--- 0 row(s) deleted.
+>>insert into t116t6 values (1,1);
+
+--- 1 row(s) inserted.
+>>begin work;
+
+--- SQL operation complete.
+>>delete from t116t6 where a = 1 and b > 0;
+
+--- 1 row(s) deleted.
+>>
+>>-- delete a row using a concurrent region xn
+>>sh sqlci -iTEST116\(concurrent_region_xn_del\) >> LOG116;
+EsgynDB Advanced Conversational Interface 2.7.0
+Copyright (c) 2015-2019 Esgyn Corporation
+>>?section concurrent_region_xn_del
+>>cqd traf_use_region_xn 'ON';
+
+--- SQL operation complete.
+>>cqd traf_unique_iud_xn_opt 'ON';
+
+--- SQL operation complete.
+>>cqd SKIP_CONFLICT_CHECK_FOR_INDEX 'OFF';
+
+--- SQL operation complete.
+>>prepare s from delete from trafodion.t116sch.t116t6 where a = 1 and b > 0;
+
+--- SQL command prepared.
+>>explain options 'f' s;
+
+LC   RC   OP   OPERATOR              OPT       DESCRIPTION           CARD
+---- ---- ---- --------------------  --------  --------------------  ---------
+
+1    .    2    root                  o                               1.00E+000
+.    .    1    trafodion_delete      r         T116T6                1.00E+000
+
+--- SQL operation complete.
+>>execute s;
+
+--- 1 row(s) deleted.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>
+>>-- should show conflict
+>>commit work;
+
+*** ERROR[8616] A conflict was detected during commit processing. Transaction has been aborted. Detail :CONFLICT ERROR
+
+--- SQL operation failed with errors.
+>>select * from t116t6;
+
+--- 0 row(s) selected.
+>>
+>>-- scenario 7, concurrent hbase transaction with checkanddelete
+>>delete from t116t6;
+
+--- 0 row(s) deleted.
+>>insert into t116t6 values (1,1);
+
+--- 1 row(s) inserted.
+>>begin work;
+
+--- SQL operation complete.
+>>delete from t116t6 where a = 1;
+
+--- 1 row(s) deleted.
+>>
+>>-- delete a row using a concurrent hbase xn
+>>sh sqlci -iTEST116\(concurrent_hbase_xn_checkanddel\) >> LOG116;
+EsgynDB Advanced Conversational Interface 2.7.0
+Copyright (c) 2015-2019 Esgyn Corporation
+>>?section concurrent_hbase_xn_checkanddel
+>>cqd traf_use_region_xn 'OFF';
+
+--- SQL operation complete.
+>>cqd traf_unique_iud_xn_opt 'ON';
+
+--- SQL operation complete.
+>>cqd SKIP_CONFLICT_CHECK_FOR_INDEX 'OFF';
+
+--- SQL operation complete.
+>>prepare s from delete from trafodion.t116sch.t116t6 where a = 1;
+
+--- SQL command prepared.
+>>explain options 'f' s;
+
+LC   RC   OP   OPERATOR              OPT       DESCRIPTION           CARD
+---- ---- ---- --------------------  --------  --------------------  ---------
+
+1    .    2    root                  o                               1.00E+000
+.    .    1    trafodion_delete                T116T6                1.00E+000
+
+--- SQL operation complete.
+>>execute s;
+
+--- 1 row(s) deleted.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>
+>>-- should not show conflict
+>>commit work;
+
+--- SQL operation complete.
+>>select * from t116t6;
+
+--- 0 row(s) selected.
+>>
+>>-- scenario 8, concurrent region transaction with checkanddelete
+>>delete from t116t6;
+
+--- 0 row(s) deleted.
+>>insert into t116t6 values (1,1);
+
+--- 1 row(s) inserted.
+>>begin work;
+
+--- SQL operation complete.
+>>delete from t116t6 where a = 1;
+
+--- 1 row(s) deleted.
+>>
+>>-- delete a row using a concurrent region xn
+>>sh sqlci -iTEST116\(concurrent_region_xn_checkanddel\) >> LOG116;
+EsgynDB Advanced Conversational Interface 2.7.0
+Copyright (c) 2015-2019 Esgyn Corporation
+>>?section concurrent_region_xn_checkanddel
+>>cqd traf_use_region_xn 'ON';
+
+--- SQL operation complete.
+>>cqd SKIP_CONFLICT_CHECK_FOR_INDEX 'OFF';
+
+--- SQL operation complete.
+>>prepare s from delete from trafodion.t116sch.t116t6 where a = 1;
+
+--- SQL command prepared.
+>>explain options 'f' s;
+
+LC   RC   OP   OPERATOR              OPT       DESCRIPTION           CARD
+---- ---- ---- --------------------  --------  --------------------  ---------
+
+1    .    2    root                  o                               1.00E+000
+.    .    1    trafodion_delete      r         T116T6                1.00E+000
+
+--- SQL operation complete.
+>>execute s;
+
+--- 1 row(s) deleted.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>
+>>-- should show conflict
+>>commit work;
+
+*** ERROR[8616] A conflict was detected during commit processing. Transaction has been aborted. Detail :CONFLICT ERROR
+
+--- SQL operation failed with errors.
+>>select * from t116t6;
+
+--- 0 row(s) selected.
+>>
+>>-- scenario 9, concurrent hbase transaction with checkandupdate
+>>delete from t116t6;
+
+--- 0 row(s) deleted.
+>>insert into t116t6 values (1,1);
+
+--- 1 row(s) inserted.
+>>begin work;
+
+--- SQL operation complete.
+>>update t116t6 set b = 333 where a = 1;
+
+--- 1 row(s) updated.
+>>
+>>-- update row using a concurrent hbase xn
+>>sh sqlci -iTEST116\(concurrent_hbase_xn_checkandupd\) >> LOG116;
+EsgynDB Advanced Conversational Interface 2.7.0
+Copyright (c) 2015-2019 Esgyn Corporation
+>>?section concurrent_hbase_xn_checkandupd
+>>cqd traf_use_region_xn 'OFF';
+
+--- SQL operation complete.
+>>cqd traf_unique_iud_xn_opt 'ON';
+
+--- SQL operation complete.
+>>cqd SKIP_CONFLICT_CHECK_FOR_INDEX 'OFF';
+
+--- SQL operation complete.
+>>prepare s from update trafodion.t116sch.t116t6 set b = 111 where a = 1;
+
+--- SQL command prepared.
+>>explain options 'f' s;
+
+LC   RC   OP   OPERATOR              OPT       DESCRIPTION           CARD
+---- ---- ---- --------------------  --------  --------------------  ---------
+
+1    .    2    root                  o                               1.00E+000
+.    .    1    trafodion_update                T116T6                1.00E+000
+
+--- SQL operation complete.
+>>execute s;
+
+--- 1 row(s) updated.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>
+>>-- should not show conflict
+>>commit work;
+
+--- SQL operation complete.
+>>select * from t116t6;
+
+A            B
+-----------  -----------
+
+          1          111
+
+--- 1 row(s) selected.
+>>
+>>-- scenario 10, concurrent region transaction with checkandupdate
+>>delete from t116t6;
+
+--- 1 row(s) deleted.
+>>insert into t116t6 values (1,1);
+
+--- 1 row(s) inserted.
+>>begin work;
+
+--- SQL operation complete.
+>>update t116t6 set b = 333 where a = 1;
+
+--- 1 row(s) updated.
+>>
+>>-- update row using a concurrent region xn
+>>sh sqlci -iTEST116\(concurrent_region_xn_checkandupd\) >> LOG116;
+EsgynDB Advanced Conversational Interface 2.7.0
+Copyright (c) 2015-2019 Esgyn Corporation
+>>?section concurrent_region_xn_checkandupd
+>>cqd traf_use_region_xn 'ON';
+
+--- SQL operation complete.
+>>cqd traf_unique_iud_xn_opt 'ON';
+
+--- SQL operation complete.
+>>cqd SKIP_CONFLICT_CHECK_FOR_INDEX 'OFF';
+
+--- SQL operation complete.
+>>prepare s from update trafodion.t116sch.t116t6 set b = 111 where a = 1;
+
+--- SQL command prepared.
+>>explain options 'f' s;
+
+LC   RC   OP   OPERATOR              OPT       DESCRIPTION           CARD
+---- ---- ---- --------------------  --------  --------------------  ---------
+
+1    .    2    root                  o                               1.00E+000
+.    .    1    trafodion_update      r         T116T6                1.00E+000
+
+--- SQL operation complete.
+>>execute s;
+
+--- 1 row(s) updated.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>
+>>-- should show conflict
+>>commit work;
+
+*** ERROR[8616] A conflict was detected during commit processing. Transaction has been aborted. Detail :CONFLICT ERROR
+
+--- SQL operation failed with errors.
+>>select * from t116t6;
+
+A            B
+-----------  -----------
+
+          1          111
+
+--- 1 row(s) selected.
+>>
+>>obey TEST116(begin_transaction_for_select);
+>>set transaction autocommit off ;
+
+--- SQL operation complete.
+>>cqd begin_transaction_for_select '2' ;
+
+--- SQL operation complete.
+>>select * from t116t6 for update ;
+
+A            B
+-----------  -----------
+
+          1          111
+
+--- 1 row(s) selected.
+>>begin work;
+
+*** ERROR[8603] Trying to begin a transaction that has already been started.
+
+--- SQL operation failed with errors.
+>>commit work;
+
+--- SQL operation complete.
+>>select * from t116t6 ;
+
+A            B
+-----------  -----------
+
+          1          111
+
+--- 1 row(s) selected.
+>>begin work;
+
+*** ERROR[8603] Trying to begin a transaction that has already been started.
+
+--- SQL operation failed with errors.
+>>commit work;
+
+--- SQL operation complete.
+>>select * from t116t6 for read committed access ;
+
+A            B
+-----------  -----------
+
+          1          111
+
+--- 1 row(s) selected.
+>>begin work;
+
+*** ERROR[8603] Trying to begin a transaction that has already been started.
+
+--- SQL operation failed with errors.
+>>commit work;
+
+--- SQL operation complete.
+>>select * from t116t6 for read uncommitted access ;
+
+A            B
+-----------  -----------
+
+          1          111
+
+--- 1 row(s) selected.
+>>begin work;
+
+--- SQL operation complete.
+>>commit work;
+
+--- SQL operation complete.
+>>select * from t116t6 for skip conflict access ;
+
+A            B
+-----------  -----------
+
+          1          111
+
+--- 1 row(s) selected.
+>>begin work;
+
+--- SQL operation complete.
+>>commit work;
+
+--- SQL operation complete.
+>>cqd begin_transaction_for_select '1' ;
+
+--- SQL operation complete.
+>>select * from t116t6 for update ;
+
+A            B
+-----------  -----------
+
+          1          111
+
+--- 1 row(s) selected.
+>>begin work;
+
+*** ERROR[8603] Trying to begin a transaction that has already been started.
+
+--- SQL operation failed with errors.
+>>commit work;
+
+--- SQL operation complete.
+>>select * from t116t6 ;
+
+A            B
+-----------  -----------
+
+          1          111
+
+--- 1 row(s) selected.
+>>begin work;
+
+--- SQL operation complete.
+>>commit work;
+
+--- SQL operation complete.
+>>select * from t116t6 for read committed access ;
+
+A            B
+-----------  -----------
+
+          1          111
+
+--- 1 row(s) selected.
+>>begin work;
+
+--- SQL operation complete.
+>>commit work;
+
+--- SQL operation complete.
+>>select * from t116t6 for read uncommitted access ;
+
+A            B
+-----------  -----------
+
+          1          111
+
+--- 1 row(s) selected.
+>>begin work;
+
+--- SQL operation complete.
+>>commit work;
+
+--- SQL operation complete.
+>>select * from t116t6 for skip conflict access ;
+
+A            B
+-----------  -----------
+
+          1          111
+
+--- 1 row(s) selected.
+>>begin work;
+
+--- SQL operation complete.
+>>commit work;
+
+--- SQL operation complete.
+>>cqd begin_transaction_for_select '0' ;
+
+--- SQL operation complete.
+>>select * from t116t6 for update ;
+
+A            B
+-----------  -----------
+
+          1          111
+
+--- 1 row(s) selected.
+>>begin work;
+
+--- SQL operation complete.
+>>commit work;
+
+--- SQL operation complete.
+>>select * from t116t6 ;
+
+A            B
+-----------  -----------
+
+          1          111
+
+--- 1 row(s) selected.
+>>begin work;
+
+--- SQL operation complete.
+>>commit work;
+
+--- SQL operation complete.
+>>select * from t116t6 for read committed access ;
+
+A            B
+-----------  -----------
+
+          1          111
+
+--- 1 row(s) selected.
+>>begin work;
+
+--- SQL operation complete.
+>>commit work;
+
+--- SQL operation complete.
+>>select * from t116t6 for read uncommitted access ;
+
+A            B
+-----------  -----------
+
+          1          111
+
+--- 1 row(s) selected.
+>>begin work;
+
+--- SQL operation complete.
+>>commit work;
+
+--- SQL operation complete.
+>>select * from t116t6 for skip conflict access ;
+
+A            B
+-----------  -----------
+
+          1          111
+
+--- 1 row(s) selected.
+>>begin work;
+
+--- SQL operation complete.
+>>commit work;
+
+--- SQL operation complete.
+>>set transaction autocommit on ;
+
+--- SQL operation complete.
+>>
+>>
+>>obey TEST116(clean_up);
+>>drop table t116t1;
+
+*** ERROR[1389] Object TRAFODION.T116SCH.T116T1 does not exist in Trafodion.
+
+--- SQL operation failed with errors.
+>>drop table t116t2;
+
+--- SQL operation complete.
+>>drop table t116t3;
+
+--- SQL operation complete.
+>>drop table t116t4;
+
+*** ERROR[1389] Object TRAFODION.T116SCH.T116T4 does not exist in Trafodion.
+
+--- SQL operation failed with errors.
+>>drop table t116t5;
+
+--- SQL operation complete.
+>>drop table t116t6;
+
+--- SQL operation complete.
+>>drop schema t116sch cascade;
+
+--- SQL operation complete.
+>>drop schema t116sch1 cascade;
+
+--- SQL operation complete.
+>>
+>>log;

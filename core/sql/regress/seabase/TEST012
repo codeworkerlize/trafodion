@@ -1,0 +1,212 @@
+-- Tests for SeaBase
+-- Tests coprocessors, serialization, hbase filter preds pushdown.
+-- Tests schema drop.
+-- Added November 2013
+--
+-- @@@ START COPYRIGHT @@@
+--
+-- Licensed to the Apache Software Foundation (ASF) under one
+-- or more contributor license agreements.  See the NOTICE file
+-- distributed with this work for additional information
+-- regarding copyright ownership.  The ASF licenses this file
+-- to you under the Apache License, Version 2.0 (the
+-- "License"); you may not use this file except in compliance
+-- with the License.  You may obtain a copy of the License at
+--
+--   http://www.apache.org/licenses/LICENSE-2.0
+--
+-- Unless required by applicable law or agreed to in writing,
+-- software distributed under the License is distributed on an
+-- "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+-- KIND, either express or implied.  See the License for the
+-- specific language governing permissions and limitations
+-- under the License.
+--
+-- @@@ END COPYRIGHT @@@
+
+log LOG012 clear;
+
+cqd hbase_serialization 'ON';
+cqd hbase_coprocessors 'ON';
+cqd hbase_filter_preds 'ON';
+
+obey TEST012(clnup);
+obey TEST012(ddl);
+obey TEST012(tests);
+obey TEST012(negtests);
+obey TEST012(schemaDrop);
+obey TEST012(getStmts);
+obey TEST012(test_ebkey);
+log;
+exit;
+
+
+?section clnup
+drop table if exists T012T1 cascade;
+drop table if exists T012T2 cascade;
+drop table if exists t012tT3 cascade;
+drop table if exists t012t11 cascade;
+
+?section ddl
+create table if not exists t012t1(a smallint not null serialized, b int serialized, 
+       	     	    	       c largeint serialized,
+       	     	              aa smallint unsigned default 10 not null serialized, 
+                              d char(4) serialized, e varchar(5) serialized,
+                              g numeric(5,2) serialized,
+			      primary key(a desc));
+create index t012t1i1 on t012t1(b);
+create index t012t1i2 on t012t1(g desc);
+invoke t012t1;
+
+create view t012v1 as select a,b,c from t012t1 where c < 0 with check option;
+invoke t012v1;
+
+?section tests
+insert into t012t1 values (1,2,3, 1, 'a', 'b', 5.2);
+insert into t012t1 values (2, null, null, 2, null, null, null);
+select * from t012t1;
+
+select * from t012t1 where a = 1;
+select * from t012t1 where b = 2;
+select * from t012t1 where b < 3;
+select * from t012t1 where d >= 'a';
+
+update t012t1 set g = g+10;
+select * from t012t1;
+
+delete from t012t1 where (b,g) > (2,5);
+select * from t012t1;
+
+insert into t012v1 values (3,3,-1);
+select * from t012v1;
+
+?section negtests
+create table t012t10(f real not null serialized,
+                              h decimal(4,3) serialized,
+                              i date not null serialized,
+                              j interval year to month serialized);
+
+insert into t012v1 values (3,3,3);
+
+create table t012t11(a int not null);
+
+?section schemaDrop
+create schema trafodion.zschema;
+set schema trafodion.zschema;
+create table t012t11 (a int not null primary key, b int not null, c int not null, d int not null);
+create table t012t12 (a int not null primary key, b int not null);
+create index t012t11i1 on t012t11(b);
+create unique index t012t11i2 on t012t11(b);
+alter table t012t11 add constraint t012t11c1 unique (c);
+alter table t012t11 add constraint t012t11c2 foreign key (d) references t012t12(a);
+create view t012t11v1(a1,a2) as select x.a, y.a from t012t11 x, t012t11 y where x.a = y.a;
+showddl t012t11;
+insert into t012t12 values (1,1), (2,2), (3,3);
+insert into t012t11 values (1,1,1,1), (2,2,2,2), (3,3,3,3);
+update statistics for table t012t11 on every column;
+
+get tables in schema trafodion.zschema;
+get indexes in schema trafodion.zschema;
+get views in schema trafodion.zschema;
+
+drop schema trafodion.zschema cascade;
+
+get tables in schema trafodion.zschema;
+get indexes in schema trafodion.zschema;
+get views in schema trafodion.zschema;
+
+?section getStmts
+drop schema if exists zschema1 cascade;
+drop schema if exists zschema2 cascade;
+
+create schema trafodion.zschema1;
+create schema trafodion.zschema2;
+create table zschema1.t (a int);
+create table zschema2.t (a int);
+create view zschema1.v as select zschema1.t.a a, zschema2.t.a b 
+   from zschema1.t, zschema2.t;
+create view zschema2.v as select zschema1.t.a a, zschema2.t.a b 
+   from zschema1.t, zschema2.t;
+create view zschema2.v2 as select zschema1.v.a a, zschema2.t.a b 
+   from zschema1.v, zschema2.t;
+get tables in view zschema1.v;
+get views on table zschema1.t;
+
+get tables in view zschema2.v2;
+get all tables in view zschema2.v2;
+get views in view zschema2.v2;
+get all objects in view zschema2.v2;
+
+drop schema zschema1 cascade;
+drop schema zschema2 cascade;
+
+?section test_ebkey
+create schema test_ebkey;
+set schema test_ebkey;
+cqd DYNAMIC_PARAM_DEFAULT_CHARSET 'UTF8';
+set terminal_charset iso88591;
+create table test_ebkey(a int, b varchar(15) character set iso88591, c varchar(15) character set utf8, d varchar(15) character set ucs2);
+insert into test_ebkey values(1, '123', '123', '123');
+insert into test_ebkey values(2, 'abc', 'abc', 'abc');
+insert into test_ebkey values(3, '===', '===', '===');
+insert into test_ebkey values(4, '*', '中文', '文章');
+insert into test_ebkey values(5, '+', '丮一', '斈乙');
+insert into test_ebkey values(6, ',', '丯二', '斉甲');
+insert into test_ebkey values(7, '-', '丰三', '斊十');
+insert into test_ebkey values(8, '.', '丱四', '斋九');
+insert into test_ebkey values(9, '/', '串五', '斌八');
+insert into test_ebkey values(10, '0', '丳六', '斍七');
+
+select a, beginkey(b), beginkey(c), beginkey(d) from test_ebkey;
+select a, endkey(b), endkey(c), endkey(d) from test_ebkey;
+
+-- test shold be same
+select * from test_ebkey where c like '中%';
+select * from test_ebkey where c < endkey('中%') and c >= beginkey('中%');
+select beginkey('中%'), endkey('中%') from dual;
+
+prepare s from select beginkey(?) from dual;
+execute s using 'qqq';
+execute s using '零零';
+execute s using '+-*/';
+execute s using 'ab%';
+execute s using 'ab_';
+execute s using '_asd';
+execute s using '%_s';
+execute s using '__%--*/';
+execute s using null;
+
+prepare s from select endkey(?) from dual;
+execute s using 'qqq';
+execute s using '零零';
+execute s using '+-*/';
+execute s using 'ab%';
+execute s using 'ab_';
+execute s using '_asd';
+execute s using '%_s';
+execute s using '__%--*/';
+execute s using null;
+
+select beginkey(_ucs2'qwe'), beginkey(_ucs2'+++'), beginkey(_ucs2'妹妹') from dual;
+select beginkey(_utf8'qaz'), beginkey(_utf8'---'), beginkey(_utf8'哥哥') from dual;
+select beginkey(_iso88591'zxc'), beginkey(_iso88591'***'), beginkey(_iso88591'姐姐') from dual;
+
+select endkey(_ucs2'qwe'), endkey(_ucs2'+++'), endkey(_ucs2'妹妹') from dual;
+select endkey(_utf8'qaz'), endkey(_utf8'---'), endkey(_utf8'哥哥') from dual;
+select endkey(_iso88591'zxc'), endkey(_iso88591'***'), endkey(_iso88591'姐姐') from dual;
+
+create table test_ebkey_tmp as select a as a, beginkey(b) as bb, endkey(b) as eb, beginkey(c) as bc, endkey(c) as ec, beginkey(d) as bd, endkey(d) as ed from test_ebkey;
+select * from test_ebkey;
+select * from test_ebkey_tmp;
+showddl test_ebkey;
+showddl test_ebkey_tmp;
+
+drop schema test_ebkey cascade;
+
+
+
+
+
+
+
+

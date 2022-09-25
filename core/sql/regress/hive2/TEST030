@@ -1,0 +1,466 @@
+-- Tests for ORC file access
+-- Added Nov 2014
+--
+-- @@@ START COPYRIGHT @@@
+--
+-- Licensed to the Apache Software Foundation (ASF) under one
+-- or more contributor license agreements.  See the NOTICE file
+-- distributed with this work for additional information
+-- regarding copyright ownership.  The ASF licenses this file
+-- to you under the Apache License, Version 2.0 (the
+-- "License"); you may not use this file except in compliance
+-- with the License.  You may obtain a copy of the License at
+--
+--   http://www.apache.org/licenses/LICENSE-2.0
+--
+-- Unless required by applicable law or agreed to in writing,
+-- software distributed under the License is distributed on an
+-- "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+-- KIND, either express or implied.  See the License for the
+-- specific language governing permissions and limitations
+-- under the License.
+--
+-- @@@ END COPYRIGHT @@@
+
+obey TEST030(clean_up);
+log LOG030 clear;
+obey TEST030(setup);
+obey TEST030(tests);
+log;
+obey TEST030(clean_up);
+exit;
+
+?section clean_up
+unregister hive table if exists hive.hive.torc10;
+drop external table if exists torc10 for hive.hive.torc10;
+process hive ddl 'drop table torc10';
+unregister hive table if registered hive.hive.store_sales_orc;
+drop external table if exists store_sales_orc for hive.hive.store_sales_orc;
+
+?section setup
+--------------------------------------------------------------------------
+
+set schema hive.hive;
+cqd HIVE_MAX_STRING_LENGTH_IN_BYTES '20' ;
+cqd mode_seahive 'ON';
+cqd traf_enable_orc_format 'ON';
+cqd HIST_ROWCOUNT_REQUIRING_STATS '50000';
+cqd hive_use_ext_table_attrs 'ON';
+cqd hist_missing_stats_warning_level '0';
+cqd ORC_NJS_PROBES_THRESHOLD '1000000';
+cqd HIVE_MIN_NUM_ESPS_PER_DATANODE '0';
+
+prepare explainIt from
+  select substring(cast(SEQ_NUM+100 as char(3)),2,2) s,
+         substring(operator,1,16) operator,
+         cast(LEFT_CHILD_SEQ_NUM as char(2)) lc,
+         cast(RIGHT_CHILD_SEQ_NUM as char(2)) rc,
+         substring
+         (substring(substring(tname from (1+locate('.',tname))),1,case locate(')',tname) when 0 then 0 else locate(')',substring(tname from (1+locate('.',tname))))-1 end),
+         (locate('.',substring(tname from (1+locate('.',tname)))))+1,
+         10
+        ) tab_name
+         from table (explain(NULL,'XX'))
+         order by 1 desc;
+
+register hive table if not registered store_sales_orc;
+register hive table if not registered store_orc;
+register hive table if not registered customer_orc;
+
+?section tests
+--------------------------------------------------------------------------
+-- ORC file metadata info
+invoke hive.hive.store_orc;
+
+-- select one row from ORC table
+select [first 1] * from hive.hive.store_orc;
+
+-- select all rows from ORC table
+select * from hive.hive.store_orc order by s_store_sk;
+
+-- select of few columns with WHERE predicate
+select s_store_sk, left(s_store_id, 20) from hive.hive.store_orc where s_store_sk < 7;
+
+-- select count of rows 
+select count(*) from hive.hive.store_orc;
+
+-- explain of join between 2 ORC tables
+prepare XX from select x.s_suite_number, y.s_street_name
+ from hive.hive.store_orc x, hive.hive.store_orc y
+  where x.s_store_sk = y.s_store_sk;
+execute explainIt;
+
+-- execute of join between 2 ORC tables
+execute XX;
+
+-- explain of join between hive(hdfs) and ORC tables
+prepare XX from select x.s_suite_number, y.s_street_name
+ from hive.hive.store x, hive.hive.store_orc y
+  where x.s_store_sk = y.s_store_sk;
+execute explainIt;
+
+-- execute of join between hive(hdfs) and ORC tables
+execute XX;
+
+-- column list pushdown test
+cqd orc_columns_pushdown 'OFF';
+explain select s_store_sk from store_orc;
+select s_store_sk from store_orc;
+cqd orc_columns_pushdown 'ON';
+explain select s_store_sk from store_orc;
+select s_store_sk from store_orc;
+
+-- predicate pushdown to ORC layer
+cqd orc_pred_pushdown 'OFF';
+select s_store_sk from store_orc where s_store_sk = 3;
+select s_store_sk from store_orc where s_store_sk < 2;
+select s_store_sk from store_orc where s_store_sk >= 11;
+select s_store_sk from store_orc where s_store_sk >= 4 and s_store_sk < 6;
+select s_store_sk from store_orc where s_store_sk in (7,8,9);
+explain select s_store_sk from store_orc where s_store_sk = 3;
+
+cqd orc_pred_pushdown 'ON';
+select s_store_sk from store_orc where s_store_sk = 3;
+select s_store_sk from store_orc where s_store_sk < 2;
+select s_store_sk from store_orc where s_store_sk >= 11;
+select s_store_sk from store_orc where s_store_sk >= 4 and s_store_sk < 6;
+select s_store_sk from store_orc where s_store_sk in (7,8,9);
+explain select s_store_sk from store_orc where s_store_sk = 3;
+
+-- timestamp pushdown
+drop external table if exists torc10 for hive.hive.torc10;
+process hive ddl 'drop table torc10';
+process hive ddl 'create table torc10 (a timestamp) stored as orc';
+insert into hive.hive.torc10 values (timestamp '2017-10-10 01:01:01');
+
+-- should pushdown
+prepare s from 
+select * from hive.hive.torc10 where a > timestamp '2017-01-01 00:00:01';
+select left(tokenstr('orc_search_arguments:', description, 'executor_predicates:'), 1000)
+  from table(explain(null, 'S')) where operator = 'ORC_SCAN';
+execute s;
+
+drop external table if exists torc10 for hive.hive.torc10;
+create external table torc10 (a date) for hive.hive.torc10;
+
+-- should not pushdown as timestamp val cannot be converted to 'r date'
+prepare s from 
+select * from hive.hive.torc10 where a = timestamp '2017-01-01 10:10:10';
+select left(tokenstr('orc_search_arguments:', description, 'executor_predicates:'), 1000)
+  from table(explain(null, 'S')) where operator = 'ORC_SCAN';
+
+-- should pushdown, return no rows
+prepare s from 
+select * from hive.hive.torc10 where a = date '2017-01-01';
+select left(tokenstr('orc_search_arguments:', description, 'executor_predicates:'), 1000)
+  from table(explain(null, 'S')) where operator = 'ORC_SCAN';
+execute s;
+
+-- should pushdown, return 1 row
+prepare s from 
+select * from hive.hive.torc10 where a > date '2017-01-01';
+select left(tokenstr('orc_search_arguments:', description, 'executor_predicates:'), 1000)
+  from table(explain(null, 'S')) where operator = 'ORC_SCAN';
+execute s;
+
+-- local join predicate is not pushed down
+prepare s from select * from store_sales_orc where ss_sold_date_sk = ss_item_sk ;
+select left(tokenstr('orc_search_arguments:', description, 'executor_predicates:'), 1000)
+  from table(explain(null, 'S')) where operator = 'ORC_SCAN';
+
+-- Boolean constant predicate is not pushed down
+prepare s from select * from store_sales_orc where 1=2;
+select left(tokenstr('orc_search_arguments:', description, 'executor_predicates:'), 1000)
+  from table(explain(null, 'S')) where operator = 'ORC_SCAN';
+
+-- aggregate pushdown to ORC layer
+cqd orc_aggr_pushdown 'ON';
+explain options 'f' select count(*) from store_orc;
+select count(*) from store_orc;
+select count(*), count(*) from store_orc;
+select min(s_store_sk) from store_orc;
+select max(s_store_sk) from store_orc;
+select sum(s_store_sk) from store_orc;
+select count(*), min(s_store_sk), max(s_store_sk), sum(s_store_sk) 
+   from store_orc;
+explain options 'f' select count(*), min(s_store_sk), max(s_store_sk), 
+   sum(s_store_sk) from store_orc;
+
+explain options 'f'
+  select count(*) from hive.hive.store_orc union all 
+  select count(*) from hive.hive.store_orc;
+select count(*) from hive.hive.store_orc union all 
+  select count(*) from hive.hive.store_orc;
+
+explain options 'f'
+  select min(s_store_sk) from hive.hive.store_orc union all 
+  select min(s_store_sk) from hive.hive.store_orc;
+select min(s_store_sk) from hive.hive.store_orc union all 
+  select min(s_store_sk) from hive.hive.store_orc;
+
+explain options 'f' select count(s_store_sk) from store_orc;
+select count(s_store_sk) from store_orc;
+
+explain options 'f' select count(*) from store_orc
+  having sum(s_store_sk) = 78;
+select count(*) from store_orc having sum(s_store_sk) = 78;
+
+select count(*) from store_orc having sum(s_store_sk) = 77;
+
+cqd orc_aggr_pushdown 'OFF';
+explain options 'f' select count(*), min(s_store_sk), max(s_store_sk), 
+   sum(s_store_sk) from store_orc;
+select count(*), min(s_store_sk), max(s_store_sk), sum(s_store_sk) 
+   from store_orc;
+
+-- test query cache 
+prepare xx from select cd_gender from customer_demographics_orc where cd_gender = 'male' ;
+select num_hits, num_params from table(querycacheentries('user', 'local')) 
+where substring(text, 1, 16) = 'select cd_gender' order by 1,2;
+
+prepare xx from select cd_gender from customer_demographics_orc where cd_gender = 'female' ;
+select num_hits, num_params from table(querycacheentries('user', 'local')) 
+where substring(text, 1, 16) = 'select cd_gender' order by 1,2;
+
+
+-- test external table attributes
+set schema trafodion.sch;
+drop external table if exists store_sales_orc for hive.hive.store_sales_orc;
+create external table store_sales_orc 
+  for hive.hive.store_sales_orc;
+invoke hive.hive.store_sales_orc;
+
+set schema hive.hive;
+prepare s from select * from store_sales_orc where ss_item_sk = 1;
+explain s;
+
+-- join with nested join
+cqd orc_njs 'on';
+control query shape nested_join(scan(path 'CUSTOMER_ORC'), 
+      scan(path 'STORE_SALES_ORC'));
+prepare s from select * from customer_orc, store_sales_orc 
+    where store_sales_orc.ss_item_sk = customer_orc.c_customer_sk;
+explain options 'f' s;
+explain s;
+cqd orc_njs reset;
+
+-- join with parallel nested join
+
+control query shape off;
+cqd HIVE_USE_EXT_TABLE_ATTRS 'off';
+cqd ncm_orc_costing 'on';
+cqd orc_njs 'on';
+cqd parallel_num_esps '4';
+
+prepare s from
+select [last 0] ss_net_profit from
+date_dim_orc dim, store_sales_sorted_orc ss
+where
+dim.d_date_sk = ss.ss_sold_date_sk
+and d_year in (2001) and d_dom = 30 -- produce 12 rows
+;
+
+explain options 'f' s;
+
+cqd HIVE_USE_EXT_TABLE_ATTRS reset;
+cqd ncm_orc_costing reset;
+cqd orc_njs reset;
+cqd parallel_num_esps reset;
+
+
+-- more external table tests
+
+control query shape cut;
+set schema trafodion.sch;
+drop external table if exists date_dim_orc for hive.hive.date_dim_orc;
+cqd volatile_table_find_suitable_key 'SYSTEM';
+create external table date_dim_orc 
+  (d_date_sk int, d_date_id varchar(100 bytes) character set utf8, d_date date, 
+   d_month_seq int, d_week_seq int, d_quarter_seq int, d_year int, d_dow int,
+   d_moy int, d_dom int, d_qoy int, d_fy_year int, d_fy_quarter_seq int,
+   d_fy_week_seq int,
+   d_day_name varchar(120 bytes) character set utf8, d_quarter_name varchar(200 bytes) character set utf8, d_holiday varchar(100 bytes) character set utf8,
+   d_weekend varchar(100 bytes) character set utf8, d_following_holiday varchar(100 bytes) character set utf8, 
+   d_first_dom int, d_last_dom int, d_same_day_ly int, d_same_day_lq int,
+   d_current_day varchar(100 bytes) character set utf8, d_current_week varchar(111 bytes) character set utf8,
+   d_current_month varchar(200 bytes) character set utf8, d_current_quarter varchar(100 bytes) character set utf8, 
+   d_current_year varchar(100 bytes) character set utf8)
+  for hive.hive.date_dim_orc;
+invoke hive.hive.date_dim_orc;
+showddl hive.hive.date_dim_orc;
+prepare s from select * from hive.hive.date_dim_orc where d_date = date '2016-01-27';
+explain s;
+
+drop external table if exists date_dim_orc for hive.hive.date_dim_orc;
+create external table date_dim_orc 
+  (d_date_sk int, d_date_id varchar(100 bytes) character set utf8, d_date date)
+  for hive.hive.date_dim_orc;
+invoke hive.hive.date_dim_orc;
+showddl hive.hive.date_dim_orc;
+prepare s from select * from hive.hive.date_dim_orc where d_date = date '2016-01-27';
+explain s;
+
+
+-- error cases
+drop external table if exists date_dim_orc for hive.hive.date_dim_orc;
+
+-- column d_date_skk doesn't exist in native hive table
+create external table date_dim_orc 
+  (d_date_skk int)
+  for hive.hive.date_dim_orc;
+
+-- del/update not supported on orc or hive
+prepare s from delete from hive.hive.store2_sales_orc;
+prepare s from update hive.hive.store2_sales_orc set ss_ext_tax = 1;
+prepare s from delete from hive.hive.store_sales;
+prepare s from update hive.hive.store_sales set ss_ext_tax = 1;
+
+-- upsert/insert cannot specify column list and must provide all column values.
+prepare s from upsert into hive.hive.store2_sales_orc values (1);
+prepare s from upsert using load into hive.hive.store2_sales_orc values (1);
+prepare s from insert into hive.hive.store2_sales_orc values (1);
+prepare s from update hive.hive.store2_sales_orc set ss_net_paid = 1;        
+prepare s from upsert into hive.hive.store2_sales_orc(ss_sold_date_sk) values (1);
+prepare s from insert into hive.hive.store2_sales_orc(ss_sold_date_sk) values (1);
+prepare s from upsert into hive.hive.store_sales(ss_sold_date_sk) values (1);
+prepare s from insert into hive.hive.store_sales(ss_sold_date_sk) values (1);
+prepare s from upsert into hive.hive.store_sales values (1);
+prepare s from insert into hive.hive.store_sales values (1);
+
+
+-- test min-max optimization
+
+update statistics for table hive.hive.date_dim on every column sample;
+update statistics for table hive.hive.time_dim on every column sample;
+
+cqd ORC_PRED_PUSHDOWN 'ON';
+cqd GEN_HSHJ_MIN_MAX_OPT 'off';
+cqd parallel_num_esps '4';
+cqd nested_joins 'off';
+
+prepare xx from select count(*) from
+hive.hive.store2_sales_orc, -- sorted on ss_sold_date_sk
+hive.hive.date_dim, 
+hive.hive.time_dim
+ where ss_sold_date_sk = d_date_sk and
+       ss_sold_date_sk = t_time_sk and d_year = 2001 and t_hour = 10 ;
+
+-- display the push-down predicates, which should include the 
+-- min/max expressions from dimension table date_dim and time_dim.
+select cast(tokenstr('orc_search_arguments', description, 'executor_predicates')
+        as char(400))
+       from table (explain(NULL,'XX'))
+where position('orc_search_arguments' in description)  > 0 ;
+
+execute xx;
+
+cqd parallel_num_esps reset;
+cqd nested_joins reset;
+
+-- test NJ into a sorted ORC table
+
+cqd orc_pred_pushdown 'ON';
+cqd orc_njs 'ON';
+cqd parallel_num_esps '4';
+cqd HIVE_USE_EXT_TABLE_ATTRS 'off';
+
+prepare xx from select count(*) from hive.hive.customer_orc, hive.hive.store_sales_sorted_orc
+    where ss_sold_date_sk = c_customer_sk
+   and c_first_sales_date_sk = 4;
+
+explain xx;
+explain options 'f' xx;
+execute xx;
+
+cqd orc_njs reset;
+cqd parallel_num_esps reset;
+cqd HIVE_USE_EXT_TABLE_ATTRS reset;
+
+-- test aggregates pushdown (orc)
+
+-- test aggregates pushdown
+cqd orc_aggr_pushdown 'ON';
+
+-- pushdown feasible
+cqd attempt_esp_parallelism 'OFF';
+prepare xx from
+select min(ss_sold_date_sk), max(ss_sold_date_sk)
+from hive.hive.store2_sales_orc;
+
+explain options 'f' xx;
+
+-- pushdown feasible
+prepare xx from
+select ss_sold_date_sk from hive.hive.store2_sales_orc where
+ss_sold_date_sk >
+(select count(*) from hive.hive.store2_sales_orc);
+
+explain options 'f' xx;
+
+
+-- pushdown not feasible due to distinct
+prepare xx from
+select
+count(distinct ss_sold_date_sk)
+from hive.hive.store2_sales_orc;
+
+explain options 'f' xx;
+
+-- pushdown predicate expressions 
+set schema hive.hive;
+process hive statement 'drop table t030hive';
+process hive statement 'create table t030hive (a int, b string) stored as orc tblproperties ("orc.stripe.size"="20000", "aaaaa"="bb", "orc.bloom.filter.columns"="a,b") ';
+showddl hive.hive.t030hive;
+
+insert into hive.hive.t030hive values (1,'a'), (null, null), (5, ''), (10,'abc');
+cqd hive_max_string_length_in_bytes '10';
+select * from t030hive;
+select * from t030hive where a is null;
+select * from t030hive where b is null;
+
+prepare s from select * from hive.hive.t030hive where a = cast(? as int);
+execute s using 1;
+execute s using 2;
+execute s using NULL;
+
+prepare s from select * from hive.hive.t030hive where a < cast(? as int);
+execute s using 1;
+execute s using 2;
+execute s using NULL;
+
+prepare s from select * from hive.hive.t030hive where b = ?;
+execute s using 'a';
+execute s using 'b';
+execute s using '';
+execute s using NULL;
+
+prepare s from select * from hive.hive.t030hive where b < ?;
+execute s using 'a';
+execute s using 'b';
+execute s using '';
+execute s using NULL;
+
+cqd jdbc_process 'ON';
+prepare s from select * from t030hive where a = ?;
+execute s using 0;
+execute s using 5;
+execute s using NULL;
+
+prepare s from select * from t030hive where a < ?;
+execute s using 0;
+execute s using 6;
+execute s using NULL;
+
+
+-- parquet table with tblproperties
+cqd auto_query_retry_warnings 'ON';
+set schema hive.hive;
+process hive ddl 'drop table t030parq';
+process hive ddl 'create table t030parq (a int, b string) partitioned by (z int) stored as parquet tblproperties ("parquet.block.size"="5000000", "parquet.page.size"="10000", "parquet.compression"="SNAPPY", "parquet.enable.dictionary"="true", "parquet.dictionary.page.size"="5000", "parquet.writer.max-padding"="20000000") ';
+showddl hive.hive.t030parq;
+select * from t030parq order by 1;
+insert into t030parq values (1,'a',1), (2,'b', 2);
+select * from t030parq order by 1;
+
+
+

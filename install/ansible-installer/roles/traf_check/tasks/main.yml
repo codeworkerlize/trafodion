@@ -1,0 +1,56 @@
+- name: Check nodes connectivity
+  ping: 
+
+- name: Check become method access
+  command: "echo"
+  become: yes
+
+- name: Check hbase-site.xml existence
+  stat: path={{ hbase_xml_file }}
+  register: hbase_xml
+  failed_when: hbase_xml.stat.exists==False
+
+- name: Check JAVA_HOME
+  stat: path={{ java_home }}
+  register: java_status
+
+- name: Check JDK version
+  shell: "{{ java_home }}/bin/javac -version 2>&1|grep -o '[0-9]\\.[0-9]'"
+  register: javac_ver
+  failed_when: java_status.stat.exists==False or javac_ver.stdout!='1.7'
+
+- name: Check Hardware Platform should be x86_64 or aarch64
+  command: "uname -i"
+  register: hw
+  failed_when: hw.stdout!='x86_64' or hw.stdout!='aarch64'
+
+- name: Check if Trafodion is previously installed
+  # force rc=0, don't let it fail
+  shell: "rpm -qa|grep -c {{ traf_basename }}; echo -n"
+  register: trafinstalled
+  become: yes
+
+- name: Check if Trafodion bashrc exists
+  stat: path=/home/trafodion/.bashrc
+  register: bashrc
+  become: yes
+
+- name: Check if Trafodion bashrc is configured
+  shell: 'grep -c MY_NODES /home/trafodion/.bashrc; echo -n'
+  register: bashrc_conf
+  when: bashrc.stat.exists==True
+  become: yes
+
+- name: Stop Trafodion anyway
+  shell: "source /home/trafodion/.bashrc; echo 'y'|ckillall"
+  when: trafinstalled.stdout!='0' and bashrc.stat.exists==True and bashrc_conf.stdout=='1'
+  become_user: trafodion
+  become: yes
+
+- set_fact:
+    traf_init: "Y"
+
+- set_fact:
+    traf_init: "N"
+  when: inventory_hostname in groups['firstnode'] and trafinstalled.stdout!='0' and bashrc.stat.exists==True
+  

@@ -1,0 +1,179 @@
+>>obey stdcqds;
+>>
+>>set schema hive.tpcds_sf1000;
+
+--- SQL operation complete.
+>>
+>>control osim simulate continue './osim.all.sf1000.09022016';
+
+--- SQL operation complete.
+>>
+>>cqd orc_njs 'on';
+
+--- SQL operation complete.
+>>cqd parallel_num_esps '48';
+
+--- SQL operation complete.
+>>cqd QUERY_CACHE '200000';
+
+--- SQL operation complete.
+>>cqd HIVE_METADATA_REFRESH_INTERVAL '-1';
+
+--- SQL operation complete.
+>>cqd  HIVE_LOCALITY_BALANCE_LEVEL '-1';
+
+--- SQL operation complete.
+>>cqd  METADATA_CACHE_SIZE '200';
+
+--- SQL operation complete.
+>>cqd partitioning_scheme_sharing '2';
+
+--- SQL operation complete.
+>>cqd COMP_BOOL_208 'ON';
+
+--- SQL operation complete.
+>>obey q31;
+>>
+>>--==QID: 31
+>>
+>>prepare xx from
++> with ss as
++> (select ca_county,d_qoy, d_year,sum(ss_ext_sales_price) as store_sales
++> from store_sales_1stripeperfile,date_dim,customer_address
++> where ss_sold_date_sk = d_date_sk
++>  and ss_addr_sk=ca_address_sk
++> group by ca_county,d_qoy, d_year),
++>
++> ws as
++> (select ca_county,d_qoy, d_year,sum(ws_ext_sales_price) as web_sales
++> from web_sales,date_dim,customer_address
++> where ws_sold_date_sk = d_date_sk
++>  and ws_bill_addr_sk=ca_address_sk
++> group by ca_county,d_qoy, d_year)
++>
++> -- main query --
++> select 
++>        ss1.ca_county
++>       ,ss1.d_year
++>       ,ws2.web_sales/ws1.web_sales web_q1_q2_increase
++>       ,ss2.store_sales/ss1.store_sales store_q1_q2_increase
++>       ,ws3.web_sales/ws2.web_sales web_q2_q3_increase
++>       ,ss3.store_sales/ss2.store_sales store_q2_q3_increase
++> from
++>        ss ss1
++>       ,ss ss2
++>       ,ss ss3
++>       ,ws ws1
++>       ,ws ws2
++>       ,ws ws3
++> where
++>    ss1.d_qoy = 1
++>    and ss1.d_year = 2002
++>    and ss1.ca_county = ss2.ca_county
++>    and ss2.d_qoy = 2
++>    and ss2.d_year = 2002
++>    and ss2.ca_county = ss3.ca_county
++>    and ss3.d_qoy = 3
++>    and ss3.d_year = 2002
++>    and ss1.ca_county = ws1.ca_county
++>    and ws1.d_qoy = 1
++>    and ws1.d_year = 2002
++>    and ws1.ca_county = ws2.ca_county
++>    and ws2.d_qoy = 2
++>    and ws2.d_year = 2002
++>    and ws1.ca_county = ws3.ca_county
++>    and ws3.d_qoy = 3
++>    and ws3.d_year =2002
++>    and case when ws1.web_sales > 0 then ws2.web_sales/ws1.web_sales else null end 
++>       > case when ss1.store_sales > 0 then ss2.store_sales/ss1.store_sales else null end
++>    and case when ws2.web_sales > 0 then ws3.web_sales/ws2.web_sales else null end
++>       > case when ss2.store_sales > 0 then ss3.store_sales/ss2.store_sales else null end
++> order by store_q1_q2_increase;
+
+--- SQL command prepared.
+>>obey explains;
+>>explain options 'f' xx;
+
+LC   RC   OP   OPERATOR              OPT       DESCRIPTION           CARD
+---- ---- ---- --------------------  --------  --------------------  ---------
+
+73   .    74   root                                                  2.05E+002
+72   .    73   sort                                                  2.05E+002
+71   11   72   hybrid_hash_join                                      2.05E+002
+70   22   71   hybrid_hash_join                                      6.15E+002
+69   .    70   esp_exchange                    1:48(hash2)           1.84E+003
+68   33   69   hybrid_hash_join                                      1.84E+003
+67   44   68   hybrid_hash_join                                      1.84E+003
+66   55   67   hybrid_hash_join                                      1.84E+003
+65   .    66   hash_partial_groupby                                  1.84E+003
+64   .    65   esp_exchange                    48(hash2):48(hash2)   1.84E+003
+63   .    64   hash_partial_groupby                                  1.84E+003
+62   57   63   hybrid_hash_join                                      3.63E+007
+61   .    62   esp_exchange                    48(hash2):48(hash2)   3.63E+007
+59   60   61   nested_join                                           3.63E+007
+.    .    60   orc_scan                        WEB_SALES             3.94E+005
+58   .    59   esp_exchange                    48(hash2):2(hash2)    9.19E+001
+.    .    58   orc_scan                        DATE_DIM              9.19E+001
+56   .    57   esp_exchange                    48(hash2):2(hash2)    6.00E+006
+.    .    56   orc_scan                        CUSTOMER_ADDRESS      6.00E+006
+54   .    55   hash_partial_groupby                                  1.84E+003
+53   .    54   esp_exchange                    48(hash2):48(hash2)   1.84E+003
+52   .    53   hash_partial_groupby                                  1.84E+003
+51   46   52   hybrid_hash_join                                      3.63E+007
+50   .    51   esp_exchange                    48(hash2):48(hash2)   3.63E+007
+48   49   50   nested_join                                           3.63E+007
+.    .    49   orc_scan                        WEB_SALES             3.94E+005
+47   .    48   esp_exchange                    48(hash2):2(hash2)    9.19E+001
+.    .    47   orc_scan                        DATE_DIM              9.19E+001
+45   .    46   esp_exchange                    48(hash2):2(hash2)    6.00E+006
+.    .    45   orc_scan                        CUSTOMER_ADDRESS      6.00E+006
+43   .    44   hash_partial_groupby                                  1.84E+003
+42   .    43   esp_exchange                    48(hash2):48(hash2)   1.84E+003
+41   .    42   hash_partial_groupby                                  1.84E+003
+40   35   41   hybrid_hash_join                                      1.35E+008
+39   .    40   esp_exchange                    48(hash2):48(hash2)   1.35E+008
+37   38   39   nested_join                                           1.35E+008
+.    .    38   orc_scan                        STORE_SALES_1STRIPEP  1.47E+006
+36   .    37   esp_exchange                    48(hash2):2(hash2)    9.19E+001
+.    .    36   orc_scan                        DATE_DIM              9.19E+001
+34   .    35   esp_exchange                    48(hash2):2(hash2)    6.00E+006
+.    .    34   orc_scan                        CUSTOMER_ADDRESS      6.00E+006
+32   .    33   hash_partial_groupby                                  1.84E+003
+31   .    32   esp_exchange                    48(hash2):48(hash2)   1.84E+003
+30   .    31   hash_partial_groupby                                  1.84E+003
+29   24   30   hybrid_hash_join                                      3.63E+007
+28   .    29   esp_exchange                    48(hash2):48(hash2)   3.63E+007
+26   27   28   nested_join                                           3.63E+007
+.    .    27   orc_scan                        WEB_SALES             3.94E+005
+25   .    26   esp_exchange                    48(hash2):2(hash2)    9.19E+001
+.    .    25   orc_scan                        DATE_DIM              9.19E+001
+23   .    24   esp_exchange                    48(hash2):2(hash2)    6.00E+006
+.    .    23   orc_scan                        CUSTOMER_ADDRESS      6.00E+006
+21   .    22   hash_partial_groupby                                  1.84E+003
+20   .    21   esp_exchange                    1:48(hash2)           1.84E+003
+19   .    20   hash_partial_groupby                                  1.84E+003
+18   13   19   hybrid_hash_join                                      1.35E+008
+17   .    18   esp_exchange                    48(hash2):48(hash2)   1.35E+008
+15   16   17   nested_join                                           1.35E+008
+.    .    16   orc_scan                        STORE_SALES_1STRIPEP  1.47E+006
+14   .    15   esp_exchange                    48(hash2):2(hash2)    9.19E+001
+.    .    14   orc_scan                        DATE_DIM              9.19E+001
+12   .    13   esp_exchange                    48(hash2):2(hash2)    6.00E+006
+.    .    12   orc_scan                        CUSTOMER_ADDRESS      6.00E+006
+10   .    11   hash_partial_groupby                                  1.84E+003
+9    .    10   esp_exchange                    1:48(hash2)           1.84E+003
+8    .    9    hash_partial_groupby                                  1.84E+003
+7    2    8    hybrid_hash_join                                      1.35E+008
+6    .    7    esp_exchange                    48(hash2):48(hash2)   1.35E+008
+4    5    6    nested_join                                           1.35E+008
+.    .    5    orc_scan                        STORE_SALES_1STRIPEP  1.47E+006
+3    .    4    esp_exchange                    48(hash2):2(hash2)    9.19E+001
+.    .    3    orc_scan                        DATE_DIM              9.19E+001
+1    .    2    esp_exchange                    48(hash2):2(hash2)    6.00E+006
+.    .    1    orc_scan                        CUSTOMER_ADDRESS      6.00E+006
+
+--- SQL operation complete.
+>>exit;
+
+End of MXCI Session
+

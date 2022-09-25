@@ -1,0 +1,82 @@
+>>obey stdcqds;
+>>
+>>set schema hive.tpcds_sf1000;
+
+--- SQL operation complete.
+>>
+>>control osim simulate continue './osim.all.sf1000.09022016';
+
+--- SQL operation complete.
+>>
+>>cqd orc_njs 'on';
+
+--- SQL operation complete.
+>>cqd parallel_num_esps '48';
+
+--- SQL operation complete.
+>>cqd QUERY_CACHE '200000';
+
+--- SQL operation complete.
+>>cqd HIVE_METADATA_REFRESH_INTERVAL '-1';
+
+--- SQL operation complete.
+>>cqd  HIVE_LOCALITY_BALANCE_LEVEL '-1';
+
+--- SQL operation complete.
+>>cqd  METADATA_CACHE_SIZE '200';
+
+--- SQL operation complete.
+>>cqd partitioning_scheme_sharing '2';
+
+--- SQL operation complete.
+>>cqd COMP_BOOL_208 'ON';
+
+--- SQL operation complete.
+>>obey q43;
+>>
+>>--==QID: 43
+>>
+>>prepare xx from
++>select  s_store_name, s_store_id,
++>        sum(case when (d_day_name='Sunday') then ss_sales_price else null end) sun_sales,
++>        sum(case when (d_day_name='Monday') then ss_sales_price else null end) mon_sales,
++>        sum(case when (d_day_name='Tuesday') then ss_sales_price else  null end) tue_sales,
++>        sum(case when (d_day_name='Wednesday') then ss_sales_price else null end) wed_sales,
++>        sum(case when (d_day_name='Thursday') then ss_sales_price else null end) thu_sales,
++>        sum(case when (d_day_name='Friday') then ss_sales_price else null end) fri_sales,
++>        sum(case when (d_day_name='Saturday') then ss_sales_price else null end) sat_sales
++> from date_dim, store_sales_1stripeperfile, store
++> where d_date_sk = ss_sold_date_sk and
++>       s_store_sk = ss_store_sk and
++>       s_gmt_offset = -5 and
++>       d_year = 2000
++> group by s_store_name, s_store_id
++> order by s_store_name, s_store_id,sun_sales,mon_sales,tue_sales,wed_sales,thu_sales,fri_sales,sat_sales
++> limit 100;
+
+--- SQL command prepared.
+>>obey explains;
+>>explain options 'f' xx;
+
+LC   RC   OP   OPERATOR              OPT       DESCRIPTION           CARD
+---- ---- ---- --------------------  --------  --------------------  ---------
+
+12   .    13   root                                                  7.71E+002
+11   .    12   firstn                                                7.71E+002
+10   .    11   esp_exchange                    1:48(hash2) (m)       7.71E+002
+9    .    10   sort                                                  7.71E+002
+8    .    9    hash_groupby                                          7.71E+002
+7    .    8    esp_exchange                    48(hash2):48(hash2)   4.86E+008
+6    2    7    hybrid_hash_join                                      4.86E+008
+5    4    6    hybrid_hash_join                                      4.86E+008
+.    .    5    orc_scan                        STORE_SALES_1STRIPEP  2.68E+009
+3    .    4    esp_exchange                    48(rep-b):2(hash2)    3.29E+002
+.    .    3    orc_scan                        DATE_DIM              3.29E+002
+1    .    2    esp_exchange                    48(rep-b):2(hash2)    5.19E+002
+.    .    1    orc_scan                        STORE                 5.19E+002
+
+--- SQL operation complete.
+>>exit;
+
+End of MXCI Session
+

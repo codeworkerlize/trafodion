@@ -1,0 +1,143 @@
+package org.apache.hadoop.hbase.coprocessor.transactional;
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hbase.CoprocessorEnvironment;
+import org.apache.hadoop.hbase.HRegionInfo;
+import org.apache.hadoop.hbase.ServerName;
+import org.apache.hadoop.hbase.coprocessor.BaseRegionServerObserver;
+import org.apache.hadoop.hbase.coprocessor.ObserverContext;
+import org.apache.hadoop.hbase.coprocessor.RegionServerCoprocessorEnvironment;
+import org.apache.hadoop.hbase.coprocessor.transactional.lock.LockConstants;
+import org.apache.hadoop.hbase.coprocessor.transactional.server.RSServer;
+#ifdef HDP2.3 APACHE1.1 CDH5.7 || CDH5.16 APACHE1.2
+import org.apache.hadoop.hbase.regionserver.Region;
+#endif
+import org.apache.hadoop.hbase.regionserver.HRegion;
+import org.apache.hadoop.hbase.regionserver.RegionServerServices;
+import org.apache.hadoop.hbase.zookeeper.ZooKeeperWatcher;
+import org.apache.hadoop.hbase.Stoppable;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import java.io.IOException;
+
+public class TrxRegionServerObserver extends BaseRegionServerObserver {
+    private static final Log LOG = LogFactory.getLog(TrxRegionServerObserver.class);
+
+    private static TrxRegionServerStoppable regionServerStopper;
+    private static RSServer rsServer = null;
+    private SplitBalanceHelper sbHelperA;
+    private SplitBalanceHelper sbHelperB;
+    private Configuration config;
+    private FileSystem fs = null;
+    //for log to OM
+    private static final String HBASE_LOG_DIR = "hbase.log.dir";
+
+    @Override
+    public void start(CoprocessorEnvironment coprocessorEnvironment) throws IOException {
+        rsServer = RSServer.getInstance();
+        if (rsServer == null) {
+            LOG.info("load TrxRegionServerObserver");
+            RegionServerCoprocessorEnvironment currentEnv = (RegionServerCoprocessorEnvironment)coprocessorEnvironment;
+            config = currentEnv.getConfiguration();
+            fs = FileSystem.get(config);
+            RegionServerServices rss = currentEnv.getRegionServerServices();
+            ServerName sn = rss.getServerName();
+            ZooKeeperWatcher zkw1 = rss.getZooKeeper();
+            RSServer rsServer = RSServer.getInstance(regionServerStopper, zkw1, config.get(HBASE_LOG_DIR, ""), sn.getHostname());
+            if (regionServerStopper == null) {
+                regionServerStopper = new TrxRegionServerStoppable();
+            }
+        }
+    }
+
+    public void preStopRegionServer(ObserverContext<RegionServerCoprocessorEnvironment> env) throws IOException {
+        regionServerStopper.stop("trx region server is stopped");
+        rsServer = null;
+    }
+
+
+    @Override
+#ifdef HDP2.3 APACHE1.1 CDH5.7 || CDH5.16 APACHE1.2
+    public void preMerge(ObserverContext<RegionServerCoprocessorEnvironment> c, Region regionA, Region regionB) throws IOException {
+#else
+    public void preMerge(ObserverContext<RegionServerCoprocessorEnvironment> c, HRegion regionA, HRegion regionB) throws IOException {
+#endif
+        HRegionInfo regionInfo = regionA.getRegionInfo();
+        String lv_regionName = regionInfo.getRegionNameAsString();
+        TrxRegionObserver trxRegionObserverA = TrxRegionObserver.getTransactionsOBCP(lv_regionName);
+
+        if (trxRegionObserverA != null) {
+            sbHelperA = trxRegionObserverA.getSplitBalanceHelper();
+        }
+
+        regionInfo = regionB.getRegionInfo();
+        lv_regionName = regionInfo.getRegionNameAsString();
+        TrxRegionObserver trxRegionObserverB = TrxRegionObserver.getTransactionsOBCP(lv_regionName);
+
+        if (trxRegionObserverB != null) {
+            sbHelperB = trxRegionObserverB.getSplitBalanceHelper();
+        }
+    }
+
+    @Override
+#ifdef HDP2.3 APACHE1.1 CDH5.7 || CDH5.16 APACHE1.2
+    public void postMerge(ObserverContext<RegionServerCoprocessorEnvironment> c, Region regionA, Region regionB, Region mergedRegion) throws IOException {
+#else
+    public void postMerge(ObserverContext<RegionServerCoprocessorEnvironment> c, HRegion regionA, HRegion regionB, HRegion mergedRegion) throws IOException {
+#endif
+        HRegionInfo regionInfo = mergedRegion.getRegionInfo();
+        String lv_regionName = regionInfo.getRegionNameAsString();
+        LOG.info("postMerge -- " + lv_regionName + " from " + sbHelperA.getRegionName() + " && " + sbHelperB.getRegionName());
+        TrxRegionObserver mergedTrxRegionObserver = TrxRegionObserver.getTransactionsOBCP(lv_regionName);
+        TrxRegionEndpoint mergedTrxRegionEndpoint = mergedTrxRegionObserver.getTransactionsEPCP(lv_regionName);
+
+        if (mergedTrxRegionEndpoint == null) {
+            return;
+        }
+
+        try {
+            mergedTrxRegionEndpoint.setBlockAll(true);
+            mergedTrxRegionEndpoint.setClosing(true);
+            if (sbHelperA != null) {
+                mergedTrxRegionEndpoint.readTxnInfo(sbHelperA.getPath());
+                mergedTrxRegionEndpoint.readLockInfo(sbHelperA.getLockPath());
+                if (fs.exists(sbHelperA.getLockPath())) {
+                    fs.delete(sbHelperA.getLockPath(), true);
+                }
+            }
+
+            if (sbHelperB != null) {
+                mergedTrxRegionEndpoint.readTxnInfo(sbHelperB.getPath());
+                mergedTrxRegionEndpoint.readLockInfo(sbHelperB.getLockPath());
+                if (fs.exists(sbHelperB.getLockPath())) {
+                    fs.delete(sbHelperB.getLockPath(), true);
+                }
+            }
+        } catch (Exception e) {
+            LOG.error("failed to merge" + lv_regionName, e);
+        } finally {
+             mergedTrxRegionEndpoint.setBlockAll(false);
+             mergedTrxRegionEndpoint.setBlockNonPhase2(false);
+             mergedTrxRegionEndpoint.setNewTrans(false);
+             mergedTrxRegionEndpoint.setClosing(false);
+        }
+    }
+
+    private static class TrxRegionServerStoppable implements Stoppable {
+        private volatile boolean isStopped = false;
+
+        @Override
+        public void stop(String why) {
+            LOG.info("RegionServerStoppable thread has stopped: Reason:" + why);
+            this.isStopped = true;
+        }
+
+        @Override
+        public boolean isStopped() {
+            return isStopped;
+        }
+    }
+}
+

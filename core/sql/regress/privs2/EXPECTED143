@@ -1,0 +1,1425 @@
+>>obey TEST143(set_up);
+>>-- ============================================================================
+>>-- Setup the test environment
+>>
+>>-- create function to display bitmaps as a bitmap rather than longs
+>>-- use the function from privs2/TEST140
+>>sh rm -f ./etest140.dll;
+>>sh sh $$scriptsdir$$/tools/dll-compile.ksh etest140.cpp
++>  2>&1 | tee LOG140-SECONDARY;
+>>set pattern $$DLL$$ etest140.dll;
+>>set pattern $$QUOTE$$ '''';
+>>
+>>create schema t143_udr;
+
+--- SQL operation complete.
+>>set schema t143_udr;
+
+--- SQL operation complete.
+>>create library t143_l1 file $$QUOTE$$ $$REGRRUNDIR$$/$$DLL$$ $$QUOTE$$ ;
+
+--- SQL operation complete.
+>>create function translateBitmap(bitmap largeint) returns (bitmap_string char (20))
++>language c parameter style sql external name 'translateBitmap'
++>library t143_l1
++>deterministic no sql final call allow any parallelism state area size 1024 ;
+
+--- SQL operation complete.
+>>grant execute on function t143_udr.translateBitmap to "PUBLIC";
+
+--- SQL operation complete.
+>>
+>>-- query to read privs from metadata
+>>prepare get_obj_privs from
++>select distinct
++>   substring (object_name,11,15) as object_name,
++>   object_type as type,
++>   substring(authname(grantor_id),1,10) as grantor,
++>   substring(authname(grantee_id),1,10) as grantee,
++>   t143_udr.translateBitmap(privileges_bitmap) as granted_privs,
++>   t143_udr.translateBitmap(grantable_bitmap) as grantable_privs
++>from "_PRIVMGR_MD_".object_privileges
++>where object_uid in
++>     (select object_uid
++>      from "_MD_".objects
++>      where object_name like 'U%' and schema_name like 'T143_USER%')
++>  order by 1, 2, 3
++>;
+
+--- SQL command prepared.
+>>
+>>prepare get_col_privs from
++>select distinct
++>   substring (object_name,11,15) as object_name,
++>   column_number,
++>   substring(authname(grantor_id),1,10) as grantor,
++>   substring(authname(grantee_id),1,10) as grantee,
++>   t143_udr.translateBitmap(privileges_bitmap) as granted_privs,
++>   t143_udr.translateBitmap(grantable_bitmap) as grantable_privs
++>from "_PRIVMGR_MD_".column_privileges
++>where object_uid in
++>     (select object_uid
++>      from "_MD_".objects
++>      where object_name like 'U%' and schema_name like 'T143_USER%')
++>  order by 1, 2, 3, 4
++>;
+
+--- SQL command prepared.
+>>
+>>-- set up role infrastructure
+>>create role user2_role;
+
+--- SQL operation complete.
+>>create role user3_role;
+
+--- SQL operation complete.
+>>grant role user2_role to sql_user2;
+
+--- SQL operation complete.
+>>grant role user3_role to sql_user3;
+
+--- SQL operation complete.
+>>
+>>-- ============================================================================
+>>obey TEST143(test_view_object_priv_propagation);
+>>-- ============================================================================
+>>values (user);
+
+(EXPR)
+--------------------------------------------------------------------------------------------------------------------------------
+
+DB__ROOT                                                                                                                        
+
+--- 1 row(s) selected.
+>>
+>>-- remove schemas 
+>>drop schema if exists t143_user1 cascade;
+
+--- SQL operation complete.
+>>drop schema if exists t143_user2 cascade;
+
+--- SQL operation complete.
+>>
+>>-- setup database with private schemas owned by users
+>>create schema t143_user1 authorization sql_user1;
+
+--- SQL operation complete.
+>>create schema t143_user2 authorization sql_user2;
+
+--- SQL operation complete.
+>>
+>>-- create some tables owned by user1
+>>set schema t143_user1;
+
+--- SQL operation complete.
+>>create table u1t1 (c1 int not null primary key, c2 int, c3 int);
+
+--- SQL operation complete.
+>>insert into u1t1 values (1,1,1), (2,2,2), (3,3,3), (4,4,4), (5,5,5);
+
+--- 5 row(s) inserted.
+>>create table u1t2 (c1 int not null primary key, c2 int, c3 int);
+
+--- SQL operation complete.
+>>insert into u1t2 values (1,1,1), (2,2,2), (3,3,3), (4,4,4), (5,5,5);
+
+--- 5 row(s) inserted.
+>>
+>>-- grant privileges to sql_user2 on tables
+>>grant select, delete on u1t1 to sql_user2;
+
+--- SQL operation complete.
+>>grant select, delete on u1t2 to sql_user2 with grant option;
+
+--- SQL operation complete.
+>>
+>>execute get_obj_privs;
+
+OBJECT_NAME                                                   TYPE  GRANTOR     GRANTEE     GRANTED_PRIVS         GRANTABLE_PRIVS
+------------------------------------------------------------  ----  ----------  ----------  --------------------  --------------------
+
+T143_USER1.U1T1                                               BT    SQL_USER1   SQL_USER2   S-D----               NONE                
+T143_USER1.U1T1                                               BT    _SYSTEM     SQL_USER1   SIDU-R-               SIDU-R-             
+T143_USER1.U1T2                                               BT    SQL_USER1   SQL_USER2   S-D----               S-D----             
+T143_USER1.U1T2                                               BT    _SYSTEM     SQL_USER1   SIDU-R-               SIDU-R-             
+
+--- 4 row(s) selected.
+>>
+>>-- user2 creates some views
+>>sh sqlci -i "TEST143(user2_views)" -u sql_user2;
+>>cqd SHOWDDL_DISPLAY_PRIVILEGE_GRANTS 'ON';
+
+--- SQL operation complete.
+>>cqd traf_store_object_desc 'ON';
+
+--- SQL operation complete.
+>>cqd traf_read_object_desc 'ON';
+
+--- SQL operation complete.
+>>values (user);
+
+(EXPR)
+--------------------------------------------------------------------------------------------------------------------------------
+
+SQL_USER2                                                                                                                       
+
+--- 1 row(s) selected.
+>>set schema t143_user2;
+
+--- SQL operation complete.
+>>
+>>create view u2v1 as select * from t143_user1.u1t1;
+
+--- SQL operation complete.
+>>create view u2v2 as select * from t143_user1.u1t2;
+
+--- SQL operation complete.
+>>
+>>-- ============================================================================
+>>exit;
+
+End of MXCI Session
+
+>>
+>>execute get_obj_privs;
+
+OBJECT_NAME                                                   TYPE  GRANTOR     GRANTEE     GRANTED_PRIVS         GRANTABLE_PRIVS
+------------------------------------------------------------  ----  ----------  ----------  --------------------  --------------------
+
+T143_USER1.U1T1                                               BT    SQL_USER1   SQL_USER2   S-D----               NONE                
+T143_USER1.U1T1                                               BT    _SYSTEM     SQL_USER1   SIDU-R-               SIDU-R-             
+T143_USER1.U1T2                                               BT    SQL_USER1   SQL_USER2   S-D----               S-D----             
+T143_USER1.U1T2                                               BT    _SYSTEM     SQL_USER1   SIDU-R-               SIDU-R-             
+T143_USER2.U2V1                                               VI    _SYSTEM     SQL_USER2   S-D----               NONE                
+T143_USER2.U2V2                                               VI    _SYSTEM     SQL_USER2   S-D----               S-D----             
+
+--- 6 row(s) selected.
+>>
+>>-- user1 grants insert privilege on tables
+>>--    u2v1 should have insert priv
+>>--    u2v2 should have insert priv WGO
+>>grant insert on u1t1 to sql_user2;
+
+--- SQL operation complete.
+>>grant insert on u1t2 to sql_user2 with grant option;
+
+--- SQL operation complete.
+>>execute get_obj_privs;
+
+OBJECT_NAME                                                   TYPE  GRANTOR     GRANTEE     GRANTED_PRIVS         GRANTABLE_PRIVS
+------------------------------------------------------------  ----  ----------  ----------  --------------------  --------------------
+
+T143_USER1.U1T1                                               BT    SQL_USER1   SQL_USER2   SID----               NONE                
+T143_USER1.U1T1                                               BT    _SYSTEM     SQL_USER1   SIDU-R-               SIDU-R-             
+T143_USER1.U1T2                                               BT    SQL_USER1   SQL_USER2   SID----               SID----             
+T143_USER1.U1T2                                               BT    _SYSTEM     SQL_USER1   SIDU-R-               SIDU-R-             
+T143_USER2.U2V1                                               VI    _SYSTEM     SQL_USER2   SID----               NONE                
+T143_USER2.U2V2                                               VI    _SYSTEM     SQL_USER2   SID----               SID----             
+
+--- 6 row(s) selected.
+>>
+>>-- remove with grant option for some privileges
+>>--    u2v2 should have insert, delete without WGO
+>>--    u2v2 should have select WGO
+>>revoke grant option for insert, delete on u1t2 from sql_user2;
+
+--- SQL operation complete.
+>>execute get_obj_privs;
+
+OBJECT_NAME                                                   TYPE  GRANTOR     GRANTEE     GRANTED_PRIVS         GRANTABLE_PRIVS
+------------------------------------------------------------  ----  ----------  ----------  --------------------  --------------------
+
+T143_USER1.U1T1                                               BT    SQL_USER1   SQL_USER2   SID----               NONE                
+T143_USER1.U1T1                                               BT    _SYSTEM     SQL_USER1   SIDU-R-               SIDU-R-             
+T143_USER1.U1T2                                               BT    SQL_USER1   SQL_USER2   SID----               S------             
+T143_USER1.U1T2                                               BT    _SYSTEM     SQL_USER1   SIDU-R-               SIDU-R-             
+T143_USER2.U2V1                                               VI    _SYSTEM     SQL_USER2   SID----               NONE                
+T143_USER2.U2V2                                               VI    _SYSTEM     SQL_USER2   SID----               S------             
+
+--- 6 row(s) selected.
+>>
+>>-- Add back the with grant option for delete
+>>--    u2v2 should have select, delete with WGO
+>>grant delete on u1t2 to sql_user2 with grant option;
+
+--- SQL operation complete.
+>>execute get_obj_privs;
+
+OBJECT_NAME                                                   TYPE  GRANTOR     GRANTEE     GRANTED_PRIVS         GRANTABLE_PRIVS
+------------------------------------------------------------  ----  ----------  ----------  --------------------  --------------------
+
+T143_USER1.U1T1                                               BT    SQL_USER1   SQL_USER2   SID----               NONE                
+T143_USER1.U1T1                                               BT    _SYSTEM     SQL_USER1   SIDU-R-               SIDU-R-             
+T143_USER1.U1T2                                               BT    SQL_USER1   SQL_USER2   SID----               S-D----             
+T143_USER1.U1T2                                               BT    _SYSTEM     SQL_USER1   SIDU-R-               SIDU-R-             
+T143_USER2.U2V1                                               VI    _SYSTEM     SQL_USER2   SID----               NONE                
+T143_USER2.U2V2                                               VI    _SYSTEM     SQL_USER2   SID----               S-D----             
+
+--- 6 row(s) selected.
+>>
+>>-- Remove insert, and delete entirely
+>>--    u2v2 has select WGO
+>>revoke insert, delete on u1t1 from sql_user2;
+
+--- SQL operation complete.
+>>revoke insert, delete on u1t2 from sql_user2;
+
+--- SQL operation complete.
+>>execute get_obj_privs;
+
+OBJECT_NAME                                                   TYPE  GRANTOR     GRANTEE     GRANTED_PRIVS         GRANTABLE_PRIVS
+------------------------------------------------------------  ----  ----------  ----------  --------------------  --------------------
+
+T143_USER1.U1T1                                               BT    SQL_USER1   SQL_USER2   S------               NONE                
+T143_USER1.U1T1                                               BT    _SYSTEM     SQL_USER1   SIDU-R-               SIDU-R-             
+T143_USER1.U1T2                                               BT    SQL_USER1   SQL_USER2   S------               S------             
+T143_USER1.U1T2                                               BT    _SYSTEM     SQL_USER1   SIDU-R-               SIDU-R-             
+T143_USER2.U2V1                                               VI    _SYSTEM     SQL_USER2   S------               NONE                
+T143_USER2.U2V2                                               VI    _SYSTEM     SQL_USER2   S------               S------             
+
+--- 6 row(s) selected.
+>>
+>>-- ============================================================================
+>>obey TEST143(test_view_column_priv_propagation);
+>>-- ============================================================================
+>>
+>>-- regression test 129 tests that views can be created based on column privs
+>>--  and that revoke works (or fails) according to specifications.
+>>-- this section tests that privileges are propagated to dependent views when 
+>>--  privs are changed on referenced objects
+>>values (user);
+
+(EXPR)
+--------------------------------------------------------------------------------------------------------------------------------
+
+DB__ROOT                                                                                                                        
+
+--- 1 row(s) selected.
+>>
+>>-- remove schemas
+>>drop schema if exists t143_user1 cascade;
+
+--- SQL operation complete.
+>>drop schema if exists t143_user3 cascade;
+
+--- SQL operation complete.
+>>
+>>-- setup database with private schemas owned by users
+>>create schema t143_user1 authorization sql_user1;
+
+--- SQL operation complete.
+>>create schema t143_user3 authorization sql_user3;
+
+--- SQL operation complete.
+>>
+>>-- create some tables owned by user1
+>>set schema t143_user1;
+
+--- SQL operation complete.
+>>create table u1t1 (c1 int not null primary key, c2 int, c3 int);
+
+--- SQL operation complete.
+>>insert into u1t1 values (1,1,1), (2,2,2), (3,3,3), (4,4,4), (5,5,5);
+
+--- 5 row(s) inserted.
+>>create table u1t2 (c1 int not null primary key, c2 int, c3 int);
+
+--- SQL operation complete.
+>>insert into u1t2 values (1,1,1), (2,2,2), (3,3,3), (4,4,4), (5,5,5);
+
+--- 5 row(s) inserted.
+>>create table u1t3 (c1 int not null primary key, c2 int, c3 int, c4 int);
+
+--- SQL operation complete.
+>>insert into u1t3 values (1,1,1,1), (2,2,2,2), (3,3,3,3), (4,4,4,4), (5,5,5,5);
+
+--- 5 row(s) inserted.
+>>
+>>-- grant column level privileges to sql_user3
+>>grant select (c1,c2) on t143_user1.u1t1 to sql_user3;
+
+--- SQL operation complete.
+>>grant select (c1,c3) on t143_user1.u1t2 to sql_user3 with grant option;
+
+--- SQL operation complete.
+>>grant select (c2,c3,c1,c4) on t143_user1.u1t3 to sql_user3;
+
+--- SQL operation complete.
+>>execute get_col_privs;
+
+OBJECT_NAME                                                   COLUMN_NUMBER  GRANTOR     GRANTEE     GRANTED_PRIVS         GRANTABLE_PRIVS
+------------------------------------------------------------  -------------  ----------  ----------  --------------------  --------------------
+
+T143_USER1.U1T1                                                           0  SQL_USER1   SQL_USER3   S------               NONE                
+T143_USER1.U1T1                                                           1  SQL_USER1   SQL_USER3   S------               NONE                
+T143_USER1.U1T2                                                           0  SQL_USER1   SQL_USER3   S------               S------             
+T143_USER1.U1T2                                                           2  SQL_USER1   SQL_USER3   S------               S------             
+T143_USER1.U1T3                                                           0  SQL_USER1   SQL_USER3   S------               NONE                
+T143_USER1.U1T3                                                           1  SQL_USER1   SQL_USER3   S------               NONE                
+T143_USER1.U1T3                                                           2  SQL_USER1   SQL_USER3   S------               NONE                
+T143_USER1.U1T3                                                           3  SQL_USER1   SQL_USER3   S------               NONE                
+
+--- 8 row(s) selected.
+>>
+>>-- user3 can create all views
+>>sh sqlci -i "TEST143(user3_views)" -u sql_user3;
+>>cqd SHOWDDL_DISPLAY_PRIVILEGE_GRANTS 'ON';
+
+--- SQL operation complete.
+>>cqd traf_store_object_desc 'ON';
+
+--- SQL operation complete.
+>>cqd traf_read_object_desc 'ON';
+
+--- SQL operation complete.
+>>values (user);
+
+(EXPR)
+--------------------------------------------------------------------------------------------------------------------------------
+
+SQL_USER3                                                                                                                       
+
+--- 1 row(s) selected.
+>>set schema t143_user3;
+
+--- SQL operation complete.
+>>
+>>-- following views can be created based on granted privs
+>>create view u3v1 as select c1, c2 from t143_user1.u1t1;
+
+--- SQL operation complete.
+>>showddl u3v1;
+
+CREATE VIEW TRAFODION.T143_USER3.U3V1 AS
+  SELECT TRAFODION.T143_USER1.U1T1.C1, TRAFODION.T143_USER1.U1T1.C2 FROM
+    TRAFODION.T143_USER1.U1T1 ;
+
+-- GRANT SELECT ON TRAFODION.T143_USER3.U3V1 TO SQL_USER3;
+
+--- SQL operation complete.
+>>create view u3v2 as select c1, c3 from t143_user1.u1t2;
+
+--- SQL operation complete.
+>>showddl u3v2;
+
+CREATE VIEW TRAFODION.T143_USER3.U3V2 AS
+  SELECT TRAFODION.T143_USER1.U1T2.C1, TRAFODION.T143_USER1.U1T2.C3 FROM
+    TRAFODION.T143_USER1.U1T2 ;
+
+-- GRANT SELECT ON TRAFODION.T143_USER3.U3V2 TO SQL_USER3 WITH GRANT OPTION;
+
+--- SQL operation complete.
+>>create view u3v3 as select c1 from t143_user1.u1t2;
+
+--- SQL operation complete.
+>>showddl u3v3;
+
+CREATE VIEW TRAFODION.T143_USER3.U3V3 AS
+  SELECT TRAFODION.T143_USER1.U1T2.C1 FROM TRAFODION.T143_USER1.U1T2 ;
+
+-- GRANT SELECT ON TRAFODION.T143_USER3.U3V3 TO SQL_USER3 WITH GRANT OPTION;
+
+--- SQL operation complete.
+>>create view u3v4 as select c2, c1, c4 from t143_user1.u1t3;
+
+--- SQL operation complete.
+>>showddl u3v4;
+
+CREATE VIEW TRAFODION.T143_USER3.U3V4 AS
+  SELECT TRAFODION.T143_USER1.U1T3.C2, TRAFODION.T143_USER1.U1T3.C1,
+    TRAFODION.T143_USER1.U1T3.C4 FROM TRAFODION.T143_USER1.U1T3 ;
+
+-- GRANT SELECT ON TRAFODION.T143_USER3.U3V4 TO SQL_USER3;
+
+--- SQL operation complete.
+>>
+>>get tables;
+
+Tables in Schema TRAFODION.T143_USER3
+=====================================
+
+SB_HISTOGRAMS
+SB_HISTOGRAM_INTERVALS
+SB_PERSISTENT_SAMPLES
+
+=======================
+ 3 row(s) returned
+
+--- SQL operation complete.
+>>get views;
+
+Views in Schema TRAFODION.T143_USER3
+====================================
+
+U3V1
+U3V2
+U3V3
+U3V4
+
+=======================
+ 4 row(s) returned
+
+--- SQL operation complete.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>
+>>-- Add column privs to tables that are propagated to views
+>>--   u3v1 can now insert without WGO
+>>--   u3v2 still cannot insert
+>>--   u3v3 can insert without WGO
+>>--   u3v4 can update without WGO
+>>grant insert (c1, c2) on t143_user1.u1t1 to sql_user3;
+
+--- SQL operation complete.
+>>grant insert (c1) on t143_user1.u1t2 to sql_user3;
+
+--- SQL operation complete.
+>>grant update on t143_user1.u1t3 to sql_user3;
+
+--- SQL operation complete.
+>>execute get_obj_privs;
+
+OBJECT_NAME                                                   TYPE  GRANTOR     GRANTEE     GRANTED_PRIVS         GRANTABLE_PRIVS
+------------------------------------------------------------  ----  ----------  ----------  --------------------  --------------------
+
+T143_USER1.U1T1                                               BT    _SYSTEM     SQL_USER1   SIDU-R-               SIDU-R-             
+T143_USER1.U1T2                                               BT    _SYSTEM     SQL_USER1   SIDU-R-               SIDU-R-             
+T143_USER1.U1T3                                               BT    SQL_USER1   SQL_USER3   ---U---               NONE                
+T143_USER1.U1T3                                               BT    _SYSTEM     SQL_USER1   SIDU-R-               SIDU-R-             
+T143_USER3.U3V1                                               VI    _SYSTEM     SQL_USER3   SI-----               NONE                
+T143_USER3.U3V2                                               VI    _SYSTEM     SQL_USER3   S------               S------             
+T143_USER3.U3V3                                               VI    _SYSTEM     SQL_USER3   SI-----               S------             
+T143_USER3.U3V4                                               VI    _SYSTEM     SQL_USER3   S--U---               NONE                
+
+--- 8 row(s) selected.
+>>execute get_col_privs;
+
+OBJECT_NAME                                                   COLUMN_NUMBER  GRANTOR     GRANTEE     GRANTED_PRIVS         GRANTABLE_PRIVS
+------------------------------------------------------------  -------------  ----------  ----------  --------------------  --------------------
+
+T143_USER1.U1T1                                                           0  SQL_USER1   SQL_USER3   SI-----               NONE                
+T143_USER1.U1T1                                                           1  SQL_USER1   SQL_USER3   SI-----               NONE                
+T143_USER1.U1T2                                                           0  SQL_USER1   SQL_USER3   SI-----               S------             
+T143_USER1.U1T2                                                           2  SQL_USER1   SQL_USER3   S------               S------             
+T143_USER1.U1T3                                                           0  SQL_USER1   SQL_USER3   S------               NONE                
+T143_USER1.U1T3                                                           1  SQL_USER1   SQL_USER3   S------               NONE                
+T143_USER1.U1T3                                                           2  SQL_USER1   SQL_USER3   S------               NONE                
+T143_USER1.U1T3                                                           3  SQL_USER1   SQL_USER3   S------               NONE                
+
+--- 8 row(s) selected.
+>>
+>>-- Revoke privileges
+>>--   u3v1 can no longer insert even though one column has insert priv
+>>--   u3v3 can no longer insert
+>>--   u3v4 can not longer update
+>>revoke insert (c1) on t143_user1.u1t1 from sql_user3;
+
+--- SQL operation complete.
+>>revoke insert (c1) on t143_user1.u1t2 from sql_user3;
+
+--- SQL operation complete.
+>>revoke update  on t143_user1.u1t3 from sql_user3;
+
+--- SQL operation complete.
+>>execute get_obj_privs;
+
+OBJECT_NAME                                                   TYPE  GRANTOR     GRANTEE     GRANTED_PRIVS         GRANTABLE_PRIVS
+------------------------------------------------------------  ----  ----------  ----------  --------------------  --------------------
+
+T143_USER1.U1T1                                               BT    _SYSTEM     SQL_USER1   SIDU-R-               SIDU-R-             
+T143_USER1.U1T2                                               BT    _SYSTEM     SQL_USER1   SIDU-R-               SIDU-R-             
+T143_USER1.U1T3                                               BT    _SYSTEM     SQL_USER1   SIDU-R-               SIDU-R-             
+T143_USER3.U3V1                                               VI    _SYSTEM     SQL_USER3   S------               NONE                
+T143_USER3.U3V2                                               VI    _SYSTEM     SQL_USER3   S------               S------             
+T143_USER3.U3V3                                               VI    _SYSTEM     SQL_USER3   S------               S------             
+T143_USER3.U3V4                                               VI    _SYSTEM     SQL_USER3   S------               NONE                
+
+--- 7 row(s) selected.
+>>execute get_col_privs;
+
+OBJECT_NAME                                                   COLUMN_NUMBER  GRANTOR     GRANTEE     GRANTED_PRIVS         GRANTABLE_PRIVS
+------------------------------------------------------------  -------------  ----------  ----------  --------------------  --------------------
+
+T143_USER1.U1T1                                                           0  SQL_USER1   SQL_USER3   S------               NONE                
+T143_USER1.U1T1                                                           1  SQL_USER1   SQL_USER3   SI-----               NONE                
+T143_USER1.U1T2                                                           0  SQL_USER1   SQL_USER3   S------               S------             
+T143_USER1.U1T2                                                           2  SQL_USER1   SQL_USER3   S------               S------             
+T143_USER1.U1T3                                                           0  SQL_USER1   SQL_USER3   S------               NONE                
+T143_USER1.U1T3                                                           1  SQL_USER1   SQL_USER3   S------               NONE                
+T143_USER1.U1T3                                                           2  SQL_USER1   SQL_USER3   S------               NONE                
+T143_USER1.U1T3                                                           3  SQL_USER1   SQL_USER3   S------               NONE                
+
+--- 8 row(s) selected.
+>>
+>>-- Test WGO grants 
+>>--  grant WGO
+>>grant references (c1, c2, c3) on t143_user1.u1t1 to sql_user3 with grant option;
+
+--- SQL operation complete.
+>>execute get_obj_privs;
+
+OBJECT_NAME                                                   TYPE  GRANTOR     GRANTEE     GRANTED_PRIVS         GRANTABLE_PRIVS
+------------------------------------------------------------  ----  ----------  ----------  --------------------  --------------------
+
+T143_USER1.U1T1                                               BT    _SYSTEM     SQL_USER1   SIDU-R-               SIDU-R-             
+T143_USER1.U1T2                                               BT    _SYSTEM     SQL_USER1   SIDU-R-               SIDU-R-             
+T143_USER1.U1T3                                               BT    _SYSTEM     SQL_USER1   SIDU-R-               SIDU-R-             
+T143_USER3.U3V1                                               VI    _SYSTEM     SQL_USER3   S----R-               -----R-             
+T143_USER3.U3V2                                               VI    _SYSTEM     SQL_USER3   S------               S------             
+T143_USER3.U3V3                                               VI    _SYSTEM     SQL_USER3   S------               S------             
+T143_USER3.U3V4                                               VI    _SYSTEM     SQL_USER3   S------               NONE                
+
+--- 7 row(s) selected.
+>>-- revoke WGO
+>>revoke grant option for references (c1) on t143_user1.u1t1 from sql_user3;
+
+--- SQL operation complete.
+>>execute get_obj_privs;
+
+OBJECT_NAME                                                   TYPE  GRANTOR     GRANTEE     GRANTED_PRIVS         GRANTABLE_PRIVS
+------------------------------------------------------------  ----  ----------  ----------  --------------------  --------------------
+
+T143_USER1.U1T1                                               BT    _SYSTEM     SQL_USER1   SIDU-R-               SIDU-R-             
+T143_USER1.U1T2                                               BT    _SYSTEM     SQL_USER1   SIDU-R-               SIDU-R-             
+T143_USER1.U1T3                                               BT    _SYSTEM     SQL_USER1   SIDU-R-               SIDU-R-             
+T143_USER3.U3V1                                               VI    _SYSTEM     SQL_USER3   S----R-               NONE                
+T143_USER3.U3V2                                               VI    _SYSTEM     SQL_USER3   S------               S------             
+T143_USER3.U3V3                                               VI    _SYSTEM     SQL_USER3   S------               S------             
+T143_USER3.U3V4                                               VI    _SYSTEM     SQL_USER3   S------               NONE                
+
+--- 7 row(s) selected.
+>>execute get_col_privs;
+
+OBJECT_NAME                                                   COLUMN_NUMBER  GRANTOR     GRANTEE     GRANTED_PRIVS         GRANTABLE_PRIVS
+------------------------------------------------------------  -------------  ----------  ----------  --------------------  --------------------
+
+T143_USER1.U1T1                                                           0  SQL_USER1   SQL_USER3   S----R-               NONE                
+T143_USER1.U1T1                                                           1  SQL_USER1   SQL_USER3   SI---R-               -----R-             
+T143_USER1.U1T1                                                           2  SQL_USER1   SQL_USER3   -----R-               -----R-             
+T143_USER1.U1T2                                                           0  SQL_USER1   SQL_USER3   S------               S------             
+T143_USER1.U1T2                                                           2  SQL_USER1   SQL_USER3   S------               S------             
+T143_USER1.U1T3                                                           0  SQL_USER1   SQL_USER3   S------               NONE                
+T143_USER1.U1T3                                                           1  SQL_USER1   SQL_USER3   S------               NONE                
+T143_USER1.U1T3                                                           2  SQL_USER1   SQL_USER3   S------               NONE                
+T143_USER1.U1T3                                                           3  SQL_USER1   SQL_USER3   S------               NONE                
+
+--- 9 row(s) selected.
+>>
+>>-- ============================================================================
+>>obey TEST143(test_view_role_priv_propagation);
+>>-- ============================================================================
+>>values (user);
+
+(EXPR)
+--------------------------------------------------------------------------------------------------------------------------------
+
+DB__ROOT                                                                                                                        
+
+--- 1 row(s) selected.
+>>cqd ALLOW_WGO_FOR_ROLES 'on';
+
+--- SQL operation complete.
+>>
+>>-- remove schemas
+>>drop schema if exists t143_user1 cascade;
+
+--- SQL operation complete.
+>>drop schema if exists t143_user2 cascade;
+
+--- SQL operation complete.
+>>drop schema if exists t143_user3 cascade;
+
+--- SQL operation complete.
+>>
+>>-- setup database with private schemas owned by users
+>>create schema t143_user1 authorization sql_user1;
+
+--- SQL operation complete.
+>>create schema t143_user2 authorization sql_user2;
+
+--- SQL operation complete.
+>>create schema t143_user3 authorization sql_user3;
+
+--- SQL operation complete.
+>>
+>>-- create some tables owned by user1
+>>set schema t143_user1;
+
+--- SQL operation complete.
+>>create table u1t1 (c1 int not null primary key, c2 int, c3 int);
+
+--- SQL operation complete.
+>>insert into u1t1 values (1,1,1), (2,2,2), (3,3,3), (4,4,4), (5,5,5);
+
+--- 5 row(s) inserted.
+>>create table u1t2 (c1 int not null primary key, c2 int, c3 int);
+
+--- SQL operation complete.
+>>insert into u1t2 values (1,1,1), (2,2,2), (3,3,3), (4,4,4), (5,5,5);
+
+--- 5 row(s) inserted.
+>>create table u1t3 (c1 int not null primary key, c2 int, c3 int, c4 int);
+
+--- SQL operation complete.
+>>insert into u1t3 values (1,1,1,1), (2,2,2,2), (3,3,3,3), (4,4,4,4), (5,5,5,5);
+
+--- 5 row(s) inserted.
+>>
+>>-- grant privileges to roles on tables
+>>grant select (c1,c2,c3) on t143_user1.u1t1 to user2_role;
+
+--- SQL operation complete.
+>>grant select (c1,c2) on t143_user1.u1t1 to user3_role;
+
+--- SQL operation complete.
+>>grant select (c1,c2,c3) on t143_user1.u1t2 to user2_role with grant option;
+
+--- SQL operation complete.
+>>grant select (c1,c3) on t143_user1.u1t2 to user3_role with grant option;
+
+--- SQL operation complete.
+>>grant select (c2,c3,c1,c4) on t143_user1.u1t3 to user3_role;
+
+--- SQL operation complete.
+>>
+>>-- create views
+>>grant role user2_role to sql_user2;
+
+--- SQL operation complete.
+>>grant role user3_role to sql_user3;
+
+--- SQL operation complete.
+>>sh sqlci -i "TEST143(user2_views)" -u sql_user2;
+>>cqd SHOWDDL_DISPLAY_PRIVILEGE_GRANTS 'ON';
+
+--- SQL operation complete.
+>>cqd traf_store_object_desc 'ON';
+
+--- SQL operation complete.
+>>cqd traf_read_object_desc 'ON';
+
+--- SQL operation complete.
+>>values (user);
+
+(EXPR)
+--------------------------------------------------------------------------------------------------------------------------------
+
+SQL_USER2                                                                                                                       
+
+--- 1 row(s) selected.
+>>set schema t143_user2;
+
+--- SQL operation complete.
+>>
+>>create view u2v1 as select * from t143_user1.u1t1;
+
+--- SQL operation complete.
+>>create view u2v2 as select * from t143_user1.u1t2;
+
+--- SQL operation complete.
+>>
+>>-- ============================================================================
+>>exit;
+
+End of MXCI Session
+
+>>sh sqlci -i "TEST143(user3_views)" -u sql_user3;
+>>cqd SHOWDDL_DISPLAY_PRIVILEGE_GRANTS 'ON';
+
+--- SQL operation complete.
+>>cqd traf_store_object_desc 'ON';
+
+--- SQL operation complete.
+>>cqd traf_read_object_desc 'ON';
+
+--- SQL operation complete.
+>>values (user);
+
+(EXPR)
+--------------------------------------------------------------------------------------------------------------------------------
+
+SQL_USER3                                                                                                                       
+
+--- 1 row(s) selected.
+>>set schema t143_user3;
+
+--- SQL operation complete.
+>>
+>>-- following views can be created based on granted privs
+>>create view u3v1 as select c1, c2 from t143_user1.u1t1;
+
+--- SQL operation complete.
+>>showddl u3v1;
+
+CREATE VIEW TRAFODION.T143_USER3.U3V1 AS
+  SELECT TRAFODION.T143_USER1.U1T1.C1, TRAFODION.T143_USER1.U1T1.C2 FROM
+    TRAFODION.T143_USER1.U1T1 ;
+
+-- GRANT SELECT ON TRAFODION.T143_USER3.U3V1 TO SQL_USER3;
+
+--- SQL operation complete.
+>>create view u3v2 as select c1, c3 from t143_user1.u1t2;
+
+--- SQL operation complete.
+>>showddl u3v2;
+
+CREATE VIEW TRAFODION.T143_USER3.U3V2 AS
+  SELECT TRAFODION.T143_USER1.U1T2.C1, TRAFODION.T143_USER1.U1T2.C3 FROM
+    TRAFODION.T143_USER1.U1T2 ;
+
+-- GRANT SELECT ON TRAFODION.T143_USER3.U3V2 TO SQL_USER3 WITH GRANT OPTION;
+
+--- SQL operation complete.
+>>create view u3v3 as select c1 from t143_user1.u1t2;
+
+--- SQL operation complete.
+>>showddl u3v3;
+
+CREATE VIEW TRAFODION.T143_USER3.U3V3 AS
+  SELECT TRAFODION.T143_USER1.U1T2.C1 FROM TRAFODION.T143_USER1.U1T2 ;
+
+-- GRANT SELECT ON TRAFODION.T143_USER3.U3V3 TO SQL_USER3 WITH GRANT OPTION;
+
+--- SQL operation complete.
+>>create view u3v4 as select c2, c1, c4 from t143_user1.u1t3;
+
+--- SQL operation complete.
+>>showddl u3v4;
+
+CREATE VIEW TRAFODION.T143_USER3.U3V4 AS
+  SELECT TRAFODION.T143_USER1.U1T3.C2, TRAFODION.T143_USER1.U1T3.C1,
+    TRAFODION.T143_USER1.U1T3.C4 FROM TRAFODION.T143_USER1.U1T3 ;
+
+-- GRANT SELECT ON TRAFODION.T143_USER3.U3V4 TO SQL_USER3;
+
+--- SQL operation complete.
+>>
+>>get tables;
+
+Tables in Schema TRAFODION.T143_USER3
+=====================================
+
+SB_HISTOGRAMS
+SB_HISTOGRAM_INTERVALS
+SB_PERSISTENT_SAMPLES
+
+=======================
+ 3 row(s) returned
+
+--- SQL operation complete.
+>>get views;
+
+Views in Schema TRAFODION.T143_USER3
+====================================
+
+U3V1
+U3V2
+U3V3
+U3V4
+
+=======================
+ 4 row(s) returned
+
+--- SQL operation complete.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>
+>>-- user1 grants insert privilege on tables to roles
+>>--    u2v1 should have insert priv without WGO
+>>--    u2v2 should have insert priv WGO
+>>--    u3v1 should have insert priv without WGO
+>>--    u3v2 should not be granted insert, only one col
+>>--    u3v3 should have insert priv without WGO
+>>--    u3v4 shoud have update without WGO, select with WGO
+>>grant insert on u1t1 to user2_role;
+
+--- SQL operation complete.
+>>grant insert on u1t2 to user2_role with grant option;
+
+--- SQL operation complete.
+>>grant insert (c1, c2) on t143_user1.u1t1 to user3_role;
+
+--- SQL operation complete.
+>>grant insert (c1) on t143_user1.u1t2 to user3_role;
+
+--- SQL operation complete.
+>>grant update on t143_user1.u1t3 to user3_role;
+
+--- SQL operation complete.
+>>grant select (c2, c3, c1,c4) on t143_user1.u1t3 to user3_role with grant option;
+
+--- SQL operation complete.
+>>execute get_obj_privs;
+
+OBJECT_NAME                                                   TYPE  GRANTOR     GRANTEE     GRANTED_PRIVS         GRANTABLE_PRIVS
+------------------------------------------------------------  ----  ----------  ----------  --------------------  --------------------
+
+T143_USER1.U1T1                                               BT    SQL_USER1   USER2_ROLE  -I-----               NONE                
+T143_USER1.U1T1                                               BT    _SYSTEM     SQL_USER1   SIDU-R-               SIDU-R-             
+T143_USER1.U1T2                                               BT    SQL_USER1   USER2_ROLE  -I-----               -I-----             
+T143_USER1.U1T2                                               BT    _SYSTEM     SQL_USER1   SIDU-R-               SIDU-R-             
+T143_USER1.U1T3                                               BT    SQL_USER1   USER3_ROLE  ---U---               NONE                
+T143_USER1.U1T3                                               BT    _SYSTEM     SQL_USER1   SIDU-R-               SIDU-R-             
+T143_USER2.U2V1                                               VI    _SYSTEM     SQL_USER2   SI-----               NONE                
+T143_USER2.U2V2                                               VI    _SYSTEM     SQL_USER2   SI-----               SI-----             
+T143_USER3.U3V1                                               VI    _SYSTEM     SQL_USER3   SI-----               NONE                
+T143_USER3.U3V2                                               VI    _SYSTEM     SQL_USER3   S------               S------             
+T143_USER3.U3V3                                               VI    _SYSTEM     SQL_USER3   SI-----               S------             
+T143_USER3.U3V4                                               VI    _SYSTEM     SQL_USER3   S--U---               S------             
+
+--- 12 row(s) selected.
+>>execute get_col_privs;
+
+OBJECT_NAME                                                   COLUMN_NUMBER  GRANTOR     GRANTEE     GRANTED_PRIVS         GRANTABLE_PRIVS
+------------------------------------------------------------  -------------  ----------  ----------  --------------------  --------------------
+
+T143_USER1.U1T1                                                           0  SQL_USER1   USER2_ROLE  S------               NONE                
+T143_USER1.U1T1                                                           0  SQL_USER1   USER3_ROLE  SI-----               NONE                
+T143_USER1.U1T1                                                           1  SQL_USER1   USER2_ROLE  S------               NONE                
+T143_USER1.U1T1                                                           1  SQL_USER1   USER3_ROLE  SI-----               NONE                
+T143_USER1.U1T1                                                           2  SQL_USER1   USER2_ROLE  S------               NONE                
+T143_USER1.U1T2                                                           0  SQL_USER1   USER2_ROLE  S------               S------             
+T143_USER1.U1T2                                                           0  SQL_USER1   USER3_ROLE  SI-----               S------             
+T143_USER1.U1T2                                                           1  SQL_USER1   USER2_ROLE  S------               S------             
+T143_USER1.U1T2                                                           2  SQL_USER1   USER2_ROLE  S------               S------             
+T143_USER1.U1T2                                                           2  SQL_USER1   USER3_ROLE  S------               S------             
+T143_USER1.U1T3                                                           0  SQL_USER1   USER3_ROLE  S------               S------             
+T143_USER1.U1T3                                                           1  SQL_USER1   USER3_ROLE  S------               S------             
+T143_USER1.U1T3                                                           2  SQL_USER1   USER3_ROLE  S------               S------             
+T143_USER1.U1T3                                                           3  SQL_USER1   USER3_ROLE  S------               S------             
+
+--- 14 row(s) selected.
+>>
+>>-- Reset privs
+>>revoke insert on u1t1 from user2_role;
+
+--- SQL operation complete.
+>>revoke grant option for insert on u1t2 from user2_role;
+
+--- SQL operation complete.
+>>revoke insert (c1, c2) on t143_user1.u1t1 from user3_role;
+
+--- SQL operation complete.
+>>revoke insert (c1) on t143_user1.u1t2 from user3_role;
+
+--- SQL operation complete.
+>>revoke update on t143_user1.u1t3 from user3_role;
+
+--- SQL operation complete.
+>>revoke grant option for select (c2, c3) on t143_user1.u1t3 from user3_role;
+
+--- SQL operation complete.
+>>execute get_obj_privs;
+
+*** ERROR[8734] Statement must be recompiled to allow privileges to be re-evaluated.
+
+--- 0 row(s) selected.
+>>prepare get_obj_privs from
++>select distinct
++>   substring (object_name,11,15) as object_name,
++>   object_type as type,
++>   substring(authname(grantor_id),1,10) as grantor,
++>   substring(authname(grantee_id),1,10) as grantee,
++>   t143_udr.translateBitmap(privileges_bitmap) as granted_privs,
++>   t143_udr.translateBitmap(grantable_bitmap) as grantable_privs
++>from "_PRIVMGR_MD_".object_privileges
++>where object_uid in
++>     (select object_uid
++>      from "_MD_".objects
++>      where object_name like 'U%' and schema_name like 'T143_USER%')
++>  order by 1, 2, 3
++>;
+
+--- SQL command prepared.
+>>execute get_obj_privs;
+
+OBJECT_NAME                                                   TYPE  GRANTOR     GRANTEE     GRANTED_PRIVS         GRANTABLE_PRIVS
+------------------------------------------------------------  ----  ----------  ----------  --------------------  --------------------
+
+T143_USER1.U1T1                                               BT    _SYSTEM     SQL_USER1   SIDU-R-               SIDU-R-             
+T143_USER1.U1T2                                               BT    SQL_USER1   USER2_ROLE  -I-----               NONE                
+T143_USER1.U1T2                                               BT    _SYSTEM     SQL_USER1   SIDU-R-               SIDU-R-             
+T143_USER1.U1T3                                               BT    _SYSTEM     SQL_USER1   SIDU-R-               SIDU-R-             
+T143_USER2.U2V1                                               VI    _SYSTEM     SQL_USER2   S------               NONE                
+T143_USER2.U2V2                                               VI    _SYSTEM     SQL_USER2   SI-----               S------             
+T143_USER3.U3V1                                               VI    _SYSTEM     SQL_USER3   S------               NONE                
+T143_USER3.U3V2                                               VI    _SYSTEM     SQL_USER3   S------               S------             
+T143_USER3.U3V3                                               VI    _SYSTEM     SQL_USER3   S------               S------             
+T143_USER3.U3V4                                               VI    _SYSTEM     SQL_USER3   S------               NONE                
+
+--- 10 row(s) selected.
+>>execute get_col_privs;
+
+*** ERROR[8734] Statement must be recompiled to allow privileges to be re-evaluated.
+
+--- 0 row(s) selected.
+>>prepare get_col_privs from
++>select distinct
++>   substring (object_name,11,15) as object_name,
++>   column_number,
++>   substring(authname(grantor_id),1,10) as grantor,
++>   substring(authname(grantee_id),1,10) as grantee,
++>   t143_udr.translateBitmap(privileges_bitmap) as granted_privs,
++>   t143_udr.translateBitmap(grantable_bitmap) as grantable_privs
++>from "_PRIVMGR_MD_".column_privileges
++>where object_uid in
++>     (select object_uid
++>      from "_MD_".objects
++>      where object_name like 'U%' and schema_name like 'T143_USER%')
++>  order by 1, 2, 3, 4
++>;
+
+--- SQL command prepared.
+>>execute get_col_privs;
+
+OBJECT_NAME                                                   COLUMN_NUMBER  GRANTOR     GRANTEE     GRANTED_PRIVS         GRANTABLE_PRIVS
+------------------------------------------------------------  -------------  ----------  ----------  --------------------  --------------------
+
+T143_USER1.U1T1                                                           0  SQL_USER1   USER2_ROLE  S------               NONE                
+T143_USER1.U1T1                                                           0  SQL_USER1   USER3_ROLE  S------               NONE                
+T143_USER1.U1T1                                                           1  SQL_USER1   USER2_ROLE  S------               NONE                
+T143_USER1.U1T1                                                           1  SQL_USER1   USER3_ROLE  S------               NONE                
+T143_USER1.U1T1                                                           2  SQL_USER1   USER2_ROLE  S------               NONE                
+T143_USER1.U1T2                                                           0  SQL_USER1   USER2_ROLE  S------               S------             
+T143_USER1.U1T2                                                           0  SQL_USER1   USER3_ROLE  S------               S------             
+T143_USER1.U1T2                                                           1  SQL_USER1   USER2_ROLE  S------               S------             
+T143_USER1.U1T2                                                           2  SQL_USER1   USER2_ROLE  S------               S------             
+T143_USER1.U1T2                                                           2  SQL_USER1   USER3_ROLE  S------               S------             
+T143_USER1.U1T3                                                           0  SQL_USER1   USER3_ROLE  S------               S------             
+T143_USER1.U1T3                                                           1  SQL_USER1   USER3_ROLE  S------               NONE                
+T143_USER1.U1T3                                                           2  SQL_USER1   USER3_ROLE  S------               NONE                
+T143_USER1.U1T3                                                           3  SQL_USER1   USER3_ROLE  S------               S------             
+
+--- 14 row(s) selected.
+>>
+>>-- ============================================================================
+>>obey TEST143(test_view_misc_priv_propagation);
+>>-- ============================================================================
+>>--
+>>-- Verifies that multiple views with different owners don't cause issues
+>>-- 
+>>--  Views:
+>>--
+>>-- u1v1 -> u1t1
+>>-- u5v1 -> u1t1
+>>-- u5v2 -> u1t1
+>>-- u2v1 -> u1v1 -> u1t1
+>>-- u3v1 -> u2v1 -> u1v1 ->u1t1
+>>-- u3v2 -> u3v1 -> u2v1 -> u1v1 -> u1t1
+>>
+>>values (user);
+
+(EXPR)
+--------------------------------------------------------------------------------------------------------------------------------
+
+DB__ROOT                                                                                                                        
+
+--- 1 row(s) selected.
+>>cqd ALLOW_WGO_FOR_ROLES 'on';
+
+--- SQL operation complete.
+>>
+>>-- remove schemas
+>>drop schema if exists t143_user1 cascade;
+
+--- SQL operation complete.
+>>drop schema if exists t143_user2 cascade;
+
+--- SQL operation complete.
+>>drop schema if exists t143_user3 cascade;
+
+--- SQL operation complete.
+>>drop schema if exists t143_user5 cascade;
+
+--- SQL operation complete.
+>>
+>>-- setup database with private schemas owned by users
+>>create schema t143_user1 authorization sql_user1;
+
+--- SQL operation complete.
+>>create schema t143_user2 authorization user2_role;
+
+--- SQL operation complete.
+>>create schema t143_user3 authorization sql_user3;
+
+--- SQL operation complete.
+>>create schema t143_user5 authorization sql_user5;
+
+--- SQL operation complete.
+>>
+>>-- create objects owned by sql_user1
+>>set schema t143_user1;
+
+--- SQL operation complete.
+>>create table u1t1 (c1 int not null primary key, c2 int, c3 int);
+
+--- SQL operation complete.
+>>insert into u1t1 values (1,1,1), (2,2,2), (3,3,3), (4,4,4), (5,5,5);
+
+--- 5 row(s) inserted.
+>>grant select (c1) on u1t1 to sql_user5;
+
+--- SQL operation complete.
+>>grant select (c2, c3) on u1t1 to sql_user5 with grant option;
+
+--- SQL operation complete.
+>>
+>>create view u1v1 (u1v1_c1, u1v1_c2) as select c2, c3 from u1t1;
+
+--- SQL operation complete.
+>>grant select on u1v1 to user2_role with grant option;
+
+--- SQL operation complete.
+>>grant select on u1v1 to sql_user5;
+
+--- SQL operation complete.
+>>
+>>-- create objects for role user2_role;
+>>set schema t143_user2;
+
+--- SQL operation complete.
+>>create view u2v1 (u2v1_c1, u2v1_c2) as
++>  select u1v1_c2, u1v1_c1 from t143_user1.u1v1;
+
+--- SQL operation complete.
+>>grant select (u2v1_c1, u2v1_c2) on u2v1 to sql_user3;
+
+--- SQL operation complete.
+>>grant select on u2v1 to sql_user6 with grant option;
+
+--- SQL operation complete.
+>>grant select (u2v1_c2) on u2v1 to sql_user6;
+
+--- SQL operation complete.
+>>
+>>-- create objects for user sql_user3
+>>set schema t143_user3;
+
+--- SQL operation complete.
+>>create view u3v1 (u3v1_c1, u3v1_c2) as
++>  select u2v1_c2, u2v1_c1 
++>  from t143_user2.u2v1;
+
+--- SQL operation complete.
+>>
+>>-- create objects for user sq1_user5
+>>set schema t143_user5;
+
+--- SQL operation complete.
+>>create view u5v1(u5v1_c1, u5v1_c2, u5v1_c3) as 
++>   select * from t143_user1.u1t1;
+
+--- SQL operation complete.
+>>create view u5v2 (u5v1_c1) as
++>  select u5v1_c2 from t143_user5.u5v1, t143_user1.u1v1;
+
+--- SQL operation complete.
+>>
+>>-- u1v1 user1 grants: select user2_role WGO, select user5
+>>-- u2v1 user2-role grants: select user6 WGO
+>>execute get_obj_privs;
+
+OBJECT_NAME                                                   TYPE  GRANTOR     GRANTEE     GRANTED_PRIVS         GRANTABLE_PRIVS
+------------------------------------------------------------  ----  ----------  ----------  --------------------  --------------------
+
+T143_USER1.U1T1                                               BT    _SYSTEM     SQL_USER1   SIDU-R-               SIDU-R-             
+T143_USER1.U1V1                                               VI    SQL_USER1   USER2_ROLE  S------               S------             
+T143_USER1.U1V1                                               VI    SQL_USER1   SQL_USER5   S------               NONE                
+T143_USER1.U1V1                                               VI    _SYSTEM     SQL_USER1   S-DU-R-               S-DU-R-             
+T143_USER2.U2V1                                               VI    USER2_ROLE  SQL_USER6   S------               S------             
+T143_USER2.U2V1                                               VI    _SYSTEM     USER2_ROLE  S------               S------             
+T143_USER3.U3V1                                               VI    _SYSTEM     SQL_USER3   S------               NONE                
+T143_USER5.U5V1                                               VI    _SYSTEM     SQL_USER5   S------               NONE                
+T143_USER5.U5V2                                               VI    _SYSTEM     SQL_USER5   S----R-               S----R-             
+
+--- 9 row(s) selected.
+>>prepare get_obj_privs from
++>select distinct
++>   substring (object_name,11,15) as object_name,
++>   object_type as type,
++>   substring(authname(grantor_id),1,10) as grantor,
++>   substring(authname(grantee_id),1,10) as grantee,
++>   t143_udr.translateBitmap(privileges_bitmap) as granted_privs,
++>   t143_udr.translateBitmap(grantable_bitmap) as grantable_privs
++>from "_PRIVMGR_MD_".object_privileges
++>where object_uid in
++>     (select object_uid
++>      from "_MD_".objects
++>      where object_name like 'U%' and schema_name like 'T143_USER%')
++>  order by 1, 2, 3
++>;
+
+--- SQL command prepared.
+>>execute get_obj_privs;
+
+OBJECT_NAME                                                   TYPE  GRANTOR     GRANTEE     GRANTED_PRIVS         GRANTABLE_PRIVS
+------------------------------------------------------------  ----  ----------  ----------  --------------------  --------------------
+
+T143_USER1.U1T1                                               BT    _SYSTEM     SQL_USER1   SIDU-R-               SIDU-R-             
+T143_USER1.U1V1                                               VI    SQL_USER1   USER2_ROLE  S------               S------             
+T143_USER1.U1V1                                               VI    SQL_USER1   SQL_USER5   S------               NONE                
+T143_USER1.U1V1                                               VI    _SYSTEM     SQL_USER1   S-DU-R-               S-DU-R-             
+T143_USER2.U2V1                                               VI    USER2_ROLE  SQL_USER6   S------               S------             
+T143_USER2.U2V1                                               VI    _SYSTEM     USER2_ROLE  S------               S------             
+T143_USER3.U3V1                                               VI    _SYSTEM     SQL_USER3   S------               NONE                
+T143_USER5.U5V1                                               VI    _SYSTEM     SQL_USER5   S------               NONE                
+T143_USER5.U5V2                                               VI    _SYSTEM     SQL_USER5   S----R-               S----R-             
+
+--- 9 row(s) selected.
+>>-- u1t1 user1 grants: c1-select, c2/c3-select WGO user5
+>>-- u2v1 user2_role grants: c1/c2-select user3, select-c2 user6
+>>execute get_col_privs;
+
+OBJECT_NAME                                                   COLUMN_NUMBER  GRANTOR     GRANTEE     GRANTED_PRIVS         GRANTABLE_PRIVS
+------------------------------------------------------------  -------------  ----------  ----------  --------------------  --------------------
+
+T143_USER1.U1T1                                                           0  SQL_USER1   SQL_USER5   S------               NONE                
+T143_USER1.U1T1                                                           1  SQL_USER1   SQL_USER5   S------               S------             
+T143_USER1.U1T1                                                           2  SQL_USER1   SQL_USER5   S------               S------             
+T143_USER2.U2V1                                                           0  USER2_ROLE  SQL_USER3   S------               NONE                
+T143_USER2.U2V1                                                           1  USER2_ROLE  SQL_USER3   S------               NONE                
+T143_USER2.U2V1                                                           1  USER2_ROLE  SQL_USER6   S------               NONE                
+
+--- 6 row(s) selected.
+>>prepare get_col_privs from
++>select distinct
++>   substring (object_name,11,15) as object_name,
++>   column_number,
++>   substring(authname(grantor_id),1,10) as grantor,
++>   substring(authname(grantee_id),1,10) as grantee,
++>   t143_udr.translateBitmap(privileges_bitmap) as granted_privs,
++>   t143_udr.translateBitmap(grantable_bitmap) as grantable_privs
++>from "_PRIVMGR_MD_".column_privileges
++>where object_uid in
++>     (select object_uid
++>      from "_MD_".objects
++>      where object_name like 'U%' and schema_name like 'T143_USER%')
++>  order by 1, 2, 3, 4
++>;
+
+--- SQL command prepared.
+>>execute get_col_privs;
+
+OBJECT_NAME                                                   COLUMN_NUMBER  GRANTOR     GRANTEE     GRANTED_PRIVS         GRANTABLE_PRIVS
+------------------------------------------------------------  -------------  ----------  ----------  --------------------  --------------------
+
+T143_USER1.U1T1                                                           0  SQL_USER1   SQL_USER5   S------               NONE                
+T143_USER1.U1T1                                                           1  SQL_USER1   SQL_USER5   S------               S------             
+T143_USER1.U1T1                                                           2  SQL_USER1   SQL_USER5   S------               S------             
+T143_USER2.U2V1                                                           0  USER2_ROLE  SQL_USER3   S------               NONE                
+T143_USER2.U2V1                                                           1  USER2_ROLE  SQL_USER3   S------               NONE                
+T143_USER2.U2V1                                                           1  USER2_ROLE  SQL_USER6   S------               NONE                
+
+--- 6 row(s) selected.
+>>
+>>-- Run some different tests:
+>>
+>>-- fails with no priv
+>>grant select (u3v1_c1, u3v1_c2) on t143_user3.u3v1 to sql_user4;
+
+*** ERROR[1012] No privileges were granted.  SQL_USER3 lacks grant option on the specified privileges.
+
+--- SQL operation failed with errors.
+>>
+>>-- user2_role grants to user3 WGO
+>>grant select (u2v1_c1, u2v1_c2) on t143_user2.u2v1 to sql_user3 with grant option;
+
+--- SQL operation complete.
+>>
+>>-- now user3's grant works, user4 can create views on u3v1
+>>grant select (u3v1_c1, u3v1_c2) on t143_user3.u3v1 to sql_user4;
+
+--- SQL operation complete.
+>>
+>>-- grant insert on user1's table, doesn't affect any views
+>>grant insert on t143_user1.u1t1 to user2_role with grant option;
+
+--- SQL operation complete.
+>>
+>>-- u1t1 user1 grants: insert user2_role WGO
+>>execute get_obj_privs;
+
+OBJECT_NAME                                                   TYPE  GRANTOR     GRANTEE     GRANTED_PRIVS         GRANTABLE_PRIVS
+------------------------------------------------------------  ----  ----------  ----------  --------------------  --------------------
+
+T143_USER1.U1T1                                               BT    SQL_USER1   USER2_ROLE  -I-----               -I-----             
+T143_USER1.U1T1                                               BT    _SYSTEM     SQL_USER1   SIDU-R-               SIDU-R-             
+T143_USER1.U1V1                                               VI    SQL_USER1   USER2_ROLE  S------               S------             
+T143_USER1.U1V1                                               VI    SQL_USER1   SQL_USER5   S------               NONE                
+T143_USER1.U1V1                                               VI    _SYSTEM     SQL_USER1   S-DU-R-               S-DU-R-             
+T143_USER2.U2V1                                               VI    USER2_ROLE  SQL_USER6   S------               S------             
+T143_USER2.U2V1                                               VI    _SYSTEM     USER2_ROLE  S------               S------             
+T143_USER3.U3V1                                               VI    _SYSTEM     SQL_USER3   S------               S------             
+T143_USER5.U5V1                                               VI    _SYSTEM     SQL_USER5   S------               NONE                
+T143_USER5.U5V2                                               VI    _SYSTEM     SQL_USER5   S----R-               S----R-             
+
+--- 10 row(s) selected.
+>>-- u2v1 user2_role grants: + c1/c2 WGO user3 
+>>-- u3v1 user3 grants: select-c1/c2 user4
+>>execute get_col_privs;
+
+OBJECT_NAME                                                   COLUMN_NUMBER  GRANTOR     GRANTEE     GRANTED_PRIVS         GRANTABLE_PRIVS
+------------------------------------------------------------  -------------  ----------  ----------  --------------------  --------------------
+
+T143_USER1.U1T1                                                           0  SQL_USER1   SQL_USER5   S------               NONE                
+T143_USER1.U1T1                                                           1  SQL_USER1   SQL_USER5   S------               S------             
+T143_USER1.U1T1                                                           2  SQL_USER1   SQL_USER5   S------               S------             
+T143_USER2.U2V1                                                           0  USER2_ROLE  SQL_USER3   S------               S------             
+T143_USER2.U2V1                                                           1  USER2_ROLE  SQL_USER3   S------               S------             
+T143_USER2.U2V1                                                           1  USER2_ROLE  SQL_USER6   S------               NONE                
+T143_USER3.U3V1                                                           0  SQL_USER3   SQL_USER4   S------               NONE                
+T143_USER3.U3V1                                                           1  SQL_USER3   SQL_USER4   S------               NONE                
+
+--- 8 row(s) selected.
+>>
+>>-- grant insert on user1's view
+>>-- fails because u1v1 is not an insertable view
+>>-- unfortunately, the returned error is not the best
+>>grant insert on t143_user1.u1v1 to user2_role;
+
+*** ERROR[1012] No privileges were granted.  SQL_USER1 lacks grant option on the specified privileges.
+
+--- SQL operation failed with errors.
+>>
+>>-- grant update on user1's view, this works
+>>grant update on t143_user1.u1v1 to user2_role;
+
+--- SQL operation complete.
+>>
+>>-- grant privileges by user5, these fail
+>>grant select on t143_user5.u5v1 to sql_user4;
+
+*** ERROR[1012] No privileges were granted.  SQL_USER5 lacks grant option on the specified privileges.
+
+--- SQL operation failed with errors.
+>>grant select (u5v1_c1, u5v1_c2, u5v1_c3) on t143_user5.u5v1 to sql_user4;
+
+*** ERROR[1012] No privileges were granted.  SQL_USER5 lacks grant option on the specified privileges.
+
+--- SQL operation failed with errors.
+>>
+>>-- this fails, sql_user5 has WGO for the underlying column (u5v1_c2) but the
+>>-- columns cannot be split
+>>grant select (u5v1_c2) on t143_user5.u5v1 to sql_user4;
+
+*** ERROR[1012] No privileges were granted.  SQL_USER5 lacks grant option on the specified privileges.
+
+--- SQL operation failed with errors.
+>>
+>>-- this succeeds
+>>grant select on t143_user5.u5v2 to sql_user4;
+
+--- SQL operation complete.
+>>
+>>-- u1v1 user1 grants: + update user2_role
+>>-- u5v2 user5 grants: c1-select user4
+>>execute get_obj_privs;
+
+OBJECT_NAME                                                   TYPE  GRANTOR     GRANTEE     GRANTED_PRIVS         GRANTABLE_PRIVS
+------------------------------------------------------------  ----  ----------  ----------  --------------------  --------------------
+
+T143_USER1.U1T1                                               BT    SQL_USER1   USER2_ROLE  -I-----               -I-----             
+T143_USER1.U1T1                                               BT    _SYSTEM     SQL_USER1   SIDU-R-               SIDU-R-             
+T143_USER1.U1V1                                               VI    SQL_USER1   USER2_ROLE  S--U---               S------             
+T143_USER1.U1V1                                               VI    SQL_USER1   SQL_USER5   S------               NONE                
+T143_USER1.U1V1                                               VI    _SYSTEM     SQL_USER1   S-DU-R-               S-DU-R-             
+T143_USER2.U2V1                                               VI    USER2_ROLE  SQL_USER6   S------               S------             
+T143_USER2.U2V1                                               VI    _SYSTEM     USER2_ROLE  S--U---               S------             
+T143_USER3.U3V1                                               VI    _SYSTEM     SQL_USER3   S------               S------             
+T143_USER5.U5V1                                               VI    _SYSTEM     SQL_USER5   S------               NONE                
+T143_USER5.U5V2                                               VI    SQL_USER5   SQL_USER4   S------               NONE                
+T143_USER5.U5V2                                               VI    _SYSTEM     SQL_USER5   S----R-               S----R-             
+
+--- 11 row(s) selected.
+>>prepare get_obj_privs from
++>select distinct
++>   substring (object_name,11,15) as object_name,
++>   object_type as type,
++>   substring(authname(grantor_id),1,10) as grantor,
++>   substring(authname(grantee_id),1,10) as grantee,
++>   t143_udr.translateBitmap(privileges_bitmap) as granted_privs,
++>   t143_udr.translateBitmap(grantable_bitmap) as grantable_privs
++>from "_PRIVMGR_MD_".object_privileges
++>where object_uid in
++>     (select object_uid
++>      from "_MD_".objects
++>      where object_name like 'U%' and schema_name like 'T143_USER%')
++>  order by 1, 2, 3
++>;
+
+--- SQL command prepared.
+>>execute get_obj_privs;
+
+OBJECT_NAME                                                   TYPE  GRANTOR     GRANTEE     GRANTED_PRIVS         GRANTABLE_PRIVS
+------------------------------------------------------------  ----  ----------  ----------  --------------------  --------------------
+
+T143_USER1.U1T1                                               BT    SQL_USER1   USER2_ROLE  -I-----               -I-----             
+T143_USER1.U1T1                                               BT    _SYSTEM     SQL_USER1   SIDU-R-               SIDU-R-             
+T143_USER1.U1V1                                               VI    SQL_USER1   USER2_ROLE  S--U---               S------             
+T143_USER1.U1V1                                               VI    SQL_USER1   SQL_USER5   S------               NONE                
+T143_USER1.U1V1                                               VI    _SYSTEM     SQL_USER1   S-DU-R-               S-DU-R-             
+T143_USER2.U2V1                                               VI    USER2_ROLE  SQL_USER6   S------               S------             
+T143_USER2.U2V1                                               VI    _SYSTEM     USER2_ROLE  S--U---               S------             
+T143_USER3.U3V1                                               VI    _SYSTEM     SQL_USER3   S------               S------             
+T143_USER5.U5V1                                               VI    _SYSTEM     SQL_USER5   S------               NONE                
+T143_USER5.U5V2                                               VI    SQL_USER5   SQL_USER4   S------               NONE                
+T143_USER5.U5V2                                               VI    _SYSTEM     SQL_USER5   S----R-               S----R-             
+
+--- 11 row(s) selected.
+>>
+>>execute get_col_privs;
+
+OBJECT_NAME                                                   COLUMN_NUMBER  GRANTOR     GRANTEE     GRANTED_PRIVS         GRANTABLE_PRIVS
+------------------------------------------------------------  -------------  ----------  ----------  --------------------  --------------------
+
+T143_USER1.U1T1                                                           0  SQL_USER1   SQL_USER5   S------               NONE                
+T143_USER1.U1T1                                                           1  SQL_USER1   SQL_USER5   S------               S------             
+T143_USER1.U1T1                                                           2  SQL_USER1   SQL_USER5   S------               S------             
+T143_USER2.U2V1                                                           0  USER2_ROLE  SQL_USER3   S------               S------             
+T143_USER2.U2V1                                                           1  USER2_ROLE  SQL_USER3   S------               S------             
+T143_USER2.U2V1                                                           1  USER2_ROLE  SQL_USER6   S------               NONE                
+T143_USER3.U3V1                                                           0  SQL_USER3   SQL_USER4   S------               NONE                
+T143_USER3.U3V1                                                           1  SQL_USER3   SQL_USER4   S------               NONE                
+
+--- 8 row(s) selected.
+>>prepare get_col_privs from
++>select distinct
++>   substring (object_name,11,15) as object_name,
++>   column_number,
++>   substring(authname(grantor_id),1,10) as grantor,
++>   substring(authname(grantee_id),1,10) as grantee,
++>   t143_udr.translateBitmap(privileges_bitmap) as granted_privs,
++>   t143_udr.translateBitmap(grantable_bitmap) as grantable_privs
++>from "_PRIVMGR_MD_".column_privileges
++>where object_uid in
++>     (select object_uid
++>      from "_MD_".objects
++>      where object_name like 'U%' and schema_name like 'T143_USER%')
++>  order by 1, 2, 3, 4
++>;
+
+--- SQL command prepared.
+>>execute get_col_privs;
+
+OBJECT_NAME                                                   COLUMN_NUMBER  GRANTOR     GRANTEE     GRANTED_PRIVS         GRANTABLE_PRIVS
+------------------------------------------------------------  -------------  ----------  ----------  --------------------  --------------------
+
+T143_USER1.U1T1                                                           0  SQL_USER1   SQL_USER5   S------               NONE                
+T143_USER1.U1T1                                                           1  SQL_USER1   SQL_USER5   S------               S------             
+T143_USER1.U1T1                                                           2  SQL_USER1   SQL_USER5   S------               S------             
+T143_USER2.U2V1                                                           0  USER2_ROLE  SQL_USER3   S------               S------             
+T143_USER2.U2V1                                                           1  USER2_ROLE  SQL_USER3   S------               S------             
+T143_USER2.U2V1                                                           1  USER2_ROLE  SQL_USER6   S------               NONE                
+T143_USER3.U3V1                                                           0  SQL_USER3   SQL_USER4   S------               NONE                
+T143_USER3.U3V1                                                           1  SQL_USER3   SQL_USER4   S------               NONE                
+
+--- 8 row(s) selected.
+>>
+>>-- ============================================================================
+>>log;

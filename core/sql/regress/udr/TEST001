@@ -1,0 +1,526 @@
+-- @@@ START COPYRIGHT @@@
+--
+-- Licensed to the Apache Software Foundation (ASF) under one
+-- or more contributor license agreements.  See the NOTICE file
+-- distributed with this work for additional information
+-- regarding copyright ownership.  The ASF licenses this file
+-- to you under the Apache License, Version 2.0 (the
+-- "License"); you may not use this file except in compliance
+-- with the License.  You may obtain a copy of the License at
+--
+--   http://www.apache.org/licenses/LICENSE-2.0
+--
+-- Unless required by applicable law or agreed to in writing,
+-- software distributed under the License is distributed on an
+-- "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+-- KIND, either express or implied.  See the License for the
+-- specific language governing permissions and limitations
+-- under the License.
+--
+-- @@@ END COPYRIGHT @@@
+
+set pattern $$QUOTE$$ '''';
+
+obey TEST001(clean_up);
+log LOG001 clear;
+sh rm -f LOG001-SECONDARY;
+obey TEST001(compile_libs);
+obey TEST001(java_compile);
+obey TEST001(create_tables);
+obey TEST001(register_functions);
+obey TEST001(tests);
+log;
+--obey TEST001(clean_up);
+exit;
+
+?section clean_up
+--------------------------------------------------------------------------
+drop table clicks;
+drop table t001_Datatypes;
+drop table_mapping function sessionize_dynamic;
+drop table_mapping function sessionize_dynamic_shared;
+drop table_mapping function sessionize_err;
+drop table_mapping function "Fibonacci";
+drop library TEST001;
+drop table_mapping function sessionize_java;
+drop table_mapping function fibonacci_java;
+drop library TEST001_Java;
+drop library ALTERTEST;
+drop table_mapping function myfunc;
+drop library TEST001MYLIB;
+drop table TEST001TABLE;
+drop table_mapping function test001myfunc2;
+drop library TEST001MYLIB2;
+
+?section compile_libs
+--------------------------------------------------------------------------
+log;
+sh rm -f ./TEST001.dll;
+sh sh $$scriptsdir$$/tools/dll-compile.ksh TEST001.cpp
+  2>&1 | tee LOG001-SECONDARY;
+set pattern $$DLL$$ TEST001.dll;
+log LOG001;
+
+?section java_compile
+--------------------------------------------------------------------------
+-- To compile Java code we invoke a script from regress/tools that uses
+-- environment variables to determine the source and target directories
+--------------------------------------------------------------------------
+log;
+sh sh $$scriptsdir$$/tools/java-compile.ksh TEST001_Sessionize.java 2>> LOG001-SECONDARY | tee -a LOG001;
+sh sh $$scriptsdir$$/tools/java-compile.ksh TEST001_Fibonacci.java 2>> LOG001-SECONDARY | tee -a LOG001;
+sh sh $$scriptsdir$$/tools/java-archive.ksh TEST001.jar TEST001_Sessionize.class 'TEST001_Sessionize$InternalColumns.class' TEST001_Fibonacci.class 2>> LOG001-SECONDARY | tee -a LOG001;
+log LOG001;
+
+?section create_tables
+--------------------------------------------------------------------------
+create table clicks (userid char(32), ts TIME(6), ipAddr char(15)) ;
+insert into clicks values
+ ('super-user',cast(time'09:59:59.50 pm' as TIME(6)),'12.345.567.345'),
+ ('super-user',cast(time'11:59:59.50 pm' as TIME(6)),'12.345.567.345'),
+ ('super-services',cast(time'11:59:59.50 pm' as TIME(6)),'12.345.567.345'),
+ ('super-services',cast(time'11:59:59.55 pm' as TIME(6)),'12.345.567.345');
+
+-- for now use VARCHARs for LOBs
+cqd TRAF_BLOB_AS_VARCHAR 'ON'; 
+cqd TRAF_CLOB_AS_VARCHAR 'ON';
+
+create table t001_Datatypes (
+c_char char(15),
+c_char_upshift char(15) upshift,
+c_char_not_casespecific char(15) not casespecific,
+c_char_varying char varying(15),
+c_char_varying_upshift char varying(15) upshift,
+c_char_varying_not_casespecific char varying(15) not casespecific,
+c_varchar varchar(15),
+c_varchar_upshift varchar(15) upshift,
+c_varchar_not_casespecific varchar(15) not casespecific,
+c_nchar nchar(15),
+c_nchar_upshift nchar(15) upshift,
+c_nchar_not_casespecific nchar(15) not casespecific,
+c_nchar_varying nchar varying(15),
+c_nchar_varying_upshift nchar varying(15) upshift,
+c_nchar_varying_not_casespecific nchar varying(15) not casespecific,
+c_numeric numeric(9,2),
+c_numeric_unsigned numeric(9,2) unsigned,
+c_decimal decimal(9,2),
+c_decimal_unsigned decimal(9,2) unsigned,
+c_integer integer,
+c_integer_unsigned integer unsigned,
+c_largeint largeint,
+c_smallint smallint,
+c_smallint_unsigned smallint unsigned,
+c_tinyint tinyint,
+c_tinyint_unsigned tinyint unsigned,
+c_float float(10),
+c_real real,
+c_double_precision double precision,
+c_date date,
+c_time time,
+c_time6 time(6),
+c_timestamp0 timestamp(0),
+c_timestamp timestamp,
+c_timestamp6 timestamp(6),
+c_interval interval year to month,
+c_intervals86 interval second(8,6),
+c_intervald6s interval day(6) to second(6),
+c_blob blob (100),
+c_clob clob (100),
+c_boolean boolean
+);
+
+insert into t001_Datatypes values (
+'CHAR_1',
+'char_1',
+'char_1',
+'CHARVAR_1',
+'charvar_1',
+'charvar_1',
+'VARCHAR_1',
+'varchar_1',
+'varchar_1',
+'NCHAR_1',
+'nchar_1',
+'nchar_1',
+'NCHARVAR_1',
+'ncharvar_1',
+'ncharvar_1',
+-1,
+1,
+-1.11,
+1.11,
+-1,
+1,
+-1,
+-1,
+1,
+-1,
+1,
+-1.11,
+-1.11,
+-1.11,
+date '2001-01-01',
+time '01:01:01',
+time '01:01:01.111111',
+timestamp '2001-01-01 01:01:01',
+timestamp '2001-01-01 01:01:01.111111',
+timestamp '2001-01-01 01:01:01.111111',
+interval '01-01' year to month,
+interval '88888888.666666' second(8,6),
+interval '666666 23:59:59.999999' day(6) to second(6),
+-- use these when real LOBs are enabled in this test
+--stringtolob('BLOB_1'),
+--stringtolob('CLOB_1')
+-- for now, use simple chars, see cqd TRAF_BLOB_AS_VARCHAR above
+'BLOB_1',
+'CLOB_1',
+true
+);
+
+?section register_functions
+--------------------------------------------------------------------------
+
+create library TEST001 file $$QUOTE$$ $$REGRRUNDIR$$/$$DLL$$ $$QUOTE$$;
+
+-- Sessionize uses a compiler interface to
+-- create result columns that match those of any input table given
+-- and it validates the column name for session id at compile time
+create table_mapping function sessionize_dynamic(user_colname char(10),
+                                                 ts_colname char(20),
+                                                 timeintval int)
+external name 'SESSIONIZE_DYNAMIC'
+library TEST001;
+
+-- This shows that we can share the same binaries for multiple
+-- TMUDFs, note that it uses the same external name SESSIONIZE_DYNAMIC
+create table_mapping function sessionize_dynamic_shared(user_colname char(10),
+                                                        ts_colname char(10),
+                                                        timeintval int)
+external name 'SESSIONIZE_DYNAMIC'
+language cpp
+library TEST001;
+
+-- create the equivalent Java library and TMUDF
+create library TEST001_Java file $$QUOTE$$ $$REGRRUNDIR$$/TEST001.jar $$QUOTE$$;
+
+create table_mapping function sessionize_java(user_colname char(10),
+                                              ts_colname char(20),
+                                              timeintval int)
+external name 'TEST001_Sessionize'
+language java
+library TEST001_Java;
+-- negative test case, the entry point SESSIONIZE_ERR does not exist
+create table_mapping function sessionize_err(dummy char(10))
+returns (session_id largeint)
+external name 'SESSIONIZE_NON_EXISTENT'
+language cpp
+library TEST001;
+
+
+-- For now this will succeed, since we don't load the library during
+-- DDL time. We will get an error at runtime, though.
+
+-- Testing a TMUDF with no table-valued inputs
+create table_mapping function "Fibonacci"(start_row int, num_rows int)
+returns (ordinal int, fibonacci_number largeint)
+external name 'Fibonacci'
+language cpp
+library TEST001;
+
+-- same in Java
+create table_mapping function fibonacci_java(start_row int, num_rows int)
+returns (ordinal int, fibonacci_number largeint)
+external name 'TEST001_Fibonacci'
+language java
+library TEST001_Java;
+
+--negative test . Non existent external name should throw "classNotFound" exception.
+create table_mapping function fibonacci_java2(start_row int, num_rows int)
+returns (ordinal int, fibonacci_number largeint)
+external name 'TEST001_Fibonacci_err'
+language java
+library TEST001_Java;
+
+?section tests
+--------------------------------------------------------------------------
+--cqd attempt_esp_parallelism 'off' ;
+
+get table_mapping functions for library TEST001 ;
+
+showddl table_mapping function sessionize_dynamic;
+
+get table_mapping functions for library TEST001_Java ;
+
+showddl table_mapping function sessionize_java;
+
+SELECT cast(CONVERTTIMESTAMP(ts) as TIME(6)), userid, session_id, ipAddr
+FROM UDF(sessionize_dynamic(TABLE(SELECT userid,
+                                         JULIANTIMESTAMP(ts) as TS,
+                                         ipAddr
+                                  FROM clicks
+                                  PARTITION BY 1 ORDER BY 2),
+                            'USERID',
+                            'TS',
+                            60000000))
+ORDER BY 2, 1, 3;
+
+SELECT cast(CONVERTTIMESTAMP(ts) as TIME(6)), userid, session_id, ipAddr
+FROM UDF(sessionize_dynamic(TABLE(SELECT userid,
+                                         JULIANTIMESTAMP(ts) as TS,
+                                         ipAddr
+                                  FROM clicks
+                                  WHERE userid='super-user'
+                                  PARTITION BY 1 ORDER BY 2),
+                            'USERID',
+                            'TS',
+                            60000000))
+ORDER BY 2, 1, 3;
+SELECT cast(CONVERTTIMESTAMP(ts) as TIME(6)), userid, session_id, ipAddr
+FROM UDF(sessionize_dynamic(TABLE(SELECT userid,
+                                         JULIANTIMESTAMP(ts) as TS,
+                                         ipAddr
+                                  FROM clicks
+                                  WHERE userid='super-user'
+                                  PARTITION BY 1 ORDER BY 2),
+                            'USERID',
+                            'TS',
+                            60000000))
+ORDER BY 2, 1, 3;
+
+-- call sessionize_dynamic_shared, sharing the same DLL
+SELECT session_id, sequence_no, ts, ipaddr 
+FROM UDF(sessionize_dynamic_shared(TABLE(SELECT userid,
+                                                JULIANTIMESTAMP(ts) as TS,
+                                                ipAddr
+                                         FROM clicks
+                                         PARTITION BY ipaddr ORDER BY ts),
+                                   'IPADDR',
+                                   cast('TS' as char(2)),
+                                   60000000)) XO
+ORDER BY ipaddr, session_id, sequence_no;
+
+-- uniqueness constraint avoids a groupby
+explain options 'fc'
+SELECT distinct ipaddr, session_id, sequence_no
+FROM UDF(sessionize_dynamic(TABLE(SELECT userid,
+                                         JULIANTIMESTAMP(ts) as TS,
+                                         ipAddr
+                                  FROM clicks
+                                  PARTITION BY ipaddr ORDER BY ts),
+                            'IPADDR',
+                            cast('TS' as char(2)),
+                            60000000)) XO
+where session_id < 10;
+
+control query shape tmudf(sort(scan));
+-- predicate on IPADDR is evaluated in child,
+-- predicate on SESSION_ID is evaluated in the UDF
+prepare s from
+SELECT *
+FROM UDF(sessionize_dynamic(TABLE(SELECT userid,
+                                         JULIANTIMESTAMP(ts) as TS,
+                                         ipAddr
+                                  FROM clicks
+                                  PARTITION BY ipaddr ORDER BY ts),
+                            'IPADDR',
+                            cast('TS' as char(2)),
+                            60000000)) XO
+where SESSION_ID < 2 and
+      IPADDR = '12.345.567.345';
+control query shape anything;
+select count(*) from table(explain(null,'S'))
+where operator = 'TMUDF'
+  and description like '% preds_evaluated_by_udf: (SESSION_ID < 2) %';
+execute s;
+
+-- now test Java UDFs in a similar way
+SELECT cast(CONVERTTIMESTAMP(ts) as TIME(6)), userid, session_id, ipAddr
+FROM UDF(sessionize_java(TABLE(SELECT userid,
+                                      JULIANTIMESTAMP(ts) as TS,
+                                      ipAddr
+                               FROM clicks
+                               PARTITION BY 1 ORDER BY 2),
+                         'USERID',
+                         'TS',
+                         60000000))
+ORDER BY 2, 1, 3;
+
+-- uniqueness constraint avoids a groupby
+prepare s from
+SELECT distinct ipaddr, session_id, sequence_no
+FROM UDF(sessionize_java(TABLE(SELECT userid,
+                                      JULIANTIMESTAMP(ts) as TS,
+                                      ipAddr
+                               FROM clicks
+                               PARTITION BY ipaddr ORDER BY ts),
+                         'IPADDR',
+                         cast('TS' as char(2)),
+                         60000000)) XO
+where session_id < 10
+ORDER BY 2, 1, 3;
+explain options 'fc' s;
+execute s;
+
+-- predicate on IPADDR is evaluated in child,
+-- predicate on SESSION_ID is evaluated in the UDF
+prepare s from
+SELECT *
+FROM UDF(sessionize_java(TABLE(SELECT userid,
+                                      JULIANTIMESTAMP(ts) as TS,
+                                      ipAddr
+                               FROM clicks
+                               PARTITION BY ipaddr ORDER BY ts),
+                         'IPADDR',
+                         cast('TS' as char(2)),
+                         60000000)) XO
+where SESSION_ID < 2 and
+      IPADDR = '12.345.567.345';
+select count(*) from table(explain(null,'S'))
+where operator = 'TMUDF'
+  and description like '% preds_evaluated_by_udf: (SESSION_ID < 2) %';
+execute s;
+
+-- eliminate all columns
+prepare s from
+SELECT COUNT(*)
+FROM UDF(sessionize_java(TABLE(SELECT userid,
+                                      JULIANTIMESTAMP(ts) as TS,
+                                      ipAddr
+                               FROM clicks
+                               PARTITION BY ipaddr ORDER BY ts),
+                         'IPADDR',
+                         cast('TS' as char(2)),
+                         60000000)) XO;
+execute s;
+
+-- will fail until tinyint support is added for spj/procedures
+cqd traf_tinyint_spj_support 'ON';
+select *
+from UDF("Fibonacci"(1,10)) XO
+order by 1;
+cqd traf_tinyint_spj_support reset;
+
+select *
+from UDF("Fibonacci"(1,10)) XO
+order by 1;
+
+select sum(fibonacci_number)
+from UDF("Fibonacci"(50,10)) XO;
+
+select *
+from UDF(fibonacci_java(1,10)) XO
+order by 1;
+
+select sum(fibonacci_number)
+from UDF(fibonacci_java(50,10)) XO;
+
+control query shape join(tmudf, tmudf);
+select *
+from UDF("Fibonacci"(1,10)) natural join UDF(fibonacci_java(1,10));
+control query shape off;
+
+select *
+from UDF("Fibonacci"(1,10)) cpp1 natural join
+     UDF(fibonacci_java(1,10)) java1 natural join
+     UDF(fibonacci_java(1,10)) java2;
+
+prepare s from
+select * from udf(sessionize_dynamic(table(select * from t001_Datatypes),
+                                     'C_VARCHAR', 'C_DECIMAL_UNSIGNED', 60));
+execute s;
+execute s;
+
+prepare s from
+select * from udf(sessionize_java(table(select *, cast(? as int)
+                                        from t001_Datatypes),
+                                  'C_VARCHAR', 'C_DECIMAL_UNSIGNED', 60));
+execute s using 123;
+execute s using 456;
+
+prepare s from
+select * 
+from udf(sessionize_dynamic(table(select * from t001_Datatypes),
+                            'C_VARCHAR', 'C_DECIMAL_UNSIGNED', 60)) cpp
+     natural join
+     udf(sessionize_java(table(select * from t001_Datatypes),
+                         'C_VARCHAR', 'C_DECIMAL_UNSIGNED', 60)) java;
+execute s;
+execute s;
+
+-- negative tests
+select * from udf(sessionize_err('abc')) XOX(a);
+-- expect error 11246
+
+-- these should be caught by the compiler interface
+select * from udf(sessionize_dynamic(table (select * from clicks), 'TS')) XOX;
+-- too few input parameters
+select * from udf(sessionize_dynamic(table (select * from clicks), 1,2,3)) XOX;
+-- not a string parameter
+select * from udf(sessionize_dynamic(TABLE(SELECT userid, JULIANTIMESTAMP(ts) as TS
+                          FROM clicks
+                          PARTITION BY userid ORDER BY ts),
+TABLE(SELECT userid, JULIANTIMESTAMP(ts) as TS
+                          FROM clicks
+                          PARTITION BY userid ORDER BY ts),
+cast('TS' as char(2)),
+                    'USERID',
+                    60000000)) XOX;
+-- too many table-valued arguments (syntax error for now)
+SELECT cast(CONVERTTIMESTAMP(ts) as TIME(6)), userid, session_id
+FROM UDF(sessionize_dynamic(TABLE(SELECT userid, JULIANTIMESTAMP(ts) as TS
+                                  FROM clicks
+                                  PARTITION BY userid ORDER BY ts),
+                            'NONEXISTENTCOL',
+                            'USERID',
+                            60000000)) XOX;
+-- non-existent column specified in input parameter
+SELECT cast(CONVERTTIMESTAMP(ts) as TIME(6)), userid, session_id
+FROM UDF(sessionize_dynamic(TABLE(SELECT userid, JULIANTIMESTAMP(ts) as TS
+                                  FROM clicks
+                                  PARTITION BY 3 ORDER BY ts),
+                            'SESSION_ID',
+                            'TS',
+                            60000000)) XOX;
+-- PARTITION BY 3 has an invalid column number
+
+ CREATE LIBRARY TRAFODION.SCH.ALTERTEST FILE $$QUOTE$$ $$REGRRUNDIR$$/TEST001.dll $$QUOTE$$;
+ ALTER LIBRARY TRAFODION.SCH.ALTERTEST FILE $$QUOTE$$ $$REGRRUNDIR$$/TEST001.jar $$QUOTE$$;
+
+log;
+sh sh $$scriptsdir$$/tools/java-compile.ksh TEST001qaTmudf.java 2>> LOG001-SECONDARY | tee -a LOG001;
+sh sh $$scriptsdir$$/tools/java-archive.ksh TEST001qaTmudf.jar TEST001qaTmudf.class 2>> LOG001-SECONDARY | tee -a LOG001;
+log LOG001;
+
+CREATE LIBRARY TRAFODION.SCH.TEST001MYLIB FILE $$QUOTE$$ $$REGRRUNDIR$$/TEST001qaTmudf.jar $$QUOTE$$;
+
+create table_mapping function myfunc(
+c1 decimal(9,2),
+c2 decimal(9,2) unsigned,
+c3 numeric(9,2),
+c4 numeric(9,2) unsigned
+)
+external name 'TEST001qaTmudf'
+language java
+library TEST001MYLIB;
+
+select * from UDF(myfunc(TABLE(select * from (values (1)) as t), -20.20, 20.20, -20.20, 20.20));
+
+log;
+sh sh $$scriptsdir$$/tools/java-compile.ksh TEST001qaTmudf2.java 2>> LOG001-SECONDARY | tee -a LOG001;
+sh sh $$scriptsdir$$/tools/java-archive.ksh TEST001qaTmudf2.jar TEST001qaTmudf2.class 2>> LOG001-SECONDARY | tee -a LOG001;
+log LOG001;
+
+CREATE LIBRARY TRAFODION.SCH.TEST001MYLIB2 FILE $$QUOTE$$ $$REGRRUNDIR$$/TEST001qaTmudf2.jar $$QUOTE$$;
+
+set terminal_charset iso88591;
+create table_mapping function test001myfunc2()
+external name 'TEST001qaTmudf2'
+language java
+library TEST001MYLIB2;
+
+create table TEST001TABLE(c1 char(5), c2 varchar(5), c3 binary(5), c4 varbinary(5));
+insert into TEST001TABLE values ('A1', 'B1', 'A1', 'B1');
+insert into TEST001TABLE values (chr(0)||'中', chr(0)||'中', chr(0)||'中', chr(0)||'中');
+
+select * from UDF(test001myfunc2(TABLE(select * from TEST001TABLE)));
+

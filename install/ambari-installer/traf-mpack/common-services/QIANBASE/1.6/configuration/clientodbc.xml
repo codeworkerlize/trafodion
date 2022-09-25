@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration supports_final="false">
+
+  <!-- Define configuration paramaters for service: property name, default value and description (shown as help text) -->
+  
+  <property>
+    <name>content</name>
+    <display-name>odbcinst template</display-name>
+    <description>Template for odbcinst.ini file</description>
+    <value>
+[Trafodion]
+Description = Trafodion ODBC Stand Alone Driver
+Driver = {{traf_home}}/export/lib{{sq_mbtype}}/libtrafodbc_drvr64.so
+FileUsage = 1
+UsageCount = 1
+AppUnicodeType = utf16
+
+[ODBC]
+Threading = 1
+Trace = Off
+Tracefile = uodbc.trc
+
+    </value>
+    <value-attributes>
+      <type>content</type>
+    </value-attributes>
+  </property>
+</configuration>

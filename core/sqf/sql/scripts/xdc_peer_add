@@ -1,0 +1,153 @@
+#!/bin/bash
+# @@@ START COPYRIGHT @@@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+# @@@ END COPYRIGHT @@@
+#
+
+function Usage {
+    echo
+    echo "Usage: $0 {-i <nn> | -q <an,.>| -p <nn> | -h}"
+    echo
+    echo "-i ID of the peer (A number between 1 and 100 (inclusive))"
+    echo
+    echo "-q Zookeeper quorum (comma-separated list of server names/IP addresses)"
+    echo
+    echo "   Value of the property: hbase.zookeeper.quorum from peer's hbase-site.xml"
+    echo "   If this property does not exist in hbase-site.xml then the peer is most likely a standalone HBase server."
+    echo "   In this case, simply provide the server name or the IP address of the server where HBase is running."
+    if [[ -e $TRAF_HOME/sql/scripts/sw_env.sh ]]; then
+    # we are on a development system where install_local_hadoop has been executed.
+                echo
+                echo "   If install_local_hadoop was used to setup the peer env, then the hbase-site.xml will exist in the dir:"
+                echo "   \$TRAF_HOME/sql/local_hadoop/hbase/conf"
+    fi
+    echo
+    echo "-p Zookeeper port number"
+    echo
+    echo "   Value of the property: hbase.zookeeper.property.clientPort from peer's hbase-site.xml"
+    echo "   (Defaults to 2181)"
+    echo
+    echo "-h Help "
+    echo
+}
+
+
+if [ -z $TRAF_HOME ]; then
+    echo
+    echo "The TRAF_HOME environment variable does not exist."
+    echo "Please ensure sqenv.sh has been sourced."
+    echo
+    exit 1;
+fi
+
+if [ -z $JAVA_HOME ]; then
+    echo "The environment variable \$JAVA_HOME has not been set"
+    echo "Please ensure \$TRAF_HOME/sqenv.sh has been sourced."
+    echo
+    exit 1;
+fi
+
+declare -i lv_peer_id
+declare -i lv_zookeeper_port
+
+let lv_peer_id=0
+let lv_zookeeper_port=2181
+
+while getopts "i:q:p:h" lv_arg $1 $2 $3 $4 $5 $6 $7 $8 $9
+do
+    case $lv_arg in
+                i)
+                    lv_peer_id=${OPTARG}
+                    if (
+                                    [ $lv_peer_id -lt 1 ] ||
+                                    [ $lv_peer_id -gt 100 ]
+                                ); then
+                                echo "Please provide a peer id in the range 1-100"
+                                exit 1
+                    fi
+                    ;;
+
+                q)
+                    lv_zookeeper_quorum=${OPTARG}
+                    ;;
+
+                p)
+                    lv_zookeeper_port=${OPTARG}
+                    ;;
+
+                h)
+                    lv_help=1
+                    Usage
+                    exit 0
+            ;;
+    esac
+done
+
+if [ -z "${lv_zookeeper_quorum}" ]; then
+    echo
+    echo "Error: Please specify the peer's zookeeper quorum"
+    Usage
+    exit 1
+fi
+
+if [ $lv_peer_id -lt 1 ]; then
+    echo
+    echo "Error: The peer id should be in the range 1-100"
+    Usage
+    exit 1
+fi
+
+echo "Peer ID ............... : ${lv_peer_id}"
+echo "Peer's Zookeeper Quorum : ${lv_zookeeper_quorum}"
+echo "Peer's Zookeeper Port.. : ${lv_zookeeper_port}"
+
+lv_dir="$TRAF_HOME/conf/peer${lv_peer_id}"
+echo "Creating the directory: ${lv_dir}"
+mkdir -p $lv_dir
+
+lv_hbase_site_xml=${lv_dir}/hbase-site.xml
+echo "Creating the file: ${lv_hbase_site_xml}"
+
+cat <<EOF > ${lv_hbase_site_xml}
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+
+<!-- Put site-specific property overrides in this file. -->
+
+<configuration>
+  <property>
+    <name>hbase.zookeeper.quorum</name>
+    <value>${lv_zookeeper_quorum}</value>
+  </property>
+  <property>
+    <name>hbase.zookeeper.property.clientPort</name>
+    <value>${lv_zookeeper_port}</value>
+  </property>
+  <property>
+    <name>esgyn.cluster.id</name>
+    <value>${lv_peer_id}</value>
+  </property>
+</configuration>
+EOF
+
+$JAVA_HOME/bin/java org.apache.hadoop.hbase.client.transactional.HBaseDCZK -set -id ${lv_peer_id} -quorum ${lv_zookeeper_quorum} -port ${lv_zookeeper_port} -status sup 2>/dev/null
+
+exit 0
+

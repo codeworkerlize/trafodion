@@ -1,0 +1,14 @@
+986a987,988
+> *** WARNING[5001] Common subexpression YEAR_TOTAL will not be shared among multiple consumers. Reason: Differing inputs in CTE references, try CQD QUERY_CACHE '0'.
+> 
+990,997c992
+< OPERATOR HOW_MANY
+< ----------
+< 
+< BLOCKED_UNION 2
+< HIVE_INSERT 1
+< SCAN TEMP 6
+< 
+< --- 3 row(s) selected.
+---
+> --- 0 row(s) selected.

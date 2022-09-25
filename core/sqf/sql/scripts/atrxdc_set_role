@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+
+if [ $# != 1 ] || ( [ $1 != "primary" ] && [ $1 != "secondary" ] ); then
+    echo "***ERROR no correct parameter provided"
+    echo ""
+    echo "usage: atrxdc_set_role { primary | secondary }"
+    echo "example: atrxdc_set_role primary "
+    exit 1
+fi
+
+current_role=$(atrxdc -get role)
+
+if [[ $current_role == $1 ]]; then
+    echo "current cluster role already $1, do nothing"
+    exit 0
+fi
+
+if [[ $1 == "primary" ]]; then
+    # TODO: switch from secondary to primary, we should do some check to make sure we can switch to primary.
+    # 1. shutdown atrxdc services
+    atrxdc_process_num=$(atrxdc_check)
+    if [[  ${atrxdc_process_num} != "" ]]; then
+        while true; do
+            read -p "detect atrxdc services are running, shutdown to continue? [y/n]:" yn
+            case $yn in
+                [Yy]* ) atrxdc_stop; break;;
+                [Nn]* ) exit;;
+                * ) echo "Please answer yes or no.";;
+            esac
+        done
+    fi
+    # 2. replay sequence
+    atrxdc -replayseq
+    # TODO:  -- write down max checked commitID to ZK
+    # 3. make sure all binlog replayed and completeness check succeeded.
+    # TODO:  -- when asyncmanager fetch nothing from primary cluster, the manager will try to update sequence value. if all done, check if primary cluster has new log, if no mark the cluster switch ready in ZK.
+    echo "ready to switch to to role: $1"
+fi
+
+atrxdc -set role $1

@@ -1,0 +1,10 @@
+<hhdfs_table_stats position='-1' numBlocks='1' numFiles='1' totalRows='54' numStripes='1' totalStringLengths='11977' totalSize='8304' modificationTS='1470644869' sampledBytes='0' sampledRows='0' tableDir='hdfs://nap001.esgyn.local:8020/user/hive/warehouse/tpcds_sf1000.db/web_site' numOfPartCols='0' totalNumPartitions='1' recordTerminator='10' fieldTerminator='1' validationJTimestamp='212339595277919745' hiveStatsSize='0' type='3'>
+    <hhdfs_list_part_stats position='0' numBlocks='1' numFiles='1' totalRows='54' numStripes='1' totalStringLengths='11977' totalSize='8304' modificationTS='1470644867' sampledBytes='0' sampledRows='0' partitionDir='hdfs://nap001.esgyn.local:8020/user/hive/warehouse/tpcds_sf1000.db/web_site' partIndex='0' defaultBucketIdx='0' recordTerminator='10'>
+        <hhdfs_bucket_stats position='0' numBlocks='1' numFiles='1' totalRows='54' numStripes='1' totalStringLengths='11977' totalSize='8304' modificationTS='1470644867' sampledBytes='0' sampledRows='0' scount='0'>
+            <hhdfs_orc_file_stats position='0' numBlocks='1' numFiles='1' totalRows='54' numStripes='1' totalStringLengths='11977' totalSize='8304' modificationTS='1470644867' sampledBytes='0' sampledRows='0' fileName='hdfs://nap001.esgyn.local:8020/user/hive/warehouse/tpcds_sf1000.db/web_site/000000_0' replication='3' blockSize='268435456' blockHosts='5|1|3' 
+numOfRows='54' offsets='3' totalBytes='6982'>
+            </hhdfs_orc_file_stats>
+        </hhdfs_bucket_stats>
+    </hhdfs_list_part_stats>
+</hhdfs_table_stats>
+

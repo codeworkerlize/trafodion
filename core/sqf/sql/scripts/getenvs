@@ -1,0 +1,1396 @@
+#!/bin/bash
+#
+# @@@ START COPYRIGHT @@@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+# @@@ END COPYRIGHT @@@
+#
+
+#Get All Envirioment Script. 
+
+curtime=`date '+%Y%m%d%H%M%S'`
+getenvslog="getenvs_${curtime}.log"
+type="ALL"
+username="admin"
+password="admin"
+URL="localhost"
+stack="false"
+systable="false"
+
+dbuser="trafodion"
+hdfsuser="hdfs"
+hbaseuser="hbase"
+zkuser="zookeeper"
+
+# hide parameter for debug
+onenode="false"
+debugmode="false"
+userwshorts=""
+usernodesname=""
+
+schemaname=""
+tablename=""
+
+# the functions
+usage(){
+	cmdpath=$0
+	cmd=${cmdpath##*/}
+	echo -e "    命令: ${cmd} [OPTIONS]"
+	echo -e ""
+	echo -e "    语法："
+	echo -e "    ${cmd} [-t type] [-u user] [-p pass] [-U url] [-w node] [-k | -s] [-S schemaname] [-T tablename] [-v | -h]"
+	echo -e ""
+	echo -e "    选项："
+	echo -e "    -t <type>        获取环境的类型"
+	echo -e "       CDH [-u username] [-p password] [-U URL]: 收集CDH环境的参数配置"
+	echo -e "       OS            收集操作系统信息"
+	echo -e "       CPU           收集处理器信息"
+	echo -e "       MEM           收集内存信息"
+	echo -e "       DISK          收集磁盘信息"
+	echo -e "       NET           收集网络信息"
+	echo -e "       ZK            收集Zookeeper信息"
+	echo -e "       HDFS          收集HDFS信息"
+	echo -e "       HBASE         收集HBase信息"
+	echo -e "       DB            收集CDH信息"
+	echo -e "       MTS           收集提交Mantis必须的信息"
+	echo -e "       TABLE         评估当前一个批量可以更新的行数， 该参数必须配合-S和-T参数使用"
+	echo -e "    -k               收集堆栈信息，默认为不收集"
+	echo -e "                     当type为DB时，收集进程的pstack和jstack信息"
+	echo -e "                     当type为ZK、HDFS和HBASE时，收集进程的jstack堆栈信息"
+	echo -e "    -s               收集数据库系统表数据信息：默认为不收集"
+	echo -e "    -S               要评估的SCHEMA名，该参数只有-t是TABLE时才有用"
+	echo -e "    -T               要评估的表名，该参数只有-t是TABLE时才有用"
+	echo -e "    -w               指定管理节点的hostname，可以指定多个"
+	echo -e ""
+	echo -e "    -v               打印[${cmd}]版本信息并退出"
+	echo -e "    -h               打印[${cmd}]帮助信息并退出"
+
+	exit 0
+}
+
+version(){
+    echo -e "    获取环境信息脚本版本号[0.1.0]"
+    exit 0
+}
+
+function print_msg
+{
+    deep=$1
+    msg=$2
+	pm_logfile=$3
+
+	curtime=`date '+%Y-%m-%d %H:%M:%S'`
+    case $deep in
+    1)
+        echo
+		echo >> ${pm_logfile} 2>&1
+        prefix="=  ${curtime} "
+        ;;
+    2)
+        prefix="== ${curtime} "
+        ;;
+    *)
+        prefix=""
+        ;;
+    esac
+    echo "${prefix}${msg}"
+    echo "${prefix}${msg}" >> ${pm_logfile} 2>&1
+}
+
+while getopts ":t:u:p:S:T:U:w:dkosvh" opt
+do
+    case "$opt" in
+        t)
+			type=${OPTARG^^}
+			if [ "x${type}" = "xALL" ]; then
+				stack="true"
+				systable="true"
+			fi
+
+			print_msg 0 "-t ${type}" ${getenvslog}
+			;;
+
+        u)
+			if [ "x${type}" = "xCDH" ]; then
+				username=${OPTARG}
+			else
+				usage
+			fi
+			print_msg 0 "-u ${username}" ${getenvslog}
+			;;
+
+        p)
+			if [ "x${type}" = "xCDH" ]; then
+				password=${OPTARG}
+			else
+				usage
+			fi
+			print_msg 0 "-p ${password}" ${getenvslog}
+			;;
+
+		U)
+			if [ "x${type}" = "xCDH" ]; then
+				URL=${OPTARG}
+			else
+				usage
+			fi
+			print_msg 0 "-U ${URL}" ${getenvslog}
+			;;
+
+		w)
+			wshort=${OPTARG}
+			userwshorts="-w ${wshort} ${userwshorts}"
+			usernodesname="${wshort} ${usernodesname}"
+			print_msg 0 "-w ${wshort}" ${getenvslog}
+			;;
+
+		k)
+			stack="true"
+			print_msg 0 "-k" ${getenvslog}
+			;;
+
+		s)
+			systable="true"
+			print_msg 0 "-s" ${getenvslog}
+			;;
+
+		S)
+			schemaname=${OPTARG}
+			print_msg 0 "-S ${schemaname}" ${getenvslog}
+			;;
+		T)
+			tablename=${OPTARG}
+			print_msg 0 "-T ${tablename}" ${getenvslog}
+			;;
+		o)
+			onenode="true"
+			;;
+
+		d)
+			debugmode="true"
+			;;
+
+		v)
+			version ;;
+
+        h|*) 
+			usage ;;
+    esac
+done
+
+function print_time
+{
+	PREVtime=$1
+	msg=$2
+	pt_logfile=$3
+
+	STOPtime=$(date +%s)
+	seconds=$(($STOPtime - $PREVtime))
+
+	hours=$((seconds / 3600))
+	seconds=$((seconds % 3600))
+	minutes=$((seconds / 60))
+	seconds=$((seconds % 60))
+
+	logsize=`ls -lh ${pt_logfile} | awk '{ print $5}'`
+	# echo "STARTtime:${STARTtime}, STOPtime:${STOPtime}, PREVtime:${PREVtime}, seconds:${seconds}"
+	if [ "x${pt_logfile}" != "x${getenvslog}" ]; then
+		print_msg 0 "   Time Cost: $hours:$minutes:$seconds Log Size: ${logsize} ${msg}" ${pt_logfile}
+	else
+		print_msg 0 "============================================ End =============================================" ${pt_logfile}
+		print_msg 0 "       The Result File [${pt_logfile} ${logsize}], Time Cost: $hours:$minutes:$seconds" ${pt_logfile}
+		print_msg 0 "==============================================================================================" ${pt_logfile}
+	fi
+}
+
+function command_exist
+{
+	which $1 >/dev/null 2>&1
+
+	return $?
+}
+
+function run_cmd_all_nodes
+{
+	msg=$1
+	cmdline=$2
+	rcan_logfile=$3
+	if [ $# != 3 ]; then
+		print_msg 0 "[ERROR] there are some issues in parameters [msg:${msg}, cmd:${cmdline}, log:${rcan_logfile}] when run run_cmd_all_nodes!" ${rcan_logfile}
+		return
+	fi
+
+	print_msg 2 "Get ${msg} Via Run Command [${cmdline}] On All Nodes" ${rcan_logfile}
+	${allexec} "${cmdline}" >> ${rcan_logfile} 2>&1
+	echo >> ${rcan_logfile} 2>&1
+
+	if [ "x${debugmode}" = "xtrue" ]; then
+		print_time ${STOPtime} "run_cmd_all_nodes: ${allexec} \"${cmdline}\" >> ${rcan_logfile}" ${rcan_logfile}
+	fi
+}
+
+function run_cmd
+{
+	msg=$1
+	cmdline=$2
+	rc_logfile=$3
+	if [ $# != 3 ]; then
+		print_msg 0 "[ERROR] there are some issues in parameters [msg:${msg}, cmd:${cmdline}, log:${rc_logfile}] when run run_cmd!" ${rc_logfile}
+		return
+	fi
+
+	print_msg 2 "Get ${msg} Via Run Command Line [${cmdline}] On Node" ${rc_logfile}
+	cmd=`echo ${cmdline} | awk '{ print $1 }'`
+	command_exist ${cmd}
+	isexist=$?
+	if [ ${isexist} = 0 ]; then
+		${cmdline} >> ${rc_logfile} 2>&1
+	else
+		print_msg 0 "[ERROR] the command [${cmd}] is not exist on the node!" ${rc_logfile}
+	fi
+	echo >> ${rc_logfile} 2>&1
+
+	if [ "x${debugmode}" = "xtrue" ]; then
+		print_time ${STOPtime} "run_cmd: ${cmdline} >> ${rc_logfile}" ${rc_logfile}
+	fi
+}
+
+function db_run_cmd
+{
+	msg=$1
+	cmdline=$2
+	drc_logfile=$3
+
+	if [ $# != 3 ]; then
+		print_msg 0 "[ERROR] there are some issues in parameters [msg:${msg}, cmd:${cmdline}, log:${drc_logfile}] when run db_run_cmd!" ${drc_logfile}
+		return
+	fi
+
+	print_msg 2 "Get ${msg} Via Run Command Line [${dbuserexec} \"${cmdline}\"] On Node" ${drc_logfile}
+	${dbuserexec} "${cmdline}" >> ${drc_logfile} 2>&1
+	echo >> ${drc_logfile} 2>&1
+
+	if [ "x${debugmode}" = "xtrue" ]; then
+		print_time ${STOPtime} "db_run_cmd: ${dbuserexec} \"${cmdline}\" >> ${drc_logfile}" ${drc_logfile}
+	fi	
+}
+
+function get_mantis_info
+{
+	case ${type} in
+		MTS)
+			;;
+
+		*)
+			return
+			;;
+	esac
+
+	mantis_logfile=$1
+
+	print_msg 1 "Report Mantis Information:" ${mantis_logfile}
+	run_cmd_all_nodes "Platform Architecture" "uname -a" ${mantis_logfile}
+	command_exist lsb_release
+	isexist=$?
+	if [ ${isexist} = 0 ]; then
+		run_cmd_all_nodes "Operator System Version" "lsb_release -a" ${mantis_logfile}
+	else
+		versionfile="/etc/redhat-release"
+		if [ -f ${versionfile} ]; then
+			run_cmd_all_nodes "Operator System Version" "cat ${versionfile}" ${mantis_logfile}
+		else
+			print_msg 0 "[ERROR] Don't installed lsb_release, and this's unknown OS" ${mantis_logfile}
+		fi
+	fi
+
+	db_run_cmd "Database Version" "sqvers -s" ${mantis_logfile}
+	db_run_cmd "Database Nodes Configure Information" "trafconf -node" ${mantis_logfile}
+	run_cmd "CLuster Nodes IPs" "cat /etc/hosts" ${mantis_logfile}
+
+	print_time ${STOPtime} "Mantis" ${mantis_logfile}
+}
+
+
+function get_os_info
+{
+	case ${type} in
+		OS | ALL)
+			;;
+
+		*)
+			return
+			;;
+	esac
+
+	os_logfile=$1
+
+	print_msg 1 "Operator System Information:" ${os_logfile}
+	run_cmd_all_nodes "Platform Architecture" "uname -a" ${os_logfile}
+	command_exist lsb_release
+	isexist=$?
+	if [ ${isexist} = 0 ]; then
+		run_cmd_all_nodes "Operator System Version" "lsb_release -a" ${os_logfile}
+	else
+		versionfile="/etc/redhat-release"
+		if [ -f ${versionfile} ]; then
+			run_cmd_all_nodes "Operator System Version" "cat ${versionfile}" ${os_logfile}
+		else
+			print_msg 0 "[ERROR] Don't installed lsb_release, and this's unknown OS" ${os_logfile}
+		fi
+	fi
+	messages_log=${tmproot}/os_messages.log
+	run_cmd_all_nodes "Operator System Messages" "cat /var/log/messages" ${messages_log} &
+	uptime_log=${tmproot}/os_uptime.log
+	run_cmd_all_nodes "Operator System Startup Time" "uptime" ${uptime_log}              &
+	sysctl_log=${tmproot}/os_sysctl.log
+	run_cmd_all_nodes "Operator System Configuration" "sysctl -a" ${sysctl_log}          &
+	toph_log=${tmproot}/os_toph.log
+	run_cmd_all_nodes "Operator System Threads" "top -H -b -c -bw 200 -n 1" ${toph_log}   &
+
+	run_cmd_all_nodes "Operator System Envirioment" "env" ${os_logfile}
+	run_cmd_all_nodes "Operator System ipcs" "ipcs" ${os_logfile}
+	run_cmd_all_nodes "Operator System ipcs -lm" "ipcs -lm" ${os_logfile}
+	run_cmd_all_nodes "Operator System Current Time" "date +%Y-%m-%d' '%H:%M:%S.%N" ${os_logfile}
+	run_cmd_all_nodes "Operator System NTP Status" "ntpstat" ${os_logfile}
+	run_cmd_all_nodes "Operator System Processes" "top -b -c -bw 200 -n 1" ${os_logfile}
+	run_cmd_all_nodes "Operator System Zombie Processes" "ps -A -o stat,ppid,pid,cmd | grep -e '^[zZ]'" ${os_logfile}
+	run_cmd_all_nodes "Operator System Java Version" "java -version" ${os_logfile}
+	run_cmd_all_nodes "Operator System GCC Version" "gcc -v" ${os_logfile}
+	run_cmd_all_nodes "Operator System G++ Version" "g++ -v" ${os_logfile}
+	run_cmd_all_nodes "Operator System BC Version" "whereis bc" ${os_logfile}
+	run_cmd_all_nodes "Operator System GLIBC" "rpm -qa | grep glibc" ${os_logfile}
+	run_cmd_all_nodes "Operator System User ${hdfsuser} ulimit" "${hdfsuserexec} \"ulimit -a\"" ${os_logfile}
+	run_cmd_all_nodes "Operator System User ${hbaseuser} ulimit" "${hbaseuserexec} \"ulimit -a\"" ${os_logfile}
+	run_cmd_all_nodes "Operator System User ${dbuser} ulimit" "${dbuserexec} \"ulimit -a\"" ${os_logfile}
+
+	wait
+
+	cat ${messages_log} >> ${os_logfile}
+	cat ${uptime_log} >> ${os_logfile}
+	cat ${sysctl_log} >> ${os_logfile}
+	cat ${toph_log} >> ${os_logfile}
+
+	print_time ${STOPtime} "OS" ${os_logfile}
+}
+
+function get_cpu_info
+{
+	case ${type} in
+		CPU | ALL)
+			;;
+
+		*)
+			return
+			;;
+	esac
+
+	cpu_logfile=$1
+
+	command_exist lscpu
+	isexist=$?
+	print_msg 1 "CPU Information:" ${cpu_logfile}
+	if [ ${isexist} = 0 ]; then
+		run_cmd_all_nodes "Display Information About The CPU Architecture." "lscpu" ${cpu_logfile}
+		run_cmd_all_nodes "Print Both Online and Offline CPUs" "lscpu -a --extended" ${cpu_logfile}
+	else
+		run_cmd_all_nodes "CPUINFO" "cat /proc/cpuinfo" ${cpu_logfile}
+	fi
+	run_cmd_all_nodes "CPU MHz 1" "cat /proc/cpuinfo | grep MHz" ${cpu_logfile}
+	sleep 1
+	run_cmd_all_nodes "CPU MHz 2" "cat /proc/cpuinfo | grep MHz" ${cpu_logfile}
+
+	print_time ${STOPtime} "CPU" ${cpu_logfile}
+}
+
+function get_mem_info
+{
+	case ${type} in
+		MEM | ALL)
+			;;
+
+		*)
+			return
+			;;
+	esac
+
+	mem_logfile=$1
+
+	print_msg 1 "Operator System Memory Information:" ${mem_logfile}
+	run_cmd_all_nodes "Operator System Memory" "free -m" ${mem_logfile}
+	run_cmd_all_nodes "Operator System High Memory Process Top 50" "ps -eo user,pid,pcpu,pmem,args --sort=-pmem | head -n 50" ${mem_logfile}
+
+	print_time ${STOPtime} "Mem" ${mem_logfile}
+}
+
+function get_disk_info
+{
+	case ${type} in
+		DISK | ALL)
+			;;
+
+		*)
+			return
+			;;
+	esac
+
+	disk_logfile=$1
+
+	print_msg 1 "Operator System Disk Information:" ${disk_logfile}
+	run_cmd_all_nodes "Operator System Disk" "df -lh" ${disk_logfile}
+	run_cmd_all_nodes "Operator System I/O Status" "iostat -x 1 5" ${disk_logfile}
+
+	print_time ${STOPtime} "DISK" ${disk_logfile}
+}
+
+function get_net_info
+{
+	case ${type} in
+		NET | ALL)
+			;;
+
+		*)
+			return
+			;;
+	esac
+
+	net_logfile=$1
+
+	print_msg 1 "Operator System Net Information:" ${net_logfile}
+	run_cmd_all_nodes "Operator System Network Configuration" "ifconfig" ${net_logfile}
+	run_cmd_all_nodes "Operator System Network Multi Queue" "ethtool -l eth0  | grep Combined" ${net_logfile}
+	run_cmd_all_nodes "Operator System Network Multi Queue" "netstat -an" ${net_logfile}
+
+	print_time ${STOPtime} "NET" ${net_logfile}
+}
+
+function get_nodes_stack_info
+{
+	case ${type} in
+		ZK | HDFS | HBASE | DB | ALL)
+			if [ "x${stack}" != "xtrue" ]; then
+				return
+			fi
+			;;
+
+		*)
+			return
+			;;
+	esac
+
+	module=$1
+	process=$2
+	execuser=$3
+	stackcmd=$4
+
+	processname=${process##*$}
+
+	# remove file context
+	gnsi_logfile=${tmproot}/${stackcmd}_${processname}.log
+	echo > ${gnsi_logfile}
+	chmod 777 ${gnsi_logfile}
+
+	nodesinfo=`${allexec} "ps -ef | grep ${process} | grep -v grep" 2>/dev/null | grep -v pdsh | awk '{ print $1$3 }'`
+	for nodeinfo in ${nodesinfo[@]}
+	do
+		node=`echo ${nodeinfo} | awk -F: '{ print $1 }'`
+		pid=`echo ${nodeinfo} | awk -F: '{ print $2 }'`
+		echo -e "" >> ${gnsi_logfile} 2>&1
+		print_msg 2 "Get ${module} Process [${node}:${pid}] ${stackcmd} Information" ${gnsi_logfile}
+		ssh ${node} "su - ${execuser} -c \"${stackcmd} ${pid}\"" >> ${gnsi_logfile} 2>&1
+		if [ "x${debugmode}" = "xtrue" ]; then
+			print_time ${STOPtime} "get_nodes_stack_info: ssh ${node} \"su - ${execuser} -c \\\"${stackcmd} ${pid}\\\"\" >> ${gnsi_logfile}" ${gnsi_logfile}
+		fi
+	done
+
+	print_time ${STOPtime} "${processname} ${stackcmd}"  ${gnsi_logfile}
+}
+
+function get_nodes_jstack_info
+{
+	get_nodes_stack_info "$@" "jstack"
+}
+
+function get_nodes_pstack_info
+{
+	get_nodes_stack_info "$@" "pstack"
+}
+
+function get_zk_server_info
+{
+	zktype=$1
+	gzsi_logfile=$2
+
+	nodesinfo=`${allexec} "ps -ef | grep zookeeper.server.quorum.QuorumPeerMain | grep -v grep" 2>/dev/null | grep -v pdsh | awk -F: '{ print $1 }'`
+	for nodeinfo in ${nodesinfo[@]}
+	do
+		ip=`cat /etc/hosts | grep ${nodeinfo} | awk '{ print $1 }'`
+		print_msg 2 "Get Zookeeper Server [${zktype}] Via Run Command [echo ${zktype} | nc ${ip} 2181] On Node [${nodeinfo}]" ${gzsi_logfile}
+		echo ${zktype} | nc ${ip} 2181 >> ${gzsi_logfile} 2>&1
+		echo >> ${gzsi_logfile} 2>&1
+	done
+}
+
+function get_zk_info
+{
+	case ${type} in
+		ZK | ALL)
+			;;
+
+		*)
+			return
+			;;
+	esac
+
+	zk_logfile=$1
+
+	get_nodes_jstack_info "Zookeeper Server" "zookeeper.server.quorum.QuorumPeerMain" "${zkuser}" &
+
+	stattypes="conf cons dump envi ruok srvr stat wchs wchc dirs wchp mntr isro gtmk reqs"
+
+	for stattype in ${stattypes[@]}
+	do
+		echo > ${tmproot}/zk_${stattype}.log
+		chmod 777 ${tmproot}/zk_${stattype}.log
+
+		get_zk_server_info ${stattype} ${tmproot}/zk_${stattype}.log &
+	done
+
+	wait
+
+	if [ "x${stack}" = "xtrue" ]; then
+		print_msg 1 "Zookeeper Server Information:" ${zk_logfile}
+		cat ${tmproot}/jstack_zookeeper.server.quorum.QuorumPeerMain.log >> ${zk_logfile}
+	fi
+
+	print_msg 1 "Zookeeper Server Stats Information:" ${zk_logfile}
+	for stattype in ${stattypes[@]}
+	do
+		cat ${tmproot}/zk_${stattype}.log >> ${zk_logfile}
+	done
+
+	print_time ${STOPtime} "Zookeeper" ${zk_logfile}
+}
+
+function get_jmx_info
+{
+	case ${type} in
+		HDFS | HBASE | ALL)
+			;;
+
+		*)
+			return
+			;;
+	esac
+
+	module=$1
+	process=$2
+	port=$3
+
+	gji_logfile=${tmproot}/jmx_${process}.log
+	echo > ${gji_logfile}
+	chmod 777 ${gji_logfile}
+
+	if [ $# != 3 ]; then
+		print_msg 0 "[ERROR] there are some issues in parameters [module:$module}, process:${process}, port:${port}, log:${gji_logfile}] when run get_jmx_info!" ${gji_logfile}
+		return
+	fi
+
+	print_msg 1 "${module} All JMX Files Information:" ${gji_logfile}
+
+	jmx_curpid=$$
+	nodesinfo=`${allexec} "ps -ef | grep ${process} | grep -v grep" 2>/dev/null | grep -v pdsh | awk -F: '{ print $1 }'`
+	for nodeinfo in ${nodesinfo[@]}
+	do
+		ip=`cat /etc/hosts | grep ${nodeinfo} | awk '{ print $1 }'`
+		echo > ${tmproot}/jmx_info_${jmx_curpid}_${nodeinfo}.log
+		chmod 777 ${tmproot}/jmx_info_${jmx_curpid}_${nodeinfo}.log
+
+		run_cmd "${module} JMX On Node [${nodeinfo}]" "curl -i http://${ip}:${port}/jmx" ${tmproot}/jmx_info_${jmx_curpid}_${nodeinfo}.log &
+	done
+
+	wait
+
+	for nodeinfo in ${nodesinfo[@]}
+	do
+		cat ${tmproot}/jmx_info_${jmx_curpid}_${nodeinfo}.log >> ${gji_logfile}
+	done
+
+	print_time ${STOPtime} "${module} JMX" ${gji_logfile}
+}
+
+function get_hdfs_info
+{
+	case ${type} in
+		HDFS | ALL)
+			;;
+
+		*)
+			return
+			;;
+	esac
+
+	hdfs_logfile=$1
+
+	print_msg 1 "Hadoop Server Information:" ${hdfs_logfile}
+
+	run_cmd "Hadoop Server Version" "${hdfsuserexec} \"${hadoopcmd} version\"" ${hdfs_logfile}
+
+	get_nodes_jstack_info "Hadoop Datanode Server" "proc_datanode" "${hdfsuser}" &
+	get_nodes_jstack_info "Hadoop NameNode Server" "proc_namenode" "${hdfsuser}" &
+	get_nodes_jstack_info "Hadoop Secondary NameNode Server" "proc_secondarynamenode" "${hdfsuser}" &
+
+	get_jmx_info "Hadoop DataNode" "proc_datanode" "50075" &
+	get_jmx_info "Hadoop NameNode" "proc_namenode" "50070" &
+	get_jmx_info "Hadoop Resource Manager" "proc_resourcemanager" "8088" &
+
+	wait 
+
+	if [ "x${stack}" = "xtrue" ]; then
+		cat ${tmproot}/jstack_proc_namenode.log            >> ${hdfs_logfile}
+		cat ${tmproot}/jstack_proc_datanode.log            >> ${hdfs_logfile}
+		cat ${tmproot}/jstack_proc_secondarynamenode.log   >> ${hdfs_logfile}
+	fi
+
+	cat ${tmproot}/jmx_proc_namenode.log               >> ${hdfs_logfile}
+	cat ${tmproot}/jmx_proc_datanode.log               >> ${hdfs_logfile}
+	cat ${tmproot}/jmx_proc_resourcemanager.log        >> ${hdfs_logfile}
+
+	print_time ${STOPtime} "HDFS"  ${hdfs_logfile}
+}
+
+function get_hbase_jmx_info
+{
+	ghji_logfile=$1
+
+	print_msg 1 "HBase All JMX Files Information:" ${ghji_logfile}
+	for hostname in ${nodesname[@]}
+	do
+		ip=`cat /etc/hosts | grep ${hostname} | awk '{ print $1 }'`
+		run_cmd "HBase JMX On Node [${hostname}]" "curl http://${ip}:60030/jmx" ${ghji_logfile}
+	done
+
+	print_time ${STOPtime} "hbase JMX" ${ghji_logfile}
+}
+
+function get_hbase_info
+{
+	case ${type} in
+		HBASE | ALL)
+			;;
+
+		*)
+			return
+			;;
+	esac
+
+	hbase_logfile=$1
+
+	print_msg 1 "HBase Server Information:" ${hbase_logfile}
+
+	run_cmd_all_nodes "HBase Region Server FullGC" "cat /var/log/hbase/gc* | grep stopped | awk '{ if ($11 > 1) print $0 }'" ${hbase_logfile}
+
+	get_nodes_jstack_info "HBase Master Server" "proc_master" "${hbaseuser}" 
+	get_nodes_jstack_info "HBase Region Server" "proc_regionserver" "${hbaseuser}" 
+
+	get_jmx_info "HBase Master Server" "proc_master" "60010" 
+	get_jmx_info "HBase Region Server" "proc_regionserver" "60030" 
+
+	wait
+
+	if [ "x${stack}" = "xtrue" ]; then
+		cat ${tmproot}/jstack_proc_master.log           >> ${hbase_logfile}
+		cat ${tmproot}/jstack_proc_regionserver.log     >> ${hbase_logfile}
+	fi
+
+	cat ${tmproot}/jmx_proc_master.log              >> ${hbase_logfile}
+	cat ${tmproot}/jmx_proc_regionserver.log        >> ${hbase_logfile}
+
+	print_time ${STOPtime} "HBase"  ${hbase_logfile}
+}
+
+function get_cdh_info
+{
+	case ${type} in
+		CDH)
+			;;
+
+		*)
+			return
+			;;
+	esac
+
+	cdh_logfile=$1
+
+	print_msg 1 "CDH Information:" ${cdh_logfile}
+	run_cmd "CDH Configuration User Changes" "curl -u ${username}:${password} http://${URL}:7180/api/v4/cm/deployment" ${cdh_logfile}
+
+	print_time ${STOPtime} "CDH" ${cdh_logfile}
+}
+
+function get_db_conf_info
+{
+	gdci_logfile=$1
+
+	config_files=(                                       \
+		install_features                                 \
+		ipmi_host_map                                    \
+		keepalived.conf                                  \
+		log4cplus.trafodion.each.mxosrvr.config          \
+		log4cplus.trafodion.mxosrvr.config               \
+		log4cplus.monitor.mon.config                     \
+		log4cplus.monitor.psd.config                     \
+		log4cplus.monitor.trafns.config                  \
+		log4cplus.monitor.wdg.config                     \
+		log4cplus.trafodion.auth.config                  \
+		log4cplus.trafodion.masterexe.config             \
+		log4cplus.trafodion.sql.config                   \
+		log4cplus.trafodion.sscp.config                  \
+		log4cplus.trafodion.ssmp.config                  \
+		log4cplus.trafodion.tm.config                    \
+		log4j2.xml                                       \
+		log4j.atrxdc.config                              \
+		log4j.dtm.config                                 \
+		log4j.sql.config                                 \
+		log4j.tools.config                               \
+		log4j.udr.config                                 \
+		log4j.xdc.config                                 \
+		monitor.env                                      \
+		ms.env.custom                                    \
+		nameserver.env                                   \
+		preload_config                                   \
+		specific_codes                                   \
+		sqconfig                                         \
+		sqconfig.persist                                 \
+		sqconfig.sample                                  \
+		trafodion.lock.config                            \
+		trafodion-site.xml                               \
+		trafodion.udr.config                             \
+		dcs/dcs-env.sh                                   \
+		dcs/dcs-site.xml                                 \
+		dcs/ipmapping.conf                               \
+		dcs/log4j.properties                             \
+		dcs/masters                                      \
+		dcs/realm.properties                             \
+		dcs/servers                                      \
+		rest/log4j.properties                            \
+		rest/realm.properties                            \
+		rest/rest-env.sh                                 \
+		rest/rest-site.xml                               \
+		)
+
+	print_msg 1 "Database All Configuration Files Information:" ${gdci_logfile}
+
+	echo > ${tmproot}/conf_ms.env.log
+	chmod 777 ${tmproot}/conf_ms.env.log
+	run_cmd_all_nodes "Database Configuration ms.env" "${dbuserexec} \"cdt; cat ms.env\"" ${tmproot}/conf_ms.env.log
+
+	echo > ${tmproot}/conf_trafodion_config.log
+	chmod 777 ${tmproot}/conf_trafodion_config.log
+	run_cmd_all_nodes "Database Configuration trafodion_config" "${dbuserexec} \"cat /etc/trafodion/trafodion_config\"" ${tmproot}/conf_trafodion_config.log
+	tmpfile="${tmproot}/getcqds.sql"
+	echo "cqd showcontrol_show_all 'on';
+showcontrol all;
+select * from \"_MD_\".defaults;" > ${tmpfile}
+
+	echo > ${tmproot}/conf_cqd.log
+	chmod 777 ${tmproot}/conf_cqd.log
+	db_run_cmd "Database Control Query Default" "sqlci -i \"${tmpfile}\"" ${tmproot}/conf_cqd.log
+
+	for config_file in ${config_files[@]}
+	do
+		conf_log=${tmproot}/conf_${config_file##*/}.log
+		echo > ${conf_log}
+		chmod 777 ${conf_log}
+
+		run_cmd_all_nodes "Database Configuration ${config_file}" "${dbuserexec} \"cdc; cat ${config_file}\"" ${conf_log}
+	done
+
+	wait
+
+	# add ms.env and trafodion_config
+	config_files=(ms.env trafodion_config cqd ${config_files[@]})
+
+	for config_file in ${config_files[@]}
+	do
+		cat ${tmproot}/conf_${config_file##*/}.log >> ${gdci_logfile}
+	done
+
+	print_time ${STOPtime} "Database Configure" ${gdci_logfile}
+}
+
+function get_db_tm_info
+{
+	db_tm_logfile=$1
+
+	print_msg 1 "Database TM Information" ${db_tm_logfile}
+	db_run_cmd "Database TM System Status" "dtmci status system" ${db_tm_logfile}
+	db_run_cmd "Database TM Stats for All Nodes" "dtmci stats" ${db_tm_logfile}
+	db_run_cmd "Database TM Statistics for All Nodes" "dtmci status tm" ${db_tm_logfile}
+	db_run_cmd "Database TM Status of Transactions" "dtmci status trans" ${db_tm_logfile}
+
+	print_time ${STOPtime} "Database TM" ${db_tm_logfile}
+}
+
+function get_db_lock_info
+{
+	db_lock_logfile=$1
+
+	print_msg 1 "Database Row Level Lock Information" ${db_lock_logfile}
+	db_run_cmd "Database Get All Row Lock Status" "rsci -t lock_status" ${db_lock_logfile}
+	db_run_cmd "Database Get All Row Lock Parameters for All Nodes" "rsci -t get_parameter" ${db_lock_logfile}
+	db_run_cmd "Database Get All Row Lock Memory Summary Useages" "rsci -t lock_mem" ${db_lock_logfile}
+	db_run_cmd "Database Get All Row Lock Memory Cache Useage" "rsci -t lock_apply" ${db_lock_logfile}
+	db_run_cmd "Database Get All Row Lock Check" "rsci -t lock_check" ${db_lock_logfile}
+	db_run_cmd "Database Get All Row Lock Information" "rsci -t all_lock" ${db_lock_logfile}
+	db_run_cmd "Database Get All DDL Lock Information" "get lock statistics" ${db_lock_logfile}
+	db_run_cmd "Database Get All DDL Lock Enties Information" "get lock entry statistics" ${db_lock_logfile}
+	db_run_cmd "Database Get All B/R Lock Information" "get all locked objects" ${db_lock_logfile}
+
+	print_time ${STOPtime} "DatabaseLock" ${db_lock_logfile}
+}
+
+function get_db_ddl_info
+{
+	db_ddl_logfile=$1
+
+	print_msg 1 "Database All Schemas And Tables Information" ${db_ddl_logfile}
+	schemas=`${dbuserexec} "${sqlciexec} \"get schemas;\"" | sed -n "/======================*/,/====================*/p" | grep -v ====== | grep -v "\_"`
+	for schema in ${schemas[@]}
+	do
+		print_msg 2 "Database Get All Objects of Schema [${schema}]"  ${db_ddl_logfile}
+		${dbuserexec} "${sqlciexec} \"get objects in schema \\\"${schema}\\\";\"" >> ${db_ddl_logfile} 2>&1
+
+		${dbuserexec} "${sqlciexec} \"dump schema ${schema} to file'/tmp';\"" 1>/dev/null 2>&1
+		print_msg 2 "Database Get All Tables DDL of Schema [${schema}]" ${db_ddl_logfile}
+		cat /tmp/TRAFODION_${schema^^} >> ${db_ddl_logfile} 2>&1
+		rm -rf /tmp/TRAFODION_${schema^^}
+	done
+
+	print_time ${STOPtime} "Database DDL" ${db_ddl_logfile}
+}
+
+function db_user_sqlci_exec
+{
+	msg="$1"
+	sql="$2"
+	duse_logfile=$3
+
+	print_msg 2 "Get ${msg} Via [${dbuserexec} \"${sqlciexec} \\\"${sql};\\\"\"]" ${duse_logfile}
+	${dbuserexec} "${sqlciexec} \"${sql};\"" >> ${duse_logfile} 2>&1
+
+	if [ "x${debugmode}" = "xtrue" ]; then
+		print_time ${STOPtime} "db_user_sqlci_exec: ${dbuserexec} \"${sqlciexec} \\\"${sql};\\\"\"" ${duse_logfile}
+	fi
+}
+
+function get_db_status_info
+{
+	db_status_logfile=$1
+
+	print_msg 1 "Database Runtime Information" ${db_status_logfile}
+
+	# Since this information shows the current status of mxosrvr, what sqlci sees is only sqlci's own, so the current information is useless
+	# db_user_sqlci_exec "Database All Cluster Stats"              "select * from table(cluster stats())" ${db_status_logfile}
+	# db_user_sqlci_exec "Database All Statistics"                 "select * from table(statistics(null,null))" ${db_status_logfile}
+
+	# db_user_sqlci_exec "Database All NATable Cache"              "select * from table(natablecache('all', 'local'))" ${db_status_logfile}
+	# db_user_sqlci_exec "Database All NATable Cache Entries"      "select * from table(natablecacheentries('all', 'local'))" ${db_status_logfile}
+
+	# db_user_sqlci_exec "Database All Query Cache"                "select * from table(querycache('all', 'local'))" ${db_status_logfile}
+	# db_user_sqlci_exec "Database All Query Cache Entries"        "select * from table(querycacheentries('all', 'local'))" ${db_status_logfile}
+
+	# db_user_sqlci_exec "Database All Hybrid Query Cache"         "select * from table(hybridquerycache('all', 'local'))" ${db_status_logfile}
+	# db_user_sqlci_exec "Database All Hybrid Query Cache Entries" "select * from table(hybridquerycacheentries('all', 'local'))" ${db_status_logfile}
+
+	db_user_sqlci_exec "Database All AQR Entries" "get all aqr entries" ${db_status_logfile}
+
+	db_user_sqlci_exec "Database Show Transaction" "showtransaction" ${db_status_logfile}
+
+	db_user_sqlci_exec "Database All RMS Statistics" "get statistics for rms all" ${db_status_logfile}
+
+	db_run_cmd "Database Check Metadata Shared Cache" "edb_pdsh -a \"sqlci -q \\\"check trafodion metadata shared cache\\\"\"" ${db_status_logfile}
+
+	db_run_cmd "Database Find All Shared Cache" "edb_pdsh -a \"tdm_arkcmp -testSharedCacheFindAll\"" ${db_status_logfile}
+
+	db_run_cmd "Database Find All Shared Table Data Cache" "edb_pdsh -a \"tdm_arkcmp -testSharedDataCacheFindAll\"" ${db_status_logfile}
+
+	print_time ${STOPtime} "Database Status" ${db_status_logfile}
+}
+
+function get_db_cores_info
+{
+	db_cores_logfile="${tmproot}/get_db_cores_info.log"
+	echo > ${db_cores_logfile}
+	chmod 777 ${db_cores_logfile}
+
+	print_msg 1 "Database Cores Information" ${db_cores_logfile}
+	run_cmd_all_nodes "Database Cores File Path" "cat /proc/sys/kernel/core_pattern | xargs dirname | xargs ls -lh" ${db_cores_logfile}
+	run_cmd_all_nodes "Database Java Cores" "${dbuserexec} \"cdw; ls -l hs_err*.log\"" ${db_cores_logfile}
+
+	print_time ${STOPtime} "Database Cores" ${db_cores_logfile}
+}
+
+function get_db_base_info
+{
+	db_base_logfile="${tmproot}/get_db_base_info.log"
+	echo > ${db_base_logfile}
+	chmod 777 ${db_base_logfile}
+
+	print_msg 1 "Database Base Information" ${db_base_logfile}
+	checks=(sqvers trafcheck sqps atrxdc_check certcheck http_trafcheck.py mgblty_check node_sqcheck restcheck rmscheck stfscheck trcheck xdc_peer_check)
+	checks=(sqvers)
+	for check in ${checks[@]}
+	do
+		echo > ${tmproot}/check_${check}.log
+		chmod 777 ${tmproot}/check_${check}.log
+
+		db_run_cmd "Database ${check} Status" ${check} ${tmproot}/check_${check}.log
+	done
+
+	wait
+
+	for check in ${checks[@]}
+	do
+		cat ${tmproot}/check_${check}.log >> ${db_base_logfile}
+	done
+
+	db_run_cmd "Database All Nodes Information" "trafconf -node" ${db_base_logfile}
+	db_run_cmd "Database All Nodes Persist Information" "trafconf --persist" ${db_base_logfile}
+	db_run_cmd "Database WMS Check Status" "wmscheck all" ${db_base_logfile}
+
+	print_time ${STOPtime} "Database Base" ${db_base_logfile}
+}
+
+function get_db_systable_info
+{
+	case ${type} in
+		DB | ALL)
+			if [ "x${systable}" != "xtrue" ]; then
+				return
+			fi
+			;;
+
+		*)
+			return
+			;;
+	esac
+
+	db_systable_logfile=$1
+
+	print_msg 1 "Database Systable Information" ${db_systable_logfile}
+
+	sysschemas=`${dbuserexec} "${sqlciexec} \"get schemas;\"" | grep "^\_" | grep -v "^\_BACKUP"`
+	for sysschema in ${sysschemas[@]}
+	do
+		tables=`${dbuserexec} "${sqlciexec} \"get tables in schema \\\\\"${sysschema}\\\\\";\"" | sed -n "/======================*/,/====================*/p" | grep -v ======`
+		for table in ${tables[@]}
+		do
+			echo > ${tmproot}/${sysschema}_${table}.log
+			chmod 777 ${tmproot}/${sysschema}_${table}.log
+
+			db_user_sqlci_exec "Database Server System Table [\"${sysschema}\".${table}]" "select * from \\\"${sysschema}\\\".${table}" ${tmproot}/${sysschema}_${table}.log &
+		done
+	done
+
+	wait
+
+	for sysschema in ${sysschemas[@]}
+	do
+		print_msg 1 "Database System Schema [${sysschema}] Information:" ${db_systable_logfile}
+		tables=`${dbuserexec} "${sqlciexec} \"get tables in schema \\\\\"${sysschema}\\\\\";\"" | sed -n "/======================*/,/====================*/p" | grep -v ======`
+		for table in ${tables[@]}
+		do
+			cat ${tmproot}/${sysschema}_${table}.log >> ${db_systable_logfile}
+		done
+	done
+
+	print_time ${STOPtime} "Database Systables" ${db_systable_logfile}
+}
+
+function get_db_offender_info
+{
+	case ${type} in
+		DB | ALL)
+			;;
+
+		*)
+			return
+			;;
+	esac
+
+	db_offender_logfile=$1
+
+	curpid=$$
+	${dbuserexec} "offender -s active" > ${tmproot}/getenvs_${curpid}.log
+	
+	print_msg 1 "Database Offender Active Information:" ${db_offender_logfile}
+	cat ${tmproot}/getenvs_${curpid}.log >> ${db_offender_logfile}
+
+	# get the explain for every qid which had costed greater than 0sec
+	cat ${tmproot}/getenvs_${curpid}.log | grep MXID | while read curdate curtime actsecs qid state sql
+	db_offender_logs=()
+	do
+		if [ "x${actsecs}" = "x" ]; then
+			break;
+		fi
+
+		if [ ${actsecs} -le 0 ]; then
+			break;
+		fi
+
+		nid=`echo ${qid} | cut -b 7-9`
+		pid=`echo ${qid} | cut -b 10-15`
+		tansinfo=`${dbuserexec} "dtmci l | grep ${pid}"`
+		
+		echo > ${tmproot}/statistics_${qid}.log
+		chmod 777 ${tmproot}/statistics_${qid}.log
+		echo "${curdate} ${curtime} ${actsecs} ${nid} ${pid} ${qid} ${state} ${sql} ${tansinfo}" > ${tmproot}/statistics_${qid}.log
+		db_user_sqlci_exec "Database Active Query Plan" "get statistics for qid ${qid} default" ${tmproot}/statistics_${qid}.log &
+
+		echo > ${tmproot}/explain_${qid}.log
+		chmod 777 ${tmproot}/explain_${qid}.log
+		db_user_sqlci_exec "Database Active Query Plan" "explain options 'f' for qid ${qid}" ${tmproot}/explain_${qid}.log &
+		db_offender_logs=("${db_offender_logs[@]}" "${tmproot}/statistics_${qid}.log" "${tmproot}/explain_${qid}.log")
+	done
+
+	wait
+
+	for db_offender_log in ${db_offender_logs[@]}
+	do
+		cat ${db_offender_log} >> ${db_offender_logfile}
+	done
+
+	print_time ${STOPtime} "Database Offender" ${db_offender_logfile}
+}
+
+function get_db_stack_info
+{
+	case ${type} in
+		DB | ALL)
+			if [ "x${stack}" != "xtrue" ]; then
+				return
+			fi
+			;;
+
+		*)
+			return
+			;;
+	esac
+
+	db_stack_logfile=$1
+
+	print_msg 1 "Database Process jstack Information:" ${db_stack_logfile}
+
+	# GSID TSID ZSC and ZSM should core when execute jstack $pid, so remove them
+	jprocesses="TM"
+	for jprocess in ${jprocesses[@]}
+	do
+		get_nodes_jstack_info "Database Server ${jprocess}" "\\\$${jprocess}" "${dbuser}" &
+	done
+
+	wait
+
+	for jprocess in ${jprocesses[@]}
+	do
+		cat ${tmproot}/jstack_${jprocess}.log >> ${db_stack_logfile}
+	done
+
+	get_nodes_jstack_info "Database DcsMaster" "DcsMaster" "${dbuser}"
+	get_nodes_jstack_info "Database DcsServer" "DcsServer" "${dbuser}"
+
+	wait
+
+	cat ${tmproot}/jstack_DcsMaster.log >> ${db_stack_logfile}
+	cat ${tmproot}/jstack_DcsServer.log >> ${db_stack_logfile}
+
+	print_msg 1 "Database Process pstack Information:" ${db_stack_logfile}
+
+	cprocesses="WDG PSD TM RCSVR GSID"
+	for cprocess in ${cprocesses[@]}
+	do
+		get_nodes_pstack_info "Database Server ${cprocess}" "\\\$${cprocess}" "${dbuser}" &
+	done
+
+	wait
+
+	cprocesses="TSID CMON ZSC ZSM NMON"
+	for cprocess in ${cprocesses[@]}
+	do
+		get_nodes_pstack_info "Database Server ${cprocess}" "\\\$${cprocess}" "${dbuser}" &
+	done
+
+	wait
+
+	cprocesses="WDG PSD TM RCSVR GSID TSID CMON ZSC ZSM NMON"
+	for cprocess in ${cprocesses[@]}
+	do
+		cat ${tmproot}/pstack_${cprocess}.log >> ${db_stack_logfile}
+	done
+
+	print_time ${STOPtime} "Database Stack" ${db_stack_logfile}
+}
+
+function get_db_br_info
+{
+	case ${type} in
+		DB | ALL)
+			;;
+
+		*)
+			return
+			;;
+	esac
+
+	db_br_logfile=$1
+
+	print_msg 1 "Database Backup/Restore Information:" ${db_br_logfile}
+
+	db_user_sqlci_exec "Database Backup/Restore Snapshots" "get all backup snapshots" ${db_br_logfile}
+	db_user_sqlci_exec "Database Backup/Restore Tags" "get all backup tags" ${db_br_logfile}
+	db_user_sqlci_exec "Database Backup/Restore Metadata" "get all backup metadata" ${db_br_logfile}
+
+	db_user_sqlci_exec "Database Backup Progress" "get progress status for current backup" ${db_br_logfile}
+	db_user_sqlci_exec "Database Restore Progress" "get progress status for current restore" ${db_br_logfile}
+	db_user_sqlci_exec "Database Export Progress" "get progress status for current export" ${db_br_logfile}
+	db_user_sqlci_exec "Database Import Progress" "get progress status for current import" ${db_br_logfile}
+
+	print_time ${STOPtime} "Database Backup/Restore" ${db_br_logfile}
+}
+
+function db_run_component
+{
+	db_comp=$1
+
+	db_run_logfile="${tmproot}/get_db_${db_comp}_info.log"
+	dbtmplogs=("${dbtmplogs[@]}" "${db_run_logfile}")
+	echo > ${db_run_logfile}
+	chmod 777 ${db_run_logfile}
+
+	get_db_${db_comp}_info ${db_run_logfile} &
+}
+
+function get_db_info
+{
+	case ${type} in
+		DB | ALL)
+			;;
+
+		*)
+			return
+			;;
+	esac
+
+	db_logfile=$1
+
+	db_components=(base conf tm lock ddl status cores systable stack offender br)
+	for db_component in ${db_components[@]}
+	do
+		db_run_component ${db_component}
+	done
+
+	wait
+
+	for dbtmplog in ${dbtmplogs[@]}
+	do
+		cat ${dbtmplog} >> ${db_logfile}
+	done
+}
+
+function get_table_info
+{
+	case ${type} in
+		TABLE)
+			;;
+
+		*)
+			return
+			;;
+	esac
+
+	table_curpid=$$
+	table_logfile="${tmproot}/table_info_${table_curpid}.log"
+
+	print_msg 1 "Evaluate the number of rows that can be updated in one transaction for table ${schemaname}.${tablename}" ${table_logfile}
+
+	if [ "x${onenode}" = "xtrue" ]; then
+		processname="proc_master"
+		processport=60010
+	else
+		processname="proc_regionserver"
+		processport=60030
+	fi
+	if [ "x${debugmode}" = "xtrue" ]; then
+		echo "${allexec} \"ps -ef | grep ${processname} | grep -v grep\" 2>/dev/null | grep -v pdsh | awk -F: '{ print \$1 }'"
+	fi
+	nodesinfo=`${allexec} "ps -ef | grep ${processname} | grep -v grep" 2>/dev/null | grep -v pdsh | awk -F: '{ print $1 }'`
+	for nodeinfo in ${nodesinfo[@]}
+	do
+		ip=`cat /etc/hosts | grep ${nodeinfo} | awk '{ print $1 }'`
+		echo > ${tmproot}/table_info_${table_curpid}_${nodeinfo}.log
+		chmod 777 ${tmproot}/table_info_${table_curpid}_${nodeinfo}.log
+
+		run_cmd "${processname} JMX On Node [${nodeinfo}]" "curl -i http://${ip}:${processport}/jmx" ${tmproot}/table_info_${table_curpid}_${nodeinfo}.log &
+	done
+
+	wait
+
+	if [ "x${debugmode}" = "xtrue" ]; then
+		echo "${sqlciexec} \"SELECT SUM(c.column_size) FROM \\\"_MD_\\\".COLUMNS c, \\\"_MD_\\\".OBJECTS o WHERE c.object_uid = o.object_uid AND o.schema_name = '${schemaname}' AND o.object_name = '${tablename}';\""
+		echo "${sqlciexec} \"SELECT SUM(c.column_size) FROM \\\"_MD_\\\".COLUMNS c, \\\"_MD_\\\".OBJECTS o1, \\\"_MD_\\\".INDEXES i, \\\"_MD_\\\".OBJECTS o WHERE c.object_uid = o1.object_uid AND o1.object_uid = i.index_uid AND i.base_table_uid = o.object_uid AND o.schema_name = '${schemaname}' AND o.object_name = '${tablename}';\""
+	fi
+	tableColumnSize=$(${dbuserexec} "${sqlciexec} \"SELECT SUM(c.column_size) FROM \\\"_MD_\\\".COLUMNS c, \\\"_MD_\\\".OBJECTS o WHERE c.object_uid = o.object_uid AND o.schema_name = '${schemaname}' AND o.object_name = '${tablename}';\"" | head -n 8 | tail -n 1 | awk '{ print $1}')
+	if [ "x${tableColumnSize}" = "x?" ]; then
+		print_time ${STOPtime} "TableName ${tablename} is not exists!" ${table_logfile}
+		exit 1
+	fi
+	indexColumnSize=$(${dbuserexec} "${sqlciexec} \"SELECT SUM(c.column_size) FROM \\\"_MD_\\\".COLUMNS c, \\\"_MD_\\\".OBJECTS o1, \\\"_MD_\\\".INDEXES i, \\\"_MD_\\\".OBJECTS o WHERE c.object_uid = o1.object_uid AND o1.object_uid = i.index_uid AND i.base_table_uid = o.object_uid AND o.schema_name = '${schemaname}' AND o.object_name = '${tablename}';\"" | head -n 8 | tail -n 1 | awk '{ print $1}')
+	if [ "x${indexColumnSize}" = "x?" ]; then
+		indexColumnSize=0
+	fi
+	echo > ${table_logfile}
+	# the max value of unsigned int
+	finalMinRows=4294967295
+	finalMaxRows=0
+	print_msg 2 "The column size of table ${schemaname}.${tablename} $tableColumnSize, the total index column size $indexColumnSize" ${table_logfile}
+	if [ "x${debugmode}" = "xtrue" ]; then
+		print_msg 2 "The related nodes ${nodesinfo[@]}" ${table_logfile}
+	fi
+
+	for nodeinfo in ${nodesinfo[@]}
+	do
+		tableinfo=$(cat ${tmproot}/table_info_${table_curpid}_${nodeinfo}.log | grep ${tablename} | awk -v node=${nodeinfo} -v table=${tablename} '{ print node" "table }' | sort | uniq)
+		if [ "x${tableinfo}" != "x" ]; then
+		 	MemHeapUsed=$(cat ${tmproot}/table_info_${table_curpid}_${nodeinfo}.log | grep MemHeapUsedM | awk -F '[:, ]' '{ print $8 }')
+		  	MemHeapMaxM=$(cat ${tmproot}/table_info_${table_curpid}_${nodeinfo}.log | grep MemHeapMaxM | awk -F '[:, ]' '{ print $8 }')
+			freeHeapMaxM=$(echo "${MemHeapMaxM} - ${MemHeapUsed}" | bc)
+		 	freeHeapMax=$(echo "${freeHeapMaxM}*1024*1024" | bc)
+			if [ "x${debugmode}" = "xtrue" ]; then
+		 		print_msg 2 "MemHeapMaxM ${MemHeapMaxM} MemHeapUsed ${MemHeapUsed} FreeHeapMaxM ${freeHeapMaxM} free ${freeHeapMax}" ${table_logfile}
+			fi
+
+			maxColumnSize=$(echo "($tableColumnSize + $indexColumnSize)" | bc)
+			if [ ${tableColumnSize} -ge 1000000 ]; then
+				minColumnSize=$(echo "$tableColumnSize / 100" | bc)
+			elif [ ${tableColumnSize} -ge 1000 ]; then
+				minColumnSize=$(echo "$tableColumnSize / 10" | bc)
+			elif [ ${tableColumnSize} -ge 100 ]; then
+				minColumnSize=$(echo "$tableColumnSize / 2" | bc)
+			else
+				minColumnSize=$tableColumnSize
+			fi
+			minRows=$(echo "$freeHeapMax / $maxColumnSize" | bc) 
+			maxRows=$(echo "$freeHeapMax / $minColumnSize" | bc) 
+			if [ "x${debugmode}" = "xtrue" ]; then
+				print_msg 2 "freeHeapMax $freeHeapMax minRows $minRows maxRows $maxRows finalMinRows $finalMinRows finalMaxRows: $finalMaxRows" ${table_logfile}
+			fi
+			if [ $minRows -lt $finalMinRows ]; then
+				finalMinRows=$minRows
+			fi
+			if [ $maxRows -gt $finalMaxRows ]; then
+				finalMaxRows=$maxRows
+			fi
+		fi
+	done
+
+	print_time ${STOPtime} "TableName ${schemaname}.${tablename} can update rows in an transaction optimistic estimate $finalMaxRows pessimistic estimate $finalMinRows" ${table_logfile}
+
+	exit 0
+}
+
+STARTtime=$(date +%s)
+STOPtime=$(date +%s)
+
+tmplogs=()
+dbtmplogs=()
+
+hadoopcmd="hadoop"
+if [ "x${onenode}" = "xtrue" ]; then
+	dbuser="wangxz"
+	hbaseuser="wangxz"
+	hdfsuser="wangxz"
+	zkuser="wangxz"
+
+	hadoopcmd="swhadoop"
+fi
+
+if [ "x${type}" = "xTABLE" -a "x${tablename}" = "x" ]; then
+	usage
+fi
+
+if [ "x${type}" = "xTABLE" -a "x${schemaname}" = "x" ]; then
+	usage
+fi
+
+############### None of the following variables should be modified ###############
+tmproot="/tmp/getenvs_tmp"
+
+if [ "x$onenode" = "xtrue" ]; then
+	sucmd="sudo su"
+	pdshcmd="edb_pdsh"
+else
+	sucmd="su"
+	pdshcmd="pdsh"
+fi
+dbuserexec="${sucmd} - ${dbuser} -c"
+hdfsuserexec="${sucmd} - ${hdfsuser} -c"
+hbaseuserexec="${sucmd} - ${hbaseuser} -c"
+
+sqlciexec="sqlci -q"
+
+nodeswshort=`${dbuserexec} "trafconf -wshort"`
+nodesname=`${dbuserexec} "trafconf -short"`" ${usernodesname}"
+allexec="${pdshcmd} ${nodeswshort} ${userwshorts}"
+
+# recreate tmp dir
+rm -rf ${tmproot}
+mkdir -p ${tmproot}
+
+fileheader='***************************** Collect QianBase System Environmental Information *****************************'
+echo "${fileheader}"
+echo "${fileheader}" > ${getenvslog}
+
+function run_component
+{
+	comp=$1
+
+	logfile="${tmproot}/get_${comp}_info.log"
+	tmplogs=("${tmplogs[@]}" "${logfile}")
+	echo > ${logfile}
+	chmod 777 ${logfile}
+
+	get_${comp}_info ${logfile} &
+}
+
+components=(mantis os cpu mem disk net cdh zk hdfs hbase db table)
+for component in ${components[@]}
+do
+	run_component ${component}
+done
+
+wait
+
+for tmplog in ${tmplogs[@]}
+do
+	cat ${tmplog} >> ${getenvslog}
+done
+
+print_time ${STARTtime} "Collect Total" ${getenvslog}
+if [ "x${debugmode}" = "xfalse" ]; then
+	rm -rf ${tmproot}
+fi

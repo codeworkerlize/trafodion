@@ -1,0 +1,931 @@
+>>
+>>set schema hive.hive;
+
+--- SQL operation complete.
+>>set terminal_charset utf8;
+>>
+>>cqd HIVE_MAX_STRING_LENGTH_IN_BYTES '32' ;
+
+--- SQL operation complete.
+>>cqd hist_missing_stats_warning_level '0';
+
+--- SQL operation complete.
+>>cqd HIST_ROWCOUNT_REQUIRING_STATS '50000';
+
+--- SQL operation complete.
+>>
+>>-- create a Parquet table, put some data into it, then add a column to it, put more data into it,
+>>-- and verify that EsgynDB can handle missing columns
+>>
+>>-- we test this with both parallel and serial plans so we force the one file and two file
+>>-- code paths through the parquet reader
+>>
+>>drop table if exists time_dim_parquet_added_col;
+
+--- SQL operation complete.
+>>create table time_dim_parquet_added_col like time_dim_parquet ;
+
+--- SQL operation complete.
+>>insert into table time_dim_parquet_added_col select * from time_dim_parquet;
+
+--- 86400 row(s) inserted.
+>>select count(*) from time_dim_parquet_added_col ;
+
+(EXPR)              
+--------------------
+
+               86400
+
+--- 1 row(s) selected.
+>>alter table time_dim_parquet_added_col add columns (new_col int) ;
+
+--- SQL operation complete.
+>>insert into table time_dim_parquet_added_col select *,1 from time_dim_parquet;
+
+--- 86400 row(s) inserted.
+>>select count(*) from time_dim_parquet_added_col ;
+
+(EXPR)              
+--------------------
+
+              172800
+
+--- 1 row(s) selected.
+>>
+>>cqd attempt_esp_parallelism 'ON';
+
+--- SQL operation complete.
+>>control query shape exchange(cut);
+
+--- SQL operation complete.
+>>prepare s1 from
++>select * from time_dim_parquet_added_col where t_time_sk = 3;
+
+--- SQL command prepared.
+>>control query shape cut;
+
+--- SQL operation complete.
+>>
+>>explain options 'f' s1;
+
+LC   RC   OP   OPERATOR              OPT       DESCRIPTION           CARD
+---- ---- ---- --------------------  --------  --------------------  ---------
+
+2    .    3    root                                                  4.15E+002
+1    .    2    esp_exchange                    1:2(hash2)            4.15E+002
+.    .    1    parquet_scan                    TIME_DIM_PARQUET_ADD  4.15E+002
+
+--- SQL operation complete.
+>>  -- parallel plan expected
+>>
+>>execute s1;
+
+T_TIME_SK    T_TIME_ID                         T_TIME       T_HOUR       T_MINUTE     T_SECOND     T_AM_PM                           T_SHIFT                           T_SUB_SHIFT                       T_MEAL_TIME                       NEW_COL
+-----------  --------------------------------  -----------  -----------  -----------  -----------  --------------------------------  --------------------------------  --------------------------------  --------------------------------  -----------
+
+          3  AAAAAAAAEAAAAAAA                            3            0            0            3  AM                                third                             night                                                                         ?
+          3  AAAAAAAAEAAAAAAA                            3            0            0            3  AM                                third                             night                                                                         1
+
+--- 2 row(s) selected.
+>>
+>>select count(*) from time_dim_parquet_added_col where new_col is null;
+
+(EXPR)              
+--------------------
+
+               86400
+
+--- 1 row(s) selected.
+>>
+>>select t_time_sk,new_col from time_dim_parquet_added_col where new_col is not null and t_time_sk = 3;
+
+T_TIME_SK    NEW_COL    
+-----------  -----------
+
+          3            1
+
+--- 1 row(s) selected.
+>>
+>>select t_time_sk,new_col from time_dim_parquet_added_col where new_col = 1 and t_time_sk = 3;
+
+T_TIME_SK    NEW_COL    
+-----------  -----------
+
+          3            1
+
+--- 1 row(s) selected.
+>>
+>>cqd attempt_esp_parallelism 'OFF';
+
+--- SQL operation complete.
+>>
+>>prepare s1 from
++>select * from time_dim_parquet_added_col where t_time_sk = 3;
+
+--- SQL command prepared.
+>>
+>>explain options 'f' s1;
+
+LC   RC   OP   OPERATOR              OPT       DESCRIPTION           CARD
+---- ---- ---- --------------------  --------  --------------------  ---------
+
+1    .    2    root                                                  4.15E+002
+.    .    1    parquet_scan                    TIME_DIM_PARQUET_ADD  4.15E+002
+
+--- SQL operation complete.
+>>  -- serial plan expected
+>>
+>>execute s1;
+
+T_TIME_SK    T_TIME_ID                         T_TIME       T_HOUR       T_MINUTE     T_SECOND     T_AM_PM                           T_SHIFT                           T_SUB_SHIFT                       T_MEAL_TIME                       NEW_COL
+-----------  --------------------------------  -----------  -----------  -----------  -----------  --------------------------------  --------------------------------  --------------------------------  --------------------------------  -----------
+
+          3  AAAAAAAAEAAAAAAA                            3            0            0            3  AM                                third                             night                                                                         ?
+          3  AAAAAAAAEAAAAAAA                            3            0            0            3  AM                                third                             night                                                                         1
+
+--- 2 row(s) selected.
+>>
+>>select count(*) from time_dim_parquet_added_col where new_col is null;
+
+(EXPR)              
+--------------------
+
+               86400
+
+--- 1 row(s) selected.
+>>
+>>select t_time_sk,new_col from time_dim_parquet_added_col where new_col is not null and t_time_sk = 3;
+
+T_TIME_SK    NEW_COL    
+-----------  -----------
+
+          3            1
+
+--- 1 row(s) selected.
+>>
+>>select t_time_sk,new_col from time_dim_parquet_added_col where new_col = 1 and t_time_sk = 3;
+
+T_TIME_SK    NEW_COL    
+-----------  -----------
+
+          3            1
+
+--- 1 row(s) selected.
+>>
+>>cqd attempt_esp_parallelism reset;
+
+--- SQL operation complete.
+>>
+>>-- test Parquet again, this time using the straw scan code path
+>>
+>>prepare explainIt from
++>  select 'Straw scan found in explain'     
++>    from table (explain(NULL,'S1'))
++>    where description like '%HIVE_STRAW_SCAN: ON%';
+
+--- SQL command prepared.
+>>
+>>-- make a copy of store_sales_parquet_p and populate it
+>>
+>>drop table if exists ssppcopy;
+
+--- SQL operation complete.
+>>create table ssppcopy like store_sales_parquet_p;
+
+--- SQL operation complete.
+>>
+>>-- adds 15215 rows
+>>insert into ssppcopy select * from store_sales_parquet_p
++>  where ss_sold_date_sk <= 2450900;
+
+--- 15215 row(s) inserted.
+>>
+>>-- add a column to it and add some rows with that column populated
+>>
+>>alter table ssppcopy add columns (newcol int);
+
+--- SQL operation complete.
+>>
+>>-- adds 889 rows; select *,14 doesn't work; it sticks 14 in the partitioning column;
+>>-- partitioning column always comes last in Hive even with added columns
+>>insert into ssppcopy 
++>  select SS_SOLD_TIME_SK
++>  , SS_ITEM_SK
++>  , SS_CUSTOMER_SK
++>  , SS_CDEMO_SK
++>  , SS_HDEMO_SK
++>  , SS_ADDR_SK
++>  , SS_STORE_SK
++>  , SS_PROMO_SK
++>  , SS_TICKET_NUMBER
++>  , SS_QUANTITY
++>  , SS_WHOLESALE_COST
++>  , SS_LIST_PRICE
++>  , SS_SALES_PRICE
++>  , SS_EXT_DISCOUNT_AMT
++>  , SS_EXT_SALES_PRICE
++>  , SS_EXT_WHOLESALE_COST
++>  , SS_EXT_LIST_PRICE
++>  , SS_EXT_TAX
++>  , SS_COUPON_AMT
++>  , SS_NET_PAID
++>  , SS_NET_PAID_INC_TAX
++>  , SS_NET_PROFIT
++>  , 14
++>  , ss_sold_date_sk 
++>  from store_sales_parquet_p
++>  where ss_sold_date_sk = 2450901;
+
+--- 889 row(s) inserted.
+>>
+>>cqd HIVE_STRAW_SCAN 'ON';
+
+--- SQL operation complete.
+>>
+>>prepare s1 from select ss_sold_date_sk, ss_item_sk, newcol from ssppcopy 
++>  where ss_sold_date_sk in (?,?,?,?)
++>    and ss_item_sk between 10000 and 12000;
+
+--- SQL command prepared.
+>>-- check the explain for straw scan ON
+>>execute explainIt;
+
+(EXPR)                     
+---------------------------
+
+Straw scan found in explain
+
+--- 1 row(s) selected.
+>>execute s1 using 2450899, 2450901, 0, 0;
+
+SS_SOLD_DATE_SK  SS_ITEM_SK   NEWCOL     
+---------------  -----------  -----------
+
+        2450899        11758            ?
+        2450899        11306            ?
+        2450899        11083            ?
+        2450899        11923            ?
+        2450899        11035            ?
+        2450899        11636            ?
+        2450899        10309            ?
+        2450899        10477            ?
+        2450899        11468            ?
+        2450899        11636            ?
+        2450899        11666            ?
+        2450899        11536            ?
+        2450899        10915            ?
+        2450899        11078            ?
+        2450899        11629            ?
+        2450899        11551            ?
+        2450899        10264            ?
+        2450899        10406            ?
+        2450899        11683            ?
+        2450899        11299            ?
+        2450899        11263            ?
+        2450899        10754            ?
+        2450899        10978            ?
+        2450899        10558            ?
+        2450899        10477            ?
+        2450899        10886            ?
+        2450899        11510            ?
+        2450899        10664            ?
+        2450899        11167            ?
+        2450899        11557            ?
+        2450899        10516            ?
+        2450899        10381            ?
+        2450899        10507            ?
+        2450899        10939            ?
+        2450899        10384            ?
+        2450899        10562            ?
+        2450899        11575            ?
+        2450899        11042            ?
+        2450899        10573            ?
+        2450899        10856            ?
+        2450899        11806            ?
+        2450899        11986            ?
+        2450899        10180            ?
+        2450899        10096            ?
+        2450899        10261            ?
+        2450899        10792            ?
+        2450899        11180            ?
+        2450899        10429            ?
+        2450899        11294            ?
+        2450899        10936            ?
+        2450899        10372            ?
+        2450899        10474            ?
+        2450899        10333            ?
+        2450899        10963            ?
+        2450899        10058            ?
+        2450899        11482            ?
+        2450899        10064            ?
+        2450899        10933            ?
+        2450899        11756            ?
+        2450899        11119            ?
+        2450899        11302            ?
+        2450899        11065            ?
+        2450899        11234            ?
+        2450899        11905            ?
+        2450899        11122            ?
+        2450899        10514            ?
+        2450899        10690            ?
+        2450899        11995            ?
+        2450899        10792            ?
+        2450899        11407            ?
+        2450899        10993            ?
+        2450899        10810            ?
+        2450899        11692            ?
+        2450899        10502            ?
+        2450899        10490            ?
+        2450899        11570            ?
+        2450899        10414            ?
+        2450899        10610            ?
+        2450899        11926            ?
+        2450899        10315            ?
+        2450899        10982            ?
+        2450899        10351            ?
+        2450899        11360            ?
+        2450899        11104            ?
+        2450899        10024            ?
+        2450899        10700            ?
+        2450899        10477            ?
+        2450899        10876            ?
+        2450899        11551            ?
+        2450899        11878            ?
+        2450899        10016            ?
+        2450899        10471            ?
+        2450899        11516            ?
+        2450899        11470            ?
+        2450899        10766            ?
+        2450899        10237            ?
+        2450899        10897            ?
+        2450899        11572            ?
+        2450899        11420            ?
+        2450899        10057            ?
+        2450899        11191            ?
+        2450899        10262            ?
+        2450899        11156            ?
+        2450899        10130            ?
+        2450899        11326            ?
+        2450899        11234            ?
+        2450899        10132            ?
+        2450899        10100            ?
+        2450899        10714            ?
+        2450899        10928            ?
+        2450899        10909            ?
+        2450899        11869            ?
+        2450899        11336            ?
+        2450899        10513            ?
+        2450901        11395           14
+        2450901        10450           14
+        2450901        11978           14
+        2450901        10316           14
+        2450901        10378           14
+        2450901        11851           14
+        2450901        11164           14
+        2450901        10420           14
+        2450901        10984           14
+        2450901        11552           14
+        2450901        11348           14
+        2450901        10922           14
+        2450901        10220           14
+        2450901        10042           14
+        2450901        11821           14
+        2450901        11144           14
+        2450901        11059           14
+        2450901        11539           14
+        2450901        11900           14
+        2450901        10822           14
+        2450901        10525           14
+        2450901        10822           14
+        2450901        10525           14
+        2450901        10904           14
+        2450901        10702           14
+        2450901        10837           14
+        2450901        11506           14
+        2450901        11788           14
+        2450901        11287           14
+        2450901        11066           14
+        2450901        10106           14
+        2450901        10342           14
+        2450901        11672           14
+        2450901        10052           14
+        2450901        10057           14
+        2450901        11420           14
+        2450901        11890           14
+        2450901        10486           14
+        2450901        11359           14
+        2450901        11732           14
+        2450901        11386           14
+        2450901        11812           14
+        2450901        10561           14
+        2450901        11000           14
+        2450901        10411           14
+        2450901        11138           14
+        2450901        11401           14
+        2450901        10844           14
+        2450901        11032           14
+        2450901        11902           14
+        2450901        10747           14
+        2450901        10862           14
+        2450901        11011           14
+        2450901        10255           14
+        2450901        10129           14
+        2450901        11464           14
+        2450901        10142           14
+        2450901        10940           14
+        2450901        11680           14
+        2450901        10627           14
+        2450901        10654           14
+        2450901        11426           14
+        2450901        10382           14
+        2450901        11264           14
+        2450901        10270           14
+        2450901        10045           14
+        2450901        11572           14
+        2450901        10232           14
+        2450901        11452           14
+        2450901        10687           14
+        2450901        10972           14
+        2450901        10858           14
+        2450901        10478           14
+        2450901        11450           14
+        2450901        11587           14
+        2450901        11050           14
+        2450901        10351           14
+        2450901        11104           14
+        2450901        11005           14
+        2450901        11377           14
+        2450901        11476           14
+        2450901        11228           14
+        2450901        11617           14
+        2450901        11839           14
+        2450901        11494           14
+        2450901        11810           14
+        2450901        10564           14
+        2450901        10633           14
+        2450901        11018           14
+        2450901        11780           14
+        2450901        11515           14
+        2450901        10280           14
+        2450901        10483           14
+        2450901        10561           14
+        2450901        11414           14
+        2450901        11467           14
+        2450901        10256           14
+        2450901        11347           14
+        2450901        11815           14
+        2450901        11510           14
+        2450901        10948           14
+        2450901        11380           14
+        2450901        11390           14
+        2450901        10408           14
+        2450901        11488           14
+        2450901        11821           14
+        2450901        10502           14
+        2450901        10490           14
+
+--- 222 row(s) selected.
+>>
+>>cqd HIVE_STRAW_SCAN reset;
+
+--- SQL operation complete.
+>>
+>>-- do the same for ORC
+>>
+>>drop table if exists time_dim_orc_added_col;
+
+--- SQL operation complete.
+>>create table time_dim_orc_added_col like time_dim_orc ;
+
+--- SQL operation complete.
+>>insert into table time_dim_orc_added_col select * from time_dim_orc;
+
+--- 86400 row(s) inserted.
+>>select count(*) from time_dim_orc_added_col ;
+
+(EXPR)              
+--------------------
+
+               86400
+
+--- 1 row(s) selected.
+>>alter table time_dim_orc_added_col add columns (new_col int) ;
+
+--- SQL operation complete.
+>>insert into table time_dim_orc_added_col select *,1 from time_dim_orc;
+
+--- 86400 row(s) inserted.
+>>select count(*) from time_dim_orc_added_col ;
+
+(EXPR)              
+--------------------
+
+              172800
+
+--- 1 row(s) selected.
+>>
+>>cqd attempt_esp_parallelism 'ON';
+
+--- SQL operation complete.
+>>control query shape exchange(cut);
+
+--- SQL operation complete.
+>>prepare s1 from
++>select * from time_dim_orc_added_col where t_time_sk < 4;
+
+--- SQL command prepared.
+>>control query shape cut;
+
+--- SQL operation complete.
+>>
+>>explain options 'f' s1;
+
+LC   RC   OP   OPERATOR              OPT       DESCRIPTION           CARD
+---- ---- ---- --------------------  --------  --------------------  ---------
+
+2    .    3    root                                                  5.75E+004
+1    .    2    esp_exchange                    1:2(hash2)            5.75E+004
+.    .    1    orc_scan                        TIME_DIM_ORC_ADDED_C  5.75E+004
+
+--- SQL operation complete.
+>>  -- parallel plan expected
+>>
+>>execute s1;
+
+T_TIME_SK    T_TIME_ID                         T_TIME       T_HOUR       T_MINUTE     T_SECOND     T_AM_PM                           T_SHIFT                           T_SUB_SHIFT                       T_MEAL_TIME                       NEW_COL
+-----------  --------------------------------  -----------  -----------  -----------  -----------  --------------------------------  --------------------------------  --------------------------------  --------------------------------  -----------
+
+          0  AAAAAAAABAAAAAAA                            0            0            0            0  AM                                third                             night                                                                         1
+          1  AAAAAAAACAAAAAAA                            1            0            0            1  AM                                third                             night                                                                         1
+          2  AAAAAAAADAAAAAAA                            2            0            0            2  AM                                third                             night                                                                         1
+          3  AAAAAAAAEAAAAAAA                            3            0            0            3  AM                                third                             night                                                                         1
+          0  AAAAAAAABAAAAAAA                            0            0            0            0  AM                                third                             night                                                                         ?
+          1  AAAAAAAACAAAAAAA                            1            0            0            1  AM                                third                             night                                                                         ?
+          2  AAAAAAAADAAAAAAA                            2            0            0            2  AM                                third                             night                                                                         ?
+          3  AAAAAAAAEAAAAAAA                            3            0            0            3  AM                                third                             night                                                                         ?
+
+--- 8 row(s) selected.
+>>
+>>select count(*) from time_dim_orc_added_col where new_col is null;
+
+(EXPR)              
+--------------------
+
+               86400
+
+--- 1 row(s) selected.
+>>
+>>select t_time_sk,new_col from time_dim_orc_added_col where new_col is not null and t_time_sk = 3;
+
+T_TIME_SK    NEW_COL    
+-----------  -----------
+
+          3            1
+
+--- 1 row(s) selected.
+>>
+>>select t_time_sk,new_col from time_dim_orc_added_col where new_col = 1 and t_time_sk = 3;
+
+T_TIME_SK    NEW_COL    
+-----------  -----------
+
+          3            1
+
+--- 1 row(s) selected.
+>>
+>>cqd attempt_esp_parallelism 'OFF';
+
+--- SQL operation complete.
+>>
+>>prepare s1 from
++>select * from time_dim_orc_added_col where t_time_sk < 4;
+
+--- SQL command prepared.
+>>
+>>explain options 'f' s1;
+
+LC   RC   OP   OPERATOR              OPT       DESCRIPTION           CARD
+---- ---- ---- --------------------  --------  --------------------  ---------
+
+1    .    2    root                                                  5.75E+004
+.    .    1    orc_scan                        TIME_DIM_ORC_ADDED_C  5.75E+004
+
+--- SQL operation complete.
+>>  -- serial plan expected
+>>
+>>execute s1;
+
+T_TIME_SK    T_TIME_ID                         T_TIME       T_HOUR       T_MINUTE     T_SECOND     T_AM_PM                           T_SHIFT                           T_SUB_SHIFT                       T_MEAL_TIME                       NEW_COL
+-----------  --------------------------------  -----------  -----------  -----------  -----------  --------------------------------  --------------------------------  --------------------------------  --------------------------------  -----------
+
+          0  AAAAAAAABAAAAAAA                            0            0            0            0  AM                                third                             night                                                                         ?
+          1  AAAAAAAACAAAAAAA                            1            0            0            1  AM                                third                             night                                                                         ?
+          2  AAAAAAAADAAAAAAA                            2            0            0            2  AM                                third                             night                                                                         ?
+          3  AAAAAAAAEAAAAAAA                            3            0            0            3  AM                                third                             night                                                                         ?
+          0  AAAAAAAABAAAAAAA                            0            0            0            0  AM                                third                             night                                                                         1
+          1  AAAAAAAACAAAAAAA                            1            0            0            1  AM                                third                             night                                                                         1
+          2  AAAAAAAADAAAAAAA                            2            0            0            2  AM                                third                             night                                                                         1
+          3  AAAAAAAAEAAAAAAA                            3            0            0            3  AM                                third                             night                                                                         1
+
+--- 8 row(s) selected.
+>>
+>>select count(*) from time_dim_orc_added_col where new_col is null;
+
+(EXPR)              
+--------------------
+
+               86400
+
+--- 1 row(s) selected.
+>>
+>>select t_time_sk,new_col from time_dim_orc_added_col where new_col is not null and t_time_sk = 3;
+
+T_TIME_SK    NEW_COL    
+-----------  -----------
+
+          3            1
+
+--- 1 row(s) selected.
+>>
+>>select t_time_sk,new_col from time_dim_orc_added_col where new_col = 1 and t_time_sk = 3;
+
+T_TIME_SK    NEW_COL    
+-----------  -----------
+
+          3            1
+
+--- 1 row(s) selected.
+>>
+>>cqd attempt_esp_parallelism reset;
+
+--- SQL operation complete.
+>>
+>>-- ORC uses a different code path for different types, so do it again for
+>>-- other types
+>>
+>>drop table if exists time_dim_orc_added_col;
+
+--- SQL operation complete.
+>>create table time_dim_orc_added_col like time_dim_orc ;
+
+--- SQL operation complete.
+>>insert into table time_dim_orc_added_col select * from time_dim_orc;
+
+--- 86400 row(s) inserted.
+>>select count(*) from time_dim_orc_added_col ;
+
+(EXPR)              
+--------------------
+
+               86400
+
+--- 1 row(s) selected.
+>>alter table time_dim_orc_added_col add columns (new_col float, new_col2 string, new_col3 date) ;
+
+--- SQL operation complete.
+>>insert into table time_dim_orc_added_col select *,1.5, 'hi there!', date '2019-01-23' from time_dim_orc;
+
+--- 86400 row(s) inserted.
+>>select count(*) from time_dim_orc_added_col ;
+
+(EXPR)              
+--------------------
+
+              172800
+
+--- 1 row(s) selected.
+>>select * from time_dim_orc_added_col where t_time_sk = 3;
+
+T_TIME_SK    T_TIME_ID                         T_TIME       T_HOUR       T_MINUTE     T_SECOND     T_AM_PM                           T_SHIFT                           T_SUB_SHIFT                       T_MEAL_TIME                       NEW_COL          NEW_COL2                          NEW_COL3
+-----------  --------------------------------  -----------  -----------  -----------  -----------  --------------------------------  --------------------------------  --------------------------------  --------------------------------  ---------------  --------------------------------  ----------
+
+          3  AAAAAAAAEAAAAAAA                            3            0            0            3  AM                                third                             night                                                                             ?  ?                                 ?         
+          3  AAAAAAAAEAAAAAAA                            3            0            0            3  AM                                third                             night                                                                1.5000000E+000  hi there!                         2019-01-23
+
+--- 2 row(s) selected.
+>>
+>>-- do the same for AVRO
+>>
+>>drop table if exists time_dim_avro_added_col;
+
+--- SQL operation complete.
+>>CREATE TABLE time_dim_avro_added_col
++>  (
++>    T_TIME_SK                        int
++>  , T_TIME_ID                        string
++>  , T_TIME                           int
++>  , T_HOUR                           int
++>  , T_MINUTE                         int
++>  , T_SECOND                         int
++>  , T_AM_PM                          string
++>  , T_SHIFT                          string
++>  , T_SUB_SHIFT                      string
++>  , T_MEAL_TIME                      string
++>  )
++>  stored as avro
++>;
+
+--- SQL operation complete.
+>>insert into table time_dim_avro_added_col select * from time_dim;
+
+--- 86400 row(s) inserted.
+>>select count(*) from time_dim_avro_added_col ;
+
+(EXPR)              
+--------------------
+
+               86400
+
+--- 1 row(s) selected.
+>>alter table time_dim_avro_added_col add columns (new_col int) ;
+
+--- SQL operation complete.
+>>insert into table time_dim_avro_added_col select *,1 from time_dim;
+
+--- 86400 row(s) inserted.
+>>select count(*) from time_dim_avro_added_col ;
+
+(EXPR)              
+--------------------
+
+              172800
+
+--- 1 row(s) selected.
+>>
+>>cqd attempt_esp_parallelism 'ON';
+
+--- SQL operation complete.
+>>
+>>prepare s1 from
++>select * from time_dim_avro_added_col where t_time_sk = 3;
+
+--- SQL command prepared.
+>>
+>>explain options 'f' s1;
+
+LC   RC   OP   OPERATOR              OPT       DESCRIPTION           CARD
+---- ---- ---- --------------------  --------  --------------------  ---------
+
+2    .    3    root                                                  3.16E+003
+1    .    2    esp_exchange                    1:2(hash2)            3.16E+003
+.    .    1    avro_scan                       TIME_DIM_AVRO_ADDED_  3.16E+003
+
+--- SQL operation complete.
+>>  -- parallel plan expected
+>>
+>>execute s1;
+
+T_TIME_SK    T_TIME_ID                         T_TIME       T_HOUR       T_MINUTE     T_SECOND     T_AM_PM                           T_SHIFT                           T_SUB_SHIFT                       T_MEAL_TIME                       NEW_COL
+-----------  --------------------------------  -----------  -----------  -----------  -----------  --------------------------------  --------------------------------  --------------------------------  --------------------------------  -----------
+
+          3  AAAAAAAAEAAAAAAA                            3            0            0            3  AM                                third                             night                                                                         ?
+          3  AAAAAAAAEAAAAAAA                            3            0            0            3  AM                                third                             night                                                                         1
+
+--- 2 row(s) selected.
+>>
+>>select count(*) from time_dim_avro_added_col where new_col is null;
+
+(EXPR)              
+--------------------
+
+               86400
+
+--- 1 row(s) selected.
+>>
+>>select t_time_sk,new_col from time_dim_avro_added_col where new_col is not null and t_time_sk = 3;
+
+T_TIME_SK    NEW_COL    
+-----------  -----------
+
+          3            1
+
+--- 1 row(s) selected.
+>>
+>>select t_time_sk,new_col from time_dim_avro_added_col where new_col = 1 and t_time_sk = 3;
+
+T_TIME_SK    NEW_COL    
+-----------  -----------
+
+          3            1
+
+--- 1 row(s) selected.
+>>
+>>cqd attempt_esp_parallelism 'OFF';
+
+--- SQL operation complete.
+>>
+>>prepare s1 from
++>select * from time_dim_avro_added_col where t_time_sk = 3;
+
+--- SQL command prepared.
+>>
+>>explain options 'f' s1;
+
+LC   RC   OP   OPERATOR              OPT       DESCRIPTION           CARD
+---- ---- ---- --------------------  --------  --------------------  ---------
+
+1    .    2    root                                                  3.16E+003
+.    .    1    avro_scan                       TIME_DIM_AVRO_ADDED_  3.16E+003
+
+--- SQL operation complete.
+>>  -- serial plan expected
+>>
+>>execute s1;
+
+T_TIME_SK    T_TIME_ID                         T_TIME       T_HOUR       T_MINUTE     T_SECOND     T_AM_PM                           T_SHIFT                           T_SUB_SHIFT                       T_MEAL_TIME                       NEW_COL
+-----------  --------------------------------  -----------  -----------  -----------  -----------  --------------------------------  --------------------------------  --------------------------------  --------------------------------  -----------
+
+          3  AAAAAAAAEAAAAAAA                            3            0            0            3  AM                                third                             night                                                                         ?
+          3  AAAAAAAAEAAAAAAA                            3            0            0            3  AM                                third                             night                                                                         1
+
+--- 2 row(s) selected.
+>>
+>>-- do the same for text
+>>
+>>drop table if exists time_dim_text_added_col;
+
+--- SQL operation complete.
+>>create table time_dim_text_added_col like time_dim ;
+
+--- SQL operation complete.
+>>insert into table time_dim_text_added_col select * from time_dim where t_time_sk = 4;
+
+--- 1 row(s) inserted.
+>>select count(*) from time_dim_text_added_col ;
+
+(EXPR)              
+--------------------
+
+                   1
+
+--- 1 row(s) selected.
+>>alter table time_dim_text_added_col add columns (new_col int) ;
+
+--- SQL operation complete.
+>>insert into table time_dim_text_added_col select *,1 from time_dim where t_time_sk = 4 ;
+
+--- 1 row(s) inserted.
+>>select count(*) from time_dim_text_added_col ;
+
+(EXPR)              
+--------------------
+
+                   2
+
+--- 1 row(s) selected.
+>>select * from time_dim_text_added_col ;
+
+T_TIME_SK    T_TIME_ID                         T_TIME       T_HOUR       T_MINUTE     T_SECOND     T_AM_PM                           T_SHIFT                           T_SUB_SHIFT                       T_MEAL_TIME                       NEW_COL
+-----------  --------------------------------  -----------  -----------  -----------  -----------  --------------------------------  --------------------------------  --------------------------------  --------------------------------  -----------
+
+          4  AAAAAAAAFAAAAAAA                            4            0            0            4  AM                                third                             night                                                                         ?
+          4  AAAAAAAAFAAAAAAA                            4            0            0            4  AM                                third                             night                                                                         1
+
+--- 2 row(s) selected.
+>>
+>>select count(*) from time_dim_text_added_col where new_col is null;
+
+(EXPR)              
+--------------------
+
+                   1
+
+--- 1 row(s) selected.
+>>
+>>select t_time_sk,new_col from time_dim_text_added_col where new_col is not null and t_time_sk = 4;
+
+T_TIME_SK    NEW_COL    
+-----------  -----------
+
+          4            1
+
+--- 1 row(s) selected.
+>>
+>>select t_time_sk,new_col from time_dim_text_added_col where new_col = 1 and t_time_sk = 4;
+
+T_TIME_SK    NEW_COL    
+-----------  -----------
+
+          4            1
+
+--- 1 row(s) selected.
+>>
+>>-- clean up
+>>
+>>drop table time_dim_text_added_col;
+
+--- SQL operation complete.
+>>drop table time_dim_avro_added_col;
+
+--- SQL operation complete.
+>>drop table time_dim_orc_added_col;
+
+--- SQL operation complete.
+>>drop table time_dim_parquet_added_col;
+
+--- SQL operation complete.
+>>drop table ssppcopy;
+
+--- SQL operation complete.
+>>
+>>log;

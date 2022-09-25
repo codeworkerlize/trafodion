@@ -1,0 +1,6 @@
+374c374,376
+< --- SQL operation complete.
+---
+> *** WARNING[9234] Incremental UPDATE STATISTICS: a new high frequency value is detected for column BIGCOL. A regular UPDATE STATISTICS is performed instead.
+> 
+> --- SQL operation completed with warnings.

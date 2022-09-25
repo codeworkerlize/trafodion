@@ -1,0 +1,168 @@
+-- @@@ START COPYRIGHT @@@
+--
+-- Licensed to the Apache Software Foundation (ASF) under one
+-- or more contributor license agreements.  See the NOTICE file
+-- distributed with this work for additional information
+-- regarding copyright ownership.  The ASF licenses this file
+-- to you under the Apache License, Version 2.0 (the
+-- "License"); you may not use this file except in compliance
+-- with the License.  You may obtain a copy of the License at
+--
+--   http://www.apache.org/licenses/LICENSE-2.0
+--
+-- Unless required by applicable law or agreed to in writing,
+-- software distributed under the License is distributed on an
+-- "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+-- KIND, either express or implied.  See the License for the
+-- specific language governing permissions and limitations
+-- under the License.
+--
+-- @@@ END COPYRIGHT @@@
+--
+-- test for concurrent operations during BACKUP/RESTORE
+-- test for returning backup tag after backup
+-- test for BREI progress status
+--
+
+cleanup backup, tag 'test056tag';
+cleanup backup, tag 'test056tag2';
+cleanup backup, tag 'test056tag3';
+drop backup tag, tag 'test056tag3';
+
+sh export HDFS_URL=`regr_hdfs.ksh getconf -confKey fs.defaultFS`;
+
+sh regr_hdfs.ksh dfs -rm -r -f `$HDFS_URL`/user/trafodion/schgsexport;
+sh regr_hdfs.ksh dfs -rm -r -f `$HDFS_URL`/user/trafodion/backupsys/*;
+
+cqd traf_lock_backup_schema 'ON';
+
+log LOG056 clear;
+
+drop schema if exists test056sch cascade;
+create schema if not exists test056sch;
+set schema test056sch;
+
+cqd auto_query_retry 'OFF';
+
+-- session 1: cleanup objects
+cleanup backup, tag 'test056tag';
+
+drop table if exists test056t1 cascade;
+drop table if exists test056t2 cascade;
+create table test056t1 (a int primary key, b int);
+create table test056t2 (a int, b int, foreign key(b) references test056t1(a));
+create index test056t1i1 on test056t1(a);
+drop view if exists vtest056_1;
+drop view if exists vtest056_2;
+create view vtest056_1 as select * from test056t1;
+
+-- session 2: backup and return with object locked
+set envvar BACKUP_ERR_INJECT_3_2;
+backup trafodion, tag 'test056tag', override, table (test056t1);
+
+-- session 3: only selects are enabled, IUD are not
+cqd traf_br_locked_objects_query_type '0';
+invoke test056t1;
+select * from test056t1;
+
+-- insert should return error.
+insert into test056t1(a) values (100);
+
+-- session 4: selects/IUD are enabled but ddl should return error.
+cqd traf_br_locked_objects_query_type '1';
+
+invoke test056t1;
+invoke test056t2;
+
+drop table test056t1;
+drop table test056t2;
+drop view vtest056_1;
+drop index test056t1i1;
+
+invoke test056t1;
+select * from test056t1;
+insert into test056t1(a) values (100);
+update test056t1 set a = 20;
+delete from test056t1;
+update statistics for table test056t1 on every column;
+
+alter table test056t1 drop column d;
+alter table test056t1 add column d int;
+alter table test056t1 add constraint ctest056t1 check (a > 0);
+drop table test056t1;
+create table test056t1 (a int);
+create index test056t1i1 on test056t1(a);
+drop index test056t1i1;
+create view vtest056_2 as select * from test056t1;
+drop view vtest056_2;
+
+-- session 5: selects/IUD/ddl are enabled
+cqd traf_br_locked_objects_query_type '2';
+invoke test056t1;
+select * from test056t1;
+insert into test056t1(a) values (100);
+create view vtest056_2 as select * from test056t1;
+drop view vtest056_2;
+
+-- session 6: unlock
+cleanup backup, tag 'test056tag';
+
+-- return tag option to return the backup tag
+reset envvar BACKUP_ERR_INJECT_3_2;
+cqd traf_br_locked_objects_query_type reset;
+backup trafodion, tag 'test056tag2', table (test056t1), return tag;
+backup trafodion, tag 'test056tag2', override, table (test056t1), return tag;
+
+-- return tag error cases
+backup trafodion, tag 'test056tag2', table (test056t1), return tag, show objects;
+backup trafodion, tag 'test056tag2', table (test056t1), return tag, return status;
+restore trafodion, tag 'test056tag2', table (test056t1), return tag;
+
+-- backup + export: should return error
+backup trafodion, table (test056t1), tag 'test056tag2', 
+         export to location '/invalid/target/location';
+
+
+-- BREI progress status
+set parserflags 131072;
+truncate "_REPOS_".brei_progress_status_table;
+reset parserflags 131072;
+
+drop table if exists test056t1 cascade;
+create table test056t1 (a int primary key, b int);
+
+get progress status for current backup;
+get progress status for current restore;
+get progress status for current export;
+get progress status for current import;
+
+--backup trafodion, tag 'test056tag3', table (test056t1), override;
+backup trafodion, tag 'test056tag3', schema (test056sch), override;
+get progress status for current backup;
+
+sh echo "export backup to location '$HDFS_URL/user/trafodion/schgsexport', tag 'test056tag3';" > tmp_export_test056;
+obey tmp_export_test056;
+get progress status of current export;
+
+drop table test056t1 cascade;
+drop backup tag, tag 'test056tag3';
+
+sh echo "import backup from location '$HDFS_URL/user/trafodion/schgsexport', tag 'test056tag3', override;" > tmp_export_test056;
+obey tmp_export_test056;
+get progress status for current import;
+
+restore trafodion, tag 'test056tag3';
+get progress status for current restore;
+
+select * from test056t1;
+
+get progress status for last backup;
+get progress status for last restore;
+get progress status of last export;
+get progress status of last import;
+
+-- cleanup
+cleanup backup, tag 'test056tag2';
+cleanup backup, tag 'test056tag3';
+
+log;

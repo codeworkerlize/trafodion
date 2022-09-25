@@ -1,0 +1,1254 @@
+>>
+>>set schema hive.hive;
+
+--- SQL operation complete.
+>>set terminal_charset utf8;
+>>
+>>cqd AUTO_QUERY_RETRY_WARNINGS 'ON';
+
+--- SQL operation complete.
+>>cqd HIVE_MAX_STRING_LENGTH_IN_BYTES '32' ;
+
+--- SQL operation complete.
+>>cqd hist_missing_stats_warning_level '0';
+
+--- SQL operation complete.
+>>cqd HIST_ROWCOUNT_REQUIRING_STATS '50000';
+
+--- SQL operation complete.
+>>------------------------------------------------------------
+>>-- Testing query plan invalidation in the compiler, but
+>>-- not the executor. Perform DML/DDL operations on a
+>>-- table and try re-executing the old plan as well as
+>>-- getting a query cache hit and updating the changed
+>>-- Hive and HDFS metadata
+>>------------------------------------------------------------
+>>
+>>prepare s1 from 
++>  select c_preferred_cust_flag,
++>         count(*) 
++>  from customer_temp_orc
++>  group by 1 
++>  order by 1
++>  ;
+
+--- SQL command prepared.
+>>execute s1;
+
+--- 0 row(s) selected.
+>>-- expect 0 rows
+>>
+>>prepare s1part from 
++>  select c_preferred_cust_flag,
++>         count(*) 
++>  from customer_p_orc
++>  group by 1 
++>  order by 1
++>  ;
+
+--- SQL command prepared.
+>>execute s1part;
+
+--- 0 row(s) selected.
+>>-- expect 0 rows
+>>
+>>insert into hive.hive.hivenonp_orc
++>values -- partition 1,one
++>       (1,1,1,'one', timestamp '2001-01-01 01:23:45.678901', date '2001-01-01'),
++>       (11,11,1,'one', timestamp '2001-01-01 01:23:45.678901', date '2001-01-01'),
++>       -- partition 2,two
++>       (2,2,2,'two', timestamp '2002-02-02 02:34:56.789012', date '2020-02-29'),
++>       (22,22,2,'two', timestamp '2002-02-02 00:00:00.000000', date '2020-02-29'),
++>       (222,222,2,'two', timestamp '2002-02-02 02:34:56.789012', date '2020-02-29'),
++>       -- partition 3,three
++>       (3,3,3,'three', timestamp '2003-03-03 03:45:57.890123', date '2003-03-31'),
++>       -- partition 3 or partition 3,four
++>       (34,34,3,'four', timestamp '2004-04-04 04:56:18', date '2004-04-04'),
++>       -- partition -5,five
++>       (-55,-55,-5,'five', timestamp '2004-04-04 04:56:18', date '2005-05-05');
+
+--- 8 row(s) inserted.
+>>select * from hive.hive.hivenonp_orc;
+
+ID           COL2         P1           P2                                P1T                            P1D
+-----------  -----------  -----------  --------------------------------  -----------------------------  ----------
+
+          1            1            1  one                               2001-01-01 01:23:45.678901000  2001-01-01
+         11           11            1  one                               2001-01-01 01:23:45.678901000  2001-01-01
+          2            2            2  two                               2002-02-02 02:34:56.789012000  2020-02-29
+         22           22            2  two                               2002-02-02 00:00:00.000000000  2020-02-29
+        222          222            2  two                               2002-02-02 02:34:56.789012000  2020-02-29
+          3            3            3  three                             2003-03-03 03:45:57.890123000  2003-03-31
+         34           34            3  four                              2004-04-04 04:56:18.000000000  2004-04-04
+        -55          -55           -5  five                              2004-04-04 04:56:18.000000000  2005-05-05
+
+--- 8 row(s) selected.
+>>
+>>insert into hive.hive.hivepis_orc select id, col2, p1, p2 from hive.hive.hivenonp_orc;
+
+--- 8 row(s) inserted.
+>>insert into hive.hive.hivepts_orc select id, col2, p1t, p2 from hive.hive.hivenonp_orc;
+
+--- 8 row(s) inserted.
+>>insert into hive.hive.hivepi_orc  select id, col2, p1 from hive.hive.hivepis_orc;
+
+--- 8 row(s) inserted.
+>>insert overwrite table hive.hive.hivepi_orc  select id, col2, p1 from hive.hive.hivepis_orc;
+
+*** ERROR[4223] INSERT OVERWRITE TABLE into partitioned Hive tables is not supported in this software version or edition.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>-- error, insert overwrite table not allowed for partitioned tables
+>>
+>>prepare display_rows_accessed from
++>select val4_txt, val4
++>from table(statistics(null,null))
++>where tdb_name like '%_SCAN %';
+
+--- SQL command prepared.
+>>
+>>select * from hive.hive.hivepis_orc;
+
+ID           COL2         P1           P2                              
+-----------  -----------  -----------  --------------------------------
+
+        -55          -55           -5  five                            
+          1            1            1  one                             
+         11           11            1  one                             
+          2            2            2  two                             
+         22           22            2  two                             
+        222          222            2  two                             
+         34           34            3  four                            
+          3            3            3  three                           
+
+--- 8 row(s) selected.
+>>select * from hive.hive.hivepts_orc;
+
+ID           COL2         P1T                            P2
+-----------  -----------  -----------------------------  --------------------------------
+
+          1            1  2001-01-01 01:23:45.678901000  one                             
+         11           11  2001-01-01 01:23:45.678901000  one                             
+         22           22  2002-02-02 00:00:00.000000000  two                             
+          2            2  2002-02-02 02:34:56.789012000  two                             
+        222          222  2002-02-02 02:34:56.789012000  two                             
+          3            3  2003-03-03 03:45:57.890123000  three                           
+        -55          -55  2004-04-04 04:56:18.000000000  five                            
+         34           34  2004-04-04 04:56:18.000000000  four                            
+
+--- 8 row(s) selected.
+>>select * from hive.hive.hivepi_orc;
+
+ID           COL2         P1         
+-----------  -----------  -----------
+
+          1            1            1
+         11           11            1
+         34           34            3
+        -55          -55           -5
+          2            2            2
+         22           22            2
+        222          222            2
+          3            3            3
+
+--- 8 row(s) selected.
+>>
+>>control query shape cut;
+
+--- SQL operation complete.
+>>
+>>-- insert some data and add one more partition
+>>sh regrhive.ksh -v -f $REGRTSTDIR/TEST035_b.orc.sql;
+>>
+>>-- customer_ddl_orc table is about 3 MB, make a plan with >= 2 ESPs
+>>cqd HIVE_MIN_BYTES_PER_ESP_PARTITION '1000000';
+
+--- SQL operation complete.
+>>cqd hive_max_string_length_in_bytes '32000';
+
+--- SQL operation complete.
+>>
+>>prepare partinsert from
++>insert into hive.hive.customer_p_orc
++>select 
++>    c_customer_sk,
++>    c_customer_id,
++>    c_current_cdemo_sk,
++>    c_current_hdemo_sk,
++>    c_current_addr_sk,
++>    c_first_shipto_date_sk,
++>    c_first_sales_date_sk,
++>    c_salutation,
++>    c_first_name,
++>    c_last_name,
++>    c_birth_day,
++>    c_birth_month,
++>    c_birth_year,
++>    c_birth_country,
++>    c_login,
++>    c_email_address,
++>    c_last_review_date,
++>    c_preferred_cust_flag
++>from hive.hive.customer_ddl <<+cardinality 2.5e4 >>
++>where c_customer_sk < 20000
++>      -- blank partition column values not yet supported
++>      and char_length(c_preferred_cust_flag) <> 0
++>order by c_customer_sk;
+
+--- SQL command prepared.
+>>
+>>-- go back to the smaller string length
+>>cqd HIVE_MAX_STRING_LENGTH_IN_BYTES '32' ;
+
+--- SQL operation complete.
+>>
+>>-- verify that we are indeed seeing a parallel plan
+>>select count(*)
++>from table(explain(null,'PARTINSERT'))
++>where operator = 'ESP_EXCHANGE';
+
+(EXPR)              
+--------------------
+
+                   1
+
+--- 1 row(s) selected.
+>>
+>>explain options 'f' partinsert;
+
+LC   RC   OP   OPERATOR              OPT       DESCRIPTION           CARD
+---- ---- ---- --------------------  --------  --------------------  ---------
+
+5    .    6    root                                                  2.50E+004
+4    .    5    esp_exchange                    1:4(hash2)            2.50E+004
+2    .    4    orc_insert                      CUSTOMER_P_ORC        2.50E+004
+1    .    2    sort                                                  2.50E+004
+.    .    1    hive_scan                       CUSTOMER_DDL          2.50E+004
+
+--- SQL operation complete.
+>>
+>>execute partinsert;
+
+--- 19314 row(s) inserted.
+>>
+>>insert into customer_temp_orc 
++>select * from customer 
++>where c_customer_sk between 20000 and 39999;
+
+--- 20000 row(s) inserted.
+>>
+>>-- query cache hit, no validation at all
+>>  select c_preferred_cust_flag,
++>         count(*) 
++>  from customer_ddl_orc 
++>  group by 1 
++>  order by 1
++>  ;
+
+C_PREFERRED_CUST_FLAG             (EXPR)              
+--------------------------------  --------------------
+
+                                                   856
+N                                                12265
+Y                                                11878
+
+--- 3 row(s) selected.
+>>
+>>-- vary query to avoid query cache hit
+>>prepare s2 from 
++>  select c_preferred_cust_flag,
++>         count(c_customer_sk) 
++>  from customer_ddl_orc 
++>  group by 1 
++>  order by 1
++>  ;
+
+--- SQL command prepared.
+>>
+>>prepare s2part from
++>  select c_preferred_cust_flag,
++>         count(c_customer_sk) -- avoid query cache
++>  from customer_p_orc 
++>  group by 1 
++>  order by 1
++>  ;
+
+--- SQL command prepared.
+>>execute s1;
+
+*** WARNING[8597] Statement was automatically retried 1 time(s). Delay before each retry was 0 seconds. See next entry for the error that caused this retry. 
+
+*** WARNING[8436] Mismatch detected between compiletime and runtime hive table definitions. DataModMismatchDetails: compiledModTS = 1537159096481, failedModTS = 1537159210682, failedLoc = hdfs://localhost:9000/user/trafodion/hive/exttables/customer_temp_orc
+
+C_PREFERRED_CUST_FLAG             (EXPR)              
+--------------------------------  --------------------
+
+                                                   699
+N                                                 9842
+Y                                                 9459
+
+--- 3 row(s) selected.
+>>-- because we don't invalidate in the executor,
+>>-- this should still return 0 rows
+>>
+>>execute s2;
+
+C_PREFERRED_CUST_FLAG             (EXPR)              
+--------------------------------  --------------------
+
+                                                   856
+N                                                12265
+Y                                                11878
+
+--- 3 row(s) selected.
+>>-- should get an NATable cache
+>>-- hit, we should notice the change in the table
+>>-- and return the correct result
+>>
+>>execute s1part;
+
+*** WARNING[8597] Statement was automatically retried 1 time(s). Delay before each retry was 0 seconds. See next entry for the error that caused this retry. 
+
+*** WARNING[8436] Mismatch detected between compiletime and runtime hive table definitions. DataModMismatchDetails: compiledModTS = 1537159109361, failedModTS = 1537159185330, failedLoc = hdfs://localhost:9000/user/hive/warehouse/customer_p_orc
+
+C_PREFERRED_CUST_FLAG             (EXPR)              
+--------------------------------  --------------------
+
+N                                                 9789
+Y                                                 9525
+
+--- 2 row(s) selected.
+>>-- because we don't invalidate in the executor,
+>>-- this should still return 0 rows
+>>
+>>execute s2part;
+
+C_PREFERRED_CUST_FLAG             (EXPR)              
+--------------------------------  --------------------
+
+N                                                 9789
+Y                                                 9525
+
+--- 2 row(s) selected.
+>>-- although this should get an NATable cache
+>>-- hit, we should notice the change in the table
+>>-- and return the correct result
+>>
+>>-- add duplicate rows to customer_p_orc
+>>insert into customer_p_orc
++>select 
++>    c_customer_sk,
++>    c_customer_id,
++>    c_current_cdemo_sk,
++>    c_current_hdemo_sk,
++>    c_current_addr_sk,
++>    c_first_shipto_date_sk,
++>    c_first_sales_date_sk,
++>    c_salutation,
++>    c_first_name,
++>    c_last_name,
++>    c_birth_day,
++>    c_birth_month,
++>    c_birth_year,
++>    c_birth_country,
++>    c_login,
++>    c_email_address,
++>    c_last_review_date,
++>    c_preferred_cust_flag
++>from customer_ddl
++>where c_customer_sk between 20000 and 24999
++>      -- blank partition column values not yet supported
++>      and char_length(c_preferred_cust_flag) <> 0
++>order by c_customer_sk;
+
+--- 4829 row(s) inserted.
+>>
+>>-- no query cache hit, but NATable cache hit
+>>prepare s3 from 
++>  select count(*) 
++>  from customer_ddl_orc 
++>  ;
+
+--- SQL command prepared.
+>>
+>>-- no query cache hit, but NATable cache hit
+>>prepare s3part from
++>  select c_preferred_cust_flag,
++>         count(c_customer_id) 
++>  from customer_p_orc 
++>  group by 1 
++>  order by 1
++>  ;
+
+--- SQL command prepared.
+>>execute s1;
+
+C_PREFERRED_CUST_FLAG             (EXPR)              
+--------------------------------  --------------------
+
+                                                   699
+N                                                 9842
+Y                                                 9459
+
+--- 3 row(s) selected.
+>>-- s1 should still return 0 rows - for now
+>>execute s2;
+
+C_PREFERRED_CUST_FLAG             (EXPR)              
+--------------------------------  --------------------
+
+                                                   856
+N                                                12265
+Y                                                11878
+
+--- 3 row(s) selected.
+>>execute s3;
+
+(EXPR)              
+--------------------
+
+               24999
+
+--- 1 row(s) selected.
+>>execute s1part;
+
+*** WARNING[8597] Statement was automatically retried 1 time(s). Delay before each retry was 0 seconds. See next entry for the error that caused this retry. 
+
+*** WARNING[8436] Mismatch detected between compiletime and runtime hive table definitions. DataModMismatchDetails: compiledModTS = 1537159185330, failedModTS = 1537159218246, failedLoc = hdfs://localhost:9000/user/hive/warehouse/customer_p_orc
+
+C_PREFERRED_CUST_FLAG             (EXPR)              
+--------------------------------  --------------------
+
+N                                                12265
+Y                                                11878
+
+--- 2 row(s) selected.
+>>-- s1 should still return 0 rows - for now
+>>execute s2part;
+
+*** WARNING[8597] Statement was automatically retried 1 time(s). Delay before each retry was 0 seconds. See next entry for the error that caused this retry. 
+
+*** WARNING[8436] Mismatch detected between compiletime and runtime hive table definitions. DataModMismatchDetails: compiledModTS = 1537159185330, failedModTS = 1537159218246, failedLoc = hdfs://localhost:9000/user/hive/warehouse/customer_p_orc
+
+C_PREFERRED_CUST_FLAG             (EXPR)              
+--------------------------------  --------------------
+
+N                                                12265
+Y                                                11878
+
+--- 2 row(s) selected.
+>>execute s3part;
+
+C_PREFERRED_CUST_FLAG             (EXPR)              
+--------------------------------  --------------------
+
+N                                                12265
+Y                                                11878
+
+--- 2 row(s) selected.
+>>
+>>-- overwrite customer_p_orc with auto-generated partitions
+>>sh regrhive.ksh -v -f $REGRTSTDIR/TEST035_d.orc.sql;
+>>
+>>prepare s4 from 
++>  select c_preferred_cust_flag,
++>         count(*) 
++>  from customer_ddl_orc 
++>  group by 1 
++>  order by 1
++>  ;
+
+--- SQL command prepared.
+>>prepare s4part from
++>  select c_preferred_cust_flag,
++>         count(*) 
++>  from customer_p_orc 
++>  group by 1 
++>  order by 1
++>  ;
+
+--- SQL command prepared.
+>>execute s2;
+
+C_PREFERRED_CUST_FLAG             (EXPR)              
+--------------------------------  --------------------
+
+                                                   856
+N                                                12265
+Y                                                11878
+
+--- 3 row(s) selected.
+>>execute s4;
+
+C_PREFERRED_CUST_FLAG             (EXPR)              
+--------------------------------  --------------------
+
+                                                   856
+N                                                12265
+Y                                                11878
+
+--- 3 row(s) selected.
+>>execute s2part;
+
+*** WARNING[8597] Statement was automatically retried 1 time(s). Delay before each retry was 0 seconds. See next entry for the error that caused this retry. 
+
+*** WARNING[8436] Mismatch detected between compiletime and runtime hive table definitions. DataModMismatchDetails: compiledModTS = 1537159218246, failedModTS = 1537159258599, failedLoc = hdfs://localhost:9000/user/hive/warehouse/customer_p_orc
+
+C_PREFERRED_CUST_FLAG             (EXPR)              
+--------------------------------  --------------------
+
+N                                                 9789
+Y                                                 9525
+
+--- 2 row(s) selected.
+>>-- error 8442 since the files we are trying to open no longer exist
+>>execute s4part;
+
+C_PREFERRED_CUST_FLAG             (EXPR)              
+--------------------------------  --------------------
+
+N                                                 9789
+Y                                                 9525
+
+--- 2 row(s) selected.
+>>
+>>-- partition elimination on ORC table
+>>select * from hive.hive.hivepio_orc where p1=2;
+
+ID           COL2         P1         
+-----------  -----------  -----------
+
+          2            2            2
+         22           22            2
+        222          222            2
+
+--- 3 row(s) selected.
+>>execute display_rows_accessed;
+
+VAL4_TXT          VAL4                
+----------------  --------------------
+
+ActRowsAccessed                      3
+
+--- 1 row(s) selected.
+>>select * from hive.hive.hivepio_orc where p1 in (1,3);
+
+ID           COL2         P1         
+-----------  -----------  -----------
+
+          1            1            1
+         11           11            1
+          3            3            3
+         34           34            3
+
+--- 4 row(s) selected.
+>>execute display_rows_accessed;
+
+VAL4_TXT          VAL4                
+----------------  --------------------
+
+ActRowsAccessed                      4
+
+--- 1 row(s) selected.
+>>select * from hive.hive.hivepdo_orc where p1d >= date '2002-12-31';
+
+ID           COL2         P1D       
+-----------  -----------  ----------
+
+          3            3  2003-03-31
+         34           34  2004-04-04
+        -55          -55  2005-05-05
+          2            2  2020-02-29
+         22           22  2020-02-29
+        222          222  2020-02-29
+
+--- 6 row(s) selected.
+>>execute display_rows_accessed;
+
+VAL4_TXT          VAL4                
+----------------  --------------------
+
+ActRowsAccessed                      6
+
+--- 1 row(s) selected.
+>>
+>>-- this pred can neither be pushed to ORC nor used as
+>>-- a partition elimination predicate
+>>select * from hive.hive.hivepio_orc where p1=1 or col2<10;
+
+ID           COL2         P1         
+-----------  -----------  -----------
+
+        -55          -55           -5
+          1            1            1
+         11           11            1
+          2            2            2
+          3            3            3
+
+--- 5 row(s) selected.
+>>
+>>-- tests for orc timestamp mismatch check
+>>cqd auto_query_retry_warnings 'ON';
+
+--- SQL operation complete.
+>>
+>>process hive statement 'drop table torc';
+
+--- SQL operation complete.
+>>process hive statement 'create table torc(a int) stored as orc';
+
+--- SQL operation complete.
+>>
+>>select a from hive.hive.torc;
+
+--- 0 row(s) selected.
+>>
+>>sh echo "insert into torc values (1);" > TEST035_junk;
+>>sh regrhive.ksh -f TEST035_junk;
+>>
+>>select a from hive.hive.torc;
+
+*** WARNING[8597] Statement was automatically retried 1 time(s). Delay before each retry was 0 seconds. See next entry for the error that caused this retry. 
+
+*** WARNING[8436] Mismatch detected between compiletime and runtime hive table definitions. DataModMismatchDetails: compiledModTS = 1537159266789, failedModTS = 1537159293748, failedLoc = hdfs://localhost:9000/user/hive/warehouse/torc
+
+A          
+-----------
+
+          1
+
+--- 1 row(s) selected.
+>>insert into hive.hive.torc values (2);
+
+--- 1 row(s) inserted.
+>>select a from hive.hive.torc;
+
+A          
+-----------
+
+          1
+          2
+
+--- 2 row(s) selected.
+>>
+>>process hive statement 'drop table torc';
+
+--- SQL operation complete.
+>>process hive statement 'create table torc(a int, b smallint) stored as orc';
+
+--- SQL operation complete.
+>>
+>>sh echo "insert into torc values (1,2);" > TEST035_junk;
+>>sh regrhive.ksh -f TEST035_junk;
+>>
+>>sh echo "select * from torc;" > TEST035_junk;
+>>sh regrhive.ksh -f TEST035_junk | tee -a LOG035;
+torc.a	torc.b
+1	2
+>>
+>>select a from hive.hive.torc;
+
+*** WARNING[8597] Statement was automatically retried 1 time(s). Delay before each retry was 0 seconds. See next entry for the error that caused this retry. 
+
+*** WARNING[8436] Mismatch detected between compiletime and runtime hive table definitions. DataModMismatchDetails: compiledModTS = 1537159296116, failedModTS = 1537159318835, failedLoc = hdfs://localhost:9000/user/hive/warehouse/torc
+
+A          
+-----------
+
+          1
+
+--- 1 row(s) selected.
+>>select b from hive.hive.torc;
+
+B     
+------
+
+     2
+
+--- 1 row(s) selected.
+>>
+>>select * from hive.hive.torc;
+
+A            B     
+-----------  ------
+
+          1       2
+
+--- 1 row(s) selected.
+>>
+>>insert into hive.hive.torc values (3,4);
+
+--- 1 row(s) inserted.
+>>sh echo "select * from torc;" > TEST035_junk;
+>>sh regrhive.ksh -f TEST035_junk | tee -a LOG035;
+torc.a	torc.b
+1	2
+3	4
+>>select * from hive.hive.torc order by a;
+
+A            B     
+-----------  ------
+
+          1       2
+          3       4
+
+--- 2 row(s) selected.
+>>
+>>-- tests for orc CHAR/VARCHAR/DECIMAL datatypes
+>>cqd auto_query_retry_warnings 'ON';
+
+--- SQL operation complete.
+>>cqd hive_max_string_length_in_bytes '5';
+
+--- SQL operation complete.
+>>
+>>-- run against hive/text table
+>>drop external table if exists torc10 for hive.hive.torc10;
+
+--- SQL operation complete.
+>>process hive statement 'drop table torc10';
+
+--- SQL operation complete.
+>>process hive statement 'create table torc10(a char(2), b varchar(3), c char(5), d varchar(6), e string, f string, g char(2), h varchar(3), i char(3), j varchar(3), k decimal(5,2), l decimal(19,0), m decimal, n boolean)';
+
+--- SQL operation complete.
+>>
+>>obey TEST035(extTabQueries);
+>>invoke hive.hive.torc10;
+
+-- Definition of hive table HIVE.HIVE.TORC10
+-- Definition current  Mon Sep 17 04:42:47 2018
+
+  (
+    A                                CHAR(2 CHARS) CHARACTER SET UTF8 COLLATE
+      DEFAULT
+  , B                                VARCHAR(3 CHARS) CHARACTER SET UTF8
+      COLLATE DEFAULT
+  , C                                CHAR(5 CHARS) CHARACTER SET UTF8 COLLATE
+      DEFAULT
+  , D                                VARCHAR(6 CHARS) CHARACTER SET UTF8
+      COLLATE DEFAULT
+  , E                                VARCHAR(5 BYTES) CHARACTER SET UTF8
+      COLLATE DEFAULT
+  , F                                VARCHAR(5 BYTES) CHARACTER SET UTF8
+      COLLATE DEFAULT
+  , G                                CHAR(2 CHARS) CHARACTER SET UTF8 COLLATE
+      DEFAULT
+  , H                                VARCHAR(3 CHARS) CHARACTER SET UTF8
+      COLLATE DEFAULT
+  , I                                CHAR(3 CHARS) CHARACTER SET UTF8 COLLATE
+      DEFAULT
+  , J                                VARCHAR(3 CHARS) CHARACTER SET UTF8
+      COLLATE DEFAULT
+  , K                                NUMERIC(5, 2)
+  , L                                NUMERIC(19, 0)
+  , M                                NUMERIC(10, 0)
+  , N                                BOOLEAN
+  )
+  /* stored as textfile */
+
+--- SQL operation complete.
+>>showddl hive.hive.torc10;
+
+/* Hive DDL */
+CREATE TABLE HIVE.HIVE.TORC10
+  (
+    A                                char(2)
+  , B                                varchar(3)
+  , C                                char(5)
+  , D                                varchar(6)
+  , E                                string
+  , F                                string
+  , G                                char(2)
+  , H                                varchar(3)
+  , I                                char(3)
+  , J                                varchar(3)
+  , K                                decimal(5,2)
+  , L                                decimal(19,0)
+  , M                                decimal(10,0)
+  , N                                boolean
+  )
+  stored as textfile
+;
+
+/* Trafodion DDL */
+
+--- SQL operation complete.
+>>insert into hive.hive.torc10 values 
++>   ('ab', 'cde', 'ab', 'cde', 'ab', 'cde', 'ab', 'cde', '11', '222',
++>   123.24, 1234567890123456789, 123456, true);
+
+--- 1 row(s) inserted.
+>>
+>>select * from hive.hive.torc10;
+
+A         B             C                     D                         E      F      G         H             I             J             K             L                     M                     N
+--------  ------------  --------------------  ------------------------  -----  -----  --------  ------------  ------------  ------------  ------------  --------------------  --------------------  -----
+
+ab        cde           ab                    cde                       ab     cde    ab        cde           11            222                 123.24   1234567890123456789                123456  TRUE 
+
+--- 1 row(s) selected.
+>>
+>>drop external table if exists torc10 for hive.hive.torc10;
+
+--- SQL operation complete.
+>>create external table torc10 
++>        (a char(2), b varchar(3),
++>         c char(5), d varchar(6), 
++>         e char(2), f varchar(3),
++>         g char(2) character set utf8, h varchar(3) character set utf8,
++>         i tinyint, j int)
++>     for hive.hive.torc10;
+
+--- SQL operation complete.
+>>
+>>showddl hive.hive.torc10;
+
+/* Hive DDL */
+CREATE TABLE HIVE.HIVE.TORC10
+  (
+    A                                char(2)
+  , B                                varchar(3)
+  , C                                char(5)
+  , D                                varchar(6)
+  , E                                string
+  , F                                string
+  , G                                char(2)
+  , H                                varchar(3)
+  , I                                char(3)
+  , J                                varchar(3)
+  , K                                decimal(5,2)
+  , L                                decimal(19,0)
+  , M                                decimal(10,0)
+  , N                                boolean
+  )
+  stored as textfile
+;
+
+/* Trafodion DDL */
+
+REGISTER /*INTERNAL*/ HIVE TABLE HIVE.HIVE.TORC10;
+/* ObjectUID = 4055663250842043261 */
+
+CREATE EXTERNAL TABLE TORC10
+  (
+    A                                CHAR(2) CHARACTER SET ISO88591 COLLATE
+      DEFAULT DEFAULT NULL
+  , B                                VARCHAR(3) CHARACTER SET ISO88591 COLLATE
+      DEFAULT DEFAULT NULL
+  , C                                CHAR(5) CHARACTER SET ISO88591 COLLATE
+      DEFAULT DEFAULT NULL
+  , D                                VARCHAR(6) CHARACTER SET ISO88591 COLLATE
+      DEFAULT DEFAULT NULL
+  , E                                CHAR(2) CHARACTER SET ISO88591 COLLATE
+      DEFAULT DEFAULT NULL
+  , F                                VARCHAR(3) CHARACTER SET ISO88591 COLLATE
+      DEFAULT DEFAULT NULL
+  , G                                CHAR(2 CHARS) CHARACTER SET UTF8 COLLATE
+      DEFAULT DEFAULT NULL
+  , H                                VARCHAR(3 CHARS) CHARACTER SET UTF8
+      COLLATE DEFAULT DEFAULT NULL
+  , I                                TINYINT DEFAULT NULL
+  , J                                INT DEFAULT NULL
+  , K                                NUMERIC(5, 2) DEFAULT NULL
+  , L                                NUMERIC(19, 0) DEFAULT NULL
+  , M                                NUMERIC(10, 0) DEFAULT NULL
+  , N                                BOOLEAN DEFAULT NULL
+  )
+  FOR HIVE.HIVE.TORC10
+;
+
+--- SQL operation complete.
+>>select * from hive.hive.torc10 order by 1;
+
+A   B    C      D       E   F    G         H             I     J            K             L                     M                     N
+--  ---  -----  ------  --  ---  --------  ------------  ----  -----------  ------------  --------------------  --------------------  -----
+
+ab  cde  ab     cde     ab  cde  ab        cde             11          222        123.24   1234567890123456789                123456  TRUE 
+
+--- 1 row(s) selected.
+>>
+>>insert into hive.hive.torc10 values
++>  ('x', 'yz', 'x', 'yz', 'x', 'yz', 'x', 'yz', 33, 444,
++>   123.24, 1234567890123456789, 123456, false );
+
+--- 1 row(s) inserted.
+>>
+>>select * from hive.hive.torc10 order by 1;
+
+*** WARNING[8597] Statement was automatically retried 1 time(s). Delay before each retry was 0 seconds. See next entry for the error that caused this retry. 
+
+*** WARNING[8436] Mismatch detected between compiletime and runtime hive table definitions. DataModMismatchDetails: compiledModTS = 1537159368263, failedModTS = 1537159384651, failedLoc = hdfs://localhost:9000/user/hive/warehouse/torc10
+
+A   B    C      D       E   F    G         H             I     J            K             L                     M                     N
+--  ---  -----  ------  --  ---  --------  ------------  ----  -----------  ------------  --------------------  --------------------  -----
+
+ab  cde  ab     cde     ab  cde  ab        cde             11          222        123.24   1234567890123456789                123456  TRUE 
+x   yz   x      yz      x   yz   x         yz              33          444        123.24   1234567890123456789                123456  FALSE
+
+--- 2 row(s) selected.
+>>
+>>
+>>-- error cases
+>>
+>>-- overflow error during insert. Not currently detected.
+>>insert into hive.hive.torc10 values
++>  ('x', 'yz', 'x', 'yz', 'x', 'yz', 'x', 'yz', 333, 444, 1, 1, 1, true);
+
+--- 1 row(s) inserted.
+>>
+>>-- incommpatible datatype against external table
+>>insert into hive.hive.torc10 values 
++>   ('ab', 'cde', 'ab', 'cde', 'ab', 'cde', 'ab', 'cde', date '2017-02-01', '222', 1, 1, 1, true);
+
+*** ERROR[8402] A string overflow occurred during the evaluation of a character expression.
+
+--- 0 row(s) inserted.
+>>
+>>-- number of values less than number of columns
+>>insert into hive.hive.torc10 values 
++>   ('ab', 'cde', 'ab', 'cde', 'ab', 'cde', 'ab', 'cde');
+
+*** ERROR[4023] The degree of each row value constructor (8) must equal the degree of the target table column list (14).
+
+*** ERROR[8822] The statement was not prepared.
+
+*** WARNING[8597] Statement was automatically retried 1 time(s). Delay before each retry was 0 seconds. See next entry for the error that caused this retry. 
+
+*** WARNING[4023] The degree of each row value constructor (8) must equal the degree of the target table column list (14).
+
+>>
+>>-- overflow error detected during select
+>>truncate table hive.hive.torc10;
+
+--- SQL operation complete.
+>>sh echo "insert into torc10 values ('a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', '555', '666', 1, 1, 1, false);" > TEST035_junk;
+>>sh regrhive.ksh -f TEST035_junk;
+>>select * from hive.hive.torc10;
+
+*** ERROR[8411] A numeric overflow occurred during an arithmetic computation or data conversion. Conversion of Source Type:VARCHAR(REC_BYTE_V_ASCII,3 BYTES,ISO88591) Source Value:555 to Target Type:TINYINT SIGNED(REC_BIN8_SIGNED).
+
+--- 0 row(s) selected.
+>>
+>>-- incompatible values in hive table validated and detected during select
+>>truncate table hive.hive.torc10;
+
+--- SQL operation complete.
+>>sh echo "insert into torc10 values ('a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 1, 1, 1, false);" > TEST035_junk;
+>>sh regrhive.ksh -f TEST035_junk;
+>>select * from hive.hive.torc10;
+
+*** WARNING[8597] Statement was automatically retried 1 time(s). Delay before each retry was 0 seconds. See next entry for the error that caused this retry. 
+
+*** WARNING[8436] Mismatch detected between compiletime and runtime hive table definitions. DataModMismatchDetails: compiledModTS = 1537159415443, failedModTS = 1537159444332, failedLoc = hdfs://localhost:9000/user/hive/warehouse/torc10
+
+*** ERROR[8413] The string argument contains characters that cannot be converted. Source data(in hex): 612020
+
+--- 0 row(s) selected.
+>>
+>>process hive statement 'drop table torc11';
+
+--- SQL operation complete.
+>>process hive statement 'create table torc11 (a timestamp, b tinyint) stored as orc';
+
+--- SQL operation complete.
+>>insert into torc11 values (null, 11);
+
+--- 1 row(s) inserted.
+>>select * from torc11 where a is null;
+
+A                              B   
+-----------------------------  ----
+
+?                                11
+
+--- 1 row(s) selected.
+>>
+>>-- drop tables
+>>drop external table if exists torc10 for hive.hive.torc10;
+
+--- SQL operation complete.
+>>process hive statement 'drop table torc10';
+
+--- SQL operation complete.
+>>cleanup table hive.hive.torc10;
+
+--- SQL operation complete.
+>>
+>>
+>>-- run against ORC table
+>>drop external table if exists torc10 for hive.hive.torc10;
+
+--- SQL operation complete.
+>>process hive statement 'drop table torc10';
+
+--- SQL operation complete.
+>>process hive statement 'create table torc10(a char(2), b varchar(3), c char(5), d varchar(6), e string, f string, g char(2), h varchar(3), i char(3), j varchar(3), k decimal(5,2), l decimal(19,0), m decimal, n boolean) stored as orc';
+
+--- SQL operation complete.
+>>
+>>obey TEST035(extTabQueries);
+>>invoke hive.hive.torc10;
+
+-- Definition of hive table HIVE.HIVE.TORC10
+-- Definition current  Mon Sep 17 04:44:22 2018
+
+  (
+    A                                CHAR(2 CHARS) CHARACTER SET UTF8 COLLATE
+      DEFAULT
+  , B                                VARCHAR(3 CHARS) CHARACTER SET UTF8
+      COLLATE DEFAULT
+  , C                                CHAR(5 CHARS) CHARACTER SET UTF8 COLLATE
+      DEFAULT
+  , D                                VARCHAR(6 CHARS) CHARACTER SET UTF8
+      COLLATE DEFAULT
+  , E                                VARCHAR(5 BYTES) CHARACTER SET UTF8
+      COLLATE DEFAULT
+  , F                                VARCHAR(5 BYTES) CHARACTER SET UTF8
+      COLLATE DEFAULT
+  , G                                CHAR(2 CHARS) CHARACTER SET UTF8 COLLATE
+      DEFAULT
+  , H                                VARCHAR(3 CHARS) CHARACTER SET UTF8
+      COLLATE DEFAULT
+  , I                                CHAR(3 CHARS) CHARACTER SET UTF8 COLLATE
+      DEFAULT
+  , J                                VARCHAR(3 CHARS) CHARACTER SET UTF8
+      COLLATE DEFAULT
+  , K                                NUMERIC(5, 2)
+  , L                                NUMERIC(19, 0)
+  , M                                NUMERIC(10, 0)
+  , N                                BOOLEAN
+  )
+  /* stored as orc */
+
+--- SQL operation complete.
+>>showddl hive.hive.torc10;
+
+/* Hive DDL */
+CREATE TABLE HIVE.HIVE.TORC10
+  (
+    A                                char(2)
+  , B                                varchar(3)
+  , C                                char(5)
+  , D                                varchar(6)
+  , E                                string
+  , F                                string
+  , G                                char(2)
+  , H                                varchar(3)
+  , I                                char(3)
+  , J                                varchar(3)
+  , K                                decimal(5,2)
+  , L                                decimal(19,0)
+  , M                                decimal(10,0)
+  , N                                boolean
+  )
+  stored as orc
+;
+
+/* Trafodion DDL */
+
+--- SQL operation complete.
+>>insert into hive.hive.torc10 values 
++>   ('ab', 'cde', 'ab', 'cde', 'ab', 'cde', 'ab', 'cde', '11', '222',
++>   123.24, 1234567890123456789, 123456, true);
+
+--- 1 row(s) inserted.
+>>
+>>select * from hive.hive.torc10;
+
+A         B             C                     D                         E      F      G         H             I             J             K             L                     M                     N
+--------  ------------  --------------------  ------------------------  -----  -----  --------  ------------  ------------  ------------  ------------  --------------------  --------------------  -----
+
+ab        cde           ab                    cde                       ab     cde    ab        cde           11            222                 123.24   1234567890123456789                123456  TRUE 
+
+--- 1 row(s) selected.
+>>
+>>drop external table if exists torc10 for hive.hive.torc10;
+
+--- SQL operation complete.
+>>create external table torc10 
++>        (a char(2), b varchar(3),
++>         c char(5), d varchar(6), 
++>         e char(2), f varchar(3),
++>         g char(2) character set utf8, h varchar(3) character set utf8,
++>         i tinyint, j int)
++>     for hive.hive.torc10;
+
+--- SQL operation complete.
+>>
+>>showddl hive.hive.torc10;
+
+/* Hive DDL */
+CREATE TABLE HIVE.HIVE.TORC10
+  (
+    A                                char(2)
+  , B                                varchar(3)
+  , C                                char(5)
+  , D                                varchar(6)
+  , E                                string
+  , F                                string
+  , G                                char(2)
+  , H                                varchar(3)
+  , I                                char(3)
+  , J                                varchar(3)
+  , K                                decimal(5,2)
+  , L                                decimal(19,0)
+  , M                                decimal(10,0)
+  , N                                boolean
+  )
+  stored as orc
+;
+
+/* Trafodion DDL */
+
+REGISTER /*INTERNAL*/ HIVE TABLE HIVE.HIVE.TORC10;
+/* ObjectUID = 555803390937802466 */
+
+CREATE EXTERNAL TABLE TORC10
+  (
+    A                                CHAR(2) CHARACTER SET ISO88591 COLLATE
+      DEFAULT DEFAULT NULL
+  , B                                VARCHAR(3) CHARACTER SET ISO88591 COLLATE
+      DEFAULT DEFAULT NULL
+  , C                                CHAR(5) CHARACTER SET ISO88591 COLLATE
+      DEFAULT DEFAULT NULL
+  , D                                VARCHAR(6) CHARACTER SET ISO88591 COLLATE
+      DEFAULT DEFAULT NULL
+  , E                                CHAR(2) CHARACTER SET ISO88591 COLLATE
+      DEFAULT DEFAULT NULL
+  , F                                VARCHAR(3) CHARACTER SET ISO88591 COLLATE
+      DEFAULT DEFAULT NULL
+  , G                                CHAR(2 CHARS) CHARACTER SET UTF8 COLLATE
+      DEFAULT DEFAULT NULL
+  , H                                VARCHAR(3 CHARS) CHARACTER SET UTF8
+      COLLATE DEFAULT DEFAULT NULL
+  , I                                TINYINT DEFAULT NULL
+  , J                                INT DEFAULT NULL
+  , K                                NUMERIC(5, 2) DEFAULT NULL
+  , L                                NUMERIC(19, 0) DEFAULT NULL
+  , M                                NUMERIC(10, 0) DEFAULT NULL
+  , N                                BOOLEAN DEFAULT NULL
+  )
+  FOR HIVE.HIVE.TORC10
+;
+
+--- SQL operation complete.
+>>select * from hive.hive.torc10 order by 1;
+
+A   B    C      D       E   F    G         H             I     J            K             L                     M                     N
+--  ---  -----  ------  --  ---  --------  ------------  ----  -----------  ------------  --------------------  --------------------  -----
+
+ab  cde  ab     cde     ab  cde  ab        cde             11          222        123.24   1234567890123456789                123456  TRUE 
+
+--- 1 row(s) selected.
+>>
+>>insert into hive.hive.torc10 values
++>  ('x', 'yz', 'x', 'yz', 'x', 'yz', 'x', 'yz', 33, 444,
++>   123.24, 1234567890123456789, 123456, false );
+
+--- 1 row(s) inserted.
+>>
+>>select * from hive.hive.torc10 order by 1;
+
+*** WARNING[8597] Statement was automatically retried 1 time(s). Delay before each retry was 0 seconds. See next entry for the error that caused this retry. 
+
+*** WARNING[8436] Mismatch detected between compiletime and runtime hive table definitions. DataModMismatchDetails: compiledModTS = 1537159462595, failedModTS = 1537159469534, failedLoc = hdfs://localhost:9000/user/hive/warehouse/torc10
+
+A   B    C      D       E   F    G         H             I     J            K             L                     M                     N
+--  ---  -----  ------  --  ---  --------  ------------  ----  -----------  ------------  --------------------  --------------------  -----
+
+ab  cde  ab     cde     ab  cde  ab        cde             11          222        123.24   1234567890123456789                123456  TRUE 
+x   yz   x      yz      x   yz   x         yz              33          444        123.24   1234567890123456789                123456  FALSE
+
+--- 2 row(s) selected.
+>>
+>>
+>>-- error cases
+>>
+>>-- overflow error during insert. Not currently detected.
+>>insert into hive.hive.torc10 values
++>  ('x', 'yz', 'x', 'yz', 'x', 'yz', 'x', 'yz', 333, 444, 1, 1, 1, true);
+
+--- 1 row(s) inserted.
+>>
+>>-- incommpatible datatype against external table
+>>insert into hive.hive.torc10 values 
++>   ('ab', 'cde', 'ab', 'cde', 'ab', 'cde', 'ab', 'cde', date '2017-02-01', '222', 1, 1, 1, true);
+
+*** ERROR[8402] A string overflow occurred during the evaluation of a character expression.
+
+--- 0 row(s) inserted.
+>>
+>>-- number of values less than number of columns
+>>insert into hive.hive.torc10 values 
++>   ('ab', 'cde', 'ab', 'cde', 'ab', 'cde', 'ab', 'cde');
+
+*** ERROR[4023] The degree of each row value constructor (8) must equal the degree of the target table column list (14).
+
+*** ERROR[8822] The statement was not prepared.
+
+*** WARNING[8597] Statement was automatically retried 1 time(s). Delay before each retry was 0 seconds. See next entry for the error that caused this retry. 
+
+*** WARNING[4023] The degree of each row value constructor (8) must equal the degree of the target table column list (14).
+
+>>
+>>-- overflow error detected during select
+>>truncate table hive.hive.torc10;
+
+--- SQL operation complete.
+>>sh echo "insert into torc10 values ('a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', '555', '666', 1, 1, 1, false);" > TEST035_junk;
+>>sh regrhive.ksh -f TEST035_junk;
+>>select * from hive.hive.torc10;
+
+*** ERROR[8411] A numeric overflow occurred during an arithmetic computation or data conversion. Conversion of Source Type:CHAR(REC_BYTE_F_ASCII,12 BYTES,UTF8) Source Value:555          to Target Type:TINYINT SIGNED(REC_BIN8_SIGNED).
+
+--- 0 row(s) selected.
+>>
+>>-- incompatible values in hive table validated and detected during select
+>>truncate table hive.hive.torc10;
+
+--- SQL operation complete.
+>>sh echo "insert into torc10 values ('a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 1, 1, 1, false);" > TEST035_junk;
+>>sh regrhive.ksh -f TEST035_junk;
+>>select * from hive.hive.torc10;
+
+*** WARNING[8597] Statement was automatically retried 1 time(s). Delay before each retry was 0 seconds. See next entry for the error that caused this retry. 
+
+*** WARNING[8436] Mismatch detected between compiletime and runtime hive table definitions. DataModMismatchDetails: compiledModTS = 1537159492436, failedModTS = 1537159511150, failedLoc = hdfs://localhost:9000/user/hive/warehouse/torc10
+
+*** ERROR[8413] The string argument contains characters that cannot be converted. Source data(in hex): 612020202020202020202020
+
+--- 0 row(s) selected.
+>>
+>>process hive statement 'drop table torc11';
+
+--- SQL operation complete.
+>>process hive statement 'create table torc11 (a timestamp, b tinyint) stored as orc';
+
+--- SQL operation complete.
+>>insert into torc11 values (null, 11);
+
+--- 1 row(s) inserted.
+>>select * from torc11 where a is null;
+
+A                              B   
+-----------------------------  ----
+
+?                                11
+
+--- 1 row(s) selected.
+>>
+>>-- drop tables
+>>drop external table if exists torc10 for hive.hive.torc10;
+
+--- SQL operation complete.
+>>process hive statement 'drop table torc10';
+
+--- SQL operation complete.
+>>cleanup table hive.hive.torc10;
+
+--- SQL operation complete.
+>>
+>>
+>>log;

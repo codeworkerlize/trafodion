@@ -1,0 +1,625 @@
+-- Test: TEST074 (CompGeneral)
+-- @@@ START COPYRIGHT @@@
+--
+-- Licensed to the Apache Software Foundation (ASF) under one
+-- or more contributor license agreements.  See the NOTICE file
+-- distributed with this work for additional information
+-- regarding copyright ownership.  The ASF licenses this file
+-- to you under the Apache License, Version 2.0 (the
+-- "License"); you may not use this file except in compliance
+-- with the License.  You may obtain a copy of the License at
+--
+--   http://www.apache.org/licenses/LICENSE-2.0
+--
+-- Unless required by applicable law or agreed to in writing,
+-- software distributed under the License is distributed on an
+-- "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+-- KIND, either express or implied.  See the License for the
+-- specific language governing permissions and limitations
+-- under the License.
+--
+-- @@@ END COPYRIGHT @@@
+--
+-- Functionality: Oracle ROWNUM compatible statement
+-- Expected file: EXPECTED074
+-- Filter file: FILTER074
+-- Tables created: t074t1, t074t2
+-- Limitations: 
+-- Revision history:
+--     (10/26/18) - Created for Oracle compatible ROWNUM
+
+
+log LOG074 clear;
+
+cqd MODE_COMPATIBLE_1 'on';
+
+obey TEST074(clnup);
+
+set schema t074sch_rownum;
+
+obey TEST074(ddl);
+obey TEST074(common);
+obey TEST074(join_query);
+obey TEST074(complex_expr);
+obey TEST074(error_ambiguous);
+obey TEST074(error_order);
+obey TEST074(error_other);
+obey TEST074(m18148);
+obey TEST074(m19155);
+
+obey TEST074(clnup);
+
+cqd MODE_COMPATIBLE_1 'off';
+
+exit;
+
+
+
+?section common
+--------------------------------------------------------------------------
+
+prepare s1 from
+  select c1, rownum from t074t1;
+explain options 'f' s1;
+execute s1;
+
+prepare s1 from 
+  select c1, rownum from t074t1 where c1=3;
+explain options 'f' s1;
+execute s1;
+
+prepare s1 from 
+  select c1, rownum from t074t1 where rownum <= 5;
+explain options 'f' s1;
+execute s1;
+
+prepare s1 from
+  select c1, rownum from t074t1 order by c1;
+explain options 'f' s1;
+execute s1;
+
+prepare s1 from 
+  select t2.*, rownum rn from (select c1  from t074t1 ) t2;
+explain options 'f' s1;
+execute s1;
+
+prepare s1 from 
+select t2.*, t2.rn_n, rownum rn from (select c1, rownum rn_n from t074t1 order by c2) t2;
+explain options 'f' s1;
+execute s1;
+
+prepare s1 from 
+select c1,c2, rownum num from t074t1 order by c2 desc;
+explain options 'f' s1;
+execute s1;
+
+prepare s1 from 
+select c1,c2, rownum num from (select * from t074t1) order by c2 desc;
+explain options 'f' s1;
+execute s1;
+
+prepare s1 from 
+select c1, tt.num from (select c1, rownum num from t074t1 where rownum <=8) tt where tt.num >3;
+explain options 'f' s1;
+execute s1;
+
+prepare s1 from
+SELECT * FROM (SELECT A.*, ROWNUM RN FROM (
+                   select count(*) over() total,b.* from t074t1 b
+                   WHERE 1=1 and c1 NOT IN(6,7,8)
+         )A WHERE ROWNUM <= 6) WHERE RN >0;
+explain options 'f' s1;
+execute s1;
+
+prepare s1 from 
+select c1, tt.num from (select c1, rownum num from t074t1 where rownum <=8) tt where tt.num >3 limit 3; 
+explain options 'f' s1;
+execute s1;
+
+--rownum outside is not a reference to inner rownum
+prepare s1 from 
+select c1, rownum from
+(
+    select c1, rownum from t074t1 
+)
+where rownum <= 9
+;
+explain options 'f' s1;
+execute s1;
+
+
+
+?section join_query
+--------------------------------------------------------------------------
+
+prepare s1 from 
+select t1.*, t2.*, rownum from t074t1 t1, t074t1 t2 ; --ok
+explain options 'f' s1;
+execute s1;
+
+prepare s1 from 
+select t074t1.*, t074t3.*, rownum from t074t1, t074t3 ; --ok
+explain options 'f' s1;
+execute s1;
+
+prepare s1 from 
+select t1.*, t2.*, rownum from (select * from t074t1) t1, (select * from t074t1) t2 ; --ok
+explain options 'f' s1;
+execute s1;
+
+prepare s1 from 
+select t1.*, t2.*, rownum from (select * from t074t1 order by c1) t1, (select * from t074t1) t2 ; --ok
+explain options 'f' s1;
+execute s1;
+
+prepare s1 from 
+select A.*, B.*, rownum from t074t1 A join t074t1 B on A.c1 = B.c1 ; --ok
+explain options 'f' s1;
+execute s1;
+
+prepare s1 from 
+select A.*, B.*, rownum from t074t1 A join t074t2 B on A.c1 = B.c1 ; --ok
+explain options 'f' s1;
+execute s1;
+
+prepare s1 from 
+select A.*, B.*, rownum from t074t2 A join t074t2 B on A.c1 = B.c1 ; --?
+explain options 'f' s1;
+execute s1;
+
+prepare s1 from 
+select A.*, B.*, rownum from t074t2 A join t074t2 B on A.c1 = B.c1 ; --?
+explain options 'f' s1;
+execute s1;
+
+prepare s1 from 
+select A.*, B.*, rownum from t074t2 A join t074t2 B on A.c1 = B.c1 order by 1,2; --?
+explain options 'f' s1;
+execute s1;
+
+prepare s1 from 
+select A.*, B.*, C.*, rownum from t074t1 A left join t074t1 B on A.c1=B.c1 left join t074t1 C on B.c1 = C.c1; --ok
+explain options 'f' s1;
+execute s1;
+
+prepare s1 from 
+select A.*, B.*, rownum from t074t1 A right join t074t2 B on A.c1=B.c1; --ok
+explain options 'f' s1;
+execute s1;
+
+prepare s1 from 
+select A.*, B.*, C.*, rownum from t074t1 A right join t074t1 B on A.c1=B.c1 right join t074t2 C on B.c1 = C.c1; --?
+explain options 'f' s1;
+execute s1;
+
+--fail  ambiguous
+prepare s1 from 
+select A.*, B.*, rownum from t074t1 A join t074t1 B on A.c1 = B.c1 where rownum < 5;
+explain options 'f' s1;
+execute s1;
+
+prepare s1 from 
+select A.c1 a_c1, A.c2 a_c2, B.c1 b_c1, B.c2 b_c2, rownum from t074t1 A join t074t1 B on A.c1 = B.c1 where rownum < 5; --ok
+explain options 'f' s1;
+execute s1;
+
+prepare s1 from 
+select A.*, B.*, rownum from ( select c1 from t074t1 order by c2 desc ) A, t074t1 B ; --ok
+explain options 'f' s1;
+execute s1;
+
+prepare s1 from 
+select A.*, B.*, rownum from ( select c1, c2 from t074t1 order by 2 desc) A, t074t1 B ; --ok
+explain options 'f' s1;
+execute s1;
+
+prepare s1 from 
+select A.*, B.*, C.*, rownum from ( select c1, c2 from t074t1 order by 2 ) A join t074t2 B on A.c1=B.c1 join t074t2 C on B.c1=C.c1; --? order by 2 is not working in Oracle
+explain options 'f' s1;
+execute s1;
+
+prepare s1 from 
+select A.*,B.*,C.*, rownum from ( select c1, c2 from t074t1 order by 2 ) A join t074t2 B on A.c1=B.c1 right join t074t2 C on B.c1=C.c1 order by A.c1, B.c2, C.c2; --ok
+explain options 'f' s1;
+execute s1;
+
+prepare s1 from 
+select T.*, rownum from ( select A.c1, B.c2 from t074t1 A, t074t1 B order by A.c2, B.c2 ) T ; --ok
+explain options 'f' s1;
+execute s1;
+
+prepare s1 from 
+select T.*, rownum from ( select A.c1, B.c2 from t074t1 A, t074t1 B ) T ; --?
+explain options 'f' s1;
+execute s1;
+
+prepare s1 from 
+select T.*, rownum from ( select A.c1, B.c2 from t074t2 A, t074t1 B ) T ; --?
+explain options 'f' s1;
+execute s1;
+
+prepare s1 from 
+select T.*, rownum from ( select A.c1, B.c2 from t074t1 A, t074t2 B ) T ; --ok
+explain options 'f' s1;
+execute s1;
+
+prepare s1 from 
+select T.*, rownum from ( select A.c1, B.c2 from t074t2 A, t074t2 B ) T ; --ok
+explain options 'f' s1;
+execute s1;
+
+prepare s1 from
+select T.*, rownum from (select A.c1 A_C1, B.c2 from t074t2 A, t074t1 B order by A_C1, 2, A.c2) T where rownum < 30;
+explain options 'f' s1;
+execute s1;
+
+
+
+?section complex_expr
+--------------------------------------------------------------------------
+
+
+
+prepare s1 from
+SELECT  1+1+1+1+1+rownum from t074t1 ;
+explain options 'f' s1;
+execute s1;
+
+prepare s1 from
+select abs(rownum) from t074t1;
+explain options 'f' s1;
+execute s1;
+
+prepare s1 from
+select COS(rownum) from t074t1;
+explain options 'f' s1;
+execute s1;
+
+prepare s1 from
+select c1, MOD(CAST(POWER(rownum,2) AS DECIMAL(10,0)), 10) from t074t1;
+explain options 'f' s1;
+execute s1;
+
+prepare s1 from
+select ROUND(POWER(rownum,2), -1) from t074t1;
+explain options 'f' s1;
+execute s1;
+
+prepare s1 from
+select ROUND(POWER(rownum,2), -1) from t074t1 where rownum < 6;
+explain options 'f' s1;
+execute s1;
+
+prepare s1 from
+select rownum + 1, rownum + 2, 3+rownum, 4*rownum from t074t1;
+explain options 'f' s1;
+execute s1;
+
+prepare s1 from
+select rownum + 1, ROUND(POWER(rownum,2), -1), rownum + 2, 3+rownum, 4*rownum from t074t1 where rownum < 6;
+explain options 'f' s1;
+execute s1;
+
+prepare s1 from
+select ROUND(POWER(rownum,2), -1) as RN_TEST from t074t1 where rownum - 3 < 6;
+explain options 'f' s1;
+execute s1;
+
+prepare s1 from
+select ROUND(POWER(rownum,2), -1) as RN_TEST from t074t1 where rownum - 3 < rownum - 2;
+explain options 'f' s1;
+execute s1;
+
+
+--fail
+prepare s1 from
+select sum(rownum) from t074t1;
+explain options 'f' s1;
+execute s1;
+
+--fail
+prepare s1 from
+select sum(rownum) from (select rownum from t074t1);
+explain options 'f' s1;
+execute s1;
+
+--fail
+prepare s1 from
+select sum(rn) from (select rownum as rn from t074t1);
+explain options 'f' s1;
+execute s1;
+
+--fail
+prepare s1 from
+select avg(rownum) from t074t1;
+explain options 'f' s1;
+execute s1;
+
+--fail
+prepare s1 from
+SELECT rownum, c1, c2, SUM (c1) over(ORDER BY C2) AS olap_sum FROM t074t2;
+explain options 'f' s1;
+execute s1;
+
+
+
+
+?section error_ambiguous
+--------------------------------------------------------------------------
+
+prepare s1 from 
+select c1, rownum, rownum from t074t1 ;
+explain options 'f' s1;
+execute s1;
+
+prepare s1 from 
+select c1, rownum, rownum from t074t2 where rownum <= 5;
+explain options 'f' s1;
+execute s1;
+
+prepare s1 from 
+select *, rownum from (select c1, rownum, rownum, rownum from t074t2);
+explain options 'f' s1;
+execute s1;
+
+
+
+
+?section error_order
+--------------------------------------------------------------------------
+
+-- Order Issue : can't get order of table yet in sub-sub-query
+-- Oracle result :
+--        C1         C2        NUM
+------------ ---------- ----------
+--         1         20          1
+--         2         19          2
+--         3         18          5
+--         4         17          6
+--         5         16          3
+--         6         15          7
+--         7         14          8
+--         8         13          4
+--         9         12         10
+--        10         11          9
+prepare s1 from 
+select c1,c2, rownum num from (select * from (select * from t074t1)) order by c2 desc; --not sort before sequence
+explain options 'f' s1;
+execute s1;
+
+
+-- Order Issue : order-by clause in sub-query is omitted by SQL engine
+-- Oracle result :
+--        C1         C2        NUM
+------------ ---------- ----------
+--         3         18          5
+--         4         17          6
+--         6         15          7
+--         7         14          8
+--         8         13          4
+--         9         12         10
+--        10         11          9
+prepare s1 from 
+select c1,c2, tt.num from (select c1,c2, rownum num from t074t1 order by c2 desc) tt where tt.num >3;--order by c2 is ommitted by sub-query
+explain options 'f' s1;
+execute s1;
+
+
+-- Order Issue : order-by clause in sub-query is omitted by SQL engine
+-- Oracle result :
+--        C1        NUM
+------------ ----------
+--         8          4
+--         7          8
+--         6          7
+--         4          6
+--         3          5
+prepare s1 from 
+select c1, tt.num from (select c1, rownum num from t074t1 where rownum <=8 order by c2) tt where tt.num >3;
+explain options 'f' s1;
+execute s1;
+
+
+-- Order Issue : 1. order of table in sub-sub-query; 2. order-by clause in sub-query is omitted by SQL engine
+-- Oracle result :
+--        C1         C2        NUM
+------------ ---------- ----------
+--         3         18          5
+--         4         17          6
+--         6         15          7
+--         7         14          8
+--         8         13          4
+--         9         12         10
+--        10         11          9
+prepare s1 from 
+select c1,c2, tt.num from (select c1,c2, rownum num from (select * from (select * from t074t1)) order by c2 desc) tt where tt.num >3;
+explain options 'f' s1;
+execute s1;
+
+
+
+?section error_other
+--------------------------------------------------------------------------
+
+prepare s1 from 
+select c1, rownum from --rownum outside is not a reference to inner rownum
+(
+    select c1, rownum from t074t1 where rownum <= 10  
+)
+where rownum <= 9
+;
+explain options 'f' s1;
+execute s1;
+
+create table t_fail(rownum int);
+
+prepare s1 from
+select rownum , "ROWNUM", "rownum" from t074t4 order by 2;
+explain options 'f' s1;
+execute s1;
+
+prepare s1 from 
+select * from t074t4_v;
+explain options 'f' s1;
+execute s1;
+
+cqd mode_compatible_1 'off';
+
+prepare s1 from
+select rownum , "ROWNUM", "rownum" from t074t4 order by 2;
+explain options 'f' s1;
+execute s1;
+
+prepare s1 from 
+select * from t074t4_v;
+explain options 'f' s1;
+execute s1;
+
+cqd mode_compatible_1 'on';
+
+
+
+?section ddl
+--------------------------------------------------------------------------
+
+create schema t074sch_rownum;
+
+-- table without primary key
+drop table if exists t074t1 ;
+create table t074t1 ( c1 int not null, c2 int ) salt using 5 partitions on (c1) store by (c1);
+insert into t074t1 values(1, 20);
+insert into t074t1 values(2, 19);
+insert into t074t1 values(5, 16);
+insert into t074t1 values(8, 13);
+insert into t074t1 values(3, 18);
+insert into t074t1 values(4, 17);
+insert into t074t1 values(6, 15);
+insert into t074t1 values(7, 14);
+insert into t074t1 values(10, 11);
+insert into t074t1 values(9, 12);
+
+-- table with primary key
+drop table if exists t074t2 ;
+create table t074t2 ( c1 int not null, c2 int not null , primary key (c1, c2)) salt using 5 partitions on (c1, c2);
+insert into t074t2 values(2, 1);
+insert into t074t2 values(5, 3);
+insert into t074t2 values(1, 1);
+insert into t074t2 values(3, 1);
+insert into t074t2 values(1, 2);
+insert into t074t2 values(3, 2);
+insert into t074t2 values(4, 1);
+insert into t074t2 values(5, 1);
+insert into t074t2 values(2, 3);
+insert into t074t2 values(5, 2);
+insert into t074t2 values(2, 2);
+
+-- 
+drop table if exists t074t3 ;
+CREATE TABLE t074t3
+  (
+    C1                               INT NO DEFAULT NOT NULL NOT DROPPABLE NOT
+      SERIALIZED
+  , C2                               INT DEFAULT NULL NOT SERIALIZED
+  )
+  STORE BY (C1 ASC)
+  SALT USING 5 PARTITIONS
+ ATTRIBUTES ALIGNED FORMAT
+;
+
+insert into t074t3 values(1, 20);
+insert into t074t3 values(2, 19);
+insert into t074t3 values(5, 16);
+insert into t074t3 values(8, 13);
+insert into t074t3 values(3, 18);
+insert into t074t3 values(4, 17);
+insert into t074t3 values(6, 15);
+insert into t074t3 values(7, 14);
+insert into t074t3 values(10, 11);
+insert into t074t3 values(9, 12);
+
+drop table if exists t074t4 ;
+create table t074t4 ( c1 int not null, "ROWNUM" varchar(30) not null , "rownum" varchar(30) not null);
+insert into t074t4 values(2, 'ROWNUM UPPER 01', 'rownum lower 21');
+insert into t074t4 values(5, 'ROWNUM UPPER 02', 'rownum lower 22');
+insert into t074t4 values(1, 'ROWNUM UPPER 03', 'rownum lower 23');
+insert into t074t4 values(3, 'ROWNUM UPPER 04', 'rownum lower 24');
+insert into t074t4 values(1, 'ROWNUM UPPER 05', 'rownum lower 25');
+insert into t074t4 values(3, 'ROWNUM UPPER 06', 'rownum lower 26');
+insert into t074t4 values(4, 'ROWNUM UPPER 07', 'rownum lower 27');
+insert into t074t4 values(5, 'ROWNUM UPPER 08', 'rownum lower 28');
+insert into t074t4 values(2, 'ROWNUM UPPER 09', 'rownum lower 29');
+insert into t074t4 values(5, 'ROWNUM UPPER 10', 'rownum lower 20');
+insert into t074t4 values(2, 'ROWNUM UPPER 11', 'rownum lower 21');
+
+create view t074t4_v as select c1, "ROWNUM" as ROWNUM_UPPER, "rownum" as ROWNUM_LOWER, rownum from t074t4 order by 2;
+
+
+
+?section clnup
+--------------------------------------------------------------------------
+
+drop schema IF EXISTS t074sch_rownum cascade;
+
+
+?section m18148
+--------------------------------------------------------------------------
+
+drop table IF EXISTS m18148;
+CREATE TABLE m18148(c1 INT,c2 varchar(100));
+INSERT INTO m18148 values(1,'abc');
+INSERT INTO m18148 values(2,'bcd');
+INSERT INTO m18148 values(3,'cde');
+INSERT INTO m18148 values(4,'def');
+INSERT INTO m18148 values(5,'efg');
+INSERT INTO m18148 values(6,'fgh');
+INSERT INTO m18148 values(7,'ghi');
+INSERT INTO m18148 values(8,'hij');
+
+--use rownum with group by
+SELECT
+    *
+FROM
+    (
+        SELECT
+            c1
+            , c2
+            , ROWNUM AS RN
+        FROM
+            m18148 T
+        GROUP BY
+            c1
+            , c2 ) M
+WHERE
+    M.RN < 5;
+
+--with condition inside sub-query
+SELECT
+    *
+FROM
+    (
+        SELECT
+            c1
+            , c2
+            , row_number() over() AS RN
+        FROM
+            m18148 T
+			where c1 = 7 or c1 = 8
+        GROUP BY
+            c1
+            , c2 
+		) M
+WHERE
+    M.RN < 5;
+
+
+?section m19155
+--------------------------------------------------------------------------
+
+create table m19155_t1(c1 int,c2 int,c3 int);
+create table m19155_t2(c1 int,c2 int,c5 int);
+
+select rownum st,a.* from ( select t1.c1,t1.c2,t2.c5 from m19155_t1 t1 left join m19155_t2 t2 on t1.c1=t2.c1 order by c1 desc,c2 asc) a;
+
+drop table m19155_t1;
+drop table m19155_t2;
+

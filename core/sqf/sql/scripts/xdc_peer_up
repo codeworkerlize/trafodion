@@ -1,0 +1,324 @@
+#!/bin/bash
+#
+# @@@ START COPYRIGHT @@@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+# @@@ END COPYRIGHT @@@
+#
+#
+
+function Usage {
+    echo "Usage: `basename $0` <-p <peer id>> [-t <num replay threads>] [-v]"
+    echo
+    echo "-p <peer id>            : ID of the peer (A number between 1 and 100 (inclusive))"
+    echo "-t <num replay threads> : Number of threads that will replay the captured mutations (default: ${lv_default_num_replay_threads})"
+    echo "-v                      : Verbose"
+    echo
+}
+
+if [ -z $JAVA_HOME ]; then
+    echo "The environment variable \$JAVA_HOME has not been set"
+    echo "Please ensure \$TRAF_HOME/sqenv.sh has been sourced."
+    echo
+    exit 1;
+fi
+
+mkdir -p $TRAF_LOG
+lv_stderr_file="$TRAF_LOG/xdc_peer_up.log"
+
+declare -i lv_peer_id=0
+declare -i lv_verbose=0
+lv_verbose_string=""
+declare -i lv_default_num_replay_threads=8
+declare -i lv_num_replay_threads=${lv_default_num_replay_threads}
+
+while getopts "p:t:vh" lv_arg $1 $2 $3 $4 $5 $6 $7 $8 $9
+do
+    case $lv_arg in
+        p)
+            lv_peer_id=${OPTARG}
+            if (
+                    [ $lv_peer_id -lt 1 ] ||
+                    [ $lv_peer_id -gt 100 ]
+                ); then
+                echo "Please provide a peer id in the range 1-100"
+                exit 1
+            fi
+            ;;
+
+        t)
+            lv_num_replay_threads=${OPTARG}
+            ;;
+
+        v)
+            let lv_verbose=1
+            lv_verbose_string="-v"
+            ;;
+
+        h)
+            lv_help=1
+            Usage
+            exit 0
+            ;;
+    esac
+done
+
+if [ ${lv_peer_id} -eq 0 ]; then
+    Usage
+    exit 1
+fi
+
+# set it to 0 within this script execution else the invocation of 
+# other scripts might result in some extraneous output that can
+# confuse the execution of this one.
+SQ_VERBOSE=0
+
+lv_my_cluster_id=`xdc -getmyid`
+if [ $? '!=' 0 ]; then
+    echo "Error getting my cluster id."
+    echo "Please check the health of the local Zookeeper/HBase instance and retry after the problem is fixed."
+    exit 1
+fi
+
+if [ ${lv_my_cluster_id} '==' ${lv_peer_id} ]; then
+    echo "Error: cannot execute `basename $0` on itself (peer id: ${lv_my_cluster_id}). Exitting..."
+    exit 1
+fi
+
+date
+echo "`basename $0` ${lv_peer_id} will perform the following steps:"
+echo " - Check whether the peer id: ${lv_peer_id} is available"
+echo " - Check that TM recovery (if any) is complete for the synchronous tables at peer id: ${lv_peer_id} "
+echo " - Set the XDC status of peer id: ${lv_peer_id} to SUP from this cluster's perspective"
+echo " - Drain all the transactions (on this cluster) that were being executed with an SDN personality"
+echo " - Flush the mutation capture files associated with all the synchronous tables"
+echo " - Replay the mutations on the peer id: ${lv_peer_id}"
+echo " - Unshield the synchronous tables on this cluster."
+echo
+
+export LD_PRELOAD=${JAVA_HOME}/jre/lib/${JRE_LIB_DIR}/libjsig.so:${TRAF_HOME}/export/lib${SQ_MBTYPE}/libseabasesig.so
+
+if [ ${lv_verbose} '==' 1 ]; then
+    echo "Stderr being written to the file: ${lv_stderr_file}"
+fi
+
+# Checking if the peer id exists
+lv_num=`xdc -get ${lv_peer_id} | wc -l`
+if [ $lv_num == '1' ]; then
+    echo "peer id: ${lv_peer_id} exists. Proceeding..."
+else
+    echo "peer id: ${lv_peer_id} does not exist. Please provide the correct peer id. Exitting..."
+    exit 1
+fi
+
+echo "Checking the STR status of peer ${lv_peer_id}..."
+hbcheck -p ${lv_peer_id}
+lv_ret=$?
+if [[ ${lv_ret} != 0 ]]; then
+    echo "Error connecting to the peer id: ${lv_peer_id}. Please retry after peer ${lv_peer_id} is up. Exitting..."
+    exit 1
+fi
+
+# Get the list of synchronous tables
+if [ ${lv_verbose} '==' 1 ]; then
+    echo "Getting the list of synchronous tables"
+fi
+lv_synchronous_tables=`get_synchronous_tables`
+lv_exit=$?
+if [ ${lv_exit} '!=' 0 ]; then
+    echo "Error getting the list of synchronous tables. Please retry after the problem is fixed. Exitting..."
+    exit 1
+fi
+
+if [ ${lv_verbose} '==' 1 ]; then
+    echo "List of synchronous tables: "
+    echo ${lv_synchronous_tables}
+    echo
+fi
+
+# Get the list of user tables
+#if [ ${lv_verbose} '==' 1 ]; then
+#    echo "Getting the list of user tables"
+#fi
+#lv_user_tables=`get_user_tables`
+#lv_exit=$?
+#if [ ${lv_exit} '!=' 0 ]; then
+#    echo "Error getting the list of user tables. Please retry after the problem is fixed. Exitting..."
+#    exit 1
+#fi
+
+#echo "List of user tables: "
+#echo ${lv_user_tables}
+#echo
+
+# Check the peer if the recovery is complete for the synchronous tables
+echo "`date`: Broadcast action:recovery_complete_check (all the synchronous tables)" | tee -a ${lv_stderr_file}
+$JAVA_HOME/bin/java org.apache.hadoop.hbase.pit.XDC b 3 0 ${lv_peer_id} ${lv_synchronous_tables} 2>> ${lv_stderr_file} | tee -a ${lv_stderr_file}
+    lv_exit=${PIPESTATUS[0]}
+    if [ ${lv_exit} '!=' 0 ]; then
+       echo "Error trying to check recovery complete for peer synchronous tables. Please retry after the problem is fixed. Exitting..."
+       exit 1
+    fi
+#for lv_table in ${lv_synchronous_tables} ; do
+#    if [ ${lv_verbose} '==' 1 ]; then
+#        echo "Broadcast action:recovery_complete_check to table: ${lv_table}" | tee -a ${lv_stderr_file}
+#    fi
+#    $JAVA_HOME/bin/java org.apache.hadoop.hbase.client.transactional.TransactionalTable ${lv_verbose_string} -p ${lv_peer_id} -c 3 -f 0 -t ${lv_table} 2>> ${lv_stderr_file} | tee -a ${lv_stderr_file}
+#    lv_exit=${PIPESTATUS[0]}
+#    if ( [ ${lv_verbose} '==' 1 ] || [ $lv_exit '!=' 0 ] ); then
+#        echo "Done: Broadcast action:recovery_complete_check to table: ${lv_table}, exit code: ${lv_exit}" | tee -a ${lv_stderr_file}
+#        echo
+#        if [ ${lv_exit} '==' 1 ]; then
+#            echo "Exitting..."
+#            exit 1
+#        else
+#            if [ $lv_exit '==' 2 ] ; then
+#            # Table Not Found
+#                echo "Table:${lv_table} not found at the peer. Continuing"
+#            fi
+#        fi
+#    fi
+#done
+echo
+
+# Set the status of peer to SUP and its attribute to a01(no check for checkAndPut)
+echo "`date`: Setting the STR status of peer id: ${lv_peer_id} to SUP and attribute to a01" | tee -a ${lv_stderr_file}
+xdc -set -id ${lv_peer_id} -status sup -peer_attribute a01
+if [ $? '!=' 0 ]; then
+    echo "Error setting the STR status to SUP."
+    echo "Please check the health of the local Zookeeper/HBase instance and retry after the problem is fixed.."
+    exit 1
+fi
+if [ ${lv_verbose} '==' 1 ]; then
+    echo "Done: Setting the STR status of peer id: ${lv_peer_id} to SUP" | tee -a ${lv_stderr_file}
+fi
+echo
+echo "`date`: Cluster info after setting the STR status of peer id: ${lv_peer_id} to SUP and attribute to a01:" | tee -a ${lv_stderr_file}
+xdc -list -complete_status | tee -a ${lv_stderr_file}
+echo
+
+# Sleep for 10 seconds before polling for SDN transactions
+echo "Sleeping for 10 seconds before checking on the in-flight transactions with an SDN txn personality"
+sleep 10
+
+# Drain all the SDN transactions
+echo "`date`: Check that all SDN txns are drained..." | tee -a ${lv_stderr_file}
+$JAVA_HOME/bin/java org.apache.hadoop.hbase.pit.XDC ${lv_verbose_string} s 2>> ${lv_stderr_file} | tee -a ${lv_stderr_file}
+lv_exit=${PIPESTATUS[0]}
+if [ ${lv_exit} '!=' 0 ]; then
+    echo "Error while checking whether the SDN transactions have been drained. Please check the error and retry after the problem is fixed. Exitting..."
+    exit 1
+fi
+
+echo "`date`: Done: Check that all SDN txns are drained..., exit code: ${lv_exit}" | tee -a ${lv_stderr_file}
+echo
+
+# Flush the mutations of all the synchronous tables
+echo "`date`: Flush the mutations (all the synchronous tables)" | tee -a ${lv_stderr_file}
+$JAVA_HOME/bin/java org.apache.hadoop.hbase.pit.XDC b 2 0  ${lv_my_cluster_id} ${lv_synchronous_tables} 2>> ${lv_stderr_file} | tee -a ${lv_stderr_file}
+    lv_exit=${PIPESTATUS[0]}
+    if [ ${lv_exit} '!=' 0 ]; then
+       echo "Error trying to flush the mutations. Please retry after the problem is fixed. Exitting..."
+       exit 1
+    fi
+
+#for lv_table in ${lv_synchronous_tables} ; do
+#    if [ ${lv_verbose} '==' 1 ]; then
+#        echo "Broadcast action:mutation-flush to table: ${lv_table}" | tee -a ${lv_stderr_file}
+#    fi
+#    $JAVA_HOME/bin/java org.apache.hadoop.hbase.client.transactional.TransactionalTable ${lv_verbose_string} -c 2 -f 0 -t ${lv_table} 2>> ${lv_stderr_file} | tee -a ${lv_stderr_file}
+#    lv_exit=${PIPESTATUS[0]}
+#    if ( [ ${lv_verbose} '==' 1 ] || [ $lv_exit '!=' 0 ] ); then
+#        echo "Done: Broadcast action:mutation-flush to table: ${lv_table}, exit code: ${lv_exit}" | tee -a ${lv_stderr_file}
+#        echo
+#    fi
+#done
+#echo
+
+# Replay the mutations on the peer
+echo "`date`: Replay the mutations to the peer id: ${lv_peer_id} [#replay threads: ${lv_num_replay_threads}]" | tee -a ${lv_stderr_file}
+$JAVA_HOME/bin/java org.apache.hadoop.hbase.pit.XDC ${lv_verbose_string} r ${lv_peer_id} ${lv_num_replay_threads} ${lv_synchronous_tables} 2>> ${lv_stderr_file} | tee -a ${lv_stderr_file}
+lv_exit=${PIPESTATUS[0]}
+if [ ${lv_exit} '!=' 0 ]; then
+    echo "Error while playing the mutations. Please check the error and retry after the problem is fixed. Exitting..."
+    exit 1
+fi
+
+echo "`date`: Done: Replay mutations to the peer id: ${lv_peer_id}..., exit code: ${lv_exit}" | tee -a ${lv_stderr_file}
+echo
+
+# Set the peer attribute to a00
+echo "Setting the peer_attribute of peer id: ${lv_peer_id} to a00" | tee -a ${lv_stderr_file}
+xdc -set -id ${lv_peer_id} -status sup -peer_attribute a00
+if [ ${lv_verbose} '==' 1 ]; then
+    echo "Done: Setting the peer_attribute of peer id: ${lv_peer_id} to a00" | tee -a ${lv_stderr_file}
+fi
+echo
+
+echo "`date`: Cluster info after setting the attribute of peer id: ${lv_peer_id} to a00:" | tee -a ${lv_stderr_file}
+xdc -list -complete_status | tee -a ${lv_stderr_file}
+echo
+
+xdc -set -id ${lv_my_cluster_id} -peer_attribute a00
+if [ $? '!=' 0 ]; then
+    echo "Error setting the STR attribute Shield OFF."
+    echo "Please check the health of the local Zookeeper/HBase instance and retry after the problem is fixed.."
+    exit 1
+fi
+if [ ${lv_verbose} '==' 1 ]; then
+    echo "Done: Setting the peer_attribute of my cluster: ${lv_my_cluster_id} to a00" | tee -a ${lv_stderr_file}
+fi
+echo "`date`: Cluster info after setting the attribute of peer id: ${lv_my_cluster_id} to a00:" | tee -a ${lv_stderr_file}
+xdc -list -complete_status | tee -a ${lv_stderr_file}
+echo
+
+#echo "Broadcast action:shield OFF (all the user tables)" | tee -a ${lv_stderr_file}
+#for lv_table in ${lv_user_tables} ; do
+#    if [ ${lv_verbose} '==' 1 ]; then
+#       echo "Broadcast action:shield OFF, table: ${lv_table}" | tee -a ${lv_stderr_file}
+#    fi
+#    $JAVA_HOME/bin/java org.apache.hadoop.hbase.client.transactional.TransactionalTable ${lv_verbose_string} -c 1 -f 0 -t ${lv_table} 2>> ${lv_stderr_file} | tee -a ${lv_stderr_file}
+#    lv_exit=${PIPESTATUS[0]}
+#    if ( [ ${lv_verbose} '==' 1 ] || [ $lv_exit '!=' 0 ] ); then
+#       echo "Done: Broadcast action:shield OFF, table: ${lv_table}, exit code: ${lv_exit}" | tee -a ${lv_stderr_file}
+#       echo
+#    fi
+#done
+#echo
+
+echo "Broadcast action:shield OFF (local synchronous tables)" | tee -a ${lv_stderr_file}
+$JAVA_HOME/bin/java org.apache.hadoop.hbase.pit.XDC b 1 0 ${lv_my_cluster_id} ${lv_synchronous_tables} 2>> ${lv_stderr_file} | tee -a ${lv_stderr_file}
+    lv_exit=${PIPESTATUS[0]}
+    if [ ${lv_exit} '!=' 0 ]; then
+       echo "Error trying to shield off local synchronous tables. Please retry after the problem is fixed. Exitting..."
+       exit 1
+    fi
+
+if [[ "x${ENABLE_ROW_LEVEL_LOCK^^}" = "x1" || "x${ENABLE_ROW_LEVEL_LOCK^^}" = "xTRUE" ]]; then
+    echo "RowLock Clean Up" | tee -a ${lv_stderr_file}
+    $JAVA_HOME/bin/java org.apache.hadoop.hbase.pit.XDC k ${lv_peer_id} 2>> ${lv_stderr_file} | tee -a ${lv_stderr_file}
+        lv_exit=${PIPESTATUS[0]}
+        if [ ${lv_exit} '!=' 0 ]; then
+            echo "Error RowLock Clean Up Exitting..."
+            exit 1
+        fi
+fi
+
+echo "`date`: Done with `basename $0`. Detailed output in the file ${lv_stderr_file}."
+

@@ -1,0 +1,100 @@
+>>obey TEST141(drop_view_vs_select);
+>>
+>>select * from t141va;
+
+--- 0 row(s) selected.
+>>sh sqlci -i "TEST141(drop_t141va)" ;
+>>select * from t141va;
+
+*** ERROR[4082] Object TRAFODION.SCH.T141VA does not exist or is inaccessible.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>
+>>obey TEST141(cleanup_view_vs_select);
+>>
+>>select * from t141vb;
+
+--- 0 row(s) selected.
+>>sh sqlci -i "TEST141(cleanup_t141vb)";
+>>select * from t141vb;
+
+*** ERROR[4082] Object TRAFODION.SCH.T141VB does not exist or is inaccessible.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>
+>>obey TEST141(drop_index_vs_select_index);
+>>
+>>set parserflags 1;
+
+--- SQL operation complete.
+>>select * from table (index_table t141idxa);
+
+--- 0 row(s) selected.
+>>sh sqlci -i "TEST141(drop_t141idxa)";
+>>select * from table (index_table t141idxa);
+
+*** ERROR[4082] Object TRAFODION.SCH.T141IDXA does not exist or is inaccessible.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>
+>>obey TEST141(drop_table_vs_select_index);
+>>
+>>set parserflags 1;
+
+--- SQL operation complete.
+>>select * from table (index_table t141idxb);
+
+--- 0 row(s) selected.
+>>sh sqlci -i "TEST141(drop_t141b)";
+>>select * from table (index_table t141idxb);
+
+*** ERROR[4082] Object TRAFODION.SCH.T141IDXB does not exist or is inaccessible.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>
+>>obey TEST141(cleanup_index_vs_select_index);
+>>
+>>set parserflags 1;
+
+--- SQL operation complete.
+>>select * from table (index_table t141idxc);
+
+--- 0 row(s) selected.
+>>sh sqlci -i "TEST141(cleanup_t141idxc)" ;
+>>select * from table (index_table t141idxc);
+
+*** ERROR[4082] Object TRAFODION.SCH.T141IDXC does not exist or is inaccessible.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>
+>>obey TEST141(cleanup_table_vs_select_table);
+>>
+>>select * from t141a;
+
+--- 0 row(s) selected.
+>>sh sqlci -i "TEST141(cleanup_t141a)";
+>>select * from t141a;
+
+*** ERROR[4082] Object TRAFODION.SCH.T141A does not exist or is inaccessible.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>
+>>obey TEST141(drop_table_vs_select_table);
+>>
+>>select * from t141c;
+
+--- 0 row(s) selected.
+>>sh sqlci -i "TEST141(drop_t141c)";
+>>select * from t141c;
+
+*** ERROR[4082] Object TRAFODION.SCH.T141C does not exist or is inaccessible.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>log;

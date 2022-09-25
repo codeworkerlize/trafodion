@@ -1,0 +1,278 @@
+-- @@@ START COPYRIGHT @@@
+--
+-- Licensed to the Apache Software Foundation (ASF) under one
+-- or more contributor license agreements.  See the NOTICE file
+-- distributed with this work for additional information
+-- regarding copyright ownership.  The ASF licenses this file
+-- to you under the Apache License, Version 2.0 (the
+-- "License"); you may not use this file except in compliance
+-- with the License.  You may obtain a copy of the License at
+--
+--   http://www.apache.org/licenses/LICENSE-2.0
+--
+-- Unless required by applicable law or agreed to in writing,
+-- software distributed under the License is distributed on an
+-- "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+-- KIND, either express or implied.  See the License for the
+-- specific language governing permissions and limitations
+-- under the License.
+--
+-- @@@ END COPYRIGHT @@@
+
+-- Tests for binary datatype
+
+log LOG004 clear;
+
+cqd traf_binary_support 'ON';
+cqd traf_binary_input 'ON';
+cqd traf_binary_output 'ON';
+obey TEST004(clean_up);
+obey TEST004(setup_binary);
+obey TEST004(dml_binary);
+obey TEST004(errors_binary);
+obey TEST004(hive_binary);
+
+log;
+
+?section clean_up
+drop table if exists t004t3 cascade;
+drop table if exists t004t32 cascade;
+drop table if exists t004t3_like;
+drop table if exists t004t3_as;
+drop table if exists t004t3_salt;
+
+?section setup_binary
+-----------------------------------------------------------
+-------------- BINARY datatype ---------------------------
+-----------------------------------------------------------
+create table t004t3(a binary(5) not null default 'abcd' primary key, b varbinary(10));
+invoke t004t3;
+
+create table t004t32(a varbinary(5) not null primary key, b varbinary(10));
+invoke t004t32;
+
+create table if not exists t004t3_like like t004t3;
+invoke t004t3_like;
+
+create table if not exists t004t3_as primary key (a) as select * from t004t3;
+invoke t004t3_as;
+
+create table if not exists t004t3_salt(a varbinary(4) not null primary key)
+  salt using 2 partitions;
+invoke t004t3_salt;
+
+create view t004t3_view as select * from t004t3;
+invoke t004t3_view;
+
+?section dml_binary
+insert into t004t3 values ('ab', 123);
+insert into t004t3 values (234, 'ba');
+
+insert into t004t32 values ('ab', 'ba');
+insert into t004t32 values ('ab ', 'ba ');
+select * from t004t32 where a = to_binary('ab');
+select * from t004t32 where a = to_binary('ab ');
+select * from t004t32 where b = to_binary('ba');
+select * from t004t32 where b = to_binary('ba ');
+
+select to_hex(a), to_hex(b) from t004t3;
+select to_hex(left(a, 1)) from t004t3;
+select to_hex(b || 'a') from t004t3;
+select to_hex( a || 'a') from t004t3;
+
+select * from t004t3 where b = to_binary('ba');
+select b from t004t3 group by b order by b;
+
+insert into t004t3_salt values ('ab');
+select a from t004t3_salt group by a order by a;
+
+insert into t004t3_as select * from t004t3;
+select to_hex(a), to_hex(b) from t004t3_as;
+
+select cast(to_binary('ab') as char(10)) from dual;
+
+select * from t004t3 where a = to_binary('ab');
+
+select to_hex(cast(10 as binary(4))) from dual;
+select to_hex(cast(-10 as binary(4))) from dual;
+select cast(10 as binary(4)) from dual;
+select cast(-10 as binary(4)) from dual;
+
+select cast(to_binary(12.34) as smallint) from dual;
+select cast(to_binary(12.34) as numeric(4,2)) from dual;
+
+select cast(cast(10 as binary(4)) as  int) from dual;
+
+select to_hex(cast(a as binary(10))), 
+       to_hex(cast (b as varbinary(11))) from t004t3;
+
+select char_length(a), char_length(b) from t004t3;
+select octet_length(a), octet_length(b) from t004t3;
+
+delete from t004t3;
+prepare s from insert into t004t3 values (?, ?);
+execute s using 1, 'abc';
+execute s using 'x', 20.34;
+select to_hex(a), to_hex(b) from t004t3;
+prepare s from select * from t004t3 where a = ?;
+execute s using 1;
+execute s using 'x';
+
+begin work;
+delete from t004t3 where a = to_binary('x');
+select to_hex(a), to_hex(b) from t004t3;
+rollback work;
+select to_hex(a), to_hex(b) from t004t3;
+
+begin work;
+update t004t3 set b = 1;
+select to_hex(a), to_hex(b) from t004t3;
+rollback work;
+select to_hex(a), to_hex(b) from t004t3;
+
+select to_binary(10000000) from dual;
+
+-- select after turning off traf_binary_output. 
+-- this is to test selects from clients which not yet support binary datatype
+cqd traf_binary_output 'OFF';
+select a,b from t004t3;
+select to_binary(10000000) from dual;
+cqd traf_binary_output 'ON';
+
+-- input after turning off traf_binary_input.
+-- this is to test inserts from clients which do not yet support binary datatype
+-- params are typed as char/varchar in this case.
+cqd traf_binary_input 'OFF';
+begin work;
+prepare s from insert into t004t3 values (?,?);
+execute s using 'abc', 'xyz';
+select * from t004t3;
+rollback work;
+cqd traf_binary_input 'ON';
+
+upsert into t004t3 (b) values ('xyz');
+
+-- return warning and truncate 2 digits.
+select cast(to_binary(10000000) as binary(2)) from dual;
+
+?section errors_binary
+select * from t004t3 where a = 'ab';
+select b + 1 from t004t3;
+select -b from t004t3;
+select * from t004t3 where a = 1;
+select cast(100 as binary(1)) from dual;
+select cast(to_binary(1) as date) from dual;
+select cast(to_binary('ab') as char(1)) from dual;
+select cast(to_binary(12.34) as int) from dual;
+
+?section hive_binary
+-- create and populate hive binary datatype from hive
+process hive ddl 'drop table tbinary';
+process hive ddl 'create table tbinary(a binary)';
+sh echo "insert into tbinary values ('a'), (1), (NULL);" > TEST004_junk;
+sh regrhive.ksh -f TEST004_junk;
+
+cqd hive_max_binary_length '10';
+invoke hive.hive.tbinary;
+select to_hex(a) from hive.hive.tbinary;
+insert into hive.hive.tbinary values ('a'), (1), (null);
+select * from hive.hive.tbinary;
+select to_hex(a) from hive.hive.tbinary;
+insert overwrite table hive.hive.tbinary select a from t004t3;
+select to_hex(a) from hive.hive.tbinary;
+
+prepare s from insert into hive.hive.tbinary values (?);
+execute s using x'1020';
+set param ?p x'3040';
+insert into hive.hive.tbinary values (?p);
+select a from hive.hive.tbinary;
+select * from hive.hive.tbinary where a = _binary x'1020';
+
+select cast(column_name as char(30) character set iso88591), 
+       sql_data_type, fs_data_type, hive_data_type,
+       column_size, column_scale, 
+       column_number, part_col_number, bucket_col_number, sort_col_number
+  from table(hivemd(columns))
+  where table_name = 'tbinary'
+  order by column_number;
+
+-- encode/decode base64
+select encode_base64('Licensed to the Apache Software Foundation (ASF) under one or more contributor license agreements. See the NOTICE file distributed with this work for additional information regarding copyright ownership. The ASF licenses this file to you under the Apache License, Version 2.0 (the "License");') from dual;
+select decode_base64('TGljZW5zZWQgdG8gdGhlIEFwYWNoZSBTb2Z0d2FyZSBGb3VuZGF0aW9uIChBU0YpIHVuZGVyIG9uZSBvciBtb3JlIGNvbnRyaWJ1dG9yIGxpY2Vuc2UgYWdyZWVtZW50cy4gU2VlIHRoZSBOT1RJQ0UgZmlsZSBkaXN0cmlidXRlZCB3aXRoIHRoaXMgd29yayBmb3IgYWRkaXRpb25hbCBpbmZvcm1hdGlvbiByZWdhcmRpbmcgY29weXJpZ2h0IG93bmVyc2hpcC4gVGhlIEFTRiBsaWNlbnNlcyB0aGlzIGZpbGUgdG8geW91IHVuZGVyIHRoZSBBcGFjaGUgTGljZW5zZSwgVmVyc2lvbiAyLjAgKHRoZSAiTGljZW5zZSIpOw==') from dual;
+select decode_base64('TGljZW5zZWQgdG8gdGhlIEFwYWNoZSBTb2Z0d2FyZSBGb3VuZGF0aW9uIChBU0YpIHVuZGVyIG9uZSBvciBtb3JlIGNvbnRyaWJ1dG9yIGxpY2Vuc2UgYWdyZWVtZW50cy4gU2VlIHRoZSBOT1RJQ0UgZmlsZSBkaXN0cmlidXRlZCB3aXRoIHRoaXMgd29yayBmb3IgYWRkaXRpb25hbCBpbmZvcm1hdGlvbiByZWdhcmRpbmcgY29weXJpZ2h0IG93bmVyc2hpcC4gVGhlIEFTRiBsaWNlbnNlcyB0aGlzIGZpbGUgdG8geW91IHVuZGVyIHRoZSBBcGFjaGUgTGljZW5zZSwgVmVyc2lvbiAyLjAgKHRoZSAiTGljZW5zZSIpOw==',iso88591) from dual;
+
+-- error, invalid ucs2 character
+select decode_base64('TGljZW5zZWQgdG8gdGhlIEFwYWNoZSBTb2Z0d2FyZSBGb3VuZGF0aW9uIChBU0YpIHVuZGVyIG9uZSBvciBtb3JlIGNvbnRyaWJ1dG9yIGxpY2Vuc2UgYWdyZWVtZW50cy4gU2VlIHRoZSBOT1RJQ0UgZmlsZSBkaXN0cmlidXRlZCB3aXRoIHRoaXMgd29yayBmb3IgYWRkaXRpb25hbCBpbmZvcm1hdGlvbiByZWdhcmRpbmcgY29weXJpZ2h0IG93bmVyc2hpcC4gVGhlIEFTRiBsaWNlbnNlcyB0aGlzIGZpbGUgdG8geW91IHVuZGVyIHRoZSBBcGFjaGUgTGljZW5zZSwgVmVyc2lvbiAyLjAgKHRoZSAiTGljZW5zZSIpOw==',ucs2) from dual;
+
+select encode_base64('') from dual;
+select decode_base64('') from dual;
+select decode_base64('',utf8) from dual;
+select char_length(encode_base64('')) from dual;
+select char_length(decode_base64('')) from dual;
+select char_length(decode_base64('', utf8)) from dual;
+
+-- error
+select decode_base64('NOT-A-REGULAR-BASE64-STRING') from dual;
+
+select encode_base64(date'2019-01-01') from dual;
+select decode_base64(encode_base64(date'2019-01-01'), date) from dual;
+select decode_base64(encode_base64(cast(123 as int)), int) from dual;
+
+-- error, decode operand must be character
+select decode_base64(date'2019-01-01') from dual;
+
+-- error, SJIS not supported
+select decode_base64('TEST', SJIS) from dual;
+
+set terminal_charset utf8;
+select encode_base64(_utf8'EsgynDB分布式数据库') from dual;
+select decode_base64('RXNneW5EQuWIhuW4g+W8j+aVsOaNruW6kw==') from dual;
+select decode_base64('RXNneW5EQuWIhuW4g+W8j+aVsOaNruW6kw==', utf8) from dual;
+
+-- error, invalid ucs2 character
+select decode_base64('RXNneW5EQuWIhuW4g+W8j+aVsOaNruW6kw==', ucs2) from dual;
+
+select decode_base64('RXNneW5EQuWIhuW4g+W8j+aVsOaNruW6kw==', iso88591) from dual;
+select decode_base64(encode_base64(_utf8'EsgynDB分布式数据库'), utf8) from dual;
+select OCTET_LENGTH(decode_base64(encode_base64(_utf8'EsgynDB分布式数据库'), utf8)) from dual;
+select encode_base64(_ucs2'EsgynDB分布式数据库') from dual;
+select decode_base64('RQBzAGcAeQBuAEQAQgAGUgNeD19wZW5jk14=', ucs2) from dual;
+
+-- error, invalid utf8 character in source string
+select decode_base64('RQBzAGcAeQBuAEQAQgAGUgNeD19wZW5jk14=', utf8) from dual;
+
+select decode_base64('RQBzAGcAeQBuAEQAQgAGUgNeD19wZW5jk14=', iso88591) from dual;
+select decode_base64(encode_base64(_ucs2'EsgynDB分布式数据库'), ucs2) from dual;
+select OCTET_LENGTH(decode_base64(encode_base64(_ucs2'EsgynDB分布式数据库'), ucs2)) from dual;
+
+-- error, invalid utf8 character in source string
+select decode_base64(encode_base64(_ucs2'EsgynDB分布式数据库'), utf8) from dual;
+select OCTET_LENGTH(decode_base64(encode_base64(_ucs2'EsgynDB分布式数据库'), utf8)) from dual;
+
+-- error, invalid utf8 character in source string
+select decode_base64(encode_base64(_utf8'EsgynDB分布式数据库'), ucs2) from dual;
+select OCTET_LENGTH(decode_base64(encode_base64(_utf8'EsgynDB分布式数据库'), ucs2)) from dual;
+
+select encode_base64(_utf8'龥') from dual;--3 bytes UTF8
+select decode_base64('6b6l', utf8) from dual;
+select OCTET_LENGTH(decode_base64('6b6l', utf8)) from dual;
+select encode_base64(_utf8'hello, 3 bytes utf8 : 龥龤龣龡龠') from dual;
+select decode_base64('aGVsbG8sIDMgYnl0ZXMgdXRmOCA6IOm+pem+pOm+o+m+oem+oA==', utf8) from dual;
+select OCTET_LENGTH(decode_base64('aGVsbG8sIDMgYnl0ZXMgdXRmOCA6IOm+pem+pOm+o+m+oem+oA==', utf8)) from dual;
+select encode_base64(_ucs2'hello, special ucs2 : 龥龤龣龡龠') from dual;
+select decode_base64('aABlAGwAbABvACwAIABzAHAAZQBjAGkAYQBsACAAdQBjAHMAMgAgADoAIACln6Sfo5+hn6Cf', ucs2) from dual;
+select OCTET_LENGTH(decode_base64('aABlAGwAbABvACwAIABzAHAAZQBjAGkAYQBsACAAdQBjAHMAMgAgADoAIACln6Sfo5+hn6Cf', ucs2)) from dual;
+set terminal_charset iso88591;
+
+select encode_base64(null) from dual;
+select encode_base64(cast(null as char(2))) from dual;
+
+-- error, null is typed as int and decode operand must be char.
+select decode_base64(null) from dual;
+
+select decode_base64(cast(null as char(2))) from dual;
+
+?section errors_binary
+select b + 1 from t004t3;
+select -b from t004t3;
+select * from t004t3 where a = 1;

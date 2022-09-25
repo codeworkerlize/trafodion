@@ -1,0 +1,120 @@
+-- @@@ START COPYRIGHT @@@
+--
+-- Licensed to the Apache Software Foundation (ASF) under one
+-- or more contributor license agreements.  See the NOTICE file
+-- distributed with this work for additional information
+-- regarding copyright ownership.  The ASF licenses this file
+-- to you under the Apache License, Version 2.0 (the
+-- "License"); you may not use this file except in compliance
+-- with the License.  You may obtain a copy of the License at
+--
+--   http://www.apache.org/licenses/LICENSE-2.0
+--
+-- Unless required by applicable law or agreed to in writing,
+-- software distributed under the License is distributed on an
+-- "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+-- KIND, either express or implied.  See the License for the
+-- specific language governing permissions and limitations
+-- under the License.
+--
+-- @@@ END COPYRIGHT @@@
+--
+-- Tests for Monarch/Ampool storage 
+--
+
+create schema if not exists test041_sch;
+set schema test041_sch;
+set parserflags 1;
+
+obey TEST041(clean_up);
+
+log LOG041 clear;
+obey TEST041(creates);
+obey TEST041(inserts);
+obey TEST041(selects);
+
+obey TEST041(drop_index);
+obey TEST041(deletes_1);
+obey TEST041(selects_base_table);
+obey TEST041(deletes_all);
+obey TEST041(selects_base_table);
+
+obey TEST041(create_index);
+obey TEST041(inserts);
+obey TEST041(deletes_1);
+obey TEST041(selects_all);
+obey TEST041(deletes_all);
+obey TEST041(selects_all);
+
+--obey TEST041(clean_up);
+log;
+
+exit;
+
+?section clean_up
+drop table if exists t041t1 cascade;
+drop table if exists t041t2 cascade;
+drop table if exists t041t3 cascade;
+
+?section drop_index
+drop index t041t1i1;
+
+?section create_index
+create index t041t1i1 on t041t1 (b);
+
+?section creates
+create table t041t1 (a int not null primary key, b int)
+  attribute storage monarch;
+invoke t041t1;
+create index t041t1i1 on t041t1 (b);
+invoke t041t1;
+
+cqd traf_default_storage_type 'MONARCH';
+create table t041t2 (a int not null primary key, b int);
+invoke t041t2;
+create index t041t2i1 on t041t2 (b);
+invoke t041t2;
+
+create table t041t3 (a int not null primary key, b int)
+  attribute storage hbase;
+invoke t041t3;
+create index t041t3i1 on t041t3 (b);
+invoke t041t3;
+
+?section inserts
+explain options 'f' insert into t041t1 values (1,2);
+insert into t041t1 values (1,2);
+explain options 'f' upsert into t041t1 values (3,4);
+upsert into t041t1 values (3,4);
+upsert into t041t1 values (5,6), (7,8);
+
+?section selects
+control query shape scan(path 'T041T1');
+explain options 'f' select * from t041t1;
+select * from t041t1;
+control query shape cut;
+explain options 'f' select * from table(index_table t041t1i1);
+select * from table(index_table t041t1i1);
+explain options 'f' select * from t041t1 where a = 1;
+select * from t041t1 where a = 1;
+select * from t041t1 where a = 0;
+
+?section selects_base_table
+control query shape scan(path 'T041T1');
+select * from t041t1;
+control query shape cut;
+
+?section selects_all
+control query shape scan(path 'T041T1');
+select * from t041t1;
+control query shape cut;
+select * from table(index_table t041t1i1);
+
+?section deletes_1
+explain options 'f' delete from t041t1 where a = 1;
+delete from t041t1 where a = 1;
+
+?section deletes_all
+explain options 'f' delete from t041t1;
+delete from t041t1;
+

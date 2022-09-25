@@ -1,0 +1,145 @@
+#!/bin/bash
+#
+# @@@ START COPYRIGHT @@@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+# @@@ END COPYRIGHT @@@
+
+# This script cleans up the backup/restore locks
+if [[ $# -eq 0 ]];
+then
+    OPER="BACKUP"
+else
+    OPER=`echo $1 | tr a-z A-Z`
+fi
+
+START_TIME=`date +'%Y-%m-%d %H:%M:%S'`
+START_SECONDS=$(date --date="$START_TIME" +%s)
+
+echo -e "\033[36mBegin Cleanup Locked Objects: \033[0m"$START_TIME
+
+if [[ "$OPER" == "BACKUP" ]] || [[ "$OPER" == "RESTORE" ]] || [[ "$OPER" == "ALL" ]];
+then
+    echo "Current Operation is ${OPER}"
+else
+    echo "Wrong Input Parameters"
+    exit -1;
+fi
+
+LOG_DIR=$TRAF_LOG/cleanLock
+
+if [[ ! -d "$LOG_DIR" ]];
+then
+    mkdir $LOG_DIR
+fi
+
+TMPSQL_FILE=$LOG_DIR/tmpsql.txt
+LOCKED_FILE=$LOG_DIR/lockedObjects.txt
+CLEAN_LOG=$LOG_DIR/cleanLog.txt
+
+sqlci -q "get all locked objects" > $LOCKED_FILE
+
+if [[ ! -f "$LOCKED_FILE" ]];
+then
+    echo "Error And Exit."
+    exit -1
+fi
+
+BACK_CNT=0
+RESTORE_CNT=0
+TAG_STR=""
+
+while read -r LINE
+do
+    if [[ $LINE == Operation* ]]; then
+        #echo $LINE
+        TMP_ARRAY=(${LINE// / })
+
+        TMP_OPER=${TMP_ARRAY[0]}
+        TMP_OPER=${TMP_OPER:10}
+
+        TMP_TAG=${TMP_ARRAY[1]}
+        TMP_TAG=${TMP_TAG:4}
+
+        if [[ "$OPER" == "BACKUP" ]] || [[ "$OPER" == "ALL" ]];
+        then
+            if [[ "$TMP_OPER" == "BACKUP" ]];
+            then
+                if [[ "$TAG_STR" == "" ]];
+                then
+                    TAG_STR=$TMP_TAG
+                    echo ""
+                    echo -e "\033[32m****Cleaup Backup Tag'${TAG_STR}'.\033[0m"
+                    echo "cleanup backup, tag'${TAG_STR}';" > $TMPSQL_FILE
+#                    echo "cleanup schema \"_BACKUP_${TAG_STR}_\";" >> $TMPSQL_FILE
+                    sqlci -i $TMPSQL_FILE >> $CLEAN_LOG
+                    echo -e "\033[32m****Backup lock '${TAG_STR}' clean succeed.\033[0m"
+                fi
+
+                if [[ $TAG_STR != $TMP_TAG ]];
+                then
+                    TAG_STR=$TMP_TAG
+                    echo ""
+                    echo -e "\033[32m****Cleaup Backup Tag'${TAG_STR}'.\033[0m"
+                    echo "cleanup backup, tag'${TAG_STR}';" > $TMPSQL_FILE
+#                    echo "cleanup schema \"_BACKUP_${TAG_STR}_\";" >> $TMPSQL_FILE
+                    sqlci -i $TMPSQL_FILE >> $CLEAN_LOG
+                    echo -e "\033[32m****Backup lock '${TAG_STR}' clean succeed.\033[0m"
+                fi
+            fi
+        fi
+
+        if [[ "$OPER" == "RESTORE" ]] || [[ "$OPER" == "ALL" ]];
+        then
+            if [[ "$TMP_OPER" == "RESTORE" ]];
+            then
+                if [[ "$TAG_STR" == "" ]];
+                then
+                    TAG_STR=$TMP_TAG
+                    echo -e "\033[32m****Cleaup Restore Tag'${TAG_STR}'.\033[0m"
+                    echo "cleanup backup lock, tag'${TAG_STR}';" > $TMPSQL_FILE
+                    echo "cleanup schema \"_BACKUP_${TAG_STR}_\";" >> $TMPSQL_FILE
+                    sqlci -i $TMPSQL_FILE >> $CLEAN_LOG
+                    echo -e "\033[32m****Restore lock '${TAG_STR}' clean succeed.\033[0m"
+                fi
+
+                if [[ $TAG_STR != $TMP_TAG ]];
+                then
+                    echo "****Cleaup Restore Tag'${TAG_STR}'."
+                    echo "cleanup backup lock, tag'${TAG_STR}';" > $TMPSQL_FILE
+                    echo "cleanup schema \"_BACKUP_${TAG_STR}_\";" >> $TMPSQL_FILE
+                    sqlci -i $TMPSQL_FILE >> $CLEAN_LOG
+                    echo "****Restore lock '${TAG_STR}' clean succeed."
+                fi
+            fi
+        fi
+    fi
+done < $LOCKED_FILE
+
+echo ""
+
+#rm -rf $LOCKED_FILE
+
+END_TIME=`date +'%Y-%m-%d %H:%M:%S'`
+END_SECONDS=$(date --date="$END_TIME" +%s)
+echo -e "\033[36mEnd Cleanup Locked Objects: \033[0m"$END_TIME
+echo -e "\033[36mTotal Elapse Time: \033[0m"$((END_SECONDS-START_SECONDS))"s"
+echo -e "\033[36mSuccess And Exit.\033[0m"
+
+exit 0

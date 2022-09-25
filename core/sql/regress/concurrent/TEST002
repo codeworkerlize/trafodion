@@ -1,0 +1,319 @@
+-- @@@ START COPYRIGHT @@@
+--
+-- Licensed to the Apache Software Foundation (ASF) under one
+-- or more contributor license agreements.  See the NOTICE file
+-- distributed with this work for additional information
+-- regarding copyright ownership.  The ASF licenses this file
+-- to you under the Apache License, Version 2.0 (the
+-- "License"); you may not use this file except in compliance
+-- with the License.  You may obtain a copy of the License at
+--
+--   http://www.apache.org/licenses/LICENSE-2.0
+--
+-- Unless required by applicable law or agreed to in writing,
+-- software distributed under the License is distributed on an
+-- "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+-- KIND, either express or implied.  See the License for the
+-- specific language governing permissions and limitations
+-- under the License.
+--
+-- @@@ END COPYRIGHT @@@
+
+obey TEST002(clean);
+obey TEST002(setup);
+log LOG002 clear;
+obey TEST002(test);
+log;
+obey TEST002(clean);
+exit;
+
+?section clean
+drop schema ccsch002 cascade;
+drop schema ccsch002private cascade;
+
+?section setup
+create schema ccsch002;
+set schema ccsch002;
+CQD TRAF_LOCK_DDL 'OFF';
+
+create table t1 (a int, b varchar(20));
+create table t2 (a int, b varchar(20));
+insert into t1 values (1, 't1');
+insert into t2 values (1, 't2');
+
+
+?section test
+
+obey TEST002(createindex);
+obey TEST002(dropindex);
+obey TEST002(mixdmlddl);
+obey TEST002(spsqldml);
+obey TEST002(ddlddl);
+obey TEST002(populateindex);
+obey TEST002(cleanupobjects);
+obey TEST002(m15277);
+obey TEST002(m15112);
+obey TEST002(m15664);
+
+?section createindex
+
+begin work;
+sh sqlci -i "TEST002(dml)";
+create index idx1a on t1 (a);
+sh sqlci -i "TEST002(dml)";
+create index idx2a on t2 (a);
+sh sqlci -i "TEST002(dml)";
+create index idx1b on t1 (b);
+sh sqlci -i "TEST002(dml)";
+create index idx2b on t2 (b);
+sh sqlci -i "TEST002(dml)";
+commit;
+sh sqlci -i "TEST002(dml)";
+
+?section dropindex
+
+begin work;
+sh sqlci -i "TEST002(dml)";
+drop index idx1a;
+sh sqlci -i "TEST002(dml)";
+drop index idx2a;
+sh sqlci -i "TEST002(dml)";
+drop index idx1b;
+sh sqlci -i "TEST002(dml)";
+drop index idx2b;
+sh sqlci -i "TEST002(dml)";
+commit;
+sh sqlci -i "TEST002(dml)";
+
+?section dml
+set schema ccsch002;
+CQD TRAF_LOCK_DDL 'OFF';
+CQD TRAF_OBJECT_LOCK_DML_RETRY_LIMIT '1';
+
+log LOG002;
+select * from t1;
+select * from t2;
+
+?section mixdmlddl
+
+-- Mix DML and DDL in a transaction, make sure DML/DDL in one
+-- transaction does not block each other
+
+delete from t1;
+begin work;
+insert into t1 values (1, 'mixdmlddl');
+create index idx1 on t1 (b);
+insert into t1 values (2, 'mixdmlddl');
+commit;
+select * from t1;
+
+?section spsqldml
+
+drop table if exists t1;
+create table t1 (a int);
+create or replace procedure p1() as //
+begin
+  insert into t1 values (1);
+end;
+//;
+
+call p1();
+drop table t1;
+
+create table t1 (a int);
+call p1();
+sh sqlci -i "TEST002(spsqldmldroptable)";
+
+create table t1 (a int);
+begin work;
+call p1();
+drop table t1;
+commit;
+
+create table t1 (a int);
+begin work;
+call p1();
+
+-- ERROR[8201]
+sh sqlci -i "TEST002(spsqldmldroptable)";
+insert into t1 values (2);
+
+-- ERROR[8201]
+sh sqlci -i "TEST002(spsqldmldroptable)";
+select count(1) from t1;
+commit;
+sh sqlci -i "TEST002(spsqldmldroptable)";
+
+?section spsqldmldroptable
+set schema ccsch002;
+CQD TRAF_LOCK_DDL 'OFF';
+CQD TRAF_OBJECT_LOCK_DDL_RETRY_LIMIT '1';
+log LOG002;
+
+drop table t1;
+
+?section ddlddl
+
+drop table if exists t1;
+create table t1 (a int, b varchar(20));
+insert into t1 values (1, 'a');
+
+begin work;
+alter table t1 add column c char(30);
+
+-- ERROR[8201]
+sh sqlci -i "TEST002(ddlddlaltertable1)";
+invoke t1;
+commit;
+invoke t1;
+sh sqlci -i "TEST002(ddlddlaltertable1)";
+invoke t1;
+
+?section ddlddlaltertable1
+set schema ccsch002;
+CQD TRAF_LOCK_DDL 'OFF';
+CQD TRAF_OBJECT_LOCK_DDL_RETRY_LIMIT '1';
+log LOG002;
+
+alter table t1 add column d char(30);
+
+?section populateindex
+
+CQD AUTO_QUERY_RETRY 'OFF';
+
+drop table if exists t1 cascade;
+create table t1 (a int, b varchar(20));
+create index idx1 on t1 (b) no populate;
+populate index idx1 on t1;
+prepare s from insert into t1 values (?, ?);
+
+begin work;
+commit;
+
+begin work;
+execute s using 1, 'b';
+commit;
+
+CQD AUTO_QUERY_RETRY 'SYSTEM';
+
+?section cleanupobjects
+
+create schema ccsch002private;
+set schema ccsch002private;
+
+drop table if exists t1 cascade;
+drop table if exists t2 cascade;
+create table t1 (c1 int not null primary key, c2 int);
+create index t1_ndx1 on t1 (c2) no populate;
+create table t2 (c1 int not null primary key, c2 int);
+create index t2_ndx1 on t2(c2) no populate;
+insert into t1 values (1,1), (2,2), (3,3),(4,4), (5,5),(6,6), (7,7),(8,8);
+insert into t2 values (1,1), (2,2), (3,3),(4,4), (5,5),(6,6), (7,7),(8,8);
+populate index t1_ndx1 on t1;
+populate index t2_ndx1 on t2;
+cleanup index t1_ndx1;
+cleanup index t2_ndx1;
+
+select count(*) from t1;
+select count(*) from t2;
+cleanup schema ccsch002private;
+
+-- restore default schema for this test file
+set schema ccsch002;
+
+?section m15277
+
+drop table if exists t1;
+create table t1 (a int, b varchar(20));
+create view v1 as select * from t1;
+insert into t1 values (1, 'bbbbb');
+alter table t1 alter column b char(1);
+
+?section m15112
+
+CQD ALLOW_TRUNCATE_IN_USER_XN 'ON';
+
+drop table if exists t1 cascade;
+create table t1 (a int, b varchar(20));
+insert into t1 values (1, 'm15112');
+
+begin work;
+truncate table t1;
+sh sqlci -i "TEST002(m15112select)";
+select * from t1;
+commit;
+sh sqlci -i "TEST002(m15112select)";
+
+insert into t1 values (2, 'm15112');
+create or replace procedure p1() as //
+begin
+  select * from t1;
+  execute 'CQD ALLOW_TRUNCATE_IN_USER_XN ''ON''';
+  truncate table t1;
+  select * from t1;
+end//;
+
+call p1();
+sh sqlci -i "TEST002(m15112select)";
+select * from t1;
+
+
+?section m15112select
+set schema ccsch002;
+CQD TRAF_LOCK_DDL 'OFF';
+CQD TRAF_OBJECT_LOCK_DDL_RETRY_LIMIT '1';
+log LOG002;
+
+select * from t1;
+
+?section m15664
+
+drop table if exists t1;
+drop table if exists t2;
+create table t1 (a int, b varchar(10));
+create unique index idx1 on t1 (b);
+create table t2 (a int primary key);
+
+insert into t1 values (1, 'a');
+-- 0 lock
+get lock statistics of t1;
+-- ERROR 8102 8839
+insert into t1 values (1, 'a');
+-- 0 lock
+get lock statistics of t1;
+
+insert into t2 values (1);
+-- 0 lock
+get lock statistics of t2;
+-- ERROR 8102
+insert into t2 values (1);
+-- 0 lock
+get lock statistics of t2;
+
+truncate t1;
+-- 0 lock
+get lock statistics of t1;
+truncate t2;
+-- 0 lock
+get lock statistics of t2;
+
+begin work;
+insert into t1 values (1, 'a');
+insert into t2 values (1);
+-- 1 lock
+get lock statistics of t1;
+-- 1 lock
+get lock statistics of t2;
+-- ERROR 8102
+insert into t2 values (1);
+-- 1 lock
+get lock statistics of t1;
+-- 1 lock
+get lock statistics of t2;
+-- ERROR 8102 8839
+insert into t1 values (2, 'a');
+-- 0 lock
+get lock statistics of t1;
+-- 0 lock
+get lock statistics of t2;
+rollback;

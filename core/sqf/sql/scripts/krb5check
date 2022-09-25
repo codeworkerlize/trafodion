@@ -1,0 +1,228 @@
+#!/bin/bash
+
+# @@@ START COPYRIGHT @@@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+# @@@ END COPYRIGHT @@@
+
+source krb5functions
+if [[ -e /etc/trafodion/trafodion_config ]]; then
+  source /etc/trafodion/trafodion_config
+fi
+
+function msg 
+{
+  # to use SQL event log reader, message needs to look like:
+  # 2018-02-01 00:07:31,123, INFO, KERBEROS,,,62034,krb5service,,, starting service (krb5check)
+  #  date (day, time, nanoseconds), severity, component (KERBEROS), 
+  #  node-id, cpu, pin, program (krb5check), sql_code, query_id, message
+  hostName=$( hostname -f )
+  nodeId=$( trafconf -node  | grep $hostName | cut -d '=' -f2 | cut -d ';' -f1 )
+  echo "`date +"%Y-%m-%d %H:%M:%S,%N"`, INFO, KERBEROS, Node Number: $nodeId,, PID: $$, Process Name: krb5check,,, $1" >> $LOG_FILE
+}
+
+# ******* main ******
+WAIT_INTERVAL=300
+REPORT_INTERVAL=12
+LOG_RETENTION=2016
+LOCK_FILE=""
+getLockFile
+LOG_FILE=""
+getLogFile
+CACHE_FILE=""
+HOST_NAME=`hostname -f`
+REINIT="N"
+getKeytab
+DEBUG="N"
+HOST_NAME=`hostname -f`
+
+introMessage="Starting krb5check "
+
+# Echo this process's id to the LOCK_FILE
+echo $$ > $LOCK_FILE
+
+while [ $# -gt 0 ]; do
+
+  case $1 in
+    -h)
+        echo $"Usage: $0 {-a | -c |-h |-r | -w}"
+        exit
+        ;;
+    -a)
+        REINIT="Y"
+        ;;
+    -c)
+        shift
+        CACHE_FILE=$1
+        ;;
+    -d)
+        DEBUG="Y"
+        ;;
+    -r)
+        shift
+        REPORT_INTERVAL=$1
+        ;;
+    -w)
+        shift
+        WAIT_INTERVAL=$1
+        ;;
+    *)
+        introMessage=$introMessage"Invalid option detected"
+        echo "$introMessage"
+        echo $"Usage: $0 {-a | -c |-h |-r | -w}"
+        exit 1
+        ;;
+  esac
+  shift
+done
+
+# get keytab
+introMessage=$introMessage"using keytab $KEYTAB "
+
+# get principal from the cached entry
+getCachedTicket
+noTicket=$?
+if [[ $noTicket -eq 1 ]]; then
+  PRINCIPAL=$( klist -kt $KEYTAB | grep $HOST_NAME | awk '{print $4}' | uniq )
+else
+  PRINCIPAL="$( klist -c $CACHE_FILE | grep 'Default principal' | awk '{print $3}' )"
+fi
+
+introMessage=$introMessage" and principal $PRINCIPAL " 
+msg "$introMessage" 
+
+# go into an infinite loop with a WAIT_INTERVAL second pause between each iteration
+# print a report the first time
+reportCount=$( expr $REPORT_INTERVAL + 1 )
+logCount=0
+while :; do
+  
+  # go see if a new ticket has been initd
+  getCachedTicket
+  noTicket=$?
+  if [[ $noTicket -eq 0 ]]; then
+    # expire time could change between iterations
+    CURRENT_TIME=`date +%s`
+    currentTicket="$( klist -c $CACHE_FILE )"
+    EXPIRE_TIME=$( date -d "$( echo "$currentTicket" | grep krbtgt | awk '{print $3, $4}' | head -n 1 )" +%s )
+    MAX_TIME=$( date -d "$( echo "$currentTicket" | grep "renew until" | awk '{print $3, $4}' | head -n 1 )" +%s )
+
+    # report time left every REPORT_INTERVAL times
+    timeToReinit=0;
+    timeToRenew=0;
+    if [ $reportCount -gt $REPORT_INTERVAL ]; then
+      getDetails=1;
+    else
+      getDetails=0;
+    fi
+    getStatus $WAIT_INTERVAL $getDetails
+    status=$?
+    if [ $status -eq 3 ]; then
+      timeToReinit=1;
+      logCount=$( expr $logCount + 1 )
+    else
+      if [ $status -eq 2 ]; then
+        timeToRenew=1;
+      fi
+    fi
+ 
+    #echo "timeToReinit: $timeToReinit; timeToRenew: $timeToRenew"
+
+    if [ $reportCount -gt $REPORT_INTERVAL ]; then
+      msg "$TICKET_STATUS" 
+      reportCount=0
+    else
+      reportCount=$( expr $reportCount + 1 )
+    fi
+
+    # If ticket is about to expire and asked to automatic reinit, do it
+    if [ $timeToReinit -eq 1 ]; then
+      if [ $REINIT == "Y" ]; then
+        msg "Time to re-initialize TGT for principal $PRINCIPAL, keytab $KEYTAB" 
+        #getKeytab
+        kinit -k -t $KEYTAB $PRINCIPAL
+        if [ $? -ne 0 ]; then
+          msg "An error occurred while initializing TGT for principal $PRINCIPAL, keytab $KEYTAB; continuing" 
+        else
+          # (See Cloudera workaround comment: /usr/lib64/cmf/service/common/cloudera-config.sh)
+          # This is work-around for a bug in kerberos >= 1.8 that prevents java
+          # programs from reading from the ticket cache. It's harmless to do it
+          # unconditionally - as long as we sleep first, in case kerberos is
+          # configured to prevent ticket renewal. If the two kinit calls are
+          # too close together, the -R can succeed when it shouldn't, and end
+          # up expiring the ticket 
+          sleep 1
+          kinit -R
+
+          #cp $CACHE_FILE /tmp/. 2>&1 > /dev/null
+          msg "Re-initialized ticket cache ($CACHE_FILE) for principal $PRINCIPAL, keytab $KEYTAB" 
+          msg "`klist`" 
+        fi
+      else
+        msg "TGT for principal $PRINCIPAL, keytab $KEYTAB is about to expire, please initialize new ticket" 
+      fi
+
+    # Otherwise renew it
+    # The ticket will be automatically renewed by the client (Hadoop), but just 
+    # in case renew it now.
+    elif [ $timeToRenew -eq 1 ]; then
+      msg "Time to renew ticket for principal $PRINCIPAL, keytab $KEYTAB" 
+      kinit -R 
+      if [ $? -ne 0 ]; then
+        msg "An error occurred while initializing TGT for principal $PRINCIPAL, keytab $KEYTAB; continuing" 
+      else
+        msg "Renewed ticket cache ($CACHE_FILE) for principal $PRINCIPAL, keytab $KEYTAB" 
+        msg "`klist`" 
+      fi
+    fi
+
+  # ticket was not found in cache.  If REINIT is "Y", initialize the ticket
+  else
+    if [ $REINIT == "Y" ]; then
+      #cp $CACHE_FILE /tmp/. 2>&1 > /dev/null
+      msg "Time to re-initialize TGT for principal $PRINCIPAL, keytab $KEYTAB" 
+      kinit -k -t $KEYTAB $PRINCIPAL
+      if [ $? -ne 0 ]; then
+        msg "An error occurred while initializing TGT for principal $PRINCIPAL, keytab $KEYTAB; continuing" 
+      else
+        # workaround, see above
+        sleep 1
+        kinit -R
+
+        msg "Re-initialized ticket cache ($CACHE_FILE) for principal $PRINCIPAL, keytab $KEYTAB" 
+        msg "`klist`" 
+      fi
+    else
+      msg="Ticket has not been created or it has expired" 
+    fi
+  fi
+
+  # save and recreate log file periodically
+  # probably should garbage collect once in a while
+  # default set to archive once a week
+  if [[ $logCount -eq $LOG_RETENTION ]]; then
+    currentTime=$(date +"%Y%m%d_%H%M%S")
+    msg "Archiving log file"
+    mv $LOG_FILE $TRAF_LOG/krb5check_$currentTime_archive.log
+    logCount=0
+  fi
+
+  # wait a bit then go round again
+  sleep $WAIT_INTERVAL
+done

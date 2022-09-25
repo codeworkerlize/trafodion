@@ -1,0 +1,147 @@
+-- @@@ START COPYRIGHT @@@
+--
+-- Licensed to the Apache Software Foundation (ASF) under one
+-- or more contributor license agreements.  See the NOTICE file
+-- distributed with this work for additional information
+-- regarding copyright ownership.  The ASF licenses this file
+-- to you under the Apache License, Version 2.0 (the
+-- "License"); you may not use this file except in compliance
+-- with the License.  You may obtain a copy of the License at
+--
+--   http://www.apache.org/licenses/LICENSE-2.0
+--
+-- Unless required by applicable law or agreed to in writing,
+-- software distributed under the License is distributed on an
+-- "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+-- KIND, either express or implied.  See the License for the
+-- specific language governing permissions and limitations
+-- under the License.
+--
+-- @@@ END COPYRIGHT @@@
+--
+
+-- Tests for NAMESPACE support
+obey TEST034(clean_up);
+
+log LOG034 clear;
+
+create trafodion namespace 'ns034_1' 
+       hbase_options ('hbase.namespace.quota.maxtables' = '10');
+create trafodion namespace 'ns034_2';
+
+get config for trafodion namespace 'ns034_1';
+get config for trafodion namespace 'ns034_2';
+
+alter trafodion namespace 'ns034_1' 
+       hbase_options ('hbase.namespace.quota.maxtables' = '');
+get config for trafodion namespace 'ns034_1';
+
+alter trafodion namespace 'ns034_1' 
+       hbase_options ('hbase.namespace.quota.maxtables' = '20');
+get config for trafodion namespace 'ns034_1';
+
+create schema sch034 namespace 'ns034_1';
+set schema sch034;
+
+create table t034t1 (a int, b int);
+create table t034t2 (a int, b int) attribute namespace 'ns034_2';
+create table t034t3 (a int, b int) attribute hbase format;
+showddl t034t1;
+showddl t034t2;
+showddl t034t3;
+
+-- schema namespace used
+cqd AGGR_PUSHDOWN_THRESHOLD '1';
+insert into t034t1 values (1,2);
+insert into t034t2 select * from t034t1;
+update t034t1 set b = b + 1;
+select * from t034t1;
+explain options 'f' select count(*) from t034t1;
+select count(*) from t034t1;
+update statistics for table t034t1 on every column;
+showstats for table t034t1 on every column;
+get region stats for table t034t1;
+delete from t034t1;
+select * from t034t1;
+alter table t034t1 rename to t034t1_ren;
+showddl t034t1_ren;
+
+-- table namespace used
+select * from t034t2;
+create index t034t2i1 on t034t2 (b);
+showddl t034t2;
+explain options 'f' select b from t034t2;
+select b from t034t2;
+alter table t034t2 add column c int;
+showddl t034t2;
+select * from t034t2;
+alter table t034t2 drop column c;
+showddl t034t2;
+select * from t034t2;
+
+purgedata t034t2;
+select * from t034t2;
+drop index t034t2i1;
+showddl t034t2;
+
+-- attribute hbase format with schema namespace
+showddl t034t3;
+insert into t034t3 values (1,2), (3,4);
+select * from t034t3;
+alter table t034t3 add column c int;
+showddl t034t3;
+select * from t034t3;
+alter table t034t3 drop column c;
+showddl t034t3;
+select * from t034t3;
+purgedata t034t3;
+select * from t034t3;
+
+
+-- error tests
+
+-- cannot create namespace if it already exists
+create trafodion namespace 't034err1';
+create trafodion namespace 't034err1';
+create trafodion namespace 't034err1' if not exists;
+
+-- traf namespace must only contain [A-Za-z0-p_]
+create trafodion namespace 'A-B';
+create trafodion namespace 'A.B';
+
+-- cannot drop namespace if it doesn't exist
+drop trafodion namespace 't034err1';
+drop trafodion namespace 't034err1';
+drop trafodion namespace 't034err1' if exists;
+
+-- cannot get objects from namespace if it doesn't exist
+get objects in trafodion namespace 't034err1';
+
+-- cannot create table/schema if namespace doesn't exist
+create table t034terr1 (a int) attribute namespace 't034err1';
+create schema t034scherr namespace 't034err1';
+
+-- cannot drop namespace if it is not empty
+create trafodion namespace 't034err1';
+create table t034terr1 (a int) attribute namespace 't034err1';
+get objects in trafodion namespace 't034err1';
+drop trafodion namespace 't034err1';
+drop table t034terr1;
+drop trafodion namespace 't034err1';
+
+
+log;
+exit;
+
+?section clean_up
+drop table sch034.t034t1 cascade;
+drop table sch034.t034t2 cascade;
+drop table sch034.t034t3 cascade;
+
+drop schema sch034 cascade;
+
+drop trafodion namespace 'ns034_1';
+drop trafodion namespace 'ns034_2';
+
+
+

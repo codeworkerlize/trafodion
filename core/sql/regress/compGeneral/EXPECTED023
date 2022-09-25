@@ -1,0 +1,1019 @@
+>>
+>>-- keep ULOGs whenever there are severe errors
+>>update statistics log system;
+
+--- SQL operation complete.
+>>
+>>-- create the database used for the tests
+>>
+>>create schema compgeneral_test023;
+
+--- SQL operation complete.
+>>
+>>set schema compgeneral_test023;
+
+--- SQL operation complete.
+>>
+>>get tables;
+
+Tables in Schema TRAFODION.COMPGENERAL_TEST023
+==============================================
+
+SB_HISTOGRAMS
+SB_HISTOGRAM_INTERVALS
+SB_PERSISTENT_SAMPLES
+
+=======================
+ 3 row(s) returned
+
+--- SQL operation complete.
+>>
+>>CREATE TABLE stest
++>(
++>c1 integer not null,
++>c2 integer not null,
++>c3 integer not null,
++>PRIMARY KEY (C1 ASC)
++>)
++>SALT USING 4 PARTITIONS
++>ON (C1)
++>;
+
+--- SQL operation complete.
+>>
+>>
+>>upsert using load into stest
++>select 
++>  x1+10*x2+100*x3+1000*x4+10000*x5,
++>  x2,
++>  x3
++>-- the from clause below creates 100,000 rows, the cross product of
++>-- 5 copies of { 0, ... 9 } 
++>  from (values(0),(1),(2),(3),(4),(5),(6),(7),(8),(9)) T(x1)
++>transpose 0,1,2,3,4,5,6,7,8,9 as x2
++>transpose 0,1,2,3,4,5,6,7,8,9 as x3
++>transpose 0,1,2,3,4,5,6,7,8,9 as x4
++>transpose 0,1,2,3,4,5,6,7,8,9 as x5;
+
+--- 100000 row(s) inserted.
+>>
+>>
+>>CREATE TABLE stestc
++>(
++>c1 char(12) not null,
++>c2 char(12) not null,
++>c3 char(12) not null,
++>bigcol varchar(1024) not null,
++>PRIMARY KEY (C1 ASC)
++>)
++>SALT USING 4 PARTITIONS
++>ON (C1)
++>;
+
+--- SQL operation complete.
+>>
+>>upsert using load into stestc
++>select 
++>  x1 || x2 || x3 || x4 || x5,
++>  x2 || x4 || x1,
++>  x5 || x3,
++>  'Wow this is really big ' || x1 || x2 || x3 || x4 || x5 ||
++>  ' and now we concatenate lots more junk, more junk than you' ||
++>  ' can shake a stick at because we like to use up storage' ||
++>  ' and exercise code paths that result in string truncation.' ||
++>  ' And you thought you had better things to do.'
++>-- the from clause below creates 100,000 rows, the cross product of
++>-- 5 copies of { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j' }
++>  from (values('a'),('b'),('c'),('d'),('e'),('f'),('g'),('h'),('i'),('j')) T(x1)
++>transpose 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j' as x2
++>transpose 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j' as x3
++>transpose 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j' as x4
++>transpose 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j' as x5;
+
+--- 100000 row(s) inserted.
+>>
+>>
+>>create table stest_empty like stest with partitions;
+
+--- SQL operation complete.
+>>
+>>get tables;
+
+Tables in Schema TRAFODION.COMPGENERAL_TEST023
+==============================================
+
+SB_HISTOGRAMS
+SB_HISTOGRAM_INTERVALS
+SB_PERSISTENT_SAMPLES
+STEST
+STESTC
+STEST_EMPTY
+
+=======================
+ 6 row(s) returned
+
+--- SQL operation complete.
+>>  -- should be just stest, stest_empty, stestc, and the sb_* tables
+>>
+>>?section ustat1p
+>>
+>>-- positive tests
+>>
+>>-- create a persistent sample
+>>update statistics for table stest create sample random 20 percent;
+
+--- SQL operation complete.
+>>
+>>prepare s1 from
++>select object_name,sample_name,reason,last_where_predicate
++>  from "_MD_".objects o join sb_persistent_samples s
++>   on o.object_uid = s.table_uid
++>  where object_name = ? and object_type = 'BT';
+
+--- SQL command prepared.
+>>
+>>execute s1 using 'STEST';
+
+OBJECT_NAME                                                                                                                                                                                                                                                       SAMPLE_NAME                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           REASON  LAST_WHERE_PREDICATE
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------  --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------  ------  --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+STEST                                                                                                                                                                                                                                                             TRAFODION.COMPGENERAL_TEST023.TRAF_SAMPLE_02162456823963820129_1531425384_266850                                                                                                                                                                                                                                                                                                                                                                                                                                      M                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+
+--- 1 row(s) selected.
+>>-- should see one row
+>>
+>>get tables;
+
+Tables in Schema TRAFODION.COMPGENERAL_TEST023
+==============================================
+
+SB_HISTOGRAMS
+SB_HISTOGRAM_INTERVALS
+SB_PERSISTENT_SAMPLES
+STEST
+STESTC
+STEST_EMPTY
+TRAF_SAMPLE_02162456823963820129_1531425384_266850
+
+=======================
+ 7 row(s) returned
+
+--- SQL operation complete.
+>> -- should be stest, stest_empty, stestc, sb_* tables + a sample table
+>>
+>>-- create another one, showing its replacement
+>>update statistics for table stest remove sample;
+
+--- SQL operation complete.
+>>update statistics for table stest create sample random 10 percent;
+
+--- SQL operation complete.
+>>
+>>get tables;
+
+Tables in Schema TRAFODION.COMPGENERAL_TEST023
+==============================================
+
+SB_HISTOGRAMS
+SB_HISTOGRAM_INTERVALS
+SB_PERSISTENT_SAMPLES
+STEST
+STESTC
+STEST_EMPTY
+TRAF_SAMPLE_02162456823963820129_1531425434_120408
+
+=======================
+ 7 row(s) returned
+
+--- SQL operation complete.
+>> -- should be stest, stest_empty, stestc, sb_* tables + a different sample table
+>>
+>>execute s1 using 'STEST';
+
+OBJECT_NAME                                                                                                                                                                                                                                                       SAMPLE_NAME                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           REASON  LAST_WHERE_PREDICATE
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------  --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------  ------  --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+STEST                                                                                                                                                                                                                                                             TRAFODION.COMPGENERAL_TEST023.TRAF_SAMPLE_02162456823963820129_1531425434_120408                                                                                                                                                                                                                                                                                                                                                                                                                                      M                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+
+--- 1 row(s) selected.
+>>-- should see one row
+>>
+>>-- remove a persistent sample table
+>>update statistics for table stest remove sample;
+
+--- SQL operation complete.
+>>
+>>get tables;
+
+Tables in Schema TRAFODION.COMPGENERAL_TEST023
+==============================================
+
+SB_HISTOGRAMS
+SB_HISTOGRAM_INTERVALS
+SB_PERSISTENT_SAMPLES
+STEST
+STESTC
+STEST_EMPTY
+
+=======================
+ 6 row(s) returned
+
+--- SQL operation complete.
+>> -- should be stest, stest_empty, stestc, sb_* tables only
+>>
+>>execute s1 using 'STEST';
+
+--- 0 row(s) selected.
+>>-- should see zero rows
+>>
+>>-- create a persistent sample table using PERSISTENT
+>>
+>>update statistics for table stest on every column sample random 10 percent persistent;
+
+--- SQL operation complete.
+>>
+>>get tables;
+
+Tables in Schema TRAFODION.COMPGENERAL_TEST023
+==============================================
+
+SB_HISTOGRAMS
+SB_HISTOGRAM_INTERVALS
+SB_PERSISTENT_SAMPLES
+STEST
+STESTC
+STEST_EMPTY
+TRAF_SAMPLE_02162456823963820129_1531425471_570598
+
+=======================
+ 7 row(s) returned
+
+--- SQL operation complete.
+>> -- should be stest, stest_empty, stestc, sb_* tables + another sample table
+>>
+>>execute s1 using 'STEST';
+
+OBJECT_NAME                                                                                                                                                                                                                                                       SAMPLE_NAME                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           REASON  LAST_WHERE_PREDICATE
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------  --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------  ------  --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+STEST                                                                                                                                                                                                                                                             TRAFODION.COMPGENERAL_TEST023.TRAF_SAMPLE_02162456823963820129_1531425471_570598                                                                                                                                                                                                                                                                                                                                                                                                                                      I                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+
+--- 1 row(s) selected.
+>>-- should see one row
+>>
+>>-- do it again showing its replacement
+>>update statistics for table stest remove sample;
+
+--- SQL operation complete.
+>>update statistics for table stest on every column sample random 10 percent persistent;
+
+--- SQL operation complete.
+>>
+>>get tables;
+
+Tables in Schema TRAFODION.COMPGENERAL_TEST023
+==============================================
+
+SB_HISTOGRAMS
+SB_HISTOGRAM_INTERVALS
+SB_PERSISTENT_SAMPLES
+STEST
+STESTC
+STEST_EMPTY
+TRAF_SAMPLE_02162456823963820129_1531425529_570936
+
+=======================
+ 7 row(s) returned
+
+--- SQL operation complete.
+>> -- should be stest, stest_empty, stestc, sb_* tables + another sample table
+>>
+>>execute s1 using 'STEST';
+
+OBJECT_NAME                                                                                                                                                                                                                                                       SAMPLE_NAME                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           REASON  LAST_WHERE_PREDICATE
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------  --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------  ------  --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+STEST                                                                                                                                                                                                                                                             TRAFODION.COMPGENERAL_TEST023.TRAF_SAMPLE_02162456823963820129_1531425529_570936                                                                                                                                                                                                                                                                                                                                                                                                                                      I                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+
+--- 1 row(s) selected.
+>>-- should see one row
+>>
+>>-- change the data in the table and do an INCREMENTAL update stats
+>>insert into stest values (100000,1,1),
++>  (100001,1,1),
++>  (100002,1,1),
++>  (100003,1,1),
++>  (100004,1,1),
++>  (100005,1,1),
++>  (100006,1,1),
++>  (100007,1,1),
++>  (100008,1,1),
++>  (100009,1,1),
++>  (100010,2,1),
++>  (100011,2,1),
++>  (100012,2,1),
++>  (100013,2,1),
++>  (100014,2,1),
++>  (100015,2,1),
++>  (100016,2,1),
++>  (100017,2,1),
++>  (100018,2,1),
++>  (100019,2,1),
++>  (100020,3,1),
++>  (100021,3,1),
++>  (100022,3,1),
++>  (100023,3,1),
++>  (100024,3,1),
++>  (100025,3,1),
++>  (100026,3,1),
++>  (100027,3,1),
++>  (100028,3,1),
++>  (100029,3,1);
+
+--- 30 row(s) inserted.
+>>
+>>-- These two CQDs are to get around annoying 9222 and 9224 warnings
+>>-- that happen non-deterministically due to "gaps" in the sample histograms.
+>>-- Note: The warnings now only appear if "update statistics log on" is in 
+>>-- force, which it isn't here. Nevertheless the CQDs encourage the exercise
+>>-- of a particular code path within the incremental update stats code so
+>>-- we leave them here.
+>>cqd USTAT_IUS_INTERVAL_ROWCOUNT_CHANGE_THRESHOLD '0.15';
+
+--- SQL operation complete.
+>>cqd USTAT_IUS_INTERVAL_UEC_CHANGE_THRESHOLD '0.15';
+
+--- SQL operation complete.
+>>
+>>update statistics for table stest on existing columns incremental where c1 >= 100000;
+
+--- SQL operation complete.
+>>
+>>execute s1 using 'STEST';
+
+OBJECT_NAME                                                                                                                                                                                                                                                       SAMPLE_NAME                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           REASON  LAST_WHERE_PREDICATE
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------  --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------  ------  --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+STEST                                                                                                                                                                                                                                                             TRAFODION.COMPGENERAL_TEST023.TRAF_SAMPLE_02162456823963820129_1531425529_570936                                                                                                                                                                                                                                                                                                                                                                                                                                      I        c1 >= 100000                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
+
+--- 1 row(s) selected.
+>>
+>>-- similar tests, but using character data types
+>>update statistics for table stestc on every column sample random 10 percent persistent;
+
+--- SQL operation complete.
+>>
+>>insert into stestc values ('naaaa','abc','ba','Hava Nagila'),
++>  ('naaab','abc','ba','Le Marseillais'),
++>  ('naaac','abc','ba','some other song'),
++>  ('naaad','abc','ba','more data'),
++>  ('naaae','abc','ba','more data'),
++>  ('naaaf','abc','ba','more data'),
++>  ('naaag','abc','ba','more data'),
++>  ('naaah','abc','ba','more data'),
++>  ('naaai','abc','ba','more data'),
++>  ('naaaj','abc','ba','more data'),
++>  ('naaba','bhe','ba','more data'),
++>  ('naabb','bhe','ba','more data'),
++>  ('naabc','bhe','ba','more data'),
++>  ('naabd','bhe','ba','more data'),
++>  ('naabe','bhe','ba','more data'),
++>  ('naabf','bhe','ba','more data'),
++>  ('naabg','bhe','ba','Ha! caught you sleeping!'),
++>  ('naabh','bhe','ba','more data'),
++>  ('naabi','bhe','ba','more data'),
++>  ('naabj','bhe','ba','more data'),
++>  ('naaca','fib','ba','more data'),
++>  ('naacb','fib','ba','more data'),
++>  ('naacc','fib','ba','more data'),
++>  ('naacd','fib','ba','more data'),
++>  ('naace','fib','ba','more data'),
++>  ('naacf','fib','ba','more data'),
++>  ('naacg','fib','ba','more data'),
++>  ('naach','fib','ba','more data'),
++>  ('naaci','fib','ba','more data'),
++>  ('naacj','fib','ba','more data');
+
+--- 30 row(s) inserted.
+>>
+>>update statistics for table stestc on existing columns incremental where c1 >= 'naaaa';
+
+--- SQL operation complete.
+>>
+>>get tables;
+
+Tables in Schema TRAFODION.COMPGENERAL_TEST023
+==============================================
+
+SB_HISTOGRAMS
+SB_HISTOGRAM_INTERVALS
+SB_PERSISTENT_SAMPLES
+STEST
+STESTC
+STEST_EMPTY
+TRAF_SAMPLE_02162456823963820129_1531425529_570936
+TRAF_SAMPLE_02162456823963821709_1531425615_191929
+
+=======================
+ 8 row(s) returned
+
+--- SQL operation complete.
+>>
+>>execute s1 using 'STESTC';
+
+OBJECT_NAME                                                                                                                                                                                                                                                       SAMPLE_NAME                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           REASON  LAST_WHERE_PREDICATE
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------  --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------  ------  --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+STESTC                                                                                                                                                                                                                                                            TRAFODION.COMPGENERAL_TEST023.TRAF_SAMPLE_02162456823963821709_1531425615_191929                                                                                                                                                                                                                                                                                                                                                                                                                                      I        c1 >= 'naaaa'                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
+
+--- 1 row(s) selected.
+>>
+>>?section ustat1n
+>>-- negative tests
+>>
+>>-- attempt to create a sample on an empty table
+>>update statistics for table stest_empty create sample random 10 percent;
+
+*** ERROR[9207] The specified SAMPLE option generated an empty sample set. Modify the SAMPLE option and resubmit.
+
+--- SQL operation failed with errors.
+>>
+>>get tables;
+
+Tables in Schema TRAFODION.COMPGENERAL_TEST023
+==============================================
+
+SB_HISTOGRAMS
+SB_HISTOGRAM_INTERVALS
+SB_PERSISTENT_SAMPLES
+STEST
+STESTC
+STEST_EMPTY
+TRAF_SAMPLE_02162456823963820129_1531425529_570936
+TRAF_SAMPLE_02162456823963821709_1531425615_191929
+
+=======================
+ 8 row(s) returned
+
+--- SQL operation complete.
+>> -- should be the same as previous "get tables"
+>>
+>>execute s1 using 'STEST_EMPTY';
+
+--- 0 row(s) selected.
+>>-- should be zero rows
+>>
+>>update statistics for table stest_empty on every column sample random 10 percent persistent;
+
+*** WARNING[9220] No persistent sample table was created because the table was empty or there were no histograms needing update.
+
+--- SQL operation completed with warnings.
+>>
+>>get tables;
+
+Tables in Schema TRAFODION.COMPGENERAL_TEST023
+==============================================
+
+SB_HISTOGRAMS
+SB_HISTOGRAM_INTERVALS
+SB_PERSISTENT_SAMPLES
+STEST
+STESTC
+STEST_EMPTY
+TRAF_SAMPLE_02162456823963820129_1531425529_570936
+TRAF_SAMPLE_02162456823963821709_1531425615_191929
+
+=======================
+ 8 row(s) returned
+
+--- SQL operation complete.
+>> -- should be the same as previous "get tables"
+>>
+>>execute s1 using 'STEST_EMPTY';
+
+--- 0 row(s) selected.
+>>-- should be zero rows
+>>
+>>-- attempt to remove a non-existant persistent sample
+>>update statistics for table stest_empty remove sample;
+
+*** WARNING[9228] There were no sample tables to drop.
+
+--- SQL operation completed with warnings.
+>>
+>>get tables;
+
+Tables in Schema TRAFODION.COMPGENERAL_TEST023
+==============================================
+
+SB_HISTOGRAMS
+SB_HISTOGRAM_INTERVALS
+SB_PERSISTENT_SAMPLES
+STEST
+STESTC
+STEST_EMPTY
+TRAF_SAMPLE_02162456823963820129_1531425529_570936
+TRAF_SAMPLE_02162456823963821709_1531425615_191929
+
+=======================
+ 8 row(s) returned
+
+--- SQL operation complete.
+>> -- should be the same as previous "get tables"
+>>
+>>-- attempt to do incremental with an invalid where clause
+>>update statistics for table stest on existing columns incremental where 1;
+
+*** ERROR[9219] Incremental UPDATE STATISTICS: An operation failed, possibly due to an invalid WHERE clause.
+
+*** ERROR[15001] A syntax error occurred at or before: 
+DELETE WITH NO ROLLBACK FROM TRAFODION.COMPGENERAL_TEST023.TRAF_SAMPLE_02162456
+823963820129_1531425529_570936 WHERE  1;
+                                       ^ (119 characters from start of SQL statement)
+
+*** ERROR[8822] The statement was not prepared.
+
+--- SQL operation failed with errors.
+>>
+>>get tables;
+
+Tables in Schema TRAFODION.COMPGENERAL_TEST023
+==============================================
+
+SB_HISTOGRAMS
+SB_HISTOGRAM_INTERVALS
+SB_PERSISTENT_SAMPLES
+STEST
+STESTC
+STEST_EMPTY
+TRAF_SAMPLE_02162456823963820129_1531425529_570936
+TRAF_SAMPLE_02162456823963821709_1531425615_191929
+
+=======================
+ 8 row(s) returned
+
+--- SQL operation complete.
+>> -- should be the same as previous "get tables"
+>>
+>>-- attempt to do incremental with a syntactically valid but semantically invalid where clause
+>>update statistics for table stest on existing columns incremental where badcol > 5;
+
+*** ERROR[9219] Incremental UPDATE STATISTICS: An operation failed, possibly due to an invalid WHERE clause.
+
+*** ERROR[4001] Column BADCOL is not found.  Tables in scope: TRAFODION.COMPGENERAL_TEST023.TRAF_SAMPLE_02162456823963820129_1531425529_570936.  Default schema: TRAFODION.SCH.
+
+*** ERROR[8822] The statement was not prepared.
+
+--- SQL operation failed with errors.
+>>
+>>-- attempt to do incremental when no persistent sample exists
+>>update statistics for table stestc remove sample;
+
+--- SQL operation complete.
+>>update statistics for table stestc on existing columns incremental where c1 >= 'naaaa';
+
+*** ERROR[9221] Incremental UPDATE STATISTICS cannot be performed due to the absence of the IUS persistent sample table for TRAFODION.COMPGENERAL_TEST023.STESTC.  Use a regular UPDATE STATISTICS command with the sample clause and PERSISTENT first to create such a persistent sample table.
+
+--- SQL operation failed with errors.
+>>
+>>-- attempt to create a persistent sample when one already exists, syntax 1
+>>update statistics for table stest on every column sample random 10 percent persistent;
+
+*** ERROR[9251] A persistent sample table already exists. Use UPDATE STATISTICS ... REMOVE SAMPLE to drop it first if desired.
+
+--- SQL operation failed with errors.
+>>
+>>-- attempt to create a persistent sample when one already exists, syntax 2
+>>update statistics for table stest create sample random 20 percent;
+
+*** ERROR[9251] A persistent sample table already exists. Use UPDATE STATISTICS ... REMOVE SAMPLE to drop it first if desired.
+
+--- SQL operation failed with errors.
+>>
+>>get tables;
+
+Tables in Schema TRAFODION.COMPGENERAL_TEST023
+==============================================
+
+SB_HISTOGRAMS
+SB_HISTOGRAM_INTERVALS
+SB_PERSISTENT_SAMPLES
+STEST
+STESTC
+STEST_EMPTY
+TRAF_SAMPLE_02162456823963820129_1531425529_570936
+
+=======================
+ 7 row(s) returned
+
+--- SQL operation complete.
+>> -- should be the same as previous "get tables" except only one sample table
+>>
+>>-- attempt to create persistent sample table on a table of all LOB columns
+>>
+>>control query default TRAF_BLOB_AS_VARCHAR 'OFF';
+
+--- SQL operation complete.
+>>control query default TRAF_CLOB_AS_VARCHAR 'OFF';
+
+--- SQL operation complete.
+>>
+>>create table slobs (c_clob clob, c_blob blob);
+
+--- SQL operation complete.
+>>insert into slobs values (stringtolob('clob_1'), stringtolob('blob_1'));
+
+--- 1 row(s) inserted.
+>>
+>>update statistics for table slobs on (c_clob, c_blob) sample random 50 percent persistent;
+
+*** ERROR[9246] UPDATE STATISTICS is not supported on LOB columns. Column C_CLOB is a LOB column.
+
+*** ERROR[9246] UPDATE STATISTICS is not supported on LOB columns. Column C_BLOB is a LOB column.
+
+--- SQL operation failed with errors.
+>> -- gets error 9246
+>>update statistics for table slobs create sample random 100 percent;
+
+*** ERROR[9233] No operation was done since the table consists only of LOB columns.
+
+--- SQL operation failed with errors.
+>> -- gets error 9233
+>>update statistics for table slobs on every column sample random 100 percent persistent;
+
+*** ERROR[9233] No operation was done since the table consists only of LOB columns.
+
+--- SQL operation failed with errors.
+>> -- gets error 9233
+>>update statistics for table slobs on every key sample random 100 percent persistent;
+
+*** ERROR[9233] No operation was done since the table consists only of LOB columns.
+
+--- SQL operation failed with errors.
+>> -- gets error 9233
+>>update statistics for table slobs on existing column sample random 100 percent persistent;
+
+*** WARNING[9220] No persistent sample table was created because the table was empty or there were no histograms needing update.
+
+*** WARNING[9217] The statement will have no effect because no histograms are currently maintained for the table.
+
+--- SQL operation completed with warnings.
+>> -- gets warning 9220
+>>update statistics for table slobs on necessary column sample random 100 percent persistent;
+
+*** WARNING[9220] No persistent sample table was created because the table was empty or there were no histograms needing update.
+
+*** WARNING[9218] The statement will have no effect because no histograms need to be updated.
+
+--- SQL operation completed with warnings.
+>> -- gets warning 9220
+>>
+>>?section clnup
+>>
+>>drop table stest;
+
+--- SQL operation complete.
+>>drop table stestc;
+
+--- SQL operation complete.
+>>drop table stest_empty;
+
+--- SQL operation complete.
+>>drop table slobs;
+
+--- SQL operation complete.
+>>
+>>get tables;
+
+Tables in Schema TRAFODION.COMPGENERAL_TEST023
+==============================================
+
+SB_HISTOGRAMS
+SB_HISTOGRAM_INTERVALS
+SB_PERSISTENT_SAMPLES
+
+=======================
+ 3 row(s) returned
+
+--- SQL operation complete.
+>>  -- sample tables should be gone too
+>>
+>>create table mytable (c1 int, c2 int, "FALSE" int, "A.b" int, "C-d" int);
+
+--- SQL operation complete.
+>>insert into mytable values (1,1,1,1,1),(2,2,2,2,2),(3,3,3,3,3);
+
+--- 3 row(s) inserted.
+>>update statistics for table mytable on every column sample random 100 percent persistent;
+
+--- SQL operation complete.
+>>get tables;
+
+Tables in Schema TRAFODION.COMPGENERAL_TEST023
+==============================================
+
+MYTABLE
+SB_HISTOGRAMS
+SB_HISTOGRAM_INTERVALS
+SB_PERSISTENT_SAMPLES
+TRAF_SAMPLE_00158390746755824427_1567183162_126388
+
+=======================
+ 5 row(s) returned
+
+--- SQL operation complete.
+>>alter table mytable add column c4 int;
+
+--- SQL operation complete.
+>>update statistics for table mytable on existing columns incremental where c1>0;
+
+--- SQL operation complete.
+>>alter table mytable drop column c4;
+
+*** WARNING[1718] The sample table has been deleted, you need to regenerate the sample table.
+
+--- SQL operation complete.
+>>get tables;
+
+Tables in Schema TRAFODION.COMPGENERAL_TEST023
+==============================================
+
+MYTABLE
+SB_HISTOGRAMS
+SB_HISTOGRAM_INTERVALS
+SB_PERSISTENT_SAMPLES
+
+=======================
+ 4 row(s) returned
+
+--- SQL operation complete.
+>>update statistics for table mytable create sample random 100 percent;
+
+--- SQL operation complete.
+>>alter table mytable alter column c2 rename to c3;
+
+--- SQL operation complete.
+>>get tables;
+
+Tables in Schema TRAFODION.COMPGENERAL_TEST023
+==============================================
+
+MYTABLE
+SB_HISTOGRAMS
+SB_HISTOGRAM_INTERVALS
+SB_PERSISTENT_SAMPLES
+TRAF_SAMPLE_00158390746755824427_1567183352_378721
+
+=======================
+ 5 row(s) returned
+
+--- SQL operation complete.
+>>update statistics for table mytable on existing columns incremental where c1>0;
+
+--- SQL operation complete.
+>>alter table mytable alter column c3 double precision;
+
+*** WARNING[1718] The sample table has been deleted, you need to regenerate the sample table.
+
+--- SQL operation complete.
+>>get tables;
+
+Tables in Schema TRAFODION.COMPGENERAL_TEST023
+==============================================
+
+MYTABLE
+SB_HISTOGRAMS
+SB_HISTOGRAM_INTERVALS
+SB_PERSISTENT_SAMPLES
+
+=======================
+ 4 row(s) returned
+
+--- SQL operation complete.
+>>
+>>drop table mytable;
+
+--- SQL operation complete.
+>>
+>>get tables;
+
+Tables in Schema TRAFODION.COMPGENERAL_TEST023
+==============================================
+
+SB_HISTOGRAMS
+SB_HISTOGRAM_INTERVALS
+SB_PERSISTENT_SAMPLES
+
+=======================
+ 3 row(s) returned
+
+--- SQL operation complete.
+>>  -- sample tables should be gone too
+>>
+>>cqd TRAF_COL_LENGTH_IS_CHAR 'off';
+
+--- SQL operation complete.
+>>
+>>create table testalter(
++>  a int,
++>  b varchar(20 bytes) character set utf8,
++>  c varchar(20 chars) character set utf8 default null not null,
++>  d varchar(20 bytes) character set utf8 default '中文',
++>  e varchar(20 bytes) character set utf8 default 'english',
++>  f varchar(20 bytes) character set utf8
++>);
+
+--- SQL operation complete.
+>>
+>>insert into testalter(a,b,c) values(1, '是我啊', '(ಥ _ ಥ)');
+
+--- 1 row(s) inserted.
+>>insert into testalter(a,b,c) values(2, '狗子！', 'ฅʕ•̫͡•ʔฅ');
+
+--- 1 row(s) inserted.
+>>insert into testalter(a,c,d) values(3, '不认识我了吗', 'ฅʕ•̫͡•ʔฅ');
+
+--- 1 row(s) inserted.
+>>
+>>update statistics for table testalter on every column sample random 100 percent persistent;
+
+--- SQL operation complete.
+>>get tables;
+
+Tables in Schema TRAFODION.COMPGENERAL_TEST023
+==============================================
+
+SB_HISTOGRAMS
+SB_HISTOGRAM_INTERVALS
+SB_PERSISTENT_SAMPLES
+TESTALTER
+TRAF_SAMPLE_08258159904628295736_1612410353_836855
+
+=======================
+ 5 row(s) returned
+
+--- SQL operation complete.
+>>
+>>-- the follow sql will change the METADATA only, sample table will alterd too
+>>--  datatype
+>>--  nullable attr
+>>--  character set
+>>--  upshift
+>>
+>>set statistics on;
+>>-- not rebuild table
+>>-- inherit the character set and default
+>>alter table testalter alter column f varchar(25);
+
+--- SQL operation complete.
+
+Start Time             2021/02/04 11:46:08.334490
+End Time               2021/02/04 11:46:09.690702
+Elapsed Time                      00:00:01.356212
+Compile Time                      00:00:00.002492
+Execution Time                    00:00:01.353554
+
+
+--- SQL operation complete.
+>>                             -- type is varchar(25 bytes) character set utf8
+>>alter table testalter alter column f varchar(30 chars);
+
+--- SQL operation complete.
+
+Start Time             2021/02/04 11:46:09.731132
+End Time               2021/02/04 11:46:10.522772
+Elapsed Time                      00:00:00.791640
+Compile Time                      00:00:00.001814
+Execution Time                    00:00:00.789698
+
+
+--- SQL operation complete.
+>>                       -- type is varchar(25 chars) character set utf8
+>>alter table testalter alter column f varchar(121 bytes) character set utf8;
+
+--- SQL operation complete.
+
+Start Time             2021/02/04 11:46:10.563872
+End Time               2021/02/04 11:46:11.029706
+Elapsed Time                      00:00:00.465834
+Compile Time                      00:00:00.002177
+Execution Time                    00:00:00.463489
+
+
+--- SQL operation complete.
+>>   -- type is varchar(121 bytes) character set utf8
+>>
+>>-- not rebuild, nullable attributes that inherit from the original table column
+>>alter table testalter alter column c varchar(25 chars) character set utf8;
+
+--- SQL operation complete.
+
+Start Time             2021/02/04 11:46:11.070722
+End Time               2021/02/04 11:46:11.557775
+Elapsed Time                      00:00:00.487053
+Compile Time                      00:00:00.002533
+Execution Time                    00:00:00.484295
+
+
+--- SQL operation complete.
+>>-- not rebuild, change length
+>>alter table testalter alter column c varchar(101 bytes) character set utf8 not null;
+
+--- SQL operation complete.
+
+Start Time             2021/02/04 11:46:11.599847
+End Time               2021/02/04 11:46:12.044843
+Elapsed Time                      00:00:00.444996
+Compile Time                      00:00:00.002006
+Execution Time                    00:00:00.442778
+
+
+--- SQL operation complete.
+>>-- rebuild
+>>alter table testalter alter column c varchar(102 bytes) character set utf8 null;
+
+*** WARNING[1718] The sample table has been deleted, you need to regenerate the sample table.
+
+--- SQL operation complete.
+
+Start Time             2021/02/04 11:46:12.079924
+End Time               2021/02/04 11:46:38.344470
+Elapsed Time                      00:00:26.264546
+Compile Time                      00:00:00.001989
+Execution Time                    00:00:26.262460
+
+
+--- SQL operation complete.
+>>
+>>-- not rebuild, nullable attributes that inherit from the original table column
+>>alter table testalter alter column b varchar(25 bytes) character set utf8;
+
+--- SQL operation complete.
+
+Start Time             2021/02/04 11:46:38.379879
+End Time               2021/02/04 11:46:39.366931
+Elapsed Time                      00:00:00.987052
+Compile Time                      00:00:00.002381
+Execution Time                    00:00:00.984531
+
+
+--- SQL operation complete.
+>>-- not rebuild, change length
+>>alter table testalter alter column b varchar(35 bytes) character set utf8 null;
+
+--- SQL operation complete.
+
+Start Time             2021/02/04 11:46:39.413799
+End Time               2021/02/04 11:46:39.857483
+Elapsed Time                      00:00:00.443684
+Compile Time                      00:00:00.002481
+Execution Time                    00:00:00.441057
+
+
+--- SQL operation complete.
+>>-- rebuild, if null in table, get error
+>>alter table testalter alter column b varchar(30 bytes) character set utf8 not null;
+
+*** ERROR[1404] Column B cannot be altered. Reason: Old data could not be updated using the altered column definition.
+
+--- SQL operation failed with errors.
+
+Start Time             2021/02/04 11:46:39.900412
+End Time               2021/02/04 11:47:04.769527
+Elapsed Time                      00:00:24.869115
+Compile Time                      00:00:00.003276
+Execution Time                    00:00:24.865693
+
+
+--- SQL operation complete.
+>>
+>>-- b should show default null because of rebuild fail
+>>-- c should show default null because of rebuild
+>>showddl testalter;
+
+CREATE TABLE TRAFODION.COMPGENERAL_TEST023.TESTALTER
+  (
+    A                                INT DEFAULT NULL
+  , B                                VARCHAR(35 BYTES) CHARACTER SET UTF8
+      COLLATE DEFAULT DEFAULT NULL /*altered_col*/
+  , C                                VARCHAR(102 BYTES) CHARACTER SET UTF8
+      COLLATE DEFAULT DEFAULT NULL /*altered_col*/
+  , D                                VARCHAR(20 BYTES) CHARACTER SET UTF8
+      COLLATE DEFAULT DEFAULT _UTF8'中文'
+  , E                                VARCHAR(20 BYTES) CHARACTER SET UTF8
+      COLLATE DEFAULT DEFAULT _ISO88591'english'
+  , F                                VARCHAR(121 BYTES) CHARACTER SET UTF8
+      COLLATE DEFAULT DEFAULT NULL /*altered_col*/
+  )
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_1500000'
+;
+
+--- SQL operation complete.
+>>set statistics off;
+>>
+>>drop schema compgeneral_test023 cascade;
+
+--- SQL operation complete.
+>> -- cascade needed because of sb_* tables
+>>
+>>log;

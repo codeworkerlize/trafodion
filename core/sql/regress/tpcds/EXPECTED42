@@ -1,0 +1,86 @@
+>>obey stdcqds;
+>>
+>>set schema hive.tpcds_sf1000;
+
+--- SQL operation complete.
+>>
+>>control osim simulate continue './osim.all.sf1000.09022016';
+
+--- SQL operation complete.
+>>
+>>cqd orc_njs 'on';
+
+--- SQL operation complete.
+>>cqd parallel_num_esps '48';
+
+--- SQL operation complete.
+>>cqd QUERY_CACHE '200000';
+
+--- SQL operation complete.
+>>cqd HIVE_METADATA_REFRESH_INTERVAL '-1';
+
+--- SQL operation complete.
+>>cqd  HIVE_LOCALITY_BALANCE_LEVEL '-1';
+
+--- SQL operation complete.
+>>cqd  METADATA_CACHE_SIZE '200';
+
+--- SQL operation complete.
+>>cqd partitioning_scheme_sharing '2';
+
+--- SQL operation complete.
+>>cqd COMP_BOOL_208 'ON';
+
+--- SQL operation complete.
+>>obey q42;
+>>
+>>--==QID: 42
+>>
+>>prepare xx from
++>select  dt.d_year
++>        ,item.i_category_id
++>        ,item.i_category
++>        ,sum(ss_ext_sales_price) as ss_ext_sales_price_sum
++> from   date_dim dt
++>        ,store_sales_1stripeperfile
++>        ,item
++> where dt.d_date_sk = store_sales_1stripeperfile.ss_sold_date_sk
++>        and store_sales_1stripeperfile.ss_item_sk = item.i_item_sk
++>        and item.i_manager_id = 1
++>        and dt.d_moy=11
++>        and dt.d_year=2002
++> group by       dt.d_year
++>                ,item.i_category_id
++>                ,item.i_category
++> order by       ss_ext_sales_price_sum,dt.d_year
++>                ,item.i_category_id
++>                ,item.i_category
++>limit 100 ;
+
+--- SQL command prepared.
+>>
+>>obey explains;
+>>explain options 'f' xx;
+
+LC   RC   OP   OPERATOR              OPT       DESCRIPTION           CARD
+---- ---- ---- --------------------  --------  --------------------  ---------
+
+12   .    13   root                                                  2.20E+001
+11   .    12   firstn                                                2.20E+001
+10   .    11   sort                                                  2.20E+001
+9    .    10   hash_partial_groupby                                  2.20E+001
+8    .    9    esp_exchange                    1:48(hash2)           2.20E+001
+7    .    8    hash_partial_groupby                                  2.20E+001
+6    2    7    hybrid_hash_join                                      6.05E+005
+5    4    6    hybrid_hash_join                                      4.67E+007
+.    .    5    orc_scan                        STORE_SALES_1STRIPEP  2.75E+009
+3    .    4    esp_exchange                    48(rep-b):2(hash2)    3.09E+001
+.    .    3    orc_scan                        DATE_DIM              3.09E+001
+1    .    2    esp_exchange                    48(rep-b):2(hash2)    4.44E+003
+.    .    1    orc_scan                        ITEM                  4.44E+003
+
+--- SQL operation complete.
+>>exit;
+
+End of MXCI Session
+

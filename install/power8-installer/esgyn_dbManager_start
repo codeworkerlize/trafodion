@@ -1,0 +1,7 @@
+#!/bin/bash
+
+TRAF_CONFIG=/etc/trafodion/trafodion_config
+
+source $TRAF_CONFIG
+
+sudo su $TRAF_USER --login --command "$TRAF_HOME/sql/scripts/mgblty_start"

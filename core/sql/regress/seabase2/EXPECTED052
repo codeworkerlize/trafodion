@@ -1,0 +1,1153 @@
+>>
+>>-- should not show any entries
+>>cleanup metadata, check, return details;
+Metadata Cleanup: started, check only
+
+  Start: Cleanup Orphan Objects Entries
+  End:   Cleanup Orphan Objects Entries (0 entries found)
+
+  Start: Cleanup Orphan Hbase Entries
+  End:   Cleanup Orphan Hbase Entries (0 entries found)
+
+  Start: Cleanup Inconsistent Objects Entries
+  End:   Cleanup Inconsistent Objects Entries (0 entries found)
+
+  Start: Cleanup Inconsistent Partitions Entries
+  End:   Cleanup Inconsistent Partitions Entries (0 entries found)
+
+  Start: Cleanup Inconsistent Views Entries
+  End:   Cleanup Inconsistent Views Entries (0 entries found)
+
+  Start: Cleanup Inconsistent Hive Entries
+  End:   Cleanup Inconsistent Hive Entries (0 entries found)
+
+  Start: Cleanup Inconsistent Privilege Entries
+  End:   Cleanup Inconsistent Privilege Entries (0 entries found)
+
+  Start: Cleanup Inconsistent User Group Entries
+  End:   Cleanup Inconsistent User Group Entries (0 entries found)
+
+  Start: Cleanup Inconsistent TEXT Entries
+  End:   Cleanup Inconsistent TEXT Entries (0 entries found)
+
+Metadata Cleanup: done
+
+
+--- SQL operation complete.
+>>
+>>drop schema if exists sch052 cascade;
+
+--- SQL operation complete.
+>>create schema sch052;
+
+--- SQL operation complete.
+>>drop schema if exists sch052inc cascade;
+
+--- SQL operation complete.
+>>create schema sch052inc incremental backup;
+
+--- SQL operation complete.
+>>set schema sch052;
+
+--- SQL operation complete.
+>>cqd traf_restore_parallel '1';
+
+--- SQL operation complete.
+>>
+>>---------------------------------
+>>-- test1 Alter table drop column
+>>---------------------------------
+>>drop table t1;
+
+*** ERROR[1389] Object TRAFODION.SCH052.T1 does not exist in Trafodion.
+
+--- SQL operation failed with errors.
+>>drop all backup snapshots, match 'tag052%';
+
+--- SQL operation complete.
+>>
+>>create table t1(a int no default not null primary key, b varchar(20),c3 int) 
++>   attribute incremental backup;
+
+--- SQL operation complete.
+>>insert into t1 values(1,'base',1),(2,'base',2);
+
+--- 2 row(s) inserted.
+>>select * from t1;
+
+A            B                     C3         
+-----------  --------------------  -----------
+
+          1  base                            1
+          2  base                            2
+
+--- 2 row(s) selected.
+>>--regular backup for table
+>>backup trafodion, tag 'tag052_reg', tables(t1),override;
+
+--- SQL operation complete.
+>>
+>>--inc1: alter drop
+>>alter table t1 drop column c3;
+
+--- SQL operation complete.
+>>insert into t1 values(3,'inc1');
+
+--- 1 row(s) inserted.
+>>select * from t1;
+
+A            B                   
+-----------  --------------------
+
+          1  base                
+          2  base                
+          3  inc1                
+
+--- 3 row(s) selected.
+>>
+>>--incbk1, t1t2
+>>backup trafodion, tag 'tag052_incr', tables(t1), incremental,override;
+
+--- SQL operation complete.
+>>
+>>drop table t1 cascade;
+
+--- SQL operation complete.
+>>--restore incbk1
+>>restore trafodion, tag 'tag052_incr';
+
+--- SQL operation complete.
+>>
+>>--Expect (1,'base'), (2,'base'), (3,'inc1')
+>>select * from t1;
+
+A            B                   
+-----------  --------------------
+
+          1  base                
+          2  base                
+          3  inc1                
+
+--- 3 row(s) selected.
+>>
+>>---------------------------------------------------------------
+>>-- test1a Alter table drop column , start with reg table first
+>>-------------------------------------------------------------
+>>drop table t1;
+
+--- SQL operation complete.
+>>drop all backup snapshots, match 'tag052%';
+
+--- SQL operation complete.
+>>
+>>create table t1(a int no default not null primary key, b varchar(20),c3 int);
+
+--- SQL operation complete.
+>>
+>>insert into t1 values(1,'base',1),(2,'base',2);
+
+--- 2 row(s) inserted.
+>>select * from t1;
+
+A            B                     C3         
+-----------  --------------------  -----------
+
+          1  base                            1
+          2  base                            2
+
+--- 2 row(s) selected.
+>>--regular backup for table
+>>backup trafodion, tag 'tag052_reg', tables(t1),override;
+
+--- SQL operation complete.
+>>
+>>--inc1: alter drop
+>>alter table t1 drop column c3;
+
+--- SQL operation complete.
+>>alter table t1 attribute incremental backup;
+
+--- SQL operation complete.
+>>
+>>insert into t1 values(3,'inc1');
+
+--- 1 row(s) inserted.
+>>select * from t1;
+
+A            B                   
+-----------  --------------------
+
+          1  base                
+          2  base                
+          3  inc1                
+
+--- 3 row(s) selected.
+>>
+>>--incbk1, t1t2
+>>backup trafodion, tag 'tag052_incr', tables(t1), incremental,override;
+
+--- SQL operation complete.
+>>
+>>drop table t1 cascade;
+
+--- SQL operation complete.
+>>--restore incbk1
+>>restore trafodion, tag 'tag052_incr';
+
+--- SQL operation complete.
+>>
+>>--Expect (1,'base'), (2,'base'), (3,'inc1')
+>>select * from t1;
+
+A            B                   
+-----------  --------------------
+
+          1  base                
+          2  base                
+          3  inc1                
+
+--- 3 row(s) selected.
+>>
+>>------------------------------------------
+>>-- test2 Alter table incremental attribute
+>>------------------------------------------
+>>drop table t1;
+
+--- SQL operation complete.
+>>drop all backup snapshots, match 'tag052%';
+
+--- SQL operation complete.
+>>
+>>create table t1(a int no default not null primary key, b varchar(20),c3 int);
+
+--- SQL operation complete.
+>>insert into t1 values(1,'base',1),(2,'base',2);
+
+--- 2 row(s) inserted.
+>>select * from t1;
+
+A            B                     C3         
+-----------  --------------------  -----------
+
+          1  base                            1
+          2  base                            2
+
+--- 2 row(s) selected.
+>>--regular backup for table
+>>backup trafodion, tag 'tag052_reg', tables(t1),override;
+
+--- SQL operation complete.
+>>
+>>insert into t1 values(3,'base1',3),(4,'base1',4);
+
+--- 2 row(s) inserted.
+>>
+>>--inc1: alter attribute incremental backup
+>>alter table t1 attribute incremental backup;
+
+--- SQL operation complete.
+>>insert into t1 values(5,'inc1', 5);
+
+--- 1 row(s) inserted.
+>>select * from t1;
+
+A            B                     C3         
+-----------  --------------------  -----------
+
+          1  base                            1
+          2  base                            2
+          3  base1                           3
+          4  base1                           4
+          5  inc1                            5
+
+--- 5 row(s) selected.
+>>
+>>--incbk1, t1t2
+>>backup trafodion, tag 'tag052_incr', tables(t1), incremental,override;
+
+--- SQL operation complete.
+>>
+>>drop table t1 cascade;
+
+--- SQL operation complete.
+>>--restore incbk1
+>>restore trafodion, tag 'tag052_incr';
+
+--- SQL operation complete.
+>>
+>>--Expect (1,'base',1),(2,'base',2),(3,'base1',3),(4,'base1',4);(5,'inc1', 5);
+>>select * from t1;
+
+A            B                     C3         
+-----------  --------------------  -----------
+
+          1  base                            1
+          2  base                            2
+          3  base1                           3
+          4  base1                           4
+          5  inc1                            5
+
+--- 5 row(s) selected.
+>>
+>>--------------------------------------------------------------------
+>>-- test2a Alter table incremental attribute, no reg backup, only incr 
+>>--------------------------------------------------------------------
+>>drop table t1;
+
+--- SQL operation complete.
+>>drop all backup snapshots, match 'tag052%';
+
+--- SQL operation complete.
+>>
+>>--//this one needed to make sure there are no matching snapshots from
+>>--//internal old backups.
+>>drop all backup snapshots;
+
+--- SQL operation complete.
+>>
+>>create table t1(a int no default not null primary key, b varchar(20),c3 int);
+
+--- SQL operation complete.
+>>insert into t1 values(1,'base',1),(2,'base',2);
+
+--- 2 row(s) inserted.
+>>select * from t1;
+
+A            B                     C3         
+-----------  --------------------  -----------
+
+          1  base                            1
+          2  base                            2
+
+--- 2 row(s) selected.
+>>
+>>--NO regular backup for table
+>>--backup trafodion, tag 'tag052_reg', tables(t1),override;
+>>
+>>insert into t1 values(3,'base1',3),(4,'base1',4);
+
+--- 2 row(s) inserted.
+>>
+>>--inc1: alter attribute incremental backup
+>>alter table t1 attribute incremental backup;
+
+--- SQL operation complete.
+>>insert into t1 values(5,'inc1', 5);
+
+--- 1 row(s) inserted.
+>>select * from t1;
+
+A            B                     C3         
+-----------  --------------------  -----------
+
+          1  base                            1
+          2  base                            2
+          3  base1                           3
+          4  base1                           4
+          5  inc1                            5
+
+--- 5 row(s) selected.
+>>
+>>--incbk1, t1t2
+>>backup trafodion, tag 'tag052_incr', tables(t1), incremental,override;
+
+--- SQL operation complete.
+>>
+>>drop table t1 cascade;
+
+--- SQL operation complete.
+>>--restore incbk1
+>>restore trafodion, tag 'tag052_incr';
+
+--- SQL operation complete.
+>>
+>>--Expect (1,'base',1),(2,'base',2),(3,'base1',3),(4,'base1',4);(5,'inc1', 5);
+>>select * from t1;
+
+A            B                     C3         
+-----------  --------------------  -----------
+
+          1  base                            1
+          2  base                            2
+          3  base1                           3
+          4  base1                           4
+          5  inc1                            5
+
+--- 5 row(s) selected.
+>>
+>>
+>>--------------------------------------------------------------------
+>>-- test2b Alter table incremental attribute to regular 
+>>--------------------------------------------------------------------
+>>drop table t1;
+
+--- SQL operation complete.
+>>drop all backup snapshots, match 'tag052%';
+
+--- SQL operation complete.
+>>
+>>create table t1(a int no default not null primary key, b varchar(20),c3 int)
++>   attribute incremental backup;
+
+--- SQL operation complete.
+>>insert into t1 values(1,'base',1),(2,'base',2);
+
+--- 2 row(s) inserted.
+>>select * from t1;
+
+A            B                     C3         
+-----------  --------------------  -----------
+
+          1  base                            1
+          2  base                            2
+
+--- 2 row(s) selected.
+>>
+>>--regular backup for table
+>>backup trafodion, tag 'tag052_reg', tables(t1),override;
+
+--- SQL operation complete.
+>>
+>>insert into t1 values(3,'base1',3),(4,'base1',4);
+
+--- 2 row(s) inserted.
+>>
+>>--inc1: alter attribute incremental backup
+>>alter table t1 attribute no incremental backup;
+
+--- SQL operation complete.
+>>insert into t1 values(5,'inc1', 5);
+
+--- 1 row(s) inserted.
+>>select * from t1;
+
+A            B                     C3         
+-----------  --------------------  -----------
+
+          1  base                            1
+          2  base                            2
+          3  base1                           3
+          4  base1                           4
+          5  inc1                            5
+
+--- 5 row(s) selected.
+>>
+>>--incbk1, t1t2
+>>backup trafodion, tag 'tag052_incr', tables(t1), incremental,override;
+
+--- SQL operation complete.
+>>
+>>drop table t1 cascade;
+
+--- SQL operation complete.
+>>--restore incbk1
+>>restore trafodion, tag 'tag052_incr';
+
+--- SQL operation complete.
+>>
+>>--Expect (1,'base',1),(2,'base',2),(3,'base1',3),(4,'base1',4);(5,'inc1', 5);
+>>select * from t1;
+
+A            B                     C3         
+-----------  --------------------  -----------
+
+          1  base                            1
+          2  base                            2
+          3  base1                           3
+          4  base1                           4
+          5  inc1                            5
+
+--- 5 row(s) selected.
+>>
+>>
+>>
+>>--------------------------------------------------------------------
+>>-- test3 Alter table add column 
+>>--------------------------------------------------------------------
+>>drop table t1;
+
+--- SQL operation complete.
+>>drop all backup snapshots, match 'tag052%';
+
+--- SQL operation complete.
+>>
+>>create table t1(a int no default not null primary key, b varchar(20));
+
+--- SQL operation complete.
+>>
+>>insert into t1 values(1,'base'),(2,'base');
+
+--- 2 row(s) inserted.
+>>select * from t1;
+
+A            B                   
+-----------  --------------------
+
+          1  base                
+          2  base                
+
+--- 2 row(s) selected.
+>>--regular backup for table
+>>backup trafodion, tag 'tag052_reg', tables(t1),override;
+
+--- SQL operation complete.
+>>
+>>--inc1: alter add column
+>>alter table t1  add column c3 int;
+
+--- SQL operation complete.
+>>alter table t1 attribute incremental backup;
+
+--- SQL operation complete.
+>>
+>>insert into t1 values(3,'inc1',3);
+
+--- 1 row(s) inserted.
+>>select * from t1;
+
+A            B                     C3         
+-----------  --------------------  -----------
+
+          1  base                            ?
+          2  base                            ?
+          3  inc1                            3
+
+--- 3 row(s) selected.
+>>
+>>--incbk1, t1t2
+>>backup trafodion, tag 'tag052_incr', tables(t1), incremental,override;
+
+--- SQL operation complete.
+>>
+>>drop table t1 cascade;
+
+--- SQL operation complete.
+>>--restore incbk1
+>>restore trafodion, tag 'tag052_incr';
+
+--- SQL operation complete.
+>>
+>>--Expect (1,'base'), (2,'base'), (3,'inc1',3)
+>>select * from t1;
+
+A            B                     C3         
+-----------  --------------------  -----------
+
+          1  base                            ?
+          2  base                            ?
+          3  inc1                            3
+
+--- 3 row(s) selected.
+>>
+>>
+>>--------------------------------------------------------------------
+>>-- test4 Alter table alter column datatype 
+>>--------------------------------------------------------------------
+>>drop table t1;
+
+--- SQL operation complete.
+>>drop all backup snapshots, match 'tag052%';
+
+--- SQL operation complete.
+>>
+>>create table t1(a int no default not null primary key, b varchar(20), c3 int);
+
+--- SQL operation complete.
+>>
+>>insert into t1 values(1,'base', 1),(2,'base', 2);
+
+--- 2 row(s) inserted.
+>>select * from t1;
+
+A            B                     C3         
+-----------  --------------------  -----------
+
+          1  base                            1
+          2  base                            2
+
+--- 2 row(s) selected.
+>>--regular backup for table
+>>backup trafodion, tag 'tag052_reg', tables(t1),override;
+
+--- SQL operation complete.
+>>
+>>--inc1: alter add column
+>>alter table t1 alter column c3 largeint;
+
+--- SQL operation complete.
+>>alter table t1 attribute incremental backup;
+
+--- SQL operation complete.
+>>
+>>insert into t1 values(3,'inc1',3);
+
+--- 1 row(s) inserted.
+>>select * from t1;
+
+A            B                     C3                  
+-----------  --------------------  --------------------
+
+          1  base                                     1
+          2  base                                     2
+          3  inc1                                     3
+
+--- 3 row(s) selected.
+>>
+>>--incbk1, t1t2
+>>backup trafodion, tag 'tag052_incr', tables(t1), incremental,override;
+
+--- SQL operation complete.
+>>
+>>drop table t1 cascade;
+
+--- SQL operation complete.
+>>--restore incbk1
+>>restore trafodion, tag 'tag052_incr';
+
+--- SQL operation complete.
+>>
+>>--Expect (1,'base',1),(2,'base',2),(3,'base1',3)
+>>select * from t1;
+
+A            B                     C3                  
+-----------  --------------------  --------------------
+
+          1  base                                     1
+          2  base                                     2
+          3  inc1                                     3
+
+--- 3 row(s) selected.
+>>
+>>--------------------------------------------------------------------
+>>-- test5 drop and create same table between two incremental bkps 
+>>--------------------------------------------------------------------
+>>drop table t1;
+
+--- SQL operation complete.
+>>drop all backup snapshots, match 'tag052%';
+
+--- SQL operation complete.
+>>
+>>--regular backup for table
+>>create table t1(a int no default not null primary key, b varchar(20), c3 int)
++>    attribute incremental backup;
+
+--- SQL operation complete.
+>>insert into t1 values(1,'base', 1),(2,'base', 2);
+
+--- 2 row(s) inserted.
+>>backup trafodion, tag 'tag052_reg', tables(t1),override;
+
+--- SQL operation complete.
+>>
+>>--inc1
+>>insert into t1 values(3,'inc1',3);
+
+--- 1 row(s) inserted.
+>>backup trafodion, tag 'tag052_incr', tables(t1), incremental,override;
+
+--- SQL operation complete.
+>>
+>>--drop and recreate
+>>drop table t1 cascade;
+
+--- SQL operation complete.
+>>create table t1(a int no default not null primary key, b varchar(20), c3 int)
++>    attribute incremental backup;
+
+--- SQL operation complete.
+>>insert into t1 values(4,'inc1',4);
+
+--- 1 row(s) inserted.
+>>backup trafodion, tag 'tag052_incr', tables(t1), incremental,override;
+
+--- SQL operation complete.
+>>
+>>--inc2 
+>>insert into t1 values(5,'inc1',5);
+
+--- 1 row(s) inserted.
+>>backup trafodion, tag 'tag052_incr', tables(t1), incremental,override;
+
+--- SQL operation complete.
+>>select * from t1;
+
+A            B                     C3         
+-----------  --------------------  -----------
+
+          4  inc1                            4
+          5  inc1                            5
+
+--- 2 row(s) selected.
+>>
+>>--restore inc
+>>restore trafodion, tag 'tag052_incr';
+
+--- SQL operation complete.
+>>
+>>--Expect (4,'inc1',4),(5,'inc1',5)
+>>select * from t1;
+
+A            B                     C3         
+-----------  --------------------  -----------
+
+          4  inc1                            4
+          5  inc1                            5
+
+--- 2 row(s) selected.
+>>
+>>--------------------------------------------------------------------
+>>-- test6 Alter table rename and alter add column 
+>>--------------------------------------------------------------------
+>>drop table t1;
+
+--- SQL operation complete.
+>>drop table tadd;
+
+*** ERROR[1389] Object TRAFODION.SCH052.TADD does not exist in Trafodion.
+
+--- SQL operation failed with errors.
+>>drop all backup snapshots, match 'tag052%';
+
+--- SQL operation complete.
+>>
+>>create table t1(a int no default not null primary key, b varchar(20), c3 int)
++>       attribute incremental backup;
+
+--- SQL operation complete.
+>>
+>>insert into t1 values(1,'base', 1),(2,'base', 2);
+
+--- 2 row(s) inserted.
+>>select * from t1;
+
+A            B                     C3         
+-----------  --------------------  -----------
+
+          1  base                            1
+          2  base                            2
+
+--- 2 row(s) selected.
+>>--regular backup for table
+>>backup trafodion, tag 'tag052_reg', tables(t1),override;
+
+--- SQL operation complete.
+>>
+>>--alter
+>>alter table t1 rename to tadd;
+
+--- SQL operation complete.
+>>alter table tadd add column d1 varchar(10);
+
+--- SQL operation complete.
+>>
+>>insert into tadd values(3,'inc1',3, 'test');
+
+--- 1 row(s) inserted.
+>>select * from tadd;
+
+A            B                     C3           D1        
+-----------  --------------------  -----------  ----------
+
+          1  base                            1  ?         
+          2  base                            2  ?         
+          3  inc1                            3  test      
+
+--- 3 row(s) selected.
+>>
+>>--incbk
+>>backup trafodion, tag 'tag052_incr', tables(tadd), incremental,override,show objects;
+
+MetaData Objects
+================
+
+TRAF_RSRVD_3:TRAFODION."_BACKUP_tag052_incr_".COLUMNS
+TRAF_RSRVD_3:TRAFODION."_BACKUP_tag052_incr_".INDEXES
+TRAF_RSRVD_3:TRAFODION."_BACKUP_tag052_incr_".KEYS
+TRAF_RSRVD_3:TRAFODION."_BACKUP_tag052_incr_".LIBRARIES
+TRAF_RSRVD_3:TRAFODION."_BACKUP_tag052_incr_".LOBCHUNKS__03259732645935935205
+TRAF_RSRVD_3:TRAFODION."_BACKUP_tag052_incr_".LIBRARIES_USAGE
+TRAF_RSRVD_3:TRAFODION."_BACKUP_tag052_incr_".LOB_COLUMNS
+TRAF_RSRVD_3:TRAFODION."_BACKUP_tag052_incr_".OBJECTS
+TRAF_RSRVD_3:TRAFODION."_BACKUP_tag052_incr_".REF_CONSTRAINTS
+TRAF_RSRVD_3:TRAFODION."_BACKUP_tag052_incr_".ROUTINES
+TRAF_RSRVD_3:TRAFODION."_BACKUP_tag052_incr_".SEQ_GEN
+TRAF_RSRVD_3:TRAFODION."_BACKUP_tag052_incr_".TABLES
+TRAF_RSRVD_3:TRAFODION."_BACKUP_tag052_incr_".TABLE_CONSTRAINTS
+TRAF_RSRVD_3:TRAFODION."_BACKUP_tag052_incr_".TEXT
+TRAF_RSRVD_3:TRAFODION."_BACKUP_tag052_incr_".UNIQUE_REF_CONSTR_USAGE
+TRAF_RSRVD_3:TRAFODION."_BACKUP_tag052_incr_".VIEWS
+TRAF_RSRVD_3:TRAFODION."_BACKUP_tag052_incr_".VIEWS_USAGE
+TRAF_RSRVD_3:TRAFODION."_BACKUP_tag052_incr_".COLUMN_PRIVILEGES
+TRAF_RSRVD_3:TRAFODION."_BACKUP_tag052_incr_".OBJECT_PRIVILEGES
+TRAF_RSRVD_3:TRAFODION."_BACKUP_tag052_incr_".SCHEMA_PRIVILEGES
+TRAF_RSRVD_3:TRAFODION."_BACKUP_tag052_incr_".SB_HISTOGRAMS
+TRAF_RSRVD_3:TRAFODION."_BACKUP_tag052_incr_".SB_HISTOGRAM_INTERVALS
+TRAF_RSRVD_3:TRAFODION."_BACKUP_tag052_incr_".SB_PERSISTENT_SAMPLES
+
+User objects
+============
+
+TABLE:   TRAF_regr:TRAFODION.SCH052.SB_HISTOGRAMS
+TABLE:   TRAF_regr:TRAFODION.SCH052.SB_HISTOGRAM_INTERVALS
+TABLE:   TRAF_regr:TRAFODION.SCH052.SB_PERSISTENT_SAMPLES
+TABLE:   TRAF_regr:TRAFODION.SCH052.TADD
+
+Backup Stats
+============
+  Total:     27
+  Metadata:  23
+  Tables:    4
+
+
+--- SQL operation complete.
+>>backup trafodion, tag 'tag052_incr', tables(tadd), incremental,override;
+
+--- SQL operation complete.
+>>
+>>drop table tadd cascade;
+
+--- SQL operation complete.
+>>
+>>--restore incbk1
+>>restore trafodion, tag 'tag052_incr', show objects;
+
+MetaData Objects
+================
+
+TRAF_RSRVD_3:TRAFODION."_BACKUP_tag052_incr_".COLUMNS
+TRAF_RSRVD_3:TRAFODION."_BACKUP_tag052_incr_".COLUMN_PRIVILEGES
+TRAF_RSRVD_3:TRAFODION."_BACKUP_tag052_incr_".INDEXES
+TRAF_RSRVD_3:TRAFODION."_BACKUP_tag052_incr_".KEYS
+TRAF_RSRVD_3:TRAFODION."_BACKUP_tag052_incr_".LIBRARIES
+TRAF_RSRVD_3:TRAFODION."_BACKUP_tag052_incr_".LIBRARIES_USAGE
+TRAF_RSRVD_3:TRAFODION."_BACKUP_tag052_incr_".LOBCHUNKS__04229132470807953089
+TRAF_RSRVD_3:TRAFODION."_BACKUP_tag052_incr_".LOB_COLUMNS
+TRAF_RSRVD_3:TRAFODION."_BACKUP_tag052_incr_".OBJECTS
+TRAF_RSRVD_3:TRAFODION."_BACKUP_tag052_incr_".OBJECT_PRIVILEGES
+TRAF_RSRVD_3:TRAFODION."_BACKUP_tag052_incr_".REF_CONSTRAINTS
+TRAF_RSRVD_3:TRAFODION."_BACKUP_tag052_incr_".ROUTINES
+TRAF_RSRVD_3:TRAFODION."_BACKUP_tag052_incr_".SB_HISTOGRAMS
+TRAF_RSRVD_3:TRAFODION."_BACKUP_tag052_incr_".SB_HISTOGRAM_INTERVALS
+TRAF_RSRVD_3:TRAFODION."_BACKUP_tag052_incr_".SB_PERSISTENT_SAMPLES
+TRAF_RSRVD_3:TRAFODION."_BACKUP_tag052_incr_".SCHEMA_PRIVILEGES
+TRAF_RSRVD_3:TRAFODION."_BACKUP_tag052_incr_".SEQ_GEN
+TRAF_RSRVD_3:TRAFODION."_BACKUP_tag052_incr_".TABLES
+TRAF_RSRVD_3:TRAFODION."_BACKUP_tag052_incr_".TABLE_CONSTRAINTS
+TRAF_RSRVD_3:TRAFODION."_BACKUP_tag052_incr_".TEXT
+TRAF_RSRVD_3:TRAFODION."_BACKUP_tag052_incr_".UNIQUE_REF_CONSTR_USAGE
+TRAF_RSRVD_3:TRAFODION."_BACKUP_tag052_incr_".VIEWS
+TRAF_RSRVD_3:TRAFODION."_BACKUP_tag052_incr_".VIEWS_USAGE
+
+User objects
+============
+
+TABLE:   TRAF_regr:TRAFODION.SCH052.SB_HISTOGRAMS
+TABLE:   TRAF_regr:TRAFODION.SCH052.SB_HISTOGRAM_INTERVALS
+TABLE:   TRAF_regr:TRAFODION.SCH052.SB_PERSISTENT_SAMPLES
+TABLE:   TRAF_regr:TRAFODION.SCH052.TADD
+
+Restore Stats
+=============
+  Total:     27
+  Metadata:  23
+  Tables:    4
+
+
+--- SQL operation complete.
+>>restore trafodion, tag 'tag052_incr';
+
+--- SQL operation complete.
+>>
+>>--Expect (1,'base',1),(2,'base',2),(3,'base1',3, 'test')
+>>select * from tadd;
+
+A            B                     C3           D1        
+-----------  --------------------  -----------  ----------
+
+          1  base                            1  ?         
+          2  base                            2  ?         
+          3  inc1                            3  test      
+
+--- 3 row(s) selected.
+>>alter table tadd rename to t1;
+
+--- SQL operation complete.
+>>
+>>----------------------------------------------
+>>-- teste1 Error inject tests
+>>----------------------------------------------
+>>drop table t1;
+
+--- SQL operation complete.
+>>drop all backup snapshots, match 'tag052%';
+
+--- SQL operation complete.
+>>
+>>set envvar BACKUP_ERR_INJECT_BEFORE_HIATUS;
+
+--- SQL operation complete.
+>>
+>>create table t1(a int no default not null primary key, b varchar(20),c3 int) 
++>   attribute incremental backup;
+
+--- SQL operation complete.
+>>
+>>alter table t1 drop column c3;
+
+*** ERROR[5050] This command could not be completed. Error injected at BACKUP_ERR_INJECT_BEFORE_HIATUS.
+
+--- SQL operation failed with errors.
+>>alter table t1 add column c4 int;
+
+*** ERROR[5050] This command could not be completed. Error injected at BACKUP_ERR_INJECT_BEFORE_HIATUS.
+
+--- SQL operation failed with errors.
+>>alter table t1 alter column c3 largeint;
+
+*** ERROR[5050] This command could not be completed. Error injected at BACKUP_ERR_INJECT_BEFORE_HIATUS.
+
+--- SQL operation failed with errors.
+>>alter table t1 rename to t2;
+
+*** ERROR[5050] This command could not be completed. Error injected at BACKUP_ERR_INJECT_BEFORE_HIATUS.
+
+--- SQL operation failed with errors.
+>>alter table t1 attribute no incremental backup;
+
+*** ERROR[5050] This command could not be completed. Error injected at BACKUP_ERR_INJECT_BEFORE_HIATUS.
+
+*** ERROR[5050] This command could not be completed. Error injected at BACKUP_ERR_INJECT_BEFORE_HIATUS.
+
+--- SQL operation failed with errors.
+>>
+>>reset envvar BACKUP_ERR_INJECT_BEFORE_HIATUS;
+
+--- SQL operation complete.
+>>
+>>
+>>--------------------------------------------
+>>--teste2 clearHiatus test
+>>--------------------------------------------
+>>drop table t1;
+
+--- SQL operation complete.
+>>drop all backup snapshots, match 'tag052%';
+
+--- SQL operation complete.
+>>
+>>create table t1(a int no default not null primary key, b varchar(20),c3 int)
++>   attribute incremental backup;
+
+--- SQL operation complete.
+>>
+>>--alter drop of non existing column causes setHiatus and clearhiatus to unwind.
+>>alter table t1 drop column xyz;
+
+*** ERROR[1009] Column XYZ does not exist in the specified table.
+
+--- SQL operation failed with errors.
+>>
+>>------------------------------------------------------------------
+>>-- teste2 hiatus test that require internal handling of warning
+>>-----------------------------------------------------------------
+>>drop table t1;
+
+--- SQL operation complete.
+>>drop all backup snapshots, match 'tag052%';
+
+--- SQL operation complete.
+>>
+>>-- drop table after all backups deleted.
+>>create table t1(a int no default not null primary key, b varchar(20),c3 int) 
++>   attribute incremental backup;
+
+--- SQL operation complete.
+>>backup trafodion, tag 'tag052_reg', tables(t1),override;
+
+--- SQL operation complete.
+>>drop backup snapshot , tag 'tag052_reg';
+
+--- SQL operation complete.
+>>drop table t1;
+
+--- SQL operation complete.
+>>
+>>
+>>-- alter rename many times.
+>>create table t1(a int no default not null primary key, b varchar(20),c3 int) 
++>   attribute incremental backup;
+
+--- SQL operation complete.
+>>alter table t1 rename to t2;
+
+--- SQL operation complete.
+>>alter table t2 rename to t3;
+
+--- SQL operation complete.
+>>alter table t3 rename to t1;
+
+--- SQL operation complete.
+>>
+>>--  Test case for Mantis-7546
+>>set schema sch052inc;
+
+--- SQL operation complete.
+>>create table test1(
++>cno     varchar(3)       not null,
++>cname   varchar(22)      not null,
++>cdescp  varchar(25)      not null,
++>cred    int,
++>clabfee numeric(5,2),
++>cdept   varchar(4)       not null
++>) attribute incremental backup;
+
+--- SQL operation complete.
+>>
+>>insert into test1 values
++>('C11', 'INTRO TO CS','FOR ROOKIES',3, 100, 'CIS');
+
+--- 1 row(s) inserted.
+>>insert into test1 values
++>('C22', 'DATA STRUCTURES','VERY USEFUL',3, 50, 'CIS');
+
+--- 1 row(s) inserted.
+>>backup trafodion, tag 'tag052_reg', table(test1),incremental,override;
+
+--- SQL operation complete.
+>>
+>>insert into test1 values
++>('P11', 'EMPIRICISM','SEE IT-BELIEVE IT',3, 100, 'PHIL');
+
+--- 1 row(s) inserted.
+>>
+>>select * from test1;
+
+CNO  CNAME                   CDESCP                     CRED         CLABFEE       CDEPT
+---  ----------------------  -------------------------  -----------  ------------  -----
+
+C11  INTRO TO CS             FOR ROOKIES                          3           100  CIS  
+C22  DATA STRUCTURES         VERY USEFUL                          3            50  CIS  
+P11  EMPIRICISM              SEE IT-BELIEVE IT                    3           100  PHIL 
+
+--- 3 row(s) selected.
+>>backup trafodion, tag 'tag052_ovrd', table(test1),incremental,override;
+
+--- SQL operation complete.
+>>
+>>-- Override the same tag, but backup the entire schema and REGULAR backup
+>>-- This override will delete the previous incremental backup, leaving
+>>-- the associated mutations unattached because this backup is regular
+>>backup trafodion, tag 'tag052_ovrd', schema(rep123sch),override;
+
+*** ERROR[4082] Object TRAFODION.REP123SCH does not exist or is inaccessible.
+
+--- SQL operation failed with errors.
+>>
+>>insert into test1 values
++>('P22', 'RATIONALISM','FOR CIS MAJORS',3, 50, 'PHIL');
+
+--- 1 row(s) inserted.
+>>select * from test1;
+
+CNO  CNAME                   CDESCP                     CRED         CLABFEE       CDEPT
+---  ----------------------  -------------------------  -----------  ------------  -----
+
+C11  INTRO TO CS             FOR ROOKIES                          3           100  CIS  
+C22  DATA STRUCTURES         VERY USEFUL                          3            50  CIS  
+P11  EMPIRICISM              SEE IT-BELIEVE IT                    3           100  PHIL 
+P22  RATIONALISM             FOR CIS MAJORS                       3            50  PHIL 
+
+--- 4 row(s) selected.
+>>
+>>backup trafodion, tag 'tag052_ovrd', table(test1),incremental,override;
+
+--- SQL operation complete.
+>>delete from test1;
+
+--- 4 row(s) deleted.
+>>
+>>-- Make sure the deletes are still excluded from the restore.
+>>restore trafodion, tag 'tag052_ovrd';
+
+--- SQL operation complete.
+>>select * from test1;
+
+CNO  CNAME                   CDESCP                     CRED         CLABFEE       CDEPT
+---  ----------------------  -------------------------  -----------  ------------  -----
+
+C11  INTRO TO CS             FOR ROOKIES                          3           100  CIS  
+C22  DATA STRUCTURES         VERY USEFUL                          3            50  CIS  
+P11  EMPIRICISM              SEE IT-BELIEVE IT                    3           100  PHIL 
+P22  RATIONALISM             FOR CIS MAJORS                       3            50  PHIL 
+
+--- 4 row(s) selected.
+>>
+>>--------------------------------------------
+>>--END
+>>--------------------------------------------
+>>
+>>-- there should not be any locks.
+>>get all locked objects;
+
+--- SQL operation complete.
+>>
+>>-- should not be any orphans in metadata at this point
+>>cleanup metadata, check, return details;
+Metadata Cleanup: started, check only
+
+  Start: Cleanup Orphan Objects Entries
+  End:   Cleanup Orphan Objects Entries (0 entries found)
+
+  Start: Cleanup Orphan Hbase Entries
+  End:   Cleanup Orphan Hbase Entries (0 entries found)
+
+  Start: Cleanup Inconsistent Objects Entries
+  End:   Cleanup Inconsistent Objects Entries (0 entries found)
+
+  Start: Cleanup Inconsistent Partitions Entries
+  End:   Cleanup Inconsistent Partitions Entries (0 entries found)
+
+  Start: Cleanup Inconsistent Views Entries
+  End:   Cleanup Inconsistent Views Entries (0 entries found)
+
+  Start: Cleanup Inconsistent Hive Entries
+  End:   Cleanup Inconsistent Hive Entries (0 entries found)
+
+  Start: Cleanup Inconsistent Privilege Entries
+  End:   Cleanup Inconsistent Privilege Entries (0 entries found)
+
+  Start: Cleanup Inconsistent User Group Entries
+  End:   Cleanup Inconsistent User Group Entries (0 entries found)
+
+  Start: Cleanup Inconsistent TEXT Entries
+  End:   Cleanup Inconsistent TEXT Entries (0 entries found)
+
+Metadata Cleanup: done
+
+
+--- SQL operation complete.
+>>
+>>get all backup snapshots, match 'test052%';
+
+--- SQL operation complete.
+>>get all backup tags, show details, match 'test052%';
+
+--- SQL operation complete.
+>>drop all backup snapshots, match 'test052%';
+
+--- SQL operation complete.
+>>get all backup tags, show details, match 'test052%';
+
+--- SQL operation complete.
+>>get all backup metadata, match 'test052%';
+
+--- SQL operation complete.
+>>drop all backup snapshots, match 'tag052%';
+
+--- SQL operation complete.
+>>get all backup snapshots, match 'tag052%';
+
+--- SQL operation complete.
+>>
+>>log;

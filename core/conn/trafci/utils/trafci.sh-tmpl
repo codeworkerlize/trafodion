@@ -1,0 +1,286 @@
+#!/bin/bash
+# @@@ START COPYRIGHT @@@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+# @@@ END COPYRIGHT @@@
+
+if [[ -r /etc/trafodion/conf/client_config ]]; then
+  source /etc/trafodion/conf/client_config
+elif [[ -z $TRAF_HOME ]]; then
+  echo "***Warning***: Missing TRAF_HOME in the environment. "
+fi
+
+#
+#  Classpath required for execution. Specifies the jar files containing
+#  the Trafodion JDBC T4 classes and the Trafodion Command Interface classes.
+#
+
+TRAFCI_CLASSPATH="##TRAFCI_CLASSPATH##"
+if [ -d "${TRAF_HOME}" ]; then
+  TRAFCI_CLASSPATH=
+  for jar_i in `ls ${TRAF_HOME}/trafci/lib/*.jar`;
+  do
+    TRAFCI_CLASSPATH=${TRAFCI_CLASSPATH}:${jar_i}
+  done
+fi
+export TRAFODION_VER_PROD="##prodver##"
+export PRODUCT_COPYRIGHT_HEADER="##copyrighthdr##"
+
+#  Internally used variables.
+#  Name of the main Trafodion Command Interface class.
+#
+UIMAINCLASS_NAME="org.trafodion.ci.UserInterface"
+
+
+#
+#  Name of this script and the number of arguments passed to this script.
+#
+SCRIPT_NAME=$0
+ARGS_CNT=$# 
+#echo "***DEBUG*** Script = $0 , Arguments passed = $@"
+
+
+#
+#  Query option and value specified by the user.
+#
+QUERY_OPTION=""
+QUERY_ARG=""
+
+
+#
+#  Command line parameter values to pass onto the entry-point/main UI class.
+#
+UIMAINCLASS_PARAMS=""
+DO_TRACE=""
+
+
+#
+#  Check if java is in the PATH (can be invoked).
+#
+#
+
+JAVAHOME=`echo $JAVA_HOME`
+if [ ! -x  "$JAVAHOME" ]; then
+   OSNAME=`uname -s`
+   if [ "$OSNAME" = "HP-UX" ]; then
+      JAVA_CMD=`whence java`
+   else
+      JAVA_CMD=`which java`
+   fi
+
+  if [ ! -x  "$JAVA_CMD" ]; then
+     echo "***Warning***: Missing JAVA_HOME in the environment. "
+     echo "               Please set JAVA_HOME "
+   fi
+else
+   PATH=$JAVAHOME/bin:$PATH
+   export PATH  
+fi
+
+#
+#  Loop thru' all the options passed to this script and check for -q and -sql
+#  and set QUERY_OPTION and QUERY_ARG values appropriately.
+#
+while [ $# -gt 0 ]; do  # {{
+   #  Convert to lower-case for -q|-sql checks.
+   OPT_VALUE=`echo $1 | tr 'A-Z' 'a-z'`
+
+   #  Check if its a -q or -sql option.
+   if [ "ci$OPT_VALUE" = "ci-q"  -o "ci$OPT_VALUE" = "ci-sql" ]; then # {{{
+
+      #
+      #  If -q or -sql was specified earlier -- we ignore it!!
+      #  Use the first -q or -sql option value. Same as old bash code.
+      #
+      #  *****TODO: Maybe we just use the last -q|-sql option value.
+      #
+      if [ -z "$QUERY_OPTION" ]; then  # {{{/{
+         #
+         #  Set QUERY_OPTION with the specified -q|-sql option and
+         #  move onto the next argument value
+         #
+         QUERY_OPTION=$1
+         shift;
+
+         #
+         #  Check if we have any more arguments and if so set QUERY_ARG.
+         #
+         if [ $# -gt 0 ]; then
+            QUERY_ARG=$1
+         fi
+      else
+
+         #
+         #  -q|-sql was already specified -- just add it to the UI MainClass
+         #  arguments for now.
+         #
+         #
+         UIMAINCLASS_PARAMS="$UIMAINCLASS_PARAMS $1"
+
+      fi  #  }}}} End of  IF  QUERY_OPTION was not already set.
+
+   else  
+
+      #
+      #  Its *not*  a -q|-sql option, so just add it to the UI MainClass
+      #  arguments.
+      #
+      if [ "ci$OPT_VALUE" = "ci-u"  -o "ci$OPT_VALUE" = "ci-user" ]; then
+         USER_ARG=$1
+         shift;
+         USER_OPTION="$1"
+      elif [ "ci$OPT_VALUE" = "ci-p"  -o "ci$OPT_VALUE" = "ci-password" ]; then
+         PASSWORD_ARG=$1
+         shift;
+         PASSWORD_OPTION="$1"
+      elif [ "ci$OPT_VALUE" = "ci-r"  -o "ci$OPT_VALUE" = "ci-role" ]; then
+         ROLE_ARG=$1
+         shift;
+         ROLE_VALUE=$1
+         UIMAINCLASS_PARAMS="$UIMAINCLASS_PARAMS $ROLE_ARG \"$ROLE_VALUE\""
+      elif [ "ci$OPT_VALUE" = "ci-t"  -o "ci$OPT_VALUE" = "ci-tenant" ]; then
+         TENANT_ARG=$1
+         shift;
+         TENANT_VALUE=$1
+      elif [ "ci$OPT_VALUE" = "ci-j"  -o "ci$OPT_VALUE" = "ci-jline" ]; then
+         JLINE_ARG=$1
+         shift;
+         JLINE_VALUE=$1
+      elif [ "ci$OPT_VALUE" = "ci-h"  -o "ci$OPT_VALUE" = "ci-host" ]; then
+         HOST_ARG=$1
+         shift;
+         HOST_VALUE=$1
+      elif [ "ci$OPT_VALUE" = "ci-d"  -o "ci$OPT_VALUE" = "ci-debug" ]; then
+         DO_TRACE="-Dtrafci.enableTrace=true"
+         shift;
+      else
+         UIMAINCLASS_PARAMS="$UIMAINCLASS_PARAMS $1"
+            
+      fi # End of check for user }}}}}}
+
+   fi  #  }}} End of  IF the option is -q or -sql.
+   shift
+done  #  }} End of WHILE there are more arguments.
+
+# Add default role argument -r ""
+if [ "ci$ROLE_ARG" = "ci" ]; then
+  UIMAINCLASS_PARAMS="$UIMAINCLASS_PARAMS -r \"\""
+fi
+
+#
+#  Set the jcmd_opts and invoke the java program.
+#  
+jcmd_opts="-classpath $TRAFCI_CLASSPATH $UIMAINCLASS_NAME $UIMAINCLASS_PARAMS "
+#echo "***DEBUG*** jcmd_opts = java $jcmd_opts $QUERY_OPTION \"$QUERY_ARG\" "
+
+if [[ -n "$USER_OPTION" ]]; then
+   jusercred_opts="$USER_ARG \"$USER_OPTION\""
+# elif [[ "$TRAFODION_ENABLE_AUTHENTICATION" == "NO" ]]; then
+#    jusercred_opts="-u \"db__root\""   # dummy user, since auth not enabled
+else
+   jusercred_opts=""   # none, defaults to linux user ID
+fi
+
+AUTH_TYPE=`grep "^[ 	]*TRAFODION_AUTHENTICATION_TYPE=.*" ${TRAF_VAR}/ms.env | tail -n 1 |awk '{split($1,n,"=");print n[2]}'`
+
+if [[ -n "$PASSWORD_ARG" ]]; then
+   jusercred_opts+=" $PASSWORD_ARG \"$PASSWORD_OPTION\""
+ elif [[ "${AUTH_TYPE}" == "SKIP_AUTHENTICATION" ]] || [[ "${AUTH_TYPE}" == "" ]]; then
+    jusercred_opts+=" -p \"db__root\""   # dummy pw
+# else 
+#   default is to use encrypted pw file or prompt for password
+fi
+
+extention_opts="$DO_TRACE"
+if [ ! -z "$TENANT_ARG" ]; then
+   extention_opts+=" -Dt4jdbc.tenantName=$TENANT_VALUE" 
+fi
+if [ ! -z "$JLINE_ARG" ]; then
+   extention_opts+=" -Djline=$JLINE_VALUE"
+else
+   extention_opts+=" -Djline=no"
+fi
+ 
+if [[ -n "$HOST_ARG" ]]; then
+   # explicit command line option
+   host_opts="$HOST_ARG \"$HOST_VALUE\""
+elif [[ -n "$DCS_MASTER_FLOATING_IP" ]]; then
+   # client config DCS HA
+   host_opts="-h ${DCS_MASTER_FLOATING_IP}:${DCS_MASTER_PORT:-23400}"
+elif [[ -n "$DCS_MASTER_QUORUM" ]]; then
+   # client config DCS non-HA
+   host_opts="-h ${DCS_MASTER_QUORUM}"
+elif [[ -r "$TRAF_CONF/dcs/dcs-env.sh" ]]; then
+   # no client config, check for DCS server config
+   source "$TRAF_CONF/dcs/dcs-env.sh"
+   if [[ -n "$DCS_MASTER_FLOATING_IP" ]]; then
+     host_opts="-h ${DCS_MASTER_FLOATING_IP}:${DCS_MASTER_PORT:-23400}"
+   elif [[ -s "$DCS_PRIMARY_MASTER" ]]; then
+     host_opts="-h $(< $DCS_PRIMARY_MASTER):${DCS_MASTER_PORT:-23400}"
+     if [[ -s "$DCS_BACKUP_MASTERS" ]]; then
+       while read backup_master; do
+         if [[ -n "$backup_master" ]]; then
+           host_opts+=",${backup_master}:${DCS_MASTER_PORT:-23400}"
+         fi
+       done < "$DCS_BACKUP_MASTERS"
+     fi
+   fi
+else
+   host_opts=""  # default is to prompt for host
+fi
+ 
+if [[ -n "$HOST_ARG" ]]; then
+   # explicit command line option
+   host_opts="$HOST_ARG \"$HOST_VALUE\""
+elif [[ -n "$DCS_MASTER_FLOATING_IP" ]]; then
+   # client config DCS HA
+   host_opts="-h ${DCS_MASTER_FLOATING_IP}:${DCS_MASTER_PORT:-23400}"
+elif [[ -n "$DCS_MASTER_QUORUM" ]]; then
+   # client config DCS non-HA
+   host_opts="-h ${DCS_MASTER_QUORUM}"
+elif [[ -r "$TRAF_CONF/dcs/dcs-env.sh" ]]; then
+   # no client config, check for DCS server config
+   source "$TRAF_CONF/dcs/dcs-env.sh"
+   if [[ -n "$DCS_MASTER_FLOATING_IP" ]]; then
+     host_opts="-h ${DCS_MASTER_FLOATING_IP}:${DCS_MASTER_PORT:-23400}"
+   elif [[ -s "$DCS_PRIMARY_MASTER" ]]; then
+     host_opts="-h $(< $DCS_PRIMARY_MASTER):${DCS_MASTER_PORT:-23400}"
+     if [[ -s "$DCS_BACKUP_MASTERS" ]]; then
+       while read backup_master; do
+         if [[ -n "$backup_master" ]]; then
+           host_opts+=",${backup_master}:${DCS_MASTER_PORT:-23400}"
+         fi
+       done < "$DCS_BACKUP_MASTERS"
+     fi
+   fi
+else
+   host_opts=""  # default is to prompt for host
+fi
+
+#echo "***DEBUG*** jusercred_opts = $jusercred_opts"
+#echo "***DEBUG*** extention_opts = $extention_opts"
+#echo "***DEBUG*** host_opts = $host_opts"
+#echo ""
+#echo "***DEBUG*** running command = java $extention_opts $jcmd_opts $host_opts $jusercred_opts $QUERY_OPTION \"$QUERY_ARG\"  "
+
+if [ ! -z "$QUERY_OPTION"  ]; then
+        eval java $extention_opts $jcmd_opts $host_opts $jusercred_opts $QUERY_OPTION \'"$QUERY_ARG"\'
+else
+        eval java $extention_opts $jcmd_opts $host_opts $jusercred_opts
+fi

@@ -1,0 +1,509 @@
+>>obey TEST054(create_auths1);
+>>-- ============================================================================
+>>register user henry;
+
+--- SQL operation complete.
+>>register user joe;
+
+--- SQL operation complete.
+>>register user mary;
+
+--- SQL operation complete.
+>>create role test054_role1;
+
+--- SQL operation complete.
+>>create role test054_role2;
+
+--- SQL operation complete.
+>>
+>>obey TEST054(create_db);
+>>-- ============================================================================
+>>-- Create 2 schemas - shared and public
+>>-- ============================================================================
+>>
+>>-- schema test054sch1
+>>--   henry owns shared schema 
+>>--   henry owns a tables
+>>--   mary owns some tables 
+>>--   mary has been granted privileges on table
+>>--   test054_role1 has schema privileges
+>>--   joe has privileges through role test054_role1
+>>create shared schema test054sch1 authorization henry;
+
+--- SQL operation complete.
+>>set schema test054sch1;
+
+--- SQL operation complete.
+>>create table t1 (a int not null primary key, b int) attribute by henry;
+
+--- SQL operation complete.
+>>create table t2 (a int, b int not null primary key) attribute by mary;
+
+--- SQL operation complete.
+>>insert into t1 values (1,1), (2,2), (3,3), (4,4), (5,5),(6,6);
+
+--- 6 row(s) inserted.
+>>insert into t2 values (2,1), (2,2), (2,3), (2,4), (2,5),(2,6);
+
+--- 6 row(s) inserted.
+>>grant select, insert on t1 to mary;
+
+--- SQL operation complete.
+>>grant select, insert on schema test054sch1 to test054_role1 by henry;
+
+--- SQL operation complete.
+>>grant role test054_role1 to joe;
+
+--- SQL operation complete.
+>>
+>>-- schema test054sch2
+>>--   test054_role2 owns private schema 
+>>--   henry has all privileges through role test054_role2
+>>--   mary and test054_role1 (and joe) have column privileges
+>>--   mary has sequence privileges
+>>--   joe has privileges on procedures and views
+>>create schema test054sch2 authorization test054_role2;
+
+--- SQL operation complete.
+>>set schema test054sch2;
+
+--- SQL operation complete.
+>>create table t1 (a int, b int);
+
+--- SQL operation complete.
+>>create table t2 (a int, b int);
+
+--- SQL operation complete.
+>>create view t1_v1 as select b from t1;
+
+--- SQL operation complete.
+>>insert into t1 values (3,1), (3,2), (3,3), (3,4), (3,5),(3,6);
+
+--- 6 row(s) inserted.
+>>insert into t2 values (4,1), (4,2), (4,3), (4,4), (4,5),(4,6);
+
+--- 6 row(s) inserted.
+>>create procedure p1(in a varchar(100), out b varchar(100)) as //
+begin
+  set b = 'Hello ' || b || '!';
+end//;
+
+--- SQL operation complete.
+>>create sequence test054_seq1;
+
+--- SQL operation complete.
+>>grant role test054_role2 to henry;
+
+--- SQL operation complete.
+>>grant select(a) on t1 to mary;
+
+--- SQL operation complete.
+>>grant select(b) on t2 to test054_role1;
+
+--- SQL operation complete.
+>>grant execute on procedure p1 to joe;
+
+--- SQL operation complete.
+>>grant select on t1_v1 to joe;
+
+--- SQL operation complete.
+>>grant usage on sequence test054_seq1 to mary;
+
+--- SQL operation complete.
+>>
+>>obey TEST054(display_db);
+>>get privileges for user henry, match '%TEST054SCH%';
+
+Privileges for User HENRY
+=========================
+
+SIDU-R--AD    TRAFODION.TEST054SCH1.SB_HISTOGRAMS
+SIDU-R--AD    TRAFODION.TEST054SCH1.SB_HISTOGRAM_INTERVALS
+SIDU-R--AD    TRAFODION.TEST054SCH1.SB_PERSISTENT_SAMPLES
+SIDU-R--AD    TRAFODION.TEST054SCH1.T1
+------E-AD    TRAFODION.TEST054SCH2.P1
+SIDU-R--AD    TRAFODION.TEST054SCH2.SB_HISTOGRAMS
+SIDU-R--AD    TRAFODION.TEST054SCH2.SB_HISTOGRAM_INTERVALS
+SIDU-R--AD    TRAFODION.TEST054SCH2.SB_PERSISTENT_SAMPLES
+SIDU-R--AD    TRAFODION.TEST054SCH2.T1
+SIDU-R--AD    TRAFODION.TEST054SCH2.T1_V1
+SIDU-R--AD    TRAFODION.TEST054SCH2.T2
+----G---AD    TRAFODION.TEST054SCH2.TEST054_SEQ1
+
+=======================
+ 12 row(s) returned
+
+--- SQL operation complete.
+>>get privileges for user mary, match '%TEST054SCH%';
+
+Privileges for User MARY
+========================
+
+SI--------    TRAFODION.TEST054SCH1.T1
+SIDU-R--AD    TRAFODION.TEST054SCH1.T2
+S---------    TRAFODION.TEST054SCH2.T1 <Column> A
+----G-----    TRAFODION.TEST054SCH2.TEST054_SEQ1
+
+=======================
+ 4 row(s) returned
+
+--- SQL operation complete.
+>>get privileges for user joe, match '%TEST054SCH%';
+
+Privileges for User JOE
+=======================
+
+SI--------    TRAFODION.TEST054SCH1
+------E---    TRAFODION.TEST054SCH2.P1
+S---------    TRAFODION.TEST054SCH2.T1_V1
+S---------    TRAFODION.TEST054SCH2.T2 <Column> B
+
+=======================
+ 4 row(s) returned
+
+--- SQL operation complete.
+>>get privileges for role test054_role1, match '%TEST054SCH%';
+
+Privileges for Role TEST054_ROLE1
+=================================
+
+SI--------    TRAFODION.TEST054SCH1
+S---------    TRAFODION.TEST054SCH2.T2 <Column> B
+
+=======================
+ 2 row(s) returned
+
+--- SQL operation complete.
+>>get privileges for role test054_role2, match '%TEST054SCH%';
+
+Privileges for Role TEST054_ROLE2
+=================================
+
+------E-AD    TRAFODION.TEST054SCH2.P1
+SIDU-R--AD    TRAFODION.TEST054SCH2.SB_HISTOGRAMS
+SIDU-R--AD    TRAFODION.TEST054SCH2.SB_HISTOGRAM_INTERVALS
+SIDU-R--AD    TRAFODION.TEST054SCH2.SB_PERSISTENT_SAMPLES
+SIDU-R--AD    TRAFODION.TEST054SCH2.T1
+SIDU-R--AD    TRAFODION.TEST054SCH2.T1_V1
+SIDU-R--AD    TRAFODION.TEST054SCH2.T2
+----G---AD    TRAFODION.TEST054SCH2.TEST054_SEQ1
+
+=======================
+ 8 row(s) returned
+
+--- SQL operation complete.
+>>showddl schema test054sch1;
+
+CREATE SHARED SCHEMA TRAFODION.TEST054SCH1 AUTHORIZATION HENRY NAMESPACE
+  'TRAF_regr'  STORED DESC ;
+-- GRANT SELECT, INSERT, DELETE, UPDATE, USAGE, REFERENCES, EXECUTE, CREATE, ALTER, DROP ON SCHEMA TRAFODION.TEST054SCH1 TO HENRY WITH GRANT OPTION;
+  GRANT SELECT, INSERT ON SCHEMA TRAFODION.TEST054SCH1 TO TEST054_ROLE1;
+
+--- SQL operation complete.
+>>showddl schema test054sch2;
+
+CREATE PRIVATE SCHEMA TRAFODION.TEST054SCH2 AUTHORIZATION TEST054_ROLE2
+  NAMESPACE 'TRAF_regr'  STORED DESC ;
+-- GRANT SELECT, INSERT, DELETE, UPDATE, USAGE, REFERENCES, EXECUTE, CREATE, ALTER, DROP ON SCHEMA TRAFODION.TEST054SCH2 TO TEST054_ROLE2 WITH GRANT OPTION;
+
+--- SQL operation complete.
+>>
+>>select distinct grantee_id as sourceID, auth_id as targetID, auth_db_name, 'grantee_id', 'OBJECT_PRIVILEGES'
++>from TRAFODION."_MD_".AUTHS a, TRAFODION."_PRIVMGR_MD_".OBJECT_PRIVILEGES o
++>where grantee_name =  auth_db_name and grantee_id <> auth_id union
++>(select distinct grantor_id as sourceID, auth_id as targetID, auth_db_name, 'grantor_id', 'OBJECT_PRIVILEGES'
++>from TRAFODION."_MD_".AUTHS a, TRAFODION."_PRIVMGR_MD_".OBJECT_PRIVILEGES o
++>where grantor_name =  auth_db_name and grantor_id <> auth_id ) union
++>(select distinct grantee_id as sourceID, auth_id as targetID, auth_db_name, 'grantee_id', 'COLUMN_PRIVILEGES'
++>from TRAFODION."_MD_".AUTHS a, TRAFODION."_PRIVMGR_MD_".COLUMN_PRIVILEGES o
++>where grantee_name =  auth_db_name and grantee_id <> auth_id ) union
++>(select distinct grantor_id as sourceID, auth_id as targetID, auth_db_name, 'grantor_id', 'COLUMN_PRIVILEGES'
++>from TRAFODION."_MD_".AUTHS a, TRAFODION."_PRIVMGR_MD_".COLUMN_PRIVILEGES o
++>where grantor_name =  auth_db_name and grantor_id <> auth_id ) union
++>(select distinct grantee_id as sourceID, auth_id as targetID, auth_db_name, 'grantee_id', 'SCHEMA_PRIVILEGES'
++>from TRAFODION."_MD_".AUTHS a, TRAFODION."_PRIVMGR_MD_".SCHEMA_PRIVILEGES o
++>where grantee_name =  auth_db_name and grantee_id <> auth_id ) union
++>(select distinct grantor_id as sourceID, auth_id as targetID, auth_db_name, 'grantor_id', 'SCHEMA_PRIVILEGES'
++>from TRAFODION."_MD_".AUTHS a, TRAFODION."_PRIVMGR_MD_".SCHEMA_PRIVILEGES o
++>where grantor_name =  auth_db_name and grantor_id <> auth_id )
++>order by 1;
+
+--- 0 row(s) selected.
+>>
+>>
+>>-- backup schemas
+>>get all locked objects;
+
+--- SQL operation complete.
+>>backup trafodion, tag 'test054-all-sch', schemas (test054sch1, test054sch2), override;
+
+--- SQL operation complete.
+>>get all backup snapshots, match 'test054%';
+
+BackupTag         BackupTime           BackupStatus  BackupOperation        BackupOwner
+=========================================================================================
+
+test054-all-sch   2021-04-07:19:42:04  VALID         REGULAR                DB__ROOT
+
+--- SQL operation complete.
+>>
+>>obey TEST054(clean_up);
+>>-- ============================================================================
+>>drop schema test054sch1 cascade;
+
+--- SQL operation complete.
+>>drop schema test054sch2 cascade;
+
+--- SQL operation complete.
+>>revoke role test054_role1 from joe;
+
+--- SQL operation complete.
+>>revoke role test054_role2 from henry;
+
+--- SQL operation complete.
+>>drop role test054_role1;
+
+--- SQL operation complete.
+>>drop role test054_role2;
+
+--- SQL operation complete.
+>>unregister user henry;
+
+--- SQL operation complete.
+>>unregister user mary;
+
+--- SQL operation complete.
+>>unregister user joe;
+
+--- SQL operation complete.
+>>cleanup metadata, return details;
+Metadata Cleanup: started
+
+  Start: Cleanup Orphan Objects Entries
+  End:   Cleanup Orphan Objects Entries (0 entries cleaned up)
+
+  Start: Cleanup Orphan Hbase Entries
+  End:   Cleanup Orphan Hbase Entries (0 entries cleaned up)
+
+  Start: Cleanup Inconsistent Objects Entries
+  End:   Cleanup Inconsistent Objects Entries (0 entries cleaned up)
+
+  Start: Cleanup Inconsistent Partitions Entries
+  End: Cleanup Inconsistent Partitions Entries (0 entries cleaned up)
+
+  Start: Cleanup Inconsistent Views Entries
+  End:   Cleanup Inconsistent Views Entries (0 entries cleaned up)
+
+  Start: Cleanup Inconsistent Hive Entries
+  End:   Cleanup Inconsistent Hive Entries (0 entries cleaned up)
+
+  Start: Cleanup Inconsistent Privilege Entries
+  End:   Cleanup Inconsistent Privilege Entries (0 entries cleaned up)
+
+  Start: Cleanup Inconsistent User Group Entries
+  End:   Cleanup Inconsistent User Group Entries (0 entries cleaned up)
+
+  Start: Cleanup Inconsistent TEXT Entries
+  End:   Cleanup Inconsistent TEXT Entries (0 entries cleaned up)
+
+Metadata Cleanup: done
+
+
+--- SQL operation complete.
+>>
+>>
+>>-- fails because roles/users do not exist
+>>restore trafodion, tag 'test054-all-sch', schemas (TEST054SCH1);
+
+*** ERROR[5050] RESTORE command could not be completed. Reason: lack user or role: HENRY,JOE,MARY,TEST054_ROLE1,TEST054_ROLE2
+
+--- SQL operation failed with errors.
+>>
+>>-- create roles and users in a different order
+>>obey TEST054(create_auths2);
+>>-- ============================================================================
+>>register user henry;
+
+--- SQL operation complete.
+>>register user joe;
+
+--- SQL operation complete.
+>>register user mary;
+
+--- SQL operation complete.
+>>create role test054_role1;
+
+--- SQL operation complete.
+>>create role test054_role2;
+
+--- SQL operation complete.
+>>grant role test054_role1 to joe;
+
+--- SQL operation complete.
+>>grant role test054_role2 to henry;
+
+--- SQL operation complete.
+>>
+>>
+>>-- works
+>>restore trafodion, tag 'test054-all-sch';
+
+--- SQL operation complete.
+>>
+>>-- should not show any inconsistencies
+>>cleanup metadata, check, return details;
+Metadata Cleanup: started, check only
+
+  Start: Cleanup Orphan Objects Entries
+  End:   Cleanup Orphan Objects Entries (0 entries found)
+
+  Start: Cleanup Orphan Hbase Entries
+  End:   Cleanup Orphan Hbase Entries (0 entries found)
+
+  Start: Cleanup Inconsistent Objects Entries
+  End:   Cleanup Inconsistent Objects Entries (0 entries found)
+
+  Start: Cleanup Inconsistent Partitions Entries
+  End: Cleanup Inconsistent Partitions Entries (0 entries found)
+
+  Start: Cleanup Inconsistent Views Entries
+  End:   Cleanup Inconsistent Views Entries (0 entries found)
+
+  Start: Cleanup Inconsistent Hive Entries
+  End:   Cleanup Inconsistent Hive Entries (0 entries found)
+
+  Start: Cleanup Inconsistent Privilege Entries
+  End:   Cleanup Inconsistent Privilege Entries (0 entries found)
+
+  Start: Cleanup Inconsistent User Group Entries
+  End:   Cleanup Inconsistent User Group Entries (0 entries found)
+
+  Start: Cleanup Inconsistent TEXT Entries
+  End:   Cleanup Inconsistent TEXT Entries (0 entries found)
+
+Metadata Cleanup: done
+
+
+--- SQL operation complete.
+>>
+>>obey TEST054(display_db);
+>>get privileges for user henry, match '%TEST054SCH%';
+
+Privileges for User HENRY
+=========================
+
+SIDU-R--AD    TRAFODION.TEST054SCH1.SB_HISTOGRAMS
+SIDU-R--AD    TRAFODION.TEST054SCH1.SB_HISTOGRAM_INTERVALS
+SIDU-R--AD    TRAFODION.TEST054SCH1.SB_PERSISTENT_SAMPLES
+SIDU-R--AD    TRAFODION.TEST054SCH1.T1
+------E-AD    TRAFODION.TEST054SCH2.P1
+SIDU-R--AD    TRAFODION.TEST054SCH2.SB_HISTOGRAMS
+SIDU-R--AD    TRAFODION.TEST054SCH2.SB_HISTOGRAM_INTERVALS
+SIDU-R--AD    TRAFODION.TEST054SCH2.SB_PERSISTENT_SAMPLES
+SIDU-R--AD    TRAFODION.TEST054SCH2.T1
+SIDU-R--AD    TRAFODION.TEST054SCH2.T1_V1
+SIDU-R--AD    TRAFODION.TEST054SCH2.T2
+----G---AD    TRAFODION.TEST054SCH2.TEST054_SEQ1
+
+=======================
+ 12 row(s) returned
+
+--- SQL operation complete.
+>>get privileges for user mary, match '%TEST054SCH%';
+
+Privileges for User MARY
+========================
+
+SI--------    TRAFODION.TEST054SCH1.T1
+SIDU-R--AD    TRAFODION.TEST054SCH1.T2
+S---------    TRAFODION.TEST054SCH2.T1 <Column> A
+----G-----    TRAFODION.TEST054SCH2.TEST054_SEQ1
+
+=======================
+ 4 row(s) returned
+
+--- SQL operation complete.
+>>get privileges for user joe, match '%TEST054SCH%';
+
+Privileges for User JOE
+=======================
+
+SI--------    TRAFODION.TEST054SCH1
+------E---    TRAFODION.TEST054SCH2.P1
+S---------    TRAFODION.TEST054SCH2.T1_V1
+S---------    TRAFODION.TEST054SCH2.T2 <Column> B
+
+=======================
+ 4 row(s) returned
+
+--- SQL operation complete.
+>>get privileges for role test054_role1, match '%TEST054SCH%';
+
+Privileges for Role TEST054_ROLE1
+=================================
+
+SI--------    TRAFODION.TEST054SCH1
+S---------    TRAFODION.TEST054SCH2.T2 <Column> B
+
+=======================
+ 2 row(s) returned
+
+--- SQL operation complete.
+>>get privileges for role test054_role2, match '%TEST054SCH%';
+
+Privileges for Role TEST054_ROLE2
+=================================
+
+------E-AD    TRAFODION.TEST054SCH2.P1
+SIDU-R--AD    TRAFODION.TEST054SCH2.SB_HISTOGRAMS
+SIDU-R--AD    TRAFODION.TEST054SCH2.SB_HISTOGRAM_INTERVALS
+SIDU-R--AD    TRAFODION.TEST054SCH2.SB_PERSISTENT_SAMPLES
+SIDU-R--AD    TRAFODION.TEST054SCH2.T1
+SIDU-R--AD    TRAFODION.TEST054SCH2.T1_V1
+SIDU-R--AD    TRAFODION.TEST054SCH2.T2
+----G---AD    TRAFODION.TEST054SCH2.TEST054_SEQ1
+
+=======================
+ 8 row(s) returned
+
+--- SQL operation complete.
+>>showddl schema test054sch1;
+
+CREATE SHARED SCHEMA TRAFODION.TEST054SCH1 AUTHORIZATION HENRY NAMESPACE
+  'TRAF_regr'  STORED DESC ;
+-- GRANT SELECT, INSERT, DELETE, UPDATE, USAGE, REFERENCES, EXECUTE, CREATE, ALTER, DROP ON SCHEMA TRAFODION.TEST054SCH1 TO HENRY WITH GRANT OPTION;
+  GRANT SELECT, INSERT ON SCHEMA TRAFODION.TEST054SCH1 TO TEST054_ROLE1;
+
+--- SQL operation complete.
+>>showddl schema test054sch2;
+
+CREATE PRIVATE SCHEMA TRAFODION.TEST054SCH2 AUTHORIZATION TEST054_ROLE2
+  NAMESPACE 'TRAF_regr'  STORED DESC ;
+-- GRANT SELECT, INSERT, DELETE, UPDATE, USAGE, REFERENCES, EXECUTE, CREATE, ALTER, DROP ON SCHEMA TRAFODION.TEST054SCH2 TO TEST054_ROLE2 WITH GRANT OPTION;
+
+--- SQL operation complete.
+>>
+>>select distinct grantee_id as sourceID, auth_id as targetID, auth_db_name, 'grantee_id', 'OBJECT_PRIVILEGES'
++>from TRAFODION."_MD_".AUTHS a, TRAFODION."_PRIVMGR_MD_".OBJECT_PRIVILEGES o
++>where grantee_name =  auth_db_name and grantee_id <> auth_id union
++>(select distinct grantor_id as sourceID, auth_id as targetID, auth_db_name, 'grantor_id', 'OBJECT_PRIVILEGES'
++>from TRAFODION."_MD_".AUTHS a, TRAFODION."_PRIVMGR_MD_".OBJECT_PRIVILEGES o
++>where grantor_name =  auth_db_name and grantor_id <> auth_id ) union
++>(select distinct grantee_id as sourceID, auth_id as targetID, auth_db_name, 'grantee_id', 'COLUMN_PRIVILEGES'
++>from TRAFODION."_MD_".AUTHS a, TRAFODION."_PRIVMGR_MD_".COLUMN_PRIVILEGES o
++>where grantee_name =  auth_db_name and grantee_id <> auth_id ) union
++>(select distinct grantor_id as sourceID, auth_id as targetID, auth_db_name, 'grantor_id', 'COLUMN_PRIVILEGES'
++>from TRAFODION."_MD_".AUTHS a, TRAFODION."_PRIVMGR_MD_".COLUMN_PRIVILEGES o
++>where grantor_name =  auth_db_name and grantor_id <> auth_id ) union
++>(select distinct grantee_id as sourceID, auth_id as targetID, auth_db_name, 'grantee_id', 'SCHEMA_PRIVILEGES'
++>from TRAFODION."_MD_".AUTHS a, TRAFODION."_PRIVMGR_MD_".SCHEMA_PRIVILEGES o
++>where grantee_name =  auth_db_name and grantee_id <> auth_id ) union
++>(select distinct grantor_id as sourceID, auth_id as targetID, auth_db_name, 'grantor_id', 'SCHEMA_PRIVILEGES'
++>from TRAFODION."_MD_".AUTHS a, TRAFODION."_PRIVMGR_MD_".SCHEMA_PRIVILEGES o
++>where grantor_name =  auth_db_name and grantor_id <> auth_id )
++>order by 1;
+
+--- 0 row(s) selected.
+>>
+>>
+>>log;

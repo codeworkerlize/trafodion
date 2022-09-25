@@ -1,0 +1,403 @@
+>>obey TEST053(create_db);
+>>create schema t053_sch1 authorization sql_user3;
+
+--- SQL operation complete.
+>>set schema t053_sch1;
+
+--- SQL operation complete.
+>>create table t053t1 (a int, b int);
+
+--- SQL operation complete.
+>>insert into t053t1 values (1,1), (2,2), (3,3), (4,4);
+
+--- 4 row(s) inserted.
+>>create table t053t2 (a int, b int);
+
+--- SQL operation complete.
+>>insert into t053t2 values (1,1), (2,2), (3,3), (4,4);
+
+--- 4 row(s) inserted.
+>>create table t053t3 (a int, b int);
+
+--- SQL operation complete.
+>>insert into t053t3 values (1,1), (2,2), (3,3), (4,4);
+
+--- 4 row(s) inserted.
+>>
+>>grant select on t053t1 to sql_user1;
+
+--- SQL operation complete.
+>>grant select on t053t2 to sql_user1;
+
+--- SQL operation complete.
+>>grant select on t053t3 to sql_user1;
+
+--- SQL operation complete.
+>>grant select on t053t1 to sql_user2;
+
+--- SQL operation complete.
+>>grant drop on t053t3 to sql_user2;
+
+--- SQL operation complete.
+>>
+>>get privileges for user sql_user1, match '%T053%';
+
+Privileges for User SQL_USER1
+=============================
+
+S---------    TRAFODION.T053_SCH1.T053T1
+S---------    TRAFODION.T053_SCH1.T053T2
+S---------    TRAFODION.T053_SCH1.T053T3
+
+=======================
+ 3 row(s) returned
+
+--- SQL operation complete.
+>>get privileges for user sql_user2, match '%T053%';
+
+Privileges for User SQL_USER2
+=============================
+
+S---------    TRAFODION.T053_SCH1.T053T1
+---------D    TRAFODION.T053_SCH1.T053T3
+
+=======================
+ 2 row(s) returned
+
+--- SQL operation complete.
+>>get privileges for user sql_user3, match '%T053%';
+
+Privileges for User SQL_USER3
+=============================
+
+SIDU-R--AD    TRAFODION.T053_SCH1.SB_HISTOGRAMS
+SIDU-R--AD    TRAFODION.T053_SCH1.SB_HISTOGRAM_INTERVALS
+SIDU-R--AD    TRAFODION.T053_SCH1.SB_PERSISTENT_SAMPLES
+SIDU-R--AD    TRAFODION.T053_SCH1.T053T1
+SIDU-R--AD    TRAFODION.T053_SCH1.T053T2
+SIDU-R--AD    TRAFODION.T053_SCH1.T053T3
+
+=======================
+ 6 row(s) returned
+
+--- SQL operation complete.
+>>
+>>grant component privilege dml_select_metadata on sql_operations to public;
+
+--- SQL operation complete.
+>>
+>>obey TEST053(connection_cache);
+>>-- metadata cache is not retained between connections
+>>
+>>insert into "_MD_".defaults values ('TRAF_CLEAR_METADATA_CACHE', 'ON', 'testing', 0);
+
+--- 1 row(s) inserted.
+>>
+>>-- no items in cache, can select from t053t1, t053t2, t053t3
+>>sh sqlci -i "TEST053(cc_cmds_user1)";
+>>changeuser sql_user1;
+>>values (current_user);
+
+(EXPR)
+--------------------------------------------------------------------------------------------------------------------------------
+
+SQL_USER1                                                                                                                       
+
+--- 1 row(s) selected.
+>>execute mc;
+
+--- 0 row(s) selected.
+>>select * from t053_sch1.t053t1;
+
+A            B          
+-----------  -----------
+
+          1            1
+          2            2
+          3            3
+          4            4
+
+--- 4 row(s) selected.
+>>select * from t053_sch1.t053t2;
+
+A            B          
+-----------  -----------
+
+          1            1
+          2            2
+          3            3
+          4            4
+
+--- 4 row(s) selected.
+>>select * from t053_sch1.t053t3;
+
+A            B          
+-----------  -----------
+
+          1            1
+          2            2
+          3            3
+          4            4
+
+--- 4 row(s) selected.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>
+>>-- no items in cache, can select from t053t1
+>>sh sqlci -i "TEST053(cc_cmds_user2)";
+>>changeuser sql_user2;
+>>values (current_user);
+
+(EXPR)
+--------------------------------------------------------------------------------------------------------------------------------
+
+SQL_USER2                                                                                                                       
+
+--- 1 row(s) selected.
+>>execute mc;
+
+--- 0 row(s) selected.
+>>select * from t053_sch1.t053t1;
+
+A            B          
+-----------  -----------
+
+          1            1
+          2            2
+          3            3
+          4            4
+
+--- 4 row(s) selected.
+>>select * from t053_sch1.t053t2;
+
+*** ERROR[4481] The user does not have SELECT privilege on table or view TRAFODION.T053_SCH1.T053T2.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>select * from t053_sch1.t053t3;
+
+*** ERROR[4481] The user does not have SELECT privilege on table or view TRAFODION.T053_SCH1.T053T3.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>
+>>exit;
+
+End of MXCI Session
+
+>>
+>>-- no items in cache, can select from all tables
+>>sh sqlci -i "TEST053(cc_cmds_user3)";
+>>changeuser sql_user3;
+>>execute mc;
+
+--- 0 row(s) selected.
+>>select * from t053_sch1.t053t1;
+
+A            B          
+-----------  -----------
+
+          1            1
+          2            2
+          3            3
+          4            4
+
+--- 4 row(s) selected.
+>>select * from t053_sch1.t053t2;
+
+A            B          
+-----------  -----------
+
+          1            1
+          2            2
+          3            3
+          4            4
+
+--- 4 row(s) selected.
+>>select * from t053_sch1.t053t3;
+
+A            B          
+-----------  -----------
+
+          1            1
+          2            2
+          3            3
+          4            4
+
+--- 4 row(s) selected.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>
+>>-- metadata cache is retained between connections
+>>delete from "_MD_".defaults where attribute = 'TRAF_CLEAR_METADATA_CACHE';
+
+--- 1 row(s) deleted.
+>>
+>>-- items where user has privs, can select from t053t1, t053t2, t053t3
+>>sh sqlci -i "TEST053(cc_cmds_user1)";
+>>changeuser sql_user1;
+>>values (current_user);
+
+(EXPR)
+--------------------------------------------------------------------------------------------------------------------------------
+
+SQL_USER1                                                                                                                       
+
+--- 1 row(s) selected.
+>>execute mc;
+
+(EXPR)                          (EXPR)                          (EXPR)
+------------------------------  ------------------------------  ------------------------------
+
+TRAFODION                       T053_SCH1                       T053T1                        
+TRAFODION                       T053_SCH1                       T053T2                        
+TRAFODION                       T053_SCH1                       T053T3                        
+
+--- 3 row(s) selected.
+>>select * from t053_sch1.t053t1;
+
+A            B          
+-----------  -----------
+
+          1            1
+          2            2
+          3            3
+          4            4
+
+--- 4 row(s) selected.
+>>select * from t053_sch1.t053t2;
+
+A            B          
+-----------  -----------
+
+          1            1
+          2            2
+          3            3
+          4            4
+
+--- 4 row(s) selected.
+>>select * from t053_sch1.t053t3;
+
+A            B          
+-----------  -----------
+
+          1            1
+          2            2
+          3            3
+          4            4
+
+--- 4 row(s) selected.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>
+>>-- items where user has privs (t053t1 & t053t3), can select from t053t1
+>>sh sqlci -i "TEST053(cc_cmds_user2)";
+>>changeuser sql_user2;
+>>values (current_user);
+
+(EXPR)
+--------------------------------------------------------------------------------------------------------------------------------
+
+SQL_USER2                                                                                                                       
+
+--- 1 row(s) selected.
+>>execute mc;
+
+(EXPR)                          (EXPR)                          (EXPR)
+------------------------------  ------------------------------  ------------------------------
+
+TRAFODION                       T053_SCH1                       T053T1                        
+TRAFODION                       T053_SCH1                       T053T3                        
+
+--- 2 row(s) selected.
+>>select * from t053_sch1.t053t1;
+
+A            B          
+-----------  -----------
+
+          1            1
+          2            2
+          3            3
+          4            4
+
+--- 4 row(s) selected.
+>>select * from t053_sch1.t053t2;
+
+*** ERROR[4481] The user does not have SELECT privilege on table or view TRAFODION.T053_SCH1.T053T2.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>select * from t053_sch1.t053t3;
+
+*** ERROR[4481] The user does not have SELECT privilege on table or view TRAFODION.T053_SCH1.T053T3.
+
+*** ERROR[8822] The statement was not prepared.
+
+>>
+>>exit;
+
+End of MXCI Session
+
+>>
+>>-- all items in cache, can select from all tables
+>>sh sqlci -i "TEST053(cc_cmds_user3)";
+>>changeuser sql_user3;
+>>execute mc;
+
+(EXPR)                          (EXPR)                          (EXPR)
+------------------------------  ------------------------------  ------------------------------
+
+TRAFODION                       T053_SCH1                       T053T1                        
+TRAFODION                       T053_SCH1                       T053T2                        
+TRAFODION                       T053_SCH1                       T053T3                        
+
+--- 3 row(s) selected.
+>>select * from t053_sch1.t053t1;
+
+A            B          
+-----------  -----------
+
+          1            1
+          2            2
+          3            3
+          4            4
+
+--- 4 row(s) selected.
+>>select * from t053_sch1.t053t2;
+
+A            B          
+-----------  -----------
+
+          1            1
+          2            2
+          3            3
+          4            4
+
+--- 4 row(s) selected.
+>>select * from t053_sch1.t053t3;
+
+A            B          
+-----------  -----------
+
+          1            1
+          2            2
+          3            3
+          4            4
+
+--- 4 row(s) selected.
+>>
+>>exit;
+
+End of MXCI Session
+
+>>
+>>log;

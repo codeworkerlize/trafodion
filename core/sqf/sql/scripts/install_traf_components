@@ -1,0 +1,660 @@
+#!/bin/bash
+# @@@ START COPYRIGHT @@@ 
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+# 
+#   http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+# @@@ END COPYRIGHT @@@
+
+#### Script to install and configure DCS, REST and Phoenix tests...
+
+# Location of hadoop install
+MY_SW_ROOT=$TRAF_HOME/sql/local_hadoop
+MY_LOG_FILE=$MY_SW_ROOT/log/install_traf_components_$(date +%F_%T).log
+
+# Source in script to get the list of ports
+if [ -f $TRAF_HOME/sql/scripts/sw_env.sh ]; then
+   . $TRAF_HOME/sql/scripts/sw_env.sh
+else
+   echo "Unable to find $TRAF_HOME/sql/scripts/sw_env.sh to get the list of ports"
+   exit 1;
+fi
+
+# Default location of Trafodion, DCS, REST and Phoenix src folders
+TRAF_SRC=${TRAF_SRC-"$TRAF_HOME/../../"}
+DCS_SRC=$TRAF_SRC/dcs
+REST_SRC=$TRAF_SRC/core/rest
+DBMGR_SRC=$TRAF_SRC/core/dbmgr
+PHX_SRC=$TRAF_SRC/tests/phx
+TRAF_TARS=$TRAF_SRC/distribution
+WMS_SRC=$TRAF_SRC/wms
+
+if [ -z "$DCS_BLD" ]; then
+  DCS_BLD=$(ls -d $DCS_SRC/target/dcs-*/dcs-* 2>/dev/null)
+fi
+
+if [ -z "$REST_BLD" ]; then
+  REST_BLD=$(ls -d $REST_SRC/target/rest-*/rest-* 2>/dev/null)
+fi
+
+if [ -z "$PHX_TAR" ]; then
+    PHX_TAR=$(ls $TRAF_TARS/phoenix*.tgz 2>/dev/null)
+fi
+
+if [ -z "$DCSTEST_TAR" ]; then
+    DCSTEST_TAR=$(ls $TRAF_TARS/dcs-test*.tgz 2>/dev/null)
+fi
+
+if [ -z "$CLIENT_TAR" ]; then
+    CLIENT_TAR=$(ls $TRAF_TARS/*clients* 2>/dev/null)
+fi
+
+if [ -z "$DBMGR_BLD" ]; then
+    DBMGR_BLD=$(ls -d $DBMGR_SRC/target/dist/dbmgr-*/dbmgr-* 2>/dev/null)
+fi
+
+if [ -z "$MGBLTY_BLD" ]; then
+    MGBLTY_BLD=$(ls -d $TRAF_SRC/mgblty 2>/dev/null)
+fi
+
+if [ -z "$WMS_BLD" ]; then
+  WMS_BLD=$(ls -d $WMS_SRC/wms-* 2>/dev/null)
+fi
+
+if [[ -f $CLIENT_TAR ]]; then
+   cd $MY_SW_ROOT
+   tar -xzf $CLIENT_TAR 
+   LNXDRVR_TAR=$(ls $MY_SW_ROOT/clients/*Linux*.gz 2>/dev/null)
+   ODB_TAR=$(ls $MY_SW_ROOT/clients/*odb*.gz 2>/dev/null)
+fi
+
+echo | tee ${MY_LOG_FILE}
+echo "Installing and configuring DCS, REST, TRAFCI & Phoenix tests for Trafodion..." | tee -a ${MY_LOG_FILE}
+
+echo | tee -a ${MY_LOG_FILE}
+echo "Environment used for core, DCS, REST and Phonenix ..." | tee -a ${MY_LOG_FILE}
+echo | tee -a ${MY_LOG_FILE}
+
+if [[ ! -d $DCS_SRC ]]; then
+  echo "Using only tar distribution and does not include source..."
+  echo | tee -a ${MY_LOG_FILE}
+else
+  echo "   For Core... $TRAF_SRC" | tee -a ${MY_LOG_FILE}
+  echo "   For DCS... $DCS_SRC" | tee -a ${MY_LOG_FILE}
+  echo "   For REST... $REST_SRC" | tee -a ${MY_LOG_FILE}
+  echo "   For PHX... $PHX_SRC" | tee -a ${MY_LOG_FILE}
+  echo "   For WMS... $WMS_SRC" | tee -a ${MY_LOG_FILE}
+fi
+
+echo "   For local hadoop... $MY_SW_ROOT" | tee -a ${MY_LOG_FILE}
+echo "   For DCS_BLD... $DCS_BLD" | tee -a ${MY_LOG_FILE}
+echo "   For REST_BLD... $REST_BLD" | tee -a ${MY_LOG_FILE}
+echo "   For MGBLTY_BLD... $MGBLTY_BLD" | tee -a ${MY_LOG_FILE}
+echo "   For DBMGR_BLD... $DBMGR_BLD" | tee -a ${MY_LOG_FILE}
+echo "   For WMS_BLD... $WMS_BLD" | tee -a ${MY_LOG_FILE}
+
+if [[ -f $PHX_TAR ]]; then
+  echo "   For PHX_TAR... $PHX_TAR" | tee -a ${MY_LOG_FILE}
+fi
+
+if [[ -f $CLIENT_TAR ]]; then
+  echo "   For CLIENT_TAR... $CLIENT_TAR" | tee -a ${MY_LOG_FILE}
+  echo "      For ODB_TAR... $ODB_TAR" | tee -a ${MY_LOG_FILE}
+  echo "      For LNXDRVR_TAR... $LNXDRVR_TAR" | tee -a ${MY_LOG_FILE}
+fi
+
+cd $MY_SW_ROOT
+
+echo | tee -a ${MY_LOG_FILE}
+# Begin set up of DCS
+
+if [ -d dcs-* ]; then
+  echo "DCS files already exist, skipping DCS setup" | tee -a ${MY_LOG_FILE}
+else
+  if [[ -d $DCS_BLD ]]; then
+      echo "Using DCS Build: $DCS_BLD" | tee -a ${MY_LOG_FILE}
+  elif [[ -d $DCS_SRC ]]; then
+      echo "DCS built target was not found in $DCS_SRC" | tee -a ${MY_LOG_FILE}
+      echo "Building DCS" | tee -a ${MY_LOG_FILE}
+      if [[ -f $TRAF_HOME/export/lib/jdbcT4-${TRAFODION_VER}.jar ]]; then
+         echo "JDBCT4 jar file exist. Proceeding to build DCS from $DCS_SRC" | tee -a ${MY_LOG_FILE}
+         cd $DCS_SRC
+         ${MAVEN:-mvn} clean site package >>${MY_LOG_FILE} 2>&1
+         cd $MY_SW_ROOT
+      else
+         echo "JDBCT4 jar file does not exist $TRAF_HOME/export/lib folder. " | tee -a ${MY_LOG_FILE}
+         echo "Please build the core Trafodion component"  | tee -a ${MY_LOG_FILE}
+         exit 2
+      fi
+      DCS_BLD=$(ls -d $DCS_SRC/target/dcs-*/dcs-* 2>/dev/null)
+  fi
+
+  if [[ ! -d $DCS_BLD ]]; then
+    echo "**** ERROR: DCS built target not found. "  | tee -a ${MY_LOG_FILE}
+    exit 2
+  fi
+# Install DCS
+  echo "Installing DCS from: $DCS_BLD"  | tee -a ${MY_LOG_FILE}
+  cp -r $DCS_BLD $MY_SW_ROOT/$(basename $DCS_BLD)
+  DCS_HOME=$(/bin/ls -d $MY_SW_ROOT/dcs-*)
+
+# Configure DCS
+  mkdir -p $TRAF_CONF/dcs
+  cp -rf $DCS_HOME/conf/* $TRAF_CONF/dcs/
+  echo "Adding DCS_INSTALL_DIR=$DCS_HOME to ~/.trafodion"  | tee -a ${MY_LOG_FILE}
+  if [[ -f ~/.trafodion ]]
+  then
+    mv -f ~/.trafodion ~/.trafodion.orig
+    grep -v 'DCS_INSTALL_DIR=' ~/.trafodion.orig > ~/.trafodion
+  fi
+  DCSDIR=${DCS_HOME##*/}
+  echo "export DCS_INSTALL_DIR=\${TRAF_HOME}/sql/local_hadoop/$DCSDIR" >> ~/.trafodion | tee -a ${MY_LOG_FILE}
+
+  echo "Setting DCS env and site.xml file" | tee -a ${MY_LOG_FILE}
+  cd $TRAF_CONF/dcs/
+  mv dcs-env.sh dcs-env.sh.orig
+  echo "TRAF_HOME=$TRAF_HOME" > dcs-env.sh
+  sed -e "s@#[ ]*export DCS_MANAGES_ZK=true@export DCS_MANAGES_ZK=false@" dcs-env.sh.orig >> dcs-env.sh
+  echo "export DCS_MASTER_PORT=$MY_DCS_MASTER_PORT" >> dcs-env.sh
+  mv -f dcs-site.xml dcs-site.xml.orig
+  sed -e "s@</configuration>@@" dcs-site.xml.orig > dcs-site.xml
+  cat >>dcs-site.xml <<EOF
+    <property>
+     <name>dcs.master.port</name> <value>$MY_DCS_MASTER_PORT</value>
+    </property>
+    <property>
+     <name>dcs.master.info.port</name> <value>$MY_DCS_MASTER_INFO_PORT</value>
+    </property>
+    <property>
+     <name>dcs.server.info.port</name> <value>$MY_DCS_SERVER_INFO_PORT</value>
+    </property>
+    <property>
+     <name>dcs.zookeeper.peerport</name> <value>$MY_HBASE_ZOOKEEPER_PEERPORT_NUM</value>
+    </property>
+    <property>
+     <name>dcs.zookeeper.leaderport</name> <value>$MY_HBASE_ZOOKEEPER_LEADERPORT_NUM</value>
+    </property>
+    <property>
+     <name>dcs.zookeeper.property.clientPort</name> <value>$MY_HBASE_ZOOKEEPER_PROPERTY_CLIENTPORT_NUM</value>
+    </property>
+    <property>
+     <name>dcs.server.user.program.opentsdb.port</name> <value>$MY_OPEN_TSDB_PORT</value>
+    </property>
+    <property>
+      <name>zookeeper.znode.parent</name>
+      <value>$TRAF_ROOT_ZNODE/$TRAF_INSTANCE_ID</value>
+    </property>
+    <!-- Uncomment this section for mxosrvr debugging 
+    <property>
+      <name>dcs.server.user.program.zookeeper.session.timeout</name>
+      <value>3600</value>
+    </property>
+    <property>
+      <name>zookeeper.session.timeout</name>
+      <value>3600000</value>
+    </property>
+    -->
+  </configuration>
+EOF
+
+  echo "Configured $TRAF_CONF/dcs/dcs-site.xml" | tee -a ${MY_LOG_FILE}
+
+  echo "$(hostname -f)" > masters
+  echo "Configured $TRAF_CONF/dcs/masters" | tee -a ${MY_LOG_FILE}
+
+  echo "$(hostname -f) 4" > servers
+  echo "Configured $TRAF_CONF/dcs/servers" | tee -a ${MY_LOG_FILE}
+
+fi
+
+# End of DCS setup
+
+cd $MY_SW_ROOT
+
+echo | tee -a ${MY_LOG_FILE}
+# Begin setup of REST Server 
+
+if [ -d rest-* ]; then
+  echo "REST files already exist, skipping REST setup"
+else
+  if [[ -d $REST_BLD ]]; then
+        echo "Using REST Build: $REST_BLD" | tee -a ${MY_LOG_FILE}
+  elif [[ -d $REST_SRC ]]; then
+      echo "REST built target was not found in $REST_SRC" | tee -a ${MY_LOG_FILE}
+      echo "Building REST" | tee -a ${MY_LOG_FILE}
+      if [[ -f $TRAF_HOME/export/lib/jdbcT4-${TRAFODION_VER}.jar ]]; then
+         echo "JDBCT4 jar file exist. Proceeding to build REST from $REST_SRC" | tee -a ${MY_LOG_FILE}
+         cd $REST_SRC
+         ${MAVEN:-mvn} clean site package >>${MY_LOG_FILE} 2>&1
+         cd $MY_SW_ROOT
+       else
+         echo "JDBCT4 jar file does not exist $TRAF_HOME/export/lib folder. Please build the core Trafodion components" | tee -a ${MY_LOG_FILE}
+       exit 2
+      fi
+      REST_BLD=$(ls -d $REST_SRC/target/rest-*/rest-* 2>/dev/null)
+  fi
+
+  if [[ ! -d $REST_BLD ]]; then
+    echo "**** ERROR: REST build target not found"  | tee -a ${MY_LOG_FILE}
+    exit 2
+  fi
+
+# Install REST
+  echo "Installing REST from: $REST_BLD"  | tee -a ${MY_LOG_FILE}
+  cp -r $REST_BLD $MY_SW_ROOT/$(basename $REST_BLD)
+  REST_HOME=$(/bin/ls -d $MY_SW_ROOT/rest-*)
+
+# Configure REST
+  mkdir -p $TRAF_CONF/rest
+  cp -rf $REST_HOME/conf/* $TRAF_CONF/rest/
+  echo "Adding REST_INSTALL_DIR=$REST_HOME to via ~/.trafodion"  | tee -a ${MY_LOG_FILE}
+  if [[ -f ~/.trafodion ]]
+  then
+    mv -f ~/.trafodion ~/.trafodion.orig
+    grep -v 'REST_INSTALL_DIR=' ~/.trafodion.orig >> ~/.trafodion
+  fi
+  RESTDIR=${REST_HOME##*/}
+  echo "export REST_INSTALL_DIR=\${TRAF_HOME}/sql/local_hadoop/$RESTDIR" >> ~/.trafodion  | tee -a ${MY_LOG_FILE}
+  echo "Setting REST env and site.xml "  | tee -a ${MY_LOG_FILE}
+  cd $TRAF_CONF/rest/
+  mv rest-env.sh rest-env.sh.orig
+
+  echo "TRAF_HOME=$TRAF_HOME" > rest-env.sh
+  sed -e "s@#[ ]*export REST_MANAGES_ZK=true@export REST_MANAGES_ZK=false@" rest-env.sh.orig >> rest-env.sh
+  mv -f rest-site.xml rest-site.xml.orig
+  sed -e "s@</configuration>@@" rest-site.xml.orig > rest-site.xml
+  cat >>rest-site.xml <<EOF
+    <property>
+     <name>rest.port</name> <value>$MY_REST_SERVER_PORT</value>
+    </property>
+    <property>
+     <name>rest.https.port</name> <value>$MY_REST_SERVER_SECURE_PORT</value>
+    </property>
+    <property>
+     <name>rest.zookeeper.peerport</name> <value>$MY_HBASE_ZOOKEEPER_PEERPORT_NUM</value>
+    </property>
+    <property>
+     <name>rest.zookeeper.leaderport</name> <value>$MY_HBASE_ZOOKEEPER_LEADERPORT_NUM</value>
+    </property>
+    <property>
+     <name>rest.zookeeper.property.clientPort</name> <value>$MY_HBASE_ZOOKEEPER_PROPERTY_CLIENTPORT_NUM</value>
+    </property>
+    <property>
+      <name>zookeeper.znode.parent</name>
+      <value>$TRAF_ROOT_ZNODE/$TRAF_INSTANCE_ID</value>
+    </property>
+  </configuration>
+EOF
+
+  echo "Configured $TRAF_CONF/rest/rest-site.xml" | tee -a ${MY_LOG_FILE}
+  echo "Adding swrest script..." | tee -a ${MY_LOG_FILE}
+  cat <<EOF >$TRAF_HOME/sql/scripts/swrest
+#!/bin/bash
+# command to run rest tests
+#Displays the status of configured servers
+curl -k -X GET -H "Accept: application/json" http://localhost:$MY_REST_SERVER_PORT/v1/servers 2>/dev/null| python -m json.tool
+
+#Displays the status of dtm
+curl -k -X GET -H "Accept: application/json" http://localhost:$MY_REST_SERVER_PORT/v1/servers/dtm 2>/dev/null| python -m json.tool
+
+#Displays the status of rms
+curl -k -X GET -H "Accept: application/json" http://localhost:$MY_REST_SERVER_PORT/v1/servers/rms 2>/dev/null| python -m json.tool
+
+#Displays the status of configured dcs servers
+curl -k -X GET -H "Accept: application/json" http://localhost:$MY_REST_SERVER_PORT/v1/servers/dcs 2>/dev/null| python -m json.tool
+
+#Displays the status of dcs connections
+curl -k -X GET -H "Accept: application/json" http://localhost:$MY_REST_SERVER_PORT/v1/servers/dcs/connections 2>/dev/null | python -m json.tool
+EOF
+
+     chmod +x $TRAF_HOME/sql/scripts/swrest
+fi
+
+# End of setup for REST
+
+cd $MY_SW_ROOT
+
+echo | tee -a ${MY_LOG_FILE}
+# Begin setup of TRAFCI
+
+echo "Configuring TRAFCI " | tee -a ${MY_LOG_FILE}
+TRAFCI_BIN_DIR=$TRAF_HOME/trafci/bin
+if [[ -f $TRAFCI_BIN_DIR/trafci ]]
+then
+  echo "Adding swtrafci script..." | tee -a ${MY_LOG_FILE}
+  cat <<EOF >$TRAF_HOME/sql/scripts/swtrafci
+#!/bin/bash
+# command to run trafci
+$TRAF_HOME/trafci/bin/trafci.sh -h localhost:${MY_DCS_MASTER_PORT} -u trafodion -p esgynDB123
+EOF
+  chmod +x $TRAF_HOME/sql/scripts/swtrafci
+else
+  echo "$TRAFCI_BIN_DIR not found" | tee -a ${MY_LOG_FILE}
+fi
+
+# End setup for TRAFCI
+
+echo | tee -a ${MY_LOG_FILE}
+# Begin setup of Phoenix test
+
+PHXDIR=$MY_SW_ROOT/tests/phx
+
+if [[ -d $PHXDIR ]]; then
+  echo "Phoenix tests already exist $PHXDIR, skipping Phoenix test setup" | tee -a ${MY_LOG_FILE}
+else
+  if [[ -f $PHX_TAR ]]; then
+    echo "Installing Phoenix tests $PHX_TAR"| tee -a ${MY_LOG_FILE}
+    tar -xzf $PHX_TAR | tee -a ${MY_LOG_FILE}
+    echo "Successfully installed Phoenix tests "| tee -a ${MY_LOG_FILE}
+  elif [[ -d $PHX_SRC ]]; then
+     echo "Phoenix files already exist $PHX_SRC skipping Phoenix setup" | tee -a ${MY_LOG_FILE}
+     PHXDIR=$PHX_SRC
+  fi
+
+  if [[ -d $PHXDIR ]]; then
+     echo "Adding swphoenix script..." | tee -a ${MY_LOG_FILE}
+     cat <<EOF >$TRAF_HOME/sql/scripts/swphoenix
+#!/bin/bash
+# command to run phoenix tests
+
+cd $PHXDIR
+if [[ \$1 == "t4" ]]
+then
+  ./phoenix_test.py --target=localhost:$MY_DCS_MASTER_PORT --user=db__root --pw=traf123 \\
+     --targettype=TR --javahome=\$JAVA_HOME --jdbccp=\$TRAF_HOME/export/lib/jdbcT4-${TRAFODION_VER}.jar \$2 
+
+elif [[ \$1 == "t2" ]]
+then
+  export LD_PRELOAD=\$JAVA_HOME/jre/lib/${JRE_LIB_DIR}/libjsig.so:\$TRAF_HOME/export/lib\$SQ_MBTYPE/libseabasesig.so
+  ./phoenix_test.py --targettype=TR --javahome=\$JAVA_HOME \\
+     --jdbccp=\$TRAF_HOME/export/lib/jdbcT2.jar --jdbctype=T2 \\
+     --nomvntest --tests="AlterTableTest,ArithmeticQueryTest,BinaryRowKeyTest,CoalesceFunctionTest,CompareDecimalToLongTest,CustomEntityDataTest,DeleteRangeTest,DescColumnSortOrderTest,DistinctCountTest,ExtendedQueryExecTest,IsNullTest,OrderByTest,QueryExecTest,SaltedTableTest,SaltedTableUpsertSelectTest,SaltedTableVarLengthRowKeyTest,SkipScanQueryTest,UpsertSelectAutoCommitTest,UpsertSelectTest,UpsertValuesTest,AutoCommitTest,CreateTableTest,ExecuteStatementsTest,GroupByCaseTest,IndexTest,KeyOnlyTest,MultiCfQueryExecTest,ProductMetricsTest,QueryExecWithoutSCNTest,QueryPlanTest,ReadIsolationLevelTest,ServerExceptionTest,StatementHintsTest,StddevTest,ToCharFunctionTest,ToNumberFunctionTest,TopNTest,UpsertBigValuesTest,VariableLengthPKTest,SaltedTableUpsertSelectTest"
+else
+  echo "Usage: swphoenix (t2|t4)"
+  exit 1
+fi
+EOF
+
+     chmod +x $TRAF_HOME/sql/scripts/swphoenix
+  fi 
+fi
+
+# End of Phoenix setup
+
+cd $MY_SW_ROOT
+
+echo | tee -a ${MY_LOG_FILE}
+# Begin setup of Linux driver
+
+LNXDRVR=$MY_SW_ROOT/lnxdrvr
+
+if [[ -d $LNXDRVR ]]; then
+  echo "Linux driver files already exist $LNXDRVR, skipping Linux Driver setup" | tee -a ${MY_LOG_FILE}
+else
+  if [[ -f $LNXDRVR_TAR ]]; then
+     echo "Installing Linux driver: $LNXDRVR"| tee -a ${MY_LOG_FILE}
+     mkdir -p $LNXDRVR | tee -a ${MY_LOG_FILE}
+     cd $LNXDRVR 
+     tar -xzf $LNXDRVR_TAR | tee -a ${MY_LOG_FILE} 
+     cd PkgTmp 
+     ./install.sh <<EOF | tee -a ${MY_LOG_FILE}
+YES
+../
+../
+../
+EOF
+    cd .. 
+    mv TRAFDSN TRAFDSN.orig 
+    sed -e "s@TCP:localhost:23400@TCP:localhost:$MY_DCS_MASTER_PORT@" TRAFDSN.orig >> TRAFDSN 
+    cp -p TRAFDSN $TRAF_HOME/samples
+    echo "Successfully installed linux driver in $LNXDRVR"| tee -a ${MY_LOG_FILE}
+    echo "Creating odbcinst.ini file..." |tee -a ${MY_LOG_FILE}
+    cat <<EOF >$LNXDRVR/odbcinst.ini
+[Trafodion]
+Description = Trafodion ODBC Stand Alone Driver
+Driver = $LNXDRVR/libtrafodbc_drvr64.so
+FileUsage = 1
+UsageCount = 1
+AppUnicodeType = utf16
+
+[ODBC]
+Threading = 1
+Trace = Off
+Tracefile = uodbc.trc
+EOF
+    echo "Creating odbc.ini file..." |tee -a ${MY_LOG_FILE}
+    cat <<EOF >$LNXDRVR/odbc.ini
+[ODBC]
+traceFlags              = ERROR
+TraceStart              = 0
+TraceFile               = tracefile.log
+MaxTraceFileSize        = 1024
+
+[ODBC Data Sources]
+traf                        = Trafodion Database
+
+[traf]
+Description                 = Trafodion DSN
+Driver                      = Trafodion
+Catalog                     = TRAFODION
+Schema                      = SEABASE
+DataLang                    = 0
+FetchBufferSize             = SYSTEM_DEFAULT
+Server                      = TCP:localhost:$MY_DCS_MASTER_PORT
+SQL_ATTR_CONNECTION_TIMEOUT = SYSTEM_DEFAULT
+SQL_LOGIN_TIMEOUT           = SYSTEM_DEFAULT
+SQL_QUERY_TIMEOUT           = NO_TIMEOUT
+
+EOF
+    echo "Adding swlnx script..." | tee -a ${MY_LOG_FILE}
+  cat <<EOF >$TRAF_HOME/sql/scripts/swlnx
+#!/bin/bash
+# command to run lnx sample
+  cd $LNXDRVR
+  g++ -g connect_test.cpp -L$LNXDRVR -I/usr/include/odbc -ltrafodbc64 -o connect_test
+  ./connect_test -d Default_DataSource -u db__root -p traf123
+EOF
+  chmod +x $TRAF_HOME/sql/scripts/swlnx
+  fi
+fi
+
+# End setup of Linux driver
+
+cd $MY_SW_ROOT
+
+echo | tee -a ${MY_LOG_FILE}
+# Begin setup of ODB load tool
+
+ODBLOC=$MY_SW_ROOT/odb
+
+if [[ -d $ODBLOC ]]; then
+  echo "ODB files already exist $ODBLOC, skipping ODB setup" | tee -a ${MY_LOG_FILE}
+else
+  if [[ -f $ODB_TAR ]]; then
+    echo "Installing ODB tool: $ODBLOC"| tee -a ${MY_LOG_FILE}
+    mkdir -p $ODBLOC | tee -a ${MY_LOG_FILE}
+    cd $ODBLOC 
+    tar -xzf $ODB_TAR | tee -a ${MY_LOG_FILE}
+    echo "Successfully installed ODB tool in $ODBLOC"| tee -a ${MY_LOG_FILE}
+    echo "Adding swodb script..." | tee -a ${MY_LOG_FILE}
+  cat <<EOF >$TRAF_HOME/sql/scripts/swodb
+#!/bin/bash
+# command to run odb sample
+cd $ODBLOC/bin
+export ODBCHOME=$LNXDRVR
+export ODBCSYSINI=\$ODBCHOME
+export ODBCINI=\$ODBCHOME/odbc.ini
+export AppUnicodeType=utf16
+
+export LD_LIBRARY_PATH=\$ODBCHOME:$LD_LIBRARY_PATH
+
+./odb64luo -d traf -u db__root -p traf123 -i
+EOF
+  chmod +x $TRAF_HOME/sql/scripts/swodb
+  fi
+fi
+
+# End setup of ODB load tool
+
+cd $MY_SW_ROOT
+
+echo | tee -a ${MY_LOG_FILE}
+# Begin setup of PyODBC test
+
+DCSTEST_DIR=$MY_SW_ROOT/dcstests
+
+if [[ -d $DCSTEST_DIR ]]; then
+  echo "DCS tests already exist $DCSTEST_DIR, skipping dcs test setup" | tee -a ${MY_LOG_FILE}
+else
+  if [[ -f $DCSTEST_TAR ]]; then
+    echo "Installing DCS tests $DCSTEST_DIR"| tee -a ${MY_LOG_FILE}
+    mkdir -p $DCSTEST_DIR | tee -a ${MY_LOG_FILE}
+    cd $DCSTEST_DIR
+    tar -xzf $DCSTEST_TAR | tee -a ${MY_LOG_FILE}
+    echo "Successfully installed DCS tests "| tee -a ${MY_LOG_FILE}
+    JDBCTEST_DIR=$DCSTEST_DIR/dcs/src/test/jdbc_test
+    PYODBCTEST_DIR=$DCSTEST_DIR/dcs/src/test/pytests
+  elif [[ -d $DCS_SRC ]]; then
+     echo "DCS test files already exist $DCS_SRC skipping test setup" | tee -a ${MY_LOG_FILE}
+     DCSTEST_DIR=$DCS_SRC
+     JDBCTEST_DIR=$DCSTEST_DIR/src/test/jdbc_test
+     PYODBCTEST_DIR=$DCSTEST_DIR/src/test/pytests
+  fi
+
+  if [[ -d $DCSTEST_DIR ]]; then
+     echo "Adding swjdbc script...." | tee -a ${MY_LOG_FILE}
+     cat <<EOF >$TRAF_HOME/sql/scripts/swjdbc
+#!/bin/bash
+# command to run JDBC tests
+cd $JDBCTEST_DIR
+./jdbc_test.py --appid=jdbc_test --user=db__root --pw=traf123 --javahome=\$JAVA_HOME \\
+  --target=localhost:$MY_DCS_MASTER_PORT --dbmaj=\$TRAFODION_VER_MAJOR --dbmin=\$TRAFODION_VER_MINOR \\
+  --jdbctype=T4 --jdbccp=\$TRAF_HOME/export/lib/jdbcT4-\${TRAFODION_VER}.jar "\$@"
+EOF
+    chmod +x $TRAF_HOME/sql/scripts/swjdbc
+
+    if [[ -f $LNXDRVR_TAR ]]; then
+       echo "Linux driver exists. Adding swpyodbc script...." | tee -a ${MY_LOG_FILE}
+       cat <<EOF >$TRAF_HOME/sql/scripts/swpyodbc
+#!/bin/bash
+# command to run Python ODBC tests
+cd $PYODBCTEST_DIR
+./config.sh -d localhost:$MY_DCS_MASTER_PORT -t $LNXDRVR_TAR
+tox -e py27
+
+EOF
+       chmod +x $TRAF_HOME/sql/scripts/swpyodbc
+    fi 
+  fi
+fi
+
+# End setup of PyODBC test
+
+
+echo | tee -a ${MY_LOG_FILE}
+echo "Configuration scripts for DCS, REST, TRAFCI and Phoenix test are set up " | tee -a ${MY_LOG_FILE}
+
+cd $MY_SW_ROOT
+
+echo | tee -a ${MY_LOG_FILE}
+# Begin setup of DBMgr 
+
+if [ -d dbmgr-* ]; then
+  echo "DBMGR files already exist, skipping DBMGR setup" | tee -a ${MY_LOG_FILE}
+else
+  if [[ -d $DBMGR_BLD ]]; then
+      echo "Using Database Manageability Build: $DBMGR_BLD" | tee -a ${MY_LOG_FILE}
+      # Install DBMGR
+      echo "Installing DBMGR from: $DBMGR_BLD"  | tee -a ${MY_LOG_FILE}
+      cp -r $DBMGR_BLD $MY_SW_ROOT/$(basename $DBMGR_BLD)
+      DBMGR_HOME=$(/bin/ls -d $MY_SW_ROOT/dbmgr-*)
+      
+      if [[ -f ~/.trafodion ]]
+      then
+        mv -f ~/.trafodion ~/.trafodion.orig
+        grep -v 'DBMGR_INSTALL_DIR=' ~/.trafodion.orig >> ~/.trafodion
+      fi
+      DBMGR_DIR=${DBMGR_HOME##*/}
+      echo "export DBMGR_INSTALL_DIR=\${TRAF_HOME}/sql/local_hadoop/$DBMGR_DIR" >> ~/.trafodion | tee -a ${MY_LOG_FILE}
+      echo "Generating xml file for DBMGR with custom ports"  | tee -a ${MY_LOG_FILE}
+      mkdir -p $TRAF_CONF/dbmgr
+      cp -rf $DBMGR_HOME/conf/* $TRAF_CONF/dbmgr/
+      cp -f $TRAF_HOME/../dbmgr/conf/dbmgr.keystore $TRAF_CONF/dbmgr/
+      cd $TRAF_CONF/dbmgr
+      mv logback.xml logback.xml.orig | tee -a ${MY_LOG_FILE}
+      sed -e "s@<fileNamePattern>\${DBMGR_INSTALL_DIR}@<fileNamePattern>$DBMGR_HOME@" logback.xml.orig > logback.xml | tee -a ${MY_LOG_FILE}
+
+  else
+      echo "DBMGR build target does not exist" | tee -a ${MY_LOG_FILE}
+  fi
+fi
+
+# End setup of Database Manager
+
+# Begin set up of WMS
+
+if [ -d wms-* ]; then
+  echo "WMS files already exist, skipping WMS setup" | tee -a ${MY_LOG_FILE}
+else
+  if [[ -d $WMS_BLD ]]; then
+      echo "Using WMS Build: $WMS_BLD" | tee -a ${MY_LOG_FILE}
+  fi
+
+# Install WMS
+  echo "Installing WMS from: $WMS_BLD"  | tee -a ${MY_LOG_FILE}
+  cp -r $WMS_BLD $MY_SW_ROOT/$(basename $WMS_BLD)
+  WMS_HOME=$(/bin/ls -d $MY_SW_ROOT/wms-*)
+
+# Configure WMS
+  echo "Adding WMS_INSTALL_DIR=$WMS_INSTALL_DIR to ~/.trafodion"  | tee -a ${MY_LOG_FILE}
+  if [[ -f ~/.trafodion ]]
+  then
+    mv -f ~/.trafodion ~/.trafodion.orig
+    grep -v 'WMS_INSTALL_DIR=' ~/.trafodion.orig > ~/.trafodion
+  fi
+  WMSDIR=${WMS_HOME##*/}
+  echo "export WMS_INSTALL_DIR=\${TRAF_HOME}/sql/local_hadoop/$WMSDIR" >> ~/.trafodion | tee -a ${MY_LOG_FILE}
+
+  echo "Setting custom port numbers to wms-site.xml file" | tee -a ${MY_LOG_FILE}
+  cd $WMS_HOME/conf/
+  mv -f wms-site.xml wms-site.xml.orig
+  sed -e "s@4207@$MY_WMS_SQL_TCP_PORT@" -e "s@5242@$MY_OPEN_TSDB_PORT@" -e "s@4208@$MY_WMS_LOG_TCP_PORT@" -e "s@zkhost@localhost@" -e "s@2181@$MY_HBASE_ZOOKEEPER_PROPERTY_CLIENTPORT_NUM@" wms-site.xml.orig > wms-site.xml | tee -a ${MY_LOG_FILE}
+
+  echo "Configured $WMS_HOME/conf/wms-site.xml" | tee -a ${MY_LOG_FILE}
+
+#Create wms user scripts directory if it does not exist
+  WMS_SCRIPTS_DIR=$MY_SW_ROOT/wms_scripts
+  if [ ! -d "$WMS_SCRIPTS_DIR" ]; then 
+    mkdir -p -m 700 $WMS_SCRIPTS_DIR
+  fi
+  echo "Adding WMS_SCRIPTS_DIR=$WMS_SCRIPTS_DIR to ~/.trafodion"  | tee -a ${MY_LOG_FILE}
+  if [[ -f ~/.trafodion ]]
+  then
+    mv -f ~/.trafodion ~/.trafodion.orig
+    grep -v 'WMS_SCRIPTS_DIR=' ~/.trafodion.orig > ~/.trafodion
+  fi
+  echo "export WMS_SCRIPTS_DIR=\${TRAF_HOME}/sql/local_hadoop/${WMS_SCRIPTS_DIR##*/}" >> ~/.trafodion | tee -a ${MY_LOG_FILE}
+
+fi
+
+# End of WMS setup
+
+source $HOME/.trafodion
+
+cds
+
+echo | tee -a ${MY_LOG_FILE}
+echo "   Open a new session and start Trafodion by executing sqgen and sqstart scripts" | tee -a ${MY_LOG_FILE}
+echo | tee -a ${MY_LOG_FILE}

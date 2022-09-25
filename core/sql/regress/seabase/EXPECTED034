@@ -1,0 +1,493 @@
+>>
+>>create trafodion namespace 'ns034_1' 
++>       hbase_options ('hbase.namespace.quota.maxtables' = '10');
+
+--- SQL operation complete.
+>>create trafodion namespace 'ns034_2';
+
+--- SQL operation complete.
+>>
+>>get config for trafodion namespace 'ns034_1';
+
+'hbase.namespace.quota.maxtables' => '10'
+
+--- SQL operation complete.
+>>get config for trafodion namespace 'ns034_2';
+
+--- SQL operation complete.
+>>
+>>alter trafodion namespace 'ns034_1' 
++>       hbase_options ('hbase.namespace.quota.maxtables' = '');
+
+--- SQL operation complete.
+>>get config for trafodion namespace 'ns034_1';
+
+--- SQL operation complete.
+>>
+>>alter trafodion namespace 'ns034_1' 
++>       hbase_options ('hbase.namespace.quota.maxtables' = '20');
+
+--- SQL operation complete.
+>>get config for trafodion namespace 'ns034_1';
+
+'hbase.namespace.quota.maxtables' => '20'
+
+--- SQL operation complete.
+>>
+>>create schema sch034 namespace 'ns034_1';
+
+--- SQL operation complete.
+>>set schema sch034;
+
+--- SQL operation complete.
+>>
+>>create table t034t1 (a int, b int);
+
+--- SQL operation complete.
+>>create table t034t2 (a int, b int) attribute namespace 'ns034_2';
+
+--- SQL operation complete.
+>>create table t034t3 (a int, b int) attribute hbase format;
+
+--- SQL operation complete.
+>>showddl t034t1;
+
+CREATE TABLE TRAFODION.SCH034.T034T1
+  (
+    A                                INT DEFAULT NULL
+  , B                                INT DEFAULT NULL
+  )
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_ns034_1'
+;
+
+--- SQL operation complete.
+>>showddl t034t2;
+
+CREATE TABLE TRAFODION.SCH034.T034T2
+  (
+    A                                INT DEFAULT NULL
+  , B                                INT DEFAULT NULL
+  )
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_ns034_2'
+;
+
+--- SQL operation complete.
+>>showddl t034t3;
+
+CREATE TABLE TRAFODION.SCH034.T034T3
+  (
+    A                                INT DEFAULT NULL
+  , B                                INT DEFAULT NULL
+  )
+ ATTRIBUTES NAMESPACE 'TRAF_ns034_1'
+;
+
+--- SQL operation complete.
+>>
+>>-- schema namespace used
+>>cqd AGGR_PUSHDOWN_THRESHOLD '1';
+
+--- SQL operation complete.
+>>insert into t034t1 values (1,2);
+
+--- 1 row(s) inserted.
+>>insert into t034t2 select * from t034t1;
+
+--- 1 row(s) inserted.
+>>update t034t1 set b = b + 1;
+
+--- 1 row(s) updated.
+>>select * from t034t1;
+
+A            B          
+-----------  -----------
+
+          1            3
+
+--- 1 row(s) selected.
+>>explain options 'f' select count(*) from t034t1;
+
+LC   RC   OP   OPERATOR              OPT       DESCRIPTION           CARD
+---- ---- ---- --------------------  --------  --------------------  ---------
+
+1    .    2    root                                                  1.00E+000
+.    .    1    hbase_aggr                      T034T1                1.00E+000
+
+--- SQL operation complete.
+>>select count(*) from t034t1;
+
+(EXPR)              
+--------------------
+
+                   1
+
+--- 1 row(s) selected.
+>>update statistics for table t034t1 on every column;
+
+--- SQL operation complete.
+>>showstats for table t034t1 on every column;
+
+Histogram data for Table TRAFODION.SCH034.T034T1
+Table ID: 4894434591699053496
+
+   Hist ID # Ints    Rowcount         UEC Colname(s)
+========== ====== =========== =========== ===========================
+1366220401      1           1           1 SYSKEY
+1366220396      1           1           1 A
+1366220391      1           1           1 B
+
+
+--- SQL operation complete.
+>>get region stats for table t034t1;
+
+
+Stats Summary
+=============
+
+  ObjectName:              TRAF_ns034_1:TRAFODION.SCH034.T034T1
+  NumRegions:              1
+  RegionsLocation:         /hbase/data/default
+  TotalNumStores:          1
+  TotalNumStoreFiles:      0
+  TotalUncompressedSize:   0
+  TotalStoreFileSize:      0
+  TotalMemStoreSize:       0
+  TotalReadRequestsCount:  8
+  TotalWriteRequestsCount: 2
+
+Stats Details
+=============
+
+  RegionServer:       edev07:38755
+  RegionNum:          1
+  RegionName:         TRAF_ns034_1:TRAFODION.SCH034.T034T1/1513069115897
+  NumStores:          1
+  NumStoreFiles:      0
+  UncompressedSize:   0 (less than 1MB)
+  StoreFileSize:      0 (less than 1MB)
+  MemStoreSize:       0 (less than 1MB)
+  ReadRequestsCount:  8
+  WriteRequestsCount: 2
+
+
+--- SQL operation complete.
+>>delete from t034t1;
+
+--- 1 row(s) deleted.
+>>select * from t034t1;
+
+--- 0 row(s) selected.
+>>alter table t034t1 rename to t034t1_ren;
+
+--- SQL operation complete.
+>>showddl t034t1_ren;
+
+CREATE TABLE TRAFODION.SCH034.T034T1_REN
+  (
+    A                                INT DEFAULT NULL
+  , B                                INT DEFAULT NULL
+  )
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_ns034_1'
+;
+
+--- SQL operation complete.
+>>
+>>-- table namespace used
+>>select * from t034t2;
+
+A            B          
+-----------  -----------
+
+          1            2
+
+--- 1 row(s) selected.
+>>create index t034t2i1 on t034t2 (b);
+
+--- SQL operation complete.
+>>showddl t034t2;
+
+CREATE TABLE TRAFODION.SCH034.T034T2
+  (
+    A                                INT DEFAULT NULL
+  , B                                INT DEFAULT NULL
+  )
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_ns034_2'
+;
+
+CREATE INDEX T034T2I1 ON TRAFODION.SCH034.T034T2
+  (
+    B ASC
+  )
+;
+
+--- SQL operation complete.
+>>explain options 'f' select b from t034t2;
+
+LC   RC   OP   OPERATOR              OPT       DESCRIPTION           CARD
+---- ---- ---- --------------------  --------  --------------------  ---------
+
+1    .    2    root                                                  1.00E+002
+.    .    1    trafodion_index_scan            T034T2I1              1.00E+002
+
+--- SQL operation complete.
+>>select b from t034t2;
+
+B          
+-----------
+
+          2
+
+--- 1 row(s) selected.
+>>alter table t034t2 add column c int;
+
+--- SQL operation complete.
+>>showddl t034t2;
+
+CREATE TABLE TRAFODION.SCH034.T034T2
+  (
+    A                                INT DEFAULT NULL
+  , B                                INT DEFAULT NULL
+  , C                                INT DEFAULT NULL /*added_col*/
+  )
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_ns034_2'
+;
+
+CREATE INDEX T034T2I1 ON TRAFODION.SCH034.T034T2
+  (
+    B ASC
+  )
+;
+
+--- SQL operation complete.
+>>select * from t034t2;
+
+A            B            C          
+-----------  -----------  -----------
+
+          1            2            ?
+
+--- 1 row(s) selected.
+>>alter table t034t2 drop column c;
+
+--- SQL operation complete.
+>>showddl t034t2;
+
+CREATE TABLE TRAFODION.SCH034.T034T2
+  (
+    A                                INT DEFAULT NULL
+  , B                                INT DEFAULT NULL
+  )
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_ns034_2'
+;
+
+CREATE INDEX T034T2I1 ON TRAFODION.SCH034.T034T2
+  (
+    B ASC
+  )
+;
+
+--- SQL operation complete.
+>>select * from t034t2;
+
+A            B          
+-----------  -----------
+
+          1            2
+
+--- 1 row(s) selected.
+>>
+>>purgedata t034t2;
+
+--- SQL operation complete.
+>>select * from t034t2;
+
+--- 0 row(s) selected.
+>>drop index t034t2i1;
+
+--- SQL operation complete.
+>>showddl t034t2;
+
+CREATE TABLE TRAFODION.SCH034.T034T2
+  (
+    A                                INT DEFAULT NULL
+  , B                                INT DEFAULT NULL
+  )
+ ATTRIBUTES ALIGNED FORMAT NAMESPACE 'TRAF_ns034_2'
+;
+
+--- SQL operation complete.
+>>
+>>-- attribute hbase format with schema namespace
+>>showddl t034t3;
+
+CREATE TABLE TRAFODION.SCH034.T034T3
+  (
+    A                                INT DEFAULT NULL
+  , B                                INT DEFAULT NULL
+  )
+ ATTRIBUTES NAMESPACE 'TRAF_ns034_1'
+;
+
+--- SQL operation complete.
+>>insert into t034t3 values (1,2), (3,4);
+
+--- 2 row(s) inserted.
+>>select * from t034t3;
+
+A            B          
+-----------  -----------
+
+          1            2
+          3            4
+
+--- 2 row(s) selected.
+>>alter table t034t3 add column c int;
+
+--- SQL operation complete.
+>>showddl t034t3;
+
+CREATE TABLE TRAFODION.SCH034.T034T3
+  (
+    A                                INT DEFAULT NULL
+  , B                                INT DEFAULT NULL
+  , C                                INT DEFAULT NULL /*added_col*/
+  )
+ ATTRIBUTES NAMESPACE 'TRAF_ns034_1'
+;
+
+--- SQL operation complete.
+>>select * from t034t3;
+
+A            B            C          
+-----------  -----------  -----------
+
+          1            2            ?
+          3            4            ?
+
+--- 2 row(s) selected.
+>>alter table t034t3 drop column c;
+
+--- SQL operation complete.
+>>showddl t034t3;
+
+CREATE TABLE TRAFODION.SCH034.T034T3
+  (
+    A                                INT DEFAULT NULL
+  , B                                INT DEFAULT NULL
+  )
+ ATTRIBUTES NAMESPACE 'TRAF_ns034_1'
+;
+
+--- SQL operation complete.
+>>select * from t034t3;
+
+A            B          
+-----------  -----------
+
+          1            2
+          3            4
+
+--- 2 row(s) selected.
+>>purgedata t034t3;
+
+--- SQL operation complete.
+>>select * from t034t3;
+
+--- 0 row(s) selected.
+>>
+>>
+>>-- error tests
+>>
+>>-- cannot create namespace if it already exists
+>>create trafodion namespace 't034err1';
+
+--- SQL operation complete.
+>>create trafodion namespace 't034err1';
+
+*** ERROR[1066] Namespace 'TRAF_t034err1' already exists in HBase.
+
+--- SQL operation failed with errors.
+>>create trafodion namespace 't034err1' if not exists;
+
+--- SQL operation complete.
+>>
+>>-- traf namespace must only contain [A-Za-z0-p_]
+>>create trafodion namespace 'A-B';
+
+*** ERROR[1065] An invalid namespace was specified in this statement. A valid trafodion namespace must start with 'TRAF_' and can only contain these characters: [a-zA-Z_0-9]. A valid external HBase namespace cannot start with 'TRAF_' and must only contain these characters: [a-zA-Z_0-9].
+
+*** ERROR[15001] A syntax error occurred at or before: 
+create trafodion namespace 'A-B';
+                                ^ (33 characters from start of SQL statement)
+
+*** ERROR[8822] The statement was not prepared.
+
+>>create trafodion namespace 'A.B';
+
+*** ERROR[1065] An invalid namespace was specified in this statement. A valid trafodion namespace must start with 'TRAF_' and can only contain these characters: [a-zA-Z_0-9]. A valid external HBase namespace cannot start with 'TRAF_' and must only contain these characters: [a-zA-Z_0-9].
+
+*** ERROR[15001] A syntax error occurred at or before: 
+create trafodion namespace 'A.B';
+                                ^ (33 characters from start of SQL statement)
+
+*** ERROR[8822] The statement was not prepared.
+
+>>
+>>-- cannot drop namespace if it doesn't exist
+>>drop trafodion namespace 't034err1';
+
+--- SQL operation complete.
+>>drop trafodion namespace 't034err1';
+
+*** ERROR[1067] Namespace 'TRAF_t034err1' does not exist in HBase.
+
+--- SQL operation failed with errors.
+>>drop trafodion namespace 't034err1' if exists;
+
+--- SQL operation complete.
+>>
+>>-- cannot get objects from namespace if it doesn't exist
+>>get objects in trafodion namespace 't034err1';
+
+*** ERROR[1067] Namespace 'TRAF_t034err1' does not exist in HBase.
+
+--- SQL operation failed with errors.
+>>
+>>-- cannot create table/schema if namespace doesn't exist
+>>create table t034terr1 (a int) attribute namespace 't034err1';
+
+*** ERROR[1067] Namespace 'TRAF_t034err1' does not exist in HBase.
+
+--- SQL operation failed with errors.
+>>create schema t034scherr namespace 't034err1';
+
+*** ERROR[1067] Namespace 'TRAF_t034err1' does not exist in HBase.
+
+--- SQL operation failed with errors.
+>>
+>>-- cannot drop namespace if it is not empty
+>>create trafodion namespace 't034err1';
+
+--- SQL operation complete.
+>>create table t034terr1 (a int) attribute namespace 't034err1';
+
+--- SQL operation complete.
+>>get objects in trafodion namespace 't034err1';
+
+TRAF_t034err1:TRAFODION.SCH034.T034TERR1
+
+--- SQL operation complete.
+>>drop trafodion namespace 't034err1';
+
+*** ERROR[1064] Namespace 'TRAF_t034err1' must be empty before it could be dropped. Delete all objects in it before dropping the namespace. Objects: TRAF_t034err1:TRAFODION.SCH034.T034TERR1.
+
+--- SQL operation failed with errors.
+>>drop table t034terr1;
+
+--- SQL operation complete.
+>>drop trafodion namespace 't034err1';
+
+--- SQL operation complete.
+>>
+>>
+>>log;

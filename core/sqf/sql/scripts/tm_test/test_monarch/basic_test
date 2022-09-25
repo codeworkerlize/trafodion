@@ -1,0 +1,11 @@
+sqlci -i ../delete_all.sql
+
+sqlci -i test.sql | tee test_after_delete.log
+
+sqlci -i ../validate.sql | tee validate.log
+
+sqlci -i ddl | tee ddl.log
+
+sqlci -i test.sql | tee test_after_ddl.log
+
+sqlci -i ../validate.sql | tee validate.log

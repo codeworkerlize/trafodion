@@ -1,0 +1,616 @@
+-- @@@ START COPYRIGHT @@@
+--
+-- Licensed to the Apache Software Foundation (ASF) under one
+-- or more contributor license agreements.  See the NOTICE file
+-- dIStributed with this work for additional information
+-- regarding copyright ownership.  The ASF licenses thIS file
+-- to you under the Apache License, Version 2.0 (the
+-- "License"); you may not use thIS file except in compliance
+-- with the License.  You may obtain a copy of the License at
+--
+--   http://www.apache.org/licenses/LICENSE-2.0
+--
+-- Unless required by applicable law or agreed to in writing,
+-- software dIStributed under the License is distributed on an
+-- "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+-- KIND, either express or implied.  See the License for the
+-- specific language governing permISsions and limitations
+-- under the License.
+--
+-- @@@ END COPYRIGHT @@@
+
+set parserflags 64;
+obey TEST301(clean);
+obey TEST301(setup);
+log LOG301 clear;
+obey TEST301(getpkg);
+obey TEST301(sch);
+obey TEST301(replace);
+obey TEST301(datatypes);
+obey TEST301(test);
+obey TEST301(pkgschema);
+obey TEST301(pkgfunc);
+log;
+obey TEST301(clean);
+exit;
+
+?section setup
+
+initialize authorization;
+
+register user sql_test301_user1;
+register user sql_test301_user2;
+
+grant component privilege create_routine on sql_operations to sql_test301_user1;
+grant component privilege create_routine on sql_operations to sql_test301_user2;
+
+drop schema if exists schtest301 cascade;
+create schema schtest301;
+
+?section getpkg
+
+set schema schtest301;
+set terminal_charset iso88591;
+drop package if exists pkg;
+drop package if exists pkg_user_test301;
+
+create package body pkg as //
+  procedure hello is
+  begin
+    print 'Hello';
+  end;
+end//;
+
+get packages;
+get packages in schema schtest301;
+--get packages for user sql_test301_user1;
+--get packages for user sql_test301_user2;
+sh sqlci -i "TEST301(createpkg)" -u sql_test301_user1;
+get packages;
+get packages in schema schtest301;
+--get packages for user sql_test301_user1;
+--get packages for user sql_test301_user2;
+
+set schema $$TEST_SCHEMA$$;
+
+?section createpkg
+
+set schema schtest301;
+
+create package body pkg_user_test301 as //
+  procedure hello is
+  begin
+    print 'Hello';
+  end;
+end//;
+
+set schema $$TEST_SCHEMA$$;
+
+?section pkgschema
+
+create schema if not exists pkg;
+
+create or replace package body pkg as //
+  procedure hello is
+  begin
+    print 'Hello from package pkg';
+  end;
+end//;
+
+-- Hello from package pkg
+call pkg.hello();
+-- error 1389
+call pkg.pkg.hello();
+-- error 1389
+call trafodion.pkg.hello();
+-- error 1389
+call trafodion.pkg.pkg.hello();
+-- Hello from package pkg
+call sch.pkg.hello();
+-- Hello from package pkg
+call trafodion.sch.pkg.hello();
+
+set schema pkg;
+
+create or replace procedure hello() as //
+begin
+  print 'Hello from schema pkg';
+end//;
+
+create or replace package body pkg as //
+  procedure hello is
+  begin
+    print 'Hello from package pkg of schema pkg';
+  end;
+end//;
+
+set schema $$TEST_SCHEMA$$;
+
+-- Hello from schema pkg
+call pkg.hello();
+-- Hello from package pkg of schema pkg
+call pkg.pkg.hello();
+-- Hello from schema pkg
+call trafodion.pkg.hello();
+-- Hello from package pkg of schema pkg
+call trafodion.pkg.pkg.hello();
+-- Hello from package pkg
+call sch.pkg.hello();
+-- Hello from package pkg
+call trafodion.sch.pkg.hello();
+
+?section sch
+
+create schema t301sch1;
+create schema t301sch2;
+
+set schema t301sch1;
+
+create table ts1 (a varchar(50));
+
+create package pkg1 as //
+  function f1(a varchar) return varchar;
+  procedure p1;
+  procedure p2;
+end//;
+
+create package body pkg1 as //
+  function f1(a varchar) returns varchar is
+  begin
+    declare r varchar := 'Not equal';
+    if a = 't301sch1.pkg1' then
+      set r = 'Equal';
+    end if;
+    insert into ts1 values(r);
+    return r;
+  end;
+
+  procedure p1 is
+  begin
+    insert into ts1 values('t301sch1.pkg1.p1');
+    set schema t301sch2;
+    p2();
+  end;
+
+  procedure p2 is
+  begin
+    insert into ts1 values('t301sch1.pkg1.p2');
+    dbms_output.put_line(f1('t301sch1.pkg1'));
+    dbms_output.put_line(pkg1.f1('t301sch1.pkg1'));
+    dbms_output.put_line(t301sch1.pkg1.f1('t301sch1.pkg1'));
+    dbms_output.put_line(trafodion.t301sch1.pkg1.f1('t301sch1.pkg1'));
+    dbms_output.put_line(t301sch2.pkg2.f1('t301sch2.pkg2'));
+    dbms_output.put_line(trafodion.t301sch2.pkg2.f1('t301sch2.pkg2'));
+  end;
+end//;
+
+set schema t301sch2;
+
+create table ts2 (a varchar(50));
+
+create package pkg2 as //
+  function f1(a varchar) returns varchar;
+  procedure p1;
+  procedure p2;
+end//;
+
+create package body pkg2 as //
+  function f1(a varchar) returns varchar is
+  begin
+    declare r varchar := 'Not equal';
+    if a = 't301sch2.pkg2' then
+      set r = 'Equal';
+    end if;
+    insert into ts2 values (r);
+    return r;
+  end;
+
+  procedure p1 is
+  begin
+    insert into ts2 values('t301sch2.pkg2.p1');
+    p2();
+  end;
+
+  procedure p2 is
+  begin
+    insert into ts2 values('t301sch2.pkg2.p2');
+  end;
+end//;
+
+set schema $$TEST_SCHEMA$$;
+
+drop table if exists ts;
+drop package if exists pkg;
+
+create table ts (a varchar(50));
+
+create package pkg as //
+  function f1(a varchar) returns varchar;
+  procedure p1;
+  procedure p2;
+end//;
+
+create package body pkg as //
+  function f1(a varchar) returns varchar is
+  begin
+    declare r varchar := 'Not equal';
+    if a = 'pkg' then
+      set r = 'Equal';
+    end if;
+    insert into ts values (r);
+    return r;
+  end;
+
+  procedure p1 is
+  begin
+    insert into ts values('pkg.p1');
+    dbms_output.put_line(f1('pkg'));
+    dbms_output.put_line(pkg.f1('pkg'));
+    dbms_output.put_line(sch.pkg.f1('pkg'));
+    dbms_output.put_line(trafodion.sch.pkg.f1('pkg'));
+    p2();
+    t301sch1.pkg1.p1();
+    trafodion.t301sch1.pkg1.p1();
+    t301sch2.pkg2.p1();
+    trafodion.t301sch2.pkg2.p1();
+
+    set schema t301sch1;
+    insert into ts1 values('pkg.p1');
+    dbms_output.put_line(f1('pkg')); /* this will resolve to pkg.f1 */
+    dbms_output.put_line(pkg1.f1('t301sch1.pkg1'));
+    dbms_output.put_line(t301sch1.pkg1.f1('t301sch1.pkg1'));
+    dbms_output.put_line(trafodion.t301sch1.pkg1.f1('t301sch1.pkg1'));
+    dbms_output.put_line(t301sch2.pkg2.f1('t301sch2.pkg2'));
+    dbms_output.put_line(trafodion.t301sch2.pkg2.f1('t301sch2.pkg2'));
+    pkg1.p1();
+    t301sch1.pkg1.p1();
+    trafodion.t301sch1.pkg1.p1();
+    t301sch2.pkg2.p1();
+    trafodion.t301sch2.pkg2.p1();
+
+    set schema trafodion.t301sch2;
+    insert into ts2 values('pkg.p1');
+    dbms_output.put_line(f1('pkg')); /* this will resolve to pkg.f1 */
+    dbms_output.put_line(pkg2.f1('t301sch2.pkg2'));
+    dbms_output.put_line(t301sch1.pkg1.f1('t301sch1.pkg1'));
+    dbms_output.put_line(trafodion.t301sch1.pkg1.f1('t301sch1.pkg1'));
+    dbms_output.put_line(t301sch2.pkg2.f1('t301sch2.pkg2'));
+    dbms_output.put_line(trafodion.t301sch2.pkg2.f1('t301sch2.pkg2'));
+    pkg2.p1();
+    t301sch1.pkg1.p1();
+    trafodion.t301sch1.pkg1.p1();
+    t301sch2.pkg2.p1();
+    trafodion.t301sch2.pkg2.p1();
+  end;
+
+  procedure p2 is
+  begin
+    insert into ts values('pkg.p2');
+  end;
+end//;
+
+call pkg.p1();
+
+select * from ts;
+select * from t301sch1.ts1;
+select * from t301sch2.ts2;
+
+?section replace
+
+drop package if exists pkg;
+
+create package pkg as //
+  procedure hello;
+end//;
+
+-- 1 row
+select sub_id, cast(text as varchar(200)) from "_MD_".OBJECTS join "_MD_".TEXT on object_uid = text_uid where schema_name = 'SCH' and object_name = 'PKG';
+
+create package body pkg as //
+  procedure hello is
+  begin
+    print 'Hello';
+  end;
+end//;
+
+-- 2 rows
+select sub_id, cast(text as varchar(200)) from "_MD_".OBJECTS join "_MD_".TEXT on object_uid = text_uid where schema_name = 'SCH' and object_name = 'PKG';
+
+-- error 1390
+create package pkg as //
+  procedure hi;
+end//;
+
+-- 2 row
+select sub_id, cast(text as varchar(200)) from "_MD_".OBJECTS join "_MD_".TEXT on object_uid = text_uid where schema_name = 'SCH' and object_name = 'PKG';
+
+-- error 1390
+create package body pkg as //
+  procedure hi is
+  begin
+    print 'Hi';
+  end;
+end//;
+
+-- 2 rows
+select sub_id, cast(text as varchar(200)) from "_MD_".OBJECTS join "_MD_".TEXT on object_uid = text_uid where schema_name = 'SCH' and object_name = 'PKG';
+
+create or replace package pkg as //
+  procedure hello;
+end//;
+
+-- error 1389
+call pkg.hello();
+
+create or replace package body pkg as //
+  procedure hello is
+  begin
+    print 'Hello';
+  end;
+end//;
+
+call pkg.hello();
+
+create or replace package pkg as //
+  procedure hi;
+end//;
+
+-- 1 row
+select sub_id, cast(text as varchar(200)) from "_MD_".OBJECTS join "_MD_".TEXT on object_uid = text_uid where schema_name = 'SCH' and object_name = 'PKG';
+
+-- error 1389
+call pkg.hello();
+
+-- error 1389
+call pkg.hi();
+
+create or replace package body pkg as //
+  procedure hi is
+  begin
+    print 'Hi';
+  end;
+end//;
+
+-- 2 rows
+select sub_id, cast(text as varchar(200)) from "_MD_".OBJECTS join "_MD_".TEXT on object_uid = text_uid where schema_name = 'SCH' and object_name = 'PKG';
+
+call pkg.hi();
+
+-- error 1389
+call pkg.hello();
+
+create or replace package pkg as //
+  procedure hello;
+end//;
+
+-- error 1389
+call pkg.hi();
+
+-- error 1389
+call pkg.hello();
+
+create or replace package body pkg as //
+  procedure hello is
+  begin
+    print 'Hello';
+  end;
+end//;
+
+call pkg.hello();
+
+-- error 1389
+call pkg.hi();
+
+-- error 1390
+create package pkg as //
+  procedure hi;
+end//;
+
+call pkg.hello();
+
+-- error 1389
+call pkg.hi();
+
+-- error 1390
+create package body pkg as //
+  procedure hi is
+  begin
+    print 'Hi';
+  end;
+end//;
+
+call pkg.hello();
+
+-- error 1389
+call pkg.hi();
+
+?section datatypes
+
+set pattern $$VALUE1$$ 123;
+set pattern $$VALUE2$$ 456;
+set pattern $$TYPE$$ tinyint;
+obey TEST301(datatype);
+set pattern $$TYPE$$ smallint;
+obey TEST301(datatype);
+set pattern $$TYPE$$ int;
+obey TEST301(datatype);
+set pattern $$TYPE$$ int2;
+obey TEST301(datatype);
+set pattern $$TYPE$$ int4;
+obey TEST301(datatype);
+set pattern $$TYPE$$ int8;
+obey TEST301(datatype);
+set pattern $$TYPE$$ bigint;
+obey TEST301(datatype);
+set pattern $$TYPE$$ float;
+obey TEST301(datatype);
+set pattern $$TYPE$$ real;
+obey TEST301(datatype);
+set pattern $$TYPE$$ double;
+obey TEST301(datatype);
+set pattern $$TYPE$$ 'double precision';
+obey TEST301(datatype);
+set pattern $$TYPE$$ number;
+obey TEST301(datatype);
+set pattern $$TYPE$$ number(10,2);
+obey TEST301(datatype);
+set pattern $$TYPE$$ numeric;
+obey TEST301(datatype);
+set pattern $$TYPE$$ numeric(10,3);
+obey TEST301(datatype);
+set pattern $$TYPE$$ decimal;
+obey TEST301(datatype);
+set pattern $$TYPE$$ decimal(10,5);
+obey TEST301(datatype);
+set pattern $$VALUE1$$ 'Trafodion';
+set pattern $$VALUE2$$ 'Esgyn';
+set pattern $$TYPE$$ CHAR;
+obey TEST301(datatype);
+set pattern $$TYPE$$ CHAR(100);
+obey TEST301(datatype);
+set pattern $$TYPE$$ VARCHAR;
+obey TEST301(datatype);
+set pattern $$TYPE$$ VARCHAR(100);
+obey TEST301(datatype);
+set pattern $$TYPE$$ NVARCHAR;
+obey TEST301(datatype);
+set pattern $$TYPE$$ NVARCHAR(100);
+obey TEST301(datatype);
+set pattern $$TYPE$$ NCHAR(100);
+obey TEST301(datatype);
+set pattern $$VALUE1$$ 'T';
+set pattern $$VALUE2$$ 'E';
+set pattern $$TYPE$$ NCHAR;
+obey TEST301(datatype);
+set pattern $$TYPE$$ date;
+set pattern $$VALUE1$$ '1979-07-29';
+set pattern $$VALUE2$$ '2012-01-12';
+obey TEST301(datatype);
+set pattern $$TYPE$$ time;
+set pattern $$VALUE1$$ '17:01:10';
+set pattern $$VALUE2$$ '22:12:30';
+obey TEST301(datatype);
+set pattern $$TYPE$$ timestamp;
+set pattern $$VALUE1$$ '''1979-07-29 17:01:10''';
+set pattern $$VALUE2$$ '''2012-01-12 22:12:30''';
+obey TEST301(datatype);
+set pattern $$TYPE$$ datetime;
+set pattern $$VALUE1$$ '''1979-07-29 17:01:10''';
+set pattern $$VALUE2$$ '''2012-01-12 22:12:30''';
+obey TEST301(datatype);
+
+?section datatype
+
+drop package if exists pkg;
+
+create package pkg as //
+  procedure test1(in a $$TYPE$$, inout b $$TYPE$$, out c $$TYPE$$);
+end//;
+
+create package body pkg as //
+  procedure test1(in a $$TYPE$$, inout b $$TYPE$$, out c $$TYPE$$) is
+  begin
+    set c = b;
+    set b = a;
+  end;
+end//;
+
+set param ?a $$VALUE1$$;
+set param ?b $$VALUE2$$;
+
+call pkg.test1(?a, ?b, ?);
+
+?section test
+
+create or replace package pkg as //
+  procedure hi;
+  procedure hello(name varchar);
+end//;
+
+create or replace package body pkg as //
+  procedure hi
+  is
+  begin
+    print 'Hi';
+  end;
+
+  procedure hello(name varchar)
+  is
+  begin
+    print greeting(name);
+  end;
+
+  function greeting(name varchar) return varchar
+  is
+  begin
+    return 'Hello, ' || name || '!';
+  end;
+end//;
+
+call pkg.hi();
+call pkg.hello('World');
+
+create package users as //
+  session_count int := 0;
+  function get_count() return int; 
+  procedure add_user(name varchar(100));
+end//;
+
+create package body users as //
+  function get_count() return int
+  is
+  begin
+    return session_count;
+  end; 
+  procedure add_user(name varchar(100))
+  is 
+  begin
+    session_count = session_count + 1;
+  end;
+  procedure print_count()
+  is
+  begin
+    print 'Number of users: ' || get_count();
+  end;
+end//;
+
+call users.add_user('John');
+call users.add_user('Sarah');
+call users.add_user('Paul');
+call users.print_count();
+
+?section pkgfunc
+
+drop package if exists pkg;
+create package pkg as //
+  function doubleit(a int) return int;
+end//;
+
+create package body pkg as //
+  function doubleit(a int) return int is
+  begin
+    return a * 2;
+  end;
+end//;
+
+select pkg.doubleit(1) from dual;
+select sch.pkg.doubleit(2) from dual;
+select trafodion.sch.pkg.doubleit(3) from dual;
+select not_exist.doubleit(1) from dual;
+select not_exist.pkg.doubleit(1) from dual;
+select not_exist.sch.pkg.doubleit(1) from dual;
+
+?section clean
+DROP PACKAGE pkg.pkg;
+DROP PROCEDURE pkg.hello;
+DROP SCHEMA pkg;
+DROP PACKAGE pkg;
+DROP PACKAGE users;
+drop schema if exists t301sch1 cascade;
+drop schema if exists t301sch2 cascade;
+drop package pkg_user_test301;
+revoke component privilege create_routine on sql_operations from sql_test301_user1;
+revoke component privilege create_routine on sql_operations from sql_test301_user2;
+drop schema if exists schtest301 cascade;
+unregister user sql_test301_user1;
+unregister user sql_test301_user2;

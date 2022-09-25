@@ -1,0 +1,541 @@
+>>set catalog trafodion;
+
+--- SQL operation complete.
+>>CREATE SCHEMA IF NOT EXISTS HOTCOLDTEST;
+
+--- SQL operation complete.
+>>CREATE TABLE TRAFODION.HOTCOLDTEST.TBL
++>  (
++>    A                                CHAR(10) CHARACTER SET ISO88591 COLLATE
++>      DEFAULT DEFAULT NULL NOT SERIALIZED
++>  , K2                               INT NO DEFAULT NOT NULL NOT DROPPABLE NOT
++>      SERIALIZED
++>  , K1                               INT NO DEFAULT NOT NULL NOT DROPPABLE NOT
++>      SERIALIZED
++>  , TS                               TIMESTAMP(6) NO DEFAULT NOT NULL NOT
++>      DROPPABLE NOT SERIALIZED
++>  , B                                VARCHAR(30) CHARACTER SET ISO88591 COLLATE
++>      DEFAULT DEFAULT NULL NOT SERIALIZED
++>  , C                                LARGEINT DEFAULT NULL NOT SERIALIZED
++>  , PRIMARY KEY (K1 ASC, K2 ASC, TS ASC)
++>  )
++>  SALT USING 4 PARTITIONS
++>       ON (K1, K2, TS)
++>  DIVISION BY (DATE_PART('YEARMONTH',TS))
++>
++>;
+
+--- SQL operation complete.
+>>
+>>CREATE INDEX TBL_A_IDX_BY_A ON TRAFODION.HOTCOLDTEST.TBL
++>  (
++>    A ASC
++>  )
++> SALT LIKE TABLE
++>;
+
+--- SQL operation complete.
+>>
+>>upsert using load into HOTCOLDTEST.tbl
++>select cast(num as char(10)), num, num/1000,  DATEADD(SECOND,-num,CURRENT_TIMESTAMP), cast(num as varchar(30)), num*1000
++>from (select 10000000*x10000000+1000000*x1000000+100000*x100000+10000*x10000+1000*x1000+100*x100+10*x10+x1 as num
++>      from (values (0)) seed(c)
++>      transpose 0,1 as x1
++>      transpose 0,1 as x10
++>      transpose 0,1 as x100
++>      transpose 0,1 as x1000
++>      transpose 0,1 as x10000
++>      transpose 0,1,2,3,4,5,6,7,8,9 as x100000	
++>      transpose 0,1,2,3,4,5,6,7,8,9 as x1000000
++>      transpose 0,1,2,3,4,5,6,7,8,9 as x10000000	
++>	) T
++>;
+
+--- 32000 row(s) inserted.
+>>
+>>cqd hive_timestamp_precision_in_usec 'ON';
+
+--- SQL operation complete.
+>>update statistics for table HOTCOLDTEST.tbl on every column;
+
+--- SQL operation complete.
+>>call trafodion."_LIBMGR_".hotcold_create('HOTCOLDTEST','TBL','date_part(''YEARMONTH'', CURRENT_TIMESTAMP - INTERVAL ''2'' MONTH)');
+
+--- SQL operation complete.
+>>update statistics for table hive.hotcoldtest.tbl on every column;
+
+--- SQL operation complete.
+>>prepare s from select sum(c) from hotcoldtest.tbl_view where ts < extract(year from current_date)||'-01-01 00:00:00';
+
+--- SQL command prepared.
+>> --cold only see if union leg of hot is gone
+>>explain options 'fc' s;
+
+LC   RC   OP   OPERATOR              OPT       DESCRIPTION           CARD
+---- ---- ---- --------------------  --------  --------------------  ---------
+
+6    .    7    root                                                  1.00E+002
+5    .    6    sort_partial_aggr_ro                                  1.00E+002
+2    4    5    merge_union                                           1.00E+002
+3    .    4    sort_scalar_aggr                                      1.00E+002
+.    .    3    orc_scan                        TBL                   1.00E+002
+1    .    2    sort_scalar_aggr                                      1.00E+002
+.    .    1    trafodion_scan                  TBL                   1.00E+002
+
+--- SQL operation complete.
+>>explain s;
+
+------------------------------------------------------------------ PLAN SUMMARY
+MODULE_NAME .............. DYNAMICALLY COMPILED
+STATEMENT_NAME ........... S
+PLAN_ID .................. 212430933765187335
+ROWS_OUT ................. 1
+EST_TOTAL_COST ........... 0.03
+STATEMENT ................ select sum(c)
+                           from hotcoldtest.tbl_view
+                           where ts < extract(year from current_date)||'-01-01
+                            00:00:00';
+
+
+------------------------------------------------------------------ NODE LISTING
+ROOT ======================================  SEQ_NO 7        ONLY CHILD 6
+REQUESTS_IN .............. 1
+ROWS_OUT ................. 1
+EST_OPER_COST ............ 0
+EST_TOTAL_COST ........... 0.03
+DESCRIPTION
+  est_memory_per_node .... 10240.00(Limit), 0.00(BMOs), 0.00(nBMOs) MB
+  max_card_est ........... 1
+  fragment_id ............ 0
+  parent_frag ............ (none)
+  fragment_type .......... master
+  record_length ......... 10
+  affinity_value ......... 0
+  max_max_cardinality  16,177
+  xn_access_mode ......... read_only
+  xn_autoabort_interval    0
+  auto_query_retry ....... enabled
+  plan_version ....... 2,600
+  embedded_arkcmp ........ used
+  IS_SQLCI ............... ON
+  LDAP_USERNAME .......... NOT AVAILABLE
+  HBASE_FILTER_PREDS ..... 2
+  TRAF_INDEX_CREATE_OPT    ON
+  SCHEMA ................. TRAFODION.SCH
+  CATALOG ................ TRAFODION
+  HIVE_TIMESTAMP_PRECISIO  ON
+  ObjectUIDs ............. 1221237250093015064, 5527241443956646766
+  select_list ............ cast(cast(sum(cast(ValueIdUnion(sum(TRAFODION.HOTCOL
+                             DTEST.TBL.C), sum(HOTCOLDTEST.TBL.C))))))
+  input_variables ........ current_timestamp
+
+
+SORT_PARTIAL_AGGR_ROOT ====================  SEQ_NO 6        ONLY CHILD 5
+REQUESTS_IN .............. 1
+ROWS_OUT ................. 1
+EST_OPER_COST ............ 0.01
+EST_TOTAL_COST ........... 0.03
+DESCRIPTION
+  max_card_est ........... 1
+  fragment_id ............ 0
+  parent_frag ............ (none)
+  fragment_type .......... master
+  record_length ......... 16
+  aggregates ............. sum(cast(ValueIdUnion(sum(TRAFODION.HOTCOLDTEST.TBL.
+                             C), sum(HOTCOLDTEST.TBL.C))))
+
+
+MERGE_UNION ===============================  SEQ_NO 5        CHILDREN 2, 4
+REQUESTS_IN .............. 1
+ROWS_OUT ................. 2
+EST_OPER_COST ............ 0.01
+EST_TOTAL_COST ........... 0.03
+DESCRIPTION
+  max_card_est ........... 2
+  fragment_id ............ 0
+  parent_frag ............ (none)
+  fragment_type .......... master
+  record_length ......... 16
+  union_type ............. merge
+
+
+SORT_SCALAR_AGGR ==========================  SEQ_NO 4        ONLY CHILD 3
+REQUESTS_IN .............. 1
+ROWS_OUT ................. 1
+EST_OPER_COST ............ 0.01
+EST_TOTAL_COST ........... 2.32
+DESCRIPTION
+  max_card_est ........... 1
+  fragment_id ............ 0
+  parent_frag ............ (none)
+  fragment_type .......... master
+  record_length ......... 16
+  aggregates ............. sum(HOTCOLDTEST.TBL.C)
+
+
+ORC_SCAN ==================================  SEQ_NO 3        NO CHILDREN
+TABLE_NAME ............... HIVE.HOTCOLDTEST.TBL
+REQUESTS_IN .............. 1
+ROWS_OUT ............ 16,176
+EST_OPER_COST ............ 2.32
+EST_TOTAL_COST ........... 2.32
+DESCRIPTION
+  max_card_est ...... 16,176
+  fragment_id ............ 0
+  parent_frag ............ (none)
+  fragment_type .......... master
+  record_length ......... 10
+  scan_type .............. full scan of table HIVE.HOTCOLDTEST.TBL
+  object_type ............ Hive_Orc
+  scan_direction ......... forward
+  lock_mode .............. not specified, defaulted to lock cursor
+  access_mode ............ not specified, defaulted to read committed
+  columns_retrieved ...... 2
+  probes ................. 1
+  rows_accessed ..... 30,432
+  native_bloomfilter ..... yes
+  executor_predicates .... (HOTCOLDTEST.TBL.TS < cast(((' ' trim
+                             cast(YEAR(cast(current_timestamp)))) || '-01-01
+                             00:00:00')))
+  part_elim_compiled ..... ("_DIVISION_1_" Range in ("_DIVISION_1_" <= 201905))
+
+
+SORT_SCALAR_AGGR ==========================  SEQ_NO 2        ONLY CHILD 1
+REQUESTS_IN .............. 1
+ROWS_OUT ................. 1
+EST_OPER_COST ............ 0.01
+EST_TOTAL_COST ........... 0.03
+DESCRIPTION
+  max_card_est ........... 1
+  fragment_id ............ 0
+  parent_frag ............ (none)
+  fragment_type .......... master
+  record_length ......... 16
+  aggregates ............. sum(TRAFODION.HOTCOLDTEST.TBL.C)
+
+
+TRAFODION_SCAN ============================  SEQ_NO 1        NO CHILDREN
+TABLE_NAME ............... TBL
+REQUESTS_IN .............. 1
+ROWS_OUT ................. 1
+EST_OPER_COST ............ 0.03
+EST_TOTAL_COST ........... 0.03
+DESCRIPTION
+  max_card_est ........... 1
+  fragment_id ............ 0
+  parent_frag ............ (none)
+  fragment_type .......... master
+  record_length ......... 10
+  scan_type .............. subset scan limited by mdam of table
+                             TRAFODION.HOTCOLDTEST.TBL
+  object_type ............ Trafodion
+  cache_size ......... 1,024
+  cache_blocks ........... ON
+  small_scanner .......... ON
+  probes ................. 1
+  rows_accessed ...... 1,568
+  access_mode ............ not specified, defaulted to read committed
+  column_retrieved ....... #1:1
+  key_columns ............ _SALT_, _DIVISION_1_, K1, K2, TS
+  executor_predicates .... (TS >= 2021-03-01 00:00:00.000000) and (TS <
+                             cast(((' ' trim cast(YEAR(cast(current_timestamp))
+                             )) || '-01-01 00:00:00')))
+  mdam_disjunct .......... (_DIVISION_1_ > 202102) and (_DIVISION_1_ >=
+                             202103) and (_DIVISION_1_ <=
+                             DATE_PART('YEARMONTH',cast(((' ' trim
+                             cast(YEAR(cast(current_timestamp)))) || '-01-01
+                             00:00:00'))))
+  part_key_predicates .... (TS >= 2021-03-01 00:00:00.000000) and (TS <
+                             cast(((' ' trim cast(YEAR(cast(current_timestamp))
+                             )) || '-01-01 00:00:00')))
+
+--- SQL operation complete.
+>>--see if compile time partition elimination works
+>>prepare s from select sum(c) from hotcoldtest.tbl_view where ts >'2040-01-01 00:00:00';
+
+--- SQL command prepared.
+>> --hot only see if union leg of cold is gone
+>>explain options 'fc' s;
+
+LC   RC   OP   OPERATOR              OPT       DESCRIPTION           CARD
+---- ---- ---- --------------------  --------  --------------------  ---------
+
+6    .    7    root                                                  1.00E+002
+5    .    6    sort_partial_aggr_ro                                  1.00E+002
+2    4    5    merge_union                                           1.00E+002
+3    .    4    sort_scalar_aggr                                      1.00E+002
+.    .    3    orc_scan                        TBL                   1.00E+002
+1    .    2    sort_scalar_aggr                                      1.00E+002
+.    .    1    trafodion_scan                  TBL                   1.00E+002
+
+--- SQL operation complete.
+>>select sum(c) from hotcoldtest.tbl_view where ts > '2000-01-01 00:00:00';
+
+(EXPR)              
+--------------------
+
+    1598577776000000
+
+--- 1 row(s) selected.
+>>call trafodion."_LIBMGR_".hotcold_cleanup('HOTCOLDTEST','TBL','DROP_COLD');
+
+--- SQL operation complete.
+>>
+>>CREATE TABLE TRAFODION.HOTCOLDTEST.TBL2
++>  (
++>    A                                CHAR(10) CHARACTER SET ISO88591 COLLATE
++>      DEFAULT DEFAULT NULL NOT SERIALIZED
++>  , K2                               INT NO DEFAULT NOT NULL NOT DROPPABLE NOT
++>      SERIALIZED
++>  , K1                               INT NO DEFAULT NOT NULL NOT DROPPABLE NOT
++>      SERIALIZED
++>  , TS                               TIMESTAMP(6) NO DEFAULT NOT NULL NOT
++>      DROPPABLE NOT SERIALIZED
++>  , B                                VARCHAR(30) CHARACTER SET ISO88591 COLLATE
++>      DEFAULT DEFAULT NULL NOT SERIALIZED
++>  , C                                LARGEINT DEFAULT NULL NOT SERIALIZED
++>  , PRIMARY KEY (K1 ASC, K2 ASC, TS ASC)
++>  )
++>  SALT USING 2 PARTITIONS
++>       ON (K1, K2, TS)
++>;
+
+--- SQL operation complete.
+>>
+>>upsert using load into HOTCOLDTEST.tbl2
++>select cast(num as char(10)), num, num/10000000,  DATEADD(SECOND,-num,CURRENT_TIMESTAMP), cast(num as varchar(30)), num*1000
++>from (select 10000000*x10000000+1000000*x1000000+100000*x100000+10000*x10000+1000*x1000+100*x100+10*x10+x1 as num
++>      from (values (0)) seed(c)
++>      transpose 0,1 as x1
++>      transpose 0,1 as x10
++>      transpose 0,1 as x100
++>      transpose 0,1 as x1000
++>      transpose 0,1 as x10000
++>      transpose 0,1,2,3,4,5,6,7,8,9 as x100000	
++>      transpose 0,1,2,3,4,5,6,7,8,9 as x1000000
++>      transpose 0,1,2,3,4,5,6,7,8,9 as x10000000	
++>	) T
++>;
+
+--- 32000 row(s) inserted.
+>>
+>>update statistics for table HOTCOLDTEST.tbl2 on every column;
+
+--- SQL operation complete.
+>>call trafodion."_LIBMGR_".hotcold_create_advanced('HOTCOLDTEST','TBL2','floor(datediff(DAY, DATE ''2010-01-01'', CURRENT_DATE)/1000)','PARQUET',2,NULL,4);
+
+--- SQL operation complete.
+>>update statistics for table hive.hotcoldtest.tbl2 on every column;
+
+--- SQL operation complete.
+>>prepare s from select sum(c) from hotcoldtest.tbl2_view where k1 < 2;
+
+--- SQL command prepared.
+>> --cold only see if union leg of hot is gone
+>>explain options 'fc' s;
+
+LC   RC   OP   OPERATOR              OPT       DESCRIPTION           CARD
+---- ---- ---- --------------------  --------  --------------------  ---------
+
+6    .    7    root                                                  1.00E+002
+5    .    6    sort_partial_aggr_ro                                  1.00E+002
+2    4    5    merge_union                                           1.00E+002
+3    .    4    sort_scalar_aggr                                      1.00E+002
+.    .    3    parquet_scan                    TBL2                  1.00E+002
+1    .    2    sort_scalar_aggr                                      1.00E+002
+.    .    1    trafodion_scan                  TBL2                  1.00E+002
+
+--- SQL operation complete.
+>>explain s;
+
+------------------------------------------------------------------ PLAN SUMMARY
+MODULE_NAME .............. DYNAMICALLY COMPILED
+STATEMENT_NAME ........... S
+PLAN_ID .................. 212430933847254559
+ROWS_OUT ................. 1
+EST_TOTAL_COST ........... 0.09
+STATEMENT ................ select sum(c)
+                           from hotcoldtest.tbl2_view
+                           where k1 < 2;
+
+
+------------------------------------------------------------------ NODE LISTING
+ROOT ======================================  SEQ_NO 7        ONLY CHILD 6
+REQUESTS_IN .............. 1
+ROWS_OUT ................. 1
+EST_OPER_COST ............ 0
+EST_TOTAL_COST ........... 0.09
+DESCRIPTION
+  est_memory_per_node .... 10240.00(Limit), 0.00(BMOs), 0.00(nBMOs) MB
+  max_card_est ........... 1
+  fragment_id ............ 0
+  parent_frag ............ (none)
+  fragment_type .......... master
+  record_length ......... 10
+  affinity_value ......... 0
+  max_max_cardinality  6,401
+  xn_access_mode ......... read_only
+  xn_autoabort_interval    0
+  auto_query_retry ....... enabled
+  plan_version ....... 2,600
+  embedded_arkcmp ........ used
+  IS_SQLCI ............... ON
+  LDAP_USERNAME .......... NOT AVAILABLE
+  HBASE_FILTER_PREDS ..... 2
+  TRAF_INDEX_CREATE_OPT    ON
+  SCHEMA ................. TRAFODION.SCH
+  CATALOG ................ TRAFODION
+  HIVE_TIMESTAMP_PRECISIO  ON
+  ObjectUIDs ............. 1221237250093034764, 5527241444064656136
+  select_list ............ cast(cast(sum(cast(ValueIdUnion(sum(TRAFODION.HOTCOL
+                             DTEST.TBL2.C), sum(HOTCOLDTEST.TBL2.C))))))
+
+
+SORT_PARTIAL_AGGR_ROOT ====================  SEQ_NO 6        ONLY CHILD 5
+REQUESTS_IN .............. 1
+ROWS_OUT ................. 1
+EST_OPER_COST ............ 0.01
+EST_TOTAL_COST ........... 0.09
+DESCRIPTION
+  max_card_est ........... 1
+  fragment_id ............ 0
+  parent_frag ............ (none)
+  fragment_type .......... master
+  record_length ......... 16
+  aggregates ............. sum(cast(ValueIdUnion(sum(TRAFODION.HOTCOLDTEST.TBL2
+                             .C), sum(HOTCOLDTEST.TBL2.C))))
+
+
+MERGE_UNION ===============================  SEQ_NO 5        CHILDREN 2, 4
+REQUESTS_IN .............. 1
+ROWS_OUT ................. 2
+EST_OPER_COST ............ 0.01
+EST_TOTAL_COST ........... 0.09
+DESCRIPTION
+  max_card_est ........... 2
+  fragment_id ............ 0
+  parent_frag ............ (none)
+  fragment_type .......... master
+  record_length ......... 16
+  union_type ............. merge
+
+
+SORT_SCALAR_AGGR ==========================  SEQ_NO 4        ONLY CHILD 3
+REQUESTS_IN .............. 1
+ROWS_OUT ................. 1
+EST_OPER_COST ............ 0.01
+EST_TOTAL_COST ........... 0.2
+DESCRIPTION
+  max_card_est ........... 1
+  fragment_id ............ 0
+  parent_frag ............ (none)
+  fragment_type .......... master
+  record_length ......... 16
+  aggregates ............. sum(HOTCOLDTEST.TBL2.C)
+
+
+PARQUET_SCAN ==============================  SEQ_NO 3        NO CHILDREN
+TABLE_NAME ............... HIVE.HOTCOLDTEST.TBL2
+REQUESTS_IN .............. 1
+ROWS_OUT ............. 6,400
+EST_OPER_COST ............ 0.2
+EST_TOTAL_COST ........... 0.2
+DESCRIPTION
+  max_card_est ....... 6,400
+  fragment_id ............ 0
+  parent_frag ............ (none)
+  fragment_type .......... master
+  record_length ......... 10
+  scan_type .............. full scan of table HIVE.HOTCOLDTEST.TBL2
+  object_type ............ Hive_Parquet
+  scan_direction ......... forward
+  lock_mode .............. not specified, defaulted to lock cursor
+  access_mode ............ not specified, defaulted to read committed
+  columns_retrieved ...... 1
+  probes ................. 1
+  rows_accessed ...... 6,400
+  part_elim_compiled ..... (K1 Range in (K1 < 2))
+
+
+SORT_SCALAR_AGGR ==========================  SEQ_NO 2        ONLY CHILD 1
+REQUESTS_IN .............. 1
+ROWS_OUT ................. 1
+EST_OPER_COST ............ 0.01
+EST_TOTAL_COST ........... 0.09
+DESCRIPTION
+  max_card_est ........... 1
+  fragment_id ............ 0
+  parent_frag ............ (none)
+  fragment_type .......... master
+  record_length ......... 16
+  aggregates ............. sum(TRAFODION.HOTCOLDTEST.TBL2.C)
+
+
+TRAFODION_SCAN ============================  SEQ_NO 1        NO CHILDREN
+TABLE_NAME ............... TBL2
+REQUESTS_IN .............. 1
+ROWS_OUT ................. 1
+EST_OPER_COST ............ 0.09
+EST_TOTAL_COST ........... 0.09
+DESCRIPTION
+  max_card_est ........... 1
+  fragment_id ............ 0
+  parent_frag ............ (none)
+  fragment_type .......... master
+  record_length ......... 10
+  scan_type .............. subset scan of table TRAFODION.HOTCOLDTEST.TBL2
+  object_type ............ Trafodion
+  columns ................ all
+  begin_keys(incl)
+  end_keys(incl)
+  cache_size ......... 1,024
+  cache_blocks ........... ON
+  probes ................. 1
+  rows_accessed ..... 32,000
+  access_mode ............ not specified, defaulted to read committed
+  column_retrieved ....... #1:1
+  key_columns ............ _SALT_, K1, K2, TS
+  executor_predicates .... return_false
+
+--- SQL operation complete.
+>>--see if compile time partition elimination works
+>>prepare s from select sum(c) from hotcoldtest.tbl2_view where k1 > 9;
+
+--- SQL command prepared.
+>> --hot only see if union leg of cold is gone
+>>explain options 'fc' s;
+
+LC   RC   OP   OPERATOR              OPT       DESCRIPTION           CARD
+---- ---- ---- --------------------  --------  --------------------  ---------
+
+6    .    7    root                                                  1.00E+002
+5    .    6    sort_partial_aggr_ro                                  1.00E+002
+2    4    5    merge_union                                           1.00E+002
+3    .    4    sort_scalar_aggr                                      1.00E+002
+.    .    3    parquet_scan                    TBL2                  1.00E+002
+1    .    2    sort_scalar_aggr                                      1.00E+002
+.    .    1    trafodion_scan                  TBL2                  1.00E+002
+
+--- SQL operation complete.
+>>select sum(c) from hotcoldtest.tbl2_view where k1 >= 0;
+
+(EXPR)              
+--------------------
+
+    1598577776000000
+
+--- 1 row(s) selected.
+>>call trafodion."_LIBMGR_".hotcold_cleanup('HOTCOLDTEST','TBL2','DEFAULT');
+
+--- SQL operation complete.
+>>process hive statement 'DROP TABLE IF EXISTS HOTCOLDTEST.TBL2';
+
+--- SQL operation complete.
+>>unregister hive table hive.hotcoldtest.tbl2 cleanup;
+
+--- SQL operation complete.
+>>process hive statement 'DROP SCHEMA IF EXISTS HOTCOLDTEST';
+
+--- SQL operation complete.
+>>--cleanup
+>>log;

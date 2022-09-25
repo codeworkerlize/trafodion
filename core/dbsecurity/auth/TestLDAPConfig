@@ -1,0 +1,97 @@
+# @@@ START COPYRIGHT @@@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+# @@@ END COPYRIGHT @@@
+
+#
+# This is the template file for Trafodion database authentication 
+# directory service configuration.
+#
+# To use authentication in Trafodion, this file must be configured
+# as described below and placed in $TRAF_HOME/sql/scripts and be named
+# .traf_authentication_config.  You must also enable authentication by
+# running the script traf_authentication_setup in $TRAF_HOME/sql/scripts.
+#
+# NOTE: the format of this configuration file is expected to change in the 
+# next release of Trafodion.  Backward compatilibity is not guaranteed.
+#
+SECTION: Defaults
+  DefaultSectionName: local
+  RefreshTime: 1800
+  TLS_CACERTFilename:
+SECTION: local 
+  LoadBalanceHostName: 
+  LDAPHostName: ldap1.esgyn.local
+  LDAPPort:389
+  UniqueIdentifier: uid=,ou=users,dc=esgyn,dc=local
+  LDAPSearchDN:
+  LDAPSearchPwd:
+  LDAPSSL:0
+  LDAPNetworkTimeout: 30 
+  LDAPTimeout: 30 
+  LDAPTimeLimit: 30
+  RetryCount: 5 
+  RetryDelay: 2 
+  PreserveConnection: No
+  ExcludeBadHosts: Yes  
+  MaxExcludeListSize: 3 
+
+  LDAPSearchGroupBase: ou=Groups,dc=esgyn,dc=local
+  LDAPSearchGroupObjectClass:groupOfNames
+  LDAPSearchGroupMemberAttr:member
+  LDAPSearchGroupNameAttr:cn
+
+SECTION: ldap1
+LdapHostname: ldap1.esgyn.local
+LdapPort: 389
+UniqueIdentifier: uid=,ou=users,dc=esgyn,dc=local
+LDAPSearchDN:
+LDAPSearchPwd:
+LDAPSSL: 0
+LDAPSearchGroupBase: ou=Groups,dc=esgyn,dc=local
+LDAPSearchGroupObjectClass: groupOfNames
+LDAPSearchGroupMemberAttr: member
+LDAPSearchGroupNameAttr: cn
+
+SECTION: ldap2
+LdapHostname: ldap2.esgyn.local
+LdapPort: 389
+UniqueIdentifier: uid=,ou=users,dc=esgyn,dc=local
+LDAPSearchDN:
+LDAPSearchPwd:
+LDAPSSL: 0
+LDAPSearchGroupBase: ou=Groups,dc=esgyn,dc=local
+LDAPSearchGroupObjectClass: groupOfNames
+LDAPSearchGroupMemberAttr: member
+LDAPSearchGroupNameAttr: cn
+
+SECTION: ad
+LdapHostname: esgyn-ad2012.esgyn.local
+LdapPort: 389
+UniqueIdentifier: cn=,ou=QA,dc=esgyn,dc=local
+UniqueIdentifier: cn=,ou=Testing,dc=esgyn,dc=local
+UniqueIdentifier: cn=,ou=Staff,ou=HQ Users,dc=esgyn,dc=local
+
+LDAPSearchDN: cn=trafodion,ou=Testing,dc=esgyn,dc=local
+LDAPSearchPwd: traf123
+LDAPSSL: 0
+LDAPSearchGroupBase: ou=Testing Group,dc=esgyn,dc=local
+LDAPSearchGroupObjectClass: group
+LDAPSearchGroupMemberAttr: member
+LDAPSearchGroupNameAttr: cn 

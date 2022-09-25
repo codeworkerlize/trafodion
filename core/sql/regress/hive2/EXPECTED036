@@ -1,0 +1,10 @@
+>>prepare xx from select * from hive.hive.myorc2;
+
+*** WARNING[6008] Statistics for column (SS_CDEMO_SK) from table HIVE.HIVE.MYORC2 were not available. As a result, the access path chosen might not be the best possible.
+
+--- SQL command prepared.
+>>log;
+totalAccumulatedRows: 2620457
+totalAccumulatedTotalSize: 134355753
+totalAccumulatedStripes: 3
+totalAccumulatedBlocks: 1

@@ -1,0 +1,11 @@
+#!/bin/bash
+
+#
+# This script is simply a wrapper to the actual script that
+# removes the HBase RS' zk node for the given node name
+#
+
+rm_hbase_rs_zknode_execute $* & 
+disown %1
+
+

@@ -1,0 +1,98 @@
+>>obey stdcqds;
+>>
+>>set schema hive.tpcds_sf1000;
+
+--- SQL operation complete.
+>>
+>>control osim simulate continue './osim.all.sf1000.09022016';
+
+--- SQL operation complete.
+>>
+>>cqd orc_njs 'on';
+
+--- SQL operation complete.
+>>cqd parallel_num_esps '48';
+
+--- SQL operation complete.
+>>cqd QUERY_CACHE '200000';
+
+--- SQL operation complete.
+>>cqd HIVE_METADATA_REFRESH_INTERVAL '-1';
+
+--- SQL operation complete.
+>>cqd  HIVE_LOCALITY_BALANCE_LEVEL '-1';
+
+--- SQL operation complete.
+>>cqd  METADATA_CACHE_SIZE '200';
+
+--- SQL operation complete.
+>>cqd partitioning_scheme_sharing '2';
+
+--- SQL operation complete.
+>>cqd COMP_BOOL_208 'ON';
+
+--- SQL operation complete.
+>>obey q63;
+>>
+>>--==QID: 63
+>>
+>>prepare xx from
++>select  *
++>from (select i_manager_id
++>             ,sum(ss_sales_price) sum_sales
++>             ,avg(sum(ss_sales_price)) over (partition by i_manager_id) avg_monthly_sales
++>      from item
++>          ,store_sales_1stripeperfile
++>          ,date_dim
++>          ,store
++>      where ss_item_sk = i_item_sk
++>        and ss_sold_date_sk = d_date_sk
++>        and ss_store_sk = s_store_sk
++>        and d_month_seq in (1192,1192+1,1192+2,1192+3,1192+4,1192+5,1192+6,1192+7,1192+8,1192+9,1192+10,1192+11)
++>        and ((    i_category in ('Books','Children','Electronics')
++>              and i_class in ('personal','portable','reference','self-help')
++>              and i_brand in ('scholaramalgamalg #14','scholaramalgamalg #7',
++>                                  'exportiunivamalg #9','scholaramalgamalg #9'))
++>           or(    i_category in ('Women','Music','Men')
++>              and i_class in ('accessories','classical','fragrances','pants')
++>              and i_brand in ('amalgimporto #1','edu packscholar #1','exportiimporto #1',
++>                                 'importoamalg #1')))
++>group by i_manager_id, d_moy) tmp1
++>where case when avg_monthly_sales > 0 then abs (sum_sales - avg_monthly_sales) / avg_monthly_sales else null end > 0.1
++>order by i_manager_id
++>        ,avg_monthly_sales
++>        ,sum_sales
++>limit 100;
+
+--- SQL command prepared.
+>>
+>>obey explains;
+>>explain options 'f' xx;
+
+LC   RC   OP   OPERATOR              OPT       DESCRIPTION           CARD
+---- ---- ---- --------------------  --------  --------------------  ---------
+
+17   .    18   root                                                  1.60E+001
+16   .    17   firstn                                                1.60E+001
+15   .    16   sort                                                  1.60E+001
+14   .    15   sequence                                              1.60E+001
+13   .    14   sort_partial_groupby                                  4.80E+001
+12   .    13   esp_exchange                    1:48(hash2) (m)       4.80E+001
+11   .    12   sort                                                  4.80E+001
+10   .    11   hash_partial_groupby                                  4.80E+001
+9    2    10   hybrid_hash_join                                      8.30E+005
+8    4    9    hybrid_hash_join                                      8.30E+005
+7    6    8    hybrid_hash_join                                      3.93E+006
+.    .    7    orc_scan                        STORE_SALES_1STRIPEP  2.75E+009
+5    .    6    esp_exchange                    48(rep-b):2(hash2)    4.92E+002
+.    .    5    orc_scan                        ITEM                  4.92E+002
+3    .    4    esp_exchange                    48(rep-b):2(hash2)    3.84E+002
+.    .    3    orc_scan                        DATE_DIM              3.84E+002
+1    .    2    esp_exchange                    48(rep-b):2(hash2)    1.00E+003
+.    .    1    orc_scan                        STORE                 1.00E+003
+
+--- SQL operation complete.
+>>exit;
+
+End of MXCI Session
+

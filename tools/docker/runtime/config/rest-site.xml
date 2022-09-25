@@ -1,0 +1,18 @@
+<configuration>
+    <property>
+        <name>rest.zookeeper.property.clientPort</name>
+        <value>2181</value>
+    </property>
+    <property>
+        <name>rest.zookeeper.quorum</name>
+        <value>localhost</value>
+    </property>
+    <property>
+        <name>rest.port</name>
+        <value>4200</value>
+    </property>
+    <property>
+        <name>zookeeper.znode.parent</name>
+        <value>/trafodion/1</value>
+    </property>
+</configuration>

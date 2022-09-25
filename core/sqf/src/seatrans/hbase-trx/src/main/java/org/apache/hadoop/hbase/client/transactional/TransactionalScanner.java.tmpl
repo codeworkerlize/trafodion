@@ -1,0 +1,570 @@
+/**
+* @@@ START COPYRIGHT @@@
+*
+* Licensed to the Apache Software Foundation (ASF) under one
+* or more contributor license agreements.  See the NOTICE file
+* distributed with this work for additional information
+* regarding copyright ownership.  The ASF licenses this file
+* to you under the Apache License, Version 2.0 (the
+* "License"); you may not use this file except in compliance
+* with the License.  You may obtain a copy of the License at
+*
+*   http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing,
+* software distributed under the License is distributed on an
+* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+* KIND, either express or implied.  See the License for the
+* specific language governing permissions and limitations
+* under the License.
+*
+* @@@ END COPYRIGHT @@@
+**/
+
+
+package org.apache.hadoop.hbase.client.transactional;
+
+import java.io.IOException;
+import java.util.LinkedList;
+import java.lang.management.ManagementFactory;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.hadoop.hbase.HConstants;
+import org.apache.hadoop.hbase.HRegionInfo;
+import org.apache.hadoop.hbase.client.AbstractClientScanner;
+import org.apache.hadoop.hbase.client.Consistency;
+import org.apache.hadoop.hbase.client.Result;
+import org.apache.hadoop.hbase.client.Scan;
+import org.apache.hadoop.hbase.coprocessor.transactional.generated.TrxRegionProtos;
+import org.apache.hadoop.hbase.coprocessor.transactional.generated.TrxRegionProtos.CloseScannerRequest;
+import org.apache.hadoop.hbase.coprocessor.transactional.generated.TrxRegionProtos.OpenScannerRequest;
+import org.apache.hadoop.hbase.coprocessor.transactional.generated.TrxRegionProtos.PerformScanRequest;
+import org.apache.hadoop.hbase.coprocessor.transactional.generated.TrxRegionProtos.TrxRegionService;
+import org.apache.hadoop.hbase.coprocessor.transactional.lock.exception.LockTimeOutException;
+import org.apache.hadoop.hbase.coprocessor.transactional.lock.exception.DeadLockException;
+import org.apache.hadoop.hbase.coprocessor.transactional.lock.exception.LockCancelOperationException;
+import org.apache.hadoop.hbase.coprocessor.transactional.lock.exception.LockNotEnoughResourcsException;
+import org.apache.hadoop.hbase.coprocessor.transactional.lock.LockMode;
+import org.apache.hadoop.hbase.ipc.CoprocessorRpcChannel;
+import org.apache.hadoop.hbase.protobuf.ProtobufUtil;
+import org.apache.hadoop.hbase.util.Bytes;
+
+import com.google.protobuf.ByteString;
+import org.apache.commons.codec.binary.Hex;
+
+/*
+ *   Transaction Scanner
+ */
+public class TransactionalScanner extends AbstractClientScanner {
+    private static final Log LOG = LogFactory.getLog(TransactionalScanner.class);
+    public Scan scan;
+    public Long scannerID;
+    public Long savepointID;
+    public Long pSavepointId;
+    public int isolationLevel;
+    public TransactionState ts;
+    public TransactionalTable ttable;
+    protected boolean closed = false;
+    // Experiment with this parameter, may be faster without having to send the final close()
+    protected boolean regionShouldNotCloseOnLast = false;
+    protected int nbRows = 0;
+    protected long nextCallSeq = 0;
+    private boolean hasMore = true;
+    private boolean moreScanners = true;
+    private boolean skipConflictAccess;
+    private int lockMode = LockMode.LOCK_NO;
+    private boolean autoOpen = false;
+    public HRegionInfo currentRegion;
+    public byte[] currentBeginKey;
+    public byte[] currentEndKey;
+    private String sName;
+    protected final LinkedList<Result> cache = new LinkedList<Result>();
+    private static int defaultSmallScanSize = 100;
+    private static boolean logScanDelails = false;
+    private static Integer costTh = -1;
+    private static Integer costAllTh = -1;
+    private static String PID;
+    private static long transId = -1;
+    private static long[] costSum = new long[3];
+    private static long[] callCount = new long[3];
+    public long coproCost = 0;
+    
+    public static final int SCAN_SLEEP = 100;      // .1 second
+    public static final int SCAN_SLEEP_INCR = 100; // .1 second
+    public static final int SCAN_RETRY_ATTEMPTS = 3;
+    private static int lockRetries = 10000;
+    private static boolean enableRowLevelLock = false;
+    private String queryContext = null;
+
+
+    static {
+       String smallScanString = System.getenv("TM_SMALL_SCAN_SIZE");
+       if (smallScanString != null){
+          defaultSmallScanSize = Integer.parseInt(smallScanString.trim());
+       }
+       String logScanDelailsString = System.getenv("TM_LOG_SCAN_DETAILS");
+       if (logScanDelailsString != null){
+          logScanDelails = (Integer.parseInt(logScanDelailsString.trim()) == 1) ? true : false;
+       }
+       String costThreshold = System.getenv("RECORD_TIME_COST_HBASE");
+       if (costThreshold != null && false == costThreshold.trim().isEmpty())
+          costTh = Integer.parseInt(costThreshold);
+
+       costThreshold = System.getenv("RECORD_TIME_COST_HBASE_ALL");
+       if (costThreshold != null && false == costThreshold.trim().isEmpty())
+          costAllTh = Integer.parseInt(costThreshold);
+
+       String envEnableRowLevelLock = System.getenv("ENABLE_ROW_LEVEL_LOCK");
+       if (envEnableRowLevelLock != null) {
+           try {
+               enableRowLevelLock = (Integer.parseInt(envEnableRowLevelLock.trim()) == 0) ? false : true;
+           } catch (Exception e) {
+           }
+       }
+       if (enableRowLevelLock) {
+           String lockRetriesStr = System.getenv("LOCK_CLIENT_RETRIES_TIMES");
+           if (lockRetriesStr != null) {
+               try {
+                   lockRetries = Integer.parseInt(lockRetriesStr);
+               } catch (Exception e){}
+           } else {
+               lockRetries = 20;
+           }
+           LOG.info("LOCK_CLIENT_RETRIES_TIMES: " + lockRetries);
+       }
+
+       PID = ManagementFactory.getRuntimeMXBean().getName();
+       PID = PID.split("@")[0];
+    }
+
+    public TransactionalScanner(final TransactionalTable ttable, final TransactionState ts,
+                                final int lockMode, final boolean skipConflictAccess, final Scan scan,
+                                final Long scannerID, final Long savepointID, final long pSavepointId, 
+                                final int isolationLevel, final String queryContext) throws IOException {
+        super();
+        this.scan = scan;
+        this.scannerID = scannerID;
+        this.savepointID = savepointID;
+        this.pSavepointId = pSavepointId;
+        this.isolationLevel = isolationLevel;
+        this.ts = ts;
+        this.skipConflictAccess = skipConflictAccess;
+        this.lockMode = lockMode;
+        this.ttable = ttable;
+        this.sName = ttable.getName().getNameAsString();
+        this.regionShouldNotCloseOnLast = false;
+        this.autoOpen = true;
+        this.nbRows = scan.getCaching();
+        this.queryContext = queryContext;
+        if (nbRows <= 0 || nbRows == 100){
+            nbRows = defaultSmallScanSize;
+            scan.setCaching(defaultSmallScanSize);
+        }
+        try {
+            nextScanner(false);
+        }catch (IOException e) {
+            LOG.error("nextScanner error ", e);
+            throw new IOException(e);
+        }
+    }
+
+    protected boolean checkScanStopRow(final byte [] endKey) {
+      if (this.scan.getStopRow().length > 0) {
+        byte [] stopRow = scan.getStopRow();
+        int cmp = Bytes.compareTo(stopRow, 0, stopRow.length,
+          endKey, 0, endKey.length);
+        if (cmp <= 0) {
+          return true;
+        }
+      }
+      return false;
+    }
+    
+    public int retry(int retrySleep) {
+        boolean keepPolling = true;
+        while (keepPolling) {
+            try {
+                Thread.sleep(retrySleep);
+                keepPolling = false;
+            } catch(InterruptedException ex) {
+            // ignore the interruption and keep going
+            }
+         }
+         return (retrySleep += SCAN_SLEEP_INCR);
+     } // retry method    
+    
+    @Override
+    public void close() {
+
+	if (LOG.isDebugEnabled()) LOG.debug("Scanner close() -- ENTRY txID: " + ts.getTransactionId() + " table " + sName );
+        coproCost = 0;
+        if(closed) {
+            if(LOG.isTraceEnabled()) LOG.trace("close()  already closed -- EXIT txID: " + ts.getTransactionId());
+            return;
+        }
+        this.closed = true;
+        TrxRegionProtos.CloseScannerRequest.Builder requestBuilder = CloseScannerRequest.newBuilder();
+        requestBuilder.setTransactionId(ts.getTransactionId());
+        requestBuilder.setRegionName(ByteString.copyFromUtf8(currentRegion.getRegionNameAsString()));
+        requestBuilder.setScannerId(scannerID);
+        TrxRegionProtos.CloseScannerRequest closeRequest = requestBuilder.build();
+        TrxRegionProtos.CloseScannerResponse response = null;
+        try {
+            CoprocessorRpcChannel channel = ttable.coprocessorService(this.currentBeginKey);
+            TrxRegionService.BlockingInterface trxService = TrxRegionService.newBlockingStub(channel);
+            response = trxService.closeScanner(null, closeRequest);
+        }
+        catch (Throwable e) {
+            String errMsg = "CloseScanner error on coprocessor call, scannerID: " + this.scannerID + " " + e;
+            LOG.error(errMsg);
+            //throw new IOException(errMsg, e);
+        }
+        if (response != null && response.getHasException()) {
+           String exception = response.getException();
+           String errMsg = "closeScanner encountered Exception txID: " +
+                        ts.getTransactionId() + " Exception: " + exception;
+           LOG.error(errMsg);
+           //throw new IOException(errMsg);
+        }
+
+	if (LOG.isDebugEnabled()) LOG.debug("Scanner close() -- EXIT txID: " + ts.getTransactionId() + " table " + sName );	
+    }
+
+    protected boolean nextScanner(final boolean done) throws IOException{
+        if (LOG.isDebugEnabled()) LOG.debug("nextScanner() -- ENTRY txID: " + ts.getTransactionId()
+             + " table " + sName);	
+        if(this.currentBeginKey != null) {
+            if(LOG.isDebugEnabled()) LOG.debug("nextScanner() currentBeginKey != null txID: " + ts.getTransactionId()
+                    + " currentBeginKey=" + (Bytes.equals(this.currentBeginKey, HConstants.EMPTY_START_ROW) ?
+                      "INFINITE" : Hex.encodeHexString(this.currentBeginKey)));
+            if (regionShouldNotCloseOnLast){ // if the region won't automatically we need to tell it to close
+              if(LOG.isTraceEnabled()) LOG.trace("nextScanner() regionShouldNotCloseOnLast is true; closing scanner");
+              close();
+            }
+            if((this.currentEndKey == HConstants.EMPTY_END_ROW) || 
+                Bytes.equals(this.currentEndKey, HConstants.EMPTY_BYTE_ARRAY) ||
+                checkScanStopRow(this.currentEndKey) || 
+                done) {
+                if(LOG.isTraceEnabled()) LOG.trace("endKey: " + (Bytes.equals(this.currentEndKey, HConstants.EMPTY_END_ROW) ?
+                      "INFINITE" : Hex.encodeHexString(this.currentEndKey)));
+                if(LOG.isTraceEnabled()) LOG.trace("nextScanner() -- EXIT -- returning false txID: " + ts.getTransactionId());
+                this.moreScanners = false;
+                return false;
+            }
+            else
+                if(LOG.isDebugEnabled()) LOG.debug("Setting currentBeginKey to endKey: " + (Bytes.equals(this.currentEndKey, HConstants.EMPTY_END_ROW) ?
+                      "INFINITE" : Hex.encodeHexString(this.currentEndKey)));
+                //this.currentBeginKey = TransactionManager.binaryIncrementPos(this.currentEndKey,1);
+                  this.currentBeginKey = this.currentEndKey;
+        }
+        else {
+            // First call to nextScanner
+            this.currentBeginKey = this.scan.getStartRow();
+        }
+
+        this.currentRegion = ttable.getRegionLocation(this.currentBeginKey, false).getRegionInfo();
+        this.currentEndKey = this.currentRegion.getEndKey();
+
+        clearStatsIfNewTrans(ts.getTransactionId());
+        if(LOG.isDebugEnabled()) LOG.debug("nextScanner() txID: " + ts.getTransactionId() + " Region Info: " + currentRegion.getRegionNameAsString()
+              + "currentBeginKey: " + (Bytes.equals(this.currentBeginKey, HConstants.EMPTY_START_ROW) ?
+                      "INFINITE" : Hex.encodeHexString(this.currentBeginKey))
+              + " currentEndKey: " + (Bytes.equals(this.currentEndKey, HConstants.EMPTY_END_ROW) ?
+                      "INFINITE" : Hex.encodeHexString(this.currentEndKey)));
+        //if(this.currentEndKey != HConstants.EMPTY_END_ROW)
+        //   this.currentEndKey = TransactionManager.binaryIncrementPos(currentRegion.getEndKey(), -1);
+
+        this.closed = false;
+
+      if (! autoOpen){
+      TrxRegionProtos.OpenScannerRequest.Builder requestBuilder = OpenScannerRequest.newBuilder();
+      requestBuilder.setTransactionId(ts.getTransactionId());
+      requestBuilder.setStartId(ts.getStartId());
+      requestBuilder.setSkipScanConflict(this.skipConflictAccess);
+      requestBuilder.setRegionName(ByteString.copyFromUtf8(currentRegion.getRegionNameAsString()));
+      requestBuilder.setScan(ProtobufUtil.toScan(scan));
+      requestBuilder.setSavepointId(this.savepointID);
+      requestBuilder.setPSavepointId(this.pSavepointId);
+      requestBuilder.setIsolationLevel(this.isolationLevel);
+      requestBuilder.setLockMode(this.lockMode);
+      requestBuilder.setQueryContext(ByteString.copyFromUtf8(this.queryContext));
+      TrxRegionProtos.OpenScannerRequest openRequest = requestBuilder.build();
+      TrxRegionProtos.OpenScannerResponse response = null;
+      try {
+          CoprocessorRpcChannel channel = ttable.coprocessorService(this.currentBeginKey);
+          TrxRegionService.BlockingInterface trxService = TrxRegionService.newBlockingStub(channel);
+          long timeCost = System.currentTimeMillis();
+          response = trxService.openScanner(null, openRequest);
+          if (costTh >= 0 && response != null) {
+              long cost1 = response.getCoproSTime() - timeCost;
+              long cost3 = System.currentTimeMillis();
+              timeCost = cost3 - timeCost;
+              costSum[0] += timeCost;
+              callCount[0]++;
+              if (timeCost >= costTh) {
+                  long cost2 = response.getCoproETime() - response.getCoproSTime();
+                  cost3 -= response.getCoproETime();
+                  LOG.warn("TransactionalScanner openScanner copro PID " + PID + " txID " + ts.getTransactionId() + " CC " + callCount[0] + " AC " + (costSum[0] / callCount[0]) + " TC " + timeCost + " TBLNAME " + sName);
+              }
+          }
+          this.scannerID = response.getScannerId();
+      }
+      catch (Throwable e) {
+          String errMsg = "OpenScanner error on coprocessor call, scannerID: " + this.scannerID ;
+          LOG.error(errMsg, e);
+          throw new IOException(errMsg, e);
+      }
+      if (response.getHasException()) {
+         String exception = response.getException();
+         String errMsg = "nextScanner encountered Exception txID: " +
+               ts.getTransactionId() + " Exception: " + exception;
+         LOG.error(errMsg);
+         throw new IOException(errMsg);
+      }
+     }
+      this.nextCallSeq = 0;
+      if (LOG.isDebugEnabled()) LOG.debug("nextScanner() -- EXIT -- returning true txID: " + ts.getTransactionId()
+            + " table " + sName);      
+      return true;
+    }
+
+    @Override
+    public Result next() throws IOException {
+        int retryCount = 0;
+        int retrySleep = SCAN_SLEEP;
+        int retryTotal = SCAN_RETRY_ATTEMPTS;
+        boolean retry = false;
+        int lockRetryCount = 0;
+
+        clearStatsIfNewTrans(ts.getTransactionId());
+        if (ts.getCancelOperation())
+            throw new LockCancelOperationException("transaction " + ts.getTransactionId() + " is canceled!");
+        // if (LOG.isTraceEnabled()) LOG.trace("next -- ENTRY txID: " + ts.getTransactionId() + " cache size: " + cache.size());
+        if(cache.size() == 0) {
+            if (LOG.isTraceEnabled()) LOG.trace("next -- cache.size() == 0 txID: " + ts.getTransactionId());
+            if(this.hasMore) {
+                TrxRegionProtos.PerformScanResponse response;
+                if (LOG.isTraceEnabled())
+                    LOG.trace("next() before coprocessor PerformScan call txID: " + ts.getTransactionId());
+                do { 
+                   retry = false;
+                   final long nextCallSeqInput = this.nextCallSeq;
+                   TrxRegionProtos.PerformScanRequest.Builder requestBuilder = PerformScanRequest.newBuilder();
+                   requestBuilder.setTransactionId(ts.getTransactionId());
+                   requestBuilder.setSavepointId(this.savepointID);
+                   requestBuilder.setPSavepointId(this.pSavepointId);
+                   requestBuilder.setStartId(ts.getStartId());
+                   requestBuilder.setSkipScanConflict(this.skipConflictAccess);
+                   requestBuilder.setScan(ProtobufUtil.toScan(scan));
+                   requestBuilder.setRegionName(ByteString.copyFromUtf8(currentRegion.getRegionNameAsString()));
+                   requestBuilder.setScannerId(scannerID);
+                   requestBuilder.setAutoOpen(autoOpen);
+                   requestBuilder.setNumberOfRows(nbRows);
+                   requestBuilder.setIsolationLevel(this.isolationLevel);
+                   requestBuilder.setLockMode(this.lockMode);
+                   if (regionShouldNotCloseOnLast)
+                       requestBuilder.setCloseScanner(false);
+                   else
+                       requestBuilder.setCloseScanner(true);
+                   requestBuilder.setNextCallSeq(nextCallSeqInput);
+                   requestBuilder.setQueryContext(ByteString.copyFromUtf8(this.queryContext));
+                   TrxRegionProtos.PerformScanRequest perfScanRequest = requestBuilder.build();
+                   try {
+                       CoprocessorRpcChannel channel = ttable.coprocessorService(this.currentBeginKey);
+                       TrxRegionService.BlockingInterface trxService = TrxRegionService.newBlockingStub(channel);
+                       long timeCost = System.currentTimeMillis();
+                       response = trxService.performScan(null, perfScanRequest);
+                       if (costTh >= 0 && response != null) {
+                           long cost1 = response.getCoproSTime() - timeCost;
+                           long cost3 = System.currentTimeMillis();
+                           timeCost = cost3 - timeCost;
+                           coproCost += timeCost;
+                           callCount[1]++;
+                           costSum[1] += timeCost;
+                           if (timeCost >= costTh) {
+                               long cost2 = response.getCoproETime() - response.getCoproSTime();
+                               cost3 -= response.getCoproETime();
+                               LOG.warn("TransactionalScanner performScan copro PID " + PID + " txID " + ts.getTransactionId() + " CC " + callCount[1] + " AC " + (costSum[1] / callCount[1]) + " TC " + timeCost + " " + cost1 + " " + cost2 + " " + cost3 + " TBLNAME " + sName);
+                           }
+                       }
+                   }
+                   catch (Throwable e) {
+                       String errMsg = "PerformScan error on coprocessor call, scannerID: " + this.scannerID;
+                       if(LOG.isErrorEnabled()) LOG.error(errMsg, e);
+                       String cause = e.getCause().toString();
+                       if (e.getMessage().contains("DeadLockException") || cause.contains("DeadLockException")) {
+                           throw new DeadLockException(errMsg, e);
+                       } else if (e.getMessage().contains("LockNotEnoughResourcsException") || cause.contains("LockNotEnoughResourcsException")) {
+                           throw new LockNotEnoughResourcsException(errMsg, e);
+                       }else {
+                           throw new IOException(errMsg, e);
+                       }
+                   }
+                   if (response.getHasException()) {
+                      int count = response.getResultCount();
+                      this.nextCallSeq = response.getNextCallSeq();
+                      this.scannerID = response.getScannerId();
+
+                      org.apache.hadoop.hbase.protobuf.generated.ClientProtos.Result result = null;
+                      for (int i = 0; i < count; i++) {
+                          result = response.getResult(i);
+                          if (result != null) {
+                              cache.add(ProtobufUtil.toResult(result));
+                          }
+                      }
+                      String exception = response.getException();
+                      boolean isLockTimeOut = isLockException(exception);
+                      String errMsg = "performScan encountered Exception txID: " +
+                                ts.getTransactionId() + " Exception: " + exception;
+                      if (!isLockTimeOut) {
+                          LOG.error(errMsg);
+                      }
+                      if ( (scan.getConsistency() == Consistency.TIMELINE) && (exception.contains("non phase 2")) ){
+                         LOG.warn("Scan will retry to redrive in Timeline table access " + scan.getConsistency() +
+                                 ", retry count: " + retryCount + " table: " + this.sName);
+                         retry(retrySleep);
+                         retryCount++;
+                         if (retryCount > retryTotal) {
+                             throw new IOException(errMsg);
+                         }
+                         retry = true;
+                      }
+                      else if (exception.contains("RegionNameMismatchException")) {
+                        if (retryCount < retryTotal - 1) {
+                          if (LOG.isDebugEnabled())
+                            LOG.debug("performScan will retry due to RegionNameMismatchException, region's name is: " + this.currentRegion.getRegionNameAsString());
+                          this.currentRegion = ttable.getRegionLocation(this.currentBeginKey, true).getRegionInfo();
+                          this.currentEndKey = this.currentRegion.getEndKey();
+                          retryCount++;
+                          retry = true;
+                        } else { 
+                          throw new IOException(errMsg);
+                        }
+                      }
+                      else if (isLockTimeOut) {
+                          if (ts.getCancelOperation())
+                              throw new LockCancelOperationException("transaction " + ts.getTransactionId() + " is canceled!");
+
+                          if (lockRetryCount < lockRetries - 1) {
+                              lockRetryCount++;
+                              retry = true;
+                          } else {
+                              LOG.error(errMsg);
+                              throw new LockTimeOutException(errMsg);
+                          }
+                      }
+                      else if (exception.contains("DeadLockException")) {
+                          throw new DeadLockException(errMsg);
+                      } else if (exception.contains("LockNotEnoughResourcsException")) {
+                          throw new LockNotEnoughResourcsException(errMsg);
+                      }
+                      else {
+                          throw new IOException(errMsg);
+                      }
+                   } // has exception
+                } while ((retry == true) && (retryCount < retryTotal) && lockRetryCount < lockRetries);
+                int count;
+                org.apache.hadoop.hbase.protobuf.generated.ClientProtos.Result result;
+
+                this.nextCallSeq = response.getNextCallSeq();
+                this.scannerID = response.getScannerId();
+                count = response.getResultCount();
+                if (LOG.isTraceEnabled()) LOG.trace("next() nextCallSeq: " + this.nextCallSeq +
+                        " count: " + count);
+                if (logScanDelails) {
+                   LOG.warn("next() table " + sName + " nextCallSeq: " + this.nextCallSeq +
+                        " count: " + count);
+                }
+                if(count == 0) {
+                    this.hasMore = false;
+                }
+                else {
+                    for (int i = 0; i < count; i++) {
+                        result = response.getResult(i);
+                        if (result != null) {
+                            cache.add(ProtobufUtil.toResult(result));
+                        }
+                        this.hasMore = response.getHasMore();
+                        if (LOG.isTraceEnabled())
+                            LOG.trace("  PerformScan response count " + count
+                               + ", hasMore is " + hasMore + ", result " + result);
+                    }
+
+                    if (logScanDelails) {
+                       LOG.warn("  PerformScan response count " + count
+                         + ", requested rows " + nbRows + ", hasMore is " + hasMore + " table " + sName);
+                    }
+                }
+                this.closed = response.getScannerIsClosed();
+            }
+            else {
+              if(LOG.isTraceEnabled()) LOG.trace("hasMore is false");
+              if ((Bytes.equals(this.currentEndKey, HConstants.EMPTY_END_ROW)) && (regionShouldNotCloseOnLast == false)){
+                 if(LOG.isTraceEnabled()) LOG.trace("hasMore is false for table " + sName  + " this is the last region.  No more scanners");
+                 this.moreScanners = false;
+                 return null;
+              }
+              if(nextScanner(false)){
+                  if(LOG.isTraceEnabled()) LOG.trace("next(), nextScanner == true nextCallSeq: " + this.nextCallSeq);
+                  this.hasMore = true;
+                  return next();
+              }
+              else {
+                  if(LOG.isTraceEnabled()) LOG.trace("next(), nextScanner == false");
+                  this.moreScanners = false;
+                  return null;
+              }
+            }
+        }
+        if (cache.size() > 0)  {
+            // if(LOG.isTraceEnabled()) LOG.trace("next() returning cache.poll()");
+            return cache.poll();
+        }
+        else if(this.moreScanners){
+            if(LOG.isTraceEnabled()) LOG.trace("next() more scanners");
+            return next();
+        }
+        else {
+            if(LOG.isTraceEnabled()) LOG.trace("next() returning null");
+            return null;
+        }
+    }
+#ifdef HDP2.3
+    @Override
+#endif
+    public boolean renewLease() {
+        return true;
+    }
+
+    private boolean isLockException(String errorMsg) {
+        if (errorMsg == null || errorMsg.equals("")) {
+            return false;
+        }
+        return ((errorMsg.contains("LockTimeOutException") &&
+                !errorMsg.contains("for transaction rollbacked"))
+                ||
+                (errorMsg.contains("FailedToLockException") &&
+                 !errorMsg.contains("for region split") &&
+                 !errorMsg.contains("for region move")));
+    }
+
+    private static synchronized void clearStatsIfNewTrans(long tid) {
+      if (costTh < 0)
+	 return;
+
+      if (transId != tid && tid != -1) {
+         long count = 0, cost = 0;
+         for (int idx = 0; idx < 3; idx++) {
+           count += callCount[idx];
+           cost += costSum[idx];
+           costSum[idx] = 0;
+           callCount[idx] = 0;
+         }
+         if (transId != -1 && costAllTh >= 0 && cost >= costAllTh) {
+           LOG.warn("TransactionalScanner summary PID " + PID + " txID " + transId  + " TCC " + count + " TTC " + cost);
+         }
+         transId = tid;
+       }
+   }
+}

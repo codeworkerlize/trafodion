@@ -1,0 +1,20 @@
+#!/bin/bash
+# uninstall local ampool instance.
+
+lv_dir=${AMPOOL_HOME}-${AMPOOL_VERSION}
+
+echo "This script will:"
+echo "- shutdown ampool"
+echo "- remove the ampool installation directory: ${lv_dir}"
+
+echo -n "Is this ok? (y, (n)) "
+read YN
+
+if [ "$YN" = "y" -o "$YN" = "Y" ]; then
+    ampool_shutdown
+    rm ${AMPOOL_HOME}
+    rm -rf ${lv_dir}
+    echo "Shutdown ampool and removed the directory: ${lv_dir} "
+else
+    echo "Exiting without doing anything..."
+fi
