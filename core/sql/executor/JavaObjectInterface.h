@@ -29,7 +29,7 @@
 #include <iostream>
 #include <sys/types.h>
 #include <sys/syscall.h>
-#include "jni.h"
+
 #include "Platform.h"
 #include "NAString.h"
 

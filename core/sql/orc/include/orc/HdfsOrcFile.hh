@@ -23,7 +23,7 @@
 
 #include "orc/orc-config.hh"
 #include "orc/Reader.hh"
-#include "hdfs.h"
+//#include "hdfs.h"
 #include "orc/OrcFile.hh"
 
 namespace orc {

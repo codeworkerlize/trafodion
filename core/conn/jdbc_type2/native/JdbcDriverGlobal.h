@@ -24,7 +24,7 @@
 #ifndef JDBCDRIVERGLOBAL_H
 #define JDBCDRIVERGLOBAL_H
 
-#include "jni.h"
+
 #include "Debug.h"
 // Error Codes, May be we need to internationalize these error messages later
 typedef enum JNILAYER_ERROR_CODES

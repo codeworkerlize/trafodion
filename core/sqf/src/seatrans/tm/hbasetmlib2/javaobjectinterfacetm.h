@@ -28,7 +28,7 @@
 #include <string.h> 
 #include <iostream>
 
-#include "jni.h"
+
 #include "dtm/tm_util.h"
 
 extern __thread JNIEnv* _tlp_jenv;

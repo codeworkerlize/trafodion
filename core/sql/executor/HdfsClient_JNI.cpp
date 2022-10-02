@@ -24,7 +24,7 @@
 #include "QRLogger.h"
 #include "Globals.h"
 #include "Context.h"
-#include "jni.h"
+
 #include "HdfsClient_JNI.h"
 #include "org_trafodion_sql_HDFSClient.h"
 #include "ComCompressionInfo.h"

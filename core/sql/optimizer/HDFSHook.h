@@ -44,7 +44,7 @@
 #include "NAString.h"
 #include "CmpContext.h"
 #include "ComCompressionInfo.h"
-#include "hdfs.h"
+//#include "hdfs.h"
 #include <stdio.h>
 #include <jni.h>
 

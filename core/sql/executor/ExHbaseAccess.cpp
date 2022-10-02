@@ -38,7 +38,7 @@
 
 #include  "cli_stdh.h"
 #include "exp_function.h"
-#include "jni.h"
+
 #include <random>
 #include "HdfsClient_JNI.h"
 #include "ComMemLog.h"

@@ -62,7 +62,7 @@
 #include "ExStats.h"
 #include "ExpSeqGen.h"
 #include "ssmpipc.h"
-#include "hdfs.h"
+//#include "hdfs.h"
 #include "HdfsClient_JNI.h"
 #include "DistributedLock_JNI.h"
 

@@ -26,7 +26,7 @@
 //#include "tmmutex.h"
 #include "hbasetmglob.h"
 #include "javaobjectinterfacetm.h"
-#include "jni.h"
+
 
 // ===============================================================
 // ===== HashMapArray class: provides access to the Java 

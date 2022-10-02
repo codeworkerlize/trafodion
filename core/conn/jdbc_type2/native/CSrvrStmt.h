@@ -37,7 +37,6 @@
 #include "sqlcli.h"
 #include "CoreCommon.h"
 #include "CDesc.h"
-#include "jni.h"
 
 //#include "spthread.h" commented by venu for TSLX
 #define     UNKNOWN_METHOD          -1

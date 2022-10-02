@@ -631,4 +631,4 @@ void CmpCommon::getDifferenceWithTwoVector(std::vector<int32_t> &A, std::vector<
     }
 }
 
-bool CmpCommon::isModuleOpen(int ModuleId) { return GetCliGlobals()->isLicenseModuleOpen(ModuleId); }
+bool CmpCommon::isModuleOpen(int ModuleId) { return true; }

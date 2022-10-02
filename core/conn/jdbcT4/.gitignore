@@ -1,8 +1,0 @@
-/target/
-/.idea/
-jdbcT4.iml
-*.log
-/LICENSE
-/NOTICE
-src/main/resources/META-INF/NOTICE
-src/main/resources/META-INF/LICENSE

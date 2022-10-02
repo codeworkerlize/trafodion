@@ -36,7 +36,7 @@
 #ifndef LMCONNECTION_H
 #define LMCONNECTION_H
 
-#include "jni.h"
+
 #include "ComSmallDefs.h"
 #include "LmLangManagerJava.h"
 #include "Collections.h"

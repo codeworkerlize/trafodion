@@ -47,8 +47,8 @@
 #include <sys/stat.h>
 #include <sys/time.h>
 
-#include "hdfs.h"
-#include "jni.h"
+//#include "hdfs.h"
+
 
 #include "ExpLOBstats.h"
 #include "ExpLOBaccess.h"

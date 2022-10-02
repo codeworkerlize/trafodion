@@ -44,7 +44,7 @@
 
 //==== For the JNI call to RMInterface.cleartransaction - begin
 #include <iostream>
-#include "jni.h"
+
 
 //
 // ===========================================================================

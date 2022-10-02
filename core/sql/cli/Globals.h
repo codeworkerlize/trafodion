@@ -71,8 +71,6 @@
 #include "ComRtUtils.h"
 #include "ComSmallDefs.h"
 #include "JavaObjectInterface.h"
-//#include "SqlStats.h"
-#include "../../sqf/monitor/linux/licensecommon.h"
 
 class ContextCli;
 class Statement;
@@ -404,7 +402,7 @@ inline
   UInt32 getSqlciMaxHeap() { return sqlciMaxHeap_; }
   void setSqlciMaxHeap(UInt32 val) { sqlciMaxHeap_ = val; }
 
-  bool isLicenseModuleOpen(int moduleId) { return lic.isModuleOpen(moduleId); }
+  bool isLicenseModuleOpen(int moduleId) { return true; }
 private:
   enum {
     DEFAULT_CONTEXT_HANDLE = 2000
@@ -541,7 +539,6 @@ private:
     Or load variables from the default table every time.
   */
   ComPwdPolicySyntax pwdPolicy_;
-  CLicenseCommon lic;
 
   public:
     void setAuthenticationType(ComAuthenticationType authType) { authType_ = authType; }

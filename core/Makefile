@@ -28,7 +28,7 @@ SHELL := /bin/bash
 include macros.gmk
 
 # Make Targets
-.PHONY: all dbsecurity foundation $(MPI_TARGET) ndcs ci jdbc_jar jdbc_type2_jar sqroot $(SEAMONSTER_TARGET) verhdr dcs rest wms common
+.PHONY: all dbsecurity foundation $(MPI_TARGET) ndcs ci  jdbc_type2_jar sqroot $(SEAMONSTER_TARGET) verhdr dcs rest wms common
 .PHONY: package package-all pkg-product pkg-sql-regress pkg-phx-tests pkg-dcs-tests check-copyrights pkg-installer
 
 ################
@@ -69,20 +69,18 @@ dbsecurity: $(MPI_TARGET)
 foundation: common sqroot dbsecurity $(MPI_TARGET) $(SEAMONSTER_TARGET)
 	cd sqf && $(MAKE) all
 
-jdbc_jar: verhdr
-	cd conn/jdbcT4 && $(MAKE) 2>&1 | sed -e "s/$$/	##(JDBCT4)/";exit $${PIPESTATUS[0]}
 
-dcs: jdbc_jar jdbc_type2_jar common mds
+dcs:  jdbc_type2_jar common 
 	cd ../dcs && $(MAKE) 2>&1 | sed -e "s/$$/  ##(DCS)/" ; exit $${PIPESTATUS[0]}
 
-ndcs: jdbc_jar foundation
+ndcs:  foundation
 	cd conn/odbc/src/odbc && $(MAKE) all        2>&1 | sed -e "s/$$/	##(NDCS)/";exit $${PIPESTATUS[0]}
 
-wms: jdbc_jar jdbc_type2_jar
+wms:  jdbc_type2_jar
 	cd ../wms && $(MAKE) 2>&1 | sed -e "s/$$/  ##(WMS)/" ; exit $${PIPESTATUS[0]}
 
 ci: trafci
-trafci: jdbc_jar
+trafci: 
 	cd conn/trafci && $(MAKE) 2>&1 | sed -e "s/$$/	##(TRAFCI)/" ; exit $${PIPESTATUS[0]}
 	$(MAVEN) install:install-file -Dfile=conn/trafci/lib/trafci.jar \
 	    -DgroupId=org.trafodion.ci -DartifactId=trafci -Dversion="$$TRAFODION_VER" \
@@ -91,14 +89,11 @@ trafci: jdbc_jar
 jdbc_type2_jar: verhdr foundation
 	cd conn/jdbc_type2 && $(MAKE) 2>&1 | sed -e "s/$$/	##(JDBC_TYPE2)/" ; exit $${PIPESTATUS[0]}
 
-rest: verhdr jdbc_jar common
+rest: verhdr  common
 	cd rest && $(MAKE) 2>&1 | sed -e "s/$$/  ##(REST)/" ; exit $${PIPESTATUS[0]}
 
 dbmgr: trafci common
 	cd dbmgr && $(MAKE) 2>&1 | sed -e "s/$$/	##(DBMGR)/" ; exit $${PIPESTATUS[0]}
-
-mds:
-	cd conn/mds && make 2>&1 | sed -e "s/$$/	##(MDS)/" ; exit $${PIPESTATUS[0]}
 
 common: sqroot
 	cd common && $(MAKE) 2>&1 | sed -e "s/$$/       ##(ESGYNCOMMON)/" ; exit $${PIPESTATUS[0]}
@@ -114,7 +109,6 @@ clean:
 	cd dbsecurity &&		$(MAKE) clean
 	cd sqf &&			$(MAKE) clean
 	cd conn/odbc/src/odbc &&	$(MAKE) clean
-	cd conn/jdbcT4        &&	$(MAKE) clean
 	cd conn &&			$(MAKE) clean
 	cd conn/jdbc_type2 &&		$(MAKE) clean
 	cd conn/trafci &&		$(MAKE) clean
@@ -122,7 +116,6 @@ clean:
 	cd ../dcs &&			$(MAKE) clean
 	cd ../wms &&			$(MAKE) clean
 	cd dbmgr &&			$(MAKE) clean
-	cd conn/mds &&			$(MAKE) clean
 	cd sql/lib_mgmt &&		$(MAKE) clean
 	cd ../install &&                $(MAKE) clean
 	cd ../install/cm-installer &&   $(MAKE) clean
@@ -134,7 +127,6 @@ cleanall: eclipseclean cleantests
 	cd dbsecurity &&		$(MAKE) cleanall
 	cd sqf &&			$(MAKE) cleanall
 	cd conn/odbc/src/odbc &&	$(MAKE) cleanall
-	cd conn/jdbcT4        &&	$(MAKE) clean
 	cd conn &&			$(MAKE) clean
 	cd conn/jdbc_type2    &&        $(MAKE) clean
 	cd conn/trafci &&		$(MAKE) clean

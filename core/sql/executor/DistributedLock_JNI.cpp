@@ -1,7 +1,7 @@
 #include "QRLogger.h"
 #include "Globals.h"
 #include "Context.h"
-#include "jni.h"
+
 #include "DistributedLock_JNI.h"
 
 JavaMethodInit* DistributedLock_JNI::JavaMethods_ = NULL;

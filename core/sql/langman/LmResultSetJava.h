@@ -40,7 +40,7 @@
 #include "LmResultSet.h"
 #include "LmLangManagerJava.h"
 #include "LmRoutineJava.h"
-#include "jni.h"
+
 #include "LmConnection.h"
 
 //////////////////////////////////////////////////////////////////////

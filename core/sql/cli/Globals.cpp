@@ -529,7 +529,7 @@ CliGlobals *GetCliGlobals()
 bool isModuleOpen(int moduleId)
 {
   if (cli_globals)
-    return cli_globals->isLicenseModuleOpen(moduleId);
+    return true;
 
   //should never happen
   return true;

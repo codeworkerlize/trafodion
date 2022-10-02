@@ -61,7 +61,7 @@
 #include "SqlInterface.h"
 //#include "spthread.h" commented by Venu for TSLX
 
-#include "jni.h"
+
 
 #include "Vproc.h"
 

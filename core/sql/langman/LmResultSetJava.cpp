@@ -34,7 +34,7 @@
 #include "Platform.h"
   #include "lmjni.h"
 #include "LmResultSetJava.h"
-#include "jni.h"
+
 #include "LmJavaExceptionReporter.h"
 #include "LmDebug.h"
 #include "LmExtFunc.h"

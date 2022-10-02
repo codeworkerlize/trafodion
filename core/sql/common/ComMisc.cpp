@@ -581,11 +581,7 @@ Int32  ComGenerateUdrCachedLibName(NAString libname,Int64 redeftime, NAString sc
 const NABoolean gEnableRowLevelLock = getEnvEnableRowLevelLock();
 
 NABoolean getEnvEnableRowLevelLock() {
-  //check license
-  //if (!GetCliGlobals()->isLicenseModuleOpen(LM_ROW_LOCK)) too early too call this
-  CLicenseCommon lic;
-  if (!lic.isModuleOpen(LM_ROW_LOCK))
-    return FALSE;
+
   static char* envVar = getenv("ENABLE_ROW_LEVEL_LOCK");
   if (envVar == NULL || atoi(envVar) == 0) {
     return  FALSE;

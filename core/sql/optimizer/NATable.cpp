@@ -114,9 +114,7 @@ extern TrafDesc *generateSpecialDesc(const CorrName& corrName);
 #include "util/stopwatch.h"
 #include "TriggerDB.h"
 
-#include "licensecommon.h"
 
-CLicenseCommon license;
 
 SQLMODULE_ID __SQL_mod_natable = {
   /* version */         SQLCLI_CURRENT_VERSION,
@@ -4556,15 +4554,6 @@ NABoolean createNAFileSets(hive_tbl_desc* hvt_desc        /*IN*/,
         if (hiveHDFSTableStats->isAvroFile())
           isAvro = TRUE;
 
-        if (!license.isModuleOpen(LM_HIVE))
-        {
-          *CmpCommon::diags() << DgSqlCode(-4222)
-                              << DgString0(
-                                   (isORC ? "ORC" : 
-                                    (isParquet ? "PARQUET" : 
-                                     (isAvro ? "AVRO" : "UNKNOWN"))));
-          return TRUE;
-        }
       }
 
 #ifndef NDEBUG

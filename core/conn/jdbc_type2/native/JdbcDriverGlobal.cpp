@@ -22,7 +22,7 @@
 **************************************************************************/
 #include "platform_ndcs.h"
 #include "JdbcDriverGlobal.h"
-#include "jni.h"
+
 
 char *gJNILayerErrorMsgs[] =
 {
