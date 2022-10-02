@@ -58,7 +58,7 @@
 #include "ComTdbMj.h"
 #include "ComTdbSequence.h"
 #include "ComTdbCancel.h"
-#include "HDFSHook.h"
+
 
 #include "StmtDDLCreateTable.h"
 #include "StmtDDLCreateIndex.h"

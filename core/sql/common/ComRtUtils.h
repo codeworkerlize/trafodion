@@ -321,7 +321,6 @@ Int16 getBDRClusterName(char *bdrClusterName);
 
 int get_phandle_with_retry(char *pname, SB_Phandle_Type *phandle);
 
-NABoolean getHDFSDefaultName(NAString& host, Int32& port);
 
 fstream& getPrintHandle();
 void genFullMessage(char* buf, Int32 len, const char* className, Int32 queryNodeId);

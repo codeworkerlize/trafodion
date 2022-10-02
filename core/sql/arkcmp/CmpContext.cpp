@@ -94,7 +94,7 @@ extern "C" {
 
 #include "NATable.h"
 #include "CompilerTracking.h"
-#include "HDFSHook.h"
+
 ostream &operator<<(ostream &dest, const ComDiagsArea& da);
 
 UInt32 hashCursor( const NAString& s ) { return s.hash(); }

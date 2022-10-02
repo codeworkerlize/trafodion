@@ -614,20 +614,7 @@ void CreateImplementationRules(RuleSet* set)
   set->insert(r);
   set->enable(r->getNumber());
 
-  r = new (CmpCommon::contextHeap())
-            PhysicalFastExtractRule
-               ("Implement a Fast Extract",
-                new (CmpCommon::contextHeap())
-                  FastExtract(new(CmpCommon::contextHeap())
-                                CutOp(0,CmpCommon::contextHeap()),
-                              CmpCommon::contextHeap()),
-                new (CmpCommon::contextHeap())
-                  PhysicalFastExtract(new(CmpCommon::contextHeap())
-                                        CutOp(0,CmpCommon::contextHeap()),
-                                      CmpCommon::contextHeap())
-                );
-    set->insert(r);
-    set->enable(r->getNumber());
+
 }
 
 // -----------------------------------------------------------------------
@@ -1056,31 +1043,7 @@ void createAndInsertDP2Scan( Context* context,
         fileScan->clusterSize(bef->clusterSize());
 	fileScan->setMdamFlag(ixMdamFlag);
 
-        if (fileScan->isHiveTable())
-          {
-            HivePartitionAndBucketKey *hpk =
-              new(CmpCommon::statementHeap()) HivePartitionAndBucketKey(
-                   bef->getTableDesc());
 
-            const InputPhysicalProperty* ippForMe =
-                context->getInputPhysicalProperty();
-
-            hpk->computePartAndVirtColPredicates(
-                    bef->getGroupAttr(),
-                    fileScan->selectionPred());
-
-            // Need to compute # of active partitions
-            // before calling estimateAccessMetrics() because
-            // the method has a dependency on the
-            // # of active partitions.
-            if (hpk->computeActivePartitions() < 0)
-              return; // error encountered, diags are set
-
-            hpk->estimateAccessMetrics(fileScan);
-            hpk->computeAvgAccessMetrics(fileScan);
-
-            fileScan->setHiveSearchKey(hpk);
-          }
 
         // add the file scan to the list of substitutes
         memory->insert(fileScan);
@@ -5336,54 +5299,3 @@ NABoolean PhysicalTMUDFRule::canMatchPattern (const RelExpr *pattern) const
     }
 }
 
-PhysicalFastExtractRule::~PhysicalFastExtractRule() {}
-
-NABoolean PhysicalFastExtractRule::topMatch (RelExpr *relExpr,
-                                                Context *context)
-{
-  if (NOT relExpr->getOperator().match(REL_FAST_EXTRACT))
-    return FALSE;
-  if (relExpr->isPhysical())
-    return FALSE;
-
-    if ((context->getReqdPhysicalProperty()->executeInDP2()))
-      return FALSE;
-
-  const ReqdPhysicalProperty* const rppForMe =
-    context->getReqdPhysicalProperty();
-
-  // Check for required physical properties that require an enforcer
-  // operator to succeed.
-  if (relExpr->rppRequiresEnforcer(rppForMe))
-    return FALSE;
-
-  if ((rppForMe->getPartitioningRequirement() != NULL) AND
-      (rppForMe->getPartitioningRequirement()->isRequirementReplicateNoBroadcast()))
-    return FALSE;
-
-  if ((ActiveSchemaDB()->getDefaults()).getAsLong(HIVE_PARTITION_INSERT_REPART) == 1  AND
-       rppForMe->getPartitioningRequirement() != NULL AND
-       rppForMe->getCountOfPartitions() > 1 )
-   return FALSE;
-
-  return TRUE;
-}
-
-RelExpr * PhysicalFastExtractRule::nextSubstitute(RelExpr * before,
-                                            Context * /*context*/,
-                                            RuleSubstituteMemory *& /*memory*/)
-{
-  CMPASSERT(before->getOperatorType() == REL_FAST_EXTRACT);
-  FastExtract * bef = (FastExtract *) before;
-
-  // Simply copy the contents of the TableMappingUDF from the before pattern.
-  PhysicalFastExtract *result = new (CmpCommon::statementHeap())
-    PhysicalFastExtract(before->child(0)->castToRelExpr(),
-    					CmpCommon::statementHeap());
-  bef->copyTopNode(result, CmpCommon::statementHeap());
-
-  // now set the group attributes of the result's top node
-  result->setGroupAttr(before->getGroupAttr());
-
-  return result;
-}

@@ -934,9 +934,7 @@ public:
                                                   const Lng32    planNumber,
                                                   PlanWorkSpace  *pws);
 
-  PhysicalProperty * synthHiveScanPhysicalProperty(const Context *context,
-                                                   const Lng32    planNumber,
-                                                   ValueIdList   &sortOrderVEG);
+
 
  PhysicalProperty * synthHbaseScanPhysicalProperty(const Context *context,
                                                    const Lng32    planNumber,
@@ -959,12 +957,7 @@ public:
                                  NABoolean updateSearchKeyOnly
                                 );
 
-  void processMinMaxKeysForPartitionAndStripeCols(
-       Generator* generator, 
-       ValueIdSet& pulledNewInputs,
-       ValueIdSet& availableValues,
-       NABoolean useORCPushDownPredicates,
-       ValueIdSet &orcMinMaxPredicates);
+
 
   CostScalar computeRowcountForMinMaxHashJoin(HashJoin* hj);
 
@@ -988,25 +981,6 @@ public:
                             char* &gendTablename,
                             const NABoolean isForGetUIDName = FALSE);
 
-  static short genScanRanges(Generator * generator,
-                             const HHDFSTableStats* hTabStats,
-                             const PartitioningFunction * mypart,
-                             Queue * &hdfsFileInfoList,
-                             Queue * &hdfsFileRangeBeginList,
-                             Queue * &hdfsFileRangeNumList,
-                             char* &hdfsHostName,
-                             Int32 &hdfsPort,
-                             NABoolean &useCursorMulti,
-                             NABoolean &doSplitFileOpt,
-                             ComCompressionInfo *&genCompressionTypes,
-                             Int16 &numCompressionTypes,
-                             ExpTupleDesc *partCols,
-                             int partColValuesLen,
-                             const HivePartitionAndBucketKey *hiveSearchKey,
-                             NABoolean &isCompressedFile,
-                             const NABoolean isStrawScan,
-                             NABoolean& parquetFullScan
-                           );
 
 
 
@@ -1080,8 +1054,6 @@ public:
   SearchKey* searchKey()
   { return pathKeys_; }
 
-  HivePartitionAndBucketKey * getHiveSearchKey()            { return hiveSearchKey_; }
-  void setHiveSearchKey(HivePartitionAndBucketKey *s)          { hiveSearchKey_ = s; }
 
   // adds Explain information to this node. Implemented in
   // Generator/GenExplain.C
@@ -1218,8 +1190,7 @@ private:
   // a search key for the partitioning key (maybe same as pathKeys_)
   SearchKey * partKeys_;
 
-  // For Hive tables, a bit mask of selected Hive partitions and buckets
-  HivePartitionAndBucketKey *hiveSearchKey_;
+
 
   // the index descriptor
   const IndexDesc *indexDesc_;

@@ -3352,7 +3352,6 @@ enum DefaultConstants
   HIVE_TREAT_EMPTY_STRING_AS_NULL,
   //If this string is not empty, 
   //print ORC file statistics read by CPP reader,
-  //in HHDFSORCFileStats::populate()
   ORC_HDFS_STATS_LOG_FILE,
   // ON: to read number of rows from each ORC data file
   // OFF: skip the reading and fake a row count of 100 per ORC data file

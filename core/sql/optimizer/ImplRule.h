@@ -75,7 +75,6 @@ class PhysicalTupleRule;
 class PhysicalTupleListRule;
 class PhysicalUnPackRowsRule;
 class PhysicalTMUDFRule;
-class PhysicalFastExtractRule;
 class SortEnforcerRule;
 class SortGroupByRule;
 class AggregateRule;
@@ -788,24 +787,5 @@ public:
   virtual NABoolean canMatchPattern (const RelExpr * pattern) const;
 };
 
-class PhysicalFastExtractRule : public Rule
-{
-public:
-  PhysicalFastExtractRule(const char * name,
-                    RelExpr * pattern,
-                    RelExpr * substitute) :
-       Rule(name,pattern,substitute) {}
 
-  // copy-ctor, not implemented
-  PhysicalFastExtractRule (const PhysicalFastExtractRule &);
-
-  virtual ~PhysicalFastExtractRule();
-  virtual NABoolean topMatch(RelExpr * relExpr,
-                             Context *context);
-  virtual RelExpr * nextSubstitute(RelExpr * before,
-				   Context * context,
-				   RuleSubstituteMemory * & memory);
-
-   virtual NABoolean isImplementationRule () const { return TRUE; }
-};
 #endif // IMPLRULE_H

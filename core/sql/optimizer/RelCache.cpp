@@ -40,7 +40,7 @@
 #include "GroupAttr.h"
 #include "OptHints.h"
 #include "QRDescGenerator.h"
-#include "HDFSHook.h"
+
 #include "SqlParserGlobals.h"      // must be last #include
 #include "RelSequence.h"
 // append an ascii-version of GenericUpdate into cachewa.qryText_
@@ -1507,55 +1507,6 @@ void Update::generateCacheKey(CacheWA &cwa) const
     ItemExpr * ie = hbaseTagExprList_.convertToItemExpr();
     ie->generateCacheKey(cwa);
   }
-}
-
-// append an ascii-version of FastExtract into cachewa.qryText_
-void FastExtract::generateCacheKey(CacheWA &cwa) const
-{
-  RelExpr::generateCacheKeyNode(cwa);
-
-  char buf[40];
-  cwa += " targType_ ";
-  str_itoa(getTargetType(), buf);
-  cwa += buf;
-
-  cwa += " targName_ ";
-  cwa += getTargetName();
-
-  ItemExpr *selList = selectList_.rebuildExprTree();
-  if (selList)
-    {
-      cwa += " selList:";
-      selList->generateCacheKey(cwa);
-    }
-
-  ItemExpr *reqOrd = reqdOrder_.rebuildExprTree();
-  if (reqOrd)
-    {
-      cwa += " reqOrd:";
-      reqOrd->generateCacheKey(cwa);
-    }
-
-  cwa += " delim_ ";
-  cwa += getDelimiter();
-
-  cwa += " isAppend_ ";
-  cwa += isAppend() ? "1" : "0";
-
-  cwa += " includeHeader_ ";
-  cwa += includeHeader() ? "1" : "0";
-
-  cwa += " cType_ ";
-  str_itoa(getCompressionType(), buf);
-  cwa += buf;
-
-  cwa += " nullString_ ";
-  cwa += getNullString();
-
-  cwa += " recSep_ ";
-  cwa += getRecordSeparator();
-
-  generateCacheKeyForKids(cwa);
 }
 
 // append an ascii-version of RelExpr into cachewa.qryText_

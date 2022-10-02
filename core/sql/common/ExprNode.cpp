@@ -753,7 +753,6 @@ NABoolean OperatorType::match(OperatorTypeEnum wildcard) const
         case REL_ANY_EXTRACT:
 	  switch (op_)
 	    {
-	    case REL_FAST_EXTRACT:
 	    case REL_HIVE_INSERT:
 	      return TRUE;
 	    default:

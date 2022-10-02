@@ -68,7 +68,6 @@ CPPSRC := CmpMessage.cpp \
 	ComTdbTuple.cpp \
 	ComTdbTupleFlow.cpp \
 	ComTdbUdr.cpp \
-        ComTdbFastTransport.cpp \
 	ComTdbUnion.cpp \
 	ComTdbUnPackRows.cpp \
 	ExplainTuple.cpp \

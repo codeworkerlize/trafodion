@@ -2552,40 +2552,6 @@ private:
   NABoolean errorInParams_;
 };
 
-class ExeUtilParquetStats : public ExeUtilExpr 
-{
-public:
-  
-  ExeUtilParquetStats(const CorrName &objectName,
-                      NABoolean displayFormat,
-                      CollHeap *oHeap = CmpCommon::statementHeap());
-  
-  ExeUtilParquetStats() :
-       displayFormat_(FALSE)
-  {}
-
-  virtual RelExpr * bindNode(BindWA *bindWAPtr);
-
-  virtual RelExpr * copyTopNode(RelExpr *derivedNode = NULL,
-				CollHeap* outHeap = 0);
-
-  // method to do code generation
-  virtual short codeGen(Generator*);
-
-  virtual const char 	*getVirtualTableName();
-  static const char * getVirtualTableNameStr() 
-  { return "EXE_UTIL_PARQUET_STATS__";}
-
-  virtual TrafDesc 	*createVirtualTableDesc();
-
-  virtual NABoolean producesOutput() { return TRUE; }
-
-  virtual int getArity() const { return 0; }
-
-private:
-  NABoolean errorInParams_;
-  NABoolean displayFormat_;
-};
 
 class ExeUtilAvroStats : public ExeUtilExpr 
 {

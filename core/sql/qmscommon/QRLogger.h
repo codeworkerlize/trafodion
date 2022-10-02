@@ -73,7 +73,6 @@ extern std::string CAT_SQL_HDFS_JNI_TOP;
 extern std::string CAT_SQL_HDFS_SEQ_FILE_READER;
 extern std::string CAT_SQL_HDFS_SEQ_FILE_WRITER;
 extern std::string CAT_SQL_HDFS_ORC_FILE_READER;
-extern std::string CAT_SQL_HDFS_PARQUET_FILE_READER;
 extern std::string CAT_SQL_HDFS_AVRO_FILE_READER;
 extern std::string CAT_SQL_EX_SPLIT_BOTTOM;
 extern std::string CAT_SQL_EX_ONLJ;

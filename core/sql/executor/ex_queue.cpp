@@ -772,9 +772,7 @@ const char * NodeTypeToString(ComTdb::ex_node_type nodeType)
     case ComTdb:: ex_TUPLE_FLOW:
       tdbName = "ExTupleFlow";
       break;
-    case ComTdb::ex_FAST_EXTRACT:
-      tdbName = "ExFastExtract";
-      break;
+
     case ComTdb::ex_UDR:		
       tdbName = "ExUdr";
       break;

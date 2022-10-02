@@ -53,7 +53,6 @@
 #include "HashRow.h"
 #include "CmpStatement.h"
 #include "OptimizerSimulator.h"
-#include "ComTdbFastTransport.h"
 #include "CmpSeabaseDDL.h"
 #include "NAExecTrans.h"
 #include "ComEncryption.h"
@@ -620,15 +619,6 @@ static void bindVPCols(Generator *generator,
   
 short HiveInsert::codeGen(Generator *generator)
 {
-  if(!generator->explainDisabled()) {
-
-    Space * space = generator->getSpace();
-
-    // a dummy tdb
-    ComTdbFastExtract* fe_tdb = new (space) ComTdbFastExtract();
-
-    generator->setExplainTuple( addExplainInfo(fe_tdb, 0, 0, generator));
-  }
 
   return 0;
 }

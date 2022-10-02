@@ -65,8 +65,6 @@ CPPSRC := BigNumHelper.cpp \
 	ExpLOBinterface.cpp \
 	ExpLobOperV2.cpp \
 	ExpLOBstats.cpp \
-	ExpORCinterface.cpp \
-	ExpParquetInterface.cpp \
 	ExpPackDefs.cpp \
 	ExpPCode.cpp \
 	ExpPCodeClauseGen.cpp \

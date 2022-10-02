@@ -64,7 +64,7 @@
 #include "AppliedStatMan.h"
 #include "Generator.h"
 #include "CmpStatement.h"
-#include "HDFSHook.h"
+
 #include <sstream>
 #include "HdfsClient_JNI.h"
 #include "Globals.h"
@@ -10344,7 +10344,6 @@ FileScan::FileScan(const CorrName& tableName,
      disjunctsPtr_(&disjuncts),
      pathKeys_(NULL),
      partKeys_(NULL),
-     hiveSearchKey_(NULL),
      estRowsAccessed_ (0),
      mdamFlag_(UNDECIDED),
      skipRowsToPreventHalloween_(FALSE),
@@ -10415,7 +10414,6 @@ FileScan::FileScan(const CorrName& name,
   disjunctsPtr_(NULL),
   pathKeys_(NULL),
   partKeys_(NULL),
-  hiveSearchKey_(NULL),
   numberOfBlocksToReadPerAccess_ (-1),
   estRowsAccessed_ (0), 
   mdamFlag_(UNDECIDED),
@@ -10873,18 +10871,8 @@ void FileScan::addLocalExpr(LIST(ExprNode *) &xlist,
       xlist.insert(getEndKeyPred().rebuildExprTree());
       llist.insert("end_key");
     }
-  if (hiveSearchKey_ &&
-      !hiveSearchKey_->getCompileTimePartColPreds().isEmpty())
-    {
-      xlist.insert(hiveSearchKey_->getCompileTimePartColPreds().rebuildExprTree());
-      llist.insert("part_elim_compiled");
-    }
-  if (hiveSearchKey_ &&
-      !hiveSearchKey_->getPartAndVirtColPreds().isEmpty())
-    {
-      xlist.insert(hiveSearchKey_->getPartAndVirtColPreds().rebuildExprTree());
-      llist.insert("part_elim_runtime");
-    }
+
+
 
     // xlist.insert(retrievedCols_.rebuildExprTree(ITM_ITEM_LIST));
     // llist.insert("retrieved_cols");

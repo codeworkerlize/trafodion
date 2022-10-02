@@ -255,7 +255,8 @@ OTHER_INCLUDES := -include "$(TRAF_HOME)/inc/seaquest/sqtypes.h" \
 	-I$(UDIS86_INC_ROOT) \
 	-I$(TRAF_HOME)/../sql \
 	-I$(TRAF_HOME)/../dbsecurity/auth/inc \
-	-I$(TRAF_HOME)/commonLogger
+	-I$(TRAF_HOME)/commonLogger \
+  -I$(TRAF_HOME)/seamonster/src/sm.h
 
 ifdef BUILD_ORC_READER
 OTHER_INCLUDES += -I$(TRAF_HOME)/../sql/orc/include \

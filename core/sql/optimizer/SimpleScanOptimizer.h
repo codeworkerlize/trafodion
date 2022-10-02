@@ -86,7 +86,6 @@ public:
   //
   Cost* scmComputeCostForSingleSubset();
 
-  NABoolean canEliminatePartitionsForHive();
 
   // decide whether in a debug mode for ORC costing
   static NABoolean decideDebugModeForORCCosting(const IndexDesc*);
@@ -263,19 +262,7 @@ private:
   Cost* scmComputeCostVectorsMultiProbesForHbase();
 
 
-  // Compute cost for ORC tables, single or multiple probes, 
-  // based on an approximation of how the ORC reader works internally.
-  Cost* scmComputeCostVectorsForORC();
-  Cost* scmComputeCostVectorsMultiProbesForORC();
 
-  // Compute cost for Parquet tables, single or multiple probes, 
-  // based on an approximation of how the Parquet reader works internally.
-  Cost* scmComputeCostVectorsForParquet();
-  Cost* scmComputeCostVectorsMultiProbesForParquet();
-
-  Cost* scmComputeCostVectorsForColumnar(NABoolean debugCosting, NABoolean applySkipRatio);
-  Cost* scmComputeCostVectorsMultiProbesForColumnar(
-           NABoolean debugCosting, NABoolean applySkipRatio, CostScalar redFactor);
 
   // Compute the sequential KBytes accessed to produce the first and
   // last rows. 

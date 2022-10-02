@@ -75,7 +75,7 @@
 #include "CmpSeabaseDDL.h"
 #include "Globals.h"
 #include "QCache.h"
-#include "HDFSHook.h"
+
 
 #include "seabed/ms.h"
 #include "seabed/fs.h"
@@ -1308,7 +1308,6 @@ SDDkwd__(EXE_DIAGNOSTIC_EVENTS,		"OFF"),
   DDui1__(FAKE_VOLUME_NUM_VOLUMES,              "24"),
 
  // upper and lower limit (2,10) must be in sync with error values in 
- //ExFastTransport.cpp
   DDkwd__(FAST_EXTRACT_DIAGS,			"OFF"),
   DDui1_10(FAST_EXTRACT_IO_BUFFERS,             "1"),
   DDui___(FAST_EXTRACT_IO_TIMEOUT_SEC,          "60"),

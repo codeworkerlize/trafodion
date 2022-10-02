@@ -88,7 +88,7 @@
 #include "seabed/fs.h"
 
 #include "HdfsClient_JNI.h"
-#include "HDFSHook.h"
+
 #include "Range.h"
 
 struct ModName {
@@ -1239,24 +1239,6 @@ const char *ComRtGetUnknownString(Int32 val)
 {
   sprintf(ComRtGetUnknownString_Buf, "UNKNOWN (%d)", (int) val);
   return &(ComRtGetUnknownString_Buf[0]);
-}
-
-NABoolean getHDFSDefaultName(NAString& host, Int32& port)
-{
-   NABoolean result = FALSE;
-
-  char buf[1024];
-  HDFS_Client_RetCode rc = HdfsClient::getFsDefaultName(buf, sizeof(buf));
-  if (rc == HDFS_CLIENT_OK) {
-     HHDFSDiags diags;
-     if ( HHDFSTableStats::splitLocation(buf, host, port, diags) ) {
-        result = TRUE;
-     } else {
-         host = "";
-         port = 0;
-     }
-   }
-   return result;
 }
 
 extern char *__progname;

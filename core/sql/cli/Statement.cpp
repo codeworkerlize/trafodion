@@ -3544,7 +3544,6 @@ RETCODE Statement::execute(CliGlobals * cliGlobals, Descriptor * input_desc,
               dlockForSharedCache_ = 
                   new WaitedLockController(SHARED_CACHE_DLOCK_KEY, 0);
               //Record start time
-              dlockForSharedCacheStopWatch_.Start();
               if ( dlockForSharedCache_->lockHeld() ) {
                  // get the distributed lock, do the work.
                  rc = root_tcb->execute(cliGlobals, statementGlobals_,
@@ -4091,22 +4090,7 @@ abnormal_fetch_return:
 
 void Statement::unlockDLockForSharedCache(const char* ms)
 {
-   if (getRootTdb() &&
-       getRootTdb()->useDlockForSharedCache() &&
-       dlockForSharedCache_ != NULL)
-   {
-     // unlock the dlock.
-     delete dlockForSharedCache_;
-     dlockForSharedCache_ = NULL;
-     uint64_t nStopTime = dlockForSharedCacheStopWatch_.Stop();
-     //We will record it if the time between locking and unlocking more than 30s.
-     uint64_t nWarnTime = 30*1000L*1000L;
-     if (nStopTime>nWarnTime)
-       QRLogger::log(CAT_SQL_EXE, LL_WARN, "DLock for shared cache [%s] , taking %ld us, start_time %lds:%ldus",
-                                            source_str, nStopTime,
-                                            dlockForSharedCacheStopWatch_.start_time.tv_sec,
-                                            dlockForSharedCacheStopWatch_.start_time.tv_usec);
-   }
+
 }
 
 short Statement::handleUpdDelCurrentOf(ComDiagsArea &diags)

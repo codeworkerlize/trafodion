@@ -1336,18 +1336,8 @@ public:
     { return (flags2_ & DP2_XNS_ENABLED) != 0; }
   void setDp2XnsEnabled(NABoolean v)
     { (v ? flags2_ |= DP2_XNS_ENABLED : flags2_ &= ~DP2_XNS_ENABLED); }	
-  // statement is a fast extract operation
-  NABoolean isFastExtract() { return (flags2_ & IS_FAST_EXTRACT) != 0; };
-  void setIsFastExtract(NABoolean v)
-  {
-    (v ? flags2_ |= IS_FAST_EXTRACT : flags2_ &= ~IS_FAST_EXTRACT);
-  }
-  // statement contains a fast extract operator somewhere
-  NABoolean containsFastExtract() { return (flags2_ & CONTAINS_FAST_EXTRACT) != 0; };
-  void setContainsFastExtract(NABoolean v)
-  {
-    (v ? flags2_ |= CONTAINS_FAST_EXTRACT : flags2_ &= ~CONTAINS_FAST_EXTRACT);
-  }
+
+
 
   NABoolean getAutoCollectRTStats() { return (flags2_ & AUTO_COLLECT_RTSTATS) != 0; };
   void setAutoCollectRTStats(NABoolean v)

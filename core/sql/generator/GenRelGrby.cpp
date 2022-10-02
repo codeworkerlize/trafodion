@@ -52,7 +52,7 @@
 #include "ItmBitMuxFunction.h"
 #include "ComUnits.h"
 #include "sql_buffer_size.h"
-#include "HDFSHook.h"
+
 
 //#include "ExStats.h"
 

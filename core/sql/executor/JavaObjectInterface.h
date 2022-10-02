@@ -32,6 +32,7 @@
 
 #include "Platform.h"
 #include "NAString.h"
+#include "jni.h"
 
 class LmJavaOptions;
 

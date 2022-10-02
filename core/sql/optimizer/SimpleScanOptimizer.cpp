@@ -33,7 +33,7 @@
 
 #include "SimpleScanOptimizer.h"
 #include "AllRelExpr.h"
-#include "HDFSHook.h"
+
 
 #ifdef DEBUG
 #define SFSOWARNING(x) fprintf(stdout, "SimpleFileScan optimizer warning: %s\n", x);

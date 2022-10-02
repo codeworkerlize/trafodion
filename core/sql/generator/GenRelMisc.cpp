@@ -2737,10 +2737,6 @@ short RelRoot::codeGen(Generator * generator)
     }
   }
 
-  if (generator->isFastExtract())
-  {
-    root_tdb->setQueryType(ComTdbRoot::SQL_SELECT_UNLOAD);
-  }
 
   if (child(0) && child(0)->castToRelExpr() && 
       child(0)->castToRelExpr()->getOperator().match(REL_ANY_HBASE))

@@ -61,7 +61,6 @@
 #include "ComTdbSplitTop.h"
 #include "ComTdbExeUtil.h"
 #include "ComTdbHbaseAccess.h"
-#include "ComTdbFastTransport.h"
 #include "ex_exe_stmt_globals.h"
 #include "exp_clause_derived.h"
 #include "Int64.h"
@@ -2102,12 +2101,7 @@ ExStorageEngineStats::ExStorageEngineStats(NAMemory * heap,
        break;
     }
 
-    case ComTdb::ex_FAST_EXTRACT:
-    {
-       ComTdbFastExtract *feTdb = (ComTdbFastExtract *)tdb;
-       name = feTdb->getTargetName();
-       break;
-    }
+
     default:
        name = "";
   }

@@ -186,7 +186,7 @@ using namespace std;
 #include "exp_clause_derived.h"
 #include "exp_datetime.h"
 #include "Analyzer.h"
-#include "HDFSHook.h"
+
 #include "OptimizerSimulator.h"
 #include "ItemFuncUDF.h"
 #include "ExpLOBenums.h"
@@ -6730,16 +6730,7 @@ TOK_TABLE '(' TOK_INTERNALSP '(' character_string_literal ')' ')'
     $$ = new (PARSERHEAP()) 
       ExeUtilRegionStats(*$7, FALSE, TRUE, FALSE, FALSE, NULL, PARSERHEAP());
   }
-| TOK_TABLE '(' TOK_PARQUET stats_or_statistics '(' table_name ')' ')'
-  {
-    $$ = new (PARSERHEAP()) 
-      ExeUtilParquetStats(*$6, FALSE, PARSERHEAP());
-  }
-| TOK_TABLE '(' TOK_PARQUET stats_or_statistics '(' ')' ')'
-  {
-    $$ = new (PARSERHEAP()) 
-      ExeUtilParquetStats(CorrName(""), FALSE, PARSERHEAP());
-  }
+
 | TOK_TABLE '(' TOK_AVRO stats_or_statistics '(' table_name ')' ')'
   {
     $$ = new (PARSERHEAP()) 
@@ -21939,11 +21930,6 @@ exe_util_get_region_access_stats : TOK_GET TOK_REGION stats_or_statistics TOK_FO
                    ExeUtilRegionStats(
                         CorrName("DUMMY"), TRUE, TRUE, TRUE, FALSE, $5, PARSERHEAP());
 	       } 
-            | TOK_GET TOK_PARQUET stats_or_statistics TOK_FOR TOK_TABLE table_name
-               {
-                 $$ = new (PARSERHEAP()) 
-                   ExeUtilParquetStats(*$6, TRUE, PARSERHEAP());
-	       } 
 
             | TOK_GET TOK_AVRO stats_or_statistics TOK_FOR TOK_TABLE table_name
                {
@@ -23764,20 +23750,7 @@ hbb_upsert_using_load : upsert_token TOK_USING TOK_LOAD
                   $$ = finalize(eubl);    
                 
                 }
-                | TOK_UNLOAD TOK_EXTRACT optional_hbb_unload_options TOK_TO std_char_string_literal  query_expression 
-                {
-                  if (CmpCommon::getDefault(COMP_BOOL_226) != DF_ON)
-                    YYERROR;
-                  FastExtract* fastExt = 
-                    new (PARSERHEAP()) FastExtract($6, $5, 
-                                      FastExtract::FILE, 
-                                      PARSERHEAP());
-                  if (fastExt->setOptions($3, SqlParser_Diags))
-                  YYERROR;
-                  $$ = fastExt;
-                  delete $5;
-                  delete $3;
-                }
+
 
 optional_hbb_unload_options : TOK_WITH hbb_unload_option_list
                 {

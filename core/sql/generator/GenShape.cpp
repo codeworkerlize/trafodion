@@ -118,11 +118,7 @@ short RelExpr::generateShape(CollHeap * c, char * buf, NAString * shapeStr)
       }
     break;
 
-   case REL_FAST_EXTRACT:
-     {
-       sprintf(mybuf, "fast_extract(");
-     }
-    break;
+
 
    case REL_HIVE_INSERT:
      {

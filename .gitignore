@@ -11,3 +11,4 @@ LICENSE
 /RPMROOT/
 rat.out
 core/sqf/export/include/authEvents.h
+build/

@@ -2270,10 +2270,7 @@ static const char * const extPushdownOperatorTypeStr[] =
     "IN"
   };
 
-// enum HiveProtoTypeKind and hiveProtoTypeKindStr[] must
-// remain in sync with each other.
-// They also need to be in sync with constant vars with 
-// corresponding names defined in TrafExtStorageUtils.java.
+
 enum HiveProtoTypeKind
   {
     HIVE_UNKNOWN_TYPE   = 0,
@@ -2316,8 +2313,7 @@ static const char * const hiveProtoTypeKindStr[] =
     "struct"
   };
 
-// Values defined in ExtStorageAccessFlags must remain in sync with constant 
-// vars with corresponding names defined in TrafExtStorageUtils.java.
+
 enum ExtStorageAccessFlags
   {
     PARQUET_LEGACY_TS          = 0x0001,

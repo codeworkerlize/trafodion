@@ -13871,7 +13871,6 @@ CostMethodTableMappingUDF::computeOperatorCostInternal(RelExpr* op,
 // Parameters
 //
 // RelExpr *op
-//  IN - The FastExtract node which is being costed.
 //
 // Context *myContext
 //  IN - The optimization context within which to cost this node.

@@ -4235,90 +4235,7 @@ struct ComTdbParquetStatsVirtTableColumnStruct
   Int64  startingPos;
 };
 
-class ComTdbExeUtilParquetStats : public ComTdbExeUtil
-{
-  friend class ExExeUtilParquetStatsTcb;
-  friend class ExExeUtilParquetStatsPrivateState;
 
-public:
-  ComTdbExeUtilParquetStats()
-       : ComTdbExeUtil()
-  {}
-  
-  ComTdbExeUtilParquetStats(
-       char * tableName,
-       ex_expr_base * input_expr,
-       ULng32 input_rowlen,
-       ex_expr_base * scan_expr,
-       char * rootDirLoc,
-       ex_cri_desc * work_cri_desc,
-       const unsigned short work_atp_index,
-       ex_cri_desc * given_cri_desc,
-       ex_cri_desc * returned_cri_desc,
-       queue_index down,
-       queue_index up,
-       Lng32 num_buffers,
-       ULng32 buffer_size
-       );
-  
-  void setDisplayFormat(NABoolean v)
-  {(v ? flags_ |= DISPLAY_FORMAT : flags_ &= ~DISPLAY_FORMAT); };
-  NABoolean displayFormat() { return (flags_ & DISPLAY_FORMAT) != 0; };
-
-  void setSummaryOnly(NABoolean v)
-  {(v ? flags_ |= SUMMARY_ONLY : flags_ &= ~SUMMARY_ONLY); };
-  NABoolean summaryOnly() { return (flags_ & SUMMARY_ONLY) != 0; };
-
-  // ---------------------------------------------------------------------
-  // Redefine virtual functions required for Versioning.
-  //----------------------------------------------------------------------
-  virtual short getClassSize() {return (short)sizeof(ComTdbExeUtilParquetStats);}
-
-  virtual const char *getNodeName() const 
-  { 
-    return "GET_PARQUET_STATS";
-  };
-
-  int getVirtTableNumCols()
-  {
-    return 
-      sizeof(comTdbParquetStatsVirtTableColumnInfo)/sizeof(ComTdbVirtTableColumnInfo);
-  }
-
-  ComTdbVirtTableColumnInfo * getVirtTableColumnInfo()
-  {
-    return (ComTdbVirtTableColumnInfo*)comTdbParquetStatsVirtTableColumnInfo;
-  }
-
-  int getVirtTableNumKeys()
-  {
-    return 0;
-  }
-
-  ComTdbVirtTableKeyInfo * getVirtTableKeyInfo()
-  {
-    return NULL;
-  }
-
-  Long pack(void *);
-
-  Lng32 unpack(void *, void * reallocator);
-
-  char * getRootDirLoc() const {return rootDirLoc_;}
-
-private:
-  enum
-  {
-    DISPLAY_FORMAT = 0x0001,
-    SUMMARY_ONLY   = 0x0002
-  };
-
-  NABasicPtr rootDirLoc_;                            // 00-07
-
-  UInt32 flags_;                                     // 08-11
-
-  char fillersComTdbExeUtilParquetStats_[76];        // 12-87
-};
 
 ///////////////////////////////////////////
 // AVRO Stats
@@ -4534,7 +4451,6 @@ private:
   QueuePtr colTypeList_;                             // 24-31
 
   // schema str for columns. For parquet only.
-  // Used in TrafExtStorageUtils.java, generateParquetSchema
   NABasicPtr parqSchStr_;                            // 32-39
 };
 

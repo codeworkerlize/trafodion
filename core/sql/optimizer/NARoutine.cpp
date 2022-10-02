@@ -165,7 +165,7 @@ NARoutine::NARoutine (  const QualifiedName &name
     , paramStyleVersion_      (COM_ROUTINE_PARAM_STYLE_VERSION_1)
     , isDeterministic_        (1)
     , isCallOnNull_           (1)
-    , isIsolate_              (0) // Trusted UDR like FastExtract
+    , isIsolate_              (0) 
     , externalSecurity_       (COM_ROUTINE_EXTERNAL_SECURITY_INVOKER)
     , isExtraCall_            (1)
     , hasOutParams_           (FALSE)

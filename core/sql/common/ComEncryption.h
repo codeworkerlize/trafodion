@@ -35,9 +35,9 @@
  *****************************************************************************
  */
 
-// #include <openssl/conf.h>
-// #include <openssl/evp.h>
-// #include <openssl/err.h>
+#include <openssl/conf.h>
+#include <openssl/evp.h>
+#include <openssl/err.h>
 
 #include "Platform.h"
 #include "ComSmallDefs.h"

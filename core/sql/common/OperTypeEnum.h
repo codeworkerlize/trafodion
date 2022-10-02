@@ -283,7 +283,6 @@ enum OperatorTypeEnum {
 
                         // Cancel, Suspend, Activate
                         REL_CONTROL_RUNNING_QUERY,
-                        REL_FAST_EXTRACT,
 
                         REL_HIVE_INSERT,
                         REL_ANY_EXTRACT,

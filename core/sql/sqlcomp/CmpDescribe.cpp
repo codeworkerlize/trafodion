@@ -89,7 +89,7 @@
 #include "CmpSeabaseDDL.h"
 #include "CmpSeabaseDDLauth.h"
 #include "CmpSeabaseTenant.h"
-#include "HDFSHook.h"
+
 #include "PrivMgrCommands.h"
 #include "PrivMgrComponentPrivileges.h"
 

@@ -44,9 +44,6 @@ bool idt     = false;
 int  loop    = 10;
 bool verbose = false;
 
-class JNIEnv {
-};
-
 class _jobject {
 };
 typedef _jobject *jobject;

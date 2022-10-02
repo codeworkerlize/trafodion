@@ -128,7 +128,6 @@ CPPSRC := \
 	RelDCL.cpp \
 	RelExeUtil.cpp \
 	RelExpr.cpp \
-	RelFastTransport.cpp \
 	RelPackedRows.cpp \
 	RelRoutine.cpp \
 	RelSample.cpp \

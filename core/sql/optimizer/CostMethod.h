@@ -91,7 +91,6 @@ class MergeUnion;
 class IndexDescHistograms;
 class IndexDesc;
 class TableMappingUDF;
-class FastExtract;
 
 // ----------------------------------------------------------------------
 // External objects.

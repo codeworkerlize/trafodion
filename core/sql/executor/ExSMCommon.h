@@ -27,7 +27,7 @@
 #include <inttypes.h>
 #include <stdio.h>
 #include "Platform.h"
-#include "sm.h"
+// #include "sm.h"
 #include "NAAssert.h"
 
 // Forward declarations

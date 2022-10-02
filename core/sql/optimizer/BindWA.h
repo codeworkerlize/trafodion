@@ -1305,9 +1305,6 @@ public:
   void setBindingIUD() { isBindingIUD_ = TRUE; }
   NABoolean isBindingIUD() { return isBindingIUD_; }
 
-  // flag is set if statement is a FastExtract
-  void setIsFastExtract() { isFastExtract_ = TRUE; }
-  NABoolean isFastExtract() { return isFastExtract_; }
 
   void setIsTrafLoadPrep(NABoolean x) { isTrafLoadPrep_ = x; }
   NABoolean isTrafLoadPrep() { return isTrafLoadPrep_; }
@@ -2106,8 +2103,7 @@ private:
   // for some cases when DEFAULT_SCHEMA_ACCESS_ONLY is ON.
   NABoolean noNeedToLimitSchemaAccess_;
 
-  // True if this a UNLOAD query
-  NABoolean isFastExtract_;
+
 
   NABoolean isTrafLoadPrep_;
 

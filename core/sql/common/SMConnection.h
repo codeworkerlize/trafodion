@@ -33,7 +33,7 @@
 #define SM_CONNECTION_H
 
 #include "Ipc.h"
-#include "sm.h"
+// #include "sm.h"
 
 // Forward declarations
 class ExSMTask;

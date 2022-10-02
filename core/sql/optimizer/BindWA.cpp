@@ -183,7 +183,6 @@ BindWA::BindWA(SchemaDB *schemaDB, CmpContext* cmpContext, NABoolean inDDL, NABo
      , isBindTrueRoot_(FALSE)
      , noNeedToLimitSchemaAccess_(FALSE)
      , holdableType_(SQLCLIDEV_NONHOLDABLE)
-     , isFastExtract_(FALSE)
      , failedForPrivileges_(FALSE)
      , shouldLogAccessViolations_(FALSE)
      , queryCanUseSeaMonster_(-1)

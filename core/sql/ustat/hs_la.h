@@ -39,7 +39,7 @@
 #include "hs_util.h"
 #include "NATable.h"
 #include "hiveHook.h"
-#include "HDFSHook.h"
+
 
 struct HSColumnStruct;
 

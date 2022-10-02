@@ -111,7 +111,7 @@
 #include "charinfo.h"
 #include "SqlParserGlobals.h"		// must be last #include
 #include "ItmFlowControlFunction.h"
-#include "HDFSHook.h"
+
 #include "PrivMgrComponentPrivileges.h"
 #include "ComUser.h"
 #include "CmpSeabaseDDL.h"
@@ -4064,85 +4064,8 @@ void ExeUtilRegionStats::recomputeOuterReferences()
     }
 } // ExeUtilRegionStats::recomputeOuterReferences()  
 
-// -----------------------------------------------------------------------
-// Member functions for class ExeUtilParquetStats
-// -----------------------------------------------------------------------
-ExeUtilParquetStats::ExeUtilParquetStats(const CorrName &objectName,
-                                         NABoolean displayFormat,
-                                         CollHeap *oHeap)
-     : ExeUtilExpr(PARQUET_STATS_, objectName,
-		   NULL, NULL, NULL, CharInfo::UnknownCharSet, oHeap),
-       errorInParams_(FALSE),
-       displayFormat_(displayFormat)
-{
-}
 
-RelExpr * ExeUtilParquetStats::copyTopNode(RelExpr *derivedNode, CollHeap* outHeap)
-{
-  ExeUtilParquetStats *result;
 
-  if (derivedNode == NULL)
-    result = new (outHeap) ExeUtilParquetStats(getTableName(),
-                                               displayFormat_,
-                                               outHeap);
-  else
-    result = (ExeUtilParquetStats *) derivedNode;
-
-  result->errorInParams_ = errorInParams_;
-
-  return ExeUtilExpr::copyTopNode(result, outHeap);
-}
-
-// -----------------------------------------------------------------------
-// member functions for class ExeUtilParquetStats
-// -----------------------------------------------------------------------
-RelExpr * ExeUtilParquetStats::bindNode(BindWA *bindWA)
-{
-  if (errorInParams_)
-    {
-      *CmpCommon::diags() << DgSqlCode(-4218) << DgString0("GET ");
-
-      bindWA->setErrStatus();
-      return this;
-    }
-
-  if (nodeIsBound()) {
-    bindWA->getCurrentScope()->setRETDesc(getRETDesc());
-    return this;
-  }
-
-  if (getTableName().getQualifiedNameObj().getObjectName().isNull())
-    {
-      *CmpCommon::diags() << DgSqlCode(-4218) << DgString0("PARQUET STATS");
-      
-      bindWA->setErrStatus();
-      return this;
-    }
-
-  NATable * naTable = bindWA->getNATable(getTableName());
-  if ((!naTable) || (bindWA->errStatus()))
-    return this;
-
-  if (NOT naTable->isParquet())
-    {
-     *CmpCommon::diags() << DgSqlCode(-4219) << DgString0(" Reason: Table must be created in parquet format.");
-      
-      bindWA->setErrStatus();
- 
-      return this;
-    }
-
-  // Allocate a TableDesc and attach it to this.
-  setUtilTableDesc(bindWA->createTableDesc(naTable, getTableName()));
-  if (bindWA->errStatus())
-    return this;
-
-  RelExpr * boundExpr = ExeUtilExpr::bindNode(bindWA);
-  if (bindWA->errStatus()) 
-    return NULL;
-
-  return boundExpr;
-}
 
 // -----------------------------------------------------------------------
 // Member functions for class ExeUtilAvroStats
@@ -8407,28 +8330,7 @@ short ExeUtilHBaseBulkUnLoad::setOptions(NAList<UnloadOption*>  *
           delimiterSqlStr = " DELIMITER ";
           if (lo->numericVal_ == 0)
           {
-            if (strlen(lo->stringVal_) != 1 )
-            {
-              char c;
-              if (!PhysicalFastExtract::isSpecialChar(lo->stringVal_, c))
-              {
-                if (lo->stringVal_[0]== '\\')
-                {
-                  //if it start with '\' and not a valid escape character produce an error
-                  //4374 - Invalid escape sequence specified as BULK UNLOAD field delimiter or record separator.
-                  //       Only the following escape sequences are allowed: \a, \b, \f, \n, \r, \t, or \v.
-                  *da << DgSqlCode(-4374);
-                  return 1;
-                }
-                else
-                {
-                  // 4379 - Invalid BULK UNLOAD field delimiter or record separator.
-                  //        A valid field delimiter or record separator must be a single character or an integer between 1 and 255.
-                  *da << DgSqlCode(-4379);
-                  return 1;
-                }
-              }
-            }
+
             delimiterSqlStr.append(" '");
             delimiterSqlStr.append( lo->stringVal_);
             delimiterSqlStr.append("' ");
@@ -8473,28 +8375,7 @@ short ExeUtilHBaseBulkUnLoad::setOptions(NAList<UnloadOption*>  *
           recordSeparatorSqlStr = " RECORD_SEPARATOR ";
           if (lo->numericVal_ == 0)
           {
-            if (strlen(lo->stringVal_) != 1 )
-            {
-              char c;
-              if (!PhysicalFastExtract::isSpecialChar(lo->stringVal_, c))
-              {
-                if (lo->stringVal_[0]== '\\')
-                {
-                  //if it start with '\' and not a valid escape character produce an error
-                  //4374 - Invalid escape sequence specified as BULK UNLOAD field delimiter or record separator.
-                  //       Only the following escape sequences are allowed: \a, \b, \f, \n, \r, \t, or \v.
-                  *da << DgSqlCode(-4374);
-                  return 1;
-                }
-                else
-                {
-                  // 4379 - Invalid BULK UNLOAD field delimiter or record separator.
-                  //        A valid field delimiter or record separator must be a single character or an integer between 1 and 255.
-                  *da << DgSqlCode(-4379);
-                  return 1;
-                }
-              }
-            }
+
             recordSeparatorSqlStr.append(" '");
             recordSeparatorSqlStr.append( lo->stringVal_);
             recordSeparatorSqlStr.append("' ");

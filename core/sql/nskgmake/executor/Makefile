@@ -125,13 +125,10 @@ CPPSRC := Allocator.cpp \
 	UdrExeIpc.cpp \
         JavaObjectInterface.cpp \
         SequenceFileReader.cpp \
-        TrafExtStorageUtils.cpp \
         OrcFileReader.cpp \
-        OrcFileVectorReader.cpp \
         HdfsClient_JNI.cpp \
         HiveClient_JNI.cpp \
         DistributedLock_JNI.cpp \
-        ParquetFileReader.cpp \
         AvroFileReader.cpp \
         HBaseClient_JNI.cpp \
 	OrcFileVectorWriter.cpp \
@@ -154,7 +151,6 @@ CPPSRC += vers_libexecutor.cpp \
 	ExSMExitHandler.cpp \
 	ExSMShortMessage.cpp \
 	ExSMReadyList.cpp \
-	ExFastTransport.cpp \
         MemoryTableDB.cpp \
         MemoryTableClient.cpp
 

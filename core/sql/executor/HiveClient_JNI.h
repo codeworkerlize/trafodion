@@ -30,7 +30,7 @@
 
 #include <list>
 #include "JavaObjectInterface.h"
-#include "HDFSHook.h"
+
 
 typedef enum {
   HVC_OK     = JOI_OK

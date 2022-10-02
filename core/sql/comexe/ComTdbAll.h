@@ -75,7 +75,6 @@
 #include "ComTdbDDL.h"
 #include "ComTdbExeUtil.h"
 #include "ComTdbUdr.h"
-#include "ComTdbFastTransport.h"
 #include "ComTdbCancel.h"
 #include "ComTdbHbaseAccess.h"
 #include "ComTdbQI.h"

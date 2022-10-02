@@ -67,7 +67,7 @@
 #include "ComMisc.h"
 #include "SequenceGeneratorAttributes.h"
 #include "security/uid.h"
-#include "HDFSHook.h"
+
 #include "ExpLOBexternal.h"
 #include "ExpLobOperV2.h"
 #include "ComCextdecs.h"
@@ -2761,94 +2761,6 @@ createRangePartitioningFunctionForMultiRegionHBase(Int32 partns,
                                  heap);
 }
 
-static 
-RangePartitioningFunction*
-createRangePartitioningFunctionForHive(HHDFSTableStats * hiveHDFSTableStats,
-                                       const NATable* table, 
-                                       NAMemory* heap)
-{
-  int numParts = hiveHDFSTableStats->entries();
-
-  if (numParts > 1)
-    {
-      const NAColumnArray &allCols = table->getNAColumnArray();
-      NAColumnArray partKeyColArray;
-      NodeMap* nodeMap = new(heap) NodeMap(heap,
-                                           numParts,
-                                           NodeMapEntry::ACTIVE,
-                                           NodeMap::HIVE);
-      TrafDesc *partns_desc = NULL;
-      TrafDesc *last = NULL;
-
-      for (int c=0; c<allCols.entries(); c++)
-        if (allCols[c]->isHivePartColumn())
-          partKeyColArray.insert(allCols[c]);
-
-      for (int p=0; p<numParts; p++)
-        {
-          struct TrafDesc *curr = 
-            TrafAllocateDDLdesc(DESC_PARTNS_TYPE, NULL);
-
-          if (p == 0)
-            {
-              // partition 0 is a dummy "primary" partition with no
-              // start value, it will be skipped in the call to
-              // createRangePartitioningFunction() below. In
-              // hiveHDFSTableStats, partition 0 represents the table,
-              // not an individual partition.
-              curr->partnsDesc()->primarypartition = 1;
-              CMPASSERT((*hiveHDFSTableStats)[p]->getPartitionKeyValues().length() == 0);
-            }
-          else
-            {
-              NAString partKeyValsSQL;
-
-              if (!HivePartitionAndBucketKey::convertHivePartColValsToSQL(
-                       (*hiveHDFSTableStats)[p]->getPartitionKeyValues(),
-                       p,
-                       table,
-                       &partKeyColArray,
-                       partKeyValsSQL))
-                return NULL;
-
-              int partKeyValsLen = partKeyValsSQL.length();
-              
-              // copy only the character representation, a comma-separated
-              // list of values, into the "firstkey" field, leave encoded
-              // values blank
-              curr->partnsDesc()->firstkey = new(heap) char[partKeyValsLen+1];
-              memcpy(curr->partnsDesc()->firstkey,
-                     partKeyValsSQL.data(),
-                     partKeyValsLen+1);
-              curr->partnsDesc()->firstkeylen = partKeyValsLen;
-            }
-
-          if (partns_desc == NULL)
-            {
-              partns_desc = last = curr;
-            }
-          else
-            {
-              // append at the end of the linked list
-              last->next = curr;
-              last = curr;
-            }
-        }
-
-      PartitioningFunction *pf = createRangePartitioningFunction(
-           partns_desc,
-           partKeyColArray,
-           nodeMap,
-           heap);
-      if (pf)
-        return const_cast<RangePartitioningFunction *>(
-             pf->castToRangePartitioningFunction());
-      else
-        return NULL;
-    }
-  else
-    return NULL;
-}
 
 Int32 findDescEntries(TrafDesc* desc)
 {
@@ -4429,41 +4341,9 @@ NABoolean createNAFileSets(hive_tbl_desc* hvt_desc        /*IN*/,
       const hive_sd_desc *sd_desc = hvt_desc->getSDs();
 
       HHDFSTableStats * hiveHDFSTableStats = NULL;
-      if(OSIM_runningSimulation() &&
-         // don't try OSIM for CSE temp tables, those are generated dynamically
-         strncmp(table->getTableName().getObjectName().data(), COM_CSE_TABLE_PREFIX, strlen(COM_CSE_TABLE_PREFIX)) != 0 ) {
-              try {
-                  hiveHDFSTableStats = OSIM_restoreHiveTableStats(table->getTableName(), heap, hvt_desc);
-              }
-              catch(OsimLogException & e)
-              {//table is not referred in capture mode, issue osim error
-                  OSIM_errorMessage(e.getErrMessage());
-                  return TRUE;
-              }
-      }
-      else
+
       {
-          if (CmpCommon::getDefault(HIVE_STATS_CACHING) == DF_ON
-                && strlen(sd_desc->location_) >= 8 //defensive programing, should never happen
-                && !(strncmp(sd_desc->location_,"s3:",3)==0) //disable stats_caching for s3 as maxModificationTs is not available
-                && !(strncmp(sd_desc->location_,"s3a:",4)==0) //disable stats_caching for s3 as maxModificationTs is not available
-                && !(strncmp(sd_desc->location_,"alluxio:",8)==0)) //disable stats_caching for alluxio because block caching node is highly dynamic, so cannot be persisted
-           {
-              Int64 maxTs;
-	      Lng32 depthLevel = (CmpCommon::getDefault(HIVE_SUPPORTS_SUBDIRECTORIES) == DF_OFF) ? hvt_desc->getNumOfPartCols(): -1 ;
-              HDFS_Client_RetCode rc = HdfsClient::getHiveTableMaxModificationTs(maxTs,sd_desc->location_, depthLevel);
-              if (rc == HDFS_CLIENT_OK && maxTs > 0){
-                  hiveHDFSTableStats = HHDFSTableStats::restoreHiveTableStats(table->getTableName().getQualifiedNameAsAnsiString(),maxTs,  hvt_desc,  heap);//read from cache
-              }
-              if (hiveHDFSTableStats == NULL){ // in case of no cache hit
-                  hiveHDFSTableStats = new(heap) HHDFSTableStats(heap);
-                  hiveHDFSTableStats->setPortOverride(CmpCommon::getDefaultLong(HIVE_LIB_HDFS_PORT_OVERRIDE));
-                  // create file-level statistics and estimate total row count and record length
-                  hiveHDFSTableStats->populate(hvt_desc);
-                  if (!(hiveHDFSTableStats->hasError()))
-                    hiveHDFSTableStats->captureHiveTableStats(table->getTableName().getQualifiedNameAsAnsiString(),maxTs, hvt_desc);//populate cache
-              }
-          }else{
+{
               hiveHDFSTableStats = new(heap) HHDFSTableStats(heap);
               hiveHDFSTableStats->setPortOverride(CmpCommon::getDefaultLong(HIVE_LIB_HDFS_PORT_OVERRIDE));
               // create file-level statistics and estimate total row count and record length
@@ -4485,28 +4365,7 @@ NABoolean createNAFileSets(hive_tbl_desc* hvt_desc        /*IN*/,
                               << DgTableName(table->getTableName().getQualifiedNameAsAnsiString());
         }
 
-      if(OSIM_runningInCaptureMode()){
-              try {
-                  OSIM_captureHiveTableStats(hiveHDFSTableStats, table);
-              }
-              catch(OsimLogException & e)
-              {//table is not referred in capture mode, issue osim error
-                  OSIM_errorMessage(e.getErrMessage());
-                  return TRUE;
-              }
-      }
-      // for partitioned Hive tables, create a RangePartitioningFunction with
-      // start key values that represent the Hive partition values (note that
-      // there are no other allowed values than the start values and that the
-      // first range partition is empty, there is no equivalent Hive partition)
-      RangePartitioningFunction *partColValues = createRangePartitioningFunctionForHive(
-           hiveHDFSTableStats,
-           table,
-           heap);
-      if (partColValues == NULL &&
-          hiveHDFSTableStats->entries() > 1)
-        // a partitioned Hive table should return a part func here
-        return TRUE;
+
 
       if ( (hiveHDFSTableStats->isOrcFile()) ||
            (hiveHDFSTableStats->isParquetFile()) ||
@@ -4734,7 +4593,6 @@ NABoolean createNAFileSets(hive_tbl_desc* hvt_desc        /*IN*/,
 
       bucketingKeyColumns.setPartitioningKey();
 
-      newIndex->setHivePartColValues(partColValues);
 
       // If it is a VP add it to the list of VPs.
       // Otherwise, add it to the list of indices.

@@ -41,7 +41,7 @@
 #include "ComSysUtils.h"
 #include "NAFileSet.h"
 #include "opt.h"
-#include "HDFSHook.h"
+
 #include "CliSemaphore.h"
 #include "ExpHbaseDefs.h"
 
@@ -103,7 +103,6 @@ NAFileSet::NAFileSet(const QualifiedName & fileSetName,
 	   partitioningKeyColumns_(horizontalPartKeyColumns, h),
            hiveSortKeyColumns_(hiveSortKeyColumns, h),
            partFunc_(forHorizontalPartitioning),
-           hivePartColValues_(NULL),
 	   keytag_(keytag),
 	   redefTime_(redefTime),
 	   audited_(audited),
@@ -194,9 +193,7 @@ NAFileSet::NAFileSet(const NAFileSet& other, CollHeap * h)
            hiveSortKeyColumns_(other.hiveSortKeyColumns_, h),//shallow copied
            partFunc_(other.partFunc_ ?  other.partFunc_->copy(h) : NULL),
 
-           hivePartColValues_(other.hivePartColValues_ ? 
-                              (RangePartitioningFunction*)(other.hivePartColValues_->copy(h)
-                                   ->castToRangePartitioningFunction()) : NULL),
+
 
 	   keytag_(other.keytag_),
 	   redefTime_(other.redefTime_),
@@ -244,8 +241,7 @@ NAFileSet::NAFileSet(const NAFileSet& other, CollHeap * h)
 NAFileSet::~NAFileSet()
 {
   delete partFunc_;
-  if (hivePartColValues_)
-    delete hivePartColValues_;
+
   if (hHDFSTableStats_)
     delete hHDFSTableStats_;
 }
@@ -283,10 +279,7 @@ NABoolean NAFileSet::operator==(const NAFileSet& other) const
       )
      return FALSE;
 
-    if ( !COMPARE_PART_FUNCS(partFunc_, other.partFunc_) ||
-         !COMPARE_PART_FUNCS(hivePartColValues_, other.hivePartColValues_)
-       )
-     return FALSE;
+
 
     if ( keytag_ != other.keytag_ ||
 	   redefTime_ != other.redefTime_ ||
@@ -454,8 +447,7 @@ void NAFileSet::resetAfterStatement()
   if(partFunc_)
     partFunc_->resetAfterStatement();
 
-  if (hivePartColValues_)
-    hivePartColValues_->resetAfterStatement();
+
 
   if (hHDFSTableStats_)
     hHDFSTableStats_->resetAfterStatement();
@@ -488,8 +480,7 @@ void NAFileSet::setupForStatement()
   if(partFunc_)
     partFunc_->setupForStatement();
 
-  if (hivePartColValues_)
-    hivePartColValues_->setupForStatement();
+
 
   if (hHDFSTableStats_)
     hHDFSTableStats_->setupForStatement();

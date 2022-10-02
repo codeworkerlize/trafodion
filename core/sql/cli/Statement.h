@@ -438,8 +438,7 @@ private:
   WaitedLockController* dlockForSharedCache_; 
 
   RmsLimitLevel rmsLimit_;
-  //Record the time between locking and unlocking dlock
-  parquet::StopWatch dlockForSharedCacheStopWatch_;
+
 // Private Functions
   void buildConsumerQueryTemplate();
 

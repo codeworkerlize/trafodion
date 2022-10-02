@@ -54,7 +54,6 @@
 #include "ex_union.h"
 #include "ex_onlj.h"
 #include "ex_tuple_flow.h"
-#include "ExFastTransport.h"
 #include "ex_root.h"
 #include "ex_mj.h"
 #include "ex_hashj.h"
@@ -224,11 +223,7 @@ char *ComTdb::findVTblPtrExe(short classID)
       GetVTblPtr(vtblptr,ex_union_tdb);
       break;
     }
-    case ex_FAST_EXTRACT:
-    {
-      GetVTblPtr(vtblptr,ExFastExtractTdb);
-      break;
-    }
+
 
     case ex_UDR:
     {
@@ -558,12 +553,7 @@ case ex_LOB_INFO:
       break;
     }
 
-   case ex_PARQUET_STATS:
-    {
-      GetVTblPtr(vtblptr,ExExeUtilParquetStatsTdb);
 
-      break;
-    }
 
    case ex_AVRO_STATS:
     {

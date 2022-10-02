@@ -648,11 +648,7 @@ char *ComTdb::findVTblPtrCom(short classID)
       GetVTblPtr(vtblptr,ComTdbTimeout);
       break;
     }
-    case ex_FAST_EXTRACT:
-    {
-      GetVTblPtr(vtblptr,ComTdbFastExtract);
-      break;
-    }
+
     case ex_UDR:
     {
       GetVTblPtr(vtblptr,ComTdbUdr);

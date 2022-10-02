@@ -44,7 +44,6 @@
 #include "Collections.h"
 #include "NABasicObject.h"
 
-#include "ExpORCinterface.h"
 #include "AvroFileReader.h"
 
 class ExpAvroInterface : public ExpExtStorageInterface

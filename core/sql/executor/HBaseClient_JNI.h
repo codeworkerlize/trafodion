@@ -127,8 +127,7 @@ typedef enum {
 class HTableClient_JNI : public JavaObjectInterface
 {
 private:
-  // These enum values need to remain in sync with vars defined in
-  // java file TrafExtStorageUtils.java.
+
   enum
     {
       // synchronous replication

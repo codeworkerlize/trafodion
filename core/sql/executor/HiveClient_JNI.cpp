@@ -27,7 +27,7 @@
 
 #include "HiveClient_JNI.h"
 #include "org_trafodion_sql_HiveClient.h"
-#include "HDFSHook.h"
+
 
 // ===========================================================================
 // ===== Class HiveClient_JNI

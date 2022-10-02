@@ -42,7 +42,7 @@
 #include "ex_error.h"
 #include "Cost.h"      /* for lookups in the defaults table */
 #include "Analyzer.h"
-#include "HDFSHook.h"
+
 #include "ComCextdecs.h"
 #include "TrafDDLdesc.h"
 #include "ExExeUtilCli.h"
