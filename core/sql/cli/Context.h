@@ -62,13 +62,11 @@
 #include "ExStats.h"
 #include "ExpSeqGen.h"
 #include "ssmpipc.h"
-//#include "hdfs.h"
+#include "hdfs.h"
 #include "HdfsClient_JNI.h"
 #include "DistributedLock_JNI.h"
 
-#ifdef BUILD_PARQUET_READER
-#include "arrow/io/arrow_hdfs.h"
-#endif
+
 
 class CliGlobals;
 class HashQueue;
@@ -1370,16 +1368,7 @@ struct hdfsConnectStruct
   Int32 hdfsPort_;
   char  hdfsServer_[256]; // max length determined by dfs.namenode.fs-limits.max-component-length(255) 
 
-#ifdef BUILD_PARQUET_READER
-  std::shared_ptr<arrow::io::HadoopFileSystem> arrowFileSystem_;
 
-  hdfsConnectStruct() :
-  hdfsHandle_(NULL),
-  hdfsPort_(0),
-  arrowFileSystem_(nullptr)
-    {};
-  ~hdfsConnectStruct() {};
-#endif
 };
 
 #endif

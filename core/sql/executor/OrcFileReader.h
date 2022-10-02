@@ -31,12 +31,10 @@
 #include "TrafExtStorageUtils.h"
 #include "JavaObjectInterface.h"
 #include "ExStats.h"
-#include "Hbase_types.h"
 #include "ExpHbaseDefs.h"
 #include "NAMemory.h"
 #include "ExStats.h"
 
-using namespace apache::hadoop::hbase::thrift;
 namespace {
   typedef std::vector<Text> TextVec;
 }

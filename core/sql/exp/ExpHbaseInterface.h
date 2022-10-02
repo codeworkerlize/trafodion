@@ -42,10 +42,10 @@
 
 #include <iostream>
 
-#include <protocol/TBinaryProtocol.h>
-#include <transport/TSocket.h>
+// #include <protocol/TBinaryProtocol.h>
+// #include <transport/TSocket.h>
 #ifndef __aarch64__
-#include <transport/TTransportUtils.h>
+// #include <transport/TTransportUtils.h>
 #endif
 
 #include "Platform.h"

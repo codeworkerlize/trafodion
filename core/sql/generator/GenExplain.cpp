@@ -58,7 +58,6 @@
 #include "ComTdbMj.h"
 #include "ComTdbSequence.h"
 #include "ComTdbCancel.h"
-#include "ComTdbHdfsScan.h"
 #include "HDFSHook.h"
 
 #include "StmtDDLCreateTable.h"
@@ -589,10 +588,7 @@ FileScan::addSpecificExplainInfo(ExplainTupleMaster *explainTuple,
     default:          description += "unknown ";
       break;
     }; 
-  if ((((ComTdbHdfsScan *)tdb)->strawScanMode())) {
-    description += "straw_scan: " ;
-    description += "ON " ;
-  }
+
 
   // now get columns_retrieved
   description += "columns_retrieved: ";
@@ -665,9 +661,6 @@ FileScan::addSpecificExplainInfo(ExplainTupleMaster *explainTuple,
       description += " ";
     }
 
-  if (((ComTdbHdfsScan *)tdb)->useArrowReader()) {
-    description += "use_cpp_reader: yes " ;
-  }
 
   if ( generator->bloomFilterUseNativeByteOrder() ) {
     description += "native_bloomfilter: yes " ;

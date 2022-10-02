@@ -988,7 +988,6 @@ public:
                             char* &gendTablename,
                             const NABoolean isForGetUIDName = FALSE);
 
-  short codeGenForHive(Generator*);
   static short genScanRanges(Generator * generator,
                              const HHDFSTableStats* hTabStats,
                              const PartitioningFunction * mypart,
@@ -1008,15 +1007,8 @@ public:
                              const NABoolean isStrawScan,
                              NABoolean& parquetFullScan
                            );
-  static short genExtStoragePPI(Generator * generator,
-                                NAList<ExtPushdownPredInfo> *listOfOrcPPI,
-                                const ColStatDescList& colStatsList,
-                                Queue * &tdbListOfOrcPPI,
-                                ValueIdList &orcOperVIDlist);
 
-  static ValueId genExtStoragePPIExpression(Generator * generator, 
-                                            ValueId colValId,
-                                            ValueId operValId);
+
 
   static char * genExplodedHivePartKeyVals(Generator *generator,
                                            ExpTupleDesc *partCols,

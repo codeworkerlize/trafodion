@@ -29,7 +29,6 @@
 #include "NABasicObject.h"
 
 #include "JavaObjectInterface.h"
-#include "Hbase_types.h"
 #include "ExpHbaseDefs.h"
 #include "NAMemory.h"
 

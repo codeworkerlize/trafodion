@@ -74,7 +74,6 @@
 #include "SharedCache.h"
 #include "NamedSemaphore.h"
 #include "ExpLOB.h"
-#include "util/stopwatch.h"
 
 #include "ExpLobOperV2.h"
 

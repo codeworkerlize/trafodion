@@ -55,7 +55,6 @@
 #include "cli_stdh.h"
 #include "HBaseClient_JNI.h"
 #include "ComSmallDefs.h"
-#include "ExOrcAccess.h"
 
 //----------------------------------------------------------------------
 // ExFastExtractTcb methods
@@ -841,15 +840,7 @@ void ExHdfsFastExtractTcb::encodeHivePartitionString(NAString &partString)
   replaceInString(partString, ":", "%3A");
 }
 
-void ExHdfsFastExtractTcb::createORCcolInfoLists
-(TextVec &colNameVec,
- TextVec &colTypeInfoVec)
-{
-  ExExtStorageScanTcb::createColInfoVecs((Queue *)myTdb().extColNameList(),
-                                         (Queue *)myTdb().extColTypeList(),
-                                         colNameVec,
-                                         colTypeInfoVec);
-}
+
 
 ExWorkProcRetcode ExHdfsFastExtractTcb::work()
 {

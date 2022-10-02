@@ -59,7 +59,7 @@
 #endif
 
 #define SQ_USE_HDFS 1
-//#include "hdfs.h"
+#include "hdfs.h"
 using namespace std;
 
 

@@ -1173,38 +1173,8 @@ if [[ "$SQ_VERBOSE" == "1" ]]; then
   echo
 fi
 
-export BUILD_NATIVE_PARQUET_READER=1
 
 TOOLSET_DIR=/opt/rh/devtoolset-7
-
-if [[ "$BUILD_NATIVE_PARQUET_READER" == "1" ]]; then
-
-  if [[ ( $(uname -r) =~ el6 ) ]]; then
-    # check centOS6
-
-    if [[ -d "$TOOLSET_DIR" ]]; then
-
-      . $TOOLSET_DIR/enable
-
-      if [[ ( "$PCP_DIR" !=  "" ) ]]; then
-        export BUILD_NATIVE_PARQUET_READER=1
-      else
-        unset BUILD_NATIVE_PARQUET_READER
-      fi
-
-    else
-      unset BUILD_NATIVE_PARQUET_READER
-    fi
-  else 
-     # check centOS7
-     if [[ ( $(uname -r) =~ el7 ) ]]; then
-        # allow
-        export BUILD_NATIVE_PARQUET_READER=1
-     else
-        unset BUILD_NATIVE_PARQUET_READER
-     fi
-  fi
-fi
 
 ###########################
 # Trafodion monitor process

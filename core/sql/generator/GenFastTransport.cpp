@@ -601,7 +601,6 @@ static short ft_codegen(Generator *generator,
       {
         // if error mode is 3 (mode null when error), disable pcode.
         // this feature is currently not being handled by pcode.
-        // (added as part of JIRA 1920 in FileScan::codeGenForHive).
         exp_gen->setPCodeMode(ex_expr::PCODE_NONE);
       }
 

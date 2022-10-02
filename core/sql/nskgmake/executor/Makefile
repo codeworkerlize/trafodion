@@ -123,8 +123,6 @@ CPPSRC := Allocator.cpp \
 	TriggerEnable.cpp \
 	TupleSpace.cpp \
 	UdrExeIpc.cpp \
-        ExHdfsScan.cpp \
-	ExOrcAccess.cpp \
         JavaObjectInterface.cpp \
         SequenceFileReader.cpp \
         TrafExtStorageUtils.cpp \

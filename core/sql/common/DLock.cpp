@@ -24,7 +24,6 @@
 #include "DLock.h"
 #include <unistd.h>
 #include "ComRtUtils.h"
-#include "util/stopwatch.h"
 
 void genArkcmpInfo(NAString& nidpid);
 

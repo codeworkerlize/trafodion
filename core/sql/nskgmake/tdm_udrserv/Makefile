@@ -58,10 +58,7 @@ endif
 
 SYS_LIBS := -L$(LOC_JVMLIBS) -ljsig -ljvm -lpthread
 
-#ifdef BUILD_PARQUET_READER
-#DEP_LIBS += parquet
-#SYS_LIBS += -lparquet
-#endif
+
 
 EXTERN_LIBS := \
 	$(XMPIROOT)/libsqauth.so 

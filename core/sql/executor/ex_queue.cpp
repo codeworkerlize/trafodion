@@ -783,9 +783,6 @@ const char * NodeTypeToString(ComTdb::ex_node_type nodeType)
       tdbName = "ExProbeCache";
       break;
 
-    case ComTdb::ex_HDFS_SCAN:
-      tdbName = "ExHdfsScan";
-      break;
 
     case ComTdb::ex_ARQ_WNR_INSERT:
       tdbName = "ExExeUtilAqrWnrInsert";

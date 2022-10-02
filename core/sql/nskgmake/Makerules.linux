@@ -48,10 +48,7 @@ ifdef MAKECMDGOALS
   endif
 endif
 
-ifeq ($(BUILD_NATIVE_PARQUET_READER),1)
-  BUILD_PARQUET_READER=1
-  CXX=$(shell which g++)
-endif
+
 
 linuxhelp help all::
 	@(echo "$(MAKE) linuxdebug           Build for Linux debug mode";\
@@ -175,19 +172,8 @@ GLOBAL_SYS_LIBS := -L $(LOC_JVMLIBS) $(LIBHDFS_LIB) $(LIBCURL_LIB) $(COMPRESSION
 # builds.  Any flavor-specific targets can be added later in this makefile.
 EXECUTABLES= arkcmp sqlci arkesp tdm_udrserv mxlobsrvr sscp ssmp clitestdriver \        tool 
 
-ifdef BUILD_PARQUET_READER
-EXECUTABLES += parquet_reader_test arrow_reader_test arrow_filter_test
-endif
-	# mxCompileUserModule mxsqlcfe mxsqlcofe sqlfe
 
-# LIBS defines the libraries that are built for release and debug builds.
-# These are all built as shared objects with names such as libtdm_sqlcli.so.
 
-ifdef BUILD_PARQUET_READER
-DLLS := parquet
-else
-DLLS := 
-endif
 
 ifdef BUILD_ORC_READER
 DLLS += orc
@@ -276,9 +262,7 @@ OTHER_INCLUDES += -I$(TRAF_HOME)/../sql/orc/include \
 	          -I$(TRAF_HOME)/../sql/orc/include/orc 
 endif
 
-ifdef BUILD_PARQUET_READER
-OTHER_INCLUDES += -I$(TRAF_HOME)/../sql/parquet 
-endif
+
 
 LOC_LIBS := \
 	-L$(RESULTDIR) \
@@ -355,9 +339,6 @@ ifeq ($(NEED_INSTRUMENT_EXTSCAN_UPQUEUE),1)
    SYS_DEFS += -DNEED_INSTRUMENT_EXTSCAN_UPQUEUE
 endif
 
-ifeq ($(BUILD_PARQUET_READER),1)
-   SYS_DEFS += -DBUILD_PARQUET_READER
-endif
 
 ifeq ($(TRACE_EXPR_EVAL),1)
    SYS_DEFS += -DTRACE_EXPR_EVAL

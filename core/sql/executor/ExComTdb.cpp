@@ -77,9 +77,7 @@
 #include "ExUdr.h"
 #include "ExProbeCache.h"
 #include "ExCancel.h"
-#include "ExHdfsScan.h"
 #include "ExHbaseAccess.h"
-#include "ExOrcAccess.h"
 
 // -----------------------------------------------------------------------
 // When called within tdm_sqlcli.dll, fixupVTblPtr() translates to a call
@@ -489,20 +487,7 @@ case ex_LOB_INFO:
     break;
   }
 
-   case ex_HDFS_SCAN:
-   {
-      GetVTblPtr(vtblptr,ExHdfsScanTdb);
-      break;
-   }
 
-  case ex_EXT_STORAGE_SCAN:
-    {
-#pragma nowarn(1506)   // warning elimination
-      GetVTblPtr(vtblptr,ExExtStorageScanTdb);
-#pragma warn(1506)  // warning elimination
-
-      break;
-    }
 
    case ex_LOB_EXTRACT:
     {
@@ -557,12 +542,7 @@ case ex_LOB_INFO:
       break;
     }
 
-  case ex_EXT_STORAGE_AGGR:
-    {
-      GetVTblPtr(vtblptr,ExExtStorageFastAggrTdb);
 
-      break;
-    }
 
     case ex_CANCEL:
     {

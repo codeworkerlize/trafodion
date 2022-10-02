@@ -8852,35 +8852,9 @@ RelExpr * HbasePushdownAggr::copyTopNode(RelExpr *derivedNode, CollHeap* outHeap
   return GroupByAgg::copyTopNode(result, outHeap);
 }
 
-// -----------------------------------------------------------------------
-// member functions for class ExtStoragePushdownAggr
-// -----------------------------------------------------------------------
-ExtStoragePushdownAggr::~ExtStoragePushdownAggr()
-{}
 
-const NAString ExtStoragePushdownAggr::getText() const
-{
-  if (tableDesc_ && tableDesc_->getNATable() && tableDesc_->getNATable()->isParquet())
-    return "parquet_aggr";
-  else if (tableDesc_ && tableDesc_->getNATable() && tableDesc_->getNATable()->isAvro())
-    return "avro_aggr";
-  else
-    return "orc_aggr";
-}
 
-RelExpr * ExtStoragePushdownAggr::copyTopNode(RelExpr *derivedNode, CollHeap* outHeap)
-{
-  ExtStoragePushdownAggr *result;
 
-  if (derivedNode == NULL)
-    result = new (outHeap) ExtStoragePushdownAggr(aggregateExpr(), tableDesc_, hiveSearchKey_);
-  else  {
-    result = (ExtStoragePushdownAggr*)derivedNode;
-    result->hiveSearchKey_ = hiveSearchKey_;
-  }
-
-  return GroupByAgg::copyTopNode(result, outHeap);
-}
 
 // -----------------------------------------------------------------------
 // member functions for class Scan

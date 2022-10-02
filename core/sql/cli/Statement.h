@@ -53,7 +53,6 @@
 #include "Module.h"
 #include "SqlTableOpenInfo.h" // triggers
 #include "DLock.h"
-#include "util/stopwatch.h" 
 
 class ex_root_tdb;
 class ex_root_tcb;

@@ -1,4 +1,0 @@
-731c731
-< *** ERROR[1431] Object TRAF_regr:TRAFODION.T116SCH.T116T1 exists in HBase. This could be due to a concurrent transactional ddl operation in progress on this table.
----
-> *** ERROR[8201] Unable to obtain object DDL lock on TRAFODION.T116SCH.T116T1, due to a concurrent DDL operation on node ## process #####.

@@ -29,7 +29,6 @@
 #include "NABasicObject.h"
 
 #include "JavaObjectInterface.h"
-//#include "Hbase_types.h"
 #include "ExpHbaseDefs.h"
 #include "NAMemory.h"
 #include "MonarchClient_JNI.h"  // to get MC_LAST

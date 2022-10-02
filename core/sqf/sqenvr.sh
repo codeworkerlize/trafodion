@@ -22,7 +22,6 @@
 # use GNU prof, use option
 #export GPROF_USE=1
 
-# Need this to instrument executor code (e.g., ExOrcAccess.cpp)
 # This variable is used inside nskgmake/Makerules.linux.
 #export NEED_INSTRUMENT=1
 

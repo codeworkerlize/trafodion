@@ -5117,10 +5117,7 @@ RelExpr * FileScan::preCodeGen(Generator * generator,
           if ( hTabStats->isParquetFile() )
           {
              NABoolean useCppReader = FALSE;
-#ifdef BUILD_PARQUET_READER
-             useCppReader = 
-                 (CmpCommon::getDefault(PARQUET_USE_CPP_READER) == DF_ON);
-#endif
+
 
             if ( extListOfPPI_.entries() > 0 )
             {
@@ -7371,15 +7368,6 @@ RelExpr * HbasePushdownAggr::preCodeGen(Generator * generator,
   return GroupByAgg::preCodeGen(generator, externalInputs, pulledNewInputs);
 }
 
-RelExpr * ExtStoragePushdownAggr::preCodeGen(Generator * generator,
-                                      const ValueIdSet & externalInputs,
-                                      ValueIdSet &pulledNewInputs)
-{
-  if (nodeIsPreCodeGenned())
-    return this;
-  
-  return GroupByAgg::preCodeGen(generator, externalInputs, pulledNewInputs);
-}
 
 // if this is simple scalar aggregate on a seabase table
 // (of the form:  select count(*) from t; )
@@ -7388,8 +7376,6 @@ RelExpr * ExtStoragePushdownAggr::preCodeGen(Generator * generator,
 // or using ORC apis.
 void GroupByAgg::decideFeasibleToTransformForAggrPushdown(NABoolean checkAll)
 {
-  // For transformed GroupByAgg such as ExtStoragePushdownAggr, we do not
-  // need to look further.
   if ( getArity() == 0 ) {
     feasibleToPushdownAggr_ = GroupByAgg::TVL_TRUE;
     return;
@@ -7679,8 +7665,6 @@ RelExpr *GroupByAgg::transformForAggrPushdown(Generator * generator,
 {
   RelExpr * newNode = this;
 
-  // For transformed GroupByAgg such as ExtStoragePushdownAggr, we do not
-  // need to look further.
   if ( getArity() == 0 )
     return this;
 
@@ -7933,16 +7917,7 @@ RelExpr *GroupByAgg::transformForAggrPushdown(Generator * generator,
         h->setFilterForNull(filterForNULL);
       }
     }
-  else
-    {
-      eue = new(CmpCommon::statementHeap())
-        ExtStoragePushdownAggr(aggregateExpr(), scan->getTableDesc(), 
-                               scan->getHiveSearchKey());
-      if (NOT selectionPred().isEmpty())
-        {
-          eue->setSelectionPredicates(selectionPred());
-        }
-    }
+
   
   eue->setEstRowsUsed(getEstRowsUsed());
   eue->setMaxCardEst(getMaxCardEst());
@@ -7955,38 +7930,7 @@ RelExpr *GroupByAgg::transformForAggrPushdown(Generator * generator,
   
   if (isSeabase)
     eue->setPhysicalProperty(scan->getPhysicalProperty());
-  else
-    {
-      // replace the node map with one that does not split, 
-      // since we want to read the file-level aggregates
-      PhysicalProperty *newPhysProp = NULL;
-      NodeMap *newNodeMap = new(CmpCommon::statementHeap()) NodeMap(
-           CmpCommon::statementHeap(),
-           partFunc->getCountOfPartitions(),
-           NodeMapEntry::ACTIVE,
-           NodeMap::HIVE);
-      
-      // assign files of the table to scan to the node map,
-      // but don't split any files (balance level -1),
-      // note that the locality decision is still made based
-      // on the HIVE_LOCALITY_BALANCE_LEVEL CQD
-      newNodeMap->assignScanInfos(scan->getHiveSearchKey(), -1);
-      
-      // replace the node map with the newly generated one...
-      partFunc = partFunc->copy();
-      partFunc->replaceNodeMap(newNodeMap);
-      
-      // ...and replace the partitioning function in the physical
-      // properties with this new one
-      newPhysProp = new(CmpCommon::statementHeap()) PhysicalProperty(
-           *scan->getPhysicalProperty(),
-           scan->getPhysicalProperty()->getSortKey(),
-           scan->getPhysicalProperty()->getSortOrderType(),
-           NULL,
-           partFunc);
-      eue->setPhysicalProperty(newPhysProp);
-    }
-  
+
   newNode = eue->bindNode(generator->getBindWA());
   if (generator->getBindWA()->errStatus())
     return NULL;

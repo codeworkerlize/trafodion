@@ -66,7 +66,6 @@
 #include "ComTdbFirstN.h"
 #include "ComTdbStats.h"
 #include "ComTdbHbaseAccess.h"
-#include "ComTdbHdfsScan.h"
 #include "ExplainTuple.h"
 #include "ComTdbExplain.h"
 #include "SchemaDB.h"

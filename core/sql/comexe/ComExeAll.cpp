@@ -82,6 +82,5 @@
 #include "ComExtractInfo.cpp"
 #include "ComTrace.cpp"
 #include "ComTdbCancel.cpp"
-#include "ComTdbBlockingHdfsScan.cpp"
 #include "ComTdbQI.cpp"
 

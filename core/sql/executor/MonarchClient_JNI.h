@@ -29,14 +29,12 @@
 #include "NABasicObject.h"
 
 #include "JavaObjectInterface.h"
-#include "Hbase_types.h"
 #include "ExpHbaseDefs.h"
 #include "NAMemory.h"
 #include "org_trafodion_sql_MTableClient.h"
 #include "HBaseClient_JNI.h"
 
 // forward declare
-using namespace apache::hadoop::hbase::thrift;
 
 namespace {
   typedef std::vector<Text> TextVec;

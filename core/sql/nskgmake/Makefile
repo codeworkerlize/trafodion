@@ -33,7 +33,7 @@ MAKEFLAGS += --no-print-directory
 
 TARGTYPES = linux 
 HELP_TARGETS = all help $(TARGTYPES:%=%help)
-GLOBAL_TARGETS = clobber distclean depcheck copy-orc-jars 
+GLOBAL_TARGETS = clobber distclean  copy-orc-jars 
 ORC_VER = 1.5.0
 ORC_TOOLS_DIR = $(TOOLSDIR)/ORC-$(ORC_VER)-Linux/share
 ORC_UBER_JAR_FILE = orc-tools-$(ORC_VER)-uber.jar
@@ -132,11 +132,7 @@ else
   $(foreach target,$(TARGTYPES),$(eval $(call incMRtemplate,Makerules.$(target))))
 endif
 
-depcheck:
-	cd ..; $(MAVEN) org.owasp:dependency-check-maven:check
-	cd ..; $(MAVEN) -f pom.xml.apache org.owasp:dependency-check-maven:check
-	cd ..; $(MAVEN) -f pom.xml.hdp org.owasp:dependency-check-maven:check
-	cd ../parquet_tool; $(MAVEN) org.owasp:dependency-check-maven:check
+
 
 help::
 	@echo "$(MAKE) clobber              Removes all objects from all targets"

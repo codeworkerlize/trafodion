@@ -2239,12 +2239,7 @@ enum ComQiScope
 #define TRIGGER_ID_LEN 8192
 #define TRIGGER_INT_LEN 4
 
-// enum ExtPushdownOperatorType and  extPushdownOperatorTypeStr[] must
-// remain in sync with each other.
-// They also need to be in sync with vars with 
-// corresponding names declared in TrafExtStorageUtils.java.
-// These enums are used to handle pushdown preds for external storage
-// (currently: orc, parquet, avro)
+
 enum ExtPushdownOperatorType 
   {
     UNKNOWN_OPER = 0,

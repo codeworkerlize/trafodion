@@ -31,7 +31,6 @@
 #include "TrafExtStorageUtils.h"
 #include "JavaObjectInterface.h"
 #include "ExStats.h"
-#include "Hbase_types.h"
 #include "ExpHbaseDefs.h"
 #include "NAMemory.h"
 #include "ExStats.h"

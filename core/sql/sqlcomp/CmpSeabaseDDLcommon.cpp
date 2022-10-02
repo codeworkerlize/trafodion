@@ -85,7 +85,6 @@
 #include "exp_clause_derived.h"
 #include "ExpLobOperV2.h"
 #include "TrafDDLdesc.h"
-#include "util/stopwatch.h"
 #include "SharedCache.h"
 #include "CmpSeabaseDDLXdcMeta.h"
 #include "QRLogger.h"

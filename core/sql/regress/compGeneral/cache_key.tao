@@ -1,3 +1,0 @@
-#CacheKey
-select * from tao where a = 3
-exchange(cut)

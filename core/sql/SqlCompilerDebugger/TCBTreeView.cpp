@@ -330,7 +330,6 @@ void TCBTreeView::getOperatorImageText (const ComTdb *tdb,
         bitmapIndex = IDX_JOIN;
         break;
       case ComTdb::ex_HBASE_ACCESS:
-      case ComTdb::ex_HDFS_SCAN:
         bitmapIndex = IDX_SCAN;
         break;
       default:

@@ -71,7 +71,6 @@ std::string CAT_SQL_HDFS_ORC_FILE_READER      =  "SQL.HDFS.OrcFileReader";
 std::string CAT_SQL_HDFS_ORC_FILE_WRITER      =  "SQL.HDFS.OrcFileWriter";
 std::string CAT_SQL_HDFS_PARQUET_FILE_READER  =  "SQL.HDFS.ParquetFileReader";
 std::string CAT_SQL_HDFS_AVRO_FILE_READER     =  "SQL.HDFS.AvroFileReader";
-std::string CAT_SQL_HDFS_SCAN                 =  "SQL.HDFS.HdfsScan";
 std::string CAT_SQL_HDFS_EXT_SCAN_TCB         =  "SQL.HDFS.ExtStorageScanTcb";
 std::string CAT_SQL_EX_SPLIT_BOTTOM           =  "SQL.HDFS.SplitBottom";
 std::string CAT_SQL_EX_ONLJ                   =  "SQL.HDFS.NestedJoin";

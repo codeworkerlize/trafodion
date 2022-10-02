@@ -127,8 +127,6 @@ public:
   ULng32 packedLength() { return packedLength_; }
 };
 
-class ComTdbExtPPI;
-class ExExtStorageScanTcb;
 
 class Queue : public NAVersionedObject
 {
@@ -261,14 +259,7 @@ public:
   void setDoSpaceOpt(short v) {(v ? flags_ |= DO_SPACE_OPT : flags_ &= ~DO_SPACE_OPT); };
   NABoolean doSpaceOpt() { return (flags_ & DO_SPACE_OPT) != 0; };
 
- // A set of methods to process PPI expressions embedded in a
- // Queue data structure. All of them assume that the entry in
- // each Queue element is a pointer to ComTdbExtPPI.
-  Queue* processNulls(ExExtStorageScanTcb* extScanTcb);
-  void processNullsForAND(ComTdbExtPPI* ppi, ExExtStorageScanTcb* extScanTcb);
-  void processNullsForOR(ComTdbExtPPI* ppi, ExExtStorageScanTcb* extScanTcb);
-  NABoolean processOneTerm(ExExtStorageScanTcb* extScanTcb, NABoolean& isaNullTerm);
-  void displayForPPIs();
+
 
 };
 

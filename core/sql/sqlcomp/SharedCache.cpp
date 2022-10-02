@@ -20,7 +20,6 @@
 #include "Globals.h"
 #include "CmpContext.h"
 #include "CmpSeabaseDDL.h"
-#include "util/stopwatch.h"
 #include "NamedSemaphore.h"
 #include "SharedSegment.h"
 
@@ -1881,7 +1880,6 @@ char *SharedTableDataCache::collectSummaryDataForTable(
   return buf;
 }
 
-#include "util/stopwatch.h"
 void testSharedMemorySequentialScan(Int32 argc, char **argv)
 
 {

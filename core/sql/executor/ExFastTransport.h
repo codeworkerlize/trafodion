@@ -32,8 +32,6 @@
 #include "ExpLOBinterface.h"
 #include "ex_exe_stmt_globals.h"
 
-#include "Hbase_types.h"
-using namespace apache::hadoop::hbase::thrift;
 namespace {
   typedef std::vector<Text> TextVec;
 }

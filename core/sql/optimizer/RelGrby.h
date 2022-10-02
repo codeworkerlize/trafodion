@@ -946,45 +946,5 @@ private:
   StmtLevelAccessOptions accessOptions_;
 }; // class HbasePushdownAggr
 
-class ExtStoragePushdownAggr : public GroupByAgg
-{
-public:
-
-  // constructor
-  ExtStoragePushdownAggr(const ValueIdSet & aggregateExpr,
-                  TableDesc * tableDesc, HivePartitionAndBucketKey* key)
-       : GroupByAgg(NULL, aggregateExpr),
-         tableDesc_(tableDesc), 
-         hiveSearchKey_(key)
-  {}
-
-  virtual ~ExtStoragePushdownAggr();
-
-  virtual Int32 getArity() const { return 0; }
-
-  virtual NABoolean isLogical () const { return FALSE;};
-  virtual NABoolean isPhysical() const { return TRUE;};
-
-  // get a printable string that identifies the operator
-  virtual const NAString getText() const;
-
-  virtual RelExpr * copyTopNode(RelExpr *derivedNode = NULL,
-				CollHeap* outHeap = 0);
-
-  virtual RelExpr * preCodeGen(Generator *generator,
-                               const ValueIdSet &externalInputs,
-                               ValueIdSet &pulledNewInputs);
-
-
-  // method to do code generation
-  virtual short codeGen(Generator*);
-
-  HivePartitionAndBucketKey* getHiveSearchKey() { return hiveSearchKey_; };
-
-private:
-  TableDesc *tableDesc_;
-  HivePartitionAndBucketKey* hiveSearchKey_;
-}; // class ExtStoragePushdownAggr
-
 
 #endif /* RELGRBY_H */

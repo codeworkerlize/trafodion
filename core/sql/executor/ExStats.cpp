@@ -60,7 +60,6 @@
 #include "ComTdbUdr.h"
 #include "ComTdbSplitTop.h"
 #include "ComTdbExeUtil.h"
-#include "ComTdbHdfsScan.h"
 #include "ComTdbHbaseAccess.h"
 #include "ComTdbFastTransport.h"
 #include "ex_exe_stmt_globals.h"
@@ -2102,13 +2101,7 @@ ExStorageEngineStats::ExStorageEngineStats(NAMemory * heap,
        name = hbaseTdb->getTableName();
        break;
     }
-    case ComTdb::ex_HDFS_SCAN:
-    case ComTdb::ex_EXT_STORAGE_SCAN:
-    {
-       ComTdbHdfsScan *hdfsTdb = (ComTdbHdfsScan *) tdb;
-       name = hdfsTdb->tableName();
-       break;
-    }
+
     case ComTdb::ex_FAST_EXTRACT:
     {
        ComTdbFastExtract *feTdb = (ComTdbFastExtract *)tdb;

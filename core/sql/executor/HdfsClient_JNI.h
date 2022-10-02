@@ -24,12 +24,7 @@
 #define HDFS_CLIENT_H
 
 #include "JavaObjectInterface.h"
-#include "ExHdfsScan.h"
 
-// ===========================================================================
-// ===== The native HdfsScan class implements access to the Java methods 
-// ===== org.trafodion.sql.HdfsScan class.
-// ===========================================================================
 
 typedef enum {
    HDFS_SCAN_OK     = JOI_OK
@@ -44,56 +39,7 @@ typedef enum {
   ,HDFS_SCAN_LAST
 } HDFS_Scan_RetCode;
 
-class HdfsScan : public JavaObjectInterface
-{
-public:
-  HdfsScan(NAHeap *heap)
-  :  JavaObjectInterface(heap) 
-  , hdfsStats_(NULL)
-  , j_buf1_(NULL)
-  , j_buf2_(NULL)
-  {}
 
-  ~HdfsScan();
-
-  // Initialize JVM and all the JNI configuration.
-  // Must be called.
-  HDFS_Scan_RetCode init();
-  void setHdfsStats(ExHdfsScanStats *hdfsStats)
-  { hdfsStats_ = hdfsStats; } 
-
-  // Get the error description.
-  static char* getErrorText(HDFS_Scan_RetCode errEnum);
-
-  static HdfsScan *newInstance(NAHeap *heap, ExHdfsScanTcb::HDFS_SCAN_BUF *hdfsScanBuf, int scanBufSize, int hdfsIoByteArraySizeInKB, 
-            HdfsFileInfoArray *hdfsFileInfoArray, Int32 beginRangeNum, Int32 numRanges, int rangeTailIOSize, NABoolean sequenceFile,
-            char recDelimiter, ExHdfsScanStats *hdfsStats, HDFS_Scan_RetCode &hdfsScanRetCode);
-
-  HDFS_Scan_RetCode setScanRanges(ExHdfsScanTcb::HDFS_SCAN_BUF *hdfsScanBuf, int scanBufSize, int hdfsIoByteArraySizeInKB, 
-            HdfsFileInfoArray *hdfsFileInfoArray, Int32 beginRangeNum, Int32 numRanges, 
-            int rangeTailIOSize, NABoolean sequenceFile, char recDelimiter);
-
-  HDFS_Scan_RetCode trafHdfsRead(int retArray[], short arrayLen);
-
-  HDFS_Scan_RetCode stop();
-
-private:
-  enum JAVA_METHODS {
-    JM_CTOR = 0, 
-    JM_SET_SCAN_RANGES,
-    JM_TRAF_HDFS_READ,
-    JM_STOP,
-    JM_LAST
-  };
-  jobject j_buf1_;
-  jobject j_buf2_;
-  ExHdfsScanStats *hdfsStats_;
-  static jclass javaClass_;
-  static JavaMethodInit* JavaMethods_;
-  static bool javaMethodsInitialized_;
-  // this mutex protects both JaveMethods_ and javaClass_ initialization
-  static pthread_mutex_t javaMethodsInitMutex_;
-};
 
 // ===========================================================================
 // ===== The native HdfsClient class implements access to the Java 

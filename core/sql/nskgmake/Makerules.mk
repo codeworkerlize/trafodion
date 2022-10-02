@@ -1,33 +1,3 @@
-# ****************************************************************************
-# @@@ START COPYRIGHT @@@
-#
-# Licensed to the Apache Software Foundation (ASF) under one
-# or more contributor license agreements.  See the NOTICE file
-# distributed with this work for additional information
-# regarding copyright ownership.  The ASF licenses this file
-# to you under the Apache License, Version 2.0 (the
-# "License"); you may not use this file except in compliance
-# with the License.  You may obtain a copy of the License at
-#
-#   http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing,
-# software distributed under the License is distributed on an
-# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-# KIND, either express or implied.  See the License for the
-# specific language governing permissions and limitations
-# under the License.
-#
-# @@@ END COPYRIGHT @@@
-#
-# File:         Makerules.mk
-# Description:  Makefile for SQL/MX, this file builds the individual parts
-#               of SQL/MX in a non-recursive way.
-#
-# Language:     GNU make
-# Date:         September 14, 2007
-#
-# ****************************************************************************
 
 SHELL := /bin/bash
 ifeq ($(filter-out linux, $(TARGTYPE)),$(TARGTYPE))
@@ -46,19 +16,7 @@ RESULTDIR := $(TOPDIR)/$(TOPLIBDIR)/$(TARGTYPE)/$(ARCHBITS)/$(FLAVOR)
 DLLRESULTDIR := $(TOPDIR)/$(TOPDLLDIR)
 LOGFILE := $(TARGTYPE)$(FLAVOR).log
 
-#define the following line to enable build C++ ORC reader.
-#BUILD_ORC_READER
 
-# define the following lines to instrument scan, Arrow interface or hash join.
-#NEED_INSTRUMENT_EXTSCAN=1
-#NEED_INSTRUMENT_ARROW_INTERFACE=1
-#NEED_INSTRUMENT_HASHJ=1
-#TRACE_EXPR_EVAL=1
-
-# Determine whether this invocation is going to actually compile or build
-# anything.  Assume that we are building something by setting BUILD_TARGET=1,
-# but set BUILD_TARGET=0 for cases where we know we are not going to build
-# anything.  This may make certain operations more efficient.
 BUILD_TARGET=1
 
 ifneq (,$(findstring help, $(MAKECMDGOALS)))
@@ -202,9 +160,7 @@ $(C_OBJ) : C_OBJ:=$(C_OBJ)
 $(C_OBJ) : C_INC_OVERRIDE:=$(C_INC_OVERRIDE)
 endef
 
-ifeq ($(BUILD_NATIVE_PARQUET_READER),1)
-  CXX=$(shell which g++)
-endif
+
 
 compile_c_resultobj_rule = $(CXX) $(DEBUG_FLAGS) $(SQLCLIOPT) $(ALL_INCLUDES) -o $@ -c $<
 
@@ -292,29 +248,8 @@ endif
 
 .PHONY: $(MAKECMDGOALS)
 
-# DLLs should be built before executables, so we are adding this dependency here.
-# $(FINAL_EXES): $(FINAL_DLLS)
 
 
-PARQUET_TOOLS_JAR =parquet-tools-$(PARQUET_VERSION).jar
-PARQUET_TOOLS_LOC=../parquet_tool
-PARQUET_TOOLS_SRC_LOC=$(PARQUET_TOOLS_LOC)/src/main/java
-PARQUET_TOOLS_BUILD_LOC=$(PARQUET_TOOLS_LOC)/target
-PARQUET_TOOLS_BUILD_JAR=$(PARQUET_TOOLS_BUILD_LOC)/$(PARQUET_TOOLS_JAR)
-
-PARQUET_TOOLS_JAVA_FILES=$(shell find $(PARQUET_TOOLS_SRC_LOC) -name "*.java")
-
-define build_parquet_tools_jar
-	set -o pipefail && cd $(PARQUET_TOOLS_LOC); \
-	$(MAVEN) package -Plocal | tee maven_build.log | grep -e '\[INFO\] Building' -e '\[INFO\] BUILD SUCCESS' -e 'ERROR'
-endef
-
-# Java files get built through Maven
-mavenbuild_parquet_tools: $(PARQUET_TOOLS_BUILD_JAR)
-	cp -pf $(PARQUET_TOOLS_BUILD_JAR) $(TRAF_HOME)/export/lib
-
-$(PARQUET_TOOLS_BUILD_JAR): $(PARQUET_TOOLS_JAVA_FILES)
-	$(build_parquet_tools_jar)
 
 ../src/main/resources/trafodion-sql.jar.mf:
 	# create a jar manifest file with the correct version information
@@ -323,33 +258,10 @@ $(PARQUET_TOOLS_BUILD_JAR): $(PARQUET_TOOLS_JAVA_FILES)
 
 build_jar_manifest: | ../src/main/resources/trafodion-sql.jar.mf
 
-# Java files get built through Maven
-mavenbuild: build_jar_manifest mavenbuild_parquet_tools
-        # run maven
-	set -o pipefail && cd ..; $(MAVEN) package -DskipTests | tee maven_build.log | grep -e '\[INFO\] Building' -e '\[INFO\] BUILD SUCCESS' -e 'ERROR'
-	cp -pf ../target/trafodion-sql-cdh*.jar $(TRAF_HOME)/export/lib
-	cp -pf ../target/lib/parquet-avro-$(PARQUET_VERSION).jar $(TRAF_HOME)/export/lib
-	cp -pf ../target/lib/parquet-column-$(PARQUET_VERSION).jar $(TRAF_HOME)/export/lib
-	cp -pf ../target/lib/parquet-common-$(PARQUET_VERSION).jar $(TRAF_HOME)/export/lib
-	cp -pf ../target/lib/parquet-encoding-$(PARQUET_VERSION).jar $(TRAF_HOME)/export/lib
-	cp -pf ../target/lib/parquet-format-$(PARQUET_FORMAT_VERSION).jar $(TRAF_HOME)/export/lib
-	cp -pf ../target/lib/parquet-hadoop-$(PARQUET_VERSION).jar $(TRAF_HOME)/export/lib
-	cp -pf ../target/lib/parquet-jackson-$(PARQUET_VERSION).jar $(TRAF_HOME)/export/lib
 
-# Java files get built through Maven
-mavenbuild_apache: build_jar_manifest
-	set -o pipefail && cd ..; $(MAVEN) -f pom.xml.apache package -DskipTests | tee maven_build.log | grep -e '\[INFO\] Building' -e '\[INFO\] BUILD SUCCESS' -e 'ERROR'
-	cp -pf ../target/trafodion-sql-apache*.jar $(TRAF_HOME)/export/lib
 
-# Java files get built through Maven
-mavenbuild_hdp: build_jar_manifest
-	set -o pipefail && cd ..; $(MAVEN) -f pom.xml.hdp package -DskipTests | tee maven_build.log | grep -e '\[INFO\] Building' -e '\[INFO\] BUILD SUCCESS' -e 'ERROR'
-	cp -pf ../target/trafodion-sql-hdp*.jar $(TRAF_HOME)/export/lib
-# cory deps
-copy_deps: 
-	set -o pipefail && cd ..; $(MAVEN) dependency:copy-dependencies -DincludeArtifactIds=binlogproducer -DoutputDirectory=$(TRAF_HOME)/export/lib | tee maven_build.log | grep -e '\[INFO\] Building' -e '\[INFO\] BUILD SUCCESS' -e 'ERROR' 
-# This is where the top-level is declared to build everything.
-buildall: $(FINAL_LIBS) $(FINAL_DLLS) $(FINAL_INSTALL_OBJS) $(FINAL_EXES) mavenbuild mavenbuild_hdp mavenbuild_apache copy_deps
+
+buildall: $(FINAL_LIBS) $(FINAL_DLLS) $(FINAL_INSTALL_OBJS) $(FINAL_EXES)    
 
 clean:
 	@echo "Removing intermediate objects for $(TARGTYPE)/$(ARCHBITS)/$(FLAVOR)"
@@ -363,7 +275,6 @@ clean:
 	@echo "Removing coverage files"
 	@-find $(TOPDIR) -maxdepth 1 -name '*.gcov' -print | xargs rm -f
 	@cd ..; $(MAVEN) clean
-	@cd $(PARQUET_TOOLS_LOC); $(MAVEN) clean
 	@rm -rf $(TRAF_HOME)/export/lib/trafodion-sql-*.jar
 	@rm -rf ../src/main/resources/trafodion-sql.jar.mf
 	@rm -rf $(TRAF_HOME)/export/lib/binlogproducer-*.jar

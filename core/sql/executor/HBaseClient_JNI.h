@@ -31,13 +31,11 @@
 #include "NABasicObject.h"
 #include "ExStats.h"
 #include "JavaObjectInterface.h"
-#include "Hbase_types.h"
 #include "ExpHbaseDefs.h"
 #include "NAMemory.h"
 #include "org_trafodion_sql_HTableClient.h"
 #include "Triggers.h"
 
-using namespace apache::hadoop::hbase::thrift;
 namespace {
   typedef std::vector<Text> TextVec;
 }

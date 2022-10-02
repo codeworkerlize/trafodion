@@ -111,7 +111,6 @@ extern TrafDesc *generateSpecialDesc(const CorrName& corrName);
 #include "sql_id.h"
 #include "ComRtUtils.h"
 #include "Context.h"
-#include "util/stopwatch.h"
 #include "TriggerDB.h"
 
 
@@ -3318,11 +3317,7 @@ static NABoolean addVirtualHiveColumns(NAColumnArray &colArray,
       NAType* virtType = NULL;
       NAColumn::VirtColType virtColType = NAColumn::HIVE_VIRT_FILE_COL;
 
-      // ------------------------------------------------
-      // NOTE: The data types of these columns must match
-      //       the layout of struct ComTdbHdfsVirtCols in
-      //       file ../comexe/ComTdbHdfsScan.h
-      // ------------------------------------------------
+
       switch (v)
         {
         case 0: // INPUT__FILE__NAME

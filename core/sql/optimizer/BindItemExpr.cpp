@@ -6894,10 +6894,6 @@ ItemExpr *Aggregate::bindNode(BindWA *bindWA)
       return NULL;
     }
 
-    // We'd like to restrict these aggregates to ORC file columns and
-    // then only to when we can push them down, but we don't have the
-    // information yet to do so. Instead, that check is done later
-    // during preCodeGen. See GroupByAgg::transformForAggrPushdown.
   } 
 
   context->colRefInAgg() = FALSE;

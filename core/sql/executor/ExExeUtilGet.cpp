@@ -49,7 +49,6 @@
 #include  "dbUserAuth.h"
 
 #include  "ExExeUtil.h"
-#include  "ExOrcAccess.h"
 #include  "ex_exe_stmt_globals.h"
 #include  "exp_expr.h"
 #include  "exp_clause_derived.h"
@@ -11794,11 +11793,7 @@ short ExExeUtilGetExtSchemaTcb::work()
             TextVec colNameVec;
             TextVec colTypeVec;
             
-            ExExtStorageScanTcb::createColInfoVecs
-              (getExtSchemaTdb().getColNameList(),
-               getExtSchemaTdb().getColTypeList(),
-               colNameVec,
-               colTypeVec);
+
 
             Lng32 flags = 0;
             if ((getExtSchemaTdb().isParquet()) &&

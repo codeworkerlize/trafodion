@@ -47,7 +47,7 @@
 #include <sys/stat.h>
 #include <sys/time.h>
 
-//#include "hdfs.h"
+#include "hdfs.h"
 
 
 #include "ExpLOBstats.h"

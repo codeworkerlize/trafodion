@@ -709,8 +709,6 @@ public:
 //////////////////////////////////////////////////////////////////
   virtual void init(NABoolean resetDop);
 
-// The following three are instrumentation help methods, called from
-// executor TCB work methods. See one example in ExHdfsScan.cpp.
   virtual void done();
 
   virtual void addMessage(Lng32 x);

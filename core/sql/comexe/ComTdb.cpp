@@ -689,19 +689,8 @@ char *ComTdb::findVTblPtrCom(short classID)
       break;
     }
 
-  case ex_HDFS_SCAN:
-    {
-      GetVTblPtr(vtblptr,ComTdbHdfsScan);
-    }
-    break;
 
-  case ex_EXT_STORAGE_SCAN:
-    {
-#pragma nowarn(1506)   // warning elimination
-      GetVTblPtr(vtblptr,ComTdbExtStorageScan);
-#pragma warn(1506)  // warning elimination
-    }
-    break;
+
 
   case ex_HIVE_MD_ACCESS:
     {

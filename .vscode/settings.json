@@ -2,6 +2,7 @@
   "cmake.configureOnOpen": false,
   "files.associations": {
     "string": "cpp",
-    "iomanip": "cpp"
+    "iomanip": "cpp",
+    "random": "cpp"
   }
 }

@@ -33,7 +33,6 @@
 #include "ExpHbaseInterface.h"
 #include "hs_util.h"
 #include "NLSConversion.h"
-#include "ExHdfsScan.h"
 #include "Context.h"
 #include "HdfsClient_JNI.h"
 #include "ExStats.h"

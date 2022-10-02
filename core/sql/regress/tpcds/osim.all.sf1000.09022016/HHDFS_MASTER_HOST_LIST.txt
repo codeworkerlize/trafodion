@@ -1,3 +1,0 @@
-HasVirtualSQNodes 0
-NumSQNodes 6
-nap001.esgyn.local|nap002.esgyn.local|nap003.esgyn.local|nap004.esgyn.local|nap005.esgyn.local|nap006.esgyn.local

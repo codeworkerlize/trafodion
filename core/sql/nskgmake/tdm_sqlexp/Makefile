@@ -80,8 +80,7 @@ CPPSRC := BigNumHelper.cpp \
 	ExpSeqGen.cpp \
 	ExpSequenceFunction.cpp \
 	ExpSqlTupp.cpp \
-	ExpCompressionWA.cpp \
-	Hbase_types.cpp 
+	ExpCompressionWA.cpp 
 
 CPPSRC += exp_ieee.cpp
 
@@ -175,25 +174,4 @@ endif
 
 SRCPATH := exp common
 
-ifdef BUILD_PARQUET_READER
-
-DEP_LIBS := parquet
-CPPSRC += ExpParquetArrowInterface.cpp
-SYS_LIBS += -lparquet -ltinfo -luuid
-
-$(TRAF_HOME)/export/lib64/libthrift-0.9.0.so : 
-	mkdir -p $(TRAF_HOME)/export/lib64
-	cp -Pf $(TOOLSDIR)/thrift-0.9.0/lib/libthrift-0.9.0.so $(TRAF_HOME)/export/lib64/
-
-$(TRAF_HOME)/export/lib64d/libthrift-0.9.0.so : 
-	mkdir -p $(TRAF_HOME)/export/lib64d
-	cp -Pf $(TOOLSDIR)/thrift-0.9.0/lib/libthrift-0.9.0.so $(TRAF_HOME)/export/lib64d/
-
-ifeq ($(FLAVOR),debug)
-  EXTERN_OBJS +=  $(TRAF_HOME)/export/lib64d/libthrift-0.9.0.so
-else
-  EXTERN_OBJS +=  $(TRAF_HOME)/export/lib64/libthrift-0.9.0.so
-endif
-
-endif
 

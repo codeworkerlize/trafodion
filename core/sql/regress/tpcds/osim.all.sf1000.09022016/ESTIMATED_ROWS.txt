@@ -1,6 +1,0 @@
-            HIVE.TPCDS_SF1000.REASON_1                                    52
-            HIVE.TPCDS_SF1000.REASON_2                                    65
-  HIVE.TPCDS_SF1000.STORE_SALES_SORTED_ORC_ITEM                                     0
-  HIVE.TPCDS_SF1000.STORE_SALES_SORTED_ORC_STORE                                     0
-  HIVE.TPCDS_SF1000.STORE_SALES_SORTED_ORC_TIME                                     0
-            HIVE.TPCDS_SF1000.WEB_SITE                                    54
