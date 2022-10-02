@@ -333,18 +333,7 @@ odbc_SQLSrvr_FetchPerf_sme_(
   , /* Out   */ BYTE     *&sqlWarningOrError
   , /* In    */ bool     calledByFetch = true);
 
-extern "C" void
-odbc_SQLSrvr_ExtractLob_sme_(
-    /* In    */ CEE_tag_def objtag_
-  , /* In    */ const CEE_handle_def *call_id_
-  , /* In    */ ExceptionStruct *exception_
-  , /* In    */ Long   stmtHandle
-  , /* In    */ Long   stmtHandleKey
-  , /* In    */ IDL_long extractLobAPI
-  , /* In    */ IDL_string lobHandle
-  , /* In    */ IDL_long_long &lobLength
-  , /* Out   */ IDL_long_long &extractLen
-  , /* Out   */ BYTE *& extractData);
+
 
 extern "C" void
 odbc_SQLSrvr_UpdateLob_sme_(

@@ -1551,11 +1551,7 @@ ExExeUtilGetRTSStatisticsTcb::~ExExeUtilGetRTSStatisticsTcb()
     deleteSqlStatItems(hiveStatsItems_, maxHiveStatsItems_);
     hiveStatsItems_ = NULL;
   }
-  if (hdfsClient_ != NULL)
-  {
-     NADELETE(hdfsClient_, HdfsClient, getGlobals()->getDefaultHeap());
-     hdfsClient_ = NULL;
-  }
+
 }
 
 void ExExeUtilGetRTSStatisticsTcb::formatInt64(SQLSTATS_ITEM stat, char* targetString)

@@ -40,7 +40,6 @@
 #include "GenExpGenerator.h"
 #include "exp_function.h"
 #include "ExpComposite.h"
-#include "ExpLOB.h"
 #include "exp_datetime.h"
 #include "exp_math_func.h"
 #include "CharType.h"

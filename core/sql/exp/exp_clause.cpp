@@ -49,7 +49,6 @@
 #include "ExpComposite.h"
 #include "ExpBitMuxFunction.h"
 #include "ExpSequenceFunction.h"
-#include "ExpLOB.h"
 #include "wstr.h"
 #include "exp_datetime.h"
 #include "ttime.h"
@@ -668,39 +667,7 @@ ex_clause::ex_clause(clause_type type,
 	  break;
 	}
     }
-  else if (type == ex_clause::LOB_TYPE)
-    {
-      switch (oper_type)
-	{
-	case ITM_LOBINSERT:
-	  setClassID(LOB_INSERT);
-	  break;
-	case ITM_LOBSELECT:
-	  setClassID(LOB_SELECT);
-	  break;
-	case ITM_LOBDELETE:
-	  setClassID(LOB_DELETE);
-	  break;
-	case ITM_LOBUPDATE:
-	  setClassID(LOB_UPDATE);
-	  break;
-	case ITM_LOBCONVERT:
-	  setClassID(LOB_CONVERT);
-	  break;
-	case ITM_LOBCONVERTHANDLE:
-	  setClassID(LOB_CONVERTHANDLE);
-	  break;
-	case ITM_LOBLENGTH:
-	  setClassID(LOB_LENGTH);
-	  break;
-	case ITM_SUBSTR:
-	  setClassID(LOB_FUNC_SUBSTR);
-	  break;
-	default:
-	  GenAssert(0, "ex_clause: Unknown Class ID.");
-	  break;
-	}
-    }
+
 
   clauseNum_ = 0;
   numberBranchTargets_ = 0;
@@ -1116,30 +1083,11 @@ char *ex_clause::findVTblPtr(short classID)
     case ex_clause::FUNC_REVERSE_ID:
       GetVTblPtr(vtblPtr, ExFunctionReverseStr);
       break;
-    case ex_clause::LOB_INSERT:
-      GetVTblPtr(vtblPtr, ExpLOBinsert);
-      break;
-    case ex_clause::LOB_SELECT:
-      GetVTblPtr(vtblPtr, ExpLOBselect);
-      break;
-    case ex_clause::LOB_DELETE:
-      GetVTblPtr(vtblPtr, ExpLOBdelete);
-      break;
-    case ex_clause::LOB_UPDATE:
-      GetVTblPtr(vtblPtr, ExpLOBupdate);
-      break;
-    case ex_clause::LOB_CONVERT:
-      GetVTblPtr(vtblPtr, ExpLOBconvert);
-      break;
-    case ex_clause::LOB_CONVERTHANDLE:
-      GetVTblPtr(vtblPtr, ExpLOBconvertHandle);
-      break;
-    case ex_clause::LOB_LENGTH:
-      GetVTblPtr(vtblPtr, ExpLOBlength);
-      break;
-    case ex_clause::LOB_FUNC_SUBSTR:
-      GetVTblPtr(vtblPtr, ExpLOBfuncSubstring);
-      break;
+
+
+
+
+
     case ex_clause::FUNC_HIVEHASH_ID:
       GetVTblPtr(vtblPtr, ex_function_hivehash);
       break;
@@ -1622,12 +1570,6 @@ const char * getOperTypeEnumAsString(Int16 /*OperatorTypeEnum*/ ote)
 
     case ITM_HEADER: return "ITM_HEADER";
 
-    case ITM_LOBINSERT: return "ITM_LOBINSERT";
-    case ITM_LOBSELECT: return "ITM_LOBSELECT";
-    case ITM_LOBDELETE: return "ITM_LOBDELETE";
-    case ITM_LOBUPDATE: return "ITM_LOBUPDATE";
-    case ITM_LOBCONVERT: return "ITM_LOBCONVERT";
-    case ITM_LOBCONVERTHANDLE: return "ITM_LOBCONVERTHANDLE";
     case ITM_LOBLENGTH: return "ITM_LOBLENGTH";
 
     case ITM_UNIQUE_EXECUTE_ID: return "ITM_UNIQUE_EXECUTE_ID";

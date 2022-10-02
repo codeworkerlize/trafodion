@@ -608,11 +608,7 @@ char *ComTdb::findVTblPtrCom(short classID)
       GetVTblPtr(vtblptr,ComTdbExeUtilGetStatistics);
       break;
     }
- case ex_LOB_INFO:
-    {
-      GetVTblPtr(vtblptr,ComTdbExeUtilLobInfo);
-      break;
-    }
+
    case ex_GET_METADATA_INFO:
     {
       GetVTblPtr(vtblptr,ComTdbExeUtilGetMetadataInfo);
@@ -712,13 +708,6 @@ char *ComTdb::findVTblPtrCom(short classID)
       break;
     }
 
-  case ex_GET_EXT_SCHEMA:
-    {
-#pragma nowarn(1506)   // warning elimination
-      GetVTblPtr(vtblptr,ComTdbExeUtilGetExtSchema);
-#pragma warn(1506)  // warning elimination
-      break;
-    }
 
   case ex_COMPOSITE_UNNEST:
     {

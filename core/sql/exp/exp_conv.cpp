@@ -11405,7 +11405,6 @@ convDoIt(char * source,
   case CONV_BLOB_ASCII_F:
     {
       // conversion from internal format blob handle to external format 
-      // should have been done by calling the ExpLOBconvertHandle function.
       // By the time it reaches here, the source is already in the right
       // format, either internal or external. 
       // It can be just copied to the target.

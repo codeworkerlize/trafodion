@@ -83,13 +83,11 @@
 #include "StmtDDLAlterLibrary.h"
 #include "logmxevent_traf.h"
 #include "exp_clause_derived.h"
-#include "ExpLobOperV2.h"
 #include "TrafDDLdesc.h"
 #include "SharedCache.h"
 #include "CmpSeabaseDDLXdcMeta.h"
 #include "QRLogger.h"
 
-void cleanupLOBDataDescFiles(const char*, int, const char *);
 
 class QualifiedSchema
 {
@@ -12347,8 +12345,7 @@ void CmpSeabaseDDL::dropSeabaseMD(NABoolean ddlXns, NABoolean forceOption)
   // drop all trafodion tables. They start with "TRAF_" or "TRAFODION."
   dropSeabaseObjectsFromHbase("", ddlXns);
 
-  //drop all lob data and descriptor files
-  dropLOBHdfsFiles();
+
 
   if (endXnIfStartedHere(&cliInterface, xnWasStartedHere, 0) < 0)
     return;
@@ -12376,14 +12373,7 @@ void CmpSeabaseDDL::dropSeabaseMD(NABoolean ddlXns, NABoolean forceOption)
   return;
 }
 
-void CmpSeabaseDDL::dropLOBHdfsFiles()
-{
-  NAString lobHdfsServer; 
-  CmpCommon::getDefault(LOB_HDFS_SERVER,lobHdfsServer,FALSE);
-  Int32 lobHdfsPort = CmpCommon::getDefaultNumeric(LOB_HDFS_PORT);
-  NAString lobHdfsLoc(COM_LOB_STORAGE_ROOT_DIR);
-  cleanupLOBDataDescFiles(lobHdfsServer,lobHdfsPort,lobHdfsLoc);
-}
+
 
 NABoolean CmpSeabaseDDL::appendErrorObjName(char * errorObjs, 
                                             const char * objName)
@@ -12977,108 +12967,6 @@ short CmpSeabaseDDL::truncateHbaseTable(const NAString &catalogNamePart,
   return 0;
 }
 
-short CmpSeabaseDDL::truncateLOBfiles(NATable *naTable)
-{
-  if ((!naTable) || (NOT naTable->hasLobColumn()))
-    return 0;
-
-  const NAColumnArray &nacolArr =  naTable->getNAColumnArray();
-  Lng32 numCols = nacolArr.entries();
-  
-  // if this table has lob columns, drop the lob files
-  short *lobNumList = new (STMTHEAP) short[numCols];
-  short *lobTypList = new (STMTHEAP) short[numCols];
-  char  **lobLocList = new (STMTHEAP) char*[numCols];
-  
-  char  lobHdfsServer[256] ; // max length determined by dfs.namenode.fs-limits.max-component-length(255)
-  memset(lobHdfsServer,0,256);
-  strncpy(lobHdfsServer,CmpCommon::getDefaultString(LOB_HDFS_SERVER),sizeof(lobHdfsServer)-1);
-  Int32 lobHdfsPort = (Lng32)CmpCommon::getDefaultNumeric(LOB_HDFS_PORT);
-  Lng32 j = 0;
-  for (Int32 i = 0; i < nacolArr.entries(); i++)
-    {
-      NAColumn *naColumn = nacolArr[i];
-      
-      Lng32 datatype = naColumn->getType()->getFSDatatype();
-      if ((datatype == REC_BLOB) ||
-          (datatype == REC_CLOB))
-        {
-          lobNumList[j] = i; 
-          lobTypList[j] = 
-            (short)(naColumn->lobStorageType() == Lob_Invalid_Storage
-                    ? Lob_Outline : naColumn->lobStorageType());
-          
-          char * loc = new (STMTHEAP) char[1024];
-          strcpy(loc, naColumn->lobStorageLocation());
-          lobLocList[j] = loc;
-          j++;
-        }
-    }
-  
-  if (j > 0)
-    {
-      Int64 objUID = naTable->objectUid().castToInt64();
-      
-      ComString newSchName = "\"";
-      newSchName += naTable->getTableName().getCatalogName();
-      newSchName.append("\".\"");
-      newSchName.append(naTable->getTableName().getSchemaName());
-      newSchName += "\"";
-      NABoolean lobTrace = FALSE;
-      if (getenv("TRACE_LOB_ACTIONS"))
-        lobTrace=TRUE;
-      
-      Int32 rc = 0;
-      if (naTable->lobV2())
-        {
-          ExpLobOperV2::DDLArgs args;
-          args.schName = (char*)newSchName.data();
-          args.schNameLen = newSchName.length();
-          args.numLOBs = &j;
-          args.qType = ExpLobOperV2::LOB_DDL_PURGEDATA;
-          args.lobNumList = lobNumList;
-          args.lobTypList = lobTypList;
-          args.lobLocList = lobLocList;
-          args.lobColNameList = NULL;
-          args.lobHdfsServer = lobHdfsServer;
-          args.lobHdfsPort = lobHdfsPort;
-          args.lobMaxSize = 0;
-          args.lobTrace = FALSE;
-          args.nameSpace = (NOT naTable->getNamespace().isNull()
-                            ? (char *)naTable->getNamespace().data() : NULL);
-          args.numSaltPartns = -1;
-          args.numLOBdatafiles = naTable->getNumLOBdatafiles();
-          args.lobParallelDDL = 0;
-          
-          ExpLobOperV2 v2Oper;
-          rc = v2Oper.ddlInterface(objUID, args);
-        }
-      else
-        {
-          rc = SQL_EXEC_LOBddlInterface((char*)newSchName.data(),
-                                        newSchName.length(),
-                                        objUID,
-                                        j,
-                                        LOB_CLI_PURGEDATA,
-                                        lobNumList,
-                                        lobTypList,
-                                        lobLocList,NULL,lobHdfsServer, lobHdfsPort,
-                                        0,lobTrace,
-                                        (NOT naTable->getNamespace().isNull()
-                                         ? (char *)naTable->getNamespace().data() : NULL),
-                                        naTable->getNumLOBdatafiles());
-        }
-
-      if (rc < 0)
-        {
-          *CmpCommon::diags() << DgSqlCode(-CAT_UNABLE_TO_DROP_OBJECT)
-                              << DgTableName(naTable->getTableName().getObjectName());
-          return -1;
-        }
-    }
-
-  return 0;
-}
 
 void CmpSeabaseDDL::purgedataHbaseTable(DDLExpr * ddlExpr,
                                        NAString &currCatName, NAString &currSchName)
@@ -13543,16 +13431,6 @@ void CmpSeabaseDDL::purgedataHbaseTable(DDLExpr * ddlExpr,
         } // for
     } // secondary indexes
 
-  if (naTable->hasLobColumn())
-    {
-      if (truncateLOBfiles(naTable))
-        {
-          unlockTruncateTable(&cliInterface, objUid);
-          deallocEHI(ehi); 
-          processReturn();
-          goto label_error;
-        }
-    }
 
   //m16997: identity column restart from START_VALUE after truncate
 
@@ -14053,29 +13931,20 @@ short CmpSeabaseDDL::executeSeabaseDDL(DDLExpr * ddlExpr, ExprNode * ddlNode,
     {
       RelGenLoadQueryCache* dl = ddlExpr->castToRelGenLoadQueryCache();
 
-      if (dl->getType() == RelGenLoadQueryCache::GEN_QUERYCACHE_INTERNAL)
-        CURRENTQCACHE->generateTrafodionQueryCache();
 
-      else if (dl->getType() == RelGenLoadQueryCache::LOAD_QUERYCACHE_INTERNAL)
-        CURRENTQCACHE->loadTrafodionQueryCache();
+
 
       else if (dl->getType() == RelGenLoadQueryCache::GEN_QUERYCACHE_USER)
       {
         CURRENTQCACHE->cleanupUserQueryCache();
-        CURRENTQCACHE->generateUserQueryCacheAppend();
       }
 
-      else if (dl->getType() == RelGenLoadQueryCache::LOAD_QUERYCACHE_USER)
-        CURRENTQCACHE->loadUserQueryCache();
 
-      else if (dl->getType() == RelGenLoadQueryCache::GEN_QUERYCACHE_USER_APPEND)
-        CURRENTQCACHE->generateUserQueryCacheAppend();
+
 
       else if (dl->getType() == RelGenLoadQueryCache::CLEANUP_QUERYCACHE_USER)
         CURRENTQCACHE->cleanupUserQueryCache();
 
-      else if (dl->getType() == RelGenLoadQueryCache::COMPACT_QUERYCACHE_USER)
-        CURRENTQCACHE->compactUserQueryCache();
 
       else if (dl->getType() == RelGenLoadQueryCache::QUERYCACHE_HOLD_LOCK)
         CURRENTQCACHE->holdDistributedLock();
@@ -14083,8 +13952,6 @@ short CmpSeabaseDDL::executeSeabaseDDL(DDLExpr * ddlExpr, ExprNode * ddlNode,
       else if (dl->getType() == RelGenLoadQueryCache::QUERYCACHE_RELEASE_LOCK)
         CURRENTQCACHE->releaseDistributedLock();
 
-      else if (dl->getType() == RelGenLoadQueryCache::EXPORT_QUERYCACHE_USER)
-        CURRENTQCACHE->exportUserQueryCache();
 
       else if (dl->getType() == RelGenLoadQueryCache::DELETE_QUERYCACHE_USER)
         CURRENTQCACHE->deleteUserQueryCache(dl->getOffset());

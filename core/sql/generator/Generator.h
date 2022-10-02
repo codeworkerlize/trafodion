@@ -237,8 +237,6 @@ class Generator : public NABasicObject
     , ENABLE_TRANSFORM_TO_STI = 0x00000004
     , IS_FAST_EXTRACT         = 0x00000008   // UNLOAD query
 
-    // if lobs are accessed at runtime 
-    , PROCESS_LOB             = 0x00000010
 
     // if hdfs is being accessed at runtime.
     , HDFS_ACCESS             = 0x00000020
@@ -1356,10 +1354,7 @@ public:
   void setEnableTransformToSTI(NABoolean v)
     { (v ? flags2_ |= ENABLE_TRANSFORM_TO_STI : flags2_ &= ~ENABLE_TRANSFORM_TO_STI); }	
 
-  NABoolean processLOB()
-    { return (flags2_ & PROCESS_LOB) != 0; }
-  void setProcessLOB(NABoolean v)
-    { (v ? flags2_ |= PROCESS_LOB : flags2_ &= ~PROCESS_LOB); }	
+
 
   NABoolean parquetInSupport()
     { return (flags2_ & PARQUET_IN_SUPPORT) != 0; }

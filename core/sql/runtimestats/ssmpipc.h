@@ -244,7 +244,6 @@ public:
   void actOnSecInvalidKeyReq(IpcConnection *connection);
   void actOnSnapshotLockReq(IpcConnection *connection);
   void actOnSnapshotUnLockReq(IpcConnection *connection);
-  void actOnLobLockReq(IpcConnection *connection);
   void actOnObjectEpochChangeReq(IpcConnection *connection);
   void actOnObjectEpochStatsReq(IpcConnection *connection);
   void actOnObjectLockReq(IpcConnection *connection);

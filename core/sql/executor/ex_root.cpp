@@ -56,7 +56,6 @@
 #include  "TriggerEnable.h"
 #include  "ComRtUtils.h"
 #include  "PortProcessCalls.h"
-#include  "ExpLOB.h"
 
 #include "ex_transaction.h"
 #include "ComSqlId.h"
@@ -300,10 +299,6 @@ ex_tcb * ex_root_tdb::build(CliGlobals *cliGlobals, ex_globals * glob)
     glob->getScheduler()->setCpuLimitCheckFreq(cpuLimitCheckFreq_);
   }
 
-  if (processLOB())
-    {
-      glob->initLOBglobal(cliGlobals->currContext(), useLibHdfs(), useHdfsWriteLock(), hdfsWriteLockTimeout());
-    }
 
   glob->setParquetInSupport(parquetInSupport());
 

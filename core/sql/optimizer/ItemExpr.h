@@ -819,7 +819,6 @@ public:
 
   // Is this a subclass of GenericUpdateOutputFunction BuildinFunction?
   virtual NABoolean isAGenericUpdateOutputFunction() const { return FALSE; }
-  ItemExpr *convertClobToString(BindWA *bindWA);
   // a method that finds all occurences of a certain operator in an
   // item expression tree
   void findAll(OperatorTypeEnum wantedType,

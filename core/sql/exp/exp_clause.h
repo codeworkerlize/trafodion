@@ -174,15 +174,6 @@ public:
     FUNC_BIT_OPER_ID         =94,
     FUNC_TOKENSTR_ID         =95,
     LOB_TYPE                 =96,
-    LOB_INSERT               =97,
-    LOB_SELECT               =98,
-    LOB_DELETE               =99,
-    LOB_UPDATE               =100,
-    LOB_CONVERT              =101,
-    LOB_CONVERTHANDLE        =102,
-    LOB_LOAD                 =103,
-    LOB_FUNC_TYPE            =104,
-    LOB_FUNC_SUBSTR          =105,
     FUNC_HIVEHASH_ID         =106,
     FUNC_HIVEHASHCOMB_ID     =107,
     FUNC_UNIQUE_ID           = 108,
@@ -255,7 +246,6 @@ public:
     FUNC_MONTHSBETWEEN_ID      = 167,  //for months_between
     FUNC_REGEXP_SUBSTR_COUNT   = 168,
 
-    LOB_LENGTH                 = 169,
 
     FUNC_BEGINKEY              = 170,
     FUNC_ENDKEY                = 171,

@@ -2268,10 +2268,6 @@ static void setPartionInfo(RelExpr *re)
 %type <item>                    string_function
 %type <item>                    json_function
 %type <item>      		trim_operands
-%type <item>                    insert_obj_to_lob_function
-%type <item>                    update_obj_to_lob_function
-%type <item>                    select_lob_to_obj_function
-%type <item>                    insert_empty_blob_clob
 %type <stringval>    		date_format
 %type <tokval>    		trim_spec
 %type <na_type>   		proc_arg_data_type
@@ -3181,10 +3177,7 @@ static void setPartionInfo(RelExpr *re)
 %type <relx>                    exe_util_get_statistics
 %type <relx>                    exe_util_get_uid
 %type <relx>                    exe_util_get_qid
-%type <relx>                    exe_util_get_lob_info
 %type <relx>                    exe_util_hive_query
-%type <relx>                    exe_util_lob_extract
-%type <relx>                    exe_util_lob_update
 %type <relx>                    exe_util_snapshot_delete_update_statement
 %type <relx>                    unload_statement
 %type <relx>                    load_statement
@@ -6684,18 +6677,7 @@ TOK_TABLE '(' TOK_INTERNALSP '(' character_string_literal ')' ')'
     $$ = new (PARSERHEAP()) ExtractSource(columns, espPhandle, securityKey,
                                           PARSERHEAP());
   }
-| TOK_TABLE '(' TOK_LOB QUOTED_STRING ')'
-  {
-    ConstValue * handle = new(PARSERHEAP()) ConstValue(*$4);
 
-    ExeUtilLobExtract * lle =
-      new (PARSERHEAP ()) ExeUtilLobExtract
-      (handle, 
-       ExeUtilLobExtract::TO_STRING_,
-       0, 0, 0, 0);
-
-    $$ = lle;
-  }
 
 | TOK_TABLE '(' TOK_CLUSTER stats_or_statistics '(' ')' ')'
   {
@@ -6731,26 +6713,6 @@ TOK_TABLE '(' TOK_INTERNALSP '(' character_string_literal ')' ')'
       ExeUtilRegionStats(*$7, FALSE, TRUE, FALSE, FALSE, NULL, PARSERHEAP());
   }
 
-| TOK_TABLE '(' TOK_AVRO stats_or_statistics '(' table_name ')' ')'
-  {
-    $$ = new (PARSERHEAP()) 
-      ExeUtilAvroStats(*$6, FALSE, PARSERHEAP());
-  }
-| TOK_TABLE '(' TOK_AVRO stats_or_statistics '(' ')' ')'
-  {
-    $$ = new (PARSERHEAP()) 
-      ExeUtilAvroStats(CorrName(""), FALSE, PARSERHEAP());
-  }
-| TOK_TABLE '(' TOK_LOB stats_or_statistics '(' ')' ')'
-  {
-    $$ = new (PARSERHEAP()) 
-      ExeUtilLobInfo(CorrName(""), TRUE,  NULL, PARSERHEAP());
-  }
-| TOK_TABLE '(' TOK_LOB stats_or_statistics '(' table_name ')' ')'
-  {
-    $$ = new (PARSERHEAP()) 
-      ExeUtilLobInfo(*$6, TRUE,  NULL, PARSERHEAP());
-  }
 | TOK_TABLE '(' TOK_REGION stats_or_statistics '(' TOK_USING rel_subquery ')' ')'
   {
     $$ = new (PARSERHEAP()) 
@@ -9410,7 +9372,6 @@ value_function :
 
      | user_defined_scalar_function
 
-     | select_lob_to_obj_function
 
 /* Get user defined function name.  Allow function only, or with schema, or catalog and schema.
    Must use ShortStringSequence to collect names for use with ComObjectName - in case any are
@@ -12322,26 +12283,7 @@ misc_current_function : TOK_CURRENT_CATALOG
                  $$ = new (PARSERHEAP()) ZZZBinderFunction (ITM_CURRENT_SCHEMA);
              }
 
-       | TOK_CONVERTLOBTOHANDLE '(' dml_column_reference  ',' NUMERIC_LITERAL_EXACT_NO_SCALE ')'
-                 {
-                   Int64 longIntVal = atoInt64($5->data());
-                   if ((longIntVal <= 0) || (longIntVal > 4))
-                     {
-                       yyerror("Value must be between 1 and 4. \n");
-                       YYERROR;
-                     }
 
-                   LOBoper::ObjectType lh;
-                   if (longIntVal == 1)
-                     lh = LOBconvertHandle::HANDLE_STRING_;
-                   else if (longIntVal == 2)
-                     lh = LOBconvertHandle::HANDLE_STRING_WITH_DATA_;
-                   else if (longIntVal == 3)
-                     lh = LOBconvertHandle::LOB_;
-                   else 
-                     lh = LOBconvertHandle::HANDLE_STRING_AS_CHAR_;
-                   $$ = new (PARSERHEAP()) LOBconvertHandle($3, lh);
-                 }
 
 hbase_column_create_list : '(' hbase_column_create_value ')'
                                    {
@@ -15366,162 +15308,8 @@ insert_value_expression_list_paren : '(' insert_value_expression_list_comma ')'
 				}
 				  		
 insert_value_expression : value_expression 
-                          | insert_obj_to_lob_function
-                          | insert_empty_blob_clob
 
-insert_obj_to_lob_function : 
-			    TOK_STRINGTOLOB '(' value_expression ')'
-			        {
-				  $$ = new (PARSERHEAP()) LOBinsert( $3, NULL, LOBoper::STRING_, FALSE);
-				}			       
-			  | TOK_BUFFERTOLOB '(' TOK_LOCATION  value_expression',' TOK_SIZE value_expression')'
-			        {
-				  ItemExpr *bufAddr = $4;
-				  ItemExpr *bufSize = $7;
-				  bufAddr = new (PARSERHEAP())Cast(bufAddr, new (PARSERHEAP()) SQLLargeInt(PARSERHEAP(), TRUE,FALSE));
-				  bufSize = new (PARSERHEAP())
-				    Cast(bufSize, new (PARSERHEAP()) SQLLargeInt(PARSERHEAP(), TRUE, FALSE));
-				  $$ = new (PARSERHEAP()) LOBinsert( bufAddr, bufSize, LOBoper::BUFFER_, FALSE);
-				}
-                          | TOK_FILETOLOB '(' character_literal_sbyte ')'
-			        {
-                                  
-                                  $$ = new (PARSERHEAP()) LOBinsert( $3, NULL, LOBoper::FILE_, FALSE);
-				}
-			  | TOK_LOADTOLOB '(' literal ')'
-			        {
-                                  YYERROR;
-                                  $$ = new (PARSERHEAP()) LOBinsert( $3, NULL, LOBoper::LOAD_);
-				}
-			  | TOK_EXTERNALTOLOB '(' literal ')'
-			        {
-                         
-                                  $$ = new (PARSERHEAP()) LOBinsert( $3, NULL, LOBoper::EXTERNAL_);
-				}
-			  | TOK_EXTERNALTOLOB '(' literal ',' literal ')'
-			        {
-                                  
-                                  $$ = new (PARSERHEAP()) LOBinsert( $3, $5, LOBoper::EXTERNAL_);
-				}
-insert_empty_blob_clob : TOK_EMPTY_BLOB '(' ')' 
-                    {
-                      $$ = new (PARSERHEAP()) LOBinsert(NULL,NULL,LOBoper::EMPTY_LOB_);
-                    }
-                 | TOK_EMPTY_CLOB '(' ')'
-                    {
-                      $$ = new (PARSERHEAP()) LOBinsert(NULL,NULL,LOBoper::EMPTY_LOB_);
-                    }
-update_obj_to_lob_function : 
-			    TOK_STRINGTOLOB '(' value_expression ')'
-			        {
-				  $$ = new (PARSERHEAP()) LOBupdate( $3, NULL, NULL,LOBoper::STRING_, FALSE);
-				}
-			  | TOK_STRINGTOLOB '(' value_expression ',' TOK_APPEND ')'
-			        {
-				  $$ = new (PARSERHEAP()) LOBupdate( $3, NULL,NULL, LOBoper::STRING_, TRUE);
-				}
-                          | TOK_FILETOLOB '('character_literal_sbyte ')'
-			        {
-				 
-				  $$ = new (PARSERHEAP()) LOBupdate( $3, NULL,NULL,LOBoper::FILE_, FALSE);
-				}
-                          | TOK_FILETOLOB '('character_literal_sbyte ',' TOK_APPEND ')'
-			        {
-				 
-				  $$ = new (PARSERHEAP()) LOBupdate( $3,NULL, NULL,LOBoper::FILE_, TRUE);
-				}
-			  | TOK_BUFFERTOLOB '(' TOK_LOCATION  value_expression ',' TOK_SIZE value_expression ')'
-			        {
-				  ItemExpr *bufAddr = $4;
-				  ItemExpr *bufSize = $7;
-				  bufAddr = new (PARSERHEAP())Cast(bufAddr, new (PARSERHEAP()) SQLLargeInt(PARSERHEAP(), TRUE,FALSE));
-				  bufSize = new (PARSERHEAP())
-				    Cast(bufSize, new (PARSERHEAP()) SQLLargeInt(PARSERHEAP(), TRUE, FALSE));
-				  $$ = new (PARSERHEAP()) LOBupdate( bufAddr, NULL,bufSize, LOBoper::BUFFER_, FALSE);
-				}
-			  | TOK_BUFFERTOLOB '(' TOK_LOCATION value_expression ',' TOK_SIZE value_expression ',' TOK_APPEND')'
-			        {
-				  ItemExpr *bufAddr = $4;
-				  ItemExpr *bufSize = $7;
-				  bufAddr = new (PARSERHEAP())Cast(bufAddr, new (PARSERHEAP()) SQLLargeInt(PARSERHEAP(), TRUE,FALSE));
-				  bufSize = new (PARSERHEAP())
-				    Cast(bufSize, new (PARSERHEAP()) SQLLargeInt(PARSERHEAP(), TRUE, FALSE));
-				  $$ = new (PARSERHEAP()) LOBupdate( bufAddr, NULL,bufSize, LOBoper::BUFFER_, TRUE);
-				}
 
-			  | TOK_EXTERNALTOLOB '(' literal ')'
-			        {
-                                  
-				  $$ = new (PARSERHEAP()) LOBupdate( $3, NULL, NULL,LOBoper::EXTERNAL_, FALSE);
-                                }
-                                  | TOK_EXTERNALTOLOB '(' literal ',' TOK_APPEND ')'
-			        {
-                                  YYERROR;
-				  $$ = new (PARSERHEAP()) LOBupdate( $3, NULL, NULL,LOBoper::EXTERNAL_, TRUE);
-				}
-			  | TOK_EXTERNALTOLOB '(' literal ',' literal ')'
-			        {
-                                  YYERROR;
-				  $$ = new (PARSERHEAP()) LOBupdate( $3, $5, NULL,LOBoper::EXTERNAL_, FALSE);
-				}
-			  | TOK_LOADTOLOB '(' literal ',' TOK_APPEND ')'
-			        {
-				  YYERROR;
-				  $$ = new (PARSERHEAP()) LOBupdate( $3, NULL, NULL,LOBoper::LOAD_, TRUE);
-				}
-                          | TOK_EMPTY_BLOB '(' ')' 
-                               {
-                                 ItemExpr *dummy = new (PARSERHEAP())ConstValue(0);                              
-                                  $$ = new (PARSERHEAP()) LOBupdate(dummy,NULL,NULL,LOBoper::EMPTY_LOB_,FALSE);
-                               }
-                          | TOK_EMPTY_CLOB '(' ')'
-                              {
-                                ItemExpr *dummy = new (PARSERHEAP())ConstValue(0);                                
-                                 $$ = new (PARSERHEAP()) LOBupdate(dummy,NULL,NULL,LOBoper::EMPTY_LOB_,FALSE);
-                               }
- 
-                                
-select_lob_to_obj_function : TOK_LOBTOFILE '(' value_expression ',' literal ')'
-			        {
-				  YYERROR;				  
-				}
-                         
-			  | TOK_LOBTOSTRING '(' value_expression ')'
-			        {
-				  
-				  $$ = new (PARSERHEAP()) LOBconvert( $3,LOBoper::STRING_);
-				 
-				}
-			  | TOK_LOBTOSTRING '(' value_expression ',' NUMERIC_LITERAL_EXACT_NO_SCALE ')'
-			        {
-				 
-				  Int64 tgtSize = atoInt64($5->data());
-				  $$ = new (PARSERHEAP()) LOBconvert( $3,  LOBoper::STRING_, (Lng32)tgtSize);
-				  
-				}
-			  | TOK_LOBTOSTRING '(' value_expression ',' NUMERIC_LITERAL_EXACT_NO_SCALE ',' TOK_POSITION NUMERIC_LITERAL_EXACT_NO_SCALE ')'
-			        {
-				 
-				  Int64 tgtSize = atoInt64($5->data());
-                                  Int64 position = atoInt64($8->data());
-				  $$ = new (PARSERHEAP()) LOBconvert( $3,  LOBoper::STRING_, (Lng32)tgtSize, position);
-				  
-				}
-			  | TOK_LOBTOSTRING '(' value_expression ',' TOK_EXTRACT ',' TOK_OUTPUT TOK_ROW TOK_SIZE NUMERIC_LITERAL_EXACT_NO_SCALE ')'
-			        {
-                                  YYERROR;
-				  Int64 rowSize = atoInt64($10->data());
-				  $$ = new (PARSERHEAP()) LOBextract( $3, (Lng32)rowSize);
-				  
-				}
-			  | TOK_LOBTOSTRING '(' value_expression ',' TOK_EXTRACT ')'
-			        {
-				  YYERROR;
-				  Int64 rowSize = 1000;
-				  $$ = new (PARSERHEAP()) LOBextract( $3, (Lng32)rowSize);
-				  
-				}
-                           
 
 
 table_value_constructor : TOK_VALUES '(' insert_value_expression_list ')' 
@@ -16334,11 +16122,6 @@ query_specification : exe_util_get_qid
 				    RelRoot($1, REL_ROOT);
                                 }
                                 
-query_specification : exe_util_get_lob_info
-                                {
-				  RelRoot *root = new (PARSERHEAP())
-				    RelRoot($1, REL_ROOT);
-                                }
 /* type relx */
 query_specification : select_token '[' firstn_sorted NUMERIC_LITERAL_EXACT_NO_SCALE ']' set_quantifier query_spec_body
 	{
@@ -17680,18 +17463,12 @@ interactive_query_expression:
                                 {
 				  $$ = finalize($1);
 				}
-              | exe_util_lob_extract
-                                {
-				  $$ = finalize($1);
-				}
+
               | unload_statement 
                                 {
 				  $$ = finalize($1);
 				}
-              | exe_util_lob_update
-                                {
-                                  $$ = finalize($1);
-                                }
+
               | exe_util_snapshot_delete_update_statement
                                 {
                                   $$ = finalize($1);
@@ -19472,557 +19249,6 @@ exe_util_get_qid : TOK_GET TOK_QID TOK_FOR TOK_STATEMENT IDENTIFIER
                  $$ = new(PARSERHEAP()) ExeUtilGetQID(*$5, PARSERHEAP());
 	       }
 
-/* type relx */
-exe_util_lob_extract : TOK_EXTRACT TOK_LOBLENGTH '(' TOK_LOB QUOTED_STRING  ')' TOK_LOCATION NUMERIC_LITERAL_EXACT_NO_SCALE
-               {
-		 ConstValue * handleCV = new(PARSERHEAP()) ConstValue(*$5);
-
-                 Int32 lobV2 = 0;
-                 Int64 objectUID = 0;
-                 SQL_EXEC_ExtractFieldsFromLobHandleStr(
-                      (char*)$5->data(), $5->length(),
-                      &lobV2, &objectUID, NULL, NULL);
-
-		 ExeUtilLobExtract * lle = NULL;
-                 if (lobV2)
-                   {
-                     ConstValue *bufAddrCV = new(PARSERHEAP()) ConstValue(*$8);
-
-                     char uidBuf[100];
-                     NAString uidNAS(str_ltoa(objectUID, uidBuf));
-                     ConstValue * objectUIDCV = new(PARSERHEAP()) ConstValue(uidNAS);
-                     lle = new (PARSERHEAP ()) ExeUtilLobExtract
-                       (ExeUtilLobExtract::RETRIEVE_LENGTH_,
-                        objectUIDCV, handleCV, bufAddrCV, NULL);
-                   }
-                 else
-                   {
-                     Int64 returnLengthAddr = atoInt64($8->data());
-                     lle = new (PARSERHEAP ()) ExeUtilLobExtract
-                       (handleCV, 
-                        ExeUtilLobExtract::RETRIEVE_LENGTH_,
-                        returnLengthAddr, 0, 0, 0);
-                   }
-
-		 $$ = lle;
-	       }
-              | TOK_EXTRACT TOK_LOBLENGTH '(' TOK_TABLE TOK_UID QUOTED_STRING ',' TOK_LOB value_expression ')' TOK_LOCATION value_expression 
-               {
-                 if (NOT (($9->getOperatorType() == ITM_CONSTANT) ||
-                          ($9->getOperatorType() == ITM_DYN_PARAM)))
-                   {
-                     *SqlParser_Diags <<  DgSqlCode(-3242)
-                                      << DgString0("LOB handle must be a constant string or a dynamic param.");
-                     YYERROR;
-                   }
-
-                 if (NOT (($12->getOperatorType() == ITM_CONSTANT) ||
-                          ($12->getOperatorType() == ITM_DYN_PARAM)))
-                   {
-                     *SqlParser_Diags <<  DgSqlCode(-3242)
-                                      << DgString0("LOCATION must be a number  or a dynamic param.");
-                     YYERROR;
-                   }
-
-		 ConstValue * objectUID = new(PARSERHEAP()) ConstValue(*$6);
-		 ExeUtilLobExtract * lle =
-		   new (PARSERHEAP ()) ExeUtilLobExtract
-		   (ExeUtilLobExtract::RETRIEVE_LENGTH_,
-                    objectUID, $9, $12, NULL);
-
-		 $$ = lle;
-	       }
-
-/* type relx */
-exe_util_lob_extract : TOK_EXTRACT TOK_LOBLENGTH '(' TOK_LOB QUOTED_STRING  ')' 
-               {
-		 ConstValue * handle = new(PARSERHEAP()) ConstValue(*$5);
-		
-		 ExeUtilLobExtract * lle =
-		   new (PARSERHEAP ()) ExeUtilLobExtract
-		   (handle, 
-		    ExeUtilLobExtract::RETRIEVE_LENGTH_,
-		    -1, 0, 0, 0);
-
-		 $$ = lle;
-	       }
-/* type relx */
-exe_util_lob_extract : TOK_EXTRACT TOK_NAME '(' TOK_LOB QUOTED_STRING  ')' TOK_LOCATION NUMERIC_LITERAL_EXACT_NO_SCALE
-               {
-                 YYERROR;
-                 /* ConstValue * handle = new(PARSERHEAP()) ConstValue(*$5);
-		 Int64 returnFilenameAddr = atoInt64($8->data());
-		 ExeUtilLobExtract * lle =
-		   new (PARSERHEAP ()) ExeUtilLobExtract
-		   (handle, 
-		    ExeUtilLobExtract::RETRIEVE_HDFSFILENAME_,
-		    returnFilenameAddr, 0, 0, 0);
-
-                    $$ = lle;*/
-	       }
-/* type relx */
-exe_util_lob_extract : TOK_EXTRACT TOK_NAME '(' TOK_LOB QUOTED_STRING  ')' 
-               {
-                 YYERROR;
-                 /* ConstValue * handle = new(PARSERHEAP()) ConstValue(*$5);
-		
-		 ExeUtilLobExtract * lle =
-		   new (PARSERHEAP ()) ExeUtilLobExtract
-		   (handle, 
-		    ExeUtilLobExtract::RETRIEVE_HDFSFILENAME_,
-		    -1, 0, 0, 0);
-
-                    $$ = lle;*/
-	       }
-/* type relx */
-exe_util_lob_extract : TOK_EXTRACT TOK_OFFSET'(' TOK_LOB QUOTED_STRING  ')' TOK_LOCATION NUMERIC_LITERAL_EXACT_NO_SCALE
-               {
-                 YYERROR;
-		 /*ConstValue * handle = new(PARSERHEAP()) ConstValue(*$5);
-		 Int64 returnOffsetAddr = atoInt64($8->data());
-		 ExeUtilLobExtract * lle =
-		   new (PARSERHEAP ()) ExeUtilLobExtract
-		   (handle, 
-		    ExeUtilLobExtract::RETRIEVE_OFFSET_,
-		    returnOffsetAddr, 0, 0, 0);
-
-                    $$ = lle;*/
-	       }
-/* type relx */
-exe_util_lob_extract : TOK_EXTRACT TOK_OFFSET '(' TOK_LOB QUOTED_STRING  ')' 
-               {
-                 YYERROR;
-		 /*ConstValue * handle = new(PARSERHEAP()) ConstValue(*$5);
-		
-		 ExeUtilLobExtract * lle =
-		   new (PARSERHEAP ()) ExeUtilLobExtract
-		   (handle, 
-		    ExeUtilLobExtract::RETRIEVE_OFFSET_,
-		    -1, 0, 0, 0);
-
-		 $$ = lle;
-                 */	       }
-
-
-               | TOK_EXTRACT TOK_LOBTOSTRING '(' TOK_LOB QUOTED_STRING ',' TOK_SIZE NUMERIC_LITERAL_EXACT_NO_SCALE ')'
-               {
-                 Int64 rowSize = atoInt64($8->data());
-
-		 ConstValue * handle = new(PARSERHEAP()) ConstValue(*$5);
-
-		 ExeUtilLobExtract * lle =
-		   new (PARSERHEAP ()) ExeUtilLobExtract
-		   (handle, 
-		    ExeUtilLobExtract::TO_STRING_,
-		    0, 0, rowSize, 0);
-
-		 $$ = lle;
-	       }
-
-              | TOK_EXTRACT TOK_LOBTOBUFFER '(' TOK_LOB QUOTED_STRING ',' TOK_LOCATION NUMERIC_LITERAL_EXACT_NO_SCALE ',' TOK_SIZE NUMERIC_LITERAL_EXACT_NO_SCALE ')'
-               {
-		 /* TOK_LOCATION points to a user allocated data buffer ehich needs to be enough to hold alreast TOK_SIZE worth of data .
-TOK_SIZE points to the address of an Int64 container This size is the input specified by user for length to extract. One return, it will give the caller the size that was extracted */
-
-		 ConstValue * handleCV = new(PARSERHEAP()) ConstValue(*$5);
-
-                 Int32 lobV2 = 0;
-                 Int64 objectUID = 0;
-                 SQL_EXEC_ExtractFieldsFromLobHandleStr(
-                      (char*)$5->data(), $5->length(),
-                      &lobV2, &objectUID, NULL, NULL);
-                 ExeUtilLobExtract *lle = NULL;
-                 if (lobV2) 
-                   {
-                     ConstValue *bufAddrCV = new(PARSERHEAP()) ConstValue(*$8);
-                     ConstValue *sizeAddrCV = new(PARSERHEAP()) ConstValue(*$11);
-
-                     char uidBuf[100];
-                     NAString uidNAS(str_ltoa(objectUID, uidBuf));
-                     ConstValue * objectUIDCV = new(PARSERHEAP()) ConstValue(uidNAS);
-                     lle =
-                       new (PARSERHEAP ()) ExeUtilLobExtract
-                       (ExeUtilLobExtract::TO_BUFFER_,
-                        objectUIDCV, handleCV, bufAddrCV, sizeAddrCV);
-                   }
-                 else
-                   {
-                     Int64 bufAddr = atoInt64($8->data());
-                     Int64 sizeAddr = atoInt64($11->data());
-                     lle = new (PARSERHEAP ()) ExeUtilLobExtract
-                       (handleCV, 
-                        ExeUtilLobExtract::TO_BUFFER_,
-                        bufAddr, sizeAddr, 0, 0);
-                   }
-
-		 $$ = lle;
-	       }
-
-              | TOK_EXTRACT TOK_LOBTOBUFFER '(' TOK_TABLE TOK_UID QUOTED_STRING ',' TOK_LOB value_expression ',' TOK_LOCATION value_expression ',' TOK_SIZE value_expression ')'
-               {
-                 if (NOT (($9->getOperatorType() == ITM_CONSTANT) ||
-                          ($9->getOperatorType() == ITM_DYN_PARAM)))
-                   {
-                     *SqlParser_Diags <<  DgSqlCode(-3242)
-                                      << DgString0("LOB handle must be a constant string or a dynamic param.");
-                     YYERROR;
-                   }
-
-                 if (NOT (($12->getOperatorType() == ITM_CONSTANT) ||
-                          ($12->getOperatorType() == ITM_DYN_PARAM)))
-                   {
-                     *SqlParser_Diags <<  DgSqlCode(-3242)
-                                      << DgString0("LOCATION must be a number  or a dynamic param.");
-                     YYERROR;
-                   }
-
-                 if (NOT (($15->getOperatorType() == ITM_CONSTANT) ||
-                          ($15->getOperatorType() == ITM_DYN_PARAM)))
-                   {
-                     *SqlParser_Diags <<  DgSqlCode(-3242)
-                                      << DgString0("SIZE must be a number or a dynamic param.");
-                     YYERROR;
-                   }
-                  
-		 ConstValue * objectUID = new(PARSERHEAP()) ConstValue(*$6);
-		 ExeUtilLobExtract * lle =
-		   new (PARSERHEAP ()) ExeUtilLobExtract
-		   (ExeUtilLobExtract::TO_BUFFER_,
-                    objectUID, $9, $12, $15, NULL);
-
-		 $$ = lle;
-	       }
-
-              | TOK_EXTRACT TOK_LOBTOBUFFER '(' TOK_TABLE TOK_UID QUOTED_STRING ',' TOK_LOB value_expression ',' TOK_LOCATION value_expression ',' TOK_SIZE value_expression ',' TOK_POSITION value_expression ')'
-               {
-                 if (NOT (($9->getOperatorType() == ITM_CONSTANT) ||
-                          ($9->getOperatorType() == ITM_DYN_PARAM)))
-                   {
-                     *SqlParser_Diags <<  DgSqlCode(-3242)
-                                      << DgString0("LOB handle must be a constant string or a dynamic param.");
-                     YYERROR;
-                   }
-
-                 if (NOT (($12->getOperatorType() == ITM_CONSTANT) ||
-                          ($12->getOperatorType() == ITM_DYN_PARAM)))
-                   {
-                     *SqlParser_Diags <<  DgSqlCode(-3242)
-                                      << DgString0("LOCATION must be a number  or a dynamic param.");
-                     YYERROR;
-                   }
-
-                 if (NOT (($15->getOperatorType() == ITM_CONSTANT) ||
-                          ($15->getOperatorType() == ITM_DYN_PARAM)))
-                   {
-                     *SqlParser_Diags <<  DgSqlCode(-3242)
-                                      << DgString0("SIZE must be a number or a dynamic param.");
-                     YYERROR;
-                   }
-                  
-                 if (NOT (($18->getOperatorType() == ITM_CONSTANT) ||
-                          ($18->getOperatorType() == ITM_DYN_PARAM)))
-                   {
-                     *SqlParser_Diags <<  DgSqlCode(-3242)
-                                      << DgString0("POSITION must be a number or a dynamic param.");
-                     YYERROR;
-                   }
-                  
-		 ConstValue * objectUID = new(PARSERHEAP()) ConstValue(*$6);
-		 ExeUtilLobExtract * lle =
-		   new (PARSERHEAP ()) ExeUtilLobExtract
-		   (ExeUtilLobExtract::TO_BUFFER_,
-                    objectUID, $9, $12, $15, $18);
-
-		 $$ = lle;
-	       }
-
-            | TOK_EXTRACT TOK_LOBTOFILE '(' TOK_LOB QUOTED_STRING  ','  QUOTED_STRING ')'
-               {
-                 // if file exists, error . if file doesn't exist, create
-                 // extract lobtofile (lob 'abc',  'file');
-
-		  ConstValue * handle = new(PARSERHEAP()) ConstValue(*$5);
-
-		 ExeUtilLobExtract * lle =
-		   new (PARSERHEAP ()) ExeUtilLobExtract
-		   (handle, 
-		    ExeUtilLobExtract::TO_FILE_,
-		    0, 0, 
-		    0, 
-		    0,
-		    (char*)$7->data());
-
-		 $$ = lle;
-	       }
-              | TOK_EXTRACT TOK_LOBTOFILE '(' TOK_LOB QUOTED_STRING ',' QUOTED_STRING ',' TOK_TRUNCATE  ')'
-               {
-                 // if file exists, truncate and replace contents. if file doesn't exist error
-                 // extract lobtofile (lob 'abc',  'file', truncate);
-
-                 ConstValue * handle = new(PARSERHEAP()) ConstValue(*$5);
-
-		 ExeUtilLobExtract * lle =
-		   new (PARSERHEAP ()) ExeUtilLobExtract
-		   (handle, 
-		    ExeUtilLobExtract::TO_FILE_,
-		    0, 0, 
-		    ExeUtilLobExtract::ERROR_IF_NOT_EXISTS, 
-		    ExeUtilLobExtract::TRUNCATE_EXISTING,
-		    (char*)$7->data());
-
-		 $$ = lle;
-	       }
-               | TOK_EXTRACT TOK_LOBTOFILE '(' TOK_LOB QUOTED_STRING ',' QUOTED_STRING ',' TOK_CREATE ',' TOK_TRUNCATE  ')'
-               {
-                 // if file exists, truncate and replace contents. if file doesn't exist, create
-                 // extract lobtofile (lob 'abc',  'file', create);
-
-		  ConstValue * handle = new(PARSERHEAP()) ConstValue(*$5);
-
-		 ExeUtilLobExtract * lle =
-		   new (PARSERHEAP ()) ExeUtilLobExtract
-		   (handle, 
-		    ExeUtilLobExtract::TO_FILE_,
-		    0, 0, 
-		    0, 
-		    ExeUtilLobExtract::TRUNCATE_EXISTING ,
-		    (char*)$7->data());
-
-		 $$ = lle;
-	       }
-               | TOK_EXTRACT TOK_LOBTOFILE '(' TOK_LOB QUOTED_STRING ','  QUOTED_STRING ',' TOK_CREATE ',' TOK_APPEND  ')'
-               {
-                 // if file exists, append. if file doesn't exist, create
-                 // extract lobtofile (lob 'abc',  'file', create);
-
-		  ConstValue * handle = new(PARSERHEAP()) ConstValue(*$5);
-
-		 ExeUtilLobExtract * lle =
-		   new (PARSERHEAP ()) ExeUtilLobExtract
-		   (handle, 
-		    ExeUtilLobExtract::TO_FILE_,
-		    0, 0, 
-		    0,
-		    ExeUtilLobExtract::APPEND_OR_CREATE,
-		    (char*)$7->data());
-
-		 $$ = lle;
-	       }
-
-              | TOK_EXTRACT TOK_LOBTOFILE '(' TOK_LOB QUOTED_STRING ',' QUOTED_STRING ',' TOK_APPEND ')'
-               {
-                 // if file exists, append. if file doesn't exist, error
-                 // extract lobtofile (lob 'abc',  'file', append);
-
-		  ConstValue * handle = new(PARSERHEAP()) ConstValue(*$5);
-
-		 ExeUtilLobExtract * lle =
-		   new (PARSERHEAP ()) ExeUtilLobExtract
-		   (handle, 
-		    ExeUtilLobExtract::TO_FILE_,
-		    0, 0, 
-		    ExeUtilLobExtract::ERROR_IF_NOT_EXISTS, 
-		    0,
-		    (char*)$7->data(),FALSE);
-
-		 $$ = lle;
-	       }
-
-               | TOK_EXTRACT TOK_LOBTOSTRING '(' TOK_LOB QUOTED_STRING ',' TOK_OUTPUT TOK_ROW TOK_SIZE NUMERIC_LITERAL_EXACT_NO_SCALE ',' TOK_LOB TOK_BUFFER TOK_SIZE NUMERIC_LITERAL_EXACT_NO_SCALE ')'
-               {
-                 YYERROR;
-                 /*
-		 Int64 rowSize = atoInt64($10->data());
-		 Int64 bufSize = atoInt64($15->data());
-
-		 ConstValue * handle = new(PARSERHEAP()) ConstValue(*$5);
-
-		 ExeUtilLobExtract * lle =
-		   new (PARSERHEAP ()) ExeUtilLobExtract
-		   (handle, //(char*)$5->data(), 
-		    ExeUtilLobExtract::TO_STRING_,
-		    0, 0, rowSize, bufSize); 
-                    $$ = lle;
-                 */
-	       }
-
-           | TOK_EXTRACT TOK_EXTERNALTOSTRING '(' QUOTED_STRING ',' TOK_OUTPUT TOK_ROW TOK_SIZE NUMERIC_LITERAL_EXACT_NO_SCALE ')'
-               {
-                 YYERROR;
-                 /*
-		 Int64 rowSize = atoInt64($9->data());
-
-		 ExeUtilLobExtract * lle =
-		   new (PARSERHEAP ()) ExeUtilLobExtract
-		   (NULL,
-		    ExeUtilLobExtract::TO_STRING_,
-		    0, 0, rowSize, 0,
-		    (char*)$4->data());
-
-		 $$ = lle;
-                 */
-	       }
-
-          | TOK_EXTRACT TOK_EXTERNALTOSTRING '(' QUOTED_STRING ',' QUOTED_STRING ',' TOK_OUTPUT TOK_ROW TOK_SIZE NUMERIC_LITERAL_EXACT_NO_SCALE ')'
-               {
-                 YYERROR;
-                 /*
-		  Int64 rowSize = atoInt64($11->data());
-
-		 ExeUtilLobExtract * lle =
-		   new (PARSERHEAP ()) ExeUtilLobExtract
-		   (NULL,
-		    ExeUtilLobExtract::TO_STRING_,
-		    0, 0, rowSize, 0,
-		    (char*)$4->data(), (char*)$6->data());
-
-		 $$ = lle; 
-                 */
-	       }
-
-          | TOK_EXTRACT TOK_EXTERNALTOSTRING '(' QUOTED_STRING ',' QUOTED_STRING ',' TOK_BUFFER TOK_SIZE NUMERIC_LITERAL_EXACT_NO_SCALE ',' TOK_OUTPUT TOK_ROW TOK_SIZE NUMERIC_LITERAL_EXACT_NO_SCALE ')'
-               {
-                 YYERROR;
-                 /*
-		 Int64 rowSize = atoInt64($15->data());
-		 Int64 bufSize = atoInt64($10->data());
-
-		 ExeUtilLobExtract * lle =
-		   new (PARSERHEAP ()) ExeUtilLobExtract
-		   (NULL,
-		    ExeUtilLobExtract::TO_STRING_,
-		    0, 0, rowSize, bufSize,
-		    (char*)$4->data(), (char*)$6->data());
-
-		 $$ = lle;
-                 */
-	       }
-
-          | TOK_EXTRACT TOK_EXTERNALTOSTRING '(' QUOTED_STRING ',' QUOTED_STRING ',' QUOTED_STRING ',' TOK_OUTPUT TOK_ROW TOK_SIZE NUMERIC_LITERAL_EXACT_NO_SCALE ')'
-               {
-                 YYERROR;
-                 /*
-		 Int64 rowSize = atoInt64($13->data());
-
-		 ExeUtilLobExtract * lle =
-		   new (PARSERHEAP ()) ExeUtilLobExtract
-		   (NULL,
-		    ExeUtilLobExtract::TO_STRING_,
-		    0, 0, rowSize, 0,
-		    (char*)$4->data(), (char*)$6->data(), (char*)$8->data());
-
-		 $$ = lle;
-                 */
-	       }
-
-          | TOK_LOAD TOK_STRINGTOEXTERNAL '(' QUOTED_STRING ',' QUOTED_STRING ',' QUOTED_STRING  ',' NUMERIC_LITERAL_EXACT_NO_SCALE ')'
-               {
-                 YYERROR;
-                 /*
-		 Int64 offset = atoInt64($10->data());
-
-		 ExeUtilLobExtract * lle =
-		   new (PARSERHEAP ()) ExeUtilLobExtract
-		   (NULL,
-		    ExeUtilLobExtract::TO_EXTERNAL_FROM_STRING_,
-		    0, 0, offset, 0,
-		    (char*)$4->data(), (char*)$6->data(), (char*)$8->data());
-
-		 $$ = lle;
-                 */
-	       }
-
-         | TOK_LOAD TOK_STRINGTOEXTERNAL '(' QUOTED_STRING ',' QUOTED_STRING ',' QUOTED_STRING  ',' NUMERIC_LITERAL_EXACT_NO_SCALE ',' TOK_WITH TOK_CREATE ')'
-               {
-                 YYERROR;
-                 /*
-		  Int64 offset = atoInt64($10->data());
-
-		 ExeUtilLobExtract * lle =
-		   new (PARSERHEAP ()) ExeUtilLobExtract
-		   (NULL,
-		    ExeUtilLobExtract::TO_EXTERNAL_FROM_STRING_,
-		    0, 0, offset, 0,
-		    (char*)$4->data(), (char*)$6->data(), (char*)$8->data());
-
-		 lle->withCreate() = TRUE;
-
-		 $$ = lle;
-                 */
-	       }
-
-          | TOK_LOAD TOK_FILETOEXTERNAL '(' QUOTED_STRING ',' QUOTED_STRING ',' QUOTED_STRING  ',' NUMERIC_LITERAL_EXACT_NO_SCALE ')'
-               {
-                 YYERROR;
-                 /*
-		 Int64 offset = atoInt64($10->data());
-
-		 ExeUtilLobExtract * lle =
-		   new (PARSERHEAP ()) ExeUtilLobExtract
-		   (NULL,
-		    ExeUtilLobExtract::TO_EXTERNAL_FROM_FILE_,
-		    0, 0, offset, 0,
-		    (char*)$4->data(), (char*)$6->data(), (char*)$8->data());
-
-		 $$ = lle;
-                 */
-	       }
-
-         | TOK_LOAD TOK_FILETOEXTERNAL '(' QUOTED_STRING ',' QUOTED_STRING ',' QUOTED_STRING  ',' NUMERIC_LITERAL_EXACT_NO_SCALE ',' TOK_WITH  TOK_CREATE ')'
-               {
-                 YYERROR;
-                 /*
-		  Int64 offset = atoInt64($10->data());
-
-		 ExeUtilLobExtract * lle =
-		   new (PARSERHEAP ()) ExeUtilLobExtract
-		   (NULL,
-		    ExeUtilLobExtract::TO_EXTERNAL_FROM_FILE_,
-		    0, 0, offset, 0,
-		    (char*)$4->data(), (char*)$6->data(), (char*)$8->data());
-
-		 lle->withCreate() = TRUE;
-
-		 $$ = lle;
-                 */
-	       }
-          | TOK_LOAD TOK_FILETOEXTERNAL '(' QUOTED_STRING ',' QUOTED_STRING ',' QUOTED_STRING  ',' NUMERIC_LITERAL_EXACT_NO_SCALE ',' NUMERIC_LITERAL_EXACT_NO_SCALE ')'
-               {
-                 YYERROR;
-                 /*
-		 Int64 offset = atoInt64($10->data());
-		 Int64 bufSize = atoInt64($12->data());
-
-		 ExeUtilLobExtract * lle =
-		   new (PARSERHEAP ()) ExeUtilLobExtract
-		   (NULL,
-		    ExeUtilLobExtract::TO_EXTERNAL_FROM_FILE_,
-		    0, 0, offset, bufSize,
-		    (char*)$4->data(), (char*)$6->data(), (char*)$8->data());
-
-		 $$ = lle;
-                 */
-	       }
-
-         | TOK_LOAD TOK_FILETOEXTERNAL '(' QUOTED_STRING ',' QUOTED_STRING ',' QUOTED_STRING  ',' NUMERIC_LITERAL_EXACT_NO_SCALE ',' NUMERIC_LITERAL_EXACT_NO_SCALE ',' TOK_WITH  TOK_CREATE ')'
-               {
-                 YYERROR;
-                 /*
-		  Int64 offset = atoInt64($10->data());
-		 Int64 bufSize = atoInt64($12->data());
-
-		 ExeUtilLobExtract * lle =
-		   new (PARSERHEAP ()) ExeUtilLobExtract
-		   (NULL,
-		    ExeUtilLobExtract::TO_EXTERNAL_FROM_FILE_,
-		    0, 0, offset, bufSize,
-		    (char*)$4->data(), (char*)$6->data(), (char*)$8->data());
-
-		 lle->withCreate() = TRUE;
-
-		 $$ = lle;
-                 */
-	       }
 
 /* type boolean */
 optional_append : empty
@@ -20034,145 +19260,7 @@ optional_append : empty
             		   $$ = TRUE;
                  }
 
-exe_util_lob_update :   TOK_UPDATE_LOB '(' TOK_LOB QUOTED_STRING ',' TOK_LOCATION NUMERIC_LITERAL_EXACT_NO_SCALE ',' TOK_SIZE NUMERIC_LITERAL_EXACT_NO_SCALE  optional_append ')' 
-               {
-                 /* TOK_LOCATION points to a caller allocated data buffer with 
-                 LOB data . TOK_SIZE is the  size is the input specified by 
-                 user for length to update. On return, it will give the caller 
-                 the size that was updated */
-                 Int64 bufAddr = atoInt64($7->data());
-		 Int64 size = atoInt64($10->data());
-		 
-		 ConstValue * handle = new(PARSERHEAP()) ConstValue(*$4);
-                 ExeUtilLobUpdate *llu =  
-                   new (PARSERHEAP ()) ExeUtilLobUpdate
-		   (handle, 
-		    ExeUtilLobUpdate::FROM_BUFFER_,
-		    bufAddr, size, 
-                    ($11 ? ExeUtilLobUpdate::APPEND_ : ExeUtilLobUpdate::REPLACE_));
-
-		 $$ = llu;
-               } 
-              |   TOK_UPDATE_LOB '(' TOK_TABLE TOK_UID QUOTED_STRING ',' TOK_LOB value_expression ',' TOK_LOCATION value_expression ',' TOK_SIZE value_expression  optional_append ')' 
-               {
-                 /* TOK_LOCATION points to a caller allocated data buffer with 
-                 LOB data . TOK_SIZE is the  size is the input specified by 
-                 user for length to update. On return, it will give the caller 
-                 the size that was updated */
-
-                 if (NOT (($8->getOperatorType() == ITM_CONSTANT) ||
-                          ($8->getOperatorType() == ITM_DYN_PARAM)))
-                   {
-                     *SqlParser_Diags <<  DgSqlCode(-3242)
-                                      << DgString0("LOB handle must be a constant string or a dynamic param.");
-                     YYERROR;
-                   }
-
-                 if (NOT (($11->getOperatorType() == ITM_CONSTANT) ||
-                          ($11->getOperatorType() == ITM_DYN_PARAM)))
-                   {
-                     *SqlParser_Diags <<  DgSqlCode(-3242)
-                                      << DgString0("LOCATION must be a number  or a dynamic param.");
-                     YYERROR;
-                   }
-
-                 if (NOT (($14->getOperatorType() == ITM_CONSTANT) ||
-                          ($14->getOperatorType() == ITM_DYN_PARAM)))
-                   {
-                     *SqlParser_Diags <<  DgSqlCode(-3242)
-                                      << DgString0("SIZE must be a number or a dynamic param.");
-                     YYERROR;
-                   }
-
-		 ConstValue * objectUID = new(PARSERHEAP()) ConstValue(*$5);
-
-                 ExeUtilLobUpdate *llu =  
-                   new (PARSERHEAP ()) ExeUtilLobUpdate
-		   (ExeUtilLobUpdate::FROM_BUFFER_,
-                    objectUID, $8, $11, $14,
-                    ($15 ? ExeUtilLobUpdate::APPEND_ : ExeUtilLobUpdate::REPLACE_));
-
-		 $$ = llu;
-               } 
-
-              |   TOK_UPDATE_LOB '(' TOK_TABLE TOK_UID QUOTED_STRING ',' TOK_LOB value_expression ',' TOK_LOCATION value_expression ',' TOK_SIZE value_expression ',' TOK_POSITION value_expression ')' 
-               {
-                 /* TOK_LOCATION points to a caller allocated data buffer with 
-                 LOB data . TOK_SIZE is the  size is the input specified by 
-                 user for length to update. On return, it will give the caller 
-                 the size that was updated */
-
-                 if (NOT (($8->getOperatorType() == ITM_CONSTANT) ||
-                          ($8->getOperatorType() == ITM_DYN_PARAM)))
-                   {
-                     *SqlParser_Diags <<  DgSqlCode(-3242)
-                                      << DgString0("LOB handle must be a constant string or a dynamic param.");
-                     YYERROR;
-                   }
-
-                 if (NOT (($11->getOperatorType() == ITM_CONSTANT) ||
-                          ($11->getOperatorType() == ITM_DYN_PARAM)))
-                   {
-                     *SqlParser_Diags <<  DgSqlCode(-3242)
-                                      << DgString0("LOCATION must be a number  or a dynamic param.");
-                     YYERROR;
-                   }
-
-                 if (NOT (($14->getOperatorType() == ITM_CONSTANT) ||
-                          ($14->getOperatorType() == ITM_DYN_PARAM)))
-                   {
-                     *SqlParser_Diags <<  DgSqlCode(-3242)
-                                      << DgString0("SIZE must be a number or a dynamic param.");
-                     YYERROR;
-                   }
-
-                 if (NOT (($17->getOperatorType() == ITM_CONSTANT) ||
-                          ($17->getOperatorType() == ITM_DYN_PARAM)))
-                   {
-                     *SqlParser_Diags <<  DgSqlCode(-3242)
-                                      << DgString0("POSITION must be a number or a dynamic param.");
-                     YYERROR;
-                   }
-
-		 ConstValue * objectUID = new(PARSERHEAP()) ConstValue(*$5);
-
-                 ExeUtilLobUpdate *llu =  
-                   new (PARSERHEAP ()) ExeUtilLobUpdate
-		   (ExeUtilLobUpdate::FROM_BUFFER_,
-                    objectUID, $8, $11, $14, $17);
-
-		 $$ = llu;
-               } 
-
-              | TOK_UPDATE_LOB '(' TOK_LOB QUOTED_STRING ',' TOK_EMPTY_BLOB '(' ')'')' 
-               {
-                 /* Truncate and insert empty_blob */
-                 
-		 
-		 ConstValue * handle = new(PARSERHEAP()) ConstValue(*$4);
-                 ExeUtilLobUpdate *llu =  
-                   new (PARSERHEAP ()) ExeUtilLobUpdate
-		   (handle, 
-		    ExeUtilLobUpdate::FROM_BUFFER_,
-		    0, 0, ExeUtilLobUpdate::TRUNCATE_EXISTING_);
-
-		 $$ = llu;
-               }
-          | TOK_UPDATE_LOB '(' TOK_LOB QUOTED_STRING ',' TOK_EMPTY_CLOB '(' ')' ')' 
-               {
-                 /* Truncate and insert empty_blob */
-                 
-		 
-		 ConstValue * handle = new(PARSERHEAP()) ConstValue(*$4);
-                 ExeUtilLobUpdate *llu =  
-                   new (PARSERHEAP ()) ExeUtilLobUpdate
-		   (handle, 
-		    ExeUtilLobUpdate::FROM_BUFFER_,
-		    0, 0, ExeUtilLobUpdate::TRUNCATE_EXISTING_);
-
-		 $$ = llu;
-               }
-             
+  
 
 /* type relx */
 exe_util_init_hbase :TOK_INITIALIZE TOK_TRAFODION 
@@ -21931,55 +21019,6 @@ exe_util_get_region_access_stats : TOK_GET TOK_REGION stats_or_statistics TOK_FO
                         CorrName("DUMMY"), TRUE, TRUE, TRUE, FALSE, $5, PARSERHEAP());
 	       } 
 
-            | TOK_GET TOK_AVRO stats_or_statistics TOK_FOR TOK_TABLE table_name
-               {
-                 $$ = new (PARSERHEAP()) 
-                   ExeUtilAvroStats(*$6, TRUE, PARSERHEAP());
-	       } 
-            | TOK_GET TOK_PARQUET TOK_READ TOK_SCHEMA TOK_FOR TOK_TABLE table_name
-               {
-                 $$ = new (PARSERHEAP()) 
-                   ExeUtilGetExtSchema(*$7, ExeUtilGetExtSchema::PARQUET, 
-                                       TRUE, FALSE,
-                                       PARSERHEAP());
-	       } 
-            | TOK_GET TOK_AVRO TOK_READ TOK_SCHEMA TOK_FOR TOK_TABLE table_name
-               {
-                 $$ = new (PARSERHEAP()) 
-                   ExeUtilGetExtSchema(*$7, ExeUtilGetExtSchema::AVRO, 
-                                       TRUE, FALSE,
-                                       PARSERHEAP());
-	       } 
-
-            | TOK_GET TOK_PARQUET TOK_WRITE TOK_SCHEMA TOK_FOR TOK_TABLE table_name
-               {
-                 $$ = new (PARSERHEAP()) 
-                   ExeUtilGetExtSchema(*$7, ExeUtilGetExtSchema::PARQUET, 
-                                       FALSE, TRUE,
-                                       PARSERHEAP());
-	       } 
-            | TOK_GET TOK_AVRO TOK_WRITE TOK_SCHEMA TOK_FOR TOK_TABLE table_name
-               {
-                 $$ = new (PARSERHEAP()) 
-                   ExeUtilGetExtSchema(*$7, ExeUtilGetExtSchema::AVRO, 
-                                       FALSE, TRUE,
-                                       PARSERHEAP());
-	       } 
-
-            | TOK_GET TOK_PARQUET TOK_SCHEMA TOK_FOR TOK_TABLE table_name
-               {
-                 $$ = new (PARSERHEAP()) 
-                   ExeUtilGetExtSchema(*$6, ExeUtilGetExtSchema::PARQUET, 
-                                       TRUE, TRUE,
-                                       PARSERHEAP());
-	       } 
-            | TOK_GET TOK_AVRO TOK_SCHEMA TOK_FOR TOK_TABLE table_name
-               {
-                 $$ = new (PARSERHEAP()) 
-                   ExeUtilGetExtSchema(*$6, ExeUtilGetExtSchema::AVRO, 
-                                       TRUE, TRUE,
-                                       PARSERHEAP());
-	       } 
 
 stats_or_statistics : TOK_STATS
                       {
@@ -21990,11 +21029,6 @@ stats_or_statistics : TOK_STATS
                         $$ = TRUE;
                       }
  
-exe_util_get_lob_info : TOK_GET TOK_LOB stats_or_statistics TOK_FOR TOK_TABLE table_name
-               {
-                 $$ = new (PARSERHEAP()) 
-                   ExeUtilLobInfo(*$6, FALSE,NULL,  PARSERHEAP());
-	       } 
 
 exe_util_hive_query : TOK_PROCESS TOK_HIVE TOK_STATEMENT QUOTED_STRING
                       {
@@ -26157,25 +25191,7 @@ set_clause : dml_column_reference '=' value_expression
 				  $$ = new (PARSERHEAP())
 				    Assign($2, rs);
 				}
-                              | dml_column_reference '=' update_obj_to_lob_function
-				{
-                                  ItemExpr * rc = $3;
-				  if (rc->getOperatorType() == ITM_LOBUPDATE)
-				    {
-				      LOBupdate * lu = (LOBupdate*)rc;
-				    
-				      ColReference * cr = (ColReference *)$1; 
-				      
-				      LOBupdate * nlu = 
-					new (PARSERHEAP()) LOBupdate(lu->child(0), cr, lu->child(2),
-								     lu->getObj(), lu->isAppend());
-				      
-				      rc = nlu;
-				    }
 
-				  $$ = new (PARSERHEAP())
-				    Assign($1, rc);
-				}
                               | dml_column_reference '=' TOK_HBASE_VISIBILITY '(' QUOTED_STRING ')'
 				{
                                   if (CmpCommon::getDefault(HBASE_VISIBILITY) == DF_OFF)
@@ -28727,14 +27743,7 @@ show_statement:
 			 new (PARSERHEAP())
 			 ColReference(new (PARSERHEAP()) ColRefName(TRUE, PARSERHEAP())));
 	     }
-           | showddl_or_desc table_name ',' TOK_LOB TOK_DETAILS optional_showddl_object_options_list
-	     {
-         
 
-	       ExeUtilLobShowddl * ls = new(PARSERHEAP()) 
-		 ExeUtilLobShowddl(*$2, $6, PARSERHEAP());
-	       $$ = ls;
-	     }
           | showddl_or_desc TOK_TABLE table_name optional_showddl_object_options_list
 	     {
 	       $$ = new (PARSERHEAP())

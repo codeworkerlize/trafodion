@@ -27,11 +27,7 @@
 
 #define NUM_NSECS_IN_SEC (1 * 1000 * 1000 * 1000)
 
-/////////////////////////////////////////////////////////////////////////////
-// ExLobStats
-// Lob/hdfs related stats. Returned when ExLobsOper is called with Lob_Stats oper.
-// Caller need to allocate and pass in the struct. ExLobsOper will populate it.
-/////////////////////////////////////////////////////////////////////////////
+
 class ExLobStats
 {
  public:

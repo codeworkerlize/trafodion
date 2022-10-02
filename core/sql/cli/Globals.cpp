@@ -1150,7 +1150,6 @@ void SQ_CleanupThread(void *arg)
   HBaseClient_JNI::deleteInstance();
   HiveClient_JNI::deleteInstance();
   DistributedLock_JNI::deleteInstance();
-  HdfsClient::deleteInstance(NULL);
 }
 
 

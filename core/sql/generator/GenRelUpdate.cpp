@@ -899,31 +899,7 @@ short HbaseDelete::codeGen(Generator * generator)
       castValue->bindNode(generator->getBindWA());
       convertExprCastVids.insert(castValue->getValueId());
 
-      // if this Delete node was created as part of pkey update that was
-      // converted to delete+insert, then skip delete&insert from the
-      // underlying chunks/hdfs table.
-      // Lob column handle will remain unchanged and point to old data.
-      // Updating a lob column along with pkey col is not currently supported
-      // and would have raised an err in Update::transformUpdatePrimaryKey.
-      if ((col_node->getValueId().getType().isLob()) &&
-          (NOT getUpdateCKorUniqueIndexKey()))
-        {
-          LOBdelete * ld = new(generator->wHeap())
-            LOBdelete(castValue);
 
-          ld->setNumLOBdatafiles(getTableDesc()->getNATable()->getNumLOBdatafiles());
-          ld->setLobV2(getTableDesc()->getNATable()->lobV2());
-
-          ld->lobInlinedDataMaxLen() = 0;
-          ld->lobHbaseDataMaxLen() = 0;
-
-          ld->getSchemaName() = 
-            getTableDesc()->getNATable()->getTableName().getSchemaNameAsAnsiString();
-
-          ld->bindNode(generator->getBindWA());
-          lobDelVIDlist.insert(ld->getValueId());
-        }
-      
     } // for (ii = 0; ii < numCols; ii++)
 
   // Add ascii columns to the MapTable. After this call the MapTable

@@ -1085,12 +1085,7 @@ short CmpSeabaseDDL::truncateBackupMD(NAString &backupSch,
               return -1;
             }          
 
-          // truncate lob desc/chunk/data files
-          if (0) //truncateLOBfiles(naTable))
-            {
-              ehi->close();
-              return -1;
-            }          
+      
         } // has lob
 #endif
 

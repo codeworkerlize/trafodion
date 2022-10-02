@@ -51,7 +51,6 @@
 #include  "exp_clause_derived.h"
 #include  "ExSMGlobals.h"
 #include  "ttime.h"
-#include "ExpLOBaccess.h"
 #include  "Context.h"
 #include  "NAExecTrans.h"
 
@@ -165,23 +164,11 @@ ex_split_bottom_tcb * ex_split_bottom_tdb::buildESPTcbTree(
     glob->getScheduler()->setCpuLimitCheckFreq(cpuLimitCheckFreq_);
   }
 
-  //  Int64 startTime = NA_JulianTimestamp();
 
-  if (processLOB())
-    {
-      glob->initLOBglobal(glob->getCliGlobals()->currContext(), useLibHdfs(), useHdfsWriteLock(), hdfsWriteLockTimeout());
-    }
 
   glob->setParquetInSupport(parquetInSupport());
 
-  //  Int64 timeDiff = NA_JulianTimestamp() - startTime;
 
-  /*  QRLogger::log(CAT_SQL_EX_SPLIT_BOTTOM,
-                LL_DEBUG,
-                "ex_split_bottom_tdb::buildESPTcbTree: initLOBGlobal(end_time=%s, et=%s) end.",
-                reportTimestamp(), reportTimeDiff(timeDiff)
-                );
-  */
 
   return result;
 }

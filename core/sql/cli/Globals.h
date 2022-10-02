@@ -91,7 +91,6 @@ class CLISemaphore;
 class HBaseClient_JNI;
 class MonarchClient_JNI;
 class HiveClient_JNI;
-class HdfsClient;
 class TransMode;
 class ContextTidMap;
 class LmLanguageManager;

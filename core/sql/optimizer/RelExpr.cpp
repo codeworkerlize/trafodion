@@ -16487,113 +16487,6 @@ NABoolean Exchange::dopReductionRTFeasible()
    return child(0)->dopReductionRTFeasible();
 }
 
-// read RT stats into an array from a local text file.
-NABoolean RelExpr::readRTStats(char* file, NAArray<Int64>& rtStats)
-{
-   fstream fs(file, ios::in);
-
-   if ( !fs.good() )
-      return FALSE;
-
-   Int32 exId;
-   Int64 data;
-
-   Int32 prevExId = -1;
-       
-   // 0th entry is not used. Fill it so that 
-   // rtStats.entries() is at least 1.
-   rtStats.insertAt(0, 0); 
-
-   while ( fs >> exId >> data )
-    {
-       if ( prevExId != exId )
-         prevExId = exId;
-       else 
-         continue; // ignore all other operators in an Exchange
-
-       // record a line of good information  
-       // exId is 1-based index.
-       rtStats.insertAt(exId, data); 
-    }
-
-   fs.close();
-
-   return TRUE;
-}
-
-// read RT stats into an array from a text file exist on hdfs.
-NABoolean RelExpr::readRTStats(char* host, Int32 port, char* path, 
-                               NAArray<Int64>& rtStats)
-{
-   // make a connection
-   HDFS_Client_RetCode hdfsClientRetcode;
-   HdfsClient *hdfsClient = HdfsClient::newInstance(STMTHEAP, NULL, hdfsClientRetcode);
-   
-   if (hdfsClientRetcode != HDFS_CLIENT_OK)
-      return FALSE;
-
-   char buf[512];
-
-   // open the RT data file
-  hdfsClientRetcode = hdfsClient->hdfsOpen(path, FALSE);
-
-  if (hdfsClientRetcode != HDFS_CLIENT_OK) 
-  {
-     NADELETE(hdfsClient, HdfsClient, STMTHEAP); 
-     return FALSE;
-  }
-
-   tSize sz;
-   NAString statsData;
-
-   // read the entire file in chunks and append the chunk to statsData
-   Int64 pos = 0;
-   while ( 1 ) {
-     sz = hdfsClient->hdfsRead(pos, buf, sizeof(buf), hdfsClientRetcode);
-
-     if ( sz == -1 || hdfsClientRetcode != HDFS_CLIENT_OK) // file is not fully written by another process yet
-     {
-       NADELETE(hdfsClient, HdfsClient, STMTHEAP); 
-       return FALSE;
-     }
-     if ( sz == 0 ) // reach EOF
-        break;
-     pos += sz;
-     statsData.append(buf, sz);
-   }
-
-   hdfsClient->hdfsClose();
-   NADELETE(hdfsClient, HdfsClient, STMTHEAP); 
-
-   // Use a string stream to read the data into an Array.
-   stringstream ss(statsData.data());
-
-   Int32 exId;
-   Int64 data;
-
-   Int32 prevExId = -1;
-       
-   // 0th entry is not used. Fill it so that 
-   // rtStats.entries() is at least 1.
-   rtStats.insertAt(0, 0); 
-
-   while ( ss >> exId >> data )
-    {
-       if ( prevExId != exId )
-         prevExId = exId;
-       else 
-         continue; // ignore all other operators in an Exchange
-
-       // exId is 1-based index.
-       rtStats.insertAt(exId, data); 
-
-       //if ( debug ) {
-       //   cout << "rtStats[" << exId << "]=" << data << endl;
-       //}
-    }
-
-   return TRUE;
-}
 
 // Traverse the RelExpr tree rooted at this in post-order serach 
 // and assign the run-time data to each of the node in the tree. 
@@ -17864,7 +17757,6 @@ NABoolean RtStatsControl::performControl(NAString& errorData)
    {
      case REMOVE:
       {
-       result = removeAllFromHDFS(dir, errorData);
        break;
       }
      default:
@@ -17873,17 +17765,6 @@ NABoolean RtStatsControl::performControl(NAString& errorData)
    return result;
 }
 
-NABoolean RtStatsControl::removeAllFromHDFS(const NAString& dir, NAString& errorData)
-{
-
-   HDFS_Client_RetCode hdfsClientRetcode = HdfsClient::hdfsDeleteFiles(dir, "act_data.");
-   if (hdfsClientRetcode != HDFS_CLIENT_OK)
-   {
-      errorData = getSqlJniErrorStr();
-      return FALSE;
-   }
-   return TRUE;
-}
 
 NABoolean RelExpr::isValidRtStatsFileName(char* filename)
 {

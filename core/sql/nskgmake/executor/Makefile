@@ -129,7 +129,6 @@ CPPSRC := Allocator.cpp \
         HdfsClient_JNI.cpp \
         HiveClient_JNI.cpp \
         DistributedLock_JNI.cpp \
-        AvroFileReader.cpp \
         HBaseClient_JNI.cpp \
 	OrcFileVectorWriter.cpp \
 	ParquetFileWriter.cpp \

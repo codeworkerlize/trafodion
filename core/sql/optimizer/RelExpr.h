@@ -310,9 +310,7 @@ public:
   void collectNumNativeParquetScans(Int32& totalScans, Int32& numNativeParquetScans);
   void collectNumOrcScans(Int32& totalScans, Int32& numOrcScans);
 
-  NABoolean readRTStats(char*, NAArray<Int64>&);
-  NABoolean readRTStats(char* host, Int32 port, char* path,
-                        NAArray<Int64>& rtStats);
+
 
   NABoolean assignRTStatsPostProcessing(NAArray<Int64>&, Int32&);
 

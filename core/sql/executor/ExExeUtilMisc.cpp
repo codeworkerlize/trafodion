@@ -49,14 +49,12 @@
 #include  "ex_exe_stmt_globals.h"
 #include  "exp_expr.h"
 #include  "exp_clause_derived.h"
-#include  "ExpLOB.h"
 #include  "ComRtUtils.h"
 #include  "ExStats.h"
 #include  "ComSmallDefs.h"
 #include  <unistd.h>
 
 #include "ExpHbaseInterface.h"
-#include "ExpLOB.h"
 #include "ExpLOBinterface.h"
 #include "ExpComposite.h"
 

@@ -90,7 +90,6 @@ class CmpSeabaseMDcleanup : public CmpSeabaseDDL
 
   short dropUsingViews(ExeCliInterface *cliInterface);
 
-  short dropLOBs(ExeCliInterface *cliInterface);
 
   short deletePrivs(ExeCliInterface *cliInterface);
 

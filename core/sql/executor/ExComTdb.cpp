@@ -383,12 +383,7 @@ char *ComTdb::findVTblPtrExe(short classID)
 
       break;
     }
-case ex_LOB_INFO:
-    {
-      GetVTblPtr(vtblptr,ExExeUtilLobInfoTdb);
 
-      break;
-    }
   case ex_GET_METADATA_INFO:
     {
       GetVTblPtr(vtblptr,ExExeUtilGetMetadataInfoTdb);
@@ -484,24 +479,7 @@ case ex_LOB_INFO:
 
 
 
-   case ex_LOB_EXTRACT:
-    {
-      GetVTblPtr(vtblptr,ExExeUtilLobExtractTdb);
 
-      break;
-    }
-  case ex_LOB_UPDATE_UTIL:
-    {
-      GetVTblPtr(vtblptr,ExExeUtilLobUpdateTdb);
-
-      break;
-    }
-   case ex_LOB_SHOWDDL:
-    {
-      GetVTblPtr(vtblptr,ExExeUtilLobShowddlTdb);
-
-      break;
-    }
 
   case ex_HIVE_MD_ACCESS:
     {
@@ -555,19 +533,8 @@ case ex_LOB_INFO:
 
 
 
-   case ex_AVRO_STATS:
-    {
-      GetVTblPtr(vtblptr,ExExeUtilAvroStatsTdb);
 
-      break;
-    }
 
-   case ex_GET_EXT_SCHEMA:
-    {
-      GetVTblPtr(vtblptr,ExExeUtilGetExtSchemaTdb);
-
-      break;
-    }
 
    case ex_CONNECT_BY:
     {

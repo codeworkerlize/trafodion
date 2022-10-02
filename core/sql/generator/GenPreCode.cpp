@@ -6130,48 +6130,7 @@ RelExpr * HbaseUpdate::preCodeGen(Generator * generator,
 
 	  ItemExpr * val = 
 	    newRecExprArray()[i].getItemExpr()->child(1)->castToItemExpr();
-	  
-	  if ((col->getType()->isLob()) &&
-	      (val->getOperatorType() == ITM_LOBUPDATE))
-	    {
-	      LOBupdate * lu = (LOBupdate*)val;
 
-              lu->setNumLOBdatafiles(getTableDesc()->getNATable()->getNumLOBdatafiles());
-              lu->lobInlinedDataMaxLen() = col->lobInlinedDataMaxLen();
-
-              lu->lobHbaseDataMaxLen() = 
-                CmpCommon::getDefaultNumeric(TRAF_LOB_HBASE_DATA_MAXLEN_DML);
-              if (lu->lobHbaseDataMaxLen() == -1)
-                lu->lobHbaseDataMaxLen() = col->lobHbaseDataMaxLen();
-
-              lu->lobDataInHbaseColLen() = 
-                getTableDesc()->getNATable()->getLobChunksTableDataInHbaseColLen();
-              lu->setLobV2(getTableDesc()->getNATable()->lobV2());
-
-	      lu->updatedTableObjectUID() = 
-		getIndexDesc()->getPrimaryTableDesc()->
-		getNATable()->objectUid().castToInt64();
-	      
-              lu->updatedTableSchemaName() = 
-                getTableDesc()->getNATable()->getTableName().getSchemaNameAsAnsiString();
-
-              lu->lobSize() = (((Int64)col->getType()->getPrecision()) << 32 | col->getType()->getScale()&0xFFFFFFFFL);
-	      lu->lobNum() = col->lobNum();
-	     
-              if (lu->lobStorageType() == Lob_Empty)
-                    {
-                      lu->lobStorageType() = col->lobStorageType();
-                    }
-              if (lu->lobStorageType() != col->lobStorageType())
-                    {
-                      *CmpCommon::diags() << DgSqlCode(-1432)
-                                          << DgInt0((Int32)lu->lobStorageType())
-                                          << DgInt1((Int32)col->lobStorageType())
-                                          << DgString0(col->getColName());
-                      GenExit();
-                    }
-	      lu->lobStorageLocation() = col->lobStorageLocation();
-	    }
 	} // for
     } // if
  
@@ -6271,182 +6230,6 @@ RelExpr * HbaseInsert::preCodeGen(Generator * generator,
 	  if ((srcValueId.getType().isLob()) &&
               (NOT getUpdateCKorUniqueIndexKey()))
             {
-	      LOBinsert * li = NULL;
-	      if ((child1Expr->getOperatorType() != ITM_LOBINSERT) &&
-		  (child1Expr->getOperatorType() != ITM_LOBUPDATE))
-		{
-		  li = new(generator->wHeap())
-		    LOBinsert(child1Expr, NULL, LOBoper::LOB_);
-
-                  li->setNumLOBdatafiles(getTableDesc()->getNATable()->getNumLOBdatafiles());
-                  li->lobInlinedDataMaxLen() = tgtCol->lobInlinedDataMaxLen();
-
-                  li->lobHbaseDataMaxLen() = 
-                    CmpCommon::getDefaultNumeric(TRAF_LOB_HBASE_DATA_MAXLEN_DML);
-                  if (li->lobHbaseDataMaxLen() == -1)
-                    li->lobHbaseDataMaxLen() = tgtCol->lobHbaseDataMaxLen();
-
-                  li->lobDataInHbaseColLen() = 
-                    getTableDesc()->getNATable()->getLobChunksTableDataInHbaseColLen();
-                  li->setLobV2(getTableDesc()->getNATable()->lobV2());
-                  
-		  li->insertedTableObjectUID() = 
-		    getIndexDesc()->getPrimaryTableDesc()->
-		    getNATable()->objectUid().castToInt64();
-
-                  li->insertedTableSchemaName() = 
-                    getTableDesc()->getNATable()->getTableName().getSchemaNameAsAnsiString();
-		
-                  li->lobSize() = (((Int64)tgtValueId.getType().getPrecision()) << 32 | tgtValueId.getType().getScale()&0xFFFFFFFFL);
-		  li->lobFsType() = tgtValueId.getType().getFSDatatype();
-
-		  li->lobNum() = tgtCol->lobNum();
-                  if ((child1Expr->getOperatorType() == ITM_CONSTANT) && 
-                      !(((ConstValue *)child1Expr)->isNull()))
-                    {
-                      if (srcCol->lobStorageType() != tgtCol->lobStorageType())
-                        {
-                          *CmpCommon::diags() << DgSqlCode(-1432)
-                                              << DgInt0((Int32)srcCol->lobStorageType())
-                                              << DgInt1((Int32)tgtCol->lobStorageType())
-                                              << DgString0(tgtCol->getColName());
-                          GenExit();
-                        }
-                    }
-                  else if ((child1Expr->getOperatorType() == ITM_BASECOLUMN)||
-                           (child1Expr->getOperatorType() == ITM_INDEXCOLUMN))
-                    {
-                      if (srcCol->lobStorageType() != tgtCol->lobStorageType())
-                        {
-                          *CmpCommon::diags() << DgSqlCode(-1432)
-                                              << DgInt0((Int32)srcCol->lobStorageType())
-                                              << DgInt1((Int32)tgtCol->lobStorageType())
-                                              << DgString0(tgtCol->getColName());
-                          GenExit();
-                        }
-                      
-                    }
-
-                  li->lobStorageType() = tgtCol->lobStorageType();
-
-		  li->lobStorageLocation() = tgtCol->lobStorageLocation();
-		  li->srcLobStorageLocation() = 
-                    (srcCol ? srcCol->lobStorageLocation() : "");
-
-                  li->setSrcNumLOBdatafiles(srcCol ? srcCol->getNATable()->getNumLOBdatafiles() : -1);
-
-                  if (srcCol)
-                    li->getSrcSchemaName() = 
-                      srcCol->getNATable()->getTableName().getSchemaNameAsAnsiString();
-
-                  li->setSrcLobV2(srcCol ? srcCol->getNATable()->lobV2() : 0);
-
-		  li->bindNode(generator->getBindWA());
-
-		  child1Expr = li;
-
-		  assignExpr->child(1) = child1Expr;
-		}
-	      else if (child1Expr->getOperatorType() == ITM_LOBINSERT)
-		{
-		  li = (LOBinsert*)child1Expr;
-
-                  li->setNumLOBdatafiles(getTableDesc()->getNATable()->getNumLOBdatafiles());
-                  li->lobInlinedDataMaxLen() = tgtCol->lobInlinedDataMaxLen();
-
-                  li->lobHbaseDataMaxLen() = 
-                    CmpCommon::getDefaultNumeric(TRAF_LOB_HBASE_DATA_MAXLEN_DML);
-                  if (li->lobHbaseDataMaxLen() == -1)
-                    li->lobHbaseDataMaxLen() = tgtCol->lobHbaseDataMaxLen();
-
-                  li->lobDataInHbaseColLen() = 
-                    getTableDesc()->getNATable()->getLobChunksTableDataInHbaseColLen();
-                  li->setLobV2(getTableDesc()->getNATable()->lobV2());
-
-		  li->insertedTableObjectUID() = 
-		    getIndexDesc()->getPrimaryTableDesc()->
-		    getNATable()->objectUid().castToInt64();
-
-                  li->insertedTableSchemaName() = 
-                    getTableDesc()->getNATable()->getTableName().getSchemaNameAsAnsiString();
-		  
-		  li->lobNum() = tgtCol->lobNum();
-                  //If we are initializing an empty_lob, assume the storage 
-                  //type of the underlying column
-                  if (li->lobStorageType() == Lob_Empty)
-                    {
-                      li->lobStorageType() = tgtCol->lobStorageType();
-                    }
-                  if (li->lobStorageType() != tgtCol->lobStorageType())
-                    {
-                      *CmpCommon::diags() << DgSqlCode(-1432)
-                                          << DgInt0((Int32)li->lobStorageType())
-                                          << DgInt1((Int32)tgtCol->lobStorageType())
-                                          << DgString0(tgtCol->getColName());
-                        GenExit();
-                      }
-		  li->lobStorageLocation() = tgtCol->lobStorageLocation();
-		  li->srcLobStorageLocation() = 
-                    (srcCol ? srcCol->lobStorageLocation() : "");
-                  li->setSrcNumLOBdatafiles(srcCol ? srcCol->getNATable()->getNumLOBdatafiles() : -1);
-                  if (srcCol)
-                    li->getSrcSchemaName() = 
-                      srcCol->getNATable()->getTableName().getSchemaNameAsAnsiString();
-                  
-                  li->setSrcLobV2(srcCol ? srcCol->getNATable()->lobV2() : 0);		  
-		  li->lobSize() = (((Int64)tgtValueId.getType().getPrecision()) << 32 | tgtValueId.getType().getScale()&0xFFFFFFFFL);
-
-                  const NAType &typ = tgtValueId.getType();
-
-		  if (li->lobFsType() != tgtValueId.getType().getFSDatatype())
-		    {
-		      // create a new LOBinsert node since fsType has changed.
-		      ItemExpr * liChild = li->child(0);
-		      ItemExpr * liChild1 = li->child(1);
-		      li = new(generator->wHeap())
-			LOBinsert(liChild, liChild1, li->getObj(),FALSE, 
-                                  li->lobAsVarchar());
-
-                      li->setNumLOBdatafiles(getTableDesc()->getNATable()->getNumLOBdatafiles());
-		      
-                      li->lobInlinedDataMaxLen() = tgtCol->lobInlinedDataMaxLen();
-
-                      li->lobHbaseDataMaxLen() = 
-                        CmpCommon::getDefaultNumeric(TRAF_LOB_HBASE_DATA_MAXLEN_DML);
-                      if (li->lobHbaseDataMaxLen() == -1)
-                        li->lobHbaseDataMaxLen() = tgtCol->lobHbaseDataMaxLen();
-
-                      li->lobDataInHbaseColLen() = 
-                        getTableDesc()->getNATable()->getLobChunksTableDataInHbaseColLen();
-                      li->setLobV2(getTableDesc()->getNATable()->lobV2());
-              
-		      li->insertedTableObjectUID() = 
-			getIndexDesc()->getPrimaryTableDesc()->
-			getNATable()->objectUid().castToInt64();
-		      
-                      li->insertedTableSchemaName() = 
-                        getTableDesc()->getNATable()->getTableName().getSchemaNameAsAnsiString();
-		      
-                      li->lobSize() = (((Int64)tgtValueId.getType().getPrecision()) << 32 | tgtValueId.getType().getScale()&0xFFFFFFFFL);
-		      li->lobFsType() = tgtValueId.getType().getFSDatatype();
-
-		      li->lobNum() = tgtCol->lobNum();
-		     
-		      li->lobStorageLocation() = tgtCol->lobStorageLocation();
-		      li->srcLobStorageLocation() = 
-                        (srcCol ? srcCol->lobStorageLocation() : "");
-		      
-                      if (srcCol)
-                        li->getSrcSchemaName() = 
-                          srcCol->getNATable()->getTableName().getSchemaNameAsAnsiString();
-                      
-                      li->setSrcNumLOBdatafiles(srcCol ? srcCol->getNATable()->getNumLOBdatafiles() : -1);
-                      
-		      li->bindNode(generator->getBindWA());
-
-		      assignExpr->child(1) = li;
-		    }
-		} // lobinsert
 
 	      GenAssert(li, "must have a LobInsert node");
 	    } // lob
@@ -6609,69 +6392,7 @@ RelExpr * HbaseInsert::preCodeGen(Generator * generator,
   return this;
 }
 
-RelExpr * ExeUtilLobExtract::preCodeGen(Generator * generator,
-                                       const ValueIdSet & externalInputs,
-                                       ValueIdSet &pulledNewInputs)
-{
-  if (nodeIsPreCodeGenned())
-    return this;
 
-  if (! ExeUtilExpr::preCodeGen(generator,externalInputs,pulledNewInputs))
-    return NULL;
-
-  ValueIdSet availableValues;
-  for (ValueId exprId = getGroupAttr()->getCharacteristicInputs().init();
-       getGroupAttr()->getCharacteristicInputs().next(exprId);
-       getGroupAttr()->getCharacteristicInputs().advance(exprId) )
-    {
-      if (exprId.getItemExpr()->getOperatorType() != ITM_VEG_REFERENCE)
-       availableValues += exprId;
-    }
-  
-  getGroupAttr()->setCharacteristicInputs(availableValues);
-  getInputValuesFromParentAndChildren(availableValues);
-
-  if (handle_)
-    handle_->replaceVEGExpressions
-      (availableValues, getGroupAttr()->getCharacteristicInputs());
-  
-  markAsPreCodeGenned();
-
-   // Done.
-   return this;
- }
-
-RelExpr * ExeUtilLobUpdate::preCodeGen(Generator * generator,
-                                       const ValueIdSet & externalInputs,
-                                       ValueIdSet &pulledNewInputs)
-{
-  if (nodeIsPreCodeGenned())
-    return this;
-
-  if (! ExeUtilExpr::preCodeGen(generator,externalInputs,pulledNewInputs))
-    return NULL;
-
-  ValueIdSet availableValues;
-  for (ValueId exprId = getGroupAttr()->getCharacteristicInputs().init();
-       getGroupAttr()->getCharacteristicInputs().next(exprId);
-       getGroupAttr()->getCharacteristicInputs().advance(exprId) )
-    {
-      if (exprId.getItemExpr()->getOperatorType() != ITM_VEG_REFERENCE)
-       availableValues += exprId;
-    }
-  
-  getGroupAttr()->setCharacteristicInputs(availableValues);
-  getInputValuesFromParentAndChildren(availableValues);
-
-  if (handle_)
-    handle_->replaceVEGExpressions
-      (availableValues, getGroupAttr()->getCharacteristicInputs());
-  xnNeeded() = TRUE;
-  markAsPreCodeGenned();
-
-   // Done.
-   return this;
- }
 
 RelExpr * HashGroupBy::preCodeGen(Generator * generator,
                                  const ValueIdSet & externalInputs,
@@ -10820,19 +10541,7 @@ ItemExpr * Cast::preCodeGen(Generator * generator)
 	}
     }
 
- 
-  if ((sourceTypeQual == NA_CHARACTER_TYPE) &&
-      ((tgtFsType == REC_BLOB) ||
-       (tgtFsType == REC_CLOB)))
-    {
-      LOBconvertHandle * lc = new(generator->wHeap())
-	LOBconvertHandle(child(0), LOBoper::LOB_);
 
-      lc->bindNode(generator->getBindWA());
-      lc->preCodeGen(generator);
-      
-      child(0) = lc;
-    }
 
   if (getArity() > 1)
     {
@@ -11498,67 +11207,7 @@ ItemExpr * Generator::addCompDecodeForDerialization(ItemExpr * ie, NABoolean isA
   return ie;
 }
 
-ItemExpr * LOBoper::preCodeGen(Generator * generator)
-{
-  generator->setProcessLOB(TRUE);
 
-  return BuiltinFunction::preCodeGen(generator);
-}
-
-ItemExpr * LOBconvert::preCodeGen(Generator * generator)
-{
-  NAColumn * col = child(0)->getValueId().getNAColumn(TRUE);
-  if (col)
-    {
-      lobNum() = col->lobNum();
-      lobStorageType() = col->lobStorageType();
-      lobStorageLocation() = col->lobStorageLocation();
-
-      if (col->getNATable())
-        {
-          setNumLOBdatafiles(col->getNATable()->getNumLOBdatafiles());
-          lobInlinedDataMaxLen() = 0;
-          lobHbaseDataMaxLen() = 0;
-          lobDataInHbaseColLen() = 0;
-
-          getSchemaName() = 
-            col->getNATable()->getTableName().getSchemaNameAsAnsiString();
-          setLobV2(col->getNATable()->lobV2());
-        }
-    }
-  
-  return LOBoper::preCodeGen(generator);
-}
-
-ItemExpr * LOBlength::preCodeGen(Generator * generator)
-{
-  NAColumn * col = child(0)->getValueId().getNAColumn(TRUE);
-  if (col)
-    {
-      lobNum() = col->lobNum();
-      lobStorageType() = col->lobStorageType();
-      lobStorageLocation() = col->lobStorageLocation();
-
-      if (col->getNATable())
-        {
-          setNumLOBdatafiles(col->getNATable()->getNumLOBdatafiles());
-          lobInlinedDataMaxLen() = 0;
-          lobHbaseDataMaxLen() = 0;
-          lobDataInHbaseColLen() = 0;
-
-          getSchemaName() = 
-            col->getNATable()->getTableName().getSchemaNameAsAnsiString();
-          setLobV2(col->getNATable()->lobV2());
-        }
-    }
-  
-  return LOBoper::preCodeGen(generator);
-}
-
-ItemExpr * LOBupdate::preCodeGen(Generator * generator)
-{
-  return LOBoper::preCodeGen(generator);
-}
 
 ItemExpr * MathFunc::preCodeGen(Generator * generator)
 {

@@ -1767,32 +1767,24 @@ class QCache : public NABasicObject {
   // return an iterator positioned at end of preparser cache's LRU list
   LRUList::iterator endPre() { return tlruQ_.end(); }
 
-  void generateTrafodionQueryCache();
 
-  void loadTrafodionQueryCache();
 
-  void generateUserQueryCacheAppend();
 
   void cleanupUserQueryCache();
 
-  void compactUserQueryCache();
 
   void holdDistributedLock();
 
   void releaseDistributedLock();
 
-  void exportUserQueryCache();
 
   void deleteUserQueryCache(int offset);
 
-  void loadUserQueryCache();
 
   void logQueryCache(const char* title, TextKey* tkey, TextData* tdata, CacheKey* ckey, CacheData* cdata);
 
-  void writeSingleQueryCache(ComDiagsArea* diagsArea, CacheKey* cKey, CacheData* cData,
-    const char* path, NABoolean isForUser);
 
-  void getQueryCacheFromHDFS(ComDiagsArea* diagsArea, Int64 objUID, ULng32 cachekeyhash);
+
 
   // return TRUE iff cache has no entries
   NABoolean empty() const { return clruQ_.empty() && tlruQ_.empty(); }
@@ -1879,9 +1871,6 @@ class QCache : public NABasicObject {
 
    int writeUserQueryCacheToHBase(ComDiagsArea* diagsArea, CacheKey* cKey, CacheData* cData, Int64 offset);
 
-   void writeAllQueryCacheToHDFS(ComDiagsArea* diagsArea, QueryCache* qcache, const char* path, NABoolean isForUser);
-
-   void loadAllQueryCacheFromHDFS(ComDiagsArea* diagsArea, const char* path, NABoolean isForUser);
 
   // decache a postparser cache entry
   void deCachePostParserEntry
@@ -2076,21 +2065,16 @@ class QueryCache {
   // return an iterator positioned at beginning of preparser cache's LRU list
   LRUList::iterator beginPre();
 
-  void generateTrafodionQueryCache();
 
-  void loadTrafodionQueryCache();
 
-  void generateUserQueryCacheAppend();
 
   void cleanupUserQueryCache();
 
-  void compactUserQueryCache();
 
   void holdDistributedLock();
 
   void releaseDistributedLock();
 
-  void exportUserQueryCache();
 
   void setExportPath(NAString path);
 
@@ -2098,9 +2082,7 @@ class QueryCache {
 
   void deleteUserQueryCache(int offset);
 
-  void loadUserQueryCache();
 
-  void getQueryCacheFromHDFS(ComDiagsArea* diagsArea, Int64 objUID, ULng32 hash);
 
   void sanityCheck(Int32 x)
   {

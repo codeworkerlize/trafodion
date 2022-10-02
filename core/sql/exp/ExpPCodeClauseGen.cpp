@@ -54,7 +54,6 @@
 #include "exp_function.h"
 #include "exp_math_func.h"
 #include "ExpPCode.h"
-#include "ExpLOB.h"
 #include "ExpComposite.h"
 
 // #include "DatetimeType.h"
@@ -4896,14 +4895,6 @@ ex_function_extract::pCodeGenerate(Space *space, UInt32 f)
   return ex_expr::EXPR_OK;
 }
 
-// ExpLOBoper::pCodeGenerate
-//
-// For now simply calls the default ex_clause::pCodeGenerate
-//
-ex_expr::exp_return_type ExpLOBoper::pCodeGenerate(Space *space, UInt32 f) 
-{
-  return ex_clause::pCodeGenerate(space, f);
-}
 
 ex_expr::exp_return_type ExpCompositeBase::pCodeGenerate(Space *space, UInt32 f) 
 {

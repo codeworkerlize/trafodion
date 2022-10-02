@@ -65,7 +65,6 @@
 #include "IntervalType.h"
 #include "SQLCLIdev.h"
 #include "str.h"
-#include "ExpLOB.h"
 
 #include "SqlciCmd.h"
 #include "NLSConversion.h"
@@ -320,47 +319,6 @@ Int32 Formatter::buffer_it(SqlciEnv * sqlci_env, char *data,
       data = &data[sizeof(short)];
     }
     
-    if ((datatype == REC_CLOB) || (datatype == REC_BLOB))
-      {
-        //TBD - Now diplay the handle. May want to change to display hex data
-         
-        Int64 uid = 0;
-        Int32 lobNum = 0;
-        Int64 descPartnKey = 0;
-        Int64 descSyskey = 0;
-        Int64 lobUID = 0;
-        Int64 lobSeq = 0;
-        Int16 flags = 0;
-        Int32 lobType = 0;
-        Int16 schNameLen = 0;
-        char schName[512];
-        Int32 inlineDataLen=0;
-        char *inlineData;
-
-        Int32 rc = 0;
-        flags = (Lng32)str_atoi(&data[4], 4);
-        NABoolean lobV2 = ExpLOBoper::isLOBHflagSet(flags, ExpLOBoper::LOBH_VERSION2);  
-        if (lobV2)
-          rc = ExpLOBoper::extractFromLOBstringV2(&flags, &lobType, &lobNum, &
-                                                  uid, &lobUID, &lobSeq, 
-                                                  data, length);
-        else
-          rc = ExpLOBoper::extractFromLOBstring(&uid, 
-                                                &lobNum,
-                                                &descPartnKey,
-                                                &descSyskey,
-                                                &flags,
-                                                &lobType,
-                                                &schNameLen,
-                                                schName,
-                                                &inlineDataLen,
-                                                inlineData,
-                                                data,
-                                                length);
-        if (inlineDataLen)
-          length = length-inlineDataLen-sizeof(Int32);
-        int dummy = 0;
-      }
 
     #ifndef NDEBUG
       static UInt32 asserted = 0;

@@ -4367,15 +4367,7 @@ short ExpGenerator::generateOutputExpr(const ValueIdList &val_id_list,
               == ITM_BASECOLUMN) ||
              ((ret_desc->getValueId(i)).getItemExpr()->getOperatorType()
               == ITM_INDEXCOLUMN) ||
-
-             ((item_expr->getOperatorType() == ITM_LOBCONVERTHANDLE) &&
-              (item_expr->child(0)) &&
-              
-              (((item_expr->child(0)->child(0)) && 
-                // NAColumn is 2 levels deep.
-                (item_expr->child(0)->child(0)->getValueId().getNAColumn(TRUE))) ||
-               // NAColumn is 1 level deep.
-               (item_expr->child(0)->getValueId().getNAColumn(TRUE)))))
+  )
       {
         tableNameShouldBeSet = TRUE;
       }
@@ -4390,17 +4382,7 @@ short ExpGenerator::generateOutputExpr(const ValueIdList &val_id_list,
 
       if (qaname == NULL)
       {
-        if ((item_expr->getOperatorType() == ITM_LOBCONVERTHANDLE) &&
-            (item_expr->child(0)))
-          {
-            if (item_expr->child(0)->child(0))
-              // NAColumn is 2 levels deep.
-              column = item_expr->child(0)->child(0)->getValueId().getNAColumn();
-            else
-              // NAColumn is 1 level deep.
-              column = item_expr->child(0)->getValueId().getNAColumn();
-          }
-        else
+
           column = (ret_desc->getValueId(i)).getNAColumn();
         
         if (column)
@@ -4453,33 +4435,6 @@ short ExpGenerator::generateOutputExpr(const ValueIdList &val_id_list,
     output_clause->setName(nameForClause);
     output_clause->setHeading(heading);
 
-    if (val_id.getItemExpr()->getOperatorType() == ITM_LOBCONVERTHANDLE)
-      {
-        LOBconvertHandle *ie = (LOBconvertHandle*)(val_id.getItemExpr());
-        if (ie->getObj() != LOBoper::HANDLE_STRING_AS_CHAR_)
-          {
-            if (column && column->getNATable()->lobV2())
-              {
-                Int32 bpc = 1;
-                if (val_id.getType().getFSDatatype() == REC_CLOB)
-                  {
-                    SQLClob &clobType = (SQLClob &)val_id.getType();
-                    bpc = CharInfo::bytesPerChar(clobType.getDataCharSet());
-                  }
-                bpc = 1;
-
-                // max inline len in chars
-                output_clause->lobInlinedDataMaxLen() = 
-                  ie->lobInlinedDataMaxLen() / bpc;
-              }
-            else
-              {
-                output_clause->lobInlinedDataMaxLen() = -1; // V1 lob
-              }
-            
-            output_clause->lobChunkMaxLen() = ie->lobChunkMaxLen();            
-          }
-      }
 
     // Put CALL statement specific info into output clauses
     if (spOutExpr)

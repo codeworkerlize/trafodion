@@ -1755,23 +1755,7 @@ compile_from_cache_again:
        DefaultToken dt = CmpCommon::getDefault(GENERATE_USER_QUERYCACHE);
        if (dt == DF_ON && (CmpCommon::context()->getCIindex() == 0) && (CmpCommon::context()->isEmbeddedArkcmp()))
        {
-         if (CmpCommon::context()->shouldWriteQueryCacheToHDFS())
-         {
-           ComDiagsArea* diagsArea = CmpCommon::diags();
-           Lng32 oldDiagsAreaMark = diagsArea->mark();
-           try 
-           {
-             CURRENTQCACHE->getQueryCacheFromHDFS(diagsArea, CmpCommon::context()->getObjUIDForQueryCacheHDFS(), ckey->hashKey());
-           }
-           catch (...)
-           {
-             QRLogger::log(CAT_SQL_EXE, LL_WARN, "catch exception when getting single querycache from hdfs for sql: %s", sText);
-             return retcode;
-           }
-           diagsArea->rewind(oldDiagsAreaMark, TRUE);
-           firstTime = FALSE;
-           goto compile_from_cache_again;
-         }       
+ 
        }
      }
     }
@@ -2273,7 +2257,6 @@ CmpMain::ReturnStatus CmpMain::compile(const char *input_str,           //IN
   // *                       B I N D E R                                     *
   // *                                                                       *
   // *************************************************************************
-  CmpCommon::context()->setFilterForQueryCacheHDFS(0);
   CmpCommon::context()->setObjUIDForQueryCacheHDFS(0);
   CmpCommon::context()->setNeedsRetryWithCachingOff(FALSE);
 

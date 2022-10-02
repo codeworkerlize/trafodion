@@ -263,7 +263,6 @@ public:
     ex_LONG_RUNNING = 116,
     ex_GET_METADATA_INFO = 117,
     ex_GET_VERSION_INFO  = 118,
-    ex_LOB_INFO =119,
     ex_SUSPEND_ACTIVATE  = 121,
     ex_DISK_LABEL_STATISTICS = 122,
     ex_REGION_STATS = 123,
@@ -277,8 +276,6 @@ public:
     ex_POP_IN_MEM_STATS = 131,
     ex_REPLICATOR = 133,
     ex_GET_ERROR_INFO = 136,
-    ex_LOB_EXTRACT = 138,
-    ex_LOB_SHOWDDL = 139,
     ex_GET_REORG_STATISTICS = 140,
     ex_GET_HIVE_METADATA_INFO = 141,
     ex_HIVE_MD_ACCESS = 142,
@@ -293,10 +290,7 @@ public:
     ex_GET_QID = 153,
     ex_BACKUP_RESTORE = 154,
     ex_HIVE_TRUNCATE = 155,
-    ex_LOB_UPDATE_UTIL = 156,
     ex_HIVE_QUERY = 157,
-    ex_AVRO_STATS = 159,
-    ex_GET_EXT_SCHEMA = 160,
     ex_CONNECT_BY = 161,
     ex_COMPOSITE_UNNEST = 162,
     ex_CONNECT_BY_TEMP_TABLE = 163,
@@ -570,9 +564,7 @@ public:
 
   void setCIFON(NABoolean v){ v ? flags_ |= CIFON: flags_ &= ~CIFON;}
 
-  short processLOB() const { return flags_ & PROCESS_LOB;}
 
-  void setProcessLOB(NABoolean v){ v ? flags_ |= PROCESS_LOB: flags_ &= ~PROCESS_LOB;}
 
  
   short parquetInSupport() const { return flags_ & PARQUET_IN_SUPPORT;}
@@ -697,12 +689,7 @@ private:
     //flag for CIF
     CIFON = 0x0080,
 
-    // if this tdb tree need to process lobs at runtime.
-    // This flag is set at the 'root' operators only during
-    // code generation:
-    //  master root(ComTdbRoot), esp root(ComTdbSplitBottom),
-    //  eid root (ComTdbEidRoot)
-    PROCESS_LOB = 0x0100,
+
 
     PARQUET_IN_SUPPORT = 0x0200,
     //

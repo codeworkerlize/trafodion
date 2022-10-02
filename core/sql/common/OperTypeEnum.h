@@ -713,26 +713,8 @@ enum OperatorTypeEnum {
                         ITM_HEADER = 2375,
                         ITM_RANGE_SPEC_FUNC = 2376,
 
-                        // insert into lob column
-                        ITM_LOBINSERT = 2377,
 
-                        // select from lob column
-                        ITM_LOBSELECT = 2378,
 
-                        // delete lob column
-                        ITM_LOBDELETE = 2379,
-
-                        // update lob column
-                        ITM_LOBUPDATE = 2380,
-
-                        // convert LOB data to string
-                        ITM_LOBCONVERT = 2381,
-
-                        // convert LOB handle stored in the row.
-                        ITM_LOBCONVERTHANDLE = 2382,
-
-                        ITM_LOBLOAD = 2383,
-                        ITM_LOBEXTRACT = 2384,
 
                         ITM_GREATEST = 2385,
                         ITM_LEAST = 2386,

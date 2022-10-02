@@ -862,9 +862,7 @@ public :
 
   int getFilterForQueryCacheHDFS() { return filterForQueryCacheHDFS_; }
 
-  void setFilterForQueryCacheHDFS(int x) { filterForQueryCacheHDFS_ = x; }
 
-  NABoolean shouldWriteQueryCacheToHDFS() { return filterForQueryCacheHDFS_ == 1; }
 
   Int64 getObjUIDForQueryCacheHDFS() { return objUIDForQueryCacheHDFS_; }
 

@@ -1147,48 +1147,7 @@ void castComputedColumnsToAnsiTypes(BindWA *bindWA,
         
         naType = (NAType*)&cast->getValueId().getType();
       }
-    
-    if ((naType->isLob()) &&
-        (NOT bindWA->inCTAS()) &&
-        (NOT bindWA->inViewDefinition()) &&
-        (compExpr[i].getItemExpr()->getOperatorType() != ITM_LOBCONVERTHANDLE))
-      {
-        LOBconvertHandle * lc = NULL;
-        if (CmpCommon::getDefault(TRAF_RETURN_LOB_HANDLE_WITHOUT_INLINE_DATA) == DF_ON)
-          lc = new(bindWA->wHeap())
-            LOBconvertHandle(col->getValueId().getItemExpr(), LOBoper::HANDLE_STRING_);
-        else
-          lc = new(bindWA->wHeap())
-            LOBconvertHandle(col->getValueId().getItemExpr(), LOBoper::HANDLE_STRING_WITH_DATA_);
-                
-        lc->bindNode(bindWA);
-        if (bindWA->errStatus()) 
-          return;
 
-        NAColumn *nac = col->getValueId().getNAColumn(TRUE/*don't assert*/);
-        if (nac)
-          {
-            lc->lobNum() = nac->lobNum();
-            lc->lobStorageType() = nac->lobStorageType();
-            if (!nac->lobStorageLocation())
-              {
-                lc->lobStorageLocation() = NAString();
-                QRLogger::log(CAT_SQL_COMP, LL_WARN, "Null pointer of lobStorageLocation() detected in castComputedColumnsToAnsiTypes! \n");
-              }
-            else
-              lc->lobStorageLocation() = nac->lobStorageLocation();
-            
-            lc->lobInlinedDataMaxLen() = nac->lobInlinedDataMaxLen();
-
-            lc->lobChunkMaxLen() = (Lng32)CmpCommon::getDefaultNumeric(TRAF_LOB_CHUNK_MAXLEN);
-          }
-
-        col->setValueId(lc->getValueId());
-        compExpr[i] = lc->getValueId();
-        
-        naType = (NAType*)&lc->getValueId().getType();
-      }
-        
     // if OFF, return tinyint as smallint.
     // This is needed until all callers/drivers have full support to
     // handle IO of tinyint datatypes.
@@ -1463,11 +1422,7 @@ TrafDesc *generateSpecialDesc(const CorrName& corrName)
           HiveMDaccessFunc hivemd(&mdType);
           desc = hivemd.createVirtualTableDesc();
         }
-      else if (corrName.getQualifiedNameObj().getObjectName() == ExeUtilAvroStats::getVirtualTableNameStr())
-        {
-          ExeUtilAvroStats eudss;
-          desc = eudss.createVirtualTableDesc();
-        }
+
 
     }
 
@@ -6482,32 +6437,7 @@ RelExpr *RelRoot::bindNode(BindWA *bindWA)
             }
 	}
       
-      // if lob is being extracted as chunks of string, then only one
-      // such expression could be specified in the select list.
-      // If this is the case, then insert ExeUtilLobExtract operator.
-      // This operator reads lob contents and returns them to caller as
-      // multiple rows.
-      // This lobextract function could only be used in the outermost select
-      // list and must be converted at this point.
-      // It is not evaluated on its own.
-      if (getCompExprTree())
-	{
-	  ItemExprList selList(bindWA->wHeap());
-	  selList.insertTree(getCompExprTree());
-	  if ((selList.entries() == 1) &&
-	      (selList[0]->getOperatorType() == ITM_LOBEXTRACT))
-	    {
-	      LOBextract * lef = (LOBextract*)selList[0];
-	      
-	      ExeUtilLobExtract * le =
-		new (PARSERHEAP()) ExeUtilLobExtract
-		(lef, ExeUtilLobExtract::TO_STRING_,
-		 0, 0, lef->getTgtSize(), 0,
-                 NULL, NULL, NULL, PARSERHEAP());
-	      le->setHandleInStringFormat(FALSE);
-	      setChild(0, le);
-	    }
-	}
+
 
       // check if savepoints can be used. Currently enabled for IUD opers.
       // -- cqd must be set 
@@ -9635,13 +9565,11 @@ RelExpr *Scan::bindNode(BindWA *bindWA)
   if (naTable->isSeabaseMDTable())
   {
     //do not save or load querycache when accessing MD tables;
-    CmpCommon::context()->setFilterForQueryCacheHDFS(-1);
     CmpCommon::context()->setObjUIDForQueryCacheHDFS(0);
   }
 
   if (CmpCommon::context()->getFilterForQueryCacheHDFS() == 0)
   {
-    CmpCommon::context()->setFilterForQueryCacheHDFS(1);
     CmpCommon::context()->setObjUIDForQueryCacheHDFS(tableDesc->getNATable()->objectUid().castToInt64());
   }
 
@@ -11331,7 +11259,6 @@ RelExpr *Insert::bindNode(BindWA *bindWA)
   if (getInsertType() == UPSERT_LOAD)
   {
     //do not save or load querycache when upsert using load;
-    CmpCommon::context()->setFilterForQueryCacheHDFS(-1);
     CmpCommon::context()->setObjUIDForQueryCacheHDFS(0);
   }
 
@@ -16548,13 +16475,11 @@ RelExpr * GenericUpdate::bindNode(BindWA *bindWA)
  if (naTable->isSeabaseMDTable())
  {
    //do not save or load querycache when accessing MD tables;
-   CmpCommon::context()->setFilterForQueryCacheHDFS(-1);
    CmpCommon::context()->setObjUIDForQueryCacheHDFS(0);
  }
 
  if (CmpCommon::context()->getFilterForQueryCacheHDFS() == 0)
  {
-   CmpCommon::context()->setFilterForQueryCacheHDFS(1);
    CmpCommon::context()->setObjUIDForQueryCacheHDFS(getTableDesc()->getNATable()->objectUid().castToInt64());
  }
 
@@ -20162,7 +20087,6 @@ RelExpr *TableMappingUDF::bindNode(BindWA *bindWA)
       return this;
     }
   //do not save or load querycache when there is a tmudf node
-  CmpCommon::context()->setFilterForQueryCacheHDFS(-1);
   CmpCommon::context()->setObjUIDForQueryCacheHDFS(0);
 
   // Create NARoutine object (no caching for TMUDF)

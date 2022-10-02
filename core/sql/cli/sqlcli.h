@@ -2245,13 +2245,7 @@ Int32 SQL_EXEC_LoadTrafMetadataInCache();
   inlineDataLen:    length of inline data contained in lob handle
   inlineDataOffset: offset of inline data relative to start of handle Str
 */
-Int32 SQL_EXEC_ExtractFieldsFromLobHandleStr(
-     /*IN*/    char *handleStr,
-     /*IN*/    Int32 handleLen,
-     /*INOUT*/ Int32 *lobV2,
-     /*INOUT*/ Int64 *objectUID,
-     /*INOUT*/ Int32 *inlineDataLen,
-     /*INOUT*/ Int32 *inlineDataOffset);
+
 
 Int32 SQL_EXEC_SetClientInfo(
      /*IN*/    const char *clientInfo,

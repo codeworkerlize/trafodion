@@ -2732,21 +2732,7 @@ ItemExpr *BiRelat::bindNode(BindWA *bindWA)
       setChild(index, realExpr);    
   }
 
-  // Check and transform any clob operators.
-  if ((type1.getTypeQualifier() == NA_LOB_TYPE) && (type1.getFSDatatype() == REC_CLOB))
-    {
-      ItemExpr *newChild = (child(0)->castToItemExpr())->convertClobToString(bindWA);
-      if (bindWA->errStatus())
-        return this;
-      setChild(0,newChild);
-    }
-  if ((type2.getTypeQualifier() == NA_LOB_TYPE) && (type2.getFSDatatype() == REC_CLOB))
-    {
-     ItemExpr *newChild = (child(1)->castToItemExpr())->convertClobToString(bindWA);
-     if (bindWA->errStatus())
-       return this;
-      setChild(1,newChild);
-    }
+
 
   if (type1.getTypeQualifier() == NA_CHARACTER_TYPE &&
       type2.getTypeQualifier() == NA_CHARACTER_TYPE)
@@ -5089,24 +5075,6 @@ ItemExpr *Concat::bindNode(BindWA *bindWA)
       }
     }
 
-    if ((child(0)->getValueId().getType().getFSDatatype() == REC_BLOB) ||
-        (child(0)->getValueId().getType().getFSDatatype() == REC_CLOB))
-      {
-        ItemExpr *newChild = (child(0)->castToItemExpr())->convertClobToString(bindWA);
-        if (bindWA->errStatus()) 
-          return this;
-        setChild(0,newChild);
-      }
-    
-    if ((child(1)->getValueId().getType().getFSDatatype() == REC_BLOB) ||
-        (child(1)->getValueId().getType().getFSDatatype() == REC_CLOB))
-     {
-      ItemExpr *newChild = (child(1)->castToItemExpr())->convertClobToString(bindWA);
-      if (bindWA->errStatus()) 
-        return this;
-      setChild(1,newChild);
-    }
-
   // Concat inherits from BuiltinFunction .. Function .. ItemExpr.
   BuiltinFunction::bindNode(bindWA);
   if (bindWA->errStatus()) 
@@ -5999,13 +5967,6 @@ ItemExpr *Trim::bindNode(BindWA *bindWA)
   if (bindWA->errStatus()) 
     return this;
 
-  if (child(1)->getValueId().getType().getFSDatatype() == REC_CLOB)
-    {
-      ItemExpr *newChild = (child(1)->castToItemExpr())->convertClobToString(bindWA);
-      if (bindWA->errStatus()) 
-        return this;
-      setChild(1,newChild);
-    }
 
   const NAType &type1 = 
     child(1)->castToItemExpr()->getValueId().getType();
@@ -8077,89 +8038,7 @@ ItemExpr *Assign::bindNode(BindWA *bindWA)
         }
     }
   NABuiltInTypeEnum targetType =  child(0)->castToItemExpr()->getValueId().getType().getTypeQualifier() ;
-  if  (targetType == NA_LOB_TYPE)
-    {  
-      if (child(1))
-        {
-          NABuiltInTypeEnum sourceType =  child(1)->castToItemExpr()->getValueId().getType().getTypeQualifier() ; 
-          //If it's a dynamic param with unknown type or if it is a 
-          // character type, transform the insert.
-          if ((((child(1)->getOperatorType() == ITM_DYN_PARAM) ||(child(1)->getOperatorType() == ITM_ROWSETARRAY_SCAN)) && sourceType == NA_UNKNOWN_TYPE)  
-              || sourceType == NA_CHARACTER_TYPE
-              || child(1)->castToItemExpr()->isNullConstant())
-            {
-              ValueId vid1 = child(1)->castToItemExpr()->getValueId();  
 
-              NAColumn *nacolTgt = child(0).getNAColumn();
-	      Int32 lobInlinedDataMaxLen = nacolTgt->getNATable()->lobV2() ? nacolTgt->lobInlinedDataMaxLen()  : -1;
-              Int32 lobChunkMaxLen = (Lng32)CmpCommon::getDefaultNumeric(TRAF_LOB_CHUNK_MAXLEN);
-              if (child(1)->getOperatorType() == ITM_DYN_PARAM)
-                {
-                  DynamicParam* dynParam = (DynamicParam*)child(1)->castToItemExpr();
-		  dynParam->lobInlinedDataMaxLen() = lobInlinedDataMaxLen;
-                  dynParam->lobChunkMaxLen() = lobChunkMaxLen;
-                  dynParam->setParamHeading(nacolTgt->getColName());
-                }
-              else if ((child(1)->getOperatorType() == ITM_ROWSETARRAY_SCAN) &&
-                       (child(1)->child(0)->getOperatorType() == ITM_HOSTVAR))
-                {
-                  HostVar* hostVar = (HostVar*)child(1)->child(0)->castToItemExpr();
-		  hostVar->lobInlinedDataMaxLen() = lobInlinedDataMaxLen;
-                  hostVar->lobChunkMaxLen() = lobChunkMaxLen;
-                  hostVar->setParamHeading(nacolTgt->getColName());
-                }
-
-              // Add a stringToLob node
-              LOBoper *newChild = NULL;
-              const NAType &desiredType = child(0)->getValueId().getType();
-              SQLBlob &lobType = (SQLBlob&)desiredType;
-              short fs_datatype = child(0)->castToItemExpr()->getValueId().getType().getFSDatatype();
-
-              SQLlob * newType = NULL;
-	      if (lobInlinedDataMaxLen == -1) 
-		lobInlinedDataMaxLen = 0;
-              Int64 lob_input_limit_for_sqlci = CmpCommon::getDefaultNumeric(VARCHAR_PARAM_DEFAULT_SIZE);
-              Int64 lob_size = lobType.getLobLength();
-	      Lng32 lob_size_in_row = lob_size > lob_input_limit_for_sqlci ? lob_input_limit_for_sqlci : lob_size ;
-	      if (((CmpCommon::getDefault(JDBC_PROCESS) == DF_ON) || (CmpCommon::getDefault(ODBC_PROCESS) == DF_ON)))
-		lob_size_in_row = lobInlinedDataMaxLen ; 
-
-              if (fs_datatype == REC_CLOB) {
-                CharInfo::CharSet clobCharset = ((SQLClob &)desiredType).getDataCharSet();
-                newType = new (bindWA->wHeap()) SQLClob(bindWA->wHeap(), lob_size,
-                         clobCharset,
-                         lobType.getLobStorage(),
-                         TRUE, 
-			 lob_size_in_row,
-                         nacolTgt->getNATable()->lobV2());
-              }
-              else {
-                newType = new (bindWA->wHeap()) SQLBlob(bindWA->wHeap(),lob_size,
-                                             lobType.getLobStorage(), 
-                                             TRUE, 
-					     lob_size_in_row,
-                                             nacolTgt->getNATable()->lobV2());
-              }
-
-              vid1.coerceType(*newType, NA_LOB_TYPE); 
-              if (bindWA->getCurrentScope()->context()->inUpdate())
-                {
-                  newChild =  new (bindWA->wHeap()) LOBupdate( vid1.getItemExpr(), child(0), NULL,LOBoper::STRING_, FALSE,TRUE);
-                }
-              else
-                {
-                  newChild =  new (bindWA->wHeap()) LOBinsert( vid1.getItemExpr(),NULL, LOBoper::STRING_, FALSE,TRUE); 
-                  ((LOBinsert*)newChild)->lobFsType() = fs_datatype;
-                }   
-
-              newChild->lobInlinedDataMaxLen() = nacolTgt->lobInlinedDataMaxLen();
-              newChild->bindNode(bindWA);
-              if (bindWA->errStatus())
-                return boundExpr; 
-              setChild(1, newChild);
-            }
-        }
-    }
   // Assign is a directly derived subclass of ItemExpr; safe to invoke this
   boundExpr = ItemExpr::bindNode(bindWA);
   if (bindWA->errStatus())
@@ -8559,14 +8438,7 @@ ItemExpr *PatternMatchingFunction::bindNode(BindWA *bindWA)
     child(0)->castToItemExpr()->getValueId().getType();
   
    // Check and transform any clob operators.
-  
-  if ((checktype1.getTypeQualifier() == NA_LOB_TYPE) && (checktype1.getFSDatatype() == REC_CLOB))
-    {
-      ItemExpr *newChild = (child(0)->castToItemExpr())->convertClobToString(bindWA);
-      if (bindWA->errStatus()) 
-        return this;
-      setChild(0,newChild);
-    }
+
   //=================================================================
   //10-040212-3209-begin
   // Like inherits from Function .. ItemExpr.
@@ -11069,36 +10941,7 @@ ItemExpr *PositionFunc::bindNode(BindWA *bindWA)
   const NAType &type2 = 
     child(1)->castToItemExpr()->getValueId().getType();
     
-  if ((type2.getTypeQualifier() == NA_LOB_TYPE) && (type2.getFSDatatype() == REC_CLOB))
-    {
-      ItemExpr *newChild = (child(1)->castToItemExpr())->convertClobToString(bindWA);
-      if (bindWA->errStatus()) 
-        return this;
-      setChild(1,newChild);
-      const NAType &newtype2 = 
-    newChild->getValueId().getType();
-      const CharType &cType1 = (CharType&)type1;
-      const CharType &cType2 = (CharType&)newtype2;
-      
-      NABoolean doCIcomp = 
-	((cType1.isCaseinsensitive()) && (cType2.isCaseinsensitive()));
-      
-      ItemExpr * newChild2 = NULL;
-      if ((doCIcomp) &&
-	  (NOT cType1.isUpshifted()))
-	{
-	  newChild2 = new (bindWA->wHeap()) Upper(child(0));
-	  setChild(0, newChild2);
-	}
-      
-      if ((doCIcomp) &&
-	  (NOT cType2.isUpshifted()))
-	{
-	  newChild2 = new (bindWA->wHeap()) Upper(child(1));
-	  setChild(1, newChild2);
-	}  
-     
-    }
+
   if ((type1.getTypeQualifier() == NA_CHARACTER_TYPE) &&
       (type2.getTypeQualifier() == NA_CHARACTER_TYPE))
     {
@@ -11276,29 +11119,7 @@ ItemExpr *CharLength::bindNode(BindWA *bindWA)
     child(0)->castToItemExpr()->getValueId().getType();
   
   NAColumn * col = child(0)->getValueId().getNAColumn(TRUE);
-  if (col && type1.getTypeQualifier() == NA_LOB_TYPE)
-    {
-      NABoolean lobV2 = col->getNATable()->lobV2();
-      ItemExpr *newIE = NULL;
-      const SQLClob &clob = (SQLClob&)type1;
-      if ((NOT lobV2) ||
-          ((type1.getFSDatatype() == REC_CLOB) &&
-           (CharInfo::bytesPerChar(clob.getDataCharSet()) > 1)))
-        {
-          // retrieve clob data and convert to string.
-          // then compute charlength.
-          newIE = child(0)->castToItemExpr()->convertClobToString(bindWA);
-          if (bindWA->errStatus())
-            return this;
-          setChild(0, newIE);
-        }
-      else if (lobV2)
-        {
-          newIE = new (bindWA->wHeap()) LOBlength(child(0));
-          newIE = newIE->bindNode(bindWA);
-          return newIE;
-        }
-    }
+
 
   if (type1.getTypeQualifier() == NA_NUMERIC_TYPE)
     {
@@ -11484,24 +11305,7 @@ ItemExpr *OctetLength::bindNode(BindWA *bindWA)
     child(0)->castToItemExpr()->getValueId().getType();
 
   NAColumn * col = child(0)->getValueId().getNAColumn(TRUE);
-  if (col && type1.getTypeQualifier() == NA_LOB_TYPE)
-    {
-      ItemExpr *newIE = NULL;
-      NABoolean lobV2 = col->getNATable()->lobV2();
-      if (lobV2)
-        {
-          newIE = new (bindWA->wHeap()) LOBlength(child(0));
-          newIE = newIE->bindNode(bindWA);
-          return newIE;
-        }
-      else
-        {
-          newIE = child(0)->castToItemExpr()->convertClobToString(bindWA);
-          if (bindWA->errStatus())
-            return this;
-          setChild(0, newIE);
-        }
-    }
+
 
   if (type1.getTypeQualifier() == NA_NUMERIC_TYPE)
     {
@@ -11865,14 +11669,6 @@ ItemExpr *Substring::bindNode(BindWA *bindWA)
      
     }
 
-  if ((type1.getTypeQualifier() == NA_LOB_TYPE) && 
-      (type1.getFSDatatype() == REC_CLOB))
-    {
-      ItemExpr *newChild = (child(0)->castToItemExpr())->convertClobToString(bindWA);
-      if (bindWA->errStatus()) 
-        return this;
-      setChild(0,newChild);
-    }
 
   if (CmpCommon::getDefault(MODE_COMPATIBLE_1) == DF_ON)
     {
@@ -11944,7 +11740,6 @@ ItemExpr *UDFunction::bindNode(BindWA *bindWA)
     return getValueId().getItemExpr();
 
   //do not save or load querycache when there is a UDFunction node
-  CmpCommon::context()->setFilterForQueryCacheHDFS(-1);
   CmpCommon::context()->setObjUIDForQueryCacheHDFS(0);
 
   ItemExpr *boundExpr = NULL;
@@ -15602,13 +15397,7 @@ ItemExpr *ZZZBinderFunction::bindNode(BindWA *bindWA)
 
         NAString funcName = getTextUpper();
 
-        if (child(0)->getValueId().getType().getFSDatatype() == REC_CLOB)
-          {
-            ItemExpr *newChild = (child(0)->castToItemExpr())->convertClobToString(bindWA);
-            if (bindWA->errStatus())
-              return this;
-            setChild(0,newChild);
-          }
+
 
         NAString errReason;
         if (child(0)->getValueId().getType().getTypeQualifier() != NA_CHARACTER_TYPE)
@@ -16634,42 +16423,6 @@ ItemExpr *HbaseColumnCreate::bindNode(BindWA *bindWA)
 }
 
 
-// -----------------------------------------------------------------------
-// member functions for class Loboper, LOBinsert, LOBselect, LOBdelete
-// -----------------------------------------------------------------------
-
-ItemExpr *LOBinsert::bindNode(BindWA *bindWA)
-{
-  ItemExpr * boundExpr = NULL;
-
-  if (nodeIsBound())
-    return getValueId().getItemExpr();
-
-  // Binds self; Binds children; LOBoper::synthesize();
-  boundExpr = LOBoper::bindNode(bindWA);
-  if (bindWA->errStatus()) return NULL;
- 
-  return boundExpr;
-} // LOBinsert::bindNode()
-
-ItemExpr *LOBselect::bindNode(BindWA *bindWA)
-{
-  ItemExpr * boundExpr = NULL;
-
-  if (nodeIsBound())
-    return getValueId().getItemExpr();
-
-
-  // For now LOBselect is allowed only in the top most select list
-  // check that first, or else give an error
-
-
-  // Binds self; Binds children; LOBoper::synthesize();
-  boundExpr = LOBoper::bindNode(bindWA);
-  if (bindWA->errStatus()) return NULL;
- 
-  return boundExpr;
-} // LOBselect::bindNode()
 
 
 
@@ -16695,7 +16448,6 @@ ItemExpr *SequenceValue::bindNode(BindWA *bindWA)
 
   if (CmpCommon::context()->getFilterForQueryCacheHDFS() == 0)
   {
-    CmpCommon::context()->setFilterForQueryCacheHDFS(1);
     CmpCommon::context()->setObjUIDForQueryCacheHDFS(naTable_->objectUid().castToInt64());
   }
 
@@ -17256,38 +17008,6 @@ ItemExpr *ItmSysConnectByPathFunc::bindNode(BindWA *bindWA)
   return ZZZBinderFunction::bindNode(bindWA);
 }
 
-ItemExpr * ItemExpr::convertClobToString(BindWA *bindWA)
-{
-  // The LobConvert function tgtSize is an Int32 so limit it to default of 
-  // LOB_OUTPUT_SIZE. If we use the entire max size of the LOB, 
-  // it will allocate that much space to retrieve the LOB data and blow up
-  //  since it could be in Gigabytes.This is an internal limitation and 
-  // hence works with clobs which are typically smaller -
-  // i.e default of 256MB or less.
-  const NAType &typeOrig = getValueId().getType();
-  Int64 lobMaxSize = ((SQLClob &)typeOrig).getLobLength();
-  Int32 tgtSize = MINOF(CmpCommon::getDefaultNumeric(LOB_OUTPUT_SIZE),lobMaxSize);
-  
-  ItemExpr *newChild = NULL;
-  if (typeOrig.getFSDatatype() == REC_CLOB)
-    newChild = new (bindWA->wHeap()) LOBconvert
-      (this, LOBoper::STRING_, tgtSize,((SQLClob &)typeOrig).getDataCharSet());
-  else
-    newChild = new (bindWA->wHeap()) LOBconvert
-      (this, LOBoper::STRING_, tgtSize);
-  
-  newChild = newChild->bindNode(bindWA);
-  if (bindWA->errStatus()) 
-    return this;
- //Add a warning in case we are operating on a LOB column that is larger than
- // what this function is meant to handle.
- if (tgtSize < lobMaxSize)
-   {
-     if (NOT CmpCommon::diags()->containsWarning(4181))
-       *CmpCommon::diags() << DgSqlCode(4181) << DgInt0(tgtSize);
-   }
- return newChild;
-}
 
 ItemExpr *BeginKey::bindNode(BindWA *bindWA)
 {

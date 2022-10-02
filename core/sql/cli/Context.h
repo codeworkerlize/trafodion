@@ -1299,9 +1299,7 @@ public:
 
   Int32 checkLobLock(char* inLobLockId, NABoolean *found);
   
-  Lng32 setLobLock(
-       /* IN */   char *lobLockId// objID+column number
-                   );
+
   Lng32 holdAndSetCQD(const char * defaultName, const char * defaultValue);
   Lng32 restoreCQD(const char * defaultName);
 

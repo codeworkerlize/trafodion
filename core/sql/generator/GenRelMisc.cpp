@@ -2922,12 +2922,7 @@ short RelRoot::codeGen(Generator * generator)
     }
 
   
-  if (generator->processLOB()) {
-     root_tdb->setProcessLOB(TRUE);
-     root_tdb->setUseLibHdfs(CmpCommon::getDefault(USE_LIBHDFS) == DF_ON);
-     root_tdb->setUseHdfsWriteLock(CmpCommon::getDefault(USE_HDFS_WRITE_LOCK) == DF_ON);
-     root_tdb->setHdfsWriteLockTimeout(CmpCommon::getDefaultLong(HDFS_WRITE_LOCK_TIMEOUT_IN_SECS));
-  } 
+
   root_tdb->setParquetInSupport(generator->parquetInSupport());
 
   // Self-referencing updates

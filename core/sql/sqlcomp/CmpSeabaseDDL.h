@@ -873,7 +873,6 @@ Lng32 getIndexInfo(ExeCliInterface &cliInterface,
 
   void deallocBRCEHI(ExpHbaseInterface* &ehi);
 
-  void dropLOBHdfsFiles();
 
   short dropCreateReservedNamespaces(ExpHbaseInterface * ehi,
                                      NABoolean drop, NABoolean create);
@@ -2378,7 +2377,6 @@ protected:
                            Int64 objDataUID,
                            ExpHbaseInterface * ehi);
 
-  short truncateLOBfiles(NATable *naTable);
   
   void purgedataHbaseTable(DDLExpr * ddlExpr,
 			   NAString &currCatName, NAString &currSchName);

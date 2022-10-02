@@ -43,7 +43,6 @@
 #include <stdarg.h>
 #include "Platform.h"
 #include "SQLCLIdev.h"
-#include "ExpLOBexternal.h"
 #include "ComDiags.h"
 #include "DistributedLock_JNI.h"
 class Statement;
@@ -811,9 +810,7 @@ Lng32 SQLCLI_LockObjectDML(CliGlobals *cliGlobals,
 Lng32 SQLCLI_ReleaseAllDDLObjectLocks(CliGlobals *cliGlobals);
 Lng32 SQLCLI_ReleaseAllDMLObjectLocks(CliGlobals *cliGlobals);
 
-Lng32 SQLCLI_SetLobLock(CliGlobals *cliGlobals,
-                        /* IN */    char * lobLockId
-                        );
+
 Lng32 SQLCLI_CheckLobLock(CliGlobals *cliGlobals,
                         /* IN */   char *lobLockId,
                         /*OUT */ NABoolean *found
@@ -950,64 +947,8 @@ Lng32 SQLCLI_GetChildQueryInfo(CliGlobals *cliGlobals,
      SQL_QUERY_COST_INFO *query_cost_info,
      SQL_QUERY_COMPILER_STATS_INFO *comp_stats_info);
 
-Lng32 SQLCLI_LOBcliInterface
-(
- /*IN*/     CliGlobals *cliGlobals,
- /*IN*/     char * inLobHandle,
- /*IN*/     Lng32  inLobHandleLen,
- /*IN*/     char * blackBox,
- /*IN*/     Int32* blackBoxLen,
- /*OUT*/    char * outLobHandle,
- /*OUT*/    Lng32 * outLobHandleLen,
- /*IN*/     LOBcliQueryType qType,
- /*IN*/     LOBcliQueryPhase qPhase,
- /*INOUT*/  Int64 * dataOffset, /* IN: for insert, 
-                                   OUT: for select */
- /*IN*/     Int64 * dataLen,    /* length of data.
-                                   IN: for insert, out: for select */
- /*OUT*/    Int64 * outDescPartnKey,  /* returned after insert and select */
- /*OUT*/    Int64 * outDescSyskey,    /* returned after insert and select */
- /*INOUT*/  void* *inCliInterface,
- /*IN*/     Int64 xnId,          /* xn id of the parent process, if non-zero */
- /*IN */    NABoolean lobTrace,
- /*IN*/     char * nameSpace // namespace where lob tables are to be created
- );
 
-Lng32 SQLCLI_LOB_GC_Interface
-(
- /*IN*/     CliGlobals *cliGlobals,
- /*IN*/     ExLobGlobals *lobGlobals, // can be passed or NULL
- /*IN*/     char * handle,
- /*IN*/     Lng32  handleLen,
- /*IN*/     char*  hdfsServer,
- /*IN*/     Lng32  hdfsPort,
- /*IN*/     char *lobLocation,
- /*IN*/    Int64 lobMaxMemChunkLen, // if passed in as 0, will use default value of 1G for the in memory buffer to do compaction.
- /*IN*/    NABoolean lobTrace
- );
 
-Lng32 SQLCLI_LOBddlInterface
-(
- /*IN*/     CliGlobals *cliGlobals,
- /*IN*/     char * schName,
- /*IN*/     Lng32  schNameLen,
- /*IN*/     Int64  objectUID,
- /*IN*/     Lng32  &numLOBs,
- /*IN*/     LOBcliQueryType qType,
- /*IN*/     short *lobNumList,
- /*IN*/     short *lobTypList,
- /*IN*/     char* *lobLocList,
- /*IN*/     char* *lobColNameList,
- /*IN*/     char *hdfsServer,
- /*IN*/     Int32 hdfsPort,
- /*IN*/     Int64 lobMaxSize,
- /*IN*/     NABoolean lobTrace,
- /*IN*/     char * nameSpace, // namespace where lob tables are to be created
-
- /* number of HDFS lob datafiles to be created for each lob. */
- /* this will help with concurrent access to lob data. */
- /*IN*/     Int32 numLOBdatafiles
- );
 
 Int32 SQLCLI_SWITCH_TO_COMPILER_TYPE
  (
@@ -1133,14 +1074,7 @@ Lng32 SQLCLI_OrderSeqXDCCliInterface
        /* IN */     CliGlobals*  cliGlobals
    );
 
-  Lng32 SQLCLI_ExtractFieldsFromLobHandleStr(
-       /*IN*/    CliGlobals*  cliGlobals,
-       /*IN*/    char *handleStr,
-       /*IN*/    Lng32 handleLen,
-       /*INOUT*/ Int32 *lobV2,
-       /*INOUT*/ Int64 *objectUID,
-       /*INOUT*/ Int32 *inlineDataLen,
-       /*INOUT*/ Int32 *inlineDataOffset);
+
 
   Lng32 SQLCLI_GetTransactionId(
        /*IN*/ CliGlobals*  cliGlobals,

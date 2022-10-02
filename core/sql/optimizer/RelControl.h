@@ -400,7 +400,6 @@ public:
     virtual RelExpr * copyTopNode(RelExpr *derivedNode = NULL, CollHeap *h = NULL);
 
 protected:
-    virtual NABoolean removeAllFromHDFS(const NAString& dir, NAString& errorData);
     virtual NABoolean performControl(NAString& errorData);
 
 private:

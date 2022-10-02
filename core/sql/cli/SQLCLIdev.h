@@ -43,7 +43,6 @@
 #include "Platform.h"  // 64-BIT
 #include <set>
 #include <string>
-/*#include "ExpLOBexternal.h"*/
 
 class ComDiagsArea;
 class Statement;

@@ -42,7 +42,6 @@
 #include "ComSizeDefs.h"
 #include "sqlcli.h"
 #include "hiveHook.h"
-#include "ExpLOBexternal.h"
 #include "ComSecurityKey.h"
 #include "ExpHbaseDefs.h"
 #include "ComViewColUsage.h"

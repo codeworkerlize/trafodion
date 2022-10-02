@@ -56,9 +56,7 @@ class ex_tcb;
 class ExMeasStmtCntrs;
 class StatsGlobals;
 class sql_buffer_pool;
-class LOBglobals;
 class SequenceValueGenerator;
-class ExLobGlobals;
 class ContextCli;
 
 /////////////////////////////////////////////////////////////
@@ -187,9 +185,7 @@ public:
   inline sql_buffer_pool *getSharedPool() { return sharedPool_; }
   inline void setSharedPool(sql_buffer_pool *p) { sharedPool_ = p; }
 
-  ExLobGlobals *&getExLobGlobal();
   
-  void initLOBglobal(ContextCli *context, NABoolean useLibHdfs, NABoolean useHdfsWriteLock, short hdfsWriteLockTimeout);
 
   void setParquetInSupport();
   
@@ -199,7 +195,6 @@ public:
 
   void setRollupColumnNum(Int16 v) { rollupColumnNum_ = v; }
   Int16 getRollupColumnNum() { return rollupColumnNum_; }
-  ExLobGlobals *getLobGlobals() {return exLobGlobals_; }
 
 private:
   enum FlagsTypeEnum 
@@ -268,7 +263,6 @@ private:
 
   // pool shared by among PAs under PAPA
   sql_buffer_pool *sharedPool_;
-  ExLobGlobals *exLobGlobals_;
 
   // pointer passed to interface methods that store and retrieve lob data
   // from flatfile or hdfs filesystem.

@@ -112,7 +112,6 @@ public:
   void processSecInvReq();
   void processSnapshotLockReq();
   void processSnapshotUnLockReq();
-  void processLobLockReq();
   void processObjectEpochChangeReq();
   void processObjectEpochStatsReq();
   void processObjectLockReq();

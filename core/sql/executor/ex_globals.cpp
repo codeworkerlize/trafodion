@@ -44,8 +44,6 @@
 #include "ex_globals.h"
 #include "Globals.h"
 #include "SqlStats.h"
-#include "ExpLOB.h"
-#include "ExpLOBaccess.h"
 
 ex_globals::ex_globals(short num_temps,
 		       short create_gui_sched,
@@ -63,8 +61,7 @@ ex_globals::ex_globals(short num_temps,
        flags_(0),
        planVersion_(0),
        sharedPool_(NULL),
-       rowNum_(1),
-       exLobGlobals_(NULL)
+       rowNum_(1)
 {
   // Small data items are allocated using space rather than heap so that
   // the allocation of memory for the heap can be avoided in simple queries.
@@ -84,15 +81,8 @@ ex_globals::ex_globals(short num_temps,
 
 }
 
-ExLobGlobals *&ex_globals::getExLobGlobal() 
-{ 
-  return exLobGlobals_;
-}
 
-void ex_globals::initLOBglobal(ContextCli *context, NABoolean useLibHdfs, NABoolean useHdfsWriteLock, short hdfsWriteLockTimeout)
-{
-  exLobGlobals_ = ExpLOBoper::initLOBglobal((NAHeap *)heap_, context, useLibHdfs, useHdfsWriteLock, hdfsWriteLockTimeout, FALSE);
-}
+
 
 void ex_globals::reAllocate(short create_gui_sched)
 {
@@ -103,7 +93,6 @@ void ex_globals::reAllocate(short create_gui_sched)
   tempList_ = NULL;
   
   tcbList_.allocate(0);
-  exLobGlobals_ = NULL;
 }
 
 void ex_globals::deleteMe(NABoolean fatalError)
@@ -133,9 +122,7 @@ void ex_globals::deleteMe(NABoolean fatalError)
   statsArea_ = NULL;
   cleanupTcbs();
   tcbList_.deallocate();
-  if (exLobGlobals_ != NULL)
-     ExpLOBoper::deleteLOBglobal(exLobGlobals_, (NAHeap *)heap_);
-  exLobGlobals_ = NULL;
+
 }
 
 void ex_globals::deleteMemory(void *mem)

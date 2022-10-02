@@ -39,8 +39,6 @@
 #include "CmpSeabaseDDLincludes.h"
 #include "CmpDDLCatErrorCodes.h"
 #include "CmpSeabaseDDLcleanup.h"
-#include "ExpLOB.h"
-#include "ExpLobOperV2.h"
 #include "PrivMgrMDDefs.h"
 #include "PrivMgrComponentPrivileges.h"
 
@@ -554,131 +552,6 @@ short CmpSeabaseMDcleanup::gatherDependentObjects(ExeCliInterface *cliInterface,
             return -1;
         }
 
-      lobMDName_ = NULL;
-      if (NOT extNameForHbase_.isNull())
-        {
-          const NAString extLobMDV2name = genHBaseObjName
-            (getSystemCatalog(), SEABASE_MD_SCHEMA, SEABASE_LOB_COLUMNS,
-             TRAF_RESERVED_NAMESPACE1);
-          
-          Queue *lobV2List = NULL;
-          cliRC = existsInHbase(extLobMDV2name, NULL);
-          if (cliRC == 1) // LOB_COLUMNS exist, could be V2
-            {
-              // if this objectuid exists in metadata LOBMD table, then it
-              // is lob version2. 
-              str_sprintf(query, "select lobnum, storagetype, location, num_lob_files from %s.\"%s\".%s where table_uid = %ld ",
-                          getSystemCatalog(), SEABASE_MD_SCHEMA, SEABASE_LOB_COLUMNS,
-                          objUID_);
-              cliRC = cliInterface->fetchAllRows(lobV2List, query, 0, FALSE, FALSE, TRUE);
-              if (cliRC < 0)
-                {
-                  if (processCleanupErrors(cliInterface, errorSeen))
-                    return -1;
-                }
-            }
-
-          if (lobV2List && (lobV2List->numEntries() > 0)) // lob version 2
-            {
-              lobV2_ = TRUE;
-
-              numLOBs_ = lobV2List->numEntries();
-              lobNumList_ = new (STMTHEAP) short[numLOBs_];
-              lobTypList_ = new (STMTHEAP) short[numLOBs_];
-              lobLocList_ = new (STMTHEAP) char*[numLOBs_];
-              
-              lobV2List->position();
-              for (size_t i = 0; i < lobV2List->numEntries(); i++)
-                {
-                  OutputInfo * oi = (OutputInfo*)lobV2List->getCurr(); 
-                  lobNumList_[i] = *(Int32*)oi->get(0);
-                  lobTypList_[i] = *(Int16*)oi->get(1); //Lob_HDFS_File;
-                  const char *f = (char*)oi->get(2);
-                  char * loc = new (STMTHEAP) char[1024];
-                  strcpy(loc, f);
-                  lobLocList_[i] = loc;
-                  
-                  numLOBdatafiles_ = *(Int32*)oi->get(3);
-
-                  lobV2List->advance();
-                } //for
-            }
-          else
-            {
-              // Base object name exists. Generate LOB info list
-              lobMDNameBuf_ = new(STMTHEAP) char[1024];
-              Lng32 lobMDNameLen = 1024;
-
-              char * lobDescHandleObjNamePrefix = 
-                ExpLOBoper::ExpGetLOBDescHandleObjNamePrefix(objUID_,
-                                                             lobMDNameBuf_, lobMDNameLen);
-          
-              str_sprintf(query, "select object_name from %s.\"%s\".%s where catalog_name = '%s' and schema_name = '%s' and object_name like '%s%%' and object_type = 'BT' ",
-                          getSystemCatalog(), SEABASE_MD_SCHEMA, SEABASE_OBJECTS,
-                          getSystemCatalog(), schName_.data(), lobDescHandleObjNamePrefix);
-          
-              Queue *lobDescList = NULL;
-              cliRC = cliInterface->fetchAllRows(lobDescList, query, 0, FALSE, FALSE, TRUE);
-              if (cliRC < 0)
-                {
-                  if (processCleanupErrors(cliInterface, errorSeen))
-                    return -1;
-                }
-          
-              if (lobDescList->numEntries() > 0)
-                {
-                  lobMDName_ = (char*)
-                    ExpLOBoper::ExpGetLOBMDName(NULL, 0, objUID_,
-                                                lobMDNameBuf_, lobMDNameLen);
-
-                  // retrieve lob storage location
-                  Queue *lobLocQ = NULL;
-                  sprintf(query, "select distinct location from %s.\"%s\".%s",
-                          TRAFODION_SYSCAT_LIT, schName_.data(), lobMDName_);
-                  cliRC = cliInterface->fetchAllRows(lobLocQ, query, 0, FALSE, FALSE, TRUE);
-                  if (cliRC < 0)
-                    {
-                      if (processCleanupErrors(cliInterface, errorSeen))
-                        return -1;
-                    }
-              
-                  if (lobLocQ->numEntries() != 1)
-                    {
-                      // should return one row 
-                      *CmpCommon::diags() << DgSqlCode(-3242)
-                                          << DgString0("Should return one row.");
-                      return -1;              
-                    }
-              
-                  OutputInfo * oi = (OutputInfo*)lobLocQ->getCurr(); 
-                  const char *f = (char*)oi->get(0);
-                  char * loc = new (STMTHEAP) char[1024];
-                  strcpy(loc, f);
-              
-                  numLOBs_ = lobDescList->numEntries();
-                  lobNumList_ = new (STMTHEAP) short[numLOBs_];
-                  lobTypList_ = new (STMTHEAP) short[numLOBs_];
-                  lobLocList_ = new (STMTHEAP) char*[numLOBs_];
-              
-                  lobDescList->position();
-                  for (size_t i = 0; i < lobDescList->numEntries(); i++)
-                    {
-                      OutputInfo * oi = (OutputInfo*)lobDescList->getCurr(); 
-                      char * name = (char*)oi->get(0);
-                  
-                      Lng32 lobNum = 
-                        ExpLOBoper::ExpGetLOBnumFromDescName(name, strlen(name));
-                      lobNumList_[i] = lobNum;
-                  
-                      lobTypList_[i] = Lob_Outline;
-
-                      lobLocList_[i] = loc;
-                  
-                      lobDescList->advance();
-                    } //for
-                }
-            } // lob version1
-        }
     } // COM_BASE_TABLE_OBJECT
 
   if ((objType_ == COM_BASE_TABLE_OBJECT_LIT) ||
@@ -1159,67 +1032,6 @@ short CmpSeabaseMDcleanup::dropSequences(ExeCliInterface *cliInterface)
         }
 
       seqUIDlist_->advance();
-    }
-
-  return 0;
-}
-
-short CmpSeabaseMDcleanup::dropLOBs(ExeCliInterface *cliInterface)
-{
-  Lng32 cliRC = 0;
-  char query[1000];
-
-  if (objUID_ == -1)
-    return 0;
-  
-  if (catName_.isNull() || schName_.isNull())
-    return 0;
-
-  if ((!lobV2_) && (!lobMDName_))
-    return 0;
-
-  NABoolean lobTrace=FALSE;
-  if (getenv("TRACE_LOB_ACTIONS"))
-    lobTrace=TRUE;
-  NAString newSchName = "\"" + catName_ + "\"" + "." + "\"" + schName_ + "\"";
-  const char *lobHdfsServer = CmpCommon::getDefaultString(LOB_HDFS_SERVER);
-  Int32 lobHdfsPort = (Lng32)CmpCommon::getDefaultNumeric(LOB_HDFS_PORT);
-  if (lobV2_)
-    {
-      ExpLobOperV2::DDLArgs args;
-      args.schName = (char*)newSchName.data();
-      args.schNameLen = newSchName.length();
-      args.numLOBs = &numLOBs_;
-      args.qType = ExpLobOperV2::LOB_DDL_CLEANUP;
-      args.lobNumList = lobNumList_;
-      args.lobTypList = lobTypList_;
-      args.lobLocList = lobLocList_;
-      args.lobColNameList = NULL;
-      args.lobHdfsServer = (char*)lobHdfsServer;
-      args.lobHdfsPort = lobHdfsPort;
-      args.lobMaxSize = 0;
-      args.lobTrace = FALSE;
-      args.nameSpace = NULL;
-      args.numSaltPartns = -1;
-      args.numLOBdatafiles = numLOBdatafiles_;
-      args.lobParallelDDL = 0;
-      
-      ExpLobOperV2 v2Oper;
-      cliRC = v2Oper.ddlInterface(objUID_, args);
-    }
-  else
-    {
-      cliRC = SQL_EXEC_LOBddlInterface((char*)newSchName.data(),
-                                       newSchName.length(),
-                                       objUID_,
-                                       numLOBs_,
-                                       LOB_CLI_CLEANUP,
-                                       lobNumList_,
-                                       lobTypList_,
-                                       lobLocList_,
-                                       NULL,
-                                       (char *)lobHdfsServer,
-                                       lobHdfsPort,0,lobTrace,NULL, 1);
     }
 
   return 0;
@@ -3390,10 +3202,7 @@ void CmpSeabaseMDcleanup::cleanupObjects(StmtDDLCleanupObjects * stmtCleanupNode
     if (stopOnError_)
       goto label_return;
 
-  cliRC = dropLOBs(&cliInterface);
-  if (cliRC)
-    if (stopOnError_)
-      goto label_return;
+
   
   cliRC = deletePrivs(&cliInterface);
   if (cliRC)

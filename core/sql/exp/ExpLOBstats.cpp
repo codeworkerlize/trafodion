@@ -24,11 +24,7 @@
 #include "ExpLOBstats.h"
 #include "str.h"
 
-/////////////////////////////////////////////////////////////////////////////
-// ExLobStats
-// Lob/hdfs related stats. Returned when ExLobsOper is called with Lob_Stats oper.
-// Caller need to allocate and pass in the struct. ExLobsOper will populate it.
-/////////////////////////////////////////////////////////////////////////////
+
 
 void ExLobStats::init()
   {

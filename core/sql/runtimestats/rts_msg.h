@@ -128,7 +128,6 @@ enum RtsMessageObjType
   SNAPSHOT_LOCK_REQ,                    // 9022
   SNAPSHOT_UNLOCK_REQ,                  // 9023
 
-  LOB_LOCK_REQ,                         // 9024
   OBJECT_EPOCH_CHANGE_REQ,              // 9025
   OBJECT_EPOCH_CHANGE_REPLY,            // 9026
   OBJECT_EPOCH_STATS_REQ,               // 9027
@@ -1285,36 +1284,6 @@ private:
 
 };
 
-// This message is sent from the CLI's ContextCli::setLobLock
-// to MXSSMP.  It is also sent from MXSSMP to MXSSCP.
-class LobLockRequest: public RtsMessageObj
-{
-public:
-  LobLockRequest(NAMemory *heap)
-    : RtsMessageObj(LOB_LOCK_REQ, 
-                    CurrLobLockVersionNumber, heap)
-  {
-    memset(lobLockId_,0, sizeof(lobLockId_));
-  }
-
-  LobLockRequest(NAMemory *heap,
-                  char *lobId );
-
-  virtual ~LobLockRequest();
-
-  IpcMessageObjSize packedLength();
-  IpcMessageObjSize packObjIntoMessage(IpcMessageBufferPtr buffer);
-  void unpackObj(IpcMessageObjType objType,
-		 IpcMessageObjVersion objVersion,
-		 NABoolean sameEndianness,
-		 IpcMessageObjSize objSize,
-		 IpcConstMessageBufferPtr buffer);
-
-  char *getLobLockId()  {return lobLockId_; }
-
-private:
-  char lobLockId_[LOB_LOCK_ID_SIZE+1];//allow for the lock as well as a '+' or '-'
-};
 
 
 // This message is sent from the CLI's ContextCli::setObjectEpochEntry method

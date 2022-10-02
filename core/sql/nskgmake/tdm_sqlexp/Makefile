@@ -51,7 +51,6 @@ CPPSRC := BigNumHelper.cpp \
 	exp_output.cpp \
 	exp_tuple_desc.cpp \
 	ExpAlignedFormat.cpp \
-	ExpAvroInterface.cpp \
 	ExpAtp.cpp \
 	ExpBitMuxFunction.cpp \
         ExpComposite.cpp \
@@ -59,11 +58,8 @@ CPPSRC := BigNumHelper.cpp \
 	ExpDll.cpp \
 	ExpError.cpp \
 	ExpHbaseInterface.cpp \
-	ExpLOB.cpp \
 	ExpLOBV2.cpp \
-	ExpLOBaccess.cpp \
 	ExpLOBinterface.cpp \
-	ExpLobOperV2.cpp \
 	ExpLOBstats.cpp \
 	ExpPackDefs.cpp \
 	ExpPCode.cpp \

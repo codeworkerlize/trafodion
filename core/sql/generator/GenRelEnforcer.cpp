@@ -1193,12 +1193,7 @@ short Exchange::codeGenForESP(Generator * generator)
 
     splitBottom->setCIFON( (tupleFormat == ExpTupleDesc::SQLMX_ALIGNED_FORMAT));
 
-    if (generator->processLOB()) {
-       splitBottom->setProcessLOB(TRUE);
-       splitBottom->setUseLibHdfs(CmpCommon::getDefault(USE_LIBHDFS) == DF_ON);
-       splitBottom->setUseHdfsWriteLock(CmpCommon::getDefault(USE_HDFS_WRITE_LOCK) == DF_ON);
-       splitBottom->setHdfsWriteLockTimeout(CmpCommon::getDefaultLong(HDFS_WRITE_LOCK_TIMEOUT_IN_SECS));
-    }
+
 
     if (generator->parquetInSupport())
       splitBottom->setParquetInSupport(TRUE);
