@@ -35,10 +35,10 @@
 ****************************************************************************
 */
 
-#include "ComTdbTuple.h"
-#include "ComTdbCommon.h"
-#include "ComQueue.h"
-#include "str.h"
+#include "comexe/ComTdbTuple.h"
+#include "comexe/ComTdbCommon.h"
+#include "comexe/ComQueue.h"
+#include "common/str.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 //

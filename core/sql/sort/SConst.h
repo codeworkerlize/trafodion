@@ -88,9 +88,9 @@
 // Added <description of the change>.
 // -----------------------------------------------------------------------
 
-#include "Platform.h"
+#include "common/Platform.h"
 
-#include "BaseTypes.h"
+#include "common/BaseTypes.h"
 const Int32 SORT_SUCCESS = 0;
 const Int32 SORT_FAILURE = 1;
 

@@ -35,10 +35,10 @@
 */
 
 
-#include "charinfo.h"
+#include "common/charinfo.h"
 #include "ComOptIncludes.h"
 #include "SchemaDB.h"
-#include "StmtNode.h"
+#include "parser/StmtNode.h"
 
 
 void action::setActionLabel(MBD_ACTION  newAction, const NAString &newLabel)

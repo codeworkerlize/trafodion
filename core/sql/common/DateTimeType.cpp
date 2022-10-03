@@ -37,10 +37,10 @@
 #include <ctype.h>
 #include <math.h>
 
-#include "DatetimeType.h"
-#include "NumericType.h"
-#include "str.h"
-#include "exp_clause_derived.h"
+#include "common/DatetimeType.h"
+#include "common/NumericType.h"
+#include "common/str.h"
+#include "exp/exp_clause_derived.h"
 #include "exp_datetime.h"
 
 #include <cextdecs/cextdecs.h>

@@ -24,11 +24,11 @@
 #ifndef _QRLATTICEINDEX_H_
 #define _QRLATTICEINDEX_H_
 
-#include "NAString.h"
+#include "common/NAString.h"
 #include "QRSharedPtr.h"
-#include "QRLogger.h"
-#include "Collections.h"
-#include "SharedPtrCollections.h"
+#include "qmscommon/QRLogger.h"
+#include "common/Collections.h"
+#include "common/SharedPtrCollections.h"
 
 /**
  * \file

@@ -31,7 +31,7 @@
 **********************************************************************/
 
 #include "CmpMemoryMonitor.h"
-#include "NADefaults.h"
+#include "sqlcomp/NADefaults.h"
 #include "SchemaDB.h"
 
 // Global pointer to the CmpMemoryMonitor that encapsulates of

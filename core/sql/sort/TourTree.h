@@ -48,7 +48,7 @@
 #include "SortAlgo.h"
 #include "TreeNode.h"
 #include "ScratchSpace.h"
-#include "NABasicObject.h"
+#include "export/NABasicObject.h"
 #include "SortError.h"
 
 class SortUtil;

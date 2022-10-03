@@ -36,7 +36,7 @@
  *****************************************************************************
  */
 
-#include "Platform.h"
+#include "common/Platform.h"
 
 
 #ifdef _DEBUG
@@ -45,15 +45,15 @@
 
 //try to remove the following line later on
 #include <stdio.h>
-#include "str.h"
-#include "ComSizeDefs.h"
-#include "ComRtUtils.h"
-#include "charinfo.h"
+#include "common/str.h"
+#include "common/ComSizeDefs.h"
+#include "common/ComRtUtils.h"
+#include "common/charinfo.h"
 #include "cli_stdh.h"
 #include "Descriptor.h"
-#include "dfs2rec.h"
-#include "sql_id.h"
-#include "exp_clause_derived.h"
+#include "common/dfs2rec.h"
+#include "cli/sql_id.h"
+#include "exp/exp_clause_derived.h"
 
 // WARNING: assuming varchar length indicator of sizeof(long) == 4
 #define VCPREFIX_LEN sizeof(Int32)

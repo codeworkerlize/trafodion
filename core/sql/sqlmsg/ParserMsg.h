@@ -32,9 +32,9 @@
  */
 
 
-#include "NAWinNT.h"
+#include "common/NAWinNT.h"
 
-#include "charinfo.h"
+#include "common/charinfo.h"
 
 class ComDiagsArea;
 

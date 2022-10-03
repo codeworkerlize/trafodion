@@ -38,7 +38,7 @@
 */
 
 #include "refresh.h"
-#include "Platform.h"
+#include "common/Platform.h"
 #include "dsplatform.h"
 
 class CUOFsIpcMessageTranslator;

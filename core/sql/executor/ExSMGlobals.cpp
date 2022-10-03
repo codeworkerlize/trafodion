@@ -26,20 +26,20 @@
 #include <signal.h>
 #include <errno.h>
 #include "seabed/pctl.h"
-#include "Platform.h"
+#include "common/Platform.h"
 #include "ExSMGlobals.h"
 #include "ExSMTask.h"
 #include "ExSMReader.h"
 #include "ExSMEvent.h"
 #include "ExSMExitHandler.h"
-#include "ComDiags.h"
-#include "Globals.h"
+#include "export/ComDiags.h"
+#include "cli/Globals.h"
 #include "ex_exe_stmt_globals.h"
 #include "ex_ex.h"
-#include "ExpErrorEnums.h"
-#include "ComRtUtils.h"
-#include "ComSqlId.h"
-#include "Statement.h"
+#include "exp/ExpErrorEnums.h"
+#include "common/ComRtUtils.h"
+#include "common/ComSqlId.h"
+#include "cli/Statement.h"
 
 ExSMGlobals *ExSMGlobals::smGlobals_ = NULL;
 bool ExSMGlobals::smInitialized_ = false;

@@ -22,7 +22,7 @@
 //
 **********************************************************************/
 
-#include "NAWinNT.h"
+#include "common/NAWinNT.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -30,9 +30,9 @@
 #include "ErrorMessage.h"
 #include "GetErrorMessage.h"
 
-#include "ComASSERT.h"
+#include "common/ComASSERT.h"
 #include "SqlciError.h"
-#include "NLSConversion.h"
+#include "common/NLSConversion.h"
 
 const size_t DEST_BUF_SIZE = 2 * ErrorMessage::MSG_BUF_SIZE;
 

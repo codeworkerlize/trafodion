@@ -35,7 +35,7 @@
  *
  *****************************************************************************
  */
-#include "Platform.h"
+#include "common/Platform.h"
 #include "UdrFFDC.h"
 #include "UdrDebug.h"
 
@@ -43,7 +43,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
-#include "NABoolean.h"
+#include "common/NABoolean.h"
 FILE *udrDebugFile = stdout;
 
 NABoolean doUdrDebug(){

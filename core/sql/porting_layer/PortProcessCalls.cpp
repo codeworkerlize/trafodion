@@ -37,10 +37,10 @@
  *****************************************************************************
  */
 
-#include "Platform.h"
+#include "common/Platform.h"
 #include <string.h>
 
-#include "PortProcessCalls.h"
+#include "porting/PortProcessCalls.h"
 #include "seabed/fs.h" 
 
 

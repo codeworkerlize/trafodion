@@ -37,9 +37,9 @@
 #include "LmCommon.h"
 #include "LmAssert.h"
 #include "LmDebug.h"
-#include "NAMemory.h"
-#include "ComSmallDefs.h"
-#include "str.h"
+#include "common/NAMemory.h"
+#include "common/ComSmallDefs.h"
+#include "common/str.h"
 
 //----------------------------------------------------------------------
 // LmJavaOptions methods

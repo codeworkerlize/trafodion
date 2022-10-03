@@ -34,7 +34,7 @@
 ****************************************************************************
 */
 
-#include "Platform.h"
+#include "common/Platform.h"
 
 #include <setjmp.h>
 

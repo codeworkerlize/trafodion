@@ -21,8 +21,8 @@
 // @@@ END COPYRIGHT @@@
 // **********************************************************************
 
-#include "ComTdbProbeCache.h"
-#include "ComTdbCommon.h"
+#include "comexe/ComTdbProbeCache.h"
+#include "comexe/ComTdbCommon.h"
 
 // Dummy constructor for "unpack" routines.
 ComTdbProbeCache::ComTdbProbeCache()

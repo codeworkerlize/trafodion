@@ -34,14 +34,14 @@
 
 // -----------------------------------------------------------------------
 
-#include "Platform.h"
-#include "NABoolean.h"
-#include "str.h"
-#include "NAStdlib.h"
-#include "NAAssert.h"
-#include "BaseTypes.h"
-#include "Int64.h"
-#include "NAString.h"
+#include "common/Platform.h"
+#include "common/NABoolean.h"
+#include "common/str.h"
+#include "common/NAStdlib.h"
+#include "common/NAAssert.h"
+#include "common/BaseTypes.h"
+#include "common/Int64.h"
+#include "common/NAString.h"
 #include <errno.h>
 #include <stdarg.h>
 
@@ -50,7 +50,7 @@
 #include <openssl/bio.h>
 #include <openssl/evp.h>
 
-#include "ComResWords.h"
+#include "common/ComResWords.h"
 
 
 /*

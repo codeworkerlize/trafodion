@@ -23,8 +23,8 @@
 #ifndef CONST_H
 #define CONST_H
 
-#include "Platform.h"
-#include "BaseTypes.h"
+#include "common/Platform.h"
+#include "common/BaseTypes.h"
 
 const Lng32 ONE_MB=1048576;  //1024 * 1024
 

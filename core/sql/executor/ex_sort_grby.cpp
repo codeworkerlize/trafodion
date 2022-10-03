@@ -42,13 +42,13 @@
 //
 
 #include "ex_stdh.h"
-#include "ComTdb.h"
+#include "comexe/ComTdb.h"
 #include "ex_tcb.h"
 #include "ex_sort_grby.h"
-#include "ex_expr.h"
+#include "executor/ex_expr.h"
 #include "ExSimpleSqlBuffer.h"
-#include "ExStats.h"
-#include "exp_clause.h"
+#include "executor/ExStats.h"
+#include "exp/exp_clause.h"
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  TDB procedures

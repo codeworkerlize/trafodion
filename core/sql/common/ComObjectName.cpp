@@ -38,17 +38,17 @@
 
 #define  SQLPARSERGLOBALS_NADEFAULTS            // must be first
 #include <string.h>
-#include "BaseTypes.h"
-#include "ComASSERT.h"
-#include "ComRtUtils.h"
-#include "ComMPLoc.h"
+#include "common/BaseTypes.h"
+#include "common/ComASSERT.h"
+#include "common/ComRtUtils.h"
+#include "common/ComMPLoc.h"
 #include "ComObjectName.h"
-#include "ComSqlText.h"
-#include "NAString.h"
-#include "ComAnsiNamePart.h"
-#include "ComDistribution.h"
+#include "common/ComSqlText.h"
+#include "common/NAString.h"
+#include "common/ComAnsiNamePart.h"
+#include "common/ComDistribution.h"
 
-#include "SqlParserGlobals.h"                   // must be last
+#include "parser/SqlParserGlobals.h"                   // must be last
 
 
 // -----------------------------------------------------------------------

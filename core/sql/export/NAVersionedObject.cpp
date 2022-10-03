@@ -54,10 +54,10 @@
 ****************************************************************************
 */
 
-#include "Platform.h"
+#include "common/Platform.h"
 
 
-#include "NAVersionedObject.h"
+#include "export/NAVersionedObject.h"
 
 
 // =====================================================================

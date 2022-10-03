@@ -34,14 +34,14 @@
 ****************************************************************************
 */
 
-#include "Platform.h"
+#include "common/Platform.h"
 
 
-#include "ComPackDefs.h"
-#include "ExpCriDesc.h"
-#include "ComSpace.h"
-#include "exp_tuple_desc.h"
-#include "NAStringDef.h"
+#include "comexe/ComPackDefs.h"
+#include "exp/ExpCriDesc.h"
+#include "common/ComSpace.h"
+#include "exp/exp_tuple_desc.h"
+#include "export/NAStringDef.h"
 #include <iostream>
 
 

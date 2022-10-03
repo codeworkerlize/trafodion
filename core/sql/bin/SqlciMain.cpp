@@ -36,20 +36,20 @@
  *****************************************************************************
  */
 
-#include "Platform.h"
+#include "common/Platform.h"
 
 
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
-#include "BaseTypes.h"
-#include "NAAssert.h"
+#include "common/BaseTypes.h"
+#include "common/NAAssert.h"
 #include "SqlciEnv.h"
 #include "SqlciNode.h"
 #include "TempIncludes.h"
 //#include "UtilInt.h"
-#include "StmtCompilationMode.h" // because of a kludge in eh/EHException.cpp
-#include "ComDiags.h"
+#include "parser/StmtCompilationMode.h" // because of a kludge in eh/EHException.cpp
+#include "export/ComDiags.h"
 
 
   // The following are needed only until the "shadow-process" is implemented.
@@ -68,7 +68,7 @@
 #include "SCMBuildStr.h"
 #include "SCMVersHelp.h"
 #ifdef _DEBUG
-#include "Globals.h"
+#include "cli/Globals.h"
 #endif  // _DEBUG
 
 DEFINE_DOVERS(sqlci)
@@ -83,19 +83,19 @@ DEFINE_DOVERS(sqlci)
 #endif  //_DEBUG
 
 #ifdef CLI_DLL
-#include "SQLCLIdev.h" 
+#include "cli/SQLCLIdev.h" 
 #endif
 
-#include "EHException.h"
+#include "eh/EHException.h"
 
 #ifdef _DEBUG_RTS
-#include "ComQueue.h"
-#include "Globals.h"
-#include "SqlStats.h"
+#include "comexe/ComQueue.h"
+#include "cli/Globals.h"
+#include "runtimestats/SqlStats.h"
 #include "dhalt.h"
 #endif
 
-#include "QRLogger.h"
+#include "qmscommon/QRLogger.h"
 
 #include <pthread.h>
 #include <errno.h>

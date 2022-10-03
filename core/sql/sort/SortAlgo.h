@@ -42,12 +42,12 @@
 ******************************************************************************
 */
 
-#include "str.h"
+#include "common/str.h"
 #include "CommonStructs.h"
 #include "ScratchSpace.h"
 #include <fstream>
 #include "Const.h"
-#include "NABasicObject.h"
+#include "export/NABasicObject.h"
 
 class SortAlgo : public NABasicObject 
 {

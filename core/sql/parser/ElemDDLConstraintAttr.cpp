@@ -34,7 +34,7 @@
  */
 
 #include "AllElemDDLConstraintAttr.h"
-#include "BaseTypes.h"
+#include "common/BaseTypes.h"
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLConstraintAttr

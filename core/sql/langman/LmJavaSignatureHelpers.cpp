@@ -34,7 +34,7 @@
 */
 
 #include "LmJavaSignatureHelpers.h"
-#include "str.h"
+#include "common/str.h"
 
 //
 // unpackSignature():  Unpacks a Java signature.

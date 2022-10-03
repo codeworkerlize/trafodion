@@ -3,9 +3,9 @@
 #define   SQLPARSERGLOBALS_FLAGS   // must precede all #include's
 #define   SQLPARSERGLOBALS_NADEFAULTS
 
-#include "Platform.h"
+#include "common/Platform.h"
 #include <math.h>
-#include "OperTypeEnum.h"
+#include "common/OperTypeEnum.h"
 
 #include "Sqlcomp.h"
 #include "GroupAttr.h"
@@ -13,13 +13,13 @@
 #include "RelPackedRows.h"
 #include "Generator.h"
 #include "GenExpGenerator.h"
-#include "dfs2rec.h"
+#include "common/dfs2rec.h"
 #include "vegrewritepairs.h"
-#include "exp_clause_derived.h"
+#include "exp/exp_clause_derived.h"
 #include "keycolumns.h"
-#include "ValueDesc.h"
+#include "optimizer/ValueDesc.h"
 #include "BindWA.h"
-#include "TriggerDB.h"
+#include "optimizer/TriggerDB.h"
 #include "Cost.h"
 #include "CostMethod.h"
 #include "ItmFlowControlFunction.h"
@@ -27,21 +27,21 @@
 #include "StmtDDLNode.h"
 
 #include "NATable.h"
-#include "NumericType.h"
+#include "common/NumericType.h"
 
-#include "CmpStatement.h"
+#include "arkcmp/CmpStatement.h"
 #include "OptimizerSimulator.h"
 #include "ItemFunc.h"
 #include "ControlDB.h"
 #include "CmpSeabaseDDL.h"
-#include "NAExecTrans.h"
+#include "comexe/NAExecTrans.h"
 #include "exp_function.h"
 
 
 #include "vegrewritepairs.h"
 
-#include "SqlParserGlobals.h"      // must be last #include
-#include "ComRtUtils.h"      
+#include "parser/SqlParserGlobals.h"      // must be last #include
+#include "common/ComRtUtils.h"      
 
 #include <fstream>
 #include <unistd.h>

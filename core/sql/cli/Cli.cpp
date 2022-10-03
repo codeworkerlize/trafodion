@@ -33,49 +33,49 @@
  *****************************************************************************
  */
 
-#include "Platform.h"
+#include "common/Platform.h"
 
 
-#include "ComCextdecs.h"
+#include "common/ComCextdecs.h"
 #include "cli_stdh.h"
-#include "exp_stdh.h"
+#include "exp/exp_stdh.h"
 #include "ex_transaction.h"
-#include "exp_expr.h"
-#include "exp_clause_derived.h"
+#include "exp/exp_expr.h"
+#include "exp/exp_clause_derived.h"
 #include "exp_function.h"
-#include "ExpLOBinterface.h"
-#include "sql_id.h"
-#include "ExStats.h"
-#include "ComTdb.h"
-#include "ComTdbSplitTop.h"
+#include "exp/ExpLOBinterface.h"
+#include "cli/sql_id.h"
+#include "executor/ExStats.h"
+#include "comexe/ComTdb.h"
+#include "comexe/ComTdbSplitTop.h"
 #include "ex_root.h"
 #include "ex_exe_stmt_globals.h"
 #include "ex_frag_rt.h"
-#include "NLSConversion.h"
+#include "common/NLSConversion.h"
 #include "ExExeUtil.h"
 #include <stdarg.h>
 
-#include "NAString.h"
+#include "common/NAString.h"
 
 #include "Cli.h"
-#include "ComRtUtils.h"
-#include "ComSqlId.h"
+#include "common/ComRtUtils.h"
+#include "common/ComSqlId.h"
 
 #include "ComRegAPI.h"
 
 #include "ExExplain.h"
-#include "ExplainTuple.h"
+#include "comexe/ExplainTuple.h"
 
-#include "CmpMessage.h"
+#include "comexe/CmpMessage.h"
 #include "ExSqlComp.h"
 
-#include "logmxevent.h"
+#include "sqlmxevents/logmxevent.h"
 
 #include <time.h>
 
-#include "fs/feerrors.h"
+#include "common/feerrors.h"
 
-#include "csconvert.h"
+#include "common/csconvert.h"
 
 #include "ExRsInfo.h"
 
@@ -83,7 +83,7 @@
 
 #include "dtm/tm.h"
 
-#include "CmpContext.h"
+#include "arkcmp/CmpContext.h"
 #include "LmLangManager.h"
 #include "LmLangManagerC.h"
 #include "LmLangManagerJava.h"
@@ -981,7 +981,7 @@ Lng32 SQLCLI_AllocDesc(/*IN*/ CliGlobals * cliGlobals,
 #define KLUGE_CURSOR 1
 
 #if defined(MULTIPLE_CURSORS_PER_STATEMENT) && defined(KLUGE_CURSOR)
-#include "ComQueue.h"
+#include "comexe/ComQueue.h"
 #endif
 
 Lng32 SQLCLI_AllocStmt(/*IN*/ CliGlobals * cliGlobals,

@@ -37,28 +37,28 @@
 ******************************************************************************
 */
 
-#include "Platform.h"
+#include "common/Platform.h"
 #include "wstr.h"
 
 
 #include "cli_stdh.h"
 
-#include "ExpError.h"
-#include "exp_clause_derived.h"
-#include "NLSConversion.h"
+#include "exp/ExpError.h"
+#include "exp/exp_clause_derived.h"
+#include "common/NLSConversion.h"
 
 #include "Cli.h"
 
-#include "ComRtUtils.h"
+#include "common/ComRtUtils.h"
 
 
 #include "CliSemaphore.h"
-#include "fs/feerrors.h"
+#include "common/feerrors.h"
 
 #include <time.h>
-#include "cextdecs/cextdecs.h"
-#include "logmxevent.h"
-//#include "NAString.h"
+//#include "cextdecs/cextdecs.h"
+#include "sqlmxevents/logmxevent.h"
+//#include "common/NAString.h"
 #include "guardian/kphandlz.h"
 #include "guardian/ddctctlz.h"
 #ifndef pdctctlz_h_dct_get_by_name_
@@ -72,22 +72,22 @@
 #endif
 #include "guardian/pdctctlz.h"
 //#include "ComRegAPI.h"
-#include "memorymonitor.h"
+#include "cli/memorymonitor.h"
 
-#include "dfs2rec.h"
-#include "Statement.h"
-#include "ComSqlId.h"
+#include "common/dfs2rec.h"
+#include "cli/Statement.h"
+#include "common/ComSqlId.h"
 #include "seabed/ms.h"
 #include "seabed/fs.h"
 #include "seabed/fserr.h"
 #include "seabed/thread.h"
 #include "seabed/sqstatehi.h"
-#include "SqlStats.h"
-#include "ComExeTrace.h"
-#include "Context.h"
+#include "runtimestats/SqlStats.h"
+#include "common/ComExeTrace.h"
+#include "cli/Context.h"
 #include <unistd.h>
-#include "QRLogger.h"
-#include "ExpLOBenums.h"
+#include "qmscommon/QRLogger.h"
+#include "exp/ExpLOBenums.h"
 
 extern char ** environ;
 

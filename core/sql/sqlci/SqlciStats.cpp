@@ -45,11 +45,11 @@
 #include <time.h>
 #include "Sqlci.h"
 #include "SqlciStats.h"
-#include "str.h"
-#include "Platform.h"
-#include "ComSysUtils.h" 
-#include "sql_id.h"
-#include "ComCextdecs.h"
+#include "common/str.h"
+#include "common/Platform.h"
+#include "common/ComSysUtils.h" 
+#include "cli/sql_id.h"
+#include "common/ComCextdecs.h"
 
 
 short Statistics::process(SqlciEnv * sqlci_env)

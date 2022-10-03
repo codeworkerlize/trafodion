@@ -39,8 +39,8 @@
 ******************************************************************************
 */
 
-#include "ComASSERT.h"
-#include "ComDiags.h"
+#include "common/ComASSERT.h"
+#include "export/ComDiags.h"
 #include "ElemDDLPassThroughParamDef.h"
 
 

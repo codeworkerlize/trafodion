@@ -79,7 +79,7 @@ typedef NAHashDictionary<const NAString, const NAString>  IDHash;
 #ifndef _MATCHOUTPUT_H_
 #define _MATCHOUTPUT_H_
 
-#include "QRDescriptor.h"
+#include "qmscommon/QRDescriptor.h"
 #include "QmsMVCandidate.h"
 
 // Add a few intermediate result codes to QRElement::ExprResult

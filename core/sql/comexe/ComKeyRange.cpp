@@ -37,11 +37,11 @@
 
 // -----------------------------------------------------------------------
 
-#include "ExpCriDesc.h"
-#include "ComPackDefs.h"
-#include "ComKeyRange.h"
-#include "ComKeyMDAM.h"
-#include "ComKeySingleSubset.h"
+#include "exp/ExpCriDesc.h"
+#include "comexe/ComPackDefs.h"
+#include "comexe/ComKeyRange.h"
+#include "comexe/ComKeyMDAM.h"
+#include "comexe/ComKeySingleSubset.h"
 
 
 keyRangeGen::keyRangeGen(key_type keyType,

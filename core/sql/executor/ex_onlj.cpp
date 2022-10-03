@@ -36,16 +36,16 @@
 */
 
 #include "ex_stdh.h"
-#include "ComTdb.h"
+#include "comexe/ComTdb.h"
 #include "ex_tcb.h"
 #include "ex_onlj.h"
-#include "ex_expr.h"
-#include "str.h"
-#include "ExStats.h"
+#include "executor/ex_expr.h"
+#include "common/str.h"
+#include "executor/ExStats.h"
 #include "ttime.h"
 
 #include "ex_exe_stmt_globals.h"
-#include "sql_buffer_size.h"
+#include "executor/sql_buffer_size.h"
 
 
 /////////////////////////////////////////////////////////////////////////

@@ -32,20 +32,20 @@
 #include <cstdio>
 #include <vector>
 #include <algorithm>
-#include "ComSmallDefs.h"
+#include "common/ComSmallDefs.h"
 
 // sqlcli.h included because ExExeUtilCli.h needs it (and does not include it!)
-#include "sqlcli.h"
-#include "ExExeUtilCli.h"
-#include "ComDiags.h"
-#include "ComQueue.h"
+#include "cli/sqlcli.h"
+#include "executor/ExExeUtilCli.h"
+#include "export/ComDiags.h"
+#include "comexe/ComQueue.h"
 // CmpCommon.h contains STMTHEAP declaration
-#include "CmpCommon.h"
-#include "CmpContext.h"
+#include "common/CmpCommon.h"
+#include "arkcmp/CmpContext.h"
 #include "CmpDDLCatErrorCodes.h"
-#include "NAUserId.h"
+#include "common/NAUserId.h"
 #include "ComUser.h"
-#include "ComSecurityKey.h"
+#include "common/ComSecurityKey.h"
 #include "PrivMgrComponentPrivileges.h"
 
 static bool hasValue(

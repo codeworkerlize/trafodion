@@ -46,10 +46,10 @@
 #include "SqlciError.h"
 #include "SqlciParser.h"
 #include "InputStmt.h"
-#include "str.h"
-#include "ComDiags.h"
-#include "QRLogger.h"
-#include "Globals.h"
+#include "common/str.h"
+#include "export/ComDiags.h"
+#include "qmscommon/QRLogger.h"
+#include "cli/Globals.h"
 
 extern ComDiagsArea sqlci_DA;
 

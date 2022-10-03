@@ -94,9 +94,9 @@
 // Initial revision
 //
 // -----------------------------------------------------------------------
-#include "str.h"
+#include "common/str.h"
 #include "CommonStructs.h"
-#include "NABasicObject.h"
+#include "export/NABasicObject.h"
 
 class Key : public NABasicObject {
 

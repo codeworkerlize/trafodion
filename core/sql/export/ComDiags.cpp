@@ -33,32 +33,32 @@
 ****************************************************************************
 */
 
-#include "Platform.h"
+#include "common/Platform.h"
 
 
 
-#include "NAStdlib.h"
+#include "common/NAStdlib.h"
 
-#include "ComDiags.h"
-#include "IpcMessageObj.h"
-#include "str.h"
-#include "Int64.h"
-#include "ExpError.h"
+#include "export/ComDiags.h"
+#include "export/IpcMessageObj.h"
+#include "common/str.h"
+#include "common/Int64.h"
+#include "exp/ExpError.h"
 
 #include "seabed/ms.h"
 #include <stdlib.h>
 #include <unistd.h>
 extern void releaseRTSSemaphore();  // Functions implemented in SqlStats.cpp
-#include "logmxevent.h"
+#include "sqlmxevents/logmxevent.h"
 
 #include <byteswap.h>
 
-#include "ComRtUtils.h"
+#include "common/ComRtUtils.h"
 
 #ifdef _DEBUG
 #include <time.h>
 #include <sys/time.h>
-#include "PortProcessCalls.h"
+#include "porting/PortProcessCalls.h"
 #endif
 
 

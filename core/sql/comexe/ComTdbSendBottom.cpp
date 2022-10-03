@@ -37,8 +37,8 @@
 
 // -----------------------------------------------------------------------
 
-#include "ComTdbSendBottom.h"
-#include "ComTdbCommon.h"
+#include "comexe/ComTdbSendBottom.h"
+#include "comexe/ComTdbCommon.h"
 
 // -----------------------------------------------------------------------
 // Methods for class ComTdbSendBottom

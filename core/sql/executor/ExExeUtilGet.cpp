@@ -36,7 +36,7 @@
  *****************************************************************************
  */
 
-#include "ComCextdecs.h"
+#include "common/ComCextdecs.h"
 #include  "cli_stdh.h"
 #include  "ex_stdh.h"
 #include  "sql_id.h"
@@ -65,14 +65,14 @@
 #include  "HBaseClient_JNI.h"
 
 #include "CmpDDLCatErrorCodes.h"
-#include "PrivMgrDefs.h"
-#include "PrivMgrCommands.h"
+#include "sqlcomp/PrivMgrDefs.h"
+#include "sqlcomp/PrivMgrCommands.h"
 #include "PrivMgrComponentPrivileges.h"
 
 #include "ExpHbaseInterface.h"
-#include "sql_buffer_size.h"
+#include "executor/sql_buffer_size.h"
 
-#include "NAType.h"
+#include "common/NAType.h"
 #include "ExHbaseAccess.h"
 
 //******************************************************************************

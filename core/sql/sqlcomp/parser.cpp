@@ -41,41 +41,41 @@
 
 #include <ctype.h>
 #include <wchar.h>
-#include "NAWinNT.h"
+#include "common/NAWinNT.h"
 #include "arkcmp_parser_defs.h"
 #define   SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #define   SQLPARSERGLOBALS_FLAGS
 #define   SQLPARSERGLOBALS_LEX_AND_PARSE
 #define   SQLPARSERGLOBALS_NADEFAULTS
 #define   SQLPARSERGLOBALS_NAMES_AND_TOKENS
-#include "SqlParserGlobals.h"
-#include "NLSConversion.h"
-#include "csconvert.h"
+#include "parser/SqlParserGlobals.h"
+#include "common/NLSConversion.h"
+#include "common/csconvert.h"
 #include "ulexer.h"
 
-#include "CmpContext.h"
-#include "CmpStatement.h"
+#include "arkcmp/CmpContext.h"
+#include "arkcmp/CmpStatement.h"
 #include "CmpErrLog.h"
 #include "HvRoles.h"
 #include "NAExit.h"
-#include "NAMemory.h"
+#include "common/NAMemory.h"
 #include "ParserMsg.h"
 #include "parser.h"
 #include "QueryText.h"
 #include "RelExeUtil.h"
 #include "RelMisc.h"		// for RelRoot
-#include "RelStoredProc.h"	// for RelInternalSP
+#include "optimizer/RelStoredProc.h"	// for RelInternalSP
 #include "SchemaDB.h"
 #include "SqlciError.h"
-#include "StmtNode.h"		// for StmtQuery and for ItemColRef.h classes
-#include "str.h"
+#include "parser/StmtNode.h"		// for StmtQuery and for ItemColRef.h classes
+#include "common/str.h"
 #include "CompException.h"    // for CmpInternalException
-#include "ComCextdecs.h"
+#include "common/ComCextdecs.h"
 #include "CmpSeabaseDDL.h"
 
 #include "StmtDDLonHiveObjects.h"
 
-#include "logmxevent.h"
+#include "sqlmxevents/logmxevent.h"
 
 ostream &operator<<(ostream &dest, const ComDiagsArea& da);
 

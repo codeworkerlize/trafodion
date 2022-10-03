@@ -21,14 +21,14 @@
 // @@@ END COPYRIGHT @@@
 **********************************************************************/
 
-#include "nawstring.h"
-#include "NLSConversion.h"
-#include "charinfo.h"
+#include "common/nawstring.h"
+#include "common/NLSConversion.h"
+#include "common/charinfo.h"
 
 #define MULTITHREAD_LOCK
 
-#include "NAAssert.h"
-#include "str.h"
+#include "common/NAAssert.h"
+#include "common/str.h"
 
 /*
  * Initialize for non 16-bit Windows DLL versions of the libary.

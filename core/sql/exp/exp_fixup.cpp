@@ -36,11 +36,11 @@
  *****************************************************************************
  */
 
-#include "Platform.h" 
+#include "common/Platform.h" 
 
 
-#include "exp_stdh.h"
-#include "exp_clause_derived.h"
+#include "exp/exp_stdh.h"
+#include "exp/exp_clause_derived.h"
 #include "exp_function.h"
 #include "exp_interval.h"
 #include "SQLTypeDefs.h"

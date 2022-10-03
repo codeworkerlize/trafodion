@@ -38,13 +38,13 @@
 #include <iostream>
 #endif
 #include "StmtDDLRegOrUnregHive.h"
-#include "BaseTypes.h"
-#include "ComDiags.h"
+#include "common/BaseTypes.h"
+#include "export/ComDiags.h"
 #ifndef   SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #define   SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #endif
 
-#include "SqlParserGlobals.h"	// must be last #include
+#include "parser/SqlParserGlobals.h"	// must be last #include
 
 
 // -----------------------------------------------------------------------

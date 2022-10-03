@@ -32,12 +32,12 @@
  */
 #include "cli_stdh.h"
 #include  "ex_stdh.h"
-#include "ExStats.h"
-#include "sql_id.h"
+#include "executor/ExStats.h"
+#include "cli/sql_id.h"
 #include "ExCextdecs.h"
-#include "Ipc.h"
-#include "ComSqlId.h"
-#include "PortProcessCalls.h"
+#include "common/Ipc.h"
+#include "common/ComSqlId.h"
+#include "porting/PortProcessCalls.h"
 #include <fcntl.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
@@ -48,7 +48,7 @@
 #include <signal.h>
 #include "seabed/ms.h"
 #include "seabed/fserr.h"
-#include "ComDistribution.h"
+#include "common/ComDistribution.h"
 #include "SharedSegment.h"
 
 extern NABoolean checkIfRTSSemaphoreLocked();

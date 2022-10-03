@@ -38,9 +38,9 @@
  */
 
 
-#include "ComASSERT.h"
+#include "common/ComASSERT.h"
 #include "ComRoutineActionNamePart.h"
-#include "nawstring.h"
+#include "common/nawstring.h"
 
 // -----------------------------------------------------------------------
 // friend functions

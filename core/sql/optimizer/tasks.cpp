@@ -43,8 +43,8 @@
 #include "PhyProp.h"
 #include "Cost.h"
 #include "opt.h"
-#include "CmpContext.h"
-#include "CmpStatement.h"
+#include "arkcmp/CmpContext.h"
+#include "arkcmp/CmpStatement.h"
 #include "TransRule.h"
 
 // xxx tmp include, will be taken out

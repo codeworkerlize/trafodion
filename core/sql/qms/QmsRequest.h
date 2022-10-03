@@ -28,7 +28,7 @@
 #include "QRSharedPtr.h"
 #include "QRIpc.h"
 #include "QRMessage.h"
-#include "ComRtUtils.h"
+#include "common/ComRtUtils.h"
 
 class IpcMessageStream;
 class QRMessageObj;

@@ -32,9 +32,9 @@
 // Created:      12/11/07
 // ***********************************************************************
 
-#include "ComSizeDefs.h"
+#include "common/ComSizeDefs.h"
 #include "QmsJoinGraph.h"
-#include "QRLogger.h"
+#include "qmscommon/QRLogger.h"
 
 // NAString comparison for qsort
 //

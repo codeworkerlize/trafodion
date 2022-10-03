@@ -22,11 +22,11 @@
 **********************************************************************/
 #ifndef CMUTIL_H
 #define CMUTIL_H
-#include "ComSmallDefs.h"
-#include "ComVersionDefs.h"
-#include "ComDistribution.h"
-#include "OperTypeEnum.h"
-#include "nawstring.h"
+#include "common/ComSmallDefs.h"
+#include "common/ComVersionDefs.h"
+#include "common/ComDistribution.h"
+#include "common/OperTypeEnum.h"
+#include "common/nawstring.h"
 //#include "CatError.h"
 
 

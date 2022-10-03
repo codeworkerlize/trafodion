@@ -42,7 +42,7 @@
 
 #include "AllItemExpr.h"
 #include "ItemExprList.h"
-#include "exp_attrs.h"
+#include "exp/exp_attrs.h"
 
 /////////////////////////////////////////////////////////////////
 // class MapInfo

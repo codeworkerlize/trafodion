@@ -36,8 +36,8 @@
 
 #include "Cmdline_Args.h"
 #include "ApplicationFile.h"
-#include "ComDiags.h"
-#include "DgBaseType.h"
+#include "export/ComDiags.h"
+#include "common/DgBaseType.h"
 #include "mxCompileUserModule.h"
 #include <new.h>
 

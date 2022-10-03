@@ -34,7 +34,7 @@
 */
 #include "LmLangManager.h"
 #include "LmGenUtil.h"
-#include "str.h"
+#include "common/str.h"
 
 /* setLMObjectMapping() : Processes Java signature and sets the object mapping
  * in Boolean Array. Clients need to allocate the array of Boolean type for

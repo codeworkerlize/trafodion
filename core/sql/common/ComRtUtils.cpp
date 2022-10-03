@@ -34,16 +34,16 @@
  *****************************************************************************
  */
 
-#include "Platform.h"
-#include "PortProcessCalls.h"
+#include "common/Platform.h"
+#include "porting/PortProcessCalls.h"
 
 
 #include "ExCextdecs.h"
-#include "str.h"
-#include "ComRtUtils.h"
-#include "charinfo.h"
+#include "common/str.h"
+#include "common/ComRtUtils.h"
+#include "common/charinfo.h"
 
-#include "ComCextdecs.h"
+#include "common/ComCextdecs.h"
 
 
 #ifdef _DEBUG
@@ -75,12 +75,12 @@
 #include "security/dsecure.h"
 
 
-#include "fs/feerrors.h"
+#include "common/feerrors.h"
 
 
-#include "ComDistribution.h"
+#include "common/ComDistribution.h"
 
-#include "logmxevent.h"
+#include "sqlmxevents/logmxevent.h"
 #undef SQL_TEXT
 
 
@@ -89,9 +89,9 @@
 
 
 
-#include "Range.h"
+#include "qmscommon/Range.h"
 
-#include "ComSysUtils.h"
+#include "common/ComSysUtils.h"
 
 struct ModName {
 public:

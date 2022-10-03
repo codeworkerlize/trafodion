@@ -31,22 +31,22 @@
 **
 *****************************************************************************
 */
-#include "sqlcli.h"
+#include "cli/sqlcli.h"
 #include "UdrResultSet.h"
-#include "sql_buffer.h"
+#include "executor/sql_buffer.h"
 #include "spinfo.h"
 #include "UdrDebug.h"
-#include "ComSizeDefs.h"
+#include "common/ComSizeDefs.h"
 #include "LmRoutine.h"
-#include "exp_expr.h"
-#include "ExpError.h"
+#include "exp/exp_expr.h"
+#include "exp/ExpError.h"
 #include "udrglobals.h"
 #include "udrutil.h"
-#include "SQLCLIdev.h"
-#include "ExpError.h"
+#include "cli/SQLCLIdev.h"
+#include "exp/ExpError.h"
 #include "udrdecs.h"
 #include "UdrFFDC.h"
-#include "ComRtUtils.h"
+#include "common/ComRtUtils.h"
 
 extern NABoolean allocateReplyRow(UdrGlobals *UdrGlob,
                                   SqlBuffer &replyBuffer,

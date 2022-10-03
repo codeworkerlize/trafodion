@@ -36,7 +36,7 @@
  *****************************************************************************
  */
 
-#include "ComCextdecs.h"
+#include "common/ComCextdecs.h"
 #include  "cli_stdh.h"
 #include  "ex_stdh.h"
 #include  "sql_id.h"
@@ -685,7 +685,7 @@ due to one bad parameter, if we can handle it some other way.  Examples: when we
 get a truncation of a string, we output "(data loss indicated)" and continue;
 also, for some columns, NULL is valid and does not indicate an error.  However,
 in case we have a NULL where we expected a numeric value, or if we truncate a
-number, we return EXE_EXPLAIN_BAD_DATA back to caller as we can’t handle this
+number, we return EXE_EXPLAIN_BAD_DATA back to caller as we canï¿½t handle this
 easily, so we pass the fail back which will abort the display.
 *****/
 short ExExeUtilDisplayExplainTcb::GetColumns()
@@ -3637,7 +3637,7 @@ Class Data Accessed:
 
 Description:
 This function will convert the input float (4 byte floating-point number) to an
-ASCII string in the user’s output buffer.  It will walk the string looking for
+ASCII string in the userï¿½s output buffer.  It will walk the string looking for
 the decimal point and the full size.  Numbers >= 2.0E+9 are put in exponent
 notation and intSize is 0.  Numbers < 0.0001 are displayed as 0.0001 always
 (or if < 0.01 as 0.01 when optFlag_ == N_).  Zero is output as 0 (not 0.0), 

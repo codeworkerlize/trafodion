@@ -25,9 +25,9 @@
 #define _QMSINITIALIZE_H_
 
 #include <fstream>
-#include "QRLogger.h"
-#include "QRDescriptor.h"
-#include "NAString.h"
+#include "qmscommon/QRLogger.h"
+#include "qmscommon/QRDescriptor.h"
+#include "common/NAString.h"
 #include "QRQueriesImpl.h"
 #include "QmsQms.h"
 

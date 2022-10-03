@@ -36,12 +36,12 @@
  *****************************************************************************
  */
 
-#include "Platform.h"
+#include "common/Platform.h"
 
 
 #include "SqlciNode.h"
 #include "SqlciEnv.h"
-#include "str.h"
+#include "common/str.h"
 
 
 SqlciNode::SqlciNode(const sqlci_node_type node_type_)

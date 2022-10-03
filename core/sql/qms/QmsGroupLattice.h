@@ -24,7 +24,7 @@
 #ifndef _QRGROUPLATTICE_H_
 #define _QRGROUPLATTICE_H_
 
-#include "NAString.h"
+#include "common/NAString.h"
 #include "QmsLatticeIndex.h"
 #include "QmsMVCandidate.h"
 #include "QRSharedPtr.h"

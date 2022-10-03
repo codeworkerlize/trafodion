@@ -47,14 +47,14 @@
 
 //tmp includes for join and other relexpr methods
 #include "RelJoin.h"
-#include "RelScan.h"
+#include "optimizer/RelScan.h"
 #include "RelGrby.h"
 #include "RelUpdate.h"
 #include "RelRoutine.h"
 #include "RelExeUtil.h"
 #include "QRDescGenerator.h"
 #include "QueryRewriteHandler.h"
-#include "Globals.h"
+#include "cli/Globals.h"
 
 #include <cmath>
 #include <complex>

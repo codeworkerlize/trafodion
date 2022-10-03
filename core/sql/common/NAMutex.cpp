@@ -20,7 +20,7 @@
 //
 // @@@ END COPYRIGHT @@@
 #include "NAMutex.h"
-#include "NAAssert.h"
+#include "common/NAAssert.h"
 
 void NAMutex::init(bool recursive, bool enabled, bool shared)
 {

@@ -36,32 +36,32 @@
  */
 
 
-#include "Platform.h"
+#include "common/Platform.h"
 #include "cli_stdh.h"
-#include "NAStdlib.h"
+#include "common/NAStdlib.h"
 #include "stdio.h"
-#include "ComQueue.h"
+#include "comexe/ComQueue.h"
 #include "ExSqlComp.h"
 #include "ex_transaction.h"
-#include "ComRtUtils.h"
-#include "ExStats.h"
-#include "sql_id.h"
+#include "common/ComRtUtils.h"
+#include "executor/ExStats.h"
+#include "cli/sql_id.h"
 #include "ex_control.h"
 #include "ExControlArea.h"
 #include "ex_root.h"
 #include "ExExeUtil.h"
 #include "ex_frag_rt.h"
 #include "ExExeUtil.h"
-#include "ComExeTrace.h"
-#include "exp_clause_derived.h"
+#include "common/ComExeTrace.h"
+#include "exp/exp_clause_derived.h"
 #include "ComUser.h"
 #include "CmpSeabaseDDLauth.h"
 #include "CmpSeabaseTenant.h"
-#include "StmtCompilationMode.h"
+#include "parser/StmtCompilationMode.h"
 #include "ExCextdecs.h"
 #include "ComMemoryDiags.h"             // ComMemoryDiags::DumpMemoryInfo()
-#include "DllExportDefines.h"
-#include "NAWNodeSet.h"
+#include "common/DllExportDefines.h"
+#include "common/NAWNodeSet.h"
 
 #include <fstream>
 #include <string.h>
@@ -72,27 +72,27 @@
 #include "ComplexObject.h"
 #include "CliMsgObj.h"
 #include "UdrExeIpc.h"
-#include "ComTransInfo.h"
+#include "common/ComTransInfo.h"
 #include "ExUdrServer.h"
-#include "ComSqlId.h"
-#include "NAUserId.h"
+#include "common/ComSqlId.h"
+#include "common/NAUserId.h"
 
 #include "stringBuf.h"
-#include "NLSConversion.h"
+#include "common/NLSConversion.h"
 
 #include <sys/types.h>
 #include <arpa/inet.h>
 #include <pwd.h>
 
-#include "CmpCommon.h"
+#include "common/CmpCommon.h"
 #include "arkcmp_proc.h"
 
 #include "ExRsInfo.h"
 #include "../../dbsecurity/auth/inc/dbUserAuth.h"
-#include "ComDistribution.h"
+#include "common/ComDistribution.h"
 #include "LmRoutine.h"
 
-#include "TriggerDB.h"
+#include "optimizer/TriggerDB.h"
 #include "seabed/sys.h"
 
 // Printf-style tracing macros for the debug build. The macros are

@@ -21,7 +21,7 @@
 // @@@ END COPYRIGHT @@@
 // **********************************************************************
 
-#include "Platform.h" // Must precede zsysc.h or weird errors occur
+#include "common/Platform.h" // Must precede zsysc.h or weird errors occur
 
 #include "QmsRequest.h"
 #include "QmsQms.h"
@@ -38,7 +38,7 @@ using namespace QR;
 
 #include "nsk/nskprocess.h"
 extern "C" {
-#include "cextdecs/cextdecs.h"
+//#include "cextdecs/cextdecs.h"
 #include "zsysc.h"
 }
 

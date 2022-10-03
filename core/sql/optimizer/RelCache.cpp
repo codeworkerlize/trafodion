@@ -41,7 +41,7 @@
 #include "OptHints.h"
 #include "QRDescGenerator.h"
 
-#include "SqlParserGlobals.h"      // must be last #include
+#include "parser/SqlParserGlobals.h"      // must be last #include
 #include "RelSequence.h"
 // append an ascii-version of GenericUpdate into cachewa.qryText_
 void GenericUpdate::generateCacheKey(CacheWA& cwa) const

@@ -20,12 +20,12 @@
 //
 // @@@ END COPYRIGHT @@@
 **********************************************************************/
-#include "Platform.h"
+#include "common/Platform.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "str.h"
+#include "common/str.h"
 #include "Statistics.h"
 
 //----------------------------------------------------------------------

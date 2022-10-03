@@ -39,7 +39,7 @@
 */
 
 #include "ScratchFile.h"
-#include "Ipc.h"
+#include "common/Ipc.h"
 class ex_queue;
 #include "ExScheduler.h"
 class ScratchFile;

@@ -32,7 +32,7 @@
 // *********************************************************************
 
 #include "hash_table.h"
-#include "logmxevent.h"
+#include "sqlmxevents/logmxevent.h"
 
 void HashRow::print(ULng32 rowlength) {
   printf("\tHashValue: %6d\n\tData: ", hashValue_);

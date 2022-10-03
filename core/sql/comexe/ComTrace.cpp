@@ -21,7 +21,7 @@
 // @@@ END COPYRIGHT @@@
 **********************************************************************/
 
-#include "ComTrace.h"
+#include "comexe/ComTrace.h"
 
 // ==========================================================
 // ComTracePointInfo Methods

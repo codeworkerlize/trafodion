@@ -23,8 +23,8 @@
 
 #include "orcPushdownPredInfo.h"
 #include "ItemExpr.h"
-#include "ItemColRef.h"
-#include "exp_clause_derived.h"
+#include "optimizer/ItemColRef.h"
+#include "exp/exp_clause_derived.h"
 
 void ExtPushdownPredInfo::display()
 {

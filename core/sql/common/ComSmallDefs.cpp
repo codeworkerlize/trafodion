@@ -37,7 +37,7 @@
  */
 
 
-#include "Platform.h"
+#include "common/Platform.h"
 
 // this file needed for getuid/getpid for UNIX implementation of ComUID
 #include <sys/unistd.h>
@@ -52,17 +52,17 @@
 
 
 
-#include "BaseTypes.h"
+#include "common/BaseTypes.h"
 #include "ComLocationNames.h"
 #include "ComOperators.h"
-#include "ComSmallDefs.h"
-#include "ComASSERT.h"
+#include "common/ComSmallDefs.h"
+#include "common/ComASSERT.h"
 #include "ComRegAPI.h"
 
 #include "CatSQLShare.h"
 
 #ifdef _DEBUG
-#include "ComRtUtils.h"
+#include "common/ComRtUtils.h"
 #endif
 
 // This function now for non-NSKLite platforms only (UNIX)

@@ -31,12 +31,12 @@
 ******************************************************************************
 */
 
-#include "CharType.h"
-#include "NumericType.h"
+#include "common/CharType.h"
+#include "common/NumericType.h"
 #include "LmLangManager.h"
 
 // a stub to avoid an undefined external
-#include "NAType.h"
+#include "common/NAType.h"
 //////////////////////////////////////////////////////////////////////
 //
 // Class LmLanguageManager

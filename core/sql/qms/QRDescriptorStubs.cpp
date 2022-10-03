@@ -32,7 +32,7 @@
 // Created:      08/24/2010
 // ***********************************************************************
 
-#include "QRDescriptor.h"
+#include "qmscommon/QRDescriptor.h"
 
 #define THROW_EXCEPTION assertLogAndThrow(CAT_QR_DESC_GEN, LL_ERROR, FALSE, QRLogicException, "Method toItemExpr() called from server process.");
 

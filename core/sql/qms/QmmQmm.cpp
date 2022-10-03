@@ -23,10 +23,10 @@
 
 #include "QmmQmm.h"
 #include "QueryRewriteServer.h"
-#include "Ipc.h"
-#include "ComCextdecs.h"
-#include "ComRtUtils.h"
-#include "PortProcessCalls.h"
+#include "common/Ipc.h"
+#include "common/ComCextdecs.h"
+#include "common/ComRtUtils.h"
+#include "porting/PortProcessCalls.h"
 
 #ifdef NA_NSK
 extern "C" 
@@ -41,7 +41,7 @@ extern "C"
 }
 
 #else
-#include "cextdecs/cextdecs.h"
+//#include "cextdecs/cextdecs.h"
 #endif
 
 using namespace QR;

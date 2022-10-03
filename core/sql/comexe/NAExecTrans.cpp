@@ -33,9 +33,9 @@
 ****************************************************************************
 */
 
-#include "NAExecTrans.h"
-#include "sqlcli.h"
-#include "sql_id.h"
+#include "comexe/NAExecTrans.h"
+#include "cli/sqlcli.h"
+#include "cli/sql_id.h"
 
 //   return TRUE, if there is a transaction, transId will hold 
 //                transaction ID if passed in.

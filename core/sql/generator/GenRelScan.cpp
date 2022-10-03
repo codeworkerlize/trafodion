@@ -42,18 +42,18 @@
 #include "GroupAttr.h"
 #include "ControlDB.h"
 #include "GenExpGenerator.h"
-#include "ComTdbDDL.h"                  // for describe
-#include "ComTdbHbaseAccess.h"
+#include "comexe/ComTdbDDL.h"                  // for describe
+#include "comexe/ComTdbHbaseAccess.h"
 #include "HashRow.h"                    // for sizeof(HashRow)
-#include "sql_buffer.h"
-#include "sql_buffer_size.h"
+#include "executor/sql_buffer.h"
+#include "executor/sql_buffer_size.h"
 #include "OptimizerSimulator.h"
 #include "RelUpdate.h"
 
 #include "CmpSeabaseDDL.h"
-#include "TrafDDLdesc.h"
+#include "sqlcat/TrafDDLdesc.h"
 
-#include "SqlParserGlobals.h"   // Parser Flags
+#include "parser/SqlParserGlobals.h"   // Parser Flags
 #include "HBaseClient_JNI.h"
 
 /////////////////////////////////////////////////////////////////////

@@ -35,7 +35,7 @@
  *****************************************************************************
  */
 
-#include  "Platform.h"
+#include "common/Platform.h"
 #include  "cli_stdh.h"
 #include  "ex_stdh.h"
 

@@ -25,9 +25,9 @@
 #include "RelSample.h"
 #include "Generator.h"
 #include "GenExpGenerator.h"
-#include "ExpCriDesc.h"
-#include "ComTdbSample.h"
-#include "ExplainTupleMaster.h"
+#include "exp/ExpCriDesc.h"
+#include "comexe/ComTdbSample.h"
+#include "comexe/ExplainTupleMaster.h"
 
 // PhysSample::preCodeGen() -------------------------------------------
 // Perform local query rewrites such as for the creation and

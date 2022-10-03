@@ -33,9 +33,9 @@
 // ***********************************************************************
 
 #include "QmsMVCandidate.h"
-#include "QRDescriptor.h"
+#include "qmscommon/QRDescriptor.h"
 #include "QRMessage.h"
-#include "ComCextdecs.h"  // For NA_JulianTimestamp()
+#include "common/ComCextdecs.h"  // For NA_JulianTimestamp()
 
 using namespace QR;
 

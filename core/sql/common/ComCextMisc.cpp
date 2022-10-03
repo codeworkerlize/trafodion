@@ -1,43 +1,24 @@
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
 
-#include "seaquest/sqtypes.h"
-#include "Platform.h"
+
+#include "common/sqtypes.h"
+#include "common/Platform.h"
 #include "ComCextMisc.h"
 
 #include "seabed/ms.h"
 #include "seabed/fs.h"
 #include <string.h>
-#include "ComRtUtils.h"
+#include "common/ComRtUtils.h"
 
 typedef SB_Phandle_Type *PNSK_PORT_HANDLE;
 
 static short const          OMITSHORT         = -291;
 #ifdef __linux__
-__int64 const        OMIT__INT64       = 0xfedd000000000001LL;
+long const        OMIT__INT64       = 0xfedd000000000001LL;
 #else
-static __int64 const        OMIT__INT64       = -81909218222800895;
+static long const        OMIT__INT64       = -81909218222800895;
 #endif
 
-typedef _int64         NSKTIMESTAMP;
+typedef long long          NSKTIMESTAMP;
 typedef NSKTIMESTAMP * PNSKTIMESTAMP;
 
 #define MS_ADJ 11644473600LL // diff between mic epoch 1/1/1601 & 1/1/1970
@@ -60,7 +41,7 @@ const NSKTIMESTAMP  TANDEM_EPOCH        = 211024440000000000LL; // 1974/12/31  0
 static BOOL sv_envJulianTimestamp = FALSE;
 static BOOL sv_useLinuxJulianTimestamp = FALSE;
 
-BOOL GetMicroseconds( _int64 * t, short type = 0 );
+BOOL GetMicroseconds( long long  * t, short type = 0 );
 
 // *****************************************************************************
 // *                                                                           *
@@ -72,7 +53,7 @@ BOOL GetMicroseconds( _int64 * t, short type = 0 );
 // *                                                                           *
 // *  Parameters:                                                              *
 // *                                                                           *
-// *  <t>                       _int64 *                        Out            *
+// *  <t>                       long long  *                        Out            *
 // *    is a pointer to the location to store the requested time.              *
 // *                                                                           *
 // *  <type>                    short                           In             *
@@ -87,12 +68,12 @@ BOOL GetMicroseconds( _int64 * t, short type = 0 );
 // *                                                                           *
 // *****************************************************************************
 
-inline int CHECK_LIMIT_JTS( _int64 juliantimestamp )
+inline int CHECK_LIMIT_JTS( long long  juliantimestamp )
 {
 	return ((juliantimestamp < JTS_MIN) || (juliantimestamp > JTS_MAX));
 }
 
-BOOL GetMicroseconds( _int64 * t, short type )
+BOOL GetMicroseconds( long long  * t, short type )
 {
 
    static THREAD_P BOOL
@@ -107,25 +88,25 @@ BOOL GetMicroseconds( _int64 * t, short type )
    static THREAD_P double
       reasonableCounterDrift;
 
-   static THREAD_P unsigned _int64
+   static THREAD_P unsigned long long 
       baseCounter;
 
-   static THREAD_P unsigned _int64
+   static THREAD_P unsigned long long 
       baseMicroseconds;
 
-   static THREAD_P unsigned _int64
+   static THREAD_P unsigned long long 
       coldLoadMicroseconds;
 
-   static THREAD_P unsigned _int64
+   static THREAD_P unsigned long long 
       lastCounter;
 
-   static THREAD_P unsigned _int64
+   static THREAD_P unsigned long long 
       lastTime;
 
-   unsigned _int64
+   unsigned long long 
       currentTime;
 
-   unsigned _int64
+   unsigned long long 
       currentCounter;
 
    if (!initialized)
@@ -172,7 +153,7 @@ BOOL GetMicroseconds( _int64 * t, short type )
       baseMicroseconds     = lastTime / 10;
 
       coldLoadMicroseconds =   baseMicroseconds
-                             - ((_int64) (((double) ((_int64) baseCounter)) / microsecondsPerCounterTick));
+                             - ((long long ) (((double) ((long long ) baseCounter)) / microsecondsPerCounterTick));
 
       coldLoadMicroseconds = ((coldLoadMicroseconds + 500000) / 1000000) * 1000000;   // Round to clock precision.
 
@@ -188,8 +169,8 @@ BOOL GetMicroseconds( _int64 * t, short type )
 
    if (type == 2)
      {
-      *t = (_int64) (((double) ((_int64) currentCounter)) / microsecondsPerCounterTick);
-      *t = (_int64) ( currentCounter / microsecondsPerCounterTick );
+      *t = (long long ) (((double) ((long long ) currentCounter)) / microsecondsPerCounterTick);
+      *t = (long long ) ( currentCounter / microsecondsPerCounterTick );
      }
    else
       {
@@ -199,7 +180,7 @@ BOOL GetMicroseconds( _int64 * t, short type )
          {
          if ((currentTime < lastTime)      // Time must have been set back.
                 ||
-             (((double) ((_int64) (currentCounter - lastCounter)))
+             (((double) ((long long ) (currentCounter - lastCounter)))
                  >
               (counterResolutionToTimeResolution + reasonableCounterDrift)
              )
@@ -211,16 +192,16 @@ BOOL GetMicroseconds( _int64 * t, short type )
 
             coldLoadMicroseconds =
                  baseMicroseconds
-               - ((_int64) (((double) ((_int64)currentCounter)) / microsecondsPerCounterTick));
+               - ((long long ) (((double) ((long long )currentCounter)) / microsecondsPerCounterTick));
 
             coldLoadMicroseconds = ((coldLoadMicroseconds + 500000) / 1000000) * 1000000;   // Round to clock precision.
             }
          }
       else
          {
-         if (((double) ((_int64) (currentTime - lastTime)))
+         if (((double) ((long long ) (currentTime - lastTime)))
                  >
-             ((((double) ((_int64) (currentCounter - lastCounter))) + reasonableCounterDrift
+             ((((double) ((long long ) (currentCounter - lastCounter))) + reasonableCounterDrift
               ) / counterResolutionToTimeResolution
              )
             )
@@ -231,7 +212,7 @@ BOOL GetMicroseconds( _int64 * t, short type )
 
             coldLoadMicroseconds =
                  baseMicroseconds
-               - ((_int64) (((double) ((_int64)currentCounter)) / microsecondsPerCounterTick));
+               - ((long long ) (((double) ((long long )currentCounter)) / microsecondsPerCounterTick));
 
             coldLoadMicroseconds = ((coldLoadMicroseconds + 500000) / 1000000) * 1000000;   // Round to clock precision.
             }
@@ -257,11 +238,11 @@ BOOL GetMicroseconds( _int64 * t, short type )
 
 // CONVERTOLDTIMESTAMP takes a three-word timestamp and
 // converts it into a Julian timestamp.
-_int64 CONVERTOLDTIMESTAMP (short * threewordts)
+long long  CONVERTOLDTIMESTAMP (short * threewordts)
 {
    union
       {
-      _int64 juliants;
+      long long  juliants;
 
       struct
          {
@@ -283,13 +264,13 @@ _int64 CONVERTOLDTIMESTAMP (short * threewordts)
 
 extern "C"
 DLLEXPORT
-long INTERPRETTIMESTAMP (_int64 juliantimestamp, short * date_n_time)
+long INTERPRETTIMESTAMP (long long  juliantimestamp, short * date_n_time)
 
 //  INTERPRETTIMESTAMP converts a Julian timestamp to an array of integers
 //  representing the same Gregorian date and time of day.  It also returns
 //  (as its value) the Julian Day Number corresponding to that date.
 
-   // _int64 juliantimestamp;            // input,  required, any valid Julian timestamp
+   // long long  juliantimestamp;            // input,  required, any valid Julian timestamp
 
    // short date_n_time;                 // output, required, array [8],
                                          //         date_n_time [0] = year
@@ -385,7 +366,7 @@ long INTERPRETTIMESTAMP (_int64 juliantimestamp, short * date_n_time)
       {
       union
          {
-         _int64 quadpart;
+         long long  quadpart;
 
          struct
             {
@@ -399,7 +380,7 @@ long INTERPRETTIMESTAMP (_int64 juliantimestamp, short * date_n_time)
       {
       union
          {
-         _int64 quadpart;
+         long long  quadpart;
 
          struct
             {
@@ -439,7 +420,7 @@ long INTERPRETTIMESTAMP (_int64 juliantimestamp, short * date_n_time)
    // For explanation of the next two lines see comment a) from above
    jdnhh_64 = juliantimestamp / 3600000000LL;   // 60 * 60 * 1000 * 1000 usecs
 
-   mmssmmmuuu_64 = (((_int64) jdnhh_64) * (-((_int64) 3600000000LL))) + juliantimestamp;
+   mmssmmmuuu_64 = (((long long ) jdnhh_64) * (-((long long ) 3600000000LL))) + juliantimestamp;
 
    // For explanation of the next three lines see comment b) from above
    jdnhh = jdnhh + 12L;
@@ -450,7 +431,7 @@ long INTERPRETTIMESTAMP (_int64 juliantimestamp, short * date_n_time)
    mmss = (mmssmmmuuu / 1000000);
    minute = (unsigned short) (mmss / 60);
    second = (unsigned short) (mmss - (minute * 60));
-   mmmuuu = (unsigned long) ((((_int64) mmss) * (-1000000)) + mmssmmmuuu_64);
+   mmmuuu = (unsigned long) ((((long long ) mmss) * (-1000000)) + mmssmmmuuu_64);
 
    millis = (unsigned short) (mmmuuu / 1000);
    micros = (unsigned short) (mmmuuu - (millis * 1000));
@@ -519,7 +500,7 @@ void CONTIME( short * a, short t, short t1, short t2 )
   // short t1                 //   middle 16 bits
   // short t2                 //   high 16 bits
    {
-   _int64 jt;
+   long long  jt;
    short dnt[8];
    short copyt[3];
 
@@ -539,13 +520,13 @@ void CONTIME( short * a, short t, short t1, short t2 )
 }
 
 
-_int64 LCTBias2 (_int64                  GMTtime,
+long long  LCTBias2 (long long                   GMTtime,
                  short *                 CC
                 )
 {
    short     ldt[8];
    long      ljdn;
-   _int64    loffset64;
+   long long     loffset64;
    struct tm ltm;
    time_t    ltime;
    time_t    ltimegm;
@@ -595,7 +576,7 @@ _int64 LCTBias2 (_int64                  GMTtime,
 
 extern "C"
 DLLEXPORT
-_int64 CONVERTTIMESTAMP (_int64  timestamp,
+long long  CONVERTTIMESTAMP (long long   timestamp,
                                    short   direction,
                                    short   node,
                                    short * error
@@ -647,7 +628,7 @@ _int64 CONVERTTIMESTAMP (_int64  timestamp,
             {
             case 0:   // GMT->LCT
                {
-               _int64 LCT_bias;
+               long long  LCT_bias;
 
                short  cc_err = 0;
 
@@ -670,7 +651,7 @@ _int64 CONVERTTIMESTAMP (_int64  timestamp,
 
             case 2:   // LCT->GMT
                {
-               _int64 LCT_bias;
+               long long  LCT_bias;
 
                short  cc_err = 0;
 
@@ -708,7 +689,7 @@ void TIMESTAMP( short * a )
    short error = 0;
    union
       {
-      _int64 ftime;
+      long long  ftime;
 
       struct
          {
@@ -756,7 +737,7 @@ void TIME( short * a )
 
 extern "C"
 DLLEXPORT
-_int64 TIME_SINCE_COLDLOAD (void)
+long long  TIME_SINCE_COLDLOAD (void)
 //
 //  This procedure returns a four-word timestamp which is the
 //  number of microseconds since this processor was loaded.
@@ -764,7 +745,7 @@ _int64 TIME_SINCE_COLDLOAD (void)
 //  it is not affected by SetSystemTime or anything else.
 //
 {
-   _int64 microseconds;
+   long long  microseconds;
 
    GetMicroseconds (&microseconds, 2);
 
@@ -783,7 +764,7 @@ Int64 julianTimestampLinux()
 
 extern "C"
 DLLEXPORT
-_int64 JULIANTIMESTAMP (short   type,
+long long  JULIANTIMESTAMP (short   type,
                                   short * tuid,
                                   short * error,
                                   short   node
@@ -808,9 +789,9 @@ _int64 JULIANTIMESTAMP (short   type,
                                //             supplying a value)
                                //         Only -1 is currently accepted on NT.
 
-   // _int64 result            // output, the requested Julian timestamp
+   // long long  result            // output, the requested Julian timestamp
 {
-   _int64 time;
+   long long  time;
 
    if (type == OMITSHORT)
       type = 0;
@@ -843,7 +824,7 @@ _int64 JULIANTIMESTAMP (short   type,
             }
             
             if (!GetMicroseconds (&time, 0))
-               time = (_int64) -1;
+               time = (long long ) -1;
             else
                time = time + MICROSOFT_EPOCH;
 
@@ -853,7 +834,7 @@ _int64 JULIANTIMESTAMP (short   type,
          case 1:  // SYSTEM LOAD TIME
             {
             if (!GetMicroseconds (&time, 1))
-               time = (_int64) -1;
+               time = (long long ) -1;
             else
                time = time + MICROSOFT_EPOCH;
 
@@ -862,7 +843,7 @@ _int64 JULIANTIMESTAMP (short   type,
 
          case 2:  // SYSGEN TIME
             {
-            time = (_int64) -1;
+            time = (long long ) -1;
 
             break;
             }
@@ -876,18 +857,18 @@ _int64 JULIANTIMESTAMP (short   type,
 
          default: // TYPE parameter value error
             {
-            time = (_int64) -1;
+            time = (long long ) -1;
 
             break;
             }
          }
 
       if (error != 0)
-         *error = ((time == (_int64) -1) ? -1 : 0);
+         *error = ((time == (long long ) -1) ? -1 : 0);
       }
    else
       {
-      time = (_int64) -1;
+      time = (long long ) -1;
 
       if (error != 0)
          *error = -1;
@@ -900,7 +881,7 @@ _int64 JULIANTIMESTAMP (short   type,
 
 extern "C"
 DLLEXPORT
-int INTERPRETINTERVAL(_int64   time,        // INPUT,  REQUIRED - time in microseconds
+int INTERPRETINTERVAL(long long    time,        // INPUT,  REQUIRED - time in microseconds
 						short   *hours,       // OUTPUT, optional - hours
 						short   *minutes,     // OUTPUT, optional - minutes
 						short   *seconds,     // OUTPUT, optional - seconds
@@ -908,12 +889,12 @@ int INTERPRETINTERVAL(_int64   time,        // INPUT,  REQUIRED - time in micros
 						short   *microsecs)   // OUTPUT, optional - microseconds
 											  // returned value   - days or -1 for error
 {
-    _int64 microsecs_;
-    _int64 milsecs_;
-    _int64 seconds_;
-    _int64 minutes_;
-    _int64 hours_;
-    _int64 days_;
+    long long  microsecs_;
+    long long  milsecs_;
+    long long  seconds_;
+    long long  minutes_;
+    long long  hours_;
+    long long  days_;
 
     if (time < 0)
         return -1;          // time intervals can only be positive
@@ -1111,7 +1092,7 @@ long COMPUTEJULIANDAYNO (short year, short month, short day, short * error)
 
 extern "C"
 DLLEXPORT
-_int64 COMPUTETIMESTAMP (short * date_n_time, short * error)
+long long  COMPUTETIMESTAMP (short * date_n_time, short * error)
 // COMPUTETIMESTAMP computes a Julian timestamp from an integer array
 // that represents a Gregorian date and time of day.
 
@@ -1134,7 +1115,7 @@ _int64 COMPUTETIMESTAMP (short * date_n_time, short * error)
                                //         e.g., 0x8000, bit 31, indicates the
                                //         year was out of range.
 
-   // _int64 result            // output, a Julian timestamp equivalent to
+   // long long  result            // output, a Julian timestamp equivalent to
                                //         the value in date_n_time.
 {
    const short limits_set[16] = {    1,   1,   1,   0,   0,   0,   0,   0,
@@ -1186,7 +1167,7 @@ _int64 COMPUTETIMESTAMP (short * date_n_time, short * error)
                   | date_error;
          }
 
-      return ((_int64) -1);
+      return ((long long ) -1);
       }
 
    // The parameters passed all checks so let's announce a good
@@ -1203,10 +1184,10 @@ _int64 COMPUTETIMESTAMP (short * date_n_time, short * error)
    // see comments in INTERPRETTIMESTAMP to learn all about it.
    //
 
-   return (((((_int64) (jdn * 24L + ((unsigned long)(hour - 12)))) * 3600)
-            + ((_int64) (minute * 60 + second))
+   return (((((long long ) (jdn * 24L + ((unsigned long)(hour - 12)))) * 3600)
+            + ((long long ) (minute * 60 + second))
            ) * 1000000
-           + ((_int64) (((unsigned long) millis) * 1000L + ((unsigned long) micros)))
+           + ((long long ) (((unsigned long) millis) * 1000L + ((unsigned long) micros)))
           );
 
 #  undef year

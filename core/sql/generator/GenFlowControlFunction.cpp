@@ -33,7 +33,7 @@
 #include "ItmFlowControlFunction.h"
 #include "Generator.h"
 #include "GenExpGenerator.h"
-#include "exp_clause_derived.h"
+#include "exp/exp_clause_derived.h"
 
 // ItmDoWhileFunction::preCodeGen
 //

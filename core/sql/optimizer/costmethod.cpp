@@ -44,7 +44,7 @@
 #include "ItemSample.h"
 #include "opt.h"
 #include "EstLogProp.h"
-#include "DefaultConstants.h"
+#include "sqlcomp/DefaultConstants.h"
 #include "ItemOther.h"
 #include "ScanOptimizer.h"
 #include "NAFileSet.h"
@@ -56,7 +56,7 @@
 #include "NodeMap.h"
 #include <math.h>
 #include "OptimizerSimulator.h"
-#include "CmpStatement.h"
+#include "arkcmp/CmpStatement.h"
 
 //THREAD_P CostMethod* CostMethod::head_ = NULL;
 

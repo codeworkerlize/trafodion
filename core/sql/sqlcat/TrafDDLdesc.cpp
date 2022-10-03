@@ -22,8 +22,8 @@
 //
 **********************************************************************/
 
-#include "TrafDDLdesc.h"
-#include "CmpCommon.h"
+#include "sqlcat/TrafDDLdesc.h"
+#include "common/CmpCommon.h"
 #include "SQLTypeDefs.h"
 
 // -----------------------------------------------------------------------

@@ -39,6 +39,6 @@ void NAAbort__FPciT1(void){};
 extern "C"
 void __dl__13NABasicObjectSFPv(void){};
 
-#include "charinfo.h"
+#include "common/charinfo.h"
 CollationDB     CharInfo::builtinCollationDB_(0);
 CollationDBList CollationDB::CDBlist_;

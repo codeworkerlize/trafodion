@@ -37,8 +37,8 @@
 #include <stdio.h>
 #include <math.h>
 #include "VarInt.h"
-#include "str.h"
-#include "Int64.h"
+#include "common/str.h"
+#include "common/Int64.h"
 
 // ----------------------------------------------------------------------------
 // helper methods to pack and unpack

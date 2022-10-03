@@ -33,7 +33,7 @@
  *****************************************************************************
  */
 
-#include "ComExeTrace.h"
+#include "common/ComExeTrace.h"
 
 // must match with ExeTrace::FieldType, see ComExeTrace.h
 static const char * TraceFieldTypeName[] =

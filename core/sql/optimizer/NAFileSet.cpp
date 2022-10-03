@@ -38,12 +38,12 @@
 
 #include "Sqlcomp.h"
 #include "PartFunc.h"
-#include "ComSysUtils.h"
+#include "common/ComSysUtils.h"
 #include "NAFileSet.h"
 #include "opt.h"
 
 #include "CliSemaphore.h"
-#include "ExpHbaseDefs.h"
+#include "exp/ExpHbaseDefs.h"
 
 NAFileSet::NAFileSet(const QualifiedName & fileSetName,
 		     const QualifiedName & extFileSetObj,

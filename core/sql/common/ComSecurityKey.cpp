@@ -27,14 +27,14 @@
 // Contains helper function: qiCheckForInvalidKeys
 // ==========================================================================
 
-#include "ComSecurityKey.h"
+#include "common/ComSecurityKey.h"
 #include <bitset>
 #include <string>
 #include <vector>
 #include "exp_function.h"
-#include "ComDistribution.h"
+#include "common/ComDistribution.h"
 #include "ComUser.h"
-#include "PrivMgrDefs.h"
+#include "sqlcomp/PrivMgrDefs.h"
 
 // ****************************************************************************
 // function: qiSubjectMatchesRole

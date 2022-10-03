@@ -19,11 +19,11 @@
 //
 // @@@ END COPYRIGHT @@@
 
-#include "BloomFilter.h"
+#include "common/BloomFilter.h"
 #include "exp_function.h"
-#include "NAMemory.h"
-#include "ComASSERT.h"
-#include "ObjectNames.h"
+#include "common/NAMemory.h"
+#include "common/ComASSERT.h"
+#include "optimizer/ObjectNames.h"
 #include <math.h>
 #include <fstream>
 

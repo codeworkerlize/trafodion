@@ -30,7 +30,7 @@
 *
 **************************************************************************
 */
-#include "Collections.h"
+#include "common/Collections.h"
 
 // return # of failed. 0 means pass.
 Int32 getAll(NAHashDictionaryIteratorNoCopy<Int32, Int32>& itor)
@@ -276,7 +276,7 @@ int testDisable(HashBucketType& bucket, int& key)
    return failed + (!keyEnabled && bucket.isComplete()) ? 0 : 1;
 }
  
-#include "SharedCache.h"
+#include "sqlcomp/SharedCache.h"
 // test hash bucket failure is not fatal
 int testHashBucketFailureNotFatal()
 {

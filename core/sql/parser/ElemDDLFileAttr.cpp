@@ -35,12 +35,12 @@
  */
 
 #include "AllElemDDLFileAttr.h"
-#include "BaseTypes.h"
-#include "ComASSERT.h"
-#include "ComDiags.h"
+#include "common/BaseTypes.h"
+#include "common/ComASSERT.h"
+#include "export/ComDiags.h"
 #include "ComOperators.h"
 #define   SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
-#include "SqlParserGlobals.h"
+#include "parser/SqlParserGlobals.h"
 
 
 // -----------------------------------------------------------------------

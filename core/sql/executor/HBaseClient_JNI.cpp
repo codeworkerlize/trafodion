@@ -21,15 +21,15 @@
 // @@@ END COPYRIGHT @@@
 // **********************************************************************
 
-#include "Context.h"
-#include "Globals.h"
+#include "cli/Context.h"
+#include "cli/Globals.h"
 #include <signal.h>
 #include "HBaseClient_JNI.h"
-#include "QRLogger.h"
+#include "qmscommon/QRLogger.h"
 #include "pthread.h"
-#include "ComEncryption.h"
-#include "LateBindInfo.h"
-#include "ExStats.h"
+#include "common/ComEncryption.h"
+#include "comexe/LateBindInfo.h"
+#include "executor/ExStats.h"
 
 //
 // ===========================================================================

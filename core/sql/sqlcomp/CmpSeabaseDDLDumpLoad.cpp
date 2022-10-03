@@ -36,9 +36,9 @@
  */
 #include "CmpSeabaseDDLincludes.h"
 #include "RelExeUtil.h"
-#include "Globals.h"
-#include "Context.h"
-#include "fs/feerrors.h"
+#include "cli/Globals.h"
+#include "cli/Context.h"
+#include "common/feerrors.h"
 
 #include <sys/stat.h>
 #include <fstream>

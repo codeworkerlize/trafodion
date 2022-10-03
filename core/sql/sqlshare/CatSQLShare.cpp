@@ -47,10 +47,10 @@
 #include <time.h>
 #include <ctype.h>
 #include <limits.h>
-#include "PortProcessCalls.h"
+#include "porting/PortProcessCalls.h"
 #include <pthread.h>
 
-#include "cextdecs/cextdecs.h"
+//#include "cextdecs/cextdecs.h"
 #include "seabed/ms.h"
 #include "seabed/fs.h"
 #include "seabed/fserr.h"

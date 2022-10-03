@@ -5,10 +5,10 @@
 // @@@ END COPYRIGHT @@@
 
 #include "ComCGroup.h"
-#include "Ipc.h"
-#include "ComDiags.h"
-#include "Globals.h"
-#include "NAUserId.h"
+#include "common/Ipc.h"
+#include "export/ComDiags.h"
+#include "cli/Globals.h"
+#include "common/NAUserId.h"
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>

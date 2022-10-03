@@ -23,8 +23,8 @@
 #define _XOPEN_SOURCE_EXTENDED 1
 #include <stdlib.h>
 #include "ApplicationFile.h"
-#include "ComDiags.h"
-#include "DgBaseType.h"
+#include "export/ComDiags.h"
+#include "common/DgBaseType.h"
 #include "mxCompileUserModule.h"
 
 // create a temporary file and open it for write.

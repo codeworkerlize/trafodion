@@ -35,12 +35,12 @@
  *****************************************************************************
  */
 
-#include "Platform.h"
+#include "common/Platform.h"
 
-#include "BaseTypes.h"
+#include "common/BaseTypes.h"
 #include "NAError.h"
 #ifdef SQLPARSERGLOBALS_FLAGS
-#include "SqlParserGlobals.h"
+#include "parser/SqlParserGlobals.h"
 #else
 // stub out a method that is implemented in the parser
 //static void Set_SqlParser_Flags(unsigned long) {}
@@ -52,14 +52,14 @@
 #include "seabed/ms.h"
 extern void my_mpi_fclose();
 
-#include "str.h"
-#include "charinfo.h"
+#include "common/str.h"
+#include "common/charinfo.h"
 #include "SQLTypeDefs.h"
-#include "dfs2rec.h"
-#include "sqlcli.h"
-#include "ComSmallDefs.h"
+#include "common/dfs2rec.h"
+#include "cli/sqlcli.h"
+#include "common/ComSmallDefs.h"
 #include "CompException.h"
-#include "StmtCompilationMode.h"
+#include "parser/StmtCompilationMode.h"
 
 extern void releaseRTSSemaphore();  // Functions implemented in SqlStats.cpp
 

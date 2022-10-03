@@ -37,7 +37,7 @@
 #define   SQLPARSERGLOBALS_FLAGS        // must precede all #include's
 #define   SQLPARSERGLOBALS_NADEFAULTS
 
-#include "Platform.h"
+#include "common/Platform.h"
 
 #include <ctype.h>
 #include <iostream>
@@ -48,40 +48,40 @@
 #ifndef   SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #define   SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #endif
-#include "SqlParserGlobals.h"  // must be the last #include.
+#include "parser/SqlParserGlobals.h"  // must be the last #include.
 
-#include "CmpCommon.h"
-#include "CmpContext.h"
+#include "common/CmpCommon.h"
+#include "arkcmp/CmpContext.h"
 #include "CmpMain.h"
 #include "CmpErrors.h"
-#include "ComDiags.h"
+#include "export/ComDiags.h"
 #include "ComObjectName.h"
 #include "ComOperators.h"
-#include "ComSpace.h"
-#include "ComTdbRoot.h"
-#include "ComSmallDefs.h"
+#include "common/ComSpace.h"
+#include "comexe/ComTdbRoot.h"
+#include "common/ComSmallDefs.h"
 #include "ComUser.h"
 #include "ControlDB.h"
-#include "DatetimeType.h"
-#include "FragDir.h"
+#include "common/DatetimeType.h"
+#include "comexe/FragDir.h"
 #include "HeapLog.h"
 #include "parser.h"
-#include "RelControl.h"
+#include "optimizer/RelControl.h"
 #include "RelExpr.h"
 #include "RelExeUtil.h"
 #include "RelMisc.h"
 #include "RelRoutine.h"
-#include "RelScan.h"
-#include "sql_id.h"
+#include "optimizer/RelScan.h"
+#include "cli/sql_id.h"
 #include "Sqlcomp.h"
 #include "ItemOther.h"
 #include "NARoutine.h"
 #include "LmJavaSignature.h"
 #include "QueryText.h"
 #include "wstr.h"
-#include "SqlParserGlobals.h"
-#include "csconvert.h"
-#include "charinfo.h"
+#include "parser/SqlParserGlobals.h"
+#include "common/csconvert.h"
+#include "common/charinfo.h"
 #include "CmpDescribe.h"
 #include "CmpDDLCatErrorCodes.h"
 
@@ -89,15 +89,15 @@
 #include "CmpSeabaseDDLauth.h"
 #include "CmpSeabaseTenant.h"
 
-#include "PrivMgrCommands.h"
+#include "sqlcomp/PrivMgrCommands.h"
 #include "PrivMgrComponentPrivileges.h"
 
 #include "Analyzer.h"
-#include "ComSqlId.h"
-#include "ExExeUtilCli.h"
+#include "common/ComSqlId.h"
+#include "executor/ExExeUtilCli.h"
 #include "HBaseClient_JNI.h"
 #include "ExpHbaseInterface.h"
-#include "TrafDDLdesc.h"
+#include "sqlcat/TrafDDLdesc.h"
 #include "seabed/ms.h"
 #include "ExpSeqGen.h"
 

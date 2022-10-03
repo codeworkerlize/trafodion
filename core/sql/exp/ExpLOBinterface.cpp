@@ -27,12 +27,12 @@ using std::endl;
 #include <fstream>
 using std::ofstream;
 
-#include "Platform.h"
-#include "SQLCLIdev.h"
-#include "Context.h"
-#include "str.h"
-#include "ExpLOBinterface.h"
-#include "ex_globals.h"
+#include "common/Platform.h"
+#include "cli/SQLCLIdev.h"
+#include "cli/Context.h"
+#include "common/str.h"
+#include "exp/ExpLOBinterface.h"
+#include "executor/ex_globals.h"
 
 
 

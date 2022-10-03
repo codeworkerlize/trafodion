@@ -39,7 +39,7 @@
  */
 
 
-#include "Platform.h"
+#include "common/Platform.h"
 
 
 #include <iostream>
@@ -49,7 +49,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "NAString.h"
+#include "common/NAString.h"
 #include "ShellCmd.h"
 #include "sqlcmd.h"
 #include "SqlciError.h"

@@ -37,8 +37,8 @@
 
 // -----------------------------------------------------------------------
 
-#include "ComTdbTransaction.h"
-#include "ComTdbCommon.h"
+#include "comexe/ComTdbTransaction.h"
+#include "comexe/ComTdbCommon.h"
 
 /////////////////////////////////////////////////////////////////
 // class ComTdbTransaction, ExTransTcb, ExTransPrivateState

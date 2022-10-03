@@ -44,8 +44,8 @@
 
 #include "AllStmtDDLAlterTable.h"
 #include "StmtDDLAlterTableToggleConstraint.h"
-#include "BaseTypes.h"
-#include "ComASSERT.h"
+#include "common/BaseTypes.h"
+#include "common/ComASSERT.h"
 #include "ComOperators.h"
 #include "ElemDDLConstraint.h"
 #include "ElemDDLConstraintCheck.h"

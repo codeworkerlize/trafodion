@@ -40,10 +40,10 @@
  *****************************************************************************
  */
 
-#include "unicode_char_set.h"
-#include "BaseTypes.h"
+#include "common/unicode_char_set.h"
+#include "common/BaseTypes.h"
 
-#include "nawstring.h"
+#include "common/nawstring.h"
 
 // 4/10/98  Unicode char/string manipulations
 

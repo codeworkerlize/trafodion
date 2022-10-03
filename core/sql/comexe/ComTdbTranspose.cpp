@@ -35,8 +35,8 @@
 ****************************************************************************
 */
 
-#include "ComTdbTranspose.h"
-#include "ComTdbCommon.h"
+#include "comexe/ComTdbTranspose.h"
+#include "comexe/ComTdbCommon.h"
 
 //////////////////////////////////////////////////////////////////////////////
 //

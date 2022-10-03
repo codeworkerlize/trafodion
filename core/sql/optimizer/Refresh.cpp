@@ -44,9 +44,9 @@
 #include "BindWA.h"
 #include "GroupAttr.h"
 #include "parser.h"
-#include "StmtNode.h"
+#include "parser/StmtNode.h"
 #include "Inlining.h"
-#include "Triggers.h"
+#include "optimizer/Triggers.h"
 #include "MVInfo.h"
 #include "MVJoinGraph.h"
 #include "Refresh.h"
@@ -58,10 +58,10 @@
 #include <CmpMain.h>
 
 #ifdef NA_DEBUG_GUI
-#include "ComSqlcmpdbg.h"
+#include "common/ComSqlcmpdbg.h"
 #endif
 
-#include "SqlParserGlobals.h"		// must be last #include
+#include "parser/SqlParserGlobals.h"		// must be last #include
 
 
 // -----------------------------------------------------------------------

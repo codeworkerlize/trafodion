@@ -21,10 +21,10 @@
 // @@@ END COPYRIGHT @@@
 // **********************************************************************
 
-#include "Context.h"
-#include "Globals.h"
+#include "cli/Context.h"
+#include "cli/Globals.h"
 #include "MonarchClient_JNI.h"
-#include "QRLogger.h"
+#include "qmscommon/QRLogger.h"
 #include <signal.h>
 #include "pthread.h"
 #include "HBaseClient_JNI.h"

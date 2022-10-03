@@ -39,7 +39,7 @@
 
 #include "DefaultValidator.h"
 #include "Generator.h"
-#include "ComResourceInfo.h"
+#include "comexe/ComResourceInfo.h"
 #include "GenResources.h"
 #include "SchemaDB.h"
 #include <sys/stat.h>

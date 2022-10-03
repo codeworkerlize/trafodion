@@ -45,8 +45,8 @@
 #include "PhyProp.h"
 #include "Cost.h"
 #include "opt.h"
-#include "RelScan.h"
-#include "CmpStatement.h"
+#include "optimizer/RelScan.h"
+#include "arkcmp/CmpStatement.h"
 
 //<pb>
 // -----------------------------------------------------------------------

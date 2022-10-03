@@ -37,8 +37,8 @@
 
 #include <limits>
 #include <errno.h>
-#include "NAAssert.h"
-#include "NAWinNT.h" // where the headers are declared. Should be moved
+#include "common/NAAssert.h"
+#include "common/NAWinNT.h" // where the headers are declared. Should be moved
                      // to wstr.h later
 #include "wstr.h"
 

@@ -40,7 +40,7 @@
 #ifndef DISKPOOL_BASE_H
 #define DISKPOOL_BASE_H
 
-#include "Platform.h"
+#include "common/Platform.h"
 
 #include <iostream>
 #include <string.h>
@@ -49,7 +49,7 @@
 #include "Const.h"
 #include "CommonStructs.h"
 #include "CommonUtil.h"
-#include "NABasicObject.h"
+#include "export/NABasicObject.h"
 #include "SortError.h"
 #include "SortUtilCfg.h"
 

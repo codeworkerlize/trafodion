@@ -42,7 +42,7 @@
 #  ifndef   SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #  define   SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #  endif
-#include "SqlParserGlobals.h"
+#include "parser/SqlParserGlobals.h"
 // create an empty list of constant parameters
 ConstantParameters::ConstantParameters(NAHeap *h)
   : LIST(ConstantParameter*)(h)

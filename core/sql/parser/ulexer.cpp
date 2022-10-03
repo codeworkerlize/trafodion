@@ -36,7 +36,7 @@
 ******************************************************************************
 */
 
-#include "Platform.h"
+#include "common/Platform.h"
 
 #include <assert.h>
 #include <ctype.h>
@@ -65,7 +65,7 @@
 #define   SQLPARSERGLOBALS_NADEFAULTS
 #undef    SQLPARSERGLOBALS_NAMES_AND_TOKENS
 #define   SQLPARSERGLOBALS_NAMES_AND_TOKENS
-#include "SqlParserGlobals.h"
+#include "parser/SqlParserGlobals.h"
 
 // Forward references and includes for Y.tab.h (sqlparser.h)
 class DatetimeQualifier;
@@ -92,11 +92,11 @@ class IUDStatistics;
 class IntegerList;
 
 
-#include "CharType.h"
-#include "charinfo.h"
+#include "common/CharType.h"
+#include "common/charinfo.h"
 #include "conversionHex.h"
-#include "ComSmallDefs.h"
-#include "ComTransInfo.h"
+#include "common/ComSmallDefs.h"
+#include "common/ComTransInfo.h"
 #include "ComUnits.h"
 #include "HvTypes.h"
 #include "ElemDDLConstraintRI.h"
@@ -105,7 +105,7 @@ class IntegerList;
 #include "ElemDDLPassThroughParamDef.h"
 #include "ElemDDLQualName.h" // OZ
 #include "ElemDDLColRefArray.h"
-#include "RelScan.h"
+#include "optimizer/RelScan.h"
 #include "RelUpdate.h"
 #include "ItemLog.h"
 #include "StmtDMLSetTransaction.h"
@@ -138,7 +138,7 @@ extern THREAD_P NABoolean turnUnknownCharSetToISO88591;
 #include "ParKeyWords.h"
 #include "ulexer.h"
 #include "wstr.h"
-#include "str.h"
+#include "common/str.h"
 #include "CliSemaphore.h"
 
 #ifdef DEBUG

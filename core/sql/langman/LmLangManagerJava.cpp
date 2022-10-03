@@ -28,14 +28,14 @@
 //
 // @@@ END COPYRIGHT @@@
 **********************************************************************/
-#include "Platform.h"
+#include "common/Platform.h"
   #include <seabed/fs.h>
   #include <seabed/ms.h>
   #include "lmjni.h"
-#include "ComSmallDefs.h"
-#include "ComRtUtils.h"
-#include "sqlcli.h"
-#include "Globals.h"
+#include "common/ComSmallDefs.h"
+#include "common/ComRtUtils.h"
+#include "cli/sqlcli.h"
+#include "cli/Globals.h"
 
 #include "LmLangManagerJava.h"
 #include "LmJavaOptions.h"

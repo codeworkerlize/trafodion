@@ -41,6 +41,6 @@
 
 //#define MODULE_DEBUG
 
-#include "NLSConversion.h"
-#include "nawstring.h"
+#include "common/NLSConversion.h"
+#include "common/nawstring.h"
 

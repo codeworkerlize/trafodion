@@ -35,10 +35,10 @@
  *****************************************************************************
  */
 
-#include "ComASSERT.h"
+#include "common/ComASSERT.h"
 #include "ComOperators.h"
 #include "ElemDDLPrivActions.h"
-#include "NAString.h"
+#include "common/NAString.h"
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLPrivAct

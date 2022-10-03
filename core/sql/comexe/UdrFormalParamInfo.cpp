@@ -31,7 +31,7 @@
 ****************************************************************************
 */
 
-#include "UdrFormalParamInfo.h"
+#include "comexe/UdrFormalParamInfo.h"
 
 UdrFormalParamInfo::UdrFormalParamInfo(Int16 type,
                                        Int16 precision,

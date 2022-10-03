@@ -38,13 +38,13 @@
 
 // -----------------------------------------------------------------------
 
-#include "Platform.h"
+#include "common/Platform.h"
 #include "ex_stdh.h"
 #include "Ex_esp_msg.h"
-#include "LateBindInfo.h"
+#include "comexe/LateBindInfo.h"
 #include "timeout_data.h"  
-#include "NAUserId.h"
-#include "ComRtUtils.h"
+#include "common/NAUserId.h"
+#include "common/ComRtUtils.h"
 
 const char *getESPStreamTypeString(ESPMessageTypeEnum t)
 {

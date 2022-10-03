@@ -23,9 +23,9 @@
 
 #include <cstdlib>
 #include <ctime>
-#include "ComEncryption.h"
-#include "str.h"
-#include "ComCextdecs.h"
+#include "common/ComEncryption.h"
+#include "common/str.h"
+#include "common/ComCextdecs.h"
 
 const EVP_CIPHER * ComEncryption::encryptionAlgorithm[] = {
                               /* Enum value  Algorithm type   */

@@ -20,7 +20,7 @@
 //
 // @@@ END COPYRIGHT @@@
 **********************************************************************/
-#include "CharType.h"
+#include "common/CharType.h"
 
 NABoolean NAType::isComparable(const NAType &other, ItemExpr *parentOp,
                                Int32 emitErr) const

@@ -36,19 +36,19 @@
  *****************************************************************************
  */
 
-#include "Platform.h"
+#include "common/Platform.h"
 #include "cli_stdh.h"
 #include "ex_stdh.h"
 #include "ex_tcb.h"
 #include "ExExeUtil.h"
 #include "SessionDefaults.h"
-#include "exp_clause_derived.h"
-#include "sql_id.h"
-#include "SQLCLIdev.h"
-#include "charinfo.h"
-#include "ComRtUtils.h"
-#include "ComTdbExeUtil.h"
-#include "NLSConversion.h"
+#include "exp/exp_clause_derived.h"
+#include "cli/sql_id.h"
+#include "cli/SQLCLIdev.h"
+#include "common/charinfo.h"
+#include "common/ComRtUtils.h"
+#include "comexe/ComTdbExeUtil.h"
+#include "common/NLSConversion.h"
 
 #define SDEntry(sesDef, sesDefStr, datatype, isCQD, defTab, isSSD, ext) {sesDef, "" # sesDefStr "", datatype, isCQD, defTab, isSSD, ext}
 

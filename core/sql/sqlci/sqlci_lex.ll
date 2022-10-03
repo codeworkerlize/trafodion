@@ -48,13 +48,13 @@
  */
 
 
-#include "ComGuardianFileNameParts.h"
-#include "Platform.h"
+#include "common/ComGuardianFileNameParts.h"
+#include "common/Platform.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
 #include "SqlciCmd.h"
-#include "str.h"
+#include "common/str.h"
 #include "Sqlci.h"
 #define yylval sqlcilval
 #define yyerror sqlcierror

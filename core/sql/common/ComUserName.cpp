@@ -40,14 +40,14 @@
 #define  SQLPARSERGLOBALS_NADEFAULTS		// first
 
 #include <string.h>
-#include "ComASSERT.h"
-#include "ComMPLoc.h"
+#include "common/ComASSERT.h"
+#include "common/ComMPLoc.h"
 #include "ComUserName.h"
-#include "ComSqlText.h"
-#include "NAString.h"
+#include "common/ComSqlText.h"
+#include "common/NAString.h"
 #include "ComSchLevelOp.h"
 
-#include "SqlParserGlobals.h"			// last
+#include "parser/SqlParserGlobals.h"			// last
 
 
 //

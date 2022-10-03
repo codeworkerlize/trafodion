@@ -21,10 +21,10 @@
 // @@@ END COPYRIGHT @@@
 // **********************************************************************
 
-#include "JavaObjectInterface.h"
-#include "QRLogger.h"
-#include "Globals.h"
-#include "Context.h"
+#include "executor/JavaObjectInterface.h"
+#include "qmscommon/QRLogger.h"
+#include "cli/Globals.h"
+#include "cli/Context.h"
 #include "ComUser.h"
 #include "LmJavaOptions.h"
 #include "ex_ex.h"

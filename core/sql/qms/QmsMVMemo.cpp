@@ -33,7 +33,7 @@
 // ***********************************************************************
 
 #include "QmsMVMemo.h"
-#include "QRLogger.h"
+#include "qmscommon/QRLogger.h"
 
 //#define DEBUG_MVMEMO
 

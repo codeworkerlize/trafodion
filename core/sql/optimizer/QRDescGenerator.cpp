@@ -35,10 +35,10 @@
 #include "QRDescGenerator.h"
 #include "QRSharedPtr.h"
 #include "RelGrby.h"
-#include "NumericType.h"
+#include "common/NumericType.h"
 #include "ItemLog.h"
-#include "QRLogger.h"
-#include "QRExprElement.h"
+#include "qmscommon/QRLogger.h"
+#include "qmscommon/QRExprElement.h"
 #include "RelUpdate.h"
 
 const UInt32 QRDescGenerator::GENERATED_JBBID_START = 10000;

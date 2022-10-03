@@ -34,7 +34,7 @@
  */
 
 #include "sqludr.h"
-#include "Platform.h"
+#include "common/Platform.h"
 
 
 void SpInfoGetNextRow(char            *rowData,           //OUT

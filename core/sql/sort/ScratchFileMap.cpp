@@ -39,7 +39,7 @@
 */
 
 
-#include "Platform.h"
+#include "common/Platform.h"
 
 #include <iostream>
 #include <string.h>

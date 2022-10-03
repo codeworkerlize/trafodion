@@ -37,8 +37,8 @@
 
 // --------------------------------------------------------------------
 
-#include "ComTdbMj.h"
-#include "ComTdbCommon.h"
+#include "comexe/ComTdbMj.h"
+#include "comexe/ComTdbCommon.h"
 
 /////////////////////////////////////////////////////////////
 // Methods for class ComTdbMj

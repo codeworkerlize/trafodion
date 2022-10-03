@@ -37,9 +37,9 @@
 // -----------------------------------------------------------------------
 
 #include "CompositeType.h"
-#include "str.h"
-#include "ComDefs.h"
-#include "CmpCommon.h"
+#include "common/str.h"
+#include "common/ComDefs.h"
+#include "common/CmpCommon.h"
 
 // ***********************************************************************
 //

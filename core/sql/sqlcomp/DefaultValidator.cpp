@@ -32,23 +32,23 @@
 
 #define  SQLPARSERGLOBALS_NADEFAULTS
 #define  SQLPARSERGLOBALS_FLAGS
-#include "Platform.h"
+#include "common/Platform.h"
 
 #include <ctype.h>
 #include <stdio.h>
-#include "charinfo.h"
-#include "CmpCommon.h"
-#include "ComMPLoc.h"
+#include "common/charinfo.h"
+#include "common/CmpCommon.h"
+#include "common/ComMPLoc.h"
 #include "DefaultValidator.h"
-#include "ObjectNames.h"
+#include "optimizer/ObjectNames.h"
 #include "SchemaDB.h"
 #include "ComLocationNames.h"  // for ComIsGuardianVolumeNamePartValid()
-#include "ComSqlText.h" 
+#include "common/ComSqlText.h" 
 
-#include "ComSchemaName.h" // for ComSchemaName
+#include "common/ComSchemaName.h" // for ComSchemaName
 #include "BindWA.h"        // for extractOverrideSchemas()
 
-#include "SqlParserGlobals.h"			// must be last
+#include "parser/SqlParserGlobals.h"			// must be last
 
 
 #define ERRWARN(msg)    ToErrorOrWarning(msg, errOrWarn)

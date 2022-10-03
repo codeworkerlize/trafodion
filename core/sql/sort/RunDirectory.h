@@ -92,7 +92,7 @@
 // -----------------------------------------------------------------------
 
 #include "Const.h"
-#include "NABasicObject.h"
+#include "export/NABasicObject.h"
 #include "SortError.h"
 
 struct RunDirectoryEntry; 

@@ -36,11 +36,11 @@
 // -----------------------------------------------------------------------
 // functions for the NACollection<T> template
 // -----------------------------------------------------------------------
-#include "Platform.h"
+#include "common/Platform.h"
 
-  #include "Collections.h"
+#include "common/Collections.h"
 
-#include "fixupVTable.h"
+#include "common/fixupVTable.h"
 
 
 template <class T> NACollection<T>::~NACollection()

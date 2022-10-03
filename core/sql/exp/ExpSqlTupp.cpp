@@ -34,12 +34,12 @@
 ****************************************************************************
 */
 
-#include "Platform.h"
+#include "common/Platform.h"
 
 
-#include "ComPackDefs.h"
-#include "ExpSqlTupp.h"
-#include "str.h"
+#include "comexe/ComPackDefs.h"
+#include "exp/ExpSqlTupp.h"
+#include "common/str.h"
 
 tupp::tupp()			// constructor
 {

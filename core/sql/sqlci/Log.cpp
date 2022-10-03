@@ -41,11 +41,11 @@
 #include <ctype.h>
 #include <iostream>
 #include <errno.h>  
-#include "Platform.h"
+#include "common/Platform.h"
 
 #include "SqlciCmd.h"
 #include "SqlciError.h"
-#include "str.h"
+#include "common/str.h"
 
 Logfile::Logfile()
 {

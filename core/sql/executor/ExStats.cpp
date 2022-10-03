@@ -36,19 +36,19 @@
  *****************************************************************************
  */
 
-#include "Platform.h"
-#include "PortProcessCalls.h"
+#include "common/Platform.h"
+#include "porting/PortProcessCalls.h"
 
   #define FAILURE { ex_assert(FALSE, "Invalid SqlBuffer"); }
 
 #include <stdio.h>
 
-#include "NAStdlib.h"
+#include "common/NAStdlib.h"
 
-#include "str.h"
+#include "common/str.h"
 #include "cli_stdh.h"
-#include "sql_id.h"
-#include "Statement.h"
+#include "cli/sql_id.h"
+#include "cli/Statement.h"
 
 #include <float.h>
 
@@ -56,28 +56,28 @@
 
 #include "ExCextdecs.h"
 #include "ex_stdh.h"
-#include "ComTdb.h"
-#include "ComTdbUdr.h"
-#include "ComTdbSplitTop.h"
-#include "ComTdbExeUtil.h"
-#include "ComTdbHbaseAccess.h"
+#include "comexe/ComTdb.h"
+#include "comexe/ComTdbUdr.h"
+#include "comexe/ComTdbSplitTop.h"
+#include "comexe/ComTdbExeUtil.h"
+#include "comexe/ComTdbHbaseAccess.h"
 #include "ex_exe_stmt_globals.h"
-#include "exp_clause_derived.h"
-#include "Int64.h"
-#include "ComQueue.h"
-#include "ExStats.h"
-#include "str.h"
-#include "ssmpipc.h"
+#include "exp/exp_clause_derived.h"
+#include "common/Int64.h"
+#include "comexe/ComQueue.h"
+#include "executor/ExStats.h"
+#include "common/str.h"
+#include "runtimestats/ssmpipc.h"
 #include "rts_msg.h"
-#include "ComSqlId.h"
-#include "ComRtUtils.h"
-#include "Statement.h"
-#include "ComTdbRoot.h"
-#include "ComDistribution.h"
+#include "common/ComSqlId.h"
+#include "common/ComRtUtils.h"
+#include "cli/Statement.h"
+#include "comexe/ComTdbRoot.h"
+#include "common/ComDistribution.h"
 #include "ex_hashj.h"
 #include "ex_sort.h"
 #include "ex_hash_grby.h"
-#include "ComTdbQI.h"
+#include "comexe/ComTdbQI.h"
 
 #include <unistd.h>
 #include <errno.h>

@@ -1,9 +1,9 @@
 
 
-#include "ComTdbExeUtil.h"
-#include "ComTdbCommon.h" 
-#include "ComSmallDefs.h"
-#include "ExpLOBinterface.h"
+#include "comexe/ComTdbExeUtil.h"
+#include "comexe/ComTdbCommon.h" 
+#include "common/ComSmallDefs.h"
+#include "exp/ExpLOBinterface.h"
 
 ///////////////////////////////////////////////////////////////////////////
 //

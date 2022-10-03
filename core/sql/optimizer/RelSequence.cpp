@@ -43,7 +43,7 @@
 #include "Cost.h"
 #include "CostMethod.h"
 #include "opt.h"
-#include "Globals.h"
+#include "cli/Globals.h"
 
 // -----------------------------------------------------------------------
 // This file contains most of the methods for the class RelSequence

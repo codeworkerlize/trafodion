@@ -39,7 +39,7 @@
 ******************************************************************************
 */
 #include "RuSQLStatementContainer.h"
-#include "ComVersionDefs.h"
+#include "common/ComVersionDefs.h"
 
 //------------------------------------------------------------------//
 //	CRUSQLStaticStatementContainer

@@ -42,20 +42,20 @@
 //
 
 #include "ex_stdh.h"
-#include "ComTdb.h"
+#include "comexe/ComTdb.h"
 #include "ex_tcb.h"
 #include "ex_hash_grby.h"
-#include "ex_expr.h"
+#include "executor/ex_expr.h"
 #include "ExSimpleSqlBuffer.h"
 #include "ExTrieTable.h"
 #include "ExBitMapTable.h"
-#include "ExStats.h"
+#include "executor/ExStats.h"
 #include "ex_error.h"
 #include "ex_exe_stmt_globals.h"
-#include "memorymonitor.h"
-#include "logmxevent.h"
+#include "cli/memorymonitor.h"
+#include "sqlmxevents/logmxevent.h"
 
-#include "sql_buffer_size.h"
+#include "executor/sql_buffer_size.h"
 
 //////////////////////////////////////////////////////////////////////////////
 //

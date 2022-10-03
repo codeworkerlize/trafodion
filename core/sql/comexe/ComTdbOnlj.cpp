@@ -35,8 +35,8 @@
 ****************************************************************************
 */
 
-#include "ComTdbOnlj.h"
-#include "ComTdbCommon.h"
+#include "comexe/ComTdbOnlj.h"
+#include "comexe/ComTdbCommon.h"
 
 /////////////////////////////////////////////////////////////////////////
 //

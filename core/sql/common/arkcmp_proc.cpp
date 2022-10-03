@@ -37,7 +37,7 @@
  */
 
 
-#include "Platform.h"
+#include "common/Platform.h"
 #include "NewDel.h"
 #include <fstream>
 #include <string.h>
@@ -50,29 +50,29 @@ extern void my_mpi_fclose();
 DEFINE_DOVERS(tdm_arkcmp)
 
 
-#include "CmpMessage.h"
+#include "comexe/CmpMessage.h"
 #include "CmpConnection.h"
-#include "CmpContext.h"
-#include "CmpCommon.h"
+#include "arkcmp/CmpContext.h"
+#include "common/CmpCommon.h"
 #include "CmpStoredProc.h"
 #include "CmpErrLog.h"
 #include "CompException.h"
 // #include "StaticCompiler.h"
-#include "logmxevent.h"
+#include "sqlmxevents/logmxevent.h"
 #include "QCache.h"
 #include "QueryCacheSt.h"
 #include "NATableSt.h"
-#include "ComCextdecs.h"
+#include "common/ComCextdecs.h"
 
 #define CLI_DLL
-#include "SQLCLIdev.h"
+#include "cli/SQLCLIdev.h"
 #undef CLI_DLL
 
-#include "EHException.h"
+#include "eh/EHException.h"
 #include "CmpEHCallBack.h"
 
-#include "ObjectNames.h"
-#include "Globals.h"
+#include "optimizer/ObjectNames.h"
+#include "cli/Globals.h"
 #include "CliSemaphore.h"
 
 ostream &operator<<(ostream &dest, const ComDiagsArea& da);

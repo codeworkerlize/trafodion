@@ -35,17 +35,17 @@
 */
 
 // -----------------------------------------------------------------------
-#include "NAAssert.h"
-#include "ExprNode.h"
-#include "OperTypeEnum.h"
-#include "Collections.h"
-#include "NAType.h"
+#include "common/NAAssert.h"
+#include "common/ExprNode.h"
+#include "common/OperTypeEnum.h"
+#include "common/Collections.h"
+#include "common/NAType.h"
 #include "AllItemExpr.h"
 #include "SearchKey.h"
 #include "PartFunc.h"
 #include "NAColumn.h"
 #include "NATable.h"
-#include "NumericType.h"
+#include "common/NumericType.h"
 
 #include "OptRange.h"
 #include "GroupAttr.h"

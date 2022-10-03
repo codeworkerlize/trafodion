@@ -49,14 +49,14 @@
 #include "ColIndList.h"
 #include "ChangesTable.h"
 #include "ElemDDLStoreOptions.h"
-#include "QRDescriptor.h"
+#include "qmscommon/QRDescriptor.h"
 #include "QueryRewriteHandler.h"
 
 #if !TEXT_IS_SELECT_ONLY
 #include "StmtDDLCreateMV.h"
 #endif
 
-#include "SqlParserGlobals.h"		// must be last #include
+#include "parser/SqlParserGlobals.h"		// must be last #include
 
 #include "NormWA.h"
 

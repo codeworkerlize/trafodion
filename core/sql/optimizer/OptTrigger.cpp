@@ -46,7 +46,7 @@
 #include "GroupAttr.h"
 #include "AllItemExpr.h"
 #include "AllRelExpr.h"
-#include "Triggers.h"
+#include "optimizer/Triggers.h"
 #include "OptTrigger.h"
 #include "BindWA.h"
 #include "ItemSample.h"

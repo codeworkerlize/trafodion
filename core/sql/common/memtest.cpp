@@ -30,7 +30,7 @@
 //  by regress/core/TESTMEM and increase the regression runtime substantially.
 //
 //-------------------------------------------------------------------------
-#include "NAMemory.h"
+#include "common/NAMemory.h"
 #include <fstream>
 #include <unistd.h>
 #include <ios>

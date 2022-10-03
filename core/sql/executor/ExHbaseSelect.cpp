@@ -21,17 +21,17 @@
 // @@@ END COPYRIGHT @@@
 // **********************************************************************
 
-#include "Platform.h"
+#include "common/Platform.h"
 
 #include "ex_stdh.h"
-#include "Context.h"
-#include "ComTdb.h"
+#include "cli/Context.h"
+#include "comexe/ComTdb.h"
 #include "ex_tcb.h"
 #include "ExHbaseAccess.h"
 #include "ex_exe_stmt_globals.h"
 #include "exp_function.h"
 
-#include "ExpLOBinterface.h"
+#include "exp/ExpLOBinterface.h"
 
 #include "SQLTypeDefs.h"
 

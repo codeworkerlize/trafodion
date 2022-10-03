@@ -36,7 +36,7 @@
 *****************************************************************************
 */
 
-#include "Platform.h"
+#include "common/Platform.h"
 #include <fstream>
 #include <iostream>
 
@@ -45,11 +45,11 @@
 
 static pthread_t gv_main_thread_id;
 
-#include "NAMemory.h"
-#include "ComTransInfo.h"
+#include "common/NAMemory.h"
+#include "common/ComTransInfo.h"
 #include "udrserv.h"
 #include "UdrStreams.h"
-  #include "ComDiags.h"
+  #include "export/ComDiags.h"
 #include "udrdecs.h"
 #include "ErrorMessage.h"
 #include "UdrFFDC.h"
@@ -57,13 +57,13 @@ static pthread_t gv_main_thread_id;
 #include "UdrAbortCallBack.h"
 #include "LmJavaOptions.h"
 #include "UdrCfgParser.h"
-#include "ComRtUtils.h"
+#include "common/ComRtUtils.h"
 #include "LmLangManagerJava.h"
 #include "LmLangManagerC.h"
 #include "LmRoutine.h"
-#include "ComDefs.h"
+#include "common/ComDefs.h"
 #include "sqludr.h"
-#include "NAUserId.h"
+#include "common/NAUserId.h"
 
 #include "SCMVersHelp.h"
 DEFINE_DOVERS(tdm_udrserv)
@@ -2492,8 +2492,8 @@ void udrAbort(const char *f, Int32 l, const char *m)
 
 // Stubs
 #ifdef UDR_OSS_RELEASE
-#include "CharType.h"
-#include "NAType.h"
+#include "common/CharType.h"
+#include "common/NAType.h"
 
 NABoolean NAType::isComparable(const NAType &other,
 			       ItemExpr *parentOp,

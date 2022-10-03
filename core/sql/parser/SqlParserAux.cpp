@@ -48,18 +48,18 @@
 #define   SQLPARSERGLOBALS_NADEFAULTS
 #define   SQLPARSERGLOBALS_NAMES_AND_TOKENS
 #define   SQLPARSERGLOBALS_FLAGS
-#include "SqlParserGlobals.h"
+#include "parser/SqlParserGlobals.h"
 #include "SqlParserAux.h"
 
 #include <errno.h>
 #include "AllItemExpr.h"
 #include "CompositeType.h"
-#include "MiscType.h"
-#include "NumericType.h"
+#include "common/MiscType.h"
+#include "common/NumericType.h"
 #include "ParserMsg.h"
 #include "SqlciError.h"
 #include "wstr.h"
-#include "nawstring.h"
+#include "common/nawstring.h"
 
 
 // Forward references and includes for Y.tab.h (SqlParser.h)
@@ -67,9 +67,9 @@ class ExprNodePtrList;
 class ForUpdateSpec;
 class IntervalQualifier;
 class PairOfUnsigned;
-#include "CharType.h"
-#include "ComSmallDefs.h"
-#include "ComTransInfo.h"
+#include "common/CharType.h"
+#include "common/ComSmallDefs.h"
+#include "common/ComTransInfo.h"
 #include "ComUnits.h"
 #include "HvTypes.h"
 #include "ElemDDLConstraintRI.h"
@@ -77,12 +77,12 @@ class PairOfUnsigned;
 #include "ElemDDLParamName.h"
 #include "AllElemDDL.h"
 #include "AllStmtDDL.h"
-#include "RelScan.h"
+#include "optimizer/RelScan.h"
 #include "RelUpdate.h"
 #include "RelSequence.h"
 #include "RelExeUtil.h"
 #include "StmtDMLSetTransaction.h"
-#include "exp_clause_derived.h"
+#include "exp/exp_clause_derived.h"
 #include <sqlparser.h> // Angled-brackets are intentional here
 
 const UInt32 SHORT_MAX =  32767;

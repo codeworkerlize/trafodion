@@ -39,12 +39,12 @@
  *****************************************************************************
  */
 
-#include "Platform.h"
+#include "common/Platform.h"
 #include "ComOperators.h"
-#include "ComASSERT.h"
-#include "NLSConversion.h"
-#include "charinfo.h"
-#include "csconvert.h"
+#include "common/ComASSERT.h"
+#include "common/NLSConversion.h"
+#include "common/charinfo.h"
+#include "common/csconvert.h"
 cnv_charset convertCharsetEnum (Int32 inset)
 {
  switch(inset){ 

@@ -35,12 +35,12 @@
 */
 
 #include "conversionHex.h"
-#include "NAString.h"
-#include "nawstring.h"
-#include "ComASSERT.h"
+#include "common/NAString.h"
+#include "common/nawstring.h"
+#include "common/ComASSERT.h"
 #include "SQLTypeDefs.h"
-#include "str.h"
-#include "csconvert.h"
+#include "common/str.h"
+#include "common/csconvert.h"
 
 // a helper function converting a hexdecimal digit to its value
 static

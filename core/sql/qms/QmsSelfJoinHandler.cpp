@@ -33,7 +33,7 @@
 // ***********************************************************************
 
 #include "QmsSelfJoinHandler.h"
-#include "QRLogger.h"
+#include "qmscommon/QRLogger.h"
 
 //========================================================================
 //  Class Array2D

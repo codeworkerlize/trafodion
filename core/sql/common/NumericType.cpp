@@ -34,12 +34,12 @@
 **************************************************************************
 */
 
-#include "Platform.h"
-#include "NumericType.h"
-#include "Int64.h"
+#include "common/Platform.h"
+#include "common/NumericType.h"
+#include "common/Int64.h"
 #include "float.h"
-#include "str.h"
-#include "exp_clause_derived.h"
+#include "common/str.h"
+#include "exp/exp_clause_derived.h"
 
 
 #define NAME_BUF_LEN 100

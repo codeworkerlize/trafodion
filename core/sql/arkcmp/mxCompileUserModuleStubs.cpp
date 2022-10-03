@@ -29,7 +29,7 @@
   #endif
   #include "platform.h"
   #include "nsk/nskport.h"
-  #include "fs/feerrors.h"
+  #include "common/feerrors.h"
 _declspec(dllexport) PCHAR NSKGetRegKeyServerWarePath()
 { return NULL; }
 
@@ -57,21 +57,21 @@ extern "C" _declspec(dllexport) short FILE_GETINFOLISTBYNAME_
   return 0;
 }
 
-extern "C" _declspec(dllexport) _int64   COMPUTETIMESTAMP (short   *date_n_time, //IN
+extern "C" _declspec(dllexport) long long    COMPUTETIMESTAMP (short   *date_n_time, //IN
                                                  short   *error)       //OUT OPTIONAL
 {
   return 0;
 }
 ;
 
-extern "C" _declspec(dllexport) int INTERPRETTIMESTAMP (_int64 juliantimestamp, //IN
+extern "C" _declspec(dllexport) int INTERPRETTIMESTAMP (long long  juliantimestamp, //IN
                                                         short  *date_n_time)    //OUT
 {
   return 0;
 }
 ;
 
-extern "C" _declspec(dllexport) _int64 JULIANTIMESTAMP (short type,
+extern "C" _declspec(dllexport) long long  JULIANTIMESTAMP (short type,
                                                         short *tuid,
                                                         short *error,
                                                         short node)

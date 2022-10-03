@@ -39,18 +39,18 @@
 // -----------------------------------------------------------------------
 
 #include "GenMapTable.h"
-#include "FragmentDir.h"
-#include "ComSpace.h"
-#include "exp_clause.h"
-#include "str.h"
-#include "Int64.h"
-#include "ComTransInfo.h"
-#include "NABasicObject.h"
-#include "SqlTableOpenInfo.h"
-#include "ComTdb.h"
+#include "comexe/FragmentDir.h"
+#include "common/ComSpace.h"
+#include "exp/exp_clause.h"
+#include "common/str.h"
+#include "common/Int64.h"
+#include "common/ComTransInfo.h"
+#include "export/NABasicObject.h"
+#include "comexe/SqlTableOpenInfo.h"
+#include "comexe/ComTdb.h"
 #include "OptUtilIncludes.h"
-#include "ComTdbStats.h"
-#include "ComTdbHbaseAccess.h"
+#include "comexe/ComTdbStats.h"
+#include "comexe/ComTdbHbaseAccess.h"
 
 class ExprNode;
 class ExpGenerator;

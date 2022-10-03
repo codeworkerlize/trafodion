@@ -45,11 +45,11 @@
 #define   SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #endif
 #define   SQLPARSERGLOBALS_NADEFAULTS
-#include "SqlParserGlobals.h"
+#include "parser/SqlParserGlobals.h"
 
 #include "ComOperators.h"
-#include "ComSmallDefs.h"
-#include "CmpContext.h"
+#include "common/ComSmallDefs.h"
+#include "arkcmp/CmpContext.h"
 #include "ElemDDLConstraintCheck.h"
 #include "StmtDDLCreateView.h"
 #include "StmtDDLCreateTrigger.h"

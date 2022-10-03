@@ -40,13 +40,13 @@
 */
 
 #include "Generator.h"
-#include "exp_expr.h"
+#include "exp/exp_expr.h"
 #include "GenMapTable.h"
-#include "ComSpace.h"
-#include "exp_tuple_desc.h"
+#include "common/ComSpace.h"
+#include "exp/exp_tuple_desc.h"
 #include "parser.h"
-#include "ComKeyRange.h"
-#include "charinfo.h"
+#include "comexe/ComKeyRange.h"
+#include "common/charinfo.h"
 
 class RETDesc;
 class IndexDesc;

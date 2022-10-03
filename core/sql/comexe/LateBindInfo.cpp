@@ -35,15 +35,15 @@
 ****************************************************************************
 */
 
-#include "ComPackDefs.h"
-#include "LateBindInfo.h"
-#include "NAMemory.h"
-#include "str.h"
-#include "exp_stdh.h"
-#include "exp_tuple_desc.h"
-#include "ComQueue.h"
-#include "ComResWords.h"
-#include "ComDistribution.h"
+#include "comexe/ComPackDefs.h"
+#include "comexe/LateBindInfo.h"
+#include "common/NAMemory.h"
+#include "common/str.h"
+#include "exp/exp_stdh.h"
+#include "exp/exp_tuple_desc.h"
+#include "comexe/ComQueue.h"
+#include "common/ComResWords.h"
+#include "common/ComDistribution.h"
 
 //////////////////////////////////////////////////////////////////
 //    Constructor: UninitializedMvName

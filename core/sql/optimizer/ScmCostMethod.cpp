@@ -45,7 +45,7 @@
 #include "ItemSample.h"
 #include "opt.h"
 #include "EstLogProp.h"
-#include "DefaultConstants.h"
+#include "sqlcomp/DefaultConstants.h"
 #include "ItemOther.h"
 #include "ScanOptimizer.h"
 #include "SimpleScanOptimizer.h"
@@ -55,7 +55,7 @@
 #include "Cost.h"
 #include "NodeMap.h"
 
-#include "CmpStatement.h"
+#include "arkcmp/CmpStatement.h"
 #include "sqludr.h"
 #include "AppliedStatMan.h"
 #include <math.h>

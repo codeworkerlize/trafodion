@@ -21,16 +21,16 @@
 // @@@ END COPYRIGHT @@@
 **********************************************************************/
 
-#include "ComCextdecs.h"
-#include "ComGuardianFileNameParts.h"
+#include "common/ComCextdecs.h"
+#include "common/ComGuardianFileNameParts.h"
 
-#include "ComASSERT.h"
+#include "common/ComASSERT.h"
 
   #ifndef __DERROR__
-    #include "fs/feerrors.h"
+    #include "common/feerrors.h"
   #endif //__DERROR
 
-#include "str.h"
+#include "common/str.h"
 //-------------------------------------------------------------------
 //
 //  Helper functions
@@ -39,10 +39,10 @@
 
 // Only know about one node on NT: \NSK, with node number zero.
 // Also, support local (-1) and default (-2) node (both of which are \NSK).
-__int64 ComGetNodeNameAsInt64 (const Int32 nodeNumber)
+long ComGetNodeNameAsInt64 (const Int32 nodeNumber)
 {
   ComASSERT (nodeNumber <= 0); 
-  __int64 nodeNameAsInt64 = 0;
+  long nodeNameAsInt64 = 0;
   strcpy ((char *)&nodeNameAsInt64, "\\NSK");
   return nodeNameAsInt64;
 }

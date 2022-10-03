@@ -37,11 +37,11 @@
 
 // -----------------------------------------------------------------------
 
-#include "FragDir.h"
-#include "ComPackDefs.h"
-#include "PartInputDataDesc.h"
-#include "Ipc.h"
-#include "trafconf/trafconfig.h"
+#include "comexe/FragDir.h"
+#include "comexe/ComPackDefs.h"
+#include "comexe/PartInputDataDesc.h"
+#include "common/Ipc.h"
+#include "common/trafconfig.h"
 static const int nodeNameLen = TC_PROCESSOR_NAME_MAX;//defined in trafconf/trafconfig.h
 
 ExFragDir::ExFragDir(Lng32 entries, Space *space,

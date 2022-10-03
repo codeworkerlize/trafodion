@@ -35,26 +35,26 @@
  *****************************************************************************
  */
 
-#include "Platform.h"
+#include "common/Platform.h"
 
 #include "ex_stdh.h"
-#include "memorymonitor.h"
+#include "cli/memorymonitor.h"
 #include "ex_exe_stmt_globals.h"
 #include "ex_esp_frag_dir.h"
-#include "ComTdb.h"
+#include "comexe/ComTdb.h"
 #include "ex_tcb.h"
 #include "ex_split_bottom.h"
 #include "ex_send_bottom.h"
 #include "NAExit.h"
 #include "ExSqlComp.h"
-#include "Globals.h"
-#include "Int64.h"
-#include "SqlStats.h"
+#include "cli/Globals.h"
+#include "common/Int64.h"
+#include "runtimestats/SqlStats.h"
 #include "ComUser.h"
-#include "ExpError.h"
-#include "ComSqlId.h"
-#include "PortProcessCalls.h"
-#include "cextdecs/cextdecs.h"
+#include "exp/ExpError.h"
+#include "common/ComSqlId.h"
+#include "porting/PortProcessCalls.h"
+//#include "cextdecs/cextdecs.h"
 #include "security/dsecure.h"
 #define psecure_h_including_section
 #define psecure_h_security_psb_get_
@@ -70,12 +70,12 @@ extern void my_mpi_fclose();
 #include "SCMVersHelp.h"
 DEFINE_DOVERS(tdm_arkesp)
 
-#include "NAStdlib.h"
+#include "common/NAStdlib.h"
 
 #include "rosetta/rosgen.h"
 
-#include "Context.h"
-#include "StmtCompilationMode.h"
+#include "cli/Context.h"
+#include "parser/StmtCompilationMode.h"
 
 // -----------------------------------------------------------------------
 // ESP control connection, handle system messages
@@ -84,7 +84,7 @@ DEFINE_DOVERS(tdm_arkesp)
 #include "rosetta/rosgen.h"
 #include "nsk/nskprocess.h"
 #include "zsysc.h"
-#include "QRLogger.h"
+#include "qmscommon/QRLogger.h"
 #include <sys/syscall.h>
 
 class EspGuaControlConnection : public GuaReceiveControlConnection

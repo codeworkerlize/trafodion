@@ -37,12 +37,12 @@
 
 // -----------------------------------------------------------------------
 
-#include "Platform.h"
+#include "common/Platform.h"
 
-#include "exp_stdh.h"
-#include "exp_clause_derived.h"
+#include "exp/exp_stdh.h"
+#include "exp/exp_clause_derived.h"
 #include "exp_datetime.h"
-#include "ComSysUtils.h"
+#include "common/ComSysUtils.h"
 #include "exp_bignum.h"
 
 #include "exp_ovfl_ptal.h"

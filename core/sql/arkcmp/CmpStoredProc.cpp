@@ -41,29 +41,29 @@
 #define SQLPARSERGLOBALS_NADEFAULTS
 
 #include "CmpStoredProc.h"
-#include "TrafDDLdesc.h"
+#include "sqlcat/TrafDDLdesc.h"
 #include "parser.h"
-#include "str.h"
+#include "common/str.h"
 
 #include "ElemDDLColDef.h" 
 #include "CmpErrors.h"
-#include "CmpContext.h"
-#include "CmpMessage.h"		// for CmpMessageISPRequest
-#include "ComDiags.h"
+#include "arkcmp/CmpContext.h"
+#include "comexe/CmpMessage.h"		// for CmpMessageISPRequest
+#include "export/ComDiags.h"
 #include "CmpDescribe.h"	// for sendAllControls
 
-#include "CharType.h"
-#include "NumericType.h"
-#include "DatetimeType.h"
+#include "common/CharType.h"
+#include "common/NumericType.h"
+#include "common/DatetimeType.h"
 #include "DTICommonType.h"	// for DatetimeIntervalCommonType
 
-#include "ItemColRef.h"		// for ConstValue
+#include "optimizer/ItemColRef.h"		// for ConstValue
 #include "ItemNAType.h"		// for NATypeToItem
 #include "ItemOther.h"		// for ItemList
 
 #include "NAExit.h"
-#include "NAMemory.h"
-#include "NAString.h"
+#include "common/NAMemory.h"
+#include "common/NAString.h"
 #include "ParserMsg.h"
 #include "StoredProcInterface.h"
 

@@ -25,7 +25,7 @@
 #include <Int64.h>
 #include "QRQueries.h"
 #include "QueryRewriteServer.h"
-#include "DefaultConstants.h"
+#include "sqlcomp/DefaultConstants.h"
 
 // *************************************************************** 
 // *************************************************************** 

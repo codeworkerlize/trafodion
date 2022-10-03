@@ -22,9 +22,9 @@
 // **********************************************************************
 
 #include <stdio.h>
-#include "XMLUtil.h"
-#include "QRDescriptor.h"
-#include "QRLogger.h"
+#include "qmscommon/XMLUtil.h"
+#include "qmscommon/QRDescriptor.h"
+#include "qmscommon/QRLogger.h"
 
 /**
  * \file

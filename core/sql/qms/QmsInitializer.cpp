@@ -23,9 +23,9 @@
 
 #include <Int64.h>
 #include "QmsQms.h"
-#include "XMLUtil.h"
-#include "QRDescriptor.h"
-#include "QRLogger.h"
+#include "qmscommon/XMLUtil.h"
+#include "qmscommon/QRDescriptor.h"
+#include "qmscommon/QRLogger.h"
 #include "QmsInitializer.h"
 
 /**

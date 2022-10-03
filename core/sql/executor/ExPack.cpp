@@ -38,7 +38,7 @@
 #include "ExPack.h"
 #include "ExSimpleSqlBuffer.h"
 #include "ex_exe_stmt_globals.h"
-#include "ComDefs.h"
+#include "common/ComDefs.h"
 
 //////////////////////////////////////////////////////////////////////////////
 //

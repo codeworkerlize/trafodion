@@ -37,10 +37,10 @@
  *****************************************************************************
  */
 
-#include "Platform.h"
-#include "SQLCLIdev.h"
+#include "common/Platform.h"
+#include "cli/SQLCLIdev.h"
 #include "ExpSeqGen.h"
-#include "ComDiags.h"
+#include "export/ComDiags.h"
 #include "ex_error.h"
 #include "seabed/ms.h"
 

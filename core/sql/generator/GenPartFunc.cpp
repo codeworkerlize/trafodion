@@ -57,8 +57,8 @@
 #include "Generator.h"
 #include "GenExpGenerator.h"
 //#include "ex_stdh.h"
-#include "ExpCriDesc.h"
-#include "PartInputDataDesc.h"
+#include "exp/ExpCriDesc.h"
+#include "comexe/PartInputDataDesc.h"
 
 
 /////////////////////////////////////////////////////////

@@ -37,22 +37,22 @@
  */
 
 
-#include "ExCollections.h"
-#include "BaseTypes.h"
-#include "ComDiags.h"
+#include "common/ExCollections.h"
+#include "common/BaseTypes.h"
+#include "export/ComDiags.h"
 #include "ex_stdh.h"
 #include "ex_exe_stmt_globals.h"
-#include "ComTdb.h"
+#include "comexe/ComTdb.h"
 #include "ex_tcb.h"
 #include "ex_split_top.h"
 #include "ex_send_top.h"
 #include "key_range.h"
 #include "ex_frag_rt.h"
-#include "PartInputDataDesc.h"
-#include "ex_expr.h"
-#include "str.h"
-#include "ExStats.h"
-#include "sql_buffer_size.h"
+#include "comexe/PartInputDataDesc.h"
+#include "executor/ex_expr.h"
+#include "common/str.h"
+#include "executor/ExStats.h"
+#include "executor/sql_buffer_size.h"
 #include "ComMemLog.h"
 
 // BertBert VV

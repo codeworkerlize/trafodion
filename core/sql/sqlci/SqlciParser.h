@@ -78,7 +78,7 @@
 // 
 // -----------------------------------------------------------------------
 
-#include "SqlCliDllDefines.h"
+#include "common/SqlCliDllDefines.h"
 
 class SqlciNode;
 class SqlciEnv;

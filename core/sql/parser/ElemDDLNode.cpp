@@ -44,9 +44,9 @@
 
 
 #define   SQLPARSERGLOBALS_FLAGS        // must precede all #include's
-#include "BaseTypes.h"
-#include "ComASSERT.h"
-#include "ComDiags.h"
+#include "common/BaseTypes.h"
+#include "common/ComASSERT.h"
+#include "export/ComDiags.h"
 #include "ComOperators.h"
 #include "ComLocationNames.h"
 #include "ElemDDLAlterTableMove.h"
@@ -83,11 +83,11 @@
 #include "ElemDDLFileAttrMisc.h"
 #include "ElemDDLGroup.h"
 #include "ItemExpr.h"
-#include "ItemColRef.h"
+#include "optimizer/ItemColRef.h"
 #ifndef   SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #define   SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #endif
-#include "SqlParserGlobals.h"
+#include "parser/SqlParserGlobals.h"
 
 #include "OptimizerSimulator.h"
 

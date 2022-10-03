@@ -34,12 +34,12 @@
  *****************************************************************************
  */
 
-#include "Platform.h"
+#include "common/Platform.h"
 
 
 #include <stddef.h>
-#include "exp_stdh.h"
-#include "exp_clause_derived.h"
+#include "exp/exp_stdh.h"
+#include "exp/exp_clause_derived.h"
 
 ex_expr::exp_return_type ex_unlogic_clause::eval(char *op_data[],
 						 CollHeap *heap,

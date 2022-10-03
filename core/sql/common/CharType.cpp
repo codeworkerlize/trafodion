@@ -33,13 +33,13 @@
 */
 
 #include <stdarg.h>
-#include "CharType.h"
-#include "ComASSERT.h"
-#include "unicode_char_set.h"
+#include "common/CharType.h"
+#include "common/ComASSERT.h"
+#include "common/unicode_char_set.h"
 #include "wstr.h"
-#include "CmpCommon.h"
-#include "csconvert.h"
-#include "NLSConversion.h"
+#include "common/CmpCommon.h"
+#include "common/csconvert.h"
+#include "common/NLSConversion.h"
 #include "EncodedValue.h"
 
 

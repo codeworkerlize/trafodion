@@ -36,12 +36,12 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include "Platform.h"
-#include "BaseTypes.h"
-#include "NAMemory.h"
-#include "ClusteredBitmap.h"
-#include "NAString.h"
-#include "ComSysUtils.h"
+#include "common/Platform.h"
+#include "common/BaseTypes.h"
+#include "common/NAMemory.h"
+#include "common/ClusteredBitmap.h"
+#include "common/NAString.h"
+#include "common/ComSysUtils.h"
 #include "wstr.h"
 
 

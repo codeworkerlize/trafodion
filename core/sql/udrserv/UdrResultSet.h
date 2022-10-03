@@ -35,11 +35,11 @@
 #define UDRRESULTSET_H
 
 #include "udrdefs.h"
-#include "NAType.h"
+#include "common/NAType.h"
 #include "LmResultSet.h"
 #include "UdrExeIpc.h"
-#include "ComSmallDefs.h"
-#include "QueueIndex.h"
+#include "common/ComSmallDefs.h"
+#include "comexe/QueueIndex.h"
 #include "udrglobals.h"
 #include "LmParameter.h"
 // forward references

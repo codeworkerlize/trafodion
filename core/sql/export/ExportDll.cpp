@@ -41,7 +41,7 @@
 // the topmost executable linking this DLL. (e.g. arkcmp.cpp/sqlci.cpp...)
 //
 
-#include "Platform.h"
+#include "common/Platform.h"
 #include <setjmp.h>
 
 THREAD_P jmp_buf ExportJmpBuf;

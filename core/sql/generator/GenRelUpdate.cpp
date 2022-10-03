@@ -36,7 +36,7 @@
 #define   SQLPARSERGLOBALS_FLAGS   // must precede all #include's
 #define   SQLPARSERGLOBALS_NADEFAULTS
 
-#include "Platform.h"
+#include "common/Platform.h"
 
 #include "Sqlcomp.h"
 #include "GroupAttr.h"
@@ -46,20 +46,20 @@
 #include "ControlDB.h"
 #include "GenExpGenerator.h"
 #include "ComTdbDp2Oper.h"
-#include "ComTdbUnion.h"
-#include "ComTdbOnlj.h"
-#include "ComTdbHbaseAccess.h"
+#include "comexe/ComTdbUnion.h"
+#include "comexe/ComTdbOnlj.h"
+#include "comexe/ComTdbHbaseAccess.h"
 #include "PartFunc.h"
 #include "HashRow.h"
-#include "CmpStatement.h"
+#include "arkcmp/CmpStatement.h"
 #include "OptimizerSimulator.h"
 #include "CmpSeabaseDDL.h"
-#include "NAExecTrans.h"
-#include "ComEncryption.h"
+#include "comexe/NAExecTrans.h"
+#include "common/ComEncryption.h"
 #include <algorithm>
-#include "SqlParserGlobals.h"      // must be last #include
+#include "parser/SqlParserGlobals.h"      // must be last #include
 #include "RelExeUtil.h"
-#include "ComTdbRoot.h"
+#include "comexe/ComTdbRoot.h"
 /////////////////////////////////////////////////////////////////////
 //
 // Contents:

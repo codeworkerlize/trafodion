@@ -33,32 +33,32 @@
 */
 #define   SQLPARSERGLOBALS_FLAGS        // must precede all #include's
 
-#include "BaseTypes.h"
-#include "TrafDDLdesc.h"
+#include "common/BaseTypes.h"
+#include "sqlcat/TrafDDLdesc.h"
 #include "BindWA.h"
-#include "NAType.h"
-#include "NumericType.h"
-#include "CharType.h"
-#include "DatetimeType.h" 
-#include "ComSmallDefs.h"
-#include "CmpCommon.h"
+#include "common/NAType.h"
+#include "common/NumericType.h"
+#include "common/CharType.h"
+#include "common/DatetimeType.h" 
+#include "common/ComSmallDefs.h"
+#include "common/CmpCommon.h"
 #include "UdrErrors.h"
 #include "NARoutineDB.h"
 #include "NARoutine.h"
 #include "SchemaDB.h"
-#include "str.h"
+#include "common/str.h"
 #include "LmJavaSignature.h"
 #include "CmUtil.h"
 #include "NATableSt.h"
 #include "CmpMain.h"
-#include "Globals.h"
-#include "Context.h"
+#include "cli/Globals.h"
+#include "cli/Context.h"
 #include "ComUser.h"
 #include "CmpSeabaseDDL.h"
 
 #define   SQLPARSERGLOBALS_NADEFAULTS
 #include "SqlParserGlobalsCmn.h"
-#include "SqlParserGlobals.h"           // should be last #include
+#include "parser/SqlParserGlobals.h"           // should be last #include
 
 // -----------------------------------------------------------------------
 // Copy a string.  A null terminated buffer is returned.

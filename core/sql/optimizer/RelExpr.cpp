@@ -46,10 +46,10 @@
 #include "ControlDB.h"
 #include "disjuncts.h"
 #include "ScanOptimizer.h"
-#include "CmpContext.h"
+#include "arkcmp/CmpContext.h"
 #include "StmtDDLCreateTrigger.h"
-#include "ExpError.h"
-#include "ComTransInfo.h"
+#include "exp/ExpError.h"
+#include "common/ComTransInfo.h"
 #include "BindWA.h"
 #include "Refresh.h"
 #include "CmpMain.h"
@@ -57,18 +57,18 @@
 #include "ElemDDLColDef.h"
 #include "Analyzer.h"
 #include "OptHints.h"
-#include "ComTdbSendTop.h"
-#include "DatetimeType.h"
-#include "SequenceGeneratorAttributes.h"
-#include "SqlParserGlobals.h"	
+#include "comexe/ComTdbSendTop.h"
+#include "common/DatetimeType.h"
+#include "common/SequenceGeneratorAttributes.h"
+#include "parser/SqlParserGlobals.h"	
 #include "AppliedStatMan.h"
 #include "Generator.h"
-#include "CmpStatement.h"
+#include "arkcmp/CmpStatement.h"
 
 #include <sstream>
 
-#include "Globals.h"
-#include "Context.h"
+#include "cli/Globals.h"
+#include "cli/Context.h"
 
 #define TEXT_DISPLAY_LENGTH 1001
 

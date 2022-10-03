@@ -13,14 +13,14 @@
  *
  *****************************************************************************
  */
-#include "SharedCache.h"
-#include "str.h"
-#include "ComQueue.h"
-#include "ExExeUtilCli.h"
-#include "Globals.h"
-#include "CmpContext.h"
+#include "sqlcomp/SharedCache.h"
+#include "common/str.h"
+#include "comexe/ComQueue.h"
+#include "executor/ExExeUtilCli.h"
+#include "cli/Globals.h"
+#include "arkcmp/CmpContext.h"
 #include "CmpSeabaseDDL.h"
-#include "NamedSemaphore.h"
+#include "sqlcomp/NamedSemaphore.h"
 #include "SharedSegment.h"
 
 ULng32 NAStringHashFunc(const NAString& x) {

@@ -35,11 +35,11 @@
 ****************************************************************************
 */
 
-#include "ExplainTupleMaster.h"
-#include "ComPackDefs.h"
-#include "dfs2rec.h"
-#include "exp_tuple_desc.h"
-#include "csconvert.h"
+#include "comexe/ExplainTupleMaster.h"
+#include "comexe/ComPackDefs.h"
+#include "common/dfs2rec.h"
+#include "exp/exp_tuple_desc.h"
+#include "common/csconvert.h"
 
 // Methods that implement the Explain Tree (ExplainDesc
 // and ExplainTuple nodes).  An Explain Tree consists of an

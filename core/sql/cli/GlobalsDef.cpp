@@ -19,14 +19,14 @@
 //
 // @@@ END COPYRIGHT @@@
 
-#include "Platform.h"
+#include "common/Platform.h"
 
 
 #define CLI_GLOBALS_DEF_
 
 #include <stdlib.h>
 #include "cli_stdh.h"
-//#include "Ipc.h"
+//#include "common/Ipc.h"
 //#include "ex_stdh.h"
 //#include "ex_frag_rt.h"
 

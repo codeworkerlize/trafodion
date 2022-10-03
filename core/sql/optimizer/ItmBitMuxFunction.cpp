@@ -24,8 +24,8 @@
 // This class is obsolete in the sense 
 // that it had been added long time ago during the data
 // mining days (late 90s) but is not used anymore
-#include "CharType.h"
-#include "NumericType.h"
+#include "common/CharType.h"
+#include "common/NumericType.h"
 #include "ItemExpr.h"
 #include "ItmBitMuxFunction.h"
 

@@ -21,9 +21,9 @@
 // @@@ END COPYRIGHT @@@
 **********************************************************************/
 
-#include "BaseTypes.h"
+#include "common/BaseTypes.h"
 #include "ExpPCodeOptimizations.h"
-#include "CmpCommon.h"
+#include "common/CmpCommon.h"
 #include "PCodeExprCache.h"
 
 #if defined(_DEBUG)

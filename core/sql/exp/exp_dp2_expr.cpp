@@ -36,12 +36,12 @@
  *****************************************************************************
  */
 
-#include "Platform.h"
+#include "common/Platform.h"
 
 
-#include "ExpAtp.h"
-#include "ExpSqlTupp.h"
-#include "exp_stdh.h"
+#include "exp/ExpAtp.h"
+#include "exp/ExpSqlTupp.h"
+#include "exp/exp_stdh.h"
 #include "exp_dp2_expr.h"
 
 

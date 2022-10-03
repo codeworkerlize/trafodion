@@ -35,7 +35,7 @@
  */
 
 #include "ComOperators.h"
-#include "ComSmallDefs.h"
+#include "common/ComSmallDefs.h"
 #include "ParScannedTokenQueue.h"
 
 // -----------------------------------------------------------------------

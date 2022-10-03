@@ -42,7 +42,7 @@
 
 #include "RuDupElimLogScanner.h"
 #include "RuDupElimGlobals.h"
-#include "ComSmallDefs.h"
+#include "common/ComSmallDefs.h"
 
 //--------------------------------------------------------------------------//
 //	Constructor and destructor

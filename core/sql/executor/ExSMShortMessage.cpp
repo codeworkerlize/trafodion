@@ -20,7 +20,7 @@
 //
 // @@@ END COPYRIGHT @@@
 **********************************************************************/
-#include "Platform.h"
+#include "common/Platform.h"
 #include "ExSMShortMessage.h"
 #include "ExSMGlobals.h"
 

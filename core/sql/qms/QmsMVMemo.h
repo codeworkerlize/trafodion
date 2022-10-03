@@ -36,11 +36,11 @@
 #define _MVMEMO_H_
 
 
-#include "NABasicObject.h"
-#include "NAString.h"
-#include "Collections.h"
+#include "export/NABasicObject.h"
+#include "common/NAString.h"
+#include "common/Collections.h"
 #include "QRSharedPtr.h"
-#include "QRDescriptor.h"
+#include "qmscommon/QRDescriptor.h"
 
 class MVMemo;
 class MVMemoExpression;

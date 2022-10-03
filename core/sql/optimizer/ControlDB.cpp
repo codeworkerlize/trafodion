@@ -45,15 +45,15 @@
 
 #include "ControlDB.h"
 
-#include "CmpCommon.h"
-#include "CmpContext.h"
-#include "ComSchemaName.h"
+#include "common/CmpCommon.h"
+#include "arkcmp/CmpContext.h"
+#include "common/ComSchemaName.h"
 
 #include "AllRelExpr.h"			// various operators for CQS
 #include "RelPackedRows.h"
 #include "RelSample.h"
 #include "RelSequence.h"
-#include "ItemColRef.h"			// ConstValue for CQS
+#include "optimizer/ItemColRef.h"			// ConstValue for CQS
 #include "CmpMain.h"
 #include "QCache.h"
 #include "CmpMemoryMonitor.h"

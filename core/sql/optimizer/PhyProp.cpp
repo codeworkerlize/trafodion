@@ -37,13 +37,13 @@
 // -----------------------------------------------------------------------
 
 #include "Sqlcomp.h"
-#include "CmpContext.h"
+#include "arkcmp/CmpContext.h"
 #include "GroupAttr.h"
 #include "PhyProp.h"
 #include "Cost.h"
 #include "SearchKey.h"
 #include "ItemOther.h"
-#include "Globals.h"
+#include "cli/Globals.h"
 
 
 // -----------------------------------------------------------------------

@@ -38,20 +38,20 @@
 ******************************************************************************
 */
 #include "ex_ex.h"
-#include "Platform.h"
+#include "common/Platform.h"
 #include "ex_stdh.h"
-#include "ComTdb.h"
+#include "comexe/ComTdb.h"
 #include "ex_tcb.h"
 #include "ex_sort.h"
 #include "SortUtil.h"
 #include "Qsort.h"
 #include "SortTopN.h"
-#include "ComCextdecs.h"
-#include "logmxevent.h"
-#include "ExStats.h"
+#include "common/ComCextdecs.h"
+#include "sqlmxevents/logmxevent.h"
+#include "executor/ExStats.h"
 #include  "ex_exe_stmt_globals.h"
-#include "memorymonitor.h"
-#include "sql_buffer_size.h"
+#include "cli/memorymonitor.h"
+#include "executor/sql_buffer_size.h"
 
 //------------------------------------------------------------------------
 // This file contains the all member function definitions of SortUtil class. 

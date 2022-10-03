@@ -47,10 +47,10 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include "Platform.h"
+#include "common/Platform.h"
 
 #if 1   /* NA_LINUX_LLVMJIT */
-#include "NAAssert.h"
+#include "common/NAAssert.h"
 
 // This #define must come *before* the #include "ExpPCodeOptimizations.h" line
 #define COMING_FROM_NATIVE_EXPR_SOURCE_FILE

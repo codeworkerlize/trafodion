@@ -38,27 +38,27 @@
 
 // -----------------------------------------------------------------------
 
-#include "BaseTypes.h"
+#include "common/BaseTypes.h"
 #include "ex_stdh.h"
 #include "ex_exe_stmt_globals.h"
-#include "ComTdb.h"
+#include "comexe/ComTdb.h"
 #include "ex_tcb.h"
-#include "ex_expr.h"
-#include "str.h"
+#include "executor/ex_expr.h"
+#include "common/str.h"
 
 #include "ex_send_bottom.h"
 #include "ex_split_bottom.h"
 #include "ex_io_control.h"
 #include "ex_frag_rt.h"
 #include "Ex_esp_msg.h"
-#include "ComDiags.h"
-#include "ExStats.h"
-#include "ComTdb.h"
-#include "logmxevent.h"
+#include "export/ComDiags.h"
+#include "executor/ExStats.h"
+#include "comexe/ComTdb.h"
+#include "sqlmxevents/logmxevent.h"
 #include "ExCextdecs.h"
-#include "Context.h"
+#include "cli/Context.h"
 #include "seabed/int/opts.h"
-#include "exp_clause_derived.h"
+#include "exp/exp_clause_derived.h"
 
 static THREAD_P short sv_max_parallel_opens = 0;
 

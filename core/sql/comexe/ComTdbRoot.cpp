@@ -35,11 +35,11 @@
 ****************************************************************************
 */
 
-#include "LateBindInfo.h"
-#include "ComTdbRoot.h"
-#include "ComTdbCommon.h"
-#include "FragDir.h"
-#include "ComQueue.h"
+#include "comexe/LateBindInfo.h"
+#include "comexe/ComTdbRoot.h"
+#include "comexe/ComTdbCommon.h"
+#include "comexe/FragDir.h"
+#include "comexe/ComQueue.h"
 
 ////////////////////////////////////////////////////////////////////////
 //  TDB procedures

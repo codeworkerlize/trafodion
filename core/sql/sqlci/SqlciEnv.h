@@ -43,8 +43,8 @@
  */
 
 
-#include "Platform.h"
-#include "SqlCliDllDefines.h"
+#include "common/Platform.h"
+#include "common/SqlCliDllDefines.h"
 
 
 #include <limits.h>
@@ -52,8 +52,8 @@
 #include <stdio.h>
 #include "SqlciList_templ.h"
 #include "SqlciStmts.h"
-#include "ComASSERT.h"
-#include "ComDiags.h"
+#include "common/ComASSERT.h"
+#include "export/ComDiags.h"
 #include "Define.h"
 #include "Param.h"
 #include "Prepare.h"

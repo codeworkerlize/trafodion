@@ -32,12 +32,12 @@
  */
 
 #include <iostream>
-#include "Platform.h"
-#include "ComDiags.h"
-#include "DgBaseType.h"
+#include "common/Platform.h"
+#include "export/ComDiags.h"
+#include "common/DgBaseType.h"
 #include "ErrorMessage.h"
 #include "mxCompileUserModule.h"
-#include "NAMemory.h"
+#include "common/NAMemory.h"
 
 mxCompileUserModule::mxCompileUserModule() 
   : heap_(NULL), diags_(NULL), returnCode_(SUCCEED)

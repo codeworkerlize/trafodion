@@ -21,12 +21,12 @@
 // @@@ END COPYRIGHT @@@
 // **********************************************************************
 
-#include "Context.h"
-#include "Globals.h"
+#include "cli/Context.h"
+#include "cli/Globals.h"
 #include <signal.h>
 #include "TenantHelper_JNI.h"
-#include "NAWNodeSet.h"
-#include "QRLogger.h"
+#include "common/NAWNodeSet.h"
+#include "qmscommon/QRLogger.h"
 #include "pthread.h"
 
 //

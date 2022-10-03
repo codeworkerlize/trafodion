@@ -47,7 +47,7 @@
 #include "TourTree.h"
 #include "SortUtil.h"
 #include "ex_ex.h"
-#include "ExStats.h"
+#include "executor/ExStats.h"
 
 //------------------------------------------------------------------------
 // This file contains the all member function definitions of Tree class. 

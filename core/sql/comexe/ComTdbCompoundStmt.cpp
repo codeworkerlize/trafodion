@@ -34,9 +34,9 @@
 ******************************************************************************
 */
 
-#include "ComTdb.h"
-#include "ComTdbCompoundStmt.h"
-#include "ComTdbCommon.h"
+#include "comexe/ComTdb.h"
+#include "comexe/ComTdbCompoundStmt.h"
+#include "comexe/ComTdbCommon.h"
 
 //////////////////////////////////////////////////////////////////////////////
 //

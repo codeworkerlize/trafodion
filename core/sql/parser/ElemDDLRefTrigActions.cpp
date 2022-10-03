@@ -34,7 +34,7 @@
  *****************************************************************************
  */
 
-#include "ComASSERT.h"
+#include "common/ComASSERT.h"
 #include "ComOperators.h"
 #include "ElemDDLRefTrigActions.h"
 

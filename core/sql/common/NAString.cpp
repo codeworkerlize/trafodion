@@ -34,26 +34,26 @@
 */
 
 #include <ctype.h>
-#include "BaseTypes.h"
-// #include "ComAnsiNamePart.h"
-#include "ComASSERT.h"
-#include "ComMPLoc.h"
+#include "common/BaseTypes.h"
+// #include "common/ComAnsiNamePart.h"
+#include "common/ComASSERT.h"
+#include "common/ComMPLoc.h"
 #include "ComOperators.h"
-#include "ComSmallDefs.h"
-#include "str.h"
-#include "ComRtUtils.h"
-#include "sqlcli.h"
-#include "charinfo.h"
-#include "csconvert.h"
-#include "nawstring.h"
+#include "common/ComSmallDefs.h"
+#include "common/str.h"
+#include "common/ComRtUtils.h"
+#include "cli/sqlcli.h"
+#include "common/charinfo.h"
+#include "common/csconvert.h"
+#include "common/nawstring.h"
 
 #define   SQLPARSERGLOBALSCMN__INITIALIZE
 #define   SQLPARSERGLOBALS_FLAGS
-#include "SqlParserGlobals.h"
+#include "parser/SqlParserGlobals.h"
 
 
 // Include key word header for IsSqlReservedWord().
-#include "ComResWords.h"
+#include "common/ComResWords.h"
 
 // The timing loop in ToAnsiIdentifier below was run
 // with this flag (using hashtable to check for reserved keywords)
@@ -69,8 +69,8 @@
 // search implementation of IsSqlReservedWord shrinks this down to 0.01%
 // of total arkcmp elapsed time.
 
-#include "NAString.h"
-#include "ComDistribution.h"
+#include "common/NAString.h"
+#include "common/ComDistribution.h"
 
 // Space, dquote, percent, etc, as found in Ansi 5.1,
 // plus Tdm-extension of backslash.

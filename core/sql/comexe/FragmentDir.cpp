@@ -37,9 +37,9 @@
  */
 
 
-#include "FragmentDir.h"
+#include "comexe/FragmentDir.h"
 //#include "Generator.h"
-#include "ComSpace.h"
+#include "common/ComSpace.h"
 
 // -----------------------------------------------------------------------
 // forward declarations

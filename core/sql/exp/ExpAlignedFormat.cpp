@@ -21,8 +21,8 @@
 // @@@ END COPYRIGHT @@@
 **********************************************************************/
 
-#include "Platform.h"
-#include "str.h"
+#include "common/Platform.h"
+#include "common/str.h"
 #include "ExpAlignedFormat.h"
 
 

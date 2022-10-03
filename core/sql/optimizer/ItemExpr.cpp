@@ -35,20 +35,20 @@
 */
 
 #define  SQLPARSERGLOBALS_NADEFAULTS
-#include "SqlParserGlobals.h"
+#include "parser/SqlParserGlobals.h"
 
-#include "Platform.h"
+#include "common/Platform.h"
 #include "Sqlcomp.h"
 #include "GroupAttr.h"
 #include "AllItemExpr.h"
 #include "PartFunc.h"
 #include "wstr.h"
-#include "NLSConversion.h"
+#include "common/NLSConversion.h"
 #include "Cost.h"          /* for lookups in the defaults table */
 #include "Stats.h"
 #include "exp_function.h" // for calling ExHDPHash::hash(data, len)
 #include "ItemFuncUDF.h"
-#include "CmpStatement.h"
+#include "arkcmp/CmpStatement.h"
 #include "exp_datetime.h"
 #include "Analyzer.h"
 #include "ItemSample.h"

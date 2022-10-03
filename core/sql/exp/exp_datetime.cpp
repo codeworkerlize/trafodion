@@ -36,15 +36,15 @@
  *****************************************************************************
  */
 
-#include "Platform.h"
+#include "common/Platform.h"
 
 
-#include "exp_stdh.h"
+#include "exp/exp_stdh.h"
 #include "SQLTypeDefs.h"
 #include "exp_datetime.h"
 #include "exp_interval.h"
-#include "exp_clause_derived.h"
-#include "NAAssert.h"
+#include "exp/exp_clause_derived.h"
+#include "common/NAAssert.h"
 #include "exp_bignum.h"
 #include "ItemFunc.h"
 

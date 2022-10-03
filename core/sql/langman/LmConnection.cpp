@@ -32,7 +32,7 @@
 *
 ******************************************************************************
 */
-#include "Platform.h"
+#include "common/Platform.h"
   #include "lmjni.h"
 #include "LmConnection.h"
 #include "LmDebug.h"

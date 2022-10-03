@@ -21,7 +21,7 @@
 // @@@ END COPYRIGHT @@@
 // **********************************************************************
 #include "CmpProcess.h"
-#include "ComRtUtils.h"
+#include "common/ComRtUtils.h"
 #include "nsk/nskport.h"
 #include "seabed/ms.h"
 #include "seabed/fs.h"

@@ -76,5 +76,6 @@
     "valarray": "cpp",
     "variant": "cpp",
     "sm.h": "c"
-  }
+  },
+  "cmake.sourceDirectory": "${workspaceFolder}/build/_deps/src/spdlog"
 }

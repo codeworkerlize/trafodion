@@ -35,8 +35,8 @@
 ****************************************************************************
 */
 
-#include "ComTdbTupleFlow.h"
-#include "ComTdbCommon.h"
+#include "comexe/ComTdbTupleFlow.h"
+#include "comexe/ComTdbCommon.h"
 
 /////////////////////////////////////////////////////////////////////////
 //

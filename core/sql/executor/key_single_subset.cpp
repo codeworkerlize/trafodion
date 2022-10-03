@@ -39,10 +39,10 @@
 // -----------------------------------------------------------------------
 
 #include "ex_stdh.h"
-#include "exp_expr.h"
+#include "exp/exp_expr.h"
 #include "key_range.h"
 #include "key_single_subset.h"
-// #include "exp_clause_derived.h"
+// #include "exp/exp_clause_derived.h"
 
   
 

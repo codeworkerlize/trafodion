@@ -35,8 +35,8 @@
  *****************************************************************************
  */
 
-#include "Platform.h"
-#include "ComCextdecs.h"
+#include "common/Platform.h"
+#include "common/ComCextdecs.h"
 
 /*****************************************************************************
 
@@ -82,16 +82,16 @@ availability error.
 
 ******************************************************************************/
 
-#include "NABoolean.h"
-#include "NAStdlib.h"
-#include "NAString.h"
+#include "common/NABoolean.h"
+#include "common/NAStdlib.h"
+#include "common/NAString.h"
 
-#include "ComDistribution.h"
-#include "ComASSERT.h"
+#include "common/ComDistribution.h"
+#include "common/ComASSERT.h"
 
-#include "ExpError.h"
-#include "csconvert.h"
-#include "NLSConversion.h"
+#include "exp/ExpError.h"
+#include "common/csconvert.h"
+#include "common/NLSConversion.h"
 
 // -----------------------------------------------------------------------
 // ANSI SQL Name Conversion helpers

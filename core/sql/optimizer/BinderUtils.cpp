@@ -39,7 +39,7 @@
 
 #include "AllItemExpr.h"
 #include "ItemOther.h"
-#include "ItemColRef.h"
+#include "optimizer/ItemColRef.h"
 #include "NATable.h"
 #include "ComMvDefs.h"
 #include "BindWA.h"

@@ -27,10 +27,10 @@
 //   PrivMgrCommands
 // ==========================================================================
 
-#include "PrivMgrCommands.h"
+#include "sqlcomp/PrivMgrCommands.h"
 #include "PrivMgrMD.h"
 #include "PrivMgrMDDefs.h"
-#include "DgBaseType.h"
+#include "common/DgBaseType.h"
 #include "NATable.h"
 #include "NAColumn.h"
 
@@ -42,13 +42,13 @@
 #include "PrivMgrComponentPrivileges.h"
 #include "PrivMgrRoles.h"
 #include "PrivMgrObjects.h"
-#include "ComSecurityKey.h"
+#include "common/ComSecurityKey.h"
 #include "ComUser.h"
 #include "CmpSeabaseDDL.h"  // needed in order to access ExpHbaseInterface
 #include "ExpHbaseInterface.h"
 #include "CmpDDLCatErrorCodes.h"  // needed for DgSqlCode error msg enum
-#include "Globals.h"         // needed to get access to CLI globals
-#include "Context.h"         // needed to get access to Java exception info
+#include "cli/Globals.h"         // needed to get access to CLI globals
+#include "cli/Context.h"         // needed to get access to Java exception info
 #include "HBaseClient_JNI.h" // needed for HBase client error msg enum
 
 #include <cstdio>

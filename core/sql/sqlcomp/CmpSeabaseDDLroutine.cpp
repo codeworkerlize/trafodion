@@ -57,22 +57,22 @@
 #include "CmpSeabaseDDL.h"
 
 #include "ExpHbaseInterface.h"
-#include "ExExeUtilCli.h"
+#include "executor/ExExeUtilCli.h"
 #include "Generator.h"
-#include "ComSmallDefs.h"
+#include "common/ComSmallDefs.h"
 #include "CmpDDLCatErrorCodes.h"
 
 #include "PrivMgrComponentPrivileges.h"
-#include "PrivMgrCommands.h"
+#include "sqlcomp/PrivMgrCommands.h"
 #include "ComUser.h"
 
-#include "NumericType.h"
-#include "DatetimeType.h" 
+#include "common/NumericType.h"
+#include "common/DatetimeType.h" 
 #include "LmJavaSignature.h"
 
-#include "ComCextdecs.h"
+#include "common/ComCextdecs.h"
 #include <sys/stat.h>
-#include "TriggerDB.h"
+#include "optimizer/TriggerDB.h"
 
 short ExExeUtilLobExtractLibrary(ExeCliInterface *cliInterface,char *libHandle, char *cachedLibName,ComDiagsArea *toDiags);
 

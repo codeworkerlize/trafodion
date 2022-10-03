@@ -35,8 +35,8 @@
 ****************************************************************************
 */
 
-#include "ComTdbDDL.h"
-#include "ComTdbCommon.h" 
+#include "comexe/ComTdbDDL.h"
+#include "comexe/ComTdbCommon.h" 
 
 ComTdbGenericUtil::ComTdbGenericUtil(char * query,
 				     ULng32 querylen,

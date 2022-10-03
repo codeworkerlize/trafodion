@@ -26,13 +26,13 @@
 
 #include <string>
 #include <cstdio>
-#include "sqlcli.h"
-#include "ComSmallDefs.h"
-#include "ExExeUtilCli.h"
-#include "ComDiags.h"
-#include "ComQueue.h"
-#include "CmpCommon.h"
-#include "CmpContext.h"
+#include "cli/sqlcli.h"
+#include "common/ComSmallDefs.h"
+#include "executor/ExExeUtilCli.h"
+#include "export/ComDiags.h"
+#include "comexe/ComQueue.h"
+#include "common/CmpCommon.h"
+#include "arkcmp/CmpContext.h"
 
 PrivMgrRowInfo::PrivMgrRowInfo(const PrivMgrRowInfo &other)
 {

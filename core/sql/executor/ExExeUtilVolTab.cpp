@@ -36,8 +36,8 @@
  *****************************************************************************
  */
 
-#include "ComCextdecs.h"
-#include "ComSizeDefs.h"
+#include "common/ComCextdecs.h"
+#include "common/ComSizeDefs.h"
 #include  "cli_stdh.h"
 #include  "ex_stdh.h"
 #include  "sql_id.h"

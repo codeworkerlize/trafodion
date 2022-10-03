@@ -48,7 +48,7 @@
 #include "Analyzer.h"
 #include "AppliedStatMan.h"
 #include "NormWA.h"
-#include "CmpStatement.h"
+#include "arkcmp/CmpStatement.h"
 
 #include <math.h>
 

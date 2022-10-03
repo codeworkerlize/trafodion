@@ -34,15 +34,15 @@
 ******************************************************************************
 */
 
-#include "NAType.h"
-#include "DatetimeType.h"
-#include "ComASSERT.h"
-#include "NumericType.h"
-#include "CharType.h"
-#include "MiscType.h"
+#include "common/NAType.h"
+#include "common/DatetimeType.h"
+#include "common/ComASSERT.h"
+#include "common/NumericType.h"
+#include "common/CharType.h"
+#include "common/MiscType.h"
 #include "CompositeType.h"
-#include "CmpCommon.h"     /* want to put NAType obj's on statement heap ... */
-#include "str.h"
+#include "common/CmpCommon.h"     /* want to put NAType obj's on statement heap ... */
+#include "common/str.h"
 
 // extern declaration
 extern short

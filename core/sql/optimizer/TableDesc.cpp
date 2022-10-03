@@ -43,9 +43,9 @@
 #include "Cost.h"      /* for lookups in the defaults table */
 #include "Analyzer.h"
 
-#include "ComCextdecs.h"
-#include "TrafDDLdesc.h"
-#include "ExExeUtilCli.h"
+#include "common/ComCextdecs.h"
+#include "sqlcat/TrafDDLdesc.h"
+#include "executor/ExExeUtilCli.h"
 #include "QRDescGenerator.h"
 
 void PartRangePerCol::print(FILE* ofd, 

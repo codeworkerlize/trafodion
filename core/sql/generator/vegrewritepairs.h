@@ -39,8 +39,8 @@
 
 // -----------------------------------------------------------------------
 
-#include "ValueDesc.h"
-#include "NABasicObject.h"
+#include "optimizer/ValueDesc.h"
+#include "export/NABasicObject.h"
 
 // ---- Class VEGRewritePairs
 // This class is a helper class whose claim to life is help

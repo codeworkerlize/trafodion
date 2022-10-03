@@ -35,10 +35,10 @@
 ****************************************************************************
 */
 
-#include "ComTdbStats.h"
-#include "ComTdbCommon.h"
-#include "ComTdbRoot.h"
-#include "ComCextdecs.h"
+#include "comexe/ComTdbStats.h"
+#include "comexe/ComTdbCommon.h"
+#include "comexe/ComTdbRoot.h"
+#include "common/ComCextdecs.h"
 
 // Default Constructor.  This is used by the ComTdb::fixupVTblPtr()
 // routine which fixes up the virtual function table pointer after

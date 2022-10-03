@@ -47,7 +47,7 @@
 // that was done at create time.
 //
 #include "PackedColDesc.h"
-#include "NumericType.h"
+#include "common/NumericType.h"
 
 // The layout of a packed table is illustrated in the following diagram:
 //

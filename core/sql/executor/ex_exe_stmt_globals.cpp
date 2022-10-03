@@ -34,23 +34,23 @@
  *
  *****************************************************************************
  */
-#include "Platform.h"
+#include "common/Platform.h"
 
 #include "ex_stdh.h"
-#include "ComTdb.h"
+#include "comexe/ComTdb.h"
 #include "ex_tcb.h"
 #include "ex_exe_stmt_globals.h"
 #include "ex_frag_rt.h"
 #include "Ex_esp_msg.h"
 #include "ex_esp_frag_dir.h"
-#include "LateBindInfo.h"
+#include "comexe/LateBindInfo.h"
 #include "cli_stdh.h"
 #include "ExUdrServer.h"
 #include "UdrExeIpc.h"
 #include "ExRsInfo.h"
 #include "ex_send_top.h"
-#include "SqlStats.h"
-#include "Globals.h"
+#include "runtimestats/SqlStats.h"
+#include "cli/Globals.h"
 #include "ExSMTrace.h"
 #include "ExSMCommon.h"
 #include "ExSMGlobals.h"
@@ -62,7 +62,7 @@ class ComTdbRoot;
 
 #if defined(_DEBUG) && defined(TRACE_ESP_ACCESS)
 
-#include "ComCextdecs.h"
+#include "common/ComCextdecs.h"
 // Comment in and build to trace an ESPAccess ESP process
 //#define TRACE_ESP_ACCESS 1
 

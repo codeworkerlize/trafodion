@@ -40,7 +40,7 @@
 
 #include <iostream>
 
-#include "EHException.h"                // <--- contains EH macro defs
+#include "eh/EHException.h"                // <--- contains EH macro defs
 
 // -----------------------------------------------------------------------
 // global test routine forward declarations

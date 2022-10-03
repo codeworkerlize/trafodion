@@ -52,9 +52,9 @@
 //   ASSERTIONS_ALWAYS_ON        : at certain times we always want these assertions to fail
 //
 
-#include "CostScalar.h"
-#include "NABoolean.h"
-#include "CmpCommon.h"
+#include "optimizer/CostScalar.h"
+#include "common/NABoolean.h"
+#include "common/CmpCommon.h"
 
 
 #include "math.h"

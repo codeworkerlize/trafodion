@@ -37,7 +37,7 @@
 #define   SQLPARSERGLOBALS_FLAGS        // must precede all #include's
 #include "ColStatDesc.h"
 #include "Sqlcomp.h"
-#include "ItemColRef.h"
+#include "optimizer/ItemColRef.h"
 #include "ItemOther.h"
 #include "ItemFunc.h"
 #include "Cost.h"              /* for lookups in defaults table */
@@ -45,7 +45,7 @@
 #include "../exp/exp_ovfl_ptal.h" //check for overflow & underflow
 #include "CompException.h"
 #include "ItemLog.h"	    // for like predicates
-#include "SqlParserGlobals.h"
+#include "parser/SqlParserGlobals.h"
 #include "CmpDescribe.h"
 
 #ifdef DEBUG

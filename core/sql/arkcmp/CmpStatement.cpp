@@ -55,30 +55,30 @@
 #define   SQLPARSERGLOBALS_FLAGS
 #define   SQLPARSERGLOBALS_NADEFAULTS_SET
 //#include "SqlParserGlobalsCmn.h"
-#include "SqlParserGlobals.h"  // must be the last #include.
+#include "parser/SqlParserGlobals.h"  // must be the last #include.
 
-#include "BaseTypes.h"
-#include "CmpStatement.h"
+#include "common/BaseTypes.h"
+#include "arkcmp/CmpStatement.h"
 
-#include "ComDiags.h"
-#include "ComMPLoc.h"
-#include "CmpCommon.h"
+#include "export/ComDiags.h"
+#include "common/ComMPLoc.h"
+#include "common/CmpCommon.h"
 #include "CmpMain.h"
 #include "CmpStoredProc.h"
 #include "CmpDescribe.h"
 #include "ProcessEnv.h"
 #include "SchemaDB.h"
 #include "ControlDB.h"
-#include "Context.h"
+#include "cli/Context.h"
 
 #include "CmpErrors.h"
 #include "CmpErrLog.h"
 #include "ErrorMessage.h"
-#include "ExpError.h"
+#include "exp/ExpError.h"
 
 #include "QCache.h"
 
-#include "NAMemory.h"
+#include "common/NAMemory.h"
 #include "EstLogProp.h"     // Pick up definition of GLOBAL_EMPTY_INPUT_LOGPROP
 #include "opt.h"	    // to initialize the memo and task_list variables
 
@@ -86,17 +86,17 @@
 #include "RelMisc.h"
 #include "CmpSeabaseDDL.h"
 #include "CmpSeabaseDDLupgrade.h"
-#include "NAUserId.h"
+#include "common/NAUserId.h"
 
 #include "Generator.h"
 
 #include "QueryText.h"
 
-#include "NAString.h"
+#include "common/NAString.h"
 
 #include "StmtDDLNode.h"
 
-#include "Globals.h"
+#include "cli/Globals.h"
 
 #include "CompilationStats.h"
 
@@ -106,7 +106,7 @@
 
 #include "UdfDllInteraction.h"
 
-//#include "SqlParserGlobals.h"  // must be the last #include.
+//#include "parser/SqlParserGlobals.h"  // must be the last #include.
 
 extern THREAD_P jmp_buf ExportJmpBuf;
 

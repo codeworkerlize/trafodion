@@ -34,12 +34,12 @@
 ****************************************************************************
 */
 
-#include "ComPackDefs.h"
-#include "ExCollections.h"
+#include "comexe/ComPackDefs.h"
+#include "common/ExCollections.h"
 #include "ExConnectBy.h"
 #include "ExConnectByTempTable.h"
 #include "ex_stdh.h"
-#include "ComTdb.h"
+#include "comexe/ComTdb.h"
 #include "ex_tcb.h"
 #include "ex_hash_grby.h"
 #include "ex_sort_grby.h"
@@ -62,7 +62,7 @@
 #include "ex_split_bottom.h"
 #include "ex_send_top.h"
 #include "ex_send_bottom.h"
-#include "PartInputDataDesc.h"
+#include "comexe/PartInputDataDesc.h"
 #include "ex_stored_proc.h"
 #include "ex_sort.h"
 #include "ExExplain.h"
@@ -70,7 +70,7 @@
 #include "ExExeUtil.h"
 #include "ex_transaction.h"
 #include "ExSequence.h"
-#include "ExStats.h"
+#include "executor/ExStats.h"
 #include "ex_exe_stmt_globals.h"
 #include "ex_timeout.h"   
 #include "ExUdr.h"

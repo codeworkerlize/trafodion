@@ -36,10 +36,10 @@
  *****************************************************************************
  */
 
-#include "Platform.h"
+#include "common/Platform.h"
 #include "ReqGen.h"
 #include "GroupAttr.h"
-#include "Globals.h"
+#include "cli/Globals.h"
 
 RequirementGenerator::RequirementGenerator(
      const ExprGroupId &groupForRequirement,

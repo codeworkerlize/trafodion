@@ -36,7 +36,7 @@
  *****************************************************************************
  */
 
-#include  "Platform.h"
+#include "common/Platform.h"
 #include <stdio.h>
 
 
@@ -58,7 +58,7 @@
 #include  "PortProcessCalls.h"
 
 #include "ex_transaction.h"
-#include "ComSqlId.h"
+#include "common/ComSqlId.h"
 #include "ExCextdecs.h"
 
 #include "ExSMTrace.h"

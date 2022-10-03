@@ -101,7 +101,7 @@
 #include "SortAlgo.h"
 #include "TreeNode.h"
 #include "Const.h"
-#include "NABasicObject.h"
+#include "export/NABasicObject.h"
 #include "SortError.h"
 
 

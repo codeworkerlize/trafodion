@@ -23,7 +23,7 @@
 
 #include <unistd.h>
 #include <time.h>
-#include "Platform.h"
+#include "common/Platform.h"
 #include "seabed/pctl.h"
 #include "seabed/pevents.h"
 #include "ExSMReader.h"
@@ -36,7 +36,7 @@
 #include "ExSMQueue.h"
 #include "ExSMEvent.h"
 #include "ExSMShortMessage.h"
-#include "NAAssert.h"
+#include "common/NAAssert.h"
 
 void *ExSM_ReaderFunction(void *arg)
 {

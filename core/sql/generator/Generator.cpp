@@ -35,49 +35,49 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <sys/time.h>
-#include "dfs2rec.h"
+#include "common/dfs2rec.h"
 
-#include "TrafDDLdesc.h"
+#include "sqlcat/TrafDDLdesc.h"
 
 #include "ComOptIncludes.h"
 #include "GroupAttr.h"
 #include "Generator.h"
 #include "GenExpGenerator.h"
-#include "ComSysUtils.h"
-#include "ExplainTuple.h"
+#include "common/ComSysUtils.h"
+#include "comexe/ExplainTuple.h"
 #include "BindWA.h"
 #include "SchemaDB.h"
-#include "ComTransInfo.h"
-#include "CmpContext.h"
-#include "CmpStatement.h"
+#include "common/ComTransInfo.h"
+#include "arkcmp/CmpContext.h"
+#include "arkcmp/CmpStatement.h"
 #include "CmpSqlSession.h"
 #include "ControlDB.h"
 #include "RelMisc.h"
 #include "RelExeUtil.h"
-#include "ComCextdecs.h"
+#include "common/ComCextdecs.h"
 
-#include "logmxevent.h"
+#include "sqlmxevents/logmxevent.h"
 
-#include "ComTdb.h"
-#include "LateBindInfo.h"
+#include "comexe/ComTdb.h"
+#include "comexe/LateBindInfo.h"
 
-#include "exp_tuple_desc.h"
+#include "exp/exp_tuple_desc.h"
 #include "exp_function.h"
-#include "ComSqlId.h"
+#include "common/ComSqlId.h"
 
-#include "ComTrace.h"
-#include "ComDistribution.h"
+#include "comexe/ComTrace.h"
+#include "common/ComDistribution.h"
 #include "CmUtil.h"
 
 // #include "PCodeExprCache.h"
-#include "TrafDDLdesc.h"
+#include "sqlcat/TrafDDLdesc.h"
 #include "HBaseClient_JNI.h"
-#include "ComASNodes.h"
-#include "NAWNodeSet.h"
-#include "Context.h"
+#include "comexe/ComASNodes.h"
+#include "common/NAWNodeSet.h"
+#include "cli/Context.h"
 
 #define   SQLPARSERGLOBALS_FLAGS
-#include "SqlParserGlobals.h"   // Parser Flags
+#include "parser/SqlParserGlobals.h"   // Parser Flags
 
 #include "CmpSeabaseDDLmd.h"
 

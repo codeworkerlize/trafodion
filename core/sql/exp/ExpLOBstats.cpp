@@ -21,8 +21,8 @@
 // @@@ END COPYRIGHT @@@
 **********************************************************************/
 #include <stdio.h>
-#include "ExpLOBstats.h"
-#include "str.h"
+#include "exp/ExpLOBstats.h"
+#include "common/str.h"
 
 
 

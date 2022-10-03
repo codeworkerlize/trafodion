@@ -35,14 +35,14 @@
 
 #include <iostream>
 
-#include "ComTransInfo.h"
-#include "IpcMessageObj.h"
+#include "common/ComTransInfo.h"
+#include "export/IpcMessageObj.h"
 #include "ComplexObject.h"
 #include "CliMsgObj.h"
 #include "UdrExeIpc.h"
-#include "sql_buffer.h"
+#include "executor/sql_buffer.h"
 #include "ExCextdecs.h"
-#include "ComRtUtils.h"
+#include "common/ComRtUtils.h"
 
 
 //----------------------------------------------------------------------

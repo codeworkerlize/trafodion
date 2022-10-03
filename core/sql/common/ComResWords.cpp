@@ -31,9 +31,9 @@
 *******************************************************************************
 */
 
-#include "ComASSERT.h"
-#include "ComResWords.h"
-#include "str.h"
+#include "common/ComASSERT.h"
+#include "common/ComResWords.h"
+#include "common/str.h"
 
 // The reserved word table:
 

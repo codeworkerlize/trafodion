@@ -40,15 +40,15 @@
 #define   SQLPARSERGLOBALS_NADEFAULTS   // should precede all other #include's
 #define   SQLPARSERGLOBALS_FLAGS
 #define   SQLPARSERGLOBALS_NADEFAULTS_SET
-#include "SqlParserGlobals.h"
+#include "parser/SqlParserGlobals.h"
 #include "SqlParserGlobalsCmn.h"
 
 #include <iostream>
-#include "Ipc.h"
-#include "CmpCommon.h"
+#include "common/Ipc.h"
+#include "common/CmpCommon.h"
 #include "CmpConnection.h"
-#include "CmpMessage.h"
-#include "CmpStatement.h"
+#include "comexe/CmpMessage.h"
+#include "arkcmp/CmpStatement.h"
 #include "CmpErrLog.h"
 #include "NewDel.h"
 #include "opt.h"

@@ -39,19 +39,19 @@
 
 #define AEVENT 1
 
-#include "Platform.h"
+#include "common/Platform.h"
 #include <fcntl.h>
 
-#include "ExCollections.h"
-#include "Int64.h"
-#include "Ipc.h"
-#include "str.h"
-#include "ComDiags.h"
+#include "common/ExCollections.h"
+#include "common/Int64.h"
+#include "common/Ipc.h"
+#include "common/str.h"
+#include "export/ComDiags.h"
 #include "NAExit.h"
-#include "ComRtUtils.h"
-#include "ComDefs.h"
-#include "PortProcessCalls.h"
-#include "logmxevent.h"
+#include "common/ComRtUtils.h"
+#include "common/ComDefs.h"
+#include "porting/PortProcessCalls.h"
+#include "sqlmxevents/logmxevent.h"
 
 #include "MXTraceDef.h"
 #include "seabed/fs.h"
@@ -65,14 +65,14 @@ int_16 TMF_SETTXHANDLE_(short *);
 #include "rosetta/rosgen.h"
 #include "nsk/nskprocess.h"
 extern "C" {
-#include "cextdecs/cextdecs.h"
+//#include "cextdecs/cextdecs.h"
 #include "zsysc.h"
 }
-#include "fs/feerrors.h"
+#include "common/feerrors.h"
 
-#include "trafconf/trafconfig.h"  // to get TC_PROCESSOR_NAME_MAX
+#include "common/trafconfig.h"  // to get TC_PROCESSOR_NAME_MAX
 
-#include "NAWNodeSet.h"
+#include "common/NAWNodeSet.h"
 
 // Uncomment the next line to debug IPC problems (log of client's I/O)
 // #define LOG_IPC

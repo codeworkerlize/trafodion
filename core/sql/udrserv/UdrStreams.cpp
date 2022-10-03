@@ -36,7 +36,7 @@
 #include "udrglobals.h"
 #include "udrdefs.h"
 #include "udrutil.h"
-#include "sql_buffer.h"
+#include "executor/sql_buffer.h"
 #include "UdrDebug.h"
 #include "spinfo.h"
 #include "udrdecs.h"

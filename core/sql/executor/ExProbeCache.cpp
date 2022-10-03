@@ -21,14 +21,14 @@
 // @@@ END COPYRIGHT @@@
 // **********************************************************************
 
-#include "Platform.h"
+#include "common/Platform.h"
 
 #include "ex_stdh.h"
-#include "ComTdb.h"
+#include "comexe/ComTdb.h"
 #include "ex_tcb.h"
 #include "ExProbeCache.h"
 #include "ex_exe_stmt_globals.h"
-#include "ex_expr.h"
+#include "executor/ex_expr.h"
 
 
 ex_tcb * ExProbeCacheTdb::build(ex_globals * glob)

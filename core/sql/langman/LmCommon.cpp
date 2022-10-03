@@ -32,13 +32,13 @@
 ******************************************************************************
 */
 
-#include "Platform.h"
-#include "ComSmallDefs.h"
-#include "str.h"
-#include "NAMemory.h"
-#include "sqlcli.h"
+#include "common/Platform.h"
+#include "common/ComSmallDefs.h"
+#include "common/str.h"
+#include "common/NAMemory.h"
+#include "cli/sqlcli.h"
 #include "LmCommon.h"
-#include "ComDefs.h"
+#include "common/ComDefs.h"
 #include "LmError.h"
 #include "LmDebug.h"
 

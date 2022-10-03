@@ -39,7 +39,7 @@
 #include "Sqlcomp.h"
 #include "GroupAttr.h"
 #include "EstLogProp.h"
-#include "ItemConstr.h"
+#include "optimizer/ItemConstr.h"
 #include "ItemOther.h"
 #include "opt.h"
 #include "Cost.h"
@@ -47,7 +47,7 @@
 #include "Analyzer.h"
 #include "ScanOptimizer.h"
 #include "RelGrby.h" /// temproray, delete after ASM testing
-#include "CmpStatement.h" 
+#include "arkcmp/CmpStatement.h" 
 
 // return hash value of a ValueId; this is called (and required) by
 // NAHashDictionary<K,V>::getHashCode() to compute a key's hash address.

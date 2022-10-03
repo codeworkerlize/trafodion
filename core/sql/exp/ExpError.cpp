@@ -32,16 +32,16 @@
 ****************************************************************************
 */
 
-#include "Platform.h"
+#include "common/Platform.h"
 
 
-#include "ExpError.h"
+#include "exp/ExpError.h"
 #include  "str.h"
-#include "ComDiags.h"
-#include "ComMisc.h"
-#include "exp_clause_derived.h"
+#include "export/ComDiags.h"
+#include "common/ComMisc.h"
+#include "exp/exp_clause_derived.h"
 #include "exp_datetime.h"
-#include "ExpHbaseDefs.h"
+#include "exp/ExpHbaseDefs.h"
 
 // Single allocation of buf is split up to be used for opstrings,
 // formatting.

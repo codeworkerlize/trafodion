@@ -39,21 +39,21 @@
  *****************************************************************************
  */
 
-#include "NAWinNT.h"
+#include "common/NAWinNT.h"
 
-#include "BaseTypes.h"
-#include "charinfo.h"
-#include "ComASSERT.h"
-#include "ComMPLoc.h"
-#include "dfs2rec.h"		// for LOCALE stuff: REC_xBYTE_LOCALE_*
-#include "SQLCLIdev.h"		// for LOCALE stuff: SQLCHARSETCODE_*
-#include "str.h"
+#include "common/BaseTypes.h"
+#include "common/charinfo.h"
+#include "common/ComASSERT.h"
+#include "common/ComMPLoc.h"
+#include "common/dfs2rec.h"		// for LOCALE stuff: REC_xBYTE_LOCALE_*
+#include "cli/SQLCLIdev.h"		// for LOCALE stuff: SQLCHARSETCODE_*
+#include "common/str.h"
 #include "wstr.h"
 #include "SQLTypeDefs.h"
-#include "CmpMessage.h"
+#include "comexe/CmpMessage.h"
 #include "CmpConnection.h"
-#include "CmpContext.h"
-#include "CmpCommon.h"
+#include "arkcmp/CmpContext.h"
+#include "common/CmpCommon.h"
 #include "CliSemaphore.h"
 
 using namespace std;

@@ -39,52 +39,52 @@
 #include "cli_stdh.h"
 #undef _XOPEN_SOURCE_EXTENDED       
 
-#include "ComCextdecs.h"
+#include "common/ComCextdecs.h"
 #include "ex_stdh.h"
 #include "ex_exe_stmt_globals.h"
-#include "ComTdb.h"
+#include "comexe/ComTdb.h"
 #include "ex_tcb.h"
 #include "ex_root.h"
-#include "ExStats.h"
+#include "executor/ExStats.h"
 #include "ExSqlComp.h"
 #include "ex_transaction.h"
 #include "ex_frag_rt.h"
-#include "ComDiags.h"
-#include "NAMemory.h"
-#include "LateBindInfo.h"
-#include "sql_buffer.h"
+#include "export/ComDiags.h"
+#include "common/NAMemory.h"
+#include "comexe/LateBindInfo.h"
+#include "executor/sql_buffer.h"
 #include "ex_control.h"
 #include "Descriptor.h"  // For call to Descriptor::getCharDataFromCharHostVar(). 
-#include "exp_clause_derived.h"
-#include "sql_id.h"
+#include "exp/exp_clause_derived.h"
+#include "cli/sql_id.h"
 #include "ex_error.h"
-#include "ComRtUtils.h"
-#include "ComDistribution.h"
+#include "common/ComRtUtils.h"
+#include "common/ComDistribution.h"
 #include "Cli.h"
-#include "Int64.h"
-#include "ComSqlId.h"
+#include "common/Int64.h"
+#include "common/ComSqlId.h"
 #include "CmpErrors.h"
 
 #include "TriggerEnable.h" // triggers
-#include "ComSmallDefs.h" // MV
-#include "ComMvAttributeBitmap.h" // MV
+#include "common/ComSmallDefs.h" // MV
+#include "common/ComMvAttributeBitmap.h" // MV
 
-#include "logmxevent.h"
+#include "sqlmxevents/logmxevent.h"
 
-#include "ExpLOBinterface.h"
+#include "exp/ExpLOBinterface.h"
 
 #include "ExUdrServer.h"
 #include "wstr.h"
 #include "QueryText.h"
 #include <wchar.h>
 
-#include "ComAnsiNamePart.h"
+#include "common/ComAnsiNamePart.h"
 #include "ExRsInfo.h"
 
 #include "arkcmp_proc.h"
-#include "CmpContext.h"
+#include "arkcmp/CmpContext.h"
 
-#include "DLock.h"
+#include "common/DLock.h"
 #include "ComMemLog.h"
 
 // Printf-style tracing macros for the debug build. The macros are

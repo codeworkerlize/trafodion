@@ -23,14 +23,14 @@
 
 #include <limits>
 #include <float.h>
-#include "nawstring.h"
+#include "common/nawstring.h"
 #include "QRDescGenerator.h"
-#include "NumericType.h"
-#include "DatetimeType.h"
-#include "QRLogger.h"
+#include "common/NumericType.h"
+#include "common/DatetimeType.h"
+#include "qmscommon/QRLogger.h"
 #include "OptRange.h"
 #include "ItemLog.h"
-#include "ComCextdecs.h"
+#include "common/ComCextdecs.h"
 #include "SqlParserAux.h"
 
 double getDoubleValue(ConstValue* val, logLevel level);

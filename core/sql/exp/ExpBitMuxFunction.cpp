@@ -36,13 +36,13 @@
 ******************************************************************************
 */
 
-#include "Platform.h"
+#include "common/Platform.h"
 
 
 // Includes
 //
-#include "exp_clause.h"
-#include "exp_attrs.h"
+#include "exp/exp_clause.h"
+#include "exp/exp_attrs.h"
 #include "ExpPCode.h"
 #include "ExpBitMuxFunction.h" // <--- See here for comments.
 

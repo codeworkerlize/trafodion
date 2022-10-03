@@ -36,8 +36,8 @@
 */
 
 
-#include "ComTdbSort.h"
-#include "ComTdbCommon.h"
+#include "comexe/ComTdbSort.h"
+#include "comexe/ComTdbCommon.h"
 
 
 // Constructor

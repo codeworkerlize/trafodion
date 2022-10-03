@@ -44,7 +44,7 @@
 #include <stdio.h>
 
 
-#include "logmxevent.h"
+#include "sqlmxevents/logmxevent.h"
 // -----------------------------------------------------------------------
 // global function to abort the process
 // -----------------------------------------------------------------------

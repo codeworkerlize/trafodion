@@ -41,7 +41,7 @@
 #include <pthread.h>
 
 #include "CompException.h"
-#include "StmtCompilationMode.h"
+#include "parser/StmtCompilationMode.h"
 #include "seabed/sys.h"
 
 extern Int32 writeStackTrace(char *s, int bufLen);
@@ -113,13 +113,13 @@ int NAAssertMutexLock()
   return rc;
 }
 
-#include "Platform.h"
+#include "common/Platform.h"
 
 extern short getRTSSemaphore();     // Functions implemented in SqlStats.cpp
 extern void releaseRTSSemaphore();
 
-#include "BaseTypes.h" // for declaration of NAAbort()
-#include "NAAssert.h"  // for declaration of NAAssert()
+#include "common/BaseTypes.h" // for declaration of NAAbort()
+#include "common/NAAssert.h"  // for declaration of NAAssert()
 #include "NAError.h"   // for ARKCMP_EXCEPTION_EPILOGUE()
 
 #include <setjmp.h>
@@ -176,7 +176,7 @@ void registerAbortCallBack(AbortCallBack *pACB)
 
 extern THREAD_P jmp_buf* ExportJmpBufPtr; 
 
-#include "logmxevent.h"
+#include "sqlmxevents/logmxevent.h"
 
 
 static void do_endprocessing(short exitAbend)

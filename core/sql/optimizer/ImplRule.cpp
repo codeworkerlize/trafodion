@@ -44,16 +44,16 @@
 #include "RelSequence.h"
 #include "RelSample.h"
 #include "AllItemExpr.h"
-#include "ValueDesc.h"
+#include "optimizer/ValueDesc.h"
 #include "mdam.h"
-#include "CmpContext.h"
+#include "arkcmp/CmpContext.h"
 #include "Cost.h"
 #include "CostMethod.h"
 #include "ScanOptimizer.h"
 
-#include "NADefaults.h"
+#include "sqlcomp/NADefaults.h"
 #include "OptimizerSimulator.h"
-#include "RelScan.h"
+#include "optimizer/RelScan.h"
 
 // -----------------------------------------------------------------------
 // Global variables

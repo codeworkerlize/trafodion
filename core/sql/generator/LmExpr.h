@@ -44,8 +44,8 @@
     LmExpr.cpp for details.
 */
 
-#include "NABoolean.h"
-#include "ComSmallDefs.h"
+#include "common/NABoolean.h"
+#include "common/ComSmallDefs.h"
 
 //
 // Forward class references

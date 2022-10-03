@@ -36,7 +36,7 @@
  *****************************************************************************
  */
 
-#include "Platform.h"
+#include "common/Platform.h"
 
 
 #include "exp_interval.h"

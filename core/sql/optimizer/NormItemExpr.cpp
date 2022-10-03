@@ -43,7 +43,7 @@
 #include "NormWA.h"
 #include "AllItemExpr.h"
 #include "mdam.h"
-#include "ValueDesc.h"
+#include "optimizer/ValueDesc.h"
 #include "RelGrby.h"
 #include "RelJoin.h"
 #include "RelUpdate.h"

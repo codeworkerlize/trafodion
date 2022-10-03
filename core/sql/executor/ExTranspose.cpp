@@ -43,7 +43,7 @@
 
 #include "ExTranspose.h"
 #include "ExSimpleSqlBuffer.h"
-#include "ExStats.h"
+#include "executor/ExStats.h"
 
 //////////////////////////////////////////////////////////////////////////////
 //

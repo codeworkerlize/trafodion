@@ -36,8 +36,8 @@
 
 #ifdef LANGMAN
 #include "LmAssert.h"
-#include "exp_expr.h"
-#include "exp_clause_derived.h"
+#include "exp/exp_expr.h"
+#include "exp/exp_clause_derived.h"
 #endif
 
 //////////////////////////////////////////////////////////////////////

@@ -35,7 +35,7 @@
 
 // -----------------------------------------------------------------------
 
-#include "Platform.h"
+#include "common/Platform.h"
 #include "copyright.h"
 
 
@@ -68,13 +68,13 @@ typedef size_t length_t;
 #include <iomanip>
 #endif /* DISABLE_SOCKET_IPC */
 
-#include "Collections.h"
-#include "Ipc.h"
-#include "ComDiags.h"
-#include "str.h"
+#include "common/Collections.h"
+#include "common/Ipc.h"
+#include "export/ComDiags.h"
+#include "common/str.h"
 
 // comment this out once NAHeap.h is in common
-// #include "NAHeap.h"
+// #include "common/NAHeap.h"
 // for now declare overloaded operator new here
 void * operator new(size_t size, CollHeap* h);
 

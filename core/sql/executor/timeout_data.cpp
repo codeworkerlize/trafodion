@@ -35,10 +35,10 @@
  *****************************************************************************
  */
 
-#include "NAStdlib.h" // Redefines strcpy(), strncpy(), strcmp() for SRLs
+#include "common/NAStdlib.h" // Redefines strcpy(), strncpy(), strcmp() for SRLs
 #include "timeout_data.h"
 #include "ex_ex.h"  // for ex_assert()
-#include "ComTdbRoot.h"
+#include "comexe/ComTdbRoot.h"
 
 //**********************************************************************
 // methods for TimeoutHashTable

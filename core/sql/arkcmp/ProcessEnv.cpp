@@ -40,10 +40,10 @@
 
 
 
-#include "Platform.h"           
-#include "Collections.h"
+#include "common/Platform.h"           
+#include "common/Collections.h"
 #include "ProcessEnv.h"
-#include "CmpCommon.h"
+#include "common/CmpCommon.h"
 
 #include <unistd.h>
 #include <string.h>

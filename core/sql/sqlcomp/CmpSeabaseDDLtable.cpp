@@ -40,7 +40,7 @@
 #include "CmpSeabaseDDLincludes.h"
 #include "CmpSeabaseDDLauth.h"
 #include "ElemDDLColDefault.h"
-#include "NumericType.h"
+#include "common/NumericType.h"
 #include "CompositeType.h"
 #include "ComUser.h"
 #include "keycolumns.h"
@@ -51,10 +51,10 @@
 #include "ElemDDLStoreOptions.h"
 
 #include "CmpDDLCatErrorCodes.h"
-#include "Globals.h"
+#include "cli/Globals.h"
 #include "CmpMain.h"
-#include "Context.h"
-#include "PrivMgrCommands.h"
+#include "cli/Context.h"
+#include "sqlcomp/PrivMgrCommands.h"
 #include "PrivMgrMDDefs.h"
 #include "PrivMgrRoles.h"
 #include "PrivMgrComponentPrivileges.h"
@@ -67,14 +67,14 @@
 
 #include "RelExeUtil.h"
 
-#include "TrafDDLdesc.h"
+#include "sqlcat/TrafDDLdesc.h"
 
 #include "CmpDescribe.h"
-#include "SharedCache.h"
-#include "NamedSemaphore.h"
+#include "sqlcomp/SharedCache.h"
+#include "sqlcomp/NamedSemaphore.h"
 
 
-#include "DLock.h"  // for distributed locking
+#include "common/DLock.h"  // for distributed locking
 
 #include "NATestpoint.h"
 

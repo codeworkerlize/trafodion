@@ -37,10 +37,10 @@
 
 // -----------------------------------------------------------------------
 
-#include "ComTdbSendTop.h"
-#include "ComTdbCommon.h"
-#include "sql_buffer.h"
-#include "sql_buffer_size.h"  // for SqlBuffer::neededSize().
+#include "comexe/ComTdbSendTop.h"
+#include "comexe/ComTdbCommon.h"
+#include "executor/sql_buffer.h"
+#include "executor/sql_buffer_size.h"  // for SqlBuffer::neededSize().
 
 // -----------------------------------------------------------------------
 // Methods for class ComTdbSendTop

@@ -36,13 +36,13 @@
 #define   SQLPARSERGLOBALS_NADEFAULTS		// first
 
 #include <ctype.h>
-#include "Platform.h"
-#include "ComASSERT.h"
-#include "ComMPLoc.h"
+#include "common/Platform.h"
+#include "common/ComASSERT.h"
+#include "common/ComMPLoc.h"
 #include "ComOperators.h"
-#include "ComRtUtils.h"
-#include "NAString.h"
-#include "SqlParserGlobals.h"			// last
+#include "common/ComRtUtils.h"
+#include "common/NAString.h"
+#include "parser/SqlParserGlobals.h"			// last
 
 
 #define PREALLOCATE_STRING_MEMBERS		\

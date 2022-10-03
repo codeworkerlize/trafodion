@@ -21,8 +21,8 @@
 // @@@ END COPYRIGHT @@@
 // **********************************************************************
 #include "CompilerTracking.h"
-#include "QRLogger.h"
-#include "ExExeUtilCli.h"
+#include "qmscommon/QRLogger.h"
+#include "executor/ExExeUtilCli.h"
 #ifdef _MSC_VER
 #undef _MSC_VER
 #endif

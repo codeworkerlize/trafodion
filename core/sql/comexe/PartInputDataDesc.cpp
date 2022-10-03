@@ -38,14 +38,14 @@
 
 // -----------------------------------------------------------------------
 
-#include "PartInputDataDesc.h"
-#include "str.h"
-#include "exp_expr.h"
-#include "ExpSqlTupp.h"
-#include "ExpAtp.h"
-#include "ComPackDefs.h"
+#include "comexe/PartInputDataDesc.h"
+#include "common/str.h"
+#include "exp/exp_expr.h"
+#include "exp/ExpSqlTupp.h"
+#include "exp/ExpAtp.h"
+#include "comexe/ComPackDefs.h"
 
-#include "BaseTypes.h"
+#include "common/BaseTypes.h"
 
 // -----------------------------------------------------------------------
 // Methods for class ExPartInputDataDesc

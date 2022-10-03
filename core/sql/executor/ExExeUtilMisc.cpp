@@ -55,7 +55,7 @@
 #include  <unistd.h>
 
 #include "ExpHbaseInterface.h"
-#include "ExpLOBinterface.h"
+#include "exp/ExpLOBinterface.h"
 #include "ExpComposite.h"
 
 //////////////////////////////////////////////////////////

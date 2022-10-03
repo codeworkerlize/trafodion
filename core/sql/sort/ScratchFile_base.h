@@ -35,7 +35,7 @@
 ******************************************************************************
 */
 
-#include "Platform.h"
+#include "common/Platform.h"
 // 64-bit
 // NOTE: We must use "unsigned long" here (even though it violates our rule
 //       of not using "long" explicitly) because  DWORD may already be
@@ -44,8 +44,8 @@
 #include "CommonStructs.h"
 #include "Const.h"
 #include "CommonUtil.h"
-#include "NABasicObject.h"
-#include "Int64.h"
+#include "export/NABasicObject.h"
+#include "common/Int64.h"
 #include "SortError.h"
 #include "ScratchFileConnection.h"
 #include "stfs/stfslib.h"

@@ -30,29 +30,25 @@
  *
  */
 
-#include "ComExtractInfo.h"
+#include "comexe/ComExtractInfo.h"
 
-Long ComExtractProducerInfo::pack(void *space)
-{
+Long ComExtractProducerInfo::pack(void *space) {
   securityKey_.pack(space);
   return NAVersionedObject::pack(space);
 }
 
-Lng32 ComExtractProducerInfo::unpack(void *base, void *reallocator)
-{
+Lng32 ComExtractProducerInfo::unpack(void *base, void *reallocator) {
   if (securityKey_.unpack(base)) return -1;
   return NAVersionedObject::unpack(base, reallocator);
 }
 
-Long ComExtractConsumerInfo::pack(void *space)
-{
+Long ComExtractConsumerInfo::pack(void *space) {
   espPhandle_.pack(space);
   securityKey_.pack(space);
   return NAVersionedObject::pack(space);
 }
 
-Lng32 ComExtractConsumerInfo::unpack(void *base, void *reallocator)
-{
+Lng32 ComExtractConsumerInfo::unpack(void *base, void *reallocator) {
   if (espPhandle_.unpack(base)) return -1;
   if (securityKey_.unpack(base)) return -1;
   return NAVersionedObject::unpack(base, reallocator);

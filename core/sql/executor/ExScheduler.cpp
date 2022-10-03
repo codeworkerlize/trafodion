@@ -38,24 +38,24 @@
 
 
 #include <dlfcn.h>  
-#include "Platform.h"
+#include "common/Platform.h"
 #include "ex_stdh.h"
-#include "ComTdb.h"
+#include "comexe/ComTdb.h"
 #include "ex_tcb.h"
-#include "exp_expr.h"
+#include "exp/exp_expr.h"
 #include "ExScheduler.h"
-#include "ExStats.h"
+#include "executor/ExStats.h"
 #include "ex_error.h"
 
 // wait method need more include files
 #include "ex_exe_stmt_globals.h"
-#include "Ipc.h"
+#include "common/Ipc.h"
 #include "ex_frag_rt.h"
 #include "ex_root.h"
 
 #include "ExCextdecs.h"
-#include "ComRtUtils.h"
-#include "ComSqlcmpdbg.h"
+#include "common/ComRtUtils.h"
+#include "common/ComSqlcmpdbg.h"
 
 const char *TraceDesc = "SubTask state trace in Scheduler";
 static pid_t pid = getpid();

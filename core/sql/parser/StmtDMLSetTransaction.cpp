@@ -36,14 +36,14 @@
  */
 
 
-#include "ComDiags.h"
-#include "ComSmallDefs.h"
+#include "export/ComDiags.h"
+#include "common/ComSmallDefs.h"
 #include "StmtDDLNode.h"
 #include "StmtDMLSetTransaction.h"
-#include "SQLCLIdev.h"
+#include "cli/SQLCLIdev.h"
 #include "ItemOther.h"
 #define   SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
-#include "SqlParserGlobals.h"
+#include "parser/SqlParserGlobals.h"
 
 //
 // class StmtDMLSetTransaction

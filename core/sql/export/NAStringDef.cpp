@@ -34,10 +34,10 @@
 ****************************************************************************
 */
 
-#include "Platform.h"
+#include "common/Platform.h"
 
 
-#include "NAAssert.h"
+#include "common/NAAssert.h"
 
 #include <iostream>
 
@@ -48,12 +48,12 @@
 //
 // -----------------------------------------------------------------------
 
-#include "NAStringDef.h"
-#include "NAMemory.h"
-#include "str.h"
+#include "export/NAStringDef.h"
+#include "common/NAMemory.h"
+#include "common/str.h"
 #include <stdarg.h>
 
-#include "str.h"
+#include "common/str.h"
 #include <fstream>
 using namespace std;
 

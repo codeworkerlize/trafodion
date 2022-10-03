@@ -36,8 +36,8 @@
 
 // -----------------------------------------------------------------------
 
-#include "ComTdbTimeout.h"
-#include "ComTdbCommon.h"
+#include "comexe/ComTdbTimeout.h"
+#include "comexe/ComTdbCommon.h"
 
 /////////////////////////////////////////////////////////////////
 // class ComTdbTimeout

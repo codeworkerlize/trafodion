@@ -37,15 +37,15 @@
  *****************************************************************************
  */
 
-#include "Platform.h"
+#include "common/Platform.h"
 
 
 #include <stdlib.h>
 #include <string.h>
 #include "SqlciCmd.h"
 #include "SqlciParser.h"
-#include "ComDiags.h"
-#include "str.h"
+#include "export/ComDiags.h"
+#include "common/str.h"
 #include "SqlciParseGlobals.h"
 #include "SqlciError.h"
 #include "sqlcmd.h"

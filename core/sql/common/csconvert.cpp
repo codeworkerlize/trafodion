@@ -36,7 +36,7 @@
 
 #include "multi-byte.h"
 #include "fcconv.h"
-#include "csconvert.h"
+#include "common/csconvert.h"
 
 #include "from_GB18030.c"
 #include "from_GB2312.c"

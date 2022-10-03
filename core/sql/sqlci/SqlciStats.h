@@ -43,7 +43,7 @@
  *****************************************************************************
  */
 
-#include "Platform.h"		       
+#include "common/Platform.h"		       
 #include "SqlciCmd.h"			// Statistics class enum
 #include <sys/time.h>
 

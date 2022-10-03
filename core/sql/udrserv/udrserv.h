@@ -44,21 +44,21 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <iostream>
-#include "Int64.h"
+#include "common/Int64.h"
 
 #include "spinfo.h"
 #include "copyright.h"
 #include "udrutil.h"
 #include "LmError.h"
-#include "NumericType.h"
+#include "common/NumericType.h"
 #include "udrdefs.h"
 #include "udrglobals.h"
 
-#include "logmxevent.h"
+#include "sqlmxevents/logmxevent.h"
 
 #include "UdrExeIpc.h"
 
-#include "ComDiags.h"
+#include "export/ComDiags.h"
 
 extern UdrGlobals *UDR_GLOBALS; // UDR globals area
 

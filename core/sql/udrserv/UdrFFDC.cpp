@@ -34,7 +34,7 @@
  *
  *****************************************************************************
  */
-#include "Platform.h"
+#include "common/Platform.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -47,7 +47,7 @@
 #include "udrutil.h"
 #include "UdrDebug.h"
 #include "UdrFFDC.h"
-#include "logmxevent.h"
+#include "sqlmxevents/logmxevent.h"
 
 #include "copyright.h"
 

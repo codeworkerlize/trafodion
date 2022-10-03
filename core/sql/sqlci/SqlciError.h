@@ -46,7 +46,7 @@
 
 
 #include <stdarg.h>
-#include "Platform.h"
+#include "common/Platform.h"
 
 // SQLCI Error codes
 #define SQLCI_SYNTAX_ERROR        	15001

@@ -45,12 +45,12 @@
 #include <stdlib.h>
 #include <wchar.h>
 
-#include "Platform.h"
-#include "NAWinNT.h"
+#include "common/Platform.h"
+#include "common/NAWinNT.h"
 
-#include "ComCextdecs.h"
-#include "ComDiags.h"
-#include "ComSmallDefs.h"
+#include "common/ComCextdecs.h"
+#include "export/ComDiags.h"
+#include "common/ComSmallDefs.h"
 #include "ErrorMessage.h"
 #include "GetErrorMessage.h"
 #include "InputStmt.h"
@@ -60,12 +60,12 @@
 #include "ShellCmd.h"
 #include "SqlciError.h"
 #include "SqlciParser.h"
-#include "str.h"
-#include "charinfo.h"
+#include "common/str.h"
+#include "common/charinfo.h"
 #include "SqlciEnv.h"
 #include "Sqlci.h"
-#include "sql_id.h"
-#include "ComRtUtils.h"
+#include "cli/sql_id.h"
+#include "common/ComRtUtils.h"
 #include "ComUser.h"
 
 extern ComDiagsArea sqlci_DA;
@@ -1278,7 +1278,7 @@ short QueryId::process(SqlciEnv * sqlci_env)
  
       // UNIQUEQUERYID_EXESTARTTIME
       short startTimeArray[8];
-      _int64 startTime = queryIdAttrs[4].num_val_or_len;
+      long long  startTime = queryIdAttrs[4].num_val_or_len;
       short error;
 
       INTERPRETTIMESTAMP( CONVERTTIMESTAMP(startTime, 0, // GMT to LCT

@@ -23,10 +23,10 @@
 #include <iostream>
 #include "ApplicationFile.h"
 #include "Cmdline_Args.h"
-#include "ComDiags.h"
-#include "DgBaseType.h"
+#include "export/ComDiags.h"
+#include "common/DgBaseType.h"
 #include "ELFFile.h"
-#include "NAAssert.h"
+#include "common/NAAssert.h"
 #include "SQLJFile.h"
 #include "mxCompileUserModule.h"
 

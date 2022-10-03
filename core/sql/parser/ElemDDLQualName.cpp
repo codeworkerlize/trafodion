@@ -41,7 +41,7 @@
 #ifndef   SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #define   SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #endif
-#include "SqlParserGlobals.h"
+#include "parser/SqlParserGlobals.h"
   
 ElemDDLQualName::ElemDDLQualName(const QualifiedName & qualName)
 : qualName_(qualName, PARSERHEAP())

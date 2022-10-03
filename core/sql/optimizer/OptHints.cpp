@@ -23,8 +23,8 @@
 /* -*-C++-*- */
 
 #include "OptHints.h"
-#include "DatetimeType.h"
-#include "CmpContext.h"
+#include "common/DatetimeType.h"
+#include "arkcmp/CmpContext.h"
 #include "ControlDB.h"
 
 Hint::Hint(const NAString &indexName, NAMemory *h) 

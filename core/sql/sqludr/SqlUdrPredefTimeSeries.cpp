@@ -21,8 +21,8 @@
 
 #include "SqlUdrPredefTimeSeries.h"
 #include <limits>
-#include "ComCextdecs.h"
-#include "ComRtUtils.h"
+#include "common/ComCextdecs.h"
+#include "common/ComRtUtils.h"
 
 // sample invocation of the TIMESERIES TMUDF:
 //

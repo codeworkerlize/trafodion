@@ -21,8 +21,8 @@
 // @@@ END COPYRIGHT @@@
 **********************************************************************/
 
-#include "CharType.h"
-#include "NumericType.h"
+#include "common/CharType.h"
+#include "common/NumericType.h"
 #include "ItemExpr.h"
 #include "ItmFlowControlFunction.h"
 

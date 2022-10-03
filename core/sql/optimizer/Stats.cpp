@@ -41,13 +41,13 @@
 #include <string.h>
 #include "Stats.h"
 #include "Sqlcomp.h"
-#include "ItemColRef.h"
+#include "optimizer/ItemColRef.h"
 #include "opt.h"
 #include "Analyzer.h"
 #include "Cost.h"
 #include "CompException.h"
-#include "NLSConversion.h" // For conversion to unicode strings
-#include "ComCextdecs.h" // For Timestamp related calls
+#include "common/NLSConversion.h" // For conversion to unicode strings
+#include "common/ComCextdecs.h" // For Timestamp related calls
 #include <queue>
 #include "QCache.h"
 

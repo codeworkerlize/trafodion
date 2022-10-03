@@ -45,17 +45,17 @@
 //
 
 #ifdef UDRSERV_BUILD
-#include "sql_buffer.h"
+#include "executor/sql_buffer.h"
 #else
-#include "Platform.h"
+#include "common/Platform.h"
 #include "ex_stdh.h"
-#include "str.h"
-#include "ComQueue.h"
-#include "exp_expr.h"
-#include "ComTdb.h"
-#include "ExStats.h"
+#include "common/str.h"
+#include "comexe/ComQueue.h"
+#include "exp/exp_expr.h"
+#include "comexe/ComTdb.h"
+#include "executor/ExStats.h"
 #endif // UDRSERV_BUILD
-#include "sql_buffer_size.h"
+#include "executor/sql_buffer_size.h"
 
 // to use msg_mon_dump_process_id
 #include "seabed/ms.h"

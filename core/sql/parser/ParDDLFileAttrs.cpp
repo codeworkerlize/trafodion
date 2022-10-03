@@ -37,9 +37,9 @@
 #include "ComUnits.h"
 
 #include "AllElemDDLFileAttr.h"
-#include "BaseTypes.h"
-#include "ComASSERT.h"
-#include "ComDiags.h"
+#include "common/BaseTypes.h"
+#include "common/ComASSERT.h"
+#include "export/ComDiags.h"
 #include "ComOperators.h"
 #include "ElemDDLNode.h"
 #include "ParDDLFileAttrs.h"
@@ -48,8 +48,8 @@
 #include "ParDDLFileAttrsCreateIndex.h"
 #include "ParDDLFileAttrsCreateTable.h"
 #define   SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
-#include "SqlParserGlobals.h"
-#include "NAString.h"
+#include "parser/SqlParserGlobals.h"
+#include "common/NAString.h"
 #include "seabed/ms.h"
 
 // -----------------------------------------------------------------------

@@ -37,10 +37,10 @@
 
 // Contents: implementation for RelInternalSP
 
-#include "RelStoredProc.h"  // definition of RelStoredProc::RelExpr
+#include "optimizer/RelStoredProc.h"  // definition of RelStoredProc::RelExpr
 #include "CmpStoredProc.h"  // interface to the SP routines.
 #include "BindWA.h"         // for binder related stuffs.
-#include "CmpStatement.h"
+#include "arkcmp/CmpStatement.h"
 
 // the following includes are for OptLogRelExpr and OptPhysRelExpr related
 // methods, once those methods are moved to the appropriate files, the
@@ -56,7 +56,7 @@
 #include "EstLogProp.h"
 #include <math.h>
 
-#include "ComDistribution.h"
+#include "common/ComDistribution.h"
 
 RelInternalSP::RelInternalSP(const NAString & procName, ItemExpr *params,
 			     OperatorTypeEnum otype, CollHeap* oHeap, 

@@ -30,21 +30,21 @@
 *
 *****************************************************************************
 */
-#include "Platform.h"
+#include "common/Platform.h"
 
 
-#include "sql_buffer.h"
-#include "Int64.h" 
+#include "executor/sql_buffer.h"
+#include "common/Int64.h" 
 #include "udrutil.h"
 #include "udrdefs.h"
 #include "udrglobals.h"
 #include "LmLangManager.h"
 #include "LmParameter.h"
 #include "spinfo.h"
-#include "ComDiags.h"
+#include "export/ComDiags.h"
 #include <stdarg.h>
 #include <ctype.h>
-#include "ComRtUtils.h"
+#include "common/ComRtUtils.h"
 
 
 extern char *getDatatypeAsString(Int32 datatype, NABoolean extFormat = FALSE);

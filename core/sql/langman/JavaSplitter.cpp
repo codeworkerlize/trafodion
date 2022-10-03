@@ -38,11 +38,11 @@
  */
 #include <jni.h>
 #include "JavaSplitter.h"
-#include "Platform.h"
+#include "common/Platform.h"
 #include <iostream>
 #include <string.h>
 
-#include "ComDiags.h"
+#include "export/ComDiags.h"
 #include "LmError.h"
 
 

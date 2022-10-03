@@ -41,19 +41,19 @@
 // with a explain operator
 //
 #include "ex_stdh.h"
-#include "ComTdb.h"
+#include "comexe/ComTdb.h"
 #include "ex_tcb.h"
 #include "ex_root.h"
 #include "ex_queue.h"
 #include "ExExplain.h"
-#include "ExplainTuple.h"
-#include "ex_expr.h"
-#include "exp_like.h"
-#include "ComQueue.h"
-#include "sql_id.h"
-#include "SqlStats.h"
-#include "ssmpipc.h"
-#include "ComCextdecs.h"
+#include "comexe/ExplainTuple.h"
+#include "executor/ex_expr.h"
+#include "exp/exp_like.h"
+#include "comexe/ComQueue.h"
+#include "cli/sql_id.h"
+#include "runtimestats/SqlStats.h"
+#include "runtimestats/ssmpipc.h"
+#include "common/ComCextdecs.h"
 
 // Default Constructor.  This is used by the ex_tdb::fixupVTblPtr()
 // routine which fixes up the virtual function table pointer after

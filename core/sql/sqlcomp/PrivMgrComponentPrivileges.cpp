@@ -22,7 +22,7 @@
 //*****************************************************************************
 #include "PrivMgrComponentPrivileges.h"
 
-#include "PrivMgrDefs.h"  
+#include "sqlcomp/PrivMgrDefs.h"  
 #include "PrivMgrComponentDefs.h"
 #include "PrivMgrMD.h"
 #include "PrivMgrMDTable.h"
@@ -35,21 +35,21 @@
 #include <cstdio>
 #include <algorithm>
 #include <vector>
-#include "ComSmallDefs.h"
+#include "common/ComSmallDefs.h"
 #include "CmpSeabaseDDL.h"
 
 // sqlcli.h included because ExExeUtilCli.h needs it (and does not include it!)
-#include "sqlcli.h"
-#include "ExExeUtilCli.h"
-#include "ComQueue.h"
-#include "ComDiags.h"
-#include "ComQueue.h"
+#include "cli/sqlcli.h"
+#include "executor/ExExeUtilCli.h"
+#include "comexe/ComQueue.h"
+#include "export/ComDiags.h"
+#include "comexe/ComQueue.h"
 // CmpCommon.h contains STMTHEAP declaration
-#include "CmpCommon.h"
+#include "common/CmpCommon.h"
 #include "CmpDDLCatErrorCodes.h"
 #include "ComUser.h"
-#include "SQLCLIdev.h"
-#include "ComSecurityKey.h"
+#include "cli/SQLCLIdev.h"
+#include "common/ComSecurityKey.h"
 
 static bool isSQLDMLPriv(
    const int64_t componentUID,

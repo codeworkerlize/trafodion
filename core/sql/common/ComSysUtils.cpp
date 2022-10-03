@@ -35,11 +35,11 @@
  *****************************************************************************
  */
 
-#include "Platform.h"
+#include "common/Platform.h"
 
 
-#include "ComSysUtils.h"
-#include "NAAssert.h"
+#include "common/ComSysUtils.h"
+#include "common/NAAssert.h"
 
 
 //----------------------------------------------------------------

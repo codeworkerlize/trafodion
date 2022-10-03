@@ -35,16 +35,16 @@
  */
 
 
-#include "Platform.h"
+#include "common/Platform.h"
 
-#include "ComASSERT.h"
-#include "csconvert.h"
-#include "ComDistribution.h"
-#include "ComAnsiNamePart.h"
-#include "ComSqlText.h"
-#include "NAString.h"
+#include "common/ComASSERT.h"
+#include "common/csconvert.h"
+#include "common/ComDistribution.h"
+#include "common/ComAnsiNamePart.h"
+#include "common/ComSqlText.h"
+#include "common/NAString.h"
 #include "CatSQLShare.h"
-#include "nawstring.h"
+#include "common/nawstring.h"
 
 extern cnv_charset convertCharsetEnum (Int32 /* SQLCHARSET_CODE */ charSet);
 

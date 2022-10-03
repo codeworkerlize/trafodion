@@ -38,26 +38,26 @@
 #define  SQLPARSERGLOBALS_CONTEXT_AND_DIAGS	// must be first
 #define  SQLPARSERGLOBALS_NADEFAULTS		// must be first
 
-#include "NAWinNT.h"				// platform-independent stuff
+#include "common/NAWinNT.h"				// platform-independent stuff
 
-#include "ObjectNames.h"
-#include "ComMPLoc.h"
-#include "ComRtUtils.h"
+#include "optimizer/ObjectNames.h"
+#include "common/ComMPLoc.h"
+#include "common/ComRtUtils.h"
 #include "SchemaDB.h"
 
 #include "BindWA.h"
-#include "ItemColRef.h"
+#include "optimizer/ItemColRef.h"
 #include "parser.h"
-#include "RelScan.h"
-#include "StmtNode.h"
+#include "optimizer/RelScan.h"
+#include "parser/StmtNode.h"
 
 #include "CmpSeabaseDDL.h"
 
-#include "ComSmallDefs.h"
+#include "common/ComSmallDefs.h"
 
-#include "ComResWords.h"
+#include "common/ComResWords.h"
 
-#include "SqlParserGlobals.h"			// must be last
+#include "parser/SqlParserGlobals.h"			// must be last
 
 
 // -----------------------------------------------------------------------

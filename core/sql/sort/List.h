@@ -22,8 +22,8 @@
 **********************************************************************/
 #ifndef LIST_H_
 #define LIST_H_
-#include "NABasicObject.h"
-#include "Platform.h"
+#include "export/NABasicObject.h"
+#include "common/Platform.h"
 #include "SortError.h"
 
 template <class T>

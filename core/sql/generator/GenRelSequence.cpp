@@ -25,14 +25,14 @@
 #include "RelSequence.h"
 #include "Generator.h"
 #include "GenExpGenerator.h"
-#include "ExpCriDesc.h"
-#include "ComTdbSequence.h"
-#include "NumericType.h"
+#include "exp/ExpCriDesc.h"
+#include "comexe/ComTdbSequence.h"
+#include "common/NumericType.h"
 #include "ItmFlowControlFunction.h"
-#include "ExplainTupleMaster.h"
-#include "ComDefs.h"
+#include "comexe/ExplainTupleMaster.h"
+#include "common/ComDefs.h"
 
-#include "HashBufferHeader.h"
+#include "comexe/HashBufferHeader.h"
 
 ItemExpr *
 addConvNode(ItemExpr *childExpr,

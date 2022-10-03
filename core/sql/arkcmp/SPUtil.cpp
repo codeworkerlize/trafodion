@@ -22,7 +22,7 @@
 **********************************************************************/
 
 #define _SPUTIL_SP_DLL_
-#include "CmpISPStd.h"
+#include "arkcmp/CmpISPStd.h"
 
 #include <stdio.h>
 #include <stdlib.h>

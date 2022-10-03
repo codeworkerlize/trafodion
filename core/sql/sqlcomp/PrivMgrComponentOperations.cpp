@@ -29,16 +29,16 @@
 
 #include <string>
 #include <cstdio>
-#include "ComSmallDefs.h"
+#include "common/ComSmallDefs.h"
 
 // sqlcli.h included because ExExeUtilCli.h needs it (and does not include it!)
-#include "sqlcli.h"
-#include "ExExeUtilCli.h"
-#include "ComQueue.h"
-#include "ComDiags.h"
+#include "cli/sqlcli.h"
+#include "executor/ExExeUtilCli.h"
+#include "comexe/ComQueue.h"
+#include "export/ComDiags.h"
 // CmpCommon.h contains STMTHEAP declaration
-#include "CmpCommon.h"
-#include "CmpContext.h"
+#include "common/CmpCommon.h"
+#include "arkcmp/CmpContext.h"
 #include "CmpDDLCatErrorCodes.h"
 #include "ComUser.h"
 

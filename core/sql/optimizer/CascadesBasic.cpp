@@ -33,7 +33,7 @@
 */
 
 #include "Analyzer.h"
-#include "CascadesBasic.h"
+#include "optimizer/CascadesBasic.h"
 #include "Sqlcomp.h"
 
 

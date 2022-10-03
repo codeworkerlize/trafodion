@@ -44,7 +44,7 @@
 #include "ExPackedRows.h"
 #include "ExSimpleSqlBuffer.h"
 #include "ex_error.h"
-#include "ExpError.h"
+#include "exp/ExpError.h"
 
 
 //////////////////////////////////////////////////////////////////////////////

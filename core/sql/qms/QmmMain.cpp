@@ -24,8 +24,8 @@
 #include "QueryRewriteServer.h"
 #include "QmmQmm.h"
 #include "QRSharedPtr.h"
-#include "QRLogger.h"
-#include "NAType.h"
+#include "qmscommon/QRLogger.h"
+#include "common/NAType.h"
 
 #include "nsk/nskport.h"
 #include "seabed/ms.h"

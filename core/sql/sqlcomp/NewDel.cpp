@@ -82,7 +82,7 @@
 
 #include <stdlib.h>
 #include <iostream>
-#include "NAHeap.h"
+#include "common/NAHeap.h"
 #include "HeapLog.h"
 #include "NewDel.h"
 

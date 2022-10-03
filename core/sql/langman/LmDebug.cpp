@@ -30,7 +30,7 @@
 //
 // @@@ END COPYRIGHT @@@
 **********************************************************************/
-#include "Platform.h"
+#include "common/Platform.h"
 #include "LmExtFunc.h"
 #include "LmDebug.h"
 
@@ -38,7 +38,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
-#include "NABoolean.h"
+#include "common/NABoolean.h"
 FILE *lmDebugFile = stdout;
 
 NABoolean doLmDebug()

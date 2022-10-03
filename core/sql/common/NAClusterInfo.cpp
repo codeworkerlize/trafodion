@@ -22,8 +22,8 @@
 **********************************************************************/
 // Implementation for the classes listed in SystemParameters.h
 
-#include "NAClusterInfo.h"
-#include "NADefaults.h"
+#include "common/NAClusterInfo.h"
+#include "sqlcomp/NADefaults.h"
 #include "CompException.h"
 #include <cextdecs/cextdecs.h>
 #include <limits.h>
@@ -31,8 +31,8 @@
 #include <stdio.h>
 #include "nsk/nskport.h"
 
-#include "ComRtUtils.h"
-#include "NAWNodeSet.h"
+#include "common/ComRtUtils.h"
+#include "common/NAWNodeSet.h"
 
 #include "OptimizerSimulator.h"
 #include <cstdlib>

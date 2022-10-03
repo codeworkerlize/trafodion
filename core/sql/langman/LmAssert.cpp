@@ -36,7 +36,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <iostream>
-#include "Platform.h"
+#include "common/Platform.h"
 #include "LmExtFunc.h"
 
 // Exclude this function from coverage as it is called only when there is an assertion in LM

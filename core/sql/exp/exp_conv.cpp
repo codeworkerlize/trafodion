@@ -37,7 +37,7 @@
  */
 
 
-#include "Platform.h"
+#include "common/Platform.h"
 #include "exp_ieee.h"
 #include <stdlib.h>
 #include <errno.h>
@@ -48,21 +48,21 @@
 #define MathLog10(op, err) log10(op)
 #include <stdlib.h>
 
-#include "exp_stdh.h"
-#include "exp_clause_derived.h"
+#include "exp/exp_stdh.h"
+#include "exp/exp_clause_derived.h"
 
 #include "float.h"
-#include "str.h"
+#include "common/str.h"
 #include "wstr.h"
 #include "BigNumHelper.h"
-#include "NAAssert.h"
-#include "NLSConversion.h"
-#include "nawstring.h"
+#include "common/NAAssert.h"
+#include "common/NLSConversion.h"
+#include "common/nawstring.h"
 #include "exp_datetime.h"
 #include "SQLTypeDefs.h"
 #include "exp_bignum.h"
 #include "fenv.h"
-#include "ComMisc.h"
+#include "common/ComMisc.h"
 
 // forward declarations
 

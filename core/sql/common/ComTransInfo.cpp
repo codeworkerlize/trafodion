@@ -34,8 +34,8 @@
  */
 
 
-#include "ComMisc.h"
-#include "ComTransInfo.h"
+#include "common/ComMisc.h"
+#include "common/ComTransInfo.h"
 #include <iostream>
 
 // returns -1, if a transaction is needed for these lock flags.

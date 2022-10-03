@@ -35,13 +35,13 @@
 
 #include "AllRelExpr.h"
 #include "AllItemExpr.h"
-#include "CmpContext.h"
+#include "arkcmp/CmpContext.h"
 #include "GroupAttr.h"
 #include "NormWA.h"
 #include "opt.h"
 #include "PhyProp.h"
 #include "BindWA.h"
-#include "Collections.h"
+#include "common/Collections.h"
 
 //////////////////////////////////////////////////////////////////////////
 //

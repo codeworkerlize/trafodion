@@ -41,20 +41,20 @@
 #include "Generator.h"
 #include "GenExpGenerator.h"
 //#include "ex_stdh.h"
-#include "ExpCriDesc.h"
-#include "ComTdb.h"
+#include "exp/ExpCriDesc.h"
+#include "comexe/ComTdb.h"
 //#include "ex_tcb.h"
 #include "HashRow.h"
 #include "hash_table.h" // for HashTableHeader
-#include "ComTdbHashGrby.h"
-#include "ComTdbSortGrby.h"
-#include "DefaultConstants.h"
+#include "comexe/ComTdbHashGrby.h"
+#include "comexe/ComTdbSortGrby.h"
+#include "sqlcomp/DefaultConstants.h"
 #include "ItmBitMuxFunction.h"
 #include "ComUnits.h"
-#include "sql_buffer_size.h"
+#include "executor/sql_buffer_size.h"
 
 
-//#include "ExStats.h"
+//#include "executor/ExStats.h"
 
 /////////////////////////////////////////////////////////////////////
 //

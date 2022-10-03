@@ -27,14 +27,14 @@
 //   PrivMgrCommands
 // ==========================================================================
 
-#include "PrivMgrCommands.h"
+#include "sqlcomp/PrivMgrCommands.h"
 #include "PrivMgrMD.h"
-#include "DgBaseType.h"
+#include "common/DgBaseType.h"
 #include "NATable.h"
 #include "NAColumn.h"
-#include "ComSecurityKey.h"
+#include "common/ComSecurityKey.h"
 #include "ComUser.h"
-#include "ComMisc.h"
+#include "common/ComMisc.h"
 #include "CmpSeabaseDDL.h"
 #include <cstdio>
 #include <algorithm>

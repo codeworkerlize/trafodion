@@ -38,7 +38,7 @@
 
 
 #include <NAAssert.h>
-#include "ComMvAttributeBitmap.h"
+#include "common/ComMvAttributeBitmap.h"
 
 void ComMvAttributeBitmap::initBitmap(ComSInt32 initialiVal)
 {

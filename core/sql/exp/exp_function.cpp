@@ -36,7 +36,7 @@
  *****************************************************************************
  */
 
-#include "Platform.h"
+#include "common/Platform.h"
 
 
 #include <math.h>
@@ -55,34 +55,34 @@
 #include <uuid/uuid.h>
 #include <time.h>
 
-#include "NLSConversion.h"
-#include "nawstring.h"
-#include "exp_stdh.h"
-#include "exp_like.h"
-#include "exp_clause_derived.h"
+#include "common/NLSConversion.h"
+#include "common/nawstring.h"
+#include "exp/exp_stdh.h"
+#include "exp/exp_like.h"
+#include "exp/exp_clause_derived.h"
 #include "exp_function.h"
 
-#include "ComDefs.h"
+#include "common/ComDefs.h"
 #include "SQLTypeDefs.h"
 #include "exp_datetime.h"
 #include "exp_interval.h"
 #include "exp_bignum.h"
-#include "ComSysUtils.h"
+#include "common/ComSysUtils.h"
 #include "wstr.h"
-#include "ComDiags.h"
-#include "ComAnsiNamePart.h"
-#include "ComSqlId.h"
-#include "ComCextdecs.h"
-#include "ex_globals.h"
+#include "export/ComDiags.h"
+#include "common/ComAnsiNamePart.h"
+#include "common/ComSqlId.h"
+#include "common/ComCextdecs.h"
+#include "executor/ex_globals.h"
 
 
-#include "NAUserId.h"
+#include "common/NAUserId.h"
 #include "ComUser.h"
 #include "ExpSeqGen.h"
-#include "QRLogger.h"
-#include "ComEncryption.h"
+#include "qmscommon/QRLogger.h"
+#include "common/ComEncryption.h"
 #include "ngram.h"
-#include "ComRtUtils.h"
+#include "common/ComRtUtils.h"
 #include "seabed/sys.h"
 #undef DllImport
 #define DllImport __declspec ( dllimport )
@@ -129,7 +129,7 @@ Section missing, generate compiler error
 
 
 #include "security/uid.h"
-#include "fs/feerrors.h"
+#include "common/feerrors.h"
 #include "float.h"
 #include "exp_numberformat.h"
 
@@ -5268,7 +5268,7 @@ void ex_function_encode::encodeKeyValue(Attributes * attr,
     //
     // Flip the sign bit.
     //
-    *((_int64 *) target) = reversebytes( *((_int64 *) source) );
+    *((long long  *) target) = reversebytes( *((long long  *) source) );
     target[0] ^= 0200;
     break;
 
@@ -5298,7 +5298,7 @@ void ex_function_encode::encodeKeyValue(Attributes * attr,
         *((ULng32 *) target) = reversebytes( *((ULng32 *) source) );
         break;
       case 8:  // Signed 64 bit
-        *((_int64 *) target) = reversebytes( *((_int64 *) source) );
+        *((long long  *) target) = reversebytes( *((long long  *) source) );
         break;
       default:
         assert(FALSE);
@@ -9587,8 +9587,8 @@ short ex_function_encode::decodeKeyValue(Attributes * attr,
     //
     // Flip the sign bit.
     //
-    *((_int64 *) target) = reversebytes( *((_int64 *) source) );
-    target[sizeof(_int64)-1] ^= 0200;
+    *((long long  *) target) = reversebytes( *((long long  *) source) );
+    target[sizeof(long long )-1] ^= 0200;
     break;
 
   case REC_BIN64_UNSIGNED:
@@ -9619,7 +9619,7 @@ short ex_function_encode::decodeKeyValue(Attributes * attr,
 	target[SQL_INT_SIZE-1] ^= 0200;
 	break;
       case 8:  // Signed 64 bit
-	*((_int64 *) target) = reversebytes( *((_int64 *) source) );
+	*((long long  *) target) = reversebytes( *((long long  *) source) );
 	target[SQL_LARGE_SIZE-1] ^= 0200;
 	break;
       default:

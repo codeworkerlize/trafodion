@@ -37,14 +37,14 @@
 ******************************************************************************
 */
 
-#include "Platform.h"
+#include "common/Platform.h"
 
 
 // Includes
 //
 #include "SQLTypeDefs.h"
-#include "exp_clause.h"
-#include "exp_attrs.h"
+#include "exp/exp_clause.h"
+#include "exp/exp_attrs.h"
 #include "ExpPCode.h"
 #include "ExpSequenceFunction.h" // <--- See here for comments.
 

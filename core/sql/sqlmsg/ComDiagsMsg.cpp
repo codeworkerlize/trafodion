@@ -39,11 +39,11 @@
 *
 * ****************************************************************************
 */
-#include "Platform.h"
+#include "common/Platform.h"
 
 
-#include "BaseTypes.h"
-#include "NAWinNT.h"
+#include "common/BaseTypes.h"
+#include "common/NAWinNT.h"
 #include <ctype.h>
 
 #include <iostream>
@@ -56,15 +56,15 @@
 
 
 #include "GetErrorMessage.h"
-#include "str.h"
-#include "ComDiags.h"
+#include "common/str.h"
+#include "export/ComDiags.h"
 #include "copyright.h"
 #include "ErrorMessage.h"
-#include "NAString.h"
-#include "nawstring.h"
-#include "NLSConversion.h"
+#include "common/NAString.h"
+#include "common/nawstring.h"
+#include "common/NLSConversion.h"
 #include "SqlciError.h"
-#include "csconvert.h"
+#include "common/csconvert.h"
 
 // What comes next are two parallel declarations: some enum values
 // and an array of constant strings which we can use to refer to

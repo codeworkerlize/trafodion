@@ -49,20 +49,20 @@
 
 #include "ExpHbaseInterface.h"
 
-#include "ExExeUtilCli.h"
+#include "executor/ExExeUtilCli.h"
 #include "Generator.h"
 
-#include "ComCextdecs.h"
+#include "common/ComCextdecs.h"
 #include "ComUser.h"
 
-#include "NumericType.h"
+#include "common/NumericType.h"
 
-#include "PrivMgrCommands.h"
+#include "sqlcomp/PrivMgrCommands.h"
 
 #include "StmtDDLCommentOn.h"
 
 #include "PrivMgrComponentPrivileges.h"
-#include "PrivMgrCommands.h"
+#include "sqlcomp/PrivMgrCommands.h"
 #include "ComUser.h"
 
 

@@ -33,7 +33,7 @@
 */
 
 #include "LmComQueue.h"
-#include "ComPackDefs.h"
+#include "comexe/ComPackDefs.h"
 
 // Exclude the following functions for coverage as they are not used in LM.
 template<>

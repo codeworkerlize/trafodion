@@ -45,11 +45,11 @@
  */
 
 
-#include "NAType.h"             // for DEFAULT_CHARACTER_LENGTH
+#include "common/NAType.h"             // for DEFAULT_CHARACTER_LENGTH
 #include "SqlciNode.h"
 #include "SqlciEnv.h"
-#include "ComDistribution.h"
-#include "QRLogger.h"
+#include "common/ComDistribution.h"
+#include "qmscommon/QRLogger.h"
 
 // Revision 1.6.8.1  1998/04/17 16:27:46
 // reaching nchar milestone

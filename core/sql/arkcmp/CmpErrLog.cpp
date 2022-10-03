@@ -51,7 +51,7 @@
 //
 // ***************************************************************************
 
-#include "Platform.h"
+#include "common/Platform.h"
 #include <stdio.h>
 #include <time.h>
 #include <string.h>
@@ -68,9 +68,9 @@
 #include <sys/file.h>
 
 #include "CmpErrLog.h"
-#include "CmpCommon.h"
-#include "CmpContext.h"
-#include "CmpStatement.h"
+#include "common/CmpCommon.h"
+#include "arkcmp/CmpContext.h"
+#include "arkcmp/CmpStatement.h"
 #include "SchemaDB.h"
 #include "Analyzer.h"
 #include "vproc.h"

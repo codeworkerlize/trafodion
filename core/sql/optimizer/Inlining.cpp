@@ -42,11 +42,11 @@
 #include "BindWA.h"
 #include "GroupAttr.h"
 #include "parser.h"
-#include "StmtNode.h"
+#include "parser/StmtNode.h"
 #include "Inlining.h"
 #include "ex_error.h"
-#include "Triggers.h"
-#include "TriggerDB.h"
+#include "optimizer/Triggers.h"
+#include "optimizer/TriggerDB.h"
 #include "TriggerEnable.h"
 #include "StmtDDLCreateTrigger.h"
 #include "MVInfo.h"
@@ -59,10 +59,10 @@
 #include "RelSequence.h"
 
 #ifdef NA_DEBUG_GUI
-	#include "ComSqlcmpdbg.h"
+	#include "common/ComSqlcmpdbg.h"
 #endif
 
-#include "SqlParserGlobals.h"		// must be last #include
+#include "parser/SqlParserGlobals.h"		// must be last #include
 
 #define DISABLE_TRIGGERS 0
 #define DISABLE_RI       0

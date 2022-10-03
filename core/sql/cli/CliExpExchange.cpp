@@ -36,19 +36,19 @@
  *****************************************************************************
  */
 
-#include "Platform.h"
+#include "common/Platform.h"
 
 #ifdef _DEBUG
 #include <assert.h>
 #endif
 
-#include "exp_stdh.h"
-#include "exp_clause_derived.h"
+#include "exp/exp_stdh.h"
+#include "exp/exp_clause_derived.h"
 #include "ex_stdh.h"
 #include "cli_stdh.h"
 #include "exp_datetime.h"
 #include "exp_interval.h"
-#include "exp_expr.h"
+#include "exp/exp_expr.h"
 #include "ExRLE.h"
 
 // defined in exp_eval.C

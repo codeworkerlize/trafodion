@@ -15,12 +15,12 @@
  */
 #include <sys/wait.h>
 
-#include "ComSmallDefs.h"
-#include "NamedSemaphore.h"
-#include "ComRtUtils.h"
-#include "SqlStats.h"
-#include "SharedCache.h"
-#include "QRLogger.h"
+#include "common/ComSmallDefs.h"
+#include "sqlcomp/NamedSemaphore.h"
+#include "common/ComRtUtils.h"
+#include "runtimestats/SqlStats.h"
+#include "sqlcomp/SharedCache.h"
+#include "qmscommon/QRLogger.h"
 
 #define SEMFLAGS	          0600
 

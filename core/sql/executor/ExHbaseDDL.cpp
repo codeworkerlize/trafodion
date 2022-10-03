@@ -21,18 +21,18 @@
 // @@@ END COPYRIGHT @@@
 // **********************************************************************
 	
-#include "Platform.h"
+#include "common/Platform.h"
 
 #include  "cli_stdh.h"
 #include "ex_stdh.h"
-#include "ComTdb.h"
+#include "comexe/ComTdb.h"
 #include "ex_tcb.h"
 #include "ExHbaseAccess.h"
 #include "ex_exe_stmt_globals.h"
 #include "SQLTypeDefs.h"
 #include "ExpHbaseInterface.h"
-#include "ExExeUtilCli.h"
-#include "ComDiags.h"
+#include "executor/ExExeUtilCli.h"
+#include "export/ComDiags.h"
 #include "ExSqlComp.h"
 
 ExHbaseAccessDDLTcb::ExHbaseAccessDDLTcb(

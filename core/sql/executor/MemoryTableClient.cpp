@@ -21,8 +21,8 @@
 // // @@@ END COPYRIGHT @@@
 // // **********************************************************************
 #include "MemoryTableClient.h"
-#include "Globals.h"
-#include "SharedCache.h"
+#include "cli/Globals.h"
+#include "sqlcomp/SharedCache.h"
 
 
 const char * fixNamePtr(const char *tableName) {

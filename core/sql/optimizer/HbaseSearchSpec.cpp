@@ -20,7 +20,7 @@
 // @@@ END COPYRIGHT @@@
 
 #include "HbaseSearchSpec.h"
-#include "ItemColRef.h"
+#include "optimizer/ItemColRef.h"
 
 void HbaseSearchSpec::addColumnNames(const ValueIdSet& vs)
 {

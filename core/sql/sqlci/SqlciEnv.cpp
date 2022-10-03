@@ -43,7 +43,7 @@
 #define   SQLPARSERGLOBALS_FLAGS  
 #include "SqlParserGlobalsCmn.h"
 
-#include "Platform.h"
+#include "common/Platform.h"
 
 
 #include <ctype.h>
@@ -56,31 +56,31 @@
 #include "SqlciNode.h"
 #include "SqlciParser.h"
 #include "SqlciCmd.h"
-#include "sql_id.h"
+#include "cli/sql_id.h"
 #include "SqlciStats.h"
 #include "sqlcmd.h"
-#include "SQLCLIdev.h"
+#include "cli/SQLCLIdev.h"
 #include "InputStmt.h"
-#include "CmpCommon.h"
-#include "ComDiags.h"
+#include "common/CmpCommon.h"
+#include "export/ComDiags.h"
 #include "copyright.h"
-#include "EHException.h"
+#include "eh/EHException.h"
 #include "ErrorMessage.h"
-#include "ExpError.h"
+#include "exp/ExpError.h"
 #include "GetErrorMessage.h"
-#include "Int64.h"
+#include "common/Int64.h"
 #include "NAError.h"
 #include "ShowSchema.h"
-#include "str.h"
-#include "BaseTypes.h"
-#include "ComSchemaName.h"
-#include "CmpContext.h"
+#include "common/str.h"
+#include "common/BaseTypes.h"
+#include "common/ComSchemaName.h"
+#include "arkcmp/CmpContext.h"
 
-#include "DefaultConstants.h"
-#include "ComRtUtils.h"
-#include "NLSConversion.h"
-#include "QRLogger.h"
-#include "Globals.h"
+#include "sqlcomp/DefaultConstants.h"
+#include "common/ComRtUtils.h"
+#include "common/NLSConversion.h"
+#include "qmscommon/QRLogger.h"
+#include "cli/Globals.h"
 
 Int32 total_opens = 0;
 Int32 total_closes = 0;

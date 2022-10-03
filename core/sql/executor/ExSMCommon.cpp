@@ -29,15 +29,15 @@
 #include <sys/syscall.h>
 #include <unistd.h>
 #include <pthread.h>
-#include "Platform.h"
+#include "common/Platform.h"
 #include "ExSMCommon.h"
 #include "ExSMGlobals.h"
 #include "ExSMEvent.h"
 #include "ExSMTask.h"
 #include "ExSMTrace.h"
-#include "Ipc.h"
+#include "common/Ipc.h"
 #include "Ex_esp_msg.h"
-#include "ComQueue.h"
+#include "comexe/ComQueue.h"
 #include "seabed/sys.h"
 
 //-------------------------------------------------------------------------

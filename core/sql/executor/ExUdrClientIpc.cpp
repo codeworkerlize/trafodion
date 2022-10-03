@@ -38,7 +38,7 @@
 #include "ExUdrClientIpc.h"
 #include "ExUdr.h"
 #include "ExUdrServer.h"
-#include "ExpError.h"
+#include "exp/ExpError.h"
 #include "ex_exe_stmt_globals.h"
 #include "ExRsInfo.h"
 

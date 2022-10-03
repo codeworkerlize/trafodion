@@ -41,45 +41,45 @@
 #define   SQLPARSERGLOBALS_FLAGS
 #include "ComOptIncludes.h"
 #include "GroupAttr.h"
-#include "ItemColRef.h"
+#include "optimizer/ItemColRef.h"
 #include "RelEnforcer.h"
 #include "RelJoin.h"
 #include "RelExeUtil.h"
 #include "RelMisc.h"
 #include "RelSet.h"
 #include "RelUpdate.h"
-#include "RelScan.h"
+#include "optimizer/RelScan.h"
 #include "RelDCL.h"
 #include "PartFunc.h"
 #include "Cost.h"
 #include "GenExpGenerator.h"
 #include "GenResources.h"
-#include "ComTdbRoot.h"
-#include "ComTdbTuple.h"
-#include "ComTdbUnion.h"
-#include "ComTdbTupleFlow.h"
-#include "ComTdbTranspose.h"
-#include "ComTdbSort.h"
-#include "ComTdbPackRows.h"
-#include "ComTdbDDL.h"
-#include "ComTdbExeUtil.h"
-#include "ComTdbFirstN.h"
-#include "ComTdbStats.h"
-#include "ComTdbHbaseAccess.h"
-#include "ExplainTuple.h"
-#include "ComTdbExplain.h"
+#include "comexe/ComTdbRoot.h"
+#include "comexe/ComTdbTuple.h"
+#include "comexe/ComTdbUnion.h"
+#include "comexe/ComTdbTupleFlow.h"
+#include "comexe/ComTdbTranspose.h"
+#include "comexe/ComTdbSort.h"
+#include "comexe/ComTdbPackRows.h"
+#include "comexe/ComTdbDDL.h"
+#include "comexe/ComTdbExeUtil.h"
+#include "comexe/ComTdbFirstN.h"
+#include "comexe/ComTdbStats.h"
+#include "comexe/ComTdbHbaseAccess.h"
+#include "comexe/ExplainTuple.h"
+#include "comexe/ComTdbExplain.h"
 #include "SchemaDB.h"
 #include "ControlDB.h"
 #include "NATable.h"
 #include "BindWA.h"
-#include "ComTransInfo.h"
-#include "DefaultConstants.h"
-#include "FragDir.h"
-#include "PartInputDataDesc.h"
-#include "ExpSqlTupp.h"
-#include "sql_buffer.h"
-#include "ComQueue.h"
-#include "ComSqlId.h"
+#include "common/ComTransInfo.h"
+#include "sqlcomp/DefaultConstants.h"
+#include "comexe/FragDir.h"
+#include "comexe/PartInputDataDesc.h"
+#include "exp/ExpSqlTupp.h"
+#include "executor/sql_buffer.h"
+#include "comexe/ComQueue.h"
+#include "common/ComSqlId.h"
 #include "MVInfo.h"
 #include "StmtDDLCreateTable.h"
 
@@ -88,7 +88,7 @@
 // need for authorization checks
 #include "ComUser.h"
 #include "CmpSeabaseDDL.h"
-#include "PrivMgrCommands.h"
+#include "sqlcomp/PrivMgrCommands.h"
 #include "PrivMgrComponentPrivileges.h"
 // end authorization checks
 
@@ -96,16 +96,16 @@
 #define HFS2DM
 #endif // HFS2DM
 
-#include "ComDefs.h"            // to get common defines (ROUND8)
-#include "CmpStatement.h"
-#include "ComSmallDefs.h"
-#include "sql_buffer_size.h"
-#include "TrafDDLdesc.h"
+#include "common/ComDefs.h"            // to get common defines (ROUND8)
+#include "arkcmp/CmpStatement.h"
+#include "common/ComSmallDefs.h"
+#include "executor/sql_buffer_size.h"
+#include "sqlcat/TrafDDLdesc.h"
 
 
-#include "ComCextdecs.h"
+#include "common/ComCextdecs.h"
 
-#include "SqlParserGlobals.h"   // Parser Flags
+#include "parser/SqlParserGlobals.h"   // Parser Flags
 
 //#include "HBaseClient_JNI.h"
 //

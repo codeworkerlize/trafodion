@@ -36,8 +36,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include "ComRegAPI.h"
-#include "ComRtUtils.h"
-#include "CmpCommon.h"
+#include "common/ComRtUtils.h"
+#include "common/CmpCommon.h"
 
 #include "nsk/nskcommon.h"
 #include "nsk/nskcommonhi.h"

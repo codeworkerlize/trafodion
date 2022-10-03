@@ -62,8 +62,8 @@
 #include "exp_function.h"
 #include "exp_datetime.h"
 #include "exp_math_func.h"
-#include "CharType.h"
-#include "NumericType.h"
+#include "common/CharType.h"
+#include "common/NumericType.h"
 #include "RelMisc.h"
 #include "ItemFuncUDF.h"
 
@@ -2625,7 +2625,7 @@ short PAGroup::codeGen(Generator *generator)
   return 0;
 }
 
-#include "NumericType.h"
+#include "common/NumericType.h"
 
 short PackFunc::codeGen(Generator* generator)
 {

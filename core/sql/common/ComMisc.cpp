@@ -35,14 +35,14 @@
  */
 
 #define   SQLPARSERGLOBALS_FLAGS
-#include "SqlParserGlobals.h"   // Parser Flags
+#include "parser/SqlParserGlobals.h"   // Parser Flags
 
-#include "Platform.h"
+#include "common/Platform.h"
 
 #include "ComOperators.h"
-#include "ComASSERT.h"
-#include "ComMisc.h"
-#include "ComDistribution.h" // enumToLiteral, literalToEnum, literalAndEnumStruct
+#include "common/ComASSERT.h"
+#include "common/ComMisc.h"
+#include "common/ComDistribution.h" // enumToLiteral, literalToEnum, literalAndEnumStruct
 #include "CmpSeabaseDDL.h"
 #include <sys/stat.h>
 #include "common/sq_license.h"

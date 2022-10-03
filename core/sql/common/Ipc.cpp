@@ -39,17 +39,17 @@
 
 //#define IPC_INTEGRITY_CHECKING 1  // for debugging purposes
 
-#include "Platform.h"
-#include "ComASSERT.h"
-#include "ComDiags.h"
-#include "logmxevent.h"
-#include "ExCollections.h"
-#include "Ipc.h"
+#include "common/Platform.h"
+#include "common/ComASSERT.h"
+#include "export/ComDiags.h"
+#include "sqlmxevents/logmxevent.h"
+#include "common/ExCollections.h"
+#include "common/Ipc.h"
 #include "ipcmsg.h"
-#include "str.h"
+#include "common/str.h"
 #include "HeapLog.h"
-#include "ComRtUtils.h"
-#include "PortProcessCalls.h"
+#include "common/ComRtUtils.h"
+#include "porting/PortProcessCalls.h"
 
 #include <time.h>
 #include <sys/time.h>
@@ -60,8 +60,8 @@
 
 #include <unistd.h>		// for getpid()
 
-#include "Globals.h"
-#include "Context.h"
+#include "cli/Globals.h"
+#include "cli/Context.h"
 #include "MXTraceDef.h"
 #include "ExSMTrace.h"
 
@@ -73,7 +73,7 @@
 
 NABoolean XAWAITIOX_MINUS_ONE = TRUE;
 
-#include "ComCextdecs.h"
+#include "common/ComCextdecs.h"
 #include "Ex_esp_msg.h"
 
 #ifndef FS_MAX_NOWAIT_DEPTH

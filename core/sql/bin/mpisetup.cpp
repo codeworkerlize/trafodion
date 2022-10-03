@@ -25,7 +25,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include "Platform.h"
+#include "common/Platform.h"
 #include "seabed/ms.h"
 #include "seabed/fs.h"
 

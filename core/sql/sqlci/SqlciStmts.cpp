@@ -42,15 +42,15 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-#include "ComASSERT.h"
-#include "ComDiags.h"
+#include "common/ComASSERT.h"
+#include "export/ComDiags.h"
 #include "SqlciStmts.h"
 #include "SqlciNode.h"
 #include "SqlciCmd.h"
 #include "SqlciError.h"
 #include "SqlciParser.h"
 #include "InputStmt.h"
-#include "str.h"
+#include "common/str.h"
 
 extern ComDiagsArea sqlci_DA;
 

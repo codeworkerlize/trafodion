@@ -35,7 +35,7 @@
 */
 
 #include "CmpISPInterface.h"
-#include "CmpISPStd.h"
+#include "arkcmp/CmpISPStd.h"
 #include "CmpStoredProc.h"
 #include "QueryCacheSt.h"
 #include "NATable.h"

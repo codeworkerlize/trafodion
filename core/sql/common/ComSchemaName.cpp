@@ -1,51 +1,15 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
-/* -*-C++-*-
- *****************************************************************************
- *
- * File:         ComSchemaName.C
- * Description:  methods for class ComSchemaName
- *
- * Created:      9/12/95
- * Language:     C++
- *
- *
- *
- *****************************************************************************
- */
 
 
-#define  SQLPARSERGLOBALS_NADEFAULTS		// first
+#define SQLPARSERGLOBALS_NADEFAULTS  // first
 
 #include <string.h>
-#include "ComASSERT.h"
-#include "ComMPLoc.h"
-#include "ComSchemaName.h"
-#include "ComSqlText.h"
-#include "NAString.h"
+#include "common/ComASSERT.h"
+#include "common/ComMPLoc.h"
+#include "common/ComSchemaName.h"
+#include "common/ComSqlText.h"
+#include "common/NAString.h"
 
-#include "SqlParserGlobals.h"			// last
-
+#include "parser/SqlParserGlobals.h"  // last
 
 //
 // constructors
@@ -54,110 +18,79 @@
 //
 // default constructor
 //
-ComSchemaName::ComSchemaName () 
-{
-}
+ComSchemaName::ComSchemaName() {}
 
 //
 // initializing constructor
 //
-ComSchemaName::ComSchemaName (const NAString &externalSchemaName)
-{
-  scan(externalSchemaName);
-}
+ComSchemaName::ComSchemaName(const NAString &externalSchemaName) { scan(externalSchemaName); }
 
 //
 // initializing constructor
 //
-ComSchemaName::ComSchemaName (const NAString &externalSchemaName,
-                              size_t &bytesScanned)
-{
+ComSchemaName::ComSchemaName(const NAString &externalSchemaName, size_t &bytesScanned) {
   scan(externalSchemaName, bytesScanned);
 }
 
 //
 // initializing constructor
 //
-ComSchemaName::ComSchemaName (const ComAnsiNamePart &schemaNamePart)
-: schemaNamePart_ (schemaNamePart)
-{
-}
+ComSchemaName::ComSchemaName(const ComAnsiNamePart &schemaNamePart) : schemaNamePart_(schemaNamePart) {}
 
 //
 // initializing constructor
 //
-ComSchemaName::ComSchemaName (const ComAnsiNamePart &catalogNamePart,
-                              const ComAnsiNamePart &schemaNamePart)
-: catalogNamePart_ (catalogNamePart)
-, schemaNamePart_ (schemaNamePart)
-{
+ComSchemaName::ComSchemaName(const ComAnsiNamePart &catalogNamePart, const ComAnsiNamePart &schemaNamePart)
+    : catalogNamePart_(catalogNamePart), schemaNamePart_(schemaNamePart) {
   // "cat." is invalid
-  if (NOT catalogNamePart_.isEmpty() AND schemaNamePart_.isEmpty())
-    clear();
+  if (NOT catalogNamePart_.isEmpty() AND schemaNamePart_.isEmpty()) clear();
 }
-
 
 //
 // virtual destructor
 //
-ComSchemaName::~ComSchemaName ()
-{
-}
-
+ComSchemaName::~ComSchemaName() {}
 
 //
 // assignment operator
 //
-ComSchemaName &ComSchemaName::operator= (const NAString &rhsSchemaName)
-{
+ComSchemaName &ComSchemaName::operator=(const NAString &rhsSchemaName) {
   clear();
   scan(rhsSchemaName);
   return *this;
 }
 
-// 
+//
 // accessors
 //
-const NAString &
-ComSchemaName::getCatalogNamePartAsAnsiString(NABoolean) const
-{
+const NAString &ComSchemaName::getCatalogNamePartAsAnsiString(NABoolean) const {
   return catalogNamePart_.getExternalName();
 }
 
-const NAString &
-ComSchemaName::getSchemaNamePartAsAnsiString(NABoolean) const
-{
+const NAString &ComSchemaName::getSchemaNamePartAsAnsiString(NABoolean) const {
   return schemaNamePart_.getExternalName();
 }
 
-NAString
-ComSchemaName::getExternalName(NABoolean) const
-{
+NAString ComSchemaName::getExternalName(NABoolean) const {
   NAString extSchemaName;
-  #ifndef NDEBUG
+#ifndef NDEBUG
   Int32 ok = 0;
-  #endif
+#endif
 
-  if (NOT schemaNamePart_.isEmpty())
-  {
-    if (NOT catalogNamePart_.isEmpty())
-    { 
-  #ifndef NDEBUG
+  if (NOT schemaNamePart_.isEmpty()) {
+    if (NOT catalogNamePart_.isEmpty()) {
+#ifndef NDEBUG
       ok = 1;
-  #endif
-      extSchemaName = getCatalogNamePartAsAnsiString() + "." +
-      		      getSchemaNamePartAsAnsiString();
-    }
-    else
-    {
+#endif
+      extSchemaName = getCatalogNamePartAsAnsiString() + "." + getSchemaNamePartAsAnsiString();
+    } else {
       extSchemaName = getSchemaNamePartAsAnsiString();
     }
   }
 
-  #ifndef NDEBUG
-    if (!ok) 
-      cerr << "Warning: incomplete ComSchemaName " << extSchemaName << endl;
-  #endif
+#ifndef NDEBUG
+  if (!ok) cerr << "Warning: incomplete ComSchemaName " << extSchemaName << endl;
+#endif
   return extSchemaName;
 }
 
@@ -168,12 +101,10 @@ ComSchemaName::getExternalName(NABoolean) const
 //
 // Resets data members
 //
-void ComSchemaName::clear()
-{
+void ComSchemaName::clear() {
   catalogNamePart_.clear();
   schemaNamePart_.clear();
 }
-
 
 //
 //  private methods
@@ -181,9 +112,7 @@ void ComSchemaName::clear()
 //
 // Scans (parses) input external-format schema name.
 //
-NABoolean
-ComSchemaName::scan(const NAString &externalSchemaName)
-{
+NABoolean ComSchemaName::scan(const NAString &externalSchemaName) {
   size_t bytesScanned;
   return scan(externalSchemaName, bytesScanned);
 }
@@ -209,10 +138,7 @@ ComSchemaName::scan(const NAString &externalSchemaName)
 // members catalogNamePart_ and schemaNamePart_; otherwise, it returns
 // FALSE and does not changes the contents of the data members.
 //
-NABoolean
-ComSchemaName::scan(const NAString &externalSchemaName,
-                    size_t &bytesScanned)
-{
+NABoolean ComSchemaName::scan(const NAString &externalSchemaName, size_t &bytesScanned) {
   size_t count;
   size_t externalSchemaNameLen = externalSchemaName.length();
   bytesScanned = 0;
@@ -228,19 +154,16 @@ ComSchemaName::scan(const NAString &externalSchemaName,
   count = 0;
   ComAnsiNamePart part1(externalSchemaName, count);
   bytesScanned += count;
-  if (NOT part1.isValid())
-    return FALSE;
+  if (NOT part1.isValid()) return FALSE;
 
-  if (bytesScanned >= externalSchemaNameLen)
-  {
+  if (bytesScanned >= externalSchemaNameLen) {
     ComASSERT(bytesScanned == externalSchemaNameLen);
-    schemaNamePart_  = part1;
-    return TRUE;					// "sch"
+    schemaNamePart_ = part1;
+    return TRUE;  // "sch"
   }
 
   // Get past the period separator
-  if (NOT ComSqlText.isPeriod(externalSchemaName[bytesScanned++]))
-    return FALSE;
+  if (NOT ComSqlText.isPeriod(externalSchemaName[bytesScanned++])) return FALSE;
 
   // ---------------------------------------------------------------------
   // Scan the last ANSI SQL name part
@@ -251,14 +174,12 @@ ComSchemaName::scan(const NAString &externalSchemaName,
   count = 0;
   ComAnsiNamePart part2(remainingName, count);
   bytesScanned += count;
-  if (NOT part2.isValid())
-    return FALSE;
+  if (NOT part2.isValid()) return FALSE;
 
-  if (bytesScanned == externalSchemaNameLen)
-  {
+  if (bytesScanned == externalSchemaNameLen) {
     catalogNamePart_ = part1;
-    schemaNamePart_  = part2;
-    return TRUE;					// "cat.sch"
+    schemaNamePart_ = part2;
+    return TRUE;  // "cat.sch"
   }
 
   // The specified external-format object name contains some extra
@@ -266,11 +187,6 @@ ComSchemaName::scan(const NAString &externalSchemaName,
   //
   return FALSE;
 
-} // ComSchemaName::scan()
+}  // ComSchemaName::scan()
 
-
-
-void ComSchemaName::setDefinitionSchemaName (const COM_VERSION version)
-{
-}
-
+void ComSchemaName::setDefinitionSchemaName(const COM_VERSION version) {}

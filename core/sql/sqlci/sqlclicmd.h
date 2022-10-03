@@ -36,10 +36,10 @@
  *****************************************************************************
  */
 
-#include "NAType.h"
+#include "common/NAType.h"
 #include "SqlciNode.h"
 #include "SqlciEnv.h"
-#include "ComSmallDefs.h"
+#include "common/ComSmallDefs.h"
 
 // abstract class for all SqlCliCmds
 class SqlCliCmd : public SqlciNode {

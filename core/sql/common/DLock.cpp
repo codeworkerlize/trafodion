@@ -21,9 +21,9 @@
 //
 //
 #include <sys/time.h>
-#include "DLock.h"
+#include "common/DLock.h"
 #include <unistd.h>
-#include "ComRtUtils.h"
+#include "common/ComRtUtils.h"
 
 void genArkcmpInfo(NAString& nidpid);
 

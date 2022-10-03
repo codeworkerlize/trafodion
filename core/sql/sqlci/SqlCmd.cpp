@@ -41,7 +41,7 @@
  */
 
 
-#include "Platform.h"
+#include "common/Platform.h"
 
 #include <ctype.h>
 #include <iostream>
@@ -51,37 +51,37 @@
 #include <sstream>
 #include <unistd.h>
 
-#include "ComAnsiNamePart.h"
-#include "ComGuardianFileNameParts.h"
-#include "ComASSERT.h"
+#include "common/ComAnsiNamePart.h"
+#include "common/ComGuardianFileNameParts.h"
+#include "common/ComASSERT.h"
 #include "Formatter.h"
 #include "SqlciStats.h"
-#include "NAString.h"
+#include "common/NAString.h"
 #include "ErrorMessage.h"		// NAWriteConsole
-#include "IntervalType.h"		// NAType::convertTypeToText etc.
+#include "common/IntervalType.h"		// NAType::convertTypeToText etc.
 #include "SqlciError.h"
-#include "SQLCLIdev.h"
+#include "cli/SQLCLIdev.h"
 #include "sqlcmd.h"
-#include "sql_id.h"
-#include "ComSqlId.h"
-#include "ComRtUtils.h"
+#include "cli/sql_id.h"
+#include "common/ComSqlId.h"
+#include "common/ComRtUtils.h"
 #define CAT_MAX_HEADING_LEN 132
 #define CM_GUA_ENAME_LEN 36
-#include "dfs2rec.h"
+#include "common/dfs2rec.h"
 #include "ex_error.h"
-#include "str.h"
+#include "common/str.h"
 #include "stringBuf.h"
-#include "charinfo.h"
-#include "NLSConversion.h"
-#include "nawstring.h"
+#include "common/charinfo.h"
+#include "common/NLSConversion.h"
+#include "common/nawstring.h"
 #include "SqlciList_templ.h"
 #include "ComCextMisc.h"
-#include "ComCextdecs.h"
+#include "common/ComCextdecs.h"
 #include "conversionHex.h"
 
-#include "ComQueue.h"
-#include "ExExeUtilCli.h"
-#include "QRLogger.h"
+#include "comexe/ComQueue.h"
+#include "executor/ExExeUtilCli.h"
+#include "qmscommon/QRLogger.h"
 
 extern SqlciEnv * global_sqlci_env; // global sqlci_env for break key handling purposes.
 extern ComDiagsArea sqlci_DA;

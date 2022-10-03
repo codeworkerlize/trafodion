@@ -46,8 +46,8 @@
 #define   SQLPARSERGLOBALS_FLAGS   // must precede all #include's
 #define   SQLPARSERGLOBALS_NADEFAULTS
 
-#include "Platform.h"
-#include "NAWinNT.h"
+#include "common/Platform.h"
+#include "common/NAWinNT.h"
 
 
 #include "Sqlcomp.h"
@@ -55,7 +55,7 @@
 #include "AllRelExpr.h"
 #include "BindWA.h"
 #include "ComOperators.h"
-#include "ComTransInfo.h"
+#include "common/ComTransInfo.h"
 #include "ComLocationNames.h"
 #include "ControlDB.h"
 #include "Debug.h"
@@ -72,40 +72,40 @@
 #include "StmtDDLCreateView.h"
 #include "ElemDDLColRefArray.h"
 #include "ElemDDLSaltOptions.h"
-#include "TrafDDLdesc.h"
+#include "sqlcat/TrafDDLdesc.h"
 #include "UdrErrors.h"
-#include "SequenceGeneratorAttributes.h"
+#include "common/SequenceGeneratorAttributes.h"
 
 #include "wstr.h"
 #include "Inlining.h"
-#include "Triggers.h"
-#include "TriggerDB.h"
+#include "optimizer/Triggers.h"
+#include "optimizer/TriggerDB.h"
 #include "MVInfo.h"
 #include "Refresh.h"
 #include "ChangesTable.h"
 #include "MvRefreshBuilder.h"
 #include "OptHints.h"
-#include "CmpStatement.h"
+#include "arkcmp/CmpStatement.h"
 #include "OptimizerSimulator.h"
-#include "charinfo.h"
+#include "common/charinfo.h"
 #include "UdfDllInteraction.h"
-#include "SqlParserGlobals.h"      // must be last #include
+#include "parser/SqlParserGlobals.h"      // must be last #include
 #include "ItmFlowControlFunction.h"
-#include "ComSchemaName.h" // for ComSchemaName
+#include "common/ComSchemaName.h" // for ComSchemaName
 #include "ItemSample.h"
-#include "NAExecTrans.h"
+#include "comexe/NAExecTrans.h"
 
 #include "CmpSeabaseDDL.h"
 #include "ComUser.h"
-#include "ComSqlId.h"
-#include "PrivMgrCommands.h"
+#include "common/ComSqlId.h"
+#include "sqlcomp/PrivMgrCommands.h"
 #include "PrivMgrComponentPrivileges.h"
-#include "PrivMgrDefs.h"
+#include "sqlcomp/PrivMgrDefs.h"
 #include "PrivMgrMD.h"
 #include "CompException.h"
 
 #include "SqlParserAux.h"
-#include "Globals.h"
+#include "cli/Globals.h"
 
 #define SLASH_C '/'
 

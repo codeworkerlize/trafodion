@@ -37,7 +37,7 @@
 ******************************************************************************
 */
 
-#include "Platform.h"
+#include "common/Platform.h"
 
 #include        <sys/time.h>
 #include        "str.h"
@@ -48,13 +48,13 @@
 #include        "NAError.h"
 #include        "exp_expr.h"
 #include        "ExCextdecs.h"
-#include "logmxevent.h"
-#include "Context.h"
-#include "ex_globals.h"
+#include "sqlmxevents/logmxevent.h"
+#include "cli/Context.h"
+#include "executor/ex_globals.h"
 #include "ex_exe_stmt_globals.h"
-#include "exp_clause_derived.h"
-#include "Context.h"
-#include "ex_globals.h"
+#include "exp/exp_clause_derived.h"
+#include "cli/Context.h"
+#include "executor/ex_globals.h"
 
 extern Int32  gettimeofday(struct timeval *, struct timezone *);
 

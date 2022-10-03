@@ -39,12 +39,12 @@
 */
 
 #include <time.h>
-#include "ComSmallDefs.h"
-#include "ComSqlId.h"
+#include "common/ComSmallDefs.h"
+#include "common/ComSqlId.h"
 #include "UdrExeIpc.h"
 #include "UdrStreams.h"
-#include "sqlcli.h"
-#include "charinfo.h"
+#include "cli/sqlcli.h"
+#include "common/charinfo.h"
 
 #define MAXSERVERNAME  12
 

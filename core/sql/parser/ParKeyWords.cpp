@@ -30,9 +30,9 @@
 *******************************************************************************
 */
 
-#include "ComASSERT.h"
+#include "common/ComASSERT.h"
 #include "ParKeyWords.h"
-#include "str.h"
+#include "common/str.h"
 #include <fstream>
 
 // ANSI SQL 99 reserved words added as COMPAQ_ reserved words if they were

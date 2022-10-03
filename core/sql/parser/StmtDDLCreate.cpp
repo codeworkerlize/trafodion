@@ -51,11 +51,11 @@
 #include "AllElemDDLParam.h"
 #include "AllElemDDLUdr.h"
 #include "AllStmtDDLCreate.h"
-#include "BaseTypes.h"
-#include "ComDiags.h"
+#include "common/BaseTypes.h"
+#include "export/ComDiags.h"
 #include "ComOperators.h"
-#include "ComMisc.h"
-#include "ComDistribution.h"
+#include "common/ComMisc.h"
+#include "common/ComDistribution.h"
 #include "ElemDDLConstraintCheck.h"
 #include "ElemDDLConstraintPK.h"
 #include "ElemDDLConstraintRI.h"
@@ -64,7 +64,7 @@
 #include "ElemDDLGrantee.h"
 #include "ElemDDLLibClientFilename.h"
 #include "ElemDDLLibClientName.h"
-#include "ElemDDLList.h"
+#include "parser/ElemDDLList.h"
 #include "ElemDDLLocation.h"
 #include "ElemDDLParallelExec.h"
 #include "ElemDDLPartitionList.h"
@@ -82,13 +82,13 @@
 #include "StmtDDLCommentOn.h"
 #include "MVInfo.h"
 
-#include "NumericType.h"
+#include "common/NumericType.h"
 
 #ifndef   SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #define   SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #endif
 
-#include "SqlParserGlobals.h"	// must be last #include
+#include "parser/SqlParserGlobals.h"	// must be last #include
 
 
 // -----------------------------------------------------------------------

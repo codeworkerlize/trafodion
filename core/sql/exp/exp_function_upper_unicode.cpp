@@ -37,11 +37,11 @@
  *****************************************************************************
  */
 
-#include "Platform.h"
+#include "common/Platform.h"
 
 
 #include "exp_function.h"
-#include "unicode_char_set.h"
+#include "common/unicode_char_set.h"
 
 ex_function_upper_unicode::ex_function_upper_unicode(OperatorTypeEnum oper_type,
 				     Attributes ** attr, Space * space)

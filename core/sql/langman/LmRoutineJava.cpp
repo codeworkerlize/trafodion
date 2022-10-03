@@ -31,13 +31,13 @@
 
 
 #include "lmjni.h"
-#include "ComRtUtils.h"
+#include "common/ComRtUtils.h"
 #include "LmRoutineJava.h"
 #include "LmJavaExceptionReporter.h"
 #include "LmAssert.h"
 #include "LmUtility.h"
 #include "ComObjectName.h"
-#include "ComSqlId.h"
+#include "common/ComSqlId.h"
 
 //////////////////////////////////////////////////////////////////////
 //

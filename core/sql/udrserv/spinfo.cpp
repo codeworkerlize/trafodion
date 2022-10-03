@@ -35,23 +35,23 @@
  */
 
 
-#include "Platform.h"
+#include "common/Platform.h"
 #include "spinfo.h"
 #include "UdrStreams.h"
 #include "udrutil.h"
-#include "str.h"
+#include "common/str.h"
 #include <time.h>
 #include "UdrResultSet.h"
 #include "LmRoutine.h"
 #include "LmParameter.h"
 #include "LmRoutineCSqlRowTM.h"
-#include "sql_buffer.h"
+#include "executor/sql_buffer.h"
 #include "UdrResultSet.h"
 #include "ex_queue.h"
-#include "ComRtUtils.h"
+#include "common/ComRtUtils.h"
 #include "UdfDllInteraction.h"
 
-#include "sqlcli.h"
+#include "cli/sqlcli.h"
 #include "sqludr.h"
 #include "udrdecs.h"
 

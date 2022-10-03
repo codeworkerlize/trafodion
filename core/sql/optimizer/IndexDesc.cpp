@@ -38,12 +38,12 @@
 
 #include "Sqlcomp.h"
 #include "AllItemExpr.h"
-#include "ValueDesc.h"
+#include "optimizer/ValueDesc.h"
 #include "PartFunc.h"
 #include "IndexDesc.h"
-#include "RelScan.h"
-#include "CmpContext.h"
-#include "CostScalar.h"
+#include "optimizer/RelScan.h"
+#include "arkcmp/CmpContext.h"
+#include "optimizer/CostScalar.h"
 #include "ScanOptimizer.h"
 #include "AppliedStatMan.h"
 

@@ -37,7 +37,7 @@
 
 
 
-#include "Platform.h"
+#include "common/Platform.h"
 #include <ctype.h>
 #include <stdio.h>
 #include <iostream>
@@ -50,11 +50,11 @@
 
 #include "GetErrorMessage.h"
 #include "ErrorMessage.h"
-#include "NAWinNT.h"
+#include "common/NAWinNT.h"
 
 //#include "sqlmxmsg_msg.h"
 
-#include "NLSConversion.h"
+#include "common/NLSConversion.h"
 #include "ExSMCommon.h"
 
 #include <fcntl.h>

@@ -39,7 +39,7 @@
 
 #include "GenMapTable.h"
 #include "ComOptIncludes.h"
-#include "dfs2rec.h"
+#include "common/dfs2rec.h"
 #include "Generator.h"
 #include "GenExpGenerator.h"
 

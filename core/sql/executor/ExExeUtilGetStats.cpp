@@ -36,7 +36,7 @@
  *****************************************************************************
  */
 
-#include "ComCextdecs.h"
+#include "common/ComCextdecs.h"
 #include  "cli_stdh.h"
 #include  "ex_stdh.h"
 #include  "sql_id.h"

@@ -38,9 +38,9 @@
 
 #include "ComUnits.h"
 #include "AllElemDDLPartition.h"
-#include "BaseTypes.h"
-#include "ComASSERT.h"
-#include "ComDiags.h"
+#include "common/BaseTypes.h"
+#include "common/ComASSERT.h"
+#include "export/ComDiags.h"
 #include "ComOperators.h"
 #include "ComLocationNames.h"
 #include "ElemDDLKeyValue.h"
@@ -50,7 +50,7 @@
 #ifndef   SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #define   SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #endif
-#include "SqlParserGlobals.h"
+#include "parser/SqlParserGlobals.h"
 
 
 // -----------------------------------------------------------------------

@@ -45,7 +45,7 @@ using std::ofstream;
 
 #include <stdio.h>
 
-#include "ComCextdecs.h"
+#include "common/ComCextdecs.h"
 #include  "cli_stdh.h"
 #include  "ex_stdh.h"
 #include  "sql_id.h"
@@ -60,12 +60,12 @@ using std::ofstream;
 #include  "exp_clause_derived.h"
 #include  "ComRtUtils.h"
 #include  "ExStats.h"
-#include "ExpLOBenums.h"
+#include "exp/ExpLOBenums.h"
 #include  "ExpLOBinterface.h"
 #include  "str.h"
 #include "ExpHbaseInterface.h"
 #include "ExHbaseAccess.h"
-#include "ExpErrorEnums.h"
+#include "exp/ExpErrorEnums.h"
 
 
 class rootItem

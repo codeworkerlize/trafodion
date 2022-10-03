@@ -48,7 +48,7 @@
 
 #include "EHExceptionTypeEnum.h"
 #include "EHExceptionTypeNode.h"
-#include "EHException.h"
+#include "eh/EHException.h"
 
 #include "EHCallBack.h"
 

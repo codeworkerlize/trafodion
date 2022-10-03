@@ -23,7 +23,7 @@
 // This file holds the implementation code supporting the
 // HostVarRoles_vec class.
 
-#include "Platform.h" 
+#include "common/Platform.h" 
 
 // Always good to assert yourself.
 #include <assert.h>

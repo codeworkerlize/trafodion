@@ -26,7 +26,7 @@
 #include "SqlParserGlobalsCmn.h"
   
 #include "PrivMgr.h"
-#include "PrivMgrCommands.h"
+#include "sqlcomp/PrivMgrCommands.h"
 #include "PrivMgrMDDefs.h"
 
 // c++ includes
@@ -42,19 +42,19 @@
 #include "PrivMgrRoles.h"
 
 // Trafodion includes
-#include "ComDistribution.h"
-#include "sqlcli.h"
-#include "ExExeUtilCli.h"
-#include "ComDiags.h"
-#include "ComQueue.h"
-#include "CmpCommon.h"
-#include "CmpContext.h"
+#include "common/ComDistribution.h"
+#include "cli/sqlcli.h"
+#include "executor/ExExeUtilCli.h"
+#include "export/ComDiags.h"
+#include "comexe/ComQueue.h"
+#include "common/CmpCommon.h"
+#include "arkcmp/CmpContext.h"
 #include "CmpDDLCatErrorCodes.h"
 #include "logmxevent_traf.h"
 #include "ComUser.h"
-#include "NAUserId.h"
-#include "str.h"
-#include "ComSmallDefs.h"
+#include "common/NAUserId.h"
+#include "common/str.h"
+#include "common/ComSmallDefs.h"
 
 
 // ==========================================================================

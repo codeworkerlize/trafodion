@@ -34,13 +34,13 @@
 */
 
 #include "LmUtility.h"
-#include "ComCextdecs.h"
-#include "NAString.h"
-#include "Int64.h"
-#include "str.h"
+#include "common/ComCextdecs.h"
+#include "common/NAString.h"
+#include "common/Int64.h"
+#include "common/str.h"
 #include <stdlib.h>
 #include "LmDebug.h"
-#include "sqlcli.h"
+#include "cli/sqlcli.h"
 #include "LmAssert.h"
 
   #include <sys/types.h>

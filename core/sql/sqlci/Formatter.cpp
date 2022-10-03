@@ -39,7 +39,7 @@
  *****************************************************************************
  */
 
-#include "NAWinNT.h"
+#include "common/NAWinNT.h"
 
 #ifndef NDEBUG
 #include <assert.h>
@@ -53,21 +53,21 @@
 #include <string.h>
 
 #include "Debug.h"
-#include "dfs2rec.h"
+#include "common/dfs2rec.h"
 #include "exp_bignum.h"
-#include "exp_clause.h"
-#include "exp_clause_derived.h"
+#include "exp/exp_clause.h"
+#include "exp/exp_clause_derived.h"
 #include "exp_interval.h"
 #include "exp_datetime.h"
-#include "DatetimeType.h"
+#include "common/DatetimeType.h"
 #include "Formatter.h"
-#include "Int64.h"
-#include "IntervalType.h"
-#include "SQLCLIdev.h"
-#include "str.h"
+#include "common/Int64.h"
+#include "common/IntervalType.h"
+#include "cli/SQLCLIdev.h"
+#include "common/str.h"
 
 #include "SqlciCmd.h"
-#include "NLSConversion.h"
+#include "common/NLSConversion.h"
 
 short convDoItMxcs(char * source,
 		   Lng32 sourceLen,

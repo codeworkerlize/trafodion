@@ -36,9 +36,9 @@
  *****************************************************************************
  */
 
-#include "Platform.h"
-#include "NAAssert.h"
-#include "SQLCLIdev.h"
+#include "common/Platform.h"
+#include "common/NAAssert.h"
+#include "cli/SQLCLIdev.h"
 
   #include <iostream>
 

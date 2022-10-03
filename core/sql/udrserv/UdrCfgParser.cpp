@@ -28,8 +28,8 @@
 #include "UdrCfgParser.h"
 #include "UdrDebug.h"
 #include "LmJavaOptions.h"
-#include "ComRtUtils.h"
-#include "NAString.h"
+#include "common/ComRtUtils.h"
+#include "common/NAString.h"
 
 FILE *UdrCfgParser::cfgFile = NULL;
 char *UdrCfgParser::cfgFileName = NULL;

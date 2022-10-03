@@ -21,13 +21,13 @@
 // @@@ END COPYRIGHT @@@
 // **********************************************************************
 
-#include "Platform.h"
+#include "common/Platform.h"
 #include <Int64.h>
 #include "QmsRequest.h"
 #include "QRMessage.h"
-#include "XMLUtil.h"
-#include "QRDescriptor.h"
-#include "QRLogger.h"
+#include "qmscommon/XMLUtil.h"
+#include "qmscommon/QRDescriptor.h"
+#include "qmscommon/QRLogger.h"
 #include "QmsInitializer.h"
 #include "QueryRewriteServer.h"
 #include "QRIpc.h"

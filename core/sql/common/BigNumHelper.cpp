@@ -33,11 +33,11 @@
  *
  *****************************************************************************
  */
-#include "Platform.h"
+#include "common/Platform.h"
 #include <math.h>
 #define MathCeil(op,err) ceil(op)
 
-#include "str.h"
+#include "common/str.h"
 #include "BigNumHelper.h"
 
 static const unsigned short powersOfTen[] =                {10,                             // 10^1

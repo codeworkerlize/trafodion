@@ -34,14 +34,14 @@
 ****************************************************************************
 */
 
-#include "Platform.h"
+#include "common/Platform.h"
 
 
-#include "exp_stdh.h"
-#include "exp_clause_derived.h"
+#include "exp/exp_stdh.h"
+#include "exp/exp_clause_derived.h"
 #include "exp_function.h"
 #include "exp_math_func.h"
-#include "exp_attrs.h"
+#include "exp/exp_attrs.h"
 #include "ExpBitMuxFunction.h"
 #include "ExpSequenceFunction.h"
 #include "ExpPCode.h"

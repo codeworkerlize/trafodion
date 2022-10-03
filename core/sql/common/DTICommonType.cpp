@@ -35,8 +35,8 @@
 // -----------------------------------------------------------------------
 
 #include "DTICommonType.h"
-#include "IntervalType.h"
-#include "DatetimeType.h"
+#include "common/IntervalType.h"
+#include "common/DatetimeType.h"
 
 // ***********************************************************************
 //

@@ -21,7 +21,7 @@
 // @@@ END COPYRIGHT @@@
 **********************************************************************/
 
-#include "Platform.h"
+#include "common/Platform.h"
 
 #define SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #define SQLPARSERGLOBALS_FLAGS
@@ -115,6 +115,6 @@
 // need reordering
 #include "AccessSets.cpp"
 #include "TriggerDB.cpp"  
-#include "Triggers.cpp"  
+#include "optimizer/Triggers.h"  
 #include "OptTrigger.cpp"  
 #include "InliningInfo.cpp"

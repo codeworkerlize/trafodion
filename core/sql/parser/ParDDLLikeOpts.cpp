@@ -34,11 +34,11 @@
  *****************************************************************************
  */
 
-#include "BaseTypes.h"
-#include "ComASSERT.h"
+#include "common/BaseTypes.h"
+#include "common/ComASSERT.h"
 #include "ComOperators.h"
 #include "ElemDDLLikeOptions.h"
-#include "OperTypeEnum.h"
+#include "common/OperTypeEnum.h"
 #include "ParDDLLikeOpts.h"
 #include "ParDDLLikeOptsCreateTable.h"
 
@@ -46,7 +46,7 @@
 #define   SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #endif
 
-#include "SqlParserGlobals.h"
+#include "parser/SqlParserGlobals.h"
 
 // -----------------------------------------------------------------------
 // methods for class ParDDLLikeOpts

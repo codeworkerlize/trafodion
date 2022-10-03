@@ -36,13 +36,13 @@
  *****************************************************************************
  */
 
-#include "str.h"
-#include "sql_id.h"
-#include "charinfo.h"
-#include "str.h"
-#include "BaseTypes.h"
-#include "NLSConversion.h"
-#include "SQLCLIdev.h"
+#include "common/str.h"
+#include "cli/sql_id.h"
+#include "common/charinfo.h"
+#include "common/str.h"
+#include "common/BaseTypes.h"
+#include "common/NLSConversion.h"
+#include "cli/SQLCLIdev.h"
 
 #if 0
 // Create a new SQL module id.

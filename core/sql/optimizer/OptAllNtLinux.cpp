@@ -21,7 +21,7 @@
 // @@@ END COPYRIGHT @@@
 **********************************************************************/
 
-#include "Platform.h"
+#include "common/Platform.h"
 
 #define SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #define SQLPARSERGLOBALS_FLAGS

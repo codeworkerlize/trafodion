@@ -34,7 +34,7 @@
 #include "AllItemExpr.h"
 #include "CacheWA.h"
 #include "CmpMain.h"
-#include "NumericType.h"
+#include "common/NumericType.h"
 #include "SchemaDB.h"
 #include "ItemFuncUDF.h"
 

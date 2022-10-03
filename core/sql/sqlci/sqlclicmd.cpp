@@ -34,8 +34,8 @@
  */
 
 #include "sqlclicmd.h"
-#include "sqlcli.h"
-#include "SQLCLIdev.h"
+#include "cli/sqlcli.h"
+#include "cli/SQLCLIdev.h"
 #include "CliDefs.h"
 #include "sqlcmd.h"
 

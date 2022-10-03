@@ -44,9 +44,9 @@
  */
 
 
-#include "Int64.h"
-#include "NAString.h"
-#include "charinfo.h"
+#include "common/Int64.h"
+#include "common/NAString.h"
+#include "common/charinfo.h"
 
 class SetParam;
 

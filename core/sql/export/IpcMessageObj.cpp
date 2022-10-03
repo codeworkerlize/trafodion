@@ -34,15 +34,15 @@
 ****************************************************************************
 */
 
-#include "Platform.h"
+#include "common/Platform.h"
 
 
-#include "NAStdlib.h"
-#include "Ipc.h"
+#include "common/NAStdlib.h"
+#include "common/Ipc.h"
 
-#include "IpcMessageObj.h"
-#include "str.h"
-#include "ComDefs.h"  // to get ROUND8
+#include "export/IpcMessageObj.h"
+#include "common/str.h"
+#include "common/ComDefs.h"  // to get ROUND8
 #include <byteswap.h>
 // -----------------------------------------------------------------------
 // Methods for class IpcMessageObj

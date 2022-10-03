@@ -33,15 +33,15 @@
 // Created:      08/24/2010
 // ***********************************************************************
 
-#include "QRDescriptor.h"
-#include "QRLogger.h"
+#include "qmscommon/QRDescriptor.h"
+#include "qmscommon/QRLogger.h"
 #include "ItemExpr.h"
 #include "ItemFunc.h"
-#include "ItemColRef.h"
+#include "optimizer/ItemColRef.h"
 #include "ItemFunc.h"
 #include "ItemLog.h"
 #include "ItemArith.h"
-#include "NumericType.h"
+#include "common/NumericType.h"
 #include "MVCandidates.h"
 
 // ***************************************************************

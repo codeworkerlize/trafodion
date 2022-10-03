@@ -35,7 +35,7 @@
 */
 
 #include "vproc.h"
-#include "Platform.h"
+#include "common/Platform.h"
 
 extern "C" { 
 void

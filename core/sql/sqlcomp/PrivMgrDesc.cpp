@@ -27,7 +27,7 @@
 //   PrivMgrDesc
 // ==========================================================================
 
-#include "PrivMgrDesc.h"
+#include "sqlcomp/PrivMgrDesc.h"
 #include "PrivMgrPrivileges.h"
 #include <bitset>
 #include <string>

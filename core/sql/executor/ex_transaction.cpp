@@ -41,7 +41,7 @@
 #include <stdio.h>
 // End of TEMP
 
-#include  "Platform.h"
+#include "common/Platform.h"
 
 #include  "cli_stdh.h"
 
@@ -58,7 +58,7 @@
 #include  "CmpContext.h"
 #include "ExCextdecs.h"
 #include "dtm/tm.h"
-#include "QRLogger.h"
+#include "qmscommon/QRLogger.h"
 
 extern pthread_t lob_ddl_thread_id;
 

@@ -36,15 +36,15 @@
 
 #include "AllElemDDLConstraint.h"
 #include "AllElemDDLConstraintAttr.h"
-#include "BaseTypes.h"
-#include "ComASSERT.h"
-#include "ComDiags.h"
+#include "common/BaseTypes.h"
+#include "common/ComASSERT.h"
+#include "export/ComDiags.h"
 #include "ComOperators.h"
 #include "ElemDDLColName.h"
 #include "ElemDDLRefTrigActions.h"
 #include "ElemDDLReferences.h"
 #include "ItemExpr.h"
-#include "NADefaults.h"
+#include "sqlcomp/NADefaults.h"
 #include "SchemaDB.h"
 
 // -----------------------------------------------------------------------

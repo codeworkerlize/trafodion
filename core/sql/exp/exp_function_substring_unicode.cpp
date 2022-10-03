@@ -38,7 +38,7 @@
  *****************************************************************************
  */
 
-#include "Platform.h"
+#include "common/Platform.h"
 
 
 #include "exp_function.h"

@@ -70,7 +70,7 @@
 
 #include  <stdarg.h> 
 
-#include "Platform.h"
+#include "common/Platform.h"
 #include "wc_scanf_sprintf.h"
 
 #ifdef FLOATING_POINT

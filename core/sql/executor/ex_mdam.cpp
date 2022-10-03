@@ -42,7 +42,7 @@
 #include "key_range.h"
 #include "key_mdam.h"
 #include "ex_mdam.h"
-// #include "exp_clause_derived.h"
+// #include "exp/exp_clause_derived.h"
 
 
 MdamPredIterator::MdamPredIterator(MdamColumn * first,Lng32 maxDisjunctNumber)

@@ -26,8 +26,8 @@
 
 #include <fstream>
 #include "QRMessage.h"
-#include "CollHeap.h"
-#include "QRDescriptor.h"
+#include "common/CollHeap.h"
+#include "qmscommon/QRDescriptor.h"
 #include "QRQueriesImpl.h"
 
 enum PublishTarget { PUBLISH_TO_QMM, PUBLISH_TO_QMS, PUBLISH_TO_FILE };

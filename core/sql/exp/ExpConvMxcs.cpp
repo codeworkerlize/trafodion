@@ -42,7 +42,7 @@
 #ifdef NA_MXCS
 #undef NA_LITTLE_ENDIAN
 #else
-#include "Platform.h"
+#include "common/Platform.h"
 #endif
 
 #if defined (NA_LITTLE_ENDIAN) || defined(NA_MXCS)
@@ -100,7 +100,7 @@
 ((char)(((char*)bignum)[len - 1] & MSB_SET_MSK));
 #else
 # typedef Int64 Int64;   // 64-bit: get Int64 define below
-#include "Int64.h"
+#include "common/Int64.h"
 
 #define BIGN_CLR_SIGN(bignum, len) (((char*)bignum)[len - 2] &= MSB_CLR_MSK);
 #define BIGN_SET_SIGN(bignum, len) (((char*)bignum)[len - 2] |= MSB_SET_MSK);

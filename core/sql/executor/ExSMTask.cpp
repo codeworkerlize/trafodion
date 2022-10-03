@@ -26,7 +26,7 @@
 #include "ExSMReadyList.h"
 #include "ExSMGlobals.h"
 #include "ExSMQueue.h"
-#include "Ipc.h"
+#include "common/Ipc.h"
 
 ExSMTask::ExSMTask(const sm_target_t &receiver,
                    uint32_t queueSize,

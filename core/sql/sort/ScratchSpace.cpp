@@ -41,7 +41,7 @@
 */
 
 
-#include "Platform.h"
+#include "common/Platform.h"
 
 //-----------------------------------------------------------------------
 // Standard Include files.
@@ -56,13 +56,13 @@
 // Product Include files.
 //-----------------------------------------------------------------------
 #include "ex_stdh.h"
-#include "ComDistribution.h"
+#include "common/ComDistribution.h"
 #include "ScratchSpace.h"
 #include "ScratchFileMap.h"
-#include "ex_god.h"
+#include "executor/ex_god.h"
 #include "ex_exe_stmt_globals.h"
-#include "ExpError.h"
-#include "ExStats.h"
+#include "exp/ExpError.h"
+#include "executor/ExStats.h"
 //----------------------------------------------------------------------- 
 // Forward Function Declarations.
 //-----------------------------------------------------------------------

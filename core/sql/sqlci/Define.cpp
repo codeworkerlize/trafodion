@@ -38,7 +38,7 @@
  */
 
 
-#include "Platform.h"
+#include "common/Platform.h"
 
 #include <ctype.h>
 #include <stdlib.h>
@@ -50,7 +50,7 @@
 #include "SqlciCmd.h"
 #include "sqlcmd.h"
 #include "SqlciEnv.h"
-#include "str.h"
+#include "common/str.h"
 #include "SqlciError.h"
 
   extern char **environ;

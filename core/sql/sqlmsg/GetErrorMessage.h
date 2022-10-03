@@ -40,8 +40,8 @@
  *****************************************************************************
  */
 
-#include "NABoolean.h"
-#include "NAWinNT.h"
+#include "common/NABoolean.h"
+#include "common/NAWinNT.h"
 
 enum MsgTextType { ERROR_TEXT=1,
                    CAUSE_TEXT,

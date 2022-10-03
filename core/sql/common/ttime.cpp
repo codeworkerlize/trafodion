@@ -24,7 +24,7 @@
 #include <time.h>
 #include <math.h>
 
-#include "ComCextdecs.h"
+#include "common/ComCextdecs.h"
 #include "ttime.h"
 
 const char* reportTimestamp()

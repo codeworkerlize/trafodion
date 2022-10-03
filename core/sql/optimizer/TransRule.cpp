@@ -45,7 +45,7 @@
 #include "RelSample.h"
 #include "AllItemExpr.h"
 #include "EstLogProp.h"
-#include "CmpContext.h"
+#include "arkcmp/CmpContext.h"
 #include "NormWA.h"
 #include "Analyzer.h"
 #include "MultiJoin.h"

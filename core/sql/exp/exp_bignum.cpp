@@ -36,15 +36,15 @@
  *****************************************************************************
  */
 
-#include "Platform.h"  
+#include "common/Platform.h"  
 
 
 #include "BigNumHelper.h"
 #include "exp_bignum.h"
-#include "Int64.h"
-#include "str.h"
+#include "common/Int64.h"
+#include "common/str.h"
 #include "SQLTypeDefs.h"
-#include "exp_clause_derived.h"
+#include "exp/exp_clause_derived.h"
 
 #include <iostream>
 #include <stdlib.h>

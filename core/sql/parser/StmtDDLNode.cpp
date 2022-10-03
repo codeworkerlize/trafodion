@@ -35,7 +35,7 @@
  *****************************************************************************
  */
 
-#include "BaseTypes.h"
+#include "common/BaseTypes.h"
 #include "ComOperators.h"
 #include "ElemDDLPrivileges.h"
 #include "ElemDDLGrantee.h"

@@ -36,20 +36,20 @@
  *****************************************************************************
  */
 
-#include "Platform.h"
+#include "common/Platform.h"
 
 
 
-#include "exp_stdh.h"
-#include "ExpAtp.h"
-#include "exp_clause_derived.h"
+#include "exp/exp_stdh.h"
+#include "exp/ExpAtp.h"
+#include "exp/exp_clause_derived.h"
 #include "ExpPCode.h"
 #include "exp_function.h"
-#include "ComSysUtils.h"
+#include "common/ComSysUtils.h"
 #include "exp_bignum.h"
 #include "BigNumHelper.h"
 #include "ExpPCodeOptimizations.h"
-#include "unicode_char_set.h"
+#include "common/unicode_char_set.h"
 #include "wstr.h"
 
 #include <sys/mman.h>
@@ -59,9 +59,9 @@
 
 #include "exp_ieee.h"
 #include "ex_stdh.h"
-#include "ComTdb.h"
+#include "comexe/ComTdb.h"
 #include "ex_tcb.h"
-#include "QRLogger.h"
+#include "qmscommon/QRLogger.h"
 double MathConvReal64ToReal64(double op1, Int16 * ov);
 #include <float.h>      /* nolist */
 #include <limits.h>     /* nolist */

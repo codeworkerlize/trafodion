@@ -39,9 +39,9 @@
 #include "LmLangManagerJava.h"
 #include "spinfo.h"
 #include "UdrExeIpc.h"
-#include "ComDiags.h"
-#include "sqlcli.h"
-#include "SQLCLIdev.h"
+#include "export/ComDiags.h"
+#include "cli/sqlcli.h"
+#include "cli/SQLCLIdev.h"
 #include "udrglobals.h"
 
 class UdrServerReplyStream;

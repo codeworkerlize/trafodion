@@ -20,12 +20,12 @@
 //
 // @@@ END COPYRIGHT @@@
 **********************************************************************/
-#include "Platform.h"
+#include "common/Platform.h"
 #include <string.h>
 #include <stdio.h>
 
 #include "SortError.h"
-#include "str.h"
+#include "common/str.h"
 
 //----------------------------------------------------------------------
 // SortError Constructor.

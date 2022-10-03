@@ -35,7 +35,7 @@
 // _MEMSHAREDPTR;_MEMCHECK
 
 #include "QRSharedPtr.h"
-#include "QRDescriptor.h"
+#include "qmscommon/QRDescriptor.h"
 #include "QmsLatticeIndex.h"
 
 // Forward references

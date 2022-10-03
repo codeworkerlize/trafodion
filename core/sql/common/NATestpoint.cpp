@@ -36,11 +36,11 @@
 */
 
 #include "NATestpoint.h"
-#include "NAStringDef.h"
+#include "export/NAStringDef.h"
 
 
 // Get the external declaration of NAAbort()
-#include "BaseTypes.h"
+#include "common/BaseTypes.h"
 
 // =======================================================================
 // Non in-line methods for class CNATestPoint

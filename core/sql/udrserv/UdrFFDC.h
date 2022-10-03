@@ -37,8 +37,8 @@
  *
  *****************************************************************************
  */
-#include "Platform.h"
-#include "NABoolean.h"
+#include "common/Platform.h"
+#include "common/NABoolean.h"
 
 void comTFDS(const char *msg1, const char *msg2, const char *msg3, const char *msg4, const char *msg5, 
              NABoolean dialOut = TRUE

@@ -35,14 +35,14 @@
  *****************************************************************************
  */
 
-#include "Platform.h"
+#include "common/Platform.h"
 #include "Sqlcomp.h"	       /* must be first included file */
 #include "EncodedValue.h"
-#include "ItemColRef.h"
+#include "optimizer/ItemColRef.h"
 #include "parser.h"
-#include "str.h"
+#include "common/str.h"
 #include <wchar.h>
-#include "NLSConversion.h"
+#include "common/NLSConversion.h"
 #include "wstr.h"
 #include <exp_function.h>
 

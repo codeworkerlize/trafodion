@@ -23,8 +23,8 @@
 #ifndef SORTERROR_H
 #define SORTERROR_H 
 
-#include "Platform.h"
-#include "NABasicObject.h"
+#include "common/Platform.h"
+#include "export/NABasicObject.h"
 
 enum SortErrorEnum {
        EMissErrTxt              =    10001 // internal error, missing error text

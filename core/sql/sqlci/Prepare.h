@@ -44,7 +44,7 @@
  */
 
 
-#include "SQLCLIdev.h"
+#include "cli/SQLCLIdev.h"
 #include "SqlciDefs.h"
 
 // The following class was named as Entry before. I renamed it to PrepEntry

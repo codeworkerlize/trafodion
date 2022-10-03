@@ -37,14 +37,14 @@
  */
 
 #include "ex_stdh.h"
-#include "ComTdb.h"
+#include "comexe/ComTdb.h"
 #include "ex_tcb.h"
 #include "ex_tuple_flow.h"
 #include "ex_exe_stmt_globals.h"
-#include "ex_expr.h"
-#include "str.h"
-#include "ExStats.h"
-#include "ExpError.h"
+#include "executor/ex_expr.h"
+#include "common/str.h"
+#include "executor/ExStats.h"
+#include "exp/ExpError.h"
 #include "cli_stdh.h"
 
 /////////////////////////////////////////////////////////////////////////

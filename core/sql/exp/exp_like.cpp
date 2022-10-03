@@ -38,16 +38,16 @@
 
 // -----------------------------------------------------------------------
 
-#include "Platform.h"
+#include "common/Platform.h"
 
 
 #include <stddef.h>
 #include <sys/types.h>
 #include <regex.h>
-#include "exp_clause_derived.h"
-#include "exp_like.h"
+#include "exp/exp_clause_derived.h"
+#include "exp/exp_like.h"
 #include "exp_function.h"
-#include "unicode_char_set.h"
+#include "common/unicode_char_set.h"
 #include "nchar_mp.h"
 
 

@@ -35,7 +35,7 @@
  *
  *****************************************************************************
  */
-#include "Platform.h"
+#include "common/Platform.h"
 #include "LmExtFunc.h"
 
 void lmMakeTFDSCall(const char *msg, const char *file, UInt32 line)

@@ -41,9 +41,9 @@
 
 
 #include "Prepare.h"
-#include "str.h"
-#include "BaseTypes.h"
-#include "dfs2rec.h"
+#include "common/str.h"
+#include "common/BaseTypes.h"
+#include "common/dfs2rec.h"
   
 //////////////////////////////////////////////////////////////////////
 PrepEntry::PrepEntry(Lng32 datatype, Lng32 length, Lng32 scale, Lng32 precision,

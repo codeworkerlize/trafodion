@@ -22,11 +22,11 @@
 // **********************************************************************
 
 #include "QmsQms.h"
-#include "QRDescriptor.h"
-#include "QRLogger.h"
+#include "qmscommon/QRDescriptor.h"
+#include "qmscommon/QRLogger.h"
 #include "QmsMVMemo.h"
-#include "NAType.h"
-#include "ComRtUtils.h"
+#include "common/NAType.h"
+#include "common/ComRtUtils.h"
 
 /**
  * \file

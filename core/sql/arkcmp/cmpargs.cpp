@@ -33,7 +33,7 @@
 ******************************************************************************
 */
 
-#include "Platform.h"   
+#include "common/Platform.h"   
 
 #include <ctype.h>
 #include <iostream>

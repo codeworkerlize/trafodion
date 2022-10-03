@@ -45,7 +45,7 @@
 #include <iostream>
 #include "CommonStructs.h"
 #include "Record.h"
-#include "NABasicObject.h"
+#include "export/NABasicObject.h"
 #include "SortError.h"
 
 class TreeNode : public NABasicObject {

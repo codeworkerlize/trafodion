@@ -42,17 +42,17 @@
 #include <iostream>
 #include <string>
 
-#include "Platform.h"
+#include "common/Platform.h"
 
-#include "CmpCommon.h"
-#include "CmpContext.h"
+#include "common/CmpCommon.h"
+#include "arkcmp/CmpContext.h"
 #include "CmpErrors.h"
-#include "CmpStatement.h"
+#include "arkcmp/CmpStatement.h"
 #include "ErrorMessage.h"
 
-#include "logmxevent.h"
+#include "sqlmxevents/logmxevent.h"
 
-#include "NADefaults.h"
+#include "sqlcomp/NADefaults.h"
 #include "NewDel.h"
 #include "SchemaDB.h"
 #include "ControlDB.h"
@@ -60,8 +60,8 @@
 
 #include "NAInternalError.h"
 
-#include "Context.h"
-#include "Globals.h"
+#include "cli/Context.h"
+#include "cli/Globals.h"
 #include "dbUserAuth.h"
 
 THREAD_P CmpContext* cmpCurrentContext=0;

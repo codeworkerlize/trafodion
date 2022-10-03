@@ -38,24 +38,24 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "ComAnsiNamePart.h"
-#include "ComMPLoc.h"
-#include "CmpContext.h"
+#include "common/ComAnsiNamePart.h"
+#include "common/ComMPLoc.h"
+#include "arkcmp/CmpContext.h"
 #include "DefaultValidator.h"
 #include "Sqlcomp.h"
-#include "StmtCompilationMode.h"
-#include "NAClusterInfo.h"
-#include "CmpStatement.h"
+#include "parser/StmtCompilationMode.h"
+#include "common/NAClusterInfo.h"
+#include "arkcmp/CmpStatement.h"
 // triggers -- eliezer
-#include "TriggerDB.h"
-#include "logmxevent.h"
+#include "optimizer/TriggerDB.h"
+#include "sqlmxevents/logmxevent.h"
 #include <ComCextdecs.h>
-#include "SQLCLIdev.h"
+#include "cli/SQLCLIdev.h"
 #include "ComUnits.h"
 #include "CmpSeabaseDDL.h"
 #include "ExpHbaseInterface.h"
 
-#include "SqlParserGlobals.h"			// must be last #include
+#include "parser/SqlParserGlobals.h"			// must be last #include
 
 #include "OptimizerSimulator.h"
 

@@ -42,7 +42,7 @@
 ******************************************************************************
 */
 
-#include "ComSpace.h"
+#include "common/ComSpace.h"
 #include "CommonStructs.h"
 #include "SortUtilCfg.h"
 #include "SortAlgo.h"
@@ -51,7 +51,7 @@
 #include "ScratchSpace.h"
 #include "ScratchFileMap.h"
 #include "Statistics.h"
-#include "NABasicObject.h"
+#include "export/NABasicObject.h"
 
 class MemoryMonitor;
 class ExBMOStats;

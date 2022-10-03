@@ -30,8 +30,8 @@
 *
 ****************************************************************************/
 
-#include "SequenceGeneratorAttributes.h"
-#include "ComSpace.h"
+#include "common/SequenceGeneratorAttributes.h"
+#include "common/ComSpace.h"
 
 void SequenceGeneratorAttributes::genSequenceName(const NAString &catName, const NAString &schName, 
                                                   const NAString &tabName, const NAString &colName,

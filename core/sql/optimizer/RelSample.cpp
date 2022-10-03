@@ -43,7 +43,7 @@
 #include "Cost.h"
 #include "CostMethod.h"
 #include "opt.h"
-#include "Globals.h"
+#include "cli/Globals.h"
 #include "SqlParserAux.h"
 
 // -----------------------------------------------------------------------

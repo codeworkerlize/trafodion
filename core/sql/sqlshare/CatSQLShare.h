@@ -41,8 +41,8 @@
 #ifndef _CATSQLSHARE_H_
 #define _CATSQLSHARE_H_
 
-#include "Platform.h"
-   typedef __int64 SQLShareInt64;
+#include "common/Platform.h"
+   typedef long SQLShareInt64;
    #ifdef CLI_DLL
       #define CATSQLSHARE_LIB_FUNC __declspec( dllexport )
    #else

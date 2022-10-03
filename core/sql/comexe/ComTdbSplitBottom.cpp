@@ -37,9 +37,9 @@
 
 // -----------------------------------------------------------------------
 
-#include "ComTdbSplitBottom.h"
-#include "ComTdbCommon.h"
-#include  "ComTdbSendBottom.h"
+#include "comexe/ComTdbSplitBottom.h"
+#include "comexe/ComTdbCommon.h"
+#include "comexe/ComTdbSendBottom.h"
 //#include  "ex_esp_frag_dir.h"
 
 // -----------------------------------------------------------------------

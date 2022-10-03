@@ -38,8 +38,8 @@
 #include "LmDebug.h"
 #include "LmExtFunc.h"
 #include "ComSafePrinter.h"
-#include "BaseTypes.h"
-#include "str.h"
+#include "common/BaseTypes.h"
+#include "common/str.h"
 
 char LmJavaHooks::textBuf_[LMJ_HOOK_TEXT_BUF_SIZE] = {'\0'};
 

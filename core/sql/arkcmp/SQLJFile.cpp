@@ -24,11 +24,11 @@
 #include <sys/types.h>
 
 #include "Cmdline_Args.h"
-#include "ComDiags.h"
-#include "DgBaseType.h"
+#include "export/ComDiags.h"
+#include "common/DgBaseType.h"
 #include "ErrorMessage.h"
 #include "SQLJFile.h"
-#include "DgBaseType.h"
+#include "common/DgBaseType.h"
 #include "ExtQualModuleNames.h"
 #include "mxCompileUserModule.h"
 

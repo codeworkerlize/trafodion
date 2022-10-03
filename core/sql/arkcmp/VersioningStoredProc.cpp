@@ -29,10 +29,10 @@
 // @@@ END COPYRIGHT @@@
 **********************************************************************/
 
-#include "Platform.h"
+#include "common/Platform.h"
 
 #include "VersioningStoredProc.h"
-#include "CmpCommon.h"
+#include "common/CmpCommon.h"
 #include "CmpErrors.h"
 
 #include "CatSQLObjectCache.h"
@@ -46,7 +46,7 @@
 #include "CatCatalog.h"
 #include "CatCatalogList.h"
 
-#include "ComRtUtils.h"
+#include "common/ComRtUtils.h"
 
 //----------------------------------------------------------------------
 //

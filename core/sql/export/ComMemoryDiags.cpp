@@ -38,7 +38,7 @@
 // contained in class ComMemoryDiags; see ComMemoryDiags.h for
 // a description of this class
 //
-#include "Platform.h"
+#include "common/Platform.h"
 
 
 #include "ComMemoryDiags.h"

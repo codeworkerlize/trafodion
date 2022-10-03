@@ -38,32 +38,32 @@
  */
 
 #include <ctype.h>
-#include "Platform.h"
-#include "cextdecs/cextdecs.h"
+#include "common/Platform.h"
+//#include "cextdecs/cextdecs.h"
 
 #include "ex_stdh.h"			// TEMP, for ISP testing
 
-#include "Platform.h"
+#include "common/Platform.h"
 
 
 #include "ExSqlComp.h"
 #include "cli_stdh.h"
 #include "CmpErrors.h"
-#include "CmpMessage.h"
-#include "ComDiags.h"
+#include "comexe/CmpMessage.h"
+#include "export/ComDiags.h"
 #include "ShowSchema.h"			// GetControlDefaults class
-#include "StmtCompilationMode.h"
+#include "parser/StmtCompilationMode.h"
 
-#include "ComTdb.h"
+#include "comexe/ComTdb.h"
 #include "ExControlArea.h"
-#include "ComTransInfo.h"
+#include "common/ComTransInfo.h"
 #include "ex_tcb.h"
 #include "ex_stored_proc.h"
 #include "ex_transaction.h"
-#include "sql_id.h"
-#include "ComRtUtils.h"
+#include "cli/sql_id.h"
+#include "common/ComRtUtils.h"
 
-#include "Ipc.h"
+#include "common/Ipc.h"
 #include "PortProcessCalls.cpp"
 
 #include "seabed/fs.h"

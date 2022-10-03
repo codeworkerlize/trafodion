@@ -44,11 +44,11 @@
 // define MODULE_DEBUG when the module is to be debugged separately.
 // #define  MODULE_DEBUG
 
-#include "NLSConversion.h"
-#include "str.h"
-#include "csconvert.h"
-#include "charinfo.h"
-#include "nawstring.h"
+#include "common/NLSConversion.h"
+#include "common/str.h"
+#include "common/csconvert.h"
+#include "common/charinfo.h"
+#include "common/nawstring.h"
 #ifdef MODULE_DEBUG
 #include "NLSConversion.cpp"
 #endif

@@ -35,16 +35,16 @@
 */
 
 #include "PartReq.h"
-#include "ItemColRef.h"
+#include "optimizer/ItemColRef.h"
 #include "ItemLog.h"
 #include "ItemFunc.h"
 #include "ReqGen.h"
 #include "GroupAttr.h"
-#include "RelScan.h"
+#include "optimizer/RelScan.h"
 #include "opt.h"
-#include "str.h"
-#include "NumericType.h"
-#include "MiscType.h"
+#include "common/str.h"
+#include "common/NumericType.h"
+#include "common/MiscType.h"
 #include "NAFileSet.h"
 #include "utility.h"
 

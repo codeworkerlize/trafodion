@@ -28,9 +28,9 @@
 #include "seabed/ms.h"
 #include "seabed/fserr.h"
 #include "SharedSegment.h"
-#include "NABasicObject.h"
-#include "NAMemory.h"
-#include "SharedCache.h"
+#include "export/NABasicObject.h"
+#include "common/NAMemory.h"
+#include "sqlcomp/SharedCache.h"
 #include <stdlib.h>
 
 // only to get the definition of getRmsSharedMemoryAddr()

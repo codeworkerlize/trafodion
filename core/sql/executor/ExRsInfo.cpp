@@ -70,11 +70,11 @@
 */
 
 #include "ExRsInfo.h"
-#include "NAMemory.h"
-#include "ComSmallDefs.h"
+#include "common/NAMemory.h"
+#include "common/ComSmallDefs.h"
 #include "ex_ex.h"
 #include "UdrExeIpc.h"
-#include "Statement.h"
+#include "cli/Statement.h"
 #include "ExUdrServer.h"
 #include "ex_exe_stmt_globals.h"
 #include "ExUdrClientIpc.h"

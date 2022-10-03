@@ -36,8 +36,8 @@
 #include "QueryCacheSt.h"
 #include "QCache.h"
 #include "CmpMain.h"
-#include "Globals.h"
-#include "Context.h"
+#include "cli/Globals.h"
+#include "cli/Context.h"
 #include "CmpStoredProc.h"
 
 SP_STATUS QueryCacheStatStoredProcedure::sp_InputFormat(SP_FIELDDESC_STRUCT *inputFieldFormat,

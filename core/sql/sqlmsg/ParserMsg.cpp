@@ -43,14 +43,14 @@
 #if !defined(__GNUC__) || __GNUC__ < 3
 #include <strstream.h>
 #endif
-#include "NAWinNT.h"
-#include "ComDiags.h"
+#include "common/NAWinNT.h"
+#include "export/ComDiags.h"
 #include "wstr.h"
-#include "nawstring.h"
-#include "NLSConversion.h"
+#include "common/nawstring.h"
+#include "common/NLSConversion.h"
 #include "ErrorMessage.h"
 #include "ParserMsg.h"	// header for StoreSyntaxError, implemented herein
-#include "csconvert.h"
+#include "common/csconvert.h"
 
 
 // This function takes as an argument a pointer to a ComCondition object.

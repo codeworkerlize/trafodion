@@ -40,7 +40,7 @@
 *
 ******************************************************************************
 */
-#include "Platform.h"
+#include "common/Platform.h"
 #include "stfs/stfslib.h"
 #include "ScratchFile_base.h"
 

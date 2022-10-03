@@ -34,14 +34,14 @@
 ****************************************************************************
 */
 
-#include "Platform.h"
+#include "common/Platform.h"
 
 
-#include "ExpAtp.h"
-#include "ComPackDefs.h"
-#include "exp_attrs.h"
-#include "str.h"
-#include "QRLogger.h"
+#include "exp/ExpAtp.h"
+#include "comexe/ComPackDefs.h"
+#include "exp/exp_attrs.h"
+#include "common/str.h"
+#include "qmscommon/QRLogger.h"
 
 // constructor (Allocate and initialize) for an Atp
 atp_struct * allocateAtp(ex_cri_desc * criDesc, CollHeap * space)

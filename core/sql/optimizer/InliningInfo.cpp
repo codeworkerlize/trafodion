@@ -34,10 +34,10 @@
 ******************************************************************************
 */
 #include "Inlining.h"
-#include "Triggers.h"
-#include "TableDesc.h"
+#include "optimizer/Triggers.h"
+#include "optimizer/TableDesc.h"
 #include "RelUpdate.h"
-#include "ItemColRef.h"
+#include "optimizer/ItemColRef.h"
 #include "RETDesc.h"
 #include "ColumnDesc.h"
 #include "BindWA.h"

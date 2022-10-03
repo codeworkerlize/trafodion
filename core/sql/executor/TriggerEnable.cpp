@@ -38,11 +38,11 @@
 #include "TriggerEnable.h"
 
 #include "ex_stdh.h"
-#include "ComTdb.h"
+#include "comexe/ComTdb.h"
 #include "ex_tcb.h"
 #include "ex_root.h"
 
-#include "NAMemory.h"
+#include "common/NAMemory.h"
 
 //-----------------------------------------------------------------------------
 //

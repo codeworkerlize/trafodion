@@ -59,8 +59,8 @@
 #include <string.h>
 #include <iostream>
 
-#include "str.h"
-#include "ComSpace.h"
+#include "common/str.h"
+#include "common/ComSpace.h"
 
 #include <unistd.h>
 #include <sys/types.h>
@@ -73,13 +73,13 @@
 
 #include "NAError.h"
 #include "HeapLog.h"
-#include "Platform.h"
-#include "NAAssert.h"
+#include "common/Platform.h"
+#include "common/NAAssert.h"
 
-#include "ComRtUtils.h"
-#include "StmtCompilationMode.h"
-#include "NamedSemaphore.h"
-#include "DLock.h"
+#include "common/ComRtUtils.h"
+#include "parser/StmtCompilationMode.h"
+#include "sqlcomp/NamedSemaphore.h"
+#include "common/DLock.h"
 #include "SharedSegment.h"
 
 #ifdef _DEBUG
@@ -139,20 +139,20 @@ UInt32 THREAD_P deallocTraceIndex = deallocTraceEntries - 1, deallocCount = 0;
 THREAD_P DeallocTraceEntry (*deallocTraceArray)[deallocTraceEntries] = 0;
 
 
-#include "NAMemory.h"
+#include "common/NAMemory.h"
 #include "NAMutex.h"
 #ifdef _DEBUG
-#include "Collections.h"
+#include "common/Collections.h"
 #endif // _DEBUG
 
 
-#include "logmxevent.h"
+#include "sqlmxevents/logmxevent.h"
 
 #define NO_MERGE        0x0
 #define BACKWARD_MERGE  0x1
 #define FORWARD_MERGE   0x2
 
-#include "logmxevent.h"
+#include "sqlmxevents/logmxevent.h"
 
 extern short getRTSSemaphore();     // Functions implemented in SqlStats.cpp
 extern void releaseRTSSemaphore();

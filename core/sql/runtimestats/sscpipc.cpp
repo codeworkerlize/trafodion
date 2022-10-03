@@ -25,10 +25,10 @@
 // Created:      5/02/2006
 **********************************************************************/
 
-#include "Platform.h"
+#include "common/Platform.h"
 #include "ex_stdh.h"
 #include "sscpipc.h"
-#include "logmxevent.h"
+#include "sqlmxevents/logmxevent.h"
 #include "ExCextdecs.h"
 #include <sys/ipc.h>
 #include <sys/shm.h>
@@ -36,14 +36,14 @@
 #include "nsk/nskport.h"
 #include "seabed/ms.h"
 #include "seabed/fs.h"
-#include "NAStdlib.h"
+#include "common/NAStdlib.h"
 #include "zsysc.h"
-#include "ExStats.h"
+#include "executor/ExStats.h"
 #include "rts_msg.h"
-#include "PortProcessCalls.h"
-#include "ComTdb.h"
-#include "ComSqlId.h"
-#include "ComDistribution.h"
+#include "porting/PortProcessCalls.h"
+#include "comexe/ComTdb.h"
+#include "common/ComSqlId.h"
+#include "common/ComDistribution.h"
 
 SscpGlobals::SscpGlobals(NAHeap *sscpheap, StatsGlobals *statsGlobals)
   : heap_(sscpheap),

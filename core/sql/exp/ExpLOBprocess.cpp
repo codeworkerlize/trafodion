@@ -84,15 +84,15 @@ lostart**/
 #include <seabed/pevents.h>
 #include <seabed/fserr.h>
 
-#include "ComRtUtils.h"
+#include "common/ComRtUtils.h"
 //#include "ExeReplInterface.h"
-#include "Globals.h"
+#include "cli/Globals.h"
 #include "NAExit.h"
 #include "ex_ex.h"                  // ex_assert
 #include "SCMVersHelp.h"
 
 #define SQ_USE_LOB_PROCESS 1
-#include "QRLogger.h"
+#include "qmscommon/QRLogger.h"
 
 extern int ms_transid_reg(MS_Mon_Transid_Type, MS_Mon_Transseq_Type, SB_Int64_Type, SB_Int64_Type);
 extern void ms_transid_clear(MS_Mon_Transid_Type, MS_Mon_Transseq_Type);

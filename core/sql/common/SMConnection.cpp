@@ -29,9 +29,9 @@
 #include "ExSMEvent.h"
 #include "ExSMShortMessage.h"
 #include "ex_exe_stmt_globals.h"
-#include "ExpErrorEnums.h"
-#include "NAAssert.h"
-#include "PortProcessCalls.h"
+#include "exp/ExpErrorEnums.h"
+#include "common/NAAssert.h"
+#include "porting/PortProcessCalls.h"
 
 // -----------------------------------------------------------------------
 // Methods for class SMConnection

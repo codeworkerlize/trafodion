@@ -42,7 +42,7 @@
 ******************************************************************************
 */
 
-#include "Platform.h"
+#include "common/Platform.h"
 
 // fix later UNIBR4
   #ifdef max
@@ -52,7 +52,7 @@
     #undef min
   #endif
 
-#include "Int64.h"
+#include "common/Int64.h"
 
 class SortStatistics {
   public :

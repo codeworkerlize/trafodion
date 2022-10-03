@@ -34,9 +34,9 @@
  *
  ****************************************************************************/
 
-#include "NLSConversion.h"
-#include "logmxevent.h"
-#include "str.h"
+#include "common/NLSConversion.h"
+#include "sqlmxevents/logmxevent.h"
+#include "common/str.h"
 #include <stdlib.h>
 #include <pthread.h>
 #include <limits.h>
@@ -51,7 +51,7 @@
 
 
 #include "seabed/fs.h"
-//#include "QRLogger.h"
+//#include "qmscommon/QRLogger.h"
 
 // forward declaration
 static void check_assert_bug_catcher();

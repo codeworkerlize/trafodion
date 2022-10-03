@@ -44,7 +44,7 @@
 #include  "ex_exe_stmt_globals.h"
 #include  "ex_error.h"
 #include  "ex_queue.h"
-#include "ComDiags.h"
+#include "export/ComDiags.h"
 
 ComDiagsArea *ExRaiseSqlError(CollHeap* heap, ex_queue_entry* req,
 			      ExeErrorCode err, 

@@ -35,7 +35,7 @@
 #include "QmsMVDetails.h"
 #include "QmsMVCandidate.h"
 #include "QmsMatchTest.h"
-#include "Range.h"
+#include "qmscommon/Range.h"
 
 
 //========================================================================
@@ -1617,8 +1617,8 @@ RewriteInstructionsItemPtr MatchTest::findAggregateFunction(QRFunctionPtr func)
 }
 
 // ***************************************************************************
-// The extra grouping columns are the ones being rolled up – columns that 
-// are in the MV’s grouping list, but not in the query’s grouping list. An 
+// The extra grouping columns are the ones being rolled up ï¿½ columns that 
+// are in the MVï¿½s grouping list, but not in the queryï¿½s grouping list. An 
 // aggregate function is on an MV grouping column when its inputs are in this list.
 // ***************************************************************************
 NABoolean MatchTest::areAllInputsGroupingColumns(QRFunctionPtr func, ElementPtrList& inputList)

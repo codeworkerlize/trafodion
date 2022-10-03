@@ -46,7 +46,7 @@
 #include "udrdefs.h"
 #include "udrutil.h"
 #include "UdrExeIpc.h"
-#include "sql_buffer.h"
+#include "executor/sql_buffer.h"
 
 #include "udrdecs.h"
 

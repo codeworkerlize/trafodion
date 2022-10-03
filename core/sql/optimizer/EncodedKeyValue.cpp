@@ -36,13 +36,13 @@
 #include "EncodedKeyValue.h"
 #include "Generator.h"
 #include "GenExpGenerator.h"
-#include "ExpCriDesc.h"
-#include "ExpAtp.h"
+#include "exp/ExpCriDesc.h"
+#include "exp/ExpAtp.h"
 #include "exp_dp2_expr.h"
-#include "exp_clause_derived.h"
-#include "CmpStatement.h"
+#include "exp/exp_clause_derived.h"
+#include "arkcmp/CmpStatement.h"
 #include "NATable.h"
-#include "TrafDDLdesc.h"
+#include "sqlcat/TrafDDLdesc.h"
 
 // defined in SynthType.cpp
 extern

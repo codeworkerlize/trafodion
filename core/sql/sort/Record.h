@@ -44,7 +44,7 @@
 #include "CommonStructs.h"
 #include "Const.h"
 #include "ScratchSpace.h"
-#include "NABasicObject.h"
+#include "export/NABasicObject.h"
 #include "SortError.h"
 
 class Record;

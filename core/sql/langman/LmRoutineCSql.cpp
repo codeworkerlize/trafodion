@@ -31,7 +31,7 @@
 #include "LmRoutineCSql.h"
 #include "LmParameter.h"
 #include "sqludr.h"
-#include "ComDefs.h"
+#include "common/ComDefs.h"
 #include "wstr.h"
 
 // Routine body signatures

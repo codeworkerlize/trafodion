@@ -41,13 +41,13 @@
 #include "Generator.h"
 #include "GenExpGenerator.h"
 //#include "ex_stdh.h"
-#include "ExpCriDesc.h"
-#include "ComTdb.h"
+#include "exp/ExpCriDesc.h"
+#include "comexe/ComTdb.h"
 //#include "ex_tcb.h"
-#include "ComTdbUnion.h"
-#include "DefaultConstants.h"
-#include "sql_buffer.h"
-#include "sql_buffer_size.h"
+#include "comexe/ComTdbUnion.h"
+#include "sqlcomp/DefaultConstants.h"
+#include "executor/sql_buffer.h"
+#include "executor/sql_buffer_size.h"
 
 /////////////////////////////////////////////////////////////////////
 //

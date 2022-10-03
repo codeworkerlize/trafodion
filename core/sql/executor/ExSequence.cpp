@@ -38,15 +38,15 @@
 */
 
 #include "ex_stdh.h"
-#include "ComTdb.h"
+#include "comexe/ComTdb.h"
 #include "ex_tcb.h"
 #include "ExSequence.h"
-#include "ex_expr.h"
+#include "executor/ex_expr.h"
 #include "ExpSequenceFunction.h"
 #include "ExSimpleSqlBuffer.h"
-#include "ExStats.h"
-#include "memorymonitor.h"
-#include "logmxevent.h"
+#include "executor/ExStats.h"
+#include "cli/memorymonitor.h"
+#include "sqlmxevents/logmxevent.h"
 
 char *GetHistoryRowOLAP(void *data, Int32 n, 
                         NABoolean leading, Lng32 winSize, Int32 &retcode)

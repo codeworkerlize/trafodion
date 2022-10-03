@@ -48,7 +48,7 @@
 
 #include "Sqlcomp.h"
 #include "BindWA.h"
-#include "CmpContext.h"
+#include "arkcmp/CmpContext.h"
 #include "StmtDDLCreateView.h"
 #include "RelMisc.h"
 #include "ItemOther.h"
@@ -65,7 +65,7 @@
 
 #define   SQLPARSERGLOBALS_NADEFAULTS
 #include "SqlParserGlobalsCmn.h"
-#include "SqlParserGlobals.h"           // should be last #include
+#include "parser/SqlParserGlobals.h"           // should be last #include
 
 // ***********************************************************************
 // BindScope()

@@ -35,7 +35,7 @@
 #define   SQLPARSERGLOBALS_FLAGS	// must precede all #include's
 #define   SQLPARSERGLOBALS_NADEFAULTS
 
-#include "ComRtUtils.h"
+#include "common/ComRtUtils.h"
 #include "Debug.h"
 #include "Sqlcomp.h"
 #include "AllRelExpr.h"
@@ -44,17 +44,17 @@
 #include "opt.h"
 #include "PhyProp.h"
 #include "ScanOptimizer.h"
-#include "CmpContext.h"
-#include "ExpError.h"
-#include "ComTransInfo.h"
+#include "arkcmp/CmpContext.h"
+#include "exp/ExpError.h"
+#include "common/ComTransInfo.h"
 #include "BindWA.h"
 #include "Refresh.h"
 #include "CmpMain.h"
 #include "ControlDB.h"
 #include "Analyzer.h"
 #include "OptHints.h"
-#include "ComTdbSendTop.h"
-#include "DatetimeType.h"
+#include "comexe/ComTdbSendTop.h"
+#include "common/DatetimeType.h"
 #include "exp_datetime.h"
 
 #  ifndef   SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
@@ -95,26 +95,26 @@
 #include "StmtDDLDropTrigger.h"
 #include "StmtDDLAlterSharedCache.h"
 
-#include "ComCextdecs.h"
+#include "common/ComCextdecs.h"
 //#include <cextdecs/cextdecs.h>
 #include "wstr.h"
 #include "Inlining.h"
-#include "Triggers.h"
-#include "TriggerDB.h"
+#include "optimizer/Triggers.h"
+#include "optimizer/TriggerDB.h"
 #include "MVInfo.h"
 #include "Refresh.h"
 #include "ChangesTable.h"
 #include "MvRefreshBuilder.h"
 #include "OptHints.h"
-#include "CmpStatement.h"
-#include "charinfo.h"
-#include "SqlParserGlobals.h"		// must be last #include
+#include "arkcmp/CmpStatement.h"
+#include "common/charinfo.h"
+#include "parser/SqlParserGlobals.h"		// must be last #include
 #include "ItmFlowControlFunction.h"
 
 #include "PrivMgrComponentPrivileges.h"
 #include "ComUser.h"
 #include "CmpSeabaseDDL.h"
-#include "SqlTableOpenInfo.h"
+#include "comexe/SqlTableOpenInfo.h"
 #include "CmpDDLCatErrorCodes.h"
 
 

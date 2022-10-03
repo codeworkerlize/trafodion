@@ -21,21 +21,21 @@
 // @@@ END COPYRIGHT @@@
 **********************************************************************/
 
-#include "BaseTypes.h"
+#include "common/BaseTypes.h"
 
 #include <string.h>             // strstr
-#include "str.h"                // str_itoa
-#include "NAString.h"           // TrimNAStringSpace
-#include "nawstring.h"
+#include "common/str.h"                // str_itoa
+#include "common/NAString.h"           // TrimNAStringSpace
+#include "common/nawstring.h"
 
 
 
 
-#include "ComASSERT.h"
-#include "OperTypeEnum.h"
+#include "common/ComASSERT.h"
+#include "common/OperTypeEnum.h"
 #include "CmUtil.h"
-#include "NLSConversion.h"
-#include "CmpCommon.h"
+#include "common/NLSConversion.h"
+#include "common/CmpCommon.h"
 
 //
 // Versioning Light: Changed translation functions to generally use the

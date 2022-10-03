@@ -42,16 +42,16 @@
  */
 #include "CmpSeabaseDDLincludes.h"
 #include "RelExeUtil.h"
-#include "Globals.h"
-#include "Context.h"
-#include "SqlStats.h"
-#include "fs/feerrors.h"
+#include "cli/Globals.h"
+#include "cli/Context.h"
+#include "runtimestats/SqlStats.h"
+#include "common/feerrors.h"
 #include "dtm/tm.h"
 #include "PrivMgrComponentPrivileges.h"
-#include "PrivMgrCommands.h"
+#include "sqlcomp/PrivMgrCommands.h"
 #include "CmpSeabaseDDLrepos.h"
 #include "CmpSeabaseBackupAttrs.h"
-#include "LateBindInfo.h"
+#include "comexe/LateBindInfo.h"
 #include "exp_datetime.h"
 
 static THREAD_P Int32 stepSeq = 0;

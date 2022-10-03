@@ -32,9 +32,9 @@
 // *********************************************************************
 
 #include "MemoryTableDB.h"
-#include "Globals.h"
+#include "cli/Globals.h"
 #include <sys/time.h>
-#include "SharedCache.h"
+#include "sqlcomp/SharedCache.h"
 
 
 ULng32 NAStringHashFunc(const NAString &x) { return x.hash(); }

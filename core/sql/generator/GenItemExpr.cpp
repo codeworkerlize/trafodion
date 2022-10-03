@@ -37,10 +37,10 @@
 
 #include "AllItemExpr.h"
 #include "GenExpGenerator.h"
-#include "dfs2rec.h"
-#include "exp_clause.h"
-#include "exp_clause_derived.h"
-#include "NumericType.h"
+#include "common/dfs2rec.h"
+#include "exp/exp_clause.h"
+#include "exp/exp_clause_derived.h"
+#include "common/NumericType.h"
 #include "exp_function.h"
 
 /////////////////////////////////////////////////////////////////////

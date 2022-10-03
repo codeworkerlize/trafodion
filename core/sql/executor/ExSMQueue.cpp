@@ -20,9 +20,9 @@
 //
 // @@@ END COPYRIGHT @@@
 **********************************************************************/
-#include "Platform.h"
+#include "common/Platform.h"
 #include "ExSMQueue.h"
-#include "NAMemory.h"
+#include "common/NAMemory.h"
 
 ExSMQueue::ExSMQueue(uint32_t initialSize, NAMemory *heap)
   : head_(0),

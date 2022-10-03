@@ -34,11 +34,11 @@
  *****************************************************************************
  */
 
-#include "ComDiags.h"
+#include "export/ComDiags.h"
 #include "ElemDDLLoadOptions.h"
 #define   SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
-#include "SqlParserGlobals.h"
-#include "NAString.h"
+#include "parser/SqlParserGlobals.h"
+#include "common/NAString.h"
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLLoadOpt

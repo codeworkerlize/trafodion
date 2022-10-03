@@ -36,11 +36,11 @@
 
 #include <ctype.h>
 #include <limits.h>
-#include "DatetimeType.h"
-#include "IntervalType.h"
-#include "NumericType.h"
-#include "str.h"
-#include "exp_clause_derived.h"
+#include "common/DatetimeType.h"
+#include "common/IntervalType.h"
+#include "common/NumericType.h"
+#include "common/str.h"
+#include "exp/exp_clause_derived.h"
 
 // ***********************************************************************
 // Static data

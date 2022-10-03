@@ -39,7 +39,7 @@
 */
 
 
-#include "Platform.h"
+#include "common/Platform.h"
 extern "C" {
 }
 #define _cc_status short

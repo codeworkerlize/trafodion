@@ -24,13 +24,13 @@
 #include <ComCextdecs.h>
 #include <Int64.h>
 #include "QRSharedPtr.h"
-#include "QRLogger.h"
+#include "qmscommon/QRLogger.h"
 #include "QmsMain.h"
-#include "QRDescriptor.h"
+#include "qmscommon/QRDescriptor.h"
 #include "QRQueriesImpl.h"
 #include "QueryRewriteServer.h"
 #include "QmpPublish.h"
-#include "NAType.h"
+#include "common/NAType.h"
 
 #include "nsk/nskport.h"
 #include "seabed/ms.h"

@@ -38,17 +38,17 @@
 
 
 #include "ex_stdh.h"
-#include "ComTdb.h"
+#include "comexe/ComTdb.h"
 #include "ex_tcb.h"
 #include "SortUtil.h"
 #include "SortUtilCfg.h"
 #include "ex_sort.h"
-#include "ex_expr.h"
-#include "ExStats.h"
+#include "executor/ex_expr.h"
+#include "executor/ExStats.h"
 #include  "ex_exe_stmt_globals.h"
 #include  "ExpError.h"
-#include "NAMemory.h"
-#include "sql_buffer_size.h"
+#include "common/NAMemory.h"
+#include "executor/sql_buffer_size.h"
 
 #define ONE_MEG 1048576  //1024 * 1024
 

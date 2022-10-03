@@ -26,7 +26,7 @@
 #include <ctype.h>
 #include <string.h>
 #include <stdlib.h>
-#include "Platform.h"
+#include "common/Platform.h"
 
 typedef Int32 answer;
 const answer right = 1;

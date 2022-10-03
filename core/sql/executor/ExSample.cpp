@@ -37,12 +37,12 @@
 */
 
 #include "ex_stdh.h"
-#include "ComTdb.h"
+#include "comexe/ComTdb.h"
 #include "ex_tcb.h"
 #include "ExSample.h"
-#include "ex_expr.h"
+#include "executor/ex_expr.h"
 #include "ExSimpleSqlBuffer.h"
-#include "ExStats.h"
+#include "executor/ExStats.h"
 
 // build - construct the TCB subtree for this TDB.
 //

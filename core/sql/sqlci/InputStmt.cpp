@@ -48,16 +48,16 @@
 #include <algorithm>
 
 
-#include "Platform.h"
-#include "ComASSERT.h"
+#include "common/Platform.h"
+#include "common/ComASSERT.h"
 #include "InputStmt.h"
 #include "ParserMsg.h"
 #include "SqlciEnv.h"
 #include "SqlciError.h"
 #include "SqlciParser.h"
-#include "str.h"
+#include "common/str.h"
 
-#include "ComDiags.h"
+#include "export/ComDiags.h"
 extern ComDiagsArea sqlci_DA;
 
 

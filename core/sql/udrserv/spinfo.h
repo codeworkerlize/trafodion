@@ -38,19 +38,19 @@
 #ifndef SPINFO_H
 #define SPINFO_H
 
-#include "sqlcli.h"
-#include "NABoolean.h"
+#include "cli/sqlcli.h"
+#include "common/NABoolean.h"
 #include "udrextrn.h"
 #include "udrdefs.h"
-#include "ComSmallDefs.h"
+#include "common/ComSmallDefs.h"
 #include "UdrExeIpc.h"
-#include "QueueIndex.h"
+#include "comexe/QueueIndex.h"
 #include "sqludr.h"
 
-#include "Platform.h"
+#include "common/Platform.h"
 
 
-#include "Collections.h"        // needed for NAList
+#include "common/Collections.h"        // needed for NAList
 
 //
 // Forward declarations

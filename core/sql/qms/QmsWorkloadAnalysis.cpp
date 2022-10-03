@@ -31,7 +31,7 @@
 
 #include <fstream>
 #include "QmsWorkloadAnalysis.h"
-#include "QRLogger.h"
+#include "qmscommon/QRLogger.h"
 
 //========================================================================
 //  Class ProposedMV

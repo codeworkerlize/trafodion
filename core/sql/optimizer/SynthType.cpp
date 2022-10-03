@@ -39,15 +39,15 @@
 #include "Sqlcomp.h"
 #include "AllItemExpr.h"
 #include "BindWA.h"
-#include "CmpStatement.h"
+#include "arkcmp/CmpStatement.h"
 #include "CmpErrors.h"
-#include "ComSqlId.h"
+#include "common/ComSqlId.h"
 #include "OptimizerSimulator.h"
 #include "exp_datetime.h"
 
 #include "ComSSL.h"
 // For TRIGGERS_STATUS_VECTOR_SIZE and SIZEOF_UNIQUE_EXECUTE_ID
-#include "Triggers.h"
+#include "optimizer/Triggers.h"
 #include "TriggerEnable.h"
 #ifndef NDEBUG
   static Int32 NCHAR_DEBUG = -1;	// note that, for perf, we call getenv only once

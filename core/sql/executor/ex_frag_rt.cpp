@@ -40,27 +40,27 @@
 // for testing
 // #define IPC_INTEGRITY_CHECKING 1
 
-#include "Platform.h"
+#include "common/Platform.h"
 
 #include "ex_stdh.h"
 #include "ex_exe_stmt_globals.h"
 #include "ex_frag_rt.h"
 #include "Ex_esp_msg.h"
-#include "PartInputDataDesc.h"
+#include "comexe/PartInputDataDesc.h"
 #include  "ComTdb.h"
 #include  "ex_tcb.h"
 #include "ex_root.h"
 #include "ex_transaction.h"
-#include "ExStats.h"
-#include "ComDistribution.h"
-#include "sql_buffer_size.h"
-#include "NAWNodeSet.h"
-#include "NAClusterInfo.h"
+#include "executor/ExStats.h"
+#include "common/ComDistribution.h"
+#include "executor/sql_buffer_size.h"
+#include "common/NAWNodeSet.h"
+#include "common/NAClusterInfo.h"
 #include "ExCextdecs.h"
 
 
 #include "seabed/ms.h"
-#include "PortProcessCalls.h"  // trace need phandle for ESP info
+#include "porting/PortProcessCalls.h"  // trace need phandle for ESP info
 #include "ExSMGlobals.h"
 #include "SMConnection.h"
 

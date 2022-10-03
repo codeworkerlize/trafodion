@@ -37,21 +37,21 @@
 ****************************************************************************
 */
 
-#include "Platform.h"
+#include "common/Platform.h"
 
 // -----------------------------------------------------------------------
 // TBM after completion of decoupling work.
 // -----------------------------------------------------------------------
-#include "exp_stdh.h"
-#include "ComTdb.h"
-#include "ComPackDefs.h"
-#include "exp_clause_derived.h"
+#include "exp/exp_stdh.h"
+#include "comexe/ComTdb.h"
+#include "comexe/ComPackDefs.h"
+#include "exp/exp_clause_derived.h"
 #include "float.h"
 
 // -----------------------------------------------------------------------
 // Inclusion of all subclasses header needed for fixupVTblPtrCom().
 // -----------------------------------------------------------------------
-#include "ComTdbAll.h"
+#include "comexe/ComTdbAll.h"
 
 
 // -----------------------------------------------------------------------

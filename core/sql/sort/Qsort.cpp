@@ -48,10 +48,10 @@
 #include "ex_stdh.h"
 #include "Qsort.h"
 #include "ScratchSpace.h"
-#include "logmxevent.h"
+#include "sqlmxevents/logmxevent.h"
 #include "SortUtil.h"
 #include "ex_ex.h"
-#include "ExStats.h"
+#include "executor/ExStats.h"
 
 //------------------------------------------------------------------------
 // Class Constructor.

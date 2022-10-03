@@ -25,17 +25,17 @@
 #define _QMS_H_
 
 #ifdef NA_NSK
-#include "ComRtUtils.h"
+#include "common/ComRtUtils.h"
 #endif
 
 #include <fstream>
-#include "QRLogger.h"
-#include "QRDescriptor.h"
+#include "qmscommon/QRLogger.h"
+#include "qmscommon/QRDescriptor.h"
 #include "QmsMVMemo.h"
 #include "QmsJoinGraph.h"
 #include "QmsLatticeIndex.h"
 #include "QRMVDefinition.h"
-#include "NAString.h"
+#include "common/NAString.h"
 
 class Qms;
 

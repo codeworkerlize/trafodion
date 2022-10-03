@@ -36,7 +36,7 @@
 // -----------------------------------------------------------------------
 
 #include "ColumnDesc.h"
-#include "ComASSERT.h"
+#include "common/ComASSERT.h"
 #include "ComOperators.h"
 
 // -----------------------------------------------------------------------

@@ -45,15 +45,15 @@
 #include "ScanOptimizer.h"
 #include "SimpleScanOptimizer.h"
 #include "NAFileSet.h"
-#include "ItemColRef.h"
+#include "optimizer/ItemColRef.h"
 #include "NATable.h"
 #include "ItemOther.h"
-#include "CmpContext.h"
+#include "arkcmp/CmpContext.h"
 #include "Sqlcomp.h"
 #include "ControlDB.h"
 #include "ItemLog.h"
 #include "../exp/exp_ovfl_ptal.h" //to check overflow
-#include "CmpStatement.h"
+#include "arkcmp/CmpStatement.h"
 #include "mdam.h"
 #include "OptRange.h"
 

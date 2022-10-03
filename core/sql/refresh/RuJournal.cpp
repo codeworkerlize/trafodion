@@ -41,7 +41,7 @@
 #include "RuException.h"
 #include "RuJournal.h"
 #include "RuGlobals.h"
-#include "logmxevent.h"
+#include "sqlmxevents/logmxevent.h"
 
 //--------------------------------------------------------------------------//
 //	Constructor and destructor

@@ -36,8 +36,8 @@
 #define   SQLPARSERGLOBALS_FLAGS	// must precede all #include's
 #define   SQLPARSERGLOBALS_NADEFAULTS
 
-#include "Platform.h"
-#include "NADefaults.h"
+#include "common/Platform.h"
+#include "sqlcomp/NADefaults.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -56,35 +56,35 @@
 
 #include "CliDefs.h"
 #include "CliSemaphore.h"
-#include "CmpContext.h"
+#include "arkcmp/CmpContext.h"
 #include "CmpErrors.h"
 #include "ComObjectName.h"
-#include "ComRtUtils.h"
-#include "ComSchemaName.h"
+#include "common/ComRtUtils.h"
+#include "common/ComSchemaName.h"
 #include "ComUser.h"
 #include "ex_error.h"
-#include "DefaultConstants.h"
+#include "sqlcomp/DefaultConstants.h"
 #include "DefaultValidator.h"
-#include "NAClusterInfo.h"
+#include "common/NAClusterInfo.h"
 #include "parser.h"
-#include "sql_id.h"
-#include "SQLCLIdev.h"
+#include "cli/sql_id.h"
+#include "cli/SQLCLIdev.h"
 #include "Sqlcomp.h"
-#include "StmtCompilationMode.h"
+#include "parser/StmtCompilationMode.h"
 #include "OptimizerSimulator.h"
 #include "CmpSeabaseDDL.h"
-#include "Globals.h"
+#include "cli/Globals.h"
 #include "QCache.h"
 
 
 #include "seabed/ms.h"
 #include "seabed/fs.h"
 #include "CompException.h"
-#include "ClusteredBitmap.h"
+#include "common/ClusteredBitmap.h"
 
-#include "SqlParserGlobals.h"		// MUST be last #include!
+#include "parser/SqlParserGlobals.h"		// MUST be last #include!
 
-#include "NAWNodeSet.h"
+#include "common/NAWNodeSet.h"
 
 #include "NATestpoint.h"
 #include "common/sq_license.h"
@@ -4787,7 +4787,7 @@ inline static NABoolean initializeSQLdone()
 
 // Setup for readFromSQLTable():
 //
-#include "SQLCLIdev.h"
+#include "cli/SQLCLIdev.h"
 
 const SQLMODULE_ID __SQL_mod_866668761818000 = {
   /* version */         SQLCLI_CURRENT_VERSION,

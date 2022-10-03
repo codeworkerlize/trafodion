@@ -36,8 +36,8 @@
  *****************************************************************************
  */
 
-#include "ComCextdecs.h"
-#include "ComSizeDefs.h"
+#include "common/ComCextdecs.h"
+#include "common/ComSizeDefs.h"
 #include  "cli_stdh.h"
 #include  "ex_stdh.h"
 #include  "sql_id.h"
@@ -54,7 +54,7 @@
 #include  "ExStats.h"
 #include  "ComSmallDefs.h"
 
-#include "logmxevent.h"
+#include "sqlmxevents/logmxevent.h"
 
 // Generate a lock name from the input simple object name and the given suffix.
 // If the generated name is longer than 128 NAWchar's, remove the extra char's

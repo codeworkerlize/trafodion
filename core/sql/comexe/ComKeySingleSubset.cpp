@@ -37,10 +37,10 @@
 
 // -----------------------------------------------------------------------
 
-#include "exp_expr.h"
-#include "ComPackDefs.h"
-#include "ComKeyRange.h"
-#include "ComKeySingleSubset.h"
+#include "exp/exp_expr.h"
+#include "comexe/ComPackDefs.h"
+#include "comexe/ComKeyRange.h"
+#include "comexe/ComKeySingleSubset.h"
 
 keySingleSubsetGen::keySingleSubsetGen(ULng32 keyLen,
 				       ex_cri_desc * workCriDesc,

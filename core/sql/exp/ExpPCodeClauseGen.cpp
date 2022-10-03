@@ -41,22 +41,22 @@
 //
 //
 
-#include "Platform.h"
+#include "common/Platform.h"
 
 
 // Includes
 //
-#include "Platform.h"
-#include "exp_stdh.h"
-#include "str.h"
+#include "common/Platform.h"
+#include "exp/exp_stdh.h"
+#include "common/str.h"
 #include "exp_datetime.h"
-#include "exp_expr.h"
+#include "exp/exp_expr.h"
 #include "exp_function.h"
 #include "exp_math_func.h"
 #include "ExpPCode.h"
 #include "ExpComposite.h"
 
-// #include "DatetimeType.h"
+// #include "common/DatetimeType.h"
 
 // ex_clause::pCodeGenerate
 //

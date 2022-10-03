@@ -42,9 +42,9 @@
 #include "CmpSeabaseDDL.h"
 #include "CmpDDLCatErrorCodes.h"
 
-#include "SQLCLIdev.h"
-#include "ExExeUtilCli.h"
-#include "Context.h"
+#include "cli/SQLCLIdev.h"
+#include "executor/ExExeUtilCli.h"
+#include "cli/Context.h"
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // Class ComUser methods

@@ -38,12 +38,12 @@
 
 #include "ex_stdh.h"
 #include "ExScheduler.h"
-#include "ComTdb.h"
+#include "comexe/ComTdb.h"
 #include "ex_tcb.h"
-#include "ExStats.h"
-#include "ex_globals.h"
-#include "Globals.h"
-#include "SqlStats.h"
+#include "executor/ExStats.h"
+#include "executor/ex_globals.h"
+#include "cli/Globals.h"
+#include "runtimestats/SqlStats.h"
 
 ex_globals::ex_globals(short num_temps,
 		       short create_gui_sched,

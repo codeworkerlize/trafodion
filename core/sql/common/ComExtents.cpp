@@ -35,8 +35,8 @@
  */
 
 #include "ComExtents.h"
-#include "Int64.h"
-#include "ComASSERT.h"
+#include "common/Int64.h"
+#include "common/ComASSERT.h"
 
 ComExtents::ComExtents (Int64      maxSize,
 	                ComUnits   units)

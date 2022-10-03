@@ -35,10 +35,10 @@
 */
 
 
-#include "Int64.h"
-#include "NABoolean.h"
-#include "str.h"
-#include "NAStdlib.h"
+#include "common/Int64.h"
+#include "common/NABoolean.h"
+#include "common/str.h"
+#include "common/NAStdlib.h"
 
 Int64 uint32ToInt64(UInt32 value)
 {

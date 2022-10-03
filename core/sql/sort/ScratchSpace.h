@@ -49,8 +49,8 @@
 #include "ScratchFileMap.h"
 #include "RunDirectory.h"
 #include "DiskPool.h"
-#include "NABasicObject.h"
-#include "Int64.h"
+#include "export/NABasicObject.h"
+#include "common/Int64.h"
 #include "SortError.h"
 
 class ExSubtask;

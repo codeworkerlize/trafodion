@@ -42,8 +42,8 @@
 #include "ImplRule.h"
 #include "opt.h"
 #include "EstLogProp.h"
-#include "DefaultConstants.h"
-#include "CmpContext.h"
+#include "sqlcomp/DefaultConstants.h"
+#include "arkcmp/CmpContext.h"
 
 
 // -----------------------------------------------------------------------

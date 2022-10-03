@@ -37,7 +37,7 @@
 #include "BindWA.h"
 #include "ComOperators.h"
 #include "RoutineDesc.h"
-#include "ItemColRef.h"
+#include "optimizer/ItemColRef.h"
 #include "ParNameLocList.h"
 #include "Sqlcomp.h"
 #include "ex_error.h"

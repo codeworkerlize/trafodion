@@ -44,10 +44,10 @@
 #include <cctype>
 #include <cstdio>
 #endif /* NA_MDAM_EXECUTOR_DEBUG */
-#include "NABoolean.h"
+#include "common/NABoolean.h"
 #include "MdamEndPoint.h"
 #include "MdamPoint.h"
-#include "str.h"
+#include "common/str.h"
 
 // *****************************************************************************
 // Member functions for class MdamPoint

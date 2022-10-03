@@ -35,8 +35,8 @@
 ****************************************************************************
 */
 
-#include "ComTdbUnPackRows.h"
-#include "ComTdbCommon.h"
+#include "comexe/ComTdbUnPackRows.h"
+#include "comexe/ComTdbCommon.h"
 
 //////////////////////////////////////////////////////////////////////////////
 //

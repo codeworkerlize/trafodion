@@ -68,7 +68,7 @@
 // after reading TOK_DROP TOK_TABLE, it can lookahead at the next token to decide what to do.
 
 
-#include "Platform.h"				// must be the first #include
+#include "common/Platform.h"				// must be the first #include
 //debug yacc
 #define YY_LOG_FILE "yylog"
 #define YYFPRINTF(stderr, format, args...) {FILE* fp=fopen(YY_LOG_FILE, "a+");fprintf(fp, format, ##args);fclose(fp);}
@@ -80,7 +80,7 @@
 #define   SQLPARSERGLOBALS_LEX_AND_PARSE
 #define   SQLPARSERGLOBALS_NADEFAULTS
 #define   SQLPARSERGLOBALS_NAMES_AND_TOKENS
-#include "SqlParserGlobals.h"			// must be the second #include
+#include "parser/SqlParserGlobals.h"			// must be the second #include
 
 #define CheckModeSpecial1() if (NOT SqlParser_CurrentParser->modeSpecial1()) { YYERROR; } 
 
@@ -109,7 +109,7 @@
                               
 #define INCLUDE_UNION
 #   include <alloca.h>
-#include "ComCextdecs.h"
+#include "common/ComCextdecs.h"
 #include <ctype.h>
 #include <errno.h>
 #include <float.h>
@@ -121,36 +121,36 @@
 
 using namespace std;
 
-#include "NAAssert.h"	 // required after including a RogueWave file!
+#include "common/NAAssert.h"	 // required after including a RogueWave file!
 
-#include "CharType.h"
+#include "common/CharType.h"
 #include "CompositeType.h"
-#include "DatetimeType.h"
-#include "IntervalType.h"
-#include "NumericType.h"
+#include "common/DatetimeType.h"
+#include "common/IntervalType.h"
+#include "common/NumericType.h"
 #include "ItemNAType.h"
-#include "MiscType.h"
-#include "CmpContext.h"
+#include "common/MiscType.h"
+#include "arkcmp/CmpContext.h"
 
 #include "AllElemDDL.h"
 #include "AllItemExpr.h"
 #include "AllRelExpr.h"
 #include "AllStmtDDL.h"
-#include "ComAnsiNamePart.h"
-#include "ComDiags.h"
-#include "ComMPLoc.h"
-#include "ComSmallDefs.h"
-#include "ComTransInfo.h"
+#include "common/ComAnsiNamePart.h"
+#include "export/ComDiags.h"
+#include "common/ComMPLoc.h"
+#include "common/ComSmallDefs.h"
+#include "common/ComTransInfo.h"
 #include "ControlDB.h"
-#include "CmpStatement.h"
+#include "arkcmp/CmpStatement.h"
 #include "GroupAttr.h"
 #include "HeapLog.h"
 #include "HvTypes.h"
 #include "ItemExprList.h"
 #include "ItemSample.h"
-#include "LateBindInfo.h"
+#include "comexe/LateBindInfo.h"
 #include "NAExit.h"
-#include "OperTypeEnum.h"
+#include "common/OperTypeEnum.h"
 #include "OptHints.h"
 #include "parser.h"
 #include "ParserMsg.h"
@@ -159,14 +159,14 @@ using namespace std;
 #include "RelSample.h"
 #include "RelSequence.h"
 #include "SqlciError.h"
-#include "sqlcli.h"
+#include "cli/sqlcli.h"
 #include "SqlParserAux.h"
-#include "StmtCompilationMode.h"
+#include "parser/StmtCompilationMode.h"
 #include "StmtDMLSetTransaction.h"
 
 #include "StmtDDLonHiveObjects.h"
 // -- triggers
-#include "Triggers.h"
+#include "optimizer/Triggers.h"
 #include "ItemNAType.h"
 
 // MV
@@ -175,22 +175,22 @@ using namespace std;
 #include "MvLog.h"
 #include "StmtDDLCreateMV.h"
 
-#include "StmtNode.h"
+#include "parser/StmtNode.h"
 #include "wstr.h"
-#include "NABoolean.h"
+#include "common/NABoolean.h"
 #include "HvRolesAssign.h"
-#include "NAClusterInfo.h"
+#include "common/NAClusterInfo.h"
 
-#include "exp_expr.h"
-#include "exp_clause_derived.h"
+#include "exp/exp_expr.h"
+#include "exp/exp_clause_derived.h"
 #include "exp_datetime.h"
 #include "Analyzer.h"
 
 #include "OptimizerSimulator.h"
 #include "ItemFuncUDF.h"
-#include "ExpLOBenums.h"
+#include "exp/ExpLOBenums.h"
 #include "seabed/ms.h"
-#include "Globals.h"
+#include "cli/Globals.h"
 #include "common/sq_license.h"
 
 //#pragma warning (disable : 4065)//don't complain about empty switch statements.

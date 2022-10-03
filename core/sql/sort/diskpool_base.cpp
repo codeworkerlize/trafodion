@@ -21,9 +21,9 @@
 // @@@ END COPYRIGHT @@@
 **********************************************************************/
 
-#include "Platform.h"
+#include "common/Platform.h"
 #include "DiskPool.h"
-#include "ComDistribution.h"
+#include "common/ComDistribution.h"
 
 #include <assert.h>
 #if !defined( FORDEBUG ) && !defined( NDEBUG )

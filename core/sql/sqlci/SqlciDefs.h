@@ -40,7 +40,7 @@
  *****************************************************************************
  */
 
-#include "Platform.h"
+#include "common/Platform.h"
 
 enum dml_type 
 {

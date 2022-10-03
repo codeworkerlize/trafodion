@@ -36,7 +36,7 @@
  *****************************************************************************
  */
 
-#include "Platform.h"
+#include "common/Platform.h"
 #include "errno.h"
 #include "exp_bignum.h"
 
@@ -70,10 +70,10 @@
 #define MathCosh(op, err) cosh(op)
 #define MathTanh(op, err) tanh(op)
 
-#include "exp_stdh.h"
+#include "exp/exp_stdh.h"
 #include "exp_math_func.h"
-#include "ComDiags.h"
-#include "ComSysUtils.h"
+#include "export/ComDiags.h"
+#include "common/ComSysUtils.h"
 
 #define HUGE_VAL_REAL64         1.15792089237316192E+77
 #define HUGE_VAL_INT64          0777777777777777777777

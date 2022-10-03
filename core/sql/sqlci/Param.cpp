@@ -43,12 +43,12 @@
 #include <wchar.h>
 
 #include "SqlciCmd.h"
-#include "str.h"
-#include "dfs2rec.h"
-#include "exp_clause_derived.h"
-#include "IntervalType.h"
-#include "NLSConversion.h"
-#include "nawstring.h"
+#include "common/str.h"
+#include "common/dfs2rec.h"
+#include "exp/exp_clause_derived.h"
+#include "common/IntervalType.h"
+#include "common/NLSConversion.h"
+#include "common/nawstring.h"
 
 extern NAHeap sqlci_Heap;
 

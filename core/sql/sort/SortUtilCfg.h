@@ -49,8 +49,8 @@
 
 #include "CommonStructs.h"
 #include "Const.h"
-#include "NABasicObject.h"
-#include "ComResourceInfo.h"
+#include "export/NABasicObject.h"
+#include "comexe/ComResourceInfo.h"
 
 //Forward reference
 class ExSubtask;

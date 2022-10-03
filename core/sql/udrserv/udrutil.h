@@ -35,9 +35,9 @@
 *****************************************************************************
 */
 
-#include "sqlcli.h"
+#include "cli/sqlcli.h"
 #include "udrdefs.h"
-#include "ComSmallDefs.h"
+#include "common/ComSmallDefs.h"
 #include "LmParameter.h"
 
 //

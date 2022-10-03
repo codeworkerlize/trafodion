@@ -35,8 +35,8 @@
 ****************************************************************************
 */
 
-#include "ComTdbUnion.h"
-#include "ComTdbCommon.h"
+#include "comexe/ComTdbUnion.h"
+#include "comexe/ComTdbCommon.h"
 
 //////////////////////////////////////////////////////////////////////////////
 //

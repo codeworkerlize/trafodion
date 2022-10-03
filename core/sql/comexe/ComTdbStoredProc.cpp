@@ -35,8 +35,8 @@
 ****************************************************************************
 */
 
-#include "ComTdbStoredProc.h"
-#include "ComTdbCommon.h"
+#include "comexe/ComTdbStoredProc.h"
+#include "comexe/ComTdbCommon.h"
 
 // ---------------------------------------------------------------------
 // ComTdbStoredProc::ComTdbStoredProc()

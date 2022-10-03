@@ -35,9 +35,9 @@
 ****************************************************************************
 */
 
-#include "ComTdbSplitTop.h"
-#include "ComTdbCommon.h"
-#include "PartInputDataDesc.h"
+#include "comexe/ComTdbSplitTop.h"
+#include "comexe/ComTdbCommon.h"
+#include "comexe/PartInputDataDesc.h"
 
 // -----------------------------------------------------------------------
 // Methods for class ComTdbSplitTop

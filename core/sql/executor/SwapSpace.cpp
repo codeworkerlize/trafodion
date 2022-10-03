@@ -35,7 +35,7 @@
 // Initialized objects have a non-null store_ pointer.
 //
 
-#include "BaseTypes.h"
+#include "common/BaseTypes.h"
 #include "Const.h"
 #include "ex_ex.h"
 #include "ScratchSpace.h"

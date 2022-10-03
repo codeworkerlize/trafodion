@@ -41,7 +41,7 @@
 //
 
 #include "ex_union.h"
-#include "ExStats.h"
+#include "executor/ExStats.h"
 #include "ex_error.h"
 
 //////////////////////////////////////////////////////////////////////////////

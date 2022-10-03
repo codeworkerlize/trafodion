@@ -35,7 +35,7 @@
  *
  *****************************************************************************
  */
-#include "Platform.h"
+#include "common/Platform.h"
 #include "LmExtFunc.h"
 #include "UdrFFDC.h"
 

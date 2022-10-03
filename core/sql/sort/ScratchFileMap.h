@@ -40,12 +40,12 @@
 ******************************************************************************
 */
 
-#include "Platform.h"
+#include "common/Platform.h"
 
 #include <string.h>
 #include "CommonStructs.h"
 #include "ScratchFile.h"
-#include "NABasicObject.h"
+#include "export/NABasicObject.h"
 #include "SortError.h"
 
 class SQScratchFile;

@@ -45,7 +45,7 @@
 #include "uosessioninfo.h"
 
 // For Charset: get system ISO_MAPPING value
-#include "ComRtUtils.h"
+#include "common/ComRtUtils.h"
 
 //--------------------------------------------------------------------------//
 //	Static member initialization

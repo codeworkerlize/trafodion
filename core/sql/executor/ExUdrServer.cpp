@@ -36,10 +36,10 @@
 #include "ex_stdh.h"
 #include "ExUdrServer.h"
 #include "ExUdrClientIpc.h"
-#include "ExpError.h"
+#include "exp/ExpError.h"
 #include "ExCextdecs.h"
-#include "ComRtUtils.h"
-#include "PortProcessCalls.h"
+#include "common/ComRtUtils.h"
+#include "porting/PortProcessCalls.h"
 
 #include "seabed/fs.h"
 #include "seabed/ms.h"

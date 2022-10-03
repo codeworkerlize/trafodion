@@ -34,19 +34,19 @@
  */
 
 #include "AllElemDDLCol.h"
-#include "ComASSERT.h"
-#include "ComDiags.h"
+#include "common/ComASSERT.h"
+#include "export/ComDiags.h"
 #include "ComOperators.h"
 #include "ElemDDLConstraintAttrDroppable.h"
 #include "ElemDDLConstraintPK.h"
 #include "ElemDDLConstraintRI.h"
 #include "ElemDDLConstraintUnique.h"
-#include "ItemColRef.h"
+#include "optimizer/ItemColRef.h"
 #include "ElemDDLLoggable.h"
 #include "ElemDDLLobAttrs.h"
-#include "DatetimeType.h"
-#include "IntervalType.h"
-#include "csconvert.h"
+#include "common/DatetimeType.h"
+#include "common/IntervalType.h"
+#include "common/csconvert.h"
 
 extern NABoolean getCharSetInferenceSetting(NAString& defval);
 

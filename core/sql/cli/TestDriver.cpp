@@ -47,7 +47,7 @@
 
 #include "time.h"
 
-#include "sqlcli.h"
+#include "cli/sqlcli.h"
 
 #include "cli_stdh.h"
 

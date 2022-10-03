@@ -42,9 +42,9 @@
 #include "ItemExpr.h"
 #include "mdamkey.h"
 #include "ItemOther.h"
-#include "ItemColRef.h"
+#include "optimizer/ItemColRef.h"
 #include "NATable.h"
-#include "ValueDesc.h"
+#include "optimizer/ValueDesc.h"
 #include "SchemaDB.h"
 
 #include "OptRange.h"

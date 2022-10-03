@@ -38,9 +38,9 @@
  *****************************************************************************
  */
 
-#include "Platform.h"
-#include "SqlCliDllDefines.h"
-#include "NABoolean.h"
+#include "common/Platform.h"
+#include "common/SqlCliDllDefines.h"
+#include "common/NABoolean.h"
 #include <string.h>
 
 class SqlciEnv;

@@ -33,11 +33,11 @@
  *****************************************************************************
  */
 
-#include "NAMemory.h"
-#include "NAAssert.h"
-#include "IpcMessageObj.h"
-#include "str.h"
-#include "NAVersionedObject.h"
+#include "common/NAMemory.h"
+#include "common/NAAssert.h"
+#include "export/IpcMessageObj.h"
+#include "common/str.h"
+#include "export/NAVersionedObject.h"
 #include "ComplexObject.h"
 
 #include <iostream>

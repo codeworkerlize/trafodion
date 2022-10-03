@@ -37,22 +37,22 @@
  */
 
 
-#include "Platform.h"
-  #include "cextdecs/cextdecs.h"
+#include "common/Platform.h"
+  //#include "cextdecs/cextdecs.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include "BaseTypes.h"
-#include "Collections.h"
-#include "ComASSERT.h"
+#include "common/BaseTypes.h"
+#include "common/Collections.h"
+#include "common/ComASSERT.h"
 #include "ComLocationNames.h"
 #include "ComRegAPI.h"
-#include "ComSqlText.h"
-#include "NAMemory.h"
-#include "SQLCLIdev.h"
-#include "ComDistribution.h"
+#include "common/ComSqlText.h"
+#include "common/NAMemory.h"
+#include "cli/SQLCLIdev.h"
+#include "common/ComDistribution.h"
 
 // -----------------------------------------------------------------------
 // File-scope helper functions

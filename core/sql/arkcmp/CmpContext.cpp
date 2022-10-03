@@ -40,39 +40,39 @@
 
 
 
-#include "Platform.h"
+#include "common/Platform.h"
 #define   SQLPARSERGLOBALS_CONTEXT_AND_DIAGS	// first #include
 
-#include "CmpCommon.h"
-#include "CmpContext.h"
-#include "CmpStatement.h"
+#include "common/CmpCommon.h"
+#include "arkcmp/CmpContext.h"
+#include "arkcmp/CmpStatement.h"
 #include "ControlDB.h"
 #include "CmpMemoryMonitor.h"
-#include "NAHeap.h"
+#include "common/NAHeap.h"
 #include "NewDel.h"
 #include "OptimizerSimulator.h"
 #include "SchemaDB.h"
-#include "CmpCommon.h"
+#include "common/CmpCommon.h"
 #include "Rule.h"               
 #include "ImplRule.h"           // for CreateImplementationRules()
 #include "TransRule.h"          // for CreateTransformationRules()
 #include "PhyProp.h"            // for InitCostVariables()
-#include "NAClusterInfo.h"
+#include "common/NAClusterInfo.h"
 #include "UdfDllInteraction.h"
 #ifdef NA_CMPDLL
 #define   SQLPARSERGLOBALS_FLAGS   // needed to set SqlParser_Flags
 #endif //NA_CMPDLL
-#include "SqlParserGlobals.h"			// last #include
+#include "parser/SqlParserGlobals.h"			// last #include
 #include "CmpErrLog.h"
-#include "QRLogger.h"
-#include "logmxevent.h"
+#include "qmscommon/QRLogger.h"
+#include "sqlmxevents/logmxevent.h"
 #include "CmpSeabaseDDL.h"
-#include "Globals.h"
+#include "cli/Globals.h"
 #include "sqludr.h"
 
 // #include "PCodeExprCache.h"
 #include "HBaseClient_JNI.h"
-#include "Context.h"
+#include "cli/Context.h"
 
 #ifdef NA_CMPDLL
 #include "CompException.h"
@@ -83,7 +83,7 @@
 
 //++MV
 extern "C" {
-#include "cextdecs/cextdecs.h"
+//#include "cextdecs/cextdecs.h"
 }
 
 

@@ -33,11 +33,11 @@
 
 #include "AllRelExpr.h"
 #include "SchemaDB.h"
-#include "Triggers.h"
-#include "TriggerDB.h"
+#include "optimizer/Triggers.h"
+#include "optimizer/TriggerDB.h"
 #include "BindWA.h"
-#include "Context.h"
-#include "Globals.h"
+#include "cli/Context.h"
+#include "cli/Globals.h"
 
 #include "../sqlcomp/CmpSeabaseDDL.h"
 //-----------------------------------------------------------------------------

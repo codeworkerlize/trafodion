@@ -38,8 +38,8 @@
 #include "GenExpGenerator.h"
 #include "exp_function.h"
 #include "exp_math_func.h"
-#include "CharType.h"
-#include "NumericType.h"
+#include "common/CharType.h"
+#include "common/NumericType.h"
 #include "ExpSequenceFunction.h"
 #include "ItmFlowControlFunction.h"
 

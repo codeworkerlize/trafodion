@@ -34,10 +34,10 @@
 */
 
 #include "ex_stdh.h"
-#include "ComTdb.h"
+#include "comexe/ComTdb.h"
 #include "ex_tcb.h"
 #include "ExVPJoin.h"
-#include "ex_expr.h"
+#include "executor/ex_expr.h"
 
 // Exclude this code from coverage analysis since this feature is
 // obsolete and not used.

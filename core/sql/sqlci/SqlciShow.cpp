@@ -40,7 +40,7 @@
  */
 
 
-#include "Platform.h"
+#include "common/Platform.h"
 
 #include <stdlib.h>
 #include <limits.h>
@@ -51,7 +51,7 @@
 #include "SqlciEnv.h"
 #include "SqlciCmd.h"
 #include "sqlcmd.h"
-#include "SQLCLIdev.h"
+#include "cli/SQLCLIdev.h"
 
 Show::~Show()
 {

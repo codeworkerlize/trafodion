@@ -41,25 +41,25 @@
 
 
 %{
-#include "Platform.h"
+#include "common/Platform.h"
 
 #include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
 #include <iostream>
-#include "ComAnsiNamePart.h"
+#include "common/ComAnsiNamePart.h"
 #include "ParserMsg.h"			// StoreSyntaxError(...ComDiagsArea&...)
 #include "Sqlci.h"
-#include "str.h"
-#include "nawstring.h"
+#include "common/str.h"
+#include "common/nawstring.h"
 #define   SQLCIPARSEGLOBALS__INITIALIZE
 #include "SqlciParseGlobals.h"
 #include "HeapLog.h"
-#include "charinfo.h"
+#include "common/charinfo.h"
 #include "conversionHex.h"
-#include "ComDistribution.h"
+#include "common/ComDistribution.h"
 #include "ComObjectName.h"
-#include "ComSchemaName.h"
+#include "common/ComSchemaName.h"
 
   extern char **environ;
 #define ENVIRON environ

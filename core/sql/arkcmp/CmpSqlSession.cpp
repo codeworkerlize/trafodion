@@ -35,20 +35,20 @@
  *****************************************************************************
  */
 
-#include "Platform.h"
+#include "common/Platform.h"
 
-#include "ComSmallDefs.h"
+#include "common/ComSmallDefs.h"
 #include "CmpSqlSession.h"
-#include "ObjectNames.h"
-#include "ComSchemaName.h"
-#include "NAUserId.h"
-#include "SQLCLIdev.h"
-#include "ComSqlId.h"
-#include "ComRtUtils.h"
-#include "ComCextdecs.h"
+#include "optimizer/ObjectNames.h"
+#include "common/ComSchemaName.h"
+#include "common/NAUserId.h"
+#include "cli/SQLCLIdev.h"
+#include "common/ComSqlId.h"
+#include "common/ComRtUtils.h"
+#include "common/ComCextdecs.h"
 
 #define   SQLPARSERGLOBALS_FLAGS
-#include "SqlParserGlobals.h"			// last #include
+#include "parser/SqlParserGlobals.h"			// last #include
 
 CmpSqlSession::CmpSqlSession(NAHeap * heap)
      : heap_(heap),

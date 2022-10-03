@@ -36,8 +36,8 @@
 ****************************************************************************
 */
 
-#include "ComTdbCommon.h"
-#include "ComTdbControl.h"
+#include "comexe/ComTdbCommon.h"
+#include "comexe/ComTdbControl.h"
 
 
 /////////////////////////////////////////////////////

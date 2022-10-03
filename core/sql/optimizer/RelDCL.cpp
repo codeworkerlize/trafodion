@@ -40,7 +40,7 @@
 
 #include "Sqlcomp.h"
 #include "BindWA.h"
-#include "RelScan.h"
+#include "optimizer/RelScan.h"
 #include "PhyProp.h"
 #include "opt.h"
 #include "RelDCL.h"

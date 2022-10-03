@@ -38,37 +38,37 @@
 
 // -----------------------------------------------------------------------
 
-#include "Platform.h"
+#include "common/Platform.h"
 
 
 #include <stdlib.h>
 #include <sys/syscall.h>
 #include "cli_stdh.h"
-#include "Ipc.h"
+#include "common/Ipc.h"
 #include "ex_stdh.h"
 #include "ex_frag_rt.h"
-#include "memorymonitor.h"
-#include "ExStats.h"
+#include "cli/memorymonitor.h"
+#include "executor/ExStats.h"
 #include "ExUdrServer.h"
 #include "ExSqlComp.h"
 #include "ExControlArea.h"
-#include "Context.h"
+#include "cli/Context.h"
 #include "ex_transaction.h"
-#include "Statement.h"
+#include "cli/Statement.h"
 #include "ex_root.h"
-#include "ComRtUtils.h"
+#include "common/ComRtUtils.h"
 #include <semaphore.h>
 #include <pthread.h>
 #include "HBaseClient_JNI.h"
 
-#include "DistributedLock_JNI.h"
+#include "executor/DistributedLock_JNI.h"
 #include "TenantHelper_JNI.h"
 #include "LmLangManagerC.h"
 #include "LmLangManagerJava.h"
 #include "CliSemaphore.h"
 
-#include "ComEncryption.h"
-#include "NAClusterInfo.h"
+#include "common/ComEncryption.h"
+#include "common/NAClusterInfo.h"
 
 #include "ExCextdecs.h"
 CliGlobals * cli_globals = NULL;
@@ -76,7 +76,7 @@ __thread ContextTidMap *tsCurrentContextMap = NULL;
 
 CLISemaphore globalSemaphore ;
 
-#include "CmpContext.h"
+#include "arkcmp/CmpContext.h"
 #include "seabed/sys.h"
 
 CliGlobals::CliGlobals(NABoolean espProcess)

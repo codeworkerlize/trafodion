@@ -45,7 +45,7 @@
 #include "ItemFunc.h"
 #include "AllRelExpr.h"
 #include "ChangesTable.h"
-#include "ComMvAttributeBitmap.h"
+#include "common/ComMvAttributeBitmap.h"
 
 // MVLOG command is not supported
 

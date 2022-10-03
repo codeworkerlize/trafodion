@@ -39,10 +39,10 @@
 
 
 #include "AllElemDDLUdr.h"
-#include "ComASSERT.h"
-#include "ComDiags.h"
+#include "common/ComASSERT.h"
+#include "export/ComDiags.h"
 #include "ComOperators.h"
-#include "ComMisc.h"
+#include "common/ComMisc.h"
 
 
 // -----------------------------------------------------------------------

@@ -40,7 +40,7 @@
 
 #include "ComObjectName.h"
 #include "ComUser.h"
-#include "ComViewColUsage.h"
+#include "common/ComViewColUsage.h"
 
 #include "StmtDDLCreateView.h"
 #include "StmtDDLDropView.h"
@@ -52,16 +52,16 @@
 
 #include "ExpHbaseInterface.h"
 
-#include "ExExeUtilCli.h"
+#include "executor/ExExeUtilCli.h"
 #include "Generator.h"
 
 // for privilege checking
-#include "PrivMgrCommands.h"
-#include "PrivMgrDefs.h"
+#include "sqlcomp/PrivMgrCommands.h"
+#include "sqlcomp/PrivMgrDefs.h"
 #include "PrivMgrPrivileges.h"
 #include <bitset>
 
-#include "ComCextdecs.h"
+#include "common/ComCextdecs.h"
 
 static bool checkAccessPrivileges(
    const ParTableUsageList & vtul,

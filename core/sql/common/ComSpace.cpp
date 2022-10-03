@@ -33,7 +33,7 @@
  *****************************************************************************
  */
 
-#include "Platform.h"
+#include "common/Platform.h"
 #include <iostream>
 
 #include <limits.h>
@@ -47,12 +47,12 @@ extern ostream *TraceFile;
 #include <stdlib.h>
 #include <string.h>
 
-#include "ComASSERT.h"
-#include "ComSpace.h"
-#include "str.h"
+#include "common/ComASSERT.h"
+#include "common/ComSpace.h"
+#include "common/str.h"
 #include "HeapLog.h"
-#include "ComRtUtils.h"
-#include "StmtCompilationMode.h"
+#include "common/ComRtUtils.h"
+#include "parser/StmtCompilationMode.h"
 
 void * operator new(size_t size, Space *s)
 {

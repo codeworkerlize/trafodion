@@ -35,13 +35,13 @@
 ****************************************************************************
 */
 
-#include "Platform.h"
+#include "common/Platform.h"
 
 
 #include "StoredProcInterface.h"
-#include "sql_buffer.h"
-#include "SqlCliDllDefines.h"
-#include "ComTdbStoredProc.h"
+#include "executor/sql_buffer.h"
+#include "common/SqlCliDllDefines.h"
+#include "comexe/ComTdbStoredProc.h"
   
 ///////////////////////////////////////////////////////////////
 // Prepares the input buffer so input rows could be retrieved

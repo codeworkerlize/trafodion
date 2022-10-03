@@ -36,9 +36,9 @@
 ******************************************************************************
 */
 
-#include "BaseTypes.h"
-#include "ComDiags.h"
-#include "NAWinNT.h"
+#include "common/BaseTypes.h"
+#include "export/ComDiags.h"
+#include "common/NAWinNT.h"
 #include "NAError.h"
 
 #undef max

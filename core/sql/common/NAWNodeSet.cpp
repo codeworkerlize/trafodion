@@ -3,10 +3,10 @@
 // (c) Copyright 2017 Esgyn Corporation
 //
 // @@@ END COPYRIGHT @@@
-#include "NAWNodeSet.h"
-#include "Globals.h"
-#include "Context.h"
-#include "NAClusterInfo.h"
+#include "common/NAWNodeSet.h"
+#include "cli/Globals.h"
+#include "cli/Context.h"
+#include "common/NAClusterInfo.h"
 #include <cstdlib>
 
 // delimiter used in serialized strings, avoid commas, since the

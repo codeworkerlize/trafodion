@@ -31,7 +31,7 @@
 *
 ******************************************************************************
 */
-#include "Platform.h"
+#include "common/Platform.h"
   #include "lmjni.h"
 #include "LmResultSetJava.h"
 
@@ -39,7 +39,7 @@
 #include "LmDebug.h"
 #include "LmExtFunc.h"
 #include "LmJavaType.h"
-// #include "ExpError.h"
+// #include "exp/ExpError.h"
 
 // Constructor
 // Makes a JNI call to LmUtility::getRSInfo()

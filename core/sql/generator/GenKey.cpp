@@ -40,12 +40,12 @@
 #include "Generator.h"
 #include "GenExpGenerator.h"
 //#include "ex_stdh.h"
-#include "ComTdb.h"
+#include "comexe/ComTdb.h"
 //#include "ex_tcb.h"
-#include "ComKeySingleSubset.h"
-#include "ComKeyMDAM.h"  // generator Mdam classes
+#include "comexe/ComKeySingleSubset.h"
+#include "comexe/ComKeyMDAM.h"  // generator Mdam classes
 #include "mdamkey.h"   // optimizer Mdam classes
-#include "ExpCriDesc.h"
+#include "exp/ExpCriDesc.h"
 
 // the next include file is here solely to make the horrible kludge work
 #include "NAFileSet.h"

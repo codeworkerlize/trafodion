@@ -24,18 +24,18 @@
 //
 // Created:      Oct 15, 2009
 // **********************************************************************
-#include "Platform.h"
+#include "common/Platform.h"
 
 #include "ex_stdh.h"
-#include "ComTdb.h"
+#include "comexe/ComTdb.h"
 #include "ex_tcb.h"
-#include "ExpError.h"
+#include "exp/ExpError.h"
 #include "ExCancel.h"
-#include "SqlStats.h"
-#include "Globals.h"
-#include "Context.h"
+#include "runtimestats/SqlStats.h"
+#include "cli/Globals.h"
+#include "cli/Context.h"
 #include "ex_exe_stmt_globals.h"
-#include "ComCextdecs.h"
+#include "common/ComCextdecs.h"
 #include "seabed/ms.h"                       // msg_mon_get_process_info
 
 /////////////////////////////////////////////////////////////////////////

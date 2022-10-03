@@ -38,26 +38,26 @@
 
 #define   SQLPARSERGLOBALS_FLAGS
 #include "ComOptIncludes.h"
-#include "ComQueue.h"
+#include "comexe/ComQueue.h"
 #include "ControlDB.h"
 #include "GroupAttr.h"
 #include "NATable.h"
 #include "RelDCL.h"
-#include "RelControl.h"
+#include "optimizer/RelControl.h"
 
 #include "Generator.h"
 #include "GenExpGenerator.h"
 
-#include "ExpCriDesc.h"
-#include "ComTdb.h"
-#include "ComTdbControl.h"
-#include "ComTdbTransaction.h"
+#include "exp/ExpCriDesc.h"
+#include "comexe/ComTdb.h"
+#include "comexe/ComTdbControl.h"
+#include "comexe/ComTdbTransaction.h"
 
-#include "ComTdbTimeout.h"  
-#include "LateBindInfo.h"  
+#include "comexe/ComTdbTimeout.h"  
+#include "comexe/LateBindInfo.h"  
 
 
-#include "SqlParserGlobals.h"   // Parser Flags
+#include "parser/SqlParserGlobals.h"   // Parser Flags
 
 /////////////////////////////////////////////////////////////////////
 //

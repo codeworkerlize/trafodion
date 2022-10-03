@@ -56,7 +56,7 @@
 #include <errno.h>
 #include "ex_stdh.h"
 #include "ScratchSpace.h"
-#include "ExStats.h"
+#include "executor/ExStats.h"
 
 static Int64 juliantimestamp_()
 {

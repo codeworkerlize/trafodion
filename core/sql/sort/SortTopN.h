@@ -35,7 +35,7 @@
 #include "SortAlgo.h"
 #include "Record.h"
 #include "Const.h"
-#include "NABasicObject.h"
+#include "export/NABasicObject.h"
 #include "SortError.h"
 
 

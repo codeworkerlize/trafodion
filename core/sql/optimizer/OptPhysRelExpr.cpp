@@ -50,12 +50,12 @@
 #include "CostMethod.h"
 #include "EstLogProp.h"
 #include "ScanOptimizer.h"
-#include "DefaultConstants.h"
+#include "sqlcomp/DefaultConstants.h"
 #include "PartKeyDist.h"
 #include "OptimizerSimulator.h"
 
-#include "Globals.h"
-#include "CmpStatement.h"
+#include "cli/Globals.h"
+#include "arkcmp/CmpStatement.h"
 #include "UdfDllInteraction.h"
 #include "utility.h"
 

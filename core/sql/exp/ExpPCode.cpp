@@ -34,16 +34,16 @@
 ****************************************************************************
 */
 
-#include "Platform.h"
+#include "common/Platform.h"
 
 
-#include "exp_stdh.h"
-#include "str.h"
+#include "exp/exp_stdh.h"
+#include "common/str.h"
 #include "exp_datetime.h"
-#include "exp_expr.h"
+#include "exp/exp_expr.h"
 #include "exp_function.h"
 #include "ExpPCode.h"
-#include "exp_tuple_desc.h"
+#include "exp/exp_tuple_desc.h"
 
 // Uncomment the line below to debug new PCode instructions.
 // #define SQLMX_DEBUG_PCIT

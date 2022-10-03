@@ -35,7 +35,7 @@
 
 #include <ctype.h>
 #include <new>
-#include "ComSqlText.h"
+#include "common/ComSqlText.h"
 
 // -----------------------------------------------------------------------
 // file scope definition of ComSqlText

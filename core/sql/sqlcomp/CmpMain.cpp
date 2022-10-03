@@ -37,7 +37,7 @@
 
 #define   SQLPARSERGLOBALS_FLAGS        // should precede all other #include's
 
-#include "Platform.h"
+#include "common/Platform.h"
 #include <stdlib.h>
 #include <fstream>
 
@@ -50,22 +50,22 @@
 
 #include "ComMemoryDiags.h"		// ComMemoryDiags::DumpMemoryInfo()
 
-#include "CmpContext.h"
+#include "arkcmp/CmpContext.h"
 #include "Analyzer.h"
 #include "AllRelExpr.h"
 #include "BindWA.h"
 #include "CacheWA.h"
 
-#include "ComDiags.h"
-#include "CmpCommon.h"
+#include "export/ComDiags.h"
+#include "common/CmpCommon.h"
 #include "CmpErrors.h"
 #include "CmpMain.h"
 #include "CmpMemoryMonitor.h"
 #include "CompilerTracking.h"
 #include "CompilationStats.h"
-#include "ComSysUtils.h"
-#include "ComTdbRoot.h"
-#include "FragDir.h"
+#include "common/ComSysUtils.h"
+#include "comexe/ComTdbRoot.h"
+#include "comexe/FragDir.h"
 #include "Generator.h"
 #include "NAExit.h"                     // NAExit()
 #include "NormWA.h"
@@ -73,28 +73,28 @@
 #include "OptimizerSimulator.h"
 #include "parser.h"
 #include "PhyProp.h"
-#include "SQLCLIdev.h"
+#include "cli/SQLCLIdev.h"
 #include "Sqlcomp.h"
-#include "StmtNode.h"
+#include "parser/StmtNode.h"
 #include "QueryText.h"
 #include "ControlDB.h"                  // ActiveControlDB()
 #include "CmpISPInterface.h"
 #include "ComUser.h"
-#include "ComDistribution.h"
+#include "common/ComDistribution.h"
 
 #define   SQLPARSERGLOBALS_NADEFAULTS
 #include "SqlParserGlobalsCmn.h"
 #define SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
-#include "SqlParserGlobals.h"           // should be last #include
+#include "parser/SqlParserGlobals.h"           // should be last #include
 
 #include "CompException.h"
 
-#include "logmxevent.h"
-#include "CmpStatement.h"
+#include "sqlmxevents/logmxevent.h"
+#include "arkcmp/CmpStatement.h"
 // #include "PCodeExprCache.h"
-#include "Globals.h"
+#include "cli/Globals.h"
 #include "MemoryTableDB.h"
-#include "SharedCache.h"
+#include "sqlcomp/SharedCache.h"
 
 
 // -----------------------------------------------------------------------

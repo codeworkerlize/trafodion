@@ -26,8 +26,8 @@
 
 #include "QRIpc.h"
 #include "QmsRequest.h"
-#include "QRLogger.h"
-#include "Collections.h"
+#include "qmscommon/QRLogger.h"
+#include "common/Collections.h"
 
 #include "seabed/fs.h"
 #include "seabed/ms.h"
@@ -36,7 +36,7 @@
 
 #include "nsk/nskprocess.h"
 extern "C" {
-#include "cextdecs/cextdecs.h"
+//#include "cextdecs/cextdecs.h"
 #include "zsysc.h"
 }
 

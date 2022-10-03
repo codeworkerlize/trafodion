@@ -38,7 +38,7 @@
 #define _MVDETAILS_H_
 
 #include "QRSharedPtr.h"
-#include "QRDescriptor.h"
+#include "qmscommon/QRDescriptor.h"
 
 // Forward declarations
 class MapIDsVisitor;

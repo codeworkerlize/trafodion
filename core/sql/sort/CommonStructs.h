@@ -54,7 +54,7 @@
     #undef min
   #endif
 
-#include "NABasicObject.h"
+#include "export/NABasicObject.h"
 
 //----------------------------------------------------------------------
 // This is the structure which is stored at the start of each scratch

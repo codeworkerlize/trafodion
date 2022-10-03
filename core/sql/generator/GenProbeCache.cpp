@@ -25,13 +25,13 @@
 #include "Generator.h"
 #include "GenExpGenerator.h"
 #include "GroupAttr.h"
-#include "ExpCriDesc.h"
-#include "DefaultConstants.h"
-#include "ComTdbProbeCache.h"
+#include "exp/ExpCriDesc.h"
+#include "sqlcomp/DefaultConstants.h"
+#include "comexe/ComTdbProbeCache.h"
 #include "RelProbeCache.h"
-#include "DefaultConstants.h"
-#include "ExpSqlTupp.h"         // for sizeof(tupp_descriptor)
-#include "ComDefs.h"            // to get common defines (ROUND8)
+#include "sqlcomp/DefaultConstants.h"
+#include "exp/ExpSqlTupp.h"         // for sizeof(tupp_descriptor)
+#include "common/ComDefs.h"            // to get common defines (ROUND8)
 
 /////////////////////////////////////////////////////////////////////
 //

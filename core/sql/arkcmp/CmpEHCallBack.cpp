@@ -35,13 +35,13 @@
  *
  *****************************************************************************
  */
-#include "Platform.h"
+#include "common/Platform.h"
 #include <stdio.h>
 #include <signal.h>
 #include "CmpEHCallBack.h"
-#include "CmpCommon.h"
+#include "common/CmpCommon.h"
 #include "NAError.h"
-#include "CmpStatement.h"
+#include "arkcmp/CmpStatement.h"
 
 //-------------------------------------------------------------------------
 // The following objects are used by Tandem Failure Data System (TFDS)

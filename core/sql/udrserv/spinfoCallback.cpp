@@ -33,12 +33,12 @@
  *****************************************************************************
  */
 
-#include "Platform.h"  // 64-BIT
+#include "common/Platform.h"  // 64-BIT
 #include "spinfoCallback.h"
 #include "spinfo.h"
 #include "udrextrn.h"
-#include "exp_expr.h"
-#include "sql_buffer.h"
+#include "exp/exp_expr.h"
+#include "executor/sql_buffer.h"
 #include "ex_queue.h"
 #include "udrutil.h"
 #include "LmRoutineCppObj.h"

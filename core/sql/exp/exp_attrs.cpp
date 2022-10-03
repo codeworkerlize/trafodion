@@ -36,16 +36,16 @@
  *****************************************************************************
  */
 
-#include "Platform.h"
+#include "common/Platform.h"
 
 
-#include "exp_stdh.h"
-#include "exp_attrs.h"
-#include "exp_clause_derived.h"
+#include "exp/exp_stdh.h"
+#include "exp/exp_attrs.h"
+#include "exp/exp_clause_derived.h"
 #include "exp_bignum.h"
 #include "ExpComposite.h"
-#include "str.h"
-#include "NLSConversion.h"
+#include "common/str.h"
+#include "common/NLSConversion.h"
 #include "ex_ex.h"
 
 Int32 Attributes::getStorageLength(){return -1;};

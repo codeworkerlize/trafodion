@@ -36,14 +36,14 @@
  *****************************************************************************
  */
 
-#include "Platform.h"
+#include "common/Platform.h"
 
 
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "exp_stdh.h"
-#include "exp_expr.h"
+#include "exp/exp_stdh.h"
+#include "exp/exp_expr.h"
 #include "ExpPCode.h"
 #include "ExpPCodeOptimizations.h"
 

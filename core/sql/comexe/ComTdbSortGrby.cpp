@@ -35,8 +35,8 @@
 ****************************************************************************
 */
 
-#include "ComTdbSortGrby.h"
-#include "ComTdbCommon.h"
+#include "comexe/ComTdbSortGrby.h"
+#include "comexe/ComTdbCommon.h"
 
 //////////////////////////////////////////////////////////////////////////////////
 //

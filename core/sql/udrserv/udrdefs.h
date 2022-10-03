@@ -81,7 +81,7 @@ enum UdrErrorEnum {
 #define TRACE_DETAILS 3
 #define TRACE_SHOW_DIALOGS 4
 
-#include "Platform.h"
+#include "common/Platform.h"
 
 extern void udrAssert(const char *, Int32, const char *);
 extern void udrAbort(const char *, Int32, const char *);
@@ -92,7 +92,7 @@ extern void udrAbort(const char *, Int32, const char *);
 
 // FFDC/TDFS Support
 #include "EHCommonDefs.h"
-#include "EHException.h"
+#include "eh/EHException.h"
 
 //
 // Define the printf format specifier for 64-bit integers

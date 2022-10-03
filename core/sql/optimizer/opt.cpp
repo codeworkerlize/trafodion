@@ -41,7 +41,7 @@
 #include <time.h>
 #include "ControlDB.h"
 #include "Sqlcomp.h"
-#include "CmpContext.h"
+#include "arkcmp/CmpContext.h"
 #include "CmpErrors.h"
 #include "CmpMain.h"		// gui display
 #include "CmpMemoryMonitor.h"
@@ -53,7 +53,7 @@
 #include "RelJoin.h"
 #include "RelMisc.h"
 #include "CostMethod.h"
-#include "logmxevent.h"
+#include "sqlmxevents/logmxevent.h"
 #include "CompException.h"
 #include "CompilationStats.h"
 
@@ -63,12 +63,12 @@
 
 
 #ifdef NA_DEBUG_GUI
-  #include "ComSqlcmpdbg.h"
+  #include "common/ComSqlcmpdbg.h"
 #endif
 
-#include "CmpStatement.h"
+#include "arkcmp/CmpStatement.h"
 #include "utility.h"
-#include "NAWNodeSet.h"
+#include "common/NAWNodeSet.h"
 
 //<pb>
 // -----------------------------------------------------------------------

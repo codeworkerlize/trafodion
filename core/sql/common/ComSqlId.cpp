@@ -32,9 +32,9 @@
  *****************************************************************************
  */
 
-#include "ComSqlId.h"
-#include "ExpError.h"
-#include "str.h"
+#include "common/ComSqlId.h"
+#include "exp/ExpError.h"
+#include "common/str.h"
 #include <fstream>
 #include <unistd.h>
 #include <math.h>

@@ -43,7 +43,7 @@
  *****************************************************************************
  */
 
-#include "Platform.h"
+#include "common/Platform.h"
 
 template <class T> class SqlciList {
 

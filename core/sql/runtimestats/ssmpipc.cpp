@@ -25,26 +25,26 @@
 // Created:      5/02/2006
 **********************************************************************/
 
-#include "Platform.h"
+#include "common/Platform.h"
 #include "ex_stdh.h"
-#include "ssmpipc.h"
-#include "ComCextdecs.h"
+#include "runtimestats/ssmpipc.h"
+#include "common/ComCextdecs.h"
 #include <semaphore.h>
 #include "nsk/nskport.h"
 #include "zsysc.h"
-#include "NAStdlib.h"
+#include "common/NAStdlib.h"
 #include "Ex_esp_msg.h"
-#include "ComQueue.h"
-#include "ComRtUtils.h"
-#include "ComSqlId.h"
-#include "Globals.h"
-#include "SqlStats.h"
+#include "comexe/ComQueue.h"
+#include "common/ComRtUtils.h"
+#include "common/ComSqlId.h"
+#include "cli/Globals.h"
+#include "runtimestats/SqlStats.h"
 #include "ex_stdh.h"
-#include "ExStats.h"
-#include "ComDiags.h"
-#include "PortProcessCalls.h"
-#include "Statement.h"
-#include "ComSqlId.h"
+#include "executor/ExStats.h"
+#include "export/ComDiags.h"
+#include "porting/PortProcessCalls.h"
+#include "cli/Statement.h"
+#include "common/ComSqlId.h"
 
 ExSsmpManager::ExSsmpManager(IpcEnvironment *env)
   : env_(env)

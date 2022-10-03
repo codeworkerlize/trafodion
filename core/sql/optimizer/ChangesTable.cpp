@@ -35,7 +35,7 @@
 ******************************************************************************
 */
 
-#include "NumericType.h"
+#include "common/NumericType.h"
 #include "AllRelExpr.h"
 #include "AllItemExpr.h"
 #include "BindWA.h"

@@ -22,9 +22,9 @@
 **********************************************************************/
 
 
-#include "NLSConversion.h"
-#include "charinfo.h"
-#include "nawstring.h"
+#include "common/NLSConversion.h"
+#include "common/charinfo.h"
+#include "common/nawstring.h"
 
 NAWString *charToUnicode(Lng32 charset, const char *s, Int32 len, CollHeap *h)
 {

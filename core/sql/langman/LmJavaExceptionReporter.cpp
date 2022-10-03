@@ -32,12 +32,12 @@
 *
 ******************************************************************************
 */
-#include "ComMisc.h"
-#include "Platform.h"
+#include "common/ComMisc.h"
+#include "common/Platform.h"
   #include "lmjni.h"
 #include "LmJavaExceptionReporter.h"
-#include "ExpErrorEnums.h"
-#include "CmpCommon.h"
+#include "exp/ExpErrorEnums.h"
+#include "common/CmpCommon.h"
 	
 LmJavaExceptionReporter::LmJavaExceptionReporter(LmHandle jniEnv,
                                                 LmLanguageManagerJava *langMan,

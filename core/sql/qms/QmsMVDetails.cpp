@@ -34,7 +34,7 @@
 
 #include "QmsMVDetails.h"
 #include "QmsMVCandidate.h"
-#include "QRDescriptor.h"
+#include "qmscommon/QRDescriptor.h"
 #include "QmsMatchTest.h"
 
 

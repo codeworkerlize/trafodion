@@ -25,8 +25,8 @@
 #include "RelPackedRows.h"
 #include "Generator.h"
 #include "GenExpGenerator.h"
-#include "ExpCriDesc.h"
-#include "ComTdbUnPackRows.h"
+#include "exp/ExpCriDesc.h"
+#include "comexe/ComTdbUnPackRows.h"
 #include "ex_queue.h"
 
 // PhysUnPackRows::preCodeGen() -------------------------------------------

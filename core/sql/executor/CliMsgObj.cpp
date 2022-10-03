@@ -34,11 +34,11 @@
  */
 #include <iostream>
 
-#include "ComTransInfo.h"
-#include "IpcMessageObj.h"
+#include "common/ComTransInfo.h"
+#include "export/IpcMessageObj.h"
 #include "ComplexObject.h"
 #include "CliMsgObj.h"
-#include "sqlcli.h"
+#include "cli/sqlcli.h"
 // allocate memory from the heap and duplicate the string
 static char * dupCharStar(NAMemory *heap, char *source){
   char *target = NULL;

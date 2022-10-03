@@ -27,11 +27,11 @@
 ******************************************************************************
 */
 
-#include "Platform.h"
+#include "common/Platform.h"
 #include <iostream>
 
-#include "sqlcli.h"
-#include "IpcMessageObj.h"
+#include "cli/sqlcli.h"
+#include "export/IpcMessageObj.h"
 #include "rts_msg.h"
 #include "ExCextdecs.h"
 /*

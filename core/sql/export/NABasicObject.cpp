@@ -34,14 +34,14 @@
 ****************************************************************************
 */
 
-#include "Platform.h"
+#include "common/Platform.h"
 
 #include <iosfwd>
 using namespace std;
 #include <stdlib.h>
 
-#include "ComASSERT.h"
-#include "NAMemory.h"
+#include "common/ComASSERT.h"
+#include "common/NAMemory.h"
 #include "HeapLog.h"
 #include <new>
 

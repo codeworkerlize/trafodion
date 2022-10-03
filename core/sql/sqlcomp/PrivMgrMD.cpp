@@ -29,7 +29,7 @@
 // Needed for parser flag manipulation
 #define   SQLPARSERGLOBALS_FLAGS  
 #include "SqlParserGlobalsCmn.h"
-#include "SQLCLIdev.h"
+#include "cli/SQLCLIdev.h"
 
 #include "PrivMgrMD.h"
 #include "PrivMgrMDDefs.h"
@@ -46,15 +46,15 @@
 #include <set>
 #include <string>
 #include <algorithm>
-#include "ComSmallDefs.h"
-#include "ComDistribution.h"
+#include "common/ComSmallDefs.h"
+#include "common/ComDistribution.h"
 // sqlcli.h included because ExExeUtilCli.h needs it (and does not include it!)
-#include "sqlcli.h"
-#include "ExExeUtilCli.h"
-#include "ComDiags.h"
-#include "ComQueue.h"
-#include "CmpCommon.h"
-#include "CmpContext.h"
+#include "cli/sqlcli.h"
+#include "executor/ExExeUtilCli.h"
+#include "export/ComDiags.h"
+#include "comexe/ComQueue.h"
+#include "common/CmpCommon.h"
+#include "arkcmp/CmpContext.h"
 #include "CmpDDLCatErrorCodes.h"
 #include "ComUser.h"
 

@@ -33,11 +33,11 @@
 
 #include <ctype.h>
 #include <iostream>
-#include "ComDiags.h"
-#include "DgBaseType.h"
+#include "export/ComDiags.h"
+#include "common/DgBaseType.h"
 #include "ExtQualModuleNames.h"
 #include "mxCompileUserModule.h"
-#include "NAString.h"
+#include "common/NAString.h"
 
 // constructor
 ExtQualModuleNames::ExtQualModuleNames(char* argv[], Int32 startIndex, Int32 argc,

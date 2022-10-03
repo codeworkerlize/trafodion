@@ -50,7 +50,7 @@
 #include "RuEmpCheckVector.h"
 
 #include "ddstatements.h"
-#include "ComVersionDefs.h"
+#include "common/ComVersionDefs.h"
 
 
 

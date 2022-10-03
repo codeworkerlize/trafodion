@@ -36,34 +36,34 @@
 #define   SQLPARSERGLOBALS_FLAGS	// must precede all #include's
 #define   SQLPARSERGLOBALS_NADEFAULTS
 
-#include "ValueDesc.h"
+#include "optimizer/ValueDesc.h"
 #include "Sqlcomp.h"
 #include "BindWA.h"
 #include "NormWA.h"
 #include "GroupAttr.h"
 #include "AllItemExpr.h"
 #include "RelJoin.h"
-#include "CmpStatement.h"
+#include "arkcmp/CmpStatement.h"
 #include "Generator.h"
 #include "GenExpGenerator.h"
-#include "ExpCriDesc.h"
-#include "ExpAtp.h"
+#include "exp/ExpCriDesc.h"
+#include "exp/ExpAtp.h"
 #include "exp_dp2_expr.h"
-#include "exp_clause_derived.h"
-#include "SQLCLIdev.h"
+#include "exp/exp_clause_derived.h"
+#include "cli/SQLCLIdev.h"
 #include "GroupAttr.h"
 #include "BindWA.h"
 #include "ItemOther.h"
-#include "ComDefs.h"
+#include "common/ComDefs.h"
 #include "OptimizerSimulator.h"
 #include "Analyzer.h"
 #include "NATable.h"
 #include "EncodedKeyValue.h"
 #include "GenExpGenerator.h"
-#include "TrafDDLdesc.h"
+#include "sqlcat/TrafDDLdesc.h"
 #include "ItemSample.h"
 
-#include "SqlParserGlobals.h"		// must be last #include except for STLs
+#include "parser/SqlParserGlobals.h"		// must be last #include except for STLs
 
 #include <map>
 

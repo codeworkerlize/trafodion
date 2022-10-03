@@ -34,7 +34,7 @@
 *
 *****************************************************************************
 */
-#include "Platform.h"
+#include "common/Platform.h"
 #ifdef _DEBUG
 #include <fstream>
 #include <iostream>
@@ -45,15 +45,15 @@
 #include <errno.h>
 #include "ExCextdecs.h"
 #include "ex_ex.h"
-#include "Ipc.h"
-#include "Globals.h"
-#include "SqlStats.h"
-#include "memorymonitor.h"
+#include "common/Ipc.h"
+#include "cli/Globals.h"
+#include "runtimestats/SqlStats.h"
+#include "cli/memorymonitor.h"
 #include "sscpipc.h"
 #include "rts_msg.h"
 #include "ex_stdh.h"
-#include "ExStats.h"
-#include "PortProcessCalls.h"
+#include "executor/ExStats.h"
+#include "porting/PortProcessCalls.h"
 #include <sys/ipc.h>
 #include <sys/shm.h>
 #include "seabed/ms.h"

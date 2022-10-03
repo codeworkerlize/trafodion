@@ -37,14 +37,14 @@
  *****************************************************************************
  */
 
-#include "Platform.h"
-#include "memorymonitor.h"
-#include "ComRtUtils.h"
-#include "NAAssert.h"
-#include "PortProcessCalls.h"
+#include "common/Platform.h"
+#include "cli/memorymonitor.h"
+#include "common/ComRtUtils.h"
+#include "common/NAAssert.h"
+#include "porting/PortProcessCalls.h"
 
 #include <time.h>
-#include "QRLogger.h"
+#include "qmscommon/QRLogger.h"
 #include <cextdecs/cextdecs.h>
 #undef DllImport
 #define DllImport __declspec( dllimport )

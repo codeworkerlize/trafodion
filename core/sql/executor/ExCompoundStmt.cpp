@@ -35,13 +35,13 @@
 */
 
 #include "ex_stdh.h"
-#include "ComTdb.h"
+#include "comexe/ComTdb.h"
 #include "ex_tcb.h"
-#include "ex_expr.h"
+#include "executor/ex_expr.h"
 #include "ex_error.h"
-#include "str.h"
+#include "common/str.h"
 #include "ExCompoundStmt.h"
-#include "ExStats.h"
+#include "executor/ExStats.h"
 
 
 //////////////////////////////////////////////////////////////////////////////

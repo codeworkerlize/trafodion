@@ -39,10 +39,10 @@
 
 // begining of regular compilation
 #include "cluster.h"
-#include "memorymonitor.h"
-#include "ExStats.h"
-#include "ComResourceInfo.h"
-#include "logmxevent.h"
+#include "cli/memorymonitor.h"
+#include "executor/ExStats.h"
+#include "comexe/ComResourceInfo.h"
+#include "sqlmxevents/logmxevent.h"
 #include "SortError.h"
 
 HashBufferHeader::HashBufferHeader()
@@ -2819,7 +2819,7 @@ NABoolean Cluster::testBitMap() {
 };
 
 
-#include "ComCextdecs.h"
+#include "common/ComCextdecs.h"
 void IOTimer::resetTimer()
 {
   ioStarted_ = FALSE;

@@ -37,8 +37,8 @@
 #include "SchemaDB.h"
 #include "CmpErrors.h"
 #include "CmpMain.h"
-#include "Globals.h"
-#include "Context.h"
+#include "cli/Globals.h"
+#include "cli/Context.h"
 
 //-----------------------------------------------------------------------
 // NATableCacheStoredProcedure is a class that contains functions used by

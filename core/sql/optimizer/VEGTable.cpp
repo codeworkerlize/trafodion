@@ -41,7 +41,7 @@
 #include "RelJoin.h"
 #include "ItemLog.h"
 #include "ItemOther.h"
-#include "ItemColRef.h" 
+#include "optimizer/ItemColRef.h" 
 #include "ItemFunc.h"
 #include "VEGTable.h"
 #include "GenExpGenerator.h"

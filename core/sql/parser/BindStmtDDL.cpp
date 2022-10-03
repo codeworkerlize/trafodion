@@ -44,10 +44,10 @@
 // #include "CatError.h"
 // #define  CAT_ALTER_CANNOT_ADD_NOT_DROPPABLE_CONSTRAINT       1053
 // The above are commented out because we use sqlcode 3067 instead.
-#include "ComASSERT.h"
+#include "common/ComASSERT.h"
 #include "ComObjectName.h"
 #include "ComOperators.h"
-#include "CmpCommon.h"
+#include "common/CmpCommon.h"
 #include "CmpMain.h"
 #include "ElemDDLPartitionSystem.h"
 #include "ElemDDLUdrLibrary.h"
@@ -58,13 +58,13 @@
 #include "ElemDDLPartitionList.h"
 #include "NATable.h"
 #include "RelMisc.h"
-#include "TableDesc.h"
+#include "optimizer/TableDesc.h"
 #include "RelJoin.h"   
-#include "SqlParserGlobals.h"           // must be last #include
-#include "Triggers.h"
+#include "parser/SqlParserGlobals.h"           // must be last #include
+#include "optimizer/Triggers.h"
 #include "NormWA.h" 
 #include "Analyzer.h"
-#include "QRDescriptor.h"
+#include "qmscommon/QRDescriptor.h"
 #include "StmtDDLAlterTableTruncatePartition.h"
 
 // -----------------------------------------------------------------------
