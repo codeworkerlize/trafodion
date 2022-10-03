@@ -39,9 +39,6 @@ namespace {
 // Forward class declarations
 // -----------------------------------------------------------------------
 class SequenceFileWriter;
-class OrcFileVectorWriter;
-class ParquetFileWriter;
-class AvroFileWriter;
 
 // -----------------------------------------------------------------------
 // Classes defined in this file

@@ -1,37 +1,4 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
-/* -*-C++-*-
- *****************************************************************************
- *
- * File:         GenPreCode.C
- * Description:  Fixes up the query tree before code generation.
- *               This is the post-opt and pre-gen stage.
- * Created:      4/15/95
- * Language:     C++
- *
- *
- *****************************************************************************
- */
+
 
 #define   SQLPARSERGLOBALS_FLAGS   // must precede all #include's
 #define   SQLPARSERGLOBALS_NADEFAULTS
@@ -6199,42 +6166,7 @@ RelExpr * HbaseInsert::preCodeGen(Generator * generator,
       
     }
   
-  // if there are lob columns, use simple inserts.
-  if ( getTableDesc()->getNATable()->hasLobColumn())
-    {
-      NAColumnArray colArray;
-      NAColumn *tgtCol, *srcCol;
 
-      for (CollIndex ii = 0;
-           ii < newRecExprArray().entries(); ii++)
-	{
-	  ItemExpr *assignExpr =
-	    newRecExprArray()[ii].getItemExpr();
-	  
-	  ValueId tgtValueId =
-	    assignExpr->child(0)->castToItemExpr()->getValueId();
-
-	  ValueId srcValueId =
-	    assignExpr->child(1)->castToItemExpr()->getValueId();
-
-	  tgtCol = tgtValueId.getNAColumn( TRUE );
-	  srcCol = srcValueId.getNAColumn( TRUE );
-	  ItemExpr * child1Expr = assignExpr->child(1);
-
-          // if this Insert node was created as part of pkey update that was
-          // converted to delete+insert, then skip delete&insert from the
-          // underlying chunks/hdfs table.
-          // Lob column handle will remain unchanged and point to old data.
-          // Updating a lob column along with pkey col is not currently supported
-          // and would have raised an err in Update::transformUpdatePrimaryKey.
-	  if ((srcValueId.getType().isLob()) &&
-              (NOT getUpdateCKorUniqueIndexKey()))
-            {
-
-	      GenAssert(li, "must have a LobInsert node");
-	    } // lob
-	}
-    }
 
   if ((getInsertType() == Insert::SIMPLE_INSERT)  &&
       (NOT getTableDesc()->getNATable()->hasLobColumn()))
@@ -6719,10 +6651,7 @@ RelExpr *GroupByAgg::transformForAggrPushdown(Generator * generator,
       isExt = (isOrc || isParquet || isAvro);
     }
 
-  if (scan) {
- {
-     aggrPushdown = FALSE;
-  }
+
   if (NOT aggrPushdown || NOT isOrc)
     {
       // the ORC_MAX_NV and ORC_SUM_NV aggregates are only

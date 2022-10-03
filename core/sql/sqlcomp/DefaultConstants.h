@@ -3273,7 +3273,6 @@ enum DefaultConstants
   // vectorized rows batch scan
   ORC_VECTORIZED_SCAN,
 
-  // buffer size passed to OrcFileVectorWriter at runtime.
   ORC_WRITER_BUFFER_SIZE,
 
   // OFF: no pushdown, evaluated using traditional way (scan and aggr).

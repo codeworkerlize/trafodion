@@ -180,7 +180,6 @@ theme.json
 prettytable.py
 socks.py
 
-# SqlCompilerDebugger bmp
 .*.bmp
 
 # To be located

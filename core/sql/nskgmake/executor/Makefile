@@ -124,12 +124,8 @@ CPPSRC := Allocator.cpp \
 	UdrExeIpc.cpp \
         JavaObjectInterface.cpp \
         SequenceFileReader.cpp \
-        OrcFileReader.cpp \
         DistributedLock_JNI.cpp \
         HBaseClient_JNI.cpp \
-	OrcFileVectorWriter.cpp \
-	ParquetFileWriter.cpp \
-	AvroFileWriter.cpp \
         MonarchClient_JNI.cpp \
         TenantHelper_JNI.cpp
 CPPSRC += vers_libexecutor.cpp \

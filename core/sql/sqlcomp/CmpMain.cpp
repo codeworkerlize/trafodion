@@ -122,29 +122,16 @@ THREAD_P Int32 CostScalar::udflwCount_ = 0;
 // -----------------------------------------------------------------------
 #ifdef NA_DEBUG_GUI
 
-//
-// CmpMain::msGui_ is left as a 'global' because the SqlCompilerDebugger
-// is not thread-safe and there is no plan to make it such.  We would,
-// however, like to be able to use the debugger with any thread within
-// sqlci.  So, we make CmpMain::msGui_ be a pointer which tells us which
-// compiler instance currently "owns" the SqlCompilerDebugger interface.
-// ONLY one sqlci thread is allowed to own this interface at a time.
-//
+
 CmpContext * CmpMain::msGui_ = NULL ;
 
 
-//
-// Since only one thread can own the SqlCompilerDebugger interface at a
-// time, CmpMain::pExpFuncs_ can be a 'global' as well.
-//
+
 SqlcmpdbgExpFuncs* CmpMain::pExpFuncs_ = NULL;
 void initializeGUIData(SqlcmpdbgExpFuncs* expFuncs);
 
 
-//
-// Since only one thread can own the SqlCompilerDebugger interface at a
-// time, dlptr can be a 'global' as well.
-//
+
 static void* dlptr = NULL;
 #define DISPLAY_IN_ODBC_JDBC -2243
 #endif

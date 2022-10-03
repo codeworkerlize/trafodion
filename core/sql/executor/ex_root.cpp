@@ -66,6 +66,7 @@
 #include "ExSMCommon.h"
 #include "ExpHbaseInterface.h"
 #include "ExCancel.h"
+#include "ExHbaseAccess.h"
 
 ////////////////////////////////////////////////////////////////////////
 //  TDB procedures

@@ -73,6 +73,7 @@
 #include "sql_buffer_size.h"
 
 #include "NAType.h"
+#include "ExHbaseAccess.h"
 
 //******************************************************************************
 //                                                                             *

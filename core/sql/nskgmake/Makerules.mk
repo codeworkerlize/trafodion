@@ -104,7 +104,6 @@ include Makerules.$(TARGTYPE)
 DUMMY_LIBS := $(patsubst %,%.$(LIBSUFFIX),$(LIB_DIRS))
 ifdef DLLSUFFIX
 DUMMY_DLLS := $(patsubst %,%.$(DLLSUFFIX),$(DLL_DIRS))
-GUI_CMP_DBG := $(patsubst %,%.$(DLLSUFFIX),$(GUI_CMP_DBG))
 else
 DUMMY_DLLS := $(DLL_DIRS)
 endif
@@ -242,7 +241,7 @@ define include_template
   obj := $(1)
   include Makerules.build
 endef
-ALL_DUMMY_TARGETS := $(DUMMY_LIBS) $(DUMMY_DLLS) $(DUMMY_EXES) $(GUI_CMP_DBG)
+ALL_DUMMY_TARGETS := $(DUMMY_LIBS) $(DUMMY_DLLS) $(DUMMY_EXES)
 $(foreach target,$(ALL_DUMMY_TARGETS),$(eval $(call include_template,$(target))))
 endif
 

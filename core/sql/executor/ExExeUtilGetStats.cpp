@@ -1710,7 +1710,6 @@ void ExExeUtilGetRTSStatisticsTcb::formatOperStatsDataUsed(SQLSTATS_ITEM* operSt
   char valString[25];
   Lng32 intSize=0;
   Lng32 valSize=0;
-  HDFS_Client_RetCode hdfsClientRetcode;
 
 
 

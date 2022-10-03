@@ -70,7 +70,7 @@
 #include "Globals.h"
 #include "sqludr.h"
 
-#include "PCodeExprCache.h"
+// #include "PCodeExprCache.h"
 #include "HBaseClient_JNI.h"
 #include "Context.h"
 
@@ -387,8 +387,6 @@ CmpContext::~CmpContext()
 
   resetLogmxEventSqlText();
   resetContext();
-  // reset thread global variables
-  HSGlobalsClass::resetJitLogThresholdHash();
 
   if (testPointArray_)
     {

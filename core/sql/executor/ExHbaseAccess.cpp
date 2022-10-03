@@ -3585,7 +3585,6 @@ void ExHbaseAccessTcb::handleException(NAHeap *heap,
   Lng32 errorMsgLen = 0;
   charBuf *cBuf = NULL;
   char *errorMsg;
-  HDFS_Client_RetCode hdfsClientRetcode;
 
   if (loggingErrorDiags_ != NULL)
      return;

@@ -87,7 +87,6 @@ OWASP_DIRS=  core/common \
 depcheck: all
 	# Dependencies 
 	# - seatrans/monarch depcheck needs TRX
-	# - TRX needs genverhdr
 	# - tm/hbasetmlib2 depcheck needs monarch
 	# - sql/lib_mgmt depcheck needs SQL jar
 	# So, we just depend on all to make sure we have dependencies

@@ -27,7 +27,6 @@
 #include <CommonLogger.h>
 
 extern const char CAT_JNI_TOP[];
-extern const char CAT_ORC_FILE_READER[];
 extern const char CAT_SEQ_FILE_READER[];
 extern const char CAT_SEQ_FILE_WRITER[];
 extern const char CAT_HBASE[];

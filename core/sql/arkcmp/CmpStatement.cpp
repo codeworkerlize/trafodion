@@ -793,11 +793,7 @@ CmpStatement::process (const CmpMessageDDL& statement)
 
   if (foundUpdStat)
     {
-      // TODO, should be removed later
-      
-      // A pointer to user SQL query is stored in CmpStatement; if an exception
-      // is thrown the user query is copied from here. It is reset upon return
-      // from the UpdateStats() method.
+
       
       char *userStr= new (heap()) char[2000];
       Int32 len=strlen(sqlStr);
@@ -811,13 +807,7 @@ CmpStatement::process (const CmpMessageDDL& statement)
       sqlTextStr_ = userStr;
       sqlTextLen_ = len;
       
-      if (UpdateStats(sqlStr))
-        {
-	  sqlTextStr_ = NULL;
-	  sqlTextLen_ = 0;
 
-	  return CmpStatement_ERROR;
-        }
       
       sqlTextStr_ = NULL;
       sqlTextLen_ = 0;
@@ -1176,10 +1166,7 @@ CmpStatement::process (const CmpMessageDescribe& statement)
 CmpStatement::ReturnStatus
 CmpStatement::process (const CmpMessageUpdateHist& statement)
 {
-  // A pointer to user SQL query is stored in CmpStatement; if an exception is
-  // thrown the user query is copied from here. It is reset upon return from
-  // the UpdateStats() method.
-  
+
   char *userStr= new (heap()) char[2000];
   Int32 len=strlen(statement.data());
 
@@ -1191,11 +1178,7 @@ CmpStatement::process (const CmpMessageUpdateHist& statement)
 
   sqlTextStr_ = userStr;
 
-  if (UpdateStats(statement.data()))
-     {
-       sqlTextStr_=NULL;
-       return CmpStatement_ERROR;
-     }
+
 
   sqlTextStr_=NULL;
   return CmpStatement_SUCCESS;

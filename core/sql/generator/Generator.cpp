@@ -69,7 +69,7 @@
 #include "ComDistribution.h"
 #include "CmUtil.h"
 
-#include "PCodeExprCache.h"
+// #include "PCodeExprCache.h"
 #include "TrafDDLdesc.h"
 #include "HBaseClient_JNI.h"
 #include "ComASNodes.h"

@@ -35701,7 +35701,7 @@ drop_schema_statement : TOK_DROP schema_or_database
                                 {
   
 
-				  NAString extSchName($4->getSchemaName().getSchemaNameAsAnsiString());
+				  NAString extSchName($3->getSchemaName().getSchemaNameAsAnsiString());
 				  if (! validateVolatileSchemaName(extSchName))
 				    {
 				      YYERROR;
@@ -35713,7 +35713,7 @@ drop_schema_statement : TOK_DROP schema_or_database
                                          $5 /*optional_drop_behavior*/,
                                          $4 /*optional_cleanup*/,
 					FALSE);
-                                  delete $4 /*schema_name*/;
+                                  delete $3 /*schema_name*/;
                                 }
 
 drop_schema_statement : TOK_DROP schema_or_database TOK_IF TOK_EXISTS 
@@ -35721,7 +35721,7 @@ drop_schema_statement : TOK_DROP schema_or_database TOK_IF TOK_EXISTS
                         optional_drop_behavior
                                 {
 
-                                  NAString extSchName($6->getSchemaName().getSchemaNameAsAnsiString());
+                                  NAString extSchName($5->getSchemaName().getSchemaNameAsAnsiString());
                                   if (! validateVolatileSchemaName(extSchName))
                                     {
                                       YYERROR;
@@ -36830,8 +36830,6 @@ alter_schema_statement :alter_schema_start_tokens
                      |  alter_schema_start_tokens
                         schema_name_clause TOK_DROP TOK_ALL TOK_TABLES
 			{
-
-
                           NAString extSchName($2->getSchemaName().getSchemaNameAsAnsiString());
                           if (! validateVolatileSchemaName(extSchName))
                             {
@@ -36849,8 +36847,6 @@ alter_schema_statement :alter_schema_start_tokens
                      |  alter_schema_start_tokens
                         schema_name_clause TOK_RENAME TOK_TO identifier
 			{
-
-
                           NAString extSchName($2->getSchemaName().getSchemaNameAsAnsiString());
                           if (! validateVolatileSchemaName(extSchName))
                             {
@@ -38561,10 +38557,10 @@ drop_view_statement : TOK_DROP TOK_VIEW optional_if_exists_clause
                         ( $8->data(), PARSERHEAP());
                     StmtDDLDropView * dropView = new (PARSERHEAP())
                       StmtDDLDropView(
-                                    *$5  /*ddl_qualified_name*/,
-                                    $7   /*optional_drop_invalidate_dependent_behavior*/,
-                                    $6 /*for CLEANUP mode set to TRUE*/,
-                                    $8 /*for VALIDATE mode set to FALSE*/,
+                                    *$4  /*ddl_qualified_name*/,
+                                    $6   /*optional_drop_invalidate_dependent_behavior*/,
+                                    $5 /*for CLEANUP mode set to TRUE*/,
+                                    $7 /*for VALIDATE mode set to FALSE*/,
                                     pLogFile  /*log_file_name*/);
 
                     if ($3)
@@ -38572,7 +38568,7 @@ drop_view_statement : TOK_DROP TOK_VIEW optional_if_exists_clause
                         dropView->setDropIfExists(TRUE);
                       }
 
-                    delete $5 /*ddl_qualified_name*/;
+                    delete $4 /*ddl_qualified_name*/;
                     delete $8 /*log_file_name*/;
                     $$ = dropView;
                   }

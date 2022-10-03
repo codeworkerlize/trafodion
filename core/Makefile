@@ -28,7 +28,7 @@ SHELL := /bin/bash
 include macros.gmk
 
 # Make Targets
-.PHONY: all dbsecurity foundation $(MPI_TARGET) ndcs ci  jdbc_type2_jar sqroot $(SEAMONSTER_TARGET) verhdr dcs rest wms common
+.PHONY: all  foundation $(MPI_TARGET)    jdbc_type2_jar sqroot $(SEAMONSTER_TARGET) verhdr dcs rest wms common
 .PHONY: package package-all pkg-product pkg-sql-regress pkg-phx-tests pkg-dcs-tests check-copyrights pkg-installer
 
 ################
@@ -36,7 +36,7 @@ include macros.gmk
 # Server-side only
 
 # Default target (all components)
-all: $(MPI_TARGET) dbsecurity foundation jdbc_jar $(SEAMONSTER_TARGET) ndcs ci jdbc_type2_jar dcs rest lib_mgmt wms common
+all: $(MPI_TARGET)  foundation  $(SEAMONSTER_TARGET)   jdbc_type2_jar dcs rest lib_mgmt wms common
 
 package: pkg-product pkg-client pkg-installer pkg-dep_el7
 
@@ -44,8 +44,6 @@ package: pkg-product pkg-client pkg-installer pkg-dep_el7
 # Components
 
 mpi: sqroot verhdr
-	echo "Building MPI"
-	cd mpi && $(MAKE) sq-local 2>&1 | sed -e "s/$$/	##(MPI)/";exit $${PIPESTATUS[0]}
 
 mpistub: sqroot verhdr
 	echo "Building MPI stub"
@@ -62,41 +60,25 @@ smstub: mpistub
 verhdr:
 	cd sqf && $(MAKE) genverhdr
 
-dbsecurity: $(MPI_TARGET)
-	cd sqf/src/seabed && $(MAKE) all 2>&1 | sed -e "s/$$/	##(libsbms.so)/";exit $${PIPESTATUS[0]}
-	cd dbsecurity && $(MAKE) all 2>&1 | sed -e "s/$$/	##(Security)/";exit $${PIPESTATUS[0]}
 
-foundation: common sqroot dbsecurity $(MPI_TARGET) $(SEAMONSTER_TARGET)
-	cd sqf && $(MAKE) all
+foundation: common sqroot  $(MPI_TARGET) $(SEAMONSTER_TARGET)
+	# cd sqf && $(MAKE) all
 
 
 dcs:  jdbc_type2_jar common 
-	cd ../dcs && $(MAKE) 2>&1 | sed -e "s/$$/  ##(DCS)/" ; exit $${PIPESTATUS[0]}
 
-ndcs:  foundation
-	cd conn/odbc/src/odbc && $(MAKE) all        2>&1 | sed -e "s/$$/	##(NDCS)/";exit $${PIPESTATUS[0]}
 
 wms:  jdbc_type2_jar
-	cd ../wms && $(MAKE) 2>&1 | sed -e "s/$$/  ##(WMS)/" ; exit $${PIPESTATUS[0]}
 
-ci: trafci
-trafci: 
-	cd conn/trafci && $(MAKE) 2>&1 | sed -e "s/$$/	##(TRAFCI)/" ; exit $${PIPESTATUS[0]}
-	$(MAVEN) install:install-file -Dfile=conn/trafci/lib/trafci.jar \
-	    -DgroupId=org.trafodion.ci -DartifactId=trafci -Dversion="$$TRAFODION_VER" \
-	    -Dpackaging=jar -DgeneratePom=true | sed -e "s/$$/        ##(TRAFCI)/";exit $${PIPESTATUS[0]}
 
 jdbc_type2_jar: verhdr foundation
-	cd conn/jdbc_type2 && $(MAKE) 2>&1 | sed -e "s/$$/	##(JDBC_TYPE2)/" ; exit $${PIPESTATUS[0]}
 
 rest: verhdr  common
-	cd rest && $(MAKE) 2>&1 | sed -e "s/$$/  ##(REST)/" ; exit $${PIPESTATUS[0]}
 
-dbmgr: trafci common
+dbmgr:  common
 	cd dbmgr && $(MAKE) 2>&1 | sed -e "s/$$/	##(DBMGR)/" ; exit $${PIPESTATUS[0]}
 
 common: sqroot
-	cd common && $(MAKE) 2>&1 | sed -e "s/$$/       ##(ESGYNCOMMON)/" ; exit $${PIPESTATUS[0]}
 
 cleantests:
 	cd ../dcs/src/test/pytests && $(RM) -r odbc* tox.ini config.ini .tox .testrep* env.sh test_p2.pyc
@@ -106,37 +88,29 @@ cleantests:
 clean:
 	cd $(MPI_TARGET) &&		$(MAKE) clean-local
 	cd $(SEAMONSTER_TARGET)/src &&	$(MAKE) clean
-	cd dbsecurity &&		$(MAKE) clean
 	cd sqf &&			$(MAKE) clean
 	cd conn/odbc/src/odbc &&	$(MAKE) clean
 	cd conn &&			$(MAKE) clean
 	cd conn/jdbc_type2 &&		$(MAKE) clean
-	cd conn/trafci &&		$(MAKE) clean
 	cd rest &&			$(MAKE) clean
 	cd ../dcs &&			$(MAKE) clean
 	cd ../wms &&			$(MAKE) clean
 	cd dbmgr &&			$(MAKE) clean
-	cd sql/lib_mgmt &&		$(MAKE) clean
 	cd ../install &&                $(MAKE) clean
 	cd ../install/cm-installer &&   $(MAKE) clean
-	cd common  &&                   $(MAKE) clean
 	$(RM) -r ../${DISTRIBUTION_DIR}
 
 cleanall: eclipseclean cleantests
 	cd $(MPI_TARGET) &&		$(MAKE) clean-local
-	cd dbsecurity &&		$(MAKE) cleanall
 	cd sqf &&			$(MAKE) cleanall
 	cd conn/odbc/src/odbc &&	$(MAKE) cleanall
 	cd conn &&			$(MAKE) clean
 	cd conn/jdbc_type2    &&        $(MAKE) clean
-	cd conn/trafci &&		$(MAKE) clean
 	cd rest &&			$(MAKE) clean
 	cd ../dcs &&			$(MAKE) clean
 	cd ../wms &&			$(MAKE) clean
 	cd dbmgr &&			$(MAKE) cleanall
-	cd sql/lib_mgmt &&		$(MAKE) cleanall
 	cd ../install &&                $(MAKE) cleanall
-	cd common  &&                   $(MAKE) clean
 	$(RM) -r ../${DISTRIBUTION_DIR}
 
 package-all: package pkg-sql-regress pkg-phx-tests pkg-dcs-tests
@@ -147,7 +121,7 @@ pkg-product: all dcs rest wms pkg-client
 deb-pkg-product: all dcs rest wms
 	cd sqf && $(MAKE) debpackage 2>&1 | sed -e "s/$$/	##(Package)/";exit $${PIPESTATUS[0]}
 
-pkg-client: ci ndcs
+pkg-client:  
 	cd conn &&  make all 2>&1 | sed -e "s/$$/	##(Package clients)/" ; exit $${PIPESTATUS[0]}
 
 # Package SQL regression tests (all target produces some regress/tool files so do that first)
@@ -183,7 +157,7 @@ ifeq ($(SQ_BUILD_TYPE), release)
 endif
 
 # Package installer
-pkg-installer:  dbsecurity
+pkg-installer:  
 	cd ../install && $(MAKE) 2>&1 | sed -e "s/$$/	##(Package installer)/";exit $${PIPESTATUS[0]}
 
 version:
@@ -310,14 +284,11 @@ rest/.project:
 dcs/.project:
 	cd ../dcs && $(MAVEN) eclipse:eclipse
 
-sql/.project: dbsecurity
-	cd sql  && $(MAVEN) eclipse:eclipse
+
 
 sqf/src/seatrans/hbase-trx/.project:
 	cd sqf/src/seatrans/hbase-trx && $(MAVEN) -f pom.xml.apache eclipse:eclipse
 
-common/.project:
-	cd common  && $(MAVEN) eclipse:eclipse
 
 .project:
 	cp sqf/export/limited-support-tools/eclipse.project .project
@@ -334,4 +305,3 @@ trafinstall:
 	cd $(TRAF_HOME)/sql/scripts && install_traf_components
 
 lib_mgmt: foundation
-	cd sql/lib_mgmt && $(MAKE) all
