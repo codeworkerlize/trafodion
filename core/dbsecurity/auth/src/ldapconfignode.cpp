@@ -54,7 +54,6 @@
 #define LDAP_SASL_SIMPLE 1
 //#define OPENLDAP_DEBUG 1
 
-#include <lber.h>
 #include <stdio.h>
 #include <string.h>
 #include <strings.h>
@@ -69,7 +68,6 @@
 #include <unistd.h>
 #include <netdb.h>
 #include <errno.h>
-#include <ldap.h>
 #include <ctime>
 #include <netdb.h>
 #include <chrono>

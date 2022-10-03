@@ -201,7 +201,6 @@ ConfigNodeContents &self;
       std::vector<AuthEvent> & authEvents,
       char                   * hostName);
 
-   //LDAPMessage* need ldap.h
    void *searchObject(
        std::vector<AuthEvent> &,
        const char *,

@@ -86,7 +86,7 @@ INCLUDES	= -I. -I./inc -I ../shared/inc \
 			-I ../../sql/sqlcomp
 
 
-LINK_OPTIONS	= -L$(LIBEXPDIR) -L$(LOG4CPLUS_LIB_DIR) -lldap -lssl -llber -llog4cplus -lcrypto
+LINK_OPTIONS	= -L$(LIBEXPDIR) -L$(LOG4CPLUS_LIB_DIR) -lldap -lssl -llog4cplus -lcrypto
 LINK_OPTIONS   += $(LNK_FLGS)
 
 $(LIBEXPDIR)/libsqauth.so:	$(OBJS)

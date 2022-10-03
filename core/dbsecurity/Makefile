@@ -32,7 +32,7 @@ RM	= /bin/rm
 CP	= /bin/cp
 
 .PHONY: all
-all: verhdr auth cert dist license sentryauth
+all: verhdr auth cert dist  
 
 
 .PHONY: verhdr
@@ -53,16 +53,11 @@ dist:
 	$(CP) -p scripts/update_auth $(TRAF_HOME)/sql/scripts
 	$(CP) -p {scripts/distcacert,scripts/certcheck} $(TRAF_HOME)/sql/scripts
 
-.PHONY: license 
-license:
-	cd license; $(MAKE)
 
-.PHONY: sentryauth
-sentryauth: 
-	cd sentryauth; $(MAKE)
+
 
 .PHONY: clean
-clean: cleanauth cleancert cleansentryauth cleanlicense
+clean: cleanauth cleancert  cleanlicense
 	$(RM) -f $(TRAF_HOME)/sql/scripts/sqcertgen
 	$(RM) -f $(TRAF_HOME)/sql/scripts/update_auth
 	$(RM) -f {$(TRAF_HOME)/sql/scripts/distcacert, $(TRAF_HOME)/sql/scripts/certcheck}
@@ -70,9 +65,7 @@ clean: cleanauth cleancert cleansentryauth cleanlicense
 .PHONY: cleanall
 cleanall: cleanallauth cleanallcert cleanallsentryauth cleanalllicense
 
-.PHONY: cleanlicense
-cleanlicense:
-	cd license; $(MAKE) clean
+
 
 .PHONY: cleanauth
 cleanauth:
@@ -90,15 +83,5 @@ cleanallauth:
 cleanallcert:
 	cd cert; $(MAKE) cleanall
 
-.PHONY: cleansentryauth
-cleansentryauth:
-	cd sentryauth; $(MAKE) clean
-	
-.PHONY: cleanallsentryauth
-cleanallsentryauth:
-	cd sentryauth; $(MAKE) cleanall
 
-.PHONY: cleanalllicense
-cleanalllicense:
-	cd license; $(MAKE) cleanall
 

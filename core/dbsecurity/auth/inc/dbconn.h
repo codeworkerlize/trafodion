@@ -4,7 +4,6 @@
 #include <vector>
 #include <map>
 #include <string>
-#include <ldap.h>
 #include <sql.h>
 #include <sqlext.h>
 #include <unordered_map>

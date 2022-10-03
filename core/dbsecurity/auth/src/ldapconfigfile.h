@@ -68,7 +68,7 @@ enum LDAPConfigFileErrorCode {
 enum SSL_Option {
    NO_SSL  = 0,   //No SSL -- unencrypted connection
    YES_SSL = 1,   //SSL connection - LDAP Secured - ldaps://
-   YES_TLS = 2    //TLS connection - ldap:// + StartTLS
+   YES_TLS = 2  
 };
 
 enum {MAX_HOSTNAME_LENGTH = 255};

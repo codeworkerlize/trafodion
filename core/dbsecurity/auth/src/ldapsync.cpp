@@ -271,7 +271,6 @@ int main(int argc, char *argv[])
             {"dsn", required_argument, NULL, 'd'},
             {"usename", required_argument, NULL, 'u'},
             {"password", required_argument, NULL, 'p'},
-            {"ldap", required_argument, NULL, 'f'},
             {"sectionname", required_argument, NULL, 's'},
             {"type", required_argument, NULL, 't'},
             {"userfilter", required_argument, NULL, '1'},
@@ -418,7 +417,6 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
-    //check ldap config
     {
         string cmd = "ldapconfigcheck -file ";
         FILE *pp = NULL;

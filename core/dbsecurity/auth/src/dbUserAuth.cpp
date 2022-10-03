@@ -1821,10 +1821,7 @@ static void authenticateUser(
       if (!userRegistered)
       {
          //
-         //  find an ldap configuration section where the user exists
-         //  if num_groups > 0, search only sections associated with the
-         //  list of groups. Otherwise, search all sections.
-         //
+
          startTime = JULIANTIMESTAMP();
          retCode = findConfigSection (authDetails.num_groups,
                                       authDetails.group_list,

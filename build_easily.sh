@@ -1,33 +1,4 @@
-#!/bin/sh
-
-# @@@ START COPYRIGHT @@@
-#
-# Licensed to the Apache Software Foundation (ASF) under one
-# or more contributor license agreements.  See the NOTICE file
-# distributed with this work for additional information
-# regarding copyright ownership.  The ASF licenses this file
-# to you under the Apache License, Version 2.0 (the
-# "License"); you may not use this file except in compliance
-# with the License.  You may obtain a copy of the License at
-#
-#   http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing,
-# software distributed under the License is distributed on an
-# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-# KIND, either express or implied.  See the License for the
-# specific language governing permissions and limitations
-# under the License.
-#
-# @@@ END COPYRIGHT @@@
-#
-#
-# file:build_easily.sh
-# function:build trafodion components based.
-#          output compile information into file build_log
-# parameter:None
-# commenting components below to avoid repeated compilation
-#
+#!/bin/bash
 
 log_dir=$TRAF_HOME/../../"build_logs"
 
@@ -72,13 +43,12 @@ export SQ_BUILD_TYPE=${version}
 ######  componetname command  logfile  src_path
 process "sqroot"     "make setupdir"  "sqroot.log"     "$TRAF_HOME"
 process "verhdr"     "make genverhdr" "verhdr.log"     "$TRAF_HOME"
-process "mpi"        "make sq-local"  "mpi.log"        "$TRAF_HOME/../mpi"
-process "dbsecurity" "make all"       "dbsecurity.log" "$TRAF_HOME/../dbsecurity"
+# process "dbsecurity" "make all"       "dbsecurity.log" "$TRAF_HOME/../dbsecurity"
 process "seamonster" "make all"       "seamonster.log" "$TRAF_HOME/../seamonster/src"
 
 process "foundation/genverhdr" "make genverhdr"   "foundation/genverhdr.log" "$TRAF_HOME"
 process "foundation/make_sqevlog" "make"          "foundation/sqev.log"      "$TRAF_HOME/sqevlog"
-process "foundation/seabed"       "make"          "foundation/seabed.log"    "$TRAF_HOME/src/seabed"
+# process "foundation/seabed"       "make"          "foundation/seabed.log"    "$TRAF_HOME/src/seabed"
 process "common"                  "make"          "common.log"               "$TRAF_HOME/../common"
 process "foundation/tm"           "make"          "foundation/tm.log"        "$TRAF_HOME/src/tm"
 process "foundation/rc"           "make"          "foundation/rc.log"        "$TRAF_HOME/src/rc"
@@ -97,6 +67,5 @@ process "wms"                     "make" "wms.log" "$TRAF_HOME/../../wms"
 process "rest"                    "make" "rest.log" "$TRAF_HOME/../rest"
 process "dcs"                     "make" "dcs.log" "$TRAF_HOME/../../dcs"
 process "mxosrvr/odbc"            "make" "mxosrvr.log" "$TRAF_HOME/../conn/odbc/src/odbc"
-#process "dbmgr" "make" "dbmgr.log" "$TRAF_HOME/../dbmgr"
 
 printf "\e[32mBUILD SUCCESS\e[0m\n"
