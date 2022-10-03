@@ -360,18 +360,7 @@ NodeMapEntry::operator=(const NodeMapEntry& other)
 
 //=======================================================
 
-HiveNodeMapEntry::HiveNodeMapEntry(const HiveNodeMapEntry& other, CollHeap* heap ) : NodeMapEntry(other, heap), scanInfo_(other.scanInfo_, heap)
-{
-}
 
-HiveNodeMapEntry&
-HiveNodeMapEntry::operator=(const HiveNodeMapEntry& other)
-{
-   NodeMapEntry::operator=(other);
-   scanInfo_ = other.scanInfo_;
-
-   return *this;
-}
 
 // to be called from the debugger
 void 
@@ -472,9 +461,7 @@ NodeMap::NodeMap (CollHeap* heap,
 
       switch ( type_ )
       {
-        case NodeMap::HIVE: 
-          entryCopy =  new (heap) HiveNodeMapEntry(state, heap);
-          break;
+
 
         case NodeMap::HBASE: 
           entryCopy =  new (heap) HBaseNodeMapEntry(state, heap);
@@ -510,9 +497,7 @@ NodeMap::NodeMap (CollHeap* heap,
 
       switch ( type_ )
       {
-        case NodeMap::HIVE: 
-          entry = new (heap) HiveNodeMapEntry(state, heap);
-          break;
+
 
         case NodeMap::HBASE: 
           entry = new (heap) HBaseNodeMapEntry(state, heap);
@@ -581,10 +566,7 @@ NodeMap::NodeMap(const NodeMap& other, CollHeap* heap)
               entryCopy = new (heap_) NodeMapEntry(*other.map_[idx],heap_) ;
               break;
 
-           case HIVE:
-              entryCopy = new (heap_) 
-                   HiveNodeMapEntry(*(HiveNodeMapEntry*)other.map_[idx],heap_) ;
-              break;
+
 
            case HBASE:
               entryCopy = new (heap_) 
@@ -1721,10 +1703,7 @@ NodeMap::setNodeMapEntry(const CollIndex     position,
     }
 
   map_.insertAt(position, 
-                ( type() == NodeMap::SQ ) ? 
                   new (heap) NodeMapEntry(entry,heap) 
-                   :
-                  new (heap) HiveNodeMapEntry((HiveNodeMapEntry&)entry,heap) 
                 );
   
   resetCachedValues();
@@ -1953,29 +1932,7 @@ NodeMap::hasRemotePartitions() const
   return FALSE;
 }
 
-NABoolean NodeMap::useLocalityForHiveScanInfo()
-{
-  NABoolean result =
-    (CmpCommon::getDefaultLong(HIVE_LOCALITY_BALANCE_LEVEL) > 0);
-  const NAWNodeSet *availableNodes =
-    CmpCommon::context()->getAvailableNodes();
 
-  if (CURRCONTEXT_CLUSTERINFO->hasVirtualNodes() &&
-      CmpCommon::getDefault(HIVE_SIMULATE_REAL_NODEMAP) == DF_OFF)
-    result = FALSE;
-
-  // don't use locality if we are in a multi-tenant environment and
-  // the tenant does not cover all the nodes
-  // NOTE: This could be an issue during resizing of a cluster, when
-  // the tenant's cluster size does not match the physical cluster
-  // size. We will turn off locality during that time.
-  if (availableNodes &&
-      !availableNodes->canUseAllNodes(CURRCONTEXT_CLUSTERINFO))
-    result = FALSE;
-
-  return result;
-}
- 
 void NodeMap::printToLog(const char* indent, const char* title) const
 {
   NAString logFile = ActiveSchemaDB()->getDefaults().getValue(HIVE_HDFS_STATS_LOG_FILE);
@@ -2061,57 +2018,12 @@ NodeMap::print(FILE* ofd, const char* indent, const char* title) const
       if (!entry)
 	fprintf(ofd,"%s %s is empty!!!  This is a bug!!!\n","    ",S);
 
-      if ( type_ == NodeMap::HIVE) {
-        fprintf(ofd,"HiveNodeMapEntry[%d] (assigned to node %d) :\n",nodeIdx,entry->getNodeNumber());
-	 ((HiveNodeMapEntry*)entry)->print(ofd, "    ", "scanInfo: ");
-      } else {
+ {
          sprintf(S,"NodeMapEntry[%3d] :",nodeIdx);
 	 entry->print(ofd, "    ", S);
       }
     }
 
-  if ( type_ == NodeMap::HIVE && map_.entries() > 1)
-    {
-      const int maxESPs = 4096;
-      Int64 bytesPerESP[maxESPs];
-      Int64 locBytesPerESP[maxESPs];
-      Int64 totalBytes = 0;
-      Int64 totalLocBytes = 0;
-      Int32 numESPs = MINOF(map_.entries(), maxESPs);
-      
-      for (Int32 i=0; i<maxESPs; i++) bytesPerESP[i] = locBytesPerESP[i] = 0;
-
-      for (Lng32 i = 0; i < numESPs; i++)
-        {
-          HiveNodeMapEntry * entry = (HiveNodeMapEntry *) map_[i];
-          for (CollIndex j=0; j<entry->getScanInfo().entries(); j++)
-            {
-              Int64 span = entry->getScanInfo()[j].span_;
-              bytesPerESP[i] += span;
-              totalBytes += span;
-              if (entry->getScanInfo()[j].localBlockNum_ >= 0)
-                {
-                  locBytesPerESP[i] += span;
-                  totalLocBytes += span;
-                }
-            }
-        }
-
-      if (totalBytes > 0)
-        {
-          for (Lng32 e = 0; e < numESPs; e++)
-            {
-              fprintf(ofd,"ESP %4d reads %12ld bytes (%4ld %% of avg, %4ld %% local)\n",
-                      e,
-                      bytesPerESP[e],
-                      (100*bytesPerESP[e]/totalBytes),
-                      (100*locBytesPerESP[e]/MAXOF(bytesPerESP[e],1)));
-            }
-          fprintf(ofd,"Total          %12ld bytes, %4ld %% local",
-                  totalBytes,
-                  (100*totalLocBytes/totalBytes));
-        }
-    }
 
   fprintf(ofd,
        "*********************************************************************\n"
@@ -2318,22 +2230,3 @@ Int32 NodeMap::getNumberOfUniqueNodes() const
 
   return count;
 }
-
-void
-HiveNodeMapEntry::print(FILE* ofd, const char* indent, const char* title) const
-{
-  BUMP_INDENT(indent);
-
-  fprintf(ofd,"%s %s\n", NEW_INDENT, title);
-
-  for (CollIndex i=0; i<scanInfo_.entries(); i++) {
-     fprintf(ofd,"%s [offs=%12ld, span=%12ld, %s file=%s]\n",
-             NEW_INDENT,
-             scanInfo_[i].offset_,
-             scanInfo_[i].span_,
-             ((scanInfo_[i].localBlockNum_ >= 0) ? "loc" : "   "),
-             (scanInfo_[i].file_->getFileName()).data());
-  }
-
-} // HiveNodeMapEntry::print()
-

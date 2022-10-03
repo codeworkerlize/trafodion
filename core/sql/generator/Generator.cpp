@@ -244,52 +244,7 @@ Generator::Generator(CmpContext* currentCmpContext, NAHeap* workingHeap) :
 
   NExLogPathNam_[0] = '\0' ;
 
-  //
-  // If the PCode Expression Cache debugging CQDs are set up,
-  // we set the debugging-enabled flag in the current PCode
-  // Expression Cache object for the current Context and
-  // save the pathname for the *directory* we will use to
-  // leave debugging log files.
-  // NOTE: The same directory is used for debugging log
-  // files for debugging the Native Expressions feature
-  // but the names of the log files have a different prefix.
-  // Also, the PCODE_DEBUG_LOGDIR cqd is shared by the two
-  // debugging capabilities, so if that cqd is set up, then
-  // we also save the pathname of the Native Expressions
-  // debugging log file at this time.
-  //
-  Int32 PCEC_Dbg = getDefaultAsLong(PCODE_EXPR_CACHE_DEBUG) ;
-  CURROPTPCODECACHE->setPCECLoggingEnabled( PCEC_Dbg );
 
-  NAString PCDLogDir ;
-  CmpCommon::getDefault(PCODE_DEBUG_LOGDIR, PCDLogDir, FALSE);
-  Int32 logDirLen = PCDLogDir.length() ;
-
-  //
-  // If a PCode Debug Log Directory has already been specified
-  // then do nothing.  There is no known reason for changing
-  // log directories in the middle of a session and, furthermore,
-  // if we allowed it, only one context would see the new value
-  // for the CQD, so the overall results would probably not be
-  // what the user (developer) was hoping for.
-  //
-  if ( logDirLen > 0 && CURROPTPCODECACHE->getPCDlogDirPath() == NULL )
-  {
-     CURROPTPCODECACHE->setPCDlogDirPath( &PCDLogDir );
-  }
-
-#define MAX_UNIQ_PART (8+4+16)
-  if ( logDirLen < (sizeof(NExLogPathNam_) - MAX_UNIQ_PART - 1 ) )
-  {
-    strncpy( NExLogPathNam_ , PCDLogDir.data(), logDirLen );
-
-    // Add a unique value to end of PCODE_DEBUG_LOGDIR name
-    sprintf( &NExLogPathNam_[logDirLen], "/NELOG.%x.%lx"
-           , CURROPTPCODECACHE->getUniqFileNamePid()
-           , CURROPTPCODECACHE->getUniqFileNameTime() );
-
-    NExDbgInfoObj_.setNExLogPath( &NExLogPathNam_[0] );
-  }
 
   // Initialize other member variables.
   //
@@ -2355,7 +2310,6 @@ TrafDesc * Generator::createVirtualTableDesc
             indexInfo[i].numSaltPartns;
           if (curr_index_desc->indexesDesc()->numSaltPartns > 0)
           {
-            // the presence of the files descriptor tells createNAFileSets
             // that the index is salted like the base table
             TrafDesc * ci_files_desc = TrafAllocateDDLdesc(DESC_FILES_TYPE, space);
             ci_files_desc->filesDesc()->setAudited(TRUE); // audited table

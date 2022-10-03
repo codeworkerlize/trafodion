@@ -992,8 +992,7 @@ NABoolean ItemExpr::doesExprEvaluateToConstant(NABoolean strict,
   if (getOperatorType() == ITM_COMPOSITE_CREATE)
     return FALSE;
 
-  if (getOperatorType() == ITM_LOBINSERT)
-    return FALSE;
+
 
   // An aggrgate, sequence function  and instantiateNull itemExprs require state information (i.e. other rows)
   // to determine their value. Therefore they cannot be a constant. Also a rowset array scan 
@@ -8229,14 +8228,7 @@ NABoolean BuiltinFunction::isCacheableExpr(CacheWA& cwa)
 	return FALSE;
       }
     break;
-    case ITM_JSONOBJECTFIELDTEXT:
-    case ITM_JSON_VALUE:
-    case ITM_JSON_QUERY:
-    case ITM_JSON_EXISTS:
-    {
-	    return FALSE;
-    }
-    break;
+
     // for ngram
     case ITM_FIRSTNGRAM:
     {
@@ -8381,8 +8373,7 @@ const NAString BuiltinFunction::getText() const
       return "nvl";
     case ITM_OVERLAY:
       return "overlay";
-    case ITM_JSONOBJECTFIELDTEXT:
-      return "json_object_field_text";
+
     // for ngram
     case ITM_FIRSTNGRAM:
       return "firstngram";
@@ -8703,12 +8694,7 @@ ItemExpr * BuiltinFunction::copyTopNode(ItemExpr * derivedNode,
                                 outHeap, 2, child(0), child(1));
 	  }
 	break;
-        case ITM_JSONOBJECTFIELDTEXT:
-          {
-	    result = new (outHeap) BuiltinFunction(getOperatorType(),
-						   outHeap, 2, child(0), child(1));
-          }
-        break;
+
 
   // for ngram
   case ITM_FIRSTNGRAM:
@@ -17198,50 +17184,7 @@ NABoolean Aggregate::isRangeOfValuesAggregate()
    return FALSE;
 }
 
-ItemExpr * JsonExistsFunc::copyTopNode(ItemExpr *derivedNode, CollHeap* outHeap)
-{
-  ItemExpr *result = NULL;
 
-  if (derivedNode == NULL)
-    {
-      result = new (outHeap) JsonExistsFunc(child(0), charSet_, child(1), behaviorOnErr_);
-    }
-  else
-    result = derivedNode;
-
-  return BuiltinFunction::copyTopNode(result, outHeap);
-
-}
-
-ItemExpr * JsonValueFunc::copyTopNode(ItemExpr *derivedNode, CollHeap* outHeap)
-{
-    ItemExpr *result = NULL;
-    
-    if (derivedNode == NULL)
-    {
-        result = new(outHeap) JsonValueFunc(child(0), charSet_, child(1), outType_, 
-                                            behaviorOnErr_, defOnErr_, behaviorOnEmpty_, defOnEmpty_);
-    }
-    else
-        result = derivedNode;
-    
-    return BuiltinFunction::copyTopNode(result, outHeap);
-}
-
-ItemExpr * JsonQueryFunc::copyTopNode(ItemExpr *derivedNode, CollHeap* outHeap)
-{
-    ItemExpr *result = NULL;
-    
-    if (derivedNode == NULL)
-    {
-        result = new(outHeap) JsonQueryFunc(child(0), charSet_, child(1), outType_,
-                                            behaviorWrap_, behaviorQuote_, behaviorOnErr_, behaviorOnEmpty_);
-    }
-    else
-        result = derivedNode;
-    
-    return BuiltinFunction::copyTopNode(result, outHeap);
-}
 
 SplitPart::~SplitPart() {}
 

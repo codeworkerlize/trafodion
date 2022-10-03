@@ -4514,7 +4514,6 @@ Criterion ColStats::decideReductionCriterion(Source invokedFrom,
           return NONE;
 
 	//if invoked histograms for base tables
-	//have been obtained using FetchHistograms
 	if(invokedFrom == AFTER_FETCH)
 	{
 		//check if histogram caching is on
@@ -7639,13 +7638,7 @@ void StatsList::deepDelete()
 		(*this)[i]->deepDelete();
 	}
 }
-//------------------------------------------------------------------------
-// StatsList::deepCopy()
-// does a deep copy using other. This method is currently only being used
-// by HistogramCache to create a copy to cache and to return to the caller
-// groupUecValues_ and groupUecColumns_ do not need to be deep copied
-// because FetchHistograms does not return/load these two members
-//------------------------------------------------------------------------
+
 void StatsList::deepCopy(const StatsList& other, NAMemory * heap)
 {
 	unsigned short members = (short)other.entries();

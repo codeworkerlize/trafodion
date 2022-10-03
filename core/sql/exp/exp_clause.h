@@ -200,7 +200,6 @@ public:
     FUNC_SHA2_ID             = 129,
     FUNC_SOUNDEX_ID          = 130,
     REGEXP_CLAUSE_CHAR_ID    = 131,
-    FUNC_JSON_ID             = 132,
     FUNC_AES_ENCRYPT         = 133,
     FUNC_AES_DECRYPT         = 134,
     FUNC_REVERSE_ID          = 135,
@@ -223,10 +222,6 @@ public:
     FUNC_SLEEP_ID                  = 151,
     FUNC_UNIX_TIMESTAMP_ID         = 152,
 
-    //ANSI JSON FUNCS
-    FUNC_JSON_EXISTS_ID      = 153,
-    FUNC_JSON_VALUE_ID       = 154,
-    FUNC_JSON_QUERY_ID       = 155,
 
     FUNC_SPLIT_PART_ID       = 156,
 

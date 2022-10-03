@@ -1246,19 +1246,7 @@ void Scan::generateCacheKey(CacheWA &cwa) const
     cwa += " redef:";
     cwa += redefTime;
 
-    if (tbl->isHiveTable()) {
-      char lastModTime[40];
-      Int64 mTime = tbl->getClusteringIndex()->getHHDFSTableStats()->getModificationTS();
-      convertInt64ToAscii(mTime, lastModTime);
-      cwa += " lastMod:";
-      cwa += lastModTime;
 
-      cwa += " numFiles:";
-      char numFiles[20];
-      Int64 numberOfFiles = tbl->getClusteringIndex()->getHHDFSTableStats()->getNumFiles();
-      sprintf(numFiles, " %ld", numberOfFiles); 
-      cwa += numFiles ;
-    }
     // save pointer to this table. later, QueryCache::addEntry will use
     // this pointer to get to this table's histograms's timestamp
     cwa.addTable( (NATable*)tbl );
@@ -1343,11 +1331,7 @@ NABoolean Scan::isCacheableExpr(CacheWA& cwa)
 	(getTableDesc()->getNATable()->isHbaseCellTable()))
       return FALSE;
 
-    // s3 hosted hive tables are not cacheable, except if CQD is set
-    if ((getTableDesc()->getNATable()->isHiveTable()) && !(getTableDesc()->getNATable()->isView()) &&
-        (getTableDesc()->getNATable()->getClusteringIndex()->getHHDFSTableStats()->isS3Hosted()) &&
-        (CmpCommon::getDefault(HIVE_NATABLE_CACHE_S3_TABLES) == DF_OFF))
-         return FALSE;
+
 
     if (stream_) { // pub-sub streams are not cacheable
       return FALSE;

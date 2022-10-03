@@ -90,9 +90,8 @@
 #include "CompException.h"
 
 #include "logmxevent.h"
-#include "hs_util.h"
 #include "CmpStatement.h"
-#include "PCodeExprCache.h"
+// #include "PCodeExprCache.h"
 #include "Globals.h"
 #include "MemoryTableDB.h"
 #include "SharedCache.h"
@@ -1099,16 +1098,7 @@ CmpMain::CmpMain() : attrs()
 {
   cmpISPInterface.InitISPFuncs();
 
-  // Ensure PCEC is sized according to latest CQD value
-  Int32 newsiz = getDefaultAsLong(PCODE_EXPR_CACHE_SIZE);
-  if (newsiz >= 0) // Note: If negative, just leave cache alone
-  {
-     if ( newsiz != CURROPTPCODECACHE->getMaxSize() )
-     {
-        CURROPTPCODECACHE->resizeCache( newsiz );
-        CURROPTPCODECACHE->clearStats(); // Do this after resizeCache(...)
-     }
-  }
+
 }
 
 void CmpMain::setInputArrayMaxsize(const ULng32 maxsize)
@@ -1230,7 +1220,6 @@ Int32 CmpMain::getAnySiKeys(TimeVal      begTime,
 
   // SQL_EXEC_GetSecInvalidKeys() is coded to work in JulianTimeStamp values
   // so add number of microseconds between 4713 B.C., Jan 1 and the Epoc (Jan 1, 1970).
-  prev_QI_Time += HS_EPOCH_TIMESTAMP ;
   Int64 Max_QI_Time = prev_QI_Time ;
 
   sqlcode = SQL_EXEC_GetSecInvalidKeys( prev_QI_Time,
@@ -1238,8 +1227,6 @@ Int32 CmpMain::getAnySiKeys(TimeVal      begTime,
                                      qiKeyArraySize ,
                                      retNumSiKeys ,
                                      &Max_QI_Time );
-  Max_QI_Time -= HS_EPOCH_TIMESTAMP ; // Convert back to "Time since the Epoc"
-  prev_QI_Time -= HS_EPOCH_TIMESTAMP ; // Convert back to "Time since the Epoc"
  
   if (sqlcode == 0)
   {

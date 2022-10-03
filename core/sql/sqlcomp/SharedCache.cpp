@@ -569,7 +569,6 @@ void SharedDescriptorCache::findAll()
   if ( !table_ )
      return;
 
-  parquet::StopWatch s1; s1.Start();
 
   Int32 ctEnabled = 0;
   Int32 ctDisabled = 0;
@@ -634,7 +633,6 @@ void SharedDescriptorCache::findAll()
   float avg = ((ctEnabled + ctDisabled)>0) ? (float)totalSize/(ctEnabled + ctDisabled) : 0;
 
   cout << "FindAll(): finding all pairs of (key, value) from hash table" 
-       << " takes " << s1.Stop() << "us." 
        << " Total enabled found=" << ctEnabled
        << " Total disabled found=" << ctDisabled
        << ", size in bytes: total=" << totalSize
@@ -647,8 +645,7 @@ void SharedTableDataCache::findAll()
   if (!memoryTableDB_)
     return;
 
-  parquet::StopWatch s1;
-  s1.Start();
+
 
   Int32 ctEnabled = 0;
   Int32 ctDisabled = 0;
@@ -719,7 +716,6 @@ void SharedTableDataCache::findAll()
   float avg = ((ctEnabled + ctDisabled) > 0) ? (float)totalSize / (ctEnabled + ctDisabled) : 0;
 
   cout << "FindAll(): finding all pairs of (key, value) from hash table"
-       << " takes " << s1.Stop() << "us."
        << " Total enabled found=" << ctEnabled
        << " Total disabled found=" << ctDisabled
        << ", size in bytes: total=" << totalSize
@@ -1155,7 +1151,6 @@ SharedDescriptorCache* SharedDescriptorCache::destroyAndMake()
 
 void SharedDescriptorCache::populateWithSynthesizedData(int pairs, size_t maxValueLen)
 {
-  parquet::StopWatch s1; s1.Start();
 
   srand((Int32)19);
 
@@ -1180,10 +1175,7 @@ void SharedDescriptorCache::populateWithSynthesizedData(int pairs, size_t maxVal
   NABoolean inserted = TRUE;
   for (i=0; i<pairs; i++) {
 
-/*
-    if ( getSharedHeap()->getAllocSize() > threshold )
-      break;
-*/
+
 
     char buf[20];
     NAString idAsName(str_itoa(rand(), buf));
@@ -1221,7 +1213,6 @@ void SharedDescriptorCache::populateWithSynthesizedData(int pairs, size_t maxVal
 
   cout << endl
        << "Loading " << ct << " pairs of (key, value) into hash table " 
-       << " takes " << s1.Stop() << "us." 
        << " Actual # loaded=" << ct
        << ", size in bytes: total=" << totalSize
        << ", avg=" << avgSize
@@ -1243,7 +1234,6 @@ void SharedDescriptorCache::populateWithSynthesizedData(int pairs, size_t maxVal
 
 void SharedDescriptorCache::lookUpWithSynthesizedData(int pairs)
 {
-  parquet::StopWatch s1; s1.Start();
 
   srand((Int32)19);
 
@@ -1276,12 +1266,9 @@ void SharedDescriptorCache::lookUpWithSynthesizedData(int pairs)
     }
   }
 
-  Int64 delta = s1.Stop();
   float avg = (ct>0) ? (float)totalSize/ct : 0;
 
   cout << "Lookup " << i << " pairs of (key, value) from hash table " 
-       << " takes " << delta  << "us." 
-       << " Avg=" << delta/i  << "us." 
        << " Total found=" << ct
        << ", size in bytes: total=" << totalSize
        << ", avg=" << avg
@@ -1903,25 +1890,16 @@ void testSharedMemorySequentialScan(Int32 argc, char **argv)
 
   char* metaEndAddr = metaBaseAddr + memoryLen - 1;
 
-  parquet::StopWatch s1;
 
-  s1.Start();
 
   char c = 0;
   for (int i=0; i<memoryLen; i++ ) {
      c = metaBaseAddr[i];  
   }
 
-  cout << "Accessing " << memoryLen << "bytes in shared memory" 
-       << " takes " << s1.Stop() << "us" << endl;
 
-  s1.Start();
-  char* sysMemory = new char[memoryLen];
-  for (int i=0; i<memoryLen; i++ ) {
-     c = sysMemory[i];  
-  }
-  cout << "Accessing " << memoryLen << "bytes in system memory" 
-       << " takes " << s1.Stop() << "us" << endl;
+
+
 }
 
 void testSharedMemoryHashDictionaryPopulate()

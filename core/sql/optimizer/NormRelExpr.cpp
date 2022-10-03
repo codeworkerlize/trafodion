@@ -55,7 +55,6 @@
 #include "Analyzer.h"
 #include "MultiJoin.h"
 #include "CompException.h"
-#include "ExpPCodeOptimizations.h"
 #include <math.h>
 
 #include "OptRange.h"
@@ -64,7 +63,6 @@
 #include "QRDescGenerator.h"
 #include "ItemSample.h"
 #include "HBaseClient_JNI.h"
-#include "HiveClient_JNI.h"
 
 #ifndef TRANSFORM_DEBUG_DECL		// artifact of NSK's OptAll.cpp ...
 #define TRANSFORM_DEBUG_DECL
@@ -6834,7 +6832,7 @@ NABoolean Scan::passSemiJoinHeuristicCheck(ValueId vid, Lng32 numValues,
    NABoolean unSupportedType = FALSE;
    NABoolean noPCodeSupport = FALSE;
    UInt32 optFlags = (UInt32)CmpCommon::getDefaultLong(PCODE_OPT_FLAGS);
-   if (((optFlags & PCodeCfg::INDIRECT_BRANCH) == 0) ||
+   if (
        (pcodeOptLevel == DF_OFF) || (pcodeOptLevel == DF_MINIMUM))
    {
        noPCodeSupport = TRUE;
@@ -10723,31 +10721,7 @@ NABoolean CommonSubExprRef::createTempTable(CSEInfo &info)
   // -----------------------------
 
   if (result)
-    if (tempTableType == CSEInfo::HIVE_TEMP_TABLE)
-      {
-        int m = CmpCommon::diags()->mark();
-        if (HiveClient_JNI::executeHiveSQL(tempTableDDL) != HVC_OK)
-          {
-            if (CmpCommon::statement()->recompiling() ||
-                CmpCommon::statement()->getNumOfCompilationRetries() > 0)
-              // ignore temp table creation errors if we are
-              // recompiling, the temp table may have been
-              // created in a previous compilation attempt
-              // (if not, we will run into other errors later)
-              CmpCommon::diags()->rewind(m);
-            else
-              {
-                result = FALSE;
-                // we will fall back to a previous tree and try to
-                // recover, make sure there are no errors from our
-                // failed attempt in the diags area
-                CmpCommon::diags()->negateAllErrors();
-                emitCSEDiagnostics(
-                     "Error in creating Hive temp table");
-              }
-          }
-      }
-    else
+
       {
         // Todo: CSE: create volatile table
         emitCSEDiagnostics("Volatile temp tables not yet supported");

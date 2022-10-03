@@ -1625,10 +1625,7 @@ public:
   DescStructPtr histograms_desc;
   DescStructPtr hist_interval_desc;
 
-  // next 2 fields are set and used at runtime. They should
-  // not be part of unpack or pack methods. They are needed to track
-  // descriptors returned when hist stats are returned.
-  // Check ustat dir for FetchHistograms method for its usage.
+
   TrafDesc * currHistogramDesc;
   TrafDesc * currHistintDesc;
 

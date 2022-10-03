@@ -1453,9 +1453,7 @@ protected:
 			ExeCliInterface * cliInterface,
 			NAList<objectRefdByMe> * lockedBaseTables /* out */);
 
-  short unregisterHiveViewUsage(StmtDDLCreateView * createViewParseNode,
-                                Int64 viewUID,
-                                ExeCliInterface * cliInterface);
+
   
   short gatherViewPrivileges (const StmtDDLCreateView * createViewParseNode,
                               ExeCliInterface * cliInterface,
@@ -1749,13 +1747,7 @@ protected:
        Int64 * redefTime = NULL);
 
 public:
-  static NABoolean setupQueryTreeForHiveDDL(
-       Parser::HiveDDLInfo * hiveDDLInfo,
-       char * inputStr, 
-       CharInfo::CharSet inputStrCharSet,
-       NAString currCatName,
-       NAString currSchName,
-       ExprNode** node);
+
 
 protected:
 
@@ -2208,28 +2200,6 @@ protected:
        ComObjectType objType = COM_BASE_TABLE_OBJECT
    );
 
-  short registerHiveView
-  (
-       const NAString &catalogNamePart,
-       const NAString &schemaNamePart,
-       const NAString &objectNamePart,
-       Int32 objOwnerId,
-       Int32 schemaOwnerId,
-       NATable *naTable,
-       ExeCliInterface &cliInterface,
-       NABoolean isInternal,
-       NABoolean cascade
-   );
-
-  short unregisterHiveView
-  (
-       const NAString &catalogNamePart,
-       const NAString &schemaNamePart,
-       const NAString &objectNamePart,
-       NATable *naTable,
-       ExeCliInterface &cliInterface,
-       NABoolean cascade
-   );
 
   short unregisterHiveSchema
   (
@@ -2321,9 +2291,7 @@ protected:
   void alterSeabaseSchemaHDFSCache(StmtDDLAlterSchemaHDFSCache * alterSchemaHdfsCache);
 
   short processNamespaceOperations(StmtDDLNamespace * ns);
-  
-  void processDDLonHiveObjects(StmtDDLonHiveObjects * hddl,
-                               NAString &currCatName, NAString &currSchName);
+
 
   void dropSeabaseMD(NABoolean ddlXns, NABoolean forceOption);
   void createSeabaseMDviews();

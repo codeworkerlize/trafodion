@@ -91,6 +91,8 @@
 
 #include "Range.h"
 
+#include "ComSysUtils.h"
+
 struct ModName {
 public:
   const char * name;
@@ -2088,7 +2090,7 @@ Int32 convertJulianTimestamp(Int64 julianTimestamp, char* target)
 
 ClusterRole::ClusterRole() {
   FILE* fpipe = popen("atrxdc_get_role", "r");
-  if (fpipe > 0) {
+  if (fpipe) {
     char buf[32];
     if (fread(buf, 32, 1, fpipe) >= 0) {
       if (strncmp(buf, "primary", 7) == 0) {

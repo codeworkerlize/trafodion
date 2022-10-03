@@ -86,7 +86,6 @@
 #include "SequenceGeneratorAttributes.h"
 #include "CompilationStats.h"
 #include "RelRoutine.h"
-#include "hs_cont.h"
 #include "ComUnits.h"
 
 #include "StmtDDLCleanupObjects.h"
@@ -2500,9 +2499,7 @@ short RelRoot::codeGen(Generator * generator)
       root_tdb->setUncProcess(TRUE);
   }
   
-  // If this is a ustat query set the query type so WMS can monitor it
-  //  if (childOper == REL_DDL)
-  
+
   Int32 foundUpdStat = 0;// If this is a ustat statement, set the type 
   if (currChildOper == REL_DDL)
     {
@@ -4252,15 +4249,6 @@ short TupleList::codeGen(Generator * generator)
 	  ItemExpr * castNode = tupleExpr()[j].getItemExpr();
 	  ItemExpr * childNode = (ItemExpr *) tupleTree[j];
 
-          if ((childNode->getOperatorType() == ITM_LOBINSERT) &&
-              (childNode->getValueId().getType().getTypeQualifier() == NA_LOB_TYPE))
-            {
-              // cannot have this function in a values list with
-              // multiple tuples. Use a single tuple.
-              *CmpCommon::diags() << DgSqlCode(-4483);
-              GenExit();
-              return -1;
-            }
 
           if (castTo)
           {
@@ -4300,16 +4288,7 @@ short TupleList::codeGen(Generator * generator)
 	    tmpAssign = (Assign *)tmpAssign->bindNode(bindWA);
             setInUpdateOrInsert(bindWA, NULL);
 	    childNode = tmpAssign->getSource().getItemExpr();
-            //don't allow LOB insert in a tuple list
-            if (childNode->getOperatorType() == ITM_LOBINSERT)
-              {                                                          
-                // cannot have this function in a values list with
-                // multiple tuples. Use a single tuple.
-                *CmpCommon::diags() << DgSqlCode(-4483);
-                GenExit();
-                return -1;
-                        
-              }
+
             castNode->child(0) = childNode;
           }
           else

@@ -71,7 +71,6 @@ CPPSRC := \
 	EncodedValue.cpp \
 	EstLogProp.cpp \
 	GroupAttr.cpp \
-	HDFSHook.cpp \
 	ImplRule.cpp \
 	IndexDesc.cpp \
 	Inlining.cpp \

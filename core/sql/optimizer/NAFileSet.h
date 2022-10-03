@@ -55,7 +55,6 @@ class NAFileSetList;
 class PartitioningFunction;
 class RangePartitioningFunction;
 class TrafDesc;
-class HHDFSTableStats;
 class HbaseCreateOption;
 
 // -----------------------------------------------------------------------
@@ -122,7 +121,6 @@ public:
 	    NABoolean inMemObjectDefn,
             Int64 indexUID,
             TrafDesc *keysDesc,
-            HHDFSTableStats *hHDFSTableStats,
             Lng32 numSaltPartns,
             Lng32 numInitialSaltRegions,
             Int16 numTrafReplicas,
@@ -184,8 +182,6 @@ public:
   const Int64 &getIndexUID() const { return indexUID_; }
   Int64 &getIndexUID() { return indexUID_; }
 
-  const HHDFSTableStats *getHHDFSTableStats() const { return hHDFSTableStats_; }
-  HHDFSTableStats *getHHDFSTableStats()             { return hHDFSTableStats_; }
 
   Lng32 numSaltPartns() const { return numSaltPartns_; } 
   Lng32 numInitialSaltRegions() const { return numInitialSaltRegions_; } 
@@ -544,10 +540,7 @@ private:
 
   NABoolean thisRemoteIndexGone_;
 
-  // ---------------------------------------------------------------------
-  // HDFS file-level stats for Hive tables
-  // ---------------------------------------------------------------------
-  HHDFSTableStats *hHDFSTableStats_;
+
 
   // number of salt buckets and initial regions specified at
   // table create time in the SALT clause

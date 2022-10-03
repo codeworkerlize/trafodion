@@ -1486,7 +1486,6 @@ short ExExeUtilHBaseBulkLoadTcb::work()
         char *loadQuery = hblTdb().ldQuery_;
           if (ustatNonEmptyTable_)
             {
-              // If the ustat option was specified, but the table to be loaded
               // is not empty, we have to retract the WITH SAMPLE option that
               // was added to the LOAD TRANSFORM statement when the original
               // bulk load statement was parsed.

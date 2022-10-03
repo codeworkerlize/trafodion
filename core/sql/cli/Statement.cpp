@@ -84,7 +84,6 @@
 #include "arkcmp_proc.h"
 #include "CmpContext.h"
 
-#include "HiveClient_JNI.h"
 #include "DLock.h"
 #include "ComMemLog.h"
 
@@ -2215,75 +2214,6 @@ Statement * Statement::getCurrentOfCursorStatement(char * cursorName)
 
 }
 
-RETCODE Statement::doHiveTableSimCheck(TrafSimilarityTableInfo *si,
-                                       NABoolean &simCheckFailed,
-                                       ComDiagsArea &diagsArea)
-{
-  simCheckFailed = FALSE;
-
-  if ((si->hdfsRootDir() == NULL) || (si->modTS() == -1))
-    return SUCCESS;
- 
-  char *tmpBuf = new (&heap_) char[ComMAX_3_PART_EXTERNAL_UTF8_NAME_LEN_IN_BYTES+6];
-  Lng32 numParts = 0;
-  char *parts[4];
-  Int64 redefTime;
-
-  LateNameInfo::extractParts(si->tableName(), tmpBuf, numParts, parts, FALSE);
-  switch (numParts) {
-     case 1:
-        parts[2] = parts[0];
-        parts[1] = (char *)"default";
-        parts[0] = (char *)"HIVE";
-        break;
-     case 2:
-        parts[2] = parts[1];
-        parts[1] = parts[0];
-        parts[0] = (char *)"HIVE";
-        break;
-     case 3:
-        break;
-     default:
-        diagsArea << DgSqlCode(-24114);
-        return ERROR;
-  }
-  if (stricmp(parts[1], "HIVE") == 0)
-     parts[1] = (char *)"default";
-  ex_root_tdb *rootTdb = getRootTdb();
-  NABoolean allowSubdir = (rootTdb && rootTdb->hiveAllowSubdirs()) ? TRUE : FALSE;  
-  HVC_RetCode hvcRetcode = HiveClient_JNI::getRedefTime(parts[1], parts[2], allowSubdir, redefTime);
-  if (hvcRetcode == HVC_OK) {
-     if (redefTime > si->modTS()) {
-        simCheckFailed = TRUE;
-        char errStr[strlen(si->tableName()) + 100 + strlen(si->hdfsRootDir())];
-        snprintf(errStr,sizeof(errStr), 
-               "compiledModTS = %ld, failedModTS = %ld, failedLoc = %s", 
-               si->modTS(), redefTime, 
-               si->hdfsRootDir());
-        diagsArea << DgSqlCode(-EXE_HIVE_DATA_MOD_CHECK_ERROR)
-                  << DgString0(errStr);
-        NADELETEBASIC(tmpBuf, &heap_);
-        return ERROR;
-     }
-  } else if (hvcRetcode == HVC_DONE) {
-      char errBuf[strlen(si->tableName()) + 100 + strlen(si->hdfsRootDir())];
-      snprintf(errBuf,sizeof(errBuf), "%s (fileLoc: %s)", si->tableName(), si->hdfsRootDir());
-      diagsArea << DgSqlCode(-EXE_TABLE_NOT_FOUND)
-                << DgString0(errBuf); 
-      NADELETEBASIC(tmpBuf, &heap_);
-      return ERROR;              
-  } else {
-     diagsArea << DgSqlCode(-1192)
-          << DgString0("HiveClient_JNI::getRedefTime")
-          << DgString1("")
-          << DgInt0(hvcRetcode)
-          << DgString2(getSqlJniErrorStr());
-     NADELETEBASIC(tmpBuf, &heap_);
-     return ERROR; 
-  } 
-  NADELETEBASIC(tmpBuf, &heap_);
-  return SUCCESS;
-}
 
 RETCODE Statement::doQuerySimilarityCheck(TrafQuerySimilarityInfo * qsi,
 					  NABoolean &simCheckFailed,
@@ -2306,14 +2236,7 @@ RETCODE Statement::doQuerySimilarityCheck(TrafQuerySimilarityInfo * qsi,
         (TrafSimilarityTableInfo *)qsi->siList()->getCurr();
 
       simCheckFailed = FALSE;
-      if (si->isHive())
-        {
-          retcode = doHiveTableSimCheck(si,simCheckFailed, diagsArea);
-          if (retcode == ERROR)
-            {
-              goto error_return; // diagsArea is set
-            }
-        }
+
     } // for
 
   return SUCCESS;

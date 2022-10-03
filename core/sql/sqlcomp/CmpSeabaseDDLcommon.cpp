@@ -983,9 +983,7 @@ short CmpSeabaseDDL::createMDdescs(MDDescsInfo *&trafMDDescsInfo)
   // Load definitions of system metadata tables
   for (size_t i = 0; i < numMDTables; i++)
     {
-      // no need to do hive ddl checks for MD query compiles
-      parser.hiveDDLInfo_->init();
-      parser.hiveDDLInfo_->disableDDLcheck_ = TRUE;
+
 
       const MDTableInfo &mdti = allMDtablesInfo[i];
 
@@ -13934,7 +13932,7 @@ short CmpSeabaseDDL::executeSeabaseDDL(DDLExpr * ddlExpr, ExprNode * ddlNode,
 
 
 
-      else if (dl->getType() == RelGenLoadQueryCache::GEN_QUERYCACHE_USER)
+      if (dl->getType() == RelGenLoadQueryCache::GEN_QUERYCACHE_USER)
       {
         CURRENTQCACHE->cleanupUserQueryCache();
       }
@@ -14903,13 +14901,7 @@ short CmpSeabaseDDL::executeSeabaseDDL(DDLExpr * ddlExpr, ExprNode * ddlNode,
 
            doSeabaseCommentOn(comment, currCatName, currSchName);
         }
-      else if (ddlNode->getOperatorType() ==  DDL_ON_HIVE_OBJECTS)
-        {
-           StmtDDLonHiveObjects * hddl =
-             ddlNode->castToStmtDDLNode()->castToStmtDDLonHiveObjects();
 
-           processDDLonHiveObjects(hddl, currCatName, currSchName);
-        }
       else if (ddlNode->getOperatorType() ==  DDL_CREATE_TRIGGER)
 	{
 	   StmtDDLCreateTrigger *CreateTrigger =

@@ -1,32 +1,3 @@
-#s ****************************************************************************
-#
-# File:         Makerules.linux
-# Description:  This contains the make rules for building for a Linux target.
-#
-# Language:     GNU make
-# Date:         October 9, 2007
-#
-# @@@ START COPYRIGHT @@@
-#
-# Licensed to the Apache Software Foundation (ASF) under one
-# or more contributor license agreements.  See the NOTICE file
-# distributed with this work for additional information
-# regarding copyright ownership.  The ASF licenses this file
-# to you under the Apache License, Version 2.0 (the
-# "License"); you may not use this file except in compliance
-# with the License.  You may obtain a copy of the License at
-#
-#   http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing,
-# software distributed under the License is distributed on an
-# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-# KIND, either express or implied.  See the License for the
-# specific language governing permissions and limitations
-# under the License.
-#
-# @@@ END COPYRIGHT @@@
-# ****************************************************************************
 
 LINUX_NON_FLAVOR_TARGETS := linuxhelp linuxdoc help all
 ARCH=$(shell arch)
@@ -69,8 +40,8 @@ linuxhelp help all::
 # Environment variables define: (see sqf/LocalSettingsTemplate.sh)
 #  BISON, FLEX, LLVM, AR, UDIS86
 
-YACC       = $(BISON) -p $(YACC_VAR_PREFIX)
-LEX        = $(FLEX) -P$(YACC_VAR_PREFIX)
+YACC       = bison -p $(YACC_VAR_PREFIX)
+LEX        = flex -P$(YACC_VAR_PREFIX)
 
 AWK := gawk
 
@@ -179,15 +150,15 @@ ifdef BUILD_ORC_READER
 DLLS += orc
 endif
 
-DLLS += comexe common executor sort sqlmsg \
-	tdm_sqlcli tdm_sqlcli_globals tdm_sqlexp tdm_sqlexport \
-	tdm_sqlmxevents tdm_sqlshare tdm_sqlerrormsg \
-	eh lmcomp \
-	sqlcilib cli porting_layer tdm_sqlmxmsg_intl \
-	arkcmp_dll smdio udr_predef 
+# DLLS += comexe common executor sort sqlmsg \
+# 	tdm_sqlcli tdm_sqlcli_globals tdm_sqlexp tdm_sqlexport \
+# 	tdm_sqlmxevents tdm_sqlshare tdm_sqlerrormsg \
+# 	eh lmcomp \
+# 	sqlcilib cli porting_layer tdm_sqlmxmsg_intl \
+# 	arkcmp_dll smdio udr_predef 
 
 
-DLLS += sqlcomp jsonpath ustat sqlcat parser optimizer generator \
+DLLS += sqlcomp   sqlcat parser optimizer generator \
 	tdm_sqllangman arkcmplib qmscommon 
 
 # SqlCompilerDebugger should be build after other components

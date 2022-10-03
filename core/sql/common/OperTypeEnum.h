@@ -558,11 +558,6 @@ enum OperatorTypeEnum {
                         ITM_CONVERTTOBITS = 2236,
                         ITM_LOG2= 2237,
                         ITM_COT=2238,
-                        // JSON fuctions
-                        ITM_JSONOBJECTFIELDTEXT = 2241,
-                        ITM_JSON_EXISTS = 2242,
-                        ITM_JSON_VALUE = 2243,
-                        ITM_JSON_QUERY = 2244,
 
                         ITM_REGEXP_REPLACE = 2248,
                         // string functions

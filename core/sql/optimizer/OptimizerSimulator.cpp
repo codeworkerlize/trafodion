@@ -88,7 +88,6 @@ extern const WordAsBits SingleBitArray[];
 #define TAG_TABLE "table"
 #define TAG_HISTOGRAM "histogram"
 //tags for hive table stats
-#define TAG_HHDFSFILESTATS "hhdfs_file_stats"
 #define TAG_HHDFSORCFILESTATS "hhdfs_orc_file_stats"
 #define TAG_HHDFSPARQUETFILESTATS "hhdfs_parquet_file_stats"
 #define TAG_HHDFSTABLESTATS "hhdfs_table_stats"
@@ -410,7 +409,6 @@ NABoolean OptimizerSimulator::setOsimModeAndLogDir(osimMode targetMode, const ch
                       initLogFilePaths();
                       loadDDLs();
                       loadHistograms(logFilePaths_[HISTOGRAM_PATHS], FALSE);
-                      loadHiveDDLs();
                       loadHistograms(logFilePaths_[HIVE_HISTOGRAM_PATHS], TRUE);
                       break;
                   case SIMULATE: //OFF-->SIMU
@@ -852,15 +850,7 @@ void OptimizerSimulator::dropObjects()
               //raiseOsimException("unregister hive table: %d", retcode);
               CmpCommon::diags()->rewind(diagsMark); // discard UNREGISTER errors
           }
-          //drop hive table
-          NAString hiveSchemaName;
-          qualName->getHiveSchemaName(hiveSchemaName);
-          dropStmt = "DROP TABLE IF EXISTS ";
-          dropStmt += hiveSchemaName;
-          dropStmt +=  '.';
-          dropStmt += qualName->getObjectName();
-          debugMessage("%s\n", dropStmt.data());
-          execHiveSQL(dropStmt.data());//drop hive table
+
    }
 }
 
@@ -963,137 +953,6 @@ static const char* extractAsComment(const char* header, const NAString & stmt)
     return NULL;
 }
 
-void OptimizerSimulator::loadHiveDDLs()
-{
-    debugMessage("creating hive tables ...\n");
-    short retcode;
-    NAString statement(STMTHEAP);
-    NAString comment(STMTHEAP);
-    statement.capacity(4096);
-    comment.capacity(4096);
-    std::ifstream hiveCreateTableSql(logFilePaths_[HIVE_CREATE_TABLE]);
-    std::ifstream hiveTableListFile(logFilePaths_[HIVE_TABLE_LIST]);
-    std::ifstream hiveCreateExternalTableSql(logFilePaths_[HIVE_CREATE_EXTERNAL_TABLE]);
-    if(!hiveTableListFile.good() || !hiveCreateTableSql.good())
-       return;
-
-    //read hive sql file and create hive table
-    std::string str;
-    Int64 uid;
-    const QualifiedName * qualName = NULL;
-    Int64 * tableUID;
-    int counter = 0;
-    NAString trafName;
-
-    while(hiveTableListFile.good())
-    {
-          // read tableName and uid from the file
-          hiveTableListFile >> str >> uid;
-          // eofbit is not set until an attempt is made to read beyond EOF.
-          // Exit the loop if there was no data to read above.
-          if(!hiveTableListFile.good())
-            break;
-          NAString name = str.c_str();
-          qualName = new (heap_) QualifiedName(name,3);
-          tableUID = new Int64(uid);
-          hashDict_HiveTables_->insert(qualName, tableUID);
-    }
-
-    NAHashDictionaryIterator<const QualifiedName, Int64> iterator(*hashDict_HiveTables_);
-    //create hive schema and trafodion external schema and 
-    //drop external tables and hive tables with same names
-    for(iterator.getNext(qualName, tableUID); qualName && tableUID; iterator.getNext(qualName, tableUID))
-    {
-        trafName = ComConvertNativeNameToTrafName(
-                                                                        qualName->getCatalogName(),
-                                                                        qualName->getSchemaName(),
-                                                                        qualName->getObjectName());
-
-        QualifiedName qualTrafName(trafName,3);
-         //create external table schema
-         NAString create_ext_schema = "CREATE SCHEMA IF NOT EXISTS ";
-         create_ext_schema += qualTrafName.getCatalogName();
-         create_ext_schema += ".\"";
-         create_ext_schema += qualTrafName.getSchemaName();
-         create_ext_schema += "\" AUTHORIZATION DB__ROOT";
-         retcode = executeFromMetaContext(create_ext_schema);
-         if(retcode < 0) {
-             cliInterface_->retrieveSQLDiagnostics(CmpCommon::diags());
-             raiseOsimException("create hive external schema: %d %s", retcode, statement.data());
-         }
-         //drop external table
-         NAString dropStmt = "DROP TABLE IF EXISTS ";
-         dropStmt += trafName;
-         retcode = executeFromMetaContext(dropStmt.data());
-         if(retcode < 0)
-         {
-             cliInterface_->retrieveSQLDiagnostics(CmpCommon::diags());
-             raiseOsimException("drop external table: %d", retcode);
-         }
-
-         //create hive schema
-         NAString hiveSchemaName;
-         qualName->getHiveSchemaName(hiveSchemaName);
-         NAString create_hive_schema = "CREATE SCHEMA IF NOT EXISTS ";
-         create_hive_schema += hiveSchemaName;
-         execHiveSQL(create_hive_schema.data());
-         //drop hive table
-         dropStmt = "DROP TABLE IF EXISTS ";
-         dropStmt += hiveSchemaName;
-         dropStmt +=  '.';
-         dropStmt += qualName->getObjectName();
-         execHiveSQL(dropStmt.data());//drop hive table
-    }
-    //create hive table
-   debugMessage("Begin creating hive tables\n");
-
-    while(readHiveStmt(hiveCreateTableSql, statement, comment))
-    {   
-        if(statement.length() > 0)
-        {
-            debugMessage("%s\n", extractAsComment("CREATE TABLE", statement));
-            retcode = executeFromMetaContext(statement.data());
-            if(retcode < 0)
-            {
-                cliInterface_->retrieveSQLDiagnostics(CmpCommon::diags());
-                raiseOsimException("create (hive) table: %d", retcode);
-            }
-            debugMessage("done\n");
-        }
-    }
-            
-   debugMessage("Begin creating hive external tables\n");
-
-    //create external table
-    while(readHiveStmt(hiveCreateExternalTableSql, statement, comment))
-   {
-        if(statement.length() > 0) {
-            // this could be a create external table or just a register table
-            // if this Hive table just has stats but no external table
-            const char *stmtText = extractAsComment("CREATE EXTERNAL TABLE", statement);
-
-            if (!stmtText)
-            {
-                stmtText = extractAsComment("REGISTER  HIVE TABLE", statement);
-                // since we now execute the Hive CREATE TABLE statement via EsgynDB,
-                // that will automatically register the table as well. So, we add
-                // "IF NOT EXISTS" here to avoid any error if we happen to be
-                // directed to explicitly register it by the OSIM file contents.
-                const char * REGISTER = "REGISTER  HIVE TABLE";
-                int begin = statement.index(REGISTER);  // it should be the first occurrance
-                if  ((stmtText != NULL) && (begin > -1))
-                  statement.replace(begin,strlen(REGISTER),"REGISTER HIVE TABLE IF NOT EXISTS ");
-            }
-            debugMessage("%s\n", stmtText);
-            retcode = executeFromMetaContext(statement.data()); //create hive external table
-            if(retcode < 0)
-            {
-                raiseOsimException("Create hive external table error:  %d", retcode);
-            }
-            debugMessage("done\n");
-        }
-   }
-}
 
 //============================================================================
 // This method writes the information related to the NAClusterInfo class to a
@@ -1508,17 +1367,7 @@ NABoolean OptimizerSimulator::massageTableUID(OsimHistogramEntry* entry, NAHashD
   return TRUE;
 }
 
-void OptimizerSimulator::execHiveSQL(const char* hiveSQL)
-{
-    if (HiveClient_JNI::executeHiveSQL(hiveSQL) != HVC_OK)
-    {
-        NAString error("Error running hive SQL. ");
-        const char * jniErrorStr = GetCliGlobals()->getJniErrorStr();
-        if (jniErrorStr)
-          error += jniErrorStr;
-        raiseOsimException(error.data());
-    }
-}
+
 
 void OptimizerSimulator::buildHiveHistogramCreate(NAString& query, const QualifiedName * name)
 {
@@ -1655,44 +1504,6 @@ void OptimizerSimulator::buildHistogramUpsert(NAString& query, const QualifiedNa
     query += name->getCatalogName()+"_"+name->getSchemaName()+"_"+name->getObjectName();
 }
 
-short OptimizerSimulator::loadHistogramsTable(NAString* modifiedPath, QualifiedName * qualifiedName, unsigned int bufLen, NABoolean isHive)
-{
-    debugMessage("loading %s\n", qualifiedName->getQualifiedNameAsString().data());
-    short retcode;
-
-    NAString cmd(STMTHEAP);
-    //drop hive sb_histogram table
-    cmd = "drop table "+qualifiedName->getCatalogName()+"_"+qualifiedName->getSchemaName()+"_"+qualifiedName->getObjectName();
-    execHiveSQL(cmd.data());
-
-    //create hive sb_histogram table
-    buildHiveHistogramCreate(cmd, qualifiedName);
-    execHiveSQL(cmd.data());
-
-    //populate hive table with table UID modified file
-    cmd =       "load data local inpath '" + *modifiedPath + "' into table ";
-    cmd +=      qualifiedName->getCatalogName()+"_"+qualifiedName->getSchemaName()+"_"+qualifiedName->getObjectName();
-    execHiveSQL(cmd.data());
-    
-    //create sb_histograms
-    buildHistogramCreate(cmd, qualifiedName, isHive);
-    retcode = executeFromMetaContext(cmd.data());
-    if(retcode < 0)
-    {
-        cliInterface_->retrieveSQLDiagnostics(CmpCommon::diags());
-        raiseOsimException("Load histogram data error:  %d", retcode);
-    }
-
-    buildHistogramUpsert(cmd, qualifiedName, isHive);
-    retcode = executeFromMetaContext(cmd.data());
-    if(retcode < 0)
-    {
-        cliInterface_->retrieveSQLDiagnostics(CmpCommon::diags());
-        raiseOsimException("Load histogram data error:  %d", retcode);
-    }
-    
-    return retcode;
-}
 
 void OptimizerSimulator::buildHiveHistogramIntervalCreate(NAString& query, const QualifiedName * name)
 {
@@ -1785,41 +1596,7 @@ void OptimizerSimulator::buildHistogramIntervalUpsert(NAString& query, const Qua
     query += name->getCatalogName()+"_"+name->getSchemaName()+"_"+name->getObjectName();
 }
 
-short OptimizerSimulator::loadHistogramIntervalsTable(NAString* modifiedPath, QualifiedName * qualifiedName, unsigned int bufLen, NABoolean isHive)
-{
-    debugMessage("loading %s\n", qualifiedName->getQualifiedNameAsString().data());
-    short retcode;
 
-    NAString cmd(STMTHEAP);
-    //drop hive histogram table
-    cmd = "drop table "+qualifiedName->getCatalogName()+"_"+qualifiedName->getSchemaName()+"_"+qualifiedName->getObjectName();
-    execHiveSQL(cmd.data());
-    //create hive histogram table
-    buildHiveHistogramIntervalCreate(cmd, qualifiedName);
-    execHiveSQL(cmd.data());
-    
-    cmd =     "load data local inpath '" + *modifiedPath + "' into table ";
-    cmd +=   qualifiedName->getCatalogName()+"_"+qualifiedName->getSchemaName()+"_"+qualifiedName->getObjectName();
-    execHiveSQL(cmd.data());
-    
-    //create sb_histogram_intervals
-    buildHistogramIntervalCreate(cmd, qualifiedName, isHive);
-    retcode = executeFromMetaContext(cmd.data());
-    if(retcode < 0)
-    {
-        cliInterface_->retrieveSQLDiagnostics(CmpCommon::diags());
-        raiseOsimException("Load histogram data error:  %d", retcode);
-    }
-    //from hive table to trafodion table.
-    buildHistogramIntervalUpsert(cmd, qualifiedName, isHive);
-    retcode = executeFromMetaContext(cmd.data());
-    if(retcode < 0)
-    {
-        cliInterface_->retrieveSQLDiagnostics(CmpCommon::diags());
-        raiseOsimException("Load histogram data error:  %d", retcode);
-    }
-    return retcode;
-}
 
 void OptimizerSimulator::loadHistograms(const char* histogramPath, NABoolean isHive)
 {
@@ -1880,14 +1657,7 @@ void OptimizerSimulator::loadHistograms(const char* histogramPath, NABoolean isH
    Queue * dummyQueue = NULL;
    for (iterator.getNext(modifiedPath, qualifiedName); modifiedPath && qualifiedName; iterator.getNext(modifiedPath, qualifiedName))
    {
-       if(qualifiedName->getObjectName().compareTo("SB_HISTOGRAMS", NAString::ignoreCase) == 0)
-       {
-           loadHistogramsTable(modifiedPath, qualifiedName, OSIM_LINEMAX, isHive);
-       }
-       else if(qualifiedName->getObjectName().compareTo("SB_HISTOGRAM_INTERVALS", NAString::ignoreCase) == 0)
-       {
-           loadHistogramIntervalsTable(modifiedPath, qualifiedName, OSIM_LINEMAX, isHive);
-       }
+
        unlink(modifiedPath->data());
    }
 }

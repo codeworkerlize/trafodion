@@ -82,7 +82,6 @@ NAFileSet::NAFileSet(const QualifiedName & fileSetName,
 		     NABoolean inMemObjectDefn,
                      Int64 indexUID,
                      TrafDesc *keysDesc,
-                     HHDFSTableStats *hHDFSTableStats,
                      Lng32 numSaltPartns,
                      Lng32 numInitialSaltRegions,
                      Int16 numTrafReplicas,
@@ -124,7 +123,6 @@ NAFileSet::NAFileSet(const QualifiedName & fileSetName,
            fileCode_(fileCode),
            indexUID_(indexUID),
            keysDesc_(keysDesc),
-           hHDFSTableStats_(hHDFSTableStats),
            numSaltPartns_(numSaltPartns),
            numInitialSaltRegions_(numInitialSaltRegions),
            numTrafReplicas_(numTrafReplicas),
@@ -214,7 +212,6 @@ NAFileSet::NAFileSet(const NAFileSet& other, CollHeap * h)
 	   bitFlags_(other.bitFlags_),
            thisRemoteIndexGone_(other.thisRemoteIndexGone_),
 
-           hHDFSTableStats_(NULL), // TBD
 
            numSaltPartns_(other.numSaltPartns_),
            numInitialSaltRegions_(other.numInitialSaltRegions_),
@@ -242,8 +239,7 @@ NAFileSet::~NAFileSet()
 {
   delete partFunc_;
 
-  if (hHDFSTableStats_)
-    delete hHDFSTableStats_;
+
 }
 
 NABoolean NAFileSet::operator==(const NAFileSet& other) const
@@ -299,7 +295,6 @@ NABoolean NAFileSet::operator==(const NAFileSet& other) const
 	   bitFlags_ != other.bitFlags_ ||
            thisRemoteIndexGone_ != other.thisRemoteIndexGone_ ||
 
-           // hHDFSTableStats_(NULL), // TBD
 
            numSaltPartns_ != other.numSaltPartns_ ||
            numInitialSaltRegions_ != other.numInitialSaltRegions_ ||
@@ -449,8 +444,6 @@ void NAFileSet::resetAfterStatement()
 
 
 
-  if (hHDFSTableStats_)
-    hHDFSTableStats_->resetAfterStatement();
 
   for (UInt32 i = 0; i < allColumns_.entries(); i++)
   {
@@ -482,8 +475,6 @@ void NAFileSet::setupForStatement()
 
 
 
-  if (hHDFSTableStats_)
-    hHDFSTableStats_->setupForStatement();
 
   setupForStatement_ = TRUE;
   resetAfterStatement_= FALSE;

@@ -59,8 +59,6 @@
 #include "CmpMemoryMonitor.h"
 #include "OptimizerSimulator.h"
 
-#include "hs_log.h"
-#include "PCodeExprCache.h"
 #include "cli_stdh.h"
 
 extern THREAD_P CmpMemoryMonitor *cmpMemMonitor;
@@ -415,24 +413,7 @@ void ControlDB::setControlDefault(ControlQueryDefault *def)
       break;
     }
 
-  case PCODE_EXPR_CACHE_SIZE:
-    {
-      //
-      // Increase OR decrease the size of the PCode Expression Cache
-      // for the current Context.
-      //
-      Int32 newsiz  = getDefaultAsLong( PCODE_EXPR_CACHE_SIZE );
-      Int32 currSiz = CURROPTPCODECACHE->getMaxSize() ;
 
-      // Note: If new size is negative or the same size, just leave cache alone
-      if ( ( newsiz >= 0 ) && ( newsiz != currSiz ) )
-      {
-         CURROPTPCODECACHE->resizeCache( newsiz );
-         if ( newsiz < currSiz )
-            CURROPTPCODECACHE->clearStats(); // Do this after resizeCache(...)
-      }
-    }
-    break;
   case QUERY_CACHE:
     {
       ULng32 newsiz = getDefaultInK(QUERY_CACHE);

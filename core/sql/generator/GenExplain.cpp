@@ -526,20 +526,7 @@ FileScan::addSpecificExplainInfo(ExplainTupleMaster *explainTuple,
     description += " object_type: inMemory ";
   else if (getTableName().isVolatile())
     description += " object_type: volatile ";
-  else if (getTableDesc()->getNATable()->isHiveTable())
-    {    
-      if (getTableDesc()->getNATable()->getClusteringIndex()->getHHDFSTableStats()->isOrcFile())
-        description += " object_type: Hive_Orc ";
-      else if (getTableDesc()->getNATable()->getClusteringIndex()->getHHDFSTableStats()->isTextFile())
-        description += " object_type: Hive_Text ";
-      else if (getTableDesc()->getNATable()->getClusteringIndex()->getHHDFSTableStats()->isSequenceFile())
-        description += " object_type: Hive_Sequence ";
-      else if (getTableDesc()->getNATable()->isParquet())
-        description += " object_type: Hive_Parquet ";
-      else if (getTableDesc()->getNATable()->isAvro())
-        description += " object_type: Hive_Avro ";
-   }
-  // find direction
+
 
   description += " scan_direction: ";
   
@@ -666,24 +653,7 @@ FileScan::addSpecificExplainInfo(ExplainTupleMaster *explainTuple,
     description += "native_bloomfilter: yes " ;
   }
 
-  if ((getTableDesc()->getNATable()->isHiveTable()) &&
-      (getTableDesc()->getNATable()->getClusteringIndex()->
-       getHHDFSTableStats()->isOrcFile()) &&
-      (extListOfPPI().entries() > 0))
-    {
-      description += "orc_pred_pushdown: yes ";
-      description += "orc_search_arguments: ";
-      description += extListOfPPI().getText();
-    }
-  else if ((getTableDesc()->getNATable()->isHiveTable()) &&
-      (getTableDesc()->getNATable()->getClusteringIndex()->
-       getHHDFSTableStats()->isParquetFile()) &&
-      (extListOfPPI().entries() > 0))
-    {
-      description += "parquet_pred_pushdown: yes ";
-      description += "parquet_search_arguments: ";
-      description += extListOfPPI().getText();
-    }
+
 
   explainTuple->setDescription(description);
 
@@ -1234,29 +1204,6 @@ DDLExpr::addSpecificExplainInfo(ExplainTupleMaster *explainTuple,
 
   if (buffer.isNull())
     buffer = "explain_information: not available.";
-
-  explainTuple->setDescription(buffer);
-  
-  return(explainTuple);
-}
-
-ExplainTuple *
-ExeUtilHiveTruncate::addSpecificExplainInfo(ExplainTupleMaster *explainTuple, 
-                                            ComTdb * tdb, 
-                                            Generator *generator)
-{
-  char buf[200];
-  NAString buffer;
-
-  ComTdbExeUtilHiveTruncate *ctdb = (ComTdbExeUtilHiveTruncate*)tdb;
-  if (ctdb->getTableName() != NULL)
-    buffer += NAString("table_name: ") + ctdb->getTableName() + " ";
-  else
-    buffer += "table_name: unknown ";
-  if (NOT getHiveTruncQuery().isNull())
-    buffer += NAString("hive_trunc_query: ") + getHiveTruncQuery() + " ";
-  else
-    buffer += "hive_trunc_query: unknown ";
 
   explainTuple->setDescription(buffer);
   

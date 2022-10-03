@@ -499,25 +499,9 @@ Long ex_function_nvl::pack(void * space_)
   return packClause(space_, sizeof(ex_function_nvl));
 }  
 
-Long ex_function_json_object_field_text::pack(void * space_)
-{
-  return packClause(space_, sizeof(ex_function_json_object_field_text));
-}  
 
-Long ex_function_json_value::pack(void * space_)
-{
-  return packClause(space_, sizeof(ex_function_json_value));
-}
 
-Long ex_function_json_exists::pack(void * space_)
-{
-  return packClause(space_, sizeof(ex_function_json_exists));
-}  
 
-Long ex_function_json_query::pack(void * space_)
-{
-  return packClause(space_, sizeof(ex_function_json_query));
-}
 
 // for ngram
 Long ex_function_firstngram::pack(void * space_)

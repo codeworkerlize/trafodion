@@ -69,7 +69,6 @@
 #include "CmpSeabaseDDL.h"
 #include "Globals.h"
 #include "sqludr.h"
-#include "hs_globals.h"
 
 #include "PCodeExprCache.h"
 #include "HBaseClient_JNI.h"
@@ -144,7 +143,6 @@ CmpContext::CmpContext(UInt32 f, CollHeap * h)
   ciClass_(CmpContextInfo::CMPCONTEXT_TYPE_NONE),
   ciIndex_(-1),
   qcache_(NULL),                              // just to be safe ...
-  optPCodeCache_(NULL),                       // just to be safe ...
   CDBList_(NULL),
   sacDone_(FALSE),
   optSimulator_(NULL),
@@ -155,7 +153,6 @@ CmpContext::CmpContext(UInt32 f, CollHeap * h)
   ddlObjsInSP_(h),
   sharedCacheDDLInfoList_(heap_),
   statementNum_(0),
-  hiveClient_(NULL),
   isConnectByDual_(FALSE),
   cliContext_(NULL),
   testPointArray_(NULL),
@@ -293,10 +290,7 @@ CmpContext::CmpContext(UInt32 f, CollHeap * h)
 
   tableIdent_ = 0;
   
-  //
-  // Initialize context-local optimized PCode Expression cache
-  //
-  optPCodeCache_ = new (heap_) OptPCodeCache();
+
 
   // Allocate (static) host_data_ if it's not already allocated.
   // This will never be deleted and stays until the process dies.
@@ -389,10 +383,8 @@ CmpContext::~CmpContext()
   if ( isRuntimeCompile_) // Seems like QueryCache is not initialized for static compiler  
     qcache_->finalize((char *)"Drop Session");
 
-  if ( CTXTHEAP ) // Defensive coding - if NULL, the Context Heap is gone. 
-    delete optPCodeCache_ ;
 
-  optPCodeCache_ = NULL ;
+
   resetLogmxEventSqlText();
   resetContext();
   // reset thread global variables
@@ -409,8 +401,6 @@ NABoolean CmpContext::initContextGlobals()
 {
   NABoolean rtnStatus = TRUE ;      // assume the best
 
-    // globals for ustat
-  uStatID_ = 0;
 
   // retrieve SQLMX_REGRESS environmnet variable
   const char *env;

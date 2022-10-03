@@ -33,7 +33,6 @@
 **************************************************************************** */
 
 #include "PartKeyDist.h"   
-#include "hs_const.h"     /* HS_MAX_BOUNDARY_LEN */
 #include "parser.h"      /* for the parser of EncodedValues */
 
 

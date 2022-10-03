@@ -1574,84 +1574,6 @@ private:
   NABoolean deleteData_;
 };
 
-///////////////////////////////////////////////////////////
-// ExeUtilHiveTruncate
-///////////////////////////////////////////////////////////
-class ExeUtilHiveTruncate : public ExeUtilExpr
-{
-public:
-  ExeUtilHiveTruncate(CorrName &name,
-                      const ItemExprList *partColValList,
-                      NABoolean dropPartIfExists,
-                      CollHeap *oHeap = CmpCommon::statementHeap())
-       : ExeUtilExpr(HIVE_TRUNCATE_, name, NULL, NULL, NULL, 
-                     CharInfo::UnknownCharSet, oHeap),
-         partColValList_(partColValList),
-         dropPartIfExists_(dropPartIfExists),
-         dropTableOnDealloc_(FALSE),
-         noSecurityCheck_(FALSE),
-         hiveExternalTable_(FALSE),
-         ifExists_(FALSE),
-         tableNotExists_(FALSE)
-  { }
-
-  virtual NABoolean isExeUtilQueryType() { return TRUE; }
-
-  virtual RelExpr * copyTopNode(RelExpr *derivedNode = NULL,
-				CollHeap* outHeap = 0);
-
-  virtual RelExpr * bindNode(BindWA *bindWAPtr);
-
-  // method to do code generation
-  virtual short codeGen(Generator*);
-  
-  ExplainTuple *addSpecificExplainInfo(ExplainTupleMaster *explainTuple, 
-				       ComTdb * tdb, 
-				       Generator *generator);
-  
-  virtual NABoolean aqrSupported() { return TRUE; }
-
-  const NAString &getHiveTableName() const { return hiveTableName_; }
-  const NAString &getHiveTruncQuery() const { return hiveTruncQuery_; }
-  void setHiveTruncQuery(NAString htq) { hiveTruncQuery_ = htq; }
-
-  NABoolean getDropTableOnDealloc() const       { return dropTableOnDealloc_; }
-  NABoolean getNoSecurityCheck() const          { return noSecurityCheck_; }
-  NABoolean getHiveExternalTable() const        { return hiveExternalTable_; }
-  NABoolean getIfExists() const                 { return ifExists_; }
-  NABoolean getTableNotExists()   const         { return tableNotExists_; }
-
-  void setDropTableOnDealloc(NABoolean v=TRUE)  { dropTableOnDealloc_ = v; }
-  void setNoSecurityCheck(NABoolean v)          { noSecurityCheck_ = v; }  
-  void setHiveExternalTable(NABoolean v)        { hiveExternalTable_ = v; }
-  void setIfExists(NABoolean v)                 { ifExists_ = v; }
-  void setTableNotExists(NABoolean v)           { tableNotExists_ = v; }
-
-private:
-
-  NAString hiveTableName_;
-  NAString hiveTruncQuery_;
-  NABoolean suppressModCheck_;
-  NABoolean dropTableOnDealloc_;
-
-  // if this truncate node is added internally to process 'insert overwrite'
-  // statement, then skip security/privilege checks.
-  // Checks will be done when the corresponding insert node is processed.
-  NABoolean noSecurityCheck_;
-
-  // TRUE: Hive External table. FALSE: Hive Managed table.
-  NABoolean hiveExternalTable_;
-
-  // if 'if exist' clause is specified
-  NABoolean ifExists_;
-
-  // if table does not exist
-  NABoolean tableNotExists_;
-
-  const ItemExprList *partColValList_;
-  NABoolean dropPartIfExists_;
-};
-
 class ExeUtilConnectby : public ExeUtilExpr
 {
  enum Flags {
@@ -1796,36 +1718,6 @@ private:
   ULng32 flags_;
 }; 
 
-class ExeUtilHiveQuery : public ExeUtilExpr
-{
-public:
-  enum HiveSourceType
-    {
-      FROM_STRING,
-      FROM_FILE
-    };
-  ExeUtilHiveQuery(const NAString &hive_query,
-                   HiveSourceType type,
-                   CollHeap *oHeap = CmpCommon::statementHeap())
-       : ExeUtilExpr(HIVE_QUERY_, CorrName("dummyName"), 
-                     NULL, NULL, 
-                     NULL,
-                     CharInfo::UnknownCharSet, oHeap),
-         type_(type),
-         hiveQuery_(hive_query)
-  { }
-  virtual NABoolean isExeUtilQueryType() { return TRUE; }
-  virtual RelExpr * copyTopNode(RelExpr *derivedNode = NULL,
-				CollHeap* outHeap = 0);
-  virtual RelExpr * bindNode(BindWA *bindWAPtr);
-  virtual short codeGen(Generator*);
-  NAString &hiveQuery() { return hiveQuery_; }
-  const NAString &hiveQuery() const { return hiveQuery_; }
-  HiveSourceType sourceType() { return type_;}
-private:
-  HiveSourceType type_;
-  NAString hiveQuery_;
-};
 class ExeUtilMaintainObject : public ExeUtilExpr
 {
 public:

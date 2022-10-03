@@ -44,7 +44,6 @@
 #include "dfs2rec.h"
 #include "exp_dp2_expr.h"
 #include "SequenceGeneratorAttributes.h"
-#include "ComJSON.h"
 
 
 class ex_function_clause;
@@ -4233,27 +4232,6 @@ private:
   // ---------------------------------------------------------------------
 };
 
-class  ex_function_json_object_field_text : public ex_function_clause {
-public:
-  ex_function_json_object_field_text(OperatorTypeEnum oper_type,
-			     Attributes ** attr,
-			     Space * space);
-  ex_function_json_object_field_text();
-
-  ex_expr::exp_return_type eval(char *op_data[], CollHeap*, 
-					   ComDiagsArea** = 0);  
-  Long pack(void *);
-
-  virtual short getClassSize() { return (short)sizeof(*this); }
-
-  // This clause handles all NULL processing in the eval() method.
-  Int32 isNullRelevant() const { return 0; };
-
-private:
-  char fillers_[64];
-  // ---------------------------------------------------------------------
-};
-
 // get first ngram string
 class ex_function_firstngram : public ex_function_clause {
 public:
@@ -4755,102 +4733,8 @@ public:
 };
 
 
-class  ex_function_json_value : public ex_function_clause {
-public:
-  ex_function_json_value(OperatorTypeEnum oper_type,
-			     Attributes ** attr,
-                 JsonBehavOnErrorEmpty  behavOnErr,
-                 JsonBehavOnErrorEmpty  behavOnEmpty,
-			     Space * space);
-  ex_function_json_value();
-  ~ex_function_json_value();
-
-  ex_expr::exp_return_type eval(char *op_data[], CollHeap*, 
-					   ComDiagsArea** = 0);
-  Long pack(void *);
-
-  virtual short getClassSize() { return (short)sizeof(*this); }
-
-  // This clause handles all NULL processing in the eval() method.
-  Int32 isNullRelevant() const { return 0; };
-
-private:
-
-  JsonBehavOnErrorEmpty  behaviorOnErr_;
-  JsonBehavOnErrorEmpty  behaviorOnEmpty_;
-
-  /* paths_n_ and heap_ is now init in eval() function,
-   * will convert to PathNodePtr for pack/unpack
-   */
-  PathNode *paths_n_;
-
-  char fillers_[64];
-  // ---------------------------------------------------------------------
-};
 
 
-class  ex_function_json_exists : public ex_function_clause {
-public:
-  ex_function_json_exists(OperatorTypeEnum oper_type,
-			     Attributes ** attr,
-			     JsonBehavOnErrorEmpty behav_on_err,
-			     Space * space);
-  ex_function_json_exists();
-  ~ex_function_json_exists();
-
-  ex_expr::exp_return_type eval(char *op_data[], CollHeap*, 
-					   ComDiagsArea** = 0);
-  Long pack(void *);
-
-  virtual short getClassSize() { return (short)sizeof(*this); }
-
-  // This clause handles all NULL processing in the eval() method.
-  Int32 isNullRelevant() const { return 0; };
-
-private:
-
-  JsonBehavOnErrorEmpty      behav_on_err_;
-
-  PathNode                  *paths_n_;
-
-  char fillers_[64];
-  // ---------------------------------------------------------------------
-};
-
-class  ex_function_json_query : public ex_function_clause {
-public:
-  ex_function_json_query(OperatorTypeEnum oper_type,
-			     Attributes ** attr,
-                 JsonWrapperBehav behavWrap,
-                 JsonQuoteBehav behavQuote,
-                 JsonBehavOnErrorEmpty behavOnErr,
-                 JsonBehavOnErrorEmpty behavOnEmpty,
-			     Space * space);
-  ex_function_json_query();
-  ~ex_function_json_query();
-
-  ex_expr::exp_return_type eval(char *op_data[], CollHeap*, 
-					   ComDiagsArea** = 0);
-  Long pack(void *);
-
-  virtual short getClassSize() { return (short)sizeof(*this); }
-
-  // This clause handles all NULL processing in the eval() method.
-  Int32 isNullRelevant() const { return 0; };
-
-private:
-
-  JsonWrapperBehav           behaviorWrap_;
-  JsonQuoteBehav             behaviorQuote_;
-	
-  JsonBehavOnErrorEmpty      behaviorOnErr_;
-  JsonBehavOnErrorEmpty      behaviorOnEmpty_;
-
-  PathNode                  *paths_n_;
-
-  char fillers_[64];
-  // ---------------------------------------------------------------------
-};
 
 class ex_function_beginkey : public ex_function_clause
 {

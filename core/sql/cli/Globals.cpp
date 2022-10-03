@@ -61,7 +61,6 @@
 #include <pthread.h>
 #include "HBaseClient_JNI.h"
 
-#include "HiveClient_JNI.h"
 #include "DistributedLock_JNI.h"
 #include "TenantHelper_JNI.h"
 #include "LmLangManagerC.h"
@@ -1148,7 +1147,6 @@ void CliGlobals::yieldMemoryQuota(ULng32 size)
 void SQ_CleanupThread(void *arg)
 {
   HBaseClient_JNI::deleteInstance();
-  HiveClient_JNI::deleteInstance();
   DistributedLock_JNI::deleteInstance();
 }
 

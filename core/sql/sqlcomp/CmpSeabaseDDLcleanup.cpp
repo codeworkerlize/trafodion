@@ -3164,28 +3164,7 @@ void CmpSeabaseMDcleanup::cleanupObjects(StmtDDLCleanupObjects * stmtCleanupNode
             goto label_return;
     }
 
-  // drop underlying Hive object
-  if (isHive_)
-    {
-      NAString hiveQuery;
-      if (objType_ == COM_BASE_TABLE_OBJECT_LIT)
-        {
-          hiveQuery = "drop table if exists " + extNameForHive_;
-        }
-      else if (objType_ == COM_VIEW_OBJECT_LIT)
-        {
-          hiveQuery = "drop view if exists " + extNameForHive_;
-        }
 
-      if (NOT hiveQuery.isNull())
-        {
-          if (HiveClient_JNI::executeHiveSQL(hiveQuery.data()) != HVC_OK)
-            {
-              if (stopOnError_)
-                goto label_return;
-            }
-        }
-    }
 
   cliRC = dropIndexes(&cliInterface);
   if (cliRC)

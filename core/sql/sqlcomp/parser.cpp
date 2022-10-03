@@ -169,7 +169,6 @@ Parser::Parser(const CmpContext* cmpContext)
   Lng32 initsize = 10;
   with_clauses_ =  new (wHeap_) NAHashDictionary<NAString,RelExpr>(&cmmHashFunc_NAString, initsize , TRUE, wHeap_) ;
 
-  hiveDDLInfo_ = new (wHeap_) HiveDDLInfo();
   pHint_ = NULL;
   pCqdsHashDictionaryInHint_ = NULL;
   hasCqdsInHint_ = FALSE;
@@ -688,41 +687,6 @@ static NABoolean stringScanWillTerminateInParser(const NAWchar *str,
   return TRUE;
 }
 
-// ------------------------------------------------------------------------
-// processHiveDDL
-//
-// This method is called if a hive ddl statement is seen during parsing.
-// When that is detected, information is set in HiveDDLInfo 
-// and parsing phase errors out.
-// This is needed to avoid enhancing the parser with hive ddl syntax.
-// 
-// For example:
-//  create table hive.hive.t (a int) stored as sequencefile;
-// Traf parser does not undertand 'stored as sequencefile' syntax.
-// As soon as 'hive.hive.t' is detected, all relevant information is 
-// stored in HiveDDLInfo class and parsing phase is terminated.
-// This method then creates the needed structures so the create stmt could
-// be passed on to hive api layer.
-// 
-// Return:  'node' contains the generated tree.
-//          TRUE, if all ok.
-//          FALSE, if error.
-// -------------------------------------------------------------------------
-NABoolean Parser::processHiveDDL(Parser::HiveDDLInfo * hiveDDLInfo,
-                                 ExprNode** node)
-{
-  NABoolean rc = CmpSeabaseDDL::setupQueryTreeForHiveDDL
-    (hiveDDLInfo,
-     inputStr(),
-     (CharInfo::CharSet)inputStrCharSet(),
-     CmpCommon::getDefaultString(CATALOG),
-     CmpCommon::getDefaultString(SCHEMA),
-     node);
-
-  TheHostVarRoles->clear();
-  return rc;
-}
-
 // Parser::parseSQL is a private helper function that encapsulates most of
 // the work that used to be done in Parser::parseDML. It avoids duplicating
 // code shared by parseDML and parse_w_DML.
@@ -961,30 +925,8 @@ Int32 Parser::parseSQL
 	  *node = TheParseTree;
 	}
     }
-  else if (SqlParser_CurrentParser->hiveDDLInfo_->foundDDL_)
-    {
-      // if a hive ddl object was found during parsing, generate ddl expr tree.
-      // foundDDL_ could be set during successful parsing as well as for
-      // a query which gave a syntax error.
-      if (TheParseTree)
-        delete TheParseTree; 
-      TheParseTree = NULL;
-      *node = NULL;
-      
-      if ((processHiveDDL(SqlParser_CurrentParser->hiveDDLInfo_, node)) &&
-          (*node != NULL))
-        parseError = 0; // hive DDL found and node has been generated
-      else
-        parseError = 1; // error
-    }
-  else if (SqlParser_CurrentParser->hiveDDLInfo_->backquotedDelimFound_)
-    {
-      // backquote delim identifier only valid for hive objects.
-      if (TheParseTree)
-        delete TheParseTree; 
-      TheParseTree = NULL;
-      parseError = 1;
-    }
+
+
   else
     {
       *node = TheParseTree;

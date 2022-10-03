@@ -36,6 +36,7 @@
 #include "org_trafodion_sql_HTableClient.h"
 #include "Triggers.h"
 
+typedef std::string Text;
 namespace {
   typedef std::vector<Text> TextVec;
 }

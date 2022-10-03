@@ -31,7 +31,6 @@
 #include "ExHbaseAccess.h"
 #include "ex_exe_stmt_globals.h"
 #include "ExpHbaseInterface.h"
-#include "hs_util.h"
 #include "NLSConversion.h"
 #include "Context.h"
 

@@ -109,14 +109,12 @@ RESOURCES += \
 INCLUDEPATH += ../common \
                ../parser\
                ../cli\
-               ../ustat\
                ../sqlmxevents \
                ../optimizer\
                ../generator\
                ../export \
                ../sqlcomp \
-               ../porting_layer \
-               ../jsonpath
+               ../porting_layer 
 
 INCLUDEPATH += ../eh \
                ../psql/inc \

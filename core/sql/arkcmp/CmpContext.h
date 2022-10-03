@@ -59,7 +59,6 @@
 #include "ComSysUtils.h"        // for TimeVal
 
 #include "Collections.h"	// for NAList
-#include "hs_cmp.h"		// for uStatID_;
 #include "NAAssert.h"		// required after including a RogueWave file!
 
 #include "CmpMessage.h"
@@ -77,14 +76,12 @@ class OptDebug;
 class CmpMemoryMonitor;
 class OptimizerSimulator;
 class QueryCache;
-class OptPCodeCache ;
 class HistogramCache;
 class CompilerTrackingInfo;
 class OptDefaults;
 struct MDDescsInfo;
 class CmpStatementISP;
 class EstLogProp;
-class HiveClient_JNI;
 class NAWNodeSet;
 class NATable;
 class CNATestPointArray;
@@ -671,8 +668,6 @@ public :
   void initControlDB();
   ControlDB* getControlDB() { return controlDB_; }
 
-  // ustat globals
-  UstatContextID uStatID_;
 
   // get the current CmpStatement
   CmpStatement* statement() { return currentStatementPtrCache_; }
@@ -770,7 +765,6 @@ public :
   CmpQCache *getQCache() { return qCache_; }
 */
   QueryCache* getQueryCache() { return qcache_; }
-  OptPCodeCache* getOptPCodeCache() { return optPCodeCache_; }
 
   SchemaDB* getSchemaDB() {return schemaDB_;}
 
@@ -1001,7 +995,6 @@ private:
   HistogramCache *histogramCache_;
 
   QueryCache* qcache_;
-  OptPCodeCache* optPCodeCache_ ; //Ptr to PCode Expr Cache for this CmpContext
 
   // table identifier representing each table, easier to hash on.
   CollIndex tableIdent_;
@@ -1058,8 +1051,7 @@ private:
  // a count of how many statements have been compiled
   UInt32 statementNum_;
 
-  // for any Hive SQL operations we may want to do
-  HiveClient_JNI* hiveClient_;
+
 
   // instrumentation for mantis 9407
   char lastSqlStmt_[200];

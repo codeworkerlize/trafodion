@@ -45,7 +45,6 @@
 #include "opt.h"
 #include "PhyProp.h"
 #include "OptTrigger.h"
-#include "hs_read.h"
 #include "Analyzer.h"
 #include "AppliedStatMan.h"
 #include "NormWA.h"
@@ -4145,14 +4144,7 @@ GroupByAgg::synthEstLogProp(const EstLogPropSharedPtr& inputEstLogProp)
                   else
                     displayWarning = FALSE;
 
-                  ueclist->displayMissingStatsWarning(thisTable,
-                                                      userColumnsSet,
-                                                      largeTableNeedsStats,
-                                                      displayWarning,
-                                                      groupStatDescList,
-                                                      csMinusOne,
-                                                      FALSE,
-                                                      REL_GROUPBY);
+
 
 
 		  tablesWithMissingStats->insert(thisTable);
@@ -4207,14 +4199,7 @@ GroupByAgg::synthEstLogProp(const EstLogPropSharedPtr& inputEstLogProp)
             else
               displayWarning = FALSE;
 
-            ueclist->displayMissingStatsWarning(thisTable,
-						userColumnsSet,
-						largeTableNeedsStats,
-                                                displayWarning,
-                                                  groupStatDescList,
-                                                  csMinusOne,
-                                                  FALSE,
-                                                  REL_GROUPBY);
+
 
 	    tablesWithMissingStats->insert(thisTable);
 

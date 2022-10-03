@@ -90,7 +90,6 @@ class CliGlobals;
 class CLISemaphore;
 class HBaseClient_JNI;
 class MonarchClient_JNI;
-class HiveClient_JNI;
 class TransMode;
 class ContextTidMap;
 class LmLanguageManager;

@@ -465,13 +465,7 @@ public:
   ValueIdSet getSaltColumnAsSet() ;
   NABoolean hasIdentityColumnInClusteringKey() const ;
 
-  // helper function for Hive tables
-  static NABoolean splitHiveLocation(const char *tableLocation,
-                                     NAString &hdfsHost,
-                                     Int32 &hdfsPort,
-                                     NAString &tableDir,
-                                     ComDiagsArea *diags,
-                                     int hdfsportoverride);
+
   LIST(NAString) *getMatchedPartInfo(BindWA *bindWA, NAString partName);
   LIST(NAString) *getMatchedPartInfo(BindWA *bindWA, ItemExprList valList);
   LIST(NAString) *getMatchedPartInfo(BindWA *bindWA, ItemExpr *selectPred);

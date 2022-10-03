@@ -63,7 +63,6 @@ class ExpExtStorageInterface;
 #include "ComRtUtils.h"
 #include "ExExeUtilCli.h"
 #include "ExpLOBstats.h"
-#include "hiveHook.h"
 #include "ExpHbaseDefs.h"
 
 #include "SequenceFileReader.h"
@@ -86,8 +85,6 @@ class ExpExtStorageInterface;
 class ExExeUtilTdb;
 class ExExeUtilDisplayExplainTdb;
 class ExExeUtilDisplayExplainComplexTdb;
-class ExExeUtilHiveTruncateTdb;
-class ExExeUtilHiveQueryTdb;
 class ExExeUtilSuspendTdb;
 class ExExeUtilSuspendTcb;
 class ExpHbaseInterface;
@@ -424,8 +421,6 @@ class ExExeUtilPrivateState : public ex_tcb_private_state
   friend class ExExeUtilTcb;
   friend class ExExeUtilCleanupVolatileTablesTcb;
   friend class ExExeUtilCreateTableAsTcb;
-  friend class ExExeUtilHiveTruncateTcb;
-  friend class ExExeUtilHiveQueryTcb;
   friend class ExExeUtilAQRTcb;
   friend class ExExeUtilHBaseBulkLoadTcb;
   friend class ExExeUtilUpdataDeleteTcb;
@@ -1008,7 +1003,6 @@ class ExExeUtilCleanupVolatileTablesTcb : public ExExeUtilVolatileTablesTcb
                                   ComDiagsArea *&diagsArea,
                                   ex_globals *globals = NULL);
   static short dropVolatileTables(ContextCli * currContext, CollHeap * heap);
-  short dropHiveTempTablesForCSEs();
 
  private:
   enum Step
@@ -2758,90 +2752,6 @@ private:
   Step step_;
 };
 
-//////////////////////////////////////////////////////////////////////////
-// -----------------------------------------------------------------------
-// ExExeUtilGetHiveMetadataInfoTdb
-// -----------------------------------------------------------------------
-class ExExeUtilGetHiveMetadataInfoTdb : public ComTdbExeUtilGetHiveMetadataInfo
-{
-public:
-
-  // ---------------------------------------------------------------------
-  // Constructor is only called to instantiate an object used for
-  // retrieval of the virtual table function pointer of the class while
-  // unpacking. An empty constructor is enough.
-  // ---------------------------------------------------------------------
-  ExExeUtilGetHiveMetadataInfoTdb()
-  {}
-
-  virtual ~ExExeUtilGetHiveMetadataInfoTdb()
-  {}
-
-  // ---------------------------------------------------------------------
-  // Build a TCB for this TDB. Redefined in the Executor project.
-  // ---------------------------------------------------------------------
-  virtual ex_tcb *build(ex_globals *globals);
-
-private:
-  // ---------------------------------------------------------------------
-  // !!!!!!! IMPORTANT -- NO DATA MEMBERS ALLOWED IN EXECUTOR TDB !!!!!!!!
-  // *********************************************************************
-  // The Executor TDB's are only used for the sole purpose of providing a
-  // way to supplement the Compiler TDB's (in comexe) with methods whose
-  // implementation depends on Executor objects. This is done so as to
-  // decouple the Compiler from linking in Executor objects unnecessarily.
-  //
-  // When a Compiler generated TDB arrives at the Executor, the same data
-  // image is "cast" as an Executor TDB after unpacking. Therefore, it is
-  // a requirement that a Compiler TDB has the same object layout as its
-  // corresponding Executor TDB. As a result of this, all Executor TDB's
-  // must have absolutely NO data members, but only member functions. So,
-  // if you reach here with an intention to add data members to a TDB, ask
-  // yourself two questions:
-  //
-  // 1. Are those data members Compiler-generated?
-  //    If yes, put them in the ComTdbDLL instead.
-  //    If no, they should probably belong to someplace else (like TCB).
-  //
-  // 2. Are the classes those data members belong defined in the executor
-  //    project?
-  //    If your answer to both questions is yes, you might need to move
-  //    the classes to the comexe project.
-  // ---------------------------------------------------------------------
-};
-
-//////////////////////////////////////////////////////////////////////////
-// -----------------------------------------------------------------------
-// ExExeUtilGetHiveMetadataInfoTcb
-// -----------------------------------------------------------------------
-class ExExeUtilGetHiveMetadataInfoTcb : public ExExeUtilGetMetadataInfoTcb
-{
-  friend class ExExeUtilGetHiveMetadataInfoTdb;
-
-public:
-  // Constructor
-  ExExeUtilGetHiveMetadataInfoTcb(
-       const ComTdbExeUtilGetHiveMetadataInfo & exe_util_tdb,
-       ex_globals * glob = 0);
-
-  ~ExExeUtilGetHiveMetadataInfoTcb();
-
-  virtual short work();
-
-  ExExeUtilGetHiveMetadataInfoTdb & getMItdb() const
-  {
-    return (ExExeUtilGetHiveMetadataInfoTdb &) tdb;
-  };
-
-protected:
-short fetchAllHiveRows(Queue * &infoList, 
-		       Lng32 numOutputEntries,
-		       short &rc);
-
-  HiveMetaData* hiveMetaDB_;
-
-  void * mdInfo_;
-};
 
 //////////////////////////////////////////////////////////////////////////
 class ExExeUtilGetMetadataInfoPrivateState : public ex_tcb_private_state
@@ -3075,288 +2985,10 @@ private:
   
 
 
-//////////////////////////////////////////////////////////////////////////
-// -----------------------------------------------------------------------
-// ExExeUtilHiveMDaccessTdb
-// -----------------------------------------------------------------------
-class ExExeUtilHiveMDaccessTdb : public ComTdbExeUtilHiveMDaccess
-{
-public:
 
-  // ---------------------------------------------------------------------
-  // Constructor is only called to instantiate an object used for
-  // retrieval of the virtual table function pointer of the class while
-  // unpacking. An empty constructor is enough.
-  // ---------------------------------------------------------------------
-  ExExeUtilHiveMDaccessTdb()
-  {}
 
-  virtual ~ExExeUtilHiveMDaccessTdb()
-  {}
-
-  // ---------------------------------------------------------------------
-  // Build a TCB for this TDB. Redefined in the Executor project.
-  // ---------------------------------------------------------------------
-  virtual ex_tcb *build(ex_globals *globals);
-
-private:
-  // ---------------------------------------------------------------------
-  // !!!!!!! IMPORTANT -- NO DATA MEMBERS ALLOWED IN EXECUTOR TDB !!!!!!!!
-  // *********************************************************************
-  // The Executor TDB's are only used for the sole purpose of providing a
-  // way to supplement the Compiler TDB's (in comexe) with methods whose
-  // implementation depends on Executor objects. This is done so as to
-  // decouple the Compiler from linking in Executor objects unnecessarily.
-  //
-  // When a Compiler generated TDB arrives at the Executor, the same data
-  // image is "cast" as an Executor TDB after unpacking. Therefore, it is
-  // a requirement that a Compiler TDB has the same object layout as its
-  // corresponding Executor TDB. As a result of this, all Executor TDB's
-  // must have absolutely NO data members, but only member functions. So,
-  // if you reach here with an intention to add data members to a TDB, ask
-  // yourself two questions:
-  //
-  // 1. Are those data members Compiler-generated?
-  //    If yes, put them in the ComTdbDLL instead.
-  //    If no, they should probably belong to someplace else (like TCB).
-  //
-  // 2. Are the classes those data members belong defined in the executor
-  //    project?
-  //    If your answer to both questions is yes, you might need to move
-  //    the classes to the comexe project.
-  // ---------------------------------------------------------------------
-};
-
-//////////////////////////////////////////////////////////////////////////
-// -----------------------------------------------------------------------
-// ExExeUtilHiveMDaccessTcb
-// -----------------------------------------------------------------------
-class ExExeUtilHiveMDaccessTcb : public ExExeUtilTcb
-{
-  friend class ExExeUtilHiveMDaccessTdb;
-
-public:
-  // Constructor
-  ExExeUtilHiveMDaccessTcb(
-       const ComTdbExeUtilHiveMDaccess & exe_util_tdb,
-       ex_globals * glob = 0);
-
-  ~ExExeUtilHiveMDaccessTcb();
-
-  virtual short work();
-
-  ExExeUtilHiveMDaccessTdb & hiveMDtdb() const
-  {
-    return (ExExeUtilHiveMDaccessTdb &) tdb;
-  };
-
-virtual ex_tcb_private_state *
-  allocatePstates(
-       Lng32 &numElems,      // inout, desired/actual elements
-       Lng32 &pstateLength); // out, length of one element
-
-protected:
-  Lng32 getTypeAttrsFromHiveColType(const char* hiveType,
-                                    NABoolean isORC,
-                                    Lng32 &fstype,
-                                    Lng32 &length,
-                                    Lng32 &precision,
-                                    Lng32 &scale,
-                                    char *sqlType,
-                                    char *displayType,
-                                    char *charset);
-  enum Step
-  {
-    INITIAL_,
-    SETUP_SCHEMAS_,
-    GET_ALL_SCHEMAS_,
-    GET_ALL_TABLES_,
-    GET_ALL_TABLES_IN_SCHEMA_,
-    POSITION_,
-    FETCH_SCHEMA_,
-    FETCH_TABLE_,
-    FETCH_TABLE_NAME_,
-    FETCH_COLUMN_,
-    FETCH_PKEY_,
-    APPLY_PRED_,
-    RETURN_ROW_,
-    ADVANCE_ROW_,
-    ADVANCE_SCHEMA_,
-    DONE_,
-    HANDLE_ERROR_,
-    CANCELLED_
-  };
-
-  Step step_;
-
-  HiveMetaData* hiveMD_;
-
-  hive_column_desc * currColDesc_;
-  hive_pkey_desc * currPartnDesc_;
-  hive_bkey_desc * currKeyDesc_;
-  Int32 currSchNum_;
-  Int32 currColNum_;
-
-  NABoolean tblNamesOnly_;
-  Int32 tblNameIdx_;
-
-  char * mdRow_;
-  LIST (NAText *) schNames_;
-  LIST (NAText *) tblNames_;
-
-  char hiveCat_[1024];
-  char hiveSch_[1024];
-  char schForHive_[1024];
-};
-
-//////////////////////////////////////////////////////////////////////////
-class ExExeUtilHiveMDaccessPrivateState : public ex_tcb_private_state
-{
-  friend class ExExeUtilGetMetadataInfoTcb;
-
-public:
-  ExExeUtilHiveMDaccessPrivateState();
-  ~ExExeUtilHiveMDaccessPrivateState();        // destructor
-protected:
-};
-
-// -----------------------------------------------------------------------
-// ExExeUtilHiveTruncateTdb
-// -----------------------------------------------------------------------
-class ExExeUtilHiveTruncateTdb : public ComTdbExeUtilHiveTruncate
-{
- public:
-
-  // ---------------------------------------------------------------------
-  // Constructor is only called to instantiate an object used for
-  // retrieval of the virtual table function pointer of the class while
-  // unpacking. An empty constructor is enough.
-  // ---------------------------------------------------------------------
-  ExExeUtilHiveTruncateTdb()
-    {}
-
-  virtual ~ExExeUtilHiveTruncateTdb()
-    {}
-
-  // ---------------------------------------------------------------------
-  // Build a TCB for this TDB. Redefined in the Executor project.
-  // ---------------------------------------------------------------------
-  virtual ex_tcb *build(ex_globals *globals);
-
- private:
-  // ---------------------------------------------------------------------
-  // !!!!!!! IMPORTANT -- NO DATA MEMBERS ALLOWED IN EXECUTOR TDB !!!!!!!!
-  // *********************************************************************
-  // The Executor TDB's are only used for the sole purpose of providing a
-  // way to supplement the Compiler TDB's (in comexe) with methods whose
-  // implementation depends on Executor objects. This is done so as to
-  // decouple the Compiler from linking in Executor objects unnecessarily.
-  //
-  // When a Compiler generated TDB arrives at the Executor, the same data
-  // image is "cast" as an Executor TDB after unpacking. Therefore, it is
-  // a requirement that a Compiler TDB has the same object layout as its
-  // corresponding Executor TDB. As a result of this, all Executor TDB's
-  // must have absolutely NO data members, but only member functions. So,
-  // if you reach here with an intention to add data members to a TDB, ask
-  // yourself two questions:
-  //
-  // 1. Are those data members Compiler-generated?
-  //    If yes, put them in the ComTdbDLL instead.
-  //    If no, they should probably belong to someplace else (like TCB).
-  //
-  // 2. Are the classes those data members belong defined in the executor
-  //    project?
-  //    If your answer to both questions is yes, you might need to move
-  //    the classes to the comexe project.
-  // ---------------------------------------------------------------------
-};
-
-///////////////////////////////////////////////////////////////
-// ExExeUtilHiveTruncateTcb
-///////////////////////////////////////////////////////////////
-class ExExeUtilHiveTruncateTcb : public ExExeUtilTcb
-{
- public:
-  // Constructor
-  ExExeUtilHiveTruncateTcb(const ComTdbExeUtilHiveTruncate & exe_util_tdb,
-                                ex_globals * glob = 0);
-
-  ~ExExeUtilHiveTruncateTcb();
-
-  virtual ex_tcb_private_state * allocatePstates(
-       Lng32 &numElems,      // inout, desired/actual elements
-       Lng32 &pstateLength); // out, length of one element
-  virtual void freeResources();
-  virtual short work();
-
- private:
-  enum Step
-    {
-      INITIAL_,
-      ALTER_TO_MANAGED_,
-      TRUNCATE_TABLE_,
-      ALTER_TO_EXTERNAL_,
-      ALTER_TO_EXTERNAL_AND_ERROR_,
-      ERROR_,
-      DONE_
-    };
-
-  ExExeUtilHiveTruncateTdb & htTdb() const
-    {return (ExExeUtilHiveTruncateTdb &) tdb;};
-
-  Step step_;
-
-  HiveClient_JNI *hiveClient_;
-};
-
-class ExExeUtilHiveTruncatePrivateState : public ex_tcb_private_state
-{
-  friend class ExExeUtilHiveTruncateTcb;
-
- public:
-  ExExeUtilHiveTruncatePrivateState();
-  ~ExExeUtilHiveTruncatePrivateState();        // destructor
- protected:
-};
-
-//////////////////////////////////////////////////////////////
-// ExExeUtilHiveQueryTdb
-//////////////////////////////////////////////////////////////
-class ExExeUtilHiveQueryTdb : public ComTdbExeUtilHiveQuery
-{
- public:
-  ExExeUtilHiveQueryTdb()
-    {}
-  virtual ~ExExeUtilHiveQueryTdb()
-    {}
-  virtual ex_tcb *build(ex_globals *globals);
- private:
-};
-class ExExeUtilHiveQueryTcb : public ExExeUtilTcb
-{
- public:
-  ExExeUtilHiveQueryTcb(const ComTdbExeUtilHiveQuery & exe_util_tdb,
-                        ex_globals * glob = 0);
-  ~ExExeUtilHiveQueryTcb();
-  virtual short work();
-  virtual ex_tcb_private_state * allocatePstates(
-       Lng32 &numElems,      // inout, desired/actual elements
-       Lng32 &pstateLength); // out, length of one element
- private:
-  enum Step
-    {
-      INITIAL_,
-      ERROR_,
-      PROCESS_QUERY_,
-      DONE_
-    };
-  ExExeUtilHiveQueryTdb & htTdb() const
-    {return (ExExeUtilHiveQueryTdb &) tdb;};
-  Step step_;
-};
 class ExExeUtilHiveQueryPrivateState : public ex_tcb_private_state
 {
-  friend class ExExeUtilHiveQueryTcb;
  public:
   ExExeUtilHiveQueryPrivateState();
   ~ExExeUtilHiveQueryPrivateState();        // destructor

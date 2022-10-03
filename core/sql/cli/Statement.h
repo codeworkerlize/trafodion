@@ -561,9 +561,7 @@ public:
   RETCODE getProxySyntax(char *proxy, Lng32 maxlength, Lng32 *spaceRequired,
                          const char *prefix, const char *suffix);
  
-  RETCODE doHiveTableSimCheck(TrafSimilarityTableInfo *si,
-                              NABoolean &simCheckFailed,
-                              ComDiagsArea &diagsArea);
+
 
   RETCODE doQuerySimilarityCheck(TrafQuerySimilarityInfo * qsi,
                                  NABoolean &simCheckFailed,

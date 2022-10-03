@@ -6490,21 +6490,7 @@ void GroupByAgg::decideFeasibleToTransformForAggrPushdown(NABoolean checkAll)
       isAvro = naTable->isAvro();
       isExt = (isOrc || isParquet || isAvro);
 
-      if ( !isSeabase ) {
-        const HHDFSTableStats* hTabStats = 
-           naTable->getClusteringIndex()->getHHDFSTableStats();
 
-        if ( hTabStats ) {
-
-          Int64 numFiles = hTabStats->getNumFiles();
-
-          Int64 numFilesLimit = 
-              (ActiveSchemaDB()->getDefaults()).
-                  getAsLong(PARALLEL_AGGR_PUSHDOWN);
-
-          parallelAggrPushdown_ = (numFiles > numFilesLimit) ? TRUE : FALSE;
-        }
-      }
 
 
     }

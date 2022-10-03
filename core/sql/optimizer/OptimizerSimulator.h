@@ -46,7 +46,6 @@
 
 // forward declaration to allow usage of NATable *
 class NATable;
-class HiveClient_JNI;
 class ExeCliInterface; 
 class CmpSeabaseDDL;
 class Queue;
@@ -54,8 +53,6 @@ class Queue;
 class OsimAllHistograms;
 class OsimHistogramEntry;
 class HHDFSStatsBase;
-class HHDFSTableStats;
-struct hive_tbl_desc;
 
 class OsimAllHistograms : public XMLElement
 {
@@ -307,19 +304,15 @@ class OptimizerSimulator : public NABasicObject
     void dumpDDLs(const QualifiedName & qualifiedName);
     void initializeCLI();
     void loadHistograms(const char* histogramPath, NABoolean isHive);
-    short loadHistogramsTable(NAString* modifiedPath, QualifiedName * qualifiedName, unsigned int bufLen, NABoolean isHive);
-    short loadHistogramIntervalsTable(NAString* modifiedPath, QualifiedName * qualifiedName, unsigned int bufLen, NABoolean isHive);
     Int64 getTableUID(const char * catName, const char * schName, const char * objName);
     short fetchAllRowsFromMetaContext(Queue * &q, const char* query);
     short executeFromMetaContext(const char* query);
     void loadDDLs();
-    void loadHiveDDLs();
     void histogramHDFSToLocal();
     void removeHDFSCacheDirectory();
     void createLogDir();
     void dropObjects();
     void dumpVersions();
-    void execHiveSQL(const char* hiveSQL);
     
     // This is the directory OSIM uses to read/write log files.
     NAString osimLogLocalDir_;    //OSIM dir in local disk, used during capture and simu mode.

@@ -27,8 +27,8 @@
 #include <inttypes.h>
 #include <stdio.h>
 #include "Platform.h"
-// #include "sm.h"
 #include "NAAssert.h"
+#include "../seamonster/src/sm.h"
 
 // Forward declarations
 class ExSMGlobals;

@@ -535,9 +535,7 @@ ex_clause::ex_clause(clause_type type,
 	case ITM_NVL:
 	  setClassID(FUNC_NVL);
 	  break;
-        case ITM_JSONOBJECTFIELDTEXT:
-	  setClassID(FUNC_JSON_ID);
-	  break;
+
 	// for ngram
 	case ITM_FIRSTNGRAM:
 	  setClassID(FUNC_FIRSTNGRAM);
@@ -545,15 +543,9 @@ ex_clause::ex_clause(clause_type type,
 	case ITM_NGRAMCOUNT:
 	  setClassID(FUNC_NGRAMCOUNT);
 	  break;
-	case ITM_JSON_VALUE:
-	  setClassID(FUNC_JSON_VALUE_ID);
-	  break;
-        case ITM_JSON_EXISTS:
-          setClassID(FUNC_JSON_EXISTS_ID);
-          break;
-        case ITM_JSON_QUERY:
-          setClassID(FUNC_JSON_QUERY_ID);
-          break;
+
+
+
 	case ITM_QUERYID_EXTRACT:
 	  setClassID(FUNC_QUERYID_EXTRACT);
 	  break;
@@ -1055,19 +1047,8 @@ char *ex_clause::findVTblPtr(short classID)
     case ex_clause::FUNC_NVL:
       GetVTblPtr(vtblPtr, ex_function_nvl);
       break;
-    case ex_clause::FUNC_JSON_ID:
-      GetVTblPtr(vtblPtr, ex_function_json_object_field_text);
-      break;
-    case ex_clause::FUNC_JSON_VALUE_ID:
-      GetVTblPtr(vtblPtr, ex_function_json_value);
-      break;
-    case ex_clause::FUNC_JSON_QUERY_ID:
-      GetVTblPtr(vtblPtr, ex_function_json_query);
-      break;
-    case ex_clause::FUNC_JSON_EXISTS_ID:
-      GetVTblPtr(vtblPtr, ex_function_json_exists);
-      break;
-    // for ngram
+
+
     case ex_clause::FUNC_FIRSTNGRAM:
       GetVTblPtr(vtblPtr, ex_function_firstngram);
       break;
@@ -1583,11 +1564,6 @@ const char * getOperTypeEnumAsString(Int16 /*OperatorTypeEnum*/ ote)
     case ITM_NULLIFZERO: return "ITM_NULLIFZERO";
     case ITM_NVL: return "ITM_NVL";
 
-    // Json functions
-    case ITM_JSONOBJECTFIELDTEXT: return "ITM_JSONOBJECTFIELDTEXT";
-    case ITM_JSON_EXISTS: return "ITM_JSON_EXISTS";
-    case ITM_JSON_VALUE: return "ITM_JSON_VALUE";
-    case ITM_JSON_QUERY: return "ITM_JSON_QUERY";
     // for ngram
     case ITM_FIRSTNGRAM: return "ITM_FIRSTNGRAM";
     case ITM_NGRAMCOUNT: return "ITM_NGRAMCOUNT";

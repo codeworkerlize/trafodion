@@ -102,7 +102,6 @@ CPPSRC := Allocator.cpp \
 	ExRsInfo.cpp \
 	FixedSizeHeapManager.cpp \
 	hash_table.cpp \
-	hiveHook.cpp \
 	key_mdam.cpp \
 	key_range.cpp \
 	key_single_subset.cpp \
@@ -126,7 +125,6 @@ CPPSRC := Allocator.cpp \
         JavaObjectInterface.cpp \
         SequenceFileReader.cpp \
         OrcFileReader.cpp \
-        HiveClient_JNI.cpp \
         DistributedLock_JNI.cpp \
         HBaseClient_JNI.cpp \
 	OrcFileVectorWriter.cpp \

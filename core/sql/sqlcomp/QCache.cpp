@@ -55,7 +55,6 @@
 #include "CmpStatement.h"
 #include "Globals.h"
 #include "Context.h"
-#include "hs_cli.h"
 
 #define MAGIC_NUMBER 20210602
 

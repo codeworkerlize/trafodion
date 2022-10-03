@@ -1602,10 +1602,7 @@ bool CmpSeabaseDDLauth::createStandardAuth(
     }
 
     Int32 newAuthID = (authID == NA_UserIdDefault) ? getUniqueAuthID(minAuthID, maxAuthID) : authID;
-    if (isRole())
-      assert(isRoleID(newAuthID));
-    else if (isUser())
-      assert (isUserID(newAuthID));
+
 
     setAuthID(newAuthID);
     setAuthCreator(ComUser::getRootUserID());

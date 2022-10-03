@@ -78,7 +78,6 @@
 
 #include "QCache.h"
 
-#include "hs_update.h"
 #include "NAMemory.h"
 #include "EstLogProp.h"     // Pick up definition of GLOBAL_EMPTY_INPUT_LOGPROP
 #include "opt.h"	    // to initialize the memo and task_list variables

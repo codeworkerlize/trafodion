@@ -2650,41 +2650,6 @@ void TableDesc::compressHistogramsForCurrentQuery()
 	  histsCompressed(TRUE);
 }
 
-NABoolean TableDesc::splitHiveLocation(const char *tableLocation,
-                                       NAString &hdfsHost,
-                                       Int32 &hdfsPort,
-                                       NAString &tableDir,
-                                       ComDiagsArea *diags,
-                                       int hdfsPortOverride)
-{
-  HHDFSDiags hhdfsDiags;
-
-  NABoolean result = HHDFSTableStats::splitLocation(
-       tableLocation,
-       hdfsHost,
-       hdfsPort,
-       tableDir,
-       hhdfsDiags,
-       hdfsPortOverride);
-
-  if (!result)
-    {
-      if (!hhdfsDiags.isSuccess())
-        {
-          if (diags)
-            (*diags) << DgSqlCode(-1215)
-                     << DgString0(tableLocation)
-                     << DgString1(hhdfsDiags.getErrMsg());
-        }
-      else
-        CMPASSERT(0);
-    }
-  else
-    CMPASSERT(hhdfsDiags.isSuccess());
-
-  return result;
-}
-
 // Compute probe stats for ORC NJ.
 NABoolean 
 TableDesc::computeMinMaxRowCountForLocalPred(const ValueIdSet& eqJoinCols, const ValueIdSet& localPreds, CostScalar& count, CostScalar& min, CostScalar& max)

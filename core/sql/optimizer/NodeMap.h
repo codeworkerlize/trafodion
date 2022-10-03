@@ -185,54 +185,6 @@ private:
 }; // NodeMapEntry
 //<pb>
 
-class HHDFSFileStats;
-
-struct HiveScanInfo
-{
-   void print(FILE* ofd, const char* indent, const char* title) const;
-
-  HiveScanInfo(HHDFSFileStats* file=NULL, Int64 off=0, Int64 span=0,
-               Int32 localBlockNum=-1,
-               const HHDFSPartitionStats* partition=NULL,
-               const char *partColExplodedValues=NULL,
-               NABoolean fullScan = FALSE)
-       : file_(file), offset_(off), span_(span), localBlockNum_(localBlockNum),
-         partition_(partition), partColExplodedValues_(partColExplodedValues) , isFullScan_(fullScan)
-  {}
-     
-   HHDFSFileStats* file_;
-   Int64 offset_;
-   Int64 span_;
-   Int32 localBlockNum_;
-   const HHDFSPartitionStats* partition_;
-   const char *partColExplodedValues_;
-   NABoolean isFullScan_;
-};
-   
-class HiveNodeMapEntry : public NodeMapEntry {
-
-public:
-
-   HiveNodeMapEntry(PartitionState state = ACTIVE, CollHeap* heap=0)
-    : NodeMapEntry(state), scanInfo_(heap, 0) {}
-
-   HiveNodeMapEntry(const HiveNodeMapEntry&, CollHeap* heap=0);
-
-   ~HiveNodeMapEntry() {}
-
-   void addScanInfo(HiveScanInfo info) 
-     { scanInfo_.insertAt(scanInfo_.entries(), info); }
-
-   HiveNodeMapEntry& operator=(const HiveNodeMapEntry& other);
-
-
-   void print(FILE* ofd, const char* indent, const char* title) const;
-   
-   LIST(HiveScanInfo)& getScanInfo() { return scanInfo_; }
-
-protected:
-   LIST(HiveScanInfo) scanInfo_;
-};
 
 
 class HBaseNodeMapEntry : public NodeMapEntry {
@@ -380,8 +332,6 @@ public:
 
   // Does this node map have any remote partitions
   NABoolean hasRemotePartitions() const;
-
-  static NABoolean useLocalityForHiveScanInfo();
 
 
 

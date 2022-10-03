@@ -44,7 +44,6 @@
 #include "Sqlcomp.h"
 #include "Const.h"
 #include "dfs2rec.h"
-#include "hs_read.h"
 #include "parser.h"
 #include "BindWA.h"
 #include "ComAnsiNamePart.h"
@@ -368,23 +367,7 @@ void HistogramCache::getHistograms(NATable& table,
   lastTouchTime_ = getCurrentTime();
 } //1//
   
-//----------------------------------------------------------------------------
-// HistogramCache::createColStatsList()
-// This method actually puts the statistics for columns that require statistics
-// into colStatsList.
-// 1. If reRead is false meaning that the table's statistics exist in the cache,
-//    then this method gets statistics from the cache and copies them into
-//    colStatsList. If statistics for some columns are not found in the cache, then
-//    this method calls FetchHistograms to get statistics for these columns. It
-//    then puts these missing statistics into the cache, then copies the statistics
-//    from the cache into colStatsList
-// 2. If reRead is true meaning that we need to get statistics from disk via
-//    FetchHistograms. reRead can be true for any of the following cases:
-//    a. Histogram Caching is on but we updated statistics since we last read them
-//       so we have deleted the old statistics and we need to read the tables
-//       statistics again from disk.
-// 3. If histograms are being Fetched on demand meaning that histogram caching is off,
-//    then this method will fetch statistics into colStatsList using FetchHistograms.
+
 //
 // Now that we also have the option of reducing the number of intervals in histograms
 // this method also factors that in.
@@ -449,14 +432,7 @@ void HistogramCache::createColStatsList
   if(cachedHistograms && (CURRSTMT_OPTDEFAULTS->cacheHistograms() &&
 		          type == ExtendedQualName::NORMAL_TABLE))
   {
-    // getStatsListFromCache will unmark columns that have statistics 
-    // in cachedHistograms. All columns whose statistics are not in
-    // cachedHistogram are still marked as needing histograms. 
-    // This is then passed into FetchHistograms, which will
-    // return statistics for columns marked as needing histograms. 
-    // colArray tells getStatsListFromCache what columns need 
-    // histograms. getStatsListFromCache uses colArray to tell
-    // us what columns were not found in cachedHistograms.
+
 
     // get statistics from cachedHistograms into list.
     // colArray has the columns whose histograms we need.
@@ -468,9 +444,6 @@ void HistogramCache::createColStatsList
   // set to TRUE if all columns in the table have default statistics
   NABoolean allFakeStats = TRUE;
 
-  //if some of the needed statistics were not found in the cache
-  //then call FetchHistograms to get those statistics
-  // TODO: revise this test for expressions histograms
   if (colArray.entries() > coveredList)
   {
      //this is the stats list into which statistics will be fetched
@@ -521,20 +494,7 @@ void HistogramCache::createColStatsList
         }
      }
 
-     FetchHistograms(qualifiedName,
-                     type,
-                     (colArray),
-                     table.interestingExpressions(),
-                     (*statsListForFetch),
-                     FALSE,
-                     CmpCommon::statementHeap(),
-                     statsTime,
-                     allFakeStats,//set to TRUE if all columns have default stats
-                     preFetch,
-                     (Int64) CURRSTMT_OPTDEFAULTS->histDefaultSampleSize(),
-                     (table.isORC() || table.isParquet()),
-                     (useStoredStats ? (TrafDesc *)table.getStoredStatsDesc() : NULL)
-                    );  
+
   
   }
 
@@ -551,11 +511,7 @@ void HistogramCache::createColStatsList
         // whose statistics we needed?
         if (colArray.entries() > coveredList)
         {
-          // not all the required statistics were in the cache,
-          // some statistics were missing from the cache entry.
-          // therefore must have done a FetchHistograms to get
-          // the missing histograms. Now update the cache entry
-          // by adding the missing histograms that were just fetched
+
           ULng32 histCacheHeapSize = heap_->getAllocSize();
           cachedHistograms->addToCachedEntry(colArray,(*statsListForFetch));
           ULng32 entrySizeGrowth = (heap_->getAllocSize() - histCacheHeapSize);
@@ -1057,22 +1013,7 @@ HistogramsCacheEntry::addToCachedEntry
     NABoolean singleColHist = (colList.entries()==1? TRUE: FALSE);
     NABoolean mcForHbasePart = list[j]->isMCforHbasePartitioning ();
 
-    //only fullHistograms are inserted in full_.
-    //We also add fake histograms to the cache.
-    //This will help us not to call FetchHistograms
-    //for a column that has fake statistics. 
-    //Previously we did not cache statistics for
-    //columns that did not have statistics in the histograms tables 
-    //(FetchHistogram faked statistics for such column). 
-    //Since statistics for such columns were not found in the
-    //cache we had to repeatedly call FetchHistogram 
-    //to get statistics for these columns
-    //instead of just getting the fake statistics from the cache. 
-    //FetchHistograms always return fake statistics for such columns 
-    //so why not just cache them and not call FetchHistograms. 
-    //When statistics are added for these columns then the timestamp
-    //matching code will realize that and 
-    //re-read the statistics for the table again.
+
     if((requiresHistogram || NOT singleColHist)|| list[j]->isFakeHistogram())
     {
         //if single column Histograms
@@ -2814,164 +2755,6 @@ static PartitioningFunction * createHivePartitioningFunction
 
 } // static createHivePartitioningFunction()
 
-// -----------------------------------------------------------------------
-// createNodeMap()
-// This method is used for creating a node map for all DP2 partitions of
-// associated with this table or index.
-// -----------------------------------------------------------------------
-static void createNodeMap (TrafDesc* part_desc_list,
-		           NodeMap*     nodeMap,
-                           NAMemory*    heap,
-                           char * tableName,
-                           Int32 tableIdent)
-{
-  // ---------------------------------------------------------------------
-  // Loop over all partitions creating a DP2 node map entry for each
-  // partition.
-  // ---------------------------------------------------------------------
-  TrafDesc* partns_desc      = part_desc_list;
-  CollIndex    currentPartition = 0;
-  if(NOT partns_desc)
-  {
-    NodeMapEntry entry =
-          NodeMapEntry(tableName,NULL,heap,tableIdent);
-    nodeMap->setNodeMapEntry(currentPartition,entry,heap);
-  }
-  else{
-    while (partns_desc)
-    {
-      NodeMapEntry entry(partns_desc->partnsDesc()->partitionname,
-	partns_desc->partnsDesc()->givenname,
-        heap,tableIdent);
-      nodeMap->setNodeMapEntry(currentPartition,entry,heap);
-      partns_desc = partns_desc->next;
-      currentPartition++;
-    }
-  }
-  // -------------------------------------------------------------------
-  //  If no partitions supplied, create a single partition node map with
-  // a dummy entry.
-  // -------------------------------------------------------------------
-  if (nodeMap->getNumEntries() == 0)
-    {
-
-      NodeMapEntry entry(NodeMapEntry::ACTIVE);
-      nodeMap->setNodeMapEntry(0,entry,heap);
-
-    }
-
-  // -------------------------------------------------------------------
-  // Set the tableIndent into the nodemap itself.
-  // -------------------------------------------------------------------
-  nodeMap->setTableIdent(tableIdent);
-
-  // -----------------------------------------------------------------------
-  //  See if we need to build a bogus node map with fake volume assignments.
-  // This will allow us to fake costing code into believing that all
-  // partitions are distributed evenly among SMP nodes in the cluster.
-  // -----------------------------------------------------------------------
-  if (CmpCommon::getDefault(FAKE_VOLUME_ASSIGNMENTS) == DF_ON)
-    {
-
-      // --------------------------------------------------------------------
-      //  Extract number of SMP nodes in the cluster from the defaults table.
-      // --------------------------------------------------------------------
-      NADefaults &defs     = ActiveSchemaDB()->getDefaults();
-      CollIndex  numOfSMPs =  CmpCommon::context()->getNumOfSMPs();
-
-      if(CURRSTMT_OPTDEFAULTS->isFakeHardware())
-      {
-        numOfSMPs = defs.getAsLong(DEF_NUM_NODES_IN_ACTIVE_CLUSTERS);
-      }
-
-
-      // ------------------------------------------------------------------
-      //  Determine how many node map entries will be assigned a particular
-      // node, and also calculate if there are any remaining entries.
-      // ------------------------------------------------------------------
-      CollIndex entriesPerNode   = nodeMap->getNumEntries() / numOfSMPs;
-      CollIndex entriesRemaining = nodeMap->getNumEntries() % numOfSMPs;
-
-      // ----------------------------------------------------------------
-      //  Assign each node to consecutive entries such that each node has
-      // approximately the same number of entries.
-      //
-      //  Any extra entries get assigned evenly to the last remaining
-      // nodes.  For example, if the cluster has 5 nodes and the node map
-      // has 23 entries, we would assign nodes to entries as follows:
-      //
-      //  Entries  0 -  3 to node 0. (4 entries)
-      //  Entries  4 -  7 to node 1. (4 entries)
-      //  Entries  8 - 12 to node 2. (5 entries)
-      //  Entries 13 - 17 to node 3. (5 entries)
-      //  Entries 18 - 22 to node 4. (5 entries)
-      // ----------------------------------------------------------------
-      CollIndex mapIdx = 0;
-      for (CollIndex nodeIdx = 0; nodeIdx < numOfSMPs; nodeIdx++)
-        {
-          if (nodeIdx == numOfSMPs - entriesRemaining)
-            {
-              entriesPerNode += 1;
-            }
-
-          for (CollIndex entryIdx = 0; entryIdx < entriesPerNode; entryIdx++)
-            {
-              nodeMap->setNodeNumber(mapIdx,nodeIdx);
-              mapIdx += 1;
-            }
-        }
-
-    }
-
-} // static createNodeMap()
-
-static void createNodeMap (hive_tbl_desc* hvt_desc,
-		           NodeMap*     nodeMap,
-                           NAMemory*    heap,
-                           char * tableName,
-                           Int32 tableIdent)
-{
-
-  // ---------------------------------------------------------------------
-  // Loop over all hive storage (partition file ) creating a node map 
-  // entry for each partition.
-  // ---------------------------------------------------------------------
-
-  CMPASSERT(nodeMap->type() == NodeMap::HIVE);
-  hive_sd_desc* sd_desc = hvt_desc->getSDs();
-
-  CollIndex    currentPartition = 0;
-
-  //  char buf[500];
-  Int32 i= 0;
-  while (sd_desc)
-    {
-      HiveNodeMapEntry entry(NodeMapEntry::ACTIVE, heap);
-      nodeMap->setNodeMapEntry(currentPartition++,entry,heap);
-      sd_desc = sd_desc->next_;
-    }
-
-  // -------------------------------------------------------------------
-  //  If no partitions supplied, create a single partition node map with
-  // a dummy entry.
-  // -------------------------------------------------------------------
-  if (nodeMap->getNumEntries() == 0)
-    {
-
-      HiveNodeMapEntry entry(NodeMapEntry::ACTIVE, heap);
-      nodeMap->setNodeMapEntry(0,entry,heap);
-
-    }
-
-  // -------------------------------------------------------------------
-  // Set the tableIndent into the nodemap itself.
-  // -------------------------------------------------------------------
-  nodeMap->setTableIdent(tableIdent);
-
-  // No fake volumn assignment because Hive' partitions are not hash
-  // based, there is no balance of data among all partitions.
-} // static createNodeMap()
-
 //-------------------------------------------------------------------------
 // This function checks if a table/index or any of its partitions are
 // remote. This is required to determine the size of the EidRootBuffer
@@ -3269,114 +3052,6 @@ static NABoolean addVirtualHiveColumns(NAColumnArray &colArray,
 
   return FALSE;
 }
-
-static NABoolean createNAColumns(struct hive_column_desc* hcolumn /*IN*/,
-                                 struct hive_pkey_desc* pcolumn /*IN*/,
-                                 NABoolean isView, /*IN*/
-                                 NATable *table		/*IN*/,
-                                 NAColumnArray &colArray	/*OUT*/,
-                                 NAMemory *heap		/*IN*/)
-{
-  // Assume that hive_struct->conn has the right connection,
-  // and tblID and sdID has be properly set.
-  // In the following loop, we need to extract the column information.
-  int maxColIx = -1;
-
-   while (hcolumn) {
-
-     NAType* natype = getSQColTypeForHive(hcolumn->type_, 
-                                          table->isORC(), 
-                                          heap);
-
-      if ( !natype ) {
-	*CmpCommon::diags()
-	  << DgSqlCode(-1204)
-	  << DgString0(hcolumn->type_);
-         return TRUE;
-      }
-
-      if (natype->isComposite())
-        table->setHasCompositeColumns(TRUE);
-
-      NAString colName(hcolumn->name_);
-      colName.toUpper();
-
-      NAColumn* newColumn = new (heap)
-                    NAColumn(colName.data(),
-                             hcolumn->intIndex_,
-                             natype,
-                             heap,
-                             table,
-                             USER_COLUMN, // colClass,
-                             COM_NULL_DEFAULT  ,//defaultClass,
-                             (char*)"", // defaultValue,
-                             (char*)"", // heading,
-                             FALSE, // column_desc->isUpshifted(),
-                             FALSE, // added column
-                             COM_UNKNOWN_DIRECTION,
-                             FALSE,  // isOptional
-                             NULL,  // routineParamType
-                             TRUE, // column_desc->stored_on_disk,
-                             (char*)"" //computed_column_text
-                            );
-
-      if (table != NULL)
-      {
-        if (newColumn->isAddedColumn())
-          table->setHasAddedColumn(TRUE);
-
-        if (newColumn->getType()->isVaryingLen())
-          table->setHasVarcharColumn(TRUE);
-      }
-
-      colArray.insert(newColumn);
-
-      if (maxColIx < hcolumn->intIndex_)
-        maxColIx = hcolumn->intIndex_;
-
-      hcolumn= hcolumn->next_;
-
-    }
-
-   // Add partitioning columns at the end, if present. These
-   // will be computed from the metadata, they are not present
-   // in the actual file.
-   int partColIx = 0;
-
-   while (pcolumn) {
-
-     NAType* natype = getSQColTypeForHive(pcolumn->type_, table->isORC(), heap);
-
-      if ( !natype ) {
-	*CmpCommon::diags()
-	  << DgSqlCode(-1204)
-	  << DgString0(pcolumn->type_);
-         return TRUE;
-      }
-
-      NAString colName(pcolumn->name_);
-      colName.toUpper();
-
-      NAColumn* newColumn = new (heap)
-        NAColumn(colName.data(),
-                 ++maxColIx,
-                 natype,
-                 heap,
-                 table);
-
-      newColumn->setVirtualColumnType(NAColumn::HIVE_PART_COL);
-      colArray.insert(newColumn);
-
-      pcolumn= pcolumn->next_;
-
-    }
-
-   if (addVirtualHiveColumns(colArray, table, isView, maxColIx, heap))
-     return TRUE;
-
-  return FALSE;							// no error
-
-} // createNAColumns()
 
 
 
@@ -3905,18 +3580,7 @@ NABoolean createNAFileSets(TrafDesc * table_desc       /*IN*/,
                                   bindWA);
       if (files_desc)
       {
-	if( (table->getSpecialType() != ExtendedQualName::VIRTUAL_TABLE AND
-	     (NOT table->isHbaseTable()))
-	    OR files_desc->filesDesc()->partns_desc )
-	  {
-            nodeMap = new (heap) NodeMap(heap);
-            createNodeMap(files_desc->filesDesc()->partns_desc,
-			  nodeMap,
-			  heap,
-			  table_desc->tableDesc()->tablename,
-			  cmpCurrentContext->getTableIdent());
-	    tableIdList.insert(CollIndex(cmpCurrentContext->getTableIdent()));
-	  }
+
 	// Check whether the index has any remote partitions.
 	if (checkRemote(files_desc->filesDesc()->partns_desc,
 			currIndexDesc->indexname))
@@ -4174,7 +3838,6 @@ NABoolean createNAFileSets(TrafDesc * table_desc       /*IN*/,
                   (currIndexDesc->isInMemoryObject()),
                   currIndexDesc->indexUID,
                   localKeysDesc,
-                  NULL, // no Hive stats
                   currIndexDesc->numSaltPartns,
                   currIndexDesc->numInitialSaltRegions,
                   numTrafReplicas,
@@ -4226,381 +3889,6 @@ NABoolean createNAFileSets(TrafDesc * table_desc       /*IN*/,
   // logic related to indexes hiding
    return FALSE;
  } // static createNAFileSets()
-
-// for Hive tables
-static
-NABoolean createNAFileSets(hive_tbl_desc* hvt_desc        /*IN*/,
-                           TrafDesc* extTableDesc         /*IN*/,
-                           const NATable * table          /*IN*/,
-                           const NAColumnArray & colArray /*IN*/,
-                           NAFileSetList & indexes        /*OUT*/,
-                           NAFileSetList & vertParts      /*OUT*/,
-                           NAFileSet * & clusteringIndex  /*OUT*/,
-			   LIST(CollIndex) & tableIdList  /*OUT*/,
-                           NAMemory* heap,
-                           BindWA * bindWA,
-			   NABoolean& isORC,
-                           NABoolean& isParquet,
-                           NABoolean& isAvro,
-			   Int32 *maxIndexLevelsPtr = NULL)
-{
-  NABoolean isTheClusteringKey = TRUE;
-  NABoolean isVerticalPartition;
-  NABoolean hasRemotePartition = FALSE;
-  CollIndex numClusteringKeyColumns = 0;
-
-  // only one set of key columns to handle for hive
-
-      Lng32 numberOfFiles = 1;	  	// always at least 1
-      //      NAColumn * indexColumn;		// an index/VP key column
-      NAFileSet * newIndex;		// a new file set
-
-      // all columns that belong to an index
-      NAColumnArray allColumns(CmpCommon::statementHeap());
-
-      // the index key columns
-      NAColumnArray indexKeyColumns(CmpCommon::statementHeap());
-
-      // the BUCKETING columns
-      NAColumnArray bucketingKeyColumns(CmpCommon::statementHeap());
-
-      // the sort columns for bucketed tables
-      NAColumnArray sortKeyColumns(CmpCommon::statementHeap());
-
-      PartitioningFunction * partFunc = NULL;
-      // is this an index or is it really a VP?
-
-      isVerticalPartition = FALSE;
-      NABoolean isPacked = FALSE;
-
-      NABoolean isNotAvailable = FALSE;
-
-      // ---------------------------------------------------------------------
-      // loop over the clustering key columns of the index
-      // ---------------------------------------------------------------------
-      const hive_bkey_desc *hbk_desc = hvt_desc->getBucketingKeys();
-
-      Int32 numBucketingColumns = 0;
-
-      while (hbk_desc)
-	{
-          NAString colName(hbk_desc->name_);
-          colName.toUpper();
-
-          NAColumn* bucketingColumn = colArray.getColumn(colName);
-
-          if ( bucketingColumn ) {
-	     bucketingKeyColumns.insert(bucketingColumn);
-             numBucketingColumns++;
-          }
-
-	  hbk_desc = hbk_desc->next_;
-	} // end while (hvk_desc)
-
-      const hive_skey_desc *hsk_desc = hvt_desc->getSortKeys();
-
-      // handle sorted columns
-      while (hsk_desc)
-        {
-          NAString colName(hsk_desc->name_);
-          colName.toUpper();
-
-          NAColumn* sortKeyColumn = colArray.getColumn(colName);
-
-          if (sortKeyColumn)
-            {
-              sortKeyColumns.insert(sortKeyColumn);
-              if (hsk_desc->orderInt_ == 0)
-                sortKeyColumns.setAscending(sortKeyColumns.entries()-1,FALSE);
-            }
-
-          hsk_desc = hsk_desc->next_;
-        }
-
-      // Hive tables don't enforce a unique key, but we can pick virtual
-      // columns to form a unique key (this can also be used internally,
-      // e.g. for subquery unnesting).
-      createHiveKeyColumns(colArray,
-                           indexKeyColumns,
-                           CmpCommon::statementHeap());
-
-      // ---------------------------------------------------------------------
-      // Loop over the non key columns. 
-      // ---------------------------------------------------------------------
-      for (CollIndex i=0; i<colArray.entries(); i++)
-	{
-	  allColumns.insert(colArray[i]);
-	}
-
-      //increment for each table/index to create unique identifier
-      cmpCurrentContext->incrementTableIdent();
-
-      // collect file stats from HDFS for the table
-      const hive_sd_desc *sd_desc = hvt_desc->getSDs();
-
-      HHDFSTableStats * hiveHDFSTableStats = NULL;
-
-      {
-{
-              hiveHDFSTableStats = new(heap) HHDFSTableStats(heap);
-              hiveHDFSTableStats->setPortOverride(CmpCommon::getDefaultLong(HIVE_LIB_HDFS_PORT_OVERRIDE));
-              // create file-level statistics and estimate total row count and record length
-              hiveHDFSTableStats->populate(hvt_desc);
-          }
-      }
-
-      if (hiveHDFSTableStats->hasError())
-        {
-          *CmpCommon::diags() << DgSqlCode(-1200)
-                              << DgString0(hiveHDFSTableStats->getDiags().getErrMsg())
-                              << DgTableName(table->getTableName().getQualifiedNameAsAnsiString());
-          return TRUE;
-        }
-      else if (hiveHDFSTableStats->getDiags().getSkipCount() > 0)
-        {
-          *CmpCommon::diags() << DgSqlCode(1218)
-                              << DgString0(hiveHDFSTableStats->getDiags().getSkippedFiles())
-                              << DgTableName(table->getTableName().getQualifiedNameAsAnsiString());
-        }
-
-
-
-      if ( (hiveHDFSTableStats->isOrcFile()) ||
-           (hiveHDFSTableStats->isParquetFile()) ||
-           (hiveHDFSTableStats->isAvroFile()) ) {
-
-        if (hiveHDFSTableStats->isOrcFile() &&
-            CmpCommon::getDefault(TRAF_ENABLE_ORC_FORMAT) == DF_OFF)
-        {
-          *CmpCommon::diags() << DgSqlCode(-3069)
-                              << DgTableName(table->getTableName().getQualifiedNameAsAnsiString());
-          return TRUE;
-
-        }
-
-        if (hiveHDFSTableStats->isParquetFile() &&
-            CmpCommon::getDefault(TRAF_ENABLE_PARQUET_FORMAT) == DF_OFF)
-        {
-          *CmpCommon::diags() << DgSqlCode(-3069)
-                              << DgTableName(table->getTableName().getQualifiedNameAsAnsiString());
-          return TRUE;
-
-        }
-
-        if (hiveHDFSTableStats->isAvroFile() &&
-            CmpCommon::getDefault(TRAF_ENABLE_AVRO_FORMAT) == DF_OFF)
-        {
-          *CmpCommon::diags() << DgSqlCode(-3069)
-                              << DgTableName(table->getTableName().getQualifiedNameAsAnsiString());
-          return TRUE;
-
-        }
-
-
-        if (hiveHDFSTableStats->isOrcFile())
-          isORC = TRUE;
-
-        if (hiveHDFSTableStats->isParquetFile())
-          isParquet = TRUE;
-
-        if (hiveHDFSTableStats->isAvroFile())
-          isAvro = TRUE;
-
-      }
-
-#ifndef NDEBUG
-      NAString logFile = 
-        ActiveSchemaDB()->getDefaults().getValue(HIVE_HDFS_STATS_LOG_FILE);
-      if (logFile.length())
-        {
-          FILE *ofd = fopen(logFile, "a");
-          if (ofd)
-            {
-              hiveHDFSTableStats->print(ofd);
-              fclose(ofd);
-            }
-        }
-      // for release code, would need to sandbox the ability to write
-      // files, e.g. to a fixed log directory
-#endif
-
-      // Create a node map for partitioning function.
-      NodeMap* nodeMap = new (heap) NodeMap(heap, NodeMap::HIVE);
-
-      createNodeMap(hvt_desc,
-                  nodeMap,
-                  heap,
-                  (char*)(table->getTableName().getObjectName().data()),
-                  cmpCurrentContext->getTableIdent());
-      tableIdList.insert(CollIndex(cmpCurrentContext->getTableIdent()));
-
-      // For the time being, set it up as Hash2 partitioned table
-               
-      Int32 numBuckets = (hvt_desc->getSDs() ? hvt_desc->getSDs()->buckets_
-                           : 0);
-
-      if (numBuckets>1 && bucketingKeyColumns.entries()>0) {
-         if ( CmpCommon::getDefault(HIVE_USE_HASH2_AS_PARTFUNCTION) == DF_ON )
-            partFunc = createHash2PartitioningFunction
-                          (numBuckets, bucketingKeyColumns, nodeMap, heap);
-         else
-            partFunc = createHivePartitioningFunction
-                          (numBuckets, bucketingKeyColumns, nodeMap, heap);
-      } else
-         partFunc = new (heap)
-                       SinglePartitionPartitioningFunction(nodeMap, heap);
-
-      // NB: Just in case, we made a call to setupClusterInfo at the
-      // beginning of this function.
-      //      desc_struct * partns_desc;
-      Int32 indexLevels = 1;
-      
-
-      // add a new access path
-      //
-      // $$$ The estimated number of records should be available from
-      // $$$ a FILES descriptor. If it is not available, it may have
-      // $$$ to be computed by examining the EOFs of each individual
-      // $$$ file that belongs to the file set.
-
-      // Create fully qualified ANSI name from indexname, the PHYSICAL name.
-      QualifiedName qualIndexName(
-           (char*)(table->getTableName().getObjectName().data()),
-           (table->getTableName().getSchemaName().isNull() ? HIVE_SYSTEM_SCHEMA
-            : (char*)(table->getTableName().getSchemaName().data())),
-           "", heap);
-
-      // This ext_indexname is expected to be set up correctly as an
-      // EXTERNAL-format name (i.e., dquoted if any delimited identifiers)
-      // by sqlcat/read*.cpp.  The ...AsAnsiString() is just-in-case (MP?).
-      NAString extIndexName(
-	   qualIndexName.getQualifiedNameAsAnsiString(),
-	   CmpCommon::statementHeap());
-
-      QualifiedName qualExtIndexName = QualifiedName(extIndexName, 1, heap, bindWA);
-
-
-      if (partFunc)
-	numberOfFiles = partFunc->getCountOfPartitions();
-
-      Int64 estimatedRC = 0;
-      Int64 estimatedRecordLength = 0;
-
-      Lng32 blockSize = (Lng32)hiveHDFSTableStats->getEstimatedBlockSize();
-
-      if ( isORC || isParquet || isAvro ) {
-         // We cannot use colArray.getTotalStorageSize() for estimating row length,
-         // since we make worst-case assumptions about string column sizes. 
-         // (Typically, we assume VARCHAR(31999), which grossly overestimates.)
-         // Instead we use the total storage size for non-string columns, then
-         // use the average string length as computed from the ORC file statistics.
- 
-         estimatedRecordLength = 
-                          colArray.getTotalStorageSizeForNonChars() +
-                          hiveHDFSTableStats->getAvgStringLengthPerRow();
-
-         // The block size is purposely set to CQD NCM_SEQ_IO_WEIGHT so that the 
-         // seq IO to scan ORC table is the amount of data scanned.
-         blockSize = ActiveSchemaDB()->getDefaults().getAsDouble(NCM_SEQ_IO_WEIGHT);
-
-         // use the information fetched/estimated during populate() call
-         estimatedRC = hiveHDFSTableStats->getTotalRows();
-
-      } else if ( sd_desc && (!sd_desc->isTrulyText()) ) {
-         //
-         // Poor man's estimation by assuming the record length in hive is the 
-         // same as SQ's. We can do better once we know how the binary data is
-         // stored in hdfs.
-         //
-         estimatedRecordLength = colArray.getTotalStorageSize();
-         estimatedRC = hiveHDFSTableStats->getTotalSize() / estimatedRecordLength;
-      } else {
-         // use the information estimated during populate() call
-         estimatedRC = hiveHDFSTableStats->getEstimatedRowCount();
-         estimatedRecordLength = 
-           Lng32(MINOF(hiveHDFSTableStats->getEstimatedRecordLength(),
-                       hiveHDFSTableStats->getEstimatedBlockSize()-100));
-      }
-		  
-      blockSize = MAXOF(blockSize, (Lng32)estimatedRecordLength);
-      
-      ((NATable*)table)-> setOriginalRowCount((double)estimatedRC);
-
-      newIndex = new (heap)
-	NAFileSet(
-		  qualIndexName, // QN containing "\NSK.$VOL", FUNNYSV, FUNNYNM
-		  //(indexes_desc->body.indexes_desc.isVolatile ?
-		  qualExtIndexName, // :
-		  //qualIndexName),
-		  extIndexName,	 // string containing Ansi name CAT.SCH."indx"
-
-                  // The real orginization is a hybrid of KEY_SEQ and HASH.
-                  // Well, we just take the KEY_SEQ for now.
-                  KEY_SEQUENCED_FILE,
-
-		  FALSE, // isSystemTable
-		  numberOfFiles,
-
-                  // HIVE-TBD
-		  Cardinality(estimatedRC),
-                  Lng32(estimatedRecordLength),
-		  blockSize,
-
-		  indexLevels, // HIVE-TBD
-		  allColumns,
-		  indexKeyColumns,
-		  bucketingKeyColumns,
-                  sortKeyColumns,
-		  partFunc,
-		  0, // indexes_desc->body.indexes_desc.keytag,
-
-		  hvt_desc->redeftime(), 
-                 
-		  1, // files_desc->body.files_desc.audit 
-		  0, // files_desc->body.files_desc.auditcompress 
-		  0, // files_desc->body.files_desc.compressed 
-		  COM_NO_COMPRESSION,
-		  0, // files_desc->body.files_desc.icompressed 
-		  0, // files_desc->body.files_desc.buffered:
-		  0, // files_desc->body.files_desc.clearOnPurge: 0,
-		  isPacked,
-                  hasRemotePartition,
-		  0, // not a unique secondary index
-		  0, // not a ngram index
-                  0,  // not a local base partition index
-                  0,  // not a local partition index
-                  0,  // not a global partition index
-                  0, // isDecoupledRangePartitioned
-                  0, // file code
-		  0, // not a volatile
-		  0, // inMemObjectDefn
-                  0,
-                  NULL, // indexes_desc->body.indexes_desc.keys_desc,
-                  hiveHDFSTableStats,
-                  0, // saltPartns
-                  0, // initial regions
-                  0, // numTrafReplicas
-                  NULL, //hbaseCreateOptions
-                  heap);
-
-      if (isNotAvailable)
-	newIndex->setNotAvailable(TRUE);
-
-      // Mark each NAColumn in the list
-      indexKeyColumns.setIndexKey();
-
-      bucketingKeyColumns.setPartitioningKey();
-
-
-      // If it is a VP add it to the list of VPs.
-      // Otherwise, add it to the list of indices.
-      indexes.insert(newIndex);
-
-       clusteringIndex = newIndex;
-
-
-  return FALSE;
-} // static createNAFileSets()
 
 
  // -----------------------------------------------------------------------
@@ -5274,8 +4562,7 @@ NATable::NATable(BindWA *bindWA,
     setUseDataEncryption(TRUE);
 
   if (CmpSeabaseDDL::isMDflagsSet
-      (table_desc->tableDesc()->objectFlags, MD_OBJECTS_INCLUDE_TRIGGER) &&
-      isModuleOpen(LM_TRIGGER))
+      (table_desc->tableDesc()->objectFlags, MD_OBJECTS_INCLUDE_TRIGGER))
       {
           setHasTrigger(TRUE);
           // remove triggers from cache associated with this table
@@ -5533,10 +4820,7 @@ NATable::NATable(BindWA *bindWA,
         //
         return;
       }
-      
-      //
-      // FetchHistograms call used to be here -- moved to getStatistics().
-      //
+
     }
   
   // change partFunc for base table if PARTITION clause has been used
@@ -5866,413 +5150,6 @@ NATable::NATable(BindWA *bindWA,
 
   initialSize_ = heap_->getAllocSize();
   MonitorMemoryUsage_Exit((char*)mmPhase.data(), heap_, NULL, TRUE);
-} // NATable()
-
-
-// Constructor for a Hive table
-NATable::NATable(BindWA *bindWA,
-                 const CorrName& corrName,
-		 NAMemory *heap,
-		 struct hive_tbl_desc* htbl,
-                 TrafDesc* extTableDesc)
-  //
-  // The NATable heap ( i.e. heap_ ) used to come from ContextHeap
-  // (i.e. heap) but it creates high memory usage/leakage in Context
-  // Heap. Although the NATables are deleted at the end of each statement,
-  // the heap_ is returned to heap (i.e. context heap) which caused
-  // context heap containing a lot of not used chunk of memory. So it is
-  // changed to be from whatever heap is passed in at the call in
-  // NATableDB.getNATable.
-  //
-  // Now NATable objects can be cached.If an object is to be cached (persisted
-  // across statements) a NATable heap is allocated for the object
-  // and is passed in (this is done in NATableDB::get(CorrName& corrName...).
-  // Otherwise a reference to the Statement heap is passed in. When a cached
-  // object is to be deleted the object's heap is deleted which wipes out the
-  // NATable object all its related stuff. NATable objects that are not cached
-  // are wiped out at the end of the statement when the statement heap is deleted.
-  //
-  : heap_(heap),
-    referenceCount_(0),
-    refsIncompatibleDP2Halloween_(FALSE),
-    isHalloweenTable_(FALSE),
-    qualifiedName_(corrName.getExtendedQualNameObj(),heap),
-    synonymReferenceName_(heap),
-    fileSetName_(corrName.getQualifiedNameObj(),heap),   // for now, set equal
-    clusteringIndex_(NULL),
-    colcount_(0),
-    colArray_(heap),
-    hiveColArray_(heap),
-    interestingExpressions_(hashKey, 
-                   NAHashDictionary_Default_Size, 
-                   TRUE /* enforce uniqueness */,heap),
-    recordLength_(0),
-    indexes_(heap),
-    vertParts_(heap),
-    colStats_(NULL),
-    statsFetched_(FALSE),
-    viewFileName_(NULL),
-    viewText_(NULL),
-    viewTextInNAWchars_(heap),
-    viewTextCharSet_(CharInfo::UnknownCharSet),
-    viewCheck_(NULL),
-    viewColUsages_(NULL),
-    hiveOriginalViewText_(NULL),
-    hiveExpandedViewText_(NULL),
-    flags_(IS_INSERTABLE | IS_UPDATABLE),
-    flags2_(0),
-    insertMode_(COM_REGULAR_TABLE_INSERT_MODE),
-    isSynonymTranslationDone_(FALSE),
-    checkConstraints_(heap),
-    createTime_(htbl->creationTS_),
-    redefTime_(htbl->redeftime()),
-    statsTime_(0),
-    catalogUID_(0),
-    schemaUID_(0),
-    objectUID_(0),
-    objDataUID_(0),
-    baseTableUID_(0),
-    objectType_(COM_UNKNOWN_OBJECT),
-    partitioningScheme_(COM_UNKNOWN_PARTITIONING),
-    uniqueConstraints_(heap),
-    refConstraints_(heap),
-    isAnMV_(FALSE),
-    isAnMVMetaData_(FALSE),
-    mvsUsingMe_(heap),
-    mvInfo_(NULL),
-    accessedInCurrentStatement_(TRUE),
-    setupForStatement_(FALSE),
-    resetAfterStatement_(FALSE),
-    hitCount_(0),
-    replacementCounter_(2),
-    sizeInCache_(0),
-    recentlyUsed_(TRUE),
-    tableConstructionHadWarnings_(FALSE),
-    isAnMPTableWithAnsiName_(FALSE),
-    isUMDTable_(FALSE),
-    isSMDTable_(FALSE),
-    isMVUMDTable_(FALSE),
-
-    // For virtual tables, we set the object schema version
-    // to be the current schema version
-    osv_(COM_VERS_CURR_SCHEMA),
-    ofv_(COM_VERS_CURR_SCHEMA),
-    colsWithMissingStats_(NULL),
-    originalCardinality_(-1.0),
-    tableIdList_(heap),
-    rcb_(NULL),
-    rcbLen_(0),
-    keyLength_(0),
-    parentTableName_(NULL),
-    sgAttributes_(NULL),
-    isORC_(FALSE),
-    isParquet_(FALSE),
-    isAvro_(FALSE),
-    isHive_(TRUE),
-    isHbase_(FALSE),
-    isHbaseCell_(FALSE),
-    isHbaseRow_(FALSE),
-    isSeabase_(FALSE),
-    isSeabaseMD_(FALSE),
-    isSeabasePrivSchemaTable_(FALSE),
-    isUserUpdatableSeabaseMD_(FALSE),
-    resetHDFSStatsAfterStmt_(FALSE),
-    hiveDefaultStringLen_(0),
-    hiveTableId_(htbl->tblID_),
-    storedStatsDesc_(NULL),
-    secKeySet_(heap),
-    privInfo_(NULL),
-    privDescs_(NULL),
-    newColumns_(heap),
-    columnsDesc_(NULL),
-    xnRepl_(COM_REPL_NONE),
-    storageType_(COM_STORAGE_HBASE),
-    prototype_(NULL),
-    readOnlyEnabled_(FALSE),
-    allColFams_(heap),
-    minmaxCache_(minmaxKeyHashFunction, 107, TRUE, heap),
-    numLOBdatafiles_(-1),
-    lobChunksTableDataInHbaseColLen_(-1),
-    shallowCopied_(FALSE),
-    ddlValidationRequired_(FALSE), // not used for Hive tables
-    expectedEpoch_(0),  // not used for Hive tables
-    expectedFlags_(0),   // not used for Hive tables
-    userBaseTable_(FALSE), // not used for Hive tables
-    partitionType_(NO_PARTITION),
-    subpartitionType_(NO_PARTITION),
-    partitionColCount_(0),
-    subpartitionColCount_(0),
-    partitionColIdxAry_(NULL),
-    subpartitionColIdxAry_(NULL),
-    stlPartitionCnt_(0),
-    partArray_(heap),
-    partitionInterval_(NULL),
-    subpartitionInterval_(NULL),
-    partitionAutolist_(0),
-    subpartitionAutolist_(0),
-    partitionV2Flags_(0)
-
-{
-	NAString tblName = qualifiedName_.getQualifiedNameObj().getQualifiedNameAsString();
-	NAString mmPhase;
-
-	Lng32 preCreateNATableWarnings = CmpCommon::diags()->getNumber(DgSqlCode::WARNING_);
-
-	//set heap type
-	if(heap_ == CmpCommon::statementHeap()){
-		heapType_ = STATEMENT;
-		mmPhase = "NATable Init (Stmt) - " + tblName;
-	}else if (heap_ == CmpCommon::contextHeap()){
-		heapType_ = CONTEXT;
-		mmPhase = "NATable Init (Cnxt) - " + tblName;
-	}else {
-		heapType_ = OTHER;
-		mmPhase = "NATable Init (Other) - " + tblName;
-	}
-
-	MonitorMemoryUsage_Enter((char*)mmPhase.data(), heap_, TRUE);
-
-
-	isTrigTempTable_ = FALSE;
-
-
-	insertMode_ = 
-		COM_MULTISET_TABLE_INSERT_MODE; // allow dup, to check
-	//ComInsertMode::COM_MULTISET_TABLE_INSERT_MODE; // allow dup, to check
-
-	//
-	// Add timestamp information.
-	//
-
-	// To get from Hive
-	/*
-	   createTime_ = longArrayToInt64(table_desc->tableDesc()->createtime);
-	   redefTime_  = longArrayToInt64(table_desc->tableDesc()->redeftime);
-	   */
-
-	// NATable has a schemaUID column, probably should propogate it.
-	// for now, set to 0.
-	schemaUID_ = 0;
-
-	// Set the objectUID_
-	// If the HIVE table has been registered in Trafodion, get the objectUID
-	// from Trafodion, otherwise, set it to 0.
-	// TBD - does getQualifiedNameObj handle delimited names correctly?
-        if ( !fetchObjectUIDForNativeTable(corrName, htbl->isView()) )
-          return;
-
-	if ( objectUID_ > 0 )
-		setHasExternalTable(TRUE);
-
-	// for HIVE objects, the schema owner and table owner is HIVE_ROLE_ID
-	if (CmpCommon::context()->isAuthorizationEnabled())
-	{
-		owner_ = HIVE_ROLE_ID;
-		schemaOwner_ = HIVE_ROLE_ID;
-	}
-	else
-	{
-		owner_ = SUPER_USER;
-		schemaOwner_ = SUPER_USER;
-	}
-
-	objectType_ = htbl->isView() ? COM_VIEW_OBJECT : COM_BASE_TABLE_OBJECT;
-
-	// to check
-	partitioningScheme_ = COM_UNKNOWN_PARTITIONING;
-
-	// to check
-	rcb_ = 0;
-	rcbLen_ = 0;
-	keyLength_ = 0;
-
-	//
-	// Insert a NAColumn in the colArray_ for this NATable for each
-	// columns_desc from the ARK SMD. Returns TRUE if error creating NAColumns.
-	//
-
-        NABoolean isORC = FALSE;
-        NABoolean isParquet = FALSE;
-        NABoolean isAvro = FALSE;
-        if (htbl && htbl->getSDs())
-          {
-            isORC = htbl->getSDs()->isOrcFile();
-            setIsORC(isORC);
-
-            isParquet = htbl->getSDs()->isParquetFile();
-            setIsParquet(isParquet);
-
-            isAvro = htbl->getSDs()->isAvroFile();
-            setIsAvro(isAvro);
-
-          }
-	if (createNAColumns(htbl->getColumns(),
-                            htbl->getPartKey(),
-                            htbl->isView(),
-                            this,
-                            colArray_ /*OUT*/,
-                            heap_))
-          return;
-
-
-	//
-	// Set colcount_ after all possible errors (Binder uses nonzero colcount
-	// as an indicator of valid table definition).
-	//
-
-	// To set it via the new createNAColumns()
-	colcount_ = colArray_.entries();
-
-	// compute record length from colArray
-
-	Int32 recLen = 0;
-	for ( CollIndex i=0; i<colcount_; i++ ) {
-		recLen += colArray_[i]->getType()->getNominalSize();
-	} 
-
-	setRecordLength(recLen);
-
-  //
-  // Add view information, if this is a native hive view
-  //
-  if (htbl->isView())
-    {
-      NAString expandedText(htbl->viewExpandedText_);
-
-      // expanded hive view text quotes table and column names with
-      // back single quote (`). It also refers to default hive schema
-      // as `default`.
-
-      // replace `default` with "HIVE"
-      expandedText = replaceAll(expandedText, "`default`", HIVE_SYSTEM_SCHEMA);
-
-      // replace back quoted string with traf ansi string.
-      // This will properly double quote reserved table and column names.
-      NAString hiveNormalizedViewText;
-      Int32 i = 0;
-      const char * ptr = expandedText.data();
-      NABoolean quoteSeen = FALSE;
-      Int32 quoteStartPos = 0;
-      Int32  quoteEndPos = 0;
-      while (i < expandedText.length())
-        {
-          if (ptr[i] == '`')
-            {
-              if (NOT quoteSeen)
-                {
-                  quoteSeen = TRUE;
-                  quoteStartPos = i;
-                }
-              else
-                {
-                  quoteEndPos = i;
-
-                  NAString subs(&ptr[quoteStartPos+1], (quoteEndPos-quoteStartPos-1));
-                  subs.toUpper();
-                  QualifiedName qn(subs);
-                  hiveNormalizedViewText += qn.getUnqualifiedObjectNameAsAnsiString();
-                  quoteSeen = FALSE;
-                }
-            }
-          else if (NOT quoteSeen)
-            hiveNormalizedViewText += ptr[i];
-
-          i++;
-        } // while
-
-      // save original view text
-      hiveOriginalViewText_ = new (heap_) char[strlen(htbl->viewOriginalText_) + 1];
-      strcpy(hiveOriginalViewText_, htbl->viewOriginalText_);
-
-      // save expanded view text
-      hiveExpandedViewText_ = new (heap_) char[strlen(htbl->viewExpandedText_) + 1];
-      strcpy(hiveExpandedViewText_, htbl->viewExpandedText_);
-
-      NAString createViewStmt("CREATE VIEW ");
-
-      NAString viewSchName;
-      if (strcmp(htbl->schName_, HIVE_DEFAULT_SCHEMA_EXE) == 0)
-        viewSchName += HIVE_SYSTEM_SCHEMA;
-      else
-        viewSchName += htbl->schName_;
-      viewSchName.toUpper();
-      NAString viewName(htbl->tblName_);
-      viewName.toUpper();
-
-      QualifiedName qn(viewName, viewSchName, HIVE_SYSTEM_CATALOG);
-      NAString fqViewName = qn.getQualifiedNameAsAnsiString();
-
-      createViewStmt += fqViewName + NAString(" AS ") +
-        hiveNormalizedViewText + NAString(";");
-        
-      Lng32 viewTextLen = createViewStmt.length();
-      viewText_ = new (heap_) char[viewTextLen+ 2];
-      strcpy(viewText_, createViewStmt.data());
-
-      viewTextCharSet_ = CharInfo::UTF8;
-
-      viewFileName_ = NULL;
-      UInt32 viewFileNameLength = str_len(htbl->tblName_) + 1;
-      viewFileName_ = new (heap_) char[viewFileNameLength];
-      memcpy(viewFileName_, htbl->tblName_, viewFileNameLength);
-
-      setUpdatable(FALSE);
-      setInsertable(FALSE);
-    }
-  else
-    {
-      if (htbl->isExternalTable())
-        setIsHiveExternalTable(TRUE);
-      else if (htbl->isManagedTable())
-        setIsHiveManagedTable(TRUE);
-      
-      if (createNAFileSets(htbl             /*IN*/,
-                           extTableDesc     /*IN*/,
-                           this             /*IN*/,
-                           colArray_        /*IN*/,
-                           indexes_         /*OUT*/,
-                           vertParts_       /*OUT*/,
-                           clusteringIndex_ /*OUT*/,
-                           tableIdList_     /*OUT*/,
-                           heap_,
-                           bindWA,
-                           isORC,
-                           isParquet,
-                           isAvro
-                           )) {
-        colcount_ = 0; // indicates failure
-        return;
-      }
-  
-      // HIVE-TBD ignore constraint info creation for now
-      setIsORC(isORC);
-      
-      getPrivileges(NULL, bindWA); 
-      
-      // If there is a host variable associated with this table, store it
-      // for use by the generator to generate late-name resolution information.
-      //
-      HostVar *hv = corrName.getPrototype();
-      prototype_ = hv ? new (heap_) HostVar(*hv) : NULL;
-      
-      // MV
-      // Initialize the MV support data members
-      isAnMV_           = FALSE;
-      isAnMVMetaData_   = FALSE;
-      
-      Lng32 postCreateNATableWarnings = CmpCommon::diags()->getNumber(DgSqlCode::WARNING_);
-      
-      if(postCreateNATableWarnings != preCreateNATableWarnings)
-        tableConstructionHadWarnings_=TRUE;
-      hiveDefaultStringLen_ = CmpCommon::getDefaultLong(HIVE_MAX_STRING_LENGTH_IN_BYTES);
-      
-      Int32 hiveDefaultStringLenInBytes = CmpCommon::getDefaultLong(HIVE_MAX_STRING_LENGTH_IN_BYTES);
-      if( hiveDefaultStringLenInBytes != 31999 ) 
-        hiveDefaultStringLen_ = hiveDefaultStringLenInBytes;
-      
-      initialSize_ = heap_->getAllocSize();
-      MonitorMemoryUsage_Exit((char*)mmPhase.data(), heap_, NULL, TRUE);
-    }
 } // NATable()
 
 
@@ -7515,11 +6392,7 @@ void NATable::removePrivInfo(void)
 // Extract priv bitmaps and security invalidation keys for the current user
 void NATable::getPrivileges(TrafDesc * priv_desc, BindWA *bindWA)
 {
-#ifdef DEBUG_GET_PRIVILEDGES
-  cout << "On ENTRY: NATable::getPrivileges()" << endl; 
-  parquet::StopWatch s1;
-  s1.Start();
-#endif
+
      
   // Return if this is a PrivMgr table to avoid an infinite loop.  Part of 
   // gathering privileges requires access to PrivMgr tables.  This access 
@@ -7776,11 +6649,7 @@ void NATable::getPrivileges(TrafDesc * priv_desc, BindWA *bindWA)
 #endif
   }
 
-#ifdef DEBUG_GET_PRIVILEDGES
-   cout << "On Exit: NATable::getPrivileges()" 
-        << " ET=" << s1.Stop() << "us"
-        << endl; 
-#endif
+
 }
 
 // Cll privilege manager to get privileges and security keys
@@ -8478,7 +7347,6 @@ NATableDB::NATableDB(NAMemory *h) :
     NAKeyLookup<ExtendedQualName,NATable> (NATableDB_INIT_SIZE,
                                            NAKeyLookupEnums::KEY_INSIDE_VALUE,
                                            h),
-    hiveMetaDB_(NULL),
     replacementCursor_(0),
     inPreloading_(FALSE),
     objUidToName_(&ComUID::hashKey, NATableDB_INIT_SIZE, TRUE, h)
@@ -8541,14 +7409,7 @@ NATable * NATableDB::get(const ExtendedQualName* key, BindWA* bindWA, NABoolean 
       removeEntry = TRUE;
     }
 
-  // check if hive table is S3 hosted. Normally disable cache for S3 hosted tables as timestamp
-  // based invalidation is not possible. Check CQD for forcing caching regardless of lack of timestamp based invalidation
-  if ((cachedNATable->isHiveTable()) && !(cachedNATable->isView()) &&
-      (cachedNATable->getClusteringIndex()->getHHDFSTableStats()->isS3Hosted()) &&
-      (CmpCommon::getDefault(HIVE_NATABLE_CACHE_S3_TABLES) == DF_OFF))
-    {
-      removeEntry = TRUE;
-    }
+
 
   //Found in cache.  If that's all the caller wanted, return now.
   if ( !removeEntry && findInCacheOnly )
@@ -8572,65 +7433,7 @@ NATable * NATableDB::get(const ExtendedQualName* key, BindWA* bindWA, NABoolean 
       Int64 currentSchemaRedefTS = 0;
       Int64 cachedSchemaRedefTS = 0;
 
-      if (!OSIM_runningSimulation())
-        {
-          if ((!cachedNATable->isHiveTable()) &&
-              (!cachedNATable->isHbaseTable()))
-            {
-            } // non-hive table
-          else if (!cachedNATable->isHbaseTable())
-            {
-              // oldest cache entries we will still accept
-              // Values for CQD HIVE_METADATA_REFRESH_INTERVAL:
-              // -1: Never invalidate any metadata
-              //  0: Always check for the latest metadata in the compiler,
-              //     no check in the executor
-              // >0: Check in the compiler, metadata is valid n seconds
-              //     (n = value of CQD). Recompile plan after n seconds.
-              //     NOTE: n has to be long enough to compile the statement,
-              //     values < 20 or so are impractical.
-              Int64 refreshInterval = 
-                (Int64) CmpCommon::getDefaultLong(HIVE_METADATA_REFRESH_INTERVAL);
-              Int32 defaultStringLenInBytes = 
-                CmpCommon::getDefaultLong(HIVE_MAX_STRING_LENGTH_IN_BYTES);
-              Int64 expirationTimestamp = refreshInterval;
-              NAString defSchema =
-                ActiveSchemaDB()->getDefaults().getValue(HIVE_DEFAULT_SCHEMA);
-              defSchema.toUpper();
 
-              if (refreshInterval > 0)
-                expirationTimestamp = NA_JulianTimestamp() - 1000000 * refreshInterval;
-
-              // if default string length changed, don't reuse this entry
-              if (defaultStringLenInBytes != cachedNATable->getHiveDefaultStringLen())
-                removeEntry = TRUE;
-
-              QualifiedName objName = cachedNATable->getTableName();
-              NAString        sName = objName.getSchemaName();
-              const NAString  tName = objName.getObjectName();
-
-              // map the Trafodion default Hive schema (usually "HIVE")
-              // to the name used in Hive (usually "default")
-              if (objName.getUnqualifiedSchemaNameAsAnsiString() == defSchema)
-                sName = hiveMetaDB_->getDefaultSchemaName();
-
-              // validate Hive table timestamps to check if there is change
-              // in directory timestamp
-              if (hiveMetaDB_->getTableDesc(sName,
-                                            tName,
-                                            TRUE /*validate only*/,
-                                            (CmpCommon::getDefault(TRAF_RELOAD_NATABLE_CACHE) == DF_ON),
-					    (CmpCommon::getDefault(HIVE_SUPPORTS_SUBDIRECTORIES) == DF_ON),
-					    TRUE) == NULL)
-                removeEntry = TRUE;
-
-              // validate HDFS stats and update them in-place, if needed
-              if (!removeEntry && (cachedNATable->getClusteringIndex()))
-                removeEntry = 
-                  ! (cachedNATable->getClusteringIndex()->
-                     getHHDFSTableStats()->validateAndRefresh(expirationTimestamp));
-            }
-        } // ! osim simulation
 
       //if time of last catalog operation and table redef times
       //don't match, then delete this cache entry since it is
@@ -9853,20 +8656,6 @@ NATable * NATableDB::get(CorrName& corrName, BindWA * bindWA,
   //check cache to see if a cached NATable object exists
   NATable *table = get(&corrName.getExtendedQualNameObj(), bindWA);  
 
-#ifdef DEBUG_NATABLEDB_GET
-   cout << "<<<On ENTER NATableDB::get():"
-        <<  ", key=" << corrName.getQualifiedNameObj().getQualifiedNameAsAnsiString() 
-        <<  ", initial lookup=" << static_cast<void*>(table)
-        << endl;
-
-    if ( CmpCommon::context()->getCliContext() )
-      CmpCommon::context()->getCliContext()->displayAllCmpContexts();
-
-    cout << ">>>" << endl << endl;
-
-    parquet::StopWatch s1;
-    s1.Start();
-#endif
          
   // The caller can set the in preloading state (default to FALSE)
   // in advance. Here that state is transfer to variable inPreload.
@@ -10339,288 +9128,8 @@ bailout_label:
           table->setIsTrafExternalTable(TRUE);
         }
     }
-    else if (isHiveTable(corrName) &&
-             (!isSQUmdTable(corrName)) &&
-             (!isSQUtiDisplayExplain(corrName)) &&
-             (!corrName.isSpecialTable()) &&
-             (!isSQInternalStoredProcedure(corrName))
-	) {
-      // ------------------------------------------------------------------
-      // Create an NATable object for a Hive table
-      // ------------------------------------------------------------------
-      if ( hiveMetaDB_ == NULL ) {
-	if (CmpCommon::getDefault(HIVE_USE_FAKE_TABLE_DESC) != DF_ON)
-	  {
-	    hiveMetaDB_ = new (CmpCommon::contextHeap()) HiveMetaData((NAHeap *)CmpCommon::contextHeap());
-	    
-	    if ( !hiveMetaDB_->init() ) {
-	      *CmpCommon::diags() << DgSqlCode(-1190)
-                                  << DgString0(hiveMetaDB_->getErrMethodName())
-                                  << DgString1(hiveMetaDB_->getErrCodeStr())
-                                  << DgString2(hiveMetaDB_->getErrDetail())
-                                  << DgInt0(hiveMetaDB_->getErrCode());
-	      bindWA->setErrStatus();
-	      
-	      NADELETEBASIC(hiveMetaDB_, CmpCommon::contextHeap());
-	      hiveMetaDB_ = NULL;
-	      
-	      return NULL;
-	    }
-	  }
-	else
-	  hiveMetaDB_ = new (CmpCommon::contextHeap()) 
-            HiveMetaData((NAHeap *)CmpCommon::contextHeap()); // fake metadata
-      }
-      
-      // this default schema name is what the Hive default schema is called in SeaHive
-       NAString defSchema = ActiveSchemaDB()->getDefaults().getValue(HIVE_DEFAULT_SCHEMA);
-       defSchema.toUpper();
-       struct hive_tbl_desc* htbl;
-       NAString schemaNameInt = corrName.getQualifiedNameObj().getSchemaName();
-       if (schemaNameInt.compareTo(defSchema, NAString::ignoreCase) == 0)
-         schemaNameInt = hiveMetaDB_->getDefaultSchemaName();
 
-       if (CmpCommon::getDefault(HIVE_USE_FAKE_TABLE_DESC) == DF_ON)
-         htbl = hiveMetaDB_->getFakedTableDesc(corrName.getQualifiedNameObj().getObjectName());
-       else
-         {
-           htbl = hiveMetaDB_->getTableDesc(
-                schemaNameInt,
-                corrName.getQualifiedNameObj().getObjectName(),
-                FALSE,
-                // reread Hive Table Desc from MD.
-                (CmpCommon::getDefault(TRAF_RELOAD_NATABLE_CACHE) == DF_ON),
-		(CmpCommon::getDefault(HIVE_SUPPORTS_SUBDIRECTORIES) == DF_ON),
-                TRUE);
-         }
-
-       NAString extName = ComConvertNativeNameToTrafName(
-            corrName.getQualifiedNameObj().getCatalogName(),
-            corrName.getQualifiedNameObj().getSchemaName(),
-            corrName.getQualifiedNameObj().getUnqualifiedObjectNameAsAnsiString());
-
-       QualifiedName qn(extName, 3);
-
-       if ( htbl )
-	 {
-           table = new (naTableHeap) NATable
-             (bindWA, corrName, naTableHeap, htbl);
-
-           if ((NOT table->isView()) && (table->hasCompositeColumns()))
-             {
-               if (CmpCommon::getDefault(HIVE_COMPOSITE_DATATYPE_SUPPORT) == DF_OFF)
-                 {
-                   *CmpCommon::diags() << DgSqlCode(-3242)
-                                       << DgString0("Composite columns are not allowed for hive tables.");
-                   bindWA->setErrStatus();
-                   return NULL;   
-                 }
-               
-               if (NOT table->isParquet())
-                 {
-                   *CmpCommon::diags() << DgSqlCode(-3242)
-                                       << DgString0("Composite columns are not allowed in non-parquet hive tables.");
-                   bindWA->setErrStatus();
-                   return NULL;               
-                 }
-             } // composite columns
-
-           // 'table' is the NATable for underlying hive table.
-           // That table may also have an associated external table.
-           // Skip processing the external table defn, if only the 
-           // underlying hive table is needed. Skip processing also
-           // if there were errors creating the NATable object 
-           // (which is indicated by a getColumnCount() value of 0).
-           if ((NOT bindWA->returnHiveTableDefn()) &&
-               (table->getColumnCount() > 0) )
-             {
-               // if this hive/orc table has an associated external table, 
-               // get table desc for it.
-               TrafDesc *etDesc = cmpSBD.getSeabaseTableDesc(
-                    qn.getCatalogName(),
-                    qn.getSchemaName(),
-                    qn.getObjectName(),
-                    COM_BASE_TABLE_OBJECT,
-                    TRUE);
-               
-               if (table && etDesc)
-                 {
-                   CorrName cn(qn);
-                   NATable * etTable = new (STMTHEAP) NATable
-                     (bindWA, cn, naTableHeap, etDesc, 0, 0);  // TODO: do we care about epochs for external tables?
-		   // etTable is discarded after this if block. It is not
-		   // cached.
-                   
-                   // if ext and hive columns dont match, return error
-                   // unless it is a drop stmt.
-                   if ((table->getUserColumnCount() != etTable->getUserColumnCount()) &&
-                       (NOT bindWA->externalTableDrop()))
-                     {
-                       *CmpCommon::diags()
-                         << DgSqlCode(-8437);
-                       
-                       bindWA->setErrStatus();
-                       return NULL;
-                     }
-                   
-                   if (etTable->hiveExtColAttrs() || etTable->hiveExtKeyAttrs())
-                     {
-                       // attrs were explicitly specified for this external
-                       // table. Merge them with the hive table attrs.
-                       short rc = table->updateExtTableAttrs(etTable);
-                       if (rc)
-                         {
-                           bindWA->setErrStatus();
-                           return NULL;
-                         }
-                     }
-                   table->setHasHiveExtTable(TRUE);
-                 } // ext table 
-             } // allowExternalTables
-         } // htbl
-       else 
-         {
-            // find out if this table has an associated external table.
-            TrafDesc *etDesc = cmpSBD.getSeabaseTableDesc(
-                 qn.getCatalogName(),
-                 qn.getSchemaName(),
-                 qn.getObjectName(),
-                 COM_BASE_TABLE_OBJECT);
-         
-           // find out if this table is registered in traf metadata
-           Int64 regObjUid = 0;
-           // is this a base table
-           regObjUid = lookupObjectUidByName(corrName.getQualifiedNameObj(),
-                                             COM_BASE_TABLE_OBJECT, FALSE);
-           if (regObjUid <= 0)
-             {
-               // is this a view
-               regObjUid = lookupObjectUidByName(corrName.getQualifiedNameObj(),
-                                                 COM_VIEW_OBJECT, FALSE);
-             }
-
-            // if this is to drop an external table and underlying hive
-            // tab doesn't exist, return NATable for external table.
-            if ((etDesc) &&
-                (bindWA->externalTableDrop()))
-              {
-                CorrName cn(qn);
-                table = new (naTableHeap) NATable
-                  (bindWA, cn, naTableHeap, etDesc, 0, 0);  // TODO: Do we care about epochs for external tables?
-              }
-            else
-              {
-                if ((hiveMetaDB_->getErrCode() == 0)||
-                    (hiveMetaDB_->getErrCode() == 100))
-                  {
-                    if (etDesc)
-                     {
-                       *CmpCommon::diags()
-                         << DgSqlCode(-4262)
-                         << DgString0(corrName.getExposedNameAsAnsiString());
-                     }
-                   else if (regObjUid > 0) // is registered
-                     {
-                       *CmpCommon::diags()
-                         << DgSqlCode(-4263)
-                         << DgString0(corrName.getExposedNameAsAnsiString());
-                     }
-                   else
-                     {
-                       *CmpCommon::diags()
-                         << DgSqlCode(-1388)
-                         << DgString0("Object")
-                         << DgString1(corrName.getExposedNameAsAnsiString());
-                     }
-                  }
-                else
-                  {
-                    *CmpCommon::diags()
-                      << DgSqlCode(-1192)
-                      << DgString0(hiveMetaDB_->getErrMethodName())
-                      << DgString1(hiveMetaDB_->getErrCodeStr())
-                      << DgString2(hiveMetaDB_->getErrDetail())
-                      << DgInt0(hiveMetaDB_->getErrCode());
-
-                    hiveMetaDB_->resetErrorInfo();
-                  } 
-
-               bindWA->setErrStatus();
-               return NULL;
-              } // else
-       }
-
-    }
-    else if (isHiveTable(corrName) &&
-             corrName.isSpecialTable() &&
-             (corrName.getSpecialType() == 
-              ExtendedQualName::SCHEMA_TABLE))
-      {
-        // ------------------------------------------------------------------
-        // Create an NATable object for a special Hive table
-        // ------------------------------------------------------------------
-        if ( hiveMetaDB_ == NULL ) 
-          {
-            hiveMetaDB_ = new (CmpCommon::contextHeap()) HiveMetaData((NAHeap *)CmpCommon::contextHeap());
-            
-            if ( !hiveMetaDB_->init() ) 
-              {
-                *CmpCommon::diags() << DgSqlCode(-1190)
-                                    << DgString0(hiveMetaDB_->getErrMethodName())
-                                    << DgString1(hiveMetaDB_->getErrCodeStr())
-                                    << DgString2(hiveMetaDB_->getErrDetail())
-                                    << DgInt0(hiveMetaDB_->getErrCode());
-                bindWA->setErrStatus();
-                
-                NADELETEBASIC(hiveMetaDB_, CmpCommon::contextHeap());
-                hiveMetaDB_ = NULL;
-                
-                return NULL;
-              }
-          }
-      
-        // this default schema name is what the Hive default schema is called in SeaHive
-        NAString defSchema = ActiveSchemaDB()->getDefaults().getValue(HIVE_DEFAULT_SCHEMA);
-        defSchema.toUpper();
-        struct hive_tbl_desc* htbl;
-        NAString schemaNameInt = corrName.getQualifiedNameObj().getSchemaName();
-        if (schemaNameInt.compareTo(defSchema, NAString::ignoreCase) == 0)
-          schemaNameInt = hiveMetaDB_->getDefaultSchemaName();
-        // Hive stores names in lower case
-        // Right now, just downshift, could check for mixed case delimited
-        // identifiers at a later point, or wait until Hive supports delimited identifiers
-        schemaNameInt.toLower();
-        
-        // check if this hive schema exists in hiveMD
-        LIST(NAText*) tblNames(naTableHeap);
-        HVC_RetCode rc =
-          HiveClient_JNI::getAllTables((NAHeap *)naTableHeap, schemaNameInt, tblNames);
-        if ((rc != HVC_OK) && (rc != HVC_DONE))
-          {
-            *CmpCommon::diags()
-              << DgSqlCode(-1192)
-              << DgString0(hiveMetaDB_->getErrMethodName())
-              << DgString1(hiveMetaDB_->getErrCodeStr())
-              << DgString2(hiveMetaDB_->getErrDetail())
-              << DgInt0(hiveMetaDB_->getErrCode());
-            
-            hiveMetaDB_->resetErrorInfo();
-            
-            bindWA->setErrStatus();
-            return NULL;
-          }
-
-        htbl = new(naTableHeap) hive_tbl_desc
-          ((NAHeap *)naTableHeap, 0, 
-           corrName.getQualifiedNameObj().getObjectName(),
-           corrName.getQualifiedNameObj().getSchemaName(),
-           NULL, NULL,
-           0, NULL, NULL, NULL, NULL, NULL);
-        table = new (naTableHeap) NATable
-          (bindWA, corrName, naTableHeap, htbl);
-        
-      }
-    else
+    else 
       // ------------------------------------------------------------------
       // Neither Trafodion nor Hive (probably dead code below)
       // ------------------------------------------------------------------
@@ -10749,11 +9258,7 @@ bailout_label:
     table->setupForStatement();
   }
 
-#ifdef DEBUG_NATABLEDB_GET
-  cout << "<<<On EXIT NATableDB::get():"
-       << ", key=" << (corrName.getQualifiedNameObj()).getQualifiedNameAsAnsiString() 
-       << ", ET=" << s1.Stop() << "us" << endl;
-#endif
+
 
   return table;
 }
@@ -11260,12 +9765,7 @@ void NATableDB::flushCache()
   // per interval counters
   intervalWaterMark_ = 0;
 
-  // clear out HiveMetaData object
-  if (hiveMetaDB_)
-  {
-    NADELETE(hiveMetaDB_,HiveMetaData,CmpCommon::contextHeap());
-    hiveMetaDB_ = NULL;
-  }
+
 }
 
 //check if cache size is with maximum allowed cache size.

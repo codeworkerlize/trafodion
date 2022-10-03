@@ -55,7 +55,6 @@ DEP_LIBS := \
 	tdm_sqlexport \
 	tdm_sqlshare \
 	tdm_sqlmxevents \
-	ustat\
 	sqlcat \
 	parser \
 	optimizer \
@@ -68,8 +67,7 @@ DEP_LIBS := \
 	tdm_sqlexp \
 	porting_layer \
 	lmcomp \
-	qmscommon \
-	jsonpath
+	qmscommon 
 
 ifeq ($(USE_SYSTEM_HEAP), 1)
 DEP_LIBS += sqlcomp

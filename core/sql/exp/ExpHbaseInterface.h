@@ -56,7 +56,6 @@
 
 #include "HBaseClient_JNI.h"
 #include "MonarchClient_JNI.h"
-#include "HiveClient_JNI.h"
 #include "ComTdbHbaseAccess.h"
 #include "CmpSeabaseDDLincludes.h"
 #include "ExDDLValidator.h"
@@ -472,7 +471,6 @@ class ExpHbaseInterface : public NABasicObject
  
  virtual  Lng32 initHBLC(ExHbaseAccessStats* hbs = NULL)=0;
  virtual  Lng32 initBRC(ExHbaseAccessStats* hbs = NULL)=0;
- virtual  Lng32 initHive() = 0;
 
  virtual Lng32 initHFileParams(HbaseStr &tblName,
                            Text& hFileLoc,
@@ -1097,7 +1095,6 @@ class ExpHbaseInterface_JNI : public ExpHbaseInterface
 
 virtual  Lng32 initHBLC(ExHbaseAccessStats* hbs = NULL);
 virtual  Lng32 initBRC(ExHbaseAccessStats* hbs = NULL);
-virtual  Lng32 initHive();
 
 virtual Lng32 initHFileParams(HbaseStr &tblName,
                            Text& hFileLoc,
@@ -1280,7 +1277,6 @@ private:
   HTableClient_JNI* htc_;
   HBulkLoadClient_JNI* hblc_;
   BackupRestoreClient_JNI* brc_;
-  HiveClient_JNI* hive_;
   HTableClient_JNI *asyncHtc_;
   Int32  retCode_;
   ComStorageType storageType_;

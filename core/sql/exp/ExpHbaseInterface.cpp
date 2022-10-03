@@ -462,7 +462,6 @@ ExpHbaseInterface_JNI::ExpHbaseInterface_JNI(
    ,htc_(NULL)
    ,hblc_(NULL)
    ,brc_(NULL)
-   ,hive_(NULL)
    ,asyncHtc_(NULL)
    ,retCode_(HBC_OK)
    ,storageType_(storageType)
@@ -560,21 +559,6 @@ Lng32 ExpHbaseInterface_JNI::init(ExHbaseAccessStats *hbs)
   return HBASE_ACCESS_SUCCESS;
 }
 
-Lng32 ExpHbaseInterface_JNI::initHive()
-{
-  if (hive_ == NULL)
-  {
-    hive_ = HiveClient_JNI::getInstance();
-    
-    if (hive_->isInitialized() == FALSE)
-    {
-      HVC_RetCode retCode = hive_->init();
-      if (retCode != HVC_OK)
-        return -HBASE_ACCESS_ERROR;
-    }
-  }
-  return HBASE_ACCESS_SUCCESS;
-}
 
 //----------------------------------------------------------------------------
 Lng32 ExpHbaseInterface_JNI::cleanup()
@@ -2596,12 +2580,7 @@ Lng32 ExpHbaseInterface_JNI::sentryGetPrivileges(set<string> & groupNames,
                                     map<Lng32,char *> & columnNumberToNameMap,
                                     PrivMgrUserPrivs & userPrivs /* out */)
 {
-  if (hive_ == NULL)
-    {
-      retCode_ = initHive();
-      if (retCode_ != HVC_OK)
-        return retCode_;
-    }
+
   // The bitMaps returned by getSentryPrivileges are returned in a
   // vector with the following structure:
   //
@@ -2624,41 +2603,7 @@ Lng32 ExpHbaseInterface_JNI::sentryGetPrivileges(set<string> & groupNames,
   // instead, we would not need these gymnastics.)
   vector<Lng32> positionToColumnNumberVector(columnNumberToNameMap.size(),0);
 
-  retCode_ = hive_->getSentryPrivileges(groupNames,
-                                        tableOrViewName,                                 
-                                        columnNumberToNameMap,
-                                        bitMaps /* out */,
-                                        positionToColumnNumberVector /* out */);
 
-  if (retCode_ == HVC_OK)
-    {
-      // TODO: The code here is identical to both sentryGetPrivileges
-      // methods. If we decide to keep both, this code could be factored
-      // out into a separate private method.
-
-      // the (unsigned long) casts are here because that's
-      // what a PrivColumnBitmap (=std::bitset) ctor expects
-      userPrivs.setSchemaPrivBitmap((unsigned long)bitMaps[0]);
-      userPrivs.setObjectBitmap((unsigned long)bitMaps[1]);
-      // PrivColList is a misnomer; it is really an STL map not a list
-      PrivColList & privColList = userPrivs.getColPrivList();
-      for (size_t i = 0; i < n; i++) 
-        {   
-          PrivColumnBitmap bitMap((unsigned long)bitMaps[i+2]);
-          privColList[positionToColumnNumberVector[i]] = bitMap;
-        }
-
-      userPrivs.setSchemaGrantableBitmap((unsigned long)bitMaps[n+2]);
-      userPrivs.setGrantableBitmap((unsigned long)bitMaps[n+3]);
-      PrivColList & privColWGOList = userPrivs.getColGrantableList();
-      for (size_t j = 0; j < n; j++) 
-        {   
-          PrivColumnBitmap bitMap((unsigned long)bitMaps[j+n+4]);
-          privColWGOList[positionToColumnNumberVector[j]] = bitMap;
-        }
-
-      return HVC_OK;
-    }
 
   return -retCode_;  // error case
 }
@@ -2675,12 +2620,6 @@ Lng32 ExpHbaseInterface_JNI::sentryGetPrivileges(const char * userName,
   if (isView)
     return -HVC_ERROR_SENTRY_GET_PARAM;
 
-  if (hive_ == NULL)
-    {
-      retCode_ = initHive();
-      if (retCode_ != HVC_OK)
-        return retCode_;
-    }
 
   // The bitMaps returned by getSentryPrivileges are returned in a
   // vector with the following structure:
@@ -2705,42 +2644,7 @@ Lng32 ExpHbaseInterface_JNI::sentryGetPrivileges(const char * userName,
   // instead, we would not need these gymnastics.)
   vector<Lng32> positionToColumnNumberVector(columnNumberToNameMap.size(),0);
 
-  retCode_ = hive_->getSentryPrivileges(userName,
-                                        tableOrViewName,                                 
-                                        columnNumberToNameMap,
-                                        bitMaps /* out */,
-                                        positionToColumnNumberVector /* out */);
-
-  if (retCode_ == HVC_OK)
-    {
-      // TODO: The code here is identical to both sentryGetPrivileges
-      // methods. If we decide to keep both, this code could be factored
-      // out into a separate private method.
-
-      // the (unsigned long) casts are here because that's
-      // what a PrivColumnBitmap (=std::bitset) ctor expects
-      userPrivs.setSchemaPrivBitmap((unsigned long)bitMaps[0]);
-      userPrivs.setObjectBitmap((unsigned long)bitMaps[1]);
-      // PrivColList is a misnomer; it is really an STL map not a list
-      PrivColList & privColList = userPrivs.getColPrivList();
-      for (size_t i = 0; i < n; i++) 
-        {   
-          PrivColumnBitmap bitMap((unsigned long)bitMaps[i+2]);
-          privColList[positionToColumnNumberVector[i]] = bitMap;
-        }
-
-      userPrivs.setSchemaGrantableBitmap((unsigned long)bitMaps[n+2]);
-      userPrivs.setGrantableBitmap((unsigned long)bitMaps[n+3]);
-      PrivColList & privColWGOList = userPrivs.getColGrantableList();
-      for (size_t j = 0; j < n; j++) 
-        {   
-          PrivColumnBitmap bitMap((unsigned long)bitMaps[j+n+4]);
-          privColWGOList[positionToColumnNumberVector[j]] = bitMap;
-        }
-
-      return HVC_OK;
-    }
-
+ 
   return -retCode_;  // error case
 }
 

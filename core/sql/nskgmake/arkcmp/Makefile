@@ -60,7 +60,6 @@ DEP_LIBS := \
 	tdm_sqlexport \
 	tdm_sqlshare \
 	tdm_sqlmxevents \
-	ustat \
 	sqlcat \
 	parser \
 	optimizer \
@@ -69,15 +68,13 @@ DEP_LIBS := \
 	generator \
 	arkcmplib \
 	sqlcat \
-	ustat \
 	executor \
 	tdm_sqlcli \
 	tdm_sqlexp \
 	porting_layer \
 	lmcomp \
         smdio \
-	qmscommon \
-	jsonpath
+	qmscommon 
 
 
 DEP_LIBS += sqlcomp

@@ -465,14 +465,7 @@ void CreateImplementationRules(RuleSet* set)
   set->insert(r);
   set->enable(r->getNumber());
 
-  r = new(CmpCommon::contextHeap()) PhysicalHiveMDRule
-    ("Implement HiveMDaccessFunc by a PhysicalExplain",
-     new(CmpCommon::contextHeap())
-     HiveMDaccessFunc(NULL, NULL, NULL, CmpCommon::contextHeap()),
-     new(CmpCommon::contextHeap())
-       PhysicalHiveMD(CmpCommon::contextHeap()));
-  set->insert(r);
-  set->enable(r->getNumber());
+
 
   r = new(CmpCommon::contextHeap()) PhysicalTransposeRule
     ("Implement Transpose by a PhysicalTranspose",
@@ -4075,30 +4068,6 @@ RelExpr * PhysicalExplainRule::nextSubstitute(RelExpr * before,
   return result;
 }
 
-// -----------------------------------------------------------------------
-// methods for class PhysicalHiveMDRule
-// -----------------------------------------------------------------------
-
-PhysicalHiveMDRule::~PhysicalHiveMDRule() {} 
-
-RelExpr * PhysicalHiveMDRule::nextSubstitute(RelExpr * before,
-                                              Context * /*context*/,
-                                              RuleSubstituteMemory *& /*mem*/)
-{
-  CMPASSERT(before->getOperatorType() == REL_HIVEMD_ACCESS);
-  HiveMDaccessFunc * bef = (HiveMDaccessFunc *) before;
-
-  // Simply copy the contents of the HiveMD from the before pattern.
-  PhysicalHiveMD *result = new(CmpCommon::statementHeap()) PhysicalHiveMD();
-
-  bef->copyTopNode(result, CmpCommon::statementHeap());
-
-  // now set the group attributes of the result's top node
-  result->selectionPred() = bef->selectionPred();
-  result->setGroupAttr(before->getGroupAttr());
-
-  return result;
-}
 
 // -----------------------------------------------------------------------
 // methods for class PhysicalPackRule

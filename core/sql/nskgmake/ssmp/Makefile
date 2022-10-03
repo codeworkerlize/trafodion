@@ -38,7 +38,7 @@ EXTERN_LIBS := \
         $(XMPIROOT)/libstmlib.so \
         $(XMPIROOT)/libsqauth.so 
 
-DEP_LIBS += tdm_sqlcli arkcmp_dll tdm_sqlexp tdm_sqlexport cli executor generator ustat sqlcomp tdm_sqllangman tdm_sqlerrormsg qmscommon arkcmplib parser optimizer comexe common
+DEP_LIBS += tdm_sqlcli arkcmp_dll tdm_sqlexp tdm_sqlexport cli executor generator  sqlcomp tdm_sqllangman tdm_sqlerrormsg qmscommon arkcmplib parser optimizer comexe common
 
 ifdef BUILD_ORC_READER
 DEP_LIBS += orc

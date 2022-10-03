@@ -43,7 +43,6 @@
 #include "str.h"
 #include <wchar.h>
 #include "NLSConversion.h"
-#include "hs_const.h"          /* for HS_MAX_BOUNDARY_LEN */
 #include "wstr.h"
 #include <exp_function.h>
 
@@ -733,7 +732,7 @@ EncodedValue::constructorFunction (const NAWchar * theValue,
   NAWchar *next;
   NABoolean boundaryValueTruncated = FALSE;
 
-  const Int32 BOUNDARY_LEN = HS_MAX_BOUNDARY_LEN + 10; // +10 just in case
+  const Int32 BOUNDARY_LEN = 10; // +10 just in case
   NAWchar buf[BOUNDARY_LEN];
 
   NormValue val;

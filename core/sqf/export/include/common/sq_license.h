@@ -107,7 +107,6 @@ enum LICENSE_MODULES
 {
    LM_ROW_LOCK          = 1,
    LM_DDL_ONLINE        = 2,   
-   LM_TRIGGER           = 3,
    LM_STORED_PROCEDURE  = 4,
    LM_CONNECT_BY        = 5,
    LM_SEC_AUDIT         = 6,

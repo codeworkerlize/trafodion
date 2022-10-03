@@ -278,9 +278,6 @@ public:
   { tenantHelperJNI_ = tenantHelperJNI; }
   TenantHelper_JNI *getTenantHelper() { return tenantHelperJNI_; }
 
-  HiveClient_JNI *getHiveClient() { return hiveClientJNI_; }
-  void setHiveClient(HiveClient_JNI *hiveClientJNI)
-  { hiveClientJNI_ = hiveClientJNI; }
 
   DistributedLock_JNI* getDLockClient() { return DLockClientJNI_; }
   void setDLockClient(DistributedLock_JNI* DLockClientJNI)
@@ -687,7 +684,6 @@ private:
   Int64 udrXactId_;  // transid that UDR Server is interested to know
                      // if aborted
   NAString jniErrorStr_; 
-  HiveClient_JNI *hiveClientJNI_;
   DistributedLock_JNI *DLockClientJNI_;
   TenantHelper_JNI *tenantHelperJNI_;
 

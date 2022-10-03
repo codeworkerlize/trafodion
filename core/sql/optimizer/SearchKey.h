@@ -63,9 +63,7 @@ class ItemExpr;
 class RangePartitioningFunction;
 class TableHashPartitioningFunction;
 class RoundRobinPartitioningFunction;
-class HHDFSTableStats;
 class HHDFSPartitionStats;
-class HHDFSFileStats;
 class HHDFSStatsBase;
 
 // -----------------------------------------------------------------------

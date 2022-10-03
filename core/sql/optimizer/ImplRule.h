@@ -66,7 +66,6 @@ class MergeJoinRule;
 class NestedJoinRule;
 class PhysCompoundStmtRule;
 class PhysicalExplainRule;
-class PhysicalHiveMDRule;
 class PhysicalMapValueIdsRule;
 class PhysicalPackRule;
 class PhysicalSequenceRule;
@@ -496,22 +495,6 @@ public:
 				   RuleSubstituteMemory * & memory);
 };
 
-class PhysicalHiveMDRule : public Rule
-{
-public:
-  PhysicalHiveMDRule(const char * name,
-                      RelExpr * pattern,
-                      RelExpr * substitute) : 
-       Rule(name,pattern,substitute) {}
-
-  // copy ctor
-  PhysicalHiveMDRule (const PhysicalHiveMDRule &) ; // not written
-
-  virtual ~PhysicalHiveMDRule();
-  virtual RelExpr * nextSubstitute(RelExpr * before,
-				   Context * context,
-				   RuleSubstituteMemory * & memory);
-};
 
 class PhysicalPackRule : public Rule
 {

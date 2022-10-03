@@ -326,17 +326,8 @@ char *ComTdb::findVTblPtrExe(short classID)
       break;
     }
 
-    case ex_HIVE_TRUNCATE:
-    {
-      GetVTblPtr(vtblptr,ExExeUtilHiveTruncateTdb);
-      break;
-    }
 
-    case ex_HIVE_QUERY:
-    {
-      GetVTblPtr(vtblptr,ExExeUtilHiveQueryTdb);
-      break;
-    }
+
     case ex_PROCESS_VOLATILE_TABLE:
     {
       GetVTblPtr(vtblptr,ExProcessVolatileTableTdb);
@@ -391,12 +382,6 @@ char *ComTdb::findVTblPtrExe(short classID)
       break;
     }
 
-  case ex_GET_HIVE_METADATA_INFO:
-    {
-      GetVTblPtr(vtblptr,ExExeUtilGetHiveMetadataInfoTdb);
-
-      break;
-    }
 
     case ex_GET_UID:
     {
@@ -481,12 +466,6 @@ char *ComTdb::findVTblPtrExe(short classID)
 
 
 
-  case ex_HIVE_MD_ACCESS:
-    {
-      GetVTblPtr(vtblptr,ExExeUtilHiveMDaccessTdb);
-
-      break;
-    }
 
   case ex_HBASE_ACCESS:
     {

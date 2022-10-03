@@ -45,9 +45,6 @@
 #include "../exp/exp_ovfl_ptal.h" //check for overflow & underflow
 #include "CompException.h"
 #include "ItemLog.h"	    // for like predicates
-#include "hs_globals.h"   // for ustat automation setting
-#include "hs_cli.h"       // ustat automation, insert empty histograms
-#include "hs_log.h"       // ustat log
 #include "SqlParserGlobals.h"
 #include "CmpDescribe.h"
 
@@ -9035,13 +9032,7 @@ ColStatDescList::enforceInternalConsistency(CollIndex start,
             NABoolean quickStats = FALSE;
             if (cs->isSmallSampleHistogram())
               quickStats = TRUE;
-            ueclist->displayMissingStatsWarning(tableDescForCol,
-				                  colId,
-				                  TRUE,
-                                                  TRUE,
-                                                  *this,
-                                                  csMinusOne, // displaying missing single column warnings
-                                                  quickStats);
+
           }
         }
       }
@@ -9900,7 +9891,6 @@ MultiColumnUecList::useMCUecForCorrPreds (
           {
             // log selectivity from single column histograms in ustat log
             CostScalar sel = newRowCount /oldRowCount;
-            displayMissingStatsWarning(iterDesc, (ValueIdSet)*iterList, largeTableNeedsStats, displayWarning, scHists, sel, FALSE, REL_SCAN);
           }
         } // end else (colsWithReductions.doColumnConstituteUniqueIndex(iterDesc))
       } // end else (mcUec.isGreaterThanZero() )
@@ -10854,14 +10844,7 @@ MultiColumnUecList::getUecForMCJoin (
           else 
             displayWarning = FALSE;
           
-          displayMissingStatsWarning(tableOneDesc,
-                                    tableOneSet,
-                                    largeTableNeedsStats,
-                                    displayWarning,
-                                    colStats,
-                                    redFromSC,
-                                   FALSE,
-                                    REL_JOIN);
+
 	}
       }
     }
@@ -10891,14 +10874,7 @@ MultiColumnUecList::getUecForMCJoin (
           else 
             displayWarning = FALSE;
 
-          displayMissingStatsWarning(tableTwoDesc,
-		              tableTwoSet,
-		              largeTableNeedsStats,
-                              displayWarning,
-                              colStats,
-                              redFromSC,
-                              FALSE,
-                              REL_JOIN);
+
 
 	}
       }
@@ -11625,339 +11601,6 @@ void
 MultiColumnUecList::display() const
 {
   print();
-}
-
-void
-MultiColumnUecList::displayMissingStatsWarning(TableDesc * mostRefdTable,
-                                              ValueIdSet predCols,
-                                              NABoolean largeTableNeedsStats,
-                                              NABoolean displayWarning,
-                                              const ColStatDescList &colStats,
-                                              CostScalar redFromSC,
-                                              NABoolean quickStats,
-                                              OperatorTypeEnum op) const
-{
-  HSLogMan *LM = HSLogMan::Instance();
-  LM->LogTimeDiff("START MISSING HISTOGRAM WARNING MESSAGES", TRUE);
-  
-  // Do not display warning if user does not want to use multi-column
-  if ((predCols.entries() > 1) &&
-    (CmpCommon::getDefault(HIST_MC_STATS_NEEDED) == DF_OFF) )
-    return;
-
-  // Do not display warning if the query is an internal query from
-  // the executor
-
-  if (Get_SqlParser_Flags(INTERNAL_QUERY_FROM_EXEUTIL))
-    return;
-
-  const NATable * mostRefdNATable = mostRefdTable->getNATable();
-
-  // create a set of column positions for predCols. These are all base tables
-  // so we should be able to cast each one of them to BaseCols. This is necessary
-  // to take care of cases where we have the same columns appearing in both the
-  // query and its sub-query. If we go by the columns ValueIds, then, since the
-  // ValueIds of the column in the two places would be different, the warning
-  // would be inserted twice. A good example of this is TPCD query 2, where
-  // columns such as ps_partkey, ps_suppkey appear in both the main query and
-  // its sub-query. By caching with its column position we can avoid that.
-  // This should not be very expensive, since column numbers are cached with the
-  // column expression
-
-  CollIndexSet setOfColsWithMissingStats(NULL,STMTHEAP);
-
-  // define ValueId outside of for loop, to avoid c++ compiler error.
-  ValueId col;
-  for (col = predCols.init();
-       predCols.next(col);
-       predCols.advance(col) )
-  {
-    BaseColumn * baseCol = col.castToBaseColumn();
-
-    if (baseCol == NULL)
-      return;
-
-    CollIndex colNumber = baseCol->getColNumber();
-
-    NAColumn *column = baseCol->getTableDesc()->getNATable()->
-                                getNAColumnArray()[colNumber];
-
-    // Don't give a warning if it is not marked for histogram
-    // or it is not a user column. Exception is salt column, for
-    // which we suppress warning, but create empty histogram if
-    // automation is enabled.
-    if ( !column->isReferencedForHistogram() ||
-         (!column->isUserColumn() && !column->isSaltColumn()))
-      return;
-    setOfColsWithMissingStats.insert(colNumber );
-  }
-
-  // Now check to see, if the warning for missing MC stats has already been
-  // inserted in the diags area. If it does then return
-  if (mostRefdNATable->doesMissingStatsWarningExist(setOfColsWithMissingStats) )
-    return;
-
-  HSGlobalsClass::schemaVersion = mostRefdNATable->getObjectSchemaVersion();
-  Int32 warningNumber;
-  Lng32 ustatAuto  = CmpCommon::getDefaultLong(USTAT_AUTOMATION_INTERVAL);
-  Lng32 ustatLevel = CmpCommon::getDefaultLong(USTAT_AUTO_MISSING_STATS_LEVEL);
-  // Determine if the missing histogram should be inserted by the compiler into the HISTOGRAMS table
-  // for update statistics automation.  The following must ALL be true:
-  //  1. NOT an MP table
-  //  2. Schema version of table >= 2300
-  //  3. Table is not volatile or automation is ON for volatile tables.
-  //  4. Auto missing stats CQD level is set high enough for this single or multi-col hist.
-  if (  ustatAuto > 0 && 
-        HSGlobalsClass::schemaVersion >= COM_VERS_2300 &&
-        (!mostRefdNATable->isVolatileTable() || 
-         CmpCommon::getDefault(USTAT_AUTO_FOR_VOLATILE_TABLES) == DF_ON) &&
-        ((ustatLevel >= 1 && predCols.entries() == 1) ||
-         (ustatLevel >= 2 && op == REL_SCAN)          ||
-         (ustatLevel >= 3 && op == REL_JOIN)          ||
-         (ustatLevel >= 4 && op == REL_GROUPBY)          )
-     )
-    {
-       // Ustat automation is on for this object.
-       // Insert empty entry to HISTOGRAMS table.
-
-       // Determine if this is a synonym and if so, get name of table instead.
-       Int64 tableUID;
-       NAString tableName;
-       NAString histogramSchemaName;
-
-       if (mostRefdNATable->getIsSynonymTranslationDone()) {
-         tableName = mostRefdNATable->getSynonymReferenceName();
-         tableUID = mostRefdNATable->getSynonymReferenceObjectUid().get_value();
-         // Get catalog and schema name.  Find end of schema name.
-         QualifiedName qualName(tableName, 3);
-         histogramSchemaName = qualName.getSchemaNameAsAnsiString();
-       }
-       else {
-         tableName = mostRefdNATable->getExtendedQualName().getText();
-         tableUID = mostRefdNATable->objectUid().get_value();
-         histogramSchemaName = mostRefdNATable->getTableName().getCatalogName() + "."
-                            + mostRefdNATable->getTableName().getSchemaName();
-       }
-       NAString histogramTableName = getHistogramsTableLocation(histogramSchemaName,FALSE)
-                                     + "." + HBASE_HIST_NAME;
-
-       Lng32 retcode = -1;
-       HSinsertEmptyHist hist(tableUID, tableName.data(), histogramTableName.data());
-       Lng32 colCount = 0;
-       // get col numbers
-       for ( col = predCols.init(); 
-             predCols.next(col); 
-             predCols.advance(col))
-         {
-            BaseColumn * baseCol = col.castToBaseColumn();
-            if (baseCol)
-              {
-                 Lng32 colNumber = baseCol->getColNumber();
-                 retcode = hist.addColumn(colNumber);
-                 if (retcode == 0) 
-                   colCount++;
-              }
-         }
-       if ( retcode == 0 && predCols.entries() == (CollIndex)colCount ) // got every col number?
-         {
-         NABoolean switched = FALSE;
-         CmpContext* prevContext = CmpCommon::context();
-         // switch to another context to avoid spawning an arkcmp process when compiling
-         // the user metadata queries on the histograms tables
-         if (IdentifyMyself::GetMyName() == I_AM_EMBEDDED_SQL_COMPILER)
-            if (SQL_EXEC_SWITCH_TO_COMPILER_TYPE(CmpContextInfo::CMPCONTEXT_TYPE_USTATS))  //CMPCONTEXT_TYPE_META))
-            {
-               //failed to switch/create metadata CmpContext,  continue using current compiler context
-            }
-            else
-            {
-               switched = TRUE;
-               // send controls to the context we are switching to
-               sendAllControls(FALSE, FALSE, FALSE, COM_VERS_COMPILER_VERSION, TRUE, prevContext);
-            }
-
-         retcode = hist.insert();
-
-         // switch back to previous compiler context if we switched above
-         if (switched == TRUE)
-           SQL_EXEC_SWITCH_BACK_COMPILER();
-         }
-
-       if (predCols.entries() == 1) 
-       {
-         if (quickStats)
-           warningNumber = SINGLE_COLUMN_SMALL_STATS_AUTO;
-         else
-           warningNumber = SINGLE_COLUMN_STATS_NEEDED_AUTO;
-       }
-       else
-         warningNumber = MULTI_COLUMN_STATS_NEEDED_AUTO;
-      }
-      // Ustat automation is NOT on.
-      else
-      if (predCols.entries() == 1)  
-      {
-        if (quickStats)
-          warningNumber = SINGLE_COLUMN_SMALL_STATS;
-        else
-          warningNumber = SINGLE_COLUMN_STATS_NEEDED;
-      }
-      else
-        warningNumber = MULTI_COLUMN_STATS_NEEDED;
-  // Do not display warning if rows < default CQD (which could be true if 
-  // ustat automation is on).
-  if (CURRSTMT_OPTDEFAULTS->ustatAutomation() &&
-      (mostRefdTable->getTableColStats()[0]->getColStats()->getRowcount() <
-       CostPrimitives::getBasicCostFactor(HIST_ROWCOUNT_REQUIRING_STATS)))
-    return;
-
-  // Do not display warning for salt column, although an empty histogram may
-  // have been added to histograms table above. Use new ValueIdSet nonSaltPredCols
-  // for remainder of function, which is predCols with any salt column removed.
-  ValueIdSet nonSaltPredCols(predCols);
-  ValueIdSet saltCols;
-  for (col = predCols.init();
-             predCols.next(col);
-             predCols.advance(col))
-  {
-    if (col.isSaltColumn())
-      saltCols.addElement(col.toUInt32());
-  }
-  nonSaltPredCols.remove(saltCols);
-  if (nonSaltPredCols.isEmpty())
-    return;
-
-  // Now see, if we should issue a missing single column or a missing multi-col
-  // stats warning. This would depend on the number of columns on which the
-  // statistics is missing.
-
-  // check the warning level
-  // Warning level set to 0, or largeTableNeeds Stats is false, 
-  // do not display any warning
-  if ((CURRSTMT_OPTDEFAULTS->histMissingStatsWarningLevel() == 0) ||
-      (largeTableNeedsStats == FALSE) )
-    return;
-
-  // If warning level is one, display only single column stats warning.
-  if ((CURRSTMT_OPTDEFAULTS->histMissingStatsWarningLevel() == 1) &&
-      (nonSaltPredCols.entries() > 1) )
-    return;
-
-  // If this is a multi-column (MC) stat, check to see if it should be displayed as
-  // a warning based on the operation and the warning level.
-  if ((nonSaltPredCols.entries() > 1) &&
-      ((CURRSTMT_OPTDEFAULTS->histMissingStatsWarningLevel() < 2 && op == REL_SCAN)    ||
-       (CURRSTMT_OPTDEFAULTS->histMissingStatsWarningLevel() < 3 && op == REL_JOIN)    ||
-       (CURRSTMT_OPTDEFAULTS->histMissingStatsWarningLevel() < 4 && op == REL_GROUPBY)) )
-    return;
-
-  // dump the warning in the diags area
-
-  NAString tableName(CmpCommon::statementHeap()); // table name
-
-  NAString tableCols(CmpCommon::statementHeap()); // column names
-  NAString predicates(CmpCommon::statementHeap()); // predicates
-
-  ValueIdSet thePreds;
-  thePreds.clear();
-
-  if (mostRefdNATable->getIsSynonymTranslationDone())
-    tableName = mostRefdNATable->getSynonymReferenceName();
-  else
-    tableName = mostRefdNATable->
-      getExtendedQualName().getQualifiedNameObj().getQualifiedNameAsAnsiString();
-
-  // collect all column names into a string
-
-  NABoolean first = TRUE;
-  NAString connectorText(", ");
-  tableCols += "(";
-
-  NAString opName (CmpCommon::statementHeap());
-  switch (op)
-  {
-  case REL_SCAN:
-    opName = "Scan";
-    break;
-  case REL_JOIN:
-    opName = "Join";
-    break;
-  case REL_GROUPBY:
-    opName = "GroupBy";
-    break;
-  }
-
-  for (col = nonSaltPredCols.init();
-       nonSaltPredCols.next(col);
-       nonSaltPredCols.advance(col))
-  {
-      if (first)
-	first = FALSE;
-      else
-	tableCols += connectorText;
-
-    BaseColumn * baseCol = col.castToBaseColumn();
-
-	if (baseCol == NULL)
-	  return;
-
-	NAString colName(baseCol->getTableDesc()->getNATable()->
-					getNAColumnArray()[baseCol->getColNumber()]->
-					getColName(), STMTHEAP);
-
-	tableCols += ToAnsiIdentifier(colName);
-
-        // if ustat logging is ON, log the predicates for which the warning is
-        // being issued
-        if (LM->LogNeeded() && colStats.entries() > 0) 
-        {
-          // also collect the predicates applied on this column
-          CollIndex i;
-          // get the histogram for the column
-          NABoolean found = colStats.getColStatDescIndexForColumn(i, col);
-          if (found)
-          {
-            // histogram for which the warning is being issued is found
-            LM->Log("histogram for column with missing stats found");
-            ColStatDescSharedPtr tempStatDesc = colStats[i];
-            if (tempStatDesc->getAppliedPreds().entries() > 0)
-            {
-              LM->Log("column for missing stats has been reduced by a predicate");
-              thePreds = tempStatDesc->getAppliedPreds();
-              thePreds.unparse(predicates, DEFAULT_PHASE, EXPLAIN_FORMAT, mostRefdTable);
-              sprintf(LM->msg, "%s",predicates.data());
-              LM->Log(LM->msg);
-            }
-            else
-              // This condition will happen either for group bys 
-              // if that happens for scans or joins then there is a bug in the code
-              LM->Log("column for missing stats did not have any predicate applied");
-          }
-          else
-            // This would mean a bug in the code as this should never happen
-            LM->Log("histogram for column with missing stats NOT found");
-        }
-  }
-
-  tableCols += ")";
-
-  *CmpCommon::diags() << DgSqlCode( warningNumber )
-    << DgString0( tableCols )
-    << DgString1( tableName )
-    << DgString2(opName);
-
-  if (LM->LogNeeded() && nonSaltPredCols.entries() > 1)
-  {
-    LM->Log("MC Warning for table, col set, operator, selectivity: ");
-    sprintf(LM->msg, "%s, %s, %s, %e", tableName.data(), tableCols.data(), opName.data(), redFromSC.getValue());
-    LM->Log(LM->msg);
-  }
-
-  LM->LogTimeDiff("END MISSING HISTOGRAM WARNING MESSAGES");
-
-  // insert the columns with missing stats in the table Desc, so it is not displayed again
-  // insert the columns with missing stats in the table Desc
-  mostRefdNATable->insertMissingStatsWarning(setOfColsWithMissingStats);
 }
 
 // -----------------------------------------------------------------

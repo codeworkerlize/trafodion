@@ -682,13 +682,7 @@ short BuiltinFunction::codeGen(Generator * generator)
 						     attr, space);
       }
       break;
-    case ITM_JSONOBJECTFIELDTEXT:
-    {
-	  function_clause =
-	    new(generator->getSpace()) ex_function_json_object_field_text(getOperatorType(),
-						     attr, space);
-    }
-    break;
+
     // for ngram
     case ITM_FIRSTNGRAM:
     {
@@ -3005,69 +2999,6 @@ short HbaseAttributeRef::codeGen(Generator * generator)
   return 0;
 }
 
-short JsonExistsFunc::codeGen(Generator * generator)
-{
-  Attributes ** attr;
-  
-  if (generator->getExpGenerator()->genItemExpr(this,
-                                                &attr,
-                                                1 + getArity(),
-                                                -1) == 1)
-    return 0;
-  
-  ex_clause * function_clause = 
-    new(generator->getSpace()) ex_function_json_exists(getOperatorType(),
-                                                   attr, 
-                                                   behaviorOnErr_,
-                                                   generator->getSpace());
-  generator->getExpGenerator()->linkClause(this, function_clause);
-  
-  return 0;
-}
-
-short JsonValueFunc::codeGen(Generator * generator)
-{
-  Attributes ** attr;
-  
-  if (generator->getExpGenerator()->genItemExpr(this,
-                                                &attr,
-                                                1 + getArity(),
-                                                -1) == 1)
-    return 0;
-  
-  ex_clause * function_clause = 
-    new(generator->getSpace()) ex_function_json_value(getOperatorType(),
-                                                   attr, 
-                                                   behaviorOnErr_,
-                                                   behaviorOnEmpty_,
-                                                   generator->getSpace());
-  generator->getExpGenerator()->linkClause(this, function_clause);
-  
-  return 0;
-}
-
-short JsonQueryFunc::codeGen(Generator * generator)
-{
-  Attributes ** attr;
-  
-  if (generator->getExpGenerator()->genItemExpr(this,
-                                                &attr,
-                                                1 + getArity(),
-                                                -1) == 1)
-    return 0;
-  
-  ex_clause * function_clause = 
-    new(generator->getSpace()) ex_function_json_query(getOperatorType(),
-                                                   attr, 
-                                                   behaviorWrap_,
-                                                   behaviorQuote_,
-                                                   behaviorOnErr_,
-                                                   behaviorOnEmpty_,
-                                                   generator->getSpace());
-  generator->getExpGenerator()->linkClause(this, function_clause);
-  
-  return 0;
-}
 
 short BeginKey::codeGen(Generator *generator)
 {

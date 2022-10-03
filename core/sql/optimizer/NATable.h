@@ -41,7 +41,6 @@
 #include "CmpISPStd.h"
 #include "ComSizeDefs.h"
 #include "sqlcli.h"
-#include "hiveHook.h"
 #include "ComSecurityKey.h"
 #include "ExpHbaseDefs.h"
 #include "ComViewColUsage.h"
@@ -311,7 +310,6 @@ public:
                              ColumnSet & singleColsFound); //In \ Out
 
 	//This method is used to put a StatsList object, that has been
-	//fetched using FetchHistograms, into the histogram cache.
 	void putStatsListIntoCache(StatsList & colStatsList,
                               const NAColumnArray& colArray,
                               const QualifiedName & qualifiedName,
@@ -450,8 +448,6 @@ public:
   NATable(BindWA *bindWA, const CorrName &corrName, NAMemory *heap,
           TrafDesc *inTableDesc, UInt32 currentEpoch, UInt32 currentFlags);
 
-  NATable(BindWA *bindWA, const CorrName &corrName, NAMemory *heap,
-          struct hive_tbl_desc*, TrafDesc *extTableDesc = NULL);
 
   // copy cstr
   NATable(const NATable& other, NAMemory *heap, NATableHeapType heapType);
@@ -1768,10 +1764,6 @@ public:
   static NABoolean isHiveTable(CorrName& corrName);
   NABoolean initHiveStructForHiveTable(CorrName& corrName);
 
-  HiveMetaData* getHiveMetaDB()
-  {
-    return hiveMetaDB_;
-  }
 
   NAHashDictionary<ComUID, CorrName> &getObjUidToName() 
   {
@@ -1870,7 +1862,6 @@ public:
   //used for cache entry replacement purposes
   Int32 replacementCursor_;
 
-  HiveMetaData* hiveMetaDB_;
 
   //indicates if NATableDB is in the preloading phase.
   NABoolean inPreloading_;

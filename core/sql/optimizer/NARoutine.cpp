@@ -47,7 +47,6 @@
 #include "NARoutine.h"
 #include "SchemaDB.h"
 #include "str.h"
-#include "hs_util.h"
 #include "LmJavaSignature.h"
 #include "CmUtil.h"
 #include "NATableSt.h"
@@ -1149,8 +1148,7 @@ NARoutine *NARoutineDB::get(BindWA *bindWA, const NARoutineDBKey *key)
 
   totalCacheHits_++;    // Statistics counter: number of cache hits.
 
-  // Record time that this NARoutine was obtained from cache for LRU.
-  cachedNARoutine->setLastUsedTime(hs_getEpochTime());
+
 
   cachedNARoutine->getAccessedInCurStmt() = TRUE; 
 
@@ -1162,7 +1160,6 @@ void NARoutineDB::put(NARoutine *routine)
 {
   if (cacheMetaData_ && maxCacheSize_)
   {
-    routine->setLastUsedTime(hs_getEpochTime());
     insert(routine);  // This function returns void.
 
     entries_++;

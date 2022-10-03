@@ -89,14 +89,7 @@ extern short CmpDescribeSeabaseTable (
      CorrName *likeTabName = NULL,
      short subType = 0);
 
-short CmpDescribeHiveTable ( 
-                             const CorrName  &dtName,
-                             short type, // 1, invoke. 2, showddl. 3, createLike
-                             char* &outbuf,
-                             ULng32 &outbuflen,
-                             CollHeap *heap,
-                             NABoolean isDetail = FALSE,
-                             UInt32 columnLengthLimit = UINT_MAX);
+
 
 // type:  1, invoke. 2, showddl. 3, create_like
 extern short cmpDisplayColumn(const NAColumn *nac,

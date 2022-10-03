@@ -91,7 +91,6 @@
 #include "../../dbsecurity/auth/inc/dbUserAuth.h"
 #include "ComDistribution.h"
 #include "LmRoutine.h"
-#include "HiveClient_JNI.h"
 
 #include "TriggerDB.h"
 #include "seabed/sys.h"
@@ -218,7 +217,6 @@ ContextCli::ContextCli(CliGlobals *cliGlobals, NABoolean isDefaultContext)
     execDDLOptions_(FALSE),
     numCliCalls_(0),
     jniErrorStr_(&exHeap_),
-    hiveClientJNI_(NULL),
     DLockClientJNI_(NULL),
     tenantHelperJNI_(NULL),
     arkcmpArray_(&exHeap_),
@@ -537,7 +535,6 @@ void ContextCli::deleteMe()
   NADELETE(env_, IpcEnvironment, ipcHeap_);
   NAHeap *parentHeap = cliGlobals_->getProcessIpcHeap();
   NADELETE(ipcHeap_, NAHeap, parentHeap);
-  HiveClient_JNI::deleteInstance();
   DistributedLock_JNI::deleteInstance();
   disconnectHdfsConnections();
   delete hdfsHandleList_;

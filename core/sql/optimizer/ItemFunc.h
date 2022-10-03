@@ -50,7 +50,6 @@
 #include "exp_like.h"
 #include "QRExprElement.h"
 #include "ExpLOBenums.h"
-#include "ComJSON.h"
 
 // -----------------------------------------------------------------------
 // forward references
@@ -6218,113 +6217,10 @@ public:
 }; // class RowNumFunc
 
 
-// JSON_EXISTS()
-class JsonExistsFunc : public BuiltinFunction
-{
-public:
-
-	JsonExistsFunc(ItemExpr *val1Ptr, CharInfo::CharSet cs, ItemExpr *val2Ptr, JsonBehavOnErrorEmpty behaOnErr)
-		: BuiltinFunction(ITM_JSON_EXISTS, CmpCommon::statementHeap(), 2, val1Ptr, val2Ptr),
-		  charSet_(cs), behaviorOnErr_(behaOnErr)
-    {}
-
-    virtual ItemExpr * bindNode(BindWA *bindWA);
-
-    virtual const NAType * synthesizeType();
-
-    virtual ItemExpr * copyTopNode(ItemExpr *derivedNode = NULL, CollHeap* outHeap = 0);
-
-	virtual short codeGen(Generator*);
-
-    virtual const NAString getText() const
-    {
-        return "JSON_EXISTS";
-    }
-
-private:
-	CharInfo::CharSet          charSet_;
-	JsonBehavOnErrorEmpty      behaviorOnErr_;
-
-};
 
 
-// JSON_VALUE()
-class JsonValueFunc : public BuiltinFunction
-{
-public:
-
-	JsonValueFunc(ItemExpr *val1Ptr, CharInfo::CharSet cs, ItemExpr *val2Ptr, NAType *outType,
-		              JsonBehavOnErrorEmpty behaOnEmpty, ItemExpr *defOnEmpty,
-		              JsonBehavOnErrorEmpty behaOnErr, ItemExpr *defOnErr)
-		: BuiltinFunction(ITM_JSON_VALUE, CmpCommon::statementHeap(), 2, val1Ptr, val2Ptr),
-		  charSet_(cs), outType_(outType),
-		  behaviorOnErr_(behaOnErr), defOnErr_(defOnErr), behaviorOnEmpty_(behaOnEmpty), defOnEmpty_(defOnEmpty)
-    {}
-
-    virtual ItemExpr * bindNode(BindWA *bindWA);
-
-    virtual const NAType * synthesizeType();
-
-    virtual ItemExpr * copyTopNode(ItemExpr *derivedNode = NULL, CollHeap* outHeap = 0);
-
-	virtual short codeGen(Generator*);
-
-    virtual const NAString getText() const
-    {
-        return "JSON_VALUE";
-    }
-
-private:
-	CharInfo::CharSet          charSet_;
-	NAType                    *outType_;
-
-	JsonBehavOnErrorEmpty      behaviorOnErr_;
-	JsonBehavOnErrorEmpty      behaviorOnEmpty_;
-
-	ItemExpr                  *defOnErr_;
-	ItemExpr                  *defOnEmpty_;
-
-};
 
 
-// JSON_QUERY()
-class JsonQueryFunc : public BuiltinFunction
-{
-public:
-
-	JsonQueryFunc(ItemExpr *val1Ptr, CharInfo::CharSet cs, ItemExpr *val2Ptr, NAType *outType,
-		               JsonWrapperBehav behavWrap, JsonQuoteBehav behavQuote, 
-		               JsonBehavOnErrorEmpty behavOnEmtpy, JsonBehavOnErrorEmpty behavOnErr)
-		: BuiltinFunction(ITM_JSON_QUERY, CmpCommon::statementHeap(), 2, val1Ptr, val2Ptr),
-		  charSet_(cs), outType_(outType), 
-		  behaviorWrap_(behavWrap), behaviorQuote_(behavQuote),
-		  behaviorOnErr_(behavOnErr), behaviorOnEmpty_(behavOnEmtpy)
-    {}
-
-    virtual ItemExpr * bindNode(BindWA *bindWA);
-
-    virtual const NAType * synthesizeType();
-
-    virtual ItemExpr * copyTopNode(ItemExpr *derivedNode = NULL, CollHeap* outHeap = 0);
-
-	virtual short codeGen(Generator*);
-
-    virtual const NAString getText() const
-    {
-        return "JSON_QUERY";
-    }
-
-private:
-	CharInfo::CharSet          charSet_;
-	NAType                    *outType_;
-
-	JsonWrapperBehav           behaviorWrap_;
-	JsonQuoteBehav             behaviorQuote_;
-	
-	JsonBehavOnErrorEmpty      behaviorOnErr_;
-	JsonBehavOnErrorEmpty      behaviorOnEmpty_;
-
-};
 
 class SplitPart : public CacheableBuiltinFunction
 {

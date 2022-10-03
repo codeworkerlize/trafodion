@@ -532,8 +532,6 @@ CorrName * corrNameFromStrings(ShortStringSequence *names);
 
 ColRefName *colRefNameFromStrings(ShortStringSequence *names);
 
-short preprocessHiveDDL(const NAString &catalogName, 
-                        Parser::HiveDDLInfo *hiveDDLInfo);
 
 // The purpose of this function is to convert NAStrings that contain
 // delimited identifiers as detected by SqlLexer

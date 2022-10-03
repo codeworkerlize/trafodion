@@ -1477,7 +1477,6 @@ ExExeUtilGetRTSStatisticsTcb::ExExeUtilGetRTSStatisticsTcb(
   maxHiveStatsItems_ = 0;
   queryHash_ = 0;
   singleLineFormat_ = ((ComTdbExeUtilGetStatistics &)exe_util_tdb).singleLineFormat();
-  hdfsClient_ = NULL;
 }
 
 ExExeUtilGetRTSStatisticsTcb::~ExExeUtilGetRTSStatisticsTcb()
@@ -1723,21 +1722,7 @@ void ExExeUtilGetRTSStatisticsTcb::formatOperStatsDataUsed(SQLSTATS_ITEM* operSt
   convertInt64(operStatsItems[11], valString);
   sprintf(&statsBuf_[strlen(statsBuf_)], "%16s", valString);
 
-  // Write the data to the hdfs file. 
-  if ( hdfsClient_ ) {
-    sprintf(&statsBuf_[strlen(statsBuf_)], "\n");
-    tSize data_sz = strlen(statsBuf_);
-    tSize sz_written = hdfsClient_->hdfsWrite(statsBuf_, data_sz, hdfsClientRetcode);
 
-    // If fail to write all bytes, delete the file, and set file_ to NULL.
-    // Any subsequent call to this method will not attempt to write to
-    // the same file again.
-    if ( sz_written != data_sz ) {
-       hdfsClient_->hdfsDeletePath(getFilePath());
-       NAString nullStr = "";
-       setFilePath(nullStr);
-    }
-  }
 }
 
 
@@ -1940,7 +1925,6 @@ short ExExeUtilGetRTSStatisticsTcb::work()
         currStatsItemEntry_ = 0;
         if (currStatsDescEntry_ >= retStatsDescEntries_) {
           if ( !filePath_.isNull()) {
-             hdfsClient_->hdfsClose();
              ExExeStmtGlobals *exeGlob = getGlobals()->castToExExeStmtGlobals();
              ExMasterStmtGlobals *masterGlob = exeGlob->castToExMasterStmtGlobals();
              ContextCli* currContext = masterGlob->getStatement()->getContext();

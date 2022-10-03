@@ -4582,13 +4582,7 @@ ItemExpr *BuiltinFunction::bindNode(BindWA *bindWA)
 	 
 	break;
       }
-    case ITM_JSONOBJECTFIELDTEXT:
-    case ITM_JSON_VALUE:
-    case ITM_JSON_QUERY:
-    case ITM_JSON_EXISTS:
-    {
-        break;
-    }
+
     // get the first ngram string
     case ITM_FIRSTNGRAM:
     {
@@ -9399,7 +9393,6 @@ ItemExpr *Case::bindNode(BindWA *bindWA)
 // - All other columns -- those not deemed referenced by the criteria below
 // which also are not index keys -- the Optimizer has no use for any stats.
 //
-// The FetchHistograms function (in /ustat) uses this
 // is-referenced flag, along with the columns' is-indexkey flags,
 // and applies the rules above to deliver the minimum required stats.
 //
@@ -16913,82 +16906,8 @@ NABoolean RowNumFunc::canBeUsedInGBorOB(NABoolean setErr)
   return FALSE;
 }
 
-ItemExpr *JsonQueryFunc::bindNode(BindWA *bindWA)
-{
-    if (nodeIsBound())
-        return getValueId().getItemExpr();
-
-    // this will bind/type-propagate all children.
-    bindChildren(bindWA);
-    if (bindWA->errStatus()) 
-        return this;
-
-    // inputCharSet_ can only be UTF8 here
-    if (CharInfo::UTF8 != charSet_)
-        charSet_ = CharInfo::UTF8;
-
-    // if input JSON/JSON_Path is not charset UTF8, then do a cast to UTF8
-    performImplicitCasting(charSet_, bindWA);
-
-    // inherits from BuiltinFunction .. Function .. ItemExpr.
-    BuiltinFunction::bindNode(bindWA);
-    if (bindWA->errStatus()) 
-        return this;
-
-    return getValueId().getItemExpr();
-}
-
-ItemExpr *JsonValueFunc::bindNode(BindWA *bindWA)
-{
-    if (nodeIsBound())
-        return getValueId().getItemExpr();
-
-    // this will bind/type-propagate all children.
-    bindChildren(bindWA);
-    if (bindWA->errStatus()) 
-        return this;
-
-    // inputCharSet_ can only be UTF8 here
-    if (CharInfo::UTF8 != charSet_)
-        charSet_ = CharInfo::UTF8;
-
-    // if input JSON/JSON_Path is not charset UTF8, then do a cast to UTF8
-    performImplicitCasting(charSet_, bindWA);
-
-    // inherits from BuiltinFunction .. Function .. ItemExpr.
-    BuiltinFunction::bindNode(bindWA);
-    if (bindWA->errStatus()) 
-        return this;
-
-    return getValueId().getItemExpr();
-}
-
-ItemExpr *JsonExistsFunc::bindNode(BindWA *bindWA)
-{
-    if (nodeIsBound())
-        return getValueId().getItemExpr();
-
-    // this will bind/type-propagate all children.
-    bindChildren(bindWA);
-    if (bindWA->errStatus()) 
-        return this;
-
-    // inputCharSet_ can only be UTF8 here
-    if (CharInfo::UTF8 != charSet_)
-        charSet_ = CharInfo::UTF8;
-
-    // if input JSON/JSON_Path is not charset UTF8, then do a cast to UTF8
-    performImplicitCasting(charSet_, bindWA);
-
-    // inherits from BuiltinFunction .. Function .. ItemExpr.
-    BuiltinFunction::bindNode(bindWA);
-    if (bindWA->errStatus()) 
-        return this;
-
-    return getValueId().getItemExpr();
 
 
-}
 
 ItemExpr *ItmSysConnectByPathFunc::bindNode(BindWA *bindWA)
 {

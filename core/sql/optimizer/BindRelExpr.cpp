@@ -1414,14 +1414,7 @@ TrafDesc *generateSpecialDesc(const CorrName& corrName)
           ExeUtilRegionStats eudss(TRUE);
           desc = eudss.createVirtualTableDesc();
         }
-      else if (HiveMDaccessFunc::isHiveMD(corrName.getQualifiedNameObj().getObjectName()))
-        {
-          NAString mdType = 
-            HiveMDaccessFunc::getMDType(corrName.getQualifiedNameObj().getObjectName());
 
-          HiveMDaccessFunc hivemd(&mdType);
-          desc = hivemd.createVirtualTableDesc();
-        }
 
 
     }
@@ -2316,7 +2309,6 @@ RelExpr *BindWA::bindView(const CorrName &viewName,
     }
 
   Parser parser(bindWA->currentCmpContext());
-  parser.hiveDDLInfo_->disableDDLcheck_ = TRUE;
   ExprNode *viewTree = parser.parseDML(naTable->getViewText(),
                                        naTable->getViewLen(),
                                        naTable->getViewTextCharSet());
@@ -9707,24 +9699,6 @@ RelExpr *Scan::bindNode(BindWA *bindWA)
         }
     }
 
-   if (naTable->isHiveTable() && 
-       !(naTable->getClusteringIndex()->getHHDFSTableStats()->isOrcFile() ||
-	 naTable->getClusteringIndex()->getHHDFSTableStats()
-	 ->isSequenceFile()) &&
-       (CmpCommon::getDefaultNumeric(HDFS_IO_BUFFERSIZE_BYTES) == 0) && 
-       (naTable->getRecordLength() >
-	CmpCommon::getDefaultNumeric(HDFS_IO_BUFFERSIZE)*1024))
-     {
-       // do not raise error if buffersize is set though buffersize_bytes.
-       // Typically this setting is used for testing alone.
-       *CmpCommon::diags() << DgSqlCode(-4226)
-			   << DgTableName(
-					  naTable->getTableName().
-					  getQualifiedNameAsAnsiString())
-			   << DgInt0(naTable->getRecordLength());
-       bindWA->setErrStatus();
-       return NULL;
-     }
   // Bind the base class.
   //
    if (bindWA->validateNumTables(this))
@@ -12515,17 +12489,7 @@ RelExpr *Insert::bindNode(BindWA *bindWA)
 		{
 		  ItemExpr * ie = tup[n].getItemExpr();
                   
-		  if (ie->getOperatorType() == ITM_LOBINSERT)
-		    {                                                          
-                      // cannot have this function in a values list with
-                      // multiple tuples. Use a single tuple.
-                          *CmpCommon::diags() << DgSqlCode(-4483);
-                          bindWA->setErrStatus();		      
-                          return boundExpr; 
-                        
-                    }
-               
-                  else
+
                     {
                       Assign * assign = (Assign*)newRecExprArray()[n].getItemExpr();
                       ItemExpr *assign_child = NULL;

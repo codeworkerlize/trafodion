@@ -602,8 +602,6 @@ short ExExeUtilCleanupVolatileTablesTcb::work()
 
 	case CLEANUP_HIVE_TABLES_:
 	  {
-            if (cvtTdb().cleanupHiveCSETables())
-              dropHiveTempTablesForCSEs();
 
 	    step_ = DONE_;
 	  }
@@ -732,53 +730,6 @@ short ExExeUtilCleanupVolatileTablesTcb::dropVolatileTables
   NADELETEBASIC(sendCQD, heap);
   currContext->resetVolTabList();
   return cliRC;
-}
-
-short ExExeUtilCleanupVolatileTablesTcb::dropHiveTempTablesForCSEs()
-{
-  Queue * hiveTableNames = NULL;
-  // Todo: CSE: support schemas other than default for temp tables
-  NAString hiveTablesGetQuery("get tables in schema hive.hive, no header");
-  short retcode = 0;
-
-  if (initializeInfoList(hiveTableNames))
-    {
-      return -1;
-    }
-
-  if (fetchAllRows(hiveTableNames,
-                   (char *) hiveTablesGetQuery.data(),
-                   1,
-                   FALSE,
-                   retcode) < 0)
-    {
-      return -1;
-    }
-
-  hiveTableNames->position();
-
-  while (!hiveTableNames->atEnd())
-    {
-      OutputInfo * ht = (OutputInfo*) (hiveTableNames->getCurr());
-      const char *origTableName = ht->get(0);
-      NAString tableName(origTableName);
-
-      tableName.toUpper();
-
-      if (strstr(tableName.data(), COM_CSE_TABLE_PREFIX) == tableName.data() &&
-          isCreatorProcessObsolete(tableName.data(), FALSE, TRUE))
-        {
-          NAString dropHiveTable("drop table ");
-
-          dropHiveTable += origTableName;
-          if (HiveClient_JNI::executeHiveSQL(dropHiveTable.data()) != HVC_OK)
-            ; // ignore errors for now
-        }
-
-      hiveTableNames->advance();
-    }
-
-  return 0;
 }
 
 ///////////////////////////////////////////////////////////////////

@@ -437,45 +437,6 @@ PrivStatus PrivMgrCommands::getPrivileges(
     return STATUS_GOOD;
   }
 
-  // If running in Sentry mode, get privileges from Sentry instead of Trafodion
-  // metadata
-  if (naTable->isHiveTable() && naTable->usingSentry() && usingSentryUserApi) 
-  {
-    std::map<Lng32, char *> colMap;
-    naTable->getNAColumnMap(colMap, TRUE);
-    CmpSeabaseDDL ddl(NULL /* use global heap */,FALSE /* don't need syscat */);
-    ExpHbaseInterface * ehi = ddl.allocEHI(COM_STORAGE_HBASE);
-    if (ehi == NULL)
-      {
-        // diags should already have been set
-        return STATUS_ERROR;
-      }
- 
-    NAString extName = ComUser::getCurrentExternalUsername();
-    char * at_sign = strchr((char *)extName.data(), '@');
-    NAString shortName =  (at_sign) ? NAString (extName.data(), (at_sign-extName)) : extName;
-    Int32 retcode = ehi->sentryGetPrivileges( shortName.data(),
-                                              naTable->getTableName().getQualifiedNameAsAnsiString().data(),
-                                              (naTable->getObjectType() == COM_VIEW_OBJECT),
-                                              colMap,
-                                              userPrivs );
-    ddl.deallocEHI(ehi);
-    if (retcode == 0)
-      userPrivs.setGetPrivilegesTime();
-    else
-      {
-        if (retcode == -HVC_ERROR_SENTRY_GET_EXCEPTION)
-          {
-            if (!CmpCommon::diags()->containsError(-CAT_SENTRY_PRIV_EXCEPTION))
-              *CmpCommon::diags() << DgSqlCode(-CAT_SENTRY_PRIV_EXCEPTION)
-              << DgString0(GetCliGlobals()->getJniErrorStr());
-          }
-        else if (!CmpCommon::diags()->containsError(-1034))
-           *CmpCommon::diags() << DgSqlCode(-1034);
-
-        return STATUS_ERROR;
-      }
-  }
 
   // if a native table that is not registered nor has an external table
   // assume no privs.  No privileges, so no security keys are required

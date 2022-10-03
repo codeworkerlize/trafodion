@@ -50,8 +50,8 @@ AWK       := awk.exe
 BASE_INCLUDE_DIRS := sqlci arkcmp comexe sqlfe eh export sqlmsg sqlcomp \
 	sqlcat executor parser generator exp filesystem optimizer cli \
 	nskcre common dml arkfsindp2 arkfsinopen ddl sort catman \
-	smdio ustat sqlshare sqlmxevents bin langman sqludr udrserv \
-	security runtimestats qmscommon qms porting_layer jsonpath parquet \
+	smdio  sqlshare sqlmxevents bin langman sqludr udrserv \
+	security runtimestats qmscommon qms porting_layer  parquet \
 	tool
 
 # These rules display the messages on the console as SQL/MX compiles.

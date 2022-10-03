@@ -35,9 +35,6 @@ CPPSRC := \
 	ComExeTrace.cpp \
 	ComExtents.cpp \
 	ComGuardianFileNameParts.cpp \
-	ComJSON.cpp \
-	ComJSONFuncs.cpp \
-	ComJSONStringInfo.cpp \
 	ComLocationNames.cpp \
 	ComMisc.cpp \
 	ComMPLoc.cpp \

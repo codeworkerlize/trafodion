@@ -29,7 +29,6 @@ encoder –v [version]\n\
         support modules switch as below:\n\
         LM_ROW_LOCK          = 1\n\
         LM_DDL_ONLINE        = 2\n\
-        LM_TRIGGER           = 3\n\
         LM_STORED_PROCEDURE  = 4\n\
         LM_CONNECT_BY        = 5\n\
         LM_SEC_AUDIT         = 6\n\

@@ -45,7 +45,7 @@
 #include "ex_tcb.h"
 #include "ex_expr.h"
 #include "str.h"
-#include "ex_send_top.h"
+
 #include "ex_send_bottom.h"
 #include "ex_split_bottom.h"
 #include "ex_io_control.h"
@@ -65,6 +65,8 @@ static THREAD_P short sv_max_parallel_opens = 0;
 #include "ExSMTrace.h"
 #include "SMConnection.h"
 #include "ExSMQueue.h"
+
+#include "ex_send_top.h"
 
 #define ex_assert_both_sides( assert_test, assert_msg )                   \
   if (!(assert_test))                                                     \
