@@ -3179,7 +3179,6 @@ static void setPartionInfo(RelExpr *re)
 %type <relx>                    exe_util_get_qid
 %type <relx>                    exe_util_hive_query
 %type <relx>                    exe_util_snapshot_delete_update_statement
-%type <relx>                    unload_statement
 %type <relx>                    load_statement
 %type <boolean>                 load_sample_option
 %type <boolean>                 hbbload_option_with_ustats
@@ -3230,7 +3229,6 @@ static void setPartionInfo(RelExpr *re)
 %type <hbbUnloadOption>      hbb_unload_null_string
 %type <hbbUnloadOption>      hbb_unload_header
 %type <hbbUnloadOption>      hbb_unload_append
-%type <hbbUnloadOption>      hbb_unload_snapshot
 %type <boolean>              hbb_unload_optional_overwrite
 %type <boolean>             hbb_unload_existing_snap
 %type <boolean>             tablesample_method
@@ -17464,10 +17462,7 @@ interactive_query_expression:
 				  $$ = finalize($1);
 				}
 
-              | unload_statement 
-                                {
-				  $$ = finalize($1);
-				}
+
 
               | exe_util_snapshot_delete_update_statement
                                 {
@@ -22756,34 +22751,6 @@ hbb_upsert_using_load : upsert_token TOK_USING TOK_LOAD
 
 //url_string : QUOTED_STRING
 
- unload_statement : TOK_UNLOAD optional_hbb_unload_options TOK_INTO std_char_string_literal query_expression 
-                {
-                  CharInfo::CharSet stmtCharSet = CharInfo::UnknownCharSet;
-                  NAString * stmt = getSqlStmtStr ( stmtCharSet  // out - CharInfo::CharSet &
-                                                  , PARSERHEAP() // in  - NAMemory * 
-                                                  );
-                  // If we can not get a variable-width multi-byte or single-byte string here, report error 
-                  if ( stmt == NULL )
-                  {
-                    *SqlParser_Diags <<  DgSqlCode(-3406);
-                    YYERROR;
-                  }
-               
-                  RelRoot *top = finalize($5);
-
-                  ExeUtilHBaseBulkUnLoad * eubl = new (PARSERHEAP()) 
-                                    ExeUtilHBaseBulkUnLoad(CorrName("DUMMY", PARSERHEAP()),
-                                    NULL,
-                                    (char*)stmt->data(),
-                                    $4,
-                                    stmtCharSet,
-                                    top,
-                                    PARSERHEAP());
-                  if (eubl->setOptions($2, SqlParser_Diags))
-                    YYERROR; 
-                  $$ = finalize(eubl);    
-                
-                }
 
 
 optional_hbb_unload_options : TOK_WITH hbb_unload_option_list
@@ -22817,7 +22784,6 @@ hbb_unload_option:   hbb_unload_empty_target
                 | hbb_unload_null_string
                 | hbb_unload_header
                 | hbb_unload_append
-                | hbb_unload_snapshot
 
 
  hbb_unload_empty_target: TOK_PURGEDATA TOK_FROM TOK_TARGET
@@ -22920,17 +22886,7 @@ hbb_unload_append: TOK_APPEND
                                   new (PARSERHEAP ()) UnloadOption(UnloadOption::APPEND_,1,NULL);
                    $$ = op;
                 } 
- hbb_unload_snapshot: hbb_unload_existing_snap TOK_SNAPSHOT  TOK_HAVING TOK_SUFFIX QUOTED_STRING 
-                {
-                   ExeUtilHBaseBulkUnLoad::ScanType scanType = ($1 == FALSE) ? ExeUtilHBaseBulkUnLoad::SNAPSHOT_SCAN_CREATE_ : 
-                                                                                    ExeUtilHBaseBulkUnLoad::SNAPSHOT_SCAN_EXISTING_;
-                   char * suffix = NULL;
-                   if ($5 != NULL) 
-                      suffix = (char *)$5->data();
-                   UnloadOption*op = 
-                                  new (PARSERHEAP ()) UnloadOption(UnloadOption::USE_SNAPSHOT_SCAN_,(int)scanType,suffix);
-                   $$ = op;                
-                }
+
 hbb_unload_existing_snap: TOK_NEW 
                           { 
                            $$ = FALSE;

@@ -107,7 +107,6 @@ class ComTdbHbaseAccess : public ComTdb
   friend class ExHbaseUMDnativeSubsetTaskTcb;
   friend class ExHbaseCoProcAggrTcb;
   friend class ExMetadataUpgradeTcb;
-  friend class ExHbaseAccessBulkLoadPrepSQTcb;
   friend class ExHbaseAccessBulkLoadTaskTcb;
 
 public:

@@ -285,7 +285,6 @@ public:
     ex_ARQ_WNR_INSERT = 146,
     ex_METADATA_UPGRADE = 147,
     ex_HBASE_LOAD = 148,
-    ex_HBASE_UNLOAD = 149,
     ex_DDL_WITH_STATUS = 152,
     ex_GET_QID = 153,
     ex_BACKUP_RESTORE = 154,

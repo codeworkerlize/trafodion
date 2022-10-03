@@ -22345,38 +22345,7 @@ void CmpSeabaseDDL::regOrUnregNativeObject(
   return;
 }
 
-static void processPassthruHiveDDL(StmtDDLonHiveObjects * hddl)
-{
-  NAString hiveQuery(hddl->getHiveDDL());
-  
-  hiveQuery = hiveQuery.strip(NAString::leading, ' ');
-  if (NOT ((hiveQuery.index("CREATE ", 0, NAString::ignoreCase) == 0) ||
-           (hiveQuery.index("DROP ", 0, NAString::ignoreCase) == 0) ||
-           (hiveQuery.index("ALTER ", 0, NAString::ignoreCase) == 0) ||
-           (hiveQuery.index("TRUNCATE ", 0, NAString::ignoreCase) == 0) ||
-           (hiveQuery.index("GRANT ", 0, NAString::ignoreCase) == 0) ||
-           (hiveQuery.index("REVOKE ", 0, NAString::ignoreCase) == 0) ||
-           (hiveQuery.index("RELOAD ", 0, NAString::ignoreCase) == 0) ||
-           (hiveQuery.index("MSCK ", 0, NAString::ignoreCase) == 0) ||
-           (hiveQuery.index("INSERT ", 0, NAString::ignoreCase) == 0)))
-    {
-      // error case
-      *CmpCommon::diags() << DgSqlCode(-3242) << DgString0("Specified DDL operation cannot be executed directly by hive.");
-      
-      return;
-    }
-  
-  if (HiveClient_JNI::executeHiveSQL(hddl->getHiveDDL().data()) != HVC_OK)
-    {
-      *CmpCommon::diags() << DgSqlCode(-1214)
-                          << DgString0(getSqlJniErrorStr())
-                          << DgString1(hddl->getHiveDDL());
-      
-      return;
-    }
-  
-  return;
-} // passthru
+
 
 void CmpSeabaseDDL::processDDLonHiveObjects(StmtDDLonHiveObjects * hddl,
                                             NAString &currCatName, 
@@ -22397,15 +22366,7 @@ void CmpSeabaseDDL::processDDLonHiveObjects(StmtDDLonHiveObjects * hddl,
       return;
     }
 
-  // if passthru ddl specified via "process hive ddl" or "create hive table like"
-  // stmt, execute the specified string.
-  if (hddl->getOper() == StmtDDLonHiveObjects::PASSTHRU_DDL_)
-    {
-      // error diagnostics is set in CmpCommon::diags
-      processPassthruHiveDDL(hddl);
 
-      return;
-    }
   
   // Start error checks
   if (NOT ((hddl->getOper() == StmtDDLonHiveObjects::CREATE_) ||

@@ -27,7 +27,7 @@
 #include "ex_tcb.h"
 #include "ComSmallDefs.h"
 #include "ExStats.h"
-#include "HdfsClient_JNI.h"
+
 #include "ExpLOBinterface.h"
 #include "ex_exe_stmt_globals.h"
 
@@ -39,7 +39,6 @@ namespace {
 // Forward class declarations
 // -----------------------------------------------------------------------
 class SequenceFileWriter;
-class HdfsClient;
 class OrcFileVectorWriter;
 class ParquetFileWriter;
 class AvroFileWriter;

@@ -87,7 +87,7 @@
 #include "seabed/ms.h"
 #include "seabed/fs.h"
 
-#include "HdfsClient_JNI.h"
+
 
 #include "Range.h"
 

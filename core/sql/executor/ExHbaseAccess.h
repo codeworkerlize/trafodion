@@ -51,7 +51,6 @@ class ex_tcb;
 class ExpHbaseInterface;
 class ExHbaseAccessSelectTcb;
 class ExHbaseAccessUMDTcb;
-class HdfsClient;
 
 #define INLINE_ROWID_LEN 255
 // -----------------------------------------------------------------------
@@ -533,15 +532,12 @@ protected:
   NABoolean asyncOperation_;
   Int32 asyncOperationTimeout_;
   ComDiagsArea *loggingErrorDiags_;
-  HdfsClient *logFileHdfsClient_;
   char *loggingFileName_;
   NABoolean loggingFileCreated_ ;
   Lng32 recordCostTh_;
   ExDDLValidator ddlValidator_;
 
-  // Redefined and used by ExHbaseAccessBulkLoadPrepSQTcb.
 
-  virtual HdfsClient *sampleFileHdfsClient() const { return NULL; }
   NABoolean loadDataIntoMemoryTable_;
   NABoolean readFromMemoryTable_;
 };
@@ -953,42 +949,6 @@ public:
 };
 
 
-class ExHbaseAccessBulkLoadPrepSQTcb: public ExHbaseAccessUpsertVsbbSQTcb
-{
-  public:
-    ExHbaseAccessBulkLoadPrepSQTcb( const ExHbaseAccessTdb &tdb,
-                                ex_globals *glob );
-    virtual ~ExHbaseAccessBulkLoadPrepSQTcb();
-
-    virtual ExWorkProcRetcode work();
-
-  protected:
-    virtual HdfsClient *sampleFileHdfsClient() const
-    {
-      return sampleFileHdfsClient_;
-    }
-
-   private:
-    void getHiveCreateTableDDL(NAString& hiveSampleTblNm, NAString& ddlText);
-
-    short createLoggingRow( UInt16 tuppIndex,  char * tuppRow, char * targetRow, int &targetRowLen);
-
-    NABoolean hFileParamsInitialized_;  ////temporary-- need better mechanism later
-    Text   familyLocation_;
-    Text   importLocation_;
-    Text   hFileName_;
-
-    ComCondition * lastErrorCnd_;
-    std::vector<UInt32> posVec_;
-
-    char * prevRowId_;
-    char * loggingRow_;
-
-
-    // HDFS file system and output file ptrs used for ustat sample table.
-    HdfsClient *sampleFileHdfsClient_;
-};
-// UMD SQ: UpdMergeDel on Trafodion table
 class ExHbaseUMDtrafSubsetTaskTcb  : public ExHbaseTaskTcb
 {
 public:

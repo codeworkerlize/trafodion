@@ -43,7 +43,6 @@ class CostMethodFastExtract;
 
   class UnloadOption
   {
-    friend class ExeUtilHBaseBulkUnLoad;
   public:
     enum UnloadOptionType {
       DELIMITER_,

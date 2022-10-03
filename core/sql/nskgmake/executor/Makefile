@@ -126,7 +126,6 @@ CPPSRC := Allocator.cpp \
         JavaObjectInterface.cpp \
         SequenceFileReader.cpp \
         OrcFileReader.cpp \
-        HdfsClient_JNI.cpp \
         HiveClient_JNI.cpp \
         DistributedLock_JNI.cpp \
         HBaseClient_JNI.cpp \

@@ -220,7 +220,6 @@ ContextCli::ContextCli(CliGlobals *cliGlobals, NABoolean isDefaultContext)
     jniErrorStr_(&exHeap_),
     hiveClientJNI_(NULL),
     DLockClientJNI_(NULL),
-    hdfsClientJNI_(NULL),
     tenantHelperJNI_(NULL),
     arkcmpArray_(&exHeap_),
     cmpContextInfo_(&exHeap_),

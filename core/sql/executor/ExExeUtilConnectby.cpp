@@ -66,7 +66,7 @@ using std::ofstream;
 #include "ExpHbaseInterface.h"
 #include "ExHbaseAccess.h"
 #include "ExpErrorEnums.h"
-#include "HdfsClient_JNI.h"
+
 
 class rootItem
 {

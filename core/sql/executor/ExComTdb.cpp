@@ -508,13 +508,6 @@ char *ComTdb::findVTblPtrExe(short classID)
 
       break;
     }
-  case ex_HBASE_UNLOAD:
-    {
-      GetVTblPtr(vtblptr,ExExeUtilHBaseBulkUnLoadTdb);
-
-      break;
-    }
-
 
 
     case ex_CANCEL:

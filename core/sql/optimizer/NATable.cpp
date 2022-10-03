@@ -92,7 +92,7 @@
 
 #include "SqlParserGlobals.h"
 #include "HBaseClient_JNI.h"
-#include "HdfsClient_JNI.h"
+
 
 //#define __ROSETTA
 //#include "rosetta_ddl_include.h"

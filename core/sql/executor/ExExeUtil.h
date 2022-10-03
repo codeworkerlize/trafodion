@@ -54,7 +54,6 @@ class ExSqlComp;
 class ExProcessStats;
 
 class ExpHbaseInterface;
-class HdfsClient;
 class ExpExtStorageInterface;
 
 //class FILE_STREAM;
@@ -429,7 +428,6 @@ class ExExeUtilPrivateState : public ex_tcb_private_state
   friend class ExExeUtilHiveQueryTcb;
   friend class ExExeUtilAQRTcb;
   friend class ExExeUtilHBaseBulkLoadTcb;
-  friend class ExExeUtilHBaseBulkUnLoadTcb;
   friend class ExExeUtilUpdataDeleteTcb;
 
 
@@ -3512,164 +3510,7 @@ class ExExeUtilHbaseLoadPrivateState : public ex_tcb_private_state
 
 
 
-//////////////////////////////////////////////////////////////////////////
-// -----------------------------------------------------------------------
-// ExExeUtilHbaseUnLoadTdb
-// -----------------------------------------------------------------------
-class ExExeUtilHBaseBulkUnLoadTdb : public ComTdbExeUtilHBaseBulkUnLoad
-{
- public:
 
-  // ---------------------------------------------------------------------
-  // Constructor is only called to instantiate an object used for
-  // retrieval of the virtual table function pointer of the class while
-  // unpacking. An empty constructor is enough.
-  // ---------------------------------------------------------------------
-  ExExeUtilHBaseBulkUnLoadTdb()
-    {}
-
-  virtual ~ExExeUtilHBaseBulkUnLoadTdb()
-    {}
-
-  // ---------------------------------------------------------------------
-  // Build a TCB for this TDB. Redefined in the Executor project.
-  // ---------------------------------------------------------------------
-  virtual ex_tcb *build(ex_globals *globals);
-
- private:
-  // ---------------------------------------------------------------------
-  // !!!!!!! IMPORTANT -- NO DATA MEMBERS ALLOWED IN EXECUTOR TDB !!!!!!!!
-  // *********************************************************************
-  // The Executor TDB's are only used for the sole purpose of providing a
-  // way to supplement the Compiler TDB's (in comexe) with methods whose
-  // implementation depends on Executor objects. This is done so as to
-  // decouple the Compiler from linking in Executor objects unnecessarily.
-  //
-  // When a Compiler generated TDB arrives at the Executor, the same data
-  // image is "cast" as an Executor TDB after unpacking. Therefore, it is
-  // a requirement that a Compiler TDB has the same object layout as its
-  // corresponding Executor TDB. As a result of this, all Executor TDB's
-  // must have absolutely NO data members, but only member functions. So,
-  // if you reach here with an intention to add data members to a TDB, ask
-  // yourself two questions:
-  //
-  // 1. Are those data members Compiler-generated?
-  //    If yes, put them in the ComTdbDLL instead.
-  //    If no, they should probably belong to someplace else (like TCB).
-  //
-  // 2. Are the classes those data members belong defined in the executor
-  //    project?
-  //    If your answer to both questions is yes, you might need to move
-  //    the classes to the comexe project.
-  // ---------------------------------------------------------------------
-};
-
-
-class ExExeUtilHBaseBulkUnLoadTcb : public ExExeUtilTcb
-{
-  friend class ExExeUtilHBaseBulkUnLoadTdb;
-  friend class ExExeUtilPrivateState;
-
- public:
-  // Constructor
-  ExExeUtilHBaseBulkUnLoadTcb(const ComTdbExeUtil & exe_util_tdb,
-                            ex_globals * glob = 0);
-  ~ExExeUtilHBaseBulkUnLoadTcb();
-
-  void freeResources();
-
-  virtual short work();
-
-  ExExeUtilHBaseBulkUnLoadTdb & hblTdb() const
-  {
-    return (ExExeUtilHBaseBulkUnLoadTdb &) tdb;
-  };
-
-  virtual short moveRowToUpQueue(const char * row, Lng32 len = -1,
-                                 short * rc = NULL, NABoolean isVarchar = TRUE);
-
-  void setEndStatusMsg(const char * operation,
-                                       int bufPos = 0,
-                                       NABoolean   withtime= FALSE);
-
-  short setStartStatusMsgAndMoveToUpQueue(const char * operation,
-                                       short * rc,
-                                       int bufPos = 0,
-                                       NABoolean   withtime = FALSE);
-  virtual ex_tcb_private_state * allocatePstates(
-       Lng32 &numElems,      // inout, desired/actual elements
-       Lng32 &pstateLength); // out, length of one element
-
-  short getTrafodionScanTables();
-
-  short resetExplainSettings();
-
-  char * setSnapshotScanId(char * str2)
-  {
-    assert (str2 != NULL);
-    char  str[30];
-    time_t t;
-    time(&t);
-    struct tm * curgmtime = gmtime(&t);
-    strftime(str, 30, "%Y%m%d%H%M%S", curgmtime);
-    srand(getpid());
-    sprintf (str2,"%s_%d", str, rand()% 1000);
-    return str2;
-  }
- private:
-  struct snapshotStruct
-  {
-    NAString * fullTableName;
-    NAString * snapshotName;
-  };
-  enum Step
-    {
-    //initial state
-      INITIAL_,
-      EMPTY_TARGET_,
-      //cleanup leftover files
-      UNLOAD_START_,
-      UNLOAD_END_,
-      UNLOAD_END_ERROR_,
-      UNLOAD_,
-      MERGE_FILES_,
-      RETURN_STATUS_MSG_,
-      DONE_,
-      HANDLE_ERROR_,
-      UNLOAD_ERROR_,
-      CREATE_SNAPSHOTS_,
-      VERIFY_SNAPSHOTS_,
-      DELETE_SNAPSHOTS_
-    };
-
-  void setEmptyTarget( NABoolean v)
-  {
-    emptyTarget_ = v;
-  }
-  NABoolean getEmptyTarget() const
-  {
-    return emptyTarget_;
-  }
-  void setOneFile( NABoolean v)
-  {
-    oneFile_ = v;
-  }
-  NABoolean getOneFile() const
-  {
-    return oneFile_;
-  }
-  Step step_;
-  Step nextStep_;
-
-  Int64 startTime_;
-  Int64 endTime_;
-  Int64 rowsAffected_;
-  char statusMsgBuf_[BUFFER_SIZE];
-  NAList<struct snapshotStruct *> * snapshotsList_;
-  NABoolean emptyTarget_;
-  NABoolean oneFile_;
-  ExpHbaseInterface * ehi_;
-};
 
 class ExExeUtilHbaseUnLoadPrivateState : public ex_tcb_private_state
 {

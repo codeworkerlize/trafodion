@@ -63,7 +63,7 @@
 #include "ExpSeqGen.h"
 #include "ssmpipc.h"
 #include "hdfs.h"
-#include "HdfsClient_JNI.h"
+
 #include "DistributedLock_JNI.h"
 
 
@@ -81,7 +81,6 @@ class LmRoutine;
 class MonarchClient_JNI;
 class HBaseClient_JNI;
 class TenantHelper_JNI;
-class HdfsClient;
 class TenantHelper_JNI;
 class IpcThreadInfo;
 class NAWNodeSet;
@@ -287,9 +286,6 @@ public:
   void setDLockClient(DistributedLock_JNI* DLockClientJNI)
   { DLockClientJNI_ = DLockClientJNI; }
 
-  HdfsClient *getHDFSClient() { return hdfsClientJNI_; }
-  void setHDFSClient(HdfsClient *hdfsClientJNI)
-  { hdfsClientJNI_ = hdfsClientJNI; }
 
   //expose cmpContextInfo_ to get HQC info of different contexts
   const NAArray<CmpContextInfo *> & getCmpContextInfo() const { return cmpContextInfo_; }
@@ -693,7 +689,6 @@ private:
   NAString jniErrorStr_; 
   HiveClient_JNI *hiveClientJNI_;
   DistributedLock_JNI *DLockClientJNI_;
-  HdfsClient *hdfsClientJNI_;
   TenantHelper_JNI *tenantHelperJNI_;
 
   // this points to data used by trafSE (traf storage engine) that is context specific.

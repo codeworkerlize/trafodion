@@ -51,7 +51,6 @@
 #include  "ComRtUtils.h"
 #include  "ExStats.h"
 #include  "ComSizeDefs.h"
-#include  "HdfsClient_JNI.h"
 #include  "CmpCommon.h"
 #include  "CmpContext.h"
 #include  "QCache.h"
@@ -1714,48 +1713,7 @@ void ExExeUtilGetRTSStatisticsTcb::formatOperStatsDataUsed(SQLSTATS_ITEM* operSt
   Lng32 valSize=0;
   HDFS_Client_RetCode hdfsClientRetcode;
 
-  if( !isHeadingDisplayed_ )
-  {
-    moveRowToUpQueue("");
-    isHeadingDisplayed_ = TRUE;
-    sprintf(statsBuf_, "%5s%16s", "ExId", "Act. Data Used");
-    moveRowToUpQueue(statsBuf_);
-    moveRowToUpQueue("");
 
-    const char* path = getStatsTdb().path();
-
-    if ((queryHash_ != 0) && (path != NULL) && (hdfsClient_  == NULL)) { 
-       hdfsClient_ = HdfsClient::newInstance((NAHeap *)getGlobals()->getDefaultHeap(), NULL, hdfsClientRetcode);
-    }
-
-    // Also create directory and open the hdfs data file in the directory
-    if (hdfsClient_ != NULL && path != NULL)  {
-      NABoolean dirExists; 
-      hdfsClientRetcode = HdfsClient::hdfsExists(path, dirExists);
-
-      if (hdfsClientRetcode == HDFS_CLIENT_OK && (! dirExists)) {
-         hdfsClientRetcode = HdfsClient::hdfsCreateDirectory(path);
-      } 
-
-      if (hdfsClientRetcode == HDFS_CLIENT_OK) {
-         NAString filePath(path);
-
-         if ( path[strlen(path)-1] != '/' )
-            filePath.append('/');
-
-         // The file name starts with the prefix "act_data." followed by
-         // a hash of the query for now. 
-         char fname[256];
-         sprintf(fname, "act_data.%ld", queryHash_);
-
-         filePath += fname;
-
-         hdfsClientRetcode = hdfsClient_->hdfsCreate(filePath.data(), TRUE, FALSE, FALSE);
-         if (hdfsClientRetcode == HDFS_CLIENT_OK)
-            setFilePath(filePath);
-      }
-    }
-  } 
 
   // Explain Node Id
   convertInt64(operStatsItems[4], valString);

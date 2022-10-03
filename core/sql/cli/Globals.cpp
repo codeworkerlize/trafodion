@@ -60,7 +60,7 @@
 #include <semaphore.h>
 #include <pthread.h>
 #include "HBaseClient_JNI.h"
-#include "HdfsClient_JNI.h"
+
 #include "HiveClient_JNI.h"
 #include "DistributedLock_JNI.h"
 #include "TenantHelper_JNI.h"

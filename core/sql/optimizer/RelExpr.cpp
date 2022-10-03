@@ -66,7 +66,7 @@
 #include "CmpStatement.h"
 
 #include <sstream>
-#include "HdfsClient_JNI.h"
+
 #include "Globals.h"
 #include "Context.h"
 
