@@ -58,8 +58,8 @@ class CompilationStats {
     CMP_NUM_PHASES
   };
 
-  Int64 compileStartTime();
-  Int64 compileEndTime();
+  long compileStartTime();
+  long compileEndTime();
 
   // pass in a buffer of size COMPILER_ID_LEN
   void getCompilerId(char *cmpId, int len);
@@ -82,7 +82,7 @@ class CompilationStats {
   static inline size_t cxtHeapCurrentSize() { return CmpCommon::contextHeap()->getAllocSize(); }
   //
   // optimization tasks
-  static inline Lng32 optimizationTasks() { return CURRSTMT_OPTDEFAULTS->getTaskCount(); }
+  static inline int optimizationTasks() { return CURRSTMT_OPTDEFAULTS->getTaskCount(); }
   //
   // optimization contexts
   void incrOptContexts();
@@ -100,7 +100,7 @@ class CompilationStats {
 
   void enterCmpPhase(CompilationPhase phase);
   void exitCmpPhase(CompilationPhase phase);
-  Lng32 cmpPhaseLength(CompilationPhase phase);
+  int cmpPhaseLength(CompilationPhase phase);
   //
   // maximum # of characters for compiler info
   enum { MAX_COMPILER_INFO_LEN = 4096 };
@@ -126,8 +126,8 @@ class CompilationStats {
 
  private:
   // timestamp for start/end time of this compilation
-  Int64 compileStartTime_;
-  Int64 compileEndTime_;
+  long compileStartTime_;
+  long compileEndTime_;
   //
   //  Task Monitor used for CPU path length for each phase
   TaskMonitor cpuMonitor_[CMP_NUM_PHASES];

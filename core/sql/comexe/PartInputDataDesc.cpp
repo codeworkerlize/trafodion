@@ -13,7 +13,7 @@
 // -----------------------------------------------------------------------
 
 ExPartInputDataDesc::ExPartInputDataDesc(ExPartitioningType partType, ex_cri_desc *partInputCriDesc,
-                                         Lng32 partInputDataLength, Lng32 numPartitions)
+                                         int partInputDataLength, int numPartitions)
     : NAVersionedObject(partType) {
   partType_ = partType;
   partInputCriDesc_ = partInputCriDesc;
@@ -24,31 +24,31 @@ ExPartInputDataDesc::ExPartInputDataDesc(ExPartitioningType partType, ex_cri_des
 // -----------------------------------------------------------------------
 // Methods for class ExHashPartInputData
 // -----------------------------------------------------------------------
-ExHashPartInputData::ExHashPartInputData(ex_cri_desc *partInputCriDesc, Lng32 numPartitions)
-    : ExPartInputDataDesc(HASH_PARTITIONED, partInputCriDesc, 2 * sizeof(Lng32), numPartitions) {}
+ExHashPartInputData::ExHashPartInputData(ex_cri_desc *partInputCriDesc, int numPartitions)
+    : ExPartInputDataDesc(HASH_PARTITIONED, partInputCriDesc, 2 * sizeof(int), numPartitions) {}
 
-void ExHashPartInputData::copyPartInputValue(Lng32 fromPartNum, Lng32 toPartNum, char *buffer, Lng32 bufferLength) {
+void ExHashPartInputData::copyPartInputValue(int fromPartNum, int toPartNum, char *buffer, int bufferLength) {
   // ex_assert(bufferLength == 2 * sizeof(long),
   //	    "Hash part intput values are always two 4 byte integers");
-  str_cpy_all(buffer, (char *)&fromPartNum, sizeof(Lng32));
-  str_cpy_all(&buffer[sizeof(Lng32)], (char *)&toPartNum, sizeof(Lng32));
+  str_cpy_all(buffer, (char *)&fromPartNum, sizeof(int));
+  str_cpy_all(&buffer[sizeof(int)], (char *)&toPartNum, sizeof(int));
 }
 
 // -----------------------------------------------------------------------
 // Methods for class ExRoundRobinPartInputData
 // -----------------------------------------------------------------------
-ExRoundRobinPartInputData::ExRoundRobinPartInputData(ex_cri_desc *partInputCriDesc, Lng32 numPartitions,
-                                                     Lng32 numOrigRRPartitions)
-    : ExPartInputDataDesc(ROUNDROBIN_PARTITIONED, partInputCriDesc, 2 * sizeof(Lng32), numPartitions),
+ExRoundRobinPartInputData::ExRoundRobinPartInputData(ex_cri_desc *partInputCriDesc, int numPartitions,
+                                                     int numOrigRRPartitions)
+    : ExPartInputDataDesc(ROUNDROBIN_PARTITIONED, partInputCriDesc, 2 * sizeof(int), numPartitions),
       numOrigRRPartitions_(numOrigRRPartitions) {}
 
-void ExRoundRobinPartInputData::copyPartInputValue(Lng32 fromPartNum, Lng32 toPartNum, char *buffer,
-                                                   Lng32 bufferLength) {
-  Lng32 scaleFactor = numOrigRRPartitions_ / getNumPartitions();
-  Lng32 transPoint = numOrigRRPartitions_ % getNumPartitions();
+void ExRoundRobinPartInputData::copyPartInputValue(int fromPartNum, int toPartNum, char *buffer,
+                                                   int bufferLength) {
+  int scaleFactor = numOrigRRPartitions_ / getNumPartitions();
+  int transPoint = numOrigRRPartitions_ % getNumPartitions();
 
-  Lng32 loPart;
-  Lng32 hiPart;
+  int loPart;
+  int hiPart;
 
   if (fromPartNum < transPoint) {
     loPart = fromPartNum * (scaleFactor + 1);
@@ -62,20 +62,20 @@ void ExRoundRobinPartInputData::copyPartInputValue(Lng32 fromPartNum, Lng32 toPa
     hiPart = (toPartNum * scaleFactor) + scaleFactor + transPoint - 1;
   }
 
-  str_cpy_all(buffer, (char *)&loPart, sizeof(Lng32));
-  str_cpy_all(&buffer[sizeof(Lng32)], (char *)&hiPart, sizeof(Lng32));
+  str_cpy_all(buffer, (char *)&loPart, sizeof(int));
+  str_cpy_all(&buffer[sizeof(int)], (char *)&hiPart, sizeof(int));
 }
 
 // -----------------------------------------------------------------------
 // Methods for class ExRangePartInputData
 // -----------------------------------------------------------------------
 
-ExRangePartInputData::ExRangePartInputData(ex_cri_desc *partInputCriDesc, Lng32 partInputDataLength,
-                                           Lng32 partKeyLength, Lng32 exclusionIndicatorOffset, Lng32 numPartitions,
-                                           Space *space, Lng32 useExpressions)
+ExRangePartInputData::ExRangePartInputData(ex_cri_desc *partInputCriDesc, int partInputDataLength,
+                                           int partKeyLength, int exclusionIndicatorOffset, int numPartitions,
+                                           Space *space, int useExpressions)
     : ExPartInputDataDesc(RANGE_PARTITIONED, partInputCriDesc, partInputDataLength, numPartitions) {
   exclusionIndicatorOffset_ = exclusionIndicatorOffset;
-  exclusionIndicatorLength_ = sizeof(Lng32);  // fixed for now
+  exclusionIndicatorLength_ = sizeof(int);  // fixed for now
   partKeyLength_ = partKeyLength;
   alignedPartKeyLength_ = (partKeyLength + 7) / 8 * 8;
   useExpressions_ = useExpressions;
@@ -86,7 +86,7 @@ ExRangePartInputData::ExRangePartInputData(ex_cri_desc *partInputCriDesc, Lng32 
   if (numPartitions > 0) {
     // allocate space for (numPartitions+1) keys, since n partitions have
     // n+1 boundaries, if one counts the ends
-    Lng32 totalPartRangesLength = alignedPartKeyLength_ * (numPartitions + 1);
+    int totalPartRangesLength = alignedPartKeyLength_ * (numPartitions + 1);
     partRanges_ = space->allocateAlignedSpace((size_t)totalPartRangesLength);
 
     if (useExpressions_) {
@@ -97,7 +97,7 @@ ExRangePartInputData::ExRangePartInputData(ex_cri_desc *partInputCriDesc, Lng32 
       partRangeExpressions_ = new (space) ExExprPtr[numPartitions + 1];
 
       // just to be safe, initialize the array with NULLs
-      for (Lng32 i = 0; i < (numPartitions + 1); i++) partRangeExpressions_[i] = (ExExprPtrPtr)NULL;
+      for (int i = 0; i < (numPartitions + 1); i++) partRangeExpressions_[i] = (ExExprPtrPtr)NULL;
     } else {
       partRangeExpressions_ = (ExExprPtrPtr)NULL;
     }
@@ -110,19 +110,19 @@ ExRangePartInputData::ExRangePartInputData(ex_cri_desc *partInputCriDesc, Lng32 
 
 ExRangePartInputData::~ExRangePartInputData() {}
 
-void ExRangePartInputData::setPartitionStartExpr(Lng32 partNo, ex_expr *expr) {
+void ExRangePartInputData::setPartitionStartExpr(int partNo, ex_expr *expr) {
   // ex_assert(partNo >= 0 AND partNo <= getNumPartitions() AND useExpressions_,
   //	    "Partition expr. number out of range or desc doesn't use exprs");
   partRangeExpressions_[partNo] = expr;
 }
 
-void ExRangePartInputData::setPartitionStartValue(Lng32 partNo, char *val) {
+void ExRangePartInputData::setPartitionStartValue(int partNo, char *val) {
   // ex_assert(partNo >= 0 AND partNo <= getNumPartitions(),
   //	    "Partition number out of range");
   str_cpy_all(&((char *)partRanges_)[partNo * alignedPartKeyLength_], val, partKeyLength_);
 }
 
-void ExRangePartInputData::copyPartInputValue(Lng32 fromPartNum, Lng32 toPartNum, char *buffer, Lng32 bufferLength) {
+void ExRangePartInputData::copyPartInputValue(int fromPartNum, int toPartNum, char *buffer, int bufferLength) {
   // ex_assert(fromPartNum >= 0 AND
   //	    fromPartNum <= getNumPartitions() AND
   //	    toPartNum >= 0 AND
@@ -137,14 +137,14 @@ void ExRangePartInputData::copyPartInputValue(Lng32 fromPartNum, Lng32 toPartNum
   // copy end key (entry toPartNum + 1)
   str_cpy_all(&buffer[partKeyLength_], &((char *)partRanges_)[(toPartNum + 1) * alignedPartKeyLength_], partKeyLength_);
   // indicate whether the end key is inclusive or exclusive
-  Lng32 exclusive = (toPartNum < getNumPartitions() - 1);
+  int exclusive = (toPartNum < getNumPartitions() - 1);
   // ex_assert(exclusionIndicatorLength_ == sizeof(exclusive),
   //	    "Exclusion indicator length must be 4");
   str_cpy_all(&buffer[exclusionIndicatorOffset_], (char *)&exclusive, sizeof(exclusive));
 }
 
-Lng32 ExRangePartInputData::evalExpressions(Space *space, CollHeap *exHeap, ComDiagsArea **diags) {
-  Lng32 result = 0;  // 0 == success
+int ExRangePartInputData::evalExpressions(Space *space, CollHeap *exHeap, ComDiagsArea **diags) {
+  int result = 0;  // 0 == success
 
   // return if there is no work to do
   if (getNumPartitions() == 0 OR partRangeExprHasBeenEvaluated_) return result;
@@ -161,8 +161,8 @@ Lng32 ExRangePartInputData::evalExpressions(Space *space, CollHeap *exHeap, ComD
   if (workAtp->getDiagsArea() != *diags) workAtp->setDiagsArea(*diags);
 
   // loop over all expressions, fixing them up and evaluating them
-  for (Lng32 i = 0; i <= getNumPartitions() AND result == 0; i++) {
-    Lng32 offs = i * alignedPartKeyLength_;
+  for (int i = 0; i <= getNumPartitions() AND result == 0; i++) {
+    int offs = i * alignedPartKeyLength_;
 
     workAtp->getTupp(partRangeExprAtpIndex_).setDataPointer(&((char *)partRanges_)[offs]);
 
@@ -177,20 +177,20 @@ Lng32 ExRangePartInputData::evalExpressions(Space *space, CollHeap *exHeap, ComD
 // -----------------------------------------------------------------------
 // Methods for class ExHashDistPartInputData
 // -----------------------------------------------------------------------
-ExHashDistPartInputData::ExHashDistPartInputData(ex_cri_desc *partInputCriDesc, Lng32 numPartitions,
-                                                 Lng32 numOrigHashPartitions)
-    : ExPartInputDataDesc(HASH1_PARTITIONED, partInputCriDesc, 2 * sizeof(Lng32), numPartitions),
+ExHashDistPartInputData::ExHashDistPartInputData(ex_cri_desc *partInputCriDesc, int numPartitions,
+                                                 int numOrigHashPartitions)
+    : ExPartInputDataDesc(HASH1_PARTITIONED, partInputCriDesc, 2 * sizeof(int), numPartitions),
       numOrigHashPartitions_(numOrigHashPartitions) {}
 
-void ExHashDistPartInputData::copyPartInputValue(Lng32 fromPartNum, Lng32 toPartNum, char *buffer, Lng32 bufferLength) {
+void ExHashDistPartInputData::copyPartInputValue(int fromPartNum, int toPartNum, char *buffer, int bufferLength) {
   // ex_assert(bufferLength == 2 * sizeof(long),
   //	    "Hash part intput values are always two 4 byte integers");
 
-  Lng32 scaleFactor = numOrigHashPartitions_ / getNumPartitions();
-  Lng32 transPoint = numOrigHashPartitions_ % getNumPartitions();
+  int scaleFactor = numOrigHashPartitions_ / getNumPartitions();
+  int transPoint = numOrigHashPartitions_ % getNumPartitions();
 
-  Lng32 loPart;
-  Lng32 hiPart;
+  int loPart;
+  int hiPart;
 
   if (fromPartNum < transPoint) {
     loPart = fromPartNum * (scaleFactor + 1);
@@ -209,18 +209,18 @@ void ExHashDistPartInputData::copyPartInputValue(Lng32 fromPartNum, Lng32 toPart
   //           hiPart < numOrigHashPartitions_,
   //           "Hash Dist: invalid input values");
 
-  str_cpy_all(buffer, (char *)&loPart, sizeof(Lng32));
-  str_cpy_all(&buffer[sizeof(Lng32)], (char *)&hiPart, sizeof(Lng32));
+  str_cpy_all(buffer, (char *)&loPart, sizeof(int));
+  str_cpy_all(&buffer[sizeof(int)], (char *)&hiPart, sizeof(int));
 }
 
 // -----------------------------------------------------------------------
 // Methods for class ExHash2PartInputData
 // -----------------------------------------------------------------------
-ExHash2PartInputData::ExHash2PartInputData(ex_cri_desc *partInputCriDesc, Lng32 numPartitions)
-    : ExPartInputDataDesc(HASH2_PARTITIONED, partInputCriDesc, 2 * sizeof(Lng32), numPartitions) {}
+ExHash2PartInputData::ExHash2PartInputData(ex_cri_desc *partInputCriDesc, int numPartitions)
+    : ExPartInputDataDesc(HASH2_PARTITIONED, partInputCriDesc, 2 * sizeof(int), numPartitions) {}
 
-void ExHash2PartInputData::copyPartInputValue(Lng32 fromPartNum, Lng32 toPartNum, char *buffer, Lng32 bufferLength) {
-  Int64 numPartitions = (Int64)getNumPartitions();
+void ExHash2PartInputData::copyPartInputValue(int fromPartNum, int toPartNum, char *buffer, int bufferLength) {
+  long numPartitions = (long)getNumPartitions();
 
   // For hash2, partition numbers are not passed within the partition input
   // values.  Instead, the hash boundaries are passed.  This allows a single
@@ -230,14 +230,14 @@ void ExHash2PartInputData::copyPartInputValue(Lng32 fromPartNum, Lng32 toPartNum
   // down, the integer math when determining a hash boundary must round up.
   // This explains why " + numPartitions - 1" is seen in the numerator of
   // the division below.
-  ULng32 loHash = (ULng32)((((Int64)fromPartNum << 32) + numPartitions - 1) / numPartitions);
+  ULng32 loHash = (ULng32)((((long)fromPartNum << 32) + numPartitions - 1) / numPartitions);
 
   // The hiHash value is one less than the hash boundary for the next
   // partition number.
-  ULng32 hiHash = (ULng32)(((((Int64)(toPartNum + 1) << 32) + numPartitions - 1) / numPartitions) - 1);
+  ULng32 hiHash = (ULng32)(((((long)(toPartNum + 1) << 32) + numPartitions - 1) / numPartitions) - 1);
 
-  str_cpy_all(buffer, (char *)&loHash, sizeof(Lng32));
-  str_cpy_all(&buffer[sizeof(Lng32)], (char *)&hiHash, sizeof(Lng32));
+  str_cpy_all(buffer, (char *)&loHash, sizeof(int));
+  str_cpy_all(&buffer[sizeof(int)], (char *)&hiHash, sizeof(int));
 }
 
 Long ExPartInputDataDesc::pack(void *space) {
@@ -262,20 +262,20 @@ Long ExHashDistPartInputData::pack(void *space) { return ExPartInputDataDesc::pa
 
 Long ExHash2PartInputData::pack(void *space) { return ExPartInputDataDesc::pack(space); }
 
-Lng32 ExPartInputDataDesc::unpack(void *base, void *reallocator) {
+int ExPartInputDataDesc::unpack(void *base, void *reallocator) {
   if (partInputCriDesc_.unpack(base, reallocator)) return -1;
   return NAVersionedObject::unpack(base, reallocator);
 }
 
-Lng32 ExHashPartInputData::unpack(void *base, void *reallocator) {
+int ExHashPartInputData::unpack(void *base, void *reallocator) {
   return ExPartInputDataDesc::unpack(base, reallocator);
 }
 
-Lng32 ExRoundRobinPartInputData::unpack(void *base, void *reallocator) {
+int ExRoundRobinPartInputData::unpack(void *base, void *reallocator) {
   return ExPartInputDataDesc::unpack(base, reallocator);
 }
 
-Lng32 ExRangePartInputData::unpack(void *base, void *reallocator) {
+int ExRangePartInputData::unpack(void *base, void *reallocator) {
   if (useExpressions_) {
     if (partRangeExpressions_.unpack(base, getNumPartitions() + 1, reallocator)) return -1;
   }
@@ -284,11 +284,11 @@ Lng32 ExRangePartInputData::unpack(void *base, void *reallocator) {
   return ExPartInputDataDesc::unpack(base, reallocator);
 }
 
-Lng32 ExHashDistPartInputData::unpack(void *base, void *reallocator) {
+int ExHashDistPartInputData::unpack(void *base, void *reallocator) {
   return ExPartInputDataDesc::unpack(base, reallocator);
 }
 
-Lng32 ExHash2PartInputData::unpack(void *base, void *reallocator) {
+int ExHash2PartInputData::unpack(void *base, void *reallocator) {
   return ExPartInputDataDesc::unpack(base, reallocator);
 }
 

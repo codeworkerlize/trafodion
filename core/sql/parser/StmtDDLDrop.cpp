@@ -446,7 +446,7 @@ StmtDDLDropSequence *StmtDDLDropSequence::castToStmtDDLDropSequence() { return t
 
 Int32 StmtDDLDropSequence::getArity() const { return 0; }
 
-ExprNode *StmtDDLDropSequence::getChild(Lng32 index) { return NULL; }
+ExprNode *StmtDDLDropSequence::getChild(int index) { return NULL; }
 
 //
 // methods for tracing

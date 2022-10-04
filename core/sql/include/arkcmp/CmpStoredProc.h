@@ -89,7 +89,7 @@ class CmpSPInputFormat : public NABasicObject {
 
   // Set the definition from SP_FIELDDESC_STRUCT[].
   // return TRUE if success, FALSE if failed.
-  NABoolean SetFormat(Lng32 nCols,  // number of columns
+  NABoolean SetFormat(int nCols,  // number of columns
                       SP_FIELDDESC_STRUCT *fields);
 
   ItemExpr *itemExpr() { return inputType_; }
@@ -122,10 +122,10 @@ class CmpSPOutputFormat : public NABasicObject {
 
   // Set the definition from SP_FIELDDESC_STRUCT[].
   // return TRUE if success, FALSE if failed.
-  NABoolean SetFormat(Lng32 nCols,                  // number of columns
+  NABoolean SetFormat(int nCols,                  // number of columns
                       const char *tableName,        // table name
                       SP_FIELDDESC_STRUCT *fields,  // description
-                      Lng32 nKeys,                  // number of keys
+                      int nKeys,                  // number of keys
                       SP_KEYDESC_STRUCT *keys       // index to the key columns
   );
 
@@ -146,14 +146,14 @@ class CmpSPOutputFormat : public NABasicObject {
  private:
   // output format is described as TrafTableDesc
   TrafDesc *tableDesc_;
-  Lng32 nCols_;
+  int nCols_;
   CmpContext *context_;
 
   // methods to pupulate column_desc from SP_FIELDDESC_STRUCT
   // return TRUE : success, FALSE : fail
   NABoolean getColumnDesc(SP_FIELDDESC_STRUCT *fDesc, TrafColumnsDesc *colsDesc);
 
-  NABoolean getKeysDesc(Lng32 nkeys, SP_KEYDESC_STRUCT *keys, TrafDesc *&keysDesc);
+  NABoolean getKeysDesc(int nkeys, SP_KEYDESC_STRUCT *keys, TrafDesc *&keysDesc);
 
   CmpSPOutputFormat(const CmpSPOutputFormat &);
   const CmpSPOutputFormat &operator=(const CmpSPOutputFormat &);
@@ -418,7 +418,7 @@ class CmpStoredProc : public NABasicObject {
   // return TRUE if success, FALSE otherwise
   // num is the number of input parameters expected, it is returned from
   // parser.
-  virtual NABoolean InputFormat(Lng32 num, CmpSPInputFormat &);
+  virtual NABoolean InputFormat(int num, CmpSPInputFormat &);
 
   // virtual function to retrieve the output data format
   // return TRUE if success, FALSE otherwise
@@ -546,7 +546,7 @@ class CmpInternalSP : public CmpStoredProc {
   // return the table name from procName
   NAString OutTableName();
 
-  virtual NABoolean InputFormat(Lng32 num, CmpSPInputFormat &);
+  virtual NABoolean InputFormat(int num, CmpSPInputFormat &);
   virtual NABoolean OutputFormat(CmpSPOutputFormat &);
 
   // used only in ISP_UTIL command
@@ -597,9 +597,9 @@ class CmpInternalSP : public CmpStoredProc {
   NABoolean startCompileCycle();
 
   // methods for SP interface structure allocation
-  SP_FIELDDESC_STRUCT *allocSP_FIELDDESC_STRUCT(Lng32 num);
+  SP_FIELDDESC_STRUCT *allocSP_FIELDDESC_STRUCT(int num);
   void deleteSP_FIELDDESC_STRUCT(SP_FIELDDESC_STRUCT *);
-  SP_KEYDESC_STRUCT *allocSP_KEYDESC_STRUCT(Lng32 num);
+  SP_KEYDESC_STRUCT *allocSP_KEYDESC_STRUCT(int num);
   void deleteSP_KEYDESC_STRUCT(SP_KEYDESC_STRUCT *);
 
   // private methods for error handling.

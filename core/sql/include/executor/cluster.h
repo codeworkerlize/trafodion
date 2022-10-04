@@ -474,7 +474,7 @@ class ClusterDB : public NABasicObject {
     CROSS_PRODUCT,
     SEQUENCE_OLAP  // not a hash operator; but uses ClusterDB and Cluster
   };
-  ClusterDB(HashOperator hashOperator, ULng32 bufferSize, atp_struct *workAtp, Lng32 explainNodeId,
+  ClusterDB(HashOperator hashOperator, ULng32 bufferSize, atp_struct *workAtp, int explainNodeId,
             short hashTableRowAtpIndex1, short hashTableRowAtpIndex2, ex_expr *searchExpr, Bucket *buckets,
             ULng32 bucketCount, ULng32 availableMemory, short pressureThreshold, ExExeStmtGlobals *stmtGlobals,
             ExeErrorCode *rc, NABoolean noOverFlow = FALSE, NABoolean isPartialGroupBy = FALSE,
@@ -509,7 +509,7 @@ class ClusterDB : public NABasicObject {
   inline Cluster *getClusterReturnRightRows() const;
   inline void setClusterReturnRightRows(Cluster *cluster);
   inline NABoolean isHashLoop() const { return hashLoop_; }
-  inline Int64 getMemoryHWM() const;
+  inline long getMemoryHWM() const;
   inline ULng32 getBufferSize() const { return bufferSize_; }
   void setScratchIOVectorSize(Int16 vectorSize) { scratchIOVectorSize_ = vectorSize; }
   Int32 getScratchIOVectorSize() { return scratchIOVectorSize_; }
@@ -522,12 +522,12 @@ class ClusterDB : public NABasicObject {
 
   inline NABoolean sawPressure() const { return sawPressure_; }
 
-  inline Int64 totalPhase3TimeNoHL() { return totalPhase3TimeNoHL_; }
-  inline Int64 maxPhase3Time() { return maxPhase3Time_; }
-  inline Int64 minPhase3Time() { return minPhase3Time_; }
+  inline long totalPhase3TimeNoHL() { return totalPhase3TimeNoHL_; }
+  inline long maxPhase3Time() { return maxPhase3Time_; }
+  inline long minPhase3Time() { return minPhase3Time_; }
   inline ULng32 numClustersNoHashLoop() { return numClustersNoHashLoop_; }
 
-  void updatePhase3Time(Int64 someClusterTime);
+  void updatePhase3Time(long someClusterTime);
 
   // Yield all the memory quota allocated
   void yieldAllMemoryQuota();
@@ -546,7 +546,7 @@ class ClusterDB : public NABasicObject {
   // several sequences (after cluster-split, or for DISTINCT HGB)
   UInt32 generateSequenceID() { return ++sequenceGenerator_; }
 
-  void getScratchErrorDetail(Lng32 &scratchError, Lng32 &scratchSysError, Lng32 &scratchSysErrorDetail, char *errorMsg);
+  void getScratchErrorDetail(int &scratchError, int &scratchSysError, int &scratchSysErrorDetail, char *errorMsg);
 
   static ULng32 roundUpToPrime(ULng32 noOfClusters);
 
@@ -570,7 +570,7 @@ class ClusterDB : public NABasicObject {
                                 // clusters in a separate heap. This
                                 // should help to reduce fragmentation.
   atp_struct *workAtp_;         // global work Atp
-  Lng32 explainNodeId_;         // add to any EMS RT messages.
+  int explainNodeId_;         // add to any EMS RT messages.
 
   // the following three data members are only used for hash join and hash
   // table materialize. They are required for sorted insert of a row into
@@ -623,9 +623,9 @@ class ClusterDB : public NABasicObject {
   Float32 estimateErrorPenalty_;
   Float32 hashMemEstInKBPerNode_;
 
-  Int64 totalPhase3TimeNoHL_;
-  Int64 maxPhase3Time_;
-  Int64 minPhase3Time_;
+  long totalPhase3TimeNoHL_;
+  long maxPhase3Time_;
+  long minPhase3Time_;
   ULng32 numClustersNoHashLoop_;
   ULng32 bmoMaxMemThresholdMB_;
 
@@ -815,8 +815,8 @@ class Cluster : public NABasicObject {
 
   ULng32 numLoops() { return numLoops_; }  // if hash loop - how many times so far (logging)
 
-  Int64 startTimePhase3() { return startTimePhase3_; };
-  void setStartTimePhase3(Int64 theTime) { startTimePhase3_ = theTime; };
+  long startTimePhase3() { return startTimePhase3_; };
+  void setStartTimePhase3(long theTime) { startTimePhase3_ = theTime; };
 
   // set up a cluster stats entry in heap and return it
   ExClusterStats *getStats(CollHeap *heap);
@@ -830,7 +830,7 @@ class Cluster : public NABasicObject {
   HashRow *getCurrentRow();
 
   // Report the size (in bytes) of this cluster
-  inline Int64 clusterSize() { return totalClusterSize_; }  // total size (bytes)
+  inline long clusterSize() { return totalClusterSize_; }  // total size (bytes)
 
   // Internal utility: Calculate memory and create a hash table
   HashTable *createHashTable(UInt32 memForHashTable, ExeErrorCode *rc,
@@ -881,7 +881,7 @@ class Cluster : public NABasicObject {
   Cluster *next_;        // next Cluster in list
   NABoolean ioPending_;  // this Cluster has an I/O in flight
 
-  Int64 totalClusterSize_;  // total size of this cluster (bytes)
+  long totalClusterSize_;  // total size of this cluster (bytes)
 
   ClusterBitMap *outerBitMap_;
   HashTable *hashTable_;
@@ -918,7 +918,7 @@ class Cluster : public NABasicObject {
 
   ULng32 numLoops_;  // if hash loop - how many times so far (logging)
 
-  Int64 startTimePhase3_;  // the time this cluster started phase 3 (logging)
+  long startTimePhase3_;  // the time this cluster started phase 3 (logging)
 
   NABoolean flushMe_;  // make this cluster a candidate for a flush
 
@@ -1041,12 +1041,12 @@ class IOTimer {
 
   NABoolean startTimer();  // do nothing, return FALSE is already started
 
-  Int64 endTimer();  // Return elapsed time.
+  long endTimer();  // Return elapsed time.
 
  private:
   NABoolean ioStarted_;
-  Int64 startTime_;
-  Int64 accumTime_;
+  long startTime_;
+  long accumTime_;
 };
 
 inline IOTimer::IOTimer() : ioStarted_(FALSE), startTime_(0), accumTime_(0){};

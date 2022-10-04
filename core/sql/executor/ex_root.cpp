@@ -49,7 +49,7 @@
 #include "ex_frag_rt.h"
 #include "ComDiags.h"
 #include "ExStats.h"
-#include "NAError.h"
+#include "sqlci/SqlciParseGlobals.h"
 #include "LateBindInfo.h"
 #include "ExecuteIdTrig.h"
 #include "TriggerEnable.h"
@@ -118,7 +118,7 @@ ex_tcb *ex_root_tdb::build(CliGlobals *cliGlobals, ex_globals *glob) {
   // esps started and the time it took to start them.
   UInt32 numOfNewEspsStarted = 0;  // num of new esps started by this operator.
   UInt32 numOfTotalEspsUsed = 0;   // num of total esps used by this operator.
-  Int64 newprocessTime = 0;
+  long newprocessTime = 0;
   if ((getCollectStatsType() == ComTdb::ACCUMULATED_STATS) || (getCollectStatsType() == ComTdb::OPERATOR_STATS) ||
       (getCollectStatsType() == ComTdb::PERTABLE_STATS)) {
     newprocessTime = JULIANTIMESTAMP(OMIT, OMIT, OMIT, OMIT);
@@ -141,7 +141,7 @@ ex_tcb *ex_root_tdb::build(CliGlobals *cliGlobals, ex_globals *glob) {
 
   if (getQueryUsesSM() && cliGlobals->getEnvironment()->smEnabled()) {
     // Assign a SeaMonster ID to the query
-    Int64 smQueryID = ExSMGlobals::reserveSMID();
+    long smQueryID = ExSMGlobals::reserveSMID();
     master_glob->setSMQueryID(smQueryID);
 
     // Initialize SeaMonster. Return early if errors where encountered.
@@ -556,7 +556,7 @@ Int32 ex_root_tcb::execute(CliGlobals *cliGlobals, ExExeStmtGlobals *glob, Descr
   } else {
     // Coverage note - this is probably dead code.
     entry->downState.request = ex_queue::GET_N;
-    entry->downState.requestValue = (Lng32)root_tdb().getFirstNRows();
+    entry->downState.requestValue = (int)root_tdb().getFirstNRows();
   }
 
   entry->downState.parentIndex = 20;
@@ -568,7 +568,7 @@ Int32 ex_root_tcb::execute(CliGlobals *cliGlobals, ExExeStmtGlobals *glob, Descr
     input_desc->setCompoundStmtsInfo(((ComTdbRoot *)&tdb)->getCompoundStmtsInfo());
   }
 
-  Lng32 qt = root_tdb().getQueryType();
+  int qt = root_tdb().getQueryType();
   if (master_glob->getStatement()->syncQueryForBinglog() &&
       (NOT master_glob->getStatement()->getContext()->getTransaction()->xnInProgress()) &&
       (NOT(Get_SqlParser_Flags(INTERNAL_QUERY_FROM_EXEUTIL))) &&
@@ -750,8 +750,8 @@ Int32 ex_root_tcb::execute(CliGlobals *cliGlobals, ExExeStmtGlobals *glob, Descr
   if (syncQuery) {
     int ret = 0;
     unsigned char *parameterpack = NULL;
-    Int64 packlen = 0;
-    Int64 eventID;
+    long packlen = 0;
+    long eventID;
     msg_seqid_get_id(&eventID, -1);
     NAString objschema = "UN_KONW_SCHEMA";
     if (inputExpr()) parameterpack = inputExpr()->sourDataParams_, packlen = inputExpr()->sourDataParamsLen_;
@@ -850,16 +850,16 @@ Int32 ex_root_tcb::execute(CliGlobals *cliGlobals, ExExeStmtGlobals *glob, Descr
   return retcode;
 }
 
-void ex_root_tcb::setupWarning(Lng32 retcode, const char *str, const char *str2, ComDiagsArea *&diagsArea) {
+void ex_root_tcb::setupWarning(int retcode, const char *str, const char *str2, ComDiagsArea *&diagsArea) {
   ContextCli *currContext = GetCliGlobals()->currContext();
   // Make sure retcode is positive.
   if (retcode < 0) retcode = -retcode;
 
   if ((ABS(retcode) >= HBASE_MIN_ERROR_NUM) && (ABS(retcode) <= HBASE_MAX_ERROR_NUM)) {
     if (diagsArea == NULL) diagsArea = ComDiagsArea::allocate(getHeap());
-    Lng32 cliError = 0;
+    int cliError = 0;
 
-    Lng32 intParam1 = retcode;
+    int intParam1 = retcode;
     ComDiagsArea *newDiags = NULL;
     ExRaiseSqlWarning(getHeap(), &newDiags, (ExeErrorCode)(8448), NULL, &intParam1, &cliError, NULL,
                       (str ? (char *)str : (char *)" "), getHbaseErrStr(retcode),
@@ -899,7 +899,7 @@ void ex_root_tcb::snapshotScanCleanup(ComDiagsArea *&diagsArea) {
 // RETURNS: 0, success. 100, EOF. -1, error. 1, warning
 ////////////////////////////////////////////////////////
 Int32 ex_root_tcb::fetch(CliGlobals *cliGlobals, ExExeStmtGlobals *glob, Descriptor *output_desc,
-                         ComDiagsArea *&diagsArea, Lng32 timeLimit, NABoolean newOperation,
+                         ComDiagsArea *&diagsArea, int timeLimit, NABoolean newOperation,
                          NABoolean &closeCursorOnError) {
   // see details of this param in ex_root.h::fetch() declaration.
   closeCursorOnError = TRUE;
@@ -951,9 +951,9 @@ Int32 ex_root_tcb::fetch(CliGlobals *cliGlobals, ExExeStmtGlobals *glob, Descrip
     return -1;
   }
 
-  Lng32 numLoopFetches = 1;
-  Lng32 outputRowsetSize = 0;
-  Lng32 compileRowsetSize = -1;
+  int numLoopFetches = 1;
+  int outputRowsetSize = 0;
+  int compileRowsetSize = -1;
   NABoolean doneWithRowsets = TRUE;
 
   if (output_desc != NULL) {
@@ -991,9 +991,9 @@ Int32 ex_root_tcb::fetch(CliGlobals *cliGlobals, ExExeStmtGlobals *glob, Descrip
 
   ContextCli &currContext = *(master_glob->getStatement()->getContext());
   ComDiagsArea &diags = currContext.diags();
-  Lng32 numOfCliCalls = currContext.getNumOfCliCalls();
+  int numOfCliCalls = currContext.getNumOfCliCalls();
 
-  Lng32 queueSize = 0;
+  int queueSize = 0;
 
   // Indicates if Cli has converted a rowset from executor format to user
   // space format
@@ -1008,8 +1008,8 @@ Int32 ex_root_tcb::fetch(CliGlobals *cliGlobals, ExExeStmtGlobals *glob, Descrip
 
   while (1)  // return
   {
-    queueSize = (Lng32)qchild.up->getLength();
-    Lng32 retcode = 0;
+    queueSize = (int)qchild.up->getLength();
+    int retcode = 0;
 
     // The first condition in this if statement means that there is
     // are number of rows in the queue that do not fit in the rowset, so
@@ -1055,7 +1055,7 @@ Int32 ex_root_tcb::fetch(CliGlobals *cliGlobals, ExExeStmtGlobals *glob, Descrip
         queueSize = numLoopFetches;
       }
 
-      for (Lng32 i = 0; i < queueSize && (retcode == 0 || retcode == 1); i++) {
+      for (int i = 0; i < queueSize && (retcode == 0 || retcode == 1); i++) {
         if (outputRowsetSize > 0 && doneWithRowsets) {
           break;
         }
@@ -1142,7 +1142,7 @@ Int32 ex_root_tcb::fetch(CliGlobals *cliGlobals, ExExeStmtGlobals *glob, Descrip
 
             if (output_desc != NULL) {
               if (outputRowsetSize > 0) {
-                Lng32 numProcessed;
+                int numProcessed;
                 output_desc->getDescItem(0, SQLDESC_ROWSET_NUM_PROCESSED, &numProcessed, 0, 0, 0, 0);
                 if (numLoopFetches > 1 && (numProcessed < outputRowsetSize)) {
                   // This section gets executed if we are in a FETCH
@@ -1353,7 +1353,7 @@ Int32 ex_root_tcb::fetch(CliGlobals *cliGlobals, ExExeStmtGlobals *glob, Descrip
 
         // this may have woken up the scheduler, make sure we call it
         schedRetcode = WORK_CALL_AGAIN;
-      }  // loop for(Lng32 i = 0; i < queueSize && (retcode == 0 || retcode ==1); i++)
+      }  // loop for(int i = 0; i < queueSize && (retcode == 0 || retcode ==1); i++)
 
       if (retcode == 100) {
         completeOutstandingCancelMsgs();
@@ -1427,7 +1427,7 @@ Int32 ex_root_tcb::fetch(CliGlobals *cliGlobals, ExExeStmtGlobals *glob, Descrip
       // wait for external events if the scheduler indicated
       // last time that it had nothing to do
       NABoolean timedout;
-      Int64 prevWaitTime = 0;
+      long prevWaitTime = 0;
       if (schedRetcode == WORK_OK || schedRetcode == WORK_POOL_BLOCKED) {
         IpcTimeout wait_timeout = -1;  // default is wait forever
         // We are about to block. If this is a streaming non-destructive
@@ -1439,7 +1439,7 @@ Int32 ex_root_tcb::fetch(CliGlobals *cliGlobals, ExExeStmtGlobals *glob, Descrip
             wait_timeout = streamTimeout_;
             // Note that NA_JulianTimestamp is in micro seconds and that
             //  streamTimeout_ is in .01 seconds
-            Int64 wait64 = streamTimeout_;  // to avoid timeout overflow
+            long wait64 = streamTimeout_;  // to avoid timeout overflow
             // Extra time may be needed
             IpcTimeout extraTime = 0;
             if (getGlobals()->statsEnabled()) extraTime = 100;
@@ -1482,7 +1482,7 @@ Int32 ex_root_tcb::fetch(CliGlobals *cliGlobals, ExExeStmtGlobals *glob, Descrip
 
         // Wait for any I/O to complete, this includes both
         // ARKFS and ESP connections. Use an infinite timeout.
-        ipcEnv->getAllConnections()->waitOnAll((Lng32)wait_timeout, FALSE, &timedout, &prevWaitTime);
+        ipcEnv->getAllConnections()->waitOnAll((int)wait_timeout, FALSE, &timedout, &prevWaitTime);
 
         // clean up the completed MasterEspMessages
         ipcEnv->deleteCompletedMessages();
@@ -1525,13 +1525,13 @@ Int32 ex_root_tcb::fetch(CliGlobals *cliGlobals, ExExeStmtGlobals *glob, Descrip
 // RETURNS: 0, success. 100, EOF. -1, error. 1, warning
 ////////////////////////////////////////////////////////
 Int32 ex_root_tcb::fetchMultiple(CliGlobals *cliGlobals, ExExeStmtGlobals *glob, Descriptor *output_desc,
-                                 ComDiagsArea *&diagsArea, Lng32 timeLimit, NABoolean newOperation,
+                                 ComDiagsArea *&diagsArea, int timeLimit, NABoolean newOperation,
                                  NABoolean &closeCursorOnError, NABoolean &eodSeen) {
   Int32 retcode = 0;
   NABoolean keepFetching = TRUE;
 
-  Lng32 numTotalRows = 0;
-  Lng32 numRowsProcessed = 0;
+  int numTotalRows = 0;
+  int numRowsProcessed = 0;
   output_desc->getDescItem(0, SQLDESC_ROWWISE_ROWSET_SIZE, &numTotalRows, NULL, 0, NULL, 0);
 
   output_desc->setDescItem(0, SQLDESC_ROWSET_NUM_PROCESSED, numRowsProcessed, NULL);
@@ -1605,7 +1605,7 @@ Int32 ex_root_tcb::oltExecute(ExExeStmtGlobals *glob, Descriptor *input_desc, De
 
   NABoolean syncQuery = FALSE;
 
-  Lng32 qt = root_tdb().getQueryType();
+  int qt = root_tdb().getQueryType();
   if (master_glob->getStatement()->syncQueryForBinglog() &&
       (NOT master_glob->getStatement()->getContext()->getTransaction()->xnInProgress()) &&
       (NOT(Get_SqlParser_Flags(INTERNAL_QUERY_FROM_EXEUTIL))) &&
@@ -1679,7 +1679,7 @@ Int32 ex_root_tcb::oltExecute(ExExeStmtGlobals *glob, Descriptor *input_desc, De
       completeOutstandingCancelMsgs();
       return fatal_error(glob, diagsArea);
     }
-    Lng32 retcode = -1;
+    int retcode = -1;
     NABoolean setRetcode = TRUE;
     while (!qchild.up->isEmpty()) {
       ex_queue_entry *centry = qchild.up->getHeadEntry();
@@ -1786,8 +1786,8 @@ Int32 ex_root_tcb::oltExecute(ExExeStmtGlobals *glob, Descriptor *input_desc, De
       if (retcode > 0 && syncQuery) {
         int ret = 0;
         unsigned char *parameterpack = NULL;
-        Int64 packlen = 0;
-        Int64 eventID;
+        long packlen = 0;
+        long eventID;
         msg_seqid_get_id(&eventID, -1);
         NAString objschema = "UN_KONW_SCHEMA";
         if (inputExpr()) parameterpack = inputExpr()->sourDataParams_, packlen = inputExpr()->sourDataParamsLen_;
@@ -1859,9 +1859,9 @@ Int32 ex_root_tcb::passiveCancel() {
                                                     cliGlobals->myCpu(), IPC_PRIORITY_DONT_CARE, false);
   if (!st.server || !st.server->castToIpcGuardianServer()->isReady() || !st.server->getControlConnection()) return 0;
 
-  Int64 cancelStartTime = JULIANTIMESTAMP();
-  Lng32 firstEscalationInterval = context->getSessionDefaults()->getCancelEscalationInterval();
-  Lng32 secondEscalationInterval = context->getSessionDefaults()->getCancelEscalationMxosrvrInterval();
+  long cancelStartTime = JULIANTIMESTAMP();
+  int firstEscalationInterval = context->getSessionDefaults()->getCancelEscalationInterval();
+  int secondEscalationInterval = context->getSessionDefaults()->getCancelEscalationMxosrvrInterval();
   NABoolean cancelEscalationSaveabend = context->getSessionDefaults()->getCancelEscalationSaveabend();
   bool cancelLogging = context->getSessionDefaults()->getCancelLogging();
 
@@ -1940,7 +1940,7 @@ Int32 ex_root_tcb::cancel(ExExeStmtGlobals *glob, ComDiagsArea *&diagsArea, NABo
     // accumulate on the statement globals. Get rid of
     // them or any other new errors created during cancel.
     ComDiagsArea *globDiagsAreaAtEntry = glob->getDiagsArea();
-    Lng32 oldDiagsAreaMark = -1;
+    int oldDiagsAreaMark = -1;
     if (globDiagsAreaAtEntry && !getQueueDiags) oldDiagsAreaMark = globDiagsAreaAtEntry->mark();
 
     // while there is anything in the up or down queue
@@ -2094,15 +2094,15 @@ short ex_root_tcb::work() {
       }
       if (cpuLimitExceeded_) {
         *diagsArea << DgSqlCode(-EXE_QUERY_LIMITS_CPU);
-        *diagsArea << DgInt0((Lng32)root_tdb().cpuLimit_);
+        *diagsArea << DgInt0((int)root_tdb().cpuLimit_);
         *diagsArea << DgInt1((Int32)master_glob->getMyFragId());
 
         if (root_tdb().getQueryLimitDebug()) {
           *diagsArea << DgSqlCode(EXE_QUERY_LIMITS_CPU_DEBUG);
-          *diagsArea << DgInt0((Lng32)root_tdb().cpuLimit_);
+          *diagsArea << DgInt0((int)root_tdb().cpuLimit_);
           *diagsArea << DgInt1((Int32)master_glob->getMyFragId());
 
-          Int64 localCpuTime = 0;
+          long localCpuTime = 0;
           ExFragRootOperStats *fragRootStats;
           ExMeasStats *measRootStats;
           ExOperStats *rootStats = master_glob->getStatsArea()->getRootStats();
@@ -2113,7 +2113,7 @@ short ex_root_tcb::work() {
           else
             ex_assert(0, "Cpu limit evaluated without runtime stats.");
 
-          *diagsArea << DgInt2((Lng32)localCpuTime / 1000);
+          *diagsArea << DgInt2((int)localCpuTime / 1000);
         }
       } else
         populateCancelDiags(*diagsArea);
@@ -2259,7 +2259,7 @@ void ex_root_tcb::registerCB(ComDiagsArea *&diagsArea) {
   if (sStats) mStats = sStats->getMasterStats();
   if (mStats) mStats->setReadyToSuspend();
 
-  Lng32 qidLen = glob->getStatement()->getUniqueStmtIdLen();
+  int qidLen = glob->getStatement()->getUniqueStmtIdLen();
   char *qid = glob->getStatement()->getUniqueStmtId();
 
   // No query id -- no cancel or suspend.
@@ -2293,13 +2293,13 @@ void ex_root_tcb::registerCB(ComDiagsArea *&diagsArea) {
 
     // See if query is "unique" and session allows cancel of unique.
     if (!sessionDefaults->getCancelUniqueQuery()) {
-      Lng32 qt = root_tdb().getQueryType();
+      int qt = root_tdb().getQueryType();
       if ((qt == ComTdbRoot::SQL_SELECT_UNIQUE) || (qt == ComTdbRoot::SQL_INSERT_UNIQUE) ||
           (qt == ComTdbRoot::SQL_UPDATE_UNIQUE) || (qt == ComTdbRoot::SQL_DELETE_UNIQUE))
         return;
     }
   }
-  Lng32 fromCond = 0;
+  int fromCond = 0;
   if (diagsArea != NULL) fromCond = diagsArea->mark();
   ExSsmpManager *ssmpManager = context->getSsmpManager();
   cbServer_ = ssmpManager->getSsmpServer((NAHeap *)getHeap(), cliGlobals->myNodeName(), cliGlobals->myCpu(), diagsArea);
@@ -2537,7 +2537,7 @@ static const bool exitCBTimeout = ((ECTenvvar != NULL) && (*ECTenvvar != '0') ? 
 static const char *const DCTenvvar = getenv("ENABLE_DUMP_ON_CB_TIMEOUT");
 static const bool dumpCBTimeout = ((DCTenvvar != NULL) && (*DCTenvvar == '0') ? false : true);
 
-void ex_root_tcb::cbMessageWait(Int64 waitStartTime) {
+void ex_root_tcb::cbMessageWait(long waitStartTime) {
   ExMasterStmtGlobals *master_glob = getGlobals()->castToExExeStmtGlobals()->castToExMasterStmtGlobals();
   NABoolean cbDidTimedOut = FALSE;
   int maxRetryCount = 5;
@@ -2551,7 +2551,7 @@ void ex_root_tcb::cbMessageWait(Int64 waitStartTime) {
     // Allow the Control Broker 1 minutes to reply.
     // The time already spent waiting (see caller
     // Statement::releaseTransaction) is counted in this 5 minutes.
-    Int64 timeSinceCBMsgSentMicroSecs = retryCount > 1 ? 0 : (waitStartTime ? NA_JulianTimestamp() - waitStartTime : 0);
+    long timeSinceCBMsgSentMicroSecs = retryCount > 1 ? 0 : (waitStartTime ? NA_JulianTimestamp() - waitStartTime : 0);
     IpcTimeout timeSinceCBMsgSentCentiSecs = (IpcTimeout)(timeSinceCBMsgSentMicroSecs / 10000);
     IpcTimeout cbTimeout = (10 * 100) - timeSinceCBMsgSentCentiSecs;
     if (cbTimeout <= 0) cbTimeout = IpcImmediately;
@@ -2594,7 +2594,7 @@ void ex_root_tcb::dumpCb() {
   if (statsGlobals == NULL) return;
   int error = statsGlobals->getStatsSemaphore(cliGlobals->getSemId(), cliGlobals->myPin());
   bool doDump = false;
-  Int64 timenow = NA_JulianTimestamp();
+  long timenow = NA_JulianTimestamp();
   if ((timenow - statsGlobals->getSsmpDumpTimestamp()) > 5 * 60 * 1000 * 1000)  // 5 minutes
   {
     doDump = true;

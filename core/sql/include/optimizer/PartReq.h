@@ -121,7 +121,7 @@ class PartitioningRequirement : public NABasicObject {
   // ---------------------------------------------------------------------
   // The number of partitions that will be formed using this scheme.
   // ---------------------------------------------------------------------
-  virtual Lng32 getCountOfPartitions() const;
+  virtual int getCountOfPartitions() const;
 
   // Accessor method for the partitioning key
   virtual const ValueIdSet &getPartitioningKey() const;
@@ -228,7 +228,7 @@ class FuzzyPartitioningRequirement : public PartitioningRequirement {
   // ---------------------------------------------------------------------
   // The number of partitions that will be formed using this scheme.
   // ---------------------------------------------------------------------
-  virtual Lng32 getCountOfPartitions() const { return numberOfPartitions_; }
+  virtual int getCountOfPartitions() const { return numberOfPartitions_; }
 
   // Accessor method for the partitioning key
   virtual const ValueIdSet &getPartitioningKey() const { return partitioningKeyColumns_; }
@@ -268,7 +268,7 @@ class FuzzyPartitioningRequirement : public PartitioningRequirement {
   // are therefore hidden from public view.
   // ---------------------------------------------------------------------
   FuzzyPartitioningRequirement(const FuzzyPartReqTypeEnum rType, const ValueIdSet &partitioningKeyColumns,
-                               Lng32 numberOfPartitions = ANY_NUMBER_OF_PARTITIONS,
+                               int numberOfPartitions = ANY_NUMBER_OF_PARTITIONS,
                                const skewProperty &sk = ANY_SKEW_PROPERTY)
       : PartitioningRequirement(FUZZY_PART_REQ),
         requirementType_(rType),
@@ -277,7 +277,7 @@ class FuzzyPartitioningRequirement : public PartitioningRequirement {
         numberOfPartitions_(numberOfPartitions),
         skewProperty_(sk) {}
 
-  FuzzyPartitioningRequirement(const FuzzyPartReqTypeEnum rType, Lng32 numberOfPartitions = ANY_NUMBER_OF_PARTITIONS,
+  FuzzyPartitioningRequirement(const FuzzyPartReqTypeEnum rType, int numberOfPartitions = ANY_NUMBER_OF_PARTITIONS,
                                const skewProperty &sk = ANY_SKEW_PROPERTY)
       : PartitioningRequirement(FUZZY_PART_REQ),
         requirementType_(rType),
@@ -297,7 +297,7 @@ class FuzzyPartitioningRequirement : public PartitioningRequirement {
   FuzzyPartReqTypeEnum requirementType_;
   ValueIdSet partitioningKeyColumns_;
   NABoolean partitioningKeyIsSpecified_;
-  Lng32 numberOfPartitions_;
+  int numberOfPartitions_;
   skewProperty skewProperty_;
 };  // class FuzzyPartitioningRequirement
 
@@ -306,7 +306,7 @@ class FullySpecifiedPartitioningRequirement : public PartitioningRequirement {
   // ---------------------------------------------------------------------
   // The number of partitions that will be formed using this scheme.
   // ---------------------------------------------------------------------
-  virtual Lng32 getCountOfPartitions() const { return partitioningFunction_->getCountOfPartitions(); }
+  virtual int getCountOfPartitions() const { return partitioningFunction_->getCountOfPartitions(); }
 
   // Accessor method for the partitioning key
   virtual const ValueIdSet &getPartitioningKey() const { return partitioningFunction_->getPartitioningKey(); }
@@ -398,12 +398,12 @@ class RequireApproximatelyNPartitions : public FuzzyPartitioningRequirement {
   RequireApproximatelyNPartitions(
       const ValueIdSet &partitioningKeyColumns,
       float numOfPartsAllowedDeviation = CURRSTMT_OPTDEFAULTS->numberOfPartitionsDeviation(),
-      Lng32 numberOfPartitions = ANY_NUMBER_OF_PARTITIONS, NABoolean requireHash2Only = FALSE,
+      int numberOfPartitions = ANY_NUMBER_OF_PARTITIONS, NABoolean requireHash2Only = FALSE,
       const skewProperty &sk = ANY_SKEW_PROPERTY);
 
   RequireApproximatelyNPartitions(
       float numOfPartsAllowedDeviation = CURRSTMT_OPTDEFAULTS->numberOfPartitionsDeviation(),
-      Lng32 numberOfPartitions = ANY_NUMBER_OF_PARTITIONS, NABoolean requireHash2Only = FALSE,
+      int numberOfPartitions = ANY_NUMBER_OF_PARTITIONS, NABoolean requireHash2Only = FALSE,
       const skewProperty &sk = ANY_SKEW_PROPERTY);
 
   RequireApproximatelyNPartitions(const RequireApproximatelyNPartitions &other)
@@ -425,11 +425,11 @@ class RequireApproximatelyNPartitions : public FuzzyPartitioningRequirement {
 
   // check whether an actual number of partitions is within the
   // range for the allowed number of partitions
-  NABoolean isPartitionCountWithinRange(Lng32 numOfParts) const;
+  NABoolean isPartitionCountWithinRange(int numOfParts) const;
 
   // accesor method for the lower bound of the range for the
   // allowed number of partitions
-  Lng32 getCountOfPartitionsLowBound() const;
+  int getCountOfPartitionsLowBound() const;
 
   NABoolean isRequireHash2Only() const { return requireHash2Only_; }
 
@@ -499,7 +499,7 @@ class RequireReplicateViaBroadcast : public FullySpecifiedPartitioningRequiremen
     CMPASSERT(partFunc->isAReplicateViaBroadcastPartitioningFunction());
   }
 
-  RequireReplicateViaBroadcast(Lng32 numOfReplicas);
+  RequireReplicateViaBroadcast(int numOfReplicas);
 
   RequireReplicateViaBroadcast(PartitioningFunction *childPF, NABoolean useChildsNodeMap);
 
@@ -819,7 +819,7 @@ class LogicalPartitioningRequirement : public NABasicObject {
   LogicalPartitioningRequirement(
       PartitioningRequirement *logPartReq,
       LogPhysPartitioningFunction::logPartType logPartType = LogPhysPartitioningFunction::ANY_LOGICAL_PARTITIONING,
-      Lng32 numClients = ANY_NUMBER_OF_PARTITIONS, NABoolean mustUsePapa = FALSE, NABoolean numPAsForced = FALSE)
+      int numClients = ANY_NUMBER_OF_PARTITIONS, NABoolean mustUsePapa = FALSE, NABoolean numPAsForced = FALSE)
       : logPartReq_(logPartReq),
         logPartType_(logPartType),
         numClients_(numClients),
@@ -838,9 +838,9 @@ class LogicalPartitioningRequirement : public NABasicObject {
 
   PartitioningRequirement *getLogReq() const { return logPartReq_; }
   LogPhysPartitioningFunction::logPartType getLogPartTypeReq() const { return logPartType_; }
-  Lng32 getNumClientsReq() const { return numClients_; }
+  int getNumClientsReq() const { return numClients_; }
 
-  void setNumClientsReq(Lng32 n) { numClients_ = n; }
+  void setNumClientsReq(int n) { numClients_ = n; }
 
   NABoolean isNumberOfPAsForced() const { return numPAsForced_; }
 
@@ -869,7 +869,7 @@ class LogicalPartitioningRequirement : public NABasicObject {
   // This is the total number of PAs in all ESPs, not the number of PAs
   // per ESP.
   // ---------------------------------------------------------------------
-  Lng32 numClients_;
+  int numClients_;
 
   // ---------------------------------------------------------------------
   // Do we have to use a PAPA node? TRUE forces one, FALSE allows one.

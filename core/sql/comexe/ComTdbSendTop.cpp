@@ -48,9 +48,9 @@
 
 ComTdbSendTop::ComTdbSendTop(ExFragId childFragId, ex_expr *moveInputValues, ex_cri_desc *criDescDown,
                              ex_cri_desc *criDescUp, ex_cri_desc *downRecordCriDesc, ex_cri_desc *upRecordCriDesc,
-                             ex_cri_desc *workCriDesc, Lng32 moveExprTuppIndex, queue_index fromParent,
-                             queue_index toParent, Lng32 downRecordLength, Lng32 upRecordLength, Lng32 sendBufferSize,
-                             Lng32 numSendBuffers, Lng32 recvBufferSize, Lng32 numRecvBuffers,
+                             ex_cri_desc *workCriDesc, int moveExprTuppIndex, queue_index fromParent,
+                             queue_index toParent, int downRecordLength, int upRecordLength, int sendBufferSize,
+                             int numSendBuffers, int recvBufferSize, int numRecvBuffers,
                              Cardinality estNumRowsSent, Cardinality estNumRowsRecvd, NABoolean logDiagnostics)
     : ComTdb(ex_SEND_TOP, eye_SEND_TOP, estNumRowsRecvd, criDescDown, criDescUp, fromParent, toParent) {
   childFragId_ = childFragId;
@@ -76,20 +76,20 @@ Int32 ComTdbSendTop::orderedQueueProtocol() const {
   return TRUE;
 }  // these lines won't be covered, obsolete but not in the list yet
 
-Lng32 ComTdbSendTop::minSendBufferSize(Lng32 downRecLen, Lng32 numRecs) {
+int ComTdbSendTop::minSendBufferSize(int downRecLen, int numRecs) {
   // start with the regular size it would take to pack the records
   // into an SqlBuffer
-  Lng32 recSpace = SqlBufferNeededSize(numRecs, downRecLen, SqlBufferHeader::DENSE_);
+  int recSpace = SqlBufferNeededSize(numRecs, downRecLen, SqlBufferHeader::DENSE_);
 
   // now add the needed space for the ExpControlInfo struct that goes
   // along with each record
-  Lng32 delta = SqlBufferNeededSize(2, sizeof(ControlInfo), SqlBufferHeader::DENSE_) -
+  int delta = SqlBufferNeededSize(2, sizeof(ControlInfo), SqlBufferHeader::DENSE_) -
                 SqlBufferNeededSize(1, sizeof(ControlInfo), SqlBufferHeader::DENSE_);
 
   return recSpace + numRecs * delta;
 }
 
-Lng32 ComTdbSendTop::minReceiveBufferSize(Lng32 upRecLen, Lng32 numRecs) {
+int ComTdbSendTop::minReceiveBufferSize(int upRecLen, int numRecs) {
   // right now send and receive buffers work the same
   return minSendBufferSize(upRecLen, numRecs);
 }
@@ -100,7 +100,7 @@ const ComTdb *ComTdbSendTop::getChild(Int32 /*pos*/) const {
   return NULL;
 }  // these 4 lines won't be covered, used by Windows GUI only
 
-const ComTdb *ComTdbSendTop::getChildForGUI(Int32 /*pos*/, Lng32 base, void *frag_dir) const {
+const ComTdb *ComTdbSendTop::getChildForGUI(Int32 /*pos*/, int base, void *frag_dir) const {
   ExFragDir *fragDir = (ExFragDir *)frag_dir;
 
   return (ComTdb *)((long)base + fragDir->getGlobalOffset(childFragId_) + fragDir->getTopNodeOffset(childFragId_));
@@ -133,7 +133,7 @@ Long ComTdbSendTop::pack(void *space) {
   return ComTdb::pack(space);
 }
 
-Lng32 ComTdbSendTop::unpack(void *base, void *reallocator) {
+int ComTdbSendTop::unpack(void *base, void *reallocator) {
   if (moveInputValues_.unpack(base, reallocator)) return -1;
   if (downRecordCriDesc_.unpack(base, reallocator)) return -1;
   if (upRecordCriDesc_.unpack(base, reallocator)) return -1;
@@ -151,7 +151,7 @@ void ComTdbSendTop::displayContents(Space *space, ULng32 flag) {
     str_sprintf(buf, "\nFor ComTdbSendTop :");
     space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
 
-    str_sprintf(buf, "childFragId_ = %d, sendTopFlags_ = %x", (Lng32)childFragId_, (Lng32)sendTopFlags_);
+    str_sprintf(buf, "childFragId_ = %d, sendTopFlags_ = %x", (int)childFragId_, (int)sendTopFlags_);
     space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
 
     str_sprintf(buf, "downRecordLength_ = %d, upRecordLength_ = %d", downRecordLength_, upRecordLength_);

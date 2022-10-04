@@ -151,7 +151,7 @@ static short genUpdExpr(Generator *generator,
   // given to DP2 at runtime.
   ValueIdList updtRowVidList;
   BaseColumn *updtCol = NULL, *fetchedCol = NULL;
-  Lng32 updtColNum = -1, fetchedColNum = 0;
+  int updtColNum = -1, fetchedColNum = 0;
   ItemExpr *updtColVal = NULL, *castNode = NULL;
   CollIndex recEntries = recExprArray.entries(), colEntries = indexDesc->getIndexColumns().entries(), j = 0;
   NAColumn *col;
@@ -882,7 +882,7 @@ short HbaseDelete::codeGen(Generator *generator) {
   Queue *listOfDeletedColNames = NULL;
   if (csl()) {
     listOfDeletedColNames = new (space) Queue(space);
-    for (Lng32 i = 0; i < csl()->entries(); i++) {
+    for (int i = 0; i < csl()->entries(); i++) {
       NAString *nas = (NAString *)(*csl())[i];
       char *colNameInList = NULL;
 
@@ -1123,7 +1123,7 @@ short HbaseDelete::codeGen(Generator *generator) {
     if (withNoReplicate()) hbasescan_tdb->setWithNoReplicate(TRUE);
 
     if (getFirstNRows() > 0) {
-      Int64 firstNrows = getFirstNRows();
+      long firstNrows = getFirstNRows();
       if ((firstNrows > 0) && (generator->getNumESPs() > 1)) {
         firstNrows = MAXOF(1, firstNrows / generator->getNumESPs());
       }
@@ -1652,7 +1652,7 @@ short HbaseUpdate::codeGen(Generator *generator) {
 
     if (isMerge()) {
       BaseColumn *updtCol = NULL, *fetchedCol = NULL;
-      Lng32 updtColNum = -1, fetchedColNum = 0;
+      int updtColNum = -1, fetchedColNum = 0;
       CollIndex recEntries = newRecExprArray().entries(), colEntries = getIndexDesc()->getIndexColumns().entries(),
                 j = 0;
       ValueId tgtValueId;
@@ -1956,7 +1956,7 @@ short HbaseUpdate::codeGen(Generator *generator) {
     const NAString *tsStr =
         OptHbaseAccessOptions::getControlTableValue(getTableName().getQualifiedNameObj(), "HBASE_TIMESTAMP_SET");
     if ((tsStr && (NOT tsStr->isNull())) && (uniqueHbaseOper())) {
-      Int64 ts = OptHbaseAccessOptions::computeHbaseTS(tsStr->data());
+      long ts = OptHbaseAccessOptions::computeHbaseTS(tsStr->data());
       if (ts < 0) {
         GenAssert(ts > 0, "invalid value for hbsae ts");
       }
@@ -2026,7 +2026,7 @@ bool compHBaseQualif(NAString a, NAString b) {
   return (strcmp(&(a_str[sizeof(short) + sizeof(UInt32)]), &(b_str[sizeof(short) + sizeof(UInt32)])) < 0);
 };
 
-extern Int64 getDefaultSampleRowSize(Int64 tblRowCount);
+extern long getDefaultSampleRowSize(long tblRowCount);
 
 short HbaseInsert::codeGen(Generator *generator) {
   Space *space = generator->getSpace();
@@ -2114,7 +2114,7 @@ short HbaseInsert::codeGen(Generator *generator) {
 
     if ((isHbaseMapFormat) && (getTableDesc()->getNATable()->isHbaseDataFormatString()) &&
         (NOT(DFS2REC::isAnyCharacter(givenType.getFSDatatype())))) {
-      Lng32 cvl = givenType.getDisplayLength();
+      int cvl = givenType.getDisplayLength();
 
       NAType *asciiType = new (generator->wHeap()) SQLVarChar(generator->wHeap(), cvl, givenType.supportsSQLnull());
       ie = new (generator->wHeap()) Cast(ie, asciiType);
@@ -2223,7 +2223,7 @@ short HbaseInsert::codeGen(Generator *generator) {
             else {
               NABoolean bInserted = FALSE;
               IndexColumn *ct = (IndexColumn *)baseCols[i];
-              Lng32 nPos = ct->getNAColumn()->getPosition();
+              int nPos = ct->getNAColumn()->getPosition();
               for (int j = 0; j < loggingbaseCols.entries(); ++j) {
                 IndexColumn *bc = (IndexColumn *)loggingbaseCols[j];
                 if (bc->getNAColumn()->getPosition() > nPos) {
@@ -2307,7 +2307,7 @@ short HbaseInsert::codeGen(Generator *generator) {
   //
   ex_expr *insConstraintExpr = NULL;
   Queue *listOfUpdatedColNames = NULL;
-  Lng32 keyAttrPos = -1;
+  int keyAttrPos = -1;
   ex_expr *rowIdExpr = NULL;
   ULng32 rowIdLen = 0;
 
@@ -2721,9 +2721,9 @@ short HbaseInsert::codeGen(Generator *generator) {
       ULng32 loadFlushSizeinRows = getDefault(TRAF_LOAD_ROWSET_SIZE);
 
       // total row size must less than 1G
-      Int64 maxDirectBuflen =
+      long maxDirectBuflen =
           1024 * 1024 * 1024;  // must same with maxDirectBuflen in ExHbaseAccessTcb::allocateDirectRowBufferForJNI
-      Int64 maxRowLen = hbasescan_tdb->getRowLen() * loadFlushSizeinRows;
+      long maxRowLen = hbasescan_tdb->getRowLen() * loadFlushSizeinRows;
       if (maxRowLen > maxDirectBuflen) loadFlushSizeinRows = maxDirectBuflen / hbasescan_tdb->getRowLen();
 
       // largest flush size, runtime cannot handle higher values
@@ -2742,9 +2742,9 @@ short HbaseInsert::codeGen(Generator *generator) {
         strcpy(sampleLocation, sampleLocationNAS.data());
         hbasescan_tdb->setSampleLocation(sampleLocation);
 
-        Int64 totalRows = (Int64)(getInputCardinality().getValue());
+        long totalRows = (long)(getInputCardinality().getValue());
         // printf("*** Incoming cardinality is " PF64 ".\n", totalRows);
-        Int64 sampleRows = getDefaultSampleRowSize(totalRows);
+        long sampleRows = getDefaultSampleRowSize(totalRows);
         Float32 sampleRate = (Float32)sampleRows / (Float32)totalRows;
         // printf("*** In HbaseInsert::codeGen(): Sample percentage is %.2f.\n", sampleRate);
         hbasescan_tdb->setSamplingRate(sampleRate);
@@ -2795,7 +2795,7 @@ short HbaseInsert::codeGen(Generator *generator) {
     const NAString *tsStr =
         OptHbaseAccessOptions::getControlTableValue(getTableName().getQualifiedNameObj(), "HBASE_TIMESTAMP_SET");
     if ((tsStr && (NOT tsStr->isNull())) && (getInsertType() == Insert::SIMPLE_INSERT) && (uniqueHbaseOper())) {
-      Int64 ts = OptHbaseAccessOptions::computeHbaseTS(tsStr->data());
+      long ts = OptHbaseAccessOptions::computeHbaseTS(tsStr->data());
       if (ts < 0) {
         GenAssert(ts > 0, "invalid value for hbsae ts");
       }

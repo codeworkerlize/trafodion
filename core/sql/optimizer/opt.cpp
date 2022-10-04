@@ -52,7 +52,7 @@
 #include "optimizer/RelExpr.h"
 #include "RelJoin.h"
 #include "optimizer/RelMisc.h"
-#include "CostMethod.h"
+#include "optimizer/CostMethod.h"
 #include "sqlmxevents/logmxevent.h"
 #include "arkcmp/CompException.h"
 #include "optimizer/CompilationStats.h"
@@ -171,7 +171,7 @@ NABoolean RelExpr::preventPushDownPartReq(const ReqdPhysicalProperty *rppForMe, 
 void clearFailedPlanWarningsForStream() {
   ComCondition *warningEntry = NULL;
   ULng32 maxWarns = CmpCommon::diags()->getNumber(DgSqlCode::WARNING_);
-  Lng32 currentIndex = 1;  // This is important as diags are 1 based Array.
+  int currentIndex = 1;  // This is important as diags are 1 based Array.
   for (ULng32 index = 0; index < maxWarns; index++) {
     warningEntry = CmpCommon::diags()->getWarningEntry(currentIndex);
     switch (warningEntry->getSQLCODE()) {
@@ -322,7 +322,7 @@ RelExpr *RelExpr::optimize(NABoolean exceptionMode, Guidance *guidance, ReqdPhys
     // maximum parallelism can be forced by setting CDQ COMP_BOOL_69 to ON
     CURRSTMT_OPTGLOBALS->maxParIsFeasible = TRUE;
 
-  Lng32 t0 = clock();
+  int t0 = clock();
 
   // ---------------------------------------------------------------------
   // -- Triggers.
@@ -641,7 +641,7 @@ RelExpr *RelExpr::optimize(NABoolean exceptionMode, Guidance *guidance, ReqdPhys
     // NADumpDiags(cerr,CmpCommon::diags()) ;
 
     // Make all previous errors warnings
-    for (Lng32 i = 0; i < CmpCommon::diags()->getNumber(DgSqlCode::ERROR_); i++) CmpCommon::diags()->negateCondition(i);
+    for (int i = 0; i < CmpCommon::diags()->getNumber(DgSqlCode::ERROR_); i++) CmpCommon::diags()->negateCondition(i);
 
     // Produce a new warning saying that we are trying to recover
     *CmpCommon::diags() << DgSqlCode(arkcmpErrorAfterPassOne);
@@ -1151,7 +1151,7 @@ NABoolean Context::findBestSolution() {
     // We will only be able to steal candidate plans if pruning is enabled,
     // because if pruning is disabled we don't store candidate plans.
     if (otherContext->hasOptimalSolution() OR otherContext->isPruningEnabled()) {
-      Lng32 numOtherPlans = otherContext->getCountOfCandidatePlans();
+      int numOtherPlans = otherContext->getCountOfCandidatePlans();
 
       comp = compareContexts(*otherContext);
 
@@ -1475,7 +1475,7 @@ RelExpr *Context::bindSolutionTree(NABoolean getPrevSolution) const {
     Int32 nc = result->getArity();
 
     // bind the child nodes to the optimal solutions for the child contexts
-    for (Lng32 i = 0; i < nc; i++) {
+    for (int i = 0; i < nc; i++) {
       // get to the child context i and retrieve its optimal physical tree
       if (plan->getContextForChild(i)) {
         // Check if we already have set the pointer to the optimal
@@ -1531,7 +1531,7 @@ NABoolean Context::setPreviousSolution() {
   RelExpr *result = plan->getPhysicalExpr();
   Int32 nc = result->getArity();
 
-  for (Lng32 i = 0; i < nc; i++) {
+  for (int i = 0; i < nc; i++) {
     if (plan->getContextForChild(i)) {
       NABoolean childHasSolution = plan->getContextForChild(i)->setPreviousSolution();
       if (NOT childHasSolution) {
@@ -1771,7 +1771,7 @@ void Context::decrOutstanding() {
   }
 }
 
-const RelExpr *Context::getPhysicalExprOfSolutionForChild(Lng32 childIndex) const {
+const RelExpr *Context::getPhysicalExprOfSolutionForChild(int childIndex) const {
   if (getPlan() AND getPlan()
           ->getContextForChild(childIndex) AND getPlan()
           ->getContextForChild(childIndex)
@@ -1781,7 +1781,7 @@ const RelExpr *Context::getPhysicalExprOfSolutionForChild(Lng32 childIndex) cons
     return NULL;
 }  // Context::getPhysicalExprOfSolutionForChild()
 
-const PhysicalProperty *Context::getPhysicalPropertyOfSolutionForChild(Lng32 childIndex) const {
+const PhysicalProperty *Context::getPhysicalPropertyOfSolutionForChild(int childIndex) const {
   if (getPlan() AND getPlan()
           ->getContextForChild(childIndex) AND getPlan()
           ->getContextForChild(childIndex)
@@ -1791,7 +1791,7 @@ const PhysicalProperty *Context::getPhysicalPropertyOfSolutionForChild(Lng32 chi
     return NULL;
 }  // Context::getPhysicalPropertyOfSolutionForChild()
 
-const Cost *Context::getCostOfSolutionForChild(Lng32 childIndex) const {
+const Cost *Context::getCostOfSolutionForChild(int childIndex) const {
   if (getPlan() AND getPlan()
           ->getContextForChild(childIndex) AND getPlan()
           ->getContextForChild(childIndex)
@@ -1801,7 +1801,7 @@ const Cost *Context::getCostOfSolutionForChild(Lng32 childIndex) const {
     return NULL;
 }  // Context::getCostOfSolutionForChild()
 
-const RelExpr *Context::getPhysicalExprOfSolutionForGrandChild(Lng32 childIndex, Lng32 grandChildIndex) const {
+const RelExpr *Context::getPhysicalExprOfSolutionForGrandChild(int childIndex, int grandChildIndex) const {
   if (getPlan() AND getPlan()
           ->getContextForChild(childIndex) AND getPlan()
           ->getContextForChild(childIndex)
@@ -1817,8 +1817,8 @@ const RelExpr *Context::getPhysicalExprOfSolutionForGrandChild(Lng32 childIndex,
     return NULL;
 }  // Context::getPhysicalPropertyOfSolutionForGrandChild()
 
-const PhysicalProperty *Context::getPhysicalPropertyOfSolutionForGrandChild(Lng32 childIndex,
-                                                                            Lng32 grandChildIndex) const {
+const PhysicalProperty *Context::getPhysicalPropertyOfSolutionForGrandChild(int childIndex,
+                                                                            int grandChildIndex) const {
   if (getPlan() AND getPlan()
           ->getContextForChild(childIndex) AND getPlan()
           ->getContextForChild(childIndex)
@@ -1879,15 +1879,15 @@ void CascadesPlan::setRollUpCost(Cost *cost) {
   rollUpCost_ = cost;
 }
 
-const CascadesPlan *CascadesPlan::getSolutionForChild(Lng32 childIndex) const {
+const CascadesPlan *CascadesPlan::getSolutionForChild(int childIndex) const {
   return (IFX getContextForChild(childIndex) THENX childContexts_[childIndex]->getSolution() ELSEX NULL);
 }
 
-const PhysicalProperty *CascadesPlan::getPhysicalPropertyForChild(Lng32 childIndex) const {
+const PhysicalProperty *CascadesPlan::getPhysicalPropertyForChild(int childIndex) const {
   return (IFX getSolutionForChild(childIndex) THENX getSolutionForChild(childIndex)->getPhysicalProperty() ELSEX NULL);
 }
 //<pb>
-const Cost *CascadesPlan::getCostForChild(Lng32 childIndex) const {
+const Cost *CascadesPlan::getCostForChild(int childIndex) const {
   return (IFX getSolutionForChild(childIndex) THENX getSolutionForChild(childIndex)->getRollUpCost() ELSEX NULL);
 }
 
@@ -1938,7 +1938,7 @@ NABoolean CascadesPlan::exprOccursInChildTree(RelExpr *newExpr, Int32 maxDepth) 
 void PlanWorkSpace::resetPwsCount() { CURRSTMT_OPTGLOBALS->planWorkSpaceCount = 0; }
 #endif /* DEBUG */
 
-PlanWorkSpace::PlanWorkSpace(Lng32 numberOfChildren)
+PlanWorkSpace::PlanWorkSpace(int numberOfChildren)
     : childContexts_(CmpCommon::statementHeap()),
       contextCount_(0),
       latestChild_(-1),
@@ -1960,7 +1960,7 @@ PlanWorkSpace::PlanWorkSpace(Lng32 numberOfChildren)
       parallelismIsOK_(TRUE),
       myContext_(NULL) {
   CMPASSERT(numberOfChildren >= 0);
-  for (Lng32 index = 0; index < numberOfChildren; index++)
+  for (int index = 0; index < numberOfChildren; index++)
     childContexts_.insertAt(index, new (CmpCommon::statementHeap()) ContextArray(CmpCommon::statementHeap()));
 
 #ifdef DEBUG
@@ -1975,7 +1975,7 @@ PlanWorkSpace::PlanWorkSpace(Lng32 numberOfChildren)
 // Destructor for the PlanWorkSpace.
 // -----------------------------------------------------------------------
 PlanWorkSpace::~PlanWorkSpace() {
-  for (Lng32 index = 0; index < (Lng32)childContexts_.entries(); index++) {
+  for (int index = 0; index < (int)childContexts_.entries(); index++) {
     delete childContexts_[index];
   }
 
@@ -2004,9 +2004,9 @@ PlanWorkSpace::~PlanWorkSpace() {
 // -----------------------------------------------------------------------
 // Store a new child Context in the PlanWorkSpace.
 // -----------------------------------------------------------------------
-void PlanWorkSpace::storeChildContext(Lng32 childIndex, Lng32 planNumber, Context *childContext) {
-  CMPASSERT((childIndex >= 0) AND(childIndex < (Lng32)childContexts_.entries())
-                AND(planNumber >= (Lng32)childContexts_[childIndex]->entries()));
+void PlanWorkSpace::storeChildContext(int childIndex, int planNumber, Context *childContext) {
+  CMPASSERT((childIndex >= 0) AND(childIndex < (int)childContexts_.entries())
+                AND(planNumber >= (int)childContexts_[childIndex]->entries()));
 
   childContexts_[childIndex]->insertAt(planNumber, childContext);
   contextCount_++;
@@ -2021,9 +2021,9 @@ void PlanWorkSpace::storeChildContext(Lng32 childIndex, Lng32 planNumber, Contex
 // -----------------------------------------------------------------------
 // Get a specific child Context.
 // -----------------------------------------------------------------------
-Context *PlanWorkSpace::getChildContext(Lng32 childIndex, Lng32 planNumber) const {
-  if (NOT((childIndex >= 0) AND(childIndex < (Lng32)childContexts_.entries()) AND(planNumber >= 0)
-              AND(planNumber < (Lng32)childContexts_[childIndex]->entries())))
+Context *PlanWorkSpace::getChildContext(int childIndex, int planNumber) const {
+  if (NOT((childIndex >= 0) AND(childIndex < (int)childContexts_.entries()) AND(planNumber >= 0)
+              AND(planNumber < (int)childContexts_[childIndex]->entries())))
     return NULL;
   else
     return childContexts_[childIndex]->at(planNumber);
@@ -2082,9 +2082,9 @@ void PlanWorkSpace::eraseLatestContextFromWorkSpace() {
 // -----------------------------------------------------------------------
 // Delete the specified child Context from the PlanWorkSpace.
 // -----------------------------------------------------------------------
-void PlanWorkSpace::deleteChildContext(Lng32 childIndex, Lng32 planNumber) {
-  CMPASSERT((childIndex >= 0) AND(childIndex < (Lng32)childContexts_.entries()) AND(planNumber >= 0)
-                AND(planNumber < (Lng32)childContexts_[childIndex]->entries()));
+void PlanWorkSpace::deleteChildContext(int childIndex, int planNumber) {
+  CMPASSERT((childIndex >= 0) AND(childIndex < (int)childContexts_.entries()) AND(planNumber >= 0)
+                AND(planNumber < (int)childContexts_[childIndex]->entries()));
 
   // Get rid of old context entry
   childContexts_[childIndex]->remove(planNumber);
@@ -2150,7 +2150,7 @@ void PlanWorkSpace::setPartialPlanCostToOperatorCost() {
 //  Operator's cost independent of its children.
 //
 //==============================================================================
-Cost *PlanWorkSpace::getFinalOperatorCost(Lng32 planNumber) {
+Cost *PlanWorkSpace::getFinalOperatorCost(int planNumber) {
   CascadesPlan *myPlan = myContext_->getPlan();
   CMPASSERT(myPlan);
   RelExpr *op = myPlan->getPhysicalExpr();
@@ -2191,7 +2191,7 @@ Cost *PlanWorkSpace::getFinalOperatorCost(Lng32 planNumber) {
   //  Set some other things up for the cost to be recomputed. These include the
   // plan's pointers to the child contexts and the plan's physical properties.
   //---------------------------------------------------------------------------
-  Lng32 childIndex = 0;
+  int childIndex = 0;
   for (; childIndex < op->getArity(); childIndex++) {
     //-----------------------------------
     //  Set up child contexts in my plan.
@@ -2213,21 +2213,21 @@ Cost *PlanWorkSpace::getFinalOperatorCost(Lng32 planNumber) {
   PhysicalProperty *sppForMe = op->synthPhysicalProperty(myContext_, planNumber, this);
   myPlan->setPhysicalProperty(sppForMe);
   PartitioningFunction *synthPartFunc = sppForMe->getPartitioningFunction();
-  Lng32 synthNumOfParts = synthPartFunc->getCountOfPartitions();
+  int synthNumOfParts = synthPartFunc->getCountOfPartitions();
 
   // Get the number of probes
   CostScalar numOfProbes = myContext_->getInputLogProp()->getResultCardinality();
 
   // Determine the actual degree of parallelism that costing would
   // use if we were to recost.
-  Lng32 actualDegreeOfParallelismForCosting;
+  int actualDegreeOfParallelismForCosting;
   // If the synthesized partitioning function is replicateNoBroadcast,
   // and the number of probes is less than the number of partitions,
   // then the actual degree of parallelism used for costing will be
   // the number of probes.
   if (synthPartFunc->isAReplicateNoBroadcastPartitioningFunction() AND(numOfProbes < synthNumOfParts)
           AND(numOfProbes == getCountOfStreams()))
-    actualDegreeOfParallelismForCosting = (Lng32)numOfProbes.value();
+    actualDegreeOfParallelismForCosting = (int)numOfProbes.value();
   else
     actualDegreeOfParallelismForCosting = synthNumOfParts;
 
@@ -2260,7 +2260,7 @@ Cost *PlanWorkSpace::getFinalOperatorCost(Lng32 planNumber) {
     // than the number of partitions.
     // Also, save the new operator cost.
     //-----------------------------------------------------------------------
-    Lng32 countOfStreams;
+    int countOfStreams;
     if (CmpCommon::getDefault(SIMPLE_COST_MODEL) == DF_ON) {
       operatorCost = cm->scmComputeOperatorCost(op, this, countOfStreams);
     } else {
@@ -2350,7 +2350,7 @@ void PlanWorkSpace::setKnownChildrenCost(Cost *newCost) {
 //  none
 //
 //==============================================================================
-void PlanWorkSpace::updateBestCost(Cost *cost, Lng32 planNumber) {
+void PlanWorkSpace::updateBestCost(Cost *cost, int planNumber) {
   //------------------------------------------------------------------------
   //  If no cost is specified, we have nothing to do, so return immediately.
   //------------------------------------------------------------------------
@@ -2410,10 +2410,10 @@ void PlanWorkSpace::updateBestCost(Cost *cost, Lng32 planNumber) {
 //  TRUE if optimal solution was found; FALSE otherwise
 //
 //==============================================================================
-NABoolean PlanWorkSpace::findOptimalSolution(Lng32 &planNo) {
+NABoolean PlanWorkSpace::findOptimalSolution(int &planNo) {
   CascadesPlan *myPlan = myContext_->getPlan();
   RelExpr *op = myPlan->getPhysicalExpr();
-  Lng32 opArity = op->getArity();
+  int opArity = op->getArity();
 
   //--------------------------------------------------
   //  Assume no optimal plan exists until we find one.
@@ -2453,7 +2453,7 @@ NABoolean PlanWorkSpace::findOptimalSolution(Lng32 &planNo) {
   myPlan->setOperatorCost(bestOperatorCost);
   myPlan->setRollUpCost(bestRollUpCost);
   myPlan->setBigMemoryOperator(bestPlanSoFarIsBMO_);
-  for (Lng32 i = 0; i < opArity; i++) {
+  for (int i = 0; i < opArity; i++) {
     myPlan->setContextForChild(i, getChildContext(i, bestPlanSoFar_));
   }
 
@@ -2489,9 +2489,9 @@ NABoolean PlanWorkSpace::findOptimalSolution(Lng32 &planNo) {
 //  NULL if cost can't be calculated or exceeds the cost limit.
 //
 //==============================================================================
-Cost *PlanWorkSpace::getCostOfPlan(Lng32 planNumber) {
+Cost *PlanWorkSpace::getCostOfPlan(int planNumber) {
   RelExpr *op = myContext_->getPlan()->getPhysicalExpr();
-  Lng32 opArity = op->getArity();
+  int opArity = op->getArity();
   Cost *cost = NULL;
 
   //----------------------------------------------------------------------
@@ -2511,7 +2511,7 @@ Cost *PlanWorkSpace::getCostOfPlan(Lng32 planNumber) {
     //-------------------------------------------------------------------
     // Verify that each child for specified plan has an optimal solution.
     //-------------------------------------------------------------------
-    for (Lng32 childIndex = 0; childIndex < opArity; childIndex++) {
+    for (int childIndex = 0; childIndex < opArity; childIndex++) {
       Context *childContext = getChildContext(childIndex, planNumber);
 
       if (NOT childContext) return NULL;
@@ -2575,7 +2575,7 @@ Cost *PlanWorkSpace::getCostOfPlan(Lng32 planNumber) {
 /* ============================================================ */
 
 void NestedJoinPlanWorkSpace::transferParallelismReqsToRG(RequirementGenerator &rg) {
-  Lng32 tempChildNumPartsRequirement = childNumPartsRequirement_;
+  int tempChildNumPartsRequirement = childNumPartsRequirement_;
   float tempChildNumPartsAllowedDeviation = childNumPartsAllowedDeviation_;
 
   if (NOT numOfESPsForced_) rg.makeNumOfPartsFeasible(tempChildNumPartsRequirement, &tempChildNumPartsAllowedDeviation);
@@ -2717,7 +2717,7 @@ CascadesBinding::~CascadesBinding() {
   // if an expression exists, delete it and its children
   if (state_ == VALID_BINDING OR state_ == ALMOST_EXHAUSTED) {
     CascadesBinding *childBinding;
-    for (Lng32 childIndex = (Int32)(children_.entries()); --childIndex >= 0;) {
+    for (int childIndex = (Int32)(children_.entries()); --childIndex >= 0;) {
       childBinding = children_[childIndex];
       delete childBinding;
     }
@@ -2782,7 +2782,7 @@ RelExpr *CascadesBinding::extract_expr() {
     result = curExpr_;
 
     // extract child expressions
-    for (Lng32 childIndex = 0; childIndex < arity; ++childIndex) {
+    for (int childIndex = 0; childIndex < arity; ++childIndex) {
       RelExpr *newChild = children_[childIndex]->extract_expr();
 
       // Check for common subexpressions: if the children of this
@@ -2837,7 +2837,7 @@ void CascadesBinding::release_expr() {
     Int32 arity = curExpr_->getArity();
 
     // release child expressions
-    for (Lng32 childIndex = 0; childIndex < arity; ++childIndex) {
+    for (int childIndex = 0; childIndex < arity; ++childIndex) {
       // release the child binding
       children_[childIndex]->release_expr();
 
@@ -3028,7 +3028,7 @@ NABoolean CascadesBinding::advance() {
           // found one more binding
           {
             // reset all siblings to the right
-            for (Lng32 other_childIndex = childIndex; ++other_childIndex < arity;) {
+            for (int other_childIndex = childIndex; ++other_childIndex < arity;) {
               // this is very inefficient, but left as is --
               // matters only for extremely complex patterns
               childBinding = children_[other_childIndex];
@@ -3055,7 +3055,7 @@ NABoolean CascadesBinding::advance() {
 
         if (children_.entries() > 0) {
           // existing log expr is finished; dealloc children
-          for (Lng32 childIndex = children_.entries(); --childIndex >= 0;) {
+          for (int childIndex = children_.entries(); --childIndex >= 0;) {
             childBinding = children_[childIndex];
             delete childBinding;
           }
@@ -3229,7 +3229,7 @@ OptDefaults::OptDefaults(CollHeap *h) : heap_(h) {
   joinCardLowBound_ = 0.5;
   ustatAutomation_ = FALSE;
   preFetchHistograms_ = TRUE;
-  siKeyGCinterval_ = (Int64)24 * 60 * 60;  // 24 hours
+  siKeyGCinterval_ = (long)24 * 60 * 60;  // 24 hours
   histMCStatsNeeded_ = TRUE;
   histSkipMCUecForNonKeyCols_ = TRUE;
   histMissingStatsWarningLevel_ = 4;
@@ -3329,7 +3329,7 @@ NABoolean OptDefaults::isRuleDisabled(ULng32 ruleBitPosition) {
 NABoolean OptDefaults::pruneByOptDefaults(Rule *rule, RelExpr *relExpr) {
   // Enable nice context if memory usage exceeds predfined threshold.
   if (!OPHuseNiceContext_ && (optLevel_ != OptDefaults::MAXIMUM) &&
-      (getMemUsed() > ((Lng32)(getMemUsageSafetyNet() * getMemUsageNiceContextFactor())))) {
+      (getMemUsed() > ((int)(getMemUsageSafetyNet() * getMemUsageNiceContextFactor())))) {
     // Warning: insufficient memory for pass 2.
     if (CmpCommon::getDefault(SHOWWARN_OPT) == DF_ON) *CmpCommon::diags() << DgSqlCode(6020);
 
@@ -3381,7 +3381,7 @@ NABoolean OptDefaults::pruneByOptLevel(Rule *rule, RelExpr *relExpr) {
   if (numTables_ < 5) return FALSE;
 
   // get memUsed in MBs
-  Lng32 memUsed = getMemUsed();
+  int memUsed = getMemUsed();
 
   // The queryComplexity_ is another factor used for the logical
   // complexity of the query. However physical complexities may
@@ -3412,7 +3412,7 @@ NABoolean OptDefaults::pruneByRProbability(Rule *rule, RelExpr *relExpr) {
   NABoolean prune = FALSE;
 
   // get memUsed in MBs
-  Lng32 memUsed = getMemUsed();
+  int memUsed = getMemUsed();
 
   Int32 rulePriority = getRulePriority(rule);
   double pruneRate = 0;
@@ -3425,7 +3425,7 @@ NABoolean OptDefaults::pruneByRProbability(Rule *rule, RelExpr *relExpr) {
   if (rulePriority == 2) {
     pruneRate = double(level1Constant1_) / 100;
     // calculate heightFactor
-    Lng32 heightFactor = relExpr->getGroupAttr()->getNumBaseTables();
+    int heightFactor = relExpr->getGroupAttr()->getNumBaseTables();
     if (heightFactor <= 3) pruneRate = 0;
     if (heightFactor > numTables_ - 2) pruneRate = 0;
 
@@ -3466,7 +3466,7 @@ NABoolean OptDefaults::pruneByPotential(Rule *rule, RelExpr *relExpr) {
   NABoolean prune = FALSE;
 
   // get memUsed in MBs
-  Lng32 memUsed = getMemUsed();
+  int memUsed = getMemUsed();
 
   // Prune rate adjustment as determined by amount of memory used
   double pruneMemFactor = 0;
@@ -3661,7 +3661,7 @@ void OptDefaults::initializeCostInfo() {
 double OptDefaults::computeRecommendedNumCPUs(double cpuResourceRequired) {
   double workPerCPU = getWorkPerCPU();
 
-  Lng32 n = (ActiveSchemaDB()->getDefaults()).getAsLong(MDOP_CPUS_SOFT_LIMIT);
+  int n = (ActiveSchemaDB()->getDefaults()).getAsLong(MDOP_CPUS_SOFT_LIMIT);
 
   // mDOPc = ECR / Work_Unit
   double mDoPc = cpuResourceRequired / workPerCPU;
@@ -3692,7 +3692,7 @@ double OptDefaults::computeRecommendedNumCPUsForMemory(double memoryResourceRequ
 
   if (!canUseAllClusterResources()) memoryPerCPU = MINOF(memoryPerCPU, getTenantUnitMemoryPerCore());
 
-  Lng32 n = (ActiveSchemaDB()->getDefaults()).getAsLong(MDOP_CPUS_SOFT_LIMIT);
+  int n = (ActiveSchemaDB()->getDefaults()).getAsLong(MDOP_CPUS_SOFT_LIMIT);
 
   double mDoPm = 0;
 
@@ -3790,10 +3790,10 @@ RequiredResources *OptDefaults::estimateRequiredResources(RelExpr *rootExpr) {
       // guard against any strange CQD(DEFAULT_DEGREE_OF_PARALLELISM), cqdDDoP.
       // if cqdDDoP were 33 then dDoP should be 32
 
-      Lng32 dDoP = 0;
+      int dDoP = 0;
 
       if (optForCluster) {
-        Lng32 cqdDDoP = getDefaultDegreeOfParallelism();
+        int cqdDDoP = getDefaultDegreeOfParallelism();
 
         if (cqdDDoP > totalNumberOfCPUs_) cqdDDoP = totalNumberOfCPUs_;
 
@@ -3802,7 +3802,7 @@ RequiredResources *OptDefaults::estimateRequiredResources(RelExpr *rootExpr) {
 
         // keep halving dDoP until dDoP <= cqdDDoP
         while (cqdDDoP < dDoP) {
-          dDoP = Lng32(round(double(dDoP) / 2));
+          dDoP = int(round(double(dDoP) / 2));
         }
 
         // dDDoP should be positive, since the minimal value for both cqdDDoP
@@ -3834,10 +3834,10 @@ RequiredResources *OptDefaults::estimateRequiredResources(RelExpr *rootExpr) {
       resourceDoP = MAXOF(1, resourceDoP);
 
       // numCPUs = total number of CPUs (including any down CPUs)
-      Lng32 numCPUs = totalNumberOfCPUs_;
+      int numCPUs = totalNumberOfCPUs_;
 
       // maxDoP = maximum degree of parallelism
-      Lng32 maxDoP;
+      int maxDoP;
 
       // if adaptive load balancing is OFF, then don't adjust dop by a factor
       if (optForCluster) {
@@ -3894,8 +3894,8 @@ RequiredResources *OptDefaults::estimateRequiredResources(RelExpr *rootExpr) {
       // DoP for smaller table queries.
       if (CmpCommon::getDefault(COMP_BOOL_24) == DF_ON) {
         QueryAnalysis *qa = QueryAnalysis::Instance();
-        Lng32 highestNumOfPartns = qa->getHighestNumOfPartns();
-        Lng32 adjustedMaxDoP = MAXOF(highestNumOfPartns, dDoP);
+        int highestNumOfPartns = qa->getHighestNumOfPartns();
+        int adjustedMaxDoP = MAXOF(highestNumOfPartns, dDoP);
 
         // Cap maxDoP to adjustedMaxDoP
         while (adjustedMaxDoP < maxDoP) maxDoP /= 2;
@@ -4335,10 +4335,10 @@ void OptDefaults::initialize(RelExpr *rootExpr) {
 
   static char *sct = getenv("RMS_SIK_GC_INTERVAL_SECONDS");  // in seconds
   if (sct) {
-    siKeyGCinterval_ = ((Int64)str_atoi(sct, str_len(sct)));
+    siKeyGCinterval_ = ((long)str_atoi(sct, str_len(sct)));
     if (siKeyGCinterval_ < 10) siKeyGCinterval_ = 10;
   } else
-    siKeyGCinterval_ = (Int64)24 * 60 * 60;  // 24 hours
+    siKeyGCinterval_ = (long)24 * 60 * 60;  // 24 hours
 
   // -----------------------------------------------------------------------
   // Initialize recalibration constants:
@@ -4764,7 +4764,7 @@ void OptDebug::showTree(const ExprNode *tree, const CascadesPlan *plan, const ch
     }
   } else {
     Int32 nc = re->getArity();
-    for (Lng32 i = 0; i < nc; i++) {
+    for (int i = 0; i < nc; i++) {
       showTree(re->child(i).getPtr(), plan, indent, showDetail);
     }
   }
@@ -4925,7 +4925,7 @@ double OptDebug::getRows(const RelExpr *re, const CascadesPlan *plan) {
 const NAString OptDebug::getGroups(const RelExpr *re) {
   const GroupAttributes *ga = re->getGroupAttr();
 
-  Lng32 groupId = (Lng32)re->getGroupId();
+  int groupId = (int)re->getGroupId();
 
   if (ga != NULL) {
     if (groupId == NULL_COLL_INDEX)
@@ -5534,8 +5534,8 @@ void OptDebug::showTask(Int32 pass, Int32 groupId, Int32 task_count, const Casca
 
 void OptDebug::showMemoStats(CascadesMemo *memo, const char *prefix, ostream &out) {
   CascadesGroup *groupPtr;
-  Lng32 maxg = memo->getCountOfUsedGroups();
-  Lng32 logExprCnt = 0, physExprCnt = 0, grPlanCnt, grFailedPlanCnt, planCnt = 0, failedPlanCnt = 0, contextCnt = 0;
+  int maxg = memo->getCountOfUsedGroups();
+  int logExprCnt = 0, physExprCnt = 0, grPlanCnt, grFailedPlanCnt, planCnt = 0, failedPlanCnt = 0, contextCnt = 0;
   NABoolean detailedStat = (getenv("MEMO_DETAILED_STAT") != NULL);
   NABoolean planMonitorStat = (getenv("PLAN_MONITOR_STAT") != NULL);
   if (planMonitorStat) out << "PLMON, group,plan,task,timer,count,gdcnt,expr,cptr" << endl;
@@ -5545,7 +5545,7 @@ void OptDebug::showMemoStats(CascadesMemo *memo, const char *prefix, ostream &ou
   RelExpr *curExpr;
   NAString outStr;
 
-  for (Lng32 i = 0; i < maxg; i++) {
+  for (int i = 0; i < maxg; i++) {
     groupPtr = (*memo)[i];
     logExprCnt += groupPtr->getCountOfLogicalExpr();
     physExprCnt += groupPtr->getCountOfPhysicalExpr();
@@ -5556,7 +5556,7 @@ void OptDebug::showMemoStats(CascadesMemo *memo, const char *prefix, ostream &ou
       grPlanCnt = grPlanList.entries();
       grFailedPlanCnt = 0;
 
-      for (Lng32 j = 0; j < grPlanCnt; j++) {
+      for (int j = 0; j < grPlanCnt; j++) {
         curPlan = grPlanList[j];
 
         if (curPlan->getRollUpCost() == NULL) grFailedPlanCnt++;
@@ -5933,7 +5933,7 @@ void QueryOptimizerDriver::optimizeAPass(Context *context) {
     NABoolean hasEnoughMemory =
         ((GlobalRuleSet->getCurrentPassNumber() < 2) ||
          (CURRSTMT_OPTDEFAULTS->getMemUsed() <
-          ((Lng32)(CURRSTMT_OPTDEFAULTS->getMemUsageSafetyNet() * CURRSTMT_OPTDEFAULTS->getMemUsageOptPassFactor()))));
+          ((int)(CURRSTMT_OPTDEFAULTS->getMemUsageSafetyNet() * CURRSTMT_OPTDEFAULTS->getMemUsageOptPassFactor()))));
 
     if (!hasEnoughMemory) {
       // Warning: insufficient memory for pass 2.
@@ -5951,9 +5951,9 @@ void QueryOptimizerDriver::optimizeAPass(Context *context) {
 
 void QueryOptimizerDriver::optimizeAPassHelper(Context *context) {
   char taskCountStr[100], newTaskCountStr[100];
-  Lng32 taskThreshold = CURRSTMT_OPTDEFAULTS->memUsageTaskThreshold();
-  Lng32 taskInterval = CURRSTMT_OPTDEFAULTS->memUsageTaskInterval();
-  Lng32 taskCountBegin;
+  int taskThreshold = CURRSTMT_OPTDEFAULTS->memUsageTaskThreshold();
+  int taskInterval = CURRSTMT_OPTDEFAULTS->memUsageTaskInterval();
+  int taskCountBegin;
   short stride = 0;
 
   sprintf(taskCountStr, "%d OptTasks", taskCount_);
@@ -6032,7 +6032,7 @@ void QueryOptimizerDriver::genWarnAssertPassTwo(AssertException &e) {
   // arkcmpErrorAfterPassOne is a bad name. The message is a warning.
   if (CmpCommon::getDefault(SHOWWARN_OPT) == DF_ON)
     *CmpCommon::diags() << DgSqlCode(arkcmpErrorAfterPassOne) << DgString0(e.getCondition())
-                        << DgString1(e.getFileName()) << DgInt0((Lng32)e.getLineNum());
+                        << DgString1(e.getFileName()) << DgInt0((int)e.getLineNum());
 }
 
 void QueryOptimizerDriver::genWarnNoPlanPassTwo() {
@@ -6262,13 +6262,13 @@ void QueryOptimizerDriver::initializeMonitors() {
 void QueryOptimizerDriver::TEST_ERROR_HANDLING() {
 #ifdef _DEBUG
   if (GlobalRuleSet->getCurrentPassNumber() == 1) {
-    Lng32 assertTaskPass1 = CmpCommon::getDefaultLong(TEST_PASS_ONE_ASSERT_TASK_NUMBER);
+    int assertTaskPass1 = CmpCommon::getDefaultLong(TEST_PASS_ONE_ASSERT_TASK_NUMBER);
 
     if (assertTaskPass1 == taskCount_) {
       CMPASSERT(FALSE);
     }
   } else if (GlobalRuleSet->getCurrentPassNumber() == 2) {
-    Lng32 assertTaskPass2 = CmpCommon::getDefaultLong(TEST_PASS_TWO_ASSERT_TASK_NUMBER);
+    int assertTaskPass2 = CmpCommon::getDefaultLong(TEST_PASS_TWO_ASSERT_TASK_NUMBER);
 
     if (assertTaskPass2 == taskCount_) {
       CMPASSERT(FALSE);

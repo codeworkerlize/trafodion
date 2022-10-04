@@ -132,7 +132,7 @@ class ExEspFragInstanceDir {
   ~ExEspFragInstanceDir();
 
   inline CollIndex getNumEntries() const { return instances_.entries(); }
-  inline Lng32 getNumMasters() const { return numMasters_; }
+  inline int getNumMasters() const { return numMasters_; }
   inline IpcEnvironment *getEnvironment() const { return cliGlobals_->getEnvironment(); }
   inline CliGlobals *getCliGlobals() const { return cliGlobals_; }
 
@@ -147,7 +147,7 @@ class ExEspFragInstanceDir {
   ex_split_bottom_tcb *getExtractTop(const char *securityKey);
 
   int addEntry(ExMsgFragment *msgFragment, IpcConnection *connection, ComDiagsArea &da);
-  void fixupEntry(int handle, Lng32 numOfParentInstances, ComDiagsArea &da);
+  void fixupEntry(int handle, int numOfParentInstances, ComDiagsArea &da);
 
   // keep track of the activities that go on in the send bottom nodes,
   // record open operation and arrival and finishing of requests
@@ -158,7 +158,7 @@ class ExEspFragInstanceDir {
   void finishedSendBottomCancel(int handle);
   void startedLateCancelRequest(int handle);
   void finishedLateCancelRequest(int handle);
-  Lng32 numLateCancelRequests(int handle);
+  int numLateCancelRequests(int handle);
 
   //  Do the ACTIVE->RELEASING_WORK transition
   void finishedRequest(int handle, NABoolean testAllQueues = FALSE);
@@ -175,13 +175,13 @@ class ExEspFragInstanceDir {
   // mark in the entry that it no longer has a transid
   void hasTransidReleaseRequest(int handle);
 
-  inline Lng32 getNumActiveInstances() { return numActiveInstances_; }
+  inline int getNumActiveInstances() { return numActiveInstances_; }
   enum FragmentInstanceState getEntryState(int handle) const { return instances_[handle]->fiState_; }
   ExMsgFragment *getFragment(int handle) const { return instances_[handle]->msgFragment_; }
   ex_split_bottom_tcb *getTopTcb(int handle) const { return instances_[handle]->localRootTcb_; }
 
-  Lng32 getNumSendBottomRequests(int handle) { return instances_[handle]->numSendBottomRequests_; }
-  Lng32 getNumSendBottomCancels(int handle) { return instances_[handle]->numSendBottomCancels_; }
+  int getNumSendBottomRequests(int handle) { return instances_[handle]->numSendBottomRequests_; }
+  int getNumSendBottomCancels(int handle) { return instances_[handle]->numSendBottomCancels_; }
 
   NABoolean multiThreadedEsp() { return mainThreadInfo_ != NULL; }
   void wakeMainThread() {
@@ -191,7 +191,7 @@ class ExEspFragInstanceDir {
   ExEspInstanceThread *getEspInstanceThread(int handle) { return instances_[handle]->espInstanceThread_; }
 
   // work on all active fragment instances
-  void work(Int64 prevWaitTime);
+  void work(long prevWaitTime);
 
   class ExEspFragInstance {
    public:
@@ -201,24 +201,24 @@ class ExEspFragInstanceDir {
     ExFragDir::ExFragEntryType fragType_;  // ESP or DP2 fragment
     ExFragKey parentKey_;                  // parent fragment id
     IpcConnection *controlConn_;           // control connection used
-    Lng32 topNodeOffset_;                  // offset of top tcb in frag
+    int topNodeOffset_;                  // offset of top tcb in frag
     ExMsgFragment *msgFragment_;           // downloaded fragment buffer
     ex_split_bottom_tdb *localRootTdb_;    // root of this fragment
     ex_split_bottom_tcb *localRootTcb_;    // root of this fragment
     ExEspStmtGlobals *globals_;            // global statement vars
-    Lng32 numSendBottomRequests_;          // # client work requests
-    Lng32 numSendBottomCancels_;           // # client cancel requests
-    Lng32 numLateCancelRequests_;          // # late cancels below
+    int numSendBottomRequests_;          // # client work requests
+    int numSendBottomCancels_;           // # client cancel requests
+    int numLateCancelRequests_;          // # late cancels below
     NABoolean displayInGui_;               // enable executor GUI
     unsigned short mxvOfOriginator_;       // plan version of the plan fragment
     unsigned short planVersion_;           // plan version of the plan fragment
     char *queryId_;
-    Lng32 queryIdLen_;
+    int queryIdLen_;
     ExEspInstanceThread *espInstanceThread_;
   };
 
   // Check the plan version of the sent fragment
-  Lng32 checkPlanVersion(const ExEspFragInstance *entry, ComDiagsArea &da);
+  int checkPlanVersion(const ExEspFragInstance *entry, ComDiagsArea &da);
 
   StatsGlobals *getStatsGlobals() { return statsGlobals_; }
   NAHeap *getStatsHeap() { return statsHeap_; }
@@ -257,7 +257,7 @@ class ExEspFragInstanceDir {
 
  private:
   // how many instances need to have their scheduler called?
-  std::atomic<Lng32> numActiveInstances_;
+  std::atomic<int> numActiveInstances_;
 
   // no instance has a number >= to this
   CollIndex highWaterMark_;
@@ -268,7 +268,7 @@ class ExEspFragInstanceDir {
   ARRAY(ExEspFragInstance *) instances_;
 
   // how many master ESPs are we talking to?
-  Lng32 numMasters_;
+  int numMasters_;
 
   CliGlobals *cliGlobals_;
 
@@ -342,7 +342,7 @@ class ExEspControlMessage : public IpcMessageStream {
   void actOnFixupFragmentReq(ComDiagsArea &da);
   void actOnReleaseFragmentReq(ComDiagsArea &da);
   void actOnReqForSplitBottom(IpcConnection *connection);
-  void incReplyMsg(Int64 msgBytes);
+  void incReplyMsg(long msgBytes);
 };
 
 class ExEspInstanceThread : public IpcThreadInfo {
@@ -350,7 +350,7 @@ class ExEspInstanceThread : public IpcThreadInfo {
 
  public:
   ExEspInstanceThread(NAHeap *heap, ExEspFragInstanceDir *instanceDir,
-                      ExEspFragInstanceDir::ExEspFragInstance *instance, CollIndex instanceIndex, Int64 prevWaitTime);
+                      ExEspFragInstanceDir::ExEspFragInstance *instance, CollIndex instanceIndex, long prevWaitTime);
   virtual ~ExEspInstanceThread();
   pid_t start();
   void stop();
@@ -364,7 +364,7 @@ class ExEspInstanceThread : public IpcThreadInfo {
   ExEspFragInstanceDir *instanceDir_;
   ExEspFragInstanceDir::ExEspFragInstance *instance_;
   CollIndex instanceIndex_;
-  Int64 prevWaitTime_;
+  long prevWaitTime_;
   NABoolean suspended_;
 };
 

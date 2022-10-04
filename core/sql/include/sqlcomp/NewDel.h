@@ -65,7 +65,7 @@ class NAMemory;
 // to use h->allocateMemory() and h->deallocateMemory(), it returns an
 // ID for the current NAMemory* for new/delete.
 
-Lng32 PushGlobalMemory(NAMemory *h = 0);
+int PushGlobalMemory(NAMemory *h = 0);
 
 // PopGlobalMemory will pop a NAMemory * from the global stack for
 // global new/delete operator.
@@ -75,7 +75,7 @@ void PopGlobalMemory();
 // CurrentGlobalMemory will return the id for current NAMemory * used
 // as global new/delete, it was returned from PushGlobalMemory()
 
-Lng32 CurrentGlobalMemory();
+int CurrentGlobalMemory();
 
 // Compiler operator "new" handler.
 PNH CmpSetNewHandler(PNH handler);

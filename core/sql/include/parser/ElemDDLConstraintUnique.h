@@ -78,7 +78,7 @@ class ElemDDLConstraintUnique : public ElemDDLConstraint {
   //
 
   virtual Int32 getArity() const;
-  virtual ExprNode *getChild(Lng32 index);
+  virtual ExprNode *getChild(int index);
 
   inline ElemDDLNode *getColumnRefList() const;
 
@@ -100,7 +100,7 @@ class ElemDDLConstraintUnique : public ElemDDLConstraint {
 
   // mutators
   void setColumnRefList(ElemDDLNode *pColRefList);
-  virtual void setChild(Lng32 index, ExprNode *pChildNode);
+  virtual void setChild(int index, ExprNode *pChildNode);
 
   // methods for tracing
   virtual const NAString displayLabel2() const;

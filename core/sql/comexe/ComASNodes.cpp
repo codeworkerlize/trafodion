@@ -24,7 +24,7 @@ Long ComASNodes::pack(void *space) {
   return NAVersionedObject::pack(space);
 }
 
-Lng32 ComASNodes::unpack(void *base, void *reallocator) {
+int ComASNodes::unpack(void *base, void *reallocator) {
   if (serializedNodes_.unpack(base)) return -1;
   return NAVersionedObject::unpack(base, reallocator);
 }

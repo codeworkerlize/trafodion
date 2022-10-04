@@ -66,7 +66,7 @@ class ComTdbControl : public ComTdb {
 
   ComTdbControl(ControlQueryType cqt, Int32 reset, char *sqlText, Int16 sqlTextCharSet, char *value1, char *value2,
                 char *value3, ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc, queue_index down,
-                queue_index up, Lng32 num_buffers, ULng32 buffer_size);
+                queue_index up, int num_buffers, ULng32 buffer_size);
 
   // ---------------------------------------------------------------------
   // Redefine virtual functions required for Versioning.
@@ -81,7 +81,7 @@ class ComTdbControl : public ComTdb {
   virtual short getClassSize() { return (short)sizeof(ComTdbControl); }
 
   Long pack(void *);
-  Lng32 unpack(void *, void *reallocator);
+  int unpack(void *, void *reallocator);
 
   ControlQueryType getType() const { return (ControlQueryType)cqt_; }
   char *getSqlText() { return sqlText_; }

@@ -70,7 +70,7 @@ class CompoundStmt : public RelExpr {
   virtual void rewriteNode(NormWA &);
   virtual void pushdownCoveredExpr(const ValueIdSet &outputExprOnOperator, const ValueIdSet &newExternalInputs,
                                    ValueIdSet &predicatesOnParent, const ValueIdSet *setOfValuesReqdByParent = NULL,
-                                   Lng32 childIndex = (-MAX_REL_ARITY));
+                                   int childIndex = (-MAX_REL_ARITY));
 
   // Optimizer methods.
   virtual RelExpr *copyTopNode(RelExpr * = NULL, CollHeap * = NULL);
@@ -81,7 +81,7 @@ class CompoundStmt : public RelExpr {
   // GUI methods.
   virtual const NAString getText() const { return "CompoundStmt"; }
 
-  Context *createContextForAChild(Context *myContext, PlanWorkSpace *pws, Lng32 &childIndex);
+  Context *createContextForAChild(Context *myContext, PlanWorkSpace *pws, int &childIndex);
 
  protected:
   // Internal support methods.
@@ -106,7 +106,7 @@ class PhysCompoundStmt : public CompoundStmt {
   // Optimizer methods.
   virtual RelExpr *copyTopNode(RelExpr * = NULL, CollHeap * = NULL);
 
-  virtual PhysicalProperty *synthPhysicalProperty(const Context *, const Lng32, PlanWorkSpace *pws);
+  virtual PhysicalProperty *synthPhysicalProperty(const Context *, const int, PlanWorkSpace *pws);
 
   // Code generation methods.
   virtual short codeGen(Generator *);

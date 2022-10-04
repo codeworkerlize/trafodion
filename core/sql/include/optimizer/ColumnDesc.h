@@ -96,8 +96,8 @@ class ColumnDesc : public NABasicObject {
   NABoolean isRowidGrouped() const { return rowidGroupedFlag_; }
   void setRowidGroupedFlag() { rowidGroupedFlag_ = TRUE; }
 
-  Lng32 getViewColPosition() const { return viewColPosition_; }
-  void setViewColPosition(Lng32 val) { viewColPosition_ = val; }
+  int getViewColPosition() const { return viewColPosition_; }
+  void setViewColPosition(int val) { viewColPosition_ = val; }
 
   const char *getViewFileName() const { return viewFileName_; }
   void setViewFileName(const char *name) { viewFileName_ = name; }
@@ -160,7 +160,7 @@ class ColumnDesc : public NABasicObject {
   // two fields are used in ColumnReference::bindNode() as we collect all
   // columns that are explicitly referenced in a query, for privilege checking
   // -----------------------------------------------------------------------
-  Lng32 viewColPosition_;
+  int viewColPosition_;
   const char *viewFileName_;
   NABoolean isRenameCol_;
 

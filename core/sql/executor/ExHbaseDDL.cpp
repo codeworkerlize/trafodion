@@ -112,7 +112,7 @@ ExHbaseAccessInitMDTcb::ExHbaseAccessInitMDTcb(const ExHbaseAccessTdb &hbaseAcce
 ExWorkProcRetcode ExHbaseAccessInitMDTcb::work() {
   short retcode = 0;
   short rc = 0;
-  Lng32 cliRC = 0;
+  int cliRC = 0;
 
   ExExeStmtGlobals *exeGlob = getGlobals()->castToExExeStmtGlobals();
   ExMasterStmtGlobals *masterGlob = exeGlob->castToExMasterStmtGlobals();
@@ -175,7 +175,7 @@ ExHbaseAccessGetTablesTcb::ExHbaseAccessGetTablesTcb(const ExHbaseAccessTdb &hba
     : ExHbaseAccessTcb(hbaseAccessTdb, glob), step_(NOT_STARTED) {}
 
 ExWorkProcRetcode ExHbaseAccessGetTablesTcb::work() {
-  Lng32 retcode = 0;
+  int retcode = 0;
   short rc = 0;
 
   // if no parent request, return

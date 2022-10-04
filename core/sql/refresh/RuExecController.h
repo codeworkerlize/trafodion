@@ -105,7 +105,7 @@ class REFRESH_LIB_CLASS CRUExecController : public CRURuntimeController {
 
   // AllocateTaskProcess() callee
   // Launch the process and send a message with CRUGlobals
-  Lng32 InitiateTaskProcess();
+  int InitiateTaskProcess();
 
  private:
   //-- HandleExecuteTaskStepRqst() callees
@@ -117,11 +117,11 @@ class REFRESH_LIB_CLASS CRUExecController : public CRURuntimeController {
   void SerializeTaskExecutor(CRUTaskExecutor &executor);
 
   // and complete it
-  void HandleReturnOfRemoteExecutor(Lng32 pid);
+  void HandleReturnOfRemoteExecutor(int pid);
   void HandleRemoteExecutorSuccess(CRUTask *pTask, CUOFsIpcMessageTranslator &translator);
-  void HandleRemoteExecutorFailure(CRUTask *pTask, Lng32 pid, CUOFsIpcMessageTranslator &translator);
+  void HandleRemoteExecutorFailure(CRUTask *pTask, int pid, CUOFsIpcMessageTranslator &translator);
 
-  CRUTask *FindRunningTask(Lng32 pid);
+  CRUTask *FindRunningTask(int pid);
 
   void HandleRequestFailure(CRURuntimeControllerRqst *pRqst, CDSException &ex);
 

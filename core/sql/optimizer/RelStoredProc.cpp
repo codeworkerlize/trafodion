@@ -206,7 +206,7 @@ RelExpr *RelInternalSP::bindNode(BindWA *bindWA) {
     ((ItemExpr *)getProcAllParamsTree())->convertToValueIdList(getProcAllParamsVids(), bindWA, ITM_ITEM_LIST);
     if (bindWA->errStatus()) return NULL;
 
-    Lng32 nParams = getProcAllParamsVids().entries();
+    int nParams = getProcAllParamsVids().entries();
     CmpSPInputFormat inputFormat(bindWA->currentCmpContext());
     if (!cmpInternalSP->InputFormat(nParams, inputFormat))
     // error, the info should be put into currentCmpContext()->diags()
@@ -440,7 +440,7 @@ void RelInternalSP::recomputeOuterReferences() {
 
 void RelInternalSP::pushdownCoveredExpr(const ValueIdSet &outputExpr, const ValueIdSet &newExternalInputs,
                                         ValueIdSet &predicatesOnParent, const ValueIdSet *setOfValuesReqdByParent,
-                                        Lng32 childIndex) {
+                                        int childIndex) {
   TableValuedFunction::pushdownCoveredExpr(outputExpr, newExternalInputs, predicatesOnParent, setOfValuesReqdByParent,
                                            childIndex);
   return;

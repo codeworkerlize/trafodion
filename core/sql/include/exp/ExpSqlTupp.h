@@ -83,10 +83,10 @@ class tupp {
   inline ULng32 getAllocatedSize() const;
 
   Long pack(void *space);
-  Lng32 unpack(Lng32 base);
+  int unpack(int base);
   NABoolean isAllocated() { return (tuppDescPointer ? TRUE : FALSE); };
 
-  void setAllocatedSize(Lng32 size);
+  void setAllocatedSize(int size);
 
   void display();
 };
@@ -138,7 +138,7 @@ class tupp_descriptor {
   };
 
   union {
-    Int64 offset_;
+    long offset_;
     char *tupleAddress_;
   };
 
@@ -164,9 +164,9 @@ class tupp_descriptor {
 
   inline char *getTupleAddress() const;
 
-  inline Int64 getTupleOffset() const { return offset_; }
+  inline long getTupleOffset() const { return offset_; }
 
-  inline void setTupleOffset(Int64 offset) { offset_ = offset; }
+  inline void setTupleOffset(long offset) { offset_ = offset; }
 
   inline void setTupleAddress(char *tuple_address) { tupleAddress_ = tuple_address; }
 
@@ -174,7 +174,7 @@ class tupp_descriptor {
 
   inline ULng32 getAllocatedSize() { return allocatedSize_; };
 
-  inline void setAllocatedSize(Lng32 size) { allocatedSize_ = size; }
+  inline void setAllocatedSize(int size) { allocatedSize_ = size; }
 
   ////////////////////////////////////////////////////////////////////
   // Data is sent between exe & dp2, and exe & esp, as control data
@@ -307,7 +307,7 @@ inline ULng32 tupp::getAllocatedSize() const { return tuppDescPointer->allocated
 
 inline void tupp::setDataPointer(char *dp) { tuppDescPointer->tupleAddress_ = dp; };
 
-inline void tupp::setAllocatedSize(Lng32 sz) {
+inline void tupp::setAllocatedSize(int sz) {
   if (tuppDescPointer) tuppDescPointer->setAllocatedSize(sz);
 };
 

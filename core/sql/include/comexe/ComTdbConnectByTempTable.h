@@ -15,7 +15,7 @@ class ComTdbConnectByTempTable : public ComTdb {
                            const unsigned short tupp_index, const unsigned short hashValIdx,
                            const unsigned short encodedProbeDataIdx, const unsigned short innerRowDataIdx,
                            ex_cri_desc *workCriDesc, ex_cri_desc *givenCriDesc, ex_cri_desc *returnedCriDesc,
-                           queue_index down, queue_index up, Lng32 numBuffers, ULng32 bufferSize,
+                           queue_index down, queue_index up, int numBuffers, ULng32 bufferSize,
                            ex_expr *encodeInputHostVarExpr, ex_expr *hvExprInput, UInt16 hashInputValIdx,
                            UInt16 encodeInputProbeDataIdx, ex_expr *scanExpr);
 
@@ -38,7 +38,7 @@ class ComTdbConnectByTempTable : public ComTdb {
   virtual short getClassSize() { return (short)sizeof(ComTdbConnectByTempTable); }
 
   virtual Long pack(void *);
-  virtual Lng32 unpack(void *, void *reallocator);
+  virtual int unpack(void *, void *reallocator);
 
   void display() const;
 

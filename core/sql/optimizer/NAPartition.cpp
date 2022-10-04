@@ -39,7 +39,7 @@
 #include "common/Platform.h"
 #include "optimizer/NATable.h"
 #include "optimizer/Sqlcomp.h"
-#include "ex_error.h"
+#include "executor/ex_error.h"
 #include "sqlcat/TrafDDLdesc.h"
 #include "sqlcomp/parser.h"
 #include "sqlcomp/CmpSeabaseDDLmd.h"

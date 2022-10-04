@@ -107,7 +107,7 @@ class ComTdbHashGrby : public ComTdb {
                  short hbRowAtpIndex, short ofRowAtpIndex, short hashValueAtpIndex, short bitMuxAtpIndex,
                  short bitMuxCountOffset, short resultRowAtpIndex, short returnedAtpIndex,
                  unsigned short memUsagePercent, short pressureThreshold, short scrThreshold, queue_index fromParent,
-                 queue_index toParent, NABoolean isPartialGroup, Cardinality estimatedRowCount, Lng32 numBuffers,
+                 queue_index toParent, NABoolean isPartialGroup, Cardinality estimatedRowCount, int numBuffers,
                  ULng32 bufferSize, ULng32 partialGrbyFlushThreshold, ULng32 partialGrbyRowsPerCluster,
                  ULng32 initialHashTableSize, unsigned short minBuffersToFlush, ULng32 numInBatch,
                  short hgbGrowthPercent);
@@ -127,7 +127,7 @@ class ComTdbHashGrby : public ComTdb {
   virtual short getClassSize() { return (short)sizeof(ComTdbHashGrby); }
   Long pack(void *);
 
-  Lng32 unpack(void *, void *reallocator);
+  int unpack(void *, void *reallocator);
 
   void display() const;
 
@@ -147,8 +147,8 @@ class ComTdbHashGrby : public ComTdb {
 #if 0
 
   //virtual
-  void allocateStatsEntry(Int64 operID,
-				  Int64 estRowsReturned,
+  void allocateStatsEntry(long operID,
+				  long estRowsReturned,
 				  Space * space);
 #endif
 

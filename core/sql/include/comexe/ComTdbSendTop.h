@@ -55,9 +55,9 @@ class ComTdbSendTop : public ComTdb {
   ComTdbSendTop() : ComTdb(ex_SEND_TOP, "FAKE") {}
   ComTdbSendTop(ExFragId childFragId, ex_expr *moveInputValues, ex_cri_desc *givenCriDesc, ex_cri_desc *returnedCriDesc,
                 ex_cri_desc *downRecordCriDesc, ex_cri_desc *upRecordCriDesc, ex_cri_desc *workCriDesc,
-                Lng32 moveExprTuppIndex, queue_index fromParent, queue_index toParent, Lng32 downRecordLength,
-                Lng32 upRecordLength, Lng32 sendBufferSize, Lng32 numSendBuffers, Lng32 recvBufferSize,
-                Lng32 numRecvBuffers, Cardinality estNumRowsSent, Cardinality estNumRowsRecvd,
+                int moveExprTuppIndex, queue_index fromParent, queue_index toParent, int downRecordLength,
+                int upRecordLength, int sendBufferSize, int numSendBuffers, int recvBufferSize,
+                int numRecvBuffers, Cardinality estNumRowsSent, Cardinality estNumRowsRecvd,
                 NABoolean logDiagnostics);
 
   // ---------------------------------------------------------------------
@@ -80,30 +80,30 @@ class ComTdbSendTop : public ComTdb {
   Int32 orderedQueueProtocol() const;
 
   Long pack(void *);
-  Lng32 unpack(void *, void *reallocator);
+  int unpack(void *, void *reallocator);
 
   void display() const;
 
-  inline Lng32 getDownRecordLength() const { return downRecordLength_; }
+  inline int getDownRecordLength() const { return downRecordLength_; }
 
-  inline Lng32 getUpRecordLength() const { return upRecordLength_; }
+  inline int getUpRecordLength() const { return upRecordLength_; }
   inline ExFragId getChildFragId() const { return childFragId_; }
 
-  inline Lng32 getSendBufferSize() const { return sendBufferSize_; }
-  inline Lng32 getNumSendBuffers() const { return numSendBuffers_; }
-  inline Lng32 getRecvBufferSize() const { return recvBufferSize_; }
-  inline Lng32 getNumRecvBuffers() const { return numRecvBuffers_; }
+  inline int getSendBufferSize() const { return sendBufferSize_; }
+  inline int getNumSendBuffers() const { return numSendBuffers_; }
+  inline int getRecvBufferSize() const { return recvBufferSize_; }
+  inline int getNumRecvBuffers() const { return numRecvBuffers_; }
 
   // static methods to help optimizer calculate message buffer sizes
   // before generating a send top/send bottom node pair
-  static Lng32 minSendBufferSize(Lng32 downRecLen, Lng32 numRecs = 1);
-  static Lng32 minReceiveBufferSize(Lng32 upRecLen, Lng32 numRecs = 1);
+  static int minSendBufferSize(int downRecLen, int numRecs = 1);
+  static int minReceiveBufferSize(int upRecLen, int numRecs = 1);
 
   inline NABoolean logDiagnostics() const { return (sendTopFlags_ & LOG_DIAGNOSTICS) != 0; }
 
   // for GUI
   virtual const ComTdb *getChild(Int32 pos) const;
-  virtual const ComTdb *getChildForGUI(Int32 pos, Lng32 base, void *frag_dir) const;
+  virtual const ComTdb *getChildForGUI(Int32 pos, int base, void *frag_dir) const;
   virtual Int32 numChildren() const;
   virtual const char *getNodeName() const { return "EX_SEND_TOP"; };
   virtual Int32 numExpressions() const;

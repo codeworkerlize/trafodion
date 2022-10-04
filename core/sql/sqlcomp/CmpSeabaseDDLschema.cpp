@@ -82,7 +82,7 @@ int CmpSeabaseDDL::addSchemaObject(ExeCliInterface &cliInterface, const ComSchem
 
   NAString objectNamePart = objName.getObjectNamePartAsAnsiString(TRUE);
 
-  Lng32 retcode =
+  int retcode =
       existsInSeabaseMDTable(&cliInterface, catalogNamePart, schemaNamePart, objectNamePart, COM_UNKNOWN_OBJECT, FALSE);
   if (retcode < 0) return -1;
 
@@ -101,9 +101,9 @@ int CmpSeabaseDDL::addSchemaObject(ExeCliInterface &cliInterface, const ComSchem
 
   schemaUID.make_UID();
 
-  Int64 schemaObjectUID = schemaUID.get_value();
+  long schemaObjectUID = schemaUID.get_value();
 
-  Int64 createTime = NA_JulianTimestamp();
+  long createTime = NA_JulianTimestamp();
 
   NAString quotedSchName;
   NAString quotedObjName;
@@ -142,7 +142,7 @@ int CmpSeabaseDDL::addSchemaObject(ExeCliInterface &cliInterface, const ComSchem
     return -1;
   }
 
-  Int64 flags = 0;
+  long flags = 0;
   if (rowIdEncrypt) CmpSeabaseDDL::setMDflags(flags, MD_OBJECTS_ENCRYPT_ROWID_FLG);
   if (dataEncrypt) CmpSeabaseDDL::setMDflags(flags, MD_OBJECTS_ENCRYPT_DATA_FLG);
   if (storedDesc) CmpSeabaseDDL::setMDflags(flags, MD_OBJECTS_STORED_DESC);
@@ -535,7 +535,7 @@ bool CmpSeabaseDDL::describeSchema(const NAString &catalogName, const NAString &
 void CmpSeabaseDDL::dropSeabaseSchema(StmtDDLDropSchema *dropSchemaNode)
 
 {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
 
   ComSchemaName schemaName(dropSchemaNode->getSchemaName());
   NAString catName = schemaName.getCatalogNamePartAsAnsiString();
@@ -553,7 +553,7 @@ void CmpSeabaseDDL::dropSeabaseSchema(StmtDDLDropSchema *dropSchemaNode)
 
   bool isVolatile = (memcmp(schName.data(), "VOLATILE_SCHEMA", strlen("VOLATILE_SCHEMA")) == 0);
   int32_t length = 0;
-  Int64 rowCount = 0;
+  long rowCount = 0;
   bool someObjectsCouldNotBeDropped = false;
   char errorObjs[1010];
   Queue *objectsQueue = NULL;
@@ -572,7 +572,7 @@ void CmpSeabaseDDL::dropSeabaseSchema(StmtDDLDropSchema *dropSchemaNode)
 
   errorObjs[0] = 0;
 
-  Int64 schemaUID = getObjectTypeandOwner(&cliInterface, catName.data(), schName.data(), SEABASE_SCHEMA_OBJECTNAME,
+  long schemaUID = getObjectTypeandOwner(&cliInterface, catName.data(), schName.data(), SEABASE_SCHEMA_OBJECTNAME,
                                           objectType, schemaOwnerID);
 
   // if schemaUID == -1, then either the schema does not exist or an unexpected error occurred
@@ -1132,7 +1132,7 @@ label_error:
 void CmpSeabaseDDL::alterSeabaseSchema(StmtDDLAlterSchema *alterSchemaNode)
 
 {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
 
   ComSchemaName schemaName(alterSchemaNode->getSchemaName());
   NAString catName = schemaName.getCatalogNamePartAsAnsiString();
@@ -1147,7 +1147,7 @@ void CmpSeabaseDDL::alterSeabaseSchema(StmtDDLAlterSchema *alterSchemaNode)
 
   bool isVolatile = (memcmp(schName.data(), "VOLATILE_SCHEMA", strlen("VOLATILE_SCHEMA")) == 0);
   int32_t length = 0;
-  Int64 rowCount = 0;
+  long rowCount = 0;
   bool someObjectsCouldNotBeAltered = false;
   char errorObjs[1010];
   Queue *objectsQueue = NULL;
@@ -1160,7 +1160,7 @@ void CmpSeabaseDDL::alterSeabaseSchema(StmtDDLAlterSchema *alterSchemaNode)
 
   errorObjs[0] = 0;
 
-  Int64 schemaUID = getObjectTypeandOwner(&cliInterface, catName.data(), schName.data(), SEABASE_SCHEMA_OBJECTNAME,
+  long schemaUID = getObjectTypeandOwner(&cliInterface, catName.data(), schName.data(), SEABASE_SCHEMA_OBJECTNAME,
                                           objectType, schemaOwnerID);
 
   // if schemaUID == -1, then either the schema does not exist or an unexpected error occurred
@@ -1257,7 +1257,7 @@ void CmpSeabaseDDL::alterSeabaseSchema(StmtDDLAlterSchema *alterSchemaNode)
 
     NAString tblObjName = vi->get(0);
     NAString objType = vi->get(1);
-    Int64 objUID = *(Int64 *)vi->get(2);
+    long objUID = *(long *)vi->get(2);
     NAString tblCatName = getSystemCatalog();
     ComObjectName tblName(tblCatName, schName, tblObjName, COM_TABLE_NAME, ComAnsiNamePart::INTERNAL_FORMAT, STMTHEAP);
 
@@ -1398,11 +1398,11 @@ label_error:
 // *    Alters a schema for stored descriptor options                          *
 // *                                                                           *
 // *****************************************************************************
-Lng32 CmpSeabaseDDL::alterSchemaTableDesc(ExeCliInterface *cliInterface,
+int CmpSeabaseDDL::alterSchemaTableDesc(ExeCliInterface *cliInterface,
                                           const StmtDDLAlterTableStoredDesc::AlterStoredDescType sdo,
-                                          const Int64 schUID, const ComObjectType objType, const NAString catName,
+                                          const long schUID, const ComObjectType objType, const NAString catName,
                                           const NAString schName, const NABoolean ddlXns) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
   char objTypeLit[3] = {0};
   strncpy(objTypeLit, PrivMgr::ObjectEnumToLit(objType), 2);
   NABoolean removeFromCache = FALSE;
@@ -1410,8 +1410,8 @@ Lng32 CmpSeabaseDDL::alterSchemaTableDesc(ExeCliInterface *cliInterface,
 
   switch (sdo) {
     case StmtDDLAlterTableStoredDesc::GENERATE_DESC: {
-      Int64 flags = MD_OBJECTS_STORED_DESC;
-      Lng32 rc = updateObjectFlags(cliInterface, schUID, flags, FALSE);
+      long flags = MD_OBJECTS_STORED_DESC;
+      int rc = updateObjectFlags(cliInterface, schUID, flags, FALSE);
       cliRC = updateObjectRedefTime(cliInterface, getSystemCatalog(), schName, SEABASE_SCHEMA_OBJECTNAME, objTypeLit,
                                     -1, schUID, TRUE);
       if (cliRC < 0 || rc < 0)
@@ -1427,8 +1427,8 @@ Lng32 CmpSeabaseDDL::alterSchemaTableDesc(ExeCliInterface *cliInterface,
     }
 
     case StmtDDLAlterTableStoredDesc::DELETE_DESC: {
-      Int64 flags = MD_OBJECTS_DISABLE_STORED_DESC | MD_OBJECTS_STORED_DESC;
-      Lng32 rc = updateObjectFlags(cliInterface, schUID, flags, TRUE);
+      long flags = MD_OBJECTS_DISABLE_STORED_DESC | MD_OBJECTS_STORED_DESC;
+      int rc = updateObjectFlags(cliInterface, schUID, flags, TRUE);
       cliRC = deleteFromTextTable(cliInterface, schUID, COM_STORED_DESC_TEXT, 0);
       if (cliRC < 0 || rc < 0)
         cliRC = rc;
@@ -1447,14 +1447,14 @@ Lng32 CmpSeabaseDDL::alterSchemaTableDesc(ExeCliInterface *cliInterface,
     }
 
     case StmtDDLAlterTableStoredDesc::ENABLE: {
-      Int64 flags = MD_OBJECTS_DISABLE_STORED_DESC;
+      long flags = MD_OBJECTS_DISABLE_STORED_DESC;
       cliRC = updateObjectFlags(cliInterface, schUID, flags, TRUE);
       if (cliRC == 0) removeFromCache = TRUE;
       break;
     }
 
     case StmtDDLAlterTableStoredDesc::DISABLE: {
-      Int64 flags = MD_OBJECTS_DISABLE_STORED_DESC;
+      long flags = MD_OBJECTS_DISABLE_STORED_DESC;
       cliRC = updateObjectFlags(cliInterface, schUID, flags, FALSE);
       if (cliRC == 0) removeFromCache = TRUE;
       break;
@@ -1484,7 +1484,7 @@ Lng32 CmpSeabaseDDL::alterSchemaTableDesc(ExeCliInterface *cliInterface,
 // *    Wrapper function around alterSchemaTableDesc above                     *
 // *                                                                           *
 // *****************************************************************************
-Lng32 CmpSeabaseDDL::alterSchemaTableDesc(ExeCliInterface *cliInterface,
+int CmpSeabaseDDL::alterSchemaTableDesc(ExeCliInterface *cliInterface,
                                           const StmtDDLAlterTableStoredDesc::AlterStoredDescType sdo,
                                           const NAString objName, const NABoolean ddlXns) {
   ComObjectName objNameParts(objName, COM_TABLE_NAME);
@@ -1493,7 +1493,7 @@ Lng32 CmpSeabaseDDL::alterSchemaTableDesc(ExeCliInterface *cliInterface,
 
   ComObjectType objType;
   Int32 schOwner = 0;
-  Int64 schUID =
+  long schUID =
       getObjectTypeandOwner(cliInterface, catName.data(), schName.data(), SEABASE_SCHEMA_OBJECTNAME, objType, schOwner);
 
   // if schUID == -1, then either the schema does not exist or an unexpected error occurred
@@ -1563,7 +1563,7 @@ void CmpSeabaseDDL::giveSeabaseSchema(StmtDDLGiveSchema *giveSchemaNode, NAStrin
   Int32 schemaOwnerID = 0;
   ComObjectType objectType;
 
-  Int64 schemaUID = getObjectTypeandOwner(&cliInterface, catalogName.data(), schemaName.data(),
+  long schemaUID = getObjectTypeandOwner(&cliInterface, catalogName.data(), schemaName.data(),
                                           SEABASE_SCHEMA_OBJECTNAME, objectType, schemaOwnerID);
 
   if (schemaUID == -1) {
@@ -1636,7 +1636,7 @@ void CmpSeabaseDDL::giveSeabaseSchema(StmtDDLGiveSchema *giveSchemaNode, NAStrin
   // *                                                                           *
   // *****************************************************************************
 
-  Lng32 cliRC = 0;
+  int cliRC = 0;
   char buf[4000];
 
   if (objectType == COM_SHARED_SCHEMA_OBJECT && dropBehavior == COM_RESTRICT_DROP_BEHAVIOR) {
@@ -1693,7 +1693,7 @@ void CmpSeabaseDDL::giveSeabaseSchema(StmtDDLGiveSchema *giveSchemaNode, NAStrin
               newOwnerID);
 
   int32_t length = 0;
-  Int64 rowCount = 0;
+  long rowCount = 0;
 
   cliRC = cliInterface.executeImmediate(buf, (char *)&rowCount, &length, FALSE);
 
@@ -1710,8 +1710,8 @@ void CmpSeabaseDDL::giveSeabaseSchema(StmtDDLGiveSchema *giveSchemaNode, NAStrin
 //****************** End of CmpSeabaseDDL::giveSeabaseSchema *******************
 
 void CmpSeabaseDDL::alterSeabaseSchemaHDFSCache(StmtDDLAlterSchemaHDFSCache *alterSchemaHdfsCache) {
-  Lng32 cliRC = 0;
-  Lng32 retCode = 0;
+  int cliRC = 0;
+  int retCode = 0;
   char buf[4000];
 
   ComSchemaName schemaName(alterSchemaHdfsCache->schemaName().getSchemaNameAsAnsiString());
@@ -1724,7 +1724,7 @@ void CmpSeabaseDDL::alterSeabaseSchemaHDFSCache(StmtDDLAlterSchemaHDFSCache *alt
   Int32 schemaOwnerID = 0;
   ComObjectType objectType;
 
-  Int64 schemaUID = getObjectTypeandOwner(&cliInterface, catName.data(), schName.data(), SEABASE_SCHEMA_OBJECTNAME,
+  long schemaUID = getObjectTypeandOwner(&cliInterface, catName.data(), schName.data(), SEABASE_SCHEMA_OBJECTNAME,
                                           objectType, schemaOwnerID);
 
   // if schemaUID == -1, then either the schema does not exist or an unexpected error occurred
@@ -1920,7 +1920,7 @@ short CmpSeabaseDDL::adjustHiveExternalSchemas(ExeCliInterface *cliInterface) {
     NAString catName = vi->get(0);
     NAString schName = vi->get(1);
     NAString objName = vi->get(2);
-    Int64 objUID = *(Int64 *)vi->get(3);
+    long objUID = *(long *)vi->get(3);
     NAString objectTypeLit = vi->get(4);
     Int32 objOwner = *(Int32 *)vi->get(5);
     ComObjectType objType = PrivMgr::ObjectLitToEnum(objectTypeLit.data());
@@ -2003,7 +2003,7 @@ bool CmpSeabaseDDL::dropOneTable(ExeCliInterface &cliInterface, const char *cata
 
   char volatileString[20] = {0};
   char ifExistsString[20] = {0};
-  Lng32 cliRC = 0;
+  int cliRC = 0;
 
   if (isVolatile && strcmp(objectName, HBASE_HIST_NAME) != 0 && strcmp(objectName, HBASE_HISTINT_NAME) != 0 &&
       strcmp(objectName, HBASE_PERS_SAMP_NAME) != 0)
@@ -2192,7 +2192,7 @@ void CmpSeabaseDDL::grantRevokeSchema(StmtDDLNode *stmtDDLNode, NABoolean isGran
   // Verify that the schema exists and determine the object_type
   ExeCliInterface cliInterface(STMTHEAP, 0, NULL, CmpCommon::context()->sqlSession()->getParentQid());
   char outObjType[10];
-  Int64 objectUID = getObjectUID(&cliInterface, catalogName.data(), schemaName.data(), objectName.data(), NULL, NULL,
+  long objectUID = getObjectUID(&cliInterface, catalogName.data(), schemaName.data(), objectName.data(), NULL, NULL,
                                  "object_type = '" COM_PRIVATE_SCHEMA_OBJECT_LIT
                                  "' or "
                                  "object_type = '" COM_SHARED_SCHEMA_OBJECT_LIT "' ",
@@ -2211,8 +2211,8 @@ void CmpSeabaseDDL::grantRevokeSchema(StmtDDLNode *stmtDDLNode, NABoolean isGran
   // Get schema details
   Int32 objectOwnerID;
   Int32 schemaOwnerID;
-  Int64 objectFlags;
-  Int64 objDataUID = 0;
+  long objectFlags;
+  long objDataUID = 0;
   ComObjectType objectType = PrivMgr::ObjectLitToEnum(outObjType);
 
   objectUID = getObjectInfo(&cliInterface, catalogName.data(), schemaName.data(), objectName.data(), objectType,

@@ -68,10 +68,10 @@ class REFRESH_LIB_CLASS CRUSQLStatementContainer {
   // Returns an already compiled statement that is ready to run
   inline CDMPreparedStatement *GetPreparedStatement(short index, BOOL DeleteUsedStmt = TRUE);
 
-  inline Lng32 GetNumOfExecution(short index);
+  inline int GetNumOfExecution(short index);
 
  public:
-  inline Lng32 ExecuteUpdate(short index);
+  inline int ExecuteUpdate(short index);
   inline CDMResultSet *ExecuteQuery(short index);
 
  public:
@@ -110,12 +110,12 @@ class REFRESH_LIB_CLASS CRUSQLStatementContainer::Stmt {
   // Get the prepared statment and compile if necessary
   inline virtual CDMPreparedStatement *GetPreparedStatement(BOOL DeleteUsedStmt = TRUE);
 
-  Lng32 GetNumOfExecution() const { return executionCounter_; }
+  int GetNumOfExecution() const { return executionCounter_; }
 
   inline CDMConnection *GetConnection();
 
  public:
-  Lng32 ExecuteUpdate();
+  int ExecuteUpdate();
 
   CDMResultSet *ExecuteQuery();
 
@@ -133,7 +133,7 @@ class REFRESH_LIB_CLASS CRUSQLStatementContainer::Stmt {
   // DMOL sql statement object
   CDMPreparedStatement *pPrepStmt_;
 
-  Lng32 executionCounter_;
+  int executionCounter_;
   CDMConnection *pConnect_;
 };
 
@@ -157,7 +157,7 @@ inline short REFRESH_LIB_CLASS CRUSQLStatementContainer::GetNumOfStmt() { return
 //--------------------------------------------------------------------------//
 //	CRUSQLStatementContainer::GetNumOfStmt()
 //--------------------------------------------------------------------------//
-Lng32 REFRESH_LIB_CLASS CRUSQLStatementContainer::GetNumOfExecution(short index) {
+int REFRESH_LIB_CLASS CRUSQLStatementContainer::GetNumOfExecution(short index) {
   return GetStmt(index).GetNumOfExecution();
 }
 
@@ -169,7 +169,7 @@ inline CDMConnection *REFRESH_LIB_CLASS CRUSQLStatementContainer::Stmt::GetConne
 //--------------------------------------------------------------------------//
 //	CRUSQLStatementContainer::Stmt::SetPreparedStatement()
 //--------------------------------------------------------------------------//
-inline Lng32 REFRESH_LIB_CLASS CRUSQLStatementContainer::ExecuteUpdate(short index) {
+inline int REFRESH_LIB_CLASS CRUSQLStatementContainer::ExecuteUpdate(short index) {
   return GetStmt(index).ExecuteUpdate();
 }
 

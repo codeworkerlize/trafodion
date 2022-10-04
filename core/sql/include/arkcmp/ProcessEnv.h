@@ -51,8 +51,8 @@ class ProcessEnv : public NABasicObject {
   ProcessEnv(CollHeap *heap);
 
   void cleanup();
-  void setEnv(char **newenvs, Lng32 nEnvs);
-  void addOrChangeEnv(char **newenvs, Lng32 nEnvs);
+  void setEnv(char **newenvs, int nEnvs);
+  void addOrChangeEnv(char **newenvs, int nEnvs);
   void resetEnv(const char *envName);
   Int32 unsetEnv(char *env);
   Int32 chdir(char *dir);
@@ -61,7 +61,7 @@ class ProcessEnv : public NABasicObject {
   virtual ~ProcessEnv();
 
  private:
-  void removeEnv(char **newenvs, Lng32 nEnvs);
+  void removeEnv(char **newenvs, int nEnvs);
 
   CollHeap *heap_;
   // The following members are used to keep the environment variable info.

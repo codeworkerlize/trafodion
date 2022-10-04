@@ -155,8 +155,8 @@ class EstLogProp : public NABasicObject {
 
   // Following method returns cardinality of the busiest stream
 
-  CostScalar getCardOfBusiestStream(const PartitioningFunction *partFunc, Lng32 numOfParts, GroupAttributes *grpAttr,
-                                    Lng32 countOfCPUs = 1, NABoolean isUnderNestedJoin = FALSE);
+  CostScalar getCardOfBusiestStream(const PartitioningFunction *partFunc, int numOfParts, GroupAttributes *grpAttr,
+                                    int countOfCPUs = 1, NABoolean isUnderNestedJoin = FALSE);
 
   // ---------------------------------------------------------------------
   // merge two estimated log props ('this' is the merged version,

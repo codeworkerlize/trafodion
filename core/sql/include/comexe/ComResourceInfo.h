@@ -65,7 +65,7 @@ const Int32 RES_LOCAL_CLUSTER = -1;
 // -----------------------------------------------------------------------
 class ExScratchDiskDrive {
  public:
-  ExScratchDiskDrive(char *dirName = NULL, Lng32 dirNameLen = 0) : dirName_(dirName), dirNameLength_(dirNameLen) {}
+  ExScratchDiskDrive(char *dirName = NULL, int dirNameLen = 0) : dirName_(dirName), dirNameLength_(dirNameLen) {}
 
   inline const char *getDirName() const { return dirName_; }
   inline Int32 getDirNameLength() const { return dirNameLength_; }
@@ -76,7 +76,7 @@ class ExScratchDiskDrive {
   // gets compiled as a dependent object of ExScratchFileOptions and it
   // still needs to be packed and unpacked.
   Long pack(void *space);
-  Lng32 unpack(void *base, void *reallocator);
+  int unpack(void *base, void *reallocator);
 
  private:
   // name of the directory
@@ -116,14 +116,14 @@ class ExScratchFileOptions : public NAVersionedObject {
   // pack and unpack procedures for it (they handle the entries as well)
   //
   Long pack(void *space);
-  Lng32 unpack(void *, void *reallocator);
+  int unpack(void *, void *reallocator);
 
-  void setSpecifiedScratchDirs(ExScratchDiskDrive *s, Lng32 numEntries) {
+  void setSpecifiedScratchDirs(ExScratchDiskDrive *s, int numEntries) {
     specifiedScratchDirs_ = s;
     numSpecifiedDirs_ = numEntries;
   }
 
-  void setScratchMgmtOption(Lng32 entry) {
+  void setScratchMgmtOption(int entry) {
     switch (entry) {
       case 5:
         scratchFlags_ |= SCRATCH_MGMT_OPTION_5;
@@ -150,7 +150,7 @@ class ExScratchFileOptions : public NAVersionedObject {
       return 0;
   }
 
-  void setScratchMaxOpensHash(Lng32 entry) {
+  void setScratchMaxOpensHash(int entry) {
     switch (entry) {
       case 2:
         scratchFlags_ |= SCRATCH_MAX_OPENS_HASH_2;
@@ -177,7 +177,7 @@ class ExScratchFileOptions : public NAVersionedObject {
       return 1;
   }
 
-  void setScratchMaxOpensSort(Lng32 entry) {
+  void setScratchMaxOpensSort(int entry) {
     switch (entry) {
       case 2:
         scratchFlags_ |= SCRATCH_MAX_OPENS_SORT_2;
@@ -222,10 +222,10 @@ class ExScratchFileOptions : public NAVersionedObject {
 
   // to make the IPC methods happy, this object also supplies some
   // methods to help packing it into an IpcMessageObj
-  Lng32 ipcPackedLength() const;
-  Lng32 ipcGetTotalNameLength() const;
-  Lng32 ipcPackObjIntoMessage(char *buffer) const;
-  void ipcUnpackObj(Lng32 objSize, const char *buffer, CollHeap *heap, Lng32 totalNameLength,
+  int ipcPackedLength() const;
+  int ipcGetTotalNameLength() const;
+  int ipcPackObjIntoMessage(char *buffer) const;
+  void ipcUnpackObj(int objSize, const char *buffer, CollHeap *heap, int totalNameLength,
                     char *&newBufferForDependents);
 
  private:

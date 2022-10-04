@@ -159,9 +159,9 @@ class SMConnection : public IpcConnection {
   // a collection of SM connections owned by statement globals.
   ExMasterStmtGlobals *masterGlobals_;
 
-  Int64 sendCount_;
-  Int64 recvCount_;
-  Int64 postCount_;
+  long sendCount_;
+  long recvCount_;
+  long postCount_;
 
   // The following members and methods are used for control flow when
   // a message either cannot be sent in a single chunk (because the

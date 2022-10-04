@@ -48,18 +48,18 @@
 
 class SeqGenEntry : public NABasicObject {
  public:
-  SeqGenEntry(Int64 sgUID, CollHeap *heap);
+  SeqGenEntry(long sgUID, CollHeap *heap);
   ~SeqGenEntry();
 
-  short getNextSeqVal(SequenceGeneratorAttributes &sga, Int64 &seqVal);
-  short getCurrSeqVal(SequenceGeneratorAttributes &sga, Int64 &seqVal);
+  short getNextSeqVal(SequenceGeneratorAttributes &sga, long &seqVal);
+  short getCurrSeqVal(SequenceGeneratorAttributes &sga, long &seqVal);
 
-  short getNextSeqValOrder(SequenceGeneratorAttributes &sga, Int64 &seqVal);
-  short getCurrSeqValOrder(SequenceGeneratorAttributes &sga, Int64 &seqVal);
+  short getNextSeqValOrder(SequenceGeneratorAttributes &sga, long &seqVal);
+  short getCurrSeqValOrder(SequenceGeneratorAttributes &sga, long &seqVal);
 
-  short validateSeqValOrder(SequenceGeneratorAttributes &sga, Int64 &nextVal);
+  short validateSeqValOrder(SequenceGeneratorAttributes &sga, long &nextVal);
 
-  Int64 getSGObjectUID() { return sgUID_; }
+  long getSGObjectUID() { return sgUID_; }
 
   void setRetryNum(UInt32 n) { retryNum_ = n; }
   UInt32 getRetryNum() { return retryNum_; }
@@ -91,14 +91,14 @@ class SeqGenEntry : public NABasicObject {
 
   CollHeap *heap_;
 
-  Int64 sgUID_;
+  long sgUID_;
 
   //  NABoolean fetchNewRange_;
   //  NABoolean useDlockImpl_;
-  Int64 cachedStartValue_;
-  Int64 cachedEndValue_;
-  Int64 cachedCurrValue_;
-  Int64 redefTime_;
+  long cachedStartValue_;
+  long cachedEndValue_;
+  long cachedCurrValue_;
+  long redefTime_;
 
   void *cliInterfaceArr_;
 
@@ -113,9 +113,9 @@ class SequenceValueGenerator : public NABasicObject {
  public:
   SequenceValueGenerator(CollHeap *heap);
   SeqGenEntry *getEntry(SequenceGeneratorAttributes &sga);
-  short getNextSeqVal(SequenceGeneratorAttributes &sga, Int64 &seqVal);
-  short getCurrSeqVal(SequenceGeneratorAttributes &sga, Int64 &seqVal);
-  short getIdtmSeqVal(SequenceGeneratorAttributes &sga, Int64 &seqVal, ComDiagsArea **diags);
+  short getNextSeqVal(SequenceGeneratorAttributes &sga, long &seqVal);
+  short getCurrSeqVal(SequenceGeneratorAttributes &sga, long &seqVal);
+  short getIdtmSeqVal(SequenceGeneratorAttributes &sga, long &seqVal, ComDiagsArea **diags);
   HashQueue *sgQueue() { return sgQueue_; }
   CollHeap *getHeap() { return heap_; }
   void setRetryNum(UInt32 n) { retryNum_ = n; }

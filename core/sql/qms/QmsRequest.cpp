@@ -39,7 +39,7 @@ using namespace QR;
 #include "nsk/nskprocess.h"
 extern "C" {
 #include "common/cextdecs.h"
-#include "zsysc.h"
+#include "common/zsysc.h"
 }
 
 QRMessageRequest::~QRMessageRequest() { delete msgObj_; }
@@ -299,8 +299,8 @@ QRRequestResult QRRequest::handlePublishRequest(QRRequest &request, QRMessageStr
   NAString timestamp(heap);
 
   // Check if the data we already have is newer than the Publish message.
-  Int64 newTimestamp = atoInt64(pubDesc->getRedefTimestamp());
-  const Int64 *existingRedefTimestamp = qms.getMVTimestamp(mvName);
+  long newTimestamp = atoInt64(pubDesc->getRedefTimestamp());
+  const long *existingRedefTimestamp = qms.getMVTimestamp(mvName);
   if (existingRedefTimestamp != NULL &&  // The MV already exists
       newTimestamp != 0 &&               // This is not a testing result from CropDescriptor
       *existingRedefTimestamp >= newTimestamp) {
@@ -400,7 +400,7 @@ QRRequestResult QRRequest::handleInitializeRequest() {
   QmsInitializer &qmsInitializer = *QmsInitializer::getInstance(&qms);
 
   try {
-    Lng32 result = qmsInitializer.performInitialization();
+    int result = qmsInitializer.performInitialization();
     QRLogger::log(CAT_QMS_MAIN, LL_INFO,
                   "QMS initialization completed. Result code = %d. Processed %d MVs in %d catalogs.", result,
                   qmsInitializer.getNumberOfMVs(), qmsInitializer.getNumberOfCatalogs());

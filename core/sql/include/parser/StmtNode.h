@@ -94,10 +94,10 @@ class StmtNode : public ExprNode {
 
   // method required for traversing an ExprNode tree
   // access a child of an ExprNode
-  virtual ExprNode *getChild(Lng32 index);
+  virtual ExprNode *getChild(int index);
 
   // Method for replacing a particular child
-  virtual void setChild(Lng32 index, ExprNode *);
+  virtual void setChild(int index, ExprNode *);
 
   NABoolean isAQueryStatement() const { return getOperatorType() == STM_QUERY; }
   virtual RelExpr *getQueryExpression() const;
@@ -143,10 +143,10 @@ class StmtQuery : public StmtNode {
 
   // method required for traversing an ExprNode tree
   // access a child of an ExprNode
-  virtual ExprNode *getChild(Lng32 index);
+  virtual ExprNode *getChild(int index);
 
   // Method for replacing a particular child
-  virtual void setChild(Lng32 index, ExprNode *);
+  virtual void setChild(int index, ExprNode *);
 
   virtual const NAString getText() const;
 
@@ -238,9 +238,9 @@ class SequenceOfLong : public NASimpleArray<Long *> {
 
 class StmtTimeStamp : public StmtNode {
  public:
-  Int64 timeStampValue;
+  long timeStampValue;
 
-  StmtTimeStamp(Int64 new_value) : timeStampValue(new_value), StmtNode(STM_TIMESTAMP){};
+  StmtTimeStamp(long new_value) : timeStampValue(new_value), StmtNode(STM_TIMESTAMP){};
 };
 
 class StmtModule : public StmtNode {

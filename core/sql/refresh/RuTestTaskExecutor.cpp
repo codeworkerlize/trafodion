@@ -254,7 +254,7 @@ void CRUTestTaskExecutor::HandleError(Int32 groupId, Int32 processId, Int32 ordi
 
   CDMPreparedStatement *pStmt = errorDynamicSQLContainer_.GetPreparedStatement(0);
 
-  Lng32 numErrors = e.GetNumErrors();
+  int numErrors = e.GetNumErrors();
 
   for (Int32 index = 0; index < numErrors; index++) {
     char errorMsg[1024];

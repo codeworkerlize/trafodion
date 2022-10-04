@@ -67,7 +67,7 @@ class BigNum : public ComplexType {
   enum { BIGNUM_TEMP_LEN = 16 };
   enum { BIGNUM_TEMP_PRECISION = 38 };
 
-  BigNum(Lng32 length, Lng32 precision, short scale, short unSigned);
+  BigNum(int length, int precision, short scale, short unSigned);
 
   BigNum();
 
@@ -96,21 +96,21 @@ class BigNum : public ComplexType {
 
   void decode(const char *inBuf, char *outBuf, short desc = 0);
 
-  Lng32 getDisplayLength() { return precision_ + (scale_ > 0 ? 2 : 1); };
+  int getDisplayLength() { return precision_ + (scale_ > 0 ? 2 : 1); };
 
-  Lng32 getPrecision() { return precision_; };
+  int getPrecision() { return precision_; };
 
   void setLength(Int32 length) { length_ = length; }
 
-  Lng32 getLength() { return length_; };
+  int getLength() { return length_; };
 
   short getScale() { return scale_; };
 
   short isUnsigned() { return unSigned_; };
 
-  Lng32 getStorageLength() { return length_ + (getNullFlag() ? getNullIndicatorLength() : 0); };
+  int getStorageLength() { return length_ + (getNullFlag() ? getNullIndicatorLength() : 0); };
 
-  Lng32 getDefaultValueStorageLength() { return length_ + (getNullFlag() ? ExpTupleDesc::NULL_INDICATOR_LENGTH : 0); };
+  int getDefaultValueStorageLength() { return length_ + (getNullFlag() ? ExpTupleDesc::NULL_INDICATOR_LENGTH : 0); };
 
   Attributes *newCopy();
 
@@ -118,7 +118,7 @@ class BigNum : public ComplexType {
 
   void copyAttrs(Attributes *source);
 
-  Lng32 setTempSpaceInfo(OperatorTypeEnum operType, ULong offset, Lng32 length = 0);
+  int setTempSpaceInfo(OperatorTypeEnum operType, ULong offset, int length = 0);
 
   void fixup(Space *space, char *constantsArea, char *tempsArea, char *persistentArea, short fixupConstsAndTemps = 0,
              NABoolean spaceCompOnly = FALSE);
@@ -142,7 +142,7 @@ short EXP_FIXED_BIGN_OV_MUL(Attributes *op1, Attributes *op2, char *op_data[]);
 
 short EXP_FIXED_BIGN_OV_DIV(Attributes *op1, Attributes *op2, char *op_data[]);
 
-Int64 EXP_FIXED_BIGN_OV_MOD(Attributes *op1, Attributes *op2, char *op_data[], short *ov, Int64 *quotient = NULL);
+long EXP_FIXED_BIGN_OV_MOD(Attributes *op1, Attributes *op2, char *op_data[], short *ov, long *quotient = NULL);
 
 short EXP_FIXED_BIGN_OV_ADD(Attributes *op1, Attributes *op2, char *op_data[]);
 

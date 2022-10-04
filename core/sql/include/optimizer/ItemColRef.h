@@ -80,7 +80,7 @@ typedef ClusteredBitmap PositionSet;
 
 class BaseColumn : public ItemExpr {
  public:
-  BaseColumn(TableDesc *tableDesc, Lng32 columnNumber)
+  BaseColumn(TableDesc *tableDesc, int columnNumber)
       : ItemExpr(ITM_BASECOLUMN), tableDesc_(tableDesc), colNumber_(columnNumber) {}
 
   BaseColumn(const BaseColumn &column);
@@ -98,7 +98,7 @@ class BaseColumn : public ItemExpr {
 
   TableDesc *getTableDesc() const { return tableDesc_; }
 
-  Lng32 getColNumber() const { return colNumber_; }
+  int getColNumber() const { return colNumber_; }
 
   NAColumn *getNAColumn() const;
 
@@ -169,7 +169,7 @@ class BaseColumn : public ItemExpr {
   TableDesc *tableDesc_;
 
   // Column number within the table
-  Lng32 colNumber_;
+  int colNumber_;
 
   // The index columns that deliver the same value as the base column
   ValueIdSet equivalentIndexCols_;
@@ -188,7 +188,7 @@ class BaseColumn : public ItemExpr {
 class IndexColumn : public ItemExpr {
  public:
   // constructor
-  IndexColumn(const NAFileSet *indexPtr, Lng32 indexColumnNumber, const ValueId &colDefinition);
+  IndexColumn(const NAFileSet *indexPtr, int indexColumnNumber, const ValueId &colDefinition);
 
   // constructor
   IndexColumn(const IndexColumn &other);
@@ -206,13 +206,13 @@ class IndexColumn : public ItemExpr {
 
   // method to do code generation
   short codeGen(Generator *);
-  Lng32 getOffset() const;
+  int getOffset() const;
 
   const NAType &getType() const;
 
   NAColumn *getNAColumn() const;
 
-  Lng32 getIndexColNumber() const { return indexColNumber_; }
+  int getIndexColNumber() const { return indexColNumber_; }
   ValueId getDefinition() const { return indexColDefinition_; }
 
   // misc. support functions
@@ -244,7 +244,7 @@ class IndexColumn : public ItemExpr {
   const NAFileSet *index_;
 
   // Column number within the index
-  Lng32 indexColNumber_;
+  int indexColNumber_;
 
   // Definition of the index column (what's in it)
   ValueId indexColDefinition_;
@@ -381,7 +381,7 @@ class ConstValue : public ItemExpr {
   ConstValue();
 
   // constructor for a numeric constant
-  ConstValue(Lng32 intval, NAMemory *outHeap = CmpCommon::statementHeap());
+  ConstValue(int intval, NAMemory *outHeap = CmpCommon::statementHeap());
 
   // constructor for a string constant
   ConstValue(const NAString &strval, enum CharInfo::CharSet charSet = CharInfo::DefaultCharSet,
@@ -405,12 +405,12 @@ class ConstValue : public ItemExpr {
   // Supply a type, a buffer containing the packed value,
   // the size of the buffer and , optionally, the string
   // for the literal
-  ConstValue(const NAType *type, void *value, Lng32 value_len, NAString *literal = NULL,
+  ConstValue(const NAType *type, void *value, int value_len, NAString *literal = NULL,
              NAMemory *outHeap = CmpCommon::statementHeap());
 
   /*soln:10-050710-9594 begin */
   /* Same as above constructor along with string constants */
-  ConstValue(const NAType *type, void *value, Lng32 value_len, NAString *lstrval, NAWString *wstrval,
+  ConstValue(const NAType *type, void *value, int value_len, NAString *lstrval, NAWString *wstrval,
              NAString *literal = NULL, NAMemory *outHeap = CmpCommon::statementHeap(), IsNullEnum isNull = IS_NOT_NULL);
   /*soln:10-050710-9594 end */
 
@@ -462,8 +462,8 @@ class ConstValue : public ItemExpr {
   NABoolean hasUnknownCharSet();
 
   void *getConstValue() const { return value_; }
-  Lng32 getStorageSize() const { return storageSize_; }
-  Lng32 getSize() const;
+  int getStorageSize() const { return storageSize_; }
+  int getSize() const;
 
   // get constant value in string format
 
@@ -487,11 +487,11 @@ class ConstValue : public ItemExpr {
 
   // Method to convert a ConstValue into an exact number,
   // result must be multiplied by 10**-scale
-  Int64 getExactNumericValue(Lng32 &scale) const;
+  long getExactNumericValue(int &scale) const;
 
-  Int64 getExactNumericValue() const {
-    Lng32 scale;
-    Int64 result = getExactNumericValue(scale);
+  long getExactNumericValue() const {
+    int scale;
+    long result = getExactNumericValue(scale);
     CMPASSERT(scale >= 0);
     while (scale--) result /= 10;
     return result;
@@ -629,7 +629,7 @@ class ConstValue : public ItemExpr {
   // contains the packed representation for the constant value.
   // it is used by the expression generator
   void *value_;        // untyped storage for the bit pattern
-  Lng32 storageSize_;  // size of the buffer anchored in value_
+  int storageSize_;  // size of the buffer anchored in value_
 
   // contains the text used for specifying the constant value.
   // it is captured by the parser.
@@ -672,7 +672,7 @@ class SystemLiteral : public ConstValue {
   SystemLiteral() : ConstValue() { isSystemSupplied_ = TRUE; }
 
   // constructor for a system-supplied numeric constant
-  SystemLiteral(Lng32 intval) : ConstValue(intval) { isSystemSupplied_ = TRUE; }
+  SystemLiteral(int intval) : ConstValue(intval) { isSystemSupplied_ = TRUE; }
 
   // constructor for a system-supplied string constant
   SystemLiteral(const NAString &strval, enum CharInfo::CharSet charSet = CharInfo::DefaultCharSet,
@@ -702,7 +702,7 @@ class SystemLiteral : public ConstValue {
   // Supply a type, a buffer containing the packed value,
   // the size of the buffer and , optionally, the string
   // for the literal (system-supplied version)
-  SystemLiteral(const NAType *type, void *value, Lng32 value_len, NAString *literal = NULL)
+  SystemLiteral(const NAType *type, void *value, int value_len, NAString *literal = NULL)
       : ConstValue(type, value, value_len, literal) {
     isSystemSupplied_ = TRUE;
   }
@@ -1102,7 +1102,7 @@ class ConstantParameter : public Parameter {
   // append an ascii-version of ConstantParameter into cachewa.qryText_
   virtual void generateCacheKey(CacheWA &cachewa) const;
 
-  Lng32 getSize() const;
+  int getSize() const;
 
   // get a printable string that identifies the operator
   const NAString getText() const;
@@ -1427,7 +1427,7 @@ class RoutineParam : public Parameter {
     memset(argumentType_, 0, sizeof(argumentType_));
   }
 
-  RoutineParam(const NAString &paramName, const NAType *type, Lng32 pos, ComColumnDirection direction,
+  RoutineParam(const NAString &paramName, const NAType *type, int pos, ComColumnDirection direction,
                RoutineDesc *rdesc, CollHeap *h = 0)
       : Parameter(ITM_ROUTINE_PARAM),
         paramName_(paramName, h),
@@ -1440,7 +1440,7 @@ class RoutineParam : public Parameter {
     memset(argumentType_, 0, sizeof(argumentType_));
   }
 
-  RoutineParam(NAColumn *col, Lng32 pos, RoutineDesc *rdesc, CollHeap *h = 0)
+  RoutineParam(NAColumn *col, int pos, RoutineDesc *rdesc, CollHeap *h = 0)
       : Parameter(ITM_ROUTINE_PARAM),
         paramName_(col == NULL ? "" : col->getColName(), h),
         paramMode_(col == NULL ? COM_UNKNOWN_DIRECTION : col->getColumnMode()),
@@ -1453,7 +1453,7 @@ class RoutineParam : public Parameter {
     if (col != NULL) strncpy(argumentType_, col->getRoutineParamType(), 2);
   }
 
-  RoutineParam(const NAString &paramName, const NAType *type, Lng32 pos, ComColumnDirection direction, char *argType,
+  RoutineParam(const NAString &paramName, const NAType *type, int pos, ComColumnDirection direction, char *argType,
                RoutineDesc *rdesc, CollHeap *h = 0)
       : Parameter(ITM_ROUTINE_PARAM),
         paramName_(paramName, h),
@@ -1467,7 +1467,7 @@ class RoutineParam : public Parameter {
     strncpy(argumentType_, argType, 2);
   }
 
-  RoutineParam(RoutineDesc *rdesc, Lng32 position, CollHeap *h = 0)
+  RoutineParam(RoutineDesc *rdesc, int position, CollHeap *h = 0)
       : Parameter(ITM_ROUTINE_PARAM),
         paramName_(h),
         paramMode_(COM_UNKNOWN_DIRECTION),

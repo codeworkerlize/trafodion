@@ -21,63 +21,64 @@
 // @@@ END COPYRIGHT @@@
 //
 **********************************************************************/
-#ifndef SHELLCMD_H
-#define SHELLCMD_H
+#ifndef GETERRORMESSAGE_H
+#define GETERRORMESSAGE_H
 
 /* -*-C++-*-
  *****************************************************************************
  *
- * File:         ShellCmd.h
- * RCS:          $Id: ShellCmd.h,v 1.4 1997/07/12 18:02:34  Exp $
+ * File:         GetErrorMessage.h
+ * RCS:          $Id: GetErrorMessage.h,v 1.12 1998/07/20 07:26:40  Exp $
  * Description:
  *
- *
- * Created:      4/15/95
+ * Created:      4/5/96
+ * Modified:     $ $Date: 1998/07/20 07:26:40 $ (GMT)
  * Language:     C++
  * Status:       $State: Exp $
- *
- *
  *
  *
  *****************************************************************************
  */
 
-#include "SqlciNode.h"
-#include "SqlciEnv.h"
+#include "common/NABoolean.h"
+#include "common/NAWinNT.h"
 
-class ShellCmd : public SqlciNode {
- public:
-  enum shell_cmd_type { CD_TYPE, LS_TYPE, SHELL_TYPE };
-
- private:
-  shell_cmd_type cmd_type;
-  char *argument;
-
- public:
-  ShellCmd(const shell_cmd_type cmd_type_, char *argument_);
-  ~ShellCmd();
-  inline char *get_argument() { return argument; };
+enum MsgTextType {
+  ERROR_TEXT = 1,
+  CAUSE_TEXT,
+  EFFECT_TEXT,
+  RECOVERY_TEXT,
+  SQL_STATE,
+  HELP_ID,
+  EMS_SEVERITY,
+  EMS_EVENT_TARGET,
+  EMS_EXPERIENCE_LEVEL
 };
 
-class Chdir : public ShellCmd {
- public:
-  Chdir(char *argument_);
-  ~Chdir(){};
-  short process(SqlciEnv *sqlci_env);
-};
+enum ErrorType { MAIN_ERROR = 0, SUBERROR_HBASE, SUBERROR_TM };
 
-class Ls : public ShellCmd {
- public:
-  Ls(char *argument_);
-  ~Ls(){};
-  short process(SqlciEnv *sqlci_env);
-};
+#define SQLERRORS_MSGFILE_VERSION_INFO 10  // see sqlci Env command
+#define SQLERRORS_MSGFILE_NOT_FOUND    16000
+#define SQLERRORS_MSG_NOT_FOUND        16001
 
-class Shell : public ShellCmd {
- public:
-  Shell(char *argument_);
-  ~Shell(){};
-  short process(SqlciEnv *sqlci_env);
-};
-
+#ifdef __cplusplus
+extern "C" {
 #endif
+
+void GetErrorMessageRebindMessageFile();
+char *GetPastHeaderOfErrorMessage(char *text);
+
+const char *GetErrorMessageFileName();
+
+short GetErrorMessageRC(int num, NAWchar *msgBuf, int bufSize);
+
+short GetErrorMessage(ErrorType errType, int error_code, NAWchar *&return_text, MsgTextType M_type = ERROR_TEXT,
+                      NAWchar *alternate_return_text = NULL, Int32 recurse_level = 0, NABoolean prefixAdded = TRUE);
+
+void ErrorMessageOverflowCheckW(NAWchar *buf, size_t maxsiz);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* GETERRORMESSAGE_H */

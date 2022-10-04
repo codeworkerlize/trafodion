@@ -35,7 +35,7 @@
 #define _QRQUERIES_H_
 
 #include "cli/sqlcli.h"
-#include "SqlciDefs.h"
+#include "sqlci/SqlciDefs.h"
 #include "common/NAString.h"
 #include "qmscommon/QRLogger.h"
 
@@ -102,12 +102,12 @@ struct QRMVData {
   long long objectUID_;
 
   /**
-   * redefTime_ The redefinition timestamp as an Int64
+   * redefTime_ The redefinition timestamp as an long
    */
   long long redefTime_;
 
   /**
-   * refreshedAt_ The refresh timestamp as an Int64
+   * refreshedAt_ The refresh timestamp as an long
    */
   long long refreshedAt_;
 
@@ -134,27 +134,27 @@ struct QRMVData {
 
 struct MVQR_Publish {
   /**
-   * operationTimestamp_ The operation timestamp as an Int64
+   * operationTimestamp_ The operation timestamp as an long
    */
   long long operationTimestamp_;
 
   /**
-   * redefTime_ The redefinition timestamp as an Int64
+   * redefTime_ The redefinition timestamp as an long
    */
   long long redefTime_;
 
   /**
-   * refreshedAt_ The refresh timestamp as an Int64
+   * refreshedAt_ The refresh timestamp as an long
    */
   long long refreshedAt_;
 
   /**
-   * objectUID_ The UID of the object as an Int64
+   * objectUID_ The UID of the object as an long
    */
   long long objectUID_;
 
   /**
-   * catalogUID_ The UID of the catalog as an Int64
+   * catalogUID_ The UID of the catalog as an long
    */
   long long catalogUID_;
 
@@ -233,19 +233,19 @@ class QRQueries {
    * beginTransaction starts a transaction
    * @return The return code from the BEGIN WORK.
    */
-  Lng32 beginTransaction();
+  int beginTransaction();
 
   /**
    * commitTransaction ends a transaction
    * @return The return code from the COMMIT WORK.
    */
-  Lng32 commitTransaction();
+  int commitTransaction();
 
   /**
    * rollbackTransaction rolls back a transaction
    * @return The return code from the ROLLBACK WORK.
    */
-  Lng32 rollbackTransaction();
+  int rollbackTransaction();
 
   /**
    * openSystemDefault opens the SQL cursor used to obtain
@@ -253,7 +253,7 @@ class QRQueries {
    * @param defaultName the name of the default attribute.
    * @return The return code from the query cursor open.
    */
-  Lng32 openSystemDefault(const char *defaultName);
+  int openSystemDefault(const char *defaultName);
 
   /**
    * fetchSystemDefaults fetches from the SQL cursor to obtain
@@ -261,14 +261,14 @@ class QRQueries {
    * @param value [OUT] a pointer to a buffer to which the default value is written.
    * @return The return code from the query cursor fetch.
    */
-  Lng32 fetchSystemDefault(char *value);
+  int fetchSystemDefault(char *value);
 
   /**
    * closeSystemDefaults closes the SQL cursor used to obtain
    * attribute values from the system defaults table.
    * @return The return code from the query cursor close.
    */
-  Lng32 closeSystemDefault();
+  int closeSystemDefault();
 
   /**
    * openCatalogUID opens the SQL cursor used to obtain the
@@ -276,7 +276,7 @@ class QRQueries {
    * @param catalogName the name of the catalog.
    * @return The return code from the query cursor open.
    */
-  Lng32 openCatalogUID(const char *catalogName);
+  int openCatalogUID(const char *catalogName);
 
   /**
    * fetchCatalogUID fetches from the SQL cursor to obtain the
@@ -284,14 +284,14 @@ class QRQueries {
    * @param catalogUID [OUT] the catalog IUD
    * @return The return code from the query cursor fetch.
    */
-  Lng32 fetchCatalogUID(long long &catalogUID);
+  int fetchCatalogUID(long long &catalogUID);
 
   /**
    * closeCatalogUID closes the SQL cursor used to obtain the
    * CAT_UID of a catalog.
    * @return The return code from the query cursor close.
    */
-  Lng32 closeCatalogUID();
+  int closeCatalogUID();
 
   /**
    * openVersion opens the SQL cursor used to obtain the
@@ -299,7 +299,7 @@ class QRQueries {
    * @param The catalog UID.
    * @return The return code from the query cursor open.
    */
-  Lng32 openVersion(long long catalogUID);
+  int openVersion(long long catalogUID);
 
   /**
    * fetchVersion fetches from the SQL cursor to obtain the
@@ -307,14 +307,14 @@ class QRQueries {
    * @param [OUT] the schema version of the needed catalog.
    * @return The return code from the query cursor fetch.
    */
-  Lng32 fetchVersion(Int32 &version);
+  int fetchVersion(Int32 &version);
 
   /**
    * closeVersion closes the SQL cursor used to obtain the
    * version for the definition_schema_version_xxxx for each catalog.
    * @return The return code from the query cursor close.
    */
-  Lng32 closeVersion();
+  int closeVersion();
 
   /**
    * openCatalogName opens the SQL cursor used to obtain the
@@ -322,7 +322,7 @@ class QRQueries {
    * @param catalogUID the catalog UID.
    * @return The return code from the query cursor open.
    */
-  Lng32 openCatalogName(long long catalogUID);
+  int openCatalogName(long long catalogUID);
 
   /**
    * fetchCatalogName fetches from the SQL cursor to obtain the
@@ -330,21 +330,21 @@ class QRQueries {
    * @param [OUT] the catalog name.
    * @return The return code from the query cursor fetch.
    */
-  Lng32 fetchCatalogName(NAString &catalogName);
+  int fetchCatalogName(NAString &catalogName);
 
   /**
    * closeCatalogName closes the SQL cursor used to obtain the
    * catalog name for the catalog UID specified.
    * @return The return code from the query cursor close.
    */
-  Lng32 closeCatalogName();
+  int closeCatalogName();
 
   /**
    * openCatalogNames opens the SQL cursor used to obtain the
    * names of all the catalogs existing on the system.
    * @return The return code from the query cursor open.
    */
-  Lng32 openCatalogNames();
+  int openCatalogNames();
 
   /**
    * fetchCatalogNames fetches from the SQL cursor to obtain the
@@ -352,14 +352,14 @@ class QRQueries {
    * @param catalogName [OUT] the current catalog name.
    * @return The return code from the query cursor fetch.
    */
-  Lng32 fetchCatalogNames(NAString &catalogName);
+  int fetchCatalogNames(NAString &catalogName);
 
   /**
    * closeCatalogNames closes the SQL cursor used to obtain the
    * names of all the catalogs existing on the system.
    * @return The return code from the query cursor close.
    */
-  Lng32 closeCatalogNames();
+  int closeCatalogNames();
 
   /**
    * openMvUIDs opens the SQL cursor used to obtain the
@@ -369,7 +369,7 @@ class QRQueries {
    *                         for the needed catalog.
    * @return The return code from the query cursor open.
    */
-  Lng32 openMvInformation(const NAString &definitionSchema);
+  int openMvInformation(const NAString &definitionSchema);
 
   /**
    * fetchMvUIDs fetches from the SQL cursor to obtain the
@@ -378,7 +378,7 @@ class QRQueries {
    * @param QRMVData A structure for passing out the MV information.
    * @return The return code from the query cursor fetch.
    */
-  Lng32 fetchMvInformation(QRMVData *data);
+  int fetchMvInformation(QRMVData *data);
 
   /**
    * closeMvUIDs closes the SQL cursor used to obtain the
@@ -386,7 +386,7 @@ class QRQueries {
    * MV UID, redef_time, refreshed_at, Ignore changes.
    * @return The return code from the query cursor close.
    */
-  Lng32 closeMvInformation();
+  int closeMvInformation();
 
   /**
    * openMvDescriptorText opens the SQL cursor used to obtain
@@ -395,7 +395,7 @@ class QRQueries {
    * @param objectUID the UID of the MV.
    * @return The return code from the query cursor open.
    */
-  Lng32 openMvDescriptorText(const NAString &textTable, long long objectUID);
+  int openMvDescriptorText(const NAString &textTable, long long objectUID);
 
   /**
    * fetchMvDescriptorText fetches from the SQL cursor to obtain
@@ -404,14 +404,14 @@ class QRQueries {
    *                 text, buffer by buffer.
    * @return The return code from the query cursor fetch.
    */
-  Lng32 fetchMvDescriptorText(QRMVData *data);
+  int fetchMvDescriptorText(QRMVData *data);
 
   /**
    * closeMvDescriptorText closes the SQL cursor used to obtain the
    * MV descriptor text for the MV.
    * @return The return code from the query cursor close.
    */
-  Lng32 closeMvDescriptorText();
+  int closeMvDescriptorText();
 
   /**
    * openRewritePublish opens the SQL cursor used to obtain
@@ -419,7 +419,7 @@ class QRQueries {
    * @param rewriteTableName the full name of the REWRITE PUBLISH table.
    * @return The return code from the query cursor open.
    */
-  Lng32 openRewritePublish(const char *rewriteTableName);
+  int openRewritePublish(const char *rewriteTableName);
 
   /**
    * fetchRewritePublish fetches from the SQL cursor to obtain
@@ -427,22 +427,22 @@ class QRQueries {
    * @param publish A structure for passing out the published information.
    * @return The return code from the query cursor fetch.
    */
-  Lng32 fetchRewritePublish(MVQR_Publish *publish);
+  int fetchRewritePublish(MVQR_Publish *publish);
 
   /**
    * closeReWritePublish closes the SQL cursor used to obtain the
    * rows from the MANAGEABILITY.MV_REWRITE.REWRITE_PUBLISH table.
    * @return The return code from the query cursor close.
    */
-  Lng32 closeRewritePublish();
+  int closeRewritePublish();
 
-  Lng32 setParserFlags();
-  Lng32 controlQueryDefault(const NAString &cqdName, const NAString &cqdValue);
-  Lng32 reDescribeMV(const NAString &mvName, NABoolean rePublish);
+  int setParserFlags();
+  int controlQueryDefault(const NAString &cqdName, const NAString &cqdValue);
+  int reDescribeMV(const NAString &mvName, NABoolean rePublish);
 
-  Lng32 openMVNames(const NAString &definitionSchema);
-  Lng32 fetchMVNames(NAString &objectName, NAString &schemaName);
-  Lng32 closeMVNames();
+  int openMVNames(const NAString &definitionSchema);
+  int fetchMVNames(NAString &objectName, NAString &schemaName);
+  int closeMVNames();
 
  private:
   // Copy construction/assignment not defined.

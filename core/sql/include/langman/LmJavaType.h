@@ -88,9 +88,9 @@ class LmJavaType {
   struct TypeElement {
     Type javaIdx;              // Java type index. This is LM type.
     const char *javaTypeName;  // Java encoded type.
-    Lng32 javaTypeNameLen;     // Length of encoded Java type.
+    int javaTypeNameLen;     // Length of encoded Java type.
     const char *javaText;      // Java type in normal text.
-    Lng32 javaTextLen;         // Length of javaText.
+    int javaTextLen;         // Length of javaText.
   };
 
  public:

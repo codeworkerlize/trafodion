@@ -124,11 +124,11 @@ void CRUJournal::LogMessage(const CDSString &msg, BOOL printRowNum,
     sprintf(row, "%d", ++rowNum_);
     CDSString tempStr(row);
     tempStr += ": " + msg;
-    if (tempStr[(Lng32)tempStr.GetLength()] != '\n') tempStr += "\n";
+    if (tempStr[(int)tempStr.GetLength()] != '\n') tempStr += "\n";
     const char *buf = tempStr.c_string();
 
     // if the user does not specify an OUTFILE option REFRESH messages are only sent to EMS
-    if ((!emsOnlyLog_) && (logfile_.IsOpen())) logfile_.WriteWOHeader(buf, (Lng32)strlen(buf));
+    if ((!emsOnlyLog_) && (logfile_.IsOpen())) logfile_.WriteWOHeader(buf, (int)strlen(buf));
 
     // avoid logging to EMS messages that only contain the new line character
     if ((strlen(buf)) > 1) DumpToEMS(buf, isError);
@@ -147,11 +147,11 @@ void CRUJournal::LogMessage(const CDSString &msg, BOOL printRowNum,
     newString += msg.c_string();
 
     // Add a new line to prevent lines from running together
-    if (newString[(Lng32)newString.GetLength()] != '\n') newString += "\n";
+    if (newString[(int)newString.GetLength()] != '\n') newString += "\n";
     const char *buf = newString.c_string();
 
     // if the user does not specify an OUTFILE option REFRESH messages are only sent to EMS
-    if ((!emsOnlyLog_) && (logfile_.IsOpen())) logfile_.WriteWOHeader(buf, (Lng32)strlen(buf));
+    if ((!emsOnlyLog_) && (logfile_.IsOpen())) logfile_.WriteWOHeader(buf, (int)strlen(buf));
 
     // avoid logging to EMS messages that only contain the new line character
     if ((strlen(buf)) > 1) DumpToEMS(buf, isError);

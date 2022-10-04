@@ -147,13 +147,13 @@ class ElemDDLPrivActWithColumns : public ElemDDLPrivAct {
   //
 
   virtual Int32 getArity() const;
-  virtual ExprNode *getChild(Lng32 index);
+  virtual ExprNode *getChild(int index);
 
   inline const ElemDDLColNameArray &getColumnNameArray() const;
   inline ElemDDLColNameArray &getColumnNameArray();
 
   // mutator
-  virtual void setChild(Lng32 index, ExprNode *pElemDDLNode);
+  virtual void setChild(int index, ExprNode *pElemDDLNode);
 
   // methods for tracing
   virtual NATraceList getDetailInfo() const;

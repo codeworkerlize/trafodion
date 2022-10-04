@@ -42,7 +42,7 @@ struct HbaseSearchSpec : public NABasicObject {
 
   // row timestamp at which the row is to be retrieved
   // If -1, latest timestamp
-  Int64 rowTS_;
+  long rowTS_;
 
  protected:
 };

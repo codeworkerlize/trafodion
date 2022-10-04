@@ -200,7 +200,7 @@ void CRUGlobals::LogDebugMessage(Int32 testpointId, const CDSString &objName, co
 #define MAX_QUERY_ID_LEN 160  // Same as ComSqlId::MAX_QUERY_ID_LEN
 void CRUGlobals::getCurrentParentQid() {
   if (parentQid_ != NULL) delete parentQid_;
-  Lng32 len;
+  int len;
 
   parentQid_ = new char[MAX_QUERY_ID_LEN + 1];
   CDMConnection::getParentQid(parentQid_, MAX_QUERY_ID_LEN, &len);

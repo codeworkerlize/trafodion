@@ -291,7 +291,7 @@ FeatureVersionInfoSPInputType ComFeatureVersionInfoSPLiteralToInputType(const ch
 //
 //  Translate an anchor file access error to something more sensible.
 //
-Lng32 ComTranslateAnchorFileAccessError(const Lng32 sqlCode, const Lng32 fsError, const char *nodeName,
+int ComTranslateAnchorFileAccessError(const int sqlCode, const int fsError, const char *nodeName,
                                         ComDiagsArea *da);
 
 //----------------------------------------------------------------------
@@ -370,7 +370,7 @@ class MetaDataErrorTranslator : public ComDiagsTranslator {
   ErrorCombination isUnavailable_;  // The combination of -8580 and -8551
   ErrorCombination isAbsent_;       // The combination of -8580 and -8577
 
-  Lng32 nskError_;
+  int nskError_;
 };
 
 //----------------------------------------------------------------------

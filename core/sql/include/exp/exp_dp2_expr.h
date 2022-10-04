@@ -73,8 +73,8 @@ class ExpDP2Expr : public NAVersionedObject {
   virtual void populateImageVersionIDArray() { setImageVersionID(0, getClassVersionID()); }
   virtual short getClassSize() { return (short)sizeof(ExpDP2Expr); }
   Long pack(void *space);
-  Lng32 unpack(void *base, void *reallocator);
-  Lng32 spaceNeededForWorkAtp();
+  int unpack(void *base, void *reallocator);
+  int spaceNeededForWorkAtp();
   Int32 workAtpSpace() { return workAtpSpace_; };
 
   // if inbuf is passed in, create work atp in it.

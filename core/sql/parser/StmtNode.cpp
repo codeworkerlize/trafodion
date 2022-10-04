@@ -56,12 +56,12 @@ const StmtNode *StmtNode::castToStatementExpr() const { return this; }
 
 RelExpr *StmtNode::getQueryExpression() const { return NULL; }
 
-ExprNode *StmtNode::getChild(Lng32 /* index */) {
+ExprNode *StmtNode::getChild(int /* index */) {
   assert(0 == 1);
   return NULL;
 }  // StmtNode::getChild()
 
-void StmtNode::setChild(Lng32 /* index */, ExprNode * /* newChild */) { assert(0 == 1); }  // StmtNode::setChild()
+void StmtNode::setChild(int /* index */, ExprNode * /* newChild */) { assert(0 == 1); }  // StmtNode::setChild()
 
 // -----------------------------------------------------------------------
 // methods for class StmtQuery
@@ -71,12 +71,12 @@ Int32 StmtQuery::getArity() const { return 1; }
 
 RelExpr *StmtQuery::getQueryExpression() const { return queryExpr_; }
 
-ExprNode *StmtQuery::getChild(Lng32 index) {
+ExprNode *StmtQuery::getChild(int index) {
   assert(index == 0);
   return getQueryExpression();
 }  // StmtNode::getChild()
 
-void StmtQuery::setChild(Lng32 index, ExprNode *newChild) {
+void StmtQuery::setChild(int index, ExprNode *newChild) {
   assert(index == 0);
   assert(newChild->castToRelExpr());
   queryExpr_ = newChild->castToRelExpr();

@@ -56,7 +56,7 @@ void ActiveQueryStream::actOnSend(IpcConnection *connection) {
 // Methods for ActiveQueryEntry
 ///////////////////////////////////////////////////////////////////////
 
-ActiveQueryEntry::ActiveQueryEntry(char *qid, Lng32 qidLen, Int64 startTime, GuaProcessHandle master,
+ActiveQueryEntry::ActiveQueryEntry(char *qid, int qidLen, long startTime, GuaProcessHandle master,
                                    short masterFileNum, Int32 executionCount, IpcEnvironment *ipcEnv,
                                    SsmpGlobals *ssmpG)
     : queryStartTime_(startTime),
@@ -135,7 +135,7 @@ void ActiveQueryEntry::releaseStream() {
 // Methods for ActiveQueryMgr.
 ///////////////////////////////////////////////////////////////////////
 
-ActiveQueryEntry *ActiveQueryMgr::getActiveQuery(char *qid, Lng32 qidLen) {
+ActiveQueryEntry *ActiveQueryMgr::getActiveQuery(char *qid, int qidLen) {
   ActiveQueryEntry *aq = NULL;
 
   activeQueries_.position(qid, (ULng32)qidLen);
@@ -147,7 +147,7 @@ ActiveQueryEntry *ActiveQueryMgr::getActiveQuery(char *qid, Lng32 qidLen) {
   return NULL;
 }
 
-void ActiveQueryMgr::addActiveQuery(char *qid, Lng32 qidLen, Int64 startTime, GuaProcessHandle masterPhandle,
+void ActiveQueryMgr::addActiveQuery(char *qid, int qidLen, long startTime, GuaProcessHandle masterPhandle,
                                     Int32 executionCount, SsmpNewIncomingConnectionStream *cStream,
                                     IpcConnection *conn) {
   GuaConnectionToClient *gctc = conn->castToGuaConnectionToClient();
@@ -164,7 +164,7 @@ void ActiveQueryMgr::addActiveQuery(char *qid, Lng32 qidLen, Int64 startTime, Gu
   activeQueries_.insert(qid, (ULng32)qidLen, aq);
 }
 
-void ActiveQueryMgr::rmActiveQuery(char *qid, Lng32 qidLen, NAHeap *ipcHeap, NextActionForSubject nxtA,
+void ActiveQueryMgr::rmActiveQuery(char *qid, int qidLen, NAHeap *ipcHeap, NextActionForSubject nxtA,
                                    bool cancelLogging) {
   ActiveQueryEntry *aq = getActiveQuery(qid, qidLen);
   char msg[300];
@@ -199,8 +199,8 @@ void ActiveQueryMgr::clientIsGone(const GuaProcessHandle &c, short fileNum) {
 // Methods for ActiveQueryEntry
 ///////////////////////////////////////////////////////////////////////
 
-PendingQueryEntry::PendingQueryEntry(char *qid, Lng32 qidLen, Int32 executionCount, GuaProcessHandle master,
-                                     short masterFileNum, Int64 escalateTime1, Int64 escalateTime2,
+PendingQueryEntry::PendingQueryEntry(char *qid, int qidLen, Int32 executionCount, GuaProcessHandle master,
+                                     short masterFileNum, long escalateTime1, long escalateTime2,
                                      bool cancelEscalationSaveabend, bool cancelLogging)
     : qidLen_(qidLen),
       executionCount_(executionCount),
@@ -232,14 +232,14 @@ PendingQueryMgr::PendingQueryMgr(SsmpGlobals *ssmpGlobals, NAHeap *heap)
 void PendingQueryMgr::addPendingQuery(ActiveQueryEntry *aq, Int32 ceFirstInterval, Int32 ceSecondInterval,
                                       NABoolean ceSaveabend, NABoolean cancelLogging) {
   char *qid = aq->getQid();
-  Lng32 qidLen = aq->getQidLen();
-  Int64 timeNow = JULIANTIMESTAMP();
+  int qidLen = aq->getQidLen();
+  long timeNow = JULIANTIMESTAMP();
 
-  Int64 ceTime1Tmp64 = ceFirstInterval;
-  Int64 ceTime1 = (ceTime1Tmp64 == 0) ? 0 : timeNow + (ceTime1Tmp64 * 1000 * 1000);
+  long ceTime1Tmp64 = ceFirstInterval;
+  long ceTime1 = (ceTime1Tmp64 == 0) ? 0 : timeNow + (ceTime1Tmp64 * 1000 * 1000);
 
-  Int64 ceTime2Tmp64 = ceSecondInterval;
-  Int64 ceTime2 = (ceTime2Tmp64 == 0) ? 0 : timeNow + (ceTime2Tmp64 * 1000 * 1000);
+  long ceTime2Tmp64 = ceSecondInterval;
+  long ceTime2 = (ceTime2Tmp64 == 0) ? 0 : timeNow + (ceTime2Tmp64 * 1000 * 1000);
 
   PendingQueryEntry *pq = new (ssmpGlobals_->getHeap())
       PendingQueryEntry(qid, qidLen, aq->getExecutionCount(), aq->getMasterPhandle(), aq->getMasterFileNum(), ceTime1,
@@ -263,7 +263,7 @@ void PendingQueryMgr::clientIsGone(const GuaProcessHandle &c, short fileNum) {
 }
 
 void PendingQueryMgr::killPendingCanceled() {
-  Int64 timeNow = JULIANTIMESTAMP();
+  long timeNow = JULIANTIMESTAMP();
   short savedPriority, savedStopMode;
 
   StatsGlobals *statsGlobals = ssmpGlobals_->getStatsGlobals();

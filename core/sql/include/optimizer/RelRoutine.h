@@ -525,7 +525,7 @@ class BuiltinTableValuedFunction : public TableValuedFunction {
   // a virtual function for displaying the name of the node
   virtual const NAString getText() const;
 
-  virtual Lng32 numParams() { return 2; }
+  virtual int numParams() { return 2; }
 
  private:
   // No members
@@ -681,7 +681,7 @@ class TableMappingUDF : public TableValuedFunction {
 
   virtual void pushdownCoveredExpr(const ValueIdSet &outputExprOnOperator, const ValueIdSet &newExternalInputs,
                                    ValueIdSet &predOnOperator, const ValueIdSet *nonPredNonOutputExprOnOperator = NULL,
-                                   Lng32 childId = (-MAX_REL_ARITY));
+                                   int childId = (-MAX_REL_ARITY));
 
   // *********************************************************************
   // Helper functions and methods used by the optimizer.
@@ -739,7 +739,7 @@ class TableMappingUDF : public TableValuedFunction {
   // ESPs is being forced.
   // ---------------------------------------------------------------------
   virtual DefaultToken getParallelControlSettings(const ReqdPhysicalProperty *const rppForMe, /*IN*/
-                                                  Lng32 &numOfESPs,                           /*OUT*/
+                                                  int &numOfESPs,                           /*OUT*/
                                                   float &allowedDeviation,                    /*OUT*/
                                                   NABoolean &numOfESPsForced /*OUT*/) const;
 
@@ -749,7 +749,7 @@ class TableMappingUDF : public TableValuedFunction {
   // ---------------------------------------------------------------------
   virtual NABoolean okToAttemptESPParallelism(const Context *myContext, /*IN*/
                                               PlanWorkSpace *pws,       /*IN*/
-                                              Lng32 &numOfESPs,         /*OUT*/
+                                              int &numOfESPs,         /*OUT*/
                                               float &allowedDeviation,  /*OUT*/
                                               NABoolean &numOfESPsForced /*OUT*/);
 
@@ -769,7 +769,7 @@ class TableMappingUDF : public TableValuedFunction {
   // node to an existing list of expressions
   virtual void addLocalExpr(LIST(ExprNode *) & xlist, LIST(NAString) & llist) const;
 
-  virtual NABoolean isBigMemoryOperator(const PlanWorkSpace *pws, const Lng32 /*planNumber*/);
+  virtual NABoolean isBigMemoryOperator(const PlanWorkSpace *pws, const int /*planNumber*/);
 
   void checkAndCoerceScalarInputParamTypes(BindWA *bindWA);
 
@@ -920,7 +920,7 @@ class PhysicalTableMappingUDF : public TableMappingUDF {
   // This method is called from within the implementation
   // of createPlan().
   // ---------------------------------------------------------------------
-  virtual Context *createContextForAChild(Context *myContext, PlanWorkSpace *pws, Lng32 &childIndex);
+  virtual Context *createContextForAChild(Context *myContext, PlanWorkSpace *pws, int &childIndex);
 
   // ---------------------------------------------------------------------
   // Obtain a pointer to a CostMethod object that provides access
@@ -933,7 +933,7 @@ class PhysicalTableMappingUDF : public TableMappingUDF {
   // (assuming the children are already optimized and have physical properties)
   // (used in the implementation of createPlan)
   // ---------------------------------------------------------------------
-  virtual PhysicalProperty *synthPhysicalProperty(const Context *myContext, const Lng32 planNumber, PlanWorkSpace *pws);
+  virtual PhysicalProperty *synthPhysicalProperty(const Context *myContext, const int planNumber, PlanWorkSpace *pws);
 
   virtual RelExpr *preCodeGen(Generator *generator, const ValueIdSet &externalInputs, ValueIdSet &pulledNewInputs);
 
@@ -1059,7 +1059,7 @@ class ExplainFunc : public BuiltinTableValuedFunction {
 
   //! synthPhysicalProperty
   // cost functions
-  virtual PhysicalProperty *synthPhysicalProperty(const Context *context, const Lng32 planNumber, PlanWorkSpace *pws);
+  virtual PhysicalProperty *synthPhysicalProperty(const Context *context, const int planNumber, PlanWorkSpace *pws);
 
   //! getText method
   //  used to display the name of the node.
@@ -1157,7 +1157,7 @@ class StatisticsFunc : public BuiltinTableValuedFunction {
 
   //! synthPyshicalProperty method
   // cost functions
-  virtual PhysicalProperty *synthPhysicalProperty(const Context *context, const Lng32 planNumber, PlanWorkSpace *pws);
+  virtual PhysicalProperty *synthPhysicalProperty(const Context *context, const int planNumber, PlanWorkSpace *pws);
 
   //! getText method
   //  get a printable string that identifies the operator
@@ -1225,7 +1225,7 @@ class ProxyFunc : public BuiltinTableValuedFunction {
 
   //! populateColumnDesc method
   // Copy attributes getColumns to colDescs
-  void populateColumnDesc(char *tableNam, TrafDesc *&colDescs, Lng32 &reclen) const;
+  void populateColumnDesc(char *tableNam, TrafDesc *&colDescs, int &reclen) const;
 
   //! createVirtualTableDesc method
   //  create the TrafDesc for the Virtual Table
@@ -1399,7 +1399,7 @@ class PhysicalSPProxyFunc : public SPProxyFunc {
 
   //! synthPhysicalProperty method
   //  metod to generate code for the node
-  virtual PhysicalProperty *synthPhysicalProperty(const Context *context, const Lng32 planNumber, PlanWorkSpace *pws);
+  virtual PhysicalProperty *synthPhysicalProperty(const Context *context, const int planNumber, PlanWorkSpace *pws);
 
  private:
   //! PhysicalSPProxyFunc Copy Constructor
@@ -1530,7 +1530,7 @@ class PhysicalExtractSource : public ExtractSource {
   virtual short codeGen(Generator *);
 
   //! synthPhysicalProperty method
-  virtual PhysicalProperty *synthPhysicalProperty(const Context *context, const Lng32 planNumber, PlanWorkSpace *pws);
+  virtual PhysicalProperty *synthPhysicalProperty(const Context *context, const int planNumber, PlanWorkSpace *pws);
 
  private:
   //! PhysicalExtractSource Copy Constructor
@@ -1735,7 +1735,7 @@ class CallSP : public IsolatedNonTableUDR {
 
   //! synthPhysicalProp method
   //  Physical properties implemented in OptPhysRelExpr.cpp
-  virtual PhysicalProperty *synthPhysicalProperty(const Context *myContext, const Lng32 planNumber, PlanWorkSpace *pws);
+  virtual PhysicalProperty *synthPhysicalProperty(const Context *myContext, const int planNumber, PlanWorkSpace *pws);
 
   //! preCodeGen method
   //	method to do preCode generation
@@ -1750,7 +1750,7 @@ class CallSP : public IsolatedNonTableUDR {
   virtual void pushdownCoveredExpr(const ValueIdSet &outputExprOnOperator, const ValueIdSet &newExternalInputs,
                                    ValueIdSet &predicatesOnOperator,
                                    const ValueIdSet *nonPredNonOutputExprOnOperator = NULL,
-                                   Lng32 childIndex = (-MAX_REL_ARITY));
+                                   int childIndex = (-MAX_REL_ARITY));
 
   //! generateShape method
   // generator/GenShape.cpp, used by SHOWSHAPE <call-stmt>
@@ -1884,7 +1884,7 @@ class IsolatedScalarUDF : public IsolatedNonTableUDR {
 
   //! synthPysicalProperty method
   // Logical properties implemented in OptLogRelExpr.cpp
-  virtual PhysicalProperty *synthPhysicalProperty(const Context *myContext, const Lng32 planNumber, PlanWorkSpace *pws);
+  virtual PhysicalProperty *synthPhysicalProperty(const Context *myContext, const int planNumber, PlanWorkSpace *pws);
 
   //! costMethod method
   //  cost functions
@@ -2037,7 +2037,7 @@ class QueryInvalidationFunc : public BuiltinTableValuedFunction {
 
   virtual RelExpr *copyTopNode(RelExpr *derivedNode = NULL, CollHeap *outHeap = 0);
 
-  virtual PhysicalProperty *synthPhysicalProperty(const Context *context, const Lng32 planNumber, PlanWorkSpace *pws);
+  virtual PhysicalProperty *synthPhysicalProperty(const Context *context, const int planNumber, PlanWorkSpace *pws);
   virtual const NAString getText() const;
 
  private:

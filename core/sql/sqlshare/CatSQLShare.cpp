@@ -158,11 +158,11 @@ SQLShareInt64 CATSQLSHARE_LIB_FUNC generateUniqueValue(void) {
 // except that it is faster since it does not use
 // time since coldload logic. Used for syskey generation in Trafodion.
 #define MASK1 0x1ffffffffffffLL
-Int64 generateUniqueValueFast() {
-  static THREAD_P Int64 lastTime = -1;
-  static THREAD_P Int64 highOrderBits = -1;
-  Int64 uniqueValue = -1;
-  Int64 currentTime = -1;
+long generateUniqueValueFast() {
+  static THREAD_P long lastTime = -1;
+  static THREAD_P long highOrderBits = -1;
+  long uniqueValue = -1;
+  long currentTime = -1;
   struct timespec ts;
   ts.tv_sec = 0;
   ts.tv_nsec = 1000;  // 1 microsecond

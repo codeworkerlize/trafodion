@@ -801,7 +801,7 @@ NABoolean BindWA::checkMultiOutSPParams(ItemExpr *h) {
   return FALSE;
 }
 
-void BindWA::setColumnRefsInStoi(const char *fileName, Lng32 colPosition) {
+void BindWA::setColumnRefsInStoi(const char *fileName, int colPosition) {
   if (getCurrentScope()->context()->inAnyConstraint()) return;
 
   if ((!isBindingMvRefresh()) &&
@@ -988,9 +988,9 @@ void HostArraysWA::collectHostVarsInPred(ItemExpr *parent, Int32 childNumber) {
       }
   }
 
-  Lng32 nc = op->getArity();
+  int nc = op->getArity();
 
-  for (Lng32 j = 0; j < nc; j++) {
+  for (int j = 0; j < nc; j++) {
     collectHostVarsInPred(op, j);
   }
 }
@@ -1219,7 +1219,7 @@ void HostArraysWA::collectHostVarsInRelExprTree(RelExpr *root, RelExpr::Atomicit
 
   if (selectList) {
     parent->setChild(0, selectList);
-    Lng32 savedNumHostArrays = numHostArrays_;
+    int savedNumHostArrays = numHostArrays_;
     collectHostVarsInPred(parent, 0);
     if (bindWA_->errStatus()) return;
     if (numHostArrays_ > savedNumHostArrays) {
@@ -1279,7 +1279,7 @@ void HostArraysWA::collectHostVarsInRelExprTree(RelExpr *root, RelExpr::Atomicit
       // We create a temporary constant to serve as a dummy tree root
       parent->setChild(0, setClause);
 
-      Lng32 savedNumHostArrays = numHostArrays_;
+      int savedNumHostArrays = numHostArrays_;
       // Traverse the SET clause. Find and replace any rowset host
       // variables found there
       collectHostVarsInPred(parent, 0);
@@ -1297,7 +1297,7 @@ void HostArraysWA::collectHostVarsInRelExprTree(RelExpr *root, RelExpr::Atomicit
         // We create a temporary constant to serve as a dummy tree root
         parent->setChild(0, insertClause);
 
-        Lng32 savedNumHostArrays = numHostArrays_;
+        int savedNumHostArrays = numHostArrays_;
         // Traverse the INSERT clause. Find and replace any rowset host
         // variables found there
         collectHostVarsInPred(parent, 0);

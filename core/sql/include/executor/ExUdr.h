@@ -97,7 +97,7 @@ class ExUdrTdb : public ComTdbUdr {
   inline const char *getSignature() const { return routineSignature_; }
   inline const char *getContainerName() const { return containerName_; }
   inline const char *getPathName() const { return externalPath_; }
-  inline const Int64 getLibraryRedefTime() const { return libraryRedefTime_; }
+  inline const long getLibraryRedefTime() const { return libraryRedefTime_; }
   inline const char *getLibraryBlobHandle() const { return libraryBlobHandle_; }
   inline const char *getLibrarySchName() const { return librarySchName_; }
   inline const char *getLibrarySqlName() const { return librarySqlName_; }
@@ -277,8 +277,8 @@ class ExUdrTcb : public ex_tcb {
     return childTcbs_[pos];
   }
 
-  ex_tcb_private_state *allocatePstates(Lng32 &numElems,       // [IN/OUT] desired/actual elements
-                                        Lng32 &pstateLength);  // [OUT] length of one element
+  ex_tcb_private_state *allocatePstates(int &numElems,       // [IN/OUT] desired/actual elements
+                                        int &pstateLength);  // [OUT] length of one element
 
   //
   // IPC callback functions communicate with the TCB by calling
@@ -303,11 +303,11 @@ class ExUdrTcb : public ex_tcb {
   //
 
   virtual ExOperStats *doAllocateStatsEntry(CollHeap *heap, ComTdb *tdb);
-  void incReplyMsg(Int64 msgBytes) {
+  void incReplyMsg(long msgBytes) {
     if (udrBaseStats_) udrBaseStats_->incReplyMsg(msgBytes);
   }
 
-  void incReqMsg(Int64 msgBytes) {
+  void incReqMsg(long msgBytes) {
     if (udrBaseStats_) udrBaseStats_->incReqMsg(msgBytes);
   }
 
@@ -423,8 +423,8 @@ class ExUdrTcb : public ex_tcb {
   ExUDRBaseStats *udrBaseStats_;
   ExUDRStats *udrStats_;
 
-  Int64 dataMsgsSent_;
-  Int64 continueMsgsSent_;
+  long dataMsgsSent_;
+  long continueMsgsSent_;
 
 #ifdef UDR_DEBUG
   FILE *traceFile_;
@@ -452,7 +452,7 @@ class ExUdrPrivateState : public ex_tcb_private_state {
   void init();
 
   ExUdrTcb::UdrTcbSendStep step_;
-  Int64 matchCount_;
+  long matchCount_;
   ComUInt32 numEodsFromChildTcbs_;  // for future use
   ComSInt32 currentChildTcbIndex_;
 };

@@ -65,7 +65,7 @@ CPPSRC := \
 	DTICommonType.cpp \
 	ErrorCondition.cpp \
 	ExprNode.cpp \
-	Int64.cpp \
+	long.cpp \
 	IntervalType.cpp \
 	Ipc.cpp \
 	IpcGuardian.cpp \

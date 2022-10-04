@@ -82,11 +82,11 @@ class SequenceFileReader : public JavaObjectInterface {
   SFR_RetCode open(const char *path);
 
   // Get the current file position.
-  SFR_RetCode getPosition(Int64 &pos);
+  SFR_RetCode getPosition(long &pos);
 
   // Seek to offset 'pos' in the file, and then find
   // the beginning of the next record.
-  SFR_RetCode seeknSync(Int64 pos);
+  SFR_RetCode seeknSync(long pos);
 
   // Have we reached the end of the file yet?
   SFR_RetCode isEOF(bool &isEOF);
@@ -97,12 +97,12 @@ class SequenceFileReader : public JavaObjectInterface {
   //  char**         fetchArrayOfColumns();
 
   // Fetch the next row as a raw string into 'buffer'.
-  SFR_RetCode fetchNextRow(Int64 stopOffset, char *buffer);
+  SFR_RetCode fetchNextRow(long stopOffset, char *buffer);
 
   // Close the file.
   SFR_RetCode close();
 
-  SFR_RetCode fetchRowsIntoBuffer(Int64 stopOffset, char *buffer, Int64 buffSize, Int64 &bytesRead, char rowDelimiter);
+  SFR_RetCode fetchRowsIntoBuffer(long stopOffset, char *buffer, long buffSize, long &bytesRead, char rowDelimiter);
 
   static char *getErrorText(SFR_RetCode errEnum);
 
@@ -173,7 +173,7 @@ class SequenceFileWriter : public JavaObjectInterface {
 
   // Write a buffer of rows, separated by 'rowDelimiter' characters, to the SequenceFile.
   // Note: rowDelimiter characters will be overwritten by nulls to become string terminators.
-  SFW_RetCode writeBuffer(char *data, Int64 buffSize, const char *rowDelimiter);
+  SFW_RetCode writeBuffer(char *data, long buffSize, const char *rowDelimiter);
 
   // Close the file.
   SFW_RetCode close();

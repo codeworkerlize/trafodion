@@ -39,7 +39,7 @@
 #include "common/ComOperators.h"
 #include "ParNameLocList.h"
 #include "optimizer/Sqlcomp.h"
-#include "ex_error.h"
+#include "executor/ex_error.h"
 #include "Cost.h" /* for lookups in the defaults table */
 #include "optimizer/Analyzer.h"
 
@@ -2194,7 +2194,7 @@ NABoolean TableDesc::computeMinMaxRowCountForLocalPred(const ValueIdSet &eqJoinC
   ExeCliInterface cliInterface(STMTHEAP, 0, NULL, CmpCommon::context()->sqlSession()->getParentQid());
 
   // Run the query
-  Lng32 cliRC = cliInterface.fetchAllRows(queryInfoQueue, query, 0, FALSE, FALSE, TRUE);
+  int cliRC = cliInterface.fetchAllRows(queryInfoQueue, query, 0, FALSE, FALSE, TRUE);
 
   count = 0;
 

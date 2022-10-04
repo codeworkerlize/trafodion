@@ -67,7 +67,7 @@ Long ComTdbProbeCache::pack(void *space) {
   return ComTdb::pack(space);
 }
 
-Lng32 ComTdbProbeCache::unpack(void *base, void *reallocator) {
+int ComTdbProbeCache::unpack(void *base, void *reallocator) {
   if (tdbChild_.unpack(base, reallocator)) return -1;
   if (hashProbeExpr_.unpack(base, reallocator)) return -1;
   if (encodeProbeExpr_.unpack(base, reallocator)) return -1;

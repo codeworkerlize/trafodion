@@ -53,30 +53,30 @@
 #include "common/ComAnsiNamePart.h"
 #include "common/ComGuardianFileNameParts.h"
 #include "common/ComASSERT.h"
-#include "Formatter.h"
-#include "SqlciStats.h"
+#include "sqlci/Formatter.h"
+#include "sqlci/SqlciStats.h"
 #include "common/NAString.h"
-#include "ErrorMessage.h"         // NAWriteConsole
+#include "sqlmsg/ErrorMessage.h"         // NAWriteConsole
 #include "common/IntervalType.h"  // NAType::convertTypeToText etc.
-#include "SqlciError.h"
+#include "sqlci/SqlciError.h"
 #include "cli/SQLCLIdev.h"
-#include "sqlcmd.h"
+#include "sqlci/sqlcmd.h"
 #include "cli/sql_id.h"
 #include "common/ComSqlId.h"
 #include "common/ComRtUtils.h"
 #define CAT_MAX_HEADING_LEN 132
 #define CM_GUA_ENAME_LEN    36
 #include "common/dfs2rec.h"
-#include "ex_error.h"
+#include "executor/ex_error.h"
 #include "common/str.h"
 #include "common/stringBuf.h"
 #include "common/charinfo.h"
 #include "common/NLSConversion.h"
 #include "common/nawstring.h"
-#include "SqlciList_templ.h"
+#include "sqlci/SqlciList_templ.h"
 #include "common/ComCextMisc.h"
 #include "common/ComCextdecs.h"
-#include "conversionHex.h"
+#include "common/conversionHex.h"
 
 #include "comexe/ComQueue.h"
 #include "executor/ExExeUtilCli.h"
@@ -86,7 +86,7 @@ extern SqlciEnv *global_sqlci_env;  // global sqlci_env for break key handling p
 extern ComDiagsArea sqlci_DA;
 extern NAHeap sqlci_Heap;
 extern BOOL WINAPI CtrlHandler(DWORD signalType);
-const Lng32 BREAK_ERROR = -999;
+const int BREAK_ERROR = -999;
 
 const Int32 MAX_MSGTEXT_LEN = 4096;
 const Int32 MAX_OTHERBUF_LEN = ComAnsiNamePart::MAX_IDENTIFIER_EXT_LEN + 1 + 1;
@@ -113,12 +113,12 @@ const Int32 MAX_OTHERBUF_LEN = ComAnsiNamePart::MAX_IDENTIFIER_EXT_LEN + 1 + 1;
 // We want single blank lines to enhance legibility; we never want two
 // blank non-data lines in a row.
 
-static Lng32 worstcode;
+static int worstcode;
 static NABoolean lastLineWasABlank;
 
 // remember the number of rows affected by an SQL statement
 // before resetting the diagnostics info
-static Int64 rowsAffected;
+static long rowsAffected;
 
 #define Succ_or_Warn (retcode == SQL_Success || (retcode >= 0 && retcode != SQL_Eof))
 void HandleCLIErrorInit() {
@@ -139,7 +139,7 @@ void SqlCmd::clearCLIDiagnostics() {
 
 volatile Int32 breakReceived = 0;
 
-void HandleCLIError(SQLSTMT_ID *stmt, Lng32 &error, SqlciEnv *sqlci_env, NABoolean displayErr, NABoolean *isEOD,
+void HandleCLIError(SQLSTMT_ID *stmt, int &error, SqlciEnv *sqlci_env, NABoolean displayErr, NABoolean *isEOD,
                     Int32 prepcode) {
   Int32 diagsCondCount = 0;
   NABoolean getWarningsWithEOF = TRUE;
@@ -152,7 +152,7 @@ void HandleCLIError(SQLSTMT_ID *stmt, Lng32 &error, SqlciEnv *sqlci_env, NABoole
   HandleCLIError(error, sqlci_env, displayErr, isEOD, prepcode, getWarningsWithEOF);
 }
 
-void HandleCLIError(Lng32 &error, SqlciEnv *sqlci_env, NABoolean displayErr, NABoolean *isEOD, Int32 prepcode,
+void HandleCLIError(int &error, SqlciEnv *sqlci_env, NABoolean displayErr, NABoolean *isEOD, Int32 prepcode,
                     NABoolean getWarningsWithEOF) {
   if (error == 100) {
     if (isEOD != NULL) *isEOD = 1;
@@ -183,7 +183,7 @@ void HandleCLIError(Lng32 &error, SqlciEnv *sqlci_env, NABoolean displayErr, NAB
     // Get the total number of conditions and # of rows affected
 
     Int32 total_conds = 0;
-    Int64 rows_affected = 0;
+    long rows_affected = 0;
 
     SQL_EXEC_AllocDesc(&cond_desc, 2);
 
@@ -191,7 +191,7 @@ void HandleCLIError(Lng32 &error, SqlciEnv *sqlci_env, NABoolean displayErr, NAB
     SQL_EXEC_SetDescItem(&cond_desc, 1, SQLDESC_VAR_PTR, (Long)&total_conds, 0);
     SQL_EXEC_SetDescItem(&cond_desc, 2, SQLDESC_TYPE_FS, REC_BIN64_SIGNED, 0);
     SQL_EXEC_SetDescItem(&cond_desc, 2, SQLDESC_VAR_PTR, (Long)&rows_affected, 0);
-    Lng32 stmt_items[2];
+    int stmt_items[2];
     stmt_items[0] = SQLDIAG_NUMBER;
     stmt_items[1] = SQLDIAG_ROW_COUNT;
     SQL_EXEC_GetDiagnosticsStmtInfo(stmt_items, &cond_desc);
@@ -217,7 +217,7 @@ void HandleCLIError(Lng32 &error, SqlciEnv *sqlci_env, NABoolean displayErr, NAB
     if (showSQLSTATE) num_output_entries = 3;
     // total_conds can be 1 (Executor error) or 2 (Compile error, the second
     // sqlcode being 8822 "Unable to prepare the stmt").
-    Lng32 specialErr = (ABS(error) == ABS(sqlci_env->specialError()) && total_conds <= 2) ? ABS(error) : 0;
+    int specialErr = (ABS(error) == ABS(sqlci_env->specialError()) && total_conds <= 2) ? ABS(error) : 0;
 
     if (specialErr) {
       ComASSERT(total_conds > 0);
@@ -419,7 +419,7 @@ void handleLocalError(ComDiagsArea *diags, SqlciEnv *sqlci_env) {
   log->WriteAllWithoutEOL(errMsg.str().c_str());
 }
 
-Int64 getRowsAffected(SQLSTMT_ID *stmt) {
+long getRowsAffected(SQLSTMT_ID *stmt) {
   Int32 rc;
   rc = SQL_EXEC_GetDiagnosticsStmtInfo2(stmt, SQLDIAG_ROW_COUNT, &rowsAffected, NULL, 0, NULL);
   if (rc == 0)
@@ -626,10 +626,10 @@ short SqlCmd::showShape(SqlciEnv *sqlci_env, const char *query) {
 }
 
 short SqlCmd::updateRepos(SqlciEnv *sqlci_env, SQLSTMT_ID *stmt, char *queryId) {
-  Lng32 retcode = 0;
+  int retcode = 0;
 
   // get explain fragment.
-  Lng32 explainDataLen = 50000;  // start with 50K bytes
+  int explainDataLen = 50000;  // start with 50K bytes
   Int32 retExplainLen = 0;
   char *explainData = new char[explainDataLen + 1];
   retcode = SQL_EXEC_GetExplainData(stmt, explainData, explainDataLen + 1, &retExplainLen);
@@ -660,7 +660,7 @@ short SqlCmd::updateRepos(SqlciEnv *sqlci_env, SQLSTMT_ID *stmt, char *queryId) 
 
   char *queryBuf = new char[4000];
 
-  Int64 ts = NA_JulianTimestamp();
+  long ts = NA_JulianTimestamp();
   str_sprintf(queryBuf,
               "insert into %s.\"%s\".%s (instance_id, tenant_id, host_id, exec_start_utc_ts, query_id, explain_plan) "
               "values (0,0,0, CONVERTTIMESTAMP(%ld), '%s', '' ) ",
@@ -696,7 +696,7 @@ label_return:
   return retcode;
 }
 
-short SqlCmd::cleanupAfterError(Lng32 retcode, SqlciEnv *sqlci_env, SQLSTMT_ID *stmt, SQLDESC_ID *sql_src,
+short SqlCmd::cleanupAfterError(int retcode, SqlciEnv *sqlci_env, SQLSTMT_ID *stmt, SQLDESC_ID *sql_src,
                                 SQLDESC_ID *output_desc, SQLDESC_ID *input_desc, NABoolean resetLastExecStmt) {
   // if retcode < 0, it is an error.
   // Clean up and return.
@@ -726,10 +726,8 @@ short SqlCmd::cleanupAfterError(Lng32 retcode, SqlciEnv *sqlci_env, SQLSTMT_ID *
 }
 
 short SqlCmd::do_prepare(SqlciEnv *sqlci_env, PrepStmt *prep_stmt, char *sqlStmt, NABoolean resetLastExecStmt,
-                         Lng32 rsIndex, Int32 *prepcode, Lng32 *statisticsType) {
-  if (sqlci_env->showShape()) {
-    showShape(sqlci_env, sqlStmt);
-  }
+                         int rsIndex, Int32 *prepcode, int *statisticsType) {
+
 
   SQLSTMT_ID *stmt = new SQLSTMT_ID;
   SQLDESC_ID *sql_src = new SQLDESC_ID;
@@ -759,7 +757,7 @@ short SqlCmd::do_prepare(SqlciEnv *sqlci_env, PrepStmt *prep_stmt, char *sqlStmt
 
   SqlCmd::clearCLIDiagnostics();
 
-  Lng32 retcode = 0;
+  int retcode = 0;
 
   // replace any user defined pattern in the sql query
   //  char * str = replacePattern(sqlci_env, sqlStmt);
@@ -794,7 +792,7 @@ short SqlCmd::do_prepare(SqlciEnv *sqlci_env, PrepStmt *prep_stmt, char *sqlStmt
     init_SQLSTMT_ID(&callStmt, SQLCLI_CURRENT_VERSION, stmt_name, &module);
 
     char *callStmtName = sqlci_env->lastExecutedStmt()->getStmtName();
-    callStmt.identifier_len = (Lng32)strlen(callStmtName);
+    callStmt.identifier_len = (int)strlen(callStmtName);
     callStmt.identifier = callStmtName;
 
     retcode = SQL_EXEC_AllocStmtForRS(&callStmt, rsIndex, stmt);
@@ -845,10 +843,10 @@ short SqlCmd::do_prepare(SqlciEnv *sqlci_env, PrepStmt *prep_stmt, char *sqlStmt
   SQL_QUERY_COST_INFO queryCostInfo;
   SQL_QUERY_COMPILER_STATS_INFO queryCompStatsInfo;
   char uniqueQueryIdBuf[400];
-  Lng32 uniqueQueryIdLenBuf = 399;
+  int uniqueQueryIdLenBuf = 399;
 
   char *uniqueQueryIdPtr = uniqueQueryIdBuf;
-  Lng32 *uniqueQueryIdLenPtr = &uniqueQueryIdLenBuf;
+  int *uniqueQueryIdLenPtr = &uniqueQueryIdLenBuf;
 
   if (!skipPrepare) {
     /* prepare it */
@@ -897,7 +895,7 @@ short SqlCmd::do_prepare(SqlciEnv *sqlci_env, PrepStmt *prep_stmt, char *sqlStmt
   if (!skipPrepare) {
     retcode = SQL_EXEC_GetStmtAttr(stmt, SQL_ATTR_QUERY_TYPE, &prep_stmt->queryType(), NULL, 0, NULL);
     HandleCLIError(retcode, sqlci_env);
-    Lng32 subqueryType;
+    int subqueryType;
 
     retcode = SQL_EXEC_GetStmtAttr(stmt, SQL_ATTR_SUBQUERY_TYPE, &subqueryType, NULL, 0, NULL);
     HandleCLIError(retcode, sqlci_env);
@@ -926,7 +924,7 @@ short SqlCmd::do_prepare(SqlciEnv *sqlci_env, PrepStmt *prep_stmt, char *sqlStmt
   }
 
   /* describe the input/output entries into the input/output descriptor */
-  Lng32 num_input_entries = 0, num_output_entries = 0;
+  int num_input_entries = 0, num_output_entries = 0;
   retcode = SQL_EXEC_DescribeStmt(stmt, input_desc, output_desc);
   if (retcode < 0) {
     // This is a stored procedure result set without a valid query
@@ -1005,26 +1003,26 @@ short SqlCmd::do_prepare(SqlciEnv *sqlci_env, PrepStmt *prep_stmt, char *sqlStmt
 void SqlCmd::addOutputInfoToPrepStmt(SqlciEnv *sqlci_env, PrepStmt *prep_stmt) {
   if (!prep_stmt) return;
 
-  Lng32 num_output_entries = prep_stmt->numOutputEntries();
+  int num_output_entries = prep_stmt->numOutputEntries();
   SQLDESC_ID *output_desc = prep_stmt->getOutputDesc();
 
   if (num_output_entries > 0) {
-    Lng32 retcode = 0;
+    int retcode = 0;
 
     // space where actual data is returned
     char *output_data = 0;
-    Lng32 output_data_len = 0;
-    Lng32 output_buflen = 0;
+    int output_data_len = 0;
+    int output_buflen = 0;
 
-    Lng32 datatype = 0;
-    Lng32 length = 0;
-    Lng32 precision = 0;
-    Lng32 scale = 0;
-    Lng32 null_flag = 0;
-    Lng32 vcIndLen = 0;
-    Lng32 charsetEnum = 0;
+    int datatype = 0;
+    int length = 0;
+    int precision = 0;
+    int scale = 0;
+    int null_flag = 0;
+    int vcIndLen = 0;
+    int charsetEnum = 0;
 
-    Lng32 curpos = 0;
+    int curpos = 0;
 
     prep_stmt->outputEntries() = new PrepEntry *[num_output_entries];
 
@@ -1064,11 +1062,11 @@ void SqlCmd::addOutputInfoToPrepStmt(SqlciEnv *sqlci_env, PrepStmt *prep_stmt) {
       HandleCLIError(retcode, sqlci_env);
 
       char heading[CAT_MAX_HEADING_LEN + 1];
-      Lng32 heading_len;
+      int heading_len;
       char outputName[CAT_MAX_HEADING_LEN + 1];
-      Lng32 output_name_len;
+      int output_name_len;
       char tableName[CM_GUA_ENAME_LEN + 1];
-      Lng32 table_name_len;
+      int table_name_len;
 
       ComASSERT(ComAnsiNamePart::MAX_IDENTIFIER_EXT_LEN >= (Int32)CAT_MAX_HEADING_LEN);
 
@@ -1098,21 +1096,21 @@ void SqlCmd::addOutputInfoToPrepStmt(SqlciEnv *sqlci_env, PrepStmt *prep_stmt) {
                                      &table_name_len, 0);
       HandleCLIError(retcode, sqlci_env);
 
-      Lng32 alignedLen;
+      int alignedLen;
       retcode = SQL_EXEC_GetDescItem(output_desc, entry, SQLDESC_ALIGNED_LENGTH, &alignedLen, 0, 0, 0, 0);
       HandleCLIError(retcode, sqlci_env);
       output_data_len += alignedLen;
 
       if (DFS2REC::isAnyCharacter(datatype)) {
-        Lng32 isCaseInsensitive = 0;
+        int isCaseInsensitive = 0;
         retcode =
             SQL_EXEC_GetDescItem(output_desc, entry, SQLDESC_CASEINSENSITIVE, &isCaseInsensitive, NULL, 0, NULL, 0);
         HandleCLIError(retcode, sqlci_env);
       }
 
       // add space to display the returned data.
-      Lng32 out_buflen_this_col = 0;
-      Lng32 display_len = Formatter::display_length(datatype, length, precision, scale, charsetEnum, heading_len,
+      int out_buflen_this_col = 0;
+      int display_len = Formatter::display_length(datatype, length, precision, scale, charsetEnum, heading_len,
                                                     sqlci_env, &out_buflen_this_col);
 
       output_buflen += out_buflen_this_col + ((entry < num_output_entries) ? Formatter::BLANK_SEP_WIDTH : 0);
@@ -1130,8 +1128,8 @@ void SqlCmd::addOutputInfoToPrepStmt(SqlciEnv *sqlci_env, PrepStmt *prep_stmt) {
     for (entry = 1; entry <= num_output_entries; entry++) {
       PrepEntry *outputEntry = prep_stmt->outputEntries()[entry - 1];
 
-      Lng32 dataOffset;
-      Lng32 nullIndOffset;
+      int dataOffset;
+      int nullIndOffset;
 
       retcode = SQL_EXEC_GetDescItem(output_desc, entry, SQLDESC_NULL_IND_OFFSET, &nullIndOffset, 0, 0, 0, 0);
       HandleCLIError(retcode, sqlci_env);
@@ -1159,7 +1157,7 @@ void SqlCmd::addOutputInfoToPrepStmt(SqlciEnv *sqlci_env, PrepStmt *prep_stmt) {
     // a getenv of SQL_MXCI_SHOW_NONPRINTING.
 
     static Int32 prepCnt = 0;
-    static Lng32 extraOutputBuf;
+    static int extraOutputBuf;
 
     if (prepCnt < 5) {
       prepCnt++;
@@ -1174,10 +1172,10 @@ void SqlCmd::addOutputInfoToPrepStmt(SqlciEnv *sqlci_env, PrepStmt *prep_stmt) {
   }  // if (num_output_entries > 0)
 }
 
-short SqlCmd::doDescribeInput(SqlciEnv *sqlci_env, SQLSTMT_ID *stmt, PrepStmt *prep_stmt, Lng32 num_input_entries,
+short SqlCmd::doDescribeInput(SqlciEnv *sqlci_env, SQLSTMT_ID *stmt, PrepStmt *prep_stmt, int num_input_entries,
                               Int32 numUnnamedParams, char **unnamedParamArray,
                               CharInfo::CharSet *unnamedParamCharSetArray) {
-  Lng32 retcode = 0;
+  int retcode = 0;
   Int32 num_named_params = 0;
   SqlciList<Param> *unnamed_param_list = NULL;
   ComDiagsArea *diags = NULL;
@@ -1185,19 +1183,19 @@ short SqlCmd::doDescribeInput(SqlciEnv *sqlci_env, SQLSTMT_ID *stmt, PrepStmt *p
   SQLDESC_ID *input_desc = prep_stmt->getInputDesc();
 
   char *aligned_input_data = 0;
-  Lng32 aligned_input_data_len = 0;
+  int aligned_input_data_len = 0;
   NABoolean canAlign = TRUE;
 
   // if input params present, then assign their values to the dataptr
   // field of the descriptor.
   if (num_input_entries > 0) {
     short datatype;
-    Lng32 returned_len;
-    Lng32 length = 0;
-    Lng32 precision;
-    Lng32 scale;
-    Lng32 unnamed;
-    Lng32 vcIndLen = -1;
+    int returned_len;
+    int length = 0;
+    int precision;
+    int scale;
+    int unnamed;
+    int vcIndLen = -1;
     CharInfo::CharSet charset = CharInfo::CHARSET_MIN;
 
     char param_name[ComAnsiNamePart::MAX_IDENTIFIER_EXT_LEN + 1];
@@ -1205,14 +1203,14 @@ short SqlCmd::doDescribeInput(SqlciEnv *sqlci_env, SQLSTMT_ID *stmt, PrepStmt *p
     prep_stmt->inputEntries() = new PrepEntry *[num_input_entries];
 
     for (short entry = 1; entry <= num_input_entries; entry++) {
-      Lng32 temp;
+      int temp;
       retcode = SQL_EXEC_GetDescItem(input_desc, entry, SQLDESC_TYPE_FS, &temp, 0, 0, 0, 0);
       datatype = (short)temp;
       HandleCLIError(retcode, sqlci_env);
       retcode = SQL_EXEC_GetDescItem(input_desc, entry, SQLDESC_OCTET_LENGTH, &length, 0, 0, 0, 0);
       HandleCLIError(retcode, sqlci_env);
 
-      Lng32 alignedLen = 0;
+      int alignedLen = 0;
       retcode = SQL_EXEC_GetDescItem(input_desc, entry, SQLDESC_ALIGNED_LENGTH, &alignedLen, 0, 0, 0, 0);
       HandleCLIError(retcode, sqlci_env);
       aligned_input_data_len += alignedLen;
@@ -1223,8 +1221,8 @@ short SqlCmd::doDescribeInput(SqlciEnv *sqlci_env, SQLSTMT_ID *stmt, PrepStmt *p
       retcode = SQL_EXEC_GetDescItem(input_desc, entry, SQLDESC_UNNAMED, &unnamed, 0, 0, 0, 0);
       HandleCLIError(retcode, sqlci_env);
 
-      Lng32 whatToPutIntoPrecision = SQLDESC_PRECISION;
-      Lng32 whatToPutIntoScale = SQLDESC_SCALE;
+      int whatToPutIntoPrecision = SQLDESC_PRECISION;
+      int whatToPutIntoScale = SQLDESC_SCALE;
       if (datatype >= REC_MIN_INTERVAL && datatype <= REC_MAX_INTERVAL) {
         whatToPutIntoPrecision = SQLDESC_INT_LEAD_PREC;
         whatToPutIntoScale = SQLDESC_PRECISION;
@@ -1305,13 +1303,13 @@ short SqlCmd::doDescribeInput(SqlciEnv *sqlci_env, SQLSTMT_ID *stmt, PrepStmt *p
         } else {
           NABoolean error = FALSE;
 
-          Lng32 inLength = length;
+          int inLength = length;
 
           Int32 previousEntry = 0;
 
           if (diags != NULL) previousEntry = diags->getNumber(DgSqlCode::ERROR_);
 
-          if (DFS2REC::isAnyCharacter(datatype)) scale = (Lng32)charset;  // pass in target charset in argument 'scale'
+          if (DFS2REC::isAnyCharacter(datatype)) scale = (int)charset;  // pass in target charset in argument 'scale'
 
           retcode = param->convertValue(sqlci_env, datatype, length, precision, scale, vcIndLen, diags);
           Int32 newestEntry = 0;
@@ -1346,8 +1344,8 @@ short SqlCmd::doDescribeInput(SqlciEnv *sqlci_env, SQLSTMT_ID *stmt, PrepStmt *p
           // will be < 0 and it will follow this code path.
           else {
             char tgttype[100];
-            Lng32 charSet;
-            Lng32 collation;
+            int charSet;
+            int collation;
 
             retcode = SQL_EXEC_GetDescItem(input_desc, entry, SQLDESC_CHAR_SET, &charSet, 0, 0, 0, 0);
             HandleCLIError(retcode, sqlci_env);
@@ -1355,9 +1353,9 @@ short SqlCmd::doDescribeInput(SqlciEnv *sqlci_env, SQLSTMT_ID *stmt, PrepStmt *p
 
             rec_datetime_field dtStartField = REC_DATE_YEAR;
             rec_datetime_field dtEndField = REC_DATE_SECOND;
-            Lng32 intLeadPrec = SQLInterval::DEFAULT_LEADING_PRECISION;
+            int intLeadPrec = SQLInterval::DEFAULT_LEADING_PRECISION;
             if (datatype == REC_DATETIME) {
-              Lng32 dtCode;
+              int dtCode;
               retcode = SQL_EXEC_GetDescItem(input_desc, entry, SQLDESC_DATETIME_CODE, &dtCode, 0, 0, 0, 0);
               HandleCLIError(retcode, sqlci_env);
 
@@ -1440,8 +1438,8 @@ short SqlCmd::doDescribeInput(SqlciEnv *sqlci_env, SQLSTMT_ID *stmt, PrepStmt *p
   }
 
   if ((num_input_entries > 0) && (canAlign)) {
-    Lng32 dataOffset = -1;
-    Lng32 nullIndOffset = -1;
+    int dataOffset = -1;
+    int nullIndOffset = -1;
 
     aligned_input_data = new char[aligned_input_data_len];
     for (short entry = 1; entry <= num_input_entries; entry++) {
@@ -1482,7 +1480,7 @@ short SqlCmd::doDescribeInput(SqlciEnv *sqlci_env, SQLSTMT_ID *stmt, PrepStmt *p
 
 short SqlCmd::doExec(SqlciEnv *sqlci_env, SQLSTMT_ID *stmt, PrepStmt *prep_stmt, Int32 numUnnamedParams,
                      char **unnamedParamArray, CharInfo::CharSet *unnamedParamCharSetArray, NABoolean handleError) {
-  Lng32 retcode = 0;
+  int retcode = 0;
   rowsAffected = 0;
   SqlciList<Param> *unnamed_param_list = NULL;
 
@@ -1490,7 +1488,7 @@ short SqlCmd::doExec(SqlciEnv *sqlci_env, SQLSTMT_ID *stmt, PrepStmt *prep_stmt,
   SQLDESC_ID *output_desc = prep_stmt->getOutputDesc();
   dml_type stmt_type = prep_stmt->getType();
 
-  Lng32 num_input_entries = prep_stmt->numInputEntries();
+  int num_input_entries = prep_stmt->numInputEntries();
 
   retcode = doDescribeInput(sqlci_env, stmt, prep_stmt, num_input_entries, numUnnamedParams, unnamedParamArray,
                             unnamedParamCharSetArray);
@@ -1508,7 +1506,7 @@ short SqlCmd::doExec(SqlciEnv *sqlci_env, SQLSTMT_ID *stmt, PrepStmt *prep_stmt,
 
 short SqlCmd::doFetch(SqlciEnv *sqlci_env, SQLSTMT_ID *stmt, PrepStmt *prep_stmt, NABoolean firstFetch,
                       NABoolean handleError, Int32 prepcode) {
-  Lng32 retcode = 0;
+  int retcode = 0;
 
   // fetch rows till EOF. Note, for statements which do not
   // return rows (like, INSERT...), an EOF will be returned
@@ -1526,10 +1524,10 @@ short SqlCmd::doFetch(SqlciEnv *sqlci_env, SQLSTMT_ID *stmt, PrepStmt *prep_stmt
 short SqlCmd::doClearExecFetchClose(SqlciEnv *sqlci_env, SQLSTMT_ID *stmt, PrepStmt *prep_stmt, Int32 numUnnamedParams,
                                     char **unnamedParamArray, CharInfo::CharSet *unnamedParamCharSetArray,
                                     NABoolean handleError) {
-  Lng32 retcode = 0;
+  int retcode = 0;
   rowsAffected = 0;
 
-  Lng32 num_input_entries = prep_stmt->numInputEntries();
+  int num_input_entries = prep_stmt->numInputEntries();
   retcode = doDescribeInput(sqlci_env, stmt, prep_stmt, num_input_entries, numUnnamedParams, unnamedParamArray,
                             unnamedParamCharSetArray);
   if (retcode == SQL_Error) return (short)retcode;
@@ -1538,7 +1536,7 @@ short SqlCmd::doClearExecFetchClose(SqlciEnv *sqlci_env, SQLSTMT_ID *stmt, PrepS
                                          ((prep_stmt->numOutputEntries() > 0) ? prep_stmt->getOutputDesc() : NULL), 0,
                                          0, 0, 0);
 
-  Lng32 queryType = prep_stmt->queryType();
+  int queryType = prep_stmt->queryType();
   if (queryType != SQL_SELECT_UNIQUE) {
     if (retcode == SQL_Success) retcode = SQL_Eof;
   }
@@ -1549,18 +1547,18 @@ short SqlCmd::doClearExecFetchClose(SqlciEnv *sqlci_env, SQLSTMT_ID *stmt, PrepS
 }
 
 short SqlCmd::getHeadingInfo(SqlciEnv *sqlci_env, PrepStmt *prep_stmt, char *heading_row, char *underline) {
-  Lng32 retcode = 0;
+  int retcode = 0;
   SQLDESC_ID *output_desc = prep_stmt->getOutputDesc();
-  Lng32 output_buflen = prep_stmt->outputBuflen();
+  int output_buflen = prep_stmt->outputBuflen();
   char *heading = new char[ComAnsiNamePart::MAX_IDENTIFIER_EXT_LEN + 1];
-  Lng32 returned_len;
-  Lng32 heading_len;
-  Lng32 curpos = 0;
+  int returned_len;
+  int heading_len;
+  int curpos = 0;
 
   str_pad(heading_row, output_buflen, ' ');
   str_pad(underline, output_buflen, ' ');
 
-  Lng32 num_output_entries = prep_stmt->numOutputEntries();
+  int num_output_entries = prep_stmt->numOutputEntries();
   for (short entry = 1; entry <= num_output_entries; entry++) {
     /////////////////////////////////////////////////////////
     // If user specified heading is present, display it.
@@ -1599,14 +1597,14 @@ short SqlCmd::getHeadingInfo(SqlciEnv *sqlci_env, PrepStmt *prep_stmt, char *hea
   return 0;
 }
 short SqlCmd::displayHeading(SqlciEnv *sqlci_env, PrepStmt *prep_stmt) {
-  Lng32 retcode = 0;
+  int retcode = 0;
 
   Logfile *log = sqlci_env->get_logfile();
   if (!lastLineWasABlank) log->WriteAll("");
 
   if (prep_stmt->getType() != DML_DISPLAY_NO_HEADING_TYPE) {
     // Only obtain and display header row if requested
-    Lng32 output_buflen = prep_stmt->outputBuflen();
+    int output_buflen = prep_stmt->outputBuflen();
     char *heading_row = new char[output_buflen + 1];
     char *underline = new char[output_buflen + 1];
 
@@ -1647,17 +1645,17 @@ short SqlCmd::displayHeading(SqlciEnv *sqlci_env, PrepStmt *prep_stmt) {
   return 0;
 }
 
-Lng32 SqlCmd::displayRow(SqlciEnv *sqlci_env, PrepStmt *prep_stmt) {
+int SqlCmd::displayRow(SqlciEnv *sqlci_env, PrepStmt *prep_stmt) {
   NABoolean playItSafeUseTheOldWay = TRUE;
 
-  Lng32 retcode = 0;
+  int retcode = 0;
   char *buf = prep_stmt->outputBuf();
   SQLDESC_ID *output_desc = prep_stmt->getOutputDesc();
 
   /* print the output */
-  Lng32 curpos = 0;
+  int curpos = 0;
 
-  Lng32 num_output_entries = prep_stmt->numOutputEntries();
+  int num_output_entries = prep_stmt->numOutputEntries();
 
   if (playItSafeUseTheOldWay)
     for (short entry = 1; entry <= num_output_entries; entry++) {
@@ -1686,7 +1684,7 @@ Lng32 SqlCmd::displayRow(SqlciEnv *sqlci_env, PrepStmt *prep_stmt) {
 
 short SqlCmd::do_execute(SqlciEnv *sqlci_env, PrepStmt *prep_stmt, Int32 numUnnamedParams, char **unnamedParamArray,
                          CharInfo::CharSet *unnamedParamCharSetArray, Int32 prepcode) {
-  Lng32 retcode = 0;
+  int retcode = 0;
   // short ret;
   Logfile *log = sqlci_env->get_logfile();
   SQLSTMT_ID *stmt = prep_stmt->getStmt();
@@ -1702,12 +1700,12 @@ short SqlCmd::do_execute(SqlciEnv *sqlci_env, PrepStmt *prep_stmt, Int32 numUnna
   // Bookkeeping for stored procedure result sets
   NABoolean isResultSet = (stmt_type == DML_CALL_STMT_RS_TYPE ? TRUE : FALSE);
   char childQueryId[ComSqlId::MAX_QUERY_ID_LEN + 1];
-  Lng32 childQueryIdLen;
+  int childQueryIdLen;
   SQL_QUERY_COST_INFO childQueryCostInfo;
   SQL_QUERY_COMPILER_STATS_INFO childQueryCompilerStatsInfo;
 
-  Lng32 queryType = prep_stmt->queryType();
-  Lng32 subqueryType = prep_stmt->getSubqueryType();
+  int queryType = prep_stmt->queryType();
+  int subqueryType = prep_stmt->getSubqueryType();
 
   if ((stmt_type == DML_CONTROL_TYPE) &&
       ((prep_stmt->queryType() == SQL_SELECT_NON_UNIQUE) || (prep_stmt->queryType() == SQL_SELECT_UNIQUE)))
@@ -1781,7 +1779,7 @@ short SqlCmd::do_execute(SqlciEnv *sqlci_env, PrepStmt *prep_stmt, Int32 numUnna
     while (Succ_or_Warn && !listcountReached && !processedCallWithResultSets) {
       num_rows_returned++;
       if (prep_stmt->numOutputEntries() > 0) {
-        Lng32 curpos = displayRow(sqlci_env, prep_stmt);
+        int curpos = displayRow(sqlci_env, prep_stmt);
 
         // Trim trailing spaces from SHOWDDL and INVOKE ``column'' values,
         // and GET RELATED NAMES OF .../ GET VERSION OF ...
@@ -1814,7 +1812,7 @@ short SqlCmd::do_execute(SqlciEnv *sqlci_env, PrepStmt *prep_stmt, Int32 numUnna
         // Child QueryId Processing
         if (doCTAS && (NOT noScreenOutput)) {
           if (strstr(prep_stmt->outputBuf(), "childQidBegin")) {
-            Lng32 rc = SQL_EXEC_GetChildQueryInfo(stmt, childQueryId, ComSqlId::MAX_QUERY_ID_LEN, &childQueryIdLen,
+            int rc = SQL_EXEC_GetChildQueryInfo(stmt, childQueryId, ComSqlId::MAX_QUERY_ID_LEN, &childQueryIdLen,
                                                   &childQueryCostInfo, &childQueryCompilerStatsInfo);
             HandleCLIError(rc, sqlci_env);
             if (rc >= 0) {
@@ -1840,13 +1838,13 @@ short SqlCmd::do_execute(SqlciEnv *sqlci_env, PrepStmt *prep_stmt, Int32 numUnna
       if (queryType == SQL_CALL_WITH_RESULT_SETS && retcode >= 0 && !isResultSet) {
         processedCallWithResultSets = TRUE;
         NABoolean done = FALSE;
-        Lng32 rsIndex = 1;
+        int rsIndex = 1;
         while (!done) {
           // long copyOfWorstcode = worstcode;
 
           DML *rs = new DML("", DML_CALL_STMT_RS_TYPE, "__SQLCI_DML_SP_RESULT_SET__");
           rs->setResultSetIndex(rsIndex);
-          Lng32 rsProcessingCode = rs->process(sqlci_env);
+          int rsProcessingCode = rs->process(sqlci_env);
 
           delete rs;
           rsIndex++;
@@ -1979,7 +1977,7 @@ short SqlCmd::executeQuery(const char *query, SqlciEnv *sqlci_env) {
   //  Given a SQL query, this procedure invokes the appropriate
   //  CLI calls to prepare and execute the statement.
   // -----------------------------------------------------------------------
-  Lng32 retcode;
+  int retcode;
 
   SQLMODULE_ID module;
   init_SQLMODULE_ID(&module);
@@ -2028,7 +2026,7 @@ short SqlCmd::executeQuery(const char *query, SqlciEnv *sqlci_env) {
   return (short)((retcode < 0) ? SQL_Error : retcode);
 }
 
-short SqlCmd::setEnviron(SqlciEnv *sqlci_env, Lng32 propagate) {
+short SqlCmd::setEnviron(SqlciEnv *sqlci_env, int propagate) {
   short rc = SQL_EXEC_SetEnviron_Internal(propagate);
   return rc;
 }
@@ -2088,7 +2086,7 @@ Execute::Execute(char *stmt_name_, char *argument_, short flag, SqlciEnv *sqlci_
   for (Int32 i = 0; i < MAX_NUM_UNNAMED_PARAMS; i++) using_param_charsets[i] = CharInfo::UnknownCharSet;
 
   if (flag) {
-    Lng32 err = storeParams(argument_, num_params, using_params, using_param_charsets, sqlci_env);
+    int err = storeParams(argument_, num_params, using_params, using_param_charsets, sqlci_env);
     if (err) setErrorCode(err);
   }
 }
@@ -2104,12 +2102,12 @@ Execute::~Execute() {
 /* input: 24, cat, 'dog';                              */
 /* output: none                                        */
 /*******************************************************/
-static Lng32 errorParams(Lng32 err, const char *str0 = NULL, Lng32 int0 = -99) {
+static int errorParams(int err, const char *str0 = NULL, int int0 = -99) {
   sqlci_DA << DgSqlCode(err) << DgString0(str0) << DgInt0(int0);
   return err;
 }
 
-Lng32 Execute::storeParams(char *argument_, short &num_params, char *using_params[],
+int Execute::storeParams(char *argument_, short &num_params, char *using_params[],
                            CharInfo::CharSet using_param_charsets[], SqlciEnv *sqlci_env) {
   ComASSERT(argument_);
   num_params = 0;
@@ -2351,7 +2349,7 @@ Lng32 Execute::storeParams(char *argument_, short &num_params, char *using_param
 QueryCacheSt::QueryCacheSt(short option) : SqlCmd(SqlCmd::QUERYCACHE_TYPE, ""), option_(option) {}
 
 short SqlCmd::deallocate(SqlciEnv *sqlci_env, PrepStmt *prep_stmt) {
-  Lng32 retcode;
+  int retcode;
 
   // prepared statement exists. Deallocate it.
   retcode = SQL_EXEC_DeallocDesc(prep_stmt->getSqlSrc());
@@ -2387,7 +2385,7 @@ short SqlCmd::deallocate(SqlciEnv *sqlci_env, PrepStmt *prep_stmt) {
 /////////////////////////////////////////////////////////////////
 
 short DML::process(SqlciEnv *sqlci_env) {
-  Lng32 retcode = 0, prepcode = 0, retcodeExe = 0;
+  int retcode = 0, prepcode = 0, retcodeExe = 0;
 
   // Bookkeeping for stored procedure result sets
   NABoolean isResultSet = (type == DML_CALL_STMT_RS_TYPE ? TRUE : FALSE);
@@ -2420,7 +2418,7 @@ short DML::process(SqlciEnv *sqlci_env) {
 
   NABoolean resetLastExecStmt = (isResultSet ? FALSE : TRUE);
   Int32 prepareCode = 0;
-  Lng32 statisticsType = SQLCLI_NO_STATS;
+  int statisticsType = SQLCLI_NO_STATS;
   LOGDEBUG(CAT_SQL_CI, "Prepare SQL: %s", get_sql_stmt());
   prepcode =
       do_prepare(sqlci_env, prep_stmt, get_sql_stmt(), resetLastExecStmt, rsIndex_, &prepareCode, &statisticsType);
@@ -2508,7 +2506,7 @@ short DML::process(SqlciEnv *sqlci_env) {
 // Begin PREPARE
 //////////////////////////////////////////////
 short Prepare::process(SqlciEnv *sqlci_env) {
-  Lng32 retcode;
+  int retcode;
   HandleCLIErrorInit();
   PrepStmt *prep_stmt;
 
@@ -2566,11 +2564,11 @@ short Prepare::process(SqlciEnv *sqlci_env) {
 ///////////////////////////////////////////////////////
 // Begin DESCRIBESTMT
 //////////////////////////////////////////////////////
-short DescribeStmt::displayEntries(SqlciEnv *sqlci_env, SQLDESC_ID *desc, Lng32 numEntries, Logfile *log) {
+short DescribeStmt::displayEntries(SqlciEnv *sqlci_env, SQLDESC_ID *desc, int numEntries, Logfile *log) {
   char scratchBuffer[512];
   char charVal[ComAnsiNamePart::MAX_IDENTIFIER_EXT_LEN + 1];
-  Lng32 intVal;
-  Lng32 retcode;
+  int intVal;
+  int retcode;
 
   // For each entry produce the following output
   //
@@ -2579,7 +2577,7 @@ short DescribeStmt::displayEntries(SqlciEnv *sqlci_env, SQLDESC_ID *desc, Lng32 
   //     PREC n, LPREC n, SCALE n, DTCODE n, NULL n, MODE n, IDX n, ORDPOS n
   //     CAT "catalog-name", SCH "schema-name", TABLE "table-name"
 
-  for (Lng32 entry = 1; entry <= numEntries; entry++) {
+  for (int entry = 1; entry <= numEntries; entry++) {
     sprintf(scratchBuffer, "[%d] ", entry);
     log->WriteAllWithoutEOL(scratchBuffer);
 
@@ -2598,7 +2596,7 @@ short DescribeStmt::displayEntries(SqlciEnv *sqlci_env, SQLDESC_ID *desc, Lng32 
     log->WriteAll(scratchBuffer);
 
     // ------------------------------------------------
-    Lng32 datatype = 0;
+    int datatype = 0;
     retcode = SQL_EXEC_GetDescItem(desc, entry, SQLDESC_TYPE, &intVal, 0, 0, 0, 0);
     HandleCLIError(retcode, sqlci_env);
     sprintf(scratchBuffer, "    TYPE %d, ", intVal);
@@ -2722,8 +2720,8 @@ short DescribeStmt::process(SqlciEnv *sqlci_env) {
   Logfile *log = sqlci_env->get_logfile();
   SQLDESC_ID *input_desc = prep_stmt->getInputDesc();
   SQLDESC_ID *output_desc = prep_stmt->getOutputDesc();
-  Lng32 num_input_entries = prep_stmt->numInputEntries();
-  Lng32 num_output_entries = prep_stmt->numOutputEntries();
+  int num_input_entries = prep_stmt->numInputEntries();
+  int num_output_entries = prep_stmt->numOutputEntries();
 
   if (num_input_entries > 0) {
     log->WriteAll("---Describing the INPUT entries---");
@@ -2745,7 +2743,7 @@ short DescribeStmt::process(SqlciEnv *sqlci_env) {
 }
 
 short StoreExplain::process(SqlciEnv *sqlci_env) {
-  Lng32 retcode;
+  int retcode;
   HandleCLIErrorInit();
   PrepStmt *prep_stmt;
 
@@ -2785,7 +2783,7 @@ short StoreExplain::process(SqlciEnv *sqlci_env) {
 ///////////////////////////////////////////
 
 short Execute::process(SqlciEnv *sqlci_env) {
-  Lng32 retcode;
+  int retcode;
   HandleCLIErrorInit();
   PrepStmt *prep_stmt;
 
@@ -2814,7 +2812,7 @@ short Execute::process(SqlciEnv *sqlci_env) {
 // return of -1 is error, cursor operation was not done.
 // return of 0 is returned with some cursor/cli operation done.
 //           retcode contains indication if it succeeded(=0) or failed(!= 0)
-short Cursor::declareC(SqlciEnv *sqlci_env, char *donemsg, Lng32 &retcode) {
+short Cursor::declareC(SqlciEnv *sqlci_env, char *donemsg, int &retcode) {
   short result = 0;
 
   HandleCLIErrorInit();
@@ -2842,7 +2840,7 @@ short Cursor::declareC(SqlciEnv *sqlci_env, char *donemsg, Lng32 &retcode) {
 // return of -1 is error, cursor operation was not done.
 // return of 0 is returned with some cursor/cli operation done.
 //           retcode contains indication if it succeeded(=0) or failed(!= 0)
-short Cursor::declareCursorStmt(SqlciEnv *sqlci_env, Lng32 &retcode) {
+short Cursor::declareCursorStmt(SqlciEnv *sqlci_env, int &retcode) {
   short result = 0;
   CursorStmt *cursor;
   PrepStmt *prepStmt = NULL;
@@ -2882,7 +2880,7 @@ short Cursor::declareCursorStmt(SqlciEnv *sqlci_env, Lng32 &retcode) {
 
     if (retcode >= 0)  // QSTUFF
     {
-      Lng32 prepcode = do_prepare(sqlci_env, prepStmt, get_sql_stmt());
+      int prepcode = do_prepare(sqlci_env, prepStmt, get_sql_stmt());
 
       retcode = executeQuery("CONTROL QUERY DEFAULT READONLY_CURSOR 'TRUE';", sqlci_env);
 
@@ -2906,7 +2904,7 @@ short Cursor::declareCursorStmt(SqlciEnv *sqlci_env, Lng32 &retcode) {
     memset(cursorStmtId, 0, sizeof(SQLSTMT_ID));
     cursorStmtId->version = SQLCLI_CURRENT_VERSION;
     cursorStmtId->name_mode = cursor_name;
-    cursorStmtId->identifier_len = (Lng32)nameLen;
+    cursorStmtId->identifier_len = (int)nameLen;
     cursorStmtId->identifier = identifier;
     cursorStmtId->handle = 0;
     cursorStmtId->module = prepStmt->getStmt()->module;
@@ -2916,12 +2914,12 @@ short Cursor::declareCursorStmt(SqlciEnv *sqlci_env, Lng32 &retcode) {
 
     // QSTUFF:  set the holdable cursor flag if necessary
     if (isHoldable()) {
-      Lng32 attrValue = SQL_HOLDABLE;
+      int attrValue = SQL_HOLDABLE;
 
       retcode = SQL_EXEC_SetStmtAttr(cursorStmtId, SQL_ATTR_CURSOR_HOLDABLE, attrValue, NULL);
       HandleCLIError(retcode, sqlci_env);
       if (retcode < 0) {
-        Lng32 cleanupRetcode;
+        int cleanupRetcode;
         cleanupRetcode = SQL_EXEC_DeallocDesc(prepStmt->getSqlSrc());
         HandleCLIError(cleanupRetcode, sqlci_env);
 
@@ -2953,7 +2951,7 @@ short Cursor::declareCursorStmt(SqlciEnv *sqlci_env, Lng32 &retcode) {
 // return of -1 is error, cursor operation was not done.
 // return of 0 is returned with some cursor/cli operation done.
 //           retcode contains indication if it succeeded(=0) or failed(!= 0)
-short Cursor::declareCursorStmtForRS(SqlciEnv *sqlci_env, Lng32 &retcode) {
+short Cursor::declareCursorStmtForRS(SqlciEnv *sqlci_env, int &retcode) {
   short result = 0;  // the return value of this function
   PrepStmt *prepStmt = NULL;
   CursorStmt *cursor = NULL;
@@ -2987,7 +2985,7 @@ short Cursor::declareCursorStmtForRS(SqlciEnv *sqlci_env, Lng32 &retcode) {
   // Give this PrepStmt instance a dummy name, so that SHOW CURSOR
   // has something to display
   char buf[100];
-  sprintf(buf, "Result set %d, child of ", (Lng32)resultSetIndex_);
+  sprintf(buf, "Result set %d, child of ", (int)resultSetIndex_);
   NAString dummyName(buf);
   dummyName += nameOfParent;
 
@@ -2997,9 +2995,9 @@ short Cursor::declareCursorStmtForRS(SqlciEnv *sqlci_env, Lng32 &retcode) {
   prepStmt->set((char *)dummyName.data(),
                 NULL,   // SQLDESC_ID *sql_src_
                 NULL,   // SQLSTMT_ID *stmt_
-                0,      // Lng32 numInputEntries
+                0,      // int numInputEntries
                 NULL,   // SQLDESC_ID *input_desc_
-                0,      // Lng32 numOutputEntries
+                0,      // int numOutputEntries
                 NULL);  // SQLDESC_ID *output_desc_
 
   // Make a statement ID for the new result set statement
@@ -3026,7 +3024,7 @@ short Cursor::declareCursorStmtForRS(SqlciEnv *sqlci_env, Lng32 &retcode) {
 // return of -1 is error, cursor operation was not done.
 // return of 0 is returned with some cursor/cli operation done.
 //           retcode contains indication if it succeeded(=0) or failed(!= 0)
-short Cursor::open(SqlciEnv *sqlci_env, char *donemsg, Lng32 &retcode) {
+short Cursor::open(SqlciEnv *sqlci_env, char *donemsg, int &retcode) {
   CursorStmt *cursor;
 
   HandleCLIErrorInit();
@@ -3046,7 +3044,7 @@ short Cursor::open(SqlciEnv *sqlci_env, char *donemsg, Lng32 &retcode) {
     // the time the cursor is DECLAREd.
     if (cursor->getResultSetIndex() > 0) {
       PrepStmt *p = cursor->prepStmt();
-      Lng32 num_output_entries = 0;
+      int num_output_entries = 0;
       SQLDESC_ID *output_desc = p->getOutputDesc();
 
       if (!output_desc) {
@@ -3089,7 +3087,7 @@ short Cursor::open(SqlciEnv *sqlci_env, char *donemsg, Lng32 &retcode) {
 // return of -1 is error, cursor operation was not done.
 // return of 0 is returned with some cursor/cli operation done.
 //           retcode contains indication if it succeeded(=0) or failed(!= 0)
-short Cursor::fetch(SqlciEnv *sqlci_env, NABoolean doDisplayRow, char *donemsg, Lng32 &retcode) {
+short Cursor::fetch(SqlciEnv *sqlci_env, NABoolean doDisplayRow, char *donemsg, int &retcode) {
   CursorStmt *cursor;
 
   HandleCLIErrorInit();
@@ -3126,7 +3124,7 @@ short Cursor::fetch(SqlciEnv *sqlci_env, NABoolean doDisplayRow, char *donemsg, 
 // return of -1 is error, cursor operation was not done.
 // return of 0 is returned with some cursor/cli operation done.
 //           retcode contains indication if it succeeded(=0) or failed(!= 0)
-short Cursor::close(SqlciEnv *sqlci_env, char *donemsg, Lng32 &retcode) {
+short Cursor::close(SqlciEnv *sqlci_env, char *donemsg, int &retcode) {
   CursorStmt *cursor;
 
   HandleCLIErrorInit();
@@ -3148,7 +3146,7 @@ short Cursor::close(SqlciEnv *sqlci_env, char *donemsg, Lng32 &retcode) {
 // return of -1 is error, cursor operation was not done.
 // return of 0 is returned with some cursor/cli operation done.
 //           retcode contains indication if it succeeded(=0) or failed(!= 0)
-short Cursor::dealloc(SqlciEnv *sqlci_env, char *donemsg, Lng32 &retcode) {
+short Cursor::dealloc(SqlciEnv *sqlci_env, char *donemsg, int &retcode) {
   CursorStmt *cursor;
 
   HandleCLIErrorInit();
@@ -3171,7 +3169,7 @@ short Cursor::dealloc(SqlciEnv *sqlci_env, char *donemsg, Lng32 &retcode) {
 void Cursor::cleanupCursorStmt(SqlciEnv *sqlci_env, CursorStmt *c) {
   if (!c) return;
 
-  Lng32 retcode = 0;
+  int retcode = 0;
   SQLSTMT_ID *cursorStmtId = c->cursorStmtId();
 
   // Deallocate the underlying SQL statement if this is a stored
@@ -3231,7 +3229,7 @@ short Cursor::process(SqlciEnv *sqlci_env) {
     return 0;
   }
 
-  Lng32 retcode = 0;
+  int retcode = 0;
   char donemsg[100];
   donemsg[0] = '\0';
 
@@ -3341,7 +3339,7 @@ static const char *query_cache_ent_query = SELECT_LIST1
 static const char *query_cache_ent_query_notime = SELECT_LIST1 FROMQUERYCACHEENTRIES;
 
 short QueryCacheSt::process(SqlciEnv *sqlci_env) {
-  Lng32 retcode;
+  int retcode;
   DML *query;
 
   switch (option_) {
@@ -3381,7 +3379,7 @@ short Quiesce::process(SqlciEnv *sqlci_env) {
     return 0;
   }
 
-  Lng32 retcode = SQL_EXEC_Xact(SQLTRANS_QUIESCE, NULL);
+  int retcode = SQL_EXEC_Xact(SQLTRANS_QUIESCE, NULL);
   cout << endl << " SQL_EXEC_Xact(SQLTRANS_QUIESCE, NULL) returned " << retcode << endl << endl;
   return 0;
 }

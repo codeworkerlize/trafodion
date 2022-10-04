@@ -91,8 +91,8 @@ class ExSqlComp : public ExGod {
 
   // requests processing, return a serial number of the request
   ReturnStatus sendRequest(Operator, const char *input_data = 0, ULng32 size = 0, NABoolean waited = TRUE,
-                           Int64 *id = 0, Lng32 charset = SQLCHARSETCODE_UNKNOWN, NABoolean resendFlg = FALSE,
-                           const char *parentQid = NULL, Lng32 parentQidLen = 0);
+                           long *id = 0, int charset = SQLCHARSETCODE_UNKNOWN, NABoolean resendFlg = FALSE,
+                           const char *parentQid = NULL, int parentQidLen = 0);
 
   // requests for processing Internal SP
   // for InternalSP execution, executor should do the following:
@@ -107,16 +107,16 @@ class ExSqlComp : public ExGod {
                            void *keyExpr = 0, ULng32 keyExprSize = 0,             // keys expr
                            void *inputData = 0, ULng32 inputDataSize = 0,         // input data
                            ULng32 outputRecSize = 0, ULng32 outputTotalSize = 0,  // output data
-                           NABoolean waited = TRUE, Int64 *id = 0, const char *parentQid = NULL,
-                           Lng32 parentQidLen = 0);
+                           NABoolean waited = TRUE, long *id = 0, const char *parentQid = NULL,
+                           int parentQidLen = 0);
   // send a CmpMessageISPGetNext request with the outstanding request (id)
   // if id is 0 , use the current outstanding one.
-  ReturnStatus getNext(ULng32 bufSize, Int64 id = 0, NABoolean waited = TRUE, const char *parentQid = NULL,
-                       Lng32 parentQidLen = 0);
+  ReturnStatus getNext(ULng32 bufSize, long id = 0, NABoolean waited = TRUE, const char *parentQid = NULL,
+                       int parentQidLen = 0);
 
   // status of the request with id asspecified. If id=0, the current outstanding
   // request is checked for the status.
-  OperationStatus status(Int64 id = 0);
+  OperationStatus status(long id = 0);
 
   // Method to get the reply for the request with id as specified. If id=0, it is to get
   // the reply for current outstanding request.
@@ -135,15 +135,15 @@ class ExSqlComp : public ExGod {
   // called again to retrieve data.
 
   ReturnStatus getReply(char *&reply, ULng32 &size, ULng32 maxSize = 0,
-                        Int64 id = 0 /* the request id returned previously */, NABoolean getDataWithErrReply = FALSE);
+                        long id = 0 /* the request id returned previously */, NABoolean getDataWithErrReply = FALSE);
 
   // get the diagnostics area, this area will be clean up in the next
   // sendRequest() call.
-  ComDiagsArea *getDiags(Int64 id = 0);
+  ComDiagsArea *getDiags(long id = 0);
 
   // take the diagnostics area, it is the user's responsibility to clean up
   // the ComDiagsArea.
-  ComDiagsArea *takeDiags(Int64 id = 0);
+  ComDiagsArea *takeDiags(long id = 0);
 
   void clearDiags();
 
@@ -154,7 +154,7 @@ class ExSqlComp : public ExGod {
   // end connection with arkcmp. Kill it.
   void endConnection();
 
-  ReturnStatus changePriority(Lng32 IpcPriority, NABoolean isDelta);
+  ReturnStatus changePriority(int IpcPriority, NABoolean isDelta);
 
   inline CollHeap *getHeap() { return h_; };
 
@@ -165,7 +165,7 @@ class ExSqlComp : public ExGod {
   inline NABoolean badConnection() { return badConnection_; }
   inline NABoolean breakReceived() { return breakReceived_; }
   inline IpcServer *getServer() { return server_; }
-  inline Int64 getRecentIpcTimestamp() { return recentIpcTimestamp_; }
+  inline long getRecentIpcTimestamp() { return recentIpcTimestamp_; }
 
   ReturnStatus setDefaultCatAndSch();
 
@@ -196,7 +196,7 @@ class ExSqlComp : public ExGod {
   ReturnStatus resetRemoteDefaults();
   ReturnStatus resendControls(NABoolean ctxSw = FALSE);
 
-  NABoolean error(Lng32);
+  NABoolean error(int);
 
   // start MXCCMP
   ReturnStatus startSqlcomp();
@@ -231,7 +231,7 @@ class ExSqlComp : public ExGod {
     CmpMessageObj *message_;
     // after the actOnReceive method, message_ is deleted, the requestId_ will be set to
     // the id of the message to be compared in getReply method.
-    Int64 requestId_;   // after the actOnReceive, message_ is deleted, the id
+    long requestId_;   // after the actOnReceive, message_ is deleted, the id
     NABoolean waited_;  // waited_ flag for this request.
     OperationStatus ioStatus_;
     Int32 resendCount_;
@@ -242,7 +242,7 @@ class ExSqlComp : public ExGod {
   // This is to trace the ISP execution request, since there could be multiple
   // replys for the ISP request, the ID needs to be sent over to identify
   // the request.
-  Int64 currentISPRequest_;
+  long currentISPRequest_;
 
   // TODO, The outstandingSendBuffers should be an array of Requests
   // lists of outstanding send and receive buffers(send and receive queues)
@@ -257,7 +257,7 @@ class ExSqlComp : public ExGod {
   char *replyData_;
   ULng32 replyDatalen_;
   ReturnStatus retval_;
-  Int64 recentIpcTimestamp_;
+  long recentIpcTimestamp_;
 };  // end of ExSqlComp
 
 // -----------------------------------------------------------------------

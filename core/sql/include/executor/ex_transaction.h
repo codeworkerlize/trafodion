@@ -43,7 +43,7 @@
 #include "executor/ex_stdh.h"
 #include "comexe/ComTdb.h"
 #include "executor/ex_tcb.h"
-#include "ex_error.h"
+#include "executor/ex_error.h"
 #include "common/Int64.h"
 
 #define NULL_SAVEPOINT_ID -1
@@ -67,19 +67,19 @@ enum SavepointState {
 class ExSavepointElement {
  public:
   ExSavepointElement() {}
-  ExSavepointElement(NAString svptName, Int64 svptId, SavepointState state)
+  ExSavepointElement(NAString svptName, long svptId, SavepointState state)
       : savepointName_(svptName), savepointId_(svptId), savepointState_(state) {}
 
   inline NAString getElemSavepointName() { return savepointName_; }
-  inline Int64 getElemSavepointId() { return savepointId_; }
+  inline long getElemSavepointId() { return savepointId_; }
   inline SavepointState getElemSavepointState() { return savepointState_; }
 
-  void setElemSavepointId(Int64 svptId) { savepointId_ = svptId; }
+  void setElemSavepointId(long svptId) { savepointId_ = svptId; }
   void setElemSavepointState(SavepointState newState) { savepointState_ = newState; }
 
  private:
   NAString savepointName_;
-  Int64 savepointId_;
+  long savepointId_;
   SavepointState savepointState_;
 };
 
@@ -99,7 +99,7 @@ class ExSavepointStack : public NAList<ExSavepointElement> {
     return ret;
   }
 
-  void push(NAString svptName, Int64 svptId, SavepointState state) {
+  void push(NAString svptName, long svptId, SavepointState state) {
     ExSavepointElement svpt(svptName, svptId, state);
     removeByName(svptName);
     append(svpt);
@@ -125,27 +125,27 @@ class ExSavepointStack : public NAList<ExSavepointElement> {
     return ret;
   }
 
-  Int64 getCurrentSvptId() {
+  long getCurrentSvptId() {
     if (isEmpty()) return NULL_SAVEPOINT_ID;
 
     return at(entries() - 1).getElemSavepointId();
   }
 
-  Int64 getCurrentPSvptId() {
+  long getCurrentPSvptId() {
     if (entries() > 1)
       return at(entries() - 2).getElemSavepointId();
     else
       return NULL_SAVEPOINT_ID;
   }
 
-  Int64 getCurrentPPSvptId() {
+  long getCurrentPPSvptId() {
     if (entries() > 2)
       return at(entries() - 3).getElemSavepointId();
     else
       return NULL_SAVEPOINT_ID;
   }
 
-  NABoolean setCurrentSvptId(Int64 svptId) {
+  NABoolean setCurrentSvptId(long svptId) {
     if (isEmpty()) return FALSE;
 
     at(entries() - 1).setElemSavepointId(svptId);
@@ -166,10 +166,10 @@ class ExSavepointStack : public NAList<ExSavepointElement> {
   }
 
   void resetLastSvptId() { lastSvptId_ = -1; }
-  Int64 getLastSvptId() { return lastSvptId_; }
+  long getLastSvptId() { return lastSvptId_; }
 
  private:
-  Int64 lastSvptId_;
+  long lastSvptId_;
 };
 
 class ExTransaction : public NABasicObject {
@@ -194,8 +194,8 @@ class ExTransaction : public NABasicObject {
   short suspendTransaction();
   short resumeTransaction();
 
-  short joinTransaction(Int64 transID);
-  short suspendTransaction(Int64 transID);
+  short joinTransaction(long transID);
+  short suspendTransaction(long transID);
 
   //////////////////////////////////////////////////////////////
   // RollbackStatement ALWAYS rollbacks Xn. Used unless stmt
@@ -207,7 +207,7 @@ class ExTransaction : public NABasicObject {
   short rollbackTransaction(NABoolean isWaited = FALSE);
   short rollbackTransactionWaited();
   short doomTransaction();
-  short waitForRollbackCompletion(Int64 transid);
+  short waitForRollbackCompletion(long transid);
 
   void cleanupTransaction();
   short commitTransaction();
@@ -229,8 +229,8 @@ class ExTransaction : public NABasicObject {
   void setSavepointState(SavepointState s);
   NABoolean savepointInProgress();
 
-  short commitSavepoint(Int64 savepointId, Int64 parentSvptId);
-  short rollbackSavepoint(Int64 savepointId);
+  short commitSavepoint(long savepointId, long parentSvptId);
+  short rollbackSavepoint(long savepointId);
   short rollbackToSavepoint(NAString svptName);
 
   // Soln 10-050210-4624
@@ -239,29 +239,29 @@ class ExTransaction : public NABasicObject {
    * txHandle, are supplied, the transaction identifier and handle also are
    * returned.
    */
-  short getCurrentXnId(Int64 *tcbref, Int64 *transId = 0, short *txHandle = NULL);
+  short getCurrentXnId(long *tcbref, long *transId = 0, short *txHandle = NULL);
 
-  short getCurrentSvptIdWithFlag(Int64 *svptId, Int64 *pSvptId);
+  short getCurrentSvptIdWithFlag(long *svptId, long *pSvptId);
 
   short getCurrentTxHandle(short *txHandle);
 
   NABoolean getIsPropropagateTX();
 
   // this method returns the current Xn Id as known to executor.
-  Int64 getExeXnId() { return exeXnId_; }
+  long getExeXnId() { return exeXnId_; }
 
   // Soln 10-050210-4624
   // This method returns the id of the current transaction.
-  Int64 getTransid() { return transid_; }
+  long getTransid() { return transid_; }
 
   // this method returns the current savepoint id, if dp2 savepoint is
   // being used for this stmt. -1, if they are not.
-  Int64 getSavepointId() { return savepointStack_->getCurrentSvptId(); }
-  Int64 getPSavepointId() { return savepointStack_->getCurrentPSvptId(); }
-  Int64 getPPSavepointId() { return savepointStack_->getCurrentPPSvptId(); }
-  Int64 getSavepointIdWithFlag();
-  Int64 getPSavepointIdWithFlag();
-  Int64 getPPSavepointIdWithFlag();
+  long getSavepointId() { return savepointStack_->getCurrentSvptId(); }
+  long getPSavepointId() { return savepointStack_->getCurrentPSvptId(); }
+  long getPPSavepointId() { return savepointStack_->getCurrentPPSvptId(); }
+  long getSavepointIdWithFlag();
+  long getPSavepointIdWithFlag();
+  long getPPSavepointIdWithFlag();
 
   NAString getStackSavepointName() {
     if (savepointStack_->isEmpty()) return NAString("None");
@@ -270,13 +270,13 @@ class ExTransaction : public NABasicObject {
   }
 
   void resetStackLastSvptId() { savepointStack_->resetLastSvptId(); }
-  Int64 getStackLastSvptId() { return savepointStack_->getLastSvptId(); }
+  long getStackLastSvptId() { return savepointStack_->getLastSvptId(); }
 
   // this method generates a savepoint id. Its a juliantimestamp, for now.
   // If a transaction is not in progress, no savepoint id is generated.
   // void generateSavepointId(NABoolean implicitSP = FALSE);
   short pushSavepoint(NAString svptName) {
-    Int64 svptId = NULL_SAVEPOINT_ID;
+    long svptId = NULL_SAVEPOINT_ID;
     if (xnInProgress()) {
       svptId = 1 + (getStackLastSvptId() > implicitSavepointId_ ? getStackLastSvptId() : implicitSavepointId_);
 
@@ -298,7 +298,7 @@ class ExTransaction : public NABasicObject {
     savepointStack_->resetLastSvptId();
   }
 
-  void setSavepointId(Int64 sid) { savepointStack_->setCurrentSvptId(sid); }
+  void setSavepointId(long sid) { savepointStack_->setCurrentSvptId(sid); }
 
   NABoolean exeStartedXn() { return exeStartedXn_; }
 
@@ -308,7 +308,7 @@ class ExTransaction : public NABasicObject {
 
   NABoolean userEndedExeXn() { return userEndedExeXn_; }
 
-  void setTransId(Int64 transid);
+  void setTransId(long transid);
   void disableAutoCommit();
   void enableAutoCommit();
 
@@ -356,19 +356,19 @@ class ExTransaction : public NABasicObject {
   void resetSavedXnState();
 
   // implicit savepoint when autocommit savepoint on
-  Int64 getImplicitSavepointId() { return implicitSavepointId_; }
-  void setImplicitSavepointId(Int64 sid) { implicitSavepointId_ = sid; }
-  void setImplicitPSavepointId(Int64 psid) { implicitPSavepointId_ = psid; }
+  long getImplicitSavepointId() { return implicitSavepointId_; }
+  void setImplicitSavepointId(long sid) { implicitSavepointId_ = sid; }
+  void setImplicitPSavepointId(long psid) { implicitPSavepointId_ = psid; }
   void generateImplicitSavepointId();
-  Int64 getImplicitSavepointIdWithFlag();
-  Int64 getImplicitPSavepointIdWithFlag() { return implicitPSavepointId_; }
+  long getImplicitSavepointIdWithFlag();
+  long getImplicitPSavepointIdWithFlag() { return implicitPSavepointId_; }
 
   SavepointState getImplicitSavepointState() { return implicitSavepointState_; }
   void setImplicitSavepointState(SavepointState s);
   NABoolean implicitSavepointInProgress() { return (implicitSavepointState_ != SP_SPNONE); }
 
-  short commitImplicitSavepoint(Int64 implicitSvptId, Int64 parentSvptId);
-  short rollbackImplicitSavepoint(Int64 implicitSvptId);
+  short commitImplicitSavepoint(long implicitSvptId, long parentSvptId);
+  short rollbackImplicitSavepoint(long implicitSvptId);
 
   NABoolean getAutoCommitSavepointOn();
 
@@ -424,22 +424,22 @@ class ExTransaction : public NABasicObject {
 
   // transaction id as known to executor, if a Xn is running.
   // Otherwise, set to -1.
-  Int64 exeXnId_;
+  long exeXnId_;
 
   // Soln 10-050210-4624
   // The actual transaction id as known to the executor. Note that exeXnId_ is
   // actually the TCBREF associated with the transaction. exeXnId_ will be used
   // in all the messaging with DP2, MXCMP and MXESP.
   // This field will be used for interacting with TMF.
-  Int64 transid_;
+  long transid_;
 
   // user named savepoints
   ExSavepointStack *savepointStack_;
 
-  Int64 implicitSvptBatchCommitCount_;
+  long implicitSvptBatchCommitCount_;
 
-  Int64 implicitPSavepointId_;
-  Int64 implicitSavepointId_;
+  long implicitPSavepointId_;
+  long implicitSavepointId_;
   SavepointState implicitSavepointState_;
 
   TmfPhandle_Struct exeTxHandle_;
@@ -470,8 +470,8 @@ class ExTransaction : public NABasicObject {
   int transtag_;
 
   // values saved during suspendxn and restored during resumexn
-  Int64 savedExeXnId_;
-  Int64 savedTransId_;
+  long savedExeXnId_;
+  long savedTransId_;
   int savedTransTag_;
   NABoolean savedExeStartedXn_;
   NABoolean savedXnInProgress_;

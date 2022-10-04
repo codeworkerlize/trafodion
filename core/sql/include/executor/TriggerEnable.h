@@ -40,7 +40,7 @@
 #include "common/ComSmallDefs.h"
 
 // needed for the TDB member
-typedef NAVersionedObjectPtrTempl<Int64> TriggersListPtr;
+typedef NAVersionedObjectPtrTempl<long> TriggersListPtr;
 
 //-----------------------------------------------------------------------------
 // classes defined in this file
@@ -67,7 +67,7 @@ const Int32 MAX_TRIGGERS_PER_STATEMENT = TRIGGERS_STATUS_VECTOR_SIZE * 8;
 // -- class TriggerStatus
 //
 // Holds a pair (triggerId, enable/disable status).
-// I rely on ComTimeStamp (aka Int64, aka long on winnt) to behave
+// I rely on ComTimeStamp (aka long, aka long on winnt) to behave
 // properly...
 //
 
@@ -91,7 +91,7 @@ class TriggerStatus : public NABasicObject {
   inline ComTimestamp getTriggerId() { return triggerId_; }
 
  private:
-  ComTimestamp triggerId_;  // Int64
+  ComTimestamp triggerId_;  // long
   NABoolean enableStatus_;
 };
 

@@ -331,7 +331,7 @@ class NABasicPtrTempl {
     return offset;
   }
 
-  inline Lng32 unpack(void *base, short isSpacePtr = 0) {
+  inline int unpack(void *base, short isSpacePtr = 0) {
     if (offset_ != 0) {
       if (!isSpacePtr) {
         ptr_ = (Type *)((char *)base - offset_);
@@ -348,7 +348,7 @@ class NABasicPtrTempl {
   // -------------------------------------------------------------------
   union {
     Type *ptr_;
-    Int64 offset_;
+    long offset_;
   };
 
 };  // END of class declaration for NABasicPtrTempl --------------------
@@ -358,7 +358,7 @@ class NABasicPtrTempl {
 // ---------------------------------------------------------------------
 typedef NABasicPtrTempl<Int16> Int16Ptr;
 typedef NABasicPtrTempl<Int32> Int32Ptr;
-typedef NABasicPtrTempl<Int64> Int64Ptr;
+typedef NABasicPtrTempl<long> Int64Ptr;
 typedef NABasicPtrTempl<float> floatPtr;
 typedef NABasicPtrTempl<Long> LongPtr;
 typedef NABasicPtrTempl<char> NABasicPtr;
@@ -622,7 +622,7 @@ class NAOpenObjectPtrTempl {
     return offset;
   }
 
-  inline Lng32 unpackShallow(void *base) {
+  inline int unpackShallow(void *base) {
     if (offset_ != 0) {
       ptr_ = (Type *)((char *)base - offset_);
     }
@@ -636,11 +636,11 @@ class NAOpenObjectPtrTempl {
 
   Long pack(void *space, short isSpacePtr = 1);
 
-  Lng32 unpack(void *base);
+  int unpack(void *base);
 
-  Long packArray(void *space, Lng32 numEntries, short notSpacePtr = 1);
+  Long packArray(void *space, int numEntries, short notSpacePtr = 1);
 
-  Lng32 unpackArray(void *base, Lng32 numEntries);
+  int unpackArray(void *base, int numEntries);
 
  protected:
   // -------------------------------------------------------------------
@@ -648,7 +648,7 @@ class NAOpenObjectPtrTempl {
   // -------------------------------------------------------------------
   union {
     Type *ptr_;
-    Int64 offset_;
+    long offset_;
   };
 
 };  // END of class declaration for NAOpenObjectPtrTempl ---------------
@@ -702,7 +702,7 @@ class NAVersionedObjectPtrTempl {
   inline operator Type *() const { return ptr_; }
   inline short isNull() const { return ((short)(ptr_ == (Type *)NULL)); }
   inline Type &operator*() const { return *ptr_; }
-  inline Int64 getOffset() const { return offset_; }
+  inline long getOffset() const { return offset_; }
 
   // -------------------------------------------------------------------
   // delete operators
@@ -936,7 +936,7 @@ class NAVersionedObjectPtrTempl {
     return packShallow(space, isSpacePtr);
   }
 
-  inline Lng32 unpackShallow(void *base) {
+  inline int unpackShallow(void *base) {
     if (offset_ != 0) {
       ptr_ = (Type *)((char *)base - offset_);
     }
@@ -947,7 +947,7 @@ class NAVersionedObjectPtrTempl {
   // type "Type" on the stack. See the definition further down in this file.
   char *getVTblPtr(Int16 classID);
 
-  inline Lng32 unpack(void *base, void *reallocator) {
+  inline int unpack(void *base, void *reallocator) {
     if (ptr_ != 0) {
       unpackShallow(base);
       // get vtblPtr by calling a (non-inline) method to avoid having
@@ -964,19 +964,19 @@ class NAVersionedObjectPtrTempl {
   // an array of Type objects with numEntries.
   // -------------------------------------------------------------------
 
-  inline Long packArray(void *space, Lng32 numEntries, short isSpacePtr = 1) {
+  inline Long packArray(void *space, int numEntries, short isSpacePtr = 1) {
     if (ptr_ != 0) {
-      for (Lng32 i = 1; i < numEntries; i++) ptr_[i].drivePack(space, isSpacePtr);
+      for (int i = 1; i < numEntries; i++) ptr_[i].drivePack(space, isSpacePtr);
     }
     return pack(space, isSpacePtr);
   }
 
-  inline Lng32 unpackArray(void *base, Lng32 numEntries, void *reallocator) {
+  inline int unpackArray(void *base, int numEntries, void *reallocator) {
     if (unpack(base, reallocator)) return -1;
     if (ptr_ != 0) {
       char *vtblPtr = getVTblPtr(ptr_->getClassID());
 
-      for (Lng32 i = 1; i < numEntries; i++) {
+      for (int i = 1; i < numEntries; i++) {
         if (ptr_[i].driveUnpack(base, vtblPtr, reallocator) == NULL) return -1;
       }
     }
@@ -989,7 +989,7 @@ class NAVersionedObjectPtrTempl {
   // -------------------------------------------------------------------
   union {
     Type *ptr_;
-    Int64 offset_;
+    long offset_;
   };
 
 };  // END of class declaration for NAVersionedObjectPtrTempl ----------
@@ -1295,27 +1295,27 @@ class NAVersionedObjectPtrArrayTempl {
     return offset;
   }
 
-  inline Long pack(void *space, Lng32 numEntries, short isSpacePtr = 1) {
+  inline Long pack(void *space, int numEntries, short isSpacePtr = 1) {
     // Pack the pointer objects in the array.
-    for (Lng32 i = 0; i < numEntries; i++) ptr_[i].pack(space, isSpacePtr);
+    for (int i = 0; i < numEntries; i++) ptr_[i].pack(space, isSpacePtr);
 
     // Convert this pointer to an offset.
     return packShallow(space, isSpacePtr);
   }
 
-  inline Lng32 unpackShallow(void *base) {
+  inline int unpackShallow(void *base) {
     if (offset_ != 0) {
       ptr_ = (PtrType *)((char *)base - offset_);
     }
     return 0;
   }
 
-  inline Lng32 unpack(void *base, Lng32 numEntries, void *reallocator) {
+  inline int unpack(void *base, int numEntries, void *reallocator) {
     // Convert this pointer object from offset to a real pointer.
     if (unpackShallow(base)) return -1;
 
     // Unpack the pointer objects in the array.
-    for (Lng32 i = 0; i < numEntries; i++) {
+    for (int i = 0; i < numEntries; i++) {
       if (ptr_[i].unpack(base, reallocator)) return -1;
     }
     return 0;
@@ -1327,7 +1327,7 @@ class NAVersionedObjectPtrArrayTempl {
   // -------------------------------------------------------------------
   union {
     PtrType *ptr_;
-    Int64 offset_;
+    long offset_;
   };
 
 };  // END of class declaration for NAVersionedObjectPtrArrayTempl -----
@@ -1540,7 +1540,7 @@ class NAVersionedObject {
   // platform. Note that endianness of the Version Header is handled
   // separately in driveUnpack().
   // -------------------------------------------------------------------
-  virtual Lng32 unpack(void *base, void *reallocator) { return 0; }
+  virtual int unpack(void *base, void *reallocator) { return 0; }
 
   // -------------------------------------------------------------------
   // This is a utility for use by redefined migrateToNewVersion() at the
@@ -1607,7 +1607,7 @@ class NAVersionedObject {
   // own members. The object is reallocated if needed at the "real" sub-
   // class the object belongs.
   // -------------------------------------------------------------------
-  virtual Lng32 migrateToNewVersion(NAVersionedObject *&newImage);
+  virtual int migrateToNewVersion(NAVersionedObject *&newImage);
 
   // -------------------------------------------------------------------
   // Driver for Packing

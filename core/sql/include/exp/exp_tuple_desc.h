@@ -96,7 +96,7 @@ class ExpTupleDesc : public NAVersionedObject {
   //
   // SQLARK_EXPLODED_FORMAT:
   //                   All fields aligned on their appropriate byte boundary.
-  //                   Int16 aligned on 2 byte, Int32 on 4 byte and Int64
+  //                   Int16 aligned on 2 byte, Int32 on 4 byte and long
   //                   on 8-byte boundary.
   //                   If nullable field, null indicator bytes are
   //                   stored just before the actual data.

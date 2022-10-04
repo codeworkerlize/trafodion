@@ -125,10 +125,10 @@ class ExRsInfo : public NABasicObject {
 
   ExUdrServer *getUdrServer() const { return udrServer_; }
   const IpcProcessId &getIpcProcessId() const { return ipcProcessId_; }
-  Int64 getUdrHandle() const { return udrHandle_; }
+  long getUdrHandle() const { return udrHandle_; }
   void setUdrServer(ExUdrServer *udrServer) { udrServer_ = udrServer; }
   void setIpcProcessId(const IpcProcessId &ipcProcessId);
-  void setUdrHandle(Int64 udrHandle) { udrHandle_ = udrHandle; }
+  void setUdrHandle(long udrHandle) { udrHandle_ = udrHandle; }
 
   ULng32 getNumReturnedByLastCall() const { return numReturnedByLastCall_; }
   ULng32 getNumClosedSinceLastCall() const { return numClosedSinceLastCall_; }
@@ -208,7 +208,7 @@ class ExRsInfo : public NABasicObject {
   ARRAY(RsInfo *) rsInfoArray_;
   ExUdrServer *udrServer_;
   IpcProcessId ipcProcessId_;
-  Int64 udrHandle_;
+  long udrHandle_;
   TxState txState_;
 
   // When an ENTER TX message is sent we need to keep a pointer to the

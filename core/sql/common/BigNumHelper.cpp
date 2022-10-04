@@ -68,9 +68,9 @@ static const unsigned short powersOfTenInBigNumForm[] = {0x0001, 0x0000, 0x0000,
 
 // The following method adds two Big Nums (without signs).
 
-short BigNumHelper::AddHelper(Lng32 dataLength, char *leftData, char *rightData, char *resultData) {
+short BigNumHelper::AddHelper(int dataLength, char *leftData, char *rightData, char *resultData) {
   // Recast from bytes to unsigned shorts.
-  Lng32 dataLengthInShorts = dataLength / 2;
+  int dataLengthInShorts = dataLength / 2;
   unsigned short *leftDataInShorts = (unsigned short *)leftData;
   unsigned short *rightDataInShorts = (unsigned short *)rightData;
   unsigned short *resultDataInShorts = (unsigned short *)resultData;
@@ -94,7 +94,7 @@ short BigNumHelper::AddHelper(Lng32 dataLength, char *leftData, char *rightData,
 #endif
 
   tempParts.carry = 0;
-  for (Lng32 j = 0; j < dataLengthInShorts; j++) {
+  for (int j = 0; j < dataLengthInShorts; j++) {
     temp = ((ULng32)leftDataInShorts[j]) + rightDataInShorts[j] + tempParts.carry;
     resultDataInShorts[j] = tempParts.remainder;
   }
@@ -104,9 +104,9 @@ short BigNumHelper::AddHelper(Lng32 dataLength, char *leftData, char *rightData,
 
 // The following method subtracts one Big Num from another (without signs).
 
-short BigNumHelper::SubHelper(Lng32 dataLength, char *leftData, char *rightData, char *resultData) {
+short BigNumHelper::SubHelper(int dataLength, char *leftData, char *rightData, char *resultData) {
   // Recast from bytes to unsigned shorts.
-  Lng32 dataLengthInShorts = dataLength / 2;
+  int dataLengthInShorts = dataLength / 2;
   unsigned short *leftDataInShorts = (unsigned short *)leftData;
   unsigned short *rightDataInShorts = (unsigned short *)rightData;
   unsigned short *resultDataInShorts = (unsigned short *)resultData;
@@ -117,7 +117,7 @@ short BigNumHelper::SubHelper(Lng32 dataLength, char *leftData, char *rightData,
   unsigned short *right = rightDataInShorts;
 
   Int32 neg = 0;
-  Lng32 j = 0;
+  int j = 0;
   for (j = 0; j < dataLengthInShorts; j++) {
     if (rightDataInShorts[j] > leftDataInShorts[j])
       neg = -1;
@@ -131,7 +131,7 @@ short BigNumHelper::SubHelper(Lng32 dataLength, char *leftData, char *rightData,
   }
 
   short carry = 0;
-  Lng32 temp;
+  int temp;
 
 #ifdef NA_LITTLE_ENDIAN
   union {
@@ -152,8 +152,8 @@ short BigNumHelper::SubHelper(Lng32 dataLength, char *leftData, char *rightData,
 #endif
 
   for (j = 0; j < dataLengthInShorts; j++) {
-    temp = ((Lng32)left[j]) - right[j] + carry;
-    temp1 = temp + (Lng32)USHRT_MAX + 1;  // Note that USHRT_MAX + 1 = 2^16.
+    temp = ((int)left[j]) - right[j] + carry;
+    temp1 = temp + (int)USHRT_MAX + 1;  // Note that USHRT_MAX + 1 = 2^16.
     resultDataInShorts[j] = tempParts.remainder;
     carry = (temp < 0 ? -1 : 0);
   }
@@ -165,7 +165,7 @@ short BigNumHelper::SubHelper(Lng32 dataLength, char *leftData, char *rightData,
 // The assumption is that the result is big enough to hold the
 // product.
 
-short BigNumHelper::MulHelper(Lng32 resultLength, Lng32 leftLength, Lng32 rightLength, char *leftData, char *rightData,
+short BigNumHelper::MulHelper(int resultLength, int leftLength, int rightLength, char *leftData, char *rightData,
                               char *resultData) {
   // Recast from bytes to unsigned shorts.
   unsigned short *leftDataInShorts = (unsigned short *)leftData;
@@ -177,15 +177,15 @@ short BigNumHelper::MulHelper(Lng32 resultLength, Lng32 leftLength, Lng32 rightL
 
   // Skip trailing zeros in the left and the right argument
   // to shorten the nested loop that appears later.
-  Lng32 rightEndInShorts = rightLength / 2 - 1;
+  int rightEndInShorts = rightLength / 2 - 1;
   while (!rightDataInShorts[rightEndInShorts] && rightEndInShorts >= 0) rightEndInShorts--;
   if (rightEndInShorts < 0) return 0;
 
-  Lng32 leftEndInShorts = leftLength / 2 - 1;
+  int leftEndInShorts = leftLength / 2 - 1;
   while (!leftDataInShorts[leftEndInShorts] && leftEndInShorts >= 0) leftEndInShorts--;
   if (leftEndInShorts < 0) return 0;
 
-    // Int64 temp;
+    // long temp;
     // unsigned long * remainder = (unsigned long *) &temp;
     // unsigned long * carry = remainder + 1;
 
@@ -207,11 +207,11 @@ short BigNumHelper::MulHelper(Lng32 resultLength, Lng32 leftLength, Lng32 rightL
   };
 #endif
 
-  Lng32 pos;
-  for (Lng32 j = 0; j <= rightEndInShorts; j++) {
+  int pos;
+  for (int j = 0; j <= rightEndInShorts; j++) {
     tempParts.carry = 0;
     pos = j;
-    for (Lng32 i = 0; i <= leftEndInShorts; i++, pos++) {
+    for (int i = 0; i <= leftEndInShorts; i++, pos++) {
       temp = ((ULng32)leftDataInShorts[i]) * rightDataInShorts[j] + resultDataInShorts[pos] + tempParts.carry;
       resultDataInShorts[pos] = tempParts.remainder;
     }
@@ -226,13 +226,13 @@ short BigNumHelper::MulHelper(Lng32 resultLength, Lng32 leftLength, Lng32 rightL
 // only if the divisor fits in an unsigned short. It returns 1 if there is
 // a remainder, 0 if there is no remainder, and -1 if there is an error.
 
-short BigNumHelper::SimpleDivHelper(Lng32 dividendLength, Lng32 divisorLength, char *dividendData, char *divisorData,
+short BigNumHelper::SimpleDivHelper(int dividendLength, int divisorLength, char *dividendData, char *divisorData,
                                     char *quotientData)
 
 {
   // Recast from bytes to unsigned shorts.
-  Lng32 dividendLengthInShorts = dividendLength / 2;
-  Lng32 divisorLengthInShorts = divisorLength / 2;
+  int dividendLengthInShorts = dividendLength / 2;
+  int divisorLengthInShorts = divisorLength / 2;
   unsigned short *dividendDataInShorts = (unsigned short *)dividendData;
   unsigned short *divisorDataInShorts = (unsigned short *)divisorData;
   unsigned short *quotientDataInShorts = (unsigned short *)quotientData;
@@ -280,11 +280,11 @@ short BigNumHelper::SimpleDivHelper(Lng32 dividendLength, Lng32 divisorLength, c
 //       3 * dividendLength + 6
 // to be used for temporary calculations.
 
-short BigNumHelper::DivHelper(Lng32 dividendLength, Lng32 divisorLength, char *dividendData, char *divisorData,
+short BigNumHelper::DivHelper(int dividendLength, int divisorLength, char *dividendData, char *divisorData,
                               char *quotientData, char *tempData) {
   // Recast from bytes to unsigned shorts.
-  Lng32 dividendLengthInShorts = dividendLength / 2;
-  Lng32 divisorLengthInShorts = divisorLength / 2;
+  int dividendLengthInShorts = dividendLength / 2;
+  int divisorLengthInShorts = divisorLength / 2;
   unsigned short *divisorDataInShorts = (unsigned short *)divisorData;
   unsigned short *quotientDataInShorts = (unsigned short *)quotientData;
 
@@ -375,12 +375,12 @@ short BigNumHelper::DivHelper(Lng32 dividendLength, Lng32 divisorLength, char *d
   };
 
   union {
-    Int64 temp3;
+    long temp3;
     unsigned short temp4[4];
   };
 
   Int32 m = dividendLengthInShorts - divisorLengthInShorts;
-  Lng32 dividendPosInShorts = dividendLengthInShorts;
+  int dividendPosInShorts = dividendLengthInShorts;
 
   // The main loop for division.
   for (j = 0; j <= m; j++) {
@@ -440,7 +440,7 @@ short BigNumHelper::DivHelper(Lng32 dividendLength, Lng32 divisorLength, char *d
 }
 
 // The following method rounds a Big Num (without signs).
-short BigNumHelper::RoundHelper(Lng32 sourceLength, Lng32 targetLength, char *sourceData, Int64 roundingValue,
+short BigNumHelper::RoundHelper(int sourceLength, int targetLength, char *sourceData, long roundingValue,
                                 char *targetData) {
   short rc = 0;
 
@@ -501,12 +501,12 @@ short BigNumHelper::RoundHelper(Lng32 sourceLength, Lng32 targetLength, char *so
 // its equivalent BCD string representation (with the more significant decimal
 // digits in the lower addresses).
 
-short BigNumHelper::ConvBigNumToBcdHelper(Lng32 sourceLength, Lng32 targetLength, char *sourceData, char *targetData,
+short BigNumHelper::ConvBigNumToBcdHelper(int sourceLength, int targetLength, char *sourceData, char *targetData,
                                           NAMemory *heap)
 
 {
   // Recast from bytes to unsigned shorts.
-  Lng32 sourceLengthInShorts = sourceLength / 2;
+  int sourceLengthInShorts = sourceLength / 2;
   unsigned short *sourceDataInShorts = (unsigned short *)sourceData;
 
   unsigned short tempSourceDataInShortsBuf[128 / 2];
@@ -520,10 +520,10 @@ short BigNumHelper::ConvBigNumToBcdHelper(Lng32 sourceLength, Lng32 targetLength
   // Initialize the BCD to zero.
   for (i = 0; i < targetLength; i++) targetData[i] = 0;
   char *finalTargetData = targetData + targetLength - 1;
-  Lng32 finalTargetLength = 1;
+  int finalTargetLength = 1;
 
   // Ignore trailing zeros in the Big Num. If all zeros, return.
-  Lng32 actualSourceLengthInShorts = sourceLengthInShorts;
+  int actualSourceLengthInShorts = sourceLengthInShorts;
   while (!tempSourceDataInShorts[actualSourceLengthInShorts - 1] && actualSourceLengthInShorts > 0)
     actualSourceLengthInShorts--;
   if (!actualSourceLengthInShorts) {
@@ -602,20 +602,20 @@ short BigNumHelper::ConvBigNumToBcdHelper(Lng32 sourceLength, Lng32 targetLength
 // and with the more significant decimal digits in the lower addresses)
 // into its equivalent Big Num representation.
 
-short BigNumHelper::ConvBcdToBigNumHelper(Lng32 sourceLength, Lng32 targetLength, char *sourceData, char *targetData)
+short BigNumHelper::ConvBcdToBigNumHelper(int sourceLength, int targetLength, char *sourceData, char *targetData)
 
 {
   // Recast from bytes to unsigned shorts.
-  Lng32 targetLengthInShorts = targetLength / 2;
+  int targetLengthInShorts = targetLength / 2;
   unsigned short *targetDataInShorts = (unsigned short *)targetData;
 
   // Initialize the Big Num to zero.
   Int32 i = 0;
   for (i = 0; i < targetLengthInShorts; i++) targetDataInShorts[i] = 0;
-  Lng32 finalTargetLengthInShorts = 1;
+  int finalTargetLengthInShorts = 1;
 
   // Ignore leading zeros in BCD. If all zeros, return.
-  Lng32 zeros = 0;
+  int zeros = 0;
   while ((zeros < sourceLength) && !sourceData[zeros]) zeros++;
   if (zeros == sourceLength) return 1;  // indicate that it is all zeros
 
@@ -679,7 +679,7 @@ short BigNumHelper::ConvBcdToBigNumHelper(Lng32 sourceLength, Lng32 targetLength
 // its equivalent BCD string representation (with the more significant
 // decimal digits in the lower addresses).
 
-short BigNumHelper::ConvBigNumWithSignToBcdHelper(Lng32 sourceLength, Lng32 targetLength, char *sourceData,
+short BigNumHelper::ConvBigNumWithSignToBcdHelper(int sourceLength, int targetLength, char *sourceData,
                                                   char *targetData, NAMemory *heap) {
   char sign = BIGN_GET_SIGN(sourceData, sourceLength);
 
@@ -702,7 +702,7 @@ short BigNumHelper::ConvBigNumWithSignToBcdHelper(Lng32 sourceLength, Lng32 targ
 // (with sign, and with the more significant decimal digits in the lower
 // addresses) into its equivalent Big Num representation.
 
-short BigNumHelper::ConvBcdToBigNumWithSignHelper(Lng32 sourceLength, Lng32 targetLength, char *sourceData,
+short BigNumHelper::ConvBcdToBigNumWithSignHelper(int sourceLength, int targetLength, char *sourceData,
                                                   char *targetData) {
   short returnValue = BigNumHelper::ConvBcdToBigNumHelper(sourceLength - 1, targetLength, sourceData + 1, targetData);
   if (returnValue == 1)  // don't care if all zeros
@@ -718,7 +718,7 @@ short BigNumHelper::ConvBcdToBigNumWithSignHelper(Lng32 sourceLength, Lng32 targ
 // its equivalent ASCII string representation (with the more significant
 // decimal digits in the lower addresses).
 
-short BigNumHelper::ConvBigNumToAsciiHelper(Lng32 sourceLength, Lng32 targetLength, char *sourceData, char *targetData,
+short BigNumHelper::ConvBigNumToAsciiHelper(int sourceLength, int targetLength, char *sourceData, char *targetData,
                                             NAMemory *heap) {
   // Convert to BCD representation (without sign).
   short returnValue = BigNumHelper::ConvBigNumToBcdHelper(sourceLength, targetLength, sourceData, targetData, heap);
@@ -732,7 +732,7 @@ short BigNumHelper::ConvBigNumToAsciiHelper(Lng32 sourceLength, Lng32 targetLeng
 // (without sign, and with the more significant decimal digits in the lower
 // addresses) into its equivalent Big Num representation.
 
-short BigNumHelper::ConvAsciiToBigNumHelper(Lng32 sourceLength, Lng32 targetLength, char *sourceData,
+short BigNumHelper::ConvAsciiToBigNumHelper(int sourceLength, int targetLength, char *sourceData,
                                             char *targetData) {
   // Temporarily convert source from ASCII to BCD.
   Int32 i = 0;
@@ -752,7 +752,7 @@ short BigNumHelper::ConvAsciiToBigNumHelper(Lng32 sourceLength, Lng32 targetLeng
 // its equivalent ASCII string representation (with the more significant
 // decimal digits in the lower addresses).
 
-short BigNumHelper::ConvBigNumWithSignToAsciiHelper(Lng32 sourceLength, Lng32 targetLength, char *sourceData,
+short BigNumHelper::ConvBigNumWithSignToAsciiHelper(int sourceLength, int targetLength, char *sourceData,
                                                     char *targetData, NAMemory *heap) {
   char sign = BIGN_GET_SIGN(sourceData, sourceLength);
 
@@ -775,7 +775,7 @@ short BigNumHelper::ConvBigNumWithSignToAsciiHelper(Lng32 sourceLength, Lng32 ta
 // (with sign, and with the more significant decimal digits in the lower
 // addresses) into its equivalent Big Num representation.
 
-short BigNumHelper::ConvAsciiToBigNumWithSignHelper(Lng32 sourceLength, Lng32 targetLength, char *sourceData,
+short BigNumHelper::ConvAsciiToBigNumWithSignHelper(int sourceLength, int targetLength, char *sourceData,
                                                     char *targetData) {
   short returnValue = BigNumHelper::ConvAsciiToBigNumHelper(sourceLength - 1, targetLength, sourceData + 1, targetData);
 
@@ -789,7 +789,7 @@ short BigNumHelper::ConvAsciiToBigNumWithSignHelper(Lng32 sourceLength, Lng32 ta
 // the required storage length (including the sign). We assume that the
 // precision is > 0.
 
-Lng32 BigNumHelper::ConvPrecisionToStorageLengthHelper(Lng32 precision) {
+int BigNumHelper::ConvPrecisionToStorageLengthHelper(int precision) {
   // The storage length is always a multiple of 2 bytes, and at minimum, 8 bytes
   // long.  1 bit must be available for the sign. Thus we use the formula:
   //
@@ -800,7 +800,7 @@ Lng32 BigNumHelper::ConvPrecisionToStorageLengthHelper(Lng32 precision) {
   // Change precision to be a minimum of 18 (i.e. 8 bytes)
   if (precision < 18) precision = 18;
 
-  Lng32 stLen = (2 * (Lng32)(MathCeil((precision * 0.208) + 0.062, err)));
+  int stLen = (2 * (int)(MathCeil((precision * 0.208) + 0.062, err)));
 
   if (err) return -1;  // is -1 error return code from here???
 
@@ -811,7 +811,7 @@ Lng32 BigNumHelper::ConvPrecisionToStorageLengthHelper(Lng32 precision) {
 // representation (without sign). The given exponent should be >= 0.  The
 // given targetData should have a length which is a multiple of 8.
 
-short BigNumHelper::ConvPowersOfTenToBigNumHelper(Lng32 exponent, Lng32 targetLength, Lng32 *finalTargetLength,
+short BigNumHelper::ConvPowersOfTenToBigNumHelper(int exponent, int targetLength, int *finalTargetLength,
                                                   char *targetData)
 
 {
@@ -827,7 +827,7 @@ short BigNumHelper::ConvPowersOfTenToBigNumHelper(Lng32 exponent, Lng32 targetLe
   unsigned short *targetDataInShorts = (unsigned short *)targetData;
   *finalTargetLength = BigNumHelper::ConvPrecisionToStorageLengthHelper(exponent);
 
-  Lng32 diffExponent = exponent - sizeof(powersOfTenInBigNumForm) / 8 + 1;
+  int diffExponent = exponent - sizeof(powersOfTenInBigNumForm) / 8 + 1;
 
 #ifdef NA_LITTLE_ENDIAN
   union {
@@ -851,7 +851,7 @@ short BigNumHelper::ConvPowersOfTenToBigNumHelper(Lng32 exponent, Lng32 targetLe
   Int32 k = 0;
   for (k = 0; k < 8; k++)
     targetData[k] = ((char *)(powersOfTenInBigNumForm + sizeof(powersOfTenInBigNumForm) / 2 - 4))[k];
-  Lng32 currentTargetLengthInShorts = 4;
+  int currentTargetLengthInShorts = 4;
 
   // Multiply the Big Num repeatedly by 10^4 (excepting the last
   // multiplication, which is by 10^(diffExponent%4). It is more
@@ -884,15 +884,15 @@ short BigNumHelper::ConvPowersOfTenToBigNumHelper(Lng32 exponent, Lng32 targetLe
   return 0;
 }
 
-// The following converts an Int64 to a Big Num (with sign).
+// The following converts an long to a Big Num (with sign).
 
-short BigNumHelper::ConvInt64ToBigNumWithSignHelper(Int32 targetLength, Int64 sourceData, char *targetData,
+short BigNumHelper::ConvInt64ToBigNumWithSignHelper(Int32 targetLength, long sourceData, char *targetData,
                                                     NABoolean isUnsigned)
 
 {
   Int32 tgtLength16 = targetLength >> 1;
   UInt16 *tgt = (UInt16 *)targetData;
-  Int64 *tgt64 = (Int64 *)targetData;
+  long *tgt64 = (long *)targetData;
   NABoolean isNeg = FALSE;
 
   // Initialize magnitude of target to zero.
@@ -920,18 +920,18 @@ short BigNumHelper::ConvInt64ToBigNumWithSignHelper(Int32 targetLength, Int64 so
   return 0;
 }
 
-// The following converts a Big Num (with sign) into an Int64.
+// The following converts a Big Num (with sign) into an long.
 
-short BigNumHelper::ConvBigNumWithSignToInt64Helper(Lng32 sourceLength, char *sourceData, void *targetDataPtr,
+short BigNumHelper::ConvBigNumWithSignToInt64Helper(int sourceLength, char *sourceData, void *targetDataPtr,
                                                     NABoolean isUnsigned)
 
 {
   UInt64 *uTargetData = (UInt64 *)targetDataPtr;
-  Int64 *targetData = (Int64 *)targetDataPtr;
+  long *targetData = (long *)targetDataPtr;
 
   // Recast from bytes to unsigned shorts.
   unsigned short *sourceDataInShorts = (unsigned short *)sourceData;
-  Lng32 sourceLengthInShorts = sourceLength / 2;
+  int sourceLengthInShorts = sourceLength / 2;
   char srcSign = BIGN_GET_SIGN(sourceData, sourceLength);
 
   // Clear source sign temporarily
@@ -949,7 +949,7 @@ short BigNumHelper::ConvBigNumWithSignToInt64Helper(Lng32 sourceLength, char *so
 
   // Copy the magnitude of source to target.
   // TODO: unaligned store here
-  *targetData = *((Int64 *)sourceData);
+  *targetData = *((long *)sourceData);
 
   // Restore sign in source
   if (srcSign) BIGN_SET_SIGN(sourceData, sourceLength);
@@ -969,7 +969,7 @@ short BigNumHelper::ConvBigNumWithSignToInt64Helper(Lng32 sourceLength, char *so
 #endif
 
   // We now check the sign of the source. Unfortunately there are complications.
-  // The target, an Int64, ranges between 2^63-1 and -2^63, which is asymmetric.
+  // The target, an long, ranges between 2^63-1 and -2^63, which is asymmetric.
   // We have to make sure that the source did not contain a Big Num outside this range.
 
   if (srcSign == 0) {  // source is positive.
@@ -996,7 +996,7 @@ short BigNumHelper::ConvBigNumWithSignToInt64Helper(Lng32 sourceLength, char *so
   }
 }
 
-// The following converts a BIGNUM (with sign) into Int64 and scale it,
+// The following converts a BIGNUM (with sign) into long and scale it,
 // returning information about the conversion to the caller (e.g.
 // truncations, overflows).
 //
@@ -1007,12 +1007,12 @@ short BigNumHelper::ConvBigNumWithSignToInt64Helper(Lng32 sourceLength, char *so
 //   3: the result was rounded up
 //   4: the result was rounded down
 
-short BigNumHelper::ConvBigNumWithSignToInt64AndScaleHelper(Lng32 sourceLength, char *sourceData, Int64 *targetData,
-                                                            Lng32 exponent, NAMemory *heap) {
-  Lng32 sourceLengthInShorts = sourceLength / 2;
+short BigNumHelper::ConvBigNumWithSignToInt64AndScaleHelper(int sourceLength, char *sourceData, long *targetData,
+                                                            int exponent, NAMemory *heap) {
+  int sourceLengthInShorts = sourceLength / 2;
   unsigned short *targetDataInShorts = (unsigned short *)targetData;
 
-  Lng32 absExponent = (exponent >= 0 ? exponent : -exponent);
+  int absExponent = (exponent >= 0 ? exponent : -exponent);
 
   char srcSign = BIGN_GET_SIGN(sourceData, sourceLength);
 
@@ -1022,7 +1022,7 @@ short BigNumHelper::ConvBigNumWithSignToInt64AndScaleHelper(Lng32 sourceLength, 
   // Allocate temp space for various calculations:
 
   // Allocate space for the scale factor, which is a Big Num (without sign) with value 10^(|exponent|).
-  Lng32 crudeScaleFactorLength = BigNumHelper::ConvPrecisionToStorageLengthHelper(absExponent + 1);
+  int crudeScaleFactorLength = BigNumHelper::ConvPrecisionToStorageLengthHelper(absExponent + 1);
   unsigned short *scaleFactorInShorts = new (heap) unsigned short[crudeScaleFactorLength / 2];
   char *scaleFactor = (char *)scaleFactorInShorts;
 
@@ -1030,18 +1030,18 @@ short BigNumHelper::ConvBigNumWithSignToInt64AndScaleHelper(Lng32 sourceLength, 
   unsigned short *sourceDataAfterScalingInShorts =
       new (heap) unsigned short[(crudeScaleFactorLength + sourceLength) / 2];
   char *sourceDataAfterScaling = (char *)sourceDataAfterScalingInShorts;
-  Lng32 sourceLengthAfterScalingInShorts;
+  int sourceLengthAfterScalingInShorts;
 
   // Allocate temp space for the division routine; see DivHelper for details.
   unsigned short *tempDataInShorts = new (heap) unsigned short[3 * (sourceLength) / 2 + 3];
   char *tempData = (char *)tempDataInShorts;
 
-  Lng32 scaleFactorLength;
+  int scaleFactorLength;
   BigNumHelper::ConvPowersOfTenToBigNumHelper(absExponent, crudeScaleFactorLength, &scaleFactorLength, scaleFactor);
 
   // Since the above function returns a Big Num with length a multiple of 8, there may be
   // trailing zeros. Adjust the length to ignore trailing zeros.
-  Lng32 scaleFactorLengthInShorts = scaleFactorLength / 2;
+  int scaleFactorLengthInShorts = scaleFactorLength / 2;
   while (scaleFactorInShorts[scaleFactorLengthInShorts - 1] == 0 && scaleFactorLengthInShorts > 1)
     scaleFactorLengthInShorts--;
   scaleFactorLength = 2 * scaleFactorLengthInShorts;
@@ -1098,7 +1098,7 @@ short BigNumHelper::ConvBigNumWithSignToInt64AndScaleHelper(Lng32 sourceLength, 
 
   else {
     // Copy the magnitude of source to target.
-    *targetData = *((Int64 *)sourceDataAfterScaling);
+    *targetData = *((long *)sourceDataAfterScaling);
 
 #ifdef NA_LITTLE_ENDIAN
     // Do nothing, target already in correct format.
@@ -1112,7 +1112,7 @@ short BigNumHelper::ConvBigNumWithSignToInt64AndScaleHelper(Lng32 sourceLength, 
     targetDataInShorts[2] = temp;
 #endif
 
-    // The target, an Int64, should range between 2^63-1 and -2^63, which is asymmetric.
+    // The target, an long, should range between 2^63-1 and -2^63, which is asymmetric.
     // We have to make sure that the source did not contain a Big Num outside this range.
 
     if (srcSign == 0) {  // source is positive.
@@ -1155,12 +1155,12 @@ short BigNumHelper::ConvBigNumWithSignToInt64AndScaleHelper(Lng32 sourceLength, 
 
 // The following converts a Big Num to a Big Num.
 
-short BigNumHelper::ConvBigNumWithSignToBigNumWithSignHelper(Lng32 sourceLength, Lng32 targetLength, char *sourceData,
+short BigNumHelper::ConvBigNumWithSignToBigNumWithSignHelper(int sourceLength, int targetLength, char *sourceData,
                                                              char *targetData) {
   // Recast char strings as arrays of unsigned shorts
   unsigned short *sourceDataInShorts = (unsigned short *)sourceData;
   unsigned short *targetDataInShorts = (unsigned short *)targetData;
-  Lng32 sourceLengthInShorts = sourceLength / 2;  // length in number of shorts.
+  int sourceLengthInShorts = sourceLength / 2;  // length in number of shorts.
 
   char srcSign = BIGN_GET_SIGN(sourceData, sourceLength);
 

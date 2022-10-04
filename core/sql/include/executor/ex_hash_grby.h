@@ -172,7 +172,7 @@ class ex_hash_grby_tcb : public ex_tcb {
   short returnedAtpIndex_;
 
   // the following members could also end up in the private state
-  Int64 matchCount_;
+  long matchCount_;
   HashGrbyState state_;
   HashGrbyState oldState_;
   NABoolean readingChild_;  // in middle of reading child rows
@@ -202,7 +202,7 @@ class ex_hash_grby_tcb : public ex_tcb {
   // Once a certain threshold is reached(partialGroupbyMissCounter_== 10),
   // then the rows in the partial groupby bucket is sent to the parent and
   // new set of groups is created.
-  Int64 partialGroupbyMissCounter_;
+  long partialGroupbyMissCounter_;
 
   // Members for implementing the bitMux grouping
   //

@@ -174,7 +174,7 @@ void CRURangeCollection::InsertRangeBoundary(const CRUIUDLogRecord *pRec) {
 //--------------------------------------------------------------------------//
 
 void CRURangeCollection::PrepareForFlush() {
-  Lng32 size = GetSize();
+  int size = GetSize();
   RUASSERT(size > 0);
 
   VerifyBalance();
@@ -212,7 +212,7 @@ void CRURangeCollection::PrepareForFlush() {
 //--------------------------------------------------------------------------//
 
 void CRURangeCollection::PerformRangeAnalysis() {
-  Lng32 size = GetSize();
+  int size = GetSize();
 
   for (Int32 oldIndex = 0; oldIndex < size; oldIndex++) {
     CRURange *pOlderRng = pSortedRangeVector_[oldIndex];

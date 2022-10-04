@@ -158,8 +158,8 @@ UdrGlobals::UdrGlobals(NAHeap *udrheap, NAHeap *ipcheap)
   // * We don't want MXUDR to abend simply because the LDAP lookup
   //   fails. That might break SPJ tests.
 
-  Lng32 username_len = 0;
-  Lng32 rolename_len = 0;
+  int username_len = 0;
+  int rolename_len = 0;
   short status = 0;
 
   // Retrieve the CURRENT_USER name
@@ -214,12 +214,12 @@ void UdrGlobals::resetAllStats() {
   numCurrRSets_ = 0;
 };
 
-void UdrGlobals::displayStats(ostream &out, Lng32 indent) {
+void UdrGlobals::displayStats(ostream &out, int indent) {
   char ind[100];
 
-  Lng32 indmax = (indent > 99) ? 99 : indent;
+  int indmax = (indent > 99) ? 99 : indent;
 
-  Lng32 indIdx = 0;
+  int indIdx = 0;
   for (indIdx = 0; indIdx < indmax; indIdx++) ind[indIdx] = ' ';
   ind[indIdx] = '\0';
 

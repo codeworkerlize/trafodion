@@ -107,7 +107,7 @@ class ElemDDLFileAttrCompression : public ElemDDLFileAttr {
 
 class ElemDDLFileAttrUID : public ElemDDLFileAttr {
  public:
-  ElemDDLFileAttrUID(Int64 UID);
+  ElemDDLFileAttrUID(long UID);
 
   // virtual destructor
   virtual ~ElemDDLFileAttrUID();
@@ -116,10 +116,10 @@ class ElemDDLFileAttrUID : public ElemDDLFileAttr {
   virtual ElemDDLFileAttrUID *castToElemDDLFileAttrUID();
 
   // accessors
-  inline Int64 getUID() const { return UID_; }
+  inline long getUID() const { return UID_; }
 
  private:
-  Int64 UID_;
+  long UID_;
 
 };  // class ElemDDLFileAttrUID
 

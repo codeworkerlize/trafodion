@@ -85,7 +85,7 @@ ex_tcb *ex_send_top_tdb::build(ex_globals *glob) {
   return buildInstance(glob->castToExExeStmtGlobals(), 0, 0);
 }
 
-ex_tcb *ex_send_top_tdb::buildInstance(ExExeStmtGlobals *glob, Lng32 myInstanceNum, Lng32 childInstanceNum) {
+ex_tcb *ex_send_top_tdb::buildInstance(ExExeStmtGlobals *glob, int myInstanceNum, int childInstanceNum) {
   ex_tcb *result;
 
   // find out what type of connection is needed to communicate with the
@@ -118,7 +118,7 @@ ex_tcb *ex_send_top_tdb::buildInstance(ExExeStmtGlobals *glob, Lng32 myInstanceN
 /////////////////////////////////////////////////////////////////////////////
 // Constructor
 ex_send_top_tcb::ex_send_top_tcb(const ex_send_top_tdb &sendTopTdb, ExExeStmtGlobals *glob,
-                                 const IpcProcessId &sendBottomProcId, Lng32 myInstanceNum, Lng32 childInstanceNum)
+                                 const IpcProcessId &sendBottomProcId, int myInstanceNum, int childInstanceNum)
     : ex_tcb(sendTopTdb, 1, glob),
       ipcBroken_(FALSE),
       workAtp_(NULL),
@@ -307,7 +307,7 @@ Int32 ex_send_top_tcb::fixup() {
     int childFrag = (int)sendTopTdb().getChildFragId();
     int childInstNum = (int)childInstanceNum_;
     int smTag = (int)sendTopTdb().getSMTag();
-    Int64 smQueryID = glob->getSMQueryID();
+    long smQueryID = glob->getSMQueryID();
 
     // Find the send bottom's node and pid
     const GuaProcessHandle &phandle = bottomProcId_.getPhandle();
@@ -491,7 +491,7 @@ short ex_send_top_tcb::checkReceive() {
           // very infrequent and efficient
           if (((pstate.matchCount_++) % 2 ^ 18) == 0) {
             char msg[1024];
-            str_sprintf(msg, "Send top returning row # %d.", (Lng32)pstate.matchCount_);
+            str_sprintf(msg, "Send top returning row # %d.", (int)pstate.matchCount_);
             SQLMXLoggingArea::logExecRtInfo(NULL, 0, msg, sendTopTdb().getExplainNodeId());
           }
         }
@@ -612,7 +612,7 @@ TupMsgBuffer *ex_send_top_tcb::getReceiveBuffer() {
         // construct a copy of diags area from message object
         ComDiagsArea *diagsArea = ComDiagsArea::allocate(getGlobals()->getDefaultHeap());
 
-        Lng32 objSize = msgStream_->getNextObjSize();
+        int objSize = msgStream_->getNextObjSize();
 
         // The diagsArea could have come packed from buffered or unbuffered stream.
         // If the sender used unbuffered stream, it will send only the header first,
@@ -1267,7 +1267,7 @@ short ex_send_top_tcb::createIpcGuardianConnection(NABoolean nowaitedCompleted) 
   static THREAD_P bool sv_env_multiple_fragments_checked = false;
   static THREAD_P bool sv_multiple_fragments = true;
 
-  Lng32 nowaitDepth = 4;
+  int nowaitDepth = 4;
 
   if (getStatsEntry() && sendTopTdb().getUseOldStatsNoWaitDepth()) nowaitDepth = 2;
 
@@ -1540,7 +1540,7 @@ TupMsgBuffer *ex_send_top_tcb::getCancelSendBuffer(NABoolean lateCancel) {
   }
 
   // construct sql buffer(TupMsgBuffer) directly in message to avoid copy
-  Lng32 sqlBufferLen = sendBufferSize_;
+  int sqlBufferLen = sendBufferSize_;
 
   // The TupMsgBuffer for a late cancel is for only one queue entry and
   // doesn't have a data record in it. Note that it may be routed through
@@ -1559,7 +1559,7 @@ TupMsgBuffer *ex_send_top_tcb::getCancelSendBuffer(NABoolean lateCancel) {
   return result;
 }
 
-void ex_send_top_tcb::incReqMsg(Int64 msgBytes) {
+void ex_send_top_tcb::incReqMsg(long msgBytes) {
   ExStatisticsArea *statsArea;
   if ((statsArea = getGlobals()->getStatsArea()) != NULL) statsArea->incReqMsg(msgBytes);
 }
@@ -1602,7 +1602,7 @@ const char *ex_send_top_tcb::getExSendTopStateString(ExSendTopState s) {
 
 /////////////////////////////////////////////////////////////////////////////
 // constructor
-ExSendTopMsgStream::ExSendTopMsgStream(ExExeStmtGlobals *glob, Lng32 sendBufferLimit, Lng32 inUseBufferLimit,
+ExSendTopMsgStream::ExSendTopMsgStream(ExExeStmtGlobals *glob, int sendBufferLimit, int inUseBufferLimit,
                                        IpcMessageObjSize bufferSize, ex_send_top_tcb *sendTopTcb,
                                        ExEspInstanceThread *threadInfo)
 
@@ -1686,8 +1686,8 @@ void ExSendTopMsgStream::actOnReceive(IpcConnection *connection) {
 // Methods for class ExSendTopCancelMessageStream
 // -----------------------------------------------------------------------
 
-ExSendTopCancelMessageStream::ExSendTopCancelMessageStream(ExExeStmtGlobals *glob, Lng32 sendBufferLimit,
-                                                           Lng32 inUseBufferLimit, IpcMessageObjSize bufferSize,
+ExSendTopCancelMessageStream::ExSendTopCancelMessageStream(ExExeStmtGlobals *glob, int sendBufferLimit,
+                                                           int inUseBufferLimit, IpcMessageObjSize bufferSize,
                                                            ex_send_top_tcb *sendTopTcb, ExEspInstanceThread *threadInfo)
 
     : IpcClientMsgStream(glob->getIpcEnvironment(), IPC_MSG_SQLESP_CANCEL_REQUEST, CurrEspRequestMessageVersion,

@@ -51,7 +51,7 @@ typedef PCIType PCIT;
 typedef PCIAddressingModeList AML;
 typedef PCIOperandList OL;
 typedef PCodeInstruction PCI;
-typedef Int64 PCIID;
+typedef long PCIID;
 
 // PCode Binary (formally referred as code) remains to be 32-bit long on
 // 64-bit platform but when it contains pointers/addresses it takes two
@@ -894,20 +894,20 @@ class PCIOperandList {
   PCIOperandList() { initList(0); };
   PCIOperandList(PCIType::Operand arg1) { initList(1, arg1); };
 
-  PCIOperandList(Int64 arg1) {
+  PCIOperandList(long arg1) {
     numberOperands_ = 2;
-    *((Int64 *)operand_) = arg1;
+    *((long *)operand_) = arg1;
   };
 
-  PCIOperandList(Int64 arg1, PCIType::Operand arg2) {
+  PCIOperandList(long arg1, PCIType::Operand arg2) {
     numberOperands_ = 3;
-    *((Int64 *)&operand_[0]) = arg1;
+    *((long *)&operand_[0]) = arg1;
     operand_[2] = arg2;
   };
-  PCIOperandList(Int64 arg1, Int64 arg2) {
+  PCIOperandList(long arg1, long arg2) {
     numberOperands_ = 4;
-    *((Int64 *)&operand_[0]) = arg1;
-    *((Int64 *)&operand_[2]) = arg2;
+    *((long *)&operand_[0]) = arg1;
+    *((long *)&operand_[2]) = arg2;
   };
 
   PCIOperandList(PCIType::Operand arg1, PCIType::Operand arg2) { initList(2, arg1, arg2); };
@@ -917,10 +917,10 @@ class PCIOperandList {
   PCIOperandList(PCIType::Operand arg1, PCIType::Operand arg2, PCIType::Operand arg3, Int32 arg4) {
     initList(4, arg1, arg2, arg3, arg4);
   };
-  PCIOperandList(PCIType::Operand arg1, PCIType::Operand arg2, PCIType::Operand arg3, Int64 arg4) {
+  PCIOperandList(PCIType::Operand arg1, PCIType::Operand arg2, PCIType::Operand arg3, long arg4) {
     initList(5, arg1, arg2, arg3, 0, 0);
     numberOperands_ = 5;
-    *((Int64 *)&operand_[3]) = arg4;
+    *((long *)&operand_[3]) = arg4;
   };
 
   PCIOperandList(PCIType::Operand arg1, PCIType::Operand arg2, PCIType::Operand arg3, PCIType::Operand arg4,
@@ -936,11 +936,11 @@ class PCIOperandList {
     initList(7, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
   };
 
-  PCIOperandList(Int64 arg1, Int64 arg2, PCIType::Operand arg3, PCIType::Operand arg4, PCIType::Operand arg5,
+  PCIOperandList(long arg1, long arg2, PCIType::Operand arg3, PCIType::Operand arg4, PCIType::Operand arg5,
                  PCIType::Operand arg6, PCIType::Operand arg7, PCIType::Operand arg8) {
     numberOperands_ = 10;
-    *((Int64 *)&operand_[0]) = arg1;
-    *((Int64 *)&operand_[2]) = arg2;
+    *((long *)&operand_[0]) = arg1;
+    *((long *)&operand_[2]) = arg2;
     operand_[4] = arg3;
     operand_[5] = arg4;
     operand_[6] = arg5;
@@ -949,7 +949,7 @@ class PCIOperandList {
     operand_[9] = arg8;
   };
   PCIOperandList(PCIType::Operand arg1, PCIType::Operand arg2, PCIType::Operand arg3, PCIType::Operand arg4,
-                 PCIType::Operand arg5, PCIType::Operand arg6, Int64 arg7, Int64 arg8) {
+                 PCIType::Operand arg5, PCIType::Operand arg6, long arg7, long arg8) {
     numberOperands_ = 10;
     operand_[0] = arg1;
     operand_[1] = arg2;
@@ -957,8 +957,8 @@ class PCIOperandList {
     operand_[3] = arg4;
     operand_[4] = arg5;
     operand_[5] = arg6;
-    *((Int64 *)&operand_[6]) = arg7;
-    *((Int64 *)&operand_[8]) = arg8;
+    *((long *)&operand_[6]) = arg7;
+    *((long *)&operand_[8]) = arg8;
   };
 
   PCIOperandList(PCIType::Operand arg1, PCIType::Operand arg2, PCIType::Operand arg3, PCIType::Operand arg4,
@@ -966,11 +966,11 @@ class PCIOperandList {
     initList(8, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
   };
 
-  PCIOperandList(Int64 arg1, Int64 arg2, PCIType::Operand arg3, PCIType::Operand arg4, PCIType::Operand arg5,
+  PCIOperandList(long arg1, long arg2, PCIType::Operand arg3, PCIType::Operand arg4, PCIType::Operand arg5,
                  PCIType::Operand arg6, PCIType::Operand arg7, PCIType::Operand arg8, PCIType::Operand arg9) {
     numberOperands_ = 11;
-    *((Int64 *)&operand_[0]) = arg1;
-    *((Int64 *)&operand_[2]) = arg2;
+    *((long *)&operand_[0]) = arg1;
+    *((long *)&operand_[2]) = arg2;
     operand_[4] = arg3;
     operand_[5] = arg4;
     operand_[6] = arg5;
@@ -991,12 +991,12 @@ class PCIOperandList {
     initList(10, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10);
   };
 
-  PCIOperandList(Int64 arg1, Int64 arg2, PCIType::Operand arg3, PCIType::Operand arg4, PCIType::Operand arg5,
+  PCIOperandList(long arg1, long arg2, PCIType::Operand arg3, PCIType::Operand arg4, PCIType::Operand arg5,
                  PCIType::Operand arg6, PCIType::Operand arg7, PCIType::Operand arg8, PCIType::Operand arg9,
                  PCIType::Operand arg10, PCIType::Operand arg11) {
     numberOperands_ = 13;
-    *((Int64 *)&operand_[0]) = arg1;
-    *((Int64 *)&operand_[2]) = arg2;
+    *((long *)&operand_[0]) = arg1;
+    *((long *)&operand_[2]) = arg2;
     operand_[4] = arg3;
     operand_[5] = arg4;
     operand_[6] = arg5;

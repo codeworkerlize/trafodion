@@ -124,7 +124,7 @@ ex_split_top_tcb::ex_split_top_tcb(const ex_split_top_tdb &splitTopTdb, ExExeStm
     // sidBufferSize (splitTopTdb.bufferSize_ * maxNumChildren_;)
     // is dependent on the maximum number of children
     // that this node has to support.
-    Lng32 sidNumBuffers = splitTopTdb.numBuffers_;
+    int sidNumBuffers = splitTopTdb.numBuffers_;
     ULng32 sidBufferSize = (splitTopTdb.bufferSize_ * splitTopTdb.bottomNumParts_ /* maxNumChildren_ for PAPA */);
 
     // allocate space to keep sidTuple
@@ -157,7 +157,7 @@ ex_split_top_tcb::ex_split_top_tcb(const ex_split_top_tdb &splitTopTdb, ExExeStm
 
     ExFragId childFragId = sendTopTdb->getChildFragId();
     maxNumChildren_ = glob->getNumOfInstances(childFragId);
-    Lng32 myInstanceNum = glob->getMyInstanceNumber();
+    int myInstanceNum = glob->getMyInstanceNumber();
 
     // Parallel extract consumer query only has one child sendTop
     if (sendTopTdb->getExtractConsumerFlag()) {
@@ -212,9 +212,9 @@ ex_split_top_tcb::ex_split_top_tcb(const ex_split_top_tdb &splitTopTdb, ExExeStm
   inputDataTupps_ = NULL;
   if (splitTopTdb.needToSendInputData()) {
     ExPartInputDataDesc *partInputDesc = splitTopTdb.partInputDataDesc_;
-    Lng32 numParts = partInputDesc->getNumPartitions();
-    Lng32 inputDataLength = partInputDesc->getPartInputDataLength();
-    Lng32 numSlicesPerChild = numParts / maxNumChildren_;
+    int numParts = partInputDesc->getNumPartitions();
+    int inputDataLength = partInputDesc->getPartInputDataLength();
+    int numSlicesPerChild = numParts / maxNumChildren_;
 
     if (isPapaNode()) {
       // A PAPA node does not use the partition input values as
@@ -226,15 +226,15 @@ ex_split_top_tcb::ex_split_top_tcb(const ex_split_top_tdb &splitTopTdb, ExExeStm
 
     // allocate an SqlBuffer large enough to hold <numParts> tupps
     // with a length of <inputDataLength>
-    Lng32 neededBufferSize = (Lng32)SqlBufferNeededSize(numParts + 1, inputDataLength, SqlBuffer::NORMAL_);
+    int neededBufferSize = (int)SqlBufferNeededSize(numParts + 1, inputDataLength, SqlBuffer::NORMAL_);
     inputDataTupps_ = (SqlBuffer *)new (space) char[neededBufferSize];
     inputDataTupps_->driveInit(neededBufferSize, FALSE, SqlBuffer::NORMAL_);
 
     // now allocate the tupps inside the buffer and initialize them
     // with the (constant) partition input data from the tdb
-    for (Lng32 fromPartition = 0; fromPartition < numParts; fromPartition += numSlicesPerChild) {
+    for (int fromPartition = 0; fromPartition < numParts; fromPartition += numSlicesPerChild) {
       tupp tp = inputDataTupps_->add_tuple_desc(inputDataLength);
-      Lng32 toPartition = MINOF(fromPartition + numSlicesPerChild, numParts) - 1;
+      int toPartition = MINOF(fromPartition + numSlicesPerChild, numParts) - 1;
 
       partInputDesc->copyPartInputValue(fromPartition, toPartition, tp.getDataPointer(), inputDataLength);
     }
@@ -243,12 +243,12 @@ ex_split_top_tcb::ex_split_top_tcb(const ex_split_top_tdb &splitTopTdb, ExExeStm
   // allocate buffers for encoded keys of the children, if a merge is done
   mergeKeyTupps_ = NULL;
   if (mergeKeyExpr()) {
-    Lng32 neededBufferSize =
-        (Lng32)SqlBufferNeededSize(maxNumChildren_, splitTopTdb.mergeKeyLength_, SqlBuffer::NORMAL_);
+    int neededBufferSize =
+        (int)SqlBufferNeededSize(maxNumChildren_, splitTopTdb.mergeKeyLength_, SqlBuffer::NORMAL_);
     mergeKeyTupps_ = (SqlBuffer *)new (space) char[neededBufferSize];
     mergeKeyTupps_->driveInit(neededBufferSize, FALSE, SqlBuffer::NORMAL_);
 
-    for (Lng32 i = 0; i < maxNumChildren_; i++) mergeKeyTupps_->add_tuple_desc(splitTopTdb.mergeKeyLength_);
+    for (int i = 0; i < maxNumChildren_; i++) mergeKeyTupps_->add_tuple_desc(splitTopTdb.mergeKeyLength_);
   }
 
   // set the stream timeout value to be used by this TCB
@@ -1209,12 +1209,12 @@ ExWorkProcRetcode ex_split_top_tcb::workUp() {
 
             // check for cancellations and insert row into up queue
             // if still needed
-            if ((request == ex_queue::GET_N AND(Lng32) pstate->matchCountForGetN_ >= pentry->downState.requestValue)
+            if ((request == ex_queue::GET_N AND(int) pstate->matchCountForGetN_ >= pentry->downState.requestValue)
                     OR request == ex_queue::GET_NOMORE) {
               // if not already done, cancel (note that an
               // error from one child cancels all other children)
               if (NOT(pstate->getState() == CANCELLING)) {
-                if (request == ex_queue::GET_N AND(Lng32) pstate->matchCountForGetN_ ==
+                if (request == ex_queue::GET_N AND(int) pstate->matchCountForGetN_ ==
                     pentry->downState.requestValue) {
                   if (statsEntry) {
                     statsEntry->incActualRowsReturned();
@@ -1311,7 +1311,7 @@ ExWorkProcRetcode ex_split_top_tcb::workUp() {
                 //  stream_timeout, however, we must make sure that we
                 //  don't have an outstanding GET_NEXT_N request.  This
                 //  is done by testing activePartNum_.
-                Int64 wait_timeout = streamTimeout_;
+                long wait_timeout = streamTimeout_;
 
                 if (pstate->activePartNum_ == NULL_COLL_INDEX && wait_timeout >= 0 &&
                     pstate->time_of_stream_get_next_usec_ + wait_timeout * 10000 < NA_JulianTimestamp()) {
@@ -1645,7 +1645,7 @@ void ex_split_top_tcb::cancelChildRequests(queue_index parentIndex) {
   }
 }
 
-void ex_split_top_tcb::resetAssociatedChildIndex(Lng32 partNo) {
+void ex_split_top_tcb::resetAssociatedChildIndex(int partNo) {
   // used for static PA-partition association only
   if (splitTopTdb().isStaticPaAffinity()) {
     Int32 p = partNo % maxNumChildren_;
@@ -1655,7 +1655,7 @@ void ex_split_top_tcb::resetAssociatedChildIndex(Lng32 partNo) {
   }
 }
 
-CollIndex ex_split_top_tcb::getAssociatedChildIndex(Lng32 partNo) {
+CollIndex ex_split_top_tcb::getAssociatedChildIndex(int partNo) {
   // ---------------------------------------------------------------------
   // This procedure gets called when the split top node works as parent
   // of PA nodes (called PAPA node). PA nodes like it when they receive
@@ -1697,7 +1697,7 @@ CollIndex ex_split_top_tcb::getAssociatedChildIndex(Lng32 partNo) {
         return nc;
       }
     } else {  // a PA has accessed this partition before
-      Lng32 pn = childStates_[c].associatedPartNum_;
+      int pn = childStates_[c].associatedPartNum_;
       if (pn == partNo)
         return c;                               // it is accessing it now
       else if (pn == SPLIT_TOP_UNASSOCIATED) {  // this PA is free to work on this partition again
@@ -1720,7 +1720,7 @@ CollIndex ex_split_top_tcb::getAssociatedChildIndex(Lng32 partNo) {
   // Try to find a child TCB that is already associated with the part #
   // ---------------------------------------------------------------------
   for (CollIndex i = 0; i < nc; i++) {
-    Lng32 pn = childStates_[i].associatedPartNum_;
+    int pn = childStates_[i].associatedPartNum_;
     if (pn == partNo)
       return i;
     else if (pn == SPLIT_TOP_UNASSOCIATED)
@@ -1753,7 +1753,7 @@ CollIndex ex_split_top_tcb::getAssociatedChildIndex(Lng32 partNo) {
   return NULL_COLL_INDEX;
 }
 
-Lng32 ex_split_top_tcb::getDP2PartitionsToDo(atp_struct *parentAtp, ex_split_top_private_state *pstate) {
+int ex_split_top_tcb::getDP2PartitionsToDo(atp_struct *parentAtp, ex_split_top_private_state *pstate) {
   pstate->setCurrActiveChild(NULL_COLL_INDEX);
   return 0;
 }
@@ -1942,7 +1942,7 @@ CollIndex ex_split_top_tcb::findNextReadyChild(ex_split_top_private_state *pstat
 
 ex_queue_pair ex_split_top_tcb::getParentQueue() const { return qParent_; }
 
-ex_tcb_private_state *ex_split_top_tcb::allocatePstates(Lng32 &numElems, Lng32 &pstateLength) {
+ex_tcb_private_state *ex_split_top_tcb::allocatePstates(int &numElems, int &pstateLength) {
   ex_split_top_private_state *result;
   CollHeap *h = getGlobals()->getDefaultHeap();
 
@@ -1961,7 +1961,7 @@ ex_tcb_private_state *ex_split_top_tcb::allocatePstates(Lng32 &numElems, Lng32 &
   // for global operator new.  Note that we can't set the heap in the
   // constructor because a PSTATE needs to have a default constructor
   // if we want to use the PstateAllocator.
-  for (Lng32 i = 0; i < numElems; i++)
+  for (int i = 0; i < numElems; i++)
     if (useExt) {
       ((ex_split_top_private_state_ext *)result)[i].setHeap(h);
     } else {

@@ -43,10 +43,10 @@
 // ----------------
 // This is a list of longs representing a list of column numbers. It is used
 // to represent clustering indexes.
-class ColIndList : public LIST(Lng32) {
+class ColIndList : public LIST(int) {
  public:
-  ColIndList() : LIST(Lng32)(NULL) {}  // on C++ heap
-  ColIndList(LIST(Lng32) list) : LIST(Lng32)(list, NULL) {}
+  ColIndList() : LIST(int)(NULL) {}  // on C++ heap
+  ColIndList(LIST(int) list) : LIST(int)(list, NULL) {}
   virtual ~ColIndList() {}
   NABoolean isPrefixOf(const ColIndList &other) const;
   NABoolean isOrderedPrefixOf(const ColIndList &other) const;

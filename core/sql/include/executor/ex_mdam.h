@@ -41,7 +41,7 @@
 
 // -----------------------------------------------------------------------
 
-#include "ex_error.h"
+#include "executor/ex_error.h"
 #include "common/NABoolean.h"
 #include "key_range.h"
 #include "key_mdam.h"
@@ -70,8 +70,8 @@ class MdamColumn;
 // this class but stored in MdamColumn objects.
 ///////////////////////////////////////////////////////////
 class MdamPredIterator : public ExGod {
-  Lng32 currentDisjunctNumber_;
-  Lng32 maxDisjunctNumber_;
+  int currentDisjunctNumber_;
+  int maxDisjunctNumber_;
 
   // The next variable is used to parse the MdamPred's into OR
   // groups.  It is initialized to FALSE by positionToNextOr();
@@ -82,11 +82,11 @@ class MdamPredIterator : public ExGod {
   NABoolean returnedAPred_;
 
  public:
-  MdamPredIterator(MdamColumn *first, Lng32 maxDisjunctNumber);
+  MdamPredIterator(MdamColumn *first, int maxDisjunctNumber);
 
   ~MdamPredIterator(){};
 
-  Lng32 getNextDisjunctNumber();  // -1 means no more disjuncts
+  int getNextDisjunctNumber();  // -1 means no more disjuncts
 
   // In the next three methods, currentPred is state stored in MdamColumn
   // objects, but updated by these methods only.
@@ -191,13 +191,13 @@ class MdamColumn : public ExGod {
 
   // returns TRUE if the disjunct number is in some stop list
   NABoolean buildDisjunct(MdamPredIterator &predIterator, sql_buffer_pool *pool, atp_struct *atp0, atp_struct *atp1,
-                          unsigned short valueAtpIndex, Lng32 disjunct_number, NABoolean disjunct_number_in_stop_list,
+                          unsigned short valueAtpIndex, int disjunct_number, NABoolean disjunct_number_in_stop_list,
                           FixedSizeHeapManager &mdamIntervalHeap, FixedSizeHeapManager &mdamRefListEntryHeap,
-                          FixedSizeHeapManager &mdamRefListEntrysForStopListsHeap, Lng32 &dataConvErrorFlag);
+                          FixedSizeHeapManager &mdamRefListEntrysForStopListsHeap, int &dataConvErrorFlag);
 
   void tossDisjunct(FixedSizeHeapManager &mdamIntervalHeap, FixedSizeHeapManager &mdamRefListEntryHeap);
 
-  void mergeDisjunct(Lng32 disjunct_number, FixedSizeHeapManager &mdamIntervalHeap,
+  void mergeDisjunct(int disjunct_number, FixedSizeHeapManager &mdamIntervalHeap,
                      FixedSizeHeapManager &mdamRefListEntryHeap);
 
   NABoolean disjunctIsEmpty();
@@ -254,7 +254,7 @@ class MdamColumn : public ExGod {
 /////////////////////////////////////////////////////
 
 class keyMdamEx : public keyRangeEx {
-  Lng32 number_of_key_cols_;
+  int number_of_key_cols_;
 
   // anchors for the Mdam network
   NABoolean network_built_;
@@ -264,7 +264,7 @@ class keyMdamEx : public keyRangeEx {
 
   // state variables used during Mdam network traversal
   MdamColumn *current_column_;
-  Lng32 current_column_index_;
+  int current_column_index_;
 
   // the counter below is passed to MdamColumn::getNextValue, and helps
   // the MdamColumn decide whether to switch from dense probes to sparse

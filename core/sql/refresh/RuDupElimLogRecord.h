@@ -106,7 +106,7 @@ class REFRESH_LIB_CLASS CRUIUDLogRecord {
 
   const CDMSqlTuple &GetCKTuple() const { return ckTuple_; }
 
-  Lng32 GetCKLength() const { return ckTuple_.GetLength(); }
+  int GetCKLength() const { return ckTuple_.GetLength(); }
 
   BOOL IsClusteringKeyEqualTo(const CRUIUDLogRecord &other) const { return (ckTag_ == other.ckTag_); }
 

@@ -773,7 +773,7 @@ ElemDDLGroup *ElemDDLNode::castToElemDDLGroup() { return NULL; }
 
 Int32 ElemDDLNode::getArity() const { return 0; }
 
-ExprNode *ElemDDLNode::getChild(Lng32 /* index */) { return NULL; }
+ExprNode *ElemDDLNode::getChild(int /* index */) { return NULL; }
 
 // Treat this node as an array (of one element).
 // The number of elements in this array is 1.
@@ -808,7 +808,7 @@ ElemDDLNode *ElemDDLNode::operator[](CollIndex index) {
 // mutators
 //
 
-void ElemDDLNode::setChild(Lng32 /* index */, ExprNode * /* pElemDDLNode */) {
+void ElemDDLNode::setChild(int /* index */, ExprNode * /* pElemDDLNode */) {
   ABORT("virtual function ElemDDLNode::setChild() must be redefined");
 }
 
@@ -886,13 +886,13 @@ ElemDDLAlterTableMove *ElemDDLAlterTableMove::castToElemDDLAlterTableMove() { re
 // get the degree of this node
 Int32 ElemDDLAlterTableMove::getArity() const { return MAX_ELEM_DDL_ALTER_TABLE_MOVE_ARITY; }
 
-ExprNode *ElemDDLAlterTableMove::getChild(Lng32 index) {
+ExprNode *ElemDDLAlterTableMove::getChild(int index) {
   ComASSERT(index >= 0 AND index < getArity());
   return children_[index];
 }
 
 // mutator
-void ElemDDLAlterTableMove::setChild(Lng32 index, ExprNode *pChildNode) {
+void ElemDDLAlterTableMove::setChild(int index, ExprNode *pChildNode) {
   ComASSERT(index >= 0 AND index < getArity());
   if (pChildNode NEQ NULL) {
     ComASSERT(pChildNode->castToElemDDLNode() NEQ NULL);
@@ -989,13 +989,13 @@ ElemDDLKeyValue *ElemDDLKeyValue::castToElemDDLKeyValue() { return this; }
 // get the degree of this node
 Int32 ElemDDLKeyValue::getArity() const { return MAX_ELEM_DDL_KEY_VALUE_ARITY; }
 
-ExprNode *ElemDDLKeyValue::getChild(Lng32 index) {
+ExprNode *ElemDDLKeyValue::getChild(int index) {
   ComASSERT(index EQU INDEX_KEY_VALUE);
   return keyValue_;
 }
 
 // mutator
-void ElemDDLKeyValue::setChild(Lng32 index, ExprNode *pChildNode) {
+void ElemDDLKeyValue::setChild(int index, ExprNode *pChildNode) {
   ComASSERT(index EQU INDEX_KEY_VALUE);
   if (pChildNode NEQ NULL) {
     //
@@ -1188,7 +1188,7 @@ ElemDDLLocation::ElemDDLLocation(locationNameTypeEnum locationNameType, const NA
 
       const ComNodeName &systemName = locName.getGuardianSystemNamePart();
       if (!systemName.isNull()) {
-        Lng32 systemNumber;
+        int systemNumber;
         if (systemName.getNodeNumber(systemNumber) &&
             (CmpCommon::getDefault(CREATE_OBJECTS_IN_METADATA_ONLY, 0) == DF_OFF))
           //|| !OSIM_runningSimulation()))
@@ -1328,7 +1328,7 @@ ElemDDLPrivileges *ElemDDLPrivileges::castToElemDDLPrivileges() { return this; }
 // get the degree of this node
 Int32 ElemDDLPrivileges::getArity() const { return MAX_ELEM_DDL_PRIVILEGES_ARITY; }
 
-ExprNode *ElemDDLPrivileges::getChild(Lng32 index) {
+ExprNode *ElemDDLPrivileges::getChild(int index) {
   ComASSERT(index >= 0 AND index < getArity());
   return children_[index];
 }
@@ -1337,7 +1337,7 @@ ExprNode *ElemDDLPrivileges::getChild(Lng32 index) {
 // mutators
 //
 
-void ElemDDLPrivileges::setChild(Lng32 index, ExprNode *pChildNode) {
+void ElemDDLPrivileges::setChild(int index, ExprNode *pChildNode) {
   ComASSERT(index >= 0 AND index < getArity());
   if (pChildNode NEQ NULL) {
     ComASSERT(pChildNode->castToElemDDLNode() NEQ NULL);
@@ -1405,13 +1405,13 @@ NATraceList ElemDDLPrivileges::getDetailInfo() const {
   ComASSERT(pPrivActList NEQ NULL);
 
   detailText = "Privilege Action List [";
-  detailText += LongToNAString((Lng32)pPrivActList->entries());
+  detailText += LongToNAString((int)pPrivActList->entries());
   detailText += " element(s)]:";
   detailTextList.append(detailText);
 
   for (CollIndex i = 0; i < pPrivActList->entries(); i++) {
     detailText = "[privilege action ";
-    detailText += LongToNAString((Lng32)i);
+    detailText += LongToNAString((int)i);
     detailText += "]";
     detailTextList.append(detailText);
 
@@ -1444,7 +1444,7 @@ ElemDDLReferences *ElemDDLReferences::castToElemDDLReferences() { return this; }
 
 Int32 ElemDDLReferences::getArity() const { return MAX_ELEM_DDL_REFERENCES_ARITY; }
 
-ExprNode *ElemDDLReferences::getChild(Lng32 index) {
+ExprNode *ElemDDLReferences::getChild(int index) {
   ComASSERT(index >= 0 AND index < getArity());
   return children_[index];
 }
@@ -1457,7 +1457,7 @@ NAString ElemDDLReferences::getReferencedTableName() const {
 // mutator
 //
 
-void ElemDDLReferences::setChild(Lng32 index, ExprNode *pChildNode) {
+void ElemDDLReferences::setChild(int index, ExprNode *pChildNode) {
   ComASSERT(index >= 0 AND index < getArity());
   if (pChildNode EQU NULL) {
     children_[index] = NULL;
@@ -1496,13 +1496,13 @@ NATraceList ElemDDLReferences::getDetailInfo() const {
     ComASSERT(nbrCols > 0);
 
     detailText = "Referenced column list [";
-    detailText += LongToNAString((Lng32)nbrCols);
+    detailText += LongToNAString((int)nbrCols);
     detailText += " element(s)]:";
     detailTextList.append(detailText);
 
     for (CollIndex i = 0; i < nbrCols; i++) {
       detailText = "[referenced column ";
-      detailText += LongToNAString((Lng32)i);
+      detailText += LongToNAString((int)i);
       detailText += "]";
       detailTextList.append(detailText);
 
@@ -1806,13 +1806,13 @@ const NAString ElemDDLSaltOptionsClause::getText() const { return "ElemDDLSaltOp
 // get the degree of this node
 Int32 ElemDDLSaltOptionsClause::getArity() const { return MAX_ELEM_DDL_SALT_OPT_KEY_COLUMN_LIST_ARITY; }
 
-ExprNode *ElemDDLSaltOptionsClause::getChild(Lng32 index) {
+ExprNode *ElemDDLSaltOptionsClause::getChild(int index) {
   ComASSERT(index >= 0 AND index < getArity());
   return children_[index];
 }
 
 // mutator
-void ElemDDLSaltOptionsClause::setChild(Lng32 index, ExprNode *pChildNode) {
+void ElemDDLSaltOptionsClause::setChild(int index, ExprNode *pChildNode) {
   ComASSERT(index >= 0 AND index < MAX_ELEM_DDL_SALT_OPT_KEY_COLUMN_LIST_ARITY);
   if (pChildNode NEQ NULL) {
     ComASSERT(pChildNode->castToElemDDLNode() NEQ NULL);

@@ -21,7 +21,7 @@
 // @@@ END COPYRIGHT @@@
 // **********************************************************************
 
-#include <Int64.h>
+#include <long.h>
 #include "QmsQms.h"
 #include "qmscommon/XMLUtil.h"
 #include "qmscommon/QRDescriptor.h"
@@ -53,7 +53,7 @@
 
 QmsInitializer *QmsInitializer::instance_ = NULL;
 
-Lng32 QmsInitializer::performInitialization() {
+int QmsInitializer::performInitialization() {
   // Ignore request if initialization has already been done.
   if (qms_->isInitialized()) {
     QRLogger::log(CAT_MEMORY, LL_WARN,
@@ -105,8 +105,8 @@ Lng32 QmsInitializer::performInitialization() {
  * by default MVQR_COLLECT_QMS_STATS
  */
 void QmsInitializer::logQMSStats() {
-  Int64 totalSize = 0;
-  Int64 allocatedSize = 0;
+  long totalSize = 0;
+  long allocatedSize = 0;
   NAMemory *qmsHeap = qms_->getHeap();
   if (qmsHeap) {
     totalSize = qmsHeap->getTotalSize();
@@ -145,7 +145,7 @@ void QmsInitializer::processCatalogs(const NAStringList *catalogNames) {
     const NAString *catalog = (*catalogNames)[i];
 
     // Get the CAT_UID for this catalog
-    Int64 catalogUID = sqlInterface_.getCatalogUID(catalog);
+    long catalogUID = sqlInterface_.getCatalogUID(catalog);
 
     // Get the schema definition version for this catalog
     const NAString *schemaVersion = sqlInterface_.getSchemaVersion(catalogUID);
@@ -306,7 +306,7 @@ NABoolean QmsInitializer::collectMVNames(const NAStringList *catalogNames, NAStr
     const NAString *catalog = (*catalogNames)[i];
 
     // Get the CAT_UID for this catalog
-    Int64 catalogUID = sqlInterface_.getCatalogUID(catalog);
+    long catalogUID = sqlInterface_.getCatalogUID(catalog);
 
     // Get the schema definition version for this catalog
     const NAString *schemaVersion = sqlInterface_.getSchemaVersion(catalogUID);

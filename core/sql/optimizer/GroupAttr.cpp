@@ -728,7 +728,7 @@ HashValue GroupAttributes::hash() const {
 // Returns: A list that is a prefix of the chosen index sort key.
 // -----------------------------------------------------------------------
 ValueIdList GroupAttributes::recommendedOrderForNJProbing(GroupAttributes *child0GA,        // IN
-                                                          Lng32 numForcedParts,             // IN
+                                                          int numForcedParts,             // IN
                                                           RequirementGenerator &rg,         // IN
                                                           ValueIdList &reqdOrder1,          // IN
                                                           ValueIdSet &reqdArr1,             // IN
@@ -736,10 +736,10 @@ ValueIdList GroupAttributes::recommendedOrderForNJProbing(GroupAttributes *child
                                                           NABoolean partKeyColsAreMappable  // OUT
 ) {
   ValueIdList chosenIndexOrder;
-  Lng32 chosenIndexNumUncoveredCols = -1;
+  int chosenIndexNumUncoveredCols = -1;
   NABoolean chosenIndexPartKeyColsAreMappable = FALSE;
   NABoolean chosenIndexSatisfiesDp2SortOrderPartReq = FALSE;
-  Lng32 chosenIndexNumParts = 0;
+  int chosenIndexNumParts = 0;
 
   ValueIdList currentIndexOrder;
   IndexDesc *currentIndexDesc;
@@ -749,9 +749,9 @@ ValueIdList GroupAttributes::recommendedOrderForNJProbing(GroupAttributes *child
   ValueIdList currentIndexPartKeyAsList;
   ValueIdList currentIndexPartKeyEquiJoinCols;
   NABoolean currentIndexPartKeyColsAreMappable;
-  Lng32 currentIndexNumParts;
+  int currentIndexNumParts;
   ValueIdList currentIndexUncoveredCols;
-  Lng32 currentIndexNumUncoveredCols;
+  int currentIndexNumUncoveredCols;
   NABoolean currentIndexSatisfiesPartReq;
   NABoolean currentIndexSatisfiesDp2SortOrderPartReq;
 
@@ -760,7 +760,7 @@ ValueIdList GroupAttributes::recommendedOrderForNJProbing(GroupAttributes *child
   SortOrderTypeEnum sortOrderTypeReq = rppForMe->getSortOrderTypeReq();
   PartitioningRequirement *dp2SortOrderPartReq = rppForMe->getDp2SortOrderPartReq();
 
-  Lng32 numPartsRequirement = ANY_NUMBER_OF_PARTITIONS;
+  int numPartsRequirement = ANY_NUMBER_OF_PARTITIONS;
   NABoolean numPartsForced = FALSE;
 
   if (numForcedParts != ANY_NUMBER_OF_PARTITIONS) {
@@ -886,7 +886,7 @@ ValueIdList GroupAttributes::recommendedOrderForNJProbing(GroupAttributes *child
             // fully specified partitioning requirement - must compare
             // both partitioning keys and the partitioning boundaries
             PartitioningFunction *scaledPartFunc = currentIndexPartFunc->copy();
-            Lng32 scaleNumPartReq = numPartsRequirement;
+            int scaleNumPartReq = numPartsRequirement;
             scaledPartFunc = scaledPartFunc->scaleNumberOfPartitions(scaleNumPartReq);
             if ((scaleNumPartReq == numPartsRequirement) AND partReqForMe->partReqAndFuncCompatible(scaledPartFunc))
               currentIndexSatisfiesPartReq = TRUE;

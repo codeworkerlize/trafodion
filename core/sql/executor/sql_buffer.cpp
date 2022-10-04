@@ -180,13 +180,13 @@ SqlBufferBase::moveStatus SqlBufferBase::moveInSendOrReplyData(
 
 NABoolean SqlBufferBase::moveOutSendOrReplyData(NABoolean isSend, void *currQState, tupp &outTupp,
                                                 ControlInfo **controlInfo, ComDiagsArea **diagsArea,
-                                                ExStatisticsArea **statsArea, Int64 *numStatsBytes,
+                                                ExStatisticsArea **statsArea, long *numStatsBytes,
                                                 NABoolean noStateChange, NABoolean unpackDA, CollHeap *heap) {
   return FALSE;
 }
 
 // positions to the "tupp_desc_num"th tupp descriptor.
-void SqlBufferBase::position(Lng32){};
+void SqlBufferBase::position(int){};
 
 // returns the 'next' tupp descriptor. Increments the
 // position. Returns null, if none found.
@@ -200,7 +200,7 @@ tupp_descriptor *SqlBufferBase::getCurr() { return NULL; };
 void SqlBufferBase::advance(){};
 
 // add a new tuple descriptor to the end of the buffer
-tupp_descriptor *SqlBufferBase::add_tuple_desc(Lng32 tup_data_size) { return NULL; }
+tupp_descriptor *SqlBufferBase::add_tuple_desc(int tup_data_size) { return NULL; }
 
 // remove the tuple desc with the highest number from the buffer
 void SqlBufferBase::remove_tuple_desc() {}
@@ -211,7 +211,7 @@ void SqlBufferBase::remove_tuple_desc() {}
 void SqlBuffer::init(ULng32 in_size_in_bytes, NABoolean clear) {
   SqlBufferBase::init(in_size_in_bytes, clear);
 
-  Lng32 sb_size = getClassSize();
+  int sb_size = getClassSize();
   freeSpace_ = sizeInBytes_ - ROUND8(sb_size);
   bufferStatus_ = EMPTY;
   maxTuppDesc_ = 0;
@@ -223,7 +223,7 @@ void SqlBuffer::init(ULng32 in_size_in_bytes, NABoolean clear) {
 }
 
 void SqlBuffer::init() {
-  Lng32 sb_size = getClassSize();
+  int sb_size = getClassSize();
 
   SqlBufferBase::init();
 
@@ -268,14 +268,14 @@ void SqlBuffer::compactBuffer() {}
 
 tupp_descriptor *SqlBuffer::getPrev() { return NULL; };
 
-short SqlBuffer::space_available(Lng32 tup_data_size) {
-  if (freeSpace_ >= (Lng32)(tup_data_size + sizeof(tupp_descriptor)))
+short SqlBuffer::space_available(int tup_data_size) {
+  if (freeSpace_ >= (int)(tup_data_size + sizeof(tupp_descriptor)))
     return -1;
   else
     return 0;
 };
 
-tupp_descriptor *SqlBuffer::getTuppDescriptor(Lng32 tupp_desc_num) { return NULL; }
+tupp_descriptor *SqlBuffer::getTuppDescriptor(int tupp_desc_num) { return NULL; }
 
 // print buffer info. For debugging
 void SqlBuffer::printInfo() { printInfo(cerr); }
@@ -283,8 +283,8 @@ void SqlBuffer::printInfo() { printInfo(cerr); }
 void SqlBuffer::printInfo(ostream &out) {
   out << "SqlBuffer=" << this << " ,Status: " << (int)bufferStatus_ << " type: " << std::hex << bufType() << std::dec
       << " maxTuppDesc: " << maxTuppDesc_ << " freeSpace: " << freeSpace_ << endl;
-  Lng32 refcount = 0;
-  Lng32 firstref = -1;
+  int refcount = 0;
+  int firstref = -1;
 
   for (Int32 i = 0; (i < maxTuppDesc_); i++) {
     if (tupleDesc(i)->getReferenceCount()) {
@@ -326,8 +326,8 @@ SqlBuffer::moveStatus SqlBuffer::moveInSendOrReplyData(
   tupp_descriptor *cdesc = NULL;
   tupp_descriptor *tdesc = NULL;
   NABoolean controlInfoMoved = FALSE;
-  Lng32 daMark = -1;
-  Lng32 atpDaMark = -1;
+  int daMark = -1;
+  int atpDaMark = -1;
   SqlBuffer::moveStatus retcode = MOVE_SUCCESS;
   NABoolean moveControlInfo = FALSE;
   NABoolean setUpStatusToError = FALSE;
@@ -748,7 +748,7 @@ SqlBuffer::moveStatus SqlBuffer::moveInSendOrReplyData(
 
 NABoolean SqlBuffer::moveOutSendOrReplyData(NABoolean isSend, void *currQState, tupp &outTupp,
                                             ControlInfo **controlInfo, ComDiagsArea **diagsArea,
-                                            ExStatisticsArea **statsArea, Int64 *numStatsBytes, NABoolean noStateChange,
+                                            ExStatisticsArea **statsArea, long *numStatsBytes, NABoolean noStateChange,
                                             NABoolean unpackDA, CollHeap *heap) {
   if (atEOTD()) return TRUE;
 
@@ -932,7 +932,7 @@ NABoolean SqlBuffer::moveOutSendOrReplyData(NABoolean isSend, void *currQState, 
 
         // advance the match no
         if (srControlInfo_.getUpState().getMatchNo() != OverflowedMatchNo) {
-          Int64 matchNo64 = srControlInfo_.getUpState().getMatchNo();
+          long matchNo64 = srControlInfo_.getUpState().getMatchNo();
           srControlInfo_.getUpState().setMatchNo(matchNo64 + 1);
         }
       }
@@ -968,7 +968,7 @@ NABoolean SqlBuffer::moveOutSendOrReplyData(NABoolean isSend, void *currQState, 
           if (flags_ & ROWCOUNT_RETURNED)
             ((up_state *)currQState)->matchNo = 0;
           else {
-            ((up_state *)currQState)->matchNo = (Lng32)unpackedDiagsArea->getRowCount();
+            ((up_state *)currQState)->matchNo = (int)unpackedDiagsArea->getRowCount();
             unpackedDiagsArea->setContainsRowCountFromEID(FALSE);
             unpackedDiagsArea->setRowCount(0);
             flags_ |= ROWCOUNT_RETURNED;
@@ -1062,7 +1062,7 @@ NABoolean SqlBuffer::findAndCancel(queue_index pindex, NABoolean startFromBeginn
   // if so, change downstate.request to GET_NOMORE & return TRUE,
   // if not found, return FALSE.
   // save and restore tuppDescIndex_, regardless of outcome.
-  Lng32 saveTuppDescIndex = tuppDescIndex_;
+  int saveTuppDescIndex = tuppDescIndex_;
   NABoolean wasFound = FALSE;
 
   if (startFromBeginning) position();
@@ -1088,7 +1088,7 @@ unsigned short SqlBuffer::getNumInvalidTuplesUptoNow() {
   return 0;
 }
 
-void SqlBuffer::setNumInvalidTuplesUptoNow(Lng32 val) { UdrExeAssert(0, "Do not call the base class method"); }
+void SqlBuffer::setNumInvalidTuplesUptoNow(int val) { UdrExeAssert(0, "Do not call the base class method"); }
 
 void SqlBuffer::incNumInvalidTuplesUptoNow() { UdrExeAssert(0, "Do not call the base class method"); }
 
@@ -1102,11 +1102,11 @@ void SqlBuffer::advanceToNextValidTuple() {
   }
 }
 
-static Int64 debugCnt = 0;
+static long debugCnt = 0;
 
 void SqlBuffer::setSignature() { signature_ = ++debugCnt; }
 
-NABoolean SqlBuffer::checkSignature(const Int32 nid, const Int32 pid, Int64 *signature, const Int32 action) {
+NABoolean SqlBuffer::checkSignature(const Int32 nid, const Int32 pid, long *signature, const Int32 action) {
   if (signature_ <= *signature) {
     if (action > 0) {
       char coreFile[512];
@@ -1156,14 +1156,14 @@ void SqlBufferNormal::init() {
 }
 
 // allocate a new tupp descriptor
-tupp_descriptor *SqlBufferNormal::allocate_tuple_desc(Lng32 tup_data_size) {
+tupp_descriptor *SqlBufferNormal::allocate_tuple_desc(int tup_data_size) {
   // NOTE: SqlBufferNormal::allocate_tuple_desc and
   // SqlBufferNormal::remove_tuple_desc must be kept
   // consistent. remove_tuple_desc should correctly reverse any
   // modifications done by the most recent allocate_tuple_desc.
 
   UInt32 rounded_size = ROUND8(tup_data_size);
-  Lng32 freeSpaceNeeded = rounded_size + sizeof(tupp_descriptor);
+  int freeSpaceNeeded = rounded_size + sizeof(tupp_descriptor);
 
   if (freeSpace_ < freeSpaceNeeded)  // no free space to allocate this tuple
     return NULL;
@@ -1183,7 +1183,7 @@ tupp_descriptor *SqlBufferNormal::allocate_tuple_desc(Lng32 tup_data_size) {
 }
 
 // adds a tuple descriptor
-tupp_descriptor *SqlBufferNormal::add_tuple_desc(Lng32 tup_data_size) { return allocate_tuple_desc(tup_data_size); }
+tupp_descriptor *SqlBufferNormal::add_tuple_desc(int tup_data_size) { return allocate_tuple_desc(tup_data_size); }
 
 // removes the last tuple descriptor.
 void SqlBufferNormal::remove_tuple_desc() {
@@ -1262,14 +1262,14 @@ short SqlBufferNormal::isFree() {
 void SqlBufferNormal::position() { tuppDescIndex_ = 0; }
 
 // positions to the "tupp_desc_num"th tupp descriptor.
-void SqlBufferNormal::position(Lng32 tupp_desc_num) { tuppDescIndex_ = (unsigned short)tupp_desc_num; }
+void SqlBufferNormal::position(int tupp_desc_num) { tuppDescIndex_ = (unsigned short)tupp_desc_num; }
 
 // print buffer info. For debugging
 void SqlBufferNormal::printInfo(ostream &out) {
   out << this << " Status: " << bufferStatus_ << " maxTuppDesc: " << maxTuppDesc_ << " freeSpace: " << freeSpace_
       << " numInvalidTuplesUptoCurrentPosition:  " << numInvalidTuplesUptoCurrentPosition_;
-  Lng32 refcount = 0;
-  Lng32 firstref = -1;
+  int refcount = 0;
+  int firstref = -1;
   for (Int32 i = 0; (i < maxTuppDesc_); i++)
     if (tupleDesc(i)->getReferenceCount()) {
       if (firstref == -1) firstref = i;
@@ -1300,7 +1300,7 @@ tupp_descriptor *SqlBufferNormal::getPrev() {
 // tupp_desc_num is 1-based, so the first tupp_descriptor
 // is tupp_desc_num = 1.
 // Returns NULL, if tupp_desc_num is greater than maxTuppDesc_.
-tupp_descriptor *SqlBufferNormal::getTuppDescriptor(Lng32 tupp_desc_num) {
+tupp_descriptor *SqlBufferNormal::getTuppDescriptor(int tupp_desc_num) {
   if (tupp_desc_num > maxTuppDesc_)
     return 0;
   else
@@ -1310,7 +1310,7 @@ tupp_descriptor *SqlBufferNormal::getTuppDescriptor(Lng32 tupp_desc_num) {
 void SqlBufferNormal::pack() {
   UInt32 i = 0;
   while (i < maxTuppDesc_) {
-    tupleDesc(i)->setTupleOffset((Lng32)((char *)tupleDesc(i)->getTupleAddress() - (char *)this));
+    tupleDesc(i)->setTupleOffset((int)((char *)tupleDesc(i)->getTupleAddress() - (char *)this));
 
     i++;
   }
@@ -1363,7 +1363,7 @@ NABoolean SqlBufferNormal::verify(ULng32 maxBytes) const {
 
 unsigned short SqlBufferNormal::getNumInvalidTuplesUptoNow() { return numInvalidTuplesUptoCurrentPosition_; }
 
-void SqlBufferNormal::setNumInvalidTuplesUptoNow(Lng32 val) {
+void SqlBufferNormal::setNumInvalidTuplesUptoNow(int val) {
   UdrExeAssert(val < USHRT_MAX, "total invalid tupps in buffer is larger than USHRT_MAX");
   numInvalidTuplesUptoCurrentPosition_ = (unsigned short)val;
 }
@@ -1407,11 +1407,11 @@ void SqlBufferDense::init() {
   str_pad(filler_, 2, '\0');
 }
 
-tupp_descriptor *SqlBufferDense::add_tuple_desc(Lng32 tup_data_size) {
+tupp_descriptor *SqlBufferDense::add_tuple_desc(int tup_data_size) {
   ULng32 rounded_size = ROUND8(tup_data_size);
   short td_size = ROUND8(sizeof(TupleDescInfo));
 
-  Lng32 freeSpaceNeeded = td_size + rounded_size;
+  int freeSpaceNeeded = td_size + rounded_size;
   if (freeSpace_ < freeSpaceNeeded)  // no free space to allocate this tuple
     return NULL;
 
@@ -1442,7 +1442,7 @@ tupp_descriptor *SqlBufferDense::add_tuple_desc(Lng32 tup_data_size) {
   return td;
 }
 
-tupp_descriptor *SqlBufferDense::allocate_tuple_desc(Lng32 tup_data_size) { return add_tuple_desc(tup_data_size); }
+tupp_descriptor *SqlBufferDense::allocate_tuple_desc(int tup_data_size) { return add_tuple_desc(tup_data_size); }
 
 // removes the last tuple descriptor.
 void SqlBufferDense::remove_tuple_desc() {
@@ -1486,7 +1486,7 @@ void SqlBufferDense::position() {
   currTupleDesc() = firstTupleDesc();
 }
 
-void SqlBufferDense::position(Lng32 tupp_desc_num) {
+void SqlBufferDense::position(int tupp_desc_num) {
   position();
   while ((tuppDescIndex_ != tupp_desc_num) && (tuppDescIndex_ < maxTuppDesc_)) advanceDense();
 }
@@ -1519,7 +1519,7 @@ tupp_descriptor *SqlBufferDense::getPrev() {
 // tupp_desc_num is 1-based, so the first tupp_descriptor
 // is tupp_desc_num = 1.
 // Returns NULL, if tupp_desc_num is greater than maxTuppDesc_.
-tupp_descriptor *SqlBufferDense::getTuppDescriptor(Lng32 tupp_desc_num) {
+tupp_descriptor *SqlBufferDense::getTuppDescriptor(int tupp_desc_num) {
   if (tupp_desc_num > maxTuppDesc_)
     return 0;
   else
@@ -1572,7 +1572,7 @@ void SqlBufferDense::unpack() {
 
 unsigned short SqlBufferDense::getNumInvalidTuplesUptoNow() { return numInvalidTuplesUptoCurrentPosition_; }
 
-void SqlBufferDense::setNumInvalidTuplesUptoNow(Lng32 val) {
+void SqlBufferDense::setNumInvalidTuplesUptoNow(int val) {
   UdrExeAssert(val < USHRT_MAX, "total invalid tupps in buffer is larger than USHRT_MAX");
   numInvalidTuplesUptoCurrentPosition_ = (unsigned short)val;
 }
@@ -1604,12 +1604,12 @@ void SqlBufferDense::printInfo(ostream &out) {
 
 #ifdef DO_INTEGRITY_CHECK
 void SqlBuffer::integrityCheck(NABoolean ignore_omm_check) {
-  const Lng32 savedTuppDescIndex = getProcessedTuppDescs();
+  const int savedTuppDescIndex = getProcessedTuppDescs();
   tupp p;
   ControlInfo *ci = 0;
   ComDiagsArea *d = NULL;
   ExStatisticsArea *s = NULL;
-  Int64 numStatsBytes = 0;
+  long numStatsBytes = 0;
   up_state upState;
   enum okMMoreType { NOT_KNOWN_ = 0, YES_ = 1, NO_ = 3 } okMMoreHasData = NOT_KNOWN_;
 
@@ -1685,7 +1685,7 @@ void SqlBuffer::integrityCheck(NABoolean ignore_omm_check) {
 //   Allocate in_number_of_buffers each with a size of buffer_size.
 //   Chain them anchored at buffer_list.
 ////////////////////////////////////////////////////////////////////////////
-sql_buffer_pool::sql_buffer_pool(Lng32 numberOfBuffers, Lng32 bufferSize, CollHeap *space,
+sql_buffer_pool::sql_buffer_pool(int numberOfBuffers, int bufferSize, CollHeap *space,
                                  SqlBufferBase::BufferType bufType)
     : bufType_(bufType), defragBuffer_(NULL), defragTd_(NULL) {
   ex_assert((space != 0), "Must pass in a non-null Space pointer");
@@ -1739,10 +1739,10 @@ sql_buffer_pool::~sql_buffer_pool() {
   }
 }
 
-SqlBufferBase *sql_buffer_pool::addBuffer(Lng32 totalBufferSize, SqlBufferBase::BufferType bufType, CollHeap *space) {
+SqlBufferBase *sql_buffer_pool::addBuffer(int totalBufferSize, SqlBufferBase::BufferType bufType, CollHeap *space) {
   // allocate a size that is divisible by 8, otherwise the data that
   // is allocated from the end of the buffer won't be aligned properly
-  Lng32 rounded_size = ROUND8(totalBufferSize);
+  int rounded_size = ROUND8(totalBufferSize);
 
   // allocate a buffer of the right size
   char *buf = new (space) char[rounded_size];
@@ -1761,11 +1761,11 @@ SqlBufferBase *sql_buffer_pool::addBuffer(Lng32 totalBufferSize, SqlBufferBase::
   return newBuffer;
 }
 
-SqlBufferBase *sql_buffer_pool::addBuffer(Queue *bufferList, Lng32 totalBufferSize, SqlBufferBase::BufferType bufType,
+SqlBufferBase *sql_buffer_pool::addBuffer(Queue *bufferList, int totalBufferSize, SqlBufferBase::BufferType bufType,
                                           bool failureIsFatal) {
   // allocate a size that is divisible by 8, otherwise the data that
   // is allocated from the end of the buffer won't be aligned properly
-  Lng32 rounded_size = ROUND8(totalBufferSize);
+  int rounded_size = ROUND8(totalBufferSize);
 
   // allocate a buffer of the right size
   char *buf = (char *)space_->allocateMemory(rounded_size, failureIsFatal);
@@ -1795,16 +1795,16 @@ SqlBufferBase *sql_buffer_pool::addBuffer(Queue *bufferList, Lng32 totalBufferSi
 }
 // create a new buffer that is used to hold row temporarily in order
 // to do defragmentation and create a tuple descriptor
-tupp_descriptor *sql_buffer_pool::addDefragTuppDescriptor(Lng32 dataSize) {
+tupp_descriptor *sql_buffer_pool::addDefragTuppDescriptor(int dataSize) {
   if (defragTd_) {
     return defragTd_;
   }
   if (!defragBuffer_) {
-    Lng32 neededBufferSize = (Lng32)SqlBufferNeededSize(1, dataSize);
+    int neededBufferSize = (int)SqlBufferNeededSize(1, dataSize);
 
     // allocate a size that is divisible by 8, otherwise the data that
     // is allocated from the end of the buffer won't be aligned properly
-    Lng32 rounded_size = ROUND8(neededBufferSize);
+    int rounded_size = ROUND8(neededBufferSize);
 
     // allocate a buffer of the right size
     char *buf = (char *)space_->allocateMemory(rounded_size, FALSE);
@@ -1831,24 +1831,24 @@ tupp_descriptor *sql_buffer_pool::addDefragTuppDescriptor(Lng32 dataSize) {
   return defragTd_;
 }
 
-SqlBufferBase *sql_buffer_pool::addBuffer(Lng32 totalBufferSize, bool failureIsFatal) {
+SqlBufferBase *sql_buffer_pool::addBuffer(int totalBufferSize, bool failureIsFatal) {
   return addBuffer(dynBufferList_, totalBufferSize, bufType_, failureIsFatal);
 }
 
-SqlBufferBase *sql_buffer_pool::addBuffer(Lng32 totalBufferSize, SqlBufferBase::BufferType bufType,
+SqlBufferBase *sql_buffer_pool::addBuffer(int totalBufferSize, SqlBufferBase::BufferType bufType,
                                           bool failureIsFatal) {
   return addBuffer(dynBufferList_, totalBufferSize, bufType, failureIsFatal);
 }
 
-SqlBufferBase *sql_buffer_pool::addBuffer(Lng32 numTupps, Lng32 recordLength) {
-  return addBuffer((Lng32)SqlBufferNeededSize(
+SqlBufferBase *sql_buffer_pool::addBuffer(int numTupps, int recordLength) {
+  return addBuffer((int)SqlBufferNeededSize(
       numTupps, recordLength, ((bufType_ == SqlBufferBase::DENSE_) ? SqlBuffer::DENSE_ : SqlBuffer::NORMAL_)));
 }
 
-SqlBufferBase *sql_buffer_pool::get_free_buffer(Lng32 freeSpace) { return getBuffer(freeSpace, -1); }
+SqlBufferBase *sql_buffer_pool::get_free_buffer(int freeSpace) { return getBuffer(freeSpace, -1); }
 
 // RETURNS: 0, if tuple found. -1, if not found.
-short sql_buffer_pool::get_free_tuple(tupp &tp, Lng32 tupDataSize, SqlBuffer **buf) {
+short sql_buffer_pool::get_free_tuple(tupp &tp, int tupDataSize, SqlBuffer **buf) {
   if (buf) *buf = NULL;
 
   // there is a bug in SqlBufferDense::add_tuple_desc(), when
@@ -1858,7 +1858,7 @@ short sql_buffer_pool::get_free_tuple(tupp &tp, Lng32 tupDataSize, SqlBuffer **b
   // Until fixed, set tupDataSize to 8 if it is 0
   if (tupDataSize <= 0) tupDataSize = 8;
 
-  Lng32 neededSpace = SqlBufferGetTuppSize(tupDataSize, bufType_);
+  int neededSpace = SqlBufferGetTuppSize(tupDataSize, bufType_);
 
   SqlBuffer *currBuffer;
   if (!(currBuffer = getCurrentBuffer(neededSpace))) {
@@ -1886,12 +1886,12 @@ short sql_buffer_pool::get_free_tuple(tupp &tp, Lng32 tupDataSize, SqlBuffer **b
   return -1;
 }
 // check if the current buffer in the pool has enough space
-short sql_buffer_pool::currentBufferHasEnoughSpace(Lng32 tupDataSize) {
+short sql_buffer_pool::currentBufferHasEnoughSpace(int tupDataSize) {
   SqlBuffer *currBuffer;
   if (!(currBuffer = (SqlBuffer *)(activeBufferList()->getCurr()))) {
     return -1;
   }
-  Lng32 neededSpace = SqlBufferGetTuppSize(tupDataSize, bufType_);
+  int neededSpace = SqlBufferGetTuppSize(tupDataSize, bufType_);
 
   if (neededSpace <= currBuffer->getFreeSpace()) {
     return 1;
@@ -1908,10 +1908,10 @@ SqlBuffer *sql_buffer_pool::getCurrentBuffer() { return ((SqlBuffer *)(activeBuf
 // If buf is non-Null, also sets buf to the buffer from which
 // the tupp_descriptor was allocated. This is used to later
 // resize the tuple if needed.
-tupp_descriptor *sql_buffer_pool::get_free_tupp_descriptor(Lng32 tupDataSize, SqlBuffer **buf) {
+tupp_descriptor *sql_buffer_pool::get_free_tupp_descriptor(int tupDataSize, SqlBuffer **buf) {
   if (buf) *buf = NULL;
 
-  Lng32 neededSpace = SqlBufferGetTuppSize(tupDataSize, bufType_);
+  int neededSpace = SqlBufferGetTuppSize(tupDataSize, bufType_);
 
   // get a buffer which is not FULL and can allocate tup_data_size
   // SqlBuffer *currBuffer = (SqlBuffer*)getBuffer(neededSpace);
@@ -1982,7 +1982,7 @@ void sql_buffer_pool::printAllBufferInfo() {
   while (buf = (SqlBuffer *)dynBufferList_->getNext()) buf->printInfo();
 };
 
-SqlBufferBase *sql_buffer_pool::findBuffer(Lng32 freeSpace, Int32 mustBeEmpty) {
+SqlBufferBase *sql_buffer_pool::findBuffer(int freeSpace, Int32 mustBeEmpty) {
   SqlBuffer *currBuffer;
 
   // walk the list until we find a buffer that we like.
@@ -2003,7 +2003,7 @@ SqlBufferBase *sql_buffer_pool::findBuffer(Lng32 freeSpace, Int32 mustBeEmpty) {
   return NULL;
 }
 
-SqlBuffer *sql_buffer_pool::getCurrentBuffer(Lng32 freeSpace, Int32 mustBeEmpty) {
+SqlBuffer *sql_buffer_pool::getCurrentBuffer(int freeSpace, Int32 mustBeEmpty) {
   SqlBuffer *currBuffer;
   if ((currBuffer = (SqlBuffer *)(activeBufferList()->getCurr())) && (currBuffer->bufferStatus_ != SqlBuffer::IN_USE) &&
       (!mustBeEmpty || (currBuffer->bufferStatus_ == SqlBuffer::EMPTY)) && (freeSpace <= currBuffer->getFreeSpace())) {
@@ -2012,7 +2012,7 @@ SqlBuffer *sql_buffer_pool::getCurrentBuffer(Lng32 freeSpace, Int32 mustBeEmpty)
     return NULL;
 }
 
-SqlBufferBase *sql_buffer_pool::getBuffer(Lng32 freeSpace, Int32 mustBeEmpty) {
+SqlBufferBase *sql_buffer_pool::getBuffer(int freeSpace, Int32 mustBeEmpty) {
   SqlBufferBase *result = findBuffer(freeSpace, mustBeEmpty);
   if (result) return result;
 
@@ -2028,10 +2028,10 @@ SqlBufferBase *sql_buffer_pool::getBuffer(Lng32 freeSpace, Int32 mustBeEmpty) {
       // but try to use a denseer buffer size because it is
       // likely that there won't be a lot of such static structures
       // (guess that there are 10)
-      Lng32 neededStaticBufferSize;
+      int neededStaticBufferSize;
 
       if (freeSpace > 0)
-        neededStaticBufferSize = (Lng32)SqlBufferNeededSize(10, freeSpace, bufType_);
+        neededStaticBufferSize = (int)SqlBufferNeededSize(10, freeSpace, bufType_);
       else
         neededStaticBufferSize = defaultBufferSize_;
 
@@ -2039,12 +2039,12 @@ SqlBufferBase *sql_buffer_pool::getBuffer(Lng32 freeSpace, Int32 mustBeEmpty) {
     } else if (currNumberOfBuffers_ < maxNumberOfBuffers_ || dynamicUnlimited()) {
       // The requested size may be wrong if the buffer size isn't computed
       // correctly in codegen.
-      Lng32 bufferHeaderSize = (Lng32)SqlBufferHeaderSize(bufType_);
+      int bufferHeaderSize = (int)SqlBufferHeaderSize(bufType_);
 
       // The space needed supplied by the caller (freeSpace) does not
       // account for the buffer header (buffer object) size. Add this
       // space to the needed space
-      Lng32 buffSize = MAXOF(freeSpace + bufferHeaderSize, defaultBufferSize_);
+      int buffSize = MAXOF(freeSpace + bufferHeaderSize, defaultBufferSize_);
 
       // just add another buffer to the dynamic buffer list
       result = addBuffer(dynBufferList_, buffSize, bufType_);
@@ -2087,8 +2087,8 @@ void sql_buffer_pool::resizeLastTuple(UInt32 tup_data_size, char *dataPointer) {
 }
 
 SqlBufferHeader::moveStatus sql_buffer_pool::moveIn(atp_struct *atp1, atp_struct *atp2, UInt16 tuppIndex,
-                                                    Lng32 tupDataSize, ex_expr_base *moveExpr,
-                                                    NABoolean addBufferIfNeeded, Lng32 bufferSize) {
+                                                    int tupDataSize, ex_expr_base *moveExpr,
+                                                    NABoolean addBufferIfNeeded, int bufferSize) {
   if (defragTd_ && !currentBufferHasEnoughSpace(tupDataSize)) {
     // get row length after evaluating the expression and try to
     // to get new tuple with the actual row size. The actual row
@@ -2149,8 +2149,8 @@ SqlBufferHeader::moveStatus sql_buffer_pool::moveIn(atp_struct *atp1, atp_struct
   return SqlBufferHeader::MOVE_SUCCESS;
 }
 
-SqlBufferHeader::moveStatus sql_buffer_pool::moveIn(atp_struct *atp, UInt16 tuppIndex, Lng32 tupDataSize, char *srcData,
-                                                    NABoolean addBufferIfNeeded, Lng32 bufferSize) {
+SqlBufferHeader::moveStatus sql_buffer_pool::moveIn(atp_struct *atp, UInt16 tuppIndex, int tupDataSize, char *srcData,
+                                                    NABoolean addBufferIfNeeded, int bufferSize) {
   if (get_free_tuple(atp->getTupp(tuppIndex), tupDataSize)) {
     if (addBufferIfNeeded) {
       addBuffer(bufferSize);
@@ -2476,8 +2476,8 @@ SqlBufferBase::moveStatus SqlBufferOlt::moveInSendOrReplyData(
       setContents(NODATA_ROWAFFECTED_);
     else {
       setContents(NODATA_ROWCOUNT_);
-      tdesc = getNextTuppDesc(tdesc, sizeof(Lng32));
-      *(Lng32 *)tdesc->getTupleAddress() = ((up_state *)currQState)->matchNo;
+      tdesc = getNextTuppDesc(tdesc, sizeof(int));
+      *(int *)tdesc->getTupleAddress() = ((up_state *)currQState)->matchNo;
     }
   }
 
@@ -2553,7 +2553,7 @@ SqlBufferBase::moveStatus SqlBufferOlt::moveInSendOrReplyData(
 
 NABoolean SqlBufferOlt::moveOutSendOrReplyData(NABoolean isSend, void *currQState, tupp &outTupp,
                                                ControlInfo **controlInfo, ComDiagsArea **diagsArea,
-                                               ExStatisticsArea **statsArea, Int64 *numStatsBytes,
+                                               ExStatisticsArea **statsArea, long *numStatsBytes,
                                                NABoolean noStateChange, NABoolean unpackDA, CollHeap *heap) {
   tupp_descriptor *tDesc = NULL;
 
@@ -2599,7 +2599,7 @@ NABoolean SqlBufferOlt::moveOutSendOrReplyData(NABoolean isSend, void *currQStat
       ((up_state *)currQState)->status = ex_queue::Q_NO_DATA;
 
       tDesc = getNextTuppDesc(tDesc);
-      ((up_state *)currQState)->matchNo = *(Lng32 *)tDesc->getTupleAddress();
+      ((up_state *)currQState)->matchNo = *(int *)tDesc->getTupleAddress();
     } break;
 
     case NODATA_WARNING_: {
@@ -2622,7 +2622,7 @@ NABoolean SqlBufferOlt::moveOutSendOrReplyData(NABoolean isSend, void *currQStat
       ((up_state *)currQState)->status = ex_queue::Q_NO_DATA;
 
       tDesc = getNextTuppDesc(tDesc);
-      ((up_state *)currQState)->matchNo = *(Lng32 *)tDesc->getTupleAddress();
+      ((up_state *)currQState)->matchNo = *(int *)tDesc->getTupleAddress();
 
       tDesc = getNextTuppDesc(tDesc);
       *diagsArea = (ComDiagsArea *)(tDesc->getTupleAddress());
@@ -2643,7 +2643,7 @@ NABoolean SqlBufferOlt::moveOutSendOrReplyData(NABoolean isSend, void *currQStat
 }
 
 // add a new tuple descriptor to the end of the buffer
-tupp_descriptor *SqlBufferOlt::add_tuple_desc(Lng32 tup_data_size) { return NULL; }
+tupp_descriptor *SqlBufferOlt::add_tuple_desc(int tup_data_size) { return NULL; }
 
 // remove the tuple desc with the highest number from the buffer
 void SqlBufferOlt::remove_tuple_desc() {}
@@ -2665,7 +2665,7 @@ NABoolean SqlBufferOltSmall::moveOutSendData(tupp &outTupp, ULng32 returnedRowLe
 
 NABoolean SqlBufferOltSmall::moveOutReplyData(void *currQState, tupp &outTupp, ULng32 returnedRowLen,
                                               ComDiagsArea **diagsArea, ExStatisticsArea **statsArea,
-                                              Int64 *numStatsBytes) {
+                                              long *numStatsBytes) {
   Long replyDataLoc = 0;
   Long statsAreaLoc = 0;
   Long dataLoc = 0;
@@ -2716,8 +2716,8 @@ NABoolean SqlBufferOltSmall::moveOutReplyData(void *currQState, tupp &outTupp, U
 }
 
 #if (defined(_DEBUG))
-void sql_buffer_pool::logDefragInfo(char *txt, Lng32 neededSpace, Lng32 actNeededSpace, Lng32 freeBuffSpace, void *p,
-                                    Lng32 NumRowsInBuff, ex_tcb *tcb) {
+void sql_buffer_pool::logDefragInfo(char *txt, int neededSpace, int actNeededSpace, int freeBuffSpace, void *p,
+                                    int NumRowsInBuff, ex_tcb *tcb) {
   char *envCifLoggingLocation = getenv("CIF_DEFRAG_LOG_LOC");
   if (envCifLoggingLocation) {
     char file2[255];

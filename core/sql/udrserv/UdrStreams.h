@@ -80,7 +80,7 @@ class UdrServerDataStream : public IpcServerMsgStream {
  public:
   typedef IpcServerMsgStream super;
 
-  UdrServerDataStream(IpcEnvironment *env, Lng32 sendBufferLimit, Lng32 inUseBufferLimit, IpcMessageObjSize bufferSize,
+  UdrServerDataStream(IpcEnvironment *env, int sendBufferLimit, int inUseBufferLimit, IpcMessageObjSize bufferSize,
                       UdrGlobals *UdrGlob, SPInfo *spinfo)
       : IpcServerMsgStream(env, UDR_STREAM_SERVER_DATA, UdrServerDataStreamVersionNumber, sendBufferLimit,
                            inUseBufferLimit, bufferSize, NULL),

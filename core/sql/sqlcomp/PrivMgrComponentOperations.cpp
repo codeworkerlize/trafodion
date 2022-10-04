@@ -1208,7 +1208,7 @@ PrivStatus MyTable::selectWhereUnique(const std::string &whereClause, PrivMgrMDR
   if (privStatus != STATUS_GOOD && privStatus != STATUS_WARNING) return privStatus;
 
   char *ptr = NULL;
-  Lng32 len = 0;
+  int len = 0;
   char value[500];
 
   MyRow &row = static_cast<MyRow &>(rowOut);

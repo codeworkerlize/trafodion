@@ -78,7 +78,7 @@ CompilerTrackingInfo::~CompilerTrackingInfo() {}
  * reset the class attribute for a new interval value
  ************************************************************************/
 void CompilerTrackingInfo::resetIntervalIfNeeded() {
-  Lng32 currentInterval = ActiveSchemaDB()->getDefaults().getAsLong(COMPILER_TRACKING_INTERVAL);
+  int currentInterval = ActiveSchemaDB()->getDefaults().getAsLong(COMPILER_TRACKING_INTERVAL);
 
   if ((0 == prevInterval_) && (0 < currentInterval)) resetInterval();
 }
@@ -171,7 +171,7 @@ the current duration of this interval is the distance between
  the begin time and current time
 
 ************************************************************************/
-inline Int32 CompilerTrackingInfo::currentIntervalDuration(Int64 endTime) {
+inline Int32 CompilerTrackingInfo::currentIntervalDuration(long endTime) {
   // return in minutes
   return (Int32)(((endTime - beginIntervalTime_) / 1000000) / 60);
 }
@@ -181,7 +181,7 @@ method CompilerTrackingInfo::cpuPathLength
  the CPU path length of the interval
 
 ************************************************************************/
-inline Lng32 CompilerTrackingInfo::cpuPathLength() { return (clock() - beginIntervalClock_); }
+inline int CompilerTrackingInfo::cpuPathLength() { return (clock() - beginIntervalClock_); }
 /************************************************************************
 method CompilerTrackingInfo::updateSystemHeapWtrMark
 
@@ -193,7 +193,7 @@ method CompilerTrackingInfo::updateSystemHeapWtrMark
 void CompilerTrackingInfo::updateSystemHeapWtrMark() {
   CMPASSERT(NULL != processInfo_);
 
-  Lng32 c = processInfo_->getCurrentSystemHeapSize();
+  int c = processInfo_->getCurrentSystemHeapSize();
 
   systemHeapWaterMark_ = (c > systemHeapWaterMark_) ? c : systemHeapWaterMark_;
 }
@@ -204,7 +204,7 @@ method CompilerTrackingInfo::updateLongestCompile
  update if the new duration is bigger than the longest one known
 
 ************************************************************************/
-void CompilerTrackingInfo::updateLongestCompile(Lng32 c) {
+void CompilerTrackingInfo::updateLongestCompile(int c) {
   longestCompileClock_ = (c > longestCompileClock_) ? c : longestCompileClock_;
 }
 /************************************************************************

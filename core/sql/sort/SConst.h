@@ -113,7 +113,7 @@ const short KEYS_ARE_EQUAL = 0;
 const short KEY1_IS_SMALLER = -1;
 const short KEY1_IS_GREATER = 1;
 
-typedef Lng32 SBN;
+typedef int SBN;
 const Int32 TRUE_L = 1;
 const Int32 FALSE_L = 0;
 

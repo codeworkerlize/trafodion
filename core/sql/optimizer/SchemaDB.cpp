@@ -145,7 +145,7 @@ void SchemaDB::initPerStatement(NABoolean lightweight) {
   // NB: These two ToInternalIdentifier() calls are essential to making
   // delimited identifiers work properly. Is it not useless emitting their
   // return codes into cerr? Would it not be better to CMPASSERT them instead?
-  Lng32 err1, err2;
+  int err1, err2;
   err1 = ToInternalIdentifier(cat);
   err2 = ToInternalIdentifier(sch);
   if (err1 || err2) cerr << err1 << ' ' << cat << '\t' << err2 << ' ' << sch << endl;
@@ -217,7 +217,7 @@ float SchemaDB::getHbaseBlockCacheFrac() {
       hbaseBlockCacheFrac_ = 0.4;  // hbase default default
     else {
       float frac;
-      Lng32 retcode;
+      int retcode;
       retcode = ehi->getBlockCacheFraction(frac);
       if (retcode < 0)
         hbaseBlockCacheFrac_ = 0.4;  // hbase default default
@@ -233,7 +233,7 @@ float SchemaDB::getHbaseBlockCacheFrac() {
 // CollationDB stuff that can't be compiled if in ../common/CharInfo.cpp
 //****************************************************************************
 
-Lng32 CollationDB::nextUserCo_(CharInfo::FIRST_USER_DEFINED_COLLATION);
+int CollationDB::nextUserCo_(CharInfo::FIRST_USER_DEFINED_COLLATION);
 
 CharInfo::Collation CollationDB::insert(QualifiedName &qn, const SchemaName *defaultSchema,
                                         CollationInfo::CollationFlags flags) {

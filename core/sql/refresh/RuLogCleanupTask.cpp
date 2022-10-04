@@ -45,7 +45,7 @@
 //	Constructor
 //---------------------------------------------------------------//
 
-CRULogCleanupTask::CRULogCleanupTask(Lng32 id, CRUTbl &table) : inherited(id, table), maxInapplicableEpoch_(0) {}
+CRULogCleanupTask::CRULogCleanupTask(int id, CRUTbl &table) : inherited(id, table), maxInapplicableEpoch_(0) {}
 
 //---------------------------------------------------------//
 //	CRULogCleanupTask::CreateExecutorInstance()

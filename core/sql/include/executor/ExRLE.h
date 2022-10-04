@@ -130,6 +130,6 @@ static Int32 decode_short(unsigned short *ebuf, Int32 elen_bytes, unsigned short
 static Int32 pb_decode_short(unsigned short *ebuf, Int32 elen_bytes, unsigned short *dbuf, Int32 *dlen_bytes);
 
 Int32 ExEncode(unsigned char *dbuf, Int32 dlen, unsigned char *ebuf, Int32 *elen, Int32 flags);
-Int32 ExDecode(unsigned char *ebuf, Int32 elen, unsigned char *dbuf, Int32 *dlen, Lng32 &param1, Lng32 &param2);
+Int32 ExDecode(unsigned char *ebuf, Int32 elen, unsigned char *dbuf, Int32 *dlen, int &param1, int &param2);
 
 #endif

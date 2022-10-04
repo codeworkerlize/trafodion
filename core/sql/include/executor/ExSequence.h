@@ -151,9 +151,9 @@ class ExSequenceTcb : public ex_tcb {
 
   inline ex_expr *moveExpr() const;
 
-  friend char *GetHistoryRow(void *data, Int32 n, NABoolean leading, Lng32 winSize, Int32 &);
-  friend char *GetHistoryRowOLAP(void *data, Int32 n, NABoolean leading, Lng32 winSize, Int32 &);
-  friend char *GetHistoryRowFollowingOLAP(void *data, Int32 n, NABoolean leading, Lng32 winSize, Int32 &);
+  friend char *GetHistoryRow(void *data, Int32 n, NABoolean leading, int winSize, Int32 &);
+  friend char *GetHistoryRowOLAP(void *data, Int32 n, NABoolean leading, int winSize, Int32 &);
+  friend char *GetHistoryRowFollowingOLAP(void *data, Int32 n, NABoolean leading, int winSize, Int32 &);
 
   // inline char * GetFirstHistoryRowPtr();
   //
@@ -162,7 +162,7 @@ class ExSequenceTcb : public ex_tcb {
   inline NABoolean isHistoryFull() const;
   inline NABoolean isHistoryEmpty() const;  // if the history buffer is empty (i.e. histRowsToReturn_ == 0)
   inline NABoolean canReturnRows() const;
-  inline Lng32 numFollowingRows() const;  // number of rows following the current row
+  inline int numFollowingRows() const;  // number of rows following the current row
   void advanceReturnHistoryRow();
   // inline char * getCurrentRetHistRowPtr()
   inline void updateHistRowsToReturn();
@@ -184,12 +184,12 @@ class ExSequenceTcb : public ex_tcb {
 
   NABoolean getPartitionEnd() const { return partitionEnd_; }
   void setPartitionEnd(NABoolean v) { partitionEnd_ = v; }
-  inline Lng32 recLen();
+  inline int recLen();
 
   virtual Int32 numChildren() const;
   virtual const ex_tcb *getChild(Int32 pos) const;
-  virtual ex_tcb_private_state *allocatePstates(Lng32 &numElems,       // inout, desired/actual elements
-                                                Lng32 &pstateLength);  // out, length of one element
+  virtual ex_tcb_private_state *allocatePstates(int &numElems,       // inout, desired/actual elements
+                                                int &pstateLength);  // out, length of one element
  private:
   const ex_tcb *childTcb_;
 
@@ -204,40 +204,40 @@ class ExSequenceTcb : public ex_tcb {
   HashBuffer *currentOLAPBuffer_;
   HashBuffer *currentRetOLAPBuffer_;
 
-  Lng32 currentHistRowInOLAPBuffer_;
-  Lng32 currentRetHistRowInOLAPBuffer_;
+  int currentHistRowInOLAPBuffer_;
+  int currentRetHistRowInOLAPBuffer_;
 
   char *currentHistRowPtr_;
   char *currentRetHistRowPtr_;
   char *lastRow_;
 
-  Lng32 minFollowing_;
-  Lng32 numberHistoryRows_;
-  Lng32 maxNumberHistoryRows_;
-  Lng32 histRowsToReturn_;
+  int minFollowing_;
+  int numberHistoryRows_;
+  int maxNumberHistoryRows_;
+  int histRowsToReturn_;
 
   NABoolean partitionEnd_;
   NABoolean unboundedFollowing_;
 
-  Lng32 allocRowLength_;  // allocated size of a row (original rounded up to 8)
-  Lng32 maxRowsInOLAPBuffer_;
-  Lng32 olapBufferSize_;
+  int allocRowLength_;  // allocated size of a row (original rounded up to 8)
+  int maxRowsInOLAPBuffer_;
+  int olapBufferSize_;
 
-  Lng32 maxNumberOfOLAPBuffers_;
-  Lng32 numberOfOLAPBuffers_;
-  Lng32 minNumberOfOLAPBuffers_;
+  int maxNumberOfOLAPBuffers_;
+  int numberOfOLAPBuffers_;
+  int minNumberOfOLAPBuffers_;
 
   ClusterDB *clusterDb_;  // used to call ::enoughMemory(), etc.
   Cluster *cluster_;      // used for overflow calls: flush(), read(), etc
   NABoolean OLAPBuffersFlushed_;
   NABoolean memoryPressureDetected_;
   HashBuffer *firstOLAPBufferFromOF_;
-  Lng32 numberOfOLAPBuffersFromOF_;
+  int numberOfOLAPBuffersFromOF_;
   ExeErrorCode rc_;
 
-  Lng32 numberOfWinOLAPBuffers_;
-  Lng32 maxNumberOfRowsReturnedBeforeReadOF_;
-  Lng32 numberOfRowsReturnedBeforeReadOF_;
+  int numberOfWinOLAPBuffers_;
+  int maxNumberOfRowsReturnedBeforeReadOF_;
+  int numberOfRowsReturnedBeforeReadOF_;
 
   NABoolean overflowEnabled_;
 
@@ -264,7 +264,7 @@ inline NABoolean ExSequenceTcb::isHistoryEmpty() const { return (histRowsToRetur
 
 inline NABoolean ExSequenceTcb::canReturnRows() const { return (numFollowingRows() >= minFollowing_); };
 
-inline Lng32 ExSequenceTcb::numFollowingRows() const { return histRowsToReturn_ - 1; };
+inline int ExSequenceTcb::numFollowingRows() const { return histRowsToReturn_ - 1; };
 
 inline void ExSequenceTcb::updateHistRowsToReturn() { histRowsToReturn_--; }
 
@@ -273,7 +273,7 @@ inline NABoolean ExSequenceTcb::isOverflowStarted() { return cluster_ && cluster
 inline NABoolean ExSequenceTcb::canAllocateOLAPBuffer() { return (numberOfOLAPBuffers_ < maxNumberOfOLAPBuffers_); }
 
 inline NABoolean ExSequenceTcb::isUnboundedFollowing() { return unboundedFollowing_; }
-inline Lng32 ExSequenceTcb::recLen() {
+inline int ExSequenceTcb::recLen() {
   // return myTdb().recLen_;
   return allocRowLength_;
 };
@@ -303,7 +303,7 @@ class ExSequencePrivateState : public ex_tcb_private_state {
  private:
   ExSequenceTcb::RequestState step_;
   queue_index index_;
-  Int64 matchCount_;
+  long matchCount_;
 };  // class ExSequencePrivateState
 
 #endif

@@ -176,29 +176,29 @@ char *(str_cat_c)(char *s1, const char *s2);
 // convert <i> to ASCII and store the result in <outstr>
 // -----------------------------------------------------------------------
 char *str_itoa(ULng32 i, char *outstr);
-char *str_ltoa(Int64 i, char *outstr);
+char *str_ltoa(long i, char *outstr);
 
 // -----------------------------------------------------------------------
 // convert instr to numeric and return in i. String must be numbers only.
 // -----------------------------------------------------------------------
-Int64 str_atoi(const char *instr, Lng32 instrLen);
+long str_atoi(const char *instr, int instrLen);
 
 // convert a scaled exact numeric string and return as float.
 // input of the form: mmm.ff
-double str_ftoi(const char *instr, Lng32 instrLen);
+double str_ftoi(const char *instr, int instrLen);
 
 // Dummy routine to ensure that str_cpy_all gets inlined.  Once
 // the compiler is fixed to inline routines with calls to assert,
 // Remove callAssert() in callers and replace with direct call to
 // assert.
-void callAssert(const char *tgt, const char *src, Lng32 length);
+void callAssert(const char *tgt, const char *src, int length);
 
 // -----------------------------------------------------------------------
 // move <length> bytes from <src> to <tgt>
 // -----------------------------------------------------------------------
 //
 
-inline void str_cpy_all(char *tgt, const char *src, Lng32 length) {
+inline void str_cpy_all(char *tgt, const char *src, int length) {
   if ((!tgt || !src) && length) callAssert(tgt, src, length);
     // Below is a more inefficient version of str_cpy_all. The C++ runtime
     // procedure "memcpy()" provides the same service, but hopefully with
@@ -223,7 +223,7 @@ inline void str_cpy_all(char *tgt, const char *src, Lng32 length) {
 // move <length> bytes from <src> to <tgt>
 //   handles overlapping memory between target and source
 // -----------------------------------------------------------------------
-void str_memmove(char *tgt, const char *src, Lng32 length);
+void str_memmove(char *tgt, const char *src, int length);
 
 // -----------------------------------------------------------------------
 // allocate new <tgt>,
@@ -233,13 +233,13 @@ void str_memmove(char *tgt, const char *src, Lng32 length);
 //
 // Compare convertNAString in String.h
 // -----------------------------------------------------------------------
-Int32 str_varchar_alloc_and_copy(char *tgt, const char *src, Lng32 length);
+Int32 str_varchar_alloc_and_copy(char *tgt, const char *src, int length);
 
 // -----------------------------------------------------------------------
 // Copies <src> to <tgt> for <length> bytes.
 // Removes trailing <blank_char>s by putting an <end_char> as terminator.
 // -----------------------------------------------------------------------
-Int32 str_cpy_and_null(char *tgt, const char *src, Lng32 length, char end_char = '\0', char blank_char = ' ',
+Int32 str_cpy_and_null(char *tgt, const char *src, int length, char end_char = '\0', char blank_char = ' ',
                        NABoolean nullTerminate = FALSE);
 
 // ---------------------------------------------------------------
@@ -247,7 +247,7 @@ Int32 str_cpy_and_null(char *tgt, const char *src, Lng32 length, char end_char =
 // else downshifts.
 // Src and Tgt may point to the same location.
 // ---------------------------------------------------------------
-Int32 str_cpy_convert(char *tgt, char *src, Lng32 length, Int32 upshift);
+Int32 str_cpy_convert(char *tgt, char *src, int length, Int32 upshift);
 
 Int32 str_len(const char *s);
 
@@ -278,16 +278,16 @@ void str_complement(const ULng32 length, char *s);
 //      bytes decoded
 // -----------------------------------------------------------------------
 
-Lng32 str_encoded_len(Lng32 byteLen);
-Lng32 str_encode(char *tgt, Lng32 tgtMaxLen, void *src, Lng32 srcLen);
-Lng32 str_decoded_len(Lng32 srcLen);
-Lng32 str_decode(void *tgt, Lng32 tgtMaxLen, const char *src, Lng32 srcLen);
+int str_encoded_len(int byteLen);
+int str_encode(char *tgt, int tgtMaxLen, void *src, int srcLen);
+int str_decoded_len(int srcLen);
+int str_decode(void *tgt, int tgtMaxLen, const char *src, int srcLen);
 
 // Base64 encoding and decoding.
-Lng32 str_encoded_len_base64(Lng32 len);
-Lng32 str_decoded_len_base64(Lng32 len);
-Lng32 str_encode_base64(const unsigned char *in, Lng32 in_len, char *out, Lng32 out_len);
-Lng32 str_decode_base64(const unsigned char *in, Lng32 in_len, char *out, Lng32 out_len);
+int str_encoded_len_base64(int len);
+int str_decoded_len_base64(int len);
+int str_encode_base64(const unsigned char *in, int in_len, char *out, int out_len);
+int str_decode_base64(const unsigned char *in, int in_len, char *out, int out_len);
 
 //------------------------------------------------------------------------
 // Strips leading and/or trailing blanks. src will contain a NULL after the
@@ -295,7 +295,7 @@ Lng32 str_decode_base64(const unsigned char *in, Lng32 in_len, char *out, Lng32 
 // is returned in len.
 // Returns pointer to the start of string after leading blanks.
 //------------------------------------------------------------------------
-char *str_strip_blanks(char *src, Lng32 &len, NABoolean stripLeading = FALSE, NABoolean stripTrailing = TRUE);
+char *str_strip_blanks(char *src, int &len, NABoolean stripLeading = FALSE, NABoolean stripTrailing = TRUE);
 //------------------------------------------------------------------------
 // This funtion transforms src into the form of an SQL identifier
 // Input : src,allowedChar
@@ -306,7 +306,7 @@ char *str_strip_blanks(char *src, Lng32 &len, NABoolean stripLeading = FALSE, NA
 // characters to be allowed as part of the Id, then a null termintated string
 // of these chars needs to be passed in eg : "$#"
 //------------------------------------------------------------------------
-Lng32 str_to_ansi_id(char *src, char *tgt, Lng32 &tgtLen, short mustValidate = 1, char *allowedChar = 0);
+int str_to_ansi_id(char *src, char *tgt, int &tgtLen, short mustValidate = 1, char *allowedChar = 0);
 // int strSprintf(char * buffer, char * format, ...);
 
 // -----------------------------------------------------------------------
@@ -324,7 +324,7 @@ Int32 extractDelimitedName(char *tgt, const char *const src, const char sep = '.
 void extractCatSchemaNames(char *catName, char *schName, char *qualTabName);
 
 // inline
-Int32 mem_cpy_all(void *tgt, const void *src, Lng32 length);
+Int32 mem_cpy_all(void *tgt, const void *src, int length);
 //{
 //#if defined (NA_YOS)
 //  for (int i = 0; i < length; i++)
@@ -376,13 +376,13 @@ Int32 str_convertToHexAscii(const char *src,                 // in
 // are the obtained from a tupp as follows.
 //
 //    char * dataPointer = getDataPointer();
-//    Lng32 len = tupp_.getAllocatedSize();
+//    int len = tupp_.getAllocatedSize();
 //
 //    printBrief(dataPointer, len) if you want an end of line
 //
 //    printBrief(dataPointer, len, FALSE) if you don't
 //
-void printBrief(char *dataPointer, Lng32 keyLen, NABoolean endLine = TRUE);
+void printBrief(char *dataPointer, int keyLen, NABoolean endLine = TRUE);
 
 void replace(char *str, char src, char dest);
 #endif  // STR_H

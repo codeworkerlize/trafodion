@@ -56,8 +56,8 @@
 #include "common/CompositeType.h"
 #include "common/MiscType.h"
 #include "common/NumericType.h"
-#include "ParserMsg.h"
-#include "SqlciError.h"
+#include "sqlmsg/ParserMsg.h"
+#include "sqlci/SqlciError.h"
 #include "common/wstr.h"
 #include "common/nawstring.h"
 
@@ -88,7 +88,7 @@ const UInt32 SHORT_MAX = 32767;
 
 char *SQLTEXT() { return SqlParser_CurrentParser->inputStr(); }
 charBuf *SQLTEXTCHARBUF() { return SqlParser_CurrentParser->getInputcharBuf(); }
-Lng32 SQLTEXTCHARSET() { return SqlParser_CurrentParser->inputStrCharSet(); }
+int SQLTEXTCHARSET() { return SqlParser_CurrentParser->inputStrCharSet(); }
 NAWchar *SQLTEXTW() { return SqlParser_CurrentParser->wInputStr(); }
 NAWcharBuf *SQLTEXTNAWCHARBUF() { return SqlParser_CurrentParser->getInputNAWcharBuf(); }
 
@@ -202,7 +202,7 @@ void checkError4101(NAString *badItemStr, ItemExpr *badPrevExpr) {
 // but emit it only once per stmt for each new unknown collation name.
 NABoolean maybeEmitWarning3169(CharInfo::Collation co, const NAString &nam) {
   if (co != CharInfo::UNKNOWN_COLLATION) return FALSE;  // no warning
-  for (Lng32 i = SqlParser_Diags->getNumber(); i; i--) {
+  for (int i = SqlParser_Diags->getNumber(); i; i--) {
     const ComCondition &cond = (*SqlParser_Diags)[i];
     if (cond.getSQLCODE() == +3169 && strcmp(cond.getOptionalString(0), nam) == 0) return TRUE;  // already emitted
   }
@@ -267,7 +267,7 @@ void MarkInteriorNodesAsInCompoundStmt(RelExpr *node) {
   }
 }
 
-NAWString *localeMBStringToUnicode(NAString *localeString, Lng32 charset, CollHeap *heap) {
+NAWString *localeMBStringToUnicode(NAString *localeString, int charset, CollHeap *heap) {
   charBuf cbuf((unsigned char *)(localeString->data()), localeString->length());
   NAWcharBuf *wcbuf = 0;
   Int32 errorcode = 0;
@@ -299,7 +299,7 @@ NAWString *localeMBStringToUnicode(NAString *localeString, Lng32 charset, CollHe
 
 THREAD_P Int32 in3GL_ = 0;
 
-static Lng32 findNameInList(ItemExprList &iel, const NAString &name) {
+static int findNameInList(ItemExprList &iel, const NAString &name) {
   for (CollIndex i = 0; i < iel.entries(); i++) {
     if ((iel[i]->getOperatorType() == ITM_REFERENCE) &&
         (((ColReference *)iel[i])->getColRefNameObj().getColName() == name)) {
@@ -602,8 +602,8 @@ HostVar *makeHostVar(NAString *hvName, NAString *indName, NABoolean isDynamic) {
   //	  }
 }
 
-static NABoolean literalToNumber(NAString *strptr, char sign, NAString *cvtstr, short &shortVal, Lng32 &longVal,
-                                 Int64 &i64Val, char **bigNum, Lng32 &bigNumSize, size_t &strSize) {
+static NABoolean literalToNumber(NAString *strptr, char sign, NAString *cvtstr, short &shortVal, int &longVal,
+                                 long &i64Val, char **bigNum, int &bigNumSize, size_t &strSize) {
   NABoolean returnValue = TRUE;  // assume success until proven otherwise
   //
   // Get the size of the absolute value first,
@@ -621,7 +621,7 @@ static NABoolean literalToNumber(NAString *strptr, char sign, NAString *cvtstr, 
       (CmpCommon::getDefaultNumeric(MAX_NUMERIC_PRECISION_ALLOWED) > MAX_HARDWARE_SUPPORTED_SIGNED_NUMERIC_PRECISION) &&
       (strSize > (ULng32)CmpCommon::getDefaultNumeric(MAX_NUMERIC_PRECISION_ALLOWED))) {
     *SqlParser_Diags << DgSqlCode(-3014) << DgInt0(strSize)
-                     << DgInt1((Lng32)CmpCommon::getDefaultNumeric(MAX_NUMERIC_PRECISION_ALLOWED));
+                     << DgInt1((int)CmpCommon::getDefaultNumeric(MAX_NUMERIC_PRECISION_ALLOWED));
     returnValue = FALSE;  //
     return returnValue;
   }
@@ -648,7 +648,7 @@ static NABoolean literalToNumber(NAString *strptr, char sign, NAString *cvtstr, 
       // aware that atoInt64(LLONG_MAX) even with overflow checking can
       // kill mxcmp with a signal 31!
       // Prepare BCD representation of number
-      Lng32 largestrSize = strSize + 1;  // extra byte for sign
+      int largestrSize = strSize + 1;  // extra byte for sign
       char *largestr = new (PARSERHEAP()) char[largestrSize];
       largestr[0] = sign;
       size_t j = (sign == '+') ? 0 : 1;
@@ -703,7 +703,7 @@ ItemExpr *literalOfNumericPassingScale(NAString *strptr, char sign, NAString *cv
       (CmpCommon::getDefaultNumeric(MAX_NUMERIC_PRECISION_ALLOWED) > MAX_HARDWARE_SUPPORTED_SIGNED_NUMERIC_PRECISION) &&
       (strSize > (ULng32)CmpCommon::getDefaultNumeric(MAX_NUMERIC_PRECISION_ALLOWED))) {
     *SqlParser_Diags << DgSqlCode(-3014) << DgInt0(strSize)
-                     << DgInt1((Lng32)CmpCommon::getDefaultNumeric(MAX_NUMERIC_PRECISION_ALLOWED));
+                     << DgInt1((int)CmpCommon::getDefaultNumeric(MAX_NUMERIC_PRECISION_ALLOWED));
     return NULL;
   }
 
@@ -712,7 +712,7 @@ ItemExpr *literalOfNumericPassingScale(NAString *strptr, char sign, NAString *cv
 
   char numericVal[8];
   short datatype = -1;
-  Lng32 length = -1;
+  int length = -1;
   if ((createTinyLiteral) && (strSize < 3)) {
     datatype = (createSignedDatatype ? REC_BIN8_SIGNED : REC_BIN8_UNSIGNED);
     length = sizeof(Int8);
@@ -721,29 +721,29 @@ ItemExpr *literalOfNumericPassingScale(NAString *strptr, char sign, NAString *cv
     length = sizeof(short);
   } else if (strSize < 10) {
     datatype = (createSignedDatatype ? REC_BIN32_SIGNED : REC_BIN32_UNSIGNED);
-    length = sizeof(Lng32);
+    length = sizeof(int);
   } else if (strSize <= 19) {
     datatype = (createSignedDatatype || !createLargeintUnsignedLiteral ? REC_BIN64_SIGNED : REC_BIN64_UNSIGNED);
-    length = sizeof(Int64);
+    length = sizeof(long);
   } else if ((strSize == 20) && (!createSignedDatatype) && (createLargeintUnsignedLiteral)) {
     datatype = REC_BIN64_UNSIGNED;
-    length = sizeof(Int64);
+    length = sizeof(long);
   }
 
   if (datatype != -1) {
-    rc = convDoIt((char *)cvtstr->data(), (Lng32)cvtstr->length(), REC_BYTE_F_ASCII, 0, 0, numericVal, length, datatype,
+    rc = convDoIt((char *)cvtstr->data(), (int)cvtstr->length(), REC_BYTE_F_ASCII, 0, 0, numericVal, length, datatype,
                   0, 0, NULL, 0, PARSERHEAP(), NULL, CONV_UNKNOWN);
     if (rc == 0) {
       if ((CmpCommon::getDefault(LIMIT_MAX_NUMERIC_PRECISION) == DF_ON) && (strSize == 19))
-        returnValue = new (PARSERHEAP()) ConstValue(new (PARSERHEAP()) SQLLargeInt(PARSERHEAP(), (Lng32)scale,
+        returnValue = new (PARSERHEAP()) ConstValue(new (PARSERHEAP()) SQLLargeInt(PARSERHEAP(), (int)scale,
                                                                                    (UInt16)0,  // 64-bit
                                                                                    TRUE, FALSE),
                                                     (void *)numericVal, (UInt32)length, strptr);
       else
         returnValue =
             new (PARSERHEAP()) ConstValue(new (PARSERHEAP()) SQLNumeric(PARSERHEAP(), length,
-                                                                        (Lng32)strSize,  // precision
-                                                                        (Lng32)scale, createSignedDatatype, FALSE),
+                                                                        (int)strSize,  // precision
+                                                                        (int)scale, createSignedDatatype, FALSE),
                                           (void *)numericVal, (UInt32)length, strptr);
     } else if (strSize < 19) {
       *SqlParser_Diags << DgSqlCode(-8411);
@@ -768,7 +768,7 @@ ItemExpr *literalOfNumericPassingScale(NAString *strptr, char sign, NAString *cv
       // aware that atoInt64(LLONG_MAX) even with overflow checking can
       // kill mxcmp with a signal 31!
       // Prepare BCD representation of number
-      Lng32 largestrSize = strSize + 1;  // extra byte for sign
+      int largestrSize = strSize + 1;  // extra byte for sign
       char *largestr = new (PARSERHEAP()) char[largestrSize];
       largestr[0] = sign;
       size_t j = (sign == '+') ? 0 : 1;
@@ -776,7 +776,7 @@ ItemExpr *literalOfNumericPassingScale(NAString *strptr, char sign, NAString *cv
         largestr[i + 1] = (*cvtstr)[i + j] - '0';
 
       // Convert BCD to Big Num representation
-      Lng32 bigNumSize = BigNumHelper::ConvPrecisionToStorageLengthHelper(strSize);
+      int bigNumSize = BigNumHelper::ConvPrecisionToStorageLengthHelper(strSize);
       char *bigNumData = new (PARSERHEAP()) char[bigNumSize];
       BigNumHelper::ConvBcdToBigNumWithSignHelper(largestrSize, bigNumSize, largestr, bigNumData);
 
@@ -821,10 +821,10 @@ NABoolean literalToNumeric(NAString *strptr, double &val, char sign) {
 
   // convert number into a double
   short shortVal;
-  Lng32 longVal = 0;
-  Int64 i64Val;
+  int longVal = 0;
+  long i64Val;
   char *bigNum = NULL;
-  Lng32 bigNumSize;
+  int bigNumSize;
   NABoolean result = literalToNumber(strptr, sign, &tmpstr, shortVal, longVal, i64Val, &bigNum, bigNumSize, strSize);
   if (result) {
     if (strSize < 5)
@@ -874,7 +874,7 @@ NABoolean literalToDouble(NAString *strptr, double &val, NABoolean &floatP, char
   }
 
   // Now get the size of the exponent
-  Lng32 expValue = 0;
+  int expValue = 0;
   if ((*s == 'e') || (*s == 'E')) {
     s++;
     expValue = atol(s);
@@ -937,7 +937,7 @@ ItemExpr *literalOfApproxNumeric(NAString *strptr, char sign) {
   if (sign == '-') strptr->prepend(sign);
 
   double doubleVal;
-  rc = convDoIt((char *)strptr->data(), (Lng32)strptr->length(), REC_BYTE_F_ASCII, 0, 0, (char *)&doubleVal,
+  rc = convDoIt((char *)strptr->data(), (int)strptr->length(), REC_BYTE_F_ASCII, 0, 0, (char *)&doubleVal,
                 sizeof(double), REC_FLOAT64, 0, 0, NULL, 0, PARSERHEAP(), NULL, CONV_UNKNOWN);
 
   if (rc != 0) {
@@ -1311,7 +1311,7 @@ const ParScannedTokenQueue::scannedTokenInfo &ShortStringSequence::getTokInfo(NA
 
     size_t idx = tokInfo.tokenStrPos - tokInfo.tokenStrOffset;
     NAString *iTok = unicodeToChar(&inputStr[idx], tokInfo.tokenStrLen,
-                                   (Lng32)ComGetNameInterfaceCharSet(),  // SQLCHARSETCODE_UTF8
+                                   (int)ComGetNameInterfaceCharSet(),  // SQLCHARSETCODE_UTF8
                                    PARSERHEAP());
 
     // This identifier string needs to be converted back to
@@ -1583,7 +1583,7 @@ NABoolean transformIdentifier(NAString &delimIdent, Int32 upCase,
                               ,
                               UInt16 toInternalIdentifierFlags) {
   NAString origIdent(delimIdent);
-  Lng32 sqlcode = ToInternalIdentifier(delimIdent, upCase, acceptCircumflex, toInternalIdentifierFlags);
+  int sqlcode = ToInternalIdentifier(delimIdent, upCase, acceptCircumflex, toInternalIdentifierFlags);
 
   if (sqlcode) {
     // 3004 A delimited identifier must contain at least one character.
@@ -1615,7 +1615,7 @@ NABoolean transformIdentifier(NAString &delimIdent, Int32 upCase,
 short processBackupRestoreOptions(NAList<PtrPlaceHolder *> *attrList, RelBackupRestore *br) {
   if (!attrList) return 0;
 
-  for (Lng32 i = 0; i < attrList->entries(); i++) {
+  for (int i = 0; i < attrList->entries(); i++) {
     PtrPlaceHolder *attr = (*attrList)[i];
     if (attr->ptr1_ && attr->ptr2_) {
       NAString &objType = *(NAString *)attr->ptr1_;
@@ -1672,7 +1672,7 @@ short processBackupRestoreOptions(NAList<PtrPlaceHolder *> *attrList, RelBackupR
     } else if (attr->ptr18_) {
       br->setCreateTags(TRUE);
 
-      Lng32 num = atol(*(NAString *)attr->ptr18_);
+      int num = atol(*(NAString *)attr->ptr18_);
       br->setNumSysTags(num);
     } else if (attr->ptr19_) {
       br->setGetBackupTagDetails(TRUE);
@@ -1701,7 +1701,7 @@ short processSQLRowFields(NAList<PtrPlaceHolder *> *fieldList, SQLRow *&ss) {
   fieldNames->resize(fieldList->entries());
   fieldTypes->resize(fieldList->entries());
 
-  Lng32 totalSize = 0;
+  int totalSize = 0;
   for (CollIndex i = 0; i < fieldList->entries(); i++) {
     PtrPlaceHolder *field = (*fieldList)[i];
     if (field->ptr1_) {
@@ -1983,7 +1983,7 @@ ItemExpr *convertINvaluesToOR(ItemExpr *lhs, ItemExpr *rhs) {
 
   ItemExpr *result = NULL;
   CollIndex nEnlEntries = (CollIndex)enl->entries();
-  for (Lng32 i = 0; i < nEnlEntries; i++) {
+  for (int i = 0; i < nEnlEntries; i++) {
     BiRelat *eqpred = new (PARSERHEAP()) BiRelat(ITM_EQUAL, lhs, (*enl)[i]);
     eqpred->setCreatedFromINlist(TRUE);
     if (!result)
@@ -2048,7 +2048,7 @@ ItemExpr *makeQuantifiedComp(ItemExpr *lhs, OperatorTypeEnum compOpType, Int32 q
 ///////////////////////////////////////////////////////////////////////////
 ItemExpr *processINlist(ItemExpr *lhs, ItemExpr *rhs) {
   ItemExpr *retItemExpr = NULL;
-  Lng32 defaultsLimit = ActiveSchemaDB()->getDefaults().getAsLong(COMP_INT_22);
+  int defaultsLimit = ActiveSchemaDB()->getDefaults().getAsLong(COMP_INT_22);
   if (rhs->castToItemExpr()->getOperatorType() == ITM_ITEM_LIST) {
     ItemList *il = (ItemList *)rhs;
     if ((defaultsLimit > 0) &&  // if defaultsLimit == 0 the the feature is turned OFF.
@@ -2241,30 +2241,30 @@ void conditionalDelimit(NAString &tmpName, const NAString &tmp) {
   }
 }
 // ct-bug-10-030102-3803 End
-Lng32 getDefaultMaxLengthForLongVarChar(CharInfo::CharSet cs) {
+int getDefaultMaxLengthForLongVarChar(CharInfo::CharSet cs) {
   if (IdentifyMyself::IsPreprocessor() == TRUE) return INT_MAX;
 
   switch (cs) {
     case CharInfo::UNICODE:
-      return (Lng32)CmpCommon::getDefaultNumeric(MAX_LONG_WVARCHAR_DEFAULT_SIZE);
+      return (int)CmpCommon::getDefaultNumeric(MAX_LONG_WVARCHAR_DEFAULT_SIZE);
       break;
 
     default:
-      return (Lng32)CmpCommon::getDefaultNumeric(MAX_LONG_VARCHAR_DEFAULT_SIZE);
+      return (int)CmpCommon::getDefaultNumeric(MAX_LONG_VARCHAR_DEFAULT_SIZE);
       break;
   }
 }
 
-Lng32 getDefaultMinLengthForLongVarChar(CharInfo::CharSet cs) {
+int getDefaultMinLengthForLongVarChar(CharInfo::CharSet cs) {
   if (IdentifyMyself::IsPreprocessor() == TRUE) return 0;
 
   switch (cs) {
     case CharInfo::UNICODE:
-      return (Lng32)CmpCommon::getDefaultNumeric(MIN_LONG_WVARCHAR_DEFAULT_SIZE);
+      return (int)CmpCommon::getDefaultNumeric(MIN_LONG_WVARCHAR_DEFAULT_SIZE);
       break;
 
     default:
-      return (Lng32)CmpCommon::getDefaultNumeric(MIN_LONG_VARCHAR_DEFAULT_SIZE);
+      return (int)CmpCommon::getDefaultNumeric(MIN_LONG_VARCHAR_DEFAULT_SIZE);
       break;
   }
 }
@@ -2438,12 +2438,12 @@ RelExpr *processReturningClause(RelExpr *re, UInt32 returningType) {
 
 // Process the sequence generator options.
 // Ensure that the number is not negative and not larger than
-// the maximum allowed for an Int64
+// the maximum allowed for an long
 NABoolean validateSGOption(NABoolean positive, NABoolean negAllowed, char *numStr, const char *optionName,
                            const char *objectType) {
-  Lng32 strLen = (Lng32)(strlen(numStr));
-  Int64 theValue;
-  Lng32 convErrFlag = ex_conv_clause::CONV_RESULT_OK;
+  int strLen = (int)(strlen(numStr));
+  long theValue;
+  int convErrFlag = ex_conv_clause::CONV_RESULT_OK;
 
   // if the option is a negative number and negative numbers are not allowed,
   // prepare a diagnostic and return.
@@ -2456,7 +2456,7 @@ NABoolean validateSGOption(NABoolean positive, NABoolean negAllowed, char *numSt
   // Mark the diagnostics.
   // Any possible diagnostics added by convDoIt
   // will be removed.
-  Lng32 markValue = SqlParser_Diags->mark();
+  int markValue = SqlParser_Diags->mark();
 
   /* for char(n), we limit the value of n to be no more than
      2^63-1, so convert it to 64bit signed first, then check
@@ -2974,7 +2974,7 @@ RelExpr *SqlParserAux_buildDescribeForFunctionAndAction(CorrName *actual_routine
                                                         ,
                                                         CorrName *optional_showddl_action_name_clause  // in - deep copy
                                                         ,
-                                                        Lng32 optional_showddlroutine_options  // in
+                                                        int optional_showddlroutine_options  // in
 ) {
   actual_routine_name_of_udf_or_uudf->getQualifiedNameObj().setObjectNameSpace(COM_UDF_NAME);
   Describe *pDescribe = NULL;

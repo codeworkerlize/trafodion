@@ -83,7 +83,7 @@ class REFRESH_LIB_CLASS CRUDependenceGraph {
   //----------------------------------------------//
  public:
   // Access task by Id
-  CRUTask *GetTask(Lng32 taskId);
+  CRUTask *GetTask(int taskId);
 
   // Access task by UID of associated object and type
   CRUTask *GetTask(TInt64 objUid, CRUTask::Type type);

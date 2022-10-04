@@ -74,9 +74,9 @@ class BoundaryValue : public NABasicObject {
 
 class NAPartition : public NABasicObject {
  public:
-  NAPartition(NAMemory *h, Int64 parentUid, Int64 partitionUid, char *partName, char *entityName,
+  NAPartition(NAMemory *h, long parentUid, long partitionUid, char *partName, char *entityName,
               NABoolean isSubPartition, NABoolean hasSubPartition, Int32 partPosition, NABoolean isValid,
-              NABoolean isReadonly, NABoolean isInMemory, Int64 defTime, Int64 flags, Int32 subpartitionCnt)
+              NABoolean isReadonly, NABoolean isInMemory, long defTime, long flags, Int32 subpartitionCnt)
       : heap_(h),
         parentUid_(parentUid),
         partitionUid_(partitionUid),
@@ -128,16 +128,16 @@ class NAPartition : public NABasicObject {
   const char *getPartitionEntityName() const { return partitionEntityName_; }
   const Int32 getPartPosition() const { return partPosition_; }
   const Int32 getSubPartitionCount() const { return subpartitionCnt_; }
-  Int64 getParentUID() const { return parentUid_; }
-  Int64 getPartitionUID() const { return partitionUid_; }
+  long getParentUID() const { return parentUid_; }
+  long getPartitionUID() const { return partitionUid_; }
 
   NABoolean hasSubPartition() { return hasSubPartition_; }
 
  private:
   NAMemory *heap_;
 
-  Int64 parentUid_;
-  Int64 partitionUid_;
+  long parentUid_;
+  long partitionUid_;
   char *partitionName_;
   char *partitionEntityName_;
   NABoolean isSubparition_;
@@ -151,8 +151,8 @@ class NAPartition : public NABasicObject {
   NABoolean isValid_;
   NABoolean isReadonly_;
   NABoolean isInMemory_;
-  Int64 defTime_;
-  Int64 flags_;
+  long defTime_;
+  long flags_;
 
   NAPartitionArray *subPartitions_;
 };  // class NAPartition

@@ -68,13 +68,13 @@ class CNADataSource {
   virtual NABoolean Open(const char *sourceName, EOpenMode mode) = 0;
   virtual void Close() = 0;
 
-  virtual Int32 ReadString(char *buffer, Lng32 bufferSize, NABoolean flipByteOrder = FALSE) = 0;
-  virtual Int32 Read(void *buffer, Lng32 bufferSize) = 0;
-  virtual NABoolean ReadLine(char *buffer, Lng32 bufferSize) = 0;
-  virtual Int32 ReadBlock(char *buffer, Lng32 bufferSize, NABoolean flipByteOrder = FALSE) = 0;
+  virtual Int32 ReadString(char *buffer, int bufferSize, NABoolean flipByteOrder = FALSE) = 0;
+  virtual Int32 Read(void *buffer, int bufferSize) = 0;
+  virtual NABoolean ReadLine(char *buffer, int bufferSize) = 0;
+  virtual Int32 ReadBlock(char *buffer, int bufferSize, NABoolean flipByteOrder = FALSE) = 0;
 
   virtual Int32 WriteString(const char *strLine) = 0;
-  virtual Int32 Write(const char *buffer, Lng32 bufferSize) = 0;
+  virtual Int32 Write(const char *buffer, int bufferSize) = 0;
 
   virtual ULng32 CheckIOCompletion() = 0;
   virtual NABoolean IsEOF() = 0;
@@ -82,7 +82,7 @@ class CNADataSource {
 
   // double-byte typed string related routines
   NAWchar *GetNewlineStringInWchar() { return m_newlineStrWchar; }
-  virtual Int32 Write(const NAWchar *buffer, Lng32 bufferSize, NABoolean flipByteOrder = FALSE) = 0;
+  virtual Int32 Write(const NAWchar *buffer, int bufferSize, NABoolean flipByteOrder = FALSE) = 0;
   TCHAR *GetNewlineString() { return m_newlineStr; }
 
   NABoolean IsBulkReadOperation() const { return m_bulkRead; }
@@ -135,7 +135,7 @@ class CNADataSource {
  protected:
   // flip byer order for each double byte character in the buffer. Throw
   // an exception (-1) if bufferSize is not even.
-  void FlipByteOrder(char *buffer, Lng32 bufferSize);
+  void FlipByteOrder(char *buffer, int bufferSize);
   void FlipByteOrder(char *buffer, TInt64 bufferSize);
 
   // Helper methods
@@ -160,19 +160,19 @@ class CNAProcess : public CNADataSource {
   NABoolean Open(const char *sourceName, EOpenMode mode);
   void Close();
 
-  Int32 ReadString(char *buffer, Lng32 bufferSize, NABoolean flipByteOrder = FALSE);
-  Int32 Read(void *buffer, Lng32 bufferSize);
-  NABoolean ReadLine(char *buffer, Lng32 bufferSize);
-  Int32 ReadBlock(char *buffer, Lng32 bufferSize, NABoolean flipByteOrder = FALSE);
+  Int32 ReadString(char *buffer, int bufferSize, NABoolean flipByteOrder = FALSE);
+  Int32 Read(void *buffer, int bufferSize);
+  NABoolean ReadLine(char *buffer, int bufferSize);
+  Int32 ReadBlock(char *buffer, int bufferSize, NABoolean flipByteOrder = FALSE);
 
   Int32 WriteString(const char *strLine);
-  Int32 Write(const char *buffer, Lng32 bufferSize);
+  Int32 Write(const char *buffer, int bufferSize);
 
   ULng32 CheckIOCompletion();
   NABoolean IsEOF();
 
   // double-byte typed string related routines
-  Int32 Write(const NAWchar *buffer, Lng32 bufferSize, NABoolean flipByteOrder = FALSE);
+  Int32 Write(const NAWchar *buffer, int bufferSize, NABoolean flipByteOrder = FALSE);
 
  protected:
   short m_fileHandle;
@@ -192,13 +192,13 @@ class CNAStdioFile : public CNADataSource {
   NABoolean Open(const char *sourceName, EOpenMode mode);
   void Close();
 
-  Int32 ReadString(char *buffer, Lng32 bufferSize, NABoolean flipByteOrder = FALSE);
-  Int32 Read(void *buffer, Lng32 bufferSize);
-  Int32 ReadBlock(char *buffer, Lng32 bufferSize, NABoolean flipByteOrder = FALSE);
-  NABoolean ReadLine(char *buffer, Lng32 bufferSize);
+  Int32 ReadString(char *buffer, int bufferSize, NABoolean flipByteOrder = FALSE);
+  Int32 Read(void *buffer, int bufferSize);
+  Int32 ReadBlock(char *buffer, int bufferSize, NABoolean flipByteOrder = FALSE);
+  NABoolean ReadLine(char *buffer, int bufferSize);
 
   Int32 WriteString(const char *strLine);
-  Int32 Write(const char *buffer, Lng32 bufferSize);
+  Int32 Write(const char *buffer, int bufferSize);
   Int32 Flush();
 
   ULng32 CheckIOCompletion();
@@ -206,7 +206,7 @@ class CNAStdioFile : public CNADataSource {
   NABoolean IsOpen();
 
   // double-byte typed string related routines
-  Int32 Write(const NAWchar *buffer, Lng32 bufferSize, NABoolean flipByteOrder = FALSE);
+  Int32 Write(const NAWchar *buffer, int bufferSize, NABoolean flipByteOrder = FALSE);
   FILE *GetFileHandle() { return m_fileHandle; }
 
   NABoolean Initialize();
@@ -222,7 +222,7 @@ inline NABoolean CNADataSource::Open(const char *fileName, CNADataSource::EOpenM
   return 0;
 }
 
-inline Int32 CNADataSource::ReadBlock(char *buffer, Lng32 bufferSize, NABoolean flipByteOrder) {
+inline Int32 CNADataSource::ReadBlock(char *buffer, int bufferSize, NABoolean flipByteOrder) {
   // Added to take care of unresolved externals in MXCMP
   ComASSERT(FALSE);
   return 0;
@@ -245,19 +245,19 @@ inline NABoolean CNADataSource::IsEOF() {
   return 0;
 }
 
-inline NABoolean CNADataSource::ReadLine(char *buffer, Lng32 bufferSize) {
+inline NABoolean CNADataSource::ReadLine(char *buffer, int bufferSize) {
   // Added to take care of unresolved externals in MXCMP
   ComASSERT(FALSE);
   return 0;
 }
 
-inline Int32 CNADataSource::ReadString(char *buffer, Lng32 bufferSize, NABoolean flipByteOrder) {
+inline Int32 CNADataSource::ReadString(char *buffer, int bufferSize, NABoolean flipByteOrder) {
   // Added to take care of unresolved externals in MXCMP
   ComASSERT(FALSE);
   return 0;
 }
 
-inline Int32 CNADataSource::Read(void *buffer, Lng32 bufferSize) {
+inline Int32 CNADataSource::Read(void *buffer, int bufferSize) {
   // Added to take care of unresolved externals in MXCMP
   ComASSERT(FALSE);
   return 0;
@@ -269,13 +269,13 @@ inline Int32 CNADataSource::WriteString(const char *strLine) {
   return 0;
 }
 
-inline Int32 CNADataSource::Write(const char *buffer, Lng32 bufferSize) {
+inline Int32 CNADataSource::Write(const char *buffer, int bufferSize) {
   // Added to take care of unresolved externals in MXCMP
   ComASSERT(FALSE);
   return 0;
 }
 
-inline Int32 CNADataSource::Write(const NAWchar *buffer, Lng32 bufferSize, NABoolean flipByteOrder) {
+inline Int32 CNADataSource::Write(const NAWchar *buffer, int bufferSize, NABoolean flipByteOrder) {
   // Added to take care of unresolved externals in MXCMP
   ComASSERT(FALSE);
   return 0;

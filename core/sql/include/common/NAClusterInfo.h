@@ -101,12 +101,12 @@ class NAClusterInfo : public NABasicObject {
   NABoolean smpActive(Int32 smp) const;
 
   // return total number of CPUs (includes all, that is, even down CPUs)
-  Lng32 getTotalNumberOfCPUs();
+  int getTotalNumberOfCPUs();
   const NAArray<CollIndex> &getCPUArray() const { return cpuArray_; }
 
   NABoolean hasVirtualNodes() const { return hasVirtualNodes_; }
 
-  Lng32 mapNodeNameToNodeNum(const NAString &node) const;
+  int mapNodeNameToNodeNum(const NAString &node) const;
 
   const NAString *mapNodeNamesToNodeNums(ConstStringList *nodeNames, ARRAY(short) & resultNodeIds) const;
 

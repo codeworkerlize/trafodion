@@ -133,13 +133,13 @@ class CostMethod {
   // CostMethod::cleanUpAllCostMethods() that can be called after a
   // longjmp(). A longjmp() may occur during out-of-memory conditions.
   // ---------------------------------------------------------------------
-  Cost *computeOperatorCost(RelExpr *op, const Context *myContext, Lng32 &countOfStreams);
+  Cost *computeOperatorCost(RelExpr *op, const Context *myContext, int &countOfStreams);
 
   // ---------------------------------------------------------------------
   // scmComputeOperatorCost() computes the cost of the operator
   // when SIMPLE_COST_MODEL CQD is set to ON.
   // ---------------------------------------------------------------------
-  Cost *scmComputeOperatorCost(RelExpr *op, const PlanWorkSpace *pws, Lng32 &countOfStreams);
+  Cost *scmComputeOperatorCost(RelExpr *op, const PlanWorkSpace *pws, int &countOfStreams);
 
   // ---------------------------------------------------------------------
   // computePartialPlanCost() combines the cost of a given RelExpr node
@@ -161,7 +161,7 @@ class CostMethod {
   // work space. It then combines this cost with the children's costs
   // and returns the result.
   // ---------------------------------------------------------------------
-  virtual Cost *computePlanCost(RelExpr *op, const Context *myContext, const PlanWorkSpace *pws, Lng32 planNumber);
+  virtual Cost *computePlanCost(RelExpr *op, const Context *myContext, const PlanWorkSpace *pws, int planNumber);
 
   // ---------------------------------------------------------------------
   // scmComputePlanCost() finalizes the cost of a plan rooted at a RelExpr
@@ -169,17 +169,17 @@ class CostMethod {
   // It then combines this cost with the children's costs
   // and returns the result.
   // ---------------------------------------------------------------------
-  virtual Cost *scmComputePlanCost(RelExpr *op, const PlanWorkSpace *pws, Lng32 planNumber);
+  virtual Cost *scmComputePlanCost(RelExpr *op, const PlanWorkSpace *pws, int planNumber);
 
   // ---------------------------------------------------------------------
   // Roll up members.
   // ---------------------------------------------------------------------
 
-  virtual void getChildCostForUnaryOp(RelExpr *op, const Context *myContext, const PlanWorkSpace *pws, Lng32 planNumber,
+  virtual void getChildCostForUnaryOp(RelExpr *op, const Context *myContext, const PlanWorkSpace *pws, int planNumber,
                                       CostPtr &childCost);
 
   virtual void getChildCostsForBinaryOp(RelExpr *op, const Context *myContext, const PlanWorkSpace *pws,
-                                        Lng32 planNumber, CostPtr &leftChildCost, CostPtr &rightChildCost);
+                                        int planNumber, CostPtr &leftChildCost, CostPtr &rightChildCost);
 
   // ---------------------------------------------------------------------
   // print
@@ -204,9 +204,9 @@ class CostMethod {
   // computeOperatorCostInternal() sets the node's cost to a preliminary,
   // low(!) estimate for an algorithm's local processing costs
   // ---------------------------------------------------------------------
-  virtual Cost *computeOperatorCostInternal(RelExpr *op, const Context *myContext, Lng32 &countOfStreams) = 0;
+  virtual Cost *computeOperatorCostInternal(RelExpr *op, const Context *myContext, int &countOfStreams) = 0;
 
-  virtual Cost *scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, Lng32 &countOfStreams) = 0;
+  virtual Cost *scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, int &countOfStreams) = 0;
 
   //  Wrapper for SCM Cost constructor, used by SCM only.
   Cost *scmCost(CostScalar tuplesProcessed, CostScalar tuplesProduced, CostScalar tuplesSent, CostScalar ioRand,
@@ -222,7 +222,7 @@ class CostMethod {
   virtual Cost *scmRollUp(Cost *const parentCost, Cost *const leftChildCost, Cost *const rightChildCost,
                           const ReqdPhysicalProperty *const rpp);
 
-  virtual Cost *rollUpForBinaryOp(RelExpr *op, const Context *myContext, const PlanWorkSpace *pws, Lng32 planNumber);
+  virtual Cost *rollUpForBinaryOp(RelExpr *op, const Context *myContext, const PlanWorkSpace *pws, int planNumber);
 
   virtual Cost *mergeNoLegsBlocking(const CostPtr leftChildCost, const CostPtr rightChildCost,
                                     const ReqdPhysicalProperty *const rpp);
@@ -255,7 +255,7 @@ class CostMethod {
   // This method is responsible for determining the number of cpus and
   // the number of fragments per cpu.
   // ---------------------------------------------------------------------
-  void determineCpuCountAndFragmentsPerCpu(Lng32 &cpuCount, Lng32 &fragmentsPerCput);
+  void determineCpuCountAndFragmentsPerCpu(int &cpuCount, int &fragmentsPerCput);
 
   // ---------------------------------------------------------------------
   // This method is responsible for cleaning up after cost computation.
@@ -286,10 +286,10 @@ class CostMethod {
   const PartitioningFunction *partFunc_;
 
   // The no of CPUs available on the system.
-  Lng32 countOfAvailableCPUs_;
+  int countOfAvailableCPUs_;
 
   // Maximum count of pipelines allowed per CPU.
-  Lng32 countOfPipelinesPerCPU_;
+  int countOfPipelinesPerCPU_;
 
   // The attributes of the group the operator belongs to.
   GroupAttributes *ga_;
@@ -331,7 +331,7 @@ class CostMethod {
   // ---------------------------------------------------------------------
 
   // The degree of parallelism of this operator is assumed to exhibit.
-  Lng32 countOfStreams_;
+  int countOfStreams_;
 
   // The average no of probes per parallel instance of this operator.
   CostScalar noOfProbesPerStream_;
@@ -370,9 +370,9 @@ class CostMethodCompoundStmt : public CostMethod {
 
  protected:
   // Cost functions
-  virtual Cost *computeOperatorCostInternal(RelExpr *op, const Context *myContext, Lng32 &);
+  virtual Cost *computeOperatorCostInternal(RelExpr *op, const Context *myContext, int &);
   // SCM Cost function
-  virtual Cost *scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, Lng32 &countOfStreams);
+  virtual Cost *scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, int &countOfStreams);
 
   virtual void cacheParameters(RelExpr *op, const Context *myContext);
 
@@ -405,9 +405,9 @@ class CostMethodExchange : public CostMethod {
 
  protected:
   // Cost functions
-  virtual Cost *computeOperatorCostInternal(RelExpr *op, const Context *myContext, Lng32 &countOfStreams);
+  virtual Cost *computeOperatorCostInternal(RelExpr *op, const Context *myContext, int &countOfStreams);
   // SCM cost function
-  virtual Cost *scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, Lng32 &countOfStreams);
+  virtual Cost *scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, int &countOfStreams);
 
   // SCM method
   CostScalar scmComputeUpTuplesSent(const Context *myContext, Exchange *exch,
@@ -418,7 +418,7 @@ class CostMethodExchange : public CostMethod {
   CostScalar computeESPCost(const NABoolean executeInESP, const CostScalar &noOfProbes) const;
 
   Cost *computeExchangeCostGoingDown(const ReqdPhysicalProperty *rpp, const CostScalar &noOfProbes,
-                                     Lng32 &countOfStreams);
+                                     int &countOfStreams);
 
   void getDefaultValues(const NABoolean executeInDP2, const Exchange *exch, CostScalar &messageSpacePerRecordInKb,
                         CostScalar &messageHeaderInKb, CostScalar &messageBufferSizeInKb) const;
@@ -504,9 +504,9 @@ class CostMethodFileScan : public CostMethod {
 
  protected:
   // Cost functions
-  virtual Cost *computeOperatorCostInternal(RelExpr *op, const Context *myContext, Lng32 &countOfStreams);
+  virtual Cost *computeOperatorCostInternal(RelExpr *op, const Context *myContext, int &countOfStreams);
   // SCM Cost function
-  virtual Cost *scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, Lng32 &countOfStreams);
+  virtual Cost *scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, int &countOfStreams);
 };  // class CostMethodFileScan
 
 //<pb>
@@ -522,9 +522,9 @@ class CostMethodDP2Scan : public CostMethodFileScan {
 
  protected:
   // Cost functions
-  virtual Cost *computeOperatorCostInternal(RelExpr *op, const Context *myContext, Lng32 &countOfStreams);
+  virtual Cost *computeOperatorCostInternal(RelExpr *op, const Context *myContext, int &countOfStreams);
   // SCM Cost function
-  virtual Cost *scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, Lng32 &countOfStreams);
+  virtual Cost *scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, int &countOfStreams);
 };  // class CostMethodDP2Scan
 
 //<pb>
@@ -549,12 +549,12 @@ class CostMethodFixedCostPerRow : public CostMethod {
 
  protected:
   // Redefine inherited virtual functions...
-  virtual Cost *computeOperatorCostInternal(RelExpr *op, const Context *myContext, Lng32 &countOfStreams);
+  virtual Cost *computeOperatorCostInternal(RelExpr *op, const Context *myContext, int &countOfStreams);
 
   // ---------------------------------------------------------------------
   // For SCM.
   // ---------------------------------------------------------------------
-  virtual Cost *scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, Lng32 &countOfStreams);
+  virtual Cost *scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, int &countOfStreams);
   const CostScalar baseCpuCost_;
   const CostScalar cpuCostPerChildRow_;
   const CostScalar cpuCostPerOutputRow_;
@@ -589,9 +589,9 @@ class CostMethodSort : public CostMethod {
 
  protected:
   // Cost functions
-  virtual Cost *computeOperatorCostInternal(RelExpr *op, const Context *myContext, Lng32 &countOfStreams);
+  virtual Cost *computeOperatorCostInternal(RelExpr *op, const Context *myContext, int &countOfStreams);
   // SCM cost function
-  virtual Cost *scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, Lng32 &countOfStreams);
+  virtual Cost *scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, int &countOfStreams);
 
   CostScalar scmComputeOverflowCost(CostScalar numInputTuples, CostScalar inputRowSize);
 
@@ -639,10 +639,10 @@ class CostMethodSort : public CostMethod {
   Sort *sort_;
 
   // Length of the sort keys in bytes.
-  Lng32 sortKeyLength_;
+  int sortKeyLength_;
 
   // Length of a sort record (including the key) in bytes.
-  Lng32 sortRecLength_;
+  int sortRecLength_;
 
   // To send a row from the executor to the Sort Util.
   CostScalar cpuCostSendRow_;
@@ -718,10 +718,10 @@ class CostMethodGroupByAgg : public CostMethod {
   CostScalar groupCount_;
 
   // Storage in bytes needed for the group key.
-  Lng32 groupKeyLength_;
+  int groupKeyLength_;
 
   // Storage in bytes needed for the aggregates.
-  Lng32 aggregateLength_;
+  int aggregateLength_;
 
   // Per probe init cpu cost, should be determined by derived classes.
   CostScalar cpuCostPerProbeInit_;
@@ -776,9 +776,9 @@ class CostMethodSortGroupBy : public CostMethodGroupByAgg {
 
  protected:
   // Cost functions
-  virtual Cost *computeOperatorCostInternal(RelExpr *op, const Context *myContext, Lng32 &countOfStreams);
+  virtual Cost *computeOperatorCostInternal(RelExpr *op, const Context *myContext, int &countOfStreams);
   // SCM cost function
-  virtual Cost *scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, Lng32 &countOfStreams);
+  virtual Cost *scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, int &countOfStreams);
   const double bufferCount_;
 
   const double bufferSize_;
@@ -799,7 +799,7 @@ class CostMethodHashGroupBy : public CostMethodGroupByAgg {
   CostMethodHashGroupBy()
       : CostMethodGroupByAgg("CostMethodHashGroupBy"),
         bufferSize_((CostPrimitives::getBasicCostFactor(GEN_HGBY_BUFFER_SIZE) - 24) / 1024),
-        hashedRowOverhead_((Lng32)CostPrimitives::getBasicCostFactor(HH_OP_HASHED_ROW_OVERHEAD)),
+        hashedRowOverhead_((int)CostPrimitives::getBasicCostFactor(HH_OP_HASHED_ROW_OVERHEAD)),
         cpuCostAllocateHashTable_(CostPrimitives::getBasicCostFactor(HH_OP_ALLOCATE_HASH_TABLE)),
         cpuCostInsertRowToChain_(CostPrimitives::getBasicCostFactor(HH_OP_INSERT_ROW_TO_CHAIN)),
         cpuCostPositionHashTableCursor_(CostPrimitives::getBasicCostFactor(HH_OP_PROBE_HASH_TABLE)),
@@ -810,14 +810,14 @@ class CostMethodHashGroupBy : public CostMethodGroupByAgg {
   }
 
   virtual Cost *computePlanCost(RelExpr *hashGroupByOp, const Context *myContext, const PlanWorkSpace *pws,
-                                Lng32 planNumber);
+                                int planNumber);
 
  protected:
   // Cost functions
-  virtual Cost *computeOperatorCostInternal(RelExpr *op, const Context *myContext, Lng32 &countOfStreams);
+  virtual Cost *computeOperatorCostInternal(RelExpr *op, const Context *myContext, int &countOfStreams);
 
   // SCM Cost function
-  virtual Cost *scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, Lng32 &countOfStreams);
+  virtual Cost *scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, int &countOfStreams);
 
   CostScalar scmComputeOverflowCost(CostScalar numInputTuples, CostScalar inputRowSize, CostScalar numOutputTuples,
                                     CostScalar outputRowSize);
@@ -832,7 +832,7 @@ class CostMethodHashGroupBy : public CostMethodGroupByAgg {
   // Some helper methods.
   // ---------------------------------------------------------------------
 
-  Lng32 computeCountOfClusters(const CostScalar &memoryLimit, const CostScalar &tableSize);
+  int computeCountOfClusters(const CostScalar &memoryLimit, const CostScalar &tableSize);
 
   void computePartialGroupByLeafCost(CostScalar &cpuFR, CostScalar &cpuLR, CostScalar &cpuBK,
                                      CostScalar &groupingFactor);
@@ -845,7 +845,7 @@ class CostMethodHashGroupBy : public CostMethodGroupByAgg {
 
   const double bufferSize_;
 
-  const Lng32 hashedRowOverhead_;
+  const int hashedRowOverhead_;
 
   const CostScalar cpuCostAllocateHashTable_;
 
@@ -868,7 +868,7 @@ class CostMethodHashGroupBy : public CostMethodGroupByAgg {
   CostScalar cpuCostAggrGroupToGroup_;
 
   // Length of a buffered group entry with the hash key and chain pointer.
-  Lng32 extGroupLength_;
+  int extGroupLength_;
 
   // ---------------------------------------------------------------------
   // Below is the working set of parameters used by computePassCost().
@@ -879,7 +879,7 @@ class CostMethodHashGroupBy : public CostMethodGroupByAgg {
   // ---------------------------------------------------------------------
 
   // No of clusters the executor decides to allocate for hash grouping.
-  Lng32 noOfClustersToBeAllocated_;
+  int noOfClustersToBeAllocated_;
 
   // ---------------------------------------------------------------------
   // These three parameters together describe the inputs to be processed
@@ -887,7 +887,7 @@ class CostMethodHashGroupBy : public CostMethodGroupByAgg {
   // pass is going to process with each entry having a number of rows and
   // groups given by rowCountPerCluster_ and groupCountPerCluster_.
   // ---------------------------------------------------------------------
-  Lng32 noOfClustersToBeProcessed_;
+  int noOfClustersToBeProcessed_;
   CostScalar rowCountPerCluster_;
   CostScalar groupCountPerCluster_;
 
@@ -912,13 +912,13 @@ class CostMethodShortCutGroupBy : public CostMethodGroupByAgg {
         cpuCostPassRow_(CostPrimitives::getBasicCostFactor(EX_OP_COPY_ATP)) {}
 
   // Cost functions
-  virtual Cost *computePlanCost(RelExpr *op, const Context *myContext, const PlanWorkSpace *pws, Lng32 planNumber);
+  virtual Cost *computePlanCost(RelExpr *op, const Context *myContext, const PlanWorkSpace *pws, int planNumber);
 
  protected:
-  virtual Cost *computeOperatorCostInternal(RelExpr *op, const Context *myContext, Lng32 &countOfStreams);
+  virtual Cost *computeOperatorCostInternal(RelExpr *op, const Context *myContext, int &countOfStreams);
 
   // SCM Cost function
-  virtual Cost *scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, Lng32 &countOfStreams);
+  virtual Cost *scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, int &countOfStreams);
 
  private:
   // Cost to forward a row from child to parent.
@@ -1096,8 +1096,8 @@ class CostMethodHashJoin : public CostMethodJoin {
   CostMethodHashJoin()
       : CostMethodJoin("CostMethodHashJoin"),
         bufferSize_((CostPrimitives::getBasicCostFactor(GEN_HSHJ_BUFFER_SIZE) - 24) / 1024),
-        hashedRowOverhead_((Lng32)CostPrimitives::getBasicCostFactor(HH_OP_HASHED_ROW_OVERHEAD)),
-        initialBucketCountPerCluster_((Lng32)CostPrimitives::getBasicCostFactor(HJ_INITIAL_BUCKETS_PER_CLUSTER)),
+        hashedRowOverhead_((int)CostPrimitives::getBasicCostFactor(HH_OP_HASHED_ROW_OVERHEAD)),
+        initialBucketCountPerCluster_((int)CostPrimitives::getBasicCostFactor(HJ_INITIAL_BUCKETS_PER_CLUSTER)),
         cpuCostAllocateHashTable_(CostPrimitives::getBasicCostFactor(HH_OP_ALLOCATE_HASH_TABLE)),
         cpuCostInsertRowToChain_(CostPrimitives::getBasicCostFactor(HH_OP_INSERT_ROW_TO_CHAIN)),
         cpuCostPositionHashTableCursor_(CostPrimitives::getBasicCostFactor(HH_OP_PROBE_HASH_TABLE)),
@@ -1115,8 +1115,8 @@ class CostMethodHashJoin : public CostMethodJoin {
       : hj_(hj),
         CostMethodJoin("CostMethodHashJoin"),
         bufferSize_((CostPrimitives::getBasicCostFactor(GEN_HSHJ_BUFFER_SIZE) - 24) / 1024),
-        hashedRowOverhead_((Lng32)CostPrimitives::getBasicCostFactor(HH_OP_HASHED_ROW_OVERHEAD)),
-        initialBucketCountPerCluster_((Lng32)CostPrimitives::getBasicCostFactor(HJ_INITIAL_BUCKETS_PER_CLUSTER)),
+        hashedRowOverhead_((int)CostPrimitives::getBasicCostFactor(HH_OP_HASHED_ROW_OVERHEAD)),
+        initialBucketCountPerCluster_((int)CostPrimitives::getBasicCostFactor(HJ_INITIAL_BUCKETS_PER_CLUSTER)),
         cpuCostAllocateHashTable_(CostPrimitives::getBasicCostFactor(HH_OP_ALLOCATE_HASH_TABLE)),
         cpuCostInsertRowToChain_(CostPrimitives::getBasicCostFactor(HH_OP_INSERT_ROW_TO_CHAIN)),
         cpuCostPositionHashTableCursor_(CostPrimitives::getBasicCostFactor(HH_OP_PROBE_HASH_TABLE)),
@@ -1131,9 +1131,9 @@ class CostMethodHashJoin : public CostMethodJoin {
   // ---------------------------------------------------------------------
   // Some helper methods.
   // ---------------------------------------------------------------------
-  Lng32 computeInitialCountOfClusters(const CostScalar &memoryLimit, const CostScalar &tableSize);
+  int computeInitialCountOfClusters(const CostScalar &memoryLimit, const CostScalar &tableSize);
 
-  Lng32 computeIdealCountOfClusters(const CostScalar &memoryLimit, const CostScalar &tableSize);
+  int computeIdealCountOfClusters(const CostScalar &memoryLimit, const CostScalar &tableSize);
 
   inline CostScalar computeCreateHashTableCost(const CostScalar &rowCount) const;
 
@@ -1159,7 +1159,7 @@ class CostMethodHashJoin : public CostMethodJoin {
   // ---------------------------------------------------------------------
 
   virtual Cost *computePlanCost(RelExpr *hashJoinOp, const Context *myContext, const PlanWorkSpace *pws,
-                                Lng32 planNumber);
+                                int planNumber);
 
   SimpleCostVector computeNewBlockingCost(HashJoinCost *, CostPtr, CostPtr, const ReqdPhysicalProperty *);
 
@@ -1172,10 +1172,10 @@ class CostMethodHashJoin : public CostMethodJoin {
   void computeStage3Cost();
 
  protected:
-  virtual Cost *computeOperatorCostInternal(RelExpr *op, const Context *myContext, Lng32 &countOfStreams);
+  virtual Cost *computeOperatorCostInternal(RelExpr *op, const Context *myContext, int &countOfStreams);
 
   // SCM costing method
-  virtual Cost *scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, Lng32 &countOfStreams);
+  virtual Cost *scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, int &countOfStreams);
 
   CostScalar scmComputeOverflowCost(CostScalar numBuildTuples, CostScalar buildRowSize, CostScalar numProbeTuples,
                                     CostScalar probeRowSize);
@@ -1198,10 +1198,10 @@ class CostMethodHashJoin : public CostMethodJoin {
   const double bufferSize_;
 
   // The additional storage (in bytes) to store a row in a hash chain.
-  const Lng32 hashedRowOverhead_;
+  const int hashedRowOverhead_;
 
   // The no of buckets allocated initially for a cluster.
-  const Lng32 initialBucketCountPerCluster_;
+  const int initialBucketCountPerCluster_;
 
   const CostScalar cpuCostAllocateHashTable_;
 
@@ -1217,16 +1217,16 @@ class CostMethodHashJoin : public CostMethodJoin {
   CostScalar cpuCostHashRow_;
 
   // Length of a row from the inner table in bytes.
-  Lng32 child0RowLength_;
+  int child0RowLength_;
 
   // Extented Length of a row from the inner table in bytes.
-  Lng32 extChild0RowLength_;
+  int extChild0RowLength_;
 
   // Length of a row from the outer table in bytes.
-  Lng32 child1RowLength_;
+  int child1RowLength_;
 
   // Extented Length of a row from the outer table in bytes.
-  Lng32 extChild1RowLength_;
+  int extChild1RowLength_;
 
   // Cost to copy a row from the inner table to buffer.
   CostScalar cpuCostCopyChild0Row_;
@@ -1339,12 +1339,12 @@ class CostMethodMergeJoin : public CostMethodJoin {
   // Costing methods.
   // ---------------------------------------------------------------------
   virtual Cost *computePlanCost(RelExpr *mergeJoinOp, const Context *myContext, const PlanWorkSpace *pws,
-                                Lng32 planNumber);
+                                int planNumber);
 
  protected:
-  virtual Cost *computeOperatorCostInternal(RelExpr *op, const Context *myContext, Lng32 &countOfStreams);
+  virtual Cost *computeOperatorCostInternal(RelExpr *op, const Context *myContext, int &countOfStreams);
 
-  virtual Cost *scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, Lng32 &countOfStreams);
+  virtual Cost *scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, int &countOfStreams);
 
   virtual Cost *mergeNoLegsBlocking(const CostPtr leftChildCost, const CostPtr rightChildCost,
                                     const ReqdPhysicalProperty *const rpp);
@@ -1420,13 +1420,13 @@ class CostMethodNestedJoin : public CostMethodJoin {
 
   // Cost functions
   virtual Cost *computePlanCost(RelExpr *nestedJoinOp, const Context *myContext, const PlanWorkSpace *pws,
-                                Lng32 planNumber);
+                                int planNumber);
 
  protected:
-  virtual Cost *computeOperatorCostInternal(RelExpr *op, const Context *myContext, Lng32 &countOfStreams);
+  virtual Cost *computeOperatorCostInternal(RelExpr *op, const Context *myContext, int &countOfStreams);
 
   // SCM costing method
-  virtual Cost *scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, Lng32 &countOfStreams);
+  virtual Cost *scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, int &countOfStreams);
 
   virtual Cost *mergeNoLegsBlocking(const CostPtr leftChildCost, const CostPtr rightChildCost,
                                     const ReqdPhysicalProperty *const rpp);
@@ -1487,10 +1487,10 @@ class CostMethodNestedJoinFlow : public CostMethodNestedJoin {
 
  protected:
   // Cost functions
-  virtual Cost *computeOperatorCostInternal(RelExpr *op, const Context *myContext, Lng32 &countOfStreams);
+  virtual Cost *computeOperatorCostInternal(RelExpr *op, const Context *myContext, int &countOfStreams);
 
   // SCM Cost function
-  virtual Cost *scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, Lng32 &countOfStreams);
+  virtual Cost *scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, int &countOfStreams);
 
 };  // class CostMethodNestedJoinFlow
 
@@ -1514,12 +1514,12 @@ class CostMethodMergeUnion : public CostMethod {
         bufferSize_(CostPrimitives::getBasicCostFactor(MU_INITIAL_BUFFER_SIZE)) {}
 
   // Cost functions
-  virtual Cost *computePlanCost(RelExpr *op, const Context *myContext, const PlanWorkSpace *pws, Lng32 planNumber);
+  virtual Cost *computePlanCost(RelExpr *op, const Context *myContext, const PlanWorkSpace *pws, int planNumber);
 
  protected:
-  virtual Cost *computeOperatorCostInternal(RelExpr *op, const Context *myContext, Lng32 &countOfStreams);
+  virtual Cost *computeOperatorCostInternal(RelExpr *op, const Context *myContext, int &countOfStreams);
   // SCM Cost function
-  virtual Cost *scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, Lng32 &countOfStreams);
+  virtual Cost *scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, int &countOfStreams);
 
   virtual Cost *mergeNoLegsBlocking(const CostPtr leftChildCost, const CostPtr rightChildCost,
                                     const ReqdPhysicalProperty *const rpp);
@@ -1577,9 +1577,9 @@ class CostMethodRelRoot : public CostMethod {
 
  protected:
   // Cost functions
-  virtual Cost *computeOperatorCostInternal(RelExpr *op, const Context *myContext, Lng32 &countOfStreams);
+  virtual Cost *computeOperatorCostInternal(RelExpr *op, const Context *myContext, int &countOfStreams);
   // SCM Cost function
-  virtual Cost *scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, Lng32 &countOfStreams);
+  virtual Cost *scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, int &countOfStreams);
 
  private:
 };  // class CostMethodRelRoot
@@ -1601,9 +1601,9 @@ class CostMethodTuple : public CostMethod {
 
  protected:
   // Cost functions
-  virtual Cost *computeOperatorCostInternal(RelExpr *op, const Context *myContext, Lng32 &countOfStreams);
+  virtual Cost *computeOperatorCostInternal(RelExpr *op, const Context *myContext, int &countOfStreams);
   // SCM Cost function
-  virtual Cost *scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, Lng32 &countOfStreams);
+  virtual Cost *scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, int &countOfStreams);
 
  private:
   // Cost to allocate a tuple.
@@ -1624,10 +1624,10 @@ class CostMethodTranspose : public CostMethod {
 
  protected:
   // Cost functions
-  virtual Cost *computeOperatorCostInternal(RelExpr *op, const Context *myContext, Lng32 &countOfStreams);
+  virtual Cost *computeOperatorCostInternal(RelExpr *op, const Context *myContext, int &countOfStreams);
 
   // SCM Cost function
-  virtual Cost *scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, Lng32 &countOfStreams);
+  virtual Cost *scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, int &countOfStreams);
 
   virtual void cacheParameters(RelExpr *op, const Context *myContext);
 
@@ -1647,9 +1647,9 @@ class CostMethodStoredProc : public CostMethod {
 
  protected:
   // Cost functions
-  virtual Cost *computeOperatorCostInternal(RelExpr *op, const Context *myContext, Lng32 &countOfStreams);
+  virtual Cost *computeOperatorCostInternal(RelExpr *op, const Context *myContext, int &countOfStreams);
   // SCM Cost function
-  virtual Cost *scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, Lng32 &countOfStreams);
+  virtual Cost *scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, int &countOfStreams);
 
 };  // class CostMethodStoredProc
 
@@ -1666,9 +1666,9 @@ class CostMethodHbaseInsert : public CostMethod {
 
  protected:
   // Cost functions
-  virtual Cost *computeOperatorCostInternal(RelExpr *op, const Context *myContext, Lng32 &countOfStreams);
+  virtual Cost *computeOperatorCostInternal(RelExpr *op, const Context *myContext, int &countOfStreams);
 
-  virtual Cost *scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, Lng32 &countOfStreams);
+  virtual Cost *scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, int &countOfStreams);
 
   virtual void cacheParameters(RelExpr *, const Context *);
   virtual void cleanUp();
@@ -1700,10 +1700,10 @@ class CostMethodHbaseUpdateOrDelete : public CostMethod {
  protected:
   // Old model cost function (obsolete; only here because base
   // class requires an implementation)
-  virtual Cost *computeOperatorCostInternal(RelExpr *op, const Context *myContext, Lng32 &countOfStreams);
+  virtual Cost *computeOperatorCostInternal(RelExpr *op, const Context *myContext, int &countOfStreams);
 
   // SCM Cost function
-  virtual Cost *scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, Lng32 &countOfStreams) = 0;
+  virtual Cost *scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, int &countOfStreams) = 0;
 
   NABoolean allKeyColumnsHaveHistogramStatistics(const IndexDescHistograms &histograms, const IndexDesc *CIDesc) const;
 
@@ -1732,7 +1732,7 @@ class CostMethodHbaseUpdate : public CostMethodHbaseUpdateOrDelete {
 
  protected:
   // SCM Cost function
-  virtual Cost *scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, Lng32 &countOfStreams);
+  virtual Cost *scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, int &countOfStreams);
 
 };  // class CostMethodHbaseUpdate
 
@@ -1749,7 +1749,7 @@ class CostMethodHbaseDelete : public CostMethodHbaseUpdateOrDelete {
 
  protected:
   // SCM Cost function
-  virtual Cost *scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, Lng32 &countOfStreams);
+  virtual Cost *scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, int &countOfStreams);
 
 };  // class CostMethodHbaseDelete
 
@@ -1765,9 +1765,9 @@ class CostMethodUnPackRows : public CostMethod {
 
  protected:
   // Cost functions
-  virtual Cost *computeOperatorCostInternal(RelExpr *op, const Context *myContext, Lng32 &countOfStreams);
+  virtual Cost *computeOperatorCostInternal(RelExpr *op, const Context *myContext, int &countOfStreams);
   // SCM Cost function
-  virtual Cost *scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, Lng32 &countOfStreams);
+  virtual Cost *scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, int &countOfStreams);
 
   virtual void cacheParameters(RelExpr *op, const Context *myContext);
 
@@ -1790,9 +1790,9 @@ class CostMethodRelSequence : public CostMethod {
 
  protected:
   // Cost functions
-  virtual Cost *computeOperatorCostInternal(RelExpr *op, const Context *myContext, Lng32 &countOfStreams);
+  virtual Cost *computeOperatorCostInternal(RelExpr *op, const Context *myContext, int &countOfStreams);
   // SCM Cost function
-  virtual Cost *scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, Lng32 &countOfStreams);
+  virtual Cost *scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, int &countOfStreams);
 
   virtual void cacheParameters(RelExpr *op, const Context *myContext);
 
@@ -1803,12 +1803,12 @@ class CostMethodRelSequence : public CostMethod {
 
   // The width of the history buffer to be allocated in the executor.
   //
-  Lng32 historyBufferWidthInBytes_;
+  int historyBufferWidthInBytes_;
 
   // The total size of the history buffer to be allocated in the
   // executor.
   //
-  Lng32 historyBufferSizeInBytes_;
+  int historyBufferSizeInBytes_;
 };  // class CostMethodRelSequence
 
 /**********************************************************************/
@@ -1823,9 +1823,9 @@ class CostMethodSample : public CostMethod {
 
  protected:
   // Cost functions
-  virtual Cost *computeOperatorCostInternal(RelExpr *op, const Context *myContext, Lng32 &countOfStreams);
+  virtual Cost *computeOperatorCostInternal(RelExpr *op, const Context *myContext, int &countOfStreams);
   // SCM Cost function
-  virtual Cost *scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, Lng32 &countOfStreams);
+  virtual Cost *scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, int &countOfStreams);
   CostScalar cpuCostToProduceAllRows_;
 
 };  // class CostMethodSample
@@ -1843,9 +1843,9 @@ class CostMethodIsolatedScalarUDF : public CostMethod {
  private:
  protected:
   // Cost functions
-  virtual Cost *computeOperatorCostInternal(RelExpr *op, const Context *myContext, Lng32 &countOfStreams);
+  virtual Cost *computeOperatorCostInternal(RelExpr *op, const Context *myContext, int &countOfStreams);
   // SCM cost function
-  virtual Cost *scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, Lng32 &countOfStreams);
+  virtual Cost *scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, int &countOfStreams);
 };
 //<pb>
 /**********************************************************************/
@@ -1860,10 +1860,10 @@ class CostMethodTableMappingUDF : public CostMethod {
 
  protected:
   // Cost functions
-  virtual Cost *computeOperatorCostInternal(RelExpr *op, const Context *myContext, Lng32 &countOfStreams);
+  virtual Cost *computeOperatorCostInternal(RelExpr *op, const Context *myContext, int &countOfStreams);
 
   // SCM cost function
-  virtual Cost *scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, Lng32 &countOfStreams);
+  virtual Cost *scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, int &countOfStreams);
 };
 
 //<pb>
@@ -1879,9 +1879,9 @@ class CostMethodFastExtract : public CostMethod {
 
  protected:
   // Cost functions
-  virtual Cost *computeOperatorCostInternal(RelExpr *op, const Context *myContext, Lng32 &countOfStreams);
+  virtual Cost *computeOperatorCostInternal(RelExpr *op, const Context *myContext, int &countOfStreams);
 
   // SCM cost function
-  virtual Cost *scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, Lng32 &countOfStreams);
+  virtual Cost *scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, int &countOfStreams);
 };
 #endif /* COSTMETHOD_H */

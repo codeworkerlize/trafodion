@@ -49,11 +49,11 @@ ComTdbMj::ComTdbMj() : ComTdb(ComTdb::ex_MJ, eye_MJ){};
 
 ComTdbMj::ComTdbMj(ComTdb *left_tdb, ComTdb *right_tdb, ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc,
                    ex_expr *merge_expr, ex_expr *comp_expr, ex_expr *left_check_dup_expr, ex_expr *right_check_dup_expr,
-                   ex_expr *lj_expr, ex_expr *ni_expr, ex_expr *right_copy_dup_expr, Lng32 right_dup_reclen,
-                   Lng32 lj_reclen, ex_cri_desc *work_cri_desc, short instantiated_row_atp_index,
+                   ex_expr *lj_expr, ex_expr *ni_expr, ex_expr *right_copy_dup_expr, int right_dup_reclen,
+                   int lj_reclen, ex_cri_desc *work_cri_desc, short instantiated_row_atp_index,
                    ULng32 encoded_key_len, short encoded_key_work_atp_index, ex_expr *pre_join_expr,
                    ex_expr *post_join_expr, queue_index down, queue_index up, Cardinality estimatedRowCount,
-                   Lng32 num_buffers, ULng32 buffer_size, Int32 semi_join, Int32 left_join, Int32 anti_semi_join,
+                   int num_buffers, ULng32 buffer_size, Int32 semi_join, Int32 left_join, Int32 anti_semi_join,
                    NABoolean left_is_unique, NABoolean right_is_unique, bool isOverflowEnabled,
                    UInt16 scratchThresholdPct, UInt16 quotaMB, UInt16 quotaPct, bool yieldQuota)
     : ComTdb(ComTdb::ex_MJ, eye_MJ, estimatedRowCount, given_cri_desc, returned_cri_desc, down, up, num_buffers,
@@ -118,7 +118,7 @@ Long ComTdbMj::pack(void *space) {
   return ComTdb::pack(space);
 }
 
-Lng32 ComTdbMj::unpack(void *base, void *reallocator) {
+int ComTdbMj::unpack(void *base, void *reallocator) {
   if (workCriDesc_.unpack(base, reallocator)) return -1;
   if (tdbLeft_.unpack(base, reallocator)) return -1;
   if (tdbRight_.unpack(base, reallocator)) return -1;

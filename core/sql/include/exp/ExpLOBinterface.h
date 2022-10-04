@@ -21,12 +21,12 @@ class HdfsFileInfo {
   char *fileName() { return fileName_; }
 
   // used for text/seq file access
-  Int64 getStartOffset() { return startOffset_; }
-  Int64 getBytesToRead() { return bytesToRead_; }
+  long getStartOffset() { return startOffset_; }
+  long getBytesToRead() { return bytesToRead_; }
 
   // used for ORC access
-  Int64 getStartRow() { return startOffset_; }
-  Int64 getNumRows() { return bytesToRead_; }
+  long getStartRow() { return startOffset_; }
+  long getNumRows() { return bytesToRead_; }
 
   // used for partitioned Hive tables
   const char *getPartColValues() const { return partColValues_; }
@@ -34,7 +34,7 @@ class HdfsFileInfo {
 
   Int16 getCompressionMethod() const { return compressionMethod_; }
 
-  Lng32 getFlags() { return flags_; }
+  int getFlags() { return flags_; }
 
   void setFileIsLocal(NABoolean v) { (v ? flags_ |= HDFSFILEFLAGS_LOCAL : flags_ &= ~HDFSFILEFLAGS_LOCAL); };
   NABoolean fileIsLocal() { return (flags_ & HDFSFILEFLAGS_LOCAL) != 0; };
@@ -48,22 +48,22 @@ class HdfsFileInfo {
   NABoolean fileIsSplitEnd() { return (flags_ & HDFSFILE_IS_SPLIT_END) != 0; };
 
   char *getSplitUnitBlockLocations() { return splitUnitBlockLocations_; };
-  Lng32 getHdfsBlockNb() { return hdfsBlockNb_; };
+  int getHdfsBlockNb() { return hdfsBlockNb_; };
 
   enum HdfsFileInfoFlags {
     HDFSFILEFLAGS_LOCAL = 0x0001,
     HDFSFILE_IS_SPLIT_BEGIN = 0x0002,
     HDFSFILE_IS_SPLIT_END = 0x0004
   };
-  Lng32 entryNum_;  // 0 based, first entry is entry num 0.
-  Lng32 flags_;
+  int entryNum_;  // 0 based, first entry is entry num 0.
+  int flags_;
   NABasicPtr fileName_;
-  Int64 startOffset_;
-  Int64 bytesToRead_;
+  long startOffset_;
+  long bytesToRead_;
   NABasicPtr partColValues_;
   Int16 compressionTypeIx_;
   Int16 compressionMethod_;
-  Lng32 hdfsBlockNb_;                   // used by StrawScan feature
+  int hdfsBlockNb_;                   // used by StrawScan feature
   NABasicPtr splitUnitBlockLocations_;  // best hdfs block node index locations stored as string blank separated.
                                         // If stripe span accross multiple block, pick the one is biggest percentage of
                                         // file used by straw scan feature.
@@ -74,15 +74,15 @@ typedef NAArray<HdfsFileInfoPtr> HdfsFileInfoArray;
 
 class HdfsColInfo {
  public:
-  HdfsColInfo(char *cname, Lng32 cnum, Lng32 ctype) : colName_(cname), colNum_(cnum), colType_(ctype) {}
+  HdfsColInfo(char *cname, int cnum, int ctype) : colName_(cname), colNum_(cnum), colType_(ctype) {}
 
   char *colName() { return colName_; }
-  Lng32 colNumber() { return colNum_; }
-  Lng32 colType() { return colType_; }
+  int colNumber() { return colNum_; }
+  int colType() { return colType_; }
 
-  Lng32 getFlags() { return flags_; }
+  int getFlags() { return flags_; }
 
-  Lng32 colNum_;   // 0 based. Number of first col in file is 0.
+  int colNum_;   // 0 based. Number of first col in file is 0.
   Int16 colType_;  // enum HiveProtoTypeKind defined in common/ComSmallDefs.h
   Int16 flags_;
   NABasicPtr colName_;
@@ -99,6 +99,6 @@ enum ExpLOBinterfaceInputFlags {
   ERROR_IF_TGT_FILE_EXISTS_ = 0x0004
 };
 
-char *getLobErrStr(Lng32 errEnum);
+char *getLobErrStr(int errEnum);
 
 #endif

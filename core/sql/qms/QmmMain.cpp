@@ -52,7 +52,7 @@ DEFINE_DOVERS(tdm_arkqmm)
 using namespace QR;
 
 #define XML_BUFF_SIZE 32768
-static NAHeap qmmHeap("QMM Heap", NAMemory::DERIVED_FROM_SYS_HEAP, (Lng32)131072);
+static NAHeap qmmHeap("QMM Heap", NAMemory::DERIVED_FROM_SYS_HEAP, (int)131072);
 
 /**
  * Reads command-line arguments passed to QMM. Returns the selected values for
@@ -144,7 +144,7 @@ Int32 main(Int32 argc, char *argv[]) {
     exit(1);
   }
 
-  Lng32 result = 0;
+  int result = 0;
 
   QRLogger::instance().setModule(QRLogger::QRL_QMM);
   QRLogger::instance().initLog4cplus("log4cplus.qmm.config");

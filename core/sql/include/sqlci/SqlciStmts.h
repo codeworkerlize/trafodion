@@ -83,23 +83,23 @@ class InputStmt;
 class SqlciStmts {
   StmtEntry *First;
   StmtEntry *Last;
-  Lng32 last_stmt_num;
-  Lng32 max_entries;
+  int last_stmt_num;
+  int max_entries;
 
  public:
-  SqlciStmts(Lng32 max_entries_);
+  SqlciStmts(int max_entries_);
   ~SqlciStmts();
   void add(InputStmt *input_stmt_);
-  void display(Lng32 num_stmts_) const;
-  InputStmt *get(Lng32 stmt_num_) const;
+  void display(int num_stmts_) const;
+  InputStmt *get(int stmt_num_) const;
   InputStmt *get(char *stmt_) const;
   InputStmt *get() const;  // gets last statement
   void remove();           // removes last statement
-  Lng32 last_stmt() const { return last_stmt_num; }
+  int last_stmt() const { return last_stmt_num; }
 };
 
 class StmtEntry {
-  Lng32 stmt_num;
+  int stmt_num;
   InputStmt *input_stmt;
   StmtEntry *next;
   StmtEntry *prev;
@@ -108,8 +108,8 @@ class StmtEntry {
   StmtEntry();
   ~StmtEntry();
   void disconnect();
-  void set(Lng32 stmt_num_, InputStmt *input_stmt_);
-  inline Lng32 getStmtNum() const { return stmt_num; }
+  void set(int stmt_num_, InputStmt *input_stmt_);
+  inline int getStmtNum() const { return stmt_num; }
   inline InputStmt *getInputStmt() const { return input_stmt; }
   inline StmtEntry *getNext() const { return next; }
   inline StmtEntry *getPrev() const { return prev; }

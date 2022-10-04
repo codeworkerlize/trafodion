@@ -63,7 +63,7 @@ ex_expr::exp_return_type ex_function_trim_doublebyte::processNulls(char *op_data
 
 ex_expr::exp_return_type ex_function_trim_doublebyte::eval(char *op_data[], CollHeap *heap, ComDiagsArea **diagsArea) {
   // find out the length of trim character.
-  Lng32 len1 = (getOperand(1)->getLength(op_data[-MAX_OPERANDS + 1])) / sizeof(NAWchar);
+  int len1 = (getOperand(1)->getLength(op_data[-MAX_OPERANDS + 1])) / sizeof(NAWchar);
 
   // len1 (length of trim character) must be 1. Raise an exception if greater
   // than 1.
@@ -72,12 +72,12 @@ ex_expr::exp_return_type ex_function_trim_doublebyte::eval(char *op_data[], Coll
     return ex_expr::EXPR_ERROR;
   }
 
-  Lng32 len2 = (getOperand(2)->getLength(op_data[-MAX_OPERANDS + 2])) / sizeof(NAWchar);
+  int len2 = (getOperand(2)->getLength(op_data[-MAX_OPERANDS + 2])) / sizeof(NAWchar);
 
   // Find how many leading characters in operand 2 correspond to the trim
   // character.
-  Lng32 len0 = len2;
-  Lng32 start = 0;
+  int len0 = len2;
+  int start = 0;
 
   NAWchar trimNChar = *((NAWchar *)op_data[1]);
   NAWchar *trimSource = (NAWchar *)op_data[2];
@@ -92,7 +92,7 @@ ex_expr::exp_return_type ex_function_trim_doublebyte::eval(char *op_data[], Coll
 
   // Find how many trailing characters in operand 2 correspond to the trim
   // character.
-  Lng32 end = len2;
+  int end = len2;
   if ((getTrimMode() == 0) || (getTrimMode() == 2))
     while ((end > (start)) &&
            //(op_data[1][0] == op_data[2][end-1])

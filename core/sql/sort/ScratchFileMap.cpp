@@ -200,8 +200,8 @@ ScratchFile *ScratchFileMap::createNewScrFile(ScratchSpace *scratchSpace, Int32 
   return tempFileMap->scrFile_;
 }
 
-Lng32 ScratchFileMap::totalNumOfReads() {
-  Lng32 totalReads = 0L;
+int ScratchFileMap::totalNumOfReads() {
+  int totalReads = 0L;
   short i = 0;
 
   for (i = 0; i < numScratchFiles_; i++) {
@@ -210,8 +210,8 @@ Lng32 ScratchFileMap::totalNumOfReads() {
   return totalReads;
 }
 
-Lng32 ScratchFileMap::totalNumOfWrites() {
-  Lng32 totalWrites = 0L;
+int ScratchFileMap::totalNumOfWrites() {
+  int totalWrites = 0L;
   short i = 0;
 
   for (i = 0; i < numScratchFiles_; i++) {
@@ -231,7 +231,7 @@ Lng32 ScratchFileMap::totalNumOfWrites() {
 // Return Value : Pointer to the scratch file object.
 //                NULL if unsuccessful.
 //-----------------------------------------------------------------------
-ScratchFile *ScratchFileMap::mapBlockNumToScrFile(SBN blockNum, Lng32 &blockOffset) {
+ScratchFile *ScratchFileMap::mapBlockNumToScrFile(SBN blockNum, int &blockOffset) {
   ex_assert(blockNum > 0, "ScratchFileMap::mapBlockNumToScrFile, blockNum <= 0");
 
   Int32 i = 0;
@@ -287,8 +287,8 @@ SBN ScratchFileMap::getFirstScrBlockNum(ScratchFile *scr) {
   return -1;  // cannot find the scr file info
 }
 
-Lng32 ScratchFileMap::totalNumOfAwaitio() {
-  Lng32 totalAwaitio = 0L;
+int ScratchFileMap::totalNumOfAwaitio() {
+  int totalAwaitio = 0L;
   short i = 0;
   for (i = 0; i < numScratchFiles_; i++) {
     if (fileMap_[i].scrFile_ != NULL) totalAwaitio += fileMap_[i].scrFile_->getNumOfAwaitio();

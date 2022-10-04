@@ -52,7 +52,7 @@
 //	Constructor and destructor of CRURefreshTask
 //---------------------------------------------------------------//
 
-CRURefreshTask::CRURefreshTask(Lng32 id, CRUMV &mv) : inherited(id), rootMV_(mv), mvList_(eItemsArentOwned) {
+CRURefreshTask::CRURefreshTask(int id, CRUMV &mv) : inherited(id), rootMV_(mv), mvList_(eItemsArentOwned) {
   // Somewhat ugly, but CRUMVList can handle only pointers
   mvList_.AddTail(&mv);
 }

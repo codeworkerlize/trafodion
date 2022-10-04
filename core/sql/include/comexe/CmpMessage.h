@@ -65,7 +65,7 @@ class CmpMessageObj : public IpcMessageObj {
     EXE_CMP_MESSAGE = IPC_MSG_SQLCOMP_LAST
   };
 
-  typedef Int64 ID;
+  typedef long ID;
 
   CmpMessageObj(IpcMessageObjType t = NULL_REQUEST, CollHeap *h = 0);
 
@@ -114,7 +114,7 @@ class CmpMessageObj : public IpcMessageObj {
   // -----------------------------------------------------------------------
 
   IpcMessageObjSize packIntoBuffer(char *&buffer, char *strPtr);
-  IpcMessageObjSize packIntoBuffer(char *&buffer, void *strPtr, Lng32 sz);
+  IpcMessageObjSize packIntoBuffer(char *&buffer, void *strPtr, int sz);
 
   void unpackBuffer(const char *&buffer, void *&strPtr, CollHeap *h = 0) {
     char *temp = 0;
@@ -130,7 +130,7 @@ class CmpMessageObj : public IpcMessageObj {
   // whole buffer.
   void unpackBuffer(const char *&buffer, char *strPtr, ULng32 maxSize, ULng32 &sizeMoved);
 
-  void advanceSize(IpcMessageObjSize &size, const void *const buffPtr, Lng32 sz = 0) {
+  void advanceSize(IpcMessageObjSize &size, const void *const buffPtr, int sz = 0) {
     const Int32 lenSize = sizeof(CmpMsgBufLenType);
     size += lenSize;
     if (buffPtr != NULL) size += ((sz) ? sz : (str_len((char *)buffPtr) + 1));
@@ -138,17 +138,17 @@ class CmpMessageObj : public IpcMessageObj {
 
   ID id_;
 
-  void advanceSize(IpcMessageObjSize &size, Int64 i64) { size += sizeof(i64); }
+  void advanceSize(IpcMessageObjSize &size, long i64) { size += sizeof(i64); }
 
-  IpcMessageObjSize packIntoBuffer(char *&buffer, Int64 i64) {
-    IpcMessageObjSize sz = sizeof(Int64);
+  IpcMessageObjSize packIntoBuffer(char *&buffer, long i64) {
+    IpcMessageObjSize sz = sizeof(long);
     str_cpy_all((char *)buffer, (char *)&i64, sz);
     buffer += sz;
     return sz;
   }
 
-  void unpackBuffer(const char *&buffer, Int64 &i64) {
-    IpcMessageObjSize sz = sizeof(Int64);
+  void unpackBuffer(const char *&buffer, long &i64) {
+    IpcMessageObjSize sz = sizeof(long);
     str_cpy_all((char *)&i64, (char *)buffer, sz);
     buffer += sz;
   }
@@ -222,16 +222,16 @@ class CmpMessageReplyBasic : public CmpMessageObj {
 // -----------------------------------------------------------------------
 class CmpCompileInfo {
  public:
-  CmpCompileInfo(char *sourceStr, Lng32 sourceStrLen, Lng32 sourceStrCharSet, char *schemaName, Lng32 schemaNameLen,
+  CmpCompileInfo(char *sourceStr, int sourceStrLen, int sourceStrCharSet, char *schemaName, int schemaNameLen,
                  ULng32 inputArrayMaxsize, short rowsetAtomicity);
   CmpCompileInfo();
 
   void init();
 
   short getClassSize() { return (short)sizeof(CmpCompileInfo); }
-  Lng32 getVarLength();
-  Lng32 getLength();
-  void packVars(char *buffer, CmpCompileInfo *ci, Lng32 &nextOffset);
+  int getVarLength();
+  int getLength();
+  void packVars(char *buffer, CmpCompileInfo *ci, int &nextOffset);
   void pack(char *buffer);
   void unpack(char *base);
 
@@ -266,11 +266,11 @@ class CmpCompileInfo {
   NABoolean sentryPrivRecheck() { return (flags_ & SENTRY_PRIV_RECHECK) != 0; }
   void setSentryPrivRecheck(NABoolean v) { (v ? flags_ |= SENTRY_PRIV_RECHECK : flags_ &= ~SENTRY_PRIV_RECHECK); }
 
-  Lng32 getSqlTextLen() const { return sqlTextLen_; }
-  void setSqlTextLen(Lng32 len) { sqlTextLen_ = len; }
+  int getSqlTextLen() const { return sqlTextLen_; }
+  void setSqlTextLen(int len) { sqlTextLen_ = len; }
 
-  Lng32 getSqlTextCharSet() const { return sqlTextCharSet_; }
-  void setSqlTextCharSet(Lng32 cs) { sqlTextCharSet_ = cs; }
+  int getSqlTextCharSet() const { return sqlTextCharSet_; }
+  void setSqlTextCharSet(int cs) { sqlTextCharSet_ = cs; }
 
   NABoolean recompUseNATableCache() { return (flags_ & RECOMP_USE_NATABLE_CACHE) != 0; }
   void setRecompUseNATableCache(NABoolean v) {
@@ -334,22 +334,22 @@ class CmpCompileInfo {
   };
 
   char *sqltext_;             // 00-07
-  Lng32 sqlTextLen_;          // 08-11
-  Lng32 unused_;              // 12-15
+  int sqlTextLen_;          // 08-11
+  int unused_;              // 12-15
   char *schemaName_;          // 16-23
-  Lng32 schemaNameLen_;       // 24-27
-  Lng32 unused2_;             // 28-31
+  int schemaNameLen_;       // 24-27
+  int unused2_;             // 28-31
   ULng32 inputArrayMaxsize_;  // 32-35
   ULng32 flags_;              // 36-39
 
-  Lng32 sqlTextCharSet_;          // 40-43
+  int sqlTextCharSet_;          // 40-43
   char fillerBytes_[FILLERSIZE];  // 44-103
 };
 
 class CmpMessageRequest : public CmpMessageRequestBasic {
  public:
   CmpMessageRequest(MessageTypeEnum e, char *data = NULL, CmpMsgBufLenType size = 0, CollHeap *h = 0,
-                    Lng32 cs = SQLCHARSETCODE_UTF8, const char *parentQid = NULL, Lng32 parentQidLen = 0);
+                    int cs = SQLCHARSETCODE_UTF8, const char *parentQid = NULL, int parentQidLen = 0);
 
   IpcMessageObjSize mypackedLength();
   IpcMessageObjSize packMyself(IpcMessageBufferPtr &buffer);
@@ -366,7 +366,7 @@ class CmpMessageRequest : public CmpMessageRequestBasic {
   void copyToString(char *&dest, CmpMsgBufLenType &sz, char *s, CmpMsgBufLenType sz1);
 
   char *data() const { return data_; }
-  Lng32 charSet() const { return charSet_; }
+  int charSet() const { return charSet_; }
 
   virtual ULng32 getFlags() const { return flags_; }
   virtual void setFlags(ULng32 f) { flags_ = f; }
@@ -377,7 +377,7 @@ class CmpMessageRequest : public CmpMessageRequestBasic {
   CmpMsgBufLenType getSize() const { return sz_; };
 
   inline const char *getParentQid() const { return parentQid_; }
-  inline Lng32 getParentQidLen() const { return parentQidLen_; }
+  inline int getParentQidLen() const { return parentQidLen_; }
   CmpCompileInfo *getCmpCompileInfo() const { return (CmpCompileInfo *)data(); };
 
  private:
@@ -387,8 +387,8 @@ class CmpMessageRequest : public CmpMessageRequestBasic {
   char *data_;
   CmpMsgBufLenType sz_;
   ULng32 flags_;
-  Lng32 charSet_;  // sender's character set
-  Lng32 parentQidLen_;
+  int charSet_;  // sender's character set
+  int parentQidLen_;
   const char *parentQid_;
   NABoolean allocated_;
 };  // end of CmpMessageRequest
@@ -421,7 +421,7 @@ class CmpMessageReply : public CmpMessageReplyBasic {
 
   CollHeap *outHeap() { return outh_; }
 
-  Lng32 getSize() const { return sz_; }
+  int getSize() const { return sz_; }
   char *getData() const { return data_; }
   char *takeData() {
     dataAllocated_ = FALSE;
@@ -528,11 +528,11 @@ class CmpMessageEnvs : public CmpMessageObj {
     unpackMyself(objType, objVersion, sameEndianness, objSize, buffer);
   }
 
-  Lng32 nEnvs() const { return nEnvs_; }
+  int nEnvs() const { return nEnvs_; }
   char **envs() const { return envs_; }
   char *cwd() const { return cwd_; }
   NABoolean activeTrans() const { return activeTrans_ == 1; }
-  Int64 transId() const { return transId_; }
+  long transId() const { return transId_; }
   EnvsOperatorEnum getOperator() const { return operator_; }
 
   virtual void destroyMe();
@@ -547,7 +547,7 @@ class CmpMessageEnvs : public CmpMessageObj {
   // Information sent to arkcmp from executor, these info need to be in synch with
   // executor.
   // envs_ is a null terminated array of string which is also null terminated
-  Lng32 nEnvs_;
+  int nEnvs_;
   char **envs_;
 
   // current working directory.
@@ -555,8 +555,8 @@ class CmpMessageEnvs : public CmpMessageObj {
 
   // for EXGLOBALS operator. It will pass the globals executor wants to share with
   // compiler (arkcmp).
-  Lng32 activeTrans_;  // 0 if not. 1 if yes, transId_ then contains valid info
-  Int64 transId_;
+  int activeTrans_;  // 0 if not. 1 if yes, transId_ then contains valid info
+  long transId_;
 
 };  // end of CmpMessageEnvs
 
@@ -572,7 +572,7 @@ class CmpMessageEndSession : public CmpMessageRequest {
   CmpMessageEndSession(char *input_data, CmpMsgBufLenType size, CollHeap *h = 0)
       : CmpMessageRequest(END_SESSION, NULL, 0, h), flags_(0) {
     if (input_data) {
-      Lng32 flags = *(Lng32 *)input_data;
+      int flags = *(int *)input_data;
       setCleanupEsps((flags & CLEANUP_ESPS) != 0);
       setResetAttrs((flags & RESET_ATTRS) != 0);
     }
@@ -617,7 +617,7 @@ class CmpMessageEndSession : public CmpMessageRequest {
 class CmpMessageSQLText : public CmpMessageRequest {
  public:
   CmpMessageSQLText(char *sqltext = NULL, CmpMsgBufLenType size = 0, CollHeap *h = 0,
-                    Lng32 charset = SQLCHARSETCODE_UTF8, MessageTypeEnum op = SQLTEXT_COMPILE)
+                    int charset = SQLCHARSETCODE_UTF8, MessageTypeEnum op = SQLTEXT_COMPILE)
       : CmpMessageRequest(op, sqltext, size, h, charset){};
 
   virtual ~CmpMessageSQLText(){};
@@ -634,11 +634,11 @@ class CmpMessageSQLText : public CmpMessageRequest {
 class CmpMessageCompileStmt : public CmpMessageRequest {
  public:
   CmpMessageCompileStmt(char *sqltext = NULL, CmpMsgBufLenType size = 0, CollHeap *h = 0,
-                        Lng32 cs = SQLCHARSETCODE_UTF8)
+                        int cs = SQLCHARSETCODE_UTF8)
       : CmpMessageRequest(SQLTEXT_STATIC_COMPILE, sqltext, size, h, cs){};
 
   CmpMessageCompileStmt(char *sqltext, CmpMsgBufLenType size, MessageTypeEnum op, CollHeap *h = 0,
-                        Lng32 cs = SQLCHARSETCODE_UTF8)
+                        int cs = SQLCHARSETCODE_UTF8)
       : CmpMessageRequest(op, sqltext, size, h, cs){};
 
   virtual ~CmpMessageCompileStmt(){};
@@ -654,8 +654,8 @@ class CmpMessageCompileStmt : public CmpMessageRequest {
 
 class CmpMessageDDL : public CmpMessageRequest {
  public:
-  CmpMessageDDL(char *stmt = NULL, CmpMsgBufLenType size = 0, CollHeap *h = 0, Lng32 charset = SQLCHARSETCODE_UTF8,
-                const char *parentQid = NULL, Lng32 parentQidLen = 0)
+  CmpMessageDDL(char *stmt = NULL, CmpMsgBufLenType size = 0, CollHeap *h = 0, int charset = SQLCHARSETCODE_UTF8,
+                const char *parentQid = NULL, int parentQidLen = 0)
       : CmpMessageRequest(DDL, stmt, size, h, charset, parentQid, parentQidLen){};
 
   virtual ~CmpMessageDDL(){};
@@ -694,11 +694,11 @@ class CmpDDLwithStatusInfo : public CmpCompileInfo {
  public:
   CmpDDLwithStatusInfo();
 
-  CmpDDLwithStatusInfo(char *sourceStr, Lng32 sourceStrLen, Lng32 sourceStrCharSet, char *schemaName,
-                       Lng32 schemaNameLen);
+  CmpDDLwithStatusInfo(char *sourceStr, int sourceStrLen, int sourceStrCharSet, char *schemaName,
+                       int schemaNameLen);
 
   short getClassSize() { return (short)sizeof(CmpDDLwithStatusInfo); }
-  Lng32 getLength();
+  int getLength();
   void pack(char *buffer);
   void unpack(char *base);
 
@@ -758,40 +758,40 @@ class CmpDDLwithStatusInfo : public CmpCompileInfo {
   }
 
   char *msg() { return msg_; }
-  Lng32 msgLen() { return msgLen_; }
+  int msgLen() { return msgLen_; }
 
-  Lng32 &step() { return step_; }
-  Lng32 &subStep() { return substep_; }
+  int &step() { return step_; }
+  int &subStep() { return substep_; }
 
-  void setStep(Lng32 step) { step_ = step; }
-  void setSubstep(Lng32 substep) { substep_ = substep; }
+  void setStep(int step) { step_ = step; }
+  void setSubstep(int substep) { substep_ = substep; }
 
   Int32 myPin() { return myPin_; }
   void setMyPin(Int32 myPin) { myPin_ = myPin; }
 
-  Lng32 blackBoxLen() { return blackBoxLen_; }
+  int blackBoxLen() { return blackBoxLen_; }
   char *blackBox() { return blackBox_; }
-  void setBlackBoxLen(Lng32 v) { blackBoxLen_ = v; }
+  void setBlackBoxLen(int v) { blackBoxLen_ = v; }
   void setBlackBox(char *v) { blackBox_ = v; }
 
  private:
-  Lng32 step_;
-  Lng32 substep_;
+  int step_;
+  int substep_;
   UInt32 statusFlags_;
-  Lng32 msgLen_;
+  int msgLen_;
   char msg_[512];
   Int32 myPin_;
 
   // black box data that can be sent and received. Contents are interpreted
   // based on the query that is being processed.
-  Lng32 blackBoxLen_;
+  int blackBoxLen_;
   char *blackBox_;
 };
 
 class CmpMessageDDLwithStatus : public CmpMessageRequest {
  public:
-  CmpMessageDDLwithStatus(char *stmt, CmpMsgBufLenType size, CollHeap *h = 0, Lng32 charset = SQLCHARSETCODE_UTF8,
-                          const char *parentQid = NULL, Lng32 parentQidLen = 0)
+  CmpMessageDDLwithStatus(char *stmt, CmpMsgBufLenType size, CollHeap *h = 0, int charset = SQLCHARSETCODE_UTF8,
+                          const char *parentQid = NULL, int parentQidLen = 0)
       : CmpMessageRequest(DDL_WITH_STATUS, stmt, size, h, charset, parentQid, parentQidLen){};
 
   virtual ~CmpMessageDDLwithStatus(){};
@@ -810,7 +810,7 @@ class CmpMessageDDLwithStatus : public CmpMessageRequest {
 
 class CmpMessageDescribe : public CmpMessageRequest {
  public:
-  CmpMessageDescribe(char *stmt = NULL, CmpMsgBufLenType size = 0, CollHeap *h = 0, Lng32 charset = SQLCHARSETCODE_UTF8)
+  CmpMessageDescribe(char *stmt = NULL, CmpMsgBufLenType size = 0, CollHeap *h = 0, int charset = SQLCHARSETCODE_UTF8)
       : CmpMessageRequest(DESCRIBE, stmt, size, h, charset){};
 
   virtual ~CmpMessageDescribe(){};
@@ -826,7 +826,7 @@ class CmpMessageDescribe : public CmpMessageRequest {
 
 class CmpMessageUpdateHist : public CmpMessageRequest {
  public:
-  CmpMessageUpdateHist(char *stmt = 0, CmpMsgBufLenType size = 0, CollHeap *h = 0, Lng32 charset = SQLCHARSETCODE_UTF8)
+  CmpMessageUpdateHist(char *stmt = 0, CmpMsgBufLenType size = 0, CollHeap *h = 0, int charset = SQLCHARSETCODE_UTF8)
       : CmpMessageRequest(UPDATE_HIST_STAT, stmt, size, h, charset) {}
   virtual ~CmpMessageUpdateHist() {}
 };  // end of CmpMessageUpdateHist
@@ -834,8 +834,8 @@ class CmpMessageUpdateHist : public CmpMessageRequest {
 class CmpMessageMFStmt : public CmpMessageObj {};  // end of CmpMessageMFStmt
 
 typedef struct CmpMessageXnOperData {
-  Lng32 type;
-  Int64 svptId;
+  int type;
+  long svptId;
 } CmpMessageXnOperData;
 
 // -----------------------------------------------------------------------
@@ -997,7 +997,7 @@ class CmpMessageISPRequest : public CmpMessageRequest {
   CmpMessageISPRequest(char *procName = 0, void *inputExpr = 0, ULng32 inputExprSize = 0, void *outputExpr = 0,
                        ULng32 outputExprSize = 0, void *keyExpr = 0, ULng32 keyExprSize = 0, void *inputData = 0,
                        ULng32 inputDataSize = 0, ULng32 ouputRowSize = 0, ULng32 outputTotalSize = 0, CollHeap *h = 0,
-                       const char *parentQid = NULL, Lng32 parentQidLen = 0);
+                       const char *parentQid = NULL, int parentQidLen = 0);
 
   virtual ~CmpMessageISPRequest();
 
@@ -1081,8 +1081,8 @@ class CmpMessageISPRequest : public CmpMessageRequest {
 
 class CmpMessageISPGetNext : public CmpMessageRequest {
  public:
-  CmpMessageISPGetNext(ULng32 bufSize = 0, ID ispRequest = 0, Lng32 serialNo = 0, CollHeap *h = 0,
-                       const char *parentQid = NULL, Lng32 parentQidLen = 0);
+  CmpMessageISPGetNext(ULng32 bufSize = 0, ID ispRequest = 0, int serialNo = 0, CollHeap *h = 0,
+                       const char *parentQid = NULL, int parentQidLen = 0);
   virtual ~CmpMessageISPGetNext();
 
   IpcMessageObjSize mypackedLength();
@@ -1107,7 +1107,7 @@ class CmpMessageISPGetNext : public CmpMessageRequest {
   // members
   ULng32 bufSize_;
   ID ispRequest_;
-  Lng32 serialNo_;
+  int serialNo_;
 };
 
 // -----------------------------------------------------------------------
@@ -1145,7 +1145,7 @@ class CmpMessageReplyISP : public CmpMessageReply {
   CmpMessageReplyISP(const CmpMessageReplyISP &);
 
   // 0 if there is more data to be fetched, 1 if there is no more.
-  Lng32 areMore_;
+  int areMore_;
 };  // end of CmpMessageReplyISP
 
 // -----------------------------------------------------------------------

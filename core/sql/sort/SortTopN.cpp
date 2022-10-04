@@ -59,7 +59,7 @@
 //------------------------------------------------------------------------
 SortTopN::SortTopN(ULng32 runsize, ULng32 sortmaxmem, ULng32 recsize, NABoolean doNotallocRec, ULng32 keysize,
                    SortScratchSpace *scratch, NABoolean iterSort, CollHeap *heap, SortError *sorterror,
-                   Lng32 explainNodeId, ExBMOStats *bmoStats, SortUtil *sortutil)
+                   int explainNodeId, ExBMOStats *bmoStats, SortUtil *sortutil)
     : SortAlgo(runsize, recsize, doNotallocRec, keysize, scratch, explainNodeId, bmoStats),
       loopIndex_(0),
       heap_(heap),
@@ -97,7 +97,7 @@ SortTopN::~SortTopN(void) {
   if (bmoStats_) bmoStats_->updateBMOHeapUsage((NAHeap *)heap_);
 }
 
-Lng32 SortTopN::sortSend(void *rec, ULng32 len, void *tupp) {
+int SortTopN::sortSend(void *rec, ULng32 len, void *tupp) {
   // if heap not built means, TopN array has more slots
   // available to fill.
   if (!isHeapified_) {
@@ -174,8 +174,8 @@ void SortTopN::insertRec(void *rec, ULng32 len, void *tupp) {
   NADELETEBASIC(insertRecKey_.rec_, heap_);
 }
 
-Lng32 SortTopN::sortSendEnd() {
-  Lng32 retcode = SORT_SUCCESS;
+int SortTopN::sortSendEnd() {
+  int retcode = SORT_SUCCESS;
   ex_assert(loopIndex_ >= 0, "TopN::sortSendEnd: loopIndex_ is < 0");
 
   buildHeap();
@@ -200,12 +200,12 @@ void SortTopN::sortHeap() {
   }
 }
 
-Lng32 SortTopN::sortReceive(void *rec, ULng32 &len) {
+int SortTopN::sortReceive(void *rec, ULng32 &len) {
   // This method applicable to overflow records only
   return SORT_FAILURE;
 }
 
-Lng32 SortTopN::sortReceive(void *&rec, ULng32 &len, void *&tupp) {
+int SortTopN::sortReceive(void *&rec, ULng32 &len, void *&tupp) {
   if (recNum_ < runSize_) {
     topNKeys_[recNum_].rec_->getRecordTupp(rec, recSize_, tupp);
     len = recSize_;
@@ -227,8 +227,8 @@ Lng32 SortTopN::sortReceive(void *&rec, ULng32 &len, void *&tupp) {
 //
 //
 //----------------------------------------------------------------------
-void SortTopN::siftDown(RecKeyBuffer keysToSort[], Int64 root, Int64 bottom) {
-  Int64 done, maxChild;
+void SortTopN::siftDown(RecKeyBuffer keysToSort[], long root, long bottom) {
+  long done, maxChild;
 
   done = 0;
   while ((root * 2 <= bottom) && (!done)) {

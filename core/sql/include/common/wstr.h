@@ -92,6 +92,6 @@ inline void wc_swap_bytes(NAWchar *str, Int32 length) {
   }
 }
 
-Int32 na_wstr_cpy_convert(NAWchar *tgt, NAWchar *src, Lng32 length, Int32 upshift);
+Int32 na_wstr_cpy_convert(NAWchar *tgt, NAWchar *src, int length, Int32 upshift);
 
 #endif

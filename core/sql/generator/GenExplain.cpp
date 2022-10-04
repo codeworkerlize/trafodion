@@ -151,7 +151,7 @@ ExplainTuple *RelExpr::addExplainInfo(ComTdb *tdb, ExplainTuple *leftChild, Expl
 
   ExplainTupleMaster *explainTuple = (ExplainTupleMaster *)new (space) ExplainTuple(leftChild, rightChild, explainDesc);
 
-  Lng32 explainNodeId = generator->getNextExplainNodeId();
+  int explainNodeId = generator->getNextExplainNodeId();
 
   NAString operText(getText());
   size_t blankIndex = operText.index(" ");
@@ -305,7 +305,7 @@ ExplainTuple *RelExpr::addExplainInfo(ComTdb *tdb, ExplainTuple *leftChild, Expl
       break;
 
     case ComTdb::ex_MJ: {
-      Lng32 mjqp = defs.getAsLong(MJ_BMO_QUOTA_PERCENT);
+      int mjqp = defs.getAsLong(MJ_BMO_QUOTA_PERCENT);
       if (mjqp != 0) {
         sprintf(buf, memory_quota_str, ((ComTdbMj *)tdb)->getQuotaMB());
         fragdescr += buf;
@@ -589,11 +589,11 @@ static void appendListOfColumns(Queue *listOfColNames, ComTdb *tdb, NAString &ou
     char buf[1000];
 
     listOfColNames->position();
-    for (Lng32 j = 0; j < listOfColNames->numEntries(); j++) {
+    for (int j = 0; j < listOfColNames->numEntries(); j++) {
       char *currPtr = (char *)listOfColNames->getCurr();
 
-      Lng32 currPos = 0;
-      Lng32 jj = 0;
+      int currPos = 0;
+      int jj = 0;
       short colNameLen = *(short *)currPtr;
       currPos += sizeof(short);
       char colFam[100];
@@ -614,12 +614,12 @@ static void appendListOfColumns(Queue *listOfColNames, ComTdb *tdb, NAString &ou
         withAt = TRUE;
       }
 
-      Int64 v;
+      long v;
       if (colNameLen == sizeof(char))
         v = *(char *)colName;
       else if (colNameLen == sizeof(unsigned short))
         v = *(UInt16 *)colName;
-      else if (colNameLen == sizeof(Lng32))
+      else if (colNameLen == sizeof(int))
         v = *(ULng32 *)colName;
       else
         v = 0;
@@ -637,12 +637,12 @@ static void appendListOfColumns(Queue *listOfColNames, ComTdb *tdb, NAString &ou
     char buf[1000];
 
     listOfColNames->position();
-    for (Lng32 j = 0; j < listOfColNames->numEntries(); j++) {
+    for (int j = 0; j < listOfColNames->numEntries(); j++) {
       char *currPtr = (char *)listOfColNames->getCurr();
 
       char *colNamePtr = NULL;
 
-      Lng32 currPos = 0;
+      int currPos = 0;
       short colNameLen = *(short *)currPtr;
       currPos += sizeof(short);
       char colName[500];
@@ -673,15 +673,15 @@ static void appendPushedDownExpression(ComTdb *tdb, NAString &outNAString) {
   reversePolishItems->position();
   pushedDownColumns->position();
 
-  for (Lng32 j = 0; j < reversePolishItems->numEntries(); j++) {
+  for (int j = 0; j < reversePolishItems->numEntries(); j++) {
     char *currPtr = (char *)reversePolishItems->getCurr();
     char buf2[1000];
     if (strcmp(currPtr, "V2") != 0 && strcmp(currPtr, "AND") != 0 &&
         strcmp(currPtr, "OR") != 0) {  // if an operand (not an operator or V2 marker), get the column name
       if (((ComTdbHbaseAccess *)tdb)->sqHbaseTable()) {  // if trafodion table
         char *currPtr2 = (char *)pushedDownColumns->getCurr();
-        Lng32 currPos = 0;
-        Lng32 jj = 0;
+        int currPos = 0;
+        int jj = 0;
         short colNameLen = *(short *)currPtr2;
         currPos += sizeof(short);
         char colFam[100];
@@ -701,12 +701,12 @@ static void appendPushedDownExpression(ComTdb *tdb, NAString &outNAString) {
           colName++;
           withAt = TRUE;
         }
-        Int64 v;
+        long v;
         if (colNameLen == sizeof(char))
           v = *(char *)colName;
         else if (colNameLen == sizeof(unsigned short))
           v = *(UInt16 *)colName;
-        else if (colNameLen == sizeof(Lng32))
+        else if (colNameLen == sizeof(int))
           v = *(ULng32 *)colName;
         else
           v = 0;
@@ -715,7 +715,7 @@ static void appendPushedDownExpression(ComTdb *tdb, NAString &outNAString) {
       } else {  // native hbase table
         char *currPtr2 = (char *)pushedDownColumns->getCurr();
         char *colNamePtr1 = NULL;
-        Lng32 currPos = 0;
+        int currPos = 0;
         short colNameLen = *(short *)currPtr2;
         currPos += sizeof(short);
         char colName[500];
@@ -1266,7 +1266,7 @@ ExplainTuple *RelRoot::addSpecificExplainInfo(ExplainTupleMaster *explainTuple, 
   ULng32 mlimit = defs.getAsLong(BMO_MEMORY_LIMIT_PER_NODE_IN_MB);
 
   if (mlimit == 0 && rootTdb->getQueryCostInfo()) {
-    Lng32 memEst = (Lng32)rootTdb->getQueryCostInfo()->totalMem();
+    int memEst = (int)rootTdb->getQueryCostInfo()->totalMem();
     if (memEst > 0) {
       statement += "est_memory_per_cpu: ";
       char estMemVal[11];
@@ -1332,7 +1332,7 @@ ExplainTuple *RelRoot::addSpecificExplainInfo(ExplainTupleMaster *explainTuple, 
     statement += "xn_access_mode: read_only ";
   }
 
-  Lng32 autoabort_in_seconds = rootTdb->getTransMode()->getAutoAbortIntervalInSeconds();
+  int autoabort_in_seconds = rootTdb->getTransMode()->getAutoAbortIntervalInSeconds();
   if (autoabort_in_seconds == -2) autoabort_in_seconds = 0;
   if (autoabort_in_seconds == -3) autoabort_in_seconds = -1;
 
@@ -1498,14 +1498,14 @@ ExplainTuple *RelRoot::addSpecificExplainInfo(ExplainTupleMaster *explainTuple, 
       char sikOperationLit[8];
       ComQIActionTypeEnumToLiteral(sikValue[i].getSecurityKeyType(), sikOperationLit);
       sikOperationLit[2] = '\0';
-      str_sprintf(buf, "{%ld,%ld,%s}", (Int64)sikValue[i].getSubjectHashValue(),
-                  (Int64)sikValue[i].getObjectHashValue(), sikOperationLit);
+      str_sprintf(buf, "{%ld,%ld,%s}", (long)sikValue[i].getSubjectHashValue(),
+                  (long)sikValue[i].getObjectHashValue(), sikOperationLit);
       statement += buf;
     }
     statement += " ";
   }
 
-  const Int64 *objectUIDs = rootTdb->getObjectUIDs();
+  const long *objectUIDs = rootTdb->getObjectUIDs();
   if (objectUIDs) {
     char buf[64];
     str_sprintf(buf, "ObjectUIDs: %ld", objectUIDs[0]);
@@ -1527,8 +1527,8 @@ ExplainTuple *RelRoot::addSpecificExplainInfo(ExplainTupleMaster *explainTuple, 
 // partition access.  These node define process boundaries and always
 // have a top and bottom partitioning function
 ExplainTuple *Exchange::addSpecificExplainInfo(ExplainTupleMaster *explainTuple, ComTdb *tdb, Generator *generator) {
-  Lng32 topPCount;  // save count of partitions here (parent)
-  Lng32 botPCount;  // save count of partitions below (child)
+  int topPCount;  // save count of partitions here (parent)
+  int botPCount;  // save count of partitions below (child)
   const PartitioningFunction *topPFuncPtr = getTopPartitioningFunction();
   const PartitioningFunction *botPFuncPtr = getBottomPartitioningFunction();
   NAString description = "";  // output string initialization
@@ -1842,7 +1842,7 @@ ExplainTuple *ExeUtilWnrInsert::addSpecificExplainInfo(ExplainTupleMaster *expla
 
 ExplainTuple *ExeUtilCreateTableAs::addSpecificExplainInfo(ExplainTupleMaster *explainTuple, ComTdb *tdb,
                                                            Generator *generator) {
-  Lng32 maxBufLen = 2000;
+  int maxBufLen = 2000;
   maxBufLen = MAXOF(maxBufLen, ctQuery_.length());
   maxBufLen = MAXOF(maxBufLen, siQuery_.length());
   maxBufLen = MAXOF(maxBufLen, viQuery_.length());
@@ -1908,7 +1908,7 @@ TrafDesc *ExplainFunc::createVirtualTableDesc() {
   Int32 colnumber = ComTdbExplain::getVirtTableNumCols();
   ComTdbVirtTableColumnInfo *vtci = ComTdbExplain::getVirtTableColumnInfo();
 
-  Lng32 descLen = (Lng32)CmpCommon::getDefaultNumeric(EXPLAIN_DESCRIPTION_COLUMN_SIZE);
+  int descLen = (int)CmpCommon::getDefaultNumeric(EXPLAIN_DESCRIPTION_COLUMN_SIZE);
   if (descLen > 0)  // explicitly specified, use it
     vtci[EXPLAIN_DESCRIPTION_INDEX].length = descLen;
   else if (CmpCommon::getDefault(EXPLAIN_SPACE_OPT) == DF_OFF) {
@@ -1925,11 +1925,11 @@ TrafDesc *ExplainFunc::createVirtualTableDesc() {
   //  CMPASSERT(colnumber == 14 && offset == 3492);  // Sanity check
   tableDesc->tableDesc()->columns_desc = columnDesc;
   tableDesc->tableDesc()->colcount = colnumber;
-  tableDesc->tableDesc()->record_length = (Lng32)offset;
+  tableDesc->tableDesc()->record_length = (int)offset;
 
   ComUID comUID;
   comUID.make_UID();
-  Int64 objUID = comUID.get_value();
+  long objUID = comUID.get_value();
   tableDesc->tableDesc()->objectUID = objUID;
 
   TrafDesc *indexDesc = TrafAllocateDDLdesc(DESC_INDEXES_TYPE, NULL);

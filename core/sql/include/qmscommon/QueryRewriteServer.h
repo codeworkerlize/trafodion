@@ -141,7 +141,7 @@ class MvQueryRewriteServer : public NABasicObject {
 
  protected:
   static void formatTimestamp(char *buffer,     // Output
-                              Int64 GMT_Time);  // Input
+                              long GMT_Time);  // Input
 
  private:
   // Static class, no instances -- make ctor private and undefined

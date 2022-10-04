@@ -41,7 +41,7 @@
 
 static ULng32 intHashFunc(const Int32 &Int) { return (ULng32)Int; }
 
-void fillNodeName(char *buf, Lng32 len);
+void fillNodeName(char *buf, int len);
 
 //============================================================================
 // Methods for class NAClusterInfo; it provides information about the cluster
@@ -195,7 +195,7 @@ NAClusterInfo::~NAClusterInfo() {
   }
 }
 
-Lng32 NAClusterInfo::mapNodeNameToNodeNum(const NAString &keyNodeName) const {
+int NAClusterInfo::mapNodeNameToNodeNum(const NAString &keyNodeName) const {
   if (nodeNameToNodeIdMap_->contains(&keyNodeName)) {
     Int32 *nodeValue = nodeNameToNodeIdMap_->getFirstValue(&keyNodeName);
     return *nodeValue;
@@ -208,7 +208,7 @@ const NAString *NAClusterInfo::mapNodeNamesToNodeNums(ConstStringList *nodeNames
   if (!nodeNames) return NULL;
 
   for (CollIndex i = 0; i < nodeNames->entries(); i++) {
-    Lng32 nodeId = mapNodeNameToNodeNum(*((*nodeNames)[i]));
+    int nodeId = mapNodeNameToNodeNum(*((*nodeNames)[i]));
 
     resultNodeIds.insertAt(i, nodeId);
 
@@ -266,8 +266,8 @@ Int32 NAClusterInfo::numberOfTenantUnitsInTheCluster() const {
 #pragma warn(1506)  // warning elimination
 
 // Returns total number of CPUs (including down CPUs)
-Lng32 NAClusterInfo::getTotalNumberOfCPUs() {
-  Lng32 cpuCount = cpuArray_.entries();
+int NAClusterInfo::getTotalNumberOfCPUs() {
+  int cpuCount = cpuArray_.entries();
 
   return cpuCount;
 }
@@ -275,7 +275,7 @@ Lng32 NAClusterInfo::getTotalNumberOfCPUs() {
 NAClusterInfoLinux *NAClusterInfo::castToNAClusterInfoLinux() { return NULL; }
 
 MS_MON_PROC_STATE NAClusterInfo::getNodeStatus(int nodeId) {
-  Lng32 error;
+  int error;
   MS_MON_PROC_STATE state = MS_Mon_State_Unknown;
   MS_Mon_Node_Info_Entry_Type *nodeInfo = NULL;
   int nodeCount = getTotalNumberOfCPUs();
@@ -356,11 +356,11 @@ void NAClusterInfoLinux::determineLinuxSysInfo() {
     char var[256];
     ifstream cpuInfoFile("/proc/cpuinfo");
     const char *freqToken = "cpu MHz";
-    Lng32 freqTokenLen = strlen(freqToken);
+    int freqTokenLen = strlen(freqToken);
     while (cpuInfoFile.good()) {
       // Read the variable name from the file.
       cpuInfoFile.getline(var, sizeof(var), ':');  // read the token part
-      Lng32 len = strlen(var);
+      int len = strlen(var);
       if (len >= freqTokenLen && !strncmp(var, freqToken, freqTokenLen)) {
         cpuInfoFile >> frequency_;
         break;

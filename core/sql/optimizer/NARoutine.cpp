@@ -321,7 +321,7 @@ NARoutine::NARoutine(const NARoutine &old, CollHeap *h)
     passThruDataSize_ = NULL;
   } else {
     passThruData_ = new (h) char *[(UInt32)passThruDataNumEntries_];
-    passThruDataSize_ = new (h) Int64[(UInt32)passThruDataNumEntries_];
+    passThruDataSize_ = new (h) long[(UInt32)passThruDataNumEntries_];
     for (Int32 i = 0; i < passThruDataNumEntries_; i++) {
       passThruDataSize_[i] = old.passThruDataSize_[i];
       passThruData_[i] = new (h) char[(UInt32)passThruDataSize_[i] + 1];
@@ -609,7 +609,7 @@ NARoutine::~NARoutine() {
     NADELETEBASIC(passThruData_, heap_);       // Can't use NADELETEARRAY on C types.
   }
   if (passThruDataSize_ NEQ NULL)  // Use NADELETEARRAY for any 'new(heap)<class>[<size>]'
-    NADELETEARRAY(passThruDataSize_, (UInt32)passThruDataNumEntries_, Int64, heap_);
+    NADELETEARRAY(passThruDataSize_, (UInt32)passThruDataNumEntries_, long, heap_);
 
   if (privInfo_) NADELETE(privInfo_, PrivMgrUserPrivs, heap_);
 
@@ -964,17 +964,17 @@ void NARoutineDB::reset_priv_entries() {
 }
 
 // This method follows the same semantics as NATableDB::removeNATable
-void NARoutineDB::removeNARoutine(QualifiedName &routineName, ComQiScope qiScope, Int64 objUID, NABoolean ddlXns,
+void NARoutineDB::removeNARoutine(QualifiedName &routineName, ComQiScope qiScope, long objUID, NABoolean ddlXns,
                                   NABoolean atCommit) {
   NAHashDictionaryIterator<NARoutineDBKey, NARoutine> iter(*this);
   NARoutineDBKey *key = NULL;
   NARoutine *cachedNARoutine = NULL;
 
-  NASet<Int64> objectUIDs(CmpCommon::statementHeap(), 1);
+  NASet<long> objectUIDs(CmpCommon::statementHeap(), 1);
 
   // If there are no items in cache, skip
   if (entries() > 0) {
-    NASet<Int64> objectUIDs(CmpCommon::statementHeap(), 1);
+    NASet<long> objectUIDs(CmpCommon::statementHeap(), 1);
 
     // iterate over all entries and remove the ones that match the name
     iter.reset();
@@ -1054,13 +1054,13 @@ NABoolean NARoutineDB::enforceMemorySpaceConstraints() {
   // timestamps of when they were last used).  Do not allow the
   // number of times looped to exceed the number of entries in
   // cache.
-  Lng32 loopCnt = 0, entries = this->entries();
+  int loopCnt = 0, entries = this->entries();
   while (currentCacheSize_ > maxCacheSize_ && loopCnt++ < entries) {
     // Find least recently used NARoutine in cache.
     NAHashDictionaryIterator<NARoutineDBKey, NARoutine> iter(*this);
     NARoutineDBKey *key = 0, *oldestKey = 0;
     NARoutine *routine = 0, *oldestRoutine = 0;
-    Int64 oldestTime;
+    long oldestTime;
 
     iter.reset();
     iter.getNext(key, routine);
@@ -1140,7 +1140,7 @@ void NARoutineDB::getCacheStats(NARoutineCacheStats &stats) {
 // an internal stored procedure.
 //-----------------------------------------------------------------------
 
-SP_STATUS NARoutineCacheStatStoredProcedure::sp_InputFormat(SP_FIELDDESC_STRUCT *inputFieldFormat, Lng32 numFields,
+SP_STATUS NARoutineCacheStatStoredProcedure::sp_InputFormat(SP_FIELDDESC_STRUCT *inputFieldFormat, int numFields,
                                                             SP_COMPILE_HANDLE spCompileObj, SP_HANDLE spObj,
                                                             SP_ERROR_STRUCT *error) {
   if (numFields != 2) {
@@ -1157,16 +1157,16 @@ SP_STATUS NARoutineCacheStatStoredProcedure::sp_InputFormat(SP_FIELDDESC_STRUCT 
   return SP_SUCCESS;
 }
 
-SP_STATUS NARoutineCacheStatStoredProcedure::sp_NumOutputFields(Lng32 *numFields, SP_COMPILE_HANDLE spCompileObj,
+SP_STATUS NARoutineCacheStatStoredProcedure::sp_NumOutputFields(int *numFields, SP_COMPILE_HANDLE spCompileObj,
                                                                 SP_HANDLE spObj, SP_ERROR_STRUCT *error) {
-  const Lng32 NUM_OF_OUTPUT = 6;
+  const int NUM_OF_OUTPUT = 6;
 
   *numFields = NUM_OF_OUTPUT;
   return SP_SUCCESS;
 }
 
 SP_STATUS NARoutineCacheStatStoredProcedure::sp_OutputFormat(SP_FIELDDESC_STRUCT *format, SP_KEYDESC_STRUCT keyFields[],
-                                                             Lng32 *numKeyFields, SP_HANDLE spCompileObj,
+                                                             int *numKeyFields, SP_HANDLE spCompileObj,
                                                              SP_HANDLE spObj, SP_ERROR_STRUCT *error) {
   strcpy(&((format++)->COLUMN_DEF[0]), "Num_lookups      INT UNSIGNED");
   strcpy(&((format++)->COLUMN_DEF[0]), "Num_cache_hits   INT UNSIGNED");
@@ -1274,7 +1274,7 @@ void NARoutineCacheStatStoredProcedure::Initialize(SP_REGISTER_FUNCPTR regFunc) 
 // function is implemented as an internal stored procedure.
 //-----------------------------------------------------------------------
 
-SP_STATUS NARoutineCacheDeleteStoredProcedure::sp_InputFormat(SP_FIELDDESC_STRUCT *inputFieldFormat, Lng32 numFields,
+SP_STATUS NARoutineCacheDeleteStoredProcedure::sp_InputFormat(SP_FIELDDESC_STRUCT *inputFieldFormat, int numFields,
                                                               SP_COMPILE_HANDLE spCompileObj, SP_HANDLE spObj,
                                                               SP_ERROR_STRUCT *error)
 

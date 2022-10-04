@@ -122,7 +122,7 @@ ItemExpr *CompositeCreate::copyTopNode(ItemExpr *derivedNode, CollHeap *outHeap)
 const NAType *CompositeCreate::synthesizeType() {
   ItemExprList *iel = new HEAP ItemExprList(child(0), HEAP);
 
-  Lng32 numEntries = iel->entries();
+  int numEntries = iel->entries();
   CompositeType *type = NULL;
   ItemExpr *elem = NULL;
   if (type_ == ARRAY_TYPE) {
@@ -142,7 +142,7 @@ const NAType *CompositeCreate::synthesizeType() {
     NAArray<NAString> *fieldNames = NULL;
     NAArray<NAType *> *fieldTypes = new HEAP NAArray<NAType *>(HEAP);
 
-    Lng32 totalSize = 0;
+    int totalSize = 0;
     for (int i = 0; i < numEntries; i++) {
       elem = (*iel)[i];
       const NAType *elemType = &elem->getValueId().getType();
@@ -623,7 +623,7 @@ ItemExpr *CompositeDisplay::copyTopNode(ItemExpr *derivedNode, CollHeap *outHeap
 
 const NAType *CompositeDisplay::synthesizeType() {
   const NAType &operand1 = child(0)->getValueId().getType();
-  Lng32 displayLength = operand1.getDisplayLength();
+  int displayLength = operand1.getDisplayLength();
 
   NAType *type = new HEAP SQLVarChar(HEAP, displayLength, operand1.supportsSQLnull());
 

@@ -53,7 +53,7 @@ class ComTdbGenericUtil : public ComTdb {
   ComTdbGenericUtil(char *query, ULng32 querylen, Int16 querycharset, char *objectName, ULng32 objectNameLen,
                     ex_expr *input_expr, ULng32 input_rowlen, ex_expr *output_expr, ULng32 output_rowlen,
                     ex_cri_desc *work_cri_desc, const unsigned short work_atp_index, ex_cri_desc *given_cri_desc,
-                    ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, Lng32 num_buffers,
+                    ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, int num_buffers,
                     ULng32 buffer_size);
 
   ~ComTdbGenericUtil();
@@ -71,7 +71,7 @@ class ComTdbGenericUtil : public ComTdb {
   virtual short getClassSize() { return (short)sizeof(ComTdbGenericUtil); }
 
   virtual Long pack(void *);
-  virtual Lng32 unpack(void *, void *reallocator);
+  virtual int unpack(void *, void *reallocator);
 
   Int32 orderedQueueProtocol() const;
 
@@ -166,7 +166,7 @@ class ComTdbDDL : public ComTdbGenericUtil {
   ComTdbDDL(char *ddl_query, ULng32 ddl_querylen, Int16 ddl_querycharset, char *schemaName, ULng32 schemaNameLen,
             ex_expr *input_expr, ULng32 input_rowlen, ex_expr *output_expr, ULng32 output_rowlen,
             ex_cri_desc *work_cri_desc, const unsigned short work_atp_index, ex_cri_desc *given_cri_desc,
-            ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, Lng32 num_buffers, ULng32 buffer_size);
+            ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, int num_buffers, ULng32 buffer_size);
 
   // ---------------------------------------------------------------------
   // Redefine virtual functions required for Versioning.
@@ -233,7 +233,7 @@ class ComTdbDDLwithStatus : public ComTdbDDL {
                       ULng32 schemaNameLen, ex_expr *input_expr, ULng32 input_rowlen, ex_expr *output_expr,
                       ULng32 output_rowlen, ex_cri_desc *work_cri_desc, const unsigned short work_atp_index,
                       ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc, queue_index down, queue_index up,
-                      Lng32 num_buffers, ULng32 buffer_size);
+                      int num_buffers, ULng32 buffer_size);
 
   // ---------------------------------------------------------------------
   // Redefine virtual functions required for Versioning.
@@ -294,7 +294,7 @@ class ComTdbProcessVolatileTable : public ComTdbDDL {
                              ULng32 input_rowlen, ex_expr *output_expr, ULng32 output_rowlen,
                              ex_cri_desc *work_cri_desc, const unsigned short work_atp_index,
                              ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc, queue_index down,
-                             queue_index up, Lng32 num_buffers, ULng32 buffer_size);
+                             queue_index up, int num_buffers, ULng32 buffer_size);
 
   // ---------------------------------------------------------------------
   // Redefine virtual functions required for Versioning.
@@ -304,7 +304,7 @@ class ComTdbProcessVolatileTable : public ComTdbDDL {
   virtual const char *getNodeName() const { return "EX_VOLATILE_TABLE"; };
 
   Long pack(void *);
-  Lng32 unpack(void *, void *reallocator);
+  int unpack(void *, void *reallocator);
 
   void setIsCreate(NABoolean v) { (v ? flags_ |= IS_CREATE_ : flags_ &= ~IS_CREATE_); };
   NABoolean isCreate() { return (flags_ & IS_CREATE_) != 0; };
@@ -343,7 +343,7 @@ class ComTdbProcessInMemoryTable : public ComTdbDDL {
                              ex_expr *input_expr, ULng32 input_rowlen, ex_expr *output_expr, ULng32 output_rowlen,
                              ex_cri_desc *work_cri_desc, const unsigned short work_atp_index,
                              ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc, queue_index down,
-                             queue_index up, Lng32 num_buffers, ULng32 buffer_size);
+                             queue_index up, int num_buffers, ULng32 buffer_size);
 
   // ---------------------------------------------------------------------
   // Redefine virtual functions required for Versioning.
@@ -353,7 +353,7 @@ class ComTdbProcessInMemoryTable : public ComTdbDDL {
   virtual const char *getNodeName() const { return "EX_INMEMORY_TABLE"; };
 
   Long pack(void *);
-  Lng32 unpack(void *, void *reallocator);
+  int unpack(void *, void *reallocator);
 
   void setIsCreate(NABoolean v) { (v ? flags_ |= IS_CREATE_ : flags_ &= ~IS_CREATE_); };
   NABoolean isCreate() { return (flags_ & IS_CREATE_) != 0; };
@@ -393,8 +393,8 @@ class ComTdbDescribe : public ComTdbDDL {
   ComTdbDescribe(char *query, ULng32 querylen, Int16 querycharset, ex_expr *input_expr, ULng32 input_rowlen,
                  ex_expr *output_expr, ULng32 output_rowlen, ex_cri_desc *work_cri_desc,
                  const unsigned short work_atp_index, DescribeType type, ULng32 flags, ex_cri_desc *given_cri_desc,
-                 ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, Lng32 num_buffers,
-                 Lng32 buffer_size);
+                 ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, int num_buffers,
+                 int buffer_size);
 
   // ---------------------------------------------------------------------
   // Redefine virtual functions required for Versioning.

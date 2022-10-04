@@ -76,7 +76,7 @@ class Q_Entry {
   ~Q_Entry();
 
   Long pack(void *space);
-  Lng32 unpack(void *base);
+  int unpack(void *base);
 
   ULng32 packedLength() { return packedLength_; }
 };
@@ -184,14 +184,14 @@ class Queue : public NAVersionedObject {
 
   virtual Long pack(void *space);
 
-  virtual Lng32 unpack(void *base, void *reallocator);
+  virtual int unpack(void *base, void *reallocator);
 
   // returns -1, if queue is empty. Otherwise, returns 0.
   Int32 isEmpty() { return ((numEntries() == 0) ? -1 : 0); }
 
-  Lng32 numEntries() { return numEntries_; }
+  int numEntries() { return numEntries_; }
 
-  Lng32 entries() { return numEntries(); }
+  int entries() { return numEntries(); }
 
   ULng32 packedLength() { return packedLength_; }
 
@@ -270,7 +270,7 @@ class HashQueue : public NABasicObject {
   // To remove the entry by passing in the hashing fields and the corresponding entry
   void remove(const char *data, ULng32 dataLength, void *entry);
 
-  Lng32 numEntries() { return (Lng32)entries_; }
+  int numEntries() { return (int)entries_; }
 
   NABoolean sequentialAdd() { return (flags_ & SEQUENTIAL_ADD) != 0; }
 

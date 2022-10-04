@@ -99,7 +99,7 @@ Refresh::Refresh(const QualifiedName &mvName, const DeltaDefinitionPtrList *pDel
 
 //////////////////////////////////////////////////////////////////////////////
 // Ctor for MULTIDELTA
-Refresh::Refresh(const QualifiedName &mvName, const DeltaDefinitionPtrList *pDeltaDefList, Lng32 phaseVal,
+Refresh::Refresh(const QualifiedName &mvName, const DeltaDefinitionPtrList *pDeltaDefList, int phaseVal,
                  PipelineClause *pOptionalPipelineClause, CollHeap *oHeap)
     : BinderOnlyNode(REL_REFRESH, oHeap),
       refreshType_(MULTIDELTA),
@@ -747,7 +747,7 @@ void DeltaDefinition::processUpdateColumns(MVInfoForDML *mvInfo) {
     containsUpdateColUsedByMv_ = TRUE;
   } else {
     for (CollIndex i = 0; i < updatedCols->entries(); i++) {
-      Lng32 updatedCol = updatedCols->at(i);
+      int updatedCol = updatedCols->at(i);
 
       if (usedObject->isIndirectUpdateCol(updatedCol)) {
         containsUpdateColUsedByMv_ = TRUE;

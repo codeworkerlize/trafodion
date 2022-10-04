@@ -67,7 +67,7 @@ class REFRESH_LIB_CLASS CRUMultiTxnContext {
 
   // This function return ROW_DOES_NOT_EXIST if no such row exists
   // index == 0 is the top row in the stack
-  TInt32 GetRowByIndex(Lng32 index);
+  TInt32 GetRowByIndex(int index);
   TInt32 GetTargetEpochOfFirstRow() { return GetRowByIndex(0); }
   TInt32 GetTargetEpochOfSecondRow() { return GetRowByIndex(1); }
 

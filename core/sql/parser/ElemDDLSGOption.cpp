@@ -68,7 +68,7 @@ const NAString ElemDDLSGOption::getText() const {
 // -----------------------------------------------------------------------
 
 // constructor
-ElemDDLSGOptionStartValue::ElemDDLSGOptionStartValue(Int64 value)
+ElemDDLSGOptionStartValue::ElemDDLSGOptionStartValue(long value)
     : ElemDDLSGOption(ELM_SG_OPT_START_VALUE_ELEM),
       value_(value) {}  // ElemDDLSGOptionStartValue::ElemDDLSGOptionStartValue()
 
@@ -83,7 +83,7 @@ ElemDDLSGOptionStartValue *ElemDDLSGOptionStartValue::castToElemDDLSGOptionStart
 //
 
 const NAString ElemDDLSGOptionStartValue::displayLabel1() const {
-  return (NAString("Value: ") + Int64ToNAString((Int64)getValue()));
+  return (NAString("Value: ") + Int64ToNAString((long)getValue()));
 }
 
 const NAString ElemDDLSGOptionStartValue::getText() const { return "ElemDDLSGOptionStartValue"; }
@@ -103,7 +103,7 @@ NAString ElemDDLSGOptionStartValue::getSyntax() const {
 // -----------------------------------------------------------------------
 
 // constructor
-ElemDDLSGOptionRestartValue::ElemDDLSGOptionRestartValue(Int64 value)
+ElemDDLSGOptionRestartValue::ElemDDLSGOptionRestartValue(long value)
     : ElemDDLSGOption(ELM_SG_OPT_RESTART_VALUE_ELEM),
       value_(value) {}  // ElemDDLSGOptionRestartValue::ElemDDLSGOptionRestartValue()
 
@@ -118,7 +118,7 @@ ElemDDLSGOptionRestartValue *ElemDDLSGOptionRestartValue::castToElemDDLSGOptionR
 //
 
 const NAString ElemDDLSGOptionRestartValue::displayLabel1() const {
-  return (NAString("Value: ") + Int64ToNAString((Int64)getValue()));
+  return (NAString("Value: ") + Int64ToNAString((long)getValue()));
 }
 
 const NAString ElemDDLSGOptionRestartValue::getText() const { return "ElemDDLSGOptionRestartValue"; }
@@ -138,7 +138,7 @@ NAString ElemDDLSGOptionRestartValue::getSyntax() const {
 // -----------------------------------------------------------------------
 
 // constructor
-ElemDDLSGOptionIncrement::ElemDDLSGOptionIncrement(Int64 value)
+ElemDDLSGOptionIncrement::ElemDDLSGOptionIncrement(long value)
     : ElemDDLSGOption(ELM_SG_OPT_INCREMENT_ELEM),
       value_(value) {}  // ElemDDLSGOptionIncrement::ElemDDLSGOptionIncrement()
 
@@ -153,7 +153,7 @@ ElemDDLSGOptionIncrement *ElemDDLSGOptionIncrement::castToElemDDLSGOptionIncreme
 //
 
 const NAString ElemDDLSGOptionIncrement::displayLabel1() const {
-  return (NAString("Value: ") + Int64ToNAString((Int64)getValue()));
+  return (NAString("Value: ") + Int64ToNAString((long)getValue()));
 }
 
 const NAString ElemDDLSGOptionIncrement::getText() const { return "ElemDDLSGOptionIncrement"; }
@@ -172,7 +172,7 @@ NAString ElemDDLSGOptionIncrement::getSyntax() const {
 // -----------------------------------------------------------------------
 
 // constructor
-ElemDDLSGOptionMinValue::ElemDDLSGOptionMinValue(Int64 value)
+ElemDDLSGOptionMinValue::ElemDDLSGOptionMinValue(long value)
     : ElemDDLSGOption(ELM_SG_OPT_MIN_VALUE_ELEM),
       value_(value),
       isNoMinValue_(FALSE) {}  // ElemDDLSGOptionMinValue::ElemDDLSGOptionMinValue()
@@ -193,7 +193,7 @@ ElemDDLSGOptionMinValue *ElemDDLSGOptionMinValue::castToElemDDLSGOptionMinValue(
 //
 
 const NAString ElemDDLSGOptionMinValue::displayLabel1() const {
-  return (NAString("Value: ") + Int64ToNAString((Int64)getValue()));
+  return (NAString("Value: ") + Int64ToNAString((long)getValue()));
 }
 
 const NAString ElemDDLSGOptionMinValue::getText() const { return "ElemDDLSGOptionMinValue"; }
@@ -213,7 +213,7 @@ NAString ElemDDLSGOptionMinValue::getSyntax() const {
 // -----------------------------------------------------------------------
 
 // constructor
-ElemDDLSGOptionMaxValue::ElemDDLSGOptionMaxValue(Int64 value)
+ElemDDLSGOptionMaxValue::ElemDDLSGOptionMaxValue(long value)
     : ElemDDLSGOption(ELM_SG_OPT_MAX_VALUE_ELEM),
       value_(value),
       isNoMaxValue_(FALSE) {}  // ElemDDLSGOptionMaxValue::ElemDDLSGOptionMaxValue()
@@ -234,7 +234,7 @@ ElemDDLSGOptionMaxValue *ElemDDLSGOptionMaxValue::castToElemDDLSGOptionMaxValue(
 //
 
 const NAString ElemDDLSGOptionMaxValue::displayLabel1() const {
-  return (NAString("Value: ") + Int64ToNAString((Int64)getValue()));
+  return (NAString("Value: ") + Int64ToNAString((long)getValue()));
 }
 
 const NAString ElemDDLSGOptionMaxValue::getText() const { return "ElemDDLSGOptionMaxValue"; }
@@ -316,7 +316,7 @@ ElemDDLSGOptionOrderOption *ElemDDLSGOptionOrderOption::castToElemDDLSGOptionOrd
 
 // constructor
 
-ElemDDLSGOptionCacheOption::ElemDDLSGOptionCacheOption(NABoolean cache, Int64 cacheSize)
+ElemDDLSGOptionCacheOption::ElemDDLSGOptionCacheOption(NABoolean cache, long cacheSize)
     : ElemDDLSGOption(ELM_SG_OPT_CACHE_OPTION_ELEM),
       cache_(cache),
       cacheSize_(cacheSize) {}  // ElemDDLSGOptionCacheOption::ElemDDLSGOptionCacheOption()
@@ -433,7 +433,7 @@ NAString ElemDDLSGOptionResetOption::getSyntax() const {
 
 // constructor
 
-ElemDDLSGOptionNextValOption::ElemDDLSGOptionNextValOption(Int64 nextVal)
+ElemDDLSGOptionNextValOption::ElemDDLSGOptionNextValOption(long nextVal)
     : ElemDDLSGOption(ELM_SG_OPT_NEXTVAL_OPTION_ELEM),
       nextVal_(nextVal) {}  // ElemDDLSGOptionNextValOption::ElemDDLSGOptionNextValOption
 
@@ -448,7 +448,7 @@ ElemDDLSGOptionNextValOption *ElemDDLSGOptionNextValOption::castToElemDDLSGOptio
 //
 
 const NAString ElemDDLSGOptionNextValOption::displayLabel1() const {
-  return (NAString("NEXTVAL: ") + Int64ToNAString((Int64)getNextVal()));
+  return (NAString("NEXTVAL: ") + Int64ToNAString((long)getNextVal()));
 }
 
 const NAString ElemDDLSGOptionNextValOption::getText() const { return "ElemDDLSGOptionNextVal"; }

@@ -81,7 +81,7 @@ class StmtDDLAlterSharedCache : public StmtDDLNode {
   //
 
   virtual Int32 getArity() const { return 0; }
-  virtual ExprNode *getChild(Lng32 index) { return NULL; }
+  virtual ExprNode *getChild(int index) { return NULL; }
 
   const QualifiedName &getQualifiedName() const { return qualName_; }
 

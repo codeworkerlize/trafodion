@@ -31,7 +31,7 @@
 #include "common/ComCextdecs.h"
 #include <semaphore.h>
 #include "nsk/nskport.h"
-#include "zsysc.h"
+#include "common/zsysc.h"
 #include "common/NAStdlib.h"
 #include "Ex_esp_msg.h"
 #include "comexe/ComQueue.h"
@@ -170,7 +170,7 @@ SsmpGlobals::SsmpGlobals(NAHeap *ssmpheap, IpcEnvironment *ipcEnv, StatsGlobals 
   char *ln_attrValue = getenv("_MX_RTS_MERGE_INTERVAL");
   if (ln_attrValue) {
     mergeInterval = atoi(ln_attrValue);
-    statsCollectionInterval_ = (Int64)MAXOF(mergeInterval, 30);
+    statsCollectionInterval_ = (long)MAXOF(mergeInterval, 30);
   }
 
   statsTimeout_ = 300;  // in Centi-seconds
@@ -201,9 +201,9 @@ SsmpGlobals::SsmpGlobals(NAHeap *ssmpheap, IpcEnvironment *ipcEnv, StatsGlobals 
   char programDir[100];
   short processType;
   char myNodeName[MAX_SEGMENT_NAME_LEN + 1];
-  Lng32 myNodeNumber;
+  int myNodeNumber;
   short myNodeNameLen = MAX_SEGMENT_NAME_LEN;
-  Int64 myStartTime;
+  long myStartTime;
   short pri;
   char myProcessName[PROCESSNAME_STRING_LEN];
 
@@ -451,8 +451,8 @@ void SsmpGlobals::allocateServerOnNextRequest(char *nodeName, short nodeNameLen,
   return;
 }
 
-static Int64 GcInterval = -1;
-static Int64 SikGcInterval = -1;
+static long GcInterval = -1;
+static long SikGcInterval = -1;
 
 void SsmpGlobals::work() {
   getIpcEnv()->getAllConnections()->waitOnAll(getStatsMergeTimeout(), FALSE, NULL, NULL, getLdoneRetryTimes());
@@ -474,13 +474,13 @@ void SsmpGlobals::work() {
   // it has been at least 20 minutes since the last time we did GC, and it has been at least 15
   // minutes since a collector has requested stats for a query, and the master stats for that
   // query has its canBeGCed flag set to true, we'll clean it up.
-  Int64 currTime = NA_JulianTimestamp();
-  Int64 temp2 = (Int64)(currTime - statsGlobals->getLastGCTime());
+  long currTime = NA_JulianTimestamp();
+  long temp2 = (long)(currTime - statsGlobals->getLastGCTime());
   if (GcInterval < 0) {
     // call getenv once per process
     char *sct = getenv("RMS_GC_INTERVAL_SECONDS");
     if (sct) {
-      GcInterval = ((Int64)str_atoi(sct, str_len(sct))) * 1000 * 1000;
+      GcInterval = ((long)str_atoi(sct, str_len(sct))) * 1000 * 1000;
       if (GcInterval < 10 * 1000 * 1000) GcInterval = 10 * 1000 * 1000;
     } else
       GcInterval = 10 * 60 * 1000 * 1000;  // 10 minutes
@@ -492,10 +492,10 @@ void SsmpGlobals::work() {
     // call getenv once per process
     char *sct = getenv("RMS_SIK_GC_INTERVAL_SECONDS");
     if (sct) {
-      SikGcInterval = ((Int64)str_atoi(sct, str_len(sct))) * 1000 * 1000;
+      SikGcInterval = ((long)str_atoi(sct, str_len(sct))) * 1000 * 1000;
       if (SikGcInterval < 10 * 1000 * 1000) SikGcInterval = 10 * 1000 * 1000;
     } else
-      SikGcInterval = (Int64)24 * 60 * 60 * 1000 * 1000;  // 24 hours
+      SikGcInterval = (long)24 * 60 * 60 * 1000 * 1000;  // 24 hours
   }
 
   if ((temp2 > GcInterval) && !doingGC()) {
@@ -526,7 +526,7 @@ void SsmpGlobals::finishPendingSscpMessages() {
   SscpClientMsgStream *sscpClientMsgStream;
   if (pendingSscpMessages_->numEntries() == 0) return;
   pendingSscpMessages_->position();
-  Int64 currTimestamp = NA_JulianTimestamp();
+  long currTimestamp = NA_JulianTimestamp();
   while ((sscpClientMsgStream = (SscpClientMsgStream *)pendingSscpMessages_->getNext()) != NULL) {
     // getStatsMergeTimeout() is 300 centi-seconds(10ms)
     if ((currTimestamp - sscpClientMsgStream->getMergeStartTime()) >= (getStatsMergeTimeout() * 10 * 1000)) {
@@ -551,7 +551,7 @@ void SsmpGlobals::removePendingSscpMessage(SscpClientMsgStream *sscpClientMsgStr
 bool SsmpGlobals::getQidFromPid(Int32 pid,         // IN
                                 Int32 minimumAge,  // IN
                                 char *queryId,     // OUT
-                                Lng32 &queryIdLen  // OUT
+                                int &queryIdLen  // OUT
 ) {
   bool foundQid = false;
   StatsGlobals *statsGlobals = getStatsGlobals();
@@ -566,10 +566,10 @@ bool SsmpGlobals::getQidFromPid(Int32 pid,         // IN
       bool finishedSearch = true;
       ExMasterStats *m = ss->getMasterStats();
       char *parentQid = m->getParentQid();
-      Lng32 parentQidLen = m->getParentQidLen();
+      int parentQidLen = m->getParentQidLen();
       if (parentQid != NULL) {
         // If this query has a parent in this cpu, will keep looking.
-        Int64 parentCpu = -1;
+        long parentCpu = -1;
         ComSqlId::getSqlQueryIdAttr(ComSqlId::SQLQUERYID_CPUNUM, parentQid, parentQidLen, parentCpu, NULL);
         if (parentCpu == statsGlobals->getCpu()) {
           finishedSearch = false;
@@ -594,11 +594,11 @@ bool SsmpGlobals::getQidFromPid(Int32 pid,         // IN
   return foundQid;
 }
 
-bool SsmpGlobals::cancelQueryTree(char *queryId, Lng32 queryIdLen, CancelQueryRequest *request, ComDiagsArea **diags) {
+bool SsmpGlobals::cancelQueryTree(char *queryId, int queryIdLen, CancelQueryRequest *request, ComDiagsArea **diags) {
   bool didCancel = false;
   bool hasChildQid = false;
   char childQid[ComSqlId::MAX_QUERY_ID_LEN + 1];
-  Lng32 childQidLen = 0;
+  int childQidLen = 0;
   StatsGlobals *statsGlobals = getStatsGlobals();
   int error = statsGlobals->getStatsSemaphore(getSemId(), myPin());
 
@@ -641,9 +641,9 @@ bool SsmpGlobals::cancelQueryTree(char *queryId, Lng32 queryIdLen, CancelQueryRe
   return didCancel;
 }
 
-bool SsmpGlobals::cancelQuery(char *queryId, Lng32 queryIdLen, CancelQueryRequest *request, ComDiagsArea **diags) {
+bool SsmpGlobals::cancelQuery(char *queryId, int queryIdLen, CancelQueryRequest *request, ComDiagsArea **diags) {
   bool didAttemptCancel = false;
-  Int64 cancelStartTime = request->getCancelStartTime();
+  long cancelStartTime = request->getCancelStartTime();
   Int32 ceFirstInterval = request->getFirstEscalationInterval();
   Int32 ceSecondInterval = request->getSecondEscalationInterval();
   NABoolean ceSaveabend = request->getCancelEscalationSaveabend();
@@ -686,10 +686,10 @@ bool SsmpGlobals::cancelQuery(char *queryId, Lng32 queryIdLen, CancelQueryReques
             sqlErrorDesc = "The query can't be canceled because it finished processing";
             statsGlobals->releaseStatsSemaphore(getSemId(), myPin());
           } else {
-            Int64 exeStartTime = cMasterStats->getExeStartTime();
+            long exeStartTime = cMasterStats->getExeStartTime();
             int exeElapsedTimeInSecs = 0;
             if (exeStartTime != -1) {
-              Int64 exeElapsedTime = NA_JulianTimestamp() - cMasterStats->getExeStartTime();
+              long exeElapsedTime = NA_JulianTimestamp() - cMasterStats->getExeStartTime();
               exeElapsedTimeInSecs = exeElapsedTime / 1000000;
             }
             statsGlobals->releaseStatsSemaphore(getSemId(), myPin());
@@ -777,7 +777,7 @@ bool SsmpGlobals::cancelQuery(char *queryId, Lng32 queryIdLen, CancelQueryReques
   return didAttemptCancel;
 }
 
-void SsmpGlobals::suspendOrActivate(char *queryId, Lng32 qidLen, SuspendOrActivate sOrA, bool suspendLogging) {
+void SsmpGlobals::suspendOrActivate(char *queryId, int qidLen, SuspendOrActivate sOrA, bool suspendLogging) {
   allocateServers();
 
   SscpClientMsgStream *sscpMsgStream =
@@ -805,7 +805,7 @@ void SsmpGlobals::suspendOrActivate(char *queryId, Lng32 qidLen, SuspendOrActiva
   qidObjForSscp->decrRefCount();
 }
 
-bool SsmpGlobals::activateFromQid(char *qid, Lng32 qidLen, SuspendOrActivate /*
+bool SsmpGlobals::activateFromQid(char *qid, int qidLen, SuspendOrActivate /*
                                                                                sOrAOrC */
                                   ,
                                   ComDiagsArea *&diags, bool suspendLogging) {
@@ -863,10 +863,10 @@ bool SsmpGlobals::activateFromQid(char *qid, Lng32 qidLen, SuspendOrActivate /*
   return doAttemptActivate;
 }
 
-Lng32 SsmpGlobals::stopMasterProcess(char *queryId, Lng32 queryIdLen) {
-  Lng32 retcode;
-  Int64 node;
-  Int64 pin;
+int SsmpGlobals::stopMasterProcess(char *queryId, int queryIdLen) {
+  int retcode;
+  long node;
+  long pin;
   char processName[MS_MON_MAX_PROCESS_NAME + 1];
 
   if ((retcode = ComSqlId::getSqlSessionIdAttr(ComSqlId::SQLQUERYID_CPUNUM, queryId, queryIdLen, node, NULL)) != 0)
@@ -1144,7 +1144,7 @@ void SsmpNewIncomingConnectionStream::actOnCancelQueryReq(IpcConnection *connect
   Int32 minimumAge = request->getMinimumAge();
   bool cancelByPid = request->getCancelByPid();
   char queryId[200];
-  Lng32 queryIdLen = 0;
+  int queryIdLen = 0;
   bool didAttemptCancel = false;
   bool haveAQid = false;
 
@@ -1213,7 +1213,7 @@ void SsmpNewIncomingConnectionStream::actOnSuspendQueryReq(IpcConnection *connec
         *this >> *queryId;
         clearAllObjects();
         char *qid = queryId->getQid();
-        Lng32 qidLen = queryId->getQueryIdLen();
+        int qidLen = queryId->getQueryIdLen();
 
         // Find the query.
         StatsGlobals *statsGlobals = ssmpGlobals_->getStatsGlobals();
@@ -1337,7 +1337,7 @@ void SsmpNewIncomingConnectionStream::actOnActivateQueryReq(IpcConnection *conne
         *this >> *queryId;
         clearAllObjects();
         char *qid = queryId->getQid();
-        Lng32 qidLen = queryId->getQueryIdLen();
+        int qidLen = queryId->getQueryIdLen();
 
         bool didAttemptActivate = ssmpGlobals_->activateFromQid(qid, qidLen, ACTIVATE, diags, suspendLogging);
 
@@ -1606,8 +1606,8 @@ void SsmpNewIncomingConnectionStream::actOnStatsReq(IpcConnection *connection) {
   char *qid;
   pid_t pid = 0;
   short cpu;
-  Int64 timeStamp;
-  Lng32 queryNumber;
+  long timeStamp;
+  int queryNumber;
   RtsQueryId *rtsQueryId = NULL;
   StmtStats *stmtStats = NULL;
 
@@ -1754,7 +1754,7 @@ void SsmpNewIncomingConnectionStream::getProcessStats(short reqType, short subRe
 
 void SsmpNewIncomingConnectionStream::getMergedStats(RtsStatsReq *request, RtsQueryId *queryId, StmtStats *stmtStats,
                                                      short reqType, UInt16 statsMergeType) {
-  Int64 currTime = NA_JulianTimestamp();
+  long currTime = NA_JulianTimestamp();
   RtsQueryId *rtsQueryId = NULL;
   ExStatisticsArea *mergedStats;
   ExStatisticsArea *srcMergedStats;
@@ -1836,7 +1836,7 @@ void SsmpNewIncomingConnectionStream::actOnCpuStatsReq(IpcConnection *connection
   setHandle(request->getHandle());
   short reqType = request->getReqType();
   short noOfQueries = request->getNoOfQueries();
-  Lng32 filter = request->getFilter();
+  int filter = request->getFilter();
   short subReqType = request->getSubReqType();
   clearAllObjects();
   if (request->getCpu() != -1) {
@@ -1861,7 +1861,7 @@ void SsmpNewIncomingConnectionStream::actOnCpuStatsReq(IpcConnection *connection
         int error = statsGlobals->getStatsSemaphore(ssmpGlobals_->getSemId(), ssmpGlobals_->myPin());
         SyncHashQueue *stmtStatsList = statsGlobals->getStmtStatsList();
         stmtStatsList->position();
-        Int64 currTimestamp = NA_JulianTimestamp();
+        long currTimestamp = NA_JulianTimestamp();
         while ((stmtStats = (StmtStats *)stmtStatsList->getNext()) != NULL) {
           masterStats = stmtStats->getMasterStats();
           if (masterStats != NULL) cpuStats->appendCpuStats(masterStats, FALSE, subReqType, filter, currTimestamp);

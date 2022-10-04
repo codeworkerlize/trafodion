@@ -260,7 +260,7 @@ void ItemExpr::accumulateConstExprs(ValueIdSet &constExprs) {
 
   for (ValueId tempId = predSet.init(); predSet.next(tempId); predSet.advance(tempId)) {
     ItemExpr *tempExpr = tempId.getItemExpr();
-    for (Lng32 i = 0; i < (Lng32)tempExpr->getArity(); i++) {
+    for (int i = 0; i < (int)tempExpr->getArity(); i++) {
       if (tempExpr->child(i)->doesExprEvaluateToConstant(FALSE, TRUE)) {
         constExprs += tempExpr->getValueId();
         break;

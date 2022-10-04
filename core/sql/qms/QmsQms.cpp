@@ -292,9 +292,9 @@ NABoolean Qms::contains(const NAString &mvName) {
 /**
  * Get the redefinition timestamp of an MV.
  * @param mvName The name of the MV to find.
- * @return The redefinition timestamp as an Int64 number, or NULL if the MV is not contained in QMS.
+ * @return The redefinition timestamp as an long number, or NULL if the MV is not contained in QMS.
  */
-const Int64 *Qms::getMVTimestamp(const NAString &mvName) {
+const long *Qms::getMVTimestamp(const NAString &mvName) {
   MVDetailsPtr mvDetails = getMvDetails(mvName);
   if (mvDetails == NULL)
     return NULL;

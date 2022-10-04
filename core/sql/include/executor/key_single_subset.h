@@ -98,7 +98,7 @@ class keySingleSubsetEx : public keyRangeEx {
 
   inline short isEkeyExcluded() const { return tdbBeginEndKey().isEkeyExcluded(); }
 
-  inline Lng32 getExcludeFlagValue() const { return excludeFlag_; }
+  inline int getExcludeFlagValue() const { return excludeFlag_; }
 };
 
 #endif

@@ -52,7 +52,7 @@
 // -----------------------------------------------------------------------
 void ReinitRuleSet(RuleSet *rules) {
   if (rules) {
-    Lng32 ruleCnt = rules->getCountOfRules();
+    int ruleCnt = rules->getCountOfRules();
     while (ruleCnt--) {
       Rule *rule = rules->rule(ruleCnt);
       if (rule->getSubstitute()) rule->getSubstitute()->releaseBindingTree(TRUE /*moribundMemo*/);
@@ -190,11 +190,11 @@ Guidance *Rule::guidanceForOptimizingSubstitute(Guidance *, Context *) {
   return (NULL);
 }  // Rule::guidanceForOptimizingSubstitute
 
-Guidance *Rule::guidanceForExploringChild(Guidance *, Context *, Lng32) {
+Guidance *Rule::guidanceForExploringChild(Guidance *, Context *, int) {
   return (NULL);
 }  // Rule::guidanceForExploringChild
 
-Guidance *Rule::guidanceForOptimizingChild(Guidance *, Context *, Lng32) {
+Guidance *Rule::guidanceForOptimizingChild(Guidance *, Context *, int) {
   return (NULL);
 }  // Rule::guidanceForOptimizingChild
 
@@ -285,7 +285,7 @@ RelExpr *Rule::checkAndBindPattern(RelExpr *patt, ARRAY(CutOp *) & cuts, ARRAY(W
 
   Int32 arity = patt->getArity();
 
-  for (Lng32 i = 0; i < arity; i++) {
+  for (int i = 0; i < arity; i++) {
     result->child(i) = checkAndBindPattern(patt->child(i)->castToRelExpr(), cuts, wildcards, isSubstitute);
   }
 
@@ -341,12 +341,12 @@ RuleSet::RuleSet(Int32 approxNumRules, CollHeap *h)
 
 // Rules are created once and never deleted
 RuleSet::~RuleSet() {
-  for (Lng32 i = 0; i < (Lng32)allRules_.entries(); i++) delete allRules_[i];
-  for (Lng32 i = 0; i < (Lng32)passNRules_.entries(); i++) delete passNRules_[i];
+  for (int i = 0; i < (int)allRules_.entries(); i++) delete allRules_[i];
+  for (int i = 0; i < (int)passNRules_.entries(); i++) delete passNRules_[i];
 }
 
 void RuleSet::insert(Rule *r) {
-  Lng32 num = r->ruleNumber_ = allRules_.entries();
+  int num = r->ruleNumber_ = allRules_.entries();
   allRules_.insertAt(num, r);
 
   if (num >= MAX_RULE_COUNT) ABORT("Increase max number of rules in Rule.h");
@@ -392,22 +392,22 @@ void RuleSet::setTotalPasses() {
   //---------------------------------------------------------
 }
 
-void RuleSet::enable(NAUnsigned ruleNo, Lng32 fromPass, Lng32 toPassIncl) {
+void RuleSet::enable(NAUnsigned ruleNo, int fromPass, int toPassIncl) {
   CMPASSERT(fromPass >= getFirstPassNumber() AND toPassIncl >= getFirstPassNumber());
 
   if (fromPass <= MAX_NUM_OF_PASSES AND toPassIncl <= MAX_NUM_OF_PASSES)
-    for (Lng32 i = fromPass; i <= toPassIncl; i++) *(passNRules_[i]) += ruleNo;
+    for (int i = fromPass; i <= toPassIncl; i++) *(passNRules_[i]) += ruleNo;
 }
 
-void RuleSet::disable(NAUnsigned ruleNo, Lng32 fromPass, Lng32 toPassIncl) {
+void RuleSet::disable(NAUnsigned ruleNo, int fromPass, int toPassIncl) {
   CMPASSERT(fromPass >= getFirstPassNumber() AND toPassIncl >= getFirstPassNumber());
 
   if (fromPass <= MAX_NUM_OF_PASSES AND toPassIncl <= MAX_NUM_OF_PASSES)
-    for (Lng32 i = fromPass; i <= toPassIncl; i++) *(passNRules_[i]) -= ruleNo;
+    for (int i = fromPass; i <= toPassIncl; i++) *(passNRules_[i]) -= ruleNo;
 }
 
 void RuleSet::initializeAllPasses() {
-  Lng32 index;
+  int index;
   for (index = 0; index < getFirstPassNumber(); index++) passNRules_.insertAt(index, NULL);
   for (index = getFirstPassNumber(); index <= MAX_NUM_OF_PASSES; index++)
     passNRules_.insertAt(index, new (CmpCommon::contextHeap()) RuleSubset(&allRules_, CmpCommon::contextHeap()));
@@ -434,7 +434,7 @@ NABoolean RuleSet::nextPass() {
     return FALSE;
 }
 
-void RuleSet::setCurrentPassNumber(Lng32 passNumber) {
+void RuleSet::setCurrentPassNumber(int passNumber) {
   currentPass_ = passNumber;
   oldRules_ += *applicableRules();
 }
@@ -464,7 +464,7 @@ RulesPerContext::RulesPerContext(const Context *const context, CollHeap *h) : co
 
 // Get the Rules that have been applied to this context
 const RuleSubset &RulesPerContextList::getTriedRules(const Context *const context) const {
-  for (Lng32 i = 0; i < (Lng32)entries(); i++) {
+  for (int i = 0; i < (int)entries(); i++) {
     const Context *const other = (*this)[i]->getContext();
     if (context == other) return (*this)[i]->getTriedRules();
   }
@@ -475,8 +475,8 @@ const RuleSubset &RulesPerContextList::getTriedRules(const Context *const contex
 
 // Has the provided rule been applied already for the given context?
 NABoolean RulesPerContextList::applied(const Context *const context, NAUnsigned ruleNumber) const {
-  Lng32 i = 0;
-  while (i < (Lng32)entries()) {
+  int i = 0;
+  while (i < (int)entries()) {
     const Context *const other = (*this)[i]->getContext();
     if (context == other)
       return ((*this)[i]->getTriedRules().contains(ruleNumber));
@@ -491,8 +491,8 @@ NABoolean RulesPerContextList::applied(const Context *const context, NAUnsigned 
 // Has the provided rule been applied in any prior context which has the
 // provided set of input logical properties?
 NABoolean RulesPerContextList::applied(const EstLogPropSharedPtr &inputLogProp, NAUnsigned ruleNumber) const {
-  Lng32 i = 0;
-  while (i < (Lng32)entries()) {
+  int i = 0;
+  while (i < (int)entries()) {
     if ((*this)[i]->getContext() !=
         NULL AND(*this)[i]->getContext()->getInputLogProp()->compareEstLogProp(inputLogProp) == SAME)
       return ((*this)[i]->getTriedRules().contains(ruleNumber));
@@ -503,8 +503,8 @@ NABoolean RulesPerContextList::applied(const EstLogPropSharedPtr &inputLogProp, 
 }
 
 void RulesPerContextList::addRule(const Context *const context, NAUnsigned ruleNumber) {
-  Lng32 i = 0;
-  while (i < (Lng32)entries()) {
+  int i = 0;
+  while (i < (int)entries()) {
     if (context == (*this)[i]->getContext()) {
       // mark this rule as already applied for this context
       (*this)[i]->triedRules() += ruleNumber;
@@ -524,8 +524,8 @@ void RulesPerContextList::addRule(const Context *const context, NAUnsigned ruleN
 
 // method is not called anywhere
 void RulesPerContextList::removeRule(const Context *const context, NAUnsigned ruleNumber) {
-  Lng32 i = 0;
-  while (i < (Lng32)entries()) {  // is this enough? Do we need to check for the SAME context here?
+  int i = 0;
+  while (i < (int)entries()) {  // is this enough? Do we need to check for the SAME context here?
     if (context == (*this)[i]->getContext()) {
       // remove this rule from already applied for this context
       (*this)[i]->triedRules() -= ruleNumber;

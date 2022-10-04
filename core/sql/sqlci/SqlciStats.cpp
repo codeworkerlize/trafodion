@@ -42,8 +42,8 @@
 #include <stdio.h>
 #include <iostream>
 #include <time.h>
-#include "Sqlci.h"
-#include "SqlciStats.h"
+#include "sqlci/Sqlci.h"
+#include "sqlci/SqlciStats.h"
 #include "common/str.h"
 #include "common/Platform.h"
 #include "common/ComSysUtils.h"
@@ -94,12 +94,12 @@ void SqlciStats::startExeStats() { NA_gettimeofday(&exe_start_time, 0); }
 void SqlciStats::endExeStats() { NA_gettimeofday(&exe_end_time, 0); }
 
 short SqlciStats::displayStats(SqlciEnv *sqlci_env) {
-  Lng32 retcode = 0;
+  int retcode = 0;
 
   if (statsStatus_ != STATS_AVAILABLE) return 0;
   // do not display, if stats display is set to off.
   if (statsDisplay_ == FALSE) return 0;
-  Lng32 newStrLen = strlen("GET STATISTICS ") + (statsOptions_ ? strlen(statsOptions_) : 0) + 50;
+  int newStrLen = strlen("GET STATISTICS ") + (statsOptions_ ? strlen(statsOptions_) : 0) + 50;
   char *newStr = new char[newStrLen + 1];
   NABoolean displayAll = FALSE;
   strcpy(newStr, "GET STATISTICS ");
@@ -119,8 +119,6 @@ short SqlciStats::displayStats(SqlciEnv *sqlci_env) {
     }
   }
   strcat(newStr, ";");
-  NABoolean savedShowshape = sqlci_env->showShape();
-  sqlci_env->showShape() = FALSE;
   statsDisplay_ = FALSE;
   if (displayAll) {
     strcpy(newStr, "GET STATISTICS FOR QID CURRENT PROGRESS , OPTIONS 'SL'");
@@ -134,7 +132,6 @@ short SqlciStats::displayStats(SqlciEnv *sqlci_env) {
     retcode = dml.process(sqlci_env);
   }
   delete[] newStr;
-  sqlci_env->showShape() = savedShowshape;
 
   statsDisplay_ = TRUE;
 
@@ -142,22 +139,19 @@ short SqlciStats::displayStats(SqlciEnv *sqlci_env) {
 }
 
 short SqlciStats::displayChildQryStats(SqlciEnv *sqlci_env) {
-  Lng32 retcode = 0;
+  int retcode = 0;
 
   // do not display, if stats display is set to off.
   if (statsDisplay_ == FALSE) return 0;
 
-  Lng32 newStrLen = strlen("GET STATISTICS FOR QID CURRENT") + 10;
+  int newStrLen = strlen("GET STATISTICS FOR QID CURRENT") + 10;
   char *newStr = new char[newStrLen + 1];
   strcpy(newStr, "GET STATISTICS FOR QID CURRENT ;");
 
-  NABoolean savedShowshape = sqlci_env->showShape();
-  sqlci_env->showShape() = FALSE;
   statsDisplay_ = FALSE;
   DML dml(newStr, DML_DESCRIBE_TYPE, "__MXCI_GET_CHILDQRY_STATS__");
   retcode = dml.process(sqlci_env);
   delete[] newStr;
-  sqlci_env->showShape() = savedShowshape;
 
   statsDisplay_ = TRUE;
 

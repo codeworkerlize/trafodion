@@ -76,7 +76,7 @@ class StmtDDLAlterTable : public StmtDDLNode {
   //
 
   virtual Int32 getArity() const;
-  virtual ExprNode *getChild(Lng32 index);
+  virtual ExprNode *getChild(int index);
 
   inline ElemDDLNode *getAlterTableAction() const;
   inline const NAString getTableName() const;
@@ -102,7 +102,7 @@ class StmtDDLAlterTable : public StmtDDLNode {
   // mutators
   //
 
-  virtual void setChild(Lng32 index, ExprNode *pChildNode);
+  virtual void setChild(int index, ExprNode *pChildNode);
   inline void setIsParseSubTreeDestroyedByDestructor(NABoolean setting);
   void setTableName(const QualifiedName &tableName);
   void setIsDroppable(NABoolean d);

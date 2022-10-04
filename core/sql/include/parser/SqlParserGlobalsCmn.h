@@ -1,39 +1,7 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-**********************************************************************/
+
 
 #ifndef SQLPARSERGLOBALSCMN_H
 #define SQLPARSERGLOBALSCMN_H
-/* -*-C++-*-
- *****************************************************************************
- *
- * File:         SqlParserGlobalsCmn.h
- *
- * Description:  Sql Parser and Lexer globals that must reside in common.lib
- *               rather than parser.lib
- *               (so that DLLs which don't use parser.lib will link)
- *
- *****************************************************************************
- */
 
 #undef GLOB_
 #undef INIT_
@@ -86,13 +54,6 @@ inline static void Reset_SqlParser_Flags(ULng32 flagbits) {
 // Assign_SqlParser_Flags or the PushAndSetSqlParserFlags class.
 inline static void UnOr_SqlParser_Flags(ULng32 flagbits) { SqlParser_Flags &= ~flagbits; }
 
-// If you simply want to turn on one or more parser flags in the
-// scope of one method, and then reset those flags to their original
-// state on exit, use this class. Code a call to the constructor
-// at the point where you want the flags set. The destructor will
-// return them to the original state when it is called. When used
-// as a stack variable this is very convenient; the flags get reset
-// when the scope is exited. And it is exception-safe.
 class PushAndSetSqlParserFlags {
  public:
   PushAndSetSqlParserFlags(ULng32 flagbits) : savedBits_(SqlParser_Flags) { Or_SqlParser_Flags(flagbits); };
@@ -111,14 +72,6 @@ class PushAndSetSqlParserFlags {
 #include "sqlcomp/NADefaults.h"
 #include "optimizer/ObjectNames.h"
 
-// This set of globals provides:
-// a) global access to compiler defaults in yyparse() and in ../common code;
-// b) faster access -- because these are in optimal formats, rather than
-//    pure NADefaults strings or floats -- to the defaults
-//    in other parts of the compiler and catman.
-//
-// See SchemaDB.h for why the default Ansi cat+schema do not appear here!
-//
 class SqlParser_NADefaults {
  public:
   SqlParser_NADefaults()

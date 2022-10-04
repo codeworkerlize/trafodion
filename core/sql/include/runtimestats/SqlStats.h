@@ -106,16 +106,16 @@ void testObjectEpochCache(Int32 argc, char **argv);
 
 class StmtStats {
  public:
-  StmtStats(NAHeap *heap, pid_t pid, char *queryId, Lng32 queryIdLen, void *backRef, Lng32 fragId,
-            char *sourceStr = NULL, Lng32 sourceStrLen = 0, Lng32 sqlSrcStrLen = 0, NABoolean isMaster = FALSE);
+  StmtStats(NAHeap *heap, pid_t pid, char *queryId, int queryIdLen, void *backRef, int fragId,
+            char *sourceStr = NULL, int sourceStrLen = 0, int sqlSrcStrLen = 0, NABoolean isMaster = FALSE);
   ~StmtStats();
   void deleteMe();
   void setStatsArea(ExStatisticsArea *stats);
   NAHeap *getHeap() { return heap_; }
   pid_t getPid() { return pid_; }
-  Lng32 getFragId() { return fragId_; }
+  int getFragId() { return fragId_; }
   ExStatisticsArea *getStatsArea() { return stats_; }
-  Int64 getLastMergedTime() { return lastMergedTime_; }
+  long getLastMergedTime() { return lastMergedTime_; }
   // unsigned short getLastMergedStatsType() { return lastMergedStatsType_; }
   ExStatisticsArea *getMergedStats() { return mergedStats_; }
   void setMergedStats(ExStatisticsArea *stats);
@@ -168,14 +168,14 @@ class StmtStats {
   }
 
   char *getQueryId() { return queryId_; }
-  Lng32 getQueryIdLen() { return queryIdLen_; }
+  int getQueryIdLen() { return queryIdLen_; }
 
   ExMasterStats *getMasterStats();
   void reuse(void *backRef);
-  void setParentQid(char *parentQid, Lng32 parentQidLen, char *parentQidSystem, Lng32 parentQidSystemLen, short myCpu,
+  void setParentQid(char *parentQid, int parentQidLen, char *parentQidSystem, int parentQidSystemLen, short myCpu,
                     short myNodeId);
   inline NABoolean updateChildQid() { return updateChildQid_; }
-  void setExplainFrag(void *explainFrag, Lng32 len, Lng32 topNodeOffset);
+  void setExplainFrag(void *explainFrag, int len, int topNodeOffset);
   RtsExplainFrag *getExplainInfo() { return explainInfo_; }
   void deleteExplainFrag();
   ULng32 getFlags() const { return flags_; }
@@ -197,10 +197,10 @@ class StmtStats {
   NAHeap *heap_;
   pid_t pid_;
   char *queryId_;
-  Lng32 queryIdLen_;
+  int queryIdLen_;
   ExMasterStats *masterStats_;
   ExStatisticsArea *stats_;
-  Int64 lastMergedTime_;
+  long lastMergedTime_;
   ExStatisticsArea *mergedStats_;
   ULng32 flags_;
   void *backRef_;  // This member is for the debug purposes to analyze halts
@@ -208,7 +208,7 @@ class StmtStats {
                    // It points to Statement object for master and ExEspStmtGlobals
                    // for Esps
   short refCount_;
-  Lng32 fragId_;
+  int fragId_;
   RtsExplainFrag *explainInfo_;
   NABoolean updateChildQid_;
 };
@@ -449,8 +449,8 @@ class ProcessStats {
   inline size_t getIpcMemAlloc();
   inline size_t getIpcMemUsed();
   inline ExProcessStats *getExProcessStats() { return exProcessStats_; }
-  StmtStats *addQuery(pid_t pid, char *queryId, Lng32 queryIdLen, void *backRef, Lng32 fragId, char *sourceStr,
-                      Lng32 sourceStrLen, Lng32 sqlSourceLen, NABoolean isMaster);
+  StmtStats *addQuery(pid_t pid, char *queryId, int queryIdLen, void *backRef, int fragId, char *sourceStr,
+                      int sourceStrLen, int sqlSourceLen, NABoolean isMaster);
   ObjectLockArray *ddlLockArray() { return &ddlLockArray_; }
   ObjectLockArray *dmlLockArray() { return &dmlLockArray_; }
   bool holdingDDLLocks() const { return holdingDDLLocks_; }
@@ -483,12 +483,12 @@ class ProcessStats {
 class RecentSikey {
  public:
   SQL_QIKEY s_;
-  Int64 revokeTimestamp_;
+  long revokeTimestamp_;
 };
 
 class StatsGlobals {
  public:
-  StatsGlobals(void *baseAddr, short envType, Int64 maxSegSize);
+  StatsGlobals(void *baseAddr, short envType, long maxSegSize);
   static void *operator new(size_t size, void *loc = 0);
   bool addProcess(pid_t pid, NAHeap *heap);
   void removeProcess(pid_t pid, NABoolean calledDuringAdd = FALSE);
@@ -506,11 +506,11 @@ class StatsGlobals {
 
   void logProcessDeath(short cpu, pid_t pid, const char *reason);
 
-  StmtStats *addQuery(pid_t pid, char *queryId, Lng32 queryIdLen, void *backRef, Lng32 fragId, char *sourceStr = NULL,
-                      Lng32 sourceStrLen = 0, NABoolean isMaster = FALSE);
+  StmtStats *addQuery(pid_t pid, char *queryId, int queryIdLen, void *backRef, int fragId, char *sourceStr = NULL,
+                      int sourceStrLen = 0, NABoolean isMaster = FALSE);
 
-  static StmtStats *addStmtStats(NAHeap *heap, pid_t pid, char *queryId, Lng32 queryIdLen, char *sourceStr,
-                                 Lng32 sourceStrLen);
+  static StmtStats *addStmtStats(NAHeap *heap, pid_t pid, char *queryId, int queryIdLen, char *sourceStr,
+                                 int sourceStrLen);
 
   // returns 0 if query is deleted
   // returns 1 if query is not deleted because MergedStats is present
@@ -529,26 +529,26 @@ class StatsGlobals {
   void cleanupDanglingSemaphore(NABoolean checkForSemaphoreHolder);
   void checkForDeadProcesses(pid_t myPid);
   SyncHashQueue *getStmtStatsList() { return stmtStatsList_; }
-  ExStatisticsArea *getStatsArea(char *queryId, Lng32 queryIdLen);
-  StmtStats *getMasterStmtStats(const char *queryId, Lng32 queryIdLen, short activeQueryNum);
-  StmtStats *getStmtStats(char *queryId, Lng32 queryIdLen);
+  ExStatisticsArea *getStatsArea(char *queryId, int queryIdLen);
+  StmtStats *getMasterStmtStats(const char *queryId, int queryIdLen, short activeQueryNum);
+  StmtStats *getStmtStats(char *queryId, int queryIdLen);
   StmtStats *getStmtStats(pid_t pid, short activeQueryNum);
   StmtStats *getStmtStats(short activeQueryNum);
-  StmtStats *getStmtStats(pid_t pid, char *queryId, Lng32 queryIdLen, Lng32 fragId);
-  StmtStats *getStmtStats(short cpu, pid_t pid, Int64 timeStamp, Lng32 queryNumber);
-  StmtStats *getStmtStats(pid_t pid, char *queryId, Lng32 queryIdLen);
+  StmtStats *getStmtStats(pid_t pid, char *queryId, int queryIdLen, int fragId);
+  StmtStats *getStmtStats(short cpu, pid_t pid, long timeStamp, int queryNumber);
+  StmtStats *getStmtStats(pid_t pid, char *queryId, int queryIdLen);
   ExRMSStats *getRMSStats() { return rmsStats_; }
   ExRMSStats *getRMSStats(NAHeap *heap);
   void doFullGC();
-  Lng32 registerQuery(ComDiagsArea &diags, pid_t pid, SQLQUERY_ID *queryId, Lng32 fragId, Lng32 tdbId,
-                      Lng32 explainTdbId, short statsCollectionType, Lng32 instNum, ComTdb::ex_node_type tdbType,
-                      char *tdbName, Lng32 tdbNameLen);
-  Lng32 deregisterQuery(ComDiagsArea &diags, pid_t pid, SQLQUERY_ID *queryId, Lng32 fragId);
-  Lng32 updateStats(ComDiagsArea &diags, SQLQUERY_ID *query_id, void *operatorStats, Lng32 operatorstatsLen);
+  int registerQuery(ComDiagsArea &diags, pid_t pid, SQLQUERY_ID *queryId, int fragId, int tdbId,
+                      int explainTdbId, short statsCollectionType, int instNum, ComTdb::ex_node_type tdbType,
+                      char *tdbName, int tdbNameLen);
+  int deregisterQuery(ComDiagsArea &diags, pid_t pid, SQLQUERY_ID *queryId, int fragId);
+  int updateStats(ComDiagsArea &diags, SQLQUERY_ID *query_id, void *operatorStats, int operatorstatsLen);
 
   void *getStatsSharedSegAddr() { return statsSharedSegAddr_; }
 
-  Lng32 getVersion() { return version_; }
+  int getVersion() { return version_; }
   void getMemOffender(ExStatisticsArea *statsArea, size_t memThreshold);
   ExProcessStats *getExProcessStats(pid_t pid);
   enum {
@@ -571,31 +571,31 @@ class StatsGlobals {
   inline NAHeap *getStatsHeap() { return &statsHeap_; }
   inline pid_t getSemPid() { return semPid_; }
   inline pid_t getSsmpPid();
-  inline Int64 getSsmpTimestamp();
+  inline long getSsmpTimestamp();
   inline pid_t getConfiguredPidMax() { return configuredPidMax_; }
-  inline void setSsmpDumpTimestamp(Int64 dumpTime) { ssmpDumpedTimestamp_ = dumpTime; }
-  inline Int64 getSsmpDumpTimestamp() { return ssmpDumpedTimestamp_; }
+  inline void setSsmpDumpTimestamp(long dumpTime) { ssmpDumpedTimestamp_ = dumpTime; }
+  inline long getSsmpDumpTimestamp() { return ssmpDumpedTimestamp_; }
   void setSnapshotInProgress() { snapshotInProgress_ = TRUE; }
   void resetSnapshotInProgress() { snapshotInProgress_ = FALSE; }
   NABoolean isSnapshotInProgress() { return snapshotInProgress_; }
 
-  Int64 getLastGCTime();
-  void setLastGCTime(Int64 gcTime);
+  long getLastGCTime();
+  void setLastGCTime(long gcTime);
   void incStmtStatsGCed(short inc);
-  void incSsmpReqMsg(Int64 msgBytes);
-  void incSsmpReplyMsg(Int64 msgBytes);
-  void incSscpReqMsg(Int64 msgBytes);
-  void incSscpReplyMsg(Int64 msgBytes);
+  void incSsmpReqMsg(long msgBytes);
+  void incSsmpReplyMsg(long msgBytes);
+  void incSscpReqMsg(long msgBytes);
+  void incSscpReplyMsg(long msgBytes);
   void setSscpOpens(short numSscps);
   void setSscpDeletedOpens(short numSscps);
   static const char *rmsEnvType(RTSEnvType envType);
-  void setSscpTimestamp(Int64 timestamp);
-  void setSsmpTimestamp(Int64 timestamp);
+  void setSscpTimestamp(long timestamp);
+  void setSsmpTimestamp(long timestamp);
   void setSscpPid(pid_t pid);
   void setSsmpPid(pid_t pid);
   void setSscpPriority(short pri);
   void setSsmpPriority(short pri);
-  void setRMSStatsResetTimestamp(Int64 timestamp);
+  void setRMSStatsResetTimestamp(long timestamp);
   void setNodesInCluster(short numNodes);
   void incProcessRegd();
   void decProcessRegd();
@@ -604,9 +604,9 @@ class StatsGlobals {
   inline short getCpu() { return cpu_; }
   inline short getNodeId() { return nodeId_; }
   inline void setAbortedSemPid() { abortedSemPid_ = semPid_; }
-  Int64 getNewestRevokeTimestamp() const { return newestRevokeTimestamp_; }
-  void cleanupOldSikeys(Int64 gcInterval);
-  Lng32 getSecInvalidKeys(CliGlobals *cliGlobals, Int64 lastCallTimestamp, SQL_QIKEY[], Int32 maxNumSiKeys,
+  long getNewestRevokeTimestamp() const { return newestRevokeTimestamp_; }
+  void cleanupOldSikeys(long gcInterval);
+  int getSecInvalidKeys(CliGlobals *cliGlobals, long lastCallTimestamp, SQL_QIKEY[], Int32 maxNumSiKeys,
                           Int32 *returnedNumSiKeys);
   Int32 checkLobLock(CliGlobals *cliGlobals, char *&lobLockId);
 
@@ -647,7 +647,7 @@ class StatsGlobals {
 
  private:
   void *statsSharedSegAddr_;
-  Lng32 version_;  // A field used to prevent downrev compiler or other
+  int version_;  // A field used to prevent downrev compiler or other
                    // incompatible programs to store objects in the
                    // shared memory
   Long sscpProcSemId_;
@@ -658,7 +658,7 @@ class StatsGlobals {
   SyncHashQueue *stmtStatsList_;
   short cpu_;
   pid_t semPid_;  // Pid of the process that holds semaphore lock - This element is used for debugging purpose only
-  Int64 semPidCreateTime_;  // Creation timestamp - pid recycle workaround.
+  long semPidCreateTime_;  // Creation timestamp - pid recycle workaround.
   NAHeap statsHeap_;
   NABoolean isSscpInitialized_;
   short rtsEnvType_;  // 1 - Global Environment
@@ -677,15 +677,15 @@ class StatsGlobals {
                            // holding process is gone, but its pid was
                            // recycled.
   SyncHashQueue *recentSikeys_;
-  Int64 newestRevokeTimestamp_;  // Allows CLI call w/o use if a semaphore.
+  long newestRevokeTimestamp_;  // Allows CLI call w/o use if a semaphore.
   NABoolean isBeingUpdated_;
   pid_t pidToCheck_;
   pid_t maxPid_;
-  Int64 ssmpDumpedTimestamp_;
+  long ssmpDumpedTimestamp_;
   NABoolean snapshotInProgress_;
   pid_t configuredPidMax_;
   SyncHashQueue *lobLocks_;
-  Int64 pidViolationCount_;
+  long pidViolationCount_;
   Int32 rmsDeadLockSecs_;  // tolerate RMS deadlock for these seconds
   NABoolean dumpRmsDeadLockProcess_;
   ObjectEpochCache *epochCache_;
@@ -694,8 +694,8 @@ class StatsGlobals {
 };
 StatsGlobals *shareStatsSegment(Int32 &shmid, NABoolean checkForSSMP = TRUE);
 StatsGlobals *shareStatsSegmentWithRetry(Int32 &shmid, NABoolean checkForSSMP = TRUE);
-short getMasterCpu(char *uniqueStmtId, Lng32 uniqueStmtIdLen, char *nodeName, short maxLen, short &cpu);
-short getStmtNameInQid(char *uniqueStmtId, Lng32 uniqueStmtIdLen, char *stmtName, short maxLen);
+short getMasterCpu(char *uniqueStmtId, int uniqueStmtIdLen, char *nodeName, short maxLen, short &cpu);
+short getStmtNameInQid(char *uniqueStmtId, int uniqueStmtIdLen, char *stmtName, short maxLen);
 NABoolean filterStmtStats(ExMasterStats *masterStats, short activeQueryNum, short &queryNum);
 short getRTSSemaphore();
 void releaseRTSSemaphore();
@@ -706,18 +706,18 @@ short getDefineNumericValue(char *defineName, short *numValue);
 // ObjectEpochCache
 class ObjectEpochCacheEntryName {
  public:
-  ObjectEpochCacheEntryName(NAHeap *heap, const char *objectName, ComObjectType objectType, Int64 redefTime);
+  ObjectEpochCacheEntryName(NAHeap *heap, const char *objectName, ComObjectType objectType, long redefTime);
 
   ~ObjectEpochCacheEntryName(){};
 
-  Int64 getHash() { return hash_; }
-  Int64 getRedefTime() { return redefTime_; }
+  long getHash() { return hash_; }
+  long getRedefTime() { return redefTime_; }
   const NAString &objectName() { return objectName_; }
   const char *getDLockKey() { return dlockKey_.data(); }
 
  private:
-  Int64 hash_;
-  Int64 redefTime_;  // zero if not known
+  long hash_;
+  long redefTime_;  // zero if not known
   NAString objectName_;
   NAString dlockKey_;
 };
@@ -864,7 +864,7 @@ class ObjectKey {
   }
 
  private:
-  Int64 hash_;
+  long hash_;
   char keyName_[MAX_LOCK_KEY_NAME_LEN + 1];
   bool internal_;
 };

@@ -112,9 +112,9 @@ void CRUTaskServerExecController::Init(CUOFsIpcMessageTranslator &translator, CU
   }
 
   // Find out which UTP process I am.
-  Lng32 pid;
+  int pid;
   short len;
-  translator.ReadBlock(&pid, sizeof(Lng32));
+  translator.ReadBlock(&pid, sizeof(int));
   translator.ReadBlock(&len, sizeof(short));
   if (len != 0) {
     pInstance_->parentQid_ = new char[len + 1];
@@ -334,7 +334,7 @@ void CRUTaskServerExecController::HandleExecutorFailure(CDSException &ex) {
 }
 
 #ifdef _DEBUG
-void CRUTaskServerExecController::createLogFile(Lng32 pid) {
+void CRUTaskServerExecController::createLogFile(int pid) {
   char streamName[30];
   sprintf(streamName, "refresh.utp%d", pid);
   logfile_ = new ofstream(streamName, ios::app);

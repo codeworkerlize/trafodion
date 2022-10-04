@@ -69,7 +69,7 @@ class ComTdbSample : public ComTdb {
   virtual short getClassSize() { return (short)sizeof(*this); }
 
   Long pack(void *);
-  Lng32 unpack(void *, void *reallocator);
+  int unpack(void *, void *reallocator);
 
   void display() const;
 

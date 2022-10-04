@@ -100,7 +100,7 @@ class ElemDDLConstraint : public ElemDDLNode {
   //
 
   virtual Int32 getArity() const;
-  virtual ExprNode *getChild(Lng32 index);
+  virtual ExprNode *getChild(int index);
 
   inline constraintKindEnum getConstraintKind() const;
 
@@ -134,7 +134,7 @@ class ElemDDLConstraint : public ElemDDLNode {
   // mutators
   //
 
-  virtual void setChild(Lng32 index, ExprNode *pChildNode);
+  virtual void setChild(int index, ExprNode *pChildNode);
   void setConstraintAttributes(ElemDDLNode *pConstraintAttributes);
   inline void setConstraintKind(constraintKindEnum constraintKind);
   inline void setConstraintName(const QualifiedName &constraintName);

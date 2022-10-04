@@ -12,9 +12,9 @@
 
 ComTdbFirstN::ComTdbFirstN() : ComTdb(ComTdb::ex_FIRST_N, eye_FIRST_N), tdbChild_(NULL), firstNRows_(0) {}
 
-ComTdbFirstN::ComTdbFirstN(ComTdb *child_tdb, Int64 firstNRows, ex_expr *firstNRowsExpr, ex_cri_desc *workCriDesc,
+ComTdbFirstN::ComTdbFirstN(ComTdb *child_tdb, long firstNRows, ex_expr *firstNRowsExpr, ex_cri_desc *workCriDesc,
                            ex_cri_desc *givenCriDesc, ex_cri_desc *returnedCriDesc, queue_index down, queue_index up,
-                           Lng32 numBuffers, ULng32 bufferSize)
+                           int numBuffers, ULng32 bufferSize)
     : ComTdb(ComTdb::ex_FIRST_N, eye_FIRST_N, 0, givenCriDesc, returnedCriDesc, down, up, numBuffers, bufferSize),
       tdbChild_(child_tdb),
       firstNRows_(firstNRows),
@@ -33,7 +33,7 @@ Long ComTdbFirstN::pack(void *space) {
   return ComTdb::pack(space);
 }
 
-Lng32 ComTdbFirstN::unpack(void *base, void *reallocator) {
+int ComTdbFirstN::unpack(void *base, void *reallocator) {
   if (tdbChild_.unpack(base, reallocator)) return -1;
   if (firstNRowsExpr_.unpack(base, reallocator)) return -1;
   if (workCriDesc_.unpack(base, reallocator)) return -1;

@@ -279,17 +279,17 @@ short Exchange::codeGenForESP(Generator *generator) {
 
   const PartitioningFunction *topPartFunc = getTopPartitioningFunction();
   const PartitioningFunction *bottomPartFunc = getBottomPartitioningFunction();
-  Lng32 numTopPartitions = topPartFunc->getCountOfPartitions();
-  Lng32 numBottomPartitions = bottomPartFunc->getCountOfPartitions();
-  Lng32 numTopEsps = numTopPartitions;
-  Lng32 numBottomEsps = numBottomPartitions;
+  int numTopPartitions = topPartFunc->getCountOfPartitions();
+  int numBottomPartitions = bottomPartFunc->getCountOfPartitions();
+  int numTopEsps = numTopPartitions;
+  int numBottomEsps = numBottomPartitions;
   NABoolean possiblePartNoConversionError = FALSE;
 
   // a value id list describing the values that the ESP needs to determine
   // the partition it is working on (part. number or key range) and its
   // corresponding map table
   const ValueIdList &partitionInputValues = getBottomPartitionInputValues();
-  Lng32 partitionInputDataLength = 0;
+  int partitionInputDataLength = 0;
 
   // the four TDBs that will be generated
   ComTdbSplitTop *splitTop = NULL;
@@ -317,8 +317,8 @@ short Exchange::codeGenForESP(Generator *generator) {
   NABoolean useSkewBuster = FALSE;
   NABoolean broadcastSkew = FALSE;
   NABoolean broadcastOneRow = FALSE;
-  Lng32 numSkewHashValues = 0;
-  Int64 *skewHashValues = NULL;
+  int numSkewHashValues = 0;
+  long *skewHashValues = NULL;
   SplitBottomSkewInfo *skewInfo = NULL;
   Int32 initialRoundRobin = 0;
   Int32 finalRoundRobin = numTopEsps - 1;
@@ -330,7 +330,7 @@ short Exchange::codeGenForESP(Generator *generator) {
   if (isExtractProducer_) {
     ComUID uid;
     uid.make_UID();
-    Int64 i64 = uid.get_value();
+    long i64 = uid.get_value();
     str_sprintf(extractSecurityKey, "%ld", i64);
   } else {
     str_sprintf(extractSecurityKey, "0");
@@ -542,7 +542,7 @@ short Exchange::codeGenForESP(Generator *generator) {
     generator->getFragmentDir()->setBMOsMemoryUsage(childFragmentId, BMOsMemoryUsage_.value());
 
     // store the numBottomEsps from this node for access by child sort operator.
-    Lng32 saveNumEsps = generator->getNumESPs();
+    int saveNumEsps = generator->getNumESPs();
     generator->setNumESPs(numBottomEsps);
 
     generator->getFragmentDir()->setEspLevel(childFragmentId, generator->getEspLevel());
@@ -746,7 +746,7 @@ short Exchange::codeGenForESP(Generator *generator) {
 
     // generate expr to calculate output partition number
     if ((numTopEsps > 1) && (NOT isAnESPAccess())) {
-      UInt32 expectedPartInfoLength = sizeof(Lng32);
+      UInt32 expectedPartInfoLength = sizeof(int);
 
       ItemExpr *topPartExpr = topPartFunc->getPartitioningExpression();
 
@@ -837,7 +837,7 @@ short Exchange::codeGenForESP(Generator *generator) {
           hashExprResult->bindNode(generator->getBindWA());
           topPartExprAsList.insert(hashExprResult->getValueId());
 
-          expectedPartInfoLength += sizeof(Int64)  // hash value
+          expectedPartInfoLength += sizeof(long)  // hash value
                                     + 4;           // alignment
 
           // 2. Prepare the array of hash values which
@@ -852,9 +852,9 @@ short Exchange::codeGenForESP(Generator *generator) {
                   // are actual skewed values.
 
                   numSkewHashValues = 10000;     
-                  skewHashValues = new (space) Int64[numSkewHashValues];
+                  skewHashValues = new (space) long[numSkewHashValues];
                   for (Int32 sv = 0; sv < numSkewHashValues; sv++)
-                    skewHashValues[sv] = (Int64) sv;
+                    skewHashValues[sv] = (long) sv;
                   skewInfo = new (space) 
                       SplitBottomSkewInfo(numSkewHashValues, skewHashValues);
                 }
@@ -870,7 +870,7 @@ short Exchange::codeGenForESP(Generator *generator) {
 
             GenAssert(numSkewHashValues > 0, "buildHashListForSkewedValues returned zero or fewer values");
 
-            skewHashValues = new (space) Int64[numSkewHashValues];
+            skewHashValues = new (space) long[numSkewHashValues];
 
             for (Int32 sv = 0; sv < numSkewHashValues; sv++) skewHashValues[sv] = (*partFuncSkewedValues)[sv];
 
@@ -1015,7 +1015,7 @@ short Exchange::codeGenForESP(Generator *generator) {
 
     if (CmpCommon::getDefault(COMP_BOOL_153) == DF_ON) splitBottom->setForceSkewRoundRobin(TRUE);
 
-    splitBottom->setAbendType((Lng32)CmpCommon::getDefaultNumeric(COMP_INT_39));
+    splitBottom->setAbendType((int)CmpCommon::getDefaultNumeric(COMP_INT_39));
     double cpuLimitCheckFreq = CmpCommon::getDefaultNumeric(COMP_INT_48);
     if (cpuLimitCheckFreq > SHRT_MAX) cpuLimitCheckFreq = SHRT_MAX;
     splitBottom->setCpuLimitCheckFreq((Int32)cpuLimitCheckFreq);
@@ -1031,7 +1031,7 @@ short Exchange::codeGenForESP(Generator *generator) {
     splitBottom->setOverflowMode(generator->getOverflowMode());
 
     // Config query execution limits.
-    Lng32 cpuLimit = (Lng32)CmpCommon::getDefaultNumeric(QUERY_LIMIT_SQL_PROCESS_CPU);
+    int cpuLimit = (int)CmpCommon::getDefaultNumeric(QUERY_LIMIT_SQL_PROCESS_CPU);
     if (cpuLimit > 0) splitBottom->setCpuLimit(cpuLimit);
 
     if (CmpCommon::getDefault(QUERY_LIMIT_SQL_PROCESS_CPU_DEBUG) == DF_ON) splitBottom->setQueryLimitDebug();
@@ -1105,7 +1105,7 @@ short Exchange::codeGenForESP(Generator *generator) {
     generator->addToTotalEstimatedMemory(totalMemoryST + totalMemorySB);
 
     if (!generator->explainDisabled()) {
-      Lng32 sbMemEstInKBPerNode = (Lng32)((totalMemoryST + totalMemorySB) / 1024);
+      int sbMemEstInKBPerNode = (int)((totalMemoryST + totalMemorySB) / 1024);
       sbMemEstInKBPerNode = sbMemEstInKBPerNode / (MAXOF(generator->compilerStatsInfo().dop(), 1));
 
       generator->setExplainTuple(addExplainInfo(splitBottom, childExplainTuple, 0, generator));
@@ -1229,7 +1229,7 @@ short Exchange::codeGenForESP(Generator *generator) {
   // ---------------------------------------------------------------------
 
   splitTop = new (space) ComTdbSplitTop(
-      sendTop, calcInputPartNoExpr, inputPartNoAtpIndex, mergeKeyExpr, mergeTuppAtpIndex, (Lng32)mergeKeyLength, NULL,
+      sendTop, calcInputPartNoExpr, inputPartNoAtpIndex, mergeKeyExpr, mergeTuppAtpIndex, (int)mergeKeyLength, NULL,
       -1, -1, given_cri_desc, returned_cri_desc, given_cri_desc, splitTopWorkCriDesc, FALSE, (queue_index)2,
       (queue_index)getDefault(GEN_SPLT_SIZE_UP),
       (Cardinality)getGroupAttr()->getOutputLogPropList()[0]->getResultCardinality().value(), numBottomPartitions,
@@ -1316,7 +1316,7 @@ ExpTupleDesc::TupleDataFormat Exchange::determineInternalFormat(const ValueIdLis
   return generator->determineInternalFormat(valIdList, relExpr, resizeCifRecord, bmo_cif, bmo_affinity,
                                             considerBufferDefrag);
 }
-CostScalar Exchange::getEstimatedRunTimeMemoryUsage(Generator *generator, NABoolean perNode, Lng32 *numStreams) {
+CostScalar Exchange::getEstimatedRunTimeMemoryUsage(Generator *generator, NABoolean perNode, int *numStreams) {
   //////////////////////////////////////
   // compute the buffer length (for both
   // sendTop and sendBottom) first.
@@ -1346,7 +1346,7 @@ CostScalar Exchange::getEstimatedRunTimeMemoryUsage(Generator *generator, NABool
   double memoryRequired = 0;
 
   const PartitioningFunction *topPartFunc = getTopPartitioningFunction();
-  Lng32 numTopEsps = topPartFunc->getCountOfPartitions();
+  int numTopEsps = topPartFunc->getCountOfPartitions();
 
   if (isDP2Exchange() == FALSE) {
     // regular ESP exchange
@@ -1383,7 +1383,7 @@ CostScalar Exchange::getEstimatedRunTimeMemoryUsage(Generator *generator, NABool
 }
 
 double Exchange::getEstimatedRunTimeMemoryUsage(Generator *generator, ComTdb *tdb) {
-  Lng32 numOfStreams = 1;
+  int numOfStreams = 1;
   CostScalar totalMemory = getEstimatedRunTimeMemoryUsage(generator, FALSE, &numOfStreams);
   totalMemory = totalMemory * numOfStreams;
   return totalMemory.value();

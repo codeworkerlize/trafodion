@@ -135,7 +135,7 @@ struct SplitTopChildState {
   // of a request from the parent (from the parent's point of view)
   // and what the last parent queue index was that was sent down
   // to the child.
-  Lng32 numActiveRequests_;
+  int numActiveRequests_;
   queue_index highWaterMark_;
 
   // The next fields are used when the split top node acts as a PAPA
@@ -145,7 +145,7 @@ struct SplitTopChildState {
   // Using multiple PAs for a large request of a partitioned table
   // allows a variable degree of parallelism. PA nodes do not provide
   // parallel access to multiple partitions, this is done by the PAPA node.
-  Lng32 associatedPartNum_;
+  int associatedPartNum_;
 };
 
 // used for fast indexing to child tcb from a given partition
@@ -213,14 +213,14 @@ class ex_split_top_tcb : public ex_tcb {
 
   ex_queue_pair getParentQueue() const;
 
-  virtual ex_tcb_private_state *allocatePstates(Lng32 &numElems,       // inout, desired/actual elements
-                                                Lng32 &pstateLength);  // out, length of one element
+  virtual ex_tcb_private_state *allocatePstates(int &numElems,       // inout, desired/actual elements
+                                                int &pstateLength);  // out, length of one element
 
   // access predicates in tdb
   inline ex_expr *childInputPartFunction() const { return splitTopTdb().childInputPartFunction_; }
   inline ex_expr *mergeKeyExpr() const { return splitTopTdb().mergeKeyExpr_; }
-  inline Lng32 mergeKeyAtpIndex() const { return splitTopTdb().mergeKeyAtpIndex_; }
-  inline Lng32 mergeKeyLength() const { return splitTopTdb().mergeKeyLength_; }
+  inline int mergeKeyAtpIndex() const { return splitTopTdb().mergeKeyAtpIndex_; }
+  inline int mergeKeyLength() const { return splitTopTdb().mergeKeyLength_; }
   inline NABoolean isPapaNode() const { return (splitTopTdb().paPartNoAtpIndex_ >= 0); }
 
   virtual Int32 numChildren() const;
@@ -237,7 +237,7 @@ class ex_split_top_tcb : public ex_tcb {
 
   atp_struct *workAtp_;
   tupp_descriptor partNumTupp_;  // target of part # expression
-  Lng32 calculatedPartNum_;      // target buffer for part. function expr
+  int calculatedPartNum_;      // target buffer for part. function expr
   SqlBuffer *inputDataTupps_;    // partition input data sent to children
   SqlBuffer *paPartNumTupps_;    // part # data sent to PA children
   SqlBuffer *mergeKeyTupps_;     // encoded keys for children for merge
@@ -250,9 +250,9 @@ class ex_split_top_tcb : public ex_tcb {
   SplitTopReadyChild *readyChildren_;       // list of data-ready children TCBs
 
   SplitTopChildState *childStates_;  // states of child PAs
-  Lng32 maxNumChildren_;             // upper limit for # of child TCBs
-  Lng32 firstPartNum_;               // upper limit for # of child TCBs
-  Lng32 numChildren_;                // # of child TCBs used so far
+  int maxNumChildren_;             // upper limit for # of child TCBs
+  int firstPartNum_;               // upper limit for # of child TCBs
+  int numChildren_;                // # of child TCBs used so far
   SplitTopPartNums *childParts_;     // partNum to PA mapping
   LIST(CollIndex) mergeSequence_;    // ordered list of child #s
   NABitVector unmergedChildren_;     // who is missing from mergeSequence_
@@ -284,7 +284,7 @@ class ex_split_top_tcb : public ex_tcb {
   } tcbState_;
 
   // Keep stream timeout - dynamic if set, else the static value
-  Lng32 streamTimeout_;
+  int streamTimeout_;
 
   // shared pool used by children (PAs)
   sql_buffer_pool *sharedPool_;
@@ -309,15 +309,15 @@ class ex_split_top_tcb : public ex_tcb {
 
   // find the child that is associated to partition number partNo or
   // try to associate a child with that partition number
-  CollIndex getAssociatedChildIndex(Lng32 partNo);
-  void resetAssociatedChildIndex(Lng32 partNo);
+  CollIndex getAssociatedChildIndex(int partNo);
+  void resetAssociatedChildIndex(int partNo);
 
   // Generate the next value for the sequence
   short generateSequenceNextValue(atp_struct *parentAtp);
 
   // set the partition range for the current parent queue entry
   // (for PAPA node only)
-  Lng32 getDP2PartitionsToDo(atp_struct *parentAtp, ex_split_top_private_state *pstate);
+  int getDP2PartitionsToDo(atp_struct *parentAtp, ex_split_top_private_state *pstate);
 
   // find the next child that has data ready to copy to the parent
   CollIndex findNextReadyChild(ex_split_top_private_state *pstate);
@@ -344,13 +344,13 @@ class ex_split_top_tcb : public ex_tcb {
   //
   // For EPS i where i in [0, m), the number of source ESPs can be found
   // by this function:
-  inline Lng32 numOfSourceESPs(Lng32 numOfTopPs, Lng32 numOfBottomPs, Lng32 myIndex) {
+  inline int numOfSourceESPs(int numOfTopPs, int numOfBottomPs, int myIndex) {
     ex_assert(myIndex < numOfTopPs, "Invalid N-M repartition mapping at top!");
     return ((myIndex * numOfBottomPs + numOfBottomPs - 1) / numOfTopPs - (myIndex * numOfBottomPs) / numOfTopPs + 1);
   }
 
   // To find the index of my first child ESP:
-  inline Lng32 myFirstSourceESP(Lng32 numOfTopPs, Lng32 numOfBottomPs, Lng32 myIndex) {
+  inline int myFirstSourceESP(int numOfTopPs, int numOfBottomPs, int myIndex) {
     return ((myIndex * numOfBottomPs) / numOfTopPs);
   }
 };
@@ -433,13 +433,13 @@ class ex_split_top_private_state : public ex_tcb_private_state {
   CollIndex currActiveChild_;
 
   // how many rows sent back to parent so far
-  Int64 matchCount_;
+  long matchCount_;
 
   // errors that have accumulated before we can reply to this request
   ComDiagsArea *diagsArea_;
 
   // how many OK_MMORE or Q_SQLERRORS sent back to parent so far. Used for Get_N requests and row counting in NJ node.
-  Int64 matchCountForGetN_;
+  long matchCountForGetN_;
 };
 
 // This class represents the extended version of the SplitTop PState.
@@ -482,23 +482,23 @@ class ex_split_top_private_state_ext : public ex_split_top_private_state {
   //	(D) -> (A): receive a Q_GET_DONE
   NABitVector commandSent_;
   NABitVector rowsAvailable_;
-  Lng32 rowsBeforeQGetDone_;  // this assumes one active partition at a time.
+  int rowsBeforeQGetDone_;  // this assumes one active partition at a time.
 
   // Used for GET_NEXT_N protocol.
   // satisfiedRequestValue = number of rows returned + number of rows we could not satisfy.
   //			   = down-queue-entry.requestValue after a Q_GET_DONE is returned.
   //			   = less than down-queue-entry.requestValue if Q_GET_DONE is not yet returned.
   // down-queue-entry.requestValue = requested number of rows to be returned.
-  Lng32 satisfiedRequestValue_;
+  int satisfiedRequestValue_;
   // Used for GET_NEXT_N protocol.
   // satisfiedGetNexts = number of Q_GET_DONEs returned
   // down-queue-entry.numGetNexts = number of GET_NEXT_N(_MAYBE_WAIT) received on the down-queue-entry
-  Lng32 satisfiedGetNexts_;
+  int satisfiedGetNexts_;
   // The counters above are signed 32 bit, so we need a guard to prevent them
   // from being incremented in the non-pubsub code path.
 
   // microseconds time when we last timed out the stream (streamTimeout_ is the .01 seconds to timeout).
-  Int64 time_of_stream_get_next_usec_;
+  long time_of_stream_get_next_usec_;
 
   // BertBert ^^^
 };

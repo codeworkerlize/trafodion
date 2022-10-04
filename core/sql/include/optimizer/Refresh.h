@@ -78,7 +78,7 @@ class Refresh : public BinderOnlyNode {
           PipelineClause *pOptionalPipelineClause, CollHeap *oHeap = CmpCommon::statementHeap());
 
   // Ctor for MULTIDELTA
-  Refresh(const QualifiedName &mvName, const DeltaDefinitionPtrList *pDeltaDefList, Lng32 phaseVal,
+  Refresh(const QualifiedName &mvName, const DeltaDefinitionPtrList *pDeltaDefList, int phaseVal,
           PipelineClause *pOptionalPipelineClause, CollHeap *oHeap = CmpCommon::statementHeap());
 
   virtual ~Refresh();
@@ -90,7 +90,7 @@ class Refresh : public BinderOnlyNode {
   const QualifiedName &getBaseMvName() { return mvName_; }
   const PipelineClause *getPipelineClause() const { return pipelineClause_; }
   const DeltaDefinitionPtrList *getDeltaDefList() const { return deltaDefList_; }
-  Lng32 getPhase() const { return phase_; }
+  int getPhase() const { return phase_; }
   const NRowsClause *getNRowsClause() const { return pNRowsClause_; }
   NABoolean getAdditionalPhaseNeeded() const { return additionalPhaseNeeded_; }
   DeltaDefinition *getDeltaDefinitionFor(const QualifiedName &name);
@@ -134,7 +134,7 @@ class Refresh : public BinderOnlyNode {
   const RefreshType refreshType_;
   QualifiedName mvName_;
   const DeltaDefinitionPtrList *deltaDefList_;
-  const Lng32 phase_;
+  const int phase_;
   PipelineClause *pipelineClause_;
   NRowsClause *pNRowsClause_;
   NABoolean noDeleteOnRecompute_;
@@ -155,7 +155,7 @@ class Refresh : public BinderOnlyNode {
 //----------------------------------------------------------------------------
 class IUDStatistics : public NABasicObject {
  public:
-  IUDStatistics(Lng32 numInsertedRows, Lng32 numDeletedRows, Lng32 numUpdatedRows, IntegerList *optionalColumns)
+  IUDStatistics(int numInsertedRows, int numDeletedRows, int numUpdatedRows, IntegerList *optionalColumns)
       : numInsertedRows_(numInsertedRows),
         numDeletedRows_(numDeletedRows),
         numUpdatedRows_(numUpdatedRows),
@@ -165,9 +165,9 @@ class IUDStatistics : public NABasicObject {
   // will be done by DeltaDefinition
   virtual ~IUDStatistics() {}
 
-  Lng32 getNumRowsInserted() { return numInsertedRows_; }
-  Lng32 getNumRowsDeleted() { return numDeletedRows_; }
-  Lng32 getNumRowsUpdated() { return numUpdatedRows_; }
+  int getNumRowsInserted() { return numInsertedRows_; }
+  int getNumRowsDeleted() { return numDeletedRows_; }
+  int getNumRowsUpdated() { return numUpdatedRows_; }
   IntegerList *getOptionalColumnList() { return optionalColumns_; }
 
  private:
@@ -175,9 +175,9 @@ class IUDStatistics : public NABasicObject {
   IUDStatistics(const IUDStatistics &other);
   IUDStatistics &operator=(const IUDStatistics &other);
 
-  Lng32 numInsertedRows_;
-  Lng32 numDeletedRows_;
-  Lng32 numUpdatedRows_;
+  int numInsertedRows_;
+  int numDeletedRows_;
+  int numUpdatedRows_;
   IntegerList *optionalColumns_;
 };  // class IUDStatistics
 
@@ -207,13 +207,13 @@ class DeltaDefRangeLog : public NABasicObject {
  public:
   enum Option { NO_LOG, CARDINALITY_ONLY, ALL };
 
-  DeltaDefRangeLog(Option option, Lng32 numOfRanges = 0, Lng32 coveredRows = 0)
+  DeltaDefRangeLog(Option option, int numOfRanges = 0, int coveredRows = 0)
       : op_(option), numOfRanges_(numOfRanges), coveredRows_(coveredRows) {}
 
   virtual ~DeltaDefRangeLog() {}
 
-  Lng32 getNumOfRanges() { return numOfRanges_; }
-  Lng32 getCoveredRows() { return coveredRows_; }
+  int getNumOfRanges() { return numOfRanges_; }
+  int getCoveredRows() { return coveredRows_; }
 
   Option getOption() { return op_; }
 
@@ -223,8 +223,8 @@ class DeltaDefRangeLog : public NABasicObject {
   DeltaDefRangeLog &operator=(const DeltaDefRangeLog &other);
 
   Option op_;
-  Lng32 numOfRanges_;
-  Lng32 coveredRows_;
+  int numOfRanges_;
+  int coveredRows_;
 };  // class DeltaDefRangeLog
 
 //----------------------------------------------------------------------------
@@ -255,7 +255,7 @@ class DeltaOptions : public NABasicObject {
  public:
   enum DELevel { NO_DE, RANGE_RESOLUTION_ONLY, RANGE_AND_CROSS_TYPE_RESOLUTIONS, ALL };
 
-  DeltaOptions(Lng32 deLevel, DeltaDefLogs *pDeltaDefLogs)
+  DeltaOptions(int deLevel, DeltaDefLogs *pDeltaDefLogs)
       : deLevel_(static_cast<DELevel>(deLevel)), pDeltaDefLogs_(pDeltaDefLogs) {}
 
   virtual ~DeltaOptions() {
@@ -284,7 +284,7 @@ class DeltaOptions : public NABasicObject {
 //----------------------------------------------------------------------------
 class DeltaDefinition : public NABasicObject {
  public:
-  DeltaDefinition(QualifiedName *tableName, Lng32 beginEpoch, Lng32 endEpoch, DeltaOptions *pDeltaOptions)
+  DeltaDefinition(QualifiedName *tableName, int beginEpoch, int endEpoch, DeltaOptions *pDeltaOptions)
       : tableName_(tableName),
         beginEpoch_(beginEpoch),
         endEpoch_(endEpoch),
@@ -332,20 +332,20 @@ class DeltaDefinition : public NABasicObject {
 
   // Accessors
   QualifiedName *getTableName() const { return tableName_; }
-  Lng32 getBeginEpoch() const { return beginEpoch_; }
-  Lng32 getEndEpoch() const { return endEpoch_; }
+  int getBeginEpoch() const { return beginEpoch_; }
+  int getEndEpoch() const { return endEpoch_; }
   NABoolean useIudLog() const { return useIudLog_; }
   NABoolean useRangeLog() const { return useRangeLog_; }
 
   NABoolean isNoDE() const;
 
   NABoolean isNoDeInsertOnly() const { return insertOnly_; }
-  Lng32 getNumOfRanges() const { return numOfRanges_; }
-  Lng32 getCoveredRows() const { return coveredRows_; }
+  int getNumOfRanges() const { return numOfRanges_; }
+  int getCoveredRows() const { return coveredRows_; }
 
-  Lng32 getIudInsertedRows() const { return iudInsertedRows_; }
-  Lng32 getIudDeletedRows() const { return useIudLog() ? iudDeletedRows_ : 0; }
-  Lng32 getIudUpdatedRows() const { return useIudLog() ? iudUpdatedRows_ : 0; }
+  int getIudInsertedRows() const { return iudInsertedRows_; }
+  int getIudDeletedRows() const { return useIudLog() ? iudDeletedRows_ : 0; }
+  int getIudUpdatedRows() const { return useIudLog() ? iudUpdatedRows_ : 0; }
   const IntegerList *getUpdatedColumnList() const { return updatedColumnList_; }
   DeltaOptions::DELevel getDELevel() const;
   NABoolean isFullDE() const { return getDELevel() == DeltaOptions::ALL; }
@@ -375,16 +375,16 @@ class DeltaDefinition : public NABasicObject {
   DeltaDefinition &operator=(const DeltaDefinition &other);
 
   QualifiedName *tableName_;
-  const Lng32 beginEpoch_;
-  const Lng32 endEpoch_;
+  const int beginEpoch_;
+  const int endEpoch_;
   NABoolean useIudLog_;
   NABoolean useRangeLog_;
   NABoolean insertOnly_;
-  Lng32 numOfRanges_;
-  Lng32 coveredRows_;
-  Lng32 iudInsertedRows_;
-  Lng32 iudDeletedRows_;
-  Lng32 iudUpdatedRows_;
+  int numOfRanges_;
+  int coveredRows_;
+  int iudInsertedRows_;
+  int iudDeletedRows_;
+  int iudUpdatedRows_;
   IntegerList *updatedColumnList_;
   DeltaOptions *pDeltaOptions_;
   NABoolean updateColumnsProcessed_;
@@ -488,8 +488,8 @@ class PipelineDefPtrList : public LIST(PipelineDef *) {
 //----------------------------------------------------------------------------
 class RecomputeRefreshOption : public NABasicObject {
  public:
-  RecomputeRefreshOption(NABoolean noDelete = FALSE, const Lng32 mvUidMsbForRecompute = 0,
-                         const Lng32 mvUidLsbForRecompute = 0, const QualifiedName *tableName = NULL)
+  RecomputeRefreshOption(NABoolean noDelete = FALSE, const int mvUidMsbForRecompute = 0,
+                         const int mvUidLsbForRecompute = 0, const QualifiedName *tableName = NULL)
       : noDelete_(noDelete) {}
 
   virtual ~RecomputeRefreshOption() {}
@@ -507,7 +507,7 @@ class RecomputeRefreshOption : public NABasicObject {
 //----------------------------------------------------------------------------
 class NRowsClause : public NABasicObject {
  public:
-  NRowsClause(Lng32 commitEach, Lng32 phase, ItemExpr *pOptionalCatchupClause)
+  NRowsClause(int commitEach, int phase, ItemExpr *pOptionalCatchupClause)
       : commitEach_(commitEach), phase_(phase), pCatchupClause_(pOptionalCatchupClause) {}
 
   // The pCatchupClause_ is not deleted because it is used in therefresh tree.
@@ -516,8 +516,8 @@ class NRowsClause : public NABasicObject {
   NABoolean isPhase1() const { return getPhase() == 1; }
   NABoolean isCatchup() const { return getCatchup() != NULL; }
 
-  Lng32 getCommitEach() const { return commitEach_; }
-  Lng32 getPhase() const { return phase_; }
+  int getCommitEach() const { return commitEach_; }
+  int getPhase() const { return phase_; }
   ItemExpr *getCatchup() const { return pCatchupClause_; }
 
  private:
@@ -525,8 +525,8 @@ class NRowsClause : public NABasicObject {
   NRowsClause(const NRowsClause &other);
   NRowsClause &operator=(const NRowsClause &other);
 
-  Lng32 commitEach_;
-  Lng32 phase_;
+  int commitEach_;
+  int phase_;
   ItemExpr *pCatchupClause_;
 };  // class NRowsClause
 
@@ -544,7 +544,7 @@ class IncrementalRefreshOption : public NABasicObject {
         phaseVal_(0),
         pPipelineClause_(pOptionalPipelineClause) {}
 
-  IncrementalRefreshOption(DeltaDefinitionPtrList *pDefList, Lng32 phaseVal, PipelineClause *pOptionalPipelineClause)
+  IncrementalRefreshOption(DeltaDefinitionPtrList *pDefList, int phaseVal, PipelineClause *pOptionalPipelineClause)
       : type_(MULTIDELTA),
         pDeltaDefList_(pDefList),
         pNRowsClause_(NULL),
@@ -562,7 +562,7 @@ class IncrementalRefreshOption : public NABasicObject {
   refreshType getType() { return type_; }
   DeltaDefinitionPtrList *getDeltaDefPtrList() { return pDeltaDefList_; }
   NRowsClause *getNRowsClause() { return pNRowsClause_; }
-  Lng32 getPhaseNum() { return phaseVal_; }
+  int getPhaseNum() { return phaseVal_; }
   PipelineClause *getPipelineClause() { return pPipelineClause_; }
 
  public:
@@ -573,7 +573,7 @@ class IncrementalRefreshOption : public NABasicObject {
   refreshType type_;
   DeltaDefinitionPtrList *pDeltaDefList_;
   NRowsClause *pNRowsClause_;
-  Lng32 phaseVal_;
+  int phaseVal_;
   PipelineClause *pPipelineClause_;
 };  // class IncrementalRefreshOption
 

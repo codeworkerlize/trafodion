@@ -46,7 +46,7 @@ class QmsInitializer {
    * into memory for use by the QMS process.
    * @return The return code from internal SQL query execution.
    */
-  Lng32 performInitialization();
+  int performInitialization();
 
   /**
    * doCollectQMSStats checks whether we should collect qms stats
@@ -59,14 +59,14 @@ class QmsInitializer {
    * successfully processed that contained MVs.
    * @return The number of catalogs processed containing MVs.
    */
-  inline Lng32 getNumberOfCatalogs() { return numberOfCatalogs_; };
+  inline int getNumberOfCatalogs() { return numberOfCatalogs_; };
 
   /**
    * getMVNumber returns the number of MV
    * successfully processed that contained valid MV descriptors.
    * @return The number of MVs processed containing valid descriptors
    */
-  inline Lng32 getNumberOfMVs() { return numberOfMVs_; };
+  inline int getNumberOfMVs() { return numberOfMVs_; };
 
   /**
    * dump QMS statistics to the log

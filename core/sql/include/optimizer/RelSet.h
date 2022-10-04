@@ -130,7 +130,7 @@ class UnionMap : public NABasicObject {
 
   // normalize all the expressions in the maps that are contributed
   // by the child, whose index is childIndex, in the map.
-  void normalizeSpecificChild(NormWA &normWARef, Lng32 childIndex);
+  void normalizeSpecificChild(NormWA &normWARef, int childIndex);
 
   void trim(const ValueIdSet &charOutputs);
 
@@ -147,7 +147,7 @@ class UnionMap : public NABasicObject {
   ValueIdMap rightColMap_;
 
   // Reference Count
-  Lng32 count_;
+  int count_;
 };
 
 class AssignmentStHostVars;
@@ -179,7 +179,7 @@ class Union : public RelExpr {
   inline ValueIdMap &getLeftMap() const { return unionMap_->leftColMap_; }
   inline ValueIdMap &getRightMap() { return unionMap_->rightColMap_; }
   inline ValueIdMap &getRightMap() const { return unionMap_->rightColMap_; }
-  ValueIdMap &getMap(Lng32 i) {
+  ValueIdMap &getMap(int i) {
     CMPASSERT(i == 0 OR i == 1);
     if (i == 0)
       return unionMap_->leftColMap_;
@@ -226,7 +226,7 @@ class Union : public RelExpr {
   // children
   virtual void pushdownCoveredExpr(const ValueIdSet &outputExprOnOperator, const ValueIdSet &newExternalInputs,
                                    ValueIdSet &predOnOperator, const ValueIdSet *nonPredExprOnOperator = NULL,
-                                   Lng32 childId = (-MAX_REL_ARITY));
+                                   int childId = (-MAX_REL_ARITY));
 
   // The set of values that I can potentially produce as output.
   virtual void getPotentialOutputValues(ValueIdSet &vs) const;
@@ -250,7 +250,7 @@ class Union : public RelExpr {
   // partitioning requirement.
   // ---------------------------------------------------------------------
   PartitioningRequirement *createPartitioningRequirement(const ReqdPhysicalProperty *const rppForUnion,
-                                                         Lng32 currentChildIndex);
+                                                         int currentChildIndex);
 
   virtual HashValue topHash();
   virtual NABoolean duplicateMatch(const RelExpr &other) const;
@@ -432,7 +432,7 @@ class Union : public RelExpr {
   // ---------------------------------------------------------------------
   PartitioningFunction *createPartitioningRequirement(const ReqdPhysicalProperty *const rppForUnion,
                                                       const PartitioningFunction *const partFuncToMatch,
-                                                      Lng32 currentChildIndex, Lng32 currentPlanNumber);
+                                                      int currentChildIndex, int currentPlanNumber);
 
   // MV --
   // A debugging method for dumping the columns in the RETDesc of both
@@ -513,12 +513,12 @@ class MergeUnion : public Union {
 
   // Cascades-related functions
   virtual CostMethod *costMethod() const;
-  virtual Context *createContextForAChild(Context *myContext, PlanWorkSpace *pws, Lng32 &childIndex);
+  virtual Context *createContextForAChild(Context *myContext, PlanWorkSpace *pws, int &childIndex);
   virtual NABoolean findOptimalSolution(Context *myContext, PlanWorkSpace *pws);
-  virtual PhysicalProperty *synthPhysicalProperty(const Context *context, const Lng32 planNumber, PlanWorkSpace *pws);
+  virtual PhysicalProperty *synthPhysicalProperty(const Context *context, const int planNumber, PlanWorkSpace *pws);
 
   // Helper function for plan generation.
-  Context *createChildContext(Context *context, PlanWorkSpace *pws, Lng32 childIndex);
+  Context *createChildContext(Context *context, PlanWorkSpace *pws, int childIndex);
 
   // handling sort order and merge expression
   inline const ValueIdList &getSortOrder() { return sortOrder_; }
@@ -562,7 +562,7 @@ class MergeUnion : public Union {
   //
   // -----------------------------------------------------------------------
   NABoolean finalizeUnionSortKey(const ValueIdList &knownSortKey,  // IN
-                                 Lng32 knownSide,                  // IN
+                                 int knownSide,                  // IN
                                  const ValueIdSet &arrCols,        // IN
                                  ValueIdList &unionSortKey);       // IN&OUT
 

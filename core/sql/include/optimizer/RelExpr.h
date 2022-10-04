@@ -76,7 +76,7 @@ class CostMethodFixedCostPerRow;
 // used in heuristics to limit VSBB and SIDETREE inserts only if number rows
 // being inserted is larger than this constant. Used in ImplRule.cpp and
 // GenPreCode.cpp
-const Lng32 MIN_ROWS_FOR_VSBB = 100;
+const int MIN_ROWS_FOR_VSBB = 100;
 
 // used to defined input partitioning type of a TMUDF table input (its child)
 enum TMUDFInputPartReq { ANY_PARTITIONING, SPECIFIED_PARTITIONING, REPLICATE_PARTITIONING, NO_PARTITIONING };
@@ -247,7 +247,7 @@ class RelExpr : public ExprNode {
 
   CostScalar getRTDataUsed() { return rtDataUsed_; }
   void setRTDataUsed(CostScalar x) { rtDataUsed_ = x; }
-  virtual NABoolean assignRTStats(NAArray<Int64> &, Int32 &);
+  virtual NABoolean assignRTStats(NAArray<long> &, Int32 &);
 
   void establishReverseParentPointers(RelExpr *parent = NULL);
 
@@ -258,7 +258,7 @@ class RelExpr : public ExprNode {
   void collectNumNativeParquetScans(Int32 &totalScans, Int32 &numNativeParquetScans);
   void collectNumOrcScans(Int32 &totalScans, Int32 &numOrcScans);
 
-  NABoolean assignRTStatsPostProcessing(NAArray<Int64> &, Int32 &);
+  NABoolean assignRTStatsPostProcessing(NAArray<long> &, Int32 &);
 
   // append an ascii-version of RelExpr node into cachewa.qryText_
   void generateCacheKeyNode(CacheWA &cwa) const;
@@ -271,12 +271,12 @@ class RelExpr : public ExprNode {
 
   // How much memory do we expect this operator's executor to be able to use
   // per ESP/master fragment ?
-  Lng32 getExeMemoryAvailable(NABoolean inMaster) const;
+  int getExeMemoryAvailable(NABoolean inMaster) const;
 
   // compute the memory quota
   double computeMemoryQuota(NABoolean inMaster, NABoolean perNode, double BMOsMemoryLimit, UInt16 totalNumBMOs,
                             double totalBMOsMemoryUsage, UInt16 numBMOsPerFragment, double BMOMemoryUsage,
-                            Lng32 numStreams, double &memQuotaRatio);
+                            int numStreams, double &memQuotaRatio);
 
   virtual void decideFeasibleToTransformForAggrPushdown(NABoolean checkAll);
 
@@ -307,10 +307,10 @@ class RelExpr : public ExprNode {
   // method required for traversing an ExprNode tree
   // access a child of an ExprNode
   // ---------------------------------------------------------------------
-  virtual ExprNode *getChild(Lng32 index);
+  virtual ExprNode *getChild(int index);
 
   // Method for replacing a particular child
-  virtual void setChild(Lng32 index, ExprNode *);
+  virtual void setChild(int index, ExprNode *);
 
   // ---------------------------------------------------------------------
   // Delete this node without deleting its subtree.
@@ -322,20 +322,20 @@ class RelExpr : public ExprNode {
   // ---------------------------------------------------------------------
 
   // operator [] is used to access the children of a tree
-  virtual ExprGroupId &operator[](Lng32 index) {
+  virtual ExprGroupId &operator[](int index) {
     CMPASSERT(index >= 0 AND index < MAX_REL_ARITY);
     return child_[index];
   }
 
-  virtual const ExprGroupId &operator[](Lng32 index) const {
+  virtual const ExprGroupId &operator[](int index) const {
     CMPASSERT(index >= 0 AND index < MAX_REL_ARITY);
     return child_[index];
   }
 
   // for cases where a named method is more convenient than operator []
-  inline ExprGroupId &child(Lng32 index) { return operator[](index); }
+  inline ExprGroupId &child(int index) { return operator[](index); }
   // const version of the above
-  inline const ExprGroupId &child(Lng32 index) const { return operator[](index); }
+  inline const ExprGroupId &child(int index) const { return operator[](index); }
 
   // ---------------------------------------------------------------------
   // manipulate the selection predicate of the node
@@ -804,7 +804,7 @@ class RelExpr : public ExprNode {
   // ---------------------------------------------------------------------
   virtual void pushdownCoveredExpr(const ValueIdSet &outputExprOnOperator, const ValueIdSet &newExternalInputs,
                                    ValueIdSet &predOnOperator, const ValueIdSet *nonPredNonOutputExprOnOperator = NULL,
-                                   Lng32 childId = (-MAX_REL_ARITY));
+                                   int childId = (-MAX_REL_ARITY));
 
   // -----------------------------------------------------------------------
   // RelExpr::computeValuesReqdForPredicates()
@@ -974,7 +974,7 @@ class RelExpr : public ExprNode {
   // This method is called from within the implementation
   // of createPlan().
   // ---------------------------------------------------------------------
-  virtual Context *createContextForAChild(Context *myContext, PlanWorkSpace *pws, Lng32 &childIndex);
+  virtual Context *createContextForAChild(Context *myContext, PlanWorkSpace *pws, int &childIndex);
 
   // ---------------------------------------------------------------------
   // Create a Context for a specific child, given a sortkey and
@@ -983,7 +983,7 @@ class RelExpr : public ExprNode {
   // of createContextForAChild() for operators that require the dataflow
   // produced by their child to be sorted.
   // ---------------------------------------------------------------------
-  Context *generateContext(Context *myContext, PlanWorkSpace *pws, Lng32 childIndex,
+  Context *generateContext(Context *myContext, PlanWorkSpace *pws, int childIndex,
                            const ValueIdSet *const arrangedCols, const ValueIdList *const sortKey,
                            PartitioningRequirement *partReq);
 
@@ -997,7 +997,7 @@ class RelExpr : public ExprNode {
   // A virtual function that determines if the current plan is
   // compatible with any forced plan constraints and is viable.
   // ---------------------------------------------------------------------
-  virtual NABoolean currentPlanIsAcceptable(Lng32 planNo, const ReqdPhysicalProperty *const rppForMe) const;
+  virtual NABoolean currentPlanIsAcceptable(int planNo, const ReqdPhysicalProperty *const rppForMe) const;
 
   // ---------------------------------------------------------------------
   // A virtual function for associating one of the Contexts
@@ -1011,7 +1011,7 @@ class RelExpr : public ExprNode {
   // (assuming the children are already optimized and have physical properties)
   // (used in the implementation of createPlan)
   // ---------------------------------------------------------------------
-  virtual PhysicalProperty *synthPhysicalProperty(const Context *myContext, const Lng32 planNumber, PlanWorkSpace *pws);
+  virtual PhysicalProperty *synthPhysicalProperty(const Context *myContext, const int planNumber, PlanWorkSpace *pws);
 
   // ---------------------------------------------------------------------
   // A helper method for synthesizing the physical properties for the leaf
@@ -1023,7 +1023,7 @@ class RelExpr : public ExprNode {
   // ---------------------------------------------------------------------
   // create or share an optimization goal for a child group
   // ---------------------------------------------------------------------
-  Context *shareContext(Lng32 childIndex, const ReqdPhysicalProperty *const reqdPhys,
+  Context *shareContext(int childIndex, const ReqdPhysicalProperty *const reqdPhys,
                         const InputPhysicalProperty *const inputPhys, CostLimit *costLimit, Context *parentContext,
                         const EstLogPropSharedPtr &inputLogProp, RelExpr *explicitlyRequiredShape = NULL) const;
 
@@ -1039,7 +1039,7 @@ class RelExpr : public ExprNode {
   // ESPs is being forced.
   // ---------------------------------------------------------------------
   virtual DefaultToken getParallelControlSettings(const ReqdPhysicalProperty *const rppForMe, /*IN*/
-                                                  Lng32 &numOfESPs,                           /*OUT*/
+                                                  int &numOfESPs,                           /*OUT*/
                                                   float &allowedDeviation,                    /*OUT*/
                                                   NABoolean &numOfESPsForced /*OUT*/) const;
 
@@ -1049,7 +1049,7 @@ class RelExpr : public ExprNode {
   // ---------------------------------------------------------------------
   virtual NABoolean okToAttemptESPParallelism(const Context *myContext, /*IN*/
                                               PlanWorkSpace *pws,       /*IN*/
-                                              Lng32 &numOfESPs,         /*OUT*/
+                                              int &numOfESPs,         /*OUT*/
                                               float &allowedDeviation,  /*OUT*/
                                               NABoolean &numOfESPsForced /*OUT*/);
 
@@ -1173,9 +1173,9 @@ class RelExpr : public ExprNode {
   // quantities of memory. For example, a Type-2 parallel hash join vs.
   // a Type-1 parallel hash join.
   // ---------------------------------------------------------------------
-  virtual NABoolean isBigMemoryOperator(const PlanWorkSpace *pws, const Lng32 planNumber);
+  virtual NABoolean isBigMemoryOperator(const PlanWorkSpace *pws, const int planNumber);
 
-  virtual CostScalar getEstimatedRunTimeMemoryUsage(Generator *generator, NABoolean perNode, Lng32 *numStreams = NULL) {
+  virtual CostScalar getEstimatedRunTimeMemoryUsage(Generator *generator, NABoolean perNode, int *numStreams = NULL) {
     return 0;
   }
   virtual double getEstimatedRunTimeMemoryUsage(Generator *generator, ComTdb *tdb) { return 0; }
@@ -1188,7 +1188,7 @@ class RelExpr : public ExprNode {
   // at this RelExpr.
   void setBlockStmtRecursively(NABoolean x);
 
-  double calculateNoOfLogPlans(Lng32 &numOfMergedExprs);
+  double calculateNoOfLogPlans(int &numOfMergedExprs);
 
   double calculateSubTreeComplexity(NABoolean &antiSemiJoinQuery);
 
@@ -1198,10 +1198,10 @@ class RelExpr : public ExprNode {
 
   void makeListBySize(LIST(CostScalar) & orderedList, NABoolean recompute);
 
-  void setFirstNRows(Int64 firstNRows) { firstNRows_ = firstNRows; }
-  Int64 getFirstNRows() { return firstNRows_; }
+  void setFirstNRows(long firstNRows) { firstNRows_ = firstNRows; }
+  long getFirstNRows() { return firstNRows_; }
 
-  virtual PlanPriority computeOperatorPriority(const Context *context, PlanWorkSpace *pws = NULL, Lng32 planNumber = 0);
+  virtual PlanPriority computeOperatorPriority(const Context *context, PlanWorkSpace *pws = NULL, int planNumber = 0);
 
   NABoolean oltOpt() { return oltOptInfo_.oltAnyOpt(); };
   NABoolean oltOptLean() { return oltOptInfo_.oltEidLeanOpt(); };
@@ -1295,7 +1295,7 @@ class RelExpr : public ExprNode {
   NABoolean dopReduced() const { return dopReduced_; };
   void setDopReduced(NABoolean x) { dopReduced_ = x; };
 
-  void adjustTopPartFuncRecursively(Lng32 newDop);
+  void adjustTopPartFuncRecursively(int newDop);
 
   virtual NABoolean dopReductionRTFeasible();
 
@@ -1448,7 +1448,7 @@ class RelExpr : public ExprNode {
 
   // if set to -1, return all rows.
   // Otherwise, return firstNRows_ at runtime.
-  Int64 firstNRows_;
+  long firstNRows_;
 
   UInt32 flags_;
 
@@ -1499,7 +1499,7 @@ class RelExpr : public ExprNode {
   // the following data members were added solely for the cascades display gui
   // so we can trace each relexpr to its creator and source
   // begin relexpr tracking info
-  Lng32 parentTaskId_;  // {parentTaskId_,stride_} of the CascadesTask
+  int parentTaskId_;  // {parentTaskId_,stride_} of the CascadesTask
   short stride_;        // that created this RelExpr
 
   CascadesGroupId sourceGroupId_;  // GroupId of creator task of this relexpr
@@ -1573,7 +1573,7 @@ class RelExpr : public ExprNode {
   void setParent(RelExpr *p) { parent_ = p; }
 
   // begin: accessors & mutators for relexpr tracking info
-  Lng32 getParentTaskId() { return parentTaskId_; }
+  int getParentTaskId() { return parentTaskId_; }
   short getSubTaskId() { return stride_; }
   Int32 getBirthId() { return birthId_; }
 
@@ -1782,13 +1782,13 @@ class ScanForceWildCard : public WildCardOp {
   inline scanOptionEnum getMdamColumnsStatus() const { return mdamColumnsStatus_; }
   scanOptionEnum getEnumAlgorithmForColumn(CollIndex column) const;
 
-  void setNumberOfBlocksToReadPerAccess(const Lng32 &blocks) {
+  void setNumberOfBlocksToReadPerAccess(const int &blocks) {
     DCMPASSERT(blocks > -1);
     numberOfBlocksToReadPerAccess_ = blocks;
   }
 
   // If this returns -1 it indicates that we are not forcing blocks per access...
-  Lng32 getNumberOfBlocksToReadPerAccess() const { return numberOfBlocksToReadPerAccess_; }
+  int getNumberOfBlocksToReadPerAccess() const { return numberOfBlocksToReadPerAccess_; }
 
   // helper function on CQS Tree
   virtual RelExpr *generateMatchingExpr(CANodeIdSet &, CANodeIdSet &, RelExpr *);
@@ -1804,7 +1804,7 @@ class ScanForceWildCard : public WildCardOp {
   scanOptionEnum *enumAlgorithms_;  // array of enumeration algorithms
                                     // for each column
   // To force the FileScan member of the same name
-  Lng32 numberOfBlocksToReadPerAccess_;
+  int numberOfBlocksToReadPerAccess_;
 };
 
 // -----------------------------------------------------------------------
@@ -1878,7 +1878,7 @@ class ExchangeForceWildCard : public WildCardOp {
   // either use any scan on the table with a given exposed name
   // or only use an index scan on the specified index
   ExchangeForceWildCard(RelExpr *child0, forcedExchEnum which = ANY_EXCH, forcedLogPartEnum whatLogPart = ANY_LOGPART,
-                        Lng32 numBottomEsps = -1, CollHeap *outHeap = CmpCommon::statementHeap());
+                        int numBottomEsps = -1, CollHeap *outHeap = CmpCommon::statementHeap());
 
   virtual ~ExchangeForceWildCard();
 
@@ -1886,7 +1886,7 @@ class ExchangeForceWildCard : public WildCardOp {
 
   inline forcedExchEnum getWhich() const { return which_; }
   inline forcedLogPartEnum getWhichLogPart() const { return whatLogPart_; }
-  inline Lng32 getHowMany() const { return howMany_; }
+  inline int getHowMany() const { return howMany_; }
 
   virtual const NAString getText() const;
 
@@ -1900,7 +1900,7 @@ class ExchangeForceWildCard : public WildCardOp {
 
   forcedLogPartEnum whatLogPart_;  // which flavor of logical partitioning
 
-  Lng32 howMany_;  // how many exchanges on the bottom
+  int howMany_;  // how many exchanges on the bottom
 
 };  // ExchangeForceWildCard
 

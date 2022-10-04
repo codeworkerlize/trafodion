@@ -56,7 +56,7 @@ typedef LIST(const char *) DP2VolumeNamesContainer;
 //-----------------------------------------
 //  Indication that any node is acceptable.
 //-----------------------------------------
-const Lng32 LOCAL_CLUSTER = 0;
+const int LOCAL_CLUSTER = 0;
 
 //--------------------------------------------
 //  A node map entry associates a process with
@@ -248,14 +248,14 @@ class NodeMap : public NABasicObject {
     return map_[position];
   }
   NABoolean isActive(const CollIndex position) const;
-  Lng32 getNodeNumber(const CollIndex position) const;
-  Lng32 getPopularNodeNumber(const CollIndex beginPos, const CollIndex endPos) const;
-  Lng32 mapNodeNameToNodeNum(const NAString node) const;
-  Lng32 getClusterNumber(const CollIndex position) const;
+  int getNodeNumber(const CollIndex position) const;
+  int getPopularNodeNumber(const CollIndex beginPos, const CollIndex endPos) const;
+  int mapNodeNameToNodeNum(const NAString node) const;
+  int getClusterNumber(const CollIndex position) const;
   Int32 getTableIdent(void) const { return tableIdent_; }
   NABoolean isMultiCluster(CollIndex start, CollIndex end, NABoolean activeOnly) const;
 
-  NABoolean smooth(Lng32 numNodes);
+  NABoolean smooth(int numNodes);
 
   // These functions should be const but because of the
   // cached values and the fact that mutable is not
@@ -279,13 +279,13 @@ class NodeMap : public NABasicObject {
 
   void setPartitionState(const CollIndex &position, const NodeMapEntry::PartitionState &state);
 
-  void setNodeNumber(const CollIndex position, const Lng32 nodeNumber);
-  void setClusterNumber(const CollIndex position, const Lng32 clusterNumber);
+  void setNodeNumber(const CollIndex position, const int nodeNumber);
+  void setClusterNumber(const CollIndex position, const int clusterNumber);
 
-  void setNumActivePartitions(const CollIndex &numActPart) { numActivePartitions_ = (Lng32)numActPart; }
+  void setNumActivePartitions(const CollIndex &numActPart) { numActivePartitions_ = (int)numActPart; }
 
   void setEstNumActivePartitionsAtRuntime(const CollIndex &numActPart) {
-    numEstActivePartitionsAtRuntime_ = (Lng32)numActPart;
+    numEstActivePartitionsAtRuntime_ = (int)numActPart;
   }
 
   void setTableIdent(Int32 tableIdent) { tableIdent_ = tableIdent; }
@@ -296,7 +296,7 @@ class NodeMap : public NABasicObject {
   //------------------
   //  Generator methods
   //------------------
-  static short codeGen(const PartitioningFunction *partFunc, const Lng32 numESPs, Generator *generator);
+  static short codeGen(const PartitioningFunction *partFunc, const int numESPs, Generator *generator);
 
   //------------------
   //  Print functions.
@@ -325,21 +325,21 @@ class NodeMap : public NABasicObject {
 
   // The number of partitions doing work for a particular query
   // Value of -1 means the member has not been set.
-  Lng32 numActivePartitions_;
+  int numActivePartitions_;
 
   // This variable is set to the maximum number of partitions that can be active,
   // if a query has an equality predicate with a host/parameter variable
   // on leading partition column.
   // Value of -1 means the member has not been set.
-  Lng32 numEstActivePartitionsAtRuntime_;
+  int numEstActivePartitionsAtRuntime_;
 
   // The number of DP2 volumes
   // Value of -1 means the member has not been set.
-  Lng32 numOfDP2Volumes_;
+  int numOfDP2Volumes_;
 
   // The number of active DP2 volumes
   // Value of -1 means the member has not been set.
-  Lng32 numOfActiveDP2Volumes_;
+  int numOfActiveDP2Volumes_;
 
   // Identifier for the table.
   Int32 tableIdent_;

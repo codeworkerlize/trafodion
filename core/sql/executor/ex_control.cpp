@@ -44,7 +44,7 @@
 #include "ex_exe_stmt_globals.h"
 #include "ex_frag_rt.h"
 #include "ex_control.h"
-#include "ex_error.h"
+#include "executor/ex_error.h"
 #include "ComQueue.h"
 #include "ComSqlId.h"
 #include "ExSqlComp.h"
@@ -77,7 +77,7 @@ ExControlTcb::ExControlTcb(const ExControlTdb &control_tdb, ex_globals *glob) : 
   Space *space = (glob ? glob->getSpace() : 0);
 
   // Allocate the buffer pool
-  pool_ = new (space) sql_buffer_pool(control_tdb.numBuffers_, (Lng32)control_tdb.bufferSize_, space);
+  pool_ = new (space) sql_buffer_pool(control_tdb.numBuffers_, (int)control_tdb.bufferSize_, space);
 
   // Allocate the queue to communicate with parent
   qparent_.down =
@@ -134,7 +134,7 @@ short ExControlTcb::work() {
 
   char *buf = controlTdb().getSqlText();
   Int32 usedlen = buf ? str_len(buf) + 1 : 0;
-  Lng32 sqlTextCharSet = (Lng32)(buf ? controlTdb().getSqlTextCharSet() : SQLCHARSETCODE_UNKNOWN);
+  int sqlTextCharSet = (int)(buf ? controlTdb().getSqlTextCharSet() : SQLCHARSETCODE_UNKNOWN);
 
 // array[1+max] because value() is 1-based not 0-based.
 // we do init the unreferenced [0] elements, just in case.
@@ -370,7 +370,7 @@ short ExSetSessionDefaultTcb::work() {
   NABoolean mxcmpIsDelta = FALSE;
   NABoolean espIsDelta = FALSE;
   NABoolean dropVolatileSchema = FALSE;
-  Lng32 defaultValueAsLong = -1;
+  int defaultValueAsLong = -1;
   NABoolean computeDefValAsLong = TRUE;
 
   ContextCli *currContext =
@@ -436,8 +436,8 @@ short ExSetSessionDefaultTcb::work() {
       (strcmp(defaultName, "OSIM") == 0) || (strcmp(defaultName, "STATS") == 0))
     computeDefValAsLong = FALSE;
   if (computeDefValAsLong) {
-    ex_expr::exp_return_type rc = convDoIt(defaultValue, (Lng32)strlen(defaultValue), REC_BYTE_F_ASCII, 0, 0,
-                                           (char *)&defaultValueAsLong, sizeof(Lng32), REC_BIN32_SIGNED, 0, 0, NULL, 0);
+    ex_expr::exp_return_type rc = convDoIt(defaultValue, (int)strlen(defaultValue), REC_BYTE_F_ASCII, 0, 0,
+                                           (char *)&defaultValueAsLong, sizeof(int), REC_BIN32_SIGNED, 0, 0, NULL, 0);
     if (rc != ex_expr::EXPR_OK) {
       ExHandleErrors(qparent_, pentry_down, 0, getGlobals(), NULL, (ExeErrorCode)(-EXE_NUMERIC_OVERFLOW));
 
@@ -551,7 +551,7 @@ short ExSetSessionDefaultTcb::work() {
 
       currContext->createMxcmpSession();
     } else if (strcmp(defaultValue, "CONTINUE:CLEANUP_ESPS") == 0) {
-      Lng32 numStoppedEsps = currContext->reduceEsps();
+      int numStoppedEsps = currContext->reduceEsps();
       ComDiagsArea *da = ComDiagsArea::allocate(getGlobals()->getDefaultHeap());
       *da << DgSqlCode(EXE_CLEANUP_ESP)  // a warning.
           << DgInt0(numStoppedEsps);
@@ -667,7 +667,7 @@ short ExSetSessionDefaultTcb::work() {
       goto all_ok;
     }
 
-    Lng32 rc;
+    int rc;
     if (isSet) {
       rc = currContext->getCliGlobals()->setEnvVar(envvarName, envvarVal, FALSE);
     } else {
@@ -750,9 +750,9 @@ short ExSetSessionDefaultTcb::work() {
     else if ((stricmp(defaultValue, "FALSE") == 0) || (stricmp(defaultValue, "DISABLE") == 0))
       currContext->getSessionDefaults()->setCallEmbeddedArkcmp(FALSE);
   } else if (strcmp(defaultName, "PARENT_QID") == 0) {
-    currContext->getSessionDefaults()->setParentQid(defaultValue, (Lng32)strlen(defaultValue));
+    currContext->getSessionDefaults()->setParentQid(defaultValue, (int)strlen(defaultValue));
   } else if (strcmp(defaultName, "PARENT_QID_SYSTEM") == 0) {
-    currContext->getSessionDefaults()->setParentQidSystem(defaultValue, (Lng32)strlen(defaultValue));
+    currContext->getSessionDefaults()->setParentQidSystem(defaultValue, (int)strlen(defaultValue));
   } else if (strcmp(defaultName, "STATISTICS_VIEW_TYPE") == 0) {
     if (stricmp(defaultValue, "PERTABLE") == 0)
       currContext->getSessionDefaults()->setStatisticsViewType(SQLCLI_PERTABLE_STATS);
@@ -852,20 +852,20 @@ all_ok:
 ExShowEnvvarsTcb::ExShowEnvvarsTcb(const ExDescribeTdb &describe_tdb, ex_globals *glob)
     : ExDescribeTcb(describe_tdb, glob), step_(EMPTY_), currEnvvar_(0) {}
 
-short ExShowEnvvarsTcb::moveRowToUpQueue(Lng32 tuppIndex, const char *row, Lng32 len, short *rc) {
+short ExShowEnvvarsTcb::moveRowToUpQueue(int tuppIndex, const char *row, int len, short *rc) {
   if (qparent_.up->isFull()) {
     if (rc) *rc = WORK_OK;
     return -1;
   }
 
-  Lng32 length;
+  int length;
   if (len <= 0)
     length = strlen(row);
   else
     length = len;
 
   tupp p;
-  if (pool_->get_free_tuple(p, (Lng32)(SQL_VARCHAR_HDR_SIZE + length))) {
+  if (pool_->get_free_tuple(p, (int)(SQL_VARCHAR_HDR_SIZE + length))) {
     if (rc) *rc = WORK_POOL_BLOCKED;
     return -1;
   }

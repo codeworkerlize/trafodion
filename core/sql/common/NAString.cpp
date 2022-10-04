@@ -93,17 +93,17 @@ static const char specialSQL_TEXT[] = " \"%&'()*+,-./:;<=>?[]_|\\";
 static THREAD_P SQLCHARSET_CODE NAString_isoMappingCS = SQLCHARSETCODE_UNKNOWN;
 
 // -----------------------------------------------------------------------
-Lng32 NAString_getIsoMapCS() {
-  if (NAString_isoMappingCS != SQLCHARSETCODE_UNKNOWN) return (Lng32)NAString_isoMappingCS;
+int NAString_getIsoMapCS() {
+  if (NAString_isoMappingCS != SQLCHARSETCODE_UNKNOWN) return (int)NAString_isoMappingCS;
   NAString_isoMappingCS = (SQLCHARSET_CODE)ComRtGetIsoMappingEnum();
-  return (Lng32)NAString_isoMappingCS;
+  return (int)NAString_isoMappingCS;
 }
 
 // -----------------------------------------------------------------------
-void NAString_setIsoMapCS(Lng32 isoMappingCS) {
-  // ComASSERT(isoMappingCS == (Lng32)SQLCHARSETCODE_ISO88591 ||
-  //           isoMappingCS == (Lng32)SQLCHARSETCODE_SJIS     ||
-  //           isoMappingCS == (Lng32)SQLCHARSETCODE_UTF8);
+void NAString_setIsoMapCS(int isoMappingCS) {
+  // ComASSERT(isoMappingCS == (int)SQLCHARSETCODE_ISO88591 ||
+  //           isoMappingCS == (int)SQLCHARSETCODE_SJIS     ||
+  //           isoMappingCS == (int)SQLCHARSETCODE_UTF8);
   NAString_isoMappingCS = (SQLCHARSET_CODE)isoMappingCS;
 }
 
@@ -210,8 +210,8 @@ void NAStringUpshiftASCII(NAString &ns) { ns.toUpper(); }
 // -----------------------------------------------------------------------
 // decode a number from a prefix of an NAString
 // -----------------------------------------------------------------------
-Lng32 NAStringToLong(const NAString &ns) {
-  Lng32 result;
+int NAStringToLong(const NAString &ns) {
+  int result;
   sscanf(ns.data(), "%d", &result);
   return result;
 }
@@ -222,7 +222,7 @@ double NAStringToReal(const NAString &ns) {
   return result;
 }
 
-NAString LongToNAString(Lng32 l) {
+NAString LongToNAString(int l) {
   char resultstr[100];
   sprintf(resultstr, "%d", l);
   return NAString(resultstr);
@@ -234,7 +234,7 @@ NAString UnsignedToNAString(UInt32 u) {
   return NAString(resultstr);
 }
 
-NAString Int64ToNAString(Int64 l) {
+NAString Int64ToNAString(long l) {
   char resultstr[100];
   convertInt64ToAscii(l, resultstr);
   return NAString(resultstr);
@@ -383,7 +383,7 @@ NAString ToAnsiIdentifier(const NAString &ns, NABoolean assertShort) {
 // know the string does have a first char (is nonempty), so this is safe.)
 // SqlParser uses this info for pretty syntax error messaging.
 // ---------------------------------------------------------------------
-static Lng32 illegalCharInIdentifier(NAString &ansiIdent, size_t i, size_t countOfRemoved) {
+static int illegalCharInIdentifier(NAString &ansiIdent, size_t i, size_t countOfRemoved) {
   ansiIdent[(size_t)0] = i + countOfRemoved;
   return -3127;
 }
@@ -460,7 +460,7 @@ static Lng32 illegalCharInIdentifier(NAString &ansiIdent, size_t i, size_t count
 // other character sets that is the supersets of the 7-bit ASCII
 // character set (e.g., UTF-8).
 // ---------------------------------------------------------------------
-Lng32 ToInternalIdentifier(NAString &ansiIdent, Int32 upCase,
+int ToInternalIdentifier(NAString &ansiIdent, Int32 upCase,
                            NABoolean acceptCircumflex  // VO: Fix genesis solution 10-040204-2957
                            ,
                            UInt16 pv_flags  // call-by-value parameter (pv_)flags
@@ -1209,7 +1209,7 @@ static NABoolean tokIsFuncOrParenKeyword(const NAString &sqlText, size_t pos, si
 // (it does not, of course, do these things within quoted text, for either
 // ' or " quoting). //"
 //
-Lng32 PrettifySqlText(NAString &sqlText, const char *nationalCharSetName) {
+int PrettifySqlText(NAString &sqlText, const char *nationalCharSetName) {
 #define prevResultChar      (result.length() ? result[result.length() - 1] : '\0')
 #define prevResultCharIs(c) (prevResultChar == c)
 
@@ -1735,7 +1735,7 @@ NAString Latin1StrToUTF8(const NAString &latin1Str, NAMemory *heap) {
   char buffer[3008];  // allocate a few extra bytes to make me feel better
   char *target = &buffer[0];
   bool isBufferAllocatedFromProcessHeap(FALSE);
-  Lng32 targetBufferLen = (Lng32)(latin1Str.length() * 4 /* SQL_UTF8_CHAR_MAXSIZE */ + 2);
+  int targetBufferLen = (int)(latin1Str.length() * 4 /* SQL_UTF8_CHAR_MAXSIZE */ + 2);
   if (targetBufferLen > 3000) {
     isBufferAllocatedFromProcessHeap = TRUE;
     target = new (heap) char[targetBufferLen + 2];  // allocate a couple extra bytes ...

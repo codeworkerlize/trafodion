@@ -296,8 +296,8 @@ class ExCatpoundStmtPrivateState : public ex_tcb_private_state {
 
  private:
   // CS Private state attributes.
-  Int64 leftrows_;   // Number of left tuples.
-  Int64 rightrows_;  // Number of right tuples.
+  long leftrows_;   // Number of left tuples.
+  long rightrows_;  // Number of right tuples.
 
   ExCatpoundStmtTcb::CSState leftstate_;
   ExCatpoundStmtTcb::CSState rightstate_;

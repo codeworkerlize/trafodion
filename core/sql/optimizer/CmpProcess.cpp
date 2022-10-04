@@ -43,7 +43,7 @@ CmpProcess::CmpProcess() : nodeNum_(0), pin_(0), segmentNum_(0), processStartTim
   short processType;
   int myCPU;
   char myNodeName[MAX_SEGMENT_NAME_LEN + 1];
-  Lng32 myNodeNum;
+  int myNodeNum;
   short myNodeNameLen = MAX_SEGMENT_NAME_LEN;
   char myProcessName[PROCESSNAME_STRING_LEN];
   pid_t pid;
@@ -61,8 +61,8 @@ method CmpProcess::getProcessDuration
   the number of microseconds since this process started
 
 ************************************************************************/
-Int64 CmpProcess::getProcessDuration() {
-  Int64 currentTime = getCurrentTimestamp();
+long CmpProcess::getProcessDuration() {
+  long currentTime = getCurrentTimestamp();
   return (currentTime - processStartTime_);
 }
 /************************************************************************
@@ -72,8 +72,8 @@ method CmpProcess::getCurrentSystemHeapSize
  for this process.
 
 ************************************************************************/
-Lng32 CmpProcess::getCurrentSystemHeapSize() {
-  Lng32 currentSystemHeapSize = 0;
+int CmpProcess::getCurrentSystemHeapSize() {
+  int currentSystemHeapSize = 0;
 
   return currentSystemHeapSize;
 }

@@ -50,7 +50,7 @@
 #include "udrdecs.h"
 
 void processAnUnLoadMessage(UdrGlobals *UdrGlob, UdrServerReplyStream &msgStream, UdrUnloadMsg &request) {
-  Lng32 error;
+  int error;
   const char *moduleName = "processAnUnLoadMessage";
   char errorText[MAXERRTEXT];
 
@@ -110,7 +110,7 @@ void processAnUnLoadMessage(UdrGlobals *UdrGlob, UdrServerReplyStream &msgStream
     sp = NULL;
 
     if (error != 0) {
-      sprintf(errorText, "(%.30s) UDR Unload Error: %d", moduleName, (Lng32)error);
+      sprintf(errorText, "(%.30s) UDR Unload Error: %d", moduleName, (int)error);
       ServerDebug("[UdrServ (%s)]  %s\n", "releaseSP", errorText);
       doMessageBox(UdrGlob, TRACE_SHOW_DIALOGS, UdrGlob->showLoad_, errorText);
     }

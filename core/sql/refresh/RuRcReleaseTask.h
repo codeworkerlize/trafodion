@@ -60,7 +60,7 @@ class REFRESH_LIB_CLASS CRURcReleaseTask : public CRUTask {
   typedef CRUTask inherited;
 
  public:
-  CRURcReleaseTask(Lng32 id, CRUObject &obj);
+  CRURcReleaseTask(int id, CRUObject &obj);
   ~CRURcReleaseTask() {}
 
   //-----------------------------------//

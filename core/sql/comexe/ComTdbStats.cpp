@@ -47,7 +47,7 @@ ComTdbStats::ComTdbStats() : ComTdb(ComTdb::ex_STATS, eye_STATS) {}
 
 ComTdbStats::ComTdbStats(ULng32 tupleLen, ULng32 returnedTupleLen, ULng32 inputTupleLen, ex_cri_desc *criDescParentDown,
                          ex_cri_desc *criDescParentUp, queue_index queueSizeDown, queue_index queueSizeUp,
-                         Lng32 numBuffers, ULng32 bufferSize, ex_expr *scanExpr, ex_expr *inputExpr, ex_expr *projExpr,
+                         int numBuffers, ULng32 bufferSize, ex_expr *scanExpr, ex_expr *inputExpr, ex_expr *projExpr,
                          ex_cri_desc *workCriDesc, UInt16 stats_row_atp_index, UInt16 input_row_atp_index)
     : ComTdb(ComTdb::ex_STATS, eye_STATS, (Cardinality)0.0, criDescParentDown, criDescParentUp, queueSizeDown,
              queueSizeUp, numBuffers, bufferSize),
@@ -92,7 +92,7 @@ Long ComTdbStats::pack(void *space) {
   return ComTdb::pack(space);
 }
 
-Lng32 ComTdbStats::unpack(void *base, void *reallocator) {
+int ComTdbStats::unpack(void *base, void *reallocator) {
   if (scanExpr_.unpack(base, reallocator)) return -1;
   if (inputExpr_.unpack(base, reallocator)) return -1;
   if (projExpr_.unpack(base, reallocator)) return -1;
@@ -149,7 +149,7 @@ CompilationStatsData - unpack
 unpack the NABasicPtr members
 
 ************************************************************************/
-Lng32 CompilationStatsData::unpack(void *base, void *reallocator) {
+int CompilationStatsData::unpack(void *base, void *reallocator) {
   if (compilerId_.unpack(base)) return -1;
   if (compileInfo_.unpack(base)) return -1;
 
@@ -266,8 +266,8 @@ void CompilerStatsInfo ::translateToExternalFormat(SQL_QUERY_COMPILER_STATS_INFO
   query_comp_stats_info->estBmoMemPerNode = estBmoMemPerNode();
 }
 
-void CompilationStatsData ::translateToExternalFormat(SQL_COMPILATION_STATS_DATA *query_cmp_data, Int64 cmpStartTime,
-                                                      Int64 cmpEndTime) {
+void CompilationStatsData ::translateToExternalFormat(SQL_COMPILATION_STATS_DATA *query_cmp_data, long cmpStartTime,
+                                                      long cmpEndTime) {
   query_cmp_data->compileStartTime = cmpStartTime;
 
   query_cmp_data->compileEndTime = cmpEndTime;

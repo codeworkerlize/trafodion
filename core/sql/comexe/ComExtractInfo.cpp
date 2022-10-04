@@ -37,7 +37,7 @@ Long ComExtractProducerInfo::pack(void *space) {
   return NAVersionedObject::pack(space);
 }
 
-Lng32 ComExtractProducerInfo::unpack(void *base, void *reallocator) {
+int ComExtractProducerInfo::unpack(void *base, void *reallocator) {
   if (securityKey_.unpack(base)) return -1;
   return NAVersionedObject::unpack(base, reallocator);
 }
@@ -48,7 +48,7 @@ Long ComExtractConsumerInfo::pack(void *space) {
   return NAVersionedObject::pack(space);
 }
 
-Lng32 ComExtractConsumerInfo::unpack(void *base, void *reallocator) {
+int ComExtractConsumerInfo::unpack(void *base, void *reallocator) {
   if (espPhandle_.unpack(base)) return -1;
   if (securityKey_.unpack(base)) return -1;
   return NAVersionedObject::unpack(base, reallocator);

@@ -57,11 +57,11 @@
 #include "CmpCommon.h"
 #include "CmpContext.h"
 
-#include "sqlcmd.h"
-#include "SqlciEnv.h"
+#include "sqlci/sqlcmd.h"
+#include "sqlci/SqlciEnv.h"
 
-#include "GetErrorMessage.h"
-#include "ErrorMessage.h"
+#include "sqlmsg/GetErrorMessage.h"
+#include "sqlmsg/ErrorMessage.h"
 #include "HBaseClient_JNI.h"
 
 #include "sqlcomp/CmpDDLCatErrorCodes.h"
@@ -831,9 +831,9 @@ static const QueryString getHBaseMapTablesInCatalogQuery[] = {
     {"  order by 1 "},
     {"  ; "}};
 
-Lng32 ExExeUtilGetMetadataInfoTcb::getUsingView(Queue *infoList, NABoolean isShorthandView, char *&viewName,
-                                                Lng32 &len) {
-  Lng32 cliRC = 0;
+int ExExeUtilGetMetadataInfoTcb::getUsingView(Queue *infoList, NABoolean isShorthandView, char *&viewName,
+                                                int &len) {
+  int cliRC = 0;
 
   while (1) {
     switch (vStep_) {
@@ -909,9 +909,9 @@ Lng32 ExExeUtilGetMetadataInfoTcb::getUsingView(Queue *infoList, NABoolean isSho
   }
 }
 
-Lng32 ExExeUtilGetMetadataInfoTcb::getUsedObjects(Queue *infoList, NABoolean isShorthandView, char *&inViewName,
-                                                  Lng32 &inLen) {
-  Lng32 cliRC = 0;
+int ExExeUtilGetMetadataInfoTcb::getUsedObjects(Queue *infoList, NABoolean isShorthandView, char *&inViewName,
+                                                  int &inLen) {
+  int cliRC = 0;
 
   while (1) {
     switch (vStep_) {
@@ -998,7 +998,7 @@ Lng32 ExExeUtilGetMetadataInfoTcb::getUsedObjects(Queue *infoList, NABoolean isS
 
         NAString viewName;
         char *ptr = NULL;
-        Lng32 len = 0;
+        int len = 0;
 
         cliInterface()->getPtrAndLen(1, inViewName, inLen);
 
@@ -1531,7 +1531,7 @@ Int32 ExExeUtilGetMetadataInfoTcb::getAuthID(const char *authName, const char *c
   if (strcmp(authName, PUBLIC_AUTH_NAME) == 0) return PUBLIC_USER;
 
   short rc = 0;
-  Lng32 cliRC = 0;
+  int cliRC = 0;
 
   sprintf(queryBuf_, "select auth_id from %s.\"%s\".%s where auth_db_name = '%s' ", catName, schName, objName,
           authName);
@@ -1547,7 +1547,7 @@ Int32 ExExeUtilGetMetadataInfoTcb::getAuthID(const char *authName, const char *c
 
   infoList_->position();
   OutputInfo *vi = (OutputInfo *)infoList_->getCurr();
-  if (vi) return *(Lng32 *)vi->get(0);
+  if (vi) return *(int *)vi->get(0);
   return NA_UserIdDefault;
 }
 
@@ -1782,7 +1782,7 @@ char *ExExeUtilGetMetadataInfoTcb::getRoleList(bool &containsRootRole, const Int
   containsRootRole = false;
 
   short rc = 0;
-  Lng32 cliRC = 0;
+  int cliRC = 0;
 
   // If userID is a user, then include roles assigned to their user groups
   NABoolean enabled = (msg_license_multitenancy_enabled() || msg_license_advanced_enabled());
@@ -1813,7 +1813,7 @@ char *ExExeUtilGetMetadataInfoTcb::getRoleList(bool &containsRootRole, const Int
   while (NOT infoList_->atEnd()) {
     OutputInfo *vi = (OutputInfo *)infoList_->getCurr();
     if (vi) {
-      int roleID = *(Lng32 *)vi->get(0);
+      int roleID = *(int *)vi->get(0);
       if (roleID == ROOT_ROLE_ID) containsRootRole = true;
       str_sprintf(buf, ", %d", roleID);
       roleList += buf;
@@ -1844,10 +1844,10 @@ char *ExExeUtilGetMetadataInfoTcb::getRoleList(bool &containsRootRole, const Int
 //    for most object, it is a single value,
 //    for schema objects is include ('PS', 'SS') - public or shared schema
 // ----------------------------------------------------------------------------
-Int64 ExExeUtilGetMetadataInfoTcb::getObjectUID(const char *catName, const char *schName, const char *objName,
+long ExExeUtilGetMetadataInfoTcb::getObjectUID(const char *catName, const char *schName, const char *objName,
                                                 const char *targetName, const char *type) {
   short rc = 0;
-  Lng32 cliRC = 0;
+  int cliRC = 0;
 
   sprintf(queryBuf_,
           "select object_uid from %s.\"%s\".%s where "
@@ -1867,7 +1867,7 @@ Int64 ExExeUtilGetMetadataInfoTcb::getObjectUID(const char *catName, const char 
 
   infoList_->position();
   OutputInfo *vi = (OutputInfo *)infoList_->getCurr();
-  if (vi) return *(Int64 *)vi->get(0);
+  if (vi) return *(long *)vi->get(0);
   return -1;
 }
 
@@ -2003,7 +2003,7 @@ Int32 ExExeUtilGetMetadataInfoTcb::colPrivsFrag(const char *authName, const char
   if (!CmpCommon::context()->isAuthorizationEnabled()) return 0;
 
   short rc = 0;
-  Lng32 cliRC = 0;
+  int cliRC = 0;
 
   // See if privileges granted on Hive object or to the user/user's roles
   NAString likeClause("like 'HIVE.%'");
@@ -2029,8 +2029,8 @@ Int32 ExExeUtilGetMetadataInfoTcb::colPrivsFrag(const char *authName, const char
   infoList_->position();
   OutputInfo *vi = (OutputInfo *)infoList_->getCurr();
   if (vi && vi->get(0)) {
-    if (*(Int64 *)vi->get(0) > 0) hasHive = true;
-    if (*(Int64 *)vi->get(1) > 0) hasGrants = true;
+    if (*(long *)vi->get(0) > 0) hasHive = true;
+    if (*(long *)vi->get(1) > 0) hasGrants = true;
   }
 
   Int32 len = privWhereClause.length() + 500;
@@ -2075,7 +2075,7 @@ Int32 ExExeUtilGetMetadataInfoTcb::colPrivsFrag(const char *authName, const char
 //////////////////////////////////////////////////////
 short ExExeUtilGetMetadataInfoTcb::work() {
   short retcode = 0;
-  Lng32 cliRC = 0;
+  int cliRC = 0;
   ex_expr::exp_return_type exprRetCode = ex_expr::EXPR_OK;
 
   // if no parent request, return
@@ -3935,7 +3935,7 @@ short ExExeUtilGetMetadataInfoTcb::work() {
 
             str_sprintf(buf, " = '%s'", var.data());
             NAString typeClause = buf;
-            Int64 objectUID = getObjectUID(cat, sch, tab, getMItdb().getObj(), typeClause.data());
+            long objectUID = getObjectUID(cat, sch, tab, getMItdb().getObj(), typeClause.data());
 
             // To match behavior of other GET commands, if the object is not found, then
             // return no rows.
@@ -3946,7 +3946,7 @@ short ExExeUtilGetMetadataInfoTcb::work() {
             NAString oUID = Int64ToNAString(objectUID);
             typeClause = "in ('PS', 'SS')";
 
-            Int64 schemaUID = getObjectUID(cat, sch, tab, "__SCHEMA__", typeClause.data());
+            long schemaUID = getObjectUID(cat, sch, tab, "__SCHEMA__", typeClause.data());
 
             param_[0] = (char *)var1.data();
             param_[1] = cat;
@@ -4611,7 +4611,7 @@ short ExExeUtilGetMetadataInfoTcb::work() {
 
         Int32 qryArraySize = sizeOfqs / sizeof(QueryString);
         char *gluedQuery;
-        Lng32 gluedQuerySize;
+        int gluedQuerySize;
         glueQueryFragments(qryArraySize, qs, gluedQuery, gluedQuerySize);
 
         str_sprintf(queryBuf_, gluedQuery, param_[0], param_[1], param_[2], param_[3], param_[4], param_[5], param_[6],
@@ -4934,7 +4934,7 @@ short ExExeUtilGetMetadataInfoTcb::work() {
         }
 
         char *viewName = NULL;
-        Lng32 len = 0;
+        int len = 0;
         if ((getMItdb().queryType_ == ComTdbExeUtilGetMetadataInfo::VIEWS_ON_TABLE_) ||
             (getMItdb().queryType_ == ComTdbExeUtilGetMetadataInfo::VIEWS_ON_VIEW_))
           cliRC = getUsingView(infoList_, TRUE, viewName, len);
@@ -4972,7 +4972,7 @@ short ExExeUtilGetMetadataInfoTcb::work() {
         }
 
         char *viewName = NULL;
-        Lng32 len = 0;
+        int len = 0;
         if ((getMItdb().queryType_ == ComTdbExeUtilGetMetadataInfo::TABLES_IN_VIEW_) ||
             (getMItdb().queryType_ == ComTdbExeUtilGetMetadataInfo::VIEWS_IN_VIEW_) ||
             (getMItdb().queryType_ == ComTdbExeUtilGetMetadataInfo::OBJECTS_IN_VIEW_))
@@ -5049,7 +5049,7 @@ ExExeUtilGetMetadataInfoComplexTcb::~ExExeUtilGetMetadataInfoComplexTcb() {}
 //////////////////////////////////////////////////////
 short ExExeUtilGetMetadataInfoComplexTcb::work() {
   short retcode = 0;
-  Lng32 cliRC = 0;
+  int cliRC = 0;
   ex_expr::exp_return_type exprRetCode = ex_expr::EXPR_OK;
 
   // if no parent request, return
@@ -5458,7 +5458,7 @@ ExExeUtilGetHbaseObjectsTcb::~ExExeUtilGetHbaseObjectsTcb() {
 //////////////////////////////////////////////////////
 short ExExeUtilGetHbaseObjectsTcb::work() {
   short retcode = 0;
-  Lng32 cliRC = 0;
+  int cliRC = 0;
   ex_expr::exp_return_type exprRetCode = ex_expr::EXPR_OK;
 
   // if no parent request, return
@@ -5538,7 +5538,7 @@ short ExExeUtilGetHbaseObjectsTcb::work() {
         hbaseNameBuf_[hbaseName->len] = 0;
         hbaseName_ = hbaseNameBuf_;
 
-        Lng32 numParts = 0;
+        int numParts = 0;
         char *parts[4];
         if (LateNameInfo::extractParts(hbaseName_, outBuf_, numParts, parts, FALSE)) {
           step_ = HANDLE_ERROR_;
@@ -5676,7 +5676,7 @@ ExExeUtilGetNamespaceObjectsTcb::~ExExeUtilGetNamespaceObjectsTcb() {
 //////////////////////////////////////////////////////
 short ExExeUtilGetNamespaceObjectsTcb::work() {
   short retcode = 0;
-  Lng32 cliRC = 0;
+  int cliRC = 0;
   ex_expr::exp_return_type exprRetCode = ex_expr::EXPR_OK;
 
   // if no parent request, return
@@ -5822,7 +5822,7 @@ short ExExeUtilGetNamespaceObjectsTcb::work() {
         strncpy(hbaseNameBuf_, hbaseName->val, hbaseName->len);
         hbaseNameBuf_[hbaseName->len] = 0;
         hbaseName_ = hbaseNameBuf_;
-        Lng32 hbaseNameLen = strlen(hbaseName_);
+        int hbaseNameLen = strlen(hbaseName_);
 
         NABoolean isTraf = FALSE;
         NABoolean isSys = FALSE;
@@ -5867,7 +5867,7 @@ short ExExeUtilGetNamespaceObjectsTcb::work() {
         strncpy(hbaseNameBuf_, hbaseName->val, hbaseName->len);
         hbaseNameBuf_[hbaseName->len] = 0;
         hbaseName_ = hbaseNameBuf_;
-        Lng32 hbaseNameLen = strlen(hbaseName_);
+        int hbaseNameLen = strlen(hbaseName_);
 
         if (getMItdb().getScanExpr())
           step_ = EVAL_EXPR_;
@@ -5925,8 +5925,8 @@ short ExExeUtilGetNamespaceObjectsTcb::work() {
 // Redefine virtual method allocatePstates, to be used by dynamic queue
 // resizing, as well as the initial queue construction.
 ////////////////////////////////////////////////////////////////////////
-ex_tcb_private_state *ExExeUtilGetMetadataInfoTcb::allocatePstates(Lng32 &numElems,  // inout, desired/actual elements
-                                                                   Lng32 &pstateLength)  // out, length of one element
+ex_tcb_private_state *ExExeUtilGetMetadataInfoTcb::allocatePstates(int &numElems,  // inout, desired/actual elements
+                                                                   int &pstateLength)  // out, length of one element
 {
   PstateAllocator<ExExeUtilGetMetadataInfoPrivateState> pa;
 
@@ -5994,11 +5994,11 @@ short ExExeUtilShowSetTcb::work() {
 
         char *attributeString = NULL;
         char *attributeValue = NULL;
-        Lng32 isCQD;
-        Lng32 fromDefaultsTable;
-        Lng32 isSSD;
-        Lng32 isExternalized = 0;
-        Lng32 eof = 0;
+        int isCQD;
+        int fromDefaultsTable;
+        int isSSD;
+        int isExternalized = 0;
+        int eof = 0;
         while ((NOT eof) && (NOT isExternalized)) {
           eof = sd->getNextSessionDefault(attributeString, attributeValue, isCQD, fromDefaultsTable, isSSD,
                                           isExternalized);
@@ -6077,7 +6077,7 @@ ExExeUtilGetUIDTcb::~ExExeUtilGetUIDTcb() {}
 //////////////////////////////////////////////////////
 short ExExeUtilGetUIDTcb::work() {
   //  short rc = 0;
-  Lng32 cliRC = 0;
+  int cliRC = 0;
 
   // if no parent request, return
   if (qparent_.down->isEmpty()) return WORK_OK;
@@ -6141,8 +6141,8 @@ short ExExeUtilGetUIDTcb::work() {
 // Redefine virtual method allocatePstates, to be used by dynamic queue
 // resizing, as well as the initial queue construction.
 ////////////////////////////////////////////////////////////////////////
-ex_tcb_private_state *ExExeUtilGetUIDTcb::allocatePstates(Lng32 &numElems,      // inout, desired/actual elements
-                                                          Lng32 &pstateLength)  // out, length of one element
+ex_tcb_private_state *ExExeUtilGetUIDTcb::allocatePstates(int &numElems,      // inout, desired/actual elements
+                                                          int &pstateLength)  // out, length of one element
 {
   PstateAllocator<ExExeUtilGetUIDPrivateState> pa;
 
@@ -6185,7 +6185,7 @@ ExExeUtilGetQIDTcb::~ExExeUtilGetQIDTcb() {}
 //////////////////////////////////////////////////////
 short ExExeUtilGetQIDTcb::work() {
   short retcode = 0;
-  Lng32 cliRC = 0;
+  int cliRC = 0;
 
   // if no parent request, return
   if (qparent_.down->isEmpty()) return WORK_OK;
@@ -6265,8 +6265,8 @@ short ExExeUtilGetQIDTcb::work() {
 // Redefine virtual method allocatePstates, to be used by dynamic queue
 // resizing, as well as the initial queue construction.
 ////////////////////////////////////////////////////////////////////////
-ex_tcb_private_state *ExExeUtilGetQIDTcb::allocatePstates(Lng32 &numElems,      // inout, desired/actual elements
-                                                          Lng32 &pstateLength)  // out, length of one element
+ex_tcb_private_state *ExExeUtilGetQIDTcb::allocatePstates(int &numElems,      // inout, desired/actual elements
+                                                          int &pstateLength)  // out, length of one element
 {
   PstateAllocator<ExExeUtilGetQIDPrivateState> pa;
 
@@ -6310,7 +6310,7 @@ ExExeUtilGetErrorInfoTcb::ExExeUtilGetErrorInfoTcb(const ComTdbExeUtilGetErrorIn
 //////////////////////////////////////////////////////
 short ExExeUtilGetErrorInfoTcb::work() {
   short retcode = 0;
-  Lng32 cliRC = 0;
+  int cliRC = 0;
   ex_expr::exp_return_type exprRetCode = ex_expr::EXPR_OK;
 
   // if no parent request, return
@@ -6337,8 +6337,8 @@ short ExExeUtilGetErrorInfoTcb::work() {
       case RETURN_TEXT_: {
         if ((qparent_.up->getSize() - qparent_.up->getLength()) < 10) return WORK_OK;
 
-        Lng32 warnNum = ABS(geiTdb().errNum_);
-        Lng32 errNum = -geiTdb().errNum_;
+        int warnNum = ABS(geiTdb().errNum_);
+        int errNum = -geiTdb().errNum_;
         ErrorType errType = (ErrorType)geiTdb().errorType_;
 
         char sqlstateErr[10];
@@ -6351,7 +6351,7 @@ short ExExeUtilGetErrorInfoTcb::work() {
         NAWchar *errorMsg;
         NABoolean msgNotFound = GetErrorMessage(errType, errNum, errorMsg, ERROR_TEXT);
 
-        Lng32 bufSize = 2 * ErrorMessage::MSG_BUF_SIZE + 16;
+        int bufSize = 2 * ErrorMessage::MSG_BUF_SIZE + 16;
         char *isoErrorMsg = new (getGlobals()->getDefaultHeap()) char[bufSize];
 
         moveRowToUpQueue("");
@@ -6424,8 +6424,8 @@ short ExExeUtilGetErrorInfoTcb::work() {
 // Redefine virtual method allocatePstates, to be used by dynamic queue
 // resizing, as well as the initial queue construction.
 ////////////////////////////////////////////////////////////////////////
-ex_tcb_private_state *ExExeUtilGetErrorInfoTcb::allocatePstates(Lng32 &numElems,      // inout, desired/actual elements
-                                                                Lng32 &pstateLength)  // out, length of one element
+ex_tcb_private_state *ExExeUtilGetErrorInfoTcb::allocatePstates(int &numElems,      // inout, desired/actual elements
+                                                                int &pstateLength)  // out, length of one element
 {
   PstateAllocator<ExExeUtilGetErrorInfoPrivateState> pa;
 
@@ -6500,13 +6500,13 @@ ExExeUtilRegionStatsTcb::~ExExeUtilRegionStatsTcb() {
 //////////////////////////////////////////////////////
 // work() for ExExeUtilRegionStatsTcb
 //////////////////////////////////////////////////////
-Int64 ExExeUtilRegionStatsTcb::getEmbeddedNumValue(char *&sep, char endChar, NABoolean adjustLen) {
-  Int64 num = -1;
+long ExExeUtilRegionStatsTcb::getEmbeddedNumValue(char *&sep, char endChar, NABoolean adjustLen) {
+  long num = -1;
   char *sepEnd = strchr(sep + 1, endChar);
   if (sepEnd) {
     char longBuf[30];
 
-    Lng32 len = sepEnd - sep - 1;
+    int len = sepEnd - sep - 1;
     str_cpy_all(longBuf, (sep + 1), len);
     longBuf[len] = 0;
 
@@ -6605,13 +6605,13 @@ short ExExeUtilRegionStatsTcb::populateStats(Int32 currIndex) {
   char longBuf[30];
   char *sep1 = strchr(regionInfo, '|');
   if (sep1) {
-    str_cpy_all(stats_->regionServer, regionInfo, (Lng32)(sep1 - regionInfo));
+    str_cpy_all(stats_->regionServer, regionInfo, (int)(sep1 - regionInfo));
   }
 
   char *sepStart = sep1 + 1;
   sep1 = strchr(sepStart, '|');
   if (sep1) {
-    str_cpy_all(stats_->regionName, sepStart, (Lng32)(sep1 - sepStart));
+    str_cpy_all(stats_->regionName, sepStart, (int)(sep1 - sepStart));
   }
 
   sepStart = sep1;
@@ -6628,7 +6628,7 @@ short ExExeUtilRegionStatsTcb::populateStats(Int32 currIndex) {
 
 short ExExeUtilRegionStatsTcb::work() {
   short retcode = 0;
-  Lng32 cliRC = 0;
+  int cliRC = 0;
   ex_expr::exp_return_type exprRetCode = ex_expr::EXPR_OK;
 
   // if no parent request, return
@@ -6781,12 +6781,12 @@ ExExeUtilRegionStatsFormatTcb::ExExeUtilRegionStatsFormatTcb(const ComTdbExeUtil
   step_ = INITIAL_;
 }
 
-static NAString removeTrailingBlanks(char *name, Lng32 maxLen) {
+static NAString removeTrailingBlanks(char *name, int maxLen) {
   NAString nas;
 
   if (!name) return nas;
 
-  Lng32 i = maxLen;
+  int i = maxLen;
   while ((i > 0) && (name[i - 1] == ' ')) {
     i--;
   }
@@ -6839,7 +6839,7 @@ short ExExeUtilRegionStatsFormatTcb::computeTotals() {
 
 short ExExeUtilRegionStatsFormatTcb::work() {
   short retcode = 0;
-  Lng32 cliRC = 0;
+  int cliRC = 0;
 
   // if no parent request, return
   if (qparent_.down->isEmpty()) return WORK_OK;
@@ -7189,7 +7189,7 @@ short ExExeUtilClusterStatsTcb::populateStats(Int32 currIndex, NABoolean nullTer
   char longBuf[30];
   char *sep1 = strchr(regionInfo, '|');
   if (sep1) {
-    str_cpy_all(stats_->regionServer, regionInfo, (Lng32)(sep1 - regionInfo));
+    str_cpy_all(stats_->regionServer, regionInfo, (int)(sep1 - regionInfo));
 
     if (nullTerminate) stats_->regionServer[sep1 - regionInfo] = 0;
   }
@@ -7197,7 +7197,7 @@ short ExExeUtilClusterStatsTcb::populateStats(Int32 currIndex, NABoolean nullTer
   char *sepStart = sep1 + 1;
   sep1 = strchr(sepStart, '|');
   if (sep1) {
-    str_cpy_all(stats_->regionName, sepStart, (Lng32)(sep1 - sepStart));
+    str_cpy_all(stats_->regionName, sepStart, (int)(sep1 - sepStart));
 
     if (nullTerminate) stats_->regionName[sep1 - sepStart] = 0;
   }
@@ -7206,13 +7206,13 @@ short ExExeUtilClusterStatsTcb::populateStats(Int32 currIndex, NABoolean nullTer
   sepStart = sep1 + 1;
   sep1 = strchr(sepStart, '|');
   if (sep1) {
-    str_cpy_all(tableName, sepStart, (Lng32)(sep1 - sepStart));
+    str_cpy_all(tableName, sepStart, (int)(sep1 - sepStart));
 
     tableName[sep1 - sepStart] = 0;
 
     char tableNameBuf[3 * STATS_NAME_MAX_LEN + 30];
 
-    Lng32 numParts = 0;
+    int numParts = 0;
     char *parts[4];
     LateNameInfo::extractParts(tableName, tableNameBuf, numParts, parts, FALSE);
 
@@ -7238,7 +7238,7 @@ short ExExeUtilClusterStatsTcb::populateStats(Int32 currIndex, NABoolean nullTer
     char *colonPos = strchr(parts[0], ':');
     if (colonPos) {
       // nameSpace = NAString(catName, (colonPos-catName));
-      Lng32 catNameLen = strlen(catName) - ((colonPos - catName) + 1);
+      int catNameLen = strlen(catName) - ((colonPos - catName) + 1);
       str_cpy_all(stats_->catalogName, &catName[colonPos - catName + 1], catNameLen);
       if (nullTerminate) stats_->catalogName[catNameLen] = 0;
     }
@@ -7269,7 +7269,7 @@ short ExExeUtilClusterStatsTcb::populateStats(Int32 currIndex, NABoolean nullTer
 
 short ExExeUtilClusterStatsTcb::work() {
   short retcode = 0;
-  Lng32 cliRC = 0;
+  int cliRC = 0;
   ex_expr::exp_return_type exprRetCode = ex_expr::EXPR_OK;
 
   // if no parent request, return

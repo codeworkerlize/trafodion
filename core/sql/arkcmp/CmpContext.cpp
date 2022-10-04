@@ -61,7 +61,7 @@
 #define SQLPARSERGLOBALS_FLAGS        // needed to set SqlParser_Flags
 #endif                                // NA_CMPDLL
 #include "parser/SqlParserGlobals.h"  // last #include
-#include "CmpErrLog.h"
+#include "arkcmp/CmpErrLog.h"
 #include "qmscommon/QRLogger.h"
 #include "sqlmxevents/logmxevent.h"
 #include "sqlcomp/CmpSeabaseDDL.h"
@@ -74,7 +74,7 @@
 
 #ifdef NA_CMPDLL
 #include "arkcmp/CompException.h"
-#include "CostMethod.h"
+#include "optimizer/CostMethod.h"
 #endif  // NA_CMPDLL
 
 #include "common/NATestpoint.h"
@@ -218,11 +218,11 @@ CmpContext::CmpContext(UInt32 f, CollHeap *h)
     size_t memLimit = (size_t)1024 * CmpCommon::getDefaultLong(MEMORY_LIMIT_NATABLECACHE_UPPER_KB);
     schemaDB_->getNATableDB()->getHeap()->setUpperLimit(memLimit);
 
-    Lng32 metadata_cache_size = CmpCommon::getDefaultLong(METADATA_CACHE_SIZE) * 1024 * 1024;
+    int metadata_cache_size = CmpCommon::getDefaultLong(METADATA_CACHE_SIZE) * 1024 * 1024;
     schemaDB_->getNATableDB()->setDefaultCacheSize(metadata_cache_size);
 
     memLimit = (size_t)1024 * CmpCommon::getDefaultLong(MEMORY_LIMIT_HISTCACHE_UPPER_KB);
-    const Lng32 initHeapSize = 16 * 1024;  // ## 16K
+    const int initHeapSize = 16 * 1024;  // ## 16K
     NAHeap *histogramCacheHeap = new (heap_) NAHeap((const char *)"HistogramCache Heap", heap_, initHeapSize, memLimit);
 
     // Setting up the cache for histogram
@@ -398,7 +398,7 @@ void CmpContext::setSecondaryMxcmp() {
 
   // Any downstream process will be a "SECONDARY_MXCMP".
   PUTENV((char *)"SECONDARY_MXCMP=1");
-  Lng32 rc = SQL_EXEC_SetEnviron_Internal(0);
+  int rc = SQL_EXEC_SetEnviron_Internal(0);
 }
 
 Int32 CmpContext::getNumOfSMPs() {
@@ -770,7 +770,7 @@ void CmpContext::resetContext() {
   cmpMemMonitor = NULL;
 }
 
-CmpStatementISP *CmpContext::getISPStatement(Int64 id) {
+CmpStatementISP *CmpContext::getISPStatement(long id) {
   NAList<CmpStatement *> &statements = this->statements();
   CmpStatementISP *ispStatement;
   for (CollIndex i = 0; i < statements.entries(); i++)
@@ -1318,7 +1318,7 @@ void DDLObjInfoList::clearList() {
 void DDLObjInfoList::print(const char *situation) {
   cout << "At " << situation << " DDLObjInfoList " << (void *)this << " has " << entries() << " elements." << endl;
   cout << "The scope is " << scope_ << "." << endl;
-  for (Lng32 i = 0; i < entries(); i++) {
+  for (int i = 0; i < entries(); i++) {
     DDLObjInfo &ddlObj = operator[](i);
     cout << "  Entry " << i << endl;
     cout << "    Object name: " << ddlObj.getObjName().data() << endl;

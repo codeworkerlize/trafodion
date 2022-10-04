@@ -113,7 +113,7 @@ extern void releaseRTSSemaphore();
 
 #include "common/BaseTypes.h"  // for declaration of NAAbort()
 #include "common/NAAssert.h"   // for declaration of NAAssert()
-#include "NAError.h"           // for ARKCMP_EXCEPTION_EPILOGUE()
+#include "sqlci/SqlciParseGlobals.h"           // for ARKCMP_EXCEPTION_EPILOGUE()
 
 #include <setjmp.h>
 
@@ -194,7 +194,7 @@ void assert_botch_abend(const char *f, Int32 l, const char *m, const char *c) {
   // executor threads
   int tid = (int)GETTID();
 
-  Lng32 *tidPtr = tid == pid ? NULL : (Lng32 *)&tid;
+  int *tidPtr = tid == pid ? NULL : (int *)&tid;
   if (tid == NAAssertMutexExTid) releaseRTSSemaphore();  // Semaphore is released on by main executor thread
   // log the message to the event log
   SQLMXLoggingArea::logSQLMXAssertionFailureEvent(f, l, m, c, tidPtr);  // Any executor thread can log a failure

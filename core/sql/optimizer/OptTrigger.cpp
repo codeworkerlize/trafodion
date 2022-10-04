@@ -745,8 +745,8 @@ void OptTriggersBackbone::addToTriggerList(RelExpr *drivingNode, NABoolean isRow
 //-----------------------------------------------------------------------------------
 
 static Int32 optTriggerTimeCompare(const void *elem1, const void *elem2) {
-  Int64 timestamp1 = (*(OptTriggerPtr *)elem1)->getTriggerTimeStamp();
-  Int64 timestamp2 = (*(OptTriggerPtr *)elem2)->getTriggerTimeStamp();
+  long timestamp1 = (*(OptTriggerPtr *)elem1)->getTriggerTimeStamp();
+  long timestamp2 = (*(OptTriggerPtr *)elem2)->getTriggerTimeStamp();
 
   if (timestamp1 < timestamp2) return -1;
   if (timestamp1 == timestamp2) return 0;
@@ -1207,7 +1207,7 @@ void OptTriggersBackbone::setUsageAccordingToUniqueUidPredicate(const ValueIdSet
   CMPASSERT(constValue != NULL && constValue->getOperatorType() == ITM_CONSTANT);
   CMPASSERT(((ConstValue *)constValue)->canGetExactNumericValue());
 
-  Int64 uniqueUidValue = ((ConstValue *)constValue)->getExactNumericValue();
+  long uniqueUidValue = ((ConstValue *)constValue)->getExactNumericValue();
 
   // if constant is odd - this scan fetches OLD values, otherwise it fetches NEW values
   if (uniqueUidValue % 2) {

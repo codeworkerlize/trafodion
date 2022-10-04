@@ -397,7 +397,7 @@ short BackupAttrList::backupCompatible(VersionInfo vInfo) {
   // major version
   char *tok = strtok((char *)mdStr.c_str(), ".");
   if (tok == NULL) return -2;
-  Int64 bkValue = atol(tok);
+  long bkValue = atol(tok);
   if (bkValue > vInfo.mdMajorVersion_) return -2;
 
   // minor version

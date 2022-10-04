@@ -233,7 +233,7 @@ class ExpGeneratorCache : public NABasicObject {
   // whenever we descend into a tree that is subject to short-
   // circuit evaluation, and decremented whenever we rise out
   // of that tree.
-  Lng32 level_;
+  int level_;
 
   // for testing purposes (so we can toggle old vs. new behavior)
   NABoolean enableCommonSubexpressionElimination_;
@@ -303,7 +303,7 @@ class ExpGenerator : public NABasicObject {
   ULng32 constants_length;
 
   // length of temps area
-  Int64 temps_length;
+  long temps_length;
 
   // length of persistent area
   ULng32 persistentLength_;
@@ -437,7 +437,7 @@ class ExpGenerator : public NABasicObject {
 
   // Generate a bulk move for Exploded Format
   short generateBulkMove(const ValueIdList &inValIdList, ValueIdList &outValIdList, ULng32 tupleLength,
-                         Lng32 *bulkMoveSrcStartOffset = NULL);  // IN(O)
+                         int *bulkMoveSrcStartOffset = NULL);  // IN(O)
 
   // See GenExpGenerator.C for details.
   NABoolean processKeyEncodingOptimization(const NAColumnArray &allColumns, const NAColumnArray &indexKeyColumns,
@@ -447,7 +447,7 @@ class ExpGenerator : public NABasicObject {
   NABoolean isKeyEncodingNeeded(const IndexDesc *indexDesc, ULng32 &keyLen, ULng32 &firstKeyColumnOffset);
 
   ItemExpr *generateKeyCast(const ValueId vid, ItemExpr *dataConversionErrorFlag, NABoolean desc_flag,
-                            ExpTupleDesc::TupleDataFormat tf, Lng32 &possibleErrorCount,
+                            ExpTupleDesc::TupleDataFormat tf, int &possibleErrorCount,
                             NABoolean allChosenPredsAreEqualPreds, NABoolean castVarcharToAnsiChar);
 
   // get the key value. Currently used during hbase checkAndDelete/Update
@@ -539,7 +539,7 @@ class ExpGenerator : public NABasicObject {
                                    MapTable **newMapTable = NULL,                                      // OUT(O)
                                    ValueIdList *tgtValues = NULL,                                      // OUT(O)
                                    ULng32 start_offset = 0,                                            // IN(O)
-                                   Lng32 *bulkMoveSrcStartOffset = NULL,                               // IN(O)
+                                   int *bulkMoveSrcStartOffset = NULL,                               // IN(O)
                                    NABoolean disableConstFolding = FALSE,                              // IN
                                    NAColumnArray *colArray = NULL,                                     // IN
                                    NABoolean doBulkMoves = TRUE,                                       // IN
@@ -578,18 +578,18 @@ class ExpGenerator : public NABasicObject {
   ///////////////////////////////////////////////////////////////////////
   short processValIdList(ValueIdList valIdList, ExpTupleDesc::TupleDataFormat tdataF, ULng32 &tupleLength, Int32 atp,
                          Int32 atpIndex, ExpTupleDesc **tupleDesc = NULL,
-                         ExpTupleDesc::TupleDescFormat tdescF = ExpTupleDesc::SHORT_FORMAT, Lng32 startOffset = 0,
+                         ExpTupleDesc::TupleDescFormat tdescF = ExpTupleDesc::SHORT_FORMAT, int startOffset = 0,
                          Attributes ***returnedAttrs = NULL,  // sorry about the *** :-(
                          NAColumnArray *colArray = NULL, NABoolean isIndex = FALSE,
                          NABoolean placeGuOutputFunctionsAtEnd = FALSE, ExpHdrInfo *hdrInfo = NULL);
 
   short computeTupleSize(const ValueIdList &valIdList, ExpTupleDesc::TupleDataFormat tdataF, ULng32 &tupleLength,
-                         Lng32 startOffset = 0, UInt32 *varCharSize = NULL, UInt32 *headerSizePtr = NULL);
+                         int startOffset = 0, UInt32 *varCharSize = NULL, UInt32 *headerSizePtr = NULL);
 
   short assignAtpAndAtpIndex(ValueIdList valIdList, Int32 atp, Int32 atpIndex);
 
   // RETURN: -1, if an error. 0, if all ok.
-  Lng32 foldConstants(ItemExpr *inExpr, ItemExpr **outExpr);
+  int foldConstants(ItemExpr *inExpr, ItemExpr **outExpr);
 
   //////////////////////////////////////////////////////////////////////
   // Input is a ValueIdList to be exploded into a contiguous buffer.
@@ -627,7 +627,7 @@ class ExpGenerator : public NABasicObject {
   NABoolean enableCommonSubexpressionElimination() { return cache_->enableCommonSubexpressionElimination(); }
 
   // proc defined in GenItemExpr.C
-  short genItemExpr(ItemExpr *item_expr, Attributes ***out_attr, Lng32 num_attrs, short gen_child);
+  short genItemExpr(ItemExpr *item_expr, Attributes ***out_attr, int num_attrs, short gen_child);
 
   inline MapTable *getMapTable() { return generator->getMapTable(); };
   inline Space *getSpace() { return generator->getSpace(); };
@@ -695,7 +695,7 @@ class ExpGenerator : public NABasicObject {
   // this function returns an expr tree that multiplies the source
   // by 10 ** exponent.  If exponent is negative, the returned expr
   // tree divides the source by 10 ** (- exponent).
-  ItemExpr *scaleBy10x(const ValueId &source, Lng32 exponent);
+  ItemExpr *scaleBy10x(const ValueId &source, int exponent);
 
   // if the scales of the source and target types are not
   // the same, this function returns an expr tree to upscale
@@ -737,8 +737,8 @@ class ExpGenerator : public NABasicObject {
   inline ItemExpr *getRowsSinceCounter() { return rowsSinceCounter_; }
   inline void setRowsSinceCounter(ItemExpr *newCounter) { rowsSinceCounter_ = newCounter; }
 
-  inline Int64 getTempsLength() { return temps_length; }
-  inline void addTempsLength(Int64 length) { temps_length += length; }
+  inline long getTempsLength() { return temps_length; }
+  inline void addTempsLength(long length) { temps_length += length; }
 
   void setFixupConstsAndTemps(ULng32 v) {
     if (v != 0)

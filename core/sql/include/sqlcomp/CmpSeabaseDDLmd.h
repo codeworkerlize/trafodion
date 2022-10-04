@@ -1056,7 +1056,7 @@ static const ComTdbVirtTableColumnInfo seabaseMDExecuteSPSQLColInfo[] = {
 struct SPSQLProc {
   const ComTdbVirtTableRoutineInfo *routineInfo;
   const ComTdbVirtTableColumnInfo *columnInfo;
-  const Lng32 numCols;
+  const int numCols;
 };
 
 static const SPSQLProc allSPSQLProcs[] = {
@@ -1378,11 +1378,11 @@ struct MDTableInfo {
 
   // ddl stmt corresponding to the current ddl.
   const QString *newDDL;
-  Lng32 sizeOfnewDDL;
+  int sizeOfnewDDL;
 
   // ddl stmt corresponding to index on this table, if one exists
   const QString *indexDDL;
-  Lng32 sizeOfIndexDDL;
+  int sizeOfIndexDDL;
 
   const NABoolean isIndex;
 
@@ -2614,7 +2614,7 @@ struct MDViewInfo {
 
   const QString *viewDefnQuery;
 
-  Lng32 sizeOfDefnArr;
+  int sizeOfDefnArr;
 
   NABoolean upgradeNeeded;
 };

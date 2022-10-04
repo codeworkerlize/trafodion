@@ -29,7 +29,7 @@
 //  Constructor.
 //-----------------------------------------------------------------------
 SortAlgo::SortAlgo(ULng32 runsize, ULng32 recsize, NABoolean doNotAllocRec, ULng32 keysize, SortScratchSpace *scratch,
-                   Lng32 explainNodeId, ExBMOStats *bmoStats) {
+                   int explainNodeId, ExBMOStats *bmoStats) {
   sendNotDone_ = TRUE_L;
   runSize_ = runsize;
   recSize_ = recsize;
@@ -70,7 +70,7 @@ ULng32 SortAlgo::getNumOfCompares() const { return numCompares_; }
 
 SortScratchSpace *SortAlgo::getScratch() const { return scratch_; }
 
-Lng32 SortAlgo::getRunSize() const { return runSize_; }
+int SortAlgo::getRunSize() const { return runSize_; }
 
 //-----------------------------------------------------------------------
 // Name         : keyCompare

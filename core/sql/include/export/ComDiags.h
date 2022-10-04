@@ -92,7 +92,7 @@ const Int32 ComDiags_TrigActionExceptionSQLCODE = 11028;
 // for the sake of consistency; there is more than one place where
 // the typedef will get used.
 
-typedef Lng32 ComDiagBigInt;
+typedef int ComDiagBigInt;
 
 // NOTE:
 // The following group of global functions can be found in
@@ -109,13 +109,13 @@ typedef Lng32 ComDiagBigInt;
 // class and subclass simply by examining substrings of the returned
 // SQLSTATE value.
 
-NABoolean ComSQLSTATE(Lng32 theSQLCODE, char *theSQLSTATE);
+NABoolean ComSQLSTATE(int theSQLCODE, char *theSQLSTATE);
 
-void ComEMSSeverity(Lng32 theSQLCODE, char *theEMSSeverity);
+void ComEMSSeverity(int theSQLCODE, char *theEMSSeverity);
 
-void ComEMSEventTarget(Lng32 theSQLCODE, char *theEMSEventTarget, NABoolean forceDialout = FALSE);
+void ComEMSEventTarget(int theSQLCODE, char *theEMSEventTarget, NABoolean forceDialout = FALSE);
 
-void ComEMSExperienceLevel(Lng32 theSQLCODE, char *theEMSExperienceLevel);
+void ComEMSExperienceLevel(int theSQLCODE, char *theEMSExperienceLevel);
 
 // Closely tied to the SQLSTATE value itself is the class origin
 // and subclass origin values.  See ANSI clause 18.1 for what these
@@ -123,10 +123,10 @@ void ComEMSExperienceLevel(Lng32 theSQLCODE, char *theEMSExperienceLevel);
 // associated with the mapping from SQLCODE to SQLSTATE and the
 // functions provide the origin information:
 
-const char *ComClassOrigin(Lng32 theSQLCODE);
-const char *ComSubClassOrigin(Lng32 theSQLCODE);
+const char *ComClassOrigin(int theSQLCODE);
+const char *ComSubClassOrigin(int theSQLCODE);
 
-void emitError(Lng32, char *, Lng32, ...);
+void emitError(int, char *, int, ...);
 
 // -----------------------------------------------------------------------
 // Class ComCondition
@@ -305,13 +305,13 @@ class ComCondition : public IpcMessageObj {
 
   const char *getSqlID() const;
 
-  Lng32 getRowNumber() const;
+  int getRowNumber() const;
 
-  Lng32 getNskCode() const;
+  int getNskCode() const;
 
-  Lng32 getSQLCODE() const;
+  int getSQLCODE() const;
 
-  Lng32 getEMSEventVisits() const;
+  int getEMSEventVisits() const;
 
   void incrEMSEventVisits();
 
@@ -330,7 +330,7 @@ class ComCondition : public IpcMessageObj {
 
   void setConditionNumber(ComDiagBigInt);
 
-  void setSQLCODE(Lng32);
+  void setSQLCODE(int);
 
   void setServerName(const char *const);
 
@@ -362,7 +362,7 @@ class ComCondition : public IpcMessageObj {
 
   void setSqlID(const char *const);
 
-  void setRowNumber(Lng32);
+  void setRowNumber(int);
 
   // Next, we declare a set of get and set functions which
   // each take an indexing argument to refer to one of these optional
@@ -370,9 +370,9 @@ class ComCondition : public IpcMessageObj {
   // get or set functions with the index out of range.  The range
   // is 0...NumOptionalParms-1.
 
-  void setNskCode(Lng32);
+  void setNskCode(int);
 
-  NABoolean hasOptionalString(Lng32) const;
+  NABoolean hasOptionalString(int) const;
 
   // Next, we declare a set of get and set functions which
   // each take an indexing argument to refer to one of these optional
@@ -380,19 +380,19 @@ class ComCondition : public IpcMessageObj {
   // get or set functions with the index out of range.  The range
   // is 0...NumOptionalParms-1.
 
-  const char *getOptionalString(Lng32) const;
+  const char *getOptionalString(int) const;
 
-  const NAWchar *getOptionalWString(Lng32) const;
+  const NAWchar *getOptionalWString(int) const;
 
-  Lng32 getOptionalInteger(Lng32) const;
+  int getOptionalInteger(int) const;
 
-  void setOptionalString(Lng32, const char *const, CharInfo::CharSet = CharInfo::ISO88591);
+  void setOptionalString(int, const char *const, CharInfo::CharSet = CharInfo::ISO88591);
 
-  void setOptionalWString(Lng32, const NAWchar *const);
+  void setOptionalWString(int, const NAWchar *const);
 
-  CharInfo::CharSet getOptionalStringCharSet(Lng32) const;
+  CharInfo::CharSet getOptionalStringCharSet(int) const;
 
-  void setOptionalInteger(Lng32, Lng32);
+  void setOptionalInteger(int, int);
 
   // There are three methods each that must be overridden
   // in order to provide for packing and unpacking of this
@@ -438,9 +438,9 @@ class ComCondition : public IpcMessageObj {
   CollHeap *collHeapPtr_;
 
  private:
-  Lng32 conditionNumber_;
-  Lng32 usageMap_;
-  Lng32 theSQLCODE_;
+  int conditionNumber_;
+  int usageMap_;
+  int theSQLCODE_;
   char *serverName_;
   char *connectionName_;
   char *constraintCatalog_;
@@ -455,14 +455,14 @@ class ComCondition : public IpcMessageObj {
   char *customSQLState_;
   char *columnName_;
   char *sqlID_;
-  Lng32 rowNumber_;
-  Lng32 nskCode_;
-  Lng32 numStringParamsUsed_;
-  Lng32 numIntParamsUsed_;
+  int rowNumber_;
+  int nskCode_;
+  int numStringParamsUsed_;
+  int numIntParamsUsed_;
   NABoolean flagsTBS_;  // flags (to be sent in messages)
   NABoolean isLocked_;
   NAWchar *messageText_;
-  Lng32 messageLen_;
+  int messageLen_;
 
   // The data representing these members is a pair of private arrays.
   // The constructors, generally, NULL the values of the
@@ -470,9 +470,9 @@ class ComCondition : public IpcMessageObj {
 
   void *optionalString_[NumOptionalParms];
   enum CharInfo::CharSet optionalStringCharSet_[NumOptionalParms];
-  Lng32 optionalInteger_[NumOptionalParms];
+  int optionalInteger_[NumOptionalParms];
 
-  Lng32 emsEventVisits_;
+  int emsEventVisits_;
 
   // enum CharInfo::CharSet   iso88591MappingCharSet_;
 
@@ -567,13 +567,13 @@ inline const char *ComCondition::getColumnName() const { return columnName_; }
 
 inline const char *ComCondition::getSqlID() const { return sqlID_; }
 
-inline Lng32 ComCondition::getRowNumber() const { return rowNumber_; }
+inline int ComCondition::getRowNumber() const { return rowNumber_; }
 
-inline Lng32 ComCondition::getNskCode() const { return nskCode_; }
+inline int ComCondition::getNskCode() const { return nskCode_; }
 
-inline Lng32 ComCondition::getSQLCODE() const { return theSQLCODE_; }
+inline int ComCondition::getSQLCODE() const { return theSQLCODE_; }
 
-inline Lng32 ComCondition::getEMSEventVisits() const { return emsEventVisits_; }
+inline int ComCondition::getEMSEventVisits() const { return emsEventVisits_; }
 
 inline void ComCondition::incrEMSEventVisits() { emsEventVisits_++; }
 
@@ -690,19 +690,19 @@ class ComDiagsArea : public IpcMessageObj {
   // of a ComDiagsArea that is defined in ANSI table 21, in subclause
   // 18.1.  See also, ``Creating Errors Korrectly.''
 
-  Lng32 getNumber() const;
-  Lng32 getNumber(DgSqlCode::ErrorOrWarning) const;
+  int getNumber() const;
+  int getNumber(DgSqlCode::ErrorOrWarning) const;
   NABoolean areMore() const;
   NABoolean canAcceptMoreErrors() const;
-  Int64 getRowCount() const;
-  void setRowCount(Int64);
-  void addRowCount(Int64);
+  long getRowCount() const;
+  void setRowCount(long);
+  void addRowCount(long);
   ComDiagBigInt getAvgStreamWaitTime() const;
   void setAvgStreamWaitTime(ComDiagBigInt);
   double getCost() const;
   void setCost(double);
-  Lng32 getLengthLimit() const;
-  void setLengthLimit(Lng32);
+  int getLengthLimit() const;
+  void setLengthLimit(int);
 
   // This method will set the sqlID attribute of every error condition
   // and warning in the diags area that isn't already set.
@@ -710,14 +710,14 @@ class ComDiagsArea : public IpcMessageObj {
 
   // This method will set the RowNumber attribute of every error condition
   // in the diags area when it called.
-  void setAllRowNumber(Lng32, DgSqlCode::ErrorOrWarning errorOrWarn = DgSqlCode::ERROR_);
+  void setAllRowNumber(int, DgSqlCode::ErrorOrWarning errorOrWarn = DgSqlCode::ERROR_);
 
   // This method will check the RowNumber attribute of every error condition
   // and return the value of the smallest rownumber that is greater than or equal to indexValue.
   // In other words it returns the value of the first rowset index that has raised an error
   // that is greater than or equal to indexValue.
   // If none is found, INVALID_ROWNUMBER will be returned.
-  Lng32 getNextRowNumber(Lng32 indexValue) const;
+  int getNextRowNumber(int indexValue) const;
 
   // this method returns TRUE is rowsetRowCountArray_ is not NULL.
   NABoolean hasValidRowsetRowCountArray() const;
@@ -725,16 +725,16 @@ class ComDiagsArea : public IpcMessageObj {
   // this method returns the number of entries in the rowsetRowCountArray_.
   // should not exceed run-time size of input rowset. Currently we do not
   // support rowset sizes that do not fit into a long datatype.
-  Lng32 numEntriesInRowsetRowCountArray() const;
+  int numEntriesInRowsetRowCountArray() const;
 
   // this method inserts "value" into the specified index of the rowsetRowCountArray_
   // It also handles allocation of the array if this is the first element being inserted
   // into the array.
-  void insertIntoRowsetRowCountArray(Lng32 index, Int64 value, Lng32 arraySize, CollHeap *heapPtr);
+  void insertIntoRowsetRowCountArray(int index, long value, int arraySize, CollHeap *heapPtr);
 
   // this method returns the value in the specified index of rowsetRowCountArray_.
   // returns -1 if the index specified is unused.
-  Int64 getValueFromRowsetRowCountArray(Lng32 index) const;
+  long getValueFromRowsetRowCountArray(int index) const;
 
   // The set and get functions for setting and getting
   // the ``SQL function'' of a ComDiagsArea use the FunctionEnum
@@ -774,7 +774,7 @@ class ComDiagsArea : public IpcMessageObj {
   // this ComDiagsArea, and it returns the SQLCODE of the highest
   // priority ComCondition otherwise.
 
-  Lng32 mainSQLCODE() const;
+  int mainSQLCODE() const;
 
   // Returnes the SQLSTATE value of the last SIGNAL statement.
   // Assumes the SIGNAL condition is the highest priority error.
@@ -828,16 +828,16 @@ class ComDiagsArea : public IpcMessageObj {
   // is in the range 1...getNumber().  Passing an invalid
   // index will result in an assertion failure.
 
-  ComCondition &operator[](Lng32) const;
+  ComCondition &operator[](int) const;
 
   // getErrorEntry and getWarningEntry - same function as the above []
   // operator, but this method only accesses ComCondition objects in the
   // specified list (error or warning).
   // index ranges from 1..getNumber(DgSqlCode::WARNING_ or ERROR_)
-  ComCondition *getWarningEntry(Lng32);
-  ComCondition *getErrorEntry(Lng32);
+  ComCondition *getWarningEntry(int);
+  ComCondition *getErrorEntry(int);
 
-  ComCondition *findCondition(Lng32 sqlCode, Lng32 *entryNumber = NULL);  // return NULL if not found
+  ComCondition *findCondition(int sqlCode, int *entryNumber = NULL);  // return NULL if not found
 
   NABoolean ErrSizeIsNull() { return errors_.isEmpty(); }
 
@@ -865,7 +865,7 @@ class ComDiagsArea : public IpcMessageObj {
     while (getNumber(DgSqlCode::ERROR_)) negateCondition(0);
   }
 
-  void negateErrors(Lng32 fromCondition) {
+  void negateErrors(int fromCondition) {
     while (getNumber(DgSqlCode::ERROR_) > fromCondition) negateCondition(fromCondition);
   }
 
@@ -889,8 +889,8 @@ class ComDiagsArea : public IpcMessageObj {
   // The other data members, such as the basic info, of this ComDiagsArea
   // remains unaffected by a rewind operation.
 
-  Lng32 mark() const;
-  void rewind(Lng32 markValue, NABoolean decId = FALSE);
+  int mark() const;
+  void rewind(int markValue, NABoolean decId = FALSE);
 
   // The rewindAndMerge() method works very much like rewinding.
   // The ComDiagsArea* you pass in refers to an object that receives
@@ -898,7 +898,7 @@ class ComDiagsArea : public IpcMessageObj {
   // a result of the rewind.  If the given object is the same as *this,
   // then a simple rewind takes place.
 
-  void rewindAndMergeIfDifferent(Lng32, ComDiagsArea *);
+  void rewindAndMergeIfDifferent(int, ComDiagsArea *);
 
   // The removeFinalCondition100() method is a special purpose method,
   // used by the SQL CLI, to work around a problem: the EOF condition,
@@ -914,47 +914,47 @@ class ComDiagsArea : public IpcMessageObj {
 
   void removeLastErrorCondition();
   void removeLastNonFatalCondition();
-  Lng32 markDupNFConditions();
+  int markDupNFConditions();
   // the deleteWarning and deleteError methods delete a warning/error from
   // the warnings_/errors_ list.
   // entryNumber is the index to the warnings_/errors_ list
   // entryNumber should range from 1 to getNumber(DgSqlCode::WARNING_ or
   // ERROR_)
-  void deleteWarning(Lng32 entryNumber);
-  void deleteError(Lng32 entryNumber);
+  void deleteWarning(int entryNumber);
+  void deleteError(int entryNumber);
 
   // similar to deleteError except that the Error entry is not
   // destroyed (i.e. deallocated) and a pointer to it returned.
   // The error entry is removes from the errors_ list.
-  ComCondition *removeError(Lng32 entryNumber);
+  ComCondition *removeError(int entryNumber);
 
   // returns TRUE, if any ComCondition in the diagsArea contains
   // error SQLCode.
   // returns FALSE, otherwise.
-  NABoolean contains(Lng32 SQLCode) const;
+  NABoolean contains(int SQLCode) const;
 
   // check if a particular error/warning occurred for a particular file.
   // returns TRUE, if diagsArea contains the fileName for error SQLCode.
   // returns FALSE, otherwise.
-  NABoolean containsForFile(Lng32 SQLCode, const char *fileName);
+  NABoolean containsForFile(int SQLCode, const char *fileName);
 
   // returns TRUE, if any ComCondition in the diagsArea contains
   // warning SQLCode. Returns FALSE, otherwise.
-  NABoolean containsWarning(Lng32 SQLCode) const;
+  NABoolean containsWarning(int SQLCode) const;
 
   // Check if warnings_ contains SQLCODE within the range [begin, warnings_.entries()).
   // Note beg is 0-based.
 
-  NABoolean containsWarning(CollIndex begin, Lng32 SQLCode) const;
+  NABoolean containsWarning(CollIndex begin, int SQLCode) const;
 
   // returns TRUE, if any ComCondition in the diagsArea contains
   // error SQLCode. Returns FALSE, otherwise.
 
-  NABoolean containsError(Lng32 SQLCode) const;
+  NABoolean containsError(int SQLCode) const;
 
   // returnIndex returns the index number of a given SQLCODE in this diagsarea
   // If the given SQLCODE is not found in the diagsarea then NULL_COLL_INDEX is returned.
-  CollIndex returnIndex(Lng32 SQLCODE) const;
+  CollIndex returnIndex(int SQLCODE) const;
 
   // Decrement reference count.  Object is deallocated, in the heap in
   // which it resides, when reference count drops to zero.
@@ -1013,8 +1013,8 @@ class ComDiagsArea : public IpcMessageObj {
 
   class DiagsCondition : public ComCondition {
    public:
-    Lng32 getDiagsId() const;
-    void setDiagsId(Lng32);
+    int getDiagsId() const;
+    void setDiagsId(int);
 
     // We want a DiagsCondition object to behave pretty much
     // like a ComCondition object, so the constructor(s), destructor,
@@ -1053,7 +1053,7 @@ class ComDiagsArea : public IpcMessageObj {
     DiagsCondition &operator=(const DiagsCondition &);
 
    private:
-    Lng32 diagsId_;
+    int diagsId_;
 
     // In support of allocation, creation, and destruction:
 
@@ -1197,7 +1197,7 @@ class ComDiagsArea : public IpcMessageObj {
   // Set from client code, this ``property'' of this class tells
   // how many rows are associated with its data.
 
-  Int64 rowCount_;
+  long rowCount_;
 
   // The associated SQL "function."
 
@@ -1252,7 +1252,7 @@ class ComDiagsArea : public IpcMessageObj {
 
   // contains the number of rows_affected by each element of a rowset
   // search-condition for rowset updates and deletes.
-  ARRAY(Int64) * rowsetRowCountArray_;
+  ARRAY(long) * rowsetRowCountArray_;
 
   // reserve space for adding new members or extending the size
   // of existing members
@@ -1331,12 +1331,12 @@ inline void ComDiagsArea::DiagsCondition::deAllocate() {
   };
 }
 
-inline void ComDiagsArea::setLengthLimit(Lng32 newLimit) {
+inline void ComDiagsArea::setLengthLimit(int newLimit) {
   lengthLimit_ = newLimit;
   enforceLengthLimit();
 }
 
-inline Lng32 ComDiagsArea::getLengthLimit() const { return lengthLimit_; }
+inline int ComDiagsArea::getLengthLimit() const { return lengthLimit_; }
 
 // We create an operator<< for outputting a ComDiagsArea
 // and giving a summary of its contents.

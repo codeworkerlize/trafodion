@@ -94,7 +94,7 @@ SimpleCostVector operator+(const SimpleCostVector &v1, const SimpleCostVector &v
   //---------------------------------------------------------------
   //  Add each component of v2 to result's corresponding component.
   //---------------------------------------------------------------
-  for (Lng32 vecIdx = 0; vecIdx < COUNT_OF_SIMPLE_COST_COUNTERS; vecIdx++) {
+  for (int vecIdx = 0; vecIdx < COUNT_OF_SIMPLE_COST_COUNTERS; vecIdx++) {
     resultVector.counter_[vecIdx] += v2.counter_[vecIdx];
   }
 
@@ -137,7 +137,7 @@ SimpleCostVector operator-(const SimpleCostVector &v1, const SimpleCostVector &v
   //  Subtract each component of v2 from v1's corresponding component,
   // but make sure no resulting component has a negative value.
   //----------------------------------------------------------------------
-  for (Lng32 vecIdx = 0; vecIdx < COUNT_OF_SIMPLE_COST_COUNTERS; vecIdx++) {
+  for (int vecIdx = 0; vecIdx < COUNT_OF_SIMPLE_COST_COUNTERS; vecIdx++) {
     resultVector.counter_[vecIdx] -= v2.counter_[vecIdx];
     // if ( resultVector.counter_[vecIdx] < csZero )
     //  {
@@ -182,7 +182,7 @@ SimpleCostVector operator*(const SimpleCostVector &vector, const CostScalar &sca
   //--------------------------------------------------
   //  Multiply each component by the specified scalar.
   //--------------------------------------------------
-  for (Lng32 vecIdx = 0; vecIdx < COUNT_OF_SIMPLE_COST_COUNTERS; vecIdx++) {
+  for (int vecIdx = 0; vecIdx < COUNT_OF_SIMPLE_COST_COUNTERS; vecIdx++) {
     resultVector.counter_[vecIdx] *= scalar;
   }
 
@@ -231,7 +231,7 @@ SimpleCostVector operator/(const SimpleCostVector &vector, const CostScalar &sca
   //------------------------------------------------
   //  Divide each component by the specified scalar.
   //------------------------------------------------
-  for (Lng32 vecIdx = 0; vecIdx < COUNT_OF_SIMPLE_COST_COUNTERS; vecIdx++) {
+  for (int vecIdx = 0; vecIdx < COUNT_OF_SIMPLE_COST_COUNTERS; vecIdx++) {
     resultVector.counter_[vecIdx] /= scalar;
   }
 
@@ -663,7 +663,7 @@ NABoolean isLowerBound(const SimpleCostVector &v1, const SimpleCostVector &v2) {
   //  Verify that each component of v1 is less than or equal to the
   // corresponding component of v2.
   //---------------------------------------------------------------
-  for (Lng32 vecIdx = 0; vecIdx < COUNT_OF_SIMPLE_COST_COUNTERS; vecIdx++) {
+  for (int vecIdx = 0; vecIdx < COUNT_OF_SIMPLE_COST_COUNTERS; vecIdx++) {
     if (v1.counter_[vecIdx] > v2.counter_[vecIdx]) {
       return FALSE;
     }
@@ -716,19 +716,19 @@ SimpleCostVector::SimpleCostVector(const CostScalar &CPUTime, const CostScalar &
   counter_[NUM_PROBES] = numProbes;
 }
 
-Lng32 SimpleCostVector::entries() const { return COUNT_OF_SIMPLE_COST_COUNTERS; }
+int SimpleCostVector::entries() const { return COUNT_OF_SIMPLE_COST_COUNTERS; }
 //<pb>
-CostScalar SimpleCostVector::operator[](Lng32 ix) const {
+CostScalar SimpleCostVector::operator[](int ix) const {
   CMPASSERT((ix >= 0) AND(ix < COUNT_OF_SIMPLE_COST_COUNTERS));
   return counter_[ix];
 }
 
 SimpleCostVector::SimpleCostVector(const SimpleCostVector &other) {
-  for (Lng32 i = 0; i < COUNT_OF_SIMPLE_COST_COUNTERS; i++) counter_[i] = other.counter_[i];
+  for (int i = 0; i < COUNT_OF_SIMPLE_COST_COUNTERS; i++) counter_[i] = other.counter_[i];
 }
 
 SimpleCostVector &SimpleCostVector::operator=(const SimpleCostVector &other) {
-  for (Lng32 i = 0; i < COUNT_OF_SIMPLE_COST_COUNTERS; i++) counter_[i] = other.counter_[i];
+  for (int i = 0; i < COUNT_OF_SIMPLE_COST_COUNTERS; i++) counter_[i] = other.counter_[i];
 
   return *this;
 }
@@ -798,7 +798,7 @@ void SimpleCostVector::print(FILE *pfp) const {
   fprintf(pfp, "IO seq=%g\n", counter_[IO_SEQ].value());
   fprintf(pfp, "num Probes=%g\n", counter_[NUM_PROBES].value());
   /*
-    for (Lng32 i = 0; i < COUNT_OF_SIMPLE_COST_COUNTERS; i++)
+    for (int i = 0; i < COUNT_OF_SIMPLE_COST_COUNTERS; i++)
       fprintf(pfp,"%g,",counter_[i].value());
   */
   fprintf(pfp, "\n");
@@ -938,7 +938,7 @@ const SimpleCostVector &SimpleCostVector::normalize(const CostScalar &factor) {
   //  Normalize each component to the new factor.
   //---------------------------------------------
   const CostScalar numProbes = getNumProbes() / factor;
-  for (Lng32 vecIdx = 0; vecIdx < COUNT_OF_SIMPLE_COST_COUNTERS; vecIdx++) {
+  for (int vecIdx = 0; vecIdx < COUNT_OF_SIMPLE_COST_COUNTERS; vecIdx++) {
     counter_[vecIdx] *= numProbes;
   }
 
@@ -1031,7 +1031,7 @@ const SimpleCostVector &SimpleCostVector::overlappedAdd(const SimpleCostVector &
 //  Result of adding vector to itself a repeated number of times.
 //
 //==============================================================================
-const SimpleCostVector &SimpleCostVector::repeatedOverlappedAdd(const Lng32 times) {
+const SimpleCostVector &SimpleCostVector::repeatedOverlappedAdd(const int times) {
   //---------------------------------------------------------------------------
   //  Number of times must be positive.  If it equals 1, we have nothing to do,
   // so return immediately.
@@ -1114,7 +1114,7 @@ const SimpleCostVector &SimpleCostVector::scaleUpByNumProbes() {
 
   //  short overflow=0;    //to check for overflow
 
-  for (Lng32 i = 0; i < COUNT_OF_SIMPLE_COST_COUNTERS - 1; i++) {
+  for (int i = 0; i < COUNT_OF_SIMPLE_COST_COUNTERS - 1; i++) {
     counter_[i] *= numProbes;
   }
 
@@ -1129,7 +1129,7 @@ const SimpleCostVector &SimpleCostVector::scaleUpByNumProbes() {
 // tracks total resource usage over all CPUs. All components except the
 // no of probes are scaled up.
 // -----------------------------------------------------------------------
-const SimpleCostVector &SimpleCostVector::scaleUpByCountOfCPUs(const Lng32 countOfCPUs) {
+const SimpleCostVector &SimpleCostVector::scaleUpByCountOfCPUs(const int countOfCPUs) {
   return scaleByValue(countOfCPUs);
 }
 //<pb>
@@ -1153,7 +1153,7 @@ SimpleCostVector &SimpleCostVector::scaleByValue(const CostScalar &scalar) {
   //  except the NUMPROBES which is the last component
   // so just run the loop to "count_of_simple_cost_counters-1" times
   //--------------------------------------------------
-  for (Lng32 vecIdx = 0; vecIdx < COUNT_OF_SIMPLE_COST_COUNTERS - 1; vecIdx++) {
+  for (int vecIdx = 0; vecIdx < COUNT_OF_SIMPLE_COST_COUNTERS - 1; vecIdx++) {
     counter_[vecIdx] *= scalar;
   }
 
@@ -1170,7 +1170,7 @@ void SimpleCostVector::setToValue(const CostScalar &scalar) {
   //  set each component to the specified scalar
   //  except the NUMPROBES which is the last component
   //--------------------------------------------------
-  for (Lng32 vecIdx = 0; vecIdx < COUNT_OF_SIMPLE_COST_COUNTERS - 1; vecIdx++) {
+  for (int vecIdx = 0; vecIdx < COUNT_OF_SIMPLE_COST_COUNTERS - 1; vecIdx++) {
     counter_[vecIdx] = scalar;
   }
 
@@ -1196,7 +1196,7 @@ const SimpleCostVector &SimpleCostVector::enforceUpperBound(const SimpleCostVect
   // specified upper bound vector, reduce this vector's component to the upper
   // bound vector's corresponding component.
   //--------------------------------------------------------------------------
-  for (Lng32 vecIdx = 0; vecIdx < COUNT_OF_SIMPLE_COST_COUNTERS; vecIdx++) {
+  for (int vecIdx = 0; vecIdx < COUNT_OF_SIMPLE_COST_COUNTERS; vecIdx++) {
     if (counter_[vecIdx] > upperBoundVector.counter_[vecIdx]) {
       counter_[vecIdx] = upperBoundVector.counter_[vecIdx];
     }
@@ -1210,7 +1210,7 @@ const SimpleCostVector &SimpleCostVector::enforceUpperBound(const SimpleCostVect
 // Resets all components to zero
 
 const SimpleCostVector &SimpleCostVector::reset() {
-  for (Lng32 i = 0; i < COUNT_OF_SIMPLE_COST_COUNTERS; i++) {
+  for (int i = 0; i < COUNT_OF_SIMPLE_COST_COUNTERS; i++) {
     counter_[i] = csZero;
   }
 
@@ -1239,7 +1239,7 @@ const SimpleCostVector &SimpleCostVector::reset() {
 // This method is no longer used, isZeroVectorWithProbes is used instead.
 // So hide it from coverage
 NABoolean SimpleCostVector::isZeroVector() const {
-  Lng32 vecIdx;
+  int vecIdx;
   //-----------------------------------------------------------------------
   //  Check all components (except number of probes).  If any are non-zero,
   // report that this is not a zero vector.
@@ -1266,7 +1266,7 @@ NABoolean SimpleCostVector::isZeroVector() const {
 // See Genesis case : 10-031021-5359
 
 NABoolean SimpleCostVector::isZeroVectorWithProbes() const {
-  Lng32 vecIdx;
+  int vecIdx;
   const CostScalar numProbes = getNumProbes();
 
   //-----------------------------------------------------------------------
@@ -1324,7 +1324,7 @@ NABoolean SimpleCostVector::isZeroVectorWithProbes() const {
 //
 //==============================================================================
 Cost::Cost(const SimpleCostVector *currentProcessFirstRowCost, const SimpleCostVector *currentProcessLastRowCost,
-           const SimpleCostVector *currentProcessBlockingCost, const Lng32 countOfCPUs, const Lng32 planFragmentsPerCPU)
+           const SimpleCostVector *currentProcessBlockingCost, const int countOfCPUs, const int planFragmentsPerCPU)
     : cpScmlr_(),
       cpScmDbg_(),
       cpbc1_(),
@@ -1743,7 +1743,7 @@ ElapsedTime Cost::displayTotalCost(const ReqdPhysicalProperty *const rpp) const 
     return convertToElapsedTime(rpp);
   } else {
     double cpu, io, msg, idle, seqIOs, randIOs, total;
-    Lng32 probes;
+    int probes;
     getExternalCostAttr(cpu, io, msg, idle, seqIOs, randIOs, total, probes);
     return total;
   }
@@ -1759,7 +1759,7 @@ const NAString Cost::getDetailDesc() const {
   // Declare line so that we never have a string larger than this.
   char line[400];
   double cpu, io, msg, idle, seqIOs, randIOs, total;
-  Lng32 probes;
+  int probes;
   getExternalCostAttr(cpu, io, msg, idle, seqIOs, randIOs, total, probes);
 
   if ((CmpCommon::getDefault(SIMPLE_COST_MODEL) == DF_OFF) ||
@@ -1798,7 +1798,7 @@ const NAString Cost::getDetailDesc() const {
 // This method returns cost information to WMS (and possibly other callers).
 // -----------------------------------------------------------------------
 void Cost::getExternalCostAttr(double &cpuTime, double &ioTime, double &msgTime, double &idleTime, double &numSeqIOs,
-                               double &numRandIOs, double &totalTime, Lng32 &probes) const {
+                               double &numRandIOs, double &totalTime, int &probes) const {
   // Depending on the cost model in effect get the detailed description for
   // the corresponding cost vector
   if (CmpCommon::getDefault(SIMPLE_COST_MODEL) == DF_ON) {
@@ -1853,7 +1853,7 @@ void Cost::getExternalCostAttr(double &cpuTime, double &ioTime, double &msgTime,
 // simple cost vector depending on the cost model in effect. This is expected
 // to be used by callers like Explain etc. to display the cost details.
 // -----------------------------------------------------------------------
-void Cost::getOcmCostAttr(double &cpu, double &io, double &msg, double &idleTime, Lng32 &probes) const {
+void Cost::getOcmCostAttr(double &cpu, double &io, double &msg, double &idleTime, int &probes) const {
   cpu = MINOF(cplr_.getCPUTime(), 1e32).getValue() + MINOF(cpbcTotal_.getCPUTime(), 1e32).getValue();
 
   io = MINOF(cplr_.getIOTime(), 1e32).getValue() + MINOF(cpbcTotal_.getIOTime(), 1e32).getValue();
@@ -1863,7 +1863,7 @@ void Cost::getOcmCostAttr(double &cpu, double &io, double &msg, double &idleTime
   idleTime = MAXOF(cplr_.getIdleTime().getValue(), cpbcTotal_.getIdleTime().getValue());
 
   CostScalar tmpProbe = cplr_.getNumProbes();
-  probes = Lng32(tmpProbe.getValue());
+  probes = int(tmpProbe.getValue());
 }
 
 // -----------------------------------------------------------------------
@@ -1874,7 +1874,7 @@ void Cost::getOcmCostAttr(double &cpu, double &io, double &msg, double &idleTime
 // called only when internal debugging CQD NCM_PRINT_ROWSIZE is ON.
 // So hide from coverage
 void Cost::getScmCostAttr(double &tcProc, double &tcProd, double &tcSent, double &ioRand, double &ioSeq,
-                          Lng32 &probes) const {
+                          int &probes) const {
   tcProc = cpScmlr_.getTcProc().getValue();
 
   tcProd = cpScmlr_.getTcProd().getValue();
@@ -1886,7 +1886,7 @@ void Cost::getScmCostAttr(double &tcProc, double &tcProd, double &tcSent, double
   ioSeq = cpScmlr_.getIoSeq().getValue();
 
   CostScalar tmpProbe = cpScmlr_.getNumProbes();
-  probes = Lng32(tmpProbe.getValue());
+  probes = int(tmpProbe.getValue());
 }
 
 // -----------------------------------------------------------------------
@@ -2089,7 +2089,7 @@ PlanPriority Cost::computePlanPriority(RelExpr *op, const Context *myContext, co
 
 // For use with binary operators
 PlanPriority Cost::computePlanPriority(RelExpr *op, const Context *myContext, const Cost *child0Cost,
-                                       const Cost *child1Cost, PlanWorkSpace *pws, Lng32 planNumber) {
+                                       const Cost *child1Cost, PlanWorkSpace *pws, int planNumber) {
   priority_ = op->computeOperatorPriority(myContext, pws, planNumber);
   priority_.rollUpBinary(child0Cost->getPlanPriority(), child1Cost->getPlanPriority());
   return priority_;
@@ -2154,8 +2154,8 @@ void Cost::display() const { print(); }
 //==============================================================================
 HashJoinCost::HashJoinCost(const SimpleCostVector *currentProcessFirstRowCost,
                            const SimpleCostVector *currentProcessLastRowCost,
-                           const SimpleCostVector *currentProcessBlockingCost, const Lng32 countOfCPUs,
-                           const Lng32 planFragmentsPerCPU, const CostScalar &stage2WorkFractionForFR,
+                           const SimpleCostVector *currentProcessBlockingCost, const int countOfCPUs,
+                           const int planFragmentsPerCPU, const CostScalar &stage2WorkFractionForFR,
                            const CostScalar &stage3WorkFractionForFR, const SimpleCostVector *stage2Cost,
                            const SimpleCostVector *stage3Cost, const SimpleCostVector *stage1BkCost,
                            const SimpleCostVector *stage2BkCost, const SimpleCostVector *stage3BkCost)
@@ -2191,7 +2191,7 @@ HashJoinCost::HashJoinCost(const SimpleCostVector *currentProcessFirstRowCost,
   // basis, we convert them to a "per CPU" basis.  We use overlapped addition
   // because independent streams can overlap IO and message costs.
   //-------------------------------------------------------------------------
-  for (Lng32 fragIdx = 1; fragIdx < planFragmentsPerCPU; fragIdx++) {
+  for (int fragIdx = 1; fragIdx < planFragmentsPerCPU; fragIdx++) {
     stage2Cost_.overlappedAdd(*stage2Cost);
     stage3Cost_.overlappedAdd(*stage3Cost);
 
@@ -2265,8 +2265,8 @@ HashJoinCost::~HashJoinCost() {}  // HashJoinCost destructor.
 //==============================================================================
 HashGroupByCost::HashGroupByCost(const SimpleCostVector *currentProcessFirstRowCost,
                                  const SimpleCostVector *currentProcessLastRowCost,
-                                 const SimpleCostVector *currentProcessBlockingCost, const Lng32 countOfCPUs,
-                                 const Lng32 planFragmentsPerCPU, const CostScalar &groupingFactor)
+                                 const SimpleCostVector *currentProcessBlockingCost, const int countOfCPUs,
+                                 const int planFragmentsPerCPU, const CostScalar &groupingFactor)
 
     : Cost(currentProcessFirstRowCost, currentProcessLastRowCost, currentProcessBlockingCost, countOfCPUs,
            planFragmentsPerCPU),
@@ -2403,7 +2403,7 @@ ResourceConsumptionWeight *ResourceConsumptionWeight::castToResourceConsumptionW
 // -----------------------------------------------------------------------
 //  ResourceConsumptionWeight::entries()
 // -----------------------------------------------------------------------
-Lng32 ResourceConsumptionWeight::entries() const {
+int ResourceConsumptionWeight::entries() const {
   return COUNT_OF_SIMPLE_COST_COUNTERS;
 }  // ResourceConsumptionWeight::entries()
 
@@ -2415,7 +2415,7 @@ ElapsedTime ResourceConsumptionWeight::convertToElapsedTime(const CostVector &cv
 
   ElapsedTime result(csZero);
 
-  for (Lng32 i = 0; i < entries(); i++) result += cv[i] * weighFactors_[i];
+  for (int i = 0; i < entries(); i++) result += cv[i] * weighFactors_[i];
 
   return result;
 };  // ResourceConsumptionWeight::convertToElapsedTime()
@@ -2476,7 +2476,7 @@ COMPARE_RESULT ResourceConsumptionWeight::compareCostVectors(const CostVector &c
 //<pb>
 
 // Provides access to a specific entry
-CostScalar ResourceConsumptionWeight::operator[](Lng32 ix) const {
+CostScalar ResourceConsumptionWeight::operator[](int ix) const {
   CMPASSERT((ix >= 0) AND(ix < COUNT_OF_SIMPLE_COST_COUNTERS));
   return weighFactors_[ix];
 }
@@ -2617,7 +2617,7 @@ ElapsedTimeCostLimit::compareWithCost(const Cost &other, const ReqdPhysicalPrope
     // xxx We only consider the demotion levels of priority limit for this type
     // of cost based pruning. This is because demotions levels are monotonically
     // decreasing with upper limit of zero.
-    Lng32 demotionLimit = priorityLimit_.getDemotionLevel() - ancestorCost_->getPlanPriority().getDemotionLevel() -
+    int demotionLimit = priorityLimit_.getDemotionLevel() - ancestorCost_->getPlanPriority().getDemotionLevel() -
                           otherKinCost_->getPlanPriority().getDemotionLevel();
 
     if (demotionLimit > other.getPlanPriority().getDemotionLevel()) return LESS;
@@ -2696,7 +2696,7 @@ ElapsedTimeCostLimit::compareWithPlanCost(CascadesPlan *plan, const ReqdPhysical
     // xxx We only consider the demotion levels of priority limit for this type
     // of cost based pruning. This is because demotions levels are monotonically
     // decreasing with upper limit of zero.
-    Lng32 demotionLimit = priorityLimit_.getDemotionLevel() - ancestorCost_->getPlanPriority().getDemotionLevel() -
+    int demotionLimit = priorityLimit_.getDemotionLevel() - ancestorCost_->getPlanPriority().getDemotionLevel() -
                           otherKinCost_->getPlanPriority().getDemotionLevel();
 
     if (demotionLimit > plan->getRollUpCost()->getPlanPriority().getDemotionLevel()) return LESS;
@@ -3119,7 +3119,7 @@ ScmElapsedTimeCostLimit::compareWithCost(const Cost &other, const ReqdPhysicalPr
     // xxx We only consider the demotion levels of priority limit for this type
     // of cost based pruning. This is because demotions levels are monotonically
     // decreasing with upper limit of zero.
-    Lng32 demotionLimit = priorityLimit_.getDemotionLevel() - ancestorCost_->getPlanPriority().getDemotionLevel() -
+    int demotionLimit = priorityLimit_.getDemotionLevel() - ancestorCost_->getPlanPriority().getDemotionLevel() -
                           otherKinCost_->getPlanPriority().getDemotionLevel();
 
     if (demotionLimit > other.getPlanPriority().getDemotionLevel()) return LESS;
@@ -3311,7 +3311,7 @@ double CostPrimitives::cpuCostForCopySet(const ValueIdSet &vidset) {
   return (getBasicCostFactor(CPUCOST_COPY_SIMPLE_DATA_TYPE) * vidset.entries());
 }
 
-double CostPrimitives::cpuCostForCopyRow(Lng32 byteCount) {
+double CostPrimitives::cpuCostForCopyRow(int byteCount) {
   return (getBasicCostFactor(CPUCOST_COPY_ROW_OVERHEAD) + getBasicCostFactor(CPUCOST_COPY_ROW_PER_BYTE) * byteCount);
 }
 
@@ -3331,7 +3331,7 @@ double CostPrimitives::cpuCostForCompare(const ValueIdSet &vidset) {
 double CostPrimitives::cpuCostForLikeCompare(const ValueId &vid) {
   CMPASSERT(vid.getItemExpr()->getOperatorType() == ITM_LIKE);
   ItemExpr *child0 = vid.getItemExpr()->getChild(0)->castToItemExpr();
-  Lng32 child0length = child0->getValueId().getType().getNominalSize();
+  int child0length = child0->getValueId().getType().getNominalSize();
   return (getBasicCostFactor(CPUCOST_LIKE_COMPARE_OVERHEAD) +
           getBasicCostFactor(CPUCOST_LIKE_COMPARE_PER_BYTE) * child0length);
 }
@@ -3370,7 +3370,7 @@ double CostPrimitives::cpuCostForAggrRow(const ValueIdSet &vidset) {
 // it in sqlcomp/DefaultConstants.h and include that file where the
 // factor will be used. Also, list the factor and its value in the
 // defaultDefaults table.
-double CostPrimitives::getBasicCostFactor(Lng32 id) {
+double CostPrimitives::getBasicCostFactor(int id) {
   if (id == MSCF_OV_MSG || id == MSCF_OV_IO) return 1.0;
   return CmpCommon::getDefaultNumeric((DefaultConstants)id);
 }

@@ -80,17 +80,17 @@ class NAFileSet : public NABasicObject {
   // Constructor functions
   // ---------------------------------------------------------------------
   NAFileSet(const QualifiedName &fileSetName, const QualifiedName &extFileSetObj, const NAString &extFileSetName,
-            enum FileOrganizationEnum org, NABoolean isSystemTable, Lng32 countOfFiles,
-            Cardinality estimatedNumberOfRecords, Lng32 recordLength, Lng32 blockSize, Int32 indexLevels,
+            enum FileOrganizationEnum org, NABoolean isSystemTable, int countOfFiles,
+            Cardinality estimatedNumberOfRecords, int recordLength, int blockSize, Int32 indexLevels,
             const NAColumnArray &allColumns, const NAColumnArray &indexKeyColumns,
             const NAColumnArray &horizontalPartKeyColumns, const NAColumnArray &hiveSortKeyColumns,
-            PartitioningFunction *forHorizontalPartitioning, short keytag, Int64 redefTime, NABoolean audited,
+            PartitioningFunction *forHorizontalPartitioning, short keytag, long redefTime, NABoolean audited,
             NABoolean auditCompressed, NABoolean compressed, ComCompressionType dcompressed, NABoolean icompressed,
             NABoolean buffered, NABoolean clearOnPurge, NABoolean packedRows, NABoolean hasRemotePartition,
             NABoolean isUniqueSecondaryIndex, NABoolean isNgramIndex, NABoolean isPartLocalBaseIndex,
             NABoolean isPartLocalIndex, NABoolean isPartGlobalIndex, NABoolean isDecoupledRangePartitioned,
-            Lng32 fileCode, NABoolean isVolatile, NABoolean inMemObjectDefn, Int64 indexUID, TrafDesc *keysDesc,
-            Lng32 numSaltPartns, Lng32 numInitialSaltRegions, Int16 numTrafReplicas,
+            int fileCode, NABoolean isVolatile, NABoolean inMemObjectDefn, long indexUID, TrafDesc *keysDesc,
+            int numSaltPartns, int numInitialSaltRegions, Int16 numTrafReplicas,
             NAList<HbaseCreateOption *> *hbaseCreateOptions, CollHeap *h = 0);
 
   // copy ctor
@@ -126,38 +126,38 @@ class NAFileSet : public NABasicObject {
   const TrafDesc *getKeysDesc() const { return keysDesc_; }
   TrafDesc *getKeysDesc() { return keysDesc_; }
 
-  Lng32 getCountOfFiles() const { return countOfFiles_; }
+  int getCountOfFiles() const { return countOfFiles_; }
 
   Cardinality getEstimatedNumberOfRecords() const { return estimatedNumberOfRecords_; }
-  Lng32 getRecordLength() const { return recordLength_; }
-  Lng32 getLockLength() const { return lockLength_; }
-  Lng32 getKeyLength();
-  Lng32 getEncodedKeyLength();
-  Lng32 getBlockSize() const { return blockSize_; }
+  int getRecordLength() const { return recordLength_; }
+  int getLockLength() const { return lockLength_; }
+  int getKeyLength();
+  int getEncodedKeyLength();
+  int getBlockSize() const { return blockSize_; }
 
   Int32 getIndexLevels() const { return indexLevels_; }
 
-  Lng32 getPackingScheme() const { return packingScheme_; }
-  Lng32 getPackingFactor() const { return packingFactor_; }
+  int getPackingScheme() const { return packingScheme_; }
+  int getPackingFactor() const { return packingFactor_; }
 
-  Lng32 getFileCode() const { return fileCode_; }
+  int getFileCode() const { return fileCode_; }
 
-  const Int64 &getIndexUID() const { return indexUID_; }
-  Int64 &getIndexUID() { return indexUID_; }
+  const long &getIndexUID() const { return indexUID_; }
+  long &getIndexUID() { return indexUID_; }
 
-  Lng32 numSaltPartns() const { return numSaltPartns_; }
-  Lng32 numInitialSaltRegions() const { return numInitialSaltRegions_; }
+  int numSaltPartns() const { return numSaltPartns_; }
+  int numInitialSaltRegions() const { return numInitialSaltRegions_; }
   Int16 numTrafReplicas() const { return numTrafReplicas_; }
   NAList<HbaseCreateOption *> *hbaseCreateOptions() const { return hbaseCreateOptions_; }
   Int32 numHivePartCols() const;
 
-  Lng32 numMaxVersions() const { return numMaxVersions_; }
+  int numMaxVersions() const { return numMaxVersions_; }
 
   // ---------------------------------------------------------------------
   // Mutator functions
   // ---------------------------------------------------------------------
 
-  void setCountOfFiles(Lng32 count) { countOfFiles_ = count; }
+  void setCountOfFiles(int count) { countOfFiles_ = count; }
   void setIndexLevels(Int32 numLevels) { indexLevels_ = numLevels; }
   void setHasRemotePartitions(NABoolean flag) { hasRemotePartition_ = flag; }
   void setPartitioningFunction(PartitioningFunction *pFunc) { partFunc_ = pFunc; }
@@ -194,14 +194,14 @@ class NAFileSet : public NABasicObject {
 
   short getKeytag() const { return keytag_; }
 
-  const Int64 &getRedefTime() const { return redefTime_; }
+  const long &getRedefTime() const { return redefTime_; }
 
   // ---------------------------------------------------------------------
   // Query the partitioning function.
   // ---------------------------------------------------------------------
   NABoolean isPartitioned() const;
 
-  Lng32 getCountOfPartitions() const;
+  int getCountOfPartitions() const;
 
   NABoolean containsPartition(const NAString &partitionName) const;
 
@@ -298,7 +298,7 @@ class NAFileSet : public NABasicObject {
   // The number of files that belong to this file set.
   // (May need a set of file names/NAFile also/instead someday.)
   // ---------------------------------------------------------------------
-  Lng32 countOfFiles_;
+  int countOfFiles_;
 
   // ---------------------------------------------------------------------
   // The number of records can either be a value that is computed by
@@ -310,41 +310,41 @@ class NAFileSet : public NABasicObject {
   // ---------------------------------------------------------------------
   // Record length in bytes.
   // ---------------------------------------------------------------------
-  Lng32 recordLength_;
+  int recordLength_;
 
   // ---------------------------------------------------------------------
   // Key length in bytes.
   //----------------------------------------------------------------------
-  Lng32 keyLength_;
+  int keyLength_;
 
   // ---------------------------------------------------------------------
   // Encoded key length in bytes.
   //----------------------------------------------------------------------
-  Lng32 encodedKeyLength_;
+  int encodedKeyLength_;
 
   // ---------------------------------------------------------------------
   // Lock length in bytes.
   //----------------------------------------------------------------------
-  Lng32 lockLength_;
+  int lockLength_;
 
   // ---------------------------------------------------------------------
   // Filecode.
   // ---------------------------------------------------------------------
-  Lng32 fileCode_;
+  int fileCode_;
 
   // ---------------------------------------------------------------------
   // Size of a page (block) that is a contant for every file that
   // belongs to this file set. It is expressed in bytes.
   // ---------------------------------------------------------------------
-  Lng32 blockSize_;
+  int blockSize_;
 
   // ----------------------------------------------------------------------
   // Packing information. Packing scheme: describes version of packed
   // record format used in this file set's packed records.
   // Packing factor: number of unpacked (logical) rows per packed (physical) record.
   // ----------------------------------------------------------------------
-  Lng32 packingScheme_;
-  Lng32 packingFactor_;
+  int packingScheme_;
+  int packingFactor_;
 
   // ---------------------------------------------------------------------
   // since the index levels could be different for every file that
@@ -367,7 +367,7 @@ class NAFileSet : public NABasicObject {
   NAColumnArray indexKeyColumns_;
 
   // uid for index
-  Int64 indexUID_;
+  long indexUID_;
 
   TrafDesc *keysDesc_;  // needed for parallel label operations.
 
@@ -416,7 +416,7 @@ class NAFileSet : public NABasicObject {
   // ---------------------------------------------------------------------
   // Catalog timestamp for this fileset. Each index gets its own timestamp.
   // ---------------------------------------------------------------------
-  Int64 redefTime_;
+  long redefTime_;
 
   // ---------------------------------------------------------------------
   // Miscellaneous flags
@@ -486,13 +486,13 @@ class NAFileSet : public NABasicObject {
 
   // number of salt buckets and initial regions specified at
   // table create time in the SALT clause
-  Lng32 numSaltPartns_;
-  Lng32 numInitialSaltRegions_;
+  int numSaltPartns_;
+  int numInitialSaltRegions_;
   Int16 numTrafReplicas_;
 
   // if table was created with max versions greater than 1 using
   // hbase_options clause.
-  Lng32 numMaxVersions_;
+  int numMaxVersions_;
 
   NAList<HbaseCreateOption *> *hbaseCreateOptions_;
 

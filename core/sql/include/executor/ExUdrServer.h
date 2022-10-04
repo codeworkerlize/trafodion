@@ -84,7 +84,7 @@ class ExUdrServer : public NABasicObject {
   void setInUse(NABoolean inUse) { inUse_ = inUse; }
   NABoolean inUse(void) { return inUse_; }
 
-  ExUdrServerStatus start(ComDiagsArea **diags, CollHeap *diagsHeap, Int64 transId, IpcProcessId &newId,
+  ExUdrServerStatus start(ComDiagsArea **diags, CollHeap *diagsHeap, long transId, IpcProcessId &newId,
                           NABoolean usesTransactions);
   ExUdrServerStatus stop();
   ExUdrServerStatus kill(ComDiagsArea *diags);
@@ -96,7 +96,7 @@ class ExUdrServer : public NABasicObject {
 
   // Helper function to send down server-side runtime options. Must be
   // called only after successful startup of the server.
-  void sendStartupOptions(ComDiagsArea **diags, CollHeap *diagsHeap, Int64 transId);
+  void sendStartupOptions(ComDiagsArea **diags, CollHeap *diagsHeap, long transId);
 
   // Matchmaking logic to determine if this server has the requested
   // attributes

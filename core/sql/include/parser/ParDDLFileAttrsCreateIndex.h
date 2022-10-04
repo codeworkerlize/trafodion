@@ -183,7 +183,7 @@ class ParDDLFileAttrsCreateIndex : public ParDDLFileAttrs {
 
   // Returns the value specified in the MaxExtents clause.
 
-  inline Int64 getUID() const;
+  inline long getUID() const;
 
   // Returns the value specified in the UID clause.
 
@@ -358,7 +358,7 @@ class ParDDLFileAttrsCreateIndex : public ParDDLFileAttrs {
 
   // UID
   NABoolean isUIDSpec_;
-  Int64 UID_;
+  long UID_;
 
   // { ALIGNED | PACKED } FORMAT
   NABoolean isRowFormatSpec_;
@@ -407,7 +407,7 @@ inline ULng32 ParDDLFileAttrsCreateIndex::getSecExt() const { return secExt_; }
 
 inline ULng32 ParDDLFileAttrsCreateIndex::getMaxExt() const { return maxExt_; }
 
-inline Int64 ParDDLFileAttrsCreateIndex::getUID() const { return UID_; }
+inline long ParDDLFileAttrsCreateIndex::getUID() const { return UID_; }
 
 inline ElemDDLFileAttrRowFormat::ERowFormat ParDDLFileAttrsCreateIndex::getRowFormat() const { return eRowFormat_; }
 

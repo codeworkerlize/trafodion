@@ -85,8 +85,8 @@ class ex_tcb : public ExGod {
   void allocateParentQueues(ex_queue_pair &parentQueues, NABoolean allocatePstate = TRUE);
   void registerResizeSubtasks();
 
-  virtual ex_tcb_private_state *allocatePstates(Lng32 &numElems,       // inout, desired/actual elements
-                                                Lng32 &pstateLength);  // out, length of one element
+  virtual ex_tcb_private_state *allocatePstates(int &numElems,       // inout, desired/actual elements
+                                                int &pstateLength);  // out, length of one element
 
   void setStatsEntry(ExOperStats *statsEntry) { statsEntry_ = statsEntry; }
 
@@ -96,7 +96,7 @@ class ex_tcb : public ExGod {
   // this method find the first set of children in the child tree
   // that have a valid stats area and sets their parent id to the
   // input tdb id.
-  void propagateTdbIdForStats(Lng32 tdbId);
+  void propagateTdbIdForStats(int tdbId);
 
   void allocateStatsEntry(CollHeap *heap = NULL);
 
@@ -108,7 +108,7 @@ class ex_tcb : public ExGod {
 
   virtual void computeNeededPoolInfo(Int32 &numBuffs, UInt32 &bufferSize, UInt32 &poolSize);
 
-  Lng32 getTotalPoolSize() { return pool_->getTotalMemorySize(); };
+  int getTotalPoolSize() { return pool_->getTotalMemorySize(); };
 
   NABoolean autoCommit();
 
@@ -141,7 +141,7 @@ class ex_tcb : public ExGod {
   virtual void cpuLimitExceeded();
   inline char *getEyeCatcher() { return eyeCatcher_.name_for_sun_compiler; }
 
-  virtual short moveRowToUpQueue(ex_queue_pair *qparent, UInt16 tuppIndex, const char *row, Lng32 len = -1,
+  virtual short moveRowToUpQueue(ex_queue_pair *qparent, UInt16 tuppIndex, const char *row, int len = -1,
                                  short *rc = NULL, NABoolean isVarchar = TRUE);
 
   short handleError(ex_queue_pair *qparent, ComDiagsArea *inDiagsArea);
@@ -186,8 +186,8 @@ template <class T>
 class PstateAllocator {
  public:
   ex_tcb_private_state *allocatePstates(ex_tcb *tcb,
-                                        Lng32 &numElems,  // inout, desired/actual elements
-                                        Lng32 &elementLength) {
+                                        int &numElems,  // inout, desired/actual elements
+                                        int &elementLength) {
     T *result;
 
     elementLength = sizeof(T);

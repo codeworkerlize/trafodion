@@ -81,8 +81,8 @@ class BloomFilter : public NABasicObject {
   virtual void dump(ostream &out, const char *msg = NULL);
 
  protected:
-  UInt32 computeFinalHash(UInt32 hash, Lng32 hashFunc);
-  static UInt32 computeFinalHash(UInt32 hash, Lng32 hashFunc, UInt32 bits);
+  UInt32 computeFinalHash(UInt32 hash, int hashFunc);
+  static UInt32 computeFinalHash(UInt32 hash, int hashFunc, UInt32 bits);
 
  protected:
   UInt32 m_;  // hash table size in bits
@@ -276,7 +276,7 @@ class CountingBloomFilter : public BloomFilter {
   // Compute the standard deviation of variable = [fi(after) - fi(before)].
   // fi(before) is the Fi copy saved with call to saveACopyOfFi(),
   // fi(after) is the fi currently contained in cbf.
-  double computeStdDevForDeltaOfFi(Lng32 i);
+  double computeStdDevForDeltaOfFi(int i);
 
   static UInt64 estimateMemoryInBytes(UInt32 maxHashFuncs,
                                       UInt32 n,  // # of distinct elements
@@ -291,8 +291,8 @@ class CountingBloomFilter : public BloomFilter {
   ULng32 packIntoBuffer(char *&buffer);
   ULng32 unpackBuffer(char *&buffer);
 
-  void setTotalMemSize(Lng32 x) { totalMemSz_ = x; };
-  Lng32 getTotalMemSize() { return totalMemSz_; };
+  void setTotalMemSize(int x) { totalMemSz_ = x; };
+  int getTotalMemSize() { return totalMemSz_; };
 
   void outputParams(char *buffer) { strcpy(buffer, paramBuf); };
 
@@ -319,7 +319,7 @@ class CountingBloomFilter : public BloomFilter {
   VarUIntArrayPtr *savedFreq2sL_;  // Saved copy of freq of freq in
                                    // non-overflow area
 
-  Lng32 totalMemSz_;  // total mem footprint when pack into a buffer
+  int totalMemSz_;  // total mem footprint when pack into a buffer
 
   VarUIntArray bucketNums_;  // Bucket nums for low freq keys. That is,
                              // bucketNums_[x] is the bucket # for

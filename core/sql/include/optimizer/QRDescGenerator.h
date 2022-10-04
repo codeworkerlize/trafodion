@@ -850,8 +850,8 @@ class QRDescGenerator : public NABasicObject {
 
   NABoolean isDumpMvMode_;
 
-  Lng32 maxExprSize_;
-  Lng32 maxExprDepth_;
+  int maxExprSize_;
+  int maxExprDepth_;
 };  // QRDescGenerator
 
 #endif /* QUERYDESCRIPTOR_H */

@@ -55,14 +55,14 @@ class ComTdbPackRows : public ComTdb {
 
   // Constructor used by the PhyPack::codeGen() in GenRelMisc.cpp.
   ComTdbPackRows(ComTdb *childTdb, ex_expr *packExpr, ex_expr *predExpr, const unsigned short packTuppIndex,
-                 Lng32 packTuppLen, ex_cri_desc *givenCriDesc, ex_cri_desc *returnedCriDesc, queue_index fromParent,
+                 int packTuppLen, ex_cri_desc *givenCriDesc, ex_cri_desc *returnedCriDesc, queue_index fromParent,
                  queue_index toParent);
 
   // Pack the pack TDB for transmission from one process to another.
   Long pack(void *);
 
   // Unpack the pack TDB after receiving it from another process.
-  Lng32 unpack(void *, void *reallocator);
+  int unpack(void *, void *reallocator);
 
   // Don't know what it is for ??
   void display() const;

@@ -144,7 +144,7 @@ NABoolean MvQueryRewriteHandler::rewriteWorthTrying(RelRoot *rootExpr) {
 RelExpr *MvQueryRewriteHandler::handleMvQueryRewrite(QueryAnalysis *qa, RelExpr *expr, NAString &warningMessage) {
   // Allocate a temporary heap for MV query rewrite
   // This heap will self-destruct when it goes out of scope at the end of this method.
-  NAHeap mvqrHeap("Heap for MV Query Rewrite", NAMemory::DERIVED_FROM_SYS_HEAP, (Lng32)32768);
+  NAHeap mvqrHeap("Heap for MV Query Rewrite", NAMemory::DERIVED_FROM_SYS_HEAP, (int)32768);
 
   CMPASSERT(expr->getOperatorType() == REL_ROOT);
   RelRoot *rootExpr = static_cast<RelRoot *>(expr);

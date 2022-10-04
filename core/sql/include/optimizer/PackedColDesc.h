@@ -163,44 +163,44 @@ class PackedColDesc : public NABasicObject {
   // It is up to the user to ensure that the packing information is
   // properly set.
   //
-  PackedColDesc(Lng32 position, const NAType *type)
+  PackedColDesc(int position, const NAType *type)
       : position_(position), dataOffset_(0), dataSize_(0), totalSize_(0), nullBitmapPresent_(FALSE), type_(type){};
 
   // Generate the packing info for this column given a packing factor.
   //
-  void generatePackingInfo(Lng32 packingFactor);
+  void generatePackingInfo(int packingFactor);
 
   // Determine the size of this packed col given a packing factor.
   //
-  Lng32 determinePackedColSize(Lng32 packingFactor) const;
+  int determinePackedColSize(int packingFactor) const;
 
   // Accessor methods of data memners
   //
-  Lng32 getPosition() const { return position_; };
-  Lng32 getDataOffset() const { return dataOffset_; };
-  Lng32 getDataSize() const { return dataSize_; };
-  Lng32 getTotalSize() const { return totalSize_; };
+  int getPosition() const { return position_; };
+  int getDataOffset() const { return dataOffset_; };
+  int getDataSize() const { return dataSize_; };
+  int getTotalSize() const { return totalSize_; };
   NABoolean isNullBitmapPresent() const { return nullBitmapPresent_; };
   const NAType *getType() const { return type_; };
 
  private:
   // The ordinal position of the column in the table.
   //
-  Lng32 position_;
+  int position_;
 
   // The offset in bytes to the start of the DATA field.
   //
-  Lng32 dataOffset_;
+  int dataOffset_;
 
   // The size in bits of a single data item.
   //
-  Lng32 dataSize_;
+  int dataSize_;
 
   // The total size in bytes of the packed column.  This includes the
   // size of the NUM_ROWS field, the size of the NULL_BITMAP field and
   // the size of the DATA field.
   //
-  Lng32 totalSize_;
+  int totalSize_;
 
   // A boolean flag indicating if there is a NULL_BITMAP field present
   // in this packed column.
@@ -216,7 +216,7 @@ class PackedColDesc : public NABasicObject {
 //
 class PackedColDescList : public LIST(PackedColDesc *) {
  public:
-  PackedColDescList(Lng32 numElements = 0) : LIST(PackedColDesc *)(CmpCommon::statementHeap(), numElements){};
+  PackedColDescList(int numElements = 0) : LIST(PackedColDesc *)(CmpCommon::statementHeap(), numElements){};
 };
 
 // class PackedAPDesc ------------------------------------------------
@@ -249,16 +249,16 @@ class PackedAPDesc : public NABasicObject {
   // Constructor - create an empty PackedAPDesc.
   //
 
-  PackedAPDesc(Lng32 keySize, Lng32 packingFactor = 0)
+  PackedAPDesc(int keySize, int packingFactor = 0)
       : keySize_(keySize), packingScheme_(0), packingFactor_(packingFactor){};
 
   // The size of the key for this AP.
   //
-  Lng32 getKeySize() const { return keySize_; };
+  int getKeySize() const { return keySize_; };
 
   // Add a PackedColDesc for a column.
   //
-  void addColumn(const NAType *type, Lng32 position, CollHeap *h);
+  void addColumn(const NAType *type, int position, CollHeap *h);
 
   // return a reference to the list of packed columns for this AP.
   //
@@ -271,37 +271,37 @@ class PackedAPDesc : public NABasicObject {
   // Determine the max. packing factor for this AP, given a max rec. size.
   // The actual packing factor may be limited by another AP for this table.
   //
-  Lng32 determinePackingFactor(Lng32 maxPackedRecLen) const;
+  int determinePackingFactor(int maxPackedRecLen) const;
 
   // Determine the size of this packed AP given a packing factor.
   //
-  Lng32 determinePackedAPSize(Lng32 packingFactor) const;
+  int determinePackedAPSize(int packingFactor) const;
 
   // Generate the packing information given a packing factor for all
   // columns of this AP.
   //
-  void generatePackingInfo(Lng32 packingFactor);
+  void generatePackingInfo(int packingFactor);
 
   // Get the packing factor for this AP.
   //
-  Lng32 getPackingFactor() const { return packingFactor_; };
+  int getPackingFactor() const { return packingFactor_; };
 
   // Get the packing scheme for this AP.
   //
-  Lng32 getPackingScheme() const { return packingScheme_; };
+  int getPackingScheme() const { return packingScheme_; };
 
   // Get the packing information for the column with the given
   // value of position.  Position is the position of this column
   // in the base table.
   //
-  PackedColDesc *getPackingInfoForColumn(Lng32 position);
+  PackedColDesc *getPackingInfoForColumn(int position);
 
  private:
   // The size of the key for this access path.  The key size should
   // be the same for each access path of a table. Currently, the only
   // supported key size for packed tables is 8.
   //
-  Lng32 keySize_;
+  int keySize_;
 
   // The packing factor for this access path.  Currently, the packing
   // factor must be the same for all access paths of a table.  The
@@ -316,8 +316,8 @@ class PackedAPDesc : public NABasicObject {
   // buffered in DP2 and the split into the VP's.  Having this buffer
   // bigger than 32K may cause problems.
   //
-  Lng32 packingFactor_;
-  Lng32 packingScheme_;
+  int packingFactor_;
+  int packingScheme_;
 
   // A list of PackedColDesc's describing how each of the columns of
   // this AP is packed.
@@ -330,7 +330,7 @@ class PackedAPDesc : public NABasicObject {
 class PackedAPDescList : public LIST(PackedAPDesc *) {
  public:
   PackedAPDescList(CollHeap *h = 0) : LIST(PackedAPDesc *)(h){};
-  PackedAPDescList(Lng32 numElements, CollHeap *h = 0) : LIST(PackedAPDesc *)(h, numElements){};
+  PackedAPDescList(int numElements, CollHeap *h = 0) : LIST(PackedAPDesc *)(h, numElements){};
 };
 
 // class PackedTableDesc ------------------------------------------------
@@ -384,13 +384,13 @@ class PackedTableDesc : public NABasicObject {
   // value of position.  Position is the position of this column
   // in the base table.
   //
-  PackedColDesc *getPackingInfoForColumn(Lng32 position);
+  PackedColDesc *getPackingInfoForColumn(int position);
 
   // Get the packing factor for this table.  For now the packing factor
   // must be the same for all AP's of a table, so return the packing
   // factor of the first AP.
   //
-  Lng32 getPackingFactor() { return packedAPDescList_[0]->getPackingFactor(); };
+  int getPackingFactor() { return packedAPDescList_[0]->getPackingFactor(); };
 
   // return a reference to the list of PackedAPDesc objects for this table.
   //

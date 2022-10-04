@@ -77,7 +77,7 @@ class REFRESH_LIB_CLASS CRURefreshTask : public CRUTask {
   //	PUBLIC AREA
   //---------------------------------------//
  public:
-  CRURefreshTask(Lng32 id, CRUMV &mv);
+  CRURefreshTask(int id, CRUMV &mv);
   virtual ~CRURefreshTask();
 
   //-----------------------------------//

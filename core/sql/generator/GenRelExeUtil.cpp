@@ -269,7 +269,7 @@ TrafDesc *ExeUtilExpr::createVirtualTableDesc() {
 const char *ExeUtilDisplayExplain::getVirtualTableName() { return "EXE_UTIL_DISPLAY_EXPLAIN__"; }
 
 TrafDesc *ExeUtilDisplayExplain::createVirtualTableDesc() {
-  Lng32 outputRowSize = (Lng32)CmpCommon::getDefaultNumeric(EXPLAIN_OUTPUT_ROW_SIZE);
+  int outputRowSize = (int)CmpCommon::getDefaultNumeric(EXPLAIN_OUTPUT_ROW_SIZE);
   ComTdbVirtTableColumnInfo *vtci = NULL;
 
   if (NOT isOptionM()) {
@@ -344,15 +344,15 @@ short ExeUtilDisplayExplain::codeGen(Generator *generator) {
   TrafDesc *desc = ef.createVirtualTableDesc();
 
   TrafDesc *column_desc = desc->tableDesc()->columns_desc;
-  Lng32 ij = 0;
+  int ij = 0;
   while (ij < EXPLAIN_DESCRIPTION_INDEX) {
     column_desc = column_desc->next;
     ij++;
   }
 
-  Lng32 colDescSize = column_desc->columnsDesc()->length;
+  int colDescSize = column_desc->columnsDesc()->length;
 
-  Lng32 outputRowSize = (Lng32)CmpCommon::getDefaultNumeric(EXPLAIN_OUTPUT_ROW_SIZE);
+  int outputRowSize = (int)CmpCommon::getDefaultNumeric(EXPLAIN_OUTPUT_ROW_SIZE);
 
   ComTdbExeUtilDisplayExplain *exe_util_tdb = new (space) ComTdbExeUtilDisplayExplain(
       stmt, (stmt ? strlen(stmt) : 0), getStmtTextCharSet(), moduleName, stmtName, 0, 0,  // no input expr
@@ -441,7 +441,7 @@ short ExeUtilDisplayExplainComplex::codeGen(Generator *generator) {
   }
 
   ComTdbExeUtilDisplayExplainComplex *exe_util_tdb = new (space) ComTdbExeUtilDisplayExplainComplex(
-      (Lng32)type_, qry1, qry2, qry3, qry4, objectName, strlen(objectName), 0, 0,  // no input expr
+      (int)type_, qry1, qry2, qry3, qry4, objectName, strlen(objectName), 0, 0,  // no input expr
       0, 0,                                                                        // no output expr
       0, 0,                                                                        // no work cri desc
       givenDesc, returnedDesc, (queue_index)8, (queue_index)1024,
@@ -590,7 +590,7 @@ short ExeUtilLoadVolatileTable::codeGen(Generator *generator) {
   char *tablename = space->AllocateAndCopyToAlignedSpace(generator->genGetNameAsAnsiNAString(getTableName()), 0);
 
   // add a REAL CQD to change this.
-  Int64 threshold = (ActiveSchemaDB()->getDefaults()).getAsLong(IMPLICIT_UPD_STATS_THRESHOLD);
+  long threshold = (ActiveSchemaDB()->getDefaults()).getAsLong(IMPLICIT_UPD_STATS_THRESHOLD);
 
   ComTdbExeUtil *exe_util_tdb = new (space) ComTdbExeUtilLoadVolatileTable(
       tablename, strlen(tablename), insertQuery, updStatsQuery, queryCharSet, threshold, 0, 0,  // no work cri desc
@@ -852,7 +852,7 @@ short ExeUtilCreateTableAs::codeGen(Generator *generator) {
 
   char *tablename = space->AllocateAndCopyToAlignedSpace(generator->genGetNameAsAnsiNAString(getTableName()), 0);
   // add a REAL CQD to change this.
-  Int64 threshold = (ActiveSchemaDB()->getDefaults()).getAsLong(IMPLICIT_UPD_STATS_THRESHOLD);
+  long threshold = (ActiveSchemaDB()->getDefaults()).getAsLong(IMPLICIT_UPD_STATS_THRESHOLD);
 
   ComTdbExeUtilCreateTableAs *exe_util_tdb = new (space) ComTdbExeUtilCreateTableAs(
       tablename, strlen(tablename), ctQuery, siQuery, viQuery, usQuery, threshold, 0, 0,  // no work cri desc
@@ -911,7 +911,7 @@ short ExeUtilGetObjectEpochStats::codeGen(Generator *generator) {
   }
 
   char *tableName = NULL;
-  Lng32 tableNameLen = 0;
+  int tableNameLen = 0;
   if (isObjectNameSpecified()) {
     tableName = space->AllocateAndCopyToAlignedSpace(generator->genGetNameAsAnsiNAString(getTableName()), 0);
     tableNameLen = strlen(tableName);
@@ -966,7 +966,7 @@ short ExeUtilGetObjectLockStats::codeGen(Generator *generator) {
   }
 
   char *tableName = NULL;
-  Lng32 tableNameLen = 0;
+  int tableNameLen = 0;
   if (isObjectNameSpecified()) {
     tableName = space->AllocateAndCopyToAlignedSpace(generator->genGetNameAsAnsiNAString(getTableName()), 0);
     tableNameLen = strlen(tableName);
@@ -1355,10 +1355,10 @@ short ExeUtilGetMetadataInfo::codeGen(Generator *generator) {
     const char *infoType;
     const char *iofStr;
     const char *objectType;
-    Lng32 version;
-    Lng32 maxParts;
-    Lng32 groupBy;
-    Lng32 orderBy;
+    int version;
+    int maxParts;
+    int groupBy;
+    int orderBy;
     ComTdbExeUtilGetMetadataInfo::QueryType queryType;
   };
 
@@ -1754,10 +1754,10 @@ short ExeUtilGetMetadataInfo::codeGen(Generator *generator) {
   NABoolean found = FALSE;
   Int32 j = 0;
   ComTdbExeUtilGetMetadataInfo::QueryType queryType = ComTdbExeUtilGetMetadataInfo::NO_QUERY_;
-  Lng32 maxParts = -1;
+  int maxParts = -1;
   NAString ausStr;
-  Lng32 groupBy = 0;
-  Lng32 orderBy = 0;
+  int groupBy = 0;
+  int orderBy = 0;
   NABoolean getVersionSupported = FALSE;
   while ((j < maxQueryInfoArraySize) && (NOT found)) {
     if ((qis[j].ausStr == ausStr_) && (qis[j].infoType == infoType_) && (qis[j].iofStr == iofStr_) &&
@@ -1778,7 +1778,7 @@ short ExeUtilGetMetadataInfo::codeGen(Generator *generator) {
     GenExit();
   }
 
-  Lng32 numberExpanded = 0;
+  int numberExpanded = 0;
   if (NOT objectName_.getQualifiedNameObj().getCatalogName().isNull())
     numberExpanded = 3;
   else if (NOT objectName_.getQualifiedNameObj().getSchemaName().isNull())
@@ -2527,8 +2527,8 @@ short ExeUtilMaintainObject::codeGen(Generator *generator) {
 
       multiTablesNamesList->insert(tableName);
 
-      Int64 ct = (*multiTablesDescs_)[i]->getNATable()->getCreateTime();
-      char *createTime = space->allocateAndCopyToAlignedSpace((char *)&ct, sizeof(Int64), 0);
+      long ct = (*multiTablesDescs_)[i]->getNATable()->getCreateTime();
+      char *createTime = space->allocateAndCopyToAlignedSpace((char *)&ct, sizeof(long), 0);
       multiTablesCreateTimeList->insert(createTime);
     }
 
@@ -2909,7 +2909,7 @@ short ExeUtilLongRunning::codeGen(Generator *generator) {
                      // and temporary tupp
       1,             // work_atp_index,
       givenDesc, returnedDesc, (queue_index)getDefault(GEN_DDL_SIZE_DOWN), (queue_index)getDefault(GEN_DDL_SIZE_UP),
-      (Lng32)getDefault(GEN_DDL_NUM_BUFFERS), getDefault(GEN_DDL_BUFFER_SIZE));
+      (int)getDefault(GEN_DDL_NUM_BUFFERS), getDefault(GEN_DDL_BUFFER_SIZE));
 
   exe_util_tdb->setMultiCommitSize(getMultiCommitSize());
   generator->initTdbFields(exe_util_tdb);
@@ -3060,19 +3060,19 @@ short ExeUtilAQR::codeGen(Generator *generator) {
     return -1;
   }
 
-  Lng32 task = (Lng32)ComTdbExeUtilAQR::NONE_;
+  int task = (int)ComTdbExeUtilAQR::NONE_;
   if (task_ == GET_)
-    task = (Lng32)ComTdbExeUtilAQR::GET_;
+    task = (int)ComTdbExeUtilAQR::GET_;
   else if (task_ == ADD_)
-    task = (Lng32)ComTdbExeUtilAQR::ADD_;
+    task = (int)ComTdbExeUtilAQR::ADD_;
   else if (task_ == DELETE_)
-    task = (Lng32)ComTdbExeUtilAQR::DELETE_;
+    task = (int)ComTdbExeUtilAQR::DELETE_;
   else if (task_ == UPDATE_)
-    task = (Lng32)ComTdbExeUtilAQR::UPDATE_;
+    task = (int)ComTdbExeUtilAQR::UPDATE_;
   else if (task_ == CLEAR_)
-    task = (Lng32)ComTdbExeUtilAQR::CLEAR_;
+    task = (int)ComTdbExeUtilAQR::CLEAR_;
   else if (task_ == RESET_)
-    task = (Lng32)ComTdbExeUtilAQR::RESET_;
+    task = (int)ComTdbExeUtilAQR::RESET_;
 
   ComTdbExeUtilAQR *exe_util_tdb =
       new (space) ComTdbExeUtilAQR(task, givenDesc, returnedDesc, (queue_index)8, (queue_index)64, 2, 32000);
@@ -3110,7 +3110,7 @@ short ExeUtilHbaseDDL::codeGen(Generator *generator) {
 
   char *colFamNameInList = NULL;
   if (csl_) {
-    for (Lng32 i = 0; i < csl_->entries(); i++) {
+    for (int i = 0; i < csl_->entries(); i++) {
       const NAString *cs = (*csl_)[i];
 
       colFamNameInList = space->allocateAndCopyToAlignedSpace(cs->data(), cs->length(), 0);
@@ -3168,7 +3168,7 @@ TrafDesc *ExeUtilConnectby::createVirtualTableDesc() {
     TrafDesc *table_desc = TrafAllocateDDLdesc(DESC_TABLE_TYPE, NULL);
     table_desc->tableDesc()->tablename = new HEAP char[strlen("DUAL_CONNECTBY") + 1];
     strcpy(table_desc->tableDesc()->tablename, "DUAL_CONNECTBY");
-    Lng32 colnumber = 0, offset = 0;
+    int colnumber = 0, offset = 0;
 
     TrafDesc *column_desc = TrafMakeColumnDesc(table_desc->tableDesc()->tablename, "LEVEL",
                                                colnumber,  // INOUT
@@ -3391,7 +3391,7 @@ short ExeUtilConnectby::codeGen(Generator *generator) {
   }
 
   TrafDesc *column_desc = tblDesc_->tableDesc()->columns_desc;
-  Lng32 colDescSize = column_desc->columnsDesc()->length;
+  int colDescSize = column_desc->columnsDesc()->length;
 
   Scan *scanNode = (Scan *)scan_;
 
@@ -3713,7 +3713,7 @@ short ExeUtilCompositeUnnest::codeGen(Generator *generator) {
 // ExeUtilHbaseLoad::codeGen()
 //
 /////////////////////////////////////////////////////////
-extern Int64 getDefaultSampleRowSize(Int64 tblRowCount);
+extern long getDefaultSampleRowSize(long tblRowCount);
 
 short ExeUtilHBaseBulkLoad::codeGen(Generator *generator) {
   ExpGenerator *expGen = generator->getExpGenerator();
@@ -3904,8 +3904,8 @@ short ExeUtilHBaseBulkLoadTask::codeGen(Generator *generator) {
     strcpy(sampleTmpLocation, sampleTmpLocationNAS.data());
     load_tdb->setSampleLocation(sampleTmpLocation);
 
-    Int64 totalRows = (Int64)(getInputCardinality().getValue());
-    Int64 sampleRows = getDefaultSampleRowSize(totalRows);
+    long totalRows = (long)(getInputCardinality().getValue());
+    long sampleRows = getDefaultSampleRowSize(totalRows);
     Float32 sampleRate = (Float32)sampleRows / (Float32)totalRows;
     load_tdb->setSamplingRate(sampleRate);
   }

@@ -31,25 +31,25 @@ class ExLobStats {
  public:
   void init();
   ExLobStats &operator+(const ExLobStats &other);
-  void getVariableStatsInfo(char *dataBuffer, char *datalen, Lng32 maxLen);
+  void getVariableStatsInfo(char *dataBuffer, char *datalen, int maxLen);
 
-  Int64 bytesToRead;
-  Int64 bytesRead;
-  Int64 bytesWritten;
-  Int64 hdfsConnectionTime;
-  Int64 CumulativeReadTime;
-  Int64 hdfsAccessLayerTime;
-  Int64 cursorElapsedTime;
-  Int64 CumulativeWriteTime;
-  Int64 AvgReadTime;
-  Int64 AvgWriteTime;
-  Int64 numBufferPrefetchFail;
-  Int64 avgReqQueueSize;
-  Int64 numReadReqs;
-  Int64 numWriteReqs;
-  Int64 numHdfsReqs;
-  Int64 bytesPrefetched;
-  Int64 buffersUsed;
+  long bytesToRead;
+  long bytesRead;
+  long bytesWritten;
+  long hdfsConnectionTime;
+  long CumulativeReadTime;
+  long hdfsAccessLayerTime;
+  long cursorElapsedTime;
+  long CumulativeWriteTime;
+  long AvgReadTime;
+  long AvgWriteTime;
+  long numBufferPrefetchFail;
+  long avgReqQueueSize;
+  long numReadReqs;
+  long numWriteReqs;
+  long numHdfsReqs;
+  long bytesPrefetched;
+  long buffersUsed;
 };
 
 #endif

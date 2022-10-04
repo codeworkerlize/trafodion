@@ -167,8 +167,8 @@ class ExTupleTcb : public ex_tcb {
 
   ex_queue_pair getParentQueue() const { return (qparent); }
 
-  virtual ex_tcb_private_state *allocatePstates(Lng32 &numElems,       // inout, desired/actual elements
-                                                Lng32 &pstateLength);  // out, length of one element
+  virtual ex_tcb_private_state *allocatePstates(int &numElems,       // inout, desired/actual elements
+                                                int &pstateLength);  // out, length of one element
 
   Int32 orderedQueueProtocol() const { return ((const ComTdbTuple &)tdb).orderedQueueProtocol(); };
 
@@ -228,7 +228,7 @@ class ExTuplePrivateState : public ex_tcb_private_state {
   friend class ExTupleLeafTcb;
   friend class ExTupleNonLeafTcb;
 
-  Int64 matchCount_;  // number of rows returned for this parent row
+  long matchCount_;  // number of rows returned for this parent row
 
   ExTupleTcb::TupleStep step_;  // step in processing this parent row
  public:

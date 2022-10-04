@@ -74,20 +74,20 @@ void CRUSQLStatementContainer::LoadData(CUOFsIpcMessageTranslator &translator) {
 //	CRUSQLStatementContainer::Stmt::StoreData()
 //--------------------------------------------------------------------------//
 void CRUSQLStatementContainer::Stmt::StoreData(CUOFsIpcMessageTranslator &translator) {
-  translator.WriteBlock(&executionCounter_, sizeof(Lng32));
+  translator.WriteBlock(&executionCounter_, sizeof(int));
 }
 
 //--------------------------------------------------------------------------//
 //	CRUSQLStatementContainer::Stmt::LoadData()
 //--------------------------------------------------------------------------//
 void CRUSQLStatementContainer::Stmt::LoadData(CUOFsIpcMessageTranslator &translator) {
-  translator.ReadBlock(&executionCounter_, sizeof(Lng32));
+  translator.ReadBlock(&executionCounter_, sizeof(int));
 }
 
 //--------------------------------------------------------------------------//
 //	CRUSQLStatementContainer::Stmt::ExecuteQuery()
 //--------------------------------------------------------------------------//
-Lng32 CRUSQLStatementContainer::Stmt::ExecuteUpdate() {
+int CRUSQLStatementContainer::Stmt::ExecuteUpdate() {
   executionCounter_++;
   return GetPreparedStatement()->ExecuteUpdate();
 }

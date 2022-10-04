@@ -188,7 +188,7 @@ NABoolean ComGuardianFileNamePart::isNamePartValid(const char requiredFirstChar,
 //-------------------------------------------------------------------
 //
 // Get the node number - return value is FE error
-Int32 ComNodeName::getNodeNumber(Lng32 &nodeNumber) const {
+Int32 ComNodeName::getNodeNumber(int &nodeNumber) const {
   if (!strcmp(castToConstChar(), "\\NSK")) {
     nodeNumber = 0;
     return 0;

@@ -61,8 +61,8 @@ class ElemDDLFileAttrMaxSize : public ElemDDLFileAttr {
 
   // constructors
   ElemDDLFileAttrMaxSize();
-  ElemDDLFileAttrMaxSize(Lng32 maxSize);
-  ElemDDLFileAttrMaxSize(Lng32 maxSize, ComUnits maxSizeUnit);
+  ElemDDLFileAttrMaxSize(int maxSize);
+  ElemDDLFileAttrMaxSize(int maxSize, ComUnits maxSizeUnit);
 
   // virtual destructor
   virtual ~ElemDDLFileAttrMaxSize();
@@ -90,8 +90,8 @@ class ElemDDLFileAttrMaxSize : public ElemDDLFileAttr {
   // methods
   //
 
-  NABoolean isLegalMaxSizeValue(Lng32 maxSize) const;
-  void initializeMaxSize(Lng32 maxSize);
+  NABoolean isLegalMaxSizeValue(int maxSize) const;
+  void initializeMaxSize(int maxSize);
 
   //
   // data members

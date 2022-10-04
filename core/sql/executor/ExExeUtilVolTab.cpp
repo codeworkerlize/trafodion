@@ -79,7 +79,7 @@ ExExeUtilLoadVolatileTableTcb::ExExeUtilLoadVolatileTableTcb(const ComTdbExeUtil
 // work() for ExExeUtilLoadVolatileTableTcb
 //////////////////////////////////////////////////////
 short ExExeUtilLoadVolatileTableTcb::work() {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
   short retcode = 0;
 
   // if no parent request, return
@@ -112,7 +112,7 @@ short ExExeUtilLoadVolatileTableTcb::work() {
         //NO_IMPLICIT_VOLATILE_TABLE_UPD_STATS
 
         // issue the insert command
-        Int64 rowsAffected;
+        long rowsAffected;
 
         // All internal queries issued from CliInterface assume that
         // they are in ISO_MAPPING.
@@ -193,8 +193,8 @@ short ExExeUtilLoadVolatileTableTcb::work() {
 // Redefine virtual method allocatePstates, to be used by dynamic queue
 // resizing, as well as the initial queue construction.
 ////////////////////////////////////////////////////////////////////////
-ex_tcb_private_state *ExExeUtilLoadVolatileTableTcb::allocatePstates(Lng32 &numElems,  // inout, desired/actual elements
-                                                                     Lng32 &pstateLength)  // out, length of one element
+ex_tcb_private_state *ExExeUtilLoadVolatileTableTcb::allocatePstates(int &numElems,  // inout, desired/actual elements
+                                                                     int &pstateLength)  // out, length of one element
 {
   PstateAllocator<ExExeUtilLoadVolatileTablePrivateState> pa;
 
@@ -230,15 +230,15 @@ ExExeUtilVolatileTablesTcb::ExExeUtilVolatileTablesTcb(const ComTdbExeUtil &exe_
 
 short ExExeUtilVolatileTablesTcb::isCreatorProcessObsolete(const char *name, NABoolean includesCat,
                                                            NABoolean isCSETableName) {
-  Lng32 retcode = 0;
+  int retcode = 0;
 
   // find process start time, node name, cpu and pin of creator process.
   short segmentNum;
   short cpu;
   pid_t pin;
-  Int64 nameCreateTime = 0;
+  long nameCreateTime = 0;
 
-  Lng32 currPos = 0;
+  int currPos = 0;
 
   if (includesCat) {
     // name is of the form:  <CAT>.<SCHEMA>
@@ -264,12 +264,12 @@ short ExExeUtilVolatileTablesTcb::isCreatorProcessObsolete(const char *name, NAB
     // volatile table schema is a fixed prefix, followed by the session id
     currPos += strlen(COM_VOLATILE_SCHEMA_PREFIX);
 
-  Int64 segmentNum_l;
-  Int64 cpu_l;
-  Int64 pin_l;
-  Int64 sessionUniqNum;
-  Lng32 userNameLen, tenantIdLen = 0;
-  Lng32 userSessionNameLen = 0;
+  long segmentNum_l;
+  long cpu_l;
+  long pin_l;
+  long sessionUniqNum;
+  int userNameLen, tenantIdLen = 0;
+  int userSessionNameLen = 0;
 
   ComSqlId::extractSqlSessionIdAttrs(&name[currPos],
                                      -1,  //(strlen(name) - currPos),
@@ -282,7 +282,7 @@ short ExExeUtilVolatileTablesTcb::isCreatorProcessObsolete(const char *name, NAB
   // see if process exists. If it exists, check if it is the same
   // process that is specified in the name.
   short errorDetail = 0;
-  Int64 procCreateTime = 0;
+  long procCreateTime = 0;
   retcode = ComRtGetProcessCreateTime(&cpu, &pin, &segmentNum, procCreateTime, errorDetail);
   if (retcode == XZFIL_ERR_OK) {
     // process specified in name exists.
@@ -304,8 +304,8 @@ short ExExeUtilVolatileTablesTcb::isCreatorProcessObsolete(const char *name, NAB
 // Redefine virtual method allocatePstates, to be used by dynamic queue
 // resizing, as well as the initial queue construction.
 ////////////////////////////////////////////////////////////////////////
-ex_tcb_private_state *ExExeUtilVolatileTablesTcb::allocatePstates(Lng32 &numElems,  // inout, desired/actual elements
-                                                                  Lng32 &pstateLength)  // out, length of one element
+ex_tcb_private_state *ExExeUtilVolatileTablesTcb::allocatePstates(int &numElems,  // inout, desired/actual elements
+                                                                  int &pstateLength)  // out, length of one element
 {
   PstateAllocator<ExExeUtilVolatileTablesPrivateState> pa;
 
@@ -341,7 +341,7 @@ static const QueryString getAllVolatileSchemasQuery[] = {{" select O.schema_name
                                                          {" for read uncommitted access "}};
 
 short ExExeUtilCleanupVolatileTablesTcb::work() {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
   short retcode = 0;
 
   // if no parent request, return
@@ -372,7 +372,7 @@ short ExExeUtilCleanupVolatileTablesTcb::work() {
         const QueryString *schemaCleanupQueryString = getAllVolatileSchemasQuery;
 
         char *gluedQuery;
-        Lng32 gluedQuerySize;
+        int gluedQuerySize;
         glueQueryFragments(schema_qry_array_size, schemaCleanupQueryString, gluedQuery, gluedQuerySize);
 
         schemaQuery_ = new (getHeap()) char[gluedQuerySize + 10 + 1];
@@ -529,7 +529,7 @@ short ExExeUtilCleanupVolatileTablesTcb::dropVolatileSchema(ContextCli *currCont
   //  currContext->setSqlParserFlags(0x8000); // ALLOW_VOLATILE_SCHEMA_CREATION
 
   // issue the drop schema command
-  Lng32 cliRC = cliInterface.executeImmediate(dropSchema);
+  int cliRC = cliInterface.executeImmediate(dropSchema);
   cliInterface.allocAndRetrieveSQLDiagnostics(diagsArea);
 
   // reset volatile schema bit
@@ -556,7 +556,7 @@ short ExExeUtilCleanupVolatileTablesTcb::dropVolatileTables(ContextCli *currCont
   // currContext->setSqlParserFlags(0x8000); // ALLOW_VOLATILE_SCHEMA_CREATION
 
   // issue the drop schema command
-  Lng32 cliRC = cliInterface.executeImmediate(dropSchema);
+  int cliRC = cliInterface.executeImmediate(dropSchema);
 
   // reset volatile schema bit
   // currContext->resetSqlParserFlags(0x8000); // ALLOW_VOLATILE_SCHEMA_CREATION
@@ -613,7 +613,7 @@ static const QueryString getAllVolatileTablesInASessionQuery[] = {
     {" for read uncommitted access "}};
 
 short ExExeUtilGetVolatileInfoTcb::work() {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
   short retcode = 0;
 
   // if no parent request, return
@@ -642,7 +642,7 @@ short ExExeUtilGetVolatileInfoTcb::work() {
 
         // extra space to be allocated to fill with "%s" fillers
         // in the query text.
-        Lng32 extraSpace = 0;
+        int extraSpace = 0;
 
         if (gviTdb().allSchemas()) {
           info_qry_array_size = sizeof(getAllVolatileSchemasQuery) / sizeof(QueryString);
@@ -662,7 +662,7 @@ short ExExeUtilGetVolatileInfoTcb::work() {
         char *param2 = gviTdb().param2_;
 
         char *gluedQuery;
-        Lng32 gluedQuerySize;
+        int gluedQuerySize;
         glueQueryFragments(info_qry_array_size, infoQueryString, gluedQuery, gluedQuerySize);
 
         str_sprintf(infoQuery_, gluedQuery, param1, param2);
@@ -675,7 +675,7 @@ short ExExeUtilGetVolatileInfoTcb::work() {
       } break;
 
       case FETCH_ALL_ROWS_: {
-        Lng32 numOutputEntries = 0;
+        int numOutputEntries = 0;
 
         if (gviTdb().allSchemas()) {
           numOutputEntries = 1;

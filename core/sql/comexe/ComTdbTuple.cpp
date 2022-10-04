@@ -49,7 +49,7 @@ ComTdbTuple::ComTdbTuple() : ComTdb(ComTdb::ex_TUPLE, eye_TUPLE), tuppIndex_(0),
 
 ComTdbTuple::ComTdbTuple(TupleTdbType ttt, Queue *tupleExprList, const ULng32 tupleLen, const unsigned short tuppIndex,
                          ex_cri_desc *givenCriDesc, ex_cri_desc *returnedCriDesc, queue_index down, queue_index up,
-                         Cardinality estimatedRowCount, Lng32 numBuffers, ULng32 bufferSize, ex_expr *predExpr)
+                         Cardinality estimatedRowCount, int numBuffers, ULng32 bufferSize, ex_expr *predExpr)
     : ComTdb(ComTdb::ex_TUPLE, eye_TUPLE, estimatedRowCount, givenCriDesc, returnedCriDesc, down, up, numBuffers,
              bufferSize),
       ttt_(ttt),
@@ -79,7 +79,7 @@ Long ComTdbTuple::pack(void *space) {
   return ComTdb::pack(space);
 }
 
-Lng32 ComTdbTuple::unpack(void *base, void *reallocator) {
+int ComTdbTuple::unpack(void *base, void *reallocator) {
   UnpackQueueOfNAVersionedObjects(tupleExprList_, base, ex_expr, reallocator);
   if (predExpr_.unpack(base, reallocator)) return -1;
 
@@ -115,7 +115,7 @@ const char *ComTdbTuple::getExpressionName(Int32 pos) const {
 ///////////////////////////////////////
 ComTdbTupleLeaf::ComTdbTupleLeaf(Queue *tupleExprList, const ULng32 tupleLen, const unsigned short tuppIndex,
                                  ex_expr *predExpr, ex_cri_desc *givenCriDesc, ex_cri_desc *returnedCriDesc,
-                                 queue_index down, queue_index up, Cardinality estimatedRowCount, Lng32 numBuffers,
+                                 queue_index down, queue_index up, Cardinality estimatedRowCount, int numBuffers,
                                  ULng32 bufferSize)
     : ComTdbTuple(LEAF_, tupleExprList, tupleLen, tuppIndex, givenCriDesc, returnedCriDesc, down, up, estimatedRowCount,
                   numBuffers, bufferSize, predExpr) {}
@@ -128,7 +128,7 @@ ComTdbTupleLeaf::ComTdbTupleLeaf(Queue *tupleExprList, const ULng32 tupleLen, co
 ComTdbTupleNonLeaf::ComTdbTupleNonLeaf(Queue *tupleExprList, ComTdb *tdbChild, const ULng32 tupleLen,
                                        const unsigned short tuppIndex, ex_cri_desc *givenCriDesc,
                                        ex_cri_desc *returnedCriDesc, queue_index down, queue_index up,
-                                       Cardinality estimatedRowCount, Lng32 numBuffers, ULng32 bufferSize)
+                                       Cardinality estimatedRowCount, int numBuffers, ULng32 bufferSize)
     : ComTdbTuple(NON_LEAF_, tupleExprList, tupleLen, tuppIndex, givenCriDesc, returnedCriDesc, down, up,
                   estimatedRowCount, numBuffers, bufferSize),
       tdbChild_(tdbChild) {}
@@ -138,7 +138,7 @@ Long ComTdbTupleNonLeaf::pack(void *space) {
   return ComTdbTuple::pack(space);
 }
 
-Lng32 ComTdbTupleNonLeaf::unpack(void *base, void *reallocator) {
+int ComTdbTupleNonLeaf::unpack(void *base, void *reallocator) {
   if (tdbChild_.unpack(base, reallocator)) return -1;
   return ComTdbTuple::unpack(base, reallocator);
 }

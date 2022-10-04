@@ -3,7 +3,7 @@
 #ifndef COMTDB_H
 #define COMTDB_H
 
-#include "common/Int64.h"              // for Int64
+#include "common/Int64.h"              // for long
 #include "export/NAVersionedObject.h"  // for NAVersionedObject
 #include "common/BaseTypes.h"          // for Cardinality
 #include "exp/ExpCriDesc.h"
@@ -250,7 +250,7 @@ class ComTdb : public NAVersionedObject {
   // ---------------------------------------------------------------------
   ComTdb(ex_node_type type, const char *eye, Cardinality estRowsUsed = 0.0, ex_cri_desc *criDown = NULL,
          ex_cri_desc *criUp = NULL, queue_index sizeDown = 0, queue_index sizeUp = 0, Int32 numBuffers = 0,
-         UInt32 bufferSize = 0, Lng32 uniqueId = 0, ULng32 initialQueueSizeDown = 4, ULng32 initialQueueSizeUp = 4,
+         UInt32 bufferSize = 0, int uniqueId = 0, ULng32 initialQueueSizeDown = 4, ULng32 initialQueueSizeUp = 4,
          short queueResizeLimit = 9, short queueResizeFactor = 4, ComTdbParams *params = NULL);
 
   // ---------------------------------------------------------------------
@@ -266,7 +266,7 @@ class ComTdb : public NAVersionedObject {
   // another process.
   // ---------------------------------------------------------------------
   virtual Long pack(void *space);
-  virtual Lng32 unpack(void *base, void *reallocator);
+  virtual int unpack(void *base, void *reallocator);
 
   // ---------------------------------------------------------------------
   // Fix up the virtual function table pointer of a TDB retrieved from
@@ -319,8 +319,8 @@ class ComTdb : public NAVersionedObject {
 
   inline ComTdb *getParentTdb() { return parentTdb_; }
   inline void setParentTdb(ComTdb *tdb) { parentTdb_ = tdb; }
-  inline void setTdbId(Lng32 uniqueId) { tdbId_ = uniqueId; }
-  inline Lng32 getTdbId() const { return tdbId_; }
+  inline void setTdbId(int uniqueId) { tdbId_ = uniqueId; }
+  inline int getTdbId() const { return tdbId_; }
   inline Cardinality getEstRowsAccessed() const { return estRowsAccessed_; }
 
   inline void setEstRowsAccessed(Cardinality estRowsAccessed) { estRowsAccessed_ = estRowsAccessed; }
@@ -377,7 +377,7 @@ class ComTdb : public NAVersionedObject {
   // to be looked up. See ComTdbPartnAccess.h_tdb::getChildForGUI() for an
   // example of how this could be done.
   // ---------------------------------------------------------------------
-  virtual const ComTdb *getChildForGUI(Int32 pos, Lng32 /*base*/, void * /*frag_dir*/) const { return getChild(pos); }
+  virtual const ComTdb *getChildForGUI(Int32 pos, int /*base*/, void * /*frag_dir*/) const { return getChild(pos); }
 
   // ---------------------------------------------------------------------
   // numExpressions() -- Returns the number of expression for this TDB.
@@ -406,8 +406,8 @@ class ComTdb : public NAVersionedObject {
   // ---------------------------------------------------------------------
   virtual ex_tcb *build(ex_globals *globals) { return NULL; }
 
-  Lng32 getBufferSize() const { return bufferSize_; }
-  Lng32 getNumBuffers() const { return numBuffers_; }
+  int getBufferSize() const { return bufferSize_; }
+  int getNumBuffers() const { return numBuffers_; }
 
   void resetBufInfo(Int32 numBuffers, UInt32 bufferSize) {
     numBuffers_ = numBuffers;
@@ -483,8 +483,8 @@ class ComTdb : public NAVersionedObject {
   CollectStatsType getCollectStatsType() { return (CollectStatsType)collectStatsType_; };
   void setCollectStatsType(CollectStatsType s) { collectStatsType_ = s; };
 
-  Lng32 getExplainNodeId() const { return (Lng32)explainNodeId_; }
-  void setExplainNodeId(Lng32 id) { explainNodeId_ = (Int32)id; }
+  int getExplainNodeId() const { return (int)explainNodeId_; }
+  void setExplainNodeId(int id) { explainNodeId_ = (Int32)id; }
 
   UInt16 getPertableStatsTdbId() const { return pertableStatsTdbId_; }
   void setPertableStatsTdbId(UInt16 id) { pertableStatsTdbId_ = id; }
@@ -689,17 +689,17 @@ class ComTdbVirtTableTableInfo : public ComTdbVirtTableBase {
   virtual Int32 size() { return sizeof(ComTdbVirtTableTableInfo); };
 
   const char *tableName;
-  Int64 createTime;
-  Int64 redefTime;
-  Int64 objUID;
-  Int64 objDataUID;
-  Lng32 isAudited;
-  Lng32 validDef;  // 0, invalid. 1, valid. 2, disabled.
+  long createTime;
+  long redefTime;
+  long objUID;
+  long objDataUID;
+  int isAudited;
+  int validDef;  // 0, invalid. 1, valid. 2, disabled.
   Int32 objOwnerID;
   Int32 schemaOwnerID;
   const char *hbaseCreateOptions;
-  Lng32 numSaltPartns;          // num of salted partitions this table was created with.
-  Lng32 numInitialSaltRegions;  // initial number of regions for salted table
+  int numSaltPartns;          // num of salted partitions this table was created with.
+  int numInitialSaltRegions;  // initial number of regions for salted table
   Int16 numTrafReplicas;
   const char *hbaseSplitClause;  // SPLIT BY clause as string
 
@@ -713,25 +713,25 @@ class ComTdbVirtTableTableInfo : public ComTdbVirtTableBase {
 
   const char *tableNamespace;
 
-  Int64 baseTableUID;
+  long baseTableUID;
 
   // if this table has LOB columns which are created with multiple datafiles
   // for each column, this field represents the number of hdfs datafiles.
   // See CmpSeabaseDDL::createSeabaseTable2 where datafiles are created.
   Int32 numLOBdatafiles;
 
-  Int64 schemaUID;
+  long schemaUID;
 
-  Int64 objectFlags;  // flags from OBJECTS table
-  Int64 tablesFlags;  // flags from TABLES table
+  long objectFlags;  // flags from OBJECTS table
+  long tablesFlags;  // flags from TABLES table
 };
 
 class ComTdbVirtTableColumnInfo : public ComTdbVirtTableBase {
  public:
-  ComTdbVirtTableColumnInfo(const char *cName, Lng32 cNum, ComColumnClass cc, Lng32 dt, Lng32 l, Lng32 n,
-                            SQLCHARSET_CODE cs, Lng32 p, Lng32 s, Lng32 dtS, Lng32 dtE, Lng32 u, const char *ch,
+  ComTdbVirtTableColumnInfo(const char *cName, int cNum, ComColumnClass cc, int dt, int l, int n,
+                            SQLCHARSET_CODE cs, int p, int s, int dtS, int dtE, int u, const char *ch,
                             ULng32 flags, ComColumnDefaultClass dc, const char *defVal, const char *hcf,
-                            const char *hcq, const char *pd, Lng32 io)
+                            const char *hcq, const char *pd, int io)
       : ComTdbVirtTableBase(),
         colName(cName),
         colNumber(cNum),
@@ -761,17 +761,17 @@ class ComTdbVirtTableColumnInfo : public ComTdbVirtTableBase {
   Int32 size() { return sizeof(ComTdbVirtTableColumnInfo); }
 
   const char *colName;
-  Lng32 colNumber;
+  int colNumber;
   ComColumnClass columnClass;
-  Lng32 datatype;
-  Lng32 length;
-  Lng32 nullable;
+  int datatype;
+  int length;
+  int nullable;
   SQLCHARSET_CODE charset;
-  Lng32 precision;  // if interval, this is leading precision
-  Lng32 scale;      // if dt/int, this is fractional precision
-  Lng32 dtStart;    // 1:year, 2:month, 3:day, 4:hour, 5:min, 6:sec, 0:n/a
-  Lng32 dtEnd;      // 1:year, 2:month, 3:day, 4:hour, 5:min, 6:sec, 0:n/a
-  Lng32 upshifted;  // 0, regular. 1, UPSHIFT char datatype
+  int precision;  // if interval, this is leading precision
+  int scale;      // if dt/int, this is fractional precision
+  int dtStart;    // 1:year, 2:month, 3:day, 4:hour, 5:min, 6:sec, 0:n/a
+  int dtEnd;      // 1:year, 2:month, 3:day, 4:hour, 5:min, 6:sec, 0:n/a
+  int upshifted;  // 0, regular. 1, UPSHIFT char datatype
   const char *colHeading;
   ULng32 hbaseColFlags;
   ComColumnDefaultClass defaultClass;
@@ -780,12 +780,12 @@ class ComTdbVirtTableColumnInfo : public ComTdbVirtTableBase {
   const char *hbaseColFam;
   const char *hbaseColQual;
   char paramDirection[4];
-  Lng32 isOptional;  // 0, regular (does not apply OR FALSE). 1, Param is optional
+  int isOptional;  // 0, regular (does not apply OR FALSE). 1, Param is optional
 
   // definition of composite column
   const char *compDefnStr;
 
-  Int64 colFlags;
+  long colFlags;
 };
 
 class ComTdbVirtTableHistogramInfo : public ComTdbVirtTableBase {
@@ -808,7 +808,7 @@ class ComTdbVirtTableHistintInfo : public ComTdbVirtTableBase {
 
 class ComTdbVirtTableKeyInfo : public ComTdbVirtTableBase {
  public:
-  ComTdbVirtTableKeyInfo(const char *cn, Lng32 ksn, Lng32 tcn, Lng32 o, Lng32 nkc, const char *hcf, const char *hcq)
+  ComTdbVirtTableKeyInfo(const char *cn, int ksn, int tcn, int o, int nkc, const char *hcf, const char *hcq)
       : ComTdbVirtTableBase(),
         colName(cn),
         keySeqNum(ksn),
@@ -823,14 +823,14 @@ class ComTdbVirtTableKeyInfo : public ComTdbVirtTableBase {
   virtual Int32 size() { return sizeof(ComTdbVirtTableKeyInfo); }
 
   const char *colName;
-  Lng32 keySeqNum;
-  Lng32 tableColNum;
+  int keySeqNum;
+  int tableColNum;
 
   enum { ASCENDING_ORDERING = 0, DESCENDING_ORDERING = 1 };
-  Lng32 ordering;  // 0 means ascending, 1 means descending
+  int ordering;  // 0 means ascending, 1 means descending
                    // (see, for example, CmpSeabaseDDL::buildKeyInfoArray)
 
-  Lng32 nonKeyCol;  // if 1, this is a base table pkey col for unique indexes
+  int nonKeyCol;  // if 1, this is a base table pkey col for unique indexes
 
   const char *hbaseColFam;
   const char *hbaseColQual;
@@ -847,17 +847,17 @@ class ComTdbVirtTableIndexInfo : public ComTdbVirtTableBase {
 
   const char *baseTableName;
   const char *indexName;
-  Int64 indexFlags;  // flags from INDEXES table
-  Int64 indexUID;
-  Lng32 keytag;
-  Lng32 isUnique;
+  long indexFlags;  // flags from INDEXES table
+  long indexUID;
+  int keytag;
+  int isUnique;
   // ngram flag
-  Lng32 isNgram;
-  Lng32 isExplicit;
-  Lng32 keyColCount;
-  Lng32 nonKeyColCount;
+  int isNgram;
+  int isExplicit;
+  int keyColCount;
+  int nonKeyColCount;
   const char *hbaseCreateOptions;
-  Lng32 numSaltPartns;  // num of salted partitions this index was created with.
+  int numSaltPartns;  // num of salted partitions this index was created with.
   Int16 numTrafReplicas;
   ComRowFormat rowFormat;
   const ComTdbVirtTableKeyInfo *keyInfoArray;
@@ -883,25 +883,25 @@ class ComTdbVirtTableConstraintInfo : public ComTdbVirtTableBase {
 
   char *baseTableName;
   char *constrName;
-  Lng32 constrType;  // unique constr = 0, ref constr = 1, check constr = 2, pkey constr = 3
-  Lng32 colCount;
-  Lng32 isEnforced;
+  int constrType;  // unique constr = 0, ref constr = 1, check constr = 2, pkey constr = 3
+  int colCount;
+  int isEnforced;
 
   ComTdbVirtTableKeyInfo *keyInfoArray;
 
   // referencing constraints
-  Lng32 numRingConstr;
+  int numRingConstr;
   ComTdbVirtTableRefConstraints *ringConstrArray;
 
   // referenced constraints
-  Lng32 numRefdConstr;
+  int numRefdConstr;
   ComTdbVirtTableRefConstraints *refdConstrArray;
 
   // if constrType == 2
-  Lng32 checkConstrLen;
+  int checkConstrLen;
   char *checkConstrText;
 
-  Lng32 notSerialized;
+  int notSerialized;
 };
 
 class ComTdbVirtTableViewInfo : ComTdbVirtTableBase {
@@ -914,8 +914,8 @@ class ComTdbVirtTableViewInfo : ComTdbVirtTableBase {
   char *viewText;
   char *viewCheckText;
   char *viewColUsages;
-  Lng32 isUpdatable;
-  Lng32 isInsertable;
+  int isUpdatable;
+  int isInsertable;
 };
 
 class ComTdbVirtTableRoutineInfo : public ComTdbVirtTableBase {
@@ -923,7 +923,7 @@ class ComTdbVirtTableRoutineInfo : public ComTdbVirtTableBase {
   ComTdbVirtTableRoutineInfo(const char *rn, const char *ut, const char *lt, Int16 d, const char *sa, Int16 con,
                              Int16 i, const char *ps, const char *ta, Int32 mr, Int32 sas, const char *en,
                              const char *p, const char *uv, const char *es, const char *em, const char *lf, Int32 lv,
-                             const char *s, const char *ls, Int64 luid)
+                             const char *s, const char *ls, long luid)
       : ComTdbVirtTableBase(),
         routine_name(rn),
         deterministic(d),
@@ -972,13 +972,13 @@ class ComTdbVirtTableRoutineInfo : public ComTdbVirtTableBase {
   Int32 library_version;
   const char *signature;
   const char *library_sqlname;
-  Int64 object_uid;
+  long object_uid;
   Int32 object_owner_id;
   Int32 schema_owner_id;
-  Int64 lib_redef_time;
+  long lib_redef_time;
   char *lib_blob_handle;
   char *lib_sch_name;
-  Int64 lib_obj_uid;
+  long lib_obj_uid;
 };
 
 class ComTdbVirtTableSequenceInfo : public ComTdbVirtTableBase {
@@ -987,18 +987,18 @@ class ComTdbVirtTableSequenceInfo : public ComTdbVirtTableBase {
 
   virtual Int32 size() { return sizeof(ComTdbVirtTableSequenceInfo); }
 
-  Lng32 seqType;  // ComSequenceGeneratorType
-  Lng32 datatype;
-  Int64 startValue;
-  Int64 increment;
-  Int64 maxValue;
-  Int64 minValue;
-  Lng32 cycleOption;
-  Int64 cache;
-  Int64 seqUID;
-  Int64 nextValue;
-  Int64 redefTime;
-  Int64 flags;  // flags from SEQ_GEN table
+  int seqType;  // ComSequenceGeneratorType
+  int datatype;
+  long startValue;
+  long increment;
+  long maxValue;
+  long minValue;
+  int cycleOption;
+  long cache;
+  long seqUID;
+  long nextValue;
+  long redefTime;
+  long flags;  // flags from SEQ_GEN table
 };
 
 // This class describes schema, object and column privileges and if they are
@@ -1031,7 +1031,7 @@ class ComTdbVirtTableLibraryInfo : public ComTdbVirtTableBase {
   virtual Int32 size() { return sizeof(ComTdbVirtTableLibraryInfo); }
 
   const char *library_name;
-  Int64 library_UID;
+  long library_UID;
   Int32 library_version;
   const char *library_filename;
   Int32 object_owner_id;
@@ -1089,7 +1089,7 @@ class ComTdbVirtObjCommentInfo : public ComTdbVirtTableBase {
 
   virtual Int32 size() { return sizeof(ComTdbVirtObjCommentInfo); }
 
-  Int64 objectUid;
+  long objectUid;
   const char *objectComment;
 
   Int32 numColumnComment;
@@ -1124,25 +1124,25 @@ class ComTdbVirtTablePartInfo : public ComTdbVirtTableBase {
 
   Int32 size() { return sizeof(ComTdbVirtTablePartInfo); }
 
-  Int64 parentUid;
-  Int64 partitionUid;
+  long parentUid;
+  long partitionUid;
 
   char *partitionName;
   char *partitionEntityName;
   NABoolean isSubPartition;
   NABoolean hasSubPartition;
-  Lng32 partPosition;
+  int partPosition;
   char *partExpression;
-  Lng32 partExpressionLen;
+  int partExpressionLen;
 
   // currently not used
   NABoolean isValid;
   NABoolean isReadonly;
   NABoolean isInMemory;
-  Int64 defTime;
-  Int64 flags;
+  long defTime;
+  long flags;
 
-  Lng32 subpartitionCnt;
+  int subpartitionCnt;
 
   ComTdbVirtTablePartInfo *subPartArray;
 };
@@ -1170,30 +1170,30 @@ class ComTdbVirtTablePartitionV2Info : public ComTdbVirtTableBase {
 
   Int32 size() { return sizeof(ComTdbVirtTablePartitionV2Info); }
 
-  Int64 baseTableUid;
+  long baseTableUid;
 
   // partition
-  Lng32 partitionType;
+  int partitionType;
   char *partitionColIdx;
-  Lng32 partitionColCount;
+  int partitionColCount;
 
   // subpartition
-  Lng32 subpartitionType;
+  int subpartitionType;
   char *subpartitionColIdx;
-  Lng32 subpartitionColCount;
+  int subpartitionColCount;
 
   // interval and autolist, currently not used
   char *partitionInterval;
   char *subpartitionInterval;
-  Lng32 partitionAutolist;
-  Lng32 subpartitionAutolist;
+  int partitionAutolist;
+  int subpartitionAutolist;
 
-  Lng32 stlPartitionCnt;
+  int stlPartitionCnt;
 
   // specific partition/subpartition info
   ComTdbVirtTablePartInfo *partArray;
 
-  Int64 flags;
+  long flags;
 };
 
 #endif /* COMTDB_H */

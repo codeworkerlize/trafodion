@@ -49,7 +49,7 @@
 //	Constructor and destructor
 //--------------------------------------------------------------------------//
 
-CRUTask::CRUTask(Lng32 taskId)
+CRUTask::CRUTask(int taskId)
     : taskId_(taskId),
       pid_(-1),
       pExecutor_(NULL),
@@ -405,7 +405,7 @@ void CRUTask::ComputeCost() {
 //	Lookup the list position by task ID
 //--------------------------------------------------------------------------//
 
-DSListPosition CRUTaskList::FindTaskPos(Lng32 taskId) {
+DSListPosition CRUTaskList::FindTaskPos(int taskId) {
   DSListPosition pos = GetHeadPosition();
 
   while (NULL != pos) {
@@ -426,7 +426,7 @@ DSListPosition CRUTaskList::FindTaskPos(Lng32 taskId) {
 //	Lookup the task by ID
 //--------------------------------------------------------------------------//
 
-CRUTask *CRUTaskList::FindTask(Lng32 taskId) {
+CRUTask *CRUTaskList::FindTask(int taskId) {
   DSListPosition pos = GetHeadPosition();
 
   while (NULL != pos) {

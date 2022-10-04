@@ -835,7 +835,7 @@ ostream &operator<<(ostream &os, const NAString &s) {
     size_t len = s.length();
     size_t wid = os.width();
     wid = (len < wid) ? wid - len : 0;
-    Lng32 flags = os.flags();
+    int flags = os.flags();
     os.width(wid);
     if (wid && !(flags & ios::left)) os << "";  // let the ostream fill
     os.rdbuf()->sputn((char *)s.data(), s.length());

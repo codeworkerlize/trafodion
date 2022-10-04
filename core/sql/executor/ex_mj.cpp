@@ -111,7 +111,7 @@ ex_mj_tcb::ex_mj_tcb(const ex_mj_tdb &mj_tdb, const ex_tcb &left_tcb, const ex_t
   if (!mj_tdb.isLeftUnique() && !mj_tdb.isRightUnique()) {
     pool_ = NULL;
     Int32 nBuffers = mj_tdb.numBuffers_;
-    Lng32 bufSize = static_cast<Lng32>(mj_tdb.bufferSize_);
+    int bufSize = static_cast<int>(mj_tdb.bufferSize_);
 
     if (isLeftJoin() && ljExpr()) {
       // Allocate a bufSize sql_buffer_pool for ljExpr results.
@@ -127,7 +127,7 @@ ex_mj_tcb::ex_mj_tcb(const ex_mj_tdb &mj_tdb, const ex_tcb &left_tcb, const ex_t
       if (mjTdb().ljRecLen_ > 0) {
         ULng32 nullLength = mjTdb().ljRecLen_;
 
-        Lng32 neededBufferSize = (Lng32)SqlBufferNeededSize(1, nullLength);
+        int neededBufferSize = (int)SqlBufferNeededSize(1, nullLength);
         nullPool_ = new (space) sql_buffer_pool(1, neededBufferSize, space);
         nullPool_->get_free_tuple(nullData_, nullLength);
 
@@ -296,8 +296,8 @@ void ex_mj_tcb::freeResources() {
 // Redefine virtual method allocatePstates, to be used by dynamic queue
 // resizing, as well as the initial queue construction.
 ////////////////////////////////////////////////////////////////////////
-ex_tcb_private_state *ex_mj_tcb::allocatePstates(Lng32 &numElems,      // inout, desired/actual elements
-                                                 Lng32 &pstateLength)  // out, length of one element
+ex_tcb_private_state *ex_mj_tcb::allocatePstates(int &numElems,      // inout, desired/actual elements
+                                                 int &pstateLength)  // out, length of one element
 {
   PstateAllocator<ex_mj_private_state> pa;
 
@@ -674,7 +674,7 @@ ex_expr::exp_return_type ex_mj_tcb::returnRow(atp_struct *leftAtp, atp_struct *r
       if (isLeftJoin() && ljExpr()) {
         if (pool_->get_free_tuple(parentAtp->getTupp(pentry->numTuples() - 1), mjTdb().ljRecLen_)) {
           // Couldn't allocate; try to add a new buffer.
-          Lng32 bufSize = static_cast<Lng32>(mjTdb().bufferSize_);
+          int bufSize = static_cast<int>(mjTdb().bufferSize_);
 
           if (!pool_->addBuffer(bufSize, false)) {
             createDiags(static_cast<Int16>(EXE_NO_MEM_TO_EXEC));
@@ -903,7 +903,7 @@ short ex_mj_tcb::work() {
     if ((pstate.step_ != ex_mj_tcb::MJ_CANCEL) && (pstate.step_ != ex_mj_tcb::MJ_DONE) &&
         (pstate.step_ != ex_mj_tcb::MJ_DONE_NEVER_STARTED) &&
         ((request == ex_queue::GET_NOMORE) ||
-         ((request == ex_queue::GET_N) && (pentry_down->downState.requestValue <= (Lng32)pstate.matchCount_)))) {
+         ((request == ex_queue::GET_N) && (pentry_down->downState.requestValue <= (int)pstate.matchCount_)))) {
       if (pstate.step_ == ex_mj_tcb::MJ_UNINITIALIZED || pstate.step_ == ex_mj_tcb::MJ_EMPTY)
         pstate.step_ = ex_mj_tcb::MJ_DONE_NEVER_STARTED;
       else {
@@ -1497,7 +1497,7 @@ short ex_mj_unique_tcb::work() {
     if ((pstate.step_ != ex_mj_tcb::MJ_CANCEL) && (pstate.step_ != ex_mj_tcb::MJ_DONE) &&
         (pstate.step_ != ex_mj_tcb::MJ_DONE_NEVER_STARTED) &&
         ((request == ex_queue::GET_NOMORE) ||
-         ((request == ex_queue::GET_N) && (pentry_down->downState.requestValue <= (Lng32)pstate.matchCount_)))) {
+         ((request == ex_queue::GET_N) && (pentry_down->downState.requestValue <= (int)pstate.matchCount_)))) {
       if (pstate.step_ == ex_mj_tcb::MJ_UNINITIALIZED || pstate.step_ == ex_mj_tcb::MJ_EMPTY)
         pstate.step_ = ex_mj_tcb::MJ_DONE_NEVER_STARTED;
       else {

@@ -149,7 +149,7 @@ static void Throw(JNIEnv *env, const char *msg) {
   env->DeleteLocalRef(c);
 }
 
-void SQL_ERROR_HANDLER(Lng32 sqlCode) {
+void SQL_ERROR_HANDLER(int sqlCode) {
   // This is a no-op for now. Might be useful in the future for logic
   // that needs to be executed after any CLI error.
 }
@@ -199,8 +199,8 @@ class MXStatement {
     numOutColumns_ = 0;
   }
 
-  Lng32 init(const char *&status) {
-    Lng32 result = 0;
+  int init(const char *&status) {
+    int result = 0;
     status = "OK";
 
     if (initialized_) return result;
@@ -267,7 +267,7 @@ class MXStatement {
     delete[] stmtText_;
   }
 
-  Lng32 prepare(const char *stmtText) {
+  int prepare(const char *stmtText) {
     if (!initialized_) {
       return -9999;
     }
@@ -276,7 +276,7 @@ class MXStatement {
     stmtText_ = new char[strlen(stmtText) + 1];
     strcpy(stmtText_, stmtText);
 
-    Lng32 result = 0;
+    int result = 0;
 
     if (!result) result = SQL_EXEC_ClearDiagnostics(NULL);
     if (!result) result = SQL_EXEC_SetDescItem(&stmtTextDesc_, 1, SQLDESC_TYPE, SQLTYPECODE_CHAR, 0);
@@ -294,12 +294,12 @@ class MXStatement {
     return result;
   }
 
-  Lng32 execute() {
+  int execute() {
     if (!initialized_) {
       return -9999;
     }
 
-    Lng32 result = 0;
+    int result = 0;
 
     if (!result) result = SQL_EXEC_ClearDiagnostics(NULL);
     if (!result) result = SQL_EXEC_ExecClose(&stmtId_, NULL, 0, 0);
@@ -308,12 +308,12 @@ class MXStatement {
     return result;
   }
 
-  Lng32 executeUsingLong(Lng32 i) {
+  int executeUsingLong(int i) {
     if (!initialized_) {
       return -9999;
     }
 
-    Lng32 result = 0;
+    int result = 0;
 
     if (!result) result = SQL_EXEC_ClearDiagnostics(NULL);
     if (!result) result = SQL_EXEC_SetDescItem(&inDesc_, 1, SQLDESC_TYPE, SQLTYPECODE_INTEGER, 0);
@@ -325,16 +325,16 @@ class MXStatement {
     return result;
   }
 
-  Lng32 executeUsingString(const char *s, Lng32 len) {
+  int executeUsingString(const char *s, int len) {
     if (!initialized_) {
       return -9999;
     }
 
-    Lng32 result = 0;
+    int result = 0;
 
     if (!result) result = SQL_EXEC_ClearDiagnostics(NULL);
-    if (!result) result = SQL_EXEC_SetDescItem(&inDesc_, 1, SQLDESC_TYPE, (Lng32)SQLTYPECODE_CHAR, 0);
-    if (!result) result = SQL_EXEC_SetDescItem(&inDesc_, 1, SQLDESC_LENGTH, (Lng32)len, 0);
+    if (!result) result = SQL_EXEC_SetDescItem(&inDesc_, 1, SQLDESC_TYPE, (int)SQLTYPECODE_CHAR, 0);
+    if (!result) result = SQL_EXEC_SetDescItem(&inDesc_, 1, SQLDESC_LENGTH, (int)len, 0);
     if (!result) result = SQL_EXEC_SetDescItem(&inDesc_, 1, SQLDESC_VAR_PTR, (Long)s, 0);
     if (!result) result = SQL_EXEC_ExecClose(&stmtId_, &inDesc_, 0, 0);
 
@@ -342,12 +342,12 @@ class MXStatement {
     return result;
   }
 
-  Lng32 fetchEOD() {
+  int fetchEOD() {
     if (!initialized_) {
       return -9999;
     }
 
-    Lng32 result = SQL_EXEC_Fetch(&stmtId_, NULL, 0, 0);
+    int result = SQL_EXEC_Fetch(&stmtId_, NULL, 0, 0);
     if (result == 100) {
       result = 0;
     }
@@ -356,12 +356,12 @@ class MXStatement {
     return result;
   }
 
-  Lng32 fetchLong(Lng32 &i) {
+  int fetchLong(int &i) {
     if (!initialized_) {
       return -9999;
     }
 
-    Lng32 result = 0;
+    int result = 0;
 
     if (!result) result = SQL_EXEC_SetDescItem(&outDesc_, 1, SQLDESC_TYPE, SQLTYPECODE_INTEGER, 0);
     if (!result) result = SQL_EXEC_SetDescItem(&outDesc_, 1, SQLDESC_LENGTH, sizeof(i), 0);
@@ -372,12 +372,12 @@ class MXStatement {
     return result;
   }
 
-  Lng32 fetchString(char *buf, Lng32 bufLen) {
+  int fetchString(char *buf, int bufLen) {
     if (!initialized_) {
       return -9999;
     }
 
-    Lng32 result = 0;
+    int result = 0;
 
     if (!result) result = SQL_EXEC_SetDescItem(&outDesc_, 1, SQLDESC_TYPE, SQLTYPECODE_VARCHAR, 0);
     if (!result) result = SQL_EXEC_SetDescItem(&outDesc_, 1, SQLDESC_LENGTH, bufLen, 0);
@@ -388,11 +388,11 @@ class MXStatement {
     return result;
   }
 
-  Lng32 fetchStrings(char **strings, Lng32 bufLen) {
+  int fetchStrings(char **strings, int bufLen) {
     if (!initialized_) return -9999;
 
-    Lng32 result = 0;
-    for (Lng32 i = 0; i < numOutColumns_ && !result; i++) {
+    int result = 0;
+    for (int i = 0; i < numOutColumns_ && !result; i++) {
       if (!result) result = SQL_EXEC_SetDescItem(&outDesc_, i + 1, SQLDESC_TYPE, SQLTYPECODE_VARCHAR, 0);
       if (!result) result = SQL_EXEC_SetDescItem(&outDesc_, i + 1, SQLDESC_LENGTH, bufLen, 0);
       if (!result) result = SQL_EXEC_SetDescItem(&outDesc_, i + 1, SQLDESC_VAR_PTR, (Long)(strings[i]), 0);
@@ -404,12 +404,12 @@ class MXStatement {
     return result;
   }
 
-  Lng32 close() {
+  int close() {
     if (!initialized_) {
       return -9999;
     }
 
-    Lng32 result = 0;
+    int result = 0;
 
     if (!result) result = SQL_EXEC_CloseStmt(&stmtId_);
 
@@ -417,8 +417,8 @@ class MXStatement {
     return result;
   }
 
-  Lng32 getNumInColumns() { return numInColumns_; }
-  Lng32 getNumOutColumns() { return numOutColumns_; }
+  int getNumInColumns() { return numInColumns_; }
+  int getNumOutColumns() { return numOutColumns_; }
 
  protected:
   SQLSTMT_ID stmtId_;
@@ -426,8 +426,8 @@ class MXStatement {
   SQLDESC_ID stmtTextDesc_;
   SQLDESC_ID inDesc_;
   SQLDESC_ID outDesc_;
-  Lng32 numInColumns_;
-  Lng32 numOutColumns_;
+  int numInColumns_;
+  int numOutColumns_;
   char *stmtText_;
   bool initialized_;
 
@@ -464,14 +464,14 @@ JNIEXPORT void JNICALL Java_org_trafodion_sql_udr_LmUtility_nativeUtils(JNIEnv *
   static MXStatement staticStmt;
 
   if (action.compareTo("GetTxName", NAString::ignoreCase) == 0) {
-    Int64 transid;
+    long transid;
     error = GETTRANSID((short *)&transid);
     if (error) {
       if (error == 75) {
         result = "No active transaction";
       } else {
         result = "GETTRANSID returned ";
-        result += LongToNAString((Lng32)error);
+        result += LongToNAString((int)error);
       }
       Throw(env, result.data());
     } else {
@@ -480,7 +480,7 @@ JNIEXPORT void JNICALL Java_org_trafodion_sql_udr_LmUtility_nativeUtils(JNIEnv *
       error = TRANSIDTOTEXT(transid, text, 255, &actualLen);
       if (error) {
         result = "TRANSIDTOTEXT returned ";
-        result += LongToNAString((Lng32)error);
+        result += LongToNAString((int)error);
         Throw(env, result);
       } else {
         text[actualLen] = 0;
@@ -494,7 +494,7 @@ JNIEXPORT void JNICALL Java_org_trafodion_sql_udr_LmUtility_nativeUtils(JNIEnv *
     error = BEGINTRANSACTION(&tag);
     if (error) {
       result = "BEGINTRANSACTION returned ";
-      result += LongToNAString((Lng32)error);
+      result += LongToNAString((int)error);
       Throw(env, result);
     }
   }  // BeginTx
@@ -506,7 +506,7 @@ JNIEXPORT void JNICALL Java_org_trafodion_sql_udr_LmUtility_nativeUtils(JNIEnv *
         result = "No active transaction";
       } else {
         result = "ENDTRANSACTION returned ";
-        result += LongToNAString((Lng32)error);
+        result += LongToNAString((int)error);
       }
       Throw(env, result);
     }
@@ -519,14 +519,14 @@ JNIEXPORT void JNICALL Java_org_trafodion_sql_udr_LmUtility_nativeUtils(JNIEnv *
         result = "No active transaction";
       } else {
         result = "ABORTTRANSACTION returned ";
-        result += LongToNAString((Lng32)error);
+        result += LongToNAString((int)error);
       }
       Throw(env, result);
     }
   }  // RollbackTx
 
   else if (action.compareTo("GetProcessId", NAString::ignoreCase) == 0) {
-    Lng32 pid = GETPID();
+    int pid = GETPID();
     result = LongToNAString(pid);
   }  // GetProcessId
 
@@ -549,7 +549,7 @@ JNIEXPORT void JNICALL Java_org_trafodion_sql_udr_LmUtility_nativeUtils(JNIEnv *
     Int32 retcode = putenv((char *)nameAndValue.data());
     if (retcode != 0) {
       result = "putenv returned ";
-      result += LongToNAString((Lng32)retcode);
+      result += LongToNAString((int)retcode);
       Throw(env, result);
     }
   }  // PutEnv
@@ -565,7 +565,7 @@ JNIEXPORT void JNICALL Java_org_trafodion_sql_udr_LmUtility_nativeUtils(JNIEnv *
 
     MXStatement s;
     const char *status = "OK";
-    Lng32 retcode = 0;
+    int retcode = 0;
 
     retcode = s.init(status);
 
@@ -613,12 +613,12 @@ JNIEXPORT void JNICALL Java_org_trafodion_sql_udr_LmUtility_nativeUtils(JNIEnv *
     // split by the Java caller into an array of Strings with the
     // split("\n") method.
 
-    Lng32 i;
+    int i;
     NAString stmtText = action.remove(0, str_len("FetchSql "));
 
     MXStatement s;
     const char *status = "OK";
-    Lng32 retcode = 0;
+    int retcode = 0;
 
     retcode = s.init(status);
 
@@ -632,13 +632,13 @@ JNIEXPORT void JNICALL Java_org_trafodion_sql_udr_LmUtility_nativeUtils(JNIEnv *
       if (retcode) status = "EXECUTE failed";
     }
 
-    Lng32 numOutColumns = s.getNumOutColumns();
+    int numOutColumns = s.getNumOutColumns();
     NABoolean stringsAllocated = FALSE;
     char **argv = NULL;
 
     if (!retcode && numOutColumns > 0) {
       argv = new char *[numOutColumns];
-      Lng32 bufLen = 1000;
+      int bufLen = 1000;
       for (i = 0; i < numOutColumns; i++) argv[i] = new char[bufLen + 1];
 
       stringsAllocated = TRUE;
@@ -682,7 +682,7 @@ JNIEXPORT void JNICALL Java_org_trafodion_sql_udr_LmUtility_nativeUtils(JNIEnv *
     NAString stmtText = action.remove(0, str_len("Prepare "));
 
     const char *status = "OK";
-    Lng32 retcode = 0;
+    int retcode = 0;
 
     retcode = staticStmt.init(status);
 
@@ -705,10 +705,10 @@ JNIEXPORT void JNICALL Java_org_trafodion_sql_udr_LmUtility_nativeUtils(JNIEnv *
     NAString data = action.remove(0, str_len("ExecUsingString "));
 
     const char *status = "OK";
-    Lng32 retcode = 0;
+    int retcode = 0;
 
     if (retcode == 0) {
-      retcode = staticStmt.executeUsingString(data.data(), (Lng32)data.length());
+      retcode = staticStmt.executeUsingString(data.data(), (int)data.length());
       if (retcode != 0) {
         status = "EXECUTE failed";
       }
@@ -739,21 +739,21 @@ JNIEXPORT void JNICALL Java_org_trafodion_sql_udr_LmUtility_nativeUtils(JNIEnv *
   else if (action.index("FetchUsingString ", 0, NAString::ignoreCase) == 0) {
     NAString data = action.remove(0, str_len("FetchUsingString "));
     const char *status = "OK";
-    Lng32 retcode = 0;
+    int retcode = 0;
     Int32 i = 0;
 
     if (!retcode) {
-      retcode = staticStmt.executeUsingString(data.data(), (Lng32)data.length());
+      retcode = staticStmt.executeUsingString(data.data(), (int)data.length());
       if (retcode) status = "EXECUTE failed";
     }
 
-    Lng32 numOutColumns = staticStmt.getNumOutColumns();
+    int numOutColumns = staticStmt.getNumOutColumns();
     NABoolean stringsAllocated = FALSE;
     char **argv = NULL;
 
     if (!retcode && numOutColumns > 0) {
       argv = new char *[numOutColumns];
-      Lng32 bufLen = 1000;
+      int bufLen = 1000;
       for (i = 0; i < numOutColumns; i++) argv[i] = new char[bufLen + 1];
 
       stringsAllocated = TRUE;
@@ -903,7 +903,7 @@ JNIEXPORT void JNICALL Java_com_tandem_sqlmx_LmT2Driver_addConnection(JNIEnv *en
 // down to Type 4 JDBC driver
 JNIEXPORT jshortArray JNICALL Java_org_trafodion_sql_udr_LmUtility_getTransactionId(JNIEnv *env, jclass jc) {
   // On Seaquest, SQL/NDCS/TSE all use 64-bit transactionid
-  Int64 transid;
+  long transid;
   short *stransid = (short *)&transid;
   short error = GETTRANSID(stransid);
   jshortArray returnArray = env->NewShortArray(4);
@@ -914,7 +914,7 @@ JNIEXPORT jshortArray JNICALL Java_org_trafodion_sql_udr_LmUtility_getTransactio
 // This method is used by LmSQLMXDriver to retrieve the transaction id
 // to be passed to MXOSRVR via JDBC T4 driver joinUDRTransaction method
 JNIEXPORT jlong JNICALL Java_com_tandem_sqlmx_LmT2Driver_getTransId(JNIEnv *env, jclass jc) {
-  Int64 transId = 0;
+  long transId = 0;
   short *stransId = (short *)&transId;
   short error = GETTRANSID(stransId);
   if (error) transId = -1;

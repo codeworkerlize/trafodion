@@ -109,7 +109,7 @@ StmtDDLRoleGrant *StmtDDLRoleGrant::castToStmtDDLRoleGrant() { return this; }
 
 Int32 StmtDDLRoleGrant::getArity() const { return MAX_STMT_DDL_GRANT_ARITY; }
 
-ExprNode *StmtDDLRoleGrant::getChild(Lng32 index) {
+ExprNode *StmtDDLRoleGrant::getChild(int index) {
   ComASSERT(index >= 0 AND index < getArity());
   return children_[index];
 }
@@ -118,7 +118,7 @@ ExprNode *StmtDDLRoleGrant::getChild(Lng32 index) {
 // mutators
 //
 
-void StmtDDLRoleGrant::setChild(Lng32 index, ExprNode *pChildNode) {
+void StmtDDLRoleGrant::setChild(int index, ExprNode *pChildNode) {
   ComASSERT(index >= 0 AND index < getArity());
   if (pChildNode NEQ NULL) {
     ComASSERT(pChildNode->castToElemDDLNode() NEQ NULL);

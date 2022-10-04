@@ -36,7 +36,7 @@
 ******************************************************************************
 */
 
-#include "Debug.h"
+#include "common/Debug.h"
 #include "optimizer/Sqlcomp.h"
 #include "GroupAttr.h"
 #include "optimizer/NormWA.h"
@@ -408,7 +408,7 @@ NABoolean ItemExpr::containsTHISFunction() {
   return result;
 }  //  ItemExpr::containsThis()
 
-NABoolean ItemExpr::canTransformToSemiJoin(ItemExprList &valuesListIE, TableDesc *tdesc, Lng32 &numParams,
+NABoolean ItemExpr::canTransformToSemiJoin(ItemExprList &valuesListIE, TableDesc *tdesc, int &numParams,
                                            ValueId &colVid, CollHeap *h) const {
   valuesListIE.clear();
 
@@ -3835,8 +3835,8 @@ ItemExpr *ValueIdUnion::normalizeNode(NormWA & /* normWARef */) {
   return this;  // return unchanged do not replace with a VEGReference.
 }  // ValueIdUnion::normalizeNode()
 
-ItemExpr *ValueIdUnion::normalizeSpecificChild(NormWA &normWARef, Lng32 childIndex) {
-  CMPASSERT(childIndex < (Lng32)entries());
+ItemExpr *ValueIdUnion::normalizeSpecificChild(NormWA &normWARef, int childIndex) {
+  CMPASSERT(childIndex < (int)entries());
 
   sources_[childIndex] = ((ItemExpr *)(sources_[childIndex].getItemExpr()->normalizeNode(normWARef)))->getValueId();
 
@@ -4523,7 +4523,7 @@ ItemExpr *ItmSeqOlapFunction::transformOlapFunction(CollHeap *heap) {
 
     OperatorTypeEnum op = mapOperTypeToRunning();
 
-    Lng32 wSize = INT_MAX;
+    int wSize = INT_MAX;
 
     if (!isFrameEndUnboundedFollowing())  //(frameEnd_ != INT_MAX)
     {
@@ -5229,11 +5229,11 @@ ItemExpr *ItmLeadOlapFunction::normalizeNode(NormWA &normWARef) {
       NABoolean dummyNegate = FALSE;
       ConstValue *cv = offsetExpr->castToConstValue(dummyNegate);
       if (dummyNegate && cv->canGetExactNumericValue()) {
-        Int64 value = cv->getExactNumericValue();
+        long value = cv->getExactNumericValue();
         CollHeap *heap = CmpCommon::statementHeap();
         ItemExpr *newExpr1 = NULL;
         if (child(0)) newExpr1 = child(0)->castToItemExpr();
-        ItemExpr *newExpr2 = new (heap) ConstValue(Lng32(value));
+        ItemExpr *newExpr2 = new (heap) ConstValue(int(value));
         ItemExpr *newExpr3 = NULL;
         if (child(2)) newExpr3 = child(2)->castToItemExpr();
         ItmLagOlapFunction *pExpr = new (heap) ItmLagOlapFunction(newExpr1, newExpr2, newExpr3);
@@ -5263,11 +5263,11 @@ ItemExpr *ItmLagOlapFunction::normalizeNode(NormWA &normWARef) {
       NABoolean dummyNegate = FALSE;
       ConstValue *cv = offsetExpr->castToConstValue(dummyNegate);
       if (dummyNegate && cv->canGetExactNumericValue()) {
-        Int64 value = cv->getExactNumericValue();
+        long value = cv->getExactNumericValue();
         CollHeap *heap = CmpCommon::statementHeap();
         ItemExpr *newExpr1 = NULL;
         if (child(0)) newExpr1 = child(0)->castToItemExpr();
-        ItemExpr *newExpr2 = new (heap) ConstValue(Lng32(value));
+        ItemExpr *newExpr2 = new (heap) ConstValue(int(value));
         ItemExpr *newExpr3 = NULL;
         if (child(2)) newExpr3 = child(2)->castToItemExpr();
         ItmLeadOlapFunction *pExpr = new (heap) ItmLeadOlapFunction(newExpr1, newExpr2, newExpr3);

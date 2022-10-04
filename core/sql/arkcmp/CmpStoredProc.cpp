@@ -64,7 +64,7 @@
 #include "common/NAExit.h"
 #include "common/NAMemory.h"
 #include "common/NAString.h"
-#include "ParserMsg.h"
+#include "sqlmsg/ParserMsg.h"
 #include "cli/StoredProcInterface.h"
 
 #include <time.h>    // timestamp to generate a unique table name
@@ -173,7 +173,7 @@ CmpSPInputFormat::CmpSPInputFormat(CmpContext *context) {
 
 CmpSPInputFormat::~CmpSPInputFormat() {}
 
-NABoolean CmpSPInputFormat::SetFormat(Lng32 ncols, SP_FIELDDESC_STRUCT *fields) {
+NABoolean CmpSPInputFormat::SetFormat(int ncols, SP_FIELDDESC_STRUCT *fields) {
   SP_FIELDDESC_STRUCT *fd = fields;
   ElemDDLColDef *elem = 0;
 
@@ -194,7 +194,7 @@ NABoolean CmpSPInputFormat::SetFormat(Lng32 ncols, SP_FIELDDESC_STRUCT *fields) 
 
 CmpSPOutputFormat::CmpSPOutputFormat(CmpContext *context) { context_ = context; }
 
-NABoolean CmpSPOutputFormat::SetFormat(Lng32 nCols, const char *tableName, SP_FIELDDESC_STRUCT *fields, Lng32 nKeys,
+NABoolean CmpSPOutputFormat::SetFormat(int nCols, const char *tableName, SP_FIELDDESC_STRUCT *fields, int nKeys,
                                        SP_KEYDESC_STRUCT *keys) {
   // To convert the SP_FIELDDESC_STRUCT into columns_desc,
   // 1. call the parser to parse the column definition.
@@ -307,7 +307,7 @@ NABoolean CmpSPOutputFormat::getColumnDesc(SP_FIELDDESC_STRUCT *fDesc, TrafColum
   return TRUE;
 }
 
-NABoolean CmpSPOutputFormat::getKeysDesc(Lng32 nKeys, SP_KEYDESC_STRUCT *keys, TrafDesc *&keysDesc) {
+NABoolean CmpSPOutputFormat::getKeysDesc(int nKeys, SP_KEYDESC_STRUCT *keys, TrafDesc *&keysDesc) {
   // key is not supported yet in FCS ( Sep. 97 release ) needs to rework on this.
   TrafDesc *prev_key_desc = 0;
   TrafDesc *first_key_desc = 0;
@@ -567,7 +567,7 @@ CmpStoredProc::CmpStoredProc(const NAString &procName, CmpContext *cmpContext) :
 
 CmpStoredProc::~CmpStoredProc() {}
 
-NABoolean CmpStoredProc::InputFormat(Lng32, CmpSPInputFormat &) { return FALSE; }
+NABoolean CmpStoredProc::InputFormat(int, CmpSPInputFormat &) { return FALSE; }
 
 NABoolean CmpStoredProc::OutputFormat(CmpSPOutputFormat &) { return FALSE; }
 
@@ -682,7 +682,7 @@ NABoolean CmpInternalSP::startCompileCycle() {
   return TRUE;
 }
 
-SP_FIELDDESC_STRUCT *CmpInternalSP::allocSP_FIELDDESC_STRUCT(Lng32 num) {
+SP_FIELDDESC_STRUCT *CmpInternalSP::allocSP_FIELDDESC_STRUCT(int num) {
   // The SP_FIELDDESC_STRUCT is allocated using new, not the overloaded one
   // because it is an array of struct to the SP interface function. So it can
   // not be derived from NABasicObject. Since the caller is not supposed to
@@ -698,7 +698,7 @@ SP_FIELDDESC_STRUCT *CmpInternalSP::allocSP_FIELDDESC_STRUCT(Lng32 num) {
 
 void CmpInternalSP::deleteSP_FIELDDESC_STRUCT(SP_FIELDDESC_STRUCT *fd) { delete[] fd; }
 
-SP_KEYDESC_STRUCT *CmpInternalSP::allocSP_KEYDESC_STRUCT(Lng32 num) {
+SP_KEYDESC_STRUCT *CmpInternalSP::allocSP_KEYDESC_STRUCT(int num) {
   // The SP_KEYDESC_STRUCT is allocated using new, not the overloaded one
   // because it is an array of struct to the SP interface function. So it can
   // not be derived from NABasicObject. Since the caller is not supposed to
@@ -727,7 +727,7 @@ void CmpInternalSP::appendDiags() { CmpSPERROR2Diags(spError_, cmpContext()->dia
 // virtual methods for interface between arkcmp ( compiler ) and
 // stored procedure implementation.
 
-NABoolean CmpInternalSP::InputFormat(Lng32 num, CmpSPInputFormat &t) {
+NABoolean CmpInternalSP::InputFormat(int num, CmpSPInputFormat &t) {
   NABoolean retStatus = TRUE;
 
   if (!startCompileCycle()) return FALSE;
@@ -754,7 +754,7 @@ NABoolean CmpInternalSP::OutputFormat(CmpSPOutputFormat &t) {
   CMPASSERT(state_ == COMPILE);
 
   initSP_ERROR_STRUCT();
-  Lng32 num;
+  int num;
   NAString outTableName = OutTableName();
   if ((*(procFuncs_.outNumFormatFunc_))(&num, compHandle_, procFuncs_.spHandle_, &spError_[0]) == SP_SUCCESS) {
     if (num == 0) {
@@ -766,7 +766,7 @@ NABoolean CmpInternalSP::OutputFormat(CmpSPOutputFormat &t) {
     } else {
       SP_FIELDDESC_STRUCT *fields = allocSP_FIELDDESC_STRUCT(num);
       SP_KEYDESC_STRUCT *keys = allocSP_KEYDESC_STRUCT(num);
-      Lng32 nKeys = 0;
+      int nKeys = 0;
       initSP_ERROR_STRUCT();
       if ((*(procFuncs_.outFormatFunc_))(fields, keys, &nKeys, compHandle_, procFuncs_.spHandle_, &spError_[0]) ==
           SP_SUCCESS) {

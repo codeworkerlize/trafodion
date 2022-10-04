@@ -46,9 +46,9 @@
 
 #include <unistd.h>
 
-#include "SqlciEnv.h"
-#include "SqlciCmd.h"
-#include "sqlcmd.h"
+#include "sqlci/SqlciEnv.h"
+#include "sqlci/SqlciCmd.h"
+#include "sqlci/sqlcmd.h"
 #include "cli/SQLCLIdev.h"
 
 Show::~Show() {}
@@ -132,7 +132,6 @@ short Show::show_session(SqlciEnv *sqlci_env) {
 }
 
 short Show::show_version(SqlciEnv *sqlci_env) {
-  sqlci_env->welcomeMessage();
 
   return 0;
 }

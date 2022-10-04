@@ -235,7 +235,7 @@ CRULogCleanupTaskExecutor::SQL_STATEMENT CRULogCleanupTaskExecutor::decideOnDele
     CRUGlobals::GetInstance()->LogDebugMessage(CRUGlobals::DUMP_COMPILED_DYNAMIC_SQL, "", msg, FALSE);
 #endif
   } else {
-    Int64 rowCount = getRowCount();
+    long rowCount = getRowCount();
     TInt64 rowsPerPartition = rowCount * safetyFactor / (noOfPartitions_ * 100);
 
     if (rowsPerPartition < CRULogCleanupSQLComposer::MAX_ROW_TO_DELETE_IN_SINGLE_TXN)

@@ -25,9 +25,9 @@ class ComTdbSendBottom : public ComTdb {
   // Constructors
   ComTdbSendBottom() : ComTdb(ex_SEND_BOTTOM, "FAKE") {}
   ComTdbSendBottom(ex_expr *moveOutputValues, queue_index toSplit, queue_index fromSplit, ex_cri_desc *downCriDesc,
-                   ex_cri_desc *upCriDesc, ex_cri_desc *workCriDesc, Lng32 moveExprTuppIndex, Lng32 downRecordLength,
-                   Lng32 upRecordLength, Lng32 requestBufferSize, Lng32 numRequestBuffers, Lng32 replyBufferSize,
-                   Lng32 numReplyBuffers, Cardinality estNumRowsRequested, Cardinality estNumRowsReplied);
+                   ex_cri_desc *upCriDesc, ex_cri_desc *workCriDesc, int moveExprTuppIndex, int downRecordLength,
+                   int upRecordLength, int requestBufferSize, int numRequestBuffers, int replyBufferSize,
+                   int numReplyBuffers, Cardinality estNumRowsRequested, Cardinality estNumRowsReplied);
 
   // ---------------------------------------------------------------------
   // Redefine virtual functions required for Versioning.
@@ -44,17 +44,17 @@ class ComTdbSendBottom : public ComTdb {
   Int32 orderedQueueProtocol() const;
 
   Long pack(void *);
-  Lng32 unpack(void *, void *reallocator);
+  int unpack(void *, void *reallocator);
 
   void display() const;
 
-  Lng32 getDownRecordLength() const { return downRecordLength_; }
+  int getDownRecordLength() const { return downRecordLength_; }
 
-  Lng32 getUpRecordLength() const { return upRecordLength_; }
-  Lng32 getRequestBufferSize() const { return requestBufferSize_; }
-  Lng32 getNumRequestBuffers() const { return numRequestBuffers_; }
-  Lng32 getReplyBufferSize() const { return replyBufferSize_; }
-  Lng32 getNumReplyBuffers() const { return numReplyBuffers_; }
+  int getUpRecordLength() const { return upRecordLength_; }
+  int getRequestBufferSize() const { return requestBufferSize_; }
+  int getNumRequestBuffers() const { return numRequestBuffers_; }
+  int getReplyBufferSize() const { return replyBufferSize_; }
+  int getNumReplyBuffers() const { return numReplyBuffers_; }
 
   // for GUI
   virtual const ComTdb *getChild(Int32 pos) const;
@@ -66,7 +66,7 @@ class ComTdbSendBottom : public ComTdb {
 
   virtual ex_send_bottom_tcb *buildInstance(ExExeStmtGlobals *glob, ExEspFragInstanceDir *espInstanceDir,
                                             const ExFragKey &myKey, const ExFragKey &parentKey, int myHandle,
-                                            Lng32 parentInstanceNum, NABoolean isLocal) {
+                                            int parentInstanceNum, NABoolean isLocal) {
     return NULL;
   }
   // its executor twin is used, ignore

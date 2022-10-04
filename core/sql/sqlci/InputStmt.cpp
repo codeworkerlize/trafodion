@@ -48,11 +48,11 @@
 
 #include "common/Platform.h"
 #include "common/ComASSERT.h"
-#include "InputStmt.h"
-#include "ParserMsg.h"
-#include "SqlciEnv.h"
-#include "SqlciError.h"
-#include "SqlciParser.h"
+#include "sqlci/InputStmt.h"
+#include "sqlmsg/ParserMsg.h"
+#include "sqlci/SqlciEnv.h"
+#include "sqlci/SqlciError.h"
+#include "sqlci/SqlciParser.h"
 #include "common/str.h"
 
 #include "export/ComDiags.h"
@@ -150,17 +150,7 @@ void InputStmt::operator=(const InputStmt *source) {
 
 }  // operator=()
 
-////////////////////////////////////////////////////////
-// Macros for input
-////////////////////////////////////////////////////////
 
-// Make sure that eof on stdin not treated as session <EOF>.
-// The following is required, probably because of a bug in
-// Centerline's iostream implementation.  It should automatically
-// clear error on stdin if sync_with_stdio has been called for
-// this process.
-// The cout gets us to a new line past the ^D (or ^Y);
-// it does not go into the sqlci log file.
 #define CLEAR_STDIN_EOF \
   {                     \
     cin.clear();        \
@@ -1058,10 +1048,10 @@ void InputStmt::syntaxErrorOnEof(const char *str) {
 
 void InputStmt::display(UInt16 Distinguish_arg, NABoolean noPrompt) const  // 64-bit
 {
-  display((Lng32)0, noPrompt);  // 64-bit
+  display((int)0, noPrompt);  // 64-bit
 }
 
-void InputStmt::display(Lng32 stmt_num_, NABoolean noPrompt) const {
+void InputStmt::display(int stmt_num_, NABoolean noPrompt) const {
   if (!first_fragment) return;
 
   char pfxbuf[20] = "";

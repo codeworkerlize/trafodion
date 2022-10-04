@@ -300,12 +300,12 @@ LmResult LmRoutineJava::generateDefAuthToken(char *defAuthToken, ComDiagsArea *d
   short myProcessType;
   Int32 myNode;
   char myNodeName[MAX_SEGMENT_NAME_LEN + 1];
-  Lng32 myNodeNum;
+  int myNodeNum;
   short myNodeNameLen = MAX_SEGMENT_NAME_LEN;
   char myProcessName[PROCESSNAME_STRING_LEN];
-  Int64 myProcessStartTime;
+  long myProcessStartTime;
   pid_t myPid;
-  Lng32 retStatus = ComRtGetProgramInfo(myProgramDir, MAX_PROGRAM_DIR_LEN, myProcessType, myNode, myPid, myNodeNum,
+  int retStatus = ComRtGetProgramInfo(myProgramDir, MAX_PROGRAM_DIR_LEN, myProcessType, myNode, myPid, myNodeNum,
                                         myNodeName, myNodeNameLen, myProcessStartTime, myProcessName);
   if (retStatus) {
     char errStr[LMJ_ERR_SIZE_256];

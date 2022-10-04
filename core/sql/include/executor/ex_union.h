@@ -167,8 +167,8 @@ class ex_union_tcb : public ex_tcb {
   virtual Int32 numChildren() const { return union_tdb().numChildren(); }
   //  virtual const ex_tcb* getChild(int pos) const;
   virtual Int32 hasNoOutputs() const { return FALSE; };
-  virtual ex_tcb_private_state *allocatePstates(Lng32 &numElems,       // inout, desired/actual elements
-                                                Lng32 &pstateLength);  // out, length of one element
+  virtual ex_tcb_private_state *allocatePstates(int &numElems,       // inout, desired/actual elements
+                                                int &pstateLength);  // out, length of one element
  protected:
   const ex_tcb *tcbLeft_;   // left tcb
   const ex_tcb *tcbRight_;  // right tcb
@@ -316,7 +316,7 @@ class ex_union_private_state : public ex_tcb_private_state {
   friend class ex_o_union_tcb;
   friend class ex_c_union_tcb;
 
-  Int64 matchCount_;  // number of rows returned for this parent row
+  long matchCount_;  // number of rows returned for this parent row
 
   ex_union_tcb::union_child_state childStates_[2];
 

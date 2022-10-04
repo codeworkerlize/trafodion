@@ -58,7 +58,7 @@ void *StatsGlobals::operator new(size_t size, void *loc) {
   return ::operator new(size);
 }
 
-StatsGlobals::StatsGlobals(void *baseAddr, short envType, Int64 maxSegSize)
+StatsGlobals::StatsGlobals(void *baseAddr, short envType, long maxSegSize)
     : statsHeap_("Stats Globals", getStatsSegmentId(), baseAddr, ((sizeof(StatsGlobals) + 16 - 1) / 16) * 16,
                  maxSegSize),
       recentSikeys_(NULL),
@@ -156,24 +156,24 @@ void StatsGlobals::init() {
   sem_close((sem_t *)semId);
 }
 
-Int64 StatsGlobals::getLastGCTime() { return rmsStats_->getLastGCTime(); }
+long StatsGlobals::getLastGCTime() { return rmsStats_->getLastGCTime(); }
 pid_t StatsGlobals::getSsmpPid() { return rmsStats_->getSsmpPid(); }
-Int64 StatsGlobals::getSsmpTimestamp() { return rmsStats_->getSsmpTimestamp(); }
-void StatsGlobals::setLastGCTime(Int64 gcTime) { rmsStats_->setLastGCTime(gcTime); }
+long StatsGlobals::getSsmpTimestamp() { return rmsStats_->getSsmpTimestamp(); }
+void StatsGlobals::setLastGCTime(long gcTime) { rmsStats_->setLastGCTime(gcTime); }
 void StatsGlobals::incStmtStatsGCed(short inc) { rmsStats_->incStmtStatsGCed(inc); }
-void StatsGlobals::incSsmpReqMsg(Int64 msgBytes) { rmsStats_->incSsmpReqMsg(msgBytes); }
-void StatsGlobals::incSsmpReplyMsg(Int64 msgBytes) { rmsStats_->incSsmpReplyMsg(msgBytes); }
-void StatsGlobals::incSscpReqMsg(Int64 msgBytes) { rmsStats_->incSscpReqMsg(msgBytes); }
-void StatsGlobals::incSscpReplyMsg(Int64 msgBytes) { rmsStats_->incSscpReplyMsg(msgBytes); }
+void StatsGlobals::incSsmpReqMsg(long msgBytes) { rmsStats_->incSsmpReqMsg(msgBytes); }
+void StatsGlobals::incSsmpReplyMsg(long msgBytes) { rmsStats_->incSsmpReplyMsg(msgBytes); }
+void StatsGlobals::incSscpReqMsg(long msgBytes) { rmsStats_->incSscpReqMsg(msgBytes); }
+void StatsGlobals::incSscpReplyMsg(long msgBytes) { rmsStats_->incSscpReplyMsg(msgBytes); }
 void StatsGlobals::setSscpOpens(short numSscps) { rmsStats_->setSscpOpens(numSscps); }
 void StatsGlobals::setSscpDeletedOpens(short numSscps) { rmsStats_->setSscpDeletedOpens(numSscps); }
 void StatsGlobals::setSscpPid(pid_t pid) { rmsStats_->setSscpPid(pid); }
 void StatsGlobals::setSscpPriority(short pri) { rmsStats_->setSscpPriority(pri); }
-void StatsGlobals::setSscpTimestamp(Int64 timestamp) { rmsStats_->setSscpTimestamp(timestamp); }
+void StatsGlobals::setSscpTimestamp(long timestamp) { rmsStats_->setSscpTimestamp(timestamp); }
 void StatsGlobals::setSsmpPid(pid_t pid) { rmsStats_->setSsmpPid(pid); }
 void StatsGlobals::setSsmpPriority(short pri) { rmsStats_->setSsmpPriority(pri); }
-void StatsGlobals::setSsmpTimestamp(Int64 timestamp) { rmsStats_->setSsmpTimestamp(timestamp); }
-void StatsGlobals::setRMSStatsResetTimestamp(Int64 timestamp) { rmsStats_->setRMSStatsResetTimestamp(timestamp); }
+void StatsGlobals::setSsmpTimestamp(long timestamp) { rmsStats_->setSsmpTimestamp(timestamp); }
+void StatsGlobals::setRMSStatsResetTimestamp(long timestamp) { rmsStats_->setRMSStatsResetTimestamp(timestamp); }
 void StatsGlobals::incProcessRegd() { rmsStats_->incProcessRegd(); }
 void StatsGlobals::decProcessRegd() { rmsStats_->decProcessRegd(); }
 void StatsGlobals::incProcessStatsHeaps() { rmsStats_->incProcessStatsHeaps(); }
@@ -438,11 +438,11 @@ ProcessStats *StatsGlobals::checkProcess(pid_t pid) {
     return NULL;
 }
 
-StmtStats *StatsGlobals::addQuery(pid_t pid, char *queryId, Lng32 queryIdLen, void *backRef, Lng32 fragId,
-                                  char *sourceStr, Lng32 sourceStrLen, NABoolean isMaster) {
+StmtStats *StatsGlobals::addQuery(pid_t pid, char *queryId, int queryIdLen, void *backRef, int fragId,
+                                  char *sourceStr, int sourceStrLen, NABoolean isMaster) {
   StmtStats *ss;
   char *sqlSrc = NULL;
-  Lng32 storeSqlSrcLen = 0;
+  int storeSqlSrcLen = 0;
   if (pid >= configuredPidMax_) return NULL;
   if (storeSqlSrcLen_ > 0) {
     sqlSrc = sourceStr;
@@ -550,7 +550,7 @@ void StatsGlobals::releaseStatsSemaphore(Long &semId, pid_t pid) {
   int error = 0;
   pid_t tempPid;
   NABoolean tempIsBeingUpdated;
-  Int64 tempSPCT;
+  long tempSPCT;
   ex_assert(semPid_ != -1 && semPid_ == pid, "SemPid_ is -1 or semPid_ != pid");
   ex_assert(semPidCreateTime_ == GetCliGlobals()->myStartTime(), "semPidCreateTime_ unexpected.");
   tempPid = semPid_;
@@ -596,8 +596,8 @@ int StatsGlobals::releaseAndGetStatsSemaphore(Long &semId, pid_t pid, pid_t rele
   return error;
 }
 
-StmtStats *StatsGlobals::addStmtStats(NAHeap *heap, pid_t pid, char *queryId, Lng32 queryIdLen, char *sourceStr,
-                                      Lng32 sourceLength) {
+StmtStats *StatsGlobals::addStmtStats(NAHeap *heap, pid_t pid, char *queryId, int queryIdLen, char *sourceStr,
+                                      int sourceLength) {
   StmtStats *ss;
 
   ss = new (heap) StmtStats(heap, pid, queryId, queryIdLen, NULL, -1, sourceStr, sourceLength, sourceLength, TRUE);
@@ -682,7 +682,7 @@ short StatsGlobals::removeQuery(pid_t pid, StmtStats *stmtStats, NABoolean remov
   // Remove the heap if there is no memory allocated in case of removeAlways
   // is set to TRUE. RemoveAlways should be set to TRUE only from SSMP
   if (removeAlways && retcode == 0) {
-    Lng32 totalSize = (Lng32)heap->getTotalSize();
+    int totalSize = (int)heap->getTotalSize();
     if (totalSize == 0) {
       // Don't call NADELETE, since NADELETE needs update to VFPTR table of NAHeap object
       heap->destroy();
@@ -726,7 +726,7 @@ int StatsGlobals::openStatsSemaphoreWithRetry(Long &semId) {
 // I removed this method and rebuilt successfully.  It seems to
 // be dead code.  It is only to be extra cautious that I am not removing it
 // for M5.
-ExStatisticsArea *StatsGlobals::getStatsArea(char *queryId, Lng32 queryIdLen) {
+ExStatisticsArea *StatsGlobals::getStatsArea(char *queryId, int queryIdLen) {
   StmtStats *ss;
 
   stmtStatsList_->position(queryId, queryIdLen);
@@ -738,7 +738,7 @@ ExStatisticsArea *StatsGlobals::getStatsArea(char *queryId, Lng32 queryIdLen) {
   return NULL;
 }
 
-StmtStats *StatsGlobals::getMasterStmtStats(const char *queryId, Lng32 queryIdLen, short activeQueryNum) {
+StmtStats *StatsGlobals::getMasterStmtStats(const char *queryId, int queryIdLen, short activeQueryNum) {
   StmtStats *ss;
   ExMasterStats *masterStats;
   short queryNum = 0;
@@ -757,7 +757,7 @@ StmtStats *StatsGlobals::getMasterStmtStats(const char *queryId, Lng32 queryIdLe
   return ss;
 }
 
-StmtStats *StatsGlobals::getStmtStats(char *queryId, Lng32 queryIdLen) {
+StmtStats *StatsGlobals::getStmtStats(char *queryId, int queryIdLen) {
   StmtStats *ss;
 
   stmtStatsList_->position(queryId, queryIdLen);
@@ -811,7 +811,7 @@ StmtStats *StatsGlobals::getStmtStats(short activeQueryNum) {
   return ss;
 }
 
-StmtStats *StatsGlobals::getStmtStats(pid_t pid, char *queryId, Lng32 queryIdLen, Lng32 fragId) {
+StmtStats *StatsGlobals::getStmtStats(pid_t pid, char *queryId, int queryIdLen, int fragId) {
   StmtStats *ss;
   stmtStatsList_->position(queryId, queryIdLen);
   ss = (StmtStats *)stmtStatsList_->getNext();
@@ -825,19 +825,19 @@ StmtStats *StatsGlobals::getStmtStats(pid_t pid, char *queryId, Lng32 queryIdLen
   return ss;
 }
 
-StmtStats *StatsGlobals::getStmtStats(short cpu, pid_t pid, Int64 timeStamp, Lng32 queryNumber) {
+StmtStats *StatsGlobals::getStmtStats(short cpu, pid_t pid, long timeStamp, int queryNumber) {
   StmtStats *ss;
   char *queryId = (char *)NULL;
-  Lng32 queryIdLen = 0;
+  int queryIdLen = 0;
 
   char dp2QueryId[ComSqlId::MAX_DP2_QUERY_ID_LEN];
-  Lng32 dp2QueryIdLen = ComSqlId::MAX_DP2_QUERY_ID_LEN;
+  int dp2QueryIdLen = ComSqlId::MAX_DP2_QUERY_ID_LEN;
 
-  Lng32 l_segment = 0;
-  Lng32 l_cpu = 0;
-  Lng32 l_pid = (pid_t)0;
-  Int64 l_timeStamp = 0;
-  Lng32 l_queryNumber = 0;
+  int l_segment = 0;
+  int l_cpu = 0;
+  int l_pid = (pid_t)0;
+  long l_timeStamp = 0;
+  int l_queryNumber = 0;
 
   stmtStatsList_->position();
   while ((ss = (StmtStats *)stmtStatsList_->getNext()) != NULL) {
@@ -856,7 +856,7 @@ StmtStats *StatsGlobals::getStmtStats(short cpu, pid_t pid, Int64 timeStamp, Lng
   return ss;
 }
 
-StmtStats *StatsGlobals::getStmtStats(pid_t pid, char *queryId, Lng32 queryIdLen) {
+StmtStats *StatsGlobals::getStmtStats(pid_t pid, char *queryId, int queryIdLen) {
   StmtStats *ss;
   stmtStatsList_->position(queryId, queryIdLen);
   ss = (StmtStats *)stmtStatsList_->getNext();
@@ -875,9 +875,9 @@ void StatsGlobals::doFullGC() {
   StmtStats *ss;
 
   stmtStatsList_->position();
-  Int64 maxElapsedTime = STATS_RETAIN_TIME_IN_MICORSECS;
-  Int64 currentTimestamp = NA_JulianTimestamp();
-  Lng32 retcode;
+  long maxElapsedTime = STATS_RETAIN_TIME_IN_MICORSECS;
+  long currentTimestamp = NA_JulianTimestamp();
+  int retcode;
 
   short stmtStatsGCed = 0;
   while ((ss = (StmtStats *)stmtStatsList_->getNext()) != NULL) {
@@ -892,8 +892,8 @@ void StatsGlobals::doFullGC() {
   incStmtStatsGCed(stmtStatsGCed);
 }
 
-void StatsGlobals::cleanupOldSikeys(Int64 sikGcInterval) {
-  Int64 tooOld = NA_JulianTimestamp() - sikGcInterval;
+void StatsGlobals::cleanupOldSikeys(long sikGcInterval) {
+  long tooOld = NA_JulianTimestamp() - sikGcInterval;
 
   RecentSikey *recentSikey = NULL;
   recentSikeys_->position();
@@ -905,16 +905,16 @@ void StatsGlobals::cleanupOldSikeys(Int64 sikGcInterval) {
   return;
 }
 
-Lng32 StatsGlobals::registerQuery(ComDiagsArea &diags, pid_t pid, SQLQUERY_ID *query_id, Lng32 fragId, Lng32 tdbId,
-                                  Lng32 explainTdbId, short statsCollectionType, Lng32 instNum,
-                                  ComTdb::ex_node_type tdbType, char *tdbName, Lng32 tdbNameLen) {
+int StatsGlobals::registerQuery(ComDiagsArea &diags, pid_t pid, SQLQUERY_ID *query_id, int fragId, int tdbId,
+                                  int explainTdbId, short statsCollectionType, int instNum,
+                                  ComTdb::ex_node_type tdbType, char *tdbName, int tdbNameLen) {
   ProcessStats *processStats;
   NAHeap *heap;
   ExStatisticsArea *statsArea = NULL;
   ExOperStats *stat = NULL;
   StmtStats *ss;
   char *queryId;
-  Lng32 queryIdLen;
+  int queryIdLen;
 
   if (query_id == NULL || query_id->name_mode != queryid_str || query_id->identifier == NULL ||
       query_id->identifier_len < 0) {
@@ -962,12 +962,12 @@ Lng32 StatsGlobals::registerQuery(ComDiagsArea &diags, pid_t pid, SQLQUERY_ID *q
   return SUCCESS;
 }
 
-Lng32 StatsGlobals::deregisterQuery(ComDiagsArea &diags, pid_t pid, SQLQUERY_ID *query_id, Lng32 fragId) {
+int StatsGlobals::deregisterQuery(ComDiagsArea &diags, pid_t pid, SQLQUERY_ID *query_id, int fragId) {
   ProcessStats *processStats;
   StmtStats *ss;
 
   char *queryId;
-  Lng32 queryIdLen;
+  int queryIdLen;
 
   if (query_id == NULL || query_id->name_mode != queryid_str || query_id->identifier == NULL ||
       query_id->identifier_len < 0) {
@@ -1003,11 +1003,11 @@ Lng32 StatsGlobals::deregisterQuery(ComDiagsArea &diags, pid_t pid, SQLQUERY_ID 
   return SUCCESS;
 }
 
-Lng32 StatsGlobals::updateStats(ComDiagsArea &diags, SQLQUERY_ID *query_id, void *operatorStats,
-                                Lng32 operatorStatsLen) {
-  Lng32 retcode = 0;
+int StatsGlobals::updateStats(ComDiagsArea &diags, SQLQUERY_ID *query_id, void *operatorStats,
+                                int operatorStatsLen) {
+  int retcode = 0;
   char *queryId;
-  Lng32 queryIdLen;
+  int queryIdLen;
   QueryIdInfo *queryIdInfo;
 
   if (query_id == NULL || query_id->name_mode != queryid_str || query_id->identifier == NULL ||
@@ -1052,9 +1052,9 @@ Int32 StatsGlobals::checkLobLock(CliGlobals *cliGlobals, char *&lobLockId) {
   releaseStatsSemaphore(cliGlobals->getSemId(), cliGlobals->myPin());
   return 0;
 }
-Lng32 StatsGlobals::getSecInvalidKeys(CliGlobals *cliGlobals, Int64 lastCallTimestamp, SQL_QIKEY siKeys[],
+int StatsGlobals::getSecInvalidKeys(CliGlobals *cliGlobals, long lastCallTimestamp, SQL_QIKEY siKeys[],
                                       Int32 maxNumSiKeys, Int32 *returnedNumSiKeys) {
-  Lng32 retcode = 0;
+  int retcode = 0;
   int error = getStatsSemaphore(cliGlobals->getSemId(), cliGlobals->myPin());
 
   Int32 numToReturn = 0;
@@ -1147,8 +1147,8 @@ void ProcessStats::setStatsArea(ExStatisticsArea *stats) {
   stats_ = stats;
 }
 
-StmtStats *ProcessStats::addQuery(pid_t pid, char *queryId, Lng32 queryIdLen, void *backRef, Lng32 fragId,
-                                  char *sourceStr, Lng32 sourceLen, Lng32 sqlSourceLen, NABoolean isMaster) {
+StmtStats *ProcessStats::addQuery(pid_t pid, char *queryId, int queryIdLen, void *backRef, int fragId,
+                                  char *sourceStr, int sourceLen, int sqlSourceLen, NABoolean isMaster) {
   StmtStats *ss;
 
   ss = new (heap_)
@@ -1156,8 +1156,8 @@ StmtStats *ProcessStats::addQuery(pid_t pid, char *queryId, Lng32 queryIdLen, vo
   return ss;
 }
 
-StmtStats::StmtStats(NAHeap *heap, pid_t pid, char *queryId, Lng32 queryIdLen, void *backRef, Lng32 fragId,
-                     char *sourceStr, Lng32 sourceStrLen, Lng32 sqlStrLen, NABoolean isMaster)
+StmtStats::StmtStats(NAHeap *heap, pid_t pid, char *queryId, int queryIdLen, void *backRef, int fragId,
+                     char *sourceStr, int sourceStrLen, int sqlStrLen, NABoolean isMaster)
     : heap_(heap), pid_(pid), stats_(NULL), refCount_(0), fragId_(fragId) {
   queryId_ = new (heap_) char[queryIdLen + 1];
   str_cpy_all(queryId_, queryId, queryIdLen);
@@ -1212,7 +1212,7 @@ void StmtStats::deleteMe() {
   return;
 }
 
-void StmtStats::setExplainFrag(void *explainFrag, Lng32 len, Lng32 topNodeOffset) {
+void StmtStats::setExplainFrag(void *explainFrag, int len, int topNodeOffset) {
   if (explainInfo_ == NULL) explainInfo_ = new (heap_) RtsExplainFrag((NAMemory *)heap_);
   explainInfo_->setExplainFrag(explainFrag, len, topNodeOffset);
 }
@@ -1290,12 +1290,12 @@ void StmtStats::reuse(void *backRef) {
   backRef_ = backRef;
 }
 
-void StmtStats::setParentQid(char *parentQid, Lng32 parentQidLen, char *parentQidSystem, Lng32 parentQidSystemLen,
+void StmtStats::setParentQid(char *parentQid, int parentQidLen, char *parentQidSystem, int parentQidSystemLen,
                              short myCpu, short myNodeId) {
   short parentQidCpu;
   short parentQidNodeId;
-  Int64 value = 0;
-  Lng32 retcode;
+  long value = 0;
+  int retcode;
   getMasterStats()->setParentQid(parentQid, parentQidLen);
   getMasterStats()->setParentQidSystem(parentQidSystem, parentQidSystemLen);
   if (parentQid != NULL) {
@@ -1463,13 +1463,13 @@ void StatsGlobals::logProcessDeath(short cpu, pid_t pid, const char *reason) {
   return;
 }
 
-short getMasterCpu(char *uniqueStmtId, Lng32 uniqueStmtIdLen, char *nodeName, short maxLen, short &cpu) {
+short getMasterCpu(char *uniqueStmtId, int uniqueStmtIdLen, char *nodeName, short maxLen, short &cpu) {
   Int32 nodeNumber = 0;
   cpu = 0;
   short rc;
-  Lng32 retcode;
+  int retcode;
 
-  Int64 value = 0;
+  long value = 0;
   retcode = ComSqlId::getSqlQueryIdAttr(ComSqlId::SQLQUERYID_SEGMENTNUM, uniqueStmtId, uniqueStmtIdLen, value, NULL);
   if (retcode == 0)
     nodeNumber = (Int32)value;
@@ -1491,9 +1491,9 @@ short getMasterCpu(char *uniqueStmtId, Lng32 uniqueStmtIdLen, char *nodeName, sh
     return -1;
 }
 
-short getStmtNameInQid(char *uniqueStmtId, Lng32 uniqueStmtIdLen, char *stmtName, short maxLen) {
-  Lng32 retcode;
-  Int64 value = maxLen;
+short getStmtNameInQid(char *uniqueStmtId, int uniqueStmtIdLen, char *stmtName, short maxLen) {
+  int retcode;
+  long value = maxLen;
 
   retcode = ComSqlId::getSqlQueryIdAttr(ComSqlId::SQLQUERYID_STMTNAME, uniqueStmtId, uniqueStmtIdLen, value, stmtName);
   if (retcode == 0) stmtName[value] = '\0';
@@ -1634,7 +1634,7 @@ short getDefineNumericValue(char *defineName, short *numValue) {
 }
 
 ObjectEpochCacheEntryName::ObjectEpochCacheEntryName(NAHeap *heap, const char *objectName, ComObjectType objectType,
-                                                     Int64 redefTime)
+                                                     long redefTime)
     : redefTime_(redefTime), objectName_(heap), dlockKey_(heap) {
   // Unfortunately, our engine is very sloppy in its handling of
   // double quotes for delimited identifiers. Sometimes they are

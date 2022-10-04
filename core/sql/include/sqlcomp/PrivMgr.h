@@ -37,9 +37,6 @@
 // following includes needed for diags interface
 class ComDiagsArea;
 
-#ifndef Lng32
-typedef int Lng32;
-#endif
 
 // Forward references
 class NATable;

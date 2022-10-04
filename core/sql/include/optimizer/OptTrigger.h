@@ -78,7 +78,7 @@ class OptTrigger : public NABasicObject {
   inline NABoolean isRowTrigger() const { return isRowTrigger_; }
   inline const RelExpr *getTriggerSubTree() const { return triggerSubtree_; }
   inline const RelExpr *getTriggerParentSubTree() const { return triggerParentSubtree_; }
-  inline Int64 getTriggerTimeStamp() const {
+  inline long getTriggerTimeStamp() const {
     return (triggerSubtree_->getInliningInfo().getTriggerObject()->getTimeStamp());
   }
 
@@ -282,7 +282,7 @@ class OptTriggersBackbone : public NABasicObject {
   void fixTempInsertSubtree();
   RelExpr *buildOptimizedTempInsert(BindWA *bindWA);
 
-  inline void addTempTableUsage(Lng32 usage) { tempTableUsage_ |= usage; }
+  inline void addTempTableUsage(int usage) { tempTableUsage_ |= usage; }
 
   // Tagging methods for the various key nodes in the backbone
 
@@ -330,7 +330,7 @@ class OptTriggersBackbone : public NABasicObject {
   RelExpr *pParent_;          // parent of current node
 
   TriggerBindInfo *triggerBindInfo_;  // information collected during binding
-  Lng32 tempTableUsage_;              // specify which values are actually needed
+  int tempTableUsage_;              // specify which values are actually needed
 };                                    // class OptTriggersBackbone
 
 //***********************************************************************

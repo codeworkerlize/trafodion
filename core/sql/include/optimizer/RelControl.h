@@ -78,7 +78,7 @@ class ControlAbstractClass : public RelExpr {
   virtual RelExpr *bindNode(BindWA *bindWAPtr);
   virtual RelExpr *copyTopNode(RelExpr *derivedNode = NULL, CollHeap *h = NULL);
   virtual NABoolean duplicateMatch(const RelExpr &other) const;
-  virtual PhysicalProperty *synthPhysicalProperty(const Context *context, const Lng32 planNumber, PlanWorkSpace *pws);
+  virtual PhysicalProperty *synthPhysicalProperty(const Context *context, const int planNumber, PlanWorkSpace *pws);
   virtual short codeGen(Generator *);  // defined in GenRelDCL.cpp
 
   const NAString &getSqlText() const { return sqlText_; }
@@ -173,7 +173,7 @@ class ControlQueryShape : public ControlAbstractClass {
 class ControlQueryDefault : public ControlAbstractClass {
  public:
   ControlQueryDefault(const NAString &sqlText, CharInfo::CharSet sqlTextCharSet, const NAString &token,
-                      const NAString &value, NABoolean dyn = FALSE, Lng32 holdOrRestoreCQD = 0,
+                      const NAString &value, NABoolean dyn = FALSE, int holdOrRestoreCQD = 0,
                       CollHeap *h = CmpCommon::statementHeap(), Int32 reset = 0);
 
   // copy ctor
@@ -209,13 +209,13 @@ class ControlQueryDefault : public ControlAbstractClass {
   // is remembered(held).
   // With restore, the previously remembered(held) value is restored.
   // A value of 0 indicates that this is not a cqd hold/restore stmt.
-  Lng32 holdOrRestoreCQD_;
+  int holdOrRestoreCQD_;
 };
 
 class ControlQueryDefaults : public ControlQueryDefault {
  public:
   ControlQueryDefaults(const NAString &sqlText, CharInfo::CharSet sqlTextCharSet, const NAList<GroupOfNAString *> *cqds,
-                       Lng32 holdOrRestoreCQD = 0, Int32 reset = 0, CollHeap *h = CmpCommon::statementHeap());
+                       int holdOrRestoreCQD = 0, Int32 reset = 0, CollHeap *h = CmpCommon::statementHeap());
 
   // copy ctor
   ControlQueryDefaults(const ControlQueryDefaults &orig,

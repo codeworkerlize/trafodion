@@ -1,60 +1,18 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-//
-**********************************************************************/
-#ifndef SQLCIENV_H
-#define SQLCIENV_H
-
-/* -*-C++-*-
- *****************************************************************************
- *
- * File:         SqlciEnv.h
- * RCS:          $Id: SqlciEnv.h,v 1.17 1998/09/07 21:50:03  Exp $
- * Description:
- *
- * Created:      4/15/95
- * Modified:     $ $Date: 1998/09/07 21:50:03 $ (GMT)
- * Language:     C++
- * Status:       $State: Exp $
- *
- *
- *
- *
- *****************************************************************************
- */
-
+#pragma once
 #include "common/Platform.h"
 #include "common/SqlCliDllDefines.h"
 
 #include <limits.h>
 #include <iostream>
 #include <stdio.h>
-#include "SqlciList_templ.h"
-#include "SqlciStmts.h"
+#include "sqlci/SqlciList_templ.h"
+#include "sqlci/SqlciStmts.h"
 #include "common/ComASSERT.h"
 #include "export/ComDiags.h"
-#include "Define.h"
-#include "Param.h"
-#include "Prepare.h"
+#include "sqlci/Define.h"
+#include "sqlci/Param.h"
+#include "sqlci/Prepare.h"
+#include "common/sqtypes.h"
 
 // forward references
 class SqlciStats;
@@ -77,11 +35,11 @@ class Logfile {
   void Reopen();
   void Close();
   void Close_();  // close withouth delete file name
-  short Write(const char *, Lng32);
-  short WriteAll(const char *, Lng32);
-  short WriteAll(const char *, Lng32, Int32);
+  short Write(const char *, int);
+  short WriteAll(const char *, int);
+  short WriteAll(const char *, int, Int32);
   short WriteAll(const char *);
-  short WriteAll(const WCHAR *, Lng32);
+  short WriteAll(const WCHAR *, int);
   short WriteAllWithoutEOL(const char *);
   short IsOpen();
   char *Logname() { return name; }
@@ -121,13 +79,10 @@ class SqlciEnv {
   CharInfo::CharSet default_charset_;
   NABoolean infer_charset_;
 
-  Lng32 specialError_;  // special sqlCode in HandleCLIError
-  typedef void (*SpecialHandler)(SqlciEnv *, Lng32, const char *, const char *);
+  int specialError_;  // special sqlCode in HandleCLIError
+  typedef void (*SpecialHandler)(SqlciEnv *, int, const char *, const char *);
   SpecialHandler specialHandler_;
   ComSchemaName *defaultCatAndSch_;
-
-  NABoolean showShape_;  // if TRUE, show CONTROL SHAPE before
-                         // compiling the query
 
   NABoolean logCommands_;      // if TRUE, log commands only.
   NABoolean constructorFlag_;  // Have a flag to let the constructor
@@ -163,8 +118,6 @@ class SqlciEnv {
   NAString userNameFromCommandLine_;
   NAString tenantNameFromCommandLine_;
 
-  // used to set max heap size of jvm which created by sqlci
-  ULng32 maxHeapSize_;
 
  public:
   enum { MAX_LISTCOUNT = UINT_MAX };
@@ -216,10 +169,10 @@ class SqlciEnv {
   ModeType getMode() { return mode; }
   void setListCount(ULng32 num = MAX_LISTCOUNT) { list_count = num; }
   ULng32 getListCount() { return list_count; }
-  Lng32 specialError() { return specialError_; }
+  int specialError() { return specialError_; }
   SpecialHandler specialHandler() { return specialHandler_; }
   void resetSpecialError() { setSpecialError(0, NULL); }
-  void setSpecialError(Lng32 err, SpecialHandler func) {
+  void setSpecialError(int err, SpecialHandler func) {
     // * If err is 0, special error handling is disabled
     // * If err is -1, console error messages are suppressed
     // * Otherwise err is a sqlcode and func is a function to be called
@@ -245,22 +198,15 @@ class SqlciEnv {
   ComDiagsArea &diagsArea();
 
   void run();
-  void runWithInputString(char *input_string);
-  void run(char *in_filename, char *input_string = NULL);
 
   void autoCommit();
-  void pertableStatistics();
-  void datatypeSupport();
-  void sqlmxRegress();
 
-  void welcomeMessage();
   void displayDiagnostics();
 
   Int32 executeCommands(InputStmt *&input_stmt);
 
-  short statusTransaction(Int64 *transid = 0);
+  short statusTransaction(long *transid = 0);
 
-  NABoolean &showShape() { return showShape_; };
 
   NABoolean &logCommands() { return logCommands_; };
 
@@ -278,13 +224,6 @@ class SqlciEnv {
   void setPrepareOnly(char *po);
   void setExecuteOnly(char *eo);
 
-  // Get/set the command-line user name
-  const NAString &getUserNameFromCommandLine() { return userNameFromCommandLine_; }
-  void setUserNameFromCommandLine(const char *s);
-
-  // Get/set the command-line tenant name
-  const NAString &getTenantNameFromCommandLine() { return tenantNameFromCommandLine_; }
-  void setTenantNameFromCommandLine(const char *s);
 
   // Retrieve database user information from CLI
   Int32 getExternalUserName(NAString &username);
@@ -301,14 +240,9 @@ class SqlciEnv {
   Int32 getTenantID(Int32 &uid);
   Int32 getTenantName(NAString &tenantName);
 
-  // Interact with CLI to establish user identity. For Linux only.
-  void setUserIdentityInCLI();
 
-  void setMaxHeapSize(ULng32 max_heap) { maxHeapSize_ = max_heap; }
-  ULng32 getMaxHeapSize() { return maxHeapSize_; }
 };
 
 // BOOL _stdcall ControlSignalHandler(DWORD dwCtrlType);
 BOOL WINAPI CtrlHandler(DWORD dwCtrlType);
 
-#endif

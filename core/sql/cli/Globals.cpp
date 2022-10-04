@@ -151,7 +151,7 @@ void CliGlobals::init(NABoolean espProcess, StatsGlobals *statsGlobals) {
 
   programDir_ = new (&executorMemory_) char[1024 + 1];
   short nodeNameLen;
-  Lng32 retcomrt = 0;
+  int retcomrt = 0;
   retcomrt = ComRtGetProgramInfo(programDir_, 1024, processType_, myCpu_, myPin_, myNodeNumber_, myNodeName_,
                                  nodeNameLen, myStartTime_, myProcessNameString_, parentProcessNameString_,
                                  &myVerifier_, &myAncestorNid_, &myAncestorPid_);
@@ -304,8 +304,8 @@ CliGlobals::~CliGlobals() {
   ComEncryption::cleanupEVP();
 }
 
-Lng32 CliGlobals::getNextUniqueContextHandle() {
-  Lng32 contextHandle;
+int CliGlobals::getNextUniqueContextHandle() {
+  int contextHandle;
   cliSemaphore_->get();
   contextHandle = nextUniqueContextHandle++;
   cliSemaphore_->release();
@@ -315,7 +315,7 @@ Lng32 CliGlobals::getNextUniqueContextHandle() {
 IpcPriority CliGlobals::myCurrentPriority() {
   IpcPriority myPriority;
 
-  Lng32 retcode = ComRtGetProcessPriority(myPriority);
+  int retcode = ComRtGetProcessPriority(myPriority);
   if (retcode) return -2;
 
   return myPriority;
@@ -343,7 +343,7 @@ IpcPriority CliGlobals::myCurrentPriority() {
 // NOTE: we'll need to recompile if the NSK architecture changes, which
 // should be infrequent as Charles Landau assures me.
 
-Lng32 CliGlobals::boundsCheck(void *startAddress, ULng32 length, Lng32 &retcode) {
+int CliGlobals::boundsCheck(void *startAddress, ULng32 length, int &retcode) {
   // no bounds checking on NT because we're not PRIV
   return 0;
 }
@@ -461,7 +461,7 @@ ContextCli *CliGlobals::currContext() {
     return tsCurrentContextMap->context_;
 }
 
-Lng32 CliGlobals::createContext(ContextCli *&newContext) {
+int CliGlobals::createContext(ContextCli *&newContext) {
   newContext = new (&executorMemory_) ContextCli(this);
   SQLCTX_HANDLE ch = newContext->getContextHandle();
   cliSemaphore_->get();
@@ -470,7 +470,7 @@ Lng32 CliGlobals::createContext(ContextCli *&newContext) {
 
   return 0;
 }
-Lng32 CliGlobals::dropContext(ContextCli *context) {
+int CliGlobals::dropContext(ContextCli *context) {
   if (!context) return -1;
 
   if (context == getDefaultContext()) return 0;
@@ -544,8 +544,8 @@ ContextTidMap *CliGlobals::getThreadContext(pid_t tid) {
   return NULL;
 }
 
-Lng32 CliGlobals::switchContext(ContextCli *newContext) {
-  Lng32 retcode = 0;
+int CliGlobals::switchContext(ContextCli *newContext) {
+  int retcode = 0;
 
   pid_t tid;
   SQLCTX_HANDLE ch, currCh;
@@ -579,7 +579,7 @@ Lng32 CliGlobals::switchContext(ContextCli *newContext) {
   return retcode;
 }
 
-Lng32 CliGlobals::sendEnvironToMxcmp() {
+int CliGlobals::sendEnvironToMxcmp() {
   ComDiagsArea &diags = currContext()->diags();
 
   if (NOT getArkcmp()->isConnected()) return 0;
@@ -605,7 +605,7 @@ Lng32 CliGlobals::sendEnvironToMxcmp() {
   return 0;
 }
 
-Lng32 CliGlobals::setEnvVars(char **envvars) {
+int CliGlobals::setEnvVars(char **envvars) {
   if ((!envvars) || (isESPProcess_)) return 0;
 
   Int32 nEnvs = 0;
@@ -619,7 +619,7 @@ Lng32 CliGlobals::setEnvVars(char **envvars) {
     ;
 
   // one extra to null terminate envvar list
-  Lng32 envvarsLen = (nEnvs + 1) * sizeof(char *);
+  int envvarsLen = (nEnvs + 1) * sizeof(char *);
 
   Int32 count;
   for (count = 0; count < nEnvs; count++) {
@@ -634,7 +634,7 @@ Lng32 CliGlobals::setEnvVars(char **envvars) {
   // and copy input envvars to envvars_
   for (count = 0; count < nEnvs; count++) {
     envvars_[count] = envvarsValue;
-    Lng32 l = str_len(envvars[count]) + 1;
+    int l = str_len(envvars[count]) + 1;
     str_cpy_all(envvarsValue, envvars[count], l);
     envvarsValue = envvarsValue + l;
   }
@@ -651,11 +651,11 @@ Lng32 CliGlobals::setEnvVars(char **envvars) {
   return sendEnvironToMxcmp();
 }
 
-Lng32 CliGlobals::setEnvVar(const char *name, const char *value, NABoolean reset) {
+int CliGlobals::setEnvVar(const char *name, const char *value, NABoolean reset) {
   if ((!name) || (!value) || (isESPProcess_)) return 0;
 
   NABoolean found = FALSE;
-  Lng32 envvarPos = -1;
+  int envvarPos = -1;
   if (ComRtGetEnvValueFromEnvvars((const char **)envvars_, name, &envvarPos)) found = TRUE;
 
   if ((NOT found) && (reset)) return 0;
@@ -676,7 +676,7 @@ Lng32 CliGlobals::setEnvVar(const char *name, const char *value, NABoolean reset
   // one extra entry, if envvar not found.
   // one extra to null terminate envvar list.
   //  long envvarsLen = (nEnvs + (NOT found ? 1 : 0) + 1) * sizeof(char*);
-  Lng32 newEnvvarsLen = (nEnvs + 1) * sizeof(char *);
+  int newEnvvarsLen = (nEnvs + 1) * sizeof(char *);
 
   Int32 count;
   for (count = 0; count < nEnvs; count++) {
@@ -704,7 +704,7 @@ Lng32 CliGlobals::setEnvVar(const char *name, const char *value, NABoolean reset
   Int32 tgtCount = 0;
   for (count = 0; count < nEnvs; count++) {
     newEnvvars[tgtCount] = newEnvvarsValue;
-    Lng32 l = 0;
+    int l = 0;
     if (count == envvarPos) {
       if (NOT reset) {
         strcpy(newEnvvarsValue, name);
@@ -767,15 +767,15 @@ char *CliGlobals::getEnv(const char *name) {
   return (char *)ComRtGetEnvValueFromEnvvars((const char **)envvars_, name);
 }
 //
-Lng32 CliGlobals::resetContext(ContextCli *theContext, void *contextMsg) {
+int CliGlobals::resetContext(ContextCli *theContext, void *contextMsg) {
   theContext->reset(contextMsg);
   return SUCCESS;
 }
 
 NAHeap *CliGlobals::getCurrContextHeap() { return currContext()->exHeap(); }
 
-Int64 CliGlobals::getTransactionId() {
-  Int64 transId = -1;
+long CliGlobals::getTransactionId() {
+  long transId = -1;
   ContextCli *context = currContext();
   if (context != NULL) {
     ExTransaction *trans = context->getTransaction();
@@ -788,7 +788,7 @@ ExUdrServerManager *CliGlobals::getUdrServerManager() { return currContext()->ge
 
 NABoolean CliGlobals::getUdrErrorChecksEnabled() { return currContext()->getUdrErrorChecksEnabled(); }
 
-Lng32 CliGlobals::getUdrSQLAccessMode() { return currContext()->getUdrSQLAccessMode(); }
+int CliGlobals::getUdrSQLAccessMode() { return currContext()->getUdrSQLAccessMode(); }
 
 NABoolean CliGlobals::getUdrAccessModeViolation() { return currContext()->getUdrAccessModeViolation(); }
 
@@ -798,13 +798,13 @@ NABoolean CliGlobals::getUdrXactAborted() { return currContext()->getUdrXactAbor
 
 void CliGlobals::setUdrErrorChecksEnabled(NABoolean b) { currContext()->setUdrErrorChecksEnabled(b); }
 
-void CliGlobals::setUdrSQLAccessMode(Lng32 mode) { currContext()->setUdrSQLAccessMode(mode); }
+void CliGlobals::setUdrSQLAccessMode(int mode) { currContext()->setUdrSQLAccessMode(mode); }
 
 void CliGlobals::setUdrAccessModeViolation(NABoolean b) { currContext()->setUdrAccessModeViolation(b); }
 
 void CliGlobals::setUdrXactViolation(NABoolean b) { currContext()->setUdrXactViolation(b); }
 
-void CliGlobals::setUdrXactAborted(Int64 currTransId, NABoolean b) { currContext()->setUdrXactAborted(currTransId, b); }
+void CliGlobals::setUdrXactAborted(long currTransId, NABoolean b) { currContext()->setUdrXactAborted(currTransId, b); }
 
 void CliGlobals::clearUdrErrorFlags() { currContext()->clearUdrErrorFlags(); }
 

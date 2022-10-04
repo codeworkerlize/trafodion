@@ -142,20 +142,20 @@ class ExTupleFlowTcb : public ex_tcb {
 class ExTupleFlowPrivateState : public ex_tcb_private_state {
   friend class ExTupleFlowTcb;
 
-  Int64 matchCount_;  // number of rows returned for this parent row
-  Lng32 tgtRequests_;
+  long matchCount_;  // number of rows returned for this parent row
+  int tgtRequests_;
   NABoolean srcEOD_;
   NABoolean parentEOD_;
   NABoolean tgtRowsSent_;
-  Lng32 noOfUnPackedRows_;
+  int noOfUnPackedRows_;
   // next two counters used to set rownumber for rowset error handling
-  // The next two should be converted to Int64,
+  // The next two should be converted to long,
   // except then we'd also need to
   // convert ComDiagsArea::setAllRowNumber
-  // to take an Int64...
-  Int64 srcRequestCount_;        // number of q. entries sent to right child from left child
+  // to take an long...
+  long srcRequestCount_;        // number of q. entries sent to right child from left child
   NABoolean nonFatalErrorSeen_;  // to remember that a nonfatal error has been seen
-  Int64 startRightIndex_;        // index to remember the earliest parent request for which we have
+  long startRightIndex_;        // index to remember the earliest parent request for which we have
                                  // not seen a reply yet. Used in the CANCELLED_ state.
 
   ExTupleFlowTcb::TupleFlowStep step_;

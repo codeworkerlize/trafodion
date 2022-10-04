@@ -56,7 +56,7 @@ class NARoutineDB : public NAKeyLookup<NARoutineDBKey, NARoutine> {
   void moveRoutineToDeleteList(NARoutine *cachedNARoutine, const NARoutineDBKey *key);
   void free_entries_with_QI_key(Int32 numSiKeys, SQL_QIKEY *qiKeyArray);
   void reset_priv_entries();
-  void removeNARoutine(QualifiedName &routineName, ComQiScope qiScope, Int64 objUID, NABoolean ddlXns,
+  void removeNARoutine(QualifiedName &routineName, ComQiScope qiScope, long objUID, NABoolean ddlXns,
                        NABoolean atCommit);
 
   // Defined member functions.
@@ -75,7 +75,7 @@ class NARoutineDB : public NAKeyLookup<NARoutineDBKey, NARoutine> {
   NAString &getMetadata() { return metadata; }
   void setMetadata(const char *meta) { metadata = meta; }
 
-  inline void resizeCache(Lng32 sizeInBytes) { maxCacheSize_ = sizeInBytes; };
+  inline void resizeCache(int sizeInBytes) { maxCacheSize_ = sizeInBytes; };
   inline void refreshCacheInThisStatement() { refreshCacheInThisStatement_ = TRUE; }
 
   void getCacheStats(NARoutineCacheStats &stats);
@@ -87,9 +87,9 @@ class NARoutineDB : public NAKeyLookup<NARoutineDBKey, NARoutine> {
 
   // Reduce size of cache if it exceeds limit, by using LRU algorithm.
   NABoolean enforceMemorySpaceConstraints();
-  Int64 getModifyTime(NARoutine &routine, Int32 &error);
-  Int64 getRedefTime(BindWA *bindWA, NARoutine &routine, Int32 &error);
-  Int64 getSchemaRedefTimeFromLabel(NARoutine &routine, Int32 &error);
+  long getModifyTime(NARoutine &routine, Int32 &error);
+  long getRedefTime(BindWA *bindWA, NARoutine &routine, Int32 &error);
+  long getSchemaRedefTimeFromLabel(NARoutine &routine, Int32 &error);
 
   NAMemory *heap_;
 

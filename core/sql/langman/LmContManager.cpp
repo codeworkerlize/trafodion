@@ -105,7 +105,7 @@ static time_t getFileModifiedTime(const char *filename) {
     if (errno == ENOENT || errno == EIO) mod_time = 0;
   }
 
-  LM_DEBUG2("getFileModTime(%s) returned %d", filename, (Lng32)mod_time);
+  LM_DEBUG2("getFileModTime(%s) returned %d", filename, (int)mod_time);
   return mod_time;
 }
 

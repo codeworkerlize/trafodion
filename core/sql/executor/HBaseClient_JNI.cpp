@@ -799,7 +799,7 @@ HBC_RetCode HBaseClient_JNI::create(const char *fileName, HBASE_NAMELIST &colFam
 //
 //////////////////////////////////////////////////////////////////////////////
 HBC_RetCode HBaseClient_JNI::create(const char *fileName, NAText *createOptionsArray, int numSplits, int keyLength,
-                                    const char **splitValues, Int64 transID, NABoolean isMVCC,
+                                    const char **splitValues, long transID, NABoolean isMVCC,
                                     NABoolean incrBackupEnabled) {
   QRLogger::log(CAT_SQL_HBASE, LL_DEBUG, "HBaseClient_JNI::create(%s) called.", fileName);
   if (initJNIEnv() != JOI_OK) return HBC_ERROR_INIT_PARAM;
@@ -854,7 +854,7 @@ HBC_RetCode HBaseClient_JNI::create(const char *fileName, NAText *createOptionsA
 //////////////////////////////////////////////////////////////////////////////
 //
 //////////////////////////////////////////////////////////////////////////////
-HBC_RetCode HBaseClient_JNI::alter(const char *fileName, NAText *createOptionsArray, Int64 transID) {
+HBC_RetCode HBaseClient_JNI::alter(const char *fileName, NAText *createOptionsArray, long transID) {
   QRLogger::log(CAT_SQL_HBASE, LL_DEBUG, "HBaseClient_JNI::alter(%s) called.", fileName);
   if (initJNIEnv() != JOI_OK) return HBC_ERROR_INIT_PARAM;
 
@@ -1083,7 +1083,7 @@ HBC_RetCode HBaseClient_JNI::drop(const char *fileName, bool async, long transID
 //////////////////////////////////////////////////////////////////////////////
 //
 //////////////////////////////////////////////////////////////////////////////
-HBC_RetCode HBaseClient_JNI::registerTruncateOnAbort(const char *fileName, Int64 transID) {
+HBC_RetCode HBaseClient_JNI::registerTruncateOnAbort(const char *fileName, long transID) {
   QRLogger::log(CAT_SQL_HBASE, LL_DEBUG, "HBaseClient_JNI::drop(%s) called.", fileName);
 
   if (initJNIEnv() != JOI_OK) return HBC_ERROR_INIT_PARAM;
@@ -1112,7 +1112,7 @@ HBC_RetCode HBaseClient_JNI::registerTruncateOnAbort(const char *fileName, Int64
 //////////////////////////////////////////////////////////////////////////////
 //
 //////////////////////////////////////////////////////////////////////////////
-HBC_RetCode HBaseClient_JNI::truncate(const char *fileName, NABoolean preserveSplits, Int64 transID) {
+HBC_RetCode HBaseClient_JNI::truncate(const char *fileName, NABoolean preserveSplits, long transID) {
   QRLogger::log(CAT_SQL_HBASE, LL_DEBUG, "HBaseClient_JNI::truncate(%s) called.", fileName);
   if (initJNIEnv() != JOI_OK) return HBC_ERROR_INIT_PARAM;
 
@@ -1139,7 +1139,7 @@ HBC_RetCode HBaseClient_JNI::truncate(const char *fileName, NABoolean preserveSp
   return HBC_OK;
 }
 
-HBC_RetCode HBaseClient_JNI::drop(const char *fileName, JNIEnv *jenv, Int64 transID) {
+HBC_RetCode HBaseClient_JNI::drop(const char *fileName, JNIEnv *jenv, long transID) {
   QRLogger::log(CAT_SQL_HBASE, LL_DEBUG, "HBaseClient_JNI::drop(%s) called.", fileName);
   if (initJNIEnv() != JOI_OK) return HBC_ERROR_INIT_PARAM;
   jstring js_fileName = jenv->NewStringUTF(fileName);
@@ -1167,7 +1167,7 @@ HBC_RetCode HBaseClient_JNI::drop(const char *fileName, JNIEnv *jenv, Int64 tran
 //////////////////////////////////////////////////////////////////////////////
 //
 //////////////////////////////////////////////////////////////////////////////
-HBC_RetCode HBaseClient_JNI::dropAll(const char *pattern, bool async, Int64 transID) {
+HBC_RetCode HBaseClient_JNI::dropAll(const char *pattern, bool async, long transID) {
   QRLogger::log(CAT_SQL_HBASE, LL_DEBUG, "HBaseClient_JNI::dropAll(%s) called.", pattern);
 
   if (initJNIEnv() != JOI_OK) return HBC_ERROR_INIT_PARAM;
@@ -1240,7 +1240,7 @@ NAArray<HbaseStr> *HBaseClient_JNI::listAll(NAHeap *heap, const char *pattern) {
     return hbaseTables;
 }
 
-HBC_RetCode HBaseClient_JNI::namespaceOperation(short oper, const char *nameSpace, Lng32 numKeyValEntries,
+HBC_RetCode HBaseClient_JNI::namespaceOperation(short oper, const char *nameSpace, int numKeyValEntries,
                                                 NAText *keyArray, NAText *valArray, NAHeap *heap,
                                                 NAArray<HbaseStr> **retNames) {
   QRLogger::log(CAT_SQL_HBASE, LL_DEBUG, "HBaseClient_JNI::namespaceOperation() called.");
@@ -1307,7 +1307,7 @@ HBC_RetCode HBaseClient_JNI::namespaceOperation(short oper, const char *nameSpac
   return HBC_OK;
 }
 
-HBC_RetCode HBaseClient_JNI::savepointCommitOrRollback(Int64 transId, Int64 savepointId, Int64 tgtSavepointId,
+HBC_RetCode HBaseClient_JNI::savepointCommitOrRollback(long transId, long savepointId, long tgtSavepointId,
                                                        bool isCommit) {
   QRLogger::log(CAT_SQL_HBASE, LL_DEBUG, "HBaseClient_JNI::savepointCommitOrRollback() called.");
 
@@ -1431,7 +1431,7 @@ HBC_RetCode HBaseClient_JNI::copy(const char *srcTblName, const char *tgtTblName
 //////////////////////////////////////////////////////////////////////////////
 //
 //////////////////////////////////////////////////////////////////////////////
-HBC_RetCode HBaseClient_JNI::exists(const char *fileName, Int64 transID) {
+HBC_RetCode HBaseClient_JNI::exists(const char *fileName, long transID) {
   QRLogger::log(CAT_SQL_HBASE, LL_DEBUG, "HBaseClient_JNI::exists(%s) called.", fileName);
   if (initJNIEnv() != JOI_OK) return HBC_ERROR_INIT_PARAM;
 
@@ -1522,7 +1522,7 @@ HBC_RetCode HBaseClient_JNI::grant(const Text &user, const Text &tblName, const 
 // block of each HFile for the table, and dividing by the number of columns.
 //////////////////////////////////////////////////////////////////////////////
 HBC_RetCode HBaseClient_JNI::estimateRowCount(const char *tblName, Int32 partialRowSize, Int32 numCols,
-                                              Int32 retryLimitMilliSeconds, NABoolean useCoprocessor, Int64 &rowCount,
+                                              Int32 retryLimitMilliSeconds, NABoolean useCoprocessor, long &rowCount,
                                               Int32 &breadCrumb) {
   // Note: Please use HBC_ERROR_ROWCOUNT_EST_EXCEPTION only for
   // those error returns that call getExceptionDetails(). This
@@ -1846,7 +1846,7 @@ char *HBulkLoadClient_JNI::getErrorText(HBLC_RetCode errEnum) {
 }
 
 HBLC_RetCode HBulkLoadClient_JNI::initHFileParams(const HbaseStr &tblName, const Text &hFileLoc, const Text &hfileName,
-                                                  Int64 maxHFileSize, const Text &hFileSampleLoc,
+                                                  long maxHFileSize, const Text &hFileSampleLoc,
                                                   const Text &hfileSampleName, float fSampleRate) {
   FUNCTION_DEBUG("%s(%s, %s, %s, %ld, %s, %s) called.", __FUNCTION__, hFileLoc.data(), hfileName.data(), tblName.val,
                  maxHFileSize, hFileSampleLoc.data(), hfileSampleName.data());
@@ -2810,7 +2810,7 @@ BackupRestoreClient_JNI::~BackupRestoreClient_JNI() {}
 //////////////////////////////////////////////////////////////////////////////
 
 HBC_RetCode HBaseClient_JNI::incrCounter(const char *tabName, const char *rowId, const char *famName,
-                                         const char *qualName, Int64 incr, Int64 &count) {
+                                         const char *qualName, long incr, long &count) {
   ENTRY_FUNCTION();
 
   if (initJNIEnv() != JOI_OK) {
@@ -2937,9 +2937,9 @@ errorLabel:
 void HBaseClient_JNI::logIt(const char *str) { QRLogger::log(CAT_SQL_HBASE, LL_DEBUG, str); }
 
 HBC_RetCode HBaseClient_JNI::startGet(NAHeap *heap, const char *tableName, bool useTRex, NABoolean replSync,
-                                      int lockMode, NABoolean skipReadConflict, ExHbaseAccessStats *hbs, Int64 transID,
-                                      Int64 savepointID, Int64 pSavepointId, Int32 isolationLevel,
-                                      const HbaseStr &rowID, const LIST(HbaseStr) & cols, Int64 timestamp,
+                                      int lockMode, NABoolean skipReadConflict, ExHbaseAccessStats *hbs, long transID,
+                                      long savepointID, long pSavepointId, Int32 isolationLevel,
+                                      const HbaseStr &rowID, const LIST(HbaseStr) & cols, long timestamp,
                                       int numReplications, HTableClient_JNI *htc, const char *hbaseAuths,
                                       const char *encryptionInfo, NABoolean waitOnSelectForUpdate,
                                       NABoolean firstReadBypassTm) {
@@ -3066,9 +3066,9 @@ HBC_RetCode HBaseClient_JNI::startGet(NAHeap *heap, const char *tableName, bool 
 
 HBC_RetCode HBaseClient_JNI::startGets(NAHeap *heap, const char *tableName, bool useTRex, NABoolean replSync,
                                        Int32 lockMode, NABoolean skipReadConflict, NABoolean skipTransactionForBatchGet,
-                                       ExHbaseAccessStats *hbs, Int64 transID, Int64 savepointID, Int64 pSavepointId,
+                                       ExHbaseAccessStats *hbs, long transID, long savepointID, long pSavepointId,
                                        Int32 isolationLevel, const LIST(HbaseStr) * rowIDs, short rowIDLen,
-                                       const HbaseStr *rowIDsInDB, const LIST(HbaseStr) & cols, Int64 timestamp,
+                                       const HbaseStr *rowIDsInDB, const LIST(HbaseStr) & cols, long timestamp,
                                        int numReplications, HTableClient_JNI *htc, const char *hbaseAuths,
                                        const char *encryptionInfo) {
   if (javaObj_ == NULL || (!isInitialized())) {
@@ -3369,11 +3369,11 @@ HBC_RetCode HBaseClient_JNI::execTriggers(NAHeap *heap, const char *tableName, C
   char *oldBufSize = NULL;
   char *oldRowIDs = NULL;
   char *oldRowIDsLen = NULL;
-  Lng32 newRowIDLen = 0;
+  int newRowIDLen = 0;
   char *newRowIDs = NULL;
-  Lng32 newRowIDsLen = 0;
+  int newRowIDsLen = 0;
   char *newRows = NULL;
-  Lng32 newRowsLen = 0;
+  int newRowsLen = 0;
 
   // Setup NEW and OLD rows data for row triggers
   if (!isStatement) {
@@ -3422,9 +3422,9 @@ HBC_RetCode HBaseClient_JNI::execTriggers(NAHeap *heap, const char *tableName, C
 //////////////////////////////////////////////////////////////////////////////
 //
 //////////////////////////////////////////////////////////////////////////////
-HBC_RetCode HBaseClient_JNI::insertRow(NAHeap *heap, const char *tableName, ExHbaseAccessStats *hbs, Int64 transID,
-                                       Int64 savepointID, Int64 pSavepointId, HbaseStr rowID, HbaseStr row,
-                                       Int64 timestamp, bool checkAndPut, UInt32 flags, const char *encryptionInfo,
+HBC_RetCode HBaseClient_JNI::insertRow(NAHeap *heap, const char *tableName, ExHbaseAccessStats *hbs, long transID,
+                                       long savepointID, long pSavepointId, HbaseStr rowID, HbaseStr row,
+                                       long timestamp, bool checkAndPut, UInt32 flags, const char *encryptionInfo,
                                        const char *triggers, const char *curExecSql, short colIndexToCheck,
                                        HTableClient_JNI **outHtc, ExDDLValidator *ddlValidator) {
   HTableClient_JNI *htc = NULL;
@@ -3649,9 +3649,9 @@ HBC_RetCode HBaseClient_JNI::insertRow(NAHeap *heap, const char *tableName, ExHb
 //////////////////////////////////////////////////////////////////////////////
 //
 //////////////////////////////////////////////////////////////////////////////
-HBC_RetCode HBaseClient_JNI::insertRows(NAHeap *heap, const char *tableName, ExHbaseAccessStats *hbs, Int64 transID,
-                                        Int64 savepointID, Int64 pSavepointId, short rowIDLen, HbaseStr rowIDs,
-                                        HbaseStr rows, Int64 timestamp, Int32 flags, const char *encryptionInfo,
+HBC_RetCode HBaseClient_JNI::insertRows(NAHeap *heap, const char *tableName, ExHbaseAccessStats *hbs, long transID,
+                                        long savepointID, long pSavepointId, short rowIDLen, HbaseStr rowIDs,
+                                        HbaseStr rows, long timestamp, Int32 flags, const char *encryptionInfo,
                                         const char *triggers, const char *curExecSql, HTableClient_JNI **outHtc,
                                         ExDDLValidator *ddlValidator) {
   HTableClient_JNI *htc = NULL;
@@ -3860,7 +3860,7 @@ HBC_RetCode HBaseClient_JNI::insertRows(NAHeap *heap, const char *tableName, ExH
 //
 //////////////////////////////////////////////////////////////////////////////
 HBC_RetCode HBaseClient_JNI::updateVisibility(NAHeap *heap, const char *tableName, ExHbaseAccessStats *hbs,
-                                              bool useTRex, Int64 transID, HbaseStr rowID, HbaseStr tagsRow,
+                                              bool useTRex, long transID, HbaseStr rowID, HbaseStr tagsRow,
                                               HTableClient_JNI **outHtc) {
   HTableClient_JNI *htc = NULL;
   if (initJNIEnv() != JOI_OK) return HBC_ERROR_INIT_PARAM;
@@ -3936,9 +3936,9 @@ HBC_RetCode HBaseClient_JNI::updateVisibility(NAHeap *heap, const char *tableNam
 //
 //////////////////////////////////////////////////////////////////////////////
 HBC_RetCode HBaseClient_JNI::checkAndUpdateRow(NAHeap *heap, const char *tableName, ExHbaseAccessStats *hbs,
-                                               Int64 transID, Int64 savepointID, Int64 pSavepointId, HbaseStr rowID,
+                                               long transID, long savepointID, long pSavepointId, HbaseStr rowID,
                                                HbaseStr row, HbaseStr columnToCheck, HbaseStr columnValToCheck,
-                                               Int64 timestamp, Int32 flags, const char *encryptionInfo,
+                                               long timestamp, Int32 flags, const char *encryptionInfo,
                                                const char *triggers, const char *curExecSql,
                                                HTableClient_JNI **outHtc) {
   HTableClient_JNI *htc = NULL;
@@ -4089,9 +4089,9 @@ HBC_RetCode HBaseClient_JNI::checkAndUpdateRow(NAHeap *heap, const char *tableNa
 //////////////////////////////////////////////////////////////////////////////
 //
 //////////////////////////////////////////////////////////////////////////////
-HBC_RetCode HBaseClient_JNI::deleteRow(NAHeap *heap, const char *tableName, ExHbaseAccessStats *hbs, Int64 transID,
-                                       Int64 savepointID, Int64 pSavepointId, HbaseStr rowID,
-                                       const LIST(HbaseStr) * cols, Int64 timestamp, const char *hbaseAuths,
+HBC_RetCode HBaseClient_JNI::deleteRow(NAHeap *heap, const char *tableName, ExHbaseAccessStats *hbs, long transID,
+                                       long savepointID, long pSavepointId, HbaseStr rowID,
+                                       const LIST(HbaseStr) * cols, long timestamp, const char *hbaseAuths,
                                        Int32 flags, const char *encryptionInfo, const char *triggers,
                                        const char *curExecSql, HTableClient_JNI **outHtc,
                                        ExDDLValidator *ddlValidator) {
@@ -4249,9 +4249,9 @@ HBC_RetCode HBaseClient_JNI::deleteRow(NAHeap *heap, const char *tableName, ExHb
 //////////////////////////////////////////////////////////////////////////////
 //
 //////////////////////////////////////////////////////////////////////////////
-HBC_RetCode HBaseClient_JNI::deleteRows(NAHeap *heap, const char *tableName, ExHbaseAccessStats *hbs, Int64 transID,
-                                        Int64 savepointID, Int64 pSavepointId, short rowIDLen, HbaseStr rowIDs,
-                                        const LIST(HbaseStr) * cols, Int64 timestamp, const char *hbaseAuths,
+HBC_RetCode HBaseClient_JNI::deleteRows(NAHeap *heap, const char *tableName, ExHbaseAccessStats *hbs, long transID,
+                                        long savepointID, long pSavepointId, short rowIDLen, HbaseStr rowIDs,
+                                        const LIST(HbaseStr) * cols, long timestamp, const char *hbaseAuths,
                                         Int32 flags, const char *encryptionInfo, const char *triggers,
                                         const char *curExecSql, HTableClient_JNI **outHtc,
                                         ExDDLValidator *ddlValidator) {
@@ -4401,9 +4401,9 @@ HBC_RetCode HBaseClient_JNI::deleteRows(NAHeap *heap, const char *tableName, ExH
 //
 //////////////////////////////////////////////////////////////////////////////
 HBC_RetCode HBaseClient_JNI::checkAndDeleteRow(NAHeap *heap, const char *tableName, ExHbaseAccessStats *hbs,
-                                               Int64 transID, Int64 savepointID, Int64 pSavepointId, HbaseStr rowID,
+                                               long transID, long savepointID, long pSavepointId, HbaseStr rowID,
                                                const LIST(HbaseStr) * cols, HbaseStr columnToCheck,
-                                               HbaseStr columnValToCheck, Int64 timestamp, const char *hbaseAuths,
+                                               HbaseStr columnValToCheck, long timestamp, const char *hbaseAuths,
                                                Int32 flags, const char *encryptionInfo, const char *triggers,
                                                const char *curExecSql, HTableClient_JNI **outHtc,
                                                ExDDLValidator *ddlValidator) {
@@ -4830,7 +4830,7 @@ HBC_RetCode HBaseClient_JNI::deleteSnapshot(const NAString &snapshotName) {
 }
 
 HBC_RetCode HBaseClient_JNI::getNextValue(NAString &tabName, NAString &rowId, NAString &famName, NAString &qualName,
-                                          Int64 incrBy, Int64 &nextValue, NABoolean skipWAL) {
+                                          long incrBy, long &nextValue, NABoolean skipWAL) {
   QRLogger::log(CAT_SQL_HBASE, LL_DEBUG, "HBaseClient_JNI::getNextValue() called.");
   if (initJNIEnv() != JOI_OK) return HBC_ERROR_INIT_PARAM;
 
@@ -4973,7 +4973,7 @@ HBC_RetCode HBaseClient_JNI::deleteSeqRow(NAString &tabName, NAString &rowId) {
 }
 
 HBC_RetCode HBaseClient_JNI::lockRequired(NAHeap *heap, const char *tableName, ExHbaseAccessStats *hbs,
-                                          Int64 transactionId, Int64 savepointId, Int64 pSavepointId, Int32 lockMode,
+                                          long transactionId, long savepointId, long pSavepointId, Int32 lockMode,
                                           NABoolean registerRegion, HTableClient_JNI **outHtc) {
   QRLogger::log(CAT_SQL_HBASE, LL_DEBUG, "HBaseClient_JNI::lockRequired(%s) called.", tableName);
   if (initJNIEnv() != JOI_OK) return HBC_ERROR_INIT_PARAM;
@@ -5019,7 +5019,7 @@ HBC_RetCode HBaseClient_JNI::lockRequired(NAHeap *heap, const char *tableName, E
   return HBC_OK;
 }
 
-HBC_RetCode HBaseClient_JNI::cancelOperation(Int64 transID) {
+HBC_RetCode HBaseClient_JNI::cancelOperation(long transID) {
   QRLogger::log(CAT_SQL_HBASE, LL_DEBUG, "HBaseClient_JNI::cancelOperation called.");
 
   if (initJNIEnv() != JOI_OK) return HBC_ERROR_INIT_PARAM;
@@ -5178,16 +5178,16 @@ HTC_RetCode HTableClient_JNI::init() {
 //////////////////////////////////////////////////////////////////////////////
 //
 //////////////////////////////////////////////////////////////////////////////
-HTC_RetCode HTableClient_JNI::startScan(Int64 transID, Int64 savepointID, Int64 pSavepointId, Int32 isolationLevel,
+HTC_RetCode HTableClient_JNI::startScan(long transID, long savepointID, long pSavepointId, Int32 isolationLevel,
                                         const Text &startRowID, const Text &stopRowID, const LIST(HbaseStr) & cols,
-                                        Int64 timestamp, bool cacheBlocks, bool smallScanner, Lng32 numCacheRows,
+                                        long timestamp, bool cacheBlocks, bool smallScanner, int numCacheRows,
                                         NABoolean preFetch, Int32 lockMode, NABoolean skipReadConflict,
                                         NABoolean skipTransaction, const LIST(NAString) * inColNamesToFilter,
                                         const LIST(NAString) * inCompareOpList,
                                         const LIST(NAString) * inColValuesToCompare, int numReplications,
                                         Float32 dopParallelScanner, Float32 samplePercent, NABoolean useSnapshotScan,
-                                        Lng32 snapTimeout, char *snapName, char *tmpLoc, Lng32 espNum, Lng32 versions,
-                                        Int64 minTS, Int64 maxTS, const char *hbaseAuths, const char *encryptionInfo,
+                                        int snapTimeout, char *snapName, char *tmpLoc, int espNum, int versions,
+                                        long minTS, long maxTS, const char *hbaseAuths, const char *encryptionInfo,
                                         NABoolean waitOnSelectForUpdate, NABoolean firstReadBypassTm) {
   ENTRY_FUNCTION();
 
@@ -5348,8 +5348,8 @@ errorLabel:
 //////////////////////////////////////////////////////////////////////////////
 //
 //////////////////////////////////////////////////////////////////////////////
-HTC_RetCode HTableClient_JNI::deleteRow(Int64 transID, Int64 savepointID, Int64 pSavepointId, HbaseStr &rowID,
-                                        const LIST(HbaseStr) * cols, Int64 timestamp, const char *hbaseAuths,
+HTC_RetCode HTableClient_JNI::deleteRow(long transID, long savepointID, long pSavepointId, HbaseStr &rowID,
+                                        const LIST(HbaseStr) * cols, long timestamp, const char *hbaseAuths,
                                         const char *encryptionInfo) {
   FUNCTION_DEBUG("%s(%ld, %s) called.", __FUNCTION__, transID, rowID.val);
   if (initJNIEnv() != JOI_OK) {
@@ -5418,7 +5418,7 @@ errorLabel:
 //////////////////////////////////////////////////////////////////////////////
 //
 //////////////////////////////////////////////////////////////////////////////
-HTC_RetCode HTableClient_JNI::setWriteBufferSize(Int64 size) {
+HTC_RetCode HTableClient_JNI::setWriteBufferSize(long size) {
   ENTRY_FUNCTION();
 
   if (initJNIEnv() != JOI_OK) {
@@ -5469,10 +5469,10 @@ errorLabel:
 //////////////////////////////////////////////////////////////////////////////
 const char *HTableClient_JNI::getTableName() { return tableName_; }
 
-HTC_RetCode HTableClient_JNI::coProcAggr(Int64 transID, Int64 svptId, Int64 pSvptId, int isolationLevel, int lockMode,
+HTC_RetCode HTableClient_JNI::coProcAggr(long transID, long svptId, long pSvptId, int isolationLevel, int lockMode,
                                          int aggrType,  // 0:count, 1:min, 2:max, 3:sum, 4:avg
                                          const Text &startRowID, const Text &stopRowID, const Text &colFamily,
-                                         const Text &colName, const NABoolean cacheBlocks, const Lng32 numCacheRows,
+                                         const Text &colName, const NABoolean cacheBlocks, const int numCacheRows,
                                          Text &aggrVal)  // returned value
 {
   ENTRY_FUNCTION();
@@ -6069,7 +6069,7 @@ errorLabel:
   return retValue;
 }
 
-HTC_RetCode HTableClient_JNI::getColName(int colNo, char **outColName, short &colNameLen, Int64 &timestamp) {
+HTC_RetCode HTableClient_JNI::getColName(int colNo, char **outColName, short &colNameLen, long &timestamp) {
   HTC_RetCode retcode;
 
   jint kvsPerRow = p_kvsPerRow_[currentRowNum_];
@@ -6109,16 +6109,16 @@ HTC_RetCode HTableClient_JNI::getColName(int colNo, char **outColName, short &co
   return HTC_OK;
 }
 
-HTC_RetCode HTableClient_JNI::getColVal(int colNo, BYTE *colVal, Lng32 &colValLen, NABoolean nullable, BYTE &nullVal,
-                                        BYTE *tag, Lng32 &tagLen, const char *encryptionInfo) {
+HTC_RetCode HTableClient_JNI::getColVal(int colNo, BYTE *colVal, int &colValLen, NABoolean nullable, BYTE &nullVal,
+                                        BYTE *tag, int &tagLen, const char *encryptionInfo) {
   jint kvsPerRow = p_kvsPerRow_[currentRowNum_];
   if (kvsPerRow == 0 || colNo >= kvsPerRow) return HTC_GET_COLVAL_EXCEPTION;
   int idx = prevRowCellNum_ + colNo;
   ex_assert((idx < numCellsReturned_), "Buffer overflow");
   jint kvValLen = p_kvValLen_[idx];
   jint kvValOffset = p_kvValOffset_[idx];
-  Lng32 copyLen;
-  Lng32 dataLen;
+  int copyLen;
+  int dataLen;
   jbyte nullByte;
 
   // encryption only supported for aligned format.
@@ -6169,7 +6169,7 @@ HTC_RetCode HTableClient_JNI::getColVal(int colNo, BYTE *colVal, Lng32 &colValLe
     // get the initVec from encData
     unsigned char *initVec = encData;
     short rc = 0;
-    Lng32 decryptedValLen = colValLen;
+    int decryptedValLen = colValLen;
     rc = ComEncryption::decryptData(ei->dataCipherType, encData + ei->dataInitVecLen, kvValLen - ei->dataInitVecLen,
                                     ei->dataKey, initVec, decData, decryptedValLen);
 
@@ -6204,7 +6204,7 @@ HTC_RetCode HTableClient_JNI::getColVal(int colNo, BYTE *colVal, Lng32 &colValLe
   return HTC_OK;
 }
 
-HTC_RetCode HTableClient_JNI::getColVal(NAHeap *heap, int colNo, BYTE **colVal, Lng32 &colValLen,
+HTC_RetCode HTableClient_JNI::getColVal(NAHeap *heap, int colNo, BYTE **colVal, int &colValLen,
                                         const char *encryptionInfo) {
   jint kvsPerRow = p_kvsPerRow_[currentRowNum_];
   if (kvsPerRow == 0 || colNo >= kvsPerRow) return HTC_GET_COLVAL_EXCEPTION;
@@ -6267,11 +6267,11 @@ HTC_RetCode HTableClient_JNI::getRowID(HbaseStr &rowID, const char *encryptionIn
   return HTC_OK;
 }
 
-static Int64 costTh = -2;
+static long costTh = -2;
 static pid_t pid = getpid();
 HTC_RetCode HTableClient_JNI::fetchRows() {
   QRLogger::log(CAT_SQL_HBASE, LL_DEBUG, "HTableClient_JNI::fetchRows() called.", tableName_);
-  Int64 timeCost = JULIANTIMESTAMP();
+  long timeCost = JULIANTIMESTAMP();
 
   if (initJNIEnv() != JOI_OK) return HTC_ERROR_INIT_PARAM;
 
@@ -6323,7 +6323,7 @@ HTC_RetCode HTableClient_JNI::fetchRows() {
 }
 
 HTC_RetCode HTableClient_JNI::nextCell(HbaseStr &rowId, HbaseStr &colFamName, HbaseStr &colQualName, HbaseStr &colVal,
-                                       Int64 &timestamp) {
+                                       long &timestamp) {
   HTC_RetCode retcode;
   jint kvsPerRow = p_kvsPerRow_[currentRowNum_];
   if (currentRowCellNum_ >= kvsPerRow) {
@@ -6631,11 +6631,11 @@ jobjectArray convertToStringObjectArray(const set<string> &setOfNames) {
   return j_objArray;
 }
 
-jobjectArray convertMapToStringObjectArray(const map<Lng32, char *> &columnNumberToNameMap,
-                                           vector<Lng32> &positionToColumnNumberVector /* out */) {
+jobjectArray convertMapToStringObjectArray(const map<int, char *> &columnNumberToNameMap,
+                                           vector<int> &positionToColumnNumberVector /* out */) {
   jobjectArray j_objArray = NULL;
   int i = 0;
-  for (map<Lng32, char *>::const_iterator it = columnNumberToNameMap.begin(); it != columnNumberToNameMap.end(); ++it) {
+  for (map<int, char *>::const_iterator it = columnNumberToNameMap.begin(); it != columnNumberToNameMap.end(); ++it) {
     jstring j_obj = jenv_->NewStringUTF(it->second);
     if (jenv_->ExceptionCheck()) {
       if (j_objArray != NULL) jenv_->DeleteLocalRef(j_objArray);
@@ -6673,7 +6673,7 @@ int convertStringObjectArrayToList(NAHeap *heap, jarray j_objArray, LIST(Text *)
   return arrayLen;
 }
 
-int convertLongObjectArrayToList(NAHeap *heap, jlongArray j_longArray, LIST(Int64) & list) {
+int convertLongObjectArrayToList(NAHeap *heap, jlongArray j_longArray, LIST(long) & list) {
   if (j_longArray == NULL) return 0;
   int arrayLen = jenv_->GetArrayLength(j_longArray);
   const char *str;
@@ -6683,7 +6683,7 @@ int convertLongObjectArrayToList(NAHeap *heap, jlongArray j_longArray, LIST(Int6
 
   for (int i = 0; i < arrayLen; i++) {
     jlong x = body[i];
-    list.insert(Int64(body[i]));
+    list.insert(long(body[i]));
   }
 
   jenv_->ReleaseLongArrayElements(j_longArray, body, JNI_ABORT);
@@ -6691,7 +6691,7 @@ int convertLongObjectArrayToList(NAHeap *heap, jlongArray j_longArray, LIST(Int6
   return arrayLen;
 }
 
-int convertIntObjectArrayToVector(jintArray j_intArray, vector<Lng32> &vec) {
+int convertIntObjectArrayToVector(jintArray j_intArray, vector<int> &vec) {
   if (j_intArray == NULL) return 0;
   int arrayLen = jenv_->GetArrayLength(j_intArray);
 
@@ -6790,7 +6790,7 @@ char *getClientInfoFromContext() {
   }
 }
 
-HBC_RetCode HBaseClient_JNI::putData(Int64 eventID, const char *query, int eventType, const char *schemaName,
+HBC_RetCode HBaseClient_JNI::putData(long eventID, const char *query, int eventType, const char *schemaName,
                                      unsigned char *params, long len) {
   QRLogger::log(CAT_SQL_HBASE, LL_DEBUG, "HBaseClient_JNI::putSqlToHbse(%s) called.", query);
   if (initJNIEnv() != JOI_OK) return HBC_ERROR_INIT_PARAM;

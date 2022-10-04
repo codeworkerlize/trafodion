@@ -38,7 +38,7 @@
 #define SQLPARSERGLOBALS_FLAGS  // must precede all #include's
 #define SQLPARSERGLOBALS_NADEFAULTS
 
-#include "Debug.h"
+#include "common/Debug.h"
 #include "optimizer/Sqlcomp.h"
 #include "optimizer/AllRelExpr.h"
 #include "GroupAttr.h"
@@ -430,7 +430,7 @@ void TableMappingUDF::recomputeOuterReferences() {
 
 void TableMappingUDF::pushdownCoveredExpr(const ValueIdSet &outputExprOnOperator, const ValueIdSet &newExternalInputs,
                                           ValueIdSet &predOnOperator, const ValueIdSet *nonPredNonOutputExprOnOperator,
-                                          Lng32 childId) {
+                                          int childId) {
   if (!isNormalized_) {
     ValueIdSet exprOnParent;
     ValueIdSet predsToPushDown;
@@ -705,8 +705,8 @@ NABoolean TableMappingUDF::isPhysical() const { return FALSE; }
 void TableMappingUDF::checkAndCoerceScalarInputParamTypes(BindWA *bindWA) {
   if (getProcInputParamsVids().entries() != getScalarInputParamCount()) {
     *CmpCommon::diags() << DgSqlCode(-4452) << DgString0(getUserTableName().getCorrNameAsString())
-                        << DgInt0((Lng32)getScalarInputParamCount())
-                        << DgInt1((Lng32)getProcInputParamsVids().entries());
+                        << DgInt0((int)getScalarInputParamCount())
+                        << DgInt1((int)getProcInputParamsVids().entries());
 
     bindWA->setErrStatus();
     return;
@@ -735,7 +735,7 @@ void TableMappingUDF::checkAndCoerceScalarInputParamTypes(BindWA *bindWA) {
           inputTypeId.getItemExpr()->getOperatorType() == ITM_DYN_PARAM)) {
       // Error, data types dont match
       // Create error for user-defined function.
-      *CmpCommon::diags() << DgSqlCode(-4455) << DgInt0((Lng32)i + 1)
+      *CmpCommon::diags() << DgSqlCode(-4455) << DgInt0((int)i + 1)
                           << DgString0(getUserTableName().getCorrNameAsString())
                           << DgString1(inputType.getTypeSQLname(TRUE)) << DgString2(paramType.getTypeSQLname(TRUE));
 
@@ -1252,7 +1252,7 @@ const NAString *ProxyFunc::getColumnHeading(ComUInt32 i) const {
 }
 
 //! ProxyFunc::populateColumnDesc method
-void ProxyFunc::populateColumnDesc(char *tableNam, TrafDesc *&colDescs, Lng32 &reclen) const {
+void ProxyFunc::populateColumnDesc(char *tableNam, TrafDesc *&colDescs, int &reclen) const {
   ElemDDLColDefArray colArray;
   ComObjectName tableName(tableNam);
   ComUInt32 numCols = getNumColumns();
@@ -1451,7 +1451,7 @@ const NAString CallSP::getText() const {
 //! CallSP::pushdownCoveredExpr method
 void CallSP::pushdownCoveredExpr(const ValueIdSet &outputExprOnOperator, const ValueIdSet &newExternalInputs,
                                  ValueIdSet &predicatesOnOperator, const ValueIdSet *nonPredNonOutputExprOnOperator,
-                                 Lng32 childIndex) {
+                                 int childIndex) {
   // We use an emptySet for the outputs for the call to
   // Relexpr::pushdowCoveredExpr because our child is a tuple with a
   // subquery in it and that subquery is an input to the Routine, so none

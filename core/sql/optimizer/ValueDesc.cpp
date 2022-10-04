@@ -221,7 +221,7 @@ void ValueId::coerceType(enum NABuiltInTypeEnum desiredQualifier, enum CharInfo:
       desiredType = new STMTHEAP SQLBooleanNative(STMTHEAP, originalType.supportsSQLnull());
       break;
     case NA_CHARACTER_TYPE: {
-      Lng32 len = 0;
+      int len = 0;
       if (defaultConst == __INVALID_DEFAULT_ATTRIBUTE)
         len = CmpCommon::getDefaultNumeric(VARCHAR_PARAM_DEFAULT_SIZE);
       else
@@ -242,15 +242,15 @@ void ValueId::coerceType(enum NABuiltInTypeEnum desiredQualifier, enum CharInfo:
         bignumIO = FALSE;  // explicitely set to OFF
 
       if (bignumIO) {
-        Lng32 scale = 26;
-        Lng32 precision = 64;
+        int scale = 26;
+        int precision = 64;
         if ((CmpCommon::getDefault(MODE_COMPATIBLE_1) == DF_ON) && ITM_CONSTANT == getItemExpr()->getOperatorType() &&
             ((ConstValue *)getItemExpr())->isNull())
           scale = 0;  // set NULL's scale to 0
         Int16 DisAmbiguate = 0;
         desiredType = new (STMTHEAP) SQLBigNum(STMTHEAP, precision, scale, TRUE, TRUE, TRUE);
       } else {
-        Lng32 scale = 6;
+        int scale = 6;
         if ((CmpCommon::getDefault(MODE_COMPATIBLE_1) == DF_ON) && ITM_CONSTANT == getItemExpr()->getOperatorType() &&
             ((ConstValue *)getItemExpr())->isNull())
           scale = 0;  // set NULL's scale to 0
@@ -366,7 +366,7 @@ void ValueId::coerceType(const NAType &desiredType, enum NABuiltInTypeEnum defau
           Int16 DisAmbiguate = 0;
           newType = new (STMTHEAP) SQLLargeInt(STMTHEAP, nTyp.getScale(), DisAmbiguate, TRUE, nTyp.supportsSQLnull());
         } else {
-          Lng32 newPrec =
+          int newPrec =
               nTyp.decimalPrecision() ? nTyp.getPrecision() : MAX_HARDWARE_SUPPORTED_UNSIGNED_NUMERIC_PRECISION;
           newType = new (STMTHEAP) SQLBigNum(STMTHEAP, newPrec, nTyp.getScale(), FALSE, FALSE, nTyp.supportsSQLnull());
         }
@@ -401,14 +401,14 @@ void ValueId::coerceType(const NAType &desiredType, enum NABuiltInTypeEnum defau
           bignumIO = FALSE;
 
         if (bignumIO) {
-          Lng32 precision =
-              MINOF(desiredType.getPrecision(), (Lng32)CmpCommon::getDefaultNumeric(MAX_NUMERIC_PRECISION_ALLOWED));
-          Lng32 scale = MINOF(desiredType.getScale(), precision);
+          int precision =
+              MINOF(desiredType.getPrecision(), (int)CmpCommon::getDefaultNumeric(MAX_NUMERIC_PRECISION_ALLOWED));
+          int scale = MINOF(desiredType.getScale(), precision);
           newType = new (STMTHEAP) SQLBigNum(STMTHEAP, precision, scale, ((SQLBigNum &)desiredType).isARealBigNum(),
                                              ((NumericType &)desiredType).isSigned(), desiredType.supportsSQLnull());
         } else {
-          Lng32 precision = MINOF(desiredType.getPrecision(), MAX_NUMERIC_PRECISION);
-          Lng32 scale = MINOF(desiredType.getScale(), precision);
+          int precision = MINOF(desiredType.getPrecision(), MAX_NUMERIC_PRECISION);
+          int scale = MINOF(desiredType.getScale(), precision);
           NABoolean isSigned = ((NumericType &)desiredType).isSigned();
           if ((precision > MAX_HARDWARE_SUPPORTED_UNSIGNED_NUMERIC_PRECISION) && (precision <= MAX_NUMERIC_PRECISION))
             isSigned = TRUE;
@@ -663,7 +663,7 @@ void ValueId::getSubExprRootedByVidUnion(ValueIdSet &vs) {
   if (thisItemExpr->getOperatorType() == ITM_VALUEIDUNION)
     vs.insert(*this);
   else
-    for (Lng32 i = 0; i < thisItemExpr->getArity(); i++)
+    for (int i = 0; i < thisItemExpr->getArity(); i++)
       thisItemExpr->child(i).getValueId().getSubExprRootedByVidUnion(vs);
 }
 
@@ -675,7 +675,7 @@ void ValueId::getSubExprRootedByVidUnion(ValueIdSet &vs) {
 // ----------------------------------------------------------------------
 void ValueId::replaceBaseColWithExpr(const NAString &colName, const ValueId &vid) {
   ItemExpr *thisItemExpr = getItemExpr();
-  for (Lng32 i = 0; i < thisItemExpr->getArity(); i++) {
+  for (int i = 0; i < thisItemExpr->getArity(); i++) {
     ValueId childValueId = thisItemExpr->child(i).getValueId();
     ItemExpr *childItemExpr = childValueId.getItemExpr();
 
@@ -730,8 +730,8 @@ void ValueIdList::insertSet(const ValueIdSet &other) {
   for (ValueId vid = other.init(); other.next(vid); other.advance(vid)) insertAt(index++, vid);
 }
 
-Lng32 ValueIdList::getNumOfCharColumns() const {
-  Lng32 result = 0;
+int ValueIdList::getNumOfCharColumns() const {
+  int result = 0;
 
   for (CollIndex i = 0; i < entries(); i++) {
     if (at(i).getType().getTypeQualifier() == NA_CHARACTER_TYPE) result++;
@@ -740,8 +740,8 @@ Lng32 ValueIdList::getNumOfCharColumns() const {
   return result;
 }
 
-Lng32 ValueIdList::getRowLength() const {
-  Lng32 result = 0;
+int ValueIdList::getRowLength() const {
+  int result = 0;
 
   for (CollIndex i = 0; i < entries(); i++) {
     result += at(i).getType().getTotalSize();
@@ -750,8 +750,8 @@ Lng32 ValueIdList::getRowLength() const {
   return result;
 }
 
-Lng32 ValueIdList::getRowLengthOfNonCharColumns() const {
-  Lng32 result = 0;
+int ValueIdList::getRowLengthOfNonCharColumns() const {
+  int result = 0;
 
   for (CollIndex i = 0; i < entries(); i++) {
     if (at(i).getType().getTypeQualifier() != NA_CHARACTER_TYPE) result += at(i).getType().getTotalSize();
@@ -760,8 +760,8 @@ Lng32 ValueIdList::getRowLengthOfNonCharColumns() const {
   return result;
 }
 
-Lng32 ValueIdList::getRowLengthOfNumericCols() const {
-  Lng32 result = 0;
+int ValueIdList::getRowLengthOfNumericCols() const {
+  int result = 0;
 
   for (CollIndex i = 0; i < entries(); i++) {
     if (at(i).getType().isNumeric()) result += at(i).getType().getTotalSize();
@@ -776,8 +776,8 @@ Lng32 ValueIdList::getRowLengthOfNumericCols() const {
 // There are five per key column.  Data in sql_buffer is eight-byte
 // alligned.
 // -----------------------------------------------------------------------
-Lng32 ValueIdList::getMdamSqlBufferSpace() const {
-  Lng32 result = 0;
+int ValueIdList::getMdamSqlBufferSpace() const {
+  int result = 0;
 
   for (CollIndex i = 0; i < entries(); i++) {
     result += 5 * (ROUND8(at(i).getType().getEncodedKeyLength()) + sizeof(tupp_descriptor));
@@ -1835,8 +1835,8 @@ NABoolean ValueIdSet::isDensePrefix(const ValueIdList &other) const {
   return notContainedInThis.isEmpty();
 }
 
-Lng32 ValueIdSet::getNumOfCharColumns() const {
-  Lng32 result = 0;
+int ValueIdSet::getNumOfCharColumns() const {
+  int result = 0;
 
   for (ValueId x = init(); next(x); advance(x)) {
     if (x.getType().getTypeQualifier() == NA_CHARACTER_TYPE) result++;
@@ -1845,8 +1845,8 @@ Lng32 ValueIdSet::getNumOfCharColumns() const {
   return result;
 }
 
-Lng32 ValueIdSet::getRowLength() const {
-  Lng32 result = 0;
+int ValueIdSet::getRowLength() const {
+  int result = 0;
 
   for (ValueId x = init(); next(x); advance(x)) {
     result += x.getType().getTotalSize();
@@ -1855,8 +1855,8 @@ Lng32 ValueIdSet::getRowLength() const {
   return result;
 }
 
-Lng32 ValueIdSet::getRowLengthOfNonCharColumns() const {
-  Lng32 result = 0;
+int ValueIdSet::getRowLengthOfNonCharColumns() const {
+  int result = 0;
 
   for (ValueId x = init(); next(x); advance(x)) {
     if (x.getType().getTypeQualifier() != NA_CHARACTER_TYPE) result += x.getType().getTotalSize();
@@ -1865,8 +1865,8 @@ Lng32 ValueIdSet::getRowLengthOfNonCharColumns() const {
   return result;
 }
 
-Lng32 ValueIdSet::getRowLengthOfNumericCols() const {
-  Lng32 result = 0;
+int ValueIdSet::getRowLengthOfNumericCols() const {
+  int result = 0;
 
   for (ValueId x = init(); next(x); advance(x)) {
     if (x.getType().isNumeric()) result += x.getType().getTotalSize();
@@ -4177,8 +4177,8 @@ ex_expr::exp_return_type ValueIdList::evalAtCompileTime(
     ExpTupleDesc::TupleDataFormat tf,  // (IN) : tuple format of resulting expr(s)
     char *resultBuffer,                // (INOUT): tuple buffer of resulting expr(s)
     ULng32 resultBufferLength,         // (IN): length of the result buffer
-    Lng32 *length,                     // (OUT) : length of 1st result expr
-    Lng32 *offset,                     // (OUT) : offset of 1st result expr
+    int *length,                     // (OUT) : length of 1st result expr
+    int *offset,                     // (OUT) : offset of 1st result expr
     ComDiagsArea *diagsArea, NAHeap *wheap) const {
   if (!wheap) wheap = CmpCommon::context()->statementHeap();
 
@@ -4252,7 +4252,7 @@ ex_expr::exp_return_type ValueIdList::evalAtCompileTime(
         if (attr->getVCIndicatorLength() == sizeof(short))
           *length = *(short *)temp;
         else
-          *length = *(Lng32 *)temp;
+          *length = *(int *)temp;
       } else {
         *length = attr->getLength();
       }
@@ -4274,8 +4274,8 @@ ex_expr::exp_return_type ValueIdList::evalAtCompileTime(
 // 2.- encodedKeyBuffer, which is a pointer to the result.
 // 3.- The length of the result
 // 4.- The position in which the result starts
-short ValueIdList::evaluateTree(const ItemExpr *root, char *encodedKeyBuffer, ULng32 encodedKeyLength, Lng32 *length,
-                                Lng32 *offset, ComDiagsArea *diagsArea) {
+short ValueIdList::evaluateTree(const ItemExpr *root, char *encodedKeyBuffer, ULng32 encodedKeyLength, int *length,
+                                int *offset, ComDiagsArea *diagsArea) {
   // Let's start with a list of size 4 rather than resizing continuously (?)
   ValueIdList encodedValueIdList(4);
   encodedValueIdList.insert(root->getValueId());
@@ -4291,7 +4291,7 @@ short ValueIdList::evaluateTree(const ItemExpr *root, char *encodedKeyBuffer, UL
 // Parent is the parent of ch and childNumber is the number of ch. The function
 // computes the value represented by the subtree rooted at ch and puts
 // the new value in the position of ch.	Used by constant folding.
-Lng32 ValueIdList::evaluateConstantTree(const ValueId &parent, const ValueId &ch, Int32 childNumber,
+int ValueIdList::evaluateConstantTree(const ValueId &parent, const ValueId &ch, Int32 childNumber,
                                         ItemExpr **outItemExpr, ComDiagsArea *diagsArea) {
   // eval requires CASE to be IF_THEN_ELSE's parent
   if ((ch.getItemExpr()->getOperatorType() == ITM_IF_THEN_ELSE) &&
@@ -4299,10 +4299,10 @@ Lng32 ValueIdList::evaluateConstantTree(const ValueId &parent, const ValueId &ch
     return 0;
 
 #define RESULT_SIZE 1000
-  Lng32 length;
+  int length;
   char value[RESULT_SIZE];
 
-  Lng32 offset;
+  int offset;
 
   if (outItemExpr) *outItemExpr = NULL;
 
@@ -4323,7 +4323,7 @@ Lng32 ValueIdList::evaluateConstantTree(const ValueId &parent, const ValueId &ch
 
     // See how many positions the result will take in the display
     // long t = NAType::getDisplayLength(type.getFSDatatype(),
-    Lng32 t = type.getDisplayLength(type.getFSDatatype(), length, type.getPrecision(), type.getScale(), 0);
+    int t = type.getDisplayLength(type.getFSDatatype(), length, type.getPrecision(), type.getScale(), 0);
 
     char *result = new (CmpCommon::statementHeap()) char[t + 1];
     CMPASSERT(result != NULL);
@@ -4585,9 +4585,9 @@ NABoolean ValueIdList::canSimplify(ItemExpr *itemExpr, const ValueId &parent, In
 
       // see if we can replace "<expr> / val" by "<expr> * <newval>"
       // where <newval> is equal to "1 / <val>".
-      Int64 temp = val;
-      Int64 numerator = 1;
-      Lng32 scale = 0;
+      long temp = val;
+      long numerator = 1;
+      int scale = 0;
       while (temp > 0) {
         temp = temp / 10;
         numerator = numerator * 10;
@@ -4595,12 +4595,12 @@ NABoolean ValueIdList::canSimplify(ItemExpr *itemExpr, const ValueId &parent, In
       }
       if (numerator == 1) return FALSE;
 
-      Int64 div = numerator / val;
+      long div = numerator / val;
       if (div * val != numerator) return FALSE;
 
       NumericType *ntyp =
           new (CmpCommon::statementHeap()) SQLNumeric(CmpCommon::statementHeap(), 4, scale, scale, TRUE, FALSE);
-      Lng32 cval = (Lng32)div;
+      int cval = (int)div;
       char cvalStr[20];
       cvalStr[0] = '.';
       str_itoa(cval, &cvalStr[1]);
@@ -4701,7 +4701,7 @@ Int32 ValueIdList::evaluateExpr(const ValueId &parent, const ValueId &ch, Int32 
   } else
     constantTree = constantTreeArray;
 
-  Lng32 i = 0;
+  int i = 0;
   for (; i < nc; i++) {
     // We call this routine recursively; therefore after this call the
     // subtree rooted at child number i will not contain subtrees that
@@ -4727,7 +4727,7 @@ Int32 ValueIdList::evaluateExpr(const ValueId &parent, const ValueId &ch, Int32 
     if (evalAllConsts) {
       ValueId dummy;
 
-      Lng32 error = evaluateConstantTree(dummy, itemExpr->getValueId(), -1, outAllConstsItemExpr, diagsArea);
+      int error = evaluateConstantTree(dummy, itemExpr->getValueId(), -1, outAllConstsItemExpr, diagsArea);
       if (error)  // -1
         return error;
     }
@@ -5606,7 +5606,7 @@ void ValueIdList::convertToTextKey(const ValueIdList &keyList, NAString &result)
           result.append((char *)&nullVal, sizeof(short));
         }
       } else if ((val == "<min>") || (val == "<max>")) {
-        Lng32 bufLen =
+        int bufLen =
             (type.isVaryingLen() ? (type.getNominalSize() + type.getVarLenHdrSize()) : type.getNominalSize());
         char *buf = new (CmpCommon::statementHeap()) char[bufLen + 10];
 
@@ -5618,9 +5618,9 @@ void ValueIdList::convertToTextKey(const ValueIdList &keyList, NAString &result)
             // string value returned is of the form: DATE '2013-06-20' or
             // INTERVAL '10' YEAR.
             // Extract the actual string from the returned value.
-            Lng32 start = mmVal->index("'");
+            int start = mmVal->index("'");
             if (start > 0) {
-              Lng32 end = mmVal->index("'", start + 1);
+              int end = mmVal->index("'", start + 1);
               if (end > 0) {
                 *mmVal = (*mmVal)(start + 1, (end - start - 1));
 
@@ -5643,9 +5643,9 @@ void ValueIdList::convertToTextKey(const ValueIdList &keyList, NAString &result)
             // string value returned is of the form: DATE '2013-06-20' or
             // INTERVAL '10' YEAR.
             // Extract the actual string from the returned value.
-            Lng32 start = mmVal->index("'");
+            int start = mmVal->index("'");
             if (start > 0) {
-              Lng32 end = mmVal->index("'", start + 1);
+              int end = mmVal->index("'", start + 1);
               if (end > 0) {
                 *mmVal = (*mmVal)(start + 1, (end - start - 1));
               }
@@ -5686,10 +5686,10 @@ void ValueIdList::convertToTextKey(const ValueIdList &keyList, NAString &result)
           // CQD QUERY_CACHE '0'. Another example happens with BETWEEN, whether
           // or not query caching is turned off. See JIRA TRAFODION-3088 for
           // that example.)
-          Lng32 start = val.index("'");
-          Lng32 minus = val.index("-");
+          int start = val.index("'");
+          int minus = val.index("-");
           if (start > 0) {
-            Lng32 end = val.index("'", start + 1);
+            int end = val.index("'", start + 1);
             if (end > 0) {
               val = val(start + 1, (end - start - 1));
               if ((minus > 0) && (minus < start))  // '-' before the string part
@@ -5703,7 +5703,7 @@ void ValueIdList::convertToTextKey(const ValueIdList &keyList, NAString &result)
         } else if ((constType->getTypeQualifier() == NA_NUMERIC_TYPE) && (((NumericType *)constType)->isExact()) &&
                    (NOT((NumericType *)constType)->isBigNum()) && (constType->getScale() > 0)) {
           // See how many positions the result will take in the display
-          Lng32 t = constType->getDisplayLength(constType->getFSDatatype(), constType->getNominalSize(),
+          int t = constType->getDisplayLength(constType->getFSDatatype(), constType->getNominalSize(),
                                                 constType->getPrecision(), constType->getScale(), 0);
 
           char strval[t + 1];
@@ -5953,9 +5953,9 @@ void ValueIdList::addMember(ItemExpr *x) { insert(x->getValueId()); }
 
 void ValueIdSet::addMember(ItemExpr *x) { (*this) += (x->getValueId()); }
 
-Lng32 ValueIdList::findPrefixLength(const ValueIdSet &x) const {
+int ValueIdList::findPrefixLength(const ValueIdSet &x) const {
   CollIndex count = this->entries();
-  Lng32 ct = 0;
+  int ct = 0;
   for (CollIndex i = 0; i < count; i++) {
     if (x.contains((*this)[i]))
       ct++;
@@ -5973,7 +5973,7 @@ Lng32 ValueIdList::findPrefixLength(const ValueIdSet &x) const {
 // ----------------------------------------------------------------------
 void ValueId::replaceColReferenceWithExpr(const NAString &colName, const ValueId &vid) {
   ItemExpr *thisItemExpr = getItemExpr();
-  for (Lng32 i = 0; i < thisItemExpr->getArity(); i++) {
+  for (int i = 0; i < thisItemExpr->getArity(); i++) {
     ValueId childValueId = thisItemExpr->child(i).getValueId();
     ItemExpr *childItemExpr = childValueId.getItemExpr();
 
@@ -6095,7 +6095,7 @@ void ValueIdSet::findAllChildren(ValueIdSet &result) const {
   for (ValueId valId = init(); next(valId); advance(valId)) {
     ItemExpr *itmExpr = valId.getItemExpr();
 
-    for (Lng32 i = 0; i < itmExpr->getArity(); i++) result += itmExpr->child(i).getValueId();
+    for (int i = 0; i < itmExpr->getArity(); i++) result += itmExpr->child(i).getValueId();
   }
 }
 
@@ -6213,7 +6213,7 @@ void ValueDescArray::insert(ValueDesc *newElem) {
   insertAt(entries(), newElem);
 }
 
-ValueIdArray::ValueIdArray(const ValueIdList &orig, Lng32 numberOfElements)
+ValueIdArray::ValueIdArray(const ValueIdList &orig, int numberOfElements)
     : NAArray<ValueId>(CmpCommon::statementHeap(), numberOfElements) {
   for (CollIndex i = 0; i < orig.entries(); i++) insertAt(i, orig.at(i));
 }

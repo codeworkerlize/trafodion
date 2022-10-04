@@ -40,7 +40,7 @@
 
 #include "ex_ex.h"
 #include "exp/ExpSqlTupp.h"
-#include "ex_error.h"
+#include "executor/ex_error.h"
 
 // forward references
 class ex_globals;
@@ -86,9 +86,9 @@ class keyRangeEx : public ExGod {
 
   // work variables
   atp_struct *workAtp_;
-  Lng32 excludeFlag_;
+  int excludeFlag_;
   tupp_descriptor excludeFlagTupp_;
-  Lng32 dataConvErrorFlag_;
+  int dataConvErrorFlag_;
   tupp_descriptor dataConvErrorFlagTupp_;
 
  public:

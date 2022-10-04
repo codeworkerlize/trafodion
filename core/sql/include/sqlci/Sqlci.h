@@ -24,39 +24,21 @@
 #ifndef SQLCI_H
 #define SQLCI_H
 
-/* -*-C++-*-
- *****************************************************************************
- *
- * File:         Sqlci.h
- * RCS:          $Id: Sqlci.h,v 1.2 1997/04/23 00:30:37  Exp $
- * Description:
- *
- *
- * Created:      4/15/95
- * Modified:     $ $Date: 1997/04/23 00:30:37 $ (GMT)
- * Language:     C++
- * Status:       $State: Exp $
- *
- *
- *
- *
- *****************************************************************************
- */
 
-#include "SqlciDefs.h"
-#include "SqlciEnv.h"
-#include "ShellCmd.h"
-#include "sqlcmd.h"
-#include "SqlciCmd.h"
-#include "SqlciNode.h"
-#include "Define.h"
-#include "Prepare.h"
-#include "Param.h"
-#include "SqlciStmts.h"
-#include "InputStmt.h"
-#include "SqlciStats.h"
-#include "SqlciList_templ.h"
-#include "SqlciError.h"
-#include "sqlclicmd.h"
+#include "sqlci/SqlciDefs.h"
+#include "sqlci/SqlciEnv.h"
+#include "sqlci/ShellCmd.h"
+#include "sqlci/sqlcmd.h"
+#include "sqlci/SqlciCmd.h"
+#include "sqlci/SqlciNode.h"
+#include "sqlci/Define.h"
+#include "sqlci/Prepare.h"
+#include "sqlci/Param.h"
+#include "sqlci/SqlciStmts.h"
+#include "sqlci/InputStmt.h"
+#include "sqlci/SqlciStats.h"
+#include "sqlci/SqlciList_templ.h"
+#include "sqlci/SqlciError.h"
+#include "sqlci/sqlclicmd.h"
 
 #endif /* SQLCI_H */

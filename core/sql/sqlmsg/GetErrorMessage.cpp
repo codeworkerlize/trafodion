@@ -45,8 +45,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#include "GetErrorMessage.h"
-#include "ErrorMessage.h"
+#include "sqlmsg/GetErrorMessage.h"
+#include "sqlmsg/ErrorMessage.h"
 #include "common/NAWinNT.h"
 
 //#include "sqlmxmsg_msg.h"
@@ -91,7 +91,7 @@ static NABoolean isInfoSQLSTATE(const NAWchar *state) {
 // Following is the implementation of the SQLSTATE-related functions.
 class SqlstateInfo {
  public:
-  SqlstateInfo(Lng32 sqlcode, char *sqlstate, NABoolean fabricatedSqlstate)
+  SqlstateInfo(int sqlcode, char *sqlstate, NABoolean fabricatedSqlstate)
       : sqlcode_(sqlcode), sqlstate_(NULL), fabricatedSqlstate_(fabricatedSqlstate) {
     if (sqlstate) {
       sqlstate_ = new char[6];
@@ -103,7 +103,7 @@ class SqlstateInfo {
     if (sqlstate_) delete sqlstate_;
   };
 
-  Lng32 sqlcode() { return sqlcode_; };
+  int sqlcode() { return sqlcode_; };
   char *sqlstate() { return sqlstate_; };
   NABoolean fabricatedSqlstate() { return fabricatedSqlstate_; };
 
@@ -114,7 +114,7 @@ class SqlstateInfo {
   operator CollIndex() const { return sqlcode_; };
 
  private:
-  Lng32 sqlcode_;
+  int sqlcode_;
   char *sqlstate_;
   NABoolean fabricatedSqlstate_;
 };
@@ -122,7 +122,7 @@ class SqlstateInfo {
 static NAList<SqlstateInfo *> listOfSqlstates_(NULL);
 static pthread_mutex_t listOfSqlstates_mutex = PTHREAD_MUTEX_INITIALIZER;
 
-NABoolean GetSqlstateInfo(Lng32 sqlcode, char *sqlstate, NABoolean &fabricatedSqlstate) {
+NABoolean GetSqlstateInfo(int sqlcode, char *sqlstate, NABoolean &fabricatedSqlstate) {
   // SqlstateInfo ssi(sqlcode, NULL, TRUE);
   // CollIndex i = listOfSqlstates_.index(&ssi);
 
@@ -147,7 +147,7 @@ NABoolean GetSqlstateInfo(Lng32 sqlcode, char *sqlstate, NABoolean &fabricatedSq
   return found;
 }
 
-void AddSqlstateInfo(Lng32 sqlcode, char *sqlstate, NABoolean fabricatedSqlstate) {
+void AddSqlstateInfo(int sqlcode, char *sqlstate, NABoolean fabricatedSqlstate) {
   SqlstateInfo *s = NULL;
   s = new SqlstateInfo(sqlcode, sqlstate, fabricatedSqlstate);
 
@@ -289,7 +289,7 @@ NABoolean openMessageCatalog(ErrorType errType, nl_catd *msgCatalog) {
     return TRUE;
 }
 
-NABoolean getErrorMessageFromCatalog(NAErrorCode error_code_abs, MsgTextType M_type, NAWchar *msgBuf, Lng32 msgBufLen,
+NABoolean getErrorMessageFromCatalog(NAErrorCode error_code_abs, MsgTextType M_type, NAWchar *msgBuf, int msgBufLen,
                                      nl_catd *msgCatalog) {
   Int32 set_num;
 
@@ -298,7 +298,7 @@ NABoolean getErrorMessageFromCatalog(NAErrorCode error_code_abs, MsgTextType M_t
   // map M_type to the linenum offset in error.cat file.
   // ERROR_TEXT, SQL_STATE, HELP_ID are all available at
   // offset 1 (first line).
-  Lng32 offset = 0;
+  int offset = 0;
   switch (M_type) {
     case ERROR_TEXT:
     case SQL_STATE:
@@ -342,14 +342,14 @@ NABoolean getErrorMessageFromCatalog(NAErrorCode error_code_abs, MsgTextType M_t
   NABoolean result = (msg == Msg_Not_Found_NSK) ? FALSE : TRUE;
 
   // convert to Unicode
-  Lng32 wMsgLen = LocaleStringToUnicode(CharInfo::ISO88591, msg, strlen(msg), msgBuf, msgBufLen);
+  int wMsgLen = LocaleStringToUnicode(CharInfo::ISO88591, msg, strlen(msg), msgBuf, msgBufLen);
 
   if (wMsgLen == 0) result = FALSE;
 
   return result;
 }
 
-short GetErrorMessage(ErrorType errType, Lng32 error_code, NAWchar *&return_text, MsgTextType M_type,
+short GetErrorMessage(ErrorType errType, int error_code, NAWchar *&return_text, MsgTextType M_type,
                       NAWchar *alternate_return_text, Int32 recurse_level, NABoolean prefixNeeded) {
   short msgNotFound = TRUE;  // assume error return
 
@@ -549,7 +549,7 @@ short GetErrorMessage(ErrorType errType, Lng32 error_code, NAWchar *&return_text
 //
 static const char *kludgeMessageFileText = NULL;
 
-static short kludgeReadStraightFromMessageFile(Lng32 num, NAWchar *msgBuf, Lng32 bufSize) {
+static short kludgeReadStraightFromMessageFile(int num, NAWchar *msgBuf, int bufSize) {
 #ifdef NDEBUG
   return FALSE;
 #else
@@ -610,7 +610,7 @@ void GetPreprocessorInstallPath(char *thePath, char *CorCOBOL) {}  // GetPreProc
 
 NABoolean openMessageCatalog() { return 0; }
 
-short GetErrorMessageRC(Lng32 num, NAWchar *msgBuf, Lng32 bufSize) {
+short GetErrorMessageRC(int num, NAWchar *msgBuf, int bufSize) {
   return kludgeReadStraightFromMessageFile(num, msgBuf, bufSize);
   // return TRUE;
 }  // GetErrorMessageRC
@@ -622,7 +622,7 @@ void ErrorMessageOverflowCheckW(NAWchar *buf, size_t max) {
     cerr << endl << "ERROR: msg overflow " << len << " " << max - 1 << endl;
 
     char *buf8bit = new char[len + 1];
-    Lng32 l = UnicodeStringToLocale(CharInfo::ISO88591, buf, len, buf8bit, len + 1);
+    int l = UnicodeStringToLocale(CharInfo::ISO88591, buf, len, buf8bit, len + 1);
     if (l != len) ABORT("Unicode To Locale Translation");
 
     printf("%s\n", buf8bit);

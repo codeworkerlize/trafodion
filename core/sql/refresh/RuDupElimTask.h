@@ -70,7 +70,7 @@ class REFRESH_LIB_CLASS CRUDupElimTask : public CRULogProcessingTask {
   //	PUBLIC AREA
   //---------------------------------------//
  public:
-  CRUDupElimTask(Lng32 id, CRUTbl &table);
+  CRUDupElimTask(int id, CRUTbl &table);
   virtual ~CRUDupElimTask();
 
  public:
@@ -89,7 +89,7 @@ class REFRESH_LIB_CLASS CRUDupElimTask : public CRULogProcessingTask {
   BOOL IsSkipCrossTypeResoultion() const { return isSkipCrossTypeResolution_; }
 
   // How much space will be required by statistics data in the IPC buffer?
-  Lng32 GetDeltaStatisticsBufSize() const;
+  int GetDeltaStatisticsBufSize() const;
 
   // Can Duplicate Elimination be skipped?
   BOOL NeedToExecuteDE() const;

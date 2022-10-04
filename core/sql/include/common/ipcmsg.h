@@ -120,7 +120,7 @@ class GuaMsgConnectionToServer : public IpcConnection {
     // This is used to keep track of the transid associated with
     // the message, in case the transaction needs to be aborted
     // if the server connection dies.
-    Int64 transid_;
+    long transid_;
   };
 
   // Used after fatal error to avoid deadlock.
@@ -243,10 +243,10 @@ class GuaMsgConnectionToServer : public IpcConnection {
 
   // setup the requestheader before sending message
   // through MSG_LINK_
-  short setupRequestInfo(void *controlInfo, Int64 transid);
+  short setupRequestInfo(void *controlInfo, long transid);
 
   // reset acb info after message is received
-  void resetAfterReply(UInt32 msgid, short error, Int64 *transid);
+  void resetAfterReply(UInt32 msgid, short error, long *transid);
 
   // put the msgid into the acb so that on exit
   // the file system cleans up

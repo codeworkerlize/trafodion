@@ -117,11 +117,11 @@ RelExpr *PhysUnPackRows::preCodeGen(Generator *generator, const ValueIdSet &exte
   //
   getGroupAttr()->resolveCharacteristicOutputs(availableValues, getGroupAttr()->getCharacteristicInputs());
 
-  Lng32 memLimit = (Lng32)CmpCommon::getDefaultNumeric(MEMORY_LIMIT_ROWSET_IN_MB);
+  int memLimit = (int)CmpCommon::getDefaultNumeric(MEMORY_LIMIT_ROWSET_IN_MB);
   if (memLimit > 0) {
-    Lng32 rowLength = getGroupAttr()->getCharacteristicOutputs().getRowLength();
-    Lng32 rowsetSize = getGroupAttr()->getOutputLogPropList()[0]->getResultCardinality().value();
-    Lng32 memNeededMB = (rowLength * rowsetSize) / (1024 * 1024);
+    int rowLength = getGroupAttr()->getCharacteristicOutputs().getRowLength();
+    int rowsetSize = getGroupAttr()->getOutputLogPropList()[0]->getResultCardinality().value();
+    int memNeededMB = (rowLength * rowsetSize) / (1024 * 1024);
     if (memLimit < memNeededMB) {
       *CmpCommon::diags() << DgSqlCode(-30050) << DgInt0(memNeededMB) << DgInt1(memLimit) << DgInt2(rowLength)
                           << DgInt3(rowsetSize);
@@ -350,7 +350,7 @@ short PhysUnPackRows::codeGen(Generator *generator) {
 
     rowsetSize = (rowsetSize < 1024 ? 1024 : rowsetSize);
 
-    double estimatedMemory = (Int64)rowsetSize * (Int64)unPackColsTupleLen;
+    double estimatedMemory = (long)rowsetSize * (long)unPackColsTupleLen;
 
     if (estimatedMemory > memoryLimitPerInstance) {
       estimatedMemory = memoryLimitPerInstance;

@@ -47,7 +47,7 @@
 #include "common/Int64.h"
 
 #include "spinfo.h"
-#include "copyright.h"
+#include "common/copyright.h"
 #include "udrutil.h"
 #include "LmError.h"
 #include "common/NumericType.h"

@@ -67,7 +67,7 @@ Long tupp::pack(void *space) {
   return ((Space *)space)->convertToOffset((char *)this);
 }
 
-Lng32 tupp::unpack(Lng32 base) {
+int tupp::unpack(int base) {
   if (tuppDescPointer) {
     tuppDescPointer = (tupp_descriptor *)CONVERT_TO_PTR(tuppDescPointer, base);
   }
@@ -79,7 +79,7 @@ tupp_descriptor::tupp_descriptor() { init(); };
 #ifdef _DEBUG
 void tupp::display() {
   char *dataPointer = getDataPointer();
-  Lng32 keyLen = getAllocatedSize();
+  int keyLen = getAllocatedSize();
 
   printBrief(dataPointer, keyLen);
 }

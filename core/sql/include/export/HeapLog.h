@@ -61,7 +61,7 @@
 // Track allocations.
 #define HEAPLOG_ADD_ENTRY(objAddr, objSize, heapNum, heapName)                                   \
   {                                                                                              \
-    if (HeapLogRoot::track) HeapLogRoot::addEntry(objAddr, objSize, (Lng32 &)heapNum, heapName); \
+    if (HeapLogRoot::track) HeapLogRoot::addEntry(objAddr, objSize, (int &)heapNum, heapName); \
   }
 // Track deallocations.
 #define HEAPLOG_DELETE_ENTRY(objAddr, heapNum)                                 \
@@ -85,7 +85,7 @@
   }
 
 // Reserved heaps.
-const Lng32 NA_HEAP_BASIC = 1;
+const int NA_HEAP_BASIC = 1;
 
 #endif
 
@@ -127,30 +127,30 @@ class HeapLogRoot {
  public:
   static HeapLog *log;
   // Maximum heap number assigned.
-  static Lng32 maxHeapNum;
-  static Lng32 track;
-  static Lng32 trackDealloc;
+  static int maxHeapNum;
+  static int track;
+  static int trackDealloc;
 
   static void control(HeapControlEnum option);
 
-  static void addEntry(void *objAddr, Lng32 objSize, Lng32 &heapNum, const char *heapName = NULL);
-  static void deleteEntry(void *objAddr, Lng32 heapNum);
+  static void addEntry(void *objAddr, int objSize, int &heapNum, const char *heapName = NULL);
+  static void deleteEntry(void *objAddr, int heapNum);
 
-  static void deleteLogSegment(Lng32 heapNum, NABoolean setfree);
+  static void deleteLogSegment(int heapNum, NABoolean setfree);
 
   static void disable(NABoolean b);
 
-  static void display(NABoolean prompt, Lng32 sqlci = 1);
+  static void display(NABoolean prompt, int sqlci = 1);
 
   // called by arkcmp.
-  static Lng32 getPackSize();
+  static int getPackSize();
   static void pack(char *buf, ULng32 flags);
 
   // called by executor.
-  static Lng32 fetchLine(char *buf, ULng32 flags, char *packdata = NULL, Lng32 datalen = 0);
+  static int fetchLine(char *buf, ULng32 flags, char *packdata = NULL, int datalen = 0);
 
   // called by heap constructor.
-  static Lng32 assignHeapNum();
+  static int assignHeapNum();
 
   virtual void pureVirtual() = 0;
 

@@ -102,17 +102,17 @@ class RunDirectory : public NABasicObject {
   RunDirectory(short maxRuns, CollHeap *heap, SortError *sorterror);
   ~RunDirectory();
 
-  Lng32 startNewRun(SBN);
-  Lng32 getTotalNumOfRuns(void);
+  int startNewRun(SBN);
+  int getTotalNumOfRuns(void);
   void endCurrentRun(void);
   void sortRunDirectoryEntries(void);
-  SBN mapRunNumberToFirstSBN(Lng32 runNumber);
+  SBN mapRunNumberToFirstSBN(int runNumber);
 
  private:
-  Lng32 numRunsGenerated_;
-  Lng32 numRunsRemaining_;
-  Lng32 currentMaxRuns_;
-  Lng32 mergeOrder_;  // Number of runs being merged.
+  int numRunsGenerated_;
+  int numRunsRemaining_;
+  int currentMaxRuns_;
+  int mergeOrder_;  // Number of runs being merged.
 
   RunDirectoryEntry *rdListPtr_;  // Pointer to an array of <n>
                                   // Run directory entries where
@@ -126,10 +126,10 @@ class RunDirectory : public NABasicObject {
 // run.
 //----------------------------------------------------------------------
 struct RunDirectoryEntry : public NABasicObject {
-  Lng32 runNum_;
+  int runNum_;
   SBN firstBlock_;
-  Lng32 numBlocks_;
-  Lng32 numRecs_;
+  int numBlocks_;
+  int numRecs_;
   short startTime_[3];
   short endTime_[3];
   SortError *sorterror_;

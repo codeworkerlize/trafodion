@@ -149,8 +149,8 @@ class SPInfo : public NABasicObject {
   const char *getLibrarySqlName() const { return librarySqlName_; }
   const char *getParentQid() const { return parentQid_; }
   const char *getClientInfo() const { return clientInfo_; }
-  Int64 getNumCalls() const { return numCalls_; }
-  Int64 getLastCallTs() const { return lastCallTs_; }
+  long getNumCalls() const { return numCalls_; }
+  long getLastCallTs() const { return lastCallTs_; }
 
   ComUInt32 getMaxNumResultSets() const { return maxNumResultSets_; }
   ComUInt32 getNumResultSets() const { return numResultSets_; }
@@ -215,8 +215,8 @@ class SPInfo : public NABasicObject {
 
   void resetLastCallTs();
 
-  inline void setNumCalls(Int64 t) { numCalls_ = t; }
-  inline void setLastCallTs(Int64 t) { lastCallTs_ = t; }
+  inline void setNumCalls(long t) { numCalls_ = t; }
+  inline void setLastCallTs(long t) { lastCallTs_ = t; }
   inline void setMaxNumResultSets(ComUInt32 t) { maxNumResultSets_ = t; }
   inline void setNumResultSets(ComUInt32 t) { numResultSets_ = t; }
 
@@ -243,14 +243,14 @@ class SPInfo : public NABasicObject {
   // ---------------------------------------------------------------------
 
   // Detail display of SPInfo data structures...
-  void displaySPInfo(Lng32 indent);
+  void displaySPInfo(int indent);
   // ID only display of SPInfo data structures...
-  void displaySPInfoId(Lng32 indent);
+  void displaySPInfoId(int indent);
 
   // support methods
-  Int64 createUniqueIdentifier();
+  long createUniqueIdentifier();
 
-  Lng32 releaseSP(NABoolean reportErrors, ComDiagsArea &d);
+  int releaseSP(NABoolean reportErrors, ComDiagsArea &d);
 
   // Result Set related methods
 
@@ -274,7 +274,7 @@ class SPInfo : public NABasicObject {
 
  private:
   RequestRowProcessingStatus processOneRequestRow(SqlBuffer *reqSqlBuf, SqlBuffer *replySqlBuf,
-                                                  Lng32 &numRowsProcessed);
+                                                  int &numRowsProcessed);
 
   NABoolean moveRSInfoIntoStream();
   void moveDiagsIntoStream(ComDiagsArea *diags, ControlInfo *replyControlInfo);
@@ -312,8 +312,8 @@ class SPInfo : public NABasicObject {
   char *librarySqlName_;    // ANSI name of library (JAR/DLL)
 
   // LRU attributes of this SP to allow memory recovery
-  Int64 numCalls_;    // number of invoke calls
-  Int64 lastCallTs_;  // time of last call
+  long numCalls_;    // number of invoke calls
+  long lastCallTs_;  // time of last call
 
   ComRoutineLanguage language_;
   ComRoutineParamStyle paramStyle_;
@@ -374,8 +374,8 @@ class SPList {
   SPList(UdrGlobals *udrGlobals);
   ~SPList(void){};
 
-  void displaySPList(Lng32 indent);
-  void displaySPListId(Lng32 indent);
+  void displaySPList(int indent);
+  void displaySPListId(int indent);
 
   ComUInt32 entries() { return (ComUInt32)spInfoElement_.entries(); }
   SPInfo *getSpInfo(ComUInt32 index) { return spInfoElement_.at(index); }

@@ -2,6 +2,8 @@
 #ifndef PLATFORM_H
 #define PLATFORM_H
 
+#include <stddef.h>
+
 #ifndef __STDC_LIMIT_MACROS
 #define __STDC_LIMIT_MACROS
 #endif
@@ -86,8 +88,7 @@ typedef long long int TInt64;
 #define PFLV64 "%0*ld"
 #define PFP64  "%.*ld"
 
-/* Lng32 to replace "long" or "signed long" */
-/* and some will remain Int32 and others would become Int64 when done */
+
 typedef int Lng32;
 
 /* ULng32 to replace "unsigned long" or "unsigned long int" */

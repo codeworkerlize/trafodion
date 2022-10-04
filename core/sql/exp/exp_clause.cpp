@@ -61,7 +61,7 @@ static const char *ZERO_LENGTH_TIMESTAMP = " 00:00:00.000000";
     NAAssert(msg, __FILE__, __LINE__); \
   };
 
-void setVCLength(char *VCLen, Lng32 VCLenSize, ULng32 value);
+void setVCLength(char *VCLen, int VCLenSize, ULng32 value);
 
 ///////////////////////////////////////////////////////////
 // class ex_clause
@@ -89,7 +89,7 @@ void ex_clause::copyOperands(ex_clause *clause, Space *space) {
   switch (clause->getType()) {
     case ex_clause::INOUT_TYPE: {
       char *temp;
-      Lng32 len;
+      int len;
       ex_inout_clause *inout = (ex_inout_clause *)this;
 
       // Copy strings associated with this class.  The strings being with a
@@ -98,35 +98,35 @@ void ex_clause::copyOperands(ex_clause *clause, Space *space) {
       // nothing additional needs to be done here.
 
       if (inout->getHeading()) {
-        len = sizeof(Lng32) + *((Lng32 *)inout->getHeading());
+        len = sizeof(int) + *((int *)inout->getHeading());
         temp = new (space) char[len];
         memcpy(temp, inout->getHeading(), len);
         inout->setHeading(temp);
       }
 
       if (inout->getName()) {
-        len = sizeof(Lng32) + *((Lng32 *)inout->getName());
+        len = sizeof(int) + *((int *)inout->getName());
         temp = new (space) char[len];
         memcpy(temp, inout->getName(), len);
         inout->setName(temp);
       }
 
       if (inout->getTableName()) {
-        len = sizeof(Lng32) + *((Lng32 *)inout->getTableName());
+        len = sizeof(int) + *((int *)inout->getTableName());
         temp = new (space) char[len];
         memcpy(temp, inout->getTableName(), len);
         inout->setTableName(temp);
       }
 
       if (inout->getSchemaName()) {
-        len = sizeof(Lng32) + *((Lng32 *)inout->getSchemaName());
+        len = sizeof(int) + *((int *)inout->getSchemaName());
         temp = new (space) char[len];
         memcpy(temp, inout->getSchemaName(), len);
         inout->setSchemaName(temp);
       }
 
       if (inout->getCatalogName()) {
-        len = sizeof(Lng32) + *((Lng32 *)inout->getCatalogName());
+        len = sizeof(int) + *((int *)inout->getCatalogName());
         temp = new (space) char[len];
         memcpy(temp, inout->getCatalogName(), len);
         inout->setCatalogName(temp);
@@ -660,7 +660,7 @@ ex_clause::ex_clause(clause_type type, OperatorTypeEnum oper_type, short num_ope
       //      op_ = (AttributesPtr *)(new char[numOperands * sizeof(AttributesPtr)]);
       GenAssert(0, "Internal Error: must pass the space pointer.");
 
-    Lng32 i = 0;
+    int i = 0;
     Attributes *attr = NULL;
     for (i = 0; i < num_operands; i++) {
       if (!op[i]) continue;
@@ -1187,12 +1187,12 @@ ex_expr::exp_return_type ex_clause::processNulls(char *null_data[], CollHeap *he
   return ex_expr::EXPR_OK;
 }
 
-Long ex_clause::packClause(void *space, Lng32 /*size*/) {
+Long ex_clause::packClause(void *space, int /*size*/) {
   if (op_) {
     if (op_[0]->showplan()) {
-      for (Lng32 i = numOperands_; i < 2 * numOperands_; i++) op_[i].pack(space);
+      for (int i = numOperands_; i < 2 * numOperands_; i++) op_[i].pack(space);
     }
-    for (Lng32 i = 0; i < numOperands_; i++) op_[i].pack(space);
+    for (int i = 0; i < numOperands_; i++) op_[i].pack(space);
   }
   op_.packShallow(space);
   return NAVersionedObject::pack(space);
@@ -1200,14 +1200,14 @@ Long ex_clause::packClause(void *space, Lng32 /*size*/) {
 
 Long ex_clause::pack(void *space) { return packClause(space, sizeof(ex_clause)); }
 
-Lng32 ex_clause::unpackClause(void *base, void *reallocator) {
+int ex_clause::unpackClause(void *base, void *reallocator) {
   if (op_) {
     if (op_.unpackShallow(base)) return -1;
-    for (Lng32 i = 0; i < numOperands_; i++) {
+    for (int i = 0; i < numOperands_; i++) {
       if (op_[i].unpack(base, reallocator)) return -1;
     }
     if (op_[0]->showplan()) {
-      for (Lng32 i = numOperands_; i < 2 * numOperands_; i++) {
+      for (int i = numOperands_; i < 2 * numOperands_; i++) {
         if (op_[i].unpack(base, reallocator)) return -1;
       }
     }
@@ -1215,7 +1215,7 @@ Lng32 ex_clause::unpackClause(void *base, void *reallocator) {
   return NAVersionedObject::unpack(base, reallocator);
 }
 
-Lng32 ex_clause::unpack(void *base, void *reallocator) { return unpackClause(base, reallocator); }
+int ex_clause::unpack(void *base, void *reallocator) { return unpackClause(base, reallocator); }
 
 const char *getOperTypeEnumAsString(Int16 /*OperatorTypeEnum*/ ote) {
   switch (ote) {
@@ -2430,7 +2430,7 @@ Int32 charStringCompareWithPad(char *in_s1, Int32 length1, char *in_s2, Int32 le
   unsigned char *s1 = (unsigned char *)in_s1;
   unsigned char *s2 = (unsigned char *)in_s2;
 
-  Lng32 compare_len;
+  int compare_len;
   Int32 compare_code;
 
   if (isTrailingBlankSensitive == NULL) {
@@ -2484,7 +2484,7 @@ Int32 wcharStringCompareWithPad(NAWchar *s1, Int32 length1, NAWchar *s2, Int32 l
   bool strictCmp = false;
   if (isTrailingBlankSensitive && atoi(isTrailingBlankSensitive) == 1) strictCmp = true;
 
-  Lng32 compare_len;
+  int compare_len;
   Int32 compare_code;
 
   if (length1 > length2)
@@ -2560,10 +2560,10 @@ ExFunctionRangeOfValues::~ExFunctionRangeOfValues() {
 }
 
 // defined in exp_conv.cpp
-ex_expr::exp_return_type convDecToInt64(Int64 &target, char *source, Lng32 sourceLen, CollHeap *heap,
+ex_expr::exp_return_type convDecToInt64(long &target, char *source, int sourceLen, CollHeap *heap,
                                         ComDiagsArea **diagsArea, ULng32 flags);
 
-Int16 convertDateTimeTimestampToAscii(char *target, Lng32 targetLen, char *source, Lng32 sourceLen, Int16 precision,
+Int16 convertDateTimeTimestampToAscii(char *target, int targetLen, char *source, int sourceLen, Int16 precision,
                                       Int16 scale, Int32 format, CollHeap *heap) {
   ExpDatetime srcDatetimeOpType;
 
@@ -2572,7 +2572,7 @@ Int16 convertDateTimeTimestampToAscii(char *target, Lng32 targetLen, char *sourc
   srcDatetimeOpType.setScale(scale);
 
   // Convert the datetime value to ASCII in the DEFAULT format.
-  Lng32 realTargetLen = srcDatetimeOpType.convDatetimeToASCII(source,     // source
+  int realTargetLen = srcDatetimeOpType.convDatetimeToASCII(source,     // source
                                                               target,     // target
                                                               targetLen,  // target len
                                                               format, NULL, heap, NULL);
@@ -2620,7 +2620,7 @@ void ExFunctionRangeOfValues::displayOpData(fstream &out, const char *msg, char 
       break;
 
     case REC_BIN64_SIGNED:
-      out << (*(Int64 *)source);
+      out << (*(long *)source);
       break;
 
     case REC_BIN8_UNSIGNED:
@@ -2640,7 +2640,7 @@ void ExFunctionRangeOfValues::displayOpData(fstream &out, const char *msg, char 
   }
 
   if (DFS2REC::isAnyCharacter(dt)) {
-    Lng32 len = getOperand(1)->getLength(op_data[-MAX_OPERANDS + 1]);
+    int len = getOperand(1)->getLength(op_data[-MAX_OPERANDS + 1]);
 
     if (DFS2REC::isDoubleCharacter(dt)) {
       for (int i = 0; i < len / 2; i++) {
@@ -2658,7 +2658,7 @@ void ExFunctionRangeOfValues::displayOpData(fstream &out, const char *msg, char 
 
     switch (sourceAttr->getPrecision()) {
       case REC_DATETIME_CODE::REC_DTCODE_DATE: {
-        Lng32 realTargetLen =
+        int realTargetLen =
             convertDateTimeTimestampToAscii(target, sizeof(target), source, sourceAttr->getLength(), REC_DTCODE_DATE,
                                             sourceAttr->getScale(), ExpDatetime::DATETIME_FORMAT_DEFAULT, heap);
 
@@ -2675,7 +2675,7 @@ void ExFunctionRangeOfValues::displayOpData(fstream &out, const char *msg, char 
       }
 
       case REC_DATETIME_CODE::REC_DTCODE_TIME: {
-        Lng32 realTargetLen =
+        int realTargetLen =
             convertDateTimeTimestampToAscii(target, sizeof(target), source, sourceAttr->getLength(), REC_DTCODE_TIME,
                                             sourceAttr->getScale(), ExpDatetime::DATETIME_FORMAT_DEFAULT, heap);
 
@@ -2687,7 +2687,7 @@ void ExFunctionRangeOfValues::displayOpData(fstream &out, const char *msg, char 
       }
 
       case REC_DATETIME_CODE::REC_DTCODE_TIMESTAMP: {
-        Lng32 realTargetLen = convertDateTimeTimestampToAscii(target, sizeof(target), source, sourceAttr->getLength(),
+        int realTargetLen = convertDateTimeTimestampToAscii(target, sizeof(target), source, sourceAttr->getLength(),
                                                               REC_DTCODE_TIMESTAMP, sourceAttr->getScale(),
                                                               ExpDatetime::DATETIME_FORMAT_DEFAULT, heap);
 
@@ -2703,14 +2703,14 @@ void ExFunctionRangeOfValues::displayOpData(fstream &out, const char *msg, char 
   if (DFS2REC::isDecimal(dt)) {
     if (sourceAttr->getScale() == 0) {
       // represent a decimal with 0 scale as an int64
-      Int64 value = 0;
+      long value = 0;
       if (convDecToInt64(value, source, sourceAttr->getLength(), heap,
                          NULL,  // ComDiagsArea** diagsArea,
                          0      // flags, ignored due to NULL diagsArea ptr
                          ) != ex_expr::EXPR_OK)
         return;
 
-      // convert to Int64
+      // convert to long
       out << value;
     }
   }
@@ -2739,7 +2739,7 @@ NABoolean ExFunctionRangeOfValues::insertData(char *op_data[], CollHeap *heap) {
       return rangeOfValues_->insert(*(Int32 *)source);
 
     case REC_BIN64_SIGNED:
-      return rangeOfValues_->insert(*(Int64 *)source);
+      return rangeOfValues_->insert(*(long *)source);
 
     case REC_BIN8_UNSIGNED:
       return rangeOfValues_->insert(*(UInt8 *)source);
@@ -2755,7 +2755,7 @@ NABoolean ExFunctionRangeOfValues::insertData(char *op_data[], CollHeap *heap) {
   }
 
   if (DFS2REC::isAnyCharacter(dt)) {
-    Lng32 len = getOperand(1)->getLength(op_data[-MAX_OPERANDS + 1]);
+    int len = getOperand(1)->getLength(op_data[-MAX_OPERANDS + 1]);
 
     if (DFS2REC::isDoubleCharacter(dt))
       return rangeOfValues_->insert((wchar_t *)source, len / 2);
@@ -2768,7 +2768,7 @@ NABoolean ExFunctionRangeOfValues::insertData(char *op_data[], CollHeap *heap) {
 
     switch (sourceAttr->getPrecision()) {
       case REC_DATETIME_CODE::REC_DTCODE_DATE: {
-        Lng32 realTargetLen =
+        int realTargetLen =
             convertDateTimeTimestampToAscii(target, sizeof(target), source, sourceAttr->getLength(), REC_DTCODE_DATE,
                                             sourceAttr->getScale(), ExpDatetime::DATETIME_FORMAT_DEFAULT, heap);
 
@@ -2784,7 +2784,7 @@ NABoolean ExFunctionRangeOfValues::insertData(char *op_data[], CollHeap *heap) {
       }
 
       case REC_DATETIME_CODE::REC_DTCODE_TIME: {
-        Lng32 realTargetLen =
+        int realTargetLen =
             convertDateTimeTimestampToAscii(target, sizeof(target), source, sourceAttr->getLength(), REC_DTCODE_TIME,
                                             sourceAttr->getScale(), ExpDatetime::DATETIME_FORMAT_DEFAULT, heap);
 
@@ -2794,7 +2794,7 @@ NABoolean ExFunctionRangeOfValues::insertData(char *op_data[], CollHeap *heap) {
       }
 
       case REC_DATETIME_CODE::REC_DTCODE_TIMESTAMP: {
-        Lng32 realTargetLen = convertDateTimeTimestampToAscii(target, sizeof(target), source, sourceAttr->getLength(),
+        int realTargetLen = convertDateTimeTimestampToAscii(target, sizeof(target), source, sourceAttr->getLength(),
                                                               REC_DTCODE_TIMESTAMP, sourceAttr->getScale(),
                                                               ExpDatetime::DATETIME_FORMAT_DEFAULT, heap);
 
@@ -2808,14 +2808,14 @@ NABoolean ExFunctionRangeOfValues::insertData(char *op_data[], CollHeap *heap) {
   if (DFS2REC::isDecimal(dt)) {
     if (sourceAttr->getScale() == 0) {
       // represent a decimal with 0 scale as an int64
-      Int64 value = 0;
+      long value = 0;
       if (convDecToInt64(value, source, sourceAttr->getLength(), heap,
                          NULL,  // ComDiagsArea** diagsArea,
                          0      // flags, ignored due to NULL diagsArea ptr
                          ) != ex_expr::EXPR_OK)
         return FALSE;
 
-      // convert to Int64
+      // convert to long
       rangeOfValues_->insert(value);
       return TRUE;
     }
@@ -2843,7 +2843,7 @@ NABoolean ExFunctionRangeOfValues::lookupData(char *op_data[], CollHeap *heap) {
       return rangeOfValues_->lookup(*(Int32 *)source);
 
     case REC_BIN64_SIGNED:
-      return rangeOfValues_->lookup(*(Int64 *)source);
+      return rangeOfValues_->lookup(*(long *)source);
 
     case REC_BIN8_UNSIGNED:
       return rangeOfValues_->lookup(*(UInt8 *)source);
@@ -2859,7 +2859,7 @@ NABoolean ExFunctionRangeOfValues::lookupData(char *op_data[], CollHeap *heap) {
   }
 
   if (DFS2REC::isAnyCharacter(dt)) {
-    Lng32 len = getOperand(1)->getLength(op_data[-MAX_OPERANDS + 1]);
+    int len = getOperand(1)->getLength(op_data[-MAX_OPERANDS + 1]);
 
     if (DFS2REC::isDoubleCharacter(dt))
       return rangeOfValues_->lookup((wchar_t *)source, len / 2);
@@ -2872,7 +2872,7 @@ NABoolean ExFunctionRangeOfValues::lookupData(char *op_data[], CollHeap *heap) {
 
     switch (sourceAttr->getPrecision()) {
       case REC_DATETIME_CODE::REC_DTCODE_DATE: {
-        Lng32 realTargetLen =
+        int realTargetLen =
             convertDateTimeTimestampToAscii(target, sizeof(target), source, sourceAttr->getLength(), REC_DTCODE_DATE,
                                             sourceAttr->getScale(), ExpDatetime::DATETIME_FORMAT_DEFAULT, heap);
 
@@ -2919,7 +2919,7 @@ NABoolean ExFunctionRangeOfValues::lookupData(char *op_data[], CollHeap *heap) {
       }
 
       case REC_DATETIME_CODE::REC_DTCODE_TIME: {
-        Lng32 realTargetLen =
+        int realTargetLen =
             convertDateTimeTimestampToAscii(target, sizeof(target), source, sourceAttr->getLength(), REC_DTCODE_TIME,
                                             sourceAttr->getScale(), ExpDatetime::DATETIME_FORMAT_DEFAULT, heap);
 
@@ -2929,7 +2929,7 @@ NABoolean ExFunctionRangeOfValues::lookupData(char *op_data[], CollHeap *heap) {
       }
 
       case REC_DATETIME_CODE::REC_DTCODE_TIMESTAMP: {
-        Lng32 realTargetLen = convertDateTimeTimestampToAscii(target, sizeof(target), source, sourceAttr->getLength(),
+        int realTargetLen = convertDateTimeTimestampToAscii(target, sizeof(target), source, sourceAttr->getLength(),
                                                               REC_DTCODE_TIMESTAMP, sourceAttr->getScale(),
                                                               ExpDatetime::DATETIME_FORMAT_DEFAULT, heap);
 
@@ -2943,14 +2943,14 @@ NABoolean ExFunctionRangeOfValues::lookupData(char *op_data[], CollHeap *heap) {
   if (DFS2REC::isDecimal(dt)) {
     if (sourceAttr->getScale() == 0) {
       // represent a decimal with 0 scale as an int64
-      Int64 value = 0;
+      long value = 0;
       if (convDecToInt64(value, source, sourceAttr->getLength(), heap,
                          NULL,  // ComDiagsArea** diagsArea,
                          0      // flags, ignored due to NULL diagsArea ptr
                          ) != ex_expr::EXPR_OK)
         return FALSE;
 
-      // convert to Int64
+      // convert to long
       return rangeOfValues_->lookup(value);
     }
   }
@@ -3006,7 +3006,7 @@ ex_expr::exp_return_type ExFunctionRangeOfValues::eval(char *op_data[], CollHeap
       char *vcLenPtr = op_data[-MAX_OPERANDS];
 
       Attributes *tgt = getOperand(0);
-      Lng32 vcLenSize = tgt->getVCIndicatorLength();
+      int vcLenSize = tgt->getVCIndicatorLength();
 
       setVCLength(vcLenPtr, vcLenSize, sourceLen);
 
@@ -3074,7 +3074,7 @@ ex_expr::exp_return_type ExFunctionRangeOfValues::eval(char *op_data[], CollHeap
       char *vcLenPtr = op_data[-MAX_OPERANDS];
 
       Attributes *tgt = getOperand(0);
-      Lng32 vcLenSize = tgt->getVCIndicatorLength();
+      int vcLenSize = tgt->getVCIndicatorLength();
 
       setVCLength(vcLenPtr, vcLenSize, sourceLen);
 
@@ -3124,9 +3124,9 @@ ex_expr::exp_return_type ExFunctionRangeOfValues::eval(char *op_data[], CollHeap
       if (rangeOfValues_->isEnabled())
         // boolean values: 0 = false, 1 = true, -1 = null
         // Only 0 or 1 can be returned from lookupData() call.
-        *(Lng32 *)op_data[0] = lookupData(op_data, heap);
+        *(int *)op_data[0] = lookupData(op_data, heap);
       else
-        *(Lng32 *)op_data[0] = 1;
+        *(int *)op_data[0] = 1;
 
       return ex_expr::EXPR_OK;
 
@@ -3148,7 +3148,7 @@ ex_expr::exp_return_type ExFunctionRangeOfValues::eval(char *op_data[], CollHeap
   return ex_expr::EXPR_OK;
 }
 
-void ExFunctionRangeOfValues::packRanges(char *target, char *vcLenPtr, Lng32 vcLenSize, NABoolean clearWhenDone,
+void ExFunctionRangeOfValues::packRanges(char *target, char *vcLenPtr, int vcLenSize, NABoolean clearWhenDone,
                                          ScanFilterStatsList *sfStats, ScanFilterStats::MergeSemantics semantics) {
   if (rangeOfValues_->isEnabled()) {
     UInt32 packLen = rangeOfValues_->getPackedLength();
@@ -3165,7 +3165,7 @@ void ExFunctionRangeOfValues::packRanges(char *target, char *vcLenPtr, Lng32 vcL
 
   if (sfStats) {
     Int16 filterId = getFilterId();
-    Int64 rowsAffected = rangeOfValues_->entries();
+    long rowsAffected = rangeOfValues_->entries();
     ScanFilterStats stats(filterId, rowsAffected, rangeOfValues_->isEnabled());
 
     sfStats->addEntry(stats, semantics);
@@ -3203,7 +3203,7 @@ ex_expr::exp_return_type ExFunctionRangeOfValues::conditionalPack(ex_clause *cla
       char *target = NULL;
       char *vardata = NULL;
       ULng32 size = 0;
-      Lng32 vcLenSize = 0;
+      int vcLenSize = 0;
 
       switch ((*op)->getTupleFormat()) {
         case ExpTupleDesc::SQLARK_EXPLODED_FORMAT: {

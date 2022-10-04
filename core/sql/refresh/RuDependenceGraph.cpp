@@ -65,7 +65,7 @@ CRUDependenceGraph::~CRUDependenceGraph() {
 //	Lookup by task ID
 //--------------------------------------------------------------------------//
 
-CRUTask *CRUDependenceGraph::GetTask(Lng32 taskId) { return availableTaskList_.FindTask(taskId); }
+CRUTask *CRUDependenceGraph::GetTask(int taskId) { return availableTaskList_.FindTask(taskId); }
 
 //--------------------------------------------------------------------------//
 //	CRUDependenceGraph::GetTask()

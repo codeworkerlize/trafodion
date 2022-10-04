@@ -440,7 +440,7 @@ NAString *SharedDescriptorCache::find(const QualifiedName &name, NABoolean inclu
   return value;
 }
 
-Lng32 SharedDescriptorCache::entries(const QualifiedName &inSchName) {
+int SharedDescriptorCache::entries(const QualifiedName &inSchName) {
   // No protection to the access of the table_, assuming that
   // the update is infrequent and the user makes sure the
   // update to table_ happens in a maintenance window in which
@@ -466,12 +466,12 @@ Lng32 SharedDescriptorCache::entries(const QualifiedName &inSchName) {
   return ct;
 }
 
-Lng32 SharedDescriptorCache::entries() {
+int SharedDescriptorCache::entries() {
   QualifiedName pseudoSchemaName("", "", "");
   return entries(pseudoSchemaName);
 }
 
-Lng32 SharedTableDataCache::entries() {
+int SharedTableDataCache::entries() {
   if (memoryTableDB_) {
     return memoryTableDB_->entriesEnabled();
   }
@@ -483,7 +483,7 @@ void SharedDescriptorCache::findAll() {
 
   Int32 ctEnabled = 0;
   Int32 ctDisabled = 0;
-  Int64 totalSize = 0;
+  long totalSize = 0;
 
   NAHashDictionaryIteratorNoCopy<QualifiedName, NAString> itorForEnabled(*table_, iteratorEntryType::ENABLED);
 
@@ -544,7 +544,7 @@ void SharedTableDataCache::findAll() {
 
   Int32 ctEnabled = 0;
   Int32 ctDisabled = 0;
-  Int64 totalSize = 0;
+  long totalSize = 0;
 
   NAHashDictionaryIteratorNoCopy<NAString, HTableCache> itorForEnabled(*(memoryTableDB_->tableNameToCacheEntryMap()),
                                                                        iteratorEntryType::ENABLED);
@@ -658,8 +658,8 @@ char *SharedDescriptorCache::collectSummaryDataForSchema(const QualifiedName &sc
   const Int32 bufLen = 300;
   static THREAD_P char buf[bufLen];
 
-  Int64 totalSizeForAll = 0;
-  Int64 totalSizeForEnabled = 0;
+  long totalSizeForAll = 0;
+  long totalSizeForEnabled = 0;
 
   NAHashDictionaryIteratorNoCopy<QualifiedName, NAString> itorForAll(*table_, iteratorEntryType::EVERYTHING);
 
@@ -717,8 +717,8 @@ char *SharedDescriptorCache::collectSummaryDataForAll() {
   const Int32 bufLen = 300;
   static THREAD_P char buf[bufLen];
 
-  Int64 totalSizeForAll = 0;
-  Int64 totalSizeForEnabled = 0;
+  long totalSizeForAll = 0;
+  long totalSizeForEnabled = 0;
 
   NAHashDictionaryIteratorNoCopy<QualifiedName, NAString> itorForAll(*table_, iteratorEntryType::EVERYTHING);
 
@@ -969,7 +969,7 @@ void SharedDescriptorCache::populateWithSynthesizedData(int pairs, size_t maxVal
 
   Int32 i;
   Int32 ct = 0;
-  Int64 totalSize = 0;
+  long totalSize = 0;
   NABoolean inserted = TRUE;
   for (i = 0; i < pairs; i++) {
     char buf[20];
@@ -1028,10 +1028,10 @@ void SharedDescriptorCache::lookUpWithSynthesizedData(int pairs) {
 
   Int32 i;
   Int32 ct = 0;
-  Int64 totalSize = 0;
+  long totalSize = 0;
   NAString *value = NULL;
   for (i = 0; i < pairs; i++) {
-    // Int64 key(rand());
+    // long key(rand());
     char buf[20];
     NAString idAsName(str_itoa(rand(), buf));
     QualifiedName key(idAsName);
@@ -1190,7 +1190,7 @@ void SharedDescriptorCache::enableDisableDeleteWithSynthesizedData(int pairs) {
 }
 
 void SharedDescriptorCache::testPopulateWithSynthesizedData(int pairs, size_t maxLength) {
-  Lng32 retcode = 0;
+  int retcode = 0;
   LOCK_SHARED_CACHE;
 
   cout << "Test SharedDescriptorCache::testPopulateWithSynthesizedData() with " << pairs
@@ -1209,7 +1209,7 @@ void SharedDescriptorCache::testPopulateWithSynthesizedData(int pairs, size_t ma
 void SharedDescriptorCache::testHashDictionaryEnableDisableDelete(int pairs, size_t maxLength) {
   SharedDescriptorCache::testPopulateWithSynthesizedData(pairs, maxLength);
 
-  Lng32 retcode = 0;
+  int retcode = 0;
   LOCK_SHARED_CACHE;
 
   SharedDescriptorCache *sharedDescCache = SharedDescriptorCache::locate();
@@ -1360,8 +1360,8 @@ char *SharedTableDataCache::collectSummaryDataForAll(bool showDetails, Int32 &bl
   Int32 bufLen = 300;
   char *buf = new char[bufLen];
 
-  Int64 totalSizeForAll = 0;
-  Int64 totalSizeForEnabled = 0;
+  long totalSizeForAll = 0;
+  long totalSizeForEnabled = 0;
 
   NAHashDictionaryIteratorNoCopy<NAString, HTableCache> itorForAll(*(memoryTableDB_->tableNameToCacheEntryMap()),
                                                                    iteratorEntryType::EVERYTHING);
@@ -1465,7 +1465,7 @@ bool processStr(const char *val, int len, const QualifiedName &schemaName) {
   strncpy(cBuf, val, len);
   cBuf[len] = '\0';
   char *c = cBuf;
-  Lng32 numParts = 0;
+  int numParts = 0;
   char *parts[4];
   LateNameInfo::extractParts(c, cBuf, numParts, parts, FALSE);
   if (numParts != 3) cout << "erro" << endl;
@@ -1491,8 +1491,8 @@ char *SharedTableDataCache::collectSummaryDataForSchema(const QualifiedName &sch
   const Int32 bufLen = 300;
   static THREAD_P char buf[bufLen];
 
-  Int64 totalSizeForAll = 0;
-  Int64 totalSizeForEnabled = 0;
+  long totalSizeForAll = 0;
+  long totalSizeForEnabled = 0;
 
   NAHashDictionaryIteratorNoCopy<NAString, HTableCache> itorForAll(*(memoryTableDB_->tableNameToCacheEntryMap()),
                                                                    iteratorEntryType::EVERYTHING);
@@ -1635,7 +1635,7 @@ void testSharedDataMemoryHashDictionaryFindAll() {
 }
 
 void testSharedMemoryHashDictionaryClean() {
-  Lng32 retcode = 0;
+  int retcode = 0;
   LOCK_SHARED_CACHE;
 
   SharedDescriptorCache *sharedDescCache = SharedDescriptorCache::locate();
@@ -1657,7 +1657,7 @@ void testSharedMemoryHashDictionaryClean() {
 }
 
 void testSharedMemoryHashDictionaryDestroy() {
-  Lng32 retcode = 0;
+  int retcode = 0;
   LOCK_SHARED_CACHE;
 
   SharedDescriptorCache *sharedDescCache = SharedDescriptorCache::locate();

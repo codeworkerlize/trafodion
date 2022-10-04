@@ -45,9 +45,9 @@
 #include "sqlcat/TrafDDLdesc.h"
 
 // defined in SynthType.cpp
-extern void emitDyadicTypeSQLnameMsg(Lng32 sqlCode, const NAType &op1, const NAType &op2, const char *str1 = NULL,
+extern void emitDyadicTypeSQLnameMsg(int sqlCode, const NAType &op1, const NAType &op2, const char *str1 = NULL,
                                      const char *str2 = NULL, ComDiagsArea *diagsArea = NULL,
-                                     const Lng32 int1 = -999999);
+                                     const int int1 = -999999);
 
 NAString *getMinMaxValue(TrafDesc *column, TrafDesc *key, NABoolean highKey, CollHeap *h) {
   NAString *minMaxValue = NULL;
@@ -55,8 +55,8 @@ NAString *getMinMaxValue(TrafDesc *column, TrafDesc *key, NABoolean highKey, Col
   NAType *type;  // deleted at the end of this method
   if (NAColumn::createNAType(column->columnsDesc(), NULL, 0, type, NULL)) return NULL;
 
-  Lng32 buflen = type->getTotalSize();
-  Lng32 nullHdrSize = 0;
+  int buflen = type->getTotalSize();
+  int nullHdrSize = 0;
   char *buf = new char[buflen];  // deleted at the end of this method
   if (type->supportsSQLnullPhysical()) {
     nullHdrSize = type->getSQLnullHdrSize();
@@ -96,7 +96,7 @@ NAString *getMinMaxValue(TrafDesc *column, TrafDesc *key, NABoolean highKey, Col
   return minMaxValue;
 }
 
-NAString **createInArrayForLowOrHighKeys(TrafDesc *column_descs, TrafDesc *key_descs, Lng32 numKeys, NABoolean highKey,
+NAString **createInArrayForLowOrHighKeys(TrafDesc *column_descs, TrafDesc *key_descs, int numKeys, NABoolean highKey,
                                          NABoolean isIndex, CollHeap *h) {
   NAString **inValuesArray = new (h) NAString *[numKeys];
 

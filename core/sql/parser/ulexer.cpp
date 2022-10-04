@@ -93,7 +93,7 @@ class IntegerList;
 
 #include "common/CharType.h"
 #include "common/charinfo.h"
-#include "conversionHex.h"
+#include "common/conversionHex.h"
 #include "common/ComSmallDefs.h"
 #include "common/ComTransInfo.h"
 #include "common/ComUnits.h"
@@ -410,7 +410,7 @@ static NAString *removeConsecutiveQuotes(const NAWchar *s, Int32 len, NAWchar qu
   }  // string literal without character set prefix (i.e. QUOTED_STRING)
 
   NAString *pTempStr = NULL;
-  pTempStr = unicodeToChar(const_cast<NAWchar *>(s), len, static_cast<Lng32>(targetCS), PARSERHEAP());
+  pTempStr = unicodeToChar(const_cast<NAWchar *>(s), len, static_cast<int>(targetCS), PARSERHEAP());
   if (pTempStr == NULL)  // conversion failed
   {
     // The string argument contains characters that cannot be converted.
@@ -502,7 +502,7 @@ Int32 yyULexer::setStringval(Int32 tokCod, const char *dbgstr, YYSTYPE *lvalp) {
   addTokenToGlobalQueue();
   dbgprintf(dbgstr);
 
-  Lng32 targetMBCS = (Lng32)ParScannedInputCharset;
+  int targetMBCS = (int)ParScannedInputCharset;
 
   lvalp->stringval = unicodeToChar(YYText(), YYLeng(), targetMBCS, PARSERHEAP());
 
@@ -534,7 +534,7 @@ Int32 yyULexer::aQuotedBlock(YYSTYPE *lvalp) {
   addTokenToGlobalQueue();
   dbgprintf("Quoted block %s\n");
 
-  Lng32 targetMBCS = (Lng32)ParScannedInputCharset;
+  int targetMBCS = (int)ParScannedInputCharset;
 
   lvalp->stringval = unicodeToChar(YYText() + 2, YYLeng() - 4, targetMBCS, PARSERHEAP());
 
@@ -2105,7 +2105,7 @@ Int32 yyULexer::yylex(YYSTYPE *lvalp) {
           doBeforeAction();
           addTokenToGlobalQueue();
           dbgprintf(DBGMSG("Internal arith placeholder %s\n"));
-          Lng32 x = NAWwcstol(YYText() + 2);
+          int x = NAWwcstol(YYText() + 2);
           if ((*SqlParser_ParamItemList)[x - 1])
             lvalp->item = (*SqlParser_ParamItemList)[x - 1]->castToItemExpr();
           else
@@ -2119,7 +2119,7 @@ Int32 yyULexer::yylex(YYSTYPE *lvalp) {
           doBeforeAction();
           addTokenToGlobalQueue();
           dbgprintf(DBGMSG("Internal boolean placeholder %s\n"));
-          Lng32 x = NAWwcstol(YYText() + 2);
+          int x = NAWwcstol(YYText() + 2);
           if ((*SqlParser_ParamItemList)[x - 1])
             lvalp->item = (*SqlParser_ParamItemList)[x - 1]->castToItemExpr();
           else

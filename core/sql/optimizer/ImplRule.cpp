@@ -48,7 +48,7 @@
 #include "optimizer/mdam.h"
 #include "arkcmp/CmpContext.h"
 #include "Cost.h"
-#include "CostMethod.h"
+#include "optimizer/CostMethod.h"
 #include "ScanOptimizer.h"
 
 #include "sqlcomp/NADefaults.h"
@@ -1274,7 +1274,7 @@ NABoolean SortGroupByRule::topMatch(RelExpr *relExpr, Context *context) {
   if (grbyagg->isRollup()) return TRUE;
 
   // Settings to limit Sort Group By application
-  Lng32 sortGbySetting = CURRSTMT_OPTDEFAULTS->robustSortGroupBy();
+  int sortGbySetting = CURRSTMT_OPTDEFAULTS->robustSortGroupBy();
   if (context->getReqdPhysicalProperty()->getMustMatch() == NULL && sortGbySetting > 0) {
     if (grbyagg->isAPartialGroupByRoot()) {
       // disallow sortGroupBy from partialGrpByRoot if no order requirement

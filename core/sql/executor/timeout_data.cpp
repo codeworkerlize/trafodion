@@ -117,11 +117,11 @@ void TimeoutHashTable::resizeHashTableIfNeeded() {
 // internal routine: insert entry into H.T., return TRUE iff entry is new
 // The table parameter is a pointer to a pointer to allow allocation
 NABoolean TimeoutHashTable::internalInsert(TimeoutTableEntry **hashTable, ULng32 hashTableSize, char *tableName,
-                                           Lng32 timeoutValue) {
+                                           int timeoutValue) {
   NABoolean itIsNew;
   // get the hashValue
-  Lng32 hashValue = getTimeoutHashValue(tableName);
-  Lng32 originalHashValue = hashValue;
+  int hashValue = getTimeoutHashValue(tableName);
+  int originalHashValue = hashValue;
 
   // We may have to initialize the hash table
   if (*hashTable == NULL) {
@@ -147,7 +147,7 @@ NABoolean TimeoutHashTable::internalInsert(TimeoutTableEntry **hashTable, ULng32
   return itIsNew;
 }
 
-void TimeoutHashTable::insert(char *tableName, Lng32 timeoutValue) {
+void TimeoutHashTable::insert(char *tableName, int timeoutValue) {
   if (internalInsert(&hashArray_, hashTableSize_, tableName, timeoutValue))
     entries_++;  // if inserted a new table name, increment #entries
 
@@ -155,7 +155,7 @@ void TimeoutHashTable::insert(char *tableName, Lng32 timeoutValue) {
 };
 
 void TimeoutHashTable::remove(char *tableName) {
-  Lng32 dummy;
+  int dummy;
   if (!getTimeout(tableName, dummy)) return;  // entry not found
 
   // tempIndex_ was set internally by getTimeout; use it to remove this entry
@@ -206,10 +206,10 @@ void TimeoutHashTable::remove(char *tableName) {
 };
 
 // find and set the timeout value for this table; return FALSE iff not found
-NABoolean TimeoutHashTable::getTimeout(char *tableName, Lng32 &timeoutValue) {
+NABoolean TimeoutHashTable::getTimeout(char *tableName, int &timeoutValue) {
   if (!entries_) return FALSE;
 
-  Lng32 hashValue = getTimeoutHashValue(tableName);
+  int hashValue = getTimeoutHashValue(tableName);
 
   while (hashArray_[hashValue].used)
     if (strcmp(hashArray_[hashValue].tableName(), tableName))
@@ -224,10 +224,10 @@ NABoolean TimeoutHashTable::getTimeout(char *tableName, Lng32 &timeoutValue) {
 }
 
 // The hash-function
-Lng32 TimeoutHashTable::getTimeoutHashValue(char *tableName) {
-  Lng32 tempVal = 0;
-  Lng32 primes[4] = {1, 3, 5, 7};  // a mask to scatter similar names
-  for (Lng32 ul = 0; tableName[ul] != '\0'; ul++) tempVal += primes[ul % 4] * (char)tableName[ul];
+int TimeoutHashTable::getTimeoutHashValue(char *tableName) {
+  int tempVal = 0;
+  int primes[4] = {1, 3, 5, 7};  // a mask to scatter similar names
+  for (int ul = 0; tableName[ul] != '\0'; ul++) tempVal += primes[ul % 4] * (char)tableName[ul];
 
   return (tempVal % hashTableSize_);
 }
@@ -246,7 +246,7 @@ IpcMessageObjSize TimeoutHashTable::packedLength() {
     // This requirement is from the packIntoBuffer method.
     nameLen += 4 - nameLen % 4;  // add alignment size
 
-    result += nameLen + sizeof(Lng32);  // aligned name length + timeout_value
+    result += nameLen + sizeof(int);  // aligned name length + timeout_value
 
     count--;  // one less entry to go
   }
@@ -273,8 +273,8 @@ void TimeoutHashTable::packIntoBuffer(IpcMessageBufferPtr &buffer) {
     strncpy(buffer, "\0\0\0\0", alignedNameLen);
     buffer = (char *)buffer + alignedNameLen;  // advance pointer
     // now get the timeout value
-    *(Lng32 *)buffer = hashArray_[ul].timeoutValue;
-    buffer = (char *)buffer + sizeof(Lng32);
+    *(int *)buffer = hashArray_[ul].timeoutValue;
+    buffer = (char *)buffer + sizeof(int);
 
     count--;  // one less entry to go
   }
@@ -293,8 +293,8 @@ void TimeoutHashTable::unpackObj(IpcConstMessageBufferPtr &buffer) {
     // This requirement is from the packIntoBuffer method.
     nameLen += 4 - nameLen % 4;  // add alignment size
     buffer += nameLen;
-    Lng32 timeoutVal = *(Lng32 *)buffer;
-    buffer += sizeof(Lng32);
+    int timeoutVal = *(int *)buffer;
+    buffer += sizeof(int);
     // insert into the hash array
     this->insert(tblName, timeoutVal);
   }
@@ -313,7 +313,7 @@ TimeoutData::TimeoutData(CollHeap *heap, ULng32 estimatedMaxEntries)
   ex_assert(heap && estimatedMaxEntries > 0, "Bad parameters");
 };
 
-void TimeoutData::setAllLockTimeout(Lng32 lockTimeoutValue) {
+void TimeoutData::setAllLockTimeout(int lockTimeoutValue) {
   noLockTimeoutsSet_ = FALSE;
   forAll_ = TRUE;
   forAllTimeout_ = lockTimeoutValue;
@@ -329,7 +329,7 @@ void TimeoutData::resetAllLockTimeout() {
   timeoutsHT_.clearAll();
 }
 
-void TimeoutData::setTableLockTimeout(char *tableName, Lng32 lockTimeoutValue) {
+void TimeoutData::setTableLockTimeout(char *tableName, int lockTimeoutValue) {
   noLockTimeoutsSet_ = FALSE;
   timeoutsHT_.insert(tableName, lockTimeoutValue);
 }
@@ -339,7 +339,7 @@ void TimeoutData::resetTableLockTimeout(char *tableName) {
   if (timeoutsHT_.entries() == 0 && !forAll_) noLockTimeoutsSet_ = TRUE;
 }
 
-NABoolean TimeoutData::getLockTimeout(char *tableName, Lng32 &timeoutValue) {
+NABoolean TimeoutData::getLockTimeout(char *tableName, int &timeoutValue) {
   if (noLockTimeoutsSet_) return FALSE;
 
   // check timeoutsHT_ table, which overrides "set for all" (if set)
@@ -351,7 +351,7 @@ NABoolean TimeoutData::getLockTimeout(char *tableName, Lng32 &timeoutValue) {
   return TRUE;
 }
 
-void TimeoutData::setStreamTimeout(Lng32 streamTimeoutValue) {
+void TimeoutData::setStreamTimeout(int streamTimeoutValue) {
   streamTimeoutSet_ = TRUE;
   streamTimeoutValue_ = streamTimeoutValue;
 }
@@ -373,7 +373,7 @@ NABoolean TimeoutData::anyRelevantTimeoutData(ComTdbRoot *rootTdb) {
   // now check each individual table used by this statement
   for (UInt32 ui = 0; ui < lnil->getNumEntries(); ui++) {
     char *tableName = lnil->getLateNameInfo(ui).resolvedPhyName();
-    Lng32 dummyTimeoutValue;
+    int dummyTimeoutValue;
     if (timeoutsHT_.getTimeout(tableName, dummyTimeoutValue)) return TRUE;
   }
   return FALSE;  // nothing relevant was found
@@ -403,7 +403,7 @@ void TimeoutData::copyData(TimeoutData **anotherTD, CollHeap *heap, ComTdbRoot *
   // if found -- make such an entry in the other TD's array
   for (UInt32 ui = 0; ui < lnil->getNumEntries(); ui++) {
     char *tableName = lnil->getLateNameInfo(ui).resolvedPhyName();
-    Lng32 timeoutValue;
+    int timeoutValue;
     if (timeoutsHT_.getTimeout(tableName, timeoutValue)) (*anotherTD)->timeoutsHT_.insert(tableName, timeoutValue);
   }
 }
@@ -435,7 +435,7 @@ NABoolean TimeoutData::isUpToDate(TimeoutData *anotherTD, ComTdbRoot *rootTdb) {
   // check timeout similarity for each table (used by this stmt)
   for (UInt32 ui = 0; ui < lnil->getNumEntries(); ui++) {
     char *tableName = lnil->getLateNameInfo(ui).resolvedPhyName();
-    Lng32 globalTimeoutValue = 0, stmtTimeoutValue = 0;
+    int globalTimeoutValue = 0, stmtTimeoutValue = 0;
     NABoolean globalFound = timeoutsHT_.getTimeout(tableName, globalTimeoutValue);
     NABoolean stmtFound = anotherTD->timeoutsHT_.getTimeout(tableName, stmtTimeoutValue);
 
@@ -453,8 +453,8 @@ NABoolean TimeoutData::isUpToDate(TimeoutData *anotherTD, ComTdbRoot *rootTdb) {
 IpcMessageObjSize TimeoutData::packedLength() {
   IpcMessageObjSize result = sizeof(ULng32);  // "flags" are always there
 
-  if (streamTimeoutSet_) result += sizeof(Lng32);
-  if (!noLockTimeoutsSet_ & forAll_) result += sizeof(Lng32);
+  if (streamTimeoutSet_) result += sizeof(int);
+  if (!noLockTimeoutsSet_ & forAll_) result += sizeof(int);
   result += timeoutsHT_.packedLength();
   return result;
 }
@@ -468,14 +468,14 @@ void TimeoutData::packIntoBuffer(IpcMessageBufferPtr &buffer) {
     if (timeoutsHT_.entries() > 0) flags |= 0x08;  // is timeout HT empty ?
   }
   *(ULng32 *)buffer = flags;                // store the flags
-  buffer = (char *)buffer + sizeof(Lng32);  // incr buffer
+  buffer = (char *)buffer + sizeof(int);  // incr buffer
   if (streamTimeoutSet_) {
-    *(Lng32 *)buffer = streamTimeoutValue_;   // store the stream t/o value
-    buffer = (char *)buffer + sizeof(Lng32);  // incr buffer
+    *(int *)buffer = streamTimeoutValue_;   // store the stream t/o value
+    buffer = (char *)buffer + sizeof(int);  // incr buffer
   }
   if (!noLockTimeoutsSet_ & forAll_) {
-    *(Lng32 *)buffer = forAllTimeout_;        // store the for-all value
-    buffer = (char *)buffer + sizeof(Lng32);  // incr buffer
+    *(int *)buffer = forAllTimeout_;        // store the for-all value
+    buffer = (char *)buffer + sizeof(int);  // incr buffer
   }
 
   timeoutsHT_.packIntoBuffer(buffer);
@@ -487,15 +487,15 @@ void TimeoutData::unpackObj(IpcConstMessageBufferPtr &buffer) {
 
   streamTimeoutSet_ = flags & 0x01;
   if (streamTimeoutSet_) {
-    streamTimeoutValue_ = *(Lng32 *)buffer;
-    buffer += sizeof(Lng32);
+    streamTimeoutValue_ = *(int *)buffer;
+    buffer += sizeof(int);
   }
 
   noLockTimeoutsSet_ = !(flags & 0x02);
   forAll_ = flags & 0x04;
   if (!noLockTimeoutsSet_ && forAll_) {
-    forAllTimeout_ = *(Lng32 *)buffer;
-    buffer += sizeof(Lng32);
+    forAllTimeout_ = *(int *)buffer;
+    buffer += sizeof(int);
   }
 
   // only if hash table existed then unpack it!

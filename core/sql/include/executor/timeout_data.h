@@ -85,7 +85,7 @@ class TimeoutTableEntry : public NABasicObject {
 
   // public data members: directly accessed entry fields
   // ( A lax design here, since this class is only used by TimeoutHashTable )
-  Lng32 timeoutValue;
+  int timeoutValue;
   ULng32 hashValue;
   NABoolean used;
 
@@ -110,12 +110,12 @@ class TimeoutHashTable : public NABasicObject {
     heap_->deallocateMemory(hashArray_);
   };
 
-  void insert(char *tableName, Lng32 timeoutValue);
+  void insert(char *tableName, int timeoutValue);
 
   void remove(char *tableName);
 
   // find and set the timeout value for this table; return FALSE iff not found
-  NABoolean getTimeout(char *tableName, Lng32 &timeoutValue);
+  NABoolean getTimeout(char *tableName, int &timeoutValue);
 
   // remove all the entries from the hash table
   void clearAll();
@@ -139,8 +139,8 @@ class TimeoutHashTable : public NABasicObject {
   void resizeHashTableIfNeeded();
   TimeoutTableEntry *allocateHashTable(ULng32 size);
   // internal routine: insert entry into H.T., return TRUE iff entry is new
-  NABoolean internalInsert(TimeoutTableEntry **hashTable, ULng32 hashTableSize, char *tableName, Lng32 timeoutValue);
-  Lng32 getTimeoutHashValue(char *tableName);
+  NABoolean internalInsert(TimeoutTableEntry **hashTable, ULng32 hashTableSize, char *tableName, int timeoutValue);
+  int getTimeoutHashValue(char *tableName);
 };
 
 // **********************************************************************
@@ -157,18 +157,18 @@ class TimeoutData : public NABasicObject {
   ~TimeoutData(){};  // do nothing dtor
 
   // for lock timeout
-  void setAllLockTimeout(Lng32 lockTimeoutValue);
+  void setAllLockTimeout(int lockTimeoutValue);
   void resetAllLockTimeout();
-  void setTableLockTimeout(char *tableName, Lng32 lockTimeoutValue);
+  void setTableLockTimeout(char *tableName, int lockTimeoutValue);
   void resetTableLockTimeout(char *tableName);
   NABoolean noLockTimeoutsSet() { return noLockTimeoutsSet_; }
-  NABoolean getLockTimeout(char *tableName, Lng32 &timeoutValue);
+  NABoolean getLockTimeout(char *tableName, int &timeoutValue);
 
   // for stream timeout
-  void setStreamTimeout(Lng32 streamTimeoutValue);
+  void setStreamTimeout(int streamTimeoutValue);
   void resetStreamTimeout();
   NABoolean isStreamTimeoutSet() { return streamTimeoutSet_; };
-  Lng32 getStreamTimeout() { return streamTimeoutValue_; };
+  int getStreamTimeout() { return streamTimeoutValue_; };
 
   // copy relevant data from this TimeoutData object into another object,
   // The "anotherTD" may need to be allocated (if there's relevant data)
@@ -195,13 +195,13 @@ class TimeoutData : public NABasicObject {
   NABoolean noLockTimeoutsSet_;  // flag to speed up checking a common case
   // If noLockTimeoutsSet_ == TRUE, the following 3 fields are not used !!
   NABoolean forAll_;             // Was the timeout set for all tables (i.e. *)
-  Lng32 forAllTimeout_;          // Lock timeout value for all tables (if set)
+  int forAllTimeout_;          // Lock timeout value for all tables (if set)
   TimeoutHashTable timeoutsHT_;  // List of specified per table lock-timeouts
 
   // for stream timeout
   NABoolean streamTimeoutSet_;  // Was the stream timeout set ?
   // If streamTimeoutSet_ == FALSE, the following field is ignored
-  Lng32 streamTimeoutValue_;  // The process-global stream timeout
+  int streamTimeoutValue_;  // The process-global stream timeout
 
   // an internal utility method: Check if there's relevant timeout data
   NABoolean anyRelevantTimeoutData(ComTdbRoot *rootTdb);

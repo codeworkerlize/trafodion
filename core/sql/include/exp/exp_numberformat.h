@@ -80,16 +80,16 @@ class ExpNumerFormat {
     NUM_v,
     NUM_LAST
   };
-  static Lng32 convertBigNumToChar(char *dataValue, char *result, Attributes *arg0, Attributes *arg1, Attributes *arg2,
+  static int convertBigNumToChar(char *dataValue, char *result, Attributes *arg0, Attributes *arg1, Attributes *arg2,
                                    char *arg1Str, char *arg2Str, CollHeap *heap, ComDiagsArea **diagsArea);
 
-  static Lng32 convertFloatToChar(char *dataValue, char *result, Attributes *arg0, Attributes *arg1, Attributes *arg2,
+  static int convertFloatToChar(char *dataValue, char *result, Attributes *arg0, Attributes *arg1, Attributes *arg2,
                                   char *arg1Str, char *arg2Str, CollHeap *heap, ComDiagsArea **diagsArea);
 
-  static Lng32 convertInt32ToChar(char *dataValue, char *result, Attributes *arg0, Attributes *arg1, Attributes *arg2,
+  static int convertInt32ToChar(char *dataValue, char *result, Attributes *arg0, Attributes *arg1, Attributes *arg2,
                                   char *arg1Str, char *arg2Str, CollHeap *heap, ComDiagsArea **diagsArea);
 
-  static Lng32 convertInt64ToChar(char *dataValue, char *result, Attributes *arg0, Attributes *arg1, Attributes *arg2,
+  static int convertInt64ToChar(char *dataValue, char *result, Attributes *arg0, Attributes *arg1, Attributes *arg2,
                                   char *arg1Str, char *arg2Str, CollHeap *heap, ComDiagsArea **diagsArea);
 };
 

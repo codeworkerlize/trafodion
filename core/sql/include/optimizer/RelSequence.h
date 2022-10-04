@@ -121,7 +121,7 @@ class RelSequence : public RelExpr {
   //
   virtual void pushdownCoveredExpr(const ValueIdSet &outputExprOnOperator, const ValueIdSet &newExternalInputs,
                                    ValueIdSet &predOnOperator, const ValueIdSet *nonPredExprOnOperator = NULL,
-                                   Lng32 childId = (-MAX_REL_ARITY));
+                                   int childId = (-MAX_REL_ARITY));
 
   // Return a the set of potential output values of this node.
   // For RelSequence, this is the output of the child, plus all
@@ -158,7 +158,7 @@ class RelSequence : public RelExpr {
   virtual void synthLogProp(NormWA *normWAPtr = NULL);
   virtual void synthEstLogProp(const EstLogPropSharedPtr &inputEstLogProp);
 
-  virtual Context *createContextForAChild(Context *myContext, PlanWorkSpace *pws, Lng32 &childIndex);
+  virtual Context *createContextForAChild(Context *myContext, PlanWorkSpace *pws, int &childIndex);
 
   // get a printable string that identifies the operator
   //
@@ -213,17 +213,17 @@ class RelSequence : public RelExpr {
 
   ItemExpr *getRequiredOrderTree() { return requiredOrderTree_; }
 
-  Lng32 getCachedNumHistoryRows() { return cachedNumHistoryRows_; }
-  void setCachedNumHistoryRows(Lng32 v) { cachedNumHistoryRows_ = v; }
+  int getCachedNumHistoryRows() { return cachedNumHistoryRows_; }
+  void setCachedNumHistoryRows(int v) { cachedNumHistoryRows_ = v; }
 
   NABoolean getCachedUnboundedFollowing() { return cachedUnboundedFollowing_; }
   void setCachedUnboundedFollowing(NABoolean v) { cachedUnboundedFollowing_ = v; }
 
-  Lng32 getCachedMinFollowingRows() { return cachedMinFollowingRows_; }
-  void setCachedMinFollowingRows(Lng32 v) { cachedMinFollowingRows_ = v; }
+  int getCachedMinFollowingRows() { return cachedMinFollowingRows_; }
+  void setCachedMinFollowingRows(int v) { cachedMinFollowingRows_ = v; }
 
-  Lng32 getCachedHistoryRowLength() { return cachedHistoryRowLength_; }
-  void setCachedHistoryRowLength(Lng32 v) { cachedHistoryRowLength_ = v; }
+  int getCachedHistoryRowLength() { return cachedHistoryRowLength_; }
+  void setCachedHistoryRowLength(int v) { cachedHistoryRowLength_ = v; }
 
   NABoolean getHistoryInfoCached() { return historyInfoCached_; }
   void setHistoryInfoCached(NABoolean v) { historyInfoCached_ = v; }
@@ -301,10 +301,10 @@ class RelSequence : public RelExpr {
 
   // cached parameters
   NABoolean historyInfoCached_;
-  Lng32 cachedNumHistoryRows_;
+  int cachedNumHistoryRows_;
   NABoolean cachedUnboundedFollowing_;
-  Lng32 cachedMinFollowingRows_;
-  Lng32 cachedHistoryRowLength_;
+  int cachedMinFollowingRows_;
+  int cachedHistoryRowLength_;
 
 };  // class RelSequence
 
@@ -352,14 +352,14 @@ class PhysSequence : public RelSequence {
 
   // cost functions
   //
-  virtual PhysicalProperty *synthPhysicalProperty(const Context *context, const Lng32 planNumber, PlanWorkSpace *pws);
+  virtual PhysicalProperty *synthPhysicalProperty(const Context *context, const int planNumber, PlanWorkSpace *pws);
   virtual CostMethod *costMethod() const;
 
   // The method gets redefined since Sequnece may be a BMO depending
   // on its inputs.
-  virtual NABoolean isBigMemoryOperator(const Context *context, const Lng32 planNumber);
+  virtual NABoolean isBigMemoryOperator(const Context *context, const int planNumber);
 
-  virtual CostScalar getEstimatedRunTimeMemoryUsage(Generator *generator, NABoolean perNode, Lng32 *numStreams = NULL);
+  virtual CostScalar getEstimatedRunTimeMemoryUsage(Generator *generator, NABoolean perNode, int *numStreams = NULL);
 
   // Redefine these virtual methods to declare this node as a
   // physical node.
@@ -396,34 +396,34 @@ class PhysSequence : public RelSequence {
   // supplied by the compiler and dynamically determines the size
   // of the history buffer.
   //
-  void computeHistoryRows(const ValueIdSet &sequenceFunctions, Lng32 &computedHistoryRows, Lng32 &unableToCalculate,
+  void computeHistoryRows(const ValueIdSet &sequenceFunctions, int &computedHistoryRows, int &unableToCalculate,
                           // long &minFixedHistoryRows,
                           NABoolean &unboundedFollowing,  //&unlimitedHistoryRows,
-                          Lng32 &minFollowingRows, const ValueIdSet &outputFromChild);
+                          int &minFollowingRows, const ValueIdSet &outputFromChild);
 
   // Return a READ-ONLY reference to the number of history rows to be
   // allocated in the history buffer.
   //
-  inline const Lng32 &numHistoryRows() const { return numHistoryRows_; }
+  inline const int &numHistoryRows() const { return numHistoryRows_; }
 
   // Set the number of history rows to be allowed in the history buffer.
-  void setNumHistoryRows(Lng32 numHistoryRows);
+  void setNumHistoryRows(int numHistoryRows);
 
   void setUnboundedFollowing(NABoolean v);
   NABoolean getUnboundedFollowing() const;
 
-  void setMinFollowingRows(Lng32 v);
+  void setMinFollowingRows(int v);
 
   // set the min following rows to max(v, minFollowingRows_);
-  void computeAndSetMinFollowingRows(Lng32 v);
+  void computeAndSetMinFollowingRows(int v);
 
-  Lng32 getMinFollowingRows() const;
+  int getMinFollowingRows() const;
 
-  Lng32 getEstHistoryRowLength() const { return estHistoryRowLength_; }
+  int getEstHistoryRowLength() const { return estHistoryRowLength_; }
 
-  void setEstHistoryRowLength(Lng32 v) { estHistoryRowLength_ = v; }
+  void setEstHistoryRowLength(int v) { estHistoryRowLength_ = v; }
 
-  void updateEstHistoryRowLength(ValueIdSet &histIds, ValueId newValId, Lng32 &estimatedLength) {
+  void updateEstHistoryRowLength(ValueIdSet &histIds, ValueId newValId, int &estimatedLength) {
     if (!histIds.contains(newValId)) {
       estimatedLength += newValId.getType().getTotalSize();
       histIds += newValId;
@@ -436,13 +436,13 @@ class PhysSequence : public RelSequence {
 
   void transformOlapFunctions(CollHeap *wHeap);
 
-  void computeHistoryParams(Lng32 histRecLength, Lng32 &maxRowsInOLAPBuffer, Lng32 &minNumberOfOLAPBuffers,
-                            Lng32 &numberOfWinOLAPBuffers, Lng32 &maxNumberOfOLAPBuffers, Lng32 &olapBufferSize);
+  void computeHistoryParams(int histRecLength, int &maxRowsInOLAPBuffer, int &minNumberOfOLAPBuffers,
+                            int &numberOfWinOLAPBuffers, int &maxNumberOfOLAPBuffers, int &olapBufferSize);
 
   void retrieveCachedHistoryInfo(RelSequence *cacheRelSeq);
 
   void estimateHistoryRowLength(const ValueIdSet &sequenceFunctions, const ValueIdSet &outputFromChild,
-                                ValueIdSet &histIds, Lng32 &estimatedLength);
+                                ValueIdSet &histIds, int &estimatedLength);
 
   void addCheckPartitionChangeExpr(Generator *generator, NABoolean addConvNodes = FALSE,
                                    ValueIdMap *origAttributes = NULL);
@@ -453,20 +453,20 @@ class PhysSequence : public RelSequence {
   // Later it may be reduced if it can be determined that fewer rows
   // can safely be used.
   //
-  Lng32 numHistoryRows_;
+  int numHistoryRows_;
 
   // minimum number of rows that need to fit in the history buffer
   // unbounded to Bounded and bounded to bounded cases
   // if there is an unbounded following we still need to detremine the size for above cases
-  Lng32 minFixedHistoryRows_;
+  int minFixedHistoryRows_;
 
   // do need to have unlimited size-- unbounded following cases
   NABoolean unboundedFollowing_;  // unlimitedHistoryRows_;
 
-  Lng32 minFollowingRows_;
+  int minFollowingRows_;
 
   // estimated history row length
-  Lng32 estHistoryRowLength_;
+  int estHistoryRowLength_;
 
  private:
   CostMethodRelSequence *pCostMethod_;

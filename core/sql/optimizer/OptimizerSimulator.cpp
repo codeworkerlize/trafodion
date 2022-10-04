@@ -481,7 +481,7 @@ void OptimizerSimulator::dumpDDLs(const QualifiedName &qualifiedName) {
   }
 }
 
-void OptimizerSimulator::buildHistogramUnload(NAString &query, const QualifiedName *name, Int64 tableUID) {
+void OptimizerSimulator::buildHistogramUnload(NAString &query, const QualifiedName *name, long tableUID) {
   query = "UNLOAD WITH NULL_STRING '\\N' INTO ";
   query += "'" UNLOAD_HDFS_DIR "/";
   query += ComUser::getCurrentUsername();
@@ -525,7 +525,7 @@ void OptimizerSimulator::buildHistogramUnload(NAString &query, const QualifiedNa
   query += std::to_string((long long)(tableUID)).c_str();
 }
 
-void OptimizerSimulator::buildHistogramIntervalUnload(NAString &query, const QualifiedName *name, Int64 tableUID) {
+void OptimizerSimulator::buildHistogramIntervalUnload(NAString &query, const QualifiedName *name, long tableUID) {
   query = "UNLOAD WITH NULL_STRING '\\N' INTO ";
   query += "'" UNLOAD_HDFS_DIR "/";
   query += ComUser::getCurrentUsername();
@@ -561,10 +561,10 @@ void OptimizerSimulator::buildHistogramIntervalUnload(NAString &query, const Qua
 void OptimizerSimulator::dumpHistograms() {
   short retcode;
   const QualifiedName *name = NULL;
-  Int64 *tableUID = NULL;
+  long *tableUID = NULL;
   NAString query(STMTHEAP);
 
-  NAHashDictionaryIterator<const QualifiedName, Int64> iterator(*hashDict_Tables_);
+  NAHashDictionaryIterator<const QualifiedName, long> iterator(*hashDict_Tables_);
 
   OsimAllHistograms *histoInfoList = new (STMTHEAP) OsimAllHistograms(STMTHEAP);
   NAString fullPath(STMTHEAP);
@@ -664,9 +664,9 @@ void OptimizerSimulator::dropObjects() {
   }
 
   std::string str;
-  Int64 uid;
+  long uid;
   const QualifiedName *qualName = NULL;
-  Int64 *tableUID;
+  long *tableUID;
   NAString trafName;
   std::ifstream hiveTableListFile(logFilePaths_[HIVE_TABLE_LIST]);
   // we only need one loop, no need to populate hashDict_HiveTables_
@@ -694,7 +694,7 @@ void OptimizerSimulator::dropObjects() {
     NAString unregisterStmt = "UNREGISTER HIVE TABLE IF EXISTS ";
     unregisterStmt += name;
     debugMessage("%s\n", unregisterStmt.data());
-    Lng32 diagsMark = CmpCommon::diags()->mark();
+    int diagsMark = CmpCommon::diags()->mark();
     retcode = executeFromMetaContext(unregisterStmt.data());
     if (retcode < 0) {
       // suppress errors for now, even with IF EXISTS this will
@@ -1047,7 +1047,7 @@ NABoolean OptimizerSimulator::massageTableUID(OsimHistogramEntry *entry,
 
   qualifiedName = new (STMTHEAP) QualifiedName(histogramTableName, schema, catalog, STMTHEAP);
 
-  Int64 tableUID;
+  long tableUID;
   //
   // Comment out the following block of code due to the recent change to
   // register a hive table. The registration process inserts a new row
@@ -1397,7 +1397,7 @@ void OptimizerSimulator::readAndSetCQDs() {
     raiseOsimException("Error open %s", logFilePaths_[CQD_DEFAULTSFILE]);
   }
 
-  Lng32 retcode;
+  int retcode;
   std::string cqd;
   while (inLogfile.good()) {
     // read one line
@@ -1426,10 +1426,10 @@ void OptimizerSimulator::enterSimulationMode() {
   setClusterInfoInitialized(TRUE);
 }
 
-Int64 OptimizerSimulator::getTableUID(const char *catName, const char *schName, const char *objName) {
+long OptimizerSimulator::getTableUID(const char *catName, const char *schName, const char *objName) {
   initializeCLI();
 
-  Int64 retcode;
+  long retcode;
   if (cmpSBD_->switchCompiler(CmpContextInfo::CMPCONTEXT_TYPE_META)) {
     raiseOsimException("Errors Switch Context.");
   }
@@ -1694,15 +1694,15 @@ void OptimizerSimulator::initHashDictionaries() {
   if (!hashDictionariesInitialized_) {
     hashDict_getEstimatedRows_ = new (heap_) NAHashDictionary<NAString, double>(&NAString::hash, 101, TRUE, heap_);
 
-    hashDict_Views_ = new (heap_) NAHashDictionary<const QualifiedName, Int64>(&QualifiedName::hash, 101, TRUE, heap_);
+    hashDict_Views_ = new (heap_) NAHashDictionary<const QualifiedName, long>(&QualifiedName::hash, 101, TRUE, heap_);
 
-    hashDict_Tables_ = new (heap_) NAHashDictionary<const QualifiedName, Int64>(&QualifiedName::hash, 101, TRUE, heap_);
+    hashDict_Tables_ = new (heap_) NAHashDictionary<const QualifiedName, long>(&QualifiedName::hash, 101, TRUE, heap_);
 
     hashDict_Synonyms_ =
         new (heap_) NAHashDictionary<const QualifiedName, Int32>(&QualifiedName::hash, 101, TRUE, heap_);
 
     hashDict_HiveTables_ =
-        new (heap_) NAHashDictionary<const QualifiedName, Int64>(&QualifiedName::hash, 101, TRUE, heap_);
+        new (heap_) NAHashDictionary<const QualifiedName, long>(&QualifiedName::hash, 101, TRUE, heap_);
 
     hashDictionariesInitialized_ = TRUE;
   }
@@ -2043,7 +2043,7 @@ void OptimizerSimulator::capture_TableOrView(NATable *naTab) {
       // this is used to check if the view has already
       // been written out to disk
       QualifiedName *viewName = new (heap_) QualifiedName(objQualifiedName, heap_);
-      Int64 *dummy = new Int64(naTab->objectUid().get_value());
+      long *dummy = new long(naTab->objectUid().get_value());
       hashDict_Views_->insert(viewName, dummy);
     }
   } else if (naTab->getSpecialType() == ExtendedQualName::NORMAL_TABLE) {
@@ -2078,7 +2078,7 @@ void OptimizerSimulator::capture_TableOrView(NATable *naTab) {
       // insert tableName into hash table for later use
       QualifiedName *tableName = new (heap_) QualifiedName(objQualifiedName, heap_);
       // save table uid to get historgram data on leaving.
-      Int64 *tableUID = new Int64(naTab->objectUid().get_value());
+      long *tableUID = new long(naTab->objectUid().get_value());
       hashDict_Tables_->insert(tableName, tableUID);
       dumpDDLs(objQualifiedName);
     }

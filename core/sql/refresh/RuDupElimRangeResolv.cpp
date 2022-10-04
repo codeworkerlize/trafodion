@@ -206,10 +206,10 @@ void CRUDupElimRangeResolver::DumpPerformanceStatistics(CDSString &to) const {
 //--------------------------------------------------------------------------//
 
 void CRUDupElimRangeResolver::LoadReply(CUOFsIpcMessageTranslator &translator) {
-  translator.ReadBlock(&numRngLogDelete_, sizeof(Lng32));
-  translator.ReadBlock(&numRngLogInsert_, sizeof(Lng32));
-  translator.ReadBlock(&numIUDLogDelete_, sizeof(Lng32));
-  translator.ReadBlock(&numIUDLogUpdate_, sizeof(Lng32));
+  translator.ReadBlock(&numRngLogDelete_, sizeof(int));
+  translator.ReadBlock(&numRngLogInsert_, sizeof(int));
+  translator.ReadBlock(&numIUDLogDelete_, sizeof(int));
+  translator.ReadBlock(&numIUDLogUpdate_, sizeof(int));
 }
 
 //--------------------------------------------------------------------------//
@@ -217,10 +217,10 @@ void CRUDupElimRangeResolver::LoadReply(CUOFsIpcMessageTranslator &translator) {
 //--------------------------------------------------------------------------//
 
 void CRUDupElimRangeResolver::StoreReply(CUOFsIpcMessageTranslator &translator) {
-  translator.WriteBlock(&numRngLogDelete_, sizeof(Lng32));
-  translator.WriteBlock(&numRngLogInsert_, sizeof(Lng32));
-  translator.WriteBlock(&numIUDLogDelete_, sizeof(Lng32));
-  translator.WriteBlock(&numIUDLogUpdate_, sizeof(Lng32));
+  translator.WriteBlock(&numRngLogDelete_, sizeof(int));
+  translator.WriteBlock(&numRngLogInsert_, sizeof(int));
+  translator.WriteBlock(&numIUDLogDelete_, sizeof(int));
+  translator.WriteBlock(&numIUDLogUpdate_, sizeof(int));
 }
 
 //--------------------------------------------------------------------------//
@@ -528,7 +528,7 @@ void CRUDupElimRangeResolver::ExecuteRngLogInsert(const CRURange &rng) {
 void CRUDupElimRangeResolver::ExecuteRngLogDelete(const CRURange &rng) {
   const CRUIUDLogRecord *pLBRec = rng.GetBRRecord();
   const CRUIUDLogRecord *pUBRec = rng.GetERRecord();
-  Lng32 ckLen = pLBRec->GetCKLength();
+  int ckLen = pLBRec->GetCKLength();
 
   CDMPreparedStatement *pStmt = GetPreparedStatement(CRUDupElimConst::RANGE_LOG_DELETE);
 
@@ -572,7 +572,7 @@ void CRUDupElimRangeResolver::ExecuteIUDLogDelete(const CRURange &rng) {
   const CRUIUDLogRecord *pUBRec = rng.GetERRecord();
 
   TInt32 epoch = pLBRec->GetEpoch();
-  Lng32 ckLen = pLBRec->GetCKLength();
+  int ckLen = pLBRec->GetCKLength();
 
   CDMPreparedStatement *pStmt = GetPreparedStatement(CRUDupElimConst::IUD_LOG_SUBSET_DELETE);
 
@@ -613,7 +613,7 @@ void CRUDupElimRangeResolver::ExecuteIUDLogAlwaysIgnore(const CRURange &rng) {
   const CRUIUDLogRecord *pUBRec = rng.GetERRecord();
 
   TInt32 epoch = pLBRec->GetEpoch();
-  Lng32 ckLen = pLBRec->GetCKLength();
+  int ckLen = pLBRec->GetCKLength();
 
   CDMPreparedStatement *pStmt = GetPreparedStatement(CRUDupElimConst::IUD_LOG_SUBSET_UPDATE_ALWAYS_IGNORE);
 
@@ -676,7 +676,7 @@ void CRUDupElimRangeResolver::ExecuteIUDLogUpdate(const CRURange &rng) {
   const CRUIUDLogRecord *pUBRec = rng.GetERRecord();
 
   TInt32 epoch = pLBRec->GetEpoch();
-  Lng32 ckLen = pLBRec->GetCKLength();
+  int ckLen = pLBRec->GetCKLength();
 
   CDMPreparedStatement *pStmt = GetPreparedStatement(CRUDupElimConst::IUD_LOG_SUBSET_UPDATE_IGNORE);
 

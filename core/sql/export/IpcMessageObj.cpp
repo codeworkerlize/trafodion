@@ -558,7 +558,7 @@ void IpcMessageObj::convertNextToOffset() {
 }
 
 IpcMessageObjSize packCharStarIntoBuffer(IpcMessageBufferPtr &buffer, char *strPtr, NABoolean swapBytes) {
-  Lng32 length;
+  int length;
 
   if (strPtr == NULL)
     length = 0;
@@ -574,7 +574,7 @@ IpcMessageObjSize packCharStarIntoBuffer(IpcMessageBufferPtr &buffer, char *strP
 
 // UR2
 IpcMessageObjSize packCharStarIntoBuffer(IpcMessageBufferPtr &buffer, NAWchar *strPtr, NABoolean swapBytes) {
-  Lng32 length;
+  int length;
 
   if (strPtr == NULL)
     length = 0;
@@ -596,7 +596,7 @@ void unpackBuffer(IpcConstMessageBufferPtr &buffer, char *&strPtr, CollHeap *col
   else
     delete strPtr;
 
-  Lng32 length;
+  int length;
   // NOT a recursive call.
   unpackBuffer(buffer, length);  // already has +1 for null terminating char
   if (length == 0)
@@ -616,7 +616,7 @@ void unpackBuffer(IpcConstMessageBufferPtr &buffer, char *&strPtr, CollHeap *col
 }
 
 void skipCharStarInBuffer(IpcConstMessageBufferPtr &buffer) {
-  Lng32 length;
+  int length;
   // NOT a recursive call.
   unpackBuffer(buffer, length);  // already has +1 for null terminating char
   buffer += length;

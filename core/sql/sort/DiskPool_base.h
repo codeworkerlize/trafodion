@@ -112,6 +112,6 @@ class DiskPool : public NABasicObject {
 };
 
 typedef DiskDetails *DiskDetailsPtr;
-const Lng32 longMaxInPageUnits = 1048576;  // INT_MAX/2048
+const int longMaxInPageUnits = 1048576;  // INT_MAX/2048
 
 #endif  // DISKPOOL_BASE_H

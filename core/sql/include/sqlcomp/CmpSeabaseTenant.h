@@ -149,8 +149,8 @@ class TenantResourceUsage {
         isNew_(false),
         isObsolete_(false) {}
 
-  TenantResourceUsage(const Int64 resourceUID, const NAString &resourceName, const Int64 usageUID,
-                      const NAString &usageName, const ResourceUsageType usageType, const Int64 usageValue = -1)
+  TenantResourceUsage(const long resourceUID, const NAString &resourceName, const long usageUID,
+                      const NAString &usageName, const ResourceUsageType usageType, const long usageValue = -1)
       : resourceUID_(resourceUID),
         resourceName_(resourceName),
         usageUID_(usageUID),
@@ -177,41 +177,41 @@ class TenantResourceUsage {
   static ResourceUsageType getUsageTypeAsEnum(NAString &usageType);
   static NAString getUsageTypeAsString(ResourceUsageType usageType);
 
-  const Int64 getFlags() { return flags_; }
+  const long getFlags() { return flags_; }
   const NAString getResourceName() { return resourceName_; }
-  const Int64 getResourceUID() { return resourceUID_; }
+  const long getResourceUID() { return resourceUID_; }
   const NAString getUsageName() { return usageName_; }
   const ResourceUsageType getUsageType() { return usageType_; }
-  const Int64 getUsageUID() { return usageUID_; }
-  const Int64 getUsageValue() { return usageValue_; }
+  const long getUsageUID() { return usageUID_; }
+  const long getUsageValue() { return usageValue_; }
 
   bool isNew() { return isNew_; }
   bool isObsolete() { return isObsolete_; }
   bool isNodeUsage() { return usageType_ == RESOURCE_USAGE_NODE; }
   bool isTenantUsage() { return usageType_ == RESOURCE_USAGE_TENANT; }
 
-  const void setFlags(Int64 flags) { flags_ = flags; }
+  const void setFlags(long flags) { flags_ = flags; }
   const void setIsNew(bool isNew) { isNew_ = isNew; }
   const void setIsObsolete(bool isObsolete) { isObsolete_ = isObsolete; }
   const void setResourceName(NAString &resourceName) { resourceName_ = resourceName; }
-  const void setResourceUID(Int64 resourceUID) { resourceUID_ = resourceUID; }
+  const void setResourceUID(long resourceUID) { resourceUID_ = resourceUID; }
   const void setUsageName(NAString &usageName) { usageName_ = usageName; }
   const void setUsageType(ResourceUsageType usageType) { usageType_ = usageType; }
-  const void setUsageUID(Int64 usageUID) { usageUID_ = usageUID; }
-  const void setUsageValue(Int64 usageValue) { usageValue_ = usageValue; }
+  const void setUsageUID(long usageUID) { usageUID_ = usageUID; }
+  const void setUsageValue(long usageValue) { usageValue_ = usageValue; }
 
   Int32 deleteRow(ExeCliInterface *cliInterface);
   Int32 insertRow(ExeCliInterface *cliInterface);
   Int32 updateRow(ExeCliInterface *cliInterface);
 
  private:
-  Int64 flags_;
+  long flags_;
   NAString resourceName_;
-  Int64 resourceUID_;
+  long resourceUID_;
   NAString usageName_;
   ResourceUsageType usageType_;
-  Int64 usageUID_;
-  Int64 usageValue_;
+  long usageUID_;
+  long usageValue_;
   bool isNew_;
   bool isObsolete_;
 };
@@ -243,9 +243,9 @@ class TenantResourceUsageList : public LIST(TenantResourceUsage *) {
     }
   }
 
-  Int64 deleteUsages(const NAString &whereClause);
+  long deleteUsages(const NAString &whereClause);
   short fetchUsages(const NAString &whereClause, const NAString &orderByClause);
-  TenantResourceUsage *findResource(const NAString *resourceName, const Int64 usageUID,
+  TenantResourceUsage *findResource(const NAString *resourceName, const long usageUID,
                                     const TenantResourceUsage::ResourceUsageType &resourceType);
   TenantResourceUsage *findUsage(const NAString *usageName, const TenantResourceUsage::ResourceUsageType &usageType);
   Int32 getNumNodeUsages();
@@ -254,7 +254,7 @@ class TenantResourceUsageList : public LIST(TenantResourceUsage *) {
   short modifyUsages();
   short updateUsages();
   void updateUsageValue(const NAString &resourceName, const NAString &usageName,
-                        TenantResourceUsage::ResourceUsageType usageType, Int64 newUsageValue);
+                        TenantResourceUsage::ResourceUsageType usageType, long newUsageValue);
 
  private:
   ExeCliInterface *cliInterface_;
@@ -313,29 +313,29 @@ class TenantResource {
   static bool validNodeNames(ConstStringList *usageList, NAString &invalidNames);
 
   ExeCliInterface *getCli() { return cliInterface_; }
-  const Int64 getCreateTime() { return createTime_; }
+  const long getCreateTime() { return createTime_; }
   const Int32 getCreator() { return creator_; }
   const NAString &getDetails1() { return details1_; }
   const NAString &getDetails2() { return details2_; }
   const NAString &getResourceName() { return name_; }
-  const Int64 getResourceUID() { return UID_; }
+  const long getResourceUID() { return UID_; }
   NAHeap *getHeap() { return heap_; }
-  const Int64 getRedefTime() { return redefTime_; }
+  const long getRedefTime() { return redefTime_; }
   TenantResourceUsageList *getUsageList() { return usageList_; };
   const TenantResourceType getType() { return type_; }
   const bool isValid() { return isValid_; }
 
   const void setCli(ExeCliInterface *cli) { cliInterface_ = cli; }
-  const void setCreateTime(Int64 createTime) { createTime_ = createTime; }
+  const void setCreateTime(long createTime) { createTime_ = createTime; }
   const void setCreator(Int32 creator) { creator_ = creator; }
   const void setDetails1(NAString &details1) { details1_ = details1; }
   const void setDetails2(NAString &details2) { details2_ = details2; }
-  const void setFlags(Int64 flags) { flags_ = flags; }
+  const void setFlags(long flags) { flags_ = flags; }
   const void setResourceName(NAString &resourceName) { name_ = resourceName; }
-  const void setResourceUID(Int64 resourceUID) { UID_ = resourceUID; }
+  const void setResourceUID(long resourceUID) { UID_ = resourceUID; }
   const void setHeap(NAHeap *heap) { heap_ = heap; }
   const void setIsValid(bool isValid) { isValid_ = isValid; }
-  const void setRedefTime(Int64 redefTime) { redefTime_ = redefTime; }
+  const void setRedefTime(long redefTime) { redefTime_ = redefTime; }
   const void setType(TenantResourceType type) { type_ = type; }
 
   short alterNodesForRGroupTenants(ExeCliInterface *cliInterface, const NAList<TenantInfo *> *tenantInfoList,
@@ -369,17 +369,17 @@ class TenantResource {
 
  private:
   ExeCliInterface *cliInterface_;
-  Int64 createTime_;
+  long createTime_;
   Int32 creator_;
   NAString details1_;
   NAString details2_;
-  Int64 flags_;
+  long flags_;
   NAHeap *heap_;
   bool isValid_;
   NAString name_;
-  Int64 redefTime_;
+  long redefTime_;
   TenantResourceType type_;
-  Int64 UID_;
+  long UID_;
   TenantResourceUsageList *usageList_;
 };
 
@@ -408,7 +408,7 @@ class TenantUsage {
         isObsolete_(false),
         isUnchanged_(false) {}
 
-  TenantUsage(const Int32 tenantID, const Int64 tenantUsageID, const TenantUsageType tenantUsageType)
+  TenantUsage(const Int32 tenantID, const long tenantUsageID, const TenantUsageType tenantUsageType)
       : tenantID_(tenantID),
         tenantUsageID_(tenantUsageID),
         tenantUsageType_(tenantUsageType),
@@ -442,9 +442,9 @@ class TenantUsage {
   static Int32 getTenantUsages(const Int32 tenantID, NAList<TenantUsage> *&usageList, CollHeap *heap);
 
   const Int32 getTenantID() { return tenantID_; }
-  const Int64 getUsageID() { return tenantUsageID_; }
+  const long getUsageID() { return tenantUsageID_; }
   const TenantUsageType getUsageType() { return tenantUsageType_; }
-  const Int64 getFlags() { return flags_; }
+  const long getFlags() { return flags_; }
 
   bool isNew() { return isNew_; }
   bool isObsolete() { return isObsolete_; }
@@ -453,19 +453,19 @@ class TenantUsage {
   bool isSchemaUsage() { return tenantUsageType_ == TENANT_USAGE_SCHEMA; }
   bool isUnchanged() { return isUnchanged_; }
 
-  const void setFlags(Int64 flags) { flags_ = flags; }
+  const void setFlags(long flags) { flags_ = flags; }
   const void setIsNew(bool isNew) { isNew_ = isNew; }
   const void setIsObsolete(bool isObsolete) { isObsolete_ = isObsolete; }
   const void setTenantID(Int32 tenantID) { tenantID_ = tenantID; }
   const void setUnchanged(bool isUnchanged) { isUnchanged_ = isUnchanged; }
-  const void setUsageID(Int64 usageID) { tenantUsageID_ = usageID; }
+  const void setUsageID(long usageID) { tenantUsageID_ = usageID; }
   const void setUsageType(TenantUsageType usageType) { tenantUsageType_ = usageType; }
 
  private:
   Int32 tenantID_;
-  Int64 tenantUsageID_;
+  long tenantUsageID_;
   TenantUsageType tenantUsageType_;
-  Int64 flags_;
+  long flags_;
   bool isNew_;
   bool isObsolete_;
   bool isUnchanged_;
@@ -486,7 +486,7 @@ class TenantUsageList : public LIST(TenantUsage) {
   const void setHeap(NAHeap *heap) { heap_ = heap; }
   inline NAHeap *getHeap() { return heap_; }
 
-  NABoolean findTenantUsage(const Int64 tenantUsageID, TenantUsage &tenantUsage) const;
+  NABoolean findTenantUsage(const long tenantUsageID, TenantUsage &tenantUsage) const;
 
   Int32 getNewSchemaUsages();
 
@@ -496,9 +496,9 @@ class TenantUsageList : public LIST(TenantUsage) {
 
   void obsoleteTenantRGroupUsages();
 
-  Int64 possibleDefSchUID() const;
+  long possibleDefSchUID() const;
 
-  void setTenantUsageObsolete(const Int64 tenantUsageID, const bool obsolete = true);
+  void setTenantUsageObsolete(const long tenantUsageID, const bool obsolete = true);
 
   Int32 deleteUsages(const char *whereClause);
   Int32 insertUsages();
@@ -526,7 +526,7 @@ class TenantInfo {
         origAssignedNodes_(NULL),
         heap_(heap) {}
 
-  TenantInfo(const Int32 tenantID, const Int32 adminRoleID, const Int64 defaultSchemaUID, TenantUsageList *usageList,
+  TenantInfo(const Int32 tenantID, const Int32 adminRoleID, const long defaultSchemaUID, TenantUsageList *usageList,
              NAWNodeSet *tenantNodes, NAString tenantName, NAHeap *heap);
 
   virtual ~TenantInfo(void) {
@@ -543,7 +543,7 @@ class TenantInfo {
   const Int32 getTenantID() { return tenantID_; }
   const NAString getTenantName() { return tenantName_; }
   const Int32 getAdminRoleID() { return adminRoleID_; }
-  const Int64 getDefaultSchemaUID() { return defaultSchemaUID_; }
+  const long getDefaultSchemaUID() { return defaultSchemaUID_; }
   const TenantUsageList *getUsageList() { return usageList_; }
   const NAWNodeSet *getTenantNodes() { return assignedNodes_; }
   const NAWNodeSet *getOrigTenantNodes() { return origAssignedNodes_; }
@@ -554,8 +554,8 @@ class TenantInfo {
 
   const void setTenantID(Int32 tenantID) { tenantID_ = tenantID; }
   const void setAdminRoleID(Int32 roleID) { adminRoleID_ = roleID; }
-  const void setFlags(Int64 flags) { flags_ = flags; }
-  const void setDefaultSchemaUID(Int64 schemaUID) { defaultSchemaUID_ = schemaUID; }
+  const void setFlags(long flags) { flags_ = flags; }
+  const void setDefaultSchemaUID(long schemaUID) { defaultSchemaUID_ = schemaUID; }
   const void setTenantUsages(TenantUsageList *usageList) { usageList_ = usageList; }
   const void setTenantDetails(const char *tenantDetails);
   const void setTenantNodes(NAWNodeSet *assignedNodes);
@@ -605,14 +605,14 @@ class TenantInfo {
 
   Int32 modifyTenantInfo(const bool updateTenant, const TenantUsageList *usageList);
 
-  const NABoolean findTenantUsage(const Int64 tenantUsageID, TenantUsage &tenantUsage) {
+  const NABoolean findTenantUsage(const long tenantUsageID, TenantUsage &tenantUsage) {
     return usageList_->findTenantUsage(tenantUsageID, tenantUsage);
   }
 
   void obsoleteTenantRGroupUsages() {
     if (usageList_ && usageList_->entries() > 0) usageList_->obsoleteTenantRGroupUsages();
   }
-  void setTenantUsageObsolete(const Int64 tenantUsageID, const bool obsolete = true) {
+  void setTenantUsageObsolete(const long tenantUsageID, const bool obsolete = true) {
     if (usageList_ && usageList_->entries() > 0) usageList_->setTenantUsageObsolete(tenantUsageID, obsolete);
   }
 
@@ -635,9 +635,9 @@ class TenantInfo {
 
   Int32 tenantID_;
   Int32 adminRoleID_;
-  Int64 defaultSchemaUID_;
+  long defaultSchemaUID_;
   NAString *tenantDetails_;
-  Int64 flags_;
+  long flags_;
   TenantUsageList *usageList_;
   NAWNodeSet *assignedNodes_;
   NAWNodeSet *origAssignedNodes_;
@@ -654,7 +654,7 @@ class TenantSchemaInfo {
  public:
   TenantSchemaInfo() : tenantID_(NA_UserIdDefault), schemaUID_(0), defSch_(FALSE) {}
 
-  TenantSchemaInfo(Int32 tenantID, Int64 schemaUID, NABoolean defSch)
+  TenantSchemaInfo(Int32 tenantID, long schemaUID, NABoolean defSch)
       : tenantID_(tenantID), schemaUID_(schemaUID), defSch_(defSch) {}
 
   virtual ~TenantSchemaInfo(void) {}
@@ -666,14 +666,14 @@ class TenantSchemaInfo {
   }
 
   const Int32 getTenantID() { return tenantID_; }
-  const Int64 getSchemaUID() { return schemaUID_; }
+  const long getSchemaUID() { return schemaUID_; }
   const NABoolean isDefSch() { return defSch_; }
 
   Int32 removeSchemaUsage();
 
  private:
   Int32 tenantID_;
-  Int64 schemaUID_;
+  long schemaUID_;
   NABoolean defSch_;
 };
 
@@ -689,9 +689,9 @@ class TenantSchemaInfoList : public LIST(TenantSchemaInfo *) {
   // virtual destructor
   virtual ~TenantSchemaInfoList();
 
-  TenantSchemaInfo *find(Int64 schemaUID);
-  void getSchemaList(Int32 tenantID, NAList<Int64> &schemaList);
-  Int32 getTenantID(Int64 schemaUID);
+  TenantSchemaInfo *find(long schemaUID);
+  void getSchemaList(Int32 tenantID, NAList<long> &schemaList);
+  Int32 getTenantID(long schemaUID);
 
 };  // class TenantSchemaInfoList
 
@@ -757,7 +757,7 @@ class TenantNodeInfo {
   // constructor
   TenantNodeInfo() : logicalNodeID_(-1), physicalNodeID_(-1), mdNodeUID_(-1), nodeWeight_(-1), heap_(NULL) {}
 
-  TenantNodeInfo(const NAString nodeName, const Int64 logicalNodeID, const Int64 physicalNodeID, const Int64 mdNodeUID,
+  TenantNodeInfo(const NAString nodeName, const long logicalNodeID, const long physicalNodeID, const long mdNodeUID,
                  const Int32 nodeWeight, NAHeap *heap = NULL)
       : nodeName_(nodeName),
         logicalNodeID_(logicalNodeID),
@@ -777,16 +777,16 @@ class TenantNodeInfo {
   virtual ~TenantNodeInfo() {}
 
   const NAString getNodeName() { return nodeName_; }
-  const Int64 getLogicalNodeID() { return logicalNodeID_; }
-  const Int64 getPhysicalNodeID() { return physicalNodeID_; }
-  const Int64 getMetadataNodeID() { return mdNodeUID_; }
+  const long getLogicalNodeID() { return logicalNodeID_; }
+  const long getPhysicalNodeID() { return physicalNodeID_; }
+  const long getMetadataNodeID() { return mdNodeUID_; }
   const Int32 getNodeWeight() { return nodeWeight_; }
 
  private:
   NAString nodeName_;
-  Int64 logicalNodeID_;
-  Int64 physicalNodeID_;
-  Int64 mdNodeUID_;
+  long logicalNodeID_;
+  long physicalNodeID_;
+  long mdNodeUID_;
   Int32 nodeWeight_;
   NAHeap *heap_;
 };
@@ -809,8 +809,8 @@ class TenantNodeInfoList : public LIST(TenantNodeInfo *) {
   inline NAHeap *getHeap() { return heap_; }
 
   NABoolean contains(const NAString &nodeName);
-  Int64 getNodeID(const NAString &nodeName);
-  NAString getNodeName(const Int64 logicalNodeID);
+  long getNodeID(const NAString &nodeName);
+  NAString getNodeName(const long logicalNodeID);
   NAString listOfNodes();
   void orderedInsert(TenantNodeInfo *nodeInfo);
   void removeIfExists(const NAString &nodeName);

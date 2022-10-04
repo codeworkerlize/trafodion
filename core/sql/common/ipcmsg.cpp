@@ -74,7 +74,7 @@ extern "C" {
 #include "cextdecs.h(PROCESSHANDLE_TO_FILENAME_,PROCESSHANDLE_DECOMPOSE_,FILE_OPEN_,SETMODE,FILE_GETINFO_,FILE_CLOSE_, AWAITIOX,PROCESS_DELAY_)"
 #include <tal.h>
 // should be #include <zsysc.h>
-#include "zsysc.h"
+#include "common/zsysc.h"
 }
 
 // Function used to get a pointer to the pfs
@@ -378,7 +378,7 @@ WaitReturnStatus GuaMsgConnectionToServer::wait(IpcTimeout timeout, UInt32 *even
     }
 
     // reset the filesystem data structures
-    Int64 localTransid = entry.transid_;
+    long localTransid = entry.transid_;
     resetAfterReply(entry.msgid_, error, &localTransid);
 
     SETSTOP(oldstop);  // become stoppable
@@ -857,9 +857,9 @@ NABoolean GuaMsgConnectionToServer::tryToStartNewIO() {
   }
 
   if (NOT GuardianError) {
-    entry.transid_ = (Int64)entry.buffer_->getTransid();
+    entry.transid_ = (long)entry.buffer_->getTransid();
     // setup request control buffer
-    GuardianError = setupRequestInfo((void *)entry.controlBuf_, (Int64)entry.buffer_->getTransid());
+    GuardianError = setupRequestInfo((void *)entry.controlBuf_, (long)entry.buffer_->getTransid());
     if (GuardianError) ADDRESS_UNWIRE_((unsigned char *)entry.controlBuf_, (sizeof(fs_fs_writeread)), wireOptions);
   }
 
@@ -1180,7 +1180,7 @@ void GuaMsgConnectionToServer::closePhandle() {
 // the file system on the server side
 // control is a pointer to the buffer that is supposed to
 // contain the control information
-short GuaMsgConnectionToServer::setupRequestInfo(void *control, Int64 transid) {
+short GuaMsgConnectionToServer::setupRequestInfo(void *control, long transid) {
   // Redirected to T9055 to insulate SQL/MX from changes in
   // ACB_REQUEST_TEMPLATE
   Int32 retcode = FS_SQL_SETUPREQUESTINFO(openFile_, (fs_fs_template *)control, transid);
@@ -1241,7 +1241,7 @@ short GuaMsgConnectionToServer::setupRequestInfo(void *control, Int64 transid) {
   }
   
   // if transid argument is invalid set flag in controlInfo.
-  if (transid == (Int64)-1) 
+  if (transid == (long)-1) 
     {
       controlInfo->tcbref_valid = 0;
     }
@@ -1323,7 +1323,7 @@ void GuaMsgConnectionToServer::putMsgIdinACB(UInt32 msgid) {
 #endif
 }
 
-void GuaMsgConnectionToServer::resetAfterReply(UInt32 msgid, short error, Int64 *transid) {
+void GuaMsgConnectionToServer::resetAfterReply(UInt32 msgid, short error, long *transid) {
   // Redirected to T9055 to insulate SQL/MX from changes in
   // ACB_REQUEST_TEMPLATE
   Int32 retcode = FS_SQL_RESETAFTERREPLY(openFile_, msgid, error, transid, abortXnOnPathErrors_);

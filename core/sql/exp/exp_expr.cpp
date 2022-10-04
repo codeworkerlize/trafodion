@@ -46,7 +46,7 @@
 #include "ExpPCode.h"
 #include "ExpPCodeOptimizations.h"
 
-void setVCLength(char *VCLen, Lng32 VCLenSize, ULng32 value);
+void setVCLength(char *VCLen, int VCLenSize, ULng32 value);
 
 // used during displayContents of expr that involve composite types
 extern Int32 compExprNum;
@@ -74,8 +74,8 @@ char *ex_expr::findVTblPtr(short classID) {
   return vtblPtr;
 }
 
-Lng32 ex_expr::initExpr() {
-  Lng32 rc = 0;
+int ex_expr::initExpr() {
+  int rc = 0;
 
   ex_clause *currClause = clauses_;
 
@@ -124,7 +124,7 @@ void ex_expr_lean::displayContents(Space *space, short mode, const char *display
 
         str_sprintf(buf, "    %s ", PCIT::instructionString(PCIT::Instruction(opcode)));
 
-        Lng32 pcodeLength = PCode::getInstructionLength(pCode - 1) - 1;
+        int pcodeLength = PCode::getInstructionLength(pCode - 1) - 1;
 
         char tbuf[256];
         char operandBuf[32];

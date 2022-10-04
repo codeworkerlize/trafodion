@@ -382,7 +382,7 @@ TInt32 CRUDeltaStatistics::GetPackedBufferSize(Int32 updateBitmapSize) {
 
 CRUDeltaStatisticsMap &CRUDeltaStatisticsMap::operator=(const CRUDeltaStatisticsMap &other) {
   CRUDeltaStatistics deStat;
-  Lng32 epoch;
+  int epoch;
 
   CDSMapPosition<CRUDeltaStatistics> pos;
   other.GetStartPosition(pos);
@@ -402,13 +402,13 @@ CRUDeltaStatisticsMap &CRUDeltaStatisticsMap::operator=(const CRUDeltaStatistics
 //--------------------------------------------------------------------------//
 void CRUDeltaStatisticsMap::LoadData(CUOFsIpcMessageTranslator &translator) {
   CRUDeltaStatistics deStat;
-  Lng32 count, epoch;
+  int count, epoch;
 
-  translator.ReadBlock(&count, sizeof(Lng32));
+  translator.ReadBlock(&count, sizeof(int));
   RUASSERT(0 == this->GetCount() && count > 0);
 
   for (Int32 i = 0; i < count; i++) {
-    translator.ReadBlock(&epoch, sizeof(Lng32));
+    translator.ReadBlock(&epoch, sizeof(int));
     deStat.LoadData(translator);
     (*this)[epoch] = deStat;
   }
@@ -421,12 +421,12 @@ void CRUDeltaStatisticsMap::LoadData(CUOFsIpcMessageTranslator &translator) {
 //--------------------------------------------------------------------------//
 void CRUDeltaStatisticsMap::StoreData(CUOFsIpcMessageTranslator &translator) {
   CRUDeltaStatistics deStat;
-  Lng32 epoch;
+  int epoch;
 
-  Lng32 count = this->GetCount();
+  int count = this->GetCount();
   RUASSERT(count > 0);
 
-  translator.WriteBlock(&count, sizeof(Lng32));
+  translator.WriteBlock(&count, sizeof(int));
 
   CDSMapPosition<CRUDeltaStatistics> pos;
   this->GetStartPosition(pos);
@@ -434,7 +434,7 @@ void CRUDeltaStatisticsMap::StoreData(CUOFsIpcMessageTranslator &translator) {
   while (TRUE == pos.IsValid()) {
     this->GetNextAssoc(pos, epoch, deStat);
 
-    translator.WriteBlock(&epoch, sizeof(Lng32));
+    translator.WriteBlock(&epoch, sizeof(int));
     deStat.StoreData(translator);
   }
 }

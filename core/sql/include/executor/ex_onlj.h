@@ -145,7 +145,7 @@ class ExOnljTcb : public ex_tcb {
 
 #ifdef NEED_INSTRUMENT_ONLJ
   // number of calls to work_phase3()
-  Int64 phase3s_;
+  long phase3s_;
   Timer phase3Timer_;
 #endif
 
@@ -202,8 +202,8 @@ class ExOnljTcb : public ex_tcb {
   // construction of nodes.
   virtual ex_queue_pair getParentQueue() const { return (qparent_); }
 
-  virtual ex_tcb_private_state *allocatePstates(Lng32 &numElems,       // inout, desired/actual elements
-                                                Lng32 &pstateLength);  // out, length of one element
+  virtual ex_tcb_private_state *allocatePstates(int &numElems,       // inout, desired/actual elements
+                                                int &pstateLength);  // out, length of one element
 
   virtual const ex_tcb *getChild(Int32 pos) const;
   virtual Int32 numChildren() const { return 2; }
@@ -229,19 +229,19 @@ inline const ex_tcb *ExOnljTcb::getChild(Int32 pos) const {
 class ExOnljPrivateState : public ex_tcb_private_state {
   friend class ExOnljTcb;
 
-  Int64 matchCount_;             // number of rows returned for this parent row
-  Int64 rowCount_;               // number of rows affected by this request. see comments in ex_partn_access.h
-  Int64 leftMatches_;            // number of left rows being worked on by right
-  Int64 leftOnlyRows_;           // # of left up rows not sent to right
+  long matchCount_;             // number of rows returned for this parent row
+  long rowCount_;               // number of rows affected by this request. see comments in ex_partn_access.h
+  long leftMatches_;            // number of left rows being worked on by right
+  long leftOnlyRows_;           // # of left up rows not sent to right
   queue_index leftIndex_;        // index into left down queue
   queue_index startRightIndex_;  // index into right down q. (start of rows)
   queue_index endRightIndex_;    // index into right down queue (end of rows)
   short outerMatched_;           // if true no need to null instatiate
   short rightRecSkipped_;  // True if the right node has skipped a record. Used only in the case of pub sub using skip
                            // conflict access.
-  Int64 srcRequestCount_;  // number of q. entries sent to right child from left child (used to set rownumber for rowset
+  long srcRequestCount_;  // number of q. entries sent to right child from left child (used to set rownumber for rowset
                            // error handling)
-  Int64 tgtRequestCount_;  // number of Q_NO_DATA seen on right side up queue (used to set rownumber for rowset error
+  long tgtRequestCount_;  // number of Q_NO_DATA seen on right side up queue (used to set rownumber for rowset error
                            // handling)
   NABoolean nonFatalErrorSeen_;        // to remember that a nonfatal error has been seen
   NABoolean rowAlreadyRaisedNFError_;  // to remember that this particular row has already raised a NF error (used to
@@ -252,14 +252,14 @@ class ExOnljPrivateState : public ex_tcb_private_state {
   //			   = down-queue-entry.requestValue after a Q_GET_DONE is returned.
   //			   = less than down-queue-entry.requestValue if Q_GET_DONE is not yet returned.
   // down-queue-entry.requestValue = requested number of rows to be returned.
-  Lng32 satisfiedRequestValue_;
+  int satisfiedRequestValue_;
   // Used for GET_NEXT_N protocol.
   // satisfiedGetNexts = number of Q_GET_DONEs returned
   // down-queue-entry.numGetNexts = number of GET_NEXT_N(_MAYBE_WAIT) received on the down-queue-entry
-  Lng32 satisfiedGetNexts_;
+  int satisfiedGetNexts_;
   // pushedDownGetNexts = the parent's down-queue.numGetNextsIssued that was moved to
   //  the child's queue.
-  Lng32 pushedDownGetNexts_;
+  int pushedDownGetNexts_;
   // TRUE if received a Q_GET_DONE from the left child and we are draining the pipe to the parent.
   // FALSE if the left child is still producing rows to satisfy the current request.
   NABoolean qGetDoneFromLeft_;

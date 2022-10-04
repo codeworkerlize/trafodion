@@ -172,9 +172,9 @@ static void getExecutionModeLit(ComRoutineExecutionMode val, NAString &result) {
     result = COM_ROUTINE_FAST_EXECUTION_LIT;
 }
 
-short CmpSeabaseDDL::getUsingRoutines(ExeCliInterface *cliInterface, Int64 objUID, Queue *&usingRoutinesQueue) {
-  Lng32 retcode = 0;
-  Lng32 cliRC = 0;
+short CmpSeabaseDDL::getUsingRoutines(ExeCliInterface *cliInterface, long objUID, Queue *&usingRoutinesQueue) {
+  int retcode = 0;
+  int cliRC = 0;
 
   char buf[4000];
   str_sprintf(buf,
@@ -199,7 +199,7 @@ short CmpSeabaseDDL::getUsingRoutines(ExeCliInterface *cliInterface, Int64 objUI
 
 void CmpSeabaseDDL::createSeabaseLibrary(StmtDDLCreateLibrary *createLibraryNode, NAString &currCatName,
                                          NAString &currSchName) {
-  Lng32 retcode = 0;
+  int retcode = 0;
 
   ComObjectName libraryName(createLibraryNode->getLibraryName());
   ComAnsiNamePart currCatAnsiName(currCatName);
@@ -229,7 +229,7 @@ void CmpSeabaseDDL::createSeabaseLibrary(StmtDDLCreateLibrary *createLibraryNode
   ExeCliInterface cliInterface(STMTHEAP, 0, NULL, CmpCommon::context()->sqlSession()->getParentQid());
   Int32 objectOwnerID = SUPER_USER;
   Int32 schemaOwnerID = SUPER_USER;
-  Int64 schemaUID = 0;
+  long schemaUID = 0;
   ComSchemaClass schemaClass;
 
   retcode = verifyDDLCreateOperationAuthorized(&cliInterface, SQLOperation::CREATE_LIBRARY, catalogNamePart,
@@ -287,7 +287,7 @@ void CmpSeabaseDDL::createSeabaseLibrary(StmtDDLCreateLibrary *createLibraryNode
   tableInfo->rowFormat = COM_UNKNOWN_FORMAT_TYPE;
   tableInfo->objectFlags = 0;
 
-  Int64 objUID = -1;
+  long objUID = -1;
   if (updateSeabaseMDTable(&cliInterface, catalogNamePart, schemaNamePart, objectNamePart, COM_LIBRARY_OBJECT, "N",
                            tableInfo, 0, NULL, 0, NULL, 0, NULL, objUID)) {
     deallocEHI(ehi);
@@ -308,7 +308,7 @@ void CmpSeabaseDDL::createSeabaseLibrary(StmtDDLCreateLibrary *createLibraryNode
   str_sprintf(query, "insert into %s.\"%s\".%s values (%ld, '%s',NULL, %d, 0)", getSystemCatalog(), SEABASE_MD_SCHEMA,
               SEABASE_LIBRARIES, objUID, libFileName.data(), createLibraryNode->getVersion());
 
-  Lng32 cliRC = cliInterface.executeImmediate(query);
+  int cliRC = cliInterface.executeImmediate(query);
 
   NADELETEBASIC(query, STMTHEAP);
   if (cliRC < 0) {
@@ -368,7 +368,7 @@ short CmpSeabaseDDL::isLibBlobStoreValid(ExeCliInterface *cliInterface) {
 
 void CmpSeabaseDDL::createSeabaseLibrary2(StmtDDLCreateLibrary *createLibraryNode, NAString &currCatName,
                                           NAString &currSchName) {
-  Lng32 retcode = 0;
+  int retcode = 0;
 
   ComObjectName libraryName(createLibraryNode->getLibraryName());
   ComAnsiNamePart currCatAnsiName(currCatName);
@@ -398,7 +398,7 @@ void CmpSeabaseDDL::createSeabaseLibrary2(StmtDDLCreateLibrary *createLibraryNod
   ExeCliInterface cliInterface(STMTHEAP, 0, NULL, CmpCommon::context()->sqlSession()->getParentQid());
   Int32 objectOwnerID = SUPER_USER;
   Int32 schemaOwnerID = SUPER_USER;
-  Int64 schemaUID = 0;
+  long schemaUID = 0;
   ComSchemaClass schemaClass;
 
   retcode = verifyDDLCreateOperationAuthorized(&cliInterface, SQLOperation::CREATE_LIBRARY, catalogNamePart,
@@ -470,7 +470,7 @@ void CmpSeabaseDDL::createSeabaseLibrary2(StmtDDLCreateLibrary *createLibraryNod
   tableInfo->rowFormat = COM_UNKNOWN_FORMAT_TYPE;
   tableInfo->objectFlags = 0;
 
-  Int64 objUID = -1;
+  long objUID = -1;
   if (updateSeabaseMDTable(&cliInterface, catalogNamePart, schemaNamePart, objectNamePart, COM_LIBRARY_OBJECT, "N",
                            tableInfo, 0, NULL, 0, NULL, 0, NULL, objUID)) {
     deallocEHI(ehi);
@@ -492,7 +492,7 @@ void CmpSeabaseDDL::createSeabaseLibrary2(StmtDDLCreateLibrary *createLibraryNod
 
   // do not use LOB inlined data for libraries since libraries will be extracted
   cliInterface.holdAndSetCQD("TRAF_LOB_INLINED_DATA_MAXBYTES", "0");
-  Lng32 cliRC = cliInterface.executeImmediate(query);
+  int cliRC = cliInterface.executeImmediate(query);
 
   NADELETEBASIC(query, STMTHEAP);
   if (cliRC < 0) {
@@ -518,8 +518,8 @@ void CmpSeabaseDDL::createSeabaseLibrary2(StmtDDLCreateLibrary *createLibraryNod
 
 void CmpSeabaseDDL::dropSeabaseLibrary(StmtDDLDropLibrary *dropLibraryNode, NAString &currCatName,
                                        NAString &currSchName) {
-  Lng32 cliRC = 0;
-  Lng32 retcode = 0;
+  int cliRC = 0;
+  int retcode = 0;
 
   BindWA bindWA(ActiveSchemaDB(), CmpCommon::context(), FALSE /*inDDL*/);
   NARoutineDB *pRoutineDBCache = ActiveSchemaDB()->getNARoutineDB();
@@ -558,9 +558,9 @@ void CmpSeabaseDDL::dropSeabaseLibrary(StmtDDLDropLibrary *dropLibraryNode, NASt
 
   Int32 objectOwnerID = 0;
   Int32 schemaOwnerID = 0;
-  Int64 objectFlags = 0;
-  Int64 objDataUID = 0;
-  Int64 objUID = getObjectInfo(&cliInterface, catalogNamePart.data(), schemaNamePart.data(), objectNamePart.data(),
+  long objectFlags = 0;
+  long objDataUID = 0;
+  long objUID = getObjectInfo(&cliInterface, catalogNamePart.data(), schemaNamePart.data(), objectNamePart.data(),
                                COM_LIBRARY_OBJECT, objectOwnerID, schemaOwnerID, objectFlags, objDataUID);
   if (objUID < 0 || objectOwnerID == 0 || schemaOwnerID == 0) {
     deallocEHI(ehi);
@@ -612,7 +612,7 @@ void CmpSeabaseDDL::dropSeabaseLibrary(StmtDDLDropLibrary *dropLibraryNode, NASt
     NARoutine *cachedNARoutine = pRoutineDBCache->get(&bindWA, &key);
 
     if (cachedNARoutine) {
-      Int64 routineUID = *(Int64 *)rou->get(2);
+      long routineUID = *(long *)rou->get(2);
       pRoutineDBCache->removeNARoutine(qualRoutineName, ComQiScope::REMOVE_FROM_ALL_USERS, routineUID,
                                        dropLibraryNode->ddlXns(), FALSE);
     }
@@ -633,8 +633,8 @@ void CmpSeabaseDDL::dropSeabaseLibrary(StmtDDLDropLibrary *dropLibraryNode, NASt
 
 void CmpSeabaseDDL::alterSeabaseLibrary2(StmtDDLAlterLibrary *alterLibraryNode, NAString &currCatName,
                                          NAString &currSchName) {
-  Lng32 cliRC;
-  Lng32 retcode;
+  int cliRC;
+  int retcode;
 
   NAString libraryName = alterLibraryNode->getLibraryName();
   NAString libFileName = alterLibraryNode->getFilename();
@@ -675,9 +675,9 @@ void CmpSeabaseDDL::alterSeabaseLibrary2(StmtDDLAlterLibrary *alterLibraryNode, 
 
   Int32 objectOwnerID = 0;
   Int32 schemaOwnerID = 0;
-  Int64 objectFlags = 0;
-  Int64 objDataUID = 0;
-  Int64 libUID = getObjectInfo(&cliInterface, catalogNamePart.data(), schemaNamePart.data(), libNamePart.data(),
+  long objectFlags = 0;
+  long objDataUID = 0;
+  long libUID = getObjectInfo(&cliInterface, catalogNamePart.data(), schemaNamePart.data(), libNamePart.data(),
                                COM_LIBRARY_OBJECT, objectOwnerID, schemaOwnerID, objectFlags, objDataUID);
 
   // Check for error getting metadata information
@@ -696,7 +696,7 @@ void CmpSeabaseDDL::alterSeabaseLibrary2(StmtDDLAlterLibrary *alterLibraryNode, 
     return;
   }
 
-  Int64 redefTime = NA_JulianTimestamp();
+  long redefTime = NA_JulianTimestamp();
   size_t lastSlash = libFileName.last('/');
   NAString libNameNoPath;
   if (lastSlash != NA_NPOS)
@@ -757,7 +757,7 @@ void CmpSeabaseDDL::alterSeabaseLibrary2(StmtDDLAlterLibrary *alterLibraryNode, 
     NARoutineDBKey key(qualRoutineName, STMTHEAP);
     NARoutine *cachedNARoutine = pRoutineDBCache->get(&bindWA, &key);
     if (cachedNARoutine) {
-      Int64 routineUID = *(Int64 *)rou->get(2);
+      long routineUID = *(long *)rou->get(2);
       pRoutineDBCache->removeNARoutine(qualRoutineName, ComQiScope::REMOVE_FROM_ALL_USERS, routineUID,
                                        alterLibraryNode->ddlXns(), FALSE);
     }
@@ -768,8 +768,8 @@ void CmpSeabaseDDL::alterSeabaseLibrary2(StmtDDLAlterLibrary *alterLibraryNode, 
 
 void CmpSeabaseDDL::alterSeabaseLibrary(StmtDDLAlterLibrary *alterLibraryNode, NAString &currCatName,
                                         NAString &currSchName) {
-  Lng32 cliRC;
-  Lng32 retcode;
+  int cliRC;
+  int retcode;
 
   NAString libraryName = alterLibraryNode->getLibraryName();
   NAString libFileName = alterLibraryNode->getFilename();
@@ -810,9 +810,9 @@ void CmpSeabaseDDL::alterSeabaseLibrary(StmtDDLAlterLibrary *alterLibraryNode, N
 
   Int32 objectOwnerID = 0;
   Int32 schemaOwnerID = 0;
-  Int64 objectFlags = 0;
-  Int64 objDataUID = 0;
-  Int64 libUID = getObjectInfo(&cliInterface, catalogNamePart.data(), schemaNamePart.data(), libNamePart.data(),
+  long objectFlags = 0;
+  long objDataUID = 0;
+  long libUID = getObjectInfo(&cliInterface, catalogNamePart.data(), schemaNamePart.data(), libNamePart.data(),
                                COM_LIBRARY_OBJECT, objectOwnerID, schemaOwnerID, objectFlags, objDataUID);
 
   // Check for error getting metadata information
@@ -831,7 +831,7 @@ void CmpSeabaseDDL::alterSeabaseLibrary(StmtDDLAlterLibrary *alterLibraryNode, N
     return;
   }
 
-  Int64 redefTime = NA_JulianTimestamp();
+  long redefTime = NA_JulianTimestamp();
 
   char buf[2048];  // filename max length is 512. Additional bytes for long
   // library names.
@@ -869,7 +869,7 @@ void CmpSeabaseDDL::alterSeabaseLibrary(StmtDDLAlterLibrary *alterLibraryNode, N
     NARoutineDBKey key(qualRoutineName, STMTHEAP);
     NARoutine *cachedNARoutine = pRoutineDBCache->get(&bindWA, &key);
     if (cachedNARoutine) {
-      Int64 routineUID = *(Int64 *)rou->get(2);
+      long routineUID = *(long *)rou->get(2);
       pRoutineDBCache->removeNARoutine(qualRoutineName, ComQiScope::REMOVE_FROM_ALL_USERS, routineUID,
                                        alterLibraryNode->ddlXns(), FALSE);
     }
@@ -879,8 +879,8 @@ void CmpSeabaseDDL::alterSeabaseLibrary(StmtDDLAlterLibrary *alterLibraryNode, N
 }
 
 short CmpSeabaseDDL::createSPSQLProcs(ExeCliInterface *cliInterface) {
-  Lng32 cliRC = 0;
-  Int64 libUID =
+  int cliRC = 0;
+  long libUID =
       getObjectUID(cliInterface, getSystemCatalog(), SEABASE_MD_SCHEMA, SEABASE_SPSQL_LIBRARY, COM_LIBRARY_OBJECT_LIT);
 
   size_t numSPSQLProcs = sizeof(allSPSQLProcs) / sizeof(SPSQLProc);
@@ -915,7 +915,7 @@ short buildQuery(NAString &sql, const StmtDDLCreateRoutine *stmtDDLCreateRoutine
   const ElemDDLParamDefArray &routineParamArray = stmtDDLCreateRoutine->getParamArray();
   const NAString *routineBody = stmtDDLCreateRoutine->getBody();
 
-  Lng32 numParams = routineParamArray.entries();
+  int numParams = routineParamArray.entries();
 
   if (!noCreate) {
     sql.append("CREATE");
@@ -991,7 +991,7 @@ short buildQuery(NAString &sql, const StmtDDLCreateRoutine *stmtDDLCreateRoutine
 
 void CmpSeabaseDDL::createSeabasePackage(ExeCliInterface *cliInterface, StmtDDLCreatePackage *createPackageNode,
                                          NAString &currCatName, NAString &currSchName) {
-  Lng32 retcode = 0;
+  int retcode = 0;
 
   ComObjectName packageName(createPackageNode->getPackageName());
   ComAnsiNamePart currCatAnsiName(currCatName);
@@ -1004,7 +1004,7 @@ void CmpSeabaseDDL::createSeabasePackage(ExeCliInterface *cliInterface, StmtDDLC
 
   // sub_id column value for SPSQL body in MD text table, 1 for
   // PACKAGE SPEC definition, and 2 for PACKAGE BODY
-  Lng32 subID = createPackageNode->isCreatePackageBody() ? 2 : 1;
+  int subID = createPackageNode->isCreatePackageBody() ? 2 : 1;
 
   // Check to see if user has the authority to create the package
   Int32 objectOwnerID = SUPER_USER;
@@ -1029,7 +1029,7 @@ void CmpSeabaseDDL::createSeabasePackage(ExeCliInterface *cliInterface, StmtDDLC
   // text if the spec is already defined. We do not allow the
   // opposite, i.e. creating package body first and then creating the
   // spec, but it's allowed to create a package body without a spec.
-  Int64 objUID = -1;
+  long objUID = -1;
   NABoolean addTextOnly = FALSE;
   if (retcode == 1 && createPackageNode->isCreatePackageBody()) {
     objUID = getObjectUID(cliInterface, catalogNamePart.data(), schemaNamePart.data(), objectNamePart.data(),
@@ -1045,9 +1045,9 @@ void CmpSeabaseDDL::createSeabasePackage(ExeCliInterface *cliInterface, StmtDDLC
                 "select count(*) from %s.\"%s\".%s "
                 " where text_uid=%ld and sub_id=%d",
                 getSystemCatalog(), SEABASE_MD_SCHEMA, SEABASE_TEXT, objUID, subID);
-    Int64 rowCount = 0;
-    Lng32 length = 0;
-    Lng32 cliRC = cliInterface->executeImmediate(query, (char *)&rowCount, &length, FALSE);
+    long rowCount = 0;
+    int length = 0;
+    int cliRC = cliInterface->executeImmediate(query, (char *)&rowCount, &length, FALSE);
     if (cliRC < 0) {
       cliInterface->retrieveSQLDiagnostics(CmpCommon::diags());
       processReturn();
@@ -1109,7 +1109,7 @@ void CmpSeabaseDDL::createSeabasePackage(ExeCliInterface *cliInterface, StmtDDLC
   }
 
   // store the package SPEC or BODY into table TEXT
-  Lng32 length = sql.length();
+  int length = sql.length();
   if (updateTextTable(cliInterface, objUID, COM_ROUTINE_TEXT, subID, sql, NULL, length, false)) {
     processReturn();
     return;
@@ -1144,7 +1144,7 @@ short CmpSeabaseDDL::dropPackageFromMDAndSPSQL(ExeCliInterface *cliInterface, NA
               TRAFODION_SYSTEM_CATALOG, SEABASE_MD_SCHEMA, SEABASE_OBJECTS, catalogNamePart.data(),
               schemaNamePart.data(), COM_USER_DEFINED_ROUTINE_OBJECT_LIT, objectNamePart.data());
   Queue *queue = NULL;
-  Lng32 cliRC = cliInterface->fetchAllRows(queue, query, 0, FALSE, FALSE, TRUE);
+  int cliRC = cliInterface->fetchAllRows(queue, query, 0, FALSE, FALSE, TRUE);
   if (cliRC < 0) {
     cliInterface->retrieveSQLDiagnostics(CmpCommon::diags());
     return -1;
@@ -1155,7 +1155,7 @@ short CmpSeabaseDDL::dropPackageFromMDAndSPSQL(ExeCliInterface *cliInterface, NA
   }
   NARoutineDB *pRoutineDBCache = ActiveSchemaDB()->getNARoutineDB();
   QualifiedName qualRoutineName(packageName, schemaNamePart, catalogNamePart, STMTHEAP);
-  Int64 oldObjUID;
+  long oldObjUID;
   queue->position();
   for (size_t i = 0; i < queue->numEntries(); i++) {
     OutputInfo *ri = (OutputInfo *)queue->getNext();
@@ -1196,7 +1196,7 @@ short CmpSeabaseDDL::dropPackageFromMDAndSPSQL(ExeCliInterface *cliInterface, NA
 
 void CmpSeabaseDDL::dropSeabasePackage(ExeCliInterface *cliInterface, StmtDDLDropPackage *dropPackageNode,
                                        NAString &currCatName, NAString &currSchName) {
-  Lng32 retcode = 0;
+  int retcode = 0;
 
   ComObjectName packageName(dropPackageNode->getPackageName());
   ComAnsiNamePart currCatAnsiName(currCatName);
@@ -1221,11 +1221,11 @@ void CmpSeabaseDDL::dropSeabasePackage(ExeCliInterface *cliInterface, StmtDDLDro
     return;
   }
 
-  Int64 objUID = 0;
+  long objUID = 0;
   Int32 objectOwnerID = 0;
   Int32 schemaOwnerID = 0;
-  Int64 objectFlags = 0;
-  Int64 objDataUID = 0;
+  long objectFlags = 0;
+  long objDataUID = 0;
   objUID = getObjectInfo(cliInterface, catalogNamePart.data(), schemaNamePart.data(), objectNamePart.data(),
                          COM_PACKAGE_OBJECT, objectOwnerID, schemaOwnerID, objectFlags, objDataUID);
   if (objUID < 0 || objectOwnerID == 0 || schemaOwnerID == 0) {
@@ -1257,7 +1257,7 @@ short CmpSeabaseDDL::createSPSQLRoutine(ExeCliInterface *cliInterface, NAString 
   char *query = new (STMTHEAP) char[quotedSql.length() + 1000];
   str_sprintf(query, "call %s.\"%s\".%s(%s)", getSystemCatalog(), SEABASE_MD_SCHEMA, SEABASE_SPSQL_CREATE_SPJ,
               quotedSql.data());
-  Lng32 cliRC = cliInterface->fetchRowsPrologue(query, TRUE /*no exec*/);
+  int cliRC = cliInterface->fetchRowsPrologue(query, TRUE /*no exec*/);
   NADELETEBASIC(query, STMTHEAP);
   if (cliRC < 0) {
     cliInterface->retrieveSQLDiagnostics(CmpCommon::diags());
@@ -1272,7 +1272,7 @@ short CmpSeabaseDDL::createSPSQLRoutine(ExeCliInterface *cliInterface, NAString 
 }
 short CmpSeabaseDDL::extractLibrary(ExeCliInterface *cliInterface, char *libHandle, char *cachedLibName) {
   struct stat statbuf;
-  Int64 libUID = 0;
+  long libUID = 0;
   short retcode = 0;
   if (stat(cachedLibName, &statbuf) != 0) {
     retcode = ExExeUtilLobExtractLibrary(cliInterface, libHandle, cachedLibName, CmpCommon::diags());
@@ -1287,7 +1287,7 @@ short CmpSeabaseDDL::extractLibrary(ExeCliInterface *cliInterface, char *libHand
 
 void CmpSeabaseDDL::createSeabaseRoutine(StmtDDLCreateRoutine *createRoutineNode, NAString &currCatName,
                                          NAString &currSchName) {
-  Lng32 retcode = 0;
+  int retcode = 0;
 
   ComObjectName routineName(createRoutineNode->getRoutineName());
   ComAnsiNamePart currCatAnsiName(currCatName);
@@ -1308,7 +1308,7 @@ void CmpSeabaseDDL::createSeabaseRoutine(StmtDDLCreateRoutine *createRoutineNode
   ExeCliInterface cliInterface(STMTHEAP, 0, NULL, CmpCommon::context()->sqlSession()->getParentQid());
   Int32 objectOwnerID = SUPER_USER;
   Int32 schemaOwnerID = SUPER_USER;
-  Int64 schemaUID = 0;
+  long schemaUID = 0;
   ComSchemaClass schemaClass;
   NAString libSuffix, libPrefix;
   retcode = verifyDDLCreateOperationAuthorized(&cliInterface, SQLOperation::CREATE_ROUTINE, catalogNamePart,
@@ -1334,7 +1334,7 @@ void CmpSeabaseDDL::createSeabaseRoutine(StmtDDLCreateRoutine *createRoutineNode
     return;
   }
 
-  Int64 oldObjUID = -1;  // old object been replaced
+  long oldObjUID = -1;  // old object been replaced
   if (retcode == 1)      // already exists
   {
     if (!createRoutineNode->isReplace()) {
@@ -1363,14 +1363,14 @@ void CmpSeabaseDDL::createSeabaseRoutine(StmtDDLCreateRoutine *createRoutineNode
   const NAString extLibraryName = libName.getExternalName(TRUE);
   char externalPath[512];
   char libBlobHandle[LOB_HANDLE_LEN];
-  Lng32 cliRC = 0;
-  Int64 redefTime = 0;
+  int cliRC = 0;
+  long redefTime = 0;
   // this call needs to change
-  Int64 libUID = 0;
-  Int64 objDataUID = 0;
+  long libUID = 0;
+  long objDataUID = 0;
 
   Int32 dummy32;
-  Int64 dummy64;
+  long dummy64;
 
   libUID = getObjectInfo(&cliInterface, libCatNamePart, libSchNamePart, libObjNamePart, COM_LIBRARY_OBJECT, dummy32,
                          dummy32, dummy64, objDataUID, TRUE, FALSE, &dummy64, &redefTime);
@@ -1420,7 +1420,7 @@ void CmpSeabaseDDL::createSeabaseRoutine(StmtDDLCreateRoutine *createRoutineNode
   }
 
   char *ptr = NULL;
-  Lng32 len = 0;
+  int len = 0;
 
   cliInterface.getPtrAndLen(1, ptr, len);
   str_cpy_all(externalPath, ptr, len);
@@ -1534,7 +1534,7 @@ void CmpSeabaseDDL::createSeabaseRoutine(StmtDDLCreateRoutine *createRoutineNode
   }
 
   ElemDDLParamDefArray &routineParamArray = createRoutineNode->getParamArray();
-  Lng32 numParams = routineParamArray.entries();
+  int numParams = routineParamArray.entries();
 
   if ((createRoutineNode->getRoutineType() == COM_SCALAR_UDF_TYPE) && (numParams > 32)) {
     *CmpCommon::diags() << DgSqlCode(-1550) << DgString0(extRoutineName) << DgInt0(numParams);
@@ -1565,7 +1565,7 @@ void CmpSeabaseDDL::createSeabaseRoutine(StmtDDLCreateRoutine *createRoutineNode
 
   else if (style == COM_STYLE_JAVA_CALL) {
     // validate routine for Java call based on signature
-    Lng32 numJavaParam = 0;
+    int numJavaParam = 0;
     ComFSDataType *paramType = new ComFSDataType[numParams];
     ComUInt32 *subType = new ComUInt32[numParams];
     ComColumnDirection *direction = new ComColumnDirection[numParams];
@@ -1805,7 +1805,7 @@ void CmpSeabaseDDL::createSeabaseRoutine(StmtDDLCreateRoutine *createRoutineNode
   tableInfo->rowFormat = COM_UNKNOWN_FORMAT_TYPE;
   tableInfo->objectFlags = 0;
 
-  Int64 objUID = -1;
+  long objUID = -1;
   if (updateSeabaseMDTable(&cliInterface, catalogNamePart, schemaNamePart, objectNamePart,
                            COM_USER_DEFINED_ROUTINE_OBJECT, "N", tableInfo, numParams, colInfoArray, 0, NULL, 0, NULL,
                            objUID)) {
@@ -1892,7 +1892,7 @@ void CmpSeabaseDDL::createSeabaseRoutine(StmtDDLCreateRoutine *createRoutineNode
   if (isSPSQL) {
     // store the SPSQL body into table trafodion._MD_.text only field
     // TEXT_UID and TEXT in table TEXT are filled
-    Lng32 length = sql.length();
+    int length = sql.length();
     cliRC = updateTextTable(&cliInterface, objUID, COM_ROUTINE_TEXT, 0, sql, NULL, length, false);
     if (cliRC < 0) {
       processReturn();
@@ -1924,13 +1924,13 @@ void CmpSeabaseDDL::createSeabaseRoutine(StmtDDLCreateRoutine *createRoutineNode
   return;
 }
 
-Lng32 isSPSQLRoutine(ExeCliInterface *cliInterface, Int64 objUID) {
+int isSPSQLRoutine(ExeCliInterface *cliInterface, long objUID) {
   char query[1000];
   str_sprintf(query, "select external_name from %s.\"%s\".%s where udr_uid = %ld", TRAFODION_SYSTEM_CATALOG,
               SEABASE_MD_SCHEMA, SEABASE_ROUTINES, objUID);
   char extName[1024];
-  Lng32 length;
-  Lng32 cliRC = cliInterface->executeImmediate(query, (char *)&extName, &length);
+  int length;
+  int cliRC = cliInterface->executeImmediate(query, (char *)&extName, &length);
   if (cliRC < 0) {
     cliInterface->retrieveSQLDiagnostics(CmpCommon::diags());
     return -1;
@@ -1947,15 +1947,15 @@ Lng32 isSPSQLRoutine(ExeCliInterface *cliInterface, Int64 objUID) {
   return 0;
 }
 
-Lng32 isSPSQLPackageRoutine(ExeCliInterface *cliInterface, Int64 objUID) {
+int isSPSQLPackageRoutine(ExeCliInterface *cliInterface, long objUID) {
   // For SPSQL routines, we check if they are belong to an package by
   // check the name
   char query[1000];
   str_sprintf(query, "select object_name from %s.\"%s\".%s where object_uid = %ld", TRAFODION_SYSTEM_CATALOG,
               SEABASE_MD_SCHEMA, SEABASE_OBJECTS, objUID);
   char objName[1024];
-  Lng32 length = 0;
-  Lng32 cliRC = cliInterface->executeImmediate(query, (char *)&objName, &length);
+  int length = 0;
+  int cliRC = cliInterface->executeImmediate(query, (char *)&objName, &length);
   if (cliRC < 0) {
     cliInterface->retrieveSQLDiagnostics(CmpCommon::diags());
     return -1;
@@ -1973,14 +1973,14 @@ Lng32 isSPSQLPackageRoutine(ExeCliInterface *cliInterface, Int64 objUID) {
   return 0;
 }
 
-inline Lng32 skipDropSPSQLRoutine(ExeCliInterface *cliInterface, ComRoutineType routineType, Int64 objUID) {
+inline int skipDropSPSQLRoutine(ExeCliInterface *cliInterface, ComRoutineType routineType, long objUID) {
   // SPSQL can only support PROCEDURE and SCALAR_UDF, so routines of
   // other types are always skipped
   if (routineType != COM_PROCEDURE_TYPE && routineType != COM_SCALAR_UDF_TYPE) {
     return 1;
   }
 
-  Lng32 cliRC = isSPSQLRoutine(cliInterface, objUID);
+  int cliRC = isSPSQLRoutine(cliInterface, objUID);
   if (cliRC < 0) {
     return cliRC;
   }
@@ -1993,8 +1993,8 @@ inline Lng32 skipDropSPSQLRoutine(ExeCliInterface *cliInterface, ComRoutineType 
   return isSPSQLPackageRoutine(cliInterface, objUID);
 }
 
-Lng32 dropSPSQLRoutine(ExeCliInterface *cliInterface, const NAString &routineName, ComRoutineType routineType) {
-  Lng32 cliRC = 0;
+int dropSPSQLRoutine(ExeCliInterface *cliInterface, const NAString &routineName, ComRoutineType routineType) {
+  int cliRC = 0;
   const char *type = NULL;
   switch (routineType) {
     case COM_PROCEDURE_TYPE:
@@ -2021,7 +2021,7 @@ Lng32 dropSPSQLRoutine(ExeCliInterface *cliInterface, const NAString &routineNam
 short CmpSeabaseDDL::dropRoutineFromMDAndSPSQL(ExeCliInterface *cliInterface, ExpHbaseInterface *ehi,
                                                NAString &currCatName, NAString &currSchName,
                                                const NAString &routineName, ComRoutineType routineType,
-                                               NABoolean ddlXns, Int64 &objUID) {
+                                               NABoolean ddlXns, long &objUID) {
   ComObjectName qualifiedName(routineName);
   NAString catalogNamePart = qualifiedName.getCatalogNamePartAsAnsiString();
   NAString schemaNamePart = qualifiedName.getSchemaNamePartAsAnsiString(TRUE);
@@ -2037,7 +2037,7 @@ short CmpSeabaseDDL::dropRoutineFromMDAndSPSQL(ExeCliInterface *cliInterface, Ex
 
   // If this is not an standalone SPSQL routine, then we should skip
   // dropping it from SPSQL
-  Lng32 cliRC = skipDropSPSQLRoutine(cliInterface, routineType, objUID);
+  int cliRC = skipDropSPSQLRoutine(cliInterface, routineType, objUID);
   if (cliRC < 0) {
     return -1;
   }
@@ -2057,7 +2057,7 @@ short CmpSeabaseDDL::dropRoutineFromMDAndSPSQL(ExeCliInterface *cliInterface, Ex
 
 void CmpSeabaseDDL::dropSeabaseRoutine(StmtDDLDropRoutine *dropRoutineNode, NAString &currCatName,
                                        NAString &currSchName) {
-  Lng32 retcode = 0;
+  int retcode = 0;
 
   ComObjectName routineName(dropRoutineNode->getRoutineName());
   ComAnsiNamePart currCatAnsiName(currCatName);
@@ -2094,11 +2094,11 @@ void CmpSeabaseDDL::dropSeabaseRoutine(StmtDDLDropRoutine *dropRoutineNode, NASt
   }
 
   // get objectOwner
-  Int64 objUID = 0;
+  long objUID = 0;
   Int32 objectOwnerID = 0;
   Int32 schemaOwnerID = 0;
-  Int64 objectFlags = 0;
-  Int64 objDataUID = 0;
+  long objectFlags = 0;
+  long objDataUID = 0;
 
   // see if routine is cached
   BindWA bindWA(ActiveSchemaDB(), CmpCommon::context(), FALSE /*inDDL*/);
@@ -2131,7 +2131,7 @@ void CmpSeabaseDDL::dropSeabaseRoutine(StmtDDLDropRoutine *dropRoutineNode, NASt
   }
 
   // Determine if this function is referenced by any other objects.
-  Lng32 cliRC = 0;
+  int cliRC = 0;
   Queue *usingViewsQueue = NULL;
   if (dropRoutineNode->getDropBehavior() == COM_RESTRICT_DROP_BEHAVIOR) {
     NAString usingObjName;
@@ -2209,7 +2209,7 @@ short CmpSeabaseDDL::validateRoutine(ExeCliInterface *cliInterface, const char *
   // Now proceed with the internal CALL statement...
   //
 
-  Lng32 sigLen = 0;
+  int sigLen = 0;
   if (signature) sigLen = str_len(signature) + 1;
 
   char *query = new (STMTHEAP) char[2000 + sigLen];
@@ -2217,7 +2217,7 @@ short CmpSeabaseDDL::validateRoutine(ExeCliInterface *cliInterface, const char *
               SEABASE_MD_SCHEMA, SEABASE_VALIDATE_SPJ, className, methodName, externalPath, signature, numSqlParam,
               maxResultSets, optionalSig ? 1 : 0);
 
-  Lng32 cliRC = cliInterface->fetchRowsPrologue(query, TRUE /*no exec*/);
+  int cliRC = cliInterface->fetchRowsPrologue(query, TRUE /*no exec*/);
 
   if (cliRC < 0) {
     cliInterface->retrieveSQLDiagnostics(CmpCommon::diags());
@@ -2233,7 +2233,7 @@ short CmpSeabaseDDL::validateRoutine(ExeCliInterface *cliInterface, const char *
   NADELETEBASIC(query, STMTHEAP);
 
   char *ptr = NULL;
-  Lng32 len = 0;
+  int len = 0;
   Int32 errCode = 0;
 
   cliInterface->getPtrAndLen(1, ptr, len);
@@ -2295,7 +2295,7 @@ short CmpSeabaseDDL::createSeabaseLibmgr(ExeCliInterface *cliInterface) {
     return -1;
   }
 
-  Lng32 cliRC = 0;
+  int cliRC = 0;
 
   if ((CmpCommon::context()->isUninitializedSeabase()) &&
       (CmpCommon::context()->uninitializedSeabaseErrNum() == -TRAF_NOT_INITIALIZED)) {
@@ -2340,7 +2340,7 @@ short CmpSeabaseDDL::createSeabaseLibmgr(ExeCliInterface *cliInterface) {
 }
 
 short CmpSeabaseDDL::createLibmgrProcs(ExeCliInterface *cliInterface) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
 
   // Create SPSQL internal SPJs
   if (createSPSQLProcs(cliInterface)) {
@@ -2361,7 +2361,7 @@ short CmpSeabaseDDL::createLibmgrProcs(ExeCliInterface *cliInterface) {
 
     Int32 qryArraySize = sizeOfqs / sizeof(QString);
     char *gluedQuery;
-    Lng32 gluedQuerySize;
+    int gluedQuerySize;
     glueQueryFragments(qryArraySize, qs, gluedQuery, gluedQuerySize);
 
     switch (prd.whichLib) {
@@ -2408,7 +2408,7 @@ short CmpSeabaseDDL::grantLibmgrPrivs(ExeCliInterface *cliInterface) {
   PushAndSetSqlParserFlags savedParserFlags(flagsToSet);
   SQL_EXEC_SetParserFlagsForExSqlComp_Internal(flagsToSet);
 
-  Lng32 cliRC = 0;
+  int cliRC = 0;
   char queryBuf[strlen(getSystemCatalog()) + sizeof(SEABASE_LIBMGR_SCHEMA) + sizeof(SEABASE_LIBMGR_LIBRARY) +
                 MAXOF(sizeof(DB__LIBMGRROLE), sizeof(PUBLIC_AUTH_NAME)) + 200];
   for (Int32 i = 0; i < sizeof(allLibmgrRoutineInfo) / sizeof(LibmgrRoutineInfo); i++) {
@@ -2448,7 +2448,7 @@ short CmpSeabaseDDL::upgradeSeabaseLibmgr(ExeCliInterface *cliInterface) {
     return -1;
   }
 
-  Lng32 cliRC = 0;
+  int cliRC = 0;
 
   cliRC = existsInSeabaseMDTable(cliInterface, getSystemCatalog(), SEABASE_LIBMGR_SCHEMA, SEABASE_LIBMGR_LIBRARY,
                                  COM_LIBRARY_OBJECT, TRUE, FALSE);
@@ -2564,7 +2564,7 @@ short CmpSeabaseDDL::upgradeSeabaseLibmgr2(ExeCliInterface *cliInterface) {
     return -1;
   }
 
-  Lng32 cliRC = 0;
+  int cliRC = 0;
 
   cliRC = existsInSeabaseMDTable(cliInterface, getSystemCatalog(), SEABASE_LIBMGR_SCHEMA, SEABASE_LIBMGR_LIBRARY,
                                  COM_LIBRARY_OBJECT, TRUE, FALSE);
@@ -2689,7 +2689,7 @@ short CmpSeabaseDDL::dropSeabaseLibmgr(ExeCliInterface *cliInterface) {
     return -1;
   }
 
-  Lng32 cliRC = 0;
+  int cliRC = 0;
 
   ULng32 flagsToSet = DISABLE_EXTERNAL_AUTH_CHECKS;
   flagsToSet |= INTERNAL_QUERY_FROM_EXEUTIL;
@@ -2735,7 +2735,7 @@ short CmpSeabaseDDL::createSeabaseLibmgrCPPLib(ExeCliInterface *cliInterface) {
 
 void CmpSeabaseDDL::createSeabaseTriggers(ExeCliInterface *cliInterface, StmtDDLCreateTrigger *CreateTrigger,
                                           NAString &currCatName, NAString &currSchName) {
-  Lng32 retcode = 0;
+  int retcode = 0;
   ComObjectName triggername(CreateTrigger->getTriggerName());
   ComObjectName tableName(CreateTrigger->getTableName());
   ComAnsiNamePart currCatAnsiName(currCatName);
@@ -2780,7 +2780,7 @@ void CmpSeabaseDDL::createSeabaseTriggers(ExeCliInterface *cliInterface, StmtDDL
     return;
   }
 
-  Int64 triggerUID = -1;
+  long triggerUID = -1;
   if (retcode == 1)  // Already exists
   {
     if (!CreateTrigger->isReplace()) {
@@ -2826,7 +2826,7 @@ void CmpSeabaseDDL::createSeabaseTriggers(ExeCliInterface *cliInterface, StmtDDL
     return;
   }
 
-  Int64 tableUID = -1;
+  long tableUID = -1;
   tableUID = getObjectUID(cliInterface, catalogNamePart.data(), schemaNamePart.data(), tableNamePart.data(),
                           COM_BASE_TABLE_OBJECT_LIT);
 
@@ -2852,7 +2852,7 @@ void CmpSeabaseDDL::createSeabaseTriggers(ExeCliInterface *cliInterface, StmtDDL
    * library_uid(tableid) to routines
    *************************************************************************/
   // 0:default 1:procedure 2:sql
-  Lng32 subID = CreateTrigger->getBodyType();
+  int subID = CreateTrigger->getBodyType();
   char *query1 = new (STMTHEAP) char[2000 + MAX_SIGNATURE_LENGTH];
   str_sprintf(query1,
               "insert into %s.\"%s\".%s values (%ld, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, %d, '%s', "
@@ -2875,7 +2875,7 @@ void CmpSeabaseDDL::createSeabaseTriggers(ExeCliInterface *cliInterface, StmtDDL
               "lang/String;ILjava/lang/String;I)V"  // not used signature now
   );                                                // not used flags now
 
-  Lng32 cliRC = cliInterface->executeImmediate(query1);
+  int cliRC = cliInterface->executeImmediate(query1);
   NADELETEBASIC(query1, STMTHEAP);
   if (cliRC < 0) {
     cliInterface->retrieveSQLDiagnostics(CmpCommon::diags());
@@ -2957,7 +2957,7 @@ void CmpSeabaseDDL::createSeabaseTriggers(ExeCliInterface *cliInterface, StmtDDL
     return;
   }
   // 2. write body, bodytype and triggerid to text table
-  Lng32 length = sql.length();
+  int length = sql.length();
   if (updateTextTable(cliInterface, triggerUID, COM_TRIGGER_TEXT, subID, sql, NULL, length, false)) {
     processReturn();
     return;
@@ -2972,7 +2972,7 @@ void CmpSeabaseDDL::createSeabaseTriggers(ExeCliInterface *cliInterface, StmtDDL
 
   CorrName cn(tableNamePart, STMTHEAP, currSchName, currCatName);
   // add trigger flag to table flag
-  Int64 flags = MD_OBJECTS_INCLUDE_TRIGGER;
+  long flags = MD_OBJECTS_INCLUDE_TRIGGER;
   if (updateObjectFlags(cliInterface, tableUID, flags, FALSE) < 0) goto bad;
   // remove store info from text table, reset restore flag
   flags = MD_OBJECTS_STORED_DESC;
@@ -2981,7 +2981,7 @@ void CmpSeabaseDDL::createSeabaseTriggers(ExeCliInterface *cliInterface, StmtDDL
 
   // insert into "_XDC_MD_".xdc_ddl
   if (!ComIsTrafodionReservedSchemaName(schemaNamePart)) {
-    Lng32 retcode = updateSeabaseXDCDDLTable(cliInterface, catalogNamePart.data(), schemaNamePart.data(),
+    int retcode = updateSeabaseXDCDDLTable(cliInterface, catalogNamePart.data(), schemaNamePart.data(),
                                              triggerNamePart.data(), COM_TRIGGER_OBJECT_LIT);
     if (retcode < 0) goto bad;
   }
@@ -3007,8 +3007,8 @@ bad:
   return;
 }
 
-Lng32 dropSPSQLTrigger(ExeCliInterface *cliInterface, const NAString &triggerName) {
-  Lng32 cliRC = 0;
+int dropSPSQLTrigger(ExeCliInterface *cliInterface, const NAString &triggerName) {
+  int cliRC = 0;
   const char *type = NULL;
 
   char query[1000];
@@ -3028,7 +3028,7 @@ Lng32 dropSPSQLTrigger(ExeCliInterface *cliInterface, const NAString &triggerNam
 
 short CmpSeabaseDDL::dropTriggerFromMDAndSPSQL(ExeCliInterface *cliInterface, ExpHbaseInterface *ehi,
                                                NAString &currCatName, NAString &currSchName,
-                                               const NAString &triggerName, NABoolean ddlXns, Int64 objUID) {
+                                               const NAString &triggerName, NABoolean ddlXns, long objUID) {
   ComObjectName qualifiedName(triggerName);
   NAString catalogNamePart = qualifiedName.getCatalogNamePartAsAnsiString();
   NAString schemaNamePart = qualifiedName.getSchemaNamePartAsAnsiString(TRUE);
@@ -3053,14 +3053,14 @@ short CmpSeabaseDDL::dropTriggerFromMDAndSPSQL(ExeCliInterface *cliInterface, Ex
               SEABASE_ROUTINES, objUID);
 
   Queue *objectsInfo = NULL;
-  Lng32 cliRC = cliInterface->fetchAllRows(objectsInfo, query, 0, FALSE, FALSE, TRUE);
+  int cliRC = cliInterface->fetchAllRows(objectsInfo, query, 0, FALSE, FALSE, TRUE);
   if (cliRC < 0) {
     return -1;
   }
   objectsInfo->position();
   OutputInfo *oi = (OutputInfo *)objectsInfo->getNext();
-  Int64 tableUID = *(Int64 *)oi->get(0);
-  Lng32 rowCount = *(Lng32 *)oi->get(1);
+  long tableUID = *(long *)oi->get(0);
+  int rowCount = *(int *)oi->get(1);
 
   // Removed routine from metadata
   if (dropSeabaseObject(ehi, triggerName, currCatName, currSchName, COM_TRIGGER_OBJECT, ddlXns, TRUE, FALSE, FALSE,
@@ -3072,7 +3072,7 @@ short CmpSeabaseDDL::dropTriggerFromMDAndSPSQL(ExeCliInterface *cliInterface, Ex
 
   if (reCode == 0 && rowCount == 1) {
     // delete trigger flag to table flag
-    Int64 flags = MD_OBJECTS_INCLUDE_TRIGGER;
+    long flags = MD_OBJECTS_INCLUDE_TRIGGER;
     cliRC = updateObjectFlags(cliInterface, tableUID, flags, TRUE);
     if (cliRC < 0) return -1;
 
@@ -3088,7 +3088,7 @@ short CmpSeabaseDDL::dropTriggerFromMDAndSPSQL(ExeCliInterface *cliInterface, Ex
 
 void CmpSeabaseDDL::dropSeabaseTriggers(ExeCliInterface *cliInterface, StmtDDLDropTrigger *DropTrigger,
                                         NAString &currCatName, NAString &currSchName) {
-  Lng32 retcode = 0;
+  int retcode = 0;
   ComObjectName triggername(DropTrigger->getTriggerName());
   ComAnsiNamePart currCatAnsiName(currCatName);
   ComAnsiNamePart currSchAnsiName(currSchName);
@@ -3112,11 +3112,11 @@ void CmpSeabaseDDL::dropSeabaseTriggers(ExeCliInterface *cliInterface, StmtDDLDr
     return;
   }
 
-  Int64 triggerUID = 0;
+  long triggerUID = 0;
   Int32 objectOwnerID = 0;
   Int32 schemaOwnerID = 0;
-  Int64 objectFlags = 0;
-  Int64 objDataUID = 0;
+  long objectFlags = 0;
+  long objDataUID = 0;
 
   // if replace trigger, need triggerUID
   triggerUID = getObjectInfo(cliInterface, catalogNamePart.data(), schemaNamePart.data(), triggerNamePart.data(),
@@ -3144,7 +3144,7 @@ void CmpSeabaseDDL::dropSeabaseTriggers(ExeCliInterface *cliInterface, StmtDDLDr
               SEABASE_ROUTINES, triggerUID);
 
   Queue *objectsInfo = NULL;
-  Lng32 cliRC = cliInterface->fetchAllRows(objectsInfo, query, 0, FALSE, FALSE, TRUE);
+  int cliRC = cliInterface->fetchAllRows(objectsInfo, query, 0, FALSE, FALSE, TRUE);
   if (cliRC < 0) {
     processReturn();
     return;
@@ -3202,7 +3202,7 @@ void CmpSeabaseDDL::dropSeabaseTriggers(ExeCliInterface *cliInterface, StmtDDLDr
 }
 
 short CmpSeabaseDDL::upgradeLibraries(ExeCliInterface *cliInterface, CmpDDLwithStatusInfo *mdui) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
 
   while (1)  // exit via return stmt in switch
   {
@@ -3354,7 +3354,7 @@ short CmpSeabaseDDL::upgradeLibrariesComplete(ExeCliInterface *cliInterface, Cmp
 }
 
 short CmpSeabaseDDL::upgradeLibrariesUndo(ExeCliInterface *cliInterface, CmpDDLwithStatusInfo *mdui) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
 
   while (1)  // exit via return stmt in switch
   {
@@ -3428,7 +3428,7 @@ short CmpSeabaseDDL::upgradeLibrariesUndo(ExeCliInterface *cliInterface, CmpDDLw
 }
 
 short CmpSeabaseDDL::createLibraries(ExeCliInterface *cliInterface) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
 
   char queryBuf[20000];
 
@@ -3451,7 +3451,7 @@ short CmpSeabaseDDL::createLibraries(ExeCliInterface *cliInterface) {
 
     Int32 qryArraySize = sizeOfqs / sizeof(QString);
     char *gluedQuery;
-    Lng32 gluedQuerySize;
+    int gluedQuerySize;
     glueQueryFragments(qryArraySize, qs, gluedQuery, gluedQuerySize);
 
     param_[0] = getSystemCatalog();
@@ -3483,7 +3483,7 @@ label_error:
 }
 
 short CmpSeabaseDDL::checkForOldLibraries(ExeCliInterface *cliInterface) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
   Int32 bufSize = (strlen(TRAFODION_SYSCAT_LIT) * 2) + strlen(SEABASE_MD_SCHEMA) * 2 + strlen(SEABASE_OBJECTS) +
                   strlen(SEABASE_LIBRARIES_OLD) + (3 * 60);
   char queryBuf[bufSize];
@@ -3495,8 +3495,8 @@ short CmpSeabaseDDL::checkForOldLibraries(ExeCliInterface *cliInterface) {
               TRAFODION_SYSCAT_LIT, SEABASE_MD_SCHEMA, SEABASE_OBJECTS, TRAFODION_SYSCAT_LIT, SEABASE_MD_SCHEMA,
               SEABASE_LIBRARIES_OLD);
 
-  Lng32 len = 0;
-  Int64 rowCount = 0;
+  int len = 0;
+  long rowCount = 0;
   cliRC = cliInterface->executeImmediate(queryBuf, (char *)&rowCount, &len, FALSE);
   if (cliRC < 0) {
     cliInterface->retrieveSQLDiagnostics(CmpCommon::diags());
@@ -3512,7 +3512,7 @@ short CmpSeabaseDDL::checkForOldLibraries(ExeCliInterface *cliInterface) {
 }
 
 short CmpSeabaseDDL::dropLibraries(ExeCliInterface *cliInterface, NABoolean oldLibrary, NABoolean inRecovery) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
   NABoolean xnWasStartedHere = FALSE;
   char queryBuf[1000];
 
@@ -3558,8 +3558,8 @@ short CmpSeabaseDDL::dropLibraries(ExeCliInterface *cliInterface, NABoolean oldL
 }
 
 short CmpSeabaseMDupgrade::dropLibrariesTables(ExpHbaseInterface *ehi, NABoolean oldLibraries) {
-  Lng32 retcode = 0;
-  Lng32 errcode = 0;
+  int retcode = 0;
+  int errcode = 0;
 
   for (Int32 i = 0; i < sizeof(allLibrariesUpgradeInfo) / sizeof(MDUpgradeInfo); i++) {
     const MDUpgradeInfo &lti = allLibrariesUpgradeInfo[i];
@@ -3593,7 +3593,7 @@ short CmpSeabaseMDupgrade::dropLibrariesTables(ExpHbaseInterface *ehi, NABoolean
 }
 
 short CmpSeabaseDDL::alterRenameLibraries(ExeCliInterface *cliInterface, NABoolean newToOld) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
 
   char queryBuf[10000];
 
@@ -3631,7 +3631,7 @@ short CmpSeabaseDDL::alterRenameLibraries(ExeCliInterface *cliInterface, NABoole
 }
 
 short CmpSeabaseDDL::copyOldLibrariesToNew(ExeCliInterface *cliInterface) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
   NAString failedLibraries;
 
   char queryBuf[10000];
@@ -3661,7 +3661,7 @@ short CmpSeabaseDDL::copyOldLibrariesToNew(ExeCliInterface *cliInterface) {
                 (lti.insertedCols ? ")" : ""), (lti.selectedCols ? lti.selectedCols : "*"), TRAFODION_SYSCAT_LIT,
                 SEABASE_MD_SCHEMA, lti.oldName, (lti.wherePred ? lti.wherePred : ""));
 
-    Int64 rowCount;
+    long rowCount;
     cliRC = cliInterface->executeImmediate(queryBuf, NULL, NULL, TRUE, &rowCount);
 
     if (cliRC < 0) {
@@ -3676,7 +3676,7 @@ short CmpSeabaseDDL::copyOldLibrariesToNew(ExeCliInterface *cliInterface) {
       OutputInfo *userLibRow = (OutputInfo *)userLibsQ->getNext();
       char *libName = userLibRow->get(0);
       NAString libFileName(libName);
-      Int64 libuid = *(Int64 *)userLibRow->get(1);
+      long libuid = *(long *)userLibRow->get(1);
 
       size_t lastSlash = NA_NPOS;
       lastSlash = libFileName.last('/');

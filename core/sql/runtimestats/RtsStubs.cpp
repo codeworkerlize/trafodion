@@ -100,8 +100,8 @@ void ExMeasStmtCntrsBump__15ExMeasStmtCntrsFiPcT1() {
 
 void MathCeil() { ex_assert(0, "Entering stub MathCeil"); }
 
-Lng32 SQL_EXEC_IsExecutor_Internal() {
-  Lng32 retcode;
+int SQL_EXEC_IsExecutor_Internal() {
+  int retcode;
   retcode = TRUE;
   return retcode;
 }

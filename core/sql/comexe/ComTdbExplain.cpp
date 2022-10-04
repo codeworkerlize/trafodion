@@ -49,7 +49,7 @@ ComTdbExplain::ComTdbExplain()
 
 ComTdbExplain::ComTdbExplain(ex_cri_desc *criDescParentDown, ex_cri_desc *criDescParentUp, queue_index queueSizeDown,
                              queue_index queueSizeUp, const unsigned short tuppIndex, ex_expr *scanPred,
-                             ex_cri_desc *criDescParams, Lng32 tupleLength, ex_expr *paramsExpr, Lng32 numBuffers,
+                             ex_cri_desc *criDescParams, int tupleLength, ex_expr *paramsExpr, int numBuffers,
                              ULng32 bufferSize)
     : ComTdb(ComTdb::ex_EXPLAIN, eye_EXPLAIN, (Cardinality)0.0, criDescParentDown, criDescParentUp, queueSizeDown,
              queueSizeUp, numBuffers, bufferSize),
@@ -106,7 +106,7 @@ Long ComTdbExplain::pack(void *space) {
 
 // Unpack the explainTdb.: Convert all offsets relative to base
 // to pointers
-Lng32 ComTdbExplain::unpack(void *base, void *reallocator) {
+int ComTdbExplain::unpack(void *base, void *reallocator) {
   if (scanPred_.unpack(base, reallocator)) return -1;
   if (criDescParams_.unpack(base, reallocator)) return -1;
   if (paramsExpr_.unpack(base, reallocator)) return -1;

@@ -44,7 +44,7 @@ ComTdbQryInvalid::ComTdbQryInvalid() : ComTdb(ComTdb::ex_QUERY_INVALIDATION, eye
 
 ComTdbQryInvalid::ComTdbQryInvalid(ULng32 tupleLen, ULng32 returnedTupleLen, ULng32 inputTupleLen,
                                    ex_cri_desc *criDescParentDown, ex_cri_desc *criDescParentUp,
-                                   queue_index queueSizeDown, queue_index queueSizeUp, Lng32 numBuffers,
+                                   queue_index queueSizeDown, queue_index queueSizeUp, int numBuffers,
                                    ULng32 bufferSize, ex_expr *scanExpr, ex_expr *inputExpr, ex_expr *projExpr,
                                    ex_cri_desc *workCriDesc, UInt16 qi_row_atp_index, UInt16 input_row_atp_index)
     : ComTdb(ComTdb::ex_QUERY_INVALIDATION, eye_QUERY_INVALIDATION, (Cardinality)0.0, criDescParentDown,
@@ -90,7 +90,7 @@ Long ComTdbQryInvalid::pack(void *space) {
   return ComTdb::pack(space);
 }
 
-Lng32 ComTdbQryInvalid::unpack(void *base, void *reallocator) {
+int ComTdbQryInvalid::unpack(void *base, void *reallocator) {
   if (scanExpr_.unpack(base, reallocator)) return -1;
   if (inputExpr_.unpack(base, reallocator)) return -1;
   if (projExpr_.unpack(base, reallocator)) return -1;

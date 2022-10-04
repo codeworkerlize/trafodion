@@ -150,7 +150,7 @@ class REFRESH_LIB_CLASS CRUTopologicalDGIterator : public CRUDependenceGraphIter
   // When the reference count is 0, the task is ready.
   struct TaskLink {
     CRUTask *pTask_;
-    Lng32 refCount_;
+    int refCount_;
   };
 
   typedef CDSLongMap<TaskLink> TaskLinkMap;

@@ -63,14 +63,14 @@ ElemDDLLike *ElemDDLLike::castToElemDDLLike() { return this; }
 // get the degree of this node
 Int32 ElemDDLLike::getArity() const { return MAX_ELEM_DDL_LIKE_ARITY; }
 
-ExprNode *ElemDDLLike::getChild(Lng32 index) {
+ExprNode *ElemDDLLike::getChild(int index) {
   ComASSERT(index >= 0 AND index < MAX_ELEM_DDL_LIKE_ARITY);
   return pLikeOptions_;
 }
 
 // mutators
 
-void ElemDDLLike::setChild(Lng32 index, ExprNode *pChildNode) {
+void ElemDDLLike::setChild(int index, ExprNode *pChildNode) {
   ComASSERT(index EQU INDEX_LIKE_OPT_LIST);
   if (pChildNode NEQ NULL) {
     ComASSERT(pChildNode->castToElemDDLNode() NEQ NULL);

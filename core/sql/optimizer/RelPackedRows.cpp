@@ -40,7 +40,7 @@
 #include "optimizer/BindWA.h"
 #include "optimizer/NormWA.h"
 #include "Cost.h"
-#include "CostMethod.h"
+#include "optimizer/CostMethod.h"
 #include "optimizer/opt.h"
 #include "cli/Globals.h"
 
@@ -73,7 +73,7 @@
 //
 //  child: The child node of this node. presumably a Scan node.
 
-UnPackRows::UnPackRows(Lng32 maxPackingFactor, ItemExpr *unPackExprs, ItemExpr *packingFactor, TableDesc *unPackedTable,
+UnPackRows::UnPackRows(int maxPackingFactor, ItemExpr *unPackExprs, ItemExpr *packingFactor, TableDesc *unPackedTable,
                        RelExpr *child, ValueId indexHostVarValueId, CollHeap *oHeap)
     : RelExpr(REL_UNPACKROWS, child, NULL, oHeap),
       maxPackingFactor_(maxPackingFactor),
@@ -91,7 +91,7 @@ UnPackRows::UnPackRows(Lng32 maxPackingFactor, ItemExpr *unPackExprs, ItemExpr *
   setNonCacheable();
 }
 
-UnPackRows::UnPackRows(Lng32 maxPackingFactor, ItemExpr *rwrsInputSizeExpr, ItemExpr *rwrsMaxInputRowlenExpr,
+UnPackRows::UnPackRows(int maxPackingFactor, ItemExpr *rwrsInputSizeExpr, ItemExpr *rwrsMaxInputRowlenExpr,
                        ItemExpr *rwrsBufferAddrExpr, RelExpr *child, CollHeap *oHeap)
     : RelExpr(REL_UNPACKROWS, child, NULL, oHeap),
       maxPackingFactor_(maxPackingFactor),
@@ -408,7 +408,7 @@ void UnPackRows::constructNewSyskeyPreds(ValueIdSet &predicates) {
 
 void UnPackRows::pushdownCoveredExpr(const ValueIdSet &outputExpr, const ValueIdSet &newExternalInputs,
                                      ValueIdSet &predicatesOnParent, const ValueIdSet *setOfValuesReqdByParent,
-                                     Lng32 childIndex) {
+                                     int childIndex) {
   ValueIdSet exprOnParent;
   if (setOfValuesReqdByParent) exprOnParent = *setOfValuesReqdByParent;
   exprOnParent += outputExpr;
@@ -1018,7 +1018,7 @@ CostMethod *PhysUnPackRows::costMethod() const {
 //  Pointer to this operator's synthesized physical properties.
 //
 //==============================================================================
-PhysicalProperty *PhysUnPackRows::synthPhysicalProperty(const Context *context, const Lng32 planNumber,
+PhysicalProperty *PhysUnPackRows::synthPhysicalProperty(const Context *context, const int planNumber,
                                                         PlanWorkSpace *pws) {
   const PhysicalProperty *const sppOfTheChild = context->getPhysicalPropertyOfSolutionForChild(0);
 

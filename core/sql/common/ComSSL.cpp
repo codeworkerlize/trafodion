@@ -20,8 +20,8 @@
 // @@@ END COPYRIGHT @@@
 
 #include "ComSSL.h"
-void aes_create_key(const unsigned char *input, Lng32 input_len, unsigned char *key, Int32 aes_mode) {
-  const Lng32 key_len = EVP_CIPHER_key_length(aes_algorithm_type[aes_mode]);
+void aes_create_key(const unsigned char *input, int input_len, unsigned char *key, Int32 aes_mode) {
+  const int key_len = EVP_CIPHER_key_length(aes_algorithm_type[aes_mode]);
 
   memset(key, 0, key_len);
 

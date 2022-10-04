@@ -194,7 +194,7 @@ void PhysSequence::getHistoryAttributes(const ValueIdSet &sequenceFunctions, con
     // Gather all the children, and if not empty, recurse down to the
     // next level of the tree.
     //
-    for (Lng32 i = 0; i < valId.getItemExpr()->getArity(); i++) {
+    for (int i = 0; i < valId.getItemExpr()->getArity(); i++) {
       if (!outputFromChild.contains(valId.getItemExpr()->child(i)->getValueId()))
       //! valId.getItemExpr()->child(i)->nodeIsPreCodeGenned())
       {
@@ -325,12 +325,12 @@ void PhysSequence::computeHistoryAttributes(Generator *generator, MapTable *loca
 // of the history buffer.
 //
 void PhysSequence::computeHistoryRows(const ValueIdSet &sequenceFunctions,  // historyIds
-                                      Lng32 &computedHistoryRows, Lng32 &unableToCalculate,
-                                      NABoolean &unboundedFollowing, Lng32 &minFollowingRows,
+                                      int &computedHistoryRows, int &unableToCalculate,
+                                      NABoolean &unboundedFollowing, int &minFollowingRows,
                                       const ValueIdSet &outputFromChild) {
   ValueIdSet children;
   ValueIdSet historyAttributes;
-  Lng32 value = 0;
+  int value = 0;
 
   for (ValueId valId = sequenceFunctions.init(); sequenceFunctions.next(valId); sequenceFunctions.advance(valId)) {
     if (valId.getItemExpr()->isASequenceFunction()) {
@@ -416,33 +416,33 @@ void PhysSequence::computeHistoryRows(const ValueIdSet &sequenceFunctions,  // h
         case ITM_MOVING_MAX:
         case ITM_OFFSET:
         case ITM_OLAP_LAG:
-          for (Lng32 i = 1; i < itmExpr->getArity(); i++) {
+          for (int i = 1; i < itmExpr->getArity(); i++) {
             if (itmExpr->child(i)->getOperatorType() != ITM_NOTCOVERED) {
               ItemExpr *exprPtr = itmExpr->child(i);
               NABoolean negate;
               ConstValue *cv = exprPtr->castToConstValue(negate);
               if (cv AND cv->canGetExactNumericValue()) {
-                Lng32 scale;
-                Int64 value64 = cv->getExactNumericValue(scale);
+                int scale;
+                long value64 = cv->getExactNumericValue(scale);
 
                 if (scale == 0 && value64 >= 0 && value64 < INT_MAX) {
                   value64 = (negate ? -value64 : value64);
-                  value = MAXOF((Lng32)value64, value);
+                  value = MAXOF((int)value64, value);
                 }
               } else {
                 if (exprPtr->getOperatorType() == ITM_SCALAR_MIN) {
-                  for (Lng32 j = 0; j < exprPtr->getArity(); j++) {
+                  for (int j = 0; j < exprPtr->getArity(); j++) {
                     if (exprPtr->child(j)->getOperatorType() != ITM_NOTCOVERED) {
                       ItemExpr *exprPtr1 = exprPtr->child(j);
                       NABoolean negate1;
                       ConstValue *cv1 = exprPtr1->castToConstValue(negate1);
                       if (cv1 AND cv1->canGetExactNumericValue()) {
-                        Lng32 scale1;
-                        Int64 value64_1 = cv1->getExactNumericValue(scale1);
+                        int scale1;
+                        long value64_1 = cv1->getExactNumericValue(scale1);
 
                         if (scale1 == 0 && value64_1 >= 0 && value64_1 < INT_MAX) {
                           value64_1 = (negate1 ? -value64_1 : value64_1);
-                          value = MAXOF((Lng32)value64_1, value);
+                          value = MAXOF((int)value64_1, value);
                         }
                       }
                     }
@@ -477,7 +477,7 @@ void PhysSequence::computeHistoryRows(const ValueIdSet &sequenceFunctions,  // h
     // next level of the tree.
     //
 
-    for (Lng32 i = 0; i < valId.getItemExpr()->getArity(); i++) {
+    for (int i = 0; i < valId.getItemExpr()->getArity(); i++) {
       if (  // valId.getItemExpr()->child(i)->getOperatorType() != ITM_NOTCOVERED //old stuff
           !outputFromChild.contains(valId.getItemExpr()->child(i)->getValueId())) {
         children += valId.getItemExpr()->child(i)->getValueId();
@@ -938,11 +938,11 @@ short PhysSequence::codeGen(Generator *generator) {
 
   historyRecLen = ROUND8(historyRecLen);
 
-  Lng32 maxNumberOfOLAPBuffers;
-  Lng32 maxRowsInOLAPBuffer;
-  Lng32 minNumberOfOLAPBuffers;
-  Lng32 numberOfWinOLAPBuffers;
-  Lng32 olapBufferSize;
+  int maxNumberOfOLAPBuffers;
+  int maxRowsInOLAPBuffer;
+  int minNumberOfOLAPBuffers;
+  int numberOfWinOLAPBuffers;
+  int olapBufferSize;
 
   computeHistoryParams(historyRecLen, maxRowsInOLAPBuffer, minNumberOfOLAPBuffers, numberOfWinOLAPBuffers,
                        maxNumberOfOLAPBuffers, olapBufferSize);
@@ -985,7 +985,7 @@ short PhysSequence::codeGen(Generator *generator) {
   NADefaults &defs = ActiveSchemaDB()->getDefaults();
   UInt16 mmu = (UInt16)(defs.getAsDouble(EXE_MEM_LIMIT_PER_BMO_IN_MB));
   UInt16 numBMOsInFrag = (UInt16)generator->getFragmentDir()->getNumBMOs();
-  Lng32 numStreams;
+  int numStreams;
   double bmoMemoryUsagePerNode = generator->getEstMemPerNode(getKey(), numStreams);
   double memQuota = 0;
   double memQuotaRatio;
@@ -1003,8 +1003,8 @@ short PhysSequence::codeGen(Generator *generator) {
                                            generator->getTotalBMOsMemoryPerNode().value(), numBMOsInFrag,
                                            bmoMemoryUsagePerNode, numStreams, memQuotaRatio);
     }
-    Lng32 seqMemoryLowbound = defs.getAsLong(EXE_MEMORY_LIMIT_LOWER_BOUND_SEQUENCE);
-    Lng32 memoryUpperbound = defs.getAsLong(BMO_MEMORY_LIMIT_UPPER_BOUND);
+    int seqMemoryLowbound = defs.getAsLong(EXE_MEMORY_LIMIT_LOWER_BOUND_SEQUENCE);
+    int memoryUpperbound = defs.getAsLong(BMO_MEMORY_LIMIT_UPPER_BOUND);
 
     if (memQuota < seqMemoryLowbound) {
       memQuota = seqMemoryLowbound;
@@ -1066,17 +1066,17 @@ void PhysSequence::transformOlapFunctions(CollHeap *wHeap) {
   }
 }
 
-void PhysSequence::computeHistoryParams(Lng32 histRecLength, Lng32 &maxRowsInOLAPBuffer, Lng32 &minNumberOfOLAPBuffers,
-                                        Lng32 &numberOfWinOLAPBuffers, Lng32 &maxNumberOfOLAPBuffers,
-                                        Lng32 &olapBufferSize) {
-  Lng32 maxFWAdditionalBuffers = getDefault(OLAP_MAX_FIXED_WINDOW_EXTRA_BUFFERS);
+void PhysSequence::computeHistoryParams(int histRecLength, int &maxRowsInOLAPBuffer, int &minNumberOfOLAPBuffers,
+                                        int &numberOfWinOLAPBuffers, int &maxNumberOfOLAPBuffers,
+                                        int &olapBufferSize) {
+  int maxFWAdditionalBuffers = getDefault(OLAP_MAX_FIXED_WINDOW_EXTRA_BUFFERS);
   maxNumberOfOLAPBuffers = getDefault(OLAP_MAX_NUMBER_OF_BUFFERS);
   // For testing we may force a smaller max # rows in a buffer
-  Lng32 forceMaxRowsInOLAPBuffer = getDefault(OLAP_MAX_ROWS_IN_OLAP_BUFFER);
+  int forceMaxRowsInOLAPBuffer = getDefault(OLAP_MAX_ROWS_IN_OLAP_BUFFER);
   minNumberOfOLAPBuffers = 0;
   numberOfWinOLAPBuffers = 0;
   olapBufferSize = getDefault(OLAP_BUFFER_SIZE);
-  Lng32 olapAvailableBufferSize = olapBufferSize - ROUND8(sizeof(HashBufferHeader));  // header
+  int olapAvailableBufferSize = olapBufferSize - ROUND8(sizeof(HashBufferHeader));  // header
   // also consider the trailer reserved for DP2's checksum, for overflow only
   if (getUnboundedFollowing()) olapAvailableBufferSize -= 8;
 
@@ -1121,7 +1121,7 @@ void PhysSequence::computeHistoryParams(Lng32 histRecLength, Lng32 &maxRowsInOLA
   }
 }
 
-CostScalar PhysSequence::getEstimatedRunTimeMemoryUsage(Generator *generator, NABoolean perNode, Lng32 *numStreams) {
+CostScalar PhysSequence::getEstimatedRunTimeMemoryUsage(Generator *generator, NABoolean perNode, int *numStreams) {
   // input param is not used as this operator does not participate in the
   // quota system.
 
@@ -1134,7 +1134,7 @@ CostScalar PhysSequence::getEstimatedRunTimeMemoryUsage(Generator *generator, NA
   // ValueIdSet historyIds;
   // getHistoryAttributes(sequenceFunctions(),outputFromChild, historyIds);
   // historyIds += sequenceFunctions();
-  const Lng32 historyBufferWidthInBytes = getEstHistoryRowLength();  // historyIds.getRowLength();
+  const int historyBufferWidthInBytes = getEstHistoryRowLength();  // historyIds.getRowLength();
   const double historyBufferSizeInBytes = rowCount.value() * historyBufferWidthInBytes;
 
   // totalMemory is per CPU at this point of time.
@@ -1143,7 +1143,7 @@ CostScalar PhysSequence::getEstimatedRunTimeMemoryUsage(Generator *generator, NA
   CostScalar estMemPerInst;
 
   const PhysicalProperty *const phyProp = getPhysicalProperty();
-  Lng32 numOfStreams = 1;
+  int numOfStreams = 1;
   if (phyProp != NULL) {
     PartitioningFunction *partFunc = phyProp->getPartitioningFunction();
     numOfStreams = partFunc->getCountOfPartitions();
@@ -1171,7 +1171,7 @@ ExplainTuple *PhysSequence::addSpecificExplainInfo(ExplainTupleMaster *explainTu
   sprintf(buf, "%d ", numHistoryRows());
   buffer += buf;
 
-  const Lng32 bufferWidth = ((ComTdbSequence *)tdb)->getRecLength();
+  const int bufferWidth = ((ComTdbSequence *)tdb)->getRecLength();
 
   buffer += " history_row_size: ";
   sprintf(buf, "%d ", bufferWidth);

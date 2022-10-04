@@ -645,11 +645,11 @@ extern "C" DLLEXPORT long long TIME_SINCE_COLDLOAD(void)
   return (microseconds);
 }
 
-Int64 julianTimestampLinux() {
+long julianTimestampLinux() {
   struct timespec timeVal;
   int retcode = clock_gettime(CLOCK_REALTIME, &timeVal);
   if (retcode != 0) return -1;
-  Int64 julianTimeVal = ComRtGetJulianFromUTC(timeVal);
+  long julianTimeVal = ComRtGetJulianFromUTC(timeVal);
   return julianTimeVal;
 }
 

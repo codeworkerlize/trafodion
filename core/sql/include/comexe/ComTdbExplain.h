@@ -326,7 +326,7 @@ class ComTdbExplain : public ComTdb {
   // Constructor used by the generator.
   ComTdbExplain(ex_cri_desc *criDescParentDown, ex_cri_desc *criDescParentUp, queue_index queueSizeDown,
                 queue_index queueSizeUp, const unsigned short tuppIndex, ex_expr *scanPred, ex_cri_desc *criDescParams,
-                Lng32 tupleLength, ex_expr *paramsExpr, Lng32 numBuffers, ULng32 bufferSize);
+                int tupleLength, ex_expr *paramsExpr, int numBuffers, ULng32 bufferSize);
 
   // This always returns TRUE from now
   Int32 orderedQueueProtocol() const;
@@ -345,7 +345,7 @@ class ComTdbExplain : public ComTdb {
 
   // Pack and Unpack routines
   Long pack(void *);
-  Lng32 unpack(void *, void *reallocator);
+  int unpack(void *, void *reallocator);
 
   // For the GUI, Does nothing right now
   void display() const;
@@ -377,13 +377,13 @@ class ComTdbExplain : public ComTdb {
   // Information is retrieved from yje criDescParams_
   inline Attributes *getAttrModName();
   inline Attributes *getAttrStmtPattern();
-  inline Lng32 getOffsetModName();
-  inline Lng32 getLengthModName();
-  inline Lng32 getOffsetStmtPattern();
-  inline Lng32 getVCIndOffsetStmtPattern();
-  inline Lng32 getVCIndicatorLength();
-  inline Lng32 getLengthStmtPattern();
-  inline Lng32 getTupleLength() const;
+  inline int getOffsetModName();
+  inline int getLengthModName();
+  inline int getOffsetStmtPattern();
+  inline int getVCIndOffsetStmtPattern();
+  inline int getVCIndicatorLength();
+  inline int getLengthStmtPattern();
+  inline int getTupleLength() const;
 
   // Virtual routines to provide a consistent interface to TDB's
 
@@ -447,32 +447,32 @@ inline ex_expr *ComTdbExplain::getScanPred() const { return scanPred_; };
 
 inline ex_cri_desc *ComTdbExplain::criDescParams() const { return criDescParams_; };
 
-inline Lng32 ComTdbExplain::getOffsetModName() {
+inline int ComTdbExplain::getOffsetModName() {
   // The moduleName is the first attribute in the tuple.
   return criDescParams_->getTupleDescriptor(criDescParams_->noTuples() - 1)->getAttr(0)->getOffset();
 };
 
-inline Lng32 ComTdbExplain::getLengthModName() {
+inline int ComTdbExplain::getLengthModName() {
   // The moduleName is the first attribute in the tuple.
   return criDescParams_->getTupleDescriptor(criDescParams_->noTuples() - 1)->getAttr(0)->getLength();
 };
 
-inline Lng32 ComTdbExplain::getOffsetStmtPattern() {
+inline int ComTdbExplain::getOffsetStmtPattern() {
   // The statement Pattern is the second attribute in the tuple.
   return criDescParams_->getTupleDescriptor(criDescParams_->noTuples() - 1)->getAttr(1)->getOffset();
 };
 
-inline Lng32 ComTdbExplain::getVCIndOffsetStmtPattern() {
+inline int ComTdbExplain::getVCIndOffsetStmtPattern() {
   // The statement Pattern is the second attribute in the tuple.
   return criDescParams_->getTupleDescriptor(criDescParams_->noTuples() - 1)->getAttr(1)->getVCLenIndOffset();
 };
 
-inline Lng32 ComTdbExplain::getVCIndicatorLength() {
+inline int ComTdbExplain::getVCIndicatorLength() {
   // The statement Pattern is the second attribute in the tuple.
   return criDescParams_->getTupleDescriptor(criDescParams_->noTuples() - 1)->getAttr(1)->getVCIndicatorLength();
 };
 
-inline Lng32 ComTdbExplain::getLengthStmtPattern() {
+inline int ComTdbExplain::getLengthStmtPattern() {
   // The statement Pattern is the second attribute in the tuple.
   return criDescParams_->getTupleDescriptor(criDescParams_->noTuples() - 1)->getAttr(1)->getLength();
 };
@@ -489,6 +489,6 @@ inline Attributes *ComTdbExplain::getAttrStmtPattern() {
 
 inline ex_expr *ComTdbExplain::getParamsExpr() const { return paramsExpr_; };
 
-inline Lng32 ComTdbExplain::getTupleLength() const { return tupleLength_; };
+inline int ComTdbExplain::getTupleLength() const { return tupleLength_; };
 
 #endif

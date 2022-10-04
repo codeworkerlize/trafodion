@@ -33,7 +33,7 @@ class ComCompressionInfo : public NAVersionedObject {
 
   NABoolean splitsAllowed() const { return !isCompressed(); }
 
-  Int64 getMinScratchBufferSize() const;
+  long getMinScratchBufferSize() const;
 
   // try to determine the compression method just from a file name
   static CompressionMethod getCompressionMethodFromFileName(const char *f);
@@ -46,7 +46,7 @@ class ComCompressionInfo : public NAVersionedObject {
   virtual void populateImageVersionIDArray();
   virtual short getClassSize();
   virtual Long pack(void *space);
-  virtual Lng32 unpack(void *base, void *reallocator);
+  virtual int unpack(void *base, void *reallocator);
 
  private:
   CompressionMethod compressionMethod_;

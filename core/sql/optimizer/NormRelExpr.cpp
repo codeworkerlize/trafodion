@@ -36,7 +36,7 @@
 ******************************************************************************
 */
 
-#include "Debug.h"
+#include "common/Debug.h"
 #include "optimizer/Sqlcomp.h"
 #include "GroupAttr.h"
 #include "optimizer/opt.h"
@@ -46,7 +46,7 @@
 #include "optimizer/ValueDesc.h"
 #include "optimizer/Triggers.h"
 #include "Cost.h"
-#include "CostMethod.h"
+#include "optimizer/CostMethod.h"
 #include "optimizer/opt.h"
 #include "optimizer/RelGrby.h"
 #include "ItemFunc.h"
@@ -4510,7 +4510,7 @@ void Union::recomputeOuterReferences() {
 // -----------------------------------------------------------------------
 // UnionMap::normalizeSpecificChild()
 // -----------------------------------------------------------------------
-void UnionMap::normalizeSpecificChild(NormWA &normWARef, Lng32 childIndex) {
+void UnionMap::normalizeSpecificChild(NormWA &normWARef, int childIndex) {
   // Normalize the maps constructed for the union, replacing
   // valueIds with VegRef's where appropriate.
   ValueIdUnion *viduPtr;
@@ -5703,7 +5703,7 @@ RelExpr *Scan::normalizeNode(NormWA &normWARef) {
   ExprGroupId newJoin = this;
   ItemExpr *retItemExpr = NULL;
   ValueId colVid;
-  Lng32 numParams;
+  int numParams;
   if (normWARef.getMergeUpdDelCount() == 0)
     for (exprId = preds.init(); preds.next(exprId); preds.advance(exprId)) {
       if (exprId.getItemExpr()->canTransformToSemiJoin(valuesListIE, getTableDesc(), numParams, colVid,
@@ -5837,10 +5837,10 @@ is better than opening all the partitions and scanning the entire table once.
 The first argument vid is the giant OR predicate that we already know meets all
 logical criteria for transformation to semijoin.
 */
-NABoolean Scan::passSemiJoinHeuristicCheck(ValueId vid, Lng32 numValues, Lng32 numParams, ValueId colVid) const {
-  Lng32 orPredToSemiJoin = ActiveSchemaDB()->getDefaults().getAsLong(OR_PRED_TO_SEMIJOIN);
-  Lng32 orPredToJumpTable = ActiveSchemaDB()->getDefaults().getAsLong(OR_PRED_TO_JUMPTABLE);
-  Lng32 orPredToSemiJoinTableMinSize = ActiveSchemaDB()->getDefaults().getAsLong(OR_PRED_TO_SEMIJOIN_TABLE_MIN_SIZE);
+NABoolean Scan::passSemiJoinHeuristicCheck(ValueId vid, int numValues, int numParams, ValueId colVid) const {
+  int orPredToSemiJoin = ActiveSchemaDB()->getDefaults().getAsLong(OR_PRED_TO_SEMIJOIN);
+  int orPredToJumpTable = ActiveSchemaDB()->getDefaults().getAsLong(OR_PRED_TO_JUMPTABLE);
+  int orPredToSemiJoinTableMinSize = ActiveSchemaDB()->getDefaults().getAsLong(OR_PRED_TO_SEMIJOIN_TABLE_MIN_SIZE);
   float orPredToSemiJoinMaxRatio;
   ActiveSchemaDB()->getDefaults().getFloat(OR_PRED_TO_SEMIJOIN_PROBES_MAX_RATIO, orPredToSemiJoinMaxRatio);
 
@@ -6432,19 +6432,19 @@ RelExpr *GenericUpdate::normalizeNode(NormWA &normWARef) {
       (getInliningInfo().hasTriggers() ||      // driving trigger temp table insert
        getInliningInfo().isMVLoggingInlined()  // driving MV IUD log insert
        )) {
-    Lng32 actualMessageSize = getGroupAttr()->getCharacteristicOutputs().getRowLength();
+    int actualMessageSize = getGroupAttr()->getCharacteristicOutputs().getRowLength();
 
     // 2 headers: one for record header and the other for the message header
-    Lng32 maxMessageSize = (ActiveSchemaDB()->getDefaults().getAsULong(LOCAL_MESSAGE_BUFFER_SIZE) * 1024) -
+    int maxMessageSize = (ActiveSchemaDB()->getDefaults().getAsULong(LOCAL_MESSAGE_BUFFER_SIZE) * 1024) -
                            (2 * (ActiveSchemaDB()->getDefaults().getAsULong(DP2_MESSAGE_HEADER_SIZE_BYTES)));
 
     // check row size against max executor message buffer size
     if (actualMessageSize >= maxMessageSize) {
-      Lng32 tableRecordLength = getTableDesc()->getNATable()->getRecordLength();
+      int tableRecordLength = getTableDesc()->getNATable()->getRecordLength();
       NAString tableName = getTableDesc()->getNATable()->getTableName().getQualifiedNameAsAnsiString();
 
       *CmpCommon::diags() << DgSqlCode(-12070) << DgString0(tableName) << DgInt0(tableRecordLength)
-                          << DgInt1((Lng32)maxMessageSize / 2);
+                          << DgInt1((int)maxMessageSize / 2);
       return this;
     }
   }
@@ -7091,7 +7091,7 @@ RelExpr *RelRoot::normalizeNode(NormWA &normWARef) {
 
   // if param is used for LIMIT/FIRSTN, this check will be FALSE
   if (getFirstNRows() >= 0) {
-    Lng32 safetyFactor = ActiveSchemaDB()->getDefaults().getAsLong(FIRSTN_PREDICATE_SAFETY_FACTOR);
+    int safetyFactor = ActiveSchemaDB()->getDefaults().getAsLong(FIRSTN_PREDICATE_SAFETY_FACTOR);
     ValueId firstOrderColVid;
     if ((safetyFactor != 0) && (reqdOrder().entries() > 0)) {
       firstOrderColVid = reqdOrder()[0];
@@ -7172,8 +7172,8 @@ RelExpr *RelRoot::semanticQueryOptimizeNode(NormWA &normWARef) {
     // SQO can provide impoved performance but is not needed for
     // correctness.
     RelExpr *copyTree = child(0)->copyRelExprTree(CmpCommon::statementHeap());
-    Lng32 numSQOPasses = 0;
-    Lng32 multiPassJoinElimLimit = ActiveSchemaDB()->getDefaults().getAsLong(MULTI_PASS_JOIN_ELIM_LIMIT);
+    int numSQOPasses = 0;
+    int multiPassJoinElimLimit = ActiveSchemaDB()->getDefaults().getAsLong(MULTI_PASS_JOIN_ELIM_LIMIT);
     try {
       while ((numSQOPasses == 0) || (((numSQOPasses < multiPassJoinElimLimit) || (multiPassJoinElimLimit < 0)) &&
                                      (normWARef.containsJoinsToBeEliminated() || normWARef.checkForExtraHubTables()))) {
@@ -7207,7 +7207,7 @@ RelExpr *RelRoot::semanticQueryOptimizeNode(NormWA &normWARef) {
       normWARef.getSqoWA()->undoChanges(normWARef);
 
       *CmpCommon::diags() << DgSqlCode(2078) << DgString0(e.getCondition()) << DgString1(e.getFileName())
-                          << DgInt0((Lng32)e.getLineNum());
+                          << DgInt0((int)e.getLineNum());
 
       child(0) = copyTree;
       if (normWARef.requiresRecursivePushdown()) {
@@ -7647,13 +7647,13 @@ NABoolean RelExpr::prepareMeForCSESharing(const ValueIdSet &outputsToAdd, const 
 NABoolean RelExpr::createPredForFirstN(NormWA &normWARef) {
   if ((getOperatorType() != REL_ROOT) && (getOperatorType() != REL_FIRST_N)) return FALSE;
 
-  Lng32 firstNValue = getFirstNRows();
+  int firstNValue = getFirstNRows();
   if (getOperatorType() == REL_FIRST_N) {
     FirstN *firstNNode = (FirstN *)this;
     firstNValue = firstNNode->getFirstNRows();
   }
 
-  Lng32 safetyFactor = ActiveSchemaDB()->getDefaults().getAsLong(FIRSTN_PREDICATE_SAFETY_FACTOR);
+  int safetyFactor = ActiveSchemaDB()->getDefaults().getAsLong(FIRSTN_PREDICATE_SAFETY_FACTOR);
   if ((safetyFactor == 0) || (firstNValue <= 0)) return FALSE;
 
   ValueId firstOrderColVid;
@@ -7698,7 +7698,7 @@ NABoolean RelExpr::createPredForFirstN(NormWA &normWARef) {
   CostScalar rows = 0;
   double max;
   NABoolean found = FALSE;
-  Lng32 absSafetyFactor = safetyFactor;
+  int absSafetyFactor = safetyFactor;
   if (safetyFactor < 0) absSafetyFactor = -safetyFactor;
 
   Interval iter;
@@ -8557,7 +8557,7 @@ void CommonSubExprRef::pullUpPreds() {
 
 void CommonSubExprRef::pushdownCoveredExpr(const ValueIdSet &outputExpr, const ValueIdSet &newExternalInputs,
                                            ValueIdSet &predicatesOnParent, const ValueIdSet *setOfValuesReqdByParent,
-                                           Lng32 childIndex) {
+                                           int childIndex) {
   // Remember the predicates we pushed down, since other consumers of
   // this CSE may not have pushed the equivalent
   // predicates. Therefore, if we want to materialize a common
@@ -8951,7 +8951,7 @@ CSEInfo::CSEAnalysisOutcome CommonSubExprRef::analyzeAndPrepareForSharing(CSEInf
 
     // calculate some metrics for the temp table, based on row length,
     // cardinality (or max. cardinality) and number of times it is used
-    Lng32 tempTableRowLength = tempTableColumns.getRowLength();
+    int tempTableRowLength = tempTableColumns.getRowLength();
     CostScalar cseTempTableSize = cseEstLogProps_->getResultCardinality() * tempTableRowLength / numPreliminaryRefs;
     CostScalar cseTempTableMaxSize = cseEstLogProps_->getMaxCardEst() * tempTableRowLength / numPreliminaryRefs;
     double maxTableSize = ActiveSchemaDB()->getDefaults().getAsDouble(CSE_TEMP_TABLE_MAX_SIZE);
@@ -9345,7 +9345,7 @@ void IsolatedNonTableUDR::rewriteNode(NormWA &normWARef) {
 RelExpr *FirstN::normalizeNode(NormWA &normWARef) {
   if (nodeIsNormalized()) return this;
 
-  Lng32 safetyFactor = ActiveSchemaDB()->getDefaults().getAsLong(FIRSTN_PREDICATE_SAFETY_FACTOR);
+  int safetyFactor = ActiveSchemaDB()->getDefaults().getAsLong(FIRSTN_PREDICATE_SAFETY_FACTOR);
   if ((safetyFactor != 0) && (getFirstNRows() >= 0)) {
     ValueId firstVid;
     NAColumn *nacol = NULL;

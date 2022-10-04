@@ -81,19 +81,19 @@ class DatetimeType : public DatetimeIntervalCommonType {
   static DatetimeType *constructSubtype(NABoolean allowSQLnull, rec_datetime_field startField,
                                         rec_datetime_field endField, UInt32 fractionPrecision, NAMemory *h = 0);
 
-  static Lng32 getStorageSize(rec_datetime_field startField, rec_datetime_field endField, UInt32 fractionPrecision = 0);
+  static int getStorageSize(rec_datetime_field startField, rec_datetime_field endField, UInt32 fractionPrecision = 0);
 
   // Used by DatetimeValue
   static Int32 getExtendedEndField(rec_datetime_field endField, UInt32 fractionPrecision);
 
   void datetimeToLong(void *bufPtr, ULng32 values[]) const;
 
-  Lng32 getRecDateTimeCode() const  // does this need to be virtual ??
+  int getRecDateTimeCode() const  // does this need to be virtual ??
   {
     return getRecDateTimeCode(getStartField(), getEndField());
   }
 
-  Lng32 getRecDateTimeCode(rec_datetime_field startField, rec_datetime_field endField) const;
+  int getRecDateTimeCode(rec_datetime_field startField, rec_datetime_field endField) const;
 
   NABoolean checkValid(ComDiagsArea *diags) {
     if ((getFractionPrecision()) > MAX_FRACTION_PRECISION) {
@@ -112,9 +112,9 @@ class DatetimeType : public DatetimeIntervalCommonType {
 
   static NABoolean leapYear(ULng32 year) { return ((year % 4 == 0) && ((year % 100 != 0) || (year % 400 == 0))); }
 
-  static Lng32 gregorianDays(const ULng32 values[]);
+  static int gregorianDays(const ULng32 values[]);
 
-  static Lng32 secondsInTime(const ULng32 values[]);
+  static int secondsInTime(const ULng32 values[]);
 
   // returns the juliantimestamp value (64 bit integer) based on the
   // input sql timestamp value.
@@ -122,7 +122,7 @@ class DatetimeType : public DatetimeIntervalCommonType {
   // Input fractionPrec is the fractional seconds precision, needed to scale
   //                    the fractional seconds part of the timestamp to a
   //                    number of microseconds.
-  static Int64 julianTimestampValue(const char *value, const short valueLen, UInt32 fractionPrec);
+  static long julianTimestampValue(const char *value, const short valueLen, UInt32 fractionPrec);
 
   // ---------------------------------------------------------------------
   // Constructors
@@ -141,9 +141,9 @@ class DatetimeType : public DatetimeIntervalCommonType {
   // ---------------------------------------------------------------------
   Subtype getSubtype() const { return (validate(getStartField(), getEndField(), getFractionPrecision())); }
 
-  virtual Lng32 getDisplayLength() const;
+  virtual int getDisplayLength() const;
 
-  virtual Lng32 getDisplayLength(Lng32 datatype, Lng32 length, Lng32 precision, Lng32 scale, Lng32 heading_len) const;
+  virtual int getDisplayLength(int datatype, int length, int precision, int scale, int heading_len) const;
 
   const NAString &getDisplayFormat() const { return displayFormat_; }
 
@@ -193,9 +193,9 @@ class DatetimeType : public DatetimeIntervalCommonType {
   // Methods that return the binary form of the minimum and the maximum
   // representable values.
   // ---------------------------------------------------------------------
-  virtual void minRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **stringLiteral = NULL,
+  virtual void minRepresentableValue(void *bufPtr, int *bufLen, NAString **stringLiteral = NULL,
                                      NAMemory *h = 0) const;
-  virtual void maxRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **stringLiteral = NULL,
+  virtual void maxRepresentableValue(void *bufPtr, int *bufLen, NAString **stringLiteral = NULL,
                                      NAMemory *h = 0) const;
 
   virtual NABoolean createSQLLiteral(const char *buf,        // in
@@ -236,7 +236,7 @@ class DatetimeType : public DatetimeIntervalCommonType {
 
  private:
   // Auxiliary methods
-  void getRepresentableValue(const char *inValueString, void *bufPtr, Lng32 *bufLen, NAString **stringLiteral,
+  void getRepresentableValue(const char *inValueString, void *bufPtr, int *bufLen, NAString **stringLiteral,
                              NAMemory *h = 0) const;
 
   NAString displayFormat_;
@@ -274,7 +274,7 @@ class SQLDate : public DatetimeType {
   // the value (as #seconds) in v.
   NAString *convertToString(double v, NAMemory *h) const;
 
-  virtual Lng32 getPrecision() const { return SQLDTCODE_DATE; }
+  virtual int getPrecision() const { return SQLDTCODE_DATE; }
 
   // get min and max value
   virtual double getMinValue() const;  // the encode for '0001-01-01'
@@ -317,9 +317,9 @@ class SQLTime : public DatetimeType {
   // the value (as #seconds with fractions) in v.
   NAString *convertToString(double v, NAMemory *h) const;
 
-  virtual Lng32 getPrecision() const { return SQLDTCODE_TIME; }
+  virtual int getPrecision() const { return SQLDTCODE_TIME; }
 
-  virtual Lng32 getScale() const { return getFractionPrecision(); }
+  virtual int getScale() const { return getFractionPrecision(); }
 
   // get min and max value
   virtual double getMinValue() const;  // the encode for '00:00:00'
@@ -370,9 +370,9 @@ class SQLTimestamp : public DatetimeType {
   // the value in v.
   NAString *convertToString(double v, NAMemory *h) const;
 
-  virtual Lng32 getPrecision() const { return SQLDTCODE_TIMESTAMP; }
+  virtual int getPrecision() const { return SQLDTCODE_TIMESTAMP; }
 
-  virtual Lng32 getScale() const { return getFractionPrecision(); }
+  virtual int getScale() const { return getFractionPrecision(); }
 
   // get the min value, the encode for '0001-01-01 00:00:00'
   virtual double getMinValue() const;
@@ -406,9 +406,9 @@ class SQLMPDatetime : public DatetimeType {
 
   virtual double encode(void *bufPtr) const;
 
-  virtual Lng32 getPrecision() const { return SQLDTCODE_MPDATETIME; }
+  virtual int getPrecision() const { return SQLDTCODE_MPDATETIME; }
 
-  virtual Lng32 getScale() const { return getFractionPrecision(); }
+  virtual int getScale() const { return getFractionPrecision(); }
 
   virtual NABoolean isCompatible(const NAType &other, UInt32 *flags = NULL) const;
 
@@ -449,7 +449,7 @@ class DatetimeValue {
   DatetimeValue(const char *strValue, rec_datetime_field startField, rec_datetime_field endField,
                 UInt32 &fractionPrecision /* OUT */, NABoolean useOldConstructor);
 
-  DatetimeValue(const char *value, Lng32 storageSize);
+  DatetimeValue(const char *value, int storageSize);
 
   void oldConstructor(const char *strValue, rec_datetime_field startField, rec_datetime_field endField,
                       UInt32 &fractionPrecision /* OUT */);
@@ -482,11 +482,11 @@ class DatetimeValue {
   // Static function to get the datetime fields from a Julian timestamp into
   // an array suitable for input to setValue().
   // ---------------------------------------------------------------------
-  static void decodeTimestamp(Int64 julianTimestamp, UInt32 fracSec, UInt32 *dtvFields);
+  static void decodeTimestamp(long julianTimestamp, UInt32 fracSec, UInt32 *dtvFields);
 
-  static void decodeTimestamp(bool useUTCTimestamp, Int64 inTimeVal, bool inMillis, short *tsFields);
+  static void decodeTimestamp(bool useUTCTimestamp, long inTimeVal, bool inMillis, short *tsFields);
   static int convertToUtcFromDatetime(const char *value, Int32 valueLen, Int32 fractionPrec, time_t &utcTime,
-                                      Lng32 &nanoSecs);
+                                      int &nanoSecs);
   static int convertToUtcFromDate(const char *value, Int32 valueLen, time_t &utcTime);
   // ---------------------------------------------------------------------
   // Scan the date and return individual fields. Dont validate the date.

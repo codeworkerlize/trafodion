@@ -147,7 +147,7 @@ class ElemDDLStoreOptKeyColumnList : public ElemDDLStoreOpt {
 
   virtual Int32 getArity() const;
 
-  virtual ExprNode *getChild(Lng32 index);
+  virtual ExprNode *getChild(int index);
 
   inline const ElemDDLColRefArray &getKeyColumnArray() const;
   inline ElemDDLColRefArray &getKeyColumnArray();
@@ -165,7 +165,7 @@ class ElemDDLStoreOptKeyColumnList : public ElemDDLStoreOpt {
   ComPkeySerialization getSerializedOption() { return ser_; }
 
   // mutator
-  virtual void setChild(Lng32 index, ExprNode *pElemDDLNode);
+  virtual void setChild(int index, ExprNode *pElemDDLNode);
 
   // methods for tracing
   virtual const NAString displayLabel1() const;

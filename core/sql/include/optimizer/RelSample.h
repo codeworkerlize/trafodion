@@ -105,7 +105,7 @@ class RelSample : public RelExpr {
 
   virtual void pushdownCoveredExpr(const ValueIdSet &outputExprOnOperator, const ValueIdSet &newExternalInputs,
                                    ValueIdSet &predicatesOnParent, const ValueIdSet *setOfValuesReqdByParent = NULL,
-                                   Lng32 childIndex = (-MAX_REL_ARITY));
+                                   int childIndex = (-MAX_REL_ARITY));
 
   ItemExpr *removeBalanceExprTree();
 
@@ -127,7 +127,7 @@ class RelSample : public RelExpr {
 
   virtual void synthLogProp(NormWA *normWAPtr = NULL);
 
-  virtual Context *createContextForAChild(Context *myContext, PlanWorkSpace *pws, Lng32 &childIndex);
+  virtual Context *createContextForAChild(Context *myContext, PlanWorkSpace *pws, int &childIndex);
 
   virtual RelExpr *bindNode(BindWA *bindWA);
 
@@ -135,7 +135,7 @@ class RelSample : public RelExpr {
 
   Float32 getSamplePercent() const;
 
-  Lng32 getClusterSize() const;
+  int getClusterSize() const;
 
  private:
   // Return a pointer to the required order tree after
@@ -209,7 +209,7 @@ class PhysSample : public RelSample {
 
   // cost functions
   //
-  virtual PhysicalProperty *synthPhysicalProperty(const Context *context, const Lng32 planNumber, PlanWorkSpace *pws);
+  virtual PhysicalProperty *synthPhysicalProperty(const Context *context, const int planNumber, PlanWorkSpace *pws);
   virtual CostMethod *costMethod() const;
 
   // Redefine these virtual methods to declare this node as a

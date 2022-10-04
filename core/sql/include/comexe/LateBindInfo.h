@@ -178,12 +178,12 @@ class LateNameInfo : public NAVersionedObject {
   void setLastUsedName(char *name, NAMemory *heap);
   void setLastUsedName(AnsiName *name);
   Long pack(void *);
-  Lng32 unpack(void *, void *reallocator);
+  int unpack(void *, void *reallocator);
 
   static NABoolean extractParts(const char *inName,  // IN: inName separated by "."s
                                 char *outBuffer,     // IN/OUT: space where parts will be moved.
                                                      // Must be allocated by caller
-                                Lng32 &numParts,     // OUT: number of parts extracted
+                                int &numParts,     // OUT: number of parts extracted
                                 char *parts[],       // IN/OUT: array entries initialized to parts on return
                                 NABoolean dQuote);   // IN: if TRUE, parts are double quoted.
 
@@ -307,9 +307,9 @@ class LateNameInfoList : public NAVersionedObject {
   virtual short getClassSize() { return (short)sizeof(LateNameInfoList); }
 
   virtual Long pack(void *);
-  virtual Lng32 unpack(void *, void *reallocator);
+  virtual int unpack(void *, void *reallocator);
 
-  void allocateList(Space *space, Lng32 numEntries) {
+  void allocateList(Space *space, int numEntries) {
     numEntries_ = numEntries;
     lateNameInfo_.allocatePtrArray(space, numEntries);
   }
@@ -372,7 +372,7 @@ class AnsiName : public NABasicObject {
 
   char *getInternalName();
   char *getExternalName();
-  Int16 extractParts(Lng32 &numParts, char *parts[], bool noValidate = FALSE);
+  Int16 extractParts(int &numParts, char *parts[], bool noValidate = FALSE);
   Int16 equals(AnsiName *name);
   Int16 convertAnsiName(bool doCheck = TRUE, bool noValidate = FALSE);
   Int16 fillInMissingParts(char *schemaName);
@@ -395,7 +395,7 @@ class AnsiName : public NABasicObject {
 ///////////////////////////////////////////////////////////
 class TrafSimilarityTableInfo : public NAVersionedObject {
  public:
-  TrafSimilarityTableInfo(char *tableName, NABoolean isHive, char *hdfsRootDir, Int64 modTS, Int32 numPartnLevels,
+  TrafSimilarityTableInfo(char *tableName, NABoolean isHive, char *hdfsRootDir, long modTS, Int32 numPartnLevels,
                           Queue *hdfsDirsToCheck, char *hdfsHostName, Int32 hdfsPort);
 
   TrafSimilarityTableInfo();
@@ -413,9 +413,9 @@ class TrafSimilarityTableInfo : public NAVersionedObject {
   virtual short getClassSize() { return (short)sizeof(TrafSimilarityTableInfo); }
 
   Long pack(void *space);
-  Lng32 unpack(void *, void *reallocator);
+  int unpack(void *, void *reallocator);
 
-  Int64 modTS() { return modTS_; }
+  long modTS() { return modTS_; }
   Int32 numPartnLevels() { return numPartnLevels_; }
 
   char *tableName() { return tableName_; }
@@ -431,7 +431,7 @@ class TrafSimilarityTableInfo : public NAVersionedObject {
  private:
   enum Flags { HIVE = 0x0001 };
 
-  Int64 modTS_;
+  long modTS_;
   Int32 numPartnLevels_;
   UInt32 flags_;
 
@@ -467,7 +467,7 @@ class TrafQuerySimilarityInfo : public NAVersionedObject {
   Queue *siList() { return siList_; };
 
   Long pack(void *space);
-  Lng32 unpack(void *, void *reallocator);
+  int unpack(void *, void *reallocator);
 
   NABoolean disableSimCheck() { return ((flags_ & DISABLE_SIM_CHECK) != 0); };
   void setDisableSimCheck(NABoolean v) { (v ? flags_ |= DISABLE_SIM_CHECK : flags_ &= ~DISABLE_SIM_CHECK); };

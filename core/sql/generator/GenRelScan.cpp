@@ -141,7 +141,7 @@ short Describe::codeGen(Generator *generator) {
   if (maybeInMD()) {
     BindWA *bindWA = generator->getBindWA();
     CorrName descCorrName = getDescribedTableName();
-    Lng32 daMark = CmpCommon::diags()->mark();
+    int daMark = CmpCommon::diags()->mark();
     NATable *describedTable = bindWA->getSchemaDB()->getNATableDB()->get(descCorrName, bindWA, NULL, FALSE);
     CmpCommon::diags()->rewind(daMark, TRUE);
 
@@ -183,7 +183,7 @@ int HbaseAccess::createAsciiColAndCastExprForExtStorage(Generator *generator, co
     // if underlying hive type passed in is a hive 'string'
     // datatype that is being mapped to external table char/varchar type,
     // then set its size and charset to be the same as external table datatype.
-    Lng32 maxByteLen = castType.getNominalSize();
+    int maxByteLen = castType.getNominalSize();
     if ((vcAsciiType->getHiveTypeName() == hiveProtoTypeKindStr[HIVE_STRING_TYPE]) &&
         ((maxByteLen != vcAsciiType->getNominalSize()) || (castType.getCharSet() != vcAsciiType->getCharSet()))) {
       vcAsciiType = new (h) SQLVarChar(h, maxByteLen, vcAsciiType->supportsSQLnull(), vcAsciiType->isUpshifted(),
@@ -284,18 +284,18 @@ int HbaseAccess::createAsciiColAndCastExpr(Generator *generator, const NAType &g
   NAType *asciiType = NULL;
 
   if (DFS2REC::isDoubleCharacter(newGivenType->getFSDatatype())) {
-    asciiType = new (h) SQLVarChar(h, sizeof(Int64) / 2, newGivenType->supportsSQLnull(), FALSE, FALSE,
+    asciiType = new (h) SQLVarChar(h, sizeof(long) / 2, newGivenType->supportsSQLnull(), FALSE, FALSE,
                                    newGivenType->getCharSet(), CharInfo::DefaultCollation, CharInfo::COERCIBLE,
                                    CharInfo::UnknownCharSet, (srcIsInt32Varchar ? sizeof(Int32) : 0));
   }
   // set the source charset to GBK if HIVE_FILE_CHARSET is set
   // HIVE_FILE_CHARSET can only be empty or GBK
   else if (needTranslate == TRUE) {
-    asciiType = new (h) SQLVarChar(h, sizeof(Int64), newGivenType->supportsSQLnull(), FALSE, FALSE, CharInfo::GBK,
+    asciiType = new (h) SQLVarChar(h, sizeof(long), newGivenType->supportsSQLnull(), FALSE, FALSE, CharInfo::GBK,
                                    CharInfo::DefaultCollation, CharInfo::COERCIBLE, CharInfo::UnknownCharSet,
                                    (srcIsInt32Varchar ? sizeof(Int32) : 0));
   } else {
-    asciiType = new (h) SQLVarChar(h, sizeof(Int64), newGivenType->supportsSQLnull(), FALSE, FALSE,
+    asciiType = new (h) SQLVarChar(h, sizeof(long), newGivenType->supportsSQLnull(), FALSE, FALSE,
                                    CharInfo::DefaultCharSet, CharInfo::DefaultCollation, CharInfo::COERCIBLE,
                                    CharInfo::UnknownCharSet, (srcIsInt32Varchar ? sizeof(Int32) : 0));
   }
@@ -363,9 +363,9 @@ int HbaseAccess::createAsciiColAndCastExpr3(Generator *generator, const NAType &
   // source data is in string format.
   // Use cqd to determine max len of source if source type is not string.
   // If cqd is not set, use displayable length for the given datatype.
-  Lng32 cvl = 0;
+  int cvl = 0;
   if (NOT(DFS2REC::isAnyCharacter(newGivenType->getFSDatatype()))) {
-    cvl = (Lng32)CmpCommon::getDefaultNumeric(HBASE_MAX_COLUMN_VAL_LENGTH);
+    cvl = (int)CmpCommon::getDefaultNumeric(HBASE_MAX_COLUMN_VAL_LENGTH);
     if (cvl <= 0) {
       // compute col val length
       cvl = newGivenType->getDisplayLength();
@@ -405,8 +405,8 @@ NABoolean HbaseAccess::isEncodingNeededForSerialization(ItemExpr *colNode) {
   return CmpSeabaseDDL::isEncodingNeededForSerialization(nac);
 }
 
-Int64 bestBlockNb(Int64 offset, Int64 size, Int64 blocksize) {
-  Int64 blockBoundary = ((offset + size) / blocksize) * blocksize;
+long bestBlockNb(long offset, long size, long blocksize) {
+  long blockBoundary = ((offset + size) / blocksize) * blocksize;
   if (blockBoundary == 0) return 0;
   if ((blockBoundary - offset) > (offset + size - blockBoundary))
     return (blockBoundary / blocksize) - 1;
@@ -602,7 +602,7 @@ short FileScan::createHiveColNameAndTypeLists(Generator *generator, const NAColu
     Int32 hivePrecision = hiveNAType->getPrecision();
     Int32 hiveScale = hiveNAType->getScale();
 
-    Lng32 typeInfo[4];
+    int typeInfo[4];
     typeInfo[0] = hiveType;
     typeInfo[1] = hiveLength;
     typeInfo[2] = hivePrecision;
@@ -627,14 +627,14 @@ NABoolean HbaseAccess::validateVirtualTableDesc(NATable *naTable) {
 
   const NAColumnArray &naColumnArray = naTable->getNAColumnArray();
 
-  Lng32 v1 = (Lng32)CmpCommon::getDefaultNumeric(HBASE_MAX_COLUMN_NAME_LENGTH);
-  Lng32 v2 = (Lng32)CmpCommon::getDefaultNumeric(HBASE_MAX_COLUMN_VAL_LENGTH);
-  Lng32 v3 = (Lng32)CmpCommon::getDefaultNumeric(HBASE_MAX_COLUMN_INFO_LENGTH);
+  int v1 = (int)CmpCommon::getDefaultNumeric(HBASE_MAX_COLUMN_NAME_LENGTH);
+  int v2 = (int)CmpCommon::getDefaultNumeric(HBASE_MAX_COLUMN_VAL_LENGTH);
+  int v3 = (int)CmpCommon::getDefaultNumeric(HBASE_MAX_COLUMN_INFO_LENGTH);
 
   NAColumn *nac = NULL;
-  for (Lng32 i = 0; i < naColumnArray.entries(); i++) {
+  for (int i = 0; i < naColumnArray.entries(); i++) {
     nac = naColumnArray[i];
-    Lng32 length = nac->getType()->getNominalSize();
+    int length = nac->getType()->getNominalSize();
     if (isRW) {
       if (i == HBASE_ROW_ROWID_INDEX) {
         if (length != v1) return FALSE;
@@ -707,12 +707,12 @@ TrafDesc *HbaseAccess::createVirtualTableDesc(const char *name, NABoolean isRW, 
 
     table_desc->tableDesc()->hbase_regionkey_desc = head;
 
-    Lng32 v1 = (Lng32)CmpCommon::getDefaultNumeric(HBASE_MAX_COLUMN_NAME_LENGTH);
-    Lng32 v2 = (Lng32)CmpCommon::getDefaultNumeric(HBASE_MAX_COLUMN_VAL_LENGTH);
-    Lng32 v3 = (Lng32)CmpCommon::getDefaultNumeric(HBASE_MAX_COLUMN_INFO_LENGTH);
+    int v1 = (int)CmpCommon::getDefaultNumeric(HBASE_MAX_COLUMN_NAME_LENGTH);
+    int v2 = (int)CmpCommon::getDefaultNumeric(HBASE_MAX_COLUMN_VAL_LENGTH);
+    int v3 = (int)CmpCommon::getDefaultNumeric(HBASE_MAX_COLUMN_INFO_LENGTH);
 
     TrafDesc *cols_desc = table_desc->tableDesc()->columns_desc;
-    for (Lng32 i = 0; i < table_desc->tableDesc()->colcount; i++) {
+    for (int i = 0; i < table_desc->tableDesc()->colcount; i++) {
       if (isRW) {
         if (i == HBASE_ROW_ROWID_INDEX)
           cols_desc->columnsDesc()->length = v1;
@@ -736,7 +736,7 @@ TrafDesc *HbaseAccess::createVirtualTableDesc(const char *name, NAList<char *> &
                                               NAList<char *> &colValList) {
   TrafDesc *table_desc = NULL;
 
-  Lng32 arrSize = colNameList.entries();
+  int arrSize = colNameList.entries();
   ComTdbVirtTableColumnInfo *colInfoArray =
       (ComTdbVirtTableColumnInfo *)new char[arrSize * sizeof(ComTdbVirtTableColumnInfo)];
 
@@ -745,16 +745,16 @@ TrafDesc *HbaseAccess::createVirtualTableDesc(const char *name, NAList<char *> &
 
   // colList contains 3 column families:
   //  obj_type, col_details and key_details
-  Lng32 numCols = 0;
-  Lng32 numKeys = 0;
-  Lng32 i = 0;
+  int numCols = 0;
+  int numKeys = 0;
+  int i = 0;
   char colFamily[100];
   for (i = 0; i < arrSize; i++) {
     char *colName = colNameList[i];
     char *val = colValList[i];
 
     // look for ":" and find the column family
-    Lng32 cp = 0;
+    int cp = 0;
     while ((cp < strlen(colName)) && (colName[cp] != ':')) cp++;
 
     if (cp < strlen(colName)) {
@@ -771,36 +771,36 @@ TrafDesc *HbaseAccess::createVirtualTableDesc(const char *name, NAList<char *> &
       //                   type:length:precision:scale:datestart:dateend:primaryKey:nullable
 
       char buf[100];
-      Lng32 curPos = 0;
-      Lng32 type = (Lng32)str_atoi(&val[curPos], 4);
+      int curPos = 0;
+      int type = (int)str_atoi(&val[curPos], 4);
       curPos += 4;
       curPos++;  // skip the ":"
 
-      Lng32 len = (Lng32)str_atoi(&val[curPos], 4);
+      int len = (int)str_atoi(&val[curPos], 4);
       curPos += 4;
       curPos++;  // skip the ":"
 
-      Lng32 precision = (Lng32)str_atoi(&val[curPos], 4);
+      int precision = (int)str_atoi(&val[curPos], 4);
       curPos += 4;
       curPos++;  // skip the ":"
 
-      Lng32 scale = (Lng32)str_atoi(&val[curPos], 2);
+      int scale = (int)str_atoi(&val[curPos], 2);
       curPos += 2;
       curPos++;  // skip the ":"
 
-      Lng32 dtStart = (Lng32)str_atoi(&val[curPos], 2);
+      int dtStart = (int)str_atoi(&val[curPos], 2);
       curPos += 2;
       curPos++;  // skip the ":"
 
-      Lng32 dtEnd = (Lng32)str_atoi(&val[curPos], 2);
+      int dtEnd = (int)str_atoi(&val[curPos], 2);
       curPos += 2;
       curPos++;  // skip the ":"
 
-      Lng32 pKey = (Lng32)str_atoi(&val[curPos], 2);
+      int pKey = (int)str_atoi(&val[curPos], 2);
       curPos += 2;
       curPos++;  // skip the ":"
 
-      Lng32 nullHeaderSize = (Lng32)str_atoi(&val[curPos], 2);
+      int nullHeaderSize = (int)str_atoi(&val[curPos], 2);
 
       colInfoArray[numCols].datatype = type;
       colInfoArray[numCols].length = len;
@@ -814,8 +814,8 @@ TrafDesc *HbaseAccess::createVirtualTableDesc(const char *name, NAList<char *> &
 
       numCols++;
     } else if (strcmp(colFamily, "key_details") == 0) {
-      Lng32 keySeq = (Lng32)str_atoi(&val[0], 4);
-      Lng32 colNum = (Lng32)str_atoi(&val[4 + 1], 4);
+      int keySeq = (int)str_atoi(&val[0], 4);
+      int colNum = (int)str_atoi(&val[4 + 1], 4);
 
       keyInfoArray[numKeys].colName = NULL;
       keyInfoArray[numKeys].keySeqNum = keySeq;
@@ -988,7 +988,7 @@ short HbaseAccess::genListsOfRows(Generator *generator, NAList<HbaseRangeRows> &
   if (listOfRangeRows.entries() > 0) {
     tdbListOfRangeRows = new (space) Queue(space);
 
-    for (Lng32 i = 0; i < listOfRangeRows.entries(); i++) {
+    for (int i = 0; i < listOfRangeRows.entries(); i++) {
       HbaseRangeRows &hs = listOfRangeRows[i];
 
       Queue *colNamesList = new (space) Queue(space);
@@ -1007,7 +1007,7 @@ short HbaseAccess::genListsOfRows(Generator *generator, NAList<HbaseRangeRows> &
       } else
         endRowIdInList = space->AllocateAndCopyToAlignedSpace(hs.endRowId_, 0);
 
-      for (Lng32 j = 0; j < hs.colNames_.entries(); j++) {
+      for (int j = 0; j < hs.colNames_.entries(); j++) {
         NAString colName = "cf1:";
         colName += hs.colNames_[j];
 
@@ -1031,13 +1031,13 @@ short HbaseAccess::genListsOfRows(Generator *generator, NAList<HbaseRangeRows> &
   if (listOfUniqueRows.entries() > 0) {
     tdbListOfUniqueRows = new (space) Queue(space);
 
-    for (Lng32 i = 0; i < listOfUniqueRows.entries(); i++) {
+    for (int i = 0; i < listOfUniqueRows.entries(); i++) {
       HbaseUniqueRows &hg = listOfUniqueRows[i];
 
       Queue *rowIdsList = new (space) Queue(space);
       Queue *colNamesList = new (space) Queue(space);
 
-      for (Lng32 j = 0; j < hg.rowIds_.entries(); j++) {
+      for (int j = 0; j < hg.rowIds_.entries(); j++) {
         NAString &rowId = hg.rowIds_[j];
 
         char *rowIdInList = space->AllocateAndCopyToAlignedSpace(rowId, 0);
@@ -1045,7 +1045,7 @@ short HbaseAccess::genListsOfRows(Generator *generator, NAList<HbaseRangeRows> &
         rowIdsList->insert(rowIdInList);
       }
 
-      for (Lng32 j = 0; j < hg.colNames_.entries(); j++) {
+      for (int j = 0; j < hg.colNames_.entries(); j++) {
         NAString colName = "cf1:";
         colName += hg.colNames_[j];
 
@@ -1126,8 +1126,8 @@ short HbaseAccess::genListOfColNames(Generator *generator, const IndexDesc *inde
   return 0;
 }
 
-short HbaseAccess::convNumToId(const char *colQualPtr, Lng32 colQualLen, NAString &cid) {
-  Int64 colQval = str_atoi(colQualPtr, colQualLen);
+short HbaseAccess::convNumToId(const char *colQualPtr, int colQualLen, NAString &cid) {
+  long colQval = str_atoi(colQualPtr, colQualLen);
 
   if (colQval <= UCHAR_MAX) {
     unsigned char c = (unsigned char)colQval;
@@ -1136,7 +1136,7 @@ short HbaseAccess::convNumToId(const char *colQualPtr, Lng32 colQualLen, NAStrin
     unsigned short s = (unsigned short)colQval;
     cid.append((char *)&s, 2);
   } else if (colQval <= ULONG_MAX) {
-    Lng32 l = (Lng32)colQval;
+    int l = (int)colQval;
     cid.append((char *)&l, 4);
   } else
     cid.append((char *)&colQval, 8);
@@ -1163,12 +1163,12 @@ short HbaseAccess::createHbaseColId(const NAColumn *nac, NAString &cid, NABoolea
 
   if (nac && nac->getNATable() && nac->getNATable()->isHbaseMapTable()) {
     char *colQualPtr = (char *)nac->getColName().data();
-    Lng32 colQualLen = nac->getHbaseColQual().length();
+    int colQualLen = nac->getHbaseColQual().length();
 
     cid.append(colQualPtr, colQualLen);
   } else if (nac) {
     char *colQualPtr = (char *)nac->getHbaseColQual().data();
-    Lng32 colQualLen = nac->getHbaseColQual().length();
+    int colQualLen = nac->getHbaseColQual().length();
     if (colQualPtr[0] == '@') {
       cid += "@";
       colQualLen--;
@@ -1335,7 +1335,7 @@ short HbaseAccess::sortValues(const ValueIdSet &inSet, ValueIdList &uniqueSorted
 short HbaseAccess::sortValues(NASet<NAString> &inSet, NAList<NAString> &sortedList) {
   std::vector<NAString> myvector;
 
-  for (Lng32 i = 0; i < inSet.entries(); i++) {
+  for (int i = 0; i < inSet.entries(); i++) {
     NAString &colName = inSet[i];
 
     myvector.push_back(colName);
@@ -1354,8 +1354,8 @@ short HbaseAccess::sortValues(NASet<NAString> &inSet, NAList<NAString> &sortedLi
 }
 
 // infoType: 0, timestamp. 1, version. 2, security label.
-static short HbaseAccess_updateHbaseInfoNode(ValueIdList &hbiVIDlist, const NAString &colName, Lng32 colIndex) {
-  for (Lng32 i = 0; i < hbiVIDlist.entries(); i++) {
+static short HbaseAccess_updateHbaseInfoNode(ValueIdList &hbiVIDlist, const NAString &colName, int colIndex) {
+  for (int i = 0; i < hbiVIDlist.entries(); i++) {
     ValueId &vid = hbiVIDlist[i];
     ItemExpr *ie = vid.getItemExpr();
 
@@ -1444,7 +1444,7 @@ short FileScan::genTableName(Generator *generator, ComSpace *space, const CorrNa
   if (naTable && isForGetUIDName) {
     if ((naTable->getObjectType() == COM_BASE_TABLE_OBJECT || naTable->getObjectType() == COM_INDEX_OBJECT) &&
         ComIsUserTable(tableName)) {
-      Int64 objUID;
+      long objUID;
       if (naFileSet && naFileSet->getKeytag() != 0)
         objUID = naFileSet->getIndexUID();
       else
@@ -1595,7 +1595,7 @@ short HbaseAccess::codeGen(Generator *generator) {
         if (getIndexDesc()->isClusteringIndex()) {
           if (CmpCommon::getDefault(TRAF_TABLE_SNAPSHOT_SCAN) == DF_LATEST) {
             // Base table
-            Lng32 retcode = HBaseClient_JNI::getLatestSnapshot(baseTableName, snapshotName, generator->wHeap());
+            int retcode = HBaseClient_JNI::getLatestSnapshot(baseTableName, snapshotName, generator->wHeap());
             if (retcode != HBC_OK) GenAssert(0, "HBaseClient_JNI::getLatestSnapshot failed");
             if (snapshotName == NULL) latestSnpSupport = latest_snp_no_snapshot_available;
           }
@@ -1608,7 +1608,7 @@ short HbaseAccess::codeGen(Generator *generator) {
   if ((getTableDesc()->getNATable()->isSeabaseTable()) && (NOT isAlignedFormat) && (NOT isHbaseMapFormat))
     sortValues(retColumnList, columnList, (getIndexDesc()->getNAFileSet()->getKeytag() != 0));
   else {
-    for (Lng32 i = 0; i < getIndexDesc()->getIndexColumns().entries(); i++) {
+    for (int i = 0; i < getIndexDesc()->getIndexColumns().entries(); i++) {
       columnList.insert(getIndexDesc()->getIndexColumns()[i]);
     }
   }
@@ -1711,7 +1711,7 @@ short HbaseAccess::codeGen(Generator *generator) {
 
     if (getMdamKeyPtr() && nac) {
       // find column position of the key col and add that value id to the vidlist
-      Lng32 colPos = getIndexDesc()->getNAFileSet()->getIndexKeyColumns().getColumnPosition(*nac);
+      int colPos = getIndexDesc()->getNAFileSet()->getIndexKeyColumns().getColumnPosition(*nac);
       if (colPos != -1) encodedKeyExprVidArr.insertAt(colPos, castValue->getValueId());
     }
 
@@ -1939,7 +1939,7 @@ short HbaseAccess::codeGen(Generator *generator) {
     NAList<NAString> sortedColList(generator->wHeap());
     sortValues(retHbaseColRefSet_, sortedColList);
 
-    for (Lng32 ij = 0; ij < sortedColList.entries(); ij++) {
+    for (int ij = 0; ij < sortedColList.entries(); ij++) {
       NAString colName = sortedColList[ij];
       char *colNameInList = NULL;
 
@@ -2030,7 +2030,7 @@ short HbaseAccess::codeGen(Generator *generator) {
     genListOfColNames(generator, getIndexDesc(), hbaseFilterColVIDlist_, hbaseFilterColNames);
 
     hbaseCompareOpList = new (generator->getSpace()) Queue(generator->getSpace());
-    for (Lng32 i = 0; i < opList_.entries(); i++) {
+    for (int i = 0; i < opList_.entries(); i++) {
       char *op = space->AllocateAndCopyToAlignedSpace(opList_[i], 0);
       hbaseCompareOpList->insert(op);
     }
@@ -2147,7 +2147,7 @@ short HbaseAccess::codeGen(Generator *generator) {
       snapNameNAS.append("_FORCE_");
 
       char sqAddrStr[100];
-      str_itoa((Int64)this, sqAddrStr);
+      str_itoa((long)this, sqAddrStr);
       snapNameNAS.append(sqAddrStr);
     }
     snapName = space->allocateAlignedSpace(snapNameNAS.length() + 1);
@@ -2174,8 +2174,8 @@ short HbaseAccess::codeGen(Generator *generator) {
   // TEMP_MONARCH Sample not supported with monarch tables.
   if (getTableDesc()->getNATable()->isSeabaseTable() && getTableDesc()->getNATable()->isMonarch()) samplePerc = 0;
 
-  Lng32 hbaseRowSize;
-  Lng32 hbaseBlockSize;
+  int hbaseRowSize;
+  int hbaseBlockSize;
   if (getIndexDesc() && getIndexDesc()->getNAFileSet()) {
     const NAFileSet *fileset = (NAFileSet *)getIndexDesc()->getNAFileSet();
     hbaseRowSize = fileset->getRecordLength();

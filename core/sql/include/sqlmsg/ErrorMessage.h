@@ -39,7 +39,8 @@
 #include "common/BaseTypes.h"
 #include "export/ComDiags.h"
 #include "common/NAWinNT.h"
-#include "NAError.h"
+#include "sqlci/SqlciParseGlobals.h"
+#include "common/NAError.h"
 
 #undef max
 #undef min
@@ -97,7 +98,7 @@ const Int32 NO_COMMENT = +2;
 void NADumpDiags(ostream &, ComDiagsArea *, NABoolean newline = FALSE, Int32 commentIf = 0, FILE *fp = NULL,
                  short verbose = 1, CharInfo::CharSet terminalCharSet = CharInfo::ISO88591);
 
-Lng32 FixupMessageParam(NAWchar *paramName, MsgParamType paramType = NAMED_PARAM);
+int FixupMessageParam(NAWchar *paramName, MsgParamType paramType = NAMED_PARAM);
 
 void FixCarriageReturn(char *str);
 

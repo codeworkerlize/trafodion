@@ -74,10 +74,10 @@ class CostVector : public NABasicObject {
   virtual ~CostVector() {}
 
   // A virtual method that returns the number of entries.
-  virtual Lng32 entries() const = 0;
+  virtual int entries() const = 0;
 
   // A virtual method that provides access to a specific entry.
-  virtual CostScalar operator[](Lng32 ix) const = 0;
+  virtual CostScalar operator[](int ix) const = 0;
 
   // A virtual method that provides a string describing individual components
   virtual const NAString getDetailDesc(const DefaultToken ownline, const char *prefix = "") const = 0;
@@ -303,7 +303,7 @@ class SimpleCostVector : public CostVector {
   // -- Repeated overlapped addition. It does not apply to memory, either
   //    normal or persistent.
 
-  const SimpleCostVector &repeatedOverlappedAdd(const Lng32 times);
+  const SimpleCostVector &repeatedOverlappedAdd(const int times);
 
   // ---------------------------------------------------------------------
   // scaleUpByNumProbes() scales up a simple cost vector by its number of
@@ -319,7 +319,7 @@ class SimpleCostVector : public CostVector {
   // tracks total resource usage over all CPUs. All components except the
   // no of probes are scaled up.
   // ---------------------------------------------------------------------
-  const SimpleCostVector &scaleUpByCountOfCPUs(const Lng32 countOfCPUs);
+  const SimpleCostVector &scaleUpByCountOfCPUs(const int countOfCPUs);
 
   // ---------------------------------------------------------------------
   // scaleByValue() scales the vector by a specified scalar leaving only
@@ -362,7 +362,7 @@ class SimpleCostVector : public CostVector {
   // Accessor functions for the elements of the SimpleCostVector
   // ---------------------------------------------------------------------
 
-  CostScalar getCounter(Lng32 index) const {
+  CostScalar getCounter(int index) const {
     CMPASSERT((index >= 0) AND(index < COUNT_OF_SIMPLE_COST_COUNTERS));
     return counter_[index];
   }
@@ -548,9 +548,9 @@ class SimpleCostVector : public CostVector {
   // ---------------------------------------------------------------------
   // Overloaded indexing operator for accessing individual elements.
   // ---------------------------------------------------------------------
-  virtual Lng32 entries() const;
+  virtual int entries() const;
 
-  virtual CostScalar operator[](Lng32 ix) const;
+  virtual CostScalar operator[](int ix) const;
 
  private:
   CostScalar counter_[COUNT_OF_SIMPLE_COST_COUNTERS];

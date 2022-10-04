@@ -159,7 +159,7 @@ short ProbeCache::codeGen(Generator *generator) {
                                       0,  // don't add convert node
                                       work_atp, hashValIdx, ExpTupleDesc::SQLARK_EXPLODED_FORMAT, hvLength, &hvExpr);
 
-  GenAssert(hvLength == sizeof(Lng32), "Unexpected length of result of hash function.");
+  GenAssert(hvLength == sizeof(int), "Unexpected length of result of hash function.");
 
   // Expression #2 encodes the probe input data for storage in
   // the ProbeCacheManager.
@@ -369,7 +369,7 @@ short ProbeCache::codeGen(Generator *generator) {
 
   double probeCacheMemEst = getEstimatedRunTimeMemoryUsage(generator, probeCacheTdb);
   generator->addToTotalEstimatedMemory(probeCacheMemEst);
-  Lng32 pcMemEstInKBPerNode = getEstimatedRunTimeMemoryUsage(generator, TRUE).value() / 1024;
+  int pcMemEstInKBPerNode = getEstimatedRunTimeMemoryUsage(generator, TRUE).value() / 1024;
   if (!generator->explainDisabled()) {
     generator->setExplainTuple(addExplainInfo(probeCacheTdb, childExplainTuple, 0, generator));
   }
@@ -381,14 +381,14 @@ short ProbeCache::codeGen(Generator *generator) {
   return 0;
 }
 
-CostScalar ProbeCache::getEstimatedRunTimeMemoryUsage(Generator *generator, NABoolean perNode, Lng32 *numStreams) {
-  const Lng32 probeSize = getGroupAttr()->getCharacteristicInputs().getRowLength();
-  const Lng32 numCacheEntries = ActiveSchemaDB()->getDefaults().getAsLong(GEN_PROBE_CACHE_NUM_ENTRIES);
+CostScalar ProbeCache::getEstimatedRunTimeMemoryUsage(Generator *generator, NABoolean perNode, int *numStreams) {
+  const int probeSize = getGroupAttr()->getCharacteristicInputs().getRowLength();
+  const int numCacheEntries = ActiveSchemaDB()->getDefaults().getAsLong(GEN_PROBE_CACHE_NUM_ENTRIES);
   const Int32 perProbeOverhead = 32;                                          // bytes
   const double cacheSize = (probeSize + perProbeOverhead) * numCacheEntries;  // in bytes
 
-  const Lng32 resultSize = getGroupAttr()->getCharacteristicOutputs().getRowLength();
-  Lng32 numBufferPoolEntries = ActiveSchemaDB()->getDefaults().getAsLong(GEN_PROBE_CACHE_NUM_INNER);
+  const int resultSize = getGroupAttr()->getCharacteristicOutputs().getRowLength();
+  int numBufferPoolEntries = ActiveSchemaDB()->getDefaults().getAsLong(GEN_PROBE_CACHE_NUM_INNER);
   if (numBufferPoolEntries == 0) {
     numBufferPoolEntries = numCacheEntries + ActiveSchemaDB()->getDefaults().getAsLong(GEN_PROBE_CACHE_SIZE_UP);
   }
@@ -396,7 +396,7 @@ CostScalar ProbeCache::getEstimatedRunTimeMemoryUsage(Generator *generator, NABo
 
   // totalMemory is perNode at this point of time.
   double totalMemory = cacheSize + outputBufferSize;
-  Lng32 numOfStreams = 1;
+  int numOfStreams = 1;
   const PhysicalProperty *const phyProp = getPhysicalProperty();
   if (phyProp) {
     PartitioningFunction *partFunc = phyProp->getPartitioningFunction();
@@ -418,7 +418,7 @@ CostScalar ProbeCache::getEstimatedRunTimeMemoryUsage(Generator *generator, NABo
 double ProbeCache::getEstimatedRunTimeMemoryUsage(Generator *generator, ComTdb *tdb) {
   // tdb is ignored for ProbeCache because this operator
   // does not participate in the BMO quota system.
-  Lng32 numOfStreams = 1;
+  int numOfStreams = 1;
   CostScalar totalMemory = getEstimatedRunTimeMemoryUsage(generator, FALSE, &numOfStreams);
   totalMemory = totalMemory * numOfStreams;
   return totalMemory.value();

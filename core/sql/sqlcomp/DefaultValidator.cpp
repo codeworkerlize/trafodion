@@ -181,7 +181,7 @@ Int32 ValidateRoleNameList::validate(const char *value, const NADefaults *nad, I
   // (Also an appropriate error/warning would be issued.)
   while (token != NULL) {
     NAString tokenObj(token);
-    Lng32 sqlcode =
+    int sqlcode =
         ToInternalIdentifier(tokenObj, TRUE /*upCase*/, FALSE /*acceptCircumflex*/, 0 /*toInternalIdentifierFlags*/);
     if (sqlcode && ABS(sqlcode) != 3128) {
       // 3004 A delimited identifier must contain at least one character.
@@ -241,7 +241,7 @@ Int32 ValidatePOSTableSizes::validate(const char *value, const NADefaults *nad, 
                                 << DgString1(nad->lookupAttrName(attrEnum, errOrWarn));
 
             if (maxSize < initialSize) {
-              *CmpCommon::diags() << DgSqlCode(ERRWARN(2077)) << DgInt0((Lng32)maxSize) << DgInt1((Lng32)initialSize);
+              *CmpCommon::diags() << DgSqlCode(ERRWARN(2077)) << DgInt0((int)maxSize) << DgInt1((int)initialSize);
             }
             return FALSE;
           }
@@ -290,12 +290,12 @@ Int32 ValidateNumericRange::validate(const char *value, const NADefaults *nad, I
       char minbuf[50], maxbuf[50];
 
       if (type_ == VALID_INT) {
-        sprintf(minbuf, "%d", (Lng32)min_);
+        sprintf(minbuf, "%d", (int)min_);
 
         // A fudge factor of 64 is added for NT/Yos/Neo to include
         // the precision lost. The value printed is 2147483520,
         // while values are accepted till 2147483584.
-        sprintf(maxbuf, "%d", (Lng32)max_ + 64);
+        sprintf(maxbuf, "%d", (int)max_ + 64);
       } else if (type_ == VALID_UINT) {
         sprintf(minbuf, "%u", (ULng32)min_);
         if (max_ == 2147483520)

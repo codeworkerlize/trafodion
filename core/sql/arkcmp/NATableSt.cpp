@@ -47,7 +47,7 @@
 // an internal stored procedure.
 //-----------------------------------------------------------------------
 
-SP_STATUS NATableCacheStatStoredProcedure::sp_InputFormat(SP_FIELDDESC_STRUCT *inputFieldFormat, Lng32 numFields,
+SP_STATUS NATableCacheStatStoredProcedure::sp_InputFormat(SP_FIELDDESC_STRUCT *inputFieldFormat, int numFields,
                                                           SP_COMPILE_HANDLE spCompileObj, SP_HANDLE spObj,
                                                           SP_ERROR_STRUCT *error) {
   if (numFields != 2) {
@@ -64,16 +64,16 @@ SP_STATUS NATableCacheStatStoredProcedure::sp_InputFormat(SP_FIELDDESC_STRUCT *i
   return SP_SUCCESS;
 }
 
-const Lng32 NUM_OF_OUTPUT = 7;
+const int NUM_OF_OUTPUT = 7;
 
-SP_STATUS NATableCacheStatStoredProcedure::sp_NumOutputFields(Lng32 *numFields, SP_COMPILE_HANDLE spCompileObj,
+SP_STATUS NATableCacheStatStoredProcedure::sp_NumOutputFields(int *numFields, SP_COMPILE_HANDLE spCompileObj,
                                                               SP_HANDLE spObj, SP_ERROR_STRUCT *error) {
   *numFields = NUM_OF_OUTPUT;
   return SP_SUCCESS;
 }
 
 SP_STATUS NATableCacheStatStoredProcedure::sp_OutputFormat(SP_FIELDDESC_STRUCT *format, SP_KEYDESC_STRUCT keyFields[],
-                                                           Lng32 *numKeyFields, SP_HANDLE spCompileObj, SP_HANDLE spObj,
+                                                           int *numKeyFields, SP_HANDLE spCompileObj, SP_HANDLE spObj,
                                                            SP_ERROR_STRUCT *error) {
   strcpy(&((format++)->COLUMN_DEF[0]), "Context          CHAR(8) CHARACTER SET ISO88591");
   strcpy(&((format++)->COLUMN_DEF[0]), "Num_lookups      INT UNSIGNED");
@@ -131,7 +131,7 @@ void NATableCacheStatStoredProcedure::Initialize(SP_REGISTER_FUNCPTR regFunc) {
           CMPISPVERSION);
 }
 
-SP_STATUS NATableCacheEntriesStoredProcedure::sp_InputFormat(SP_FIELDDESC_STRUCT *inputFieldFormat, Lng32 numFields,
+SP_STATUS NATableCacheEntriesStoredProcedure::sp_InputFormat(SP_FIELDDESC_STRUCT *inputFieldFormat, int numFields,
                                                              SP_COMPILE_HANDLE spCompileObj, SP_HANDLE spObj,
                                                              SP_ERROR_STRUCT *error) {
   if (numFields != 2) {
@@ -149,7 +149,7 @@ SP_STATUS NATableCacheEntriesStoredProcedure::sp_InputFormat(SP_FIELDDESC_STRUCT
 }
 
 SP_STATUS
-NATableCacheEntriesStoredProcedure::sp_NumOutputFields(Lng32 *numFields, SP_COMPILE_HANDLE spCompileObj,
+NATableCacheEntriesStoredProcedure::sp_NumOutputFields(int *numFields, SP_COMPILE_HANDLE spCompileObj,
                                                        SP_HANDLE spObj, SP_ERROR_STRUCT *error) {
   *numFields = 5;
   return SP_SUCCESS;
@@ -158,7 +158,7 @@ NATableCacheEntriesStoredProcedure::sp_NumOutputFields(Lng32 *numFields, SP_COMP
 // Specifies the columns of the NATableEntries table and their types
 SP_STATUS NATableCacheEntriesStoredProcedure::sp_OutputFormat(SP_FIELDDESC_STRUCT *format,
                                                               SP_KEYDESC_STRUCT * /*keyFields */,
-                                                              Lng32 * /*numKeyFields */, SP_COMPILE_HANDLE cmpHandle,
+                                                              int * /*numKeyFields */, SP_COMPILE_HANDLE cmpHandle,
                                                               SP_HANDLE /* spHandle */, SP_ERROR_STRUCT * /* error */) {
   strcpy(&((format++)->COLUMN_DEF[0]), "Row_id        		INT UNSIGNED");
   strcpy(&((format++)->COLUMN_DEF[0]), "Catalog_name 		VARCHAR(128) character set UTF8");
@@ -199,10 +199,10 @@ SP_STATUS NATableCacheEntriesStoredProcedure::sp_Process(SP_PROCESS_ACTION actio
     }
 
     fFunc(0, outputData, sizeof(it->rowid()), &(it->rowid()), 0);
-    fFunc(1, outputData, (Lng32)strlen(details.catalog), (void *)(details.catalog), 1);
-    fFunc(2, outputData, (Lng32)strlen(details.schema), (void *)(details.schema), 1);
-    fFunc(3, outputData, (Lng32)strlen(details.object), (void *)(details.object), 1);
-    fFunc(4, outputData, (Lng32)sizeof(details.size), (void *)(&details.size), 0);
+    fFunc(1, outputData, (int)strlen(details.catalog), (void *)(details.catalog), 1);
+    fFunc(2, outputData, (int)strlen(details.schema), (void *)(details.schema), 1);
+    fFunc(3, outputData, (int)strlen(details.object), (void *)(details.object), 1);
+    fFunc(4, outputData, (int)sizeof(details.size), (void *)(&details.size), 0);
 
     return SP_MOREDATA;
   }
@@ -227,7 +227,7 @@ void NATableCacheEntriesStoredProcedure::Initialize(SP_REGISTER_FUNCPTR regFunc)
 // function is implemented as an internal stored procedure.
 //-----------------------------------------------------------------------
 
-SP_STATUS NATableCacheDeleteStoredProcedure::sp_InputFormat(SP_FIELDDESC_STRUCT *inputFieldFormat, Lng32 numFields,
+SP_STATUS NATableCacheDeleteStoredProcedure::sp_InputFormat(SP_FIELDDESC_STRUCT *inputFieldFormat, int numFields,
                                                             SP_COMPILE_HANDLE spCompileObj, SP_HANDLE spObj,
                                                             SP_ERROR_STRUCT *error) {
   if (numFields != 1) {

@@ -263,7 +263,7 @@ inline NABoolean operator>=(const RangeDate &s1, const RangeDate &s2) { return R
 class RangeTime : public RangeString {
  public:
   RangeTime() { memset(time_, 0, sizeof(time_)); };
-  RangeTime(const char *time, Lng32 len);
+  RangeTime(const char *time, int len);
   RangeTime(short hour, short minute, short second, Int32 fraction = 0);
   ~RangeTime();
 
@@ -302,7 +302,7 @@ inline NABoolean operator>=(const RangeTime &s1, const RangeTime &s2) { return R
 class RangeTimestamp : public RangeString {
  public:
   RangeTimestamp() { memset(timestamp_, 0, sizeof(timestamp_)); };
-  RangeTimestamp(const char *x, Lng32 len) { set_timestamp(x, len); };
+  RangeTimestamp(const char *x, int len) { set_timestamp(x, len); };
   RangeTimestamp(short year, short month, short day, short hour, short minute, short second, Int32 fraction = 0);
   ~RangeTimestamp();
 
@@ -313,7 +313,7 @@ class RangeTimestamp : public RangeString {
   static Int32 timestamp_len() { return TIMESTAMP_LENGTH; };
 
   const char *timestamp() const { return timestamp_; };
-  void set_timestamp(const char *x, Lng32 len) { memcpy(timestamp_, x, MINOF(len, sizeof(timestamp_))); };
+  void set_timestamp(const char *x, int len) { memcpy(timestamp_, x, MINOF(len, sizeof(timestamp_))); };
 
   ElementType getElementType() { return ET_TimestampVal; };
 
@@ -356,13 +356,13 @@ class SubrangeBase : public NABasicObject {
   friend class RangeSpec;
 
  public:
-  static const Int64 MICROSECONDS_IN_DAY;
-  static const Int64 SUBRANGE_DATE_MIN;
-  static const Int64 SUBRANGE_DATE_MAX;
-  static const Int64 SUBRANGE_TIME_MIN;
-  static const Int64 SUBRANGE_TIME_MAX;
-  static const Int64 SUBRANGE_TIMESTAMP_MIN;
-  static const Int64 SUBRANGE_TIMESTAMP_MAX;
+  static const long MICROSECONDS_IN_DAY;
+  static const long SUBRANGE_DATE_MIN;
+  static const long SUBRANGE_DATE_MAX;
+  static const long SUBRANGE_TIME_MIN;
+  static const long SUBRANGE_TIME_MAX;
+  static const long SUBRANGE_TIMESTAMP_MIN;
+  static const long SUBRANGE_TIMESTAMP_MAX;
 
   /**
    * Determines the minimum and maximum values of a given exact numeric
@@ -374,7 +374,7 @@ class SubrangeBase : public NABasicObject {
    * @param [out] typeMax The maximum value for the type.
    * @param level Logging level to use for any failure.
    */
-  static void getExactNumericMinMax(const NAType &type, Int64 &typeMin, Int64 &typeMax, logLevel level);
+  static void getExactNumericMinMax(const NAType &type, long &typeMin, long &typeMax, logLevel level);
 
   /**
    * Creates a QRNumericVal from the value and type information (specifically,
@@ -385,7 +385,7 @@ class SubrangeBase : public NABasicObject {
    * @param type Type information for the column the value is for.
    * @return Pointer to the created scalar element.
    */
-  static QRScalarValuePtr createScalarValElem(CollHeap *heap, Int64 value, const NAType &type,
+  static QRScalarValuePtr createScalarValElem(CollHeap *heap, long value, const NAType &type,
                                               const NAString &unparsedText);
 
   /**
@@ -419,7 +419,7 @@ class SubrangeBase : public NABasicObject {
   // Methods used by RangeSpecRT
   static QRScalarValuePtr createScalarValElem(CollHeap *heap, const RangeWString &value);
   static QRScalarValuePtr createScalarValElem(CollHeap *heap, const NAString &value);
-  static QRScalarValuePtr createScalarValElem(CollHeap *heap, Int64 value);
+  static QRScalarValuePtr createScalarValElem(CollHeap *heap, long value);
 
   /**
    * Creates a QRWStringVal from the Unicode string passed. #rangeColVid is
@@ -439,7 +439,7 @@ class SubrangeBase : public NABasicObject {
   /**
    * Returns the numeric difference between the rangespec representations of
    * two successive values for the given type. This applies only to types
-   * represented for the purpose of rangespec analysis as Int64 values; all
+   * represented for the purpose of rangespec analysis as long values; all
    * exact numeric types, date, time, timestamp, and interval types. The
    * step size of all numeric types is one, but the situation is more complex
    * for the other types.
@@ -448,7 +448,7 @@ class SubrangeBase : public NABasicObject {
    * @param level The logging level to use for any failure.
    * @return Integer difference between two successive values of the type.
    */
-  static Int64 getStepSize(const NAType *type, logLevel level);
+  static long getStepSize(const NAType *type, logLevel level);
 
   /**
    * Determines equality of two subranges. To be equal, the subranges must
@@ -563,7 +563,7 @@ class SubrangeBase : public NABasicObject {
    * immediate predecessor of the first value of the passed subrange.
    * This is automatically \c FALSE for all but integral types, including
    * fixed-numerics with nonzero scale, which are represented in a subrange
-   * as an unscaled Int64 with an associated scale factor. This method is
+   * as an unscaled long with an associated scale factor. This method is
    * used to determine when two neighboring subranges can be combined into
    * a single one.
    *
@@ -646,9 +646,9 @@ class SubrangeBase : public NABasicObject {
    */
   virtual void initSpecifiedValueCount() = 0;
 
-  Lng32 getSpecifiedValueCount() const { return specifiedValueCount_; }
+  int getSpecifiedValueCount() const { return specifiedValueCount_; }
 
-  void setSpecifiedValueCount(Lng32 newVal) { specifiedValueCount_ = newVal; }
+  void setSpecifiedValueCount(int newVal) { specifiedValueCount_ = newVal; }
 
   virtual void makeStartInclusive(const NAType *type, NABoolean &overflowed) = 0;
   virtual void makeEndInclusive(const NAType *type, NABoolean &overflowed) = 0;
@@ -733,15 +733,15 @@ class SubrangeBase : public NABasicObject {
 
   void setEndIsMax(NABoolean isMax) { endIsMax_ = isMax; }
 
-  Int64 getStartAdjustment() const { return startAdjustment_; }
+  long getStartAdjustment() const { return startAdjustment_; }
 
-  void setStartAdjustment(Int64 adjustment) { startAdjustment_ = adjustment; }
+  void setStartAdjustment(long adjustment) { startAdjustment_ = adjustment; }
 
-  Int64 getEndAdjustment() const { return endAdjustment_; }
+  long getEndAdjustment() const { return endAdjustment_; }
 
-  void setEndAdjustment(Int64 adjustment) { endAdjustment_ = adjustment; }
+  void setEndAdjustment(long adjustment) { endAdjustment_ = adjustment; }
 
-  Int64 getTotalDistinctValues(CollHeap *heap, const NAType *type);
+  long getTotalDistinctValues(CollHeap *heap, const NAType *type);
 
   /**
    * Writes a representation of the range to standard output for debugging
@@ -842,10 +842,10 @@ class SubrangeBase : public NABasicObject {
    * This only affects the way a subrange is converted to a new ItemExpr in
    * #makeSubrangeItemExpr().
    */
-  Lng32 specifiedValueCount_;
+  int specifiedValueCount_;
 
-  Int64 startAdjustment_;
-  Int64 endAdjustment_;
+  long startAdjustment_;
+  long endAdjustment_;
 
   ElementType elemType_;
 
@@ -995,7 +995,7 @@ class Subrange : public SubrangeBase {
  */
 class RangeSpec : public NABasicObject {
   friend ostream &operator<<(ostream &, RangeSpec &);
-  friend void Subrange<Int64>::copyToRangeSpec(RangeSpec *, CollHeap *) const;
+  friend void Subrange<long>::copyToRangeSpec(RangeSpec *, CollHeap *) const;
   friend void Subrange<double>::copyToRangeSpec(RangeSpec *, CollHeap *) const;
   friend void Subrange<RangeString>::copyToRangeSpec(RangeSpec *, CollHeap *) const;
   friend void Subrange<RangeWString>::copyToRangeSpec(RangeSpec *, CollHeap *) const;
@@ -1176,30 +1176,30 @@ class RangeSpec : public NABasicObject {
   void addSubrange(QRScalarValuePtr startVal, QRScalarValuePtr endVal) { addSubrange(startVal, endVal, TRUE, TRUE); };
 
   void addSubrange(CollHeap *, const char *startVal, const char *endVal);
-  void addSubrange(CollHeap *, Int64, Int64);
+  void addSubrange(CollHeap *, long, long);
   void addSubrange(RangeDate &d1, RangeDate &d2);
   void addSubrange(RangeTime &t1, RangeTime &t2);
   void addSubrange(RangeTimestamp &ts1, RangeTimestamp &ts2);
 
-  void addPoint(CollHeap *, const char *val, Lng32 len);
-  void addPoint(CollHeap *, const wchar_t *val, Lng32 len /*in double bytes*/);
+  void addPoint(CollHeap *, const char *val, int len);
+  void addPoint(CollHeap *, const wchar_t *val, int len /*in double bytes*/);
   void addPoint(CollHeap *, Int32);
   void addPoint(CollHeap *, UInt32);
-  void addPoint(CollHeap *, Int64);
+  void addPoint(CollHeap *, long);
   void addDate(RangeDate &d);
   void addTime(RangeTime &t);
   void addTimestamp(RangeTimestamp &t);
 
-  NABoolean lookup(Int64 x);
+  NABoolean lookup(long x);
 
   /*
       NABoolean lookup(Int32 x) { return  lookupNumeric(x); }
       NABoolean lookup(UInt32 x) { return lookupNumeric(x); }
-      NABoolean lookup(Int64 x) { return  lookupNumeric(x); }
+      NABoolean lookup(long x) { return  lookupNumeric(x); }
   */
 
-  NABoolean lookup(const char *ptr, Lng32 len);
-  NABoolean lookup(const wchar_t *ptr, Lng32 len);
+  NABoolean lookup(const char *ptr, int len);
+  NABoolean lookup(const wchar_t *ptr, int len);
 
   NABoolean lookup(RangeDate &d);
   NABoolean lookup(RangeTime &t);
@@ -1283,7 +1283,7 @@ class RangeSpec : public NABasicObject {
   void display();
 
   // Return the total # of distinct values for all subranges.
-  Int64 getTotalDistinctValues(CollHeap *heap);
+  long getTotalDistinctValues(CollHeap *heap);
 
   Int32 getTotalRanges() { return subranges_.entries(); };
 
@@ -1329,8 +1329,8 @@ class RangeSpec : public NABasicObject {
 
   // This specialization of the above template checks for consecutive values
   // in successive subranges for a fixed numeric type.
-  NABoolean adjacent(Subrange<Int64> *sub1, Subrange<Int64> *sub2) {
-    QRTRACER("adjacent(Subrange<Int64>*,Subrange<Int64>*)");
+  NABoolean adjacent(Subrange<long> *sub1, Subrange<long> *sub2) {
+    QRTRACER("adjacent(Subrange<long>*,Subrange<long>*)");
     return (sub1->end + 1 == sub2->start);
   }
 
@@ -1408,7 +1408,7 @@ class RangeSpec : public NABasicObject {
    * @param [out] prec  The precision specified.
    * @param  [out]scale The scale specified.
    */
-  void getPrecScale(const char *openParen, Lng32 &prec, Lng32 &scale) const;
+  void getPrecScale(const char *openParen, int &prec, int &scale) const;
 
   /**
    * Returns the enum value corresponding to the given inverval field name.
@@ -1457,7 +1457,7 @@ inline ostream &operator<<(ostream &os, RangeSpec &rangeSpec) {
   return os;
 }
 
-char *convertTimeToAscii(const char *timeVal, char *buf, Lng32 len);
-char *convertDateToAscii(const char *dateVal, char *buf, Lng32 len);
+char *convertTimeToAscii(const char *timeVal, char *buf, int len);
+char *convertDateToAscii(const char *dateVal, char *buf, int len);
 
 #endif /* _RANGE_H_ */

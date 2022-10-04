@@ -97,7 +97,7 @@ class TriggerDB : public NAHashDictionary<TableOp, BeforeAndAfterTriggers> {
   BeforeAndAfterTriggers *getTriggers(QualifiedName &subjectTable, ComOperation operation, BindWA *bindWA,
                                       bool allTrigger = false);
 
-  static BeforeAndAfterTriggers *getAllTriggers(QualifiedName &subjectTable, Int64 tableId = -1,
+  static BeforeAndAfterTriggers *getAllTriggers(QualifiedName &subjectTable, long tableId = -1,
                                                 NABoolean useTrigger = FALSE);
 
   void print(ostream &os) const;

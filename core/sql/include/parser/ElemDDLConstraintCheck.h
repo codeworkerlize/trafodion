@@ -71,7 +71,7 @@ class ElemDDLConstraintCheck : public ElemDDLConstraint {
   //
 
   virtual Int32 getArity() const;
-  virtual ExprNode *getChild(Lng32 index);
+  virtual ExprNode *getChild(int index);
 
   inline StringPos getEndPosition() const;
 
@@ -86,7 +86,7 @@ class ElemDDLConstraintCheck : public ElemDDLConstraint {
   // mutators
   //
 
-  virtual void setChild(Lng32 index, ExprNode *pChildNode);
+  virtual void setChild(int index, ExprNode *pChildNode);
   inline void setEndPosition(const StringPos endPos);
   inline void setStartPosition(const StringPos startPos);
 

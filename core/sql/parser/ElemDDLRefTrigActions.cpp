@@ -55,7 +55,7 @@ ElemDDLRefTrigAct *ElemDDLRefTrigAct::castToElemDDLRefTrigAct() { return this; }
 // get the degree of this node
 Int32 ElemDDLRefTrigAct::getArity() const { return MAX_ELEM_DDL_REF_TRIG_ACT_ARITY; }
 
-ExprNode *ElemDDLRefTrigAct::getChild(Lng32 index) {
+ExprNode *ElemDDLRefTrigAct::getChild(int index) {
   ComASSERT(index >= 0 AND index < getArity());
   return children_[index];
 }
@@ -64,7 +64,7 @@ ExprNode *ElemDDLRefTrigAct::getChild(Lng32 index) {
 // mutator
 //
 
-void ElemDDLRefTrigAct::setChild(Lng32 index, ExprNode *pChildNode) {
+void ElemDDLRefTrigAct::setChild(int index, ExprNode *pChildNode) {
   ComASSERT(index >= 0 AND index < getArity());
   if (pChildNode NEQ NULL) {
     ComASSERT(pChildNode->castToElemDDLNode() NEQ NULL);

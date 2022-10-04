@@ -152,11 +152,11 @@ class PassOneSkippedPassTwoNoPlanFatalException : public FatalException {
 
 class OptAssertException : public AssertException {
  public:
-  OptAssertException(AssertException &e, Lng32 taskCount);
+  OptAssertException(AssertException &e, int taskCount);
   virtual void throwException();
 
  private:
-  Lng32 taskCount_;
+  int taskCount_;
 };
 
 class CmpExceptionCallBack : public ExceptionCallBack {

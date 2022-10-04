@@ -232,7 +232,7 @@ RelExpr *Scan::normalizeForCache(CacheWA &cwa, BindWA &bindWA) {
   TableDesc *td = getTableDesc();
   CorrName &origName = td->getCorrNameObj();
   if (origName.getPrototype() == NULL) {
-    Lng32 CACHED_MAX_ANSI_NAME_EXTERNAL_LEN = 128;
+    int CACHED_MAX_ANSI_NAME_EXTERNAL_LEN = 128;
     NAString hvName("dummy_name");
     HostVar *hv = new (bindWA.wHeap())
         HostVar(hvName, new (bindWA.wHeap()) SQLChar(bindWA.wHeap(), CACHED_MAX_ANSI_NAME_EXTERNAL_LEN));
@@ -767,7 +767,7 @@ void RelExpr::generateCacheKeyForKids(CacheWA &cwa) const {
   Int32 maxi = getArity();
   if (maxi) {
     cwa += " kids(";
-    for (Lng32 i = 0; i < maxi; i++) {
+    for (int i = 0; i < maxi; i++) {
       if (i > 0) {
         cwa += ",";
       }

@@ -42,8 +42,8 @@
 #include <errno.h>
 #include "common/Platform.h"
 
-#include "SqlciCmd.h"
-#include "SqlciError.h"
+#include "sqlci/SqlciCmd.h"
+#include "sqlci/SqlciError.h"
 #include "common/str.h"
 
 Logfile::Logfile() {
@@ -123,7 +123,7 @@ void Logfile::Close() {
   }
 }
 
-short Logfile::Write(const char *buffer, Lng32 buflen) {
+short Logfile::Write(const char *buffer, int buflen) {
   Int32 retcode;
 
   if (noLog()) return 0;
@@ -163,7 +163,7 @@ short Logfile::Write(const char *buffer, Lng32 buflen) {
 //           If the log file is opened, WriteAll will then write
 //           the buffer to the log file.
 
-short Logfile::WriteAll(const char *buffer, Lng32 buflen) {
+short Logfile::WriteAll(const char *buffer, int buflen) {
   if (NOT noDisplay()) {
     if (buflen > 0) cout << buffer;
     cout << endl;
@@ -173,7 +173,7 @@ short Logfile::WriteAll(const char *buffer, Lng32 buflen) {
   return 0;
 }
 
-short Logfile::WriteAll(const char *buffer, Lng32 buflen, Int32 useCout) {
+short Logfile::WriteAll(const char *buffer, int buflen, Int32 useCout) {
   if (NOT noDisplay()) {
     if (useCout)
       cout << buffer;
@@ -191,7 +191,7 @@ short Logfile::WriteAll(const char *buffer, Lng32 buflen, Int32 useCout) {
   return 0;
 }
 
-short Logfile::WriteAll(const WCHAR *mbBuf, Lng32 buflen) { return 0; }
+short Logfile::WriteAll(const WCHAR *mbBuf, int buflen) { return 0; }
 
 short Logfile::WriteAll(const char *buffer) { return WriteAll(buffer, strlen(buffer)); }
 

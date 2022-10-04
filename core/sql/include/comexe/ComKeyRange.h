@@ -130,7 +130,7 @@ class keyRangeGen : public NAVersionedObject {
   void setKeytag(UInt16 kt) { keytag_ = kt; };
 
   virtual Long pack(void *);
-  virtual Lng32 unpack(void *, void *reallocator);
+  virtual int unpack(void *, void *reallocator);
 
   virtual ex_expr *getExpressionNode(Int32 pos) { return NULL; }
 };

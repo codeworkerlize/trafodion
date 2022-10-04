@@ -136,7 +136,7 @@ Int32 isChineseCharacter(NAWchar c) {
 // the compiler is fixed to inline routines with calls to assert,
 // Remove callAssert() in callers and replace with direct call to
 // assert.
-void callAssert(const char *tgt, const char *src, Lng32 length) { assert((tgt && src) || !length); }
+void callAssert(const char *tgt, const char *src, int length) { assert((tgt && src) || !length); }
 
 Int32 str_cmp_ne(const char *left, const char *right) {
   if (!left) return right ? -3 : 0;  // -3 = not equal, 0 = eq (both NULL)
@@ -218,10 +218,10 @@ char *str_itoa(ULng32 i, char *outstr) {
   return outstr;
 }
 
-char *str_ltoa(Int64 i, char *outstr) {
+char *str_ltoa(long i, char *outstr) {
   assert(outstr);
 
-  Int64 ii = i;
+  long ii = i;
   NABoolean neg = FALSE;
   if (i < 0) {
     ii = -i;
@@ -233,7 +233,7 @@ char *str_ltoa(Int64 i, char *outstr) {
     outstr[1] = 0;
   } else {
     short j = 0;
-    Int64 temp = ii;
+    long temp = ii;
 
     // check how many digits there are in the output string
     while (temp > 0) {
@@ -258,10 +258,10 @@ char *str_ltoa(Int64 i, char *outstr) {
   return outstr;
 }
 
-Int64 str_atoi(const char *instr, Lng32 instrLen) {
+long str_atoi(const char *instr, int instrLen) {
   assert(instr);
 
-  Int64 v = 0;
+  long v = 0;
 
   Int32 i = 0;
   // skip leading blanks
@@ -290,7 +290,7 @@ Int64 str_atoi(const char *instr, Lng32 instrLen) {
 }
 
 // convert a scaled exact numeric string and return as float.
-double str_ftoi(const char *instr, Lng32 instrLen) {
+double str_ftoi(const char *instr, int instrLen) {
   assert(instr);
 
   // create temp null terminated instr before passing to strtof
@@ -305,23 +305,23 @@ double str_ftoi(const char *instr, Lng32 instrLen) {
   return v;
 }
 
-Int32 mem_cpy_all(void *tgt, const void *src, Lng32 length) {
+Int32 mem_cpy_all(void *tgt, const void *src, int length) {
   memmove(tgt, src, length);
   return 0;
 }
 
-void str_memmove(char *tgt, const char *src, Lng32 length) {
+void str_memmove(char *tgt, const char *src, int length) {
   assert((tgt && src) || !length);
   memmove(tgt, src, length);
 }
 
 // copies src to tgt for length bytes.
 // Removes trailing blanks and puts the end_char.
-Int32 str_cpy_and_null(char *tgt, const char *src, Lng32 length, char end_char, char blank_char,
+Int32 str_cpy_and_null(char *tgt, const char *src, int length, char end_char, char blank_char,
                        NABoolean nullTerminate) {
   assert((tgt && src) || !length);
 
-  Lng32 i = 0;
+  int i = 0;
   for (; i < length; i++) {
     tgt[i] = src[i];
   }
@@ -342,10 +342,10 @@ Int32 str_cpy_and_null(char *tgt, const char *src, Lng32 length, char end_char, 
 // else downshifts.
 // Src and Tgt may point to the same location.
 // ---------------------------------------------------------------
-Int32 str_cpy_convert(char *tgt, char *src, Lng32 length, Int32 upshift) {
+Int32 str_cpy_convert(char *tgt, char *src, int length, Int32 upshift) {
   assert((tgt && src) || !length);
 
-  for (Lng32 i = 0; i < length; i++) {
+  for (int i = 0; i < length; i++) {
     if (upshift) tgt[i] = TOUPPER(src[i]);
 
     if (!upshift) tgt[i] = TOLOWER(src[i]);
@@ -388,11 +388,11 @@ void str_complement(const ULng32 length, char *s) {
 // ----------------------------------------------------------------------
 // How many bytes are needed to encode byteLen bytes in ASCII?
 // -----------------------------------------------------------------------
-Lng32 str_encoded_len(Lng32 byteLen) {
+int str_encoded_len(int byteLen) {
   // As mentioned below, we always make groups of 4 characters for
   // 3 input bytes and add extra bytes as needed for odd lots
 
-  Lng32 threes = byteLen / 3;
+  int threes = byteLen / 3;
 
   switch (byteLen % 3) {
     case 0:
@@ -414,7 +414,7 @@ Lng32 str_encoded_len(Lng32 byteLen) {
 // terminated) into printable ASCII characters and return the length
 // of the encoded string
 // -----------------------------------------------------------------------
-Lng32 str_encode(char *tgt, Lng32 tgtMaxLen, void *src, Lng32 srcLen) {
+int str_encode(char *tgt, int tgtMaxLen, void *src, int srcLen) {
   // We expand every 6 bits to 8 bits.  Bias the 8-bit value by 32
   // (ASCII blank) to turn it into a printable char value.  This in
   // effect converts every 3 bytes to 4 bytes. This routine was
@@ -426,12 +426,12 @@ Lng32 str_encode(char *tgt, Lng32 tgtMaxLen, void *src, Lng32 srcLen) {
 
   const unsigned char *key_in = (const unsigned char *)src;
   unsigned char *key_out = (unsigned char *)tgt;
-  Lng32 length = str_encoded_len(srcLen);
+  int length = str_encoded_len(srcLen);
 
   assert(tgtMaxLen >= length);
 
-  Lng32 srcix = 0;
-  Lng32 tgtix = 0;
+  int srcix = 0;
+  int tgtix = 0;
 
   // move in groups of 3 source bytes and 4 target characters
   while (srcix < srcLen) {
@@ -464,9 +464,9 @@ Lng32 str_encode(char *tgt, Lng32 tgtMaxLen, void *src, Lng32 srcLen) {
 // compute how many bytes are encoded in an ASCII string of length
 // charLen, assuming it was created by str_encode
 // -----------------------------------------------------------------------
-Lng32 str_decoded_len(Lng32 charLen) {
+int str_decoded_len(int charLen) {
   // find out how many groups of 4 chars and how many extra chars
-  Lng32 fours = charLen / 4;
+  int fours = charLen / 4;
 
   switch (charLen % 4) {
     case 0:
@@ -489,7 +489,7 @@ Lng32 str_decoded_len(Lng32 charLen) {
 // -----------------------------------------------------------------------
 // the inverse of str_encode
 // -----------------------------------------------------------------------
-Lng32 str_decode(void *tgt, Lng32 tgtMaxLen, const char *src, Lng32 srcLen) {
+int str_decode(void *tgt, int tgtMaxLen, const char *src, int srcLen) {
   // start character for encoding (a range of 64 chars is used)
   // NOTE: this char is also defined in str_encode above!!!
   const char minChar = '!';
@@ -497,13 +497,13 @@ Lng32 str_decode(void *tgt, Lng32 tgtMaxLen, const char *src, Lng32 srcLen) {
   unsigned char *target = (unsigned char *)tgt;
   unsigned char *src1 = (unsigned char *)src;
 
-  Lng32 length = str_decoded_len(srcLen);
+  int length = str_decoded_len(srcLen);
 
   //  assert(tgtMaxLen >= length);
   if (NOT(tgtMaxLen >= length)) return -1;
 
-  Lng32 srcix = 0;
-  Lng32 tgtix = 0;
+  int srcix = 0;
+  int tgtix = 0;
 
   // move in groups of 4 source chars, at this point we have 0, 2, 3, or >3
   // characters left in the source
@@ -538,12 +538,12 @@ Lng32 str_decode(void *tgt, Lng32 tgtMaxLen, const char *src, Lng32 srcLen) {
   return length;
 }
 
-Lng32 str_encoded_len_base64(Lng32 len) { return ((4 * len / 3) + 3) & ~3; }
+int str_encoded_len_base64(int len) { return ((4 * len / 3) + 3) & ~3; }
 
-Lng32 str_decoded_len_base64(Lng32 len) { return (len * 3) / 4; }
+int str_decoded_len_base64(int len) { return (len * 3) / 4; }
 
-Lng32 str_encode_base64(const unsigned char *in, Lng32 in_len, char *out, Lng32 out_len) {
-  Lng32 ret = 0;
+int str_encode_base64(const unsigned char *in, int in_len, char *out, int out_len) {
+  int ret = 0;
 
   BIO *b64 = BIO_new(BIO_f_base64());
   BIO *bio = BIO_new(BIO_s_mem());
@@ -560,8 +560,8 @@ Lng32 str_encode_base64(const unsigned char *in, Lng32 in_len, char *out, Lng32 
   return ret;
 }
 
-Lng32 str_decode_base64(const unsigned char *in, Lng32 in_len, char *out, Lng32 out_len) {
-  Lng32 ret = 0;
+int str_decode_base64(const unsigned char *in, int in_len, char *out, int out_len) {
+  int ret = 0;
 
   BIO *b64 = BIO_new(BIO_f_base64());
   BIO *bio = BIO_new(BIO_s_mem());
@@ -582,7 +582,7 @@ Lng32 str_decode_base64(const unsigned char *in, Lng32 in_len, char *out, Lng32 
 // end of the first non-blank character.The length of the "stripped" string
 // is returned in len.
 // Returns pointer to the start of string after leading blanks.
-char *str_strip_blanks(char *src, Lng32 &len, NABoolean stripLeading, NABoolean stripTrailing) {
+char *str_strip_blanks(char *src, int &len, NABoolean stripLeading, NABoolean stripTrailing) {
   if (!src) return NULL;
 
   len = str_len(src);
@@ -597,7 +597,7 @@ char *str_strip_blanks(char *src, Lng32 &len, NABoolean stripLeading, NABoolean 
     src[len] = 0;
   }
 
-  Lng32 i = 0;
+  int i = 0;
   if (stripLeading) {
     while ((i < len) && (src[i] == ' ')) i++;
     len = len - i;
@@ -609,7 +609,7 @@ char *str_strip_blanks(char *src, Lng32 &len, NABoolean stripLeading, NABoolean 
 //------------------------------------------------
 // See .h file for explanation on parameters etc
 //------------------------------------------------
-Lng32 str_to_ansi_id(char *src, char *tgt, Lng32 &tgtLen, short mustValidate, char *allowedChars) {
+int str_to_ansi_id(char *src, char *tgt, int &tgtLen, short mustValidate, char *allowedChars) {
   UInt32 i;
   register char *pBuf = src;
   NABoolean dQuoteSeen = FALSE;
@@ -1087,13 +1087,13 @@ Int32 str_convertToHexAscii(const char *src,             // in
 // are obtained from a tupp as follows.
 //
 //    char * dataPointer = getDataPointer();
-//    Lng32 len = tupp_.getAllocatedSize();
+//    int len = tupp_.getAllocatedSize();
 //
 //    printBrief(dataPointer, len) if you want an end of line
 //
 //    printBrief(dataPointer, len, FALSE) if you don't
 //
-void printBrief(char *dataPointer, Lng32 len, NABoolean endLine) {
+void printBrief(char *dataPointer, int len, NABoolean endLine) {
   // We don't know what the data type is, but we do know how
   // long the field is. So we will guess the data type.
 

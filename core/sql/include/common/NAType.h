@@ -137,9 +137,9 @@ class NAType : public NABasicObject {
   // specified for data field only, null indicator and variable len
   // field are handled automatically)
   // ---------------------------------------------------------------------
-  NAType(NAMemory *h, const NAString &adtName, NABuiltInTypeEnum ev, Lng32 dataStorageSize, NABoolean nullable = FALSE,
-         Lng32 SQLnullHdrSize = 0, NABoolean variableLength = FALSE, Lng32 lengthHeaderSize = 0,
-         Lng32 dataAlignment = 1);
+  NAType(NAMemory *h, const NAString &adtName, NABuiltInTypeEnum ev, int dataStorageSize, NABoolean nullable = FALSE,
+         int SQLnullHdrSize = 0, NABoolean variableLength = FALSE, int lengthHeaderSize = 0,
+         int dataAlignment = 1);
 
   // ---------------------------------------------------------------------
   // Methods for comparing if two ADT definitions are equal.
@@ -216,17 +216,17 @@ class NAType : public NABasicObject {
   // ---------------------------------------------------------------------
   virtual short getFSDatatype() const;
 
-  virtual Lng32 getPrecision() const;
+  virtual int getPrecision() const;
 
-  virtual Lng32 getMagnitude() const;
+  virtual int getMagnitude() const;
 
-  virtual Lng32 getScale() const;
+  virtual int getScale() const;
 
   // the expressions code overlays precision and max chars, ...
-  virtual Lng32 getPrecisionOrMaxNumChars() const;
+  virtual int getPrecisionOrMaxNumChars() const;
 
   // ...as well as scale and charset
-  virtual Lng32 getScaleOrCharset() const;
+  virtual int getScaleOrCharset() const;
 
   virtual CharInfo::CharSet getCharSet() const;
   //    { return CharInfo::UnknownCharSet; };
@@ -243,16 +243,16 @@ class NAType : public NABasicObject {
   // for representing certain kinds of data, e.g., null values or
   // variable length data (total size >= nominal size).
   // ---------------------------------------------------------------------
-  Lng32 getNominalSize() const { return dataStorageSize_; }
+  int getNominalSize() const { return dataStorageSize_; }
   void setNominalSize(Int32 newSize) { dataStorageSize_ = newSize; }
 
   NABoolean isValid() const { return dataStorageSize_ > 0; }
 
   void makeInvalid() { dataStorageSize_ = 0; }
 
-  virtual Lng32 getTotalSize() const;
+  virtual int getTotalSize() const;
 
-  virtual Lng32 getTotalAlignedSize() const;
+  virtual int getTotalAlignedSize() const;
 
   // ---------------------------------------------------------------------
   // Check if this ADT allows SQL null values.
@@ -277,7 +277,7 @@ class NAType : public NABasicObject {
   // reset SQLnullFlag_ to NOT_NULL_NOT_DROPPABLE
   void resetSQLnullFlag() { SQLnullFlag_ = NOT_NULL_NOT_DROPPABLE; }
 
-  Lng32 getSQLnullHdrSize() const { return SQLnullHdrSize_; }
+  int getSQLnullHdrSize() const { return SQLnullHdrSize_; }
 
   void resetSQLnullHdrSize() { SQLnullHdrSize_ = 0; }
 
@@ -292,32 +292,32 @@ class NAType : public NABasicObject {
     totalAlignment_ = MAXOF(MAXOF(dataAlignment_, SQLnullHdrSize_), lengthHdrSize_);
   }
 
-  Lng32 getVarLenHdrSize() const { return lengthHdrSize_; }
+  int getVarLenHdrSize() const { return lengthHdrSize_; }
 
   // ---------------------------------------------------------------------
   // Get the alignments, the total size of the prefix (null indicator +
   // variable length field) including filler bytes, and the size of the
   // type if it is an array element
   // ---------------------------------------------------------------------
-  Lng32 getTotalAlignment() const { return totalAlignment_; }
-  Lng32 getDataAlignment() const { return dataAlignment_; }
-  Lng32 getPrefixSize() const;
-  Lng32 getPrefixSizeWithAlignment() const;
-  //  Lng32 getArrayElementSize() const;
+  int getTotalAlignment() const { return totalAlignment_; }
+  int getDataAlignment() const { return dataAlignment_; }
+  int getPrefixSize() const;
+  int getPrefixSizeWithAlignment() const;
+  //  int getArrayElementSize() const;
 
   // number of levels of this type. 1 for non-composite types.
   // For composite types, levels will depend on the underlying types.
   // For ex, "INT ARRAY[2]" will have 2 levels.
   //     "ROW(a int) array[3]" will have 3 levels (int, ROW, ARRAY)
-  virtual Lng32 getNumLevels() const { return 1; }
+  virtual int getNumLevels() const { return 1; }
 
   // ---------------------------------------------------------------------
   // Methods that return the binary form of the minimum and the maximum
   // representable values.
   // ---------------------------------------------------------------------
-  virtual void minRepresentableValue(void *, Lng32 *, NAString **stringLiteral = NULL, CollHeap *h = 0) const;
-  virtual void maxRepresentableValue(void *, Lng32 *, NAString **stringLiteral = NULL, CollHeap *h = 0) const;
-  inline void minMaxRepresentableValue(void *buf, Lng32 *bufLen, NABoolean isMax, NAString **stringLiteral = NULL,
+  virtual void minRepresentableValue(void *, int *, NAString **stringLiteral = NULL, CollHeap *h = 0) const;
+  virtual void maxRepresentableValue(void *, int *, NAString **stringLiteral = NULL, CollHeap *h = 0) const;
+  inline void minMaxRepresentableValue(void *buf, int *bufLen, NABoolean isMax, NAString **stringLiteral = NULL,
                                        CollHeap *h = 0) const {
     if (isMax)
       maxRepresentableValue(buf, bufLen, stringLiteral, h);
@@ -345,7 +345,7 @@ class NAType : public NABasicObject {
   virtual double computeLSV(double v) const { return (roundTripConversionToDouble()) ? v - 1 : v; }
 
   virtual NAString *convertToString(double v, NAMemory *h = 0) const;
-  virtual NAString *convertToString(Int64 v, NAMemory *h = 0) const;
+  virtual NAString *convertToString(long v, NAMemory *h = 0) const;
 
   virtual NABoolean computeNextKeyValue(NAString &stringLiteral) const;
 
@@ -367,7 +367,7 @@ class NAType : public NABasicObject {
   // (an order-preserving, non-reducing encoding into an unsigned
   // array of bytes).
   // --------------------------------------------------------------------
-  virtual Lng32 getEncodedKeyLength() const;
+  virtual int getEncodedKeyLength() const;
 
   // --------------------------------------------------------------------
   // Methods that returns TRUE if encoding for comparison is needed.
@@ -526,19 +526,19 @@ class NAType : public NABasicObject {
   // ---------------------------------------------------------------------
   virtual NAType *newCopy(NAMemory *h = 0) const = 0;
 
-  static Lng32 getDisplayLengthStatic(Lng32 datatype, Lng32 length, Lng32 precision, Lng32 scale, Lng32 heading_len);
+  static int getDisplayLengthStatic(int datatype, int length, int precision, int scale, int heading_len);
 
   // Gets the length that a given data type would use in the display tool
-  virtual Lng32 getDisplayLength(Lng32 datatype, Lng32 length, Lng32 precision, Lng32 scale, Lng32 heading_len) const;
+  virtual int getDisplayLength(int datatype, int length, int precision, int scale, int heading_len) const;
 
-  virtual Lng32 getDisplayLength() const;
+  virtual int getDisplayLength() const;
 
   // A helper function.
   // This method returns a text representation of the datatype
   // based on the datatype information input to this method/
   static short convertTypeToText(char *text,         /* OUTPUT */
-                                 Lng32 fs_datatype,  // all other vars: INPUT
-                                 Lng32 length, Lng32 precision, Lng32 scale, rec_datetime_field datetimestart,
+                                 int fs_datatype,  // all other vars: INPUT
+                                 int length, int precision, int scale, rec_datetime_field datetimestart,
                                  rec_datetime_field datetimeend, short datetimefractprec, short intervalleadingprec,
                                  short upshift, short caseinsensitive, CharInfo::CharSet charSet,
                                  CharInfo::Collation collation, const char *displaydatatype,
@@ -547,7 +547,7 @@ class NAType : public NABasicObject {
   virtual short getMyTypeAsText(NAString *outputStr,  // output
                                 NABoolean addNullability = TRUE, NABoolean addCollation = TRUE) const;
 
-  virtual short getHiveTypeStr(Lng32 hiveType, Lng32 precision, Lng32 scale, NAString *outputStr /*out*/) const;
+  virtual short getHiveTypeStr(int hiveType, int precision, int scale, NAString *outputStr /*out*/) const;
 
   // generates and returns hive type corresponding to my NAType.
   short genHiveTypeStrFromMyType(NAString *outputStr /*out*/) const;
@@ -556,8 +556,8 @@ class NAType : public NABasicObject {
   short getHiveTypeStrForMyType(NAString *outputStr) const;  // output
 
   // used for query caching
-  Lng32 getSize() const;
-  Lng32 hashKey() const;
+  int getSize() const;
+  int hashKey() const;
   NABoolean amSafeToHash() const;
 
   //
@@ -596,14 +596,14 @@ class NAType : public NABasicObject {
   // may be required for indicating that a value is null or of a
   // variable length.
   // ---------------------------------------------------------------------
-  Lng32 dataStorageSize_;
+  int dataStorageSize_;
 
   // ---------------------------------------------------------------------
   // A flag that indicates whether the ADT supports SQL null values.
   // ---------------------------------------------------------------------
   SupportsSQLnull SQLnullFlag_;
 
-  Lng32 SQLnullHdrSize_;  // physical attribute
+  int SQLnullHdrSize_;  // physical attribute
 
   // ---------------------------------------------------------------------
   // A flag that indicates that dataStorageSize_ is the maximum number of
@@ -613,7 +613,7 @@ class NAType : public NABasicObject {
   // ---------------------------------------------------------------------
   NABoolean varLenFlag_;
 
-  Lng32 lengthHdrSize_;
+  int lengthHdrSize_;
 
   // ---------------------------------------------------------------------
   // A number that indicates how the data needs to be aligned. The
@@ -622,8 +622,8 @@ class NAType : public NABasicObject {
   // indicator, var length, and data field. It has one of the values of
   // 1, 2, 4, or 8. A value of 1 means the field needs no alignment.
   // ---------------------------------------------------------------------
-  Lng32 totalAlignment_;
-  Lng32 dataAlignment_;
+  int totalAlignment_;
+  int dataAlignment_;
 
  private:
   NAType();  // default ctor, not implemented, not callable

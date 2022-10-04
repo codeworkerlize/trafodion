@@ -91,8 +91,8 @@ class RefreshTestController {
   void SendExecutor(CRUTaskExecutor &executor);
   void WaitForAll();
   void SendSyncToAllExecutors();
-  void HandleReturnOfExecutor(Lng32 pid);
-  CRUTaskExecutor *FindRunningExecutor(Lng32 pid);
+  void HandleReturnOfExecutor(int pid);
+  CRUTaskExecutor *FindRunningExecutor(int pid);
   void SaveTime(Int32 groupId, Int32 processId);
 
  private:

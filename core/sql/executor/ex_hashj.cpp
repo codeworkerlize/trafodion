@@ -52,7 +52,7 @@
 #include "common/str.h"
 #include "common/BaseTypes.h"
 #include "executor/ExStats.h"
-#include "ex_error.h"
+#include "executor/ex_error.h"
 #include "ex_exe_stmt_globals.h"
 
 #include "executor/sql_buffer_size.h"
@@ -282,7 +282,7 @@ ex_hashj_tcb::ex_hashj_tcb(const ex_hashj_tdb &hashJoinTdb,
     numBuffers = 2;
   }
 
-  resultPool_ = new (space_) sql_buffer_pool(numBuffers, (Lng32)hashJoinTdb.bufferSize_, space_);
+  resultPool_ = new (space_) sql_buffer_pool(numBuffers, (int)hashJoinTdb.bufferSize_, space_);
 
   if (hashJoinTdb.considerBufferDefrag()) {
     assert(hashJoinTdb.useVariableLength());
@@ -392,7 +392,7 @@ ex_hashj_tcb::ex_hashj_tcb(const ex_hashj_tdb &hashJoinTdb,
     if (moveInputExpr_) (void)moveInputExpr_->fixup(0, getExpressionMode(), this, space_, heap_, FALSE, glob);
 
     // allocate space to keep the current input values for next time
-    Lng32 neededBufferSize = (Lng32)SqlBufferNeededSize(1, hashJoinTdb.inputValuesLen_);
+    int neededBufferSize = (int)SqlBufferNeededSize(1, hashJoinTdb.inputValuesLen_);
     inputPool_ = new (space_) sql_buffer_pool(1, neededBufferSize, space_);
     inputPool_->get_free_tuple(prevInputValues_, hashJoinTdb.inputValuesLen_);
   }  // if isReuse
@@ -441,7 +441,7 @@ ex_hashj_tcb::ex_hashj_tcb(const ex_hashj_tdb &hashJoinTdb,
     ULng32 tupleSize = MAXOF(nullLength, hashJoinTdb.minMaxRowLength_);
     ULng32 numTuples = ((nullLength > 0) && (hashJoinTdb.minMaxRowLength_ > 0)) ? 2 : 1;
 
-    Lng32 neededBufferSize = (Lng32)SqlBufferNeededSize(numTuples, tupleSize);
+    int neededBufferSize = (int)SqlBufferNeededSize(numTuples, tupleSize);
 
     nullPool_ = new (space_) sql_buffer_pool(1, neededBufferSize, space_);
 
@@ -461,19 +461,19 @@ ex_hashj_tcb::ex_hashj_tcb(const ex_hashj_tdb &hashJoinTdb,
 
       // Allocate tuple used to compute min/max values.
       if (nullPool_->get_free_tuple(workAtp_->getTupp(hashJoinTdb.minMaxValsAtpIndex_),
-                                    (Lng32)hashJoinTdb.minMaxRowLength_)) {
+                                    (int)hashJoinTdb.minMaxRowLength_)) {
         ex_assert(0, "ex_hashj_tcb No space for minmax tuple");
       }
 
       // Initial min/max tuple to all null values.
       memset(workAtp_->getTupp(hashJoinTdb.minMaxValsAtpIndex_).getDataPointer(), 0,
-             (Lng32)hashJoinTdb.minMaxRowLength_);
+             (int)hashJoinTdb.minMaxRowLength_);
 
       // initialize the min/max tupp in workAtp
       minMaxExpr()->initializeAggr(workAtp_);
 
       // str_pad(workAtp_->getTupp(hashJoinTdb.minMaxValsAtpIndex_).getDataPointer(),
-      //        (Lng32) hashJoinTdb.minMaxRowLength_,
+      //        (int) hashJoinTdb.minMaxRowLength_,
       //        '\377');
     }
   }
@@ -766,7 +766,7 @@ ExWorkProcRetcode ex_hashj_tcb::workUp() {
     // the parent's request.
     if ((request == ex_queue::GET_NOMORE ||
          request == ex_queue::GET_N &&
-             downParentEntry->downState.requestValue <= (Lng32)pstate.matchCount_) &&  // and not canceled or done yet
+             downParentEntry->downState.requestValue <= (int)pstate.matchCount_) &&  // and not canceled or done yet
         pstate.getState() != HASHJ_CANCELED &&
         pstate.getOldState() != HASHJ_CANCEL_AFTER_INNER && pstate.getState() != HASHJ_DONE) {
       propagateCancel(parentQueue_.down->getHeadIndex(), pstate);
@@ -897,14 +897,14 @@ ExWorkProcRetcode ex_hashj_tcb::workUp() {
         // pass it to parent. rc_ has the error code and
         // oldState_ tells us in which state the error occurred
         ComDiagsArea *da = downParentEntry->getDiagsArea();
-        if (!da || !da->contains((Lng32)-rc_)) {
+        if (!da || !da->contains((int)-rc_)) {
           ComDiagsArea *diags = NULL;
           if (rc_ == EXE_SORT_ERROR) {
             char msg[512];
             char errorMsg[100];
-            Lng32 scratchError = 0;
-            Lng32 scratchSysError = 0;
-            Lng32 scratchSysErrorDetail = 0;
+            int scratchError = 0;
+            int scratchSysError = 0;
+            int scratchSysErrorDetail = 0;
 
             if (clusterDb_)
               clusterDb_->getScratchErrorDetail(scratchError, scratchSysError, scratchSysErrorDetail, errorMsg);
@@ -940,7 +940,7 @@ NABoolean ex_hashj_tcb::isSameInputAgain(ex_queue_entry *downParentEntry) {
   workAtp_->getTupp(hashJoinTdb().prevInputTuppIndex_) = prevInputValues_;
 
   NABoolean haveMark = FALSE;
-  Lng32 oldDiagsAreaMark = 0;
+  int oldDiagsAreaMark = 0;
   ComDiagsArea *da = downParentEntry->getAtp()->getDiagsArea();
   if (da != NULL) {
     oldDiagsAreaMark = da->mark();
@@ -1162,11 +1162,11 @@ NABoolean ex_hashj_tcb::allocateClusters() {
   // (With available memory usually at 100MB, that's a max of 80 clusters).
   NAFloat innerTableSizeF =
       hashJoinTdb().innerExpectedRows() * (NAFloat)(hashJoinTdb().extRightRowLength_ + sizeof(HashTableHeader));
-  Int64 innerTableSize;
+  long innerTableSize;
   if (innerTableSizeF > MAX_INPUT_SIZE)
     innerTableSize = MAX_INPUT_SIZE;
   else
-    innerTableSize = MAXOF(MIN_INPUT_SIZE, (Int64)innerTableSizeF);
+    innerTableSize = MAXOF(MIN_INPUT_SIZE, (long)innerTableSizeF);
 
   // we start with 4 buckets per cluster
   ULng32 bucketsPerCluster = 4;
@@ -1473,7 +1473,7 @@ short ex_hashj_tcb::workReadInner() {
             genFullMessage(buf, sizeof(buf), "HASHJ", hashJoinTdb().getExplainNodeId());
 
             ex_clause *cptr = minMaxExpr()->perrecExpr()->getClauses();
-            Lng32 idx = hashJoinTdb().workCriDesc_->noTuples() - 1;
+            int idx = hashJoinTdb().workCriDesc_->noTuples() - 1;
             tupp &tup = workAtp_->getTupp(idx);
 
             ExFunctionRangeOfValues::conditionalDisplay(cptr, OperatorTypeEnum::ITM_RANGE_VALUES_INSERT, buf);
@@ -2167,10 +2167,10 @@ void ex_hashj_tcb::resetClusterForHashLoop(Cluster *iCluster) {
 void ex_hashj_tcb::prepareForNextPairOfClusters(Cluster *iCluster) {
   if (hashJoinTdb().logDiagnostics() /* && clusterDb_->sawPressure() */) {
     // L O G
-    Int64 currTime = NA_JulianTimestamp();
+    long currTime = NA_JulianTimestamp();
     char msg[1024];
 #ifdef TEMP_DISABLE
-    Int64 timeTook = currTime - iCluster->startTimePhase3();
+    long timeTook = currTime - iCluster->startTimePhase3();
     if (iCluster->numLoops()) {
       str_sprintf(msg, "HJ Finished cluster (%d) in Phase 3 (%d) with %d Hash-Loop iterations in %d seconds.",
                   (ULng32)iCluster & 0xFFF, (ULng32)clusterDb_ & 0xFFF,
@@ -2347,7 +2347,7 @@ short ex_hashj_tcb::workProbe() {
 
     // If it is a GET_N request and the number was satisfied then return
     if (downParentEntry->downState.request == ex_queue::GET_N &&
-        downParentEntry->downState.requestValue <= (Lng32)pstate.matchCount_)
+        downParentEntry->downState.requestValue <= (int)pstate.matchCount_)
       return 0;
 
     // if no room for the next result in the up queue, then come back later
@@ -2915,7 +2915,7 @@ ExUniqueHashJoinTcb::ExUniqueHashJoinTcb(const ex_hashj_tdb &hashJoinTdb, const 
       hashTable_(NULL),
       bufferSize_(hashJoinTdb.hashBufferSize_),
       extRowSize_(hashJoinTdb.extRightRowLength_),
-      rowSize_((Lng32)hashJoinTdb.rightRowLength_),
+      rowSize_((int)hashJoinTdb.rightRowLength_),
       returnedRightRowAtpIndex_(hashJoinTdb.returnedRightRowAtpIndex_),
       availRows_(0),
       bufferPool_(NULL),
@@ -2945,7 +2945,7 @@ ExWorkProcRetcode ExUniqueHashJoinTcb::workUp() {
   while (TRUE) {
     // if we have already given to the parent all the rows needed then
     // cancel the parent's request.
-    if ((request == ex_queue::GET_N) && (downParentEntry->downState.requestValue <= (Lng32)pstate.matchCount_) &&
+    if ((request == ex_queue::GET_N) && (downParentEntry->downState.requestValue <= (int)pstate.matchCount_) &&
         (pstate.getState() != HASHJ_CANCELED) && (pstate.getState() != HASHJ_DONE)) {
       propagateCancel(parentQueue_.down->getHeadIndex(), pstate);
     }
@@ -3202,7 +3202,7 @@ ExWorkProcRetcode ExUniqueHashJoinTcb::workUp() {
           downParentEntry->setDiagsArea(da);
         }
 
-        if (!da->contains((Lng32)-rc_)) {
+        if (!da->contains((int)-rc_)) {
           *da << DgSqlCode(-rc_);
         }
 
@@ -3226,7 +3226,7 @@ NABoolean ExUniqueHashJoinTcb::allocateBufferHeap() {
   // Setup our own bufferHeap. We want at least 10 buffers in each
   // block of this heap. Also add a few bytes to the buffer size to
   // account for some memory management overhead.
-  bufferHeap_ = new (heap_, FALSE) NAHeap("Buffer Heap", (NAHeap *)heap_, 10 * ((Lng32)bufferSize_));
+  bufferHeap_ = new (heap_, FALSE) NAHeap("Buffer Heap", (NAHeap *)heap_, 10 * ((int)bufferSize_));
 
   if (!bufferHeap_) {
     rc_ = EXE_NO_MEM_FOR_IN_MEM_JOIN;
@@ -3252,7 +3252,7 @@ short ExUniqueHashJoinTcb::workReadInner(UInt32 defragLength) {
 
   // A local copy of the number of available rows in the current Hash Buffer
   //
-  Lng32 availRows = availRows_;
+  int availRows = availRows_;
   // for CIF (with variable size)when there no room to hold max size rows we try to compute
   // the actual size of the row and determine if there is room for the actual size.
   // computeDefragLength computes the actual row size
@@ -3293,7 +3293,7 @@ short ExUniqueHashJoinTcb::workReadInner(UInt32 defragLength) {
     if (minMaxExpr_) {
 #ifdef NEED_INSTRUMENT_HASHJ
       workTimer_.start();
-      Int64 x = currentTimeStampInUsec();
+      long x = currentTimeStampInUsec();
 #endif
 
       retCode = minMaxExpr()->perrecExpr()->eval(rightEntry->getAtp(), workAtp_);
@@ -3307,8 +3307,8 @@ short ExUniqueHashJoinTcb::workReadInner(UInt32 defragLength) {
 
 #ifdef NEED_INSTRUMENT_HASHJ
       workTimer_.stop();
-      Int64 y = currentTimeStampInUsec();
-      Int64 z = y - x;
+      long y = currentTimeStampInUsec();
+      long z = y - x;
 
       totalMinmaxEvalET_ += workTimer_.elapsedTime();
 #endif
@@ -3615,7 +3615,7 @@ short ExUniqueHashJoinTcb::workReturnRow(HashRow *dataPointer, atp_struct *leftR
 
   // If it is a GET_N request and the number was satisfied then return
   NABoolean getN = (downParentEntry->downState.request == ex_queue::GET_N);
-  if (getN && downParentEntry->downState.requestValue <= (Lng32)pstate.matchCount_) return WORK_CALL_AGAIN;
+  if (getN && downParentEntry->downState.requestValue <= (int)pstate.matchCount_) return WORK_CALL_AGAIN;
 
   return WORK_OK;
 }

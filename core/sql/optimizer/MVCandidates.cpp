@@ -1208,7 +1208,7 @@ void MVCandidates::analyzeCandidate(QRCandidatePtr candidate, JBBSubset &jbbSubs
   // First check if the MV exist as it is possible that QMS returned an MV
   // that was just dropped or altered.  This should not be happening but
   // sometimes if the publish takes longer it could happen.
-  Lng32 marker = CmpCommon::diags()->mark();
+  int marker = CmpCommon::diags()->mark();
   NATable *naTable = bindWA_->getNATable(mvCorrName);
   if (bindWA_->errStatus()) {
     QRLogger::log(CAT_SQL_COMP_MVCAND, LL_DEBUG, "Skipping candidate MV %s since it does not exist",

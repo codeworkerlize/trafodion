@@ -73,7 +73,7 @@ class StmtDDLCreateCatalog : public StmtDDLNode {
 
   inline const NAString &getCatalogName() const;
 
-  virtual ExprNode *getChild(Lng32 index);
+  virtual ExprNode *getChild(int index);
 
   inline const NAString &getLocation() const;
 
@@ -112,7 +112,7 @@ class StmtDDLCreateCatalog : public StmtDDLNode {
   // returns FALSE otherwise.
 
   // mutator
-  virtual void setChild(Lng32 index, ExprNode *pChildNode);
+  virtual void setChild(int index, ExprNode *pChildNode);
 
   // for binding
   ExprNode *bindNode(BindWA *bindWAPtr);

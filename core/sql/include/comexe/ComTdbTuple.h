@@ -54,7 +54,7 @@ class ComTdbTuple : public ComTdb {
 
   ComTdbTuple(TupleTdbType ttt, Queue *tupleExprList, const ULng32 tupleLen, const unsigned short tuppIndex,
               ex_cri_desc *givenCriDesc, ex_cri_desc *returnedCriDesc, queue_index down, queue_index up,
-              Cardinality estimatedRowCount, Lng32 numBuffers, ULng32 bufferSize, ex_expr *predExpr = NULL);
+              Cardinality estimatedRowCount, int numBuffers, ULng32 bufferSize, ex_expr *predExpr = NULL);
 
   ~ComTdbTuple();
 
@@ -74,7 +74,7 @@ class ComTdbTuple : public ComTdb {
   virtual short getClassSize() { return (short)sizeof(ComTdbTuple); }
 
   virtual Long pack(void *);
-  virtual Lng32 unpack(void *, void *reallocator);
+  virtual int unpack(void *, void *reallocator);
 
   void display() const;
 
@@ -114,7 +114,7 @@ class ComTdbTupleLeaf : public ComTdbTuple {
 
   ComTdbTupleLeaf(Queue *tupleExprList, const ULng32 tupleLen, const unsigned short tuppIndex, ex_expr *pred_expr,
                   ex_cri_desc *givenCriDesc, ex_cri_desc *returnedCriDesc, queue_index down, queue_index up,
-                  Cardinality estimatedRowCount, Lng32 numBuffers, ULng32 bufferSize);
+                  Cardinality estimatedRowCount, int numBuffers, ULng32 bufferSize);
 
   // ---------------------------------------------------------------------
   // Redefine virtual functions required for Versioning.
@@ -148,7 +148,7 @@ class ComTdbTupleNonLeaf : public ComTdbTuple {
 
   ComTdbTupleNonLeaf(Queue *tupleExprList, ComTdb *childTdb, const ULng32 tupleLen, const unsigned short tuppIndex,
                      ex_cri_desc *givenCriDesc, ex_cri_desc *returnedCriDesc, queue_index down, queue_index up,
-                     Cardinality estimatedRowCount, Lng32 numBuffers, ULng32 bufferSize);
+                     Cardinality estimatedRowCount, int numBuffers, ULng32 bufferSize);
 
   // ---------------------------------------------------------------------
   // Redefine virtual functions required for Versioning.
@@ -163,7 +163,7 @@ class ComTdbTupleNonLeaf : public ComTdbTuple {
   virtual short getClassSize() { return (short)sizeof(ComTdbTupleNonLeaf); }
 
   virtual Long pack(void *);
-  virtual Lng32 unpack(void *, void *reallocator);
+  virtual int unpack(void *, void *reallocator);
 
   virtual Int32 numChildren() const { return 1; }
   virtual const ComTdb *getChild(Int32 pos) const {

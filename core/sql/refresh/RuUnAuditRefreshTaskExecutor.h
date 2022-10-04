@@ -141,7 +141,7 @@ class REFRESH_LIB_CLASS CRUUnAuditRefreshTaskExecutor : public CRUSimpleRefreshT
   void PrologueHandleOnStatementMV();
   void EpilogueHandleOnStatementMV();
 
-  void ExecuteIndexStatmenents(CRUSQLDynamicStatementContainer &container, Lng32 errorCode);
+  void ExecuteIndexStatmenents(CRUSQLDynamicStatementContainer &container, int errorCode);
 
  private:
   enum SQL_STATEMENT {

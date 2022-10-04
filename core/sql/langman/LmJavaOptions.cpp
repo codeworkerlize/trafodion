@@ -228,7 +228,7 @@ NABoolean LmJavaOptions::getSystemProperty(const char *name, char **callersOutpu
           if (callerWantsValue && !valueToReturn) {
             const ULng32 valueLen = optionLen - prefixWithEqualsLen;
             valueToReturn = new (callersHeap) char[valueLen + 1];
-            str_cpy_all(valueToReturn, &option[prefixWithEqualsLen], (Lng32)(valueLen + 1));
+            str_cpy_all(valueToReturn, &option[prefixWithEqualsLen], (int)(valueLen + 1));
           }
           if (remove) removeOption(i);
         }

@@ -50,7 +50,7 @@ typedef class ComSpace : public CollHeap {
   Block *lastBlock_;
   Block *searchList_;
 
-  Lng32 initialSize_;
+  int initialSize_;
 
   NABoolean fillUp_;  // flag to indicate if we ever revisit a block to
                       // look for free space. The default is true. If
@@ -64,7 +64,7 @@ typedef class ComSpace : public CollHeap {
 
   // allocate a block of the indicated length (must be a multiple
   // of 8)
-  Block *allocateBlock(SpaceType type, Lng32 in_block_size = 0, NABoolean firstAllocation = FALSE,
+  Block *allocateBlock(SpaceType type, int in_block_size = 0, NABoolean firstAllocation = FALSE,
                        char *in_block_addr = NULL, NABoolean failureIsFatal = TRUE);
 
  public:
@@ -75,9 +75,9 @@ typedef class ComSpace : public CollHeap {
 
   void freeBlocks(void);
 
-  void setType(SpaceType type, Lng32 initialSize = 0);
+  void setType(SpaceType type, int initialSize = 0);
 
-  void setFirstBlock(char *blockAddr, Lng32 blockLen, NABoolean failureIsFatal = TRUE);
+  void setFirstBlock(char *blockAddr, int blockLen, NABoolean failureIsFatal = TRUE);
 
   void setParent(CollHeap *parent);
 
@@ -87,7 +87,7 @@ typedef class ComSpace : public CollHeap {
                                       NABoolean failureIsFatal = TRUE, NABoolean noSizeAdjustment = FALSE);
 
   // returns total space allocated size (space allocated by the user)
-  inline Lng32 getAllocatedSpaceSize() { return allocSize_; }
+  inline int getAllocatedSpaceSize() { return allocSize_; }
 
   void *allocateSpaceMemory(size_t size, NABoolean failureIsFatal = TRUE);
 
@@ -97,7 +97,7 @@ typedef class ComSpace : public CollHeap {
 
   void *convertToPtr(Long offset) const;
 
-  Lng32 allocAndCopy(void *, ULng32, NABoolean failureIsFatal = TRUE);
+  int allocAndCopy(void *, ULng32, NABoolean failureIsFatal = TRUE);
 
   short isOffset(void *);
 
@@ -107,7 +107,7 @@ typedef class ComSpace : public CollHeap {
   char *makeContiguous(char *out_buf, ULng32 out_buflen);
 
 #if (defined(_DEBUG) || defined(NSK_MEMDEBUG))
-  void dumpSpaceInfo(ostream *outstream, Lng32 indent);
+  void dumpSpaceInfo(ostream *outstream, int indent);
   void traverseAndCheckHostHeap(const char *msg);
 #endif
 
@@ -115,7 +115,7 @@ typedef class ComSpace : public CollHeap {
 
   static void display(char *buf, size_t buflen, size_t countPrefixSize, ostream &outstream);
 
-  static Lng32 defaultBlockSize(SpaceType type);
+  static int defaultBlockSize(SpaceType type);
 
  public:
   NABoolean outputbuf_;  // set to false until we use the buffer for output
@@ -138,12 +138,12 @@ void *operator new(size_t size, ComSpace *s);
 // or system memory. See class Space.
 /////////////////////////////////////////////
 class Block {
-  Lng32 blockSize_;
+  int blockSize_;
 
-  Lng32 maxSize_;  // max data space size
-  Lng32 allocatedSize_;
-  Lng32 freeSpaceSize_;
-  Lng32 freeSpaceOffset_;
+  int maxSize_;  // max data space size
+  int allocatedSize_;
+  int freeSpaceSize_;
+  int freeSpaceOffset_;
 
   char *dataPtr_;
 
@@ -151,20 +151,20 @@ class Block {
   Block *nextSearchBlock_;  // list of searchable blocks
 
  public:
-  void init(Lng32 block_size, Lng32 data_size, char *data_ptr);
+  void init(int block_size, int data_size, char *data_ptr);
 
   // allocate 'size' amount of space in this block
   char *allocateMemory(ULng32 size);
 
   NABoolean isOverlapping(char *buf, ULng32 size);
 
-  inline Lng32 getAllocatedSize() { return allocatedSize_; };
+  inline int getAllocatedSize() { return allocatedSize_; };
 
   inline Block *getNext() { return nextBlock_; };
 
-  inline Lng32 getFreeSpace() { return freeSpaceSize_; };
+  inline int getFreeSpace() { return freeSpaceSize_; };
 
-  inline Lng32 getBlockSize() { return blockSize_; };
+  inline int getBlockSize() { return blockSize_; };
 
   inline Block *getNextSearch() { return nextSearchBlock_; };
 
@@ -174,7 +174,7 @@ class Block {
 
   inline char *getDataPtr() { return dataPtr_; };
 
-  inline Lng32 getMaxSize() { return maxSize_; };
+  inline int getMaxSize() { return maxSize_; };
 };
 
 #endif

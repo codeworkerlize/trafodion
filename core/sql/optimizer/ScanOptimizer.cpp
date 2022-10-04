@@ -270,7 +270,7 @@ static NABoolean checkMDAMadditionalRestriction(const ColumnOrderList &keyPredsB
 
   NABoolean checkLeadingDivColumns = (CmpCommon::getDefault(MTD_GENERATE_CC_PREDS) == DF_ON);
 
-  Lng32 mtd_mdam_uec_threshold = (Lng32)(ActiveSchemaDB()->getDefaults()).getAsLong(MTD_MDAM_NJ_UEC_THRESHOLD);
+  int mtd_mdam_uec_threshold = (int)(ActiveSchemaDB()->getDefaults()).getAsLong(MTD_MDAM_NJ_UEC_THRESHOLD);
 
   if (mtd_mdam_uec_threshold < 0) checkLeadingDivColumns = FALSE;
 
@@ -278,7 +278,7 @@ static NABoolean checkMDAMadditionalRestriction(const ColumnOrderList &keyPredsB
 
   float totalUEC_threshold = 1;
 
-  Lng32 minRC = (ActiveSchemaDB()->getDefaults()).getAsLong(MDAM_TOTAL_UEC_CHECK_MIN_RC_THRESHOLD);
+  int minRC = (ActiveSchemaDB()->getDefaults()).getAsLong(MDAM_TOTAL_UEC_CHECK_MIN_RC_THRESHOLD);
 
   if (totalRC > minRC)
     (ActiveSchemaDB()->getDefaults()).getFloat(MDAM_TOTAL_UEC_CHECK_UEC_THRESHOLD, totalUEC_threshold);
@@ -2589,7 +2589,7 @@ void ScanOptimizer::setNumberOfBlocksToReadPerAccess(const CostScalar &blocks) {
   const double val = blocks.getValue();
 
   if (val < double(INT_MAX)) {
-    Lng32 lval = Lng32(val);
+    int lval = int(val);
     DCMPASSERT(lval > -1);
     numberOfBlocksToReadPerAccess_ = lval;
   } else
@@ -2943,7 +2943,7 @@ NABoolean ScanOptimizer::isMdamEnabled() const {
     // we will use MDAM regardless of the setting of CQD MDAM_SCAN_METHOD.
     // When the CQD is 0, MDAM under NJ is not considered.
 
-    Lng32 mdam_under_nj_probes = (ActiveSchemaDB()->getDefaults()).getAsLong(MDAM_UNDER_NJ_PROBES_THRESHOLD);
+    int mdam_under_nj_probes = (ActiveSchemaDB()->getDefaults()).getAsLong(MDAM_UNDER_NJ_PROBES_THRESHOLD);
 
     if (mdam_under_nj_probes > 0) {
       if (repeatCount <= mdam_under_nj_probes && getContext().getInputLogProp()->getColStats().entries() > 0)
@@ -3007,8 +3007,8 @@ Cost *ScanOptimizer::computeCostObject(const SimpleCostVector &firstRow /* IN */
 
   const CostScalar activePartitions = getNumActivePartitions();
 
-  Lng32 countOfCPUsExecutingDP2s =
-      MINOF((Lng32)activePartitions.getValue(), getContext().getPlan()->getPhysicalProperty()->getCurrentCountOfCPUs());
+  int countOfCPUsExecutingDP2s =
+      MINOF((int)activePartitions.getValue(), getContext().getPlan()->getPhysicalProperty()->getCurrentCountOfCPUs());
 
   // -----------------------------------------------------------------------
   // Compute the degree of I/O parallelism:
@@ -3019,7 +3019,7 @@ Cost *ScanOptimizer::computeCostObject(const SimpleCostVector &firstRow /* IN */
   const LogPhysPartitioningFunction *lppf =
       getContext().getPlan()->getPhysicalProperty()->getPartitioningFunction()->castToLogPhysPartitioningFunction();
 
-  Lng32 countOfPAs = 1;
+  int countOfPAs = 1;
   SimpleCostVector tempFirst = firstRow, tempLast = lastRow;
 
   // get partitions per CPU
@@ -3060,7 +3060,7 @@ Cost *ScanOptimizer::computeCostObject(const SimpleCostVector &firstRow /* IN */
     // partitions in the logical partitioning function.
     if (getProbesForceSynchronousAccessFlag()) {
       PartitioningFunction *logPartFunc = lppf->getLogPartitioningFunction();
-      Lng32 numParts = logPartFunc->getCountOfPartitions();
+      int numParts = logPartFunc->getCountOfPartitions();
       countOfPAs = MINOF(numParts, countOfPAs);
     }
 
@@ -3070,9 +3070,9 @@ Cost *ScanOptimizer::computeCostObject(const SimpleCostVector &firstRow /* IN */
     // there now because the active partitions estimate is inaccurate
     // sometimes and so we cannot rely on it now for setting
     // something that will be relied upon by the executor.
-    countOfPAs = MINOF((Lng32)activePartitions.getValue(), countOfPAs);
+    countOfPAs = MINOF((int)activePartitions.getValue(), countOfPAs);
 
-    Lng32 numOfDP2Volumes = MIN_ONE(((NodeMap *)(lppf->getNodeMap()))->getNumActiveDP2Volumes());
+    int numOfDP2Volumes = MIN_ONE(((NodeMap *)(lppf->getNodeMap()))->getNumActiveDP2Volumes());
     // Limit the number of PAs by the number of DP2 volumes.
     // This won't need to be done here when we start doing it when
     // we synthesize the physical properties. It is not being done
@@ -3149,7 +3149,7 @@ Cost *ScanOptimizer::computeCostObject(const SimpleCostVector &firstRow /* IN */
   CostScalar frIOTime = tempFirst.getIOTime();
 
 #ifndef NDEBUG
-  Lng32 planFragmentsPerCPU = (Lng32)partitionsPerCPU.getValue();
+  int planFragmentsPerCPU = (int)partitionsPerCPU.getValue();
 
   if (planFragmentsPerCPU > 1 AND CURRSTMT_OPTGLOBALS->synCheckFlag) (*CURRSTMT_OPTGLOBALS->asynchrMonitor).enter();
 #endif  // NDEBUG
@@ -3157,7 +3157,7 @@ Cost *ScanOptimizer::computeCostObject(const SimpleCostVector &firstRow /* IN */
   tempLast.setIdleTime(0.);
   tempFirst.setIdleTime(0.);
   Cost *costPtr =
-      new HEAP Cost(&tempFirst, &tempLast, NULL, countOfCPUsExecutingDP2s, (Lng32)partitionsPerCPU.getValue());
+      new HEAP Cost(&tempFirst, &tempLast, NULL, countOfCPUsExecutingDP2s, (int)partitionsPerCPU.getValue());
 
   costPtr->cpfr().setIdleTime(idleTime);
   costPtr->cplr().setIdleTime(idleTime);
@@ -3819,7 +3819,7 @@ void FileScanOptimizer::computeNumberOfBlocksToReadPerAccess(const Cost &scanCos
   // the below is a check to avoid the overflow
   // CR 10-010815-4585
   if (blocksToRead.getValue() < double(INT_MAX))
-    setNumberOfBlocksToReadPerAccess(Lng32(blocksToRead.getValue()));
+    setNumberOfBlocksToReadPerAccess(int(blocksToRead.getValue()));
   else
     setNumberOfBlocksToReadPerAccess(INT_MAX);
 
@@ -4535,11 +4535,11 @@ void FileScanOptimizer::runMdamTests(const MdamKey *mdamKeyPtr, const Cost *cost
 // TRAFODION-2645 intends to ultimately replace this code.) Good luck! Here's
 // the (probably not exhaustive) list:
 //
-// 1. Int32 totalUec should be an Int64, because that's what
-// RangeSpec::getTotalDistinctValues returns. (The implied cast of Int64 down
+// 1. Int32 totalUec should be an long, because that's what
+// RangeSpec::getTotalDistinctValues returns. (The implied cast of long down
 // to Int32 essentially does a mod 2^32 operation, resulting in a garbage value.)
 //
-// 2. Similarly, ARRAY(Int32) uecsByKeyColumns should be ARRAY(Int64).
+// 2. Similarly, ARRAY(Int32) uecsByKeyColumns should be ARRAY(long).
 //
 // 3. In the Subrange object (qmscommon/Range.h), the "end" member is uninitialized
 // for predicates of the form A < 10. So you get a random value back from
@@ -4590,11 +4590,11 @@ void FileScanOptimizer::runMdamTests(const MdamKey *mdamKeyPtr, const Cost *cost
 // TRAFODION-2645 intends to ultimately replace this code.) Good luck! Here's
 // the (probably not exhaustive) list:
 //
-// 1. Int32 totalUec should be an Int64, because that's what
-// RangeSpec::getTotalDistinctValues returns. (The implied cast of Int64 down
+// 1. Int32 totalUec should be an long, because that's what
+// RangeSpec::getTotalDistinctValues returns. (The implied cast of long down
 // to Int32 essentially does a mod 2^32 operation, resulting in a garbage value.)
 //
-// 2. Similarly, ARRAY(Int32) uecsByKeyColumns should be ARRAY(Int64).
+// 2. Similarly, ARRAY(Int32) uecsByKeyColumns should be ARRAY(long).
 //
 // 3. In the Subrange object (qmscommon/Range.h), the "end" member is uninitialized
 // for predicates of the form A < 10. So you get a random value back from
@@ -4628,7 +4628,7 @@ void FileScanOptimizer::runMdamTests(const MdamKey *mdamKeyPtr, const Cost *cost
 // However, that is no guarantee that this code was never reached before.
 
 NABoolean FileScanOptimizer::isMDAMFeasibleForHBase(const IndexDesc *idesc, ValueIdSet &preds) {
-  Lng32 threshold = (Lng32)(ActiveSchemaDB()->getDefaults()).getAsLong(MDAM_NO_STATS_POSITIONS_THRESHOLD);
+  int threshold = (int)(ActiveSchemaDB()->getDefaults()).getAsLong(MDAM_NO_STATS_POSITIONS_THRESHOLD);
 
   if (preds.isEmpty() || threshold == 0) return FALSE;
 
@@ -7290,7 +7290,7 @@ void MDAMCostWA::computeDisjunct() {
   const ColStatDescList &csdl = idesc->getPrimaryTableDesc()->getTableColStats();
   Histograms hist(csdl);
 
-  Lng32 checkOption = (ActiveSchemaDB()->getDefaults()).getAsLong(MDAM_APPLY_RESTRICTION_CHECK);
+  int checkOption = (ActiveSchemaDB()->getDefaults()).getAsLong(MDAM_APPLY_RESTRICTION_CHECK);
 
   if (CURRSTMT_OPTDEFAULTS->indexEliminationLevel() != OptDefaults::MINIMUM && (!mdamForced_) &&
       (CmpCommon::getDefault(RANGESPEC_TRANSFORMATION) == DF_ON) && checkOption >= 1 &&
@@ -8602,7 +8602,7 @@ void NewMDAMCostWA::computeDisjunct() {
   const ColStatDescList &csdl = idesc->getPrimaryTableDesc()->getTableColStats();
   Histograms hist(csdl);
 
-  Lng32 checkOption = (ActiveSchemaDB()->getDefaults()).getAsLong(MDAM_APPLY_RESTRICTION_CHECK);
+  int checkOption = (ActiveSchemaDB()->getDefaults()).getAsLong(MDAM_APPLY_RESTRICTION_CHECK);
 
   if (CURRSTMT_OPTDEFAULTS->indexEliminationLevel() != OptDefaults::MINIMUM && (!mdamForced_) &&
       (CmpCommon::getDefault(RANGESPEC_TRANSFORMATION) == DF_ON) && checkOption >= 1 &&
@@ -9392,7 +9392,7 @@ const ScanForceWildCard *FileScanOptimizer::findScanForceWildCard() const {
 CollIndex FileScanOptimizer::computeLastKeyColumnOfDisjunct(const ColumnOrderList &keyPredsByCol) {
   // The number of entries in keyPredsByCol should be equal
   // to the number columns in the key which should be greater than zero.
-  Lng32 lastColumnPosition = (Lng32)(keyPredsByCol.entries()) - 1;
+  int lastColumnPosition = (int)(keyPredsByCol.entries()) - 1;
   DCMPASSERT(lastColumnPosition >= 0);
   // Find the last column position:
   // The order (i.e., column position) must be varied
@@ -9409,7 +9409,7 @@ CollIndex FileScanOptimizer::computeLastKeyColumnOfDisjunct(const ColumnOrderLis
     // the first 'a' and apply the predicate to the second 'a'
     NABoolean duplicateFound = FALSE;
     keyCol = getIndexDesc()->getIndexKey()[lastColumnPosition];
-    for (Lng32 preColumn = lastColumnPosition - 1; preColumn >= 0; preColumn--) {
+    for (int preColumn = lastColumnPosition - 1; preColumn >= 0; preColumn--) {
       if (keyCol == getIndexDesc()->getIndexKey()[preColumn]) {
         duplicateFound = TRUE;
         break;

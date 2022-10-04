@@ -97,7 +97,7 @@ class RelLock : public RelExpr {
   virtual void getPotentialOutputValues(ValueIdSet &vs) const;
 
   // cost functions
-  virtual PhysicalProperty *synthPhysicalProperty(const Context *context, const Lng32 planNumber, PlanWorkSpace *pws);
+  virtual PhysicalProperty *synthPhysicalProperty(const Context *context, const int planNumber, PlanWorkSpace *pws);
 
   // this is both logical and physical node
   virtual NABoolean isLogical() const { return TRUE; };
@@ -174,7 +174,7 @@ class RelTransaction : public RelExpr {
   virtual void getPotentialOutputValues(ValueIdSet &vs) const;
 
   // cost functions
-  virtual PhysicalProperty *synthPhysicalProperty(const Context *context, const Lng32 planNumber, PlanWorkSpace *pws);
+  virtual PhysicalProperty *synthPhysicalProperty(const Context *context, const int planNumber, PlanWorkSpace *pws);
 
   // this is both logical and physical node
   virtual NABoolean isLogical() const { return TRUE; };
@@ -244,7 +244,7 @@ class RelSetTimeout : public RelExpr {
   virtual void getPotentialOutputValues(ValueIdSet &vs) const;
 
   // cost functions
-  virtual PhysicalProperty *synthPhysicalProperty(const Context *context, const Lng32 planNumber, PlanWorkSpace *pws);
+  virtual PhysicalProperty *synthPhysicalProperty(const Context *context, const int planNumber, PlanWorkSpace *pws);
 
   // this is both logical and physical node
   virtual NABoolean isLogical() const { return TRUE; };

@@ -41,13 +41,13 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include "SqlciCmd.h"
-#include "SqlciParser.h"
+#include "sqlci/SqlciCmd.h"
+#include "sqlci/SqlciParser.h"
 #include "export/ComDiags.h"
 #include "common/str.h"
-#include "SqlciParseGlobals.h"
-#include "SqlciError.h"
-#include "sqlcmd.h"
+#include "sqlci/SqlciParseGlobals.h"
+#include "sqlci/SqlciError.h"
+#include "sqlci/sqlcmd.h"
 
 // Globals from SqlciEnv.C
 extern ComDiagsArea sqlci_DA;
@@ -65,7 +65,7 @@ static Int32 sqlci_parser_subproc(char *instr, char *origstr, SqlciNode **node, 
 
   if (origstr) {
     // remove trailing blanks
-    Lng32 j = strlen(origstr) - 1;
+    int j = strlen(origstr) - 1;
     while ((j >= 0) && (origstr[j] == ' ')) j--;
     origstr[j + 1] = 0;
 
@@ -99,7 +99,7 @@ static Int32 sqlci_parser_subproc(char *instr, char *origstr, SqlciNode **node, 
 }
 
 Int32 sqlci_parser(char *instr, char *origstr, SqlciNode **node, SqlciEnv *sqlci_env) {
-  Lng32 prevDiags = sqlci_DA.getNumber();  // capture this before parsing
+  int prevDiags = sqlci_DA.getNumber();  // capture this before parsing
 
   // replace any user defined pattern in the query
   char *newstr = origstr;

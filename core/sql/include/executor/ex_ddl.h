@@ -209,7 +209,7 @@ class ExDDLTcb : public ex_tcb {
     return (cliGlobals) ? cliGlobals->currContext() : NULL;
   };
 
-  char *getQueryIdInfo(Lng32 &len);
+  char *getQueryIdInfo(int &len);
 
   inline ExDDLTdb &ddlTdb() const { return (ExDDLTdb &)tdb; };
 };
@@ -249,8 +249,8 @@ class ExDDLwithStatusTcb : public ExDDLTcb {
 
  private:
   Step step_;
-  Lng32 ddlStep_;
-  Lng32 ddlSubstep_;
+  int ddlStep_;
+  int ddlSubstep_;
 
   char *upgdMsg_;
 
@@ -261,9 +261,9 @@ class ExDDLwithStatusTcb : public ExDDLTcb {
   CmpDDLwithStatusInfo *mdi_;
   CmpDDLwithStatusInfo *replyDWS_;
 
-  Int64 startTime_;
-  Int64 endTime_;
-  Int64 queryStartTime_;
+  long startTime_;
+  long endTime_;
+  long queryStartTime_;
 
   char *data_;
   size_t dataLen_;
@@ -290,7 +290,7 @@ class ExDDLPrivateState : public ex_tcb_private_state {
  protected:
   void init();
   ExDDLTcb::Step step_;
-  Int64 matches_;
+  long matches_;
 
   // the request and reply objects used to send and receive
   // data from arkcmp.
@@ -373,7 +373,7 @@ class ExDescribeTcb : public ExDDLTcb {
  private:
   inline ExDescribeTdb &describeTdb() const { return (ExDescribeTdb &)tdb; };
 
-  Lng32 returnLeaks(short &error);
+  int returnLeaks(short &error);
 };
 
 ///////////////////////////////////////////////////////////////////
@@ -391,12 +391,12 @@ class ExShowEnvvarsTcb : public ExDescribeTcb {
 
   inline ExDescribeTdb &showTdb() const { return (ExDescribeTdb &)tdb; };
 
-  short moveRowToUpQueue(Lng32 tuppIndex, const char *row, Lng32 len = 0, short *rc = NULL);
+  short moveRowToUpQueue(int tuppIndex, const char *row, int len = 0, short *rc = NULL);
 
  private:
   Step step_;
 
-  Lng32 currEnvvar_;
+  int currEnvvar_;
 };
 
 // -----------------------------------------------------------------------
@@ -458,8 +458,8 @@ class ExProcessVolatileTableTcb : public ExDDLTcb {
 
   ExProcessVolatileTableTdb &pvtTdb() const { return (ExProcessVolatileTableTdb &)tdb; };
 
-  virtual ex_tcb_private_state *allocatePstates(Lng32 &numElems,       // inout, desired/actual elements
-                                                Lng32 &pstateLength);  // out, length of one element
+  virtual ex_tcb_private_state *allocatePstates(int &numElems,       // inout, desired/actual elements
+                                                int &pstateLength);  // out, length of one element
 
  private:
   enum Step {
@@ -546,8 +546,8 @@ class ExProcessInMemoryTableTcb : public ExDDLTcb {
 
   ExProcessInMemoryTableTdb &pimtTdb() const { return (ExProcessInMemoryTableTdb &)tdb; };
 
-  virtual ex_tcb_private_state *allocatePstates(Lng32 &numElems,       // inout, desired/actual elements
-                                                Lng32 &pstateLength);  // out, length of one element
+  virtual ex_tcb_private_state *allocatePstates(int &numElems,       // inout, desired/actual elements
+                                                int &pstateLength);  // out, length of one element
 
  private:
   enum Step {

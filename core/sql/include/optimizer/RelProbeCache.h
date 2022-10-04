@@ -66,7 +66,7 @@ class ProbeCache : public RelExpr {
 
   virtual short codeGen(Generator *g);
 
-  virtual CostScalar getEstimatedRunTimeMemoryUsage(Generator *generator, NABoolean perNode, Lng32 *numStreams = NULL);
+  virtual CostScalar getEstimatedRunTimeMemoryUsage(Generator *generator, NABoolean perNode, int *numStreams = NULL);
   virtual double getEstimatedRunTimeMemoryUsage(Generator *generator, ComTdb *tdb);
 
   virtual const NAString getText() const;

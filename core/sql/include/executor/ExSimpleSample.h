@@ -205,7 +205,7 @@ protected:
   // ExSimpleSQLBuffer* pool_;
 
   // Count down to next sample.
-  Lng32 sampleCountDown_;
+  int sampleCountDown_;
 
   // Send next request down to children. (called by workDown())
   // void start();

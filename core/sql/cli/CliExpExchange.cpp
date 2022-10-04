@@ -47,18 +47,18 @@
 #include "executor/ex_stdh.h"
 #include "cli_stdh.h"
 #include "exp/exp_datetime.h"
-#include "exp_interval.h"
+#include "exp/exp_interval.h"
 #include "exp/exp_expr.h"
 #include "ExRLE.h"
 
 // defined in exp_eval.C
 void computeDataPtr(char *start_data_ptr,  // start of data row
-                    Lng32 field_num,       // field number whose address is to be
+                    int field_num,       // field number whose address is to be
                     // computed. Zero based.
                     ExpTupleDesc *td,  // describes this row
                     char **opdata, char **nulldata, char **varlendata);
 
-static Lng32 getIntervalCodeLocal(short datatype) {
+static int getIntervalCodeLocal(short datatype) {
   switch (datatype) {
     case REC_INT_YEAR:
       return SQLINTCODE_YEAR;
@@ -92,7 +92,7 @@ static Lng32 getIntervalCodeLocal(short datatype) {
   return 0;
 }
 
-static void setRowNumberInCli(ComDiagsArea *diagsArea, Lng32 rowNum, Lng32 rowsetSize) {
+static void setRowNumberInCli(ComDiagsArea *diagsArea, int rowNum, int rowsetSize) {
   if ((rowsetSize > 0) && diagsArea) {
     diagsArea->setAllRowNumber(rowNum);
   }
@@ -111,11 +111,11 @@ ex_expr::exp_return_type InputOutputExpr::describeOutput(void *output_desc_, UIn
   short tempAtp = -1;  // For testing
 #endif
 
-  Lng32 prevEntryStartOffset = 0;
-  Lng32 currAlignedOffset = 0;
-  Lng32 firstEntryStartAlignment = 0;
+  int prevEntryStartOffset = 0;
+  int currAlignedOffset = 0;
+  int firstEntryStartAlignment = 0;
 
-  Lng32 length = -1;
+  int length = -1;
   NABoolean firstEntryProcessed = FALSE;
 
   while (clause) {
@@ -146,7 +146,7 @@ ex_expr::exp_return_type InputOutputExpr::describeOutput(void *output_desc_, UIn
         output_desc->setDescItem(entry, SQLDESC_SCALE, 0, 0);
         output_desc->setDescItem(entry, SQLDESC_INT_LEAD_PREC, operand->getPrecision(), 0);
         if (NOT isIFIO) {
-          Lng32 displaySize =
+          int displaySize =
               ExpInterval::getDisplaySize(operand->getDatatype(), operand->getPrecision(), operand->getScale());
           length = displaySize;
         }
@@ -164,7 +164,7 @@ ex_expr::exp_return_type InputOutputExpr::describeOutput(void *output_desc_, UIn
         output_desc->setDescItem(entry, SQLDESC_INT_LEAD_PREC, 0, 0);
 
         if (((NOT isOdbc) || (output_desc->rowwiseRowsetV2() == FALSE)) && (NOT isIFIO)) {
-          Lng32 displaySize = ExpDatetime::getDisplaySize(operand->getPrecision(), operand->getScale());
+          int displaySize = ExpDatetime::getDisplaySize(operand->getPrecision(), operand->getScale());
           length = displaySize;
         }
 
@@ -282,16 +282,16 @@ ex_expr::exp_return_type InputOutputExpr::describeOutput(void *output_desc_, UIn
       // These values cannot be set by external callers.
       //
 
-      Lng32 dataOffset = -1;
-      Lng32 nullIndOffset = -1;
-      Lng32 currEntryStartOffset = -1;
-      Lng32 currEntryStartAlignment = -1;
+      int dataOffset = -1;
+      int nullIndOffset = -1;
+      int currEntryStartOffset = -1;
+      int currEntryStartAlignment = -1;
 
-      Lng32 outputDatalen = -1;
+      int outputDatalen = -1;
       if (output_desc->getDescItem(entry, SQLDESC_OCTET_LENGTH, &outputDatalen, NULL, 0, NULL, 0, NULL, 0) == ERROR)
         return ex_expr::EXPR_ERROR;
 
-      Lng32 alignment = 1;
+      int alignment = 1;
       if (operand->getNullIndOffset() >= 0) {
         if (operand->getTupleFormat() == ExpTupleDesc::SQLARK_EXPLODED_FORMAT)
           alignment = operand->getNullIndicatorLength();
@@ -585,7 +585,7 @@ void InputOutputExpr::setupBulkMoveInfo(void *desc_, CollHeap *heap, NABoolean i
   Long currExeStartOffset = 0;
   short currFirstEntryNum = 0;
   Long descVarPtr;
-  Lng32 currLength = 0;
+  int currLength = 0;
   Long opOffset = 0;
   short currAtpIndex = 0;
   short bmEntry = 0;
@@ -813,7 +813,7 @@ ex_expr::exp_return_type InputOutputExpr::doBulkMove(atp_struct *atp, void *desc
 
   if (!bmi) return ex_expr::EXPR_OK;
 
-  for (Int32 i = 0; i < (Lng32)bmi->usedEntries(); i++) {
+  for (Int32 i = 0; i < (int)bmi->usedEntries(); i++) {
     char *dataPtr;
     if (NOT bmi->isExeDataPtr(i)) {
       // compute ptr from offset
@@ -840,7 +840,7 @@ ex_expr::exp_return_type InputOutputExpr::doBulkMove(atp_struct *atp, void *desc
       else
         destPtr = bmi->getDescDataPtr(i);
 
-      str_cpy_all(destPtr, dataPtr, (Lng32)bmi->getLength(i));
+      str_cpy_all(destPtr, dataPtr, (int)bmi->getLength(i));
     }
   }
 
@@ -862,27 +862,27 @@ ex_expr::exp_return_type InputOutputExpr::outputValues(atp_struct *atp, void *ou
   char *source = 0;
   char *sourceVCLenInd = 0;
   char *sourceNullInd = 0;
-  Lng32 sourceLen = 0;  // Avoid possible uninitialized variable when saving in savedSourceLen.
-  Lng32 sourceNumProcessed = -1;
-  Lng32 sourceCompiledWithRowsets = FALSE;  // True if there is a SELECT .. INTO <rowset> only
-  Lng32 tempSource;
+  int sourceLen = 0;  // Avoid possible uninitialized variable when saving in savedSourceLen.
+  int sourceNumProcessed = -1;
+  int sourceCompiledWithRowsets = FALSE;  // True if there is a SELECT .. INTO <rowset> only
+  int tempSource;
 
   char *target;
   char *realTarget;  // Added to show real start position of target,
   // varchars adjust this position
   short targetType;
-  Lng32 targetLen;
-  Lng32 targetRowsetSize;  // Greater than zero if there is an output rowset in the descriptor,
+  int targetLen;
+  int targetRowsetSize;  // Greater than zero if there is an output rowset in the descriptor,
                            // this can happen in a SELECT .. INTO <rowset> and FETCH INTO <rowset>
-  Lng32 targetScale;
-  Lng32 targetPrecision;
+  int targetScale;
+  int targetPrecision;
   char *targetVarPtr = NULL;
   char *targetIndPtr = NULL;
   char *targetVCLen = NULL;
   short targetVCLenSize = 0;
 
   // Size of an entry of the indicator array
-  Lng32 indSize;
+  int indSize;
 
   Long tempTarget = 0;
 
@@ -950,7 +950,7 @@ ex_expr::exp_return_type InputOutputExpr::outputValues(atp_struct *atp, void *ou
   // warnings reported so far and is used to set up the indicator if
   // we find a string overflow warning reported by the latest condDoit() call
   // for the output.
-  Lng32 numOfWarningsFoundSoFar = 0;
+  int numOfWarningsFoundSoFar = 0;
 
   while (clause) {
     if (clause->getType() == ex_clause::INOUT_TYPE) {
@@ -1008,7 +1008,7 @@ ex_expr::exp_return_type InputOutputExpr::outputValues(atp_struct *atp, void *ou
             // and this field follows one or more varchar fields.
             // True for SQL/MP tables only. Needs special logic
             // to compute the actual address of this field.
-            computeDataPtr(dataPtr, -((Lng32)operand->getOffset()),
+            computeDataPtr(dataPtr, -((int)operand->getOffset()),
                            atp->getCriDesc()->getTupleDescriptor(operand->getAtpIndex()), &(source), &(sourceNullInd),
                            &(sourceVCLenInd));
           } else {
@@ -1033,7 +1033,7 @@ ex_expr::exp_return_type InputOutputExpr::outputValues(atp_struct *atp, void *ou
       // For rowsets, here we extract the number of elements in it. This
       // only happens for the SELECT .. INTO clause
       if (source && sourceCompiledWithRowsets) {
-        if (::convDoIt(source, sizeof(Lng32), REC_BIN32_SIGNED, 0, 0, (char *)&tempSource, sizeof(Lng32),
+        if (::convDoIt(source, sizeof(int), REC_BIN32_SIGNED, 0, 0, (char *)&tempSource, sizeof(int),
                        REC_BIN32_SIGNED, 0, 0, 0, 0, heap, &diagsArea) != ex_expr::EXPR_OK) {
           if (diagsArea != atp->getDiagsArea()) atp->setDiagsArea(diagsArea);
 
@@ -1041,7 +1041,7 @@ ex_expr::exp_return_type InputOutputExpr::outputValues(atp_struct *atp, void *ou
         }
 
         // Increment the location for the next element.
-        source += sizeof(Lng32);
+        source += sizeof(int);
 
         // The offsets for rowset SQLVarChar attributes are set as follows.
         // offset_ points to the start of the rowset info followed by four bytes
@@ -1107,7 +1107,7 @@ ex_expr::exp_return_type InputOutputExpr::outputValues(atp_struct *atp, void *ou
         // and can only be retrieved as a character string EXTERNALLY
         // using "get descriptor" syntax.
 
-        Lng32 temp_char_set;
+        int temp_char_set;
         output_desc->getDescItem(entry, SQLDESC_CHAR_SET, &temp_char_set, 0, 0, 0, 0);
         targetCharSet = (CharInfo::CharSet)temp_char_set;
 
@@ -1118,17 +1118,17 @@ ex_expr::exp_return_type InputOutputExpr::outputValues(atp_struct *atp, void *ou
       }
 
       // Now convert each element
-      for (Lng32 RowNum = 0; RowNum < sourceNumProcessed; RowNum++) {
+      for (int RowNum = 0; RowNum < sourceNumProcessed; RowNum++) {
         // save current source and target datatype attributes since
         // they may get changed later in this method.
         // Restore them for the next iteration of this for loop.
         // Do this only for rowsets, for non-rowsets this loop is executed
         // only once.
-        Lng32 savedSourceLen;
+        int savedSourceLen;
         short savedTargetType = 0;
-        Lng32 savedTargetPrecision = 0;
-        Lng32 savedTargetScale = 0;
-        Lng32 savedTargetLen = 0;
+        int savedTargetPrecision = 0;
+        int savedTargetScale = 0;
+        int savedTargetLen = 0;
         if (targetRowsetSize > 0) {
           savedSourceLen = sourceLen;
 
@@ -1152,7 +1152,7 @@ ex_expr::exp_return_type InputOutputExpr::outputValues(atp_struct *atp, void *ou
           if (operand->getVCIndicatorLength() == sizeof(short))
             sourceLen = *(short *)sourceVCLenInd;
           else
-            sourceLen = *(Lng32 *)sourceVCLenInd;
+            sourceLen = *(int *)sourceVCLenInd;
         } else
           sourceLen = operand->getLength();
 
@@ -1226,7 +1226,7 @@ ex_expr::exp_return_type InputOutputExpr::outputValues(atp_struct *atp, void *ou
             realTarget = target;
           }
 
-          Lng32 tempDataConversionErrorFlag = ex_conv_clause::CONV_RESULT_OK;
+          int tempDataConversionErrorFlag = ex_conv_clause::CONV_RESULT_OK;
 
           targetVCLenSize = 0;
           if ((DFS2REC::isSQLVarChar(targetType)) || (DFS2REC::isLOB(targetType)) ||
@@ -1235,7 +1235,7 @@ ex_expr::exp_return_type InputOutputExpr::outputValues(atp_struct *atp, void *ou
             if (targetVarPtr) {
               output_desc->getDescItem(entry, SQLDESC_VC_IND_LENGTH, &targetVCLenSize, 0, 0, 0, 0);
             } else
-              targetVCLenSize = sizeof(Lng32);  // desc entries have VC len 4
+              targetVCLenSize = sizeof(int);  // desc entries have VC len 4
             target = &target[targetVCLenSize];
           }
 
@@ -1281,8 +1281,8 @@ ex_expr::exp_return_type InputOutputExpr::outputValues(atp_struct *atp, void *ou
           // first. This conversion already took place during compilation
           // for rowsets
           char *intermediate = NULL;
-          Lng32 sourceScale = operand->getScale();
-          Lng32 sourcePrecision = operand->getPrecision();
+          int sourceScale = operand->getScale();
+          int sourcePrecision = operand->getPrecision();
 
           if ((targetType == REC_DECIMAL_LS) && (operand->getDatatype() != REC_DECIMAL_LSE) &&
               (targetRowsetSize == 0)) {
@@ -1602,7 +1602,7 @@ ex_expr::exp_return_type InputOutputExpr::outputValues(atp_struct *atp, void *ou
               // unbound column. Remember it in executor memory.
               // This value will(probably) be retrieved later by
               // a call to GetDescItem with SQLDESC_VAR_DATA.
-              Lng32 length;
+              int length;
               if (targetVCLenSize > 0)
                 length = 0;
               else
@@ -1667,11 +1667,11 @@ ex_expr::exp_return_type InputOutputExpr::describeInput(void *input_desc_, void 
   // so the MIN of all input sizes is not calculated.
   short dataType;
 
-  Lng32 prevEntryStartOffset = 0;
-  Lng32 currAlignedOffset = 0;
-  Lng32 firstEntryStartAlignment = 0;
+  int prevEntryStartOffset = 0;
+  int currAlignedOffset = 0;
+  int firstEntryStartAlignment = 0;
 
-  Lng32 length = -1;
+  int length = -1;
 
   NABoolean firstEntryProcessed = FALSE;
 
@@ -1695,7 +1695,7 @@ ex_expr::exp_return_type InputOutputExpr::describeInput(void *input_desc_, void 
       // used to set the SQLDESC_LENGTH field for the descriptor.  The same value
       // will be used to set the SQLDESC_ROWSET_VAR_LAYOUT_SIZE field if the input
       // is a rowset and its element type is DATETIME or INTERVAL.
-      Lng32 displayLength = 0;
+      int displayLength = 0;
 
       if ((dataType >= REC_MIN_INTERVAL) && (dataType <= REC_MAX_INTERVAL)) {
         //
@@ -1881,16 +1881,16 @@ ex_expr::exp_return_type InputOutputExpr::describeInput(void *input_desc_, void 
         goto next_clause;
       }
 
-      Lng32 dataOffset = -1;
-      Lng32 nullIndOffset = -1;
-      Lng32 currEntryStartOffset = -1;
-      Lng32 currEntryStartAlignment = -1;
+      int dataOffset = -1;
+      int nullIndOffset = -1;
+      int currEntryStartOffset = -1;
+      int currEntryStartAlignment = -1;
 
-      Lng32 inputDatalen = -1;
+      int inputDatalen = -1;
       if (input_desc->getDescItem(entry, SQLDESC_OCTET_LENGTH, &inputDatalen, NULL, 0, NULL, 0, NULL, 0) == ERROR)
         return ex_expr::EXPR_ERROR;
 
-      Lng32 alignment = 1;
+      int alignment = 1;
       if (operand->getNullIndOffset() >= 0) {
         if (operand->getTupleFormat() == ExpTupleDesc::SQLARK_EXPLODED_FORMAT)
           alignment = operand->getNullIndicatorLength();
@@ -1999,20 +1999,20 @@ ex_expr::exp_return_type InputOutputExpr::inputSingleRowValue(atp_struct *atp, v
   char *targetVCLenInd = 0;
   char *targetNullInd = 0;
   char *source = 0;
-  Lng32 sourceLen;
+  int sourceLen;
   char *sourceIndPtr = 0;
   short sourceType;
-  Lng32 sourcePrecision;
-  Lng32 sourceScale;
+  int sourcePrecision;
+  int sourceScale;
   char *tempSource = 0;
-  Lng32 tempSourceType = 0;
-  Lng32 indData;
+  int tempSourceType = 0;
+  int indData;
   short entry = 0;
   char *intermediate = NULL;
   short savedSourceType = 0;
-  Lng32 savedSourcePrecision = 0;
-  Lng32 savedSourceScale = 0;
-  Lng32 savedSourceLen = 0;
+  int savedSourcePrecision = 0;
+  int savedSourceScale = 0;
+  int savedSourceLen = 0;
   ExeErrorCode errorCode = EXE_OK;
 
   // if bulk move has not been disabled before, then check to see if bulk
@@ -2077,7 +2077,7 @@ ex_expr::exp_return_type InputOutputExpr::inputSingleRowValue(atp_struct *atp, v
       };
 
       if ((sourceType >= REC_MIN_CHARACTER) && (sourceType <= REC_MAX_CHARACTER)) {
-        Lng32 temp_char_set;
+        int temp_char_set;
         inputDesc->getDescItem(entry, SQLDESC_CHAR_SET, &temp_char_set, NULL, 0, NULL, 0);
         sourceCharSet = (CharInfo::CharSet)temp_char_set;
         sourceScale = sourceCharSet;
@@ -2183,7 +2183,7 @@ ex_expr::exp_return_type InputOutputExpr::inputSingleRowValue(atp_struct *atp, v
         // length indicator
         short VCLen;
         str_cpy_all((char *)&VCLen, source, sizeof(short));
-        sourceLen = (Lng32)VCLen;
+        sourceLen = (int)VCLen;
         source = &source[sizeof(short)];
 #ifdef _DEBUG
         assert(SQL_VARCHAR_HDR_SIZE == sizeof(short));
@@ -2193,7 +2193,7 @@ ex_expr::exp_return_type InputOutputExpr::inputSingleRowValue(atp_struct *atp, v
       // 12/22/97: added for Unicode Vchar.
       if (!nullMoved) {
         ex_expr::exp_return_type retcode = ex_expr::EXPR_OK;
-        Lng32 warningMark;
+        int warningMark;
         if (diagsArea)
           warningMark = diagsArea->getNumber(DgSqlCode::WARNING_);
         else
@@ -2242,7 +2242,7 @@ ex_expr::exp_return_type InputOutputExpr::inputSingleRowValue(atp_struct *atp, v
         // check code points.
         if ((sourceType == REC_BYTE_V_ANSI && CharInfo::is_NCHAR_MP(sourceCharSet)) ||
             sourceType == REC_NCHAR_V_ANSI_UNICODE) {
-          Lng32 i = 0;
+          int i = 0;
           Int32 sourceLenInWchar = sourceLen / SQL_DBCHAR_SIZE;
           wchar_t *sourceInWchar = (wchar_t *)source;
           while ((i < sourceLenInWchar) && (sourceInWchar[i] != 0)) i++;
@@ -2254,7 +2254,7 @@ ex_expr::exp_return_type InputOutputExpr::inputSingleRowValue(atp_struct *atp, v
         }
 
         if (DFS2REC::isAnyCharacter(sourceType) && sourceCharSet == CharInfo::UNICODE) {
-          Lng32 realSourceLen = sourceLen;
+          int realSourceLen = sourceLen;
 
           if (sourceType == REC_NCHAR_V_ANSI_UNICODE) {
             realSourceLen = NAWstrlen((wchar_t *)source) * SQL_DBCHAR_SIZE;
@@ -2410,26 +2410,26 @@ ex_expr::exp_return_type InputOutputExpr::inputRowwiseRowsetValues(atp_struct *a
 
   Attributes *operand = 0;
   ComDiagsArea *diagsArea = atp->getDiagsArea();
-  Lng32 targetRowsetSize = -1;
-  Lng32 dynamicRowsetSize = -1;
-  Lng32 rwrsInputBuffer = -1;
+  int targetRowsetSize = -1;
+  int dynamicRowsetSize = -1;
+  int rwrsInputBuffer = -1;
   char *source = NULL;
   char *target = NULL;
   short entry = 0;
   ExeErrorCode errorCode = EXE_OK;
-  Lng32 intParam1 = 0;
-  Lng32 intParam2 = 0;
-  Lng32 intParam3 = 0;
+  int intParam1 = 0;
+  int intParam2 = 0;
+  int intParam3 = 0;
 
-  Lng32 numRowsProcessed = 0;
+  int numRowsProcessed = 0;
   char *tgtRowAddr = rwrsInfo->getRWRSInternalBufferAddr();
   char **rwrsInternalBufferAddrLoc = NULL;
   char *rwrsMaxInputRowlenLoc = NULL;
 
-  Lng32 inputRowsetSize = -1;
-  Lng32 maxInputRowlen = -1;
+  int inputRowsetSize = -1;
+  int maxInputRowlen = -1;
   char *bufferAddr = NULL;
-  Lng32 partnNum = -1;
+  int partnNum = -1;
 
   // input RWRS are always V2.
   inputDesc->setRowwiseRowsetV2(TRUE);
@@ -2449,21 +2449,21 @@ ex_expr::exp_return_type InputOutputExpr::inputRowwiseRowsetValues(atp_struct *a
         if (entry == rwrsInfo->rwrsInputSizeIndex()) {
           if (source) {
             // do the conversion
-            str_cpy_all(target, source, sizeof(Lng32));
+            str_cpy_all(target, source, sizeof(int));
           } else {
-            *(Lng32 *)target = inputDesc->getRowwiseRowsetSize();
+            *(int *)target = inputDesc->getRowwiseRowsetSize();
           }
 
-          inputRowsetSize = *((Lng32 *)target);
+          inputRowsetSize = *((int *)target);
         } else if (entry == rwrsInfo->rwrsMaxInputRowlenIndex()) {
           if (source) {
             // do the conversion
-            str_cpy_all(target, source, sizeof(Lng32));
+            str_cpy_all(target, source, sizeof(int));
           } else {
-            *(Lng32 *)target = inputDesc->getRowwiseRowsetRowLen();
+            *(int *)target = inputDesc->getRowwiseRowsetRowLen();
           }
 
-          maxInputRowlen = *((Lng32 *)target);
+          maxInputRowlen = *((int *)target);
 
           rwrsMaxInputRowlenLoc = target;
         } else if (entry == rwrsInfo->rwrsBufferAddrIndex()) {
@@ -2485,7 +2485,7 @@ ex_expr::exp_return_type InputOutputExpr::inputRowwiseRowsetValues(atp_struct *a
           // buffer.
           rwrsInternalBufferAddrLoc = (char **)target;
         } else if (entry == rwrsInfo->rwrsPartnNumIndex()) {
-          partnNum = *((Lng32 *)target);
+          partnNum = *((int *)target);
         }
 
         // skip this INOUT clause during rowset bulk move processing.
@@ -2512,7 +2512,7 @@ ex_expr::exp_return_type InputOutputExpr::inputRowwiseRowsetValues(atp_struct *a
 
   if (rwrsInfo->rwrsIsCompressed() && rwrsInfo->dcompressInMaster()) {
     // if not already allocated, allocate a buffer to decompress user buf.
-    Lng32 dcomBufLen = maxInputRowlen * rwrsInfo->rwrsMaxSize();
+    int dcomBufLen = maxInputRowlen * rwrsInfo->rwrsMaxSize();
     if ((rwrsInfo->getRWRSDcompressedBufferAddr() == NULL) || (rwrsInfo->getRWRSDcompressedBufferLen() < dcomBufLen)) {
       if (rwrsInfo->getRWRSDcompressedBufferAddr()) {
         NADELETEBASIC((char *)rwrsInfo->getRWRSDcompressedBufferAddr(), heap);
@@ -2527,12 +2527,12 @@ ex_expr::exp_return_type InputOutputExpr::inputRowwiseRowsetValues(atp_struct *a
     // Length of buffer is in the first 4 bytes of bufferAddr.
     // Pass the pointer to the length bytes to ExDecode.
     // Pass the buffer length plus size of length bytes.
-    Lng32 compressedBuflen = *(Lng32 *)bufferAddr + sizeof(Lng32);
+    int compressedBuflen = *(int *)bufferAddr + sizeof(int);
     unsigned char *compressedBuf = (unsigned char *)(bufferAddr);
     Int32 dcompressedBuflen = -1;
-    Lng32 param1 = 0;
-    Lng32 param2 = 0;
-    Lng32 rc = ExDecode(compressedBuf, compressedBuflen, (unsigned char *)rwrsInfo->getRWRSDcompressedBufferAddr(),
+    int param1 = 0;
+    int param2 = 0;
+    int rc = ExDecode(compressedBuf, compressedBuflen, (unsigned char *)rwrsInfo->getRWRSDcompressedBufferAddr(),
                         &dcompressedBuflen, param1, param2);
     if (rc) {
       // error.
@@ -2656,28 +2656,28 @@ ex_expr::exp_return_type InputOutputExpr::inputValues(atp_struct *atp, void *inp
   char *target = 0;
   char *targetVCLenInd = 0;
   char *targetNullInd = 0;
-  Lng32 targetRowsetSize;
-  Lng32 dynamicRowsetSize = 0;  // Specified with ROWSET FOR INPUT SIZE <var>
+  int targetRowsetSize;
+  int dynamicRowsetSize = 0;  // Specified with ROWSET FOR INPUT SIZE <var>
                                 // or some other rowset syntax; <var> can
                                 // change at run time
   char *source = 0;
-  Lng32 sourceLen;
+  int sourceLen;
   char *sourceIndPtr = 0;
   short sourceType;
-  Lng32 sourcePrecision;
-  Lng32 sourceScale;
+  int sourcePrecision;
+  int sourceScale;
   char *tempSource = 0;
-  Lng32 tempSourceType = 0;
-  Lng32 indData;
+  int tempSourceType = 0;
+  int indData;
   short entry = 0;
   char *intermediate = NULL;
-  Lng32 rowsetVarLayoutSize;
-  Lng32 rowsetIndLayoutSize;
-  Lng32 rowsetsize;
+  int rowsetVarLayoutSize;
+  int rowsetIndLayoutSize;
+  int rowsetsize;
   short savedSourceType = 0;
-  Lng32 savedSourcePrecision = 0;
-  Lng32 savedSourceScale = 0;
-  Lng32 savedSourceLen = 0;
+  int savedSourcePrecision = 0;
+  int savedSourceScale = 0;
+  int savedSourceLen = 0;
 
   long memused = 0;
   struct ParamPack {
@@ -2795,7 +2795,7 @@ ex_expr::exp_return_type InputOutputExpr::inputValues(atp_struct *atp, void *inp
       };
 
       if ((sourceType >= REC_MIN_CHARACTER) && (sourceType <= REC_MAX_CHARACTER)) {
-        Lng32 temp_char_set;
+        int temp_char_set;
         inputDesc->getDescItem(entry, SQLDESC_CHAR_SET, &temp_char_set, NULL, 0, NULL, 0);
         sourceCharSet = (CharInfo::CharSet)temp_char_set;
         sourceScale = temp_char_set;
@@ -2874,7 +2874,7 @@ ex_expr::exp_return_type InputOutputExpr::inputValues(atp_struct *atp, void *inp
 
         // do the conversion
         source = (char *)&targetRowsetSize;
-        if (::convDoIt(source, sizeof(Lng32), REC_BIN32_SIGNED, 0, 0, target, sizeof(Lng32), REC_BIN32_SIGNED, 0, 0, 0,
+        if (::convDoIt(source, sizeof(int), REC_BIN32_SIGNED, 0, 0, target, sizeof(int), REC_BIN32_SIGNED, 0, 0, 0,
                        0) != ex_expr::EXPR_OK) {
           if (diagsArea != atp->getDiagsArea()) atp->setDiagsArea(diagsArea);
 
@@ -2882,7 +2882,7 @@ ex_expr::exp_return_type InputOutputExpr::inputValues(atp_struct *atp, void *inp
         }
 
         // Increment the location for the next element.
-        target += sizeof(Lng32);
+        target += sizeof(int);
         if (operand->getNullFlag()) {
           targetNullInd = target;
           target += operand->getNullIndicatorLength();
@@ -2916,14 +2916,14 @@ ex_expr::exp_return_type InputOutputExpr::inputValues(atp_struct *atp, void *inp
         }
       }  // else (targetRowsetSize > 0)
 
-      Lng32 numToProcess = ((targetRowsetSize > 0) ? targetRowsetSize : 1);
+      int numToProcess = ((targetRowsetSize > 0) ? targetRowsetSize : 1);
 
       // Define and clear case indexes potentially used for rowsets
       ConvInstruction index1 = CONV_UNKNOWN;
       ConvInstruction index2 = CONV_UNKNOWN;
       ConvInstruction index3 = CONV_UNKNOWN;
 
-      for (Lng32 RowNum = 0; RowNum < numToProcess; RowNum++) {
+      for (int RowNum = 0; RowNum < numToProcess; RowNum++) {
         // Increment the location for the next element.
         if ((targetRowsetSize > 0) && (RowNum > 0)) {
           target += operand->getStorageLength();
@@ -3009,7 +3009,7 @@ ex_expr::exp_return_type InputOutputExpr::inputValues(atp_struct *atp, void *inp
         }
 
         if (DFS2REC::isSQLVarChar(sourceType)) {
-          Lng32 vcIndLen = inputDesc->getVarIndicatorLength(entry);
+          int vcIndLen = inputDesc->getVarIndicatorLength(entry);
           sourceLen = ExpTupleDesc::getVarLength(source, vcIndLen);
           source = &source[vcIndLen];
         }
@@ -3017,7 +3017,7 @@ ex_expr::exp_return_type InputOutputExpr::inputValues(atp_struct *atp, void *inp
         // 12/22/97: added for Unicode Vchar.
         if (!nullMoved) {
           ex_expr::exp_return_type retcode = ex_expr::EXPR_OK;
-          Lng32 warningMark;
+          int warningMark;
           if (diagsArea)
             warningMark = diagsArea->getNumber(DgSqlCode::WARNING_);
           else
@@ -3089,7 +3089,7 @@ ex_expr::exp_return_type InputOutputExpr::inputValues(atp_struct *atp, void *inp
           // check code points.
           if ((sourceType == REC_BYTE_V_ANSI && CharInfo::is_NCHAR_MP(sourceCharSet)) ||
               sourceType == REC_NCHAR_V_ANSI_UNICODE) {
-            Lng32 i = 0;
+            int i = 0;
             Int32 sourceLenInWchar = sourceLen / SQL_DBCHAR_SIZE;
             NAWchar *sourceInWchar = (NAWchar *)source;
             while ((i < sourceLenInWchar) && (sourceInWchar[i] != 0)) i++;
@@ -3108,7 +3108,7 @@ ex_expr::exp_return_type InputOutputExpr::inputValues(atp_struct *atp, void *inp
           }
 
           if (DFS2REC::isAnyCharacter(sourceType) && sourceCharSet == CharInfo::UNICODE) {
-            Lng32 realSourceLen = sourceLen;
+            int realSourceLen = sourceLen;
 
             if (sourceType == REC_NCHAR_V_ANSI_UNICODE) {
               realSourceLen = NAWstrlen((NAWchar *)source) * SQL_DBCHAR_SIZE;
@@ -3266,9 +3266,9 @@ ex_expr::exp_return_type InputOutputExpr::inputValues(atp_struct *atp, void *inp
           if ((sourceType == REC_BLOB) || (sourceType == REC_CLOB)) {
             // the first 4 bytes of data are actually the variable
             // length indicator
-            Lng32 VCLen;
+            int VCLen;
             str_cpy_all((char *)&VCLen, source, sizeof(Int32));
-            sourceLen = (Lng32)VCLen;
+            sourceLen = (int)VCLen;
             source = &source[sizeof(Int32)];
           }
           retcode =
@@ -3359,13 +3359,13 @@ ex_expr::exp_return_type InputOutputExpr::inputValues(atp_struct *atp, void *inp
                 }
 
               case REC_BIN32_SIGNED:
-                if (*((Lng32 *)target) <= 0) {
+                if (*((int *)target) <= 0) {
                   // raise error
                   ExRaiseSqlError(heap, &diagsArea, EXE_ROWSET_NEGATIVE_SIZE);
                   if (diagsArea != atp->getDiagsArea()) atp->setDiagsArea(diagsArea);
                   return ex_expr::EXPR_ERROR;
                 } else {
-                  dynamicRowsetSize = *((Lng32 *)target);  // long is the same as int
+                  dynamicRowsetSize = *((int *)target);  // long is the same as int
                   break;
                 }
 
@@ -3456,10 +3456,10 @@ ex_expr::exp_return_type InputOutputExpr::inputValues(atp_struct *atp, void *inp
   return ex_expr::EXPR_OK;
 }
 
-Lng32 InputOutputExpr::getCompiledOutputRowsetSize(atp_struct *atp) {
+int InputOutputExpr::getCompiledOutputRowsetSize(atp_struct *atp) {
   ex_clause *clause = getClauses();
   Attributes *operand;
-  Lng32 sourceRowsetSize = 0;
+  int sourceRowsetSize = 0;
 
   // Note that every output operands must participate in rowsets, or none of
   // them. That is, you cannot mix rowset host variables and simple host
@@ -3524,12 +3524,12 @@ ex_expr::exp_return_type InputOutputExpr::addDescInfoIntoStaticDesc(Descriptor *
   return ex_expr::EXPR_OK;
 }
 
-Lng32 InputOutputExpr::getMaxParamIdx() {
-  Lng32 maxParamIdx = 0;
+int InputOutputExpr::getMaxParamIdx() {
+  int maxParamIdx = 0;
   ex_clause *clause = getClauses();
   while (clause) {
     if (clause->getType() == ex_clause::INOUT_TYPE) {
-      Lng32 paramIdx = ((ex_inout_clause *)clause)->getParamIdx();
+      int paramIdx = ((ex_inout_clause *)clause)->getParamIdx();
       if (paramIdx > maxParamIdx) maxParamIdx = paramIdx;
     }
     clause = clause->getNextClause();

@@ -166,7 +166,7 @@ void ChangesTable::initialize() {
 // using the second parameter. This parameter is defaulted to ALL_ROWS, so if
 // not explicitly requested, it doesn't affect the insert at whole.
 //////////////////////////////////////////////////////////////////////////////
-RelExpr *ChangesTable::buildInsert(NABoolean useLeafInsert, Lng32 enforceRowsTypeForUpdate, NABoolean isUndo,
+RelExpr *ChangesTable::buildInsert(NABoolean useLeafInsert, int enforceRowsTypeForUpdate, NABoolean isUndo,
                                    NABoolean isForMvLogging) const {
   ItemExprList *tupleColRefList = NULL;
   ItemExpr *insItemList = NULL;
@@ -963,7 +963,7 @@ ItemExpr *MvIudLog::createColExprForAtTimestamp(NABoolean isInsert, NABoolean is
   // This is the +1 on the insert row of an update operation
   // or a +2 for an undo row
   if ((isUpdate && isInsert) || isUndo) {
-    Lng32 incrAmt = (isUndo) ? 2 : 1;
+    int incrAmt = (isUndo) ? 2 : 1;
     tsExpr = new (heap_) BiArith(ITM_PLUS, tsExpr, new (heap_) SystemLiteral(incrAmt));
   }
 
@@ -986,8 +986,8 @@ CorrName *MvIudLog::calcTargetTableName(const QualifiedName &tableName) const {
 //////////////////////////////////////////////////////////////////////////////
 ItemExpr *MvIudLog::buildLogEpochPredicate(const DeltaDefinition *deltaDef, CollHeap *heap) {
   CMPASSERT(deltaDef != NULL);
-  Lng32 beginEpoch = deltaDef->getBeginEpoch();
-  Lng32 endEpoch = deltaDef->getEndEpoch();
+  int beginEpoch = deltaDef->getBeginEpoch();
+  int endEpoch = deltaDef->getEndEpoch();
   NABoolean singleEpoch = (beginEpoch == endEpoch);
 
   ItemExpr *epochPred = NULL;
@@ -1024,8 +1024,8 @@ ItemExpr *MvIudLog::buildLogEpochPredicate(const DeltaDefinition *deltaDef, Coll
 //////////////////////////////////////////////////////////////////////////////
 ItemExpr *MvIudLog::createSpecificWhereExpr(RowsType type) const {
   CMPASSERT(deltaDef_ != NULL);
-  Lng32 beginEpoch = deltaDef_->getBeginEpoch();
-  Lng32 endEpoch = deltaDef_->getEndEpoch();
+  int beginEpoch = deltaDef_->getBeginEpoch();
+  int endEpoch = deltaDef_->getEndEpoch();
   NABoolean singleEpoch = (beginEpoch == endEpoch);
   ItemExpr *result = NULL;
 
@@ -1139,7 +1139,7 @@ ItemExpr *MvIudLog::buildOrigScanPredicate() const {
 //		       this expression
 //////////////////////////////////////////////////////////////////////////////
 ItemExpr *MvIudLog::buildBitmapColPredicate() const {
-  const LIST(Lng32) &usedColumns = mvInfo_->getUsedColumns(getSubjectTableName().getQualifiedNameObj());
+  const LIST(int) &usedColumns = mvInfo_->getUsedColumns(getSubjectTableName().getQualifiedNameObj());
   ItemExpr *constantBitmap = constructUpdateBitmapFromList(usedColumns);
 
   ItemExpr *bitmapCol = new (heap_) ColReference(new (heap_) ColRefName(COMMV_BITMAP_COL, heap_));
@@ -1161,7 +1161,7 @@ ItemExpr *MvIudLog::buildBitmapColPredicate() const {
 // Create a constant bitmap in the size of the bitmap log column
 // from the input parameter list of integers.
 //////////////////////////////////////////////////////////////////////////////
-ItemExpr *MvIudLog::constructUpdateBitmapFromList(const LIST(Lng32) & columnList) const {
+ItemExpr *MvIudLog::constructUpdateBitmapFromList(const LIST(int) & columnList) const {
   CMPASSERT(mvInfo_ != NULL);
 
   // Find out the size of the bitmap column in the iud log
@@ -1211,7 +1211,7 @@ ItemExpr *MvIudLog::constructUpdateBitmapFromList(const LIST(Lng32) & columnList
 ItemExpr *MvIudLog::buildIndirectUpdateExpression() const {
   const MVUsedObjectInfo *usedObject = mvInfo_->findUsedInfoForTable(getSubjectTableName().getQualifiedNameObj());
 
-  const LIST(Lng32) &mvInfoIndirectCols = usedObject->getIndirectUpdateCols();
+  const LIST(int) &mvInfoIndirectCols = usedObject->getIndirectUpdateCols();
 
   ItemExpr *constantBitmap = constructUpdateBitmapFromList(mvInfoIndirectCols);
 
@@ -1333,7 +1333,7 @@ ItemExpr *MvIudLogForMvLog::createBaseColExpr(const NAString &colName, NABoolean
 // naTable_        - NATable of context log.
 // subjectNaTable_ - NATable of base table.
 //////////////////////////////////////////////////////////////////////////////
-MvLogForContextRows::MvLogForContextRows(const QualifiedName &baseTableName, const CorrName &mvName, Lng32 epochNumber,
+MvLogForContextRows::MvLogForContextRows(const QualifiedName &baseTableName, const CorrName &mvName, int epochNumber,
                                          ItemExpr *catchupNo, BindWA *bindWA)
     : ChangesTable(mvName, REL_UNARY_INSERT, bindWA), epochNumber_(epochNumber), catchupNo_(catchupNo) {
   // Save the state of the RI flag

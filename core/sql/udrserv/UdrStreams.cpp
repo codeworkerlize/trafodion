@@ -43,7 +43,7 @@
 
 #include "rosetta/rosgen.h"
 #include "nsk/nskprocess.h"
-#include "zsysc.h"
+#include "common/zsysc.h"
 
 extern void processAnInvokeMessage(UdrGlobals *UdrGlob, UdrServerDataStream &msgStream, UdrDataBuffer &request);
 
@@ -112,7 +112,7 @@ void UdrServerDataStream::actOnReceive(IpcConnection *conn) {
             ServerDebug("[UdrServ (%s)] Invoke Request has %ld tupps.", moduleName,
                         request->getSqlBuffer()->getTotalTuppDescs());
             ServerDebug("[UdrServ (%s)] Invoke Request SQL Buffer", moduleName);
-            displaySqlBuffer(request->getSqlBuffer(), (Lng32)request->getSqlBufferLength());
+            displaySqlBuffer(request->getSqlBuffer(), (int)request->getSqlBufferLength());
           }
 
           udrGlob_->numReqInvokeSP_++;
@@ -193,7 +193,7 @@ void UdrServerDataStream::actOnReceive(IpcConnection *conn) {
   // If numOfInputBuffers() is > 0 then we do not need to do anything
   // at this point. This callback will be invoked again when the
   // incoming message is complete and ready to be processed.
-  Lng32 numInputBuffers = numOfInputBuffers();
+  int numInputBuffers = numOfInputBuffers();
   if (somethingArrived && numInputBuffers == 0 && spinfo_->getCurrentRequest() == NULL) {
     responseDone();
 

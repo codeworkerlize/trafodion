@@ -210,9 +210,9 @@ ItemExprTreeAsList::ItemExprTreeAsList(ExprValueId *treePtr, OperatorTypeEnum op
 }
 
 // return number of entries
-Lng32 ItemExprTreeAsList::entries() const {
+int ItemExprTreeAsList::entries() const {
   ItemExpr *aNode = *treePtr_;
-  Lng32 result = 0;
+  int result = 0;
 
   while (aNode != NULL) {
     result++;

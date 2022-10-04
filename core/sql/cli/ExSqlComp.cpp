@@ -50,7 +50,7 @@
 #include "arkcmp/CmpErrors.h"
 #include "comexe/CmpMessage.h"
 #include "export/ComDiags.h"
-#include "ShowSchema.h"  // GetControlDefaults class
+#include "sqlcomp/ShowSchema.h"  // GetControlDefaults class
 #include "parser/StmtCompilationMode.h"
 
 #include "comexe/ComTdb.h"
@@ -76,7 +76,7 @@
 // Internal helper routines for ExSqlComp
 // -----------------------------------------------------------------------
 
-inline NABoolean ExSqlComp::error(Lng32 no) {
+inline NABoolean ExSqlComp::error(int no) {
   *diagArea_ << DgSqlCode(no);
   return TRUE;
 }
@@ -216,7 +216,7 @@ ExSqlComp::ReturnStatus ExSqlComp::resendRequest() {
   // we do not need to report an error.
   /* long sqlCode = (ta->xnInProgress() && !ta->implicitXn()) ?
      arkcmpErrorUserTxnAndArkcmpGone : 0;*/
-  Lng32 sqlCode = 0;
+  int sqlCode = 0;
   //
   if (
 #ifdef _DEBUG
@@ -267,7 +267,7 @@ ExSqlComp::ReturnStatus ExSqlComp::resendRequest() {
   ret = createServer();
   if (ret == ERROR) return ret;
 
-  Lng32 r = outstandingSendBuffers_.resendCount_;  // save
+  int r = outstandingSendBuffers_.resendCount_;  // save
   ret = establishConnection();
   if (ret == ERROR) return ret;
 
@@ -326,7 +326,7 @@ inline ExSqlComp::ReturnStatus ExSqlComp::sendR(CmpMessageObj *c, NABoolean w) {
   sqlcompMessage_->setWaited(w);  // stored the waited mode
 
   // send the message.
-  Int64 transid = cliGlobals_->currContext()->getTransaction()->getExeXnId();
+  long transid = cliGlobals_->currContext()->getTransaction()->getExeXnId();
   recentIpcTimestamp_ = NA_JulianTimestamp();
   sqlcompMessage_->send(w, transid);
 
@@ -363,7 +363,7 @@ inline ExSqlComp::ReturnStatus ExSqlComp::waitForReply() {
   return (outstandingSendBuffers_.ioStatus_ == FINISHED) ? SUCCESS : ERROR;
 }
 
-ExSqlComp::OperationStatus ExSqlComp::status(Int64 reqId) {
+ExSqlComp::OperationStatus ExSqlComp::status(long reqId) {
   OperationStatus s = FINISHED;
 
   waitForReply();
@@ -464,8 +464,8 @@ static ExSqlComp::ReturnStatus saveControls(ExControlArea *ca, const char *cqd) 
 ExSqlComp::ReturnStatus ExSqlComp::loadQueryCache() {
   const char *buf = "load trafodion querycache;";
 
-  Lng32 len = str_len(buf) + 1;
-  CmpCompileInfo c((char *)buf, len, (Lng32)SQLCHARSETCODE_UTF8, NULL, 0, 0, 0);
+  int len = str_len(buf) + 1;
+  CmpCompileInfo c((char *)buf, len, (int)SQLCHARSETCODE_UTF8, NULL, 0, 0, 0);
   c.setGenLoadQueryCache(TRUE);
   size_t dataLen = c.getLength();
   char *data = new (h_) char[dataLen];
@@ -481,8 +481,8 @@ ExSqlComp::ReturnStatus ExSqlComp::loadQueryCache() {
 ExSqlComp::ReturnStatus ExSqlComp::genQueryCache() {
   const char *buf = "generate trafodion querycache;";
 
-  Lng32 len = str_len(buf) + 1;
-  CmpCompileInfo c((char *)buf, len, (Lng32)SQLCHARSETCODE_UTF8, NULL, 0, 0, 0);
+  int len = str_len(buf) + 1;
+  CmpCompileInfo c((char *)buf, len, (int)SQLCHARSETCODE_UTF8, NULL, 0, 0, 0);
   c.setGenLoadQueryCache(TRUE);
   size_t dataLen = c.getLength();
   char *data = new (h_) char[dataLen];
@@ -500,8 +500,8 @@ ExSqlComp::ReturnStatus ExSqlComp::resetAllDefaults() {
                        "control session * reset"};
 
   for (Int32 i = 0; i < sizeof(buf) / sizeof(char *); i++) {
-    Lng32 len = str_len(buf[i]) + 1;
-    CmpCompileInfo c((char *)buf[i], len, (Lng32)SQLCHARSETCODE_UTF8, NULL, 0, 0, 0);
+    int len = str_len(buf[i]) + 1;
+    CmpCompileInfo c((char *)buf[i], len, (int)SQLCHARSETCODE_UTF8, NULL, 0, 0, 0);
     size_t dataLen = c.getLength();
     char *data = new (h_) char[dataLen];
     c.pack(data);
@@ -616,8 +616,8 @@ ExSqlComp::ReturnStatus ExSqlComp::resendControls(NABoolean ctxSw)  // Genesis 1
         doRefreshEnvironment_ = FALSE;
 
         char *buf = (char *)GetControlDefaults::GetExternalizedDefaultsStmt();
-        Lng32 len = str_len(GetControlDefaults::GetExternalizedDefaultsStmt()) + 1;
-        CmpCompileInfo c(buf, len, (Lng32)SQLCHARSETCODE_UTF8, NULL, 0, 0, 0);
+        int len = str_len(GetControlDefaults::GetExternalizedDefaultsStmt()) + 1;
+        CmpCompileInfo c(buf, len, (int)SQLCHARSETCODE_UTF8, NULL, 0, 0, 0);
         size_t dataLen = c.getLength();
         char *data = new (h_) char[dataLen];
         c.pack(data);
@@ -693,8 +693,8 @@ ExSqlComp::ReturnStatus ExSqlComp::resendControls(NABoolean ctxSw)  // Genesis 1
         if (strstr(buf, "CQD") || strstr(buf, "CONTROL QUERY DEFAULT"))
           if (strstr(buf, "OSIM")) continue;
 
-        Lng32 len = ctl->getSqlTextLen() + 1;
-        CmpCompileInfo c(buf, len, (Lng32)SQLCHARSETCODE_UTF8, NULL, 0, 0, 0);
+        int len = ctl->getSqlTextLen() + 1;
+        CmpCompileInfo c(buf, len, (int)SQLCHARSETCODE_UTF8, NULL, 0, 0, 0);
         size_t dataLen = c.getLength();
         char *data = new (h_) char[dataLen];
         c.pack(data);
@@ -931,8 +931,8 @@ ExSqlComp::ReturnStatus ExSqlComp::sendRequest(CmpMessageObj *request, NABoolean
 // in arkcmp/CmpConnection.cpp.
 //
 ExSqlComp::ReturnStatus ExSqlComp::sendRequest(Operator op, const char *const_input_data, ULng32 size, NABoolean waited,
-                                               Int64 *id, Lng32 charset, NABoolean resendFlg, const char *parentQid,
-                                               Lng32 parentQidLen) {
+                                               long *id, int charset, NABoolean resendFlg, const char *parentQid,
+                                               int parentQidLen) {
   ReturnStatus ret;
 
   char *input_data = (char *)const_input_data;
@@ -1098,7 +1098,7 @@ ExSqlComp::ReturnStatus ExSqlComp::sendRequest(const char *procName, void *input
                                                void *keyExpr, ULng32 keyExprSize,             // key expr
                                                void *inputData, ULng32 inputDataSize,         // input data
                                                ULng32 outputRecSize, ULng32 outputTotalSize,  // output data
-                                               NABoolean waited, Int64 *id, const char *parentQid, Lng32 parentQidLen) {
+                                               NABoolean waited, long *id, const char *parentQid, int parentQidLen) {
   ReturnStatus ret = ERROR;
 
   connectionType_ = CmpMessageConnectionType::ISP;
@@ -1114,7 +1114,7 @@ ExSqlComp::ReturnStatus ExSqlComp::sendRequest(const char *procName, void *input
 
     // Save the current request ID because request will be deleted
     // in sendRequest()
-    Int64 savedISPRequest = request->id();
+    long savedISPRequest = request->id();
 
     ret = sendRequest(request, waited);
     if (ret != ERROR) {
@@ -1130,10 +1130,10 @@ ExSqlComp::ReturnStatus ExSqlComp::sendRequest(const char *procName, void *input
   return ret;
 }
 
-ExSqlComp::ReturnStatus ExSqlComp::getNext(ULng32 bufSize, Int64 id, NABoolean waited, const char *parentQid,
-                                           Lng32 parentQidLen) {
+ExSqlComp::ReturnStatus ExSqlComp::getNext(ULng32 bufSize, long id, NABoolean waited, const char *parentQid,
+                                           int parentQidLen) {
   ReturnStatus ret = SUCCESS;
-  Int64 ispRequest = (id) ? id : currentISPRequest_;
+  long ispRequest = (id) ? id : currentISPRequest_;
   if (!ispRequest) return ERROR;
 
   // should not call presendRequest here, because the environment should be the
@@ -1146,14 +1146,14 @@ ExSqlComp::ReturnStatus ExSqlComp::getNext(ULng32 bufSize, Int64 id, NABoolean w
   return ret;
 }
 
-ExSqlComp::ReturnStatus ExSqlComp::getReply(char *&reply, ULng32 &size, ULng32 maxSize, Int64 reqId,
+ExSqlComp::ReturnStatus ExSqlComp::getReply(char *&reply, ULng32 &size, ULng32 maxSize, long reqId,
                                             NABoolean getDataWithErrReply) {
   ReturnStatus ret = SUCCESS;
 
   assert(outstandingSendBuffers_.ioStatus_ == FINISHED);
   outstandingSendBuffers_.ioStatus_ = FETCHED;
 
-  Int64 request = (reqId) ? reqId : outstandingSendBuffers_.requestId_;
+  long request = (reqId) ? reqId : outstandingSendBuffers_.requestId_;
   if (diagArea_->getNumber(DgSqlCode::ERROR_)) {
     if (NOT getDataWithErrReply) {
       reply = NULL;
@@ -1202,9 +1202,9 @@ ExSqlComp::ReturnStatus ExSqlComp::getReply(char *&reply, ULng32 &size, ULng32 m
   return ret;
 }
 
-ComDiagsArea *ExSqlComp::getDiags(Int64) { return diagArea_; }
+ComDiagsArea *ExSqlComp::getDiags(long) { return diagArea_; }
 //
-ComDiagsArea *ExSqlComp::takeDiags(Int64) {
+ComDiagsArea *ExSqlComp::takeDiags(long) {
   ComDiagsArea *d = diagArea_;
   diagArea_ = 0;
   return d;

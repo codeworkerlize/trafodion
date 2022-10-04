@@ -40,16 +40,16 @@ class CmpSeabaseMDcleanup : public CmpSeabaseDDL {
 
   short processCleanupErrors(ExeCliInterface *cliInterface, NABoolean &errorSeen);
 
-  Int64 getCleanupObjectUID(ExeCliInterface *cliInterface, const char *catName, const char *schName,
+  long getCleanupObjectUID(ExeCliInterface *cliInterface, const char *catName, const char *schName,
                             const char *objName, const char *inObjType, char *outObjType, Int32 &objectOwner,
-                            Int64 *objectFlags = NULL, Int64 *objDataUID = NULL);
+                            long *objectFlags = NULL, long *objDataUID = NULL);
 
-  short getCleanupObjectName(ExeCliInterface *cliInterface, Int64 objUID, NAString &catName, NAString &schName,
-                             NAString &objName, NAString &objType, Int32 &objectOwner, Int64 *objectFlags = NULL,
-                             Int64 *objDataUID = NULL);
+  short getCleanupObjectName(ExeCliInterface *cliInterface, long objUID, NAString &catName, NAString &schName,
+                             NAString &objName, NAString &objType, Int32 &objectOwner, long *objectFlags = NULL,
+                             long *objDataUID = NULL);
 
   /* is there inferior partitions */
-  short hasInferiorPartitons(ExeCliInterface *cliInterface, Int64 objUID);
+  short hasInferiorPartitons(ExeCliInterface *cliInterface, long objUID);
   short getCleanupObjectPartitions(ExeCliInterface *cliInterface);
   short validateInputValues(StmtDDLCleanupObjects *stmtCleanupNode, ExeCliInterface *cliInterface);
 
@@ -80,10 +80,10 @@ class CmpSeabaseMDcleanup : public CmpSeabaseDDL {
   short addReturnDetailsEntry(ExeCliInterface *cliInterface, Queue *&list, const char *value, NABoolean init,
                               NABoolean isUID = FALSE);
 
-  short addReturnDetailsEntryForText(ExeCliInterface *cliInterface, Queue *&list, Int64 objUID, Int32 objType,
+  short addReturnDetailsEntryForText(ExeCliInterface *cliInterface, Queue *&list, long objUID, Int32 objType,
                                      NABoolean init);
 
-  short addReturnDetailsEntryFromList(ExeCliInterface *cliInterface, Queue *fromList, Lng32 fromIndex, Queue *toList,
+  short addReturnDetailsEntryFromList(ExeCliInterface *cliInterface, Queue *fromList, int fromIndex, Queue *toList,
                                       NABoolean isUID = FALSE, NABoolean processTextInfo = FALSE);
 
   void cleanupSchemaObjects(ExeCliInterface *cliInterface);
@@ -140,9 +140,9 @@ class CmpSeabaseMDcleanup : public CmpSeabaseDDL {
   NAString extNameForHbase_;
   NAString extNameForHive_;
   NAString objType_;  // BT, IX, SG...
-  Int64 objUID_;
-  Int64 objectFlags_;
-  Int64 objDataUID_;
+  long objUID_;
+  long objectFlags_;
+  long objDataUID_;
   Int32 objectOwner_;
   NAString btObjName_;
 
@@ -162,10 +162,10 @@ class CmpSeabaseMDcleanup : public CmpSeabaseDDL {
   Queue *obsoleteEntriesList_;
 
   Queue *returnDetailsList_;
-  Lng32 currReturnEntry_;
+  int currReturnEntry_;
 
   NABoolean lobV2_;
-  Lng32 numLOBs_;
+  int numLOBs_;
   short *lobNumList_;
   short *lobTypList_;
   char **lobLocList_;
@@ -173,15 +173,15 @@ class CmpSeabaseMDcleanup : public CmpSeabaseDDL {
   char *lobMDNameBuf_;
   Int32 numLOBdatafiles_;
 
-  Lng32 numOrphanMetadataEntries_;
-  Lng32 numOrphanHbaseEntries_;
-  Lng32 numOrphanObjectsEntries_;
-  Lng32 numOrphanViewsEntries_;
-  Lng32 numInconsistentPartitionEntries_;
-  Lng32 numInconsistentHiveEntries_;
-  Lng32 numInconsistentPrivEntries_;
-  Lng32 numInconsistentGroupEntries_;
-  Lng32 numInconsistentTextEntries_;
+  int numOrphanMetadataEntries_;
+  int numOrphanHbaseEntries_;
+  int numOrphanObjectsEntries_;
+  int numOrphanViewsEntries_;
+  int numInconsistentPartitionEntries_;
+  int numInconsistentHiveEntries_;
+  int numInconsistentPrivEntries_;
+  int numInconsistentGroupEntries_;
+  int numInconsistentTextEntries_;
 };
 
 #endif

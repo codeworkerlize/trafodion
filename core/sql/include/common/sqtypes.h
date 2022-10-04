@@ -1,24 +1,4 @@
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-//
+
 #ifndef _SQTYPES_H
 #define _SQTYPES_H
 
@@ -79,7 +59,7 @@ typedef int _int_32; /* DG had it as "long" */
 #else
 typedef int _int_32;
 #endif
-typedef _int_32 int;
+typedef _int_32 int_32;
 
 #ifdef NA_64BIT
 typedef unsigned int _unsigned_32; /* DG had it as "long" */
@@ -100,13 +80,13 @@ typedef long _int_64; /* DG had it as "long" */
 typedef long long _int_64;
 #endif
 
-#ifndef long long
+#ifndef _int64
 #ifdef NA_64BIT
-#define long long long
-#define long long
+#define _int64 long
+#define __int64 long
 #else
-#define long long long long int
-#define long long long int
+#define _int64 long long int
+#define __int64 long long int
 #endif
 #endif
 
@@ -193,7 +173,6 @@ void InitializeCriticalSection(CRITICAL_SECTION *pCriticalSection);
 void EnterCriticalSection(CRITICAL_SECTION *pCriticalSection);
 BOOL TryEnterCriticalSection(CRITICAL_SECTION *pCriticalSection);
 void LeaveCriticalSection(CRITICAL_SECTION *pCriticalSection);
-void DeleteCriticalSection(CRITICAL_SECTION *pCriticalSection);
 
 BOOL GetSystemTimeAdjustment(DWORD *pTimeAdjustment, DWORD *pTimeIncrement, BOOL *pTimeAdjustmentDisabled);
 
@@ -268,110 +247,9 @@ class CatPrivSettings;
 class CatCkColUsageList;
 class CatPartitioningKeyList;
 
-/********* Some Windows structures **/
-
-#if 0
-#define DllImport
-#define _declspec(a)
-#define __declspec(a)
-#define INVALID_HANDLE_VALUE (HANDLE) - 1
-
-#define EqualMemory(Destination, Source, Length) (!memcmp((Destination), (Source), (Length)))
-#define MoveMemory(Destination, Source, Length)  memmove((Destination), (Source), (Length))
-#define CopyMemory(Destination, Source, Length)  memcpy((Destination), (Source), (Length))
-#define FillMemory(Destination, Length, Fill)    memset((Destination), (Fill), (Length))
-#define ZeroMemory(Destination, Length)          memset((Destination), 0, (Length))
-#define TRUE                                     -1
-#define MAX_PATH                                 _MAX_PATH
-
-typedef long long         long;
-typedef long long         long long ;
-typedef unsigned long  DWORDLONG;
-typedef long       LONGLONG;
-
-typedef int_64        fixed_0;
-#define fixed_0                                  int_64   
-
-typedef unsigned long  DWORDLONG;
-
-typedef void          *LPVOID;
-typedef void          VOID;
-typedef VOID          *PVOID;
-typedef PVOID         PSID;
-
-typedef int           BOOL;
-typedef BOOL          *PBOOL;
-typedef BOOL          *LPBOOL;
 
 
-typedef PVOID         HANDLE;
-typedef HANDLE        HKEY;
-typedef HANDLE        *PHANDLE;
-typedef HANDLE        *LPHANDLE;
-
-typedef struct _LIST_ENTRY {
-  struct _LIST_ENTRY * Flink;
-  struct _LIST_ENTRY * Blink;
-} LIST_ENTRY, *PLIST_ENTRY;
-
-typedef union _LARGE_INTEGER {
-    struct {
-        DWORD LowPart;
-        LONG HighPart;
-    };
-    struct {
-        DWORD LowPart;
-        LONG HighPart;
-    } u;
-    LONGLONG QuadPart;
-} LARGE_INTEGER;
-
-typedef struct _FILETIME {
-    DWORD dwLowDateTime;
-    DWORD dwHighDateTime;
-} FILETIME, *PFILETIME, *LPFILETIME;
-
-typedef struct _OVERLAPPED {
-    DWORD   Internal;
-    DWORD   InternalHigh;
-    DWORD   Offset;
-    DWORD   OffsetHigh;
-    HANDLE  hEvent;
-} OVERLAPPED, *LPOVERLAPPED;
-
-typedef struct _SYSTEMTIME {
-    WORD wYear;
-    WORD wMonth;
-    WORD wDayOfWeek;
-    WORD wDay;
-    WORD wHour;
-    WORD wMinute;
-    WORD wSecond;
-    WORD wMilliseconds;
-} SYSTEMTIME, *PSYSTEMTIME, *LPSYSTEMTIME;
-
-typedef struct _TIME_ZONE_INFORMATION {
-    LONG Bias;
-    WCHAR StandardName[ 32 ];
-    SYSTEMTIME StandardDate;
-    LONG StandardBias;
-    WCHAR DaylightName[ 32 ];
-    SYSTEMTIME DaylightDate;
-    LONG DaylightBias;
-} TIME_ZONE_INFORMATION, *PTIME_ZONE_INFORMATION, *LPTIME_ZONE_INFORMATION;
-
-typedef struct _WSABUF {
-    u_long      len;     /* the length of the buffer */
-    char FAR *  buf;     /* the pointer to the buffer */
-} WSABUF, FAR * LPWSABUF;
-
-#endif
-
-//
-//  File System time stamps are represented with the following structure:
-//
-
-//#define min(a,b)            (((a) < (b)) ? (a) : (b))
+// #define min(a, b) (((a) < (b)) ? (a) : (b))
 
 #define TIME_ZONE_ID_UNKNOWN  0
 #define TIME_ZONE_ID_STANDARD 1

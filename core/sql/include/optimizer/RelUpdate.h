@@ -44,7 +44,7 @@
 #include "SearchKey.h"
 #include "RelJoin.h"
 #include "optimizer/RelScan.h"
-#include "CostMethod.h"
+#include "optimizer/CostMethod.h"
 // -----------------------------------------------------------------------
 // contents of this file
 // -----------------------------------------------------------------------
@@ -336,7 +336,7 @@ class GenericUpdate : public RelExpr {
 
   virtual void pushdownCoveredExpr(const ValueIdSet &outputExprOnOperator, const ValueIdSet &newExternalInputs,
                                    ValueIdSet &predicatesOnParent, const ValueIdSet *nonPredExprOnOperator = NULL,
-                                   Lng32 childIndex = (-MAX_REL_ARITY));
+                                   int childIndex = (-MAX_REL_ARITY));
 
   virtual RelExpr *preCodeGen(Generator *generator, const ValueIdSet &externalInputs, ValueIdSet &pulledNewInputs);
 
@@ -399,7 +399,7 @@ class GenericUpdate : public RelExpr {
 
   virtual NABoolean okToAttemptESPParallelism(const Context *myContext, /*IN*/
                                               PlanWorkSpace *pws,       /*IN*/
-                                              Lng32 &numOfESPs,         /*OUT*/
+                                              int &numOfESPs,         /*OUT*/
                                               float &allowedDeviation,  /*OUT*/
                                               NABoolean &numOfESPsForced /*OUT*/);
 
@@ -438,7 +438,7 @@ class GenericUpdate : public RelExpr {
   // Returns TRUE if need for logging or marking inconsistent.
   NABoolean isMvLoggingRequired();
 
-  virtual PlanPriority computeOperatorPriority(const Context *context, PlanWorkSpace *pws = NULL, Lng32 planNumber = 0);
+  virtual PlanPriority computeOperatorPriority(const Context *context, PlanWorkSpace *pws = NULL, int planNumber = 0);
 
   virtual NABoolean computeRowsAffected() const;
 
@@ -649,7 +649,7 @@ class GenericUpdate : public RelExpr {
   //
   NABoolean checkForHalloweenR2(Int32 numScansToFind);
 
-  NABoolean checkForNotAtomicStatement(BindWA *bindWA, Lng32 sqlcode, NAString objname, NAString tabname);
+  NABoolean checkForNotAtomicStatement(BindWA *bindWA, int sqlcode, NAString objname, NAString tabname);
 
   // name of the table affected by the operation
   CorrName updatedTableName_;
@@ -1590,7 +1590,7 @@ class HbaseDelete : public Delete {
 
   //! synthPhysicalProperty
   // cost functions
-  virtual PhysicalProperty *synthPhysicalProperty(const Context *context, const Lng32 planNumber, PlanWorkSpace *pws);
+  virtual PhysicalProperty *synthPhysicalProperty(const Context *context, const int planNumber, PlanWorkSpace *pws);
 
   virtual CostMethod *costMethod() const;
 
@@ -1646,7 +1646,7 @@ class InsertCursor : public Insert {
   virtual NABoolean isPhysical() const;
 
   // cost functions
-  virtual PhysicalProperty *synthPhysicalProperty(const Context *context, const Lng32 planNumber, PlanWorkSpace *pws);
+  virtual PhysicalProperty *synthPhysicalProperty(const Context *context, const int planNumber, PlanWorkSpace *pws);
 
   // get a printable string that identifies the operator
   const NAString getText() const;
@@ -1673,7 +1673,7 @@ class HiveInsert : public Insert {
   virtual NABoolean isPhysical() const { return TRUE; };
 
   // cost functions
-  virtual PhysicalProperty *synthPhysicalProperty(const Context *context, const Lng32 planNumber, PlanWorkSpace *pws);
+  virtual PhysicalProperty *synthPhysicalProperty(const Context *context, const int planNumber, PlanWorkSpace *pws);
 
   // get a printable string that identifies the operator
   const NAString getText() const;
@@ -1709,7 +1709,7 @@ class HbaseInsert : public Insert {
   virtual NABoolean isPhysical() const { return TRUE; };
 
   // cost functions
-  virtual PhysicalProperty *synthPhysicalProperty(const Context *context, const Lng32 planNumber, PlanWorkSpace *pws);
+  virtual PhysicalProperty *synthPhysicalProperty(const Context *context, const int planNumber, PlanWorkSpace *pws);
 
   // optimizer functions
   virtual CostMethod *costMethod() const;
@@ -1780,7 +1780,7 @@ class UpdateCursor : public Update {
   virtual NABoolean isPhysical() const;
 
   // cost functions
-  virtual PhysicalProperty *synthPhysicalProperty(const Context *context, const Lng32 planNumber, PlanWorkSpace *pws);
+  virtual PhysicalProperty *synthPhysicalProperty(const Context *context, const int planNumber, PlanWorkSpace *pws);
 
   // method to do code generation
   virtual RelExpr *preCodeGen(Generator *generator, const ValueIdSet &externalInputs, ValueIdSet &pulledNewInputs);
@@ -1835,7 +1835,7 @@ class HbaseUpdate : public UpdateCursor {
 
   //! synthPhysicalProperty
   // cost functions
-  virtual PhysicalProperty *synthPhysicalProperty(const Context *context, const Lng32 planNumber, PlanWorkSpace *pws);
+  virtual PhysicalProperty *synthPhysicalProperty(const Context *context, const int planNumber, PlanWorkSpace *pws);
 
   virtual CostMethod *costMethod() const;
 
@@ -1887,7 +1887,7 @@ class DeleteCursor : public Delete {
   virtual NABoolean isPhysical() const;
 
   // cost functions
-  virtual PhysicalProperty *synthPhysicalProperty(const Context *context, const Lng32 planNumber, PlanWorkSpace *pws);
+  virtual PhysicalProperty *synthPhysicalProperty(const Context *context, const int planNumber, PlanWorkSpace *pws);
 
   // method to do code generation
   virtual short codeGen(Generator *);

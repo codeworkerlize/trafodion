@@ -86,7 +86,7 @@ class REFRESH_LIB_CLASS CRUEmpCheckVector {
     Elem() : epoch_(0), checkBitmap_(0) {}
 
     TInt32 epoch_;
-    Lng32 checkBitmap_;
+    int checkBitmap_;
   };
 
   //-----------------------------------//
@@ -100,7 +100,7 @@ class REFRESH_LIB_CLASS CRUEmpCheckVector {
 
   // Is the delta empty with regards to a certain MV
   // which observes it from a certain epoch?
-  BOOL IsDeltaNonEmpty(TInt32 epoch, Lng32 checkMask = CRUTbl::SINGLE_ROW | CRUTbl::RANGE) const;
+  BOOL IsDeltaNonEmpty(TInt32 epoch, int checkMask = CRUTbl::SINGLE_ROW | CRUTbl::RANGE) const;
 
   // Is the delta insert only with regards to a certain MV
   // which observes it from a certain epoch?
@@ -135,12 +135,12 @@ class REFRESH_LIB_CLASS CRUEmpCheckVector {
   void StoreData(CUOFsIpcMessageTranslator &translator);
 
  private:
-  typedef CDSLongMap<Lng32> EpochMap;
+  typedef CDSLongMap<int> EpochMap;
   static Int32 CompareElem(const void *pEl1, const void *pEl2);
 
  private:
   Elem *pVec_;
-  Lng32 size_;
+  int size_;
 
   BOOL isFinal_;
 

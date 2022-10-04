@@ -308,7 +308,7 @@ class ExUnPackRowsTcb : public ex_tcb {
   // is used to during UnPackCols expression eval. So for nonfatal errors we need
   // to transfer the conditions to a different diags to prevent the same error
   // from being reported twice.
-  void processError(atp_struct *atp, NABoolean isNonFatalError, Lng32 markValue);
+  void processError(atp_struct *atp, NABoolean isNonFatalError, int markValue);
 
   // sends up a Q_REC_SKIPPED reply if UnPackCols expression returns FALSE
   // while we are unpacking rowsets (only if need to count rowNumber). In this case atp
@@ -322,7 +322,7 @@ class ExUnPackRowsTcb : public ex_tcb {
 class ExUnPackRowsPrivateState : public ex_tcb_private_state {
   friend class ExUnPackRowsTcb;
 
-  Int64 matchCount_;
+  long matchCount_;
   Int32 unPackCount_;
 
   Int32 numRows_;
@@ -395,11 +395,11 @@ class ExUnPackRowwiseRowsTcb : public ex_tcb {
   tupp rwrsInputValuesTupp_;
   tupp_descriptor rwrsInputValuesTuppDesc_;
 
-  Lng32 rwrsNumRows_;
-  Lng32 rwrsMaxInputRowlen_;
+  int rwrsNumRows_;
+  int rwrsMaxInputRowlen_;
   char *rwrsBufferAddr_;
 
-  Lng32 currentRowNum_;
+  int currentRowNum_;
 
   Step step_;
 };

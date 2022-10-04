@@ -90,7 +90,7 @@
 #include "sqlcomp/CmpDDLCatErrorCodes.h"
 
 #define DISPLAY_DONE_WARNING 1032
-extern Lng32 getTotalTcbSpace(char *tdb, char *otherInfo, char *parentMemory);
+extern int getTotalTcbSpace(char *tdb, char *otherInfo, char *parentMemory);
 
 StrTarget::StrTarget()
     : heap_(NULL),
@@ -99,7 +99,7 @@ StrTarget::StrTarget()
       internalCharset_(CharInfo::UnknownCharSet),
       cnvExternalCharset_(cnv_UnknownCharSet),
       cnvInternalCharset_(cnv_UnknownCharSet) {}
-StrTarget::StrTarget(Descriptor *desc, Lng32 entry)
+StrTarget::StrTarget(Descriptor *desc, int entry)
     : heap_(NULL),
       str_(NULL),
       externalCharset_(CharInfo::UnknownCharSet),
@@ -108,8 +108,8 @@ StrTarget::StrTarget(Descriptor *desc, Lng32 entry)
       cnvInternalCharset_(cnv_UnknownCharSet) {
   init(desc, entry);
 }
-void StrTarget::init(Descriptor *desc, Lng32 entry) {
-  Lng32 sourceLen, sourceType, externalCharset, internalCharset;
+void StrTarget::init(Descriptor *desc, int entry) {
+  int sourceLen, sourceType, externalCharset, internalCharset;
   CollHeap *heap = desc->getContext()->exCollHeap();
   ComDiagsArea *diagsArea = desc->getContext()->getDiagsArea();
   char *source = desc->getVarData(entry);
@@ -130,7 +130,7 @@ void StrTarget::init(Descriptor *desc, Lng32 entry) {
   init(source, sourceLen, sourceType, externalCharset, internalCharset, heap, diagsArea);
 }
 
-void StrTarget::init(char *source, Lng32 sourceLen, Lng32 sourceType, Lng32 externalCharset, Lng32 internalCharset,
+void StrTarget::init(char *source, int sourceLen, int sourceType, int externalCharset, int internalCharset,
                      CollHeap *heap, ComDiagsArea *&diagsArea) {
   externalCharset_ = externalCharset;
   internalCharset_ = internalCharset;
@@ -157,24 +157,24 @@ void StrTarget::init(char *source, Lng32 sourceLen, Lng32 sourceType, Lng32 exte
   }
 }
 
-static inline NABoolean isERROR(Lng32 retcode) { return (retcode < 0); }
+static inline NABoolean isERROR(int retcode) { return (retcode < 0); }
 
-static inline NABoolean isWARNING(Lng32 retcode) {
+static inline NABoolean isWARNING(int retcode) {
   // 100 is EOF, not WARNING
   return ((retcode > 0) && (retcode != SQL_EOF));
 }
 
-static inline NABoolean isSUCCESS(Lng32 retcode) { return (retcode == 0); }
+static inline NABoolean isSUCCESS(int retcode) { return (retcode == 0); }
 
-static inline NABoolean isEOF(Lng32 retcode) { return (retcode == 100); }
+static inline NABoolean isEOF(int retcode) { return (retcode == 100); }
 
-static Lng32 SQLCLI_ReturnCode(ContextCli *context, Lng32 retcode) {
+static int SQLCLI_ReturnCode(ContextCli *context, int retcode) {
   return (context != NULL && isERROR(retcode) ? context->diags().mainSQLCODE() : retcode);
 }
 
 // Move this method to Statement class. TBD.
-static Lng32 SQLCLI_Prepare_Setup_Pre(ContextCli &currContext, Statement *stmt, ULng32 flags) {
-  Int64 compStartTime = NA_JulianTimestamp();
+static int SQLCLI_Prepare_Setup_Pre(ContextCli &currContext, Statement *stmt, ULng32 flags) {
+  long compStartTime = NA_JulianTimestamp();
   StmtStats *stmtStats = stmt->getStmtStats();
   ExMasterStats *masterStats;
 
@@ -198,9 +198,9 @@ static Lng32 SQLCLI_Prepare_Setup_Pre(ContextCli &currContext, Statement *stmt, 
   return 0;
 }
 
-static Lng32 SQLCLI_Prepare_Setup_Post(ContextCli &currContext, Statement *stmt, ULng32 flags) {
+static int SQLCLI_Prepare_Setup_Post(ContextCli &currContext, Statement *stmt, ULng32 flags) {
   StmtStats *stmtStats = stmt->getStmtStats();
-  Int64 compEndTime = stmt->getCompileEndTime();
+  long compEndTime = stmt->getCompileEndTime();
   ExMasterStats *masterStats;
   ex_root_tdb *rootTdb = NULL;
   if (stmtStats != NULL) {
@@ -289,7 +289,7 @@ static Lng32 SQLCLI_Prepare_Setup_Post(ContextCli &currContext, Statement *stmt,
 // a UDR registered with the NO SQL attribute is not allowed to access
 // SQL/MX.
 //
-static Lng32 CheckNOSQLAccessMode(CliGlobals &cliGlobals) {
+static int CheckNOSQLAccessMode(CliGlobals &cliGlobals) {
   // rare error condition
   if (!cliGlobals.sqlAccessAllowed()) {
     cliGlobals.setUdrAccessModeViolation(TRUE);
@@ -303,8 +303,8 @@ static Lng32 CheckNOSQLAccessMode(CliGlobals &cliGlobals) {
   return SUCCESS;
 }
 
-static Lng32 CliPrologue(CliGlobals *cliGlobals, const SQLMODULE_ID *module) {
-  Lng32 retcode;
+static int CliPrologue(CliGlobals *cliGlobals, const SQLMODULE_ID *module) {
+  int retcode;
 
   ContextCli *context = cliGlobals->currContext();
   ComDiagsArea &diags = context->diags();
@@ -316,7 +316,7 @@ static Lng32 CliPrologue(CliGlobals *cliGlobals, const SQLMODULE_ID *module) {
   // the transid of its calling context, and the process transid
   // might be different. This can happen, for example, if we are
   // in a recursive CLI call underneath FILE_COMPLETE_.)
-  Lng32 numOfCliCalls = context->getNumOfCliCalls();
+  int numOfCliCalls = context->getNumOfCliCalls();
   if ((numOfCliCalls == 1) || ((numOfCliCalls == 2) && (cliGlobals->isESPProcess()))) {
     ExTransaction *exTransaction = context->getTransaction();
     if (exTransaction != NULL) {
@@ -345,7 +345,7 @@ static Lng32 CliPrologue(CliGlobals *cliGlobals, const SQLMODULE_ID *module) {
   return SUCCESS;
 }
 
-static Lng32 CliEpilogue(CliGlobals *cliGlobals, SQLSTMT_ID *currentSqlStmt, Lng32 inRetcode = 0) {
+static int CliEpilogue(CliGlobals *cliGlobals, SQLSTMT_ID *currentSqlStmt, int inRetcode = 0) {
   ContextCli *context = cliGlobals->currContext();
 
   // Validate the current process transid only if this is not
@@ -354,7 +354,7 @@ static Lng32 CliEpilogue(CliGlobals *cliGlobals, SQLSTMT_ID *currentSqlStmt, Lng
   // different transid than the current context, if we are
   // in a recursive CLI call inside FILE_COMPLETE_.)
 
-  Lng32 numOfCliCalls = context->getNumOfCliCalls();
+  int numOfCliCalls = context->getNumOfCliCalls();
   if (numOfCliCalls == 1) {
     short retcode = context->getTransaction()->validateTransaction();
 
@@ -396,10 +396,10 @@ static Lng32 CliEpilogue(CliGlobals *cliGlobals, SQLSTMT_ID *currentSqlStmt, Lng
 // pairs. Note, we are setting only the addresses for the host variables in
 // the first row of the Rowset. The other are implicitely set by the binding
 // style.
-Lng32 local_SetDescPointers(/*IN*/ Descriptor *desc,
-                            /*IN*/ Lng32 starting_entry,
-                            /*IN*/ Lng32 num_ptr_pairs,
-                            /*IN*/ Lng32 num_ap,
+int local_SetDescPointers(/*IN*/ Descriptor *desc,
+                            /*IN*/ int starting_entry,
+                            /*IN*/ int num_ptr_pairs,
+                            /*IN*/ int num_ap,
                             /*IN*/ va_list *ap,
                             /*IN*/ SQLCLI_PTR_PAIRS ptr_pairs[]) {
   ContextCli *context = desc->getContext();
@@ -412,7 +412,7 @@ Lng32 local_SetDescPointers(/*IN*/ Descriptor *desc,
     return SQLCLI_ReturnCode(context, -CLI_INTERNAL_ERROR);
   }
 
-  for (Lng32 entry = starting_entry, i = 0; entry < starting_entry + num_ptr_pairs; entry++, i++) {
+  for (int entry = starting_entry, i = 0; entry < starting_entry + num_ptr_pairs; entry++, i++) {
     // need to re-order this to avoid possible problems with not setting
     // the data area (i.e. VAR_PTR) last.
     char *vp, *ip;
@@ -444,32 +444,32 @@ Lng32 local_SetDescPointers(/*IN*/ Descriptor *desc,
 // for the first row of the RowSet. To get the addresses for other row sets,
 // the member function, getDescPointers should be used.
 
-static Lng32 getNumericHostVarInfo(Descriptor *desc, Lng32 desc_entry,
+static int getNumericHostVarInfo(Descriptor *desc, int desc_entry,
                                    // output parameters
-                                   void *&hv_ptr, Lng32 &hv_length, Lng32 &hv_type, void *&ind_ptr, Lng32 &ind_length,
-                                   Lng32 &ind_type) {
-  Lng32 retcode = desc->getDescItem(desc_entry, SQLDESC_VAR_PTR, (Lng32 *)&hv_ptr, NULL, 0, NULL, 0);
+                                   void *&hv_ptr, int &hv_length, int &hv_type, void *&ind_ptr, int &ind_length,
+                                   int &ind_type) {
+  int retcode = desc->getDescItem(desc_entry, SQLDESC_VAR_PTR, (int *)&hv_ptr, NULL, 0, NULL, 0);
   if (retcode != 0) return SQLCLI_ReturnCode(desc->getContext(), retcode);
 
-  retcode = desc->getDescItem(desc_entry, SQLDESC_LENGTH, (Lng32 *)&hv_length, NULL, 0, NULL, 0);
+  retcode = desc->getDescItem(desc_entry, SQLDESC_LENGTH, (int *)&hv_length, NULL, 0, NULL, 0);
   if (retcode != 0) return SQLCLI_ReturnCode(desc->getContext(), retcode);
 
-  retcode = desc->getDescItem(desc_entry, SQLDESC_TYPE_FS, (Lng32 *)&hv_type, NULL, 0, NULL, 0);
+  retcode = desc->getDescItem(desc_entry, SQLDESC_TYPE_FS, (int *)&hv_type, NULL, 0, NULL, 0);
   if (retcode != 0) return SQLCLI_ReturnCode(desc->getContext(), retcode);
 
-  retcode = desc->getDescItem(desc_entry, SQLDESC_IND_PTR, (Lng32 *)&ind_ptr, NULL, 0, NULL, 0);
+  retcode = desc->getDescItem(desc_entry, SQLDESC_IND_PTR, (int *)&ind_ptr, NULL, 0, NULL, 0);
   if (retcode != 0) return SQLCLI_ReturnCode(desc->getContext(), retcode);
 
   // the host variable must have a scale of 0
-  Lng32 hv_scale;
-  retcode = desc->getDescItem(desc_entry, SQLDESC_SCALE, (Lng32 *)&hv_scale, NULL, 0, NULL, 0);
+  int hv_scale;
+  retcode = desc->getDescItem(desc_entry, SQLDESC_SCALE, (int *)&hv_scale, NULL, 0, NULL, 0);
   if (retcode != 0) return SQLCLI_ReturnCode(desc->getContext(), retcode);
   // $$$$ Enable this after scale got initialized
   // if (hv_scale != 0)
   //   return -1;
 
   if (ind_ptr) {
-    retcode = desc->getDescItem(desc_entry, SQLDESC_IND_TYPE, (Lng32 *)&ind_type, NULL, 0, NULL, 0);
+    retcode = desc->getDescItem(desc_entry, SQLDESC_IND_TYPE, (int *)&ind_type, NULL, 0, NULL, 0);
     if (retcode != 0) return SQLCLI_ReturnCode(desc->getContext(), retcode);
 
     switch (ind_type) {
@@ -507,13 +507,13 @@ static Lng32 getNumericHostVarInfo(Descriptor *desc, Lng32 desc_entry,
   */
 }
 
-static Lng32 InputValueFromNumericHostvar(Descriptor *desc, Lng32 desc_entry, Lng32 &value) {
+static int InputValueFromNumericHostvar(Descriptor *desc, int desc_entry, int &value) {
   void *hvPtr;
-  Lng32 hvLength;
-  Lng32 hvType;
+  int hvLength;
+  int hvType;
   void *indPtr;
-  Lng32 indLength;
-  Lng32 indType;
+  int indLength;
+  int indType;
   ex_expr::exp_return_type expRetcode;
   CollHeap *heap;
   ComDiagsArea *diagsArea;
@@ -521,19 +521,19 @@ static Lng32 InputValueFromNumericHostvar(Descriptor *desc, Lng32 desc_entry, Ln
   heap = desc->getContext()->exCollHeap();
   diagsArea = desc->getContext()->getDiagsArea();
 
-  Lng32 retcode = getNumericHostVarInfo(desc, desc_entry, hvPtr, hvLength, hvType, indPtr, indLength, indType);
+  int retcode = getNumericHostVarInfo(desc, desc_entry, hvPtr, hvLength, hvType, indPtr, indLength, indType);
   if (retcode) return SQLCLI_ReturnCode(desc->getContext(), retcode);
 
-  expRetcode = convDoIt((char *)hvPtr, hvLength, (short)hvType, 0, 0, (char *)&value, (Lng32)sizeof(value),
+  expRetcode = convDoIt((char *)hvPtr, hvLength, (short)hvType, 0, 0, (char *)&value, (int)sizeof(value),
                         REC_BIN32_SIGNED, 0, 0, NULL, 0, heap, &diagsArea);
   if (expRetcode != ex_expr::EXPR_OK) return ERROR;
   if (indPtr) {
     // values coming in should not be NULL, just make
     // sure nobody passes in a NULL
-    Lng32 userIndicatorVal;
+    int userIndicatorVal;
 
     expRetcode = convDoIt((char *)indPtr, indLength, (short)indType, 0, 0, (char *)&userIndicatorVal,
-                          (Lng32)sizeof(userIndicatorVal), REC_BIN32_SIGNED, 0, 0, NULL, 0, heap, &diagsArea);
+                          (int)sizeof(userIndicatorVal), REC_BIN32_SIGNED, 0, 0, NULL, 0, heap, &diagsArea);
 
     if (expRetcode != ex_expr::EXPR_OK) return ERROR;
     if (userIndicatorVal) return ERROR;  // user specified NULL or junk
@@ -542,13 +542,13 @@ static Lng32 InputValueFromNumericHostvar(Descriptor *desc, Lng32 desc_entry, Ln
   return (SUCCESS);
 }
 
-static Lng32 OutputValueIntoNumericHostvar(Descriptor *desc, Lng32 desc_entry, Lng32 value) {
+static int OutputValueIntoNumericHostvar(Descriptor *desc, int desc_entry, int value) {
   void *hvPtr;
-  Lng32 hvLength;
-  Lng32 hvType;
+  int hvLength;
+  int hvType;
   void *indPtr;
-  Lng32 indLength;
-  Lng32 indType;
+  int indLength;
+  int indType;
   ex_expr::exp_return_type expRetcode;
   CollHeap *heap;
   ComDiagsArea *diagsArea;
@@ -558,11 +558,11 @@ static Lng32 OutputValueIntoNumericHostvar(Descriptor *desc, Lng32 desc_entry, L
   heap = context->exCollHeap();
   diagsArea = context->getDiagsArea();
 
-  Lng32 retcode = getNumericHostVarInfo(desc, desc_entry, hvPtr, hvLength, hvType, indPtr, indLength, indType);
+  int retcode = getNumericHostVarInfo(desc, desc_entry, hvPtr, hvLength, hvType, indPtr, indLength, indType);
   if (retcode) return ERROR;
 
   if (hvType >= REC_MIN_NUMERIC && hvType <= REC_MAX_NUMERIC) {
-    expRetcode = convDoIt((char *)&value, (Lng32)sizeof(value), REC_BIN32_SIGNED, 0, 0, (char *)hvPtr, hvLength,
+    expRetcode = convDoIt((char *)&value, (int)sizeof(value), REC_BIN32_SIGNED, 0, 0, (char *)hvPtr, hvLength,
                           (short)hvType, 0, 0, NULL, 0, heap, &diagsArea);
 
     if (expRetcode != ex_expr::EXPR_OK) return ERROR;
@@ -574,8 +574,8 @@ static Lng32 OutputValueIntoNumericHostvar(Descriptor *desc, Lng32 desc_entry, L
   }
   if (indPtr) {
     // move a zero into the indicator host variable
-    Lng32 nonNull = 0;
-    expRetcode = convDoIt((char *)&nonNull, (Lng32)sizeof(nonNull), REC_BIN32_SIGNED, 0, 0, (char *)indPtr, indLength,
+    int nonNull = 0;
+    expRetcode = convDoIt((char *)&nonNull, (int)sizeof(nonNull), REC_BIN32_SIGNED, 0, 0, (char *)indPtr, indLength,
                           (short)indType, 0, 0, NULL, 0, heap, &diagsArea);
     if (expRetcode != ex_expr::EXPR_OK) return ERROR;
   }
@@ -583,12 +583,12 @@ static Lng32 OutputValueIntoNumericHostvar(Descriptor *desc, Lng32 desc_entry, L
   return SUCCESS;
 }
 
-Lng32 SQLCLI_GetDiskMaxSize(
+int SQLCLI_GetDiskMaxSize(
     /*IN*/ CliGlobals *cliGlobals,
     /*IN*/ char *volname,
-    /*OUT*/ Int64 *totalCapacity,
-    /*OUT*/ Int64 *totalFreespace) {
-  Lng32 retcode = 0;
+    /*OUT*/ long *totalCapacity,
+    /*OUT*/ long *totalFreespace) {
+  int retcode = 0;
   // create initial context, if first call, don't add module because
   // that would cause infinite recursion
   retcode = CliPrologue(cliGlobals, NULL);
@@ -599,13 +599,13 @@ Lng32 SQLCLI_GetDiskMaxSize(
   return retcode;
 }
 
-Lng32 SQLCLI_GetListOfDisks(
+int SQLCLI_GetListOfDisks(
     /*IN*/ CliGlobals *cliGlobals,
     /*IN/OUT*/ char *diskBuf,
     /* OUT */ Int32 *numTSEs,
     /*OUT */ Int32 *maxTSELength,
     /*IN/OUT */ Int32 *diskBufLen) {
-  Lng32 retcode = 0;
+  int retcode = 0;
   Int32 numPrimaries = 0;
   MS_Mon_Process_Info_Type *tseInfo = NULL;
   // create initial context, if first call, don't add module because
@@ -653,10 +653,10 @@ Lng32 SQLCLI_GetListOfDisks(
   return retcode;
 }
 
-Lng32 SQLCLI_AllocDesc(/*IN*/ CliGlobals *cliGlobals,
+int SQLCLI_AllocDesc(/*IN*/ CliGlobals *cliGlobals,
                        /*INOUT*/ SQLDESC_ID *desc_id,
                        /*IN  OPTIONAL*/ SQLDESC_ID *input_descriptor) {
-  Lng32 retcode;
+  int retcode;
 
   // create initial context, if first call, and add module, if any.
   retcode = CliPrologue(cliGlobals, desc_id->module);
@@ -665,7 +665,7 @@ Lng32 SQLCLI_AllocDesc(/*IN*/ CliGlobals *cliGlobals,
   ContextCli &currContext = *(cliGlobals->currContext());
   ComDiagsArea &diags = currContext.diags();
 
-  Lng32 maxEntries = 0L;
+  int maxEntries = 0L;
 
   if (input_descriptor) {
     Descriptor *input_desc = currContext.getDescriptor(input_descriptor);
@@ -705,10 +705,10 @@ Lng32 SQLCLI_AllocDesc(/*IN*/ CliGlobals *cliGlobals,
 #include "comexe/ComQueue.h"
 #endif
 
-Lng32 SQLCLI_AllocStmt(/*IN*/ CliGlobals *cliGlobals,
+int SQLCLI_AllocStmt(/*IN*/ CliGlobals *cliGlobals,
                        /*INOUT*/ SQLSTMT_ID *statement_id,
                        /*IN  OPTIONAL*/ SQLSTMT_ID *cloned_statement) {
-  Lng32 retcode;
+  int retcode;
 
   // create initial context, if first call, and add module, if any.
   retcode = CliPrologue(cliGlobals, statement_id->module);
@@ -755,11 +755,11 @@ Lng32 SQLCLI_AllocStmt(/*IN*/ CliGlobals *cliGlobals,
   return CliEpilogue(cliGlobals, NULL);
 }
 
-Lng32 SQLCLI_AllocStmtForRS(/*IN*/ CliGlobals *cliGlobals,
+int SQLCLI_AllocStmtForRS(/*IN*/ CliGlobals *cliGlobals,
                             /*IN*/ SQLSTMT_ID *callStmtId,
-                            /*IN*/ Lng32 resultSetIndex,
+                            /*IN*/ int resultSetIndex,
                             /*INOUT*/ SQLSTMT_ID *resultSetStmtId) {
-  Lng32 retcode;
+  int retcode;
 
   // create initial context, if first call, and add module, if any.
   retcode = CliPrologue(cliGlobals, callStmtId->module);
@@ -781,7 +781,7 @@ Lng32 SQLCLI_AllocStmtForRS(/*IN*/ CliGlobals *cliGlobals,
   NABoolean parentIsCall = FALSE;
   ex_root_tdb *parentRoot = callStmt->getRootTdb();
   if (parentRoot) {
-    Lng32 queryType = parentRoot->getQueryType();
+    int queryType = parentRoot->getQueryType();
     if (queryType == SQL_CALL_NO_RESULT_SETS || queryType == SQL_CALL_WITH_RESULT_SETS) parentIsCall = TRUE;
   }
 
@@ -791,7 +791,7 @@ Lng32 SQLCLI_AllocStmtForRS(/*IN*/ CliGlobals *cliGlobals,
   }
 
   // The RS index must not be out of range
-  Lng32 maxRS = 0;
+  int maxRS = 0;
   if (parentRoot) maxRS = parentRoot->getMaxResultSets();
   if (resultSetIndex < 1 || resultSetIndex > maxRS) {
     diags << DgSqlCode(-EXE_UDR_RS_ALLOC_INVALID_INDEX) << DgInt0(resultSetIndex) << DgInt1(maxRS);
@@ -833,12 +833,12 @@ Lng32 SQLCLI_AllocStmtForRS(/*IN*/ CliGlobals *cliGlobals,
 
 }  // SQLCLI_AllocStmtForRS
 
-Lng32 SQLCLI_AssocFileNumber(/*IN*/ CliGlobals *cliGlobals,
+int SQLCLI_AssocFileNumber(/*IN*/ CliGlobals *cliGlobals,
                              /*IN*/ SQLSTMT_ID *statement_id,
                              /*IN*/ short file_num) {
   return 0;
 }
-Lng32 SQLCLI_BreakEnabled(/*IN*/ CliGlobals *cliGlobals,
+int SQLCLI_BreakEnabled(/*IN*/ CliGlobals *cliGlobals,
                           /*IN*/ UInt32 enabled) {
   if (!cliGlobals) {
     return -CLI_NO_CURRENT_CONTEXT;
@@ -847,7 +847,7 @@ Lng32 SQLCLI_BreakEnabled(/*IN*/ CliGlobals *cliGlobals,
   cliGlobals->setBreakEnabled(enabled);
   return 0;
 }
-Lng32 SQLCLI_SPBreakRecvd(/*IN*/ CliGlobals *cliGlobals,
+int SQLCLI_SPBreakRecvd(/*IN*/ CliGlobals *cliGlobals,
                           /*OUT*/ UInt32 *breakRecvd) {
   if (!cliGlobals) {
     return -CLI_NO_CURRENT_CONTEXT;
@@ -858,11 +858,11 @@ Lng32 SQLCLI_SPBreakRecvd(/*IN*/ CliGlobals *cliGlobals,
   return 0;
 }
 
-Lng32 SQLCLI_CreateContext(/*IN*/ CliGlobals *cliGlobals,
+int SQLCLI_CreateContext(/*IN*/ CliGlobals *cliGlobals,
                            /*OUT*/ SQLCTX_HANDLE *contextHandle,
                            /*IN*/ char *sqlAuthId,
-                           /*IN*/ Lng32 mustBeZero /* for future use */) {
-  Lng32 retcode;
+                           /*IN*/ int mustBeZero /* for future use */) {
+  int retcode;
 
   ContextCli &currContext = *(cliGlobals->currContext());
   ComDiagsArea &diags = currContext.diags();
@@ -889,7 +889,7 @@ Lng32 SQLCLI_CreateContext(/*IN*/ CliGlobals *cliGlobals,
   return SUCCESS;
 }
 
-Lng32 SQLCLI_CurrentContext(/*IN*/ CliGlobals *cliGlobals,
+int SQLCLI_CurrentContext(/*IN*/ CliGlobals *cliGlobals,
                             /*OUT*/ SQLCTX_HANDLE *contextHandle) {
   if (!cliGlobals) {
     return -CLI_NO_CURRENT_CONTEXT;
@@ -902,7 +902,7 @@ Lng32 SQLCLI_CurrentContext(/*IN*/ CliGlobals *cliGlobals,
   return SUCCESS;
 }
 
-Lng32 SQLCLI_DeleteContext(/*IN*/ CliGlobals *cliGlobals,
+int SQLCLI_DeleteContext(/*IN*/ CliGlobals *cliGlobals,
                            /*IN*/ SQLCTX_HANDLE context_handle) {
   if (!cliGlobals) {
     return -CLI_NO_CURRENT_CONTEXT;
@@ -911,15 +911,15 @@ Lng32 SQLCLI_DeleteContext(/*IN*/ CliGlobals *cliGlobals,
   return SQLCLI_DropContext(cliGlobals, context_handle);
 }
 
-Lng32 SQLCLI_DropModule(/*IN*/ CliGlobals *cliGlobals,
+int SQLCLI_DropModule(/*IN*/ CliGlobals *cliGlobals,
                         /*IN*/ const SQLMODULE_ID *module_id) {
   return SUCCESS;
 }
 
-Lng32 SQLCLI_ResetContext(/*IN*/ CliGlobals *cliGlobals,
+int SQLCLI_ResetContext(/*IN*/ CliGlobals *cliGlobals,
                           /*IN*/ SQLCTX_HANDLE context_handle,
                           /*IN*/ void *contextMsg) {
-  Lng32 retcode;
+  int retcode;
 
   ContextCli *context = cliGlobals->getContext(context_handle);
   ContextCli *defaultContext = cliGlobals->getDefaultContext();
@@ -940,8 +940,8 @@ Lng32 SQLCLI_ResetContext(/*IN*/ CliGlobals *cliGlobals,
   return SQLCLI_ReturnCode(context, retcode);
 }
 
-Lng32 SQLCLI_GetUdrErrorFlags_Internal(/*IN*/ CliGlobals *cliGlobals,
-                                       /*OUT*/ Lng32 *udrErrorFlags) {
+int SQLCLI_GetUdrErrorFlags_Internal(/*IN*/ CliGlobals *cliGlobals,
+                                       /*OUT*/ int *udrErrorFlags) {
   if (!cliGlobals) {
     return -CLI_NO_CURRENT_CONTEXT;
   }
@@ -971,9 +971,9 @@ Lng32 SQLCLI_GetUdrErrorFlags_Internal(/*IN*/ CliGlobals *cliGlobals,
   return SUCCESS;
 }
 
-Lng32 SQLCLI_SetUdrAttributes_Internal(/*IN*/ CliGlobals *cliGlobals,
-                                       /*IN*/ Lng32 sqlAccessMode,
-                                       /*IN*/ Lng32 mustBeZero /* for future use */) {
+int SQLCLI_SetUdrAttributes_Internal(/*IN*/ CliGlobals *cliGlobals,
+                                       /*IN*/ int sqlAccessMode,
+                                       /*IN*/ int mustBeZero /* for future use */) {
   if (!cliGlobals) {
     return -CLI_NO_CURRENT_CONTEXT;
   }
@@ -998,7 +998,7 @@ Lng32 SQLCLI_SetUdrAttributes_Internal(/*IN*/ CliGlobals *cliGlobals,
   return SUCCESS;
 }
 
-Lng32 SQLCLI_ResetUdrErrorFlags_Internal(/*IN*/ CliGlobals *cliGlobals) {
+int SQLCLI_ResetUdrErrorFlags_Internal(/*IN*/ CliGlobals *cliGlobals) {
   if (!cliGlobals) {
     return -CLI_NO_CURRENT_CONTEXT;
   }
@@ -1009,7 +1009,7 @@ Lng32 SQLCLI_ResetUdrErrorFlags_Internal(/*IN*/ CliGlobals *cliGlobals) {
 }
 // A CLI wrapper around a ContextCli method to dynamically set JVM
 // startup options in the UDR server
-Lng32 SQLCLI_SetUdrRuntimeOptions_Internal(/*IN*/ CliGlobals *cliGlobals,
+int SQLCLI_SetUdrRuntimeOptions_Internal(/*IN*/ CliGlobals *cliGlobals,
                                            /*IN*/ const char *options,
                                            /*IN*/ ULng32 optionsLen,
                                            /*IN*/ const char *delimiters,
@@ -1019,14 +1019,14 @@ Lng32 SQLCLI_SetUdrRuntimeOptions_Internal(/*IN*/ CliGlobals *cliGlobals,
   }
 
   ContextCli &currContext = *(cliGlobals->currContext());
-  Lng32 retcode = currContext.setUdrRuntimeOptions(options, optionsLen, delimiters, delimsLen);
+  int retcode = currContext.setUdrRuntimeOptions(options, optionsLen, delimiters, delimsLen);
 
   return SQLCLI_ReturnCode(&currContext, retcode);
 }
 
-Lng32 SQLCLI_DeallocDesc(/*IN*/ CliGlobals *cliGlobals,
+int SQLCLI_DeallocDesc(/*IN*/ CliGlobals *cliGlobals,
                          /*IN*/ SQLDESC_ID *desc_id) {
-  Lng32 retcode;
+  int retcode;
   if (!cliGlobals) {
     return -CLI_NO_CURRENT_CONTEXT;
   }
@@ -1039,9 +1039,9 @@ Lng32 SQLCLI_DeallocDesc(/*IN*/ CliGlobals *cliGlobals,
   return SQLCLI_ReturnCode(&currContext, retcode);
 }
 
-Lng32 SQLCLI_DeallocStmt(/*IN*/ CliGlobals *cliGlobals,
+int SQLCLI_DeallocStmt(/*IN*/ CliGlobals *cliGlobals,
                          /*IN*/ SQLSTMT_ID *statement_id) {
-  Lng32 retcode;
+  int retcode;
 
   if (!cliGlobals) {
     return (-CLI_NO_CURRENT_CONTEXT);
@@ -1062,11 +1062,11 @@ Lng32 SQLCLI_DeallocStmt(/*IN*/ CliGlobals *cliGlobals,
 
   return SQLCLI_ReturnCode(&currContext, retcode);
 }
-Lng32 SQLCLI_DefineDesc(/*IN*/ CliGlobals *cliGlobals,
+int SQLCLI_DefineDesc(/*IN*/ CliGlobals *cliGlobals,
                         /*IN*/ SQLSTMT_ID *statement_id,
-                        /* (SQLWHAT_DESC) *IN*/ Lng32 what_descriptor,
+                        /* (SQLWHAT_DESC) *IN*/ int what_descriptor,
                         /*IN*/ SQLDESC_ID *desc_id) {
-  Lng32 retcode;
+  int retcode;
 
   // create initial context, if first call, and add module, if any.
   retcode = CliPrologue(cliGlobals, statement_id->module);
@@ -1095,7 +1095,7 @@ Lng32 SQLCLI_DefineDesc(/*IN*/ CliGlobals *cliGlobals,
 
   return SUCCESS;
 }
-Lng32 SQLCLI_DescribeStmt(/*IN*/ CliGlobals *cliGlobals,
+int SQLCLI_DescribeStmt(/*IN*/ CliGlobals *cliGlobals,
                           /*IN*/ SQLSTMT_ID *statement_id,
                           /*IN  OPTIONAL*/ SQLDESC_ID *input_descriptor,
                           /*IN  OPTIONAL*/ SQLDESC_ID *output_descriptor) {
@@ -1103,7 +1103,7 @@ Lng32 SQLCLI_DescribeStmt(/*IN*/ CliGlobals *cliGlobals,
     return -CLI_NO_CURRENT_CONTEXT;
   }
 
-  Lng32 retcode;
+  int retcode;
 
   ContextCli &currContext = *(cliGlobals->currContext());
   ComDiagsArea &diags = currContext.diags();
@@ -1163,12 +1163,12 @@ Lng32 SQLCLI_DescribeStmt(/*IN*/ CliGlobals *cliGlobals,
 
   return CliEpilogue(cliGlobals, statement_id);
 }
-Lng32 SQLCLI_DisassocFileNumber(/*IN*/ CliGlobals *cliGlobals,
+int SQLCLI_DisassocFileNumber(/*IN*/ CliGlobals *cliGlobals,
                                 /*IN*/ SQLSTMT_ID *statement_id) {
   return 0;
 }
 
-Lng32 SQLCLI_DropContext(/*IN*/ CliGlobals *cliGlobals,
+int SQLCLI_DropContext(/*IN*/ CliGlobals *cliGlobals,
                          /*IN*/ SQLCTX_HANDLE context_handle) {
   ContextCli *defaultContext = cliGlobals->getDefaultContext();
   ComDiagsArea &diags = defaultContext->diags();
@@ -1184,7 +1184,7 @@ Lng32 SQLCLI_DropContext(/*IN*/ CliGlobals *cliGlobals,
     diags << DgSqlCode(-CLI_CONTEXT_NOT_FOUND);
     return SQLCLI_ReturnCode(defaultContext, -CLI_CONTEXT_NOT_FOUND);
   }
-  Lng32 retcode;
+  int retcode;
 
   try {
     retcode = cliGlobals->dropContext(droppedContext);
@@ -1198,9 +1198,9 @@ Lng32 SQLCLI_DropContext(/*IN*/ CliGlobals *cliGlobals,
   return SQLCLI_ReturnCode(defaultContext, retcode);
 }
 
-Lng32 SQLCLI_SetRowsetDescPointers(CliGlobals *cliGlobals, SQLDESC_ID *desc_id, Lng32 rowset_size,
-                                   Lng32 *rowset_status_ptr, Lng32 starting_entry, Lng32 num_quadruple_fields,
-                                   Lng32 num_ap, va_list ap, SQLCLI_QUAD_FIELDS quad_fields[]) {
+int SQLCLI_SetRowsetDescPointers(CliGlobals *cliGlobals, SQLDESC_ID *desc_id, int rowset_size,
+                                   int *rowset_status_ptr, int starting_entry, int num_quadruple_fields,
+                                   int num_ap, va_list ap, SQLCLI_QUAD_FIELDS quad_fields[]) {
   if (!desc_id) {
     return -CLI_INTERNAL_ERROR;
   }
@@ -1219,7 +1219,7 @@ Lng32 SQLCLI_SetRowsetDescPointers(CliGlobals *cliGlobals, SQLDESC_ID *desc_id, 
   desc->setDescItem(0, SQLDESC_ROWSET_STATUS_PTR, (Long)rowset_status_ptr, 0);
 
   if (num_quadruple_fields > 0) {
-    for (Lng32 entry = starting_entry, i = 0; entry < starting_entry + num_quadruple_fields; entry++, i++) {
+    for (int entry = starting_entry, i = 0; entry < starting_entry + num_quadruple_fields; entry++, i++) {
       if (desc->getUsedEntryCount() < entry) {
         diags << DgSqlCode(-CLI_INVALID_DESC_ENTRY);
         return SQLCLI_ReturnCode(&currContext, -CLI_INVALID_DESC_ENTRY);
@@ -1251,8 +1251,8 @@ Lng32 SQLCLI_SetRowsetDescPointers(CliGlobals *cliGlobals, SQLDESC_ID *desc_id, 
 
   return SUCCESS;
 }
-Lng32 SQLCLI_GetRowsetNumprocessed(CliGlobals *cliGlobals, SQLDESC_ID *desc_id, Lng32 &rowset_nprocessed) {
-  Lng32 retcode = SUCCESS;
+int SQLCLI_GetRowsetNumprocessed(CliGlobals *cliGlobals, SQLDESC_ID *desc_id, int &rowset_nprocessed) {
+  int retcode = SUCCESS;
 
   // create initial context, if first call, and add module, if any.
   retcode = CliPrologue(cliGlobals, desc_id->module);
@@ -1269,20 +1269,20 @@ Lng32 SQLCLI_GetRowsetNumprocessed(CliGlobals *cliGlobals, SQLDESC_ID *desc_id, 
     return SQLCLI_ReturnCode(&currContext, -CLI_DESC_NOT_EXISTS);
   }
 
-  retcode = desc->getDescItem(1, SQLDESC_ROWSET_NUM_PROCESSED, (Lng32 *)&rowset_nprocessed, NULL, 0, NULL, 0);
+  retcode = desc->getDescItem(1, SQLDESC_ROWSET_NUM_PROCESSED, (int *)&rowset_nprocessed, NULL, 0, NULL, 0);
 
   retcode = CliEpilogue(cliGlobals, NULL);
   return SQLCLI_ReturnCode(&currContext, retcode);
 }
-static NABoolean SQLCLI_GetRetryInfo(CliGlobals *cliGlobals, Lng32 retcode, AQRStatementInfo *aqrSI, short afterPrepare,
-                                     short afterExec, short afterFetch, short afterCEFC, Lng32 &retries, Lng32 &delay,
-                                     Lng32 &type, Lng32 &numCQDs, char *&cqdStr, Lng32 &cmpInfo, ComCondition *&cc) {
+static NABoolean SQLCLI_GetRetryInfo(CliGlobals *cliGlobals, int retcode, AQRStatementInfo *aqrSI, short afterPrepare,
+                                     short afterExec, short afterFetch, short afterCEFC, int &retries, int &delay,
+                                     int &type, int &numCQDs, char *&cqdStr, int &cmpInfo, ComCondition *&cc) {
   retries = -1;
   delay = -1;
   type = -1;
   cmpInfo = 0;
   cc = NULL;
-  Lng32 intAQR;
+  int intAQR;
   ContextCli *context = cliGlobals->currContext();
   AQRInfo *aqr = context->aqrInfo();
   NABoolean doAqr = FALSE;  // auto query retry
@@ -1310,9 +1310,9 @@ static NABoolean SQLCLI_GetRetryInfo(CliGlobals *cliGlobals, Lng32 retcode, AQRS
   return doAqr;
 }
 
-static Lng32 SQLCLI_RetryDeallocStmt(
+static int SQLCLI_RetryDeallocStmt(
     /*IN*/ CliGlobals *cliGlobals, AQRStatementInfo *aqrSI) {
-  Lng32 retcode = 0;
+  int retcode = 0;
 
   ContextCli *currContext = cliGlobals->currContext();
 
@@ -1371,11 +1371,11 @@ static Lng32 SQLCLI_RetryDeallocStmt(
 // Users need to explicitly reprepare this statement.
 // Add an error indicating this condition and return the original
 // error back to user.
-static Lng32 SQLCLI_RetryValidateDescs(/*IN*/ CliGlobals *cliGlobals,
+static int SQLCLI_RetryValidateDescs(/*IN*/ CliGlobals *cliGlobals,
                                        /*IN*/ SQLSTMT_ID *statement_id,
                                        /*IN  OPTIONAL*/ SQLDESC_ID *curr_input_desc_id,
                                        /*IN  OPTIONAL*/ SQLDESC_ID *curr_output_desc_id) {
-  Lng32 retcode = 0;
+  int retcode = 0;
 
   ContextCli &currContext = *(cliGlobals->currContext());
   ComDiagsArea &diags = currContext.diags();
@@ -1462,10 +1462,10 @@ retError:
   return retcode;
 }
 
-static Lng32 SQLCLI_RetryQuery(
+static int SQLCLI_RetryQuery(
     /*IN*/ CliGlobals *cliGlobals, AQRStatementInfo *aqrSI, ULng32 flags, short afterPrepare, short afterExec,
     short afterFetch, short afterCEFC, StmtStats *savedStmtStats) {
-  Lng32 retcode = 0;
+  int retcode = 0;
 
   ContextCli *currContext = cliGlobals->currContext();
   ComDiagsArea &diags = currContext->diags();
@@ -1492,7 +1492,7 @@ static Lng32 SQLCLI_RetryQuery(
   if (aqrSI->getRetryStatementId()->name_mode == stmt_name) aqrSI->getRetryStatementId()->handle = NULL;
   // pass in the original query id when retrying this query.
   char *uniqueQueryId = aqrSI->getAQRStatementAttributes()->uniqueStmtId_;
-  Lng32 uniqueQueryIdLen = aqrSI->getAQRStatementAttributes()->uniqueStmtIdLen_;
+  int uniqueQueryIdLen = aqrSI->getAQRStatementAttributes()->uniqueStmtIdLen_;
   // prepare the statement that has been already allocated earlier
   retcode = SQLCLI_Prepare2(cliGlobals, aqrSI->getRetryStatementId(), aqrSI->getRetrySqlSource(), NULL, 0, NULL,
                             &queryCostInfo, &queryCompStatsInfo, uniqueQueryId, &uniqueQueryIdLen, flags);
@@ -1567,7 +1567,7 @@ bool preventAqrWnr(ContextCli *currContext, Statement *stmt, bool &addWarning873
   // would not flow back to the master due to broken data
   // channels.
   const ExStatisticsArea *constStatsArea = NULL;
-  Lng32 cliRc = SQL_EXEC_GetStatisticsArea_Internal(SQLCLI_STATS_REQ_QID, stmt->getUniqueStmtId(),
+  int cliRc = SQL_EXEC_GetStatisticsArea_Internal(SQLCLI_STATS_REQ_QID, stmt->getUniqueStmtId(),
                                                     stmt->getUniqueStmtIdLen(), -1, SQLCLI_SAME_STATS, constStatsArea);
 
   ExStatisticsArea *statsArea = (ExStatisticsArea *)constStatsArea;
@@ -1599,10 +1599,10 @@ bool preventAqrWnr(ContextCli *currContext, Statement *stmt, bool &addWarning873
 
   return preventAqr;
 }
-Lng32 SQLCLI_ProcessRetryQuery(
-    /*IN*/ CliGlobals *cliGlobals, SQLSTMT_ID *statement_id, Lng32 sqlcode, short afterPrepare, short afterExec,
+int SQLCLI_ProcessRetryQuery(
+    /*IN*/ CliGlobals *cliGlobals, SQLSTMT_ID *statement_id, int sqlcode, short afterPrepare, short afterExec,
     short afterFetch, short afterCEFC) {
-  Lng32 retcode = sqlcode;
+  int retcode = sqlcode;
   if (NOT isERROR(retcode)) return retcode;
 
   ContextCli *currContext = cliGlobals->currContext();
@@ -1727,17 +1727,17 @@ Lng32 SQLCLI_ProcessRetryQuery(
     return retcode;
 
   NABoolean done = FALSE;
-  Lng32 numRetries = 0;
-  Lng32 retries = 0;
-  Lng32 delay = 0;
-  Lng32 type = 0;
-  Lng32 numCQDs = 0;
+  int numRetries = 0;
+  int retries = 0;
+  int delay = 0;
+  int type = 0;
+  int numCQDs = 0;
   char *cqdStr = NULL;
-  Lng32 cmpInfo = 0;
+  int cmpInfo = 0;
   ComCondition *cc = NULL;
   ComCondition *errCond = NULL;
-  Lng32 aqrDelay = 0;
-  Lng32 aqrCmpInfo = 0;
+  int aqrDelay = 0;
+  int aqrCmpInfo = 0;
 
   while (NOT done) {
     if (NOT SQLCLI_GetRetryInfo(cliGlobals, retcode, aqrSI, afterPrepare, afterExec, afterFetch, afterCEFC, retries,
@@ -1867,10 +1867,10 @@ Lng32 SQLCLI_ProcessRetryQuery(
             char *sqlmxRegr = NULL;
             sqlmxRegr = getenv("SQLMX_REGRESS");
             if ((currContext->getSessionDefaults()->getAqrEmsEvent()) && (sqlmxRegr == NULL)) {
-              Lng32 sqlcode = 0;
-              Lng32 nskcode = 0;
+              int sqlcode = 0;
+              int nskcode = 0;
               char *stringParam1 = NULL;
-              Lng32 intParam1 = ComDiags_UnInitialized_Int;
+              int intParam1 = ComDiags_UnInitialized_Int;
               char emsText[300];
               if (errCond) {
                 sqlcode = errCond->getSQLCODE();
@@ -1908,14 +1908,14 @@ Lng32 SQLCLI_ProcessRetryQuery(
   if (numRetries > 0) {
     if (numCQDs > 0) {
       // reset the desired cqds after recompiling the query.
-      Lng32 rc = aqr->resetCQDs(numCQDs, cqdStr, currContext);
+      int rc = aqr->resetCQDs(numCQDs, cqdStr, currContext);
 
       if (rc < 0) return rc;
     }
 
     if (aqrCmpInfo == 1) {
       // reset the control session stmt.
-      Lng32 rc = aqr->resetCompilerInfo(stmt->getUniqueStmtId(), errCond, currContext);
+      int rc = aqr->resetCompilerInfo(stmt->getUniqueStmtId(), errCond, currContext);
       if (rc < 0) return rc;
     }
 
@@ -1959,8 +1959,8 @@ Lng32 SQLCLI_ProcessRetryQuery(
   if ((isERROR(retcode)) && (numRetries > 0)) {
     // close this stmt. Ignore errors, the stmt may already be closed.
     // Rewind diags area to get rid of any errors from SQLCLI_CloseStmt.
-    Lng32 oldDiagsAreaMark = diags.mark();
-    Lng32 rc = SQLCLI_CloseStmt(cliGlobals, aqrSI->getRetryStatementId());
+    int oldDiagsAreaMark = diags.mark();
+    int rc = SQLCLI_CloseStmt(cliGlobals, aqrSI->getRetryStatementId());
     diags.rewind(oldDiagsAreaMark, TRUE);
   }
 
@@ -2007,19 +2007,19 @@ Lng32 SQLCLI_ProcessRetryQuery(
 // It performs the tasks (see enum CliTasks) that are asked for.
 //
 ////////////////////////////////////////////////////////////////////////
-Lng32 SQLCLI_PerformTasks(
+int SQLCLI_PerformTasks(
     /*IN*/ CliGlobals *cliGlobals,
     /*IN*/ ULng32 tasks,
     /*IN*/ SQLSTMT_ID *statement_id,
     /*IN  OPTIONAL*/ SQLDESC_ID *input_descriptor,
     /*IN  OPTIONAL*/ SQLDESC_ID *output_descriptor,
-    /*IN*/ Lng32 num_input_ptr_pairs,
-    /*IN*/ Lng32 num_output_ptr_pairs,
-    /*IN*/ Lng32 num_ap,
+    /*IN*/ int num_input_ptr_pairs,
+    /*IN*/ int num_output_ptr_pairs,
+    /*IN*/ int num_ap,
     /*IN*/ va_list ap,
     /*IN*/ SQLCLI_PTR_PAIRS input_ptr_pairs[],
     /*IN*/ SQLCLI_PTR_PAIRS output_ptr_pairs[]) {
-  Lng32 retcode = SUCCESS;
+  int retcode = SUCCESS;
 
   if (!statement_id) return -CLI_STMT_NOT_EXISTS;
 
@@ -2177,7 +2177,7 @@ Lng32 SQLCLI_PerformTasks(
       cliGlobals->setPriorityChanged(FALSE);
     }
 
-    Lng32 retcode;
+    int retcode;
     retcode = CheckNOSQLAccessMode(*cliGlobals);
     if (isERROR(retcode)) {
       return retcode;
@@ -2196,7 +2196,7 @@ Lng32 SQLCLI_PerformTasks(
     // privilege checks
     ex_root_tdb *rootTdb = stmt->getRootTdb();
     if (rootTdb) {
-      Int64 sentryAuthExpirationTimeStamp = rootTdb->sentryAuthExpirationTimeStamp();
+      long sentryAuthExpirationTimeStamp = rootTdb->sentryAuthExpirationTimeStamp();
       if ((sentryAuthExpirationTimeStamp) && (sentryAuthExpirationTimeStamp < NA_JulianTimestamp())) {
         retcode = -EXE_APACHE_SENTRY_PRIV_EXPIRED;
         diags << DgSqlCode(retcode);
@@ -2321,7 +2321,7 @@ Lng32 SQLCLI_PerformTasks(
     if (isERROR(retcode)) {
       return CliEpilogue(cliGlobals, statement_id, retcode);
     } else if (retcode == WARNING) {
-      Lng32 mainSQLcode = diags.mainSQLCODE();
+      int mainSQLcode = diags.mainSQLCODE();
     }
 
     // if select into query, then make sure that atmost one
@@ -2367,7 +2367,7 @@ Lng32 SQLCLI_PerformTasks(
   // Close the statement.
   if (tasks & CLI_PT_CLOSE) {
     ex_root_tdb *rootTdb = stmt->getRootTdb();
-    Lng32 tretcode = stmt->close(diags);
+    int tretcode = stmt->close(diags);
 
     if (isERROR(tretcode)) {
       return CliEpilogue(cliGlobals, statement_id, tretcode);
@@ -2395,7 +2395,7 @@ Lng32 SQLCLI_PerformTasks(
     return SQLCLI_ReturnCode(&currContext, retcode);
 }
 
-Lng32 SQLCLI_CloseStmt(/*IN*/ CliGlobals *cliGlobals,
+int SQLCLI_CloseStmt(/*IN*/ CliGlobals *cliGlobals,
                        /*IN*/ SQLSTMT_ID *statement_id) {
   ULng32 tasks = CLI_PT_PROLOGUE | CLI_PT_CLOSE | CLI_PT_EPILOGUE |
                  // stmt lookup opt also done for version_2 queries
@@ -2408,11 +2408,11 @@ Lng32 SQLCLI_CloseStmt(/*IN*/ CliGlobals *cliGlobals,
   return SQLCLI_PerformTasks(cliGlobals, tasks, statement_id, NULL, NULL, 0, 0, 0, VA_LIST_NULL, 0, 0);
 }
 
-Lng32 SQLCLI_Exec(/*IN*/ CliGlobals *cliGlobals,
+int SQLCLI_Exec(/*IN*/ CliGlobals *cliGlobals,
                   /*IN*/ SQLSTMT_ID *statement_id,
                   /*IN  OPTIONAL*/ SQLDESC_ID *input_descriptor,
-                  /*IN*/ Lng32 num_ptr_pairs,
-                  /*IN*/ Lng32 num_ap,
+                  /*IN*/ int num_ptr_pairs,
+                  /*IN*/ int num_ap,
                   /*IN*/ va_list ap,
                   /*IN*/ SQLCLI_PTR_PAIRS ptr_pairs[]) {
   ULng32 tasks = CLI_PT_PROLOGUE | CLI_PT_GET_INPUT_DESC | CLI_PT_EXEC | CLI_PT_SET_AQR_INFO | CLI_PT_EPILOGUE |
@@ -2426,11 +2426,11 @@ Lng32 SQLCLI_Exec(/*IN*/ CliGlobals *cliGlobals,
                              ptr_pairs, 0);
 }
 
-Lng32 SQLCLI_ExecClose(/*IN*/ CliGlobals *cliGlobals,
+int SQLCLI_ExecClose(/*IN*/ CliGlobals *cliGlobals,
                        /*IN*/ SQLSTMT_ID *statement_id,
                        /*IN  OPTIONAL*/ SQLDESC_ID *input_descriptor,
-                       /*IN*/ Lng32 num_ptr_pairs,
-                       /*IN*/ Lng32 num_ap,
+                       /*IN*/ int num_ptr_pairs,
+                       /*IN*/ int num_ap,
                        /*IN*/ va_list ap,
                        /*IN*/ SQLCLI_PTR_PAIRS ptr_pairs[]) {
   ULng32 tasks = CLI_PT_PROLOGUE | CLI_PT_GET_INPUT_DESC | CLI_PT_EXEC | CLI_PT_CLOSE_ON_ERROR | CLI_PT_EPILOGUE;
@@ -2443,15 +2443,15 @@ Lng32 SQLCLI_ExecClose(/*IN*/ CliGlobals *cliGlobals,
 // sql_source->identifier points to the sql_source string and
 // identifier_len is the length of that string.
 /////////////////////////////////////////////////////////////////
-Lng32 SQLCLI_ExecDirect(/*IN*/ CliGlobals *cliGlobals,
+int SQLCLI_ExecDirect(/*IN*/ CliGlobals *cliGlobals,
                         /*IN*/ SQLSTMT_ID *statement_id,
                         /*IN*/ SQLDESC_ID *sql_source,
                         /*IN  OPTIONAL*/ SQLDESC_ID *input_descriptor,
-                        /*IN*/ Lng32 num_ptr_pairs,
-                        /*IN*/ Lng32 num_ap,
+                        /*IN*/ int num_ptr_pairs,
+                        /*IN*/ int num_ap,
                         /*IN*/ va_list ap,
                         /*IN*/ SQLCLI_PTR_PAIRS ptr_pairs[]) {
-  Lng32 retcode;
+  int retcode;
 
   // create initial context, if first call, and add module, if any.
   retcode = CliPrologue(cliGlobals, statement_id->module);
@@ -2511,16 +2511,16 @@ Lng32 SQLCLI_ExecDirect(/*IN*/ CliGlobals *cliGlobals,
 // sql_source->identifier points to the sql_source string and
 // identifier_len is the length of that string.
 /////////////////////////////////////////////////////////////////
-Lng32 SQLCLI_ExecDirect2(/*IN*/ CliGlobals *cliGlobals,
+int SQLCLI_ExecDirect2(/*IN*/ CliGlobals *cliGlobals,
                          /*IN*/ SQLSTMT_ID *statement_id,
                          /*IN*/ SQLDESC_ID *sql_source,
                          /*IN*/ Int32 prepFlags,
                          /*IN  OPTIONAL*/ SQLDESC_ID *input_descriptor,
-                         /*IN*/ Lng32 num_ptr_pairs,
-                         /*IN*/ Lng32 num_ap,
+                         /*IN*/ int num_ptr_pairs,
+                         /*IN*/ int num_ap,
                          /*IN*/ va_list ap,
                          /*IN*/ SQLCLI_PTR_PAIRS ptr_pairs[]) {
-  Lng32 retcode;
+  int retcode;
 
   // create initial context, if first call, and add module, if any.
   retcode = CliPrologue(cliGlobals, statement_id->module);
@@ -2577,18 +2577,18 @@ Lng32 SQLCLI_ExecDirect2(/*IN*/ CliGlobals *cliGlobals,
                              ptr_pairs, 0);
 }
 
-Lng32 SQLCLI_ExecDirectDealloc(/*IN*/ CliGlobals *cliGlobals,
+int SQLCLI_ExecDirectDealloc(/*IN*/ CliGlobals *cliGlobals,
                                /*IN*/ SQLSTMT_ID *statement_id,
                                /*IN*/ SQLDESC_ID *sql_source,
                                /*IN  OPTIONAL*/ SQLDESC_ID *input_descriptor,
-                               /*IN*/ Lng32 num_ptr_pairs,
-                               /*IN*/ Lng32 num_ap,
+                               /*IN*/ int num_ptr_pairs,
+                               /*IN*/ int num_ap,
                                /*IN*/ va_list ap,
                                /*IN*/ SQLCLI_PTR_PAIRS ptr_pairs[]) {
-  Lng32 retCode1 =
+  int retCode1 =
       SQLCLI_ExecDirect(cliGlobals, statement_id, sql_source, input_descriptor, num_ptr_pairs, num_ap, ap, ptr_pairs);
 
-  Lng32 retCode2 = SQLCLI_DeallocStmt(cliGlobals, statement_id);
+  int retCode2 = SQLCLI_DeallocStmt(cliGlobals, statement_id);
 
   if (isERROR(retCode1)) return (retCode1);
 
@@ -2599,14 +2599,14 @@ Lng32 SQLCLI_ExecDirectDealloc(/*IN*/ CliGlobals *cliGlobals,
   return retCode2;
 }
 
-Lng32 SQLCLI_ClearExecFetchClose(/*IN*/ CliGlobals *cliGlobals,
+int SQLCLI_ClearExecFetchClose(/*IN*/ CliGlobals *cliGlobals,
                                  /*IN*/ SQLSTMT_ID *statement_id,
                                  /*IN OPTIONAL*/ SQLDESC_ID *input_descriptor,
                                  /*IN OPTIONAL*/ SQLDESC_ID *output_descriptor,
-                                 /*IN*/ Lng32 num_input_ptr_pairs,
-                                 /*IN*/ Lng32 num_output_ptr_pairs,
-                                 /*IN*/ Lng32 num_total_ptr_pairs,
-                                 /*IN*/ Lng32 num_ap,
+                                 /*IN*/ int num_input_ptr_pairs,
+                                 /*IN*/ int num_output_ptr_pairs,
+                                 /*IN*/ int num_total_ptr_pairs,
+                                 /*IN*/ int num_ap,
                                  /*IN*/ va_list ap,
                                  /*IN*/ SQLCLI_PTR_PAIRS input_ptr_pairs[],
                                  /*IN*/ SQLCLI_PTR_PAIRS output_ptr_pairs[]) {
@@ -2617,11 +2617,11 @@ Lng32 SQLCLI_ClearExecFetchClose(/*IN*/ CliGlobals *cliGlobals,
                              num_output_ptr_pairs, num_ap, ap, input_ptr_pairs, output_ptr_pairs);
 }
 
-Lng32 SQLCLI_ExecFetch(/*IN*/ CliGlobals *cliGlobals,
+int SQLCLI_ExecFetch(/*IN*/ CliGlobals *cliGlobals,
                        /*IN*/ SQLSTMT_ID *statement_id,
                        /*IN  OPTIONAL*/ SQLDESC_ID *input_descriptor,
-                       /*IN*/ Lng32 num_ptr_pairs,
-                       /*IN*/ Lng32 num_ap,
+                       /*IN*/ int num_ptr_pairs,
+                       /*IN*/ int num_ap,
                        /*IN*/ va_list ap,
                        /*IN*/ SQLCLI_PTR_PAIRS ptr_pairs[]) {
   ULng32 tasks = CLI_PT_PROLOGUE | CLI_PT_GET_INPUT_DESC | CLI_PT_SET_AQR_INFO | CLI_PT_EXEC | CLI_PT_FETCH |
@@ -2636,11 +2636,11 @@ Lng32 SQLCLI_ExecFetch(/*IN*/ CliGlobals *cliGlobals,
                              ptr_pairs, 0);
 }
 
-Lng32 SQLCLI_Fetch(/*IN*/ CliGlobals *cliGlobals,
+int SQLCLI_Fetch(/*IN*/ CliGlobals *cliGlobals,
                    /*IN*/ SQLSTMT_ID *statement_id,
                    /*IN  OPTIONAL*/ SQLDESC_ID *output_descriptor,
-                   /*IN*/ Lng32 num_ptr_pairs,
-                   /*IN*/ Lng32 num_ap,
+                   /*IN*/ int num_ptr_pairs,
+                   /*IN*/ int num_ap,
                    /*IN*/ va_list ap,
                    /*IN*/ SQLCLI_PTR_PAIRS ptr_pairs[]) {
   ULng32 tasks = CLI_PT_PROLOGUE | CLI_PT_GET_OUTPUT_DESC | CLI_PT_FETCH | CLI_PT_SET_AQR_INFO | CLI_PT_EPILOGUE |
@@ -2654,11 +2654,11 @@ Lng32 SQLCLI_Fetch(/*IN*/ CliGlobals *cliGlobals,
                              ptr_pairs);
 }
 
-Lng32 SQLCLI_FetchClose(/*IN*/ CliGlobals *cliGlobals,
+int SQLCLI_FetchClose(/*IN*/ CliGlobals *cliGlobals,
                         /*IN*/ SQLSTMT_ID *statement_id,
                         /*IN  OPTIONAL*/ SQLDESC_ID *output_descriptor,
-                        /*IN*/ Lng32 num_ptr_pairs,
-                        /*IN*/ Lng32 num_ap,
+                        /*IN*/ int num_ptr_pairs,
+                        /*IN*/ int num_ap,
                         /*IN*/ va_list ap,
                         /*IN*/ SQLCLI_PTR_PAIRS ptr_pairs[]) {
   ULng32 tasks = CLI_PT_GET_OUTPUT_DESC | CLI_PT_FETCH | CLI_PT_CLOSE | CLI_PT_EPILOGUE;
@@ -2666,19 +2666,19 @@ Lng32 SQLCLI_FetchClose(/*IN*/ CliGlobals *cliGlobals,
                              ptr_pairs);
 }
 
-Lng32 SQLCLI_FetchMultiple(/*IN*/ CliGlobals *cliGlobals,
+int SQLCLI_FetchMultiple(/*IN*/ CliGlobals *cliGlobals,
                            /*IN*/ SQLSTMT_ID *statement_id,
                            /*IN  OPTIONAL*/ SQLDESC_ID *output_descriptor,
-                           /*IN*/ Lng32 rowset_size,
-                           /*IN*/ Lng32 *rowset_status_ptr,
-                           /*OUT*/ Lng32 *rowset_nfetched,
-                           /*IN*/ Lng32 num_quadruple_fields,
-                           /*IN*/ Lng32 num_ap,
+                           /*IN*/ int rowset_size,
+                           /*IN*/ int *rowset_status_ptr,
+                           /*OUT*/ int *rowset_nfetched,
+                           /*IN*/ int num_quadruple_fields,
+                           /*IN*/ int num_ap,
                            /*IN*/ va_list ap,
                            /*IN*/ SQLCLI_QUAD_FIELDS quad_fields[]) {
   if (!cliGlobals) return -CLI_NO_CURRENT_CONTEXT;
 
-  Lng32 retcode = SQLCLI_SetRowsetDescPointers(cliGlobals, output_descriptor, rowset_size, rowset_status_ptr, 1,
+  int retcode = SQLCLI_SetRowsetDescPointers(cliGlobals, output_descriptor, rowset_size, rowset_status_ptr, 1,
                                                num_quadruple_fields, num_ap, ap, quad_fields);
 
   if (isERROR(retcode)) return SQLCLI_ReturnCode(cliGlobals->currContext(), retcode);
@@ -2687,7 +2687,7 @@ Lng32 SQLCLI_FetchMultiple(/*IN*/ CliGlobals *cliGlobals,
 
   if (isERROR(retcode)) return SQLCLI_ReturnCode(cliGlobals->currContext(), retcode);
 
-  Lng32 tempRowsetNfetched;
+  int tempRowsetNfetched;
   retcode = SQLCLI_GetRowsetNumprocessed(cliGlobals, output_descriptor, tempRowsetNfetched);
   *rowset_nfetched = tempRowsetNfetched;
 
@@ -2696,8 +2696,8 @@ Lng32 SQLCLI_FetchMultiple(/*IN*/ CliGlobals *cliGlobals,
 
 /////////////////////////////////////////////////////////////////////
 
-Lng32 SQLCLI_CancelOperation(/*IN*/ CliGlobals *cliGlobals,
-                             /*IN*/ Int64 transid) {
+int SQLCLI_CancelOperation(/*IN*/ CliGlobals *cliGlobals,
+                             /*IN*/ long transid) {
   if (!cliGlobals) return -CLI_NO_CURRENT_CONTEXT;
 
   ContextCli &currContext = *(cliGlobals->currContext());
@@ -2706,8 +2706,8 @@ Lng32 SQLCLI_CancelOperation(/*IN*/ CliGlobals *cliGlobals,
   currContext.semaphoreLock();
   HashQueue stmtList(TRUE, *(currContext.getStatementList()));
   Statement *stmt;
-  Lng32 retcode;
-  Lng32 error;
+  int retcode;
+  int error;
 
   retcode = 0;
   error = -CLI_CANCEL_REJECTED;
@@ -2729,7 +2729,7 @@ Lng32 SQLCLI_CancelOperation(/*IN*/ CliGlobals *cliGlobals,
   return retcode;
 }
 
-Lng32 SQLCLI_Cancel(/*IN*/ CliGlobals *cliGlobals,
+int SQLCLI_Cancel(/*IN*/ CliGlobals *cliGlobals,
                     /*IN OPTIONAL*/ SQLSTMT_ID *statement_id) {
   if (!cliGlobals) return -CLI_NO_CURRENT_CONTEXT;
 
@@ -2742,8 +2742,8 @@ Lng32 SQLCLI_Cancel(/*IN*/ CliGlobals *cliGlobals,
   HashQueue stmtList(TRUE, *(currContext.getStatementList()));
   // Copy to make getStatement thread-safe.
   Statement *stmt;
-  Lng32 retcode;
-  Lng32 error;
+  int retcode;
+  int error;
 
   if (statement_id) {
     stmt = currContext.getStatement(statement_id, &stmtList);
@@ -2777,7 +2777,7 @@ Lng32 SQLCLI_Cancel(/*IN*/ CliGlobals *cliGlobals,
 
   return retcode;
 }
-Lng32 SQLCLI_GetDescEntryCount(/*IN*/ CliGlobals *cliGlobals,
+int SQLCLI_GetDescEntryCount(/*IN*/ CliGlobals *cliGlobals,
 
                                /*IN*/ SQLDESC_ID *desc_id,
                                /*IN*/ SQLDESC_ID *output_descriptor) {
@@ -2807,14 +2807,14 @@ Lng32 SQLCLI_GetDescEntryCount(/*IN*/ CliGlobals *cliGlobals,
     return SQLCLI_ReturnCode(&currContext, -CLI_DESC_NOT_EXISTS);
   }
 
-  Lng32 retcode = OutputValueIntoNumericHostvar(output_desc, 1, desc->getUsedEntryCount());
+  int retcode = OutputValueIntoNumericHostvar(output_desc, 1, desc->getUsedEntryCount());
 
   if (isERROR(retcode)) return SQLCLI_ReturnCode(&currContext, retcode);
 
   return SUCCESS;
 }
 
-Lng32 SQLCLI_GetDescItems(/*IN*/ CliGlobals *cliGlobals,
+int SQLCLI_GetDescItems(/*IN*/ CliGlobals *cliGlobals,
 
                           /*IN*/ SQLDESC_ID *desc_id,
                           /*IN*/ SQLDESC_ITEM desc_items[],
@@ -2826,7 +2826,7 @@ Lng32 SQLCLI_GetDescItems(/*IN*/ CliGlobals *cliGlobals,
     return -CLI_INTERNAL_ERROR;
 #endif
 
-  Lng32 retcode;
+  int retcode;
 
   CollHeap *heap;
   ComDiagsArea *diagsArea;
@@ -2866,14 +2866,14 @@ Lng32 SQLCLI_GetDescItems(/*IN*/ CliGlobals *cliGlobals,
     return SQLCLI_ReturnCode(&currContext, -CLI_DESC_NOT_EXISTS);
   }
 
-  Lng32 outputUsedEntryCount = output_desc->getUsedEntryCount();
+  int outputUsedEntryCount = output_desc->getUsedEntryCount();
 
-  for (Lng32 i = 0; i < outputUsedEntryCount; i++) {
+  for (int i = 0; i < outputUsedEntryCount; i++) {
     //
     // Get the entry number of the descriptor entry whose item is to be
     // retrieved.
     //
-    Lng32 entry;
+    int entry;
     retcode = InputValueFromNumericHostvar(value_num_desc, desc_items[i].value_num_desc_entry, entry);
 
     if (isERROR(retcode)) return SQLCLI_ReturnCode(&currContext, retcode);
@@ -2886,11 +2886,11 @@ Lng32 SQLCLI_GetDescItems(/*IN*/ CliGlobals *cliGlobals,
       return SQLCLI_ReturnCode(&currContext, -CLI_ITEM_NUM_OUT_OF_RANGE);
     }
 
-    Lng32 targetType, targetLen, targetPrecision, targetScale;
-    Lng32 sourceLen, sourcePrecision, sourceScale;
+    int targetType, targetLen, targetPrecision, targetScale;
+    int sourceLen, sourcePrecision, sourceScale;
     short sourceType;
     char *source;
-    Lng32 temp;
+    int temp;
     Long tempPtr;
 
     // set source, source type, source length, source precision
@@ -2942,7 +2942,7 @@ Lng32 SQLCLI_GetDescItems(/*IN*/ CliGlobals *cliGlobals,
         if (retcode != 0) return SQLCLI_ReturnCode(&currContext, retcode);
 
         source = (char *)&temp;
-        sourceLen = sizeof(Lng32);
+        sourceLen = sizeof(int);
         sourceType = REC_BIN32_SIGNED;
         sourcePrecision = 0;
         sourceScale = 0;
@@ -2991,7 +2991,7 @@ Lng32 SQLCLI_GetDescItems(/*IN*/ CliGlobals *cliGlobals,
           sourcePrecision = 0;
           sourceScale = 0;
         } else {
-          Lng32 sType;
+          int sType;
           desc->getDescItem(entry, SQLDESC_TYPE_FS, &sType, NULL, 0, NULL, 0);
           sourceType = (short)sType;
 
@@ -3020,7 +3020,7 @@ Lng32 SQLCLI_GetDescItems(/*IN*/ CliGlobals *cliGlobals,
     //
     char *pTarget = 0;
     output_desc->getDescItem(i + 1, SQLDESC_VAR_PTR,
-                             (Lng32 *)&pTarget,  // $$$$ hjz: don't assume this is not null hostvar
+                             (int *)&pTarget,  // $$$$ hjz: don't assume this is not null hostvar
                              NULL, 0, NULL, 0);
 
     if (!pTarget) return -CLI_INTERNAL_ERROR;
@@ -3065,7 +3065,7 @@ Lng32 SQLCLI_GetDescItems(/*IN*/ CliGlobals *cliGlobals,
     //
     // The check is performed for VARIABLE_DATA and VARIABLE_POINTER.
     if (DFS2REC::isAnyCharacter(sourceType) && DFS2REC::isAnyCharacter(targetType)) {
-      Lng32 csSource, csTarget;
+      int csSource, csTarget;
       retcode = output_desc->getDescItem(i + 1, SQLDESC_CHAR_SET, &csTarget, NULL, 0, NULL, 0);
       if (retcode != 0) return SQLCLI_ReturnCode(&currContext, retcode);
 
@@ -3106,7 +3106,7 @@ Lng32 SQLCLI_GetDescItems(/*IN*/ CliGlobals *cliGlobals,
         // using programatic interface by calling getDescItem(),
         // and can only be retrieved as a character string EXTERNALLY
         // using "get descriptor" syntax.
-        Lng32 char_set;
+        int char_set;
 
         output_desc->getDescItem(entry, SQLDESC_CHAR_SET, &char_set, NULL, 0, NULL, 0);
 
@@ -3177,11 +3177,11 @@ Lng32 SQLCLI_GetDescItems(/*IN*/ CliGlobals *cliGlobals,
   return SUCCESS;
 }
 
-Lng32 SQLCLI_GetDescItems2(/*IN*/ CliGlobals *cliGlobals,
+int SQLCLI_GetDescItems2(/*IN*/ CliGlobals *cliGlobals,
                            /*IN*/ SQLDESC_ID *desc_id,
-                           /*IN*/ Lng32 no_of_desc_items,
+                           /*IN*/ int no_of_desc_items,
                            /*IN*/ SQLDESC_ITEM desc_items[]) {
-  Lng32 retcode;
+  int retcode;
 
   // create initial context, if first call, and add module, if any.
   retcode = CliPrologue(cliGlobals, desc_id->module);
@@ -3198,12 +3198,12 @@ Lng32 SQLCLI_GetDescItems2(/*IN*/ CliGlobals *cliGlobals,
     return SQLCLI_ReturnCode(&currContext, -CLI_DESC_NOT_EXISTS);
   }
 
-  for (Lng32 i = 0; i < no_of_desc_items; i++) {
+  for (int i = 0; i < no_of_desc_items; i++) {
     //
     // Get the entry number of the descriptor entry whose item is to be
     // retrieved.
     //
-    Lng32 entry = desc_items[i].entry;
+    int entry = desc_items[i].entry;
 
     // check that the item entry is < the max num of occurrences specified
     // when the SQL descriptor area was allocated (must also be > 0)
@@ -3213,10 +3213,10 @@ Lng32 SQLCLI_GetDescItems2(/*IN*/ CliGlobals *cliGlobals,
       return SQLCLI_ReturnCode(&currContext, -CLI_ITEM_NUM_OUT_OF_RANGE);
     }
 
-    Lng32 sourceLen = 0;
+    int sourceLen = 0;
     char *source = NULL;
 
-    Lng32 tmp32BitVal;
+    int tmp32BitVal;
 
     switch (desc_items[i].item_id) {
       case SQLDESC_TYPE:
@@ -3309,10 +3309,10 @@ Lng32 SQLCLI_GetDescItems2(/*IN*/ CliGlobals *cliGlobals,
   return SUCCESS;
 }
 
-Lng32 SQLCLI_ClearDiagnostics(/*IN*/ CliGlobals *cliGlobals,
+int SQLCLI_ClearDiagnostics(/*IN*/ CliGlobals *cliGlobals,
                               /*IN OPTIONAL*/ SQLSTMT_ID *statement_id) {
   // create initial context, if first call, and add module, if any.
-  Lng32 retcode;
+  int retcode;
   if (statement_id == NULL)
     retcode = CliPrologue(cliGlobals, 0);
   else
@@ -3325,18 +3325,18 @@ Lng32 SQLCLI_ClearDiagnostics(/*IN*/ CliGlobals *cliGlobals,
   return SUCCESS;
 }
 
-static Lng32 getStmtInfo(
+static int getStmtInfo(
     /*IN*/ CliGlobals *cliGlobals,
     /*IN*/ ComDiagsArea &diags,
     /*IN*/ Statement *stmt,
-    /*IN* (SQLDIAG_STMT_INFO_ITEM_ID) */ Lng32 what_to_get,
+    /*IN* (SQLDIAG_STMT_INFO_ITEM_ID) */ int what_to_get,
     /*OUT OPTIONAL*/ void *numeric_value,
     /*OUT OPTIONAL*/ char *string_value,
-    /*IN OPTIONAL*/ Lng32 max_string_len,
-    /*OUT OPTIONAL*/ Lng32 *len_of_item) {
+    /*IN OPTIONAL*/ int max_string_len,
+    /*OUT OPTIONAL*/ int *len_of_item) {
   switch (what_to_get) {
     case SQLDIAG_NUMBER:
-      *(Lng32 *)numeric_value = diags.getNumber();  // actually returns long
+      *(int *)numeric_value = diags.getNumber();  // actually returns long
       break;
 
     case SQLDIAG_MORE: {
@@ -3354,13 +3354,13 @@ static Lng32 getStmtInfo(
       break;
 
     case SQLDIAG_ROW_COUNT: {
-      Int64 rowCount;
+      long rowCount;
       if (stmt)
-        rowCount = stmt->getRowsAffected();  // returns Int64
+        rowCount = stmt->getRowsAffected();  // returns long
       else
         rowCount = diags.getRowCount();  // returns ComDiagBigInt
       if (rowCount > LONG_MAX) return EXE_NUMERIC_OVERFLOW;
-      *(Int64 *)numeric_value = rowCount;
+      *(long *)numeric_value = rowCount;
       break;
     }
 
@@ -3368,12 +3368,12 @@ static Lng32 getStmtInfo(
       if (!(diags.hasValidRowsetRowCountArray())) return -EXE_ROWSET_ROW_COUNT_ARRAY_NOT_AVAILABLE;
       if (max_string_len < diags.numEntriesInRowsetRowCountArray()) return -EXE_ROWSET_ROW_COUNT_ARRAY_WRONG_SIZE;
 
-      Int64 rowCount;
-      for (Lng32 i = 0; i < diags.numEntriesInRowsetRowCountArray(); i++) {
+      long rowCount;
+      for (int i = 0; i < diags.numEntriesInRowsetRowCountArray(); i++) {
         rowCount = diags.getValueFromRowsetRowCountArray(i);
         assert(rowCount != -1);  // accessing a row count array element that was never set.
         if (rowCount > INT_MAX) return EXE_NUMERIC_OVERFLOW;
-        ((Lng32 *)numeric_value)[i] = (Lng32)rowCount;
+        ((int *)numeric_value)[i] = (int)rowCount;
       }
       if (len_of_item) *len_of_item = diags.numEntriesInRowsetRowCountArray();
     } break;
@@ -3385,9 +3385,9 @@ static Lng32 getStmtInfo(
     case SQLDIAG_COST: {
       double temp_double = diags.getCost();
       if (((double)INT_MAX) <= temp_double) {
-        *(Lng32 *)numeric_value = INT_MAX;
+        *(int *)numeric_value = INT_MAX;
       } else {
-        *(Lng32 *)numeric_value = (Lng32)temp_double;
+        *(int *)numeric_value = (int)temp_double;
       };
     } break;
 
@@ -3396,7 +3396,7 @@ static Lng32 getStmtInfo(
     case SQLDIAG_FIRST_FSCODE:
     case SQLDIAG_LAST_FSCODE:
     case SQLDIAG_LAST_SYSKEY:
-      *(Lng32 *)numeric_value = 0;
+      *(int *)numeric_value = 0;
       break;
 
     default:
@@ -3407,8 +3407,8 @@ static Lng32 getStmtInfo(
   return SUCCESS;
 }
 
-Lng32 SQLCLI_GetDiagnosticsStmtInfo(/*IN*/ CliGlobals *cliGlobals,
-                                    /*IN*/ Lng32 *stmt_info_items,
+int SQLCLI_GetDiagnosticsStmtInfo(/*IN*/ CliGlobals *cliGlobals,
+                                    /*IN*/ int *stmt_info_items,
                                     /*IN*/ SQLDESC_ID *output_descriptor) {
   // test to see if our inputs are even valid
   if (!stmt_info_items) {
@@ -3421,7 +3421,7 @@ Lng32 SQLCLI_GetDiagnosticsStmtInfo(/*IN*/ CliGlobals *cliGlobals,
 
   // go ahead...
   // create initial context, if first call, and add module, if any.
-  Lng32 retcode = CliPrologue(cliGlobals, output_descriptor->module);
+  int retcode = CliPrologue(cliGlobals, output_descriptor->module);
 
   if (isERROR(retcode)) return retcode;
 
@@ -3434,19 +3434,19 @@ Lng32 SQLCLI_GetDiagnosticsStmtInfo(/*IN*/ CliGlobals *cliGlobals,
     return -CLI_DESC_NOT_EXISTS;
   }
 
-  Lng32 outputUsedEntryCount = output_desc->getUsedEntryCount();
-  for (Lng32 i = 0; i < outputUsedEntryCount; i++) {
+  int outputUsedEntryCount = output_desc->getUsedEntryCount();
+  for (int i = 0; i < outputUsedEntryCount; i++) {
     if ((stmt_info_items[i] == SQLDIAG_ROW_COUNT) || (stmt_info_items[i] == SQLDIAG_NUMBER) ||
         (stmt_info_items[i] == SQLDIAG_ROWSET_ROW_COUNT)) {
       char *target;
-      Lng32 targetLen;
-      Lng32 targetType;
-      Lng32 targetPrecision;
-      Lng32 targetScale;
-      Lng32 targetRowsetSize = 1;  // initialized to 1 for ROW_COUNT and NUMBER
-      Lng32 targetRowsetVarLayoutSize;
+      int targetLen;
+      int targetType;
+      int targetPrecision;
+      int targetScale;
+      int targetRowsetSize = 1;  // initialized to 1 for ROW_COUNT and NUMBER
+      int targetRowsetVarLayoutSize;
 
-      retcode = output_desc->getDescItem(i + 1, SQLDESC_VAR_PTR, (Lng32 *)&target, NULL, 0, NULL, 0);
+      retcode = output_desc->getDescItem(i + 1, SQLDESC_VAR_PTR, (int *)&target, NULL, 0, NULL, 0);
       if (isERROR(retcode)) break;
 
       retcode = output_desc->getDescItem(i + 1, SQLDESC_TYPE_FS, &targetType, NULL, 0, NULL, 0);
@@ -3462,7 +3462,7 @@ Lng32 SQLCLI_GetDiagnosticsStmtInfo(/*IN*/ CliGlobals *cliGlobals,
       if (isERROR(retcode)) break;
 
       if ((targetType >= REC_MIN_CHARACTER) && (targetType <= REC_MAX_CHARACTER)) {
-        Lng32 temp_char_set;
+        int temp_char_set;
         output_desc->getDescItem(i + 1, SQLDESC_CHAR_SET, &temp_char_set, 0, 0, 0, 0);
         if (CharInfo::is_NCHAR_MP((CharInfo::CharSet)temp_char_set)) {
           retcode = -EXE_CONVERT_NOT_SUPPORTED;
@@ -3470,11 +3470,11 @@ Lng32 SQLCLI_GetDiagnosticsStmtInfo(/*IN*/ CliGlobals *cliGlobals,
         }
       }
 
-      Int64 value;
+      long value;
       if (stmt_info_items[i] == SQLDIAG_ROW_COUNT)
         value = diags.getRowCount();
       else if (stmt_info_items[i] == SQLDIAG_NUMBER) {
-        Lng32 number;
+        int number;
         retcode = getStmtInfo(cliGlobals, diags, NULL, stmt_info_items[i], &number, NULL, 0, NULL);
         if (isERROR(retcode)) break;
 
@@ -3505,11 +3505,11 @@ Lng32 SQLCLI_GetDiagnosticsStmtInfo(/*IN*/ CliGlobals *cliGlobals,
       }
       CollHeap *heap = output_desc->getContext()->exCollHeap();
       ComDiagsArea *diagsArea = output_desc->getContext()->getDiagsArea();
-      Lng32 oldDiagsAreaMark = diagsArea->mark();
-      Lng32 oldLastError = diagsArea->getNumber(DgSqlCode::ERROR_);
+      int oldDiagsAreaMark = diagsArea->mark();
+      int oldLastError = diagsArea->getNumber(DgSqlCode::ERROR_);
 
       // we will go through this loop only once for NUMBER and ROW_COUNT
-      for (Lng32 j = 0; j < targetRowsetSize; j++) {
+      for (int j = 0; j < targetRowsetSize; j++) {
         if (stmt_info_items[i] == SQLDIAG_ROWSET_ROW_COUNT) {
           value = diags.getValueFromRowsetRowCountArray(j);
           // increment target to point to the next element in the output rowset
@@ -3534,9 +3534,9 @@ Lng32 SQLCLI_GetDiagnosticsStmtInfo(/*IN*/ CliGlobals *cliGlobals,
       if (isERROR(retcode)) break;
     } else if (stmt_info_items[i] == SQLDIAG_MORE) {  // only string member in stmt info
       char *more_entry = 0;
-      Lng32 targetLen;
+      int targetLen;
 
-      retcode = output_desc->getDescItem(i + 1, SQLDESC_VAR_PTR, (Lng32 *)&more_entry, NULL, 0, NULL, 0);
+      retcode = output_desc->getDescItem(i + 1, SQLDESC_VAR_PTR, (int *)&more_entry, NULL, 0, NULL, 0);
       if (isERROR(retcode)) break;
 
       retcode = output_desc->getDescItem(i + 1, SQLDESC_LENGTH, &targetLen, NULL, 0, NULL, 0);
@@ -3550,12 +3550,12 @@ Lng32 SQLCLI_GetDiagnosticsStmtInfo(/*IN*/ CliGlobals *cliGlobals,
       //
       // Get the entry number of the descriptor entry whose item is to be set.
       //
-      Lng32 *entry = 0;
+      int *entry = 0;
 
       // guess we need to get the datatype of the descriptor item
       // and then decide what kind of variable to use...
       // Right now, we assume that it is 'long' numeric type.
-      retcode = output_desc->getDescItem(i + 1, SQLDESC_VAR_PTR, (Lng32 *)&entry, NULL, 0, NULL, 0);
+      retcode = output_desc->getDescItem(i + 1, SQLDESC_VAR_PTR, (int *)&entry, NULL, 0, NULL, 0);
       if (isERROR(retcode)) break;
 
       retcode = getStmtInfo(cliGlobals, diags, NULL, stmt_info_items[i], entry, NULL, 0, NULL);
@@ -3570,17 +3570,17 @@ Lng32 SQLCLI_GetDiagnosticsStmtInfo(/*IN*/ CliGlobals *cliGlobals,
     return SUCCESS;
 }
 
-Lng32 SQLCLI_GetDiagnosticsStmtInfo2(
+int SQLCLI_GetDiagnosticsStmtInfo2(
     /*IN*/ CliGlobals *cliGlobals,
     /*IN OPTIONAL*/ SQLSTMT_ID *statement_id,
-    /*IN* (SQLDIAG_STMT_INFO_ITEM_ID) */ Lng32 what_to_get,
+    /*IN* (SQLDIAG_STMT_INFO_ITEM_ID) */ int what_to_get,
     /*OUT OPTIONAL*/ void *numeric_value,
     /*OUT OPTIONAL*/ char *string_value,
-    /*IN OPTIONAL*/ Lng32 max_string_len,
-    /*OUT OPTIONAL*/ Lng32 *len_of_item) {
+    /*IN OPTIONAL*/ int max_string_len,
+    /*OUT OPTIONAL*/ int *len_of_item) {
   // go ahead...
   // create initial context, if first call, and add module, if any.
-  Lng32 retcode = CliPrologue(cliGlobals, statement_id ? statement_id->module : NULL);
+  int retcode = CliPrologue(cliGlobals, statement_id ? statement_id->module : NULL);
 
   if (isERROR(retcode)) return retcode;
 
@@ -3604,19 +3604,19 @@ Lng32 SQLCLI_GetDiagnosticsStmtInfo2(
   return SQLCLI_ReturnCode(&currContext, retcode);
 }
 
-static void copyResultString(char *dest, const char *src, Lng32 destLen, Lng32 *copyLen = NULL) {
+static void copyResultString(char *dest, const char *src, int destLen, int *copyLen = NULL) {
   if (!dest) return;
 
   if (copyLen) *copyLen = 0;
   if (src) {
-    Lng32 len = MINOF(str_len(src) + 1, destLen);
+    int len = MINOF(str_len(src) + 1, destLen);
     str_cpy_all(dest, src, len);
     if (copyLen) *copyLen = len;
   } else
     *dest = '\0';
 }
 
-Lng32 SQLCLI_GetDiagnosticsCondInfo(/*IN*/ CliGlobals *cliGlobals,
+int SQLCLI_GetDiagnosticsCondInfo(/*IN*/ CliGlobals *cliGlobals,
                                     /*IN*/ SQLDIAG_COND_INFO_ITEM *cond_info_items,
                                     /*IN*/ SQLDESC_ID *cond_num_descriptor,
                                     /*IN*/ SQLDESC_ID *output_descriptor,
@@ -3625,11 +3625,11 @@ Lng32 SQLCLI_GetDiagnosticsCondInfo(/*IN*/ CliGlobals *cliGlobals,
                                     /*OUT*/ IpcMessageObjSize *message_obj_size_needed,
                                     /*OUT*/ IpcMessageObjType *message_obj_type,
                                     /*OUT*/ IpcMessageObjVersion *message_obj_version,
-                                    /*IN*/ Lng32 condition_item_count,
-                                    /*OUT*/ Lng32 *condition_item_count_needed,
+                                    /*IN*/ int condition_item_count,
+                                    /*OUT*/ int *condition_item_count_needed,
                                     /*OUT*/ DiagsConditionItem *condition_item_array,
                                     /*OUT*/ SQLMXLoggingArea::ExperienceLevel *emsEventEL) {
-  Lng32 i;
+  int i;
   // test to see if our inputs are even valid
   if (!cond_info_items) {
     return -CLI_INTERNAL_ERROR;
@@ -3641,7 +3641,7 @@ Lng32 SQLCLI_GetDiagnosticsCondInfo(/*IN*/ CliGlobals *cliGlobals,
 
   // go ahead...
   // create initial context, if first call, and add module, if any.
-  Lng32 retcode = CliPrologue(cliGlobals, output_descriptor->module);
+  int retcode = CliPrologue(cliGlobals, output_descriptor->module);
   if (isERROR(retcode)) return retcode;
   ContextCli &currContext = *(cliGlobals->currContext());
   ComDiagsArea &diags = currContext.diags();
@@ -3658,7 +3658,7 @@ Lng32 SQLCLI_GetDiagnosticsCondInfo(/*IN*/ CliGlobals *cliGlobals,
       currContext.boundsCheckMemory(message_obj_type, sizeof(IpcMessageObjType)) ||
       currContext.boundsCheckMemory(message_obj_version, sizeof(IpcMessageObjVersion)) ||
       currContext.boundsCheckMemory(condition_item_array, condition_item_count * sizeof(DiagsConditionItem)) ||
-      currContext.boundsCheckMemory(condition_item_count_needed, sizeof(Lng32)))
+      currContext.boundsCheckMemory(condition_item_count_needed, sizeof(int)))
     return SQLCLI_ReturnCode(&currContext, -CLI_USER_MEMORY_IN_EXECUTOR_SEGMENT);
 
   Descriptor *condnum_desc = currContext.getDescriptor(cond_num_descriptor);
@@ -3673,7 +3673,7 @@ Lng32 SQLCLI_GetDiagnosticsCondInfo(/*IN*/ CliGlobals *cliGlobals,
     return -CLI_DESC_NOT_EXISTS;
   }
 
-  Lng32 outputUsedEntryCount = output_desc->getUsedEntryCount();
+  int outputUsedEntryCount = output_desc->getUsedEntryCount();
 
   // the condition number is contained in a single descriptor entry
   if (condnum_desc->getUsedEntryCount() < 1) {
@@ -3716,19 +3716,19 @@ Lng32 SQLCLI_GetDiagnosticsCondInfo(/*IN*/ CliGlobals *cliGlobals,
     //
     // Get the entry number of the descriptor entry whose item is to be set.
     //
-    Lng32 *entry = 0;
+    int *entry = 0;
     retcode = output_desc->getDescItem(i + 1, SQLDESC_VAR_PTR,
-                                       (Lng32 *)&entry,  // $$$$ hjz: don't assume this is a long hostvar
+                                       (int *)&entry,  // $$$$ hjz: don't assume this is a long hostvar
                                        NULL, 0, NULL, 0);
     if (isERROR(retcode)) return SQLCLI_ReturnCode(&currContext, retcode);
 
     if (!entry) return -CLI_INTERNAL_ERROR;
 
-    Lng32 theLength = 0L;
+    int theLength = 0L;
     retcode = output_desc->getDescItem(i + 1, SQLDESC_LENGTH, &theLength, NULL, 0, NULL, 0);
     if (isERROR(retcode)) return SQLCLI_ReturnCode(&currContext, retcode);
 
-    Lng32 userIndex = 0L;
+    int userIndex = 0L;
     retcode = InputValueFromNumericHostvar(condnum_desc,
                                            condnum_desc->getUsedEntryCount() > 1
                                                ? cond_info_items[i].cond_number_desc_entry
@@ -3773,10 +3773,10 @@ Lng32 SQLCLI_GetDiagnosticsCondInfo(/*IN*/ CliGlobals *cliGlobals,
         // The charset for the hostvar that the error message is assigned to
         // has to be retrived. Use the internal fast SQLDESC_CHAR_SET version.
         if (cond_info_items[i].item_id == SQLDIAG_MSG_TEXT) {
-          Lng32 charset;
+          int charset;
           retcode = output_desc->getDescItem(i + 1, SQLDESC_CHAR_SET, &charset, NULL, 0, NULL, 0);
           if (retcode != 0) return SQLCLI_ReturnCode(&currContext, retcode);
-          if (charset == (Lng32)CharInfo::ISO88591)  // do not know where to set this field
+          if (charset == (int)CharInfo::ISO88591)  // do not know where to set this field
             charset = CharInfo::UTF8;                // so set it here for now.
 
           messageCharSet = (CharInfo::CharSet)charset;
@@ -3891,7 +3891,7 @@ Lng32 SQLCLI_GetDiagnosticsCondInfo(/*IN*/ CliGlobals *cliGlobals,
 
   return retcode;
 }
-Lng32 SQLCLI_GetPackedDiagnostics(
+int SQLCLI_GetPackedDiagnostics(
     /*IN*/ CliGlobals *cliGlobals,
     /*OUT*/ IpcMessageBufferPtr message_buffer_ptr,
     /*IN*/ IpcMessageObjSize message_obj_size,
@@ -3899,7 +3899,7 @@ Lng32 SQLCLI_GetPackedDiagnostics(
     /*OUT*/ IpcMessageObjType *message_obj_type,
     /*OUT*/ IpcMessageObjVersion *message_obj_version) {
   // create initial context, if first call, and add module, if any.
-  Lng32 retcode = CliPrologue(cliGlobals, NULL);
+  int retcode = CliPrologue(cliGlobals, NULL);
   if (isERROR(retcode)) return retcode;
 
   ContextCli &currContext = *(cliGlobals->currContext());
@@ -3915,14 +3915,14 @@ Lng32 SQLCLI_GetPackedDiagnostics(
 
   return retcode;
 }
-Lng32 GetDiagnosticsCondInfoSwitchStatement(
+int GetDiagnosticsCondInfoSwitchStatement(
     /*IN*/ CliGlobals *cliGlobals,
-    /*IN* (SQLDIAG_COND_INFO_ITEM_ID) */ Lng32 what_to_get,
-    /*IN*/ Lng32 conditionNum,
-    /*OUT OPTIONAL*/ Lng32 *numeric_value,
+    /*IN* (SQLDIAG_COND_INFO_ITEM_ID) */ int what_to_get,
+    /*IN*/ int conditionNum,
+    /*OUT OPTIONAL*/ int *numeric_value,
     /*OUT OPTIONAL*/ char *string_value,
-    /*IN OPTIONAL */ Lng32 max_string_len,
-    /*OUT OPTIONAL*/ Lng32 *len_of_item) {
+    /*IN OPTIONAL */ int max_string_len,
+    /*OUT OPTIONAL*/ int *len_of_item) {
   ContextCli &currContext = *(cliGlobals->currContext());
   ComDiagsArea &diags = currContext.diags();
   ComCondition &condition = diags[conditionNum];
@@ -4027,17 +4027,17 @@ Lng32 GetDiagnosticsCondInfoSwitchStatement(
   return 0;
 }
 
-Lng32 SQLCLI_GetDiagnosticsCondInfo2(
+int SQLCLI_GetDiagnosticsCondInfo2(
     /*IN*/ CliGlobals *cliGlobals,
-    /*IN* (SQLDIAG_COND_INFO_ITEM_ID) */ Lng32 what_to_get,
-    /*IN*/ Lng32 conditionNum,
-    /*OUT OPTIONAL*/ Lng32 *numeric_value,
+    /*IN* (SQLDIAG_COND_INFO_ITEM_ID) */ int what_to_get,
+    /*IN*/ int conditionNum,
+    /*OUT OPTIONAL*/ int *numeric_value,
     /*OUT OPTIONAL*/ char *string_value,
-    /*IN OPTIONAL */ Lng32 max_string_len,
-    /*OUT OPTIONAL*/ Lng32 *len_of_item) {
+    /*IN OPTIONAL */ int max_string_len,
+    /*OUT OPTIONAL*/ int *len_of_item) {
   // go ahead...
   // create initial context, if first call, and add module, if any.
-  Lng32 retcode = CliPrologue(cliGlobals, NULL);
+  int retcode = CliPrologue(cliGlobals, NULL);
   if (isERROR(retcode)) return retcode;
 
   retcode = GetDiagnosticsCondInfoSwitchStatement(cliGlobals, what_to_get, conditionNum, numeric_value, string_value,
@@ -4046,15 +4046,15 @@ Lng32 SQLCLI_GetDiagnosticsCondInfo2(
   return retcode;
 }
 
-Lng32 SQLCLI_GetDiagnosticsCondInfo3(
+int SQLCLI_GetDiagnosticsCondInfo3(
     /*IN*/ CliGlobals *cliGlobals,
-    /*IN*/ Lng32 no_of_condition_items,
+    /*IN*/ int no_of_condition_items,
     /*IN*/ SQLDIAG_COND_INFO_ITEM_VALUE diag_cond_info_item_values[],
     /*OUT*/ IpcMessageObjSize *message_obj_size_needed) {
-  Lng32 retcode;
+  int retcode;
   SQLDIAG_COND_INFO_ITEM_VALUE diagItemValues;
-  Lng32 max_string_len;
-  Lng32 what_to_get;
+  int max_string_len;
+  int what_to_get;
   NABoolean executePartiallyInNonPriv = FALSE;
 
   // go ahead...
@@ -4096,18 +4096,18 @@ Lng32 SQLCLI_GetDiagnosticsCondInfo3(
   return retcode;
 }
 
-Lng32 SQLCLI_GetDiagnosticsArea(/*IN*/ CliGlobals *cliGlobals,
+int SQLCLI_GetDiagnosticsArea(/*IN*/ CliGlobals *cliGlobals,
                                 /*OUT*/ IpcMessageBufferPtr message_buffer_ptr,
                                 /*IN*/ IpcMessageObjSize message_obj_size,
                                 /*OUT*/ IpcMessageObjType *message_obj_type,
                                 /*OUT*/ IpcMessageObjVersion *message_obj_version) {
   // go ahead...
   // create initial context, if first call, and add module, if any.
-  Lng32 retcode = CliPrologue(cliGlobals, NULL);
+  int retcode = CliPrologue(cliGlobals, NULL);
   if (isERROR(retcode)) return retcode;
   ContextCli &currContext = *(cliGlobals->currContext());
   ComDiagsArea &diags = currContext.diags();
-  Lng32 oldDiagsAreaMark = diags.mark();
+  int oldDiagsAreaMark = diags.mark();
 
   if (currContext.boundsCheckMemory(message_buffer_ptr, message_obj_size) ||
       currContext.boundsCheckMemory(message_obj_type, sizeof(IpcMessageObjType)) ||
@@ -4128,17 +4128,17 @@ Lng32 SQLCLI_GetDiagnosticsArea(/*IN*/ CliGlobals *cliGlobals,
   return 0;
 }
 
-Lng32 SQLCLI_GetSQLCODE(/*IN*/ CliGlobals *cliGlobals,
-                        /*OUT*/ Lng32 *SQLCODE) {
+int SQLCLI_GetSQLCODE(/*IN*/ CliGlobals *cliGlobals,
+                        /*OUT*/ int *SQLCODE) {
   if (!cliGlobals) return -CLI_NO_CURRENT_CONTEXT;
 
   *SQLCODE = cliGlobals->currContext()->diags().mainSQLCODE();
 
   return SUCCESS;  // this call always succeeds, no need to check errors!
 }
-Lng32 SQLCLI_GetMainSQLSTATE(/*IN*/ CliGlobals *cliGlobals,
+int SQLCLI_GetMainSQLSTATE(/*IN*/ CliGlobals *cliGlobals,
                              /*IN*/ SQLSTMT_ID *statement_id,
-                             /*IN*/ Lng32 sqlcode,
+                             /*IN*/ int sqlcode,
                              /*OUT*/ char *sqlstate /* assumed to be char[6] */) {
   return -1;
 }
@@ -4148,10 +4148,10 @@ Lng32 SQLCLI_GetMainSQLSTATE(/*IN*/ CliGlobals *cliGlobals,
 // sql_source->identifier points to the sql_source string and
 // identifier_len is the length of that string.
 /////////////////////////////////////////////////////////////////
-Lng32 SQLCLI_Prepare(/*IN*/ CliGlobals *cliGlobals,
+int SQLCLI_Prepare(/*IN*/ CliGlobals *cliGlobals,
                      /*IN*/ SQLSTMT_ID *statement_id,
                      /*IN*/ SQLDESC_ID *sql_source) {
-  Lng32 retcode;
+  int retcode;
 
   // create initial context, if first call, and add module, if any.
   retcode = CliPrologue(cliGlobals, statement_id->module);
@@ -4202,18 +4202,18 @@ Lng32 SQLCLI_Prepare(/*IN*/ CliGlobals *cliGlobals,
   return CliEpilogue(cliGlobals, statement_id);
 }
 
-Lng32 SQLCLI_Prepare2(/*IN*/ CliGlobals *cliGlobals,
+int SQLCLI_Prepare2(/*IN*/ CliGlobals *cliGlobals,
                       /*IN*/ SQLSTMT_ID *statement_id,
                       /*IN*/ SQLDESC_ID *sql_source,
                       /*INOUT*/ char *gencode_ptr,
-                      /*IN*/ Lng32 gencode_len,
-                      /*INOUT*/ Lng32 *ret_gencode_len,
+                      /*IN*/ int gencode_len,
+                      /*INOUT*/ int *ret_gencode_len,
                       /*INOUT*/ SQL_QUERY_COST_INFO *query_cost_info,
                       /*INOUT*/ SQL_QUERY_COMPILER_STATS_INFO *query_comp_stats_info,
                       /*INOUT*/ char *uniqueStmtId,
-                      /*INOUT*/ Lng32 *uniqueStmtIdLen,
+                      /*INOUT*/ int *uniqueStmtIdLen,
                       /*IN*/ ULng32 flags) {
-  Lng32 retcode = 0;
+  int retcode = 0;
 
   // create initial context, if first call, and add module, if any.
   retcode = CliPrologue(cliGlobals, statement_id->module);
@@ -4265,7 +4265,7 @@ Lng32 SQLCLI_Prepare2(/*IN*/ CliGlobals *cliGlobals,
     // if uniqueStmt id buffer passed in contains a valid query id,
     // use that as the query id and it should be same as the one
     // that already exists
-    else if ((uniqueStmtId) && (uniqueStmtIdLen) && (*uniqueStmtIdLen >= (Lng32)strlen(COM_SESSION_ID_PREFIX)) &&
+    else if ((uniqueStmtId) && (uniqueStmtIdLen) && (*uniqueStmtIdLen >= (int)strlen(COM_SESSION_ID_PREFIX)) &&
              (str_cmp(uniqueStmtId, COM_SESSION_ID_PREFIX, strlen(COM_SESSION_ID_PREFIX)) == 0)) {
       if (stmt->getUniqueStmtId() == NULL || (*uniqueStmtIdLen) != stmt->getUniqueStmtIdLen() ||
           str_cmp(stmt->getUniqueStmtId(), uniqueStmtId, stmt->getUniqueStmtIdLen()) != 0) {
@@ -4360,8 +4360,8 @@ Lng32 SQLCLI_Prepare2(/*IN*/ CliGlobals *cliGlobals,
       if (cmpData) {
         StmtStats *stmtStats = stmt->getStmtStats();
         ExMasterStats *masterStats;
-        Int64 cmpStartTime = -1;
-        Int64 cmpEndTime = NA_JulianTimestamp();
+        long cmpStartTime = -1;
+        long cmpEndTime = NA_JulianTimestamp();
         if (stmtStats != NULL && (masterStats = stmtStats->getMasterStats()) != NULL)
           cmpStartTime = masterStats->getCompStartTime();
 
@@ -4389,7 +4389,7 @@ Lng32 SQLCLI_Prepare2(/*IN*/ CliGlobals *cliGlobals,
 
     memcpy(gencode_ptr, stmt->getRootTdb(), stmt->getRootTdbSize());
 
-    Lng32 unpackRetcode = stmt->unpackAndInit(diags, -1);
+    int unpackRetcode = stmt->unpackAndInit(diags, -1);
     if (isERROR(unpackRetcode) && !isERROR(retcode)) retcode = unpackRetcode;
 
     // root tdb is not unpacked in some cases.
@@ -4407,13 +4407,13 @@ Lng32 SQLCLI_Prepare2(/*IN*/ CliGlobals *cliGlobals,
   }
 }
 
-Lng32 SQLCLI_GetExplainData(
+int SQLCLI_GetExplainData(
     /*IN*/ CliGlobals *cliGlobals,
     /*IN*/ SQLSTMT_ID *statement_id,
     /*INOUT*/ char *explain_ptr,
     /*IN*/ Int32 explain_buf_len,
     /*INOUT*/ Int32 *ret_explain_len) {
-  Lng32 retcode = 0;
+  int retcode = 0;
 
   // create initial context, if first call, and add module, if any.
   retcode = CliPrologue(cliGlobals, statement_id->module);
@@ -4446,13 +4446,13 @@ Lng32 SQLCLI_GetExplainData(
   return retcode;
 }
 
-Lng32 SQLCLI_StoreExplainData(
+int SQLCLI_StoreExplainData(
     /*IN*/ CliGlobals *cliGlobals,
-    /*IN*/ Int64 *exec_start_utc_ts,
+    /*IN*/ long *exec_start_utc_ts,
     /*IN*/ char *query_id,
     /*INOUT*/ char *explain_ptr,
     /*IN*/ Int32 explain_buf_len) {
-  Lng32 retcode = 0;
+  int retcode = 0;
 
   // create initial context, if first call, and add module, if any.
   retcode = CliPrologue(cliGlobals, NULL);
@@ -4483,11 +4483,11 @@ Lng32 SQLCLI_StoreExplainData(
   return retcode;
 }
 
-Lng32 SQLCLI_ResDescName(/*IN*/ CliGlobals *cliGlobals,
+int SQLCLI_ResDescName(/*IN*/ CliGlobals *cliGlobals,
                          /*INOUT*/ SQLDESC_ID *descriptor_id,
                          /*IN  OPTIONAL*/ SQLSTMT_ID *from_statement,
-                         /* (SQLWHAT_DESC) *IN  OPTIONAL*/ Lng32 what_desc) {
-  Lng32 retcode;
+                         /* (SQLWHAT_DESC) *IN  OPTIONAL*/ int what_desc) {
+  int retcode;
 
   // create initial context, if first call, and add module, if any.
   retcode = CliPrologue(cliGlobals, descriptor_id->module);
@@ -4539,9 +4539,9 @@ Lng32 SQLCLI_ResDescName(/*IN*/ CliGlobals *cliGlobals,
   return SUCCESS;
 }
 
-Lng32 SQLCLI_ResStmtName(/*IN*/ CliGlobals *cliGlobals,
+int SQLCLI_ResStmtName(/*IN*/ CliGlobals *cliGlobals,
                          /*INOUT*/ SQLSTMT_ID *statement_id) {
-  Lng32 retcode;
+  int retcode;
 
   // create initial context, if first call, and add module, if any.
   retcode = CliPrologue(cliGlobals, statement_id->module);
@@ -4568,12 +4568,12 @@ Lng32 SQLCLI_ResStmtName(/*IN*/ CliGlobals *cliGlobals,
 // The Descriptor Id  cursor_name must be of name_mode
 // cursor_name or cursor_via_desc   **exception ODBC/JDBC
 
-Lng32 SQLCLI_SetCursorName(
+int SQLCLI_SetCursorName(
     /*IN*/ CliGlobals *cliGlobals,
     /*IN*/ SQLSTMT_ID *statement_id,
     /*IN*/ SQLSTMT_ID *cursor_id)  // must of name_mode cursor_name or cursor_via_desc   **exception ODBC/JDBC
 {
-  Lng32 retcode;
+  int retcode;
   SQLDESC_ID *curs_id;
 
   NAHeap &heap = *(cliGlobals->currContext()->exHeap());
@@ -4632,12 +4632,12 @@ Lng32 SQLCLI_SetCursorName(
   return SUCCESS;
 }
 
-Lng32 SQLCLI_SetStmtAttr(/*IN*/ CliGlobals *cliGlobals,
+int SQLCLI_SetStmtAttr(/*IN*/ CliGlobals *cliGlobals,
                          /*IN*/ SQLSTMT_ID *statement_id,
-                         /*IN SQLATTR_TYPE */ Lng32 attrName,
-                         /*IN OPTIONAL*/ Lng32 numeric_value,
+                         /*IN SQLATTR_TYPE */ int attrName,
+                         /*IN OPTIONAL*/ int numeric_value,
                          /*IN OPTIONAL*/ char *string_value) {
-  Lng32 retcode = SUCCESS;
+  int retcode = SUCCESS;
 
   // create initial context, if first call, and add module, if any.
   retcode = CliPrologue(cliGlobals, statement_id->module);
@@ -4719,13 +4719,13 @@ Lng32 SQLCLI_SetStmtAttr(/*IN*/ CliGlobals *cliGlobals,
   return retcode;
 }
 
-Lng32 SQLCLI_GetSessionAttr(/*IN*/ CliGlobals *cliGlobals,
-                            /*IN SESSIONATTR_TYPE */ Lng32 attrName,
-                            /*OUT OPTIONAL*/ Lng32 *numeric_value,
+int SQLCLI_GetSessionAttr(/*IN*/ CliGlobals *cliGlobals,
+                            /*IN SESSIONATTR_TYPE */ int attrName,
+                            /*OUT OPTIONAL*/ int *numeric_value,
                             /*OUT OPTIONAL*/ char *string_value,
-                            /*IN OPTIONAL*/ Lng32 max_string_len,
-                            /*OUT OPTIONAL*/ Lng32 *len_of_item) {
-  Lng32 retcode = SUCCESS;
+                            /*IN OPTIONAL*/ int max_string_len,
+                            /*OUT OPTIONAL*/ int *len_of_item) {
+  int retcode = SUCCESS;
 
   // create initial context, if first call, and add module, if any.
   retcode = CliPrologue(cliGlobals, NULL);
@@ -4838,10 +4838,10 @@ Lng32 SQLCLI_GetSessionAttr(/*IN*/ CliGlobals *cliGlobals,
   return SUCCESS;
 }
 
-Lng32 SQLCLI_GetAuthID(CliGlobals *cliGlobals, const char *authName, Lng32 &authID)
+int SQLCLI_GetAuthID(CliGlobals *cliGlobals, const char *authName, int &authID)
 
 {
-  Lng32 retcode = 0;
+  int retcode = 0;
 
   // create initial context, if first call, and add module, if any.
   retcode = CliPrologue(cliGlobals, NULL);
@@ -4855,13 +4855,13 @@ Lng32 SQLCLI_GetAuthID(CliGlobals *cliGlobals, const char *authName, Lng32 &auth
   return CliEpilogue(cliGlobals, NULL, retcode);
 }
 
-Lng32 SQLCLI_GetAuthName(
+int SQLCLI_GetAuthName(
     /*IN*/ CliGlobals *cliGlobals,
-    /*IN*/ Lng32 auth_id,
+    /*IN*/ int auth_id,
     /*OUT*/ char *string_value,
-    /*IN*/ Lng32 max_string_len,
-    /*OUT */ Lng32 &len_of_item) {
-  Lng32 retcode = 0;
+    /*IN*/ int max_string_len,
+    /*OUT */ int &len_of_item) {
+  int retcode = 0;
 
   // create initial context, if first call, and add module, if any.
   retcode = CliPrologue(cliGlobals, NULL);
@@ -4875,13 +4875,13 @@ Lng32 SQLCLI_GetAuthName(
   return CliEpilogue(cliGlobals, NULL, retcode);
 }
 
-Lng32 SQLCLI_GetDatabaseUserName(
+int SQLCLI_GetDatabaseUserName(
     /*IN*/ CliGlobals *cliGlobals,
-    /*IN*/ Lng32 user_id,
+    /*IN*/ int user_id,
     /*OUT*/ char *string_value,
-    /*IN*/ Lng32 max_string_len,
-    /*OUT OPTIONAL*/ Lng32 *len_of_item) {
-  Lng32 retcode = 0;
+    /*IN*/ int max_string_len,
+    /*OUT OPTIONAL*/ int *len_of_item) {
+  int retcode = 0;
 
   // create initial context, if first call, and add module, if any.
   retcode = CliPrologue(cliGlobals, NULL);
@@ -4895,11 +4895,11 @@ Lng32 SQLCLI_GetDatabaseUserName(
   return CliEpilogue(cliGlobals, NULL, retcode);
 }
 
-Lng32 SQLCLI_GetDatabaseUserID(
+int SQLCLI_GetDatabaseUserID(
     /*IN*/ CliGlobals *cliGlobals,
     /*IN*/ char *string_value,
-    /*OUT*/ Lng32 *numeric_value) {
-  Lng32 retcode = 0;
+    /*OUT*/ int *numeric_value) {
+  int retcode = 0;
 
   // create initial context, if first call, and add module, if any.
   retcode = CliPrologue(cliGlobals, NULL);
@@ -4933,10 +4933,10 @@ Int32 SQLCLI_GetAuthState(
   return CliEpilogue(cliGlobals, NULL, retcode);
 }
 
-Lng32 SQLCLI_GetRoleList(CliGlobals *cliGlobals, Int32 &numEntries, Int32 *&roleIDs, Int32 *&granteeIDs)
+int SQLCLI_GetRoleList(CliGlobals *cliGlobals, Int32 &numEntries, Int32 *&roleIDs, Int32 *&granteeIDs)
 
 {
-  Lng32 retcode = 0;
+  int retcode = 0;
 
   // create initial context, if first call, and add module, if any.
   retcode = CliPrologue(cliGlobals, NULL);
@@ -4950,10 +4950,10 @@ Lng32 SQLCLI_GetRoleList(CliGlobals *cliGlobals, Int32 &numEntries, Int32 *&role
   return CliEpilogue(cliGlobals, NULL, retcode);
 }
 
-Lng32 SQLCLI_ResetRoleList(CliGlobals *cliGlobals)
+int SQLCLI_ResetRoleList(CliGlobals *cliGlobals)
 
 {
-  Lng32 retcode = 0;
+  int retcode = 0;
 
   // create initial context, if first call, and add module, if any.
   retcode = CliPrologue(cliGlobals, NULL);
@@ -5044,11 +5044,11 @@ Int32 SQLCLI_UpdateAuthErrPwdCnt(
   return CliEpilogue(cliGlobals, NULL, retcode);
 }
 
-Lng32 SQLCLI_SetSessionAttr(/*IN*/ CliGlobals *cliGlobals,
-                            /*IN SESSIONATTR_TYPE*/ Lng32 attrName,
-                            /*IN OPTIONAL*/ Lng32 numeric_value,
+int SQLCLI_SetSessionAttr(/*IN*/ CliGlobals *cliGlobals,
+                            /*IN SESSIONATTR_TYPE*/ int attrName,
+                            /*IN OPTIONAL*/ int numeric_value,
                             /*IN OPTIONAL*/ const char *string_value) {
-  Lng32 retcode = SUCCESS;
+  int retcode = SUCCESS;
 
   // create initial context, if first call, and add module, if any.
   retcode = CliPrologue(cliGlobals, NULL);
@@ -5105,12 +5105,12 @@ Lng32 SQLCLI_SetSessionAttr(/*IN*/ CliGlobals *cliGlobals,
   return CliEpilogue(cliGlobals, NULL);
 }
 
-Lng32 SQLCLI_GetUniqueQueryIdAttrs(/*IN*/ CliGlobals *cliGlobals,
+int SQLCLI_GetUniqueQueryIdAttrs(/*IN*/ CliGlobals *cliGlobals,
                                    /*IN*/ char *queryId,
-                                   /*IN*/ Lng32 queryIdLen,
-                                   /*IN*/ Lng32 no_of_attrs,
+                                   /*IN*/ int queryIdLen,
+                                   /*IN*/ int no_of_attrs,
                                    /*INOUT*/ UNIQUEQUERYID_ATTR queryid_attrs[]) {
-  Lng32 retcode = SUCCESS;
+  int retcode = SUCCESS;
 
   // create initial context, if first call, and add module, if any.
   retcode = CliPrologue(cliGlobals, NULL);
@@ -5126,7 +5126,7 @@ Lng32 SQLCLI_GetUniqueQueryIdAttrs(/*IN*/ CliGlobals *cliGlobals,
   }
 
   for (Int32 i = 0; i < no_of_attrs && !retcode; i++) {
-    Int64 temp_nvol = (Int64)queryid_attrs[i].num_val_or_len;
+    long temp_nvol = (long)queryid_attrs[i].num_val_or_len;
     retcode = ComSqlId::getSqlQueryIdAttr(queryid_attrs[i].attr_type, queryId, queryIdLen, temp_nvol,
                                           queryid_attrs[i].string_val);
     queryid_attrs[i].num_val_or_len = temp_nvol;
@@ -5137,16 +5137,16 @@ Lng32 SQLCLI_GetUniqueQueryIdAttrs(/*IN*/ CliGlobals *cliGlobals,
 
 // A helper function to copy one statement attribute into the target
 // buffer
-Lng32 CopyOneStmtAttr(/*IN*/ Statement &stmt,
+int CopyOneStmtAttr(/*IN*/ Statement &stmt,
                       /*IN*/ ContextCli &context,
                       /*OUT*/ ComDiagsArea &diags,
-                      /*IN*/ Lng32 attrName,
-                      /*IN*/ Lng32 index,
-                      /*OUT*/ Lng32 *numeric_value,
+                      /*IN*/ int attrName,
+                      /*IN*/ int index,
+                      /*OUT*/ int *numeric_value,
                       /*OUT*/ char *string_value,
-                      /*IN*/ Lng32 max_string_len,
-                      /*OUT*/ Lng32 *len_of_item) {
-  Lng32 retcode = SUCCESS;
+                      /*IN*/ int max_string_len,
+                      /*OUT*/ int *len_of_item) {
+  int retcode = SUCCESS;
 
   if (attrName == SQL_ATTR_CURSOR_HOLDABLE) {
     if (stmt.isAnsiHoldable() || stmt.isPubsubHoldable()) {
@@ -5155,7 +5155,7 @@ Lng32 CopyOneStmtAttr(/*IN*/ Statement &stmt,
       *numeric_value = SQL_NONHOLDABLE;
     }
   } else if (attrName == SQL_ATTR_INPUT_ARRAY_MAXSIZE) {
-    *numeric_value = (Lng32)stmt.getInputArrayMaxsize();
+    *numeric_value = (int)stmt.getInputArrayMaxsize();
   } else if (attrName == SQL_ATTR_QUERY_TYPE) {
     if (!stmt.getRootTdb()) {
       // for display query e.g. display select ...
@@ -5189,7 +5189,7 @@ Lng32 CopyOneStmtAttr(/*IN*/ Statement &stmt,
   } else if (attrName == SQL_ATTR_XN_NEEDED) {
     *numeric_value = (stmt.getRootTdb()->transactionReqd() ? 1 : 0);
   } else if (attrName == SQL_ATTR_UNIQUE_STMT_ID) {
-    Lng32 actual_len = stmt.getUniqueStmtIdLen();
+    int actual_len = stmt.getUniqueStmtIdLen();
 
     if (len_of_item) *len_of_item = actual_len;
 
@@ -5214,7 +5214,7 @@ Lng32 CopyOneStmtAttr(/*IN*/ Statement &stmt,
       return SQLCLI_ReturnCode(&context, -CLI_RS_PROXY_BUFFER_SMALL_OR_NULL);
     }
   } else if (attrName == SQL_ATTR_CONSUMER_QUERY_TEXT) {
-    Lng32 actual_len = stmt.getConsumerQueryLen(index - 1);
+    int actual_len = stmt.getConsumerQueryLen(index - 1);
     if (len_of_item) *len_of_item = actual_len;
     if (actual_len > 0) {
       if (actual_len > max_string_len) {
@@ -5226,7 +5226,7 @@ Lng32 CopyOneStmtAttr(/*IN*/ Statement &stmt,
   } else if (attrName == SQL_ATTR_CONSUMER_CPU) {
     *numeric_value = stmt.getConsumerCpu(index - 1);
   } else if (attrName == SQL_ATTR_PARENT_QID) {
-    Lng32 actual_len;
+    int actual_len;
     const char *parentQid = stmt.getParentQid();
     if (parentQid)
       actual_len = str_len(parentQid);
@@ -5257,14 +5257,14 @@ Lng32 CopyOneStmtAttr(/*IN*/ Statement &stmt,
   return retcode;
 }
 
-Lng32 SQLCLI_GetStmtAttr(/*IN*/ CliGlobals *cliGlobals,
+int SQLCLI_GetStmtAttr(/*IN*/ CliGlobals *cliGlobals,
                          /*IN*/ SQLSTMT_ID *statement_id,
-                         /*IN SQLATTR_TYPE */ Lng32 attrName,
-                         /*OUT OPTIONAL*/ Lng32 *numeric_value,
+                         /*IN SQLATTR_TYPE */ int attrName,
+                         /*OUT OPTIONAL*/ int *numeric_value,
                          /*OUT OPTIONAL*/ char *string_value,
-                         /*IN OPTIONAL*/ Lng32 max_string_len,
-                         /*OUT OPTIONAL*/ Lng32 *len_of_item) {
-  Lng32 retcode = SUCCESS;
+                         /*IN OPTIONAL*/ int max_string_len,
+                         /*OUT OPTIONAL*/ int *len_of_item) {
+  int retcode = SUCCESS;
 
   // create initial context, if first call, and add module, if any.
   retcode = CliPrologue(cliGlobals, statement_id->module);
@@ -5286,12 +5286,12 @@ Lng32 SQLCLI_GetStmtAttr(/*IN*/ CliGlobals *cliGlobals,
   return retcode;
 }
 
-Lng32 SQLCLI_GetStmtAttrs(/*IN*/ CliGlobals *cliGlobals,
+int SQLCLI_GetStmtAttrs(/*IN*/ CliGlobals *cliGlobals,
                           /*IN*/ SQLSTMT_ID *statement_id,
-                          /*IN*/ Lng32 number_of_attrs,
+                          /*IN*/ int number_of_attrs,
                           /*INOUT*/ SQLSTMT_ATTR attrs[],
-                          /*OUT OPTIONAL*/ Lng32 *num_returned) {
-  Lng32 retcode = SUCCESS;
+                          /*OUT OPTIONAL*/ int *num_returned) {
+  int retcode = SUCCESS;
   *num_returned = 0;
 
   // create initial context, if first call, and add module, if any.
@@ -5318,10 +5318,10 @@ Lng32 SQLCLI_GetStmtAttrs(/*IN*/ CliGlobals *cliGlobals,
 
   return retcode;
 }
-Lng32 SQLCLI_SetDescEntryCount(/*IN*/ CliGlobals *cliGlobals,
+int SQLCLI_SetDescEntryCount(/*IN*/ CliGlobals *cliGlobals,
                                /*IN*/ SQLDESC_ID *desc_id,
                                /*IN*/ SQLDESC_ID *input_descriptor) {
-  Lng32 retcode;
+  int retcode;
 
   if (!desc_id) return -CLI_INTERNAL_ERROR;
 
@@ -5351,7 +5351,7 @@ Lng32 SQLCLI_SetDescEntryCount(/*IN*/ CliGlobals *cliGlobals,
   // JORGE: Why are we doing it this way. It may be better if we call
   //        getUsedEntryCount() on the input descriptor. ??
 
-  Lng32 num_entries = 0L;
+  int num_entries = 0L;
   retcode = InputValueFromNumericHostvar(input_desc, 1, num_entries);
   if (isERROR(retcode)) return SQLCLI_ReturnCode(&currContext, retcode);
 
@@ -5362,14 +5362,14 @@ Lng32 SQLCLI_SetDescEntryCount(/*IN*/ CliGlobals *cliGlobals,
 
   return SUCCESS;
 }
-Lng32 SQLCLI_SetDescItems(/*IN*/ CliGlobals *cliGlobals,
+int SQLCLI_SetDescItems(/*IN*/ CliGlobals *cliGlobals,
                           /*IN*/ SQLDESC_ID *desc_id,
                           /*IN*/ SQLDESC_ITEM desc_items[],
                           /*IN*/ SQLDESC_ID *value_num_descriptor,
                           /*IN*/ SQLDESC_ID *input_descriptor) {
-  Lng32 retcode;
-  Lng32 first_set = SQLDESC_ITEM_ORDER_COUNT, desc_item_entry[SQLDESC_ITEM_ORDER_COUNT];
-  const Lng32 not_set = -1;
+  int retcode;
+  int first_set = SQLDESC_ITEM_ORDER_COUNT, desc_item_entry[SQLDESC_ITEM_ORDER_COUNT];
+  const int not_set = -1;
 
   // create initial context, if first call, and add module, if any.
   retcode = CliPrologue(cliGlobals, desc_id->module);
@@ -5402,9 +5402,9 @@ Lng32 SQLCLI_SetDescItems(/*IN*/ CliGlobals *cliGlobals,
     return SQLCLI_ReturnCode(&currContext, -CLI_DESC_NOT_EXISTS);
   }
 
-  Lng32 inputUsedEntryCount = input_desc->getUsedEntryCount();
+  int inputUsedEntryCount = input_desc->getUsedEntryCount();
 
-  Lng32 i = 0;
+  int i = 0;
   for (; i < SQLDESC_ITEM_ORDER_COUNT; i++) desc_item_entry[i] = not_set;
   for (i = 0; i < inputUsedEntryCount; i++)
     if (desc_items[i].item_id <= SQLDESC_ITEM_MAX && SQLDESC_ITEM_ORDER[desc_items[i].item_id - 1] >= 0 &&
@@ -5417,14 +5417,14 @@ Lng32 SQLCLI_SetDescItems(/*IN*/ CliGlobals *cliGlobals,
       return diags.mainSQLCODE();
     }
 
-  for (Lng32 j = first_set, count = 0; count < inputUsedEntryCount; j++) {
+  for (int j = first_set, count = 0; count < inputUsedEntryCount; j++) {
     if (desc_item_entry[j] != not_set) {
       count += 1;
       i = desc_item_entry[j];
       //
       // Get the entry number of the descriptor entry whose item is to be set.
       //
-      Lng32 entry = 0L;
+      int entry = 0L;
       retcode = InputValueFromNumericHostvar(value_num_desc, desc_items[i].value_num_desc_entry, entry);
 
       if (isERROR(retcode)) return SQLCLI_ReturnCode(&currContext, retcode);
@@ -5445,7 +5445,7 @@ Lng32 SQLCLI_SetDescItems(/*IN*/ CliGlobals *cliGlobals,
       // Get the address of the source where the item's value is stored.
       //
       char *var_ptr = 0;
-      retcode = input_desc->getDescItem(i + 1, SQLDESC_VAR_PTR, (Lng32 *)&var_ptr, NULL, 0, NULL, 0);
+      retcode = input_desc->getDescItem(i + 1, SQLDESC_VAR_PTR, (int *)&var_ptr, NULL, 0, NULL, 0);
       if (isERROR(retcode)) return SQLCLI_ReturnCode(&currContext, retcode);
 
       if (!var_ptr) return -CLI_INTERNAL_ERROR;
@@ -5454,12 +5454,12 @@ Lng32 SQLCLI_SetDescItems(/*IN*/ CliGlobals *cliGlobals,
       // This is needed so that we can make a copy of input data.
       // Do the same for any attribute that need copying of data,
       // like SQLDESC_NAME, etc.
-      Lng32 numericInput;
-      numericInput = *(Lng32 *)var_ptr;
+      int numericInput;
+      numericInput = *(int *)var_ptr;
 
       if ((desc_items[i].item_id == SQLDESC_VAR_DATA) || (desc_items[i].item_id == SQLDESC_NAME) ||
           (desc_items[i].item_id == SQLDESC_HEADING)) {
-        Lng32 length;
+        int length;
         retcode = input_desc->getDescItem(i + 1, SQLDESC_LENGTH, &length, 0, 0, 0, 0);
         if (isERROR(retcode)) return SQLCLI_ReturnCode(&currContext, retcode);
 
@@ -5487,11 +5487,11 @@ Lng32 SQLCLI_SetDescItems(/*IN*/ CliGlobals *cliGlobals,
   return SUCCESS;
 }
 
-Lng32 SQLCLI_SetDescItems2(/*IN*/ CliGlobals *cliGlobals,
+int SQLCLI_SetDescItems2(/*IN*/ CliGlobals *cliGlobals,
                            /*IN*/ SQLDESC_ID *desc_id,
-                           /*IN*/ Lng32 no_of_desc_items,
+                           /*IN*/ int no_of_desc_items,
                            /*IN*/ SQLDESC_ITEM desc_items[]) {
-  Lng32 retcode;
+  int retcode;
 
   // create initial context, if first call, and add module, if any.
   retcode = CliPrologue(cliGlobals, desc_id->module);
@@ -5508,12 +5508,12 @@ Lng32 SQLCLI_SetDescItems2(/*IN*/ CliGlobals *cliGlobals,
     return SQLCLI_ReturnCode(&currContext, -CLI_DESC_NOT_EXISTS);
   }
 
-  for (Lng32 i = 0; i < no_of_desc_items; i++) {
+  for (int i = 0; i < no_of_desc_items; i++) {
     //
     // Get the entry number of the descriptor entry whose item is to be
     // set.
     //
-    Lng32 entry = desc_items[i].entry;
+    int entry = desc_items[i].entry;
 
     if (entry > desc->getUsedEntryCount()) {
       retcode = desc->addEntry(entry);
@@ -5544,14 +5544,14 @@ Lng32 SQLCLI_SetDescItems2(/*IN*/ CliGlobals *cliGlobals,
   return SUCCESS;
 }
 
-Lng32 SQLCLI_SetDescPointers(/*IN*/ CliGlobals *cliGlobals,
+int SQLCLI_SetDescPointers(/*IN*/ CliGlobals *cliGlobals,
                              /*IN*/ SQLDESC_ID *desc_id,
-                             /*IN*/ Lng32 starting_entry,
-                             /*IN*/ Lng32 num_ptr_pairs,
-                             /*IN*/ Lng32 num_ap,
+                             /*IN*/ int starting_entry,
+                             /*IN*/ int num_ptr_pairs,
+                             /*IN*/ int num_ap,
                              /*IN*/ va_list ap,
                              /*IN*/ SQLCLI_PTR_PAIRS ptr_pairs[]) {
-  Lng32 retcode = SUCCESS;
+  int retcode = SUCCESS;
 
   // create initial context, if first call, and add module, if any.
   retcode = CliPrologue(cliGlobals, desc_id->module);
@@ -5578,12 +5578,12 @@ Lng32 SQLCLI_SetDescPointers(/*IN*/ CliGlobals *cliGlobals,
   return SQLCLI_ReturnCode(&currContext, retcode);
 }
 
-Lng32 SQLCLI_SwitchContext(
+int SQLCLI_SwitchContext(
     /*IN*/ CliGlobals *cliGlobals,
     /*IN*/ SQLCTX_HANDLE context_handle,
     /*OUT OPTIONAL*/ SQLCTX_HANDLE *prev_context_handle,
     /*IN */ Int32 allowSwitchBackToDefault) {
-  Lng32 retcode = SUCCESS;
+  int retcode = SUCCESS;
 
   ContextCli &currContext = *(cliGlobals->currContext());
   ComDiagsArea &diags = currContext.diags();
@@ -5644,10 +5644,10 @@ Lng32 SQLCLI_SwitchContext(
   return retcode;
 }
 
-Lng32 SQLCLI_Xact(/*IN*/ CliGlobals *cliGlobals,
-                  /* IN (SQLTRANS_COMMAND) */ Lng32 command,
+int SQLCLI_Xact(/*IN*/ CliGlobals *cliGlobals,
+                  /* IN (SQLTRANS_COMMAND) */ int command,
                   /* OUT OPTIONAL */ SQLDESC_ID *transid_descriptor) {
-  Lng32 retcode;
+  int retcode;
 
   // create initial context, if first call, and add module, if any.
   retcode = CliPrologue(cliGlobals, 0);
@@ -5755,13 +5755,13 @@ Lng32 SQLCLI_Xact(/*IN*/ CliGlobals *cliGlobals,
     // return the transaction identifier in the
     // descriptor provided. Note that for commit/rollback
     // requests, this will return a -1 in the transid desc.
-    Int64 *pTransid = 0;
-    retcode = transid_desc->getDescItem(1, SQLDESC_VAR_PTR, (Lng32 *)&pTransid, NULL, 0, NULL, 0);
+    long *pTransid = 0;
+    retcode = transid_desc->getDescItem(1, SQLDESC_VAR_PTR, (int *)&pTransid, NULL, 0, NULL, 0);
     if (isERROR(retcode)) return SQLCLI_ReturnCode(&currContext, retcode);
 
     if (!pTransid) return -CLI_INTERNAL_ERROR;
 
-    if (currContext.boundsCheckMemory(pTransid, sizeof(Int64))) {
+    if (currContext.boundsCheckMemory(pTransid, sizeof(long))) {
       return SQLCLI_ReturnCode(&currContext, -CLI_USER_MEMORY_IN_EXECUTOR_SEGMENT);
     } else {
       *pTransid = currContext.getTransaction()->getExeXnId();
@@ -5804,11 +5804,11 @@ Lng32 SQLCLI_Xact(/*IN*/ CliGlobals *cliGlobals,
 // *    if TRUE, then reset all attributes and cached information              *
 // *                                                                           *
 // *****************************************************************************
-Lng32 SQLCLI_SetAuthID(CliGlobals *cliGlobals, const USERS_INFO &usersInfo, /*IN*/
+int SQLCLI_SetAuthID(CliGlobals *cliGlobals, const USERS_INFO &usersInfo, /*IN*/
                        const char *authToken, Int32 authTokenLen, const char *slaName, const char *profileName,
                        Int32 resetAttributes) {
   // create initial context, if first call, and add module, if any.
-  Lng32 retcode = CliPrologue(cliGlobals, 0);
+  int retcode = CliPrologue(cliGlobals, 0);
 
   if (isERROR(retcode)) return retcode;
 
@@ -5828,10 +5828,10 @@ Lng32 SQLCLI_SetAuthID(CliGlobals *cliGlobals, const USERS_INFO &usersInfo, /*IN
 
 /* temporary functions -- for use by sqlcat simulator only */
 
-Lng32 SQLCLI_AllocDescInt(/*IN*/ CliGlobals *cliGlobals,
+int SQLCLI_AllocDescInt(/*IN*/ CliGlobals *cliGlobals,
                           /*INOUT*/ SQLDESC_ID *desc_id,
-                          /*IN*/ Lng32 max_entries) {
-  Lng32 retcode;
+                          /*IN*/ int max_entries) {
+  int retcode;
 
   // create initial context, if first call, and add module, if any.
   retcode = CliPrologue(cliGlobals, desc_id->module);
@@ -5853,9 +5853,9 @@ Lng32 SQLCLI_AllocDescInt(/*IN*/ CliGlobals *cliGlobals,
   return SQLCLI_ReturnCode(&currContext, retcode);
 }
 
-Lng32 SQLCLI_GetDescEntryCountInt(/*IN*/ CliGlobals *cliGlobals,
+int SQLCLI_GetDescEntryCountInt(/*IN*/ CliGlobals *cliGlobals,
                                   /*IN*/ SQLDESC_ID *desc_id,
-                                  /*OUT*/ Lng32 *num_entries) {
+                                  /*OUT*/ int *num_entries) {
   if (!cliGlobals || !num_entries) {
     return (-CLI_NO_CURRENT_CONTEXT);
   }
@@ -5879,16 +5879,16 @@ Lng32 SQLCLI_GetDescEntryCountInt(/*IN*/ CliGlobals *cliGlobals,
   return SUCCESS;
 }
 
-Lng32 SQLCLI_GetDescItem(/*IN*/ CliGlobals *cliGlobals,
+int SQLCLI_GetDescItem(/*IN*/ CliGlobals *cliGlobals,
                          /*IN*/ SQLDESC_ID *desc_id,
-                         /*IN*/ Lng32 entry,
-                         /* (SQLDESC_ITEM_ID) *IN*/ Lng32 what_to_get,
+                         /*IN*/ int entry,
+                         /* (SQLDESC_ITEM_ID) *IN*/ int what_to_get,
                          /*OUT OPTIONAL*/ void *numeric_value,
                          /*OUT OPTIONAL*/ char *string_value,
-                         /*IN  OPTIONAL*/ Lng32 max_string_len,
-                         /*OUT OPTIONAL*/ Lng32 *len_of_item,
-                         /*IN  OPTIONAL*/ Lng32 start_from_offset) {
-  Lng32 retcode;
+                         /*IN  OPTIONAL*/ int max_string_len,
+                         /*OUT OPTIONAL*/ int *len_of_item,
+                         /*IN  OPTIONAL*/ int start_from_offset) {
+  int retcode;
 
   // create initial context, if first call, and add module, if any.
   retcode = CliPrologue(cliGlobals, desc_id->module);
@@ -5920,10 +5920,10 @@ Lng32 SQLCLI_GetDescItem(/*IN*/ CliGlobals *cliGlobals,
   return SQLCLI_ReturnCode(&currContext, retcode);
 }
 
-Lng32 SQLCLI_SetDescEntryCountInt(/*IN*/ CliGlobals *cliGlobals,
+int SQLCLI_SetDescEntryCountInt(/*IN*/ CliGlobals *cliGlobals,
                                   /*IN*/ SQLDESC_ID *desc_id,
-                                  /*IN*/ Lng32 num_entries) {
-  Lng32 retcode;
+                                  /*IN*/ int num_entries) {
+  int retcode;
 
   // create initial context, if first call, and add module, if any.
   retcode = CliPrologue(cliGlobals, desc_id->module);
@@ -5945,14 +5945,14 @@ Lng32 SQLCLI_SetDescEntryCountInt(/*IN*/ CliGlobals *cliGlobals,
   return SUCCESS;
 }
 
-Lng32 SQLCLI_SetDescItem(
+int SQLCLI_SetDescItem(
     /*IN*/ CliGlobals *cliGlobals,
     /*IN*/ SQLDESC_ID *desc_id,
-    /*IN*/ Lng32 entry,
-    /* (SQLDESC_ITEM_ID) *IN*/ Lng32 what_to_set,
+    /*IN*/ int entry,
+    /* (SQLDESC_ITEM_ID) *IN*/ int what_to_set,
     /*IN  OPTIONAL*/ Long numeric_value,
     /*IN  OPTIONAL*/ char *string_value) {
-  Lng32 retcode;
+  int retcode;
 
   // create initial context, if first call, and add module, if any.
   retcode = CliPrologue(cliGlobals, desc_id->module);
@@ -5982,7 +5982,7 @@ Lng32 SQLCLI_SetDescItem(
     }
   }
 
-  Lng32 length = 0;
+  int length = 0;
 
   if (what_to_set == SQLDESC_VAR_PTR) {
     length = desc->getVarDataLength(entry);
@@ -6012,8 +6012,8 @@ Lng32 SQLCLI_SetDescItem(
 // NOTE: this procedure will go away, please use GetDiagnosticsStmtInfo()
 // instead!!!
 // -----------------------------------------------------------------------
-Lng32 SQLCLI_GetRowsAffected(/*IN*/ CliGlobals *cliGlobals,
-                             /*IN*/ SQLSTMT_ID *statement_id, Int64 &rowsAffected) {
+int SQLCLI_GetRowsAffected(/*IN*/ CliGlobals *cliGlobals,
+                             /*IN*/ SQLSTMT_ID *statement_id, long &rowsAffected) {
   if (!cliGlobals) return -CLI_NO_CURRENT_CONTEXT;
 
   ContextCli &currContext = *(cliGlobals->currContext());
@@ -6033,7 +6033,7 @@ Lng32 SQLCLI_GetRowsAffected(/*IN*/ CliGlobals *cliGlobals,
 
   return SUCCESS;
 }
-Lng32 SQLCLI_MergeDiagnostics(/*IN*/ CliGlobals *cliGlobals,
+int SQLCLI_MergeDiagnostics(/*IN*/ CliGlobals *cliGlobals,
                               /*INOUT*/ ComDiagsArea &newDiags) {
   if (&newDiags == NULL) return ERROR;
 
@@ -6047,10 +6047,10 @@ Lng32 SQLCLI_MergeDiagnostics(/*IN*/ CliGlobals *cliGlobals,
 }
 
 // For internal use only -- do not document!
-static Lng32 GetStatement_Internal(/*IN*/ CliGlobals *cliGlobals,
+static int GetStatement_Internal(/*IN*/ CliGlobals *cliGlobals,
                                    /*INOUT*/ Statement **statement_ptr,
                                    /*IN*/ SQLSTMT_ID *statement_id) {
-  Lng32 retcode;
+  int retcode;
   Long stmtHandle = (Long)statement_id->handle;
 
   NABoolean getnext = ((((statement_id->name_mode != stmt_handle) && ((stmtHandle & 0x0001) != 0))) ? TRUE : FALSE);
@@ -6086,7 +6086,7 @@ static Lng32 GetStatement_Internal(/*IN*/ CliGlobals *cliGlobals,
 // Function to get the length of the desc_items array
 // returns the length if no error occurs, if error_occurred
 // is 1 on return then return value indicates error
-Lng32 GetDescItemsEntryCount(
+int GetDescItemsEntryCount(
     /*IN*/ CliGlobals *cliGlobals,
     /*IN*/ SQLDESC_ID *desc_id,
     /*IN*/ SQLDESC_ITEM desc_items[],
@@ -6102,7 +6102,7 @@ Lng32 GetDescItemsEntryCount(
   }
 #endif
 
-  Lng32 retcode;
+  int retcode;
 
   // create initial context, if first call, and add module, if any.
   retcode = CliPrologue(cliGlobals, desc_id->module);
@@ -6124,18 +6124,18 @@ Lng32 GetDescItemsEntryCount(
     return SQLCLI_ReturnCode(&currContext, -CLI_DESC_NOT_EXISTS);
   }
 
-  Lng32 UsedEntryCount = desc->getUsedEntryCount();
+  int UsedEntryCount = desc->getUsedEntryCount();
   return UsedEntryCount;
 }
 
 // For internal use only -- do not document!
-Lng32 SQLCLI_GetRootTdb_Internal(/*IN*/ CliGlobals *cliGlobals,
+int SQLCLI_GetRootTdb_Internal(/*IN*/ CliGlobals *cliGlobals,
                                  /*INOUT*/ char *roottdb_ptr,
                                  /*IN*/ Int32 roottdb_len,
                                  /*INOUT*/ char *srcstr_ptr,
                                  /*IN*/ Int32 srcstr_len,
                                  /*IN*/ SQLSTMT_ID *statement_id) {
-  Lng32 retcode;
+  int retcode;
 
   Statement *statement;
 
@@ -6147,13 +6147,13 @@ Lng32 SQLCLI_GetRootTdb_Internal(/*IN*/ CliGlobals *cliGlobals,
     return -1;
 
   ex_root_tdb *exRootTdb = statement->getRootTdb();
-  Lng32 rootTdbSize = statement->getRootTdbSize();
+  int rootTdbSize = statement->getRootTdbSize();
   ex_assert(rootTdbSize <= roottdb_len, "Insufficient space for root TDB");
   memcpy(roottdb_ptr, exRootTdb, rootTdbSize);
 
   if (srcstr_ptr) {
     char *srcStr = statement->getSrcStr();
-    Lng32 srcStrSize = statement->getSrcStrSize();
+    int srcStrSize = statement->getSrcStrSize();
     ex_assert(srcStrSize <= srcstr_len, "Insufficient space for source");
     memcpy(srcstr_ptr, srcStr, srcStrSize);
   }
@@ -6162,11 +6162,11 @@ Lng32 SQLCLI_GetRootTdb_Internal(/*IN*/ CliGlobals *cliGlobals,
 }
 
 // For internal use only -- do not document!
-Lng32 SQLCLI_GetRootTdbSize_Internal(/*IN*/ CliGlobals *cliGlobals,
-                                     /*INOUT*/ Lng32 *roottdb_size,
-                                     /*INOUT*/ Lng32 *srcstr_size,
+int SQLCLI_GetRootTdbSize_Internal(/*IN*/ CliGlobals *cliGlobals,
+                                     /*INOUT*/ int *roottdb_size,
+                                     /*INOUT*/ int *srcstr_size,
                                      /*IN*/ SQLSTMT_ID *statement_id) {
-  Lng32 retcode;
+  int retcode;
   Statement *statement;
 
   retcode = GetStatement_Internal(cliGlobals, &statement, statement_id);
@@ -6183,10 +6183,10 @@ Lng32 SQLCLI_GetRootTdbSize_Internal(/*IN*/ CliGlobals *cliGlobals,
 }
 
 // For internal use only -- do not document!
-Lng32 SQLCLI_GetCollectStatsType_Internal(/*IN*/ CliGlobals *cliGlobals,
+int SQLCLI_GetCollectStatsType_Internal(/*IN*/ CliGlobals *cliGlobals,
                                           /*OUT*/ ULng32 *collectStatsType,
                                           /*IN*/ SQLSTMT_ID *statement_id) {
-  Lng32 retcode = 0;
+  int retcode = 0;
   Statement *statement;
 
   ContextCli &currContext = *(cliGlobals->currContext());
@@ -6210,10 +6210,10 @@ Lng32 SQLCLI_GetCollectStatsType_Internal(/*IN*/ CliGlobals *cliGlobals,
 }
 
 // For internal use only -- do not document!
-Lng32 SQLCLI_GetTotalTcbSpace(/*IN*/ CliGlobals *cliGlobals,
+int SQLCLI_GetTotalTcbSpace(/*IN*/ CliGlobals *cliGlobals,
                               /*IN*/ char *tdb,
                               /*IN*/ char *otherInfo) {
-  Lng32 retcode;
+  int retcode;
 
   ContextCli &currContext = *(cliGlobals->currContext());
   ComDiagsArea &diags = currContext.diags();
@@ -6223,28 +6223,28 @@ Lng32 SQLCLI_GetTotalTcbSpace(/*IN*/ CliGlobals *cliGlobals,
   return retcode;
 }
 
-Lng32 SQLCLI_SetParserFlagsForExSqlComp_Internal(
+int SQLCLI_SetParserFlagsForExSqlComp_Internal(
     /*IN*/ CliGlobals *cliGlobals,
     /*IN*/ ULng32 flagbits) {
   if (cliGlobals->currContext()) cliGlobals->currContext()->setSqlParserFlags(flagbits);
   return 0;
 }
 
-Lng32 SQLCLI_ResetParserFlagsForExSqlComp_Internal(
+int SQLCLI_ResetParserFlagsForExSqlComp_Internal(
     /*IN*/ CliGlobals *cliGlobals,
     /*IN*/ ULng32 flagbits) {
   if (cliGlobals->currContext()) cliGlobals->currContext()->resetSqlParserFlags(flagbits);
   return 0;
 }
 
-Lng32 SQLCLI_AssignParserFlagsForExSqlComp_Internal(
+int SQLCLI_AssignParserFlagsForExSqlComp_Internal(
     /*IN*/ CliGlobals *cliGlobals,
     /*IN*/ ULng32 flagbits) {
   if (cliGlobals->currContext()) cliGlobals->currContext()->assignSqlParserFlags(flagbits);
   return 0;
 }
 
-Lng32 SQLCLI_GetParserFlagsForExSqlComp_Internal(
+int SQLCLI_GetParserFlagsForExSqlComp_Internal(
     /*IN*/ CliGlobals *cliGlobals,
     /*IN*/ ULng32 &flagbits) {
   flagbits = 0;
@@ -6252,14 +6252,14 @@ Lng32 SQLCLI_GetParserFlagsForExSqlComp_Internal(
   return 0;
 }
 
-Lng32 SQLCLI_OutputValueIntoNumericHostvar(
+int SQLCLI_OutputValueIntoNumericHostvar(
     /*IN*/ CliGlobals *cliGlobals,
     /*IN*/ SQLDESC_ID *output_descriptor,
-    /*IN*/ Lng32 desc_entry,
-    /*IN*/ Lng32 value) {
+    /*IN*/ int desc_entry,
+    /*IN*/ int value) {
   // go ahead...
   // create initial context, if first call, and add module, if any.
-  Lng32 retcode = CliPrologue(cliGlobals, output_descriptor->module);
+  int retcode = CliPrologue(cliGlobals, output_descriptor->module);
   if (isERROR(retcode)) return retcode;
   ContextCli &currContext = *(cliGlobals->currContext());
   ComDiagsArea &diags = currContext.diags();
@@ -6275,8 +6275,8 @@ Lng32 SQLCLI_OutputValueIntoNumericHostvar(
   return retcode;
 }
 
-Lng32 SQLCLI_SetEnviron_Internal(/*IN*/ CliGlobals *cliGlobals, char **envvars, Lng32 propagate) {
-  Lng32 retcode = 0;
+int SQLCLI_SetEnviron_Internal(/*IN*/ CliGlobals *cliGlobals, char **envvars, int propagate) {
+  int retcode = 0;
 
   ContextCli &currContext = *(cliGlobals->currContext());
   ComDiagsArea &diags = currContext.diags();
@@ -6287,8 +6287,8 @@ Lng32 SQLCLI_SetEnviron_Internal(/*IN*/ CliGlobals *cliGlobals, char **envvars, 
   return 0;
 }
 
-Lng32 SQLCLI_SetErrorCodeInRTS(CliGlobals *cliGlobals, SQLSTMT_ID *statement_id, Lng32 sqlErrorCode) {
-  Lng32 retcode = 0;
+int SQLCLI_SetErrorCodeInRTS(CliGlobals *cliGlobals, SQLSTMT_ID *statement_id, int sqlErrorCode) {
+  int retcode = 0;
 
   // create initial context, if first call, and add module, if any.
   retcode = CliPrologue(cliGlobals, statement_id->module);
@@ -6304,7 +6304,7 @@ Lng32 SQLCLI_SetErrorCodeInRTS(CliGlobals *cliGlobals, SQLSTMT_ID *statement_id,
     StmtStats *stmtStats = stmt->getStmtStats();
     if (stmtStats != NULL && stmtStats->getMasterStats() != NULL) {
       if (diags.mainSQLCODE() < 0) {
-        Int64 exeEndTime = NA_JulianTimestamp();
+        long exeEndTime = NA_JulianTimestamp();
         stmtStats->getMasterStats()->setExeEndTime(exeEndTime);
         stmtStats->getMasterStats()->setElapsedEndTime(exeEndTime);
       }
@@ -6315,7 +6315,7 @@ Lng32 SQLCLI_SetErrorCodeInRTS(CliGlobals *cliGlobals, SQLSTMT_ID *statement_id,
   return retcode;
 }
 
-Lng32 SQLCLI_LocaleToUTF8(CliGlobals *cliGlobals, Int32 conv_charset, void *Input_Buffer_Addr,
+int SQLCLI_LocaleToUTF8(CliGlobals *cliGlobals, Int32 conv_charset, void *Input_Buffer_Addr,
                           Int32 Input_Buffer_Length, void *Output_Buffer_Addr, Int32 Output_Buffer_Length,
                           void **First_Untranslated_Char_Addr, Int32 *Output_Data_Length, Int32 add_null_at_end_Flag,
                           Int32 *num_translated_char) {
@@ -6336,7 +6336,7 @@ Lng32 SQLCLI_LocaleToUTF8(CliGlobals *cliGlobals, Int32 conv_charset, void *Inpu
   return error;
 }
 
-Lng32 SQLCLI_LocaleToUTF16(CliGlobals *cliGlobals, Int32 conv_charset, void *Input_Buffer_Addr,
+int SQLCLI_LocaleToUTF16(CliGlobals *cliGlobals, Int32 conv_charset, void *Input_Buffer_Addr,
                            Int32 Input_Buffer_Length, void *Output_Buffer_Addr, Int32 Output_Buffer_Length,
                            void **First_Untranslated_Char_Addr, Int32 *Output_Data_Length, Int32 conv_flags,
                            Int32 add_null_at_end_Flag, Int32 *num_translated_char) {
@@ -6358,7 +6358,7 @@ Lng32 SQLCLI_LocaleToUTF16(CliGlobals *cliGlobals, Int32 conv_charset, void *Inp
   return error;
 }
 
-Lng32 SQLCLI_UTF8ToLocale(CliGlobals *cliGlobals, Int32 conv_charset, void *Input_Buffer_Addr,
+int SQLCLI_UTF8ToLocale(CliGlobals *cliGlobals, Int32 conv_charset, void *Input_Buffer_Addr,
                           Int32 Input_Buffer_Length, void *Output_Buffer_Addr, Int32 Output_Buffer_Length,
                           void **First_Untranslated_Char_Addr, Int32 *Output_Data_Length, Int32 add_null_at_end_Flag,
                           Int32 allow_invalids, Int32 *num_translated_char, void *substitution_char_addr) {
@@ -6382,7 +6382,7 @@ Lng32 SQLCLI_UTF8ToLocale(CliGlobals *cliGlobals, Int32 conv_charset, void *Inpu
   return error;
 }
 
-Lng32 SQLCLI_UTF16ToLocale(CliGlobals *cliGlobals, Int32 conv_charset, void *Input_Buffer_Addr,
+int SQLCLI_UTF16ToLocale(CliGlobals *cliGlobals, Int32 conv_charset, void *Input_Buffer_Addr,
                            Int32 Input_Buffer_Length, void *Output_Buffer_Addr, Int32 Output_Buffer_Length,
                            void **First_Untranslated_Char_Addr, Int32 *Output_Data_Length, Int32 conv_flags,
                            Int32 add_null_at_end_Flag, Int32 allow_invalids, Int32 *num_translated_char,
@@ -6407,25 +6407,25 @@ Lng32 SQLCLI_UTF16ToLocale(CliGlobals *cliGlobals, Int32 conv_charset, void *Inp
   return error;
 }
 
-Lng32 SQLCLI_SetSecInvalidKeys(CliGlobals *cliGlobals,
+int SQLCLI_SetSecInvalidKeys(CliGlobals *cliGlobals,
                                /* IN */ Int32 numSiKeys,
                                /* IN */ SQL_QIKEY siKeys[]) {
   return cliGlobals->currContext()->setSecInvalidKeys(numSiKeys, siKeys);
 }
 
-Lng32 SQLCLI_GetSecInvalidKeys(CliGlobals *cliGlobals,
-                               /* IN */ Int64 prevTimestamp,
+int SQLCLI_GetSecInvalidKeys(CliGlobals *cliGlobals,
+                               /* IN */ long prevTimestamp,
                                /* IN/OUT */ SQL_QIKEY siKeys[],
                                /* IN */ Int32 maxNumSiKeys,
                                /* IN/OUT */ Int32 *returnedNumSiKeys,
-                               /* IN/OUT */ Int64 *maxTimestamp) {
-  Lng32 retcode = 0;
+                               /* IN/OUT */ long *maxTimestamp) {
+  int retcode = 0;
   *returnedNumSiKeys = 0;
 
   StatsGlobals *statsGlobals = cliGlobals->getStatsGlobals();
   if (statsGlobals) {
-    Int64 newestSik = statsGlobals->getNewestRevokeTimestamp();
-    Int64 newMaxTimestamp = NA_JulianTimestamp();
+    long newestSik = statsGlobals->getNewestRevokeTimestamp();
+    long newMaxTimestamp = NA_JulianTimestamp();
 
     if (prevTimestamp < newestSik)
       retcode = cliGlobals->getStatsGlobals()->getSecInvalidKeys(cliGlobals, prevTimestamp, siKeys, maxNumSiKeys,
@@ -6452,8 +6452,8 @@ Int32 SQLCLI_SetObjectEpochEntry(CliGlobals *cliGlobals,
                                  /* IN */ Int32 operation,
                                  /* IN */ Int32 objectNameLength,
                                  /* IN */ const char *objectName,
-                                 /* IN */ Int64 redefTime,
-                                 /* IN */ Int64 key,
+                                 /* IN */ long redefTime,
+                                 /* IN */ long key,
                                  /* IN */ UInt32 expectedEpoch,
                                  /* IN */ UInt32 expectedFlags,
                                  /* IN */ UInt32 newEpoch,
@@ -6465,50 +6465,50 @@ Int32 SQLCLI_SetObjectEpochEntry(CliGlobals *cliGlobals,
                                                         maxExpectedEpochFound, maxExpectedFlagsFound);
 }
 
-Lng32 SQLCLI_LockObjectDDL(CliGlobals *cliGlobals,
+int SQLCLI_LockObjectDDL(CliGlobals *cliGlobals,
                            /* IN */ const char *objectName,
                            /* IN */ short objectType) {
   return cliGlobals->currContext()->lockObjectDDL(objectName, (ComObjectType)objectType);
 }
 
-Lng32 SQLCLI_UnLockObjectDDL(CliGlobals *cliGlobals,
+int SQLCLI_UnLockObjectDDL(CliGlobals *cliGlobals,
                              /* IN */ const char *objectName,
                              /* IN */ short objectType) {
   return cliGlobals->currContext()->unlockObjectDDL(objectName, (ComObjectType)objectType);
 }
 
-Lng32 SQLCLI_LockObjectDML(CliGlobals *cliGlobals,
+int SQLCLI_LockObjectDML(CliGlobals *cliGlobals,
                            /* IN */ const char *objectName,
                            /* IN */ short objectType) {
   return cliGlobals->currContext()->lockObjectDML(objectName, (ComObjectType)objectType);
 }
 
-Lng32 SQLCLI_ReleaseAllDDLObjectLocks(CliGlobals *cliGlobals) {
+int SQLCLI_ReleaseAllDDLObjectLocks(CliGlobals *cliGlobals) {
   return cliGlobals->currContext()->releaseAllDDLObjectLocks();
 }
 
-Lng32 SQLCLI_ReleaseAllDMLObjectLocks(CliGlobals *cliGlobals) {
+int SQLCLI_ReleaseAllDMLObjectLocks(CliGlobals *cliGlobals) {
   return cliGlobals->currContext()->releaseAllDMLObjectLocks();
 }
 
-Lng32 SQLCLI_CheckLobLock(CliGlobals *cliGlobals,
+int SQLCLI_CheckLobLock(CliGlobals *cliGlobals,
                           /* IN */ char *lobLockId,
                           /*OUT */ NABoolean *found) {
   Int32 retcode = 0;
   retcode = cliGlobals->currContext()->checkLobLock(lobLockId, found);
   return retcode;
 }
-Lng32 SQLCLI_GetStatistics2(CliGlobals *cliGlobals,
+int SQLCLI_GetStatistics2(CliGlobals *cliGlobals,
                             /* IN */ short statsReqType,
                             /* IN */ char *statsReqStr,
-                            /* IN */ Lng32 statsReqStrLen,
+                            /* IN */ int statsReqStrLen,
                             /* IN */ short activeQueryNum,
                             /* IN */ short statsMergeType,
                             /* OUT */ short *statsCollectType,
                             /* IN/OUT */ SQLSTATS_DESC sqlstats_desc[],
-                            /* IN */ Lng32 max_stats_desc,
-                            /* OUT */ Lng32 *no_returned_stats_desc) {
-  Lng32 retcode;
+                            /* IN */ int max_stats_desc,
+                            /* OUT */ int *no_returned_stats_desc) {
+  int retcode;
 
   ContextCli *currContext = cliGlobals->currContext();
   retcode = currContext->GetStatistics2(statsReqType, statsReqStr, statsReqStrLen, activeQueryNum, statsMergeType,
@@ -6517,13 +6517,13 @@ Lng32 SQLCLI_GetStatistics2(CliGlobals *cliGlobals,
   return retcode;
 }
 
-Lng32 SQLCLI_GetStatisticsItems(CliGlobals *cliGlobals,
+int SQLCLI_GetStatisticsItems(CliGlobals *cliGlobals,
                                 /* IN */ short statsReqType,
                                 /* IN */ char *queryId,
-                                /* IN */ Lng32 queryIdLen,
-                                /* IN */ Lng32 no_of_stats_items,
+                                /* IN */ int queryIdLen,
+                                /* IN */ int no_of_stats_items,
                                 /* IN/OUT */ SQLSTATS_ITEM sqlStats_items[]) {
-  Lng32 retcode;
+  int retcode;
 
   ContextCli *currContext = cliGlobals->currContext();
   ComDiagsArea &diags = currContext->diags();
@@ -6547,11 +6547,11 @@ Lng32 SQLCLI_GetStatisticsItems(CliGlobals *cliGlobals,
   retcode = mergedStats->getStatsItems(no_of_stats_items, sqlStats_items);
   return retcode;
 }
-Lng32 SQLCLI_RegisterQuery(CliGlobals *cliGlobals, SQLQUERY_ID *queryId, Lng32 fragId, Lng32 tdbId, Lng32 explainTdbId,
-                           short collectStatsType, Lng32 instNum, Lng32 tdbType, char *tdbName, Lng32 tdbNameLen) {
+int SQLCLI_RegisterQuery(CliGlobals *cliGlobals, SQLQUERY_ID *queryId, int fragId, int tdbId, int explainTdbId,
+                           short collectStatsType, int instNum, int tdbType, char *tdbName, int tdbNameLen) {
   ContextCli *currContext = cliGlobals->currContext();
   ComDiagsArea &diags = currContext->diags();
-  Lng32 retcode = SUCCESS;
+  int retcode = SUCCESS;
   StatsGlobals *statsGlobals = cliGlobals->getStatsGlobals();
   if (statsGlobals == NULL) return retcode;
   int error;
@@ -6562,10 +6562,10 @@ Lng32 SQLCLI_RegisterQuery(CliGlobals *cliGlobals, SQLQUERY_ID *queryId, Lng32 f
   return retcode;
 }
 
-Lng32 SQLCLI_DeregisterQuery(CliGlobals *cliGlobals, SQLQUERY_ID *queryId, Lng32 fragId) {
+int SQLCLI_DeregisterQuery(CliGlobals *cliGlobals, SQLQUERY_ID *queryId, int fragId) {
   ContextCli *currContext = cliGlobals->currContext();
   ComDiagsArea &diags = currContext->diags();
-  Lng32 retcode = SUCCESS;
+  int retcode = SUCCESS;
   StatsGlobals *statsGlobals = cliGlobals->getStatsGlobals();
   if (statsGlobals == NULL) return retcode;
   int error;
@@ -6578,17 +6578,17 @@ Lng32 SQLCLI_DeregisterQuery(CliGlobals *cliGlobals, SQLQUERY_ID *queryId, Lng32
 // This method returns the pointer to the CLI ExStatistics area.
 // The returned pointer is a read only pointer, its contents cannot be
 // modified by the caller.
-Lng32 SQLCLI_GetStatisticsArea_Internal(
+int SQLCLI_GetStatisticsArea_Internal(
     /* IN */ CliGlobals *cliGlobals,
     /* IN */ short statsReqType,
     /* IN */ char *statsReqStr,
-    /* IN */ Lng32 statsReqStrLen,
+    /* IN */ int statsReqStrLen,
     /* IN */ short activeQueryNum,
     /* IN */ short statsMergeType,
     /*INOUT*/ const ExStatisticsArea *&exStatsArea) {
   ContextCli *currContext = cliGlobals->currContext();
   ComDiagsArea &diagsArea = currContext->diags();
-  Lng32 retcode = SUCCESS;
+  int retcode = SUCCESS;
 
   short retryAttempts = 0;
 
@@ -6617,16 +6617,16 @@ Lng32 SQLCLI_GetStatisticsArea_Internal(
   return retcode;
 }
 
-Lng32 SQLCLI_GetObjectEpochStats_Internal(
+int SQLCLI_GetObjectEpochStats_Internal(
     /* IN */ CliGlobals *cliGlobals,
     /* IN */ const char *objectName,
-    /* IN */ Lng32 objectNameLen,
+    /* IN */ int objectNameLen,
     /* IN */ short cpu,
     /* IN */ bool locked,
     /*INOUT*/ ExStatisticsArea *&exStatsArea) {
   ContextCli *currContext = cliGlobals->currContext();
   ComDiagsArea &diagsArea = currContext->diags();
-  Lng32 retcode = SUCCESS;
+  int retcode = SUCCESS;
 
   short retryAttempts = 0;
 
@@ -6642,15 +6642,15 @@ Lng32 SQLCLI_GetObjectEpochStats_Internal(
   return retcode;
 }
 
-Lng32 SQLCLI_GetObjectLockStats_Internal(
+int SQLCLI_GetObjectLockStats_Internal(
     /* IN */ CliGlobals *cliGlobals,
     /* IN */ const char *objectName,
-    /* IN */ Lng32 objectNameLen,
+    /* IN */ int objectNameLen,
     /* IN */ short cpu,
     /*INOUT*/ ExStatisticsArea *&exStatsArea) {
   ContextCli *currContext = cliGlobals->currContext();
   ComDiagsArea &diagsArea = currContext->diags();
-  Lng32 retcode = SUCCESS;
+  int retcode = SUCCESS;
 
   short retryAttempts = 0;
 
@@ -6666,10 +6666,10 @@ Lng32 SQLCLI_GetObjectLockStats_Internal(
   return retcode;
 }
 
-Lng32 SQLCLI_GetChildQueryInfo(CliGlobals *cliGlobals, SQLSTMT_ID *statement_id, char *uniqueQueryId,
-                               Lng32 uniqueQueryIdMaxLen, Lng32 *uniqueQueryIdLen, SQL_QUERY_COST_INFO *query_cost_info,
+int SQLCLI_GetChildQueryInfo(CliGlobals *cliGlobals, SQLSTMT_ID *statement_id, char *uniqueQueryId,
+                               int uniqueQueryIdMaxLen, int *uniqueQueryIdLen, SQL_QUERY_COST_INFO *query_cost_info,
                                SQL_QUERY_COMPILER_STATS_INFO *comp_stats_info) {
-  Lng32 retcode = 0;
+  int retcode = 0;
 
   ContextCli &currContext = *(cliGlobals->currContext());
   ComDiagsArea &diags = currContext.diags();
@@ -6743,14 +6743,14 @@ Int32 SQLCLI_SWITCH_BACK_COMPILER(
   return (currContext->switchBackCmpContext());
 }
 
-Lng32 SQLCLI_SEcliInterface(CliGlobals *cliGlobals, SECliQueryType qType,
+int SQLCLI_SEcliInterface(CliGlobals *cliGlobals, SECliQueryType qType,
 
                             void **inCliInterface,
 
-                            const char *inStrParam1, const char *inStrParam2, Lng32 inIntParam1, Lng32 inIntParam2,
+                            const char *inStrParam1, const char *inStrParam2, int inIntParam1, int inIntParam2,
 
-                            char **outStrParam1, char **outStrParam2, Lng32 *outIntParam1) {
-  Lng32 rc = 0;
+                            char **outStrParam1, char **outStrParam2, int *outIntParam1) {
+  int rc = 0;
 
   ContextCli &currContext = *(cliGlobals->currContext());
   ComDiagsArea &diags = currContext.diags();
@@ -6838,12 +6838,12 @@ Lng32 SQLCLI_SEcliInterface(CliGlobals *cliGlobals, SECliQueryType qType,
     } break;
 
     case SE_CLI_GET_DATA_OFFSETS: {
-      rc = cliInterface->getDataOffsets(inIntParam1, inIntParam2, (Lng32 *)inStrParam1, (Lng32 *)inStrParam2);
+      rc = cliInterface->getDataOffsets(inIntParam1, inIntParam2, (int *)inStrParam1, (int *)inStrParam2);
     } break;
 
     case SE_CLI_GET_PTR_AND_LEN: {
       char *ptr = NULL;
-      Lng32 len = 0;
+      int len = 0;
       short *ind = NULL;
       rc = cliInterface->getPtrAndLen(inIntParam1, ptr, len, &ind);
       if (outStrParam1) *outStrParam1 = ptr;
@@ -6864,7 +6864,7 @@ Lng32 SQLCLI_SEcliInterface(CliGlobals *cliGlobals, SECliQueryType qType,
     } break;
 
     case SE_CLI_GET_STMT_ATTR: {
-      rc = cliInterface->getStmtAttr((char *)inStrParam1, (Lng32)inIntParam1, (Lng32 *)outIntParam1, *outStrParam1);
+      rc = cliInterface->getStmtAttr((char *)inStrParam1, (int)inIntParam1, (int *)outIntParam1, *outStrParam1);
     } break;
 
     case SE_CLI_DEALLOC: {
@@ -6926,15 +6926,15 @@ Lng32 SQLCLI_SEcliInterface(CliGlobals *cliGlobals, SECliQueryType qType,
 #define SEQ_PROCESS_QRY_IDX_DL 4
 #define SEQ_UPSERT_XDC_SEQ_IDX 5
 
-static Lng32 SeqGenCliInterfacePrepQry(const char *qryStr, Lng32 qryIdx, const char *qryName,
+static int SeqGenCliInterfacePrepQry(const char *qryStr, int qryIdx, const char *qryName,
                                        ExeCliInterface **cliInterfaceArr, SequenceGeneratorAttributes *sga,
                                        ContextCli &currContext, ComDiagsArea &diags, NAHeap *exHeap) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
 
   char query[2000];
   char stmtName[200];
 
-  Int64 rowsAffected = 0;
+  long rowsAffected = 0;
 
   ComDiagsArea *myDiags = NULL;
 
@@ -7002,11 +7002,11 @@ static Lng32 SeqGenCliInterfacePrepQry(const char *qryStr, Lng32 qryIdx, const c
   return 0;
 }
 
-static Lng32 SeqGenCliInterfaceProcessXDC(ExeCliInterface **cliInterfaceArr, SequenceGeneratorAttributes *sga,
+static int SeqGenCliInterfaceProcessXDC(ExeCliInterface **cliInterfaceArr, SequenceGeneratorAttributes *sga,
                                           ContextCli &currContext, ComDiagsArea &diags, NAHeap *exHeap,
-                                          NABoolean doPrepare, NABoolean doExecute, Int64 nextValue = 0 /*input*/) {
+                                          NABoolean doPrepare, NABoolean doExecute, long nextValue = 0 /*input*/) {
   if (!(sga->getSGAsyncRepl())) return 0;
-  Lng32 cliRC = 0;
+  int cliRC = 0;
   if (doPrepare) {
     if (!cliInterfaceArr[SEQ_UPSERT_XDC_SEQ_IDX]) {
       cliRC = SeqGenCliInterfacePrepQry(
@@ -7021,8 +7021,8 @@ static Lng32 SeqGenCliInterfaceProcessXDC(ExeCliInterface **cliInterfaceArr, Seq
     ExeCliInterface *cliInterface = cliInterfaceArr[SEQ_UPSERT_XDC_SEQ_IDX];
     ComDiagsArea *myDiags = NULL;
 
-    Int64 inputValues[1];
-    Lng32 inputValuesLen = 0;
+    long inputValues[1];
+    int inputValuesLen = 0;
 
     inputValues[0] = nextValue;
     inputValuesLen = sizeof(nextValue);
@@ -7037,18 +7037,18 @@ static Lng32 SeqGenCliInterfaceProcessXDC(ExeCliInterface **cliInterfaceArr, Seq
   return cliRC;
 }
 
-static Lng32 SeqGenCliInterfaceUpdAndValidate(ExeCliInterface **cliInterfaceArr, SequenceGeneratorAttributes *sga,
+static int SeqGenCliInterfaceUpdAndValidate(ExeCliInterface **cliInterfaceArr, SequenceGeneratorAttributes *sga,
                                               NABoolean recycleQry, ContextCli &currContext, ComDiagsArea &diags,
-                                              NAHeap *exHeap, Int64 &nextValue, Int64 &endValue) {
-  Lng32 cliRC;
+                                              NAHeap *exHeap, long &nextValue, long &endValue) {
+  int cliRC;
 
-  Int64 outputValues[5];
-  Int64 inputValues[5];
+  long outputValues[5];
+  long inputValues[5];
 
-  Lng32 outputValuesLen = 0;
-  Lng32 inputValuesLen = 0;
+  int outputValuesLen = 0;
+  int inputValuesLen = 0;
 
-  Int64 rowsAffected = 0;
+  long rowsAffected = 0;
 
   ExeCliInterface *cliInterface = NULL;
 
@@ -7056,9 +7056,9 @@ static Lng32 SeqGenCliInterfaceUpdAndValidate(ExeCliInterface **cliInterfaceArr,
 
   char queryBuf[2000];
 
-  Int64 updUID = 0;
+  long updUID = 0;
 
-  Int64 transID = getTransactionIDFromContext();
+  long transID = getTransactionIDFromContext();
 
   if (!cliInterfaceArr[SEQ_UPD_TS_QRY_IDX]) {
     cliRC = SeqGenCliInterfacePrepQry(
@@ -7108,13 +7108,13 @@ static Lng32 SeqGenCliInterfaceUpdAndValidate(ExeCliInterface **cliInterfaceArr,
   cliInterface = cliInterfaceArr[SEQ_PROCESS_QRY_IDX];
 
   // execute using optimized path
-  Int64 delta = sga->getSGIncrement() * (sga->getSGCache() > 0 ? sga->getSGCache() : 1);
+  long delta = sga->getSGIncrement() * (sga->getSGCache() > 0 ? sga->getSGCache() : 1);
   inputValues[0] = (recycleQry ? 1 : 0);
   inputValues[1] = (recycleQry ? 1 : 0);
   inputValues[2] = delta;
   inputValues[3] = delta;
   inputValues[4] = delta;
-  inputValuesLen = 5 * sizeof(Int64);
+  inputValuesLen = 5 * sizeof(long);
 
   cliRC = cliInterface->clearExecFetchCloseOpt((char *)inputValues, inputValuesLen, (char *)outputValues,
                                                &outputValuesLen, &rowsAffected);
@@ -7139,8 +7139,8 @@ static Lng32 SeqGenCliInterfaceUpdAndValidate(ExeCliInterface **cliInterfaceArr,
     return -1582;
   }
 
-  Int64 startValue = outputValues[0];
-  Int64 redefTS = outputValues[1];
+  long startValue = outputValues[0];
+  long redefTS = outputValues[1];
 
   // if timestamp mismatch, aqr
   if (redefTS != sga->getSGRedefTime()) {
@@ -7192,19 +7192,19 @@ static Lng32 SeqGenCliInterfaceUpdAndValidate(ExeCliInterface **cliInterfaceArr,
   return 0;
 }
 
-static Lng32 SeqGenCliInterfaceUpdAndValidateUseDlock(ExeCliInterface **cliInterfaceArr,
+static int SeqGenCliInterfaceUpdAndValidateUseDlock(ExeCliInterface **cliInterfaceArr,
                                                       SequenceGeneratorAttributes *sga, NABoolean recycleQry,
                                                       ContextCli &currContext, ComDiagsArea &diags, NAHeap *exHeap,
-                                                      Int64 &nextValue, Int64 &endValue) {
-  Lng32 cliRC;
+                                                      long &nextValue, long &endValue) {
+  int cliRC;
 
-  Int64 outputValues[5];
-  Int64 inputValues[6];
+  long outputValues[5];
+  long inputValues[6];
 
-  Lng32 outputValuesLen = 0;
-  Lng32 inputValuesLen = 0;
+  int outputValuesLen = 0;
+  int inputValuesLen = 0;
 
-  Int64 rowsAffected = 0;
+  long rowsAffected = 0;
 
   ExeCliInterface *cliInterface = NULL;
 
@@ -7212,7 +7212,7 @@ static Lng32 SeqGenCliInterfaceUpdAndValidateUseDlock(ExeCliInterface **cliInter
 
   char queryBuf[2000];
 
-  Int64 updUID = 0;
+  long updUID = 0;
 
   if (!cliInterfaceArr[SEQ_PROCESS_QRY_IDX_DL]) {
     cliRC = SeqGenCliInterfacePrepQry(
@@ -7233,13 +7233,13 @@ static Lng32 SeqGenCliInterfaceUpdAndValidateUseDlock(ExeCliInterface **cliInter
   cliInterface = cliInterfaceArr[SEQ_PROCESS_QRY_IDX_DL];
 
   // execute using optimized path
-  Int64 delta = sga->getSGIncrement() * (sga->getSGCache() > 0 ? sga->getSGCache() : 1);
+  long delta = sga->getSGIncrement() * (sga->getSGCache() > 0 ? sga->getSGCache() : 1);
   inputValues[0] = (recycleQry ? 1 : 0);
   inputValues[1] = (recycleQry ? 1 : 0);
   inputValues[2] = delta;
   inputValues[3] = delta;
   inputValues[4] = delta;
-  inputValuesLen = 5 * sizeof(Int64);
+  inputValuesLen = 5 * sizeof(long);
 
   // generated a unique id as upd_ts
   ComUID comUID;
@@ -7251,7 +7251,7 @@ static Lng32 SeqGenCliInterfaceUpdAndValidateUseDlock(ExeCliInterface **cliInter
   DistributedLock_JNI *lock = DistributedLock_JNI::getInstance();
   CMPASSERT(lock != NULL);
 
-  Int64 uid = sga->getSGObjectUID().get_value();
+  long uid = sga->getSGObjectUID().get_value();
   string lockName = "SeqUid" + to_string((long long)uid);
   if (lock->lock(lockName.data(), 0) != DL_OK)  // lockName depends on its uid
     return -FAIL_TO_ACQUIRE_LOCK;
@@ -7280,8 +7280,8 @@ static Lng32 SeqGenCliInterfaceUpdAndValidateUseDlock(ExeCliInterface **cliInter
     return -1582;
   }
 
-  Int64 startValue = outputValues[0];
-  Int64 redefTS = outputValues[1];
+  long startValue = outputValues[0];
+  long redefTS = outputValues[1];
 
   // if timestamp mismatch, aqr
   if (redefTS != sga->getSGRedefTime()) {
@@ -7298,7 +7298,7 @@ static Lng32 SeqGenCliInterfaceUpdAndValidateUseDlock(ExeCliInterface **cliInter
 
   if (endValue > sga->getSGMaxValue()) endValue = sga->getSGMaxValue();
 
-  Int64 valueForXdc = endValue < sga->getSGMaxValue() ? endValue + 1 : endValue;
+  long valueForXdc = endValue < sga->getSGMaxValue() ? endValue + 1 : endValue;
   cliRC = SeqGenCliInterfaceProcessXDC(cliInterfaceArr, sga, currContext, diags, exHeap, false /*doPrepare*/,
                                        true /*doExecute*/, valueForXdc);
   lock->unlock();
@@ -7317,18 +7317,18 @@ static void SeqGenUseDtmHandleError(Int32 cliRC, ExeCliInterface *cliInterface, 
   cliInterface->restoreXnState0();
 }
 
-static Lng32 SeqGenCliInterfaceUpdUseDtm(ExeCliInterface **cliInterfaceArr, SequenceGeneratorAttributes *sga,
+static int SeqGenCliInterfaceUpdUseDtm(ExeCliInterface **cliInterfaceArr, SequenceGeneratorAttributes *sga,
                                          NABoolean recycleQry, ContextCli &currContext, ComDiagsArea &diags,
-                                         NAHeap *exHeap, Int64 &nextValue, Int64 &endValue) {
-  Lng32 cliRC;
+                                         NAHeap *exHeap, long &nextValue, long &endValue) {
+  int cliRC;
 
-  Int64 outputValues[5];
-  Int64 inputValues[6];
+  long outputValues[5];
+  long inputValues[6];
 
-  Lng32 outputValuesLen = 0;
-  Lng32 inputValuesLen = 0;
+  int outputValuesLen = 0;
+  int inputValuesLen = 0;
 
-  Int64 rowsAffected = 0;
+  long rowsAffected = 0;
 
   ExeCliInterface *cliInterface = NULL;
 
@@ -7336,7 +7336,7 @@ static Lng32 SeqGenCliInterfaceUpdUseDtm(ExeCliInterface **cliInterfaceArr, Sequ
 
   char queryBuf[2000];
 
-  Int64 updUID = 0;
+  long updUID = 0;
 
   if (!cliInterfaceArr[SEQ_PROCESS_QRY_IDX_DL]) {
     cliRC = SeqGenCliInterfacePrepQry(
@@ -7356,13 +7356,13 @@ static Lng32 SeqGenCliInterfaceUpdUseDtm(ExeCliInterface **cliInterfaceArr, Sequ
   cliInterface = cliInterfaceArr[SEQ_PROCESS_QRY_IDX_DL];
 
   // execute using optimized path
-  Int64 delta = sga->getSGIncrement() * (sga->getSGCache() > 0 ? sga->getSGCache() : 1);
+  long delta = sga->getSGIncrement() * (sga->getSGCache() > 0 ? sga->getSGCache() : 1);
   inputValues[0] = (recycleQry ? 1 : 0);
   inputValues[1] = (recycleQry ? 1 : 0);
   inputValues[2] = delta;
   inputValues[3] = delta;
   inputValues[4] = delta;
-  inputValuesLen = 5 * sizeof(Int64);
+  inputValuesLen = 5 * sizeof(long);
 
   // generated a unique id as upd_ts
   ComUID comUID;
@@ -7374,13 +7374,13 @@ static Lng32 SeqGenCliInterfaceUpdUseDtm(ExeCliInterface **cliInterfaceArr, Sequ
   DistributedLock_JNI *lock = DistributedLock_JNI::getInstance();
   CMPASSERT(lock != NULL);
 
-  Int64 uid = sga->getSGObjectUID().get_value();
+  long uid = sga->getSGObjectUID().get_value();
   string lockName = "SeqUid" + to_string((long long)uid);
   if (lock->lock(lockName.data(), 0) != DL_OK)  // lockName depends on its uid
     return -FAIL_TO_ACQUIRE_LOCK;
 
   NABoolean xnWasSuspendedHere = FALSE;
-  Int64 transID = getTransactionIDFromContext();
+  long transID = getTransactionIDFromContext();
 
   if (transID > 0)  // a transaction is in progress. Suspend it.
   {
@@ -7460,8 +7460,8 @@ static Lng32 SeqGenCliInterfaceUpdUseDtm(ExeCliInterface **cliInterfaceArr, Sequ
     return -1582;
   }
 
-  Int64 startValue = outputValues[0];
-  Int64 redefTS = outputValues[1];
+  long startValue = outputValues[0];
+  long redefTS = outputValues[1];
 
   // if timestamp mismatch, aqr
   if (redefTS != sga->getSGRedefTime()) {
@@ -7484,11 +7484,11 @@ static Lng32 SeqGenCliInterfaceUpdUseDtm(ExeCliInterface **cliInterfaceArr, Sequ
   return cliRC;
 }
 
-static Lng32 SeqGenCliInterfaceUpdAndValidateMulti(ExeCliInterface **cliInterfaceArr, SequenceGeneratorAttributes *sga,
+static int SeqGenCliInterfaceUpdAndValidateMulti(ExeCliInterface **cliInterfaceArr, SequenceGeneratorAttributes *sga,
                                                    NABoolean recycleQry, ContextCli &currContext, ComDiagsArea &diags,
-                                                   NAHeap *exHeap, Int64 &nextValue, Int64 &endValue) {
-  Lng32 cliRC = 0;
-  Lng32 retCliRC = 0;
+                                                   NAHeap *exHeap, long &nextValue, long &endValue) {
+  int cliRC = 0;
+  int retCliRC = 0;
   ComDiagsArea *myDiags = NULL;
 
   if (!cliInterfaceArr[SEQ_CQD_IDX])
@@ -7503,7 +7503,7 @@ static Lng32 SeqGenCliInterfaceUpdAndValidateMulti(ExeCliInterface **cliInterfac
   // In all these cases, we dont want the enclosing transaction to impact
   // the seq_gen table update, for ex, if it is aborted.
 
-  Lng32 numTries = 0, maxRetryNum = sga->getSGRetryNum();
+  int numTries = 0, maxRetryNum = sga->getSGRetryNum();
   NABoolean isOk = FALSE;
   NABoolean useDlockImpl = sga->getSGUseDlockImpl();
   NABoolean useDtmImpl = sga->getSGUseDtmImpl();
@@ -7528,7 +7528,7 @@ static Lng32 SeqGenCliInterfaceUpdAndValidateMulti(ExeCliInterface **cliInterfac
     }
 
     numTries++;
-    Lng32 delayTime = 100 + numTries * 25 + rand() % 10;
+    int delayTime = 100 + numTries * 25 + rand() % 10;
     if (delayTime < 1000)  // MAX is 1 second
       DELAY(delayTime);
     else
@@ -7549,9 +7549,9 @@ label_return:
   return retCliRC;
 }
 
-Lng32 SQLCLI_SeqGenCliInterface(CliGlobals *cliGlobals, void **inCliInterfaceArr, void *seqGenAttrs) {
-  Lng32 rc = 0;
-  Lng32 cliRC = 0;
+int SQLCLI_SeqGenCliInterface(CliGlobals *cliGlobals, void **inCliInterfaceArr, void *seqGenAttrs) {
+  int rc = 0;
+  int cliRC = 0;
 
   ContextCli &currContext = *(cliGlobals->currContext());
   ComDiagsArea &diags = currContext.diags();
@@ -7562,7 +7562,7 @@ Lng32 SQLCLI_SeqGenCliInterface(CliGlobals *cliGlobals, void **inCliInterfaceArr
   } else {
     cliInterfaceArr = new (currContext.exHeap()) ExeCliInterface *[SEQ_GEN_NUM_PREPS];
 
-    for (Lng32 i = 0; i < SEQ_GEN_NUM_PREPS; i++) {
+    for (int i = 0; i < SEQ_GEN_NUM_PREPS; i++) {
       cliInterfaceArr[i] = NULL;
     }
 
@@ -7571,8 +7571,8 @@ Lng32 SQLCLI_SeqGenCliInterface(CliGlobals *cliGlobals, void **inCliInterfaceArr
 
   SequenceGeneratorAttributes *sga = (SequenceGeneratorAttributes *)seqGenAttrs;
 
-  Int64 nextValue = 0;
-  Int64 endValue = 0;
+  long nextValue = 0;
+  long endValue = 0;
 
   cliRC = SeqGenCliInterfaceUpdAndValidateMulti(cliInterfaceArr, sga, FALSE, currContext, diags, currContext.exHeap(),
                                                 nextValue, endValue);
@@ -7593,18 +7593,18 @@ Lng32 SQLCLI_SeqGenCliInterface(CliGlobals *cliGlobals, void **inCliInterfaceArr
   return 0;
 }
 
-Lng32 SQLCLI_OrderSeqXDCCliInterface(CliGlobals *cliGlobals, void **inCliInterfaceArr, void *seqGenAttrs,
-                                     Int64 endValue) {
+int SQLCLI_OrderSeqXDCCliInterface(CliGlobals *cliGlobals, void **inCliInterfaceArr, void *seqGenAttrs,
+                                     long endValue) {
   ContextCli &currContext = *(cliGlobals->currContext());
   ComDiagsArea &diags = currContext.diags();
-  Lng32 cliRC = 0;
+  int cliRC = 0;
 
   ExeCliInterface **cliInterfaceArr = NULL;
   if (inCliInterfaceArr && (*inCliInterfaceArr)) {
     cliInterfaceArr = (ExeCliInterface **)(*inCliInterfaceArr);
   } else {
     cliInterfaceArr = new (currContext.exHeap()) ExeCliInterface *[SEQ_GEN_NUM_PREPS];
-    for (Lng32 i = 0; i < SEQ_GEN_NUM_PREPS; i++) {
+    for (int i = 0; i < SEQ_GEN_NUM_PREPS; i++) {
       cliInterfaceArr[i] = NULL;
     }
     if (inCliInterfaceArr) *inCliInterfaceArr = cliInterfaceArr;
@@ -7629,7 +7629,7 @@ Int32 SQLCLI_GetRoutine(
     /* IN */ const char *externalPath,
     /* IN */ const char *librarySqlName,
     /* OUT */ Int32 *handle) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
   ContextCli &currContext = *(cliGlobals->currContext());
   ComDiagsArea &diags = currContext.diags();
   LmLanguageManager *lm = cliGlobals->getLanguageManager((ComRoutineLanguage)language);
@@ -7683,7 +7683,7 @@ Int32 SQLCLI_InvokeRoutine(
     /* IN */ Int32 inputRowLen,
     /* OUT */ char *outputRow,
     /* IN */ Int32 outputRowLen) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
   ContextCli &currContext = *(cliGlobals->currContext());
   ComDiagsArea &diags = currContext.diags();
   LmResult res = LM_ERR;
@@ -7718,7 +7718,7 @@ Int32 SQLCLI_GetRoutineInvocationInfo(
     /* IN */ Int32 planInfoMaxLen,
     /* IN */ Int32 planNum,
     /* OUT */ Int32 *planInfoLenOut) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
   ContextCli &currContext = *(cliGlobals->currContext());
   ComDiagsArea &diags = currContext.diags();
   LmResult res = LM_ERR;
@@ -7769,9 +7769,9 @@ Int32 SQLCLI_LoadTrafDataIntoSharedCache(
   return 0;
 }
 
-Lng32 SQLCLI_GetTransactionId(
+int SQLCLI_GetTransactionId(
     /*IN*/ CliGlobals *cliGlobals,
-    /*OUT*/ Int64 *trans_id) {
+    /*OUT*/ long *trans_id) {
   assert(trans_id != NULL);
   if (!cliGlobals) return -CLI_NO_CURRENT_CONTEXT;
 
@@ -7784,10 +7784,10 @@ Lng32 SQLCLI_GetTransactionId(
   return SUCCESS;
 }
 
-Lng32 SQLCLI_GetStatementHeapSize(
+int SQLCLI_GetStatementHeapSize(
     /*IN*/ CliGlobals *cliGlobals,
     /*IN*/ SQLSTMT_ID *statement_id,
-    /*OUT*/ Int64 *heapSize) {
+    /*OUT*/ long *heapSize) {
   if (statement_id == NULL || heapSize == NULL) return SUCCESS;
 
   *heapSize = 0;

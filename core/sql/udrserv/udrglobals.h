@@ -90,7 +90,7 @@ class UdrGlobals {
   SPList *getSPList() { return spList_; }
 
   void resetAllStats();
-  void displayStats(ostream &out, Lng32 indent);
+  void displayStats(ostream &out, int indent);
 
   NABoolean getCommandLineMode() const { return commandLineMode_; }
   void setCommandLineMode(NABoolean b) { commandLineMode_ = b; }
@@ -136,10 +136,10 @@ class UdrGlobals {
 
   // global variables...
 
-  Lng32 cliSqlViolation_;    // True - SPJ with NO SQL attribute issued SQL call
-  Lng32 cliXactViolation_;   // True - SPJ issued a BEGIN, COMMIT, or ABORT
-  Lng32 cliSqlError_;        // True - SQL Error occurred while in SPJ
-  Lng32 cliXactWasAborted_;  // True - Transaction abort occurred while in SPJ
+  int cliSqlViolation_;    // True - SPJ with NO SQL attribute issued SQL call
+  int cliXactViolation_;   // True - SPJ issued a BEGIN, COMMIT, or ABORT
+  int cliSqlError_;        // True - SQL Error occurred while in SPJ
+  int cliXactWasAborted_;  // True - Transaction abort occurred while in SPJ
 
   IpcMessageObjSize currentMsgSize_;  // Size of current request messaqe
 
@@ -162,9 +162,9 @@ class UdrGlobals {
   time_t ltime_;               // Used to provide Udr Server start and
                                // stop time in logging.
 
-  Int64 nextUniqueIdentifier_;  // To generate process-wide unique numbers
+  long nextUniqueIdentifier_;  // To generate process-wide unique numbers
 
-  Lng32 objectCount_;  // Used during message processing to identify
+  int objectCount_;  // Used during message processing to identify
                        // number of objects in a message
 
 #ifdef UDR_MULTIPLE_CONTEXTS
@@ -172,8 +172,8 @@ class UdrGlobals {
   // Used to preserve context during CLI calls
 #endif  // UDR_MULTIPLE_CONTEXTS
 
-  Lng32 replyCount_;    // reply count since start of Server
-  Lng32 requestCount_;  // request count since start of Server
+  int replyCount_;    // reply count since start of Server
+  int requestCount_;  // request count since start of Server
 
   char serverName_[MAXSERVERNAME];  // Value of 'Udr Server' for
                                     // logging messages
@@ -199,40 +199,40 @@ class UdrGlobals {
   NABoolean verbose_;
 
   // Statistics for all UDRs
-  Int64 numReqUDR_;
-  Int64 numErrUDR_;
-  Int64 numReqSP_;
-  Int64 numErrSP_;
-  Int64 numReqDataSP_;
-  Int64 numErrDataSP_;
+  long numReqUDR_;
+  long numErrUDR_;
+  long numReqSP_;
+  long numErrSP_;
+  long numReqDataSP_;
+  long numErrDataSP_;
 
-  Int64 numReqLoadSP_;
-  Int64 numReqInvokeSP_;
-  Int64 numReqContinueSP_;
-  Int64 numReqUnloadSP_;
-  Int64 numErrLoadSP_;
-  Int64 numErrInvokeSP_;
-  Int64 numErrContinueSP_;
-  Int64 numErrUnloadSP_;
+  long numReqLoadSP_;
+  long numReqInvokeSP_;
+  long numReqContinueSP_;
+  long numReqUnloadSP_;
+  long numErrLoadSP_;
+  long numErrInvokeSP_;
+  long numErrContinueSP_;
+  long numErrUnloadSP_;
 
-  Int64 numErrLMCall_;
-  Int64 numErrCLICall_;
-  Int64 numTotalSPs_;
-  Int64 numCurrSPs_;
-  Int64 numTotalRSets_;
-  Int64 numCurrRSets_;
+  long numErrLMCall_;
+  long numErrCLICall_;
+  long numTotalSPs_;
+  long numCurrSPs_;
+  long numTotalRSets_;
+  long numCurrRSets_;
 
   // Statistics for result sets
-  Int64 numReqRSLoad_;
-  Int64 numReqRSFetch_;
-  Int64 numReqRSContinue_;
-  Int64 numReqRSClose_;
-  Int64 numReqRSUnload_;
-  Int64 numErrRSLoad_;
-  Int64 numErrRSFetch_;
-  Int64 numErrRSContinue_;
-  Int64 numErrRSClose_;
-  Int64 numErrRSUnload_;
+  long numReqRSLoad_;
+  long numReqRSFetch_;
+  long numReqRSContinue_;
+  long numReqRSClose_;
+  long numReqRSUnload_;
+  long numErrRSLoad_;
+  long numErrRSFetch_;
+  long numErrRSContinue_;
+  long numErrRSClose_;
+  long numErrRSUnload_;
 
  private:
   NAHeap *udrHeap_;  // pointer to heap for process duration storage

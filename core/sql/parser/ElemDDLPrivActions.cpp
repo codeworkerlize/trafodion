@@ -1085,7 +1085,7 @@ ElemDDLPrivActWithColumns *ElemDDLPrivActWithColumns::castToElemDDLPrivActWithCo
 // get the degree of this node
 Int32 ElemDDLPrivActWithColumns::getArity() const { return MAX_ELEM_DDL_PRIV_ACT_WITH_COLUMNS_ARITY; }
 
-ExprNode *ElemDDLPrivActWithColumns::getChild(Lng32 index) {
+ExprNode *ElemDDLPrivActWithColumns::getChild(int index) {
   ComASSERT(index >= 0 AND index < getArity());
   return children_[index];
 }
@@ -1094,7 +1094,7 @@ ExprNode *ElemDDLPrivActWithColumns::getChild(Lng32 index) {
 // mutator
 //
 
-void ElemDDLPrivActWithColumns::setChild(Lng32 index, ExprNode *pChildNode) {
+void ElemDDLPrivActWithColumns::setChild(int index, ExprNode *pChildNode) {
   ComASSERT(index >= 0 AND index < getArity());
   if (pChildNode NEQ NULL) {
     ComASSERT(pChildNode->castToElemDDLNode() NEQ NULL);
@@ -1133,13 +1133,13 @@ NATraceList ElemDDLPrivActWithColumns::getDetailInfo() const {
   }
 
   detailText = "Column Name List [";
-  detailText += LongToNAString((Lng32)pColumnNameList->entries());
+  detailText += LongToNAString((int)pColumnNameList->entries());
   detailText += " element(s)]:";
   detailTextList.append(detailText);
 
   for (CollIndex i = 0; i < pColumnNameList->entries(); i++) {
     detailText = "[column ";
-    detailText += LongToNAString((Lng32)i);
+    detailText += LongToNAString((int)i);
     detailText += "]";
     detailTextList.append(detailText);
 

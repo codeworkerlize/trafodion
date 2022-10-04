@@ -63,23 +63,23 @@ class ComCondition;
 // above version in that it puts an error condition in the supplied
 // ComDiagsArea rather than in a copy.
 
-ComDiagsArea *ExAddCondition(NAMemory *heap, ComDiagsArea **diagsArea, Lng32 err, ComCondition **cond = NULL,
-                             Lng32 *intParam1 = NULL, Lng32 *intParam2 = NULL, Lng32 *intParam3 = NULL,
+ComDiagsArea *ExAddCondition(NAMemory *heap, ComDiagsArea **diagsArea, int err, ComCondition **cond = NULL,
+                             int *intParam1 = NULL, int *intParam2 = NULL, int *intParam3 = NULL,
                              const char *stringParam1 = NULL, const char *stringParam2 = NULL,
                              const char *stringParam3 = NULL);
 
 ComDiagsArea *ExRaiseSqlError(NAMemory *heap, ComDiagsArea **diagsArea, ExeErrorCode err, ComCondition **cond = NULL,
-                              Lng32 *intParam1 = NULL, Lng32 *intParam2 = NULL, Lng32 *intParam3 = NULL,
+                              int *intParam1 = NULL, int *intParam2 = NULL, int *intParam3 = NULL,
                               const char *stringParam1 = NULL, const char *stringParam2 = NULL,
                               const char *stringParam3 = NULL);
 
-ComDiagsArea *ExRaiseSqlError(NAMemory *heap, ComDiagsArea **diagsArea, Lng32 err, Lng32 *intParam1 = NULL,
-                              Lng32 *intParam2 = NULL, Lng32 *intParam3 = NULL, const char *stringParam1 = NULL,
+ComDiagsArea *ExRaiseSqlError(NAMemory *heap, ComDiagsArea **diagsArea, int err, int *intParam1 = NULL,
+                              int *intParam2 = NULL, int *intParam3 = NULL, const char *stringParam1 = NULL,
                               const char *stringParam2 = NULL, const char *stringParam3 = NULL);
 
 ComDiagsArea *ExRaiseSqlWarning(NAMemory *heap, ComDiagsArea **diagsArea, ExeErrorCode err, ComCondition **cond = NULL);
 ComDiagsArea *ExRaiseSqlWarning(NAMemory *heap, ComDiagsArea **diagsArea, ExeErrorCode err, ComCondition **cond,
-                                Lng32 *intParam1 = NULL, Lng32 *intParam2 = NULL, Lng32 *intParam3 = NULL,
+                                int *intParam1 = NULL, int *intParam2 = NULL, int *intParam3 = NULL,
                                 const char *stringParam1 = NULL, const char *stringParam2 = NULL,
                                 const char *stringParam3 = NULL);
 ComDiagsArea *ExRaiseFunctionSqlError(NAMemory *heap, ComDiagsArea **diagsArea, ExeErrorCode err,

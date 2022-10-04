@@ -353,7 +353,7 @@ CANodeId CANodeIdSet::getJBBCwithMinConnectionsToThisJBBSubset() const {
 #ifdef _DEBUG
   if (CmpCommon::getDefault(NSK_DBG) == DF_ON && CmpCommon::getDefault(NSK_DBG_MJRULES_TRACKING) == DF_ON) {
     CURRCONTEXT_OPTDEBUG->stream() << endl << "jbbcs with minimum connection " << jbbcsWithMinConnections.getText();
-    CURRCONTEXT_OPTDEBUG->stream() << "Number of connections " << istring(Lng32(noOfConn)) << endl;
+    CURRCONTEXT_OPTDEBUG->stream() << "Number of connections " << istring(int(noOfConn)) << endl;
   }
 #endif
   if (jbbcsWithMinConnections.entries() > 1) {
@@ -400,7 +400,7 @@ CANodeId CANodeIdSet::getJBBCwithMinConnectionsToThisJBBSubset() const {
 #ifdef _DEBUG
         if (CmpCommon::getDefault(NSK_DBG) == DF_ON && CmpCommon::getDefault(NSK_DBG_MJRULES_TRACKING) == DF_ON) {
           CURRCONTEXT_OPTDEBUG->stream() << "Connections tried " << id.getText() << " with " << id2.getText() << endl;
-          CURRCONTEXT_OPTDEBUG->stream() << "Number of columns " << istring(Lng32(idCols.entries())) << endl;
+          CURRCONTEXT_OPTDEBUG->stream() << "Number of columns " << istring(int(idCols.entries())) << endl;
           CURRCONTEXT_OPTDEBUG->stream() << "Equality factor " << eqFactor.value() << endl << endl;
         }
 #endif
@@ -653,7 +653,7 @@ TableAnalysis *QueryAnalysis::newTableAnalysis(RelExpr *tableExpr) {
   // in a query. This is used in opt.cpp to adjust max parallelism.
   if (CmpCommon::getDefault(COMP_BOOL_24) == DF_ON) {
     // Get the number of partitions for the table
-    Lng32 tableNumOfPartns = tableIndexDesc->getNAFileSet()->getCountOfPartitions();
+    int tableNumOfPartns = tableIndexDesc->getNAFileSet()->getCountOfPartitions();
 
     // Check and save highest no of partitions
     if (highestNumOfPartns_ == -1)
@@ -913,7 +913,7 @@ void QueryAnalysis::initializeGlobalDirectives(RelExpr *root) {
   if (firstNExpr) {
     // get the number of rows requested i.e. the FirstN rows
     // Note: its different methods for RelExpr and FirstN classes
-    Int64 numRowsRequested;
+    long numRowsRequested;
     if (firstNExpr->getOperator() == REL_FIRST_N)
       numRowsRequested = ((FirstN *)firstNExpr)->getFirstNRows();
     else
@@ -1398,7 +1398,7 @@ void QueryAnalysis::computeTablesJoinedToLargestTable() {
 }
 
 void QueryAnalysis::cleanup(RelExpr *expr) {
-  Lng32 sizeOfLargestJBB = getSizeOfLargestJBB();
+  int sizeOfLargestJBB = getSizeOfLargestJBB();
   // set Analysis flag OFF
   analysisON_ = FALSE;
   // set MultiJoin Rewrite flag OFF
@@ -1430,7 +1430,7 @@ void QueryAnalysis::clearAnalysis(RelExpr *expr) {
   expr->getGroupAttr()->clearGroupAnalysis();
   // do children
   Int32 arity = expr->getArity();
-  for (Lng32 i = 0; i < arity; i++) {
+  for (int i = 0; i < arity; i++) {
     clearAnalysis(expr->child(i).getPtr());
   }
 
@@ -1440,7 +1440,7 @@ void QueryAnalysis::clearAnalysis(RelExpr *expr) {
 void QueryAnalysis::primeGroupAnalysisForSubtree(RelExpr *expr) {
   // do children first
   Int32 arity = expr->getArity();
-  for (Lng32 i = 0; i < arity; i++) {
+  for (int i = 0; i < arity; i++) {
     primeGroupAnalysisForSubtree(expr->child(i).getPtr());
   }
   // do self now
@@ -1613,7 +1613,7 @@ NABoolean RelExpr::pilotAnalysis(QueryAnalysis *qa) {
   // now pass it to children
   Int32 arity = getArity();
 
-  for (Lng32 i = 0; i < arity; i++) status = status AND child(i)->pilotAnalysis(qa);
+  for (int i = 0; i < arity; i++) status = status AND child(i)->pilotAnalysis(qa);
 
   return status;
 }
@@ -1708,7 +1708,7 @@ NABoolean Join::pilotAnalysis(QueryAnalysis *qa) {
     qa->setSkippedSomeJoins();
 
   // now pass call to children
-  for (Lng32 i = 0; i < 2; i++) status = status AND child(i)->pilotAnalysis(qa);
+  for (int i = 0; i < 2; i++) status = status AND child(i)->pilotAnalysis(qa);
 
   return status;
 }
@@ -1725,7 +1725,7 @@ NABoolean Insert::pilotAnalysis(QueryAnalysis *qa) {
   // now pass it to children
   Int32 arity = getArity();
 
-  for (Lng32 i = 0; i < arity; i++) status = status AND child(i)->pilotAnalysis(qa);
+  for (int i = 0; i < arity; i++) status = status AND child(i)->pilotAnalysis(qa);
 
   return status;
 }
@@ -1759,7 +1759,7 @@ NABoolean GenericUpdate::pilotAnalysis(QueryAnalysis *qa) {
   // now pass it to children
   Int32 arity = getArity();
 
-  for (Lng32 i = 0; i < arity; i++) status = status AND child(i)->pilotAnalysis(qa);
+  for (int i = 0; i < arity; i++) status = status AND child(i)->pilotAnalysis(qa);
 
   return status;
 }
@@ -1767,7 +1767,7 @@ NABoolean GenericUpdate::pilotAnalysis(QueryAnalysis *qa) {
 void RelExpr::jbbAnalysis(QueryAnalysis *qa) {
   // recursively call the children
   Int32 arity = getArity();
-  for (Lng32 i = 0; i < arity; i++) {
+  for (int i = 0; i < arity; i++) {
     child(i)->jbbAnalysis(qa);
   }
   return;
@@ -1836,7 +1836,7 @@ void RelExpr::jbbJoinDependencyAnalysis(ValueIdSet &predsWithDependencies) {
   // call dependency analysis on children
   Int32 arity = getArity();
 
-  for (Lng32 i = 0; i < arity; i++) child(i)->jbbJoinDependencyAnalysis(predsWithDependencies);
+  for (int i = 0; i < arity; i++) child(i)->jbbJoinDependencyAnalysis(predsWithDependencies);
 }
 
 void Join::jbbJoinDependencyAnalysis(ValueIdSet &predsWithDependencies) {
@@ -1879,7 +1879,7 @@ void RelExpr::predAnalysis(QueryAnalysis *qa) {
   // now pass it to children
   Int32 arity = getArity();
 
-  for (Lng32 i = 0; i < arity; i++) child(i)->predAnalysis(qa);
+  for (int i = 0; i < arity; i++) child(i)->predAnalysis(qa);
 
   return;
 }
@@ -1896,7 +1896,7 @@ void Join::predAnalysis(QueryAnalysis *qa) {
   // now pass it to children
   Int32 arity = getArity();
 
-  for (Lng32 i = 0; i < arity; i++) child(i)->predAnalysis(qa);
+  for (int i = 0; i < arity; i++) child(i)->predAnalysis(qa);
 
   return;
 }
@@ -1936,7 +1936,7 @@ RelExpr *RelExpr::convertToMultiJoinSubtree(QueryAnalysis *qa) {
   // pass it to children
   Int32 arity = getArity();
 
-  for (Lng32 i = 0; i < arity; i++) child(i) = child(i)->convertToMultiJoinSubtree(qa);
+  for (int i = 0; i < arity; i++) child(i) = child(i)->convertToMultiJoinSubtree(qa);
 
   if (getGroupAnalysis()->getNodeAnalysis()) getGroupAnalysis()->getNodeAnalysis()->setModifiedExpr(this);
 
@@ -1973,7 +1973,7 @@ EstLogPropSharedPtr RelExpr::setJBBInput(EstLogPropSharedPtr &inLP) {
   // pass it to children
   Int32 arity = getArity();
 
-  for (Lng32 i = 0; i < arity; i++) child(i)->setJBBInput(inLP);
+  for (int i = 0; i < arity; i++) child(i)->setJBBInput(inLP);
 
   if (getGroupAttr() && getGroupAttr()->getGroupAnalysis() && getGroupAttr()->getGroupAnalysis()->getNodeAnalysis()) {
     getGroupAttr()->getGroupAnalysis()->getNodeAnalysis()->setJBBInput(inLP);
@@ -2021,7 +2021,7 @@ EstLogPropSharedPtr MultiJoin::setJBBInput(EstLogPropSharedPtr &inLP) {
   // pass it to children
   Int32 arity = getArity();
 
-  for (Lng32 i = 0; i < arity; i++) child(i)->setJBBInput(inLP);
+  for (int i = 0; i < arity; i++) child(i)->setJBBInput(inLP);
 
   // first clear out the expression already synthesized
   getGroupAttr()->setLogExprForSynthesis(NULL);
@@ -2038,7 +2038,7 @@ RelExpr *RelExpr::expandMultiJoinSubtree() {
   // pass it to children
   Int32 arity = getArity();
 
-  for (Lng32 i = 0; i < arity; i++) child(i) = child(i)->expandMultiJoinSubtree();
+  for (int i = 0; i < arity; i++) child(i) = child(i)->expandMultiJoinSubtree();
 
   // Need to clear log properties since we are re-shaping the tree.
   getGroupAttr()->clearLogProperties();
@@ -2061,7 +2061,7 @@ void RelExpr::primeGroupAnalysis() {
   // recursively call the children appending their subtreeTables
   CANodeIdSet allSubtreeTables;
   Int32 arity = getArity();
-  for (Lng32 i = 0; i < arity; i++) {
+  for (int i = 0; i < arity; i++) {
     allSubtreeTables += child(i).getPtr()->getGroupAnalysis()->getAllSubtreeTables();
   }
   // If this node has TableAnalysis itself, add it.
@@ -2086,7 +2086,7 @@ void Join::primeGroupAnalysis() {
   if (canBePartOfJBB()) localView = new (groupAnalysis->outHeap()) JBBSubset(groupAnalysis->outHeap());
   CANodeIdSet allSubtreeTables;
   Int32 arity = getArity();
-  for (Lng32 i = 0; i < arity; i++) {
+  for (int i = 0; i < arity; i++) {
     GroupAnalysis *childAnalysis = child(i).getPtr()->getGroupAnalysis();
 
     // use children parentViews to build this join local view
@@ -3163,7 +3163,7 @@ CANodeIdSet TableAnalysis::getJBBCsConnectedToCols(
 // Get the JBBCs that are connected to the maximum prefix size in the given column list
 // This table must be JBBC
 CANodeIdSet TableAnalysis::getJBBCsConnectedToPrefixOfList(const CANodeIdSet &jbbcs, const ValueIdList &cols,
-                                                           Lng32 &prefixSize /*OUT*/, ValueIdSet &joinPreds /*OUT*/,
+                                                           int &prefixSize /*OUT*/, ValueIdSet &joinPreds /*OUT*/,
                                                            ValueIdSet &localPreds /*OUT*/) {
   CANodeIdSet result;
   prefixSize = 0;
@@ -3343,7 +3343,7 @@ ValueIdSet TableAnalysis::getLocalPredsOnColumns(const ValueIdSet &cols, ValueId
 
 // Compute the local predicates on this table that references a prefix of this
 // column list. compute also the prefix size.
-ValueIdSet TableAnalysis::getLocalPredsOnPrefixOfList(const ValueIdList &cols, Lng32 &prefixSize /*OUT*/) {
+ValueIdSet TableAnalysis::getLocalPredsOnPrefixOfList(const ValueIdList &cols, int &prefixSize /*OUT*/) {
   // xxx warning: at this point we do not distinguish between local predicates
   // and local predicates good for positioning. For example a=c is local but not
   // good for key positioning. Moreover a=c will be in a local preds but it needs
@@ -3999,10 +3999,10 @@ NABoolean JBBSubset::hasMandatoryXP() const {
 
 // Calculate number of disjunct subgraphs in this JBBSubset
 // xxx: this function will be moved to JBBSubsetAnalysis
-Lng32 JBBSubset::numConnectedSubgraphs(NABoolean followSuccessors, NABoolean pullInPredecessors) const {
+int JBBSubset::numConnectedSubgraphs(NABoolean followSuccessors, NABoolean pullInPredecessors) const {
   if (jbbcs_.entries() < 1) return 0;
 
-  Lng32 numSubgraphs = 1;
+  int numSubgraphs = 1;
 
   CANodeIdSet available(jbbcs_);
   CANodeId frontNode;
@@ -5296,7 +5296,7 @@ CANodeId JBBSubsetAnalysis::findFactTable(CANodeIdSet childSet, CostScalar &fact
           CURRCONTEXT_OPTDEBUG->stream() << "Picked the fact Table specified by user" << endl;
           CURRCONTEXT_OPTDEBUG->stream() << "fact Table: " << factTable.getText() << endl;
           CURRCONTEXT_OPTDEBUG->stream() << "fact Table  num rows scanned: ";
-          CURRCONTEXT_OPTDEBUG->stream() << istring(Lng32(factTableCKPrefixCardinality.value())) << endl;
+          CURRCONTEXT_OPTDEBUG->stream() << istring(int(factTableCKPrefixCardinality.value())) << endl;
         }
 #endif
         break;
@@ -5535,24 +5535,24 @@ CANodeId JBBSubsetAnalysis::findFactTable(CANodeIdSet childSet, CostScalar &fact
   if (CmpCommon::getDefault(NSK_DBG) == DF_ON && CmpCommon::getDefault(NSK_DBG_MJRULES_TRACKING) == DF_ON) {
     CURRCONTEXT_OPTDEBUG->stream() << "Largest Table: " << largestTable.getText() << endl;
     CURRCONTEXT_OPTDEBUG->stream() << "Largest Table  num rows scanned: ";
-    CURRCONTEXT_OPTDEBUG->stream() << istring(Lng32(largestTableCardinality.value())) << endl;
+    CURRCONTEXT_OPTDEBUG->stream() << istring(int(largestTableCardinality.value())) << endl;
     CURRCONTEXT_OPTDEBUG->stream() << "Largest Table actual rowsize: ";
-    CURRCONTEXT_OPTDEBUG->stream() << istring(Lng32(largestTableActualRecordSize.value())) << endl;
+    CURRCONTEXT_OPTDEBUG->stream() << istring(int(largestTableActualRecordSize.value())) << endl;
     CURRCONTEXT_OPTDEBUG->stream() << "Largest Table effective rowsize: ";
-    CURRCONTEXT_OPTDEBUG->stream() << istring(Lng32(largestTableEffectiveRecordSize.value())) << endl;
+    CURRCONTEXT_OPTDEBUG->stream() << istring(int(largestTableEffectiveRecordSize.value())) << endl;
     CURRCONTEXT_OPTDEBUG->stream() << "Largest Table data scanned: ";
-    CURRCONTEXT_OPTDEBUG->stream() << istring(Lng32(largestTableTotalDataVol.value())) << endl;
+    CURRCONTEXT_OPTDEBUG->stream() << istring(int(largestTableTotalDataVol.value())) << endl;
     CURRCONTEXT_OPTDEBUG->stream() << "Average size of all tables apart from largest: ";
-    CURRCONTEXT_OPTDEBUG->stream() << istring(Lng32(averageSizeOfAllTablesExceptLargest.value())) << endl;
+    CURRCONTEXT_OPTDEBUG->stream() << istring(int(averageSizeOfAllTablesExceptLargest.value())) << endl;
     CURRCONTEXT_OPTDEBUG->stream() << "Second Largest Table is: " << secondLargestTable.getText() << endl;
     CURRCONTEXT_OPTDEBUG->stream() << "Second Largest Table num rows scanned: ";
-    CURRCONTEXT_OPTDEBUG->stream() << istring(Lng32(secondLargestTableCardinality.value())) << endl;
+    CURRCONTEXT_OPTDEBUG->stream() << istring(int(secondLargestTableCardinality.value())) << endl;
     CURRCONTEXT_OPTDEBUG->stream() << "Second Largest Table actual rowsize: ";
-    CURRCONTEXT_OPTDEBUG->stream() << istring(Lng32(secondLargestTableActualRecordSize.value())) << endl;
+    CURRCONTEXT_OPTDEBUG->stream() << istring(int(secondLargestTableActualRecordSize.value())) << endl;
     CURRCONTEXT_OPTDEBUG->stream() << "Second Largest Table effective rowsize: ";
-    CURRCONTEXT_OPTDEBUG->stream() << istring(Lng32(secondLargestTableEffectiveRecordSize.value())) << endl;
+    CURRCONTEXT_OPTDEBUG->stream() << istring(int(secondLargestTableEffectiveRecordSize.value())) << endl;
     CURRCONTEXT_OPTDEBUG->stream() << "Second Largest Table data scanned: ";
-    CURRCONTEXT_OPTDEBUG->stream() << istring(Lng32(secondLargestTableTotalDataVol.value())) << endl;
+    CURRCONTEXT_OPTDEBUG->stream() << istring(int(secondLargestTableTotalDataVol.value())) << endl;
     CURRCONTEXT_OPTDEBUG->stream() << endl;
   }
 #endif  //_DEBUG
@@ -5940,7 +5940,7 @@ NABoolean JBBSubsetAnalysis::isAStarPattern(CANodeId factTable, CostScalar factT
   CANodeIdSet connectedTables;
   CANodeIdSet tablesConnectedToColumn;
   CANodeIdSet tablesConnectedViaThisColumn;
-  Lng32 numPrefixColsCoveredFromFactTableCK = 0;
+  int numPrefixColsCoveredFromFactTableCK = 0;
 
   // this variable is used to  get the list of
   // fact table clustering key prefix columns
@@ -6050,9 +6050,9 @@ NABoolean JBBSubsetAnalysis::isAStarPattern(CANodeId factTable, CostScalar factT
 #ifdef _DEBUG
   if (CmpCommon::getDefault(NSK_DBG) == DF_ON && CmpCommon::getDefault(NSK_DBG_MJRULES_TRACKING) == DF_ON) {
     CURRCONTEXT_OPTDEBUG->stream() << "Cost estimate of fact table access as outer most table: "
-                                   << istring(Lng32(factTableHashJoinCost.value())) << endl;
+                                   << istring(int(factTableHashJoinCost.value())) << endl;
     CURRCONTEXT_OPTDEBUG->stream() << "Star Join will make sense if fact table nested join access is "
-                                   << istring(Lng32(factTableCostFactor)) << " times cheaper" << endl;
+                                   << istring(int(factTableCostFactor)) << " times cheaper" << endl;
   }
 #endif  //_DEBUG
 
@@ -6223,7 +6223,7 @@ NABoolean JBBSubsetAnalysis::isAStarPattern(CANodeId factTable, CostScalar factT
       tableToConsider = tablesConnectedViaThisColumn.getFirst();
 
     } else {
-      Lng32 prefixCoveredByTableToConsider = 0;
+      int prefixCoveredByTableToConsider = 0;
       CostScalar tableToConsiderFactTableCost = 0;
       CANodeIdSet coveredTables;
 
@@ -6246,7 +6246,7 @@ NABoolean JBBSubsetAnalysis::isAStarPattern(CANodeId factTable, CostScalar factT
            tablesConnectedViaThisColumn.advance(currentTable)) {
         if (!usedConnectedTables.legalAddition(currentTable)) continue;
 
-        Lng32 coveredPrefix = 0;
+        int coveredPrefix = 0;
         CostScalar dataFlowFromCurrentTable = appStatMan->getStatsForCANodeId(currentTable)->getResultCardinality();
 
         // add currentTable to list of tables that we
@@ -6527,13 +6527,13 @@ NABoolean JBBSubsetAnalysis::isAStarPattern(CANodeId factTable, CostScalar factT
     if (CmpCommon::getDefault(NSK_DBG) == DF_ON && CmpCommon::getDefault(NSK_DBG_MJRULES_TRACKING) == DF_ON) {
       CURRCONTEXT_OPTDEBUG->stream() << "FactTable after edge " << currentEdge.getText() << endl;
       CURRCONTEXT_OPTDEBUG->stream() << "The cummulative edge is " << edge.getText() << endl;
-      CURRCONTEXT_OPTDEBUG->stream() << "Probes into fact table: " << istring(Lng32(dataFlowFromEdge.value())) << endl;
-      CURRCONTEXT_OPTDEBUG->stream() << "Fact Table Rows to scan: " << istring(Lng32(factTableRowsToScan.value()))
+      CURRCONTEXT_OPTDEBUG->stream() << "Probes into fact table: " << istring(int(dataFlowFromEdge.value())) << endl;
+      CURRCONTEXT_OPTDEBUG->stream() << "Fact Table Rows to scan: " << istring(int(factTableRowsToScan.value()))
                                      << endl;
       CURRCONTEXT_OPTDEBUG->stream() << "Rows coming out of fact table: "
-                                     << istring(Lng32(dataFlowFromFactTable.value())) << endl;
+                                     << istring(int(dataFlowFromFactTable.value())) << endl;
       CURRCONTEXT_OPTDEBUG->stream() << "Our cost estimate of fact table nested join: "
-                                     << istring(Lng32(factTableCost.value())) << endl;
+                                     << istring(int(factTableCost.value())) << endl;
     }
 #endif  //_DEBUG
 

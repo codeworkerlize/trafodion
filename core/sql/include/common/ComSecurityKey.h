@@ -42,10 +42,10 @@ bool buildSecurityKeys(const NAList<Int32> &roleGrantees, const int32_t roleID, 
                        ComSecurityKeySet &secKeySet);
 
 NABoolean qiCheckForInvalidObject(const Int32 numInvalidationKeys, const SQL_QIKEY *invalidationKeys,
-                                  const Int64 objectUID, const ComSecurityKeySet &objectKeys);
+                                  const long objectUID, const ComSecurityKeySet &objectKeys);
 
 NABoolean qiCheckForSchemaUID(const Int32 numInvalidationKeys, const SQL_QIKEY *invalidationKeys,
-                              const Int64 schemaUID);
+                              const long schemaUID);
 
 void qiInvalidationType(const Int32 numInvalidationKeys, const SQL_QIKEY *invalidationKeys, const Int32 userID,
                         bool &resetRoleList, bool &updateCaches, bool &resetSchemaCaches);
@@ -129,7 +129,7 @@ class ComSecurityKey {
   static uint32_t generateHash(int32_t hashID);
 
   // For debugging purposes
-  NAString print(Int32 subject, Int64 object);
+  NAString print(Int32 subject, long object);
 
  private:
   uint32_t subjectHash_;

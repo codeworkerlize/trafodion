@@ -52,7 +52,7 @@ NABoolean CmpSeabaseMDupgrade::isOldMDtable(const NAString &objName) {
 }
 
 NABoolean CmpSeabaseMDupgrade::isMDUpgradeNeeded() {
-  for (Lng32 i = 0; i < sizeof(allMDupgradeInfo) / sizeof(MDUpgradeInfo); i++) {
+  for (int i = 0; i < sizeof(allMDupgradeInfo) / sizeof(MDUpgradeInfo); i++) {
     const MDUpgradeInfo &mdti = allMDupgradeInfo[i];
     if (mdti.upgradeNeeded) return TRUE;
   }
@@ -61,7 +61,7 @@ NABoolean CmpSeabaseMDupgrade::isMDUpgradeNeeded() {
 }
 
 NABoolean CmpSeabaseMDupgrade::isViewsUpgradeNeeded() {
-  for (Lng32 i = 0; i < sizeof(allMDviewsInfo) / sizeof(MDViewInfo); i++) {
+  for (int i = 0; i < sizeof(allMDviewsInfo) / sizeof(MDViewInfo); i++) {
     const MDViewInfo &mdti = allMDviewsInfo[i];
     if (mdti.upgradeNeeded) return TRUE;
   }
@@ -70,7 +70,7 @@ NABoolean CmpSeabaseMDupgrade::isViewsUpgradeNeeded() {
 }
 
 NABoolean CmpSeabaseMDupgrade::isReposUpgradeNeeded() {
-  for (Lng32 i = 0; i < sizeof(allReposUpgradeInfo) / sizeof(MDUpgradeInfo); i++) {
+  for (int i = 0; i < sizeof(allReposUpgradeInfo) / sizeof(MDUpgradeInfo); i++) {
     const MDUpgradeInfo &mdti = allReposUpgradeInfo[i];
     if (mdti.upgradeNeeded) return TRUE;
   }
@@ -84,9 +84,9 @@ NABoolean CmpSeabaseMDupgrade::isLibrariesUpgradeNeeded() {
   CmpSeabaseDDL cmpDDL(STMTHEAP);
   ExpHbaseInterface *ehi = cmpDDL.allocEHI(COM_STORAGE_HBASE);
 
-  Int64 mdCurrMajorVersion = 2;
-  Int64 mdCurrMinorVersion = 1;
-  Int64 mdCurrUpdateVersion = 0;
+  long mdCurrMajorVersion = 2;
+  long mdCurrMinorVersion = 1;
+  long mdCurrUpdateVersion = 0;
 
   // ignore errors
   cmpDDL.validateVersions(&ActiveSchemaDB()->getDefaults(), ehi, &mdCurrMajorVersion, &mdCurrMinorVersion,
@@ -99,7 +99,7 @@ NABoolean CmpSeabaseMDupgrade::isLibrariesUpgradeNeeded() {
   // End temporary check
   // ******
 
-  for (Lng32 i = 0; i < sizeof(allLibrariesUpgradeInfo) / sizeof(MDUpgradeInfo); i++) {
+  for (int i = 0; i < sizeof(allLibrariesUpgradeInfo) / sizeof(MDUpgradeInfo); i++) {
     const MDUpgradeInfo &mdti = allLibrariesUpgradeInfo[i];
     if (mdti.upgradeNeeded) return TRUE;
   }
@@ -118,7 +118,7 @@ NABoolean CmpSeabaseMDupgrade::isLibrariesUpgradeNeeded() {
 //   FALSE - upgrade not needed
 // ----------------------------------------------------------------------------
 NABoolean CmpSeabaseMDupgrade::isPrivsUpgradeNeeded() {
-  for (Lng32 i = 0; i < sizeof(allPrivMgrUpgradeInfo) / sizeof(MDUpgradeInfo); i++) {
+  for (int i = 0; i < sizeof(allPrivMgrUpgradeInfo) / sizeof(MDUpgradeInfo); i++) {
     const MDUpgradeInfo &mdti = allPrivMgrUpgradeInfo[i];
     if (mdti.upgradeNeeded) return TRUE;
   }
@@ -137,8 +137,8 @@ NABoolean CmpSeabaseMDupgrade::isPrivsUpgradeNeeded() {
 //   Other operations:  this file
 // -----------------------------------------------------------------------------
 void CmpSeabaseMDupgrade::setRestoreStep(CmpDDLwithStatusInfo *mdui) {
-  Lng32 currentSubstep = mdui->subStep();
-  Lng32 currentStep = mdui->step();
+  int currentSubstep = mdui->subStep();
+  int currentStep = mdui->step();
 
   if (currentStep == UPGRADE_REPOS) {
     mdui->setStep(UPGRADE_FAILED_RESTORE_OLD_REPOS);
@@ -199,10 +199,10 @@ void CmpSeabaseMDupgrade::setRestoreStep(CmpDDLwithStatusInfo *mdui) {
 }
 
 short CmpSeabaseMDupgrade::dropMDtables(ExpHbaseInterface *ehi, NABoolean oldTbls, NABoolean useOldNameForNewTables) {
-  Lng32 retcode = 0;
-  Lng32 errcode = 0;
+  int retcode = 0;
+  int errcode = 0;
 
-  for (Lng32 i = 0; i < sizeof(allMDupgradeInfo) / sizeof(MDUpgradeInfo); i++) {
+  for (int i = 0; i < sizeof(allMDupgradeInfo) / sizeof(MDUpgradeInfo); i++) {
     const MDUpgradeInfo &mdti = allMDupgradeInfo[i];
 
     if ((NOT oldTbls) && (!mdti.newName)) continue;
@@ -246,13 +246,13 @@ short CmpSeabaseMDupgrade::dropMDtables(ExpHbaseInterface *ehi, NABoolean oldTbl
 }
 
 short CmpSeabaseMDupgrade::restoreOldMDtables(ExpHbaseInterface *ehi) {
-  Lng32 retcode = 0;
-  Lng32 errcode = 0;
+  int retcode = 0;
+  int errcode = 0;
 
   // drop all the new MD tables. Ignore errors.
   dropMDtables(ehi, FALSE);
 
-  for (Lng32 i = 0; i < sizeof(allMDupgradeInfo) / sizeof(MDUpgradeInfo); i++) {
+  for (int i = 0; i < sizeof(allMDupgradeInfo) / sizeof(MDUpgradeInfo); i++) {
     const MDUpgradeInfo &mdti = allMDupgradeInfo[i];
 
     if ((!mdti.newName) || (!mdti.oldName) || (mdti.addedTable) || (mdti.mdOnly)) continue;
@@ -292,12 +292,12 @@ short CmpSeabaseMDupgrade::restoreOldMDtables(ExpHbaseInterface *ehi) {
 }
 
 NABoolean CmpSeabaseDDL::getOldMDInfo(const MDTableInfo &mdti, const char *&oldName, const QString *&oldDDL,
-                                      Lng32 &sizeOfoldDDL) {
+                                      int &sizeOfoldDDL) {
   if (!mdti.newName) return FALSE;
 
-  Lng32 numEntries = sizeof(allMDupgradeInfo) / sizeof(MDUpgradeInfo);
+  int numEntries = sizeof(allMDupgradeInfo) / sizeof(MDUpgradeInfo);
 
-  for (Lng32 i = 0; i < numEntries; i++) {
+  for (int i = 0; i < numEntries; i++) {
     const MDUpgradeInfo &mdui = allMDupgradeInfo[i];
     if (!mdui.newName) continue;
 
@@ -313,12 +313,12 @@ NABoolean CmpSeabaseDDL::getOldMDInfo(const MDTableInfo &mdti, const char *&oldN
 }
 
 NABoolean CmpSeabaseDDL::getOldMDPrivInfo(const PrivMgrTableStruct &mdti, const char *&oldName, const QString *&oldDDL,
-                                          Lng32 &sizeOfoldDDL) {
+                                          int &sizeOfoldDDL) {
   if (!mdti.tableName) return FALSE;
 
-  Lng32 numEntries = sizeof(allPrivMgrUpgradeInfo) / sizeof(MDUpgradeInfo);
+  int numEntries = sizeof(allPrivMgrUpgradeInfo) / sizeof(MDUpgradeInfo);
 
-  for (Lng32 i = 0; i < numEntries; i++) {
+  for (int i = 0; i < numEntries; i++) {
     const MDUpgradeInfo &mdui = allPrivMgrUpgradeInfo[i];
     if (!mdui.newName) continue;
 
@@ -340,8 +340,8 @@ NABoolean CmpSeabaseDDL::getOldMDPrivInfo(const PrivMgrTableStruct &mdti, const 
 short CmpSeabaseDDL::isOldMetadataInitialized(ExpHbaseInterface *ehi) {
   short retcode;
 
-  Lng32 numTotal = 0;
-  Lng32 numExists = 0;
+  int numTotal = 0;
+  int numExists = 0;
   NABoolean isRes = FALSE;
   isRes = CmpCommon::context()->useReservedNamespace();
   retcode = 0;
@@ -388,8 +388,8 @@ short CmpSeabaseDDL::isOldMetadataInitialized(ExpHbaseInterface *ehi) {
 
 short CmpSeabaseMDupgrade::executeSeabaseMDupgrade(CmpDDLwithStatusInfo *mdui, NABoolean ddlXns, NAString &currCatName,
                                                    NAString &currSchName) {
-  Lng32 cliRC = 0;
-  Lng32 retcode = 0;
+  int cliRC = 0;
+  int retcode = 0;
 
   char msgBuf[1000];
   char buf[10000];
@@ -474,9 +474,9 @@ short CmpSeabaseMDupgrade::executeSeabaseMDupgrade(CmpDDLwithStatusInfo *mdui, N
           case 0: {
             ehi = allocEHI(COM_STORAGE_HBASE);
 
-            Int64 mdCurrMajorVersion;
-            Int64 mdCurrMinorVersion;
-            Int64 mdCurrUpdateVersion;
+            long mdCurrMajorVersion;
+            long mdCurrMinorVersion;
+            long mdCurrUpdateVersion;
             retcode = validateVersions(&ActiveSchemaDB()->getDefaults(), ehi, &mdCurrMajorVersion, &mdCurrMinorVersion,
                                        &mdCurrUpdateVersion);
 
@@ -576,15 +576,15 @@ short CmpSeabaseMDupgrade::executeSeabaseMDupgrade(CmpDDLwithStatusInfo *mdui, N
           case 0: {
             ehi = allocEHI(COM_STORAGE_HBASE);
 
-            Int64 mdCurrMajorVersion;
-            Int64 mdCurrMinorVersion;
-            Int64 mdCurrUpdateVersion;
-            Int64 sysSWMajorVersion;
-            Int64 sysSWMinorVersion;
-            Int64 sysSWUpdVersion;
-            Int64 mdSWMajorVersion;
-            Int64 mdSWMinorVersion;
-            Int64 mdSWUpdateVersion;
+            long mdCurrMajorVersion;
+            long mdCurrMinorVersion;
+            long mdCurrUpdateVersion;
+            long sysSWMajorVersion;
+            long sysSWMinorVersion;
+            long sysSWUpdVersion;
+            long mdSWMajorVersion;
+            long mdSWMinorVersion;
+            long mdSWUpdateVersion;
             retcode = validateVersions(&ActiveSchemaDB()->getDefaults(), ehi, &mdCurrMajorVersion, &mdCurrMinorVersion,
                                        &mdCurrUpdateVersion, &sysSWMajorVersion, &sysSWMinorVersion, &sysSWUpdVersion,
                                        &mdSWMajorVersion, &mdSWMinorVersion, &mdSWUpdateVersion);
@@ -611,8 +611,8 @@ short CmpSeabaseMDupgrade::executeSeabaseMDupgrade(CmpDDLwithStatusInfo *mdui, N
                 str_sprintf(msgBuf,
                             "   Metadata needs to be upgraded or reinitialized (Current Version %ld.%ld.%ld, Expected "
                             "Version %ld.%ld.%ld).",
-                            mdCurrMajorVersion, mdCurrMinorVersion, mdCurrUpdateVersion, (Int64)METADATA_MAJOR_VERSION,
-                            (Int64)METADATA_MINOR_VERSION, (Int64)METADATA_UPDATE_VERSION);
+                            mdCurrMajorVersion, mdCurrMinorVersion, mdCurrUpdateVersion, (long)METADATA_MAJOR_VERSION,
+                            (long)METADATA_MINOR_VERSION, (long)METADATA_UPDATE_VERSION);
               else
                 str_sprintf(msgBuf,
                             " Error %d returned while accessing metadata. Fix that error before running this command.",
@@ -626,9 +626,9 @@ short CmpSeabaseMDupgrade::executeSeabaseMDupgrade(CmpDDLwithStatusInfo *mdui, N
               return 0;
             }
 
-            Int64 expSWMajorVersion = SOFTWARE_MAJOR_VERSION;
-            Int64 expSWMinorVersion = SOFTWARE_MINOR_VERSION;
-            Int64 expSWUpdVersion = SOFTWARE_UPDATE_VERSION;
+            long expSWMajorVersion = SOFTWARE_MAJOR_VERSION;
+            long expSWMinorVersion = SOFTWARE_MINOR_VERSION;
+            long expSWUpdVersion = SOFTWARE_UPDATE_VERSION;
 
             char expProdStr[100];
 
@@ -713,9 +713,9 @@ short CmpSeabaseMDupgrade::executeSeabaseMDupgrade(CmpDDLwithStatusInfo *mdui, N
             // check if upgrade has already been done.
             ehi = allocEHI(COM_STORAGE_HBASE);
 
-            Int64 mdCurrMajorVersion;
-            Int64 mdCurrMinorVersion;
-            Int64 mdCurrUpdateVersion;
+            long mdCurrMajorVersion;
+            long mdCurrMinorVersion;
+            long mdCurrUpdateVersion;
             retcode = validateVersions(&ActiveSchemaDB()->getDefaults(), ehi, &mdCurrMajorVersion, &mdCurrMinorVersion,
                                        &mdCurrUpdateVersion);
 
@@ -886,7 +886,7 @@ short CmpSeabaseMDupgrade::executeSeabaseMDupgrade(CmpDDLwithStatusInfo *mdui, N
             //
             ehi = allocEHI(COM_STORAGE_HBASE);
 
-            for (Lng32 i = 0; i < sizeof(allMDupgradeInfo) / sizeof(MDUpgradeInfo); i++) {
+            for (int i = 0; i < sizeof(allMDupgradeInfo) / sizeof(MDUpgradeInfo); i++) {
               const MDUpgradeInfo &mdti = allMDupgradeInfo[i];
 
               if ((mdti.addedTable) || (mdti.mdOnly)) continue;
@@ -1249,7 +1249,7 @@ short CmpSeabaseMDupgrade::executeSeabaseMDupgrade(CmpDDLwithStatusInfo *mdui, N
 
             // drop info about old tables from the new metadata.
             // do not drop the actual hbase tables.
-            for (Lng32 i = 0; i < sizeof(allMDupgradeInfo) / sizeof(MDUpgradeInfo); i++) {
+            for (int i = 0; i < sizeof(allMDupgradeInfo) / sizeof(MDUpgradeInfo); i++) {
               const MDUpgradeInfo &mdti = allMDupgradeInfo[i];
 
               if (!mdti.oldName) continue;
@@ -1269,7 +1269,7 @@ short CmpSeabaseMDupgrade::executeSeabaseMDupgrade(CmpDDLwithStatusInfo *mdui, N
               else
                 strcpy(objType, COM_BASE_TABLE_OBJECT_LIT);
 
-              Int64 objUID =
+              long objUID =
                   getObjectUID(&cliInterface, TRAFODION_SYSCAT_LIT, SEABASE_MD_SCHEMA, mdti.oldName, objType);
               if (objUID < 0) {
                 CmpCommon::diags()->clear();
@@ -1318,7 +1318,7 @@ short CmpSeabaseMDupgrade::executeSeabaseMDupgrade(CmpDDLwithStatusInfo *mdui, N
               schName += SEABASE_MD_SCHEMA;
               schName += "\"";
 
-              Int64 objUID = getObjectUID(&cliInterface, TRAFODION_SYSCAT_LIT, SEABASE_MD_SCHEMA, oldViewName.data(),
+              long objUID = getObjectUID(&cliInterface, TRAFODION_SYSCAT_LIT, SEABASE_MD_SCHEMA, oldViewName.data(),
                                           COM_VIEW_OBJECT_LIT);
               if (objUID < 0) {
                 // could not find the view or an error.
@@ -1701,7 +1701,7 @@ short CmpSeabaseMDupgrade::executeSeabaseMDupgrade(CmpDDLwithStatusInfo *mdui, N
 
             // drop old tables from hbase.
             NAString nameSpace(TRAF_RESERVED_NAMESPACE1);
-            for (Lng32 i = 0; i < sizeof(allMDupgradeInfo) / sizeof(MDUpgradeInfo); i++) {
+            for (int i = 0; i < sizeof(allMDupgradeInfo) / sizeof(MDUpgradeInfo); i++) {
               const MDUpgradeInfo &mdti = allMDupgradeInfo[i];
               if ((!mdti.oldName) || (mdti.mdOnly)) continue;
 
@@ -1980,7 +1980,7 @@ short CmpSeabaseMDupgrade::customizeNewMD(CmpDDLwithStatusInfo *mdui, ExeCliInte
 }
 
 short CmpSeabaseMDupgrade::customizeNewMDv23tov30(CmpDDLwithStatusInfo *mdui, ExeCliInterface &cliInterface) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
   char buf[10000];
 
   if (NOT((METADATA_OLD_MAJOR_VERSION == 2) && (METADATA_OLD_MINOR_VERSION == 3) && (METADATA_MAJOR_VERSION == 3) &&
@@ -2133,10 +2133,10 @@ short CmpSeabaseMDupgrade::customizeNewMDv23tov30(CmpDDLwithStatusInfo *mdui, Ex
       for (int idx = 0; idx < tablesQueue->numEntries(); idx++) {
         OutputInfo *oi = (OutputInfo *)tablesQueue->getNext();
 
-        Int64 tableUID = *(Int64 *)oi->get(0);
+        long tableUID = *(long *)oi->get(0);
         NAString hbaseCreateOptions((char *)oi->get(1));
 
-        Lng32 numSaltPartns = 0;
+        int numSaltPartns = 0;
 
         // get num salt partns from hbaseCreateOptions.
         // It is stored as:  NUM_SALT_PARTNS=>NNNN
@@ -2207,7 +2207,7 @@ short CmpSeabaseMDupgrade::customizeNewMDv23tov30(CmpDDLwithStatusInfo *mdui, Ex
                   "else 0 end), sum(column_size + case when nullable != 0 then 1 else 0 end + %lu + %d), count(*) from "
                   "%s.\"%s\".%s group by 1) T(a,b,c,d) on table_uid = T.a when matched then update set "
                   "(row_data_length, row_total_length) = (T.b, T.c + key_length * T.d)",
-                  getSystemCatalog(), SEABASE_MD_SCHEMA, SEABASE_TABLES, sizeof(Int64), 5, getSystemCatalog(),
+                  getSystemCatalog(), SEABASE_MD_SCHEMA, SEABASE_TABLES, sizeof(long), 5, getSystemCatalog(),
                   SEABASE_MD_SCHEMA, SEABASE_COLUMNS);
       cliRC = cliInterface.executeImmediate(buf);
 

@@ -83,8 +83,8 @@ static ItemExpr *ParseExpr(NAString &s, CmpContext &c, ItemExpr &ie) {
 // Helper function to get the maximum number of characters required
 // to represent a value of a given NAType.
 //
-static Lng32 GetDisplayLength(const NAType &t) {
-  Lng32 result = t.getDisplayLength(t.getFSDatatype(), t.getNominalSize(), t.getPrecision(), t.getScale(), 0);
+static int GetDisplayLength(const NAType &t) {
+  int result = t.getDisplayLength(t.getFSDatatype(), t.getNominalSize(), t.getPrecision(), t.getScale(), 0);
   return result;
 }
 
@@ -106,7 +106,7 @@ static ItemExpr *CreateLmString(ItemExpr &source, const NAType &sourceType, ComR
   ItemExpr *result = NULL;
   NAMemory *h = cmpContext->statementHeap();
 
-  Lng32 maxLength = GetDisplayLength(sourceType);
+  int maxLength = GetDisplayLength(sourceType);
   char buf[100];
   sprintf(buf, "%d", maxLength);
 
@@ -243,10 +243,10 @@ LmExprResult CreateLmOutputExpr(const NAType &formalType, ComRoutineLanguage lan
 
   if (isString && (formalType.getTypeQualifier() != NA_CHARACTER_TYPE)) {
     if (isResultSet || style != COM_STYLE_JAVA_CALL) {
-      Lng32 maxLength = GetDisplayLength(formalType);
+      int maxLength = GetDisplayLength(formalType);
       replyType = new (h) SQLChar(h, maxLength);
     } else {
-      Lng32 maxLength = GetDisplayLength(formalType);
+      int maxLength = GetDisplayLength(formalType);
       replyType = new (h) SQLVarChar(h, maxLength);
     }
   } else {

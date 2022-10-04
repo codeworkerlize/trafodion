@@ -161,18 +161,18 @@ class ItemExpr : public ExprNode {
   void deleteInstance();
 
   // operator [] is used to access the children of a tree
-  virtual ExprValueId &operator[](Lng32 index);
-  virtual const ExprValueId &operator[](Lng32 index) const;
+  virtual ExprValueId &operator[](int index);
+  virtual const ExprValueId &operator[](int index) const;
 
   // flip tree without extra resources.
   ItemExpr *reverseTree();
 
   // for cases where a named method is more convenient than operator []
-  ExprValueId &child(Lng32 index) { return operator[](index); }
-  const ExprValueId &child(Lng32 index) const { return operator[](index); }
+  ExprValueId &child(int index) { return operator[](index); }
+  const ExprValueId &child(int index) const { return operator[](index); }
 
   // return a reference (can be used as an lvalue)
-  Lng32 &currChildNo() { return currChildNo_; }
+  int &currChildNo() { return currChildNo_; }
 
   virtual NABoolean operator==(const ItemExpr &other) const;
 
@@ -241,9 +241,9 @@ class ItemExpr : public ExprNode {
 
   // methods required for traversing an ExprNode tree:
   // non-const & const access a child of an ExprNode, replace a particular child
-  virtual ExprNode *getChild(Lng32 index) { return child(index); }
-  virtual const ExprNode *getConstChild(Lng32 index) const { return child(index); }
-  virtual void setChild(Lng32 index, ExprNode *);
+  virtual ExprNode *getChild(int index) { return child(index); }
+  virtual const ExprNode *getConstChild(int index) const { return child(index); }
+  virtual void setChild(int index, ExprNode *);
 
   ItemExpr *containsRightmost(const ItemExpr *ie);
 
@@ -303,7 +303,7 @@ class ItemExpr : public ExprNode {
   // tree looking for a certain node. The specific tree is given by the
   // two input arguments. If the required node is not found, NULL is returned.
   // Used currently by LPAD and RPAD.
-  ItemExpr *getParticularItemExprFromTree(NAList<Lng32> &childNum, NAList<OperatorTypeEnum> &opType) const;
+  ItemExpr *getParticularItemExprFromTree(NAList<int> &childNum, NAList<OperatorTypeEnum> &opType) const;
 
   // This method checks if the ItemExpr represents a OR reprdicate that can be
   // transformed into an IN subquery (i.e. implemented using a semijoin)
@@ -313,7 +313,7 @@ class ItemExpr : public ExprNode {
   // into the method. numParams is the number of params/hostvars in the INList,
   // it is guaranteed to be less than equal to number of entries in the first
   // argument.
-  NABoolean canTransformToSemiJoin(ItemExprList &valuesListIE, TableDesc *tdesc, Lng32 &numParams, ValueId &colVid,
+  NABoolean canTransformToSemiJoin(ItemExprList &valuesListIE, TableDesc *tdesc, int &numParams, ValueId &colVid,
                                    CollHeap *h) const;
 
   void transformOlapFunctions(CollHeap *wHeap);
@@ -641,7 +641,7 @@ class ItemExpr : public ExprNode {
     CMPASSERT(FALSE);
   }
 
-  virtual void codegen_and_set_attributes(Generator *, Attributes **, Lng32);
+  virtual void codegen_and_set_attributes(Generator *, Attributes **, int);
 
   inline ex_clause *getClause() { return clause_; };
   inline void setClause(ex_clause *clause) { clause_ = clause; };
@@ -753,7 +753,7 @@ class ItemExpr : public ExprNode {
                NABoolean visitIndexColDefs = FALSE);
 
   // Find the number of elements in the expression tree, and the maximum tree depth.
-  Lng32 getTreeSize(Lng32 &maxDepth, NABoolean giveUpThreshold);
+  int getTreeSize(int &maxDepth, NABoolean giveUpThreshold);
 
   // Find all eqaulity columns in an item expression tree.
   void findEqualityCols(ValueIdSet &result);
@@ -1296,7 +1296,7 @@ class ItemExpr : public ExprNode {
   // Before transform/normalize, could be reset to 0 and again loop-incremented.
   // Should this be made more general and moved to ExprNode?
   // ---------------------------------------------------------------------
-  Lng32 currChildNo_;
+  int currChildNo_;
 
   // ---------------------------------------------------------------------
   // SqlParser lets every value expression be followed by a COLLATE clause.

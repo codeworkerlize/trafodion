@@ -68,12 +68,12 @@ class ElemDDLKeyValue : public ElemDDLNode {
   // accessors
 
   virtual Int32 getArity() const;
-  virtual ExprNode *getChild(Lng32 index);
+  virtual ExprNode *getChild(int index);
 
   inline ConstValue *getKeyValue() const;
 
   // mutator
-  virtual void setChild(Lng32 index, ExprNode *pChildNode);
+  virtual void setChild(int index, ExprNode *pChildNode);
 
   // methods for tracing
   virtual const NAString getText() const;

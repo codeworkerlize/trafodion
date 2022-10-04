@@ -244,17 +244,17 @@ class SqlTableOpenInfo : public NAVersionedObject {
   void setUpdateColumn(CollIndex ix, short col) { updateColumnList_[(Int32)ix] = col; }
 
   // long &timeoutVal()                              { return timeoutVal_; }
-  Lng32 getTimeoutVal() { return timeoutVal_; }
-  void setTimeoutVal(Lng32 timeoutVal) { timeoutVal_ = timeoutVal; }
+  int getTimeoutVal() { return timeoutVal_; }
+  void setTimeoutVal(int timeoutVal) { timeoutVal_ = timeoutVal; }
 
   // short &priority()                                 { return priority_; }
   short getPriority() { return priority_; }
   void setPriority(short priority) { priority_ = priority; }
 
   // timestamp value when table schema was modified
-  Int64 &redefTime() { return redefTime_; }
-  Int64 getRedefTime() { return redefTime_; }
-  void setRedefTime(const Int64 &redefTime) { redefTime_ = redefTime; }
+  long &redefTime() { return redefTime_; }
+  long getRedefTime() { return redefTime_; }
+  void setRedefTime(const long &redefTime) { redefTime_ = redefTime; }
 
   // security vector to monitor changes
   Int32 getSecurityVector() { return securityVector_; }
@@ -268,8 +268,8 @@ class SqlTableOpenInfo : public NAVersionedObject {
   void setNumIndexes(const Int16 numIndexes) { numIndexes_ = numIndexes; }
 
   // Utility Open Id
-  Int64 getUtilityOpenId() { return utilityOpenId_; }
-  void setUtilityOpenId(const Int64 &openId) { utilityOpenId_ = openId; }
+  long getUtilityOpenId() { return utilityOpenId_; }
+  void setUtilityOpenId(const long &openId) { utilityOpenId_ = openId; }
 
   // ObjectEpochCache fields
   UInt32 getExpectedEpoch() { return expectedEpoch_; }
@@ -291,7 +291,7 @@ class SqlTableOpenInfo : public NAVersionedObject {
     return NAVersionedObject::pack(space);
   }
 
-  Lng32 unpack(void *base, void *reallocator) {
+  int unpack(void *base, void *reallocator) {
     if ((otherFlags_ & FILLER_IS_INITED) == 0) {
       // This is a version-compatible way to fix a problem in plans
       // written by the pre-R2 FCS compiler: the filler fields were not
@@ -422,7 +422,7 @@ class SqlTableOpenInfo : public NAVersionedObject {
   Int16 numIndexes_;  // 54-55
 
   // timestamp value when table schema was modified
-  Int64 redefTime_;  // 56-63
+  long redefTime_;  // 56-63
 
   // timeout value used while accessing this table.
   Int32 timeoutVal_;  // 64-67
@@ -437,7 +437,7 @@ class SqlTableOpenInfo : public NAVersionedObject {
   Int16 numPartsInPartNameArray_;     // 74-75
   char fillersSqlTableOpenInfo2_[4];  // 76-79
   // utility open id, if this open is part of a utility operation.
-  Int64 utilityOpenId_;              // 80-87
+  long utilityOpenId_;              // 80-87
   NABasicPtr partNameArray_;         // 88-95
   UInt32 expectedEpoch_;             // expected ObjectEpochCache epoch for DDL validation    96-99
   UInt32 expectedFlags_;             // expected ObjectEpochCache flags for DDL validation   100-103

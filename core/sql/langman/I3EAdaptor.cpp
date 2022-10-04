@@ -49,9 +49,9 @@ Int32 I3EAdaptor::CallStaticFloatMethodA(JNIEnv *env, jclass clazz, jmethodID me
   return *((Int32 *)&result);
 }
 
-Int64 I3EAdaptor::CallStaticDoubleMethodA(JNIEnv *env, jclass clazz, jmethodID methodID, jvalue *args) {
+long I3EAdaptor::CallStaticDoubleMethodA(JNIEnv *env, jclass clazz, jmethodID methodID, jvalue *args) {
   jdouble result = env->CallStaticDoubleMethodA(clazz, methodID, args);
-  return *((Int64 *)&result);
+  return *((long *)&result);
 }
 
 Int32 I3EAdaptor::CallStaticFloatMethodV(JNIEnv *env, jclass clazz, jmethodID methodID, va_list args) {
@@ -59,9 +59,9 @@ Int32 I3EAdaptor::CallStaticFloatMethodV(JNIEnv *env, jclass clazz, jmethodID me
   return *((Int32 *)&result);
 }
 
-Int64 I3EAdaptor::CallStaticDoubleMethodV(JNIEnv *env, jclass clazz, jmethodID methodID, va_list args) {
+long I3EAdaptor::CallStaticDoubleMethodV(JNIEnv *env, jclass clazz, jmethodID methodID, va_list args) {
   jdouble result = env->CallStaticDoubleMethodV(clazz, methodID, args);
-  return *((Int64 *)&result);
+  return *((long *)&result);
 }
 
 Int32 I3EAdaptor::CallFloatMethodA(JNIEnv *env, jobject obj, jmethodID methodID, jvalue *args) {
@@ -69,9 +69,9 @@ Int32 I3EAdaptor::CallFloatMethodA(JNIEnv *env, jobject obj, jmethodID methodID,
   return *((Int32 *)&result);
 }
 
-Int64 I3EAdaptor::CallDoubleMethodA(JNIEnv *env, jobject obj, jmethodID methodID, jvalue *args) {
+long I3EAdaptor::CallDoubleMethodA(JNIEnv *env, jobject obj, jmethodID methodID, jvalue *args) {
   jdouble result = env->CallDoubleMethodA(obj, methodID, args);
-  return *((Int64 *)&result);
+  return *((long *)&result);
 }
 
 Int32 I3EAdaptor::CallFloatMethodV(JNIEnv *env, jobject obj, jmethodID methodID, va_list args) {
@@ -79,9 +79,9 @@ Int32 I3EAdaptor::CallFloatMethodV(JNIEnv *env, jobject obj, jmethodID methodID,
   return *((Int32 *)&result);
 }
 
-Int64 I3EAdaptor::CallDoubleMethodV(JNIEnv *env, jobject obj, jmethodID methodID, va_list args) {
+long I3EAdaptor::CallDoubleMethodV(JNIEnv *env, jobject obj, jmethodID methodID, va_list args) {
   jdouble result = env->CallDoubleMethodV(obj, methodID, args);
-  return *((Int64 *)&result);
+  return *((long *)&result);
 }
 
 Int32 I3EAdaptor::CallNonvirtualFloatMethodA(JNIEnv *env, jobject obj, jclass clazz, jmethodID methodID, jvalue *args) {
@@ -89,10 +89,10 @@ Int32 I3EAdaptor::CallNonvirtualFloatMethodA(JNIEnv *env, jobject obj, jclass cl
   return *((Int32 *)&result);
 }
 
-Int64 I3EAdaptor::CallNonvirtualDoubleMethodA(JNIEnv *env, jobject obj, jclass clazz, jmethodID methodID,
+long I3EAdaptor::CallNonvirtualDoubleMethodA(JNIEnv *env, jobject obj, jclass clazz, jmethodID methodID,
                                               jvalue *args) {
   jdouble result = env->CallNonvirtualDoubleMethodA(obj, clazz, methodID, args);
-  return *((Int64 *)&result);
+  return *((long *)&result);
 }
 
 Int32 I3EAdaptor::CallNonvirtualFloatMethodV(JNIEnv *env, jobject obj, jclass clazz, jmethodID methodID, va_list args) {
@@ -100,8 +100,8 @@ Int32 I3EAdaptor::CallNonvirtualFloatMethodV(JNIEnv *env, jobject obj, jclass cl
   return *((Int32 *)&result);
 }
 
-Int64 I3EAdaptor::CallNonvirtualDoubleMethodV(JNIEnv *env, jobject obj, jclass clazz, jmethodID methodID,
+long I3EAdaptor::CallNonvirtualDoubleMethodV(JNIEnv *env, jobject obj, jclass clazz, jmethodID methodID,
                                               va_list args) {
   jdouble result = env->CallNonvirtualDoubleMethodV(obj, clazz, methodID, args);
-  return *((Int64 *)&result);
+  return *((long *)&result);
 }

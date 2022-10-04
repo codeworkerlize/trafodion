@@ -298,7 +298,7 @@ static inline PartitioningFunction *getPhysPartFunc(const PartitioningFunction *
   return phys;
 }
 
-NABoolean PartitioningFunction::isAGroupingOf(const PartitioningFunction &other, Lng32 *maxPartsPerGroup) const {
+NABoolean PartitioningFunction::isAGroupingOf(const PartitioningFunction &other, int *maxPartsPerGroup) const {
   if (maxPartsPerGroup != NULL) *maxPartsPerGroup = 1;
 
   // By default we are not smart and take no risk. However, two
@@ -316,7 +316,7 @@ PartitioningRequirement *PartitioningFunction::makePartitioningRequirement() {
 // -----------------------------------------------------------------------
 // PartitioningFunction::scaleNumberOfPartitions
 // -----------------------------------------------------------------------
-PartitioningFunction *PartitioningFunction::scaleNumberOfPartitions(Lng32 &suggestedNewNumberOfPartitions,
+PartitioningFunction *PartitioningFunction::scaleNumberOfPartitions(int &suggestedNewNumberOfPartitions,
                                                                     PartitionGroupingDistEnum partGroupDist,
                                                                     NABoolean scaleByFactor) {
   // if we come here this means that the derived class did not
@@ -429,7 +429,7 @@ NABoolean PartitioningFunction::shouldUseSynchronousAccess(const ReqdPhysicalPro
 // -----------------------------------------------------------------------
 // Virtual functions that must be redefined for derived classes.
 // -----------------------------------------------------------------------
-Lng32 PartitioningFunction::getCountOfPartitions() const {
+int PartitioningFunction::getCountOfPartitions() const {
   // Redefine PartitioningFunction::getCountOfPartitions()
   CMPABORT;
   return 1;
@@ -570,7 +570,7 @@ void PartitioningFunction::display() const { print(); }
 
 SinglePartitionPartitioningFunction::~SinglePartitionPartitioningFunction() {}
 
-Lng32 SinglePartitionPartitioningFunction::getCountOfPartitions() const { return EXACTLY_ONE_PARTITION; }
+int SinglePartitionPartitioningFunction::getCountOfPartitions() const { return EXACTLY_ONE_PARTITION; }
 
 PartitioningRequirement *SinglePartitionPartitioningFunction::makePartitioningRequirement() {
   return new (CmpCommon::statementHeap()) RequireExactlyOnePartition(this);
@@ -617,7 +617,7 @@ ItemExpr *SinglePartitionPartitioningFunction::createPartitioningExpression() {
 }
 
 NABoolean SinglePartitionPartitioningFunction::isAGroupingOf(const PartitioningFunction &other,
-                                                             Lng32 *maxPartsPerGroup) const {
+                                                             int *maxPartsPerGroup) const {
   if (maxPartsPerGroup != NULL) *maxPartsPerGroup = other.getCountOfPartitions();
 
   // A single partition is a grouping of about anything. There
@@ -664,7 +664,7 @@ void SinglePartitionPartitioningFunction::print(FILE *ofd, const char *indent, c
 
 ReplicateViaBroadcastPartitioningFunction::~ReplicateViaBroadcastPartitioningFunction() {}
 
-Lng32 ReplicateViaBroadcastPartitioningFunction::getCountOfPartitions() const { return numberOfPartitions_; }
+int ReplicateViaBroadcastPartitioningFunction::getCountOfPartitions() const { return numberOfPartitions_; }
 
 const ReplicateViaBroadcastPartitioningFunction *
 ReplicateViaBroadcastPartitioningFunction::castToReplicateViaBroadcastPartitioningFunction() const {
@@ -672,7 +672,7 @@ ReplicateViaBroadcastPartitioningFunction::castToReplicateViaBroadcastPartitioni
 }
 
 PartitioningFunction *ReplicateViaBroadcastPartitioningFunction::scaleNumberOfPartitions(
-    Lng32 &suggestedNewNumberOfPartitions, PartitionGroupingDistEnum partGroupDist, NABoolean scaleByFactor) {
+    int &suggestedNewNumberOfPartitions, PartitionGroupingDistEnum partGroupDist, NABoolean scaleByFactor) {
   if (suggestedNewNumberOfPartitions == 1) {
     NodeMap *nodeMap = new (heap_) NodeMap(heap_, 1, NodeMapEntry::ACTIVE, getNodeMap()->type());
     return new (CmpCommon::statementHeap()) SinglePartitionPartitioningFunction(nodeMap);
@@ -710,7 +710,7 @@ void ReplicateViaBroadcastPartitioningFunction::replacePivs(const ValueIdList &n
 ItemExpr *ReplicateViaBroadcastPartitioningFunction::createPartitioningExpression() { return NULL; }
 
 NABoolean ReplicateViaBroadcastPartitioningFunction::isAGroupingOf(const PartitioningFunction &other,
-                                                                   Lng32 *maxPartsPerGroup) const {
+                                                                   int *maxPartsPerGroup) const {
   if (maxPartsPerGroup != NULL) *maxPartsPerGroup = 1;
 
   // A replication partitioning function is never a grouping of any
@@ -736,7 +736,7 @@ void ReplicateViaBroadcastPartitioningFunction::print(FILE *ofd, const char *ind
 
 ReplicateNoBroadcastPartitioningFunction::~ReplicateNoBroadcastPartitioningFunction() {}
 
-Lng32 ReplicateNoBroadcastPartitioningFunction::getCountOfPartitions() const { return numberOfPartitions_; }
+int ReplicateNoBroadcastPartitioningFunction::getCountOfPartitions() const { return numberOfPartitions_; }
 
 const ReplicateNoBroadcastPartitioningFunction *
 ReplicateNoBroadcastPartitioningFunction::castToReplicateNoBroadcastPartitioningFunction() const {
@@ -744,7 +744,7 @@ ReplicateNoBroadcastPartitioningFunction::castToReplicateNoBroadcastPartitioning
 }
 
 PartitioningFunction *ReplicateNoBroadcastPartitioningFunction::scaleNumberOfPartitions(
-    Lng32 &suggestedNewNumberOfPartitions, PartitionGroupingDistEnum partGroupDist, NABoolean scaleByFactor) {
+    int &suggestedNewNumberOfPartitions, PartitionGroupingDistEnum partGroupDist, NABoolean scaleByFactor) {
   if (suggestedNewNumberOfPartitions == 1) {
     NodeMap *nodeMap = new (heap_) NodeMap(heap_, 1, NodeMapEntry::ACTIVE, getNodeMap()->type());
     return new (CmpCommon::statementHeap()) SinglePartitionPartitioningFunction(nodeMap);
@@ -782,7 +782,7 @@ void ReplicateNoBroadcastPartitioningFunction::replacePivs(const ValueIdList &ne
 ItemExpr *ReplicateNoBroadcastPartitioningFunction::createPartitioningExpression() { return NULL; }
 
 NABoolean ReplicateNoBroadcastPartitioningFunction::isAGroupingOf(const PartitioningFunction &other,
-                                                                  Lng32 *maxPartsPerGroup) const {
+                                                                  int *maxPartsPerGroup) const {
   if (maxPartsPerGroup != NULL) *maxPartsPerGroup = 1;
 
   // A replication partitioning function is never a grouping of any
@@ -808,7 +808,7 @@ void ReplicateNoBroadcastPartitioningFunction::print(FILE *ofd, const char *inde
 
 HashPartitioningFunction::~HashPartitioningFunction() {}
 
-Lng32 HashPartitioningFunction::getCountOfPartitions() const { return numberOfHashPartitions_; }
+int HashPartitioningFunction::getCountOfPartitions() const { return numberOfHashPartitions_; }
 
 const HashPartitioningFunction *HashPartitioningFunction::castToHashPartitioningFunction() const { return this; }
 
@@ -882,7 +882,7 @@ void PartitioningFunction::createBetweenPartitioningKeyPredicates(const char *pi
       NAString numPartsLiteral(numPartsString);
       ConstValue *numPartns = new (CmpCommon::statementHeap()) ConstValue(
           new (CmpCommon::statementHeap()) SQLInt(CmpCommon::statementHeap(), FALSE, FALSE), (void *)&numOfOrigPartns,
-          (Lng32)sizeof(numOfOrigPartns), &numPartsLiteral, CmpCommon::statementHeap());
+          (int)sizeof(numOfOrigPartns), &numPartsLiteral, CmpCommon::statementHeap());
 
       loPart = new (CmpCommon::statementHeap()) Hash2Distrib(loPart, numPartns);
       hiPart = new (CmpCommon::statementHeap()) Hash2Distrib(hiPart, numPartns);
@@ -1046,7 +1046,7 @@ void HashPartitioningFunction::remapIt(const PartitioningFunction *opf, ValueIdM
 
 }  // HashPartitioningFunction::remapIt()
 
-PartitioningFunction *HashPartitioningFunction::scaleNumberOfPartitions(Lng32 &suggestedNewNumberOfPartitions,
+PartitioningFunction *HashPartitioningFunction::scaleNumberOfPartitions(int &suggestedNewNumberOfPartitions,
                                                                         PartitionGroupingDistEnum partGroupDist,
                                                                         NABoolean scaleByFactor) {
   if (suggestedNewNumberOfPartitions == 1) {
@@ -1149,7 +1149,7 @@ const TableHashPartitioningFunction *TableHashPartitioningFunction::castToTableH
   return this;
 }
 
-Lng32 TableHashPartitioningFunction::getCountOfPartitions() const { return numberOfPartitions_; }
+int TableHashPartitioningFunction::getCountOfPartitions() const { return numberOfPartitions_; }
 
 PartitioningRequirement *TableHashPartitioningFunction::makePartitioningRequirement() {
   // Redefine PartitioningFunction::makePartitioningRequirement()
@@ -1679,7 +1679,7 @@ HashDistPartitioningFunction::comparePartFuncToFunc(const PartitioningFunction &
   return SAME;
 }  // HashDistPartitioningFunction::comparePartFuncToFunc()
 
-PartitioningFunction *HashDistPartitioningFunction::scaleNumberOfPartitions(Lng32 &suggestedNewNumberOfPartitions,
+PartitioningFunction *HashDistPartitioningFunction::scaleNumberOfPartitions(int &suggestedNewNumberOfPartitions,
                                                                             PartitionGroupingDistEnum partGroupDist,
                                                                             NABoolean scaleByFactor) {
   if (suggestedNewNumberOfPartitions == 1)
@@ -1707,7 +1707,7 @@ PartitioningFunction *HashDistPartitioningFunction::scaleNumberOfPartitions(Lng3
 // HashDistPartitioningFunction::isAGroupingOf()
 // -----------------------------------------------------------------------
 NABoolean HashDistPartitioningFunction::isAGroupingOf(const PartitioningFunction &other,
-                                                      Lng32 *maxPartsPerGroup) const {
+                                                      int *maxPartsPerGroup) const {
   if (maxPartsPerGroup != NULL) *maxPartsPerGroup = 1;
 
   const HashDistPartitioningFunction *oth = other.castToHashDistPartitioningFunction();
@@ -1870,17 +1870,17 @@ ItemExpr *HashDistPartitioningFunction::buildPartitioningExpression(const ValueI
 
   // Create a ConstValue expression containing the original number of hash
   // partitions.
-  Lng32 numParts = getCountOfOrigHashPartitions();
+  int numParts = getCountOfOrigHashPartitions();
   sprintf(buffer, "%d", numParts);
   NAString numPartsStr("origNumParts");
-  ItemExpr *origNumParts = new (heap) ConstValue(numPartsType, &numParts, sizeof(Lng32), &numPartsStr);
+  ItemExpr *origNumParts = new (heap) ConstValue(numPartsType, &numParts, sizeof(int), &numPartsStr);
 
   // Create a ConstValue expression containing the scaled number of hash
   // partitions.
   numParts = getCountOfPartitions();
   sprintf(buffer, "%d", numParts);
   numPartsStr = "scaledNumParts";
-  ItemExpr *scaledNumParts = new (heap) ConstValue(numPartsType, &numParts, sizeof(Lng32), &numPartsStr);
+  ItemExpr *scaledNumParts = new (heap) ConstValue(numPartsType, &numParts, sizeof(int), &numPartsStr);
 
   // Create the hash distribution function.
   // partitions.
@@ -2058,7 +2058,7 @@ Hash2PartitioningFunction::comparePartFuncToFunc(const PartitioningFunction &oth
 // -----------------------------------------------------------------------
 // Hash2PartitioningFunction::scaleNumberOfPartitions()
 // -----------------------------------------------------------------------
-PartitioningFunction *Hash2PartitioningFunction::scaleNumberOfPartitions(Lng32 &suggestedNewNumberOfPartitions,
+PartitioningFunction *Hash2PartitioningFunction::scaleNumberOfPartitions(int &suggestedNewNumberOfPartitions,
                                                                          PartitionGroupingDistEnum partGroupDist,
                                                                          NABoolean scaleByFactor) {
   if (scaleByFactor) {
@@ -2096,7 +2096,7 @@ PartitioningFunction *Hash2PartitioningFunction::scaleNumberOfPartitions(Lng32 &
 // -----------------------------------------------------------------------
 // Hash2PartitioningFunction::isAGroupingOf()
 // -----------------------------------------------------------------------
-NABoolean Hash2PartitioningFunction::isAGroupingOf(const PartitioningFunction &other, Lng32 *maxPartsPerGroup) const {
+NABoolean Hash2PartitioningFunction::isAGroupingOf(const PartitioningFunction &other, int *maxPartsPerGroup) const {
   if (maxPartsPerGroup != NULL) *maxPartsPerGroup = 1;
 
   const Hash2PartitioningFunction *oth = other.castToHash2PartitioningFunction();
@@ -2140,11 +2140,11 @@ ItemExpr *Hash2PartitioningFunction::buildPartitioningExpression(const ValueIdLi
   NAType *numPartsType = new (heap) SQLInt(heap, FALSE, FALSE);
 
   // Build a ConstValue expression of the scaled number of partitions.
-  Lng32 numParts = getCountOfPartitions();
+  int numParts = getCountOfPartitions();
   char buffer[20];
   sprintf(buffer, "%d", numParts);
   NAString numPartsStr("scaledNumParts");
-  ItemExpr *scaledNumParts = new (heap) ConstValue(numPartsType, &numParts, sizeof(Lng32), &numPartsStr);
+  ItemExpr *scaledNumParts = new (heap) ConstValue(numPartsType, &numParts, sizeof(int), &numPartsStr);
 
   // Create the hash2 partitioning function expression and return it.
   ItemExpr *partFunc =
@@ -2255,7 +2255,7 @@ SkewedDataPartitioningFunction::SkewedDataPartitioningFunction(const SkewedDataP
       skewProperty_(other.skewProperty_)         // share the skew property
 {}
 
-Lng32 SkewedDataPartitioningFunction::getCountOfPartitions() const { return partialPartFunc_->getCountOfPartitions(); }
+int SkewedDataPartitioningFunction::getCountOfPartitions() const { return partialPartFunc_->getCountOfPartitions(); }
 
 void SkewedDataPartitioningFunction::createPartitioningKeyPredicates() {
   // do nothing, there aren't any partitioning key preds for a skew
@@ -2369,7 +2369,7 @@ SkewedDataPartitioningFunction::comparePartFuncToFunc(const PartitioningFunction
 //
 // As a result, the following version will not be called.
 
-PartitioningFunction *SkewedDataPartitioningFunction::scaleNumberOfPartitions(Lng32 &suggestedNewNumberOfPartitions,
+PartitioningFunction *SkewedDataPartitioningFunction::scaleNumberOfPartitions(int &suggestedNewNumberOfPartitions,
                                                                               PartitionGroupingDistEnum partGroupDist,
                                                                               NABoolean scaleByFactor) {
   PartitioningFunction *mayBeNewPartfunc =
@@ -2385,7 +2385,7 @@ PartitioningFunction *SkewedDataPartitioningFunction::scaleNumberOfPartitions(Ln
 // SkewedDataPartitioningFunction::isAGroupingOf()
 // -----------------------------------------------------------------------
 NABoolean SkewedDataPartitioningFunction::isAGroupingOf(const PartitioningFunction &other,
-                                                        Lng32 *maxPartsPerGroup) const {
+                                                        int *maxPartsPerGroup) const {
   return FALSE;
 }  // SkewedDataPartitioningFunction::isAGroupingOf()
 
@@ -2430,7 +2430,7 @@ ItemExpr *SkewedDataPartitioningFunction::createPartitioningExpression() {
 // -----------------------------------------------------------------------
 // Constructor for RangePartitionBoundaries
 // -----------------------------------------------------------------------
-RangePartitionBoundaries::RangePartitionBoundaries(Lng32 numberOfPartitions, Lng32 numberOfPartitioningKeyColumns,
+RangePartitionBoundaries::RangePartitionBoundaries(int numberOfPartitions, int numberOfPartitioningKeyColumns,
                                                    NAMemory *h)
     : partKeyColumnCount_(numberOfPartitioningKeyColumns),
       origPartKeyColumnCount_(numberOfPartitioningKeyColumns),
@@ -2458,7 +2458,7 @@ RangePartitionBoundaries::RangePartitionBoundaries(Lng32 numberOfPartitions, Lng
 
 RangePartitionBoundaries::~RangePartitionBoundaries() {}
 
-void RangePartitionBoundaries::defineUnboundBoundary(Lng32 partitionNumber, const ItemExpr *unboundBoundaryValue,
+void RangePartitionBoundaries::defineUnboundBoundary(int partitionNumber, const ItemExpr *unboundBoundaryValue,
                                                      const char *encodedKeyValue) {
   // must insert a 'true' boundary between the first and last (pre-allocated)
   // entry, this gives us n insertion points for a table with n partitions,
@@ -2470,7 +2470,7 @@ void RangePartitionBoundaries::defineUnboundBoundary(Lng32 partitionNumber, cons
   if (encodedKeyValue) binaryBoundaryValues_.insertAt(partitionNumber, encodedKeyValue);
 }
 
-void RangePartitionBoundaries::bindAddBoundaryValue(Lng32 partitionNumber) {
+void RangePartitionBoundaries::bindAddBoundaryValue(int partitionNumber) {
   if (!boundaryValuesList_[partitionNumber]) {
     boundaryValues_.insertAt(partitionNumber, NULL);
     return;
@@ -2503,7 +2503,7 @@ void RangePartitionBoundaries::bindAddBoundaryValue(Lng32 partitionNumber) {
 // -----------------------------------------------------------------------
 // RangePartitionBoundaries::defineBoundary()
 // -----------------------------------------------------------------------
-void RangePartitionBoundaries::defineBoundary(Lng32 partitionNumber, const ItemExprList *boundaryValue,
+void RangePartitionBoundaries::defineBoundary(int partitionNumber, const ItemExprList *boundaryValue,
                                               const char *encodedKeyValue) {
   // must insert a 'true' boundary between the first and last (pre-allocated)
   // entry, this gives us n insertion points for a table with n partitions,
@@ -2519,14 +2519,14 @@ void RangePartitionBoundaries::defineBoundary(Lng32 partitionNumber, const ItemE
 // -----------------------------------------------------------------------
 // RangePartitionBoundaries::checkConsistency()
 // -----------------------------------------------------------------------
-void RangePartitionBoundaries::checkConsistency(const Lng32 numberOfPartitions) const {
+void RangePartitionBoundaries::checkConsistency(const int numberOfPartitions) const {
   // If n = numberOfPartitions then entries 1 through n-1 have to be
   // present. Each entry delimits the boundary between two partitions.
   // Entries 0 and n contain the minimum and maximum permissible
   // values, respectively.  Entries 0 and n are initialized to NULL in
   // the constructor and later added by method
   // RangePartitioningFunction::completePartitionBoundaries()
-  CMPASSERT(numberOfPartitions == partitionCount_ AND(Lng32) boundaryValues_.entries() == partitionCount_ + 1);
+  CMPASSERT(numberOfPartitions == partitionCount_ AND(int) boundaryValues_.entries() == partitionCount_ + 1);
 
   // check the actual boundaries after the key length of the encoded
   // key and the key column value ids have been entered, but not before
@@ -2552,7 +2552,7 @@ void RangePartitionBoundaries::checkConsistency(const Lng32 numberOfPartitions) 
 // -----------------------------------------------------------------------
 NABoolean RangePartitionBoundaries::compareRangePartitionBoundaries(const RangePartitionBoundaries &other,
                                                                     NABoolean groupingAllowed,
-                                                                    Lng32 *maxPartsPerGroup) const {
+                                                                    int *maxPartsPerGroup) const {
   NABoolean match = FALSE;
   CollIndex i;
   CollIndex thisNumPartKeyCols, otherNumPartKeyCols;
@@ -2562,8 +2562,8 @@ NABoolean RangePartitionBoundaries::compareRangePartitionBoundaries(const RangeP
   const ConstValue *otherConstValue;
   NABoolean thisIsNegated = FALSE;
   NABoolean otherIsNegated = FALSE;
-  Lng32 currentPartsPerGroup = 1;
-  Lng32 numOfPartsInLastGroup = 1;
+  int currentPartsPerGroup = 1;
+  int numOfPartsInLastGroup = 1;
 
   if (maxPartsPerGroup != NULL) *maxPartsPerGroup = 1;  // start with the minimum
 
@@ -2717,7 +2717,7 @@ RangePartitionBoundaries *RangePartitionBoundaries::merge(const RangePartitionBo
   CollIndex maxboth = maxthis + maxother;
   RangePartitionBoundaries *result =
       new (CmpCommon::statementHeap()) RangePartitionBoundaries(1, partKeyColumnCount_, CmpCommon::statementHeap());
-  Lng32 compResult;
+  int compResult;
 
   CMPASSERT(partKeyColumnCount_ == other.partKeyColumnCount_ AND encodedBoundaryKeyLength_ ==
             other.encodedBoundaryKeyLength_);
@@ -2781,7 +2781,7 @@ RangePartitionBoundaries *RangePartitionBoundaries::merge(const RangePartitionBo
   return result;
 }  // RangePartitionBoundaries::merge
 
-Lng32 RangePartitionBoundaries::getOptimizedNumberOfPartKeys() {
+int RangePartitionBoundaries::getOptimizedNumberOfPartKeys() {
   // Do an optimization of the partitioning key: what is passed in is
   // currently the clustering key. Count the actual number of first
   // keys that are specified in the DDL and only use the max. number
@@ -2813,7 +2813,7 @@ Lng32 RangePartitionBoundaries::getOptimizedNumberOfPartKeys() {
   return numPartKeyCols;
 }
 
-Lng32 RangePartitionBoundaries::scaleNumberOfPartitions(Lng32 suggestedNewNumberOfPartitions, const NodeMap *nodeMap,
+int RangePartitionBoundaries::scaleNumberOfPartitions(int suggestedNewNumberOfPartitions, const NodeMap *nodeMap,
                                                         PartitionGroupingDistEnum partGroupDist) {
   //  * * * * * * * * * * * * *  I M P O R T A N T  * * * * * * * * * * * * * *
   //  *                                                                       *
@@ -2880,22 +2880,22 @@ Lng32 RangePartitionBoundaries::scaleNumberOfPartitions(Lng32 suggestedNewNumber
     useAPDistribution = TRUE;
   }
 
-  Lng32 newix = 1;
-  Lng32 prevPartStart = 0;
+  int newix = 1;
+  int prevPartStart = 0;
 
   if (useAPDistribution) {
     // Uniform number of active partitions grouping
 
     CostScalar activePartitions = ((NodeMap *)(nodeMap))->getNumActivePartitions();
-    Lng32 numActiveParts = (Lng32)activePartitions.getValue();
+    int numActiveParts = (int)activePartitions.getValue();
 
     if (suggestedNewNumberOfPartitions > numActiveParts) return partitionCount_;
 
-    Lng32 currentNumActiveParts = 0;
-    Lng32 numActivePartsPerGroup = numActiveParts / suggestedNewNumberOfPartitions;
-    Lng32 remainder = numActiveParts % suggestedNewNumberOfPartitions;
-    Lng32 oldix = 1;
-    Lng32 partNum = 0;
+    int currentNumActiveParts = 0;
+    int numActivePartsPerGroup = numActiveParts / suggestedNewNumberOfPartitions;
+    int remainder = numActiveParts % suggestedNewNumberOfPartitions;
+    int oldix = 1;
+    int partNum = 0;
     NodeMapEntry::PartitionState partState;
     NABoolean isPartActive = FALSE;
 
@@ -2942,8 +2942,8 @@ Lng32 RangePartitionBoundaries::scaleNumberOfPartitions(Lng32 suggestedNewNumber
   {
     // Determine an integer value i such that partitionCount_ / i is
     // approximately equal to suggestedNewNumberOfPartitions.
-    Lng32 numPartsPerGroup = partitionCount_ / suggestedNewNumberOfPartitions;
-    Lng32 remainder = partitionCount_ % suggestedNewNumberOfPartitions;
+    int numPartsPerGroup = partitionCount_ / suggestedNewNumberOfPartitions;
+    int remainder = partitionCount_ % suggestedNewNumberOfPartitions;
 
     // If the remainder is not zero we will end up with an imbalanced new
     // partitioning scheme. To reduce the imbalance, distribute the remainder
@@ -2954,7 +2954,7 @@ Lng32 RangePartitionBoundaries::scaleNumberOfPartitions(Lng32 suggestedNewNumber
     // Remember that entries 0 and partitionCount_ stand for the min and
     // max key and should be preserved. For the entries in between, take
     // only every <numPartsPerGroup> one and make a new, contiguous array.
-    Lng32 oldix = numPartsPerGroup;
+    int oldix = numPartsPerGroup;
     while (oldix < partitionCount_) {
       if (nodeMap->isMultiCluster(prevPartStart, oldix, FALSE)) {
         // More than one cluster in a group - undo.
@@ -3001,7 +3001,7 @@ Lng32 RangePartitionBoundaries::scaleNumberOfPartitions(Lng32 suggestedNewNumber
 }
 
 NABoolean RangePartitionBoundaries::isAGroupingOf(const RangePartitionBoundaries &other,
-                                                  Lng32 *maxPartsPerGroup) const {
+                                                  int *maxPartsPerGroup) const {
   // Call the method that compares range partition boundaries, with
   // the optional parameter that indicates if grouping is OK set to TRUE.
   return compareRangePartitionBoundaries(other, TRUE, maxPartsPerGroup);
@@ -3010,7 +3010,7 @@ NABoolean RangePartitionBoundaries::isAGroupingOf(const RangePartitionBoundaries
 // -----------------------------------------------------------------------
 // RangePartitionBoundaries::getBoundaryValues()
 // -----------------------------------------------------------------------
-const ItemExprList *RangePartitionBoundaries::getBoundaryValues(Lng32 index) const {
+const ItemExprList *RangePartitionBoundaries::getBoundaryValues(int index) const {
   // It is legal to index entries in the range [0, partitionCount_].
   CMPASSERT((index >= 0) AND(index <= partitionCount_));
   return boundaryValues_[index];
@@ -3019,7 +3019,7 @@ const ItemExprList *RangePartitionBoundaries::getBoundaryValues(Lng32 index) con
 // -----------------------------------------------------------------------
 // RangePartitionBoundaries::getBinaryBoundaryValue()
 // -----------------------------------------------------------------------
-const char *RangePartitionBoundaries::getBinaryBoundaryValue(Lng32 index) const {
+const char *RangePartitionBoundaries::getBinaryBoundaryValue(int index) const {
   // It is legal to index entries in the range [0, partitionCount_].
   CMPASSERT((index >= 0) AND(index <= partitionCount_));
   return binaryBoundaryValues_[index];
@@ -3029,7 +3029,7 @@ const char *RangePartitionBoundaries::getBinaryBoundaryValue(Lng32 index) const 
 // RangePartitionBoundaries::completePartitionBoundaries()
 // -----------------------------------------------------------------------
 void RangePartitionBoundaries::completePartitionBoundaries(const ValueIdList &partitioningKeyOrder,
-                                                           Lng32 encodedBoundaryKeyLength) {
+                                                           int encodedBoundaryKeyLength) {
   // recognize from the fact that the encoded key length is
   // not set yet that this method hasn't been called before
   CMPASSERT(encodedBoundaryKeyLength_ == -1);
@@ -3043,7 +3043,7 @@ void RangePartitionBoundaries::completePartitionBoundaries(const ValueIdList &pa
   partKeyColumnCount_ = partitioningKeyOrder.entries();
   encodedBoundaryKeyLength_ = encodedBoundaryKeyLength;
 
-  Lng32 i;
+  int i;
 
   // for each partitioning key column
   for (i = 0; i < partKeyColumnCount_; i++) {
@@ -3186,7 +3186,7 @@ void RangePartitionBoundaries::print(FILE *ofd, const char *indent, const char *
     }
 
   fprintf(ofd, "%s %s (in binary form)\n", NEW_INDENT, title);
-  Lng32 keyLen = getEncodedBoundaryKeyLength();
+  int keyLen = getEncodedBoundaryKeyLength();
   for (index = 0; index < partitionCount_; index++) {
     const char *bValues = getBinaryBoundaryValue(index);
     for (Int32 j = 0; j < keyLen; j++) {
@@ -3212,7 +3212,7 @@ RangePartitioningFunction::RangePartitioningFunction(const RangePartitioningFunc
 
 RangePartitioningFunction::~RangePartitioningFunction() {}
 
-Lng32 RangePartitioningFunction::getCountOfPartitions() const { return partitionBoundaries_->getCountOfPartitions(); }
+int RangePartitioningFunction::getCountOfPartitions() const { return partitionBoundaries_->getCountOfPartitions(); }
 
 const RangePartitioningFunction *RangePartitioningFunction::castToRangePartitioningFunction() const { return this; }
 
@@ -3257,7 +3257,7 @@ RangePartitioningFunction::comparePartFuncToFunc(const PartitioningFunction &oth
 
 }  // RangePartitioningFunction::comparePartFuncToFunc()
 
-NABoolean RangePartitioningFunction::isAGroupingOf(const PartitioningFunction &other, Lng32 *maxPartsPerGroup) const {
+NABoolean RangePartitioningFunction::isAGroupingOf(const PartitioningFunction &other, int *maxPartsPerGroup) const {
   const RangePartitioningFunction *oth = other.castToRangePartitioningFunction();
 
   // a range partitioning function can only be a grouping of
@@ -3472,7 +3472,7 @@ void RangePartitioningFunction::replacePivs(const ValueIdList &newPivs, const Va
   storePartitioningKeyPredicates(newPartKeyPreds);
 }  // RangePartitioningFunction::replacePivs()
 
-PartitioningFunction *RangePartitioningFunction::scaleNumberOfPartitions(Lng32 &suggestedNewNumberOfPartitions,
+PartitioningFunction *RangePartitioningFunction::scaleNumberOfPartitions(int &suggestedNewNumberOfPartitions,
                                                                          PartitionGroupingDistEnum partGroupDist,
                                                                          NABoolean scaleByFactor) {
   if (suggestedNewNumberOfPartitions == 1) {
@@ -3532,7 +3532,7 @@ PartitioningFunction *RangePartitioningFunction::createPartitioningFunctionForIn
   const NAColumnArray &allColumns = fileSet->getAllColumns();
   const NAColumnArray &partKeyColumns = fileSet->getPartitioningKeyColumns();
 
-  Lng32 ixColNumber;
+  int ixColNumber;
   ValueId keyValueId;
   ValueIdSet partitioningKey;
   ValueIdList partitioningKeyList;
@@ -3589,7 +3589,7 @@ PartitioningFunction *RangePartitioningFunction::createPartitioningFunctionForIn
   // (there are no fillers between the encoded key values, so it's ok
   // to just add the encoded lengths of the individual columns)
   // -----------------------------------------------------------------
-  Lng32 encodedBoundaryKeyLength = 0;
+  int encodedBoundaryKeyLength = 0;
   for (i = 0; i < orderOfPartKeyValues.entries(); i++) {
     encodedBoundaryKeyLength += partitioningKeyList[i].getType().getEncodedKeyLength();
   }
@@ -3844,20 +3844,20 @@ NABoolean RangePartitioningFunction::partFuncAndFuncPushDownCompatible(const Par
 
   if (other == NULL) return FALSE;
 
-  Lng32 thisKeyCount = getPartitioningKey().entries();
-  Lng32 otherKeyCount = other->getPartitioningKey().entries();
+  int thisKeyCount = getPartitioningKey().entries();
+  int otherKeyCount = other->getPartitioningKey().entries();
 
   // same key count
   if (thisKeyCount != otherKeyCount) return FALSE;
 
-  Lng32 thisPartCount = getCountOfPartitions();
-  Lng32 otherPartCount = other->getCountOfPartitions();
+  int thisPartCount = getCountOfPartitions();
+  int otherPartCount = other->getCountOfPartitions();
 
   // same part count
   if (thisPartCount != otherPartCount) return FALSE;
 
   // same part column type
-  for (Lng32 index = 0; index < thisKeyCount; index++) {
+  for (int index = 0; index < thisKeyCount; index++) {
     if (NOT getKeyColumnList()[index].getType().isCompatible(other->getKeyColumnList()[index].getType())) return FALSE;
   }
 
@@ -3945,7 +3945,7 @@ const NAString RangePartitioningFunction::getText() const {
     result += ")";
     /* enable this for debugging of binary key problems
     result += " binary (";
-    Lng32 encodedBoundaryKeyLength = partitionBoundaries_->getEncodedBoundaryKeyLength();
+    int encodedBoundaryKeyLength = partitionBoundaries_->getEncodedBoundaryKeyLength();
     char hexDigits[4];
 
     for (Int32 index2 = 0; index2 < partitionBoundaries_->getCountOfPartitions(); index2++)
@@ -4014,7 +4014,7 @@ NABoolean compareAsciiKey(const char *low, const char *key, const char *high, In
 // index of the boundary low. Return -1 otherwise, or the key lengths are different.
 Int32 RangePartitionBoundaries::findBeginBoundary(char *encodedKey, Int32 keyLen, compFuncPtrT compFunc) const {
   // boundaries are stored in entries in the range [0, partitionCount_]
-  for (Lng32 i = 0; i <= partitionCount_ - 1; i++) {
+  for (int i = 0; i <= partitionCount_ - 1; i++) {
     const char *low = getBinaryBoundaryValue(i);
     const char *high = getBinaryBoundaryValue(i + 1);
 
@@ -4029,7 +4029,7 @@ Int32 RangePartitionBoundaries::findBeginBoundary(char *encodedKey, Int32 keyLen
 // index of the boundary low. Return -1 otherwise, or the key lengths are different.
 Int32 RangePartitionBoundaries::findEndBoundary(char *encodedKey, Int32 keyLen, compFuncPtrT compFunc) const {
   // boundaries are stored in entries in the range [0, partitionCount_]
-  for (Lng32 i = partitionCount_ - 1; i >= 0; i--) {
+  for (int i = partitionCount_ - 1; i >= 0; i--) {
     const char *low = getBinaryBoundaryValue(i);
     const char *high = getBinaryBoundaryValue(i + 1);
 
@@ -4097,7 +4097,7 @@ Int32 RangePartitioningFunction::computeNumOfActivePartitions(SearchKey *skey, c
 
 LogPhysPartitioningFunction::LogPhysPartitioningFunction(PartitioningFunction *logPartFunc,
                                                          PartitioningFunction *physPartFunc, logPartType logPartType,
-                                                         Lng32 numOfClients, NABoolean usePapa,
+                                                         int numOfClients, NABoolean usePapa,
                                                          NABoolean synchronousAccess, NAMemory *heap)
     : PartitioningFunction(LOGPHYS_PARTITIONING_FUNCTION, heap),
       logPartFunc_(logPartFunc),
@@ -4119,7 +4119,7 @@ const LogPhysPartitioningFunction *LogPhysPartitioningFunction::castToLogPhysPar
   return this;
 }
 
-Lng32 LogPhysPartitioningFunction::getCountOfPartitions() const { return physPartFunc_->getCountOfPartitions(); }
+int LogPhysPartitioningFunction::getCountOfPartitions() const { return physPartFunc_->getCountOfPartitions(); }
 
 PartitioningRequirement *LogPhysPartitioningFunction::makePartitioningRequirement() {
   CMPASSERT(physPartFunc_);
@@ -4310,7 +4310,7 @@ LogPhysPartitioningFunction::comparePartFuncToFunc(const PartitioningFunction &o
   return SAME;
 }
 
-NABoolean LogPhysPartitioningFunction::isAGroupingOf(const PartitioningFunction &other, Lng32 *maxPartsPerGroup) const {
+NABoolean LogPhysPartitioningFunction::isAGroupingOf(const PartitioningFunction &other, int *maxPartsPerGroup) const {
   if (maxPartsPerGroup != NULL) *maxPartsPerGroup = 1;
 
   // Handle the trivial case of two functions that are equal. The only
@@ -4619,7 +4619,7 @@ PartitioningFunction *RoundRobinPartitioningFunction::createPartitioningFunction
   const NAColumnArray &allColumns = fileSet->getAllColumns();
   const NAColumnArray &partKeyColumns = fileSet->getPartitioningKeyColumns();
 
-  Lng32 ixColNumber;
+  int ixColNumber;
   ValueId keyValueId;
   ValueIdSet partitioningKey;
 
@@ -4671,18 +4671,18 @@ ItemExpr *RoundRobinPartitioningFunction::createPartitioningExpression() {
 
   NAType *numPartsType = new (heap) SQLInt(heap, FALSE, FALSE);
 
-  Lng32 numParts = getCountOfOrigRRPartitions();
+  int numParts = getCountOfOrigRRPartitions();
   char buffer[20];
   sprintf(buffer, "%d", numParts);
 
   NAString numPartsStr = buffer;
-  ItemExpr *origNumParts = new (heap) ConstValue(numPartsType, &numParts, sizeof(Lng32), &numPartsStr);
+  ItemExpr *origNumParts = new (heap) ConstValue(numPartsType, &numParts, sizeof(int), &numPartsStr);
 
   numParts = getCountOfPartitions();
   sprintf(buffer, "%d", numParts);
 
   numPartsStr = buffer;
-  ItemExpr *scaledNumParts = new (heap) ConstValue(numPartsType, &numParts, sizeof(Lng32), &numPartsStr);
+  ItemExpr *scaledNumParts = new (heap) ConstValue(numPartsType, &numParts, sizeof(int), &numPartsStr);
 
   ItemExpr *partFunc = new (heap) PAGroup(new (heap) ProgDistrib(partKey, origNumParts), scaledNumParts, origNumParts);
 
@@ -4835,7 +4835,7 @@ ItemExpr *RoundRobinPartitioningFunction::createPartitionSelectionExpr(const Sea
 //
 // As a result, the following version will not be called.
 
-PartitioningFunction *RoundRobinPartitioningFunction::scaleNumberOfPartitions(Lng32 &suggestedNewNumberOfPartitions,
+PartitioningFunction *RoundRobinPartitioningFunction::scaleNumberOfPartitions(int &suggestedNewNumberOfPartitions,
                                                                               PartitionGroupingDistEnum partGroupDist,
                                                                               NABoolean scaleByFactor) {
   if (suggestedNewNumberOfPartitions == 1)
@@ -4863,7 +4863,7 @@ PartitioningFunction *RoundRobinPartitioningFunction::scaleNumberOfPartitions(Ln
 // RoundRobinPartitioningFunction::isAGroupingOf()
 // -----------------------------------------------------------------------
 NABoolean RoundRobinPartitioningFunction::isAGroupingOf(const PartitioningFunction &other,
-                                                        Lng32 *maxPartsPerGroup) const {
+                                                        int *maxPartsPerGroup) const {
   if (maxPartsPerGroup != NULL) *maxPartsPerGroup = 1;
 
   const RoundRobinPartitioningFunction *oth = other.castToRoundRobinPartitioningFunction();
@@ -5317,7 +5317,7 @@ PartitioningFunction *HivePartitioningFunction::createPartitioningFunctionForInd
 
 }  // HivePartitioningFunction::createPartitioningFunctionForIndexDesc()
 
-NABoolean HivePartitioningFunction::isAGroupingOf(const PartitioningFunction &other, Lng32 *maxPartsPerGroup) const {
+NABoolean HivePartitioningFunction::isAGroupingOf(const PartitioningFunction &other, int *maxPartsPerGroup) const {
   if (maxPartsPerGroup != NULL) *maxPartsPerGroup = 1;
 
   if (comparePartKeyToKey(other) == INCOMPATIBLE) return FALSE;

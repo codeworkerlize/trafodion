@@ -1105,8 +1105,8 @@ void CRUTableLockProtocol::StoreData(CUOFsIpcMessageTranslator &translator) {
   if (NothingToLock_) return;
 
   // Store the number of elements in the lock list
-  Lng32 count = LocksList_->GetCount();
-  translator.WriteBlock(&count, sizeof(Lng32));
+  int count = LocksList_->GetCount();
+  translator.WriteBlock(&count, sizeof(int));
 
   // Store the lock elements.
   CRUSingleTableLockProtocol *thisLock = NULL;
@@ -1127,12 +1127,12 @@ void CRUTableLockProtocol::LoadData(CUOFsIpcMessageTranslator &translator) {
   if (NothingToLock_) return;
 
   // Load the number of elements in the lock list
-  Lng32 count;
-  translator.ReadBlock(&count, sizeof(Lng32));
+  int count;
+  translator.ReadBlock(&count, sizeof(int));
 
   // Load the lock elements.
   LocksList_ = new LocksList();
-  for (Lng32 i = 0; i < count; i++) {
+  for (int i = 0; i < count; i++) {
     // Alloc a new lock object, init it and add it to the list.
     CRUSingleTableLockProtocol *thisLock = new CRUSingleTableLockProtocol();
     thisLock->LoadData(translator);

@@ -45,8 +45,8 @@ class SscpGlobals {
   void releaseOrphanEntries() {}
   Long &getSemId() { return semId_; }
   pid_t myPin() { return myPin_; }
-  inline void incSscpReqMsg(Int64 msgBytes) { statsGlobals_->incSscpReqMsg(msgBytes); }
-  inline void incSscpReplyMsg(Int64 msgBytes) { statsGlobals_->incSscpReplyMsg(msgBytes); }
+  inline void incSscpReqMsg(long msgBytes) { statsGlobals_->incSscpReqMsg(msgBytes); }
+  inline void incSscpReplyMsg(long msgBytes) { statsGlobals_->incSscpReplyMsg(msgBytes); }
   bool shouldLogCancelKillServers() { return doLogCancelKillServers_; }
 
  private:

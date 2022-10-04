@@ -212,7 +212,7 @@ class ex_hashj_tcb : public ex_tcb {
 
   ex_expr *rangeSpecPackingExpr_;
 
-  Int64 totalRowsEvaledByMinMax_;  // total # rows evaluated by minmaxExpr_.
+  long totalRowsEvaledByMinMax_;  // total # rows evaluated by minmaxExpr_.
   ULng32 sanityCheckCycle_;        // The number of minmax rows to accumulate before
                                    // a sanity check starts. A value of 0 disables
                                    // the check.
@@ -226,7 +226,7 @@ class ex_hashj_tcb : public ex_tcb {
   NABoolean haveAllocatedClusters_;  // Have we allocated the clusters (and still
                                      // have their Hash Tables -- for REUSE )
 
-  Int64 totalRightRowsRead_;  // total # right rows read from the right child
+  long totalRightRowsRead_;  // total # right rows read from the right child
 
   Cluster *currCluster_;  // current cluster being processed (in phase 1)
 
@@ -371,7 +371,7 @@ class ex_hashj_tcb : public ex_tcb {
 
 #ifdef NEED_INSTRUMENT_HASHJ
   Timer workTimer_;
-  Int64 totalMinmaxEvalET_;
+  long totalMinmaxEvalET_;
 #endif
 };
 
@@ -430,7 +430,7 @@ class ex_hashj_private_state : public ex_tcb_private_state {
                                   // delayed (Only for allOrNothing )
   NABoolean haveClusters_;        // indicates hash table has been built
   NABoolean readRightRow_;        // was a row read from the right (for this request)
-  Int64 matchCount_;              // # of rows sent to parent
+  long matchCount_;              // # of rows sent to parent
   queue_index reliesOnIdx;        // index of request that builds hash table (re)used by this request
 
  public:
@@ -542,7 +542,7 @@ class ExUniqueHashJoinTcb : public ex_hashj_tcb {
   // The non-extended row size.  This is the size of the row returned
   // from the right hand side of the join.
   //
-  const Lng32 rowSize_;
+  const int rowSize_;
 
   // The index into the parent up ATP where the right row will be placed.
   //

@@ -27,9 +27,9 @@ class Timer {
  private:
   enum TimerConstants { ONE_THOUSAND = 1000, ONE_MILLION = 1000000 };
 
-  Int64 startTime_;
-  Int64 endTime_;
-  Int64 accumTime_;
+  long startTime_;
+  long endTime_;
+  long accumTime_;
   NABoolean running_;
 
  public:
@@ -51,7 +51,7 @@ class Timer {
   //
   // If timer is running, then stop the timer, accumulate any elapsed time.
   // Returns accumulated time.
-  Int64 stop() {
+  long stop() {
     if (running_) {
       endTime_ = NA_JulianTimestamp();
       running_ = FALSE;
@@ -64,7 +64,7 @@ class Timer {
   //
   // If timer is not running, then set to running and capture a new start time.
   // Returns current accumulated time.
-  Int64 restart() {
+  long restart() {
     if (!running_) {
       running_ = TRUE;
       endTime_ = 0;
@@ -78,13 +78,13 @@ class Timer {
   // If timer is running, then stop it and accumulate elapsed time.
   // If timer is not running, then start it.
   // Returns current accumulated time.
-  Int64 startStop() { return (running_ ? stop() : restart()); }
+  long startStop() { return (running_ ? stop() : restart()); }
 
   //
   // If timer is running, then return the accumulated time so far plus
   // the current time minus the current start time.
   // If timer is not running, then just return the accumulated time.
-  Int64 elapsedTime() {
+  long elapsedTime() {
     if (running_)
       return ((NA_JulianTimestamp() - startTime_) + accumTime_);
     else {

@@ -74,7 +74,7 @@ Long ComTdbSample::pack(void *space) {
   return ComTdb::pack(space);
 }
 
-Lng32 ComTdbSample::unpack(void *base, void *reallocator) {
+int ComTdbSample::unpack(void *base, void *reallocator) {
   if (tdbChild_.unpack(base, reallocator)) return -1;
   if (initExpr_.unpack(base, reallocator)) return -1;
   if (balanceExpr_.unpack(base, reallocator)) return -1;

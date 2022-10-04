@@ -65,7 +65,7 @@ class ComTdbRoot;
 // Comment in and build to trace an ESPAccess ESP process
 //#define TRACE_ESP_ACCESS 1
 
-ESPTraceEntry::ESPTraceEntry(ex_globals *globals, Lng32 espNum, Lng32 pid, Int64 currentTS, char *t1)
+ESPTraceEntry::ESPTraceEntry(ex_globals *globals, int espNum, int pid, long currentTS, char *t1)
     : espNum_(espNum), pid_(pid), timestamp_(currentTS), globals_(globals) {
   Int32 len = str_len(t1);
   msgtext1_ = new (globals_->getDefaultHeap()) char[len + 1];
@@ -110,7 +110,7 @@ void ESPTraceEntry::createMessage(char *message) {
   char hour = (char)timestamp[3];
   char minute = (char)timestamp[4];
   char second = (char)timestamp[5];
-  Lng32 fraction = timestamp[6] * 1000 + timestamp[7];
+  int fraction = timestamp[6] * 1000 + timestamp[7];
 
   str_sprintf(timeBuf, "%04u-%02u-%02u %02u:%02u:%02u.%03u", year, month, day, hour, minute, second, fraction);
 
@@ -257,7 +257,7 @@ void ExExeStmtGlobals::deleteMe(NABoolean fatalError) {
   // happens before TCB destructors run. If TCB destructors run before
   // the ID is released, the reader thread could see arrivals for a
   // connection or buffer that has already gone away.
-  Int64 smQueryID = getSMQueryID();
+  long smQueryID = getSMQueryID();
   if (smQueryID > 0 && smQueryIDRegistered_) {
     ExSM_Cancel(smQueryID);
     smQueryIDRegistered_ = false;
@@ -398,12 +398,12 @@ void ExExeStmtGlobals::takeGlobalDiagsArea(ComDiagsArea &cliDA) {
   }
 }
 
-Lng32 ExExeStmtGlobals::getNumOfInstances() const {
+int ExExeStmtGlobals::getNumOfInstances() const {
   // define the simple method by calling the more general method
   return getNumOfInstances(getMyFragId());
 }
 
-NABoolean ExExeStmtGlobals::getStreamTimeout(Lng32 &timeoutValue) {
+NABoolean ExExeStmtGlobals::getStreamTimeout(int &timeoutValue) {
   if (NULL == timeouts_ || !timeouts_->isStreamTimeoutSet()) return FALSE;
   timeoutValue = timeouts_->getStreamTimeout();
   return TRUE;
@@ -479,7 +479,7 @@ void ExExeStmtGlobals::decrementCancelMsgesOut() {
   numCancelMsgesOut_--;
 }
 
-void ExExeStmtGlobals::cancelOperation(Int64 transId) {
+void ExExeStmtGlobals::cancelOperation(long transId) {
   if (cliGlobals_ == NULL || transId < 0) {
     return;
   }
@@ -598,19 +598,19 @@ ExFragId ExMasterStmtGlobals::getMyFragId() const {
   return 0;  // master is always fragment id 0
 }
 
-Lng32 ExMasterStmtGlobals::getNumOfInstances(ExFragId fragId) const { return fragTable_->getNumOfInstances(fragId); }
+int ExMasterStmtGlobals::getNumOfInstances(ExFragId fragId) const { return fragTable_->getNumOfInstances(fragId); }
 
-const IpcProcessId &ExMasterStmtGlobals::getInstanceProcessId(ExFragId fragId, Lng32 instanceNum) const {
+const IpcProcessId &ExMasterStmtGlobals::getInstanceProcessId(ExFragId fragId, int instanceNum) const {
   return fragTable_->getInstanceProcessId(fragId, instanceNum);
 }
 
-Lng32 ExMasterStmtGlobals::getMyInstanceNumber() const {
+int ExMasterStmtGlobals::getMyInstanceNumber() const {
   // there is only one master and it's instance number is therefore 0
   return 0;
 }
 
-void ExMasterStmtGlobals::getMyNodeLocalInstanceNumber(Lng32 &myNodeLocalInstanceNumber,
-                                                       Lng32 &numOfLocalInstances) const {
+void ExMasterStmtGlobals::getMyNodeLocalInstanceNumber(int &myNodeLocalInstanceNumber,
+                                                       int &numOfLocalInstances) const {
   // I'm number one (zero in geek-speak) and there is only one master
   myNodeLocalInstanceNumber = 0;
   numOfLocalInstances = 1;
@@ -769,7 +769,7 @@ void ExMasterStmtGlobals::deleteResultSetInfo() {
 }
 
 void ExMasterStmtGlobals::acquireRSInfoFromParent(ULng32 &rsIndex,          // OUT
-                                                  Int64 &udrHandle,         // OUT
+                                                  long &udrHandle,         // OUT
                                                   ExUdrServer *&udrServer,  // OUT
                                                   IpcProcessId &pid,        // OUT
                                                   ExRsInfo *&rsInfo)        // OUT
@@ -822,13 +822,13 @@ void ExMasterStmtGlobals::insertExtractEsp(const IpcProcessId &pid) {
 
   char pidBuf[300];
   pid.toAscii(pidBuf, 300);
-  Lng32 len = str_len(pidBuf);
+  int len = str_len(pidBuf);
 
   const GuaProcessHandle &phandle = pid.getPhandle();
   Int32 cpu = -1, pin = -1;
   Int32 nodeNumber = -1;
   SB_Int64_Type seqNum = 0;
-  Lng32 guaError = phandle.decompose(cpu, pin, nodeNumber, seqNum);
+  int guaError = phandle.decompose(cpu, pin, nodeNumber, seqNum);
   if (guaError != 0) {
     char msg[100];
     str_sprintf(msg, "Unexpected error %d from DECOMPOSE", (Int32)guaError);
@@ -858,7 +858,7 @@ void ExMasterStmtGlobals::insertExtractSecurityKey(const char *key) {
   }
 
   if (key == NULL) key = "";
-  Lng32 len = str_len(key);
+  int len = str_len(key);
 
   extractInfo_->securityKey_ = (char *)h->allocateMemory(len + 1);
   str_cpy_all(extractInfo_->securityKey_, key, len + 1);
@@ -875,8 +875,8 @@ short ExMasterStmtGlobals::getExtractEspCpu(ULng32 index) const {
   return result;
 }
 
-Lng32 ExMasterStmtGlobals::getExtractEspNodeNumber(ULng32 index) const {
-  Lng32 result = -1;
+int ExMasterStmtGlobals::getExtractEspNodeNumber(ULng32 index) const {
+  int result = -1;
   if (extractInfo_ && extractInfo_->esps_) {
     if (extractInfo_->esps_->used(index)) {
       ExExtractEspInfo *esp = extractInfo_->esps_->at(index);
@@ -922,7 +922,7 @@ const char *ExMasterStmtGlobals::getSMTraceFilePrefix() const {
 ExEspStmtGlobals::ExEspStmtGlobals(short num_temps, CliGlobals *cliGlobals, short create_gui_sched, Space *space,
                                    CollHeap *heap, ExEspFragInstanceDir *espFragInstanceDir, int handle,
                                    ULng32 injectErrorAtExprFreq, NABoolean multiThreadedEsp, char *queryId,
-                                   Lng32 queryIdLen)
+                                   int queryIdLen)
     : ExExeStmtGlobals(num_temps, cliGlobals, create_gui_sched, space, heap),
       sendTopTcbs_(heap),
       activatedSendTopTcbs_(&sendTopTcbs_, heap),
@@ -985,16 +985,16 @@ ExFragId ExEspStmtGlobals::getMyFragId() const {
   return cachedMyFragId_;
 }
 
-Lng32 ExEspStmtGlobals::getNumOfInstances(ExFragId fragId) const {
+int ExEspStmtGlobals::getNumOfInstances(ExFragId fragId) const {
   return processIdsOfFragList_->getNumOfInstances(fragId);
 }
 
-const IpcProcessId &ExEspStmtGlobals::getInstanceProcessId(ExFragId fragId, Lng32 instanceNum) const {
+const IpcProcessId &ExEspStmtGlobals::getInstanceProcessId(ExFragId fragId, int instanceNum) const {
   return processIdsOfFragList_->getProcessId(fragId, instanceNum);
 }
 
-Lng32 ExEspStmtGlobals::getMyInstanceNumber() const {
-  // Lng32 myInstanceNum  = -1;
+int ExEspStmtGlobals::getMyInstanceNumber() const {
+  // int myInstanceNum  = -1;
 
   // Shortcut, use cached value. This is in part for performance,
   // but also to make debugging easier (especially for cores).
@@ -1004,7 +1004,7 @@ Lng32 ExEspStmtGlobals::getMyInstanceNumber() const {
 
   ExFragId myFragId = getMyFragId();
 
-  Lng32 numInstances = getNumOfInstances(myFragId);
+  int numInstances = getNumOfInstances(myFragId);
 
   // my own process id, expressed in the same domain as the
   // one we are comparing with
@@ -1037,10 +1037,10 @@ Lng32 ExEspStmtGlobals::getMyInstanceNumber() const {
       cachedMyInstanceNum_;
 }
 
-void ExEspStmtGlobals::getMyNodeLocalInstanceNumber(Lng32 &myNodeLocalInstanceNumber,
-                                                    Lng32 &numOfLocalInstances) const {
+void ExEspStmtGlobals::getMyNodeLocalInstanceNumber(int &myNodeLocalInstanceNumber,
+                                                    int &numOfLocalInstances) const {
   ExFragId myFragId = getMyFragId();
-  Lng32 numInstances = getNumOfInstances(myFragId);
+  int numInstances = getNumOfInstances(myFragId);
 
   numOfLocalInstances = 0;
   myNodeLocalInstanceNumber = -1;
@@ -1082,8 +1082,8 @@ void ExEspStmtGlobals::getMyNodeLocalInstanceNumber(Lng32 &myNodeLocalInstanceNu
   ex_assert(myNodeLocalInstanceNumber != -1, "couldn't determine my own instance number");
 }
 
-Int64 ExEspStmtGlobals::getSMQueryID() const {
-  Int64 smQueryID = 0;
+long ExEspStmtGlobals::getSMQueryID() const {
+  long smQueryID = 0;
   if (smDownloadInfo_) smQueryID = smDownloadInfo_->getQueryID();
   return smQueryID;
 }
@@ -1106,7 +1106,7 @@ const ExScratchFileOptions *ExEspStmtGlobals::getScratchFileOptions() const {
   return NULL;
 }
 
-void ExEspStmtGlobals::setReplyTag(Int64 transid, Int64 savepointId, Int64 pSavepointId, short replyTag) {
+void ExEspStmtGlobals::setReplyTag(long transid, long savepointId, long pSavepointId, short replyTag) {
   // The transaction id itself is stored in the base table, the reply
   // tag through which we can switch to this transaction id is stored
   // in the derived object since it applied only to ESPs.
@@ -1216,7 +1216,7 @@ StmtStats *ExEspStmtGlobals::setStmtStats() {
   StatsGlobals *statsGlobals = espFragInstanceDir_->getStatsGlobals();
   if (statsGlobals != NULL && queryId_ != NULL)
     stmtStats_ = statsGlobals->addQuery(espFragInstanceDir_->getPid(), queryId_, queryIdLen_, (void *)this,
-                                        (Lng32)getMyFragId());
+                                        (int)getMyFragId());
   return stmtStats_;
 }
 
@@ -1231,7 +1231,7 @@ ExEspInstanceThread *ExEspStmtGlobals::getThreadInfo() {
   return NULL;
 }
 
-void ExExeStmtGlobals::makeMemoryCondition(Lng32 errCode) {
+void ExExeStmtGlobals::makeMemoryCondition(int errCode) {
   if (diagsArea_ == NULL) diagsArea_ = ComDiagsArea::allocate(getDefaultHeap());
 
   ComCondition *cond = diagsArea_->makeNewCondition();
@@ -1270,7 +1270,7 @@ void ExExeStmtGlobals::decrementUdrNonTxMsgsOut() {
 // ExExeStmtGlobals which is side effected by ExSMGlobals::InitSMGlobals
 void ExExeStmtGlobals::initSMGlobals() {
   // Do nothing if this query does not use SeaMonster
-  Int64 smQueryID = getSMQueryID();
+  long smQueryID = getSMQueryID();
   if (smQueryID <= 0) return;
 
   // Initialize SM if there are no errors already

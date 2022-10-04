@@ -61,7 +61,7 @@ static const char precedingITPunc[] = "^-^ ::";
 //
 // ***********************************************************************
 
-short getIntervalFields(Lng32 fsDatatype, rec_datetime_field &startField, rec_datetime_field &endField) {
+short getIntervalFields(int fsDatatype, rec_datetime_field &startField, rec_datetime_field &endField) {
   switch (fsDatatype) {
     case REC_INT_YEAR:
       startField = REC_DATE_YEAR;
@@ -274,9 +274,9 @@ UInt32 IntervalType::computeLeadingPrecision(rec_datetime_field startField, UInt
   return leadingPrecision;
 }  // IntervalType::getLeadingPrecision
 
-Lng32 IntervalType::getStorageSize(rec_datetime_field startField, UInt32 leadingPrecision, rec_datetime_field endField,
+int IntervalType::getStorageSize(rec_datetime_field startField, UInt32 leadingPrecision, rec_datetime_field endField,
                                    UInt32 fractionPrecision) {
-  Lng32 size = getBinaryStorageSize(getPrecision(startField, leadingPrecision, endField, fractionPrecision));
+  int size = getBinaryStorageSize(getPrecision(startField, leadingPrecision, endField, fractionPrecision));
 
   // interval datatypes are stored as 2(smallint),4(int) or 8(largeint) bytes.
   // If size is tinyint size based on precision, change it to smallint size.
@@ -426,7 +426,7 @@ const NAType *IntervalType::synthesizeType(enum NATypeSynthRuleEnum synthRule, c
   }  // switch
 }  // synthesizeType()
 
-Lng32 IntervalType::getDisplayLength() const {
+int IntervalType::getDisplayLength() const {
   //
   // Return the string size excluding the null terminator.
   //
@@ -437,7 +437,7 @@ Lng32 IntervalType::getDisplayLength() const {
 //  IntervalType : Min and max values, and encoding
 // ***********************************************************************
 
-void IntervalType::getRepresentableValue(char sign, void *bufPtr, Lng32 *bufLen, NAString **stringLiteral,
+void IntervalType::getRepresentableValue(char sign, void *bufPtr, int *bufLen, NAString **stringLiteral,
                                          CollHeap *h) const {
   size_t valueStringLen = getStringSize();
   char *valueString = new char[valueStringLen];
@@ -497,15 +497,15 @@ void IntervalType::getRepresentableValue(char sign, void *bufPtr, Lng32 *bufLen,
   delete[] valueString;
 }
 
-void IntervalType::getZeroValue(void *bufPtr, Lng32 *bufLen, NAString **stringLiteral, CollHeap *h) const {
+void IntervalType::getZeroValue(void *bufPtr, int *bufLen, NAString **stringLiteral, CollHeap *h) const {
   getRepresentableValue('0', bufPtr, bufLen, stringLiteral, h);
 }
 
-void IntervalType::minRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **stringLiteral, CollHeap *h) const {
+void IntervalType::minRepresentableValue(void *bufPtr, int *bufLen, NAString **stringLiteral, CollHeap *h) const {
   getRepresentableValue('-', bufPtr, bufLen, stringLiteral, h);
 }
 
-void IntervalType::maxRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **stringLiteral, CollHeap *h) const {
+void IntervalType::maxRepresentableValue(void *bufPtr, int *bufLen, NAString **stringLiteral, CollHeap *h) const {
   getRepresentableValue('+', bufPtr, bufLen, stringLiteral, h);
 }
 
@@ -622,7 +622,7 @@ IntervalValue::IntervalValue(const char *strValue, rec_datetime_field startField
   //
   // Check that the qualifier is valid.
   //
-  Lng32 storageSize = IntervalType::getStorageSize(startField, leadingPrecision, endField, fractionPrecision);
+  int storageSize = IntervalType::getStorageSize(startField, leadingPrecision, endField, fractionPrecision);
   if (storageSize == 0) {
     SQLInterval triggerErrmsg(NULL, FALSE, startField, leadingPrecision, endField, fractionPrecision);
     return;
@@ -641,14 +641,14 @@ IntervalValue::IntervalValue(const char *strValue, rec_datetime_field startField
   // Scan the first field.  The maximum number of digits allowed is the
   // leading precision.
   //
-  Int64 intervalValue = 0;  // initialize to zero fix Solution ID 10-020913-1668
+  long intervalValue = 0;  // initialize to zero fix Solution ID 10-020913-1668
   if (leadingPrecision > 0) {
     if (!scanField(strValue, leadingPrecision, intervalValue)) return;
   }
   //
   // Scan the remaining fields and the separators preceding them.
   //
-  Lng32 fieldValue;
+  int fieldValue;
   for (Int32 field = startField + 1; field <= endField; field++) {
     Int32 index = field - REC_DATE_YEAR;  // zero-based array index!
     //
@@ -703,12 +703,12 @@ IntervalValue::IntervalValue(const char *strValue, rec_datetime_field startField
 
 }  // IntervalValue ctor
 
-IntervalValue::IntervalValue(const char *value, Lng32 storageSize)
+IntervalValue::IntervalValue(const char *value, int storageSize)
     : value_(new unsigned char[storageSize]), valueLen_((unsigned short)storageSize) {
   memcpy(value_, value, valueLen_);
 }  // IntervalValue ctor
 
-NABoolean IntervalValue::scanField(const char *&strValue, UInt32 maxFieldLen, Lng32 &value) const {
+NABoolean IntervalValue::scanField(const char *&strValue, UInt32 maxFieldLen, int &value) const {
   //
   // Compute the value of the interval field.
   //
@@ -723,7 +723,7 @@ NABoolean IntervalValue::scanField(const char *&strValue, UInt32 maxFieldLen, Ln
   return TRUE;
 }
 
-NABoolean IntervalValue::scanField(const char *&strValue, UInt32 maxFieldLen, Int64 &value) const {
+NABoolean IntervalValue::scanField(const char *&strValue, UInt32 maxFieldLen, long &value) const {
   //
   // Compute the value of the interval field.
   //
@@ -738,7 +738,7 @@ NABoolean IntervalValue::scanField(const char *&strValue, UInt32 maxFieldLen, In
   return TRUE;
 }
 
-void IntervalValue::setValue(Int64 value, Lng32 valueLen) {
+void IntervalValue::setValue(long value, int valueLen) {
   assert(0 <= valueLen && valueLen <= USHRT_MAX);
   valueLen_ = (unsigned short)valueLen;
   value_ = new unsigned char[valueLen_];
@@ -750,19 +750,19 @@ void IntervalValue::setValue(Int64 value, Lng32 valueLen) {
       break;
     }
     case SQL_INT_SIZE: {
-      *(Lng32 *)value_ = (Lng32)value;
+      *(int *)value_ = (int)value;
       break;
     }
     case SQL_LARGE_SIZE:
-      *(Int64 *)value_ = value;
+      *(long *)value_ = value;
       break;
     default:;
   }
 }
 
-static void valueToField(Int64 &value, NAString &result, char *buffer, UInt32 prec, UInt32 factor, char punc) {
-  Int64 tmpval = value;
-  Int64 tmpfactor = (Lng32)factor;
+static void valueToField(long &value, NAString &result, char *buffer, UInt32 prec, UInt32 factor, char punc) {
+  long tmpval = value;
+  long tmpfactor = (int)factor;
   value = value / tmpfactor;
   tmpval -= value * tmpfactor;
   //  unsigned long i = *((unsigned long *) &tmpval + 1);
@@ -776,7 +776,7 @@ NAString IntervalValue::getValueAsString(const IntervalType &dt) const {
   NAString result((NASize_T)resultlen);
   if (!isValid()) return result;
 
-  Int64 value;
+  long value;
   switch (valueLen_) {
     case SQL_SMALL_SIZE: {
       short temp;
@@ -785,7 +785,7 @@ NAString IntervalValue::getValueAsString(const IntervalType &dt) const {
       break;
     }
     case SQL_INT_SIZE: {
-      Lng32 temp;
+      int temp;
       memcpy((char *)&temp, value_, valueLen_);
       value = temp;
       break;
@@ -841,7 +841,7 @@ double SQLInterval::encode(void *bufPtr) const {
 
   if (supportsSQLnull()) valPtr += getSQLnullHdrSize();
 
-  Lng32 size = getStorageSize(getStartField(), getLeadingPrecision(), getEndField(), getFractionPrecision());
+  int size = getStorageSize(getStartField(), getLeadingPrecision(), getEndField(), getFractionPrecision());
 
   switch (size) {
     case sizeof(short): {
@@ -856,9 +856,9 @@ double SQLInterval::encode(void *bufPtr) const {
       val = temp;
       break;
     }
-    case sizeof(Int64): {
-      Int64 temp;
-      memcpy((char *)&temp, valPtr, sizeof(Int64));
+    case sizeof(long): {
+      long temp;
+      memcpy((char *)&temp, valPtr, sizeof(long));
       val = convertInt64ToDouble(temp);
       break;
     }

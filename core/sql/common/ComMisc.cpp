@@ -338,7 +338,7 @@ NABoolean ComValidateNamespace(NAString *inNS, NABoolean isTraf, NAString &outNS
   }
 
   if (isTraf) {
-    for (Lng32 i = 0; i < lns.length(); i++) {
+    for (int i = 0; i < lns.length(); i++) {
       char c = (lns.data())[i];
 
       if (NOT(((c >= '0') && (c <= '9')) || ((c >= 'a') && (c <= 'z')) || ((c >= 'A') && (c <= 'Z')) || (c == '_') ||
@@ -370,7 +370,7 @@ NAString ComGetReservedNamespace(NAString schName) {
     return TRAF_RESERVED_NAMESPACE6;
 }
 
-Int32 ComGenerateUdrCachedLibName(NAString libname, Int64 redeftime, NAString schemaName, NAString userid,
+Int32 ComGenerateUdrCachedLibName(NAString libname, long redeftime, NAString schemaName, NAString userid,
                                   NAString &cachedLibName, NAString &cachedLibPath) {
   NAString libPrefix, libSuffix;
   struct stat statbuf;

@@ -21,14 +21,14 @@ ComTdbHashj::ComTdbHashj(
     // nullInstForLeftJoinExpr(i.e)instantiates the right row.
     ex_expr *nullInstForLeftJoinExpr, ex_expr *beforeJoinPred1, ex_expr *beforeJoinPred2, ex_expr *afterJoinPred1,
     ex_expr *afterJoinPred2, ex_expr *afterJoinPred3, ex_expr *afterJoinPred4, ex_expr *afterJoinPred5,
-    ex_expr *checkInputPred, ex_expr *moveInputExpr, Lng32 inputValuesLen, short prevInputTuppIndex,
+    ex_expr *checkInputPred, ex_expr *moveInputExpr, int inputValuesLen, short prevInputTuppIndex,
     ULng32 rightRowLength, ULng32 extRightRowLength, ULng32 leftRowLength, ULng32 extLeftRowLength,
     ULng32 instRowForLeftJoinLength, ex_cri_desc *workCriDesc, short leftRowAtpIndex, short extLeftRowAtpIndex,
     short rightRowAtpIndex, short extRightRowAtpIndex1, short extRightRowAtpIndex2, short hashValueAtpIndex,
     short instRowForLeftJoinAtpIndex, short returnedLeftRowAtpIndex, short returnedRightRowAtpIndex,
     short returnedInstRowForLeftJoinAtpIndex, unsigned short memUsagePercent, short pressureThreshold,
     short scratchThresholdPct, queue_index down, queue_index up, Int32 isSemiJoin, Int32 isLeftJoin,
-    Int32 isAntiSemiJoin, Int32 isUniqueHashJoin, Int32 isNoOverflow, Int32 isReuse, Lng32 numBuffers,
+    Int32 isAntiSemiJoin, Int32 isUniqueHashJoin, Int32 isNoOverflow, Int32 isReuse, int numBuffers,
     ULng32 bufferSize, ULng32 hashBufferSize, Cardinality estimatedRowCount, Cardinality innerExpectedRows,
     Cardinality outerExpectedRows, Int32 isRightJoin, ex_expr *rightJoinExpr,
     // nullInstForRightJoinExpr(i.e)instantiates the
@@ -177,7 +177,7 @@ Long ComTdbHashj::pack(void *space) {
   return ComTdb::pack(space);
 }
 
-Lng32 ComTdbHashj::unpack(void *base, void *reallocator) {
+int ComTdbHashj::unpack(void *base, void *reallocator) {
   if (leftChildTdb_.unpack(base, reallocator)) return -1;
   if (rightChildTdb_.unpack(base, reallocator)) return -1;
   if (rightHashExpr_.unpack(base, reallocator)) return -1;

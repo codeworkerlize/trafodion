@@ -140,7 +140,7 @@ class ExplainReposInfo {
     rtci_.init();
   }
 
-  Int64 filler_;
+  long filler_;
   ReposTextChunksInfo rtci_;
 };
 
@@ -191,23 +191,23 @@ class ExExplainTcb : public ex_tcb {
   // The paramsTuple will contain the values of the parameters
   // to the explain function (module name and statement pattern)
   // The paramsTuple will be populated by evaluating the paramsExpr
-  void initParamsTuple(Int32 tupleLength, ex_cri_desc *criDescParams, Lng32 lengthModName, Lng32 lengthStmtPattern);
+  void initParamsTuple(Int32 tupleLength, ex_cri_desc *criDescParams, int lengthModName, int lengthStmtPattern);
 
-  void setQid(char *qid, Lng32 len);
-  void setReposQid(char *reposQid, Lng32 len);
+  void setQid(char *qid, int len);
+  void setReposQid(char *reposQid, int len);
 
-  void setExplainAddr(char *addr, Lng32 len);
-  void setExplainAddr(Int64 addr);
-  void setExplainStmt(char *stmt, Lng32 len);
-  void setExplainPlan(char *plan, Lng32 len);
+  void setExplainAddr(char *addr, int len);
+  void setExplainAddr(long addr);
+  void setExplainStmt(char *stmt, int len);
+  void setExplainPlan(char *plan, int len);
 
   RtsExplainFrag *sendToSsmp();
 
   static short getExplainData(ex_root_tdb *rootTdb, char *explain_ptr, Int32 explain_buf_len, Int32 *ret_explain_len,
                               ComDiagsArea *diagsArea, CollHeap *heap);
 
-  static short storeExplainInRepos(CliGlobals *cliGlobals, Int64 *execStartUtcTs, char *qid, Lng32 qidLen,
-                                   char *explainData, Lng32 explainDataLen);
+  static short storeExplainInRepos(CliGlobals *cliGlobals, long *execStartUtcTs, char *qid, int qidLen,
+                                   char *explainData, int explainDataLen);
 
  private:
   // A reference to the cooresponding TDB (ExExplainTdb)
@@ -249,7 +249,7 @@ class ExExplainTcb : public ex_tcb {
   ExplainDesc *getNextExplainTree();
 
   // explain data is at explainFragAddr. Unpack it and return
-  ExplainDesc *getNextExplainTree(Int64 explainFragAddr);
+  ExplainDesc *getNextExplainTree(long explainFragAddr);
 
   // Method used to  traverse the Explain tree.  Enough state must be kept
   // in the TCB so that if necessary the routine can return and later be
@@ -277,7 +277,7 @@ class ExExplainTcb : public ex_tcb {
   short processExplainStmt();
   short processExplainPlan();
 
-  short getExplainFromRepos(char *qid, Lng32 qidLen);
+  short getExplainFromRepos(char *qid, int qidLen);
 
   // private state
 
@@ -369,17 +369,17 @@ class ExExplainTcb : public ex_tcb {
   // query id of explain information that will be read from repository.
   char *reposQid_;
 
-  Int64 explainAddr_;
+  long explainAddr_;
   NABoolean explainFromAddrProcessed_;
 
   char *explainStmt_;
   char *explainPlan_;
-  Lng32 explainPlanLen_;
+  int explainPlanLen_;
   char *explainFrag_;
-  Lng32 explainFragLen_;
+  int explainFragLen_;
 
   ComDiagsArea *diagsArea_;
-  Lng32 retryAttempts_;
+  int retryAttempts_;
   char *stmtName_;
 };
 

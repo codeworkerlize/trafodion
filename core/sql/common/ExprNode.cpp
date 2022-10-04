@@ -778,7 +778,7 @@ ExprNode::ExprNode(const ExprNode &s)
 
 ExprNode::~ExprNode() {}
 
-ExprNode *ExprNode::getChild(Lng32) {
+ExprNode *ExprNode::getChild(int) {
   ABORT("virtual function ExprNode::getChild() must be redefined");
   return NULL;
 }  // ExprNode::getChild()
@@ -806,12 +806,12 @@ NABoolean ExprNode::isStringOutput() {
   }
 }
 
-const ExprNode *ExprNode::getConstChild(Lng32) const {
+const ExprNode *ExprNode::getConstChild(int) const {
   ABORT("virtual function const ExprNode::getConstChild() const must be redefined");
   return NULL;
 }  // ExprNode::getChild()
 
-void ExprNode::setChild(Lng32, ExprNode *) {
+void ExprNode::setChild(int, ExprNode *) {
   ABORT("virtual function ExprNode::setChild() must be redefined");
 }  // ExprNode::setChild()
 

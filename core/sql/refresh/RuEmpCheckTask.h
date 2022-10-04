@@ -64,7 +64,7 @@ class REFRESH_LIB_CLASS CRUEmpCheckTask : public CRULogProcessingTask {
   //	PUBLIC AREA
   //---------------------------------------//
  public:
-  CRUEmpCheckTask(Lng32 id, CRUTbl &table);
+  CRUEmpCheckTask(int id, CRUTbl &table);
   virtual ~CRUEmpCheckTask();
 
   //-----------------------------------//

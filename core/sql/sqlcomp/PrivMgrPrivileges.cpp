@@ -5069,7 +5069,7 @@ PrivStatus ObjectPrivsMDTable::insertSelect(const std::string &objectsLocation, 
   char buf[2000];
   sprintf(buf, "select count(*) from %s", tableName_.c_str());
   int64_t rowsSelected = 0;
-  Lng32 theLen = 0;
+  int theLen = 0;
   ExeCliInterface cliInterface(STMTHEAP, 0, NULL, CmpCommon::context()->sqlSession()->getParentQid());
   int32_t cliRC = cliInterface.executeImmediate(buf, (char *)&rowsSelected, &theLen, FALSE);
   if (cliRC < 0) {
@@ -5156,7 +5156,7 @@ PrivStatus ObjectPrivsMDTable::insertSelect(const std::string &objectsLocation, 
           "select count(*) from %s o where o.object_type in ('VI','BT','LB','UR', 'SG')"
           " and object_owner > 0",
           objectsLocation.c_str());
-  Lng32 len = 0;
+  int len = 0;
   cliRC = cliInterface.executeImmediate(buf, (char *)&rowsSelected, &len, FALSE);
   if (cliRC < 0) {
     cliInterface.retrieveSQLDiagnostics(CmpCommon::diags());

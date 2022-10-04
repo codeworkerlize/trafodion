@@ -190,6 +190,6 @@ class NAMessageObj : public IpcMessageObj {
 // (usually not needed for waited communication)
 // -----------------------------------------------------------------------
 IpcEnvironment *GetIpcEnv();
-Lng32 GetNumRequestors();
+int GetNumRequestors();
 
 #endif /* NAIPC_H */

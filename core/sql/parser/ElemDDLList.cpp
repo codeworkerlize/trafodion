@@ -72,7 +72,7 @@ ElemDDLList *ElemDDLList::castToElemDDLList() { return this; }
 // get the degree of this node
 Int32 ElemDDLList::getArity() const { return MAX_ELEM_DDL_LIST_ARITY; }
 
-ExprNode *ElemDDLList::getChild(Lng32 index) {
+ExprNode *ElemDDLList::getChild(int index) {
   ComASSERT(index >= 0 AND index < getArity());
   return children_[index];
 }
@@ -197,7 +197,7 @@ void ElemDDLList::initializeDataMembers(ElemDDLNode *commaExpr, ElemDDLNode *oth
     pChildListNode->setParentListNode(this);
 }
 
-void ElemDDLList::setChild(Lng32 index, ExprNode *pChildNode) {
+void ElemDDLList::setChild(int index, ExprNode *pChildNode) {
   ComASSERT(index >= 0 AND index < getArity());
   if (pChildNode NEQ NULL) {
     ComASSERT(pChildNode->castToElemDDLNode() NEQ NULL);

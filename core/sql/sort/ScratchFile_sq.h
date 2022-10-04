@@ -74,21 +74,21 @@ class SQScratchFile : public ScratchFile {
   // the EOF, then this function returns SCRATCH_SUCCESS,
   // else it returns SCRATCH_FAILURE.
   //-----------------------------------------------
-  virtual RESULT isEOF(Int32 index, Int64 &iowaittime, Lng32 *transfered = NULL) { return SCRATCH_FAILURE; }
+  virtual RESULT isEOF(Int32 index, long &iowaittime, int *transfered = NULL) { return SCRATCH_FAILURE; }
 
   //-----------------------------------------------
   // This function reads length bytes and put it
   // in the char array, starting at the file
   // pointer.
   //-----------------------------------------------
-  virtual RESULT readBlock(Int32 index, char *data, Lng32 length, Int64 &iowaittime, Lng32 *transfered = NULL,
+  virtual RESULT readBlock(Int32 index, char *data, int length, long &iowaittime, int *transfered = NULL,
                            Int32 synchronous = 1);
 
   //-----------------------------------------------
   // This function moves the file pointer to the
   // end of the file.
   //-----------------------------------------------
-  virtual RESULT seekEnd(Int32 index, DWORD &eofAddr, Int64 &iowaittime, Lng32 *transfered = NULL) {
+  virtual RESULT seekEnd(Int32 index, DWORD &eofAddr, long &iowaittime, int *transfered = NULL) {
     return SCRATCH_SUCCESS;
   }
 
@@ -98,7 +98,7 @@ class SQScratchFile : public ScratchFile {
   // For write operation, this essentially moves the file pointer automatically
   // to the end offset. Ofcourse we need seekoffset for read operations.
   //-----------------------------------------------
-  virtual RESULT seekOffset(Int32 index, Lng32 offset, Int64 &iowaittime, Lng32 *transfered = NULL,
+  virtual RESULT seekOffset(Int32 index, int offset, long &iowaittime, int *transfered = NULL,
                             DWORD seekDirection = 0);
 
   //-----------------------------------------------
@@ -106,8 +106,8 @@ class SQScratchFile : public ScratchFile {
   // char array into the file, starting from
   // the file pointer.
   //-----------------------------------------------
-  virtual RESULT writeBlock(Int32 index, char *data, Lng32 length, Int64 &iowaittime, Int32 blockNum = 0,
-                            Lng32 *transfered = NULL, NABoolean waited = FALSE_L);
+  virtual RESULT writeBlock(Int32 index, char *data, int length, long &iowaittime, Int32 blockNum = 0,
+                            int *transfered = NULL, NABoolean waited = FALSE_L);
 
   virtual void setPreviousError(Int32 index, RESULT error) { fileHandle_[index].previousError = error; }
   virtual RESULT getPreviousError(Int32 index) { return fileHandle_[index].previousError; }
@@ -128,7 +128,7 @@ class SQScratchFile : public ScratchFile {
   virtual NABoolean isVectorPartiallyFilledAndPending(Int32 index) {
     return ((vectorIndex_ > 0) && (fileHandle_[index].IOPending == FALSE));
   }
-  virtual NABoolean isNewVecElemPossible(Int64 byteOffset, Int32 blockSize);
+  virtual NABoolean isNewVecElemPossible(long byteOffset, Int32 blockSize);
 
   virtual void copyVectorElements(ScratchFile *newFile);
   virtual Int32 getBlockNumFirstVectorElement() { return blockNumFirstVectorElement_; }
@@ -150,7 +150,7 @@ class SQScratchFile : public ScratchFile {
 
  private:
   // redriveIO will return if complete all bytes request or timeout occurred.
-  Int32 redriveIO(Int32 index, Lng32 &count, Lng32 timeout = -1);  // AWAITIOX emulation.
+  Int32 redriveIO(Int32 index, int &count, int timeout = -1);  // AWAITIOX emulation.
 
   RESULT doSelect(Int32 index, DWORD timeout, EPendingIOType type, Int32 &err);
   Int32 redriveVectorIO(Int32 index);
@@ -164,7 +164,7 @@ class SQScratchFile : public ScratchFile {
   //-----------------------------------------------
   // I have no idea what these do.
   //-----------------------------------------------
-  Lng32 ioWaitTime_;
+  int ioWaitTime_;
 
   // For vector IO
   struct iovec *vector_;  // vector elements
@@ -174,9 +174,9 @@ class SQScratchFile : public ScratchFile {
   ssize_t bytesCompleted_;
   void *remainingAddr_;        // adjusting pointers for redrive IO
   Int32 remainingVectorSize_;  // adjusting pointers for redrive IO
-  Int64 vectorSeekOffset_;     // beginning seek offset for vector IO
-  Int64 writemmapCursor_;      // Only used in mmap as append cursor.
-  Int64 readmmapCursor_;       // Only used in mmap as read cursor.
+  long vectorSeekOffset_;     // beginning seek offset for vector IO
+  long writemmapCursor_;      // Only used in mmap as append cursor.
+  long readmmapCursor_;       // Only used in mmap as read cursor.
 
   // This is the block num of the block that corresponds to
   // first element in the vector. This is especially used

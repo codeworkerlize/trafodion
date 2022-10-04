@@ -53,7 +53,7 @@
 
 #include "exp_function.h"
 
-// Specify the format for printing a Int64
+// Specify the format for printing a long
 #define FMT_INT64 PF64
 
 // -----------------------------------------------------------------------
@@ -1379,7 +1379,7 @@ void ColStats::divideHistogramAlongBoundaryValue(const EncodedValue &value, Oper
 }
 // Helper method to adjust Rowcount for rolling columns
 void ColStats::adjustRowcountforRollingColumns(ConstValue *constant) {
-  Lng32 filler = 0;
+  int filler = 0;
   CostScalar totalRowCount = 0, totalUec = 0, iterRowCount = 0, iterUec = 0;
   NAString dateTxt = ("(");
   EncodedValue encodedCurTime = EncodedValue(constant, FALSE);
@@ -2773,7 +2773,7 @@ void Histogram::print(FILE *f, const char *prefix, const char *suffix, CollHeap 
   }
 }
 
-THREAD_P Int64 ColStats::fakeHistogramIDCounter_ = ColStats::USTAT_HISTOGRAM_ID_THRESHOLD;
+THREAD_P long ColStats::fakeHistogramIDCounter_ = ColStats::USTAT_HISTOGRAM_ID_THRESHOLD;
 
 NABoolean ColStats::isUSTATGeneratedHistID(ComUID id) { return id <= ComUID(USTAT_HISTOGRAM_ID_THRESHOLD); }
 
@@ -5164,9 +5164,9 @@ void ColStats::trace(FILE *f, NATable *table) {
   fprintf(f, "histogram:");
   populateColumnSetFromColumnArray();
   colPositions_.printColsFromTable(f, table);
-  Int64 templl = (Int64)getTotalUec().value();
+  long templl = (long)getTotalUec().value();
   fprintf(f, "uec:" PF64 " ", templl);
-  templl = (Int64)getRowcount().value();
+  templl = (long)getRowcount().value();
   fprintf(f, "rowcount:" PF64 " ", templl);
   fprintf(f, "intervals:%d \n", (*histogram_).entries());
 }
@@ -6469,7 +6469,7 @@ void StatsList::reduceNumHistIntsAfterFetch(NATable &table) {
 
   NAFileSet *nfs = table.getClusteringIndex();
   const NAColumnArray &ncas = nfs->getAllColumns();
-  Lng32 leadingKeyColPos = ncas[0]->getPosition();
+  int leadingKeyColPos = ncas[0]->getPosition();
 
   // iterate over all the ColStats invoking the reduction of number
   // of histogram intervals on each of the ColStats
@@ -6541,7 +6541,7 @@ void StatsList::deepCopy(const StatsList &other, NAMemory *heap) {
 // A set of ColStat pointers ("dupList") is used to prevent inserting
 // multi-column statistics more than once.
 //-------------------------------------------------------------------------
-void StatsList::insertByPosition(const StatsList &other, const Lng32 position, SET(ColStats *) & dupList) {
+void StatsList::insertByPosition(const StatsList &other, const int position, SET(ColStats *) & dupList) {
   for (UInt32 i = 0; i < other.entries(); i++) {
     ColStatsSharedPtr otherStats(other[i]);
     const NAColumnArray &otherColumns = otherStats->getStatColumns();
@@ -6574,7 +6574,7 @@ void StatsList::insertByPosition(const StatsList &other, const Lng32 position, S
 
 // returns the UEC count from the histogram identified by the parameter
 // position. Position here is the position of the column in the table
-CostScalar StatsList::getSingleColumnUECCount(const Lng32 position) const {
+CostScalar StatsList::getSingleColumnUECCount(const int position) const {
   // loop through all the ColStats referenced by this StatsList object
   for (UInt32 i = 0; i < entries(); i++) {
     // if the current ColStats reference has this column
@@ -6590,7 +6590,7 @@ CostScalar StatsList::getSingleColumnUECCount(const Lng32 position) const {
 // returns are reference to the ColStats object representing
 // the single column statistics for the column identified by
 // the parameter position
-ColStatsSharedPtr StatsList::getSingleColumnColStats(const Lng32 position) {
+ColStatsSharedPtr StatsList::getSingleColumnColStats(const int position) {
   // loop through all the ColStats referenced by this StatsList object
   for (UInt32 i = 0; i < entries(); i++) {
     // if the current ColStats reference has this column
@@ -6612,17 +6612,17 @@ ColStatsSharedPtr StatsList::getSingleColumnColStats(const Lng32 position) {
 // like compressed histogram by deleting the 'histogram' structure and then
 // makes sure that the column is also at a proper state
 //--------------------------------------------------------------------------
-ColStatsSharedPtr StatsList::insertCompressedCopy(const StatsList &realStat, const Lng32 position, NABoolean state) {
+ColStatsSharedPtr StatsList::insertCompressedCopy(const StatsList &realStat, const int position, NABoolean state) {
   for (UInt32 i = 0; i < realStat.entries(); i++) {
     NAColumnArray columns = realStat[i]->getStatColumns();
-    if (columns.entries() == 1 && columns.getColumn(Lng32(0))->getPosition() == position) {
+    if (columns.entries() == 1 && columns.getColumn(int(0))->getPosition() == position) {
       this->insertAt(this->entries(), ColStats::deepCopy(*realStat[i], heap_));
       ColStatsSharedPtr tempStat = (*this)[this->entries() - 1];
       tempStat->setHistogram(HistogramSharedPtr(new (heap_) Histogram(heap_)));
       if (state)
-        tempStat->getStatColumns().getColumn(Lng32(0))->setReferenced();
+        tempStat->getStatColumns().getColumn(int(0))->setReferenced();
       else
-        tempStat->getStatColumns().getColumn(Lng32(0))->setNotReferenced();
+        tempStat->getStatColumns().getColumn(int(0))->setNotReferenced();
       break;
     }
   }
@@ -6639,18 +6639,18 @@ ColStatsSharedPtr StatsList::insertCompressedCopy(const StatsList &realStat, con
 // histogram was added
 //---------------------------------------------------------------------------
 void StatsList::insertDeepCopyList(const StatsList &other) {
-  NAList<Lng32> positionList(CmpCommon::statementHeap(), other.entries());
+  NAList<int> positionList(CmpCommon::statementHeap(), other.entries());
   for (UInt32 i = 0; i < other.entries(); i++) {
     NAColumnArray colArray(CmpCommon::statementHeap());
     colArray = other[i]->getStatColumns();
     if (colArray.entries() == 1) {
       this->insertAt(this->entries(), ColStats::deepCopy(*(other[i]), heap_));
-      positionList.insertAt(positionList.entries(), colArray.getColumn(Lng32(0))->getPosition());
+      positionList.insertAt(positionList.entries(), colArray.getColumn(int(0))->getPosition());
     } else {
       NABoolean doCopy = TRUE;
       for (UInt32 j = 0; j < this->entries(); j++) {
         NAColumnArray statColumns = (*this)[j]->getStatColumns();
-        Lng32 position = statColumns.getColumn(Lng32(0))->getPosition();
+        int position = statColumns.getColumn(int(0))->getPosition();
         if (statColumns.entries() == 1 && NOT positionList.contains(position) && colArray.getColumnByPos(position)) {
           doCopy = FALSE;
           break;
@@ -6837,9 +6837,9 @@ void MultiColumnHistogram::display() const { MultiColumnHistogram::print(); }
 void MultiColumnHistogram::print(FILE *ofd, NATable *table) const {
   fprintf(ofd, "histogram: ");
   columns_.printColsFromTable(ofd, table);
-  Int64 templl = (Int64)uec_.value();
+  long templl = (long)uec_.value();
   fprintf(ofd, "uec:" PF64 " ", templl);
-  templl = (Int64)rows_.value();
+  templl = (long)rows_.value();
   fprintf(ofd, "rowcount:" PF64 " ", templl);
   fprintf(ofd, "intervals:2 \n");
 }
@@ -7336,7 +7336,7 @@ void MCSkewedValue::print(FILE *f, const char *prefix, const char *suffix, CollH
   snprintf(mybuf, sizeof(mybuf), "%sBoundary : %s", prefix, suffix);
   PRINTIT(f, c, space, buf, mybuf);
 
-  Lng32 wlen = na_wcslen(boundary_) + 10;
+  int wlen = na_wcslen(boundary_) + 10;
   char *wbuf = new (heap_) char[wlen * 2];
   na_wsprintf((wchar_t *)wbuf, WIDE_("%s"), boundary_);
 

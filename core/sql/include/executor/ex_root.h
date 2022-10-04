@@ -151,10 +151,10 @@ class ex_root_tcb : public ex_tcb {
   //     fetch would get the next row. This is ANSI compliant behavior.
   //     In all other cases, this param is returned as TRUE.
   Int32 fetch(CliGlobals *cliGlobals, ExExeStmtGlobals *glob, Descriptor *output_desc, ComDiagsArea *&diagsArea,
-              Lng32 timeLimit, NABoolean newOperation, NABoolean &closeCursorOnError);
+              int timeLimit, NABoolean newOperation, NABoolean &closeCursorOnError);
 
   Int32 fetchMultiple(CliGlobals *cliGlobals, ExExeStmtGlobals *glob, Descriptor *output_desc, ComDiagsArea *&diagsArea,
-                      Lng32 timeLimit, NABoolean newOperation, NABoolean &closeCursorOnError, NABoolean &eodSeen);
+                      int timeLimit, NABoolean newOperation, NABoolean &closeCursorOnError, NABoolean &eodSeen);
 
   Int32 oltExecute(ExExeStmtGlobals *glob, Descriptor *input_desc, Descriptor *output_desc, ComDiagsArea *&diagsArea);
 
@@ -162,7 +162,7 @@ class ex_root_tcb : public ex_tcb {
   Int32 passiveCancel();
 
   void snapshotScanCleanup(ComDiagsArea *&diagsArea);
-  void setupWarning(Lng32 retcode, const char *str, const char *str2, ComDiagsArea *&diagsArea);
+  void setupWarning(int retcode, const char *str, const char *str2, ComDiagsArea *&diagsArea);
   // Called by the main thread for internal cancel.
   Int32 cancel(ExExeStmtGlobals *glob, ComDiagsArea *&diagsArea, NABoolean getQueueDiags = FALSE);
   Int32 deallocAndDelete(ExExeStmtGlobals *glob, ExRtFragTable *fragTable);
@@ -251,7 +251,7 @@ class ex_root_tcb : public ex_tcb {
   void deregisterCB();
   short retryDeregisterCB();
 
-  void cbMessageWait(Int64 waitStartTime);
+  void cbMessageWait(long waitStartTime);
 
   void dumpCb();
 
@@ -296,12 +296,12 @@ class ex_root_tcb : public ex_tcb {
   char *triggerStatusVector_;
 
   // Keep stream timeout - dynamic if set, else the static value
-  Lng32 streamTimeout_;
+  int streamTimeout_;
 
-  Int64 time_of_fetch_call_usec_;  // Time when newOperation == TRUE
+  long time_of_fetch_call_usec_;  // Time when newOperation == TRUE
 
   // used by rowsets. See work() method.
-  Lng32 lastQueueSize_;
+  int lastQueueSize_;
 
   // Used to communicate control or cancel messages to broker, MXSSMP.
   IpcServer *cbServer_;

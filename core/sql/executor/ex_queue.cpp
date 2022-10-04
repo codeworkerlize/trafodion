@@ -43,7 +43,7 @@
 
 #include "comexe/ComTdb.h"    // For cancel/error injection testing.
 #include "executor/ex_tcb.h"  // For cancel/error injection testing.
-#include "ex_error.h"         // For cancel/error injection testing.
+#include "executor/ex_error.h"         // For cancel/error injection testing.
 
 ex_queue::ex_queue(const queue_type type, queue_index initialSize, ex_cri_desc *cri_desc, CollHeap *space,
                    enum queueAllocType allocType)
@@ -312,11 +312,11 @@ void ex_queue::allocatePstate(ex_tcb_private_state *p, ex_tcb *tcb) {
 }
 
 NABoolean ex_queue::allocatePstate(ex_tcb *tcb, ex_tcb_private_state *pstates, queue_index numNewPstates,
-                                   Lng32 pstateLength, NABoolean failureIsFatal) {
+                                   int pstateLength, NABoolean failureIsFatal) {
   queue_index i;
   ex_tcb_private_state *actualPstates = pstates;
-  Lng32 actualNumPstates = numNewPstates;
-  Lng32 actualPstateLength = pstateLength;
+  int actualNumPstates = numNewPstates;
+  int actualPstateLength = pstateLength;
 
   if (actualPstates == NULL) {
     actualNumPstates = size_;
@@ -388,8 +388,8 @@ queue_index ex_queue::resize(ex_tcb *tcb, queue_index newSize) {
   atp_struct *atps = NULL;
   queue_index numAllocatedAtps = 0;
   ex_tcb_private_state *pstates = NULL;
-  Lng32 numAllocatedPstates = 0;
-  Lng32 pstateLength = 0;
+  int numAllocatedPstates = 0;
+  int pstateLength = 0;
   queue_index qi;
   queue_index lastEntryToCopy;
   ex_queue_entry *oldQueue = queue_;

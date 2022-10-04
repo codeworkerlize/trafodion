@@ -41,10 +41,10 @@
 #include <errno.h>
 #include <sys/time.h>
 
-#include "SqlciCmd.h"
-#include "SqlciError.h"
-#include "SqlciParser.h"
-#include "InputStmt.h"
+#include "sqlci/SqlciCmd.h"
+#include "sqlci/SqlciError.h"
+#include "sqlci/SqlciParser.h"
+#include "sqlci/InputStmt.h"
 #include "common/str.h"
 #include "export/ComDiags.h"
 #include "qmscommon/QRLogger.h"
@@ -125,7 +125,7 @@ short Obey::process(SqlciEnv *sqlci_env) {
   Int32 ignore_toggle = 0;
   Int32 veryFirst = 1;
   ObeyState state;
-  Int64 costTh = -1;
+  long costTh = -1;
   pid_t pid = getpid();
 
   if (costTh == -2) {
@@ -217,7 +217,7 @@ short Obey::process(SqlciEnv *sqlci_env) {
             sqlci_DA.clear();
           } else {
             if (!read_error || read_error == -4) {
-              Int64 time1 = 0L, time2 = 0L;
+              long time1 = 0L, time2 = 0L;
               struct timeval curtime;
               if (costTh >= 0) {
                 gettimeofday(&curtime, NULL);

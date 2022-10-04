@@ -80,7 +80,7 @@ class ElemDDLPartitionSystem : public ElemDDLPartition {
   //
 
   virtual Int32 getArity() const;
-  virtual ExprNode *getChild(Lng32 index);
+  virtual ExprNode *getChild(int index);
 
   inline const NAString &getGuardianLocation() const;
 
@@ -148,7 +148,7 @@ class ElemDDLPartitionSystem : public ElemDDLPartition {
   // mutators
   //
 
-  virtual void setChild(Lng32 index, ExprNode *pChildNode);
+  virtual void setChild(int index, ExprNode *pChildNode);
   inline void setIsMaxSizeSpecified(NABoolean isMaxSizeSpecified);
   inline void setIsMaxSizeUnbounded(NABoolean isMaxSizeUnbounded);
   inline void setIsExtentSpecified(NABoolean isExtentSpecified);

@@ -46,21 +46,21 @@ ex_expr::exp_return_type ex_bool_clause::eval(char *op_data[], CollHeap *heap, C
   // boolean values: 0 = false, 1 = true, -1 = null
   switch (getOperType()) {
     case ITM_AND:
-      if ((*(Lng32 *)op_data[1] == -1) && (*(Lng32 *)op_data[2] != 0))
-        *(Lng32 *)op_data[0] = -1;
-      else if (*(Lng32 *)op_data[1] == 0)
-        *(Lng32 *)op_data[0] = 0;
+      if ((*(int *)op_data[1] == -1) && (*(int *)op_data[2] != 0))
+        *(int *)op_data[0] = -1;
+      else if (*(int *)op_data[1] == 0)
+        *(int *)op_data[0] = 0;
       else
-        *(Lng32 *)op_data[0] = *(Lng32 *)op_data[2];
+        *(int *)op_data[0] = *(int *)op_data[2];
       break;
 
     case ITM_OR:
-      if ((*(Lng32 *)op_data[1] == -1) && (*(Lng32 *)op_data[2] != 1))
-        *(Lng32 *)op_data[0] = -1;
-      else if (*(Lng32 *)op_data[1] == 1)
-        *(Lng32 *)op_data[0] = 1;
+      if ((*(int *)op_data[1] == -1) && (*(int *)op_data[2] != 1))
+        *(int *)op_data[0] = -1;
+      else if (*(int *)op_data[1] == 1)
+        *(int *)op_data[0] = 1;
       else
-        *(Lng32 *)op_data[0] = *(Lng32 *)op_data[2];
+        *(int *)op_data[0] = *(int *)op_data[2];
 
       break;
 
@@ -82,22 +82,22 @@ ex_expr::exp_return_type ex_branch_clause::eval(char *op_data[], CollHeap *heap,
 
   switch (getOperType()) {
     case ITM_AND:
-      if (*(Lng32 *)op_data[1] == 0) {
-        *(Lng32 *)op_data[0] = 0;
+      if (*(int *)op_data[1] == 0) {
+        *(int *)op_data[0] = 0;
         setNextClause(branch_clause);
       } else {
-        *(Lng32 *)op_data[0] = *(Lng32 *)op_data[1];
+        *(int *)op_data[0] = *(int *)op_data[1];
         setNextClause(saved_next_clause);
       }
 
       break;
 
     case ITM_OR:
-      if (*(Lng32 *)op_data[1] == 1) {
-        *(Lng32 *)op_data[0] = 1;
+      if (*(int *)op_data[1] == 1) {
+        *(int *)op_data[0] = 1;
         setNextClause(branch_clause);
       } else {
-        *(Lng32 *)op_data[0] = *(Lng32 *)op_data[1];
+        *(int *)op_data[0] = *(int *)op_data[1];
         setNextClause(saved_next_clause);
       }
 
@@ -120,7 +120,7 @@ ex_expr::exp_return_type ex_branch_clause::eval(char *op_data[], CollHeap *heap,
 /////////////////////////////////////////////////////////////
 ex_expr::exp_return_type bool_result_clause::eval(char *op_data[], CollHeap *, ComDiagsArea **) {
   // boolean values: 0 = false, 1 = true, -1 = null
-  if ((*(Lng32 *)op_data[0] == 0) || (*(Lng32 *)op_data[0] == -1))
+  if ((*(int *)op_data[0] == 0) || (*(int *)op_data[0] == -1))
     return ex_expr::EXPR_FALSE;
   else
     return ex_expr::EXPR_TRUE;

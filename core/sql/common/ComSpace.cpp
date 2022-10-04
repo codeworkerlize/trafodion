@@ -81,7 +81,7 @@ ComSpace::ComSpace(SpaceType type, NABoolean fillUp, char *name)
 
 ComSpace::~ComSpace() { destroy(); }
 
-void Space::setType(SpaceType type, Lng32 initialSize) {
+void Space::setType(SpaceType type, int initialSize) {
   type_ = type;
   initialSize_ = initialSize;
 };
@@ -135,8 +135,8 @@ void Space::freeBlocks(void) {
   totalSize_ = 0;
 }
 
-Lng32 Space::defaultBlockSize(SpaceType type) {
-  Lng32 block_size = 0;
+int Space::defaultBlockSize(SpaceType type) {
+  int block_size = 0;
 
   // use default size
   switch (type) {
@@ -155,7 +155,7 @@ Lng32 Space::defaultBlockSize(SpaceType type) {
 
 // Round up input value to nearest multiple of 8.
 //
-static Lng32 roundUp8(Lng32 val) {
+static int roundUp8(int val) {
   ULng32 uval = (ULng32)val;
 
   // clear the last 3 bits, which effectively rounds
@@ -165,36 +165,36 @@ static Lng32 roundUp8(Lng32 val) {
   // if that didn't change anything we're done
   if (uval != roundedDown) {
     // else we have to round up and add the filler
-    val = (Lng32)(roundedDown + 8);
+    val = (int)(roundedDown + 8);
   }
 
   return val;
 }
 
-Block *Space::allocateBlock(SpaceType type, Lng32 in_block_size, NABoolean firstAllocation, char *in_block_addr,
+Block *Space::allocateBlock(SpaceType type, int in_block_size, NABoolean firstAllocation, char *in_block_addr,
                             NABoolean failureIsFatal) {
   Block *block;
   char *block_ptr = 0;
-  Lng32 block_size;
-  Lng32 data_size;
+  int block_size;
+  int data_size;
   char *data_ptr;
 
   // Don't satisfy request for more blocks if this is a SINGLE_BLOCK_SPACE.
   if (type == SINGLE_BLOCK_SPACE) return NULL;
 
   // size of rounded-up block header
-  const Lng32 BlockHdrAllocSz = roundUp8(sizeof(Block));
+  const int BlockHdrAllocSz = roundUp8(sizeof(Block));
 
   // assert that in_block_size is a multiple of 8
   ComASSERT(in_block_size == roundUp8(in_block_size));
 
-  Lng32 defBlkSz;
+  int defBlkSz;
 
   if (firstAllocation && (initialSize_ > 0))
     defBlkSz = initialSize_;
   else
     defBlkSz = defaultBlockSize(type);
-  Lng32 needed_size = in_block_size + BlockHdrAllocSz;
+  int needed_size = in_block_size + BlockHdrAllocSz;
 
   // Set block_size, size of block to be allocated, to:
   //
@@ -256,7 +256,7 @@ Block *Space::allocateBlock(SpaceType type, Lng32 in_block_size, NABoolean first
   return block;
 }
 
-void Space::setFirstBlock(char *blockAddr, Lng32 blockLen, NABoolean failureIsFatal) {
+void Space::setFirstBlock(char *blockAddr, int blockLen, NABoolean failureIsFatal) {
   if (firstBlock_) return;
 
   initialSize_ = blockLen;
@@ -359,7 +359,7 @@ char *Space::allocateAlignedSpace(size_t size, NABoolean failureIsFatal) {
   if (!checkSize(size, failureIsFatal)) return NULL;
 
   // return aligned space on an 8 byte boundary
-  return privateAllocateSpace((ULng32)roundUp8((Lng32)size), failureIsFatal);
+  return privateAllocateSpace((ULng32)roundUp8((int)size), failureIsFatal);
 }
 
 // If countPrefixSize == 0, make a null-terminated string;
@@ -423,7 +423,7 @@ void Space::display(char *buf, size_t buflen, size_t countPrefixSize, ostream &o
       case sizeof(short):
         dlen = *(unsigned short *)buf;
         break;
-      case sizeof(Lng32):
+      case sizeof(int):
         dlen = *(ULng32 *)buf;
         break;
       default:
@@ -452,7 +452,7 @@ Long Space::convertToOffset(void *ptr) {
 
   // find which block this pointer is allocated from.
   short found = 0;
-  Lng32 prev_offset = 0;
+  int prev_offset = 0;
   while ((curr_block) && (!found)) {
     if (((char *)ptr) >= (char *)(curr_block->getDataPtr()) &&
         ((char *)ptr) < ((char *)(curr_block->getDataPtr()) + curr_block->getAllocatedSize()))
@@ -490,7 +490,7 @@ void *Space::convertToPtr(Long offset) const {
 }
 
 // The method is not called elsewhere
-Lng32 Space::allocAndCopy(void *from, ULng32 size, NABoolean failureIsFatal) {
+int Space::allocAndCopy(void *from, ULng32 size, NABoolean failureIsFatal) {
   char *to = allocateAlignedSpace(size, failureIsFatal);
   str_cpy_all(to, (char *)from, size);
   return (convertToOffset(to));
@@ -499,7 +499,7 @@ Lng32 Space::allocAndCopy(void *from, ULng32 size, NABoolean failureIsFatal) {
 #if 0 /* NOT CURRENTLY USED and does not compile for 64 bits */
 short Space::isOffset(void * ptr)
 {
-  if ((Lng32)ptr < 0)
+  if ((int)ptr < 0)
     return -1;
   else
     return 0;
@@ -519,9 +519,9 @@ NABoolean Space::isOverlappingMyBlocks(char *buf, ULng32 size) {
 
 char *Space::makeContiguous(char *out_buf, ULng32 out_buflen) {
   Block *curr_block = firstBlock_;
-  Lng32 curr_offset = 0;
+  int curr_offset = 0;
   while (curr_block) {
-    if ((Lng32)out_buflen - curr_offset < curr_block->getAllocatedSize()) return 0;
+    if ((int)out_buflen - curr_offset < curr_block->getAllocatedSize()) return 0;
 
     str_cpy_all(&out_buf[curr_offset], curr_block->getDataPtr(), curr_block->getAllocatedSize());
 
@@ -534,9 +534,9 @@ char *Space::makeContiguous(char *out_buf, ULng32 out_buflen) {
 
 #if (defined(_DEBUG) || defined(NSK_MEMDEBUG))
 
-void Space::dumpSpaceInfo(ostream *outstream, Lng32 indent) {
+void Space::dumpSpaceInfo(ostream *outstream, int indent) {
   char ind[100];
-  Lng32 indIdx = 0;
+  int indIdx = 0;
   for (; indIdx < indent; indIdx++) ind[indIdx] = ' ';
   ind[indIdx] = '\0';
   if (!outstream) outstream = &cerr;
@@ -570,7 +570,7 @@ void Space::dumpSpaceInfo(ostream *outstream, Lng32 indent) {
 //
 /////////////////////////////////////////////
 
-void Block::init(Lng32 block_size, Lng32 data_size, char *data_ptr) {
+void Block::init(int block_size, int data_size, char *data_ptr) {
   dataPtr_ = data_ptr;
   blockSize_ = block_size;
   freeSpaceSize_ = maxSize_ = data_size;
@@ -581,7 +581,7 @@ void Block::init(Lng32 block_size, Lng32 data_size, char *data_ptr) {
 }
 
 char *Block::allocateMemory(ULng32 size) {
-  if (freeSpaceSize_ < (Lng32)size) return 0;
+  if (freeSpaceSize_ < (int)size) return 0;
 
   freeSpaceSize_ -= size;
   allocatedSize_ += size;

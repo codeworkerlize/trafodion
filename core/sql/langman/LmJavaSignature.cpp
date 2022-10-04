@@ -103,7 +103,7 @@ LmResult LmJavaSignature::createSig(ComFSDataType paramType[], ComUInt32 paramSu
     len = (ComUInt32)str_len(optionalSig);
     optype = optsig = new (heap_) char[len + 1];
 
-    str_cpy_all(optsig, optionalSig, (Lng32)len);
+    str_cpy_all(optsig, optionalSig, (int)len);
     optsig[len] = '\0';
 
     if (*optype != '(') {
@@ -199,7 +199,7 @@ LmResult LmJavaSignature::createSig(ComFSDataType paramType[], ComUInt32 paramSu
       optype = optc + 1;
     else {
       // Case: Params specified in opt sig are more than expected
-      *da << DgSqlCode(-LME_SIGNATURE_INVALID2) << DgInt0((Lng32)numParam);
+      *da << DgSqlCode(-LME_SIGNATURE_INVALID2) << DgInt0((int)numParam);
       if (optsig) NADELETEBASIC(optsig, heap_);
       return LM_ERR;
     }
@@ -255,7 +255,7 @@ LmResult LmJavaSignature::createSig(ComFSDataType paramType[], ComUInt32 paramSu
         optype = strip_spaces(optype);
         if ((i == (Int32)numParam) && (numResultSets == 0)) {
           // Case: Params specified in opt sig are more than expected
-          *da << DgSqlCode(-LME_SIGNATURE_INVALID2) << DgInt0((Lng32)numParam);
+          *da << DgSqlCode(-LME_SIGNATURE_INVALID2) << DgInt0((int)numParam);
           if (optsig) NADELETEBASIC(optsig, heap_);
           return LM_ERR;
         }
@@ -269,7 +269,7 @@ LmResult LmJavaSignature::createSig(ComFSDataType paramType[], ComUInt32 paramSu
           if ((i < (Int32)numParam) || ((numParam == 1) && !(*optype))) {
             // Case: Params specified in opt sig are less than expected
             // Case: sig is () but numParam is 1
-            *da << DgSqlCode(-LME_SIGNATURE_INVALID2) << DgInt0((Lng32)numParam);
+            *da << DgSqlCode(-LME_SIGNATURE_INVALID2) << DgInt0((int)numParam);
             if (optsig) NADELETEBASIC(optsig, heap_);
             return LM_ERR;
           }
@@ -353,7 +353,7 @@ LmResult LmJavaSignature::createSig(ComFSDataType paramType[], ComUInt32 paramSu
     }
 
     // Add the Java type to the sig buffer.
-    str_cpy_all(&sigBuf[idx], type, (Lng32)len);
+    str_cpy_all(&sigBuf[idx], type, (int)len);
     idx += len;
 
     // move optype to point to next type in optional sig
@@ -388,13 +388,13 @@ LmResult LmJavaSignature::createSig(ComFSDataType paramType[], ComUInt32 paramSu
             if (optype) optype = optc + 1;
           } else {
             // Error: Not a java.sql.ResultSet[]
-            *da << DgSqlCode(-LME_SIGNATURE_INVALID11) << DgInt0((Lng32)numParam + numTrailingParams);
+            *da << DgSqlCode(-LME_SIGNATURE_INVALID11) << DgInt0((int)numParam + numTrailingParams);
             if (optsig) NADELETEBASIC(optsig, heap_);
             return LM_ERR;
           }
         } else {
           // Error: Not a java.sql.ResultSet[]
-          *da << DgSqlCode(-LME_SIGNATURE_INVALID11) << DgInt0((Lng32)numParam + numTrailingParams);
+          *da << DgSqlCode(-LME_SIGNATURE_INVALID11) << DgInt0((int)numParam + numTrailingParams);
           if (optsig) NADELETEBASIC(optsig, heap_);
           return LM_ERR;
         }
@@ -422,13 +422,13 @@ LmResult LmJavaSignature::createSig(ComFSDataType paramType[], ComUInt32 paramSu
               break;
             } else {
               // Error: not a java.sql.ResultSet[]
-              *da << DgSqlCode(-LME_SIGNATURE_INVALID11) << DgInt0((Lng32)numParam + numTrailingParams);
+              *da << DgSqlCode(-LME_SIGNATURE_INVALID11) << DgInt0((int)numParam + numTrailingParams);
               if (optsig) NADELETEBASIC(optsig, heap_);
               return LM_ERR;
             }
           } else {
             // Error: not a java.sql.ResultSet[]
-            *da << DgSqlCode(-LME_SIGNATURE_INVALID11) << DgInt0((Lng32)numParam + numTrailingParams);
+            *da << DgSqlCode(-LME_SIGNATURE_INVALID11) << DgInt0((int)numParam + numTrailingParams);
             if (optsig) NADELETEBASIC(optsig, heap_);
             return LM_ERR;
           }
@@ -490,7 +490,7 @@ LmResult LmJavaSignature::createSig(ComFSDataType paramType[], ComUInt32 paramSu
   }
 
   // Add the method's return type to the sig Buffer.
-  str_cpy_all(&sigBuf[idx], type, (Lng32)len);
+  str_cpy_all(&sigBuf[idx], type, (int)len);
   sigBuf[idx + len] = '\0';
 
   if (optsig) NADELETEBASIC(optsig, heap_);

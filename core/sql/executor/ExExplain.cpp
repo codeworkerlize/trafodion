@@ -421,7 +421,7 @@ ExExplainTcb::traverseReturnCode ExExplainTcb::traverseTree() {
 // and set it up to be pointed to by explainAddr_
 // That will be used later to return explain details.
 short ExExplainTcb::processExplainStmt() {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
 
   CliGlobals *cliGlobals = getGlobals()->castToExExeStmtGlobals()->castToExMasterStmtGlobals()->getCliGlobals();
   ExeCliInterface cliInterface(getHeap(), 0, cliGlobals->currContext());
@@ -460,7 +460,7 @@ short ExExplainTcb::processExplainStmt() {
     }
 
     // skip ExplainReposInfo and point explainAddr to actual explain structures.
-    setExplainAddr((Int64)&explainFrag_[sizeof(ExplainReposInfo)]);
+    setExplainAddr((long)&explainFrag_[sizeof(ExplainReposInfo)]);
   } else {
     diagsArea = pEntryDown->getAtp()->getDiagsArea();
     ExRaiseSqlError(getGlobals()->getDefaultHeap(), &diagsArea, EXE_NO_EXPLAIN_INFO);
@@ -491,7 +491,7 @@ label_error2:
 // and set it up to be pointed to by explainAddr_
 // That will be used later to return explain details.
 short ExExplainTcb::processExplainPlan() {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
 
   CliGlobals *cliGlobals = getGlobals()->castToExExeStmtGlobals()->castToExMasterStmtGlobals()->getCliGlobals();
   ex_queue_entry *pEntryDown = qParent_.down->getHeadEntry();
@@ -510,7 +510,7 @@ short ExExplainTcb::processExplainPlan() {
   ExplainReposInfo *eri = (ExplainReposInfo *)explainFrag_;
 
   // skip ExplainReposInfo and point explainAddr to actual explain structures.
-  setExplainAddr((Int64)&explainFrag_[sizeof(ExplainReposInfo)]);
+  setExplainAddr((long)&explainFrag_[sizeof(ExplainReposInfo)]);
   setReposQid(NULL, 0);
 
   return 0;
@@ -565,9 +565,9 @@ short ExExplainTcb::processExplainPlan() {
 short ExExplainTcb::work() {
   Int32 rc = 0;
   char *explainFrag;
-  Lng32 topNodeOffset;
+  int topNodeOffset;
   char *fragStart;
-  Lng32 fragLen;
+  int fragLen;
 
   ex_queue_entry *pEntryUp;  // A pointer the the next available entry
   // of the parent up queue.
@@ -851,7 +851,7 @@ short ExExplainTcb::work() {
   }
 }
 
-ExplainDesc *ExExplainTcb::getNextExplainTree(Int64 explainFragAddr) {
+ExplainDesc *ExExplainTcb::getNextExplainTree(long explainFragAddr) {
   if (NOT explainFromAddrProcessed_) {
     // Unpack the EXPLAIN Fragment
     char *explainFrag = (char *)explainFragAddr;
@@ -948,7 +948,7 @@ ExplainDesc *ExExplainTcb::getNextExplainTree() {
       const char *moduleName = stmt->getModuleId()->module_name;
 
       // Added for multi charset module names
-      Lng32 moduleNameLen = getModNameLen(stmt->getModuleId());
+      int moduleNameLen = getModNameLen(stmt->getModuleId());
 
       // statement name of statement being considered
       const char *ident = stmt->getIdentifier();
@@ -976,9 +976,9 @@ ExplainDesc *ExExplainTcb::getNextExplainTree() {
         // Get the fragment directory of the statement.
         ExFragDir *fragDir = ((ex_root_tdb *)(stmt->getRootTdb()))->getFragDir();
 
-        Lng32 fragOffset;
-        Lng32 fragLen;
-        Lng32 topNodeOffset;
+        int fragOffset;
+        int fragLen;
+        int topNodeOffset;
         char *fragStart;
         if (fragDir->getExplainFragDirEntry(fragOffset, fragLen, topNodeOffset) == 0) {
           // Allocate a buffer big enough to hold the EXPLAIN
@@ -1064,8 +1064,8 @@ ExplainDesc *ExExplainTcb::getNextExplainTree() {
 // criDescParams - criDesc descripting the paramsAtp_
 // lengthModName - length of the modName_ buffer to be allocated
 // lengthStmtPattern - length of the stmtPattern_ buffer to be allocated
-void ExExplainTcb::initParamsTuple(Lng32 tupleLength, ex_cri_desc *criDescParams, Lng32 lengthModName,
-                                   Lng32 lengthStmtPattern) {
+void ExExplainTcb::initParamsTuple(int tupleLength, ex_cri_desc *criDescParams, int lengthModName,
+                                   int lengthStmtPattern) {
   // Allocate the required buffers
   paramsTuple_ = new (getSpace()) char[tupleLength];
   modName_ = new (getSpace()) char[lengthModName + 1];
@@ -1088,7 +1088,7 @@ void ExExplainTcb::initParamsTuple(Lng32 tupleLength, ex_cri_desc *criDescParams
 // the buffers (modName_ and stmtPattern_).  Remove any trailing
 // spaces and NULL Terminate.
 void ExExplainTcb::copyParameters() {
-  Lng32 i;
+  int i;
 
   if (!isNullModName()) {
     // Copy each byte of the module name to modName_
@@ -1109,10 +1109,10 @@ void ExExplainTcb::copyParameters() {
     // If it does, then use the oss pathname to search for the module.
     modDir_[0] = 0;
     if (modName_[0] == '/') {
-      Lng32 len = (Int32)strlen(modName_);
+      int len = (Int32)strlen(modName_);
 
       // find the directory name.
-      Lng32 i = len - 1;
+      int i = len - 1;
       NABoolean done = FALSE;
       NABoolean dQuoteSeen = FALSE;
       while ((i > 0) && (NOT done)) {
@@ -1143,7 +1143,7 @@ void ExExplainTcb::copyParameters() {
   if (!isNullStmtPattern()) {
     // Copy each byte of stmt pattern to stmtPattern_
     char *paramsTupleData = &paramsTuple_[explainTdb().getOffsetStmtPattern()];
-    Lng32 paramsTupleLen = explainTdb().getLengthStmtPattern();
+    int paramsTupleLen = explainTdb().getLengthStmtPattern();
     if (explainTdb().getVCIndOffsetStmtPattern() != -1) {
       paramsTupleLen =
           explainTdb().getAttrStmtPattern()->getLength(&paramsTuple_[explainTdb().getVCIndOffsetStmtPattern()]);
@@ -1167,7 +1167,7 @@ void ExExplainTcb::copyParameters() {
     stmtPattern_[0] = '\0';
 
   if (modName_[0] == '\0') {
-    Lng32 len = str_len(stmtPattern_);
+    int len = str_len(stmtPattern_);
     if (len > strlen("QID=") && str_ncmp(stmtPattern_, "QID=", 4) == 0)
       setQid(&stmtPattern_[4], len - 4);
     else if (len > strlen("EXPLAIN_QID=") && str_ncmp(stmtPattern_, "EXPLAIN_QID=", strlen("EXPLAIN_QID=")) == 0)
@@ -1186,7 +1186,7 @@ short ExExplainTcb::isNullModName() {
   // If the module name attribute is Nullable
   if (explainTdb().getAttrModName()->getNullFlag()) {
     // Get the offset to the Null indicator in the paramsTuple_
-    Lng32 nullOffset = explainTdb().getAttrModName()->getNullIndOffset();
+    int nullOffset = explainTdb().getAttrModName()->getNullIndOffset();
 
     // We are assuming that the sizeof the Null Indicator is the
     // size of a short.
@@ -1206,7 +1206,7 @@ short ExExplainTcb::isNullStmtPattern() {
   // If the statement parameter attribute is Nullable
   if (explainTdb().getAttrStmtPattern()->getNullFlag()) {
     // Get the offset to the Null indicator in the paramsTuple_
-    Lng32 nullOffset = explainTdb().getAttrStmtPattern()->getNullIndOffset();
+    int nullOffset = explainTdb().getAttrStmtPattern()->getNullIndOffset();
 
     // We are assuming that the sizeof the Null Indicator is the
     // size of a short.
@@ -1220,7 +1220,7 @@ short ExExplainTcb::isNullStmtPattern() {
     return 0;
 }
 
-void ExExplainTcb::setQid(char *qid, Lng32 len) {
+void ExExplainTcb::setQid(char *qid, int len) {
   if (qid_) {
     NADELETEBASIC(qid_, getHeap());
   }
@@ -1234,7 +1234,7 @@ void ExExplainTcb::setQid(char *qid, Lng32 len) {
   }
 }
 
-void ExExplainTcb::setReposQid(char *reposQid, Lng32 len) {
+void ExExplainTcb::setReposQid(char *reposQid, int len) {
   if (reposQid_) {
     NADELETEBASIC(reposQid_, getHeap());
   }
@@ -1248,13 +1248,13 @@ void ExExplainTcb::setReposQid(char *reposQid, Lng32 len) {
   reposQid_[len] = '\0';
 }
 
-void ExExplainTcb::setExplainAddr(char *addr, Lng32 len) { explainAddr_ = str_atoi(addr, len); }
+void ExExplainTcb::setExplainAddr(char *addr, int len) { explainAddr_ = str_atoi(addr, len); }
 
-void ExExplainTcb::setExplainAddr(Int64 addr) { explainAddr_ = addr; }
+void ExExplainTcb::setExplainAddr(long addr) { explainAddr_ = addr; }
 
-void ExExplainTcb::setExplainStmt(char *stmt, Lng32 len) { explainStmt_ = stmt; }
+void ExExplainTcb::setExplainStmt(char *stmt, int len) { explainStmt_ = stmt; }
 
-void ExExplainTcb::setExplainPlan(char *plan, Lng32 len) {
+void ExExplainTcb::setExplainPlan(char *plan, int len) {
   explainPlan_ = plan;
   explainPlanLen_ = len;
 }
@@ -1285,7 +1285,7 @@ RtsExplainFrag *ExExplainTcb::sendToSsmp() {
   ExSsmpManager *ssmpManager = cliGlobals->getSsmpManager();
   short cpu;
   char nodeName[MAX_SEGMENT_NAME_LEN + 1];
-  if (getMasterCpu(qid_, (Lng32)str_len(qid_), nodeName, MAX_SEGMENT_NAME_LEN + 1, cpu) == -1) {
+  if (getMasterCpu(qid_, (int)str_len(qid_), nodeName, MAX_SEGMENT_NAME_LEN + 1, cpu) == -1) {
     nodeName[0] = '\0';
     cpu = -1;
     IpcAllocateDiagsArea(diagsArea_, getHeap());
@@ -1309,7 +1309,7 @@ RtsExplainFrag *ExExplainTcb::sendToSsmp() {
   // Retrieve the Rts collection interval and active queries. If they are valid, calculate the timeout
   // and send to the SSMP process.
   SessionDefaults *sd = cliGlobals->currContext()->getSessionDefaults();
-  Lng32 RtsTimeout;
+  int RtsTimeout;
   if (sd)
     RtsTimeout = sd->getRtsTimeout();
   else
@@ -1325,9 +1325,9 @@ RtsExplainFrag *ExExplainTcb::sendToSsmp() {
 
   // Send the message
   ssmpMsgStream->send(FALSE, -1);
-  Int64 startTime = NA_JulianTimestamp();
-  Int64 currTime;
-  Int64 elapsedTime;
+  long startTime = NA_JulianTimestamp();
+  long currTime;
+  long elapsedTime;
   IpcTimeout timeout = (IpcTimeout)RtsTimeout;
   while (timeout > 0 && ssmpMsgStream->hasIOPending()) {
     ssmpMsgStream->waitOnMsgStream(timeout);
@@ -1363,13 +1363,13 @@ RtsExplainFrag *ExExplainTcb::sendToSsmp() {
 
 short ExExplainTcb::getExplainData(ex_root_tdb *rootTdb, char *explain_ptr, Int32 explain_buf_len,
                                    Int32 *ret_explain_len, ComDiagsArea *diagsArea, CollHeap *heap) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
 
   *ret_explain_len = 0;
 
-  Lng32 fragOffset;
-  Lng32 fragLen;
-  Lng32 topNodeOffset;
+  int fragOffset;
+  int fragLen;
+  int topNodeOffset;
 
   diagsArea->clear();
 
@@ -1382,7 +1382,7 @@ short ExExplainTcb::getExplainData(ex_root_tdb *rootTdb, char *explain_ptr, Int3
 
   // data stored is explain repos header followed by actual explain tdb data.
   Int32 storedExplLen = sizeof(ExplainReposInfo) + fragLen;
-  Lng32 encodedFragLen = str_encoded_len(storedExplLen);
+  int encodedFragLen = str_encoded_len(storedExplLen);
   *ret_explain_len = encodedFragLen;
 
   if ((!explain_ptr) || (explain_buf_len < (*ret_explain_len + 1 /*null terminator*/))) {
@@ -1411,8 +1411,8 @@ short ExExplainTcb::getExplainData(ex_root_tdb *rootTdb, char *explain_ptr, Int3
   return 0;
 }
 
-short ExExplainTcb::getExplainFromRepos(char *qid, Lng32 qidLen) {
-  Lng32 cliRC = 0;
+short ExExplainTcb::getExplainFromRepos(char *qid, int qidLen) {
+  int cliRC = 0;
 
   CliGlobals *cliGlobals = getGlobals()->castToExExeStmtGlobals()->castToExMasterStmtGlobals()->getCliGlobals();
   ExeCliInterface cliInterface(getHeap(), 0, cliGlobals->currContext());
@@ -1437,7 +1437,7 @@ short ExExplainTcb::getExplainFromRepos(char *qid, Lng32 qidLen) {
               TRAFODION_SYSCAT_LIT, SEABASE_REPOS_SCHEMA, REPOS_METRIC_QUERY_TABLE, qid);
   OutputInfo *vi = NULL;
   char *ptr = NULL;
-  Lng32 len = 0;
+  int len = 0;
 
   if (cliInterface.initializeInfoList(infoList, TRUE)) {
     goto label_error;
@@ -1482,7 +1482,7 @@ short ExExplainTcb::getExplainFromRepos(char *qid, Lng32 qidLen) {
   }
 
   // skip ExplainReposInfo and point explainAddr to actual explain structures.
-  setExplainAddr((Int64)&explainFrag_[sizeof(ExplainReposInfo)]);
+  setExplainAddr((long)&explainFrag_[sizeof(ExplainReposInfo)]);
   setReposQid(NULL, 0);
 
   NADELETEBASIC(queryBuf, getHeap());
@@ -1504,9 +1504,9 @@ label_error2:
   return -1;
 }
 
-short ExExplainTcb::storeExplainInRepos(CliGlobals *cliGlobals, Int64 *execStartUtcTs, char *qid, Lng32 qidLen,
-                                        char *explainData, Lng32 explainDataLen) {
-  Lng32 cliRC = 0;
+short ExExplainTcb::storeExplainInRepos(CliGlobals *cliGlobals, long *execStartUtcTs, char *qid, int qidLen,
+                                        char *explainData, int explainDataLen) {
+  int cliRC = 0;
 
   ContextCli *currContext = cliGlobals->currContext();
   CollHeap *heap = currContext->exCollHeap();
@@ -1518,7 +1518,7 @@ short ExExplainTcb::storeExplainInRepos(CliGlobals *cliGlobals, Int64 *execStart
   diagsArea->clear();
 
   char *queryBuf = NULL;
-  Int64 rowsAffected = 0;
+  long rowsAffected = 0;
   char *explainVarcharBuf = NULL;
   if (explainDataLen > REPOS_MAX_EXPLAIN_PLAN_LEN) {
     cliRC = -EXE_EXPLAIN_PLAN_TOO_LARGE;
@@ -1533,10 +1533,10 @@ short ExExplainTcb::storeExplainInRepos(CliGlobals *cliGlobals, Int64 *execStart
               TRAFODION_SYSCAT_LIT, SEABASE_REPOS_SCHEMA, REPOS_METRIC_QUERY_TABLE, REPOS_MAX_EXPLAIN_PLAN_LEN,
               *execStartUtcTs, qid);
 
-  explainVarcharBuf = new (heap) char[sizeof(Lng32) + explainDataLen];
-  *(Lng32 *)explainVarcharBuf = explainDataLen;
-  memcpy(&explainVarcharBuf[sizeof(Lng32)], explainData, explainDataLen);
-  cliRC = cliInterface.executeImmediateCEFC(queryBuf, explainVarcharBuf, sizeof(Lng32) + explainDataLen, NULL, NULL,
+  explainVarcharBuf = new (heap) char[sizeof(int) + explainDataLen];
+  *(int *)explainVarcharBuf = explainDataLen;
+  memcpy(&explainVarcharBuf[sizeof(int)], explainData, explainDataLen);
+  cliRC = cliInterface.executeImmediateCEFC(queryBuf, explainVarcharBuf, sizeof(int) + explainDataLen, NULL, NULL,
                                             &rowsAffected);
   if (cliRC < 0) {
     goto label_error;

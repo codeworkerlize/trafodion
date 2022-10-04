@@ -46,7 +46,7 @@
 #include "ex_root.h"
 #include "ex_exe_stmt_globals.h"
 #include "exp_expr.h"
-#include "ex_error.h"
+#include "executor/ex_error.h"
 
 #include "ExSqlComp.h"
 
@@ -97,7 +97,7 @@ ExTimeoutTcb::ExTimeoutTcb(const ExTimeoutTdb &timeout_tdb, ExMasterStmtGlobals 
     workAtp_ = allocateAtp(timeout_tdb.workCriDesc_, space);
 
     // allocate tuple where the timeout value will be moved
-    pool_->get_free_tuple(workAtp_->getTupp(timeout_tdb.workCriDesc_->noTuples() - 1), sizeof(Lng32));
+    pool_->get_free_tuple(workAtp_->getTupp(timeout_tdb.workCriDesc_->noTuples() - 1), sizeof(int));
 
     (void)timeoutValueExpr()->fixup(0, getExpressionMode(), this, space, heap, FALSE, glob);
   } else
@@ -128,7 +128,7 @@ short ExTimeoutTcb::work() {
     ExTimeoutPrivateState &pstate = *((ExTimeoutPrivateState *)pentry_down->pstate);
 
     // Calculate the timeout actual value
-    Lng32 timeoutValue = 0;
+    int timeoutValue = 0;
     NABoolean goodTimeoutValue = TRUE;
     if (timeoutValueExpr()) {
       if (timeoutValueExpr()->eval(pentry_down->getAtp(), workAtp_) ==
@@ -137,7 +137,7 @@ short ExTimeoutTcb::work() {
         goodTimeoutValue = FALSE;
       } else {
         tupp TP = workAtp_->getTupp(timeoutTdb().workCriDesc_->noTuples() - 1);
-        timeoutValue = *(Lng32 *)TP.getDataPointer();  // pointer is (char *)
+        timeoutValue = *(int *)TP.getDataPointer();  // pointer is (char *)
       }
     }
 
@@ -169,7 +169,7 @@ short ExTimeoutTcb::work() {
         if (theTableName_[0] == '*') {  // For all tables
           sprintf(errmsg, "Number of lock timeouts set: %d\n", GlobalTimeouts->entries());
         } else {
-          Lng32 timeoutValue;
+          int timeoutValue;
           NABoolean found = GlobalTimeouts->getLockTimeout(theTableName_, timeoutValue);
           if (!found)
             sprintf(errmsg, "Lock timeout for table %s was NOT SET ! \n", theTableName_);

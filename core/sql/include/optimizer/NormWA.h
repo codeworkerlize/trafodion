@@ -66,11 +66,11 @@ enum SqoChangedRelExprEnum { SQO_REASSIGNED_VREGION };
 class SqoChangedItemExprs : public NABasicObject {
  public:
   // Constructor
-  SqoChangedItemExprs(ValueId changedId, SqoChangedItemExprEnum what, ItemExpr *old, Int32 changedChild, Lng32 subqId)
+  SqoChangedItemExprs(ValueId changedId, SqoChangedItemExprEnum what, ItemExpr *old, Int32 changedChild, int subqId)
       : changedVid_(changedId), whatChanged_(what), oldItemExpr_(old), changedChild_(changedChild), subqId_(subqId) {}
 
   SqoChangedItemExprs(ValueId changedId, SqoChangedItemExprEnum what, ItemExpr *old, const OperatorTypeEnum oldOpType,
-                      Lng32 subqId)
+                      int subqId)
       : changedVid_(changedId),
         whatChanged_(what),
         oldItemExpr_(old),
@@ -78,20 +78,20 @@ class SqoChangedItemExprs : public NABasicObject {
         oldOperatorType_(oldOpType),
         subqId_(subqId) {}
 
-  SqoChangedItemExprs(ValueId changedId, SqoChangedItemExprEnum what, ItemExpr *old, Lng32 subqId)
+  SqoChangedItemExprs(ValueId changedId, SqoChangedItemExprEnum what, ItemExpr *old, int subqId)
       : changedVid_(changedId), whatChanged_(what), oldItemExpr_(old), changedChild_(0), subqId_(subqId) {}
 
   // Destructor
   ~SqoChangedItemExprs() {}
 
-  NABoolean undoChanges(NormWA &normWARef, Lng32 subqId);
+  NABoolean undoChanges(NormWA &normWARef, int subqId);
 
  private:
-  Lng32 subqId_;
+  int subqId_;
   ValueId changedVid_;
   SqoChangedItemExprEnum whatChanged_;
   ItemExpr *oldItemExpr_;
-  Lng32 changedChild_;
+  int changedChild_;
   OperatorTypeEnum oldOperatorType_;
 };  // class SqoChangedItemExprs
 
@@ -99,7 +99,7 @@ class SqoChangedRelExprs : public NABasicObject {
  public:
   // Constructor
   SqoChangedRelExprs(RegionId vegRegion, SqoChangedRelExprEnum what, RelExpr *changedExpr, RelExpr *origExpr,
-                     Lng32 origChildId, Lng32 changedChildId, Lng32 subqId)
+                     int origChildId, int changedChildId, int subqId)
       : vregion_(vegRegion),
         whatChanged_(what),
         changedRelExpr_(changedExpr),
@@ -111,15 +111,15 @@ class SqoChangedRelExprs : public NABasicObject {
   // Destructor
   ~SqoChangedRelExprs() {}
 
-  NABoolean undoChanges(NormWA &normWARef, Lng32 subqId);
+  NABoolean undoChanges(NormWA &normWARef, int subqId);
 
  private:
-  Lng32 subqId_;
+  int subqId_;
   SqoChangedRelExprEnum whatChanged_;
   RelExpr *changedRelExpr_;
   RelExpr *originalRelExpr_;
-  Lng32 changedChildId_;
-  Lng32 origChildId_;
+  int changedChildId_;
+  int origChildId_;
   RegionId vregion_;
 };  // class SqoChangedRelExprs
 
@@ -135,7 +135,7 @@ class SqoWA : public NABasicObject {
   ~SqoWA() {}
 
   void incrementSubQId() { subqId_++; }
-  Lng32 getSubQId() { return subqId_; }
+  int getSubQId() { return subqId_; }
 
   void insertChangedItemExpr(ValueId changedId, SqoChangedItemExprEnum whatChanged, ItemExpr *origExpr) {
     changedItemExprs_.insert(new (CmpCommon::statementHeap())
@@ -162,7 +162,7 @@ class SqoWA : public NABasicObject {
   void undoChanges(NormWA &normWARef);
 
  private:
-  Lng32 subqId_;
+  int subqId_;
   // We need a list of ItemExprs that we have changed
   LIST(SqoChangedItemExprs *) changedItemExprs_;
 
@@ -351,17 +351,17 @@ class NormWA : public NABasicObject {
   // --------------------------------------------------------------------
   // Region
   // --------------------------------------------------------------------
-  void allocateAndSetVEGRegion(const VEGRegionTypeEnum tev, ExprNode *const ownerExprPtr, Lng32 subtreeId = 0) {
+  void allocateAndSetVEGRegion(const VEGRegionTypeEnum tev, ExprNode *const ownerExprPtr, int subtreeId = 0) {
     vegTable_->allocateAndSetVEGRegion(tev, ownerExprPtr, subtreeId);
   }
 
-  void locateAndSetVEGRegion(ExprNode *const ownerExprPtr, Lng32 subtreeId = 0) {
+  void locateAndSetVEGRegion(ExprNode *const ownerExprPtr, int subtreeId = 0) {
     vegTable_->locateAndSetVEGRegion(ownerExprPtr, subtreeId);
   }
 
   void restoreOriginalVEGRegion() { vegTable_->restoreOriginalRegion(); }
-  void reassignVEGRegion(ExprNode *ownerExprPtr, Lng32 ownerSubtreeId, ExprNode *newOwnerExprPtr,
-                         Lng32 newOwnerSubtreeId = 0) {
+  void reassignVEGRegion(ExprNode *ownerExprPtr, int ownerSubtreeId, ExprNode *newOwnerExprPtr,
+                         int newOwnerSubtreeId = 0) {
     vegTable_->reassignVEGRegion(ownerExprPtr, ownerSubtreeId, newOwnerExprPtr, newOwnerSubtreeId);
   }
 
@@ -411,7 +411,7 @@ class NormWA : public NABasicObject {
     return vegTable_->locateVEGRegionAndCheckIfMerged(ownerExpr);
   }
 
-  NABoolean locateVEGRegionAndCheckIfMerged(ExprNode *const ownerExpr, Lng32 subtreeId) const {
+  NABoolean locateVEGRegionAndCheckIfMerged(ExprNode *const ownerExpr, int subtreeId) const {
     return vegTable_->locateVEGRegionAndCheckIfMerged(ownerExpr, subtreeId);
   }
 
@@ -428,7 +428,7 @@ class NormWA : public NABasicObject {
   //-----------------------------------------------------------------------
   // A method to locate the VEG region given an ExprNode and subtreeId
   //-----------------------------------------------------------------------
-  VEGRegion *locateVEGRegion(ExprNode *ownerENptr, Lng32 subtreeId) {
+  VEGRegion *locateVEGRegion(ExprNode *ownerENptr, int subtreeId) {
     return vegTable_->locateVEGRegion(ownerENptr, subtreeId);
   }
 
@@ -451,7 +451,7 @@ class NormWA : public NABasicObject {
   void setWalkingAnExprTreeFlag() { walkingAnExprTreeCount_++; }
   void restoreWalkingAnExprTreeFlag() { walkingAnExprTreeCount_--; }
   NABoolean walkingAnExprTree() const { return walkingAnExprTreeCount_ > 0; }
-  Lng32 getWalkingAnExprTreeCount() { return walkingAnExprTreeCount_; }
+  int getWalkingAnExprTreeCount() { return walkingAnExprTreeCount_; }
 
   // ---------------------------------------------------------------------
   // Needs to remember this subquery is under an expr, so that when we go
@@ -570,7 +570,7 @@ class NormWA : public NABasicObject {
   // --------------------------------------------------------------------
   void setInBlockedUnionCount() { inBlockedUnionCount_++; }
   void restoreInBlockedUnionCount() { inBlockedUnionCount_--; }
-  Lng32 getInBlockedUnionCount() { return inBlockedUnionCount_; }
+  int getInBlockedUnionCount() { return inBlockedUnionCount_; }
 
   // retrieve the current CmpContext
   CmpContext *currentCmpContext() const { return currentCmpContext_; }
@@ -607,8 +607,8 @@ class NormWA : public NABasicObject {
 
   void incrementLeftJoinConversionCount() { leftJoinConversionCount_++; }
   void decrementLeftJoinConversionCount() { leftJoinConversionCount_--; }
-  Lng32 getLeftJoinConversionCount() { return leftJoinConversionCount_; }
-  void setLeftJoinConversionCount(Lng32 val) { leftJoinConversionCount_ = val; }
+  int getLeftJoinConversionCount() { return leftJoinConversionCount_; }
+  void setLeftJoinConversionCount(int val) { leftJoinConversionCount_ = val; }
 
   NABoolean requiresSemanticQueryOptimization() {
     return ((correlatedSubqCount_ > 0) || containsJoinsToBeEliminated_ || checkForExtraHubTables_ ||
@@ -618,8 +618,8 @@ class NormWA : public NABasicObject {
 
   void incrementCorrelatedSubqCount() { correlatedSubqCount_++; }
   void decrementCorrelatedSubqCount() { correlatedSubqCount_--; }
-  Lng32 getCorrelatedSubqCount() { return correlatedSubqCount_; }
-  void setCorrelatedSubqCount(Lng32 val) { correlatedSubqCount_ = val; }
+  int getCorrelatedSubqCount() { return correlatedSubqCount_; }
+  void setCorrelatedSubqCount(int val) { correlatedSubqCount_ = val; }
 
   NABoolean requiresRecursivePushdown() { return requiresRecursivePushdown_; }
   void setRequiresRecursivePushdown(NABoolean val) { requiresRecursivePushdown_ = val; }
@@ -741,7 +741,7 @@ class NormWA : public NABasicObject {
 
   const RelExpr *getCurrentOwnerExpr();
 
-  void saveLeftJoinChildVEGRegion(ExprNode *const ownerExprPtr, Lng32 subtreeId = 0) {
+  void saveLeftJoinChildVEGRegion(ExprNode *const ownerExprPtr, int subtreeId = 0) {
     leftJoinChildVEGRegion_ = vegTable_->locateVEGRegion(ownerExprPtr, subtreeId);
   }
 
@@ -760,23 +760,23 @@ class NormWA : public NABasicObject {
   // 2) copy constructor
   // 3) clearStateInformation()
   // --------------------------------------------------------------------
-  Lng32 walkingAnExprTreeCount_;
-  Lng32 subqUnderExprTreeCount_;
+  int walkingAnExprTreeCount_;
+  int subqUnderExprTreeCount_;
 
-  Lng32 complexScalarExprCount_;
+  int complexScalarExprCount_;
 
-  Lng32 nullCount_;
+  int nullCount_;
 
-  Lng32 notCount_;
+  int notCount_;
 
-  Lng32 orCount_;
+  int orCount_;
 
-  Lng32 dontAddRedundantPredicatesCount_;
+  int dontAddRedundantPredicatesCount_;
 
-  Lng32 inConstraintsCount_;
+  int inConstraintsCount_;
 
   // ++Triggers -
-  Lng32 inBlockedUnionCount_;
+  int inBlockedUnionCount_;
 
   // QSTUFF
 
@@ -818,14 +818,14 @@ class NormWA : public NABasicObject {
   // subquery unnesting.  The criteria is that we have a correlated Subquery
   // (TSJ->GB->Filter), and the GroupBy contains nonNullRejecting predicates
   // (like count() etc)
-  Lng32 leftJoinConversionCount_;
+  int leftJoinConversionCount_;
 
   // counter to record the number of correlated subqueries. During transform
   // this counter is incremented for each subquery that matches criteria for
   // subquery unnesting. Then during normalize the counter will be decremented
   // for each qualifying subquery that is not correlated. The during the SQO phase
   // we undertake a tree walk only if there is at least one correlated subquery.
-  Lng32 correlatedSubqCount_;
+  int correlatedSubqCount_;
 
   // counter to record if we are currently transforming expressions in a select
   // list (i.e. compExpr). This is used for subquery unesting. A subquery in a
@@ -835,7 +835,7 @@ class NormWA : public NABasicObject {
   // subqureries in a select list are equivalent to other predicates that
   // do not reject null values (like IS NOT NULL, count(*) = 0, ...)
 
-  Lng32 inSelectListCount_;
+  int inSelectListCount_;
 
   NABoolean inHavingClause_;
 

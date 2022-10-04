@@ -53,7 +53,7 @@ Long UdrTableDescInfo::pack(void *space) {
   return NAVersionedObject::pack(space);
 }
 
-Lng32 UdrTableDescInfo::unpack(void *base, void *reallocator) {
+int UdrTableDescInfo::unpack(void *base, void *reallocator) {
   if (corrName_.unpack(base)) return -1;
   if (colDescList_.unpack(base, numColumns_, reallocator)) return -1;
   return NAVersionedObject::unpack(base, reallocator);

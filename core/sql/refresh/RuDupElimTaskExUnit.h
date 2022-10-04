@@ -188,7 +188,7 @@ class REFRESH_LIB_CLASS CRUDupElimResolver : public CRUDupElimTaskExUnit {
 
 #ifdef _DEBUG
   // DumpPerformanceStatistics() callee
-  void DumpStmtStatistics(CDSString &to, CDSString &stmt, Lng32 num) const;
+  void DumpStmtStatistics(CDSString &to, CDSString &stmt, int num) const;
 #endif
 
  private:

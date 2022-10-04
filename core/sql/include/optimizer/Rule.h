@@ -226,9 +226,9 @@ class Rule : public NABasicObject {
   // for implementation rules:
   // guidance for exploring and optimizing children
 
-  virtual Guidance *guidanceForExploringChild(Guidance *guidance, Context *context, Lng32 childIndex);
+  virtual Guidance *guidanceForExploringChild(Guidance *guidance, Context *context, int childIndex);
 
-  virtual Guidance *guidanceForOptimizingChild(Guidance *guidance, Context *context, Lng32 childIndex);
+  virtual Guidance *guidanceForOptimizingChild(Guidance *guidance, Context *context, int childIndex);
 
   // only for transformation rules, ie. if top op-arg is logical
   // default value is 10000, resulting in exhaustive search
@@ -308,14 +308,14 @@ class RuleSet : public NABasicObject {
   // passes, sensitive to the OPTIMIZATION_LEVEL desired, as specified
   // in the defaults table.
   // ---------------------------------------------------------------------
-  static Lng32 getFirstPassNumber() { return 1; }
-  static Lng32 getSecondPassNumber() { return 2; }
+  static int getFirstPassNumber() { return 1; }
+  static int getSecondPassNumber() { return 2; }
 
   // Methods for dealing with the total number of passes.
   void setTotalPasses();
-  inline Lng32 getTotalNumberOfPasses() const { return totalPasses_; }
+  inline int getTotalNumberOfPasses() const { return totalPasses_; }
 
-  inline Lng32 getLastPassNumber() const { return totalPasses_; }
+  inline int getLastPassNumber() const { return totalPasses_; }
 
   // Methods dealing with the current pass number.
   inline void initializeCurrentPassNumber() { currentPass_ = 0; }
@@ -324,7 +324,7 @@ class RuleSet : public NABasicObject {
   // driver. The new driver (for quite some time now) is RelExpr::optimize2
   inline void incrementCurrentPassNumber() { currentPass_++; }
 
-  inline Lng32 getCurrentPassNumber() const { return currentPass_; }
+  inline int getCurrentPassNumber() const { return currentPass_; }
 
   // Check whether the optimizer is in its last pass.
   inline NABoolean inLastPass() const { return (getCurrentPassNumber() == getLastPassNumber()); }
@@ -338,7 +338,7 @@ class RuleSet : public NABasicObject {
   // switch to the next pass
   NABoolean nextPass();
 
-  void setCurrentPassNumber(Lng32 passNumber);
+  void setCurrentPassNumber(int passNumber);
 
   // return a (sub) set of currently applicable rules
   // (see also Guidance::applicableRules())
@@ -349,7 +349,7 @@ class RuleSet : public NABasicObject {
 
   // used to recognize first pass rules for the use
   // in optimization Level 1
-  const RuleSubset *getPassNRules(Lng32 passNum) {
+  const RuleSubset *getPassNRules(int passNum) {
     CMPASSERT((passNum >= getFirstPassNumber()) AND(passNum <= getLastPassNumber()));
     return passNRules_[passNum];
   }
@@ -362,22 +362,22 @@ class RuleSet : public NABasicObject {
 
   // enable a rule for a certain optimization pass starting from
   // fromPass upto and including toPassIncl.
-  void enable(NAUnsigned ruleNo, Lng32 fromPass, Lng32 toPassIncl);
+  void enable(NAUnsigned ruleNo, int fromPass, int toPassIncl);
 
-  void enable(NAUnsigned ruleNo, Lng32 fromPass) { enable(ruleNo, fromPass, MAX_NUM_OF_PASSES); }
+  void enable(NAUnsigned ruleNo, int fromPass) { enable(ruleNo, fromPass, MAX_NUM_OF_PASSES); }
 
   void enable(NAUnsigned ruleNo) { enable(ruleNo, getFirstPassNumber(), MAX_NUM_OF_PASSES); }
 
   // disable a rule for a certain optimization pass starting from
   // fromPass upto and including toPassIncl.
-  void disable(NAUnsigned ruleNo, Lng32 fromPass, Lng32 toPassIncl);
+  void disable(NAUnsigned ruleNo, int fromPass, int toPassIncl);
 
-  void disable(NAUnsigned ruleNo, Lng32 fromPass) { disable(ruleNo, fromPass, MAX_NUM_OF_PASSES); }
+  void disable(NAUnsigned ruleNo, int fromPass) { disable(ruleNo, fromPass, MAX_NUM_OF_PASSES); }
 
   void disable(NAUnsigned ruleNo) { disable(ruleNo, getFirstPassNumber(), MAX_NUM_OF_PASSES); }
 
   // accessor functions
-  inline Lng32 getCountOfRules() const { return allRules_.entries(); }
+  inline int getCountOfRules() const { return allRules_.entries(); }
   // method is used in debugging and therefore not exercised in mainline code
   inline Int32 getRuleApplCount() const { return ruleApplCount_; }
   inline void bumpRuleApplCount() { ruleApplCount_++; }
@@ -396,8 +396,8 @@ class RuleSet : public NABasicObject {
   ARRAY(RuleSubset *) passNRules_;  // rules for pass n
   RuleSubset oldRules_;             // rules used in previous passes
 
-  Lng32 currentPass_;    // current pass of optimization
-  Lng32 totalPasses_;    // total number of optimization passes
+  int currentPass_;    // current pass of optimization
+  int totalPasses_;    // total number of optimization passes
                          // for this statement
   Int32 ruleApplCount_;  // statistics on rule applications
 

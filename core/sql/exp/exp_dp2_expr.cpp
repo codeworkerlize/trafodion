@@ -49,7 +49,7 @@
 // run-time. It reserves twice the amount of space necessary due to
 // versioning concern.
 // -----------------------------------------------------------------------
-Lng32 ExpDP2Expr::spaceNeededForWorkAtp() {
+int ExpDP2Expr::spaceNeededForWorkAtp() {
   return ((criDesc_ != (ExCriDescPtr)NULL)
               ? 2 * (sizeof(atp_struct) + criDesc_->noTuples() * (sizeof(tupp) + sizeof(tupp_descriptor)))
               : 0);
@@ -88,7 +88,7 @@ Long ExpDP2Expr::pack(void *space) {
   return NAVersionedObject::pack(space);
 }
 
-Lng32 ExpDP2Expr::unpack(void *base, void *reallocator) {
+int ExpDP2Expr::unpack(void *base, void *reallocator) {
   if (expr_.unpack(base, reallocator)) return -1;
   if (criDesc_.unpack(base, reallocator)) return -1;
   if (workAtp_.unpackShallow(base)) return -1;

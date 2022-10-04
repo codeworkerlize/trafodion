@@ -86,8 +86,8 @@ class SsmpGlobals {
   void allocateServerOnNextRequest(char *nodeName, short nodeNameLen, short cpuNum);
   ULng32 deAllocateServer(char *nodeName, short nodeNameLen, short cpuNum);
   void work();
-  Int64 getStatsCollectionInterval() { return statsCollectionInterval_; }
-  Int64 getStatsMergeTimeout() { return statsTimeout_; }
+  long getStatsCollectionInterval() { return statsCollectionInterval_; }
+  long getStatsMergeTimeout() { return statsTimeout_; }
   Long &getSemId() { return semId_; }
   IpcEnvironment *getIpcEnv() { return ipcEnv_; }
   IpcSetOfConnections getRecipients() { return recipients_; }
@@ -96,10 +96,10 @@ class SsmpGlobals {
   Int32 myCpu() { return myCpu_; }
   pid_t myPin() { return myPin_; }
   NABoolean getForceMerge() { return forceMerge_; }
-  Lng32 getNumDeallocatedServers() { return deallocatedSscps_->numEntries(); }
+  int getNumDeallocatedServers() { return deallocatedSscps_->numEntries(); }
   inline NABoolean doingGC() { return doingGC_; }
   inline void setDoingGC(NABoolean value) { doingGC_ = value; }
-  inline Lng32 getNumPendingSscpMessages() { return pendingSscpMessages_->numEntries(); }
+  inline int getNumPendingSscpMessages() { return pendingSscpMessages_->numEntries(); }
   inline void finishPendingSscpMessages();
   inline void addPendingSscpMessage(SscpClientMsgStream *sscpClientMsgStream) {
     pendingSscpMessages_->insert(sscpClientMsgStream, sizeof(sscpClientMsgStream));
@@ -108,25 +108,25 @@ class SsmpGlobals {
   inline short getStoreSqlLen() { return storeSqlSrcLen_; }
   inline short getLdoneRetryTimes() { return ldoneRetryTimes_; }
   inline short getNumAllocatedServers() { return (short)sscps_->numEntries(); }
-  inline void incSsmpReqMsg(Int64 msgBytes) { statsGlobals_->incSsmpReqMsg(msgBytes); }
-  inline void incSsmpReplyMsg(Int64 msgBytes) { statsGlobals_->incSsmpReplyMsg(msgBytes); }
+  inline void incSsmpReqMsg(long msgBytes) { statsGlobals_->incSsmpReqMsg(msgBytes); }
+  inline void incSsmpReplyMsg(long msgBytes) { statsGlobals_->incSsmpReplyMsg(msgBytes); }
   void insertDeallocatedSscp(char *nodeName, short cpuNum);
-  bool cancelQueryTree(char *queryId, Lng32 queryIdLen, CancelQueryRequest *request, ComDiagsArea **diags);
-  bool cancelQuery(char *queryId, Lng32 queryIdLen, CancelQueryRequest *request, ComDiagsArea **diags);
+  bool cancelQueryTree(char *queryId, int queryIdLen, CancelQueryRequest *request, ComDiagsArea **diags);
+  bool cancelQuery(char *queryId, int queryIdLen, CancelQueryRequest *request, ComDiagsArea **diags);
   inline ActiveQueryMgr &getActiveQueryMgr() { return activeQueryMgr_; }
   inline PendingQueryMgr &getPendingQueryMgr() { return pendingQueryMgr_; }
   void cleanupDeletedSscpServers();
   bool getQidFromPid(Int32 pid,         // IN
                      Int32 minimumAge,  // IN
                      char *queryId,     // OUT
-                     Lng32 &queryIdLen  // OUT
+                     int &queryIdLen  // OUT
   );
-  bool activateFromQid(char *queryId, Lng32 qidLen,
+  bool activateFromQid(char *queryId, int qidLen,
                        SuspendOrActivate sOrA,  // Param is placeholder.
                                                 // Someday may handle cancel.
                        ComDiagsArea *&diags, bool suspendLogging);
-  void suspendOrActivate(char *queryId, Lng32 qidLen, SuspendOrActivate sOrA, bool suspendLogging);
-  Lng32 stopMasterProcess(char *queryId, Lng32 queryIdLen);
+  void suspendOrActivate(char *queryId, int qidLen, SuspendOrActivate sOrA, bool suspendLogging);
+  int stopMasterProcess(char *queryId, int queryIdLen);
 
  private:
   NAHeap *heap_;  // pointer to heap for process duration storage
@@ -135,8 +135,8 @@ class SsmpGlobals {
   IpcServerClass *sscpServerClass_;
   HashQueue *sscps_;
   NAList<IpcServer *> *deletedSscps_;  // list of sscp servers to be deleted
-  Int64 statsCollectionInterval_;
-  Int64 statsTimeout_;
+  long statsCollectionInterval_;
+  long statsTimeout_;
   IpcSetOfConnections recipients_;
   Long semId_;
   Int32 myCpu_;
@@ -302,12 +302,12 @@ class SscpClientMsgStream : public IpcMessageStream {
   void actOnObjectLockStatsReply();
   void delinkConnection(IpcConnection *conn);
   NAHeap *getHeap() { return heap_; }
-  inline Int64 getMergeStartTime() { return mergeStartTime_; }
-  inline void setMergeStartTime(Int64 startTime) { mergeStartTime_ = startTime; }
+  inline long getMergeStartTime() { return mergeStartTime_; }
+  inline void setMergeStartTime(long startTime) { mergeStartTime_ = startTime; }
   ExStatisticsArea *getMergedStats() { return mergedStats_; }
   void incNumOfClientRequestsSent() { numOfClientRequestsSent_++; }
-  Lng32 getNumOfClientRequestsPending() { return numOfClientRequestsSent_; }
-  Lng32 getNumOfErrorRequests() { return numOfErrorRequests_; }
+  int getNumOfClientRequestsPending() { return numOfClientRequestsSent_; }
+  int getNumOfErrorRequests() { return numOfErrorRequests_; }
   SsmpGlobals *getSsmpGlobals() { return ssmpGlobals_; }
   NABoolean isReplySent() { return replySent_; }
   SsmpNewIncomingConnectionStream *getSsmpStream() { return ssmpStream_; }
@@ -354,10 +354,10 @@ class SscpClientMsgStream : public IpcMessageStream {
  private:
   NAHeap *heap_;
   ExStatisticsArea *mergedStats_;
-  Int64 mergeStartTime_;
-  Lng32 numOfClientRequestsSent_;
+  long mergeStartTime_;
+  int numOfClientRequestsSent_;
   SsmpGlobals *ssmpGlobals_;
-  Lng32 numOfErrorRequests_;
+  int numOfErrorRequests_;
   NABoolean replySent_;
   SsmpNewIncomingConnectionStream *ssmpStream_;
   short reqType_;

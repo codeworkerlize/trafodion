@@ -197,10 +197,10 @@ class REFRESH_LIB_CLASS CRUDupElimRangeResolver : public CRUDupElimResolver {
   BOOL wasPrevDEInvocationCompleted_;
 
   // Statistics for the number of performed IUD statements
-  Lng32 numRngLogInsert_;
-  Lng32 numRngLogDelete_;
-  Lng32 numIUDLogDelete_;
-  Lng32 numIUDLogUpdate_;
+  int numRngLogInsert_;
+  int numRngLogDelete_;
+  int numIUDLogDelete_;
+  int numIUDLogUpdate_;
 };
 
 #endif

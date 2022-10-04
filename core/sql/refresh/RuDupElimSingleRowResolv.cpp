@@ -193,10 +193,10 @@ void CRUDupElimSingleRowResolver::DumpPerformanceStatistics(CDSString &to) const
 //--------------------------------------------------------------------------//
 
 void CRUDupElimSingleRowResolver::LoadReply(CUOFsIpcMessageTranslator &translator) {
-  translator.ReadBlock(&numDeleteRecord_, sizeof(Lng32));
-  translator.ReadBlock(&numUpdateIgnMark_, sizeof(Lng32));
-  translator.ReadBlock(&numUpdateBitmap_, sizeof(Lng32));
-  translator.ReadBlock(&numUpdateOpType_, sizeof(Lng32));
+  translator.ReadBlock(&numDeleteRecord_, sizeof(int));
+  translator.ReadBlock(&numUpdateIgnMark_, sizeof(int));
+  translator.ReadBlock(&numUpdateBitmap_, sizeof(int));
+  translator.ReadBlock(&numUpdateOpType_, sizeof(int));
 }
 
 //--------------------------------------------------------------------------//
@@ -204,10 +204,10 @@ void CRUDupElimSingleRowResolver::LoadReply(CUOFsIpcMessageTranslator &translato
 //--------------------------------------------------------------------------//
 
 void CRUDupElimSingleRowResolver::StoreReply(CUOFsIpcMessageTranslator &translator) {
-  translator.WriteBlock(&numDeleteRecord_, sizeof(Lng32));
-  translator.WriteBlock(&numUpdateIgnMark_, sizeof(Lng32));
-  translator.WriteBlock(&numUpdateBitmap_, sizeof(Lng32));
-  translator.WriteBlock(&numUpdateOpType_, sizeof(Lng32));
+  translator.WriteBlock(&numDeleteRecord_, sizeof(int));
+  translator.WriteBlock(&numUpdateIgnMark_, sizeof(int));
+  translator.WriteBlock(&numUpdateBitmap_, sizeof(int));
+  translator.WriteBlock(&numUpdateOpType_, sizeof(int));
 }
 
 //--------------------------------------------------------------------------//

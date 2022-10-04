@@ -64,9 +64,9 @@ ComTdbUnion::ComTdbUnion(const ComTdbUnion *union_tdb)
       csErrFlags_(union_tdb->csErrFlags_) {}
 
 ComTdbUnion::ComTdbUnion(ComTdb *left_tdb, ComTdb *right_tdb, ex_expr *left_expr, ex_expr *right_expr,
-                         ex_expr *merge_expr, ex_expr *cond_expr, ex_expr *trig_expr, Lng32 union_reclen,
+                         ex_expr *merge_expr, ex_expr *cond_expr, ex_expr *trig_expr, int union_reclen,
                          const unsigned short tupp_index, ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc,
-                         queue_index down, queue_index up, Cardinality estimatedRowCount, Lng32 num_buffers,
+                         queue_index down, queue_index up, Cardinality estimatedRowCount, int num_buffers,
                          ULng32 buffer_size, NABoolean ordered_union,
                          Int32 blocked_union,  //++ Triggers -
                          Int32 hasNoOutput,    //++ Triggers -
@@ -131,7 +131,7 @@ Long ComTdbUnion::pack(void *space) {
   return ComTdb::pack(space);
 }
 
-Lng32 ComTdbUnion::unpack(void *base, void *reallocator) {
+int ComTdbUnion::unpack(void *base, void *reallocator) {
   if (tdbLeft_.unpack(base, reallocator)) return -1;
   if (tdbRight_.unpack(base, reallocator)) return -1;
   if (leftExpr_.unpack(base, reallocator)) return -1;

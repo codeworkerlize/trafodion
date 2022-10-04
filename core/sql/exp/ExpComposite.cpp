@@ -39,13 +39,13 @@
 #include "common/Platform.h"
 #include "ExpComposite.h"
 
-#include "exp_bignum.h"
+#include "exp/exp_bignum.h"
 #include "exp/exp_clause.h"
 #include "exp/exp_clause_derived.h"
-#include "exp_interval.h"
+#include "exp/exp_interval.h"
 #include "exp/exp_datetime.h"
 #include "common/DatetimeType.h"
-#include "Formatter.h"
+#include "sqlci/Formatter.h"
 #include "common/Int64.h"
 #include "common/IntervalType.h"
 
@@ -56,7 +56,7 @@ Int32 compExprNum = 0;
 //////////////////////////////////////////////////////
 Long CompositeAttributes::pack(void *space) {
   if (elements_) {
-    for (Lng32 i = 0; i < numElements_; i++) {
+    for (int i = 0; i < numElements_; i++) {
       elements_[i].pack(space);
     }
   }
@@ -65,10 +65,10 @@ Long CompositeAttributes::pack(void *space) {
   return Attributes::pack(space);
 }
 
-Lng32 CompositeAttributes::unpack(void *base, void *reallocator) {
+int CompositeAttributes::unpack(void *base, void *reallocator) {
   if (elements_) {
     if (elements_.unpackShallow(base)) return -1;
-    for (Lng32 i = 0; i < numElements_; i++) {
+    for (int i = 0; i < numElements_; i++) {
       if (elements_[i].unpack(base, reallocator)) return -1;
     }
   }
@@ -101,7 +101,7 @@ Long ExpCompositeBase::pack(void *space) {
   return packClause(space, sizeof(ExpCompositeBase));
 }
 
-Lng32 ExpCompositeBase::unpack(void *base, void *reallocator) {
+int ExpCompositeBase::unpack(void *base, void *reallocator) {
   if (compExpr_) {
     if (compExpr_.unpackShallow(base)) return -1;
 
@@ -159,7 +159,7 @@ void ExpCompositeBase::displayContents(Space *space, const char *displayStr, Int
 }
 
 // return: 0, if all ok. -1, if error
-static short getAttrDataPtr(Attributes *op, char *rowDataPtr, char *&opdata, Lng32 &varLen, NABoolean &isNullVal) {
+static short getAttrDataPtr(Attributes *op, char *rowDataPtr, char *&opdata, int &varLen, NABoolean &isNullVal) {
   UInt32 offset = op->getOffset();
   ExpTupleDesc::TupleDataFormat tdf = op->getTupleFormat();
 
@@ -236,7 +236,7 @@ Long ExpCompositeArrayCast::pack(void *space) {
   return ExpCompositeBase::pack(space);
 }
 
-Lng32 ExpCompositeArrayCast::unpack(void *base, void *reallocator) {
+int ExpCompositeArrayCast::unpack(void *base, void *reallocator) {
   if (compAttrsChild1_.unpack(base, reallocator)) return -1;
 
   return ExpCompositeBase::unpack(base, reallocator);
@@ -273,7 +273,7 @@ ex_expr::exp_return_type ExpCompositeArrayCast::eval(char *op_data[], CollHeap *
   // if composite formats are the same, copy source to target.
   if (srcOp->getCompFormat() == tgtOp->getCompFormat()) {
     // copy source to tgt
-    Lng32 srcLen = getOperand(1)->getLength(op_data[-MAX_OPERANDS + 1]);
+    int srcLen = getOperand(1)->getLength(op_data[-MAX_OPERANDS + 1]);
 
     *(Int32 *)tgtData = copyElems;
     srcData += sizeof(Int32);
@@ -325,8 +325,8 @@ ex_expr::exp_return_type ExpCompositeArrayCast::eval(char *op_data[], CollHeap *
 
   char *attrData = NULL;
   NABoolean isNullVal = FALSE;
-  Lng32 varLen = -1;
-  Lng32 attrLen = 0;
+  int varLen = -1;
+  int attrLen = 0;
   Int32 tgtLen = 0;
   for (Int32 srcElem = 1; srcElem <= numCopyElems; srcElem++) {
     srcElemAttr = (Attributes *)(srcCompAttrs->getElements())[srcElem - 1];
@@ -428,7 +428,7 @@ Long ExpCompositeHiveCast::pack(void *space) {
   return ExpCompositeBase::pack(space);
 }
 
-Lng32 ExpCompositeHiveCast::unpack(void *base, void *reallocator) {
+int ExpCompositeHiveCast::unpack(void *base, void *reallocator) {
   if (compAttrsChild1_.unpack(base, reallocator)) return -1;
 
   return ExpCompositeBase::unpack(base, reallocator);
@@ -507,7 +507,7 @@ ex_expr::exp_return_type ExpCompositeHiveCast::copyHiveSrcToTgt(Attributes *tgtA
   }  // not composite
 
   CompositeAttributes *tgtCompAttrs = (CompositeAttributes *)tgtAttr;
-  Lng32 numElems = *(Int32 *)srcData;
+  int numElems = *(Int32 *)srcData;
   srcData += sizeof(numElems);
 
   if (tgtCompAttrs->getNumElements() < numElems) {
@@ -598,7 +598,7 @@ Long ExpCompositeConcat::pack(void *space) {
   return ExpCompositeBase::pack(space);
 }
 
-Lng32 ExpCompositeConcat::unpack(void *base, void *reallocator) {
+int ExpCompositeConcat::unpack(void *base, void *reallocator) {
   if (compAttrsChild1_.unpack(base, reallocator)) return -1;
   if (compAttrsChild2_.unpack(base, reallocator)) return -1;
 
@@ -643,8 +643,8 @@ ex_expr::exp_return_type ExpCompositeConcat::eval(char *op_data[], CollHeap *hea
 
   char *attrData = NULL;
   NABoolean isNullVal = FALSE;
-  Lng32 varLen = -1;
-  Lng32 attrLen = 0;
+  int varLen = -1;
+  int attrLen = 0;
 
   Int32 resultElem = 0;
   Attributes *attr = NULL;
@@ -730,7 +730,7 @@ ExpCompositeCreate::ExpCompositeCreate(OperatorTypeEnum oper_type, short type, U
 
 Long ExpCompositeCreate::pack(void *space) { return ExpCompositeBase::pack(space); }
 
-Lng32 ExpCompositeCreate::unpack(void *base, void *reallocator) { return ExpCompositeBase::unpack(base, reallocator); }
+int ExpCompositeCreate::unpack(void *base, void *reallocator) { return ExpCompositeBase::unpack(base, reallocator); }
 
 ex_expr::exp_return_type ExpCompositeCreate::eval(char *op_data[], atp_struct *atp1, atp_struct *atp2, atp_struct *atp3,
                                                   CollHeap *heap, ComDiagsArea **diagsArea) {
@@ -760,7 +760,7 @@ ex_expr::exp_return_type ExpCompositeCreate::eval(char *op_data[], atp_struct *a
     return ex_expr::EXPR_ERROR;
   }
 
-  Lng32 maxTgtLen = getOperand(0)->getLength();
+  int maxTgtLen = getOperand(0)->getLength();
 
   actualRowLen = compRowLen_;
 
@@ -810,11 +810,11 @@ ExpCompositeDisplay::ExpCompositeDisplay(OperatorTypeEnum oper_type, short type,
                                          Space *space)
     : ExpCompositeBase(oper_type, type, numElements, numAttrs, attr, 0, NULL, compCriDesc, compAttrs, space) {}
 
-static Lng32 getDisplayLength(Lng32 datatype, Lng32 length, Lng32 precision, Lng32 scale) {
+static int getDisplayLength(int datatype, int length, int precision, int scale) {
   return NAType::getDisplayLengthStatic(datatype, length, precision, scale, 0);
 }
 
-static short displayValue(Attributes *attr, char *tgtData, UInt32 &currTgtIndex, char *srcData, Lng32 varLen) {
+static short displayValue(Attributes *attr, char *tgtData, UInt32 &currTgtIndex, char *srcData, int varLen) {
   Int32 tgtDataType = CharInfo::getFSTypeFixedChar(CharInfo::ISO88591);
 
   Int32 datatype = attr->getDatatype();
@@ -833,7 +833,7 @@ static short displayValue(Attributes *attr, char *tgtData, UInt32 &currTgtIndex,
                                               NULL, 0);
   if (retcode == ex_expr::EXPR_ERROR) return -1;
 
-  Lng32 len = tgtLen;
+  int len = tgtLen;
   char *trimBuf = str_strip_blanks(dispBuf, len, TRUE, TRUE);
   memcpy(tgtData, trimBuf, len);
   currTgtIndex += len;
@@ -841,7 +841,7 @@ static short displayValue(Attributes *attr, char *tgtData, UInt32 &currTgtIndex,
   return 0;
 }
 
-short displayValues(Attributes *attr, char *tgtPtr, char *srcPtr, Lng32 varLen, UInt32 &currTgtIndex) {
+short displayValues(Attributes *attr, char *tgtPtr, char *srcPtr, int varLen, UInt32 &currTgtIndex) {
   if (NOT((attr->getDatatype() == REC_ARRAY) || (attr->getDatatype() == REC_ROW))) {
     if (displayValue(attr, &tgtPtr[currTgtIndex], currTgtIndex, srcPtr, varLen)) return -1;
 
@@ -870,7 +870,7 @@ short displayValues(Attributes *attr, char *tgtPtr, char *srcPtr, Lng32 varLen, 
 
     char *attrData = NULL;
     NABoolean isNullVal = FALSE;
-    Lng32 varLen = -1;
+    int varLen = -1;
     getAttrDataPtr(attr, srcPtr, attrData, varLen, isNullVal);
 
     if (isNullVal) {
@@ -921,7 +921,7 @@ void ExpCompositeDisplay::displayContents(Space *space, const char * /*displaySt
 }
 
 ex_expr::exp_return_type ExpCompositeDisplay::eval(char *op_data[], CollHeap *heap, ComDiagsArea **diagsArea) {
-  Lng32 srcLen = getOperand(1)->getLength(op_data[-MAX_OPERANDS + 1]);
+  int srcLen = getOperand(1)->getLength(op_data[-MAX_OPERANDS + 1]);
 
   UInt32 currTgtIndex = 0;
   if (displayValues(compAttrs_, op_data[0], op_data[1], srcLen, currTgtIndex)) {
@@ -931,7 +931,7 @@ ex_expr::exp_return_type ExpCompositeDisplay::eval(char *op_data[], CollHeap *he
     return ex_expr::EXPR_ERROR;
   }
 
-  Lng32 tgtLen = currTgtIndex;
+  int tgtLen = currTgtIndex;
   if (getOperand(0)->getVCIndicatorLength() > 0) getOperand(0)->setVarLength(tgtLen, op_data[-MAX_OPERANDS]);
 
   return ex_expr::EXPR_OK;
@@ -940,9 +940,9 @@ ex_expr::exp_return_type ExpCompositeDisplay::eval(char *op_data[], CollHeap *he
 ///////////////////////////////////////////////////////////
 // ExpCompositeExtract
 ///////////////////////////////////////////////////////////
-ExpCompositeExtract::ExpCompositeExtract(OperatorTypeEnum oper_type, short type, ULng32 numElements, Lng32 elemNum,
+ExpCompositeExtract::ExpCompositeExtract(OperatorTypeEnum oper_type, short type, ULng32 numElements, int elemNum,
                                          short numAttrs, Attributes **attr, AttributesPtr compAttrs,
-                                         Lng32 numSearchAttrs, char *searchAttrTypeList, char *searchAttrIndexList,
+                                         int numSearchAttrs, char *searchAttrTypeList, char *searchAttrIndexList,
                                          Space *space)
     : ExpCompositeBase(oper_type, type, numElements, numAttrs, attr, 0, NULL, NULL, compAttrs, space),
       elemNum_(elemNum),
@@ -958,7 +958,7 @@ Long ExpCompositeExtract::pack(void *space) {
   return ExpCompositeBase::pack(space);
 }
 
-Lng32 ExpCompositeExtract::unpack(void *base, void *reallocator) {
+int ExpCompositeExtract::unpack(void *base, void *reallocator) {
   if (searchAttrTypeList_.unpack(base)) return -1;
   if (searchAttrIndexList_.unpack(base)) return -1;
 
@@ -1005,7 +1005,7 @@ void ExpCompositeExtract::displayContents(Space *space, const char * /*displaySt
   ex_clause::displayContents(space, NULL, clauseNum, constsArea);
 }
 
-ex_expr::exp_return_type ExpCompositeExtract::extractValue(Attributes *inAttrs, Lng32 elemNum, char *tgtPtr,
+ex_expr::exp_return_type ExpCompositeExtract::extractValue(Attributes *inAttrs, int elemNum, char *tgtPtr,
                                                            char *srcPtr, Int32 maxNumElems, NABoolean &isNullVal,
                                                            ULng32 &attrLen, Int32 &numElems, CollHeap *heap,
                                                            ComDiagsArea **diagsArea) {
@@ -1016,7 +1016,7 @@ ex_expr::exp_return_type ExpCompositeExtract::extractValue(Attributes *inAttrs, 
 
   char *attrData = NULL;
   isNullVal = FALSE;
-  Lng32 varLen = -1;
+  int varLen = -1;
 
   char errBuf[200];
   if (inAttrs->getDatatype() == REC_ARRAY) {
@@ -1055,7 +1055,7 @@ ex_expr::exp_return_type ExpCompositeExtract::searchAndExtractValue(Attributes *
   char *currCompAttrsData = NULL;
   char *currAttrData = NULL;
 
-  Lng32 varLen = -1;
+  int varLen = -1;
   isNullVal = FALSE;
 
   currCompAttrsData = srcPtr;
@@ -1095,7 +1095,7 @@ ex_expr::exp_return_type ExpCompositeExtract::eval(char *op_data[], CollHeap *he
   char **null_data = &op_data[-2 * ex_clause::MAX_OPERANDS];
   if (ex_clause::processNulls(null_data, heap, diagsArea) == ex_expr::EXPR_NULL) return ex_expr::EXPR_OK;
 
-  Lng32 srcLen = getOperand(1)->getLength(op_data[-MAX_OPERANDS + 1]);
+  int srcLen = getOperand(1)->getLength(op_data[-MAX_OPERANDS + 1]);
 
   UInt32 tgtLen = 0;
 

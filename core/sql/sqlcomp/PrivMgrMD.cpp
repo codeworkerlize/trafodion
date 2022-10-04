@@ -1436,7 +1436,7 @@ PrivStatus PrivMgrMDAdmin::updatePrivMgrMetadata(const bool shouldPopulateObject
 //     FALSE - rename files appended with "_OLD_MD" to names without the suffix
 // ----------------------------------------------------------------------------
 short PrivMgrMDAdmin::alterRenamePMTbl(ExeCliInterface *cliInterface, NABoolean origToOld) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
 
   Int32 bufSize = (strlen(TRAFODION_SYSCAT_LIT) * 2) + (strlen(SEABASE_MD_SCHEMA) * 2) + (256 * 2) + 100;
   char queryBuf[bufSize];
@@ -1522,7 +1522,7 @@ short PrivMgrMDAdmin::alterRenamePMTbl(ExeCliInterface *cliInterface, NABoolean 
 //     1 - old tables exist
 // ----------------------------------------------------------------------------
 short PrivMgrMDAdmin::checkForOldPMTbl(ExeCliInterface *cliInterface) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
   Int32 bufSize = (strlen(TRAFODION_SYSCAT_LIT) * 2) + strlen(SEABASE_MD_SCHEMA) + strlen(SEABASE_OBJECTS) +
                   strlen(SEABASE_PRIVMGR_SCHEMA) + (3 * 60);
   char queryBuf[bufSize];
@@ -1533,8 +1533,8 @@ short PrivMgrMDAdmin::checkForOldPMTbl(ExeCliInterface *cliInterface) {
               "object_type = 'BT' and object_name like '%%OLD_MD'",
               TRAFODION_SYSCAT_LIT, SEABASE_MD_SCHEMA, SEABASE_OBJECTS, TRAFODION_SYSCAT_LIT, SEABASE_PRIVMGR_SCHEMA);
 
-  Lng32 len = 0;
-  Int64 rowCount = 0;
+  int len = 0;
+  long rowCount = 0;
   cliRC = cliInterface->executeImmediate(queryBuf, (char *)&rowCount, &len, FALSE);
   if (cliRC < 0) {
     cliInterface->retrieveSQLDiagnostics(CmpCommon::diags());
@@ -1559,7 +1559,7 @@ short PrivMgrMDAdmin::checkForOldPMTbl(ExeCliInterface *cliInterface) {
 //   cliInterface - class that manages CLI requests
 // ----------------------------------------------------------------------------
 short PrivMgrMDAdmin::copyPMOldToNew(ExeCliInterface *cliInterface) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
   Int32 bufSize = 10000;
   char queryBuf[bufSize];
   CmpSeabaseDDL cmpDDL(STMTHEAP);
@@ -1587,7 +1587,7 @@ short PrivMgrMDAdmin::copyPMOldToNew(ExeCliInterface *cliInterface) {
                 pmti.oldName, (pmti.wherePred ? pmti.wherePred : ""));
 
     // Perform the copy
-    Int64 rowCount;
+    long rowCount;
     cliRC = cliInterface->executeImmediate(queryBuf, NULL, NULL, TRUE, &rowCount);
     if (cliRC < 0) {
       cliInterface->retrieveSQLDiagnostics(pDiags_);
@@ -1621,7 +1621,7 @@ short PrivMgrMDAdmin::copyPMOldToNew(ExeCliInterface *cliInterface) {
 //   cliInterface - class that manages CLI requests
 // ----------------------------------------------------------------------------
 short PrivMgrMDAdmin::createPMTbl(ExeCliInterface *cliInterface) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
   Int32 bufSize = strlen(TRAFODION_SYSCAT_LIT) + strlen(SEABASE_PRIVMGR_SCHEMA) + 300;
 
   char queryBuf[bufSize];
@@ -1690,7 +1690,7 @@ short PrivMgrMDAdmin::createPMTbl(ExeCliInterface *cliInterface) {
 // See CmpSeabaseDDLrepos.cpp - dropAndLogPMViews for additional details
 // ----------------------------------------------------------------------------
 short PrivMgrMDAdmin::dropAndLogPMViews(ExeCliInterface *cliInterface, NABoolean &someViewSaved /* out */) {
-  Lng32 cliRC = 0;  // assume success
+  int cliRC = 0;  // assume success
   someViewSaved = FALSE;
   CmpSeabaseDDL cmpDDL(STMTHEAP);
 
@@ -1702,7 +1702,7 @@ short PrivMgrMDAdmin::dropAndLogPMViews(ExeCliInterface *cliInterface, NABoolean
 
     if ((!pmti.oldName) || (NOT pmti.upgradeNeeded)) continue;
 
-    Int64 tableUID = cmpDDL.getObjectUID(cliInterface, TRAFODION_SYSCAT_LIT, SEABASE_PRIVMGR_SCHEMA, pmti.oldName,
+    long tableUID = cmpDDL.getObjectUID(cliInterface, TRAFODION_SYSCAT_LIT, SEABASE_PRIVMGR_SCHEMA, pmti.oldName,
                                          COM_BASE_TABLE_OBJECT_LIT, NULL, NULL, NULL, FALSE, FALSE /* ignore error */);
 
     if (tableUID > 0)  // if we got it
@@ -1747,7 +1747,7 @@ short PrivMgrMDAdmin::dropAndLogPMViews(ExeCliInterface *cliInterface, NABoolean
 //   inRecovery - dropping tables after a failed upgrade
 // ----------------------------------------------------------------------------
 short PrivMgrMDAdmin::dropPMTbl(ExeCliInterface *cliInterface, NABoolean oldPMTbl, NABoolean inRecovery) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
   Int32 bufSize = 500;
   char queryBuf[bufSize];
   CmpSeabaseDDL cmpDDL(STMTHEAP);
@@ -1839,7 +1839,7 @@ short PrivMgrMDAdmin::dropPMTbl(ExeCliInterface *cliInterface, NABoolean oldPMTb
 //   cliInterface - class that manages CLI requests
 // ----------------------------------------------------------------------------
 short PrivMgrMDAdmin::grantPMTbl(ExeCliInterface *cliInterface, NABoolean inRecovery) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
   CmpSeabaseDDL cmpDDL(STMTHEAP);
   std::string traceMsg("Upgrade: grantPMTbl:");
   NABoolean xnWasStartedHere = FALSE;
@@ -1862,7 +1862,7 @@ short PrivMgrMDAdmin::grantPMTbl(ExeCliInterface *cliInterface, NABoolean inReco
     log(__FILE__, traceMsg, -1);
 
     // get object UID, object should exist
-    Int64 objectUID = cmpDDL.getObjectUID(cliInterface, TRAFODION_SYSCAT_LIT, SEABASE_PRIVMGR_SCHEMA, pmti.newName,
+    long objectUID = cmpDDL.getObjectUID(cliInterface, TRAFODION_SYSCAT_LIT, SEABASE_PRIVMGR_SCHEMA, pmti.newName,
                                           COM_BASE_TABLE_OBJECT_LIT, NULL, NULL, NULL, FALSE, FALSE /* ignore error */);
     if (objectUID <= 0) {
       PRIVMGR_INTERNAL_ERROR("PrivMgrMDAdmin::grantPMTbl unable to retrieve object details");
@@ -1927,7 +1927,7 @@ short PrivMgrMDAdmin::grantPMTbl(ExeCliInterface *cliInterface, NABoolean inReco
 //      TRUE - ignore errors if unable to revoke privileges
 // ----------------------------------------------------------------------------
 short PrivMgrMDAdmin::revokePMTbl(ExeCliInterface *cliInterface, NABoolean oldPMTbl, NABoolean inRecovery) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
   CmpSeabaseDDL cmpDDL(STMTHEAP);
   std::string traceMsg("Upgrade: revokePMTbl:");
   NABoolean xnWasStartedHere = FALSE;
@@ -1950,7 +1950,7 @@ short PrivMgrMDAdmin::revokePMTbl(ExeCliInterface *cliInterface, NABoolean oldPM
     log(__FILE__, traceMsg, -1);
 
     // get the objectUID for the table
-    Int64 objectUID = cmpDDL.getObjectUID(cliInterface, TRAFODION_SYSCAT_LIT, SEABASE_PRIVMGR_SCHEMA, pmti.newName,
+    long objectUID = cmpDDL.getObjectUID(cliInterface, TRAFODION_SYSCAT_LIT, SEABASE_PRIVMGR_SCHEMA, pmti.newName,
                                           COM_BASE_TABLE_OBJECT_LIT, NULL, NULL, NULL, FALSE, FALSE /* ignore error */);
     if (objectUID <= 0) {
       if (inRecovery) continue;
@@ -2005,7 +2005,7 @@ short PrivMgrMDAdmin::revokePMTbl(ExeCliInterface *cliInterface, NABoolean oldPM
 //   CmpDDLwithStatusInfo - upgrade details
 // ----------------------------------------------------------------------------
 short PrivMgrMDAdmin::upgradePMTbl(ExeCliInterface *cliInterface, CmpDDLwithStatusInfo *mdui) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
 
   while (1)  // exit via return stmt in switch
   {
@@ -2170,7 +2170,7 @@ short PrivMgrMDAdmin::upgradePMTbl(ExeCliInterface *cliInterface, CmpDDLwithStat
 //   CmpDDLwithStatusInfo - Upgrade details
 // ----------------------------------------------------------------------------
 short PrivMgrMDAdmin::upgradePMTblComplete(ExeCliInterface *cliInterface, CmpDDLwithStatusInfo *mdui) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
 
   while (1)  // exit via return stmt in switch
   {
@@ -2251,7 +2251,7 @@ short PrivMgrMDAdmin::upgradePMTblComplete(ExeCliInterface *cliInterface, CmpDDL
 //   CmpDDLwithStatusInfo - Upgrade details
 // ----------------------------------------------------------------------------
 short PrivMgrMDAdmin::upgradePMTblUndo(ExeCliInterface *cliInterface, CmpDDLwithStatusInfo *mdui) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
 
   while (1)  // exit via return stmt in switch
   {

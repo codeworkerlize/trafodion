@@ -358,7 +358,7 @@ class rec_field_struct {
   // this code is same as that in common/DateTimeType.cpp.
   // We cannot source in DateTimeType.h in here. Maybe we
   // extract this method in some kind of common utility.
-  Lng32 getRecDateTimeCode(rec_datetime_field startField, rec_datetime_field endField) {
+  int getRecDateTimeCode(rec_datetime_field startField, rec_datetime_field endField) {
     switch (startField) {
       case REC_DATE_YEAR:
         switch (endField) {
@@ -433,7 +433,7 @@ class rec_field_struct {
   }
 
  public:
-  Lng32 getLength() {
+  int getLength() {
     if ((type >= REC_MIN_NUMERIC) && (type <= REC_MAX_NUMERIC))
       return len_etc.numeric_.ilen;
     else if ((type >= REC_MIN_CHARACTER) && (type <= REC_MAX_CHARACTER))
@@ -444,7 +444,7 @@ class rec_field_struct {
       return len_etc.datetime_.len;
   };
 
-  Lng32 getPrecision() {
+  int getPrecision() {
     if ((type >= REC_MIN_NUMERIC) && (type <= REC_MAX_NUMERIC)) {
       if ((type >= REC_MIN_DECIMAL) && (type <= REC_MAX_DECIMAL))
         return len_etc.numeric_.ilen;
@@ -460,7 +460,7 @@ class rec_field_struct {
       return 0;
   };
 
-  Lng32 getScale() {
+  int getScale() {
     if ((type >= REC_MIN_NUMERIC) && (type <= REC_MAX_NUMERIC))
       return len_etc.numeric_.iscale;
     else if ((type >= REC_MIN_INTERVAL) && (type <= REC_MAX_INTERVAL_MP))
@@ -471,7 +471,7 @@ class rec_field_struct {
       return 0;
   };
 
-  void setLength(Lng32 len) {
+  void setLength(int len) {
     if ((type >= REC_MIN_NUMERIC) && (type <= REC_MAX_NUMERIC))
       len_etc.numeric_.ilen = (unsigned short)len;
     else if ((type >= REC_MIN_CHARACTER) && (type <= REC_MAX_CHARACTER))
@@ -482,25 +482,25 @@ class rec_field_struct {
       len_etc.datetime_.len = (unsigned short)len;
   };
 
-  Lng32 getBeginType() {
+  int getBeginType() {
     if (type == REC_DATETIME)
       return len_etc.datetime_.lead_type;
     else
       return -1;
   };
 
-  void setBeginType(Lng32 ltype) {
+  void setBeginType(int ltype) {
     if (type == REC_DATETIME) len_etc.datetime_.lead_type = (unsigned short)ltype;
   };
 
-  Lng32 getEndType() {
+  int getEndType() {
     if (type == REC_DATETIME)
       return len_etc.datetime_.end_type;
     else
       return -1;
   };
 
-  void setEndType(Lng32 etype) {
+  void setEndType(int etype) {
     if (type == REC_DATETIME) len_etc.datetime_.end_type = (unsigned short)etype;
   };
 

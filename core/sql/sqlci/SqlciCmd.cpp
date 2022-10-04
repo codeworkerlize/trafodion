@@ -51,19 +51,19 @@
 #include "common/ComCextdecs.h"
 #include "export/ComDiags.h"
 #include "common/ComSmallDefs.h"
-#include "ErrorMessage.h"
-#include "GetErrorMessage.h"
-#include "InputStmt.h"
-#include "SqlciError.h"
-#include "SqlciCmd.h"
-#include "sqlcmd.h"
-#include "ShellCmd.h"
-#include "SqlciError.h"
-#include "SqlciParser.h"
+#include "sqlmsg/ErrorMessage.h"
+#include "sqlmsg/GetErrorMessage.h"
+#include "sqlci/InputStmt.h"
+#include "sqlci/SqlciError.h"
+#include "sqlci/SqlciCmd.h"
+#include "sqlci/sqlcmd.h"
+#include "sqlci/ShellCmd.h"
+#include "sqlci/SqlciError.h"
+#include "sqlci/SqlciParser.h"
 #include "common/str.h"
 #include "common/charinfo.h"
-#include "SqlciEnv.h"
-#include "Sqlci.h"
+#include "sqlci/SqlciEnv.h"
+#include "sqlci/Sqlci.h"
 #include "cli/sql_id.h"
 #include "common/ComRtUtils.h"
 #include "common/ComUser.h"
@@ -75,7 +75,7 @@ SqlciCmd::SqlciCmd(const sqlci_cmd_type cmd_type_) : SqlciNode(SqlciNode::SQLCI_
   argument = 0;
 }
 
-SqlciCmd::SqlciCmd(const sqlci_cmd_type cmd_type_, char *argument_, Lng32 arglen_)
+SqlciCmd::SqlciCmd(const sqlci_cmd_type cmd_type_, char *argument_, int arglen_)
     : SqlciNode(SqlciNode::SQLCI_CMD_TYPE), cmd_type(cmd_type_) {
   arglen = arglen_;
 
@@ -88,7 +88,7 @@ SqlciCmd::SqlciCmd(const sqlci_cmd_type cmd_type_, char *argument_, Lng32 arglen
   }
 };
 
-SqlciCmd::SqlciCmd(const sqlci_cmd_type cmd_type_, NAWchar *argument_, Lng32 arglen_)
+SqlciCmd::SqlciCmd(const sqlci_cmd_type cmd_type_, NAWchar *argument_, int arglen_)
     : SqlciNode(SqlciNode::SQLCI_CMD_TYPE), cmd_type(cmd_type_) {
   arglen = 2 * arglen_;
 
@@ -110,7 +110,7 @@ SqlciCmd::SqlciCmd(const sqlci_cmd_type cmd_type_, Int32 argument_)
 
 SqlciCmd::~SqlciCmd() { delete[] argument; };
 
-FixCommand::FixCommand(char *argument_, Lng32 arglen_) : SqlciCmd(SqlciCmd::FC_TYPE, argument_, arglen_) {
+FixCommand::FixCommand(char *argument_, int arglen_) : SqlciCmd(SqlciCmd::FC_TYPE, argument_, arglen_) {
   cmd = argument_;
 };
 
@@ -120,7 +120,7 @@ FixCommand::FixCommand(Int32 argument_, short neg_num_) : SqlciCmd(SqlciCmd::FC_
   cmd = 0;
 };
 
-Obey::Obey(char *argument_, Lng32 arglen_, char *section_name_) : SqlciCmd(SqlciCmd::OBEY_TYPE, argument_, arglen_) {
+Obey::Obey(char *argument_, int arglen_, char *section_name_) : SqlciCmd(SqlciCmd::OBEY_TYPE, argument_, arglen_) {
   if (section_name_) {
     section_name = new char[strlen(section_name_) + 1];
     strcpy(section_name, section_name_);
@@ -129,13 +129,13 @@ Obey::Obey(char *argument_, Lng32 arglen_, char *section_name_) : SqlciCmd(Sqlci
   }
 };
 
-Log::Log(char *argument_, Lng32 arglen_, log_type type_, Int32 commands_only)
+Log::Log(char *argument_, int arglen_, log_type type_, Int32 commands_only)
     : SqlciCmd(SqlciCmd::LOG_TYPE, argument_, arglen_), type(type_), commandsOnly_(commands_only){};
 
 Shape::Shape(NABoolean type, char *infile, char *outfile)
     : SqlciCmd(SqlciCmd::SHAPE_TYPE), type_(type), infile_(infile), outfile_(outfile){};
 
-Statistics::Statistics(char *argument_, Lng32 arglen_, StatsCmdType type, char *statsOptions)
+Statistics::Statistics(char *argument_, int arglen_, StatsCmdType type, char *statsOptions)
     : SqlciCmd(SqlciCmd::STATISTICS_TYPE, argument_, arglen_), type_(type) {
   if (statsOptions) {
     statsOptions_ = new char[strlen(statsOptions) + 1];
@@ -149,7 +149,7 @@ Statistics::~Statistics() {
   if (statsOptions_) delete[] statsOptions_;
 };
 
-QueryId::QueryId(char *argument_, Lng32 arglen_, NABoolean isSet, char *qidVal)
+QueryId::QueryId(char *argument_, int arglen_, NABoolean isSet, char *qidVal)
     : SqlciCmd(SqlciCmd::QUERYID_TYPE, argument_, arglen_), isSet_(isSet), qidVal_(NULL) {
   if ((isSet_) && (qidVal)) {
     qidVal_ = new char[strlen(qidVal) + 1];
@@ -161,13 +161,13 @@ QueryId::~QueryId() {
   if (qidVal_) delete qidVal_;
 }
 
-History::History(char *argument_, Lng32 arglen_) : SqlciCmd(SqlciCmd::HISTORY_TYPE, argument_, arglen_){};
+History::History(char *argument_, int arglen_) : SqlciCmd(SqlciCmd::HISTORY_TYPE, argument_, arglen_){};
 
-ListCount::ListCount(char *argument_, Lng32 arglen_) : SqlciCmd(SqlciCmd::LISTCOUNT_TYPE, argument_, arglen_){};
+ListCount::ListCount(char *argument_, int arglen_) : SqlciCmd(SqlciCmd::LISTCOUNT_TYPE, argument_, arglen_){};
 
 Mode::Mode(ModeType type_, NABoolean value) : SqlciCmd(SqlciCmd::MODE_TYPE), value(value) { type = type_; };
 
-Verbose::Verbose(char *argument_, Lng32 arglen_, VerboseCmdType type)
+Verbose::Verbose(char *argument_, int arglen_, VerboseCmdType type)
     : SqlciCmd(SqlciCmd::VERBOSE_TYPE, argument_, arglen_), type_(type){};
 
 ParserFlags::ParserFlags(ParserFlagsOperation opType_, Int32 param_) : SqlciCmd(SqlciCmd::PARSERFLAGS_TYPE, param_) {
@@ -175,16 +175,16 @@ ParserFlags::ParserFlags(ParserFlagsOperation opType_, Int32 param_) : SqlciCmd(
   param = param_;
 };
 
-Error::Error(char *argument_, Lng32 arglen_, error_type type_) : SqlciCmd(SqlciCmd::ERROR_TYPE, argument_, arglen_) {
+Error::Error(char *argument_, int arglen_, error_type type_) : SqlciCmd(SqlciCmd::ERROR_TYPE, argument_, arglen_) {
   type = type_;
 };
 
-SubError::SubError(char *argument_, Lng32 arglen_, suberror_type type_)
+SubError::SubError(char *argument_, int arglen_, suberror_type type_)
     : SqlciCmd(SqlciCmd::ERROR_TYPE, argument_, arglen_) {
   type = type_;
 };
 
-FCRepeat::FCRepeat(char *argument_, Lng32 arglen_) : SqlciCmd(SqlciCmd::REPEAT_TYPE, argument_, arglen_) {
+FCRepeat::FCRepeat(char *argument_, int arglen_) : SqlciCmd(SqlciCmd::REPEAT_TYPE, argument_, arglen_) {
   cmd = argument_;
 };
 
@@ -194,14 +194,14 @@ FCRepeat::FCRepeat(Int32 argument_, short neg_num_) : SqlciCmd(SqlciCmd::REPEAT_
   cmd = 0;
 };
 
-Exit::Exit(char *argument_, Lng32 arglen_) : SqlciCmd(SqlciCmd::EXIT_TYPE, argument_, arglen_){};
+Exit::Exit(char *argument_, int arglen_) : SqlciCmd(SqlciCmd::EXIT_TYPE, argument_, arglen_){};
 
-Reset::Reset(reset_type type_, char *argument_, Lng32 arglen_)
+Reset::Reset(reset_type type_, char *argument_, int arglen_)
     : SqlciCmd(SqlciCmd::SETPARAM_TYPE, argument_, arglen_), type(type_){};
 
 Reset::Reset(reset_type type_) : SqlciCmd(SqlciCmd::SETPARAM_TYPE), type(type_){};
 
-SetParam::SetParam(char *param_name_, Lng32 namelen_, char *argument_, Lng32 arglen_, CharInfo::CharSet x)
+SetParam::SetParam(char *param_name_, int namelen_, char *argument_, int arglen_, CharInfo::CharSet x)
     : SqlciCmd(SqlciCmd::SETPARAM_TYPE, argument_, arglen_),
       cs(x),
       inSingleByteForm_(TRUE),
@@ -218,7 +218,7 @@ SetParam::SetParam(char *param_name_, Lng32 namelen_, char *argument_, Lng32 arg
   }
 };
 
-SetParam::SetParam(char *param_name_, Lng32 namelen_, NAWchar *argument_, Lng32 arglen_, CharInfo::CharSet x)
+SetParam::SetParam(char *param_name_, int namelen_, NAWchar *argument_, int arglen_, CharInfo::CharSet x)
     : SqlciCmd(SqlciCmd::SETPARAM_TYPE, argument_, arglen_),
       cs(x),
       inSingleByteForm_(FALSE),
@@ -235,7 +235,7 @@ SetParam::SetParam(char *param_name_, Lng32 namelen_, NAWchar *argument_, Lng32 
   }
 };
 
-SetPattern::SetPattern(char *pattern_name_, Lng32 namelen_, char *argument_, Lng32 arglen_)
+SetPattern::SetPattern(char *pattern_name_, int namelen_, char *argument_, int arglen_)
     : SqlciCmd(SqlciCmd::SETPATTERN_TYPE, argument_, arglen_) {
   if (pattern_name_) {
     pattern_name = new char[namelen_ + 1];
@@ -352,7 +352,7 @@ short SetDefaultCharset::process(SqlciEnv *sqlci_env) {
 
     sprintf(cqd_stmt, "CONTROL QUERY DEFAULT DEFAULT_CHARSET '%s';", dcs_uppercase);
 
-    Lng32 retcode = SqlCmd::executeQuery(cqd_stmt, sqlci_env);
+    int retcode = SqlCmd::executeQuery(cqd_stmt, sqlci_env);
 
     if (retcode == 0)
       sqlci_env->setDefaultCharset(CharInfo::getCharSetEnum(dcs_uppercase));
@@ -399,7 +399,7 @@ short SetInferCharset::process(SqlciEnv *sqlci_env) {
 
     sprintf(cqd_stmt, "CONTROL QUERY DEFAULT INFER_CHARSET '%s';", ics_uppercase);
 
-    Lng32 retcode = SqlCmd::executeQuery(cqd_stmt, sqlci_env);
+    int retcode = SqlCmd::executeQuery(cqd_stmt, sqlci_env);
 
     if (retcode == 0) {
       if (ics_uppercase[0] == '1' || ics_uppercase[0] == 'T' /*RUE*/)
@@ -428,9 +428,9 @@ Show::Show(show_type type_, NABoolean allValues) : SqlciCmd(SqlciCmd::SHOW_TYPE)
   type = type_;
 };
 
-SleepVal::SleepVal(Lng32 v) : SqlciCmd(SqlciCmd::SLEEP_TYPE), val_(v){};
+SleepVal::SleepVal(int v) : SqlciCmd(SqlciCmd::SLEEP_TYPE), val_(v){};
 
-Wait::Wait(char *argument_, Lng32 arglen_) : SqlciCmd(SqlciCmd::WAIT_TYPE, argument_, arglen_){};
+Wait::Wait(char *argument_, int arglen_) : SqlciCmd(SqlciCmd::WAIT_TYPE, argument_, arglen_){};
 
 //////////////////////////////////////////////////
 short Exit::process(SqlciEnv *sqlci_env) {
@@ -640,7 +640,6 @@ short Error::process(SqlciEnv *sqlci_env) {
 // Begin SHAPE
 ///////////////////////////////////////////////////
 short Shape::process(SqlciEnv *sqlci_env) {
-  sqlci_env->showShape() = type_;
 
   if (!infile_) return 0;
 
@@ -899,7 +898,7 @@ short Mode::process_sql(SqlciEnv *sqlci_env) {
 }
 
 short QueryId::process(SqlciEnv *sqlci_env) {
-  Lng32 retcode = 0;
+  int retcode = 0;
 
   HandleCLIErrorInit();
 
@@ -943,7 +942,7 @@ short QueryId::process(SqlciEnv *sqlci_env) {
   stmt.identifier = id;
 
   char queryId[200];
-  Lng32 queryIdLen;
+  int queryIdLen;
 
   if (isSet_) {
     // change query id in prep_stmt

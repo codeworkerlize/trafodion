@@ -46,8 +46,8 @@
 // -----------------------------------------------------------------------
 class HeapLogEntry {
  public:
-  Lng32 indx;  // object index
-  Lng32 size;  // object size
+  int indx;  // object index
+  int size;  // object size
   void *addr;  // object address
 };
 
@@ -66,11 +66,11 @@ class HeapLogSegment {
   HeapLogEntry *object_;  // Log entries.  One entry per allocation.
   char name_[25];         // name of the heap.
 
-  Lng32 slotCount_;   // total slots.
-  Lng32 usageCount_;  // number of slots that are used.
-  Lng32 last_;        // the last in-use slot.
-  Lng32 deleted_;     // the slot reset by the previous delete.
-  Lng32 totalSize_;   // total size of in-use objects.
+  int slotCount_;   // total slots.
+  int usageCount_;  // number of slots that are used.
+  int last_;        // the last in-use slot.
+  int deleted_;     // the slot reset by the previous delete.
+  int totalSize_;   // total size of in-use objects.
 
   NABoolean free_;  // true if the segment can be re-assigned
                     // to a new heap.
@@ -88,13 +88,13 @@ class HeapLog {
   // Reset the log for a new tracking session.
   void reset();
   // Add a log entry to track allocations.
-  Lng32 addEntry(void *objAddr, Lng32 objSize, Lng32 heapNum, const char *heapName = NULL);
+  int addEntry(void *objAddr, int objSize, int heapNum, const char *heapName = NULL);
 
   // Prepare to fetch from packdata.
-  Lng32 fetchInit(ULng32 flags, char *packdata, Lng32 datalen);
+  int fetchInit(ULng32 flags, char *packdata, int datalen);
   // Fetch a single line from the log.
   // sqlci: 0->called by arkcmp, 1->called by sqlci.
-  Lng32 fetchLine(char *buf, Lng32 sqlci);
+  int fetchLine(char *buf, int sqlci);
   // cleanup after fetch.
   void close();
 
@@ -113,21 +113,21 @@ class HeapLog {
 
   HeapLogSegment header_[MAX_NUM_HEAPS];
 
-  Lng32 currHeapNum_;   // Most recently assigned heap number.
-  Lng32 objIndex_;      // allocation sequence number for objects.
-  Lng32 disableLevel_;  // to disable logging.
+  int currHeapNum_;   // Most recently assigned heap number.
+  int objIndex_;      // allocation sequence number for objects.
+  int disableLevel_;  // to disable logging.
   NABoolean overflow_;  // true if ever exceeds MAX_NUM_HEAPS.
 
   // Used by fetchLine
   const char **heading_;
-  Lng32 h_;
-  Lng32 s_;
-  Lng32 objCount_;
-  Lng32 status_;
+  int h_;
+  int s_;
+  int objCount_;
+  int status_;
 
   char *packdata_;
-  Lng32 datalen_;
-  Lng32 currlen_;
+  int datalen_;
+  int currlen_;
 };
 
 #endif

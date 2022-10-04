@@ -144,7 +144,7 @@ class REFRESH_LIB_CLASS CRUDupElimTaskExecutor : public CRUTaskExecutor {
   };
 
   //-- Implementation of pure virtual
-  virtual Lng32 GetIpcBufferSize() const;
+  virtual int GetIpcBufferSize() const;
 
  private:
   //-- Prevent copying

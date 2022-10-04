@@ -904,7 +904,7 @@ RelExpr *JoinLeftShiftRule::nextSubstitute(RelExpr *before, Context *context /*c
   return (RelExpr *)result;
 }
 
-Guidance *JoinLeftShiftRule::guidanceForExploringChild(Guidance *, Context *, Lng32) {
+Guidance *JoinLeftShiftRule::guidanceForExploringChild(Guidance *, Context *, int) {
   return new (CmpCommon::statementHeap()) OnceGuidance(JoinToTSJRuleNumber, CmpCommon::statementHeap());
 }
 
@@ -970,7 +970,7 @@ RelExpr *IndexJoinWithGroupbyRule::nextSubstitute(RelExpr *before, Context * /*c
 }
 
 RelExpr *IndexJoinWithGroupbyRule::nextSubstituteForPass(RelExpr *before, RuleSubstituteMemory *&memory,
-                                                         Lng32 /*pass*/) {
+                                                         int /*pass*/) {
   RelExpr *result;
 
   if (memory == NULL) {
@@ -1101,8 +1101,8 @@ ItemExpr *IndexJoinWithGroupbyRule::createCondPred(ItemExpr *selectionPred) {
   ItemExpr *biPred = NULL;
   ItemExpr *biPred0 = NULL;
   ItemExpr *biPred1 = NULL;
-  Lng32 pred0Count = 0;
-  Lng32 pred1Count = 0;
+  int pred0Count = 0;
+  int pred1Count = 0;
 
   // pred1 or pred2
   if (selectionPred->getOperatorType() == ITM_OR) {
@@ -1160,7 +1160,7 @@ ItemExpr *IndexJoinWithGroupbyRule::createCondPred(ItemExpr *selectionPred) {
 }
 
 ItemExpr *IndexJoinWithGroupbyRule::createOrPredicate(ItemExpr *selectionPred,  // in
-                                                      Lng32 &predCount,         // out
+                                                      int &predCount,         // out
                                                       NABoolean &isDynStmt)     // out
 {
   if (!selectionPred) return NULL;
@@ -1168,8 +1168,8 @@ ItemExpr *IndexJoinWithGroupbyRule::createOrPredicate(ItemExpr *selectionPred,  
   ItemExpr *biPred = NULL;
   ItemExpr *biPred0 = NULL;
   ItemExpr *biPred1 = NULL;
-  Lng32 pred0Count = 0;
-  Lng32 pred1Count = 0;
+  int pred0Count = 0;
+  int pred1Count = 0;
 
   // pred1 or pred2
   if (selectionPred->getOperatorType() == ITM_OR) {
@@ -1412,7 +1412,7 @@ RelExpr *IndexJoinWithGroupbyRule::makeSubstituteFromIndexInfo(Scan *bef, ScanIn
 
   // the index predicates go to the left scan
   // TODO : a='' and a=''
-  Lng32 trgmCount = 0;
+  int trgmCount = 0;
   ValueIdSet &pred = bef->selectionPred();
   ValueIdSet selectionpreds;
   if ((CmpCommon::getDefault(RANGESPEC_TRANSFORMATION) == DF_ON) && (bef->selectionPred().entries())) {
@@ -1565,7 +1565,7 @@ RelExpr *IndexJoinRule1::nextSubstitute(RelExpr *before, Context * /*context*/, 
   return nextSubstituteForPass(before, memory, RuleSet::getFirstPassNumber());
 }
 
-RelExpr *IndexJoinRule1::nextSubstituteForPass(RelExpr *before, RuleSubstituteMemory *&memory, Lng32 /*pass*/) {
+RelExpr *IndexJoinRule1::nextSubstituteForPass(RelExpr *before, RuleSubstituteMemory *&memory, int /*pass*/) {
   RelExpr *result;
 
   if (memory == NULL) {
@@ -2587,32 +2587,32 @@ NABoolean RoutineJoinToTSJRule::canBePruned(RelExpr *expr) const {
 // methods for JoinToTSJRule
 // -----------------------------------------------------------------------
 
-static void collectLimitsForNJ2Hive(const NATable *natable, Lng32 &outerTablesThreshold, CostScalar &nj_compute_probes,
-                                    Lng32 &nj_compute_probes_maxcard, char *&tableName, Lng32 &numProbesThreshold,
-                                    Lng32 &maxCardToProbesRatio) {
+static void collectLimitsForNJ2Hive(const NATable *natable, int &outerTablesThreshold, CostScalar &nj_compute_probes,
+                                    int &nj_compute_probes_maxcard, char *&tableName, int &numProbesThreshold,
+                                    int &maxCardToProbesRatio) {
   if (natable->isParquet()) {
-    outerTablesThreshold = (Lng32)(ActiveSchemaDB()->getDefaults()).getAsLong(PARQUET_NJS_OUTER_TABLES_THRESHOLD);
-    nj_compute_probes = (Lng32)(ActiveSchemaDB()->getDefaults()).getAsLong(PARQUET_NJS_CPS_THRESHOLD);
+    outerTablesThreshold = (int)(ActiveSchemaDB()->getDefaults()).getAsLong(PARQUET_NJS_OUTER_TABLES_THRESHOLD);
+    nj_compute_probes = (int)(ActiveSchemaDB()->getDefaults()).getAsLong(PARQUET_NJS_CPS_THRESHOLD);
 
-    nj_compute_probes_maxcard = (Lng32)(ActiveSchemaDB()->getDefaults()).getAsLong(PARQUET_NJS_CPS_MAXCARDINALITY);
+    nj_compute_probes_maxcard = (int)(ActiveSchemaDB()->getDefaults()).getAsLong(PARQUET_NJS_CPS_MAXCARDINALITY);
 
     tableName = (char *)ActiveSchemaDB()->getDefaults().getValue(PARQUET_NJS_CPS_TABLE);
 
-    numProbesThreshold = (Lng32)(ActiveSchemaDB()->getDefaults()).getAsLong(PARQUET_NJS_PROBES_THRESHOLD);
+    numProbesThreshold = (int)(ActiveSchemaDB()->getDefaults()).getAsLong(PARQUET_NJS_PROBES_THRESHOLD);
 
-    maxCardToProbesRatio = (Lng32)(ActiveSchemaDB()->getDefaults()).getAsLong(PARQUET_NJS_PROBES_MAXCARD_FACTOR);
+    maxCardToProbesRatio = (int)(ActiveSchemaDB()->getDefaults()).getAsLong(PARQUET_NJS_PROBES_MAXCARD_FACTOR);
   } else {
     // default to the CQDs for ORC
-    outerTablesThreshold = (Lng32)(ActiveSchemaDB()->getDefaults()).getAsLong(ORC_NJS_OUTER_TABLES_THRESHOLD);
-    nj_compute_probes = (Lng32)(ActiveSchemaDB()->getDefaults()).getAsLong(ORC_NJS_CPS_THRESHOLD);
+    outerTablesThreshold = (int)(ActiveSchemaDB()->getDefaults()).getAsLong(ORC_NJS_OUTER_TABLES_THRESHOLD);
+    nj_compute_probes = (int)(ActiveSchemaDB()->getDefaults()).getAsLong(ORC_NJS_CPS_THRESHOLD);
 
-    nj_compute_probes_maxcard = (Lng32)(ActiveSchemaDB()->getDefaults()).getAsLong(ORC_NJS_CPS_MAXCARDINALITY);
+    nj_compute_probes_maxcard = (int)(ActiveSchemaDB()->getDefaults()).getAsLong(ORC_NJS_CPS_MAXCARDINALITY);
 
     tableName = (char *)ActiveSchemaDB()->getDefaults().getValue((Int32)ORC_NJS_CPS_TABLE);
 
-    numProbesThreshold = (Lng32)(ActiveSchemaDB()->getDefaults()).getAsLong(ORC_NJS_PROBES_THRESHOLD);
+    numProbesThreshold = (int)(ActiveSchemaDB()->getDefaults()).getAsLong(ORC_NJS_PROBES_THRESHOLD);
 
-    maxCardToProbesRatio = (Lng32)(ActiveSchemaDB()->getDefaults()).getAsLong(ORC_NJS_PROBES_MAXCARD_FACTOR);
+    maxCardToProbesRatio = (int)(ActiveSchemaDB()->getDefaults()).getAsLong(ORC_NJS_PROBES_MAXCARD_FACTOR);
   }
 }
 
@@ -2691,7 +2691,7 @@ NABoolean JoinToTSJRule::topMatch(RelExpr *expr, Context *context) {
   // do we have analysis?
   NABoolean hasAnalysis = QueryAnalysis::Instance()->isAnalysisON();
 
-  Lng32 mtd_mdam_uec_threshold = (Lng32)(ActiveSchemaDB()->getDefaults()).getAsLong(MTD_MDAM_NJ_UEC_THRESHOLD);
+  int mtd_mdam_uec_threshold = (int)(ActiveSchemaDB()->getDefaults()).getAsLong(MTD_MDAM_NJ_UEC_THRESHOLD);
 
   GroupAttributes *c0GA = joinExpr->child(0).getGroupAttr();
   GroupAttributes *c1GA = joinExpr->child(1).getGroupAttr();
@@ -2704,12 +2704,12 @@ NABoolean JoinToTSJRule::topMatch(RelExpr *expr, Context *context) {
     if (!NJisOnlyOption) {
       // collect hive NJ control limits specified through CQDs, one set
       // per hive storage format: ORC, PARQUET, ... ...
-      Lng32 outerTablesThreshold = 0;
+      int outerTablesThreshold = 0;
       CostScalar nj_compute_probes = 0;
       char *tableName = NULL;
-      Lng32 nj_compute_probes_maxcard = 0;
-      Lng32 numProbesThreshold = 0;
-      Lng32 maxCardToProbesRatio = 0;
+      int nj_compute_probes_maxcard = 0;
+      int numProbesThreshold = 0;
+      int maxCardToProbesRatio = 0;
 
       collectLimitsForNJ2Hive(availIndexes[0]->getPrimaryTableDesc()->getNATable(), outerTablesThreshold,
                               nj_compute_probes, nj_compute_probes_maxcard, tableName, numProbesThreshold,
@@ -2814,8 +2814,8 @@ NABoolean JoinToTSJRule::topMatch(RelExpr *expr, Context *context) {
 
       NABoolean nj_check_leading_key_skew = (CmpCommon::getDefault(NESTED_JOINS_CHECK_LEADING_KEY_SKEW) == DF_ON);
 
-      Lng32 nj_leading_key_skew_threshold =
-          (Lng32)(ActiveSchemaDB()->getDefaults()).getAsLong(NESTED_JOINS_LEADING_KEY_SKEW_THRESHOLD);
+      int nj_leading_key_skew_threshold =
+          (int)(ActiveSchemaDB()->getDefaults()).getAsLong(NESTED_JOINS_LEADING_KEY_SKEW_THRESHOLD);
 
       // try to find a predicate that matches
       // 1st nonconstant key prefix column
@@ -2978,7 +2978,7 @@ NABoolean JoinToTSJRule::topMatch(RelExpr *expr, Context *context) {
     //   outerRows * 2097 > innerSize
     // 2097 or 2000 is a very rough ratio that can change over time
     // so we take it as a CQD setting
-    Lng32 ratio = (ActiveSchemaDB()->getDefaults()).getAsLong(HJ_SCAN_TO_NJ_PROBE_SPEED_RATIO);
+    int ratio = (ActiveSchemaDB()->getDefaults()).getAsLong(HJ_SCAN_TO_NJ_PROBE_SPEED_RATIO);
 
     if (CURRSTMT_OPTDEFAULTS->isHashJoinConsidered()
             AND ratio > 0 AND !(joinExpr->getGroupAttr()->isSeabaseMDTable())) {
@@ -3518,7 +3518,7 @@ RelExpr *TSJRule::nextSubstitute(RelExpr *before, Context * /*context*/, RuleSub
 // methods for FilterRule
 // -----------------------------------------------------------------------
 
-Guidance *FilterRule::guidanceForExploringChild(Guidance *, Context *, Lng32) {
+Guidance *FilterRule::guidanceForExploringChild(Guidance *, Context *, int) {
   return new (CmpCommon::statementHeap()) FilterGuidance(CmpCommon::statementHeap());
 }
 
@@ -4642,7 +4642,7 @@ NABoolean GroupBySplitRule::topMatch(RelExpr *expr, Context *context) {
     }
   }
 
-  Lng32 dc = distinctColumns.entries();
+  int dc = distinctColumns.entries();
 
   if (dc > 0) {
     // If there exists an aggregate distinct, fire the

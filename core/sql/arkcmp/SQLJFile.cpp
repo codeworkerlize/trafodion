@@ -26,7 +26,7 @@
 #include "Cmdline_Args.h"
 #include "export/ComDiags.h"
 #include "common/DgBaseType.h"
-#include "ErrorMessage.h"
+#include "sqlmsg/ErrorMessage.h"
 #include "SQLJFile.h"
 #include "common/DgBaseType.h"
 #include "ExtQualModuleNames.h"
@@ -42,7 +42,7 @@ SQLJFile::~SQLJFile() {}
 // return true if all OK.
 bool SQLJFile::openFile(Cmdline_Args &args) {
   // put together MDFWriter invocation
-  Lng32 cmdLen;
+  int cmdLen;
   char cmd[1024], *cmdP = cmd, *moduleNamesOption, cmfn[L_tmpnam + 40];
   char *errFileName, errFileNm[L_tmpnam + 20];
   char *outputFileName, outputFileNm[L_tmpnam + 20];

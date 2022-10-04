@@ -96,7 +96,7 @@ ComTdbPackRows::ComTdbPackRows(const ComTdbPackRows *packTdb)
 //      with the parent.
 //
 ComTdbPackRows::ComTdbPackRows(ComTdb *childTdb, ex_expr *packExpr, ex_expr *predExpr,
-                               const unsigned short packTuppIndex, Lng32 packTuppLen, ex_cri_desc *givenCriDesc,
+                               const unsigned short packTuppIndex, int packTuppLen, ex_cri_desc *givenCriDesc,
                                ex_cri_desc *returnedCriDesc, queue_index fromParent, queue_index toParent)
     : ComTdb(ComTdb::ex_PACKROWS, eye_PACKROWS),
       childTdb_(childTdb),
@@ -132,7 +132,7 @@ Long ComTdbPackRows::pack(void *space) {
 }
 
 // Unpack the pack TDB after transmission between processes.
-Lng32 ComTdbPackRows::unpack(void *base, void *reallocator) {
+int ComTdbPackRows::unpack(void *base, void *reallocator) {
   if (childTdb_.unpack(base, reallocator)) return -1;
   if (givenCriDesc_.unpack(base, reallocator)) return -1;
   if (returnedCriDesc_.unpack(base, reallocator)) return -1;

@@ -60,8 +60,8 @@ class NAWString : public NABasicObject {
   typedef folly::basic_fbstring<NAWchar> FBWString;
 #endif
 
-  NAWString(Lng32 charset, const char *str, NAMemory *h = NAWSTRING_UNINIT_HEAP_PTR);
-  NAWString(Lng32 charset, const char *str, size_t, NAMemory *h = NAWSTRING_UNINIT_HEAP_PTR);
+  NAWString(int charset, const char *str, NAMemory *h = NAWSTRING_UNINIT_HEAP_PTR);
+  NAWString(int charset, const char *str, size_t, NAMemory *h = NAWSTRING_UNINIT_HEAP_PTR);
   NAWString(const NAWchar *, size_t, NAMemory *h = NAWSTRING_UNINIT_HEAP_PTR);
   NAWString(const NAWchar *, NAMemory *h = NAWSTRING_UNINIT_HEAP_PTR);
   NAWString(const NAWString &, NAMemory *h = NAWSTRING_UNINIT_HEAP_PTR);
@@ -136,8 +136,8 @@ class NAWString : public NABasicObject {
  protected:
   NAWString(const NAWchar *a1, size_t N1, const NAWchar *a2, size_t N2, NAMemory *h);
 
-  void initFromSingleByteString(Lng32 charset, const char *str, size_t N, NAMemory *h);
-  void initFromVariableWidthMultiByteString(Lng32 charset, const char *str, size_t N, NAMemory *h);
+  void initFromSingleByteString(int charset, const char *str, size_t N, NAMemory *h);
+  void initFromVariableWidthMultiByteString(int charset, const char *str, size_t N, NAMemory *h);
 
  private:
   // ====================================================================

@@ -68,11 +68,11 @@ NABoolean MVJoinTable::operator==(const MVJoinTable &other) const {
 //    So if O(a,b) is referencing C(x,y) the join should use these two equal
 //    predicates: (O.a = C.x) AND (O.b = C.y).
 // In this method, this table is O, and otherTable is C.
-Lng32 MVJoinTable::markRiConstraints(BindWA *bindWA, MVInfo *mvInfo) {
+int MVJoinTable::markRiConstraints(BindWA *bindWA, MVInfo *mvInfo) {
   LIST(MVUsedObjectInfo *) &usedObjects = mvInfo->getUsedObjectsList();
   if (usedObjects[tableIndex_]->isInnerTableOfLeftJoin()) return 0;  // O must not be inner table of a left join.
 
-  Lng32 howManyRIs = 0;
+  int howManyRIs = 0;
   const AbstractRIConstraintList &refConstraints = naTable_->getRefConstraints();
 
   for (CollIndex i = 0; i < refConstraints.entries(); i++) {
@@ -89,11 +89,11 @@ Lng32 MVJoinTable::markRiConstraints(BindWA *bindWA, MVInfo *mvInfo) {
 
     if (otherTable->deltaType_ != INSERTONLY_DELTA) continue;  // C must be insert only.
 
-    Lng32 otherTableIndex = otherTable->getTableIndex();
+    int otherTableIndex = otherTable->getTableIndex();
 
     // The RI must be covered by equal predicates on the same columns
-    LIST(Lng32) myCols(NULL);
-    LIST(Lng32) otherCols(NULL);
+    LIST(int) myCols(NULL);
+    LIST(int) otherCols(NULL);
     ref->getMyKeyColumns(myCols);
     ref->getOtherTableKeyColumns(bindWA, otherCols);
     CMPASSERT(myCols.entries() == otherCols.entries());
@@ -154,17 +154,17 @@ NABoolean MVJoinTable::isOnRI(const MVJoinGraphState &state) const {
 // 4. Predicates from this table to tables in the available set.
 //    Better chances for connectivity.
 // This method is called O(n^3) times.
-Lng32 MVJoinTable::calcHeuristics(const MVJoinGraphState &state) const {
+int MVJoinTable::calcHeuristics(const MVJoinGraphState &state) const {
   // These are the weights used by the heuristic function.
   enum { WEIGHT_ON_RI = 100, WEIGHT_OUTGOING_RI = 100, WEIGHT_PREDICATE = 1, WEIGHT_INCOMING_RI = -200 };
 
-  Lng32 score = 0;
+  int score = 0;
 
   // Check the predicates first.
   NABitVector predicatesToAS(predicateBitmap_);
   predicatesToAS.intersectSet(state.getAvailableBitmap());
 
-  Lng32 preds = (Lng32)predicatesToAS.entries();
+  int preds = (int)predicatesToAS.entries();
   score += preds * WEIGHT_PREDICATE;  // Category 4
 
   // If there are no RIs, the result is based on predicates alone.
@@ -174,14 +174,14 @@ Lng32 MVJoinTable::calcHeuristics(const MVJoinGraphState &state) const {
   NABitVector outRisToAS(outgoingRiBitmap_);
   outRisToAS.intersectSet(state.getAvailableBitmap());
 
-  Lng32 outRIs = (Lng32)outRisToAS.entries();
+  int outRIs = (int)outRisToAS.entries();
   score += outRIs * WEIGHT_OUTGOING_RI;  // Category 2
 
   // Check incoming RIs from the available set.
   NABitVector inRisFromAS(incomingRiBitmap_);
   inRisFromAS.intersectSet(state.getAvailableBitmap());
 
-  Lng32 inRIs = (Lng32)inRisFromAS.entries();
+  int inRIs = (int)inRisFromAS.entries();
   score += inRIs * WEIGHT_INCOMING_RI;  // Category 3
 
   // Is this table on RI now?
@@ -251,14 +251,14 @@ void MVJoinTable::display() const { print(); }
 
 //////////////////////////////////////////////////////////////////////////////
 // Ctor. Initialize the route_ array.
-MVJoinGraphSolution::MVJoinGraphSolution(Lng32 nofTables, CollHeap *heap)
+MVJoinGraphSolution::MVJoinGraphSolution(int nofTables, CollHeap *heap)
     : route_(heap, nofTables), entries_(0), bitmap_(heap), riTables_(heap, nofTables) {
-  for (Lng32 i = 0; i < nofTables; i++) route_.insert(i, -1);
+  for (int i = 0; i < nofTables; i++) route_.insert(i, -1);
 }
 
 //////////////////////////////////////////////////////////////////////////////
 // Add a table to the route_
-void MVJoinGraphSolution::pushTable(Lng32 tableIndex, NABoolean isOnRi) {
+void MVJoinGraphSolution::pushTable(int tableIndex, NABoolean isOnRi) {
   route_[entries_] = tableIndex;
   bitmap_.setBit(tableIndex);
   entries_++;
@@ -268,7 +268,7 @@ void MVJoinGraphSolution::pushTable(Lng32 tableIndex, NABoolean isOnRi) {
 //////////////////////////////////////////////////////////////////////////////
 // Start fresh with a new clean route.
 void MVJoinGraphSolution::reset() {
-  for (Lng32 i = 0; i < entries_; i++) {
+  for (int i = 0; i < entries_; i++) {
     bitmap_.resetBit(route_[i]);
     route_[i] = -1;
   }
@@ -281,7 +281,7 @@ void MVJoinGraphSolution::reset() {
 #ifndef NDEBUG
 void MVJoinGraphSolution::print(FILE *ofd, const char *indent, const char *title) const {
   fprintf(ofd, "\nMVJoinGraphSolution (Score: %d): ", getScore());
-  for (Lng32 i = 0; i < entries_; i++) fprintf(ofd, "%d, ", route_[i]);
+  for (int i = 0; i < entries_; i++) fprintf(ofd, "%d, ", route_[i]);
   fprintf(ofd, ".\n");
 }
 
@@ -294,7 +294,7 @@ void MVJoinGraphSolution::display() const { print(); }
 
 //////////////////////////////////////////////////////////////////////////////
 // Ctor. Initialize the availableBitmap according to the available set.
-MVJoinGraphState::MVJoinGraphState(Lng32 nofTables, Lng32 nofRIs, const MVTableSet &reorderGroup, CollHeap *heap)
+MVJoinGraphState::MVJoinGraphState(int nofTables, int nofRIs, const MVTableSet &reorderGroup, CollHeap *heap)
     : nofTables_(nofTables),
       nofRI_(nofRIs),
       connectedSet_(heap, nofTables),
@@ -313,15 +313,15 @@ MVJoinGraphState::MVJoinGraphState(Lng32 nofTables, Lng32 nofRIs, const MVTableS
 // Return -1 if there are no predicates from any table in the connected set
 // to any table in the available set. This means the graph is not connected.
 // This method does not yet take into account left outer joins.
-Lng32 MVJoinGraphState::pickNextTable(const MVJoinGraph &joinGraph, NABoolean isFirst) const {
-  Lng32 maxResult = -1000000;  // Negative scores are bad but legal.
-  Lng32 maxTable = -1;
+int MVJoinGraphState::pickNextTable(const MVJoinGraph &joinGraph, NABoolean isFirst) const {
+  int maxResult = -1000000;  // Negative scores are bad but legal.
+  int maxTable = -1;
 
   const MVTableSet &availableTables = isFirst ? joinGraph.getNotStartedSet() : availableSet_;
 
   // Find the score for each of the available tables.
   for (CollIndex i = 0; i < availableTables.entries(); i++) {
-    Lng32 currentTableIndex = availableTables[i];
+    int currentTableIndex = availableTables[i];
     const MVJoinTable *currentTable = joinGraph.getTableObjectAt(currentTableIndex);
 
     // If this is the first table on the route, there is nothing in the
@@ -330,7 +330,7 @@ Lng32 MVJoinGraphState::pickNextTable(const MVJoinGraph &joinGraph, NABoolean is
     if (!isFirst && !currentTable->isOnPredicate(*this)) continue;
 
     // Calculate the heuristic score for the current table.
-    Lng32 currentResult = currentTable->calcHeuristics(*this);
+    int currentResult = currentTable->calcHeuristics(*this);
 
     // Is it the best so far?
     if (currentResult > maxResult) {
@@ -344,7 +344,7 @@ Lng32 MVJoinGraphState::pickNextTable(const MVJoinGraph &joinGraph, NABoolean is
 
 //////////////////////////////////////////////////////////////////////////////
 // Update the state according to the next table that was chosen.
-void MVJoinGraphState::nextTableIs(Lng32 tableIndex, NABoolean isOnRI) {
+void MVJoinGraphState::nextTableIs(int tableIndex, NABoolean isOnRI) {
   // Add the table to the connected set.
   connectedSet_.insert(tableIndex);
 
@@ -393,7 +393,7 @@ void MVJoinGraph::addTable(MVJoinTable *newNode) {
 
 //////////////////////////////////////////////////////////////////////////////
 // Prepare a table object and add it to the graph.
-void MVJoinGraph::addTable(Lng32 tableIndex, Lng32 usedObjectsIndex, const NATable *naTable) {
+void MVJoinGraph::addTable(int tableIndex, int usedObjectsIndex, const NATable *naTable) {
   MVJoinTable *newNode = new (heap_) MVJoinTable(tableIndex, usedObjectsIndex, nofTables_, naTable, heap_);
   addTable(newNode);
 }
@@ -418,11 +418,11 @@ void MVJoinGraph::markPredicateBetween(const QualifiedName &leftTable, const Qua
 
   // Find the index of the left table.
   MVJoinTable *leftTableObj = tableHash_.getFirstValue(&leftTableName);
-  Lng32 leftIndex = leftTableObj->getTableIndex();
+  int leftIndex = leftTableObj->getTableIndex();
 
   // Find the index of the right table.
   MVJoinTable *rightTableObj = tableHash_.getFirstValue(&rightTableName);
-  Lng32 rightIndex = rightTableObj->getTableIndex();
+  int rightIndex = rightTableObj->getTableIndex();
 
   // Mark the predicate on both tables.
   leftTableObj->markPredicateTo(rightIndex);
@@ -432,7 +432,7 @@ void MVJoinGraph::markPredicateBetween(const QualifiedName &leftTable, const Qua
 //////////////////////////////////////////////////////////////////////////////
 // Mark the RI constraints for all the tables.
 void MVJoinGraph::markRiConstraints(BindWA *bindWA, MVInfo *mvInfo) {
-  for (Lng32 i = 0; i < nofTables_; i++) nofRI_ += usedTables_[i]->markRiConstraints(bindWA, mvInfo);
+  for (int i = 0; i < nofTables_; i++) nofRI_ += usedTables_[i]->markRiConstraints(bindWA, mvInfo);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -440,7 +440,7 @@ void MVJoinGraph::markRiConstraints(BindWA *bindWA, MVInfo *mvInfo) {
 // Return TRUE if a solution was found, FALSE if not.
 NABoolean MVJoinGraph::findSolutionFrom(MVJoinGraphState &state) {
   while (!state.isComplete()) {
-    Lng32 nextTable = state.pickNextTable(*this, FALSE);
+    int nextTable = state.pickNextTable(*this, FALSE);
     if (nextTable == -1) {
       // No predicates to tables in the available set - the graph is not
       // fully connected.
@@ -483,12 +483,12 @@ NABoolean MVJoinGraph::isFullyConnected() {
 #endif
 
   // start with one group of all tables.
-  for (Lng32 i = 0; i < nofTables_; i++) reorderGroupSet_.insert(i);
+  for (int i = 0; i < nofTables_; i++) reorderGroupSet_.insert(i);
   notStartedSet_ = reorderGroupSet_;
   MVJoinGraphState state(nofTables_, nofRI_, reorderGroupSet_, heap_);
 
   // Choose a first table to start from (according to predicates).
-  Lng32 nextTable = state.pickNextTable(*this, TRUE);
+  int nextTable = state.pickNextTable(*this, TRUE);
   CMPASSERT(nextTable != -1);
   state.nextTableIs(nextTable, FALSE);
 
@@ -522,11 +522,11 @@ void MVJoinGraph::markOrderOfUsedObjects(MVInfoForDDL *mvInfo) {
     return;
   }
 
-  for (Lng32 i = 0; i < nofTables_; i++) {
+  for (int i = 0; i < nofTables_; i++) {
     // Get the tableIndex
-    Lng32 tableIndex = finalRoute[i];
+    int tableIndex = finalRoute[i];
     // Find the index into the usedObjects list.
-    Lng32 usedObjectsIndex = usedTables_[tableIndex]->getUsedObjectsIndex();
+    int usedObjectsIndex = usedTables_[tableIndex]->getUsedObjectsIndex();
     // Get the usedObject from the list.
     MVUsedObjectInfo *usedInfo = usedObjects[usedObjectsIndex];
 
@@ -547,14 +547,14 @@ void MVJoinGraph::findBestOrder() {
 #endif
 
   // start with one group of all tables.
-  for (Lng32 i = 0; i < nofTables_; i++) reorderGroupSet_.insert(i);
+  for (int i = 0; i < nofTables_; i++) reorderGroupSet_.insert(i);
   notStartedSet_ = reorderGroupSet_;
   MVJoinGraphState state(nofTables_, nofRI_, reorderGroupSet_, heap_);
 
   NABoolean done = FALSE;
   while (!done && notStartedSet_.entries() > 0) {
     // Choose a table to start from
-    Lng32 firstTable = state.pickNextTable(*this, TRUE);
+    int firstTable = state.pickNextTable(*this, TRUE);
     CMPASSERT(firstTable != -1);
     state.nextTableIs(firstTable, FALSE);
     notStartedSet_.remove(firstTable);
@@ -586,8 +586,8 @@ void MVJoinGraph::findBestOrder() {
 // Return the route of the solution, translated into indices to the used
 // objects array.
 void MVJoinGraph::getRouteOfSolution(GraphRoute &translatedRoute) const {
-  for (Lng32 i = 0; i < nofTables_; i++) {
-    Lng32 usedObjectIndex = usedTables_[i]->getUsedObjectsIndex();
+  for (int i = 0; i < nofTables_; i++) {
+    int usedObjectIndex = usedTables_[i]->getUsedObjectsIndex();
     translatedRoute.insertAt(i, usedObjectIndex);
   }
 }
@@ -595,7 +595,7 @@ void MVJoinGraph::getRouteOfSolution(GraphRoute &translatedRoute) const {
 //////////////////////////////////////////////////////////////////////////////
 // Return TRUE if all the deltas are either empty or insert only.
 NABoolean MVJoinGraph::isInsertOnlyRefresh() const {
-  for (Lng32 i = 0; i < nofTables_; i++) {
+  for (int i = 0; i < nofTables_; i++) {
     if (usedTables_[i]->isNonEmptyDelta()) return FALSE;
   }
 
@@ -606,7 +606,7 @@ NABoolean MVJoinGraph::isInsertOnlyRefresh() const {
 #ifndef NDEBUG
 void MVJoinGraph::print(FILE *ofd, const char *indent, const char *title) const {
   fprintf(ofd, "\nMVJoinGraph:\n");
-  for (Lng32 i = 0; i < nofTables_; i++) usedTables_.at(i)->print(ofd);
+  for (int i = 0; i < nofTables_; i++) usedTables_.at(i)->print(ofd);
 }
 
 void MVJoinGraph::display() const { print(); }

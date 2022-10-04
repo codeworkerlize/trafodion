@@ -74,7 +74,7 @@ class StmtDDLRoleGrant : public StmtDDLNode {
   inline ComDropBehavior getDropBehavior() const;
   inline const ComBoolean isWithAdminOptionSpecified() const { return withAdmin_; };
   virtual Int32 getArity() const;
-  virtual ExprNode *getChild(Lng32 index);
+  virtual ExprNode *getChild(int index);
 
   // for tracing
 
@@ -82,7 +82,7 @@ class StmtDDLRoleGrant : public StmtDDLNode {
   // virtual const NAString getText() const;
 
   // mutator
-  virtual void setChild(Lng32 index, ExprNode *pChildNode);
+  virtual void setChild(int index, ExprNode *pChildNode);
 
   inline const ElemDDLGranteeArray &getGranteeArray() const;
   inline ElemDDLGranteeArray &getGranteeArray();

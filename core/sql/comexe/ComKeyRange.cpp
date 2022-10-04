@@ -99,7 +99,7 @@ Long keyRangeGen::pack(void *space) {
   return NAVersionedObject::pack(space);
 }
 
-Lng32 keyRangeGen::unpack(void *base, void *reallocator) {
+int keyRangeGen::unpack(void *base, void *reallocator) {
   if (workCriDesc_.unpack(base, reallocator)) return -1;
   return NAVersionedObject::unpack(base, reallocator);
 }

@@ -83,7 +83,7 @@ void findnumleaves(ItemExpr *exp, Int32 &degree) {
   }
 }  // findnumleaves()
 
-void collectAttributes(ItemExpr *exp, Lng32 degree, Int32 &counter, Attributes **attr, Generator *generator) {
+void collectAttributes(ItemExpr *exp, int degree, Int32 &counter, Attributes **attr, Generator *generator) {
   GenAssert((counter <= degree), "Row attributes not set properly");
 
   for (short i = 0; i < exp->getArity(); i++) {
@@ -95,7 +95,7 @@ void collectAttributes(ItemExpr *exp, Lng32 degree, Int32 &counter, Attributes *
   }
 
 }  // collectAttributes()
-void ItemExpr::codegen_and_set_attributes(Generator *generator, Attributes **attr, Lng32 num_attrs) {
+void ItemExpr::codegen_and_set_attributes(Generator *generator, Attributes **attr, int num_attrs) {
   for (short i = 0; i < num_attrs - 1; i++)  // here num_attrs-1 refers to Arity()
   {
     if (!child(i)) continue;
@@ -113,7 +113,7 @@ void ItemExpr::codegen_and_set_attributes(Generator *generator, Attributes **att
   }
 }  // ItemExpr::codegen_and_set_attributes()
 
-void Aggregate::codegen_and_set_attributes(Generator *generator, Attributes **attr, Lng32 num_attrs) {
+void Aggregate::codegen_and_set_attributes(Generator *generator, Attributes **attr, int num_attrs) {
   if (getOperatorType() != ITM_ONE_ROW) {
     ItemExpr::codegen_and_set_attributes(generator, attr, num_attrs);
   } else {
@@ -171,7 +171,7 @@ short Aggregate::codeGen(Generator *generator) {
 
       CharType &charType = (CharType &)operand;
 
-      Lng32 maxLength = charType.getDataStorageSize();
+      int maxLength = charType.getDataStorageSize();
 
       NABoolean dumpDebugData = (getenv("DEBUG_FILTERS") != NULL);
 
@@ -645,7 +645,7 @@ short RangeCompare::codeGen(Generator *generator) {
 
   CharType &charType = (CharType &)operand1;
 
-  Lng32 maxLength = charType.getDataStorageSize();
+  int maxLength = charType.getDataStorageSize();
 
   // the RV function should be initialized with a filter with the same length as the
   // 2nd child.

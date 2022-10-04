@@ -50,15 +50,15 @@ Hint *Hint::addIndexHint(const NAString &indexName) {
 
 void Hint::setCqdsInHint(NAHashDictionary<NAString, NAString> *p) { pCqdsInHint_ = p; }
 
-Int64 OptHbaseAccessOptions::computeHbaseTS(const char *tsStr) {
+long OptHbaseAccessOptions::computeHbaseTS(const char *tsStr) {
   UInt32 fracPrec;
 
   NAString epochStr("1970-01-01:00:00:00");
   DatetimeValue epochDT(epochStr, REC_DATE_YEAR, REC_DATE_SECOND, fracPrec,
                         (CmpCommon::getDefault(USE_OLD_DT_CONSTRUCTOR) == DF_ON));
-  Int64 epochJTS = DatetimeType::julianTimestampValue((char *)epochDT.getValue(), epochDT.getValueLen(), fracPrec);
+  long epochJTS = DatetimeType::julianTimestampValue((char *)epochDT.getValue(), epochDT.getValueLen(), fracPrec);
 
-  Int64 jts = 0;
+  long jts = 0;
   if (tsStr) {
     DatetimeValue dtVal(tsStr, REC_DATE_YEAR, REC_DATE_SECOND, fracPrec,
                         (CmpCommon::getDefault(USE_OLD_DT_CONSTRUCTOR) == DF_ON));
@@ -75,7 +75,7 @@ Int64 OptHbaseAccessOptions::computeHbaseTS(const char *tsStr) {
       return -1;
     }
 
-    if (CmpCommon::context()->gmtDiff() != 0) jts += (Int64)(CmpCommon::context()->gmtDiff()) * 60 * 1000000;
+    if (CmpCommon::context()->gmtDiff() != 0) jts += (long)(CmpCommon::context()->gmtDiff()) * 60 * 1000000;
   } else
     jts = epochJTS;
 
@@ -86,18 +86,18 @@ Int64 OptHbaseAccessOptions::computeHbaseTS(const char *tsStr) {
 
 short OptHbaseAccessOptions::setHbaseTS(const char *minTSstr, const char *maxTSstr) {
   UInt32 fracPrec;
-  Int64 minJTS = -1;
-  Int64 maxJTS = -1;
+  long minJTS = -1;
+  long maxJTS = -1;
 
   NAString epochStr("1970-01-01:00:00:00");
   DatetimeValue epochDT(epochStr, REC_DATE_YEAR, REC_DATE_SECOND, fracPrec,
                         (CmpCommon::getDefault(USE_OLD_DT_CONSTRUCTOR) == DF_ON));
-  Int64 epochJTS = DatetimeType::julianTimestampValue((char *)epochDT.getValue(), epochDT.getValueLen(), fracPrec);
+  long epochJTS = DatetimeType::julianTimestampValue((char *)epochDT.getValue(), epochDT.getValueLen(), fracPrec);
 
   NAString highestStr("9999-12-31:00:00:00");
   DatetimeValue highestDT(highestStr, REC_DATE_YEAR, REC_DATE_SECOND, fracPrec,
                           (CmpCommon::getDefault(USE_OLD_DT_CONSTRUCTOR) == DF_ON));
-  Int64 highestJTS =
+  long highestJTS =
       DatetimeType::julianTimestampValue((char *)highestDT.getValue(), highestDT.getValueLen(), fracPrec);
 
   minJTS = computeHbaseTS(minTSstr);
@@ -118,7 +118,7 @@ short OptHbaseAccessOptions::setHbaseTS(const char *minTSstr, const char *maxTSs
   return 0;
 }
 
-OptHbaseAccessOptions::OptHbaseAccessOptions(Lng32 v, NAMemory *h) : HbaseAccessOptions(), isValid_(TRUE) {
+OptHbaseAccessOptions::OptHbaseAccessOptions(int v, NAMemory *h) : HbaseAccessOptions(), isValid_(TRUE) {
   setNumVersions(v);
 }
 
@@ -146,7 +146,7 @@ const NAString *OptHbaseAccessOptions::getControlTableValue(const QualifiedName 
 short OptHbaseAccessOptions::setVersionsFromDef(QualifiedName &tableName) {
   const NAString *haStrNAS = getControlTableValue(tableName, "HBASE_VERSIONS");
   if (haStrNAS) {
-    Int64 n = atoi(haStrNAS->data());
+    long n = atoi(haStrNAS->data());
     if ((n == -1) || (n == -2) || (n > 1))
       setNumVersions(n);
     else {

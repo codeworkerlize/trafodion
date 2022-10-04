@@ -34,10 +34,10 @@ class SplitBottomSkewInfo : public NAVersionedObject {
  public:
   SplitBottomSkewInfo() : NAVersionedObject(-1), numSkewHashValues_(0), skewHashValues_(NULL) {}
 
-  SplitBottomSkewInfo(Int32 numSkewHashValues, Int64 *skewHashValues)
+  SplitBottomSkewInfo(Int32 numSkewHashValues, long *skewHashValues)
       : numSkewHashValues_(numSkewHashValues), skewHashValues_(skewHashValues) {}
 
-  const Int64 *getSkewHashValues(void) { return skewHashValues_; };
+  const long *getSkewHashValues(void) { return skewHashValues_; };
 
   const Int32 getNumSkewHashValues(void) { return numSkewHashValues_; };
 
@@ -51,7 +51,7 @@ class SplitBottomSkewInfo : public NAVersionedObject {
   virtual short getClassSize() { return (short)sizeof(SplitBottomSkewInfo); }
 
   Long pack(void *);
-  Lng32 unpack(void *base, void *reallocator);
+  int unpack(void *base, void *reallocator);
 
  private:
   Int32 numSkewHashValues_;               // 00-03
@@ -77,11 +77,11 @@ class ComTdbSplitBottom : public ComTdb {
   ComTdbSplitBottom() : ComTdb(ex_SPLIT_BOTTOM, "FAKE") {}
 
   // real constructor, used by generator
-  ComTdbSplitBottom(ComTdb *child, ComTdbSendBottom *sendTdb, ex_expr *partFunction, Lng32 partNoATPIndex,
-                    Lng32 partFunctionUsesNarrow, Lng32 conversionErrorFlagATPIndex, Lng32 partInputATPIndex,
-                    Lng32 partInputDataLen, Cardinality estimatedRowCount, ex_cri_desc *givenCriDesc,
-                    ex_cri_desc *returnedCriDesc, ex_cri_desc *workCriDesc, NABoolean combineRequests, Lng32 topNumESPs,
-                    Lng32 topNumParts, Lng32 bottomNumESPs, Lng32 bottomNumParts, SplitBottomSkewInfo *skewInfo,
+  ComTdbSplitBottom(ComTdb *child, ComTdbSendBottom *sendTdb, ex_expr *partFunction, int partNoATPIndex,
+                    int partFunctionUsesNarrow, int conversionErrorFlagATPIndex, int partInputATPIndex,
+                    int partInputDataLen, Cardinality estimatedRowCount, ex_cri_desc *givenCriDesc,
+                    ex_cri_desc *returnedCriDesc, ex_cri_desc *workCriDesc, NABoolean combineRequests, int topNumESPs,
+                    int topNumParts, int bottomNumESPs, int bottomNumParts, SplitBottomSkewInfo *skewInfo,
                     short minMaxValsWorkAtpIndex, ULng32 minMaxRowLength, ULng32 minValStartOffset, ex_expr *minMaxExpr,
                     ex_expr *minMaxMoveOutExpr);
 
@@ -99,10 +99,10 @@ class ComTdbSplitBottom : public ComTdb {
 
   Int32 orderedQueueProtocol() const;
 
-  inline Lng32 getPartInputDataLen() const { return partInputDataLen_; }
+  inline int getPartInputDataLen() const { return partInputDataLen_; }
 
   Long pack(void *);
-  Lng32 unpack(void *, void *reallocator);
+  int unpack(void *, void *reallocator);
 
   void display() const;
 
@@ -157,7 +157,7 @@ class ComTdbSplitBottom : public ComTdb {
   SplitBottomSkewInfo *getSkewInfo() { return skewInfo_; }
   const Int32 getNumSkewValues(void) { return getSkewInfo()->numSkewHashValues_; }
   // those 3 lines won't be covered, code nowhere used
-  Int64 const *hashValueArray(void) { return getSkewInfo()->skewHashValues_; }
+  long const *hashValueArray(void) { return getSkewInfo()->skewHashValues_; }
 
   // for GUI
   virtual const ComTdb *getChild(Int32 pos) const;
@@ -201,7 +201,7 @@ class ComTdbSplitBottom : public ComTdb {
 
   void setAbendType(Int32 a) { abendType_ = a; }
 
-  void setCpuLimit(Int64 cpuLimit) { cpuLimit_ = cpuLimit; }
+  void setCpuLimit(long cpuLimit) { cpuLimit_ = cpuLimit; }
 
   void setCpuLimitCheckFreq(Int32 f) { cpuLimitCheckFreq_ = f; }
 
@@ -281,7 +281,7 @@ class ComTdbSplitBottom : public ComTdb {
 
   UInt16 finalRoundRobin_;   // 100-101
   Int16 cpuLimitCheckFreq_;  // 102-103
-  Int64 cpuLimit_;           // 104-111
+  long cpuLimit_;           // 104-111
 
   // Added for support of the MIN/MAX optimization
   // for type-1 HJ.

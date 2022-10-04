@@ -187,7 +187,7 @@ ItemExpr *BinderUtils::buildPredOnCol(OperatorTypeEnum opType, const NAString &c
 }
 
 //----------------------------------------------------------------------------
-ColReference *BinderUtils::buildExpressionForSyskey(const CorrName *tableNameCorr, CollHeap *heap, Lng32 specialFlags,
+ColReference *BinderUtils::buildExpressionForSyskey(const CorrName *tableNameCorr, CollHeap *heap, int specialFlags,
                                                     const NAString *prefixColName) {
   NABoolean forceSystemColumn = ((specialFlags & SP_ALL_COLUMNS) && !(specialFlags & SP_SYSKEY_AS_USER));
 
@@ -211,7 +211,7 @@ ColReference *BinderUtils::buildExpressionForSyskey(const CorrName *tableNameCor
 // Build a list of ColReferences to the columns of the base table's
 // clustering index columns.
 ItemExpr *BinderUtils::buildClusteringIndexVector(const NATable *naTable, CollHeap *heap, const CorrName *nameOverride,
-                                                  Lng32 specialFlags, IntegerList *directionVector,
+                                                  int specialFlags, IntegerList *directionVector,
                                                   const NAString *prefixColName, const NAString *prefixRenameColName) {
   ItemExpr *result = NULL;
   ColRefName *colNameRef = NULL;
@@ -302,7 +302,7 @@ ItemExpr *BinderUtils::buildClusteringIndexVector(const NATable *naTable, CollHe
 ItemExpr *BinderUtils::buildSyskeyOrPKExpr(const NATable *naTable, const CorrName &corrName, CollHeap *heap) {
   ItemExpr *result = NULL;
 
-  Lng32 order_level = CmpCommon::getDefaultLong(TRAF_ROWNUM_DEFAULT_ORDER_LEVEL);
+  int order_level = CmpCommon::getDefaultLong(TRAF_ROWNUM_DEFAULT_ORDER_LEVEL);
 
   if (0 == order_level) return result;
 

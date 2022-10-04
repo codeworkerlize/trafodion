@@ -87,8 +87,8 @@ class CompositeType : public NAType {
   // ---------------------------------------------------------------------
   virtual UInt32 getNumElements() { return 0; }
   virtual const UInt32 getNumElements() const { return 0; }
-  virtual NAType *getElementType(Lng32 elemNum) { return NULL; }
-  virtual const NAType *getElementType(Lng32 elemNum) const { return NULL; }
+  virtual NAType *getElementType(int elemNum) { return NULL; }
+  virtual const NAType *getElementType(int elemNum) const { return NULL; }
 
   // Returns max length of data returned from hive.
   // See method fillCompositeType in TrafParquetFileReader.java for data
@@ -119,13 +119,13 @@ class SQLArray : public CompositeType {
   // ---------------------------------------------------------------------
   // Constructor functions
   // ---------------------------------------------------------------------
-  SQLArray(NAMemory *heap, const NAType *elementType, const Lng32 arraySize,
+  SQLArray(NAMemory *heap, const NAType *elementType, const int arraySize,
            Int32 compFormat = COM_UNINITIALIZED_FORMAT);
 
   virtual short getMyTypeAsText(NAString *outputStr,  // output
                                 NABoolean addNullability = TRUE, NABoolean addCollation = TRUE) const;
 
-  virtual short getHiveTypeStr(Lng32 hiveType, Lng32 precision, Lng32 scale, NAString *outputStr /*out*/) const;
+  virtual short getHiveTypeStr(int hiveType, int precision, int scale, NAString *outputStr /*out*/) const;
 
   // ---------------------------------------------------------------------
   // A virtual function to return a copy of the type.
@@ -165,26 +165,26 @@ class SQLArray : public CompositeType {
   // Accesor methods
   // ---------------------------------------------------------------------
   const NAType *getElementType() const { return elementType_; }
-  const Lng32 getArraySize() const { return arraySize_; }
+  const int getArraySize() const { return arraySize_; }
   virtual UInt32 getNumElements() { return arraySize_; }
   virtual const UInt32 getNumElements() const { return arraySize_; }
 
-  virtual NAType *getElementType(Lng32 elemNum) { return (NAType *)getElementType(); }
-  virtual const NAType *getElementType(Lng32 elemNum) const { return getElementType(); }
+  virtual NAType *getElementType(int elemNum) { return (NAType *)getElementType(); }
+  virtual const NAType *getElementType(int elemNum) const { return getElementType(); }
 
-  virtual Lng32 getNumLevels() const { return (elementType_->getNumLevels() + 1); }
+  virtual int getNumLevels() const { return (elementType_->getNumLevels() + 1); }
 
   // TRUE, validation passed.
   // FALSE, validation failed. Error set in diags.
   virtual NABoolean validate(ComDiagsArea *diags);
 
-  virtual Lng32 getDisplayLength() const;
+  virtual int getDisplayLength() const;
 
   virtual Int32 getHiveSourceMaxLen();
 
  private:
   const NAType *elementType_;
-  Lng32 arraySize_;
+  int arraySize_;
 };  // class SQLArray
 
 // ***********************************************************************
@@ -204,7 +204,7 @@ class SQLRow : public CompositeType {
   virtual short getMyTypeAsText(NAString *outputStr,  // output
                                 NABoolean addNullability = TRUE, NABoolean addCollation = TRUE) const;
 
-  virtual short getHiveTypeStr(Lng32 hiveType, Lng32 precision, Lng32 scale, NAString *outputStr /*out*/) const;
+  virtual short getHiveTypeStr(int hiveType, int precision, int scale, NAString *outputStr /*out*/) const;
 
   // ---------------------------------------------------------------------
   // A virtual function to return a copy of the type.
@@ -255,8 +255,8 @@ class SQLRow : public CompositeType {
   virtual UInt32 getNumElements() { return (fieldTypes_ ? fieldTypes_->entries() : 0); }
   virtual const UInt32 getNumElements() const { return (fieldTypes_ ? fieldTypes_->entries() : 0); }
 
-  virtual NAType *getElementType(Lng32 elemNum) { return (NAType *)getFieldType(elemNum); }
-  virtual const NAType *getElementType(Lng32 elemNum) const {
+  virtual NAType *getElementType(int elemNum) { return (NAType *)getFieldType(elemNum); }
+  virtual const NAType *getElementType(int elemNum) const {
     return getFieldType(elemNum);  // elemNum is 1-based
   }
 
@@ -264,9 +264,9 @@ class SQLRow : public CompositeType {
   // return: TRUE, if found. FALSE, if not found.
   NABoolean getElementInfo(const NAString &fieldName, const NAType *&elemType, Int32 &elemNum);
 
-  virtual Lng32 getDisplayLength() const;
+  virtual int getDisplayLength() const;
 
-  virtual Lng32 getNumLevels() const { return numLevels_; }
+  virtual int getNumLevels() const { return numLevels_; }
 
   virtual Int32 getHiveSourceMaxLen();
 
@@ -278,7 +278,7 @@ class SQLRow : public CompositeType {
   NAArray<NAString> *fieldNames_;
   NAArray<NAType *> *fieldTypes_;
 
-  Lng32 numLevels_;
+  int numLevels_;
 };  // class SQLRow
 
 #endif

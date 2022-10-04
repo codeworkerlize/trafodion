@@ -196,8 +196,8 @@ static short dumpHiveSchemaDDL(ExeCliInterface *cliInterface, RelDumpLoad *ddlEx
     for (int i = 0; i < numEntries; i++) {
       OutputInfo *vi = (OutputInfo *)outQueue->getCurr();
       char *name;
-      Lng32 len = -1;
-      Lng32 type = -1;
+      int len = -1;
+      int type = -1;
 
       vi->get(0, name, len, type, NULL, NULL);
       if ((type < REC_MIN_CHARACTER) || (type > REC_MAX_CHARACTER)) return -1;
@@ -310,7 +310,7 @@ static short dumpSeabaseSchemaDDL(ExeCliInterface *cliInterface, RelDumpLoad *dd
 short CmpSeabaseDDL::dumpMetadataOfObjects(RelDumpLoad *ddlExpr, ExeCliInterface *cliInterface) {
   short error = 0;
   short rc = 0;
-  Lng32 retcode = 0;
+  int retcode = 0;
 
   retcode = verifyBRAuthority(NULL, cliInterface, TRUE, TRUE, SEABASE_MD_SCHEMA);
   if (retcode < 0) {

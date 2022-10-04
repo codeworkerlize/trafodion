@@ -41,7 +41,7 @@
 #include "exp/exp_stdh.h"
 #include "exp/exp_attrs.h"
 #include "exp/exp_clause_derived.h"
-#include "exp_bignum.h"
+#include "exp/exp_bignum.h"
 #include "ExpComposite.h"
 #include "common/str.h"
 #include "common/NLSConversion.h"
@@ -149,7 +149,7 @@ Long Attributes::pack(void *space) {
   return NAVersionedObject::pack(space);
 }
 
-Lng32 Attributes::unpack(void *base, void *reallocator) {
+int Attributes::unpack(void *base, void *reallocator) {
   if (defaultValue_.unpack(base)) return -1;
 
   return NAVersionedObject::unpack(base, reallocator);
@@ -302,7 +302,7 @@ char *getDatatypeAsString(Int32 datatype, NABoolean extFormat = false) {
   }
 }
 
-ShowplanAttributes::ShowplanAttributes(Lng32 valueId, char *text) {
+ShowplanAttributes::ShowplanAttributes(int valueId, char *text) {
   setClassID(ShowplanID);
   valueId_ = valueId;
   if (text) {
@@ -350,9 +350,9 @@ void Attributes::displayContents(Space *space, Int32 operandNum, char *constsAre
   space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
 
   if ((getDatatype() == REC_BLOB) || (getDatatype() == REC_CLOB)) {
-    Int64 ll = getLength();
+    long ll = getLength();
     if (isLengthInKB()) ll = ll * 1024;
-    //      Int64 ll = (Int64)getPrecision() * 1000 + (Int64)getScale();
+    //      long ll = (long)getPrecision() * 1000 + (long)getScale();
     str_sprintf(buf, "      LobLength = %ld bytes", ll);
     space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
   }
@@ -429,7 +429,7 @@ void Attributes::displayContents(Space *space, Int32 operandNum, char *constsAre
   space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
 
   str_sprintf(buf, "      Offset = %d, NullIndOffset = %d, VClenIndOffset = %d",
-              (getOffset() == ExpOffsetMax ? -1 : (Lng32)getOffset()),
+              (getOffset() == ExpOffsetMax ? -1 : (int)getOffset()),
               (getNullIndOffset() == ExpOffsetMax ? -1 : getNullIndOffset()),
               (getVCLenIndOffset() == ExpOffsetMax ? -1 : getVCLenIndOffset()));
   space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
@@ -471,11 +471,11 @@ void Attributes::displayContents(ostream &out, Attributes *spAttr) {
     Int16 precision = getPrecision();
     UInt16 scale = getScaleAsUI();
 
-    Lng32 lobLen = (precision << 16);
+    int lobLen = (precision << 16);
     lobLen += scale;
 
-    Int64 ll = (Int64)lobLen;
-    //      Int64 ll = (Int64)getPrecision() * 1000 + (Int64)getScale();
+    long ll = (long)lobLen;
+    //      long ll = (long)getPrecision() * 1000 + (long)getScale();
     str_sprintf(buf, "      LobLength = %ld Mb", ll);
     out << buf;
   }
@@ -544,7 +544,7 @@ void Attributes::displayContents(ostream &out, Attributes *spAttr) {
   out << buf << endl;
 
   str_sprintf(buf, "      Offset = %d, NullIndOffset = %d, VClenIndOffset = %d",
-              (getOffset() == ExpOffsetMax ? -1 : (Lng32)getOffset()),
+              (getOffset() == ExpOffsetMax ? -1 : (int)getOffset()),
               (getNullIndOffset() == ExpOffsetMax ? -1 : getNullIndOffset()),
               (getVCLenIndOffset() == ExpOffsetMax ? -1 : getVCLenIndOffset()));
   out << buf << endl;
@@ -648,9 +648,9 @@ NABoolean isAddedColumn(Attributes *srcAttr, NABoolean tableHasAddedColumns, NAB
       (((srcAttr->getVCIndicatorLength() > 0) && (srcAttr->getVoaOffset() >= offsetOfFirstFixedFieldInRec)) ||
        (((!tableHasVariableColumns) && ((offsetOfFirstFixedFieldInRec + srcAttr->getRelOffset()) >= recordLength)) ||
         ((tableHasVariableColumns) &&
-         ((offsetOfFirstFixedFieldInRec + srcAttr->getRelOffset()) >= *(ULng32 *)(recordPtr + sizeof(Lng32)))) ||
+         ((offsetOfFirstFixedFieldInRec + srcAttr->getRelOffset()) >= *(ULng32 *)(recordPtr + sizeof(int)))) ||
         (tableHasVariableColumns && (srcAttr->getVCIndicatorLength() == 0) &&
-         ((offsetOfFirstFixedFieldInRec == sizeof(Lng32)) || (offsetOfFirstFixedFieldInRec == 0))))))
+         ((offsetOfFirstFixedFieldInRec == sizeof(int)) || (offsetOfFirstFixedFieldInRec == 0))))))
     return TRUE;
 
   return FALSE;

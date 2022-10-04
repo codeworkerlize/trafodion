@@ -95,8 +95,8 @@ class CNALogfile : public CNAStdioFile {
   Int32 Log(const char *pBuffer, ELoggingLevel level = CNALogfile::eLEVEL1);
   Int32 Log(const NAString &str, ELoggingLevel level = CNALogfile::eLEVEL1) { return Log(str.data(), level); }
 
-  NABoolean Write(const char *pBuffer, Lng32 buflen);
-  NABoolean Write(const NAString &str, Lng32 buflen) { return Write(str.data(), buflen); }
+  NABoolean Write(const char *pBuffer, int buflen);
+  NABoolean Write(const NAString &str, int buflen) { return Write(str.data(), buflen); }
 
   NABoolean GetTimePrint() { return m_bPrintTime; }
   void SetTimePrint(NABoolean flag) { m_bPrintTime = flag; }

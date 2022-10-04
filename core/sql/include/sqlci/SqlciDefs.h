@@ -75,7 +75,7 @@ enum SQLCI_CLI_RETCODE {
 struct SqlciCursorInfo {
   Int32 queryTextSpecified_;
   char *queryTextOrStmtName_;
-  Lng32 resultSetIndex_;
+  int resultSetIndex_;
   SqlciCursorInfo() {
     queryTextSpecified_ = 0;
     queryTextOrStmtName_ = 0;

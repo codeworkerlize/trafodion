@@ -90,7 +90,7 @@ short CmpSeabaseDDL::createSeabaseTenant(ExeCliInterface *cliInterface, NABoolea
   }
 
   // Create the SEABASE_TENANT_SCHEMA schema
-  Lng32 cliRC = 0;
+  int cliRC = 0;
   char queryBuf[strlen(getSystemCatalog()) + strlen(SEABASE_TENANT_SCHEMA) + strlen(DB__ROOT) + 100];
 
   if (CmpCommon::context()->useReservedNamespace())
@@ -368,7 +368,7 @@ short CmpSeabaseDDL::getTenantNSList(ExeCliInterface *cliInterface, NAList<NAStr
 
     // column 1:  namespace name
     char *ptr = NULL;
-    Lng32 len = 0;
+    int len = 0;
     pCliRow->get(0, ptr, len);
     NAString *nsName = new (STMTHEAP) NAString(STMTHEAP);
     nsName->append(ptr, len);
@@ -433,7 +433,7 @@ short CmpSeabaseDDL::getTenantSchemaList(ExeCliInterface *cliInterface, TenantSc
 
     // column 1:  tenant_id; column 2:  usage_id; column 3: default_schema
     Int32 tenantID(*(Int32 *)pCliRow->get(0));
-    Int64 schemaUID(*(Int64 *)pCliRow->get(1));
+    long schemaUID(*(long *)pCliRow->get(1));
     Int32 defSch(*(Int32 *)pCliRow->get(2));
     TenantSchemaInfo *tenantSchemaInfo = new (STMTHEAP) TenantSchemaInfo(tenantID, schemaUID, defSch);
     tenantSchemaList->insert(tenantSchemaInfo);
@@ -472,7 +472,7 @@ short CmpSeabaseDDL::isTenantMetadataInitialized(ExeCliInterface *cliInterface) 
 //    0 = not a tenant schema
 //   >0 = a tenant schema
 // -----------------------------------------------------------------------------
-short CmpSeabaseDDL::isTenantSchema(ExeCliInterface *cliInterface, const Int64 &schemaUID) {
+short CmpSeabaseDDL::isTenantSchema(ExeCliInterface *cliInterface, const long &schemaUID) {
   // read tenant_usage to to see if the current schemaUID exists
   char selectStmt[500];
   Int32 stmtSize = snprintf(selectStmt, sizeof(selectStmt),
@@ -485,9 +485,9 @@ short CmpSeabaseDDL::isTenantSchema(ExeCliInterface *cliInterface, const Int64 &
     return -1;
   }
 
-  Lng32 len = 0;
-  Int64 rowCount = 0;
-  Lng32 cliRC = cliInterface->executeImmediate(selectStmt, (char *)&rowCount, &len, FALSE);
+  int len = 0;
+  long rowCount = 0;
+  int cliRC = cliInterface->executeImmediate(selectStmt, (char *)&rowCount, &len, FALSE);
 
   // If unexpected error occurred
   if (cliRC < 0) {
@@ -636,7 +636,7 @@ short CmpSeabaseDDL::upgradeSeabaseTenant(ExeCliInterface *cliInterface) {
     return -1;
   }
 
-  Lng32 cliRC = 0;
+  int cliRC = 0;
 
   // upgrade assumes that the basic metadata tables already exists, if not then
   // return error just check for one table for now
@@ -827,7 +827,7 @@ void CmpSeabaseDDL::createSeabaseRGroup(ExeCliInterface *cliInterface, StmtDDLRe
   }
 
   // generate the RESOURCES row
-  Int64 createTime = NA_JulianTimestamp();
+  long createTime = NA_JulianTimestamp();
   ComUID groupUID;
   groupUID.make_UID();
 
@@ -1036,7 +1036,7 @@ void CmpSeabaseDDL::alterSeabaseRGroup(ExeCliInterface *cliInterface, StmtDDLRes
       }
 
       // delete rgroup - node usages from resource usages
-      Int64 rowsDeleted = 0;
+      long rowsDeleted = 0;
       if (numUsages > 0) rowsDeleted = existingUsageList->deleteUsages(rgroupNodeClause);
 
       if (rowsDeleted < 0) return;
@@ -1169,7 +1169,7 @@ void CmpSeabaseDDL::dropSeabaseRGroup(ExeCliInterface *cliInterface, const StmtD
 //    -1 - unexpected error
 //   >=0 - number of resources authID owns
 // -----------------------------------------------------------------------------
-Int64 CmpSeabaseDDL::authIDOwnsResources(Int32 authID, NAString &resourceNames) {
+long CmpSeabaseDDL::authIDOwnsResources(Int32 authID, NAString &resourceNames) {
   ExeCliInterface cliInterface(STMTHEAP);
   NAString sysCat = CmpSeabaseDDL::getSystemCatalogStatic();
 
@@ -1187,7 +1187,7 @@ Int64 CmpSeabaseDDL::authIDOwnsResources(Int32 authID, NAString &resourceNames) 
   Int32 cliRC = cliInterface.fetchAllRows(tableQueue, buf, 0, false, false, true);
 
   tableQueue->position();
-  Int64 rowCount = 0;
+  long rowCount = 0;
   for (Int32 i = 0; i < tableQueue->numEntries(); i++) {
     OutputInfo *pCliRow = (OutputInfo *)tableQueue->getNext();
 
@@ -1294,7 +1294,7 @@ Int32 TenantUsageList::deleteUsages(const char *whereClause) {
 //    TRUE - found usage and contains in tenantUsage
 //    FALSE - did not find usage
 // ----------------------------------------------------------------------------
-NABoolean TenantUsageList::findTenantUsage(const Int64 tenantUsageID, TenantUsage &tenantUsage) const {
+NABoolean TenantUsageList::findTenantUsage(const long tenantUsageID, TenantUsage &tenantUsage) const {
   for (Int32 i = 0; i < entries(); i++) {
     TenantUsage usage = operator[](i);
     if (usage.getUsageID() == tenantUsageID) {
@@ -1314,11 +1314,11 @@ NABoolean TenantUsageList::findTenantUsage(const Int64 tenantUsageID, TenantUsag
 //
 // No errors are generated
 // ----------------------------------------------------------------------------
-Int64 TenantUsageList::possibleDefSchUID() const {
+long TenantUsageList::possibleDefSchUID() const {
   // If no usages, then no schemas to make default
   if (entries() == 0) return 0;
 
-  Int64 schemaUID = 0;
+  long schemaUID = 0;
   for (Int32 i = 0; i < entries(); i++) {
     TenantUsage usage = operator[](i);
     if (usage.getUsageType() == TenantUsage::TENANT_USAGE_SCHEMA) {
@@ -1424,10 +1424,10 @@ Int32 TenantUsageList::selectUsages(const Int32 tenantID, NAHeap *heap) {
     TenantUsage tenantUsage;
 
     // column 1:  usage_uid; column 2:  usage_type; column 3: flags
-    tenantUsage.setUsageID(*(Int64 *)pCliRow->get(0));
+    tenantUsage.setUsageID(*(long *)pCliRow->get(0));
     NAString usageType = (char *)pCliRow->get(1);
     tenantUsage.setUsageType(TenantUsage::getUsageTypeAsEnum(usageType));
-    tenantUsage.setFlags(*(Int64 *)pCliRow->get(2));
+    tenantUsage.setFlags(*(long *)pCliRow->get(2));
 
     tenantUsage.setTenantID(tenantID);
 
@@ -1453,7 +1453,7 @@ void TenantUsageList::obsoleteTenantRGroupUsages() {
 //
 // Set the specified tenant usage obsolete.
 // -----------------------------------------------------------------------------
-void TenantUsageList::setTenantUsageObsolete(const Int64 tenantUsageID, const bool obsolete) {
+void TenantUsageList::setTenantUsageObsolete(const long tenantUsageID, const bool obsolete) {
   for (Int32 i = 0; i < entries(); i++) {
     if (operator[](i).getUsageID() == tenantUsageID) {
       operator[](i).setIsObsolete(obsolete);
@@ -1525,7 +1525,7 @@ Int32 TenantUsageList::insertUsages() {
 //
 // ****************************************************************************
 
-TenantInfo::TenantInfo(const Int32 tenantID, const Int32 adminRoleID, const Int64 defaultSchemaUID,
+TenantInfo::TenantInfo(const Int32 tenantID, const Int32 adminRoleID, const long defaultSchemaUID,
                        TenantUsageList *usageList, NAWNodeSet *tenantNodeSet, NAString tenantName, NAHeap *heap)
     : tenantID_(tenantID),
       adminRoleID_(adminRoleID),
@@ -2011,7 +2011,7 @@ Int32 TenantInfo::selectRow(const std::string &whereClause) {
   // column 6: flags
   setTenantID(*(Int32 *)pCliRow->get(0));
   setAdminRoleID(*(Int32 *)pCliRow->get(1));
-  setDefaultSchemaUID(*(Int64 *)pCliRow->get(2));
+  setDefaultSchemaUID(*(long *)pCliRow->get(2));
   Int32 affinity = (*(Int32 *)pCliRow->get(3));
   Int32 tenantSize = (*(Int32 *)pCliRow->get(5));
 
@@ -2028,7 +2028,7 @@ Int32 TenantInfo::selectRow(const std::string &whereClause) {
     setTenantNodes(new (heap_) NAWSetOfNodeIds(STMTHEAP, tenantSize));
   }
 
-  setFlags(*(Int64 *)pCliRow->get(6));
+  setFlags(*(long *)pCliRow->get(6));
 
   // get tenant usages
   TenantUsageList *usageList = new (heap_) TenantUsageList(heap_);
@@ -2198,7 +2198,7 @@ TenantSchemaInfoList::~TenantSchemaInfoList() {
   clear();
 }
 
-TenantSchemaInfo *TenantSchemaInfoList::find(Int64 schemaUID) {
+TenantSchemaInfo *TenantSchemaInfoList::find(long schemaUID) {
   TenantSchemaInfo *returnedInfo = NULL;
   for (CollIndex i = 0; i < entries(); i++) {
     TenantSchemaInfo *tenantSchemaInfo = (*this)[i];
@@ -2210,7 +2210,7 @@ TenantSchemaInfo *TenantSchemaInfoList::find(Int64 schemaUID) {
   return returnedInfo;
 }
 
-Int32 TenantSchemaInfoList::getTenantID(Int64 schemaUID) {
+Int32 TenantSchemaInfoList::getTenantID(long schemaUID) {
   Int32 tenantID = 0;
   for (CollIndex i = 0; i < entries(); i++) {
     TenantSchemaInfo *tenantSchemaInfo = operator[](i);
@@ -2222,7 +2222,7 @@ Int32 TenantSchemaInfoList::getTenantID(Int64 schemaUID) {
   return tenantID;
 }
 
-void TenantSchemaInfoList::getSchemaList(Int32 tenantID, NAList<Int64> &schemaList) {
+void TenantSchemaInfoList::getSchemaList(Int32 tenantID, NAList<long> &schemaList) {
   for (CollIndex i = 0; i < entries(); i++) {
     TenantSchemaInfo *tenantSchemaInfo = operator[](i);
     if (tenantSchemaInfo->getTenantID() == tenantID) schemaList.insert(tenantSchemaInfo->getSchemaUID());
@@ -2253,7 +2253,7 @@ Int32 TenantSchemaInfo::removeSchemaUsage() {
   // If removing default schema, see if there is another applicable schema to be default
   // If there is more than 1 schema left after removing the schema usage, then
   // that schema is set as default, otherwise, the default is set to 0.
-  Int64 defSchUID = 0;
+  long defSchUID = 0;
   if (isDefSch() && tenantInfo.getNumberSchemaUsages() == 2) {
     const TenantUsageList *existingUsageList = tenantInfo.getUsageList();
     TenantUsage firstUsage = (*existingUsageList)[0];
@@ -2613,7 +2613,7 @@ short TenantResource::createStandardResources() {
     return -1;
   }
 
-  Int64 currTime = NA_JulianTimestamp();
+  long currTime = NA_JulianTimestamp();
   ComUID groupUID;
   groupUID.make_UID();
   NAString def(RGROUP_DEFAULT);
@@ -2719,7 +2719,7 @@ short TenantResource::generateNodeResource(NAString *nodeName, const Int32 grant
   if (retcode == -1) return -1;
 
   if (retcode == 1) {
-    Int64 createTime = NA_JulianTimestamp();
+    long createTime = NA_JulianTimestamp();
     ComUID myUID;
     myUID.make_UID();
 
@@ -3179,21 +3179,21 @@ short TenantResource::selectRow(const NAString &whereClause) {
   // column  4: resource_create_time   column  5: resource_redef_time
   // column  6: resource_details1      column  7: resource_details2
   // column  8: resource_type          column  9: flags
-  setResourceUID(*(Int64 *)pCliRow->get(0));
+  setResourceUID(*(long *)pCliRow->get(0));
   NAString resourceName = (char *)pCliRow->get(1);
   setResourceName(resourceName);
   setCreator(*(Int32 *)pCliRow->get(2));
   NAString isValid = (char *)pCliRow->get(3);
   setIsValid((isValid == "Y ") ? true : false);
-  setCreateTime(*(Int64 *)pCliRow->get(4));
-  setRedefTime(*(Int64 *)pCliRow->get(5));
+  setCreateTime(*(long *)pCliRow->get(4));
+  setRedefTime(*(long *)pCliRow->get(5));
   NAString details = (char *)pCliRow->get(6);
   setDetails1(details);
   details = (char *)pCliRow->get(7);
   setDetails2(details);
   NAString type = (char *)pCliRow->get(8);
   setType(TenantResource::getResourceTypeAsEnum(type));
-  setFlags(*(Int64 *)pCliRow->get(9));
+  setFlags(*(long *)pCliRow->get(9));
 
   return 0;
 }
@@ -3238,7 +3238,7 @@ short TenantResource::updateRows(const char *setClause, const char *whereClause)
 short TenantResource::updateRedefTime() {
   char updateStmt[128];
   NAString sysCat = CmpSeabaseDDL::getSystemCatalogStatic();
-  Int64 time = NA_JulianTimestamp();
+  long time = NA_JulianTimestamp();
   Int32 stmtSize = snprintf(updateStmt, sizeof(updateStmt),
                             "update %s.\"%s\".%s SET resource_redef_time = %ld where resource_uid = %ld", sysCat.data(),
                             SEABASE_TENANT_SCHEMA, SEABASE_RESOURCES, time, UID_);
@@ -3319,7 +3319,7 @@ TenantResourceUsageList::~TenantResourceUsageList() {
 // returns the number of rows deleted
 //   if -1 is returned, then unexpected error occurred (ComDiags contains error)
 // -----------------------------------------------------------------------------
-Int64 TenantResourceUsageList::deleteUsages(const NAString &whereClause) {
+long TenantResourceUsageList::deleteUsages(const NAString &whereClause) {
   NAString sysCat = CmpSeabaseDDL::getSystemCatalogStatic();
   Int32 deleteStmtLen = whereClause.length() + 200;
   char deleteStmt[deleteStmtLen];
@@ -3329,7 +3329,7 @@ Int64 TenantResourceUsageList::deleteUsages(const NAString &whereClause) {
 
   ExeCliInterface *cliInterface = getCli();
   assert(cliInterface);
-  Int64 rowsAffected = 0;
+  long rowsAffected = 0;
   Int32 cliRC = cliInterface->executeImmediate(deleteStmt, NULL, NULL, TRUE, &rowsAffected);
   if (cliRC < 0) {
     cliInterface->retrieveSQLDiagnostics(CmpCommon::diags());
@@ -3391,16 +3391,16 @@ short TenantResourceUsageList::fetchUsages(const NAString &whereClause, const NA
     // column 2:  usage_uid    column 3:  usage_name
     // column 4:  usage_type   column 5:  usage_value
     //  column 6:  flags
-    usage->setResourceUID(*(Int64 *)pCliRow->get(0));
+    usage->setResourceUID(*(long *)pCliRow->get(0));
     NAString resourceName = (char *)pCliRow->get(1);
     usage->setResourceName(resourceName);
-    usage->setUsageUID(*(Int64 *)pCliRow->get(2));
+    usage->setUsageUID(*(long *)pCliRow->get(2));
     NAString usageName = (char *)pCliRow->get(3);
     usage->setUsageName(usageName);
     NAString usageType = (char *)pCliRow->get(4);
     usage->setUsageType(TenantResourceUsage::getUsageTypeAsEnum(usageType));
-    usage->setUsageValue(*(Int64 *)pCliRow->get(5));
-    usage->setFlags(*(Int64 *)pCliRow->get(6));
+    usage->setUsageValue(*(long *)pCliRow->get(5));
+    usage->setFlags(*(long *)pCliRow->get(6));
 
     // add to list
     this->insert(usage);
@@ -3418,7 +3418,7 @@ short TenantResourceUsageList::fetchUsages(const NAString &whereClause, const NA
 // Returns NULL if node name is not in the list.
 // No errors are expected
 // -----------------------------------------------------------------------------
-TenantResourceUsage *TenantResourceUsageList::findResource(const NAString *resourceName, const Int64 usageUID,
+TenantResourceUsage *TenantResourceUsageList::findResource(const NAString *resourceName, const long usageUID,
                                                            const TenantResourceUsage::ResourceUsageType &resourceType) {
   for (CollIndex i = 0; i < entries(); i++) {
     TenantResourceUsage *usage = operator[](i);
@@ -3642,7 +3642,7 @@ short TenantResourceUsageList::insertUsages() {
 // value.
 // -----------------------------------------------------------------------------
 void TenantResourceUsageList::updateUsageValue(const NAString &resourceName, const NAString &usageName,
-                                               TenantResourceUsage::ResourceUsageType usageType, Int64 newValue) {
+                                               TenantResourceUsage::ResourceUsageType usageType, long newValue) {
   for (CollIndex i = 0; i < entries(); i++) {
     TenantResourceUsage *usage = operator[](i);
     if ((usage->getUsageType() == usageType) && (usage->getResourceName() == resourceName) &&
@@ -3677,7 +3677,7 @@ NABoolean TenantNodeInfoList::contains(const NAString &nodeName) {
 //
 // returns the node name for the given node ID
 // -----------------------------------------------------------------------------
-NAString TenantNodeInfoList::getNodeName(const Int64 logicalNodeID) {
+NAString TenantNodeInfoList::getNodeName(const long logicalNodeID) {
   NAString nodeName;
   for (CollIndex i = 0; i < entries(); i++) {
     TenantNodeInfo *nodeInfo = (*this)[i];
@@ -3692,8 +3692,8 @@ NAString TenantNodeInfoList::getNodeName(const Int64 logicalNodeID) {
 // Return the nodeID for the given node name.
 // If not found, return -1
 // -----------------------------------------------------------------------------
-Int64 TenantNodeInfoList::getNodeID(const NAString &nodeName) {
-  Int64 nodeID = -1;
+long TenantNodeInfoList::getNodeID(const NAString &nodeName) {
+  long nodeID = -1;
   for (CollIndex i = 0; i < entries(); i++) {
     TenantNodeInfo *nodeInfo = (*this)[i];
     if (nodeInfo->getNodeName() == nodeName) return nodeInfo->getLogicalNodeID();

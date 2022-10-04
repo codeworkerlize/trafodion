@@ -291,7 +291,7 @@ const char *getStrOfRollbackMode(TransMode::RollbackMode am) {
 }
 
 void verifyUpdatableTrans(StmtLevelAccessOptions *sAxOpt, TransMode *tm,
-                          TransMode::IsolationLevel isolationLevelForUpdate, Lng32 &errCodeA, Lng32 &errCodeB) {
+                          TransMode::IsolationLevel isolationLevelForUpdate, int &errCodeA, int &errCodeB) {
   if (sAxOpt && sAxOpt->accessType() == TransMode::READ_UNCOMMITTED_ACCESS_)
     errCodeA = -3140;
   else if (((!sAxOpt) || (sAxOpt->accessType() == TransMode::ACCESS_TYPE_NOT_SPECIFIED_)) &&

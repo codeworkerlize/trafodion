@@ -120,9 +120,9 @@ ComTdbTranspose::ComTdbTranspose(const ComTdbTranspose *transTdb)
 //  IN: Recommended size for pool buffers.
 //
 ComTdbTranspose::ComTdbTranspose(ComTdb *childTdb, ex_expr **transColExprs, Int32 numTransExprs,
-                                 ex_expr *afterTransPred, Lng32 transRowLen, const unsigned short transTuppIndex,
+                                 ex_expr *afterTransPred, int transRowLen, const unsigned short transTuppIndex,
                                  ex_cri_desc *criDescDown, ex_cri_desc *criDescUp, queue_index fromParent,
-                                 queue_index toParent, Cardinality estimatedRowCount, Lng32 numBuffers,
+                                 queue_index toParent, Cardinality estimatedRowCount, int numBuffers,
                                  ULng32 bufferSize, Space *space)
     : ComTdb(ComTdb::ex_TRANSPOSE, eye_TRANSPOSE, estimatedRowCount, criDescDown, criDescUp, fromParent, toParent,
              numBuffers, bufferSize),
@@ -194,7 +194,7 @@ Long ComTdbTranspose::pack(void *space) {
 //  IN - The base address of the TDB fragment.  Pointers are calculated
 //       by adding the offset to the base address (more or less).
 //
-Lng32 ComTdbTranspose::unpack(void *base, void *reallocator) {
+int ComTdbTranspose::unpack(void *base, void *reallocator) {
   if (childTdb_.unpack(base, reallocator)) return -1;
   if (afterTransPred_.unpack(base, reallocator)) return -1;
   if (transColExprs_.unpack(base, numTransExprs_, reallocator)) return -1;

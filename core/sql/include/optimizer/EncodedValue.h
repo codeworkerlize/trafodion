@@ -136,7 +136,7 @@ class NormValue  // NOT a NABasicObject (memreduction)
 class NormValueList : public NAArray<NormValue> {
  public:
   // constructor
-  NormValueList(Lng32 numberOfElements = 0, NAMemory *h = 0)
+  NormValueList(int numberOfElements = 0, NAMemory *h = 0)
       : NAArray<NormValue>(h ? h : CmpCommon::statementHeap(), numberOfElements), heap_(h){};
 
   NormValueList(const NormValueList &mcsvl, NAMemory *h = 0);

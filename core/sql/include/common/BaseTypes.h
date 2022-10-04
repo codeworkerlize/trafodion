@@ -259,11 +259,11 @@ extern void NAAbort(const char *, Int32, const char *);
 
 // Helper functions to map between FS types and ANSI types. ANSI types
 // are defined by the SQLTYPE_CODE enumeration in cli/sqlcli.h
-Lng32 getAnsiTypeFromFSType(Lng32 datatype);
-Lng32 getDatetimeCodeFromFSType(Lng32 datatype);
-Lng32 getFSTypeFromDatetimeCode(Lng32 datetime_code);
-Lng32 getFSTypeFromANSIType(Lng32 ansitype);
-const char *getAnsiTypeStrFromFSType(Lng32 datatype);
+int getAnsiTypeFromFSType(int datatype);
+int getDatetimeCodeFromFSType(int datatype);
+int getFSTypeFromDatetimeCode(int datetime_code);
+int getFSTypeFromANSIType(int ansitype);
+const char *getAnsiTypeStrFromFSType(int datatype);
 
 #define DISALLOW_COPY_AND_ASSIGN(TypeName) \
   TypeName(const TypeName &);              \

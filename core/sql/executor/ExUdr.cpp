@@ -54,7 +54,7 @@
 #include "UdrExeIpc.h"
 #include "ex_exe_stmt_globals.h"
 #include "exp/exp_attrs.h"
-#include "ex_error.h"
+#include "executor/ex_error.h"
 #include "executor/ExStats.h"
 #include "ExCextdecs.h"
 #include "comexe/UdrFormalParamInfo.h"
@@ -119,7 +119,7 @@ static const char *GetUpStatusString(ex_queue::up_status s) {
   }
 }
 
-static void TransIdToText(Int64 transId, char *buf, Int32 len) {
+static void TransIdToText(long transId, char *buf, Int32 len) {
   ex_assert(len > 100, "Buffer passed to TransIdToText is too small");
 
   if (transId == -1) {
@@ -173,8 +173,8 @@ static void TransIdToText(Int64 transId, char *buf, Int32 len) {
 // not always reliable due to occasional clock synchronization
 // performed by the NonStop Cluster services.
 //
-static void InitializeUdrHandle(Int64 &handle) {
-  static Int64 nextHandle = 0;
+static void InitializeUdrHandle(long &handle) {
+  static long nextHandle = 0;
   nextHandle++;
   handle = nextHandle;
 }
@@ -349,7 +349,7 @@ ExUdrTcb::ExUdrTcb(const ExUdrTdb &udrTdb, const ex_tcb **childTcbs, ex_globals 
               (ULng32)udrTdb.getOutputSqlBufferSize());
 
     outputPool_ = new (globSpace) sql_buffer_pool(
-        (Lng32)udrTdb.getNumOutputBuffers(), (Lng32)udrTdb.getOutputSqlBufferSize(), globSpace, SqlBufferBase::NORMAL_);
+        (int)udrTdb.getNumOutputBuffers(), (int)udrTdb.getOutputSqlBufferSize(), globSpace, SqlBufferBase::NORMAL_);
   }
 
   // Allocate input buffer pool
@@ -358,7 +358,7 @@ ExUdrTcb::ExUdrTcb(const ExUdrTdb &udrTdb, const ex_tcb **childTcbs, ex_globals 
               (ULng32)udrTdb.getInputSqlBufferSize());
 
     inputPool_ = new (globSpace) sql_buffer_pool(
-        (Lng32)udrTdb.getNumInputBuffers(), (Lng32)udrTdb.getInputSqlBufferSize(), globSpace, SqlBufferBase::NORMAL_);
+        (int)udrTdb.getNumInputBuffers(), (int)udrTdb.getInputSqlBufferSize(), globSpace, SqlBufferBase::NORMAL_);
   }
   if (numChildren()) {
     childInputBuffers_ = (UdrDataBuffer **)new (globSpace) UdrDataBuffer *[numChildren()];
@@ -479,8 +479,8 @@ void ExUdrTcb::freeResources() {
   UdrDebug1("  [END TCB FREE RESOURCES] %p", this);
 }
 
-ex_tcb_private_state *ExUdrTcb::allocatePstates(Lng32 &numElems,      // [IN/OUT] desired/actual elements
-                                                Lng32 &pstateLength)  // [OUT] length of one element
+ex_tcb_private_state *ExUdrTcb::allocatePstates(int &numElems,      // [IN/OUT] desired/actual elements
+                                                int &pstateLength)  // [OUT] length of one element
 {
   PstateAllocator<ExUdrPrivateState> pa;
   return pa.allocatePstates(this, numElems, pstateLength);
@@ -615,7 +615,7 @@ Int32 ExUdrTcb::fixup() {
     if (myExeStmtGlobals()->castToExEspStmtGlobals()) usesTransactions = FALSE;
 
     if (!isResultSet && udrStats_ != NULL) {
-      Int64 serverInit = NA_JulianTimestamp();
+      long serverInit = NA_JulianTimestamp();
       udrStats_->setUDRServerInit(serverInit);
     }
 
@@ -626,8 +626,8 @@ Int32 ExUdrTcb::fixup() {
     // Determine the transid we should send in the message. We use the
     // statement transid only if the TDB says we require a
     // transaction.
-    Int64 &stmtTransId = myExeStmtGlobals()->getTransid();
-    Int64 transIdToSend = -1;  // -1 is an invalid transid
+    long &stmtTransId = myExeStmtGlobals()->getTransid();
+    long transIdToSend = -1;  // -1 is an invalid transid
     if (myTdb().getTransactionAttrs() == COM_TRANSACTION_REQUIRED) transIdToSend = stmtTransId;
 
     // For CALL stmts, start UDR Server if it's not already started.
@@ -662,7 +662,7 @@ Int32 ExUdrTcb::fixup() {
           udrBaseStats_->setUDRServerId((char *)bufForServer, 300);
         }
         if (udrStats_) {
-          Int64 serverStart = NA_JulianTimestamp();
+          long serverStart = NA_JulianTimestamp();
           udrStats_->castToExUDRStats()->setUDRServerStart(serverStart);
         }
       }
@@ -783,7 +783,7 @@ Int32 ExUdrTcb::fixup() {
 //----------------------------------------------------------------------
 ExWorkProcRetcode ExUdrTcb::work() {
 #ifdef UDR_DEBUG
-  static Lng32 workCount = 0;
+  static int workCount = 0;
   if (doTrace_) {
     workCount++;
     FILE *f = traceFile_;
@@ -794,11 +794,11 @@ ExWorkProcRetcode ExUdrTcb::work() {
     UdrPrintf(f, "[BEGIN WORK %d] %p", workCount, this);
     UdrPrintf(f, "  [WORK] Stmt tx %s", text);
     UdrPrintf(f, "  [WORK] TCB state %s", getUdrTcbStateString(state_));
-    UdrPrintf(f, "  [WORK] Down queue: head %d, tail %d, len %d, size %d", (Lng32)dn->getHeadIndex(),
-              (Lng32)dn->getTailIndex(), (Lng32)dn->getLength(), (Lng32)dn->getSize());
-    UdrPrintf(f, "  [WORK] Up queue: head %d, tail %d, len %d, size %d", (Lng32)up->getHeadIndex(),
-              (Lng32)up->getTailIndex(), (Lng32)up->getLength(), (Lng32)up->getSize());
-    UdrPrintf(f, "  [WORK] Next to send: %d", (Lng32)nextToSend_);
+    UdrPrintf(f, "  [WORK] Down queue: head %d, tail %d, len %d, size %d", (int)dn->getHeadIndex(),
+              (int)dn->getTailIndex(), (int)dn->getLength(), (int)dn->getSize());
+    UdrPrintf(f, "  [WORK] Up queue: head %d, tail %d, len %d, size %d", (int)up->getHeadIndex(),
+              (int)up->getTailIndex(), (int)up->getLength(), (int)up->getSize());
+    UdrPrintf(f, "  [WORK] Next to send: %d", (int)nextToSend_);
     printDataStreamState();
   }
 #endif  // UDR_DEBUG
@@ -855,8 +855,8 @@ ExWorkProcRetcode ExUdrTcb::work() {
 #ifdef UDR_DEBUG
   if (doTrace_) {
     FILE *f = traceFile_;
-    UdrPrintf(f, "  [WORK] UDR TX messages outstanding: %d", (Lng32)myExeStmtGlobals()->numUdrTxMsgsOut());
-    UdrPrintf(f, "  [WORK] UDR Non-TX messages outstanding: %d", (Lng32)myExeStmtGlobals()->numUdrNonTxMsgsOut());
+    UdrPrintf(f, "  [WORK] UDR TX messages outstanding: %d", (int)myExeStmtGlobals()->numUdrTxMsgsOut());
+    UdrPrintf(f, "  [WORK] UDR Non-TX messages outstanding: %d", (int)myExeStmtGlobals()->numUdrNonTxMsgsOut());
     UdrPrintf(f, "  [WORK] TCB state: %s", getUdrTcbStateString(state_));
     UdrPrintf(f, "[END WORK %d] %p. Return value is %s\n", workCount, this, GetWorkRetcodeString(result));
   }
@@ -1062,8 +1062,8 @@ ExWorkProcRetcode ExUdrTcb::buildAndSendRequestBuffer() {
   //
   // Note: (b) and (c) are both indicated by rsInfo_ == NULL
   //
-  Int64 &stmtTransId = myExeStmtGlobals()->getTransid();
-  Int64 transIdToSend = -1;  // -1 is an invalid transid
+  long &stmtTransId = myExeStmtGlobals()->getTransid();
+  long transIdToSend = -1;  // -1 is an invalid transid
   if (dataRequestsAreTransactional()) transIdToSend = stmtTransId;
 
   // Process entries from the down queue. nextToSend_
@@ -1131,7 +1131,7 @@ ExWorkProcRetcode ExUdrTcb::buildAndSendRequestBuffer() {
     while (sendSpaceAvailable && qParent_.down->entryExists(nextToSend_)) {
       ex_queue_entry *downEntry = qParent_.down->getQueueEntry(nextToSend_);
       const ex_queue::down_request request = downEntry->downState.request;
-      const Lng32 value = downEntry->downState.requestValue;
+      const int value = downEntry->downState.requestValue;
       ExUdrPrivateState &pstate = *((ExUdrPrivateState *)downEntry->pstate);
       NABoolean anyErrors = FALSE;
 
@@ -1145,7 +1145,7 @@ ExWorkProcRetcode ExUdrTcb::buildAndSendRequestBuffer() {
           // single data tupp or possibly control + data. So that the
           // correct number are backed out, we will remember how many
           // tupps are in the buffer before the allocation takes place.
-          Lng32 numTuppsBefore = sqlBuf->getTotalTuppDescs();
+          int numTuppsBefore = sqlBuf->getTotalTuppDescs();
 
           tupp_descriptor *dataDesc = NULL;
           if (sqlBuf->moveInSendOrReplyData(TRUE,                        // [IN] sending? (vs. replying)
@@ -1248,7 +1248,7 @@ ExWorkProcRetcode ExUdrTcb::buildAndSendRequestBuffer() {
         TransIdToText(stmtTransId, stmtTx, 256);
         TransIdToText(transIdToSend, msgTx, 256);
         UdrPrintf(traceFile_ ? traceFile_ : stdout, "  [WORK] Sending %s, %d tupps, msg tx %s",
-                  isResultSet ? "RS INVOKE" : "INVOKE", (Lng32)sqlBuf->getTotalTuppDescs(), msgTx);
+                  isResultSet ? "RS INVOKE" : "INVOKE", (int)sqlBuf->getTotalTuppDescs(), msgTx);
       }
 #endif
 
@@ -1389,7 +1389,7 @@ void ExUdrTcb::reportIpcError(IpcMessageStreamBase *stream, IpcConnection *conn)
       UdrDebug1("    IPC error on connection %p", conn);
       if (conn->castToGuaConnectionToServer()) {
         GuaErrorNumber guardianError = conn->castToGuaConnectionToServer()->getGuardianError();
-        UdrDebug1("    Guardian error number is %d", (Lng32)guardianError);
+        UdrDebug1("    Guardian error number is %d", (int)guardianError);
       }
 #endif  // UDR_DEBUG
 
@@ -1564,8 +1564,8 @@ void ExUdrTcb::allocateDataStream() {
     if ((val = getenv("UDR_BUFFER_PAD"))) {
       pad = atol(val);
     }
-    UdrDebug3("    Stream buffer size: %d data + %d pad = %d total", (Lng32)maxBufSize, (Lng32)pad,
-              (Lng32)maxBufSize + pad);
+    UdrDebug3("    Stream buffer size: %d data + %d pad = %d total", (int)maxBufSize, (int)pad,
+              (int)maxBufSize + pad);
 #endif  // UDR_DEBUG
 
     NABoolean isTransactional = dataRequestsAreTransactional();
@@ -1586,7 +1586,7 @@ void ExUdrTcb::allocateDataStream() {
 #ifdef UDR_DEBUG
     char buf[300];
     serverProcessId_.toAscii(buf, 300);
-    UdrDebug2("    Attaching buffered data stream %p to connection %d", dataStream_, (Lng32)conn->getId());
+    UdrDebug2("    Attaching buffered data stream %p to connection %d", dataStream_, (int)conn->getId());
     UdrDebug1("    Server process is %s", buf);
     UdrDebug1("  [END ExUdrTcb::allocateDataStream()] %p", this);
 #endif  // UDR_DEBUG
@@ -1632,8 +1632,8 @@ NABoolean ExUdrTcb::sendControlMessage(UdrIpcObjectType t, NABoolean callbackReq
   // * when the statement is being deallocated after the transaction
   //   ended, UNLOAD will be sent without a transid since there is no
   //   longer a transid in stmt globals.
-  Int64 &stmtTransId = myExeStmtGlobals()->getTransid();
-  Int64 transIdToSend = -1;  // -1 is an invalid transid
+  long &stmtTransId = myExeStmtGlobals()->getTransid();
+  long transIdToSend = -1;  // -1 is an invalid transid
   if (myTdb().getTransactionAttrs() == COM_TRANSACTION_REQUIRED && (t == UDR_MSG_LOAD || t == UDR_MSG_UNLOAD)) {
     transIdToSend = stmtTransId;
   }
@@ -1672,8 +1672,8 @@ NABoolean ExUdrTcb::sendControlMessage(UdrIpcObjectType t, NABoolean callbackReq
         parentQid = "";
 
       //  set the instance number/numInstances
-      Lng32 numInstances = myExeStmtGlobals()->getNumOfInstances();
-      Lng32 instanceNum = myExeStmtGlobals()->getMyInstanceNumber();
+      int numInstances = myExeStmtGlobals()->getNumOfInstances();
+      int instanceNum = myExeStmtGlobals()->getMyInstanceNumber();
       if (numInstances == 0) numInstances = 1;  // I compute, therefore I am.
 
       // Steps to create a LOAD message:
@@ -1794,7 +1794,7 @@ NABoolean ExUdrTcb::sendControlMessage(UdrIpcObjectType t, NABoolean callbackReq
       // Add optional data buffers to the load message
       Queue *q = udrTdb.getOptionalData();
       if (q) {
-        Lng32 numEntries = q->numEntries();
+        int numEntries = q->numEntries();
         loadMsg->initOptionalDataBufs(numEntries, TRUE);
 
         char *s = NULL;
@@ -2204,7 +2204,7 @@ UdrDataBuffer *ExUdrTcb::getReplyBuffer() {
               if (udrType > UDR_IPC_FIRST && udrType < UDR_IPC_LAST)
                 UdrDebug1("Found an object of type %s in the stream", GetUdrIpcTypeString(udrType));
               else
-                UdrDebug1("Found an object of type %d in the stream", (Lng32)msgType);
+                UdrDebug1("Found an object of type %d in the stream", (int)msgType);
 #endif
 
               if (msgType == UDR_MSG_RS_INFO) {
@@ -2274,7 +2274,7 @@ UdrDataBuffer *ExUdrTcb::getReplyBuffer() {
 
             integrityCheckResult = dataStream_->extractNextObj(*returnedDiags, doIntegrityChecks);
             if (integrityCheckResult) {
-              UdrDebug1("  [WORK]   Diags arrived with this row, count %d", (Lng32)returnedDiags->getNumber());
+              UdrDebug1("  [WORK]   Diags arrived with this row, count %d", (int)returnedDiags->getNumber());
               getOrCreateStmtDiags()->mergeAfter(*returnedDiags);
             } else {
               UdrDebug0("*** ERROR: extractNextObj() for diags returned FALSE");
@@ -2295,7 +2295,7 @@ UdrDataBuffer *ExUdrTcb::getReplyBuffer() {
           //
           UdrDebug0("  ***");
           UdrDebug0("  *** WARNING: An unexpected message arrived");
-          UdrDebug1("  ***          Message type is %d", (Lng32)msgType);
+          UdrDebug1("  ***          Message type is %d", (int)msgType);
           UdrDebug0("  ***");
           integrityCheckResult = FALSE;
         } break;
@@ -2341,7 +2341,7 @@ ExWorkProcRetcode ExUdrTcb::returnSingleRow() {
   // allocating the output tupp until we were sure there was data
   // to process.
   if (moveOutputValues) {
-    short ok = outputPool_->get_free_tuple(output_row, (Lng32)myTdb().getOutputRowLen());
+    short ok = outputPool_->get_free_tuple(output_row, (int)myTdb().getOutputRowLen());
     if (ok != 0) result = WORK_POOL_BLOCKED;
   }
 
@@ -2405,7 +2405,7 @@ ExWorkProcRetcode ExUdrTcb::returnSingleRow() {
         }
 
         if (integrityCheckResult) {
-          UdrDebug1("  [WORK]   Diags arrived with this row, count %d", (Lng32)returnedDiags->getNumber());
+          UdrDebug1("  [WORK]   Diags arrived with this row, count %d", (int)returnedDiags->getNumber());
         }
       }
 
@@ -3018,8 +3018,8 @@ ExWorkProcRetcode ExUdrTcb::continueRequest() {
           //
           // Note: (b) and (c) are both indicated by rsInfo_ == NULL
           //
-          Int64 &stmtTransId = myExeStmtGlobals()->getTransid();
-          Int64 transIdToSend = -1;  // -1 is an invalid transid
+          long &stmtTransId = myExeStmtGlobals()->getTransid();
+          long transIdToSend = -1;  // -1 is an invalid transid
           if (dataRequestsAreTransactional()) transIdToSend = stmtTransId;
 
 #ifdef UDR_DEBUG
@@ -3074,7 +3074,7 @@ ExWorkProcRetcode ExUdrTcb::continueRequest() {
 
 ExWorkProcRetcode ExUdrTcb::tmudfWork() {
 #ifdef UDR_DEBUG
-  static Lng32 workCount = 0;
+  static int workCount = 0;
   if (doTrace_) {
     workCount++;
     FILE *f = traceFile_;
@@ -3085,11 +3085,11 @@ ExWorkProcRetcode ExUdrTcb::tmudfWork() {
     UdrPrintf(f, "[BEGIN TMUDF WORK %d] %p", workCount, this);
     UdrPrintf(f, "  [TMUDF WORK] Stmt tx %s", text);
     UdrPrintf(f, "  [TMUDF WORK] TCB state %s", getUdrTcbStateString(state_));
-    UdrPrintf(f, "  [TMUDF WORK] Down queue: head %d, tail %d, len %d, size %d", (Lng32)dn->getHeadIndex(),
-              (Lng32)dn->getTailIndex(), (Lng32)dn->getLength(), (Lng32)dn->getSize());
-    UdrPrintf(f, "  [TMUDF WORK] Up queue: head %d, tail %d, len %d, size %d", (Lng32)up->getHeadIndex(),
-              (Lng32)up->getTailIndex(), (Lng32)up->getLength(), (Lng32)up->getSize());
-    UdrPrintf(f, "  [TMUDF WORK] Next to send: %d", (Lng32)nextToSend_);
+    UdrPrintf(f, "  [TMUDF WORK] Down queue: head %d, tail %d, len %d, size %d", (int)dn->getHeadIndex(),
+              (int)dn->getTailIndex(), (int)dn->getLength(), (int)dn->getSize());
+    UdrPrintf(f, "  [TMUDF WORK] Up queue: head %d, tail %d, len %d, size %d", (int)up->getHeadIndex(),
+              (int)up->getTailIndex(), (int)up->getLength(), (int)up->getSize());
+    UdrPrintf(f, "  [TMUDF WORK] Next to send: %d", (int)nextToSend_);
     printDataStreamState();
   }
 #endif  // UDR_DEBUG
@@ -3144,8 +3144,8 @@ ExWorkProcRetcode ExUdrTcb::tmudfWork() {
 #ifdef UDR_DEBUG
   if (doTrace_) {
     FILE *f = traceFile_;
-    UdrPrintf(f, "  [TMUDF WORK] UDR TX messages outstanding: %d", (Lng32)myExeStmtGlobals()->numUdrTxMsgsOut());
-    UdrPrintf(f, "  [TMUDF WORK] UDR Non-TX messages outstanding: %d", (Lng32)myExeStmtGlobals()->numUdrNonTxMsgsOut());
+    UdrPrintf(f, "  [TMUDF WORK] UDR TX messages outstanding: %d", (int)myExeStmtGlobals()->numUdrTxMsgsOut());
+    UdrPrintf(f, "  [TMUDF WORK] UDR Non-TX messages outstanding: %d", (int)myExeStmtGlobals()->numUdrNonTxMsgsOut());
     UdrPrintf(f, "  [TMUDF WORK] TCB state: %s", getUdrTcbStateString(state_));
     UdrPrintf(f, "[END TMUDF WORK %d] 0x%08x. Return value is %s\n", workCount, this, GetWorkRetcodeString(result));
   }
@@ -3345,8 +3345,8 @@ ExWorkProcRetcode ExUdrTcb::buildAndSendTmudfInput() {
   //
   // Note: (b) and (c) are both indicated by rsInfo_ == NULL
   //
-  Int64 &stmtTransId = myExeStmtGlobals()->getTransid();
-  Int64 transIdToSend = -1;  // -1 is an invalid transid
+  long &stmtTransId = myExeStmtGlobals()->getTransid();
+  long transIdToSend = -1;  // -1 is an invalid transid
   if (dataRequestsAreTransactional()) transIdToSend = stmtTransId;
 
   // Process entries from the down queue. nextToSend_
@@ -3401,7 +3401,7 @@ ExWorkProcRetcode ExUdrTcb::buildAndSendTmudfInput() {
 
     ex_queue_entry *downEntry = qParent_.down->getQueueEntry(parentQueueIndex);
     const ex_queue::down_request request = downEntry->downState.request;
-    const Lng32 value = downEntry->downState.requestValue;
+    const int value = downEntry->downState.requestValue;
     ExUdrPrivateState &pstate = *((ExUdrPrivateState *)downEntry->pstate);
 
     switch (state_) {
@@ -3448,7 +3448,7 @@ ExWorkProcRetcode ExUdrTcb::buildAndSendTmudfInput() {
         NABoolean anyErrors = FALSE;
 
         SqlBuffer *sqlBuf = requestBuffer_->getSqlBuffer();
-        Lng32 numTuppsBefore = sqlBuf->getTotalTuppDescs();
+        int numTuppsBefore = sqlBuf->getTotalTuppDescs();
 
         ex_assert(sqlBuf, "UDR request buffer is corrupt or contains no data");
         ULng32 numRequestsAdded = 0;
@@ -3548,7 +3548,7 @@ ExWorkProcRetcode ExUdrTcb::buildAndSendTmudfInput() {
             TransIdToText(stmtTransId, stmtTx, 256);
             TransIdToText(transIdToSend, msgTx, 256);
             UdrPrintf(traceFile_ ? traceFile_ : stdout, "  [TMUDF WORK] Sending %s, %d tupps, msg tx %s", "INVOKE",
-                      (Lng32)sqlBuf->getTotalTuppDescs(), msgTx);
+                      (int)sqlBuf->getTotalTuppDescs(), msgTx);
           }
 #endif
 
@@ -3685,7 +3685,7 @@ ExWorkProcRetcode ExUdrTcb::buildAndSendTmudfInput() {
             // number are backed out, we will remember how many
             // tupps are in the buffer before the allocation takes
             // place.
-            Lng32 numTuppsBefore = childSqlBuf->getTotalTuppDescs();
+            int numTuppsBefore = childSqlBuf->getTotalTuppDescs();
             UdrDebug0(" Received OK_MMORE from child");
             tupp_descriptor *dataDesc = NULL;
             NABoolean processedUpEntry = TRUE;
@@ -3798,7 +3798,7 @@ ExWorkProcRetcode ExUdrTcb::buildAndSendTmudfInput() {
             TransIdToText(stmtTransId, stmtTx, 256);
             TransIdToText(transIdToSend, msgTx, 256);
             UdrPrintf(traceFile_ ? traceFile_ : stdout, "  [TMUDF WORK] Sending %s, %d tupps, msg tx %s",
-                      "CHILD TABLE INPUT", (Lng32)sqlBuf->getTotalTuppDescs(), msgTx);
+                      "CHILD TABLE INPUT", (int)sqlBuf->getTotalTuppDescs(), msgTx);
           }
 #endif
 
@@ -3977,7 +3977,7 @@ NABoolean ExUdrTcb::validateDataRow(const tupp &replyTupp, ComDiagsArea *&diags)
         if (nullValue != 0 && nullValue != -1) {
           if (diags == NULL) diags = ComDiagsArea::allocate(getHeap());
 
-          Lng32 pos = (Lng32)(isProcedure ? (i + 1) : (outPosition + 1));
+          int pos = (int)(isProcedure ? (i + 1) : (outPosition + 1));
 
           *diags << DgSqlCode(-EXE_UDR_INVALID_DATA) << DgString0(myTdb().getSqlName()) << DgInt0(pos)
                  << DgString1("Invalid null indicator");
@@ -3997,7 +3997,7 @@ NABoolean ExUdrTcb::validateDataRow(const tupp &replyTupp, ComDiagsArea *&diags)
           char msg[100];
           str_sprintf(msg, "VARCHAR length should not exceed %d", (Int32)actual.getLength());
 
-          Lng32 pos = (Lng32)(isProcedure ? (i + 1) : (outPosition + 1));
+          int pos = (int)(isProcedure ? (i + 1) : (outPosition + 1));
 
           *diags << DgSqlCode(-EXE_UDR_INVALID_DATA) << DgString0(myTdb().getSqlName()) << DgInt0(pos)
                  << DgString1(msg);
@@ -4016,7 +4016,7 @@ NABoolean ExUdrTcb::validateDataRow(const tupp &replyTupp, ComDiagsArea *&diags)
         if (CharInfo::checkCodePoint((wchar_t *)source, (Int32)sourceChars, CharInfo::UNICODE) == FALSE) {
           if (diags == NULL) diags = ComDiagsArea::allocate(getHeap());
 
-          Lng32 pos = (Lng32)(isProcedure ? (i + 1) : (outPosition + 1));
+          int pos = (int)(isProcedure ? (i + 1) : (outPosition + 1));
 
           *diags << DgSqlCode(-EXE_UDR_INVALID_DATA) << DgString0(myTdb().getSqlName()) << DgInt0(pos)
                  << DgString1("Invalid UCS2 character");

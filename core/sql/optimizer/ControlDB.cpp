@@ -235,9 +235,9 @@ void ControlDB::setControlDefault(ControlQueryDefault *def) {
     const char *optDbgLog = ActiveSchemaDB()->getDefaults().getValue(attrEnum);
 
     char *logFileName = NULL;
-    Lng32 pid = getpid();
+    int pid = getpid();
 
-    Lng32 len = strlen(optDbgLog);
+    int len = strlen(optDbgLog);
     logFileName = new (CmpCommon::statementHeap()) char[len + 128];
     memset(logFileName, 0, len + 128);
 
@@ -535,7 +535,7 @@ void ControlDB::do_one_MVQR_CQD(const char *attrName, const char *attrValue, NAB
   do_one_CQD(attrName, attrValue, reset, ActiveSchemaDB()->getDefaults().getProvenance(MVQR_REWRITE_LEVEL));
 }
 
-void ControlDB::doMVQRCQDs(Lng32 level) {
+void ControlDB::doMVQRCQDs(int level) {
   // MVQR_REWRITE_LEVEL is a master CQD that sets its subordinate CQDs
   switch (level) {
     case 0:  // off
@@ -564,7 +564,7 @@ void ControlDB::setMVQRCQDs() {
   //                                 0     SYSTEM    1
   // mvqr_rewrite_level              0     system    1
   // multi_join_threshold            3     system    2
-  Lng32 level = CmpCommon::getDefaultLong(MVQR_REWRITE_LEVEL);
+  int level = CmpCommon::getDefaultLong(MVQR_REWRITE_LEVEL);
   doMVQRCQDs(level);
 }
 
@@ -675,17 +675,17 @@ NABoolean ControlDB::validate(ControlTable *ct) {
       } break;
 
       case ControlTableOptions::HBASE_TIMESTAMP_AS_OF: {
-        Int64 ts = OptHbaseAccessOptions::computeHbaseTS(value.data());
+        long ts = OptHbaseAccessOptions::computeHbaseTS(value.data());
         if (ts > 0) valid = TRUE;
       } break;
 
       case ControlTableOptions::HBASE_TIMESTAMP_SET: {
-        Int64 ts = OptHbaseAccessOptions::computeHbaseTS(value.data());
+        long ts = OptHbaseAccessOptions::computeHbaseTS(value.data());
         if (ts > 0) valid = TRUE;
       } break;
 
       case ControlTableOptions::HBASE_VERSIONS: {
-        Int64 n = atoi(value.data());
+        long n = atoi(value.data());
         if ((n == -1) || (n == -2) || (n > 1)) valid = TRUE;
       } break;
 
@@ -1096,13 +1096,13 @@ const NAString *ControlDB::getControlSessionValue(const NAString &token) {
 //        ...
 //
 ///////////////////////////////////////////////////////////////////////
-Lng32 ControlDB::packedLengthControlTableOptions() {
-  Lng32 size = 0;
+int ControlDB::packedLengthControlTableOptions() {
+  int size = 0;
 
   if (getCTList().entries() > 0) {
-    size = sizeof(Lng32);
+    size = sizeof(int);
     for (CollIndex i = 0; i < getCTList().entries(); i++) {
-      size += sizeof(Lng32);
+      size += sizeof(int);
 
       ControlTableOptions *cto = getCTList()[i];
       size += strlen(cto->tableName().data()) + 1;
@@ -1119,21 +1119,21 @@ Lng32 ControlDB::packedLengthControlTableOptions() {
 }
 
 // see ControlDB::packedLengthControlTableOptions() for packed layout
-Lng32 ControlDB::packControlTableOptionsToBuffer(char *buffer) {
-  Lng32 curPos = 0;
+int ControlDB::packControlTableOptionsToBuffer(char *buffer) {
+  int curPos = 0;
 
   ULng32 tempSize = 0;
 
   if (getCTList().entries() > 0) {
     tempSize = getCTList().entries();
-    str_cpy_all(&buffer[curPos], (char *)&tempSize, sizeof(Lng32));
-    curPos = sizeof(Lng32);
+    str_cpy_all(&buffer[curPos], (char *)&tempSize, sizeof(int));
+    curPos = sizeof(int);
     for (CollIndex i = 0; i < getCTList().entries(); i++) {
       ControlTableOptions *cto = getCTList()[i];
 
       tempSize = cto->numEntries();
-      str_cpy_all(&buffer[curPos], (char *)&tempSize, sizeof(Lng32));
-      curPos += sizeof(Lng32);
+      str_cpy_all(&buffer[curPos], (char *)&tempSize, sizeof(int));
+      curPos += sizeof(int);
 
       strcpy(&buffer[curPos], cto->tableName().data());
       curPos += strlen(cto->tableName().data()) + 1;
@@ -1155,17 +1155,17 @@ Lng32 ControlDB::packControlTableOptionsToBuffer(char *buffer) {
 }
 
 // see ControlDB::packedLengthControlTableOptions() for packed layout
-Lng32 ControlDB::unpackControlTableOptionsFromBuffer(char *buffer) {
+int ControlDB::unpackControlTableOptionsFromBuffer(char *buffer) {
   if (!ctList_) ctList_ = new CONTROLDBHEAP LIST(ControlTableOptions *)(CONTROLDBHEAP);
 
-  Lng32 numEntries;
-  Lng32 curPos = 0;
-  str_cpy_all((char *)&numEntries, buffer, sizeof(Lng32));
-  curPos += sizeof(Lng32);
+  int numEntries;
+  int curPos = 0;
+  str_cpy_all((char *)&numEntries, buffer, sizeof(int));
+  curPos += sizeof(int);
   for (Int32 i = 0; i < numEntries; i++) {
-    Lng32 numCTO;
-    str_cpy_all((char *)&numCTO, &buffer[curPos], sizeof(Lng32));
-    curPos += sizeof(Lng32);
+    int numCTO;
+    str_cpy_all((char *)&numCTO, &buffer[curPos], sizeof(int));
+    curPos += sizeof(int);
 
     char *tableName = &buffer[curPos];
     ControlTableOptions *cto = new CONTROLDBHEAP ControlTableOptions(tableName);
@@ -1186,9 +1186,9 @@ Lng32 ControlDB::unpackControlTableOptionsFromBuffer(char *buffer) {
   return curPos;
 }
 
-NABoolean ControlDB::isSameCTO(char *buffer, Lng32 bufLen) { return FALSE; }
+NABoolean ControlDB::isSameCTO(char *buffer, int bufLen) { return FALSE; }
 
-Lng32 ControlDB::saveCurrentCTO() {
+int ControlDB::saveCurrentCTO() {
   if (savedCtList_) delete savedCtList_;
 
   savedCtList_ = ctList_;
@@ -1198,7 +1198,7 @@ Lng32 ControlDB::saveCurrentCTO() {
   return 0;
 }
 
-Lng32 ControlDB::restoreCurrentCTO() {
+int ControlDB::restoreCurrentCTO() {
   if (ctList_) delete ctList_;
 
   ctList_ = savedCtList_;
@@ -1208,19 +1208,19 @@ Lng32 ControlDB::restoreCurrentCTO() {
   return 0;
 }
 
-Lng32 ControlDB::packedLengthControlQueryShape() {
-  Lng32 size = 0;
+int ControlDB::packedLengthControlQueryShape() {
+  int size = 0;
 
-  if (getRequiredShape()) size = (Lng32)getRequiredShape()->getShapeText().length() + 1;
+  if (getRequiredShape()) size = (int)getRequiredShape()->getShapeText().length() + 1;
 
   return size;
 }
 
-Lng32 ControlDB::packControlQueryShapeToBuffer(char *buffer) {
-  Lng32 size = 0;
+int ControlDB::packControlQueryShapeToBuffer(char *buffer) {
+  int size = 0;
 
   if (getRequiredShape()) {
-    size = (Lng32)getRequiredShape()->getShapeText().length() + 1;
+    size = (int)getRequiredShape()->getShapeText().length() + 1;
 
     strcpy(buffer, getRequiredShape()->getShapeText().data());
   }
@@ -1228,9 +1228,9 @@ Lng32 ControlDB::packControlQueryShapeToBuffer(char *buffer) {
   return size;
 }
 
-Lng32 ControlDB::unpackControlQueryShapeFromBuffer(char *buffer) { return 0; }
+int ControlDB::unpackControlQueryShapeFromBuffer(char *buffer) { return 0; }
 
-Lng32 ControlDB::saveCurrentCQS() {
+int ControlDB::saveCurrentCQS() {
   if (savedRequiredShape_) delete savedRequiredShape_;
 
   savedRequiredShape_ = requiredShape_;
@@ -1240,7 +1240,7 @@ Lng32 ControlDB::saveCurrentCQS() {
   return 0;
 }
 
-Lng32 ControlDB::restoreCurrentCQS() {
+int ControlDB::restoreCurrentCQS() {
   if (requiredShape_) delete requiredShape_;
 
   requiredShape_ = savedRequiredShape_;
@@ -1250,7 +1250,7 @@ Lng32 ControlDB::restoreCurrentCQS() {
   return 0;
 }
 
-NABoolean ControlDB::isSameCQS(char *buffer, Lng32 bufLen) {
+NABoolean ControlDB::isSameCQS(char *buffer, int bufLen) {
   if ((getRequiredShape()) && (bufLen > 0) && (strcmp(getRequiredShape()->getShapeText().data(), buffer) == 0))
     return TRUE;
 
@@ -1680,7 +1680,7 @@ ExprNode *DecodeShapeSyntax(const NAString &fname, ExprNodePtrList *args, ComDia
     // -----------------------------------------------------------------
 
     ExchangeForceWildCard::forcedLogPartEnum whichLogPart = ExchangeForceWildCard::ANY_LOGPART;
-    Lng32 numOfEsps = -1;
+    int numOfEsps = -1;
 
     // check the first argument
     if (args->entries() < 1 OR args->at(0)->castToRelExpr() == NULL) {

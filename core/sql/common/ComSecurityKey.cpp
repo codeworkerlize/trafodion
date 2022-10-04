@@ -91,7 +91,7 @@ NABoolean qiSubjectMatchesGroup(uint32_t subjectKey) {
 // DDL or privilege changes.
 // ****************************************************************************
 NABoolean qiCheckForInvalidObject(const Int32 numInvalidationKeys, const SQL_QIKEY *invalidationKeys,
-                                  const Int64 objectUID, const ComSecurityKeySet &objectKeys) {
+                                  const long objectUID, const ComSecurityKeySet &objectKeys) {
   NABoolean found = FALSE;
   ComQIActionType invalidationKeyType = COM_QI_INVALID_ACTIONTYPE;
 
@@ -216,7 +216,7 @@ NABoolean qiCheckForInvalidObject(const Int32 numInvalidationKeys, const SQL_QIK
 // the invalidation change.
 // ****************************************************************************
 NABoolean qiCheckForSchemaUID(const Int32 numInvalidationKeys, const SQL_QIKEY *invalidationKeys,
-                              const Int64 schemaUID) {
+                              const long schemaUID) {
   NABoolean found = FALSE;
   uint32_t schemaHash = ComSecurityKey::generateHash(schemaUID);
   ComQIActionType invalidationKeyType = COM_QI_INVALID_ACTIONTYPE;
@@ -821,7 +821,7 @@ void ComSecurityKey::getSecurityKeyTypeAsLit(std::string &actionString) const {
   }
 }
 
-NAString ComSecurityKey::print(Int32 subjectID, Int64 objectID) {
+NAString ComSecurityKey::print(Int32 subjectID, long objectID) {
   NAString typeString;
   switch (actionType_) {
     case COM_QI_GRANT_ROLE:

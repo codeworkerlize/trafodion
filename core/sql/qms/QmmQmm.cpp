@@ -574,14 +574,14 @@ IpcTimeout Qmm::getWaitTimeout() {
 
   // Find the time of the next scheduled restart. Init to first entry in list;
   // we exited above is list was empty.
-  Int64 earliestTimestamp = restartList[0]->getLockoutEndTS();
+  long earliestTimestamp = restartList[0]->getLockoutEndTS();
   for (CollIndex i = 1; i < restartListEntries; i++) {
     if (restartList[i]->getLockoutEndTS() < earliestTimestamp) earliestTimestamp = restartList[i]->getLockoutEndTS();
   }
 
   // Timestamp is microsecond resolution, IpcTimeout is in 10ms units (100 =
   // 1 second).
-  Int64 microsecondsTillNext = earliestTimestamp - NA_JulianTimestamp() + 1000000;  // 1-sec fudge factor
+  long microsecondsTillNext = earliestTimestamp - NA_JulianTimestamp() + 1000000;  // 1-sec fudge factor
   if (microsecondsTillNext < 0)                                                     // already past time somehow?
     microsecondsTillNext = 0;
   QRLogger::log(CAT_QR_IPC, LL_DEBUG, "Wait timeout set to %d seconds", microsecondsTillNext / 1000000);

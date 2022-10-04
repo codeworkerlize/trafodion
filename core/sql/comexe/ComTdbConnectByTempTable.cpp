@@ -11,7 +11,7 @@ ComTdbConnectByTempTable::ComTdbConnectByTempTable(
     ComTdb *child_tdb, ex_expr *hash_probe_expr, ex_expr *encode_probe_expr, ex_expr *move_inner_expr, ULng32 probe_len,
     ULng32 inner_rec_len, ULng32 cache_size, const unsigned short tupp_index, const unsigned short hashValIdx,
     const unsigned short encodedProbeDataIdx, const unsigned short innerRowDataIdx, ex_cri_desc *workCriDesc,
-    ex_cri_desc *givenCriDesc, ex_cri_desc *returnedCriDesc, queue_index down, queue_index up, Lng32 numBuffers,
+    ex_cri_desc *givenCriDesc, ex_cri_desc *returnedCriDesc, queue_index down, queue_index up, int numBuffers,
     ULng32 bufferSize, ex_expr *encodeInputHostVarExpr, ex_expr *hvExprInput, UInt16 hashInputValIdx,
     UInt16 encodeInputProbeDataIdx, ex_expr *scanExpr)
     : ComTdb(ComTdb::ex_CONNECT_BY_TEMP_TABLE, eye_CONNECT_BY_TEMP_TABLE, 0, givenCriDesc, returnedCriDesc, down, up,
@@ -51,7 +51,7 @@ Long ComTdbConnectByTempTable::pack(void *space) {
   return ComTdb::pack(space);
 }
 
-Lng32 ComTdbConnectByTempTable::unpack(void *base, void *reallocator) {
+int ComTdbConnectByTempTable::unpack(void *base, void *reallocator) {
   if (tdbChild_.unpack(base, reallocator)) return -1;
   if (workCriDesc_.unpack(base, reallocator)) return -1;
   if (hashProbeExpr_.unpack(base, reallocator)) return -1;

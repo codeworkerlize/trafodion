@@ -44,7 +44,7 @@
 class ElemDDLFileAttrMVCommitEach : public ElemDDLFileAttr {
  public:
   // default constructor
-  ElemDDLFileAttrMVCommitEach(Lng32 nrows = 0) : ElemDDLFileAttr(ELM_FILE_ATTR_MV_COMMIT_EACH_ELEM), nrows_(nrows) {}
+  ElemDDLFileAttrMVCommitEach(int nrows = 0) : ElemDDLFileAttr(ELM_FILE_ATTR_MV_COMMIT_EACH_ELEM), nrows_(nrows) {}
 
   // virtual destructor
   virtual ~ElemDDLFileAttrMVCommitEach();

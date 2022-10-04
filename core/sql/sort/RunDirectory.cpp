@@ -88,7 +88,7 @@ RunDirectory::~RunDirectory() {
 //
 //-----------------------------------------------------------------------
 
-Lng32 RunDirectory::startNewRun(SBN scrblocknum) {
+int RunDirectory::startNewRun(SBN scrblocknum) {
   RunDirectoryEntry *tempRdListPtr;
   numRunsGenerated_ += 1;
   if (numRunsGenerated_ > currentMaxRuns_) {
@@ -152,7 +152,7 @@ void RunDirectory::endCurrentRun(void) {
 //  The total number of runs generated so far.
 //
 //-----------------------------------------------------------------------
-Lng32 RunDirectory::getTotalNumOfRuns(void) { return numRunsGenerated_; }
+int RunDirectory::getTotalNumOfRuns(void) { return numRunsGenerated_; }
 
 //-----------------------------------------------------------------------
 // Name         : mapRunNumberToFirstSBN
@@ -168,7 +168,7 @@ Lng32 RunDirectory::getTotalNumOfRuns(void) { return numRunsGenerated_; }
 //  function parameter.
 //-----------------------------------------------------------------------
 
-SBN RunDirectory::mapRunNumberToFirstSBN(Lng32 runNumber) {
+SBN RunDirectory::mapRunNumberToFirstSBN(int runNumber) {
   RunDirectoryEntry *tempRdListPtr;
 
   if (runNumber > numRunsGenerated_) {

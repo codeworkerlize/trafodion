@@ -228,7 +228,7 @@ short CmpSeabaseDDL::buildViewColInfo(StmtDDLCreateView *createViewParseNode, El
 // Build view column usages -> relate view-col <=> referenced-col
 // This relationship is a string of values that gets stored in the TEXT table
 short CmpSeabaseDDL::buildViewTblColUsage(const StmtDDLCreateView *createViewParseNode,
-                                          const ComTdbVirtTableColumnInfo *colInfoArray, const Int64 objUID,
+                                          const ComTdbVirtTableColumnInfo *colInfoArray, const long objUID,
                                           NAString &viewColUsageText) {
   const ParViewUsages &vu = createViewParseNode->getViewUsages();
   const ParViewColTableColsUsageList &vctcul = vu.getViewColTableColsUsageList();
@@ -296,7 +296,7 @@ const char *CmpSeabaseDDL::computeCheckOption(StmtDDLCreateView *createViewParse
 
 }  // CmpSeabaseDDL::computeCheckOption()
 
-short CmpSeabaseDDL::updateViewUsage(StmtDDLCreateView *createViewParseNode, Int64 viewUID,
+short CmpSeabaseDDL::updateViewUsage(StmtDDLCreateView *createViewParseNode, long viewUID,
                                      ExeCliInterface *cliInterface, NAList<objectRefdByMe> *lockedBaseTableList) {
   const ParViewUsages &vu = createViewParseNode->getViewUsages();
   const ParTableUsageList &vtul = vu.getViewTableUsageList();
@@ -317,7 +317,7 @@ short CmpSeabaseDDL::updateViewUsage(StmtDDLCreateView *createViewParseNode, Int
     }
 
     char objType[10];
-    Int64 usedObjUID = -1;
+    long usedObjUID = -1;
     CorrName cn(objectNamePart, STMTHEAP, schemaNamePart, catalogNamePart);
 
     // If a sequence, set correct type to get a valid NATable entry
@@ -373,7 +373,7 @@ short CmpSeabaseDDL::updateViewUsage(StmtDDLCreateView *createViewParseNode, Int
                     (naTable->isHiveTable() ? "hive" : "hbase"), (naTable->isView() ? "view" : "table"),
                     catalogNamePart.data(), schemaNamePart.data(), objectNamePart.data(),
                     (naTable->isView() ? "cascade" : " "));
-        Lng32 cliRC = cliInterface->executeImmediate(query);
+        int cliRC = cliInterface->executeImmediate(query);
         if (cliRC < 0) {
           cliInterface->retrieveSQLDiagnostics(CmpCommon::diags());
           return -1;
@@ -420,7 +420,7 @@ short CmpSeabaseDDL::updateViewUsage(StmtDDLCreateView *createViewParseNode, Int
     setAllFlags();
     str_sprintf(query, "upsert into %s.\"%s\".%s values (%ld, %ld, '%s', 0 )", getSystemCatalog(), SEABASE_MD_SCHEMA,
                 SEABASE_VIEWS_USAGE, viewUID, usedObjUID, objType);
-    Lng32 cliRC = cliInterface->executeImmediate(query);
+    int cliRC = cliInterface->executeImmediate(query);
     restoreAllFlags();
     // SQL_EXEC_AssignParserFlagsForExSqlComp_Internal(savedCliParserFlags);
 
@@ -439,7 +439,7 @@ short CmpSeabaseDDL::updateViewUsage(StmtDDLCreateView *createViewParseNode, Int
     char query[1000];
     str_sprintf(query, "upsert into %s.\"%s\".%s values (%ld, %ld, '%s', 0 )", getSystemCatalog(), SEABASE_MD_SCHEMA,
                 SEABASE_VIEWS_USAGE, viewUID, uul[u]->getUDFUID(), COM_USER_DEFINED_ROUTINE_OBJECT_LIT);
-    Lng32 cliRC = cliInterface->executeImmediate(query);
+    int cliRC = cliInterface->executeImmediate(query);
 
     if (cliRC < 0) {
       cliInterface->retrieveSQLDiagnostics(CmpCommon::diags());
@@ -541,9 +541,9 @@ short CmpSeabaseDDL::gatherViewPrivileges(const StmtDDLCreateView *createViewNod
 //    0 - successful
 //   -1 - unexpected error occurred
 // ****************************************************************************
-short CmpSeabaseDDL::getListOfReferencedTables(ExeCliInterface *cliInterface, const Int64 objectUID,
+short CmpSeabaseDDL::getListOfReferencedTables(ExeCliInterface *cliInterface, const long objectUID,
                                                NAList<objectRefdByMe> &tablesList) {
-  Lng32 retcode = 0;
+  int retcode = 0;
 
   NAList<objectRefdByMe> tempRefdList(STMTHEAP);
   retcode = getListOfDirectlyReferencedObjects(cliInterface, objectUID, tempRefdList);
@@ -598,11 +598,11 @@ short CmpSeabaseDDL::getListOfReferencedTables(ExeCliInterface *cliInterface, co
 //    0 - successful
 //   -1 - unexpected error occurred
 // ****************************************************************************
-short CmpSeabaseDDL::getListOfDirectlyReferencedObjects(ExeCliInterface *cliInterface, const Int64 objectUID,
+short CmpSeabaseDDL::getListOfDirectlyReferencedObjects(ExeCliInterface *cliInterface, const long objectUID,
                                                         NAList<objectRefdByMe> &objectsList) {
   // Select all the rows from views_usage associated with the passed in
   // objectUID
-  Lng32 cliRC = 0;
+  int cliRC = 0;
   char buf[4000];
   str_sprintf(buf,
               "select object_type, object_uid, catalog_name,"
@@ -625,7 +625,7 @@ short CmpSeabaseDDL::getListOfDirectlyReferencedObjects(ExeCliInterface *cliInte
     OutputInfo *oi = (OutputInfo *)usingObjectsQueue->getNext();
     objectRefdByMe objectInfo;
     objectInfo.objectType = NAString(oi->get(0));
-    objectInfo.objectUID = *(Int64 *)oi->get(1);
+    objectInfo.objectUID = *(long *)oi->get(1);
     objectInfo.catalogName = NAString(oi->get(2));
     objectInfo.schemaName = NAString(oi->get(3));
     objectInfo.objectName = NAString(oi->get(4));
@@ -639,8 +639,8 @@ short CmpSeabaseDDL::getListOfDirectlyReferencedObjects(ExeCliInterface *cliInte
 // method: createSeabaseView
 // ----------------------------------------------------------------------------
 void CmpSeabaseDDL::createSeabaseView(StmtDDLCreateView *createViewNode, NAString &currCatName, NAString &currSchName) {
-  Lng32 retcode = 0;
-  Lng32 cliRC = 0;
+  int retcode = 0;
+  int cliRC = 0;
 
   ComObjectName viewName(createViewNode->getViewName());
   ComAnsiNamePart currCatAnsiName(currCatName);
@@ -655,7 +655,7 @@ void CmpSeabaseDDL::createSeabaseView(StmtDDLCreateView *createViewNode, NAStrin
   ExeCliInterface cliInterface(STMTHEAP, 0, NULL, CmpCommon::context()->sqlSession()->getParentQid());
   Int32 objectOwnerID = SUPER_USER;
   Int32 schemaOwnerID = SUPER_USER;
-  Int64 schemaUID = 0;
+  long schemaUID = 0;
   ComSchemaClass schemaClass;
 
   retcode = verifyDDLCreateOperationAuthorized(&cliInterface, SQLOperation::CREATE_VIEW, catalogNamePart,
@@ -719,8 +719,8 @@ void CmpSeabaseDDL::createSeabaseView(StmtDDLCreateView *createViewNode, NAStrin
   int64_t objectUID = -1;
   std::vector<ObjectPrivsRow> viewPrivsRows;
   bool replacingView = false;
-  Int64 origObjUID = -1;
-  Int64 objDataUID = 0;
+  long origObjUID = -1;
+  long objDataUID = 0;
 
   if ((retcode == 1) &&  // exists
       ((createViewNode->isCreateOrReplaceViewCascade()) || (createViewNode->isCreateOrReplaceView()))) {
@@ -728,7 +728,7 @@ void CmpSeabaseDDL::createSeabaseView(StmtDDLCreateView *createViewNode, NAStrin
 
     Int32 objectOwnerID = 0;
     Int32 schemaOwnerID = 0;
-    Int64 objectFlags = 0;
+    long objectFlags = 0;
     origObjUID = getObjectInfo(&cliInterface, catalogNamePart.data(), schemaNamePart.data(), objectNamePart.data(),
                                COM_VIEW_OBJECT, objectOwnerID, schemaOwnerID, objectFlags, objDataUID);
 
@@ -841,7 +841,7 @@ void CmpSeabaseDDL::createSeabaseView(StmtDDLCreateView *createViewNode, NAStrin
     return;
   }
 
-  Lng32 numCols = colDefArray.entries();
+  int numCols = colDefArray.entries();
   ComTdbVirtTableColumnInfo *colInfoArray = new (STMTHEAP) ComTdbVirtTableColumnInfo[numCols];
 
   if (buildColInfoArray(COM_VIEW_OBJECT, FALSE, &colDefArray, colInfoArray, FALSE, FALSE)) {
@@ -865,7 +865,7 @@ void CmpSeabaseDDL::createSeabaseView(StmtDDLCreateView *createViewNode, NAStrin
   tableInfo->rowFormat = COM_UNKNOWN_FORMAT_TYPE;
   tableInfo->objectFlags = 0;
 
-  Int64 objUID = -1;
+  long objUID = -1;
   if (updateSeabaseMDTable(&cliInterface, catalogNamePart, schemaNamePart, objectNamePart, COM_VIEW_OBJECT, "N",
                            tableInfo, numCols, colInfoArray, 0, NULL, 0, NULL, objUID)) {
     processReturn();
@@ -1022,8 +1022,8 @@ void CmpSeabaseDDL::createSeabaseView(StmtDDLCreateView *createViewNode, NAStrin
 }
 
 void CmpSeabaseDDL::dropSeabaseView(StmtDDLDropView *dropViewNode, NAString &currCatName, NAString &currSchName) {
-  Lng32 cliRC = 0;
-  Lng32 retcode = 0;
+  int cliRC = 0;
+  int retcode = 0;
 
   ExeCliInterface cliInterface(STMTHEAP, 0, NULL, CmpCommon::context()->sqlSession()->getParentQid());
 
@@ -1053,9 +1053,9 @@ void CmpSeabaseDDL::dropSeabaseView(StmtDDLDropView *dropViewNode, NAString &cur
 
   Int32 objectOwnerID = 0;
   Int32 schemaOwnerID = 0;
-  Int64 objectFlags = 0;
-  Int64 objDataUID = 0;
-  Int64 objUID = getObjectInfo(&cliInterface, catalogNamePart.data(), schemaNamePart.data(), objectNamePart.data(),
+  long objectFlags = 0;
+  long objDataUID = 0;
+  long objUID = getObjectInfo(&cliInterface, catalogNamePart.data(), schemaNamePart.data(), objectNamePart.data(),
                                COM_VIEW_OBJECT, objectOwnerID, schemaOwnerID, objectFlags, objDataUID);
 
   if (objUID < 0 || objectOwnerID == 0) {
@@ -1116,7 +1116,7 @@ void CmpSeabaseDDL::dropSeabaseView(StmtDDLDropView *dropViewNode, NAString &cur
     CorrName cn(tablesRefdList[i].objectName, STMTHEAP, tablesRefdList[i].schemaName, tablesRefdList[i].catalogName);
 
     // get uid of the corresponding schema
-    Int64 schUID = -1;
+    long schUID = -1;
     if (isLockedForBR(tablesRefdList[i].objectUID, schUID, &cliInterface, cn)) {
       processReturn();
       return;
@@ -1145,7 +1145,7 @@ void CmpSeabaseDDL::dropSeabaseView(StmtDDLDropView *dropViewNode, NAString &cur
 
   }  // for
 
-  Int64 redefTime = NA_JulianTimestamp();
+  long redefTime = NA_JulianTimestamp();
 
   // Now remove referenced tables from cache.
   if (usingViewsQueue) {
@@ -1155,7 +1155,7 @@ void CmpSeabaseDDL::dropSeabaseView(StmtDDLDropView *dropViewNode, NAString &cur
       OutputInfo *vi = (OutputInfo *)usingViewsQueue->getNext();
 
       char *usingViewName = vi->get(0);
-      Int64 usingViewUID = *(Int64 *)vi->get(1);
+      long usingViewUID = *(long *)vi->get(1);
 
       // add to list of affected DDL operations
       DDLObjInfo ddlObj(usingViewName, usingViewUID, COM_VIEW_OBJECT);
@@ -1229,8 +1229,8 @@ void CmpSeabaseDDL::dropSeabaseView(StmtDDLDropView *dropViewNode, NAString &cur
   return;
 }
 
-void CmpSeabaseDDL::glueQueryFragments(Lng32 queryArraySize, const QString *queryArray, char *&gluedQuery,
-                                       Lng32 &gluedQuerySize) {
+void CmpSeabaseDDL::glueQueryFragments(int queryArraySize, const QString *queryArray, char *&gluedQuery,
+                                       int &gluedQuerySize) {
   Int32 i = 0;
   gluedQuerySize = 0;
   gluedQuery = NULL;
@@ -1254,8 +1254,8 @@ void CmpSeabaseDDL::glueQueryFragments(Lng32 queryArraySize, const QString *quer
 }
 
 short CmpSeabaseDDL::createMetadataViews(ExeCliInterface *cliInterface) {
-  Lng32 cliRC = 0;
-  Lng32 retcode = 0;
+  int cliRC = 0;
+  int retcode = 0;
 
   char queryBuf[5000];
 
@@ -1276,7 +1276,7 @@ short CmpSeabaseDDL::createMetadataViews(ExeCliInterface *cliInterface) {
 
     Int32 qryArraySize = sizeOfqs / sizeof(QString);
     char *gluedQuery;
-    Lng32 gluedQuerySize;
+    int gluedQuerySize;
     glueQueryFragments(qryArraySize, qs, gluedQuery, gluedQuerySize);
 
     if (strcmp(mdi.viewName, TRAF_TABLES_VIEW) == 0) {
@@ -1432,8 +1432,8 @@ short CmpSeabaseDDL::createMetadataViews(ExeCliInterface *cliInterface) {
 }
 
 short CmpSeabaseDDL::dropMetadataViews(ExeCliInterface *cliInterface) {
-  Lng32 cliRC = 0;
-  Lng32 retcode = 0;
+  int cliRC = 0;
+  int retcode = 0;
 
   char queryBuf[5000];
 

@@ -66,7 +66,7 @@ int_16 TMF_SETTXHANDLE_(short *);
 #include "nsk/nskprocess.h"
 extern "C" {
 #include "common/cextdecs.h"
-#include "zsysc.h"
+#include "common/zsysc.h"
 }
 #include "common/feerrors.h"
 
@@ -178,11 +178,11 @@ IpcStartupMsg::IpcStartupMsg() {
 // Methods for class GuaProcessHandle
 // -----------------------------------------------------------------------
 
-Lng32 GuaProcessHandle::decompose(Int32 &cpu, Int32 &pin, Int32 &nodeNumber, SB_Int64_Type &seqNum) const {
+int GuaProcessHandle::decompose(Int32 &cpu, Int32 &pin, Int32 &nodeNumber, SB_Int64_Type &seqNum) const {
   // Phandle wrapper in porting layer
   NAProcessHandle phandle((SB_Phandle_Type *)&phandle_);
 
-  Lng32 result = phandle.decompose();
+  int result = phandle.decompose();
 
   if (!result) {
     cpu = phandle.getCpu();
@@ -242,7 +242,7 @@ Int32 GuaProcessHandle::toAscii(char *ascii, Int32 asciiLen) const {
 // -----------------------------------------------------------------------
 
 IpcNodeName::IpcNodeName(const GuaProcessHandle &phandle) {
-  Lng32 nodeNumber;
+  int nodeNumber;
   short nodeNameLen;
   char nodeNameWithBackslash[GuaNodeNameMaxLen + 1];
 
@@ -520,10 +520,10 @@ WaitReturnStatus GuaConnectionToServer::wait(IpcTimeout timeout, UInt32 *eventCo
         if (guaErrorInfo_ == GuaOK) guaErrorInfo_ = guardianErrNum;
 
         setErrorInfo(-1);
-        if ((ioTag >= 0) && (ioTag < (Lng32(nowaitDepth_)))) {
+        if ((ioTag >= 0) && (ioTag < (int(nowaitDepth_)))) {
           // valid tag returned from BAWAITIOX
           ActiveIOQueueEntry &entry = activeIOs_[ioTag];
-          assert(entry.inUse_ && ioTag == (Lng32)entry.ioTag_);
+          assert(entry.inUse_ && ioTag == (int)entry.ioTag_);
           handleIOErrorForEntry(entry);
         } else
 
@@ -538,8 +538,8 @@ WaitReturnStatus GuaConnectionToServer::wait(IpcTimeout timeout, UInt32 *eventCo
         ActiveIOQueueEntry &entry = activeIOs_[ioTag];
         IpcMessageBuffer *writeReadBuffer = entry.readBuffer_;
 
-        assert(ioTag >= 0 && ioTag < (Lng32)nowaitDepth_);
-        assert(entry.inUse_ && ioTag == (Lng32)entry.ioTag_);
+        assert(ioTag >= 0 && ioTag < (int)nowaitDepth_);
+        assert(entry.inUse_ && ioTag == (int)entry.ioTag_);
 
         // make sure we actually received the buffer that we expected
         if (writeReadBuffer == NULL)
@@ -2267,7 +2267,7 @@ WaitReturnStatus GuaReceiveControlConnection::wait(IpcTimeout timeout, UInt32 *e
         retcode = guaErrorInfo_ = GuaOK;
     } else {  // not initialized && infinite timeout
       // Set the timeout to 1 min
-      Lng32 newTimeOut = 100 * 60 * 1;
+      int newTimeOut = 100 * 60 * 1;
       NABoolean done = FALSE;
       while (!done) {
         _cc_status stat;
@@ -2384,7 +2384,7 @@ WaitReturnStatus GuaReceiveControlConnection::wait(IpcTimeout timeout, UInt32 *e
   switchToUserTransid();
 
 #ifdef LOG_RECEIVE
-  Int64 jts = JULIANTIMESTAMP();
+  long jts = JULIANTIMESTAMP();
   MyGuaProcessHandle me;
   IpcProcessId other(receiveInfo.phandle_);
   char meAsAscii[200];
@@ -2393,7 +2393,7 @@ WaitReturnStatus GuaReceiveControlConnection::wait(IpcTimeout timeout, UInt32 *e
   other.toAscii(otherAsAscii, 200);
 
   cerr << "(" <<
-      // NT has problems printing out an Int64
+      // NT has problems printing out an long
       (ULng32)jts << "): " << meAsAscii << " from " << otherAsAscii << "(" << receiveInfo.clientFileNumber_ << ") "
        << "Received " << countTransferred << " bytes with max reply len " << receiveInfo.maxReplyLen_ << endl;
 #endif /* LOG_RECEIVE */
@@ -2416,7 +2416,7 @@ WaitReturnStatus GuaReceiveControlConnection::wait(IpcTimeout timeout, UInt32 *e
   }
 
 #ifdef LOG_RECEIVE
-  cerr << "Found the active receive buffer " << (Lng32)receivedBuffer << endl;
+  cerr << "Found the active receive buffer " << (int)receivedBuffer << endl;
 #endif
 
   if (receivedBuffer == NULL) {
@@ -2981,7 +2981,7 @@ void GuaReceiveControlConnection::waitForMaster() {
       str_sprintf(buf, "clock_gettime failed, errno %d", errno);
       ABORT(buf);
     }
-    Int64 timeStart = ComRtGetJulianFromUTC(startedOpenWaitTs);
+    long timeStart = ComRtGetJulianFromUTC(startedOpenWaitTs);
 
     wait(100 * openWaitSeconds);
     if (getConnection() != NULL) break;
@@ -2992,7 +2992,7 @@ void GuaReceiveControlConnection::waitForMaster() {
       str_sprintf(buf, "clock_gettime failed, errno %d", errno);
       ABORT(buf);
     }
-    Int64 timeNow = ComRtGetJulianFromUTC(nowOpenWaitTs);
+    long timeNow = ComRtGetJulianFromUTC(nowOpenWaitTs);
     openWaitSeconds -= ((timeNow - timeStart) / (1000 * 1000));
   } while (openWaitSeconds > 0);
 
@@ -3013,7 +3013,7 @@ IpcGuardianServer::IpcGuardianServer(IpcServerClass *serverClass, ComDiagsArea *
                                      CollHeap * /* diagsHeap */, const char *nodeName, const char *className,
                                      IpcCpuNum cpuNum, IpcPriority priority, IpcServerAllocationMethod allocMethod,
                                      short uniqueTag, NABoolean usesTransactions, NABoolean debugServer,
-                                     NABoolean waitedStartup, Lng32 maxNowaitRequests,
+                                     NABoolean waitedStartup, int maxNowaitRequests,
                                      const char *overridingDefineForProgFile, const char *processName,
                                      NABoolean parallelOpens)
     : IpcServer(NULL, serverClass), numberOfRetries_(0), retryOnAlternativeNodeOK_(FALSE) {
@@ -3129,7 +3129,7 @@ short IpcGuardianServer::workOnStartup(IpcTimeout timeout, NAWNodeSetWrapper *av
   return 0;
 }  // IpcGuardianServer::workOnStartup()
 
-void IpcGuardianServer::acceptSystemMessage(const char *sysMsg, Lng32 sysMsgLength) {
+void IpcGuardianServer::acceptSystemMessage(const char *sysMsg, int sysMsgLength) {
   short *msgType = (short *)sysMsg;
 
   // make sure we received at least the two bytes for the message type
@@ -3440,7 +3440,7 @@ void IpcGuardianServer::launchNSKLiteProcess(NAWNodeSetWrapper *availableNodes, 
     // ---------------------------------------------------------------------
 
     void *envp = getServerClass()->getEnv()->getEnvVars();
-    Lng32 envpLen = getServerClass()->getEnv()->getEnvVarsLen();
+    int envpLen = getServerClass()->getEnv()->getEnvVarsLen();
     Int32 server_nid = p_pe; /* multi fragment esp concurrent change */
     Int32 server_pid = 0;
     Int32 server_oid = 0;
@@ -3519,7 +3519,7 @@ void IpcGuardianServer::launchNSKLiteProcess(NAWNodeSetWrapper *availableNodes, 
                                                        0,                                        /* priority */
                                                        0,                                        /* debug */
                                                        0,                                        /* backup */
-                                                       (Int64)&nowaitedEspStartup_, &server_nid, /* nid */
+                                                       (long)&nowaitedEspStartup_, &server_nid, /* nid */
                                                        &server_pid, NULL, NULL, unhooked_);
         ESP_TRACE2("MT: Back MMSPNW, svr: %p\n", &nowaitedEspStartup_);
         if (actualCpuNum_ == IPC_CPU_DONT_CARE)
@@ -3843,7 +3843,7 @@ void IpcGuardianServer::getCpuLocationString(char *location) {
 #if defined(LOG_IPC) || defined(LOG_RECEIVE)
 
 void IpcGuaLogTimestamp(IpcConnection *conn) {
-  Int64 jts = JULIANTIMESTAMP();
+  long jts = JULIANTIMESTAMP();
   MyGuaProcessHandle me;
   char meAsAscii[200];
   char otherAsAscii[200];
@@ -3870,7 +3870,7 @@ void IpcGuaLogTimestamp(IpcConnection *conn) {
     fromto = " <-> ";
 
   cerr << "(" <<
-      // NT has problems printing out an Int64
+      // NT has problems printing out an long
       (ULng32)jts << "): " << meAsAscii << fromto << otherAsAscii << "(" << fno << ") ";
 }
 #endif /* LOG_IPC || LOG_RECEIVE */

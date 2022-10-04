@@ -250,28 +250,28 @@ class Descriptor : public ExGod {
   SQLMODULE_ID module;
   short dyn_alloc_flag;
 
-  Lng32 rowsetSize;          // Number of rows in rowset array.
+  int rowsetSize;          // Number of rows in rowset array.
   void *rowsetStatusPtr;     // Optional. Specifies the status array. It
                              // contains the row status values for each row
                              // after a RowSet fetch.
                              // Must be size of RowsetSize
                              // Application is responsable for this ptr.
-  Lng32 rowsetNumProcessed;  // Number of rows processed in the rowset
-  Lng32 rowsetHandle;        // A handle/cursor to current row in rowset
+  int rowsetNumProcessed;  // Number of rows processed in the rowset
+  int rowsetHandle;        // A handle/cursor to current row in rowset
                              // A value of "-1" indicates that a rowset
                              // has not been defined.
-  Lng32 max_entries;         // Max entries of desc_struct
-  Lng32 used_entries;        // Num active entries of desc_struct
+  int max_entries;         // Max entries of desc_struct
+  int used_entries;        // Num active entries of desc_struct
 
   ULng32 flags_;
 
   ULng32 compoundStmtsInfo_;  // contains information needed for compound statements
 
-  Lng32 rowwiseRowsetSize;      // Number of rows in rowset array they
+  int rowwiseRowsetSize;      // Number of rows in rowset array they
                                 // are being passed in stacked rowwise.
-  Lng32 rowwiseRowsetRowLen;    // length of each row.
+  int rowwiseRowsetRowLen;    // length of each row.
   Long rowwiseRowsetPtr;        // ptr to the start of rowset buffer.
-  Lng32 rowwiseRowsetPartnNum;  // partition number where this rwrs
+  int rowwiseRowsetPartnNum;  // partition number where this rwrs
                                 // buffer need to go to.
   char filler_[16];
 
@@ -283,7 +283,7 @@ class Descriptor : public ExGod {
       IS_CASE_INSENSITIVE = 0x0008
     };
 
-    Lng32 rowsetVarLayoutSize; /* Three cases:
+    int rowsetVarLayoutSize; /* Three cases:
                                 * ZERO: when entry is not participating
                                 *       in a rowset or the same value is
                                 *       used in the rowset (i.e., without
@@ -295,7 +295,7 @@ class Descriptor : public ExGod {
                                 *       are several item in the structure,
                                 *       even items outside the rowset.
                                 */
-    Lng32 rowsetIndLayoutSize; /* Three cases:
+    int rowsetIndLayoutSize; /* Three cases:
                                 * ZERO: when entry is not participating
                                 *       in a rowset or the same value is
                                 *       used in the rowset (i.e., without
@@ -307,23 +307,23 @@ class Descriptor : public ExGod {
                                 *       are several item in the structure,
                                 *       even items outside the rowset.
                                 */
-    Lng32 datatype;
-    Lng32 datetime_code;
-    Lng32 length;
+    int datatype;
+    int datetime_code;
+    int length;
     short nullable;
-    Lng32 charset;          //
+    int charset;          //
     char *charset_schema;   // Internally charset and collation
     char *charset_catalog;  // is stored as a long.
     char *charset_name;     // All other charset and collation related
 
-    Lng32 coll_seq;  // desc items are stored as character strings.
+    int coll_seq;  // desc items are stored as character strings.
     char *coll_schema;
     char *coll_catalog;
     char *coll_name;
 
-    Lng32 scale;
-    Lng32 precision;
-    Lng32 int_leading_precision;
+    int scale;
+    int precision;
+    int int_leading_precision;
     char *output_name;
     short generated_output_name;
     char *heading;
@@ -338,16 +338,16 @@ class Descriptor : public ExGod {
                      // variables.
     char *var_data;  // For Unbound. Rowsets are not used
     Long ind_ptr;    // Same convention as var_ptr
-    Lng32 ind_data;  // For Unbound. Rowsets are not used
-    Lng32 ind_datatype;
-    Lng32 ind_length;
-    Lng32 vc_ind_length;
-    Lng32 aligned_length;  // length + ind_length + vc_ind_length + fillers
+    int ind_data;  // For Unbound. Rowsets are not used
+    int ind_datatype;
+    int ind_length;
+    int vc_ind_length;
+    int aligned_length;  // length + ind_length + vc_ind_length + fillers
 
     // offsets to values in the actual sql row.
     // Used by caller to align their data so bulkmove could be done.
-    Lng32 data_offset;
-    Lng32 null_ind_offset;
+    int data_offset;
+    int null_ind_offset;
 
     ULng32 desc_flags;
 
@@ -359,8 +359,8 @@ class Descriptor : public ExGod {
     char *text_format;
 
 #ifdef _DEBUG
-    Lng32 rowwise_var_offset;  // testing logic
-    Lng32 rowwise_ind_offset;  // testing logic
+    int rowwise_var_offset;  // testing logic
+    int rowwise_ind_offset;  // testing logic
 #endif
 
     Int32 lobInlinedDataMaxLen;
@@ -379,57 +379,57 @@ class Descriptor : public ExGod {
   NABoolean lockedForNoWaitOp_;  // true if this descriptor is in use
                                  // by a pending no-wait operation
 
-  static void DescItemDefaultsForDatetimeCode(desc_struct &descItem, Lng32 datetime_interval);
-  static void DescItemDefaultsForType(desc_struct &descItem, Lng32 datatype, NAHeap &heap);
-  static Lng32 DefaultPrecision(Lng32 datatype);
-  static Lng32 DefaultScale(Lng32 datatype);
+  static void DescItemDefaultsForDatetimeCode(desc_struct &descItem, int datetime_interval);
+  static void DescItemDefaultsForType(desc_struct &descItem, int datatype, NAHeap &heap);
+  static int DefaultPrecision(int datatype);
+  static int DefaultScale(int datatype);
 
-  static Lng32 setIndLength(desc_struct &descItem);
-  static Lng32 setVarLength(desc_struct &descItem);
+  static int setIndLength(desc_struct &descItem);
+  static int setVarLength(desc_struct &descItem);
 
-  char *getVarItem(desc_struct &descItem, Lng32 idxrow);
-  char *getIndItem(desc_struct &descItem, Lng32 idxrow);
+  char *getVarItem(desc_struct &descItem, int idxrow);
+  char *getIndItem(desc_struct &descItem, int idxrow);
 
-  RETCODE processNumericDatatype(desc_struct &descItem, Lng32 numeric_value);
+  RETCODE processNumericDatatype(desc_struct &descItem, int numeric_value);
 
   RETCODE processNumericDatatypeWithPrecision(desc_struct &descItem, ComDiagsArea &diags);
 
   void set_text_format(desc_struct &descItem);
 
  public:
-  Descriptor(SQLDESC_ID *descriptor_id_, Lng32 max_entries_, ContextCli *context);
+  Descriptor(SQLDESC_ID *descriptor_id_, int max_entries_, ContextCli *context);
   ~Descriptor();
 
   NABoolean operator==(Descriptor &other);
 
-  RETCODE alloc(Lng32 used_entries_);
+  RETCODE alloc(int used_entries_);
 
   RETCODE dealloc();
 
-  RETCODE addEntry(Lng32 entry);
+  RETCODE addEntry(int entry);
 
-  char *getVarData(Lng32 entry);
-  char *getVarData(Lng32 entry, Lng32 idxrow);
-  Int32 getVarDataLength(Lng32 entry);
-  Int32 getVarIndicatorLength(Lng32 entry);
-  Int32 getVarDataType(Lng32 entry);
-  const char *getVarDataCharSet(Lng32 entry);
-  char *getIndData(Lng32 entry);
-  char *getIndData(Lng32 entry, Lng32 idxrow);
-  Int32 getIndLength(Lng32 entry);
-  RETCODE getDescItemMainVarInfo(Lng32 entry, short &var_isnullable, Lng32 &var_datatype, Lng32 &var_length,
-                                 void **var_ptr, Lng32 &ind_datatype, Lng32 &ind_length, void **ind_ptr);
+  char *getVarData(int entry);
+  char *getVarData(int entry, int idxrow);
+  Int32 getVarDataLength(int entry);
+  Int32 getVarIndicatorLength(int entry);
+  Int32 getVarDataType(int entry);
+  const char *getVarDataCharSet(int entry);
+  char *getIndData(int entry);
+  char *getIndData(int entry, int idxrow);
+  Int32 getIndLength(int entry);
+  RETCODE getDescItemMainVarInfo(int entry, short &var_isnullable, int &var_datatype, int &var_length,
+                                 void **var_ptr, int &ind_datatype, int &ind_length, void **ind_ptr);
 
-  RETCODE getDescItem(Lng32 entry, Lng32 what_to_get, void *numeric_value, char *string_value, Lng32 max_string_len,
-                      Lng32 *returned_len, Lng32 start_from_offset, Descriptor *desc_to_get_more_info = 0,
+  RETCODE getDescItem(int entry, int what_to_get, void *numeric_value, char *string_value, int max_string_len,
+                      int *returned_len, int start_from_offset, Descriptor *desc_to_get_more_info = 0,
                       Int32 entry_in_desc_to_get_more_info = 0);
 
-  RETCODE getDescItemPtr(Lng32 entry, Lng32 what_to_get, char **string_ptr, Lng32 *returned_len);
+  RETCODE getDescItemPtr(int entry, int what_to_get, char **string_ptr, int *returned_len);
 
-  RETCODE setDescItem(Lng32 entry, Lng32 what_to_set, Long numeric_value, char *string_value,
+  RETCODE setDescItem(int entry, int what_to_set, Long numeric_value, char *string_value,
                       Descriptor *desc_to_get_more_info = 0, Int32 entry_in_desc_to_get_more_info = 0);
 
-  RETCODE setDescItemInternal(Lng32 entry, Lng32 what_to_set, Lng32 numeric_value, char *string_value);
+  RETCODE setDescItemInternal(int entry, int what_to_set, int numeric_value, char *string_value);
 
   //
   // GetNameViaDesc - retrieve the name of a statement,cursor, or descriptor
@@ -439,22 +439,22 @@ class Descriptor : public ExGod {
   //
   static SQLCLI_OBJ_ID *GetNameViaDesc(SQLDESC_ID *desc_id, ContextCli *context, NAHeap &heap);
 
-  inline void setMaxEntryCount(Lng32 max_entries_);
-  inline Lng32 getMaxEntryCount();
+  inline void setMaxEntryCount(int max_entries_);
+  inline int getMaxEntryCount();
 
-  Lng32 getUsedEntryCount();
+  int getUsedEntryCount();
 
-  void setUsedEntryCount(Lng32 used_entries_);
+  void setUsedEntryCount(int used_entries_);
 
-  Lng32 getRowsetSize() { return rowsetSize; }
+  int getRowsetSize() { return rowsetSize; }
 
-  Lng32 getRowwiseRowsetSize() { return rowwiseRowsetSize; }
-  Lng32 getRowwiseRowsetRowLen() { return rowwiseRowsetRowLen; }
-  Int64 getRowwiseRowsetPtr() { return rowwiseRowsetPtr; }
+  int getRowwiseRowsetSize() { return rowwiseRowsetSize; }
+  int getRowwiseRowsetRowLen() { return rowwiseRowsetRowLen; }
+  long getRowwiseRowsetPtr() { return rowwiseRowsetPtr; }
 
-  Lng32 getRowsetNumProcessed() { return rowsetNumProcessed; }
+  int getRowsetNumProcessed() { return rowsetNumProcessed; }
 
-  Lng32 getCurrRowOffsetInRowwiseRowset() { return (rowwiseRowsetRowLen * rowsetNumProcessed); }
+  int getCurrRowOffsetInRowwiseRowset() { return (rowwiseRowsetRowLen * rowsetNumProcessed); }
 
   Long getCurrRowPtrInRowwiseRowset() { return (rowwiseRowsetPtr + rowwiseRowsetRowLen * rowsetNumProcessed); }
 
@@ -481,23 +481,23 @@ class Descriptor : public ExGod {
   inline ULng32 getDescFlags();
   inline void setDescFlags(ULng32 f);
   // static helper functions to deal with FS types
-  static Lng32 ansiTypeFromFSType(Lng32 datatype);
-  static const char *ansiTypeStrFromFSType(Lng32 datatype);
-  static Lng32 datetimeIntCodeFromTypePrec(Lng32 datatype, Lng32 precision);
-  static short isIntervalFSType(Lng32 datatype);
-  static short isCharacterFSType(Lng32 datatype);
-  static short isIntegralFSType(Lng32 datatype);
-  static short isFloatFSType(Lng32 datatype);
-  static short isNumericFSType(Lng32 datatype);
-  static short isDatetimeFSType(Lng32 datatype);
-  static short isBitFSType(Lng32 datatype);
+  static int ansiTypeFromFSType(int datatype);
+  static const char *ansiTypeStrFromFSType(int datatype);
+  static int datetimeIntCodeFromTypePrec(int datatype, int precision);
+  static short isIntervalFSType(int datatype);
+  static short isCharacterFSType(int datatype);
+  static short isIntegralFSType(int datatype);
+  static short isFloatFSType(int datatype);
+  static short isNumericFSType(int datatype);
+  static short isDatetimeFSType(int datatype);
+  static short isBitFSType(int datatype);
 
   inline short dynAllocated();
   ContextCli *getContext() { return context_; }
 
   // This function gets char string content from an ASCII CHAR host variable.
   static char *getCharDataFromCharHostVar(ComDiagsArea &diags, NAHeap &heap, char *host_var_string_value,
-                                          Lng32 host_var_string_value_length, const char *the_SQLDESC_option,
+                                          int host_var_string_value_length, const char *the_SQLDESC_option,
                                           Descriptor *info_desc = 0, Int32 info_desc_index = 0, short target_type = -1);
 
   //////////////////////////////////////////////////
@@ -651,13 +651,13 @@ inline char *Descriptor::getModuleName()
 /* returns -1 if this descriptor was allocated by a call to AllocDesc */
 inline short Descriptor::dynAllocated() { return dyn_alloc_flag; }
 
-inline Lng32 Descriptor::getMaxEntryCount() { return max_entries; }
+inline int Descriptor::getMaxEntryCount() { return max_entries; }
 
-inline void Descriptor::setMaxEntryCount(Lng32 max_entries_) { max_entries = max_entries_; }
+inline void Descriptor::setMaxEntryCount(int max_entries_) { max_entries = max_entries_; }
 inline ULng32 Descriptor::getDescFlags() { return flags_; }
 inline void Descriptor::setDescFlags(ULng32 f) { flags_ = f; }
 
-void stripBlanks(char *buf, Lng32 &len);
+void stripBlanks(char *buf, int &len);
 
 void upperCase(char *buf);
 

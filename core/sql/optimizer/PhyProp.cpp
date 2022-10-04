@@ -82,8 +82,8 @@ NABoolean PhysicalProperty::isPartKeyPrefixOfSortKey() const {
 
   ValueIdList actualPartKey(partFunc->castToRangePartitioningFunction()->getKeyColumnList());
   ValueIdList actualSortKey(getSortKey());
-  Lng32 numPartCols = actualPartKey.entries();
-  Lng32 numClusterCols = actualSortKey.entries();
+  int numPartCols = actualPartKey.entries();
+  int numClusterCols = actualSortKey.entries();
 
   for (CollIndex index = 0; index < CollIndex(numPartCols); index++) {
     if (actualPartKey[index] != actualSortKey[index]) return FALSE;
@@ -126,9 +126,9 @@ PhysicalProperty::compareProperties(const PhysicalProperty &other) const {
   // expressions (same ValueId, same NAType, etc.), consisting of
   // the shorter of the two keys.
   // ---------------------------------------------------------------------
-  Lng32 myKeyCount = sortKey_.entries();
-  Lng32 otherKeyCount = other.sortKey_.entries();
-  Lng32 minEntries = MINOF(myKeyCount, otherKeyCount);
+  int myKeyCount = sortKey_.entries();
+  int otherKeyCount = other.sortKey_.entries();
+  int minEntries = MINOF(myKeyCount, otherKeyCount);
 
   for (CollIndex index = 0; index < (CollIndex)minEntries; index++)
     if (NOT(sortKey_[index] == other.sortKey_[index])) {
@@ -483,8 +483,8 @@ ReqdPhysicalProperty::compareRequirements(const ReqdPhysicalProperty &other) con
   // compare the sort order of both properties
   // ---------------------------------------------------------------------
   if (orderedBy_ != NULL OR other.orderedBy_ != NULL) {
-    Lng32 mySortEntries;
-    Lng32 otherSortEntries;
+    int mySortEntries;
+    int otherSortEntries;
 
     // Compute the number of sort key columns.
 
@@ -692,8 +692,8 @@ ReqdPhysicalProperty::compareRequirements(const ReqdPhysicalProperty &other) con
   // control, then a plan that uses less parallelism is prefered.
   // ---------------------------------------------------------------------
   if (NOT executeInDP2() AND NOT other.executeInDP2()) {
-    Lng32 myPipelines = getCountOfPipelines();
-    Lng32 otherPipelines = other.getCountOfPipelines();
+    int myPipelines = getCountOfPipelines();
+    int otherPipelines = other.getCountOfPipelines();
 
     if (perfGoal_->isOptimizeForFirstRow() OR perfGoal_->isOptimizeForLastRow()) {
       if (myPipelines > otherPipelines)
@@ -749,7 +749,7 @@ ReqdPhysicalProperty::compareRequirements(const ReqdPhysicalProperty &other) con
 }  // ReqdPhysicalProperty::compareRequirements
 
 // Checked in M5. This function is never called
-RelExpr *ReqdPhysicalProperty::getInputMustMatch(Lng32 childIndex) const {
+RelExpr *ReqdPhysicalProperty::getInputMustMatch(int childIndex) const {
   // If the solution for this context must or need not match
   // a particular pattern, what is the pattern that an input
   // context for the child at index "childIndex" must match?

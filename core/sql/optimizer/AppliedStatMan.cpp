@@ -1002,7 +1002,7 @@ EstLogPropSharedPtr AppliedStatMan::getStatsForLocalPredsOnPrefixOfColList(CANod
   }
 
   ValueIdSet localPredsOnCols;
-  Lng32 prefixSize;
+  int prefixSize;
 
   // get local predicates for leading key columns
   localPredsOnCols = tableAnalysis->getLocalPredsOnPrefixOfList(colIdList, prefixSize);
@@ -1109,7 +1109,7 @@ EstLogPropSharedPtr AppliedStatMan::getStatsForJoinPredsOnCols(const CANodeIdSet
 
   ValueIdSet joinPredsOfCK;
   ValueIdSet leadingColsPreds;
-  Lng32 prefixSize;
+  int prefixSize;
   CANodeIdSet connectedJBBCs;
 
   if (onlyLeadingCols)

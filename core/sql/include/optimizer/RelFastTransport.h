@@ -57,12 +57,12 @@ class UnloadOption {
     ONE_FILE_,
     USE_SNAPSHOT_SCAN_
   };
-  UnloadOption(UnloadOptionType option, Lng32 numericVal, char *stringVal, char *stringVal2 = NULL)
+  UnloadOption(UnloadOptionType option, int numericVal, char *stringVal, char *stringVal2 = NULL)
       : option_(option), numericVal_(numericVal), stringVal_(stringVal){};
 
  private:
   UnloadOptionType option_;
-  Lng32 numericVal_;
+  int numericVal_;
   char *stringVal_;
 };
 

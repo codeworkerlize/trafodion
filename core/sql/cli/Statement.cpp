@@ -57,7 +57,7 @@
 #include "Descriptor.h"  // For call to Descriptor::getCharDataFromCharHostVar().
 #include "exp/exp_clause_derived.h"
 #include "cli/sql_id.h"
-#include "ex_error.h"
+#include "executor/ex_error.h"
 #include "common/ComRtUtils.h"
 #include "common/ComDistribution.h"
 #include "Cli.h"
@@ -105,7 +105,7 @@
 #define StmtDebug3(s, a1, a2, a3)         StmtDebug((s), (a1), (a2), (a3))
 #define StmtDebug4(s, a1, a2, a3, a4)     StmtDebug((s), (a1), (a2), (a3), (a4))
 #define StmtDebug5(s, a1, a2, a3, a4, a5) StmtDebug((s), (a1), (a2), (a3), (a4), (a5))
-const char *TransIdToText(Int64 transId) {
+const char *TransIdToText(long transId) {
   static char text[256];
   short actualLen;
   short error = TRANSIDTOTEXT(transId, text, 255, &actualLen);
@@ -174,7 +174,7 @@ StatementInfo::~StatementInfo() {
 };
 
 // This function is an internal test mechanism for SPJ result sets
-static const char *getProxySyntaxFromEnvironment(CliGlobals *cliGlobals, Lng32 rsIndex) {
+static const char *getProxySyntaxFromEnvironment(CliGlobals *cliGlobals, int rsIndex) {
   char *stmtText = NULL;
 
   return stmtText;
@@ -229,7 +229,7 @@ Statement::Statement(SQLSTMT_ID *statement_id_, CliGlobals *cliGlobals, Statemen
 #ifdef _DEBUG
   stmtDebug_ = FALSE;
   stmtListDebug_ = FALSE;
-  Lng32 numCliCalls = context_->getNumOfCliCalls();
+  int numCliCalls = context_->getNumOfCliCalls();
 
   // We have two printf-style trace mechanisms in the debug build
   //
@@ -270,7 +270,7 @@ Statement::Statement(SQLSTMT_ID *statement_id_, CliGlobals *cliGlobals, Statemen
 #endif
 
   StmtDebug1("[BEGIN constructor] %p", this);
-  StmtDebug2("  Context address %p, context handle %d", context_, (Lng32)context_->getContextHandle());
+  StmtDebug2("  Context address %p, context handle %d", context_, (int)context_->getContextHandle());
 
   clonedStatements = new (&heap_) Queue(&heap_);
   // for now a statement space is allocated from the statement heap
@@ -302,7 +302,7 @@ Statement::Statement(SQLSTMT_ID *statement_id_, CliGlobals *cliGlobals, Statemen
   const SQLMODULE_ID *old_module = statement_id_->module;
 
   if (statement_id_->module->module_name) {
-    Lng32 old_module_nm_len = (Lng32)getModNameLen(old_module);
+    int old_module_nm_len = (int)getModNameLen(old_module);
 
     char *mn = (char *)(heap_.allocateMemory(old_module_nm_len + 1));
     str_cpy_all(mn, statement_id_->module->module_name, old_module_nm_len);
@@ -314,7 +314,7 @@ Statement::Statement(SQLSTMT_ID *statement_id_, CliGlobals *cliGlobals, Statemen
   }
 
   if (statement_id_->identifier) {
-    Lng32 stmt_name_len = (Lng32)getIdLen(statement_id_);
+    int stmt_name_len = (int)getIdLen(statement_id_);
     char *id = (char *)(heap_.allocateMemory(stmt_name_len + 1));
 
     str_cpy_all(id, statement_id_->identifier, stmt_name_len);
@@ -356,10 +356,10 @@ Statement::Statement(SQLSTMT_ID *statement_id_, CliGlobals *cliGlobals, Statemen
       SQLDESC_ID tmpDescId;
       if (statement_id->name_mode == stmt_via_desc) {
         init_SQLDESC_ID(&tmpDescId, SQLCLI_CURRENT_VERSION, stmt_via_desc, statement_id->module,
-                        statement_id->identifier, 0, SQLCHARSETSTRING_ISO88591, (Lng32)getIdLen(statement_id));
+                        statement_id->identifier, 0, SQLCHARSETSTRING_ISO88591, (int)getIdLen(statement_id));
       } else {
         init_SQLDESC_ID(&tmpDescId, SQLCLI_CURRENT_VERSION, curs_via_desc, statement_id->module,
-                        statement_id->identifier, 0, SQLCHARSETSTRING_ISO88591, (Lng32)getIdLen(statement_id));
+                        statement_id->identifier, 0, SQLCHARSETSTRING_ISO88591, (int)getIdLen(statement_id));
       }
 
       // get the value of the name from the descriptor
@@ -376,7 +376,7 @@ Statement::Statement(SQLSTMT_ID *statement_id_, CliGlobals *cliGlobals, Statemen
       }
 
       if (tmpObjId) {
-        statement_id->identifier_len = (Lng32)getIdLen(tmpObjId);
+        statement_id->identifier_len = (int)getIdLen(tmpObjId);
         char *id = (char *)(heap_.allocateMemory(statement_id->identifier_len + 1));
         if (tmpObjId->identifier) {
           str_cpy_all(id, tmpObjId->identifier, statement_id->identifier_len);
@@ -435,7 +435,7 @@ Statement::Statement(SQLSTMT_ID *statement_id_, CliGlobals *cliGlobals, Statemen
       break;
 
     default:
-      StmtDebug1("  *** UNKNOWN NAME MODE %d", (Lng32)statement_id->name_mode);
+      StmtDebug1("  *** UNKNOWN NAME MODE %d", (int)statement_id->name_mode);
       break;
   }
 #endif
@@ -646,7 +646,7 @@ Statement::~Statement() {
   triggerExecErr_ = FALSE;
 }  // Statement::~Statement
 
-Lng32 Statement::getQueryType() { return root_tdb->getQueryType(); }
+int Statement::getQueryType() { return root_tdb->getQueryType(); }
 
 NABoolean Statement::updateInProgress() {
   // if there are incomplete insert, delete, update or prepare operations,
@@ -687,7 +687,7 @@ RETCODE Statement::releaseTransaction(NABoolean allWorkRequests, NABoolean alway
       root_tcb && root_tcb->needsDeregister())
     root_tcb->deregisterCB();
 
-  Int64 cbWaitStartTime = NA_JulianTimestamp();
+  long cbWaitStartTime = NA_JulianTimestamp();
 
   statementGlobals_->setNoNewRequest(FALSE);
 
@@ -869,7 +869,7 @@ RETCODE Statement::releaseTransaction(NABoolean allWorkRequests, NABoolean alway
   ComDiagsArea *diagsArea = context_->getDiagsArea();
   if (diagsArea->mainSQLCODE() >= 0 && stmtStats_ != NULL && stmtStats_->getMasterStats() != NULL &&
       (!stmtStats_->aqrInProgress()) && stmtStats_->getMasterStats()->getExeEndTime() == -1) {
-    Int64 exeEndTime = NA_JulianTimestamp();
+    long exeEndTime = NA_JulianTimestamp();
     stmtStats_->getMasterStats()->setExeEndTime(exeEndTime);
     stmtStats_->getMasterStats()->setElapsedEndTime(exeEndTime);
   }
@@ -1058,11 +1058,11 @@ RETCODE Statement::close(ComDiagsArea &diagsArea, NABoolean inRollback) {
     // The stmtGlobals transid is used in sending release msg to remote esps.
     // The context transid can be obsolete if the transaction has been
     // committed/aborted by the user.
-    Int64 transid;
+    long transid;
     if (!context_->getTransaction()->getCurrentXnId(&transid))
       getGlobals()->castToExExeStmtGlobals()->getTransid() = transid;
     else
-      getGlobals()->castToExExeStmtGlobals()->getTransid() = (Int64)-1;
+      getGlobals()->castToExExeStmtGlobals()->getTransid() = (long)-1;
 
     // cancel the down request to my child
     if (root_tcb) {
@@ -1103,7 +1103,7 @@ RETCODE Statement::close(ComDiagsArea &diagsArea, NABoolean inRollback) {
     if (rsInfo) {
       ULng32 numChildren = rsInfo->getNumEntries();
       StmtDebug0("  About to close all result set proxy statements");
-      StmtDebug1("  Num RS children: %d", (Lng32)numChildren);
+      StmtDebug1("  Num RS children: %d", (int)numChildren);
 
       ComDiagsArea *diagsFromProxy = NULL;
 
@@ -1199,7 +1199,7 @@ RETCODE Statement::close(ComDiagsArea &diagsArea, NABoolean inRollback) {
 
   // clear transId from statement globals as it is no longer needed
   // this is to avoid reuse the transId when deleting the statement
-  statementGlobals_->getTransid() = (Int64)-1;
+  statementGlobals_->getTransid() = (long)-1;
 
   StmtDebug2("[END close] %p, result is %s", this, RetcodeToString(rc));
   return rc;
@@ -1219,7 +1219,7 @@ NABoolean Statement::isDISPLAY() {
   return qt.isDISPLAY();
 }
 
-NABoolean Statement::isExeDebug(char *src, Lng32 charset) {
+NABoolean Statement::isExeDebug(char *src, int charset) {
   if (!src) {
     return FALSE;
   } else {
@@ -1235,13 +1235,13 @@ NABoolean Statement::isExeDebug(char *src, Lng32 charset) {
   }
 }
 
-Int32 Statement::octetLen(char *s, Lng32 charset) {
+Int32 Statement::octetLen(char *s, int charset) {
   return charset == SQLCHARSETCODE_UCS2
              ? na_wcslen((const NAWchar *)s) * CharInfo::maxBytesPerChar((CharInfo::CharSet)charset)
              : str_len(s);
 }
 
-Int32 Statement::octetLenplus1(char *s, Lng32 charset) {
+Int32 Statement::octetLenplus1(char *s, int charset) {
   return charset == SQLCHARSETCODE_UCS2
              ? (na_wcslen((const NAWchar *)s) + 1) * CharInfo::maxBytesPerChar((CharInfo::CharSet)charset)
              : str_len(s) + 1;
@@ -1295,7 +1295,7 @@ NABoolean Statement::isStandaloneQ()
 }
 */
 RETCODE Statement::prepare(char *source, ComDiagsArea &diagsArea, char *passed_gen_code, ULng32 passed_gen_code_len,
-                           Lng32 charset, NABoolean unpackTdbs, ULng32 cliFlags) {
+                           int charset, NABoolean unpackTdbs, ULng32 cliFlags) {
   StmtDebug1("[BEGIN prepare] %p", this);
   StmtDebug1("  Source: %s", source ? source : (source_str ? source_str : "(NULL)"));
 
@@ -1318,7 +1318,7 @@ RETCODE Statement::prepare(char *source, ComDiagsArea &diagsArea, char *passed_g
 }
 
 RETCODE Statement::prepare2(char *source, ComDiagsArea &diagsArea, char *passed_gen_code, ULng32 passed_gen_code_len,
-                            Lng32 charset, NABoolean unpackTdbs, ULng32 cliFlags) {
+                            int charset, NABoolean unpackTdbs, ULng32 cliFlags) {
   ULng32 fetched_gen_code_len = 0L;
   char *fetched_gen_code = NULL;
   short retcode = SUCCESS;
@@ -1400,7 +1400,7 @@ RETCODE Statement::prepare2(char *source, ComDiagsArea &diagsArea, char *passed_
   // directly, we use the following flag which takes reComp
   // into account.
 
-  Lng32 rsa = getRowsetAtomicity();
+  int rsa = getRowsetAtomicity();
   if (context_->getSessionDefaults()->getRowsetAtomicity() != -1)
     rsa = context_->getSessionDefaults()->getRowsetAtomicity();  // NOT_ATOMIC_;
 
@@ -1495,7 +1495,7 @@ RETCODE Statement::prepare2(char *source, ComDiagsArea &diagsArea, char *passed_
         // Build request and send to arkcmp.
         if ((reComp) || (aqRetry && deCache)) {
           CmpCompileInfo c((reComp ? source_str : source), (reComp ? sourceLenplus1() : octetLenplus1(source, charset)),
-                           (Lng32)(reComp ? charset_ : charset), schemaName_, schemaNameLength_ + 1,
+                           (int)(reComp ? charset_ : charset), schemaName_, schemaNameLength_ + 1,
                            getInputArrayMaxsize(), (short)rsa);
 
           if (aqRetry)
@@ -1538,7 +1538,7 @@ RETCODE Statement::prepare2(char *source, ComDiagsArea &diagsArea, char *passed_
           }
         }  // recompiling statement
         else {
-          CmpCompileInfo c(source, octetLenplus1(source, charset), (Lng32)charset, NULL, 0, getInputArrayMaxsize(),
+          CmpCompileInfo c(source, octetLenplus1(source, charset), (int)charset, NULL, 0, getInputArrayMaxsize(),
                            (short)rsa);
 
           if (aqRetry)
@@ -1661,7 +1661,7 @@ RETCODE Statement::prepare2(char *source, ComDiagsArea &diagsArea, char *passed_
     }  // while retry
     context_->killIdleMxcmp();
     assignRootTdb((ex_root_tdb *)fetched_gen_code);
-    root_tdb_size = (Lng32)fetched_gen_code_len;
+    root_tdb_size = (int)fetched_gen_code_len;
   }
 
   if (root_tdb) {
@@ -1672,8 +1672,8 @@ RETCODE Statement::prepare2(char *source, ComDiagsArea &diagsArea, char *passed_
   return (RETCODE)retcode;
 }  // Statement::prepare
 
-Lng32 Statement::unpackAndInit(ComDiagsArea &diagsArea, short indexIntoCompilerArray) {
-  Lng32 retcode = 0;
+int Statement::unpackAndInit(ComDiagsArea &diagsArea, short indexIntoCompilerArray) {
+  int retcode = 0;
 
   // Do not unpack the root tdb if the statement is from showplan.
   // CmpDescribePlan will unpack it.
@@ -1736,9 +1736,9 @@ Lng32 Statement::unpackAndInit(ComDiagsArea &diagsArea, short indexIntoCompilerA
 
   if (root_tdb) diagsArea.setCost(root_tdb->getCost());
   StatsGlobals *statsGlobals = cliGlobals_->getStatsGlobals();
-  Lng32 fragOffset;
-  Lng32 fragLen;
-  Lng32 topNodeOffset;
+  int fragOffset;
+  int fragLen;
+  int topNodeOffset;
   SessionDefaults *sessionDefaults = context_->getSessionDefaults();
   if (statsGlobals != NULL && stmtStats_ != NULL && root_tdb != NULL && getUniqueStmtId() != NULL) {
     ex_root_tdb *rootTdb = getRootTdb();
@@ -1794,7 +1794,7 @@ Statement *Statement::getCurrentOfCursorStatement(char *cursorName) {
 
   char nameBuf[ComMAX_1_PART_EXTERNAL_UTF8_NAME_LEN_IN_BYTES + 1 + 16];  // a null terminator + a few extra bytes
   char *pName = nameBuf;
-  Lng32 len = str_len(cursorName);
+  int len = str_len(cursorName);
 
   if (len > sizeof(nameBuf) - 1) pName = (char *)heap_.allocateMemory(len + 1);
 
@@ -1839,7 +1839,7 @@ RETCODE Statement::doQuerySimilarityCheck(TrafQuerySimilarityInfo *qsi, NABoolea
   if ((!qsi) || (qsi->disableSimCheck()) || (!qsi->siList()) || (qsi->siList()->numEntries() == 0)) return SUCCESS;
 
   qsi->siList()->position();
-  for (Lng32 i = 0; i < qsi->siList()->numEntries(); i++) {
+  for (int i = 0; i < qsi->siList()->numEntries(); i++) {
     TrafSimilarityTableInfo *si = (TrafSimilarityTableInfo *)qsi->siList()->getCurr();
 
     simCheckFailed = FALSE;
@@ -2008,7 +2008,7 @@ static NABoolean compareTransModes(ex_root_tdb *root_tdb, ExTransaction *currTra
 }
 
 inline static void recompileReasonIsTransMode(ex_root_tdb *root_tdb, ExTransaction *currTransaction,
-                                              Lng32 recompileReason[]) {
+                                              int recompileReason[]) {
   recompileReason[0] = CLI_TRANS_MODE_MISMATCH;
   recompileReason[1] = currTransaction->getTransMode()->display();
   recompileReason[2] = root_tdb->getTransMode()->display();
@@ -2065,9 +2065,9 @@ RETCODE Statement::execute(CliGlobals *cliGlobals, Descriptor *input_desc, ComDi
   // be skipped because the prepare will have done that already.
   NABoolean donePrepare = FALSE;
 
-  Lng32 recompileReason[3];
+  int recompileReason[3];
   recompileReason[0] = recompileReason[1] = recompileReason[2] = 0;
-  Int64 reCompileTime = (Int64)0;
+  long reCompileTime = (long)0;
   NABoolean reExecute = FALSE;
   ExMasterStats *masterStats = NULL;
 
@@ -2132,7 +2132,7 @@ RETCODE Statement::execute(CliGlobals *cliGlobals, Descriptor *input_desc, ComDi
           context_->reclaimStatements();
         }
         if (masterStats != NULL) {
-          Int64 jts = NA_JulianTimestamp();
+          long jts = NA_JulianTimestamp();
           if (NOT masterStats->isPrepAndExec() && (!fixupOnly)) {
             masterStats->setElapsedStartTime(jts);
           }
@@ -2203,7 +2203,7 @@ RETCODE Statement::execute(CliGlobals *cliGlobals, Descriptor *input_desc, ComDi
           if (!openWasAttempted) {
             parentRsInfo->setOpenAttempted(myIndex);
           } else {
-            diagsArea << DgSqlCode(-EXE_UDR_RS_REOPEN_NOT_ALLOWED) << DgInt0((Lng32)myIndex);
+            diagsArea << DgSqlCode(-EXE_UDR_RS_REOPEN_NOT_ALLOWED) << DgInt0((int)myIndex);
             state_ = ERROR_;
             break;
           }
@@ -2364,8 +2364,8 @@ RETCODE Statement::execute(CliGlobals *cliGlobals, Descriptor *input_desc, ComDi
         // So, we mark the DiagsArea before making the call to dealloc(),
         // and then rewind
         // back to there afterwards.
-        Lng32 oldDiagsAreaMark = diagsArea.mark();
-        Lng32 oldGlobalDiagsAreaMark = 0;
+        int oldDiagsAreaMark = diagsArea.mark();
+        int oldGlobalDiagsAreaMark = 0;
         if (statementGlobals_->getDiagsArea()) {
           oldGlobalDiagsAreaMark = statementGlobals_->getDiagsArea()->mark();
         }
@@ -2478,7 +2478,7 @@ RETCODE Statement::execute(CliGlobals *cliGlobals, Descriptor *input_desc, ComDi
           break;
         }
         if (masterStats != NULL) {
-          Int64 jts = NA_JulianTimestamp();
+          long jts = NA_JulianTimestamp();
           if (NOT masterStats->isPrepAndExec()) {
             masterStats->setElapsedStartTime(jts);
           }
@@ -2573,7 +2573,7 @@ RETCODE Statement::execute(CliGlobals *cliGlobals, Descriptor *input_desc, ComDi
           {
             // find the hvar that contains the cursor name in the
             // input desc list
-            Lng32 cursor_name = 0;
+            int cursor_name = 0;
             input_desc->getDescItem(root_tdb->fetchedCursorHvar(), SQLDESC_VAR_PTR, &cursor_name, 0, 0, 0, 0);
             char *cursor_name_copy = NULL;
             if (cursor_name == 0) {
@@ -2581,7 +2581,7 @@ RETCODE Statement::execute(CliGlobals *cliGlobals, Descriptor *input_desc, ComDi
               state_ = ERROR_;
               break;
             } else {
-              Lng32 string_length = 0;
+              int string_length = 0;
               input_desc->getDescItem(root_tdb->fetchedCursorHvar(), SQLDESC_LENGTH, &string_length, 0, 0, 0, 0);
               cursor_name_copy = Descriptor::getCharDataFromCharHostVar(
                   diagsArea, heap_, (char *)((long)cursor_name), string_length, "CURSOR NAME", input_desc,
@@ -2858,8 +2858,8 @@ RETCODE Statement::execute(CliGlobals *cliGlobals, Descriptor *input_desc, ComDi
 
                                 if( cmpData )
                                   {
-                                   Int64 cmpStartTime = -1;
-                                   Int64 cmpEndTime = NA_JulianTimestamp();
+                                   long cmpStartTime = -1;
+                                   long cmpEndTime = NA_JulianTimestamp();
                                    if (masterStats != NULL)
                                       cmpStartTime = masterStats->getCompStartTime();
                                     cmpData->translateToExternalFormat(query_cmp_data,
@@ -2944,7 +2944,7 @@ RETCODE Statement::execute(CliGlobals *cliGlobals, Descriptor *input_desc, ComDi
         root_tcb->getInputData(inputData, inputDatalen_);
         if (inputData) {
           inputData_ = (char *)heap_.allocateMemory(inputDatalen_);
-          str_cpy_all(inputData_, inputData, (Lng32)inputDatalen_);
+          str_cpy_all(inputData_, inputData, (int)inputDatalen_);
         }
 
         setFixupState(0);
@@ -3376,7 +3376,7 @@ void Statement::updateTModeValues() {
 
   short roval = runTransMode->getAccessMode();
   short rbval = runTransMode->getRollbackMode();
-  Lng32 aival = runTransMode->getAutoAbortIntervalInSeconds();
+  int aival = runTransMode->getAutoAbortIntervalInSeconds();
 
   // if AccessMode is not set at runtime then the the compile time
   // setting is applied. Note that roval has an effect on the
@@ -3445,7 +3445,7 @@ RETCODE Statement::doOltExecute(CliGlobals *cliGlobals, Descriptor *input_desc, 
     }
     if (root_tdb->qCacheInfoIsClass() && root_tdb->qcInfo())
       masterStats->setCompilerCacheHit(root_tdb->qcInfo()->cacheWasHit());
-    Int64 jts = NA_JulianTimestamp();
+    long jts = NA_JulianTimestamp();
     if (NOT masterStats->isPrepAndExec()) masterStats->setElapsedStartTime(jts);
     masterStats->setFixupStartTime(-1);
     masterStats->setFreeupStartTime(-1);
@@ -3661,11 +3661,11 @@ retError:
   return error(diagsArea);
 }
 
-Lng32 Statement::cancel() {
+int Statement::cancel() {
   StmtDebug2("[BEGIN cancel] %p, stmt state %s", this, stmtState(getState()));
 
   CancelState s = statementGlobals_->getCancelState();
-  Lng32 retcode = 0;
+  int retcode = 0;
 
   switch (s) {
     case CLI_CANCEL_TCB_INVALID:
@@ -3778,7 +3778,7 @@ RETCODE Statement::releaseTcbs(NABoolean closeAllOpens) {
         rsInfo->reset();
 
         ULng32 numChildren = rsInfo->getNumEntries();
-        StmtDebug1("  Num RS children: %d", (Lng32)numChildren);
+        StmtDebug1("  Num RS children: %d", (int)numChildren);
 
         for (ULng32 i = 1; i <= numChildren; i++) {
           Statement *rsChild = NULL;
@@ -3867,20 +3867,20 @@ RETCODE Statement::dealloc(NABoolean closeAllOpens) {
   return result;
 }
 
-static Lng32 getMaxParamIdx(ex_root_tdb *rootTdb) {
-  Lng32 maxParamIdx = 0;
+static int getMaxParamIdx(ex_root_tdb *rootTdb) {
+  int maxParamIdx = 0;
   if (rootTdb->inputExpr()) {
     maxParamIdx = rootTdb->inputExpr()->getMaxParamIdx();
   }
 
   if (rootTdb->outputExpr()) {
-    Lng32 outputParamIdx = rootTdb->outputExpr()->getMaxParamIdx();
+    int outputParamIdx = rootTdb->outputExpr()->getMaxParamIdx();
     if (outputParamIdx > maxParamIdx) maxParamIdx = outputParamIdx;
   }
   return maxParamIdx;
 }
 
-RETCODE Statement::describe(Descriptor *desc, Lng32 what_desc, ComDiagsArea &diagsArea) {
+RETCODE Statement::describe(Descriptor *desc, int what_desc, ComDiagsArea &diagsArea) {
   // One special case is for stored procedure result set proxy
   // statements. CLI callers do not prepare them. We do internal
   // prepares whenever the CLI caller describes or executes them.
@@ -3908,7 +3908,7 @@ RETCODE Statement::describe(Descriptor *desc, Lng32 what_desc, ComDiagsArea &dia
     // the INPUT expression, the overlay information from the OUTPUT
     // expression into the same descriptor.
 
-    Lng32 eNumEntries = getMaxParamIdx(root_tdb);
+    int eNumEntries = getMaxParamIdx(root_tdb);
     if (desc->getMaxEntryCount() < eNumEntries) {
       diagsArea << DgSqlCode(CLI_TDB_DESCRIBE_ERROR);
       return ERROR;
@@ -4023,10 +4023,10 @@ void Statement::copyGenCode(char *gen_code, ULng32 gen_code_len, NABoolean unpac
 
   CollHeap *h = cliGlobals_->getArkcmp()->getHeap();
   char *newTdbTree = (char *)(new (h) char[gen_code_len]);
-  str_cpy_all(newTdbTree, gen_code, (Lng32)gen_code_len);
+  str_cpy_all(newTdbTree, gen_code, (int)gen_code_len);
 
   assignRootTdb((ex_root_tdb *)newTdbTree);
-  root_tdb_size = (Lng32)gen_code_len;
+  root_tdb_size = (int)gen_code_len;
 
   if (unpackTDBs) {
     // Set up the reallocator for use when object version migration occurs.
@@ -4054,7 +4054,7 @@ void Statement::copyGenCode(char *gen_code, ULng32 gen_code_len, NABoolean unpac
   StmtDebug1("[END copyGenCode] this %p", this);
 }
 
-void Statement::copyInSourceStr(char *in_source_str_, Lng32 src_len_in_octets, Lng32 charset) {
+void Statement::copyInSourceStr(char *in_source_str_, int src_len_in_octets, int charset) {
   charset_ = charset;
   NAHeap *heap = context_->exHeap();
   if (source_str) NADELETEBASIC(source_str, heap);
@@ -4078,7 +4078,7 @@ void Statement::copyInSourceStr(char *in_source_str_, Lng32 src_len_in_octets, L
 }
 
 void Statement::copyOutSourceStr(char *out_source_str,
-                                 Lng32 &out_src_len_in_octets)  // INOUT
+                                 int &out_src_len_in_octets)  // INOUT
 {
   // do some basic sanity checking
   if ((out_source_str == NULL) || (out_src_len_in_octets <= 0) || (out_src_len_in_octets < source_length)) {
@@ -4096,7 +4096,7 @@ void Statement::copyOutSourceStr(char *out_source_str,
   out_src_len_in_octets = source_length;
 }
 
-void Statement::copySchemaName(char *schemaName, Lng32 schemaNameLength) {
+void Statement::copySchemaName(char *schemaName, int schemaNameLength) {
   if (schemaName_) NADELETEBASIC(schemaName_, (&heap_));
 
   // do some basic sanity checking
@@ -4112,7 +4112,7 @@ void Statement::copySchemaName(char *schemaName, Lng32 schemaNameLength) {
   schemaNameLength_ = schemaNameLength;
 }
 
-void Statement::copyRecompControlInfo(char *basePtr, char *recompControlInfo, Lng32 recompControlInfoLength) {}
+void Statement::copyRecompControlInfo(char *basePtr, char *recompControlInfo, int recompControlInfoLength) {}
 
 void Statement::setCursorName(const char *cn) {
   // as a side effect of this method the statement is added
@@ -4125,7 +4125,7 @@ void Statement::setCursorName(const char *cn) {
 
   ComDiagsArea &diags = context_->diags();
 
-  Lng32 nameLength = 0;
+  int nameLength = 0;
   char *copy_of_cn;
 
   if (cursor_name_) {
@@ -4156,7 +4156,7 @@ void Statement::setCursorName(const char *cn) {
 
 short Statement::transactionReqd() { return ((short)(root_tdb && root_tdb->transactionReqd())); }
 
-Int64 Statement::getRowsAffected() { return statementGlobals_->getRowsAffected(); }
+long Statement::getRowsAffected() { return statementGlobals_->getRowsAffected(); }
 
 //////////////////////
 // PRIVATE methods
@@ -4195,7 +4195,7 @@ short Statement::beginTransaction(ComDiagsArea &diagsArea) {
       // start a transaction since one is not already running.
       short taRetcode = context_->getTransaction()->beginTransaction();
 
-      StmtDebug1("  Return code is %d", (Lng32)taRetcode);
+      StmtDebug1("  Return code is %d", (int)taRetcode);
 
       if (taRetcode != 0) {
         diagsArea.mergeAfter(*context_->getTransaction()->getDiagsArea());
@@ -4298,7 +4298,7 @@ short Statement::commitTransaction(ComDiagsArea &diagsArea) {
       // do waited commit for DDL queries
       short taRetcode = context_->commitTransaction();
 
-      StmtDebug1("  Return code is %d", (Lng32)taRetcode);
+      StmtDebug1("  Return code is %d", (int)taRetcode);
 
       setAutocommitXn(FALSE);
 
@@ -4411,7 +4411,7 @@ short Statement::rollbackTransaction(ComDiagsArea &diagsArea, NABoolean doXnRoll
         ComDiagsArea *copyOfDiagsArea = diagsArea.copy();
 
         ComDiagsArea *diagsPtr = NULL;
-        CmpMessageXnOperData xnOper = {(Lng32)ROLLBACK_, NULL_SAVEPOINT_ID};
+        CmpMessageXnOperData xnOper = {(int)ROLLBACK_, NULL_SAVEPOINT_ID};
 
         ExSqlComp::ReturnStatus cmpStatus =
             context_->sendXnMsgToArkcmp(NULL, 0, EXSQLCOMP::DDL_ROLLBACK_SHARED_CACHE, diagsPtr);
@@ -4464,7 +4464,7 @@ short Statement::rollbackTransaction(ComDiagsArea &diagsArea, NABoolean doXnRoll
         taRetcode = context_->getTransaction()->rollbackTransactionWaited();
       }
 
-      StmtDebug1("  Return code is %d", (Lng32)taRetcode);
+      StmtDebug1("  Return code is %d", (int)taRetcode);
 
       if ((NOT savepointUsed()) && (context_->getTransaction()->getSavepointState() == SP_GENERATED)) {
         context_->getTransaction()->rollbackSavepoint(context_->getTransaction()->getSavepointIdWithFlag());
@@ -4492,7 +4492,7 @@ short Statement::rollbackTransaction(ComDiagsArea &diagsArea, NABoolean doXnRoll
       // Note the transid in statement global should be to -1 after calling
       // context::releaseAllTransactionalREquests() because that method calls
       // statement::releaseTransaction() which uses the transid.
-      statementGlobals_->getTransid() = (Int64)-1;
+      statementGlobals_->getTransid() = (long)-1;
 
       if (taRetcode != 0) {
         diagsArea.mergeAfter(*context_->getTransaction()->getDiagsArea());
@@ -4576,7 +4576,7 @@ short Statement::rollbackImplicitSavepoint() {
   return TRUE;
 }
 
-static const NAWchar *get_name_mode(Lng32 name_mode) {
+static const NAWchar *get_name_mode(int name_mode) {
   switch (name_mode) {
     case stmt_handle:
       return L"stmt_handle";
@@ -4771,7 +4771,7 @@ RETCODE Statement::setAnsiHoldable(ComDiagsArea &diagsArea, NABoolean h) {
   return SUCCESS;
 }
 
-RETCODE Statement::setInputArrayMaxsize(ComDiagsArea &diagsArea, const Lng32 inpArrSize) {
+RETCODE Statement::setInputArrayMaxsize(ComDiagsArea &diagsArea, const int inpArrSize) {
   if (inpArrSize < 0) {
     diagsArea << DgSqlCode(-CLI_ARRAY_MAXSIZE_INVALID_ENTRY);
     return ERROR;
@@ -4791,7 +4791,7 @@ RETCODE Statement::setRowsetAtomicity(ComDiagsArea &diagsArea, const AtomicityTy
   return SUCCESS;
 }
 
-RETCODE Statement::setNotAtomicFailureLimit(ComDiagsArea &diagsArea, const Lng32 limit) {
+RETCODE Statement::setNotAtomicFailureLimit(ComDiagsArea &diagsArea, const int limit) {
   if (limit < 30) {
     diagsArea << DgSqlCode(-CLI_INVALID_ATTR_VALUE);
     return ERROR;
@@ -4812,7 +4812,7 @@ void Statement::setOltOpt(NABoolean v) {
 
 // Must be in CLOSE_ state.
 // Will cause fixup at open.
-Lng32 Statement::releaseSpace() {
+int Statement::releaseSpace() {
   StmtDebug2("[BEGIN releaseSpace] %p, stmt state %s", this, stmtState(getState()));
 
   if (stmt_state == INITIAL_) {
@@ -4853,7 +4853,7 @@ Lng32 Statement::releaseSpace() {
   }
 
   StmtDebug2("[END releaseSpace] %p, result is %s", this, RetcodeToString(result));
-  return (Lng32)result;
+  return (int)result;
 }
 
 NABoolean Statement::isReclaimable() {
@@ -4966,7 +4966,7 @@ ex_root_tdb *Statement::assignRootTdb(ex_root_tdb *new_root_tdb) {
   StmtDebug2("  Stmt %p root TDB is now %p", this, root_tdb);
 
 #ifdef _DEBUG
-  Lng32 rs = (Lng32)(root_tdb ? root_tdb->getMaxResultSets() : 0);
+  int rs = (int)(root_tdb ? root_tdb->getMaxResultSets() : 0);
   if (rs > 0) StmtDebug1("  Max result sets: %d", rs);
 #endif
 
@@ -4980,7 +4980,7 @@ ex_root_tdb *Statement::assignRootTdb(ex_root_tdb *new_root_tdb) {
   return root_tdb;
 }
 
-RETCODE Statement::addDescInfoIntoStaticDesc(Descriptor *desc, Lng32 what_desc, ComDiagsArea &diagsArea) {
+RETCODE Statement::addDescInfoIntoStaticDesc(Descriptor *desc, int what_desc, ComDiagsArea &diagsArea) {
   if (!root_tdb) {
     return SUCCESS;
   }
@@ -5347,7 +5347,7 @@ void Statement::setStmtStats(NABoolean autoRetry) {
              (CmpCommon::context() && CmpCommon::context()->isMxcmp())) &&
             isInternalTransactionSql() == false) {
           stmtStats_ = statsGlobals->addQuery(cliGlobals_->myPin(), getUniqueStmtId(), getUniqueStmtIdLen(),
-                                              (void *)this, (Lng32)-1, source_str, source_length, TRUE);
+                                              (void *)this, (int)-1, source_str, source_length, TRUE);
         } else
           stmtStats_ = NULL;
         // ex_assert(stmtStats_, "StmtStats_ is null after addQuery");
@@ -5552,14 +5552,14 @@ RETCODE Statement::rsProxyPrepare(ExRsInfo &rsInfo,         // IN
 
 // Helper function to convert a char string to quoted char string.
 // Also, single quote chars will be replaced with two single quote chars.
-static char *toQuotedString(char *src, Lng32 srcLen, NAHeap *heap) {
+static char *toQuotedString(char *src, int srcLen, NAHeap *heap) {
   // Allocate a buffer to fix the resultant string.
   char *target = new (heap) char[2 * srcLen + 3];
   char *targetPtr = target;
 
   *targetPtr++ = '\'';  // beginning quote
 
-  for (Lng32 pos = 0; pos < srcLen; pos++) {
+  for (int pos = 0; pos < srcLen; pos++) {
     *targetPtr++ = src[pos];
 
     if (src[pos] == '\'') *targetPtr++ = '\'';
@@ -5604,7 +5604,7 @@ static char *toQuotedString(char *src, Lng32 srcLen, NAHeap *heap) {
 //
 //  The size of proxy syntax will be returned in spaceRequired.
 //
-RETCODE Statement::getProxySyntax(char *proxy, Lng32 maxlength, Lng32 *spaceRequired, const char *prefix,
+RETCODE Statement::getProxySyntax(char *proxy, int maxlength, int *spaceRequired, const char *prefix,
                                   const char *suffix) {
   // In the code below, once we set hasEnoughSpace to FALSE,
   // it will never be changed to TRUE again.
@@ -5644,14 +5644,14 @@ RETCODE Statement::getProxySyntax(char *proxy, Lng32 maxlength, Lng32 *spaceRequ
 
   // Now generate proxy syntax string
   char *proxyPtr = proxy;
-  Lng32 spaceLeft = maxlength;
-  Lng32 spaceNeeded = 0;
+  int spaceLeft = maxlength;
+  int spaceNeeded = 0;
 
   if (prefix == NULL) prefix = "";
   if (suffix == NULL) suffix = "";
 
-  Lng32 prefixLen = str_len(prefix);
-  Lng32 suffixLen = str_len(suffix);
+  int prefixLen = str_len(prefix);
+  int suffixLen = str_len(suffix);
 
   if (spaceLeft < prefixLen) hasEnoughSpace = FALSE;
   spaceNeeded += prefixLen;
@@ -5663,13 +5663,13 @@ RETCODE Statement::getProxySyntax(char *proxy, Lng32 maxlength, Lng32 *spaceRequ
 
   for (Int32 entry = 1; entry <= expr->getNumEntries(); entry++) {
     char *name = NULL;
-    Lng32 nameLen;
+    int nameLen;
 
     // get CATALOG attribute
     outdesc->getDescItemPtr(entry, SQLDESC_CATALOG_NAME, &name, &nameLen);
     if (name != NULL) {
       char *catName = ToAnsiIdentifier2(name, nameLen, &heap_);
-      Lng32 catLen = str_len(catName);
+      int catLen = str_len(catName);
 
       // Write CATALOG attribute
       if (spaceLeft < catLen + 1) hasEnoughSpace = FALSE;
@@ -5687,7 +5687,7 @@ RETCODE Statement::getProxySyntax(char *proxy, Lng32 maxlength, Lng32 *spaceRequ
     outdesc->getDescItemPtr(entry, SQLDESC_SCHEMA_NAME, &name, &nameLen);
     if (name != NULL) {
       char *schName = ToAnsiIdentifier2(name, nameLen, &heap_);
-      Lng32 schLen = str_len(schName);
+      int schLen = str_len(schName);
 
       // Write SCHEMA attribute
       if (spaceLeft < schLen + 1) hasEnoughSpace = FALSE;
@@ -5705,7 +5705,7 @@ RETCODE Statement::getProxySyntax(char *proxy, Lng32 maxlength, Lng32 *spaceRequ
     outdesc->getDescItemPtr(entry, SQLDESC_TABLE_NAME, &name, &nameLen);
     if (name != NULL) {
       char *tabName = ToAnsiIdentifier2(name, nameLen, &heap_);
-      Lng32 tabLen = str_len(tabName);
+      int tabLen = str_len(tabName);
 
       // Write TABLE attribute
       if (spaceLeft < tabLen + 1) hasEnoughSpace = FALSE;
@@ -5724,7 +5724,7 @@ RETCODE Statement::getProxySyntax(char *proxy, Lng32 maxlength, Lng32 *spaceRequ
     outdesc->getDescItemPtr(entry, SQLDESC_NAME, &name, &nameLen);
     if (name != NULL) {
       char *colName = ToAnsiIdentifier2(name, nameLen, &heap_);
-      Lng32 colLen = str_len(colName);
+      int colLen = str_len(colName);
 
       // Write COLUMN attribute
       if (spaceLeft < colLen + 1) hasEnoughSpace = FALSE;
@@ -5759,7 +5759,7 @@ RETCODE Statement::getProxySyntax(char *proxy, Lng32 maxlength, Lng32 *spaceRequ
       // quotedHeading will be quoted string format i.e., the string will be
       // in single quotes and also any quotes in the string are doubled
       char *quotedHeading = toQuotedString(name, nameLen, &heap_);
-      Lng32 quotedHeadLen = str_len(quotedHeading);
+      int quotedHeadLen = str_len(quotedHeading);
 
       // Write HEADING attribute
       if (spaceLeft < quotedHeadLen + 18) hasEnoughSpace = FALSE;
@@ -5776,7 +5776,7 @@ RETCODE Statement::getProxySyntax(char *proxy, Lng32 maxlength, Lng32 *spaceRequ
     }
 
     // Write "NOT NULL" attribute
-    Lng32 nullable;
+    int nullable;
     outdesc->getDescItem(entry, SQLDESC_NULLABLE, &nullable, NULL, 0, NULL, 0);
     if (nullable == 0) {
       if (spaceLeft < 8) hasEnoughSpace = FALSE;
@@ -5819,11 +5819,11 @@ RETCODE Statement::getProxySyntax(char *proxy, Lng32 maxlength, Lng32 *spaceRequ
   return SUCCESS;
 }
 
-RETCODE Statement::getRSProxySyntax(char *proxy, Lng32 maxlength, Lng32 *spaceRequired) {
+RETCODE Statement::getRSProxySyntax(char *proxy, int maxlength, int *spaceRequired) {
   return getProxySyntax(proxy, maxlength, spaceRequired, "SELECT * FROM TABLE ( SP_RESULT_SET ( ", " ) )");
 }
 
-RETCODE Statement::getExtractConsumerSyntax(char *proxy, Lng32 maxlength, Lng32 *spaceRequired) {
+RETCODE Statement::getExtractConsumerSyntax(char *proxy, int maxlength, int *spaceRequired) {
   const char *prefix = "SELECT * FROM TABLE(EXTRACT_SOURCE('ESP', '%s', '%s', ";
   const char *suffix = ") )";
   return getProxySyntax(proxy, maxlength, spaceRequired, prefix, suffix);
@@ -5916,9 +5916,9 @@ NABoolean Statement::isUninitializedMv(const char *physicalName, const char *ans
 
 void Statement::buildConsumerQueryTemplate() {
   if (extractConsumerQueryTemplate_ == NULL) {
-    Lng32 len = 1000;
+    int len = 1000;
     NABoolean done = FALSE;
-    Lng32 spaceRequired = 0;
+    int spaceRequired = 0;
     while (!done) {
       // add one for NULL terminator
       extractConsumerQueryTemplate_ = (char *)heap_.allocateMemory(len + 1);
@@ -5943,13 +5943,13 @@ void Statement::buildConsumerQueryTemplate() {
   }
 }
 
-Lng32 Statement::getConsumerQueryLen(ULng32 index) {
+int Statement::getConsumerQueryLen(ULng32 index) {
   // First build the consumer query template
   buildConsumerQueryTemplate();
 
   // Minimum length will include a null terminator so initialize the
   // result to 1
-  Lng32 result = 1;
+  int result = 1;
 
   const char *tmpl = extractConsumerQueryTemplate_;
   const char *phandle = statementGlobals_->getExtractEspPhandleText(index);
@@ -5958,14 +5958,14 @@ Lng32 Statement::getConsumerQueryLen(ULng32 index) {
   if (phandle == NULL) phandle = "";
   if (key == NULL) key = "";
 
-  Lng32 reqdLen = str_len(tmpl) + str_len(phandle) + str_len(key) - 4  // to account for the "%s" format specifiers
+  int reqdLen = str_len(tmpl) + str_len(phandle) + str_len(key) - 4  // to account for the "%s" format specifiers
                   + 1;                                                 // to account for the null terminator
   result = reqdLen;
 
   return result;
 }
 
-void Statement::getConsumerQuery(ULng32 index, char *buf, Lng32 buflen) {
+void Statement::getConsumerQuery(ULng32 index, char *buf, int buflen) {
   if (buflen < 1) return;
 
   // First build the consumer query template
@@ -5980,16 +5980,16 @@ void Statement::getConsumerQuery(ULng32 index, char *buf, Lng32 buflen) {
   if (phandle == NULL) phandle = "";
   if (key == NULL) key = "";
 
-  Lng32 reqdLen = str_len(tmpl) + str_len(phandle) + str_len(key) - 4  // to account for the "%s" format specifiers
+  int reqdLen = str_len(tmpl) + str_len(phandle) + str_len(key) - 4  // to account for the "%s" format specifiers
                   + 1;                                                 // to account for the null terminator
   ex_assert(buflen >= reqdLen, "Consumer query buffer too small");
   str_sprintf(buf, tmpl, phandle, key);
 }
 
-Lng32 Statement::getConsumerCpu(ULng32 index) {
-  Lng32 result = -1;
+int Statement::getConsumerCpu(ULng32 index) {
+  int result = -1;
   short cpu = statementGlobals_->getExtractEspCpu(index);
-  Lng32 nodeNumber = statementGlobals_->getExtractEspNodeNumber(index);
+  int nodeNumber = statementGlobals_->getExtractEspNodeNumber(index);
   if (cpu >= 0 && nodeNumber >= 0) {
     result = (nodeNumber << 8);
     result += (cpu & 0x00ff);
@@ -5997,8 +5997,8 @@ Lng32 Statement::getConsumerCpu(ULng32 index) {
   return result;
 }
 
-Lng32 Statement::setParentQid(char *queryId) {
-  Lng32 len = 0;
+int Statement::setParentQid(char *queryId) {
+  int len = 0;
   if (queryId != NULL) {
     len = str_len(queryId);
     if (len < ComSqlId::MIN_QUERY_ID_LEN) return -CLI_INVALID_ATTR_VALUE;
@@ -6019,7 +6019,7 @@ Lng32 Statement::setParentQid(char *queryId) {
 }
 
 void Statement::setParentQidSystem(char *parentQidSystem) {
-  Lng32 len = 0;
+  int len = 0;
   if (parentQidSystem != NULL) {
     len = str_len(parentQidSystem);
     str_cpy_all(parentQidSystem_, parentQidSystem, len);
@@ -6056,7 +6056,7 @@ char *Statement::getParentQidSystem() {
   return parentQidSystem;
 }
 
-Int64 Statement::getExeStartTime() {
+long Statement::getExeStartTime() {
   ExStatisticsArea *statsArea;
   ExMasterStats *masterStats;
   statsArea = getStatsArea();
@@ -6067,11 +6067,11 @@ Int64 Statement::getExeStartTime() {
     return -1;
 }
 
-void Statement::setExeStartTime(Int64 exeStartTime) {
+void Statement::setExeStartTime(long exeStartTime) {
   if (exeStartTime != -1) aqrInitialExeStartTime_ = exeStartTime;
 }
 
-Lng32 Statement::initStrTarget(SQLDESC_ID *sql_source, ContextCli &currContext, ComDiagsArea &diags,
+int Statement::initStrTarget(SQLDESC_ID *sql_source, ContextCli &currContext, ComDiagsArea &diags,
                                StrTarget &strTarget) {
   if (!sql_source) return 0;
 
@@ -6153,7 +6153,7 @@ void Statement::updateStatsAreaInContext() {
   }
 }
 
-Lng32 Statement::setChildQueryInfo(ComDiagsArea *diagsArea, char *uniqueQueryId, Lng32 uniqueQueryIdLen,
+int Statement::setChildQueryInfo(ComDiagsArea *diagsArea, char *uniqueQueryId, int uniqueQueryIdLen,
                                    SQL_QUERY_COST_INFO *query_cost_info,
                                    SQL_QUERY_COMPILER_STATS_INFO *comp_stats_info) {
   NAHeap *heap = stmtHeap();
@@ -6182,8 +6182,8 @@ Lng32 Statement::setChildQueryInfo(ComDiagsArea *diagsArea, char *uniqueQueryId,
   return SUCCESS;
 }
 
-Lng32 Statement::getChildQueryInfo(ComDiagsArea &diagsArea, char *uniqueQueryId, Lng32 uniqueQueryIdMaxLen,
-                                   Lng32 *uniqueQueryIdLen, SQL_QUERY_COST_INFO *query_cost_info,
+int Statement::getChildQueryInfo(ComDiagsArea &diagsArea, char *uniqueQueryId, int uniqueQueryIdMaxLen,
+                                   int *uniqueQueryIdLen, SQL_QUERY_COST_INFO *query_cost_info,
                                    SQL_QUERY_COMPILER_STATS_INFO *comp_stats_info) {
   if (childQueryId_ == NULL) {
     diagsArea << DgSqlCode(-EXE_RTS_QID_NOT_FOUND);
@@ -6252,7 +6252,7 @@ char *Statement::getUtf8Sql(NABoolean withNoReplicate) {
     delete res;
     res = NULL;
   } else {
-    Lng32 copyLen = 0;
+    int copyLen = 0;
     if (source_length + 1 >= TRIGGER_ID_LEN) {
       copyLen = TRIGGER_ID_LEN - 1;
     } else {

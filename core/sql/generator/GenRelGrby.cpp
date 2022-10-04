@@ -700,7 +700,7 @@ short HashGroupBy::codeGen(Generator *generator) {
 
   // Incoming records will be divided equally (sans data skew) among the ESPs
   // so each HGB instance will handle only its share (i.e. divide by #esps)
-  Lng32 saveNumEsps = generator->getNumESPs();
+  int saveNumEsps = generator->getNumESPs();
 
   // generate code for child tree
   child(0)->codeGen(generator);
@@ -1219,7 +1219,7 @@ short HashGroupBy::codeGen(Generator *generator) {
       bitMuxAtpIndex, bitMuxCountOffset, resultRowAtpIndex, returnedAtpIndex,
       (unsigned short)getDefault(BMO_MEMORY_USAGE_PERCENT), (short)getDefault(GEN_MEM_PRESSURE_THRESHOLD), scrthreshold,
       (queue_index)getDefault(GEN_HGBY_SIZE_DOWN), (queue_index)getDefault(GEN_HGBY_SIZE_UP), isPartialGroupBy,
-      expectedRows, (Lng32)getDefault(GEN_HGBY_NUM_BUFFERS), bufferSize,
+      expectedRows, (int)getDefault(GEN_HGBY_NUM_BUFFERS), bufferSize,
       getDefault(GEN_HGBY_PARTIAL_GROUP_FLUSH_THRESHOLD), getDefault(GEN_HGBY_PARTIAL_GROUP_ROWS_PER_CLUSTER),
       (ULng32)getDefault(EXE_HGB_INITIAL_HT_SIZE),
       // To get the min number of buffers per a flushed cluster
@@ -1245,7 +1245,7 @@ short HashGroupBy::codeGen(Generator *generator) {
   hashGrbyTdb->setScratchIOVectorSize((Int16)getDefault(SCRATCH_IO_VECTOR_SIZE_HASH));
 
   double memQuota = 0;
-  Lng32 numStreams;
+  int numStreams;
   double memQuotaRatio;
   double bmoMemoryUsagePerNode = generator->getEstMemPerNode(getKey(), numStreams);
 
@@ -1282,8 +1282,8 @@ short HashGroupBy::codeGen(Generator *generator) {
                                       generator->getTotalBMOsMemoryPerNode().value(), numBMOsInFrag,
                                       bmoMemoryUsagePerNode, numStreams, memQuotaRatio);
       }
-      Lng32 hjGyMemoryLowbound = defs.getAsLong(BMO_MEMORY_LIMIT_LOWER_BOUND_HASHGROUPBY);
-      Lng32 memoryUpperbound = defs.getAsLong(BMO_MEMORY_LIMIT_UPPER_BOUND);
+      int hjGyMemoryLowbound = defs.getAsLong(BMO_MEMORY_LIMIT_LOWER_BOUND_HASHGROUPBY);
+      int memoryUpperbound = defs.getAsLong(BMO_MEMORY_LIMIT_UPPER_BOUND);
       if (memQuota < hjGyMemoryLowbound) {
         memQuota = hjGyMemoryLowbound;
         memQuotaRatio = BMOQuotaRatio::MIN_QUOTA;
@@ -1355,7 +1355,7 @@ ExpTupleDesc::TupleDataFormat HashGroupBy::determineInternalFormat(const ValueId
                                             considerBufferDefrag);
 }
 
-CostScalar HashGroupBy::getEstimatedRunTimeMemoryUsage(Generator *generator, NABoolean perNode, Lng32 *numStreams) {
+CostScalar HashGroupBy::getEstimatedRunTimeMemoryUsage(Generator *generator, NABoolean perNode, int *numStreams) {
   GroupAttributes *childGroupAttr = child(0).getGroupAttr();
   const CostScalar childRecordSize = childGroupAttr->getCharacteristicOutputs().getRowLength();
   const CostScalar childRowCount = getEstRowsUsed();  // the number of
@@ -1372,7 +1372,7 @@ CostScalar HashGroupBy::getEstimatedRunTimeMemoryUsage(Generator *generator, NAB
   CostScalar estMemPerInst;
   // totalHashTableMemory is for all CPUs at this point of time.
   CostScalar totalHashTableMemory = childRowCount * (childRecordSize + memOverheadPerRecord);
-  Lng32 numOfStreams = 1;
+  int numOfStreams = 1;
   const PhysicalProperty *const phyProp = getPhysicalProperty();
   if (phyProp) {
     PartitioningFunction *partFunc = phyProp->getPartitioningFunction();
@@ -1649,7 +1649,7 @@ short HbasePushdownAggr::codeGen(Generator *generator) {
   ComTdbHbaseAccess::HbasePerfAttributes *hbpa = new (space) ComTdbHbaseAccess::HbasePerfAttributes();
 
   generator->setHBaseCacheBlocks(tableDesc->getNATable()->computeHBaseRowSizeFromMetaData(),
-                                 (Int64)getEstRowsUsed().getValue(), hbpa);
+                                 (long)getEstRowsUsed().getValue(), hbpa);
 
   // cache setting not relevant since rows are not returned to HBase client
   hbpa->setNumCacheRows(CmpCommon::getDefaultNumeric(HBASE_NUM_CACHE_ROWS_MIN));

@@ -45,14 +45,14 @@
 
 class ExpInterval : public SimpleType {
  public:
-  static short getIntervalStartField(Lng32 fsDatatype, rec_datetime_field &startField);
+  static short getIntervalStartField(int fsDatatype, rec_datetime_field &startField);
 
-  static short getIntervalEndField(Lng32 fsDatatype, rec_datetime_field &endField);
+  static short getIntervalEndField(int fsDatatype, rec_datetime_field &endField);
 
-  static Lng32 getStorageSize(rec_datetime_field startField, UInt32 leadingPrecision, rec_datetime_field endField,
+  static int getStorageSize(rec_datetime_field startField, UInt32 leadingPrecision, rec_datetime_field endField,
                               UInt32 fractionPrecision = 0);
 
-  static Lng32 getDisplaySize(Lng32 fsDatatype, short leadingPrecision, short fractionPrecision);
+  static int getDisplaySize(int fsDatatype, short leadingPrecision, short fractionPrecision);
 };
 
 #endif

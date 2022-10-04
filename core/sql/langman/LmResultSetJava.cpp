@@ -84,7 +84,7 @@ LmResultSetJava::LmResultSetJava(LmLanguageManagerJava *lm, LmHandle rsRef, Int3
   else if (connectionType_ == JDBC_TYPE2_CONNECTION)
     initType2ResultSet(paramPos, routineName, status, lmConnList, da);
   else {
-    *da << DgSqlCode(-LME_RS_INFO_ERROR) << DgInt0((Lng32)paramPos)
+    *da << DgSqlCode(-LME_RS_INFO_ERROR) << DgInt0((int)paramPos)
         << DgString0("An unknown Connection type found for ResultSet");
 
     status = RS_INFO_ERROR;
@@ -109,7 +109,7 @@ void LmResultSetJava::initType4ResultSet(Int32 paramPos, const char *routineName
 
   // Check if any exceptions are thrown by the above JNI call and report it
   if (jni->ExceptionOccurred()) {
-    *da << DgSqlCode(-LME_RS_INFO_ERROR) << DgInt0((Lng32)paramPos)
+    *da << DgSqlCode(-LME_RS_INFO_ERROR) << DgInt0((int)paramPos)
         << DgString0(
                "An unexpected Java exception was encountered when invoking \
                       org.trafodion.sql.udr.LmUtility.getT4RSInfo().");
@@ -239,7 +239,7 @@ void LmResultSetJava::initType2ResultSet(Int32 paramPos, const char *routineName
 
   // Check if any exceptions are thrown by the above JNI call and report it
   if (jni->ExceptionOccurred()) {
-    *da << DgSqlCode(-LME_RS_INFO_ERROR) << DgInt0((Lng32)paramPos)
+    *da << DgSqlCode(-LME_RS_INFO_ERROR) << DgInt0((int)paramPos)
         << DgString0(
                "An unexpected Java exception was encountered when invoking \
                       org.trafodion.sql.udr.LmUtility.getRSInfo().");
@@ -423,7 +423,7 @@ void LmResultSetJava::close(ComDiagsArea *da) {
 
 // This function handles the diagnostics
 void LmResultSetJava::insertIntoDiagnostic(ComDiagsArea &da, ComUInt32 col_num) {
-  da << DgSqlCode(-LME_JVM_RESULTSET_ROW_COLUMN_EXCEPTION) << DgInt0((Lng32)col_num);
+  da << DgSqlCode(-LME_JVM_RESULTSET_ROW_COLUMN_EXCEPTION) << DgInt0((int)col_num);
   lmj_->exceptionReporter_->checkJVMException(&da, 0);
 }
 
@@ -478,7 +478,7 @@ LmResult LmResultSetJava::getValueAsJlong(jobject javaRS, ComUInt32 columnIndex,
 // If this code is changed in future to process more than one row and returns
 // more than 1, then fetchRowsFromJDBC() function in UdrResultSet.cpp file
 // is also required to change.
-Lng32 LmResultSetJava::fetchSpecialRows(void *dataPtr, LmParameter *colDesc, ComUInt32 numCols,
+int LmResultSetJava::fetchSpecialRows(void *dataPtr, LmParameter *colDesc, ComUInt32 numCols,
                                         ComDiagsArea &da,   // will have errors
                                         ComDiagsArea *rda)  // will have warnings
 {
@@ -506,7 +506,7 @@ Lng32 LmResultSetJava::fetchSpecialRows(void *dataPtr, LmParameter *colDesc, Com
       LmParameter *col = &colDesc[index];
       char *thisColDataPtr = (char *)dataPtr + col->outDataOffset();
 
-      Lng32 retcode = 0;
+      int retcode = 0;
       LmResult lmResult = LM_OK;
 
       switch (LmJavaType(col).getType()) {
@@ -662,7 +662,7 @@ Lng32 LmResultSetJava::fetchSpecialRows(void *dataPtr, LmParameter *colDesc, Com
             else  // all interval types
               conv_ret = lmj_->convertFromInterval(col, dataPtr, strObj, &da);
 
-            if (conv_ret == LM_PARAM_OVERFLOW) *rda << DgSqlCode(LME_DATA_OVERFLOW_WARN) << DgInt0((Lng32)index + 1);
+            if (conv_ret == LM_PARAM_OVERFLOW) *rda << DgSqlCode(LME_DATA_OVERFLOW_WARN) << DgInt0((int)index + 1);
 
             if (conv_ret == LM_ERR) retcode = -1;
           }
@@ -711,9 +711,9 @@ Lng32 LmResultSetJava::fetchSpecialRows(void *dataPtr, LmParameter *colDesc, Com
                                                    &da);
 
                 if (conv_ret == LM_PARAM_OVERFLOW) {
-                  *rda << DgSqlCode(LME_DATA_OVERFLOW_WARN) << DgInt0((Lng32)index + 1);
+                  *rda << DgSqlCode(LME_DATA_OVERFLOW_WARN) << DgInt0((int)index + 1);
                 } else if (conv_ret == LM_CONV_ERROR) {
-                  da << DgSqlCode(-LME_CONVERT_ERROR) << DgInt0((Lng32)(index + 1));
+                  da << DgSqlCode(-LME_CONVERT_ERROR) << DgInt0((int)(index + 1));
                   retcode = -1;
                 } else if (conv_ret == LM_ERR) {
                   retcode = -1;
@@ -763,13 +763,13 @@ Lng32 LmResultSetJava::fetchSpecialRows(void *dataPtr, LmParameter *colDesc, Com
               conv_ret = lmj_->convertFromBigdec(col, dataPtr, bigdecObj, col->isDecimal(), TRUE /*copyBinary*/, &da);
 
               if (conv_ret == LM_PARAM_OVERFLOW) {
-                *rda << DgSqlCode(LME_DATA_OVERFLOW_WARN) << DgInt0((Lng32)index + 1);
+                *rda << DgSqlCode(LME_DATA_OVERFLOW_WARN) << DgInt0((int)index + 1);
               } else if (conv_ret == LM_CONV_ERROR) {
                 // We could have used EXE_CONVERT_STRING_ERROR. To use this
                 // error we need to include ExpError.h file. If we include it,
                 // then we had compilation issue even after changing
                 // the tdm_sqllangman.mak file.
-                da << DgSqlCode(-LME_CONVERT_ERROR) << DgInt0((Lng32)(index + 1));
+                da << DgSqlCode(-LME_CONVERT_ERROR) << DgInt0((int)(index + 1));
                 retcode = -1;
               } else if (conv_ret == LM_ERR) {
                 retcode = -1;
@@ -800,7 +800,7 @@ Lng32 LmResultSetJava::fetchSpecialRows(void *dataPtr, LmParameter *colDesc, Com
             conv_ret = lmj_->convertFromDate(col, dataPtr, dateObj, &da);
 
             if (conv_ret == LM_PARAM_OVERFLOW) {
-              *rda << DgSqlCode(LME_DATA_OVERFLOW_WARN) << DgInt0((Lng32)index + 1);
+              *rda << DgSqlCode(LME_DATA_OVERFLOW_WARN) << DgInt0((int)index + 1);
             } else if (conv_ret == LM_ERR) {
               retcode = -1;
             }
@@ -828,7 +828,7 @@ Lng32 LmResultSetJava::fetchSpecialRows(void *dataPtr, LmParameter *colDesc, Com
             conv_ret = lmj_->convertFromTime(col, dataPtr, timeObj, &da);
 
             if (conv_ret == LM_PARAM_OVERFLOW) {
-              *rda << DgSqlCode(LME_DATA_OVERFLOW_WARN) << DgInt0((Lng32)index + 1);
+              *rda << DgSqlCode(LME_DATA_OVERFLOW_WARN) << DgInt0((int)index + 1);
             } else if (conv_ret == LM_ERR) {
               retcode = -1;
             }
@@ -855,7 +855,7 @@ Lng32 LmResultSetJava::fetchSpecialRows(void *dataPtr, LmParameter *colDesc, Com
           } else if (!wasNull) {
             conv_ret = lmj_->convertFromTimestamp(col, dataPtr, timestampObj, &da);
             if (conv_ret == LM_PARAM_OVERFLOW) {
-              *rda << DgSqlCode(LME_DATA_OVERFLOW_WARN) << DgInt0((Lng32)index + 1);
+              *rda << DgSqlCode(LME_DATA_OVERFLOW_WARN) << DgInt0((int)index + 1);
             } else if (conv_ret == LM_ERR) {
               retcode = -1;
             }

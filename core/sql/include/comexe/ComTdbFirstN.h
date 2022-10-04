@@ -46,9 +46,9 @@ class ComTdbFirstN : public ComTdb {
  public:
   ComTdbFirstN();
 
-  ComTdbFirstN(ComTdb *child_tdb, Int64 firstNRows, ex_expr *firstNRowsExpr, ex_cri_desc *workCriDesc,
+  ComTdbFirstN(ComTdb *child_tdb, long firstNRows, ex_expr *firstNRowsExpr, ex_cri_desc *workCriDesc,
                ex_cri_desc *givenCriDesc, ex_cri_desc *returnedCriDesc, queue_index down, queue_index up,
-               Lng32 numBuffers, ULng32 bufferSize);
+               int numBuffers, ULng32 bufferSize);
 
   ~ComTdbFirstN();
 
@@ -69,7 +69,7 @@ class ComTdbFirstN : public ComTdb {
   virtual short getClassSize() { return (short)sizeof(ComTdbFirstN); }
 
   virtual Long pack(void *);
-  virtual Lng32 unpack(void *, void *reallocator);
+  virtual int unpack(void *, void *reallocator);
 
   void display() const;
 
@@ -91,10 +91,10 @@ class ComTdbFirstN : public ComTdb {
   // ---------------------------------------------------------------------
   virtual void displayContents(Space *space, ULng32 flag);
 
-  Int64 firstNRows() { return firstNRows_; }
+  long firstNRows() { return firstNRows_; }
 
  protected:
-  Int64 firstNRows_;              // 00-07
+  long firstNRows_;              // 00-07
   ComTdbPtr tdbChild_;            // 08-15
   ExExprPtr firstNRowsExpr_;      // 16-23
   ExCriDescPtr workCriDesc_;      // 24-31

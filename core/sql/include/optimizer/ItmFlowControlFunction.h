@@ -76,7 +76,7 @@ class ItmExpressionVar : public HostVar {
 
 class ItmPersistentExpressionVar : public ConstValue {
  public:
-  ItmPersistentExpressionVar(Lng32 intVal) : ConstValue(intVal) { setConstFoldingDisabled(TRUE); };
+  ItmPersistentExpressionVar(int intVal) : ConstValue(intVal) { setConstFoldingDisabled(TRUE); };
 
   /*  ItmPersistentExpressionVar(NAType *type,
                              NABoolean wantMinValue =FALSE,
@@ -86,7 +86,7 @@ class ItmPersistentExpressionVar : public ConstValue {
   // Supply a type, a buffer containing the packed value,
   // the size of the buffer and , optionally, the string
   // for the literal (system-supplied version)
-  ItmPersistentExpressionVar(const NAType *type, void *value, Lng32 value_len, NAString *literal = NULL)
+  ItmPersistentExpressionVar(const NAType *type, void *value, int value_len, NAString *literal = NULL)
       : ConstValue(type, value, value_len, literal) {
     setConstFoldingDisabled(TRUE);
   }

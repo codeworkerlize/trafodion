@@ -71,7 +71,7 @@ class MdamIntervalList {
  public:
 // Default constructor creates an empty list.
 #if defined(NA_MDAM_EXECUTOR_DEBUG_ILTF)
-  MdamIntervalList(const Lng32 callerTag = -1);
+  MdamIntervalList(const int callerTag = -1);
 #else
   MdamIntervalList();
 #endif /* NA_MDAM_EXECUTOR_DEBUG_ILTF */
@@ -85,7 +85,7 @@ class MdamIntervalList {
   MdamIntervalList &append(MdamInterval *interval);
 
 #if defined(NA_MDAM_EXECUTOR_DEBUG_ILTF)
-  Lng32 countIntervals() const;
+  int countIntervals() const;
 #endif /* NA_MDAM_EXECUTOR_DEBUG_ILTF */
 
   // Delete all intervals in the list.
@@ -106,8 +106,8 @@ class MdamIntervalList {
   inline NABoolean isEmpty() const;
 
 #if defined(NA_MDAM_EXECUTOR_DEBUG_ILTF)
-  void logEvent(const Lng32 functionId, const Lng32 intervalCount = 0, const Int64 otherListId = -1,
-                const Lng32 callerTag = -1) const;
+  void logEvent(const int functionId, const int intervalCount = 0, const long otherListId = -1,
+                const int callerTag = -1) const;
 #endif /* NA_MDAM_EXECUTOR_DEBUG_ILTF */
 
 // Print functions.
@@ -148,7 +148,7 @@ class MdamIntervalList {
   void giveAllIntervals(MdamIntervalList &otherList);
 
 #if defined(NA_MDAM_EXECUTOR_DEBUG_ILTF)
-  const Int64 intervalListId_;
+  const long intervalListId_;
 #endif /* NA_MDAM_EXECUTOR_DEBUG_ILTF */
 
 };  // class MdamIntervalList

@@ -40,24 +40,6 @@ class Queue;
 class ExeCliInterface;
 class OutputInfo;
 
-#ifndef Lng32
-typedef int Lng32;
-#endif
-
-// *****************************************************************************
-// *
-// * File:         PrivMgrMD.h
-// * Description:  This file contains classes that access and maintain the
-// *               contents of the Privilege Manager metadata and that
-// *               interact with Trafodion system metadata.
-// *
-// * Language:     C++
-// *
-// *****************************************************************************
-
-// -----------------------------------------------------------------------
-// class contents of this file
-// -----------------------------------------------------------------------
 class ObjectPrivsRow;
 class PrivMgrMDAdmin;
 class ObjectReference;

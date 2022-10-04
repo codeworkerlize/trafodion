@@ -49,14 +49,14 @@ ComSqlId::ComSqlId(CollHeap *heap) : heap_(heap) {}
 //           if backward compatability is to be maintained to differentiate
 //           between a previously packed str, then set the 2nd bit from
 //           left (0x40) of the leftmost byte of outStr.
-short ComSqlId::packNumIntoStr(Int64 num, char *outStr, Lng32 outStrLen, NABoolean backwardCompatibility) {
+short ComSqlId::packNumIntoStr(long num, char *outStr, int outStrLen, NABoolean backwardCompatibility) {
   // max number of packed chars is 10. Could be increased at some point.
   int outNumChars = outStrLen - 1;
   if ((outNumChars <= 0) || (outNumChars > 10)) return -1;
 
   // if provided num is less than max base-10 number, then use base10 to pack
   NABoolean useBase10 = FALSE;
-  Int64 maxNumValForBase10 = pow(10, outNumChars);
+  long maxNumValForBase10 = pow(10, outNumChars);
   if (num < maxNumValForBase10) useBase10 = TRUE;
 
   // convert number to str using characters from ascii code 33(!) to 126(~)
@@ -68,7 +68,7 @@ short ComSqlId::packNumIntoStr(Int64 num, char *outStr, Lng32 outStrLen, NABoole
 
   // Backward compatibility support will reduce the max num that can be packed.
   // This check is not needed if base10 is being used.
-  Int64 maxNum = 0;
+  long maxNum = 0;
   if (NOT backwardCompatibility)
     maxNum = pow(base, outNumChars);
   else  // support backward compatibility
@@ -103,7 +103,7 @@ short ComSqlId::packNumIntoStr(Int64 num, char *outStr, Lng32 outStrLen, NABoole
 // inStr:     input str to be unpacked
 // inStrLen:  length of input string. Null terminator not included.
 // Return:    unpacked number.  or -1 if an error.
-Int64 ComSqlId::unpackNumFromStr(const char *inStr, Lng32 inStrLen, NABoolean backwardCompatibility) {
+long ComSqlId::unpackNumFromStr(const char *inStr, int inStrLen, NABoolean backwardCompatibility) {
   if ((!inStr) || (inStrLen <= 0) || (inStrLen > 10)) return -1;
 
   NABoolean useBase10 = FALSE;
@@ -118,7 +118,7 @@ Int64 ComSqlId::unpackNumFromStr(const char *inStr, Lng32 inStrLen, NABoolean ba
   char endBaseChar = (char)endBase;
   int base = endBase - startBase + 1;
 
-  Lng32 tnum = 0;
+  int tnum = 0;
   for (int j = 0; j < inStrLen; j++) {
     char c = inStr[j];
     if ((backwardCompatibility) && (j == 0)) {
@@ -131,19 +131,19 @@ Int64 ComSqlId::unpackNumFromStr(const char *inStr, Lng32 inStrLen, NABoolean ba
   return tnum;
 }
 
-Lng32 ComSqlId::createSqlSessionId(char *sessionId,             // INOUT
-                                   Lng32 maxSessionIdLen,       // IN
-                                   Lng32 &actualSessionIdLen,   // OUT
-                                   Lng32 nodeNumber,            // IN
-                                   Lng32 cpu,                   // IN
-                                   Lng32 pin,                   // IN
-                                   Int64 processStartTS,        // IN
-                                   Int64 sessionUniqueNum,      // IN
-                                   Lng32 userNameLen,           // IN
+int ComSqlId::createSqlSessionId(char *sessionId,             // INOUT
+                                   int maxSessionIdLen,       // IN
+                                   int &actualSessionIdLen,   // OUT
+                                   int nodeNumber,            // IN
+                                   int cpu,                   // IN
+                                   int pin,                   // IN
+                                   long processStartTS,        // IN
+                                   long sessionUniqueNum,      // IN
+                                   int userNameLen,           // IN
                                    const char *userName,        // IN
                                    Int32 tenantIdLen,           // IN
                                    const char *tenantId,        // IN
-                                   Lng32 userSessionNameLen,    // IN
+                                   int userSessionNameLen,    // IN
                                    const char *userSessionName  // IN
 ) {
   // if input buffer space is less then the needed space,
@@ -158,7 +158,7 @@ Lng32 ComSqlId::createSqlSessionId(char *sessionId,             // INOUT
   str_sprintf(sessionId, "%s%02d%3s%06d%018ld%010d%02d%s%02d%s%02d%s", COM_SESSION_ID_PREFIX, SQ_SQL_ID_VERSION, nidStr,
               pin,                      // 6 digits
               processStartTS,           // 18 digits
-              (Lng32)sessionUniqueNum,  // 10 digits
+              (int)sessionUniqueNum,  // 10 digits
               userNameLen,              // 2 digits
               userName,                 //
               tenantIdLen,              // 2 digits
@@ -166,18 +166,18 @@ Lng32 ComSqlId::createSqlSessionId(char *sessionId,             // INOUT
               userSessionNameLen,       // 2 digits
               userSessionName);
 
-  actualSessionIdLen = (Lng32)strlen(sessionId);
+  actualSessionIdLen = (int)strlen(sessionId);
 
   return 0;
 }
 
-Lng32 ComSqlId::createSqlQueryId(char *queryId,            // INOUT
-                                 Lng32 maxQueryIdLen,      // IN
-                                 Lng32 &actualQueryIdLen,  // OUT
-                                 Lng32 sessionIdLen,       // IN
+int ComSqlId::createSqlQueryId(char *queryId,            // INOUT
+                                 int maxQueryIdLen,      // IN
+                                 int &actualQueryIdLen,  // OUT
+                                 int sessionIdLen,       // IN
                                  char *sessionId,          // IN
-                                 Int64 queryUniqueNum,     // IN
-                                 Lng32 queryNameLen,       // IN
+                                 long queryUniqueNum,     // IN
+                                 int queryNameLen,       // IN
                                  char *queryName           // IN
 ) {
   // if input buffer space is less then the needed space,
@@ -205,19 +205,19 @@ Lng32 ComSqlId::createSqlQueryId(char *queryId,            // INOUT
   return 0;
 }
 
-Lng32 ComSqlId::getSqlIdAttr(Lng32 attr,           // which attr (SqlQueryIDAttr)
+int ComSqlId::getSqlIdAttr(int attr,           // which attr (SqlQueryIDAttr)
                              const char *queryId,  // query ID
-                             Lng32 queryIdLen,     // query ID len
-                             Int64 &value,         // If returned attr is numeric,
+                             int queryIdLen,     // query ID len
+                             long &value,         // If returned attr is numeric,
                                                    //    this field contains the returned value.
                                                    // If attr is of string type, this value is:
                                                    //   on input,the max length of the buffer pointed to by stringValue
                                                    //   on output, the actual length of the string attribute
                              char *stringValue)    // null terminated string returned here
 {
-  Lng32 retcode = 0;
+  int retcode = 0;
 
-  Int64 version = str_atoi(&queryId[VERSION_OFFSET], VERSION_LEN);
+  long version = str_atoi(&queryId[VERSION_OFFSET], VERSION_LEN);
 
   switch (attr) {
     case SQLQUERYID_VERSION:
@@ -262,7 +262,7 @@ Lng32 ComSqlId::getSqlIdAttr(Lng32 attr,           // which attr (SqlQueryIDAttr
     } break;
 
     case SQLQUERYID_USERNAME: {
-      Lng32 userNameLen = (Lng32)str_atoi(&queryId[USERNAMELEN_OFFSET], USERNAMELEN_LEN);
+      int userNameLen = (int)str_atoi(&queryId[USERNAMELEN_OFFSET], USERNAMELEN_LEN);
       if (userNameLen < 0) return -CLI_INVALID_ATTR_VALUE;
       if (stringValue && value > userNameLen) {
         strncpy(stringValue, &queryId[USERNAME_OFFSET], userNameLen);
@@ -274,11 +274,11 @@ Lng32 ComSqlId::getSqlIdAttr(Lng32 attr,           // which attr (SqlQueryIDAttr
     } break;
 
     case SQLQUERYID_TENANTID: {
-      Lng32 userNameLen = (Lng32)str_atoi(&queryId[USERNAMELEN_OFFSET], USERNAMELEN_LEN);
+      int userNameLen = (int)str_atoi(&queryId[USERNAMELEN_OFFSET], USERNAMELEN_LEN);
       if (userNameLen < 0) return -CLI_INVALID_ATTR_VALUE;
 
-      Lng32 tenantIdLenOffset = USERNAMELEN_OFFSET + USERNAMELEN_LEN + userNameLen;
-      Lng32 tenantIdLen = (Lng32)str_atoi(&queryId[tenantIdLenOffset], TENANTIDLEN_LEN);
+      int tenantIdLenOffset = USERNAMELEN_OFFSET + USERNAMELEN_LEN + userNameLen;
+      int tenantIdLen = (int)str_atoi(&queryId[tenantIdLenOffset], TENANTIDLEN_LEN);
       if (tenantIdLen < 0) return -CLI_INVALID_ATTR_VALUE;
       if (stringValue && value > tenantIdLen) {
         strncpy(stringValue, &queryId[tenantIdLenOffset + TENANTIDLEN_LEN], tenantIdLen);
@@ -292,7 +292,7 @@ Lng32 ComSqlId::getSqlIdAttr(Lng32 attr,           // which attr (SqlQueryIDAttr
 
     case SQLQUERYID_SESSIONNAME: {
       Int32 currOffset = USERNAMELEN_OFFSET;
-      Lng32 userIdLen = (Lng32)str_atoi(&queryId[currOffset], USERNAMELEN_LEN);
+      int userIdLen = (int)str_atoi(&queryId[currOffset], USERNAMELEN_LEN);
       if (userIdLen < 0) return -CLI_INVALID_ATTR_VALUE;
       // go past userid
       currOffset += USERNAMELEN_LEN + userIdLen;
@@ -302,9 +302,9 @@ Lng32 ComSqlId::getSqlIdAttr(Lng32 attr,           // which attr (SqlQueryIDAttr
       // go past tenant id
       currOffset += TENANTIDLEN_LEN + tenantIdLen;
 
-      Lng32 sessionNameLenOffset = currOffset;
+      int sessionNameLenOffset = currOffset;
 
-      Lng32 sessionNameLen = (Lng32)str_atoi(&queryId[sessionNameLenOffset], SESSIONNAMELEN_LEN);
+      int sessionNameLen = (int)str_atoi(&queryId[sessionNameLenOffset], SESSIONNAMELEN_LEN);
       if (sessionNameLen < 0) return -CLI_INVALID_ATTR_VALUE;
       if (stringValue && value > sessionNameLen) {
         strncpy(stringValue, &queryId[sessionNameLenOffset + SESSIONNAMELEN_LEN], sessionNameLen);
@@ -353,8 +353,8 @@ Lng32 ComSqlId::getSqlIdAttr(Lng32 attr,           // which attr (SqlQueryIDAttr
     } break;
 
     case SQLQUERYID_QUERYNUM: {
-      Lng32 currOffset = USERNAMELEN_OFFSET;
-      Lng32 nameLen = (Lng32)str_atoi(&queryId[currOffset], USERNAMELEN_LEN);
+      int currOffset = USERNAMELEN_OFFSET;
+      int nameLen = (int)str_atoi(&queryId[currOffset], USERNAMELEN_LEN);
       if (nameLen < 0) return -CLI_INVALID_ATTR_VALUE;
 
       // skip user name
@@ -367,7 +367,7 @@ Lng32 ComSqlId::getSqlIdAttr(Lng32 attr,           // which attr (SqlQueryIDAttr
       currOffset += TENANTIDLEN_LEN + tenantIdLen;
 
       // skip session name
-      nameLen = (Lng32)str_atoi(&queryId[currOffset], SESSIONNAMELEN_LEN);
+      nameLen = (int)str_atoi(&queryId[currOffset], SESSIONNAMELEN_LEN);
       if (nameLen < 0) return -CLI_INVALID_ATTR_VALUE;
       currOffset += SESSIONNAMELEN_LEN + nameLen;
 
@@ -389,8 +389,8 @@ Lng32 ComSqlId::getSqlIdAttr(Lng32 attr,           // which attr (SqlQueryIDAttr
     } break;
 
     case SQLQUERYID_STMTNAME: {
-      Lng32 currOffset = USERNAMELEN_OFFSET;
-      Lng32 nameLen = (Lng32)str_atoi(&queryId[currOffset], USERNAMELEN_LEN);
+      int currOffset = USERNAMELEN_OFFSET;
+      int nameLen = (int)str_atoi(&queryId[currOffset], USERNAMELEN_LEN);
       if (nameLen < 0) return -CLI_INVALID_ATTR_VALUE;
 
       // skip user name
@@ -403,7 +403,7 @@ Lng32 ComSqlId::getSqlIdAttr(Lng32 attr,           // which attr (SqlQueryIDAttr
       currOffset += TENANTIDLEN_LEN + tenantIdLen;
 
       // skip session name
-      nameLen = (Lng32)str_atoi(&queryId[currOffset], SESSIONNAMELEN_LEN);
+      nameLen = (int)str_atoi(&queryId[currOffset], SESSIONNAMELEN_LEN);
       if (nameLen < 0) return -CLI_INVALID_ATTR_VALUE;
       currOffset += SESSIONNAMELEN_LEN + nameLen;
 
@@ -451,16 +451,16 @@ Lng32 ComSqlId::getSqlIdAttr(Lng32 attr,           // which attr (SqlQueryIDAttr
   return retcode;
 }
 
-Lng32 ComSqlId::getSqlQueryIdAttr(Lng32 attr,         // which attr (SqlQueryIDAttr)
+int ComSqlId::getSqlQueryIdAttr(int attr,         // which attr (SqlQueryIDAttr)
                                   char *queryId,      // query ID
-                                  Lng32 queryIdLen,   // query ID len
-                                  Int64 &value,       // If returned attr is of string type, this value is the
+                                  int queryIdLen,   // query ID len
+                                  long &value,       // If returned attr is of string type, this value is the
                                                       // max length of the buffer pointed to by stringValue.
                                                       // If returned attr is numeric, this field contains
                                                       // the returned value.
                                   char *stringValue)  // null terminated returned value for string attrs.
 {
-  Lng32 retcode = 0;
+  int retcode = 0;
 
   if ((queryId == NULL) || (queryIdLen < MIN_QUERY_ID_LEN) ||
       (strncmp(queryId, COM_SESSION_ID_PREFIX, strlen(COM_SESSION_ID_PREFIX)) != 0))
@@ -470,16 +470,16 @@ Lng32 ComSqlId::getSqlQueryIdAttr(Lng32 attr,         // which attr (SqlQueryIDA
   return retcode;
 }
 
-Lng32 ComSqlId::getSqlSessionIdAttr(Lng32 attr,           // which attr (SqlQueryIDAttr)
+int ComSqlId::getSqlSessionIdAttr(int attr,           // which attr (SqlQueryIDAttr)
                                     const char *queryId,  // query ID
-                                    Lng32 queryIdLen,     // query ID len
-                                    Int64 &value,         // If returned attr is of string type, this value is the
+                                    int queryIdLen,     // query ID len
+                                    long &value,         // If returned attr is of string type, this value is the
                                                           // max length of the buffer pointed to by stringValue.
                                                           // If returned attr is numeric, this field contains
                                                           // the returned value.
                                     char *stringValue)    // null terminated returned value for string attrs.
 {
-  Lng32 retcode = 0;
+  int retcode = 0;
 
   if ((queryId == NULL) || (queryIdLen < MIN_SESSION_ID_LEN) ||
       (strncmp(queryId, COM_SESSION_ID_PREFIX, strlen(COM_SESSION_ID_PREFIX)) != 0))
@@ -489,22 +489,22 @@ Lng32 ComSqlId::getSqlSessionIdAttr(Lng32 attr,           // which attr (SqlQuer
   return retcode;
 }
 
-Lng32 ComSqlId::extractSqlSessionIdAttrs(const char *sessionId,      // IN
-                                         Lng32 maxSessionIdLen,      // IN
-                                         Int64 &segmentNumber,       // OUT
-                                         Int64 &cpu,                 // OUT
-                                         Int64 &pin,                 // OUT
-                                         Int64 &processStartTS,      // OUT
-                                         Int64 &sessionUniqueNum,    // OUT
-                                         Lng32 &userNameLen,         // OUT
+int ComSqlId::extractSqlSessionIdAttrs(const char *sessionId,      // IN
+                                         int maxSessionIdLen,      // IN
+                                         long &segmentNumber,       // OUT
+                                         long &cpu,                 // OUT
+                                         long &pin,                 // OUT
+                                         long &processStartTS,      // OUT
+                                         long &sessionUniqueNum,    // OUT
+                                         int &userNameLen,         // OUT
                                          char *userName,             // OUT
                                          Int32 &tenantIdLen,         // OUT
                                          char *tenantId,             // OUT
-                                         Lng32 &userSessionNameLen,  // OUT
+                                         int &userSessionNameLen,  // OUT
                                          char *userSessionName,      // OUT
-                                         Lng32 *version) {
-  Lng32 retcode = 0;
-  Int64 lc_version;
+                                         int *version) {
+  int retcode = 0;
+  long lc_version;
 
   if ((sessionId == NULL) || ((maxSessionIdLen > 0) && (maxSessionIdLen < MIN_SESSION_ID_LEN)) ||
       (strncmp(sessionId, COM_SESSION_ID_PREFIX, strlen(COM_SESSION_ID_PREFIX)) != 0))
@@ -526,25 +526,25 @@ Lng32 ComSqlId::extractSqlSessionIdAttrs(const char *sessionId,      // IN
   if (retcode) return retcode;
 
   if (userName) {
-    Int64 dummy = 0;
+    long dummy = 0;
     retcode = getSqlIdAttr(SQLQUERYID_USERNAME, sessionId, userNameLen, dummy, userName);
     if (retcode) return retcode;
   }
 
   if (tenantId) {
-    Int64 dummy = 0;
+    long dummy = 0;
     retcode = getSqlIdAttr(SQLQUERYID_TENANTID, sessionId, tenantIdLen, dummy, tenantId);
     if (retcode) return retcode;
   }
   if (userSessionName) {
-    Int64 dummy = 0;
+    long dummy = 0;
     retcode = getSqlIdAttr(SQLQUERYID_SESSIONNAME, sessionId, userSessionNameLen, dummy, userSessionName);
     if (retcode) return retcode;
   }
   if (version != NULL) {
     retcode = getSqlIdAttr(SQLQUERYID_VERSION, sessionId, maxSessionIdLen, lc_version, NULL);
     if (retcode) return retcode;
-    *version = (Lng32)lc_version;
+    *version = (int)lc_version;
   }
   return 0;
 }
@@ -558,18 +558,18 @@ Lng32 ComSqlId::extractSqlSessionIdAttrs(const char *sessionId,      // IN
   <segment>        :      1 byte
   <cpu>            :      1 byte
   <pin>            :      2 bytes(short)
-  <processStartTS> :      8 bytes (Int64)
-  <queryNum>       :      4 bytes (Lng32)
+  <processStartTS> :      8 bytes (long)
+  <queryNum>       :      4 bytes (int)
 */
-Lng32 ComSqlId::getDp2QueryIdString(char *queryId,        // IN
-                                    Lng32 queryIdLen,     // IN
+int ComSqlId::getDp2QueryIdString(char *queryId,        // IN
+                                    int queryIdLen,     // IN
                                     char *dp2QueryId,     // INOUT
-                                    Lng32 &dp2QueryIdLen  // OUT
+                                    int &dp2QueryIdLen  // OUT
 ) {
   if ((!queryId) || (queryIdLen < MAX_DP2_QUERY_ID_LEN)) return -1;
 
-  Int64 value;
-  Lng32 currOffset = 0;
+  long value;
+  int currOffset = 0;
   // In case of Linux and NT, segment num and cpu num are same
   // Copy them as short
   // get cpu
@@ -584,33 +584,33 @@ Lng32 ComSqlId::getDp2QueryIdString(char *queryId,        // IN
 
   // get process start time
   getSqlQueryIdAttr(SQLQUERYID_EXESTARTTIME, queryId, queryIdLen, value, NULL);
-  str_cpy_all(&dp2QueryId[currOffset], (char *)&value, sizeof(Int64));
-  currOffset += sizeof(Int64);
+  str_cpy_all(&dp2QueryId[currOffset], (char *)&value, sizeof(long));
+  currOffset += sizeof(long);
 
   // get query num
   getSqlQueryIdAttr(SQLQUERYID_QUERYNUM, queryId, queryIdLen, value, NULL);
-  Lng32 qNum = (Lng32)value;
-  str_cpy_all(&dp2QueryId[currOffset], (char *)&qNum, sizeof(Lng32));
+  int qNum = (int)value;
+  str_cpy_all(&dp2QueryId[currOffset], (char *)&qNum, sizeof(int));
 
-  currOffset += sizeof(Lng32);
+  currOffset += sizeof(int);
 
   dp2QueryIdLen = currOffset;
 
   return 0;
 }
 
-Lng32 ComSqlId::decomposeDp2QueryIdString(char *queryId,     // input: buffer containing dp2 query id
-                                          Lng32 queryIdLen,  // input: length of query id
-                                          Lng32 *queryNum,   // output: unique query number
-                                          Lng32 *segment,    // output: segment number of master exe
-                                          Lng32 *cpu,        // output: cpu number
-                                          Lng32 *pin,        // output: pin
-                                          Int64 *timestamp   // output: master exe process
+int ComSqlId::decomposeDp2QueryIdString(char *queryId,     // input: buffer containing dp2 query id
+                                          int queryIdLen,  // input: length of query id
+                                          int *queryNum,   // output: unique query number
+                                          int *segment,    // output: segment number of master exe
+                                          int *cpu,        // output: cpu number
+                                          int *pin,        // output: pin
+                                          long *timestamp   // output: master exe process
                                                              //         start time
 ) {
   if ((!queryId) || (queryIdLen < MAX_DP2_QUERY_ID_LEN)) return -1;
 
-  Lng32 currOffset = 0;
+  int currOffset = 0;
   *segment = *(short *)&queryId[currOffset];
   *cpu = *segment;
   currOffset += sizeof(short);
@@ -618,11 +618,11 @@ Lng32 ComSqlId::decomposeDp2QueryIdString(char *queryId,     // input: buffer co
   *pin = *(short *)&queryId[currOffset];
   currOffset += sizeof(short);
 
-  str_cpy_all((char *)timestamp, &queryId[currOffset], sizeof(Int64));
-  currOffset += sizeof(Int64);
+  str_cpy_all((char *)timestamp, &queryId[currOffset], sizeof(long));
+  currOffset += sizeof(long);
 
-  str_cpy_all((char *)queryNum, &queryId[currOffset], sizeof(Lng32));
-  currOffset += sizeof(Lng32);
+  str_cpy_all((char *)queryNum, &queryId[currOffset], sizeof(int));
+  currOffset += sizeof(int);
 
   return 0;
 }

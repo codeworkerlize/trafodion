@@ -420,7 +420,7 @@ class JoinLeftShiftRule : public Rule {
   virtual NABoolean topMatch(RelExpr *expr, Context *context);
   virtual RelExpr *nextSubstitute(RelExpr *before, Context *context, RuleSubstituteMemory *&memory);
 
-  virtual Guidance *guidanceForExploringChild(Guidance *, Context *, Lng32);
+  virtual Guidance *guidanceForExploringChild(Guidance *, Context *, int);
 
   virtual Guidance *guidanceForExploringSubstitute(Guidance *guidance);
 
@@ -444,9 +444,9 @@ class IndexJoinWithGroupbyRule : public Rule {
   NABoolean isPredMatch(ItemExpr *selectionPred, ItemExpr *&child);
   ItemExpr *createCondPred(ItemExpr *selectionPred);
   ItemExpr *createOrPredicate(ItemExpr *selectionPred,  // in
-                              Lng32 &predCount,         // out
+                              int &predCount,         // out
                               NABoolean &isDynStmt);    // out
-  RelExpr *nextSubstituteForPass(RelExpr *before, RuleSubstituteMemory *&memory, Lng32 pass);
+  RelExpr *nextSubstituteForPass(RelExpr *before, RuleSubstituteMemory *&memory, int pass);
   RelExpr *makeSubstituteScan(Scan *s, RelExpr *partialResult);
   RelExpr *makeSubstituteFromIndexInfo(Scan *bef, ScanIndexInfo *ixi, NABoolean &isDynStmt);
 };
@@ -463,7 +463,7 @@ class IndexJoinRule1 : public Rule {
   virtual RelExpr *nextSubstitute(RelExpr *before, Context *context, RuleSubstituteMemory *&memory);
 
   // non-virtual methods to do the work for both pass 1 and pass 2
-  RelExpr *nextSubstituteForPass(RelExpr *before, RuleSubstituteMemory *&memory, Lng32 pass);
+  RelExpr *nextSubstituteForPass(RelExpr *before, RuleSubstituteMemory *&memory, int pass);
   RelExpr *makeSubstituteFromIndexInfo(Scan *bef, ScanIndexInfo *ixi);
 };
 
@@ -587,7 +587,7 @@ class FilterRule : public Rule {
   FilterRule(const FilterRule &);  // not written
 
   virtual ~FilterRule() {}
-  virtual Guidance *guidanceForExploringChild(Guidance *guidance, Context *context, Lng32 childIndex);
+  virtual Guidance *guidanceForExploringChild(Guidance *guidance, Context *context, int childIndex);
   virtual RelExpr *nextSubstitute(RelExpr *before, Context *context, RuleSubstituteMemory *&memory) = 0;
   virtual Int32 promiseForOptimization(RelExpr *relExpr, Guidance *guidance, Context *context);
 };

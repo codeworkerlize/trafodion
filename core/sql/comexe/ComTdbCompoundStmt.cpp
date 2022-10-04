@@ -47,7 +47,7 @@
 ComTdbCompoundStmt::ComTdbCompoundStmt() : ComTdb(ComTdb::ex_COMPOUND_STMT, eye_CS) {}
 
 ComTdbCompoundStmt::ComTdbCompoundStmt(ComTdb *left, ComTdb *right, ex_cri_desc *given, ex_cri_desc *returned,
-                                       queue_index down, queue_index up, Lng32 numBuffers, ULng32 bufferSize,
+                                       queue_index down, queue_index up, int numBuffers, ULng32 bufferSize,
                                        NABoolean rowsFromLeft, NABoolean rowsFromRight, NABoolean afterUpdate)
     : ComTdb(ComTdb::ex_COMPOUND_STMT, eye_CS, (Cardinality)0.0, given, returned, down, up, numBuffers, bufferSize),
       tdbLeft_(left),
@@ -66,7 +66,7 @@ Long ComTdbCompoundStmt::pack(void *space) {
 
 }  // ComTdbCompoundStmt::pack
 
-Lng32 ComTdbCompoundStmt::unpack(void *base, void *reallocator) {
+int ComTdbCompoundStmt::unpack(void *base, void *reallocator) {
   if (tdbLeft_.unpack(base, reallocator)) return -1;
   if (tdbRight_.unpack(base, reallocator)) return -1;
 

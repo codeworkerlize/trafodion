@@ -60,10 +60,10 @@ LmResult LmParameter::setOutInteger(void *dataPtr, Int32 a) {
   return LM_OK;
 }
 
-LmResult LmParameter::setOutLargeInt(void *dataPtr, Int64 a) {
+LmResult LmParameter::setOutLargeInt(void *dataPtr, long a) {
   if (sizeof(a) > outSize_) return LM_PARAM_OVERFLOW;
 
-  *(Int64 *)((char *)dataPtr + outDataOffset_) = a;
+  *(long *)((char *)dataPtr + outDataOffset_) = a;
   return LM_OK;
 }
 
@@ -101,7 +101,7 @@ LmResult LmParameter::setOutNumeric(void *dataPtr, const char *source, ComBoolea
 
     ex_expr::exp_return_type expRetcode =
         convDoIt((char *)source, str_len(source), REC_BYTE_F_ASCII, 0, 0, ((char *)dataPtr + outDataOffset_),
-                 (Lng32)outSize_, fsType_, prec_, scale_, NULL, 0, heap, &diags, CONV_ASCII_BIGNUM, NULL, 0);
+                 (int)outSize_, fsType_, prec_, scale_, NULL, 0, heap, &diags, CONV_ASCII_BIGNUM, NULL, 0);
 
     if (expRetcode == ex_expr::EXPR_ERROR) result = LM_ERR;
 
@@ -126,7 +126,7 @@ LmResult LmParameter::setOutChar(void *dataPtr, const char *src, ComUInt32 lengt
     result = LM_PARAM_OVERFLOW;
   }
 
-  str_cpy_all((char *)dataPtr + outDataOffset(), src, (Lng32)lengthInBytes);
+  str_cpy_all((char *)dataPtr + outDataOffset(), src, (int)lengthInBytes);
 
   // Copy length into varchar length indicator
   switch (outVCLenIndSize()) {
@@ -154,12 +154,12 @@ LmResult LmParameter::setOutChar(void *dataPtr, const char *src, ComUInt32 lengt
         case CharInfo::ISO88591:
         case CharInfo::SJIS:
         case CharInfo::UTF8:
-          str_pad((char *)dataPtr + outDataOffset_ + lengthInBytes, (Lng32)(outSize_ - lengthInBytes), ' ');
+          str_pad((char *)dataPtr + outDataOffset_ + lengthInBytes, (int)(outSize_ - lengthInBytes), ' ');
           break;
 
         case CharInfo::UNICODE:
           wc_str_pad((NAWchar *)((char *)dataPtr + outDataOffset_ + lengthInBytes),
-                     (Lng32)(outSize_ - lengthInBytes) / 2, unicode_char_set::space_char());
+                     (int)(outSize_ - lengthInBytes) / 2, unicode_char_set::space_char());
           break;
 
         default:
@@ -187,7 +187,7 @@ LmResult LmParameter::setOutDecimal(void *dataPtr, const char *source, CollHeap 
 
   ex_expr::exp_return_type expRetcode =
       convDoIt((char *)source, str_len(source), REC_BYTE_F_ASCII, 0, 0, (char *)dataPtr + outDataOffset(),
-               (Lng32)outSize_, fsType_, prec_, scale_, NULL, 0, heap, &diags, CONV_ASCII_DEC, NULL, 0);
+               (int)outSize_, fsType_, prec_, scale_, NULL, 0, heap, &diags, CONV_ASCII_DEC, NULL, 0);
 
   if (expRetcode == ex_expr::EXPR_ERROR) result = LM_ERR;
 
@@ -258,14 +258,14 @@ LmResult LmParameter::setOutInterval(void *dataPtr, const char *rawBytes, ComUIn
     result = LM_PARAM_OVERFLOW;
   }
 
-  Lng32 numOfBlanks = (Lng32)(outSize_ - len);
+  int numOfBlanks = (int)(outSize_ - len);
   char *temp = (char *)dataPtr + outDataOffset();
-  for (Lng32 i = 0; i < numOfBlanks; i++) {
+  for (int i = 0; i < numOfBlanks; i++) {
     *temp = ' ';
     temp++;
   }
 
-  str_cpy_all(temp, rawBytes, (Lng32)len);
+  str_cpy_all(temp, rawBytes, (int)len);
   return result;
 }
 

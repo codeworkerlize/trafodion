@@ -121,7 +121,7 @@ class StmtDDLNode : public ElemDDLNode {
 
   // returns TRUE, if parallel DDL op could be performed for an
   // object with 'numPartitions'.
-  static NABoolean performParallelOp(Lng32 numPartitions);
+  static NABoolean performParallelOp(int numPartitions);
 
   virtual NABoolean explainSupported() { return FALSE; }
 

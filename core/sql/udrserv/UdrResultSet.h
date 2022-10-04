@@ -225,7 +225,7 @@ class UdrResultSet : public NABasicObject {
                  UdrParameterInfo *columnDesc, ComDiagsArea &d);
 
   // Fetch methods
-  Lng32 fetchRows(UdrGlobals *udrGlob, SqlBuffer *request, SqlBuffer *reply, ComDiagsArea &d,
+  int fetchRows(UdrGlobals *udrGlob, SqlBuffer *request, SqlBuffer *reply, ComDiagsArea &d,
                   NAList<ComDiagsArea *> *rowDiagsList);
   void fetchRowsFromCLI(UdrGlobals *udrGlob, SqlBuffer *reply, ComUInt32 &numBufferedRows, ComDiagsArea &d,
                         NAList<ComDiagsArea *> *rowDiagsList);

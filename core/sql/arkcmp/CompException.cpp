@@ -219,7 +219,7 @@ void PassOneSkippedPassTwoNoPlanFatalException::throwException() {
 }
 
 // OptAssertException Implementation
-OptAssertException::OptAssertException(AssertException &e, Lng32 taskCount)
+OptAssertException::OptAssertException(AssertException &e, int taskCount)
     : AssertException(e), taskCount_(taskCount) {}
 
 void OptAssertException::throwException() {

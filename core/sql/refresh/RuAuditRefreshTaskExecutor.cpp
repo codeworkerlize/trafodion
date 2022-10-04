@@ -154,7 +154,7 @@ void CRUAuditRefreshTaskExecutor::Init() {
     return;
   }
 
-  Lng32 refreshPattern = GetRootMV().GetRefreshPatternMap();
+  int refreshPattern = GetRootMV().GetRefreshPatternMap();
   isPurgedata_ = (0 != (refreshPattern & CRUMV::PURGEDATA));
   isPopindex_ = (0 != (refreshPattern & CRUMV::POPINDEX));
 
@@ -668,7 +668,7 @@ void CRUAuditRefreshTaskExecutor::ComposeIndexesSql() {
 //
 // Execute all the index related statments in the container
 //--------------------------------------------------------------------------//
-void CRUAuditRefreshTaskExecutor::ExecuteIndexStatmenents(CRUSQLDynamicStatementContainer &container, Lng32 errorCode) {
+void CRUAuditRefreshTaskExecutor::ExecuteIndexStatmenents(CRUSQLDynamicStatementContainer &container, int errorCode) {
   short numStmt = container.GetNumOfStmt();
 
   for (short i = 0; i < numStmt; i++) {

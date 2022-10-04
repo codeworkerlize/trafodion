@@ -163,8 +163,8 @@ inline NAWchar na_towlower(NAWchar wc) {
     return wc;
 }
 
-Int64 na_wcstoll(const NAWchar *);
-Lng32 na_wcstol(const NAWchar *);
+long na_wcstoll(const NAWchar *);
+int na_wcstol(const NAWchar *);
 NAWchar *na_wcschr(const NAWchar *, NAWchar);
 NAWchar *na_wcschrSkipOverParenText(const NAWchar *, NAWchar);
 NAWchar *na_wcsrchr(const NAWchar *, NAWchar);

@@ -174,30 +174,30 @@ class ExExeUtilTcb : public ex_tcb {
   virtual Int32 numChildren() const;
   virtual const ex_tcb *getChild(Int32 pos) const;
 
-  void glueQueryFragments(Lng32 queryArraySize, const QueryString *queryArray, char *&gluedQuery,
-                          Lng32 &gluedQuerySize);
+  void glueQueryFragments(int queryArraySize, const QueryString *queryArray, char *&gluedQuery,
+                          int &gluedQuerySize);
 
   // extract parts from 'objectName' and fixes up delimited names.
-  Lng32 extractParts(char *objectName, char **parts0, char **parts1, char **parts2, NABoolean noValidate = FALSE);
+  int extractParts(char *objectName, char **parts0, char **parts1, char **parts2, NABoolean noValidate = FALSE);
 
-  virtual short moveRowToUpQueue(const char *row, Lng32 len = -1, short *rc = NULL, NABoolean isVarchar = TRUE);
+  virtual short moveRowToUpQueue(const char *row, int len = -1, short *rc = NULL, NABoolean isVarchar = TRUE);
 
   NABoolean isUpQueueFull(short size);
 
-  static char *getTimeAsString(Int64 t, char *timeBuf, NABoolean noUsec = FALSE);
-  char *getTimestampAsString(Int64 t, char *timeBuf);
+  static char *getTimeAsString(long t, char *timeBuf, NABoolean noUsec = FALSE);
+  char *getTimestampAsString(long t, char *timeBuf);
 
   short initializeInfoList(Queue *&infoList);
-  short fetchAllRows(Queue *&infoList, char *query, Lng32 numOutputEntries, NABoolean varcharFormat, short &rc,
+  short fetchAllRows(Queue *&infoList, char *query, int numOutputEntries, NABoolean varcharFormat, short &rc,
                      NABoolean monitorThis = FALSE);
 
-  ex_expr::exp_return_type evalScanExpr(char *ptr, Lng32 len, NABoolean copyToVCbuf);
+  ex_expr::exp_return_type evalScanExpr(char *ptr, int len, NABoolean copyToVCbuf);
 
   char *getStatusString(const char *operation, const char *status, const char *object, char *outBuf,
                         NABoolean isET = FALSE, char *timeBuf = NULL, char *queryBuf = NULL, char *sqlcodeBuf = NULL);
 
   short executeQuery(char *step, char *object, char *query, NABoolean displayStartTime, NABoolean displayEndTime,
-                     short &rc, short *warning, Lng32 *errorCode = NULL, NABoolean moveErrorRow = TRUE,
+                     short &rc, short *warning, int *errorCode = NULL, NABoolean moveErrorRow = TRUE,
                      NABoolean continueOnError = FALSE, NABoolean monitorThis = FALSE);
 
   ExeCliInterface *cliInterface() { return cliInterface_; };
@@ -221,14 +221,14 @@ class ExExeUtilTcb : public ex_tcb {
   void setMaintainControlTableTimeout(char *catalog);
   void restoreMaintainControlTableTimeout(char *catalog);
 
-  static Lng32 holdAndSetCQD(const char *defaultName, const char *defaultValue, ExeCliInterface *cliInterface,
+  static int holdAndSetCQD(const char *defaultName, const char *defaultValue, ExeCliInterface *cliInterface,
                              ComDiagsArea *globalDiags = NULL);
 
-  static Lng32 restoreCQD(const char *defaultName, ExeCliInterface *cliInterface, ComDiagsArea *globalDiags = NULL);
+  static int restoreCQD(const char *defaultName, ExeCliInterface *cliInterface, ComDiagsArea *globalDiags = NULL);
 
-  static Lng32 setCS(const char *csName, char *csValue, ExeCliInterface *cliInterface,
+  static int setCS(const char *csName, char *csValue, ExeCliInterface *cliInterface,
                      ComDiagsArea *globalDiags = NULL);
-  static Lng32 resetCS(const char *csName, ExeCliInterface *cliInterface, ComDiagsArea *globalDiags = NULL);
+  static int resetCS(const char *csName, ExeCliInterface *cliInterface, ComDiagsArea *globalDiags = NULL);
 
   short disableCQS();
   short restoreCQS();
@@ -239,11 +239,11 @@ class ExExeUtilTcb : public ex_tcb {
 
   char *getSystemVersion() { return (strlen(sysVersionStr_) == 0 ? NULL : sysVersionStr_); }
 
-  Lng32 getSchemaVersionLen() { return versionStrLen_; }
+  int getSchemaVersionLen() { return versionStrLen_; }
 
   short getObjectUid(char *catName, char *schName, char *objName, NABoolean isIndex, NABoolean isMv, char *uid);
 
-  Int64 getObjectFlags(Int64 objectUID);
+  long getObjectFlags(long objectUID);
 
   short lockUnlockObject(char *tableName, NABoolean lock, NABoolean parallel, char *failReason);
 
@@ -265,11 +265,11 @@ class ExExeUtilTcb : public ex_tcb {
   //        -3, allocateServerProcess failed.
   short createServer(char *serverName, const char *inPName, IpcServerTypeEnum serverType,
                      IpcServerAllocationMethod servAllocMethod, char *nodeName, short cpu, const char *partnName,
-                     Lng32 priority, IpcServer *&ipcServer, NABoolean logError, const char *operation);
+                     int priority, IpcServer *&ipcServer, NABoolean logError, const char *operation);
 
   void deleteServer(IpcServer *ipcServer);
 
-  NABoolean isProcessObsolete(short cpu, pid_t pin, short segmentNum, Int64 procCreateTime);
+  NABoolean isProcessObsolete(short cpu, pid_t pin, short segmentNum, long procCreateTime);
 
  protected:
   const ex_tcb *childTcb_;
@@ -288,18 +288,18 @@ class ExExeUtilTcb : public ex_tcb {
   char *explQuery_;
 
   ExExeUtilTdb &exeUtilTdb() const { return (ExExeUtilTdb &)tdb; };
-  void handleErrors(Lng32 error);
+  void handleErrors(int error);
 
   CollHeap *getMyHeap() { return (getGlobals()->getDefaultHeap()); };
 
-  void AddCommas(char *outStr, Lng32 &intSize) const;
-  void FormatFloat(char *outStr, Lng32 &intSize, Lng32 &fullSize, double floatVal, NABoolean normalMode,
+  void AddCommas(char *outStr, int &intSize) const;
+  void FormatFloat(char *outStr, int &intSize, int &fullSize, double floatVal, NABoolean normalMode,
                    NABoolean expertMode) const;
 
   Queue *infoList_;
   NABoolean infoListIsOutputInfo_;
   char *childQueryId_;
-  Lng32 childQueryIdLen_;
+  int childQueryIdLen_;
   SQL_QUERY_COST_INFO childQueryCostInfo_;
   SQL_QUERY_COMPILER_STATS_INFO childQueryCompStatsInfo_;
   char *outputBuf_;
@@ -313,18 +313,18 @@ class ExExeUtilTcb : public ex_tcb {
   ProcessQueryStep pqStep_;
 
   char versionStr_[10];
-  Lng32 versionStrLen_;
+  int versionStrLen_;
 
   char sysVersionStr_[10];
-  Lng32 sysVersionStrLen_;
+  int sysVersionStrLen_;
 
   NABoolean restoreTimeout_;
 
   AnsiName *extractedPartsObj_;
 
-  Int64 startTime_;
-  Int64 endTime_;
-  Int64 elapsedTime_;
+  long startTime_;
+  long endTime_;
+  long elapsedTime_;
 
   short warning_;
 };
@@ -344,7 +344,7 @@ class ExExeUtilPrivateState : public ex_tcb_private_state {
 
  protected:
   ExExeUtilTcb::Step step_;
-  Int64 matches_;
+  long matches_;
 };
 
 // -----------------------------------------------------------------------
@@ -409,8 +409,8 @@ class ExExeUtilDisplayExplainTcb : public ExExeUtilTcb {
 
   virtual short work();
 
-  virtual ex_tcb_private_state *allocatePstates(Lng32 &numElems,       // inout, desired/actual elements
-                                                Lng32 &pstateLength);  // out, length of one element
+  virtual ex_tcb_private_state *allocatePstates(int &numElems,       // inout, desired/actual elements
+                                                int &pstateLength);  // out, length of one element
 
   short processExplainRows();
 
@@ -465,11 +465,11 @@ class ExExeUtilDisplayExplainTcb : public ExExeUtilTcb {
   Option optFlag_;  // option flag
   char **lines_;
   //  char  lines_[MLINE][MLEN];    // array of MLINE lines MLEN char wide
-  Lng32 cntLines_;          // count of lines in lines_ array
-  Lng32 nextLine_;          // number of next line to output from array
+  int cntLines_;          // count of lines in lines_ array
+  int nextLine_;          // number of next line to output from array
   char *parsePtr_;          // location in input string being parsed
-  Lng32 header_;            // flag saying current node is root if 1
-  Lng32 lastFrag_;          // previous row fragment number
+  int header_;            // flag saying current node is root if 1
+  int lastFrag_;          // previous row fragment number
   char lastOp_[MOPER + 1];  // previous row operator name
 
   char *optFOutput;
@@ -478,11 +478,11 @@ class ExExeUtilDisplayExplainTcb : public ExExeUtilTcb {
   // Next 13 are the local column data, storage for one node's info
   char moduleName_[MNAME + 1];     // module name column, sometimes null, MNAME=60
   char statementName_[MNAME + 1];  // stmt name column, sometimes null, MNAME=60
-  Int64 planId_;                   // large number, unique per plan
-  Lng32 seqNum_;                   // number of this node
+  long planId_;                   // large number, unique per plan
+  int seqNum_;                   // number of this node
   char operName_[MOPER + 1];       // operator name, MOPER=30
-  Lng32 leftChild_;                // number of left child
-  Lng32 rightChild_;               // number of right child
+  int leftChild_;                // number of left child
+  int rightChild_;               // number of right child
   char tName_[MNAME + 1];          // table name, often null, MNAME=60
   float cardinality_;              // number of rows returned by this node
   float operatorCost_;             // cost of this node alone, in seconds
@@ -490,9 +490,9 @@ class ExExeUtilDisplayExplainTcb : public ExExeUtilTcb {
   char detailCost_[MCOST + 1];     // node cost in 5 parts in key-value format, MCOST=200
   char description_[MDESC + 1];    // other attributs in key-value format, MDESC=3000
 
-  Lng32 MLINE;
-  Lng32 MLEN;
-  Lng32 MWIDE;
+  int MLINE;
+  int MLEN;
+  int MWIDE;
 
   // Methods
   short GetColumns();
@@ -504,16 +504,16 @@ class ExExeUtilDisplayExplainTcb : public ExExeUtilTcb {
   void DoSeparator();
   // void  AddCommas (char *outStr, long &intSize) const;
   // void  FormatFloat (char *outStr, long &intSize, long &fullSize, float floatVal) const;
-  void FormatNumber(char *outStr, Lng32 &intSize, Lng32 &fullSize, char *strVal) const;
-  Lng32 GetField(char *col, const char *key, char *&fieldptr, Lng32 &fullSize) const;
-  Lng32 ParseField(char *&keyptr, char *&fieldptr, Lng32 &keySize, Lng32 &fullSize, Lng32 &done);
-  Lng32 IsNumberFmt(char *fieldptr) const;
+  void FormatNumber(char *outStr, int &intSize, int &fullSize, char *strVal) const;
+  int GetField(char *col, const char *key, char *&fieldptr, int &fullSize) const;
+  int ParseField(char *&keyptr, char *&fieldptr, int &keySize, int &fullSize, int &done);
+  int IsNumberFmt(char *fieldptr) const;
   void FormatFirstLine(void);
-  NABoolean filterKey(const char *key, Lng32 keySize, char *value, char *retVal, Lng32 &decLoc);
-  void FormatLine(const char *key, const char *val, Lng32 keySize, Lng32 valSize, Lng32 indent = 0, Lng32 decLoc = 0);
-  void FormatLongLine(const char *key, char *val, Lng32 keySize, Lng32 valSize, Lng32 indent = 0);
-  void FormatSQL(const char *key, char *val, Lng32 keySize, Lng32 valSize, Lng32 indent = 0);
-  Lng32 FindParens(char *inStr, Lng32 par[]) const;
+  NABoolean filterKey(const char *key, int keySize, char *value, char *retVal, int &decLoc);
+  void FormatLine(const char *key, const char *val, int keySize, int valSize, int indent = 0, int decLoc = 0);
+  void FormatLongLine(const char *key, char *val, int keySize, int valSize, int indent = 0);
+  void FormatSQL(const char *key, char *val, int keySize, int valSize, int indent = 0);
+  int FindParens(char *inStr, int par[]) const;
 
   ExExeUtilDisplayExplainTdb &exeUtilTdb() const { return (ExExeUtilDisplayExplainTdb &)tdb; };
 };
@@ -526,7 +526,7 @@ class ExExeUtilDisplayExplainPrivateState : public ex_tcb_private_state {
   ~ExExeUtilDisplayExplainPrivateState();  // destructor
  protected:
   ExExeUtilDisplayExplainTcb::Step step_;
-  Int64 matches_;
+  long matches_;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -593,8 +593,8 @@ class ExExeUtilDisplayExplainComplexTcb : public ExExeUtilTcb {
 
   virtual short work();
 
-  virtual ex_tcb_private_state *allocatePstates(Lng32 &numElems,       // inout, desired/actual elements
-                                                Lng32 &pstateLength);  // out, length of one element
+  virtual ex_tcb_private_state *allocatePstates(int &numElems,       // inout, desired/actual elements
+                                                int &pstateLength);  // out, length of one element
 
  private:
   // state machine states for work() method
@@ -625,7 +625,7 @@ class ExExeUtilDisplayExplainComplexPrivateState : public ex_tcb_private_state {
   ExExeUtilDisplayExplainComplexPrivateState();
   ~ExExeUtilDisplayExplainComplexPrivateState();  // destructor
  protected:
-  Int64 matches_;
+  long matches_;
 };
 
 class ExExeUtilDisplayExplainShowddlTcb : public ExExeUtilTcb {
@@ -640,8 +640,8 @@ class ExExeUtilDisplayExplainShowddlTcb : public ExExeUtilTcb {
 
   virtual short work();
 
-  virtual ex_tcb_private_state *allocatePstates(Lng32 &numElems,       // inout, desired/actual elements
-                                                Lng32 &pstateLength);  // out, length of one element
+  virtual ex_tcb_private_state *allocatePstates(int &numElems,       // inout, desired/actual elements
+                                                int &pstateLength);  // out, length of one element
 
  private:
   // state machine states for work() method
@@ -661,7 +661,7 @@ class ExExeUtilDisplayExplainShowddlPrivateState : public ex_tcb_private_state {
   ExExeUtilDisplayExplainShowddlPrivateState();
   ~ExExeUtilDisplayExplainShowddlPrivateState();  // destructor
  protected:
-  Int64 matches_;
+  long matches_;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -724,8 +724,8 @@ class ExExeUtilCreateTableAsTcb : public ExExeUtilTcb {
 
   ExExeUtilCreateTableAsTdb &ctaTdb() const { return (ExExeUtilCreateTableAsTdb &)tdb; };
 
-  virtual ex_tcb_private_state *allocatePstates(Lng32 &numElems,       // inout, desired/actual elements
-                                                Lng32 &pstateLength);  // out, length of one element
+  virtual ex_tcb_private_state *allocatePstates(int &numElems,       // inout, desired/actual elements
+                                                int &pstateLength);  // out, length of one element
 
  private:
   enum Step {
@@ -815,8 +815,8 @@ class ExExeUtilVolatileTablesTcb : public ExExeUtilTcb {
   // Constructor
   ExExeUtilVolatileTablesTcb(const ComTdbExeUtil &exe_util_tdb, ex_globals *glob = 0);
 
-  virtual ex_tcb_private_state *allocatePstates(Lng32 &numElems,       // inout, desired/actual elements
-                                                Lng32 &pstateLength);  // out, length of one element
+  virtual ex_tcb_private_state *allocatePstates(int &numElems,       // inout, desired/actual elements
+                                                int &pstateLength);  // out, length of one element
 
  protected:
   short isCreatorProcessObsolete(const char *name, NABoolean includesCat, NABoolean isCSETableName);
@@ -1021,8 +1021,8 @@ class ExExeUtilGetErrorInfoTcb : public ExExeUtilTcb {
 
   ExExeUtilGetErrorInfoTdb &geiTdb() const { return (ExExeUtilGetErrorInfoTdb &)tdb; };
 
-  ex_tcb_private_state *allocatePstates(Lng32 &numElems,      // inout, desired/actual elements
-                                        Lng32 &pstateLength)  // out, length of one element
+  ex_tcb_private_state *allocatePstates(int &numElems,      // inout, desired/actual elements
+                                        int &pstateLength)  // out, length of one element
       ;
 
  private:
@@ -1102,8 +1102,8 @@ class ExExeUtilLoadVolatileTableTcb : public ExExeUtilTcb {
 
   ExExeUtilLoadVolatileTableTdb &lvtTdb() const { return (ExExeUtilLoadVolatileTableTdb &)tdb; };
 
-  ex_tcb_private_state *allocatePstates(Lng32 &numElems,      // inout, desired/actual elements
-                                        Lng32 &pstateLength)  // out, length of one element
+  ex_tcb_private_state *allocatePstates(int &numElems,      // inout, desired/actual elements
+                                        int &pstateLength)  // out, length of one element
       ;
 
  private:
@@ -1194,8 +1194,8 @@ class ExExeUtilGetObjectEpochStatsTcb : public ExExeUtilTcb {
 
   virtual short work();
 
-  virtual ex_tcb_private_state *allocatePstates(Lng32 &numElems,       // inout, desired/actual elements
-                                                Lng32 &pstateLength);  // out, length of one element
+  virtual ex_tcb_private_state *allocatePstates(int &numElems,       // inout, desired/actual elements
+                                                int &pstateLength);  // out, length of one element
 
   ExExeUtilGetObjectEpochStatsTdb &getObjectEpochStatsTdb() const { return (ExExeUtilGetObjectEpochStatsTdb &)tdb; };
 
@@ -1279,8 +1279,8 @@ class ExExeUtilGetObjectLockStatsTcb : public ExExeUtilTcb {
 
   virtual short work();
 
-  virtual ex_tcb_private_state *allocatePstates(Lng32 &numElems,       // inout, desired/actual elements
-                                                Lng32 &pstateLength);  // out, length of one element
+  virtual ex_tcb_private_state *allocatePstates(int &numElems,       // inout, desired/actual elements
+                                                int &pstateLength);  // out, length of one element
 
   ExExeUtilGetObjectLockStatsTdb &getObjectLockStatsTdb() const { return (ExExeUtilGetObjectLockStatsTdb &)tdb; };
 
@@ -1359,8 +1359,8 @@ class ExExeUtilGetStatisticsTcb : public ExExeUtilTcb {
 
   virtual short work();
 
-  virtual ex_tcb_private_state *allocatePstates(Lng32 &numElems,       // inout, desired/actual elements
-                                                Lng32 &pstateLength);  // out, length of one element
+  virtual ex_tcb_private_state *allocatePstates(int &numElems,       // inout, desired/actual elements
+                                                int &pstateLength);  // out, length of one element
 
   ExExeUtilGetStatisticsTdb &getStatsTdb() const { return (ExExeUtilGetStatisticsTdb &)tdb; };
 
@@ -1395,7 +1395,7 @@ class ExExeUtilGetStatisticsTcb : public ExExeUtilTcb {
   char *statsBuf_;
 
   char *statsRow_;
-  Lng32 statsRowlen_;
+  int statsRowlen_;
 
   char detailedStatsCQDValue_[40];
 
@@ -1500,8 +1500,8 @@ class ExExeUtilGetUIDTcb : public ExExeUtilTcb {
 
   virtual short work();
 
-  virtual ex_tcb_private_state *allocatePstates(Lng32 &numElems,       // inout, desired/actual elements
-                                                Lng32 &pstateLength);  // out, length of one element
+  virtual ex_tcb_private_state *allocatePstates(int &numElems,       // inout, desired/actual elements
+                                                int &pstateLength);  // out, length of one element
 
   ExExeUtilGetUIDTdb &getUIDTdb() const { return (ExExeUtilGetUIDTdb &)tdb; };
 
@@ -1589,8 +1589,8 @@ class ExExeUtilGetQIDTcb : public ExExeUtilTcb {
 
   virtual short work();
 
-  virtual ex_tcb_private_state *allocatePstates(Lng32 &numElems,       // inout, desired/actual elements
-                                                Lng32 &pstateLength);  // out, length of one element
+  virtual ex_tcb_private_state *allocatePstates(int &numElems,       // inout, desired/actual elements
+                                                int &pstateLength);  // out, length of one element
 
   ExExeUtilGetQIDTdb &getQIDTdb() const { return (ExExeUtilGetQIDTdb &)tdb; };
 
@@ -1678,8 +1678,8 @@ class ExExeUtilPopulateInMemStatsTcb : public ExExeUtilTcb {
 
   virtual short work();
 
-  virtual ex_tcb_private_state *allocatePstates(Lng32 &numElems,       // inout, desired/actual elements
-                                                Lng32 &pstateLength);  // out, length of one element
+  virtual ex_tcb_private_state *allocatePstates(int &numElems,       // inout, desired/actual elements
+                                                int &pstateLength);  // out, length of one element
 
   ExExeUtilPopulateInMemStatsTdb &pimsTdb() const { return (ExExeUtilPopulateInMemStatsTdb &)tdb; };
 
@@ -1859,8 +1859,8 @@ class ExExeUtilLongRunningTcb : public ExExeUtilTcb {
 
   virtual short work();
 
-  virtual ex_tcb_private_state *allocatePstates(Lng32 &numElems,       // inout, desired/actual elements
-                                                Lng32 &pstateLength);  // out, length of one element
+  virtual ex_tcb_private_state *allocatePstates(int &numElems,       // inout, desired/actual elements
+                                                int &pstateLength);  // out, length of one element
 
   void registerSubtasks();
 
@@ -1870,17 +1870,17 @@ class ExExeUtilLongRunningTcb : public ExExeUtilTcb {
 
   short executeLongRunningQuery();
 
-  short processInitial(Lng32 &rc);
+  short processInitial(int &rc);
 
-  short processContinuing(Lng32 &rc);
+  short processContinuing(int &rc);
 
   short finalizeDoLongRunning();
 
   void addTransactionCount() { transactions_++; };
-  Int64 getTransactionCount() { return transactions_; };
+  long getTransactionCount() { return transactions_; };
 
-  void addRowsDeleted(Int64 rows) { rowsDeleted_ += rows; };
-  Int64 getRowsDeleted() { return rowsDeleted_; };
+  void addRowsDeleted(long rows) { rowsDeleted_ += rows; };
+  long getRowsDeleted() { return rowsDeleted_; };
 
   void setInitial(short initial) { initial_ = initial; };
   short getInitial() { return initial_; };
@@ -1899,8 +1899,8 @@ class ExExeUtilLongRunningTcb : public ExExeUtilTcb {
   enum Step { INITIAL_, BEGIN_WORK_, LONG_RUNNING_, ERROR_, DONE_ };
 
   Step step_;
-  Int64 transactions_;
-  Int64 rowsDeleted_;
+  long transactions_;
+  long rowsDeleted_;
   short initial_;
 
   // Queue * initialOutputVarPtrList_;
@@ -1932,8 +1932,8 @@ class ExExeUtilGetRTSStatisticsTcb : public ExExeUtilTcb {
 
   virtual short work();
 
-  virtual ex_tcb_private_state *allocatePstates(Lng32 &numElems,       // inout, desired/actual elements
-                                                Lng32 &pstateLength);  // out, length of one element
+  virtual ex_tcb_private_state *allocatePstates(int &numElems,       // inout, desired/actual elements
+                                                int &pstateLength);  // out, length of one element
 
   ExExeUtilGetStatisticsTdb &getStatsTdb() const { return (ExExeUtilGetStatisticsTdb &)tdb; };
 
@@ -1996,10 +1996,10 @@ class ExExeUtilGetRTSStatisticsTcb : public ExExeUtilTcb {
   char *statsBuf_;
   short statsCollectType_;
   SQLSTATS_DESC *sqlStatsDesc_;
-  Lng32 maxStatsDescEntries_;
-  Lng32 retStatsDescEntries_;
-  Lng32 currStatsDescEntry_;
-  Lng32 currStatsItemEntry_;
+  int maxStatsDescEntries_;
+  int retStatsDescEntries_;
+  int currStatsDescEntry_;
+  int currStatsItemEntry_;
 
   SQLSTATS_ITEM *masterStatsItems_;
   SQLSTATS_ITEM *measStatsItems_;
@@ -2015,20 +2015,20 @@ class ExExeUtilGetRTSStatisticsTcb : public ExExeUtilTcb {
   SQLSTATS_ITEM *processStatsItems_;
   SQLSTATS_ITEM *hbaseStatsItems_;
   SQLSTATS_ITEM *hiveStatsItems_;
-  Lng32 maxMasterStatsItems_;
-  Lng32 maxMeasStatsItems_;
-  Lng32 maxOperatorStatsItems_;
-  Lng32 maxRootOperStatsItems_;
-  Lng32 maxPartitionAccessStatsItems_;
-  Lng32 maxPertableStatsItems_;
-  Lng32 maxRMSStatsItems_;
-  Lng32 maxBMOStatsItems_;
-  Lng32 maxUDRBaseStatsItems_;
-  Lng32 maxReplicateStatsItems_;
-  Lng32 maxReplicatorStatsItems_;
-  Lng32 maxProcessStatsItems_;
-  Lng32 maxHbaseStatsItems_;
-  Lng32 maxHiveStatsItems_;
+  int maxMasterStatsItems_;
+  int maxMeasStatsItems_;
+  int maxOperatorStatsItems_;
+  int maxRootOperStatsItems_;
+  int maxPartitionAccessStatsItems_;
+  int maxPertableStatsItems_;
+  int maxRMSStatsItems_;
+  int maxBMOStatsItems_;
+  int maxUDRBaseStatsItems_;
+  int maxReplicateStatsItems_;
+  int maxReplicatorStatsItems_;
+  int maxProcessStatsItems_;
+  int maxHbaseStatsItems_;
+  int maxHiveStatsItems_;
 
   NABoolean isHeadingDisplayed_;
   NABoolean isBMOHeadingDisplayed_;
@@ -2039,7 +2039,7 @@ class ExExeUtilGetRTSStatisticsTcb : public ExExeUtilTcb {
   OperatorStatsOptions operatorStatsOption_;
 
   // info to write out RT used data
-  Int64 queryHash_;
+  long queryHash_;
   NAString filePath_;
 
   static const Int32 numOperStats = 14;
@@ -2051,10 +2051,10 @@ class ExExeUtilGetRTSStatisticsTcb : public ExExeUtilTcb {
   void formatInt64(SQLSTATS_ITEM stat, char *targetString);
   // void formatWDouble(SQLSTATS_ITEM stat, char* targetString);
   void formatWInt64(SQLSTATS_ITEM stat, char *targetString);
-  char *formatTimestamp(char *buf, Int64 inTime);
-  char *formatElapsedTime(char *buf, Int64 inTime);
+  char *formatTimestamp(char *buf, long inTime);
+  char *formatElapsedTime(char *buf, long inTime);
   NABoolean singleLineFormat_;
-  // Convert the Int64 field to string. No comma characters will be
+  // Convert the long field to string. No comma characters will be
   // inserted.
   void convertInt64(SQLSTATS_ITEM stat, char *targetString);
 };
@@ -2131,8 +2131,8 @@ class ExExeUtilGetMetadataInfoTcb : public ExExeUtilTcb {
 
   virtual short work();
 
-  virtual ex_tcb_private_state *allocatePstates(Lng32 &numElems,       // inout, desired/actual elements
-                                                Lng32 &pstateLength);  // out, length of one element
+  virtual ex_tcb_private_state *allocatePstates(int &numElems,       // inout, desired/actual elements
+                                                int &pstateLength);  // out, length of one element
 
   ExExeUtilGetMetadataInfoTdb &getMItdb() const { return (ExExeUtilGetMetadataInfoTdb &)tdb; };
 
@@ -2185,7 +2185,7 @@ class ExExeUtilGetMetadataInfoTcb : public ExExeUtilTcb {
 
   char *patternStr_;
 
-  Lng32 numOutputEntries_;
+  int numOutputEntries_;
 
   char *param_[NUM_MAX_PARAMS_];
 
@@ -2193,21 +2193,21 @@ class ExExeUtilGetMetadataInfoTcb : public ExExeUtilTcb {
 
   short displayHeading();
 
-  Lng32 getUsingView(Queue *infoList,
+  int getUsingView(Queue *infoList,
 
                      // TRUE: shorthand view, FALSE: Materialized View
                      NABoolean isShorthandView,
 
-                     char *&viewName, Lng32 &len);
+                     char *&viewName, int &len);
 
-  Lng32 getUsedObjects(Queue *infoList, NABoolean isShorthandView, char *&viewName, Lng32 &len);
-  void setReturnRowCount(Lng32 n) { returnRowCount_ = n; }
+  int getUsedObjects(Queue *infoList, NABoolean isShorthandView, char *&viewName, int &len);
+  void setReturnRowCount(int n) { returnRowCount_ = n; }
 
-  Lng32 getReturnRowCount() { return returnRowCount_; }
+  int getReturnRowCount() { return returnRowCount_; }
 
   void incReturnRowCount() { returnRowCount_++; }
 
-  Lng32 returnRowCount_;
+  int returnRowCount_;
 
  private:
   NABoolean checkUserPrivs(ContextCli *currConnext, const ComTdbExeUtilGetMetadataInfo::QueryType queryType);
@@ -2228,7 +2228,7 @@ class ExExeUtilGetMetadataInfoTcb : public ExExeUtilTcb {
   char *getRoleList(bool &containsRootRole, const Int32 userID, const char *catName, const char *schName,
                     const char *objName);
 
-  Int64 getObjectUID(const char *catName, const char *schName, const char *objName, const char *targetName,
+  long getObjectUID(const char *catName, const char *schName, const char *objName, const char *targetName,
                      const char *type);
 
   Int32 colPrivsFrag(const char *authName, const NAString &privsWhereClause, NAString &colPrivsStmt);
@@ -2341,7 +2341,7 @@ class ExExeUtilGetNamespaceObjectsTcb : public ExExeUtilGetMetadataInfoTcb {
 
   char *hbaseName_;
   char *hbaseNameBuf_;
-  Lng32 hbaseNameMaxLen_;
+  int hbaseNameMaxLen_;
 
   Step step_;
 };
@@ -2593,15 +2593,15 @@ class ExExeUtilHBaseBulkLoadTcb : public ExExeUtilTcb {
 
   ExExeUtilHBaseBulkLoadTdb &hblTdb() const { return (ExExeUtilHBaseBulkLoadTdb &)tdb; };
 
-  virtual short moveRowToUpQueue(const char *row, Lng32 len = -1, short *rc = NULL, NABoolean isVarchar = TRUE);
+  virtual short moveRowToUpQueue(const char *row, int len = -1, short *rc = NULL, NABoolean isVarchar = TRUE);
 
   short printLoggingLocation(int bufPos);
 
   void setEndStatusMsg(const char *operation, int bufPos = 0, NABoolean withtime = FALSE);
 
   short setStartStatusMsgAndMoveToUpQueue(const char *operation, short *rc, int bufPos = 0, NABoolean withtime = FALSE);
-  virtual ex_tcb_private_state *allocatePstates(Lng32 &numElems,       // inout, desired/actual elements
-                                                Lng32 &pstateLength);  // out, length of one element
+  virtual ex_tcb_private_state *allocatePstates(int &numElems,       // inout, desired/actual elements
+                                                int &pstateLength);  // out, length of one element
   void setLoggingLocation();
   NABoolean generateTrafSampleTable(const char *cTableName, const char *cSampleTableName);
 
@@ -2637,9 +2637,9 @@ class ExExeUtilHBaseBulkLoadTcb : public ExExeUtilTcb {
   Step step_;
   Step nextStep_;
 
-  Int64 startTime_;
-  Int64 endTime_;
-  Int64 rowsAffected_;
+  long startTime_;
+  long endTime_;
+  long rowsAffected_;
   char statusMsgBuf_[BUFFER_SIZE];
   ExpHbaseInterface *ehi_;
   char *loggingLocation_;
@@ -2749,7 +2749,7 @@ class ExExeUtilRegionStatsTcb : public ExExeUtilTcb {
   Step step_;
 
  protected:
-  Int64 getEmbeddedNumValue(char *&sep, char endChar, NABoolean adjustLen = TRUE);
+  long getEmbeddedNumValue(char *&sep, char endChar, NABoolean adjustLen = TRUE);
 
   short collectStats(char *tableName, char *tableNameForUID, NABoolean replaceUID);
   short populateStats(Int32 currIndex);
@@ -2763,7 +2763,7 @@ class ExExeUtilRegionStatsTcb : public ExExeUtilTcb {
   char *inputNameBuf_;
 
   char *statsBuf_;
-  Lng32 statsBufLen_;
+  int statsBufLen_;
   ComTdbRegionStatsVirtTableColumnStruct *stats_;
 
   ExpHbaseInterface *ehi_;
@@ -2938,8 +2938,8 @@ class ExExeUtilConnectbyTcb : public ExExeUtilTcb {
   virtual ~ExExeUtilConnectbyTcb() {}
 
   virtual short work();
-  virtual ex_tcb_private_state *allocatePstates(Lng32 &numElems,       // inout, desired/actual elements
-                                                Lng32 &pstateLength);  // out, length of one element
+  virtual ex_tcb_private_state *allocatePstates(int &numElems,       // inout, desired/actual elements
+                                                int &pstateLength);  // out, length of one element
   enum Step {
     INITIAL_,
     EVAL_INPUT_,
@@ -2968,7 +2968,7 @@ class ExExeUtilConnectbyTcb : public ExExeUtilTcb {
   short checkDuplicate(connectByStackItem *it, int len, int level);
   void replaceStartWithStringWithValue(Queue *v, const NAString s, char *out, int size);
   int currLevel_;
-  Int64 resultSize_;
+  long resultSize_;
   Queue *currQueue_;
   Queue *seedQueue_;
   Queue *thisQueue_;
@@ -3067,8 +3067,8 @@ class ExExeUtilCompositeUnnestTcb : public ExExeUtilTcb {
 
   virtual short work();
 
-  virtual ex_tcb_private_state *allocatePstates(Lng32 &numElems,       // inout, desired/actual elements
-                                                Lng32 &pstateLength);  // out, length of one element
+  virtual ex_tcb_private_state *allocatePstates(int &numElems,       // inout, desired/actual elements
+                                                int &pstateLength);  // out, length of one element
 
   ExExeUtilCompositeUnnestTdb &unnestTdb() const { return (ExExeUtilCompositeUnnestTdb &)tdb; };
 
@@ -3169,14 +3169,14 @@ class ExExeUtilUpdataDeleteTcb : public ExExeUtilTcb {
 
   virtual short work();
 
-  Lng32 lockOperatingTable();
-  Lng32 unLockOperatingTable();
-  Lng32 isBRInProgress();
+  int lockOperatingTable();
+  int unLockOperatingTable();
+  int isBRInProgress();
 
   ExExeUtilUpdataDeleteTdb &hblTdb() const { return (ExExeUtilUpdataDeleteTdb &)tdb; };
 
-  virtual ex_tcb_private_state *allocatePstates(Lng32 &numElems,       // inout, desired/actual elements
-                                                Lng32 &pstateLength);  // out, length of one element
+  virtual ex_tcb_private_state *allocatePstates(int &numElems,       // inout, desired/actual elements
+                                                int &pstateLength);  // out, length of one element
 
  private:
   enum Step {
@@ -3195,7 +3195,7 @@ class ExExeUtilUpdataDeleteTcb : public ExExeUtilTcb {
   Step step_;
   Step nextStep_;
 
-  Int64 rowsAffected_;
+  long rowsAffected_;
   ExpHbaseInterface *ehi_;
 
   short setCQDs();

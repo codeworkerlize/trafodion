@@ -83,7 +83,7 @@ class ExtPushdownPredInfo {
 
 class ExtPushdownPredInfoList : public NAList<ExtPushdownPredInfo> {
  public:
-  ExtPushdownPredInfoList(Lng32 ct = 0, CollHeap *heap = CmpCommon::statementHeap())
+  ExtPushdownPredInfoList(int ct = 0, CollHeap *heap = CmpCommon::statementHeap())
       : NAList<ExtPushdownPredInfo>(heap, ct){};
 
   ~ExtPushdownPredInfoList(){};

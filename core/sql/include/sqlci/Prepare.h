@@ -44,53 +44,53 @@
  */
 
 #include "cli/SQLCLIdev.h"
-#include "SqlciDefs.h"
+#include "sqlci/SqlciDefs.h"
 
 // The following class was named as Entry before. I renamed it to PrepEntry
 // because the file btree.h defines another class named Entry and the Tandem
 // linker sometimes resolves the destructor to the wrong one. -- Freda Xu
 class PrepEntry {
-  Lng32 datatype_;
-  Lng32 length_;
-  Lng32 scale_;
-  Lng32 precision_;
-  Lng32 nullFlag_;
-  Lng32 vcIndLen_;
+  int datatype_;
+  int length_;
+  int scale_;
+  int precision_;
+  int nullFlag_;
+  int vcIndLen_;
   char *heading_;
-  Lng32 headingLen_;
+  int headingLen_;
   char *outputName_;
-  Lng32 outputNameLen_;
-  Lng32 displayLen_;
-  Lng32 displayBufLen_;
-  Lng32 charsetEnum_;
+  int outputNameLen_;
+  int displayLen_;
+  int displayBufLen_;
+  int charsetEnum_;
   char *charset_;
   char *tableName_;
-  Lng32 tableLen_;
+  int tableLen_;
   char *varPtr_;
   char *indPtr_;
 
  public:
-  PrepEntry(Lng32 datatype, Lng32 length, Lng32 scale, Lng32 precision, Lng32 nullFlag, Lng32 vcIndLen, char *heading_,
-            Lng32 headingLen, char *outputName, Lng32 outputNameLen_, Lng32 displayLen_, Lng32 displayBufLen_,
-            Lng32 charsetEnum_, char *tableName, Lng32 tableLen);
+  PrepEntry(int datatype, int length, int scale, int precision, int nullFlag, int vcIndLen, char *heading_,
+            int headingLen, char *outputName, int outputNameLen_, int displayLen_, int displayBufLen_,
+            int charsetEnum_, char *tableName, int tableLen);
   ~PrepEntry();
 
-  Lng32 datatype() { return datatype_; }
-  Lng32 length() { return length_; }
-  Lng32 scale() { return scale_; }
-  Lng32 precision() { return precision_; }
-  Lng32 nullFlag() { return nullFlag_; }
-  Lng32 vcIndLen() { return vcIndLen_; }
+  int datatype() { return datatype_; }
+  int length() { return length_; }
+  int scale() { return scale_; }
+  int precision() { return precision_; }
+  int nullFlag() { return nullFlag_; }
+  int vcIndLen() { return vcIndLen_; }
   char *heading() { return heading_; }
-  Lng32 headingLen() { return headingLen_; }
+  int headingLen() { return headingLen_; }
   char *outputName() { return outputName_; }
-  Lng32 outputNameLen() { return outputNameLen_; }
-  Lng32 displayLen() { return displayLen_; }
-  Lng32 displayBufLen() { return displayBufLen_; }
-  Lng32 charsetEnum() { return charsetEnum_; }
+  int outputNameLen() { return outputNameLen_; }
+  int displayLen() { return displayLen_; }
+  int displayBufLen() { return displayBufLen_; }
+  int charsetEnum() { return charsetEnum_; }
   char *charset() { return charset_; }
   char *tableName() { return tableName_; }
-  Lng32 tableLen() { return tableLen_; }
+  int tableLen() { return tableLen_; }
   char *varPtr() { return varPtr_; }
   char *indPtr() { return indPtr_; }
   void setVarPtr(char *vp) { varPtr_ = vp; }
@@ -102,10 +102,10 @@ class PrepStmt {
   friend class PreparedStmts;
 
   char *stmt_name;
-  Lng32 stmt_name_len;
+  int stmt_name_len;
 
   char *stmt_str;
-  Lng32 stmt_str_len;
+  int stmt_str_len;
 
   SQLDESC_ID *sql_src;
 
@@ -114,37 +114,37 @@ class PrepStmt {
   SQLDESC_ID *output_desc;
   dml_type type;
 
-  Lng32 queryType_;
-  Lng32 subqueryType_;
+  int queryType_;
+  int subqueryType_;
 
-  Lng32 numInputEntries_;
-  Lng32 numOutputEntries_;
+  int numInputEntries_;
+  int numOutputEntries_;
 
   PrepEntry **outputEntries_;
   PrepEntry **inputEntries_;
 
   // space to fetch the selected row.
-  Lng32 outputDatalen_;
+  int outputDatalen_;
   char *outputData_;
 
   // this is where the formatted output row will be created.
-  Lng32 outputBuflen_;
+  int outputBuflen_;
   char *outputBuf_;
 
   // query id for this query
   char *uniqueQueryId_;
-  Lng32 uniqueQueryIdLen_;
+  int uniqueQueryIdLen_;
 
  public:
   PrepStmt(const char *stmt_name_, dml_type type_ = DML_SELECT_TYPE);
   ~PrepStmt();
-  void set(const char *str_, SQLDESC_ID *sql_src_, SQLSTMT_ID *stmt_, Lng32 numInputEntries, SQLDESC_ID *input_desc_,
-           Lng32 numOutputEntries, SQLDESC_ID *output_desc_);
+  void set(const char *str_, SQLDESC_ID *sql_src_, SQLSTMT_ID *stmt_, int numInputEntries, SQLDESC_ID *input_desc_,
+           int numOutputEntries, SQLDESC_ID *output_desc_);
 
   void remove();
 
   inline char *getStmtName() { return stmt_name; };
-  Lng32 getStmtNameLen() { return stmt_name_len; };
+  int getStmtNameLen() { return stmt_name_len; };
 
   inline SQLDESC_ID *getSqlSrc() { return sql_src; };
   inline SQLDESC_ID *getInputDesc() { return input_desc; };
@@ -152,20 +152,20 @@ class PrepStmt {
   inline SQLSTMT_ID *getStmt() { return stmt; };
 
   inline char *getStr() { return stmt_str; };
-  inline Lng32 getStrLen() { return stmt_str_len; };
+  inline int getStrLen() { return stmt_str_len; };
 
   inline dml_type getType() { return type; };
 
   short contains(const char *value) const;
 
-  Lng32 &queryType() { return queryType_; }
-  void setSubqueryType(Lng32 subqueryType) { subqueryType_ = subqueryType; }
-  Lng32 getSubqueryType() { return subqueryType_; }
+  int &queryType() { return queryType_; }
+  void setSubqueryType(int subqueryType) { subqueryType_ = subqueryType; }
+  int getSubqueryType() { return subqueryType_; }
 
-  Lng32 numInputEntries() { return numInputEntries_; }
-  Lng32 numOutputEntries() { return numOutputEntries_; }
+  int numInputEntries() { return numInputEntries_; }
+  int numOutputEntries() { return numOutputEntries_; }
 
-  void setOutputDesc(Lng32 n, SQLDESC_ID *desc) {
+  void setOutputDesc(int n, SQLDESC_ID *desc) {
     numOutputEntries_ = n;
     output_desc = desc;
   }
@@ -173,13 +173,13 @@ class PrepStmt {
   PrepEntry **&outputEntries() { return outputEntries_; }
   PrepEntry **&inputEntries() { return inputEntries_; }
 
-  Lng32 &outputDatalen() { return outputDatalen_; }
+  int &outputDatalen() { return outputDatalen_; }
   char *&outputData() { return outputData_; }
 
-  Lng32 &outputBuflen() { return outputBuflen_; }
+  int &outputBuflen() { return outputBuflen_; }
   char *&outputBuf() { return outputBuf_; }
 
-  Lng32 &uniqueQueryIdLen() { return uniqueQueryIdLen_; }
+  int &uniqueQueryIdLen() { return uniqueQueryIdLen_; }
   char *&uniqueQueryId() { return uniqueQueryId_; }
 };
 
@@ -193,16 +193,16 @@ class CursorStmt {
   PrepStmt *prepStmt() { return stmt_; };
   short contains(const char *value) const;
   Int16 internallyPrepared() { return internallyPrepared_; };
-  Lng32 getResultSetIndex() const { return resultSetIndex_; }
-  void setResultSetIndex(Lng32 i) { resultSetIndex_ = i; }
+  int getResultSetIndex() const { return resultSetIndex_; }
+  void setResultSetIndex(int i) { resultSetIndex_ = i; }
 
  private:
   char *cursorName_;
-  Lng32 cursorNameLen_;
+  int cursorNameLen_;
   SQLSTMT_ID *cursorStmtId_;
   PrepStmt *stmt_;
   Int16 internallyPrepared_;
-  Lng32 resultSetIndex_;
+  int resultSetIndex_;
 };
 
 class PreparedStmts {

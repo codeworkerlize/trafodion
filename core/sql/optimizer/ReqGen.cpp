@@ -548,7 +548,7 @@ ValueIdSet RequirementGenerator::combinePartKeysHeuristically(const ValueIdSet &
   // initialize the result with the intersection of the keys
   result.intersectSet(partKey2);
 
-  Lng32 pssc = CURRSTMT_OPTDEFAULTS->partitioningSchemeSharing();
+  int pssc = CURRSTMT_OPTDEFAULTS->partitioningSchemeSharing();
   if (pssc == 0) return result;
 
   // check whether either key is a subset of the other
@@ -629,7 +629,7 @@ void RequirementGenerator::addPartitioningKey(const ValueIdSet &partKey) {
   // later
 }
 
-void RequirementGenerator::addNumOfPartitions(Lng32 newNumberOfPartitions, float newNumOfPartsAllowedDeviation) {
+void RequirementGenerator::addNumOfPartitions(int newNumberOfPartitions, float newNumOfPartsAllowedDeviation) {
   if (newNumberOfPartitions == ANY_NUMBER_OF_PARTITIONS) return;
 
   CMPASSERT(newNumberOfPartitions > 0);
@@ -846,7 +846,7 @@ void RequirementGenerator::replaceLocationRequirement(PlanExecutionEnum loc) {
   removeStartLocation_ = TRUE;
 }
 
-void RequirementGenerator::makeNumOfPartsFeasible(Lng32 &proposedNumOfParts,
+void RequirementGenerator::makeNumOfPartsFeasible(int &proposedNumOfParts,
                                                   float *proposedNumOfPartsAllowedDeviation) {
   // rather than just producing a non-feasible requirement by adding some
   // incompatible requirement for the number of partitions, alter the

@@ -49,13 +49,13 @@
 ComTdbSequence::ComTdbSequence() : ComTdb(ComTdb::ex_SEQUENCE_FUNCTION, eye_SEQUENCE_FUNCTION), tuppIndex_(0) {}
 
 ComTdbSequence::ComTdbSequence(ex_expr *sequenceExpr, ex_expr *returnExpr, ex_expr *postPred, ex_expr *cancelExpr,
-                               Lng32 minFollowing, Lng32 reclen, const unsigned short tupp_index, ComTdb *child_tdb,
+                               int minFollowing, int reclen, const unsigned short tupp_index, ComTdb *child_tdb,
                                ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc, queue_index down,
-                               queue_index up, Lng32 num_buffers, ULng32 buffer_size, Lng32 OLAP_buffer_size,
-                               Lng32 max_number_of_OLAP_buffers, Int32 maxHistoryRows, NABoolean unboundedFollowing,
+                               queue_index up, int num_buffers, ULng32 buffer_size, int OLAP_buffer_size,
+                               int max_number_of_OLAP_buffers, Int32 maxHistoryRows, NABoolean unboundedFollowing,
                                NABoolean logDiagnostics, NABoolean possibleMultipleCalls, short scratchThresholdPct,
-                               unsigned short memUsagePercent, short pressureThreshold, Lng32 maxRowsInOLAPBuffer,
-                               Lng32 minNumberOfOLAPBuffers, Lng32 numberOfWinOLAPBuffers, NABoolean noOverflow,
+                               unsigned short memUsagePercent, short pressureThreshold, int maxRowsInOLAPBuffer,
+                               int minNumberOfOLAPBuffers, int numberOfWinOLAPBuffers, NABoolean noOverflow,
                                ex_expr *partExpr)
     : ComTdb(ComTdb::ex_SEQUENCE_FUNCTION, eye_SEQUENCE_FUNCTION, (Cardinality)0.0, given_cri_desc, returned_cri_desc,
              down, up, num_buffers, buffer_size),
@@ -145,7 +145,7 @@ Long ComTdbSequence::pack(void *space) {
   return ComTdb::pack(space);
 }
 
-Lng32 ComTdbSequence::unpack(void *base, void *reallocator) {
+int ComTdbSequence::unpack(void *base, void *reallocator) {
   if (tdbChild_.unpack(base, reallocator)) return -1;
   if (sequenceExpr_.unpack(base, reallocator)) return -1;
   if (postPred_.unpack(base, reallocator)) return -1;

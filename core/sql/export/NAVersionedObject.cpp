@@ -199,7 +199,7 @@ void NAVersionedObject::makeRoomForNewVersion(short oldSubClassSize, short newSu
 // which is not supported anymore. Also notice that the versionIDArray_
 // should only be updated at initNewMembers().
 // ---------------------------------------------------------------------
-Lng32 NAVersionedObject::migrateToNewVersion(NAVersionedObject *&newImage) {
+int NAVersionedObject::migrateToNewVersion(NAVersionedObject *&newImage) {
   short tempimagesize = getClassSize();
   // -----------------------------------------------------------------
   // The base class implementation of migrateToNewVersion() is only

@@ -50,19 +50,19 @@ ex_function_substring_doublebyte::ex_function_substring_doublebyte() {}
 
 ex_expr::exp_return_type ex_function_substring_doublebyte::eval(char *op_data[], CollHeap *heap,
                                                                 ComDiagsArea **diagsArea) {
-  Lng32 len1 = getOperand(1)->getLength(op_data[-MAX_OPERANDS + 1]);
+  int len1 = getOperand(1)->getLength(op_data[-MAX_OPERANDS + 1]);
 
   len1 /= sizeof(NAWchar);  // len1 now counts in terms of number of NCHARs.
 
   // Get the starting position from operand 2.
-  Int64 start = *(Lng32 *)op_data[2];
+  long start = *(int *)op_data[2];
 
   // If operand 3 exists, get the length of substring from operand 3.
   // Otherwise, length of the substring is (len1 - start + 1).
-  Int64 len = 0;
-  Int64 temp = 0;
+  long len = 0;
+  long temp = 0;
   if (getNumOperands() == 4) {
-    len = *(Lng32 *)op_data[3];
+    len = *(int *)op_data[3];
     temp = start + len;
   } else {
     if (start > (len1 + 1))
@@ -77,7 +77,7 @@ ex_expr::exp_return_type ex_function_substring_doublebyte::eval(char *op_data[],
     return ex_expr::EXPR_ERROR;
   }
 
-  Lng32 len0 = 0;
+  int len0 = 0;
   if ((start <= len1) && (temp > 0)) {
     if (start < 1) start = 1;
     if (temp > (len1 + 1)) temp = len1 + 1;

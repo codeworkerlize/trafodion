@@ -75,7 +75,7 @@ class REFRESH_LIB_CLASS CRURangeCollection {
   //	Accessors
   //-------------------------------//
  public:
-  Lng32 GetSize() const { return const_cast<CRURangeList &>(rangeList_).GetCount(); }
+  int GetSize() const { return const_cast<CRURangeList &>(rangeList_).GetCount(); }
 
   TInt32 GetMinEpoch() const { return minEpoch_; }
 
@@ -178,7 +178,7 @@ class REFRESH_LIB_CLASS CRURangeCollectionIterator {
 
  private:
   CRURange **pVec_;
-  Lng32 size_;
+  int size_;
 
   IterDirection dir_;
   Int32 i_;

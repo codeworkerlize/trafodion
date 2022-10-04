@@ -73,8 +73,8 @@ FragmentDir::~FragmentDir() {
       delete (*entries_)[i]->space_;
 }
 
-CollIndex FragmentDir::pushFragment(FragmentTypeEnum type, Lng32 numESPs, const PartitioningFunction *partFunc,
-                                    Lng32 partInputDataLength) {
+CollIndex FragmentDir::pushFragment(FragmentTypeEnum type, int numESPs, const PartitioningFunction *partFunc,
+                                    int partInputDataLength) {
   CollIndex newIndex = entries();  // assume a dense array
   FragmentDirEntry *fde = new (heap_) FragmentDirEntry();
   //  (*entries_).insertAt(newIndex,FragmentDirEntry());
@@ -131,8 +131,8 @@ void FragmentDir::removeFragment() {
   entries_->remove(lastEntry);
 }
 
-Lng32 FragmentDir::getFragmentLength(CollIndex ix) const {
-  Lng32 result = (*entries_)[ix]->space_->getAllocatedSpaceSize();
+int FragmentDir::getFragmentLength(CollIndex ix) const {
+  int result = (*entries_)[ix]->space_->getAllocatedSpaceSize();
 
   // We want to align each fragment on an 8 byte boundary, so round
   // up the length to the next multiple of 8
@@ -149,8 +149,8 @@ void FragmentDir::setAllEspFragmentsNeedTransaction() {
     if (getType(i) == ESP) setNeedsTransaction(i);
 }
 
-Lng32 FragmentDir::getTotalLength() const {
-  Lng32 result = 0;
+int FragmentDir::getTotalLength() const {
+  int result = 0;
   for (CollIndex i = 0; i < entries(); i++) result += getFragmentLength(i);
   return result;
 }

@@ -76,7 +76,7 @@ void CRUMultiTxnContext::ReadRowsFromContextLog(CDMPreparedStatement *readStmt) 
 // This function return ROW_DOES_NOT_EXIST if no such row exists
 //--------------------------------------------------------------------------//
 
-TInt32 CRUMultiTxnContext::GetRowByIndex(Lng32 index) {
+TInt32 CRUMultiTxnContext::GetRowByIndex(int index) {
   RUASSERT(0 <= index);
 
   if ((stack_.GetCount() <= index)) {

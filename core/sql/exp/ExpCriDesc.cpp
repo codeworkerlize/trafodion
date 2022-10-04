@@ -63,7 +63,7 @@ Long ex_cri_desc::pack(void *space) {
   return NAVersionedObject::pack(space);
 }
 
-Lng32 ex_cri_desc::unpack(void *base, void *reallocator) {
+int ex_cri_desc::unpack(void *base, void *reallocator) {
   if (flags_ & PACKED)  // REVISIT
   {
     if (tupleDesc_.unpack(base, numTuples_, reallocator)) return -1;

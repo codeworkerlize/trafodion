@@ -121,7 +121,7 @@ void ExTupleTcb::freeResources() {
   pool_ = NULL;
 }
 
-ex_tcb_private_state *ExTupleTcb::allocatePstates(Lng32 &numElems, Lng32 &pstateLength) {
+ex_tcb_private_state *ExTupleTcb::allocatePstates(int &numElems, int &pstateLength) {
   PstateAllocator<ExTuplePrivateState> pa;
 
   return pa.allocatePstates(this, numElems, pstateLength);
@@ -157,7 +157,7 @@ ExWorkProcRetcode ExTupleLeafTcb::work() {
   {
     if ((pstate->step_ != ExTupleTcb::CANCEL_REQUEST) && (pstate->step_ != ExTupleTcb::ALL_DONE) &&
         ((request == ex_queue::GET_NOMORE) ||
-         ((request == ex_queue::GET_N) && (pentry_down->downState.requestValue <= (Lng32)pstate->matchCount_)))) {
+         ((request == ex_queue::GET_N) && (pentry_down->downState.requestValue <= (int)pstate->matchCount_)))) {
       pstate->step_ = ExTupleTcb::CANCEL_REQUEST;
     }
 
@@ -336,7 +336,7 @@ ExWorkProcRetcode ExTupleNonLeafTcb::work() {
   {
     if ((pstate->step_ != ExTupleTcb::CANCEL_REQUEST) && (pstate->step_ != ExTupleTcb::ALL_DONE) &&
         ((request == ex_queue::GET_NOMORE) ||
-         ((request == ex_queue::GET_N) && (pentry_down->downState.requestValue <= (Lng32)pstate->matchCount_)))) {
+         ((request == ex_queue::GET_N) && (pentry_down->downState.requestValue <= (int)pstate->matchCount_)))) {
       if (pstate->step_ == ExTupleTcb::TUPLE_EMPTY)
         pstate->step_ = ExTupleTcb::ALL_DONE;
       else if ((pstate->step_ != ExTupleTcb::CANCEL_REQUEST) && (pstate->step_ != ExTupleTcb::ALL_DONE)) {
@@ -388,7 +388,7 @@ ExWorkProcRetcode ExTupleNonLeafTcb::work() {
         if (tupleExpr != NULL) {
           // allocate space to hold the tuple to be returned
           tupp p;
-          if (pool_->get_free_tuple(p, (Lng32)tupleTdb().tupleLen_)) {
+          if (pool_->get_free_tuple(p, (int)tupleTdb().tupleLen_)) {
             up_entry4->getAtp()->release();
             return WORK_POOL_BLOCKED;  // couldn't allocate, try again later.
           }

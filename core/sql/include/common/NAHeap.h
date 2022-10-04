@@ -101,9 +101,9 @@ class NASpace : public CollHeap {
   }
 
 #if (defined(_DEBUG) || defined(NSK_MEMDEBUG))
-  virtual void dump(ostream *outstream, Lng32 indent){};
+  virtual void dump(ostream *outstream, int indent){};
 #else
-  inline void dump(void *outstream, Lng32 indent) {}
+  inline void dump(void *outstream, int indent) {}
 #endif
 
  private:

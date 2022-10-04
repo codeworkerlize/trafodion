@@ -411,7 +411,7 @@ class Join : public RelExpr {
   // children
   virtual void pushdownCoveredExpr(const ValueIdSet &outputExprOnOperator, const ValueIdSet &newExternalInputs,
                                    ValueIdSet &predOnOperator, const ValueIdSet *nonPredExprOnOperator = NULL,
-                                   Lng32 childId = (-MAX_REL_ARITY));
+                                   int childId = (-MAX_REL_ARITY));
 
   void pushdownCoveredExprSQO(const ValueIdSet &outputExpr, const ValueIdSet &newExternalInputs,
                               ValueIdSet &predOnOperator, ValueIdSet &nonPredExprOnOperator,
@@ -571,7 +571,7 @@ class Join : public RelExpr {
   // ESPs is being forced for the join operator.
   // ---------------------------------------------------------------------
   virtual DefaultToken getParallelControlSettings(const ReqdPhysicalProperty *const rppForMe, /*IN*/
-                                                  Lng32 &numOfESPs,                           /*OUT*/
+                                                  int &numOfESPs,                           /*OUT*/
                                                   float &allowedDeviation,                    /*OUT*/
                                                   NABoolean &numOfESPsForced /*OUT*/) const;
 
@@ -620,8 +620,8 @@ class Join : public RelExpr {
   inline NABoolean isCursorUpdate() { return cursorUpdate_; }
   // QSTUFF
 
-  inline void setRowsetRowCountArraySize(Lng32 b) { rowsetRowCountArraySize_ = b; }
-  inline Lng32 getRowsetRowCountArraySize() { return rowsetRowCountArraySize_; }
+  inline void setRowsetRowCountArraySize(int b) { rowsetRowCountArraySize_ = b; }
+  inline int getRowsetRowCountArraySize() { return rowsetRowCountArraySize_; }
 
   //////////////////////////////////////////////////////
   virtual NABoolean pilotAnalysis(QueryAnalysis *qa);
@@ -714,7 +714,7 @@ class Join : public RelExpr {
                                             const ValueIdSet &joinPreds,    // IN: the join predicate
                                             double mc_threshold,            // IN: the mc skew threshold
                                             double sc_threshold,            // IN: the single column skew
-                                            Lng32 countOfPipelines,         // IN: countofpipelines
+                                            int countOfPipelines,         // IN: countofpipelines
                                                                             // threshold
                                             SkewedValueList **skLis,        // OUT: the skew list
                                             ValueId &vidOfEquiJoinWithSkew  // OUT
@@ -726,7 +726,7 @@ class Join : public RelExpr {
   NABoolean childNodeContainMultiColumnSkew(CollIndex i,                  // IN: which child to work on
                                             const ValueIdSet &joinPreds,  // IN: the join predicate
                                             double mc_threshold,          // IN: multi-column threshold
-                                            Lng32 countOfPipelines,       // IN:
+                                            int countOfPipelines,       // IN:
                                             SkewedValueList **skList      // OUT: the skew list
   );
 
@@ -796,7 +796,7 @@ class Join : public RelExpr {
   NABoolean singleColumnjoinPredOKforSB(ValueIdSet &joinPreds);
   NABoolean multiColumnjoinPredOKforSB(ValueIdSet &joinPreds);
 
-  NABoolean assignRTStats(NAArray<Int64> &rtStats, Int32 &order);
+  NABoolean assignRTStats(NAArray<long> &rtStats, Int32 &order);
 
  private:
   // ---------------------------------------------------------------------
@@ -1113,10 +1113,10 @@ class NestedJoin : public Join {
   // Cascades-related functions
   virtual PlanWorkSpace *allocateWorkSpace() const;
   virtual CostMethod *costMethod() const;
-  virtual Context *createContextForAChild(Context *myContext, PlanWorkSpace *pws, Lng32 &childIndex);
+  virtual Context *createContextForAChild(Context *myContext, PlanWorkSpace *pws, int &childIndex);
   virtual NABoolean findOptimalSolution(Context *myContext, PlanWorkSpace *pws);
 
-  virtual PhysicalProperty *synthPhysicalProperty(const Context *myContext, const Lng32 planNumber, PlanWorkSpace *pws);
+  virtual PhysicalProperty *synthPhysicalProperty(const Context *myContext, const int planNumber, PlanWorkSpace *pws);
   // method to do code generation
   // method to do code generation
   RelExpr *preCodeGen(Generator *generator, const ValueIdSet &externalInputs, ValueIdSet &pulledNewInputs);
@@ -1167,18 +1167,18 @@ class NestedJoin : public Join {
 
   const NAString getText() const;
 
-  virtual NABoolean currentPlanIsAcceptable(Lng32 planNo, const ReqdPhysicalProperty *const rppForMe) const;
+  virtual NABoolean currentPlanIsAcceptable(int planNo, const ReqdPhysicalProperty *const rppForMe) const;
 
   virtual NABoolean OCBJoinIsFeasible(const Context *myContext) const;
   virtual NABoolean OCRJoinIsFeasible(const Context *myContext) const;
 
   virtual NABoolean okToAttemptESPParallelism(const Context *myContext, /*IN*/
                                               PlanWorkSpace *pws,       /*IN*/
-                                              Lng32 &numOfESPs,         /*OUT*/
+                                              int &numOfESPs,         /*OUT*/
                                               float &allowedDeviation,  /*OUT*/
                                               NABoolean &numOfESPsForced /*OUT*/);
 
-  virtual PlanPriority computeOperatorPriority(const Context *context, PlanWorkSpace *pws = NULL, Lng32 planNumber = 0);
+  virtual PlanPriority computeOperatorPriority(const Context *context, PlanWorkSpace *pws = NULL, int planNumber = 0);
 
   // determines if inner table probes just one partition or all of them
   NABoolean allPartitionsProbed();
@@ -1271,12 +1271,12 @@ class MergeJoin : public Join {
 
   // Cascades-related functions
   virtual CostMethod *costMethod() const;
-  virtual Context *createContextForAChild(Context *myContext, PlanWorkSpace *pws, Lng32 &childIndex);
+  virtual Context *createContextForAChild(Context *myContext, PlanWorkSpace *pws, int &childIndex);
   virtual NABoolean findOptimalSolution(Context *myContext, PlanWorkSpace *pws);
 
-  virtual NABoolean currentPlanIsAcceptable(Lng32 planNo, const ReqdPhysicalProperty *const rppForMe) const;
+  virtual NABoolean currentPlanIsAcceptable(int planNo, const ReqdPhysicalProperty *const rppForMe) const;
 
-  virtual PhysicalProperty *synthPhysicalProperty(const Context *myContext, const Lng32 planNumber, PlanWorkSpace *pws);
+  virtual PhysicalProperty *synthPhysicalProperty(const Context *myContext, const int planNumber, PlanWorkSpace *pws);
 
   // method to do code generation
   RelExpr *preCodeGen(Generator *generator, const ValueIdSet &externalInputs, ValueIdSet &pulledNewInputs);
@@ -1335,7 +1335,7 @@ class MergeJoin : public Join {
   virtual PartitioningFunction *mapPartitioningFunction(const PartitioningFunction *partFunc,
                                                         NABoolean rewriteForChild0);
 
-  virtual PlanPriority computeOperatorPriority(const Context *context, PlanWorkSpace *pws = NULL, Lng32 planNumber = 0);
+  virtual PlanPriority computeOperatorPriority(const Context *context, PlanWorkSpace *pws = NULL, int planNumber = 0);
 
  private:
   ValueIdList leftSortOrder_;   // sort order for left child
@@ -1391,12 +1391,12 @@ class HashJoin : public Join {
 
   // cost functions
   virtual CostMethod *costMethod() const;
-  virtual Context *createContextForAChild(Context *myContext, PlanWorkSpace *pws, Lng32 &childIndex);
+  virtual Context *createContextForAChild(Context *myContext, PlanWorkSpace *pws, int &childIndex);
   virtual CostLimit *computeCostLimit(const Context *myContext, PlanWorkSpace *pws);
 
-  virtual NABoolean currentPlanIsAcceptable(Lng32 planNo, const ReqdPhysicalProperty *const rppForMe) const;
+  virtual NABoolean currentPlanIsAcceptable(int planNo, const ReqdPhysicalProperty *const rppForMe) const;
 
-  virtual PhysicalProperty *synthPhysicalProperty(const Context *myContext, const Lng32 planNumber, PlanWorkSpace *pws);
+  virtual PhysicalProperty *synthPhysicalProperty(const Context *myContext, const int planNumber, PlanWorkSpace *pws);
 
   // method to do code generation
   virtual RelExpr *preCodeGen(Generator *generator, const ValueIdSet &externalInputs, ValueIdSet &pulledNewInputs);
@@ -1418,9 +1418,9 @@ class HashJoin : public Join {
   virtual void addLocalExpr(LIST(ExprNode *) & xlist, LIST(NAString) & llist) const;
 
   // This is the original isBMO method.
-  virtual NABoolean isBigMemoryOperator(const PlanWorkSpace *pws, const Lng32 planNumber);
+  virtual NABoolean isBigMemoryOperator(const PlanWorkSpace *pws, const int planNumber);
 
-  virtual CostScalar getEstimatedRunTimeMemoryUsage(Generator *generator, NABoolean perNode, Lng32 *numStreams = NULL);
+  virtual CostScalar getEstimatedRunTimeMemoryUsage(Generator *generator, NABoolean perNode, int *numStreams = NULL);
 
   inline ValueIdSet &checkInputValues() { return checkInputValues_; }
   inline ValueIdSet &moveInputValues() { return moveInputValues_; }
@@ -1429,7 +1429,7 @@ class HashJoin : public Join {
   // Ratio is the ratio of file-size/memorysize. If the ratio >=1 it
   // is a BMO, if the ratio <1, it is not, and if the ratio > 5 it
   // is a VBMO (Very Big Memory Operator). Default is an improbable value.
-  NABoolean isBigMemoryOperatorSetRatio(const Context *context, const Lng32 planNumber, double &ratio);
+  NABoolean isBigMemoryOperatorSetRatio(const Context *context, const int planNumber, double &ratio);
   // isLeftOrdered has been renamed to noOverflow. Ordered Hash Join or
   // NoOverflow join is an alternative hash join to the hybrid hash join.
   inline NABoolean isNoOverflow() { return isNoOverflow_; }
@@ -1445,7 +1445,7 @@ class HashJoin : public Join {
 
   virtual NABoolean okToAttemptESPParallelism(const Context *myContext, /*IN*/
                                               PlanWorkSpace *pws,       /*IN*/
-                                              Lng32 &numOfESPs,         /*OUT*/
+                                              int &numOfESPs,         /*OUT*/
                                               float &allowedDeviation,  /*OUT*/
                                               NABoolean &numOfESPsForced /*OUT*/);
 
@@ -1462,12 +1462,12 @@ class HashJoin : public Join {
                                                         NABoolean rewriteForChild0);
   inline ValueIdSet &valuesGivenToChild() { return valuesGivenToChild_; }
 
-  virtual PlanPriority computeOperatorPriority(const Context *context, PlanWorkSpace *pws = NULL, Lng32 planNumber = 0);
+  virtual PlanPriority computeOperatorPriority(const Context *context, PlanWorkSpace *pws = NULL, int planNumber = 0);
 
   // Test whether the skewed values exist in the output of the left
   // child of this join. If so, the pointer to skew value list is returned
   // in argument x.
-  virtual NABoolean isSkewBusterFeasible(SkewedValueList **x, Lng32 countOfPipelines, ValueId &);
+  virtual NABoolean isSkewBusterFeasible(SkewedValueList **x, int countOfPipelines, ValueId &);
 
   // NOT IN optimization methods - start
   inline ValueIdSet &getCheckInnerNullExpr() { return checkInnerNullExpr_; }

@@ -27,11 +27,11 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
-#include "ErrorMessage.h"
-#include "GetErrorMessage.h"
+#include "sqlmsg/ErrorMessage.h"
+#include "sqlmsg/GetErrorMessage.h"
 
 #include "common/ComASSERT.h"
-#include "SqlciError.h"
+#include "sqlci/SqlciError.h"
 #include "common/NLSConversion.h"
 
 const size_t DEST_BUF_SIZE = 2 * ErrorMessage::MSG_BUF_SIZE;
@@ -45,7 +45,7 @@ void ErrorMessage::insertParams(NAError *errcb) {
 
     NAWchar paramVal[MSG_BUF_SIZE];  // regular char, not TCHAR
     Int32 paramLen;
-    Lng32 paramPos;
+    int paramPos;
     Int32 tmpLen = 0;
     Int32 truncation = FALSE;
 
@@ -184,7 +184,7 @@ void ErrorMessage::printErrorMessage(NAError *errcb) {
 // i.e. we can share messages and not have a confusing welter of nearly
 // identical ones.
 //
-Lng32 FixupMessageParam(NAWchar *paramName, MsgParamType paramType) {
+int FixupMessageParam(NAWchar *paramName, MsgParamType paramType) {
   ComASSERT(paramName);
   if (!*paramName) return -1;  // invalid (empty) paramName
 
@@ -217,7 +217,7 @@ Lng32 FixupMessageParam(NAWchar *paramName, MsgParamType paramType) {
       // else {}				// "9" valid
       for (p = paramName; *p; p++)
         if (!isdigit(*p)) return -1;  // "9x" invalid num
-      Lng32 pos;
+      int pos;
       NAWsscanf(paramName, WIDE_("%d"), &pos);
       return pos;
 

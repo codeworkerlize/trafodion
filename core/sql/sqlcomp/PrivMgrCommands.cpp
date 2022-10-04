@@ -1362,7 +1362,7 @@ Int32 PrivMgrCommands::recreateRoleRelationship(ExeCliInterface *cliInterface) {
     return 0;
   }
   cntQueue->position();
-  Lng32 count = 0;
+  int count = 0;
   for (; count < cntQueue->numEntries(); count++) {
     OutputInfo *pCliRow = (OutputInfo *)cntQueue->getNext();
     sb << '(' << *((Int32 *)pCliRow->get(0))              // ROLE_ID

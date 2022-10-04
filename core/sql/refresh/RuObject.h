@@ -87,7 +87,7 @@ class REFRESH_LIB_CLASS CRUObject {
   BOOL IsInvolved() const { return isInvolved_; }
 
   CRUException &GetErrorDesc() { return ex_; }
-  Lng32 GetStatus() { return ex_.GetStatus(); }
+  int GetStatus() { return ex_.GetStatus(); }
 
   //-- DDL locks management
  public:
@@ -164,7 +164,7 @@ class REFRESH_LIB_CLASS CRUObject {
   // Make the DDL lock change persistent
   void SaveDDLLockOperation();
 
-  void SetDDLLockError(Lng32 errnum) {
+  void SetDDLLockError(int errnum) {
     ex_.SetError(errnum);
     ex_.AddArgument(GetFullName());
   }

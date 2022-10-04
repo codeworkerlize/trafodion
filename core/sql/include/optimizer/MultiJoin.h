@@ -82,26 +82,26 @@ class JBBCExprGroupMap {
   // Destructor
   ~JBBCExprGroupMap() {}
 
-  inline ExprGroupId &getExprGroupId(Lng32 index) {
+  inline ExprGroupId &getExprGroupId(int index) {
     CMPASSERT(array_.used(index));
     return array_[index]->getExprGroupId();
   }
 
-  const ExprGroupId &getExprGroupId(Lng32 index) const {
+  const ExprGroupId &getExprGroupId(int index) const {
     CMPASSERT(array_.used(index));
     return array_[index]->getExprGroupId();
   }
 
   const ExprGroupId &getExprGroupIdOfJBBC(CANodeId jbbc) const;
 
-  void insertAt(Lng32 index, JBBCExprGroupEntry *entry) {
+  void insertAt(int index, JBBCExprGroupEntry *entry) {
     array_.insertAt(index, entry);
     jbbcs_.insert(entry->getJBBCId());
   }
 
   inline const CANodeIdSet &getJBBCs() const { return jbbcs_; }
 
-  inline Lng32 entries() const { return jbbcs_.entries(); }
+  inline int entries() const { return jbbcs_.entries(); }
 
  private:
   ARRAY(JBBCExprGroupEntry *) array_;
@@ -180,7 +180,7 @@ class MultiJoin : public RelExpr {
 
   virtual void pushdownCoveredExpr(const ValueIdSet &outputExprOnOperator, const ValueIdSet &newExternalInputs,
                                    ValueIdSet &predicatesOnParent, const ValueIdSet *setOfValuesReqdByParent = NULL,
-                                   Lng32 childIndex = (-MAX_REL_ARITY));
+                                   int childIndex = (-MAX_REL_ARITY));
 
   virtual void getPotentialOutputValues(ValueIdSet &outputValues) const;
 
@@ -216,9 +216,9 @@ class MultiJoin : public RelExpr {
   void setChildrenFromOrigExprs(QueryAnalysis *qa);
 
   // To access MultiJoin children
-  virtual ExprGroupId &operator[](Lng32 index) { return childrenMap_.getExprGroupId(index); }
+  virtual ExprGroupId &operator[](int index) { return childrenMap_.getExprGroupId(index); }
 
-  virtual const ExprGroupId &operator[](Lng32 index) const { return childrenMap_.getExprGroupId(index); }
+  virtual const ExprGroupId &operator[](int index) const { return childrenMap_.getExprGroupId(index); }
 
   // This method returns the child as a RelExpr. If the child is
   // a group it return a cut-op for that group.

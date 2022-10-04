@@ -48,7 +48,7 @@ class ExplainTupleMaster : public ExplainTuple {
   ~ExplainTupleMaster(){};
 
   Int32 init(Space *space, NABoolean doExplainSpaceOpt);
-  void setPlanId(Int64 planId);
+  void setPlanId(long planId);
   void setOperator(const char *op);
   void setTableName(const char *tabName);
   void setCardinality(double card);

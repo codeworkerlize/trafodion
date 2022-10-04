@@ -43,7 +43,7 @@
 #include "ExRsInfo.h"
 
 #ifdef UDR_DEBUG
-#include "ErrorMessage.h"
+#include "sqlmsg/ErrorMessage.h"
 
 #define UdrDebug0(s)                     (UdrPrintf(traceFile_, (s)))
 #define UdrDebug1(s, a1)                 (UdrPrintf(traceFile_, (s), (a1)))
@@ -430,7 +430,7 @@ void UdrClientControlStream::actOnReceive(IpcConnection *conn) {
             UdrDebug0("*** ERROR: Integrity check failed for ComDiagsArea");
             integrityCheckFailed = TRUE;
           } else {
-            UdrDebug1("    Diags count is %d", (Lng32)udrDiagsForCaller_->getNumber());
+            UdrDebug1("    Diags count is %d", (int)udrDiagsForCaller_->getNumber());
 
             if (tcbExpectsReply()) {
               // If the TCB wants replies, give these diags to the TCB
@@ -493,7 +493,7 @@ void UdrClientControlStream::actOnReceive(IpcConnection *conn) {
         break;
 
         default: {
-          UdrDebug2("*** ERROR: Unrecognized message of type %d arrived", (Lng32)t, this);
+          UdrDebug2("*** ERROR: Unrecognized message of type %d arrived", (int)t, this);
           integrityCheckFailed = TRUE;
         } break;
 
@@ -652,7 +652,7 @@ ComDiagsArea *UdrClientControlStream::extractUdrDiags() {
 //---------------------------------------------------------------------------
 // class UdrClientDataStream
 //---------------------------------------------------------------------------
-UdrClientDataStream::UdrClientDataStream(IpcEnvironment *env, Lng32 sendBufferLimit, Lng32 inUseBufferLimit,
+UdrClientDataStream::UdrClientDataStream(IpcEnvironment *env, int sendBufferLimit, int inUseBufferLimit,
                                          IpcMessageObjSize bufferSize, ExUdrTcb *tcb, ExExeStmtGlobals *stmtGlobals,
                                          NABoolean isTransactional, ExEspInstanceThread *threadInfo)
     : IpcClientMsgStream(env, UDR_STREAM_CLIENT_DATA, UdrClientDataStreamVersionNumber, sendBufferLimit,

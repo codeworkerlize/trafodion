@@ -78,9 +78,9 @@ class FragmentDirEntry : public NABasicObject {
   Space *space_;
   CollIndex parentIndex_;
   char *topNode_;
-  Lng32 numESPs_;
+  int numESPs_;
   const PartitioningFunction *partFunc_;
-  Lng32 partInputDataLength_;
+  int partInputDataLength_;
   NABoolean needsTransaction_;
   // a flag used only during codegen.
   NABoolean containsPushedDownOperators_;
@@ -88,7 +88,7 @@ class FragmentDirEntry : public NABasicObject {
   double BMOsMemoryUsage_;
 
   // level of esp layer relative to root node. First esp layer is 1.
-  Lng32 espLevel_;
+  int espLevel_;
   NABoolean soloFragment_;
 };
 
@@ -110,8 +110,8 @@ class FragmentDir : public NABasicObject {
   inline CollIndex entries() const { return entries_->entries(); }
 
   // create a new fragment as child of the current one and return its id
-  CollIndex pushFragment(FragmentTypeEnum type, Lng32 numESPs = 0, const PartitioningFunction *partFunc = NULL,
-                         Lng32 partInputDataLength = 0);
+  CollIndex pushFragment(FragmentTypeEnum type, int numESPs = 0, const PartitioningFunction *partFunc = NULL,
+                         int partInputDataLength = 0);
 
   // leave a created fragment and return to its parent fragment
   // (must call setTopObj() before doing this), return parent fragment id
@@ -151,7 +151,7 @@ class FragmentDir : public NABasicObject {
   // get the generated length for a given fragment (use this proc only
   // for obtaining fragment length, since it rounds up the length indicated
   // by the Space object to the nearest multiple of 8)
-  Lng32 getFragmentLength(CollIndex ix) const;
+  int getFragmentLength(CollIndex ix) const;
 
   // get the parent id of a fragment
   inline CollIndex getParentId() const { return (*entries_)[currentFragmentId_]->parentIndex_; }
@@ -163,15 +163,15 @@ class FragmentDir : public NABasicObject {
   // get a pointer to the top node of a fragment
   inline char *getTopNode(CollIndex ix) const { return (*entries_)[ix]->topNode_; }
 
-  inline Lng32 getNumESPs(CollIndex ix) const { return (*entries_)[ix]->numESPs_; }
+  inline int getNumESPs(CollIndex ix) const { return (*entries_)[ix]->numESPs_; }
 
-  inline Lng32 getEspLevel(CollIndex ix) const { return (*entries_)[ix]->espLevel_; }
-  inline void setEspLevel(CollIndex ix, Lng32 level) { (*entries_)[ix]->espLevel_ = level; }
+  inline int getEspLevel(CollIndex ix) const { return (*entries_)[ix]->espLevel_; }
+  inline void setEspLevel(CollIndex ix, int level) { (*entries_)[ix]->espLevel_ = level; }
 
   inline const PartitioningFunction *getPartitioningFunction(CollIndex ix) const { return (*entries_)[ix]->partFunc_; }
 
-  inline Lng32 getPartInputDataLength(CollIndex ix) const { return (*entries_)[ix]->partInputDataLength_; }
-  inline void setPartInputDataLength(CollIndex ix, Lng32 l) { (*entries_)[ix]->partInputDataLength_ = l; }
+  inline int getPartInputDataLength(CollIndex ix) const { return (*entries_)[ix]->partInputDataLength_; }
+  inline void setPartInputDataLength(CollIndex ix, int l) { (*entries_)[ix]->partInputDataLength_ = l; }
 
   inline NABoolean getNeedsTransaction(CollIndex ix) const { return (*entries_)[ix]->needsTransaction_; }
   inline void setNeedsTransaction(CollIndex ix, NABoolean n = TRUE) { (*entries_)[ix]->needsTransaction_ = n; }
@@ -189,7 +189,7 @@ class FragmentDir : public NABasicObject {
   void setAllEspFragmentsNeedTransaction();
 
   // get the generated length of all fragments together
-  Lng32 getTotalLength() const;
+  int getTotalLength() const;
 
   inline void setNumBMOs(CollIndex ix, unsigned short num) { (*entries_)[ix]->numBMOs_ = num; }
   inline unsigned short getNumBMOs() { return (*entries_)[currentFragmentId_]->numBMOs_; }

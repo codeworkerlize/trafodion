@@ -2391,9 +2391,9 @@ void HbaseSearchKey::makeHBaseSearchKeys(const SearchKey *builtinSearchKey, cons
     // simplest case is a single HbaseSearchKey, if we find no RangeSpecs below
     predListForSearchKeys.insert(setOfPredicates);
 
-    Lng32 maxNumSearchKeys = getDefaultAsLong(HBASE_MAX_NUM_SEARCH_KEYS);
-    Lng32 lastKeyColToUse = -1;
-    Lng32 currNumSearchKeys = 1;
+    int maxNumSearchKeys = getDefaultAsLong(HBASE_MAX_NUM_SEARCH_KEYS);
+    int lastKeyColToUse = -1;
+    int currNumSearchKeys = 1;
 
     for (CollIndex j = 0; j < indexDesc->getIndexKey().entries(); j++) {
       if (rangeBackbonesForKeyCols.used(j)) {
@@ -2416,7 +2416,7 @@ void HbaseSearchKey::makeHBaseSearchKeys(const SearchKey *builtinSearchKey, cons
 
         if (keyCol->getOperatorType() == ITM_INDEXCOLUMN) {
           // Go from IndexColumn to NAColumn to VEG and check for constant values
-          Lng32 baseColNum = (static_cast<IndexColumn *>(keyCol))->getNAColumn()->getPosition();
+          int baseColNum = (static_cast<IndexColumn *>(keyCol))->getNAColumn()->getPosition();
           keyColVegRef = indexDesc->getPrimaryTableDesc()->getColumnVEGList()[baseColNum];
           if ((static_cast<VEGReference *>(keyColVegRef.getItemExpr()))->getVEG()->getAConstant(TRUE) ==
               NULL_VALUE_ID) {
@@ -2436,7 +2436,7 @@ void HbaseSearchKey::makeHBaseSearchKeys(const SearchKey *builtinSearchKey, cons
     //         RangeSpecRefs if there are any, and multiply the number
     //         of existing HbaseSearch keys by the number of ranges
 
-    for (Lng32 i = lastKeyColToUse; i >= 0; i--)
+    for (int i = lastKeyColToUse; i >= 0; i--)
       if (rangeBackbonesForKeyCols.used(i)) {
         // temporary list to form cartesian product
         LIST(ValueIdSet) tempListOfSearchKeys(predListForSearchKeys);

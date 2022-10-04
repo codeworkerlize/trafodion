@@ -259,8 +259,8 @@ class ex_expr : public NAVersionedObject {
 
   // Accessors for the constants and temps areas and sizes
   //
-  Lng32 getConstsLength() { return constantsAreaLength_; };
-  void setConstsLength(Lng32 constants_area_length) { constantsAreaLength_ = constants_area_length; }
+  int getConstsLength() { return constantsAreaLength_; };
+  void setConstsLength(int constants_area_length) { constantsAreaLength_ = constants_area_length; }
 
   inline char *getConstantsArea() { return constantsArea_; }
 
@@ -272,20 +272,20 @@ class ex_expr : public NAVersionedObject {
   char *getMyTempsArea() { return tempsArea_; }
   void setTempsArea(char *temps_area) { tempsArea_ = temps_area; };
 
-  Lng32 getTempsLength() { return tempsAreaLength_; };
+  int getTempsLength() { return tempsAreaLength_; };
 
-  void setTempsLength(Lng32 tempsLength) { tempsAreaLength_ = tempsLength; };
+  void setTempsLength(int tempsLength) { tempsAreaLength_ = tempsLength; };
 
-  void setLength(Lng32 length) { length_ = length; };
+  void setLength(int length) { length_ = length; };
 
-  Lng32 getLength() { return length_; };
+  int getLength() { return length_; };
 
   // Packing, unpacking and fixup
   //
   // computeSpaceOnly: if TRUE, then compute space requirement only.
   //                Do not make any changes to the generated expressions,
   //                (like assigning tempsArea, assigning generated pcode, etc).
-  virtual exp_return_type fixup(Lng32, unsigned short, const ex_tcb *tcb, ComSpace *space, CollHeap *exHeap,
+  virtual exp_return_type fixup(int, unsigned short, const ex_tcb *tcb, ComSpace *space, CollHeap *exHeap,
                                 NABoolean computeSpaceOnly, ex_globals *glob);
 
   ////////////////////////////////////////////////////////////////////
@@ -294,7 +294,7 @@ class ex_expr : public NAVersionedObject {
   // update processing. See processUpdate() in ex_dp2_oper.cpp and
   // exp/exp_eval.cpp for details.
   ////////////////////////////////////////////////////////////////////
-  inline exp_return_type eval(atp_struct *atp1, atp_struct *atp2, atp_struct *atp3, CollHeap *exHeap, Lng32 datalen,
+  inline exp_return_type eval(atp_struct *atp1, atp_struct *atp2, atp_struct *atp3, CollHeap *exHeap, int datalen,
                               ULng32 *rowLen, short *lastFldIndex, char *fetchedDataPtr
 #ifdef TRACE_EXPR_EVAL
                               ,
@@ -326,7 +326,7 @@ class ex_expr : public NAVersionedObject {
   // update processing. See processUpdate() in ex_dp2_oper.cpp and
   // exp/exp_eval.cpp for details.
   ////////////////////////////////////////////////////////////////////
-  inline exp_return_type eval(atp_struct *atp1, atp_struct *atp2, CollHeap *exHeap = 0, Lng32 datalen = -1,
+  inline exp_return_type eval(atp_struct *atp1, atp_struct *atp2, CollHeap *exHeap = 0, int datalen = -1,
                               ULng32 *rowLen = NULL, short *lastFldIndex = 0, char *fetchedDataPtr = NULL) {
     return eval(atp1, atp2, NULL, exHeap, datalen, rowLen, lastFldIndex, fetchedDataPtr);
   }
@@ -339,7 +339,7 @@ class ex_expr : public NAVersionedObject {
   ////////////////////////////////////////////////////////////////////
   exp_return_type evalPCodeAligned(PCodeBinary *pCode, atp_struct *, atp_struct *, ULng32 *rowlen);
 
-  exp_return_type evalPCode(PCodeBinary *pCode, atp_struct *, atp_struct *, atp_struct *, Lng32 datalen,
+  exp_return_type evalPCode(PCodeBinary *pCode, atp_struct *, atp_struct *, atp_struct *, int datalen,
                             ULng32 *rowlen);
 
   // Inlined implementation of various expressions.  The number after "evalFast"
@@ -391,7 +391,7 @@ class ex_expr : public NAVersionedObject {
 
   exp_return_type reportOverflowError(atp_struct *, PCodeBinary *pCodeOpcode, PCodeBinary *pCode, Long *stack);
 
-  exp_return_type evalClauses(ex_clause *, atp_struct *, atp_struct *, atp_struct *, Lng32 datalen, ULng32 *rowLen,
+  exp_return_type evalClauses(ex_clause *, atp_struct *, atp_struct *, atp_struct *, int datalen, ULng32 *rowLen,
                               short *lastFldIndex, char *fetchedDataPtr
 #ifdef TRACE_EXPR_EVAL
                               ,
@@ -402,7 +402,7 @@ class ex_expr : public NAVersionedObject {
   virtual char *findVTblPtr(short classID);
 
   virtual Long pack(void *);
-  virtual Lng32 unpack(void *, void *reallocator);
+  virtual int unpack(void *, void *reallocator);
   void packStuff(void *);
 
   void makeLeanCopyAll(ComSpace *space);
@@ -410,11 +410,11 @@ class ex_expr : public NAVersionedObject {
 
   inline Long packExpr(void *space) { return ex_expr::pack(space); }
 
-  inline Lng32 unpackExpr(void *base, void *reallocator) { return ex_expr::unpack(base, reallocator); }
+  inline int unpackExpr(void *base, void *reallocator) { return ex_expr::unpack(base, reallocator); }
 
   // called to initialized clauses before evaluating the expr.
   // Currently only called to initialize LOB related expr clauses.
-  Lng32 initExpr();
+  int initExpr();
 
   // Accessors and Methods for PCode
   //
@@ -755,8 +755,8 @@ class AggrExpr : public ex_expr {
   exp_return_type evalGroupingForNull(Int16 startEntry, Int16 endEntry);
 
   virtual Long pack(void *);
-  virtual Lng32 unpack(void *, void *reallocator);
-  virtual exp_return_type fixup(Lng32, unsigned short, const ex_tcb *tcb, ComSpace *space = 0, CollHeap *exHeap = 0,
+  virtual int unpack(void *, void *reallocator);
+  virtual exp_return_type fixup(int, unsigned short, const ex_tcb *tcb, ComSpace *space = 0, CollHeap *exHeap = 0,
                                 NABoolean computeSpaceOnly = FALSE, ex_globals *glob = 0);
   virtual void displayContents(ComSpace *space, short mode, const char *displayStr, ULng32 flag);
 
@@ -867,7 +867,7 @@ class InputOutputExpr : public ex_expr {
 
   ex_expr::exp_return_type addDescInfoIntoStaticDesc(Descriptor *desc, NABoolean isInput);
 
-  Lng32 getMaxParamIdx();
+  int getMaxParamIdx();
 
   ex_expr::exp_return_type inputSingleRowValue(atp_struct *, void *, char *, CollHeap *exHeap, UInt32 flags);
 
@@ -880,13 +880,13 @@ class InputOutputExpr : public ex_expr {
 
   ex_expr::exp_return_type outputValues(atp_struct *, void *, CollHeap *exHeap, UInt32 flags);
 
-  Lng32 getCompiledOutputRowsetSize(atp_struct *);
+  int getCompiledOutputRowsetSize(atp_struct *);
 
   virtual Long pack(void *);
 
-  Lng32 getNumEntries() { return numEntries_; };
+  int getNumEntries() { return numEntries_; };
 
-  void setNumEntries(Lng32 entries) { numEntries_ = entries; };
+  void setNumEntries(int entries) { numEntries_ = entries; };
 
   NABoolean noEval() { return (flags_ & NO_EVAL) != 0; };
 
@@ -1009,11 +1009,11 @@ class ex_expr_lean : public ex_expr {
   // computeSpaceOnly: if TRUE, then compute space requirement only.
   //                Do not make any changes to the generated expressions,
   //                (like assigning tempsArea, assigning generated pcode, etc).
-  virtual exp_return_type fixup(Lng32, unsigned short, const ex_tcb *tcb, ComSpace *space = 0, CollHeap *exHeap = 0,
+  virtual exp_return_type fixup(int, unsigned short, const ex_tcb *tcb, ComSpace *space = 0, CollHeap *exHeap = 0,
                                 NABoolean computeSpaceOnly = FALSE);
 
   virtual Long pack(void *);
-  virtual Lng32 unpack(void *, void *reallocator);
+  virtual int unpack(void *, void *reallocator);
 
   void convAddrToOffsetInPCode(void *space);
   void convOffsetToAddrInPCode(void *base);

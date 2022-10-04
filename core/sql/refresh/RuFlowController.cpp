@@ -236,7 +236,7 @@ void CRUFlowController::NotifyTaskEnvironmentOnFailure(CRUTask &task) {
 //--------------------------------------------------------------------------//
 
 BOOL CRUFlowController::NeedToReportTaskFailure(CRUTask &task) {
-  Lng32 status = task.GetStatus();
+  int status = task.GetStatus();
   RUASSERT(0 != status);
 
   if (CRUTask::REFRESH == task.GetType()) {

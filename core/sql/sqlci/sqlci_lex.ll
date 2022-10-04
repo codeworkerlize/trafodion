@@ -53,13 +53,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
-#include "SqlciCmd.h"
+#include "sqlci/SqlciCmd.h"
 #include "common/str.h"
-#include "Sqlci.h"
+#include "sqlci/Sqlci.h"
 #define yylval sqlcilval
 #define yyerror sqlcierror
 #include "sqlci_yacc.h"
-#include "SqlciParseGlobals.h"
+#include "sqlci/SqlciParseGlobals.h"
 
 static int token_to_return;
 

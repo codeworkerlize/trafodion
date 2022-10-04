@@ -76,7 +76,7 @@ class CmpSqlSession : public NABasicObject {
   NAString &getDatabaseUserName() { return databaseUserName_; }
   Int32 &getDatabaseUserID() { return databaseUserID_; }
 
-  Lng32 setDatabaseUserAndTenant(Int32 userID, const char *userName, Int32 tenantID, const char *tenantName,
+  int setDatabaseUserAndTenant(Int32 userID, const char *userName, Int32 tenantID, const char *tenantName,
                                  const char *tenantNodes, const char *tenantDefaultSchema);
 
   NAString &volatileSchemaName() { return volatileSchemaName_; }
@@ -97,7 +97,7 @@ class CmpSqlSession : public NABasicObject {
   void setParentQid(const char *parentQid);
   const char *getParentQid() { return parentQid_; }
 
-  inline Lng32 getNumSessions() { return numSessions_; }
+  inline int getNumSessions() { return numSessions_; }
 
   Int32 getTenantID() { return tenantID_; }
 
@@ -105,7 +105,7 @@ class CmpSqlSession : public NABasicObject {
   NAHeap *heap_;
 
   NAString sessionID_;
-  Lng32 numSessions_;
+  int numSessions_;
   Int32 databaseUserID_;
   NAString databaseUserName_;
   Int32 tenantID_;
@@ -120,7 +120,7 @@ class CmpSqlSession : public NABasicObject {
 
   NAString volatileCatalogName_;
 
-  Int64 segmentNum_;
+  long segmentNum_;
   NAString segmentName_;
 
   NABoolean sessionInUse_;
@@ -134,7 +134,7 @@ class CmpSqlSession : public NABasicObject {
   // copy in the databaseUserID_ and databaseUserName_ members. The
   // return value is a SQLCODE. When a value other than zero is
   // returned, error information is written into CmpCommon::diags().
-  Lng32 getUserInfoFromCLI();
+  int getUserInfoFromCLI();
 };
 
 #endif  // CMPSQLSESSION_H

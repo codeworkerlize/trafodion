@@ -63,7 +63,7 @@ atp_struct *allocateAtp(ex_cri_desc *criDesc, CollHeap *space) {
 
   // Initialize each tupp.
   //
-  Lng32 j;
+  int j;
   for (j = 0; j < criDesc->noTuples(); j++) {
     atp->getTupp(j).init();
   }
@@ -86,7 +86,7 @@ atp_struct *createAtpInBuffer(ex_cri_desc *criDesc, char *&buf) {
 
   // Initialize each tupp.
   //
-  Lng32 j;
+  int j;
   for (j = 0; j < criDesc->noTuples(); j++) {
     atp->getTupp(j).init();
   }
@@ -95,7 +95,7 @@ atp_struct *createAtpInBuffer(ex_cri_desc *criDesc, char *&buf) {
   return atp;
 }
 
-atp_struct *allocateAtp(Lng32 numTuples, CollHeap *space) {
+atp_struct *allocateAtp(int numTuples, CollHeap *space) {
   // Allocate space for the atp_struct (which has room for one tupp in
   // the tupp array) plus room for the remainder of the tupps.
   //
@@ -115,7 +115,7 @@ atp_struct *allocateAtp(Lng32 numTuples, CollHeap *space) {
 
   // Initialize each tupp.
   //
-  Lng32 j;
+  int j;
   for (j = 0; j < numTuples; j++) {
     atp->getTupp(j).init();
   }
@@ -127,9 +127,9 @@ void deallocateAtp(atp_struct *atp, CollHeap *space) {
   if (space) space->deallocateMemory((char *)atp);
 }
 
-atp_struct *allocateAtpArray(ex_cri_desc *criDesc, Lng32 cnt, Int32 *atpSize, CollHeap *space,
+atp_struct *allocateAtpArray(ex_cri_desc *criDesc, int cnt, Int32 *atpSize, CollHeap *space,
                              NABoolean failureIsFatal) {
-  const Lng32 numTuples = criDesc->noTuples();
+  const int numTuples = criDesc->noTuples();
 
   // Alocate space for the atp_struct (which has room for one tupp in
   // the tupp array) plus room for the remainder of the tupps,
@@ -142,7 +142,7 @@ atp_struct *allocateAtpArray(ex_cri_desc *criDesc, Lng32 cnt, Int32 *atpSize, Co
   atp_struct *atpStart = (atp_struct *)atpSpace;
   atp_struct *atp;
 
-  for (Lng32 i = 0; i < cnt; i++) {
+  for (int i = 0; i < cnt; i++) {
     atp = (atp_struct *)atpSpace;
     atpSpace += *atpSize;
 
@@ -157,7 +157,7 @@ atp_struct *allocateAtpArray(ex_cri_desc *criDesc, Lng32 cnt, Int32 *atpSize, Co
 
     // Initialize each tupp.
     //
-    for (Lng32 j = 0; j < numTuples; j++) {
+    for (int j = 0; j < numTuples; j++) {
       atp->getTupp(j).init();
     }
   }
@@ -177,7 +177,7 @@ Long atp_struct::pack(void *space) {
   return ((Space *)space)->convertToOffset(this);
 }
 
-Lng32 atp_struct::unpack(Lng32 base) {
+int atp_struct::unpack(int base) {
   ex_cri_desc obj;
 
   if (criDesc_) {

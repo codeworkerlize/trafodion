@@ -46,7 +46,7 @@
 ComTdbTransaction::ComTdbTransaction(TransStmtType trans_type, TransMode *trans_mode, ex_expr *diag_area_size_expr,
                                      ex_cri_desc *work_cri_desc, ex_cri_desc *given_cri_desc,
                                      ex_cri_desc *returned_cri_desc, queue_index down, queue_index up,
-                                     Lng32 num_buffers, ULng32 buffer_size)
+                                     int num_buffers, ULng32 buffer_size)
     : ComTdb(ComTdb::ex_TRANSACTION, eye_TRANSACTION, (Cardinality)0.0, given_cri_desc, returned_cri_desc, down, up,
              num_buffers, buffer_size),
       transType_(trans_type),
@@ -63,7 +63,7 @@ Long ComTdbTransaction::pack(void *space) {
   return ComTdb::pack(space);
 }
 
-Lng32 ComTdbTransaction::unpack(void *base, void *reallocator) {
+int ComTdbTransaction::unpack(void *base, void *reallocator) {
   if (transMode_.unpack(base, reallocator)) return -1;
   if (diagAreaSizeExpr_.unpack(base, reallocator)) return -1;
   if (workCriDesc_.unpack(base, reallocator)) return -1;

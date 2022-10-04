@@ -98,7 +98,7 @@ char *strip_spaces(char *str);
 
 // This function maps INTERVAL FS datatypes to the corresponding
 // INTERVAL codes from sqlcli.h
-Lng32 getIntervalCode(short fstype);
+int getIntervalCode(short fstype);
 
 // A helper class to manage buffers on the C runtime heap. These
 // buffers are the ones we expose to C routines. Every buffer is

@@ -43,12 +43,12 @@
 #include "exp/exp_clause_derived.h"
 #include "exp/exp_datetime.h"
 #include "common/ComSysUtils.h"
-#include "exp_bignum.h"
+#include "exp/exp_bignum.h"
 
 #include "exp_ovfl_ptal.h"
 #include "exp_ieee.h"
 
-Int64 EXP_FIXED_ARITH_OV_OPER(short operation, Int64 op1, Int64 op2, short *ov) {
+long EXP_FIXED_ARITH_OV_OPER(short operation, long op1, long op2, short *ov) {
   if (NOT((operation == ITM_PLUS) || (operation == ITM_MINUS) || (operation == ITM_TIMES) || (operation == ITM_DIVIDE)))
     return -1;  // invalid operation
 
@@ -61,9 +61,9 @@ Int64 EXP_FIXED_ARITH_OV_OPER(short operation, Int64 op1, Int64 op2, short *ov) 
   char op1BNdata[100];
   char op2BNdata[100];
 
-  SimpleType op1ST(REC_BIN64_SIGNED, sizeof(Int64), 0, 0, ExpTupleDesc::SQLMX_FORMAT, 8, 0, 0, 0,
+  SimpleType op1ST(REC_BIN64_SIGNED, sizeof(long), 0, 0, ExpTupleDesc::SQLMX_FORMAT, 8, 0, 0, 0,
                    Attributes::NO_DEFAULT, 0);
-  SimpleType op2ST(REC_BIN64_SIGNED, sizeof(Int64), 0, 0, ExpTupleDesc::SQLMX_FORMAT, 8, 0, 0, 0,
+  SimpleType op2ST(REC_BIN64_SIGNED, sizeof(long), 0, 0, ExpTupleDesc::SQLMX_FORMAT, 8, 0, 0, 0,
                    Attributes::NO_DEFAULT, 0);
 
   char *op1_data[2];
@@ -114,15 +114,15 @@ Int64 EXP_FIXED_ARITH_OV_OPER(short operation, Int64 op1, Int64 op2, short *ov) 
     return -1;
   }
 
-  SimpleType resultST(REC_BIN64_SIGNED, sizeof(Int64), 0, 0, ExpTupleDesc::SQLMX_FORMAT, sizeof(Int64), 0, 0, 0,
+  SimpleType resultST(REC_BIN64_SIGNED, sizeof(long), 0, 0, ExpTupleDesc::SQLMX_FORMAT, sizeof(long), 0, 0, 0,
                       Attributes::NO_DEFAULT, 0);
 
-  Int64 result;
+  long result;
   op1_data[0] = (char *)&result;
   op1_data[1] = oper_data[0];
 
   rc = convDoIt(op1_data[1], BigNum::BIGNUM_TEMP_LEN, REC_NUM_BIG_SIGNED, BigNum::BIGNUM_TEMP_PRECISION, 0, op1_data[0],
-                sizeof(Int64), REC_BIN64_SIGNED, 0, 0, NULL, 0, NULL, NULL);
+                sizeof(long), REC_BIN64_SIGNED, 0, 0, NULL, 0, NULL, NULL);
   if (rc) {
     *ov = 1;
     return -1;
@@ -131,13 +131,13 @@ Int64 EXP_FIXED_ARITH_OV_OPER(short operation, Int64 op1, Int64 op2, short *ov) 
   return result;
 }
 
-Int64 EXP_FIXED_OV_ADD(Int64 op1, Int64 op2, short *ov) { return EXP_FIXED_ARITH_OV_OPER(ITM_PLUS, op1, op2, ov); }
+long EXP_FIXED_OV_ADD(long op1, long op2, short *ov) { return EXP_FIXED_ARITH_OV_OPER(ITM_PLUS, op1, op2, ov); }
 
-Int64 EXP_FIXED_OV_SUB(Int64 op1, Int64 op2, short *ov) { return EXP_FIXED_ARITH_OV_OPER(ITM_MINUS, op1, op2, ov); }
+long EXP_FIXED_OV_SUB(long op1, long op2, short *ov) { return EXP_FIXED_ARITH_OV_OPER(ITM_MINUS, op1, op2, ov); }
 
-Int64 EXP_FIXED_OV_MUL(Int64 op1, Int64 op2, short *ov) { return EXP_FIXED_ARITH_OV_OPER(ITM_TIMES, op1, op2, ov); }
+long EXP_FIXED_OV_MUL(long op1, long op2, short *ov) { return EXP_FIXED_ARITH_OV_OPER(ITM_TIMES, op1, op2, ov); }
 
-Int64 EXP_FIXED_OV_DIV(Int64 op1, Int64 op2, short *ov) { return EXP_FIXED_ARITH_OV_OPER(ITM_DIVIDE, op1, op2, ov); }
+long EXP_FIXED_OV_DIV(long op1, long op2, short *ov) { return EXP_FIXED_ARITH_OV_OPER(ITM_DIVIDE, op1, op2, ov); }
 
 ///////////////////////////////////////////////////////////////
 short EXP_BIGN_ARITH_OPER(short operation, Attributes *op1, Attributes *op2, char *op_data[]) {
@@ -224,7 +224,7 @@ short EXP_FIXED_BIGN_OV_DIV(Attributes *op1, Attributes *op2, char *op_data[]) {
   return EXP_BIGN_ARITH_OPER(ITM_DIVIDE, op1, op2, op_data);
 }
 
-Int64 EXP_FIXED_BIGN_OV_MOD(Attributes *op1, Attributes *op2, char *op_data[], short *ov, Int64 *quotient) {
+long EXP_FIXED_BIGN_OV_MOD(Attributes *op1, Attributes *op2, char *op_data[], short *ov, long *quotient) {
   short rc = 0;
   *ov = 0;
 
@@ -283,7 +283,7 @@ Int64 EXP_FIXED_BIGN_OV_MOD(Attributes *op1, Attributes *op2, char *op_data[], s
     return -1;
   }
 
-  SimpleType resultST(REC_BIN64_SIGNED, sizeof(Int64), 0, 0, ExpTupleDesc::SQLMX_FORMAT, 8, 0, 0, 0,
+  SimpleType resultST(REC_BIN64_SIGNED, sizeof(long), 0, 0, ExpTupleDesc::SQLMX_FORMAT, 8, 0, 0, 0,
                       Attributes::NO_DEFAULT, 0);
 
   // if quotient(x/y) is to be returned, return it
@@ -322,7 +322,7 @@ Int64 EXP_FIXED_BIGN_OV_MOD(Attributes *op1, Attributes *op2, char *op_data[], s
     return -1;
   }
 
-  Int64 result;
+  long result;
   temp_data[0] = (char *)&result;
   temp_data[1] = mod_data[0];
 
@@ -419,27 +419,27 @@ ex_expr::exp_return_type ex_arith_clause::eval(char *op_data[], CollHeap *heap, 
       *(short *)op_data[0] = *(short *)op_data[1] + *(short *)op_data[2];
       break;
     case ADD_BIN16S_BIN16S_BIN32S:
-      *(Lng32 *)op_data[0] = *(short *)op_data[1] + *(short *)op_data[2];
+      *(int *)op_data[0] = *(short *)op_data[1] + *(short *)op_data[2];
       break;
     case ADD_BIN16S_BIN32S_BIN32S:
-      *(Lng32 *)op_data[0] = *(short *)op_data[1] + *(Lng32 *)op_data[2];
+      *(int *)op_data[0] = *(short *)op_data[1] + *(int *)op_data[2];
       break;
     case ADD_BIN32S_BIN16S_BIN32S:
-      *(Lng32 *)op_data[0] = *(Lng32 *)op_data[1] + *(short *)op_data[2];
+      *(int *)op_data[0] = *(int *)op_data[1] + *(short *)op_data[2];
       break;
     case ADD_BIN32S_BIN32S_BIN32S:
-      *(Lng32 *)op_data[0] = *(Lng32 *)op_data[1] + *(Lng32 *)op_data[2];
+      *(int *)op_data[0] = *(int *)op_data[1] + *(int *)op_data[2];
       break;
     case ADD_BIN32S_BIN64S_BIN64S:
-      *(Int64 *)op_data[0] = *(Int64 *)op_data[2] + *(Lng32 *)op_data[1];
+      *(long *)op_data[0] = *(long *)op_data[2] + *(int *)op_data[1];
       break;
     case ADD_BIN64S_BIN32S_BIN64S:
-      *(Int64 *)op_data[0] = *(Int64 *)op_data[1] + *(Lng32 *)op_data[2];
+      *(long *)op_data[0] = *(long *)op_data[1] + *(int *)op_data[2];
       break;
 
     case ADD_BIN64S_BIN64S_BIN64S: {
       short ov;
-      *(Int64 *)op_data[0] = EXP_FIXED_OV_ADD(*(Int64 *)op_data[1], *(Int64 *)op_data[2], &ov);
+      *(long *)op_data[0] = EXP_FIXED_OV_ADD(*(long *)op_data[1], *(long *)op_data[2], &ov);
       if (ov) {
         ExRaiseSqlError(heap, diagsArea, EXE_NUMERIC_OVERFLOW);
         return ex_expr::EXPR_ERROR;
@@ -463,16 +463,16 @@ ex_expr::exp_return_type ex_arith_clause::eval(char *op_data[], CollHeap *heap, 
       *(ULng32 *)op_data[0] = *(ULng32 *)op_data[1] + *(ULng32 *)op_data[2];
       break;
     case ADD_BPINTU_BIN64S_BIN64S:
-      *(Int64 *)op_data[0] = *(Int64 *)op_data[2] + *(unsigned short *)op_data[1];
+      *(long *)op_data[0] = *(long *)op_data[2] + *(unsigned short *)op_data[1];
       break;
     case ADD_BIN64S_BPINTU_BIN64S:
-      *(Int64 *)op_data[0] = *(Int64 *)op_data[1] + *(unsigned short *)op_data[2];
+      *(long *)op_data[0] = *(long *)op_data[1] + *(unsigned short *)op_data[2];
       break;
     case ADD_BIN32U_BIN64S_BIN64S:
-      *(Int64 *)op_data[0] = *(Int64 *)op_data[2] + *(ULng32 *)op_data[1];
+      *(long *)op_data[0] = *(long *)op_data[2] + *(ULng32 *)op_data[1];
       break;
     case ADD_BIN64S_BIN32U_BIN64S:
-      *(Int64 *)op_data[0] = *(Int64 *)op_data[1] + *(ULng32 *)op_data[2];
+      *(long *)op_data[0] = *(long *)op_data[1] + *(ULng32 *)op_data[2];
       break;
 
     case ADD_FLOAT32_FLOAT32_FLOAT32:
@@ -506,26 +506,26 @@ ex_expr::exp_return_type ex_arith_clause::eval(char *op_data[], CollHeap *heap, 
       *(short *)op_data[0] = *(short *)op_data[1] - *(short *)op_data[2];
       break;
     case SUB_BIN16S_BIN16S_BIN32S:
-      *(Lng32 *)op_data[0] = *(short *)op_data[1] - *(short *)op_data[2];
+      *(int *)op_data[0] = *(short *)op_data[1] - *(short *)op_data[2];
       break;
     case SUB_BIN16S_BIN32S_BIN32S:
-      *(Lng32 *)op_data[0] = *(short *)op_data[1] - *(Lng32 *)op_data[2];
+      *(int *)op_data[0] = *(short *)op_data[1] - *(int *)op_data[2];
       break;
     case SUB_BIN32S_BIN16S_BIN32S:
-      *(Lng32 *)op_data[0] = *(Lng32 *)op_data[1] - *(short *)op_data[2];
+      *(int *)op_data[0] = *(int *)op_data[1] - *(short *)op_data[2];
       break;
     case SUB_BIN32S_BIN32S_BIN32S:
-      *(Lng32 *)op_data[0] = *(Lng32 *)op_data[1] - *(Lng32 *)op_data[2];
+      *(int *)op_data[0] = *(int *)op_data[1] - *(int *)op_data[2];
       break;
     case SUB_BIN64S_BIN64S_BIN64S: {
       short ov;
-      *(Int64 *)op_data[0] = EXP_FIXED_OV_SUB(*(Int64 *)op_data[1], *(Int64 *)op_data[2], &ov);
+      *(long *)op_data[0] = EXP_FIXED_OV_SUB(*(long *)op_data[1], *(long *)op_data[2], &ov);
       if (ov) {
         ExRaiseSqlError(heap, diagsArea, EXE_NUMERIC_OVERFLOW);
         return ex_expr::EXPR_ERROR;
       }
 
-      //*(Int64 *)op_data[0] = *(Int64 *)op_data[1] - *(Int64 *)op_data[2];
+      //*(long *)op_data[0] = *(long *)op_data[1] - *(long *)op_data[2];
     } break;
 
     case SUB_BIN16U_BIN16U_BIN16U:
@@ -574,34 +574,34 @@ ex_expr::exp_return_type ex_arith_clause::eval(char *op_data[], CollHeap *heap, 
       *(short *)op_data[0] = *(short *)op_data[1] * *(short *)op_data[2];
       break;
     case MUL_BIN16S_BIN16S_BIN32S:
-      *(Lng32 *)op_data[0] = *(short *)op_data[1] * *(short *)op_data[2];
+      *(int *)op_data[0] = *(short *)op_data[1] * *(short *)op_data[2];
       break;
     case MUL_BIN16S_BIN32S_BIN32S:
-      *(Lng32 *)op_data[0] = *(short *)op_data[1] * *(Lng32 *)op_data[2];
+      *(int *)op_data[0] = *(short *)op_data[1] * *(int *)op_data[2];
       break;
     case MUL_BIN32S_BIN16S_BIN32S:
-      *(Lng32 *)op_data[0] = *(Lng32 *)op_data[1] * *(short *)op_data[2];
+      *(int *)op_data[0] = *(int *)op_data[1] * *(short *)op_data[2];
       break;
     case MUL_BIN32S_BIN32S_BIN32S:
-      *(Lng32 *)op_data[0] = *(Lng32 *)op_data[1] * *(Lng32 *)op_data[2];
+      *(int *)op_data[0] = *(int *)op_data[1] * *(int *)op_data[2];
       break;
     case MUL_BIN16S_BIN32S_BIN64S:
-      *(Int64 *)op_data[0] = (Int64) * (short *)op_data[1] * (Int64) * (Lng32 *)op_data[2];
+      *(long *)op_data[0] = (long) * (short *)op_data[1] * (long) * (int *)op_data[2];
       break;
     case MUL_BIN32S_BIN16S_BIN64S:
-      *(Int64 *)op_data[0] = (Int64) * (Lng32 *)op_data[1] * (Int64) * (short *)op_data[2];
+      *(long *)op_data[0] = (long) * (int *)op_data[1] * (long) * (short *)op_data[2];
       break;
     case MUL_BIN32S_BIN32S_BIN64S:
-      *(Int64 *)op_data[0] = (Int64) * (Lng32 *)op_data[1] * (Int64) * (Lng32 *)op_data[2];
+      *(long *)op_data[0] = (long) * (int *)op_data[1] * (long) * (int *)op_data[2];
       break;
     case MUL_BIN64S_BIN64S_BIN64S: {
       short ov;
-      *(Int64 *)op_data[0] = EXP_FIXED_OV_MUL(*(Int64 *)op_data[1], *(Int64 *)op_data[2], &ov);
+      *(long *)op_data[0] = EXP_FIXED_OV_MUL(*(long *)op_data[1], *(long *)op_data[2], &ov);
       if (ov) {
         ExRaiseSqlError(heap, diagsArea, EXE_NUMERIC_OVERFLOW);
         return ex_expr::EXPR_ERROR;
       }
-      //*(Int64 *)op_data[0] = *(Int64 *)op_data[1] * *(Int64 *)op_data[2];
+      //*(long *)op_data[0] = *(long *)op_data[1] * *(long *)op_data[2];
     } break;
 
     case MUL_BIN16U_BIN16U_BIN16U:
@@ -646,47 +646,47 @@ ex_expr::exp_return_type ex_arith_clause::eval(char *op_data[], CollHeap *heap, 
         ExRaiseSqlError(heap, diagsArea, EXE_DIVISION_BY_ZERO);
         return ex_expr::EXPR_ERROR;
       }
-      *(Lng32 *)op_data[0] = *(short *)op_data[1] / *(short *)op_data[2];
+      *(int *)op_data[0] = *(short *)op_data[1] / *(short *)op_data[2];
       break;
     case DIV_BIN16S_BIN32S_BIN32S:
-      if (*(Lng32 *)op_data[2] == 0) {
+      if (*(int *)op_data[2] == 0) {
         ExRaiseSqlError(heap, diagsArea, EXE_DIVISION_BY_ZERO);
         return ex_expr::EXPR_ERROR;
       }
-      *(Lng32 *)op_data[0] = *(short *)op_data[1] / *(Lng32 *)op_data[2];
+      *(int *)op_data[0] = *(short *)op_data[1] / *(int *)op_data[2];
       break;
     case DIV_BIN32S_BIN16S_BIN32S:
       if (*(short *)op_data[2] == 0) {
         ExRaiseSqlError(heap, diagsArea, EXE_DIVISION_BY_ZERO);
         return ex_expr::EXPR_ERROR;
       }
-      *(Lng32 *)op_data[0] = *(Lng32 *)op_data[1] / *(short *)op_data[2];
+      *(int *)op_data[0] = *(int *)op_data[1] / *(short *)op_data[2];
       break;
     case DIV_BIN32S_BIN32S_BIN32S:
-      if (*(Lng32 *)op_data[2] == 0) {
+      if (*(int *)op_data[2] == 0) {
         ExRaiseSqlError(heap, diagsArea, EXE_DIVISION_BY_ZERO);
         return ex_expr::EXPR_ERROR;
       }
-      *(Lng32 *)op_data[0] = *(Lng32 *)op_data[1] / *(Lng32 *)op_data[2];
+      *(int *)op_data[0] = *(int *)op_data[1] / *(int *)op_data[2];
       break;
     case DIV_BIN64S_BIN64S_BIN64S: {
-      if (*(Int64 *)op_data[2] == 0) {
+      if (*(long *)op_data[2] == 0) {
         ExRaiseSqlError(heap, diagsArea, EXE_DIVISION_BY_ZERO);
         return ex_expr::EXPR_ERROR;
       }
 
       short ov;
-      *(Int64 *)op_data[0] = EXP_FIXED_OV_DIV(*(Int64 *)op_data[1], *(Int64 *)op_data[2], &ov);
+      *(long *)op_data[0] = EXP_FIXED_OV_DIV(*(long *)op_data[1], *(long *)op_data[2], &ov);
       if (ov) {
         ExRaiseSqlError(heap, diagsArea, EXE_NUMERIC_OVERFLOW);
         return ex_expr::EXPR_ERROR;
       }
 
-      //	*(Int64 *)op_data[0] = *(Int64 *)op_data[1] / *(Int64 *)op_data[2];
+      //	*(long *)op_data[0] = *(long *)op_data[1] / *(long *)op_data[2];
     } break;
 
     case DIV_BIN64S_BIN64S_BIN64S_ROUND: {
-      if (*(Int64 *)op_data[2] == 0) {
+      if (*(long *)op_data[2] == 0) {
         ExRaiseSqlError(heap, diagsArea, EXE_DIVISION_BY_ZERO);
         return ex_expr::EXPR_ERROR;
       }
@@ -695,23 +695,23 @@ ex_expr::exp_return_type ex_arith_clause::eval(char *op_data[], CollHeap *heap, 
 
       // upscale numerator by 1
       NABoolean upscaled;
-      Int64 temp;
+      long temp;
       if (getDivToDownscale()) {
-        temp = *(Int64 *)op_data[2] / 10;
-        temp = *(Int64 *)op_data[1] / temp;
+        temp = *(long *)op_data[2] / 10;
+        temp = *(long *)op_data[1] / temp;
         upscaled = TRUE;
       } else {
-        temp = EXP_FIXED_OV_MUL(*(Int64 *)op_data[1], 10, &ov);
+        temp = EXP_FIXED_OV_MUL(*(long *)op_data[1], 10, &ov);
         if (ov) {
           // couldn't upscale. Use the original value and don't do
           // any rounding.
           upscaled = FALSE;
-          temp = *(Int64 *)op_data[1];
+          temp = *(long *)op_data[1];
         } else {
           upscaled = TRUE;
         }
 
-        temp = EXP_FIXED_OV_DIV(temp, *(Int64 *)op_data[2], &ov);
+        temp = EXP_FIXED_OV_DIV(temp, *(long *)op_data[2], &ov);
         if (ov) {
           ExRaiseSqlError(heap, diagsArea, EXE_NUMERIC_OVERFLOW);
           return ex_expr::EXPR_ERROR;
@@ -722,13 +722,13 @@ ex_expr::exp_return_type ex_arith_clause::eval(char *op_data[], CollHeap *heap, 
         short nsign = 0;  // indicates negative sign when set to 1.
 
         // get the last digit
-        Lng32 v = (Lng32)(temp % (Int64)10);
+        int v = (int)(temp % (long)10);
 
         if (v < 0) v = -v;
         if (temp < 0) nsign = 1;
 
         // downscale the result
-        temp = temp / (Int64)10;
+        temp = temp / (long)10;
 
         if (arithRoundingMode_ == 1) {
           // ROUND HALF UP MODE
@@ -746,7 +746,7 @@ ex_expr::exp_return_type ex_arith_clause::eval(char *op_data[], CollHeap *heap, 
             // 'v' is zero and 'w' is even. If 'w' is odd, irrespective
             // of trailing digits following 'v', 'w' is rounded up.
             // w is second last digit.
-            Lng32 w = (Lng32)(temp % (Int64)10);
+            int w = (int)(temp % (long)10);
             if ((w & 0x1) != 0) {
               // odd number, round up.
               temp = nsign ? temp - 1 : temp + 1;
@@ -758,26 +758,26 @@ ex_expr::exp_return_type ex_arith_clause::eval(char *op_data[], CollHeap *heap, 
               NABoolean vGT5 = FALSE;
               if (!getDivToDownscale()) {
                 // Figure out if digits following 'v' is non zero.
-                Int64 multiplier = 100;  // For digit following 'v'.
-                Int64 temp1;
+                long multiplier = 100;  // For digit following 'v'.
+                long temp1;
                 NABoolean biggerPrecision = FALSE;
                 while (!vGT5) {
-                  temp1 = EXP_FIXED_OV_MUL(*(Int64 *)op_data[1], multiplier, &ov);
+                  temp1 = EXP_FIXED_OV_MUL(*(long *)op_data[1], multiplier, &ov);
                   if (ov) {
                     // end of digits.
-                    // When we reach here, temp1 is overflowed over Int64.
+                    // When we reach here, temp1 is overflowed over long.
                     // In this rear but possible situation, we should try checking
                     // for additional digits using BigNum datatype.
                     biggerPrecision = TRUE;
                     break;
                   }
-                  temp1 = EXP_FIXED_OV_DIV(temp1, *(Int64 *)op_data[2], &ov);
+                  temp1 = EXP_FIXED_OV_DIV(temp1, *(long *)op_data[2], &ov);
                   if (ov) {
                     // Something went wrong, lets consider
                     // it as end of digits.
                     break;
                   }
-                  if (temp1 % (Int64)10) {
+                  if (temp1 % (long)10) {
                     vGT5 = TRUE;
                     break;
                   }
@@ -789,14 +789,14 @@ ex_expr::exp_return_type ex_arith_clause::eval(char *op_data[], CollHeap *heap, 
                 }
                 if (biggerPrecision) {
                   short rc = 0;
-                  Int64 dividend = *(Int64 *)op_data[1];
-                  Int64 divisor = *(Int64 *)op_data[2];
+                  long dividend = *(long *)op_data[1];
+                  long divisor = *(long *)op_data[2];
                   char *op_data[3];
                   char result1[100];
                   char result2[100];
-                  Int64 result3 = 0;
-                  Int64 ten = 10;
-                  SimpleType opST(REC_BIN64_SIGNED, sizeof(Int64), 0, 0, ExpTupleDesc::SQLMX_FORMAT, 8, 0, 0, 0,
+                  long result3 = 0;
+                  long ten = 10;
+                  SimpleType opST(REC_BIN64_SIGNED, sizeof(long), 0, 0, ExpTupleDesc::SQLMX_FORMAT, 8, 0, 0, 0,
                                   Attributes::NO_DEFAULT, 0);
 
                   BigNum opBN(BigNum::BIGNUM_TEMP_LEN, BigNum::BIGNUM_TEMP_PRECISION, 0, 0);
@@ -842,18 +842,18 @@ ex_expr::exp_return_type ex_arith_clause::eval(char *op_data[], CollHeap *heap, 
                   }
                 }
               } else {
-                Int64 divisor = 100;  // devisor=10 corresponds to v digit.
-                Int64 temp1;
+                long divisor = 100;  // devisor=10 corresponds to v digit.
+                long temp1;
                 while (!vGT5) {
-                  temp1 = *(Int64 *)op_data[2] / divisor;
+                  temp1 = *(long *)op_data[2] / divisor;
 
                   if (!temp1)  // reached end of digits.
                   {
                     break;
                   }
 
-                  temp1 = *(Int64 *)op_data[1] / temp1;
-                  if (temp1 % (Int64)10) {
+                  temp1 = *(long *)op_data[1] / temp1;
+                  if (temp1 % (long)10) {
                     vGT5 = TRUE;
                     break;
                   }
@@ -878,7 +878,7 @@ ex_expr::exp_return_type ex_arith_clause::eval(char *op_data[], CollHeap *heap, 
         }
       }
 
-      *(Int64 *)op_data[0] = temp;
+      *(long *)op_data[0] = temp;
 
     } break;
 

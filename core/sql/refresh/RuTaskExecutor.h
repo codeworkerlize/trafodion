@@ -103,9 +103,9 @@ class REFRESH_LIB_CLASS CRUTaskExecutor {
  public:
   CRUTask *GetParentTask() const { return pParentTask_; }
 
-  Lng32 GetState() const { return state_; }
+  int GetState() const { return state_; }
   // Get the process ID that I associate with
-  Lng32 GetProcessId() const { return processId_; }
+  int GetProcessId() const { return processId_; }
   // Do I want to execute at all ? (Be determined in the Init() function)
   BOOL HasWork() const { return hasWork_; }
 
@@ -166,7 +166,7 @@ class REFRESH_LIB_CLASS CRUTaskExecutor {
   inline virtual void StoreReply(CUOFsIpcMessageTranslator &translator) = 0;
 
  public:
-  void SetState(Lng32 state) { state_ = state; }
+  void SetState(int state) { state_ = state; }
 
   // If we want to skip execution this function is called
   void ResetHasWork() {
@@ -174,7 +174,7 @@ class REFRESH_LIB_CLASS CRUTaskExecutor {
     SetState(EX_COMPLETE);
   }
 
-  void SetProcessId(Lng32 pid) { processId_ = pid; }
+  void SetProcessId(int pid) { processId_ = pid; }
 
   void StartTimer() { startTimer_ = CRUGlobals::GetCurrentTimestamp(); }
   void EndTimer() { endTimer_ = CRUGlobals::GetCurrentTimestamp(); }
@@ -186,7 +186,7 @@ class REFRESH_LIB_CLASS CRUTaskExecutor {
   // Resize the IPC buffer by the constant factor (if it's not big enough)
   void ReAllocateBuffer(Int32 factor);
 
-  void ExecuteStatement(CDMPreparedStatement &stmt, Lng32 errorCode, const char *errorArgument = NULL,
+  void ExecuteStatement(CDMPreparedStatement &stmt, int errorCode, const char *errorArgument = NULL,
                         BOOL needRowCount = FALSE, BOOL isQuery = FALSE);
 
  public:
@@ -216,7 +216,7 @@ class REFRESH_LIB_CLASS CRUTaskExecutor {
 
   // Get the transaction Id
   // associated with the next step of the execution
-  Lng32 GetTransIdx() const { return transIdx_; }
+  int GetTransIdx() const { return transIdx_; }
 
  protected:
   // A pure virtual.
@@ -224,17 +224,17 @@ class REFRESH_LIB_CLASS CRUTaskExecutor {
   // Each executor will define its own value.
   // If overflow happens, the buffer can be resized (up to the
   // maximum message size).
-  virtual Lng32 GetIpcBufferSize() const = 0;
+  virtual int GetIpcBufferSize() const = 0;
 
   // ExecuteStatement() callee.
   // Default behavior for dealing with execution error
-  virtual void HandleSqlError(CDSException &ex, Lng32 errorCode, const char *errorArgument = NULL);
+  virtual void HandleSqlError(CDSException &ex, int errorCode, const char *errorArgument = NULL);
 
   void LoadData(CUOFsIpcMessageTranslator &translator);
   void StoreData(CUOFsIpcMessageTranslator &translator);
 
  private:
-  void SetTransIdx(Lng32 transIdx) { transIdx_ = transIdx; }
+  void SetTransIdx(int transIdx) { transIdx_ = transIdx; }
 
   void CreateBufferAndTranslator(Int32 bufsize);
 
@@ -250,13 +250,13 @@ class REFRESH_LIB_CLASS CRUTaskExecutor {
   TInt64 endTimer_;
 
   // Transaction currently associated with the task
-  Lng32 transIdx_;
+  int transIdx_;
 
   // These are the only data members that travles between processes
   // The current execution state
-  Lng32 state_;
+  int state_;
   // The process associated with the task
-  Lng32 processId_;
+  int processId_;
 };
 
 void CRUTaskExecutor::StoreRequest(CUOFsIpcMessageTranslator &translator) { StoreData(translator); }

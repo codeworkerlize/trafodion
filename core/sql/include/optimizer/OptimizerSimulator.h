@@ -215,11 +215,11 @@ class OptimizerSimulator : public NABasicObject {
   NABoolean runningInCaptureMode();
   NABoolean runningInLoadMode();
 
-  NAHashDictionary<const QualifiedName, Int64> *getHashDictTables() { return hashDict_Tables_; }
+  NAHashDictionary<const QualifiedName, long> *getHashDictTables() { return hashDict_Tables_; }
 
-  NAHashDictionary<const QualifiedName, Int64> *getHashDictViews() { return hashDict_Views_; }
+  NAHashDictionary<const QualifiedName, long> *getHashDictViews() { return hashDict_Views_; }
 
-  NAHashDictionary<const QualifiedName, Int64> *getHashDictHiveTables() { return hashDict_HiveTables_; }
+  NAHashDictionary<const QualifiedName, long> *getHashDictHiveTables() { return hashDict_HiveTables_; }
 
   void readSysCallLogfiles();
 
@@ -255,8 +255,8 @@ class OptimizerSimulator : public NABasicObject {
  private:
   void readAndSetCQDs();
   void enterSimulationMode();
-  void buildHistogramUnload(NAString &query, const QualifiedName *name, Int64 tableUID);
-  void buildHistogramIntervalUnload(NAString &query, const QualifiedName *name, Int64 tableUID);
+  void buildHistogramUnload(NAString &query, const QualifiedName *name, long tableUID);
+  void buildHistogramIntervalUnload(NAString &query, const QualifiedName *name, long tableUID);
   void buildHistogramCreate(NAString &query, const QualifiedName *name, NABoolean isHive);
   void buildHistogramUpsert(NAString &query, const QualifiedName *name, NABoolean isHive);
   void buildHiveHistogramIntervalCreate(NAString &query, const QualifiedName *name);
@@ -266,7 +266,7 @@ class OptimizerSimulator : public NABasicObject {
   void dumpDDLs(const QualifiedName &qualifiedName);
   void initializeCLI();
   void loadHistograms(const char *histogramPath, NABoolean isHive);
-  Int64 getTableUID(const char *catName, const char *schName, const char *objName);
+  long getTableUID(const char *catName, const char *schName, const char *objName);
   short fetchAllRowsFromMetaContext(Queue *&q, const char *query);
   short executeFromMetaContext(const char *query);
   void loadDDLs();
@@ -291,10 +291,10 @@ class OptimizerSimulator : public NABasicObject {
   ofstream *writeLogStreams_[NUM_OF_LOGS];
 
   NAHashDictionary<NAString, double> *hashDict_getEstimatedRows_;
-  NAHashDictionary<const QualifiedName, Int64> *hashDict_Views_;
-  NAHashDictionary<const QualifiedName, Int64> *hashDict_Tables_;
+  NAHashDictionary<const QualifiedName, long> *hashDict_Views_;
+  NAHashDictionary<const QualifiedName, long> *hashDict_Tables_;
   NAHashDictionary<const QualifiedName, Int32> *hashDict_Synonyms_;
-  NAHashDictionary<const QualifiedName, Int64> *hashDict_HiveTables_;
+  NAHashDictionary<const QualifiedName, long> *hashDict_HiveTables_;
 
   short nodeNum_;
   Int32 clusterNum_;

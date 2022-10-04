@@ -554,7 +554,7 @@ char *Generator::getFinalObj(char *out_buf, ULng32 out_buflen) {
   if (out_buflen < (ULng32)getFinalObjLength()) return NULL;
 
   // copy the objects of all spaces into one big buffer
-  Lng32 outputLengthSoFar = 0;
+  int outputLengthSoFar = 0;
   for (CollIndex i = 0; i < fragmentDir_->entries(); i++) {
     // copy the next space into the buffer
     if (fragmentDir_->getSpace(i)->makeContiguous(&out_buf[outputLengthSoFar], out_buflen - outputLengthSoFar) == 0)
@@ -564,7 +564,7 @@ char *Generator::getFinalObj(char *out_buf, ULng32 out_buflen) {
   return out_buf;
 }
 
-void Generator::doRuntimeSpaceComputation(char *root_tdb, char *fragTopNode, Lng32 &tcbSize) {
+void Generator::doRuntimeSpaceComputation(char *root_tdb, char *fragTopNode, int &tcbSize) {
   tcbSize = 0;
   // compute space.
   tcbSize = SQL_EXEC_GetTotalTcbSpace(root_tdb, fragTopNode);
@@ -598,7 +598,7 @@ TransMode *Generator::getTransMode() { return CmpCommon::transMode(); }
 //
 void Generator::verifyUpdatableTransMode(StmtLevelAccessOptions *sAxOpt, TransMode *tm,
                                          TransMode::IsolationLevel *ilForUpd) {
-  Lng32 sqlcodeA = 0, sqlcodeB = 0;
+  int sqlcodeA = 0, sqlcodeB = 0;
 
   //  if (getTransMode()->isolationLevel() == TransMode::READ_UNCOMMITTED_)
   //    sqlcodeA = -3140;
@@ -709,9 +709,9 @@ static NABoolean remapESPAllocationViaUserInputs(FragmentDir *fragDir, const cha
     const char *espOrderp = espOrder;
 
     for (i = 0; i < (CollIndex)numCPUs && espOrderOK && *espOrderp; i++) {
-      Lng32 seg = 0;
-      Lng32 cpu = 0;
-      Lng32 state = 0;
+      int seg = 0;
+      int cpu = 0;
+      int state = 0;
 
       if (*espOrderp >= '0' && *espOrderp <= '9') {
         state++;
@@ -789,8 +789,8 @@ static NABoolean remapESPAllocationViaUserInputs(FragmentDir *fragDir, const cha
           // Get the cpu based on the CPU map.
           // This cpu is the cpu number for a specific segment.
           //
-          Lng32 cpu = (Lng32)utilcpus[cpuNumber];
-          Lng32 seg = (Lng32)utilsegs[cpuNumber];
+          int cpu = (int)utilcpus[cpuNumber];
+          int seg = (int)utilsegs[cpuNumber];
 
           // Set the cpu and segment for this node map entry.
           //
@@ -896,7 +896,7 @@ void Generator::computeAvailableNodes(NAWNodeSet *&availableNodes, const NAWNode
       // default affinity -3: A random value based on the session id
       const char *sessionId = ActiveSchemaDB()->getDefaults().getValue(SESSION_ID);
 
-      Lng32 length = strlen(sessionId);
+      int length = strlen(sessionId);
 
       length = (length > 43 ? 43 : length);
 
@@ -911,8 +911,8 @@ void Generator::computeAvailableNodes(NAWNodeSet *&availableNodes, const NAWNode
       // affinity -4: choose affinity such that node of master
       //              executor is a part of the segment
       const char *sessionId = ActiveSchemaDB()->getDefaults().getValue(SESSION_ID);
-      Lng32 length = strlen(sessionId);
-      Int64 cpu_l = -99;
+      int length = strlen(sessionId);
+      long cpu_l = -99;
 
       ComSqlId::getSqlSessionIdAttr(ComSqlId::SQLQUERYID_CPUNUM, sessionId, length, cpu_l, NULL);
 
@@ -1170,7 +1170,7 @@ void Generator::remapESPAllocationAS(const NAASNodes *asNodes) {
 // map ESPs randomly
 void Generator::remapESPAllocationRandomly() {
   NAClusterInfo *nac = CmpCommon::context()->getClusterInfo();
-  Lng32 numCPUs = nac->getTotalNumberOfCPUs();
+  int numCPUs = nac->getTotalNumberOfCPUs();
   for (Int32 i = 0; i < fragmentDir_->entries(); i++) {
     if (fragmentDir_->getPartitioningFunction(i) != NULL && fragmentDir_->getType(i) == FragmentDir::ESP) {
       // Get the node map for this ESP fragment.
@@ -1202,12 +1202,12 @@ void Generator::remapESPAllocationRandomly() {
   }
 }
 
-Lng32 Generator::getRecordLength(ComTdbVirtTableIndexInfo *indexInfo, ComTdbVirtTableColumnInfo *columnInfoArray) {
-  Lng32 recLen = 0;
+int Generator::getRecordLength(ComTdbVirtTableIndexInfo *indexInfo, ComTdbVirtTableColumnInfo *columnInfoArray) {
+  int recLen = 0;
 
   if ((!indexInfo) && (!columnInfoArray)) return recLen;
 
-  Lng32 keyCount = indexInfo->keyColCount;
+  int keyCount = indexInfo->keyColCount;
   const ComTdbVirtTableKeyInfo *keyInfoArray = indexInfo->keyInfoArray;
 
   if (!keyInfoArray) return recLen;
@@ -1246,7 +1246,7 @@ TrafDesc *Generator::createColDescs(const char *tableName, ComTdbVirtTableColumn
     UInt32 colOffset = ExpTupleDesc::sqlarkExplodedOffsets(offset, info->length, (Int16)info->datatype, info->nullable);
 
     Int32 i = colNum;                 // Don't want colNum altered by the call
-    Lng32 tmpOffset = (Lng32)offset;  // Ignore returned offset
+    int tmpOffset = (int)offset;  // Ignore returned offset
     SQLCHARSET_CODE info_charset = info->charset;
     if (info_charset == SQLCHARSETCODE_UNKNOWN &&
         (info->datatype == REC_NCHAR_V_UNICODE || info->datatype == REC_NCHAR_F_UNICODE ||
@@ -1560,7 +1560,7 @@ TrafDesc *Generator::createRefConstrDescStructs(Int32 numConstrs, ComTdbVirtTabl
   return first_constr_desc;
 }
 
-static Lng32 createDescStructs(char *tableName, Int32 numCols, ComTdbVirtTableColumnInfo *columnInfo, Int32 numKeys,
+static int createDescStructs(char *tableName, Int32 numCols, ComTdbVirtTableColumnInfo *columnInfo, Int32 numKeys,
                                ComTdbVirtTableKeyInfo *keyInfo, TrafDesc *&colDescs, TrafDesc *&keyDescs,
                                NAMemory *space) {
   colDescs = NULL;
@@ -1572,7 +1572,7 @@ static Lng32 createDescStructs(char *tableName, Int32 numCols, ComTdbVirtTableCo
 
   keyDescs = Generator::createKeyDescs(numKeys, keyInfo, space);
 
-  return (Lng32)reclen;
+  return (int)reclen;
 }
 
 static void populateRegionDescForEndKey(char *buf, Int32 len, struct TrafDesc *target) {
@@ -1677,7 +1677,7 @@ TrafDesc *Generator::createVirtualTableDesc(
 
     ComUID comUID;
     comUID.make_UID();
-    Int64 objUID = comUID.get_value();
+    long objUID = comUID.get_value();
 
     table_desc->tableDesc()->objectUID = objUID;
     table_desc->tableDesc()->objDataUID = objUID;
@@ -2190,7 +2190,7 @@ TrafDesc *Generator::createVirtualTableDesc(
 
     // pack generated desc and move it to a contiguous buffer before return.
     DescStructPtr((TrafDesc *)table_desc).pack(trueSpace);
-    Lng32 allocSize = trueSpace->getAllocatedSpaceSize();
+    int allocSize = trueSpace->getAllocatedSpaceSize();
     char *contigTableDesc = new HEAP char[allocSize];
 
     if (!trueSpace->makeContiguous(contigTableDesc, allocSize)) {
@@ -2276,7 +2276,7 @@ TrafDesc *Generator::createVirtualRoutineDesc(const char *routineName, ComTdbVir
   return routine_desc;
 }
 
-short Generator::genAndEvalExpr(CmpContext *cmpContext, char *exprStr, Lng32 numChildren, ItemExpr *childNode0,
+short Generator::genAndEvalExpr(CmpContext *cmpContext, char *exprStr, int numChildren, ItemExpr *childNode0,
                                 ItemExpr *childNode1, ComDiagsArea *diagsArea) {
   short rc = 0;
 
@@ -2294,10 +2294,10 @@ short Generator::genAndEvalExpr(CmpContext *cmpContext, char *exprStr, Lng32 num
   const NAType &resultType = parseTree->getValueId().getType();
 
   // result may contain ExpTupleDesc::LONG_FORMAT info
-  Lng32 castValBufLen = resultType.getNominalSize() + 8;
+  int castValBufLen = resultType.getNominalSize() + 8;
   char *castValBuf = new (CmpCommon::statementHeap()) char[castValBufLen];
-  Lng32 outValLen = 0;
-  Lng32 outValOffset = 0;
+  int outValLen = 0;
+  int outValOffset = 0;
   rc = ValueIdList::evaluateTree(parseTree, castValBuf, castValBufLen, &outValLen, &outValOffset, diagsArea);
 
   if (rc) return -1;
@@ -2311,7 +2311,7 @@ PhysicalProperty *Generator::genPartitionedPhysProperty(const IndexDesc *clusInd
   PartitioningFunction *myPartFunc = NULL;
   if ((clusIndex->getPartitioningFunction()) &&
       (clusIndex->getPartitioningFunction()->isAHash2PartitioningFunction())) {
-    Lng32 forcedEsps = 0;
+    int forcedEsps = 0;
     if (CmpCommon::getDefault(PARALLEL_NUM_ESPS, 0) != DF_SYSTEM)
       forcedEsps = ActiveSchemaDB()->getDefaults().getAsLong(PARALLEL_NUM_ESPS);
     else
@@ -2319,7 +2319,7 @@ PhysicalProperty *Generator::genPartitionedPhysProperty(const IndexDesc *clusInd
     // forcedEsps = rpp->getCountOfAvailableCPUs();
 
     const Hash2PartitioningFunction *h2pf = clusIndex->getPartitioningFunction()->castToHash2PartitioningFunction();
-    Lng32 numPartns = h2pf->getCountOfPartitions();
+    int numPartns = h2pf->getCountOfPartitions();
     forcedEsps = numPartns;
     if ((forcedEsps <= numPartns) && ((numPartns % forcedEsps) == 0)) {
       NodeMap *myNodeMap =
@@ -2841,7 +2841,7 @@ void Generator::restoreMinMaxKeys(const ValueIdList &savedValues /*IN*/) {
   DCMPASSERT(outerMinMaxKeys_.entries() == innerMinMaxKeys_.entries());
 }
 
-void Generator::setPlanExpirationTimestamp(Int64 t) {
+void Generator::setPlanExpirationTimestamp(long t) {
   // if t == -1 that has no effect (initial default is -1)
   // Otherwise, use the smaller of planExpirationTimestamp_ and t
   if (t >= 0 && planExpirationTimestamp_ > t) planExpirationTimestamp_ = t;
@@ -3132,13 +3132,13 @@ void Generator::setHBaseNumCacheRows(double estRowsAccessed, ComTdbHbaseAccess::
   // memory and can lead to timeout errors as the RPC call that gets a
   // big chunk of rows can take longer to complete.
   CollIndex myId = getFragmentDir()->getCurrentId();
-  Lng32 numProcesses = getFragmentDir()->getNumESPs(myId);
+  int numProcesses = getFragmentDir()->getNumESPs(myId);
   NABoolean bParallel = (numProcesses > 0);
-  Lng32 cacheMin = CmpCommon::getDefaultNumeric(HBASE_NUM_CACHE_ROWS_MIN);
-  Lng32 cacheMax = CmpCommon::getDefaultNumeric(HBASE_NUM_CACHE_ROWS_MAX);
+  int cacheMin = CmpCommon::getDefaultNumeric(HBASE_NUM_CACHE_ROWS_MIN);
+  int cacheMax = CmpCommon::getDefaultNumeric(HBASE_NUM_CACHE_ROWS_MAX);
   if (numProcesses == 0) numProcesses++;
   UInt32 rowsAccessedPerProcess = ceil(estRowsAccessed / numProcesses);
-  Lng32 cacheRows;
+  int cacheRows;
   if (rowsAccessedPerProcess < cacheMin)
     cacheRows = cacheMin;
   else if (rowsAccessedPerProcess < cacheMax)
@@ -3153,7 +3153,7 @@ void Generator::setHBaseNumCacheRows(double estRowsAccessed, ComTdbHbaseAccess::
   // a random row filter is used for sampling.
   if (cacheRows > cacheMin && samplePercent > 0.0) {
     ULng32 sampleReturnInterval = ActiveSchemaDB()->getDefaults().getAsULong(USTAT_HBASE_SAMPLE_RETURN_INTERVAL);
-    Lng32 newScanCacheSize = (Lng32)(sampleReturnInterval * samplePercent);
+    int newScanCacheSize = (int)(sampleReturnInterval * samplePercent);
     if (newScanCacheSize < cacheRows) {
       if (newScanCacheSize >= cacheMin)
         cacheRows = newScanCacheSize;
@@ -3169,7 +3169,7 @@ void Generator::setHBaseNumCacheRows(double estRowsAccessed, ComTdbHbaseAccess::
   if (CmpCommon::getDefault(AUTO_ADJUST_CACHEROWS) == DF_ON) {
     // check whether total size > JVM_MAX_HEAP_SIZE_MB or ESP_JVM_MAX_HEAP_SIZE_MB,
     // and limit the scanner cache size to a fixed number.
-    Int64 nTotalSize = cacheRows * hbaseRowSize;
+    long nTotalSize = cacheRows * hbaseRowSize;
     char *jvm_env = getenv("JVM_MAX_HEAP_SIZE_MB");
     Int32 nJvmHeapSize = 0;
     Int32 nEspJvmHeapSize = 0;
@@ -3178,7 +3178,7 @@ void Generator::setHBaseNumCacheRows(double estRowsAccessed, ComTdbHbaseAccess::
       jvm_env = getenv("ESP_JVM_MAX_HEAP_SIZE_MB");
       if (jvm_env) nEspJvmHeapSize = atoi(jvm_env);
     }
-    Int64 nJVMHeapSize = nJvmHeapSize;
+    long nJVMHeapSize = nJvmHeapSize;
     if (nEspJvmHeapSize != 0) nJVMHeapSize = min(nJvmHeapSize, nEspJvmHeapSize);
     if (nJVMHeapSize > 0) {
       int percentCanBeUsed = (nJVMHeapSize <= 512) ? 80 : 90;
@@ -3210,7 +3210,7 @@ void Generator::setHBaseCacheBlocks(Int32 hbaseRowSize, double estRowsAccessed,
   }
 }
 
-void Generator::setHBaseSmallScanner(Int32 hbaseRowSize, double estRowsAccessed, Lng32 hbaseBlockSize,
+void Generator::setHBaseSmallScanner(Int32 hbaseRowSize, double estRowsAccessed, int hbaseBlockSize,
                                      ComTdbHbaseAccess::HbasePerfAttributes *hbpa) {
   if (CmpCommon::getDefault(HBASE_SMALL_SCANNER) == DF_SYSTEM) {
     if (((hbaseRowSize * estRowsAccessed) < hbaseBlockSize) &&
@@ -3228,7 +3228,7 @@ void Generator::setHBaseParallelScanner(ComTdbHbaseAccess::HbasePerfAttributes *
   hbpa->setDopParallelScanner(CmpCommon::getDefaultNumeric(HBASE_DOP_PARALLEL_SCANNER));
 }
 
-double Generator::getEstMemPerNode(NAString *key, Lng32 &numStreams) {
+double Generator::getEstMemPerNode(NAString *key, int &numStreams) {
   OperBMOQuota *operBMOQuota = bmoQuotaMap_.get(key);
   if (operBMOQuota != NULL) {
     numStreams = operBMOQuota->getNumStreams();

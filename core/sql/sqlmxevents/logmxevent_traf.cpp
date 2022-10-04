@@ -164,7 +164,7 @@ void SQLMXLoggingArea::logCompNQCretryEvent(const char *stmt) {
   unlockMutex();
 }
 
-void SQLMXLoggingArea::logExecRtInfo(const char *fileName, ULng32 lineNo, const char *msgTxt, Lng32 explainSeqNum) {
+void SQLMXLoggingArea::logExecRtInfo(const char *fileName, ULng32 lineNo, const char *msgTxt, int explainSeqNum) {
   if (!lockMutex()) {
     printf("%s  Explain Sequence Number: %d FILE: %s LINE: %d\n", msgTxt, explainSeqNum, fileName, lineNo);
     return;
@@ -181,7 +181,7 @@ void SQLMXLoggingArea::logExecRtInfo(const char *fileName, ULng32 lineNo, const 
   unlockMutex();
 }
 
-void SQLMXLoggingArea::logExecRtDebug(const char *fileName, ULng32 lineNo, const char *msgTxt, Lng32 explainSeqNum) {
+void SQLMXLoggingArea::logExecRtDebug(const char *fileName, ULng32 lineNo, const char *msgTxt, int explainSeqNum) {
   if (!lockMutex()) {
     printf("%s  Explain Sequence Number: %d FILE: %s LINE: %d\n", msgTxt, explainSeqNum, fileName, lineNo);
     return;
@@ -364,7 +364,7 @@ void SQLMXLoggingArea::logSQLMXAbortEvent(const char *file, Int32 line, const ch
 
 // log an ASSERTION FAILURE event
 void SQLMXLoggingArea::logSQLMXAssertionFailureEvent(const char *file, Int32 line, const char *msgTxt,
-                                                     const char *condition, const Lng32 *tid, const char *stackTrace) {
+                                                     const char *condition, const int *tid, const char *stackTrace) {
   Int32 LEN = SQLEVENT_BUF_SIZE + STACK_TRACE_SIZE;
   char msg[LEN];
   memset(msg, 0, LEN);
@@ -450,8 +450,8 @@ void SQLMXLoggingArea::logMVRefreshErrorEvent(const char *msg) {
   unlockMutex();
 }
 
-void SQLMXLoggingArea::logCliReclaimSpaceEvent(Lng32 freeSize, Lng32 totalSize, Lng32 totalContexts,
-                                               Lng32 totalStatements) {
+void SQLMXLoggingArea::logCliReclaimSpaceEvent(int freeSize, int totalSize, int totalContexts,
+                                               int totalStatements) {
   Int32 LEN = 8192;
   char msg[8192];
   memset(msg, 0, LEN);

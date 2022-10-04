@@ -55,12 +55,12 @@ ex_expr::exp_return_type ex_unlogic_clause::eval(char *op_data[], CollHeap *heap
         if (tgtAttr->isSQLMXAlignedFormat())
           ExpAlignedFormat::setNullBit(op_data[0], tgtAttr->getNullBitIndex());
         else
-          *(Lng32 *)op_data[0] = 1;  // value is null
+          *(int *)op_data[0] = 1;  // value is null
       } else {
         if (tgtAttr->isSQLMXAlignedFormat())
           ExpAlignedFormat::clearNullBit(op_data[0], tgtAttr->getNullBitIndex());
         else
-          *(Lng32 *)op_data[0] = 0;
+          *(int *)op_data[0] = 0;
       }
     } break;
 
@@ -69,50 +69,50 @@ ex_expr::exp_return_type ex_unlogic_clause::eval(char *op_data[], CollHeap *heap
         if (tgtAttr->isSQLMXAlignedFormat())
           ExpAlignedFormat::clearNullBit(op_data[0], tgtAttr->getNullBitIndex());
         else
-          *(Lng32 *)op_data[0] = 0;
+          *(int *)op_data[0] = 0;
       } else {
         if (tgtAttr->isSQLMXAlignedFormat())
           ExpAlignedFormat::setNullBit(op_data[0], tgtAttr->getNullBitIndex());
         else
-          *(Lng32 *)op_data[0] = 1;  // value is not null
+          *(int *)op_data[0] = 1;  // value is not null
       }
     } break;
 
     case ITM_IS_UNKNOWN: {
-      if (*(Lng32 *)op_data[1] == -1)  // null
-        *(Lng32 *)op_data[0] = 1;      // result is true
+      if (*(int *)op_data[1] == -1)  // null
+        *(int *)op_data[0] = 1;      // result is true
       else
-        *(Lng32 *)op_data[0] = 0;  // result is false
+        *(int *)op_data[0] = 0;  // result is false
     } break;
 
     case ITM_IS_NOT_UNKNOWN: {
-      if (*(Lng32 *)op_data[1] != -1)  // not null
-        *(Lng32 *)op_data[0] = 1;      // result is true
+      if (*(int *)op_data[1] != -1)  // not null
+        *(int *)op_data[0] = 1;      // result is true
       else
-        *(Lng32 *)op_data[0] = 0;  // result is false
+        *(int *)op_data[0] = 0;  // result is false
     } break;
 
     case ITM_IS_TRUE: {
-      if (*(Lng32 *)op_data[1] == 1)  // true
-        *(Lng32 *)op_data[0] = 1;     // result is true
+      if (*(int *)op_data[1] == 1)  // true
+        *(int *)op_data[0] = 1;     // result is true
       else
-        *(Lng32 *)op_data[0] = 0;  // result is false
+        *(int *)op_data[0] = 0;  // result is false
     } break;
 
     case ITM_IS_FALSE: {
-      if (*(Lng32 *)op_data[1] == 0)  // false
-        *(Lng32 *)op_data[0] = 1;     // result is true
+      if (*(int *)op_data[1] == 0)  // false
+        *(int *)op_data[0] = 1;     // result is true
       else
-        *(Lng32 *)op_data[0] = 0;  // result is false
+        *(int *)op_data[0] = 0;  // result is false
     } break;
 
     case ITM_NOT: {
-      if (*(Lng32 *)op_data[1] == 1)       // TRUE
-        *(Lng32 *)op_data[0] = 0;          // make it FALSE
-      else if (*(Lng32 *)op_data[1] == 0)  // FALSE
-        *(Lng32 *)op_data[0] = 1;          // make it TRUE
+      if (*(int *)op_data[1] == 1)       // TRUE
+        *(int *)op_data[0] = 0;          // make it FALSE
+      else if (*(int *)op_data[1] == 0)  // FALSE
+        *(int *)op_data[0] = 1;          // make it TRUE
       else
-        *(Lng32 *)op_data[0] = -1;  // NULL
+        *(int *)op_data[0] = -1;  // NULL
     } break;
 
     default:

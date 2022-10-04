@@ -537,7 +537,7 @@ void RelExpr::synthLogProp(NormWA *normWAPtr) {
   Int32 numBaseTables = 0;  // add up all base tables from children
   Int32 numTMUDFs = 0;      // ditto for TMUDFs
   // synthesize the log props for all children
-  for (Lng32 i = 0; i < numChildren; i++) {
+  for (int i = 0; i < numChildren; i++) {
     // only if the child is not a Cascadesgroup or NULL
     if (child(i).getPtr() != NULL) {
       child(i)->synthLogProp(normWAPtr);
@@ -594,7 +594,7 @@ void RelExpr::finishSynthEstLogProp() {
   CostScalar minRowCount = COSTSCALAR_MAX;
 
   // finish synthesis of log props for all children
-  for (Lng32 i = 0; i < numChildren; i++) {
+  for (int i = 0; i < numChildren; i++) {
     // only if the child is not a CascadesGroup or NULL
     if (child(i).getPtr() != NULL) {
       child(i)->finishSynthEstLogProp();
@@ -615,7 +615,7 @@ void RelExpr::clearAllEstLogProp() {
   Int32 numChildren = getArity();
 
   // clear the log props for all children
-  for (Lng32 i = 0; i < numChildren; i++) {
+  for (int i = 0; i < numChildren; i++) {
     // only if the child is not a CascadesGroup or NULL
     if (child(i).getPtr() != NULL) {
       child(i)->clearAllEstLogProp();
@@ -717,7 +717,7 @@ RelExpr *RelExpr::reorderTree(NABoolean &treeModified, NABoolean doReorderJoin) 
   treeModified = FALSE;
 
   // reorder any join backbones in the children
-  for (Lng32 i = 0; i < nc; i++) {
+  for (int i = 0; i < nc; i++) {
     child(i) = child(i)->reorderTree(childModified, doReorderJoin);
     if (childModified) treeModified = TRUE;
   }
@@ -735,7 +735,7 @@ RelExpr *RelExpr::fixupTriggers(NABoolean &treeModified) {
   NABoolean myTreeModified = FALSE;
 
   // reorder any join backbones in the children
-  for (Lng32 i = 0; i < nc; i++) {
+  for (int i = 0; i < nc; i++) {
     child(i) = child(i)->fixupTriggers(childModified);
     if (childModified) myTreeModified = TRUE;
   }
@@ -2378,7 +2378,7 @@ RelExpr *Join::reorderTree(NABoolean &treeModified, NABoolean doReorderJoin) {
   // then we can't reorder this join node.  Just reorder the children
   // of this join node.
   if (getOperatorType() != REL_JOIN) {
-    for (Lng32 i = 0; i < getArity(); i++) {
+    for (int i = 0; i < getArity(); i++) {
       child(i) = child(i)->reorderTree(childModified, doReorderJoin);
       if (childModified) treeModified = TRUE;
     }
@@ -2440,7 +2440,7 @@ RelExpr *Join::reorderTree(NABoolean &treeModified, NABoolean doReorderJoin) {
     if (childModified) treeModified = TRUE;
 
     // Second, reorder all the right children.
-    for (Lng32 i = 0; i < (Lng32)joinBackBoneList->entries(); i++) {
+    for (int i = 0; i < (int)joinBackBoneList->entries(); i++) {
       // set up the right child of the current join node.
       (*joinBackBoneList)[i]->child(1) = (*OBRowcountList)[i + 1]->reorderTree(childModified, doReorderJoin);
       if (childModified) treeModified = TRUE;
@@ -2469,7 +2469,7 @@ RelExpr *Join::reorderTree(NABoolean &treeModified, NABoolean doReorderJoin) {
   (*joinBackBoneList)[0]->child(0) = (*OBRowcountList)[0]->reorderTree(childModified, doReorderJoin);
   if (childModified) treeModified = TRUE;
 
-  for (Lng32 i = 0; i < (Lng32)joinBackBoneList->entries(); i++) {
+  for (int i = 0; i < (int)joinBackBoneList->entries(); i++) {
     // set up the right child of the current join node.
     (*joinBackBoneList)[i]->child(1) = (*OBRowcountList)[i + 1]->reorderTree(childModified, doReorderJoin);
     if (childModified) treeModified = TRUE;
@@ -2484,7 +2484,7 @@ RelExpr *Join::reorderTree(NABoolean &treeModified, NABoolean doReorderJoin) {
 
     // Make the inputs minimal and the outputs maximal before calling
     // pushdownCoveredExpressions
-    if (i < (Lng32)joinBackBoneList->entries() - 1) {
+    if (i < (int)joinBackBoneList->entries() - 1) {
       ValueIdSet inputValues;
       inputValues = joinExpr->child(0).getGroupAttr()->getCharacteristicInputs();
       inputValues += joinExpr->child(1).getGroupAttr()->getCharacteristicInputs();
@@ -4245,7 +4245,7 @@ void MapValueIds::synthLogProp(NormWA *normWAPtr) {
 // and eliminate 3 way join by setting MAX_NUM_INDEX_JOIN = 1 instead of
 // 2. So, a logical scan node will have no more than 1 index join.
 // -----------------------------------------------------------------------
-const Lng32 Scan::MAX_NUM_INDEX_JOINS = 1;
+const int Scan::MAX_NUM_INDEX_JOINS = 1;
 
 void Scan::synthEstLogProp(const EstLogPropSharedPtr &inputEstLogProp) {
   if (getGroupAttr()->isPropSynthesized(inputEstLogProp)) return;
@@ -5079,7 +5079,7 @@ void Transpose::synthEstLogProp(const EstLogPropSharedPtr &inputEstLogProp) {
       ValueIdUnion *valIdUnion = (ValueIdUnion *)valIdList[vidu].getValueDesc()->getItemExpr();
 
       for (CollIndex vid = 0; vid < valIdUnion->entries(); vid++) {
-        ValueId sourceValId = valIdUnion->getSource((Lng32)vid);
+        ValueId sourceValId = valIdUnion->getSource((int)vid);
 
         sourceValId = getSourceColFromExprForUec(sourceValId, childColStatsList);
 
@@ -5142,7 +5142,7 @@ void Transpose::synthEstLogProp(const EstLogPropSharedPtr &inputEstLogProp) {
           // hence first get all VEG expressions from the source, and then
           // use that VEG expression to look for the column
 
-          ValueId sourceColumn = valIdUnion->getSource((Lng32)vid);
+          ValueId sourceColumn = valIdUnion->getSource((int)vid);
 
           sourceColumn = getSourceColFromExprForUec(sourceColumn, childColStatsList);
 
@@ -5199,7 +5199,7 @@ void Transpose::synthEstLogProp(const EstLogPropSharedPtr &inputEstLogProp) {
 
           CollIndex index = NULL_COLL_INDEX;
 
-          ValueId sourceColumn = valIdUnion->getSource((Lng32)vid);
+          ValueId sourceColumn = valIdUnion->getSource((int)vid);
 
           sourceColumn = getSourceColFromExprForUec(sourceColumn, childColStatsList);
 

@@ -58,7 +58,7 @@ class SQLInterval;
 class IntervalQualifier;
 class IntervalValue;
 
-short getIntervalFields(Lng32 fsDatatype, rec_datetime_field &startField, rec_datetime_field &endField);
+short getIntervalFields(int fsDatatype, rec_datetime_field &startField, rec_datetime_field &endField);
 
 // ***********************************************************************
 //
@@ -76,7 +76,7 @@ class IntervalType : public DatetimeIntervalCommonType {
   static UInt32 computeLeadingPrecision(rec_datetime_field startField, UInt32 precision, rec_datetime_field endField,
                                         UInt32 fractionPrecision = 0);
 
-  static Lng32 getStorageSize(rec_datetime_field startField, UInt32 leadingPrecision, rec_datetime_field endField,
+  static int getStorageSize(rec_datetime_field startField, UInt32 leadingPrecision, rec_datetime_field endField,
                               UInt32 fractionPrecision = 0);
 
   static size_t getStringSize(rec_datetime_field startField, UInt32 leadingPrecision, rec_datetime_field endField,
@@ -149,7 +149,7 @@ class IntervalType : public DatetimeIntervalCommonType {
     return getStringSize(getStartField(), getLeadingPrecision(), getEndField(), getFractionPrecision());
   }
 
-  virtual Lng32 getDisplayLength() const;
+  virtual int getDisplayLength() const;
 
   UInt32 getTotalPrecision() const {
     return getPrecision(getStartField(), getLeadingPrecision(), getEndField(), getFractionPrecision());
@@ -162,7 +162,7 @@ class IntervalType : public DatetimeIntervalCommonType {
   // ---------------------------------------------------------------------
   virtual UInt32 getLeadingPrecision() const { return leadingPrecision_; }
 
-  virtual Lng32 getPrecision() const { return getLeadingPrecision(); }
+  virtual int getPrecision() const { return getLeadingPrecision(); }
 
   virtual void print(FILE *ofd = stdout, const char *indent = DEFAULT_INDENT) /*const*/;
 
@@ -210,10 +210,10 @@ class IntervalType : public DatetimeIntervalCommonType {
   // representable values.
   // And the zero value, properly formatted in string form, for column defaults.
   // ---------------------------------------------------------------------
-  virtual void minRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **stringLiteral = NULL,
+  virtual void minRepresentableValue(void *bufPtr, int *bufLen, NAString **stringLiteral = NULL,
                                      CollHeap *h = 0) const;
-  virtual void maxRepresentableValue(void *, Lng32 *, NAString **stringLiteral = NULL, CollHeap *h = 0) const;
-  virtual void getZeroValue(void *, Lng32 *, NAString **stringLiteral = NULL, CollHeap *h = 0) const;
+  virtual void maxRepresentableValue(void *, int *, NAString **stringLiteral = NULL, CollHeap *h = 0) const;
+  virtual void getZeroValue(void *, int *, NAString **stringLiteral = NULL, CollHeap *h = 0) const;
 
   virtual NABoolean createSQLLiteral(const char *buf,        // in
                                      NAString *&sqlLiteral,  // out
@@ -236,7 +236,7 @@ class IntervalType : public DatetimeIntervalCommonType {
 
  private:
   // Auxiliary methods
-  void getRepresentableValue(char sign, void *bufPtr, Lng32 *bufLen, NAString **stringLiteral, CollHeap *h = 0) const;
+  void getRepresentableValue(char sign, void *bufPtr, int *bufLen, NAString **stringLiteral, CollHeap *h = 0) const;
 
   // ---------------------------------------------------------------------
   // Leading precision (1..MAX_LEADING_PRECISION).
@@ -327,7 +327,7 @@ class IntervalValue : public NABasicObject {
   IntervalValue(const char *strValue, rec_datetime_field startField, UInt32 leadingPrecision,
                 rec_datetime_field endField, UInt32 fractionPrecision, char sign = '+');
 
-  IntervalValue(const char *value, Lng32 storageSize);
+  IntervalValue(const char *value, int storageSize);
 
   // ---------------------------------------------------------------------
   // Destructor functions
@@ -337,7 +337,7 @@ class IntervalValue : public NABasicObject {
   // ---------------------------------------------------------------------
   // Set the value.
   // ---------------------------------------------------------------------
-  void setValue(Int64 value, Lng32 valueLen);
+  void setValue(long value, int valueLen);
 
   // ---------------------------------------------------------------------
   // Accessor functions
@@ -367,9 +367,9 @@ class IntervalValue : public NABasicObject {
   // ---------------------------------------------------------------------
   // Scan the given field.
   // ---------------------------------------------------------------------
-  NABoolean scanField(const char *&strValue, UInt32 maxFieldLen, Lng32 &value) const;
+  NABoolean scanField(const char *&strValue, UInt32 maxFieldLen, int &value) const;
 
-  NABoolean scanField(const char *&strValue, UInt32 maxFieldLen, Int64 &value) const;
+  NABoolean scanField(const char *&strValue, UInt32 maxFieldLen, long &value) const;
 
   // ---------------------------------------------------------------------
   // Interval value.

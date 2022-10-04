@@ -75,8 +75,8 @@ class StmtDDLAlterTableAlterColumnSetSGOption : public StmtDDLAlterTable {
   inline void setSGOptions(ElemDDLSGOptions *pSGOptions);
 
   // mutators
-  void setIncrement(Int64 increment);
-  void setMaxValue(Int64 maxValue);
+  void setIncrement(long increment);
+  void setMaxValue(long maxValue);
 
   // method for tracing
   virtual const NAString getText() const;

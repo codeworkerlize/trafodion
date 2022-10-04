@@ -94,7 +94,7 @@ Int32 unpackSignature(const char *encodedSignature /*input*/, char *unpackedSign
           char *end = (char *)strchr(encodedSig, ';');
           if (end == NULL) return -1;
 
-          Lng32 typeLen = end - encodedSig + 1;
+          int typeLen = end - encodedSig + 1;
           if (typeLen > 31) return -1;
 
           str_cpy_all(typeName, encodedSig, typeLen);
@@ -178,7 +178,7 @@ Int32 getUnpackedSignatureSize(const char *encodedSignature, Int32 *paramsInSig)
           ComUInt32 typeLen = end - signature + 1;
           if (typeLen > 31) return -1;
 
-          str_cpy_all(typeName, signature, (Lng32)typeLen);
+          str_cpy_all(typeName, signature, (int)typeLen);
           typeName[typeLen] = '\0';
         } else {
           typeName[0] = *signature;

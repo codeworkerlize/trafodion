@@ -380,18 +380,18 @@ class ex_clause : public NAVersionedObject {
   //
   inline ex_clause *getNextClause();
   inline void setNextClause(ex_clause *clause_);
-  inline void setNextPackedClause(Int64 offset);
-  inline void setNext(Lng32 next_clause_offset);
+  inline void setNextPackedClause(long offset);
+  inline void setNext(int next_clause_offset);
   inline void setLastClause();
 
   // Packing, Unpacking, and Fixup
   //
   virtual Long pack(void *);
-  virtual Lng32 unpack(void *, void *reallocator);
-  Long packClause(void *, Lng32 size);
-  Lng32 unpackClause(void *base, void *reallocator);
+  virtual int unpack(void *, void *reallocator);
+  Long packClause(void *, int size);
+  int unpackClause(void *base, void *reallocator);
 
-  virtual Lng32 initClause() { return 0; };
+  virtual int initClause() { return 0; };
 
   // SpaceCompOnly: if TRUE, then compute space requirement only.
   //                Do not make any changes to the generated expressions,
@@ -573,7 +573,7 @@ inline void ex_clause::setNextClause(ex_clause *clause_) { nextClause_ = clause_
 
 inline ex_clause *ex_clause::getNextClause() { return nextClause_; };
 
-inline void ex_clause::setNextPackedClause(Int64 offset) { nextClause_ = offset; };
+inline void ex_clause::setNextPackedClause(long offset) { nextClause_ = offset; };
 
 // functions to compare two strings
 Int32 charStringCompareWithPad(char *in_s1, Int32 length1, char *in_s2, Int32 length2, char space,

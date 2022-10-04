@@ -103,7 +103,7 @@ void ProcessEnv::cleanup() {
 // which makes the ENVIRON different, this info was not from executor to begin
 // with and can't be removed if not found in newenvs.
 
-void ProcessEnv::setEnv(char **newenvs, Lng32 nEnvs) {
+void ProcessEnv::setEnv(char **newenvs, int nEnvs) {
   if (!newenvs) return;
 
   addOrChangeEnv(newenvs, nEnvs);
@@ -182,8 +182,8 @@ void ProcessEnv::dumpEnvs() {
 // . not found, add a entry in envs_, do PUTENV
 // . found but not the same, change the entry in envs_, do PUTENV
 
-void ProcessEnv::addOrChangeEnv(char **newenvs, Lng32 nEnvs) {
-  Lng32 i, j;
+void ProcessEnv::addOrChangeEnv(char **newenvs, int nEnvs) {
+  int i, j;
 
   for (i = 0; i < nEnvs; i++) {
     char *pTemp = strchr(newenvs[i], '=');
@@ -237,10 +237,10 @@ void ProcessEnv::addOrChangeEnv(char **newenvs, Lng32 nEnvs) {
 // do a PUTENV to remove this entry of environment variable.
 // and delete this entry from envs_ array.
 
-void ProcessEnv::removeEnv(char **newenvs, Lng32 nEnvs) {
-  Lng32 i, j;
+void ProcessEnv::removeEnv(char **newenvs, int nEnvs) {
+  int i, j;
   CollHeap *stmtHeap = CmpCommon::statementHeap();
-  NAList<Lng32> deleteArray(stmtHeap, 16);
+  NAList<int> deleteArray(stmtHeap, 16);
 
   for (j = 0; j < envs_.getSize(); j++) {
     if (envs_.used(j)) {

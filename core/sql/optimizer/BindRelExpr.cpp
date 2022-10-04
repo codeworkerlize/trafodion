@@ -56,8 +56,8 @@
 #include "common/ComTransInfo.h"
 #include "common/ComLocationNames.h"
 #include "optimizer/ControlDB.h"
-#include "Debug.h"
-#include "ex_error.h"
+#include "common/Debug.h"
+#include "executor/ex_error.h"
 #include "GroupAttr.h"
 #include "ParNameLocList.h"
 #include "sqlcomp/parser.h"
@@ -65,7 +65,7 @@
 #include "RelDCL.h"
 #include "RelPackedRows.h"
 #include "RelSequence.h"
-#include "ShowSchema.h"  // GetControlDefaults class
+#include "sqlcomp/ShowSchema.h"  // GetControlDefaults class
 #include "StmtDDLAddConstraintCheck.h"
 #include "parser/StmtDDLCreateView.h"
 #include "parser/ElemDDLColRefArray.h"
@@ -984,10 +984,10 @@ void castComputedColumnsToAnsiTypes(BindWA *bindWA, RETDesc *rd, ValueIdList &co
 
       ItemExpr *ie = col->getValueId().getItemExpr();
       NAType *newTyp = NULL;
-      Lng32 newPrec;
-      Lng32 newScale;
-      Lng32 oflow = -1;
-      Lng32 bignumOflow = -1;
+      int newPrec;
+      int newScale;
+      int oflow = -1;
+      int bignumOflow = -1;
       NABoolean bignumIO = FALSE;
       if (CmpCommon::getDefault(BIGNUM_IO) == DF_ON)
         bignumIO = TRUE;  // explicitely set to ON
@@ -1002,7 +1002,7 @@ void castComputedColumnsToAnsiTypes(BindWA *bindWA, RETDesc *rd, ValueIdList &co
         bignumIO = FALSE;
 
       if (bignumIO)
-        bignumOflow = nTyp->getPrecision() - (Lng32)CmpCommon::getDefaultNumeric(MAX_NUMERIC_PRECISION_ALLOWED);
+        bignumOflow = nTyp->getPrecision() - (int)CmpCommon::getDefaultNumeric(MAX_NUMERIC_PRECISION_ALLOWED);
       else {
         if (nTyp->isSigned())
           oflow = nTyp->getPrecision() - MAX_HARDWARE_SUPPORTED_SIGNED_NUMERIC_PRECISION;
@@ -1012,8 +1012,8 @@ void castComputedColumnsToAnsiTypes(BindWA *bindWA, RETDesc *rd, ValueIdList &co
 
       if ((bignumOflow > 0) || (oflow > 0)) {
         if (bignumOflow > 0) {
-          newPrec = (Lng32)CmpCommon::getDefaultNumeric(MAX_NUMERIC_PRECISION_ALLOWED);
-          Lng32 orgMagnitude = nTyp->getPrecision() - nTyp->getScale();
+          newPrec = (int)CmpCommon::getDefaultNumeric(MAX_NUMERIC_PRECISION_ALLOWED);
+          int orgMagnitude = nTyp->getPrecision() - nTyp->getScale();
 
           // set the newScale
           // IF there is overflow in magnitude set the scale to 0.
@@ -1051,7 +1051,7 @@ void castComputedColumnsToAnsiTypes(BindWA *bindWA, RETDesc *rd, ValueIdList &co
 
           // ANSI 6.5 SR 7 - 9:  aggregates must be exact if column is exact.
           newPrec = MAX_NUMERIC_PRECISION;
-          Lng32 orgMagnitude = (nTyp->getMagnitude() + 9) / 10;
+          int orgMagnitude = (nTyp->getMagnitude() + 9) / 10;
           // set the newScale
           // IF there is overflow in magnitude set the scale to 0.
           // ELSE set the accomodate the magnitude part and truncate the scale
@@ -1061,7 +1061,7 @@ void castComputedColumnsToAnsiTypes(BindWA *bindWA, RETDesc *rd, ValueIdList &co
           // CQD specifies the MIN scale that has to be preserved in case
           // of overflow.
           NADefaults &defs = ActiveSchemaDB()->getDefaults();
-          Lng32 minScale = defs.getAsLong(PRESERVE_MIN_SCALE);
+          int minScale = defs.getAsLong(PRESERVE_MIN_SCALE);
           newScale = MAXOF(minScale, newScale);
 
           if (op == ITM_SUM || op == ITM_AVG) {
@@ -1081,7 +1081,7 @@ void castComputedColumnsToAnsiTypes(BindWA *bindWA, RETDesc *rd, ValueIdList &co
             ItemExpr *arg = (sum->getOriginalChild()) ? sum->getOriginalChild() : sum->child(0).getPtr();
             if (arg->getValueId() == NULL_VALUE_ID) arg = sum->child(0).getPtr();
             CMPASSERT(arg->getValueId() != NULL_VALUE_ID);
-            Lng32 needScale = arg->getValueId().getType().getScale();
+            int needScale = arg->getValueId().getType().getScale();
             if (needScale > newPrec) needScale = newPrec;
             if (newScale < needScale || op == ITM_SUM)  // ANSI 6.5 SR 9 b + c
               newScale = needScale;
@@ -1091,7 +1091,7 @@ void castComputedColumnsToAnsiTypes(BindWA *bindWA, RETDesc *rd, ValueIdList &co
             newTyp = new (bindWA->wHeap()) SQLLargeInt(bindWA->wHeap(), TRUE,  // hardware only supports signed
                                                        nTyp->supportsSQLnull());
           else
-            newTyp = new (bindWA->wHeap()) SQLNumeric(bindWA->wHeap(), sizeof(Int64), newPrec, newScale,
+            newTyp = new (bindWA->wHeap()) SQLNumeric(bindWA->wHeap(), sizeof(long), newPrec, newScale,
                                                       nTyp->isSigned(), nTyp->supportsSQLnull());
 
         }  // overflow
@@ -1186,7 +1186,7 @@ NARoutine *BindWA::getNARoutine(const QualifiedName &name) {
 
     NAHeap *routineHeap;
     if (getSchemaDB()->getNARoutineDB()->cachingMetaData()) {
-      const Lng32 size = 16 * 1024;  // The initial size
+      const int size = 16 * 1024;  // The initial size
       routineHeap = new CTXTHEAP NAHeap("NARoutine Heap", (NAHeap *)CTXTHEAP, size);
     } else
       routineHeap = CmpCommon::statementHeap();
@@ -1370,7 +1370,7 @@ NATable *BindWA::getNATable(CorrName &corrName,
       pCorrName.getQualifiedNameObj().setSchemaName(HBASE_EXT_MAP_SCHEMA);
 
       bindWA->resetErrStatus();
-      Lng32 diagsMark = CmpCommon::diags()->mark();
+      int diagsMark = CmpCommon::diags()->mark();
       table = bindWA->getSchemaDB()->getNATableDB()->get(pCorrName, bindWA, inTableDescStruct, writeReference);
       if (!bindWA->errStatus() && table) {  // if found in mapped schema, do not show previous error
         // and replace corrName
@@ -3308,7 +3308,7 @@ RelExpr *Union::bindNode(BindWA *bindWA) {
       // 4126 The row-value-ctors of a VALUES must be of equal degree.
       // 4066 The operands of a union must be of equal degree.
       // This is not necessary if we are in an assignment stmt.
-      Lng32 sqlcode = bindWA->getCurrentScope()->context()->inTupleList() ? -4126 : -4066;
+      int sqlcode = bindWA->getCurrentScope()->context()->inTupleList() ? -4126 : -4066;
       *CmpCommon::diags() << DgSqlCode(sqlcode);
       bindWA->setErrStatus();
       return this;
@@ -3451,12 +3451,12 @@ void Union::checkAccessLockModes() {
     return;
   }
 
-  Lng32 lockFlagSession = CmpCommon::transMode()->getDP2LockFlags().getValue();
+  int lockFlagSession = CmpCommon::transMode()->getDP2LockFlags().getValue();
   StmtLevelAccessOptions optionsLeft = left->accessOptions();
   StmtLevelAccessOptions optionsRight = right->accessOptions();
 
-  Lng32 lockFlagLeft = lockFlagSession;
-  Lng32 lockFlagRight = lockFlagSession;
+  int lockFlagLeft = lockFlagSession;
+  int lockFlagRight = lockFlagSession;
 
   if (optionsLeft.userSpecified()) {
     lockFlagLeft = optionsLeft.getDP2LockFlags().getValue();
@@ -3782,13 +3782,13 @@ RelRoot *RelRoot::transformOrderByWithExpr(BindWA *bindWA) {
     }
   }
 
-  Lng32 selListCount = origSelectList.entries();
+  int selListCount = origSelectList.entries();
 
   // if there is an expression in the order by list and this expression matches
   // a select list expression, then replace it with the index of that select list item.
-  ItemExprList newOrderByList((Lng32)origOrderByList.entries(), bindWA->wHeap());
+  ItemExprList newOrderByList((int)origOrderByList.entries(), bindWA->wHeap());
   NABoolean orderByExprFound = FALSE;
-  for (Lng32 i = 0; i < origOrderByList.entries(); i++) {
+  for (int i = 0; i < origOrderByList.entries(); i++) {
     ItemExpr *currOrderByItemExpr = origOrderByList[i];
 
     NABoolean isDesc = FALSE;
@@ -3801,7 +3801,7 @@ RelRoot *RelRoot::transformOrderByWithExpr(BindWA *bindWA) {
             (currOrderByItemExpr->getOperatorType() == ITM_REFERENCE) ||
             (currOrderByItemExpr->getOperatorType() == ITM_CONSTANT))) {
       NABoolean found = FALSE;
-      Lng32 selListIndex = 0;
+      int selListIndex = 0;
       ItemExpr *selItem = NULL;
       ItemExpr *renameColEntry = NULL;
       while ((NOT found) && (selListIndex < selListCount)) {
@@ -3864,14 +3864,14 @@ ItemExpr *RelRoot::processGroupingID(ItemExpr *ie, BindWA *bindWA) {
   ItemExprList childExprList(bindWA->wHeap());
   childExprList.insertTree(ie->child(0)->castToItemExpr());
 
-  Int64 multiplier = (Int64)pow(2, (childExprList.entries() - 1));
+  long multiplier = (long)pow(2, (childExprList.entries() - 1));
   SQLLargeInt *li = new (bindWA->wHeap()) SQLLargeInt(bindWA->wHeap(), FALSE, FALSE);  // +ve value, no nulls
   for (CollIndex i = 0; i < (CollIndex)childExprList.entries(); i++) {
     ItemExpr *currChildIE = ((ItemExpr *)childExprList[i])->castToItemExpr();
 
     ItemExpr *groupingClause = new (bindWA->wHeap()) Aggregate(ITM_GROUPING, currChildIE, FALSE);
 
-    ItemExpr *multiplierClause = new (bindWA->wHeap()) ConstValue(li, (void *)&multiplier, sizeof(Int64));
+    ItemExpr *multiplierClause = new (bindWA->wHeap()) ConstValue(li, (void *)&multiplier, sizeof(long));
     ItemExpr *groupingExpr = new (bindWA->wHeap()) BiArith(ITM_TIMES, groupingClause, multiplierClause);
 
     if (i == 0) {
@@ -3980,7 +3980,7 @@ RelRoot *RelRoot::transformGroupByWithOrdinalPhase1(BindWA *bindWA) {
     origSelectListCount = origSelectList.entries();
   }
 
-  ItemExprList newGroupByList((Lng32)origGrbyList.entries(), bindWA->wHeap());
+  ItemExprList newGroupByList((int)origGrbyList.entries(), bindWA->wHeap());
 
   NABoolean foundSelIndex = FALSE;
 
@@ -4012,7 +4012,7 @@ RelRoot *RelRoot::transformGroupByWithOrdinalPhase1(BindWA *bindWA) {
     }
 
     NABoolean selIndexError = FALSE;
-    Int64 selIndex = -1;
+    long selIndex = -1;
     if (currGroupByItemExpr->getOperatorType() == ITM_CONSTANT) {
       ConstValue *cv = (ConstValue *)currGroupByItemExpr;
       if ((cv->canGetExactNumericValue()) && (cv->getType()->getScale() == 0)) {
@@ -4027,7 +4027,7 @@ RelRoot *RelRoot::transformGroupByWithOrdinalPhase1(BindWA *bindWA) {
             // then it will be treated as a group by expression.
             selIndexError = TRUE;
           } else
-            currGroupByItemExpr = new (bindWA->wHeap()) SelIndex((Lng32)selIndex);
+            currGroupByItemExpr = new (bindWA->wHeap()) SelIndex((int)selIndex);
         }
       }
     }
@@ -4083,7 +4083,7 @@ RelRoot *RelRoot::transformGroupByWithOrdinalPhase1(BindWA *bindWA) {
       // this const was not found in the select list and it was
       // not a valid select index.
       // Return an error.
-      *CmpCommon::diags() << DgSqlCode(-4007) << DgInt0((Lng32)selIndex) << DgInt1((Lng32)origSelectList.entries());
+      *CmpCommon::diags() << DgSqlCode(-4007) << DgInt0((int)selIndex) << DgInt1((int)origSelectList.entries());
       bindWA->setErrStatus();
       return NULL;
     }
@@ -4092,8 +4092,8 @@ RelRoot *RelRoot::transformGroupByWithOrdinalPhase1(BindWA *bindWA) {
     if (currGroupByItemExpr->getOperatorType() == ITM_SEL_INDEX) {
       SelIndex *si = (SelIndex *)currGroupByItemExpr;
       if (si->getSelIndex() > origSelectList.entries()) {
-        *CmpCommon::diags() << DgSqlCode(-4007) << DgInt0((Lng32)si->getSelIndex())
-                            << DgInt1((Lng32)origSelectList.entries());
+        *CmpCommon::diags() << DgSqlCode(-4007) << DgInt0((int)si->getSelIndex())
+                            << DgInt1((int)origSelectList.entries());
         bindWA->setErrStatus();
         return NULL;
       }
@@ -4523,7 +4523,7 @@ RelRoot *RelRoot::transformGroupByWithOrdinalPhase2(BindWA *bindWA) {
 
     origOrderByList.insertTree(orderByTree_);
 
-    ItemExprList newOrderByList((Lng32)origOrderByList.entries(), bindWA->wHeap());
+    ItemExprList newOrderByList((int)origOrderByList.entries(), bindWA->wHeap());
 
     for (CollIndex i = 0; (i < (CollIndex)origOrderByList.entries()); i++) {
       ItemExpr *currOrderByItemExpr = ((ItemExpr *)origOrderByList[i])->castToItemExpr();
@@ -4589,7 +4589,7 @@ void RelRoot::transformTDPartitionOrdinals(BindWA *bindWA) {
     ItemExpr *currPartitionByItemExpr = ((ItemExpr *)origPartitionByList[i])->castToItemExpr();
 
     NABoolean selIndexError = FALSE;
-    Int64 selIndex = -1;
+    long selIndex = -1;
     if (currPartitionByItemExpr->getOperatorType() == ITM_CONSTANT) {
       ConstValue *cv = (ConstValue *)currPartitionByItemExpr;
       if ((cv->canGetExactNumericValue()) && (cv->getType()->getScale() == 0)) {
@@ -4672,7 +4672,7 @@ void RelRoot::resolveAggregates(BindWA *bindWA) {
     }
 
     NAString colName(bindWA->wHeap());
-    Lng32 sqlCode = 0;
+    int sqlCode = 0;
     ValueId valId = NULL_VALUE_ID;
 
     if (currScope->context()->unaggColRefInSelectList()) {
@@ -4865,7 +4865,7 @@ ItemExpr *RelRoot::buildDefaultOrderByForRownum(BindWA *bindWA, const CorrName *
       isDistinct = TRUE;
 
     if (NOT isDistinct) {
-      for (Lng32 i = 0; i < resultList.entries(); i++) {
+      for (int i = 0; i < resultList.entries(); i++) {
         ItemExpr *ie = resultList[i];
         NAString colExposedName = "";
 
@@ -4875,7 +4875,7 @@ ItemExpr *RelRoot::buildDefaultOrderByForRownum(BindWA *bindWA, const CorrName *
 
         // try to find alias for order-by items
         NABoolean isFound = FALSE;
-        for (Lng32 j = 0; j < selList.entries(); j++) {
+        for (int j = 0; j < selList.entries(); j++) {
           ItemExpr *sel = selList[j];
 
           if (sel->getOperatorType() == ITM_RENAME_COL) {
@@ -4901,7 +4901,7 @@ ItemExpr *RelRoot::buildDefaultOrderByForRownum(BindWA *bindWA, const CorrName *
         if (NOT isFound) {
           // no alias found, then create an alias
           char tmpStr[100];
-          str_itoa((Int64)i, tmpStr);
+          str_itoa((long)i, tmpStr);
           NAString tmpCol("_sys_default_order_");
           tmpCol += tmpStr;
 
@@ -4976,10 +4976,10 @@ void RelRoot::processRownum(BindWA *bindWA) {
       Aggregate *rownumAgg = NULL;
       ExprValueId eRownum = (ItemExpr *)NULL;
       ItemExprTreeAsList rownumPred(&eRownum, ITM_AND, LEFT_LINEAR_TREE);
-      Int64 limitn = 0;
+      long limitn = 0;
 
       char sqAddrStr[100];
-      str_itoa((Int64)this, sqAddrStr);
+      str_itoa((long)this, sqAddrStr);
       NAString tmpCorr("X");
       tmpCorr += sqAddrStr;
       CorrName newCorrName(tmpCorr);
@@ -4992,7 +4992,7 @@ void RelRoot::processRownum(BindWA *bindWA) {
         ItemExprList selList(getCompExprTree(), bindWA->wHeap(), ITM_ITEM_LIST, FALSE, FALSE);
         NABoolean hasRownum = FALSE;
 
-        for (Lng32 i = 0; i < selList.entries(); i++) {
+        for (int i = 0; i < selList.entries(); i++) {
           parentItmList.clear();
           parentArityList.clear();
 
@@ -5179,7 +5179,7 @@ void RelRoot::processRownum(BindWA *bindWA) {
     ItemExprList iel(wherePred, bindWA->wHeap(), ITM_AND, FALSE, FALSE);
 
     NABoolean found = FALSE;
-    for (Lng32 i = 0; ((NOT found) && (i < iel.entries())); i++) {
+    for (int i = 0; ((NOT found) && (i < iel.entries())); i++) {
       ItemExpr *ie = iel[i];
       if (ie->getArity() != 2) continue;
 
@@ -5206,7 +5206,7 @@ void RelRoot::processRownum(BindWA *bindWA) {
       ConstValue *cv = (ConstValue *)child1;
       if (NOT cv->canGetExactNumericValue()) continue;
 
-      Int64 val = cv->getExactNumericValue();
+      long val = cv->getExactNumericValue();
       if (val < 0) continue;
 
       if ((ie->getOperatorType() == ITM_EQUAL) && (val != 1)) continue;
@@ -5383,7 +5383,7 @@ RelExpr *RelRoot::bindNode(BindWA *bindWA) {
         newRoot->outputVarCnt() = outputVarCnt();
 
         NABoolean defaultSortedRows = newRoot->needFirstSortedRows();
-        // Int64 defaultFirstNRows = newRoot->getFirstNRows();
+        // long defaultFirstNRows = newRoot->getFirstNRows();
         newRoot->needFirstSortedRows() = needFirstSortedRows();
         // newRoot->setFirstNRows(getFirstNRows());
         needFirstSortedRows() = defaultSortedRows;
@@ -5811,7 +5811,7 @@ RelExpr *RelRoot::bindNode(BindWA *bindWA) {
       (outputVarCnt() || CmpCommon::context()->GetMode() != STMT_DYNAMIC)) {
     // 4093 The number of output parameters ($0) must equal the number of cols
     // 4094 The number of output host vars  ($0) must equal the number of cols
-    Lng32 sqlcode = (CmpCommon::context()->GetMode() == STMT_DYNAMIC) ? -4093 : -4094;
+    int sqlcode = (CmpCommon::context()->GetMode() == STMT_DYNAMIC) ? -4093 : -4094;
     *CmpCommon::diags() << DgSqlCode(sqlcode) << DgInt0(outputVarCnt()) << DgInt1(getRETDesc()->getDegree());
     bindWA->setErrStatus();
     return NULL;
@@ -6054,7 +6054,7 @@ RelExpr *RelRoot::bindNode(BindWA *bindWA) {
 
         CollIndex selIndex = si->getSelIndex();
         if (selIndex == 0 || selIndex > selListCount) {
-          *CmpCommon::diags() << DgSqlCode(-4007) << DgInt0((Lng32)si->getSelIndex()) << DgInt1(selListCount);
+          *CmpCommon::diags() << DgSqlCode(-4007) << DgInt0((int)si->getSelIndex()) << DgInt1(selListCount);
           bindWA->setErrStatus();
           return NULL;
         }
@@ -6108,7 +6108,7 @@ RelExpr *RelRoot::bindNode(BindWA *bindWA) {
 
   // validate that select list doesn't contain any expressions that cannot be
   // grouped or ordered.
-  for (Lng32 selIndex = 0; selIndex < compExpr().entries(); selIndex++) {
+  for (int selIndex = 0; selIndex < compExpr().entries(); selIndex++) {
     ItemExpr *ie = compExpr()[selIndex].getItemExpr();
     if ((ie->inGroupByOrdinal()) || (ie->inOrderByOrdinal())) {
       if (NOT ie->canBeUsedInGBorOB(TRUE)) {
@@ -6117,7 +6117,7 @@ RelExpr *RelRoot::bindNode(BindWA *bindWA) {
     }
   }
 
-  for (Lng32 selIndex = 0; selIndex < compExpr().entries(); selIndex++) {
+  for (int selIndex = 0; selIndex < compExpr().entries(); selIndex++) {
     ItemExpr *ie = compExpr()[selIndex].getItemExpr();
     if (ie->getOperatorType() == ITM_REFERENCE) {
       if ((((ColReference *)ie)->getColRefNameObj()).getColName() == "CONNECT_BY_ISLEAF")
@@ -6198,7 +6198,7 @@ RelExpr *RelRoot::bindNode(BindWA *bindWA) {
     ComUInt32 numConfiguredESPs = CURRSTMT_OPTDEFAULTS->getTotalNumberOfCPUs();
 
     if ((numExtractStreams == 1) || (numExtractStreams > numConfiguredESPs)) {
-      *CmpCommon::diags() << DgSqlCode(-4119) << DgInt0((Lng32)numConfiguredESPs);
+      *CmpCommon::diags() << DgSqlCode(-4119) << DgInt0((int)numConfiguredESPs);
       bindWA->setErrStatus();
       return NULL;
     }
@@ -6214,14 +6214,14 @@ RelExpr *RelRoot::bindNode(BindWA *bindWA) {
       // Manufacture an esp_exchange(cut,N) shape
       reqdShape_ = new (bindWA->wHeap())
           ExchangeForceWildCard(new (bindWA->wHeap()) CutOp(0), ExchangeForceWildCard::FORCED_ESP_EXCHANGE,
-                                ExchangeForceWildCard::ANY_LOGPART, (Lng32)numExtractStreams_);
+                                ExchangeForceWildCard::ANY_LOGPART, (int)numExtractStreams_);
     } else {
       NABoolean reqdShapeIsOK = FALSE;
       if (reqdShape_->getOperatorType() == REL_FORCE_EXCHANGE) {
         ExchangeForceWildCard *exch = (ExchangeForceWildCard *)reqdShape_;
         ExchangeForceWildCard::forcedExchEnum whichType = exch->getWhich();
-        Lng32 howMany = exch->getHowMany();
-        if (whichType == ExchangeForceWildCard::FORCED_ESP_EXCHANGE && howMany == (Lng32)numExtractStreams_) {
+        int howMany = exch->getHowMany();
+        if (whichType == ExchangeForceWildCard::FORCED_ESP_EXCHANGE && howMany == (int)numExtractStreams_) {
           reqdShapeIsOK = TRUE;
         }
       }
@@ -6235,7 +6235,7 @@ RelExpr *RelRoot::bindNode(BindWA *bindWA) {
         RelExpr *child = reqdShape_;
         reqdShape_ =
             new (bindWA->wHeap()) ExchangeForceWildCard(child, ExchangeForceWildCard::FORCED_ESP_EXCHANGE,
-                                                        ExchangeForceWildCard::ANY_LOGPART, (Lng32)numExtractStreams_);
+                                                        ExchangeForceWildCard::ANY_LOGPART, (int)numExtractStreams_);
       }
 
     }  // if (reqdShape_ == NULL) else ...
@@ -6620,18 +6620,18 @@ bool OptSqlTableOpenInfo::checkColPriv(const PrivType privType, const PrivMgrUse
   bool hasPriv = true;
 
   // initialize to something, gets set appropriately below
-  LIST(Lng32) *colList = NULL;
+  LIST(int) *colList = NULL;
   switch (privType) {
     case INSERT_PRIV: {
-      colList = (LIST(Lng32) *)&(getInsertColList());
+      colList = (LIST(int) *)&(getInsertColList());
       break;
     }
     case UPDATE_PRIV: {
-      colList = (LIST(Lng32) *)&(getUpdateColList());
+      colList = (LIST(int) *)&(getUpdateColList());
       break;
     }
     case SELECT_PRIV: {
-      colList = (LIST(Lng32) *)&(getSelectColList());
+      colList = (LIST(int) *)&(getSelectColList());
       break;
     }
     default:
@@ -7363,7 +7363,7 @@ void Scan::bindUpdateCurrentOf(BindWA *bindWA, NABoolean updateQry) {
           Case(NULL, new (bindWA->wHeap()) IfThenElse(
                          updCheckPtr, new (bindWA->wHeap()) BoolVal(ITM_RETURN_TRUE),
                          new (bindWA->wHeap()) BoolVal(
-                             ITM_RETURN_TRUE, new (bindWA->wHeap()) RaiseError(-(Lng32)EXE_CURSOR_UPDATE_CONFLICT))));
+                             ITM_RETURN_TRUE, new (bindWA->wHeap()) RaiseError(-(int)EXE_CURSOR_UPDATE_CONFLICT))));
 
       rootPtr = new (bindWA->wHeap()) BiLogic(ITM_AND, rootPtr, updCheckPtr);
     }
@@ -7926,7 +7926,7 @@ RelExpr *Scan::bindNode(BindWA *bindWA) {
   }
 
   // read from one replica alone
-  Lng32 replicaColPos = -1;
+  int replicaColPos = -1;
   NABoolean inSubquery = FALSE;
   BindScope *currScope = bindWA->getCurrentScope();
   BindScope *prevScope = bindWA->getPreviousScope(currScope);
@@ -8483,7 +8483,7 @@ RelExpr *TupleList::bindNode(BindWA *bindWA) {
       // virtual table.
       //
       vidUnion = (ValueIdUnion *)vidUnions[j];
-      vidUnion->setSource((Lng32)i, vidList[j]);
+      vidUnion->setSource((int)i, vidList[j]);
 
       if (NOT vidList[j].getItemExpr()->wasDefaultClause()) vidUnion->setWasDefaultClause(FALSE);
     }  // for loop over entries in tuple
@@ -8492,8 +8492,8 @@ RelExpr *TupleList::bindNode(BindWA *bindWA) {
 
   if (castTo && prevTupleNumEntries != castToList().entries()) {
     // 4023 degree of row value constructor must equal that of target table
-    *CmpCommon::diags() << DgSqlCode(-4023) << DgInt0((Lng32)prevTupleNumEntries)
-                        << DgInt1((Lng32)castToList().entries());
+    *CmpCommon::diags() << DgSqlCode(-4023) << DgInt0((int)prevTupleNumEntries)
+                        << DgInt1((int)castToList().entries());
     bindWA->setErrStatus();
     return NULL;
   }
@@ -8986,7 +8986,7 @@ RelExpr *RenameReference::bindNode(BindWA *bindWA) {
 // The naTable parameter is NULL during DML. and is only used for DDL
 // semantic checks.
 //////////////////////////////////////////////////////////////////////////////
-Lng32 BeforeTrigger::getTargetColumn(CollIndex i,  // Index of Assign expr.
+int BeforeTrigger::getTargetColumn(CollIndex i,  // Index of Assign expr.
                                      ColRefName *targetColName, const NATable *naTable) {
   ItemExpr *currentAssign = setList_->at(i);
   CMPASSERT(currentAssign->getOperatorType() == ITM_ASSIGN);
@@ -9036,7 +9036,7 @@ void BeforeTrigger::doSetSemanticChecks(BindWA *bindWA, RETDesc *origRETDesc) {
 
   for (CollIndex i = 0; i < setList_->entries(); i++) {
     // Get the name and position of the Assign target column.
-    Lng32 targetColPosition = getTargetColumn(i, &currentCol, scanNaTable);
+    int targetColPosition = getTargetColumn(i, &currentCol, scanNaTable);
 
     if (!currentCol.getCorrNameObj().isATriggerTransitionName(bindWA, TRUE)) {
       // 11017 Left hand of SET assignment must be qualified with the name of the NEW transition variable
@@ -9108,7 +9108,7 @@ void BeforeTrigger::bindSetClause(BindWA *bindWA, RETDesc *origRETDesc, CollHeap
   // For each Assign expression in the list.
   for (CollIndex i = 0; i < setList_->entries(); i++) {
     // Get the name and position of the Assign target column.
-    Lng32 targetColPosition = getTargetColumn(i, &currentCol, NULL);
+    int targetColPosition = getTargetColumn(i, &currentCol, NULL);
 
     currentCol.getCorrNameObj() = newRef;
     ItemExpr *setExpr = setList_->at(i)->child(1);
@@ -10046,7 +10046,7 @@ RelExpr *Insert::bindNode(BindWA *bindWA) {
           NABoolean found = FALSE;
           for (CollIndex k = 0; k < viewColumns->entries(); k++) {
             if ((*viewColumns)[k]->getValueId() == target) {
-              stoiInList->addInsertColumn((Lng32)k);
+              stoiInList->addInsertColumn((int)k);
               found = TRUE;
               // Updatable views cannot have any underlying basetable column
               // appear more than once, so it's safe to break out of the loop.
@@ -10444,7 +10444,7 @@ RelExpr *Insert::bindNode(BindWA *bindWA) {
     PartitioningFunction *pf = getTableDesc()->getClusteringIndex()->getPartitioningFunction();
 
     const NodeMap *np;
-    Lng32 partns = 1;
+    int partns = 1;
     if (pf && (np = pf->getNodeMap())) {
       partns = np->getNumEntries();
       if (partns > 1 && CmpCommon::getDefault(ATTEMPT_ESP_PARALLELISM) == DF_OFF) {
@@ -11776,7 +11776,7 @@ RelExpr *Delete::bindNode(BindWA *bindWA) {
   }
 
   if ((csl()) && (NOT getTableDesc()->getNATable()->isSeabaseTable())) {
-    for (Lng32 i = 0; i < csl()->entries(); i++) {
+    for (int i = 0; i < csl()->entries(); i++) {
       NAString *nas = (NAString *)(*csl())[i];
 
       bindWA->hbaseColUsageInfo()->insert((QualifiedName *)&getTableDesc()->getNATable()->getTableName(), nas);
@@ -12636,7 +12636,7 @@ RelExpr *GenericUpdate::bindNode(BindWA *bindWA) {
   // Make sure we have the appropriate transaction mode & isolation level
   // in order to do the update.  Genesis 10-970922-3488.
   // Keep this logic in sync with Generator::verifyUpdatableTransMode()!
-  Lng32 sqlcodeA = 0, sqlcodeB = 0;
+  int sqlcodeA = 0, sqlcodeB = 0;
 
   // fix case 10-040429-7402 by checking our statement level access options
   // first before declaring any error 3140/3141.
@@ -13277,8 +13277,8 @@ RelExpr *GenericUpdate::bindNode(BindWA *bindWA) {
 
           ItemExprList leftList(assignNode->child(0), bindWA->wHeap());
           ItemExprList rightList(assignNode->child(1), bindWA->wHeap());
-          Lng32 numLeftElements = (Lng32)leftList.entries();
-          Lng32 numRightElements = (Lng32)rightList.entries();
+          int numLeftElements = (int)leftList.entries();
+          int numRightElements = (int)rightList.entries();
 
           // See if ALLOW_SUBQ_IN_SET is enabled. It is enabled if
           // the default is ON, or if the default is SYSTEM and
@@ -13589,7 +13589,7 @@ RelExpr *GenericUpdate::bindNode(BindWA *bindWA) {
       // The scan node and the update/delete node both use the SAME table,
       // so their column names are also the same.
       //
-      Lng32 colPos = keyColArray[i]->getPosition();
+      int colPos = keyColArray[i]->getPosition();
       ItemExpr *guCol = getTableDesc()->getColumnList()[colPos].getItemExpr();
       ItemExpr *scanCol;  // - Triggers
       if (!isScanOnDifferentTable)
@@ -13610,7 +13610,7 @@ RelExpr *GenericUpdate::bindNode(BindWA *bindWA) {
         }
         CMPASSERT(scanNaCol != NULL)
         // Get the position of this column in the Scan table.
-        Lng32 scanColPos = scanNaCol->getPosition();
+        int scanColPos = scanNaCol->getPosition();
         // Get the Scan BaseColumn.
         scanCol = scanNode->getTableDesc()->getColumnList()[scanColPos].getItemExpr();
       }
@@ -13846,7 +13846,7 @@ RelExpr *LeafDelete::bindNode(BindWA *bindWA) {
       ItemExpr *keyPred = NULL;
       ItemExpr *keyItemExpr = keycols[i].getItemExpr();
       ItemExpr *baseItemExpr = NULL;
-      Lng32 keyColPos = keycols[i].getNAColumn()->getPosition();
+      int keyColPos = keycols[i].getNAColumn()->getPosition();
       baseItemExpr = baseColRefs()[keyColPos];
       keyPred = new (bindWA->wHeap()) BiRelat(ITM_EQUAL, keyItemExpr, baseItemExpr);
 
@@ -13862,7 +13862,7 @@ RelExpr *LeafDelete::bindNode(BindWA *bindWA) {
     for (CollIndex i = 0; i < keycols.entries(); i++) {
       ItemExpr *keyPred = 0;
       ItemExpr *keyItemExpr = keycols[i].getItemExpr();
-      Lng32 keyColPos = keycols[i].getNAColumn()->getPosition();
+      int keyColPos = keycols[i].getNAColumn()->getPosition();
 
       ItemExpr *baseItemExpr = NULL;
       // For a unique index (for undo) we are passing in all the index
@@ -14022,7 +14022,7 @@ RelExpr *BuiltinTableValuedFunction::bindNode(BindWA *bindWA) {
       // Clear the Tree since we now have gotten vids for all the parameters.
       setProcAllParamsTree(NULL);
 
-      Lng32 sqlcode = 0;
+      int sqlcode = 0;
       if (getProcAllParamsVids().entries() != numParams()) {
         sqlcode = -4067;
 
@@ -14034,10 +14034,10 @@ RelExpr *BuiltinTableValuedFunction::bindNode(BindWA *bindWA) {
 
       // type any param arguments to fixed char since runtime explain
       // expects arguments to be fixed char.
-      Lng32 len = (Lng32)CmpCommon::getDefaultNumeric(VARCHAR_PARAM_DEFAULT_SIZE);
+      int len = (int)CmpCommon::getDefaultNumeric(VARCHAR_PARAM_DEFAULT_SIZE);
       SQLChar c(NULL, len);
 
-      for (Lng32 i = 0; i < numParams(); i++) {
+      for (int i = 0; i < numParams(); i++) {
         getProcAllParamsVids()[i].coerceType(c, NA_CHARACTER_TYPE);
         if (getProcAllParamsVids()[i].getType().getTypeQualifier() != NA_CHARACTER_TYPE) {
           sqlcode = -4067;
@@ -14232,7 +14232,7 @@ RelExpr *ControlQueryDefaults::bindNode(BindWA *bindWA) {
   NAString token;
   NAString value;
   DefaultConstants attrEnum;
-  for (Lng32 i = 0; i < cqds_->entries(); i++) {
+  for (int i = 0; i < cqds_->entries(); i++) {
     token.clear();
     value.clear();
 
@@ -14446,7 +14446,7 @@ RelExpr *Describe::bindNode(BindWA *bindWA) {
   TrafDesc *files_desc = TrafAllocateDDLdesc(DESC_FILES_TYPE, NULL);
   table_desc->tableDesc()->files_desc = files_desc;
 
-  Lng32 colnumber = 0, offset = 0;
+  int colnumber = 0, offset = 0;
   TrafDesc *column_desc = TrafMakeColumnDesc(table_desc->tableDesc()->tablename, "DESCRIBE__COL",
                                              colnumber,  // INOUT
                                              REC_BYTE_V_ASCII, MAX_DESCRIBE_LEN,
@@ -15207,7 +15207,7 @@ RelExpr *Pack::bindNode(BindWA *bindWA) {
   // To test packing. Add a unpack node on top of this pack node to check.
   char *env = getenv("PACKING_FACTOR");
   if (env && atol(env) > 0) {
-    Lng32 pf = atol(env);
+    int pf = atol(env);
 
     ItemExpr *unPackExpr = NULL;
     ItemExpr *rowFilter = NULL;
@@ -15227,8 +15227,8 @@ RelExpr *Pack::bindNode(BindWA *bindWA) {
     for (CollIndex i = 0; i < packedCols.entries(); i++) {
       const NAType *colType = &(packedCols[i].getItemExpr()->child(0)->getValueId().getType());
 
-      Lng32 width = colType->getNominalSize();
-      Lng32 base = (colType->supportsSQLnullPhysical() ? (pf - 1) / CHAR_BIT + 1 : 0) + sizeof(Int32);
+      int width = colType->getNominalSize();
+      int base = (colType->supportsSQLnullPhysical() ? (pf - 1) / CHAR_BIT + 1 : 0) + sizeof(Int32);
 
       // $$$ Some duplicate code to be moved to PackColDesc later.
       ColRefName colRefName;
@@ -15290,7 +15290,7 @@ RelExpr *Rowset::bindNode(BindWA *bindWA) {
   // samaller than the computed value.
 
   NABoolean hasDifferentSizes = FALSE;
-  Lng32 maxRowsetSize = 0; /* Maximum number of Rows in Rowset */
+  int maxRowsetSize = 0; /* Maximum number of Rows in Rowset */
   ItemExpr *rowsetSizeExpr;
   ItemExpr *hostVarTree;
 
@@ -15414,7 +15414,7 @@ RelExpr *Rowset::bindNode(BindWA *bindWA) {
         bindWA->setErrStatus();
         return NULL;
       } else {
-        maxRowsetSize = (Lng32)((ConstValue *)sizeExpr_)->getExactNumericValue();
+        maxRowsetSize = (int)((ConstValue *)sizeExpr_)->getExactNumericValue();
       }
     } else if (!((sizeExpr_->getOperatorType() == ITM_HOSTVAR &&
                   ((HostVar *)sizeExpr_)->getType()->getTypeQualifier() == NA_NUMERIC_TYPE) ||
@@ -15486,7 +15486,7 @@ RelExpr *Rowset::bindNode(BindWA *bindWA) {
     HostVar *hostVar = (HostVar *)hostVarTree->getChild(0);
     SQLRowset *hostVarType = (SQLRowset *)hostVar->getType();
     NAType *hostVarElemType = hostVarType->getElementType();
-    Lng32 hostVarElemSize = hostVarElemType->getTotalSize();
+    int hostVarElemSize = hostVarElemType->getTotalSize();
     NABoolean hostVarElemNullInd = !(hostVar->getIndName().isNull());
 
     // Force all host variable to have the same number of elements which was
@@ -15618,7 +15618,7 @@ RelExpr *RowsetRowwise::bindNode(BindWA *bindWA) {
   // rows. The whole buffer is shipped to the specified partition.
   if (arrayArea->partnNum()) return child(0)->castToRelExpr();
 
-  Lng32 maxRowsetSize = (Lng32)((ConstValue *)arrayArea->rwrsMaxSize())->getExactNumericValue();
+  int maxRowsetSize = (int)((ConstValue *)arrayArea->rwrsMaxSize())->getExactNumericValue();
 
   NAType *typ = new (bindWA->wHeap()) SQLInt(bindWA->wHeap(), FALSE, FALSE);
   ItemExpr *rwrsInputSizeExpr = new (bindWA->wHeap()) Cast(arrayArea->inputSize(), typ);
@@ -15662,7 +15662,7 @@ RelExpr *RowsetInto::bindNode(BindWA *bindWA) {
   if (bindWA->errStatus()) return this;
 
   NABoolean hasDifferentSizes = FALSE;
-  Lng32 maxRowsetSize = 0; /* Maximum number of Rows in Rowset */
+  int maxRowsetSize = 0; /* Maximum number of Rows in Rowset */
   ULng32 numOutputHostvars = 0;
 
   ItemExpr *rowsetSizeExpr;
@@ -15781,7 +15781,7 @@ RelExpr *RowsetInto::bindNode(BindWA *bindWA) {
   }
 
   ItemExpr *packExpr = NULL;
-  Lng32 i;
+  int i;
 
   for (hostVarTree = outputHostvars_, i = 0; hostVarTree; hostVarTree = hostVarTree->child(1), i++) {
     HostVar *hostVar = (HostVar *)hostVarTree->getChild(0);
@@ -15789,7 +15789,7 @@ RelExpr *RowsetInto::bindNode(BindWA *bindWA) {
     SQLRowset *hostVarType = (SQLRowset *)hostVar->getType();
     NAType *hostVarElemType = hostVarType->getElementType();
     // hostVarElemType->setNullable(TRUE);
-    Lng32 hostVarElemSize = hostVarElemType->getTotalSize();
+    int hostVarElemSize = hostVarElemType->getTotalSize();
     NABoolean hostVarElemNullInd = !(hostVar->getIndName().isNull());
     ItemExpr *sourceExpr = childTableVidList[i].getItemExpr();
 
@@ -16069,7 +16069,7 @@ RelExpr *CallSP::bindNode(BindWA *bindWA) {
     // Create a new NARoutine object
     NAHeap *routineHeap;
     if (bindWA->getSchemaDB()->getNARoutineDB()->cachingMetaData()) {
-      const Lng32 size = 16 * 1024;  // The initial size
+      const int size = 16 * 1024;  // The initial size
       routineHeap = new CTXTHEAP NAHeap("NARoutine Heap", (NAHeap *)CTXTHEAP, size);
     } else
       routineHeap = CmpCommon::statementHeap();
@@ -16147,8 +16147,8 @@ RelExpr *CallSP::bindNode(BindWA *bindWA) {
   CollIndex numSuppliedParams = countSuppliedParams(getRWProcAllParamsTree());
   if (numSuppliedParams != numParams) {
     *CmpCommon::diags() << DgSqlCode(-UDR_BINDER_INCORRECT_PARAM_COUNT)
-                        << DgTableName(getRoutineName().getQualifiedNameAsString()) << DgInt0((Lng32)numParams)
-                        << DgInt1((Lng32)numSuppliedParams);
+                        << DgTableName(getRoutineName().getQualifiedNameAsString()) << DgInt0((int)numParams)
+                        << DgInt1((int)numSuppliedParams);
     bindWA->setErrStatus();
     bindWA->setBindingCall(FALSE);
     return this;
@@ -16719,7 +16719,7 @@ RelExpr *TableMappingUDF::bindNode(BindWA *bindWA) {
     return NULL;
   }
 
-  Lng32 diagsMark = CmpCommon::diags()->mark();
+  int diagsMark = CmpCommon::diags()->mark();
   NABoolean errStatus = bindWA->errStatus();
 
   tmudfRoutine = getRoutineMetadata(name, tmfuncName, bindWA);
@@ -16849,8 +16849,8 @@ RelExpr *TableMappingUDF::bindNode(BindWA *bindWA) {
       ConstValue *cv = cp.getItemExpr()->castToConstValue(negate);
 
       if (cv && cv->canGetExactNumericValue()) {
-        Lng32 scale = 0;
-        Int64 ordinal = cv->getExactNumericValue(scale);
+        int scale = 0;
+        long ordinal = cv->getExactNumericValue(scale);
 
         if (!negate && scale == 0 && ordinal >= 1 && ordinal <= vidList.entries()) {
           // remove this ValueId from the set and add the corresponding
@@ -16879,8 +16879,8 @@ RelExpr *TableMappingUDF::bindNode(BindWA *bindWA) {
       cv = ie->castToConstValue(negate);
 
       if (cv && cv->canGetExactNumericValue()) {
-        Lng32 scale = 0;
-        Int64 ordinal = cv->getExactNumericValue(scale);
+        int scale = 0;
+        long ordinal = cv->getExactNumericValue(scale);
 
         // replace the const value with the actual column
         if (!negate && scale == 0 && ordinal >= 1 && ordinal <= vidList.entries())
@@ -17043,7 +17043,7 @@ bool ControlRunningQuery::isUserAuthorized(BindWA *bindWA) {
     // Set up the returned parameters
     // Max username can be (128 * 2) + 2 (delimiters) + 1 (null indicator)
     char username[2 * MAX_USERNAME_LEN + 2 + 1];
-    Int64 usernameLen = sizeof(username) - 1;
+    long usernameLen = sizeof(username) - 1;
 
     // Call function to extract the username from the QID
     Int32 retcode = ComSqlId::getSqlQueryIdAttr(ComSqlId::SQLQUERYID_USERNAME, pQid, qidLen, usernameLen, &username[0]);
@@ -17053,7 +17053,7 @@ bool ControlRunningQuery::isUserAuthorized(BindWA *bindWA) {
       // to integer.  This integer value is compared against the current userID.
       username[usernameLen] = '\0';
       if (username[0] == 'U') {
-        Int64 userID = str_atoi(&username[1], usernameLen - 1);
+        long userID = str_atoi(&username[1], usernameLen - 1);
         if (sessionID == userID || sessionID == ComUser::getRootUserID()) userHasPriv = true;
       }
       // If userName does not begin with a 'U', ignore and continue

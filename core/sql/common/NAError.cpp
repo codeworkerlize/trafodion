@@ -33,20 +33,20 @@
 **************************************************************************
 */
 
-#include "NAError.h"
+#include "sqlci/SqlciParseGlobals.h"
 #include <iostream>
 
 // -----------------------------------------------------------------------
 // NAErrorParamArray
 // -----------------------------------------------------------------------
-NAErrorParamArray::NAErrorParamArray(Lng32 numParams, NAErrorParam *errParam1, NAErrorParam *errParam2,
+NAErrorParamArray::NAErrorParamArray(int numParams, NAErrorParam *errParam1, NAErrorParam *errParam2,
                                      NAErrorParam *errParam3, NAErrorParam *errParam4, NAErrorParam *errParam5,
                                      NAErrorParam *errParam6, NAErrorParam *errParam7, NAErrorParam *errParam8,
                                      NAErrorParam *errParam9, NAErrorParam *errParam10)
     : numParams_(numParams) {
   array_ = new NAErrorParamArrayElement[numParams];
   NAErrorParam *errParamPtr;
-  for (Lng32 index = 0; index < numParams; index++) {
+  for (int index = 0; index < numParams; index++) {
     if (index == 0)
       errParamPtr = errParam1;
     else if (index == 1)

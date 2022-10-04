@@ -278,7 +278,7 @@ class RelRoot : public RelExpr {
   // children
   virtual void pushdownCoveredExpr(const ValueIdSet &outputExprOnOperator, const ValueIdSet &newExternalInputs,
                                    ValueIdSet &predOnOperator, const ValueIdSet *nonPredExprOnOperator = NULL,
-                                   Lng32 childId = (-MAX_REL_ARITY));
+                                   int childId = (-MAX_REL_ARITY));
 
   // The set of values that I can potentially produce as output.
   virtual void getPotentialOutputValues(ValueIdSet &vs) const;
@@ -299,11 +299,11 @@ class RelRoot : public RelExpr {
 
   // optimizer functions
   virtual CostMethod *costMethod() const;
-  virtual Context *createContextForAChild(Context *myContext, PlanWorkSpace *pws, Lng32 &childIndex);
+  virtual Context *createContextForAChild(Context *myContext, PlanWorkSpace *pws, int &childIndex);
 
-  virtual NABoolean currentPlanIsAcceptable(Lng32 planNo, const ReqdPhysicalProperty *const rppForMe) const;
+  virtual NABoolean currentPlanIsAcceptable(int planNo, const ReqdPhysicalProperty *const rppForMe) const;
 
-  virtual PhysicalProperty *synthPhysicalProperty(const Context *context, const Lng32 planNumber, PlanWorkSpace *pws);
+  virtual PhysicalProperty *synthPhysicalProperty(const Context *context, const int planNumber, PlanWorkSpace *pws);
 
   // method to do code generation
   RelExpr *preCodeGen(Generator *generator, const ValueIdSet &externalInputs, ValueIdSet &pulledNewInputs);
@@ -861,7 +861,7 @@ class Tuple : public RelExpr {
 
   // cost functions
   virtual CostMethod *costMethod() const;
-  virtual PhysicalProperty *synthPhysicalProperty(const Context *context, const Lng32 planNumber, PlanWorkSpace *pws);
+  virtual PhysicalProperty *synthPhysicalProperty(const Context *context, const int planNumber, PlanWorkSpace *pws);
 
   NABoolean &rejectPredicates() { return rejectPredicates_; }
 
@@ -889,10 +889,10 @@ class Tuple : public RelExpr {
   // We do not want valus(1) and values(1) to be considered the same
   // RelExpr in cascades memo which results in eliminating legitimate
   // Tuple expressions
-  Lng32 id_;
+  int id_;
 
   // Static counter used to ensure unique id to each Tuple object
-  static THREAD_P Lng32 idCounter_;
+  static THREAD_P int idCounter_;
   CostMethodTuple *pCostMethod_;
 };  // class Tuple
 
@@ -909,7 +909,7 @@ class TupleList : public Tuple {
   TupleList(const TupleList &other);
 
   ValueIdList &castToList() { return castToList_; }
-  Lng32 numTuples() const { return numberOfTuples_; }
+  int numTuples() const { return numberOfTuples_; }
 
   // a virtual function for performing name binding within the query tree
   RelExpr *bindNode(BindWA *bindWAPtr);
@@ -974,7 +974,7 @@ class TupleList : public Tuple {
   RelExpr *doInferCharSetFixup(BindWA *bindWA, enum CharInfo::CharSet cs, CollIndex arity, CollIndex nTuples);
 
   // cached number of tuples in the tuple list
-  Lng32 numberOfTuples_;
+  int numberOfTuples_;
 
   // list containing the value ids whose type the tuples are to be
   // converted before returning. Used (currently) if this list will be
@@ -1289,7 +1289,7 @@ class BeforeTrigger : public Rename {
   virtual const NAString getText() const;
 
   // Find the position and name of a Assign target column.
-  Lng32 getTargetColumn(CollIndex i, ColRefName *targetColName, const NATable *naTable);
+  int getTargetColumn(CollIndex i, ColRefName *targetColName, const NATable *naTable);
 
   // Do DDL semantic checks on the SET clause.
   void doSetSemanticChecks(BindWA *bindWA, RETDesc *origRETDesc);
@@ -1370,8 +1370,8 @@ class MapValueIds : public RelExpr {
   virtual void synthEstLogProp(const EstLogPropSharedPtr &inputEstLogProp);
 
   virtual CostMethod *costMethod() const;
-  virtual Context *createContextForAChild(Context *myContext, PlanWorkSpace *pws, Lng32 &childIndex);
-  virtual PhysicalProperty *synthPhysicalProperty(const Context *context, const Lng32 planNumber, PlanWorkSpace *pws);
+  virtual Context *createContextForAChild(Context *myContext, PlanWorkSpace *pws, int &childIndex);
+  virtual PhysicalProperty *synthPhysicalProperty(const Context *context, const int planNumber, PlanWorkSpace *pws);
 
   // accessor functions
   ValueIdMap &getMap() { return map_; }
@@ -1396,7 +1396,7 @@ class MapValueIds : public RelExpr {
   // Method to compute child's characteristic outputs
   virtual void pushdownCoveredExpr(const ValueIdSet &outputExprOnOperator, const ValueIdSet &newExternalInputs,
                                    ValueIdSet &predOnOperator, const ValueIdSet *nonPredExprOnOperator = NULL,
-                                   Lng32 childId = (-MAX_REL_ARITY));
+                                   int childId = (-MAX_REL_ARITY));
 
   // The set of values that I can potentially produce as output.
   virtual void getPotentialOutputValues(ValueIdSet &vs) const;
@@ -1417,7 +1417,7 @@ class MapValueIds : public RelExpr {
 
   NABoolean includesFavoriteMV() const { return includesFavoriteMV_; }
 
-  NABoolean assignRTStats(NAArray<Int64> &rtStats, Int32 &order);
+  NABoolean assignRTStats(NAArray<long> &rtStats, Int32 &order);
 
  private:
   ValueIdMap map_;
@@ -1444,7 +1444,7 @@ class PhysicalMapValueIds : public MapValueIds {
   virtual NABoolean isLogical() const;
   virtual NABoolean isPhysical() const;
 
-  virtual PlanPriority computeOperatorPriority(const Context *context, PlanWorkSpace *pws = NULL, Lng32 planNumber = 0);
+  virtual PlanPriority computeOperatorPriority(const Context *context, PlanWorkSpace *pws = NULL, int planNumber = 0);
 
 };  // class PhysicalMapValueIds
 
@@ -1461,7 +1461,7 @@ class PhysicalMapValueIds : public MapValueIds {
 // -----------------------------------------------------------------------
 class FirstN : public RelExpr {
  public:
-  FirstN(RelExpr *child, Int64 firstNRows, NABoolean isFirstN, ItemExpr *firstNRowsParam = NULL,
+  FirstN(RelExpr *child, long firstNRows, NABoolean isFirstN, ItemExpr *firstNRowsParam = NULL,
          CollHeap *oHeap = CmpCommon::statementHeap())
       : RelExpr(REL_FIRST_N, child, NULL, oHeap),
         firstNRows_(firstNRows),
@@ -1484,12 +1484,12 @@ class FirstN : public RelExpr {
   virtual RelExpr *semanticQueryOptimizeNode(NormWA &normWARef);
 
   // takes care of any ordering requirement on the child
-  virtual Context *createContextForAChild(Context *myContext, PlanWorkSpace *pws, Lng32 &childIndex);
+  virtual Context *createContextForAChild(Context *myContext, PlanWorkSpace *pws, int &childIndex);
 
   //
   // Physical properties implemented in OptPhysRelExpr.cpp
   //
-  PhysicalProperty *synthPhysicalProperty(const Context *myContext, const Lng32 planNumber, PlanWorkSpace *pws);
+  PhysicalProperty *synthPhysicalProperty(const Context *myContext, const int planNumber, PlanWorkSpace *pws);
 
   virtual RelExpr *preCodeGen(Generator *generator, const ValueIdSet &externalInputs, ValueIdSet &pulledNewInputs);
 
@@ -1507,8 +1507,8 @@ class FirstN : public RelExpr {
   virtual RelExpr *copyTopNode(RelExpr *derivedNode = NULL, CollHeap *outHeap = 0);
   virtual const NAString getText() const;
 
-  void setFirstNRows(Int64 firstNRows) { firstNRows_ = firstNRows; }
-  Int64 getFirstNRows() { return firstNRows_; }
+  void setFirstNRows(long firstNRows) { firstNRows_ = firstNRows; }
+  long getFirstNRows() { return firstNRows_; }
 
   void setFirstNRowsParam(ItemExpr *firstNRowsParam) { firstNRowsParam_ = firstNRowsParam; }
   ItemExpr *getFirstNRowsParam() { return firstNRowsParam_; }
@@ -1531,7 +1531,7 @@ class FirstN : public RelExpr {
 
  private:
   // Otherwise, return firstNRows_ at runtime.
-  Int64 firstNRows_;
+  long firstNRows_;
   ItemExpr *firstNRowsParam_;
   NABoolean canExecuteInDp2_;
   NABoolean firstNPredUsed_;
@@ -1699,7 +1699,7 @@ class Transpose : public RelExpr {
   //
   virtual void pushdownCoveredExpr(const ValueIdSet &outputExprOnOperator, const ValueIdSet &newExternalInputs,
                                    ValueIdSet &predOnOperator, const ValueIdSet *nonPredExprOnOperator = NULL,
-                                   Lng32 childId = (-MAX_REL_ARITY));
+                                   int childId = (-MAX_REL_ARITY));
 
   // Return a the set of potential output values of this node.
   // For transpose, this is the potential outputs of the child,
@@ -1811,7 +1811,7 @@ class PhysTranspose : public Transpose {
 
   // cost functions
   //
-  virtual PhysicalProperty *synthPhysicalProperty(const Context *context, const Lng32 planNumber, PlanWorkSpace *pws);
+  virtual PhysicalProperty *synthPhysicalProperty(const Context *context, const int planNumber, PlanWorkSpace *pws);
   virtual CostMethod *costMethod() const;
 
   // Redefine these virtual methods to declare this node as a
@@ -1904,13 +1904,13 @@ class Pack : public RelExpr {
   // Refined to rewrite sub-expressions in packingExpr_ to VEG if needed.
   virtual void rewriteNode(NormWA &normWA);
 
-  virtual Context *createContextForAChild(Context *myContext, PlanWorkSpace *pws, Lng32 &childIndex);
+  virtual Context *createContextForAChild(Context *myContext, PlanWorkSpace *pws, int &childIndex);
 
   // Refined to add in the sub-expression for each expr in packingExpr_ to
   // nonPredExprOnOperator.
   virtual void pushdownCoveredExpr(const ValueIdSet &outputExprOnOperator, const ValueIdSet &newExternalInputs,
                                    ValueIdSet &predOnOperator, const ValueIdSet *nonPredExprOnOperator = NULL,
-                                   Lng32 childId = (-MAX_REL_ARITY));
+                                   int childId = (-MAX_REL_ARITY));
 
   // Refined to return the packing expression.
   virtual void getPotentialOutputValues(ValueIdSet &vs) const;
@@ -2033,7 +2033,7 @@ class PhyPack : public Pack {
   // ---------------------------------------------------------------------
   // Methods on Physical Properties and Costing.
   // ---------------------------------------------------------------------
-  virtual PhysicalProperty *synthPhysicalProperty(const Context *context, const Lng32 planNumber, PlanWorkSpace *pws);
+  virtual PhysicalProperty *synthPhysicalProperty(const Context *context, const int planNumber, PlanWorkSpace *pws);
   virtual CostMethod *costMethod() const;
 
  private:
@@ -2284,7 +2284,7 @@ class ControlRunningQuery : public RelExpr {
 
   virtual RelExpr *bindNode(BindWA *bindWAPtr);
 
-  virtual PhysicalProperty *synthPhysicalProperty(const Context *context, const Lng32 planNumber, PlanWorkSpace *pws);
+  virtual PhysicalProperty *synthPhysicalProperty(const Context *context, const int planNumber, PlanWorkSpace *pws);
 
   // method to do code generation
   virtual short codeGen(Generator *);
@@ -2587,7 +2587,7 @@ class CommonSubExprRef : public RelExpr {
   virtual void pullUpPreds();
   virtual void pushdownCoveredExpr(const ValueIdSet &outputExprOnOperator, const ValueIdSet &newExternalInputs,
                                    ValueIdSet &predOnOperator, const ValueIdSet *nonPredNonOutputExprOnOperator = NULL,
-                                   Lng32 childId = (-MAX_REL_ARITY));
+                                   int childId = (-MAX_REL_ARITY));
   virtual void rewriteNode(NormWA &normWARef);
   virtual RelExpr *semanticQueryOptimizeNode(NormWA &normWARef);
   virtual NABoolean prepareMeForCSESharing(const ValueIdSet &outputsToAdd, const ValueIdSet &predicatesToRemove,
@@ -2770,7 +2770,7 @@ class ConnectByMap : public NABasicObject {
         rightColMap_(rhs.rightColMap_),
         count_(rhs.count_) {}
 
-  void normalizeSpecificChild(NormWA &normWARef, Lng32 childIndex);
+  void normalizeSpecificChild(NormWA &normWARef, int childIndex);
   void trim(const ValueIdSet &charOutputs);
   inline ValueIdList &colMapTable() { return colMapTable_; }
   inline const ValueIdList &colMapTable() const { return colMapTable_; }
@@ -2783,7 +2783,7 @@ class ConnectByMap : public NABasicObject {
   ValueIdList childColList_;
   ValueIdList rchildColList_;
 
-  Lng32 count_;
+  int count_;
 };
 
 class ConnectByMap;
@@ -2803,9 +2803,9 @@ class ConnectBy : public RelExpr {
   }
   virtual RelExpr *bindNode(BindWA *bindWA);
 
-  virtual Context *createContextForAChild(Context *myContext, PlanWorkSpace *pws, Lng32 &childIndex);
+  virtual Context *createContextForAChild(Context *myContext, PlanWorkSpace *pws, int &childIndex);
 
-  PhysicalProperty *synthPhysicalProperty(const Context *myContext, const Lng32 planNumber, PlanWorkSpace *pws);
+  PhysicalProperty *synthPhysicalProperty(const Context *myContext, const int planNumber, PlanWorkSpace *pws);
 
   virtual RelExpr *preCodeGen(Generator *generator, const ValueIdSet &externalInputs, ValueIdSet &pulledNewInputs);
 
@@ -2832,7 +2832,7 @@ class ConnectBy : public RelExpr {
   }
   virtual void pushdownCoveredExpr(const ValueIdSet &outputExprOnOperator, const ValueIdSet &newExternalInputs,
                                    ValueIdSet &predOnOperator, const ValueIdSet *nonPredNonOutputExprOnOperator = NULL,
-                                   Lng32 childId = (-MAX_REL_ARITY));
+                                   int childId = (-MAX_REL_ARITY));
 
   virtual NABoolean isLogical() const { return TRUE; };
   virtual NABoolean isPhysical() const { return TRUE; };
@@ -2898,7 +2898,7 @@ class ConnectBy : public RelExpr {
   inline ValueIdMap &getLeftMap() const { return connectByMap_->leftColMap_; }
   inline ValueIdMap &getRightMap() { return connectByMap_->rightColMap_; }
   inline ValueIdMap &getRightMap() const { return connectByMap_->rightColMap_; }
-  ValueIdMap &getMap(Lng32 i) {
+  ValueIdMap &getMap(int i) {
     CMPASSERT(i == 0 OR i == 1);
     if (i == 0)
       return connectByMap_->leftColMap_;
@@ -2960,9 +2960,9 @@ class ConnectByTempTable : public RelExpr {
   ~ConnectByTempTable() {}
   virtual RelExpr *bindNode(BindWA *bindWA);
 
-  virtual Context *createContextForAChild(Context *myContext, PlanWorkSpace *pws, Lng32 &childIndex);
+  virtual Context *createContextForAChild(Context *myContext, PlanWorkSpace *pws, int &childIndex);
 
-  PhysicalProperty *synthPhysicalProperty(const Context *myContext, const Lng32 planNumber, PlanWorkSpace *pws);
+  PhysicalProperty *synthPhysicalProperty(const Context *myContext, const int planNumber, PlanWorkSpace *pws);
 
   virtual RelExpr *preCodeGen(Generator *generator, const ValueIdSet &externalInputs, ValueIdSet &pulledNewInputs);
 
@@ -2970,7 +2970,7 @@ class ConnectByTempTable : public RelExpr {
 
   virtual void pushdownCoveredExpr(const ValueIdSet &outputExprOnOperator, const ValueIdSet &newExternalInputs,
                                    ValueIdSet &predOnOperator, const ValueIdSet *nonPredNonOutputExprOnOperator = NULL,
-                                   Lng32 childId = (-MAX_REL_ARITY));
+                                   int childId = (-MAX_REL_ARITY));
   void rewriteExpr(const ValueIdSet &unionExpr, ValueIdSet &exprForChild) const;
   virtual NABoolean isLogical() const { return TRUE; };
   virtual NABoolean isPhysical() const { return TRUE; };

@@ -44,7 +44,7 @@
 #include "common/trafconfig.h"
 static const int nodeNameLen = TC_PROCESSOR_NAME_MAX;  // defined in trafconf/trafconfig.h
 
-ExFragDir::ExFragDir(Lng32 entries, Space *space, NABoolean multiFragments, NABoolean fragmentQuotas,
+ExFragDir::ExFragDir(int entries, Space *space, NABoolean multiFragments, NABoolean fragmentQuotas,
                      UInt16 multiFragmentVm, UInt8 numMultiFragments, ComASNodes *asNodes)
     : NAVersionedObject(-1) {
   numEntries_ = entries;
@@ -72,14 +72,14 @@ Long ExFragDir::pack(void *space) {
   return NAVersionedObject::pack(space);
 }
 
-Lng32 ExFragDir::unpack(void *base, void *reallocator) {
+int ExFragDir::unpack(void *base, void *reallocator) {
   if (fragments_.unpack(base, numEntries_, reallocator)) return -1;
   if (scratchFileOptions_.unpack(base, reallocator)) return -1;
   if (tenantASNodes_.unpack(base, reallocator)) return -1;
   return NAVersionedObject::unpack(base, reallocator);
 }
 
-Lng32 ExFragDir::getExplainFragDirEntry(Lng32 &fragOffset, Lng32 &fragLen, Lng32 &topNodeOffset) {
+int ExFragDir::getExplainFragDirEntry(int &fragOffset, int &fragLen, int &topNodeOffset) {
   // Find the EXPLAIN Fragment
   CollIndex explainFragIndex = NULL_COLL_INDEX;
 
@@ -106,7 +106,7 @@ Long ExFragDirEntry::pack(void *space) {
   return NAVersionedObject::pack(space);
 }
 
-Lng32 ExFragDirEntry::unpack(void *base, void *reallocator) {
+int ExFragDirEntry::unpack(void *base, void *reallocator) {
   if (partDescriptor_.unpack(base, reallocator)) return -1;
   if (espNodeMap_.unpack(base, reallocator)) return -1;
   return NAVersionedObject::unpack(base, reallocator);
@@ -114,26 +114,26 @@ Lng32 ExFragDirEntry::unpack(void *base, void *reallocator) {
 
 Long ExEspNodeMapEntry::pack(void *space) { return clusterName_.pack(space); }
 
-Lng32 ExEspNodeMapEntry::unpack(void *base, void *reallocator) { return clusterName_.unpack(base); }
+int ExEspNodeMapEntry::unpack(void *base, void *reallocator) { return clusterName_.unpack(base); }
 
 ExEspNodeMap::ExEspNodeMap() : map_(NULL), entries_(0) {}
 
-Lng32 ExEspNodeMap::getNodeNumber(Lng32 instance) const {
+int ExEspNodeMap::getNodeNumber(int instance) const {
   if (map_ == (ExEspNodeMapEntryPtr)NULL) return IPC_CPU_DONT_CARE;
   return map_[instance].nodeNumber_;
 }
 
-const char *ExEspNodeMap::getClusterName(Lng32 instance) const {
+const char *ExEspNodeMap::getClusterName(int instance) const {
   if (map_ == (ExEspNodeMapEntryPtr)NULL) return NULL;
   return map_[instance].clusterName_;
 }
 
-NABoolean ExEspNodeMap::needToWork(Lng32 instance) const {
+NABoolean ExEspNodeMap::needToWork(int instance) const {
   if (map_ == (ExEspNodeMapEntryPtr)NULL) return FALSE;
   return map_[instance].needToWork_;
 }
 
-void ExEspNodeMap::setEntry(Lng32 instance, const char *clusterName, Lng32 nodeNumber, NABoolean needToWork,
+void ExEspNodeMap::setEntry(int instance, const char *clusterName, int nodeNumber, NABoolean needToWork,
                             Space *space) {
   if (map_ && entries_ > instance) {
     map_[instance].clusterName_ = space->allocateMemory(nodeNameLen);
@@ -145,15 +145,15 @@ void ExEspNodeMap::setEntry(Lng32 instance, const char *clusterName, Lng32 nodeN
 
 Long ExEspNodeMap::pack(void *space) { return map_.packArray(space, entries_); }
 
-Lng32 ExEspNodeMap::unpack(void *base, void *reallocator) { return map_.unpackArray(base, entries_, reallocator); }
+int ExEspNodeMap::unpack(void *base, void *reallocator) { return map_.unpackArray(base, entries_, reallocator); }
 
-Lng32 ExEspNodeMap::isNodeNumDuplicate(Lng32 numCpus) {
+int ExEspNodeMap::isNodeNumDuplicate(int numCpus) {
   if (map_ == (ExEspNodeMapEntryPtr)NULL) return 0;
 
-  Lng32 nodeEspNum[numCpus];
-  for (Lng32 j = 0; j < numCpus; ++j) nodeEspNum[j] = 0;
-  for (Lng32 i = 0; i < entries_; ++i) {
-    Lng32 nodeNum = getNodeNumber(i);
+  int nodeEspNum[numCpus];
+  for (int j = 0; j < numCpus; ++j) nodeEspNum[j] = 0;
+  for (int i = 0; i < entries_; ++i) {
+    int nodeNum = getNodeNumber(i);
     nodeEspNum[nodeNum]++;
     if (nodeEspNum[nodeNum] > 1) return 1;  // duplicated
   }
@@ -164,7 +164,7 @@ void ExEspNodeMap::display(NAText &output) {
   const char delim = '|';
   output.reserve(100);
   char buf[20];
-  for (Lng32 i = 0; i < entries_; ++i) {
+  for (int i = 0; i < entries_; ++i) {
     sprintf(buf, "%d%c", getNodeNumber(i), delim);
     output.append(buf);
   }

@@ -81,7 +81,7 @@ class ElemDDLLoadOptDSlack : public ElemDDLLoadOpt {
   enum { DEFAULT_PERCENTAGE = 15 };
 
   // constructor
-  ElemDDLLoadOptDSlack(Lng32 percentage);
+  ElemDDLLoadOptDSlack(int percentage);
 
   // virtual destructor
   virtual ~ElemDDLLoadOptDSlack();
@@ -104,7 +104,7 @@ class ElemDDLLoadOptDSlack : public ElemDDLLoadOpt {
   // method(s)
   //
 
-  NABoolean isLegalPercentageValue(Lng32 percentage);
+  NABoolean isLegalPercentageValue(int percentage);
 
   //
   // data member(s)
@@ -122,7 +122,7 @@ class ElemDDLLoadOptISlack : public ElemDDLLoadOpt {
   enum { DEFAULT_PERCENTAGE = 15 };
 
   // constructor
-  ElemDDLLoadOptISlack(Lng32 percentage);
+  ElemDDLLoadOptISlack(int percentage);
 
   // virtual destructor
   virtual ~ElemDDLLoadOptISlack();
@@ -145,7 +145,7 @@ class ElemDDLLoadOptISlack : public ElemDDLLoadOpt {
   // method(s)
   //
 
-  NABoolean isLegalPercentageValue(Lng32 percentage);
+  NABoolean isLegalPercentageValue(int percentage);
 
   //
   // data member(s)

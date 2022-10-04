@@ -30,9 +30,9 @@
 ItemExpr *ItmBitMuxFunction::preCodeGen(Generator *generator) {
   if (nodeIsPreCodeGenned()) return this;
 
-  Lng32 nc = (Lng32)getArity();
+  int nc = (int)getArity();
 
-  for (Lng32 index = 0; index < nc; index++) {
+  for (int index = 0; index < nc; index++) {
     // during key encode expr generation, no need to convert external
     // column types(like tandem floats) to their internal
     // equivalent(ieee floats). Avoid doing preCodeGen in these cases.
@@ -59,7 +59,7 @@ short ItmBitMuxFunction::codeGen(Generator *generator) {
   generator->getExpGenerator()->linkClause(this, function_clause);
 
 #ifdef _DEBUG
-  Lng32 totalLength = 0;
+  int totalLength = 0;
 
   for (Int32 i = 0; i < getArity(); i++) {
     totalLength += function_clause->getOperand((short)(i + 1))->getStorageLength();

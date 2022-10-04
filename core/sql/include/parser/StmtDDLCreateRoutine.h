@@ -108,7 +108,7 @@ class StmtDDLCreateRoutine : public StmtDDLNode {
 
   // methods relating to parse tree
   virtual Int32 getArity() const;
-  virtual ExprNode *getChild(Lng32 routine);
+  virtual ExprNode *getChild(int routine);
 
   inline NABoolean isStmtDDLAlterRoutineParseNode() const;
 
@@ -218,7 +218,7 @@ class StmtDDLCreateRoutine : public StmtDDLNode {
   inline void setUudfName(const QualifiedName &uudfQualName);
 
   // methods relating to Parse trees
-  void setChild(Lng32 routine, ExprNode *newNode);
+  void setChild(int routine, ExprNode *newNode);
   inline void setUudfParamKindList(ElemDDLNode *pElemDDL);
   inline void setPassThroughInputsParseTree(ElemDDLNode *pElemDDL);
   inline void setRoutineAttributesParseTree(ElemDDLNode *pElemDDL);

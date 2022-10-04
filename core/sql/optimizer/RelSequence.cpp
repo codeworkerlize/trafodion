@@ -41,7 +41,7 @@
 #include "optimizer/BindWA.h"
 #include "optimizer/NormWA.h"
 #include "Cost.h"
-#include "CostMethod.h"
+#include "optimizer/CostMethod.h"
 #include "optimizer/opt.h"
 #include "cli/Globals.h"
 
@@ -806,7 +806,7 @@ ValueIdList RelSequence::mapSortKey(const ValueIdList &sortKey) const {
   return newSortKey;
 }
 
-PhysicalProperty *PhysSequence::synthPhysicalProperty(const Context *context, const Lng32 pn, PlanWorkSpace *pws) {
+PhysicalProperty *PhysSequence::synthPhysicalProperty(const Context *context, const int pn, PlanWorkSpace *pws) {
   // Call the default implementation
   // (RelExpr::synthPhysicalProperty()) to synthesize the properties
   // on the number of cpus.
@@ -830,7 +830,7 @@ PhysicalProperty *PhysSequence::synthPhysicalProperty(const Context *context, co
 
 void RelSequence::pushdownCoveredExpr(const ValueIdSet &outputExpr, const ValueIdSet &newExternalInputs,
                                       ValueIdSet &predicatesOnParent, const ValueIdSet *setOfValuesReqdByParent,
-                                      Lng32 childIndex) {
+                                      int childIndex) {
   ValueIdSet exprOnParent;
   if (setOfValuesReqdByParent) exprOnParent = *setOfValuesReqdByParent;
   exprOnParent += sequenceFunctions();
@@ -861,7 +861,7 @@ void RelSequence::pushdownCoveredExpr(const ValueIdSet &outputExpr, const ValueI
 
 }  // RelSequence::pushdownCoveredExpr
 
-Context *RelSequence::createContextForAChild(Context *myContext, PlanWorkSpace *pws, Lng32 &childIndex) {
+Context *RelSequence::createContextForAChild(Context *myContext, PlanWorkSpace *pws, int &childIndex) {
   // ---------------------------------------------------------------------
   // If one Context has been generated for each child, return NULL
   // to signal completion.
@@ -870,7 +870,7 @@ Context *RelSequence::createContextForAChild(Context *myContext, PlanWorkSpace *
 
   childIndex = 0;
 
-  Lng32 planNumber = 0;
+  int planNumber = 0;
   const ReqdPhysicalProperty *rppForMe = myContext->getReqdPhysicalProperty();
   PartitioningRequirement *partReqForMe = rppForMe->getPartitioningRequirement();
 
@@ -948,7 +948,7 @@ Context *RelSequence::createContextForAChild(Context *myContext, PlanWorkSpace *
   //
   rg.addLocationRequirement(EXECUTE_IN_MASTER_OR_ESP);
 
-  Lng32 childNumPartsRequirement = ANY_NUMBER_OF_PARTITIONS;
+  int childNumPartsRequirement = ANY_NUMBER_OF_PARTITIONS;
   float childNumPartsAllowedDeviation = 0.0;
   NABoolean numOfESPsForced = FALSE;
 
@@ -1202,7 +1202,7 @@ RelExpr *RelSequence::bindNode(BindWA *bindWA) {
 
 }  // RelSequence::bindNode()
 
-NABoolean PhysSequence::isBigMemoryOperator(const Context *context, const Lng32 planNumber) {
+NABoolean PhysSequence::isBigMemoryOperator(const Context *context, const int planNumber) {
   const double memoryLimitPerCPU = CURRSTMT_OPTDEFAULTS->getMemoryLimitPerCPU();
 
   // The Sequence operator allocates the history buffer in memory.
@@ -1210,10 +1210,10 @@ NABoolean PhysSequence::isBigMemoryOperator(const Context *context, const Lng32 
 
   const ReqdPhysicalProperty *rppForMe = context->getReqdPhysicalProperty();
   // Start off assuming that the sort will use all available CPUs.
-  Lng32 cpuCount = rppForMe->getCountOfAvailableCPUs();
+  int cpuCount = rppForMe->getCountOfAvailableCPUs();
   PartitioningRequirement *partReq = rppForMe->getPartitioningRequirement();
   const PhysicalProperty *spp = context->getPlan()->getPhysicalProperty();
-  Lng32 numOfStreams;
+  int numOfStreams;
 
   // If the physical properties are available, then this means we
   // are on the way back up the tree. Get the actual level of
@@ -1241,7 +1241,7 @@ NABoolean PhysSequence::isBigMemoryOperator(const Context *context, const Lng32 
   const double rowsPerCpu = MIN_ONE(historyBufferRowCount / cpuCount);
   const double rowsPerCpuPerProbe = MIN_ONE(rowsPerCpu / probeCount);
 
-  const Lng32 bufferWidth = estHistoryRowLength_;
+  const int bufferWidth = estHistoryRowLength_;
   const double bufferSizePerCpu = (rowsPerCpuPerProbe / 1024. * bufferWidth);
 
   return (bufferSizePerCpu >= memoryLimitPerCPU);
@@ -1263,8 +1263,8 @@ void RelSequence::addUnResolvedSeqFunctions(ValueIdSet &unresolvedSeqFuncs, Bind
       NABoolean mustInv = FALSE;
       NABoolean canInv = TRUE;
 
-      Lng32 precedingMax = 0;
-      Lng32 followingMax = 0;
+      int precedingMax = 0;
+      int followingMax = 0;
 
       for (ValueId sfId = sequenceFunctions_.init(); sequenceFunctions_.next(sfId); sequenceFunctions_.advance(sfId)) {
         ItmSequenceFunction *sf = (ItmSequenceFunction *)(sfId.getItemExpr());
@@ -1431,21 +1431,21 @@ void RelSequence::addUnResolvedSeqFunctions(ValueIdSet &unresolvedSeqFuncs, Bind
   }
 }
 
-void PhysSequence::setNumHistoryRows(Lng32 numHistoryRows) { numHistoryRows_ = numHistoryRows; };
+void PhysSequence::setNumHistoryRows(int numHistoryRows) { numHistoryRows_ = numHistoryRows; };
 
 void PhysSequence::setUnboundedFollowing(NABoolean v) { unboundedFollowing_ = v; };
 
 NABoolean PhysSequence::getUnboundedFollowing() const { return unboundedFollowing_; };
-void PhysSequence::setMinFollowingRows(Lng32 v) { minFollowingRows_ = v; };
+void PhysSequence::setMinFollowingRows(int v) { minFollowingRows_ = v; };
 
-void PhysSequence::computeAndSetMinFollowingRows(Lng32 v) {
+void PhysSequence::computeAndSetMinFollowingRows(int v) {
   if (v > minFollowingRows_) minFollowingRows_ = v;
 };
 
-Lng32 PhysSequence::getMinFollowingRows() const { return minFollowingRows_; };
+int PhysSequence::getMinFollowingRows() const { return minFollowingRows_; };
 
 void PhysSequence::estimateHistoryRowLength(const ValueIdSet &sequenceFunctions, const ValueIdSet &outputFromChild,
-                                            ValueIdSet &histIds, Lng32 &estimatedLength) {
+                                            ValueIdSet &histIds, int &estimatedLength) {
   ValueIdSet children;
 
   for (ValueId valId = sequenceFunctions.init(); sequenceFunctions.next(valId); sequenceFunctions.advance(valId)) {
@@ -1529,7 +1529,7 @@ void PhysSequence::estimateHistoryRowLength(const ValueIdSet &sequenceFunctions,
     // Gather all the children, and if not empty, recurse down to the
     // next level of the tree.
     //
-    for (Lng32 i = 0; i < valId.getItemExpr()->getArity(); i++) {
+    for (int i = 0; i < valId.getItemExpr()->getArity(); i++) {
       if (!outputFromChild.contains(valId.getItemExpr()->child(i)->getValueId())) {
         children += valId.getItemExpr()->child(i)->getValueId();
       }
@@ -1545,11 +1545,11 @@ void PhysSequence::retrieveCachedHistoryInfo(RelSequence *cacheRelSeq) {
   ValueIdSet outputFromChild = child(0).getGroupAttr()->getCharacteristicOutputs();
 
   if (!cacheRelSeq->getHistoryInfoCached()) {
-    Lng32 unableToCalculate = 0;
-    Lng32 estimatedRowLength = 0;
-    Lng32 numHistoryRows = 0;
+    int unableToCalculate = 0;
+    int estimatedRowLength = 0;
+    int numHistoryRows = 0;
     NABoolean unboundedFollowing = 0;
-    Lng32 minFollowing = 0;
+    int minFollowing = 0;
     ValueIdSet histIds;
 
     estimateHistoryRowLength(sequenceFunctions(), outputFromChild, histIds, estimatedRowLength);

@@ -105,7 +105,7 @@ typedef PCodeInstructionMap PCIMap;
 //
 struct PCodeInstructionMap {
  public:
-  Int64 instruction;
+  long instruction;
   Int32 opcode;
   const char *opcodeString;
   Int32 length;
@@ -142,7 +142,7 @@ class PCodeSegment : public NAVersionedObject {
   short getClassSize();
 
   Long pack(void *);
-  Lng32 unpack(void *, void *reallocator);
+  int unpack(void *, void *reallocator);
 
   void replaceAttributesPtr(ex_clause *clauses, Space *space);
   void replaceClauseEvalPtr(ex_clause *oldClause, ex_clause *newClause);

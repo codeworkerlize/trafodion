@@ -76,18 +76,18 @@ class ScmElapsedTimeCostLimit;
 class CostPrimitives;
 class PerformanceGoal;
 
-const Lng32 NORMAL_PLAN_PRIORITY = 0;  // must remain zero
-const Lng32 INDEX_HINT_PRIORITY = 100;
-const Lng32 JOIN_IMPLEMENTATION_HINT_PRIORITY = 100;
-const Lng32 GROUPBY_IMPLEMENTATION_HINT_PRIORITY = 100;
-const Lng32 INTERACTIVE_ACCESS_PRIORITY = 1;
-const Lng32 INTERACTIVE_ACCESS_MDAM_PRIORITY = 1;
-const Lng32 BLOCKING_OPS_FIRST_N_PRIORITY = -1;
-const Lng32 HASH_JOIN_FIRST_N_PRIORITY = BLOCKING_OPS_FIRST_N_PRIORITY;
-const Lng32 HASH_GROUP_BY_FIRST_N_PRIORITY = BLOCKING_OPS_FIRST_N_PRIORITY;
-const Lng32 SORT_FIRST_N_PRIORITY = BLOCKING_OPS_FIRST_N_PRIORITY;
-const Lng32 MATERIALIZE_FIRST_N_PRIORITY = BLOCKING_OPS_FIRST_N_PRIORITY;
-const Lng32 MVQR_FAVORITE_PRIORITY = INTERACTIVE_ACCESS_PRIORITY;
+const int NORMAL_PLAN_PRIORITY = 0;  // must remain zero
+const int INDEX_HINT_PRIORITY = 100;
+const int JOIN_IMPLEMENTATION_HINT_PRIORITY = 100;
+const int GROUPBY_IMPLEMENTATION_HINT_PRIORITY = 100;
+const int INTERACTIVE_ACCESS_PRIORITY = 1;
+const int INTERACTIVE_ACCESS_MDAM_PRIORITY = 1;
+const int BLOCKING_OPS_FIRST_N_PRIORITY = -1;
+const int HASH_JOIN_FIRST_N_PRIORITY = BLOCKING_OPS_FIRST_N_PRIORITY;
+const int HASH_GROUP_BY_FIRST_N_PRIORITY = BLOCKING_OPS_FIRST_N_PRIORITY;
+const int SORT_FIRST_N_PRIORITY = BLOCKING_OPS_FIRST_N_PRIORITY;
+const int MATERIALIZE_FIRST_N_PRIORITY = BLOCKING_OPS_FIRST_N_PRIORITY;
+const int MVQR_FAVORITE_PRIORITY = INTERACTIVE_ACCESS_PRIORITY;
 
 class PlanPriority {
  public:
@@ -97,7 +97,7 @@ class PlanPriority {
 
   PlanPriority() : level_(0), demotionLevel_(0), riskPremium_(1.0) {}
 
-  PlanPriority(const Lng32 val, const Lng32 demotion, CostScalar premium = 1.0)
+  PlanPriority(const int val, const int demotion, CostScalar premium = 1.0)
       : level_(val),               // xxx make def value
         demotionLevel_(demotion),  // xxx make def value
         riskPremium_(premium) {}
@@ -215,24 +215,24 @@ class PlanPriority {
   }
 
   // Increment the priority level by a certain value
-  inline void incrementLevels(Lng32 val, Lng32 dem) {
+  inline void incrementLevels(int val, int dem) {
     level_ += val;
     demotionLevel_ += dem;
   }
 
   // Avoid using this method as much as possible except for display purposes
-  inline Lng32 getLevel() const { return level_; }
+  inline int getLevel() const { return level_; }
 
   // Avoid using this method as much as possible except for display purposes
   // With current exception of using it in cost based pruning
-  inline Lng32 getDemotionLevel() const { return demotionLevel_; }
+  inline int getDemotionLevel() const { return demotionLevel_; }
 
   // risk premium accessor
   CostScalar riskPremium() const { return riskPremium_; }
 
  private:
-  Lng32 level_;
-  Lng32 demotionLevel_;  // monotonically decreasing level
+  int level_;
+  int demotionLevel_;  // monotonically decreasing level
   // xxx for now level_ override demotionLevel_. Later on we will orthoganalize this
   CostScalar riskPremium_;
   // multiplicative factor used to inflate cost of risky operator.
@@ -268,7 +268,7 @@ class Cost : public NABasicObject {
   // to Cost class.
   // ---------------------------------------------------------------------
   Cost(const SimpleCostVector *currentProcessFirstRowCost, const SimpleCostVector *currentProcessLastRowCost,
-       const SimpleCostVector *currentProcessBlockingCost, const Lng32 countOfCPUs, const Lng32 planFragmentsPerCPU);
+       const SimpleCostVector *currentProcessBlockingCost, const int countOfCPUs, const int planFragmentsPerCPU);
 
   //-----------------------------------------------------------
   //  Constructor for SCM.
@@ -338,9 +338,9 @@ class Cost : public NABasicObject {
   // jo  inline const SimpleCostVector& getOplr()        const { return oplr_; }
   inline const SimpleCostVector &getTotalCost() const { return totalCost_; }
 
-  inline Lng32 getCountOfCPUs() const { return countOfCPUs_; }
+  inline int getCountOfCPUs() const { return countOfCPUs_; }
 
-  inline Lng32 getPlanFragmentsPerCPU() const { return planFragmentsPerCPU_; }
+  inline int getPlanFragmentsPerCPU() const { return planFragmentsPerCPU_; }
   inline const PlanPriority &getPlanPriority() const { return priority_; }
 
   // ---------------------------------------------------------------------
@@ -364,8 +364,8 @@ class Cost : public NABasicObject {
   // jo  inline SimpleCostVector& opfr()                        { return opfr_; }
   // jo  inline SimpleCostVector& oplr()                        { return oplr_; }
   inline SimpleCostVector &totalCost() { return totalCost_; }
-  inline Lng32 &countOfCPUs() { return countOfCPUs_; }
-  inline Lng32 &planFragmentsPerCPU() { return planFragmentsPerCPU_; }
+  inline int &countOfCPUs() { return countOfCPUs_; }
+  inline int &planFragmentsPerCPU() { return planFragmentsPerCPU_; }
   inline PlanPriority &planPriority() { return priority_; }
 
   // ---------------------------------------------------------------------
@@ -401,18 +401,18 @@ class Cost : public NABasicObject {
   // This method returns cost information to WMS (and possibly other callers).
   // -----------------------------------------------------------------------
   void getExternalCostAttr(double &cpuTime, double &ioTime, double &msgTime, double &idleTime, double &numSeqIOs,
-                           double &numRandIOs, double &totalTime, Lng32 &probes) const;
+                           double &numRandIOs, double &totalTime, int &probes) const;
 
   // ---------------------------------------------------------------------
   // Method for returning OCM cost atrributes.
   // ---------------------------------------------------------------------
-  void getOcmCostAttr(double &cpu, double &io, double &msg, double &idleTime, Lng32 &probes) const;
+  void getOcmCostAttr(double &cpu, double &io, double &msg, double &idleTime, int &probes) const;
 
   // ---------------------------------------------------------------------
   // Method for returning NCM cost atrributes.
   // ---------------------------------------------------------------------
   void getScmCostAttr(double &tcProc, double &tcProd, double &tcSent, double &ioRand, double &ioSeq,
-                      Lng32 &probes) const;
+                      int &probes) const;
 
   // ---------------------------------------------------------------------
   // Method for returning NCM debug information.
@@ -454,7 +454,7 @@ class Cost : public NABasicObject {
 
   // For use with binary operators
   PlanPriority computePlanPriority(RelExpr *op, const Context *myContext, const Cost *child0Cost,
-                                   const Cost *child1Cost, PlanWorkSpace *pws = NULL, Lng32 planNumber = 0);
+                                   const Cost *child1Cost, PlanWorkSpace *pws = NULL, int planNumber = 0);
 
   // ---------------------------------------------------------------------
   // Functions for debugging.
@@ -604,12 +604,12 @@ class Cost : public NABasicObject {
   // ---------------------------------------------------------------------
   // Number of CPUs used by this operator
   // ---------------------------------------------------------------------
-  Lng32 countOfCPUs_;
+  int countOfCPUs_;
 
   // ---------------------------------------------------------------------
   // Number of plan fragments that compete for the same CPU
   // ---------------------------------------------------------------------
-  Lng32 planFragmentsPerCPU_;
+  int planFragmentsPerCPU_;
 
   // ---------------------------------------------------------------------
   // The plan priority is used for implementation of preferred plans such
@@ -639,8 +639,8 @@ class HashJoinCost : public Cost {
   //  Constructors.
   //---------------
   HashJoinCost(const SimpleCostVector *currentProcessFirstRowCost, const SimpleCostVector *currentProcessLastRowCost,
-               const SimpleCostVector *currentProcessBlockingCost, const Lng32 countOfCPUs,
-               const Lng32 planFragmentsPerCPU, const CostScalar &stage2WorkFractionForFR_,
+               const SimpleCostVector *currentProcessBlockingCost, const int countOfCPUs,
+               const int planFragmentsPerCPU, const CostScalar &stage2WorkFractionForFR_,
                const CostScalar &stage3WorkFractionForFR_, const SimpleCostVector *stage2Cost,
                const SimpleCostVector *stage3Cost, const SimpleCostVector *stage1BkCost,
                const SimpleCostVector *stage2BkCost, const SimpleCostVector *stage3BkCost);
@@ -757,8 +757,8 @@ class HashGroupByCost : public Cost {
   //  Constructors.
   //---------------
   HashGroupByCost(const SimpleCostVector *currentProcessFirstRowCost, const SimpleCostVector *currentProcessLastRowCost,
-                  const SimpleCostVector *currentProcessBlockingCost, const Lng32 countOfCPUs,
-                  const Lng32 planFragmentsPerCPU, const CostScalar &groupingFactor);
+                  const SimpleCostVector *currentProcessBlockingCost, const int countOfCPUs,
+                  const int planFragmentsPerCPU, const CostScalar &groupingFactor);
 
   //--------------------------------------------------
   //  Constructor for an empty HashGroupByCost object.
@@ -813,7 +813,7 @@ class CostWeight : public NABasicObject {
   // ---------------------------------------------------------------------
   // Virtual method that returns the number of elements in the CostWeight.
   // ---------------------------------------------------------------------
-  virtual Lng32 entries() const = 0;
+  virtual int entries() const = 0;
 
   // ---------------------------------------------------------------------
   // Virtual method for converting a CostVector to a floating point value.
@@ -854,7 +854,7 @@ class ResourceConsumptionWeight : public CostWeight {
   // ---------------------------------------------------------------------
   // Virtual method that returns the number of elements in the CostWeight.
   // ---------------------------------------------------------------------
-  virtual Lng32 entries() const;
+  virtual int entries() const;
 
   // ---------------------------------------------------------------------
   // Virtual method for converting a CostVector to a floating point value.
@@ -878,7 +878,7 @@ class ResourceConsumptionWeight : public CostWeight {
   virtual COMPARE_RESULT compareCostVectors(const CostVector &cv1, const CostVector &cv2) const;
 
   // A method that provides access to a specific entry.
-  CostScalar operator[](Lng32 ix) const;
+  CostScalar operator[](int ix) const;
 
  private:
   CostScalar weighFactors_[COUNT_OF_SIMPLE_COST_COUNTERS];
@@ -1294,7 +1294,7 @@ class CostPrimitives {
   // in a contiguous piece of memory. We could exploit the memcpy function and
   // save some overhead in theory.
   // -------------------------------------------------------------------------
-  static double cpuCostForCopyRow(Lng32 byteCount);
+  static double cpuCostForCopyRow(int byteCount);
 
   // -------------------------------------------------------------------------
   // To compare two instances of vidset. Comparison operators represented
@@ -1414,7 +1414,7 @@ class CostPrimitives {
   // -------------------------------------------------------------------------
   // Basic cost factors used in the formulae to combine costs.
   // -------------------------------------------------------------------------
-  static double getBasicCostFactor(Lng32 mscf);
+  static double getBasicCostFactor(int mscf);
 
  private:
 };
@@ -1444,18 +1444,18 @@ class DP2CostDataThatDependsOnSPP : public NABasicObject {
   // -----------------------------------------------------------------------
 
   CostScalar getProbesAtBusiestStream() const { return probesAtBusiestStream_; }
-  Lng32 getHighestLeadingPartitionColumnCovered() const { return highestLeadingPartitionColumnCovered_; }
+  int getHighestLeadingPartitionColumnCovered() const { return highestLeadingPartitionColumnCovered_; }
 
   CostScalar getRepeatCountForOperatorsInDP2() const { return repeatCountForOperatorsInDP2_; }
 
-  Lng32 getCountOfCPUsExecutingDP2s() const { return countOfCPUsExecutingDP2s_; }
+  int getCountOfCPUsExecutingDP2s() const { return countOfCPUsExecutingDP2s_; }
 
   // -----------------------------------------------------------------------
   // Mutators:
   // -----------------------------------------------------------------------
 
   void setProbesAtBusiestStream(const CostScalar &rc) { probesAtBusiestStream_ = rc; }
-  void setHighestLeadingPartitionColumnCovered(Lng32 hlpcc) { highestLeadingPartitionColumnCovered_ = hlpcc; }
+  void setHighestLeadingPartitionColumnCovered(int hlpcc) { highestLeadingPartitionColumnCovered_ = hlpcc; }
 
   void setRepeatCountForOperatorsInDP2(const CostScalar &rc) { repeatCountForOperatorsInDP2_ = rc; }
 
@@ -1463,12 +1463,12 @@ class DP2CostDataThatDependsOnSPP : public NABasicObject {
 
   repeatCountSTATE getRepeatCountState() { return rCountState; }
 
-  void setCountOfCPUsExecutingDP2s(Lng32 countCpus) { countOfCPUsExecutingDP2s_ = countCpus; }
+  void setCountOfCPUsExecutingDP2s(int countCpus) { countOfCPUsExecutingDP2s_ = countCpus; }
 
  private:
-  Lng32 highestLeadingPartitionColumnCovered_;
+  int highestLeadingPartitionColumnCovered_;
   CostScalar repeatCountForOperatorsInDP2_;
-  Lng32 countOfCPUsExecutingDP2s_;
+  int countOfCPUsExecutingDP2s_;
   CostScalar probesAtBusiestStream_;
   repeatCountSTATE rCountState;
 };

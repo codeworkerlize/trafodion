@@ -82,8 +82,8 @@ class ex_globals : public ExGod {
   inline ExScheduler *getScheduler() { return sch_; }
 
   inline void **getTempsList() { return tempList_; }
-  inline Lng32 getNumTemps() const { return numTemps_; }
-  void setNumOfTemps(Lng32 numTemps);
+  inline int getNumTemps() const { return numTemps_; }
+  void setNumOfTemps(int numTemps);
 
   inline void setSpace(Space *space) { space_ = space; }
   inline Space *getSpace() { return space_; }
@@ -119,8 +119,8 @@ class ex_globals : public ExGod {
   // get the fragment id, the number of instances for my fragment,
   // or get my own fragment instance number (partition number in DP2)
   virtual ExFragId getMyFragId() const = 0;
-  virtual Lng32 getNumOfInstances() const = 0;
-  virtual Lng32 getMyInstanceNumber() const = 0;
+  virtual int getNumOfInstances() const = 0;
+  virtual int getMyInstanceNumber() const = 0;
 
   inline ULng32 getInjectErrorAtExpr() const { return injectErrorAtExprFreq_; }
 
@@ -146,7 +146,7 @@ class ex_globals : public ExGod {
 
   // getStreamTimeout: return TRUE (FALSE) if the stream-timeout was set (was
   // not set). If set, the timeoutValue parameter would return that value
-  virtual NABoolean getStreamTimeout(Lng32 &timeoutValue) = 0;
+  virtual NABoolean getStreamTimeout(int &timeoutValue) = 0;
 
   UInt32 planVersion() { return planVersion_; };
   void setPlanVersion(UInt32 pv) { planVersion_ = pv; };
@@ -155,7 +155,7 @@ class ex_globals : public ExGod {
   virtual Long getSemId() { return 0; }
   virtual pid_t getPid() { return 0; }
   virtual pid_t getTid() { return 0; }
-  virtual Lng32 myNodeNumber() { return 0; }
+  virtual int myNodeNumber() { return 0; }
 
   inline sql_buffer_pool *getSharedPool() { return sharedPool_; }
   inline void setSharedPool(sql_buffer_pool *p) { sharedPool_ = p; }
@@ -164,7 +164,7 @@ class ex_globals : public ExGod {
 
   SequenceValueGenerator *seqGen();
 
-  Int64 &rowNum() { return rowNum_; }
+  long &rowNum() { return rowNum_; }
 
   void setRollupColumnNum(Int16 v) { rollupColumnNum_ = v; }
   Int16 getRollupColumnNum() { return rollupColumnNum_; }
@@ -231,7 +231,7 @@ class ex_globals : public ExGod {
   // For usage, see the actual executor operators.
   UInt32 planVersion_;
 
-  Int64 rowNum_;
+  long rowNum_;
 
   // pool shared by among PAs under PAPA
   sql_buffer_pool *sharedPool_;

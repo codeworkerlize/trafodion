@@ -3287,7 +3287,7 @@ class QRNumericVal : public QRScalarValue {
    * @return Unscaled integral representation of this value.
    * @see getNumericScale()
    */
-  Int64 getUnscaledNumericVal() const { return unscaledNumericVal_; }
+  long getUnscaledNumericVal() const { return unscaledNumericVal_; }
 
   /**
    * Returns the scale of this fixed-point numeric value.
@@ -3316,7 +3316,7 @@ class QRNumericVal : public QRScalarValue {
 
   virtual void setValue(const NAString &value);
 
-  void setNumericVal(Int64 unscaledVal, Int32 scale);
+  void setNumericVal(long unscaledVal, Int32 scale);
 
   virtual QRExplicitExprPtr deepCopy(subExpressionRewriteHash &subExpressions, CollHeap *heap) {
     QRNumericValPtr result = new (heap) QRNumericVal(*this, ADD_MEMCHECK_ARGS(heap));
@@ -3348,7 +3348,7 @@ class QRNumericVal : public QRScalarValue {
   void synchNumericValue();
 
   // Attributes and contained elements.
-  Int64 unscaledNumericVal_;
+  long unscaledNumericVal_;
   Int32 numericScale_;
   NAString scale_;
   char buf[50];  // Used for converting value and scale to their string

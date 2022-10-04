@@ -146,9 +146,9 @@ class SQLBooleanNative : public SQLBooleanBase {
   virtual const NAType *synthesizeType(enum NATypeSynthRuleEnum synthRule, const NAType &operand1,
                                        const NAType &operand2, CollHeap *h, UInt32 *flags = NULL) const;
 
-  virtual void minRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **stringLiteral, CollHeap *h) const;
+  virtual void minRepresentableValue(void *bufPtr, int *bufLen, NAString **stringLiteral, CollHeap *h) const;
 
-  virtual void maxRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **stringLiteral, CollHeap *h) const;
+  virtual void maxRepresentableValue(void *bufPtr, int *bufLen, NAString **stringLiteral, CollHeap *h) const;
 
   // ---------------- Methods not inherited from NAType ----------------
 
@@ -170,7 +170,7 @@ class SQLRowset : public NAType {
   // ---------------------------------------------------------------------
   // Constructor functions
   // ---------------------------------------------------------------------
-  SQLRowset(NAMemory *heap, NAType *elementType, Lng32 maxNumElements, Lng32 numElements);
+  SQLRowset(NAMemory *heap, NAType *elementType, int maxNumElements, int numElements);
 
   // ---------------------------------------------------------------------
   // Are the two types compatible?
@@ -222,16 +222,16 @@ class SQLRowset : public NAType {
   // Accesor methods
   // ---------------------------------------------------------------------
   NAType *getElementType() const;
-  Lng32 getNumElements() const;
-  Lng32 setNumElements(Lng32 numElements);
-  Lng32 getMaxNumElements() const;
+  int getNumElements() const;
+  int setNumElements(int numElements);
+  int getMaxNumElements() const;
   NABoolean &useTotalSize() { return useTotalSize_; }
 
  private:
   NAType *elementType_;         // The type of each array element
-  const Lng32 maxNumElements_;  // Maximum number of elements as specified
+  const int maxNumElements_;  // Maximum number of elements as specified
                                 // in the host variable declaration
-  Lng32 numElements_;           // Number of elements in use always starting
+  int numElements_;           // Number of elements in use always starting
                                 // from zero.
   NABoolean useTotalSize_;      // Used at generation time to determine
                                 // if the whole rowset size is to be
@@ -291,12 +291,12 @@ class SQLRecord : public NAType {
   // ---------------------------------------------------------------------
   const NAType *getElementType() const;
   const SQLRecord *getRestOfRecord() const;
-  Lng32 getDegree() const;
+  int getDegree() const;
 
  private:
   const NAType *elementType_;
   const SQLRecord *restOfRecord_;
-  Lng32 degree_;  // number of types in the record
+  int degree_;  // number of types in the record
 
 };  // class SQLRecord
 

@@ -116,7 +116,7 @@ class SQLMXLoggingArea {
   static void logSQLMXAbortEvent(const char *filename, Int32 lineno, const char *msg);
 
   static void logSQLMXAssertionFailureEvent(const char *filename, Int32 lineno, const char *msg,
-                                            const char *condition = NULL, const Lng32 *tid = NULL,
+                                            const char *condition = NULL, const int *tid = NULL,
                                             const char *stackTrace = NULL);
 
   // TBD
@@ -127,10 +127,10 @@ class SQLMXLoggingArea {
                                     NABoolean isWarning = FALSE);
 
   // generate an EMS event for executor runtime informational message
-  static void logExecRtInfo(const char *fileName, ULng32 lineNo, const char *msg, Lng32 explainSeqNum);
+  static void logExecRtInfo(const char *fileName, ULng32 lineNo, const char *msg, int explainSeqNum);
 
   // generate an EMS event for executor runtime debug message
-  static void logExecRtDebug(const char *fileName, ULng32 lineNo, const char *msg, Lng32 explainSeqNum);
+  static void logExecRtDebug(const char *fileName, ULng32 lineNo, const char *msg, int explainSeqNum);
 
   // generate an event for privilege manager tree traversal
   static void logPrivMgrInfo(const char *filename, ULng32 lineNo, const char *msg, Int32 level);
@@ -148,7 +148,7 @@ class SQLMXLoggingArea {
 
   static bool lockMutex();
   static void unlockMutex();
-  static void logCliReclaimSpaceEvent(Lng32 freeSize, Lng32 totalSize, Lng32 totalContexts, Lng32 totalStatements);
+  static void logCliReclaimSpaceEvent(int freeSize, int totalSize, int totalContexts, int totalStatements);
 };
 
 void logAnMXEventForError(ComCondition &condition, SQLMXLoggingArea::ExperienceLevel emsEventEL);

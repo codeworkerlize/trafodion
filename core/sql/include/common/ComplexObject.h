@@ -303,16 +303,16 @@ class IntegerObjectContainer : public ObjectContainer {
 
 class LongObjectContainer : public ObjectContainer {
  public:
-  LongObjectContainer(Lng32 *value);
+  LongObjectContainer(int *value);
   virtual ~LongObjectContainer();
-  Lng32 *getValue();
-  void setValue(Lng32 *value);
+  int *getValue();
+  void setValue(int *value);
   virtual void pack(Packer *packer, PackerInput *input, PackerOutput *output);
   virtual void unPack(UnPacker *unPacker, UnPackerInput *input, UnPackerOutput *output);
   virtual void length(Lengther *lengther, LengtherInput *input, LengtherOutput *output);
 
  private:
-  Lng32 *value_;
+  int *value_;
 };
 
 typedef char *CharPtr;

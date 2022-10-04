@@ -82,7 +82,7 @@
 
 #include <stdarg.h>
 
-#include "SqlciError.h"
+#include "sqlci/SqlciError.h"
 #include "export/ComDiags.h"
 
 extern ComDiagsArea sqlci_DA;

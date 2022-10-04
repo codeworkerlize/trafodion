@@ -38,8 +38,8 @@
 
 #include "common/Platform.h"
 
-#include "SqlciNode.h"
-#include "SqlciEnv.h"
+#include "sqlci/SqlciNode.h"
+#include "sqlci/SqlciEnv.h"
 #include "common/str.h"
 
 SqlciNode::SqlciNode(const sqlci_node_type node_type_) : node_type(node_type_), next(NULL), errcode(0) {

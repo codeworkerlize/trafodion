@@ -47,10 +47,10 @@
 #if 0
 // Create a new SQL module id.
 SQLMODULE_ID* new_SQLMODULE_ID(
-	Lng32 version, const char* name, 
-	Lng32 timestamp, 
+	int version, const char* name, 
+	int timestamp, 
 	const char* charset,
-	Lng32 name_len)
+	int name_len)
 {
    SQLMODULE_ID * m = new SQLMODULE_ID;
    init_SQLMODULE_ID(m, version, name, timestamp, charset, name_len);
@@ -58,8 +58,8 @@ SQLMODULE_ID* new_SQLMODULE_ID(
 }
 #endif
 // intialize a SQL module id.
-void init_SQLMODULE_ID(SQLMODULE_ID *m, Lng32 version, const char *name, Lng32 timestamp, const char *charset,
-                       Lng32 name_len) {
+void init_SQLMODULE_ID(SQLMODULE_ID *m, int version, const char *name, int timestamp, const char *charset,
+                       int name_len) {
   m->version = version;
   m->creation_timestamp = timestamp;
 
@@ -69,11 +69,11 @@ void init_SQLMODULE_ID(SQLMODULE_ID *m, Lng32 version, const char *name, Lng32 t
 
 // Create a new SQL object id.
 SQLCLI_OBJ_ID* new_SQLCLI_OBJ_ID(
-	Lng32 version, enum SQLOBJ_ID_NAME_MODE mode, 
+	int version, enum SQLOBJ_ID_NAME_MODE mode, 
 	const SQLMODULE_ID* module, const char* id, 
 	void* handle,
 	const char* charset,
-	Lng32 id_len, Lng32 tag)
+	int id_len, int tag)
 {
    SQLCLI_OBJ_ID* x = new SQLCLI_OBJ_ID;
    init_SQLCLI_OBJ_ID(x, version, mode, module, id, handle, charset, id_len,tag);
@@ -82,8 +82,8 @@ SQLCLI_OBJ_ID* new_SQLCLI_OBJ_ID(
 #endif
 
 // initialize a SQL object id.
-void init_SQLCLI_OBJ_ID(SQLCLI_OBJ_ID *x, Lng32 version, enum SQLOBJ_ID_NAME_MODE mode, const SQLMODULE_ID *module,
-                        const char *id, void *handle_, const char *charset, Lng32 id_len, Lng32 tag) {
+void init_SQLCLI_OBJ_ID(SQLCLI_OBJ_ID *x, int version, enum SQLOBJ_ID_NAME_MODE mode, const SQLMODULE_ID *module,
+                        const char *id, void *handle_, const char *charset, int id_len, int tag) {
   x->version = version;
   x->name_mode = mode;
   x->module = module;
@@ -123,7 +123,7 @@ Int32 isEqualByName(const SQLMODULE_ID *x, const SQLMODULE_ID *y) {
 ////////////////////////////////////////////
 // set the name for a SQL object id.
 ////////////////////////////////////////////
-void setNameForId(SQLCLI_OBJ_ID *x, const char *name, Lng32 len, const char *charset) {
+void setNameForId(SQLCLI_OBJ_ID *x, const char *name, int len, const char *charset) {
   x->identifier = name;
 
   if (x->version == SQLCLI_CURRENT_VERSION) {
@@ -135,7 +135,7 @@ void setNameForId(SQLCLI_OBJ_ID *x, const char *name, Lng32 len, const char *cha
 ////////////////////////////////////////////
 // set the name for a SQL module id.
 ////////////////////////////////////////////
-void setNameForModule(SQLMODULE_ID *m, const char *name, Lng32 len, const char *charset) {
+void setNameForModule(SQLMODULE_ID *m, const char *name, int len, const char *charset) {
   m->module_name = name;
 
   if (m->version == SQLCLI_CURRENT_VERSION) {
@@ -220,7 +220,7 @@ char* getModNameInLocale(const SQLMODULE_ID* m)
 
    static char* nameInLocale = new char[MAX_CHAR_SET_STRING_LENGTH+1];
 
-   Lng32 x = UnicodeStringToLocale(CharInfo::getCharSetEnum(charset), 
+   int x = UnicodeStringToLocale(CharInfo::getCharSetEnum(charset), 
                          nameInWchar, wcNameLen,
                          nameInLocale, MAX_CHAR_SET_STRING_LENGTH+1);
   
@@ -251,7 +251,7 @@ char* getIdInLocale(SQLCLI_OBJ_ID* x)
 
    static char* nameInLocale = new char[MAX_CHAR_SET_STRING_LENGTH+1];
 
-   Lng32 nameInLocaleLen = UnicodeStringToLocale(CharInfo::getCharSetEnum(charset),
+   int nameInLocaleLen = UnicodeStringToLocale(CharInfo::getCharSetEnum(charset),
                          nameInWchar, wcNameLen,
                          nameInLocale, MAX_CHAR_SET_STRING_LENGTH+1);
 

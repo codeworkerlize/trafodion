@@ -80,22 +80,22 @@ class ExPartInputDataDesc : public NAVersionedObject {
 
   inline ExPartitioningType getPartitioningType() const { return (ExPartitioningType)partType_; }
   inline ex_cri_desc *getPartInputCriDesc() { return partInputCriDesc_; }
-  inline Lng32 getPartInputDataLength() const { return partInputDataLength_; }
-  inline Lng32 getNumPartitions() const { return numPartitions_; }
+  inline int getPartInputDataLength() const { return partInputDataLength_; }
+  inline int getNumPartitions() const { return numPartitions_; }
 
   // copy the partition input value for partition range <fromPartNum> to
   // (and including) <toPartNum> into buffer <buffer> of length <bufferLength>
   // (must be at least <partInputDataLength_>)
-  virtual void copyPartInputValue(Lng32 fromPartNum, Lng32 toPartNum, char *buffer, Lng32 bufferLength) {}
+  virtual void copyPartInputValue(int fromPartNum, int toPartNum, char *buffer, int bufferLength) {}
 
   void fixupVTblPtr();
   virtual Long pack(void *space);
-  virtual Lng32 unpack(void *base, void *reallocator);
-  virtual Lng32 evalExpressions(Space *space, CollHeap *exHeap, ComDiagsArea **diags) { return 0; };
+  virtual int unpack(void *base, void *reallocator);
+  virtual int evalExpressions(Space *space, CollHeap *exHeap, ComDiagsArea **diags) { return 0; };
 
  protected:
-  ExPartInputDataDesc(ExPartitioningType partType, ex_cri_desc *partInputCriDesc, Lng32 partInputDataLength,
-                      Lng32 numPartitions);
+  ExPartInputDataDesc(ExPartitioningType partType, ex_cri_desc *partInputCriDesc, int partInputDataLength,
+                      int numPartitions);
 
  private:
   // record descr. of part input data
@@ -123,8 +123,8 @@ class ExHashPartInputData : public ExPartInputDataDesc {
  public:
   ExHashPartInputData() : ExPartInputDataDesc(HASH_PARTITIONED, NULL, 0, 0) {}
 
-  ExHashPartInputData(ex_cri_desc *partInputCriDesc, Lng32 numPartitions);
-  void copyPartInputValue(Lng32 fromPartNum, Lng32 toPartNum, char *buffer, Lng32 bufferLength);
+  ExHashPartInputData(ex_cri_desc *partInputCriDesc, int numPartitions);
+  void copyPartInputValue(int fromPartNum, int toPartNum, char *buffer, int bufferLength);
 
   // ---------------------------------------------------------------------
   // Redefine virtual functions required for Versioning.
@@ -139,16 +139,16 @@ class ExHashPartInputData : public ExPartInputDataDesc {
   virtual short getClassSize() { return (short)sizeof(ExHashPartInputData); }
 
   Long pack(void *space);
-  Lng32 unpack(void *, void *reallocator);
+  int unpack(void *, void *reallocator);
 };
 
 class ExRoundRobinPartInputData : public ExPartInputDataDesc {
  public:
   ExRoundRobinPartInputData() : ExPartInputDataDesc(ROUNDROBIN_PARTITIONED, NULL, 0, 0) {}
 
-  ExRoundRobinPartInputData(ex_cri_desc *partInputCriDesc, Lng32 numPartitions, Lng32 numOrigRRPartitions);
+  ExRoundRobinPartInputData(ex_cri_desc *partInputCriDesc, int numPartitions, int numOrigRRPartitions);
 
-  void copyPartInputValue(Lng32 fromPartNum, Lng32 toPartNum, char *buffer, Lng32 bufferLength);
+  void copyPartInputValue(int fromPartNum, int toPartNum, char *buffer, int bufferLength);
 
   // ---------------------------------------------------------------------
   // Redefine virtual functions required for Versioning.
@@ -163,7 +163,7 @@ class ExRoundRobinPartInputData : public ExPartInputDataDesc {
   virtual short getClassSize() { return (short)sizeof(ExRoundRobinPartInputData); }
 
   Long pack(void *space);
-  Lng32 unpack(void *, void *reallocator);
+  int unpack(void *, void *reallocator);
 
  private:
   Int32 numOrigRRPartitions_;                  // 00-03
@@ -174,8 +174,8 @@ class ExRangePartInputData : public ExPartInputDataDesc {
  public:
   ExRangePartInputData() : ExPartInputDataDesc(RANGE_PARTITIONED, NULL, 0, 0) {}
 
-  ExRangePartInputData(ex_cri_desc *partInputCriDesc, Lng32 partInputDataLength, Lng32 partKeyLength,
-                       Lng32 exclusionIndicatorOffset, Lng32 numPartitions, Space *space, Lng32 useExpressions);
+  ExRangePartInputData(ex_cri_desc *partInputCriDesc, int partInputDataLength, int partKeyLength,
+                       int exclusionIndicatorOffset, int numPartitions, Space *space, int useExpressions);
 
   ~ExRangePartInputData();
 
@@ -191,20 +191,20 @@ class ExRangePartInputData : public ExPartInputDataDesc {
 
   virtual short getClassSize() { return (short)sizeof(ExRangePartInputData); }
 
-  void setPartitionStartExpr(Lng32 partNo, ex_expr *expr);
-  inline void setPartitionExprAtp(Lng32 atp) { partRangeExprAtp_ = atp; }
-  inline void setPartitionExprAtpIndex(Lng32 atpix) { partRangeExprAtpIndex_ = atpix; }
+  void setPartitionStartExpr(int partNo, ex_expr *expr);
+  inline void setPartitionExprAtp(int atp) { partRangeExprAtp_ = atp; }
+  inline void setPartitionExprAtpIndex(int atpix) { partRangeExprAtpIndex_ = atpix; }
 
   // set the partition start value (done in the generator or at fixup)
-  void setPartitionStartValue(Lng32 partNo, char *val);
+  void setPartitionStartValue(int partNo, char *val);
 
   // create the partition input value (begin key, end key) for one partition
   // or for a range of partitions
-  void copyPartInputValue(Lng32 fromPartNum, Lng32 toPartNum, char *buffer, Lng32 bufferLength);
+  void copyPartInputValue(int fromPartNum, int toPartNum, char *buffer, int bufferLength);
 
   Long pack(void *space);
-  Lng32 unpack(void *, void *reallocator);
-  virtual Lng32 evalExpressions(Space *space, CollHeap *exHeap, ComDiagsArea **diags);
+  int unpack(void *, void *reallocator);
+  virtual int evalExpressions(Space *space, CollHeap *exHeap, ComDiagsArea **diags);
 
  private:
   // Partition input values as they are being sent:
@@ -258,7 +258,7 @@ class ExHashDistPartInputData : public ExPartInputDataDesc {
  public:
   ExHashDistPartInputData() : ExPartInputDataDesc(HASH1_PARTITIONED, NULL, 0, 0) {}
 
-  ExHashDistPartInputData(ex_cri_desc *partInputCriDesc, Lng32 numPartitions, Lng32 numOrigHashPartitions);
+  ExHashDistPartInputData(ex_cri_desc *partInputCriDesc, int numPartitions, int numOrigHashPartitions);
 
   // ---------------------------------------------------------------------
   // Redefine virtual functions required for Versioning.
@@ -272,10 +272,10 @@ class ExHashDistPartInputData : public ExPartInputDataDesc {
 
   virtual short getClassSize() { return (short)sizeof(ExHashDistPartInputData); }
 
-  void copyPartInputValue(Lng32 fromPartNum, Lng32 toPartNum, char *buffer, Lng32 bufferLength);
+  void copyPartInputValue(int fromPartNum, int toPartNum, char *buffer, int bufferLength);
 
   Long pack(void *space);
-  Lng32 unpack(void *, void *reallocator);
+  int unpack(void *, void *reallocator);
 
  private:
   Int32 numOrigHashPartitions_;              // 00-03
@@ -286,7 +286,7 @@ class ExHash2PartInputData : public ExPartInputDataDesc {
  public:
   ExHash2PartInputData() : ExPartInputDataDesc(HASH2_PARTITIONED, NULL, 0, 0) {}
 
-  ExHash2PartInputData(ex_cri_desc *partInputCriDesc, Lng32 numPartitions);
+  ExHash2PartInputData(ex_cri_desc *partInputCriDesc, int numPartitions);
 
   // ---------------------------------------------------------------------
   // Redefine virtual functions required for Versioning.
@@ -300,10 +300,10 @@ class ExHash2PartInputData : public ExPartInputDataDesc {
 
   virtual short getClassSize() { return (short)sizeof(ExHash2PartInputData); }
 
-  void copyPartInputValue(Lng32 fromPartNum, Lng32 toPartNum, char *buffer, Lng32 bufferLength);
+  void copyPartInputValue(int fromPartNum, int toPartNum, char *buffer, int bufferLength);
 
   Long pack(void *space);
-  Lng32 unpack(void *, void *reallocator);
+  int unpack(void *, void *reallocator);
 
  private:
   char fillersExHash2PartInputData[24];  // 00-23

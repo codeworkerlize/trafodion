@@ -49,7 +49,7 @@
 #include "exp/exp_clause_derived.h"
 #include "cli/ExSqlComp.h"
 
-#include "ErrorMessage.h"
+#include "sqlmsg/ErrorMessage.h"
 #include "arkcmp/CmpStatement.h"
 #include "arkcmp/CmpStoredProc.h"
 
@@ -643,7 +643,7 @@ short ExSPInputOutput::outputValue(ULng32 fieldNum, char *outputRow, char *data,
   short nullIndicatorLen = attr->getNullIndicatorLength(), varcharIndLen = attr->getVCIndicatorLength(),
         scale = attr->getScale(), dataType = attr->getDatatype();
 
-  Lng32 nullIndOffset = attr->getNullIndOffset(), varcharIndOffset = attr->getVCLenIndOffset(),
+  int nullIndOffset = attr->getNullIndOffset(), varcharIndOffset = attr->getVCLenIndOffset(),
         precision = attr->getPrecision();
 
   // diagsArea must be present. And fieldNum must be within range.

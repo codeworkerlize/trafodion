@@ -151,9 +151,9 @@ class SchemaDB : public NABasicObject {
   void initPerStatement(NABoolean lightweight = FALSE);  // before stmt
   void cleanupPerStatement();                            // after stmt
 
-  Lng32 getCurrentDiskPool() { return currentDiskPool_; }
+  int getCurrentDiskPool() { return currentDiskPool_; }
 
-  void setCurrentDiskPool(Lng32 diskPool) { currentDiskPool_ = diskPool; }
+  void setCurrentDiskPool(int diskPool) { currentDiskPool_ = diskPool; }
 
   void incCurrentDiskPool() { currentDiskPool_++; }
 
@@ -230,7 +230,7 @@ class SchemaDB : public NABasicObject {
   NARoutineDB routineDB_;
   NARoutineDB actionRoutineDB_;
 
-  Lng32 currentDiskPool_;
+  int currentDiskPool_;
   float hbaseBlockCacheFrac_;
 
   // begin instrument to fix Mantis 9407
@@ -247,6 +247,6 @@ inline SchemaDB *ActiveSchemaDB_Safe() { return CmpCommon::context() ? CmpCommon
 
 inline double getDefaultAsDouble(const Int32 &key) { return ActiveSchemaDB()->getDefaults().getAsDouble(key); }
 
-inline Lng32 getDefaultAsLong(const Int32 &key) { return ActiveSchemaDB()->getDefaults().getAsLong(key); }
+inline int getDefaultAsLong(const Int32 &key) { return ActiveSchemaDB()->getDefaults().getAsLong(key); }
 
 #endif /* SCHEMADB_H */

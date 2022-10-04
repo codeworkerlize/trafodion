@@ -142,7 +142,7 @@ const NAType *SQLBooleanNative::synthesizeType(enum NATypeSynthRuleEnum synthRul
   return NULL;
 }  // synthesizeType()
 
-void SQLBooleanNative::minRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **stringLiteral, CollHeap *h) const {
+void SQLBooleanNative::minRepresentableValue(void *bufPtr, int *bufLen, NAString **stringLiteral, CollHeap *h) const {
   assert(*bufLen >= sizeof(Int8));
   *bufLen = sizeof(Int8);
   *((Int8 *)bufPtr) = 0;
@@ -156,7 +156,7 @@ void SQLBooleanNative::minRepresentableValue(void *bufPtr, Lng32 *bufLen, NAStri
 
 }  // SQLBooleanNative::minRepresentableValue()
 
-void SQLBooleanNative::maxRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **stringLiteral, CollHeap *h) const {
+void SQLBooleanNative::maxRepresentableValue(void *bufPtr, int *bufLen, NAString **stringLiteral, CollHeap *h) const {
   assert(*bufLen >= sizeof(Int8));
   *bufLen = sizeof(Int8);
   *((Int8 *)bufPtr) = 1;
@@ -199,7 +199,7 @@ short SQLRecord::getFSDatatype() const { return REC_BYTE_F_ASCII; }
 const NAType *SQLRecord::getElementType() const { return elementType_; }
 
 const SQLRecord *SQLRecord::getRestOfRecord() const { return restOfRecord_; }
-Lng32 SQLRecord::getDegree() const { return degree_; }
+int SQLRecord::getDegree() const { return degree_; }
 
 NAString SQLRecord::getSimpleTypeName() const { return "SQLRecord"; }
 
@@ -268,7 +268,7 @@ NABoolean SQLRecord::errorsCanOccur(const NAType &target, NABoolean lax) const {
 //  supported by SQL/MX.
 // ***********************************************************************
 
-SQLRowset::SQLRowset(NAMemory *heap, NAType *elementType, Lng32 maxNumElements, Lng32 numElements)
+SQLRowset::SQLRowset(NAMemory *heap, NAType *elementType, int maxNumElements, int numElements)
     : NAType(heap, LiteralRowset, NA_ROWSET_TYPE, elementType->getNominalSize(),
              elementType->supportsSQLnull()),  // We may need to pass Data Alignment
       elementType_(elementType),
@@ -367,11 +367,11 @@ const NAType *SQLRowset::synthesizeType(enum NATypeSynthRuleEnum synthRule, cons
   return new (h) SQLRowset(h, elementType_, maxNumElements_, numElements_);
 }
 
-Lng32 SQLRowset::getNumElements() const { return numElements_; }
+int SQLRowset::getNumElements() const { return numElements_; }
 
-Lng32 SQLRowset::setNumElements(Lng32 numElements) { return numElements_ = numElements; }
+int SQLRowset::setNumElements(int numElements) { return numElements_ = numElements; }
 
-Lng32 SQLRowset::getMaxNumElements() const { return maxNumElements_; }
+int SQLRowset::getMaxNumElements() const { return maxNumElements_; }
 
 // ***********************************************************************
 //

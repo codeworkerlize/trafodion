@@ -62,7 +62,7 @@ static const char VERSION_INFO[] = "VERSION_INFO";
 // validates the actual number of input parameters, and provides a description
 // of their expected format.
 //
-SP_STATUS VersionInfoStoredProcedure::sp_InputFormat(SP_FIELDDESC_STRUCT *inputFieldFormat, Lng32 numFields,
+SP_STATUS VersionInfoStoredProcedure::sp_InputFormat(SP_FIELDDESC_STRUCT *inputFieldFormat, int numFields,
                                                      SP_COMPILE_HANDLE spCompileObj, SP_HANDLE spObj,
                                                      SP_ERROR_STRUCT *error) {
   if (numFields != 2) {
@@ -86,7 +86,7 @@ SP_STATUS VersionInfoStoredProcedure::sp_InputFormat(SP_FIELDDESC_STRUCT *inputF
 // To be called before the processing of the VERSION_INFO built-in function call.
 // Provides the number of output columns
 //
-SP_STATUS VersionInfoStoredProcedure::sp_NumOutputFields(Lng32 *numFields, SP_COMPILE_HANDLE spCompileObj,
+SP_STATUS VersionInfoStoredProcedure::sp_NumOutputFields(int *numFields, SP_COMPILE_HANDLE spCompileObj,
                                                          SP_HANDLE spObj, SP_ERROR_STRUCT *error) {
   // 5 output columns, including the two input cols
   *numFields = 5;
@@ -99,7 +99,7 @@ SP_STATUS VersionInfoStoredProcedure::sp_NumOutputFields(Lng32 *numFields, SP_CO
 // Provides the format of the output columns.
 //
 SP_STATUS VersionInfoStoredProcedure::sp_OutputFormat(SP_FIELDDESC_STRUCT *format, SP_KEYDESC_STRUCT keyFields[],
-                                                      Lng32 *numKeyFields, SP_HANDLE spCompileObj, SP_HANDLE spObj,
+                                                      int *numKeyFields, SP_HANDLE spCompileObj, SP_HANDLE spObj,
                                                       SP_ERROR_STRUCT *error) {
   // Define column names and data types
   strcpy(&((format++)->COLUMN_DEF[0]), "eType     char(32)     character set iso88591 not null");
@@ -360,7 +360,7 @@ VersionInfoStoredProcedure::sp_Process(SP_PROCESS_ACTION action, SP_ROW_DATA inp
       context = (VersionInfoSPContext *)(*spProcHandle);
       CollIndex rowIndex = context->getRowIndex();
       const ComVersion_DerivedNodeSet &nodeSet = context->getNodeSet();
-      Lng32 outputVersion;
+      int outputVersion;
 
       context->setRowIndex(rowIndex + 1);  // Move to next row, for next call
 
@@ -373,12 +373,12 @@ VersionInfoStoredProcedure::sp_Process(SP_PROCESS_ACTION action, SP_ROW_DATA inp
         fFunc(1, outputData, strlen(context->getInputValue()), (void *)context->getInputValue(), TRUE);
         // Third column is the version of whatever thing is accessed
         outputVersion = context->getOutputVersion();
-        fFunc(2, outputData, sizeof(Lng32), (void *)&outputVersion, FALSE);
+        fFunc(2, outputData, sizeof(int), (void *)&outputVersion, FALSE);
         // Fourth column is the node name from the element
         fFunc(3, outputData, strlen(element.getNodeName()), (void *)&element.getNodeName(), TRUE);
         // Fifth column is the MXV of the node from the element.
         outputVersion = element.getMXV();
-        fFunc(4, outputData, sizeof(Lng32), (void *)&outputVersion, FALSE);
+        fFunc(4, outputData, sizeof(int), (void *)&outputVersion, FALSE);
         return SP_MOREDATA;
       }
     } break;
@@ -417,7 +417,7 @@ static const char RELATEDNESS[] = "RELATEDNESS";
 // the actual number of input parameters, and provides a description
 // of their expected format.
 //
-SP_STATUS RelatednessStoredProcedure::sp_InputFormat(SP_FIELDDESC_STRUCT *inputFieldFormat, Lng32 numFields,
+SP_STATUS RelatednessStoredProcedure::sp_InputFormat(SP_FIELDDESC_STRUCT *inputFieldFormat, int numFields,
                                                      SP_COMPILE_HANDLE spCompileObj, SP_HANDLE spObj,
                                                      SP_ERROR_STRUCT *error) {
   if (numFields != 2) {
@@ -440,7 +440,7 @@ SP_STATUS RelatednessStoredProcedure::sp_InputFormat(SP_FIELDDESC_STRUCT *inputF
 // To be called before the processing of the built-in function call.
 // Provides the number of output columns
 //
-SP_STATUS RelatednessStoredProcedure::sp_NumOutputFields(Lng32 *numFields, SP_COMPILE_HANDLE spCompileObj,
+SP_STATUS RelatednessStoredProcedure::sp_NumOutputFields(int *numFields, SP_COMPILE_HANDLE spCompileObj,
                                                          SP_HANDLE spObj, SP_ERROR_STRUCT *error) {
   // 3 output columns, including the two input cols
   *numFields = 3;
@@ -453,7 +453,7 @@ SP_STATUS RelatednessStoredProcedure::sp_NumOutputFields(Lng32 *numFields, SP_CO
 // Provides the format of the output columns.
 //
 SP_STATUS RelatednessStoredProcedure::sp_OutputFormat(SP_FIELDDESC_STRUCT *format, SP_KEYDESC_STRUCT keyFields[],
-                                                      Lng32 *numKeyFields, SP_HANDLE spCompileObj, SP_HANDLE spObj,
+                                                      int *numKeyFields, SP_HANDLE spCompileObj, SP_HANDLE spObj,
                                                       SP_ERROR_STRUCT *error) {
   // Define column names and data types
   strcpy(&((format++)->COLUMN_DEF[0]), "eType     char(32)     character set iso88591 not null");
@@ -599,9 +599,9 @@ RelatednessStoredProcedure::sp_Process(SP_PROCESS_ACTION action, SP_ROW_DATA inp
         const CatRelatedItemEntry &element = relatedItemSet[rowIndex];
         // First two columns are copies of the corresponding input columns. Third column is the name of whatever related
         // thing is accessed.
-        fFunc(0, outputData, (Lng32)strlen(context->getInputType()), (void *)context->getInputType(), TRUE);
-        fFunc(1, outputData, (Lng32)strlen(context->getInputValue()), (void *)context->getInputValue(), TRUE);
-        fFunc(2, outputData, (Lng32)element.getExternalItemName().length(),
+        fFunc(0, outputData, (int)strlen(context->getInputType()), (void *)context->getInputType(), TRUE);
+        fFunc(1, outputData, (int)strlen(context->getInputValue()), (void *)context->getInputValue(), TRUE);
+        fFunc(2, outputData, (int)element.getExternalItemName().length(),
               (void *)(element.getExternalItemName().data()), TRUE);
         return SP_MOREDATA;
       }
@@ -640,7 +640,7 @@ static const char FEATURE_VERSION_INFO[] = "FEATURE_VERSION_INFO";
 // validates the actual number of input parameters, and provides a description
 // of their expected format.
 //
-SP_STATUS FeatureVersionInfoStoredProcedure::sp_InputFormat(SP_FIELDDESC_STRUCT *inputFieldFormat, Lng32 numFields,
+SP_STATUS FeatureVersionInfoStoredProcedure::sp_InputFormat(SP_FIELDDESC_STRUCT *inputFieldFormat, int numFields,
                                                             SP_COMPILE_HANDLE spCompileObj, SP_HANDLE spObj,
                                                             SP_ERROR_STRUCT *error) {
   if (numFields != 3) {
@@ -663,7 +663,7 @@ SP_STATUS FeatureVersionInfoStoredProcedure::sp_InputFormat(SP_FIELDDESC_STRUCT 
 // To be called before the processing of the FEATURE_VERSION_INFO built-in function call.
 // Provides the number of output columns
 //
-SP_STATUS FeatureVersionInfoStoredProcedure::sp_NumOutputFields(Lng32 *numFields, SP_COMPILE_HANDLE spCompileObj,
+SP_STATUS FeatureVersionInfoStoredProcedure::sp_NumOutputFields(int *numFields, SP_COMPILE_HANDLE spCompileObj,
                                                                 SP_HANDLE spObj, SP_ERROR_STRUCT *error) {
   // 6 output columns, including the three input cols
   *numFields = 6;
@@ -676,7 +676,7 @@ SP_STATUS FeatureVersionInfoStoredProcedure::sp_NumOutputFields(Lng32 *numFields
 // Provides the format of the output columns.
 //
 SP_STATUS FeatureVersionInfoStoredProcedure::sp_OutputFormat(SP_FIELDDESC_STRUCT *format, SP_KEYDESC_STRUCT keyFields[],
-                                                             Lng32 *numKeyFields, SP_HANDLE spCompileObj,
+                                                             int *numKeyFields, SP_HANDLE spCompileObj,
                                                              SP_HANDLE spObj, SP_ERROR_STRUCT *error) {
   // Define column names and data types
   strcpy(&((format++)->COLUMN_DEF[0]), "eType           char(32)      character set iso88591 not null");
@@ -823,7 +823,7 @@ FeatureVersionInfoStoredProcedure::sp_Process(SP_PROCESS_ACTION action, SP_ROW_D
       context = (FeatureVersionInfoSPContext *)(*spProcHandle);
       CollIndex rowIndex = context->getRowIndex();
       const CatFeatureVersionInfoSet &featureVersionInfoSet = context->getFeatureVersionInfoSet();
-      Lng32 outputVersion;
+      int outputVersion;
 
       context->setRowIndex(rowIndex + 1);  // Move to next row, for next call
 
@@ -835,15 +835,15 @@ FeatureVersionInfoStoredProcedure::sp_Process(SP_PROCESS_ACTION action, SP_ROW_D
         fFunc(0, outputData, strlen(context->getInputType()), (void *)context->getInputType(), TRUE);
         fFunc(1, outputData, strlen(context->getInputValue()), (void *)context->getInputValue(), TRUE);
         outputVersion = context->getInputVersion();
-        fFunc(2, outputData, sizeof(Lng32), (void *)&outputVersion, FALSE);
+        fFunc(2, outputData, sizeof(int), (void *)&outputVersion, FALSE);
         // Forth column is the name of the database object with an OFV higher than eVersion
-        fFunc(3, outputData, (Lng32)element.getExternalItemName().length(),
+        fFunc(3, outputData, (int)element.getExternalItemName().length(),
               (void *)(element.getExternalItemName().data()), TRUE);
         // Fifth column is the two character object type for the affected database object.
         fFunc(4, outputData, strlen(element.getObjectType()), (void *)element.getObjectType(), TRUE);
         // Sixth column is the actual OFV of that database object.
         outputVersion = element.getObjectFeatureVersion();
-        fFunc(5, outputData, sizeof(Lng32), (void *)&outputVersion, FALSE);
+        fFunc(5, outputData, sizeof(int), (void *)&outputVersion, FALSE);
         return SP_MOREDATA;
       }
     } break;
@@ -991,9 +991,9 @@ void FeatureVersionInfoSPContext::deleteMe(void) { NADELETE(this, FeatureVersion
 
 // --------------------------------------------------------------------------------------------------------
 // Standalone validation functions
-NABoolean getVarcharInputParameter(Lng32 fieldNo, SP_EXTRACT_FUNCPTR eFunc, SP_ROW_DATA inputData, size_t maxSize,
+NABoolean getVarcharInputParameter(int fieldNo, SP_EXTRACT_FUNCPTR eFunc, SP_ROW_DATA inputData, size_t maxSize,
                                    char *receivingField, SP_ERROR_STRUCT *error) {
-  if (eFunc(fieldNo, inputData, (Lng32)maxSize, receivingField, FALSE) == SP_ERROR_EXTRACT_DATA) {
+  if (eFunc(fieldNo, inputData, (int)maxSize, receivingField, FALSE) == SP_ERROR_EXTRACT_DATA) {
     error->error = arkcmpErrorISPFieldDef;
     return FALSE;
   }
@@ -1021,9 +1021,9 @@ NABoolean getVarcharInputParameter(Lng32 fieldNo, SP_EXTRACT_FUNCPTR eFunc, SP_R
   return TRUE;
 }
 
-Int32 getIntInputParameter(Lng32 fieldNo, SP_EXTRACT_FUNCPTR eFunc, SP_ROW_DATA inputData, size_t maxSize,
+Int32 getIntInputParameter(int fieldNo, SP_EXTRACT_FUNCPTR eFunc, SP_ROW_DATA inputData, size_t maxSize,
                            Int32 receivingField, SP_ERROR_STRUCT *error) {
-  if (eFunc(fieldNo, inputData, (Lng32)maxSize, &receivingField, FALSE) == SP_ERROR_EXTRACT_DATA) {
+  if (eFunc(fieldNo, inputData, (int)maxSize, &receivingField, FALSE) == SP_ERROR_EXTRACT_DATA) {
     error->error = arkcmpErrorISPFieldDef;
     return -1;
   }

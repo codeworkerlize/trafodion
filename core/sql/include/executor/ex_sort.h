@@ -171,7 +171,7 @@ class ExSortTcb : public ex_tcb {
 
   // sortPool_ or partialSortPool_ initial number of
   // buffers used outside of memoryQuota.
-  Lng32 initialNumOfPoolBuffers_;
+  int initialNumOfPoolBuffers_;
 
   // sortSendPool_ and receivepool_ are generic handles
   // that point to the actual pool like partialSortPool_ or
@@ -195,7 +195,7 @@ class ExSortTcb : public ex_tcb {
   ExSortStats *sortStats_;
 
   void createSortDiags();
-  void createSortNRetryDiags(ULng32 firstNCount, Lng32 sortCount);
+  void createSortNRetryDiags(ULng32 firstNCount, int sortCount);
   NABoolean processSortError(ex_queue_entry *pdown, queue_index parentIndex, queue_index downIndex);
 
   // Stub to cancel() subtask used by scheduler.
@@ -206,17 +206,17 @@ class ExSortTcb : public ex_tcb {
                  NABoolean sortFromTop,  // if true,src is parent &tgt is child.
                                          // Otherwise src is child,
                                          // tgt is parent
-                 SortStep &step, Int64 &matchCount, tupp_descriptor *&allocatedTuppDesc, NABoolean &noOverflow,
+                 SortStep &step, long &matchCount, tupp_descriptor *&allocatedTuppDesc, NABoolean &noOverflow,
                  short &workRC);
 
   short sortReceive(ex_queue_entry *pentry_down, ex_queue::down_request request, ex_queue_entry *tgtEntry,
                     NABoolean sortFromTop,  // src is parent, tgt is child.
                                             // Otherwise src is child,
                                             // tgt is parent
-                    queue_index parentIndex, SortStep &step, Int64 &matchCount, tupp_descriptor *&allocatedTuppDesc,
+                    queue_index parentIndex, SortStep &step, long &matchCount, tupp_descriptor *&allocatedTuppDesc,
                     NABoolean &noOverflow, short &workRC);
 
-  short done(NABoolean sendQND, queue_index parentIndex, SortStep &step, Int64 &matchCount);
+  short done(NABoolean sendQND, queue_index parentIndex, SortStep &step, long &matchCount);
 
   short workStatus(short workRC);
 
@@ -260,8 +260,8 @@ class ExSortTcb : public ex_tcb {
 
   virtual ExOperStats *doAllocateStatsEntry(CollHeap *heap, ComTdb *tdb);
 
-  virtual ex_tcb_private_state *allocatePstates(Lng32 &numElems,       // inout, desired/actual elements
-                                                Lng32 &pstateLength);  // out, length of one element
+  virtual ex_tcb_private_state *allocatePstates(int &numElems,       // inout, desired/actual elements
+                                                int &pstateLength);  // out, length of one element
 };
 
 ///////////////////////////////////////////////////////////////////
@@ -271,7 +271,7 @@ class ExSortPrivateState : public ex_tcb_private_state {
 
   ExSortTcb::SortStep step_;
 
-  Int64 matchCount_;  // number of rows returned for this parent row
+  long matchCount_;  // number of rows returned for this parent row
   tupp_descriptor *allocatedTuppDesc_;
 
   // this is set to FALSE by sort when sortSendEnd() is called,
@@ -300,12 +300,12 @@ class ExSortFromTopTcb : public ExSortTcb {
 
   virtual void registerSubtasks();  // register work procedures with scheduler
 
-  virtual ex_tcb_private_state *allocatePstates(Lng32 &numElems,       // inout, desired/actual elements
-                                                Lng32 &pstateLength);  // out, length of one element
+  virtual ex_tcb_private_state *allocatePstates(int &numElems,       // inout, desired/actual elements
+                                                int &pstateLength);  // out, length of one element
 
  private:
   ExSortTcb::SortStep step_;
-  Int64 matchCount_;  // number of rows returned for this parent row
+  long matchCount_;  // number of rows returned for this parent row
   tupp_descriptor *allocatedTuppDesc_;
 
   // this is set to FALSE by sort when sortSendEnd() is called,
@@ -314,14 +314,14 @@ class ExSortFromTopTcb : public ExSortTcb {
   NABoolean noOverflow_;
 
   // number of input rows sent by parent (NOT including GET_EOD)
-  Int64 numParentRows_;
+  long numParentRows_;
 
   // number of sorted rows returned by sort
-  Int64 numSortedRows_;
+  long numSortedRows_;
 
   // number of EOD returned by child. One EOD should be returned for each
   // row sent to child unless cancel occurs due to an error.
-  Int64 numChildEODs_;
+  long numChildEODs_;
 
   // set to TRUE after EOD is sent to child. Indicates that all rows have
   // been sent.
@@ -352,14 +352,14 @@ class ExSortBufferPool : public NABasicObject {
     }
   }
 
-  short currentBufferHasEnoughSpace(Lng32 tupDataSize) {
+  short currentBufferHasEnoughSpace(int tupDataSize) {
     if (sqlBufferPool_)
       return sqlBufferPool_->currentBufferHasEnoughSpace(tupDataSize);
     else
       return 1;  // indicates there is space. Fixed number of tupps for TopN.
   }
 
-  inline tupp_descriptor *get_free_tupp_descriptor(Lng32 tupDataSize, SqlBuffer **buf = NULL) {
+  inline tupp_descriptor *get_free_tupp_descriptor(int tupDataSize, SqlBuffer **buf = NULL) {
     if (sqlBufferPool_)
       return sqlBufferPool_->get_free_tupp_descriptor(tupDataSize, buf);
     else if (simplePool_) {
@@ -376,7 +376,7 @@ class ExSortBufferPool : public NABasicObject {
       return NULL;
   }
 
-  SqlBufferBase *addBuffer(Lng32 totalBufferSize, bool failureIsFatal = true) {
+  SqlBufferBase *addBuffer(int totalBufferSize, bool failureIsFatal = true) {
     SqlBufferBase *buf = NULL;
     if (sqlBufferPool_) {
       SqlBufferBase *buf = sqlBufferPool_->addBuffer(totalBufferSize, failureIsFatal);
@@ -385,35 +385,35 @@ class ExSortBufferPool : public NABasicObject {
     return buf;
   }
 
-  inline Lng32 get_number_of_buffers() const {
+  inline int get_number_of_buffers() const {
     if (sqlBufferPool_)
       return sqlBufferPool_->get_number_of_buffers();
     else
       return 0;
   }
 
-  inline Lng32 get_max_number_of_buffers() const {
+  inline int get_max_number_of_buffers() const {
     if (sqlBufferPool_)
       return sqlBufferPool_->get_max_number_of_buffers();
     else
       return 0;
   }
 
-  inline void set_max_number_of_buffers(Lng32 maxnumbuf) {
+  inline void set_max_number_of_buffers(int maxnumbuf) {
     if (sqlBufferPool_)
       return sqlBufferPool_->set_max_number_of_buffers(maxnumbuf);
     else
       return;
   }
 
-  Lng32 defaultBufferSize() {
+  int defaultBufferSize() {
     if (sqlBufferPool_)
       return sqlBufferPool_->defaultBufferSize();
     else
       return 0;
   }
 
-  tupp_descriptor *addDefragTuppDescriptor(Lng32 dataSize) {
+  tupp_descriptor *addDefragTuppDescriptor(int dataSize) {
     if (sqlBufferPool_)
       return sqlBufferPool_->addDefragTuppDescriptor(dataSize);
     else

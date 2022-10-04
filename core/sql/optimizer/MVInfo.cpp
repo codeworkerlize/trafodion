@@ -209,7 +209,7 @@ void RelExpr::collectMVInformation(MVInfoForDDL *mvInfo, NABoolean isNormalized)
   if (!isIncrementalMV()) mvInfo->setNotIncremental();  // use default reason
 
   Int32 arity = getArity();
-  for (Lng32 i = 0; i < arity; i++) child(i)->collectMVInformation(mvInfo, isNormalized);
+  for (int i = 0; i < arity; i++) child(i)->collectMVInformation(mvInfo, isNormalized);
 }
 
 void Join::collectMVInformation(MVInfoForDDL *mvInfo, NABoolean isNormalized) {
@@ -707,7 +707,7 @@ void MVVegPredicate::markPredicateColsOnUsedObjects(MVInfo *mvInfo, NABoolean is
     // Find the column that is either the first (smallest ordinal number)
     // or is used by the MV clustering index.
     MVColumnInfo *firstMvColInfo = mvCols[0];
-    Lng32 firstMvCol = firstMvColInfo->getColNumber();
+    int firstMvCol = firstMvColInfo->getColNumber();
     if (!firstMvColInfo->isInMVCI()) {
       for (CollIndex ix = 1; ix < mvCols.entries(); ix++) {
         colInfo = mvCols[ix];
@@ -740,7 +740,7 @@ void MVVegPredicate::markPredicateColsOnUsedObjects(MVInfo *mvInfo, NABoolean is
 // If this VegPredicate is on tableName/colPosition, return its index.
 // otherwise return -1.
 //////////////////////////////////////////////////////////////////////////////
-Lng32 MVVegPredicate::findIndexFor(const QualifiedName &tableName, Lng32 colPosition) const {
+int MVVegPredicate::findIndexFor(const QualifiedName &tableName, int colPosition) const {
   for (CollIndex i = 0; i < entries(); i++) {
     const MVVegPredicateColumn *col = at(i);
     if ((col->getTableName() == tableName) && (col->getColNumber() == colPosition)) return i;
@@ -753,10 +753,10 @@ Lng32 MVVegPredicate::findIndexFor(const QualifiedName &tableName, Lng32 colPosi
 // on colIndex. Don't return the index of some duplicate or redundant column
 // but rather the first mv column that corresponds to this base col.
 //////////////////////////////////////////////////////////////////////////////
-Lng32 MVVegPredicate::getCoveringColFor(Lng32 colIndex, const MVInfo *mvInfo) const {
+int MVVegPredicate::getCoveringColFor(int colIndex, const MVInfo *mvInfo) const {
   for (CollIndex i = 0; i < entries(); i++) {
     // Don't check colIndex itself.
-    if ((Lng32)i == colIndex) continue;
+    if ((int)i == colIndex) continue;
 
     const MVVegPredicateColumn *predCol = at(i);
     const MVColumnInfo *mvCol =
@@ -839,7 +839,7 @@ MVUsedObjectInfo::MVUsedObjectInfo(const Scan *scanNode, NABoolean markKeyCols, 
   if (markKeyCols) {
     const ValueIdList &clusteringKeyCols = tableDesc->getClusteringIndex()->getIndexKey();
     for (CollIndex k = 0; k < clusteringKeyCols.entries(); k++) {
-      Lng32 colPosition = clusteringKeyCols[k].getNAColumn()->getPosition();
+      int colPosition = clusteringKeyCols[k].getNAColumn()->getPosition();
 
       addIndirectUpdateCol(colPosition);
     }
@@ -1442,7 +1442,7 @@ NABoolean MVColumnInfo::operator==(const MVColumnInfo &other) const {
 // The hash key is a string consisting of <table-name>.<col-position>
 // This method is defined as static because it is also called by MvColumns.
 //////////////////////////////////////////////////////////////////////////////
-void MVColumnInfo::calcBaseColHashKey(const QualifiedName &tableName, Lng32 position, NAString &hashKey) {
+void MVColumnInfo::calcBaseColHashKey(const QualifiedName &tableName, int position, NAString &hashKey) {
   // position is the number of the column in the base table. -1 is ann illegal
   // column number, and it means that the orig column field has not been
   // initialized, so its not relevant.
@@ -1690,7 +1690,7 @@ void MVColumnInfo::insertIntoExpHash(ExpressionHash &expHash, CollHeap *heap) {
 // that is based on the same base column, or on a base column that is equal
 // to it because of an equal join predicate.
 //////////////////////////////////////////////////////////////////////////////
-void MVColumnInfo::setAsRedundant(Lng32 firstMvCol) {
+void MVColumnInfo::setAsRedundant(int firstMvCol) {
   colType_ = COM_MVCOL_REDUNDANT;
   dep1_ = firstMvCol;
 }
@@ -1922,7 +1922,7 @@ void MVColumnInfo::display() const { print(); }
 //==========================  class MVColumns ================================
 //============================================================================
 
-const Lng32 MVColumns::initialHashTableSize_ = 10;
+const int MVColumns::initialHashTableSize_ = 10;
 
 //////////////////////////////////////////////////////////////////////////////
 MVColumns::MVColumns(CollHeap *heap)
@@ -2015,7 +2015,7 @@ MVColumnInfo *MVColumns::getMvColInfoByName(const NAString &name) const {
 }
 
 //////////////////////////////////////////////////////////////////////////////
-const MVColumnInfoList *MVColumns::getAllMvColsAffectedBy(const QualifiedName &tableName, Lng32 position) const {
+const MVColumnInfoList *MVColumns::getAllMvColsAffectedBy(const QualifiedName &tableName, int position) const {
   NAString hashkey;
   MVColumnInfo::calcBaseColHashKey(tableName, position, hashkey);
 
@@ -2023,7 +2023,7 @@ const MVColumnInfoList *MVColumns::getAllMvColsAffectedBy(const QualifiedName &t
 }
 
 //////////////////////////////////////////////////////////////////////////////
-MVColumnInfo *MVColumns::getMvColInfoByBaseColumn(const QualifiedName &tableName, Lng32 position) const {
+MVColumnInfo *MVColumns::getMvColInfoByBaseColumn(const QualifiedName &tableName, int position) const {
   const MVColumnInfoList *colInfoList = getAllMvColsAffectedBy(tableName, position);
   if (colInfoList == NULL) return NULL;
 
@@ -2049,8 +2049,8 @@ MVColumnInfo *MVColumns::getMvColInfoByBaseColumn(const QualifiedName &tableName
 }
 
 //////////////////////////////////////////////////////////////////////////////
-MVColumnInfo *MVColumns::getMvColInfoByBaseColumn(const QualifiedName &tableName, Lng32 baseColPosition,
-                                                  Lng32 mvColPosition) const {
+MVColumnInfo *MVColumns::getMvColInfoByBaseColumn(const QualifiedName &tableName, int baseColPosition,
+                                                  int mvColPosition) const {
   const MVColumnInfoList *colInfoList = getAllMvColsAffectedBy(tableName, baseColPosition);
   if (colInfoList == NULL) return NULL;
 
@@ -2072,9 +2072,9 @@ MVColumnInfo *MVColumns::getMvColInfoByBaseColumn(const QualifiedName &tableName
 }
 
 //////////////////////////////////////////////////////////////////////////////
-MVColumnInfo *MVColumns::getMvColInfoByIndex(Lng32 index, NABoolean adjustIndex) const {
+MVColumnInfo *MVColumns::getMvColInfoByIndex(int index, NABoolean adjustIndex) const {
   CMPASSERT(index >= 0);
-  Lng32 origIndex = index;
+  int origIndex = index;
 
   if (adjustIndex) {
     index += syskeyIndexCorrection_;
@@ -2083,15 +2083,15 @@ MVColumnInfo *MVColumns::getMvColInfoByIndex(Lng32 index, NABoolean adjustIndex)
 
   MVColumnInfo *colInfo;
   // Get the column from the direct + extra lists.
-  CMPASSERT(index < (Lng32)(entries() + extraColumnList_.entries()));
-  if (index < (Lng32)entries())
+  CMPASSERT(index < (int)(entries() + extraColumnList_.entries()));
+  if (index < (int)entries())
     colInfo = directColumnList_[index];
   else
     colInfo = extraColumnList_[index - entries()];
 
   // If the index was adjusted, and its a real column (not in the extra list)
   // verify that the column returned indeed has this index number.
-  if (adjustIndex && index < (Lng32)entries()) CMPASSERT(colInfo->getColNumber() == origIndex);
+  if (adjustIndex && index < (int)entries()) CMPASSERT(colInfo->getColNumber() == origIndex);
 
   return colInfo;
 }
@@ -2242,7 +2242,7 @@ MVInfo::~MVInfo() { delete joinGraph_; }
 //////////////////////////////////////////////////////////////////////////////
 // Get the list of base columns of tableName used by this MV.
 //////////////////////////////////////////////////////////////////////////////
-const LIST(Lng32) & MVInfo::getUsedColumns(const QualifiedName &tableName) const {
+const LIST(int) & MVInfo::getUsedColumns(const QualifiedName &tableName) const {
   MVUsedObjectInfo *usedInfo = findUsedInfoForTable(tableName);
   CMPASSERT(usedInfo != NULL);
   return usedInfo->getUsedColumnList();
@@ -2251,7 +2251,7 @@ const LIST(Lng32) & MVInfo::getUsedColumns(const QualifiedName &tableName) const
 //////////////////////////////////////////////////////////////////////////////
 // Get the list of indirect update columns of tableName used by this MV.
 //////////////////////////////////////////////////////////////////////////////
-const LIST(Lng32) & MVInfo::getIndirectUpdateColumns(const QualifiedName &tableName) const {
+const LIST(int) & MVInfo::getIndirectUpdateColumns(const QualifiedName &tableName) const {
   MVUsedObjectInfo *usedInfo = findUsedInfoForTable(tableName);
   CMPASSERT(usedInfo != NULL);
   return usedInfo->getIndirectUpdateCols();
@@ -2360,7 +2360,7 @@ RelRoot *MVInfo::buildMVSelectTree(const NAString *alternativeText, CharInfo::Ch
 //////////////////////////////////////////////////////////////////////////////
 // Find an equal predicate keyColis part of.
 //////////////////////////////////////////////////////////////////////////////
-Lng32 MVInfo::findEqPredicateCovering(NAColumn *keyCol) {
+int MVInfo::findEqPredicateCovering(NAColumn *keyCol) {
   // Iterate over all equal predicates
   for (CollIndex i = 0; i < eqPredicateList_.entries(); i++) {
     MVVegPredicate *pred = eqPredicateList_[i];
@@ -2369,10 +2369,10 @@ Lng32 MVInfo::findEqPredicateCovering(NAColumn *keyCol) {
     if (pred->isOnLeftJoin()) continue;
 
     // Is our column used by this predicate?
-    Lng32 predIndex = pred->findIndexFor(*keyCol->getTableName(), keyCol->getPosition());
+    int predIndex = pred->findIndexFor(*keyCol->getTableName(), keyCol->getPosition());
     if (predIndex != -1) {
       // Yes - Find the covering base column
-      Lng32 coveringCol = pred->getCoveringColFor(predIndex, this);
+      int coveringCol = pred->getCoveringColFor(predIndex, this);
       return coveringCol;
     }
   }
@@ -2383,8 +2383,8 @@ Lng32 MVInfo::findEqPredicateCovering(NAColumn *keyCol) {
 //////////////////////////////////////////////////////////////////////////////
 // Is there an equal predicate between these two columns?
 //////////////////////////////////////////////////////////////////////////////
-NABoolean MVInfo::isEqPredicateBetween(const QualifiedName &table1, Lng32 col1, const QualifiedName &table2,
-                                       Lng32 col2) const {
+NABoolean MVInfo::isEqPredicateBetween(const QualifiedName &table1, int col1, const QualifiedName &table2,
+                                       int col2) const {
   // Iterate over all equal predicates
   for (CollIndex i = 0; i < eqPredicateList_.entries(); i++) {
     MVVegPredicate *pred = eqPredicateList_[i];
@@ -2891,7 +2891,7 @@ const NAString *MVInfoForDDL::getUnBoundTextFor(CollIndex index) const {
 // Uses MJVIndexBuilder algorithm to compute the minimal set of
 // MJV secondary indices from the base tables' CIs
 //////////////////////////////////////////////////////////////////////////////
-LIST(MVColumnInfoList *) * MVInfoForDDL::getOptimalMJVIndexList(const LIST(Lng32) * mvCI) {
+LIST(MVColumnInfoList *) * MVInfoForDDL::getOptimalMJVIndexList(const LIST(int) * mvCI) {
   // create index builder
   MJVIndexBuilder indexBuilder(getHeap());
   IndexList inputRCIList(getHeap()), *outputRCIList;
@@ -2974,7 +2974,7 @@ void MVInfoForDDL::setNotIncremental(const MV_NOT_INCREMENTAL notIncrementalReas
 // This text is obtained by using unparse() on the operand of the aggregate
 // function.
 //////////////////////////////////////////////////////////////////////////////
-void MVInfoForDDL::extractParsedColumnText(Lng32 colIndex, ItemExpr *colExpr) {
+void MVInfoForDDL::extractParsedColumnText(int colIndex, ItemExpr *colExpr) {
   // Skip any renames to get to the aggregate.
   while (colExpr->getOperatorType() == ITM_RENAME_COL) colExpr = colExpr->child(0);
 
@@ -3446,7 +3446,7 @@ void MVInfoForDDL::addUsedObjectsClusteringInfo(TableDesc *tDesc, BindWA *bindWA
 
     // Is this column part of an EQ predicate with another column
     // that is already in the list?
-    Lng32 alternateCol = findEqPredicateCovering(keyCol);
+    int alternateCol = findEqPredicateCovering(keyCol);
 
     MVColumnInfo *existingMvColumn =
         getMVColumns().getMvColInfoByBaseColumn(*keyCol->getTableName(), keyCol->getPosition());
@@ -3500,7 +3500,7 @@ void MVInfoForDDL::addClusteringIndexAsSystemAdded(TableDesc *tDesc, BindWA *bin
   for (CollIndex ciColIndex = 0; ciColIndex < clusteringKeyCols.entries(); ciColIndex++) {
     NAColumn *keyCol = clusteringKeyCols[ciColIndex].getNAColumn();
     MVColumnInfo *MVColInfo = getMVColumns().getMvColInfoByBaseColumn(*keyCol->getTableName(), keyCol->getPosition());
-    Lng32 MVColIndex = (MVColInfo == NULL ? -1 : MVColInfo->getColNumber());
+    int MVColIndex = (MVColInfo == NULL ? -1 : MVColInfo->getColNumber());
 
     // Add a new system added column if needed.
     MVColumnInfo *colInfo = addNewMjvSystemColumnIfNeeded(bindWA, keyCol, MVColIndex);
@@ -3569,12 +3569,12 @@ void MVInfoForDDL::addBaseColsUsedByComputedMvColumns() {
 // Check if a new system added column is needed for the base table
 // clustering column keyCol.
 //////////////////////////////////////////////////////////////////////////////
-MVColumnInfo *MVInfoForDDL::addNewMjvSystemColumnIfNeeded(BindWA *bindWA, NAColumn *keyCol, Lng32 MVColIndex) {
+MVColumnInfo *MVInfoForDDL::addNewMjvSystemColumnIfNeeded(BindWA *bindWA, NAColumn *keyCol, int MVColIndex) {
   MVColumnInfo *colInfo = NULL;
 
   // Is this column part of an EQ predicate with another column
   // that is already in the list?
-  Lng32 alternateCol = findEqPredicateCovering(keyCol);
+  int alternateCol = findEqPredicateCovering(keyCol);
 
   MVColumnInfo *existingMvColumn =
       getMVColumns().getMvColInfoByBaseColumn(*keyCol->getTableName(), keyCol->getPosition());
@@ -3995,7 +3995,7 @@ MVInfoForDML::~MVInfoForDML() {}
 //////////////////////////////////////////////////////////////////////////////
 // Return a list of MV column positions for the GroupBy columns.
 //////////////////////////////////////////////////////////////////////////////
-void MVInfoForDML::getMavGroupByColumns(LIST(Lng32) & gbColList) const {
+void MVInfoForDML::getMavGroupByColumns(LIST(int) & gbColList) const {
   const MVColumns &columnList = getMVColumns();
 
   for (CollIndex i = 0; i < columnList.entries(); i++) {
@@ -4019,14 +4019,14 @@ NABoolean MVInfoForDML::isMvOnSingleTable() { return getUsedObjectsList().entrie
 MVJoinGraph *MVInfoForDML::initJoinGraph(BindWA *bindWA, const DeltaDefinitionPtrList *deltaDefList,
                                          NABoolean checkOnlyInserts) {
   // First of all, find the number of tables in the direct join graph.
-  Lng32 directTables = 0;
+  int directTables = 0;
   for (CollIndex i = 0; i < getUsedObjectsList().entries(); i++) {
     if (getUsedObjectsList()[i]->isUsedDirectly()) directTables++;
   }
 
   newJoinGraph(directTables);
 
-  Lng32 nodeNumber = 0;
+  int nodeNumber = 0;
   for (CollIndex usedObjectsIndex = 0; usedObjectsIndex < getUsedObjectsList().entries(); usedObjectsIndex++) {
     const MVUsedObjectInfo *usedInfo = getUsedObjectsList()[usedObjectsIndex];
     if (!usedInfo->isUsedDirectly()) continue;
@@ -4233,11 +4233,11 @@ void MVUsedObjectColNameMap::initColNameMap(const NATable *naTable, CollHeap *he
   CollIndex numberOfColumns = naColumns.entries();
 
   // Allocate an array of numberOfColumns longs.
-  colPositionTable_ = (Lng32 *)heap->allocateMemory(numberOfColumns * sizeof(Lng32));
+  colPositionTable_ = (int *)heap->allocateMemory(numberOfColumns * sizeof(int));
 
   // Initialize the array using a pointer that is incremented from each
   // position to the next.
-  Lng32 *colPositionPtr = colPositionTable_;
+  int *colPositionPtr = colPositionTable_;
   for (CollIndex i = 0; i < numberOfColumns; i++, colPositionPtr++) {
     const NAColumn *naCol = naColumns[i];
 
@@ -4251,7 +4251,7 @@ void MVUsedObjectColNameMap::initColNameMap(const NATable *naTable, CollHeap *he
 //////////////////////////////////////////////////////////////////////////////
 // Find the column position into the base table using the column name.
 //////////////////////////////////////////////////////////////////////////////
-Lng32 MVUsedObjectColNameMap::getColPositionFor(const NAString &colName) const {
+int MVUsedObjectColNameMap::getColPositionFor(const NAString &colName) const {
   CMPASSERT(!isEmpty());
   return *colNameHash_.getFirstValue(&colName);
 }

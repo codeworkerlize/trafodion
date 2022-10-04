@@ -35,119 +35,119 @@
 #include "common/wstr.h"
 
 // Routine body signatures
-typedef Lng32 (*UDRFN1)(char *, short *, SQLUDR_TRAIL_ARGS);
-typedef Lng32 (*UDRFN2)(char *, char *, short *, short *, SQLUDR_TRAIL_ARGS);
-typedef Lng32 (*UDRFN3)(char *, char *, char *, short *, short *, short *, SQLUDR_TRAIL_ARGS);
-typedef Lng32 (*UDRFN4)(char *, char *, char *, char *, short *, short *, short *, short *, SQLUDR_TRAIL_ARGS);
-typedef Lng32 (*UDRFN5)(char *, char *, char *, char *, char *, short *, short *, short *, short *, short *,
+typedef int (*UDRFN1)(char *, short *, SQLUDR_TRAIL_ARGS);
+typedef int (*UDRFN2)(char *, char *, short *, short *, SQLUDR_TRAIL_ARGS);
+typedef int (*UDRFN3)(char *, char *, char *, short *, short *, short *, SQLUDR_TRAIL_ARGS);
+typedef int (*UDRFN4)(char *, char *, char *, char *, short *, short *, short *, short *, SQLUDR_TRAIL_ARGS);
+typedef int (*UDRFN5)(char *, char *, char *, char *, char *, short *, short *, short *, short *, short *,
                         SQLUDR_TRAIL_ARGS);
-typedef Lng32 (*UDRFN6)(char *, char *, char *, char *, char *, char *, short *, short *, short *, short *, short *,
+typedef int (*UDRFN6)(char *, char *, char *, char *, char *, char *, short *, short *, short *, short *, short *,
                         short *, SQLUDR_TRAIL_ARGS);
-typedef Lng32 (*UDRFN7)(char *, char *, char *, char *, char *, char *, char *, short *, short *, short *, short *,
+typedef int (*UDRFN7)(char *, char *, char *, char *, char *, char *, char *, short *, short *, short *, short *,
                         short *, short *, short *, SQLUDR_TRAIL_ARGS);
-typedef Lng32 (*UDRFN8)(char *, char *, char *, char *, char *, char *, char *, char *, short *, short *, short *,
+typedef int (*UDRFN8)(char *, char *, char *, char *, char *, char *, char *, char *, short *, short *, short *,
                         short *, short *, short *, short *, short *, SQLUDR_TRAIL_ARGS);
-typedef Lng32 (*UDRFN9)(char *, char *, char *, char *, char *, char *, char *, char *, char *, short *, short *,
+typedef int (*UDRFN9)(char *, char *, char *, char *, char *, char *, char *, char *, char *, short *, short *,
                         short *, short *, short *, short *, short *, short *, short *, SQLUDR_TRAIL_ARGS);
-typedef Lng32 (*UDRFN10)(char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, short *,
+typedef int (*UDRFN10)(char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, short *,
                          short *, short *, short *, short *, short *, short *, short *, short *, short *,
                          SQLUDR_TRAIL_ARGS);
-typedef Lng32 (*UDRFN11)(char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
+typedef int (*UDRFN11)(char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
                          short *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
                          short *, SQLUDR_TRAIL_ARGS);
-typedef Lng32 (*UDRFN12)(char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
+typedef int (*UDRFN12)(char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
                          short *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
                          short *, short *, SQLUDR_TRAIL_ARGS);
-typedef Lng32 (*UDRFN13)(char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
+typedef int (*UDRFN13)(char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
                          char *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
                          short *, short *, short *, short *, SQLUDR_TRAIL_ARGS);
-typedef Lng32 (*UDRFN14)(char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
+typedef int (*UDRFN14)(char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
                          char *, char *, short *, short *, short *, short *, short *, short *, short *, short *,
                          short *, short *, short *, short *, short *, short *, SQLUDR_TRAIL_ARGS);
-typedef Lng32 (*UDRFN15)(char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
+typedef int (*UDRFN15)(char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
                          char *, char *, char *, short *, short *, short *, short *, short *, short *, short *, short *,
                          short *, short *, short *, short *, short *, short *, short *, SQLUDR_TRAIL_ARGS);
-typedef Lng32 (*UDRFN16)(char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
+typedef int (*UDRFN16)(char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
                          char *, char *, char *, char *, short *, short *, short *, short *, short *, short *, short *,
                          short *, short *, short *, short *, short *, short *, short *, short *, short *,
                          SQLUDR_TRAIL_ARGS);
-typedef Lng32 (*UDRFN17)(char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
+typedef int (*UDRFN17)(char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
                          char *, char *, char *, char *, char *, short *, short *, short *, short *, short *, short *,
                          short *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
                          short *, SQLUDR_TRAIL_ARGS);
-typedef Lng32 (*UDRFN18)(char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
+typedef int (*UDRFN18)(char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
                          char *, char *, char *, char *, char *, char *, short *, short *, short *, short *, short *,
                          short *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
                          short *, short *, short *, SQLUDR_TRAIL_ARGS);
-typedef Lng32 (*UDRFN19)(char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
+typedef int (*UDRFN19)(char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
                          char *, char *, char *, char *, char *, char *, char *, short *, short *, short *, short *,
                          short *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
                          short *, short *, short *, short *, short *, SQLUDR_TRAIL_ARGS);
-typedef Lng32 (*UDRFN20)(char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
+typedef int (*UDRFN20)(char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
                          char *, char *, char *, char *, char *, char *, char *, char *, short *, short *, short *,
                          short *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
                          short *, short *, short *, short *, short *, short *, short *, SQLUDR_TRAIL_ARGS);
-typedef Lng32 (*UDRFN21)(char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
+typedef int (*UDRFN21)(char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
                          char *, char *, char *, char *, char *, char *, char *, char *, char *, short *, short *,
                          short *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
                          short *, short *, short *, short *, short *, short *, short *, short *, short *,
                          SQLUDR_TRAIL_ARGS);
-typedef Lng32 (*UDRFN22)(char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
+typedef int (*UDRFN22)(char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
                          char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, short *,
                          short *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
                          short *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
                          short *, SQLUDR_TRAIL_ARGS);
-typedef Lng32 (*UDRFN23)(char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
+typedef int (*UDRFN23)(char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
                          char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
                          short *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
                          short *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
                          short *, short *, short *, SQLUDR_TRAIL_ARGS);
-typedef Lng32 (*UDRFN24)(char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
+typedef int (*UDRFN24)(char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
                          char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
                          short *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
                          short *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
                          short *, short *, short *, short *, SQLUDR_TRAIL_ARGS);
-typedef Lng32 (*UDRFN25)(char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
+typedef int (*UDRFN25)(char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
                          char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
                          char *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
                          short *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
                          short *, short *, short *, short *, short *, short *, SQLUDR_TRAIL_ARGS);
-typedef Lng32 (*UDRFN26)(char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
+typedef int (*UDRFN26)(char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
                          char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
                          char *, char *, short *, short *, short *, short *, short *, short *, short *, short *,
                          short *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
                          short *, short *, short *, short *, short *, short *, short *, short *, SQLUDR_TRAIL_ARGS);
-typedef Lng32 (*UDRFN27)(char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
+typedef int (*UDRFN27)(char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
                          char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
                          char *, char *, char *, short *, short *, short *, short *, short *, short *, short *, short *,
                          short *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
                          short *, short *, short *, short *, short *, short *, short *, short *, short *,
                          SQLUDR_TRAIL_ARGS);
-typedef Lng32 (*UDRFN28)(char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
+typedef int (*UDRFN28)(char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
                          char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
                          char *, char *, char *, char *, short *, short *, short *, short *, short *, short *, short *,
                          short *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
                          short *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
                          short *, SQLUDR_TRAIL_ARGS);
-typedef Lng32 (*UDRFN29)(char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
+typedef int (*UDRFN29)(char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
                          char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
                          char *, char *, char *, char *, char *, short *, short *, short *, short *, short *, short *,
                          short *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
                          short *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
                          short *, short *, short *, SQLUDR_TRAIL_ARGS);
-typedef Lng32 (*UDRFN30)(char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
+typedef int (*UDRFN30)(char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
                          char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
                          char *, char *, char *, char *, char *, char *, short *, short *, short *, short *, short *,
                          short *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
                          short *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
                          short *, short *, short *, short *, short *, SQLUDR_TRAIL_ARGS);
-typedef Lng32 (*UDRFN31)(char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
+typedef int (*UDRFN31)(char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
                          char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
                          char *, char *, char *, char *, char *, char *, char *, short *, short *, short *, short *,
                          short *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
                          short *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
                          short *, short *, short *, short *, short *, short *, short *, SQLUDR_TRAIL_ARGS);
-typedef Lng32 (*UDRFN32)(char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
+typedef int (*UDRFN32)(char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
                          char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *,
                          char *, char *, char *, char *, char *, char *, char *, char *, short *, short *, short *,
                          short *, short *, short *, short *, short *, short *, short *, short *, short *, short *,
@@ -760,7 +760,7 @@ LmResult LmRoutineCSql::invokeRoutine(void *inputRow, void *outputRow, ComDiagsA
             break;
 
           default: {
-            *da << DgSqlCode(-LME_UDF_INVALID_DATA) << DgString0(getNameForDiags()) << DgInt0((Lng32)i + 1)
+            *da << DgSqlCode(-LME_UDF_INVALID_DATA) << DgString0(getNameForDiags()) << DgInt0((int)i + 1)
                 << DgString1("Invalid null indicator");
             lmResult = LM_ERR;
           } break;
@@ -793,7 +793,7 @@ LmResult LmRoutineCSql::invokeRoutine(void *inputRow, void *outputRow, ComDiagsA
               if (vc->length > outBytes) {
                 char msg[100];
                 sprintf(msg, "VARCHAR length should not exceed %d", outBytes);
-                *da << DgSqlCode(-LME_UDF_INVALID_DATA) << DgString0(getNameForDiags()) << DgInt0((Lng32)i + 1)
+                *da << DgSqlCode(-LME_UDF_INVALID_DATA) << DgString0(getNameForDiags()) << DgInt0((int)i + 1)
                     << DgString1(msg);
                 lmResult = LM_ERR;
               } else {

@@ -48,8 +48,8 @@
 #include "common/wstr.h"
 #include "common/nawstring.h"
 #include "common/NLSConversion.h"
-#include "ErrorMessage.h"
-#include "ParserMsg.h"  // header for StoreSyntaxError, implemented herein
+#include "sqlmsg/ErrorMessage.h"
+#include "sqlmsg/ParserMsg.h"  // header for StoreSyntaxError, implemented herein
 #include "common/csconvert.h"
 
 // This function takes as an argument a pointer to a ComCondition object.
@@ -265,7 +265,7 @@ void StoreSyntaxError(const NAWchar *input_str, Int32 input_pos, ComDiagsArea &d
 
   if (internalError) {
     char bufferInLocale[MAX_DGSTRING_SIZE];
-    Lng32 len = UnicodeStringToLocale(charset, entireBuf, na_wcslen(entireBuf), bufferInLocale, MAX_DGSTRING_SIZE);
+    int len = UnicodeStringToLocale(charset, entireBuf, na_wcslen(entireBuf), bufferInLocale, MAX_DGSTRING_SIZE);
 
     if (len > 0) {
       cerr << bufferInLocale << endl;

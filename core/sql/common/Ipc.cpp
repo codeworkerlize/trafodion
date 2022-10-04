@@ -349,7 +349,7 @@ void IpcProcessId::addProcIdToDiagsArea(ComDiagsArea &diags, Int32 stringno) con
 }
 
 IpcConnection *IpcProcessId::createConnectionToServer(IpcEnvironment *env, NABoolean usesTransactions,
-                                                      Lng32 maxNowaitRequests, NABoolean parallelOpen,
+                                                      int maxNowaitRequests, NABoolean parallelOpen,
                                                       Int32 *openCompletionScheduled,
                                                       NABoolean dataConnectionToEsp) const {
   NABoolean useGuaIpc = TRUE;
@@ -692,7 +692,7 @@ GuaMsgConnectionToServer *IpcConnection::castToGuaMsgConnectionToServer() { retu
 
 GuaConnectionToClient *IpcConnection::castToGuaConnectionToClient() { return NULL; }
 
-Int64 IpcConnection::getSqlTableTransid() { return -1; }
+long IpcConnection::getSqlTableTransid() { return -1; }
 
 void IpcConnection::openPhandle(char *processName, NABoolean parallelOpen) { assert(FALSE); }
 //
@@ -965,7 +965,7 @@ IpcAllConnections::~IpcAllConnections() {
 }
 // wait for something to happen on any of the connections like awaitio(-1)
 WaitReturnStatus IpcAllConnections::waitOnAll(IpcTimeout timeout, NABoolean calledByESP, NABoolean *timedout,
-                                              Int64 *waitTime, short ldoneRetryTimes) {
+                                              long *waitTime, short ldoneRetryTimes) {
   WaitReturnStatus retcode = WAIT_OK;
   struct timespec startts;
   struct timespec endts;
@@ -1414,7 +1414,7 @@ WaitReturnStatus IpcWaitableSetOfConnections::waitOnSet(IpcTimeout timeout, NABo
 
   // number of times we just give up the time slice before we actually
   // start to wait (with a timeout of toInc)
-  const Lng32 timeSlices = 3;
+  const int timeSlices = 3;
 
   IpcTimeout tout = 0;
   IpcTimeout totalWaitTime = -1;
@@ -1423,12 +1423,12 @@ WaitReturnStatus IpcWaitableSetOfConnections::waitOnSet(IpcTimeout timeout, NABo
   NABoolean somethingCompleted = FALSE;
   ULng32 seqNo = 0;
   IpcAllConnections *allc = NULL;
-  Lng32 currTimeSlices = timeSlices;
+  int currTimeSlices = timeSlices;
   IpcEnvironment *env = env_;
   NABoolean ldoneConsumed = FALSE, activity = FALSE;
   short waitFlag;
   short status;
-  Int64 currentTime;
+  long currentTime;
   callCount_ += 1;
   if (timeout == -2) timeout = -1;
   NABoolean isWaited;
@@ -1551,7 +1551,7 @@ WaitReturnStatus IpcWaitableSetOfConnections::waitOnSet(IpcTimeout timeout, NABo
             freeUnusedMemory = TRUE;
 
             EXSM_TRACE(EXSM_TRACE_PROTOCOL, "RECV LRABBIT wait count %" PRId64 " sm count %" PRId64 " timeout %d",
-                       (Int64)waitCount_, (Int64)smCompletionCount_, (int)timeout);
+                       (long)waitCount_, (long)smCompletionCount_, (int)timeout);
           } else {
             totalOfTimeouts += waitInterval;
             if (calledByESP) {
@@ -1568,8 +1568,8 @@ WaitReturnStatus IpcWaitableSetOfConnections::waitOnSet(IpcTimeout timeout, NABo
                 if (env->getStopAfter() > 0) {
                   assert(env->getIdleTimestamp() > 0);
                   currentTime = NA_JulianTimestamp();
-                  Int64 timeDiff = currentTime - env->getIdleTimestamp();
-                  if (timeDiff > ((Int64)env->getStopAfter() * 1000000)) {
+                  long timeDiff = currentTime - env->getIdleTimestamp();
+                  if (timeDiff > ((long)env->getStopAfter() * 1000000)) {
                     if (env->getLogEspIdleTimeout()) {
                       char myName[20];
                       memset(myName, '\0', sizeof(myName));
@@ -1585,8 +1585,8 @@ WaitReturnStatus IpcWaitableSetOfConnections::waitOnSet(IpcTimeout timeout, NABo
               } else {
                 if (env->getInactiveTimeout() > 0 && env->getInactiveTimestamp() > 0) {
                   currentTime = NA_JulianTimestamp();
-                  Int64 timeDiff = currentTime - env->getInactiveTimestamp();
-                  if (timeDiff > ((Int64)env->getInactiveTimeout() * 1000000))
+                  long timeDiff = currentTime - env->getInactiveTimestamp();
+                  if (timeDiff > ((long)env->getInactiveTimeout() * 1000000))
                     // stop esp if it has become inactive and timed out
                     NAExit(0);
                 }
@@ -1629,7 +1629,7 @@ WaitReturnStatus IpcWaitableSetOfConnections::waitOnSet(IpcTimeout timeout, NABo
                                      // which means to: a) an AWAITIOX completed, b)
                                      // a MSG_ISDONE_ returned true, or c) something was
                                      // started such as tryToStartNewIO called MSG_LINK_.
-      Int64 waitCalled = 0, waitReturned;
+      long waitCalled = 0, waitReturned;
       if (!isWaited && tout > 0) waitCalled = NA_JulianTimestamp();
 
       NABoolean cycleThruConnections = TRUE;
@@ -1942,7 +1942,7 @@ void InternalMsgHdrInfoStruct::unpackObj(IpcMessageObjType objType, IpcMessageOb
 // allocate(), createBuffer(), copy(), copyFromOffset().
 IpcMessageBuffer::IpcMessageBuffer(CollHeap *heap, IpcMessageObjSize maxLen, IpcMessageObjSize msgLen,
                                    IpcMessageStreamBase *msg, short flags, short replyTag,
-                                   IpcMessageObjSize maxReplyLength, Int64 transid)
+                                   IpcMessageObjSize maxReplyLength, long transid)
     : InternalMessageBufferHeader(heap, maxLen, msgLen, msg, replyTag, maxReplyLength, transid, flags) {}
 
 IpcMessageBuffer *IpcMessageBuffer::allocate(IpcMessageObjSize maxLen, IpcMessageObjSize chunkSize,
@@ -1996,7 +1996,7 @@ IpcMessageBuffer *IpcMessageBuffer::copy(IpcEnvironment *env, IpcMessageObjSize 
       IpcMessageBuffer(heap, newMaxLen, newMsgLen, message_, flags_, replyTag_, maxReplyLength_, transid_);
 
   if (result) {
-    str_cpy_all((char *)result->data(0), (const char *)data(0), (Lng32)newMsgLen);
+    str_cpy_all((char *)result->data(0), (const char *)data(0), (int)newMsgLen);
 
     // the copy gets the reply tag, if there is any
     setReplyTag(GuaInvalidReplyTag);
@@ -2929,7 +2929,7 @@ IpcMessageObjSize IpcMessageStream::getBytesReceived() const {
 // is also defined in IpcGuardian.cpp
 // #define LOG_IPC_MSG_OBJ
 
-void IpcMessageStream::send(NABoolean waited, Int64 transid, IpcMessageObjSize *bytesSent) {
+void IpcMessageStream::send(NABoolean waited, long transid, IpcMessageObjSize *bytesSent) {
 #ifdef IPC_INTEGRITY_CHECKING
   checkIntegrity();
 #endif
@@ -3561,7 +3561,7 @@ void IpcMessageStream::checkLocalIntegrity(void) {
 ///////////////////////////////////////////////////////////////////////////////
 // constructor
 IpcBufferedMsgStream::IpcBufferedMsgStream(IpcEnvironment *env, IpcMessageType msgType, IpcMessageObjVersion version,
-                                           Lng32 inUseBufferLimit, IpcMessageObjSize bufferSize,
+                                           int inUseBufferLimit, IpcMessageObjSize bufferSize,
                                            IpcThreadInfo *threadInfo)
     : IpcMessageStreamBase(env, threadInfo),
       msgType_(msgType),
@@ -4094,7 +4094,7 @@ void IpcBufferedMsgStream::actOnReceiveAllComplete() {
 ///////////////////////////////////////////////////////////////////////////////
 // constructor
 IpcClientMsgStream::IpcClientMsgStream(IpcEnvironment *env, IpcMessageType msgType, IpcMessageObjVersion version,
-                                       Lng32 sendBufferLimit, Lng32 inUseBufferLimit, IpcMessageObjSize bufferSize,
+                                       int sendBufferLimit, int inUseBufferLimit, IpcMessageObjSize bufferSize,
                                        IpcThreadInfo *threadInfo)
     : IpcBufferedMsgStream(env, msgType, version, inUseBufferLimit, bufferSize, threadInfo),
       sendBufferLimit_(sendBufferLimit),
@@ -4106,7 +4106,7 @@ IpcClientMsgStream::IpcClientMsgStream(IpcEnvironment *env, IpcMessageType msgTy
 
 ///////////////////////////////////////////////////////////////////////////////
 // broadcast the current send message to all recipients
-void IpcClientMsgStream::sendRequest(Int64 transid) {
+void IpcClientMsgStream::sendRequest(long transid) {
   MXTRC_FUNC("IpcClientMsgStream::sendRequest");
   prepSendMsgForOutput();
 
@@ -4250,7 +4250,7 @@ void IpcClientMsgStream::internalActOnSend(IpcConnection *connection) {
 ///////////////////////////////////////////////////////////////////////////////
 // constructor
 IpcServerMsgStream::IpcServerMsgStream(IpcEnvironment *env, IpcMessageType msgType, IpcMessageObjVersion version,
-                                       Lng32 sendBufferLimit, Lng32 inUseBufferLimit, IpcMessageObjSize bufferSize,
+                                       int sendBufferLimit, int inUseBufferLimit, IpcMessageObjSize bufferSize,
                                        IpcThreadInfo *threadInfo)
     : IpcBufferedMsgStream(env, msgType, version, inUseBufferLimit, bufferSize, threadInfo),
       sendBufferLimit_(sendBufferLimit),
@@ -4400,9 +4400,9 @@ IpcServerClass::~IpcServerClass() {
 }
 
 IpcServer *IpcServerClass::allocateServerProcess(ComDiagsArea **diags, CollHeap *diagsHeap, const char *nodeName,
-                                                 IpcCpuNum cpuNum, IpcPriority priority, Lng32 espLevel,
+                                                 IpcCpuNum cpuNum, IpcPriority priority, int espLevel,
                                                  NABoolean usesTransactions, NABoolean waitedCreation,
-                                                 Lng32 maxNowaitRequests, const char *progFileName,
+                                                 int maxNowaitRequests, const char *progFileName,
                                                  const char *processName, NABoolean parallelOpens,
                                                  IpcGuardianServer **creatingProcess, NAWNodeSetWrapper *nodeSet) {
   IpcServer *result = NULL;
@@ -4432,7 +4432,7 @@ IpcServer *IpcServerClass::allocateServerProcess(ComDiagsArea **diags, CollHeap 
     return result;
   }
   NABoolean lv_usesTransactions = usesTransactions;
-  Lng32 lv_maxNowaitRequests = maxNowaitRequests;
+  int lv_maxNowaitRequests = maxNowaitRequests;
 
   IpcConnection *serverConn = NULL;
   const char *className = NULL;
@@ -4664,7 +4664,7 @@ char *IpcServerClass::getProcessName(short cpuNum, char *processName) {
 //
 /////////////////////////////////////////////////////////////////////
 short getDefineShort(char *defineName) {
-  Lng32 retVal = -1;
+  int retVal = -1;
 
   return (short)retVal;
   return (short)retVal;
@@ -4719,7 +4719,7 @@ IpcEnvironment::IpcEnvironment(CollHeap *heap, UInt32 *eventConsumed, NABoolean 
       this, heap_,
       (serverType == IPC_SQLESP_SERVER || serverType == IPC_SQLSSCP_SERVER || serverType == IPC_SQLSSMP_SERVER));
   controlConnection_ = NULL;
-  for (Lng32 i = 0; i < 4; i++) currentExRtFragTable_[i] = NULL;  // for integrity checking
+  for (int i = 0; i < 4; i++) currentExRtFragTable_[i] = NULL;  // for integrity checking
 
   idleTimestamp_ = NA_JulianTimestamp();
 #ifdef USE_SB_NEW_RI
@@ -4952,7 +4952,7 @@ IpcPriority IpcEnvironment::getMyProcessPriority() {
 
 void IpcEnvironment::setEnvVars(char **envvars) { envvars_ = envvars; }
 
-void IpcEnvironment::setEnvVarsLen(Lng32 envvarsLen) { envvarsLen_ = envvarsLen; }
+void IpcEnvironment::setEnvVarsLen(int envvarsLen) { envvarsLen_ = envvarsLen; }
 
 void IpcEnvironment::releaseSafetyBuffer() {
   // Don't mmap and munmap a 512K block on Linux for every download
@@ -4989,8 +4989,8 @@ void IpcEnvironment::logRetriedMessages() {
 
 void IpcEnvironment::setCurrentExRtFragTable(ExRtFragTable *ft) {
   NABoolean alreadyIn = FALSE;
-  Lng32 i;
-  Lng32 firstOpen = -1;
+  int i;
+  int firstOpen = -1;
 
   for (i = 0; i < 4; i++) {
     if (ft == currentExRtFragTable_[i])
@@ -5018,7 +5018,7 @@ void IpcEnvironment::setCurrentExRtFragTable(ExRtFragTable *ft) {
 }
 
 void IpcEnvironment::removeCurrentExRtFragTable(ExRtFragTable *ft) {
-  Lng32 i;
+  int i;
 
   for (i = 0; i < 4; i++) {
     if (ft == currentExRtFragTable_[i]) {
@@ -5032,7 +5032,7 @@ void IpcEnvironment::setExRtFragTableIntegrityCheckPtr(void (*fnptr)(ExRtFragTab
   integrityCheckExRtFragTablePtr_ = fnptr;
 }
 
-ExRtFragTable *IpcEnvironment::getCurrentExRtFragTable(Lng32 i) {
+ExRtFragTable *IpcEnvironment::getCurrentExRtFragTable(int i) {
   if ((i >= 0) && (i < 4)) return currentExRtFragTable_[i];
 
   return 0;
@@ -5045,7 +5045,7 @@ void IpcEnvironment::checkIntegrity(void) {
 }
 
 void IpcEnvironment::checkLocalIntegrity(void) {
-  for (Lng32 i = 0; i < 4; i++) {
+  for (int i = 0; i < 4; i++) {
     if ((currentExRtFragTable_[i]) && (integrityCheckExRtFragTablePtr_)) {
       // this file doesn't know about the class ExRtFragTable, so we call
       // a C-style function instead in file /executor/ex_frag_rt.cpp...

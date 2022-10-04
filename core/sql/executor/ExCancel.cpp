@@ -121,7 +121,7 @@ ExWorkProcRetcode ExCancelTcb::work() {
           // REVOKE, prevent a prepared CANCEL/SUSPEND/ACTIVATE
           // that was compiled more than 1 second ago from executing
           // by raising the 8734 error to force an AQR.
-          Int64 microSecondsSinceCompile = NA_JulianTimestamp() - masterGlobals->getStatement()->getCompileEndTime();
+          long microSecondsSinceCompile = NA_JulianTimestamp() - masterGlobals->getStatement()->getCompileEndTime();
 
           if (microSecondsSinceCompile > 1000 * 1000) {
             ComDiagsArea *diagsArea = ComDiagsArea::allocate(getGlobals()->getDefaultHeap());
@@ -193,7 +193,7 @@ ExWorkProcRetcode ExCancelTcb::work() {
             }
           } else {
             char *qid = cancelTdb().qid_;
-            Lng32 qid_len = str_len(qid);
+            int qid_len = str_len(qid);
 
             // This static method is defined in SqlStats.cpp.  It side-effects
             // the nodeName and cpu_ according to the input qid.
@@ -242,12 +242,12 @@ ExWorkProcRetcode ExCancelTcb::work() {
         RtsHandle rtsHandle = (RtsHandle)this;
 
         if (cancelTdb().actionIsCancel()) {
-          Int64 cancelStartTime = JULIANTIMESTAMP();
+          long cancelStartTime = JULIANTIMESTAMP();
 
-          Lng32 firstEscalationInterval =
+          int firstEscalationInterval =
               cliGlobals->currContext()->getSessionDefaults()->getCancelEscalationInterval();
 
-          Lng32 secondEscalationInterval =
+          int secondEscalationInterval =
               cliGlobals->currContext()->getSessionDefaults()->getCancelEscalationMxosrvrInterval();
 
           NABoolean cancelEscalationSaveabend =
@@ -289,7 +289,7 @@ ExWorkProcRetcode ExCancelTcb::work() {
         if ((cancelTdb().getAction() != ComTdbCancel::CancelByPname) &&
             (cancelTdb().getAction() != ComTdbCancel::CancelByNidPid)) {
           char *qid = cancelTdb().qid_;
-          Lng32 qid_len = str_len(qid);
+          int qid_len = str_len(qid);
 
           RtsQueryId *rtsQueryId = new (cliGlobals->getIpcHeap()) RtsQueryId(cliGlobals->getIpcHeap(), qid, qid_len);
 
@@ -394,7 +394,7 @@ ExWorkProcRetcode ExCancelTcb::work() {
   return WORK_OK;
 }
 
-void ExCancelTcb::reportError(ComDiagsArea *da, bool addCondition, Lng32 SQLCode, char *nodeName, short cpu) {
+void ExCancelTcb::reportError(ComDiagsArea *da, bool addCondition, int SQLCode, char *nodeName, short cpu) {
   ex_queue_entry *down_entry = qparent_.down->getHeadEntry();
   ex_queue_entry *up_entry = qparent_.up->getTailEntry();
 

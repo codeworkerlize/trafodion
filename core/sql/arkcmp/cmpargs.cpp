@@ -45,7 +45,7 @@
 #include "common/NAExit.h"
 #include "optimizer/SchemaDB.h"
 #include "arkcmp/CmpErrors.h"
-#include "ErrorMessage.h"
+#include "sqlmsg/ErrorMessage.h"
 
 // In order to support template instantiation for TANDEM builds (using
 // c89), we conditionally include cmp_templ.C.  Furthermore, we

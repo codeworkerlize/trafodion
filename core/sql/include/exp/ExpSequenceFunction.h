@@ -129,9 +129,9 @@ class ExpSequenceFunction : public ex_function_clause {
   };
 
   void *GetRowData_;
-  char *(*GetRow_)(void *, Int32, NABoolean, Lng32, Int32 &);
+  char *(*GetRow_)(void *, Int32, NABoolean, int, Int32 &);
 
-  char *(*PutRow_)(void *, Int32, NABoolean, Lng32, Int32 &);
+  char *(*PutRow_)(void *, Int32, NABoolean, int, Int32 &);
 
   Int32 offsetIndex_;  // 00-03
   Int32 flags_;        // 04-07
@@ -143,8 +143,8 @@ class ExpSequenceFunction : public ex_function_clause {
 //
 class ExpSequenceExpression : public ex_expr {
  public:
-  inline void seqFixup(void *data, char *(*getRow)(void *, Int32, NABoolean, Lng32, Int32 &),
-                       char *(*getRowOLAP)(void *, Int32, NABoolean, Lng32, Int32 &)) {
+  inline void seqFixup(void *data, char *(*getRow)(void *, Int32, NABoolean, int, Int32 &),
+                       char *(*getRowOLAP)(void *, Int32, NABoolean, int, Int32 &)) {
     ex_clause *clause = getClauses();
     while (clause) {
       if (clause->getOperType() == ITM_OFFSET)

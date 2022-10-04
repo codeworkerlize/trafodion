@@ -57,7 +57,7 @@
 // This file contains the all member function definitions of SortUtil class.
 //------------------------------------------------------------------------
 
-SortUtil::SortUtil(Lng32 explainNodeId) : explainNodeId_(explainNodeId) {
+SortUtil::SortUtil(int explainNodeId) : explainNodeId_(explainNodeId) {
   version_ = 1;
   state_ = SORT_INIT;
   config_ = NULL;
@@ -239,7 +239,7 @@ NABoolean SortUtil::sortEnd(void) {
 //   SORT_FAILURE if any error encounterd.
 //
 //----------------------------------------------------------------------
-Lng32 SortUtil::sortSend(void *record, ULng32 len, void *tupp) {
+int SortUtil::sortSend(void *record, ULng32 len, void *tupp) {
   stats_.numRecs_++;
   return sortAlgo_->sortSend(record, len, tupp);
 }
@@ -256,8 +256,8 @@ Lng32 SortUtil::sortSend(void *record, ULng32 len, void *tupp) {
 //   SORT_FAILURE if any error encounterd.
 //
 //----------------------------------------------------------------------
-Lng32 SortUtil::sortClientOutOfMem(void) {
-  Lng32 retcode = SORT_SUCCESS;
+int SortUtil::sortClientOutOfMem(void) {
+  int retcode = SORT_SUCCESS;
   retcode = sortAlgo_->sortClientOutOfMem();
   if (retcode != SCRATCH_SUCCESS) return retcode;
   sortAlgo_->setExternalSort();
@@ -276,8 +276,8 @@ Lng32 SortUtil::sortClientOutOfMem(void) {
 //   SORT_FAILURE if any error encounterd.
 //
 //----------------------------------------------------------------------
-Lng32 SortUtil::sortSendEnd(NABoolean &internalSort) {
-  Lng32 retcode = SORT_SUCCESS;
+int SortUtil::sortSendEnd(NABoolean &internalSort) {
+  int retcode = SORT_SUCCESS;
   state_ = SORT_SEND_END;
 
   retcode = sortAlgo_->sortSendEnd();
@@ -309,9 +309,9 @@ Lng32 SortUtil::sortSendEnd(NABoolean &internalSort) {
 //   SORT_FAILURE if any error encounterd.
 //
 //----------------------------------------------------------------------
-Lng32 SortUtil::sortReceivePrepare(void) {
+int SortUtil::sortReceivePrepare(void) {
   ULng32 initialRunSize = 0;
-  Lng32 runnum = 1L;
+  int runnum = 1L;
   SortScratchSpace *tempScratch;
 
   state_ = SORT_MERGE;
@@ -394,8 +394,8 @@ Lng32 SortUtil::sortReceivePrepare(void) {
   // to 2 to avoid looping.
   if (config_->mergeOrder_ < 2) config_->mergeOrder_ = 2;
 
-  Lng32 mergeOrderUsed =
-      (stats_.numRuns_ > (Lng32)config_->mergeOrder_) ? (Lng32)config_->mergeOrder_ : stats_.numRuns_;
+  int mergeOrderUsed =
+      (stats_.numRuns_ > (int)config_->mergeOrder_) ? (int)config_->mergeOrder_ : stats_.numRuns_;
   RESULT result = scratch_->setupSortMergeBufferPool(mergeOrderUsed * SORT_MERGENODE_NUM_BUFFERS *
                                                      config_->sortMergeBlocksPerBuffer_);
 
@@ -451,7 +451,7 @@ Lng32 SortUtil::sortReceivePrepare(void) {
   // This is the result merge order. Set this in stats_.mergeOrder_.
   stats_.mergeOrder_ = config_->mergeOrder_;
 
-  if (stats_.numRuns_ > (Lng32)config_->mergeOrder_) {
+  if (stats_.numRuns_ > (int)config_->mergeOrder_) {
     state_ = SORT_INTERMEDIATE_MERGE;
     if (bmoStats_)
       bmoStats_->setBmoPhase(ExSortTcb::SortPhase::SORT_PHASE_END - ExSortTcb::SortPhase::SORT_MERGE_PHASE);
@@ -641,11 +641,11 @@ Lng32 SortUtil::sortReceivePrepare(void) {
 //   SORT_FAILURE if any error encounterd.
 //
 //----------------------------------------------------------------------
-Lng32 SortUtil::sortReceive(void *record, ULng32 &len) {
-  Lng32 status;
+int SortUtil::sortReceive(void *record, ULng32 &len) {
+  int status;
 
   if (!internalSort_ && !sortReceivePrepared_) {
-    Lng32 retCode = sortReceivePrepare();
+    int retCode = sortReceivePrepare();
     if (retCode != SORT_SUCCESS) return retCode;
 
     sortReceivePrepared_ = TRUE;
@@ -657,7 +657,7 @@ Lng32 SortUtil::sortReceive(void *record, ULng32 &len) {
       scratch_->getTotalIoWaitTime(stats_.ioWaitTime_);
     }
     stats_.numCompares_ += sortAlgo_->getNumOfCompares();
-    Int64 currentTimeJ = NA_JulianTimestamp();
+    long currentTimeJ = NA_JulianTimestamp();
     stats_.elapsedTime_ = currentTimeJ - stats_.beginSortTime_;
     if (config_->logInfoEvent()) {
       char msg[500];
@@ -681,7 +681,7 @@ Lng32 SortUtil::sortReceive(void *record, ULng32 &len) {
 //   SORT_FAILURE if any error encounterd.
 //
 //----------------------------------------------------------------------
-Lng32 SortUtil::sortReceive(void *&record, ULng32 &len, void *&tupp) {
+int SortUtil::sortReceive(void *&record, ULng32 &len, void *&tupp) {
   NABoolean status;
   status = sortAlgo_->sortReceive(record, len, tupp);
   if ((len == 0) && (!config_->partialSort_)) {
@@ -689,7 +689,7 @@ Lng32 SortUtil::sortReceive(void *&record, ULng32 &len, void *&tupp) {
       scratch_->getTotalIoWaitTime(stats_.ioWaitTime_);
     }
     stats_.numCompares_ += sortAlgo_->getNumOfCompares();
-    Int64 currentTimeJ = NA_JulianTimestamp();
+    long currentTimeJ = NA_JulianTimestamp();
     stats_.elapsedTime_ = currentTimeJ - stats_.beginSortTime_;
     if (config_->logInfoEvent()) {
       char msg[500];
@@ -847,7 +847,7 @@ void SortUtil::returnExcessMemoryQuota(UInt32 overheadPerRecord) {
   maxEstimateMemoryBytes = (((ExSortTcb *)config_->callingTcb_)->sortBufferSize()) * (config_->maxNumBuffers_ - 1);
 
   // Calculate additional overhead involved in sorting the records.
-  UInt32 tuppSize = SqlBufferGetTuppSize((Lng32)config_->getRecSize());
+  UInt32 tuppSize = SqlBufferGetTuppSize((int)config_->getRecSize());
 
   // estimateMemory/tuppSize = estimate of records that can be accomodated
   // in memory.
@@ -877,7 +877,7 @@ UInt32 SortUtil::getMaxAvailableQuotaMB(void) {
 
 // The memory checks performed in this method pertain to
 // overall memory consumption of the operator.
-NABoolean SortUtil::withinMemoryLimitsAndPressure(Int64 reqMembytes) {
+NABoolean SortUtil::withinMemoryLimitsAndPressure(long reqMembytes) {
   // BMO only enabled if greater than zero.
   if (config_ == NULL || config_->initialMemoryQuotaMB_ <= 0) return FALSE;
   /*

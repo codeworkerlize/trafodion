@@ -90,7 +90,7 @@ class ElemDDLPrivileges : public ElemDDLNode {
   //
 
   virtual Int32 getArity() const;
-  virtual ExprNode *getChild(Lng32 index);
+  virtual ExprNode *getChild(int index);
 
   inline ElemDDLNode *getPrivilegeActionList() const;
 
@@ -110,7 +110,7 @@ class ElemDDLPrivileges : public ElemDDLNode {
   inline NABoolean isAllOtherPrivileges() const;
 
   // mutator
-  virtual void setChild(Lng32 index, ExprNode *pElemDDLNode);
+  virtual void setChild(int index, ExprNode *pElemDDLNode);
 
   // methods for tracing
   virtual const NAString displayLabel1() const;

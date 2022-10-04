@@ -69,7 +69,7 @@ class LmResultSetJava : public LmResultSet {
   NABoolean moreSpecialRows() { return (usesT2Connection()) ? lastBufferedRow_ > currentRowPosition_ : TRUE; }
 
   NABoolean isCLIStmtClosed() { return CLIStmtClosed_; }
-  Lng32 fetchSpecialRows(void *dataPtr, LmParameter *colDesc, ComUInt32 numCols, ComDiagsArea &da, ComDiagsArea *rda);
+  int fetchSpecialRows(void *dataPtr, LmParameter *colDesc, ComUInt32 numCols, ComDiagsArea &da, ComDiagsArea *rda);
 
  private:
   NABoolean isScrollable() const {
@@ -157,7 +157,7 @@ class LmResultSetJava : public LmResultSet {
   LmResultSetType cursorType_;  // Indicates whether this is a scrollable
                                 // or forward-only cursor etc.
 
-  Int64 rsCounter_;  // An unique value given to each result set
+  long rsCounter_;  // An unique value given to each result set
                      // object in JDBC/MX to indicate the order
                      // in which the result set's underlying SQL
                      // statement was executed.

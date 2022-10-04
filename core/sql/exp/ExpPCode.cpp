@@ -62,7 +62,7 @@ Long PCodeSegment::pack(void *space) {
   return NAVersionedObject::pack(space);
 }
 
-Lng32 PCodeSegment::unpack(void *base, void *reallocator) {
+int PCodeSegment::unpack(void *base, void *reallocator) {
   if (pCodeSegment_.unpack(base)) return -1;
   convOffsetToAddrInPCode(base);
   return NAVersionedObject::unpack(base, reallocator);
@@ -471,8 +471,8 @@ Int32 PCode::size() {
 //
 #define I6(inst, am1, am2, am3, am4, am5, am6, op)                                                                \
   {                                                                                                               \
-    (((Int64)PCIT::inst << 36) | ((Int64)PCIT::am1 << 30) | ((Int64)PCIT::am2 << 24) | ((Int64)PCIT::am3 << 18) | \
-     ((Int64)PCIT::am4 << 12) | ((Int64)PCIT::am5 << 6) | ((Int64)PCIT::am6)),                                    \
+    (((long)PCIT::inst << 36) | ((long)PCIT::am1 << 30) | ((long)PCIT::am2 << 24) | ((long)PCIT::am3 << 18) | \
+     ((long)PCIT::am4 << 12) | ((long)PCIT::am5 << 6) | ((long)PCIT::am6)),                                    \
         PCIT::op, "" #op "",                                                                                      \
         AM_LENGTH(PCIT::am1) + AM_LENGTH(PCIT::am2) + AM_LENGTH(PCIT::am3) + AM_LENGTH(PCIT::am4) +               \
             AM_LENGTH(PCIT::am5) + AM_LENGTH(PCIT::am6) + 1,                                                      \
@@ -480,8 +480,8 @@ Int32 PCode::size() {
   }
 #define I5(inst, am1, am2, am3, am4, am5, op)                                                                     \
   {                                                                                                               \
-    (((Int64)PCIT::inst << 36) | ((Int64)PCIT::am1 << 30) | ((Int64)PCIT::am2 << 24) | ((Int64)PCIT::am3 << 18) | \
-     ((Int64)PCIT::am4 << 12) | ((Int64)PCIT::am5 << 6)),                                                         \
+    (((long)PCIT::inst << 36) | ((long)PCIT::am1 << 30) | ((long)PCIT::am2 << 24) | ((long)PCIT::am3 << 18) | \
+     ((long)PCIT::am4 << 12) | ((long)PCIT::am5 << 6)),                                                         \
         PCIT::op, "" #op "",                                                                                      \
         AM_LENGTH(PCIT::am1) + AM_LENGTH(PCIT::am2) + AM_LENGTH(PCIT::am3) + AM_LENGTH(PCIT::am4) +               \
             AM_LENGTH(PCIT::am5) + 1,                                                                             \
@@ -489,25 +489,25 @@ Int32 PCode::size() {
   }
 #define I4(inst, am1, am2, am3, am4, op)                                                                          \
   {                                                                                                               \
-    (((Int64)PCIT::inst << 36) | ((Int64)PCIT::am1 << 30) | ((Int64)PCIT::am2 << 24) | ((Int64)PCIT::am3 << 18) | \
-     ((Int64)PCIT::am4 << 12)),                                                                                   \
+    (((long)PCIT::inst << 36) | ((long)PCIT::am1 << 30) | ((long)PCIT::am2 << 24) | ((long)PCIT::am3 << 18) | \
+     ((long)PCIT::am4 << 12)),                                                                                   \
         PCIT::op, "" #op "",                                                                                      \
         AM_LENGTH(PCIT::am1) + AM_LENGTH(PCIT::am2) + AM_LENGTH(PCIT::am3) + AM_LENGTH(PCIT::am4) + 1, 4          \
   }
 #define I3(inst, am1, am2, am3, op)                                                                               \
   {                                                                                                               \
-    (((Int64)PCIT::inst << 36) | ((Int64)PCIT::am1 << 30) | ((Int64)PCIT::am2 << 24) | ((Int64)PCIT::am3 << 18)), \
+    (((long)PCIT::inst << 36) | ((long)PCIT::am1 << 30) | ((long)PCIT::am2 << 24) | ((long)PCIT::am3 << 18)), \
         PCIT::op, "" #op "", AM_LENGTH(PCIT::am1) + AM_LENGTH(PCIT::am2) + AM_LENGTH(PCIT::am3) + 1, 3            \
   }
 #define I2(inst, am1, am2, op)                                                                              \
   {                                                                                                         \
-    (((Int64)PCIT::inst << 36) | ((Int64)PCIT::am1 << 30) | ((Int64)PCIT::am2 << 24)), PCIT::op, "" #op "", \
+    (((long)PCIT::inst << 36) | ((long)PCIT::am1 << 30) | ((long)PCIT::am2 << 24)), PCIT::op, "" #op "", \
         AM_LENGTH(PCIT::am1) + AM_LENGTH(PCIT::am2) + 1, 2                                                  \
   }
 #define I1(inst, am1, op) \
-  { (((Int64)PCIT::inst << 36) | ((Int64)PCIT::am1 << 30)), PCIT::op, "" #op "", AM_LENGTH(PCIT::am1) + 1, 1 }
+  { (((long)PCIT::inst << 36) | ((long)PCIT::am1 << 30)), PCIT::op, "" #op "", AM_LENGTH(PCIT::am1) + 1, 1 }
 #define I0(inst, op) \
-  { (((Int64)PCIT::inst << 36)), PCIT::op, "" #op "", 1, 0 }
+  { (((long)PCIT::inst << 36)), PCIT::op, "" #op "", 1, 0 }
 #define IopCodeNotInUse(op) \
   { 0, op, "opCodeNotInUse", 1, 0 }
 // create the instruction map array once per process
@@ -1127,12 +1127,12 @@ PCIT::Instruction PCode::getInstruction(PCI *pci) {
     return (PCIT::NOP);
 
   Int32 shift = 36;
-  Int64 code = pci->getOperation();
+  long code = pci->getOperation();
   code = code << shift;
   Int32 i = 0;
   for (i = 0; i < pci->getNumberAddressingModes(); i++) {
     shift -= 6;
-    code |= ((Int64)pci->getAddressingMode(i)) << shift;
+    code |= ((long)pci->getAddressingMode(i)) << shift;
   }
   for (i = 0; i < PCIT::LAST_PCODE_INSTR; i++) {
     if (opcodeMap[i].instruction == code) {
@@ -1164,7 +1164,7 @@ Int32 PCode::getOpCodeMapElements(Int32 opcode, PCIT::Operation &operation, PCIT
                                   Int32 &numAModes) {
   if ((opcode == PCIT::END) || (opcode < 0) || (opcode >= PCIT::LAST_PCODE_INSTR)) return 1;
 
-  Int64 instruction = opcodeMap[opcode].instruction >> (36 - (opcodeMap[opcode].numAmodes * 6));
+  long instruction = opcodeMap[opcode].instruction >> (36 - (opcodeMap[opcode].numAmodes * 6));
   for (Int32 count = opcodeMap[opcode].numAmodes; count > 0; count--) {
     am[count - 1] = (PCIT::AddressingMode)(instruction & OPCODE_MAP_FIRSTSIX_BITS);
     instruction >>= 6;
@@ -1265,7 +1265,7 @@ void PCode::displayContents(PCIList code, Space *space) {
   while (pci != NULL) {
     char tbuf[256];
     // TODO: Need to check pci casting is correct
-    str_sprintf(buf, "    PCI(%09ld)[%3d,%d] %s(", (Int64)pci, pci->getCodePosition(), pci->getGeneratedCodeSize(),
+    str_sprintf(buf, "    PCI(%09ld)[%3d,%d] %s(", (long)pci, pci->getCodePosition(), pci->getGeneratedCodeSize(),
                 PCIT::operationString(pci->getOperation()));
 
     if (pci->getNumberAddressingModes() > 0) {
@@ -1313,7 +1313,7 @@ void PCode::displayContents(PCodeBinary *pCode, Space *space) {
 
     str_sprintf(buf, "    %s ", PCIT::instructionString(PCIT::Instruction(opcode)));
 
-    Lng32 pcodeLength = PCode::getInstructionLength(pCode - 1) - 1;
+    int pcodeLength = PCode::getInstructionLength(pCode - 1) - 1;
 
     char tbuf[256];
     char operandBuf[32];
@@ -1342,7 +1342,7 @@ Int32 PCode::dumpContents(PCIList code, char *buf, Int32 bufLen) {
   while (pci != NULL) {
     // TODO: Need to check pci casting is correct
     char tbuf[256];
-    str_sprintf(tbuf, "PCI(%09ld)[%3d,%d] %s(", (Int64)pci, pci->getCodePosition(), pci->getGeneratedCodeSize(),
+    str_sprintf(tbuf, "PCI(%09ld)[%3d,%d] %s(", (long)pci, pci->getCodePosition(), pci->getGeneratedCodeSize(),
                 PCIT::operationString(pci->getOperation()));
     len += str_len(tbuf);
     if (len >= bufLen - 2) return len - str_len(tbuf);
@@ -1406,7 +1406,7 @@ void PCode::dumpContents(PCodeBinary *pCode, char *buf, Int32 bufLen) {
     if (len >= bufLen - 2) break;
     str_cat(buf, tbuf, buf);
 
-    Lng32 pcodeLength = PCode::getInstructionLength(pCode - 1) - 1;
+    int pcodeLength = PCode::getInstructionLength(pCode - 1) - 1;
 
     char operandBuf[32];
     for (Int32 i = 0; i < pcodeLength; i++) {
@@ -2320,7 +2320,7 @@ PCIID PCode::generateJumpAndBranch(Attributes *dst, PCIList &code, PCIID notNull
   // jump target for the case that we move a non-NULL value
   if (notNullBranch) {
     AML aml;
-    OL ol((Int64)notNullBranch);
+    OL ol((long)notNullBranch);
     PCI pci(PCIT::Op_TARGET, aml, ol);
     code.append(pci);
   }
@@ -2429,7 +2429,7 @@ void PCode::preClausePCI(ex_clause *clause, PCIList &code) {
   if (clause->isBranchTarget()) {
     for (Int32 i = 0; i < clause->getNumberBranchTargets(); i++) {
       AML aml;
-      OL ol((Int64)clause);
+      OL ol((long)clause);
       PCI pci(PCIT::Op_TARGET, aml, ol);
       code.append(pci);
     }
@@ -2492,7 +2492,7 @@ PCIID PCode::nullBranchHelper(AttributesPtr *attrs, Attributes *attrA, Attribute
       if (attrA->isSQLMXAlignedFormat() || attrB->isSQLMXAlignedFormat()) {
         AML aml(PCIT::MPTR32, PCIT::MPTR32, PCIT::IPTR, PCIT::IPTR);
         OL ol(attrA->getAtp(), attrA->getAtpIndex(), attrA->getNullIndOffset(), attrB->getAtp(), attrB->getAtpIndex(),
-              attrB->getNullIndOffset(), (Int64)attrA, (Int64)attrB);
+              attrB->getNullIndOffset(), (long)attrA, (long)attrB);
         PCI pci(PCIT::Op_NULL_VIOLATION, aml, ol);
         code.append(pci);
       } else {
@@ -2543,7 +2543,7 @@ PCIID PCode::nullBranchHelper(AttributesPtr *attrs, Attributes *attrA, Attribute
       if (attrA->isSQLMXAlignedFormat()) {
         AML aml(PCIT::MPTR32, PCIT::MPTR32, PCIT::IPTR, PCIT::IPTR);
         OL ol(attrA->getAtp(), attrA->getAtpIndex(), attrA->getNullIndOffset(), attrA->getAtp(), attrA->getAtpIndex(),
-              attrA->getNullIndOffset(), (Int64)attrA, (Int64)0);
+              attrA->getNullIndOffset(), (long)attrA, (long)0);
         PCI pci(PCIT::Op_NULL_VIOLATION, aml, ol);
         code.append(pci);
       } else {

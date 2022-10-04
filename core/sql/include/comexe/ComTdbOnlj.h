@@ -94,9 +94,9 @@ class ComTdbOnlj : public ComTdb {
   ComTdbOnlj();
 
   ComTdbOnlj(ComTdb *left_tdb, ComTdb *right_tdb, ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc,
-             queue_index down, queue_index up, Cardinality estimatedRowCount, Lng32 num_buffers, ULng32 buffer_size,
+             queue_index down, queue_index up, Cardinality estimatedRowCount, int num_buffers, ULng32 buffer_size,
              ex_expr *before_pred, ex_expr *after_pred, ex_expr *lj_expr, ex_expr *ni_expr, ex_cri_desc *work_cri_desc,
-             const unsigned short instantiated_row_atp_index, Lng32 reclen, Int32 semi_join, Int32 anti_semi_join,
+             const unsigned short instantiated_row_atp_index, int reclen, Int32 semi_join, Int32 anti_semi_join,
              Int32 left_join, Int32 undo_join, Int32 setNFError, Int32 rowset_iterator, Int32 index_join,
              NABoolean vsbbInsert, Int32 rowsetRowCountArraySize, NABoolean tolerateNonFatalError,
              NABoolean drivingMVLogging);
@@ -118,7 +118,7 @@ class ComTdbOnlj : public ComTdb {
   virtual short getClassSize() { return (short)sizeof(ComTdbOnlj); }
 
   Long pack(void *);
-  Lng32 unpack(void *, void *reallocator);
+  int unpack(void *, void *reallocator);
 
   void display() const;
 

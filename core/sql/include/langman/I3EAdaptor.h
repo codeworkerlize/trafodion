@@ -42,18 +42,18 @@
 class I3EAdaptor {
  public:
   static Int32 CallStaticFloatMethodA(JNIEnv *env, jclass clazz, jmethodID methodID, jvalue *args);
-  static Int64 CallStaticDoubleMethodA(JNIEnv *env, jclass clazz, jmethodID methodID, jvalue *args);
+  static long CallStaticDoubleMethodA(JNIEnv *env, jclass clazz, jmethodID methodID, jvalue *args);
   static Int32 CallStaticFloatMethodV(JNIEnv *env, jclass clazz, jmethodID methodID, va_list args);
-  static Int64 CallStaticDoubleMethodV(JNIEnv *env, jclass clazz, jmethodID methodID, va_list args);
+  static long CallStaticDoubleMethodV(JNIEnv *env, jclass clazz, jmethodID methodID, va_list args);
 
   static Int32 CallFloatMethodA(JNIEnv *env, jobject obj, jmethodID methodID, jvalue *args);
-  static Int64 CallDoubleMethodA(JNIEnv *env, jobject obj, jmethodID methodID, jvalue *args);
+  static long CallDoubleMethodA(JNIEnv *env, jobject obj, jmethodID methodID, jvalue *args);
   static Int32 CallFloatMethodV(JNIEnv *env, jobject obj, jmethodID methodID, va_list args);
-  static Int64 CallDoubleMethodV(JNIEnv *env, jobject obj, jmethodID methodID, va_list args);
+  static long CallDoubleMethodV(JNIEnv *env, jobject obj, jmethodID methodID, va_list args);
 
   static Int32 CallNonvirtualFloatMethodA(JNIEnv *env, jobject obj, jclass clazz, jmethodID methodID, jvalue *args);
-  static Int64 CallNonvirtualDoubleMethodA(JNIEnv *env, jobject obj, jclass clazz, jmethodID methodID, jvalue *args);
+  static long CallNonvirtualDoubleMethodA(JNIEnv *env, jobject obj, jclass clazz, jmethodID methodID, jvalue *args);
   static Int32 CallNonvirtualFloatMethodV(JNIEnv *env, jobject obj, jclass clazz, jmethodID methodID, va_list args);
-  static Int64 CallNonvirtualDoubleMethodV(JNIEnv *env, jobject obj, jclass clazz, jmethodID methodID, va_list args);
+  static long CallNonvirtualDoubleMethodV(JNIEnv *env, jobject obj, jclass clazz, jmethodID methodID, va_list args);
 };
 #endif

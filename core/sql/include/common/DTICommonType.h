@@ -53,9 +53,9 @@ class DatetimeIntervalCommonType : public NAType {
  public:
   enum DTIFlags { UNSUPPORTED_DDL_DATA_TYPE = 1 };
 
-  DatetimeIntervalCommonType(NAMemory *h, const NAString &adtName, NABuiltInTypeEnum typeEnum, Lng32 storageSize,
+  DatetimeIntervalCommonType(NAMemory *h, const NAString &adtName, NABuiltInTypeEnum typeEnum, int storageSize,
                              NABoolean allowSQLnull, rec_datetime_field startField, rec_datetime_field endField,
-                             UInt32 fractionPrecision, Lng32 dataAlignment = 1 /* no data alignment */)
+                             UInt32 fractionPrecision, int dataAlignment = 1 /* no data alignment */)
       : NAType(h, adtName, typeEnum, storageSize, allowSQLnull, SQL_NULL_HDR_SIZE, FALSE, /* fixed length */
                0,                                                                         /* length header size */
                dataAlignment),
@@ -86,7 +86,7 @@ class DatetimeIntervalCommonType : public NAType {
 
   virtual UInt32 getLeadingPrecision() const { return 0; }
 
-  virtual Lng32 getScale() const { return (Lng32)fractionPrecision_; }
+  virtual int getScale() const { return (int)fractionPrecision_; }
 
   // Used by IntervalType, other print/debug/naming functions
   static const char *getFieldName(rec_datetime_field field);

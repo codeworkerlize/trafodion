@@ -197,7 +197,7 @@ class ComTdbSort : public ComTdb {
   ComTdbSort(ex_expr *sort_key_expr, ex_expr *sort_rec_expr, ULng32 sort_key_len, ULng32 sort_rec_len,
              ULng32 sort_partial_key_len, const unsigned short tupp_index, ComTdb *child_tdb,
              ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc, ex_cri_desc *work_cri_desc, queue_index down,
-             queue_index up, Cardinality estimatedRowCount, Lng32 num_buffers, ULng32 buffer_size, ULng32 num_recs,
+             queue_index up, Cardinality estimatedRowCount, int num_buffers, ULng32 buffer_size, ULng32 num_recs,
              SortOptions *sort_options, short sortGrowthPercent);
 
   ~ComTdbSort();
@@ -215,7 +215,7 @@ class ComTdbSort : public ComTdb {
   virtual short getClassSize() { return (short)sizeof(ComTdbSort); }
 
   Long pack(void *);
-  Lng32 unpack(void *, void *reallocator);
+  int unpack(void *, void *reallocator);
 
   void display() const;
 

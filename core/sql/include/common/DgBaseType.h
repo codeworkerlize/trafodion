@@ -96,15 +96,15 @@ ComDiagsArea &operator<<(ComDiagsArea &, const DgBase &);
 class DgSqlCode : public DgBase {
  public:
   enum ErrorOrWarning { ERROR_ = -1, WARNING_ = +1 };
-  DgSqlCode(Lng32 aSqlCode);
-  DgSqlCode(Lng32 aSqlCode, ErrorOrWarning e);
+  DgSqlCode(int aSqlCode);
+  DgSqlCode(int aSqlCode, ErrorOrWarning e);
 
-  Lng32 getSQLCODE() const { return theSQLCODE_; }
+  int getSQLCODE() const { return theSQLCODE_; }
 
   DGTYPE getTypeName() const;
 
  private:
-  Lng32 theSQLCODE_;
+  int theSQLCODE_;
 };
 
 class DgColumnName : public DgBase {
@@ -205,14 +205,14 @@ class DgConstraintName : public DgBase {
 
 class DgRowNumber : public DgBase {
  public:
-  DgRowNumber(Lng32);
+  DgRowNumber(int);
 
-  Lng32 getLong() const { return theLong_; };
+  int getLong() const { return theLong_; };
 
   DGTYPE getTypeName() const;
 
  private:
-  Lng32 theLong_;
+  int theLong_;
 };
 
 class DgTriggerCatalog : public DgBase {
@@ -247,14 +247,14 @@ class DgTriggerName : public DgBase {
 
 class DgNskCode : public DgBase {
  public:
-  DgNskCode(Lng32);
+  DgNskCode(int);
 
-  Lng32 getLong() const { return theLong_; };
+  int getLong() const { return theLong_; };
 
   DGTYPE getTypeName() const;
 
  private:
-  Lng32 theLong_;
+  int theLong_;
 };
 
 class DgString0 : public DgBase {
@@ -380,62 +380,62 @@ class DgWString4 : public DgBase {
 
 class DgInt0 : public DgBase {
  public:
-  DgInt0(Lng32);
+  DgInt0(int);
 
-  Lng32 getLong() const { return theLong_; };
+  int getLong() const { return theLong_; };
 
   DGTYPE getTypeName() const;
 
  private:
-  Lng32 theLong_;
+  int theLong_;
 };
 
 class DgInt1 : public DgBase {
  public:
-  DgInt1(Lng32);
+  DgInt1(int);
 
-  Lng32 getLong() const { return theLong_; };
+  int getLong() const { return theLong_; };
 
   DGTYPE getTypeName() const;
 
  private:
-  Lng32 theLong_;
+  int theLong_;
 };
 
 class DgInt2 : public DgBase {
  public:
-  DgInt2(Lng32);
+  DgInt2(int);
 
-  Lng32 getLong() const { return theLong_; };
+  int getLong() const { return theLong_; };
 
   DGTYPE getTypeName() const;
 
  private:
-  Lng32 theLong_;
+  int theLong_;
 };
 
 class DgInt3 : public DgBase {
  public:
-  DgInt3(Lng32);
+  DgInt3(int);
 
-  Lng32 getLong() const { return theLong_; };
+  int getLong() const { return theLong_; };
 
   DGTYPE getTypeName() const;
 
  private:
-  Lng32 theLong_;
+  int theLong_;
 };
 
 class DgInt4 : public DgBase {
  public:
-  DgInt4(Lng32);
+  DgInt4(int);
 
-  Lng32 getLong() const { return theLong_; };
+  int getLong() const { return theLong_; };
 
   DGTYPE getTypeName() const;
 
  private:
-  Lng32 theLong_;
+  int theLong_;
 };
 
 #endif  // DGBASETYPE_H

@@ -78,7 +78,7 @@ int ComEncryption::getInitVecLen(int cipherType) {
   return EVP_CIPHER_iv_length(cipher);
 }
 
-short ComEncryption::initEncryptionInfo(Int64 encryptionKeyID, Int16 rowidCipherType, Int16 dataCipherType,
+short ComEncryption::initEncryptionInfo(long encryptionKeyID, Int16 rowidCipherType, Int16 dataCipherType,
                                         EncryptionInfo &ei) {
   ei.header = 0;
   ei.flags = 0;
@@ -135,7 +135,7 @@ short ComEncryption::getKeyFromKeyStore(char *keyId, Int32 keyIdLen, unsigned ch
     return -1;
 
   // generate 256 bit key based on input 64-bit keyId
-  Int64 v64 = *(Int64 *)keyId;
+  long v64 = *(long *)keyId;
   str_cpy_all((char *)&keyVal[0], (const char *)&v64, sizeof(v64));
   str_cpy_all((char *)&keyVal[sizeof(v64)], (const char *)&v64, sizeof(v64));
   str_cpy_all((char *)&keyVal[2 * sizeof(v64)], (const char *)&v64, sizeof(v64));

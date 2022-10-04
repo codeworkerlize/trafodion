@@ -294,8 +294,8 @@ void processALoadMessage(UdrGlobals *UdrGlob, UdrServerReplyStream &msgStream, U
 
 SPInfo *processLoadParameters(UdrGlobals *UdrGlob, UdrLoadMsg &request, ComDiagsArea &d) {
   const char *moduleName = "processLoadParameters";
-  Lng32 oldDiags = 0;
-  Lng32 newDiags = 0;
+  int oldDiags = 0;
+  int newDiags = 0;
 
   doMessageBox(UdrGlob, TRACE_SHOW_DIALOGS, UdrGlob->showLoad_, moduleName);
   // check for test mode processing...
@@ -555,7 +555,7 @@ void reportLoadResults(UdrGlobals *UdrGlob, SPInfo *sp, LmRoutine *lmr_) {
   if (UdrGlob->verbose_ && UdrGlob->traceLevel_ >= TRACE_DETAILS && UdrGlob->showLoad_) {
     ServerDebug("");
     ServerDebug("[UdrServ (%s)] LOAD message results:", moduleName);
-    ServerDebug("  LOAD Udr Handle     : " INT64_SPEC, (Int64)sp->getUdrHandle());
+    ServerDebug("  LOAD Udr Handle     : " INT64_SPEC, (long)sp->getUdrHandle());
     ServerDebug("  LM result parameter : %d", (Int32)sp->getNumParameters());
     if (sp->getReturnValue() != NULL) {
       dumpLmParameter(*sp->getReturnValue(), 0, "    ");

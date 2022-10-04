@@ -130,12 +130,12 @@ typedef enum NAMessageTypeEnum {
 // allows us to manage the enum types separately per component of the
 // SQL system without forcing global recompiles on small changes.
 // -----------------------------------------------------------------------
-typedef Lng32 NAMessageObjType;
+typedef int NAMessageObjType;
 
 // -----------------------------------------------------------------------
 // Version of a message header or of an object in a message
 // -----------------------------------------------------------------------
-typedef Lng32 NAMessageObjVersion;
+typedef int NAMessageObjVersion;
 
 // -----------------------------------------------------------------------
 // size of objects in bytes
@@ -147,7 +147,7 @@ typedef ULng32 NAMessageObjSize;
 // Reference count of a message header or of an object in a message
 // (used mainly when objects are shared across the IPC interface)
 // -----------------------------------------------------------------------
-typedef Lng32 NAMessageRefCount;
+typedef int NAMessageRefCount;
 
 // -----------------------------------------------------------------------
 // A buffer pointer to a raw, byte-adressable  message buffer, used for

@@ -71,7 +71,7 @@ class UdrFormalParamInfo : public NAVersionedObject {
   virtual short getClassSize() { return sizeof(UdrFormalParamInfo); }
 
   virtual Long pack(void *);
-  virtual Lng32 unpack(void *, void *);
+  virtual int unpack(void *, void *);
 
   // Accessor functions
   inline Int16 getFlags() const { return flags_; }

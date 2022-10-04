@@ -90,10 +90,10 @@ static char *doEscapeComment(char *src, CollHeap *heap) {
   return ret;
 }
 
-short CmpSeabaseDDL::getSeabaseObjectComment(Int64 object_uid, enum ComObjectType object_type,
+short CmpSeabaseDDL::getSeabaseObjectComment(long object_uid, enum ComObjectType object_type,
                                              ComTdbVirtObjCommentInfo &comment_info, CollHeap *heap) {
-  Lng32 retcode = 0;
-  Lng32 cliRC = 0;
+  int retcode = 0;
+  int cliRC = 0;
 
   char query[4000];
 
@@ -149,7 +149,7 @@ short CmpSeabaseDDL::getSeabaseObjectComment(Int64 object_uid, enum ComObjectTyp
       comment_info.indexCommentArray = new (heap) ComTdbVirtIndexCommentInfo[comment_info.numIndexComment];
 
       indexQueue->position();
-      for (Lng32 idx = 0; idx < comment_info.numIndexComment; idx++) {
+      for (int idx = 0; idx < comment_info.numIndexComment; idx++) {
         OutputInfo *oi = (OutputInfo *)indexQueue->getNext();
         ComTdbVirtIndexCommentInfo &indexComment = comment_info.indexCommentArray[idx];
 
@@ -184,7 +184,7 @@ short CmpSeabaseDDL::getSeabaseObjectComment(Int64 object_uid, enum ComObjectTyp
       comment_info.columnCommentArray = new (heap) ComTdbVirtColumnCommentInfo[comment_info.numColumnComment];
 
       colQueue->position();
-      for (Lng32 idx = 0; idx < comment_info.numColumnComment; idx++) {
+      for (int idx = 0; idx < comment_info.numColumnComment; idx++) {
         OutputInfo *oi = (OutputInfo *)colQueue->getNext();
         ComTdbVirtColumnCommentInfo &colComment = comment_info.columnCommentArray[idx];
 
@@ -200,8 +200,8 @@ short CmpSeabaseDDL::getSeabaseObjectComment(Int64 object_uid, enum ComObjectTyp
 }
 
 void CmpSeabaseDDL::doSeabaseCommentOn(StmtDDLCommentOn *commentOnNode, NAString &currCatName, NAString &currSchName) {
-  Lng32 cliRC;
-  Lng32 retcode;
+  int cliRC;
+  int retcode;
 
   enum ComObjectType enMDObjType = COM_UNKNOWN_OBJECT;
 
@@ -260,11 +260,11 @@ void CmpSeabaseDDL::doSeabaseCommentOn(StmtDDLCommentOn *commentOnNode, NAString
   const NAString extObjName = objectName.getExternalName(TRUE);
 
   ExeCliInterface cliInterface(STMTHEAP, NULL, NULL, CmpCommon::context()->sqlSession()->getParentQid());
-  Int64 objUID = 0;
+  long objUID = 0;
   Int32 objectOwnerID = ROOT_USER_ID;
   Int32 schemaOwnerID = ROOT_USER_ID;
-  Int64 objectFlags = 0;
-  Int64 objDataUID = 0;
+  long objectFlags = 0;
+  long objDataUID = 0;
 
   // get UID of object
   objUID = getObjectInfo(&cliInterface, catalogNamePart.data(), schemaNamePart.data(), objNamePart.data(), enMDObjType,
@@ -294,7 +294,7 @@ void CmpSeabaseDDL::doSeabaseCommentOn(StmtDDLCommentOn *commentOnNode, NAString
 
   // add, remove, change comment of object/column
   enum ComTextType textType = COM_OBJECT_COMMENT_TEXT;
-  Lng32 subID = 0;
+  int subID = 0;
 
   if (StmtDDLCommentOn::COMMENT_ON_TYPE_COLUMN == commentObjectType) {
     textType = COM_COLUMN_COMMENT_TEXT;

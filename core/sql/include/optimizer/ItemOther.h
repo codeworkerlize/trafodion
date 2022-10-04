@@ -110,7 +110,7 @@ class Assign : public ItemExpr {
   // another virtual function for type propagating the node. This one
   // is for the benefit of internal stored procedures, which want
   // to report alternative error messages.
-  virtual const NAType *synthesizeType(const char *str1, const Lng32 int1);
+  virtual const NAType *synthesizeType(const char *str1, const int int1);
 
   virtual NABoolean isCovered(const ValueIdSet &newExternalInputs, const GroupAttributes &newRelExprAnchorGA,
                               ValueIdSet &referencedInputs, ValueIdSet &coveredSubExpr,
@@ -254,7 +254,7 @@ class ItemList : public ItemExpr {
   // element in the list (for charset inference)
   void setResolveIncompleteTypeStatus(NABoolean x);
 
-  Int64 &numOfItems() { return numOfItems_; }
+  long &numOfItems() { return numOfItems_; }
   NABoolean &constChild() { return constChild_; }
 
   virtual NABoolean hasEquivalentProperties(ItemExpr *other);
@@ -278,7 +278,7 @@ class ItemList : public ItemExpr {
   // Done if all items are constants and > 100. This could change in future.
   // This value is set to -1 when the first non-const item is seen.
   // All parent ItemLists will have this set to -1.
-  Int64 numOfItems_;
+  long numOfItems_;
   NABoolean constChild_;
 
   UInt32 myFlags_;
@@ -572,9 +572,9 @@ class ValueIdUnion : public ItemExpr {
     return sources_[1];
   };
 
-  ValueId getSource(Lng32 index) const { return sources_[index]; }
+  ValueId getSource(int index) const { return sources_[index]; }
 
-  void changeSource(Lng32 index, ValueId newvid) { sources_[index] = newvid; }
+  void changeSource(int index, ValueId newvid) { sources_[index] = newvid; }
 
   const ValueIdList getSources() const { return sources_; }
 
@@ -591,7 +591,7 @@ class ValueIdUnion : public ItemExpr {
 
   //  void setLeftSource(ValueId v) { leftSource_ = v; }
   //  void setRightSource(ValueId v) { rightSource_ = v; }
-  void setSource(Lng32 index, ValueId v);
+  void setSource(int index, ValueId v);
   void setResult(ValueId v) { result_ = v; }
 
   // a virtual function for performing name binding within the query tree
@@ -631,7 +631,7 @@ class ValueIdUnion : public ItemExpr {
 
   // A special variant for normalizing each child of this node
   // individually.
-  ItemExpr *normalizeSpecificChild(NormWA &normWARef, Lng32 childIndex);
+  ItemExpr *normalizeSpecificChild(NormWA &normWARef, int childIndex);
 
   virtual HashValue topHash();
   virtual NABoolean duplicateMatch(const ItemExpr &other) const;
@@ -731,7 +731,7 @@ class VEG : public ItemExpr {
   void setVEGPredicate(VEGPredicate *vegpredPtr) { vegPred_ = vegpredPtr; }
   VEGPredicate *getVEGPredicate() const { return vegPred_; }
 
-  Lng32 getCountOfUserSuppliedInputs() const { return userInputs_; }
+  int getCountOfUserSuppliedInputs() const { return userInputs_; }
 
   // return a constant, hostvar or parameter that is part of this VEG
   ValueId getAConstantHostVarOrParameter() const;

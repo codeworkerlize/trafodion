@@ -100,17 +100,17 @@ NABoolean MdamPoint::endContains(const ULng32 keyLen, const char *v) const {
 void MdamPoint::print(const char *header) const {
   cout << header << endl;
   char *dataPointer = getDataPointer();
-  Lng32 keyLen = tupp_.getAllocatedSize();
+  int keyLen = tupp_.getAllocatedSize();
   cout << "  Key length: " << keyLen << endl;
   cout << "  Data pointer: " << (void *)dataPointer << endl;
   cout << "  Inclusion: " << (inclusion_ ? "INCLUDED" : "EXCLUDED") << endl;
 }
 
-// void printBrief(char* dataPointer, Lng32 keyLen);
+// void printBrief(char* dataPointer, int keyLen);
 
 void MdamPoint::printBrief() const {
   char *dataPointer = getDataPointer();
-  Lng32 keyLen = tupp_.getAllocatedSize();
+  int keyLen = tupp_.getAllocatedSize();
 
   ::printBrief(dataPointer, keyLen, FALSE /* no end of line wanted */);
 }

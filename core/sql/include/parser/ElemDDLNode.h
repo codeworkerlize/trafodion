@@ -796,7 +796,7 @@ class ElemDDLNode : public ExprNode {
   // this node does not have any children, returns
   // the value 0.
 
-  virtual ExprNode *getChild(Lng32 index);
+  virtual ExprNode *getChild(int index);
 
   // returns the pointer to the index child parse node.
   // If the specified index is out-of-range, this method
@@ -815,7 +815,7 @@ class ElemDDLNode : public ExprNode {
   // mutators
   //
 
-  virtual void setChild(Lng32 index, ExprNode *pChildNode);
+  virtual void setChild(int index, ExprNode *pChildNode);
 
   // modifies the indexed pointers in this node to
   // point to a child parse node.  If the specified

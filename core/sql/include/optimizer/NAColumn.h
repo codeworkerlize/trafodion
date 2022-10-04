@@ -90,7 +90,7 @@ class NAColumn : public NABasicObject {
   // Constructor
   // ---------------------------------------------------------------------
 
-  NAColumn(const char *colName, Lng32 position, NAType *type, CollHeap *h, const NATable *table = NULL,
+  NAColumn(const char *colName, int position, NAType *type, CollHeap *h, const NATable *table = NULL,
            ColumnClass columnClass = USER_COLUMN, const ComColumnDefaultClass defaultClass = COM_NO_DEFAULT,
            char *defaultValue = NULL, char *heading = NULL, NABoolean upshift = FALSE, NABoolean addedColumn = FALSE,
            ComColumnDirection colDirection = COM_UNKNOWN_DIRECTION, NABoolean isOptional = FALSE,
@@ -224,7 +224,7 @@ class NAColumn : public NABasicObject {
   }
   inline NAString getFullColRefNameAsAnsiString() const { return getFullColRefName().getColRefAsAnsiString(); }
 
-  inline Lng32 getPosition() const { return position_; }
+  inline int getPosition() const { return position_; }
   inline const NAType *getType() const { return type_; }
   inline NAType *&mutateType() { return type_; }
   // Returns TRUE if type_ is a numeric type
@@ -340,7 +340,7 @@ class NAColumn : public NABasicObject {
 
   inline CheckConstraint *getNotNullNondroppable() { return isNotNullNondroppable_; }
   const inline void setNotNullNondroppable(CheckConstraint *c) { isNotNullNondroppable_ = c; }
-  Lng32 getNotNullViolationCode() const;
+  int getNotNullViolationCode() const;
   const QualifiedName &getNotNullConstraintName() const;
   inline void setNotReferencedAndNotKey() {
     referenced_ = NOT_REFERENCED;
@@ -353,8 +353,8 @@ class NAColumn : public NABasicObject {
   inline void setVirtualColumnType(VirtColType vct) { virtualColumnType_ = vct; }
 
   static NABoolean createNAType(TrafColumnsDesc *column_desc /*IN*/, const NATable *table /*IN*/,
-                                Int64 tablesFlags /*IN*/, NAType *&type /*OUT*/, NAMemory *heap /*IN*/,
-                                Lng32 *errorCode = NULL);
+                                long tablesFlags /*IN*/, NAType *&type /*OUT*/, NAMemory *heap /*IN*/,
+                                int *errorCode = NULL);
 
   // ---------------------------------------------------------------------
   // Standard operators
@@ -384,7 +384,7 @@ class NAColumn : public NABasicObject {
   ComLobsStorageType &lobStorageType() { return lobStorageType_; }
   char *&lobStorageLocation() { return lobStorageLocation_; }
   Int32 &lobInlinedDataMaxLen() { return lobInlinedDataMaxLen_; }
-  Int64 &lobHbaseDataMaxLen() { return lobHbaseDataMaxLen_; }
+  long &lobHbaseDataMaxLen() { return lobHbaseDataMaxLen_; }
   Int32 &lobChunkMaxLen() { return lobChunkMaxLen_; }
 
   void setIndexColName(const char *idxName) { indexColName_ = idxName; }
@@ -426,7 +426,7 @@ class NAColumn : public NABasicObject {
   // ---------------------------------------------------------------------
   // The ordinal position of the column within the table or index, zero-based.
   // ---------------------------------------------------------------------
-  Lng32 position_;
+  int position_;
 
   // ---------------------------------------------------------------------
   // A pointer to its Type Descriptor.
@@ -562,7 +562,7 @@ class NAColumn : public NABasicObject {
   ComLobsStorageType lobStorageType_;
   char *lobStorageLocation_;
   Int32 lobInlinedDataMaxLen_;
-  Int64 lobHbaseDataMaxLen_;
+  long lobHbaseDataMaxLen_;
   Int32 lobChunkMaxLen_;
 
   NAString indexColName_;
@@ -637,14 +637,14 @@ class NAColumnArray : public LIST(NAColumn *) {
   // calculate offsets for columns, assuming that all columns in the
   // NAColumn array are contiguously stored
   // ---------------------------------------------------------------------
-  Lng32 getOffset(Lng32 position) const;
+  int getOffset(int position) const;
 
   // ---------------------------------------------------------------------
   // get column (non-const, can be modified) by position or by name lookup
   // ---------------------------------------------------------------------
-  NAColumn *getColumn(Lng32 index) const;  // same as nacolarray[position]
+  NAColumn *getColumn(int index) const;  // same as nacolarray[position]
   NAColumn *getColumn(const char *colName) const;
-  NAColumn *getColumnByPos(Lng32 position) const;
+  NAColumn *getColumnByPos(int position) const;
 
   // return
   //    i (i>=0) if the column is found in the array via NAColumn::operator==

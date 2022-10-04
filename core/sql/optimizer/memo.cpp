@@ -100,8 +100,8 @@ CascadesGroup::~CascadesGroup() {
   if (groupAttr_ != NULL) groupAttr_->decrementReferenceCount();
 
   // delete associated contexts
-  Lng32 maxc = goals_.entries();
-  for (Lng32 i = 0; i < maxc; i++) delete goals_[i];
+  int maxc = goals_.entries();
+  for (int i = 0; i < maxc; i++) delete goals_[i];
 
 }  // CascadesGroup::~CascadesGroup
 //<pb>
@@ -210,7 +210,7 @@ NABoolean CascadesGroup::addPhysExpr(RelExpr *&expr, RelExpr *src) {
 void CascadesGroup::addPlan(CascadesPlan *plan) {
   CURRSTMT_OPTGLOBALS->plans_count++;  // increment global counter for # of plans
 
-  Lng32 index = plans_.entries();
+  int index = plans_.entries();
   plans_.insertAt(index, plan);  // insert plan at end of list
 }
 
@@ -295,9 +295,9 @@ RelExpr *CascadesGroup::getLastLogExpr() const {
 }
 
 // use by OptDebug::showMemoStats(). Mask it out from code coverage
-Lng32 CascadesGroup::getCountOfLogicalExpr() const {
+int CascadesGroup::getCountOfLogicalExpr() const {
   RelExpr *expr = logExprs_;
-  Lng32 count = 0;
+  int count = 0;
   while (expr != NULL) {
     count++;
     expr = expr->getNextInGroup();
@@ -305,9 +305,9 @@ Lng32 CascadesGroup::getCountOfLogicalExpr() const {
   return count;
 }
 //<pb>
-Lng32 CascadesGroup::getCountOfPhysicalExpr() const {
+int CascadesGroup::getCountOfPhysicalExpr() const {
   RelExpr *expr = physExprs_;
-  Lng32 count = 0;
+  int count = 0;
   while (expr != NULL) {
     count++;
     expr = expr->getNextInGroup();
@@ -318,7 +318,7 @@ Lng32 CascadesGroup::getCountOfPhysicalExpr() const {
 double CascadesGroup::calculateNoOfLogPlans() const {
   RelExpr *expr = logExprs_;
   double result = 0;
-  Lng32 numOfMergedExprs = 0;
+  int numOfMergedExprs = 0;
 
   while (expr != NULL) {
     result += expr->calculateNoOfLogPlans(numOfMergedExprs);
@@ -367,9 +367,9 @@ void CascadesGroup::merge(CascadesGroup *other) {
     // -----------------------------------------------------------------
     // move all contexts from the other group into this group
     // -----------------------------------------------------------------
-    Lng32 maxg = other->goals_.entries();
-    for (Lng32 i = 0; i < maxg; i++) {
-      Lng32 maxc = goals_.entries();
+    int maxg = other->goals_.entries();
+    for (int i = 0; i < maxg; i++) {
+      int maxc = goals_.entries();
       NABoolean found = FALSE;
 
       // change the context to the new group number
@@ -377,7 +377,7 @@ void CascadesGroup::merge(CascadesGroup *other) {
 
       // search the already existing contexts for this group for
       // an equivalent one
-      for (Lng32 j = 0; j < maxc; j++) {
+      for (int j = 0; j < maxc; j++) {
         // compare the contexts
         if (NOT goals_[j]->isADuplicate() AND goals_[j]->compareContexts(*(other->goals_[i])) == SAME) {
           found = TRUE;
@@ -466,7 +466,7 @@ Context *CascadesGroup::shareContext(const ReqdPhysicalProperty *const reqdPhys,
   // create a brand new context like the one the caller wants
   Context *newContext = new (CmpCommon::statementHeap()) Context(groupId_, reqdPhys, inputPhys, inputLogProp);
   Context *result = newContext;
-  Lng32 maxc = goals_.entries();
+  int maxc = goals_.entries();
   NABoolean found = FALSE;
 
   // The "setCostLimitInContext" below is used to indicate whether the
@@ -477,7 +477,7 @@ Context *CascadesGroup::shareContext(const ReqdPhysicalProperty *const reqdPhys,
 
   // search the already existing contexts for this group for an equivalent
   // one that can be shared
-  for (Lng32 i = 0; i < maxc AND NOT found; i++) {
+  for (int i = 0; i < maxc AND NOT found; i++) {
     Context *existingContext = goals_[i];
 
     // Compare the requested context with the ith context in the group.
@@ -625,7 +625,7 @@ Context *CascadesGroup::shareContext(const ReqdPhysicalProperty *const reqdPhys,
   return result;
 }  // CascadesGroup::shareContext
 
-CascadesMemo::CascadesMemo(CascadesGroupId groups, Lng32 buckets)
+CascadesMemo::CascadesMemo(CascadesGroupId groups, int buckets)
     : group_(CmpCommon::statementHeap(), groups), hash_(CmpCommon::statementHeap(), buckets) {
   if (groups <= 1 OR buckets <= 1) ABORT("defining CascadesMemo structure too small");
 
@@ -644,7 +644,7 @@ CascadesMemo::~CascadesMemo() {
     // collect and print some statistics about hash table usage
 
     float m1 = (float)0, m2 = (float)0;
-    for (Lng32 bucket_no = 0; bucket_no < hashSize_; bucket_no++) {
+    for (int bucket_no = 0; bucket_no < hashSize_; bucket_no++) {
       Int32 count = 0;
       RelExpr *e;
       if (hash_.used(bucket_no)) {
@@ -661,15 +661,15 @@ CascadesMemo::~CascadesMemo() {
 
   // weed out those groups that have been merged, to avoid deleting
   // some groups twice
-  Lng32 groupEntries = group_.entries();
+  int groupEntries = group_.entries();
 
   CascadesGroupId groupId = 0;
-  for (groupId = 0; (Lng32)groupId < groupEntries; groupId++) {
+  for (groupId = 0; (int)groupId < groupEntries; groupId++) {
     if (groupId != group_[groupId]->getGroupId()) group_[groupId] = NULL;
   }
 
   // now delete all groups that are left over
-  for (groupId = 0; (Lng32)groupId < groupEntries; groupId++) delete group_[groupId];
+  for (groupId = 0; (int)groupId < groupEntries; groupId++) delete group_[groupId];
 
 }  // CascadesMemo::~CascadesMemo
 
@@ -732,7 +732,7 @@ RelExpr *CascadesMemo::include(RelExpr *expr, NABoolean &duplicateExprFlag, NABo
     NABoolean childGroupMergeFlag;
     NABoolean childGrpIdIsBinding;  // soln-10-070330-3667
 
-    for (Lng32 childIndex = 0; childIndex < arity; childIndex++) {
+    for (int childIndex = 0; childIndex < arity; childIndex++) {
       // insert the child into the CascadesMemo structure and change
       // the pointer to an child RelExpr to a group number
       // do not pass a group no or a context, assume that all children
@@ -852,7 +852,7 @@ void CascadesMemo::addExpr(RelExpr *expr, HashValue hash_value) {
 }  // CascadesMemo::addExpr
 //<pb>
 RelExpr *CascadesMemo::findDuplicate(RelExpr *expr) const {
-  Lng32 bucket = (Lng32)(expr->treeHash().getValue() % hashSize_);
+  int bucket = (int)(expr->treeHash().getValue() % hashSize_);
 
   if (NOT hash_.used(bucket)) {
     return NULL;
@@ -862,7 +862,7 @@ RelExpr *CascadesMemo::findDuplicate(RelExpr *expr) const {
 
     // try all expressions in the appropriate hash bucket
     for (RelExpr *old = hash_[bucket]; old != NULL; old = old->getNextInBucket()) {
-      Lng32 childIndex;
+      int childIndex;
 
       // compare the children
       if (old->getArity() != arity) goto not_a_duplicate;
@@ -898,7 +898,7 @@ CascadesGroupId CascadesMemo::makeNewGroup(GroupAttributes *ga) {
 void CascadesMemo::update(CascadesGroup *oldGroup, CascadesGroup *newGroup) {
   // scan through entire table, because the old group
   // might be the result of an earlier group merging
-  for (Lng32 groupId = (Int32)(group_.entries()); --groupId >= 0;)
+  for (int groupId = (Int32)(group_.entries()); --groupId >= 0;)
     if (group_[groupId] == oldGroup) {
       group_[groupId] = newGroup;
     }  // update group pointer
@@ -917,7 +917,7 @@ Int32 CascadesMemo::garbageCollection() {
   // ---------------------------------------------------------------------
   // go through all the hash chains
   // ---------------------------------------------------------------------
-  for (Lng32 bucket_no = 0; bucket_no < (Lng32)hashSize_; bucket_no++) {
+  for (int bucket_no = 0; bucket_no < (int)hashSize_; bucket_no++) {
     if (hash_.used(bucket_no)) {
       // -------------------------------------------------------------
       // walk a single hash chain

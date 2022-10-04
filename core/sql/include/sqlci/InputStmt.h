@@ -1,45 +1,8 @@
-/* -*-C++-*-
- *****************************************************************************
- *
- * File:         InputStmt.h
- * RCS:          $Id: InputStmt.h,v 1.5.10.2 1998/09/10 19:38:22  Exp $
- * Description:
- *
- * Created:      1/10/95
- * Modified:     $ $Date: 1998/09/10 19:38:22 $ (GMT)
- * Language:     C++
- * Status:       $State: Exp $
- *
- *
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
- *
- *
- *****************************************************************************
- */
 
 #ifndef INPUTSTMT_H
 #define INPUTSTMT_H
 
-#include "SqlciEnv.h"
+#include "sqlci/SqlciEnv.h"
 
 // Globals for Break handling.
 // The enum values must be negative,
@@ -85,7 +48,7 @@ class InputStmt {
   // by C++ compiler (because noPrompt and stmt_num_ have the same underlying type.)
   void display(UInt16 Distinguish_arg, NABoolean noPrompt = FALSE) const;
 
-  void display(Lng32 stmt_num_, NABoolean noPrompt = FALSE) const;
+  void display(int stmt_num_, NABoolean noPrompt = FALSE) const;
   Int32 fix(Int32 append_only = 0);
   Int32 isEmpty(const char *str = NULL);
   Int32 isIgnoreStmt(const char *str = NULL, NABoolean *ignoreJustThis = NULL);

@@ -34,7 +34,7 @@
 ******************************************************************************
 */
 
-#include "conversionHex.h"
+#include "common/conversionHex.h"
 #include "common/NAString.h"
 #include "common/nawstring.h"
 #include "common/ComASSERT.h"

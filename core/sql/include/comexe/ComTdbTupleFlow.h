@@ -84,7 +84,7 @@ class ComTdbTupleFlow : public ComTdb {
 
   ComTdbTupleFlow(ComTdb *tdb_src, ComTdb *tdb_tgt, ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc,
                   ex_expr *tgt_expr, ex_cri_desc *work_cri_desc, queue_index down, queue_index up,
-                  Cardinality estimatedRowCount, Lng32 num_buffers, ULng32 buffer_size, NABoolean vsbbInsert,
+                  Cardinality estimatedRowCount, int num_buffers, ULng32 buffer_size, NABoolean vsbbInsert,
                   NABoolean rowsetIterator, NABoolean tolerateNonFatalError);
 
   virtual ~ComTdbTupleFlow();
@@ -107,7 +107,7 @@ class ComTdbTupleFlow : public ComTdb {
 
   virtual short getClassSize() { return (short)sizeof(ComTdbTupleFlow); }
   Long pack(void *);
-  Lng32 unpack(void *, void *reallocator);
+  int unpack(void *, void *reallocator);
 
   void display() const {};
 

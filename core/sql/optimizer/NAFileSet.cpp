@@ -47,18 +47,18 @@
 
 NAFileSet::NAFileSet(const QualifiedName &fileSetName, const QualifiedName &extFileSetObj,
                      const NAString &extFileSetName, enum FileOrganizationEnum org, NABoolean isSystemTable,
-                     Lng32 numberOfFiles, Cardinality estimatedNumberOfRecords, Lng32 recordLength, Lng32 blockSize,
+                     int numberOfFiles, Cardinality estimatedNumberOfRecords, int recordLength, int blockSize,
                      Int32 indexLevels, const NAColumnArray &allColumns, const NAColumnArray &indexKeyColumns,
                      const NAColumnArray &horizontalPartKeyColumns, const NAColumnArray &hiveSortKeyColumns,
-                     PartitioningFunction *forHorizontalPartitioning, short keytag, Int64 redefTime, NABoolean audited,
+                     PartitioningFunction *forHorizontalPartitioning, short keytag, long redefTime, NABoolean audited,
                      NABoolean auditCompressed, NABoolean compressed, ComCompressionType dcompressed,
                      NABoolean icompressed, NABoolean buffered, NABoolean clearOnPurge, NABoolean packedRows,
                      NABoolean hasRemotePartition, NABoolean isUniqueSecondaryIndex,
                      NABoolean isNgramIndex,  // is a ngram index
                      NABoolean isPartLocalBaseIndex, NABoolean isPartLocalIndex, NABoolean isPartGlobalIndex,
-                     NABoolean isDecoupledRangePartitioned, Lng32 fileCode, NABoolean isVolatile,
-                     NABoolean inMemObjectDefn, Int64 indexUID, TrafDesc *keysDesc, Lng32 numSaltPartns,
-                     Lng32 numInitialSaltRegions, Int16 numTrafReplicas,
+                     NABoolean isDecoupledRangePartitioned, int fileCode, NABoolean isVolatile,
+                     NABoolean inMemObjectDefn, long indexUID, TrafDesc *keysDesc, int numSaltPartns,
+                     int numInitialSaltRegions, Int16 numTrafReplicas,
                      NAList<HbaseCreateOption *> *hbaseCreateOptions, CollHeap *h)
     : fileSetName_(fileSetName, h),
       extFileSetObj_(extFileSetObj, h),
@@ -114,7 +114,7 @@ NAFileSet::NAFileSet(const QualifiedName &fileSetName, const QualifiedName &extF
   setInMemoryObjectDefn(inMemObjectDefn);
 
   if (hbaseCreateOptions_) {
-    for (Lng32 i = 0; i < hbaseCreateOptions_->entries(); i++) {
+    for (int i = 0; i < hbaseCreateOptions_->entries(); i++) {
       HbaseCreateOption *hco = (*hbaseCreateOptions_)[i];
 
       if (hco->key() == "MAX_VERSIONS") {
@@ -246,7 +246,7 @@ NABoolean NAFileSet::operator==(const NAFileSet &other) const {
 NABoolean NAFileSet::isPartitioned() const { return partFunc_ && partFunc_->getCountOfPartitions() > 1; }
 
 // returns the length of the key in bytes for this index
-Lng32 NAFileSet::getKeyLength() {
+int NAFileSet::getKeyLength() {
   if (keyLength_ > 0) return keyLength_;
 
   for (CollIndex i = 0; i < indexKeyColumns_.entries(); i++) {
@@ -256,7 +256,7 @@ Lng32 NAFileSet::getKeyLength() {
 }
 
 // returns the length of the encoded key in bytes for this index
-Lng32 NAFileSet::getEncodedKeyLength() {
+int NAFileSet::getEncodedKeyLength() {
   if (encodedKeyLength_ > 0) return encodedKeyLength_;
 
   for (CollIndex i = 0; i < indexKeyColumns_.entries(); i++) {
@@ -265,7 +265,7 @@ Lng32 NAFileSet::getEncodedKeyLength() {
   return encodedKeyLength_;
 }
 
-Lng32 NAFileSet::getCountOfPartitions() const { return partFunc_ ? partFunc_->getCountOfPartitions() : 1; }
+int NAFileSet::getCountOfPartitions() const { return partFunc_ ? partFunc_->getCountOfPartitions() : 1; }
 
 NABoolean NAFileSet::containsPartition(const NAString &partitionName) const {
   return partFunc_ && partFunc_->getNodeMap()->containsPartition(partitionName);
@@ -359,10 +359,10 @@ void NAFileSet::setupForStatement() {
   resetAfterStatement_ = FALSE;
 }
 
-Lng32 NAFileSet::getCountOfColumns(NABoolean excludeNonKeyColumns,
+int NAFileSet::getCountOfColumns(NABoolean excludeNonKeyColumns,
                                    NABoolean excludeNonUserSpecifiedAlternateIndexColumns,
                                    NABoolean excludeSystemColumns, NABoolean excludeAlwaysComputedSystemColumns) const {
-  Lng32 numCols = 0;
+  int numCols = 0;
   const NAColumnArray *colArray = &allColumns_;
 
   if (excludeNonKeyColumns || excludeNonUserSpecifiedAlternateIndexColumns) colArray = &indexKeyColumns_;
@@ -388,7 +388,7 @@ static THREAD_P NABoolean seeded_ = FALSE;
 static void seedIt() {
   if (seeded_) return;
   // else
-  Lng32 seed = CmpCommon::getDefaultLong(FLOAT_ESP_RANDOM_NUM_SEED);
+  int seed = CmpCommon::getDefaultLong(FLOAT_ESP_RANDOM_NUM_SEED);
 
   if (!random_) random_ = new (GetCliGlobals()->exCollHeap()) RandomSequence();
 

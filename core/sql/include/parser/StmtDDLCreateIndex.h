@@ -81,7 +81,7 @@ class StmtDDLCreateIndex : public StmtDDLNode {
 
   // methods relating to parse tree
   virtual Int32 getArity() const;
-  virtual ExprNode *getChild(Lng32 index);
+  virtual ExprNode *getChild(int index);
 
   inline const ElemDDLColRefArray &getColRefArray() const;
   inline ElemDDLColRefArray &getColRefArray();
@@ -254,7 +254,7 @@ class StmtDDLCreateIndex : public StmtDDLNode {
   // mutators
   //
 
-  void setChild(Lng32 index, ExprNode *newNode);
+  void setChild(int index, ExprNode *newNode);
 
   //
   // method for binding

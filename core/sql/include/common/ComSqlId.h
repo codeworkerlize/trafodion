@@ -177,80 +177,80 @@ class ComSqlId {
 
   ComSqlId(CollHeap *heap);
 
-  static Lng32 getSqlQueryIdAttr(Lng32 attr,          // which attr (SqlQueryIDAttr)
+  static int getSqlQueryIdAttr(int attr,          // which attr (SqlQueryIDAttr)
                                  char *queryId,       // query ID
-                                 Lng32 queryIdLen,    // query ID len.
-                                 Int64 &value,        // If returned attr is of string type, this value is the
+                                 int queryIdLen,    // query ID len.
+                                 long &value,        // If returned attr is of string type, this value is the
                                                       // max length of the buffer pointed to by stringValue.
                                                       // If returned attr is numeric, this field contains
                                                       // the returned value.
                                  char *stringValue);  // null terminated returned value for string attrs.
 
-  static Lng32 getSqlSessionIdAttr(Lng32 attr,           // which attr (SqlQueryIDAttr)
+  static int getSqlSessionIdAttr(int attr,           // which attr (SqlQueryIDAttr)
                                    const char *queryId,  // query ID
-                                   Lng32 queryIdLen,     // query ID len.
-                                   Int64 &value,         // If returned attr is of string type, this value is the
+                                   int queryIdLen,     // query ID len.
+                                   long &value,         // If returned attr is of string type, this value is the
                                                          // max length of the buffer pointed to by stringValue.
                                                          // If returned attr is numeric, this field contains
                                                          // the returned value.
                                    char *stringValue);   // null terminated returned value for string attrs.
 
-  static short packNumIntoStr(Int64 num, char *outStr, Lng32 outStrLen, NABoolean backwardCompatability = TRUE);
+  static short packNumIntoStr(long num, char *outStr, int outStrLen, NABoolean backwardCompatability = TRUE);
 
-  static Int64 unpackNumFromStr(const char *str, Lng32 numChars, NABoolean backwardCompatability = TRUE);
+  static long unpackNumFromStr(const char *str, int numChars, NABoolean backwardCompatability = TRUE);
 
-  static Lng32 createSqlSessionId(char *sessionId,             // INOUT
-                                  Lng32 maxSessionIdLen,       // IN
-                                  Lng32 &actualSessionIdLen,   // OUT
-                                  Lng32 nodeNumber,            // IN
-                                  Lng32 cpu,                   // IN
-                                  Lng32 pin,                   // IN
-                                  Int64 startTime,             // IN
-                                  Int64 sessionUniqueNum,      // IN
-                                  Lng32 userNameLen,           // IN
+  static int createSqlSessionId(char *sessionId,             // INOUT
+                                  int maxSessionIdLen,       // IN
+                                  int &actualSessionIdLen,   // OUT
+                                  int nodeNumber,            // IN
+                                  int cpu,                   // IN
+                                  int pin,                   // IN
+                                  long startTime,             // IN
+                                  long sessionUniqueNum,      // IN
+                                  int userNameLen,           // IN
                                   const char *userName,        // IN
                                   Int32 tenantIdLen,           // IN
                                   const char *tenantId,        // IN
-                                  Lng32 userSessionNameLen,    // IN
+                                  int userSessionNameLen,    // IN
                                   const char *userSessionName  // IN
   );
 
-  static Lng32 createSqlQueryId(char *queryId,            // INOUT
-                                Lng32 maxQueryIdLen,      // IN
-                                Lng32 &actualQueryIdLen,  // OUT
-                                Lng32 sessionIdLen,       // IN
+  static int createSqlQueryId(char *queryId,            // INOUT
+                                int maxQueryIdLen,      // IN
+                                int &actualQueryIdLen,  // OUT
+                                int sessionIdLen,       // IN
                                 char *sessionId,          // IN
-                                Int64 queryUniqueNum,     // IN
-                                Lng32 queryNameLen,       // IN
+                                long queryUniqueNum,     // IN
+                                int queryNameLen,       // IN
                                 char *queryName           // IN
   );
 
-  static Lng32 extractSqlSessionIdAttrs(const char *sessionId,      // IN
-                                        Lng32 sessionIdLen,         // IN
-                                        Int64 &segmentNumber,       // OUT
-                                        Int64 &cpu,                 // OUT
-                                        Int64 &pin,                 // OUT
-                                        Int64 &processStartTS,      // OUT
-                                        Int64 &sessionUniqueNum,    // OUT
-                                        Lng32 &userNameLen,         // OUT
+  static int extractSqlSessionIdAttrs(const char *sessionId,      // IN
+                                        int sessionIdLen,         // IN
+                                        long &segmentNumber,       // OUT
+                                        long &cpu,                 // OUT
+                                        long &pin,                 // OUT
+                                        long &processStartTS,      // OUT
+                                        long &sessionUniqueNum,    // OUT
+                                        int &userNameLen,         // OUT
                                         char *userName,             // OUT
                                         Int32 &tenantIdLen,         // OUT
                                         char *tenantId,             // OUT
-                                        Lng32 &userSessionNameLen,  // OUT
+                                        int &userSessionNameLen,  // OUT
                                         char *userSessionName,      // OUT
-                                        Lng32 *version = NULL);
+                                        int *version = NULL);
 
   // returns a compact form of query id which is shipped to dp2.
 
-  static Lng32 getDp2QueryIdString(char *queryId, Lng32 queryIdLen, char *dp2QueryId, Lng32 &dp2QueryIdLen);
+  static int getDp2QueryIdString(char *queryId, int queryIdLen, char *dp2QueryId, int &dp2QueryIdLen);
 
-  static Lng32 decomposeDp2QueryIdString(char *queryId,     // input: buffer containing dp2 query id
-                                         Lng32 queryIdLen,  // input: length of query id
-                                         Lng32 *queryNum,   // output: unique query number
-                                         Lng32 *segment,    // output: segment number of master exe
-                                         Lng32 *cpu,        // output: cpu number
-                                         Lng32 *pin,        // output: pin
-                                         Int64 *timestamp   // output: master exe process
+  static int decomposeDp2QueryIdString(char *queryId,     // input: buffer containing dp2 query id
+                                         int queryIdLen,  // input: length of query id
+                                         int *queryNum,   // output: unique query number
+                                         int *segment,    // output: segment number of master exe
+                                         int *cpu,        // output: cpu number
+                                         int *pin,        // output: pin
+                                         long *timestamp   // output: master exe process
                                          //         start time
   );
 
@@ -258,10 +258,10 @@ class ComSqlId {
   static UInt64 computeQueryHash(char *input_str, Int32 len);
 
  private:
-  static Lng32 getSqlIdAttr(Lng32 attr,           // which attr (SqlQueryIDAttr)
+  static int getSqlIdAttr(int attr,           // which attr (SqlQueryIDAttr)
                             const char *queryId,  // query ID
-                            Lng32 queryIdLen,     // query ID len.
-                            Int64 &value,         // If returned attr is of string type, this value is the
+                            int queryIdLen,     // query ID len.
+                            long &value,         // If returned attr is of string type, this value is the
                                                   // max length of the buffer pointed to by stringValue.
                                                   // If returned attr is numeric, this field contains
                                                   // the returned value.

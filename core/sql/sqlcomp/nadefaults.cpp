@@ -61,7 +61,7 @@
 #include "common/ComRtUtils.h"
 #include "common/ComSchemaName.h"
 #include "common/ComUser.h"
-#include "ex_error.h"
+#include "executor/ex_error.h"
 #include "sqlcomp/DefaultConstants.h"
 #include "sqlcomp/DefaultValidator.h"
 #include "common/NAClusterInfo.h"
@@ -3853,7 +3853,7 @@ void NADefaults::updateSystemParameters(NABoolean updateDefaultDefaults) {
         break;
 
       case DEFAULT_DEGREE_OF_PARALLELISM: {
-        Lng32 x = 2;
+        int x = 2;
         utoa_(x, valuestr);
         strcpy(newValue, valuestr);
       } break;
@@ -3967,9 +3967,9 @@ void NADefaults::readFromDefaultsTable(Provenance overwriteIfNotYet, Int32 errOr
 
   if (!readFromDefaultsTable_) {
     CmpSeabaseDDL cmpSBD((NAHeap *)heap_, FALSE);
-    Lng32 hbaseErr = 0;
+    int hbaseErr = 0;
     NAString hbaseErrStr;
-    Lng32 errNum = cmpSBD.validateVersions(this, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &hbaseErr,
+    int errNum = cmpSBD.validateVersions(this, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &hbaseErr,
                                            &hbaseErrStr);
     if (errNum == 0)  // seabase is initialized properly
     {
@@ -4024,7 +4024,7 @@ Int32 NADefaults::validateFloat(const char *value, float &result, Int32 attrEnum
   if (n > 0 && value[n] == '\0') {
     switch (attrEnum) {
       case HIVE_INSERT_ERROR_MODE: {
-        Lng32 v = str_atoi(value, str_len(value));
+        int v = str_atoi(value, str_len(value));
         if (v >= 0 && v <= 3) return TRUE;
       } break;
       default:
@@ -4084,16 +4084,16 @@ NABoolean NADefaults::insert(Int32 attrEnum, const NAString &value, Int32 errOrW
   //
   if (currentState_ >= SET_BY_CQD && !resetToDefaults_[attrEnum]) {
     NAString currValStr(currentDefaults_[attrEnum]);
-    Lng32 currValLen = str_len(currValStr) + 1;
+    int currValLen = str_len(currValStr) + 1;
     char *pCurrVal = new NADHEAP char[currValLen];
     str_cpy_all(pCurrVal, currValStr, currValLen);
     resetToDefaults_[attrEnum] = pCurrVal;
   }
 
   char *newVal = NULL;
-  Lng32 newValLen = str_len(value) + 1;
+  int newValLen = str_len(value) + 1;
   if (provenances_[attrEnum] > INIT_DEFAULT_DEFAULTS) {
-    Lng32 oldValLen = str_len(currentDefaults_[attrEnum]) + 1;
+    int oldValLen = str_len(currentDefaults_[attrEnum]) + 1;
     if (oldValLen >= newValLen && oldValLen < newValLen + 100)
       newVal = const_cast<char *>(currentDefaults_[attrEnum]);  // reuse, to reduce mem frag
     else
@@ -4159,13 +4159,13 @@ double NADefaults::getAsDouble(Int32 attrEnum) const {
   return double(flt);
 }
 
-Lng32 NADefaults::getAsLong(Int32 attrEnum) const {
+int NADefaults::getAsLong(Int32 attrEnum) const {
   float flt;
   getFloat(attrEnum, flt);
   if (!domainMatch(attrEnum, VALID_INT, &flt)) {
     CMPBREAK;
   }
-  return Lng32(flt);
+  return int(flt);
 }
 
 ULng32 NADefaults::getAsULong(Int32 attrEnum) const {
@@ -4635,10 +4635,10 @@ enum DefaultConstants NADefaults::validateAndInsert(const char *attrName, NAStri
         ULng32 minLength;
         switch (attrEnum) {
           case MAX_LONG_VARCHAR_DEFAULT_SIZE:
-            minLength = (Lng32)getAsULong(MIN_LONG_VARCHAR_DEFAULT_SIZE);
+            minLength = (int)getAsULong(MIN_LONG_VARCHAR_DEFAULT_SIZE);
             break;
           case MAX_LONG_WVARCHAR_DEFAULT_SIZE:
-            minLength = (Lng32)getAsULong(MIN_LONG_WVARCHAR_DEFAULT_SIZE);
+            minLength = (int)getAsULong(MIN_LONG_WVARCHAR_DEFAULT_SIZE);
             break;
           default:
             attrEnum = __INVALID_DEFAULT_ATTRIBUTE;
@@ -4650,7 +4650,7 @@ enum DefaultConstants NADefaults::validateAndInsert(const char *attrName, NAStri
           sscanf(value.data(), "%u%n", &newMaxLength, &n);
           if (n > 0 && (UInt32)n == value.length()) {  // a valid unsigned number
             if (newMaxLength < minLength) {
-              *CmpCommon::diags() << DgSqlCode(-2030) << DgInt0((Lng32)minLength);
+              *CmpCommon::diags() << DgSqlCode(-2030) << DgInt0((int)minLength);
               attrEnum = __INVALID_DEFAULT_ATTRIBUTE;
             }
           }
@@ -4676,7 +4676,7 @@ enum DefaultConstants NADefaults::validateAndInsert(const char *attrName, NAStri
           sscanf(value.data(), "%u%n", &newMinLength, &n);
           if (n > 0 && (UInt32)n == value.length()) {  // a valid unsigned number
             if (newMinLength > maxLength) {
-              *CmpCommon::diags() << DgSqlCode(-2029) << DgInt0((Lng32)maxLength);
+              *CmpCommon::diags() << DgSqlCode(-2029) << DgInt0((int)maxLength);
               attrEnum = __INVALID_DEFAULT_ATTRIBUTE;
             }
           }
@@ -5167,7 +5167,7 @@ void NADefaults::updateNumESPsPerCoreForTenant() {
 float NADefaults::computeNumESPsPerCoreForTenant() { return computeNumESPsPerCore(NAWNODESET_CORES_PER_SLICE); }
 
 float NADefaults::computeNumESPsPerCore() {
-  Lng32 coresPerNode = CURRCONTEXT_CLUSTERINFO->numberOfCpusPerSMP();
+  int coresPerNode = CURRCONTEXT_CLUSTERINFO->numberOfCpusPerSMP();
   return computeNumESPsPerCore(coresPerNode);
 
   // The following lines of code are commented out but retained for possible
@@ -5178,13 +5178,13 @@ float NADefaults::computeNumESPsPerCore() {
   //   assert(gpLinux);
   //
   //     // number of POS TSE
-  //   Lng32 numTSEsPerCluster = gpLinux->numTSEsForPOS();
+  //   int numTSEsPerCluster = gpLinux->numTSEsForPOS();
   //
   //     // cluster nodes
-  //   Lng32 nodesdPerCluster = CURRCONTEXT_CLUSTERINFO->getTotalNumberOfCPUs();
+  //   int nodesdPerCluster = CURRCONTEXT_CLUSTERINFO->getTotalNumberOfCPUs();
   //
   //     // TSEs per node
-  //   Lng32 TSEsPerNode = numTSEsPerCluster/nodesdPerCluster;
+  //   int TSEsPerNode = numTSEsPerCluster/nodesdPerCluster;
   //
   //
   //
@@ -5220,12 +5220,12 @@ float NADefaults::computeNumESPsPerCore() {
   //   return (float)(numESPsPerNode)/(float)(coresPerNode);
 }
 
-float NADefaults::computeNumESPsPerCore(Lng32 coresPerNode) {
+float NADefaults::computeNumESPsPerCore(int coresPerNode) {
 #define DEFAULT_ESPS_PER_NODE 2  // for conservation allocation
   return (float)(DEFAULT_ESPS_PER_NODE) / (float)(coresPerNode);
 }
 
-enum DefaultConstants NADefaults::holdOrRestore(const char *attrName, Lng32 holdOrRestoreCQD) {
+enum DefaultConstants NADefaults::holdOrRestore(const char *attrName, int holdOrRestoreCQD) {
   DefaultConstants attrEnum = __INVALID_DEFAULT_ATTRIBUTE;
   if (holdOrRestoreCQD == 0) {
     *CmpCommon::diags() << DgSqlCode(-2050) << DgString0(attrName);
@@ -5289,7 +5289,7 @@ enum DefaultConstants NADefaults::holdOrRestore(const char *attrName, Lng32 hold
 
 const SqlParser_NADefaults *NADefaults::getSqlParser_NADefaults() { return SqlParser_NADefaults_; }
 
-static void setCatSchErr(NAString &value, Lng32 sqlCode, Int32 errOrWarn, NABoolean catErr = FALSE) {
+static void setCatSchErr(NAString &value, int sqlCode, Int32 errOrWarn, NABoolean catErr = FALSE) {
   if (!sqlCode || !errOrWarn) return;
 
   TrimNAStringSpace(value);  // prettify further (neater errmsg)
@@ -5319,7 +5319,7 @@ static void setCatSchErr(NAString &value, Lng32 sqlCode, Int32 errOrWarn, NABool
   // Produce additional (more informative) syntax error messages,
   // trying delimited-value first and then possibly regular-value-itself.
   Parser parser(CmpCommon::context());
-  Lng32 errs = CmpCommon::diags()->getNumber(DgSqlCode::ERROR_);
+  int errs = CmpCommon::diags()->getNumber(DgSqlCode::ERROR_);
   NAString pfx(catErr ? "SET CATALOG " : "SET SCHEMA ");
   NAString stmt;
   char c = *value.data();
@@ -6151,8 +6151,8 @@ NABoolean NADefaults::getIsolationLevel(TransMode::IsolationLevel &arg, DefaultT
 // entry is pointing to the default value for that default.
 // After pack, the default values are put in the buffer in
 // sequential order with a null terminator.
-Lng32 NADefaults::packedLengthDefaults() {
-  Lng32 size = 0;
+int NADefaults::packedLengthDefaults() {
+  int size = 0;
 
   const size_t numAttrs = numDefaultAttributes();
 
@@ -6163,14 +6163,14 @@ Lng32 NADefaults::packedLengthDefaults() {
   return size;
 }
 
-Lng32 NADefaults::packDefaultsToBuffer(char *buffer) {
+int NADefaults::packDefaultsToBuffer(char *buffer) {
   const size_t numAttrs = numDefaultAttributes();
 
-  Lng32 totalSize = 0;
-  Lng32 size = 0;
+  int totalSize = 0;
+  int size = 0;
 
   for (UInt32 i = 0; i < numAttrs; i++) {
-    size = (Lng32)strlen(currentDefaults_[i]) + 1;
+    size = (int)strlen(currentDefaults_[i]) + 1;
 
     strcpy(buffer, currentDefaults_[i]);
 
@@ -6182,10 +6182,10 @@ Lng32 NADefaults::packDefaultsToBuffer(char *buffer) {
   return totalSize;
 }
 
-Lng32 NADefaults::unpackDefaultsFromBuffer(Lng32 numEntriesInBuffer, char *buffer) { return 0; }
+int NADefaults::unpackDefaultsFromBuffer(int numEntriesInBuffer, char *buffer) { return 0; }
 
-NABoolean NADefaults::isSameCQD(Lng32 numEntriesInBuffer, char *buffer, Lng32 bufLen) {
-  const Lng32 numCurrentDefaultAttrs = (Lng32)numDefaultAttributes();
+NABoolean NADefaults::isSameCQD(int numEntriesInBuffer, char *buffer, int bufLen) {
+  const int numCurrentDefaultAttrs = (int)numDefaultAttributes();
 
   // check to see if the default values in 'buffer' are the same
   // as those in the currentDefaults_ array.
@@ -6232,15 +6232,15 @@ void NADefaults::setSchemaAsLdapUser(const NAString val) {
   }
 }
 
-Lng32 NADefaults::figureOutMaxLength(UInt32 uec) {
-  Lng32 maxLength = 0;
-  Lng32 minUec = getAsLong(RANGE_OPTIMIZED_SCAN_MIN_UEC);
+int NADefaults::figureOutMaxLength(UInt32 uec) {
+  int maxLength = 0;
+  int minUec = getAsLong(RANGE_OPTIMIZED_SCAN_MIN_UEC);
 
   if (minUec == 0) {
     maxLength = getAsLong(RANGE_OPTIMIZED_SCAN);
   } else {
-    Lng32 uecToUse = MAXOF(3 * uec, minUec);
-    maxLength = (Lng32)(BloomFilterRT::computeMaxLength(uecToUse));
+    int uecToUse = MAXOF(3 * uec, minUec);
+    maxLength = (int)(BloomFilterRT::computeMaxLength(uecToUse));
   }
 
   return maxLength;

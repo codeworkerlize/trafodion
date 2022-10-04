@@ -54,9 +54,9 @@ class ComTdbUnion : public ComTdb {
   ComTdbUnion(const ComTdbUnion *union_tdb);
 
   ComTdbUnion(ComTdb *left_tdb, ComTdb *right_tdb, ex_expr *left_expr, ex_expr *right_expr, ex_expr *merge_expr,
-              ex_expr *cond_expr, ex_expr *trig_expr, Lng32 union_reclen, const unsigned short tupp_index,
+              ex_expr *cond_expr, ex_expr *trig_expr, int union_reclen, const unsigned short tupp_index,
               ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc, queue_index down, queue_index up,
-              Cardinality estimatedRowCount, Lng32 num_buffers, ULng32 buffer_size, NABoolean ordered_union,
+              Cardinality estimatedRowCount, int num_buffers, ULng32 buffer_size, NABoolean ordered_union,
               Int32 blocked_union,  // ++ Triggers -, add blocked_union
               Int32 hasNoOutputs,   // ++ Triggers -, add noOutputs
               NABoolean rowsFromLeft, NABoolean rowsFromRight, NABoolean AfterUpdate, NABoolean inNotAtomicStmt);
@@ -76,7 +76,7 @@ class ComTdbUnion : public ComTdb {
   virtual short getClassSize() { return (short)sizeof(ComTdbUnion); }
 
   Long pack(void *);
-  Lng32 unpack(void *, void *reallocator);
+  int unpack(void *, void *reallocator);
 
   void display() const;
 

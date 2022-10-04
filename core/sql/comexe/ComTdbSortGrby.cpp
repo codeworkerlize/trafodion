@@ -48,9 +48,9 @@
 ComTdbSortGrby::ComTdbSortGrby() : ComTdb(ComTdb::ex_SORT_GRBY, eye_SORT_GRBY), tuppIndex_(0) {}
 
 ComTdbSortGrby::ComTdbSortGrby(ex_expr *aggr_expr, ex_expr *grby_expr, ex_expr *move_expr, ex_expr *having_expr,
-                               Lng32 reclen, const unsigned short tupp_index, ComTdb *child_tdb,
+                               int reclen, const unsigned short tupp_index, ComTdb *child_tdb,
                                ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc, queue_index down,
-                               queue_index up, Cardinality estimatedRowCount, Lng32 num_buffers, ULng32 buffer_size,
+                               queue_index up, Cardinality estimatedRowCount, int num_buffers, ULng32 buffer_size,
                                NABoolean tolerateNonFatalError)
 
     : ComTdb(ComTdb::ex_SORT_GRBY, eye_SORT_GRBY, estimatedRowCount, given_cri_desc, returned_cri_desc, down, up,
@@ -82,7 +82,7 @@ Long ComTdbSortGrby::pack(void *space) {
   return ComTdb::pack(space);
 }
 
-Lng32 ComTdbSortGrby::unpack(void *base, void *reallocator) {
+int ComTdbSortGrby::unpack(void *base, void *reallocator) {
   if (tdbChild_.unpack(base, reallocator)) return -1;
   if (aggrExpr_.unpack(base, reallocator)) return -1;
   if (grbyExpr_.unpack(base, reallocator)) return -1;

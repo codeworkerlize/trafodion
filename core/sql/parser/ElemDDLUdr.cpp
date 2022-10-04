@@ -510,16 +510,16 @@ NATraceList ElemDDLUdfOptimizationHint::getDetailInfo() const {
   NATraceList detailTextList;
 
   detailText = "optimization hint = ";
-  detailText += LongToNAString((Lng32)getOptimizationKind());
+  detailText += LongToNAString((int)getOptimizationKind());
   if (getOptimizationKind() NEQ COM_UDF_NUMBER_OF_UNIQUE_OUTPUT_VALUES) {
     detailText += " - cost = ";
-    detailText += LongToNAString((Lng32)getCost());
+    detailText += LongToNAString((int)getCost());
   } else {
     detailText += " - number of unique output values = ( ";
     const NAList<ComSInt64> values = getUniqueOutputValues();
     for (CollIndex i = 0; i < values.entries(); i++) {
       if (i > 0) detailText += " , ";
-      detailText += Int64ToNAString((Int64)values[i]);
+      detailText += Int64ToNAString((long)values[i]);
     }
     detailText += " )";
   }

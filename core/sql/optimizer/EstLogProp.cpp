@@ -365,8 +365,8 @@ void EstLogProp::mapOutputsForUpdate(const GenericUpdate &updateExpr, const Valu
 // partitioning key
 // -------------------------------------------------------------------
 
-CostScalar EstLogProp::getCardOfBusiestStream(const PartitioningFunction *partFunc, Lng32 numOfParts,
-                                              GroupAttributes *groupAttr, Lng32 countOfCPUs,
+CostScalar EstLogProp::getCardOfBusiestStream(const PartitioningFunction *partFunc, int numOfParts,
+                                              GroupAttributes *groupAttr, int countOfCPUs,
                                               NABoolean isUnderNestedJoin) {
   // if there are no histograms available, return rowCount / number of
   // partitions as the probesPerStream

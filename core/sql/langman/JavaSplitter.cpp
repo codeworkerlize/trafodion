@@ -50,7 +50,7 @@ static JavaVirtual *splitter = &normalJava;
 
 // class JavaSplitter function definitions
 
-Lng32 JavaSplitter::setupVersion(JNIEnv *jni, ComDiagsArea *diags) { return 0; }
+int JavaSplitter::setupVersion(JNIEnv *jni, ComDiagsArea *diags) { return 0; }
 
 jfloat JavaSplitter::CallStaticFloatMethod(JNIEnv *env, jclass clazz, jmethodID methodID, ...) {
   va_list args;

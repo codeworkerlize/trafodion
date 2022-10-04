@@ -174,13 +174,13 @@ NABoolean allocateErrorRowAndEOD(UdrGlobals *UdrGlob, SqlBuffer &replyBuffer, qu
   return ok;
 }
 
-void backoutTupps(SqlBuffer &b, Lng32 numTuppsBefore) {
+void backoutTupps(SqlBuffer &b, int numTuppsBefore) {
   while (b.getTotalTuppDescs() > numTuppsBefore) {
     b.remove_tuple_desc();
   }
 }
 
-NABoolean convertReplyRowToErrorRow(SqlBuffer *sqlBuf, Lng32 numTuppsBefore, queue_index requestQueueIndex,
+NABoolean convertReplyRowToErrorRow(SqlBuffer *sqlBuf, int numTuppsBefore, queue_index requestQueueIndex,
                                     UdrServerDataStream &msgStream, UdrGlobals *UdrGlob) {
   // Remove tupps after numTuppsBefore
   backoutTupps(*sqlBuf, numTuppsBefore);

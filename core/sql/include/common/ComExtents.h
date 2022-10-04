@@ -50,9 +50,9 @@ class ComExtents {
   // ---------------------------------------------------------------------
   // Constructors & destructor
   // ---------------------------------------------------------------------
-  ComExtents(Int64 maxSize, ComUnits units);
+  ComExtents(long maxSize, ComUnits units);
 
-  ComExtents(Int64 maxSize);
+  ComExtents(long maxSize);
 
   ComExtents(const ComExtents &rhs);
 
@@ -60,20 +60,20 @@ class ComExtents {
   // Accessor functions
   // ---------------------------------------------------------------------
 
-  Int64 getMaxSize(void) const;
+  long getMaxSize(void) const;
   ComUnits getMaxSizeUnits(void) const;
-  Int64 getSizeInBytes(Int64 sizeToConvert, ComUnits units);
+  long getSizeInBytes(long sizeToConvert, ComUnits units);
 
  protected:
  private:
   // ---------------------------------------------------------------------
   // Private data members
   // ---------------------------------------------------------------------
-  Int64 maxSize_;
+  long maxSize_;
   ComUnits units_;
 };
 
-inline Int64 ComExtents::getMaxSize(void) const { return maxSize_; };
+inline long ComExtents::getMaxSize(void) const { return maxSize_; };
 
 inline ComUnits ComExtents::getMaxSizeUnits(void) const { return units_; };
 

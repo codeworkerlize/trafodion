@@ -42,7 +42,7 @@
 
 #include "ex_union.h"
 #include "executor/ExStats.h"
-#include "ex_error.h"
+#include "executor/ex_error.h"
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -407,7 +407,7 @@ ExWorkProcRetcode ex_union_tcb::workUp() {
         pentry->upState.parentIndex = pentry_down->downState.parentIndex;
         pentry->upState.downIndex = qparent.down->getHeadIndex();
         if (pentry_down->downState.request == ex_queue::GET_N &&
-            pentry_down->downState.requestValue <= (Lng32)pstate.matchCount_) {
+            pentry_down->downState.requestValue <= (int)pstate.matchCount_) {
           // cancel this request
           qparent.down->cancelRequest(qparent.down->getHeadIndex());
           processCancel();
@@ -1373,8 +1373,8 @@ ex_tcb_private_state *ex_union_private_state::allocate_new(const ex_tcb *tcb) {
 // Redefine virtual method allocatePstates, to be used by dynamic queue
 // resizing, as well as the initial queue construction.
 ////////////////////////////////////////////////////////////////////////
-ex_tcb_private_state *ex_union_tcb::allocatePstates(Lng32 &numElems,      // inout, desired/actual elements
-                                                    Lng32 &pstateLength)  // out, length of one element
+ex_tcb_private_state *ex_union_tcb::allocatePstates(int &numElems,      // inout, desired/actual elements
+                                                    int &pstateLength)  // out, length of one element
 {
   PstateAllocator<ex_union_private_state> pa;
 

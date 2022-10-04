@@ -313,7 +313,7 @@ void VarUIntArray::dump(ostream &out, const char *msg) {
   // The following implemnents FNV-1 hash described at
   // https://en.wikipedia.org/wiki/Fowler–Noll–Vo_hash_function
   // const UInt32 prime = 16777619;
-  // Int64 hash = 0x811c9dc5;  // offset basis
+  // long hash = 0x811c9dc5;  // offset basis
   UInt32 prime = 16777619;
   UInt32 hash = 0x811c9dc5;  // offset basis
 

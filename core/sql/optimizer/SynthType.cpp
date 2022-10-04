@@ -80,8 +80,8 @@ static void shortenTypeSQLname(const NAType &op, NABuiltInTypeEnum typEnum, NASt
   }
 }
 
-void emitDyadicTypeSQLnameMsg(Lng32 sqlCode, const NAType &op1, const NAType &op2, const char *str1 = NULL,
-                              const char *str2 = NULL, ComDiagsArea *diagsArea = NULL, const Lng32 int1 = -999999) {
+void emitDyadicTypeSQLnameMsg(int sqlCode, const NAType &op1, const NAType &op2, const char *str1 = NULL,
+                              const char *str2 = NULL, ComDiagsArea *diagsArea = NULL, const int int1 = -999999) {
   NAString tsn1(op1.closestEquivalentExternalType(HEAP)->getTypeSQLname(TRUE /*terse*/));
   NAString tsn2(op2.closestEquivalentExternalType(HEAP)->getTypeSQLname(TRUE /*terse*/));
   NABoolean charShorten = TRUE, numShorten = TRUE;
@@ -392,9 +392,9 @@ static NABoolean synthItemExprLists(ItemExprList &exprList1, ItemExprList &exprL
         (vid2.getItemExpr()->getOperatorType() == ITM_CONSTANT ||
          vid2.getItemExpr()->getOperatorType() == ITM_BASECOLUMN || vid2.getItemExpr()->getOperatorType() == ITM_CASE ||
          vid2.getItemExpr()->isStringOutput())) {
-      Lng32 len_def = CmpCommon::getDefaultNumeric(VARCHAR_PARAM_DEFAULT_SIZE);
-      Lng32 len2 = vid2.getType().getNominalSize();
-      Lng32 len = MAXOF(len_def, len2);
+      int len_def = CmpCommon::getDefaultNumeric(VARCHAR_PARAM_DEFAULT_SIZE);
+      int len2 = vid2.getType().getNominalSize();
+      int len = MAXOF(len_def, len2);
       if (DFS2REC::isCharacterString(vid2.getType().getFSDatatype())) {
         if (strncmp(vid2.getType().getTypeName(), "CHAR", 4) == 0)
           desiredType = new HEAP SQLChar(HEAP, CharLenInfo(len, len),  // DEFAULT_CHARACTER_LENGTH,
@@ -419,9 +419,9 @@ static NABoolean synthItemExprLists(ItemExprList &exprList1, ItemExprList &exprL
                (vid1.getItemExpr()->getOperatorType() == ITM_CONSTANT ||
                 vid1.getItemExpr()->getOperatorType() == ITM_BASECOLUMN ||
                 vid1.getItemExpr()->getOperatorType() == ITM_CASE || vid1.getItemExpr()->isStringOutput())) {
-      Lng32 len_def = CmpCommon::getDefaultNumeric(VARCHAR_PARAM_DEFAULT_SIZE);
-      Lng32 len1 = vid1.getType().getNominalSize();
-      Lng32 len = MAXOF(len_def, len1);
+      int len_def = CmpCommon::getDefaultNumeric(VARCHAR_PARAM_DEFAULT_SIZE);
+      int len1 = vid1.getType().getNominalSize();
+      int len = MAXOF(len_def, len1);
 
       if (DFS2REC::isCharacterString(vid1.getType().getFSDatatype())) {
         if (strncmp(vid1.getType().getTypeName(), "CHAR", 4) == 0)
@@ -494,7 +494,7 @@ static NABoolean synthItemExprLists(ItemExprList &exprList1, ItemExprList &exprL
     if ((vid1.getItemExpr()->getOperatorType() == ITM_DYN_PARAM ||
          vid1.getItemExpr()->getOperatorType() == ITM_ROWSETARRAY_SCAN) &&
         vid1.getType().getTypeQualifier() == NA_CHARACTER_TYPE && vid1.getType().getNominalSize() == 0) {
-      Int64 length = CmpCommon::getDefaultNumeric(VARCHAR_PARAM_DEFAULT_SIZE);
+      long length = CmpCommon::getDefaultNumeric(VARCHAR_PARAM_DEFAULT_SIZE);
       CharType *newTp = new HEAP SQLVarChar(HEAP, length, supportNull, FALSE, FALSE, vid1.getType().getCharSet(),
                                             CharInfo::DefaultCollation, CharInfo::COERCIBLE);
       vid1.changeType(newTp);
@@ -503,7 +503,7 @@ static NABoolean synthItemExprLists(ItemExprList &exprList1, ItemExprList &exprL
     if ((vid2.getItemExpr()->getOperatorType() == ITM_DYN_PARAM ||
          vid2.getItemExpr()->getOperatorType() == ITM_ROWSETARRAY_SCAN) &&
         vid2.getType().getTypeQualifier() == NA_CHARACTER_TYPE && vid2.getType().getNominalSize() == 0) {
-      Int64 length = CmpCommon::getDefaultNumeric(VARCHAR_PARAM_DEFAULT_SIZE);
+      long length = CmpCommon::getDefaultNumeric(VARCHAR_PARAM_DEFAULT_SIZE);
       CharType *newTp = new HEAP SQLVarChar(HEAP, length, supportNull, FALSE, FALSE, vid2.getType().getCharSet(),
                                             CharInfo::DefaultCollation, CharInfo::COERCIBLE);
       vid2.changeType(newTp);
@@ -689,7 +689,7 @@ static const NAType *synthAvgSum(const NAType &operand, NABoolean inScalarGroup)
         //
         // Precision and Datatype computation:
         //
-        // If precision is less than 19, make it LargeInt (Int64).
+        // If precision is less than 19, make it LargeInt (long).
         //
         // If precision is > 19, make result precision = operand precision
         // + 10 and result to be BigNum datatype.
@@ -701,8 +701,8 @@ static const NAType *synthAvgSum(const NAType &operand, NABoolean inScalarGroup)
         //
         /////////////////////////////////////////////////////////////////////
 
-        Lng32 precision = (type->getMagnitude() + 9) / 10 + type->getScale();
-        Lng32 scale = type->getScale();
+        int precision = (type->getMagnitude() + 9) / 10 + type->getScale();
+        int scale = type->getScale();
         NABoolean isARealBigNum = FALSE;
         if (type->isBigNum()) {
           // make the max precision to be the precision of operand + 10.
@@ -712,7 +712,7 @@ static const NAType *synthAvgSum(const NAType &operand, NABoolean inScalarGroup)
           // be MAX_NUMERIC_PRECISION_ALLOWED. But that would mean that
           // the result is always NUMERIC(128) which may be too much
           // for all aggregates. We can think about it.
-          precision = MINOF(precision + 10, (Lng32)CmpCommon::getDefaultNumeric(MAX_NUMERIC_PRECISION_ALLOWED));
+          precision = MINOF(precision + 10, (int)CmpCommon::getDefaultNumeric(MAX_NUMERIC_PRECISION_ALLOWED));
 
           isARealBigNum = ((SQLBigNum *)type)->isARealBigNum();
         } else {
@@ -726,7 +726,7 @@ static const NAType *synthAvgSum(const NAType &operand, NABoolean inScalarGroup)
             }
           } else {
             if (precision >= MAX_NUMERIC_PRECISION + 1)
-              precision = MINOF(precision + 10, (Lng32)CmpCommon::getDefaultNumeric(MAX_NUMERIC_PRECISION_ALLOWED));
+              precision = MINOF(precision + 10, (int)CmpCommon::getDefaultNumeric(MAX_NUMERIC_PRECISION_ALLOWED));
           }
         }
 
@@ -920,8 +920,8 @@ static void synthesizeType4DynamicParam(ValueId &dyamicParamId, const ValueId &a
       dyamicParamId.getItemExpr()->getOperatorType() == ITM_ROWSETARRAY_SCAN) {
     if (type2.getTypeQualifier() == NA_CHARACTER_TYPE || type2.getTypeQualifier() == NA_UNKNOWN_TYPE) {
       NABoolean supportNull = (CmpCommon::getDefault(MODE_COMPATIBLE_1) == DF_ON);
-      Lng32 len1 = CmpCommon::getDefaultNumeric(VARCHAR_PARAM_DEFAULT_SIZE);
-      Lng32 len2 = len1;
+      int len1 = CmpCommon::getDefaultNumeric(VARCHAR_PARAM_DEFAULT_SIZE);
+      int len2 = len1;
       if (type2.getTypeQualifier() == NA_CHARACTER_TYPE) len2 = type2.getNominalSize();
       len1 = MAXOF(len1, len2);
       NAString cs = CmpCommon::getDefaultString(DYNAMIC_PARAM_DEFAULT_CHARSET);
@@ -1000,7 +1000,7 @@ const NAType *BuiltinFunction::synthesizeType() {
         return NULL;
       }
 
-      Lng32 resultLen = 0;
+      int resultLen = 0;
       switch (getOperatorType()) {
         case ITM_SHA2_224:
           resultLen = (224 * 2) / 8;
@@ -1511,7 +1511,7 @@ const NAType *Abs::synthesizeType() {
   NAType *result = NULL;
 
   if (ntyp1.isExact()) {
-    Lng32 precision = (ntyp1.getMagnitude() + 9) / 10 + ntyp1.getScale();
+    int precision = (ntyp1.getMagnitude() + 9) / 10 + ntyp1.getScale();
 
     if (precision <= MAX_NUMERIC_PRECISION) {
       Int32 length;
@@ -1829,7 +1829,7 @@ const NAType *Aggregate::synthesizeType() {
 
       CharType &charType = (CharType &)operand;
 
-      Lng32 maxLength = charType.getDataStorageSize();
+      int maxLength = charType.getDataStorageSize();
 
       result = new (HEAP) SQLVarChar(HEAP, maxLength, FALSE /* not nullable*/);
 
@@ -1841,7 +1841,7 @@ const NAType *Aggregate::synthesizeType() {
       // during cstr.
       UInt32 uec = (UInt32)(getSourceColUec().getValue());
 
-      Lng32 maxLength = (ActiveSchemaDB()->getDefaults()).figureOutMaxLength(uec);
+      int maxLength = (ActiveSchemaDB()->getDefaults()).figureOutMaxLength(uec);
 
       result = new (HEAP) SQLVarChar(HEAP, maxLength, FALSE /* not nullable*/);
       break;
@@ -1899,15 +1899,15 @@ const NAType *PivotGroup::synthesizeType() {
 // member functions for class AnsiUSERFunction
 // -----------------------------------------------------------------------
 
-static const Lng32 MAX_NT_DOMAIN_NAME_LEN = 30;
-static const Lng32 MAX_NT_USERNAME_LEN = 20;
+static const int MAX_NT_DOMAIN_NAME_LEN = 30;
+static const int MAX_NT_USERNAME_LEN = 20;
 // the ldap username needs to fit into this field, so make them equal
-static const Lng32 OPT_MAX_USERNAME_LEN = ComSqlId::MAX_LDAP_USER_NAME_LEN;
+static const int OPT_MAX_USERNAME_LEN = ComSqlId::MAX_LDAP_USER_NAME_LEN;
 
 const NAType *AnsiUSERFunction::synthesizeType() { return new HEAP SQLVarChar(HEAP, OPT_MAX_USERNAME_LEN, FALSE); }
 
 // the tenantname needs to fit into this field, so make them equal
-static const Lng32 OPT_MAX_TENANTNAME_LEN = MAX_AUTHNAME_LEN;
+static const int OPT_MAX_TENANTNAME_LEN = MAX_AUTHNAME_LEN;
 
 const NAType *AnsiTenantFunction::synthesizeType() { return new HEAP SQLVarChar(HEAP, OPT_MAX_TENANTNAME_LEN, FALSE); }
 
@@ -2037,7 +2037,7 @@ const NAType *Assign::doSynthesizeType(ValueId &targetId, ValueId &sourceId) {
   //
   return &targetType;
 }
-const NAType *Assign::synthesizeType(const char *str1, const Lng32 int1) {
+const NAType *Assign::synthesizeType(const char *str1, const int int1) {
   ValueId targetId, sourceId;
   const NAType *result = doSynthesizeType(targetId, sourceId);
   if (result == NULL) {
@@ -2812,7 +2812,7 @@ const NAType *CastConvert::synthesizeType() {
   // return a char type that is large enough to hold the ascii
   // representation of the operand.
   const NAType &childType = child(0)->castToItemExpr()->getValueId().getType();
-  Lng32 maxLength = childType.getDisplayLength(childType.getFSDatatype(), childType.getNominalSize(),
+  int maxLength = childType.getDisplayLength(childType.getFSDatatype(), childType.getNominalSize(),
                                                childType.getPrecision(), childType.getScale(), 0);
   CharType *origType = (CharType *)getType();
   if (DFS2REC::isAnyVarChar(origType->getFSDatatype()) == FALSE)
@@ -3139,7 +3139,7 @@ const NAType *InternalTimestamp::synthesizeType() { return new HEAP SQLTimestamp
 
 const NAType *CurrentTimestampRunning::synthesizeType() { return new HEAP SQLTimestamp(HEAP, FALSE); }
 
-static UInt32 lcl_getPercision4TimeFormat(Lng32 nFormat) {
+static UInt32 lcl_getPercision4TimeFormat(int nFormat) {
   UInt32 nPrecision = DatetimeType::DEFAULT_FRACTION_PRECISION;
   // DATETIME_FORMAT_TS13(HH24:MI:SS.FF) support to_time,
   // DATETIME_FORMAT_TS14 to DATETIME_FORMAT_TS24 support to_char and to_date.
@@ -3173,7 +3173,7 @@ const NAType *DateFormat::synthesizeType() {
     return NULL;
   }
 
-  Lng32 length = 0;
+  int length = 0;
   NABoolean formatAsDate = FALSE;
   NABoolean formatAsTimestamp = FALSE;
   NABoolean formatAsTime = FALSE;
@@ -3181,7 +3181,7 @@ const NAType *DateFormat::synthesizeType() {
 
   if (vid.getType().getTypeQualifier() == NA_DATETIME_TYPE) {
     const DatetimeType &operand = (DatetimeType &)vid.getType();
-    Lng32 frmt = ExpDatetime::getDatetimeFormat(formatStr_.data());
+    int frmt = ExpDatetime::getDatetimeFormat(formatStr_.data());
 
     if (wasDateformat_) {
       length = operand.getDisplayLength();
@@ -3208,7 +3208,7 @@ const NAType *DateFormat::synthesizeType() {
     if (FORMAT_TO_CHAR == formatType_) formatAsNumber = TRUE;
   }
 
-  Lng32 nFormat = ExpDatetime::getDatetimeFormat(formatStr_.data());
+  int nFormat = ExpDatetime::getDatetimeFormat(formatStr_.data());
   // If operand1 or operand2 is NULL, the result should support NULL.
   NABoolean bSupportNull = vid.getType().supportsSQLnullLogical();
   if (getArity() > 1) {
@@ -3228,7 +3228,7 @@ const NAType *DateFormat::synthesizeType() {
   else if (formatAsNumber) {
     // the result's length may be longer than formatStr_'s length
     // It's hard to estimate the real length of result here.
-    Lng32 nLen = length + 5;
+    int nLen = length + 5;
     // if formatStr_ contains "RN" and character-expression bigger than 3999, return "###############"
     if (formatStr_.contains("RN", NAString::ignoreCase)) nLen = length + 15;
     return new HEAP SQLVarChar(HEAP, nLen, vid.getType().supportsSQLnullLogical());
@@ -3320,7 +3320,7 @@ const NAType *Hash::synthesizeType() {
 // member functions for class HashComb
 // -----------------------------------------------------------------------
 
-NABoolean HashCommon::areChildrenExactNumeric(Lng32 left, Lng32 right) {
+NABoolean HashCommon::areChildrenExactNumeric(int left, int right) {
   const NAType &typ1 = child(left)->getValueId().getType();
   const NAType &typ2 = child(right)->getValueId().getType();
 
@@ -3521,8 +3521,8 @@ const NAType *RegexpSubstr::synthesizeType() {
 
   // we have checked operand1's type before.
   const CharType *ctyp1 = (CharType *)(&(child(0)->getValueId().getType()));
-  Lng32 nLength_in_bytes = ctyp1->getDataStorageSize();
-  Lng32 nLength_in_chars = ctyp1->getPrecisionOrMaxNumChars();
+  int nLength_in_bytes = ctyp1->getDataStorageSize();
+  int nLength_in_chars = ctyp1->getPrecisionOrMaxNumChars();
   CharInfo::CharSet op1_cs = operand1.getCharSet();
   if (nLength_in_chars <= 0)  // If unlimited
     nLength_in_chars = nLength_in_bytes / CharInfo::minBytesPerChar(op1_cs);
@@ -3735,7 +3735,7 @@ const NAType *BitOperFunc::synthesizeType() {
       }
 
       // result can contain as many bits as the length of the operand.
-      // Make the result an Int32 or Int64.
+      // Make the result an Int32 or long.
       NAType *result1 = NULL;
       if (ntyp1.getNominalSize() <= 9)
         result = new HEAP SQLInt(HEAP, TRUE, nullable);
@@ -3867,7 +3867,7 @@ const NAType *MathFunc::synthesizeType() {
       const NAType &typ0 = vid0.getType();
       if (((const NumericType &)typ0).isBigNum()) {
         const SQLBigNum &btyp0 = (const SQLBigNum &)typ0;
-        Lng32 precision = btyp0.getPrecision();
+        int precision = btyp0.getPrecision();
         if (precision < CmpCommon::getDefaultNumeric(MAX_NUMERIC_PRECISION_ALLOWED))
           precision++;  // increase precision when we can since rounding up might add a digit
         // m23411
@@ -4000,8 +4000,8 @@ const NAType *Repeat::synthesizeType() {
     return NULL;
   }
 
-  Int64 size_in_bytes;
-  Int64 size_in_chars;
+  long size_in_bytes;
+  long size_in_chars;
 
   Int32 maxCharColLen = CmpCommon::getDefaultNumeric(TRAF_MAX_CHARACTER_COL_LENGTH);
 
@@ -4027,7 +4027,7 @@ const NAType *Repeat::synthesizeType() {
     size_in_chars = size_in_bytes / CharInfo::minBytesPerChar(ctyp1.getCharSet());
   } else if ((tempExpr->getOperatorType() == ITM_CONSTANT) && (tempExpr->castToConstValue(negate))) {
     ConstValue *cv = tempExpr->castToConstValue(negate);
-    Int64 repeatCount;
+    long repeatCount;
 
     if (!cv->isNull()) {
       if (cv->canGetExactNumericValue()) {
@@ -4074,7 +4074,7 @@ const NAType *Repeat::synthesizeType() {
   NAType *result = NULL;
   if (DFS2REC::isCharacterString(typ1.getFSDatatype()))
     result = new (HEAP)
-        SQLVarChar(HEAP, CharLenInfo((Lng32)size_in_chars, (Lng32)size_in_bytes),
+        SQLVarChar(HEAP, CharLenInfo((int)size_in_chars, (int)size_in_bytes),
                    (typ1.supportsSQLnullLogical() || typ2.supportsSQLnullLogical()), ctyp1.isUpshifted(),
                    ctyp1.isCaseinsensitive(), ctyp1.getCharSet(), ctyp1.getCollation(), ctyp1.getCoercibility());
   else
@@ -4159,20 +4159,20 @@ const NAType *Replace::synthesizeType() {
   }
 
   const CharType *ctyp1 = (CharType *)typ1;
-  Lng32 minLength_in_bytes = ctyp1->getDataStorageSize();
-  Lng32 minLength_in_chars = ctyp1->getStrCharLimit();
+  int minLength_in_bytes = ctyp1->getDataStorageSize();
+  int minLength_in_chars = ctyp1->getStrCharLimit();
 
-  Lng32 ctype2Length_in_bytes = ((CharType *)typ2)->getDataStorageSize();
-  Lng32 ctype3Length_in_bytes = ((CharType *)typ3)->getDataStorageSize();
-  Lng32 ctype2Length_in_chars = ((CharType *)typ2)->getStrCharLimit();
-  Lng32 ctype3Length_in_chars = ((CharType *)typ3)->getStrCharLimit();
+  int ctype2Length_in_bytes = ((CharType *)typ2)->getDataStorageSize();
+  int ctype3Length_in_bytes = ((CharType *)typ3)->getDataStorageSize();
+  int ctype2Length_in_chars = ((CharType *)typ2)->getStrCharLimit();
+  int ctype3Length_in_chars = ((CharType *)typ3)->getStrCharLimit();
 
   // Fix for CR 10-000724-1369
   // figure out result size.
 
-  Lng32 size_in_bytes = minLength_in_bytes;
+  int size_in_bytes = minLength_in_bytes;
   ;
-  Lng32 size_in_chars = minLength_in_chars;
+  int size_in_chars = minLength_in_chars;
 
   // NOTE: We are trying to find the MAX result size!
 
@@ -4345,7 +4345,7 @@ const NAType *CompEncode::synthesizeType() {
   // is set to a positive number. Otherwise, it is equal to the
   // total size of operand.
 
-  Lng32 keyLength = 0;
+  int keyLength = 0;
   NABoolean supportsSQLnull = FALSE;
   if (regularNullability_) {
     // should not be common for CompEncode, preserve nullability of child
@@ -4483,7 +4483,7 @@ const NAType *Extract::synthesizeType() {
   // EXTRACT(other      from interval):  result precision is 2 + scale
   // where scale is 0 if extract field is not SECOND, else at least fract prec.
   //
-  Lng32 prec, scale = 0;
+  int prec, scale = 0;
   if (type == NA_INTERVAL_TYPE && getExtractField() == dti.getStartField())
     prec = dti.getLeadingPrecision();
   else if (getExtractField() == REC_DATE_YEAR)
@@ -5024,13 +5024,13 @@ const NAType *Substring::synthesizeType() {
   CharInfo::CharSet op1_cs = operand1->getCharSet();
 
   const CharType *charOperand = (CharType *)operand1;
-  Lng32 maxLength_bytes = charOperand->getDataStorageSize();
-  Lng32 maxLength_chars = charOperand->getPrecisionOrMaxNumChars();
+  int maxLength_bytes = charOperand->getDataStorageSize();
+  int maxLength_chars = charOperand->getPrecisionOrMaxNumChars();
   if (maxLength_chars <= 0)  // If unlimited
     maxLength_chars = maxLength_bytes / CharInfo::minBytesPerChar(op1_cs);
 
   NABoolean negate;
-  Lng32 pos = 0;
+  int pos = 0;
   {
     // The position arg is allowed to be negative (see Ansi 6.7 GR 1).
     ConstValue *cv = child(1)->castToConstValue(negate);
@@ -5039,7 +5039,7 @@ const NAType *Substring::synthesizeType() {
     // solu 10-030603-6815.
     if (cv && negate == FALSE) {
       if (cv->canGetExactNumericValue()) {
-        Int64 pos64 = cv->getExactNumericValue();
+        long pos64 = cv->getExactNumericValue();
         if (pos64 <= MINOF(maxLength_chars, INT_MAX)) {
           pos = int64ToInt32(pos64);
           if ((pos - 1) > 0) {
@@ -5054,8 +5054,8 @@ const NAType *Substring::synthesizeType() {
   }        // position operand
 
   NABoolean resultIsFixedChar = FALSE;
-  Lng32 length = 0;
-  Int64 length64 = 0;
+  int length = 0;
+  long length64 = 0;
   if (operand3) {
     ConstValue *cv = child(2)->castToConstValue(negate);
     if (cv) {
@@ -5417,7 +5417,7 @@ const NAType *Translate::synthesizeType() {
   }
 
   if (charsetTarget != CharInfo::UnknownCharSet) {
-    Lng32 resultLen = CharInfo::getMaxConvertedLenInBytes(translateSource->getCharSet(),
+    int resultLen = CharInfo::getMaxConvertedLenInBytes(translateSource->getCharSet(),
                                                           translateSource->getNominalSize(), charsetTarget);
     NAType *desiredType =
         new HEAP SQLVarChar(HEAP, CharLenInfo(0, resultLen), TRUE, FALSE, translateSource->isCaseinsensitive(),
@@ -5809,7 +5809,7 @@ const NAType *ZZZBinderFunction::synthesizeType() {
     case ITM_LEFT: {
       // make a temporary transformation for synthesizing the right type
       Substring *temp =
-          new HEAP Substring(child(0).getPtr(), new HEAP ConstValue((Lng32)1, (NAMemory *)HEAP), child(1));
+          new HEAP Substring(child(0).getPtr(), new HEAP ConstValue((int)1, (NAMemory *)HEAP), child(1));
       temp->synthTypeAndValueId();
       return temp->getValueId().getType().newCopy(HEAP);
     }
@@ -6027,7 +6027,7 @@ const NAType *ItmLagOlapFunction::synthesizeType() {
       if (offsetExpr->getOperatorType() == ITM_CONSTANT) {
         ConstValue *cv = (ConstValue *)offsetExpr;
         if (cv->canGetExactNumericValue()) {
-          Int64 value = cv->getExactNumericValue();
+          long value = cv->getExactNumericValue();
           offsetOK = TRUE;
           offset_ = value;
         }
@@ -6519,9 +6519,9 @@ const NAType *HbaseVisibilitySet::synthesizeType() {
   NAType *type = NULL;
 
   ///////////////////////////////////////////////////////////////////////////
-  // colIdLen(short)   colId   visExprLen(Lng32)   visExpr
+  // colIdLen(short)   colId   visExprLen(int)   visExpr
   ///////////////////////////////////////////////////////////////////////////
-  Lng32 maxLen = sizeof(short) + ROUND2(colId_.length() - sizeof(short)) + sizeof(Lng32) + visExpr_.length();
+  int maxLen = sizeof(short) + ROUND2(colId_.length() - sizeof(short)) + sizeof(int) + visExpr_.length();
   maxLen = ROUND2(maxLen);
   type = new HEAP SQLChar(HEAP, maxLen, FALSE);
 
@@ -6580,7 +6580,7 @@ const NAType *ItmLeadOlapFunction::synthesizeType() {
 
     // check the value of the offset expression constant
     NABoolean offsetOK = FALSE;
-    Int64 value = 0;
+    long value = 0;
 
     if (getArity() > 1) {
       ValueId vid1 = child(1)->getValueId();
@@ -6710,8 +6710,8 @@ const NAType *SplitPart::synthesizeType() {
   }
 
   const CharType *charOperand = (CharType *)operand1;
-  Lng32 maxLength_bytes = charOperand->getDataStorageSize();
-  Lng32 maxLength_chars = charOperand->getPrecisionOrMaxNumChars();
+  int maxLength_bytes = charOperand->getDataStorageSize();
+  int maxLength_chars = charOperand->getPrecisionOrMaxNumChars();
   CharInfo::CharSet op1_cs = operand1->getCharSet();
   if (maxLength_chars <= 0)  // if unlimited
     maxLength_chars = maxLength_bytes / CharInfo::minBytesPerChar(op1_cs);

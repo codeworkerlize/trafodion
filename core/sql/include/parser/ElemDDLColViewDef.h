@@ -69,13 +69,13 @@ class ElemDDLColViewDef : public ElemDDLNode {
   //
 
   virtual Int32 getArity() const;
-  virtual ExprNode *getChild(Lng32 index);
+  virtual ExprNode *getChild(int index);
   inline const NAString &getColumnName() const;
   inline const NAString &getHeading() const;
   inline NABoolean isHeadingSpecified() const;
 
   // mutator
-  virtual void setChild(Lng32 index, ExprNode *pChildNode);
+  virtual void setChild(int index, ExprNode *pChildNode);
 
   // methods for tracing
   virtual const NAString displayLabel1() const;

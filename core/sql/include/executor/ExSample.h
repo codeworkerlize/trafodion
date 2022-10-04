@@ -184,7 +184,7 @@ class ExSamplePrivateState : public ex_tcb_private_state {
  private:
   ExSampleTcb::RequestState step_;
   queue_index index_;
-  Int64 matchCount_;
+  long matchCount_;
   ULng32 rowsToReturn_;
   atp_struct *workAtp_;
 };

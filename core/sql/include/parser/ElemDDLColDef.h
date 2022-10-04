@@ -88,7 +88,7 @@ class ElemDDLColDef : public ElemDDLNode {
   //
 
   virtual Int32 getArity() const;
-  virtual ExprNode *getChild(Lng32 index);
+  virtual ExprNode *getChild(int index);
 
   inline NAType *getColumnDataType() const;
   inline void setColumnDataType(NAType *inType) { columnDataType_ = inType; }
@@ -168,7 +168,7 @@ class ElemDDLColDef : public ElemDDLNode {
   // mutators
   //
 
-  virtual void setChild(Lng32 index, ExprNode *pChildNode);
+  virtual void setChild(int index, ExprNode *pChildNode);
 
   void setDefaultValueExpr(ItemExpr *pNewDefValNode);
   inline void setHeading(const NAString &heading);

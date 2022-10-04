@@ -1239,7 +1239,7 @@ const Int32 FAKEHISTOGRAMID = 10000;
 //  no histogram statistics.
 // -----------------------------------------------------------------------
 class ColStats : public NABasicObject {
-  static THREAD_P Int64 fakeHistogramIDCounter_;
+  static THREAD_P long fakeHistogramIDCounter_;
 
  public:
   // special fake histogramids are above this value, but,
@@ -2044,11 +2044,11 @@ class StatsList : public SHPTR_LIST(ColStatsSharedPtr) {
 
   // insertByPosition()
   // insert the histograms that have reference to 'position' column
-  void insertByPosition(const StatsList &other, const Lng32 position, SET(ColStats *) & dupList);
+  void insertByPosition(const StatsList &other, const int position, SET(ColStats *) & dupList);
 
   // insertCompressedCopy()
   // Takes in full histogram but insert it in compressed form
-  ColStatsSharedPtr insertCompressedCopy(const StatsList &realStat, const Lng32 position, NABoolean state);
+  ColStatsSharedPtr insertCompressedCopy(const StatsList &realStat, const int position, NABoolean state);
 
   // insertDeepCopyList()
   // makes a deep copy from the other
@@ -2057,11 +2057,11 @@ class StatsList : public SHPTR_LIST(ColStatsSharedPtr) {
   // Returns a reference to a ColStats object representing
   // single column statistics for the column identified by
   // parameter position.
-  ColStatsSharedPtr getSingleColumnColStats(const Lng32 position);
+  ColStatsSharedPtr getSingleColumnColStats(const int position);
 
   // returns the UEC count from the histogram identified by the parameter
   // position. Position here is the position of the column in the table
-  CostScalar getSingleColumnUECCount(const Lng32 position) const;
+  CostScalar getSingleColumnUECCount(const int position) const;
 
   // return count of single column histograms (include fake histograms,
   // but exclude expressions histograms)

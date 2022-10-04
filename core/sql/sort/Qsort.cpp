@@ -57,7 +57,7 @@
 // Class Constructor.
 //------------------------------------------------------------------------
 Qsort::Qsort(ULng32 runsize, ULng32 sortmaxmem, ULng32 recsize, NABoolean doNotallocRec, ULng32 keysize,
-             SortScratchSpace *scratch, NABoolean iterSort, CollHeap *heap, SortError *sorterror, Lng32 explainNodeId,
+             SortScratchSpace *scratch, NABoolean iterSort, CollHeap *heap, SortError *sorterror, int explainNodeId,
              ExBMOStats *bmoStats, SortUtil *sortutil)
     : SortAlgo(runsize, recsize, doNotallocRec, keysize, scratch, explainNodeId, bmoStats),
       currentRun_(1),
@@ -130,7 +130,7 @@ Qsort::~Qsort(void) {
 //   SORT_FAILURE if any error encounterd.
 //
 //----------------------------------------------------------------------
-Lng32 Qsort::sortSend(void *rec, ULng32 len, void *tupp) {
+int Qsort::sortSend(void *rec, ULng32 len, void *tupp) {
   ex_assert(loopIndex_ >= 0, "Qsort::sortSend: loopIndex_ is < 0");
   ex_assert(loopIndex_ < allocRunSize_, "Qsort::sortSend: loopIndex_ > allocRunSize_");
   ex_assert(sendNotDone_, "Qsort::sortSend: sendNotDone_ is false");
@@ -263,7 +263,7 @@ Lng32 Qsort::sortSend(void *rec, ULng32 len, void *tupp) {
   return SORT_FAILURE;
 }
 
-Lng32 Qsort::generateARun() {
+int Qsort::generateARun() {
 #if defined(_DEBUG)
   char *envCifLoggingLocation = getenv("CIF_SORT_LOG_LOC");
   // This env var must be less than 238 charcaters long,
@@ -274,11 +274,11 @@ Lng32 Qsort::generateARun() {
   runSize_ = loopIndex_;
   if (runSize_ != 1) {
     if (sortUtil_->config()->sortType_.useQSForRunGeneration_)
-      quickSort(recKeys_, 0, (Int64)runSize_ - 1);
+      quickSort(recKeys_, 0, (long)runSize_ - 1);
     else if (sortUtil_->config()->sortType_.useIterHeapForRunGeneration_)
-      heapSort(recKeys_, (Int64)runSize_);
+      heapSort(recKeys_, (long)runSize_);
     else
-      iterativeQuickSort(recKeys_, 0, (Int64)runSize_ - 1);
+      iterativeQuickSort(recKeys_, 0, (long)runSize_ - 1);
   }
 
   if (internalSort_) {
@@ -355,7 +355,7 @@ Lng32 Qsort::generateARun() {
   return SORT_SUCCESS;
 }
 
-Lng32 Qsort::sortClientOutOfMem() {
+int Qsort::sortClientOutOfMem() {
   internalSort_ = FALSE_L;
   if (!scratch_) {
     if (sortUtil_->scratchInitialize()) return SORT_FAILURE;
@@ -368,8 +368,8 @@ Lng32 Qsort::sortClientOutOfMem() {
   return generateARun();
 }
 
-Lng32 Qsort::sortSendEnd() {
-  Lng32 retcode = SORT_SUCCESS;
+int Qsort::sortSendEnd() {
+  int retcode = SORT_SUCCESS;
   ex_assert(loopIndex_ >= 0, "Qsort::sortSendEnd: loopIndex_ is < 0");
   ex_assert(loopIndex_ < allocRunSize_, "Qsort::sortSendEnd: loopIndex_ > allocRunSize_");
   ex_assert(sendNotDone_, "Qsort::sortSendEnd: sendNotDone_ is false");
@@ -379,7 +379,7 @@ Lng32 Qsort::sortSendEnd() {
   return retcode;
 }
 
-Lng32 Qsort::sortReceive(void *rec, ULng32 &len) {
+int Qsort::sortReceive(void *rec, ULng32 &len) {
   //---------------------------------------------------------------
   // We use Qsort to receive records only in case of internal sort
   // for merging.
@@ -395,7 +395,7 @@ Lng32 Qsort::sortReceive(void *rec, ULng32 &len) {
   return SORT_SUCCESS;
 }
 
-Lng32 Qsort::sortReceive(void *&rec, ULng32 &len, void *&tupp) {
+int Qsort::sortReceive(void *&rec, ULng32 &len, void *&tupp) {
   //---------------------------------------------------------------
   // We use Qsort to receive records only in case of internal sort
   // for merging.
@@ -426,8 +426,8 @@ Lng32 Qsort::sortReceive(void *&rec, ULng32 &len, void *&tupp) {
 //
 //----------------------------------------------------------------------
 
-NABoolean Qsort::quickSort(RecKeyBuffer keysToSort[], Int64 left, Int64 right) {
-  Int64 i, j;
+NABoolean Qsort::quickSort(RecKeyBuffer keysToSort[], long left, long right) {
+  long i, j;
   char *pivot;
 
   if (left + 1 < right) {  // Atleast three elements
@@ -489,18 +489,18 @@ NABoolean Qsort::quickSort(RecKeyBuffer keysToSort[], Int64 left, Int64 right) {
     (r) = *--stack; \
     (l) = *--stack; \
   }
-NABoolean Qsort::iterativeQuickSort(RecKeyBuffer keysToSort[], Int64 left, Int64 right) {
-  Int64 *stack;
+NABoolean Qsort::iterativeQuickSort(RecKeyBuffer keysToSort[], long left, long right) {
+  long *stack;
 
-  Int64 i, last, position;
+  long i, last, position;
 
   if (left >= right) return 0;
 
   // allocate a stack big enough to hold atleast the size of the array to be
   // sorted. Since each stack entry consists of 2 ints, we multiply this by 2
 
-  // stack = (Int64 *)heap_->allocateAlignedHeapMemory(runSize_ * sizeof(Int64)*2, 64, FALSE);
-  stack = (Int64 *)new (heap_) char[runSize_ * sizeof(Int64) * 2];
+  // stack = (long *)heap_->allocateAlignedHeapMemory(runSize_ * sizeof(long)*2, 64, FALSE);
+  stack = (long *)new (heap_) char[runSize_ * sizeof(long) * 2];
   if (stack == NULL) {
     sortError_->setErrorInfo(EScrNoMemory  // sort error
                              ,
@@ -562,8 +562,8 @@ NABoolean Qsort::iterativeQuickSort(RecKeyBuffer keysToSort[], Int64 left, Int64
 // back to quickSort or iterativeQuickSort.
 
 //----------------------------------------------------------------------
-void Qsort::heapSort(RecKeyBuffer keysToSort[], Int64 runsize) {
-  Int64 i;
+void Qsort::heapSort(RecKeyBuffer keysToSort[], long runsize) {
+  long i;
 
   for (i = (runsize / 2); i >= 0; i--) siftDown(keysToSort, i, runsize - 1);
 
@@ -573,8 +573,8 @@ void Qsort::heapSort(RecKeyBuffer keysToSort[], Int64 runsize) {
   }
 }
 
-void Qsort::siftDown(RecKeyBuffer keysToSort[], Int64 root, Int64 bottom) {
-  Int64 done, maxChild;
+void Qsort::siftDown(RecKeyBuffer keysToSort[], long root, long bottom) {
+  long done, maxChild;
 
   done = 0;
   while ((root * 2 <= bottom) && (!done)) {
@@ -611,8 +611,8 @@ void Qsort::siftDown(RecKeyBuffer keysToSort[], Int64 root, Int64 bottom) {
 //
 //----------------------------------------------------------------------
 
-char *Qsort::median(RecKeyBuffer keysToSort[], Int64 left, Int64 right) {
-  Int64 center = (left + right) / 2;
+char *Qsort::median(RecKeyBuffer keysToSort[], long left, long right) {
+  long center = (left + right) / 2;
 
   if (compare(keysToSort[left].key_, keysToSort[center].key_) >= KEY1_IS_GREATER) {
     swap(&keysToSort[left], &keysToSort[center]);
@@ -663,7 +663,7 @@ NABoolean Qsort::swap(RecKeyBuffer *recKeyOne, RecKeyBuffer *recKeyTwo) {
   return SORT_SUCCESS;
 }
 
-Lng32 Qsort::generateInterRuns() {
+int Qsort::generateInterRuns() {
   cout << " You should not be using Quick sort for intermediate runs." << endl;
   return SORT_SUCCESS;
 }

@@ -375,7 +375,7 @@ NABoolean NASubCollection<T>::contains(const NASubCollection<T> &other) const {
 
     i = otherWords - commonWords;
 
-    if ((Lng32)i > 0) {
+    if ((int)i > 0) {
       do {
         // if "other" has any bits set that "this" doesn't have, return FALSE
         if (*pOtherBits++) return (FALSE);
@@ -440,14 +440,14 @@ NABoolean NASubCollection<T>::operator==(const NASubCollection<T> &other) const 
 
   i = wordSize_ - commonWords;
 
-  if ((Lng32)i > 0) {
+  if ((int)i > 0) {
     do {
       if (*pBits++) return (FALSE);
     } while (--i);
   } else {
     i = other.wordSize_ - commonWords;
 
-    if ((Lng32)i > 0) {
+    if ((int)i > 0) {
       do {
         if (*pOtherBits++) return (FALSE);
       } while (--i);
@@ -478,8 +478,8 @@ NASubCollection<T> &NASubCollection<T>::addSet(const NASubCollection<T> &other) 
 
         entries_ = other.entries_;
       } else {
-        Lng32 entryCount = 0;
-        Lng32 trailingWords = (Lng32)(wordSize_ - maxWords);
+        int entryCount = 0;
+        int trailingWords = (int)(wordSize_ - maxWords);
 
         do {
           *pBits |= *pOtherBits++;
@@ -513,7 +513,7 @@ NASubCollection<T> &NASubCollection<T>::intersectSet(const NASubCollection<T> &o
       WordAsBits *pOtherBits = other.pBits_;
 
       if (other.entries_) {
-        Lng32 entryCount = 0;
+        int entryCount = 0;
 
         do {
           *pBits &= *pOtherBits++;
@@ -533,7 +533,7 @@ NASubCollection<T> &NASubCollection<T>::intersectSet(const NASubCollection<T> &o
 
     i = wordSize_ - commonWords;
 
-    if ((Lng32)i > 0) {
+    if ((int)i > 0) {
       do {
         *pBits++ = 0x0;
       } while (--i);
@@ -551,7 +551,7 @@ NASubCollection<T> &NASubCollection<T>::subtractSet(const NASubCollection<T> &ot
     CollIndex commonWords = MINOF(wordSize_, other.wordSize_);
 
     if (commonWords) {
-      Lng32 entryCount = 0;
+      int entryCount = 0;
       CollIndex trailingWords = wordSize_ - commonWords;
       WordAsBits *pBits = pBits_;
       WordAsBits *pOtherBits = other.pBits_;
@@ -1381,7 +1381,7 @@ void NAHashBucket<K, V>::getKeyValuePair(const K *key, const V *value, NAHashBuc
 // NAHashBucket::remove()
 // -----------------------------------------------------------------------
 template <class K, class V>
-K *NAHashBucket<K, V>::remove(K *key, Lng32 &entriesEnabled, NABoolean removeKV) {
+K *NAHashBucket<K, V>::remove(K *key, int &entriesEnabled, NABoolean removeKV) {
   CollIndex ne = bucket_.entries();
 
   for (CollIndex index = 0; index < ne; index++) {
@@ -1420,7 +1420,7 @@ K *NAHashBucket<K, V>::remove(K *key, Lng32 &entriesEnabled, NABoolean removeKV)
 // NAHashBucket::enable()
 // -----------------------------------------------------------------------
 template <class K, class V>
-K *NAHashBucket<K, V>::enable(K *key, NABoolean enforceUniqueness, Lng32 &entriesEnabled) {
+K *NAHashBucket<K, V>::enable(K *key, NABoolean enforceUniqueness, int &entriesEnabled) {
   CollIndex ne = bucket_.entries();
 
   K *lastKeySeen = NULL;
@@ -1458,7 +1458,7 @@ K *NAHashBucket<K, V>::enable(K *key, NABoolean enforceUniqueness, Lng32 &entrie
 // NAHashBucket::disable()
 // -----------------------------------------------------------------------
 template <class K, class V>
-K *NAHashBucket<K, V>::disable(K *key, NABoolean enforceUniqueness, Lng32 &entriesEnabled) {
+K *NAHashBucket<K, V>::disable(K *key, NABoolean enforceUniqueness, int &entriesEnabled) {
   CollIndex ne = bucket_.entries();
 
   K *lastKeySeen = NULL;

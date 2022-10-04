@@ -53,10 +53,10 @@ using namespace std;
 #define NULL 0
 #endif
 
-// A better, fuller Int64 implementation has been developed in Int64
+// A better, fuller long implementation has been developed in long
 // replace the old ComSInt64 here.  Both will be replaced by long long
 // when we have a modern C compiler
-#define ComSInt64 Int64
+#define ComSInt64 long
 
 typedef unsigned short ComUInt16;
 typedef short ComSInt16;
@@ -505,7 +505,7 @@ enum ComTableType {
 #define EPOCH_INITIAL_VALUE 100
 
 // JulianTimestamp time of UNIX "epoch", 00:00:00 Jan 1, 1970
-const Int64 COM_EPOCH_TIMESTAMP = 210866760000000000LL;
+const long COM_EPOCH_TIMESTAMP = 210866760000000000LL;
 
 // enums used to specify the MV REWRITE PUBLISH operations
 // and SYSTEM DEFAULTS propagation
@@ -2292,9 +2292,9 @@ class ComUID {
 
  public:
   // constructors
-  ComUID() { data = Int64(0L); }
+  ComUID() { data = long(0L); }
 
-  ComUID(const Int64 num) { data = num; }
+  ComUID(const long num) { data = num; }
 
   // ---------------------------------------------------------------------
   // Compare.
@@ -2314,19 +2314,19 @@ class ComUID {
   void make_UID();
 
   ComBoolean is_valid_UID() const {
-    if (this->data == Int64(Lng32(0)))
+    if (this->data == long(int(0)))
       return FALSE;
     else
       return TRUE;
   };
 
-  Int64 get_value() const { return data; };
+  long get_value() const { return data; };
 
-  Int64 getKey() const { return data; };
+  long getKey() const { return data; };
 
-  Int64 castToInt64() { return data; }
+  long castToInt64() { return data; }
 
-  inline const Int64 castToInt64() const { return data; }
+  inline const long castToInt64() const { return data; }
 
   void convertTo19BytesFixedWidthStringWithZeroesPrefix(ComString &out) const;
 
@@ -2336,10 +2336,10 @@ class ComUID {
   }
 
  protected:
-  Int64 data;
+  long data;
 };
 
-Int64 ComSmallDef_local_GetTimeStamp();
+long ComSmallDef_local_GetTimeStamp();
 
 void print_ComUID_with_text(FILE *fp, char *text, ComUID value);
 ComUID read_ComUID_with_text(FILE *fp, char *text);

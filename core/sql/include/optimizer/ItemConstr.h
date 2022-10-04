@@ -91,7 +91,7 @@ class Constraint : public ItemExpr {
 
   const QualifiedName &getConstraintName() const { return constraintName_; }
 
-  typedef SET(Lng32) ColSignature;  // unordered set of column positions
+  typedef SET(int) ColSignature;  // unordered set of column positions
   //##should be SUBARRAY(long)?  NABitVector?
   //##SUBARRAY(NAColumn *), with the array being NATable's NAColumnArray?
   //##
@@ -470,9 +470,9 @@ class UniqueConstraint : public AbstractRIConstraint {
 
   const NABoolean isPrimaryKeyConstraint() { return isPrimaryKey_; }
 
-  Lng32 getNumRefConstraintsReferencingMe() { return refConstraintsReferencingMe_.entries(); }
+  int getNumRefConstraintsReferencingMe() { return refConstraintsReferencingMe_.entries(); }
 
-  const ComplementaryRIConstraint *getRefConstraintReferencingMe(Lng32 i) {
+  const ComplementaryRIConstraint *getRefConstraintReferencingMe(int i) {
     if ((hasRefConstraintsReferencingMe()) && ((i >= 0) && i <= refConstraintsReferencingMe_.entries()))
       return refConstraintsReferencingMe_[i];
 
@@ -542,8 +542,8 @@ class RefConstraint : public AbstractRIConstraint {
 
   const QualifiedName &getOtherTableName() const { return *otherTableName_; }
 
-  inline void getMyKeyColumns(LIST(Lng32) & colPositions) const;
-  void getOtherTableKeyColumns(BindWA *bindWA, LIST(Lng32) & colPositions) const;
+  inline void getMyKeyColumns(LIST(int) & colPositions) const;
+  void getOtherTableKeyColumns(BindWA *bindWA, LIST(int) & colPositions) const;
 
   void getMatchOptionPredicateText(NAString &text, NAString *corrName) const;
 
@@ -582,7 +582,7 @@ class RefConstraint : public AbstractRIConstraint {
     otherTableName_ = &uniqueConstraintReferencedByMe_.tableName_;
   }
 
-  void KeyColumnsToPositionsList(LIST(Lng32) & colPositions, const KeyColumns &keyColumns) const;
+  void KeyColumnsToPositionsList(LIST(int) & colPositions, const KeyColumns &keyColumns) const;
 
   ComplementaryRIConstraint uniqueConstraintReferencedByMe_;  // exactly one
 
@@ -781,7 +781,7 @@ inline NABoolean RefConstraint::isaForeignKeyinTableBeingUpdated() const {
 
 inline NABoolean RefConstraint::referencesTableBeingUpdated() const { return !isaForeignKeyinTableBeingUpdated(); }
 
-inline void RefConstraint::getMyKeyColumns(LIST(Lng32) & colPositions) const {
+inline void RefConstraint::getMyKeyColumns(LIST(int) & colPositions) const {
   KeyColumnsToPositionsList(colPositions, keyColumns());
 }
 

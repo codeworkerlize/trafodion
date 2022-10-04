@@ -389,7 +389,7 @@ short ex_sort_grby_tcb::work() {
         (pstate->step_ != ex_sort_grby_tcb::SORT_GRBY_DONE) &&
         (pstate->step_ != ex_sort_grby_tcb::SORT_GRBY_NEVER_STARTED) &&
         ((request == ex_queue::GET_NOMORE) ||
-         ((request == ex_queue::GET_N) && (pentry_down->downState.requestValue <= (Lng32)pstate->matchCount_)))) {
+         ((request == ex_queue::GET_N) && (pentry_down->downState.requestValue <= (int)pstate->matchCount_)))) {
       qchild_.down->cancelRequestWithParentIndex(qparent_.down->getHeadIndex());
       pstate->step_ = ex_sort_grby_tcb::SORT_GRBY_CANCELLED;
     }
@@ -814,7 +814,7 @@ short ex_sort_grby_rollup_tcb::work() {
     // parent's request. Also cancel it if the parent cancelled
     if ((step_ != SORT_GRBY_CANCELLED) && (step_ != SORT_GRBY_DONE) && (step_ != SORT_GRBY_NEVER_STARTED) &&
         ((request == ex_queue::GET_NOMORE) ||
-         ((request == ex_queue::GET_N) && (pentry_down->downState.requestValue <= (Lng32)pstate->matchCount_)))) {
+         ((request == ex_queue::GET_N) && (pentry_down->downState.requestValue <= (int)pstate->matchCount_)))) {
       qchild_.down->cancelRequestWithParentIndex(qparent_.down->getHeadIndex());
       step_ = SORT_GRBY_CANCELLED;
     }
@@ -1141,7 +1141,7 @@ short ex_sort_grby_rollup_tcb::work() {
 ///////////////////////////////////////////////////////////////////////////////
 // ex_sort_grby_tcb::allocatePstates
 ///////////////////////////////////////////////////////////////////////////////
-ex_tcb_private_state *ex_sort_grby_tcb::allocatePstates(Lng32 &numElems, Lng32 &pstateLength) {
+ex_tcb_private_state *ex_sort_grby_tcb::allocatePstates(int &numElems, int &pstateLength) {
   PstateAllocator<ex_sort_grby_private_state> pa;
 
   return pa.allocatePstates(this, numElems, pstateLength);

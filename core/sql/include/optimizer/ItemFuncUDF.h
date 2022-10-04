@@ -63,7 +63,7 @@ class UDFunction : public Function {
     allowsSQLnullArg() = TRUE;
   }
 
-  UDFunction(const ComObjectName &functionName, Lng32 argCount, CollHeap *h)
+  UDFunction(const ComObjectName &functionName, int argCount, CollHeap *h)
       : Function(ITM_USER_DEF_FUNCTION, h, argCount),
         functionName_(functionName),
         functionNamePos_(0),
@@ -99,8 +99,8 @@ class UDFunction : public Function {
   // replace any constant parameters so that we can reuse the plan
   virtual ItemExpr *normalizeForCache(CacheWA &cwa, BindWA &bindWA);
 
-  virtual ExprValueId &operator[](Lng32 ix);
-  virtual const ExprValueId &operator[](Lng32 ix) const;
+  virtual ExprValueId &operator[](int ix);
+  virtual const ExprValueId &operator[](int ix) const;
   // get the degree of this node (it depends on the type of the operator)
   virtual Int32 getArity() const;
 

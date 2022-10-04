@@ -50,7 +50,7 @@ ex_function_lower_unicode::ex_function_lower_unicode() {}
 extern NAWchar unicodeToLower(NAWchar wc);
 
 ex_expr::exp_return_type ex_function_lower_unicode::eval(char *op_data[], CollHeap *, ComDiagsArea **) {
-  Lng32 len1 = getOperand(1)->getLength(op_data[-MAX_OPERANDS + 1]);
+  int len1 = getOperand(1)->getLength(op_data[-MAX_OPERANDS + 1]);
 
   getOperand(0)->setVarLength(len1, op_data[-MAX_OPERANDS]);
 

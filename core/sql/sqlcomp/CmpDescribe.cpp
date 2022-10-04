@@ -86,16 +86,16 @@ enum Display_Schema_Object {
 };
 
 extern "C" {
-Lng32 SQLCLI_GetRootTdb_Internal(/*IN*/ CliGlobals *cliGlobals,
+int SQLCLI_GetRootTdb_Internal(/*IN*/ CliGlobals *cliGlobals,
                                  /*INOUT*/ char *roottdb_ptr,
                                  /*IN*/ Int32 roottdb_len,
                                  /*INOUT*/ char *srcstr_ptr,
                                  /*IN*/ Int32 srcstr_len,
                                  /*IN*/ SQLSTMT_ID *statement_id);
 
-Lng32 SQLCLI_GetRootTdbSize_Internal(/*IN*/ CliGlobals *cliGlobals,
-                                     /*INOUT*/ Lng32 *root_tdb_size,
-                                     /*INOUT*/ Lng32 *srcstr_size,
+int SQLCLI_GetRootTdbSize_Internal(/*IN*/ CliGlobals *cliGlobals,
+                                     /*INOUT*/ int *root_tdb_size,
+                                     /*INOUT*/ int *srcstr_size,
                                      /*IN*/ SQLSTMT_ID *statement_id);
 }
 
@@ -151,7 +151,7 @@ static short CmpDescribePartitions(Int32 partType, NAPartition *naPartition, Spa
 static short CmpDescribePartIndexDesc(BindWA *bindWA, short type, NATable *naTable, Space &space, char *buf,
                                       const CorrName &dtName, const CorrName *likeTabName);
 
-short cmpDisplayPrimaryKey(const NAColumnArray &naColArr, Lng32 numKeys, NABoolean displaySystemCols, Space &space,
+short cmpDisplayPrimaryKey(const NAColumnArray &naColArr, int numKeys, NABoolean displaySystemCols, Space &space,
                            char *buf, NABoolean displayCompact, NABoolean displayAscDesc, NABoolean displayParens);
 
 // ## This only applies to CatSim; remove it!
@@ -438,7 +438,7 @@ short CmpDescribe(const char *query, const RelExpr *queryExpr, char *&outbuf, UL
     NABoolean showUnderlyingBT = !!getenv("SQLMX_SHOW_MVS_UNDERLYING_BASE_TABLE");
 
     NABoolean logFormat = (CmpCommon::getDefault(SHOWDDL_DISPLAY_FORMAT) == DF_LOG);
-    Lng32 replIOVersion = (Lng32)CmpCommon::getDefaultNumeric(REPLICATE_IO_VERSION);
+    int replIOVersion = (int)CmpCommon::getDefaultNumeric(REPLICATE_IO_VERSION);
     // Init SHOWDDL MX-format table regression test support for schema
     // names longer than 'SCH'.
     const char *testSchema = NULL;
@@ -1180,8 +1180,8 @@ static long describeError(long retcode)
 //                     regenerated during display
 /////////////////////////////////////////////////////////////////
 static short CmpGetPlan(SQLSTMT_ID &stmt_id, ULng32 flags, Space &space, CollHeap *heap, char *&rootTdbBuf,
-                        Lng32 &rootTdbSize, char *&srcStrBuf, Lng32 &srcStrSize) {
-  Lng32 retcode = 0;
+                        int &rootTdbSize, char *&srcStrBuf, int &srcStrSize) {
+  int retcode = 0;
   ULong stmtHandle = (ULong)stmt_id.handle;
 
   // Now get the generated code to describe the plan.
@@ -1216,7 +1216,7 @@ static short CmpGetPlan(SQLSTMT_ID &stmt_id, ULng32 flags, Space &space, CollHea
 //        0x00000010   do downrev compile. Used when pcode is regenerated
 //                     during display
 /////////////////////////////////////////////////////////////////
-static Lng32 CmpFormatPlan(ULng32 flags, char *rootTdbBuf, Lng32 rootTdbSize, char *srcStrBuf, Lng32 srcStrSize,
+static int CmpFormatPlan(ULng32 flags, char *rootTdbBuf, int rootTdbSize, char *srcStrBuf, int srcStrSize,
                            NABoolean outputSrcInfo, Space &space, CollHeap *heap) {
   char buf[200];
 
@@ -1313,13 +1313,13 @@ static Lng32 CmpFormatPlan(ULng32 flags, char *rootTdbBuf, Lng32 rootTdbSize, ch
 
 static short CmpDescribePlan(const char *query, ULng32 flags, char *&outbuf, ULng32 &outbuflen, NAMemory *heap) {
   // prepare this query.
-  Lng32 retcode;
-  Lng32 resetRetcode;
+  int retcode;
+  int resetRetcode;
 
   Space space;
 
   char *genCodeBuf = NULL;
-  Lng32 genCodeSize = 0;
+  int genCodeSize = 0;
 
   ExeCliInterface cliInterface(CmpCommon::statementHeap());
 
@@ -1708,7 +1708,7 @@ static short CmpDescribeTransaction(char *&outbuf, ULng32 &outbuflen, NAMemory *
   sprintf(buf, "DIAGNOSTICS SIZE     : %d", CmpCommon::transMode()->getDiagAreaSize());
   outputLine(space, buf, 0);
 
-  Lng32 val = CmpCommon::transMode()->getAutoAbortIntervalInSeconds();
+  int val = CmpCommon::transMode()->getAutoAbortIntervalInSeconds();
   if (val == -2)  // user specified never abort setting
     val = 0;
   if (val == -3)  // user specified reset to TMFCOM setting
@@ -1753,7 +1753,7 @@ static NAString CmpDescribe_ptiToInfCS(const NAString &inputInLatin1) {
 
 // type:  1, invoke. 2, showddl. 3, create_like
 short cmpDisplayColumn(const NAColumn *nac, char *inColName, const NAType *inNAT, short displayType, Space *inSpace,
-                       char *buf, Lng32 &ii, NABoolean namesOnly, NABoolean &identityCol, NABoolean isExternalTable,
+                       char *buf, int &ii, NABoolean namesOnly, NABoolean &identityCol, NABoolean isExternalTable,
                        NABoolean isAlignedRowFormat, UInt32 columnLengthLimit,
                        NAList<const NAColumn *> *truncatedColumnList) {
   Space lSpace;
@@ -1929,13 +1929,13 @@ short cmpDisplayColumn(const NAColumn *nac, char *inColName, const NAType *inNAT
 
 // type:  1, invoke. 2, showddl. 3, create_like
 short cmpDisplayColumns(const NAColumnArray &naColArr, short displayType, Space &space, char *buf,
-                        NABoolean displaySystemCols, NABoolean namesOnly, Lng32 &identityColPos,
+                        NABoolean displaySystemCols, NABoolean namesOnly, int &identityColPos,
                         NABoolean isExternalTable, NABoolean isAlignedRowFormat, NABoolean omitLobColumns = FALSE,
                         char *inColName = NULL,
                         short ada = 0,  // 0,add. 1,drop. 2,alter
                         const NAColumn *nacol = NULL, const NAType *natype = NULL, UInt32 columnLengthLimit = UINT_MAX,
                         NAList<const NAColumn *> *truncatedColumnList = NULL) {
-  Lng32 ii = 0;
+  int ii = 0;
   identityColPos = -1;
   NABoolean identityCol = FALSE;
   for (Int32 i = 0; i < (Int32)naColArr.entries(); i++) {
@@ -1980,7 +1980,7 @@ short cmpDisplayColumns(const NAColumnArray &naColArr, short displayType, Space 
   return 0;
 }
 
-short cmpDisplayPrimaryKey(const NAColumnArray &naColArr, Lng32 numKeys, NABoolean displaySystemCols, Space &space,
+short cmpDisplayPrimaryKey(const NAColumnArray &naColArr, int numKeys, NABoolean displaySystemCols, Space &space,
                            char *buf, NABoolean displayCompact, NABoolean displayAscDesc, NABoolean displayParens) {
   if (numKeys > 0) {
     if (displayParens) {
@@ -2062,7 +2062,7 @@ short CmpGenUniqueConstrStr(AbstractRIConstraint *ariConstr, Space *space, char 
 
   NAColumnArray nacarr;
 
-  for (Lng32 j = 0; j < uniqConstr->keyColumns().entries(); j++) {
+  for (int j = 0; j < uniqConstr->keyColumns().entries(); j++) {
     nacarr.insert(uniqConstr->keyColumns()[j]);
   }
 
@@ -2120,7 +2120,7 @@ short CmpGenRefConstrStr(AbstractRIConstraint *ariConstr, Space *space, char *bu
 
   NAColumnArray nacarr;
 
-  for (Lng32 j = 0; j < refConstr->keyColumns().entries(); j++) {
+  for (int j = 0; j < refConstr->keyColumns().entries(); j++) {
     nacarr.insert(refConstr->keyColumns()[j]);
   }
 
@@ -2146,7 +2146,7 @@ short CmpGenRefConstrStr(AbstractRIConstraint *ariConstr, Space *space, char *bu
       refConstr->findConstraint(&bindWA, refConstr->getUniqueConstraintReferencedByMe());
 
   NAColumnArray nacarr2;
-  for (Lng32 j = 0; j < otherConstr->keyColumns().entries(); j++) {
+  for (int j = 0; j < otherConstr->keyColumns().entries(); j++) {
     nacarr2.insert(otherConstr->keyColumns()[j]);
   }
 
@@ -2340,8 +2340,8 @@ short CmpDescribeSeabaseTable(const CorrName &dtName, short type, char *&outbuf,
     }
   }
 
-  Int64 objectUID = (Int64)naTable->objectUid().get_value();
-  Int64 objectDataUID = (Int64)naTable->objDataUID().get_value();
+  long objectUID = (long)naTable->objectUid().get_value();
+  long objectDataUID = (long)naTable->objDataUID().get_value();
 
   if ((type == 2) && (isView)) {
     NAString viewtext(naTable->getViewText());
@@ -2461,7 +2461,7 @@ short CmpDescribeSeabaseTable(const CorrName &dtName, short type, char *&outbuf,
     outputShortLine(*space, buf);
   }
 
-  Lng32 identityColPos = -1;
+  int identityColPos = -1;
   NABoolean closeParan = FALSE;
   NAList<const NAColumn *> truncatedColumnList(heap);
   if ((NOT isExternalTable && (subType != 1 && subType != 2)) ||
@@ -2489,7 +2489,7 @@ short CmpDescribeSeabaseTable(const CorrName &dtName, short type, char *&outbuf,
 
   if (naTable->getClusteringIndex()) {
     NAFileSet *naf = naTable->getClusteringIndex();
-    for (Lng32 i = 0; i < naf->getIndexKeyColumns().entries(); i++) {
+    for (int i = 0; i < naf->getIndexKeyColumns().entries(); i++) {
       NAColumn *nac = naf->getIndexKeyColumns()[i];
       if (nac->isComputedColumnAlways()) {
         if (nac->isSaltColumn() && !withoutSalt) {
@@ -2517,7 +2517,7 @@ short CmpDescribeSeabaseTable(const CorrName &dtName, short type, char *&outbuf,
       // if we are shortening a column, set isStoreBy to TRUE since truncating
       // a character string may cause formerly distinct values to become equal
       // (that is, we want to change PRIMARY KEY to STORE BY)
-      for (Lng32 j = 0; j < truncatedColumnList.entries(); j++) {
+      for (int j = 0; j < truncatedColumnList.entries(); j++) {
         const NAColumn *truncatedColumn = truncatedColumnList[j];
         if (nac->getColName() == truncatedColumn->getColName()) {
           isStoreBy = TRUE;
@@ -2537,7 +2537,7 @@ short CmpDescribeSeabaseTable(const CorrName &dtName, short type, char *&outbuf,
     }
   }
 
-  Lng32 numBTpkeys = 0;
+  int numBTpkeys = 0;
 
   NAFileSet *naf = naTable->getClusteringIndex();
   NABoolean isAudited = (naf ? naf->isAudited() : TRUE);
@@ -2654,9 +2654,9 @@ short CmpDescribeSeabaseTable(const CorrName &dtName, short type, char *&outbuf,
     }
 
     if ((isSalted) && !withoutSalt) {
-      Lng32 currRegions = naf->getCountOfPartitions();
-      Lng32 numSaltPartitions = naf->numSaltPartns();
-      Lng32 numInitialSaltRegions = naf->numInitialSaltRegions();
+      int currRegions = naf->getCountOfPartitions();
+      int numSaltPartitions = naf->numSaltPartns();
+      int numInitialSaltRegions = naf->numInitialSaltRegions();
       NAString saltString;
 
       if (numSaltPartitions == numInitialSaltRegions)
@@ -2715,7 +2715,7 @@ short CmpDescribeSeabaseTable(const CorrName &dtName, short type, char *&outbuf,
       outputShortLine(*space, buf);
     }
     if ((NOT isSalted) && (NOT isTrafReplica) && (withPartns)) {
-      Lng32 currPartitions = naf->getCountOfPartitions();
+      int currPartitions = naf->getCountOfPartitions();
       ExeCliInterface cliInterface(CmpCommon::statementHeap());
       NAString splitText;
 
@@ -2746,7 +2746,7 @@ short CmpDescribeSeabaseTable(const CorrName &dtName, short type, char *&outbuf,
       NAFileSet *naf = naTable->getClusteringIndex();
       NABoolean firstDivCol = TRUE;
 
-      for (Lng32 i = 0; i < naf->getIndexKeyColumns().entries(); i++) {
+      for (int i = 0; i < naf->getIndexKeyColumns().entries(); i++) {
         NAColumn *nac = naf->getIndexKeyColumns()[i];
         if (nac->isDivisioningColumn()) {
           if (firstDivCol)
@@ -2897,7 +2897,7 @@ short CmpDescribeSeabaseTable(const CorrName &dtName, short type, char *&outbuf,
         outputShortLine(*space, "  HBASE_OPTIONS ");
         outputShortLine(*space, "  ( ");
 
-        for (Lng32 i = 0; i < hbaseCreateOptions->entries(); i++) {
+        for (int i = 0; i < hbaseCreateOptions->entries(); i++) {
           HbaseCreateOption *hco = (*hbaseCreateOptions)[i];
           if (withoutRegionReplication && hco->key() == "REGION_REPLICATION") {
             continue;
@@ -3031,7 +3031,7 @@ short CmpDescribeSeabaseTable(const CorrName &dtName, short type, char *&outbuf,
         }
 
         if (type == 1) {
-          Lng32 dummy;
+          int dummy;
           outputShortLine(*space, "  ( ");
           cmpDisplayColumns(naf->getAllColumns(), type, *space, buf, displaySystemCols, (type == 2), dummy,
                             isExternalTable, isAligned, withoutLobColumns);
@@ -3041,7 +3041,7 @@ short CmpDescribeSeabaseTable(const CorrName &dtName, short type, char *&outbuf,
           outputShortLine(*space, buf);
         }
 
-        Lng32 numIndexCols = ((type == 1) ? naf->getIndexKeyColumns().entries()
+        int numIndexCols = ((type == 1) ? naf->getIndexKeyColumns().entries()
                                           : naf->getCountOfColumns(TRUE,
                                                                    TRUE,  // user-specified index cols only
                                                                    FALSE, FALSE));
@@ -3067,7 +3067,7 @@ short CmpDescribeSeabaseTable(const CorrName &dtName, short type, char *&outbuf,
           outputShortLine(*space, "  HBASE_OPTIONS ");
           outputShortLine(*space, "  ( ");
 
-          for (Lng32 i = 0; i < naf->hbaseCreateOptions()->entries(); i++) {
+          for (int i = 0; i < naf->hbaseCreateOptions()->entries(); i++) {
             HbaseCreateOption *hco = (*naf->hbaseCreateOptions())[i];
             char separator = ((i < naf->hbaseCreateOptions()->entries() - 1) ? ',' : ' ');
             sprintf(buf, "    %s = '%s'%c", hco->key().data(), hco->val().data(), separator);
@@ -3085,7 +3085,7 @@ short CmpDescribeSeabaseTable(const CorrName &dtName, short type, char *&outbuf,
           NABoolean firstTime = TRUE;
           NAString colString;
           const NAColumnArray &nacArr = naf->getAllColumns();
-          for (Lng32 i = 0; i < nacArr.entries(); i++) {
+          for (int i = 0; i < nacArr.entries(); i++) {
             const NAColumn *nac = nacArr[i];
             if (NOT nac->isAddnlColumn()) continue;
 
@@ -3345,7 +3345,7 @@ short CmpDescribeSequence(const CorrName &dtName, char *&outbuf, ULng32 &outbufl
   {
     // get currval
     ExpHbaseInterface *ehi = cmpSBD.allocEHI(COM_STORAGE_HBASE);
-    Int64 seqVal = 0;
+    long seqVal = 0;
     if (ehi != 0) {
       NAString tabName(ORDER_SEQ_MD_TABLE);
       NAString famName(SEABASE_DEFAULT_COL_FAMILY);
@@ -3359,15 +3359,15 @@ short CmpDescribeSequence(const CorrName &dtName, char *&outbuf, ULng32 &outbufl
       }
 
       // validate seqVal
-      Int64 maxVal = sga->getSGMaxValue();
-      Int64 step = sga->getSGIncrement();
+      long maxVal = sga->getSGMaxValue();
+      long step = sga->getSGIncrement();
 
       if (seqVal > maxVal) {
         if (sga->getSGCycleOption()) {
-          Int64 seqValTmp = seqVal + step;
-          Int64 minVal = sga->getSGMinValue();
-          Int64 modOp = maxVal - minVal + 1;
-          Int64 valueToAdd = modOp - (maxVal + 1) % (modOp);
+          long seqValTmp = seqVal + step;
+          long minVal = sga->getSGMinValue();
+          long modOp = maxVal - minVal + 1;
+          long valueToAdd = modOp - (maxVal + 1) % (modOp);
           seqVal = (seqValTmp + valueToAdd) % modOp + minVal;
         } else {
           // should never happen
@@ -3599,7 +3599,7 @@ bool CmpDescribeLibrary(const CorrName &corrName, char *&outbuf, ULng32 &outbufl
     return false;
   }
 
-  Int64 libraryUID = tDesc->libraryDesc()->libraryUID;
+  long libraryUID = tDesc->libraryDesc()->libraryUID;
 
   if (libraryUID <= 0)  // does not exist
   {
@@ -3725,7 +3725,7 @@ short CmpDescribePackage(const CorrName &cn, char *&outbuf, ULng32 &outbuflen, C
   ToQuotedString(quotedObjName, cn.getQualifiedNameObj().getObjectName(), FALSE);
 
   CmpSeabaseDDL cmpSBD((NAHeap *)heap);
-  Int64 objUID =
+  long objUID =
       cmpSBD.getObjectUID(&cliInterface, CmpSeabaseDDL::getSystemCatalogStatic().data(), quotedSchName.data(),
                           quotedObjName.data(), COM_PACKAGE_OBJECT_LIT, NULL, NULL, NULL, false, true);
   if (objUID < 0) {
@@ -4185,7 +4185,7 @@ short CmpDescribeRoutine(const CorrName &cn, char *&outbuf, ULng32 &outbuflen, C
     displayPrivilegeGrants = FALSE;
 
   // display comment of routine
-  Int64 routineUID = routine->getRoutineID();
+  long routineUID = routine->getRoutineID();
   if (routineUID > 0) {
     if (cmpSBD.switchCompiler()) {
       *CmpCommon::diags() << DgSqlCode(-CAT_UNABLE_TO_RETRIEVE_PRIVS);
@@ -4253,7 +4253,7 @@ short CmpDescribeTrigger(const CorrName &cn, char *&outbuf, ULng32 &outbuflen, C
 
   CmpSeabaseDDL cmpSBD((NAHeap *)heap);
   QualifiedName triggerName = cn.getQualifiedNameObj();
-  Int64 triggerId =
+  long triggerId =
       cmpSBD.getObjectUID(&cliInterface, triggerName.getCatalogName().data(), triggerName.getSchemaName().data(),
                           triggerName.getObjectName().data(), COM_TRIGGER_OBJECT_LIT, NULL, NULL, NULL, false, true);
   if (triggerId < 1) {
@@ -4278,10 +4278,10 @@ short CmpDescribeTrigger(const CorrName &cn, char *&outbuf, ULng32 &outbuflen, C
 }
 
 short CmpDescribeUUID(Describe *d, char *&outbuf, ULng32 &outbuflen, CollHeap *heap) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
   Space space;
   char buf[4000];
-  Int64 uuid = atoInt64(d->getComponentName().data());
+  long uuid = atoInt64(d->getComponentName().data());
   ExeCliInterface cliInterface(STMTHEAP, 0, NULL, CmpCommon::context()->sqlSession()->getParentQid());
 
   outputShortLine(space, " ");
@@ -4306,7 +4306,7 @@ short CmpDescribeUUID(Describe *d, char *&outbuf, ULng32 &outbuflen, CollHeap *h
     OutputInfo *vi = (OutputInfo *)objectsQueue->getNext();
     NAString objType = vi->get(0);
     NAString objName = vi->get(1);
-    Int64 dataUID = *(Int64 *)vi->get(2);
+    long dataUID = *(long *)vi->get(2);
 
     tempInfo.format("OBJECT       UID: %ld", uuid);
     outputShortLine(space, tempInfo);
@@ -4416,8 +4416,8 @@ static short CmpDescribeTableHDFSCache(const CorrName &dtName, char *&outbuf, UL
 // SHOW CACHE FOR SCHEMA schema_name
 // Display centralized HDFS cache information for a table.
 static short CmpDescribeSchemaHDFSCache(const NAString &schemaText, char *&outbuf, ULng32 &outbuflen, NAMemory *heap) {
-  Lng32 cliRC = 0;
-  Lng32 retCode = 0;
+  int cliRC = 0;
+  int retCode = 0;
   char buf[4000];
 
   ComSchemaName schemaName(schemaText);
@@ -4430,7 +4430,7 @@ static short CmpDescribeSchemaHDFSCache(const NAString &schemaText, char *&outbu
   Int32 schemaOwnerID = 0;
   ComObjectType objectType;
 
-  Int64 schemaUID = CmpSeabaseDDL::getObjectTypeandOwner(&cliInterface, catName.data(), schName.data(),
+  long schemaUID = CmpSeabaseDDL::getObjectTypeandOwner(&cliInterface, catName.data(), schName.data(),
                                                          SEABASE_SCHEMA_OBJECTNAME, objectType, schemaOwnerID);
 
   // if schemaUID == -1, then either the schema does not exist or an unexpected error occurred
@@ -4658,7 +4658,7 @@ static short CmpDescribePartIndexDesc(BindWA *bindWA, short type, NATable *naTab
 
       outputLine(space, buf, 0);
 
-      Lng32 numIndexCols = naf->getCountOfColumns(TRUE,
+      int numIndexCols = naf->getCountOfColumns(TRUE,
                                                   TRUE,  // user-specified index cols only
                                                   FALSE, FALSE);
       cmpDisplayPrimaryKey(naf->getIndexKeyColumns(), numIndexCols, FALSE, space, buf, FALSE, TRUE, TRUE);

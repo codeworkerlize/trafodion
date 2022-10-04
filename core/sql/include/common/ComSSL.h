@@ -54,6 +54,6 @@ const EVP_CIPHER *aes_algorithm_type[] = {
     EVP_aes_256_ofb(),    /*    17       aes_256_ofb      */
 };
 
-void aes_create_key(const unsigned char *input, Lng32 input_len, unsigned char *key, Int32 aes_mode);
+void aes_create_key(const unsigned char *input, int input_len, unsigned char *key, Int32 aes_mode);
 
 #endif

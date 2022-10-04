@@ -46,26 +46,26 @@ class SortTopN : public SortAlgo {  // SortAlgo inherits from NABasicObject
  public:
   SortTopN(ULng32 recmax, ULng32 sortmaxmem, ULng32 recsize, NABoolean doNotallocRec, ULng32 keysize,
            SortScratchSpace *scratch, NABoolean iterQuickSort, CollHeap *heap, SortError *sorterror,
-           Lng32 explainNodeId, ExBMOStats *bmoStats, SortUtil *sortutil);
+           int explainNodeId, ExBMOStats *bmoStats, SortUtil *sortutil);
   ~SortTopN(void);
 
-  Lng32 sortSend(void *rec, ULng32 len, void *tupp);
+  int sortSend(void *rec, ULng32 len, void *tupp);
 
-  Lng32 sortClientOutOfMem(void) { return 0; }
+  int sortClientOutOfMem(void) { return 0; }
 
-  Lng32 sortSendEnd();
+  int sortSendEnd();
 
-  Lng32 sortReceive(void *rec, ULng32 &len);
-  Lng32 sortReceive(void *&rec, ULng32 &len, void *&tupp);
+  int sortReceive(void *rec, ULng32 &len);
+  int sortReceive(void *&rec, ULng32 &len, void *&tupp);
   UInt32 getOverheadPerRecord(void);
-  Lng32 generateInterRuns() { return 0; }
+  int generateInterRuns() { return 0; }
 
  private:
   void buildHeap();
   void satisfyHeap();
   void insertRec(void *rec, ULng32 len, void *tupp);
   void sortHeap();
-  void siftDown(RecKeyBuffer keysToSort[], Int64 root, Int64 bottom);
+  void siftDown(RecKeyBuffer keysToSort[], long root, long bottom);
   NABoolean swap(RecKeyBuffer *recKeyOne, RecKeyBuffer *recKeyTwo);
 
   ULng32 loopIndex_;

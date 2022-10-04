@@ -22,7 +22,7 @@
 // **********************************************************************
 
 #include "QmpPublish.h"
-#include <Int64.h>
+#include <long.h>
 #include "QRQueries.h"
 #include "QueryRewriteServer.h"
 #include "sqlcomp/DefaultConstants.h"

@@ -57,11 +57,11 @@ NAString LiteralReal("REAL");
 NAString LiteralDoublePrecision("DOUBLE PRECISION");
 
 static void unsignedLongToAscii(ULng32 number, char *asciiString, NABoolean prefixWithAMinus = FALSE) {
-  Lng32 index = 0;
+  int index = 0;
 
   do  // generate digits in the reverse order
   {
-    asciiString[index++] = (char)(number % 10 + (Lng32)'0');  // get next digit
+    asciiString[index++] = (char)(number % 10 + (int)'0');  // get next digit
   } while ((number /= 10) > 0);
 
   if (prefixWithAMinus) asciiString[index++] = '-';
@@ -80,8 +80,8 @@ static void unsignedLongToAscii(ULng32 number, char *asciiString, NABoolean pref
 
 }  // unsignedLongToAscii()
 
-static void signedLongToAscii(Lng32 number, char *asciiString) {
-  Lng32 sign = number;
+static void signedLongToAscii(int number, char *asciiString) {
+  int sign = number;
   if (sign < 0)        // record sign
     number = -number;  // make it a positive number
 
@@ -96,11 +96,11 @@ static void insertScaleIndicator(NAString *str, Int32 scale) {
   }
 }
 
-static void fixupPrecAndScale(Lng32 &precision, Lng32 &scale) {
+static void fixupPrecAndScale(int &precision, int &scale) {
   if (precision < 128) {
-    Lng32 dPrecision = 128 - precision;
-    Lng32 dScale = (scale < 38) ? (38 - scale) : 0;
-    Lng32 delta = MINOF(dScale, dPrecision);
+    int dPrecision = 128 - precision;
+    int dScale = (scale < 38) ? (38 - scale) : 0;
+    int delta = MINOF(dScale, dPrecision);
     scale += delta;
     precision += delta;
   }
@@ -110,7 +110,7 @@ static void fixupPrecAndScale(Lng32 &precision, Lng32 &scale) {
 // utility functions
 // -----------------------------------------------------------------------
 
-unsigned short getBinaryStorageSize(Lng32 precision) {
+unsigned short getBinaryStorageSize(int precision) {
   if (precision < 1 || precision > 19) {
     return 0;
   }
@@ -171,8 +171,8 @@ enum NumericType::NumericTypeEnum NumericType::tokenizeTypeName(const NAString &
 // The constructor
 // -----------------------------------------------------------------------
 
-NumericType::NumericType(NAMemory *heap, const NAString &adtName, Lng32 dataStorageSize, Lng32 precision, Lng32 scale,
-                         Lng32 alignment, NABoolean allowNegValues, NABoolean allowSQLnull, NABoolean varLenFlag)
+NumericType::NumericType(NAMemory *heap, const NAString &adtName, int dataStorageSize, int precision, int scale,
+                         int alignment, NABoolean allowNegValues, NABoolean allowSQLnull, NABoolean varLenFlag)
     : NAType(heap, adtName, NA_NUMERIC_TYPE, dataStorageSize, allowSQLnull, SQL_NULL_HDR_SIZE, varLenFlag,
              (varLenFlag ? SQL_VARCHAR_HDR_SIZE : 0), alignment) {
   assert(scale <= precision);
@@ -411,21 +411,21 @@ NAString NumericType::getTypeSQLname(NABoolean terse) const {
 //       NonStop SQL data types
 // -----------------------------------------------------------------------
 
-Lng32 NumericType::getBinaryPrecision() const {
+int NumericType::getBinaryPrecision() const {
   //
   // If the numeric type has binary precision, return the precision.
   // If the numeric type has decimal precision, compute the binary precision.
   //
   if (binaryPrecision()) return getPrecision();
   assert(decimalPrecision());
-  Lng32 decimalPrec = getPrecision();
+  int decimalPrec = getPrecision();
   if (decimalPrec > 18) return BINARY64_PRECISION;
   assert(decimalPrec > 0);
-  static const Lng32 binaryPrec[18] = {4, 7, 10, 14, 17, 20, 24, 27, 30, 34, 37, 40, 44, 47, 50, 54, 57, 60};
+  static const int binaryPrec[18] = {4, 7, 10, 14, 17, 20, 24, 27, 30, 34, 37, 40, 44, 47, 50, 54, 57, 60};
   return binaryPrec[decimalPrec - 1] + 1 /*for sign*/;
 }  // getBinaryPrecision()
 
-Lng32 NumericType::getTrueBinaryPrecision() const {
+int NumericType::getTrueBinaryPrecision() const {
   // We're assuming binaryPrecision() returns true for the anomalous cases
   // that return zero-precision described in NumericType.h
   if (binaryPrecision())
@@ -471,8 +471,8 @@ const NAType *NumericType::synthesizeType(enum NATypeSynthRuleEnum synthRule, co
   //
   // Compute the scale and precision of the result.
   //
-  Lng32 scale;
-  Lng32 precision;
+  int scale;
+  int precision;
 
   NABoolean modeSpecial1 = ((flags) && ((*flags & NAType::MODE_SPECIAL_1) != 0));
   NABoolean limitPrecision = ((flags) && ((*flags & NAType::LIMIT_MAX_NUMERIC_PRECISION) != 0));
@@ -489,7 +489,7 @@ const NAType *NumericType::synthesizeType(enum NATypeSynthRuleEnum synthRule, co
       // magnitude is 45.  A NUMERIC(5) has a precision of 5 digits so its
       // magnitude is 50.
       //
-      Lng32 magnitude = MAXOF(op1.getMagnitude(), op2.getMagnitude());
+      int magnitude = MAXOF(op1.getMagnitude(), op2.getMagnitude());
       //
       // If one of the operands is an unsigned integer (e.g. SMALLINT UNSIGNED or
       // INTEGER UNSIGNED) and the other is a signed number that has a smaller or
@@ -517,7 +517,7 @@ const NAType *NumericType::synthesizeType(enum NATypeSynthRuleEnum synthRule, co
       // If the magnitude is approximate, the result is an integer.
       //
       if (((magnitude % 10) > 0) || (makeUnionResultBinary)) {
-        Lng32 size = getBinaryStorageSize(precision);
+        int size = getBinaryStorageSize(precision);
 
         // convert tinyint to smallint.
         if (size == SQL_TINY_SIZE) size = SQL_SMALL_SIZE;
@@ -551,7 +551,7 @@ const NAType *NumericType::synthesizeType(enum NATypeSynthRuleEnum synthRule, co
     }
     case SYNTH_RULE_ADD:
     case SYNTH_RULE_SUB: {
-      Lng32 magnitude = MAXOF(op1.getMagnitude(), op2.getMagnitude());
+      int magnitude = MAXOF(op1.getMagnitude(), op2.getMagnitude());
       scale = MAXOF(op1.getScale(), op2.getScale());
       precision = (magnitude + 9) / 10 + scale + 1;
       if (limitPrecision) {
@@ -593,7 +593,7 @@ const NAType *NumericType::synthesizeType(enum NATypeSynthRuleEnum synthRule, co
       }
 
       // adjust scale, the value 9 is quite arbitrary.
-      Lng32 saveScale = scale;
+      int saveScale = scale;
       fixupPrecAndScale(precision, scale);
       if (precision > MAX_NUMERIC_PRECISION) isRealBigNum = TRUE;
 
@@ -648,7 +648,7 @@ const NAType *NumericType::synthesizeType(enum NATypeSynthRuleEnum synthRule, co
   //
   // Compute the storage size of the binary result.
   //
-  Lng32 size = getBinaryStorageSize(precision);
+  int size = getBinaryStorageSize(precision);
 
   // convert tinyint to smallint for arithmetic results.
   if (size == SQL_TINY_SIZE) size = SQL_SMALL_SIZE;
@@ -667,8 +667,8 @@ const NAType *NumericType::synthesizeType(enum NATypeSynthRuleEnum synthRule, co
 // -----------------------------------------------------------------------
 // Min and Max permissible values.
 // -----------------------------------------------------------------------
-void NumericType::minRepresentableValue(void *, Lng32 *, NAString **, CollHeap *h) const {}
-void NumericType::maxRepresentableValue(void *, Lng32 *, NAString **, CollHeap *h) const {}
+void NumericType::minRepresentableValue(void *, int *, NAString **, CollHeap *h) const {}
+void NumericType::maxRepresentableValue(void *, int *, NAString **, CollHeap *h) const {}
 
 NABoolean NumericType::createSQLLiteral(const char *buf, NAString *&stringLiteral, NABoolean &isNull,
                                         CollHeap *h) const {
@@ -754,16 +754,16 @@ double SQLTiny::encode(void *bufPtr) const {
 
 // -- Min and max permissible values
 
-void SQLTiny::minRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **stringLiteral, CollHeap *h) const {
+void SQLTiny::minRepresentableValue(void *bufPtr, int *bufLen, NAString **stringLiteral, CollHeap *h) const {
   assert(*bufLen >= sizeof(char));
-  Lng32 valueBuf;
+  int valueBuf;
   *bufLen = sizeof(char);
   if (NumericType::isUnsigned()) {
     *((char *)bufPtr) = 0;
     valueBuf = 0;
   } else {
     char temp = SCHAR_MIN;
-    for (Lng32 i = 0; i < sizeof(char); i++) {
+    for (int i = 0; i < sizeof(char); i++) {
       ((char *)bufPtr)[i] = ((char *)&temp)[i];
     }
     valueBuf = SCHAR_MIN;
@@ -778,19 +778,19 @@ void SQLTiny::minRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **stri
 
 }  // SQLTiny::minRepresentableValue()
 
-void SQLTiny::maxRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **stringLiteral, CollHeap *h) const {
+void SQLTiny::maxRepresentableValue(void *bufPtr, int *bufLen, NAString **stringLiteral, CollHeap *h) const {
   assert(*bufLen >= sizeof(char));
-  Lng32 valueBuf;
+  int valueBuf;
   *bufLen = sizeof(char);
   if (NumericType::isUnsigned()) {
     unsigned short temp = UCHAR_MAX;
-    for (Lng32 i = 0; i < sizeof(char); i++) {
+    for (int i = 0; i < sizeof(char); i++) {
       ((char *)bufPtr)[i] = ((char *)&temp)[i];
     }
     valueBuf = UCHAR_MAX;
   } else {
     short temp = SCHAR_MAX;
-    for (Lng32 i = 0; i < sizeof(char); i++) {
+    for (int i = 0; i < sizeof(char); i++) {
       ((char *)bufPtr)[i] = ((char *)&temp)[i];
     }
     valueBuf = SCHAR_MAX;
@@ -806,7 +806,7 @@ void SQLTiny::maxRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **stri
 }  // SQLTiny::maxRepresentableValue()
 
 NAString *SQLTiny::convertToString(double v, CollHeap *h) const {
-  Lng32 valueBuf = (Lng32)v;
+  int valueBuf = (int)v;
 
   char nameBuf[NAME_BUF_LEN];  // 2 ** 16 == 65536. Need space for 5 digits only
   signedLongToAscii(valueBuf, nameBuf);
@@ -838,16 +838,16 @@ double SQLSmall::encode(void *bufPtr) const {
 
 // -- Min and max permissible values
 
-void SQLSmall::minRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **stringLiteral, CollHeap *h) const {
+void SQLSmall::minRepresentableValue(void *bufPtr, int *bufLen, NAString **stringLiteral, CollHeap *h) const {
   assert(*bufLen >= sizeof(short));
-  Lng32 valueBuf;
+  int valueBuf;
   *bufLen = sizeof(short);
   if (NumericType::isUnsigned()) {
     *((short *)bufPtr) = 0;
     valueBuf = 0;
   } else {
     short temp = SHRT_MIN;
-    for (Lng32 i = 0; i < sizeof(short); i++) {
+    for (int i = 0; i < sizeof(short); i++) {
       ((char *)bufPtr)[i] = ((char *)&temp)[i];
     }
     valueBuf = SHRT_MIN;
@@ -862,19 +862,19 @@ void SQLSmall::minRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **str
 
 }  // SQLSmall::minRepresentableValue()
 
-void SQLSmall::maxRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **stringLiteral, CollHeap *h) const {
+void SQLSmall::maxRepresentableValue(void *bufPtr, int *bufLen, NAString **stringLiteral, CollHeap *h) const {
   assert(*bufLen >= sizeof(short));
-  Lng32 valueBuf;
+  int valueBuf;
   *bufLen = sizeof(short);
   if (NumericType::isUnsigned()) {
     unsigned short temp = USHRT_MAX;
-    for (Lng32 i = 0; i < sizeof(short); i++) {
+    for (int i = 0; i < sizeof(short); i++) {
       ((char *)bufPtr)[i] = ((char *)&temp)[i];
     }
     valueBuf = USHRT_MAX;
   } else {
     short temp = SHRT_MAX;
-    for (Lng32 i = 0; i < sizeof(short); i++) {
+    for (int i = 0; i < sizeof(short); i++) {
       ((char *)bufPtr)[i] = ((char *)&temp)[i];
     }
     valueBuf = SHRT_MAX;
@@ -890,7 +890,7 @@ void SQLSmall::maxRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **str
 }  // SQLSmall::maxRepresentableValue()
 
 NAString *SQLSmall::convertToString(double v, CollHeap *h) const {
-  Lng32 valueBuf = (Lng32)v;
+  int valueBuf = (int)v;
 
   char nameBuf[NAME_BUF_LEN];  // 2 ** 16 == 65536. Need space for 5 digits only
   signedLongToAscii(valueBuf, nameBuf);
@@ -945,9 +945,9 @@ double SQLBPInt::encode(void *bufPtr) const {
   }
 }
 
-void SQLBPInt::minRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **stringLiteral, CollHeap *h) const {
+void SQLBPInt::minRepresentableValue(void *bufPtr, int *bufLen, NAString **stringLiteral, CollHeap *h) const {
   assert(*bufLen >= sizeof(short));
-  Lng32 valueBuf;
+  int valueBuf;
   *bufLen = sizeof(short);
   // BPInt is unsigned, so minimum value is 0.
   *((short *)bufPtr) = 0;
@@ -961,13 +961,13 @@ void SQLBPInt::minRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **str
   }
 }
 
-void SQLBPInt::maxRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **stringLiteral, CollHeap *h) const {
+void SQLBPInt::maxRepresentableValue(void *bufPtr, int *bufLen, NAString **stringLiteral, CollHeap *h) const {
   assert(*bufLen >= sizeof(short));
-  Lng32 valueBuf;
+  int valueBuf;
   *bufLen = sizeof(short);
   static const unsigned short limits[] = {1, 3, 7, 15, 31, 63, 127, 255, 511, 1023, 2047, 4095, 8191, 16383, 32767};
   unsigned short temp = limits[declaredSize_ - 1];
-  for (Lng32 i = 0; i < sizeof(short); i++) {
+  for (int i = 0; i < sizeof(short); i++) {
     ((char *)bufPtr)[i] = ((char *)&temp)[i];
   }
   valueBuf = temp;
@@ -981,7 +981,7 @@ void SQLBPInt::maxRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **str
 }
 
 NAString *SQLBPInt::convertToString(double v, CollHeap *h) const {
-  Lng32 temp = Lng32(v);
+  int temp = int(v);
 
   char nameBuf[NAME_BUF_LEN];
 
@@ -999,7 +999,7 @@ SQLInt::SQLInt(NAMemory *heap, NABoolean allowNegValues, NABoolean allowSQLnull)
                   allowNegValues, allowSQLnull, FALSE) {}  // SQLInt()
 
 double SQLInt::encode(void *bufPtr) const {
-  Lng32 tempValue;
+  int tempValue;
   ULng32 usTempValue;
   char *valPtr = (char *)bufPtr;
   if (supportsSQLnull()) valPtr += getSQLnullHdrSize();
@@ -1013,15 +1013,15 @@ double SQLInt::encode(void *bufPtr) const {
   }
 }
 
-void SQLInt::minRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **stringLiteral, CollHeap *h) const {
-  assert(*bufLen >= sizeof(Lng32));
+void SQLInt::minRepresentableValue(void *bufPtr, int *bufLen, NAString **stringLiteral, CollHeap *h) const {
+  assert(*bufLen >= sizeof(int));
   // To generate a printable string for the minimum value
   char nameBuf[NAME_BUF_LEN];  // 2 ** 32 == 4294967296. Need space for 10 digits only
   ULng32 temp;
-  *bufLen = sizeof(Lng32);
+  *bufLen = sizeof(int);
   if (NumericType::isUnsigned()) {
     temp = 0;
-    for (Lng32 i = 0; i < sizeof(Lng32); i++) {
+    for (int i = 0; i < sizeof(int); i++) {
       ((char *)bufPtr)[i] = 0;
     }
     if (stringLiteral != NULL)  // only when need to return a string
@@ -1030,7 +1030,7 @@ void SQLInt::minRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **strin
     }
   } else {
     temp = INT_MIN;
-    for (Lng32 i = 0; i < sizeof(Lng32); i++) {
+    for (int i = 0; i < sizeof(int); i++) {
       ((char *)bufPtr)[i] = ((char *)&temp)[i];
     }
     if (stringLiteral != NULL)  // only when need to return a string
@@ -1043,14 +1043,14 @@ void SQLInt::minRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **strin
 
 }  // SQLInt::minRepresentableValue()
 
-void SQLInt::maxRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **stringLiteral, CollHeap *h) const {
-  assert(*bufLen >= sizeof(Lng32));
+void SQLInt::maxRepresentableValue(void *bufPtr, int *bufLen, NAString **stringLiteral, CollHeap *h) const {
+  assert(*bufLen >= sizeof(int));
   // To generate a printable string for the minimum value
   char nameBuf[NAME_BUF_LEN];  // 2 ** 32 == 4294967296. Need space for 10 digits only
-  *bufLen = sizeof(Lng32);
+  *bufLen = sizeof(int);
   if (NumericType::isUnsigned()) {
     ULng32 temp = UINT_MAX;
-    for (Lng32 i = 0; i < getNominalSize(); i++) {
+    for (int i = 0; i < getNominalSize(); i++) {
       ((char *)bufPtr)[i] = ((char *)&temp)[i];
     }
     if (stringLiteral != NULL)  // only when need to return a string
@@ -1058,7 +1058,7 @@ void SQLInt::maxRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **strin
       unsignedLongToAscii(temp, nameBuf);
     }
   } else {
-    Lng32 temp = INT_MAX;
+    int temp = INT_MAX;
     for (short i = 0; i < getNominalSize(); i++) {
       ((char *)bufPtr)[i] = ((char *)&temp)[i];
     }
@@ -1077,7 +1077,7 @@ NAString *SQLInt::convertToString(double v, CollHeap *h) const {
     ULng32 temp = (ULng32)v;
     unsignedLongToAscii(temp, nameBuf);
   } else {
-    Lng32 temp = (Lng32)v;
+    int temp = (int)v;
     signedLongToAscii(temp, nameBuf);
   }
   return new (h) NAString(nameBuf, h);
@@ -1092,14 +1092,14 @@ SQLLargeInt::SQLLargeInt(NAMemory *heap, NABoolean allowNegValues, NABoolean all
                   ,
                   SQL_LARGE_PRECISION, 0, 8, allowNegValues, allowSQLnull, FALSE) {}  // SQLLargeInt()
 
-SQLLargeInt::SQLLargeInt(NAMemory *heap, Lng32 scale, UInt16 disAmbiguate, NABoolean allowNegValues,
+SQLLargeInt::SQLLargeInt(NAMemory *heap, int scale, UInt16 disAmbiguate, NABoolean allowNegValues,
                          NABoolean allowSQLnull)
     : NumericType(heap, LiteralLargeInt, 8 /*SQL_L_INT_SIZE */
                   ,
                   SQL_LARGE_PRECISION, scale, 8, allowNegValues, allowSQLnull, FALSE) {}  // SQLLargeInt()
 
 double SQLLargeInt::encode(void *bufPtr) const {
-  Int64 tempValue;
+  long tempValue;
   UInt64 usTempValue;
 
   char *valPtr = (char *)bufPtr;
@@ -1114,13 +1114,13 @@ double SQLLargeInt::encode(void *bufPtr) const {
   }
 }
 
-void SQLLargeInt::minRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **stringLiteral, CollHeap *h) const {
-  assert(*bufLen >= sizeof(Int64));
-  *bufLen = sizeof(Int64);
+void SQLLargeInt::minRepresentableValue(void *bufPtr, int *bufLen, NAString **stringLiteral, CollHeap *h) const {
+  assert(*bufLen >= sizeof(long));
+  *bufLen = sizeof(long);
   char nameBuf[NAME_BUF_LEN];
   if (NumericType::isUnsigned()) {
     UInt64 temp = 0;
-    for (Lng32 i = 0; i < sizeof(UInt64); i++) {
+    for (int i = 0; i < sizeof(UInt64); i++) {
       ((char *)bufPtr)[i] = 0;
     }
     if (stringLiteral != NULL)  // only when need to return a string
@@ -1128,8 +1128,8 @@ void SQLLargeInt::minRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **
       convertUInt64ToAscii(temp, nameBuf);
     }
   } else {
-    Int64 temp = LLONG_MIN;
-    for (Lng32 i = 0; i < sizeof(Int64); i++) {
+    long temp = LLONG_MIN;
+    for (int i = 0; i < sizeof(long); i++) {
       ((char *)bufPtr)[i] = ((char *)&temp)[i];
     }
     if (stringLiteral != NULL)  // only when need to return a string
@@ -1142,13 +1142,13 @@ void SQLLargeInt::minRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **
 
 }  // SQLLargeInt::minRepresentableValue()
 
-void SQLLargeInt::maxRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **stringLiteral, CollHeap *h) const {
-  assert(*bufLen >= sizeof(Int64));
+void SQLLargeInt::maxRepresentableValue(void *bufPtr, int *bufLen, NAString **stringLiteral, CollHeap *h) const {
+  assert(*bufLen >= sizeof(long));
   char nameBuf[NAME_BUF_LEN];
-  *bufLen = sizeof(Int64);
+  *bufLen = sizeof(long);
   if (NumericType::isUnsigned()) {
     UInt64 temp = ULLONG_MAX;
-    for (Lng32 i = 0; i < getNominalSize(); i++) {
+    for (int i = 0; i < getNominalSize(); i++) {
       ((char *)bufPtr)[i] = ((char *)&temp)[i];
     }
     if (stringLiteral != NULL)  // only when need to return a string
@@ -1156,7 +1156,7 @@ void SQLLargeInt::maxRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **
       convertUInt64ToAscii(temp, nameBuf);
     }
   } else {
-    Int64 temp = LLONG_MAX;
+    long temp = LLONG_MAX;
     for (short i = 0; i < getNominalSize(); i++) {
       ((char *)bufPtr)[i] = ((char *)&temp)[i];
     }
@@ -1175,7 +1175,7 @@ NAString *SQLLargeInt::convertToString(double v, CollHeap *h) const {
     UInt64 temp = (UInt64)v;
     convertUInt64ToAscii(temp, nameBuf);
   } else {
-    Int64 temp = Int64(v);
+    long temp = long(v);
     convertInt64ToAscii(temp, nameBuf);
   }
 
@@ -1195,18 +1195,18 @@ SQLBigInt::SQLBigInt(NAMemory *heap, NABoolean allowNegValues, NABoolean allowSQ
 //  Methods for SQLNumeric
 // -----------------------------------------------------------------------
 
-SQLNumeric::SQLNumeric(NAMemory *heap, Lng32 length, Lng32 precision, Lng32 scale, NABoolean allowNegValues,
+SQLNumeric::SQLNumeric(NAMemory *heap, int length, int precision, int scale, NABoolean allowNegValues,
                        NABoolean allowSQLnull)
     : NumericType(heap, LiteralNumeric, length, precision, scale, length, allowNegValues, allowSQLnull, FALSE) {
 }  // SQLNumeric()
 
-SQLNumeric::SQLNumeric(NAMemory *heap, NABoolean allowNegValues, Lng32 precision, Lng32 scale, const Int16 DisAmbiguate,
+SQLNumeric::SQLNumeric(NAMemory *heap, NABoolean allowNegValues, int precision, int scale, const Int16 DisAmbiguate,
                        NABoolean allowSQLnull)
     : NumericType(heap, LiteralNumeric, getBinaryStorageSize(precision), precision, scale,
                   getBinaryStorageSize(precision), allowNegValues, allowSQLnull) {}  // SQLNumeric()
 
 double SQLNumeric::encode(void *bufPtr) const {
-  Lng32 longTemp;
+  int longTemp;
   ULng32 usLongTemp;
   short shrtTemp;
   unsigned short usShrtTemp;
@@ -1241,20 +1241,20 @@ double SQLNumeric::encode(void *bufPtr) const {
       return ((double)longTemp * pow(10.0, -1 * getScale()));
     }
   } else {
-    Int64 int64Temp;
+    long int64Temp;
     str_cpy_all((char *)&int64Temp, valPtr, getNominalSize());
     return (convertInt64ToDouble(int64Temp) * pow(10.0, -1 * getScale()));
   }
 }
 
-void SQLNumeric::minRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **stringLiteral, CollHeap *h) const {
+void SQLNumeric::minRepresentableValue(void *bufPtr, int *bufLen, NAString **stringLiteral, CollHeap *h) const {
   assert(*bufLen >= getNominalSize());
   // To generate a printable string for the minimum value
   char nameBuf[NAME_BUF_LEN];  // a reasonably large buffer
   *bufLen = getNominalSize();
 
   if (NumericType::isUnsigned()) {
-    for (Lng32 i = 0; i < getNominalSize(); i++) {
+    for (int i = 0; i < getNominalSize(); i++) {
       ((char *)bufPtr)[i] = 0;
     }
     // produce enough zeroes so that we can put a
@@ -1265,9 +1265,9 @@ void SQLNumeric::minRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **s
   } else {
     // signed numeric
     switch (getNominalSize()) {
-      case sizeof(Int64): {
-        Int64 temp = 0;
-        Lng32 i = 0;
+      case sizeof(long): {
+        long temp = 0;
+        int i = 0;
         for (; i < getPrecision(); i++) {
           temp = temp * 10 + 9;
         }
@@ -1278,8 +1278,8 @@ void SQLNumeric::minRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **s
       } break;
 
       case sizeof(Int32): {
-        Lng32 temp = 0;
-        Lng32 i = 0;
+        int temp = 0;
+        int i = 0;
         for (; i < getPrecision(); i++) {
           temp = temp * 10 + 9;
         }
@@ -1291,26 +1291,26 @@ void SQLNumeric::minRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **s
 
       case sizeof(Int16): {
         short temp = 0;
-        Lng32 i = 0;
+        int i = 0;
         for (; i < getPrecision(); i++) {
           temp = temp * 10 + 9;
         }
         temp = -temp;
 
         for (i = 0; i < getNominalSize(); i++) ((char *)bufPtr)[i] = ((char *)&temp)[i];
-        signedLongToAscii((Lng32)temp, nameBuf);
+        signedLongToAscii((int)temp, nameBuf);
       } break;
 
       case sizeof(Int8): {
         Int8 temp = 0;
-        Lng32 i = 0;
+        int i = 0;
         for (; i < getPrecision(); i++) {
           temp = temp * 10 + 9;
         }
         temp = -temp;
 
         for (i = 0; i < getNominalSize(); i++) ((char *)bufPtr)[i] = ((char *)&temp)[i];
-        signedLongToAscii((Lng32)temp, nameBuf);
+        signedLongToAscii((int)temp, nameBuf);
       } break;
 
     }  // switch
@@ -1322,16 +1322,16 @@ void SQLNumeric::minRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **s
   }
 }  // SQLNumeric::minRepresentableValue()
 
-void SQLNumeric::maxRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **stringLiteral, CollHeap *h) const {
+void SQLNumeric::maxRepresentableValue(void *bufPtr, int *bufLen, NAString **stringLiteral, CollHeap *h) const {
   assert(*bufLen >= getNominalSize());
   // To generate a printable string for the maximum value
   char nameBuf[NAME_BUF_LEN];  // a reasonably large buffer
   *bufLen = getNominalSize();
 
   switch (getNominalSize()) {
-    case sizeof(Int64): {
-      Int64 temp = 0;
-      Lng32 i = 0;
+    case sizeof(long): {
+      long temp = 0;
+      int i = 0;
       for (; i < getPrecision(); i++) {
         temp = temp * 10 + 9;
       }
@@ -1341,8 +1341,8 @@ void SQLNumeric::maxRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **s
     } break;
 
     case sizeof(Int32): {
-      Lng32 temp = 0;
-      Lng32 i = 0;
+      int temp = 0;
+      int i = 0;
       for (; i < getPrecision(); i++) {
         temp = temp * 10 + 9;
       }
@@ -1353,24 +1353,24 @@ void SQLNumeric::maxRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **s
 
     case sizeof(Int16): {
       short temp = 0;
-      Lng32 i = 0;
+      int i = 0;
       for (; i < getPrecision(); i++) {
         temp = temp * 10 + 9;
       }
 
       for (i = 0; i < getNominalSize(); i++) ((char *)bufPtr)[i] = ((char *)&temp)[i];
-      signedLongToAscii((Lng32)temp, nameBuf);
+      signedLongToAscii((int)temp, nameBuf);
     } break;
 
     case sizeof(Int8): {
       Int8 temp = 0;
-      Lng32 i = 0;
+      int i = 0;
       for (; i < getPrecision(); i++) {
         temp = temp * 10 + 9;
       }
 
       for (i = 0; i < getNominalSize(); i++) ((char *)bufPtr)[i] = ((char *)&temp)[i];
-      signedLongToAscii((Lng32)temp, nameBuf);
+      signedLongToAscii((int)temp, nameBuf);
     } break;
   }
 
@@ -1386,28 +1386,28 @@ NAString *SQLNumeric::convertToString(double v, CollHeap *h) const {
 
   {
     switch (getNominalSize()) {
-      case sizeof(Int64): {
-        Int64 temp = (Int64)v;
+      case sizeof(long): {
+        long temp = (long)v;
         convertInt64ToAscii(temp, nameBuf);
 
-        Int64 fraction = Int64(v - double(temp));
+        long fraction = long(v - double(temp));
         convertInt64ToAscii(temp, fractionBuf);
         fractionBuf[getScale()] = 0;
 
       } break;
 
       case sizeof(Int32): {
-        Lng32 temp = (Lng32)v;
+        int temp = (int)v;
         signedLongToAscii(temp, nameBuf);
 
-        Lng32 fraction = Lng32(v - double(temp));
+        int fraction = int(v - double(temp));
         signedLongToAscii(temp, fractionBuf);
         fractionBuf[getScale()] = 0;
       } break;
 
       case sizeof(short): {
         short temp = (short)v;
-        signedLongToAscii((Lng32)temp, nameBuf);
+        signedLongToAscii((int)temp, nameBuf);
 
         short fraction = short(v - double(temp));
         signedLongToAscii(temp, fractionBuf);
@@ -1424,14 +1424,14 @@ NAString *SQLNumeric::convertToString(double v, CollHeap *h) const {
   return result;
 }
 
-NAString *SQLNumeric::convertToString(Int64 v, CollHeap *h) const {
+NAString *SQLNumeric::convertToString(long v, CollHeap *h) const {
   char nameBuf[NAME_BUF_LEN];      // a reasonably large buffer
   char fractionBuf[NAME_BUF_LEN];  // a reasonably large buffer
 
   {
     switch (getNominalSize()) {
-      case sizeof(Int64): {
-        Int64 temp = v;
+      case sizeof(long): {
+        long temp = v;
         convertInt64ToAscii(temp, nameBuf);
 
         convertInt64ToAscii(temp, fractionBuf);
@@ -1440,7 +1440,7 @@ NAString *SQLNumeric::convertToString(Int64 v, CollHeap *h) const {
       } break;
 
       case sizeof(Int32): {
-        Lng32 temp = (Lng32)v;
+        int temp = (int)v;
         signedLongToAscii(temp, nameBuf);
 
         signedLongToAscii(temp, fractionBuf);
@@ -1449,7 +1449,7 @@ NAString *SQLNumeric::convertToString(Int64 v, CollHeap *h) const {
 
       case sizeof(short): {
         short temp = (short)v;
-        signedLongToAscii((Lng32)temp, nameBuf);
+        signedLongToAscii((int)temp, nameBuf);
 
         signedLongToAscii(temp, fractionBuf);
         fractionBuf[getScale()] = 0;
@@ -1474,14 +1474,14 @@ double SQLNumeric::getNormalizedValue(void *buf) const {
       else
         val = (double)(*(short *)buf);
     } break;
-    case sizeof(Lng32): {
+    case sizeof(int): {
       if (isUnsigned())
         val = (double)(*(ULng32 *)buf);
       else
-        val = (double)(*(Lng32 *)buf);
+        val = (double)(*(int *)buf);
     } break;
-    case sizeof(Int64): {
-      val = (double)(*(Int64 *)buf);
+    case sizeof(long): {
+      val = (double)(*(long *)buf);
     } break;
     default: {
       return -1;  // invalid value
@@ -1495,9 +1495,9 @@ double SQLNumeric::getMinValue() const {
     return double(0);
   } else {
     switch (getNominalSize()) {
-      case sizeof(Int64): {
-        Int64 temp = 0;
-        Lng32 i = 0;
+      case sizeof(long): {
+        long temp = 0;
+        int i = 0;
         for (; i < getPrecision(); i++) {
           temp = temp * 10 + 9;
         }
@@ -1507,8 +1507,8 @@ double SQLNumeric::getMinValue() const {
       } break;
 
       case sizeof(Int32): {
-        Lng32 temp = 0;
-        Lng32 i = 0;
+        int temp = 0;
+        int i = 0;
         for (; i < getPrecision(); i++) {
           temp = temp * 10 + 9;
         }
@@ -1521,7 +1521,7 @@ double SQLNumeric::getMinValue() const {
       case sizeof(short):
       case sizeof(Int8): {
         short temp = 0;
-        Lng32 i = 0;
+        int i = 0;
         for (; i < getPrecision(); i++) {
           temp = temp * 10 + 9;
         }
@@ -1539,9 +1539,9 @@ double SQLNumeric::getMinValue() const {
 
 double SQLNumeric::getMaxValue() const {
   switch (getNominalSize()) {
-    case sizeof(Int64): {
-      Int64 temp = 0;
-      Lng32 i = 0;
+    case sizeof(long): {
+      long temp = 0;
+      int i = 0;
       for (; i < getPrecision(); i++) {
         temp = temp * 10 + 9;
       }
@@ -1552,8 +1552,8 @@ double SQLNumeric::getMaxValue() const {
     } break;
 
     case sizeof(Int32): {
-      Lng32 temp = 0;
-      Lng32 i = 0;
+      int temp = 0;
+      int i = 0;
       for (; i < getPrecision(); i++) {
         temp = temp * 10 + 9;
       }
@@ -1566,7 +1566,7 @@ double SQLNumeric::getMaxValue() const {
     case sizeof(short):
     case sizeof(Int8): {
       short temp = 0;
-      Lng32 i = 0;
+      int i = 0;
       for (; i < getPrecision(); i++) {
         temp = temp * 10 + 9;
       }
@@ -1581,28 +1581,28 @@ double SQLNumeric::getMaxValue() const {
   }
 }
 
-void SQLNumeric::getMaxValue(Int64 *nValue) const {
+void SQLNumeric::getMaxValue(long *nValue) const {
   switch (getNominalSize()) {
-    case sizeof(Int64): {
-      Int64 temp = 0;
-      Lng32 i = 0;
+    case sizeof(long): {
+      long temp = 0;
+      int i = 0;
       for (; i < getPrecision(); i++) {
         temp = temp * 10 + 9;
       }
 
-      temp /= (Int64)pow(10.0, getScale());
+      temp /= (long)pow(10.0, getScale());
       *nValue = temp;
       return;
     } break;
 
     case sizeof(Int32): {
-      Lng32 temp = 0;
-      Lng32 i = 0;
+      int temp = 0;
+      int i = 0;
       for (; i < getPrecision(); i++) {
         temp = temp * 10 + 9;
       }
 
-      temp /= (Lng32)pow(10.0, getScale());
+      temp /= (int)pow(10.0, getScale());
       *nValue = temp;
       return;
     } break;
@@ -1610,12 +1610,12 @@ void SQLNumeric::getMaxValue(Int64 *nValue) const {
     case sizeof(short):
     case sizeof(Int8): {
       short temp = 0;
-      Lng32 i = 0;
+      int i = 0;
       for (; i < getPrecision(); i++) {
         temp = temp * 10 + 9;
       }
 
-      temp /= (Lng32)pow(10.0, getScale());
+      temp /= (int)pow(10.0, getScale());
       *nValue = temp;
       return;
     } break;
@@ -1629,7 +1629,7 @@ void SQLNumeric::getMaxValue(Int64 *nValue) const {
 //  Methods for SQLDecimal
 // -----------------------------------------------------------------------
 
-SQLDecimal::SQLDecimal(NAMemory *heap, Lng32 length, Lng32 scale, NABoolean allowNegValues, NABoolean allowSQLnull)
+SQLDecimal::SQLDecimal(NAMemory *heap, int length, int scale, NABoolean allowNegValues, NABoolean allowSQLnull)
     : NumericType(heap, LiteralDecimal, length, length, scale, 1, allowNegValues, allowSQLnull, FALSE) {
 }  // SQLDecimal()
 
@@ -1663,11 +1663,11 @@ double SQLDecimal::encode(void *input) const {
 
 // -- Min and max permissible values
 
-void SQLDecimal::minRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **stringLiteral, CollHeap *h) const {
+void SQLDecimal::minRepresentableValue(void *bufPtr, int *bufLen, NAString **stringLiteral, CollHeap *h) const {
   assert(*bufLen >= getNominalSize());
   *bufLen = getNominalSize();
 
-  for (Lng32 i = 0; i < *bufLen; i++) {
+  for (int i = 0; i < *bufLen; i++) {
     if (NumericType::isUnsigned())
       ((char *)bufPtr)[i] = '0';
     else
@@ -1695,11 +1695,11 @@ void SQLDecimal::minRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **s
   }
 }  // SQLDecimal::minRepresentableValue()
 
-void SQLDecimal::maxRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **stringLiteral, CollHeap *h) const {
+void SQLDecimal::maxRepresentableValue(void *bufPtr, int *bufLen, NAString **stringLiteral, CollHeap *h) const {
   assert(*bufLen >= getNominalSize());
   *bufLen = getNominalSize();
 
-  for (Lng32 i = 0; i < *bufLen; i++) {
+  for (int i = 0; i < *bufLen; i++) {
     ((char *)bufPtr)[i] = '9';
   }
 
@@ -1716,14 +1716,14 @@ NAString *SQLDecimal::convertToString(double v, CollHeap *h) const {
 
   if (getNominalSize() <= sizeof(short)) {
     short temp = (short)v;
-    signedLongToAscii((Lng32)temp, nameBuf);
+    signedLongToAscii((int)temp, nameBuf);
 
     short fraction = short(v - double(temp));
     signedLongToAscii(fraction, fractionBuf);
     fractionBuf[getScale()] = 0;
 
   } else if (getNominalSize() <= sizeof(Int32)) {
-    Lng32 temp = (Lng32)v;
+    int temp = (int)v;
     signedLongToAscii(temp, nameBuf);
 
     Int32 fraction = Int32(v - double(temp));
@@ -1731,10 +1731,10 @@ NAString *SQLDecimal::convertToString(double v, CollHeap *h) const {
     fractionBuf[getScale()] = 0;
 
   } else {
-    Int64 temp = (Int64)v;
+    long temp = (long)v;
     convertInt64ToAscii(temp, nameBuf);
 
-    Int64 fraction = Int64(v - double(temp));
+    long fraction = long(v - double(temp));
     convertInt64ToAscii(fraction, fractionBuf);
     fractionBuf[getScale()] = 0;
   }
@@ -1750,7 +1750,7 @@ double SQLDecimal::getMinValue() const {
   if (NumericType::isUnsigned()) return double(0.0);
 
   double temp = 1;
-  for (Lng32 i = 0; i < getNominalSize(); i++) {
+  for (int i = 0; i < getNominalSize(); i++) {
     temp = temp * 10 + 9;
   }
 
@@ -1761,7 +1761,7 @@ double SQLDecimal::getMinValue() const {
 
 double SQLDecimal::getMaxValue() const {
   double temp = 1;
-  for (Lng32 i = 0; i < getNominalSize(); i++) {
+  for (int i = 0; i < getNominalSize(); i++) {
     temp = temp * 10 + 9;
   }
 
@@ -1774,7 +1774,7 @@ double SQLDecimal::getMaxValue() const {
 // methods for class SQLBigNum
 // ------------------------------------------------------
 
-SQLBigNum::SQLBigNum(NAMemory *heap, Lng32 precision, Lng32 scale, NABoolean isARealBigNum, NABoolean allowNegValues,
+SQLBigNum::SQLBigNum(NAMemory *heap, int precision, int scale, NABoolean isARealBigNum, NABoolean allowNegValues,
                      NABoolean allowSQLnull)
     : NumericType(heap, LiteralBigNum, BigNumHelper::ConvPrecisionToStorageLengthHelper(precision), precision, scale,
                   2  // Big Nums should always start on 2-byte boundaries
@@ -1811,11 +1811,11 @@ const NAType *SQLBigNum::synthesizeType(enum NATypeSynthRuleEnum synthRule, cons
   //
   // Compute the scale and precision of the result.
   //
-  Lng32 scale;
-  Lng32 precision;
+  int scale;
+  int precision;
   switch (synthRule) {
     case SYNTH_RULE_UNION: {
-      Lng32 magnitude = MAXOF(op1.getMagnitude(), op2.getMagnitude());
+      int magnitude = MAXOF(op1.getMagnitude(), op2.getMagnitude());
       scale = MAXOF(op1.getScale(), op2.getScale());
       precision = (magnitude + 9) / 10 + scale;
       break;
@@ -1834,7 +1834,7 @@ const NAType *SQLBigNum::synthesizeType(enum NATypeSynthRuleEnum synthRule, cons
     }
     case SYNTH_RULE_ADD:
     case SYNTH_RULE_SUB: {
-      Lng32 magnitude = MAXOF(op1.getMagnitude(), op2.getMagnitude());
+      int magnitude = MAXOF(op1.getMagnitude(), op2.getMagnitude());
       scale = MAXOF(op1.getScale(), op2.getScale());
       precision = (magnitude + 9) / 10 + scale + 1;
       break;
@@ -1923,7 +1923,7 @@ double SQLBigNum::encode(void *input) const {
 
 // -- Min and max permissible values
 
-void SQLBigNum::minRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **stringLiteral, CollHeap *h) const {
+void SQLBigNum::minRepresentableValue(void *bufPtr, int *bufLen, NAString **stringLiteral, CollHeap *h) const {
   assert(*bufLen >= getNominalSize());
   *bufLen = getNominalSize();
 
@@ -1951,7 +1951,7 @@ void SQLBigNum::minRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **st
 
 }  // minRepresentableValue()
 
-void SQLBigNum::maxRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **stringLiteral, CollHeap *h) const {
+void SQLBigNum::maxRepresentableValue(void *bufPtr, int *bufLen, NAString **stringLiteral, CollHeap *h) const {
   assert(*bufLen >= getNominalSize());
   *bufLen = getNominalSize();
 
@@ -1985,7 +1985,7 @@ NAType *SQLBigNum::closestEquivalentExternalType(CollHeap *heap) const {
 //  Methods for LSDecimal
 // -----------------------------------------------------------------------
 
-LSDecimal::LSDecimal(NAMemory *heap, Lng32 length, Lng32 scale, NABoolean allowSQLnull)
+LSDecimal::LSDecimal(NAMemory *heap, int length, int scale, NABoolean allowSQLnull)
     : NumericType(heap, LiteralLSDecimal, length + 1  // first byte is sign, i.e., stargae size is length + 1
                   ,
                   length, scale, 1, TRUE, allowSQLnull, FALSE) {}  // LSDecimal()
@@ -2013,11 +2013,11 @@ double LSDecimal::encode(void *input) const {
 
 // -- Min and max permissible values
 
-void LSDecimal::minRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **stringLiteral, CollHeap *h) const {
+void LSDecimal::minRepresentableValue(void *bufPtr, int *bufLen, NAString **stringLiteral, CollHeap *h) const {
   assert(*bufLen >= getNominalSize());
   *bufLen = getNominalSize();
   ((char *)bufPtr)[0] = '-';
-  for (Lng32 i = 1; i < *bufLen; i++) ((char *)bufPtr)[i] = '9';
+  for (int i = 1; i < *bufLen; i++) ((char *)bufPtr)[i] = '9';
 
   // Convert to a string
   if (stringLiteral != NULL) {
@@ -2026,11 +2026,11 @@ void LSDecimal::minRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **st
   }
 }  // LSDecimal::minRepresentableValue()
 
-void LSDecimal::maxRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **stringLiteral, CollHeap *h) const {
+void LSDecimal::maxRepresentableValue(void *bufPtr, int *bufLen, NAString **stringLiteral, CollHeap *h) const {
   assert(*bufLen >= getNominalSize());
   *bufLen = getNominalSize();
   ((char *)bufPtr)[0] = ' ';
-  for (Lng32 i = 1; i < *bufLen; i++) ((char *)bufPtr)[i] = '9';
+  for (int i = 1; i < *bufLen; i++) ((char *)bufPtr)[i] = '9';
 
   // Convert to a string
   if (stringLiteral != NULL) {
@@ -2069,7 +2069,7 @@ const NAType *SQLFloat::synthesizeType(enum NATypeSynthRuleEnum synthRule, const
   //
   // Compute the precision of the result.
   //
-  Lng32 precision;
+  int precision;
   switch (synthRule) {
     case SYNTH_RULE_UNION:
       precision = MAXOF(op1.getBinaryPrecision(), op2.getBinaryPrecision());
@@ -2122,7 +2122,7 @@ double SQLFloat::encode(void *bufPtr) const {
 #define DBL_TDM_MIN 1.7272337110188889e-77
 #define DBL_TDM_MAX 1.15792089237316192e77
 
-void SQLFloat::minRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **stringLiteral, CollHeap *h) const {
+void SQLFloat::minRepresentableValue(void *bufPtr, int *bufLen, NAString **stringLiteral, CollHeap *h) const {
   assert(*bufLen >= getNominalSize());
   *bufLen = getNominalSize();
 
@@ -2157,7 +2157,7 @@ void SQLFloat::minRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **str
 
 }  // SQLFloat::minRepresentableValue()
 
-void SQLFloat::maxRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **stringLiteral, CollHeap *h) const {
+void SQLFloat::maxRepresentableValue(void *bufPtr, int *bufLen, NAString **stringLiteral, CollHeap *h) const {
   assert(*bufLen >= getNominalSize());
   *bufLen = getNominalSize();
 

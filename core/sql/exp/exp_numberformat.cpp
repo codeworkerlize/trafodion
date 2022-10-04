@@ -302,7 +302,7 @@ static char *fill_str(char *str, int c, int max) {
   return str;
 }
 
-static Lng32 int_to_roman(int number, char *result) {
+static int int_to_roman(int number, char *result) {
   int len = 0, num = 0;
   char *p = NULL, numstr[5];
 
@@ -330,7 +330,7 @@ static Lng32 int_to_roman(int number, char *result) {
   return 0;
 }
 
-static Lng32 NUMDesc_prepare(NUMDesc *num, FormatNode *n, FormatNode *pFirst) {
+static int NUMDesc_prepare(NUMDesc *num, FormatNode *n, FormatNode *pFirst) {
   if (n->type != FORMAT_STATE_PROCESSED) return -1;
 
   if (IS_EEEE(num) && ExpNumerFormat::NUM_E != n->key->id) return -1;  //("EEEE" must be the last pattern used)
@@ -477,7 +477,7 @@ static const NumFmtKeyWord *index_seq_search(const char *str, const NumFmtKeyWor
   return NULL;
 }
 
-static Lng32 parse_format(FormatNode *node, const char *str, const NumFmtKeyWord *kw, const int *index, NUMDesc *Num,
+static int parse_format(FormatNode *node, const char *str, const NumFmtKeyWord *kw, const int *index, NUMDesc *Num,
                           CollHeap *heap, ComDiagsArea **diagsArea) {
   FormatNode *n;
   int node_set = 0, suffix, last = 0;
@@ -939,8 +939,8 @@ static char *NUM_processor(FormatNode *node, NUMDesc *Num, char *inout, char *nu
   return Np->inout;
 }
 
-static Int64 lcl_atoi64(const char *s) {
-  Int64 n = 0;
+static long lcl_atoi64(const char *s) {
+  long n = 0;
   char *t = (char *)s;
   char c;
 
@@ -967,8 +967,8 @@ static void assignNumDesc(NUMDesc &Num, const NUMEntry *ent) {
   Num.zero_end = ent->Num.zero_end;
 }
 
-static Lng32 getFomatNodeCount(const FormatNode *format) {
-  Lng32 n = 0;
+static int getFomatNodeCount(const FormatNode *format) {
+  int n = 0;
   if (!format) return 0;
 
   for (int i = 1; i <= FORMAT_NODE_MAX_SIZE && format->type != FORMAT_STATE_END; ++i) {
@@ -978,10 +978,10 @@ static Lng32 getFomatNodeCount(const FormatNode *format) {
   return n;
 }
 
-Lng32 ExpNumerFormat::convertBigNumToChar(char *dataValue, char *result, Attributes *arg0, Attributes *arg1,
+int ExpNumerFormat::convertBigNumToChar(char *dataValue, char *result, Attributes *arg0, Attributes *arg1,
                                           Attributes *arg2, char *arg1Str, char *arg2Str, CollHeap *heap,
                                           ComDiagsArea **diagsArea) {
-  Lng32 arg2len = arg2->getLength();
+  int arg2len = arg2->getLength();
   char *numfmtStr = new (heap) char[arg2len + 1];
   str_cpy_all(numfmtStr, arg2Str, arg2len);
   numfmtStr[arg2len] = 0;
@@ -1029,7 +1029,7 @@ Lng32 ExpNumerFormat::convertBigNumToChar(char *dataValue, char *result, Attribu
     else
       sign = '+';
 
-    Lng32 nRealScale = 0;
+    int nRealScale = 0;
     char *pfindStr = strstr(dataValue, ".");
     if (pfindStr) nRealScale = strlen(dataValue) - (pfindStr - dataValue) - 1;
     if (nRealScale > Num.post) {
@@ -1069,7 +1069,7 @@ Lng32 ExpNumerFormat::convertBigNumToChar(char *dataValue, char *result, Attribu
       // handle '0.236' --> '.24', '1.236' -->'1.24'
       short nCpyOffset = 0;
       if (tmp[0] == '0' && Num.post > 0) nCpyOffset = 1;
-      Lng32 nCpyLen = strlen(tmp) - nCpyOffset;
+      int nCpyLen = strlen(tmp) - nCpyOffset;
       str_cpy_all(numstr, tmp + nCpyOffset, nCpyLen);
       // Complement '0'
       // e.g. to_char(23.99,'99.9')  expand 24 to 24.0
@@ -1091,12 +1091,12 @@ Lng32 ExpNumerFormat::convertBigNumToChar(char *dataValue, char *result, Attribu
       if (leftSign) BIGN_SET_SIGN(arg1Str, nBigNumLength);
     } else {
       // handle '-.2' --> '0.2'  '-0.2'  --> '0.2'
-      Lng32 nCpyOffset = 0;
+      int nCpyOffset = 0;
       if (*dataValue == '-') {
         nCpyOffset = 1;
         if (dataValue[1] == '.') numstr[0] = '0';
       }
-      Lng32 nCpyLen = strlen(dataValue) - nCpyOffset;
+      int nCpyLen = strlen(dataValue) - nCpyOffset;
       str_cpy_all(numstr, dataValue + nCpyOffset, nCpyLen);
 
       // Complement '0'
@@ -1115,7 +1115,7 @@ Lng32 ExpNumerFormat::convertBigNumToChar(char *dataValue, char *result, Attribu
     if (numstr_pre_len < Num.pre) out_pre_spaces = Num.pre - numstr_pre_len;
     /* overflowed prefix digit format? */
     else if (numstr_pre_len > Num.pre) {
-      Lng32 nFormatCnt = getFomatNodeCount(format) + 1;
+      int nFormatCnt = getFomatNodeCount(format) + 1;
       nFormatCnt = min(arg0->getLength(), nFormatCnt);
       fill_str(result, '#', nFormatCnt);
       NADELETEBASIC(numstr, (heap));
@@ -1124,7 +1124,7 @@ Lng32 ExpNumerFormat::convertBigNumToChar(char *dataValue, char *result, Attribu
     }
     if (IS_BLANK(&Num) && strlen(numstr) == 1 &&
         *numstr == '0') {  // e.g. TO_CHAR(0.123,'B999') ---> '    '(four spaces)
-      Lng32 nBlank = getFomatNodeCount(format);
+      int nBlank = getFomatNodeCount(format);
       nBlank = min(arg0->getLength(), nBlank);
       fill_str(result, ' ', nBlank);
       NADELETEBASIC(numstr, (heap));
@@ -1139,10 +1139,10 @@ Lng32 ExpNumerFormat::convertBigNumToChar(char *dataValue, char *result, Attribu
   return 0;
 }
 
-Lng32 ExpNumerFormat::convertFloatToChar(char *dataValue, char *result, Attributes *arg0, Attributes *arg1,
+int ExpNumerFormat::convertFloatToChar(char *dataValue, char *result, Attributes *arg0, Attributes *arg1,
                                          Attributes *arg2, char *arg1Str, char *arg2Str, CollHeap *heap,
                                          ComDiagsArea **diagsArea) {
-  Lng32 arg2len = arg2->getLength();
+  int arg2len = arg2->getLength();
   char *numfmtStr = new (heap) char[arg2len + 1];
   str_cpy_all(numfmtStr, arg2Str, arg2len);
   numfmtStr[arg2len] = 0;
@@ -1167,10 +1167,10 @@ Lng32 ExpNumerFormat::convertFloatToChar(char *dataValue, char *result, Attribut
   char *p = NULL;
 
   if (IS_ROMAN(&Num)) {
-    Lng32 tmpSource;
-    Lng32 dataConversionErrorFlag = 0;
+    int tmpSource;
+    int dataConversionErrorFlag = 0;
     if (::convDoIt(arg1Str, arg1->getLength(), arg1->getDatatype(), arg1->getPrecision(), arg1->getScale(),
-                   (char *)&tmpSource, sizeof(Lng32), REC_BIN32_SIGNED, 0, 0, 0, 0, heap, diagsArea,
+                   (char *)&tmpSource, sizeof(int), REC_BIN32_SIGNED, 0, 0, 0, 0, heap, diagsArea,
                    ConvInstruction::CONV_UNKNOWN, &dataConversionErrorFlag) != ex_expr::EXPR_OK) {
       ExRaiseSqlError(heap, diagsArea, EXE_BAD_ARG_TO_MATH_FUNC);
       **diagsArea << DgString0("TO_CHAR");
@@ -1183,7 +1183,7 @@ Lng32 ExpNumerFormat::convertFloatToChar(char *dataValue, char *result, Attribut
     } else {
       float ftmp = float(tmpSource) / float(pow(10, arg1->getScale()));
       ftmp = round(ftmp);
-      tmpSource = Lng32(ftmp);
+      tmpSource = int(ftmp);
       if (tmpSource > 3999) {
         fill_str(numstr, '#', 15);
       } else {
@@ -1209,7 +1209,7 @@ Lng32 ExpNumerFormat::convertFloatToChar(char *dataValue, char *result, Attribut
       sign = '-';
     else
       sign = '+';
-    Lng32 nRealScale = 0;
+    int nRealScale = 0;
     char *pfindStr = strstr(dataValue, ".");
     if (pfindStr) nRealScale = strlen(dataValue) - (pfindStr - dataValue) - 1;
     if (nRealScale > Num.post) {
@@ -1221,12 +1221,12 @@ Lng32 ExpNumerFormat::convertFloatToChar(char *dataValue, char *result, Attribut
       str_cpy_all(numstr, tmp + nCpyOffset, strlen(tmp) - nCpyOffset);
     } else {
       // handle '-.2' --> '0.2'  '-0.2'  --> '0.2'
-      Lng32 nCpyOffset = 0;
+      int nCpyOffset = 0;
       if (*dataValue == '-') {
         nCpyOffset = 1;
         if (dataValue[1] == '.') numstr[0] = '0';
       }
-      Lng32 nCpyLen = strlen(dataValue) - nCpyOffset;
+      int nCpyLen = strlen(dataValue) - nCpyOffset;
       str_cpy_all(numstr, dataValue + nCpyOffset, nCpyLen);
 
       // Complement '0'
@@ -1245,7 +1245,7 @@ Lng32 ExpNumerFormat::convertFloatToChar(char *dataValue, char *result, Attribut
     if (numstr_pre_len < Num.pre) out_pre_spaces = Num.pre - numstr_pre_len;
     /* overflowed prefix digit format? */
     else if (numstr_pre_len > Num.pre) {
-      Lng32 nFormatCnt = getFomatNodeCount(format) + 1;
+      int nFormatCnt = getFomatNodeCount(format) + 1;
       nFormatCnt = min(arg0->getLength(), nFormatCnt);
       fill_str(result, '#', nFormatCnt);
       NADELETEBASIC(numstr, (heap));
@@ -1254,7 +1254,7 @@ Lng32 ExpNumerFormat::convertFloatToChar(char *dataValue, char *result, Attribut
     }
     if (IS_BLANK(&Num) && strlen(numstr) == 1 &&
         *numstr == '0') {  // e.g. TO_CHAR(0.123,'B999') ---> '    '(four spaces)
-      Lng32 nBlank = getFomatNodeCount(format);
+      int nBlank = getFomatNodeCount(format);
       nBlank = min(arg0->getLength(), nBlank);
       fill_str(result, ' ', nBlank);
       NADELETEBASIC(numstr, (heap));
@@ -1269,10 +1269,10 @@ Lng32 ExpNumerFormat::convertFloatToChar(char *dataValue, char *result, Attribut
   return 0;
 }
 
-Lng32 ExpNumerFormat::convertInt32ToChar(char *dataValue, char *result, Attributes *arg0, Attributes *arg1,
+int ExpNumerFormat::convertInt32ToChar(char *dataValue, char *result, Attributes *arg0, Attributes *arg1,
                                          Attributes *arg2, char *arg1Str, char *arg2Str, CollHeap *heap,
                                          ComDiagsArea **diagsArea) {
-  Lng32 arg2len = arg2->getLength();
+  int arg2len = arg2->getLength();
   char *numfmtStr = new (heap) char[arg2len + 1];
   str_cpy_all(numfmtStr, arg2Str, arg2len);
   numfmtStr[arg2len] = 0;
@@ -1307,7 +1307,7 @@ Lng32 ExpNumerFormat::convertInt32ToChar(char *dataValue, char *result, Attribut
   } else {
     if (IS_MULTI(&Num)) {
       double multi = pow((double)10, (double)Num.multi);
-      Int64 tmp = (Int64)multi;
+      long tmp = (long)multi;
       if ((double)tmp != multi) {
         ExRaiseSqlError(heap, diagsArea, EXE_BAD_ARG_TO_MATH_FUNC);
         **diagsArea << DgString0("TO_CHAR");  // out of range
@@ -1316,8 +1316,8 @@ Lng32 ExpNumerFormat::convertInt32ToChar(char *dataValue, char *result, Attribut
         return -1;
       }
 
-      Int64 value = nValue * tmp;
-      if (nValue != (Int64)((Int32)nValue) || tmp != (Int64)((Int32)tmp)) {
+      long value = nValue * tmp;
+      if (nValue != (long)((Int32)nValue) || tmp != (long)((Int32)tmp)) {
         if (tmp != 0 && ((tmp == -1 && nValue < 0 && value < 0) || value / tmp != nValue)) {
           ExRaiseSqlError(heap, diagsArea, EXE_BAD_ARG_TO_MATH_FUNC);
           **diagsArea << DgString0("TO_CHAR");
@@ -1351,7 +1351,7 @@ Lng32 ExpNumerFormat::convertInt32ToChar(char *dataValue, char *result, Attribut
     if (numstr_pre_len < Num.pre) out_pre_spaces = Num.pre - numstr_pre_len;
     /* overflowed prefix digit format? */
     else if (numstr_pre_len > Num.pre) {
-      Lng32 nFormatCnt = getFomatNodeCount(format) + 1;
+      int nFormatCnt = getFomatNodeCount(format) + 1;
       nFormatCnt = min(arg0->getLength(), nFormatCnt);
       fill_str(result, '#', nFormatCnt);
       NADELETEBASIC(numstr, (heap));
@@ -1359,7 +1359,7 @@ Lng32 ExpNumerFormat::convertInt32ToChar(char *dataValue, char *result, Attribut
       return 0;
     }
     if (IS_BLANK(&Num) && strlen(numstr) == 1 && *numstr == '0') {  // e.g. TO_CHAR(0,'B999') ---> '    '(four spaces)
-      Lng32 nBlank = getFomatNodeCount(format);
+      int nBlank = getFomatNodeCount(format);
       nBlank = min(arg0->getLength(), nBlank);
       fill_str(result, ' ', nBlank);
       NADELETEBASIC(numstr, (heap));
@@ -1374,10 +1374,10 @@ Lng32 ExpNumerFormat::convertInt32ToChar(char *dataValue, char *result, Attribut
   return 0;
 }
 
-Lng32 ExpNumerFormat::convertInt64ToChar(char *dataValue, char *result, Attributes *arg0, Attributes *arg1,
+int ExpNumerFormat::convertInt64ToChar(char *dataValue, char *result, Attributes *arg0, Attributes *arg1,
                                          Attributes *arg2, char *arg1Str, char *arg2Str, CollHeap *heap,
                                          ComDiagsArea **diagsArea) {
-  Lng32 arg2len = arg2->getLength();
+  int arg2len = arg2->getLength();
   char *numfmtStr = new (heap) char[arg2len + 1];
   str_cpy_all(numfmtStr, arg2Str, arg2len);
   numfmtStr[arg2len] = 0;
@@ -1397,7 +1397,7 @@ Lng32 ExpNumerFormat::convertInt64ToChar(char *dataValue, char *result, Attribut
   int out_pre_spaces = 0;
   char *numstr = new (heap) char[MAXDOUBLEWIDTH];
   memset(numstr, 0, MAXDOUBLEWIDTH);
-  Int64 nValue = lcl_atoi64(dataValue);
+  long nValue = lcl_atoi64(dataValue);
   if (IS_ROMAN(&Num)) {
     int_to_roman((Int32)nValue, numstr);
   } else if (IS_EEEE(&Num)) {
@@ -1411,7 +1411,7 @@ Lng32 ExpNumerFormat::convertInt64ToChar(char *dataValue, char *result, Attribut
   } else {
     if (IS_MULTI(&Num)) {
       double multi = pow((double)10, (double)Num.multi);
-      Int64 tmp = (Int64)multi;
+      long tmp = (long)multi;
       if ((double)tmp != multi) {
         ExRaiseSqlError(heap, diagsArea, EXE_BAD_ARG_TO_MATH_FUNC);
         **diagsArea << DgString0("TO_CHAR");  // out of range
@@ -1420,8 +1420,8 @@ Lng32 ExpNumerFormat::convertInt64ToChar(char *dataValue, char *result, Attribut
         return -1;
       }
 
-      Int64 value = nValue * tmp;
-      if (nValue != (Int64)((Int32)nValue) || tmp != (Int64)((Int32)tmp)) {
+      long value = nValue * tmp;
+      if (nValue != (long)((Int32)nValue) || tmp != (long)((Int32)tmp)) {
         if (tmp != 0 && ((tmp == -1 && nValue < 0 && value < 0) || value / tmp != nValue)) {
           ExRaiseSqlError(heap, diagsArea, EXE_BAD_ARG_TO_MATH_FUNC);
           **diagsArea << DgString0("TO_CHAR");
@@ -1451,7 +1451,7 @@ Lng32 ExpNumerFormat::convertInt64ToChar(char *dataValue, char *result, Attribut
     if (numstr_pre_len < Num.pre) out_pre_spaces = Num.pre - numstr_pre_len;
     /* overflowed prefix digit format? */
     else if (numstr_pre_len > Num.pre) {
-      Lng32 nFormatCnt = getFomatNodeCount(format) + 1;
+      int nFormatCnt = getFomatNodeCount(format) + 1;
       nFormatCnt = min(arg0->getLength(), nFormatCnt);
       fill_str(result, '#', nFormatCnt);
       NADELETEBASIC(numstr, (heap));

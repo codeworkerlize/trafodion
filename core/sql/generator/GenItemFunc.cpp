@@ -202,7 +202,7 @@ short BuiltinFunction::codeGen(Generator *generator) {
     case ITM_SHA2_224:
     case ITM_SHA2_384:
     case ITM_SHA2_512: {
-      Lng32 mode = 0;
+      int mode = 0;
       switch (getOperatorType()) {
         case ITM_SHA2_256:
           mode = 256;
@@ -406,7 +406,7 @@ short BuiltinFunction::codeGen(Generator *generator) {
         if (CollationInfo::isSystemCollation(coll1)) {
           ((ExFunctionReplace *)function_clause)->setCollation(coll1);
 
-          Lng32 len = 0;
+          int len = 0;
           ItemExpr *tmpEncode;
           const NAType *typ;
           const CharType *ctyp;
@@ -602,7 +602,7 @@ short ConvertTimestamp::codeGen(Generator *generator) {
   if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1) return 0;
 
   ex_function_converttimestamp *function_clause = new (generator->getSpace()) ex_function_converttimestamp(
-      getOperatorType(), attr, space, (Int64)CmpCommon::context()->gmtDiff() * 60 * 1000000);
+      getOperatorType(), attr, space, (long)CmpCommon::context()->gmtDiff() * 60 * 1000000);
 
   function_clause->setToLocalTime(toLocalTime_);
 
@@ -1659,7 +1659,7 @@ short Trim::codeGen(Generator *generator) {
       ((ex_function_trim_char *)function_clause)->setCollation(getCollation());
 
       if (CollationInfo::isSystemCollation(getCollation())) {
-        Lng32 len = 0;
+        int len = 0;
         const CharType *ctyp;
 
         const NAType &typ1 = child(1)->getValueId().getType();
@@ -1712,7 +1712,7 @@ short DateFormat::codeGen(Generator *generator) {
   switch (getDateFormat()) {
     case NUMBER_FORMAT_STR: {
       const NAType *naType = &child(0)->getValueId().getType();
-      Lng32 nOperaLen = naType->getDisplayLength();
+      int nOperaLen = naType->getDisplayLength();
       function_clause = new (generator->getSpace())
           ex_function_numberformat(ITM_NUMBERFORMAT, attr, generator->getSpace(), nOperaLen);
     } break;
@@ -1745,8 +1745,8 @@ short Extract::codeGen(Generator *generator) {
 short RangeLookup::codeGen(Generator *generator) {
   Attributes **attr2;
   Attributes **attr3;
-  Lng32 arity = getArity();
-  Lng32 keysLen = splitKeysLen();
+  int arity = getArity();
+  int keysLen = splitKeysLen();
   Attributes *splitKeyAttr;
   char *constKeyArray;
   ConstValue *constValSplitKeys;
@@ -2093,7 +2093,7 @@ short HbaseColumnsDisplay::codeGen(Generator *generator) {
   char *colNames = NULL;
   NAString allCols;
   if ((csl()) && (csl()->entries() > 0)) {
-    for (Lng32 i = 0; i < csl()->entries(); i++) {
+    for (int i = 0; i < csl()->entries(); i++) {
       NAString *nas = (NAString *)(*csl())[i];
 
       short colNameLen = nas->length();
@@ -2124,13 +2124,13 @@ short HbaseColumnCreate::codeGen(Generator *generator) {
 
   short numEntries = hccol_->entries();
 
-  Lng32 colValuesLen = 0;
+  int colValuesLen = 0;
   NAString colNames;
   NAString colValues;
 
   ValueIdList colCreateVIDlist;
 
-  for (Lng32 i = 0; i < numEntries; i++) {
+  for (int i = 0; i < numEntries; i++) {
     HbaseColumnCreateOptions *hcco = (*hccol_)[i];
 
     hcco->colName()->preCodeGen(generator);
@@ -2159,7 +2159,7 @@ short HbaseColumnCreate::codeGen(Generator *generator) {
       attr[0]->getOffset() +
           (sizeof(numEntries) + sizeof(colNameMaxLen_) + sizeof(colValVCIndLen) + sizeof(colValMaxLen_)));
 
-  for (Lng32 i = 0; i < numEntries; i++) {
+  for (int i = 0; i < numEntries; i++) {
     HbaseColumnCreateOptions *hcco = (*hccol_)[i];
 
     hcco->colName()->codeGen(generator);
@@ -2183,8 +2183,8 @@ short SequenceValue::codeGen(Generator *generator) {
   Space *space = generator->getSpace();
 
   if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1) return 0;
-  Int64 origCacheSize = naTable_->getSGAttributes()->getSGCache();
-  Lng32 cacheSize = CmpCommon::getDefaultNumeric(TRAF_SEQUENCE_CACHE_SIZE);
+  long origCacheSize = naTable_->getSGAttributes()->getSGCache();
+  int cacheSize = CmpCommon::getDefaultNumeric(TRAF_SEQUENCE_CACHE_SIZE);
   if (cacheSize > 0) {
     ((SequenceGeneratorAttributes *)naTable_->getSGAttributes())->setSGCache(cacheSize);
   }

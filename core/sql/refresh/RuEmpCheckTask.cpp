@@ -45,7 +45,7 @@
 //	Constructor and destructor of CRUEmpCheckTask
 //---------------------------------------------------------------//
 
-CRUEmpCheckTask::CRUEmpCheckTask(Lng32 id, CRUTbl &table) : inherited(id, table) {}
+CRUEmpCheckTask::CRUEmpCheckTask(int id, CRUTbl &table) : inherited(id, table) {}
 
 CRUEmpCheckTask::~CRUEmpCheckTask() {}
 

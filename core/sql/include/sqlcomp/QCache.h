@@ -716,7 +716,7 @@ class HQCParseKey : public HQCCacheKey {
   LIST(HQCDParamPair) HQCDynParamMap_;
 
   NABoolean isCacheable_;
-  Lng32 nOfTokens_;
+  int nOfTokens_;
   NABoolean isStringNormalized_;
   Int32 paramStart_;
   // disable standard copy constructor
@@ -863,7 +863,7 @@ class HybridQCache : public NABasicObject {
   //  simpleFormat: whether the reporting will be in simple format.
   void test(istream &in, ostream &out, NABoolean simpleFormat = FALSE);
 
-  Lng32 getHQCHeapSize();
+  int getHQCHeapSize();
 
  protected:
   // All possible operations of the test against hybrid cache's hash
@@ -938,7 +938,7 @@ struct HybridQueryCacheStats {
 };
 
 struct HybridQueryCacheDetails {
-  Int64 planId;
+  long planId;
   NAString hkeyTxt;
   NAString skeyTxt;
   ULng32 nHits;
@@ -1011,13 +1011,13 @@ class CacheKey : public Key {
   // update referenced tables' histograms' timestamps
   void updateStatsTimes(LIST(NATable *) & tables);
 
-  void setPlanId(Int64 id) { planId_ = id; }
+  void setPlanId(long id) { planId_ = id; }
 
-  Int64 getPlanId() const { return planId_; }
+  long getPlanId() const { return planId_; }
 
-  void setHDFSOffset(Int64 i) { hdfs_offset_ = i; }
+  void setHDFSOffset(long i) { hdfs_offset_ = i; }
 
-  Int64 getHDFSOffset() const { return hdfs_offset_; }
+  long getHDFSOffset() const { return hdfs_offset_; }
 
   void display(ostream &out, NABoolean simpleFormat = FALSE) const;
 
@@ -1064,7 +1064,7 @@ class CacheKey : public Key {
 
   // list of referenced tables' histograms' timestamp
   // used for "passive invalidation" of oached plans
-  LIST(Int64) updateStatsTime_;
+  LIST(long) updateStatsTime_;
 
   NABoolean useView_;
   NABoolean usePartitionTable_;
@@ -1073,16 +1073,16 @@ class CacheKey : public Key {
   // revocation of privilege on referenced view(s).
   // keep planId in SQC Cache key
   // planID can serve as connection between HQC entries virtual table and SQC entries virtual table.
-  Int64 planId_;
+  long planId_;
 
-  Int64 hdfs_offset_;
+  long hdfs_offset_;
 };
 
 // TextKey is the key used for searching the "pre parser" stage of the cache.
 class TextKey : public Key {
  public:
   // Constructor
-  TextKey(const char *sText, CompilerEnv *e, NAHeap *h, Lng32 cSet);
+  TextKey(const char *sText, CompilerEnv *e, NAHeap *h, int cSet);
 
   // copy constructor
   TextKey(TextKey &s, NAHeap *h);
@@ -1113,15 +1113,15 @@ class TextKey : public Key {
  private:
   // key has one component
   NAString sText_;  // sql statement text for pre-parser cache lookups
-  Lng32 charset_;   // character set of sql statement text
+  int charset_;   // character set of sql statement text
 };
 
 class Plan {
  public:
-  Plan(char *plan, ULng32 planLen, Int64 planId, NAHeap *h)
+  Plan(char *plan, ULng32 planLen, long planId, NAHeap *h)
       : plan_(plan), planL_(planLen), planId_(planId), heap_(h), refCount_(0), visits_(0){};
 
-  Plan(Generator *gen, Int64 planId, NAHeap *h)
+  Plan(Generator *gen, long planId, NAHeap *h)
       : plan_((char *)gen), planL_(0), planId_(planId), heap_(h), refCount_(0), visits_(0){};
 
   Plan(Plan &p, NAHeap *h);
@@ -1143,7 +1143,7 @@ class Plan {
   virtual void incRefCount() { refCount_++; };
   virtual void decRefCount() { refCount_--; };
 
-  virtual Int64 getId() const { return planId_; }
+  virtual long getId() const { return planId_; }
   virtual char *getPlan() const { return plan_; }
   virtual ULng32 getPlanLen() const { return (planL_ == 0) ? ((Generator *)plan_)->getFinalObjLength() : planL_; }
 
@@ -1159,7 +1159,7 @@ class Plan {
  private:
   char *plan_;    // compiled query plan in packed form
   ULng32 planL_;  // byte length of plan_
-  Int64 planId_;  // from Generator
+  long planId_;  // from Generator
   NAHeap *heap_;  // heap used by dynamic allocs
 
   Int32 refCount_;  // reference count
@@ -1200,7 +1200,7 @@ class CData : public NABasicObject {
   void setCompTime(TimeVal &begTime);
 
   // return elapsed msec since begTime
-  static Int64 timeSince(TimeVal &begTime);
+  static long timeSince(TimeVal &begTime);
 
   // return byte size of this CacheData
   virtual ULng32 getSize() const { return 0; }
@@ -1214,8 +1214,8 @@ class CData : public NABasicObject {
  private:
   // usage
   ULng32 hits_;       // number of hits for this entry
-  Int64 compTime_;    // msec to compile this entry
-  Int64 cumHitTime_;  // cum. time of hits for this entry
+  long compTime_;    // msec to compile this entry
+  long cumHitTime_;  // cum. time of hits for this entry
 };
 
 class CacheData : public CData {
@@ -1227,15 +1227,15 @@ class CacheData : public CData {
             LIST(Int32) hqcListOfConstParamPos,  // (IN) : list of positions of formal params
             LIST(Int32) hqcListOfSelParamPos,    // (IN) : list of positions of sel params
             LIST(Int32) hqcListOfAllConstPos,    // (IN) : list of positions of all params
-            Int64 planId,                        // (IN) : id from generator
+            long planId,                        // (IN) : id from generator
             const char *text,                    // (IN) : original sql statement text
-            Lng32 cs,                            // (IN) : character set of sql statement text
-            Int64 queryHash,                     // (IN) : query signature
+            int cs,                            // (IN) : character set of sql statement text
+            long queryHash,                     // (IN) : query signature
             NAHeap *h);                          // (IN) : heap to use for formals_
 
   CacheData(Plan *plan, const ParameterTypeList &f, const SelParamTypeList &s, LIST(Int32) hqcParamPos,
-            LIST(Int32) hqcSelPos, LIST(Int32) hqcConstPos, const char *text, const char *normalized_text, Lng32 cs,
-            Int64 queryHash, NAHeap *h)
+            LIST(Int32) hqcSelPos, LIST(Int32) hqcConstPos, const char *text, const char *normalized_text, int cs,
+            long queryHash, NAHeap *h)
       : CData(h),
         formals_(f, h),
         fSels_(s, h),
@@ -1309,7 +1309,7 @@ class CacheData : public CData {
   // return array of backpointers to preparser entries
   TextPtrArray &PreParserEntries() { return textentries_; }
 
-  Int64 queryHash() { return queryHash_; }
+  long queryHash() { return queryHash_; }
 
  private:
   // data
@@ -1322,14 +1322,14 @@ class CacheData : public CData {
   LIST(Int32) hqcListOfConstPos_;       // list of positions of all params
   const char *origStmt_;                // original sql text
   const char *normalizedStmt_;          // normalized sql text
-  Lng32 charset_;                       // character set of original sql text
+  int charset_;                       // character set of original sql text
   TextPtrArray textentries_;
   // back pointers to preparser instances of this postparser cache entry
 
   // helper method to unpack parameter buffer part of plan_
   NABoolean unpackParms(NABasicPtr &params, ULng32 &parmSz);
 
-  Int64 queryHash_;
+  long queryHash_;
 };
 
 struct KeyDataPair {
@@ -1633,7 +1633,7 @@ class QCache : public NABasicObject {
   //           outdated cached entries that match a query are decached.
 
   // decache all entries that match a sql query's hash signature
-  void deCacheAll(Int64 queryHash);
+  void deCacheAll(long queryHash);
 
   // decache a preparser cache entry
   void deCachePreParserEntry(TextKey *stmt);  // (IN) : key of a preparser cache entry
@@ -1742,13 +1742,13 @@ class QCache : public NABasicObject {
   // free Query Cache entries with specified QI Security Key
   void free_entries_with_QI_keys(Int32 NumSiKeys, SQL_QIKEY *pSiKeyArray);
 
-  Lng32 getNumBuckets() { return cache_->getNumBuckets(); }
+  int getNumBuckets() { return cache_->getNumBuckets(); }
 
   void setExportPath(NAString path) { exportPath_ = path; }
   void setExportPrefix(NAString path) { exportPrefix_ = path; }
 
  private:
-  int writeUserQueryCacheToHBase(ComDiagsArea *diagsArea, CacheKey *cKey, CacheData *cData, Int64 offset);
+  int writeUserQueryCacheToHBase(ComDiagsArea *diagsArea, CacheKey *cKey, CacheData *cData, long offset);
 
   // decache a postparser cache entry
   void deCachePostParserEntry(CacheEntry *entry);  // (IN) : a postparser cache entry
@@ -1876,7 +1876,7 @@ struct QueryCacheStats {
 // QueryCacheEntries fields needed by Javier's Virtual Tables for
 // Query Plan Caching Statistics
 struct QueryCacheDetails {
-  Int64 planId;                                // plan id from generator
+  long planId;                                // plan id from generator
   const char *qryTxt;                          // original sql statement text
   ULng32 entrySize;                            // size in bytes of this cache entry, excluding plan size
   ULng32 planLength;                           // size in bytes of the plan
@@ -1898,8 +1898,8 @@ struct QueryCacheDetails {
   Int16 flags;                                 // tx flags
   TransMode::RollbackMode rbackMode;           // tx rollback mode
   NABoolean ignoreCqdOrCqs;
-  Int64 hash;  // hash
-  Int64 hdfs_offset;
+  long hash;  // hash
+  long hdfs_offset;
 };
 
 // QueryCache encapsulates a singleton cache of compiled query plans.
@@ -1975,7 +1975,7 @@ class QueryCache {
   }
 
   // decache all entries that match a query signature
-  void deCacheAll(Int64 queryHash) {
+  void deCacheAll(long queryHash) {
     if (cache_) cache_->deCacheAll(queryHash);
   }
 

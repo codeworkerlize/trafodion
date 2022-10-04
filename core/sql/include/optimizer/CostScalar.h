@@ -366,10 +366,10 @@ class CostScalar {
   // These counters are not expensive if we done't expect lots of
   // overflows/underflows. In case we do we want to measure them
   // and their effect not only on debug but also on release compiler
-  static inline void initOvflwCount(Lng32 cnt) { ovflwCount_ = cnt; }
-  static inline Lng32 ovflwCount() { return ovflwCount_; }
-  static inline void initUdflwCount(Lng32 cnt) { udflwCount_ = cnt; }
-  static inline Lng32 udflwCount() { return udflwCount_; }
+  static inline void initOvflwCount(int cnt) { ovflwCount_ = cnt; }
+  static inline int ovflwCount() { return ovflwCount_; }
+  static inline void initUdflwCount(int cnt) { udflwCount_ = cnt; }
+  static inline int udflwCount() { return udflwCount_; }
 
  private:
   double dpv_;

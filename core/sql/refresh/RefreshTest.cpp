@@ -273,7 +273,7 @@ Int32 RefreshTestController::InitiateTaskProcess() {
 
   char buffer[bufferSize];
 
-  Lng32 pid = processPool_.LaunchTaskProcess();
+  int pid = processPool_.LaunchTaskProcess();
 
   CUOFsIpcMessageTranslator translator(buffer, bufferSize);
 
@@ -454,7 +454,7 @@ void RefreshTestController::WaitForAll() {
   Int32 return_counter = 0;
 
   while (return_counter < activeProcesses_) {
-    Lng32 pid = processPool_.ReceiveFromAnyProcess(-1);  // An indefinite wait
+    int pid = processPool_.ReceiveFromAnyProcess(-1);  // An indefinite wait
 
     return_counter++;
 
@@ -471,7 +471,7 @@ void RefreshTestController::WaitForAll() {
 //
 //----------------------------------------------------------------//
 
-void RefreshTestController::HandleReturnOfExecutor(Lng32 pid) {
+void RefreshTestController::HandleReturnOfExecutor(int pid) {
   CRUTaskExecutor *pExecutor = FindRunningExecutor(pid);
 
   RUASSERT(NULL != pExecutor);
@@ -494,7 +494,7 @@ void RefreshTestController::HandleReturnOfExecutor(Lng32 pid) {
       const Int32 len = ERROR_BUFF_SIZE;  // buffer length
       char buffer[len];                   // exception message buffer
 
-      Lng32 code = ex.GetErrorCode(i);
+      int code = ex.GetErrorCode(i);
       ex.GetErrorMsg(i, buffer, len);
       cout << buffer << endl << endl;
     }
@@ -518,7 +518,7 @@ void RefreshTestController::HandleReturnOfExecutor(Lng32 pid) {
 //--------------------------------------------------------------------------//
 //	RefreshTestController::FindRunningExecutor()
 //--------------------------------------------------------------------------//
-CRUTaskExecutor *RefreshTestController::FindRunningExecutor(Lng32 pid) {
+CRUTaskExecutor *RefreshTestController::FindRunningExecutor(int pid) {
   DSListPosition pos = executorsList_.GetHeadPosition();
 
   while (NULL != pos) {

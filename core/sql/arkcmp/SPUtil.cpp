@@ -35,7 +35,7 @@ SP_STATUS SP_FILEINFO_Compile(SP_COMPILE_ACTION /* action */, SP_COMPILE_HANDLE 
   return SP_SUCCESS;
 }
 
-SP_STATUS SP_FILEINFO_InputFormat(SP_FIELDDESC_STRUCT *format, Lng32 numFields, SP_COMPILE_HANDLE,
+SP_STATUS SP_FILEINFO_InputFormat(SP_FIELDDESC_STRUCT *format, int numFields, SP_COMPILE_HANDLE,
                                   SP_HANDLE /* spHandle */, SP_ERROR_STRUCT *error) {
   if (numFields != 4) {
     error->error = -19020;
@@ -51,13 +51,13 @@ SP_STATUS SP_FILEINFO_InputFormat(SP_FIELDDESC_STRUCT *format, Lng32 numFields, 
   return SP_SUCCESS;
 }
 
-SP_STATUS SP_FILEINFO_NumOutputs(Lng32 *num, SP_COMPILE_HANDLE, SP_HANDLE /* spHandle */,
+SP_STATUS SP_FILEINFO_NumOutputs(int *num, SP_COMPILE_HANDLE, SP_HANDLE /* spHandle */,
                                  SP_ERROR_STRUCT * /* error */) {
   *num = 3;
   return SP_SUCCESS;
 }
 
-SP_STATUS SP_FILEINFO_OutputFormat(SP_FIELDDESC_STRUCT *format, SP_KEYDESC_STRUCT *keyFields, Lng32 *numKeyFields,
+SP_STATUS SP_FILEINFO_OutputFormat(SP_FIELDDESC_STRUCT *format, SP_KEYDESC_STRUCT *keyFields, int *numKeyFields,
                                    SP_COMPILE_HANDLE, SP_HANDLE /* spHandle */, SP_ERROR_STRUCT * /* error */) {
   strcpy(&((format++)->COLUMN_DEF[0]), "DATA varchar(128) character set iso88591");
   strcpy(&((format++)->COLUMN_DEF[0]), "descpt char(64) character set iso88591");
@@ -191,7 +191,7 @@ SP_STATUS SP_CASTING_Compile(SP_COMPILE_ACTION /* action */, SP_COMPILE_HANDLE *
   return SP_SUCCESS;
 }
 
-SP_STATUS SP_CASTING_InputFormat(SP_FIELDDESC_STRUCT *format, Lng32 numFields, SP_COMPILE_HANDLE,
+SP_STATUS SP_CASTING_InputFormat(SP_FIELDDESC_STRUCT *format, int numFields, SP_COMPILE_HANDLE,
                                  SP_HANDLE /* spHandle */, SP_ERROR_STRUCT *error) {
   if (numFields != 4) {
     error->error = -19020;
@@ -207,13 +207,13 @@ SP_STATUS SP_CASTING_InputFormat(SP_FIELDDESC_STRUCT *format, Lng32 numFields, S
   return SP_SUCCESS;
 }
 
-SP_STATUS SP_CASTING_NumOutputs(Lng32 *num, SP_COMPILE_HANDLE, SP_HANDLE /* spHandle */,
+SP_STATUS SP_CASTING_NumOutputs(int *num, SP_COMPILE_HANDLE, SP_HANDLE /* spHandle */,
                                 SP_ERROR_STRUCT * /* error */) {
   *num = 4;
   return SP_SUCCESS;
 }
 
-SP_STATUS SP_CASTING_OutputFormat(SP_FIELDDESC_STRUCT *format, SP_KEYDESC_STRUCT *keyFields, Lng32 *numKeyFields,
+SP_STATUS SP_CASTING_OutputFormat(SP_FIELDDESC_STRUCT *format, SP_KEYDESC_STRUCT *keyFields, int *numKeyFields,
                                   SP_COMPILE_HANDLE, SP_HANDLE /* spHandle */, SP_ERROR_STRUCT * /* error */) {
   strcpy(&((format++)->COLUMN_DEF[0]), "DATA int");
   strcpy(&((format++)->COLUMN_DEF[0]), "datetime1 timestamp");
@@ -345,7 +345,7 @@ SP_STATUS SP_NOINPUT_Compile(SP_COMPILE_ACTION /* action */, SP_COMPILE_HANDLE *
   return SP_SUCCESS;
 }
 
-SP_STATUS SP_NOINPUT_InputFormat(SP_FIELDDESC_STRUCT *format, Lng32 numFields, SP_COMPILE_HANDLE,
+SP_STATUS SP_NOINPUT_InputFormat(SP_FIELDDESC_STRUCT *format, int numFields, SP_COMPILE_HANDLE,
                                  SP_HANDLE /* spHandle */, SP_ERROR_STRUCT *error) {
   if (numFields != 0) {
     error->error = -19020;
@@ -357,14 +357,14 @@ SP_STATUS SP_NOINPUT_InputFormat(SP_FIELDDESC_STRUCT *format, Lng32 numFields, S
   return SP_SUCCESS;
 }
 
-SP_STATUS SP_NOINPUT_NumOutputs(Lng32 *num, SP_COMPILE_HANDLE, SP_HANDLE /* spHandle */,
+SP_STATUS SP_NOINPUT_NumOutputs(int *num, SP_COMPILE_HANDLE, SP_HANDLE /* spHandle */,
                                 SP_ERROR_STRUCT * /* error */) {
   *num = 0;
   return SP_SUCCESS;
 }
 
 SP_STATUS SP_NOINPUT_OutputFormat(SP_FIELDDESC_STRUCT *format, SP_KEYDESC_STRUCT * /*keyFields */,
-                                  Lng32 * /*numKeyFields */, SP_COMPILE_HANDLE, SP_HANDLE /* spHandle */,
+                                  int * /*numKeyFields */, SP_COMPILE_HANDLE, SP_HANDLE /* spHandle */,
                                   SP_ERROR_STRUCT * /* error */) {
   return SP_SUCCESS;
 }
@@ -410,7 +410,7 @@ SP_STATUS SP_PARSING_Compile(SP_COMPILE_ACTION action, SP_COMPILE_HANDLE *cmpHan
   return SP_SUCCESS;
 }
 
-SP_STATUS SP_PARSING_InputFormat(SP_FIELDDESC_STRUCT *format, Lng32 numFields, SP_COMPILE_HANDLE,
+SP_STATUS SP_PARSING_InputFormat(SP_FIELDDESC_STRUCT *format, int numFields, SP_COMPILE_HANDLE,
                                  SP_HANDLE /* spHandle */, SP_ERROR_STRUCT *error) {
   if (numFields != 2) {
     error->error = -19020;
@@ -443,7 +443,7 @@ SP_STATUS SP_PARSING_PARSER(char *param,                 /* input, null terminat
   return SP_SUCCESS;
 }
 
-SP_STATUS SP_PARSING_NumOutputs(Lng32 *num, SP_COMPILE_HANDLE cmpHandle, SP_HANDLE /* spHandle */,
+SP_STATUS SP_PARSING_NumOutputs(int *num, SP_COMPILE_HANDLE cmpHandle, SP_HANDLE /* spHandle */,
                                 SP_ERROR_STRUCT * /* error */) {
   Int32 param = *((Int32 *)cmpHandle);
   if (param == 1 || param == 2)
@@ -454,7 +454,7 @@ SP_STATUS SP_PARSING_NumOutputs(Lng32 *num, SP_COMPILE_HANDLE cmpHandle, SP_HAND
 }
 
 SP_STATUS SP_PARSING_OutputFormat(SP_FIELDDESC_STRUCT *format, SP_KEYDESC_STRUCT * /*keyFields */,
-                                  Lng32 * /*numKeyFields */, SP_COMPILE_HANDLE cmpHandle, SP_HANDLE /* spHandle */,
+                                  int * /*numKeyFields */, SP_COMPILE_HANDLE cmpHandle, SP_HANDLE /* spHandle */,
                                   SP_ERROR_STRUCT * /* error */) {
   Int32 param = *((Int32 *)cmpHandle);
   if (param == 1) {
@@ -524,7 +524,7 @@ SP_STATUS SP_DELAY_Compile(SP_COMPILE_ACTION action, SP_COMPILE_HANDLE *cmpHandl
   return SP_SUCCESS;
 }
 
-SP_STATUS SP_DELAY_InputFormat(SP_FIELDDESC_STRUCT *format, Lng32 numFields, SP_COMPILE_HANDLE,
+SP_STATUS SP_DELAY_InputFormat(SP_FIELDDESC_STRUCT *format, int numFields, SP_COMPILE_HANDLE,
                                SP_HANDLE /* spHandle */, SP_ERROR_STRUCT *error) {
   if (numFields != 2) {
     error->error = -19020;
@@ -538,14 +538,14 @@ SP_STATUS SP_DELAY_InputFormat(SP_FIELDDESC_STRUCT *format, Lng32 numFields, SP_
   return SP_SUCCESS;
 }
 
-SP_STATUS SP_DELAY_NumOutputs(Lng32 *num, SP_COMPILE_HANDLE cmpHandle, SP_HANDLE /* spHandle */,
+SP_STATUS SP_DELAY_NumOutputs(int *num, SP_COMPILE_HANDLE cmpHandle, SP_HANDLE /* spHandle */,
                               SP_ERROR_STRUCT * /* error */) {
   *num = 1;
   return SP_SUCCESS;
 }
 
 SP_STATUS SP_DELAY_OutputFormat(SP_FIELDDESC_STRUCT *format, SP_KEYDESC_STRUCT * /*keyFields */,
-                                Lng32 * /*numKeyFields */, SP_COMPILE_HANDLE cmpHandle, SP_HANDLE /* spHandle */,
+                                int * /*numKeyFields */, SP_COMPILE_HANDLE cmpHandle, SP_HANDLE /* spHandle */,
                                 SP_ERROR_STRUCT * /* error */) {
   strcpy(&((format++)->COLUMN_DEF[0]), "c1 int");
 
@@ -631,7 +631,7 @@ SP_STATUS SP_ERROR_Compile(SP_COMPILE_ACTION action, SP_COMPILE_HANDLE *cmpHandl
   }
 }
 
-SP_STATUS SP_ERROR_InputFormat(SP_FIELDDESC_STRUCT *format, Lng32 numFields, SP_COMPILE_HANDLE,
+SP_STATUS SP_ERROR_InputFormat(SP_FIELDDESC_STRUCT *format, int numFields, SP_COMPILE_HANDLE,
                                SP_HANDLE /* spHandle */, SP_ERROR_STRUCT *error) {
   if (numFields != 1) {
     error->error = -19020;
@@ -655,14 +655,14 @@ SP_STATUS SP_ERROR_PARSER(char *param,                 /* input, null terminated
   return SP_SUCCESS;
 }
 
-SP_STATUS SP_ERROR_NumOutputs(Lng32 *num, SP_COMPILE_HANDLE cmpHandle, SP_HANDLE /* spHandle */,
+SP_STATUS SP_ERROR_NumOutputs(int *num, SP_COMPILE_HANDLE cmpHandle, SP_HANDLE /* spHandle */,
                               SP_ERROR_STRUCT * /* error */) {
   *num = 1;
   return SP_SUCCESS;
 }
 
 SP_STATUS SP_ERROR_OutputFormat(SP_FIELDDESC_STRUCT *format, SP_KEYDESC_STRUCT * /*keyFields */,
-                                Lng32 * /*numKeyFields */, SP_COMPILE_HANDLE cmpHandle, SP_HANDLE /* spHandle */,
+                                int * /*numKeyFields */, SP_COMPILE_HANDLE cmpHandle, SP_HANDLE /* spHandle */,
                                 SP_ERROR_STRUCT * /* error */) {
   strcpy(&((format++)->COLUMN_DEF[0]), "i1 char(16) character set iso88591");
   return SP_SUCCESS;
@@ -712,7 +712,7 @@ SP_STATUS SP_COL16_Compile(SP_COMPILE_ACTION action, SP_COMPILE_HANDLE *cmpHandl
   return SP_SUCCESS;
 }
 
-SP_STATUS SP_COL16_InputFormat(SP_FIELDDESC_STRUCT *format, Lng32 numFields, SP_COMPILE_HANDLE,
+SP_STATUS SP_COL16_InputFormat(SP_FIELDDESC_STRUCT *format, int numFields, SP_COMPILE_HANDLE,
                                SP_HANDLE /* spHandle */, SP_ERROR_STRUCT *error) {
   if (numFields != 2) {
     error->error = -19020;
@@ -726,14 +726,14 @@ SP_STATUS SP_COL16_InputFormat(SP_FIELDDESC_STRUCT *format, Lng32 numFields, SP_
   return SP_SUCCESS;
 }
 
-SP_STATUS SP_COL16_NumOutputs(Lng32 *num, SP_COMPILE_HANDLE cmpHandle, SP_HANDLE /* spHandle */,
+SP_STATUS SP_COL16_NumOutputs(int *num, SP_COMPILE_HANDLE cmpHandle, SP_HANDLE /* spHandle */,
                               SP_ERROR_STRUCT * /* error */) {
   *num = 16;
   return SP_SUCCESS;
 }
 
 SP_STATUS SP_COL16_OutputFormat(SP_FIELDDESC_STRUCT *format, SP_KEYDESC_STRUCT * /*keyFields */,
-                                Lng32 * /*numKeyFields */, SP_COMPILE_HANDLE cmpHandle, SP_HANDLE /* spHandle */,
+                                int * /*numKeyFields */, SP_COMPILE_HANDLE cmpHandle, SP_HANDLE /* spHandle */,
                                 SP_ERROR_STRUCT * /* error */) {
   strcpy(&((format++)->COLUMN_DEF[0]), "c1 int");
   strcpy(&((format++)->COLUMN_DEF[0]), "c2 int");
@@ -821,7 +821,7 @@ SP_STATUS SP_ROW998_Compile(SP_COMPILE_ACTION action, SP_COMPILE_HANDLE *cmpHand
   return SP_SUCCESS;
 }
 
-SP_STATUS SP_ROW998_InputFormat(SP_FIELDDESC_STRUCT *format, Lng32 numFields, SP_COMPILE_HANDLE,
+SP_STATUS SP_ROW998_InputFormat(SP_FIELDDESC_STRUCT *format, int numFields, SP_COMPILE_HANDLE,
                                 SP_HANDLE /* spHandle */, SP_ERROR_STRUCT *error) {
   if (numFields != 1) {
     error->error = -19020;
@@ -834,14 +834,14 @@ SP_STATUS SP_ROW998_InputFormat(SP_FIELDDESC_STRUCT *format, Lng32 numFields, SP
   return SP_SUCCESS;
 }
 
-SP_STATUS SP_ROW998_NumOutputs(Lng32 *num, SP_COMPILE_HANDLE cmpHandle, SP_HANDLE /* spHandle */,
+SP_STATUS SP_ROW998_NumOutputs(int *num, SP_COMPILE_HANDLE cmpHandle, SP_HANDLE /* spHandle */,
                                SP_ERROR_STRUCT * /* error */) {
   *num = 1;
   return SP_SUCCESS;
 }
 
 SP_STATUS SP_ROW998_OutputFormat(SP_FIELDDESC_STRUCT *format, SP_KEYDESC_STRUCT * /*keyFields */,
-                                 Lng32 * /*numKeyFields */, SP_COMPILE_HANDLE cmpHandle, SP_HANDLE /* spHandle */,
+                                 int * /*numKeyFields */, SP_COMPILE_HANDLE cmpHandle, SP_HANDLE /* spHandle */,
                                  SP_ERROR_STRUCT * /* error */) {
   strcpy(&((format++)->COLUMN_DEF[0]), "c1 char(998) character set iso88591");
 

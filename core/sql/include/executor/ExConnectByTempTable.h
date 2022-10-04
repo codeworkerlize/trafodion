@@ -190,7 +190,7 @@ class ExConnectByTempTablePrivateState : public ex_tcb_private_state {
 
   ExConnectByHashEntry *pcEntry_;
 
-  Int64 matchCount_;  // number of rows returned for this parent row
+  long matchCount_;  // number of rows returned for this parent row
 
  public:
   ExConnectByTempTablePrivateState(const ExConnectByTempTableTcb *tcb);
@@ -211,7 +211,7 @@ class ExConnectByHashEntry {
                                        // hash value.
 
   union {
-    Lng32 value_;
+    int value_;
     struct {
       unsigned char useBit_ : 1;           // for second chance replacement.
       unsigned char canceledPending_ : 1;  // cancel has been propagated.

@@ -40,12 +40,12 @@
 #ifndef SQLCI_LIST_TEMPL_C
 #define SQLCI_LIST_TEMPL_C
 
-#include "SqlciList_templ.h"
+#include "sqlci/SqlciList_templ.h"
 
 // include all header files that contains SqlciList
 // template instantiations here
 
-#include "SqlciEnv.h"
+#include "sqlci/SqlciEnv.h"
 
 template <class T>
 SqlciList<T>::SqlciList() {

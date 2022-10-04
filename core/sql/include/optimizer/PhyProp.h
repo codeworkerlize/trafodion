@@ -262,13 +262,13 @@ class PhysicalProperty : public NABasicObject {
   // --- For partitioning function
   inline NABoolean isPartitioned() const { return (actualPartFunc_ AND actualPartFunc_->getCountOfPartitions() > 1); }
 
-  inline void scaleNumberOfPartitions(Lng32 npartns, NABoolean scaleByFactor = TRUE) {
+  inline void scaleNumberOfPartitions(int npartns, NABoolean scaleByFactor = TRUE) {
     if (actualPartFunc_)
       actualPartFunc_ = actualPartFunc_->scaleNumberOfPartitions(npartns, DEFAULT_PARTITION_GROUPING, scaleByFactor);
   };
 
   inline PartitioningFunction *getPartitioningFunction() const { return actualPartFunc_; }
-  inline Lng32 getCountOfPartitions() const {
+  inline int getCountOfPartitions() const {
     if (actualPartFunc_)
       return actualPartFunc_->getCountOfPartitions();
     else
@@ -298,8 +298,8 @@ class PhysicalProperty : public NABasicObject {
   inline void setPartSearchKey(const SearchKey *partSearchKey) { partSearchKey_ = partSearchKey; }
 
   // -- Accessor and Mutator for cpuCountInDP2_.
-  inline Lng32 getCurrentCountOfCPUs() const { return currentCountOfCPUs_; }
-  inline void setCurrentCountOfCPUs(const Lng32 value) { currentCountOfCPUs_ = value; }
+  inline int getCurrentCountOfCPUs() const { return currentCountOfCPUs_; }
+  inline void setCurrentCountOfCPUs(const int value) { currentCountOfCPUs_ = value; }
 
   // ---------------------------------------------------------------------
   // comparison functions (A > B means that A delivers all the
@@ -421,7 +421,7 @@ class PhysicalProperty : public NABasicObject {
   // ---------------------------------------------------------------------
   // $$$ This member should be moved to class
   // $$$ DP2CostDataThatDependsOnSPP!!!!
-  Lng32 currentCountOfCPUs_;
+  int currentCountOfCPUs_;
 
   // -----------------------------------------------------------------------
   // The following class should contain all costing data for dp2
@@ -476,13 +476,13 @@ class PerformanceGoal {
 // -- Optimize for N rows
 class OptimizeForNRows : public PerformanceGoal {
  public:
-  OptimizeForNRows(Lng32 numberOfRows) : rowCount_(numberOfRows) { assert(numberOfRows > 0); }
+  OptimizeForNRows(int numberOfRows) : rowCount_(numberOfRows) { assert(numberOfRows > 0); }
   virtual ~OptimizeForNRows() {}
 
   virtual NABoolean isOptimizeForFirstRow() const;
 
  private:
-  Lng32 rowCount_;
+  int rowCount_;
 };  // class OptimizeForNRows
 
 // -- Optimize for first row - not used in SQ
@@ -530,7 +530,7 @@ class ReqdPhysicalProperty : public NABasicObject {
                        const NABoolean logicalOrderOrArrangement = FALSE, PartitioningRequirement *partReq = NULL,
                        LogicalPartitioningRequirement *logicalPartReq = NULL,
                        const PlanExecutionEnum location = DEFAULT_LOCATION,
-                       const Lng32 availableCPUs = DEFAULT_SINGLETON, const Lng32 pipelinesPerCPU = DEFAULT_SINGLETON,
+                       const int availableCPUs = DEFAULT_SINGLETON, const int pipelinesPerCPU = DEFAULT_SINGLETON,
                        const CostWeight *const costWeight = CURRSTMT_OPTDEFAULTS->getDefaultCostWeight(),
                        const PerformanceGoal *const perfGoal = CURRSTMT_OPTDEFAULTS->getDefaultPerformanceGoal(),
                        RelExpr *mustMatch = NULL, PushDownRequirement *pdp = NULL)
@@ -677,7 +677,7 @@ class ReqdPhysicalProperty : public NABasicObject {
   ReqdPhysicalProperty(const ReqdPhysicalProperty &other, const ValueIdSet *const arrangedBy,
                        const ValueIdList *const orderedBy, SortOrderTypeEnum sortOrderTypeReq,
                        PartitioningRequirement *dp2SortOrderPartReq, PartitioningRequirement *partReq,
-                       const PlanExecutionEnum location, const Lng32 availableCPUs, const Lng32 pipelinesPerCPU)
+                       const PlanExecutionEnum location, const int availableCPUs, const int pipelinesPerCPU)
       : arrangedBy_(arrangedBy),
         orderedBy_(orderedBy),
         sortOrderTypeReq_(sortOrderTypeReq),
@@ -841,8 +841,8 @@ class ReqdPhysicalProperty : public NABasicObject {
   // The number of pipelines that can be formed for executing a
   // plan fragment in parallel without (outside of) a DP2.
   // ---------------------------------------------------------------------
-  inline Lng32 getCountOfPipelines() const { return availableCPUs_ * pipelinesPerCPU_; }
-  inline Lng32 getCountOfAvailableCPUs() const { return availableCPUs_; }
+  inline int getCountOfPipelines() const { return availableCPUs_ * pipelinesPerCPU_; }
+  inline int getCountOfAvailableCPUs() const { return availableCPUs_; }
 
   // ---------------------------------------------------------------------
   // The partitions, i.e., the number of data streams that should
@@ -851,7 +851,7 @@ class ReqdPhysicalProperty : public NABasicObject {
   inline NABoolean requiresPartitioning() const { return (partReq_ != NULL); }
 
   inline PartitioningRequirement *getPartitioningRequirement() const { return partReq_; }
-  Lng32 getCountOfPartitions() const { return partReq_->getCountOfPartitions(); }
+  int getCountOfPartitions() const { return partReq_->getCountOfPartitions(); }
 
   // --- Read-only access to the partitioning key.
   inline const ValueIdSet &getPartitioningKey() const { return partReq_->getPartitioningKey(); }
@@ -868,7 +868,7 @@ class ReqdPhysicalProperty : public NABasicObject {
   // ---------------------------------------------------------------------
   inline const RelExpr *getMustMatch() const { return mustMatch_; }
 
-  RelExpr *getInputMustMatch(Lng32 childIndex) const;
+  RelExpr *getInputMustMatch(int childIndex) const;
 
   void setPushDownRequirement(const PushDownRequirement *pdp) { pushDownRequirement_ = pdp; };
   const PushDownRequirement *getPushDownRequirement() const { return pushDownRequirement_; };
@@ -958,8 +958,8 @@ class ReqdPhysicalProperty : public NABasicObject {
   // The number of instances of a plan fragment that shall execute
   // concurrently, in parallel.
   // ---------------------------------------------------------------------
-  const Lng32 availableCPUs_;
-  const Lng32 pipelinesPerCPU_;
+  const int availableCPUs_;
+  const int pipelinesPerCPU_;
 
   // ---------------------------------------------------------------------
   // Specification of the location where the plan must execute.

@@ -385,7 +385,7 @@ Int32 __svfscanf(SCANBUF *fp, NAWchar const *fmt0, va_list ap) {
         if (flags & SHORT)
           *va_arg(ap, short *) = nread;
         else if (flags & LONG)
-          *va_arg(ap, Lng32 *) = nread;
+          *va_arg(ap, int *) = nread;
         else
           *va_arg(ap, Int32 *) = nread;
         continue;
@@ -669,7 +669,7 @@ Int32 __svfscanf(SCANBUF *fp, NAWchar const *fmt0, va_list ap) {
           else if (flags & QUAD)
             *va_arg(ap, quad_t *) = res;
           else if (flags & LONG)
-            *va_arg(ap, Lng32 *) = (Lng32)res;
+            *va_arg(ap, int *) = (int)res;
           else if (flags & SHORT)
             *va_arg(ap, Int16 *) = (Int16)res;
           else

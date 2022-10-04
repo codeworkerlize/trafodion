@@ -317,7 +317,7 @@ NABoolean ComAnsiNamePart::scanAnsiNamePart(const NAString &externalNameParts, s
   else if (state < 0)
     return FALSE;  // illegal, unterminated dquote
 
-  Lng32 err = 0L;
+  int err = 0L;
   if (createDropAlias)
     err = ToInternalIdentifier(name, FALSE, acceptCircumflex);  // do not upshift
   else
@@ -367,7 +367,7 @@ NABoolean ComAnsiNamePart::scanAnsiNamePart(const NAString &externalNameParts, s
 //  (or less to keep within the 128-byte size limit) multibyte chars
 //  and appending _, 9-byte timestamp, _, and 4 uniqueid digits.
 //
-ComBoolean ComDeriveRandomInternalName(Lng32 nameCharSet, const ComString &inputNameInInternalFormat,
+ComBoolean ComDeriveRandomInternalName(int nameCharSet, const ComString &inputNameInInternalFormat,
                                        ComString &generatedNameInInternalFormat, NAHeap *h) {
   if (inputNameInInternalFormat.length() == 0) {
     // make up a name in this format _random_name_nnnnnnnnn_nnnn

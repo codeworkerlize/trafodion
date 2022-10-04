@@ -134,12 +134,12 @@ class TrafDesc : public NAVersionedObject {
 
   virtual short getClassSize() { return (short)sizeof(TrafDesc); }
 
-  virtual Lng32 migrateToNewVersion(NAVersionedObject *&newImage);
+  virtual int migrateToNewVersion(NAVersionedObject *&newImage);
 
   virtual char *findVTblPtr(short classID);
 
   virtual Long pack(void *space);
-  virtual Lng32 unpack(void *base, void *reallocator);
+  virtual int unpack(void *base, void *reallocator);
 
   virtual short copyFrom(TrafDesc *from, NAMemory *heap);
   virtual void deallocMembers(NAMemory *heap) {}
@@ -149,8 +149,8 @@ class TrafDesc : public NAVersionedObject {
   static void deleteDescList(TrafDesc *srcDescList, NAMemory *heap);
   short allocAndCopy(char *src, char *&tgt, NAMemory *heap);
 
-  Lng32 validateSize();
-  Lng32 validateVersion();
+  int validateSize();
+  int validateVersion();
 
   // Deep compare by chasing the next ptr all the way to the end
   NABoolean deepCompare(const TrafDesc &other) const;
@@ -211,7 +211,7 @@ class TrafCheckConstrntsDesc : public TrafDesc {
   virtual short getClassSize() { return (short)sizeof(TrafCheckConstrntsDesc); }
 
   virtual Long pack(void *space);
-  virtual Lng32 unpack(void *base, void *reallocator);
+  virtual int unpack(void *base, void *reallocator);
 
   virtual TrafCheckConstrntsDesc *checkConstrntsDesc() const { return (TrafCheckConstrntsDesc *)this; }
 
@@ -240,7 +240,7 @@ class TrafColumnsDesc : public TrafDesc {
   virtual short getClassSize() { return (short)sizeof(TrafColumnsDesc); }
 
   virtual Long pack(void *space);
-  virtual Lng32 unpack(void *base, void *reallocator);
+  virtual int unpack(void *base, void *reallocator);
 
   virtual short copyFrom(TrafDesc *from, NAMemory *heap);
 
@@ -284,7 +284,7 @@ class TrafColumnsDesc : public TrafDesc {
   ComParamDirection paramDirection() { return (ComParamDirection)paramDirection_; }
   void setParamDirection(ComParamDirection v) { paramDirection_ = (Int16)v; }
 
-  Int64 getColFlags() { return colFlags; }
+  long getColFlags() { return colFlags; }
 
   NABoolean operator==(const TrafColumnsDesc &other) const {
     return (TrafDesc::operator==(other) && COMPARE_CHAR_PTRS(colname, other.colname) && colnumber == other.colnumber &&
@@ -311,10 +311,10 @@ class TrafColumnsDesc : public TrafDesc {
   Int32 datatype;
 
   Int32 offset;
-  Lng32 length;
+  int length;
 
-  Lng32 scale;
-  Lng32 precision;
+  int scale;
+  int precision;
 
   Int16 /*rec_datetime_field*/ datetimestart, datetimeend;
   Int16 datetimefractprec, intervalleadingprec;
@@ -329,8 +329,8 @@ class TrafColumnsDesc : public TrafDesc {
   char colclass;  // 'S' -- system generated, 'U' -- user created
   char filler0;
 
-  Int64 colFlags;
-  Int64 columnsDescFlags;  // my flags
+  long colFlags;
+  long columnsDescFlags;  // my flags
 
   char *pictureText;
   char *defaultvalue;
@@ -367,7 +367,7 @@ class TrafConstrntKeyColsDesc : public TrafDesc {
   virtual short getClassSize() { return (short)sizeof(TrafConstrntKeyColsDesc); }
 
   virtual Long pack(void *space);
-  virtual Lng32 unpack(void *base, void *reallocator);
+  virtual int unpack(void *base, void *reallocator);
 
   virtual TrafConstrntKeyColsDesc *constrntKeyColsDesc() const { return (TrafConstrntKeyColsDesc *)this; }
 
@@ -379,7 +379,7 @@ class TrafConstrntKeyColsDesc : public TrafDesc {
   char *colname;
   Int32 position;
 
-  Int64 constrntKeyColsDescFlags;  // my flags
+  long constrntKeyColsDescFlags;  // my flags
 
   char filler[16];
 };
@@ -399,7 +399,7 @@ class TrafConstrntsDesc : public TrafDesc {
   virtual short getClassSize() { return (short)sizeof(TrafConstrntsDesc); }
 
   virtual Long pack(void *space);
-  virtual Lng32 unpack(void *base, void *reallocator);
+  virtual int unpack(void *base, void *reallocator);
 
   virtual TrafConstrntsDesc *constrntsDesc() const { return (TrafConstrntsDesc *)this; }
 
@@ -429,7 +429,7 @@ class TrafConstrntsDesc : public TrafDesc {
   Int16 fillerInt16;
   Int32 colcount;
 
-  Int64 constrntsDescFlags;  // my flags
+  long constrntsDescFlags;  // my flags
 
   DescStructPtr check_constrnts_desc;
   DescStructPtr constr_key_cols_desc;
@@ -454,7 +454,7 @@ class TrafFilesDesc : public TrafDesc {
   virtual short getClassSize() { return (short)sizeof(TrafFilesDesc); }
 
   virtual Long pack(void *space);
-  virtual Lng32 unpack(void *base, void *reallocator);
+  virtual int unpack(void *base, void *reallocator);
 
   virtual TrafFilesDesc *filesDesc() const { return (TrafFilesDesc *)this; }
 
@@ -468,7 +468,7 @@ class TrafFilesDesc : public TrafDesc {
             COMPARE_DESC_SMART_PTR(partns_desc, other.partns_desc));
   }
 
-  Int64 filesDescFlags;  // my flags
+  long filesDescFlags;  // my flags
   DescStructPtr partns_desc;
 };
 
@@ -487,7 +487,7 @@ class TrafHbaseRegionDesc : public TrafDesc {
   virtual short getClassSize() { return (short)sizeof(TrafHbaseRegionDesc); }
 
   virtual Long pack(void *space);
-  virtual Lng32 unpack(void *base, void *reallocator);
+  virtual int unpack(void *base, void *reallocator);
 
   virtual TrafHbaseRegionDesc *hbaseRegionDesc() const { return (TrafHbaseRegionDesc *)this; }
 
@@ -497,10 +497,10 @@ class TrafHbaseRegionDesc : public TrafDesc {
             COMPARE_VOID_PTRS(endKey, endKeyLen, other.endKey, other.endKeyLen));
   }
 
-  Int64 hbaseRegionDescFlags;  // my flags
+  long hbaseRegionDescFlags;  // my flags
 
-  Lng32 beginKeyLen;
-  Lng32 endKeyLen;
+  int beginKeyLen;
+  int endKeyLen;
 
   char *beginKey;
   char *endKey;
@@ -523,7 +523,7 @@ class TrafHistogramDesc : public TrafDesc {
   virtual short getClassSize() { return (short)sizeof(TrafHistogramDesc); }
 
   virtual Long pack(void *space);
-  virtual Lng32 unpack(void *base, void *reallocator);
+  virtual int unpack(void *base, void *reallocator);
 
   virtual short copyFrom(TrafDesc *from, NAMemory *heap);
   virtual void deallocMembers(NAMemory *heap);
@@ -543,23 +543,23 @@ class TrafHistogramDesc : public TrafDesc {
   }
 
   char *tablename;
-  Int64 table_uid;
-  Int64 histogram_id;
+  long table_uid;
+  long histogram_id;
 
   Int32 col_position;
   Int32 column_number;
   Int32 colcount;
   Int32 interval_count;
 
-  Int64 rowcount;
-  Int64 total_uec;
-  Int64 stats_time;
+  long rowcount;
+  long total_uec;
+  long stats_time;
   char *low_value;
   char *high_value;
 
-  Int64 read_time;
-  Int64 sample_secs;
-  Int64 col_secs;
+  long read_time;
+  long sample_secs;
+  long col_secs;
 
   Int32 read_count;
   Int16 sample_percent;
@@ -567,14 +567,14 @@ class TrafHistogramDesc : public TrafDesc {
 
   Float64 cv;
 
-  Int64 v1;
-  Int64 v2;
+  long v1;
+  long v2;
 
   // expressionText_ comes from the V5 column; allow up to 4 bytes per char UCS2 -> UTF8
   // and 2 bytes for varchar len field and 1 byte to add a null terminator
   char *v5;
 
-  Int64 histogramDescFlags;  // my flags
+  long histogramDescFlags;  // my flags
 
   char filler[128];
 };
@@ -594,7 +594,7 @@ class TrafHistIntervalDesc : public TrafDesc {
   virtual short getClassSize() { return (short)sizeof(TrafHistIntervalDesc); }
 
   virtual Long pack(void *space);
-  virtual Lng32 unpack(void *base, void *reallocator);
+  virtual int unpack(void *base, void *reallocator);
 
   virtual short copyFrom(TrafDesc *from, NAMemory *heap);
   virtual void deallocMembers(NAMemory *heap);
@@ -609,23 +609,23 @@ class TrafHistIntervalDesc : public TrafDesc {
             COMPARE_CHAR_PTRS(v5, other.v5) && histIntervalDescFlags == other.histIntervalDescFlags);
   }
 
-  Int64 histogram_id;
+  long histogram_id;
 
   Int32 interval_number;
   Int32 fillerInt32;
 
-  Int64 interval_rowcount;
-  Int64 interval_uec;
+  long interval_rowcount;
+  long interval_uec;
 
   char *interval_boundary;
   Float64 std_dev_of_freq;
 
-  Int64 v1;
-  Int64 v2;
+  long v1;
+  long v2;
 
   char *v5;
 
-  Int64 histIntervalDescFlags;  // my flags
+  long histIntervalDescFlags;  // my flags
 
   char filler[48];
 };
@@ -645,7 +645,7 @@ class TrafIndexesDesc : public TrafDesc {
   virtual short getClassSize() { return (short)sizeof(TrafIndexesDesc); }
 
   virtual Long pack(void *space);
-  virtual Lng32 unpack(void *base, void *reallocator);
+  virtual int unpack(void *base, void *reallocator);
 
   virtual TrafIndexesDesc *indexesDesc() const { return (TrafIndexesDesc *)this; }
 
@@ -716,7 +716,7 @@ class TrafIndexesDesc : public TrafDesc {
   char *tablename;  // name of the base table
   char *indexname;  // physical name of index. Different from ext_indexname
                     // for ARK tables.
-  Int64 indexUID;
+  long indexUID;
 
   Int32 keytag;
   Int32 record_length;
@@ -725,13 +725,13 @@ class TrafIndexesDesc : public TrafDesc {
 
   Int16 /*ComPartitioningScheme*/ partitioningScheme_;
   Int16 /*ComRowFormat*/ rowFormat_;
-  Lng32 numSaltPartns;  // number of salted partns created for a seabase table.
+  int numSaltPartns;  // number of salted partns created for a seabase table.
 
-  Lng32 numInitialSaltRegions;  // initial # of regions created for salted table
+  int numInitialSaltRegions;  // initial # of regions created for salted table
   Int16 numReplicas;
   char filler0[2];
 
-  Int64 indexesDescFlags;  // my flags
+  long indexesDescFlags;  // my flags
 
   char *hbaseSplitClause;
   char *hbaseCreateOptions;
@@ -766,7 +766,7 @@ class TrafKeysDesc : public TrafDesc {
   virtual short getClassSize() { return (short)sizeof(TrafKeysDesc); }
 
   virtual Long pack(void *space);
-  virtual Lng32 unpack(void *base, void *reallocator);
+  virtual int unpack(void *base, void *reallocator);
 
   virtual short copyFrom(TrafDesc *from, NAMemory *heap);
   virtual void deallocMembers(NAMemory *heap);
@@ -792,7 +792,7 @@ class TrafKeysDesc : public TrafDesc {
   Int32 keyseqnumber;
   Int32 tablecolnumber;
 
-  Int64 keysDescFlags;  // my flags
+  long keysDescFlags;  // my flags
 
   char *hbaseColFam;
   char *hbaseColQual;
@@ -815,7 +815,7 @@ class TrafLibraryDesc : public TrafDesc {
   virtual short getClassSize() { return (short)sizeof(TrafLibraryDesc); }
 
   virtual Long pack(void *space);
-  virtual Lng32 unpack(void *base, void *reallocator);
+  virtual int unpack(void *base, void *reallocator);
 
   virtual TrafLibraryDesc *libraryDesc() const { return (TrafLibraryDesc *)this; }
 
@@ -828,7 +828,7 @@ class TrafLibraryDesc : public TrafDesc {
 
   char *libraryName;
   char *libraryFilename;
-  Int64 libraryUID;
+  long libraryUID;
   Int32 libraryVersion;
   Int32 libraryOwnerID;
   Int32 librarySchemaOwnerID;
@@ -851,7 +851,7 @@ class TrafPartnsDesc : public TrafDesc {
   virtual short getClassSize() { return (short)sizeof(TrafPartnsDesc); }
 
   virtual Long pack(void *space);
-  virtual Lng32 unpack(void *base, void *reallocator);
+  virtual int unpack(void *base, void *reallocator);
 
   virtual TrafPartnsDesc *partnsDesc() const { return (TrafPartnsDesc *)this; }
 
@@ -871,8 +871,8 @@ class TrafPartnsDesc : public TrafDesc {
   char *partitionname;
   char *logicalpartitionname;
   char *firstkey;
-  Lng32 firstkeylen;  // soln:10-031112-1256
-  Lng32 encodedkeylen;
+  int firstkeylen;  // soln:10-031112-1256
+  int encodedkeylen;
   char *encodedkey;
   char *lowKey;
   char *highKey;
@@ -898,7 +898,7 @@ class TrafRefConstrntsDesc : public TrafDesc {
   virtual short getClassSize() { return (short)sizeof(TrafRefConstrntsDesc); }
 
   virtual Long pack(void *space);
-  virtual Lng32 unpack(void *base, void *reallocator);
+  virtual int unpack(void *base, void *reallocator);
 
   virtual TrafRefConstrntsDesc *refConstrntsDesc() const { return (TrafRefConstrntsDesc *)this; }
 
@@ -907,7 +907,7 @@ class TrafRefConstrntsDesc : public TrafDesc {
             COMPARE_CHAR_PTRS(constrntname, other.constrntname) && COMPARE_CHAR_PTRS(tablename, other.tablename));
   }
 
-  Int64 refConstrntsDescFlags;  // my flags
+  long refConstrntsDescFlags;  // my flags
   char *constrntname;
   char *tablename;
 
@@ -929,7 +929,7 @@ class TrafRoutineDesc : public TrafDesc {
   virtual short getClassSize() { return (short)sizeof(TrafRoutineDesc); }
 
   virtual Long pack(void *space);
-  virtual Lng32 unpack(void *base, void *reallocator);
+  virtual int unpack(void *base, void *reallocator);
 
   virtual TrafRoutineDesc *routineDesc() const { return (TrafRoutineDesc *)this; }
 
@@ -952,7 +952,7 @@ class TrafRoutineDesc : public TrafDesc {
             libObjUID == other.libObjUID);
   }
 
-  Int64 objectUID;
+  long objectUID;
   char *routineName;
   char *externalName;
   char *librarySqlName;
@@ -977,12 +977,12 @@ class TrafRoutineDesc : public TrafDesc {
   Int32 schemaOwner;
   DescStructPtr priv_desc;
 
-  Int64 routineDescFlags;  // my flags
-  Int64 libRedefTime;
+  long routineDescFlags;  // my flags
+  long libRedefTime;
   char *libBlobHandle;
   char *libSchName;
   Int32 libVersion;
-  Int64 libObjUID;
+  long libObjUID;
   char filler[24];
 };
 
@@ -1006,7 +1006,7 @@ class TrafSequenceGeneratorDesc : public TrafDesc {
   virtual short getClassSize() { return (short)sizeof(TrafSequenceGeneratorDesc); }
 
   virtual Long pack(void *space);
-  virtual Lng32 unpack(void *base, void *reallocator);
+  virtual int unpack(void *base, void *reallocator);
 
   virtual TrafSequenceGeneratorDesc *sequenceGeneratorDesc() const { return (TrafSequenceGeneratorDesc *)this; }
 
@@ -1032,24 +1032,24 @@ class TrafSequenceGeneratorDesc : public TrafDesc {
             sequenceGeneratorDescFlags == other.sequenceGeneratorDescFlags);
   }
 
-  Int64 startValue;
-  Int64 increment;
+  long startValue;
+  long increment;
 
   Int16 /*ComSequenceGeneratorType*/ sgType_;
   Int16 /*ComSQLDataType*/ sqlDataType;
   Int16 /*ComFSDataType*/ fsDataType;
   Int16 cycleOption;
 
-  Int64 maxValue;
-  Int64 minValue;
-  Int64 cache;
-  Int64 objectUID;
+  long maxValue;
+  long minValue;
+  long cache;
+  long objectUID;
   char *sgLocation;
-  Int64 nextValue;
-  Int64 redefTime;
-  Int64 seqOrder;
+  long nextValue;
+  long redefTime;
+  long seqOrder;
 
-  Int64 sequenceGeneratorDescFlags;  // my flags
+  long sequenceGeneratorDescFlags;  // my flags
 
   char filler[8];
 };
@@ -1069,7 +1069,7 @@ class TrafTableDesc : public TrafDesc {
   virtual short getClassSize() { return (short)sizeof(TrafTableDesc); }
 
   virtual Long pack(void *space);
-  virtual Lng32 unpack(void *base, void *reallocator);
+  virtual int unpack(void *base, void *reallocator);
 
   virtual TrafTableDesc *tableDesc() const { return (TrafTableDesc *)this; }
 
@@ -1173,12 +1173,12 @@ class TrafTableDesc : public TrafDesc {
 
   char *tablename;
 
-  Int64 createTime;
-  Int64 redefTime;
+  long createTime;
+  long redefTime;
 
   // if this descriptor is for an index that is being accessed as a table,
   // then baseTableUID is the uid of the base table for that index.
-  Int64 baseTableUID;
+  long baseTableUID;
 
   Int32 mvAttributesBitmap;
   Int32 record_length;
@@ -1200,21 +1200,21 @@ class TrafTableDesc : public TrafDesc {
   // next 4 bytes are fillers for future usage
   char filler0[4];
 
-  Int64 catUID;
-  Int64 schemaUID;
-  Int64 objectUID;
-  Int64 objDataUID;
+  long catUID;
+  long schemaUID;
+  long objectUID;
+  long objDataUID;
 
-  Lng32 owner;
-  Lng32 schemaOwner;
+  int owner;
+  int schemaOwner;
 
   char *snapshotName;
   char *default_col_fam;
   char *all_col_fams;
-  Int64 objectFlags;
-  Int64 tablesFlags;
+  long objectFlags;
+  long tablesFlags;
 
-  Int64 tableDescFlags;  // my flags
+  long tableDescFlags;  // my flags
 
   DescStructPtr columns_desc;
   DescStructPtr indexes_desc;
@@ -1250,7 +1250,7 @@ class TrafTableStatsDesc : public TrafDesc {
   virtual short getClassSize() { return (short)sizeof(TrafTableStatsDesc); }
 
   virtual Long pack(void *space);
-  virtual Lng32 unpack(void *base, void *reallocator);
+  virtual int unpack(void *base, void *reallocator);
 
   virtual short copyFrom(TrafDesc *from, NAMemory *heap);
   virtual void deallocMembers(NAMemory *heap);
@@ -1278,7 +1278,7 @@ class TrafTableStatsDesc : public TrafDesc {
   Int32 numHistograms;     // num of histograms_descs
   Int32 numHistIntervals;  // num of hist_interval_descs
 
-  Int64 tableStatsDescFlags;  // my flags
+  long tableStatsDescFlags;  // my flags
 
   DescStructPtr histograms_desc;
   DescStructPtr hist_interval_desc;
@@ -1318,7 +1318,7 @@ class TrafUsingMvDesc : public TrafDesc {
   virtual short getClassSize() { return (short)sizeof(TrafUsingMvDesc); }
 
   virtual Long pack(void *space);
-  virtual Lng32 unpack(void *base, void *reallocator);
+  virtual int unpack(void *base, void *reallocator);
 
   virtual TrafUsingMvDesc *usingMvDesc() const { return (TrafUsingMvDesc *)this; }
 
@@ -1354,7 +1354,7 @@ class TrafViewDesc : public TrafDesc {
   virtual short getClassSize() { return (short)sizeof(TrafViewDesc); }
 
   virtual Long pack(void *space);
-  virtual Lng32 unpack(void *base, void *reallocator);
+  virtual int unpack(void *base, void *reallocator);
 
   virtual TrafViewDesc *viewDesc() const { return (TrafViewDesc *)this; }
 
@@ -1380,7 +1380,7 @@ class TrafViewDesc : public TrafDesc {
   char *viewchecktext;
   char *viewcolusages;
 
-  Int64 viewDescFlags;  // my flags
+  long viewDescFlags;  // my flags
 
   Int16 /*CharInfo::CharSet*/ viewtextcharset;
 
@@ -1421,7 +1421,7 @@ class TrafPrivDesc : public TrafDesc {
   virtual short getClassSize() { return (short)sizeof(TrafPrivDesc); }
 
   virtual Long pack(void *space);
-  virtual Lng32 unpack(void *base, void *reallocator);
+  virtual int unpack(void *base, void *reallocator);
 
   virtual TrafPrivDesc *privDesc() const { return (TrafPrivDesc *)this; }
 
@@ -1448,7 +1448,7 @@ class TrafPrivGranteeDesc : public TrafDesc {
   virtual short getClassSize() { return (short)sizeof(TrafPrivGranteeDesc); }
 
   virtual Long pack(void *space);
-  virtual Lng32 unpack(void *base, void *reallocator);
+  virtual int unpack(void *base, void *reallocator);
 
   virtual TrafPrivGranteeDesc *privGranteeDesc() const { return (TrafPrivGranteeDesc *)this; }
 
@@ -1460,7 +1460,7 @@ class TrafPrivGranteeDesc : public TrafDesc {
   }
 
   Int32 grantee;
-  Int64 schemaUID;
+  long schemaUID;
   DescStructPtr schemaBitmap;
   DescStructPtr objectBitmap;
   DescStructPtr columnBitmaps;
@@ -1482,7 +1482,7 @@ class TrafPrivBitmapDesc : public TrafDesc {
   virtual short getClassSize() { return (short)sizeof(TrafPrivBitmapDesc); }
 
   // virtual Long pack(void *space);
-  // virtual Lng32 unpack(void * base, void * reallocator);
+  // virtual int unpack(void * base, void * reallocator);
 
   virtual TrafPrivBitmapDesc *privBitmapDesc() const { return (TrafPrivBitmapDesc *)this; }
 
@@ -1492,8 +1492,8 @@ class TrafPrivBitmapDesc : public TrafDesc {
   }
 
   Int32 columnOrdinal;
-  Int64 privBitmap;
-  Int64 privWGOBitmap;
+  long privBitmap;
+  long privWGOBitmap;
   char filler[20];
 };
 // ------------------------- end privilege descriptors -------------------------
@@ -1503,9 +1503,9 @@ class TrafPrivBitmapDesc : public TrafDesc {
 TrafDesc *TrafAllocateDDLdesc(desc_nodetype nodetype, NAMemory *space);
 
 TrafDesc *TrafMakeColumnDesc(const char *tablename, const char *colname,
-                             Lng32 &colnumber,  // INOUT
-                             Int32 datatype, Lng32 length,
-                             Lng32 &offset,  // INOUT
+                             int &colnumber,  // INOUT
+                             Int32 datatype, int length,
+                             int &offset,  // INOUT
                              NABoolean null_flag,
                              SQLCHARSET_CODE datacharset,  // i.e., use CharInfo::DefaultCharSet;
                              NAMemory *space);
@@ -1536,12 +1536,12 @@ class TrafPartDesc : public TrafDesc {
 
   virtual short getClassSize() { return (short)sizeof(TrafPartDesc); }
   virtual Long pack(void *space);
-  virtual Lng32 unpack(void *base, void *reallocator);
+  virtual int unpack(void *base, void *reallocator);
 
   virtual TrafPartDesc *partDesc() const { return (TrafPartDesc *)this; }
 
-  Int64 parentUid;
-  Int64 partitionUid;
+  long parentUid;
+  long partitionUid;
   char *partitionName;
   char *partitionEntityName;
   Int32 isSubPartition;
@@ -1554,8 +1554,8 @@ class TrafPartDesc : public TrafDesc {
   Int32 isValid;
   Int32 isReadonly;
   Int32 isInMemory;
-  Int64 defTime;
-  Int64 flags;
+  long defTime;
+  long flags;
   Int32 subpartitionCnt;
 
   DescStructPtr subpart_desc;  // TrafPartDesc
@@ -1586,11 +1586,11 @@ class TrafPartitionV2Desc : public TrafDesc {
   }
   virtual short getClassSize() { return (short)sizeof(TrafPartitionV2Desc); }
   virtual Long pack(void *space);
-  virtual Lng32 unpack(void *base, void *reallocator);
+  virtual int unpack(void *base, void *reallocator);
 
   virtual TrafPartitionV2Desc *partitionV2Desc() const { return (TrafPartitionV2Desc *)this; }
 
-  Int64 baseTableUid;
+  long baseTableUid;
   Int32 partitionType;
   char *partitionColIdx;
   Int32 partitionColCount;
@@ -1604,7 +1604,7 @@ class TrafPartitionV2Desc : public TrafDesc {
   Int32 partitionAutolist;
   Int32 subpartitionAutolist;
 
-  Int64 flags;
+  long flags;
   Int32 stlPartitionCnt;
   DescStructPtr part_desc;
   char filler[8];

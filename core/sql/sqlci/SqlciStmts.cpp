@@ -44,17 +44,17 @@
 
 #include "common/ComASSERT.h"
 #include "export/ComDiags.h"
-#include "SqlciStmts.h"
-#include "SqlciNode.h"
-#include "SqlciCmd.h"
-#include "SqlciError.h"
-#include "SqlciParser.h"
-#include "InputStmt.h"
+#include "sqlci/SqlciStmts.h"
+#include "sqlci/SqlciNode.h"
+#include "sqlci/SqlciCmd.h"
+#include "sqlci/SqlciError.h"
+#include "sqlci/SqlciParser.h"
+#include "sqlci/InputStmt.h"
 #include "common/str.h"
 
 extern ComDiagsArea sqlci_DA;
 
-SqlciStmts::SqlciStmts(Lng32 max_entries_) {
+SqlciStmts::SqlciStmts(int max_entries_) {
   last_stmt_num = 0;
 
   max_entries = max_entries_;
@@ -108,7 +108,7 @@ void SqlciStmts::add(InputStmt *input_stmt_) {
   }
 }
 
-InputStmt *SqlciStmts::get(Lng32 stmt_num_) const {
+InputStmt *SqlciStmts::get(int stmt_num_) const {
   if (First == Last)  // empty, no statements added yet
     return 0;
 
@@ -178,12 +178,12 @@ void SqlciStmts::remove() {
   Last->disconnect();
 }
 
-void SqlciStmts::display(Lng32 num_stmts_) const {
+void SqlciStmts::display(int num_stmts_) const {
   if (num_stmts_ >= max_entries) num_stmts_ = max_entries - 1;
 
   StmtEntry *curr = Last;
 
-  Lng32 i = 0;
+  int i = 0;
 
   while ((curr != First) && (i < num_stmts_)) {
     curr = curr->getPrev();
@@ -220,7 +220,7 @@ void StmtEntry::disconnect() {
   input_stmt = 0;
 }
 
-void StmtEntry::set(Lng32 stmt_num_, InputStmt *input_stmt_) {
+void StmtEntry::set(int stmt_num_, InputStmt *input_stmt_) {
   stmt_num = stmt_num_;
   // overwrite the n'th previous stmt in the circular history list
   delete input_stmt;  // delete regardless of stmt's "inHistoryList" setting

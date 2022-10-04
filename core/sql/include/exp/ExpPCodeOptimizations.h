@@ -452,9 +452,9 @@ class PCodePredicateGroup {
  private:
   CollHeap *heap_;        // Heap used for all memory allocation
   BLOCKLIST predicates_;  // List of predicate blocks comprising this group
-  Int64 cost_;            // Cost associated with this group
-  Int64 takenCount_;      // Early-exit counts for this group
-  Int64 seenCount_;       // Total seen counts for this group
+  long cost_;            // Cost associated with this group
+  long takenCount_;      // Early-exit counts for this group
+  long seenCount_;       // Total seen counts for this group
   OPLIST reads_;          // Read operands not defined in group
   OPLIST writes_;         // Write operands defined in group and used by
                           // another group.
@@ -480,7 +480,7 @@ class PCodePredicateGroup {
   float getMinorSelectivity(NABoolean isStatic);
 
   // Get the cost of this group
-  Int64 getCost() { return cost_; }
+  long getCost() { return cost_; }
 
   // Set the costs and counters for the unit headed by this predicate group.
   void setCost(GROUPLIST &unit, NABoolean isStatic);
@@ -489,16 +489,16 @@ class PCodePredicateGroup {
   void adjustCost(GROUPLIST &unit);
 
   // Get the taken count of this group
-  Int64 getTakenCount() { return takenCount_; }
+  long getTakenCount() { return takenCount_; }
 
   // Get the seen count of this group
-  Int64 getSeenCount() { return seenCount_; }
+  long getSeenCount() { return seenCount_; }
 
   // Set the taken count of this group
-  void setTakenCount(Int64 count) { takenCount_ = count; }
+  void setTakenCount(long count) { takenCount_ = count; }
 
   // Set the seen count of this group
-  void setSeenCount(Int64 count) { seenCount_ = count; }
+  void setSeenCount(long count) { seenCount_ = count; }
 
   // Return the reads operand list
   OPLIST &getReads() { return reads_; }
@@ -601,7 +601,7 @@ class PCodeConstants {
   static const Int32 UNKNOWN_CONSTANT = 2;
 
   // Is the passed in constant a 0, 1, or -1
-  static NABoolean isQualifiedConstant(Int64 constant);
+  static NABoolean isQualifiedConstant(long constant);
 
   // Can the passed in operand be 0, 1, or -1
   static NABoolean isAnyKnownConstant(CollIndex operandIndex, NABitVector &zeroes, NABitVector &ones,
@@ -1550,7 +1550,7 @@ class PCodeCfg {
   // an invalid value for equality comparisons.  It's used to identify a missing
   // value in the constants lookup table for this optimization.
   static const Int32 INVALID_INT32 = 0xFEFEFEFE;
-  static const Int64 INVALID_INT64 = 0xFEFEFEFEFEFEFEFELL;
+  static const long INVALID_INT64 = 0xFEFEFEFEFEFEFEFELL;
 
 #define INVALID_LONG INVALID_INT64
 
@@ -1585,7 +1585,7 @@ class PCodeCfg {
     // deallocation can be done quickly.  If we're called from within EID,
     // however, heap_ should just be the heap passed in.
 
-    heap_ = new (heap) NAHeap("Pcode", (NAHeap *)heap, (Lng32)32768);
+    heap_ = new (heap) NAHeap("Pcode", (NAHeap *)heap, (int)32768);
 
     allBlocks_ = new (heap) BLOCKLIST(heap_, 10);
     allInsts_ = new (heap) INSTLIST(heap_, 20);
@@ -1767,10 +1767,10 @@ class PCodeCfg {
   // Constants related
   CollIndex *addConstant(void *data, Int32 len, Int32 alignment);
   CollIndex *addConstant(PCodeOperand *op);
-  Int32 addNewIntConstant(Int64 value, Int32 alignment);
+  Int32 addNewIntConstant(long value, Int32 alignment);
   Int32 addNewFloatConstant(double value, Int32 alignment);
   void *getPtrConstValue(PCodeOperand *);
-  Int64 getIntConstValue(PCodeOperand *);
+  long getIntConstValue(PCodeOperand *);
   char *getStringConstValue(PCodeOperand *, Int32 *len);
   double getFloatConstValue(PCodeOperand *);
   void layoutConstants();
@@ -1884,9 +1884,9 @@ class PCodeCfg {
   jit_value_t jitGenCompare(IRBldr_t *Bldr, enum cmpKind kindOfCompare, jit_value_t oper1, jit_value_t oper2,
                             jit_value_t trueRslt, jit_value_t falseRslt);
 
-  jit_value_t IR_LoadRelativeWithType(IRBldr_t *Bldr, jit_value_t int8p, Int64 byteOffset, jit_type_t typeToLoad);
+  jit_value_t IR_LoadRelativeWithType(IRBldr_t *Bldr, jit_value_t int8p, long byteOffset, jit_type_t typeToLoad);
 
-  void IR_StoreRelativeWithType(IRBldr_t *Bldr, jit_value_t val, jit_value_t tgt8ByPtr, Int64 byteOffset,
+  void IR_StoreRelativeWithType(IRBldr_t *Bldr, jit_value_t val, jit_value_t tgt8ByPtr, long byteOffset,
                                 jit_type_t typeToStore);
 
   void genMemCopyLoop(IRBldr_t *Bldr, jit_value_t srcPtr, jit_value_t tgtPtr, jit_value_t maxLen);

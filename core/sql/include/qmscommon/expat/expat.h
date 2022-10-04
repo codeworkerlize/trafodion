@@ -991,7 +991,7 @@ enum XML_FeatureEnum {
 typedef struct {
   enum XML_FeatureEnum feature;
   const XML_LChar *name;
-  Lng32 value;
+  int value;
 } XML_Feature;
 
 XMLPARSEAPI(const XML_Feature *)

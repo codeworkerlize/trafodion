@@ -33,11 +33,11 @@
  *****************************************************************************
  */
 
-#include "sqlclicmd.h"
+#include "sqlci/sqlclicmd.h"
 #include "cli/sqlcli.h"
 #include "cli/SQLCLIdev.h"
 #include "cli/CliDefs.h"
-#include "sqlcmd.h"
+#include "sqlci/sqlcmd.h"
 
 // SqlCliCmd's methods
 SqlCliCmd::SqlCliCmd() : SqlciNode(SqlciNode::SQLCLI_CMD_TYPE) {}
@@ -47,9 +47,9 @@ SqlCliCmd::~SqlCliCmd() {}
 CheckViolation::CheckViolation() {}
 CheckViolation::~CheckViolation() {}
 short CheckViolation::process(SqlciEnv *sqlciEnv) {
-  Lng32 sqlViolation, xactViolation, xactWasAborted;
-  Lng32 udrErrorFlags = 0;
-  Lng32 retCode = SQL_EXEC_GetUdrErrorFlags_Internal(&udrErrorFlags);
+  int sqlViolation, xactViolation, xactWasAborted;
+  int udrErrorFlags = 0;
+  int retCode = SQL_EXEC_GetUdrErrorFlags_Internal(&udrErrorFlags);
   if ((enum RETCODE)retCode == SUCCESS) {
     sqlViolation = udrErrorFlags & SQLUDR_SQL_VIOL;
     xactViolation = udrErrorFlags & SQLUDR_XACT_VIOL;
@@ -69,8 +69,8 @@ short CheckViolation::process(SqlciEnv *sqlciEnv) {
 ResetViolation::ResetViolation(enum ComRoutineSQLAccess mode) : mode_(mode) {}
 ResetViolation::~ResetViolation() {}
 short ResetViolation::process(SqlciEnv *sqlciEnv) {
-  Lng32 firstRetCode = SQL_EXEC_SetUdrAttributes_Internal(mode_, 0 /* maxRSets */);
-  Lng32 secondRetCode = SQL_EXEC_ResetUdrErrorFlags_Internal();
+  int firstRetCode = SQL_EXEC_SetUdrAttributes_Internal(mode_, 0 /* maxRSets */);
+  int secondRetCode = SQL_EXEC_ResetUdrErrorFlags_Internal();
   if (((enum RETCODE)firstRetCode == SUCCESS) && ((enum RETCODE)secondRetCode == SUCCESS)) {
     cerr << "success -- " << endl;
   } else {
@@ -89,7 +89,7 @@ CreateContext::CreateContext(Int32 noAutoXact) : noAutoXact_(noAutoXact) {}
 CreateContext::~CreateContext() {}
 short CreateContext::process(SqlciEnv *sqlciEnv) {
   SQLCTX_HANDLE ctxhdl = 0;
-  Lng32 retCode = SQL_EXEC_CreateContext(&ctxhdl, NULL, noAutoXact_);
+  int retCode = SQL_EXEC_CreateContext(&ctxhdl, NULL, noAutoXact_);
 
   if ((enum RETCODE)retCode == SUCCESS) {
     cerr << "success -- new handle:" << ctxhdl << endl;
@@ -105,7 +105,7 @@ CurrentContext::CurrentContext() {}
 CurrentContext::~CurrentContext() {}
 short CurrentContext::process(SqlciEnv *sqlciEnv) {
   SQLCTX_HANDLE ctxhdl = 0;
-  Lng32 retCode = SQL_EXEC_CurrentContext(&ctxhdl);
+  int retCode = SQL_EXEC_CurrentContext(&ctxhdl);
   if ((enum RETCODE)retCode == SUCCESS) {
     cerr << "success -- current handle:" << ctxhdl << endl;
   } else {
@@ -116,11 +116,11 @@ short CurrentContext::process(SqlciEnv *sqlciEnv) {
 }
 
 // SwitchContext's methods
-SwitchContext::SwitchContext(Lng32 ctxHandle) : ctxHdl_(ctxHandle) {}
+SwitchContext::SwitchContext(int ctxHandle) : ctxHdl_(ctxHandle) {}
 SwitchContext::~SwitchContext() {}
 short SwitchContext::process(SqlciEnv *sqlciEnv) {
   SQLCTX_HANDLE ctxhdl = 0;
-  Lng32 retCode = SQL_EXEC_SwitchContext(ctxHdl_, &ctxhdl);
+  int retCode = SQL_EXEC_SwitchContext(ctxHdl_, &ctxhdl);
   if ((enum RETCODE)retCode == SUCCESS) {
     cerr << "success -- previous handle: " << ctxhdl << endl;
   } else {
@@ -131,10 +131,10 @@ short SwitchContext::process(SqlciEnv *sqlciEnv) {
 }
 
 // DeleteContext's methods
-DeleteContext::DeleteContext(Lng32 ctxHandle) : ctxHdl_(ctxHandle) {}
+DeleteContext::DeleteContext(int ctxHandle) : ctxHdl_(ctxHandle) {}
 DeleteContext::~DeleteContext() {}
 short DeleteContext::process(SqlciEnv *sqlciEnv) {
-  Lng32 retCode = SQL_EXEC_DeleteContext(ctxHdl_);
+  int retCode = SQL_EXEC_DeleteContext(ctxHdl_);
   if ((enum RETCODE)retCode == SUCCESS) {
     cerr << "success --" << endl;
   } else {
@@ -145,10 +145,10 @@ short DeleteContext::process(SqlciEnv *sqlciEnv) {
 }
 
 // ResetContext's methods
-ResetContext::ResetContext(Lng32 ctxHandle) : ctxHdl_(ctxHandle) {}
+ResetContext::ResetContext(int ctxHandle) : ctxHdl_(ctxHandle) {}
 ResetContext::~ResetContext() {}
 short ResetContext::process(SqlciEnv *sqlciEnv) {
-  Lng32 retCode = SQL_EXEC_ResetContext(ctxHdl_, NULL);
+  int retCode = SQL_EXEC_ResetContext(ctxHdl_, NULL);
   if ((enum RETCODE)retCode == SUCCESS) {
     cerr << "success --" << endl;
   } else {

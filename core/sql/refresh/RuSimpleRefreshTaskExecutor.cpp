@@ -168,7 +168,7 @@ void CRUSimpleRefreshTaskExecutor::ComposeMySql() {
 // (an MV with min/max on non insert only tables may require this method).
 //
 //--------------------------------------------------------------------------//
-void CRUSimpleRefreshTaskExecutor::HandleSqlError(CDSException &ex, Lng32 errorCode, const char *errorArgument) {
+void CRUSimpleRefreshTaskExecutor::HandleSqlError(CDSException &ex, int errorCode, const char *errorArgument) {
   if (ex.GetErrorCode(0) == MIN_MAX_RECOMPUTATION_NEEDED) {
     throw NeedRecomputeException();
   }
@@ -361,7 +361,7 @@ BOOL CRUSimpleRefreshTaskExecutor::CompileMultiDeltasIRefresh(CDMPreparedStateme
 //
 //--------------------------------------------------------------------------//
 
-BOOL CRUSimpleRefreshTaskExecutor::HasWarningCode(CDSException ex, Lng32 errorCode) const {
+BOOL CRUSimpleRefreshTaskExecutor::HasWarningCode(CDSException ex, int errorCode) const {
   for (Int32 i = 0; i < ex.GetNumErrors(); i++) {
     if (ex.GetErrorCode(i) == errorCode) {
       return TRUE;
@@ -470,7 +470,7 @@ void CRUSimpleRefreshTaskExecutor::LogClosureMessage() {
       if (IsSingleDeltaRefresh()) {
         msg += RefreshDiags[19];  // from a single delta
       } else {
-        Lng32 deltas = GetRefreshTask()->GetDeltaDefList().GetCount();
+        int deltas = GetRefreshTask()->GetDeltaDefList().GetCount();
 
         // from ... deltas
         msg += RefreshDiags[20];

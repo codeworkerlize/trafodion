@@ -51,7 +51,7 @@ class ComTdbTimeout : public ComTdb {
   ComTdbTimeout() : ComTdb(ComTdb::ex_SET_TIMEOUT, eye_SET_TIMEOUT){};
 
   ComTdbTimeout(ex_expr *timeout_value_expr, ex_cri_desc *work_cri_desc, ex_cri_desc *given_cri_desc,
-                ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, Lng32 num_buffers,
+                ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, int num_buffers,
                 ULng32 buffer_size);
 
   // methods to set/check the RESET / STREAM flags
@@ -86,7 +86,7 @@ class ComTdbTimeout : public ComTdb {
   virtual short getClassSize() { return (short)sizeof(ComTdbTimeout); }
 
   Long pack(void *);
-  Lng32 unpack(void *, void *reallocator);
+  int unpack(void *, void *reallocator);
 
   Int32 orderedQueueProtocol() const { return -1; };
 

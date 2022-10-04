@@ -1,26 +1,4 @@
-/********************************************************************
-//
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-********************************************************************/
+
 
 #ifndef SQLCICMD_H
 #define SQLCICMD_H
@@ -40,8 +18,8 @@
  *****************************************************************************
  */
 
-#include "SqlciNode.h"
-#include "SqlciEnv.h"
+#include "sqlci/SqlciNode.h"
+#include "sqlci/SqlciEnv.h"
 
 class SqlciCmd : public SqlciNode {
  public:
@@ -78,17 +56,17 @@ class SqlciCmd : public SqlciNode {
  private:
   sqlci_cmd_type cmd_type;
   char *argument;
-  Lng32 arglen;
+  int arglen;
   Int32 numeric_arg;
 
  public:
   SqlciCmd(const sqlci_cmd_type cmd_type_);
-  SqlciCmd(const sqlci_cmd_type cmd_type_, char *, Lng32);
-  SqlciCmd(const sqlci_cmd_type cmd_type_, NAWchar *, Lng32);
+  SqlciCmd(const sqlci_cmd_type cmd_type_, char *, int);
+  SqlciCmd(const sqlci_cmd_type cmd_type_, NAWchar *, int);
   SqlciCmd(const sqlci_cmd_type cmd_type_, Int32);
   ~SqlciCmd();
   inline char *get_argument(char *dummy_arg = 0) { return argument; };
-  inline Lng32 get_arglen() { return arglen; };
+  inline int get_arglen() { return arglen; };
 };
 
 class Shape : public SqlciCmd {
@@ -113,7 +91,7 @@ class Statistics : public SqlciCmd {
   char *statsOptions_;
 
  public:
-  Statistics(char *, Lng32 arglen_, StatsCmdType, char *statsOptions);
+  Statistics(char *, int arglen_, StatsCmdType, char *statsOptions);
   ~Statistics();
   short process(SqlciEnv *sqlci_env);
 
@@ -122,7 +100,7 @@ class Statistics : public SqlciCmd {
 
 class QueryId : public SqlciCmd {
  public:
-  QueryId(char *argument_, Lng32 arglen_, NABoolean isSet, char *qidVal);
+  QueryId(char *argument_, int arglen_, NABoolean isSet, char *qidVal);
   ~QueryId();
   short process(SqlciEnv *sqlci_env);
 
@@ -132,24 +110,24 @@ class QueryId : public SqlciCmd {
 };
 
 class FixCommand : public SqlciCmd {
-  Lng32 cmd_num;
+  int cmd_num;
   char *cmd;
   short neg_num;
 
  public:
-  FixCommand(char *, Lng32);
+  FixCommand(char *, int);
   FixCommand(Int32, short);
   ~FixCommand(){};
   short process(SqlciEnv *sqlci_env);
 };
 
 class FCRepeat : public SqlciCmd {
-  Lng32 cmd_num;
+  int cmd_num;
   char *cmd;
   short neg_num;
 
  public:
-  FCRepeat(char *, Lng32);
+  FCRepeat(char *, int);
   FCRepeat(Int32, short);
   ~FCRepeat(){};
   short process(SqlciEnv *sqlci_env);
@@ -159,7 +137,7 @@ class Obey : public SqlciCmd {
   char *section_name;
 
  public:
-  Obey(char *, Lng32 arglen_, char *section_name_);
+  Obey(char *, int arglen_, char *section_name_);
   ~Obey(){};
   short process(SqlciEnv *sqlci_env);
 };
@@ -173,20 +151,20 @@ class Log : public SqlciCmd {
   Int32 commandsOnly_;
 
  public:
-  Log(char *, Lng32 arglen_, log_type type_, Int32 commands_only);
+  Log(char *, int arglen_, log_type type_, Int32 commands_only);
   ~Log(){};
   short process(SqlciEnv *sqlci_env);
 };
 
 class History : public SqlciCmd {
  public:
-  History(char *, Lng32 arglen_);
+  History(char *, int arglen_);
   short process(SqlciEnv *sqlci_env);
 };
 
 class ListCount : public SqlciCmd {
  public:
-  ListCount(char *, Lng32);
+  ListCount(char *, int);
   short process(SqlciEnv *sqlci_env);
 };
 
@@ -212,7 +190,7 @@ class Verbose : public SqlciCmd {
   VerboseCmdType type_;
 
  public:
-  Verbose(char *, Lng32 arglen_, VerboseCmdType);
+  Verbose(char *, int arglen_, VerboseCmdType);
   ~Verbose(){};
   short process(SqlciEnv *sqlci_env);
 };
@@ -222,7 +200,7 @@ class ParserFlags : public SqlciCmd {
   enum ParserFlagsOperation { DO_SET, DO_RESET };
 
  private:
-  Lng32 param;
+  int param;
   ParserFlagsOperation opType;
 
  public:
@@ -272,7 +250,7 @@ class Error : public SqlciCmd {
   error_type type;
 
  public:
-  Error(char *, Lng32 arglen_, error_type type_);
+  Error(char *, int arglen_, error_type type_);
   ~Error(){};
   short process(SqlciEnv *sqlci_env);
 };
@@ -285,7 +263,7 @@ class SubError : public SqlciCmd {
   suberror_type type;
 
  public:
-  SubError(char *, Lng32 arglen_, suberror_type type_);
+  SubError(char *, int arglen_, suberror_type type_);
   ~SubError(){};
   short process(SqlciEnv *sqlci_env);
 };
@@ -298,20 +276,20 @@ class Help : public SqlciCmd {
   help_type type;
 
  public:
-  Help(char *, Lng32, help_type);
+  Help(char *, int, help_type);
   ~Help(){};
   short process(SqlciEnv *sqlci_env);
 };
 
 class Env : public SqlciCmd {
  public:
-  Env(char *, Lng32 arglen_);
+  Env(char *, int arglen_);
   short process(SqlciEnv *sqlci_env);
 };
 
 class ChangeUser : public SqlciCmd {
  public:
-  ChangeUser(char *, Lng32 argLen_, char *);
+  ChangeUser(char *, int argLen_, char *);
   ~ChangeUser() {
     if (tenantName) delete tenantName;
     tenantName = NULL;
@@ -324,7 +302,7 @@ class ChangeUser : public SqlciCmd {
 
 class Exit : public SqlciCmd {
  public:
-  Exit(char *, Lng32 arglen_);
+  Exit(char *, int arglen_);
   short process(SqlciEnv *sqlci_env);
 };
 
@@ -340,7 +318,7 @@ class Reset : public SqlciCmd {
   short reset_prepared(SqlciEnv *sqlci_env);
 
  public:
-  Reset(reset_type type, char *argument_, Lng32 arglen_);
+  Reset(reset_type type, char *argument_, int arglen_);
   Reset(reset_type type);
   ~Reset();
   short process(SqlciEnv *sqlci_env);
@@ -348,7 +326,7 @@ class Reset : public SqlciCmd {
 
 class SetParam : public SqlciCmd {
   char *param_name;
-  Lng32 namelen;
+  int namelen;
   CharInfo::CharSet cs;
   NABoolean inSingleByteForm_;
   NABoolean isQuotedStrWithoutCharSetPrefix_;  // set to TRUE in w:/sqlci/sqlci_yacc.y
@@ -371,9 +349,9 @@ class SetParam : public SqlciCmd {
 
  public:
   // if arglen_ passed in is -1, then set param to null value.
-  SetParam(char *, Lng32, char *, Lng32 arglen_, CharInfo::CharSet cs = CharInfo::UnknownCharSet);
-  SetParam(char *, Lng32, NAWchar *, Lng32 arglen_, CharInfo::CharSet cs = CharInfo::UnknownCharSet);
-  SetParam(char *, Lng32);
+  SetParam(char *, int, char *, int arglen_, CharInfo::CharSet cs = CharInfo::UnknownCharSet);
+  SetParam(char *, int, NAWchar *, int arglen_, CharInfo::CharSet cs = CharInfo::UnknownCharSet);
+  SetParam(char *, int);
   ~SetParam();
   short process(SqlciEnv *sqlci_env);
 
@@ -389,11 +367,11 @@ class SetParam : public SqlciCmd {
 
 class SetPattern : public SqlciCmd {
   char *pattern_name;
-  Lng32 namelen;
+  int namelen;
 
  public:
-  SetPattern(char *, Lng32, char *, Lng32 arglen_);
-  SetPattern(char *, Lng32);
+  SetPattern(char *, int, char *, int arglen_);
+  SetPattern(char *, int);
   ~SetPattern();
 
   // this method defined in Param.cpp
@@ -427,17 +405,17 @@ class Show : public SqlciCmd {
 
 class SleepVal : public SqlciCmd {
  public:
-  SleepVal(Lng32);
+  SleepVal(int);
   ~SleepVal(){};
   short process(SqlciEnv *sqlci_env);
 
  private:
-  Lng32 val_;
+  int val_;
 };
 
 class Wait : public SqlciCmd {
  public:
-  Wait(char *, Lng32);
+  Wait(char *, int);
   ~Wait(){};
   short process(SqlciEnv *sqlci_env);
 };

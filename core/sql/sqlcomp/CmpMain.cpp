@@ -95,7 +95,7 @@ static void *dlptr = NULL;
 #endif
 
 #ifndef NDEBUG
-Lng32 CmpMain::prev_QI_Priv_Value = 0;
+int CmpMain::prev_QI_Priv_Value = 0;
 #endif
 
 // in release mode and if running regressions and within special parserflags
@@ -347,7 +347,7 @@ void CmpMain::sqlcompCleanup(const char *input_str, RelExpr *queryExpr, NABoolea
   Set_SqlParser_Flags(0);
   //
   // tracking compilers...
-  Lng32 trackingInterval = ActiveSchemaDB()->getDefaults().getAsLong(COMPILER_TRACKING_INTERVAL);
+  int trackingInterval = ActiveSchemaDB()->getDefaults().getAsLong(COMPILER_TRACKING_INTERVAL);
 
   if (0 < trackingInterval && !CmpCommon::context()->isSecondaryMxcmp()) {
     CompilerTrackingInfo *cmpTracker = CmpCommon::context()->getCompilerTrackingInfo();
@@ -469,18 +469,18 @@ static char *localizedText(QueryText &qt, CharInfo::CharSet &localizedTextCharSe
   return qt.text();
 }
 
-void CmpMain::FlushQueryCachesIfLongTime(Lng32 begTimeInSec) {
-  static Lng32 max_cache_flush_time = 24 * 60 * 60;  // 24 hours by default
+void CmpMain::FlushQueryCachesIfLongTime(int begTimeInSec) {
+  static int max_cache_flush_time = 24 * 60 * 60;  // 24 hours by default
   static bool gotSikGcInterval = FALSE;
 
   static char *sct = getenv("RMS_SIK_GC_INTERVAL_SECONDS");
   if (sct != NULL) {
-    max_cache_flush_time = (Lng32)str_atoi(sct, str_len(sct));
+    max_cache_flush_time = (int)str_atoi(sct, str_len(sct));
     if (max_cache_flush_time < 10) max_cache_flush_time = 10;
   }
 
   // NOTE: For this purpose, we can ignore the microseconds part of the TimeVal.
-  Lng32 amt_time_passed = begTimeInSec - cmpCurrentContext->getPrev_QI_sec();
+  int amt_time_passed = begTimeInSec - cmpCurrentContext->getPrev_QI_sec();
 
   if (amt_time_passed > max_cache_flush_time) {
     TimeVal tmpTime;
@@ -576,7 +576,7 @@ CmpMain::ReturnStatus CmpMain::sqlcomp(QueryText &input,                  // IN
   // text cache backpatching errors should never happen -- we'll
   // assert if they do. There are no known cases where a text-cache-on
   // sqlcomp fails but a text-cache-off sqlcomp succeeds.
-  Lng32 here = CmpCommon::diags()->mark();
+  int here = CmpCommon::diags()->mark();
   CmpMain::ReturnStatus rs = PARSERERROR;
 
   ULng32 originalParserFlags = Get_SqlParser_Flags(0xFFFFFFFF);
@@ -820,7 +820,7 @@ CmpMain::ReturnStatus CmpMain::sqlcompStatic(QueryText &input,        // IN
   QueryCachingOption useQueryCache = NORMAL;
   NABoolean cacheable = FALSE, useTextCache = TRUE;
 
-  Lng32 here = CmpCommon::diags()->mark();
+  int here = CmpCommon::diags()->mark();
   CmpMain::ReturnStatus rc = PARSERERROR;
   ULng32 originalParserFlags = Get_SqlParser_Flags(0xFFFFFFFF);
   for (Int32 x = 0; x < 2; x++) {
@@ -1037,13 +1037,13 @@ void CmpMain::getAndProcessAnySiKeys(TimeVal begTime) {
 Int32 CmpMain::getAnySiKeys(TimeVal begTime, TimeVal prev_QI_inval_time, Int32 *retNumSiKeys, TimeVal *pMaxTimestamp,
                             SQL_QIKEY *qiKeyArray, Int32 qiKeyArraySize) {
   Int32 sqlcode = 0;
-  Int64 prev_QI_Time = prev_QI_inval_time.tv_usec;  // Start with number of microseconds
-  Int64 prev_QI_Sec = prev_QI_inval_time.tv_sec;    // put seconds into an Int64
-  prev_QI_Time += prev_QI_Sec * (Int64)1000000;     // Multiply by 100000 & add to tv_usec
+  long prev_QI_Time = prev_QI_inval_time.tv_usec;  // Start with number of microseconds
+  long prev_QI_Sec = prev_QI_inval_time.tv_sec;    // put seconds into an long
+  prev_QI_Time += prev_QI_Sec * (long)1000000;     // Multiply by 100000 & add to tv_usec
 
   // SQL_EXEC_GetSecInvalidKeys() is coded to work in JulianTimeStamp values
   // so add number of microseconds between 4713 B.C., Jan 1 and the Epoc (Jan 1, 1970).
-  Int64 Max_QI_Time = prev_QI_Time;
+  long Max_QI_Time = prev_QI_Time;
 
   sqlcode = SQL_EXEC_GetSecInvalidKeys(prev_QI_Time, qiKeyArray, qiKeyArraySize, retNumSiKeys, &Max_QI_Time);
 
@@ -1051,8 +1051,8 @@ Int32 CmpMain::getAnySiKeys(TimeVal begTime, TimeVal prev_QI_inval_time, Int32 *
     if (prev_QI_Time != Max_QI_Time) {
       // Most-recent-key time has been updated by CLI, so pass it back
       // to the caller.
-      pMaxTimestamp->tv_sec = (Lng32)(Max_QI_Time / 1000000);
-      pMaxTimestamp->tv_usec = (Lng32)(Max_QI_Time % 1000000);
+      pMaxTimestamp->tv_sec = (int)(Max_QI_Time / 1000000);
+      pMaxTimestamp->tv_usec = (int)(Max_QI_Time % 1000000);
     } else {
       // No new key. Update caller using the time we began this latest
       // SQL statement compilation.
@@ -1067,7 +1067,7 @@ Int32 CmpMain::getAnySiKeys(TimeVal begTime, TimeVal prev_QI_inval_time, Int32 *
       if (prev_QI_Priv_Value == 0)  // If previously set to "off"
       {
         NAString qiPath = "";
-        Lng32 new_QI_Priv_Value = getDefaultAsLong(QI_PRIV);
+        int new_QI_Priv_Value = getDefaultAsLong(QI_PRIV);
         if (new_QI_Priv_Value != prev_QI_Priv_Value) {
           // NOTE: This debug mechanism assumes:
           // (a) There will be an NATable entry for QI_PATH [If there is not,
@@ -1242,7 +1242,7 @@ SQLATTRHOLDABLE_INTERNAL_TYPE CmpMain::getHoldableAttr() {
 
 // try to compile query via a cache hit
 NABoolean CmpMain::compileFromCache(const char *sText,     // (IN) : sql statement text
-                                    Lng32 charset,         // (IN) : character set of  sql statement text
+                                    int charset,         // (IN) : character set of  sql statement text
                                     RelExpr *queryExpr,    // (IN) : the query to be compiled
                                     BindWA *bindWA,        // (IN) : work area (used by backpatchParams)
                                     CacheWA &cachewa,      // (IN) : work area for normalizeForCache
@@ -1505,7 +1505,7 @@ class CmpExceptionEnvWatcher {
 };
 
 CmpMain::ReturnStatus CmpMain::sqlcomp(const char *input_str,             // IN
-                                       Lng32 charset,                     // IN
+                                       int charset,                     // IN
                                        RelExpr *&queryExpr,               // INOUT
                                        char **gen_code,                   // OUT
                                        ULng32 *gen_code_len,              // OUT
@@ -1544,17 +1544,17 @@ CmpMain::ReturnStatus CmpMain::sqlcomp(const char *input_str,             // IN
 
     // Temporarily disable this feature when there is already
     // an error in the diagnostics area.
-    Lng32 numErrors = d.getNumber(DgSqlCode::ERROR_);
+    int numErrors = d.getNumber(DgSqlCode::ERROR_);
     if (numErrors == 0) {
       d << DgSqlCode(arkcmpErrorFatal) << DgString0(e.getMsg()) << DgString1(e.getFileName())
-        << DgInt0((Lng32)e.getLineNum());
+        << DgInt0((int)e.getLineNum());
       if (e.getStackTrace())
         SQLMXLoggingArea::logSQLMXAssertionFailureEvent(e.getFileName(), e.getLineNum(), "Compiler Fatal Exception",
                                                         e.getMsg(), NULL, e.getStackTrace());
     }
   } catch (AssertException &e) {
     d << DgSqlCode(arkcmpErrorAssert) << DgString0(e.getCondition()) << DgString1(e.getFileName())
-      << DgInt0((Lng32)e.getLineNum());
+      << DgInt0((int)e.getLineNum());
     if (e.getStackTrace())
       SQLMXLoggingArea::logSQLMXAssertionFailureEvent(e.getFileName(), e.getLineNum(),
                                                       "Compiler Internal Assert Failure", e.getCondition(), NULL,
@@ -1563,7 +1563,7 @@ CmpMain::ReturnStatus CmpMain::sqlcomp(const char *input_str,             // IN
   } catch (BaseException &e) {
     // Probably not reach here, just a safe net
     d << DgSqlCode(arkcmpErrorFatal) << DgString0("An unknown error") << DgString1(e.getFileName())
-      << DgInt0((Lng32)e.getLineNum());
+      << DgInt0((int)e.getLineNum());
   }
   sqlcompCleanup(input_str, queryExpr, TRUE);
 
@@ -1583,7 +1583,7 @@ static void fixupCompilationStats(ComTdbRoot *rootTdb, Space *rootSpace) {
     CompilationStatsDataPtr cmpStatsPtr = rootTdb->getCompilationStatsDataPtr();
     //
     // getting the offset.
-    Int64 offset = cmpStatsPtr.getOffset();
+    long offset = cmpStatsPtr.getOffset();
 
 #ifndef NA_LITTLE_ENDIAN
     swapInt64((char *)(&offset));
@@ -1618,7 +1618,7 @@ void CmpMain::setSqlParserFlags(ULng32 f) {
 }
 
 CmpMain::ReturnStatus CmpMain::compile(const char *input_str,             // IN
-                                       Lng32 charset,                     // IN
+                                       int charset,                     // IN
                                        RelExpr *&queryExpr,               // INOUT
                                        char **gen_code,                   // OUT
                                        ULng32 *gen_code_len,              // OUT
@@ -2150,7 +2150,7 @@ CmpMain::ReturnStatus CmpMain::compile(const char *input_str,             // IN
 
   GUI_or_LOG_DISPLAY(Sqlcmpdbg::AFTER_CODEGEN, NSK_DBG_SHOW_TREE_AFTER_CODEGEN, "codegen");
 
-  Lng32 objLength = generator.getFinalObjLength();
+  int objLength = generator.getFinalObjLength();
   if (objLength <= 0) {
     sqlcompCleanup(input_str, queryExpr, TRUE);
     return GENERATORERROR;

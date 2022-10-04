@@ -381,7 +381,7 @@ int64_t PrivMgrComponents::getCount()
 // *                                                                           *
 // *****************************************************************************
 int64_t PrivMgrComponents::getUniqueID() {
-  Lng32 len = 0;
+  int len = 0;
   char stmtBuf[1000];
 
   // FIXME: It seems NVL should be NOT NULLABLE when the second
@@ -395,7 +395,7 @@ int64_t PrivMgrComponents::getUniqueID() {
   int64_t maxValue = 0;
 
   ExeCliInterface cliInterface(STMTHEAP);
-  Lng32 cliRC = cliInterface.executeImmediate(stmtBuf, (char *)&maxValue, &len, false);
+  int cliRC = cliInterface.executeImmediate(stmtBuf, (char *)&maxValue, &len, false);
 
   if (cliRC != 0) {
     return 0;
@@ -829,7 +829,7 @@ PrivStatus MyTable::selectWhereUnique(const std::string &whereClause, PrivMgrMDR
   // Row read successfully.  Extract the columns.
 
   char *ptr = NULL;
-  Lng32 len = 0;
+  int len = 0;
   char value[500];
   MyRow &row = static_cast<MyRow &>(rowOut);
 

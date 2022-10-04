@@ -195,7 +195,7 @@ class REFRESH_LIB_CLASS CRUDependenceGraphBuilder {
   CRUCache &cache_;
   CRUDependenceGraph &dg_;
 
-  Lng32 nTasks_;
+  int nTasks_;
   CRUOptions::LogCleanupType lcType_;
 
   // Tasks lists

@@ -41,7 +41,7 @@
 #include "optimizer/BindWA.h"
 #include "optimizer/NormWA.h"
 #include "Cost.h"
-#include "CostMethod.h"
+#include "optimizer/CostMethod.h"
 #include "optimizer/opt.h"
 #include "cli/Globals.h"
 #include "SqlParserAux.h"
@@ -109,7 +109,7 @@ Float32 RelSample::getSamplePercent() const {
   return -1.0;
 }
 
-Lng32 RelSample::getClusterSize() const {
+int RelSample::getClusterSize() const {
   // Call ONLY if: CLUSTER sampling
   // and NOT stratified sampling
   if (sampleType() != CLUSTER) return -1;
@@ -130,7 +130,7 @@ Lng32 RelSample::getClusterSize() const {
     if (balExp->getNextBalance() != NULL) return -1;
 
     double size = balExp->getClusterConstValue();
-    return (Lng32)size;
+    return (int)size;
   }
   return -1;
 }
@@ -344,7 +344,7 @@ void RelSample::getPotentialOutputValues(ValueIdSet &outputValues) const { outpu
 
 void RelSample::pushdownCoveredExpr(const ValueIdSet &outputExpr, const ValueIdSet &newExternalInputs,
                                     ValueIdSet &predicatesOnParent, const ValueIdSet *setOfValuesReqdByParent,
-                                    Lng32 childIndex) {
+                                    int childIndex) {
   ValueIdSet exprOnParent;
   if (setOfValuesReqdByParent) exprOnParent = *setOfValuesReqdByParent;
   exprOnParent += outputExpr;
@@ -383,7 +383,7 @@ void RelSample::pushdownCoveredExpr(const ValueIdSet &outputExpr, const ValueIdS
 
 }  // RelSample::pushdownCoveredExpr
 
-Context *RelSample::createContextForAChild(Context *myContext, PlanWorkSpace *pws, Lng32 &childIndex) {
+Context *RelSample::createContextForAChild(Context *myContext, PlanWorkSpace *pws, int &childIndex) {
   // ---------------------------------------------------------------------
   // If one Context has been generated for each child, return NULL
   // to signal completion.
@@ -392,7 +392,7 @@ Context *RelSample::createContextForAChild(Context *myContext, PlanWorkSpace *pw
 
   childIndex = 0;
 
-  Lng32 planNumber = 0;
+  int planNumber = 0;
   const ReqdPhysicalProperty *rppForMe = myContext->getReqdPhysicalProperty();
   PartitioningRequirement *partReqForMe = rppForMe->getPartitioningRequirement();
 
@@ -807,7 +807,7 @@ RelExpr *RelSample::bindNode(BindWA *bindWA) {
   if (myChild->getOperatorType() == REL_SCAN && (static_cast<Scan *>(myChild))->isHbaseTable() &&
       isSimpleRandomRelative() && trafSampleRate <= 1.0f) {
     ULng32 returnInterval = ActiveSchemaDB()->getDefaults().getAsULong(USTAT_HBASE_SAMPLE_RETURN_INTERVAL);
-    Lng32 cacheMin = CmpCommon::getDefaultNumeric(HBASE_NUM_CACHE_ROWS_MIN);
+    int cacheMin = CmpCommon::getDefaultNumeric(HBASE_NUM_CACHE_ROWS_MIN);
     if (trafSampleRate < cacheMin / (Float32)returnInterval) {
       Float32 hbaseSampleRate = cacheMin / (Float32)returnInterval;
       trafSampleRate /= hbaseSampleRate;
@@ -1007,7 +1007,7 @@ ValueIdList RelSample::mapSortKey(const ValueIdList &sortKey) const {
   return newSortKey;
 }
 
-PhysicalProperty *PhysSample::synthPhysicalProperty(const Context *context, const Lng32 pn, PlanWorkSpace *pws) {
+PhysicalProperty *PhysSample::synthPhysicalProperty(const Context *context, const int pn, PlanWorkSpace *pws) {
   const PhysicalProperty *const sppOfChild = context->getPhysicalPropertyOfSolutionForChild(0);
 
   // for now, simply propagate the physical property

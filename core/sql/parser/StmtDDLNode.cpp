@@ -92,14 +92,14 @@ void StmtDDLNode::unparse(NAString &result, PhaseEnum /*phase*/, UnparseFormatEn
   result += "a DDL statement";
 }
 
-NABoolean StmtDDLNode::performParallelOp(Lng32 numPartitions) {
+NABoolean StmtDDLNode::performParallelOp(int numPartitions) {
   // PerformParallelOp
   NABoolean ppo = FALSE;
 
   // The CQD USE_PARALLEL_FOR_NUM_PARTITIONS specifies the number of
   // partitions that must exist before
   // performing the create in parallel.
-  Lng32 numParts = CmpCommon::getDefaultLong(USE_PARALLEL_FOR_NUM_PARTITIONS);
+  int numParts = CmpCommon::getDefaultLong(USE_PARALLEL_FOR_NUM_PARTITIONS);
   NAString pos;
   CmpCommon::getDefault(POS, pos, 0);
 
@@ -116,7 +116,7 @@ NABoolean StmtDDLNode::performParallelOp(Lng32 numPartitions) {
     if (CmpCommon::getDefault(POS_NUM_OF_PARTNS, 0) == DF_SYSTEM)
       ppo = TRUE;
     else {  // Not DF_SYSTEM - get numeric POS_NUM_OF_PARTNS
-      Lng32 posnumpartns = CmpCommon::getDefaultLong(POS_NUM_OF_PARTNS);
+      int posnumpartns = CmpCommon::getDefaultLong(POS_NUM_OF_PARTNS);
       if (posnumpartns > 1) ppo = TRUE;
     }
   }
@@ -214,7 +214,7 @@ StmtDDLGrant *StmtDDLGrant::castToStmtDDLGrant() { return this; }
 
 Int32 StmtDDLGrant::getArity() const { return MAX_STMT_DDL_GRANT_ARITY; }
 
-ExprNode *StmtDDLGrant::getChild(Lng32 index) {
+ExprNode *StmtDDLGrant::getChild(int index) {
   ComASSERT(index >= 0 AND index < getArity());
   return children_[index];
 }
@@ -223,7 +223,7 @@ ExprNode *StmtDDLGrant::getChild(Lng32 index) {
 // mutators
 //
 
-void StmtDDLGrant::setChild(Lng32 index, ExprNode *pChildNode) {
+void StmtDDLGrant::setChild(int index, ExprNode *pChildNode) {
   ComASSERT(index >= 0 AND index < getArity());
   if (pChildNode NEQ NULL) {
     ComASSERT(pChildNode->castToElemDDLNode() NEQ NULL);
@@ -265,13 +265,13 @@ NATraceList StmtDDLGrant::getDetailInfo() const {
   const ElemDDLGranteeArray &granteeArray = getGranteeArray();
 
   detailText = "Grantee list [";
-  detailText += LongToNAString((Lng32)granteeArray.entries());
+  detailText += LongToNAString((int)granteeArray.entries());
   detailText += " element(s)]";
   detailTextList.append(detailText);
 
   for (CollIndex i = 0; i < granteeArray.entries(); i++) {
     detailText = "[grantee ";
-    detailText += LongToNAString((Lng32)i);
+    detailText += LongToNAString((int)i);
     detailText += "]";
     detailTextList.append(detailText);
 
@@ -406,7 +406,7 @@ StmtDDLSchGrant *StmtDDLSchGrant::castToStmtDDLSchGrant() { return this; }
 
 Int32 StmtDDLSchGrant::getArity() const { return MAX_STMT_DDL_GRANT_ARITY; }
 
-ExprNode *StmtDDLSchGrant::getChild(Lng32 index) {
+ExprNode *StmtDDLSchGrant::getChild(int index) {
   ComASSERT(index >= 0 AND index < getArity());
   return children_[index];
 }
@@ -415,7 +415,7 @@ ExprNode *StmtDDLSchGrant::getChild(Lng32 index) {
 // mutators
 //
 
-void StmtDDLSchGrant::setChild(Lng32 index, ExprNode *pChildNode) {
+void StmtDDLSchGrant::setChild(int index, ExprNode *pChildNode) {
   ComASSERT(index >= 0 AND index < getArity());
   if (pChildNode NEQ NULL) {
     ComASSERT(pChildNode->castToElemDDLNode() NEQ NULL);
@@ -457,13 +457,13 @@ NATraceList StmtDDLSchGrant::getDetailInfo() const {
   const ElemDDLGranteeArray &granteeArray = getGranteeArray();
 
   detailText = "Grantee list [";
-  detailText += LongToNAString((Lng32)granteeArray.entries());
+  detailText += LongToNAString((int)granteeArray.entries());
   detailText += " element(s)]";
   detailTextList.append(detailText);
 
   for (CollIndex i = 0; i < granteeArray.entries(); i++) {
     detailText = "[grantee ";
-    detailText += LongToNAString((Lng32)i);
+    detailText += LongToNAString((int)i);
     detailText += "]";
     detailTextList.append(detailText);
 
@@ -567,13 +567,13 @@ NATraceList StmtDDLGrantComponentPrivilege::getDetailInfo() const {
   const ConstStringList &privs = getComponentPrivilegeNameList();
 
   detailText = "Component Privilege Name List [";
-  detailText += LongToNAString((Lng32)privs.entries());
+  detailText += LongToNAString((int)privs.entries());
   detailText += " element(s)]";
   detailTextList.append(detailText);
 
   for (CollIndex i = 0; i < privs.entries(); i++) {
     detailText = "[";
-    detailText += LongToNAString((Lng32)i);
+    detailText += LongToNAString((int)i);
     detailText += "] ";
     detailText += *privs[i];
     detailTextList.append(detailText);
@@ -670,13 +670,13 @@ NATraceList StmtDDLRevokeComponentPrivilege::getDetailInfo() const {
   const ConstStringList &privs = getComponentPrivilegeNameList();
 
   detailText = "Component Privilege Name List [";
-  detailText += LongToNAString((Lng32)privs.entries());
+  detailText += LongToNAString((int)privs.entries());
   detailText += " element(s)]";
   detailTextList.append(detailText);
 
   for (CollIndex i = 0; i < privs.entries(); i++) {
     detailText = "[";
-    detailText += LongToNAString((Lng32)i);
+    detailText += LongToNAString((int)i);
     detailText += "] ";
     detailText += *privs[i];
     detailTextList.append(detailText);
@@ -783,7 +783,7 @@ StmtDDLRevoke *StmtDDLRevoke::castToStmtDDLRevoke() { return this; }
 
 Int32 StmtDDLRevoke::getArity() const { return MAX_STMT_DDL_REVOKE_ARITY; }
 
-ExprNode *StmtDDLRevoke::getChild(Lng32 index) {
+ExprNode *StmtDDLRevoke::getChild(int index) {
   ComASSERT(index >= 0 AND index < getArity());
   return children_[index];
 }
@@ -792,7 +792,7 @@ ExprNode *StmtDDLRevoke::getChild(Lng32 index) {
 // mutators
 //
 
-void StmtDDLRevoke::setChild(Lng32 index, ExprNode *pChildNode) {
+void StmtDDLRevoke::setChild(int index, ExprNode *pChildNode) {
   ComASSERT(index >= 0 AND index < getArity());
   if (pChildNode NEQ NULL) {
     ComASSERT(pChildNode->castToElemDDLNode() NEQ NULL);
@@ -849,13 +849,13 @@ NATraceList StmtDDLRevoke::getDetailInfo() const {
   const ElemDDLGranteeArray &granteeArray = getGranteeArray();
 
   detailText = "Grantee list [";
-  detailText += LongToNAString((Lng32)granteeArray.entries());
+  detailText += LongToNAString((int)granteeArray.entries());
   detailText += " element(s)]";
   detailTextList.append(detailText);
 
   for (CollIndex i = 0; i < granteeArray.entries(); i++) {
     detailText = "[grantee ";
-    detailText += LongToNAString((Lng32)i);
+    detailText += LongToNAString((int)i);
     detailText += "]";
     detailTextList.append(detailText);
 
@@ -983,7 +983,7 @@ StmtDDLSchRevoke *StmtDDLSchRevoke::castToStmtDDLSchRevoke() { return this; }
 
 Int32 StmtDDLSchRevoke::getArity() const { return MAX_STMT_DDL_REVOKE_ARITY; }
 
-ExprNode *StmtDDLSchRevoke::getChild(Lng32 index) {
+ExprNode *StmtDDLSchRevoke::getChild(int index) {
   ComASSERT(index >= 0 AND index < getArity());
   return children_[index];
 }
@@ -992,7 +992,7 @@ ExprNode *StmtDDLSchRevoke::getChild(Lng32 index) {
 // mutators
 //
 
-void StmtDDLSchRevoke::setChild(Lng32 index, ExprNode *pChildNode) {
+void StmtDDLSchRevoke::setChild(int index, ExprNode *pChildNode) {
   ComASSERT(index >= 0 AND index < getArity());
   if (pChildNode NEQ NULL) {
     ComASSERT(pChildNode->castToElemDDLNode() NEQ NULL);
@@ -1049,13 +1049,13 @@ NATraceList StmtDDLSchRevoke::getDetailInfo() const {
   const ElemDDLGranteeArray &granteeArray = getGranteeArray();
 
   detailText = "Grantee list [";
-  detailText += LongToNAString((Lng32)granteeArray.entries());
+  detailText += LongToNAString((int)granteeArray.entries());
   detailText += " element(s)]";
   detailTextList.append(detailText);
 
   for (CollIndex i = 0; i < granteeArray.entries(); i++) {
     detailText = "[grantee ";
-    detailText += LongToNAString((Lng32)i);
+    detailText += LongToNAString((int)i);
     detailText += "]";
     detailTextList.append(detailText);
 

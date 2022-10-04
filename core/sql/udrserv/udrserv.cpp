@@ -51,7 +51,7 @@ static pthread_t gv_main_thread_id;
 #include "UdrStreams.h"
 #include "export/ComDiags.h"
 #include "udrdecs.h"
-#include "ErrorMessage.h"
+#include "sqlmsg/ErrorMessage.h"
 #include "UdrFFDC.h"
 #include "UdrDebug.h"
 #include "UdrAbortCallBack.h"
@@ -120,7 +120,7 @@ static const char *LmResultToString(const LmResult &r);
 
 static void DumpDiags(ostream &stream, ComDiagsArea *d, const char *prefix);
 static void DumpProcessInfo();
-static ComDiagsArea *addOrCreateErrorDiags(UdrGlobals *UdrGlob, Lng32 errorNumber, Lng32 intErrorInfo,
+static ComDiagsArea *addOrCreateErrorDiags(UdrGlobals *UdrGlob, int errorNumber, int intErrorInfo,
                                            const char *charErrorInfo, ComDiagsArea *diags);
 
 //
@@ -319,7 +319,7 @@ Int32 main(Int32 argc, char **argv) {
 
 static void runServer(Int32 argc, char **argv) {
 #ifdef _DEBUG
-  UDR_DEBUG1("Process ID: %ld", (Lng32)GETPID());
+  UDR_DEBUG1("Process ID: %ld", (int)GETPID());
   UDR_DEBUG0("[BEGIN argv]");
   Int32 i;
   for (i = 0; i < argc; i++) {
@@ -414,7 +414,7 @@ static void runServer(Int32 argc, char **argv) {
         replyStreams.removeAt(0);
 
 #ifdef _DEBUG
-        Lng32 crashPoint = 0;
+        int crashPoint = 0;
 #endif
         if (stream->moreObjects()) {
           UdrIpcObjectType msgType = (UdrIpcObjectType)stream->getNextObjType();
@@ -428,7 +428,7 @@ static void runServer(Int32 argc, char **argv) {
           else
             crashPoint = 0;
 
-          if (crashPoint == (Lng32)msgType) {
+          if (crashPoint == (int)msgType) {
             ServerDebug("  CRASH POINT is %ld (%s)", crashPoint, GetUdrIpcTypeString((UdrIpcObjectType)crashPoint));
             ServerDebug("  MXUDR about to exit");
             exit(1);
@@ -441,7 +441,7 @@ static void runServer(Int32 argc, char **argv) {
           // Bring the process down if the environment variable checked
           // earlier has a negative value and its positive value matches
           // the message type
-          if (crashPoint && (-crashPoint == (Lng32)msgType)) {
+          if (crashPoint && (-crashPoint == (int)msgType)) {
             if (crashPoint == -UDR_MSG_DATA_HEADER || crashPoint == -UDR_MSG_CONTINUE_REQUEST ||
                 crashPoint == -UDR_MSG_RS_DATA_HEADER || crashPoint == -UDR_MSG_RS_CONTINUE) {
               // For data requests, let's wait for 5 sec before crashing
@@ -496,8 +496,8 @@ void processARequest(UdrGlobals *UdrGlob, UdrServerReplyStream &msgStream, IpcEn
 
   if (UdrGlob->verbose_ && UdrGlob->traceLevel_ >= TRACE_IPMS && UdrGlob->showMain_) {
     ServerDebug("[UdrServ (%s)] Processing Request# %ld", moduleName, UdrGlob->objectCount_);
-    ServerDebug("         Msg Type: %ld (%s)", (Lng32)msgType, GetUdrIpcTypeString(UdrIpcObjectType(msgType)));
-    ServerDebug("         Msg Version: %ld", (Lng32)msgVer);
+    ServerDebug("         Msg Type: %ld (%s)", (int)msgType, GetUdrIpcTypeString(UdrIpcObjectType(msgType)));
+    ServerDebug("         Msg Version: %ld", (int)msgVer);
   }
 
   if (!IsNAStringSpaceOrEmpty(initErrText)) {
@@ -754,7 +754,7 @@ void processARequest(UdrGlobals *UdrGlob, UdrServerReplyStream &msgStream, IpcEn
 
     default: {
       UdrGlob->numErrUDR_++;
-      controlErrorReply(UdrGlob, msgStream, UDR_ERR_UNKNOWN_MSG_TYPE, (Lng32)msgType, NULL);
+      controlErrorReply(UdrGlob, msgStream, UDR_ERR_UNKNOWN_MSG_TYPE, (int)msgType, NULL);
 
     }  // default
     break;
@@ -1122,7 +1122,7 @@ NABoolean processCmdLine(UdrGlobals *UdrGlob, Int32 argc, char **argv) {
 // most recent $RECEIVE arrival might have been a system message that
 // is of no concern to the UDR server, e.g. a remote CPU went down.
 //
-Lng32 getClientId(UdrGlobals *UdrGlob)
+int getClientId(UdrGlobals *UdrGlob)
 {
   // Returns either 0 OK or UDR_ERR_TOO_MANY_OPENERS
 
@@ -1180,7 +1180,7 @@ Lng32 getClientId(UdrGlobals *UdrGlob)
 // controlErrorReply() and dataErrorReply() to send UdrErrorReply
 // objects.
 //
-static ComDiagsArea *addOrCreateErrorDiags(UdrGlobals *UdrGlob, Lng32 errorNumber, Lng32 intErrorInfo,
+static ComDiagsArea *addOrCreateErrorDiags(UdrGlobals *UdrGlob, int errorNumber, int intErrorInfo,
                                            const char *charErrorInfo, ComDiagsArea *diags) {
   if (!diags) {
     diags = ComDiagsArea::allocate(UdrGlob->getIpcHeap());
@@ -1257,7 +1257,7 @@ static ComDiagsArea *addOrCreateErrorDiags(UdrGlobals *UdrGlob, Lng32 errorNumbe
   return diags;
 }
 
-static void doErrorDebugging(UdrGlobals *UdrGlob, const char *moduleName, Lng32 errorNumber, Lng32 intErrorInfo,
+static void doErrorDebugging(UdrGlobals *UdrGlob, const char *moduleName, int errorNumber, int intErrorInfo,
                              const char *charErrorInfo) {
   /*
   char errorText[MAXERRTEXT];
@@ -1273,7 +1273,7 @@ static void doErrorDebugging(UdrGlobals *UdrGlob, const char *moduleName, Lng32 
   }
 }
 
-void controlErrorReply(UdrGlobals *UdrGlob, UdrServerReplyStream &msgStream, Lng32 errorNumber, Lng32 intErrorInfo,
+void controlErrorReply(UdrGlobals *UdrGlob, UdrServerReplyStream &msgStream, int errorNumber, int intErrorInfo,
                        const char *charErrorInfo) {
   const char *moduleName = "controlErrorReply";
   doMessageBox(UdrGlob, TRACE_SHOW_DIALOGS, UdrGlob->showMain_, moduleName);
@@ -1297,7 +1297,7 @@ void controlErrorReply(UdrGlobals *UdrGlob, UdrServerReplyStream &msgStream, Lng
 
 }  // controlErrorReply
 
-void dataErrorReply(UdrGlobals *UdrGlob, UdrServerDataStream &msgStream, Lng32 errorNumber, Lng32 intErrorInfo,
+void dataErrorReply(UdrGlobals *UdrGlob, UdrServerDataStream &msgStream, int errorNumber, int intErrorInfo,
                     const char *charErrorInfo, ComDiagsArea *diags) {
   const char *moduleName = "dataErrorReply";
   doMessageBox(UdrGlob, TRACE_SHOW_DIALOGS, UdrGlob->showMain_, moduleName);
@@ -1410,7 +1410,7 @@ static Int32 invokeUdrMethod(const char *method, const char *container, const ch
   const char *prefixPlusSpace = MXUDR_PREFIX_PLUS_SPACE;
   NAMemory *h = glob.getUdrHeap();
   Int32 i;
-  Lng32 cliResult = 0;
+  int cliResult = 0;
 
   fprintf(f, "%s Preparing to invoke a routine body\n", prefix);
   fprintf(f, "%s Language %s, routine type %s\n", prefix, (isJava ? "JAVA" : "C"),
@@ -2155,15 +2155,15 @@ static void DumpProcessInfo() {
     UDR_DEBUG1("  Process ID %d", (Int32)return_values_list[0]);
     UDR_DEBUG1("  Program file %s", (char *)&return_values_list[22]);
     UDR_DEBUG1("  Current pages %d", (Int32)return_values_list[1]);
-    UDR_DEBUG1("  Page faults %ld", *((Lng32 *)&return_values_list[2]));
-    UDR_DEBUG1("  PFS size %ld", *((Lng32 *)&return_values_list[4]));
-    UDR_DEBUG1("  Max PFS size %ld", *((Lng32 *)&return_values_list[6]));
-    UDR_DEBUG1("  Global data size %ld", *((Lng32 *)&return_values_list[8]));
-    UDR_DEBUG1("  Stack size %ld", *((Lng32 *)&return_values_list[10]));
-    UDR_DEBUG1("  Max stack size %ld", *((Lng32 *)&return_values_list[12]));
-    UDR_DEBUG1("  Native heap size %ld", *((Lng32 *)&return_values_list[14]));
-    UDR_DEBUG1("  Max native heap size %ld", *((Lng32 *)&return_values_list[16]));
-    UDR_DEBUG1("  Guaranteed swap space %ld", *((Lng32 *)&return_values_list[18]));
+    UDR_DEBUG1("  Page faults %ld", *((int *)&return_values_list[2]));
+    UDR_DEBUG1("  PFS size %ld", *((int *)&return_values_list[4]));
+    UDR_DEBUG1("  Max PFS size %ld", *((int *)&return_values_list[6]));
+    UDR_DEBUG1("  Global data size %ld", *((int *)&return_values_list[8]));
+    UDR_DEBUG1("  Stack size %ld", *((int *)&return_values_list[10]));
+    UDR_DEBUG1("  Max stack size %ld", *((int *)&return_values_list[12]));
+    UDR_DEBUG1("  Native heap size %ld", *((int *)&return_values_list[14]));
+    UDR_DEBUG1("  Max native heap size %ld", *((int *)&return_values_list[16]));
+    UDR_DEBUG1("  Guaranteed swap space %ld", *((int *)&return_values_list[18]));
     UDR_DEBUG1("  TNS/R Native flag %d", (Int32)return_values_list[20]);
   }
 

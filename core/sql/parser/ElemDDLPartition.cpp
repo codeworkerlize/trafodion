@@ -280,7 +280,7 @@ ElemDDLPartitionClause *ElemDDLPartitionClause::castToElemDDLPartitionClause() {
 // get the degree of this node
 Int32 ElemDDLPartitionClause::getArity() const { return MAX_ELEM_DDL_PARTITION_CLAUSE_ARITY; }
 
-ExprNode *ElemDDLPartitionClause::getChild(Lng32 index) {
+ExprNode *ElemDDLPartitionClause::getChild(int index) {
   ComASSERT(index >= 0 AND index < getArity());
   return children_[index];
 }
@@ -289,7 +289,7 @@ ExprNode *ElemDDLPartitionClause::getChild(Lng32 index) {
 // mutators
 //
 
-void ElemDDLPartitionClause::setChild(Lng32 index, ExprNode *pChildNode) {
+void ElemDDLPartitionClause::setChild(int index, ExprNode *pChildNode) {
   ComASSERT(index >= 0 AND index < getArity());
   if (pChildNode NEQ NULL) {
     ComASSERT(pChildNode->castToElemDDLNode() NEQ NULL);
@@ -432,7 +432,7 @@ ElemDDLPartitionSystem *ElemDDLPartitionSystem::castToElemDDLPartitionSystem() {
 // get the degree of this node
 Int32 ElemDDLPartitionSystem::getArity() const { return MAX_ELEM_DDL_PARTITION_SYSTEM_ARITY; }
 
-ExprNode *ElemDDLPartitionSystem::getChild(Lng32 index) {
+ExprNode *ElemDDLPartitionSystem::getChild(int index) {
   ComASSERT(index >= 0 AND index < getArity());
   return children_[index];
 }
@@ -498,7 +498,7 @@ void ElemDDLPartitionSystem::initializeDataMembers() {
 
 }  // ElemDDLPartitionSystem::initializeDataMembers()
 
-void ElemDDLPartitionSystem::setChild(Lng32 index, ExprNode *pChildNode) {
+void ElemDDLPartitionSystem::setChild(int index, ExprNode *pChildNode) {
   ComASSERT(index >= 0 AND index < getArity());
   if (pChildNode NEQ NULL) {
     ComASSERT(pChildNode->castToElemDDLNode() NEQ NULL);
@@ -539,7 +539,7 @@ void ElemDDLPartitionSystem::setPartitionAttr(ElemDDLNode *pPartitionAttr) {
       {
         ElemDDLFileAttrMaxExtents *pMaxExtents = pPartitionAttr->castToElemDDLFileAttrMaxExtents();
         // error checking for limits when we specify the MAXEXTENTS clause
-        Lng32 maxext = pMaxExtents->getMaxExtents();
+        int maxext = pMaxExtents->getMaxExtents();
         if ((maxext <= 0) || (maxext > COM_MAX_MAXEXTENTS)) {
           *SqlParser_Diags << DgSqlCode(-3191);
         } else {
@@ -689,7 +689,7 @@ NATraceList ElemDDLPartitionSystem::getDetailInfo() const {
   detailTextList.append(detailText);
 
   detailText = "    max size:      ";
-  detailText += LongToNAString((Lng32)getMaxSize());
+  detailText += LongToNAString((int)getMaxSize());
   detailTextList.append(detailText);
 
   ElemDDLFileAttrMaxSize maxSizeFileAttr(getMaxSize(), getMaxSizeUnit());
@@ -822,7 +822,7 @@ ElemDDLPartitionRange *ElemDDLPartitionRange::castToElemDDLPartitionRange() { re
 // get the degree of this node
 Int32 ElemDDLPartitionRange::getArity() const { return MAX_ELEM_DDL_PARTITION_RANGE_ARITY; }
 
-ExprNode *ElemDDLPartitionRange::getChild(Lng32 index) {
+ExprNode *ElemDDLPartitionRange::getChild(int index) {
   ComASSERT(index >= 0 AND index < getArity());
 
   //
@@ -843,7 +843,7 @@ ExprNode *ElemDDLPartitionRange::getChild(Lng32 index) {
 // mutator
 //
 
-void ElemDDLPartitionRange::setChild(Lng32 index, ExprNode *pChildNode) {
+void ElemDDLPartitionRange::setChild(int index, ExprNode *pChildNode) {
   ComASSERT(index >= 0 AND index < getArity());
 
   ElemDDLNode *pElemDDLNode = NULL;
@@ -881,7 +881,7 @@ NATraceList ElemDDLPartitionRange::getDetailInfo() const {
 
   if (keyValues.entries() NEQ 0) {
     detailText = "Key value list [";
-    detailText += LongToNAString((Lng32)keyValues.entries());
+    detailText += LongToNAString((int)keyValues.entries());
     detailText += " key value(s)]:";
     detailTextList.append(detailText);
   } else {
@@ -896,7 +896,7 @@ NATraceList ElemDDLPartitionRange::getDetailInfo() const {
     ConstValue *keyVal = keyValues[j];
 
     detailText = "  [key value ";
-    detailText += LongToNAString((Lng32)j);
+    detailText += LongToNAString((int)j);
     detailText += "]";
     detailTextList.append(detailText);
 
@@ -1033,7 +1033,7 @@ ElemDDLPartitionByColumnList *ElemDDLPartitionByColumnList::castToElemDDLPartiti
 // get the degree of this node
 Int32 ElemDDLPartitionByColumnList::getArity() const { return MAX_ELEM_DDL_PARTITION_BY_COLUMN_LIST_ARITY; }
 
-ExprNode *ElemDDLPartitionByColumnList::getChild(Lng32 index) {
+ExprNode *ElemDDLPartitionByColumnList::getChild(int index) {
   ComASSERT(index >= 0 AND index < getArity());
   return children_[index];
 }
@@ -1042,7 +1042,7 @@ ExprNode *ElemDDLPartitionByColumnList::getChild(Lng32 index) {
 // mutator
 //
 
-void ElemDDLPartitionByColumnList::setChild(Lng32 index, ExprNode *pChildNode) {
+void ElemDDLPartitionByColumnList::setChild(int index, ExprNode *pChildNode) {
   ComASSERT(index >= 0 AND index < getArity());
   if (pChildNode NEQ NULL) {
     ComASSERT(pChildNode->castToElemDDLNode() NEQ NULL);
@@ -1081,13 +1081,13 @@ NATraceList ElemDDLPartitionByColumnList::getDetailInfo() const {
   }
 
   detailText = "Column Name List [";
-  detailText += LongToNAString((Lng32)pPartitionKeyColumnList->entries());
+  detailText += LongToNAString((int)pPartitionKeyColumnList->entries());
   detailText += " element(s)]:";
   detailTextList.append(detailText);
 
   for (CollIndex i = 0; i < pPartitionKeyColumnList->entries(); i++) {
     detailText = "[column ";
-    detailText += LongToNAString((Lng32)i);
+    detailText += LongToNAString((int)i);
     detailText += "]";
     detailTextList.append(detailText);
 
@@ -1117,7 +1117,7 @@ NAString ElemDDLPartitionByColumnList::getSyntax() const {
 
 ElemDDLPartitionClauseV2::~ElemDDLPartitionClauseV2() {}
 
-void ElemDDLPartitionClauseV2::setChild(Lng32 index, ExprNode *pChildNode) {
+void ElemDDLPartitionClauseV2::setChild(int index, ExprNode *pChildNode) {
   ComASSERT(index >= 0 AND index < getArity());
   if (pChildNode NEQ NULL) {
     ComASSERT(pChildNode->castToElemDDLNode() NEQ NULL);
@@ -1132,7 +1132,7 @@ Int32 ElemDDLPartitionClauseV2::getArity() const { return MAX_ELEM_DDL_PARTITION
 // cast virtual function
 ElemDDLPartitionClauseV2 *ElemDDLPartitionClauseV2::castToElemDDLPartitionClauseV2() { return this; }
 
-ExprNode *ElemDDLPartitionClauseV2::getChild(Lng32 index) {
+ExprNode *ElemDDLPartitionClauseV2::getChild(int index) {
   ComASSERT(index >= 0 AND index < getArity());
   return children_[index];
 }

@@ -64,7 +64,7 @@ const NAString ElemDDLLoadOpt::getText() const {
 // -----------------------------------------------------------------------
 
 // constructor
-ElemDDLLoadOptDSlack::ElemDDLLoadOptDSlack(Lng32 percentage) : ElemDDLLoadOpt(ELM_LOAD_OPT_D_SLACK_ELEM) {
+ElemDDLLoadOptDSlack::ElemDDLLoadOptDSlack(int percentage) : ElemDDLLoadOpt(ELM_LOAD_OPT_D_SLACK_ELEM) {
   if (isLegalPercentageValue(percentage)) {
     percentage_ = (unsigned short)percentage;
   } else {
@@ -85,7 +85,7 @@ ElemDDLLoadOptDSlack *ElemDDLLoadOptDSlack::castToElemDDLLoadOptDSlack() { retur
 //
 
 // is the specified percentage a legal value?
-NABoolean ElemDDLLoadOptDSlack::isLegalPercentageValue(Lng32 percentage) {
+NABoolean ElemDDLLoadOptDSlack::isLegalPercentageValue(int percentage) {
   if (percentage >= 0 AND percentage <= 100) {
     return TRUE;
   } else {
@@ -98,7 +98,7 @@ NABoolean ElemDDLLoadOptDSlack::isLegalPercentageValue(Lng32 percentage) {
 //
 
 const NAString ElemDDLLoadOptDSlack::displayLabel1() const {
-  return (NAString("Percentage: ") + LongToNAString((Lng32)getPercentage()));
+  return (NAString("Percentage: ") + LongToNAString((int)getPercentage()));
 }
 
 const NAString ElemDDLLoadOptDSlack::getText() const { return "ElemDDLLoadOptDSlack"; }
@@ -118,7 +118,7 @@ NAString ElemDDLLoadOptDSlack::getSyntax() const {
 // -----------------------------------------------------------------------
 
 // constructor
-ElemDDLLoadOptISlack::ElemDDLLoadOptISlack(Lng32 percentage) : ElemDDLLoadOpt(ELM_LOAD_OPT_I_SLACK_ELEM) {
+ElemDDLLoadOptISlack::ElemDDLLoadOptISlack(int percentage) : ElemDDLLoadOpt(ELM_LOAD_OPT_I_SLACK_ELEM) {
   if (isLegalPercentageValue(percentage)) {
     percentage_ = (unsigned short)percentage;
   } else {
@@ -139,7 +139,7 @@ ElemDDLLoadOptISlack *ElemDDLLoadOptISlack::castToElemDDLLoadOptISlack() { retur
 //
 
 // is the specified percentage a legal value?
-NABoolean ElemDDLLoadOptISlack::isLegalPercentageValue(Lng32 percentage) {
+NABoolean ElemDDLLoadOptISlack::isLegalPercentageValue(int percentage) {
   if (percentage >= 0 AND percentage <= 100) {
     return TRUE;
   } else {
@@ -152,7 +152,7 @@ NABoolean ElemDDLLoadOptISlack::isLegalPercentageValue(Lng32 percentage) {
 //
 
 const NAString ElemDDLLoadOptISlack::displayLabel1() const {
-  return (NAString("Percentage: ") + LongToNAString((Lng32)getPercentage()));
+  return (NAString("Percentage: ") + LongToNAString((int)getPercentage()));
 }
 
 const NAString ElemDDLLoadOptISlack::getText() const { return "ElemDDLLoadOptISlack"; }

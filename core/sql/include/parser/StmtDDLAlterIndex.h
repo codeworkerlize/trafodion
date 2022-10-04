@@ -73,7 +73,7 @@ class StmtDDLAlterIndex : public StmtDDLNode {
   //
 
   virtual Int32 getArity() const;
-  virtual ExprNode *getChild(Lng32 index);
+  virtual ExprNode *getChild(int index);
 
   inline ElemDDLNode *getAlterIndexAction() const;
   inline const NAString &getIndexName() const;
@@ -85,7 +85,7 @@ class StmtDDLAlterIndex : public StmtDDLNode {
   // mutators
   //
 
-  virtual void setChild(Lng32 index, ExprNode *pChildNode);
+  virtual void setChild(int index, ExprNode *pChildNode);
   virtual void setIndexName(const QualifiedName &indexName);
 
   // methods for tracing

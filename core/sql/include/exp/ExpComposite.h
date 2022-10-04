@@ -48,7 +48,7 @@
 ////////////////////////////////////////////////////////////////////////
 class CompositeAttributes : public Attributes {
  public:
-  CompositeAttributes(Lng32 length) : length_(length), numElements_(0), elements_(NULL) {
+  CompositeAttributes(int length) : length_(length), numElements_(0), elements_(NULL) {
     setClassID(CompositeAttributesID);
     memset(fillers_, 0, sizeof(fillers_));
   }
@@ -161,7 +161,7 @@ class ExpCompositeBase : public ex_function_clause {
                                          char *persistentArea, short fixupFlag, NABoolean spaceCompOnly);
 
   virtual Long pack(void *);
-  virtual Lng32 unpack(void *base, void *reallocator);
+  virtual int unpack(void *base, void *reallocator);
 
   virtual Int32 isNullRelevant() const { return 1; };
 
@@ -226,7 +226,7 @@ class ExpCompositeArrayCast : public ExpCompositeBase {
   virtual ex_expr::exp_return_type eval(char *op_data[], CollHeap *, ComDiagsArea ** = 0);
 
   virtual Long pack(void *);
-  virtual Lng32 unpack(void *base, void *reallocator);
+  virtual int unpack(void *base, void *reallocator);
 
   virtual void displayContents(Space *space, const char * /*displayStr*/, Int32 clauseNum, char *constsArea);
 
@@ -253,7 +253,7 @@ class ExpCompositeHiveCast : public ExpCompositeBase {
   virtual ex_expr::exp_return_type eval(char *op_data[], CollHeap *, ComDiagsArea ** = 0);
 
   virtual Long pack(void *);
-  virtual Lng32 unpack(void *base, void *reallocator);
+  virtual int unpack(void *base, void *reallocator);
 
   virtual void displayContents(Space *space, const char * /*displayStr*/, Int32 clauseNum, char *constsArea);
 
@@ -283,7 +283,7 @@ class ExpCompositeConcat : public ExpCompositeBase {
   virtual ex_expr::exp_return_type eval(char *op_data[], CollHeap *, ComDiagsArea ** = 0);
 
   virtual Long pack(void *);
-  virtual Lng32 unpack(void *base, void *reallocator);
+  virtual int unpack(void *base, void *reallocator);
 
   virtual void displayContents(Space *space, const char * /*displayStr*/, Int32 clauseNum, char *constsArea,
                                ULng32 flag);
@@ -306,7 +306,7 @@ class ExpCompositeCreate : public ExpCompositeBase {
   ExpCompositeCreate(){};
 
   virtual Long pack(void *);
-  virtual Lng32 unpack(void *base, void *reallocator);
+  virtual int unpack(void *base, void *reallocator);
 
   virtual ex_expr::exp_return_type eval(char *op_data[], atp_struct *atp1, atp_struct *atp2, atp_struct *atp3,
                                         CollHeap *, ComDiagsArea ** = 0);
@@ -347,13 +347,13 @@ class ExpCompositeDisplay : public ExpCompositeBase {
 /////////////////////////////////////////////////////
 class ExpCompositeExtract : public ExpCompositeBase {
  public:
-  ExpCompositeExtract(OperatorTypeEnum oper_type, short type, ULng32 numElements, Lng32 elemNum, short numAttrs,
-                      Attributes **attr, AttributesPtr compAttrs, Lng32 numSearchAttrs, char *searchAttrTypeList,
+  ExpCompositeExtract(OperatorTypeEnum oper_type, short type, ULng32 numElements, int elemNum, short numAttrs,
+                      Attributes **attr, AttributesPtr compAttrs, int numSearchAttrs, char *searchAttrTypeList,
                       char *searchAttrIndexList, Space *space);
   ExpCompositeExtract(){};
 
   virtual Long pack(void *);
-  virtual Lng32 unpack(void *base, void *reallocator);
+  virtual int unpack(void *base, void *reallocator);
 
   virtual Int32 isNullRelevant() const { return 0; };
 
@@ -363,7 +363,7 @@ class ExpCompositeExtract : public ExpCompositeBase {
 
   virtual short getClassSize() { return (short)sizeof(*this); }
 
-  static ex_expr::exp_return_type extractValue(Attributes *compAttrs, Lng32 elemNum, char *tgtPtr, char *srcPtr,
+  static ex_expr::exp_return_type extractValue(Attributes *compAttrs, int elemNum, char *tgtPtr, char *srcPtr,
                                                Int32 maxNumElems, NABoolean &isNullVal, ULng32 &attrLen,
                                                Int32 &numElems, CollHeap *heap, ComDiagsArea **diagsArea);
 
@@ -371,19 +371,19 @@ class ExpCompositeExtract : public ExpCompositeBase {
   ex_expr::exp_return_type searchAndExtractValue(Attributes *inAttrs, char *tgtPtr, char *srcPtr, NABoolean &isNullVal,
                                                  ULng32 &attrLen, CollHeap *heap, ComDiagsArea **diagsArea);
 
-  Lng32 numSearchAttrs() { return numSearchAttrs_; }
-  Int32 getSearchAttrType(Lng32 i) {
+  int numSearchAttrs() { return numSearchAttrs_; }
+  Int32 getSearchAttrType(int i) {
     char *searchType = searchAttrTypeList_;
     Int32 *searchTypeInt32 = (Int32 *)searchType;
     return searchTypeInt32[i];
   }
-  Int32 getSearchAttrIndex(Lng32 i) {
+  Int32 getSearchAttrIndex(int i) {
     char *searchIndex = searchAttrIndexList_;
     Int32 *searchIndexInt32 = (Int32 *)searchIndex;
     return searchIndexInt32[i];
   }
 
-  Lng32 elemNum_;
+  int elemNum_;
   UInt32 flags_;
 
   Int32 numSearchAttrs_;

@@ -38,7 +38,7 @@
 
 #include "EHCommonDefs.h"
 
-#include "NAError.h"
+#include "sqlci/SqlciParseGlobals.h"
 
 #include <setjmp.h>
 #include <string.h>

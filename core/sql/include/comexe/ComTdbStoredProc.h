@@ -33,7 +33,7 @@ class ExSPInputOutput : public NAVersionedObject {
   virtual short getClassSize() { return (short)sizeof(ExSPInputOutput); }
 
   Long pack(void *space);
-  Lng32 unpack(void *base, void *reallocator);
+  int unpack(void *base, void *reallocator);
 
   short inputValue(ULng32 fieldNum, char *inputRow, char *data, ULng32 datalen, NABoolean casting,
                    ComDiagsArea *diagsArea = NULL);
@@ -80,7 +80,7 @@ class ComTdbStoredProc : public ComTdb {
   ComTdbStoredProc(char *spName, ex_expr *inputExpr, ULng32 inputRowlen, ex_expr *outputExpr, ULng32 outputRowlen,
                    ex_cri_desc *workCriDesc, const unsigned short workAtpIndex, ex_cri_desc *criDescParent,
                    ex_cri_desc *criDescReturned, ExSPInputOutput *extractInputExpr, ExSPInputOutput *moveOutputExpr,
-                   queue_index fromParent, queue_index toParent, Cardinality estimatedRowCount, Lng32 numBuffers,
+                   queue_index fromParent, queue_index toParent, Cardinality estimatedRowCount, int numBuffers,
                    ULng32 bufferSize, ex_expr *predExpr = NULL,
                    UInt16 arkcmpInfo = 0);  // constructor
 
@@ -99,7 +99,7 @@ class ComTdbStoredProc : public ComTdb {
   virtual short getClassSize() { return (short)sizeof(ComTdbStoredProc); }
 
   Long pack(void *);
-  Lng32 unpack(void *, void *reallocator);
+  int unpack(void *, void *reallocator);
 
   Int32 orderedQueueProtocol() const { return -1; };
   void display() const {};

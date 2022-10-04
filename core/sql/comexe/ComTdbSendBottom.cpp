@@ -46,9 +46,9 @@
 
 ComTdbSendBottom::ComTdbSendBottom(ex_expr *moveOutputValues, queue_index downSize, queue_index upSize,
                                    ex_cri_desc *criDescDown, ex_cri_desc *criDescUp, ex_cri_desc *workCriDesc,
-                                   Lng32 moveExprTuppIndex, Lng32 downRecordLength, Lng32 upRecordLength,
-                                   Lng32 requestBufferSize, Lng32 numRequestBuffers, Lng32 replyBufferSize,
-                                   Lng32 numReplyBuffers, Cardinality estNumRowsRequested,
+                                   int moveExprTuppIndex, int downRecordLength, int upRecordLength,
+                                   int requestBufferSize, int numRequestBuffers, int replyBufferSize,
+                                   int numReplyBuffers, Cardinality estNumRowsRequested,
                                    Cardinality estNumRowsReplied)
     : ComTdb(ex_SEND_BOTTOM, eye_SEND_BOTTOM, estNumRowsReplied, criDescDown, criDescUp, downSize, upSize) {
   moveOutputValues_ = moveOutputValues;
@@ -94,7 +94,7 @@ Long ComTdbSendBottom::pack(void *space) {
   return ComTdb::pack(space);
 }
 
-Lng32 ComTdbSendBottom::unpack(void *base, void *reallocator) {
+int ComTdbSendBottom::unpack(void *base, void *reallocator) {
   if (moveOutputValues_.unpack(base, reallocator)) return -1;
   if (workCriDesc_.unpack(base, reallocator)) return -1;
   return ComTdb::unpack(base, reallocator);
@@ -109,7 +109,7 @@ void ComTdbSendBottom::displayContents(Space *space, ULng32 flag) {
     str_sprintf(buf, "\nFor ComTdbSendBottom :");
     space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
 
-    str_sprintf(buf, "sendBottomFlags_ = %x", (Lng32)sendBottomFlags_);
+    str_sprintf(buf, "sendBottomFlags_ = %x", (int)sendBottomFlags_);
     space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
 
     str_sprintf(buf, "downRecordLength_ = %d, upRecordLength_ = %d", downRecordLength_, upRecordLength_);

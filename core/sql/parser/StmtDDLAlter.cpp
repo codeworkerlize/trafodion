@@ -477,7 +477,7 @@ StmtDDLAlterIndex *StmtDDLAlterIndex::castToStmtDDLAlterIndex() { return this; }
 
 Int32 StmtDDLAlterIndex::getArity() const { return MAX_STMT_DDL_ALTER_INDEX_ARITY; }
 
-ExprNode *StmtDDLAlterIndex::getChild(Lng32 index) {
+ExprNode *StmtDDLAlterIndex::getChild(int index) {
   ComASSERT(index EQU INDEX_ALTER_INDEX_ACTION);
   return alterIndexAction_;
 }
@@ -486,7 +486,7 @@ ExprNode *StmtDDLAlterIndex::getChild(Lng32 index) {
 // mutators
 //
 
-void StmtDDLAlterIndex::setChild(Lng32 index, ExprNode *pChildNode) {
+void StmtDDLAlterIndex::setChild(int index, ExprNode *pChildNode) {
   ComASSERT(index EQU INDEX_ALTER_INDEX_ACTION);
   if (pChildNode NEQ NULL) {
     ComASSERT(pChildNode->castToElemDDLNode() NEQ NULL);
@@ -665,7 +665,7 @@ StmtDDLAlterTable *StmtDDLAlterTable::castToStmtDDLAlterTable() { return this; }
 
 Int32 StmtDDLAlterTable::getArity() const { return MAX_STMT_DDL_ALTER_TABLE_ARITY; }
 
-ExprNode *StmtDDLAlterTable::getChild(Lng32 index) {
+ExprNode *StmtDDLAlterTable::getChild(int index) {
   ComASSERT(index EQU INDEX_ALTER_TABLE_ACTION);
   return alterTableAction_;
 }
@@ -674,7 +674,7 @@ ExprNode *StmtDDLAlterTable::getChild(Lng32 index) {
 // mutators
 //
 
-void StmtDDLAlterTable::setChild(Lng32 index, ExprNode *pChildNode) {
+void StmtDDLAlterTable::setChild(int index, ExprNode *pChildNode) {
   ComASSERT(index EQU INDEX_ALTER_TABLE_ACTION);
   if (pChildNode NEQ NULL) {
     ComASSERT(pChildNode->castToElemDDLNode() NEQ NULL);

@@ -68,7 +68,7 @@
 // getting dpv_ value out of the range [-COSTSCALAR_MAX, COSTSCALAR_MAX]
 typedef union {
   double real;
-  Lng32 int32[2];
+  int int32[2];
   struct field {
     UInt32 LSB_mant : 32;
     UInt32 MSB_mant : 20;

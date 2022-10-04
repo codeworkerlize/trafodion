@@ -39,15 +39,15 @@
  *****************************************************************************
  */
 
-#include "Prepare.h"
+#include "sqlci/Prepare.h"
 #include "common/str.h"
 #include "common/BaseTypes.h"
 #include "common/dfs2rec.h"
 
 //////////////////////////////////////////////////////////////////////
-PrepEntry::PrepEntry(Lng32 datatype, Lng32 length, Lng32 scale, Lng32 precision, Lng32 nullFlag, Lng32 vcIndLen,
-                     char *heading, Lng32 headingLen, char *outputName, Lng32 outputNameLen, Lng32 displayLen,
-                     Lng32 displayBufLen, Lng32 charsetEnum, char *tableName, Lng32 tableLen)
+PrepEntry::PrepEntry(int datatype, int length, int scale, int precision, int nullFlag, int vcIndLen,
+                     char *heading, int headingLen, char *outputName, int outputNameLen, int displayLen,
+                     int displayBufLen, int charsetEnum, char *tableName, int tableLen)
     : datatype_(datatype),
       length_(length),
       scale_(scale),
@@ -201,8 +201,8 @@ void PrepStmt::remove() {
   }
 }
 
-void PrepStmt::set(const char *str, SQLDESC_ID *sql_src_, SQLSTMT_ID *stmt_, Lng32 numInputEntries,
-                   SQLDESC_ID *input_desc_, Lng32 numOutputEntries, SQLDESC_ID *output_desc_) {
+void PrepStmt::set(const char *str, SQLDESC_ID *sql_src_, SQLSTMT_ID *stmt_, int numInputEntries,
+                   SQLDESC_ID *input_desc_, int numOutputEntries, SQLDESC_ID *output_desc_) {
   if ((!stmt_str) || (stmt_str != str)) {
     delete[] stmt_str;
     stmt_str = new char[strlen(str) + 1];

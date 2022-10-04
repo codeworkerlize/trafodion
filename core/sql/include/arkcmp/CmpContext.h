@@ -121,7 +121,7 @@ class DDLObjInfo {
         ddlOp_(FALSE),
         svptId_(-1) {}
 
-  DDLObjInfo(NAString objName, Int64 objUID, ComObjectType objType)
+  DDLObjInfo(NAString objName, long objUID, ComObjectType objType)
       : objName_(objName),
         objUID_(objUID),
         objType_(objType),
@@ -132,30 +132,30 @@ class DDLObjInfo {
         svptId_(-1) {}
 
   NAString getObjName() { return objName_; }
-  Int64 getObjUID() { return objUID_; }
+  long getObjUID() { return objUID_; }
   ComObjectType getObjType() { return objType_; }
   ComQiScope getQIScope() { return qiScope_; }
-  Int64 getRedefTime() { return redefTime_; }
+  long getRedefTime() { return redefTime_; }
   UInt32 getEpoch() { return epoch_; }
   NABoolean isDDLOp() { return ddlOp_; }
-  Int64 getSvptId() { return svptId_; }
+  long getSvptId() { return svptId_; }
 
   void setObjName(NAString objName) { objName_ = objName; }
-  void setObjUID(Int64 objUID) { objUID_ = objUID; }
+  void setObjUID(long objUID) { objUID_ = objUID; }
   void setObjType(ComObjectType objType) { objType_ = objType; }
   void setQIScope(ComQiScope qiScope) { qiScope_ = qiScope; }
-  void setRedefTime(Int64 redefTime) { redefTime_ = redefTime; }
+  void setRedefTime(long redefTime) { redefTime_ = redefTime; }
   void setEpoch(UInt32 epoch) { epoch_ = epoch; }
   void setDDLOp(NABoolean ddlOp) { ddlOp_ = ddlOp; }
-  void setSvptId(Int64 svptId) { svptId_ = svptId; }
+  void setSvptId(long svptId) { svptId_ = svptId; }
   NAString objName_;
-  Int64 objUID_;
+  long objUID_;
   ComQiScope qiScope_;
   ComObjectType objType_;
-  Int64 redefTime_;
+  long redefTime_;
   UInt32 epoch_;
   NABoolean ddlOp_;
-  Int64 svptId_;
+  long svptId_;
 };
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -180,7 +180,7 @@ class DDLObjInfoList : public LIST(DDLObjInfo) {
   CollHeap *getHeap() { return heap_; }
 
   Int32 findEntry(const NAString &objName) {
-    for (Lng32 i = 0; i < entries(); i++) {
+    for (int i = 0; i < entries(); i++) {
       DDLObjInfo &ddlObj = operator[](i);
       if (ddlObj.getObjName() == objName) return i;
     }
@@ -191,7 +191,7 @@ class DDLObjInfoList : public LIST(DDLObjInfo) {
     if (force || findEntry(newDDLObj.getObjName()) < 0) insert(newDDLObj);
   }
 
-  void updateObjUID(const NAString objName, Int64 value) {
+  void updateObjUID(const NAString objName, long value) {
     Int32 index = findEntry(objName);
     if (index >= 0) {
       DDLObjInfo &ddlObj = operator[](index);
@@ -632,8 +632,8 @@ class CmpContext {
   Int32 gmtDiff() { return gmtDiff_; }
   const char *getCompilerId() const { return compilerId_; }
 
-  Lng32 &uninitializedSeabaseErrNum() { return uninitializedSeabaseErrNum_; }
-  Lng32 &hbaseErrNum() { return hbaseErrNum_; }
+  int &uninitializedSeabaseErrNum() { return uninitializedSeabaseErrNum_; }
+  int &hbaseErrNum() { return hbaseErrNum_; }
   NAString &hbaseErrStr() { return hbaseErrStr_; }
 
   void switchContext();
@@ -657,7 +657,7 @@ class CmpContext {
   TimeVal getPrev_QI_time() { return prev_QI_invalidation_time_; }
   void setPrev_QI_time(TimeVal newTime) { prev_QI_invalidation_time_ = newTime; }
 
-  Lng32 getPrev_QI_sec() { return prev_QI_invalidation_time_.tv_sec; }
+  int getPrev_QI_sec() { return prev_QI_invalidation_time_.tv_sec; }
 
   void setLogmxEventSqlText(const NAWString &x);
   void resetLogmxEventSqlText();
@@ -690,8 +690,8 @@ class CmpContext {
   // all of the OSIM related information.
   OptimizerSimulator *&getOptimizerSimulator() { return optSimulator_; }
   // used by stats caching logic
-  Int64 getLastUpdateStatsTime() { return lastUpdateStatsTime_; }
-  void setLastUpdateStatsTime(Int64 updateTime) { lastUpdateStatsTime_ = updateTime; }
+  long getLastUpdateStatsTime() { return lastUpdateStatsTime_; }
+  void setLastUpdateStatsTime(long updateTime) { lastUpdateStatsTime_ = updateTime; }
 
   // optimizer cached defaults
   OptDefaults *getOptDefaults() { return optDefaults_; }
@@ -754,9 +754,9 @@ class CmpContext {
 
   int getFilterForQueryCacheHDFS() { return filterForQueryCacheHDFS_; }
 
-  Int64 getObjUIDForQueryCacheHDFS() { return objUIDForQueryCacheHDFS_; }
+  long getObjUIDForQueryCacheHDFS() { return objUIDForQueryCacheHDFS_; }
 
-  void setObjUIDForQueryCacheHDFS(Int64 x) { objUIDForQueryCacheHDFS_ = x; }
+  void setObjUIDForQueryCacheHDFS(long x) { objUIDForQueryCacheHDFS_ = x; }
 
   // TableDesc* getTableDescForCacheKey() { return tableDescForCacheKey_; }
 
@@ -777,7 +777,7 @@ class CmpContext {
   void CloseTMFFile();
   short GetTMFFileNumber() const { return tmpFileNumber_; }
   void swithcContext();
-  CmpStatementISP *getISPStatement(Int64 id);
+  CmpStatementISP *getISPStatement(long id);
   // MV
 
  private:
@@ -795,7 +795,7 @@ class CmpContext {
   int seqNumForCacheKey_;
   // initialize to 0, 1 for should write to HDFS, -1 for should not write to HDFS
   int filterForQueryCacheHDFS_;
-  Int64 objUIDForQueryCacheHDFS_;
+  long objUIDForQueryCacheHDFS_;
   NABoolean needsRetryWithCachingOff_;
 
   // this var indicates if the status that the mxcmp
@@ -810,7 +810,7 @@ class CmpContext {
   // define, when the compiler supports const static.
 
   NAList<CmpStatement *> statements_;
-  Lng32 currentStatement_;
+  int currentStatement_;
 
   // For performance reason, cached a pointer to the current statement.
   CmpStatement *currentStatementPtrCache_;
@@ -861,10 +861,10 @@ class CmpContext {
   // process start time, node num, pin, segment num on Seaquest.
   char compilerId_[COMPILER_ID_LEN];
   Int16 recursionLevel_;
-  Lng32 uninitializedSeabaseErrNum_;
+  int uninitializedSeabaseErrNum_;
   // underlying hbase error and detail info, if returned.
   // valid when uninitializedSeabaseErrNum_ is set.
-  Lng32 hbaseErrNum_;
+  int hbaseErrNum_;
   NAString hbaseErrStr_;
   // NAClusterInfo, this either points to the CLI globals or
   // is a special object built from OSIM information
@@ -907,7 +907,7 @@ class CmpContext {
 
   TransMode transMode_;
 
-  Int64 lastUpdateStatsTime_;  // used by stats caching logic
+  long lastUpdateStatsTime_;  // used by stats caching logic
 
   // query defaults using during a statement compilation
   OptDefaults *optDefaults_;

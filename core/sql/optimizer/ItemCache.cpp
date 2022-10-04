@@ -464,7 +464,7 @@ NABoolean Cast::isSafelyCoercible(CacheWA &cwa) const {
 void ConstantParameter::generateCacheKey(CacheWA &cwa) const { cwa += "%"; }
 
 // return our size in bytes
-Lng32 ConstantParameter::getSize() const { return (Lng32)(sizeof(*this) + type_->getSize() + val_->getSize()); }
+int ConstantParameter::getSize() const { return (int)(sizeof(*this) + type_->getSize() + val_->getSize()); }
 
 // can this ConstValue be safely coerced into this target type?
 NABoolean ConstValue::canBeSafelyCoercedTo(const NAType &target) {
@@ -558,8 +558,8 @@ NABoolean ConstValue::canBeSafelyCoercedTo(const NAType &target) {
 }
 
 // return our size in bytes
-Lng32 ConstValue::getSize() const {
-  return (Lng32)(sizeof(*this) + getStorageSize() + (text_ ? text_->length() : 0) +
+int ConstValue::getSize() const {
+  return (int)(sizeof(*this) + getStorageSize() + (text_ ? text_->length() : 0) +
                  (locale_strval ? locale_strval->length() : 0) + (locale_wstrval ? locale_wstrval->length() : 0));
 }
 
@@ -769,7 +769,7 @@ void ItemExpr::generateCacheKey(CacheWA &cwa) const {
         // any other arity: assume a function op(<child>,<child>,...)
         cwa += getText4CacheKey();
         cwa += "(";
-        for (Lng32 i = 0; i < (Lng32)arity; i++) {
+        for (int i = 0; i < (int)arity; i++) {
           if (i > 0) {
             cwa += ", ";
           }
@@ -1114,7 +1114,7 @@ void Repeat::generateCacheKey(CacheWA &cwa) const {
     ConstValue *cv;
     ItemExpr *expr;
     ConstantParameter *cp;
-    Int64 secondValue;
+    long secondValue;
     char secValueStr[20];
 
     expr = child(1)->castToItemExpr();
@@ -1367,8 +1367,8 @@ void UDFunction::generateCacheKey(CacheWA &cwa) const {
   }
 
   cwa += "(";
-  Lng32 arity = (Lng32)getArity();
-  for (Lng32 i = 0; i < arity; i++) {
+  int arity = (int)getArity();
+  for (int i = 0; i < arity; i++) {
     if (i > 0) {
       cwa += ", ";
     }

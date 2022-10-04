@@ -79,7 +79,7 @@ class ElemDDLSaltOptionsClause : public ElemDDLNode {
 
   // get the degree of this node
   virtual Int32 getArity() const;
-  virtual ExprNode *getChild(Lng32 index);
+  virtual ExprNode *getChild(int index);
   // name we choose for the system column that contains the salting value
   static const char *getSaltSysColName() { return "_SALT_"; }
 
@@ -87,7 +87,7 @@ class ElemDDLSaltOptionsClause : public ElemDDLNode {
   // mutators
   //
 
-  void setChild(Lng32 index, ExprNode *pChildNode);
+  void setChild(int index, ExprNode *pChildNode);
 
   void setNumPartns(Int32 numPartns) { numPartitions_ = numPartns; }
 

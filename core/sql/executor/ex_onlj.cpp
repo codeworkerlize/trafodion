@@ -104,7 +104,7 @@ ExOnljTcb::ExOnljTcb(const ExOnljTdb &nljTdb,  //
     if (onljTdb().ljRecLen_ > 0) {
       ULng32 nullLength = onljTdb().ljRecLen_;
 
-      Lng32 neededBufferSize = (Lng32)SqlBufferNeededSize(1, nullLength);
+      int neededBufferSize = (int)SqlBufferNeededSize(1, nullLength);
       nullPool_ = new (glob->getSpace()) sql_buffer_pool(1, neededBufferSize, glob->getSpace());
       nullPool_->get_free_tuple(nullData_, nullLength);
 
@@ -202,7 +202,7 @@ void ExOnljTcb::registerSubtasks() {
   if (getPool()) getPool()->setStaticMode(FALSE);
 }
 
-ex_tcb_private_state *ExOnljTcb::allocatePstates(Lng32 &numElems, Lng32 &pstateLength) {
+ex_tcb_private_state *ExOnljTcb::allocatePstates(int &numElems, int &pstateLength) {
   PstateAllocator<ExOnljPrivateState> pa;
 
   return pa.allocatePstates(this, numElems, pstateLength);
@@ -526,7 +526,7 @@ ExWorkProcRetcode ExOnljTcb::work_phase2() {
         // from the original rowset we  are sending to the right.
 
         if (onljTdb().isRowsetIterator() && onljTdb().isNonFatalErrorTolerated()) {
-          rentry->downState.parentIndex = (Lng32)pstate.srcRequestCount_ + 1;
+          rentry->downState.parentIndex = (int)pstate.srcRequestCount_ + 1;
         } else {
           ex_assert(pstate.leftOnlyRows_ == 0, "Trying to send rows to right after error or cancel");
 
@@ -567,7 +567,7 @@ ExWorkProcRetcode ExOnljTcb::work_phase2() {
 
           if (request == ex_queue::GET_N) {
             // compute how many rows to ask for
-            rentry->downState.requestValue = pentry->downState.requestValue - (Lng32)pstate.matchCount_;
+            rentry->downState.requestValue = pentry->downState.requestValue - (int)pstate.matchCount_;
           } else
             // request == ex_queue::GET_ALL
             rentry->downState.requestValue = pentry->downState.requestValue;
@@ -602,7 +602,7 @@ ExWorkProcRetcode ExOnljTcb::work_phase2() {
             // parent entry don't do it again. We only have to do it once per parent entry row.
             if (!pstate.rowAlreadyRaisedNFError_) {
               ExMasterStmtGlobals *g = getGlobals()->castToExExeStmtGlobals()->castToExMasterStmtGlobals();
-              Int64 rowsAffected = g->getRowsAffected();
+              long rowsAffected = g->getRowsAffected();
               if (g) {
                 g->setRowsAffected(rowsAffected - 1);
                 pstate.rowAlreadyRaisedNFError_ = TRUE;
@@ -648,7 +648,7 @@ ExWorkProcRetcode ExOnljTcb::work_phase2() {
           if ((da->getNonFatalErrorIndexToBeSet()) && (onljTdb().isSetNFErrorJoin())) {
             // if the da flag is set, the rowcount needs to be set and
             // this needs to be merged into the pstate diags too
-            da->setAllRowNumber((Lng32)pstate.srcRequestCount_ + 1);
+            da->setAllRowNumber((int)pstate.srcRequestCount_ + 1);
             pstate.nonFatalErrorSeen_ = TRUE;
 
             if (pstate.accumDiags_) {
@@ -704,7 +704,7 @@ ExWorkProcRetcode ExOnljTcb::work_phase2() {
 
         if (onljTdb().isRowsetIterator()) {
           ex_assert(da, "To set RowNumber, an error condition must be present in the diags area");
-          da->setAllRowNumber((Lng32)pstate.srcRequestCount_ + 1);
+          da->setAllRowNumber((int)pstate.srcRequestCount_ + 1);
         }
         // The endRightIndex_ is the first entry in the right down queue that
         // does not correspond to this parent row
@@ -833,7 +833,7 @@ ExWorkProcRetcode ExOnljTcb::work_phase2() {
             da = ComDiagsArea::allocate(getGlobals()->getDefaultHeap());
             uentry->setDiagsArea(da);
           }
-          da->insertIntoRowsetRowCountArray(((Lng32)pstate.srcRequestCount_), 0, onljTdb().getRowsetRowCountArraySize(),
+          da->insertIntoRowsetRowCountArray(((int)pstate.srcRequestCount_), 0, onljTdb().getRowsetRowCountArraySize(),
                                             getGlobals()->getDefaultHeap());
         }
       }
@@ -938,7 +938,7 @@ ExWorkProcRetcode ExOnljTcb::work_phase3() {
           // if parent doesn't want any more rows then ignore this row
           if (request == ex_queue::GET_NOMORE) continue;
 
-          if (request == ex_queue::GET_N && pentry->downState.requestValue <= (Lng32)pstate.matchCount_) {
+          if (request == ex_queue::GET_N && pentry->downState.requestValue <= (int)pstate.matchCount_) {
             cancelParentRequest(pentry);
             continue;
           }
@@ -1116,7 +1116,7 @@ ExWorkProcRetcode ExOnljTcb::work_phase3() {
           // outer join processing
           // If we already returned the number of rows requested
           // cancel the parent request
-          if (request == ex_queue::GET_N && pentry->downState.requestValue <= (Lng32)pstate.matchCount_) {
+          if (request == ex_queue::GET_N && pentry->downState.requestValue <= (int)pstate.matchCount_) {
             cancelParentRequest(pentry);
           }
 
@@ -1126,13 +1126,13 @@ ExWorkProcRetcode ExOnljTcb::work_phase3() {
               da = ComDiagsArea::allocate(getGlobals()->getDefaultHeap());
               uentry->setDiagsArea(da);
             }
-            Int64 rowsAffected = 0;
+            long rowsAffected = 0;
             if (rentry->getDiagsArea()) {
               rowsAffected = rentry->getDiagsArea()->getRowCount();
               rentry->getDiagsArea()->setRowCount(0);
             }
 
-            da->insertIntoRowsetRowCountArray(((Lng32)pstate.tgtRequestCount_ + 1), rowsAffected,
+            da->insertIntoRowsetRowCountArray(((int)pstate.tgtRequestCount_ + 1), rowsAffected,
                                               onljTdb().getRowsetRowCountArraySize(), getGlobals()->getDefaultHeap());
           }
 
@@ -1278,7 +1278,7 @@ ExWorkProcRetcode ExOnljTcb::work_phase3() {
           if (onljTdb().isRowsetIterator()) {
             ComDiagsArea *da = rentry->getDiagsArea();
             ex_assert(da, "To set RowNumber, an error condition must be present in the diags area");
-            da->setAllRowNumber((Lng32)(pstate.tgtRequestCount_) + 1);
+            da->setAllRowNumber((int)(pstate.tgtRequestCount_) + 1);
           }
 
           // insert into parent up queue
@@ -1483,7 +1483,7 @@ ExWorkProcRetcode ExOnljTcb::work_phase3() {
     // Compute the rows affected and set the NF warning for any errors coming from the left or right.
     if (onljTdb().isRowsetIterator() && onljTdb().isNonFatalErrorTolerated() && onljTdb().isSetNFErrorJoin()) {
       if (g) {
-        Int64 rowsAffected = g->getRowsAffected();
+        long rowsAffected = g->getRowsAffected();
         if (g->getRowsAffected() > 0) anyRowsAffected = TRUE;
       } else
         ex_assert(g, "Rowset insert has a flow node that is not in the master executor");

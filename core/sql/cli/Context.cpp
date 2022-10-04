@@ -500,8 +500,8 @@ void ContextCli::deleteMe() {
   // TODO: do a delete for tenantName_ as well?
 }
 
-Lng32 ContextCli::initializeSessionDefaults() {
-  Lng32 rc = 0;
+int ContextCli::initializeSessionDefaults() {
+  int rc = 0;
 
   /* session attributes */
   sessionDefaults_ = new (exCollHeap()) SessionDefaults(exCollHeap());
@@ -513,7 +513,7 @@ Lng32 ContextCli::initializeSessionDefaults() {
     // ESP process. Set isoMapping using the define that was propagated
     // from master exe.
     char *imn = ComRtGetIsoMappingName();
-    sessionDefaults_->setIsoMappingName(ComRtGetIsoMappingName(), (Lng32)strlen(ComRtGetIsoMappingName()));
+    sessionDefaults_->setIsoMappingName(ComRtGetIsoMappingName(), (int)strlen(ComRtGetIsoMappingName()));
   }
 
   return 0;
@@ -522,7 +522,7 @@ Lng32 ContextCli::initializeSessionDefaults() {
 /* return -1, if module has already been added. 0, if not */
 short ContextCli::moduleAdded(const SQLMODULE_ID *module_id) {
   Module *module;
-  Lng32 module_nm_len = getModNameLen(module_id);
+  int module_nm_len = getModNameLen(module_id);
 
   moduleList()->position(module_id->module_name, module_nm_len);
   while (module = (Module *)moduleList()->getNext()) {
@@ -535,7 +535,7 @@ short ContextCli::moduleAdded(const SQLMODULE_ID *module_id) {
 }
 
 // common for NT and NSK
-static Int32 allocAndReadPos(ModuleOSFile &file, char *&buf, Lng32 pos, Lng32 len, NAMemory *heap,
+static Int32 allocAndReadPos(ModuleOSFile &file, char *&buf, int pos, int len, NAMemory *heap,
                              ComDiagsArea &diagsArea, const char *mname) {
   // allocate memory and read the requested section into it
   buf = (char *)(heap->allocateMemory((size_t)len));
@@ -546,7 +546,7 @@ static Int32 allocAndReadPos(ModuleOSFile &file, char *&buf, Lng32 pos, Lng32 le
   return retcode;
 }
 
-RETCODE ContextCli::allocateDesc(SQLDESC_ID *descriptor_id, Lng32 max_entries) {
+RETCODE ContextCli::allocateDesc(SQLDESC_ID *descriptor_id, int max_entries) {
   const char *hashData;
   ULng32 hashDataLength;
 
@@ -1005,11 +1005,11 @@ RETCODE ContextCli::deallocStmt(SQLSTMT_ID *statement_id, NABoolean deallocStati
   // when ExTransaction::inheritTransaction detects the context transid
   // is not the same as the current transid.  The context transid can be
   // obsolete if the transaction has been committed/aborted by the user.
-  Int64 transid;
+  long transid;
   if (!getTransaction()->getCurrentXnId(&transid))
     stmt->getGlobals()->castToExExeStmtGlobals()->getTransid() = transid;
   else
-    stmt->getGlobals()->castToExExeStmtGlobals()->getTransid() = (Int64)-1;
+    stmt->getGlobals()->castToExExeStmtGlobals()->getTransid() = (long)-1;
 
   StmtListDebug1(stmt, "Removing %p from statementList_", stmt);
 
@@ -1109,7 +1109,7 @@ short ContextCli::releaseAllTransactionalRequests() {
   return result;
 }
 
-void ContextCli::clearAllTransactionInfoInClosedStmt(Int64 transid) {
+void ContextCli::clearAllTransactionInfoInClosedStmt(long transid) {
   // for all closed statements in the context, clear transaction Id
   // kept in the statement global
 
@@ -1119,13 +1119,13 @@ void ContextCli::clearAllTransactionInfoInClosedStmt(Int64 transid) {
   while (statement = (Statement *)statementList()->getNext()) {
     if (statement->getState() == Statement::CLOSE_) {
       if (statement->getGlobals()->castToExExeStmtGlobals()->getTransid() == transid)
-        statement->getGlobals()->castToExExeStmtGlobals()->getTransid() = (Int64)-1;
+        statement->getGlobals()->castToExExeStmtGlobals()->getTransid() = (long)-1;
     }
   }
 }
 
 void ContextCli::closeAllCursors(enum CloseCursorType type, enum closeTransactionType transType,
-                                 const Int64 executorXnId, NABoolean inRollback) {
+                                 const long executorXnId, NABoolean inRollback) {
   // for all statements in the context close all of them that are open;
   // only the cursor(s) should be open at this point.
 
@@ -1137,11 +1137,11 @@ void ContextCli::closeAllCursors(enum CloseCursorType type, enum closeTransactio
   Statement *statement;
   Statement **openStmtArray = NULL;
   Int32 i;
-  Lng32 noOfStmts;
-  Int64 currentXnId = executorXnId;
+  int noOfStmts;
+  long currentXnId = executorXnId;
 
   if ((transType == CLOSE_CURR_XN) && (transaction_->xnInProgress()) && (executorXnId == 0)) {
-    short retcode = transaction_->getCurrentXnId((Int64 *)&currentXnId);
+    short retcode = transaction_->getCurrentXnId((long *)&currentXnId);
     // Use the transaction id from context if the curret
     // transaction is already closed.
     if (retcode == 78 || retcode == 75) currentXnId = transaction_->getExeXnId();
@@ -1307,7 +1307,7 @@ void ContextCli::closeAllCursorsFor(SQLSTMT_ID *statement_id) {
 // *                                                                           *
 // *****************************************************************************
 
-Lng32 ContextCli::setAuthID(const USERS_INFO &usersInfo, const char *authToken, Int32 authTokenLen, const char *slaName,
+int ContextCli::setAuthID(const USERS_INFO &usersInfo, const char *authToken, Int32 authTokenLen, const char *slaName,
                             const char *profileName, Int32 resetAttributes) {
   validAuthID_ = FALSE;  // Is TRUE only if a valid user found,set within completeSetAuthId()
 
@@ -1563,8 +1563,8 @@ Int32 ContextCli::completeSetAuthID(const USERS_INFO &usersInfo, const char *aut
 }
 //******************* End of ContextCli::completeSetAuthID *********************
 
-Lng32 ContextCli::boundsCheckMemory(void *startAddress, ULng32 length) {
-  Lng32 retcode = 0;
+int ContextCli::boundsCheckMemory(void *startAddress, ULng32 length) {
+  int retcode = 0;
 
   if (cliGlobals_->boundsCheck(startAddress, length, retcode)) diagsArea_ << DgSqlCode(retcode);
   return retcode;
@@ -1650,7 +1650,7 @@ void ContextCli::addToCloseStatementList(Statement *statement) {
   // Rewind the sequence counter to avoid overflow.
   if (currSequence_ == INT_MAX) {
     // Re-number closeSequence numbers.
-    Lng32 i = 2;
+    int i = 2;
     Statement *st2, *st = nextReclaimStatement_;
     if (st != NULL)
       st2 = st->nextCloseStatement();
@@ -1683,12 +1683,12 @@ NABoolean ContextCli::reclaimStatements() {
 
   if (nextReclaimStatement_ == NULL) return FALSE;
 
-  Int64 reclaimTotalMemorySize = getSessionDefaults()->getReclaimTotalMemorySize();
+  long reclaimTotalMemorySize = getSessionDefaults()->getReclaimTotalMemorySize();
   if (reclaimTotalMemorySize < 0) return FALSE;
 
 #if defined(_DEBUG)
   char *reclaimAfter = NULL;
-  Lng32 reclaimIf = (reclaimAfter == NULL) ? 0 : atol(reclaimAfter);
+  int reclaimIf = (reclaimAfter == NULL) ? 0 : atol(reclaimAfter);
 
   if (reclaimIf > 0 && reclaimIf < closeStmtListSize_) {
     someStmtReclaimed = reclaimStatementSpace();
@@ -1701,14 +1701,14 @@ NABoolean ContextCli::reclaimStatements() {
   size_t totalSize;
   NAHeap *heap = exHeap();  // Get the context Heap
   NABoolean crowded = heap->getUsage(&lastBlockSize, &freeSize, &totalSize);
-  Lng32 reclaimFreeMemoryRatio;
+  int reclaimFreeMemoryRatio;
   double freeRatio;
   NABoolean retcode;
-  if (((Int64)totalSize) > reclaimTotalMemorySize) {
+  if (((long)totalSize) > reclaimTotalMemorySize) {
     reclaimFreeMemoryRatio = getSessionDefaults()->getReclaimFreeMemoryRatio();
     retcode = TRUE;
     freeRatio = (double)(freeSize)*100 / (double)totalSize;
-    while (retcode && ((Int64)totalSize) > reclaimTotalMemorySize && freeRatio < reclaimFreeMemoryRatio) {
+    while (retcode && ((long)totalSize) > reclaimTotalMemorySize && freeRatio < reclaimFreeMemoryRatio) {
       retcode = reclaimStatementSpace();
       if (retcode) someStmtReclaimed = TRUE;
       crowded = heap->getUsage(&lastBlockSize, &freeSize, &totalSize);
@@ -1720,7 +1720,7 @@ NABoolean ContextCli::reclaimStatements() {
       // via a variable now
       if (getenv("SQL_RECLAIM_AGGRESSIVELY") != NULL) {
     // Reclaim space from one other statement under certain conditions.
-    Lng32 cutoff = MINOF(closeStmtListSize_ * 8, 800);
+    int cutoff = MINOF(closeStmtListSize_ * 8, 800);
     // Reclaim if
     //  heap is crowded or
     //  less than 25% of the heap is free and
@@ -1737,7 +1737,7 @@ NABoolean ContextCli::reclaimStatements() {
     }
   }
   if (someStmtReclaimed) {
-    logReclaimEvent((Lng32)freeSize, (Lng32)totalSize);
+    logReclaimEvent((int)freeSize, (int)totalSize);
   }
   return someStmtReclaimed;
 }
@@ -1991,7 +1991,7 @@ void ContextCli::releaseUdrServers() {
 // (currently the only supported options are JVM startup
 // options). Once UDR options have been set, those options take
 // precedence over options that were compiled into a plan.
-Lng32 ContextCli::setUdrRuntimeOptions(const char *options, ULng32 optionsLen, const char *delimiters,
+int ContextCli::setUdrRuntimeOptions(const char *options, ULng32 optionsLen, const char *delimiters,
                                        ULng32 delimsLen) {
   // A NULL or empty option string tells us to clear the current UDR
   // options
@@ -2070,9 +2070,9 @@ ExUdrServer *ContextCli::findUdrServer(const char *runtimeOptions, const char *o
 
   return NULL;
 }
-void ContextCli::logReclaimEvent(Lng32 freeSize, Lng32 totalSize) {
-  Lng32 totalContexts = 0;
-  Lng32 totalStatements = 0;
+void ContextCli::logReclaimEvent(int freeSize, int totalSize) {
+  int totalContexts = 0;
+  int totalStatements = 0;
   ContextCli *context;
 
   if (!cliGlobals_->logReclaimEventDone()) {
@@ -2092,10 +2092,10 @@ void ContextCli::logReclaimEvent(Lng32 freeSize, Lng32 totalSize) {
 // index into the compiler array for the compiler that has been
 // started.
 
-Lng32 ContextCli::setOrStartCompiler(short mxcmpVersionToUse, char *remoteNodeName, short &indexIntoCompilerArray) {
+int ContextCli::setOrStartCompiler(short mxcmpVersionToUse, char *remoteNodeName, short &indexIntoCompilerArray) {
   short found = FALSE;
   short i = 0;
-  Lng32 retcode = SUCCESS;
+  int retcode = SUCCESS;
 
   if (mxcmpVersionToUse == COM_VERS_R2_FCS || mxcmpVersionToUse == COM_VERS_R2_1)
     // Use R2.2 compiler for R2.0 and R2.1 nodes
@@ -2143,7 +2143,7 @@ void ContextCli::removeFromStatementWithEspsList(Statement *statement) {
 
 bool ContextCli::unassignEsps(bool force) {
   bool didUnassign = false;
-  Lng32 espAssignDepth = getSessionDefaults()->getEspAssignDepth();
+  int espAssignDepth = getSessionDefaults()->getEspAssignDepth();
   Statement *lastClosedStatement = NULL;
 
   if (force || ((espAssignDepth != -1) && (statementWithEspsList_->numEntries() >= espAssignDepth))) {
@@ -2275,7 +2275,7 @@ short ContextCli::ddlResetObjectEpochs(ComDiagsArea *diags) {
 void ContextCli::addToCursorList(Statement &s) {
   SQLSTMT_ID *cursorName = s.getCursorName();
   const char *id = cursorName->identifier;
-  Lng32 idLen = getIdLen(cursorName);
+  int idLen = getIdLen(cursorName);
 
   StmtListDebug1(&s, "Adding %p to cursorList_", &s);
   cursorList_->insert(id, idLen, &s);
@@ -2378,8 +2378,8 @@ void ContextCli::genSessionId() {
   Int32 sessionIdLen;
   ComSqlId::createSqlSessionId(si, ComSqlId::MAX_SESSION_ID_LEN, sessionIdLen, getCliGlobals()->myNodeNumber(),
                                getCliGlobals()->myCpu(), getCliGlobals()->myPin(), getCliGlobals()->myStartTime(),
-                               (Lng32)getCliGlobals()->getSessionUniqueNumber(), userNameLen, userName, tenantIdLen,
-                               tenantIdString, (Lng32)strlen(userSpecifiedSessionName_), userSpecifiedSessionName_);
+                               (int)getCliGlobals()->getSessionUniqueNumber(), userNameLen, userName, tenantIdLen,
+                               tenantIdString, (int)strlen(userSpecifiedSessionName_), userSpecifiedSessionName_);
 
   setSessionId(si);
 }
@@ -2499,7 +2499,7 @@ void ContextCli::createMxcmpSession() {
   strcat(sendCQD, "';");
 
   ExeCliInterface cliInterface(exHeap(), 0, this);
-  Lng32 cliRC = cliInterface.executeImmediate(sendCQD);
+  int cliRC = cliInterface.executeImmediate(sendCQD);
   NADELETEBASIC(sendCQD, exHeap());
 
   // Send the LDAP user name
@@ -2613,7 +2613,7 @@ void ContextCli::beginSession(char *userSpecifiedSessionName) {
 }
 
 void ContextCli::endMxcmpSession(NABoolean cleanupEsps, NABoolean clearCmpCache) {
-  Lng32 flags = 0;
+  int flags = 0;
   char *dummyReply = NULL;
   ULng32 dummyLength;
 
@@ -2629,7 +2629,7 @@ void ContextCli::endMxcmpSession(NABoolean cleanupEsps, NABoolean clearCmpCache)
     char *dummyReply = NULL;
     ULng32 dummyLen;
     ComDiagsArea *diagsArea = NULL;
-    cmpStatus = CmpCommon::context()->compileDirect((char *)&flags, (ULng32)sizeof(Lng32), &exHeap_,
+    cmpStatus = CmpCommon::context()->compileDirect((char *)&flags, (ULng32)sizeof(int), &exHeap_,
                                                     SQLCHARSETCODE_UTF8, EXSQLCOMP::END_SESSION, dummyReply, dummyLen,
                                                     getSqlParserFlags(), NULL, 0, diagsArea);
     if (cmpStatus != 0) {
@@ -2659,7 +2659,7 @@ void ContextCli::endMxcmpSession(NABoolean cleanupEsps, NABoolean clearCmpCache)
     if (getNumArkcmps() > 0) {
       short indexIntoCompilerArray = getIndexToCompilerArray();
       ExSqlComp::ReturnStatus status = cliGlobals_->getArkcmp(indexIntoCompilerArray)
-                                           ->sendRequest(EXSQLCOMP::END_SESSION, (char *)&flags, sizeof(Lng32));
+                                           ->sendRequest(EXSQLCOMP::END_SESSION, (char *)&flags, sizeof(int));
 
       if (status == ExSqlComp::SUCCESS) {
         status = cliGlobals_->getArkcmp(indexIntoCompilerArray)->getReply(dummyReply, dummyLength);
@@ -2679,8 +2679,8 @@ void ContextCli::resetAttributes() {
   if (sessionDefaults_) sessionDefaults_->resetSessionOnlyAttributes();
 }
 
-Lng32 ContextCli::reduceEsps() {
-  Lng32 countBefore = cliGlobals_->getEspManager()->getNumOfEsps();
+int ContextCli::reduceEsps() {
+  int countBefore = cliGlobals_->getEspManager()->getNumOfEsps();
   // make assigned ESPs to be idle.
   while (unassignEsps(true))
     ;
@@ -2812,7 +2812,7 @@ void ContextCli::dropSession(NABoolean clearCmpCache) {
     strcpy(sendCQD, "CONTROL QUERY DEFAULT SESSION_ID '';");
 
     ExeCliInterface cliInterface(exHeap(), 0, this);
-    Lng32 cliRC = cliInterface.executeImmediate(sendCQD);
+    int cliRC = cliInterface.executeImmediate(sendCQD);
     NADELETEBASIC(sendCQD, exHeap());
 
     endMxcmpSession(TRUE, clearCmpCache);
@@ -2844,7 +2844,7 @@ void ContextCli::resetVolatileSchemaState() {
   strcpy(sendCQD, "CONTROL QUERY DEFAULT VOLATILE_SCHEMA_IN_USE 'FALSE';");
 
   ExeCliInterface cliInterface(exHeap());
-  Lng32 cliRC = cliInterface.executeImmediate(sendCQD);
+  int cliRC = cliInterface.executeImmediate(sendCQD);
   NADELETEBASIC(sendCQD, exHeap());
 
   if (savedDiagsArea) {
@@ -2886,7 +2886,7 @@ void ContextCli::closeAllTables() {}
 // Based on that, arkcmp takes certain actions.
 // Called from executor/ex_transaction.cpp.
 // Note: most of the code in this method has been moved from ex_transaction.cpp
-ExSqlComp::ReturnStatus ContextCli::sendXnMsgToArkcmp(char *data, Lng32 dataSize, Lng32 xnMsgType,
+ExSqlComp::ReturnStatus ContextCli::sendXnMsgToArkcmp(char *data, int dataSize, int xnMsgType,
                                                       ComDiagsArea *&diagsArea) {
   // send the set trans request to arkcmp so compiler can
   // set this trans mode in its memory. This is done so any
@@ -2954,7 +2954,7 @@ ExSqlComp::ReturnStatus ContextCli::sendXnMsgToArkcmp(char *data, Lng32 dataSize
   return ExSqlComp::SUCCESS;
 }
 
-Lng32 ContextCli::setSecInvalidKeys(
+int ContextCli::setSecInvalidKeys(
     /* IN */ Int32 numSiKeys,
     /* IN */ SQL_QIKEY siKeys[]) {
   CliGlobals *cliGlobals = getCliGlobals();
@@ -2976,7 +2976,7 @@ Lng32 ContextCli::setSecInvalidKeys(
         CmpCommon::getDefault(GENERATE_USER_QUERYCACHE) == DF_PRELOAD) {
       // delete querycache for _MD_.TEXT table
       if (siKeyType == COM_QI_OBJECT_REDEF || siKeyType == COM_QI_STATS_UPDATED) {
-        Int64 objUID = siKeys[i].ddlObjectUID;
+        long objUID = siKeys[i].ddlObjectUID;
         char buf[512];
 
         if (siKeyType == COM_QI_OBJECT_REDEF)
@@ -3002,7 +3002,7 @@ TEXT_TYPE = %d and FLAGS = 0",
           return diagsArea_.mainSQLCODE();
         }
         ExeCliInterface cliInterface(STMTHEAP);
-        Lng32 cliRC = cliInterface.executeImmediate(buf);
+        int cliRC = cliInterface.executeImmediate(buf);
         if (cliRC < 0) {
           diagsArea_ << DgSqlCode(-1160) << DgString0("failed to disable querycache in TEXT table.");
           cmpSBD.switchBackCompiler();
@@ -3038,17 +3038,17 @@ TEXT_TYPE = %d and FLAGS = 0",
   // If no reply for 60 secs, return an error
 
   // 60 secs = 6000 centisecs
-  Lng32 RtsTimeout = 6000;
+  int RtsTimeout = 6000;
 
   ssmpMsgStream->send(FALSE, -1);
-  Int64 startTime = NA_JulianTimestamp();
-  Int64 currTime;
-  Int64 elapsedTime;
+  long startTime = NA_JulianTimestamp();
+  long currTime;
+  long elapsedTime;
   IpcTimeout timeout = (IpcTimeout)RtsTimeout;
   while (timeout > 0 && ssmpMsgStream->hasIOPending()) {
     ssmpMsgStream->waitOnMsgStream(timeout);
     currTime = NA_JulianTimestamp();
-    elapsedTime = (Int64)(currTime - startTime) / 10000;
+    elapsedTime = (long)(currTime - startTime) / 10000;
     timeout = (IpcTimeout)(RtsTimeout - elapsedTime);
   }
 
@@ -3074,8 +3074,8 @@ Int32 ContextCli::setObjectEpochEntry(
     /* IN */ Int32 operation,
     /* IN */ Int32 objectNameLength,
     /* IN */ const char *objectName,
-    /* IN */ Int64 redefTime,
-    /* IN */ Int64 key,
+    /* IN */ long redefTime,
+    /* IN */ long key,
     /* IN */ UInt32 expectedEpoch,
     /* IN */ UInt32 expectedFlags,
     /* IN */ UInt32 newEpoch,
@@ -3114,17 +3114,17 @@ Int32 ContextCli::setObjectEpochEntry(
   // If no reply for 60 secs, return an error
 
   // 60 secs = 6000 centisecs
-  Lng32 RtsTimeout = 6000;
+  int RtsTimeout = 6000;
 
   ssmpMsgStream->send(FALSE, -1);
-  Int64 startTime = NA_JulianTimestamp();
-  Int64 currTime;
-  Int64 elapsedTime;
+  long startTime = NA_JulianTimestamp();
+  long currTime;
+  long elapsedTime;
   IpcTimeout timeout = (IpcTimeout)RtsTimeout;
   while (timeout > 0 && ssmpMsgStream->hasIOPending()) {
     ssmpMsgStream->waitOnMsgStream(timeout);
     currTime = NA_JulianTimestamp();
-    elapsedTime = (Int64)(currTime - startTime) / 10000;
+    elapsedTime = (long)(currTime - startTime) / 10000;
     timeout = (IpcTimeout)(RtsTimeout - elapsedTime);
   }
 
@@ -3294,18 +3294,18 @@ Int32 ContextCli::performObjectLockRequest(const char *objectName, ComObjectType
   // If no reply for 60 secs, return an error
 
   // 60 secs = 6000 centisecs
-  Lng32 RtsTimeout = 6000;
+  int RtsTimeout = 6000;
 
   LOGDEBUG(CAT_SQL_LOCK, "Send DDL %s request to SSMP", ObjectLockRequest::opTypeLit(opType));
   ssmpMsgStream->send(FALSE, -1);
-  Int64 startTime = NA_JulianTimestamp();
-  Int64 currTime;
-  Int64 elapsedTime;
+  long startTime = NA_JulianTimestamp();
+  long currTime;
+  long elapsedTime;
   IpcTimeout timeout = (IpcTimeout)RtsTimeout;
   while (timeout > 0 && ssmpMsgStream->hasIOPending()) {
     ssmpMsgStream->waitOnMsgStream(timeout);
     currTime = NA_JulianTimestamp();
-    elapsedTime = (Int64)(currTime - startTime) / 10000;
+    elapsedTime = (long)(currTime - startTime) / 10000;
     timeout = (IpcTimeout)(RtsTimeout - elapsedTime);
   }
 
@@ -3605,7 +3605,7 @@ Int32 ContextCli::releaseAllDMLObjectLocks() {
   return 0;
 }
 
-ExStatisticsArea *ContextCli::getObjectEpochStats(const char *objectName, Lng32 objectNameLen, short cpu, bool locked,
+ExStatisticsArea *ContextCli::getObjectEpochStats(const char *objectName, int objectNameLen, short cpu, bool locked,
                                                   short &retryAttempts) {
   ExStatisticsArea *stats = NULL;
   ComDiagsArea *tempDiagsArea = &diagsArea_;
@@ -3634,18 +3634,18 @@ ExStatisticsArea *ContextCli::getObjectEpochStats(const char *objectName, Lng32 
   // If no reply for 60 secs, return an error
 
   // 60 secs = 6000 centisecs
-  Lng32 RtsTimeout = 6000;
+  int RtsTimeout = 6000;
 
   QRDEBUG("Sending ObjectEpochStatsRequest to SSMP");
   ssmpMsgStream->send(FALSE, -1);
-  Int64 startTime = NA_JulianTimestamp();
-  Int64 currTime;
-  Int64 elapsedTime;
+  long startTime = NA_JulianTimestamp();
+  long currTime;
+  long elapsedTime;
   IpcTimeout timeout = (IpcTimeout)RtsTimeout;
   while (timeout > 0 && ssmpMsgStream->hasIOPending()) {
     ssmpMsgStream->waitOnMsgStream(timeout);
     currTime = NA_JulianTimestamp();
-    elapsedTime = (Int64)(currTime - startTime) / 10000;
+    elapsedTime = (long)(currTime - startTime) / 10000;
     timeout = (IpcTimeout)(RtsTimeout - elapsedTime);
   }
 
@@ -3686,7 +3686,7 @@ ExStatisticsArea *ContextCli::getObjectEpochStats(const char *objectName, Lng32 
   return stats;
 }
 
-ExStatisticsArea *ContextCli::getObjectLockStats(const char *objectName, Lng32 objectNameLen, short cpu,
+ExStatisticsArea *ContextCli::getObjectLockStats(const char *objectName, int objectNameLen, short cpu,
                                                  short &retryAttempts) {
   ExStatisticsArea *stats = NULL;
   ComDiagsArea *tempDiagsArea = &diagsArea_;
@@ -3716,18 +3716,18 @@ ExStatisticsArea *ContextCli::getObjectLockStats(const char *objectName, Lng32 o
   // If no reply for 60 secs, return an error
 
   // 60 secs = 6000 centisecs
-  Lng32 RtsTimeout = 6000;
+  int RtsTimeout = 6000;
 
   LOGDEBUG(CAT_SQL_LOCK, "Sending ObjectLockStatsRequest to SSMP");
   ssmpMsgStream->send(FALSE, -1);
-  Int64 startTime = NA_JulianTimestamp();
-  Int64 currTime;
-  Int64 elapsedTime;
+  long startTime = NA_JulianTimestamp();
+  long currTime;
+  long elapsedTime;
   IpcTimeout timeout = (IpcTimeout)RtsTimeout;
   while (timeout > 0 && ssmpMsgStream->hasIOPending()) {
     ssmpMsgStream->waitOnMsgStream(timeout);
     currTime = NA_JulianTimestamp();
-    elapsedTime = (Int64)(currTime - startTime) / 10000;
+    elapsedTime = (long)(currTime - startTime) / 10000;
     timeout = (IpcTimeout)(RtsTimeout - elapsedTime);
   }
 
@@ -3768,7 +3768,7 @@ ExStatisticsArea *ContextCli::getObjectLockStats(const char *objectName, Lng32 o
 ExStatisticsArea *ContextCli::getMergedStats(
     /* IN */ short statsReqType,
     /* IN */ char *statsReqStr,
-    /* IN */ Lng32 statsReqStrLen,
+    /* IN */ int statsReqStrLen,
     /* IN */ short activeQueryNum,
     /* IN */ short statsMergeType, short &retryAttempts) {
   ExStatisticsArea *stats = NULL;
@@ -3840,8 +3840,8 @@ ExStatisticsArea *ContextCli::getMergedStats(
   }
   short cpu = -1;
   pid_t pid = (pid_t)-1;
-  Int64 timeStamp = -1;
-  Lng32 queryNumber = -1;
+  long timeStamp = -1;
+  int queryNumber = -1;
   char nodeName[MAX_SEGMENT_NAME_LEN + 1];
   if (cliGlobals->getStatsGlobals() == NULL) {
     (diagsArea_) << DgSqlCode(-EXE_RTS_NOT_STARTED);
@@ -3888,7 +3888,7 @@ ExStatisticsArea *ContextCli::getMergedStats(
   ssmpMsgStream->addRecipient(ssmpServer->getControlConnection());
   RtsHandle rtsHandle = (RtsHandle)this;
   SessionDefaults *sd = getSessionDefaults();
-  Lng32 RtsTimeout;
+  int RtsTimeout;
   // Retrieve the Rts collection interval and active queries. If they are valid, calculate the timeout
   // and send to the SSMP process.
   NABoolean wmsProcess;
@@ -3943,14 +3943,14 @@ ExStatisticsArea *ContextCli::getMergedStats(
     RtsTimeout = 400;
   // Send the message
   ssmpMsgStream->send(FALSE, -1);
-  Int64 startTime = NA_JulianTimestamp();
-  Int64 currTime;
-  Int64 elapsedTime;
+  long startTime = NA_JulianTimestamp();
+  long currTime;
+  long elapsedTime;
   IpcTimeout timeout = (IpcTimeout)RtsTimeout;
   while (timeout > 0 && ssmpMsgStream->hasIOPending()) {
     ssmpMsgStream->waitOnMsgStream(timeout);
     currTime = NA_JulianTimestamp();
-    elapsedTime = (Int64)(currTime - startTime) / 10000;
+    elapsedTime = (long)(currTime - startTime) / 10000;
     timeout = (IpcTimeout)(RtsTimeout - elapsedTime);
   }
   // Callbacks would have placed broken connections into
@@ -3974,7 +3974,7 @@ ExStatisticsArea *ContextCli::getMergedStats(
   }
   if (!ssmpMsgStream->isReplyReceived()) {
     char lcStatsReqStr[ComSqlId::MAX_QUERY_ID_LEN + 1];
-    Lng32 len;
+    int len;
     if (statsReqStrLen > ComSqlId::MAX_QUERY_ID_LEN)
       len = ComSqlId::MAX_QUERY_ID_LEN;
     else
@@ -4013,17 +4013,17 @@ ExStatisticsArea *ContextCli::getMergedStats(
   return stats;
 }
 
-Lng32 ContextCli::GetStatistics2(
+int ContextCli::GetStatistics2(
     /* IN */ short statsReqType,
     /* IN */ char *statsReqStr,
-    /* IN */ Lng32 statsReqStrLen,
+    /* IN */ int statsReqStrLen,
     /* IN */ short activeQueryNum,
     /* IN */ short statsMergeType,
     /* OUT */ short *statsCollectType,
     /* IN/OUT */ SQLSTATS_DESC sqlstats_desc[],
-    /* IN */ Lng32 max_stats_desc,
-    /* OUT */ Lng32 *no_returned_stats_desc) {
-  Lng32 retcode;
+    /* IN */ int max_stats_desc,
+    /* OUT */ int *no_returned_stats_desc) {
+  int retcode;
   short retryAttempts = 0;
 
   if (mergedStats_ != NULL && deleteStats()) {
@@ -4089,35 +4089,35 @@ void ContextCli::setStatsArea(ExStatisticsArea *stats, NABoolean isStatsCopy, NA
   }
 }
 
-Lng32 ContextCli::holdAndSetCQD(const char *defaultName, const char *defaultValue) {
+int ContextCli::holdAndSetCQD(const char *defaultName, const char *defaultValue) {
   ExeCliInterface cliInterface(exHeap(), 0, this);
 
   return ExExeUtilTcb::holdAndSetCQD(defaultName, defaultValue, &cliInterface);
 }
 
-Lng32 ContextCli::restoreCQD(const char *defaultName) {
+int ContextCli::restoreCQD(const char *defaultName) {
   ExeCliInterface cliInterface(exHeap(), 0, this);
 
   return ExExeUtilTcb::restoreCQD(defaultName, &cliInterface, &this->diags());
 }
 
-Lng32 ContextCli::setCS(const char *csName, char *csValue) {
+int ContextCli::setCS(const char *csName, char *csValue) {
   ExeCliInterface cliInterface(exHeap(), 0, this);
 
   return ExExeUtilTcb::setCS(csName, csValue, &cliInterface);
 }
 
-Lng32 ContextCli::resetCS(const char *csName) {
+int ContextCli::resetCS(const char *csName) {
   ExeCliInterface cliInterface(exHeap(), 0, this);
 
   return ExExeUtilTcb::resetCS(csName, &cliInterface, &this->diags());
 }
 
-Lng32 parse_statsReq(short statsReqType, char *statsReqStr, Lng32 statsReqStrLen, char *nodeName, short &cpu,
-                     pid_t &pid, Int64 &timeStamp, Lng32 &queryNumber) {
+int parse_statsReq(short statsReqType, char *statsReqStr, int statsReqStrLen, char *nodeName, short &cpu,
+                     pid_t &pid, long &timeStamp, int &queryNumber) {
   char tempStr[ComSqlId::MAX_QUERY_ID_LEN + 1];
   char *ptr;
-  Int64 tempNum;
+  long tempNum;
   char *cpuTempPtr;
   char *pinTempPtr;
   char *timeTempPtr = (char *)NULL;
@@ -4126,8 +4126,8 @@ Lng32 parse_statsReq(short statsReqType, char *statsReqStr, Lng32 statsReqStrLen
   Int32 error;
   Int32 tempCpu;
   pid_t tempPid;
-  Int64 tempTime = -1;
-  Lng32 tempQnum = -1;
+  long tempTime = -1;
+  int tempQnum = -1;
   short len;
   Int32 cpuMinRange;
   CliGlobals *cliGlobals;
@@ -4237,9 +4237,9 @@ Lng32 parse_statsReq(short statsReqType, char *statsReqStr, Lng32 statsReqStrLen
 }
 
 void ContextCli::killIdleMxcmp() {
-  Int64 currentTimestamp;
+  long currentTimestamp;
   Int32 compilerIdleTimeout;
-  Int64 recentIpcTimestamp;
+  long recentIpcTimestamp;
 
   if (arkcmpArray_.entries() == 0) return;
   if (arkcmpArray_[0]->getServer() == NULL) return;
@@ -5545,8 +5545,8 @@ void ContextCli::getAuthState(Int32 &authenticationType, bool &authorizationEnab
   auditingEnabled = false;
 }
 
-void ContextCli::setUdrXactAborted(Int64 currTransId, NABoolean b) {
-  if (udrXactId_ != Int64(-1) && currTransId == udrXactId_) udrXactAborted_ = b;
+void ContextCli::setUdrXactAborted(long currTransId, NABoolean b) {
+  if (udrXactId_ != long(-1) && currTransId == udrXactId_) udrXactAborted_ = b;
 }
 
 void ContextCli::clearUdrErrorFlags() {
@@ -5557,7 +5557,7 @@ void ContextCli::clearUdrErrorFlags() {
 }
 
 NABoolean ContextCli::sqlAccessAllowed() const {
-  if (udrErrorChecksEnabled_ && (udrSqlAccessMode_ == (Lng32)COM_NO_SQL)) return FALSE;
+  if (udrErrorChecksEnabled_ && (udrSqlAccessMode_ == (int)COM_NO_SQL)) return FALSE;
   return TRUE;
 }
 
@@ -5875,7 +5875,7 @@ void ContextCli::disconnectHdfsConnections() {
 Int32 ContextCli::loadTrafMetadataInCache() {
   ComDiagsArea *diagsArea = &diagsArea_;
   ExeCliInterface cliInterface(exHeap(), 0, this);
-  Lng32 retcode =
+  int retcode =
       cliInterface.executeImmediate((char *)"load trafodion metadata in cache;", NULL, NULL, TRUE, NULL, 0, &diagsArea);
   if (retcode != 0 && retcode != 100) {
     QRLogger::log(CAT_SQL_EXE, LL_WARN, "%s %d", "Load trafodion metadata in cache failed with error code", retcode);
@@ -5889,7 +5889,7 @@ Int32 ContextCli::loadTrafMetadataInCache() {
 Int32 ContextCli::loadTrafMetadataIntoSharedCache() {
   ComDiagsArea *diagsArea = &diagsArea_;
   ExeCliInterface cliInterface(exHeap(), 0, this);
-  Lng32 retcode = cliInterface.executeImmediate((char *)"load trafodion metadata into shared cache;", NULL, NULL, TRUE,
+  int retcode = cliInterface.executeImmediate((char *)"load trafodion metadata into shared cache;", NULL, NULL, TRUE,
                                                 NULL, 0, &diagsArea);
   if (retcode == 0 || retcode == 100) {
     QRLogger::log(CAT_SQL_EXE, LL_INFO, "%s", "Load trafodion metadata into shared cache completed successfully");
@@ -5908,7 +5908,7 @@ Int32 ContextCli::loadTrafMetadataIntoSharedCache() {
 Int32 ContextCli::loadTrafDataIntoSharedCache() {
   ComDiagsArea *diagsArea = &diagsArea_;
   ExeCliInterface cliInterface(exHeap(), 0, this);
-  Lng32 retcode = cliInterface.executeImmediate((char *)"load trafodion data into shared cache;", NULL, NULL, TRUE,
+  int retcode = cliInterface.executeImmediate((char *)"load trafodion data into shared cache;", NULL, NULL, TRUE,
                                                 NULL, 0, &diagsArea);
   if (retcode == 0 || retcode == 100) {
     QRLogger::log(CAT_SQL_EXE, LL_INFO, "%s", "Load trafodion data into shared cache completed successfully");
@@ -5935,7 +5935,7 @@ void ContextCli::collectSpecialRTStats() {
                                                  NULL,   // outputBuf
                                                  NULL,   // outputBufLen
                                                  TRUE,   // null terminated
-                                                 NULL,   // Int64* rowsAffected
+                                                 NULL,   // long* rowsAffected
                                                  FALSE,  // monitorThis
                                                  NULL);  // ComDiagsArea * globalDiags
 
@@ -5992,7 +5992,7 @@ void ContextCli::setClientInfo(const char *value, int length, const char *charac
   clientInfo_[length] = '\0';
 }
 
-Lng32 ContextCli::prepareCallTrigger() {
+int ContextCli::prepareCallTrigger() {
   if (cliInterfaceTrigger_ != NULL) {
     return 0;
   }
@@ -6005,9 +6005,9 @@ Lng32 ContextCli::prepareCallTrigger() {
   return cliInterfaceTrigger_->executeImmediatePrepare(query);
 }
 
-Lng32 ContextCli::executeCallTrigger(char *tblName, Lng32 isBefore, Lng32 opType, char *oldSKVBuffer, char *oldBufSize,
-                                     char *oldRowIDs, char *oldRowIDsLen, Lng32 newRowIDLen, char *newRowIDs,
-                                     Lng32 newRowIDsLen, char *newRows, Lng32 newRowsLen, char *curExecSql) {
+int ContextCli::executeCallTrigger(char *tblName, int isBefore, int opType, char *oldSKVBuffer, char *oldBufSize,
+                                     char *oldRowIDs, char *oldRowIDsLen, int newRowIDLen, char *newRowIDs,
+                                     int newRowIDsLen, char *newRows, int newRowsLen, char *curExecSql) {
   setSkipCheckValidPrivs(true);
   setTriggerParam(1, tblName);
   setTriggerParam(2, isBefore);
@@ -6023,7 +6023,7 @@ Lng32 ContextCli::executeCallTrigger(char *tblName, Lng32 isBefore, Lng32 opType
   setTriggerParam(12, newRowsLen);
   setTriggerParam(13, curExecSql);
 
-  Lng32 retCode = 0;
+  int retCode = 0;
   retCode = cliInterfaceTrigger_->clearExecFetchClose(NULL, NULL, NULL, NULL);
   setSkipCheckValidPrivs(false);
   return retCode;

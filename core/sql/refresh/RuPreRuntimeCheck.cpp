@@ -170,7 +170,7 @@ BOOL CRUPreRuntimeCheck::CheckPrivileges() {
   CUOSessionInfo sessionInfo(TRUE, FALSE, FALSE);
   if (sessionInfo.BelongsToServicesRole()) return TRUE;
 
-  Lng32 priv = mv_.GetPrivMap();
+  int priv = mv_.GetPrivMap();
   BOOL isInsertPriv = (0 != (priv & CRUMV::INSERT_PRIV));
   BOOL isSelectPriv = (0 != (priv & CRUMV::SELECT_PRIV));
   BOOL isDeletePriv = (0 != (priv & CRUMV::DELETE_PRIV));
@@ -181,7 +181,7 @@ BOOL CRUPreRuntimeCheck::CheckPrivileges() {
     return FALSE;
   }
 
-  Lng32 refreshPattern = mv_.GetRefreshPatternMap();
+  int refreshPattern = mv_.GetRefreshPatternMap();
   BOOL isPurgedata = (0 != (refreshPattern & CRUMV::PURGEDATA));
   BOOL isPopindex = (0 != (refreshPattern & CRUMV::POPINDEX));
 

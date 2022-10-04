@@ -327,7 +327,7 @@ RelExpr *MJEnumRule::nextSubstitute(RelExpr *before, Context *, RuleSubstituteMe
     const CANodeIdSet &jbbcs = mjoin->getJBBSubset().getJBBCs();
     CMPASSERT(mjoin->getJBBSubset().getGB() == NULL_CA_ID)
 
-    Lng32 mySubgraphs = mjoin->getJBBSubset().numConnectedSubgraphs();
+    int mySubgraphs = mjoin->getJBBSubset().numConnectedSubgraphs();
 
     Int32 numSubstitutes = 0;  // number of substitutes enumerated
 
@@ -338,8 +338,8 @@ RelExpr *MJEnumRule::nextSubstitute(RelExpr *before, Context *, RuleSubstituteMe
 
     // Data flow optimization
     CostScalar childrenFlow = mjoin->getChildrenDataFlow();
-    const Lng32 numChildren = jbbcs.entries();
-    Lng32 childIter = -1;  // temp iterator. *NOT* the same as child index
+    const int numChildren = jbbcs.entries();
+    int childIter = -1;  // temp iterator. *NOT* the same as child index
     RelExpr **potentialSubstitutes = new (CmpCommon::statementHeap()) RelExpr *[numChildren];
     CostScalar *substituteMetric = new (CmpCommon::statementHeap()) CostScalar[numChildren];
     CANodeId *substituteRightChild = new (CmpCommon::statementHeap()) CANodeId[numChildren];
@@ -442,7 +442,7 @@ RelExpr *MJEnumRule::nextSubstitute(RelExpr *before, Context *, RuleSubstituteMe
 
       JBBSubset *rightSubset = right.jbbcsToJBBSubset();
 
-      Lng32 newSubgraphs = leftSubset->numConnectedSubgraphs();
+      int newSubgraphs = leftSubset->numConnectedSubgraphs();
 
       // xxx only counting joinPreds here
       // do this only for inner-nonSemi-nonTSJ joins
@@ -1456,7 +1456,7 @@ NABoolean MJStarJoinIRule::isAStarPattern(MultiJoin *mjoin, CANodeId factTable,
   CANodeIdSet connectedTables;
   CANodeIdSet tablesConnectedToColumn;
   CANodeIdSet tablesConnectedViaThisColumn;
-  Lng32 numPrefixColsCoveredFromFactTableCK = 0;
+  int numPrefixColsCoveredFromFactTableCK = 0;
 
   // this variable is used to  get the list of
   // fact table clustering key prefix columns
@@ -1566,9 +1566,9 @@ NABoolean MJStarJoinIRule::isAStarPattern(MultiJoin *mjoin, CANodeId factTable,
 #ifdef _DEBUG
   if (CmpCommon::getDefault(NSK_DBG) == DF_ON && CmpCommon::getDefault(NSK_DBG_MJRULES_TRACKING) == DF_ON) {
     CURRCONTEXT_OPTDEBUG->stream() << "Cost estimate of fact table access as outer most table: "
-                                   << istring(Lng32(factTableHashJoinCost.value())) << endl;
+                                   << istring(int(factTableHashJoinCost.value())) << endl;
     CURRCONTEXT_OPTDEBUG->stream() << "Star Join will make sense if fact table nested join access is "
-                                   << istring(Lng32(factTableCostFactor)) << " times cheaper" << endl;
+                                   << istring(int(factTableCostFactor)) << " times cheaper" << endl;
   }
 #endif  //_DEBUG
 
@@ -1721,7 +1721,7 @@ NABoolean MJStarJoinIRule::isAStarPattern(MultiJoin *mjoin, CANodeId factTable,
       tableToConsider = tablesConnectedViaThisColumn.getFirst();
 
     } else {
-      Lng32 maxPrefix = 0;
+      int maxPrefix = 0;
       CANodeIdSet coveredTables;
 
       // Find the table that gives the max key coverage. Consider the example
@@ -1741,7 +1741,7 @@ NABoolean MJStarJoinIRule::isAStarPattern(MultiJoin *mjoin, CANodeId factTable,
 
       for (CANodeId currentTable = tablesConnectedViaThisColumn.init(); tablesConnectedViaThisColumn.next(currentTable);
            tablesConnectedViaThisColumn.advance(currentTable)) {
-        Lng32 coveredPrefix = 0;
+        int coveredPrefix = 0;
 
         // add currentTable to list of tables that we
         // have already determined cover key prefix
@@ -1928,13 +1928,13 @@ NABoolean MJStarJoinIRule::isAStarPattern(MultiJoin *mjoin, CANodeId factTable,
     if (CmpCommon::getDefault(NSK_DBG) == DF_ON && CmpCommon::getDefault(NSK_DBG_MJRULES_TRACKING) == DF_ON) {
       CURRCONTEXT_OPTDEBUG->stream() << "FactTable after edge " << currentEdge.getText() << endl;
       CURRCONTEXT_OPTDEBUG->stream() << "The cummulative edge is " << edge.getText() << endl;
-      CURRCONTEXT_OPTDEBUG->stream() << "Probes into fact table: " << istring(Lng32(dataFlowFromEdge.value())) << endl;
-      CURRCONTEXT_OPTDEBUG->stream() << "Fact Table Rows to scan: " << istring(Lng32(factTableRowsToScan.value()))
+      CURRCONTEXT_OPTDEBUG->stream() << "Probes into fact table: " << istring(int(dataFlowFromEdge.value())) << endl;
+      CURRCONTEXT_OPTDEBUG->stream() << "Fact Table Rows to scan: " << istring(int(factTableRowsToScan.value()))
                                      << endl;
       CURRCONTEXT_OPTDEBUG->stream() << "Rows coming out of fact table: "
-                                     << istring(Lng32(dataFlowFromFactTable.value())) << endl;
+                                     << istring(int(dataFlowFromFactTable.value())) << endl;
       CURRCONTEXT_OPTDEBUG->stream() << "Our cost estimate of fact table nested join: "
-                                     << istring(Lng32(factTableCost.value())) << endl;
+                                     << istring(int(factTableCost.value())) << endl;
     }
 #endif  //_DEBUG
 

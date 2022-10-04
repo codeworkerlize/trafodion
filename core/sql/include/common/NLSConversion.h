@@ -90,20 +90,20 @@ cnv_charset convertCharsetEnum(Int32 /*i.e. enum CharInfo::CharSet*/ inset);
 
 const char *getCharsetAsString(Int32 /*i.e. enum CharInfo::CharSet*/ charset);
 
-Lng32 UnicodeStringToLocale(Lng32 /*i.e. enum CharInfo::CharSet*/ charset, const NAWchar *wstr, Lng32 wstrLen,
-                            char *buf, Lng32 bufLen, NABoolean addNullAtEnd = TRUE,
+int UnicodeStringToLocale(int /*i.e. enum CharInfo::CharSet*/ charset, const NAWchar *wstr, int wstrLen,
+                            char *buf, int bufLen, NABoolean addNullAtEnd = TRUE,
                             NABoolean allowInvalidCodePoint = TRUE);
 
-Lng32 LocaleStringToUnicode(Lng32 /*i.e. enum CharInfo::CharSet*/ charset, const char *str, Lng32 strLen,
-                            NAWchar *wstrBuf, Lng32 wstrBufLen, NABoolean addNullAtEnd = TRUE);
+int LocaleStringToUnicode(int /*i.e. enum CharInfo::CharSet*/ charset, const char *str, int strLen,
+                            NAWchar *wstrBuf, int wstrBufLen, NABoolean addNullAtEnd = TRUE);
 
-Int32 localeConvertToUTF8(char *source, Lng32 sourceLen, char *target, Lng32 targetLen,
-                          Lng32 charset,  // enum cnv_charset type
-                          CollHeap *heap = 0, Lng32 *charCount = NULL, Lng32 *errorByteOff = NULL);
+Int32 localeConvertToUTF8(char *source, int sourceLen, char *target, int targetLen,
+                          int charset,  // enum cnv_charset type
+                          CollHeap *heap = 0, int *charCount = NULL, int *errorByteOff = NULL);
 
-Int32 UTF8ConvertToLocale(char *source, Lng32 sourceLen, char *target, Lng32 targetLen,
-                          Lng32 charset,  // enum cnv_charset type
-                          CollHeap *heap = 0, Lng32 *charCount = NULL, Lng32 *errorByteOff = NULL);
+Int32 UTF8ConvertToLocale(char *source, int sourceLen, char *target, int targetLen,
+                          int charset,  // enum cnv_charset type
+                          CollHeap *heap = 0, int *charCount = NULL, int *errorByteOff = NULL);
 
 // -----------------------------------------------------------------------
 // ComputeWidthInBytesOfMbsForDisplay:
@@ -171,16 +171,16 @@ Int32 ComputeStrLenInUCS4chars(const char *pStr, const Int32 strLenInBytes, cons
 
 // convert a Unicode string back to char
 class NAMemory;
-NAString *unicodeToChar(const NAWchar *s, Int32 len, Lng32 charset, NAMemory *h = NULL,
+NAString *unicodeToChar(const NAWchar *s, Int32 len, int charset, NAMemory *h = NULL,
                         NABoolean allowInvalidChar = FALSE);
 
 // convert a char string to Unicode
-NAWString *charToUnicode(Lng32 charset, const char *s, Int32 len, NAMemory *h = NULL);
-NAWString *charToUnicode(Lng32 charset, const char *s, NAMemory *h = NULL);
+NAWString *charToUnicode(int charset, const char *s, Int32 len, NAMemory *h = NULL);
+NAWString *charToUnicode(int charset, const char *s, NAMemory *h = NULL);
 
 // convert a char string to another char string (in a different character set);
 // if both target and source char sets are the same, do a deep copy.
-NAString *charToChar(Lng32 targetCS, const char *s, Int32 sLenInBytes, Lng32 sourceCS, NAMemory *h = NULL,
+NAString *charToChar(int targetCS, const char *s, Int32 sLenInBytes, int sourceCS, NAMemory *h = NULL,
                      NABoolean allowInvalidChar = FALSE);
 
 #else

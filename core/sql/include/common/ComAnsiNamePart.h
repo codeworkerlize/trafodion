@@ -365,7 +365,7 @@ Int32 ComAnsiNamePart::compareTo(const ComAnsiNamePart &rhs) const {
 // declaration of function ComDeriveRandomInternalName
 // -----------------------------------------------------------------------
 
-ComBoolean ComDeriveRandomInternalName(Lng32 nameCharSet, const ComString &inputNameInInternalFormat,
+ComBoolean ComDeriveRandomInternalName(int nameCharSet, const ComString &inputNameInInternalFormat,
                                        ComString &generatedNameInInternalFormat, NAHeap *h = 0);
 
 ComBoolean ComIsRandomInternalName(const ComString &inputName);

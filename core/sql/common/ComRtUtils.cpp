@@ -123,7 +123,7 @@ NABoolean ComRtIsInternalModName(const char *modName) {
 // returns 'next' internal 3-part system mod name.
 // 'index' keeps track of the current mod name returned. It should
 // be initialized to 0 on the first call to this method.
-const char *ComRtGetNextInternalModName(Lng32 &index, char *modNameBuf) {
+const char *ComRtGetNextInternalModName(int &index, char *modNameBuf) {
   if (index == (sizeof(internalSystemSchemaModNameList)) / sizeof(ModName)) return NULL;
 
   if (index < sizeof(internalSystemSchemaModNameList) / sizeof(ModName)) {
@@ -160,7 +160,7 @@ Int32 ModuleOSFile::close() {
     return 0;
 }
 
-Int32 ModuleOSFile::readpos(char *buf, Lng32 pos, Lng32 len, short &countRead) {
+Int32 ModuleOSFile::readpos(char *buf, int pos, int len, short &countRead) {
   // no explicit error handling for these operations
   fs_.seekg(pos, ios::beg);
   fs_.read(buf, len);
@@ -171,7 +171,7 @@ Int32 ModuleOSFile::readpos(char *buf, Lng32 pos, Lng32 len, short &countRead) {
 // Utility proc to move result into a buffer of limited size. Make
 // sure the result buffer is always NUL-terminated.
 // -----------------------------------------------------------------------
-static Lng32 ComRtMoveResult(char *tgt, const char *src, Lng32 tgtBufferLength, Lng32 srcLength) {
+static int ComRtMoveResult(char *tgt, const char *src, int tgtBufferLength, int srcLength) {
   if (tgtBufferLength > srcLength) {
     // the easy case, move result and add NUL terminator
     // (don't rely on the source being NUL-terminated)
@@ -189,13 +189,13 @@ static Lng32 ComRtMoveResult(char *tgt, const char *src, Lng32 tgtBufferLength, 
 // Get the directory name where NonStop SQL software resides
 // (from registry on NT, $SYSTEM.SYSTEM on NSK)
 // -----------------------------------------------------------------------
-Lng32 ComRtGetInstallDir(char *buffer, Lng32 inputBufferLength,
-                         Lng32 *resultLength)  // OUT optional
+int ComRtGetInstallDir(char *buffer, int inputBufferLength,
+                         int *resultLength)  // OUT optional
 {
   if (resultLength) *resultLength = 0;
 
-  Lng32 result = 0;
-  Lng32 lResultLen;
+  int result = 0;
+  int lResultLen;
 
   // For Linux, we need to decide what to do for the install directory.
   // This is work that is TBD. For now, this is set to null, so that
@@ -217,10 +217,10 @@ static NABoolean canUseModuleDirEnvVar() {
 #define SYSTEMMODULESDIR "/usr/tandem/sqlmx/SYSTEMMODULES/"
 #define USERMODULESDIR   "/usr/tandem/sqlmx/USERMODULES/"
 
-Lng32 ComRtGetModuleFileName(const char *moduleName,
+int ComRtGetModuleFileName(const char *moduleName,
                              const char *moduleDir,  // use this as the module dir, if not NULL.
-                             char *buffer, Lng32 inputBufferLength, char *sysModuleDir, char *userModuleDir,
-                             Lng32 *resultLength,
+                             char *buffer, int inputBufferLength, char *sysModuleDir, char *userModuleDir,
+                             int *resultLength,
                              short &isASystemModule)  // OUT optional
 {
   if (resultLength) *resultLength = 0;
@@ -262,21 +262,21 @@ Lng32 ComRtGetModuleFileName(const char *moduleName,
   //  int systemModulePrefixLen = str_len(systemModulePrefix);
   //  int systemModulePrefixLenODBC = str_len(systemModulePrefixODBC);
   Int32 modNameLen = str_len(moduleName);
-  Lng32 lResultLen;
-  Lng32 result = 0;
+  int lResultLen;
+  int result = 0;
   return result;
 }
 
 // -----------------------------------------------------------------------
 // Get the cluster (EXPAND node) name (returns "NSK" on NT)
 // -----------------------------------------------------------------------
-Lng32 ComRtGetOSClusterName(char *buffer, Lng32 inputBufferLength,
-                            Lng32 *resultLength,  // OUT optional
+int ComRtGetOSClusterName(char *buffer, int inputBufferLength,
+                            int *resultLength,  // OUT optional
                             short *nodeNumber) {
   if (resultLength) *resultLength = 0;
 
-  Lng32 result = 1;  // positive "ldev"
-  Lng32 lResultLen = 0;
+  int result = 1;  // positive "ldev"
+  int lResultLen = 0;
 
   // for now, the cluster name on NT is always NSK
   lResultLen = 3;
@@ -291,10 +291,10 @@ Lng32 ComRtGetOSClusterName(char *buffer, Lng32 inputBufferLength,
 // its size in sysCatLength.
 // Error code or 0 is returned for error case and success case respectively.
 // -----------------------------------------------------------------------
-Lng32 ComRtGetMPSysCatName(char *sysCatBuffer,       // in/out
-                           Lng32 inputBufferLength,  // in
+int ComRtGetMPSysCatName(char *sysCatBuffer,       // in/out
+                           int inputBufferLength,  // in
                            char *inputSysName,       // in, must set to NULL if no name is passed.
-                           Lng32 *sysCatLength,      // out
+                           int *sysCatLength,      // out
                            short *detailError,       // out
                            CollHeap *heap)           // in
 
@@ -311,9 +311,9 @@ Lng32 ComRtGetMPSysCatName(char *sysCatBuffer,       // in/out
   const Int32 FILENAMELEN = 36;
 
   char mpSysCat[FILENAMELEN];
-  Lng32 nameSize = 0;
+  int nameSize = 0;
 
-  Lng32 error = 0;
+  int error = 0;
   *detailError = 0;
   char *sysCatLoc = NULL;
 
@@ -384,7 +384,7 @@ Lng32 ComRtGetMPSysCatName(char *sysCatBuffer,       // in/out
     }
     str_cpy_all(sysCatLoc + z, tab->cat_subvolname, i);
     sysCatLoc[z + i] = '\0';
-    *sysCatLength = (Lng32)z + i;
+    *sysCatLength = (int)z + i;
   }
 
   return 0;
@@ -418,12 +418,12 @@ void ComRt_Upshift(char *buf) {
   }
 }
 
-const char *ComRtGetEnvValueFromEnvvars(const char **envvars, const char *envvar, Lng32 *envvarPos) {
+const char *ComRtGetEnvValueFromEnvvars(const char **envvars, const char *envvar, int *envvarPos) {
   if (envvarPos) *envvarPos = -1;
 
   if (!envvars) return NULL;
 
-  Lng32 envvarLen = str_len(envvar);
+  int envvarLen = str_len(envvar);
   for (Int32 i = 0; envvars[i]; i++) {
     // Each envvar[i] is of the form:  envvar=value
     // search for '='
@@ -462,14 +462,14 @@ NABoolean ComRtGetEnvValue(const char *envvar, const char **envvarValue) {
   return TRUE;
 }
 
-NABoolean ComRtGetEnvValue(const char *envvar, Lng32 *envvarValue) {
+NABoolean ComRtGetEnvValue(const char *envvar, int *envvarValue) {
   const char *ptr;
   if (!ComRtGetEnvValue(envvar, &ptr))
     // envvar not there or no value
     return FALSE;
 
   Int32 max = strlen(ptr);
-  Lng32 tempValue = 0;
+  int tempValue = 0;
   for (Int32 i = 0; i < max; i++) {
     if (ptr[i] < '0' || ptr[i] > '9')
       // value is not numeric
@@ -580,16 +580,16 @@ NABoolean ComRtGetValueFromFile(const char *envvar, char *valueBuffer, const UIn
 // // Return status:      0, if all ok. <errnum>, in case of an error.
 //
 // -----------------------------------------------------------------------
-Lng32 ComRtGetProgramInfo(char *pathName,                           /* out */
-                          Lng32 pathNameMaxLen, short &processType, /* out */
+int ComRtGetProgramInfo(char *pathName,                           /* out */
+                          int pathNameMaxLen, short &processType, /* out */
                           Int32 &cpu,                               /* cpu */
                           pid_t &pin,                               /* pin */
-                          Lng32 &nodeNumber,
+                          int &nodeNumber,
                           char *nodeName,  // GuaNodeNameMaxLen+1
-                          short &nodeNameLen, Int64 &processCreateTime, char *processNameString,
+                          short &nodeNameLen, long &processCreateTime, char *processNameString,
                           char *parentProcessNameString, SB_Verif_Type *verifier, Int32 *ancestorNid,
                           pid_t *ancestorPid) {
-  Lng32 retcode = 0;
+  int retcode = 0;
 
   processType = 2;
   strcpy(nodeName, "NSK");
@@ -639,15 +639,15 @@ Lng32 ComRtGetProgramInfo(char *pathName,                           /* out */
   return retcode;
 }
 
-Lng32 ComRtGetProcessPriority(Lng32 &processPriority /* out */) {
-  Lng32 retcode = 0;
+int ComRtGetProcessPriority(int &processPriority /* out */) {
+  int retcode = 0;
 
   processPriority = -1;
 
   return retcode;
 }
 
-Lng32 ComRtGetProcessPagesInUse(Int64 &pagesInUse /* out */) {
+int ComRtGetProcessPagesInUse(long &pagesInUse /* out */) {
   pagesInUse = -1;
   return 0;
 }
@@ -655,10 +655,10 @@ Lng32 ComRtGetProcessPagesInUse(Int64 &pagesInUse /* out */) {
 // IN:  if cpu, pin and nodeName are passed in, is that to find process.
 //      Otherwise, use current process
 // OUT: processCreateTime: time when this process was created.
-Lng32 ComRtGetProcessCreateTime(short *cpu, /* cpu */
+int ComRtGetProcessCreateTime(short *cpu, /* cpu */
                                 pid_t *pin, /* pin */
-                                short *nodeNumber, Int64 &processCreateTime, short &errorDetail) {
-  Lng32 retcode = 0;
+                                short *nodeNumber, long &processCreateTime, short &errorDetail) {
+  int retcode = 0;
 
   MS_Mon_Process_Info_Type processInfo;
   char processName[MS_MON_MAX_PROCESS_NAME];
@@ -672,16 +672,16 @@ Lng32 ComRtGetProcessCreateTime(short *cpu, /* cpu */
   return retcode;
 }
 
-Lng32 ComRtSetProcessPriority(Lng32 priority, NABoolean isDelta) {
+int ComRtSetProcessPriority(int priority, NABoolean isDelta) {
   short rc = 0;
 
   return rc;
 }
 
-Lng32 ComRtGetIsoMappingEnum() { return (Lng32)CharInfo::DefaultCharSet; }
+int ComRtGetIsoMappingEnum() { return (int)CharInfo::DefaultCharSet; }
 
 char *ComRtGetIsoMappingName() {
-  Lng32 ime = ComRtGetIsoMappingEnum();
+  int ime = ComRtGetIsoMappingEnum();
 
   return (char *)CharInfo::getCharSetName((CharInfo::CharSet)ime);
 }
@@ -852,7 +852,7 @@ void dumpTrafStack(LIST(TrafAddrStack *) * la, const char *header, bool toFile) 
     if (fnValid == 0) {
       Int32 nid = 0;
       Int32 pid = 0;
-      Int64 tid = 0;
+      long tid = 0;
       char *progFileName = (char *)"noname";
       char pName[MS_MON_MAX_PROCESS_NAME];
       if (XZFIL_ERR_OK != msg_mon_get_my_info(&nid, &pid, &pName[0], sizeof(pName), NULL, NULL, NULL, &tid))
@@ -1084,7 +1084,7 @@ EncodedHiveType::EncodedHiveType(const std::string &x) {
   scale_ = *(Int32 *)(data);
 }
 
-void checkSpan(const char *x, Lng32 len) {
+void checkSpan(const char *x, int len) {
   fstream &out = getPrintHandle();
 
   for (int i = 0; i < len; i++) {
@@ -1115,9 +1115,9 @@ pid_t ComRtGetConfiguredPidMax() {
   return 0;
 }
 
-Int64 getCurrentTime() {
+long getCurrentTime() {
   // GETTIMEOFDAY returns -1, in case of an error
-  Int64 currentTime;
+  long currentTime;
   TimeVal currTime;
   if (GETTIMEOFDAY(&currTime, 0) != -1)
     currentTime = currTime.tv_sec;
@@ -1225,7 +1225,7 @@ void ScanFilterStats::unpack(const char *&buffer) {
   */
   unpackBuffer(buffer, packedBits_);
 
-  Int64 rows = 0;
+  long rows = 0;
   unpackBuffer(buffer, rows);
   // unpackBuffer(buffer, totalRowsAffected_);
   totalRowsAffected_ = rows;
@@ -1271,9 +1271,9 @@ void ScanFilterStats::getVariableStatsInfo(char *buf, Int32 len) const {
   snprintf(buf, len, "RV%d(%1d,%ld)", packedBits_.filterId_, getStateCode(), totalRowsAffected_);
 }
 
-Lng32 ScanFilterStats::getVariableStatsInfoLen() const {
+int ScanFilterStats::getVariableStatsInfoLen() const {
   // The max value for Int8 is 255.
-  // The max value for Int64 is 9,223,372,036,854,775,807.
+  // The max value for long is 9,223,372,036,854,775,807.
   // The materialized format "RV%d(%d,%ld)" is thus no more
   // than 2+5+1+1+1+19+1+1 bytes = 31 bytes.
 
@@ -1384,8 +1384,8 @@ void ScanFilterStatsList::merge(ScanFilterStatsList &other, ScanFilterStats::Mer
   }
 }
 
-Lng32 ScanFilterStatsList::getVariableStatsInfoLen(const char *msg) const {
-  Lng32 len = 0;
+int ScanFilterStatsList::getVariableStatsInfoLen(const char *msg) const {
+  int len = 0;
   // Use entries() in case entries_ is corrupted.
   for (Int32 i = 0; i < entries(); i++) {
     len += scanFilterStats_[i].getVariableStatsInfoLen();
@@ -1434,7 +1434,7 @@ void ScanFilterStatsList::getVariableStatsInfo(char *buf, Int32 maxlen, const ch
 }
 
 void ScanFilterStatsList::dump(ostream &out, const char *msg) {
-  Lng32 len = getVariableStatsInfoLen(msg);
+  int len = getVariableStatsInfoLen(msg);
 
   char *buf = new char[len];
 
@@ -1445,7 +1445,7 @@ void ScanFilterStatsList::dump(ostream &out, const char *msg) {
   delete buf;
 }
 
-Int32 convertJulianTimestamp(Int64 julianTimestamp, char *target) {
+Int32 convertJulianTimestamp(long julianTimestamp, char *target) {
   short timestamp[8];
   INTERPRETTIMESTAMP(julianTimestamp, timestamp);
   short year = timestamp[0];
@@ -1454,7 +1454,7 @@ Int32 convertJulianTimestamp(Int64 julianTimestamp, char *target) {
   char hour = (char)timestamp[3];
   char minute = (char)timestamp[4];
   char second = (char)timestamp[5];
-  Lng32 fraction = timestamp[6] * 1000 + timestamp[7];
+  int fraction = timestamp[6] * 1000 + timestamp[7];
 
   str_cpy_all(target, (char *)&year, sizeof(year));
   target += sizeof(year);

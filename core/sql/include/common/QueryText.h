@@ -37,10 +37,10 @@
 class QueryText {
  public:
   // constructor
-  QueryText(char *text, Lng32 charset) : text_(text), charset_(charset) {}
+  QueryText(char *text, int charset) : text_(text), charset_(charset) {}
 
   // simple accessors
-  Lng32 charSet() { return charset_; }
+  int charSet() { return charset_; }
   char *text() { return text_; }
   NAWchar *wText() { return (NAWchar *)text_; }
 
@@ -66,11 +66,11 @@ class QueryText {
 
   // mutators
   void setText(char *t) { text_ = t; }
-  void setCharSet(Lng32 cs) { charset_ = cs; }
+  void setCharSet(int cs) { charset_ = cs; }
 
  private:
   char *text_;  // we don't own this memory
-  Lng32 charset_;
+  int charset_;
 };
 
 inline Int32 QueryText::canBeUsedBySqlcompTest(char **text) {

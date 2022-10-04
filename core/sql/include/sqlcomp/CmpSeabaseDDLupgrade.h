@@ -152,17 +152,17 @@ CmpDDLwithStatusInfo object.
 struct MDDescsInfo {
   ComTdbVirtTableTableInfo *tableInfo;
 
-  Lng32 numNewCols;
+  int numNewCols;
   ComTdbVirtTableColumnInfo *newColInfo;
-  Lng32 numNewKeys;
+  int numNewKeys;
   ComTdbVirtTableKeyInfo *newKeyInfo;
 
-  Lng32 numOldCols;
+  int numOldCols;
   ComTdbVirtTableColumnInfo *oldColInfo;
-  Lng32 numOldKeys;
+  int numOldKeys;
   ComTdbVirtTableKeyInfo *oldKeyInfo;
 
-  Lng32 numIndexes;
+  int numIndexes;
   ComTdbVirtTableIndexInfo *indexInfo;
 };
 

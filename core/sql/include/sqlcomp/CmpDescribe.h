@@ -73,11 +73,11 @@ extern short CmpDescribeSeabaseTable(const CorrName &dtName,
 
 // type:  1, invoke. 2, showddl. 3, create_like
 extern short cmpDisplayColumn(const NAColumn *nac, char *inColName, const NAType *inNAT, short displayType,
-                              Space *inSpace, char *buf, Lng32 &ii, NABoolean namesOnly, NABoolean &identityCol,
+                              Space *inSpace, char *buf, int &ii, NABoolean namesOnly, NABoolean &identityCol,
                               NABoolean isExternalTable, NABoolean isAlignedRowFormat, UInt32 columnLengthLimit,
                               NAList<const NAColumn *> *truncatedColumnList);
 
-extern short cmpDisplayPrimaryKey(const NAColumnArray &naColArr, Lng32 numKeys, NABoolean displaySystemCols,
+extern short cmpDisplayPrimaryKey(const NAColumnArray &naColArr, int numKeys, NABoolean displaySystemCols,
                                   Space &space, char *buf, NABoolean displayCompact, NABoolean displayAscDesc,
                                   NABoolean displayParens);
 

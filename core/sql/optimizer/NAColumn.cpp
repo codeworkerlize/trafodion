@@ -39,7 +39,7 @@
 #include "common/Platform.h"
 #include "optimizer/NATable.h"
 #include "optimizer/Sqlcomp.h"
-#include "ex_error.h"
+#include "executor/ex_error.h"
 #include "sqlcat/TrafDDLdesc.h"
 #include "sqlcomp/parser.h"
 #include "sqlcomp/CmpSeabaseDDLmd.h"
@@ -142,7 +142,7 @@ NAColumn *NAColumn::deepCopy(const NAColumn &nac, NAMemory *heap) {
 // TableDesc::addCheckConstraint().
 // -----------------------------------------------------------------------
 
-Lng32 NAColumn::getNotNullViolationCode() const {
+int NAColumn::getNotNullViolationCode() const {
   if (!isNotNullNondroppable_) return 0;  // no error
 
   if (!isNotNullNondroppable_->isViewWithCheckOption()) return EXE_TABLE_CHECK_CONSTRAINT;
@@ -173,8 +173,8 @@ static NAString makeColumnName(const NATable *table, const TrafColumnsDesc *colu
 // Method for creating NAType from TrafDesc.
 // -----------------------------------------------------------------------
 NABoolean NAColumn::createNAType(TrafColumnsDesc *column_desc /*IN*/, const NATable *table /*IN*/,
-                                 Int64 tablesFlags /*IN*/, NAType *&type /*OUT*/, NAMemory *heap /*IN*/,
-                                 Lng32 *errorCode) {
+                                 long tablesFlags /*IN*/, NAType *&type /*OUT*/, NAMemory *heap /*IN*/,
+                                 int *errorCode) {
 //
 // Compute the NAType for this column
 //
@@ -183,7 +183,7 @@ NABoolean NAColumn::createNAType(TrafColumnsDesc *column_desc /*IN*/, const NATa
   Int16 datatype = column_desc->datatype;
   if (REC_MIN_INTERVAL <= datatype && datatype <= REC_MAX_INTERVAL) datatype = REC_INTERVAL;
 
-  Lng32 charCount = column_desc->length;
+  int charCount = column_desc->length;
 
   if (DFS2REC::isAnyCharacter(column_desc->datatype)) {
     if (CharInfo::isCharSetSupported(column_desc->characterSet()) == FALSE) {
@@ -296,8 +296,8 @@ NABoolean NAColumn::createNAType(TrafColumnsDesc *column_desc /*IN*/, const NATa
     case REC_BYTE_F_ASCII:
       if (column_desc->characterSet() == CharInfo::UTF8 ||
           (column_desc->characterSet() == CharInfo::SJIS && column_desc->encodingCharset() == CharInfo::SJIS)) {
-        Lng32 maxBytesPerChar = CharInfo::maxBytesPerChar(column_desc->characterSet());
-        Lng32 sizeInChars = charCount;  // Applies when CharLenUnit == BYTES
+        int maxBytesPerChar = CharInfo::maxBytesPerChar(column_desc->characterSet());
+        int sizeInChars = charCount;  // Applies when CharLenUnit == BYTES
         if (column_desc->precision > 0) sizeInChars = column_desc->precision;
         type = new (heap) SQLChar(heap, CharLenInfo(sizeInChars, charCount /*in_bytes*/), column_desc->isNullable(),
                                   column_desc->isUpshifted(), column_desc->isCaseInsensitive(),
@@ -316,8 +316,8 @@ NABoolean NAColumn::createNAType(TrafColumnsDesc *column_desc /*IN*/, const NATa
       // fall thru
     case REC_BYTE_V_ASCII:
       if (column_desc->characterSet() == CharInfo::SJIS || column_desc->characterSet() == CharInfo::UTF8) {
-        Lng32 maxBytesPerChar = CharInfo::maxBytesPerChar(column_desc->characterSet());
-        Lng32 sizeInChars = charCount;  // Applies when CharLenUnit == BYTES
+        int maxBytesPerChar = CharInfo::maxBytesPerChar(column_desc->characterSet());
+        int sizeInChars = charCount;  // Applies when CharLenUnit == BYTES
         if (column_desc->precision > 0) sizeInChars = column_desc->precision;
         type = new (heap) SQLVarChar(heap, CharLenInfo(sizeInChars, charCount /*in_bytes*/), column_desc->isNullable(),
                                      column_desc->isUpshifted(), column_desc->isCaseInsensitive(),
@@ -333,8 +333,8 @@ NABoolean NAColumn::createNAType(TrafColumnsDesc *column_desc /*IN*/, const NATa
 
     case REC_BYTE_V_ASCII_LONG:
       if (column_desc->characterSet() == CharInfo::SJIS || column_desc->characterSet() == CharInfo::UTF8) {
-        Lng32 maxBytesPerChar = CharInfo::maxBytesPerChar(column_desc->characterSet());
-        Lng32 sizeInChars = charCount;  // Applies when CharLenUnit == BYTES
+        int maxBytesPerChar = CharInfo::maxBytesPerChar(column_desc->characterSet());
+        int sizeInChars = charCount;  // Applies when CharLenUnit == BYTES
         if (column_desc->precision > 0) sizeInChars = column_desc->precision;
         type = new (heap)
             SQLLongVarChar(heap, CharLenInfo(sizeInChars, charCount /*in_bytes*/), FALSE, column_desc->isNullable(),
@@ -597,7 +597,7 @@ NAColumnArray &NAColumnArray::operator=(const NAColumnArray &other) {
   return *this;
 }
 
-NAColumn *NAColumnArray::getColumn(Lng32 index) const {
+NAColumn *NAColumnArray::getColumn(int index) const {
   NAColumn *column = (*this)[index];
   return column;
 }
@@ -611,7 +611,7 @@ NAColumn *NAColumnArray::getColumn(const char *colName) const {
 }
 
 // gets the NAColumn that has the same position
-NAColumn *NAColumnArray::getColumnByPos(Lng32 position) const {
+NAColumn *NAColumnArray::getColumnByPos(int position) const {
   for (CollIndex i = 0; i < entries(); i++) {
     NAColumn *column = (*this)[i];
     if (column->getPosition() == position) return column;
@@ -619,12 +619,12 @@ NAColumn *NAColumnArray::getColumnByPos(Lng32 position) const {
   return NULL;
 }
 
-Lng32 NAColumnArray::getOffset(Lng32 position) const {
-  Lng32 result = 0;
+int NAColumnArray::getOffset(int position) const {
+  int result = 0;
 
-  for (Lng32 i = 0; i < position; i++) {
+  for (int i = 0; i < position; i++) {
     const NAType *t = (*this)[i]->getType();
-    Lng32 align = t->getTotalAlignment();
+    int align = t->getTotalAlignment();
     if (result % align != 0) result += (result + align - 1) / align * align;
   }
 
@@ -634,8 +634,8 @@ Lng32 NAColumnArray::getOffset(Lng32 position) const {
 ULng32 NAColumnArray::getMaxTrafHbaseColQualifier() const {
   NAColumn *column;
   char *colQualPtr;
-  Lng32 colQualLen;
-  Int64 colQVal;
+  int colQualLen;
+  long colQVal;
   ULng32 maxVal = 0;
 
   for (CollIndex i = 0; i < entries(); i++) {

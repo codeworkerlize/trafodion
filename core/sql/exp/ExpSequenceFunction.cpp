@@ -101,8 +101,8 @@ ex_expr::exp_return_type ExpSequenceFunction::pCodeGenerate(Space *space, UInt32
   if (!isLeading() || (winSize() != 0)) return ex_clause::pCodeGenerate(space, f);
 
   AttributesPtr *attrs = getOperand();
-  Lng32 fsDataType = attrs[1]->getDatatype();
-  Lng32 length = attrs[1]->getLength();
+  int fsDataType = attrs[1]->getDatatype();
+  int length = attrs[1]->getLength();
 
   if (fsDataType != REC_BIN64_SIGNED || length != 8) return ex_clause::pCodeGenerate(space, f);
 
@@ -134,7 +134,7 @@ ex_expr::exp_return_type ExpSequenceFunction::pCodeGenerate(Space *space, UInt32
     AML aml(PCIT::IPTR, PCIT::IPTR, PCIT::IBIN32S, PCIT::getMemoryAddressingMode(attrs[0]->getDatatype()),
             PCIT::getMemoryAddressingMode(attrs[1]->getDatatype()));
 
-    OL ol((Int64)isOLAP(), (Int64)0, index, attrs[0]->getAtp(), attrs[0]->getAtpIndex(), attrs[0]->getOffset(),
+    OL ol((long)isOLAP(), (long)0, index, attrs[0]->getAtp(), attrs[0]->getAtpIndex(), attrs[0]->getOffset(),
           attrs[1]->getAtp(), attrs[1]->getAtpIndex(), attrs[1]->getOffset());
 
     // Add the OFFSET instruction.
@@ -152,7 +152,7 @@ ex_expr::exp_return_type ExpSequenceFunction::pCodeGenerate(Space *space, UInt32
             PCIT::getMemoryAddressingMode(attrs[0]->getDatatype()),
             PCIT::getMemoryAddressingMode(attrs[1]->getDatatype()));
 
-    OL ol((Int64)(isOLAP()), (Int64)0, attrs[2]->getAtp(), attrs[2]->getAtpIndex(), attrs[2]->getOffset(),
+    OL ol((long)(isOLAP()), (long)0, attrs[2]->getAtp(), attrs[2]->getAtpIndex(), attrs[2]->getOffset(),
           attrs[0]->getAtp(), attrs[0]->getAtpIndex(), attrs[0]->getOffset(), attrs[1]->getAtp(),
           attrs[1]->getAtpIndex(), attrs[1]->getOffset());
 
@@ -268,12 +268,12 @@ ex_expr::exp_return_type ExpSequenceFunction::eval(char *op_data[], CollHeap *he
         }
         case REC_BIN32_SIGNED:
         case REC_BIN32_UNSIGNED: {
-          Lng32 value = 0;
+          int value = 0;
           str_cpy_all(dstData, (char *)&value, sizeof(value));
           break;
         }
         case REC_BIN64_SIGNED: {
-          Int64 value = 0;
+          long value = 0;
           str_cpy_all(dstData, (char *)&value, sizeof(value));
           break;
         }
@@ -288,7 +288,7 @@ ex_expr::exp_return_type ExpSequenceFunction::eval(char *op_data[], CollHeap *he
           break;
         }
         default: {
-          Lng32 value = 0;
+          int value = 0;
           if (convDoIt((char *)&value, sizeof(value), REC_BIN32_SIGNED, 0, 0, dstData, getOperand(1)->getLength(),
                        getOperand(1)->getDatatype(), getOperand(1)->getPrecision(), getOperand(1)->getScale(), NULL, 0,
                        heap, diagsArea, CONV_UNKNOWN) != ex_expr::EXPR_OK) {

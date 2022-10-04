@@ -74,8 +74,8 @@ void ExSMGlobals::addDiags(const char *functionName, int32_t rc, ExExeStmtGlobal
     // will be retired by AQR, for now an nsk code of 10001 and 10012
     // for error EXE_SM_FUNCTION_ERROR will be retried.
     // what codes of nsk are retried are defined in SessionDefaults.cpp file
-    *diags << DgSqlCode(-EXE_SM_FUNCTION_ERROR) << DgString0(functionName) << DgInt0((Lng32)rc)
-           << DgInt1((Lng32)getpid()) << DgString1(processName) << DgNskCode((Lng32)10000 + abs(rc));
+    *diags << DgSqlCode(-EXE_SM_FUNCTION_ERROR) << DgString0(functionName) << DgInt0((int)rc)
+           << DgInt1((int)getpid()) << DgString1(processName) << DgNskCode((int)10000 + abs(rc));
   }
 }
 
@@ -100,8 +100,8 @@ void ExSMGlobals::addReaderThreadError(ExExeStmtGlobals *stmtGlob) {
     const char *processName = cliGlob->myProcessNameString();
 
     *diags << DgSqlCode(-EXE_SM_FUNCTION_ERROR) << DgString0(readerThreadSmErrorFunction_)
-           << DgInt0((Lng32)readerThreadSmErrorNumber_) << DgInt1((Lng32)getpid()) << DgString1(processName)
-           << DgNskCode((Lng32)10000 + abs(-1));
+           << DgInt0((int)readerThreadSmErrorNumber_) << DgInt1((int)getpid()) << DgString1(processName)
+           << DgNskCode((int)10000 + abs(-1));
   }
 }
 
@@ -176,9 +176,9 @@ const char *ExSMGlobals::createSessionID(ExExeStmtGlobals *stmtGlob) {
   //  PID of master executor
   //  Master executor start time
 
-  Int64 sqNodeNumber = 0;
-  Int64 masterPID = 0;
-  Int64 masterStart = 0;
+  long sqNodeNumber = 0;
+  long masterPID = 0;
+  long masterStart = 0;
 
   if (rc == 0)
     rc = ComSqlId::getSqlQueryIdAttr(ComSqlId::SQLQUERYID_CPUNUM, sqlQueryId, sqlQueryIdLen, sqNodeNumber, NULL);
@@ -191,7 +191,7 @@ const char *ExSMGlobals::createSessionID(ExExeStmtGlobals *stmtGlob) {
     return NULL;
   }
 
-  str_sprintf(smIDStr, "%d_%d_%ld", (Int32)sqNodeNumber, (Int32)masterPID, (Int64)masterStart);
+  str_sprintf(smIDStr, "%d_%d_%ld", (Int32)sqNodeNumber, (Int32)masterPID, (long)masterStart);
 
   return smIDStr;
 }
@@ -276,7 +276,7 @@ ExSMGlobals *ExSMGlobals::InitSMGlobals(ExExeStmtGlobals *stmtGlob) {
     // initialization is not successful, the ExSMGlobals destructor
     // will deallocate these objects.
     NAHeap *smThreadSafeHeap = new (cliGlobals->exCollHeap())
-        NAHeap("SeaMonster Threadsafe Heap", (NAHeap *)cliGlobals->exCollHeap(), (Lng32)32768,
+        NAHeap("SeaMonster Threadsafe Heap", (NAHeap *)cliGlobals->exCollHeap(), (int)32768,
                0  // upperLimit
         );
     smThreadSafeHeap->setThreadSafe();

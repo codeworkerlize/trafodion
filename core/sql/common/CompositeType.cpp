@@ -73,7 +73,7 @@ NAString &CompositeType::getCompDefnStr() {
 //  SQLArray : The array data type
 //
 // ***********************************************************************
-SQLArray::SQLArray(NAMemory *heap, const NAType *elementType, const Lng32 arraySize, Int32 compFormat)
+SQLArray::SQLArray(NAMemory *heap, const NAType *elementType, const int arraySize, Int32 compFormat)
     : CompositeType(heap, LiteralArray, NA_COMPOSITE_TYPE, compFormat),
       elementType_(elementType),
       arraySize_(arraySize) {
@@ -83,7 +83,7 @@ SQLArray::SQLArray(NAMemory *heap, const NAType *elementType, const Lng32 arrayS
     arraySize_ = CmpCommon::getDefaultNumeric(TRAF_DEFAULT_COMPOSITE_ARRAY_SIZE);
   }
 
-  Lng32 nominalSize = 0;
+  int nominalSize = 0;
 
   // Int32 containing number of entries in the created row.
   // This field precedes the actual contents.
@@ -135,7 +135,7 @@ short SQLArray::getMyTypeAsText(NAString *outputStr,  // output
 
 // returns the type string for hive array datatype.
 // format:  array<...>
-short SQLArray::getHiveTypeStr(Lng32 hiveType, Lng32 precision, Lng32 scale, NAString *outputStr /*out*/) const {
+short SQLArray::getHiveTypeStr(int hiveType, int precision, int scale, NAString *outputStr /*out*/) const {
   (*outputStr).append("array<");
 
   if (getElementType()->getHiveTypeStr(getElementType()->getHiveType(), getElementType()->getPrecisionOrMaxNumChars(),
@@ -265,10 +265,10 @@ NABoolean SQLArray::operator==(const NAType &other) const {
 }
 
 // display format:  ' [ ' <elemDisplay> ' , ' ... ' ] '
-Lng32 SQLArray::getDisplayLength() const {
-  Lng32 elemDL = getElementType()->getDisplayLength();
+int SQLArray::getDisplayLength() const {
+  int elemDL = getElementType()->getDisplayLength();
 
-  Lng32 totalDL = 6;  // leading and trailing ' [ '  ' ] '
+  int totalDL = 6;  // leading and trailing ' [ '  ' ] '
   totalDL +=
       totalDL + elemDL * getArraySize() + (getArraySize() - 1) * 3;  // extra 3 for " , " separator between elements.
 
@@ -301,7 +301,7 @@ static Int32 getHivePrimitiveTypeLen(const NAType *elemType) {
 
     case HIVE_DECIMAL_TYPE: {
       if (elemType->getPrecision() <= 18)
-        len = 2 /*precision*/ + 2 /*scale*/ + 8 /*Int64*/;
+        len = 2 /*precision*/ + 2 /*scale*/ + 8 /*long*/;
       else
         len = NAType::getDisplayLengthStatic(elemType->getFSDatatype(), elemType->getNominalSize(),
                                              elemType->getPrecision(), elemType->getScale(), 0);
@@ -353,8 +353,8 @@ SQLRow::SQLRow(NAMemory *heap) : CompositeType(heap, LiteralRow, NA_COMPOSITE_TY
 
 SQLRow::SQLRow(NAMemory *heap, NAArray<NAString> *fieldNames, NAArray<NAType *> *fTypes, Int32 compFormat)
     : CompositeType(heap, LiteralRow, NA_COMPOSITE_TYPE, compFormat), fieldNames_(fieldNames), fieldTypes_(fTypes) {
-  Lng32 childMaxLevels = 0;
-  Lng32 nominalSize = 0;
+  int childMaxLevels = 0;
+  int nominalSize = 0;
 
   NABoolean fieldNamesAdded = FALSE;
   if (fieldNames_ == NULL) {
@@ -425,7 +425,7 @@ short SQLRow::getMyTypeAsText(NAString *outputStr,  // output
 
 // hive datatype string.
 // format:  struct<...>
-short SQLRow::getHiveTypeStr(Lng32 hiveType, Lng32 precision, Lng32 scale, NAString *outputStr /*out*/) const {
+short SQLRow::getHiveTypeStr(int hiveType, int precision, int scale, NAString *outputStr /*out*/) const {
   (*outputStr).append("struct<");
 
   SQLRow *sr = (SQLRow *)this;
@@ -640,8 +640,8 @@ NABoolean SQLRow::operator==(const NAType &other) const {
 }
 
 // display format:  ' ( ' <elemDisplay> ' , ' ... ' ) '
-Lng32 SQLRow::getDisplayLength() const {
-  Lng32 totalDL = 6;  // leading and trailing ' ( ' and ' ) '
+int SQLRow::getDisplayLength() const {
+  int totalDL = 6;  // leading and trailing ' ( ' and ' ) '
 
   SQLRow *p = (SQLRow *)this;
   for (CollIndex i = 0; i < p->fieldTypes().entries(); i++) {

@@ -176,7 +176,7 @@ const RelExpr *NormWA::getCurrentOwnerExpr() {
 
 // This function restores a changed RelExpr back to its original form
 // based on what we originally changed.
-NABoolean SqoChangedRelExprs::undoChanges(NormWA &normWARef, Lng32 subqId) {
+NABoolean SqoChangedRelExprs::undoChanges(NormWA &normWARef, int subqId) {
   NABoolean performedUndo = FALSE;
   if (subqId_ == subqId) {
     switch (whatChanged_) {
@@ -191,7 +191,7 @@ NABoolean SqoChangedRelExprs::undoChanges(NormWA &normWARef, Lng32 subqId) {
 
 // This function restores a changed Vid back to its original form
 // based on what we originally changed.
-NABoolean SqoChangedItemExprs::undoChanges(NormWA &normWARef, Lng32 subqId) {
+NABoolean SqoChangedItemExprs::undoChanges(NormWA &normWARef, int subqId) {
   NABoolean performedUndo = FALSE;
 
   if (subqId_ == subqId) {

@@ -126,13 +126,13 @@ class QRQueriesImpl {
    * specific catalog.
    * @param catalog [IN] The name of the catalog.
    */
-  Int64 getCatalogUID(const NAString *catalog);
+  long getCatalogUID(const NAString *catalog);
 
   /**
    * getSchemaVersion obtains the version number for the
    * definition schema for a specific catalog
    */
-  const NAString *getSchemaVersion(Int64 catalogUID);
+  const NAString *getSchemaVersion(long catalogUID);
 
   /**
    * getMvUIDs obtains all the MV UIDs for a specific catalog.
@@ -185,7 +185,7 @@ class QRQueriesImpl {
    * getCatalogName obtains the catalog name for
    * a specific catalog UID
    */
-  const NAString *getCatalogName(Int64 catalogUID);
+  const NAString *getCatalogName(long catalogUID);
 
   /**
    * Find all the MVs in a specific catalog, and collect their names.
@@ -200,7 +200,7 @@ class QRQueriesImpl {
    */
   void setParserFlags();
 
-  Lng32 controlQueryDefault(const NAString &cqdName, const NAString &cqdValue);
+  int controlQueryDefault(const NAString &cqdName, const NAString &cqdValue);
 
   /**
    * Call catman to regenerate the MV descriptor for an MV.

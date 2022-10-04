@@ -54,7 +54,7 @@ class ex_cri_desc : public NAVersionedObject {
   inline void setTupleDescriptor(const unsigned short tupleNo, ExpTupleDesc *tupleDesc);
 
   Long pack(void *);
-  Lng32 unpack(void *, void *reallocator);
+  int unpack(void *, void *reallocator);
 
   void display(const char *title = "");
 

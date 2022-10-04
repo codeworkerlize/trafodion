@@ -374,11 +374,11 @@ void RefConstraint::getPredicateText(NAString &text, NAString *corrName) const {
   }
 }
 
-void RefConstraint::KeyColumnsToPositionsList(LIST(Lng32) & colPositions, const KeyColumns &keyColumns) const {
+void RefConstraint::KeyColumnsToPositionsList(LIST(int) & colPositions, const KeyColumns &keyColumns) const {
   for (CollIndex i = 0; i < keyColumns.entries(); i++) colPositions.insert(keyColumns[i]->getPosition());
 }
 
-void RefConstraint::getOtherTableKeyColumns(BindWA *bindWA, LIST(Lng32) & colPositions) const {
+void RefConstraint::getOtherTableKeyColumns(BindWA *bindWA, LIST(int) & colPositions) const {
   UniqueConstraint *uc = (UniqueConstraint *)findConstraint(bindWA, uniqueConstraintReferencedByMe_);
 
   if (!uc) return;

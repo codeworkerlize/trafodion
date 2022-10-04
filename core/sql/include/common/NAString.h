@@ -97,13 +97,13 @@ NABoolean IsSqlReservedWord(const char *sqlText);
 NABoolean IsCIdentifier(const char *id);
 NAString LookupDefineName(const NAString &ns, NABoolean iterate = FALSE);
 void NAStringUpshiftASCII(NAString &ns);
-Lng32 NAStringToLong(const NAString &ns);
+int NAStringToLong(const NAString &ns);
 double NAStringToReal(const NAString &ns);
 UInt32 NAStringToUnsigned(const NAString &ns);
-NAString LongToNAString(Lng32 l);
+NAString LongToNAString(int l);
 NAString RealToNAString(double d);
 NAString UnsignedToNAString(UInt32 u);
-NAString Int64ToNAString(Int64 l);
+NAString Int64ToNAString(long l);
 
 // -----------------------------------------------------------------------
 // ANSI SQL name related functions
@@ -111,17 +111,17 @@ NAString Int64ToNAString(Int64 l);
 
 NAString ToAnsiIdentifier(const NAString &ns, NABoolean assertShort = TRUE);
 char *ToAnsiIdentifier2(const char *nsData, size_t nsLen, CollHeap *heap);
-char *ToAnsiIdentifier2(const char *nsData, size_t nsLen, CollHeap *heap, Lng32 isoMapCS);
+char *ToAnsiIdentifier2(const char *nsData, size_t nsLen, CollHeap *heap, int isoMapCS);
 void ToAnsiIdentifier3(const char *inputData, size_t inputLen, char *outputData, size_t outputMaxLen,
                        size_t *outputLen);
 void ToAnsiIdentifier3(const char *inputData, size_t inputLen, char *outputData, size_t outputMaxLen, size_t *outputLen,
-                       Lng32 isoMapCS);
+                       int isoMapCS);
 
 // The following macro definitions are for the flags parameter of ToInternalIdentifier()
 #define NASTRING_ALLOW_NSK_GUARDIAN_NAME_FORMAT   0x0001
 #define NASTRING_REGULAR_IDENT_WITH_DOLLAR_PREFIX 0x0002
 #define NASTRING_DELIM_IDENT_WITH_DOLLAR_PREFIX   0x0004
-Lng32 ToInternalIdentifier(NAString &ansiIdent, Int32 upCase = TRUE, NABoolean acceptCircumflex = FALSE,
+int ToInternalIdentifier(NAString &ansiIdent, Int32 upCase = TRUE, NABoolean acceptCircumflex = FALSE,
                            UInt16 pv_flags = NASTRING_ALLOW_NSK_GUARDIAN_NAME_FORMAT);
 
 // -----------------------------------------------------------------------
@@ -130,7 +130,7 @@ Lng32 ToInternalIdentifier(NAString &ansiIdent, Int32 upCase = TRUE, NABoolean a
 
 void ToInternalString(NAString &internalStr, const NAString &quotedStr);
 void ToQuotedString(NAString &quotedStr, const NAString &internalStr, NABoolean encloseInQuotes = TRUE);
-Lng32 PrettifySqlText(NAString &sqlText, const char *nationalCharSetName = NULL);
+int PrettifySqlText(NAString &sqlText, const char *nationalCharSetName = NULL);
 size_t LineBreakSqlText(NAString &sqlText, NABoolean showddlView = FALSE, size_t maxlen = 79,
                         size_t pfxlen = 2,      // indent subsequent lines 2 spaces
                         size_t pfxinitlen = 0,  // indent first line 0 spaces
@@ -195,8 +195,8 @@ void FUNNY_ANSI_IDENT_REMOVE_PREFIX(NAString &str, const char *pfx);
 // modules w:/common/NAString[2].cpp.  These routines currently cannot
 // access SqlParser_ISO_MAPPING directly due to the complex build hierarchy.
 // -----------------------------------------------------------------------
-Lng32 NAString_getIsoMapCS();
-void NAString_setIsoMapCS(Lng32 isoMappingCS);
+int NAString_getIsoMapCS();
+void NAString_setIsoMapCS(int isoMappingCS);
 
 // -----------------------------------------------------------------------
 // Routines use by routines ToInternalIdentifier() and
@@ -209,7 +209,7 @@ inline void ComSetNameInterfaceCharSet(SQLCHARSET_CODE ansiNameCharSet) {
 }
 
 // -----------------------------------------------------------------------
-// if NAString_getIsoMapCS() == (Lng32)SQLCHARSETCODE_ISO88591
+// if NAString_getIsoMapCS() == (int)SQLCHARSETCODE_ISO88591
 //    call the corresponding ...8859_1() routine
 // otherwise only execute the corresponding 7-bit ASCII logic
 NABoolean isUpperIsoMapCS(unsigned char c);

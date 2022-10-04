@@ -58,8 +58,8 @@ class ExpCompressionWA : public NABasicObject {
 
   static ExpCompressionWA *createCompressionWA(const ComCompressionInfo *ci, CollHeap *heap);
 
-  virtual CompressionReturnCode decompress(char *src, Int64 srcLength, char *target, Int64 targetMaxLen,
-                                           Int64 &compressedBytesRead, Int64 &uncompressedBytesProduced) = 0;
+  virtual CompressionReturnCode decompress(char *src, long srcLength, char *target, long targetMaxLen,
+                                           long &compressedBytesRead, long &uncompressedBytesProduced) = 0;
 
   virtual CompressionReturnCode initCompressionLib() = 0;
 
@@ -86,8 +86,8 @@ class ExpLzoCompressionWA : public ExpCompressionWA {
  public:
   ExpLzoCompressionWA(const ComCompressionInfo *ci, CollHeap *heap);
 
-  virtual CompressionReturnCode decompress(char *src, Int64 srcLength, char *target, Int64 targetMaxLen,
-                                           Int64 &compressedBytesRead, Int64 &uncompressedBytesProduced);
+  virtual CompressionReturnCode decompress(char *src, long srcLength, char *target, long targetMaxLen,
+                                           long &compressedBytesRead, long &uncompressedBytesProduced);
 
   virtual CompressionReturnCode initCompressionLib();
 
@@ -101,10 +101,10 @@ class ExpLzopCompressionWA : public ExpLzoCompressionWA {
  public:
   ExpLzopCompressionWA(const ComCompressionInfo *ci, CollHeap *heap);
 
-  virtual CompressionReturnCode decompress(char *src, Int64 srcLength, char *target, Int64 targetMaxLen,
-                                           Int64 &compressedBytesRead, Int64 &uncompressedBytesProduced);
+  virtual CompressionReturnCode decompress(char *src, long srcLength, char *target, long targetMaxLen,
+                                           long &compressedBytesRead, long &uncompressedBytesProduced);
 
-  CompressionReturnCode processHeader(char *src, Int64 srcLength, UInt32 &bytesRead);
+  CompressionReturnCode processHeader(char *src, long srcLength, UInt32 &bytesRead);
 
   virtual void resetHeaderSeen() { headerSeen_ = FALSE; }
 
@@ -119,8 +119,8 @@ class ExpDeflateCompressionWA : public ExpCompressionWA {
   ExpDeflateCompressionWA(const ComCompressionInfo *ci, CollHeap *heap);
   virtual ~ExpDeflateCompressionWA();
 
-  virtual CompressionReturnCode decompress(char *src, Int64 srcLength, char *target, Int64 targetMaxLen,
-                                           Int64 &compressedBytesRead, Int64 &uncompressedBytesProduced);
+  virtual CompressionReturnCode decompress(char *src, long srcLength, char *target, long targetMaxLen,
+                                           long &compressedBytesRead, long &uncompressedBytesProduced);
 
   virtual CompressionReturnCode initCompressionLib();
 

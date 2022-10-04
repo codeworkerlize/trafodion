@@ -110,11 +110,11 @@ class ExBitMapTable : public ExGod {
 
   // Initialize any table aggregates.
   //
-  inline void initAggregates() { *(Int64 *)(data_ + countOffset_) = 0; };
+  inline void initAggregates() { *(long *)(data_ + countOffset_) = 0; };
 
   // Increment any table aggregates.
   //
-  inline void applyAggregates() { (*(Int64 *)(data_ + countOffset_))++; };
+  inline void applyAggregates() { (*(long *)(data_ + countOffset_))++; };
 
   // Reset the table.
   //

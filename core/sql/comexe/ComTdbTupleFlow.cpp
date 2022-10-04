@@ -45,7 +45,7 @@
 /////////////////////////////////////////////////////////////////////////
 ComTdbTupleFlow::ComTdbTupleFlow(ComTdb *tdb_src, ComTdb *tdb_tgt, ex_cri_desc *given_cri_desc,
                                  ex_cri_desc *returned_cri_desc, ex_expr *tgt_expr, ex_cri_desc *work_cri_desc,
-                                 queue_index down, queue_index up, Cardinality estimatedRowCount, Lng32 num_buffers,
+                                 queue_index down, queue_index up, Cardinality estimatedRowCount, int num_buffers,
                                  ULng32 buffer_size, NABoolean vsbbInsert, NABoolean rowsetIterator,
                                  NABoolean tolerateNonFatalError)
     : ComTdb(ComTdb::ex_TUPLE_FLOW, eye_TUPLE_FLOW, estimatedRowCount, given_cri_desc, returned_cri_desc, down, up,
@@ -71,7 +71,7 @@ Long ComTdbTupleFlow::pack(void *space) {
   return ComTdb::pack(space);
 }
 
-Lng32 ComTdbTupleFlow::unpack(void *base, void *reallocator) {
+int ComTdbTupleFlow::unpack(void *base, void *reallocator) {
   if (tdbSrc_.unpack(base, reallocator)) return -1;
   if (tdbTgt_.unpack(base, reallocator)) return -1;
   if (workCriDesc_.unpack(base, reallocator)) return -1;
@@ -108,8 +108,8 @@ void ComTdbTupleFlow::displayContents(Space *space, ULng32 flag) {
   if (flag & 0x00000008) {
     char buf[100];
 
-    Lng32 lFlags = flags_ % 65536;
-    Lng32 hFlags = (flags_ - lFlags) / 65536;
+    int lFlags = flags_ % 65536;
+    int hFlags = (flags_ - lFlags) / 65536;
     str_sprintf(buf, "\nFor ComTdbTupleFlow :\nFlags = %x%x ", hFlags, lFlags);
     space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
   }

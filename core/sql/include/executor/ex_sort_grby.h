@@ -166,8 +166,8 @@ class ex_sort_grby_tcb : public ex_tcb {
   // construction of nodes.
   ex_queue_pair getParentQueue() const { return (qparent_); }
 
-  virtual ex_tcb_private_state *allocatePstates(Lng32 &numElems,       // inout, desired/actual elements
-                                                Lng32 &pstateLength);  // out, length of one element
+  virtual ex_tcb_private_state *allocatePstates(int &numElems,       // inout, desired/actual elements
+                                                int &pstateLength);  // out, length of one element
 
   AggrExpr *aggrExpr() const { return sort_grby_tdb().aggrExpr(); }
 
@@ -175,7 +175,7 @@ class ex_sort_grby_tcb : public ex_tcb {
   inline ex_expr *moveExpr() const { return sort_grby_tdb().moveExpr_; };
   inline ex_expr *havingExpr() const { return sort_grby_tdb().havingExpr_; };
 
-  inline Lng32 recLen() { return sort_grby_tdb().recLen_; };
+  inline int recLen() { return sort_grby_tdb().recLen_; };
 
   virtual Int32 numChildren() const { return 1; }
   virtual const ex_tcb *getChild(Int32 pos) const {
@@ -253,7 +253,7 @@ class ex_sort_grby_private_state : public ex_tcb_private_state {
   ex_sort_grby_tcb::sort_grby_step step_;
 
   queue_index index_;  // index into down queue
-  Int64 matchCount_;   // number of rows returned for this parent row
+  long matchCount_;   // number of rows returned for this parent row
   NABoolean oneRowAggr_;
 };
 

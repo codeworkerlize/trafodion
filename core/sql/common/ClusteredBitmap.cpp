@@ -971,7 +971,7 @@ NABoolean ClusteredBitmap::convertToList(std::string &text, const bitsToBitmap &
 
       sprintf(buf, "%d", value);
 
-      Lng32 dataLen = strlen(buf);
+      int dataLen = strlen(buf);
 
       text.append((char *)&dataLen, sizeof(dataLen));
 
@@ -1222,34 +1222,34 @@ NABoolean RangeSpecRT::insert(UInt32 value) {
   return TRUE;
 }
 
-NABoolean RangeSpecRT::insert(Int64 value) {
+NABoolean RangeSpecRT::insert(long value) {
   rs_.addPoint(heap_, value);
   return TRUE;
 }
 
-NABoolean RangeSpecRT::insert(char *ptr, Lng32 len) {
+NABoolean RangeSpecRT::insert(char *ptr, int len) {
   rs_.addPoint(heap_, ptr, len);
   return TRUE;
 }
 
-NABoolean RangeSpecRT::insert(wchar_t *ptr, Lng32 len) {
+NABoolean RangeSpecRT::insert(wchar_t *ptr, int len) {
   rs_.addPoint(heap_, ptr, len);
   return TRUE;
 }
 
-NABoolean RangeSpecRT::insertDate(char *ptr, Lng32 len) {
+NABoolean RangeSpecRT::insertDate(char *ptr, int len) {
   RangeDate d(ptr);
   rs_.addDate(d);
   return TRUE;
 }
 
-NABoolean RangeSpecRT::insertTime(char *ptr, Lng32 len) {
+NABoolean RangeSpecRT::insertTime(char *ptr, int len) {
   RangeTime t(ptr, len);
   rs_.addTime(t);
   return TRUE;
 }
 
-NABoolean RangeSpecRT::insertTimestamp(char *ptr, Lng32 len) {
+NABoolean RangeSpecRT::insertTimestamp(char *ptr, int len) {
   RangeTimestamp st(ptr, len);
   rs_.addTimestamp(st);
   return TRUE;
@@ -1259,23 +1259,23 @@ NABoolean RangeSpecRT::lookup(Int32 value) { return rs_.lookup(value); }
 
 NABoolean RangeSpecRT::lookup(UInt32 value) { return rs_.lookup(value); }
 
-NABoolean RangeSpecRT::lookup(Int64 value) { return rs_.lookup(value); }
+NABoolean RangeSpecRT::lookup(long value) { return rs_.lookup(value); }
 
-NABoolean RangeSpecRT::lookup(char *ptr, Lng32 len) { return rs_.lookup(ptr, len); }
+NABoolean RangeSpecRT::lookup(char *ptr, int len) { return rs_.lookup(ptr, len); }
 
-NABoolean RangeSpecRT::lookup(wchar_t *ptr, Lng32 len) { return rs_.lookup(ptr, len); }
+NABoolean RangeSpecRT::lookup(wchar_t *ptr, int len) { return rs_.lookup(ptr, len); }
 
-NABoolean RangeSpecRT::lookupDate(char *ptr, Lng32 len) {
+NABoolean RangeSpecRT::lookupDate(char *ptr, int len) {
   RangeDate d(ptr);
   return rs_.lookup(d);
 }
 
-NABoolean RangeSpecRT::lookupTime(char *ptr, Lng32 len) {
+NABoolean RangeSpecRT::lookupTime(char *ptr, int len) {
   RangeTime t(ptr, len);
   return rs_.lookup(t);
 }
 
-NABoolean RangeSpecRT::lookupTimestamp(char *ptr, Lng32 len) {
+NABoolean RangeSpecRT::lookupTimestamp(char *ptr, int len) {
   RangeTimestamp st(ptr, len);
   return rs_.lookup(st);
 }
@@ -1352,7 +1352,7 @@ NABoolean BloomFilterRT::insert(UInt32 value) {
   return rbf_.insert((char *)&value, sizeof(value));
 }
 
-NABoolean BloomFilterRT::insert(Int64 value) {
+NABoolean BloomFilterRT::insert(long value) {
 #ifdef NA_LITTLE_ENDIAN
   value = reversebytes(value);
 #endif
@@ -1360,12 +1360,12 @@ NABoolean BloomFilterRT::insert(Int64 value) {
   return rbf_.insert((char *)&value, sizeof(value));
 }
 
-NABoolean BloomFilterRT::insert(char *ptr, Lng32 len) {
+NABoolean BloomFilterRT::insert(char *ptr, int len) {
   rbf_.insert(ptr, len);
   return TRUE;
 }
 
-NABoolean BloomFilterRT::insert(wchar_t *ptr, Lng32 len) {
+NABoolean BloomFilterRT::insert(wchar_t *ptr, int len) {
 #ifdef NA_LITTLE_ENDIAN
   wc_swap_bytes(ptr, len);
 #endif
@@ -1379,11 +1379,11 @@ NABoolean BloomFilterRT::insert(wchar_t *ptr, Lng32 len) {
   return res;
 }
 
-NABoolean BloomFilterRT::insertDate(char *ptr, Lng32 len) { return rbf_.insert(ptr, len); }
+NABoolean BloomFilterRT::insertDate(char *ptr, int len) { return rbf_.insert(ptr, len); }
 
-NABoolean BloomFilterRT::insertTime(char *ptr, Lng32 len) { return rbf_.insert(ptr, len); }
+NABoolean BloomFilterRT::insertTime(char *ptr, int len) { return rbf_.insert(ptr, len); }
 
-NABoolean BloomFilterRT::insertTimestamp(char *ptr, Lng32 len) { return rbf_.insert(ptr, len); }
+NABoolean BloomFilterRT::insertTimestamp(char *ptr, int len) { return rbf_.insert(ptr, len); }
 
 ///////////////////////////////////////////////////////////////////
 NABoolean BloomFilterRT::lookup(Int32 value) {
@@ -1400,16 +1400,16 @@ NABoolean BloomFilterRT::lookup(UInt32 value) {
   return rbf_.contain((char *)&value, sizeof(value));
 }
 
-NABoolean BloomFilterRT::lookup(Int64 value) {
+NABoolean BloomFilterRT::lookup(long value) {
 #ifdef NA_LITTLE_ENDIAN
   value = reversebytes(value);
 #endif
   return rbf_.contain((char *)&value, sizeof(value));
 }
 
-NABoolean BloomFilterRT::lookup(char *ptr, Lng32 len) { return rbf_.contain(ptr, len); }
+NABoolean BloomFilterRT::lookup(char *ptr, int len) { return rbf_.contain(ptr, len); }
 
-NABoolean BloomFilterRT::lookup(wchar_t *ptr, Lng32 len) {
+NABoolean BloomFilterRT::lookup(wchar_t *ptr, int len) {
 #ifdef NA_LITTLE_ENDIAN
   wc_swap_bytes(ptr, len);
 #endif
@@ -1423,11 +1423,11 @@ NABoolean BloomFilterRT::lookup(wchar_t *ptr, Lng32 len) {
   return res;
 }
 
-NABoolean BloomFilterRT::lookupDate(char *ptr, Lng32 len) { return rbf_.contain(ptr, len); }
+NABoolean BloomFilterRT::lookupDate(char *ptr, int len) { return rbf_.contain(ptr, len); }
 
-NABoolean BloomFilterRT::lookupTime(char *ptr, Lng32 len) { return rbf_.contain(ptr, len); }
+NABoolean BloomFilterRT::lookupTime(char *ptr, int len) { return rbf_.contain(ptr, len); }
 
-NABoolean BloomFilterRT::lookupTimestamp(char *ptr, Lng32 len) { return rbf_.contain(ptr, len); }
+NABoolean BloomFilterRT::lookupTimestamp(char *ptr, int len) { return rbf_.contain(ptr, len); }
 ////////////////////////////////////////////////////////////
 
 void BloomFilterRT::dump(ostream &out, const char *title) {
@@ -1482,7 +1482,7 @@ RangeOfValues &BloomFilterRT::operator+=(const RangeOfValues &other) {
 
 NABoolean BloomFilterRT::operator==(const RangeOfValues &other) const { return FALSE; }
 
-Lng32 BloomFilterRT::computeMaxLength(UInt32 m, float p) {
+int BloomFilterRT::computeMaxLength(UInt32 m, float p) {
   return computeHashTableSizeInBytes(m, p) + BloomFilterRT::minPackedLength();
 }
 
@@ -1491,9 +1491,9 @@ NABoolean NativeBloomFilterRT::insert(Int32 value) { return rbf_.insert((char *)
 
 NABoolean NativeBloomFilterRT::insert(UInt32 value) { return rbf_.insert((char *)&value, sizeof(value)); }
 
-NABoolean NativeBloomFilterRT::insert(Int64 value) { return rbf_.insert((char *)&value, sizeof(value)); }
+NABoolean NativeBloomFilterRT::insert(long value) { return rbf_.insert((char *)&value, sizeof(value)); }
 
-NABoolean NativeBloomFilterRT::insert(wchar_t *ptr, Lng32 len) {
+NABoolean NativeBloomFilterRT::insert(wchar_t *ptr, int len) {
   NABoolean res = rbf_.insert((char *)ptr, sizeof(wchar_t) * len);
   return res;
 }
@@ -1502,9 +1502,9 @@ NABoolean NativeBloomFilterRT::lookup(Int32 value) { return rbf_.contain((char *
 
 NABoolean NativeBloomFilterRT::lookup(UInt32 value) { return rbf_.contain((char *)&value, sizeof(value)); }
 
-NABoolean NativeBloomFilterRT::lookup(Int64 value) { return rbf_.contain((char *)&value, sizeof(value)); }
+NABoolean NativeBloomFilterRT::lookup(long value) { return rbf_.contain((char *)&value, sizeof(value)); }
 
-NABoolean NativeBloomFilterRT::lookup(wchar_t *ptr, Lng32 len) {
+NABoolean NativeBloomFilterRT::lookup(wchar_t *ptr, int len) {
   NABoolean res = rbf_.contain((char *)ptr, sizeof(wchar_t) * len);
   return res;
 }

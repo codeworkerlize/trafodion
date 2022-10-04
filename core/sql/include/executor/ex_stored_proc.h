@@ -160,7 +160,7 @@ class ExStoredProcTcb : public ex_tcb {
   // subtask to be executed when an I/O completes
   ExSubtask *ioSubtask_;
 
-  Int64 requestId_;
+  long requestId_;
 
   inline ExStoredProcTdb &spTdb() const { return (ExStoredProcTdb &)tdb; };
 };
@@ -175,7 +175,7 @@ class ExStoredProcPrivateState : public ex_tcb_private_state {
   ex_tcb_private_state *allocate_new(const ex_tcb *tcb);
 
  protected:
-  Int64 matchCount_;
+  long matchCount_;
 
  private:
   NABoolean errorHappened_;

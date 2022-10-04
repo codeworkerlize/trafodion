@@ -48,7 +48,7 @@ class ComTdbConnectBy : public ComTdb {
   ComTdbConnectBy();
 
   ComTdbConnectBy(ex_cri_desc *workCriDesc, ex_cri_desc *givenCriDesc, ex_cri_desc *returnedCriDesc, queue_index down,
-                  queue_index up, Lng32 numBuffers, ULng32 bufferSize, ComTdb *s_child_tdb, ComTdb *c_child_tdb,
+                  queue_index up, int numBuffers, ULng32 bufferSize, ComTdb *s_child_tdb, ComTdb *c_child_tdb,
                   UInt32 outputRowLen, UInt32 pseudoOutputRowLen, ex_expr *leftMoveExpr, ex_expr *rightMoveExpr,
                   short returnRowAtpIndex, short fixedPseudoColRowAtpIndex, ex_expr *priorPredExpr,
                   short priorPredAtpIndex, UInt32 priorPredHostVarLen, ex_expr *priorValMoveExpr1,
@@ -74,7 +74,7 @@ class ComTdbConnectBy : public ComTdb {
   virtual short getClassSize() { return (short)sizeof(ComTdbConnectBy); }
 
   virtual Long pack(void *);
-  virtual Lng32 unpack(void *, void *reallocator);
+  virtual int unpack(void *, void *reallocator);
 
   void display() const;
 

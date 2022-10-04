@@ -48,10 +48,10 @@ class CtrlStmtComplexObject : public ComplexObject {
 
 class TransAttrComplexObject : public ComplexObject {
  public:
-  TransAttrComplexObject(NAMemory *heap, TransMode::AccessMode mode, TransMode::IsolationLevel isoLv, Lng32 diagSize,
-                         TransMode::RollbackMode rollbackMode, Lng32 autoabortInterval);
-  TransAttrComplexObject(TransMode::AccessMode mode, TransMode::IsolationLevel isoLv, Lng32 diagSize,
-                         TransMode::RollbackMode rollbackMode, Lng32 autoabortInterval);
+  TransAttrComplexObject(NAMemory *heap, TransMode::AccessMode mode, TransMode::IsolationLevel isoLv, int diagSize,
+                         TransMode::RollbackMode rollbackMode, int autoabortInterval);
+  TransAttrComplexObject(TransMode::AccessMode mode, TransMode::IsolationLevel isoLv, int diagSize,
+                         TransMode::RollbackMode rollbackMode, int autoabortInterval);
   TransAttrComplexObject(NAMemory *heap);
   TransAttrComplexObject();
   virtual ~TransAttrComplexObject();
@@ -59,22 +59,22 @@ class TransAttrComplexObject : public ComplexObject {
   virtual void sharedOperationSequence(MessageOperator *msgOp, InputContainer *input, OutputContainer *output);
   TransMode::AccessMode getAccessMode();
   TransMode::IsolationLevel getIsolationLevel();
-  Lng32 getDiagSize();
+  int getDiagSize();
   TransMode::RollbackMode getRollbackMode();
-  Lng32 getAutoabortInterval();
+  int getAutoabortInterval();
   void setAccessMode(TransMode::AccessMode mode);
   void setRollbackMode(TransMode::RollbackMode rollbackMode);
   void setIsolationLevel(TransMode::IsolationLevel isoLv);
-  void setDiagSize(Lng32 diagSize);
-  void setAutoabortInterval(Lng32 autoabortInterval);
+  void setDiagSize(int diagSize);
+  void setAutoabortInterval(int autoabortInterval);
   void dump();
 
  private:
   TransMode::AccessMode mode_;
   TransMode::IsolationLevel isoLv_;
-  Lng32 diagSize_;
+  int diagSize_;
   TransMode::RollbackMode rollbackMode_;
-  Lng32 autoabortInterval_;
+  int autoabortInterval_;
 };
 
 // Stack allocated factory object.

@@ -166,7 +166,7 @@ void CRUCacheDDLLockHandler::HandleDDLLocks(BOOL isCancelOnly) {
 void CRUCacheDDLLockHandler::SortObjectsByUid() {
   RUASSERT(NULL == pObjSortedArray_);
 
-  Lng32 size = objMap_.GetCount();
+  int size = objMap_.GetCount();
 
   // Copy the pointers to the links to the array first ...
   pObjSortedArray_ = new PObjectLink[size];

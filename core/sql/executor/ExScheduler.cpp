@@ -44,7 +44,7 @@
 #include "exp/exp_expr.h"
 #include "executor/ExScheduler.h"
 #include "executor/ExStats.h"
-#include "ex_error.h"
+#include "executor/ex_error.h"
 
 // wait method need more include files
 #include "ex_exe_stmt_globals.h"
@@ -121,9 +121,9 @@ void ExScheduler::scheduleAllTasks() {
   }
 }
 
-static Int64 costTh = -2;
+static long costTh = -2;
 
-ExWorkProcRetcode ExScheduler::work(Int64 prevWaitTime) {
+ExWorkProcRetcode ExScheduler::work(long prevWaitTime) {
   ex_assert(glob_, "global pointer in scheduler is invalid");
 
   ExSubtask *subtask = subtasks_;
@@ -134,7 +134,7 @@ ExWorkProcRetcode ExScheduler::work(Int64 prevWaitTime) {
   ExWorkProcRetcode rc = WORK_OK;
   ExOperStats *stats = NULL;
   ExStatisticsArea *statsArea = glob_->getStatsArea();
-  Int64 incCpuTime;
+  long incCpuTime;
   NABoolean doNotUpdateCounter = FALSE;
   Space *space = glob_->getSpace();
   CollHeap *heap = glob_->getDefaultHeap();
@@ -142,7 +142,7 @@ ExWorkProcRetcode ExScheduler::work(Int64 prevWaitTime) {
 #ifdef NA_DEBUG_GUI
   ExSubtask *subtaskSetInGui = NULL;
 #endif
-  Int64 timeCost = JULIANTIMESTAMP();
+  long timeCost = JULIANTIMESTAMP();
   Int32 taskCount = 0;
   Int32 sTaskCount = 0;
 
@@ -248,7 +248,7 @@ ExWorkProcRetcode ExScheduler::work(Int64 prevWaitTime) {
       if (++lastCalledIdx_ >= NumLastCalled) lastCalledIdx_ = 0;
 #ifdef TRACE_DP2_CPU_LIMIT
       QueryIDStats subtaskCpuTime;
-      Int64 startQidCpuTime;
+      long startQidCpuTime;
       if (maxCpuTime_ != LLONG_MAX) startQidCpuTime = subtaskCpuTime.getProcessBusyTime();
 #endif
 
@@ -267,7 +267,7 @@ ExWorkProcRetcode ExScheduler::work(Int64 prevWaitTime) {
 
       // Do the work
       //
-      Int64 taskCost = JULIANTIMESTAMP();
+      long taskCost = JULIANTIMESTAMP();
       rc = subtask->work();
       if (costTh >= 0) {
         ex_tcb *subtcb = subtask->getTcb();
@@ -622,7 +622,7 @@ ExExceptionSubtask *ExScheduler::addOrFindExceptionSubtask(ExWorkProcPtr workPro
 NABoolean ExScheduler::checkSuspendAndLimit() {
   ExFragRootOperStats *fragRootStats = NULL;
   ExMeasStats *measRootStats = NULL;
-  Int64 localCpuTime = 0;
+  long localCpuTime = 0;
 
   if (rootStats_) {
     bool isFragSuspended = false;

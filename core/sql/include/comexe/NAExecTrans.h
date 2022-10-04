@@ -47,5 +47,5 @@
 //   return TRUE, if there is a transaction, transId will hold transaction Id
 //   return FALSE, if there is no transaction
 // Other values for command are not supported at this time.
-NABoolean NAExecTrans(Int64 *transId = NULL);  // IN/OUT
+NABoolean NAExecTrans(long *transId = NULL);  // IN/OUT
 #endif

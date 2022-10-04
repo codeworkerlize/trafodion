@@ -148,8 +148,8 @@ class ex_mj_tcb : public ex_tcb {
 
   void freeResources();  // free resources
 
-  virtual ex_tcb_private_state *allocatePstates(Lng32 &numElems,       // inout, desired/actual elements
-                                                Lng32 &pstateLength);  // out, length of one element
+  virtual ex_tcb_private_state *allocatePstates(int &numElems,       // inout, desired/actual elements
+                                                int &pstateLength);  // out, length of one element
 
   virtual void registerSubtasks();  // register work procedures with scheduler
 
@@ -316,7 +316,7 @@ class ex_mj_private_state : public ex_tcb_private_state {
   friend class ex_mj_tcb;
   friend class ex_mj_unique_tcb;
 
-  Int64 matchCount_;  // number of rows returned for this parent row
+  long matchCount_;  // number of rows returned for this parent row
 
   ex_mj_tcb::mj_step step_;
 

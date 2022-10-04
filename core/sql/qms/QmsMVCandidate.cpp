@@ -738,8 +738,8 @@ void MVCandidatesForJBBSubset::insert(MVDetailsPtr mv, QRJBBPtr queryJbb, NABool
         // Allow all MVs that were refreshed at least MV_AGE  ago
         if (mvAge != "") {
           const Int32 mvAgeSeconds = parseMVAge(mvAge);
-          const Int64 mvRefreshTS = mv->getRefreshTimestamp() / 1000000;
-          const Int64 nowTS = NA_JulianTimestamp() / 1000000;
+          const long mvRefreshTS = mv->getRefreshTimestamp() / 1000000;
+          const long nowTS = NA_JulianTimestamp() / 1000000;
           Int32 refreshAge = (Int32)(nowTS - mvRefreshTS);
           QRLogger::log(CAT_MVCAND, LL_DEBUG, "MV_AGE is: %d seconds, RefreshAge is: %d seconds.", mvAgeSeconds,
                         refreshAge);

@@ -51,7 +51,7 @@
 #include "optimizer/SchemaDB.h"
 #include "opt_error.h"
 
-#include "CostMethod.h"
+#include "optimizer/CostMethod.h"
 #include "Cost.h"
 #include "NodeMap.h"
 #include <math.h>
@@ -296,7 +296,7 @@ Cost *CostMethod::generateZeroCostObject() {
   );
 
   // Find out the number of cpus and number of fragments per cpu.
-  Lng32 cpuCount, fragmentsPerCPU;
+  int cpuCount, fragmentsPerCPU;
   determineCpuCountAndFragmentsPerCpu(cpuCount, fragmentsPerCPU);
 
   // Synthesize the "zero" cost object.
@@ -460,7 +460,7 @@ void CostMethod::estimateDegreeOfParallelism() {
   // streams will be inactive.
   if ((partReq_ != NULL) AND partReq_->isRequirementReplicateNoBroadcast()) {
     CostScalar tempCountOfStreams = MINOF(CostScalar(countOfStreams_), noOfProbes_.getCeiling());
-    countOfStreams_ = Lng32(tempCountOfStreams.value());
+    countOfStreams_ = int(tempCountOfStreams.value());
   }
 
   CMPASSERT(countOfStreams_ > 0);
@@ -493,7 +493,7 @@ void CostMethod::estimateDegreeOfParallelism() {
 }  // CostMethod::estimateDegreeOfParallelism().
 //<pb>
 
-void CostMethod::determineCpuCountAndFragmentsPerCpu(Lng32 &cpuCount, Lng32 &fragmentsPerCpu) {
+void CostMethod::determineCpuCountAndFragmentsPerCpu(int &cpuCount, int &fragmentsPerCpu) {
   //------------------------------------------------------------------
   //  Count of streams limits the no of cpu this operator executes on.
   //------------------------------------------------------------------
@@ -523,7 +523,7 @@ inline void CostMethod::cleanUp() {
 // -----------------------------------------------------------------------
 // CostMethod::computeOperatorCost()
 // -----------------------------------------------------------------------
-Cost *CostMethod::computeOperatorCost(RelExpr *op, const Context *myContext, Lng32 &countOfStreams) {
+Cost *CostMethod::computeOperatorCost(RelExpr *op, const Context *myContext, int &countOfStreams) {
   Cost *cost;
   try {
     cost = computeOperatorCostInternal(op, myContext, countOfStreams);
@@ -577,7 +577,7 @@ void CostMethod::computePartialPlanCost(const RelExpr *op, PlanWorkSpace *pws, c
   //------------------------------------------
   //  Extract latest plan from plan workspace.
   //------------------------------------------
-  Lng32 planNumber = pws->getLatestPlan();
+  int planNumber = pws->getLatestPlan();
 
   //---------------------------------------------------------------
   //  Extract parent operator's local cost from the plan workspace.
@@ -589,7 +589,7 @@ void CostMethod::computePartialPlanCost(const RelExpr *op, PlanWorkSpace *pws, c
   //  Accumulate cost of all known children.
   //----------------------------------------
   Cost *knownChildrenCost = new STMTHEAP Cost();
-  for (Lng32 childIdx = 0; childIdx < op->getArity(); childIdx++) {
+  for (int childIdx = 0; childIdx < op->getArity(); childIdx++) {
     //-----------------------------------------------------
     //  Get current child's context via the plan workspace.
     //-----------------------------------------------------
@@ -647,7 +647,7 @@ void CostMethod::computePartialPlanCost(const RelExpr *op, PlanWorkSpace *pws, c
 //  Pointer to cumulative final cost.
 //
 //==============================================================================
-Cost *CostMethod::computePlanCost(RelExpr *op, const Context *myContext, const PlanWorkSpace *pws, Lng32 planNumber) {
+Cost *CostMethod::computePlanCost(RelExpr *op, const Context *myContext, const PlanWorkSpace *pws, int planNumber) {
   //----------------------------------------------------------------------
   // Defensive programming.
   //----------------------------------------------------------------------
@@ -675,7 +675,7 @@ Cost *CostMethod::computePlanCost(RelExpr *op, const Context *myContext, const P
   //  Merge all children's costs in preparation for roll-up.
   //--------------------------------------------------------
   Cost mergedChildCost;
-  for (Lng32 childIdx = 0; childIdx < op->getArity(); childIdx++) {
+  for (int childIdx = 0; childIdx < op->getArity(); childIdx++) {
     //------------------------------------------------------
     //  Get current child's context via our plan work space.
     //------------------------------------------------------
@@ -737,7 +737,7 @@ Cost *CostMethod::computePlanCost(RelExpr *op, const Context *myContext, const P
 //
 //==============================================================================
 void CostMethod::getChildCostsForBinaryOp(RelExpr *op, const Context *myContext, const PlanWorkSpace *pws,
-                                          Lng32 planNumber, CostPtr &leftChildCost, CostPtr &rightChildCost) {
+                                          int planNumber, CostPtr &leftChildCost, CostPtr &rightChildCost) {
   //----------------------------------------------------------------------
   // Defensive programming.
   //----------------------------------------------------------------------
@@ -790,7 +790,7 @@ void CostMethod::getChildCostsForBinaryOp(RelExpr *op, const Context *myContext,
 }
 
 void CostMethod::getChildCostForUnaryOp(RelExpr *op, const Context *myContext, const PlanWorkSpace *pws,
-                                        Lng32 planNumber, CostPtr &childCost) {
+                                        int planNumber, CostPtr &childCost) {
   //----------------------------------------------------------------------
   // Defensive programming.
   //----------------------------------------------------------------------
@@ -877,7 +877,7 @@ Cost *CostMethod::rollUp(Cost *const parentCost, Cost *const childCost, const Re
 //  Pointer to cumulative final cost.
 //
 //==============================================================================
-Cost *CostMethod::rollUpForBinaryOp(RelExpr *op, const Context *myContext, const PlanWorkSpace *pws, Lng32 planNumber) {
+Cost *CostMethod::rollUpForBinaryOp(RelExpr *op, const Context *myContext, const PlanWorkSpace *pws, int planNumber) {
   //----------------------------------------------------------------------
   // Defensive programming.
   //----------------------------------------------------------------------
@@ -1084,7 +1084,7 @@ Cost *CostMethod::mergeBothLegsBlocking(const CostPtr leftChildCost, const CostP
 //  Pointer to computed cost object for this exchange operator.
 //
 //==============================================================================
-Cost *CostMethodExchange::computeOperatorCostInternal(RelExpr *op, const Context *myContext, Lng32 &countOfStreams) {
+Cost *CostMethodExchange::computeOperatorCostInternal(RelExpr *op, const Context *myContext, int &countOfStreams) {
   //----------------------------------------------------------------------
   // Defensive programming.
   //----------------------------------------------------------------------
@@ -1196,7 +1196,7 @@ Cost *CostMethodExchange::computeOperatorCostInternal(RelExpr *op, const Context
   //  Exchange operator's number of streams is parent's degree of
   // parallelism (i.e. number of concurrently executing consumers).
   //---------------------------------------------------------------
-  countOfStreams = Lng32(numOfConsumers.getValue());
+  countOfStreams = int(numOfConsumers.getValue());
 
   //------------------------------------------------------------
   //  Get default values needed for subsequent Exchange costing.
@@ -1394,7 +1394,7 @@ CostScalar CostMethodExchange::computeESPCost(const NABoolean executeInESP, cons
 // CostMethodExchange::computeExchangeCostGoingDown
 // ------------------------------------------------------------------------------
 Cost *CostMethodExchange::computeExchangeCostGoingDown(const ReqdPhysicalProperty *rpp, const CostScalar &numOfProbes,
-                                                       Lng32 &countOfStreams) {
+                                                       int &countOfStreams) {
   //----------------------------------------------------------------------
   // Defensive programming.
   //----------------------------------------------------------------------
@@ -1436,13 +1436,13 @@ Cost *CostMethodExchange::computeExchangeCostGoingDown(const ReqdPhysicalPropert
   // fragments per cpu (when espPerCpu is multiplied by the
   // # of active cpus). -- Sunil
   //---------------------------------------------------------------
-  countOfStreams = (Lng32)espCount.value();
+  countOfStreams = (int)espCount.value();
 
   CostScalar activeCPUs = MINOF(espCount, CostScalar(rpp->getCountOfAvailableCPUs()));
 
   CostScalar espsPerCPU = (espCount / activeCPUs).getCeiling();
 
-  return new STMTHEAP Cost(&cv, &cv, NULL, Lng32(activeCPUs.getValue()), Lng32(espsPerCPU.getValue()));
+  return new STMTHEAP Cost(&cv, &cv, NULL, int(activeCPUs.getValue()), int(espsPerCPU.getValue()));
 
 }  // CostMethodExchange::computeExchangeCostGoingDown
 //<pb>
@@ -1996,8 +1996,8 @@ CostScalar CostMethodExchange::computeUpMessages(
   // size of the message buffer.
   //------------------------------------------------------------------------
   if (CURRSTMT_OPTDEFAULTS->incorporateSkewInCosting()) {
-    upRowsPerConsumer = childOutputLP->getCardOfBusiestStream(parentPartFunc, (Lng32)numOfConsumers.getValue(),
-                                                              exch->getGroupAttr(), (Lng32)numOfConsumers.getValue());
+    upRowsPerConsumer = childOutputLP->getCardOfBusiestStream(parentPartFunc, (int)numOfConsumers.getValue(),
+                                                              exch->getGroupAttr(), (int)numOfConsumers.getValue());
     // assume number of consumers = number of CPUs;
     // it is only used for round robin pf. where skew is not an issue
 
@@ -2067,7 +2067,7 @@ NABoolean CostMethodExchange::isGroupedRepartitioning(const PartitioningFunction
                                                       CostScalar &partsPerGroup) const {
   parentGroupsChildren = FALSE;
   NABoolean childGroupsParent = FALSE;
-  Lng32 myPartsPerGroup = 0;
+  int myPartsPerGroup = 0;
 
   NABoolean isParentSinglePF = (parentPartFunc->castToSinglePartitionPartitioningFunction() != NULL);
   NABoolean isChildSinglePF = (childPartFunc->castToSinglePartitionPartitioningFunction() != NULL);
@@ -2406,7 +2406,7 @@ void CostMethodExchange::categorizeMessages(const PartitioningFunction *parentPa
   //----------------------------------------------------------------
   const NodeMap *parentNodeMap = parentPartFunc->getNodeMap();
   const NodeMap *childNodeMap = childPartFunc->getNodeMap();
-  CMPASSERT(parentNodeMap != NULL && parentPartFunc->getCountOfPartitions() == (Lng32)parentNodeMap->getNumEntries() &&
+  CMPASSERT(parentNodeMap != NULL && parentPartFunc->getCountOfPartitions() == (int)parentNodeMap->getNumEntries() &&
             childNodeMap != NULL);
 
   //-------------------------------------------------------------------------
@@ -3476,12 +3476,12 @@ Cost *CostMethodExchange::computeExchangeCost(const CostVecPtr parentFR, const C
   //---------------------
   //  Compute Child cost.
   //---------------------
-  Cost *childExchangeCost = new STMTHEAP Cost(childFR, childLR, NULL, Lng32(numOfProducers.getValue()), 1);
+  Cost *childExchangeCost = new STMTHEAP Cost(childFR, childLR, NULL, int(numOfProducers.getValue()), 1);
 
   //---------------------
   // Compute Parent cost.
   //---------------------
-  Cost *parentExchangeCost = new STMTHEAP Cost(parentFR, parentLR, NULL, Lng32(numOfConsumers.getValue()), 1);
+  Cost *parentExchangeCost = new STMTHEAP Cost(parentFR, parentLR, NULL, int(numOfConsumers.getValue()), 1);
 
   //-------------------------------------------------------------------
   //  When we get a CPU map we can possibly overlay the addition of the
@@ -3507,7 +3507,7 @@ Cost *CostMethodExchange::computeExchangeCost(const CostVecPtr parentFR, const C
   // consistency.
   //----------------------------------------------------------------------
   exchangeCost->planFragmentsPerCPU() = 1;
-  exchangeCost->countOfCPUs() = Lng32(numOfConsumers.getValue());
+  exchangeCost->countOfCPUs() = int(numOfConsumers.getValue());
 
   //-----------------------------------------------
   //  As good citizens we clean up after ourselves.
@@ -3524,7 +3524,7 @@ Cost *CostMethodExchange::computeExchangeCost(const CostVecPtr parentFR, const C
 /*                         CostMethodFileScan                         */
 /*                                                                    */
 /**********************************************************************/
-Cost *CostMethodFileScan::computeOperatorCostInternal(RelExpr *op, const Context *myContext, Lng32 &countOfStreams) {
+Cost *CostMethodFileScan::computeOperatorCostInternal(RelExpr *op, const Context *myContext, int &countOfStreams) {
   FileScan *p = (FileScan *)op;  // downcast
   Cost *costPtr = NULL;
 
@@ -3628,7 +3628,7 @@ Cost *CostMethodFileScan::computeOperatorCostInternal(RelExpr *op, const Context
 
   // Set blocks per access estimate. Use value from the defaults
   // table if set by the user. If not set, compute it.
-  Lng32 blocksPerAccess = (Lng32)CURRSTMT_OPTDEFAULTS->getNumOfBlocksPerAccess();
+  int blocksPerAccess = (int)CURRSTMT_OPTDEFAULTS->getNumOfBlocksPerAccess();
   if (blocksPerAccess == 0) {
     // Defaults table must have specified SYSTEM.
     blocksPerAccess = scanOptimizer->getNumberOfBlocksToReadPerAccess();
@@ -3664,9 +3664,9 @@ Cost *CostMethodFileScan::computeOperatorCostInternal(RelExpr *op, const Context
   // *real* part. func. in the phys. props
   // The file scan optimizer figures this out in the method below
   if (CmpCommon::getDefault(NCM_HBASE_COSTING) == DF_ON)
-    countOfStreams = (Lng32)scanOptimizer->getEstNumActivePartitionsAtRuntimeForHbaseRegions();
+    countOfStreams = (int)scanOptimizer->getEstNumActivePartitionsAtRuntimeForHbaseRegions();
   else
-    countOfStreams = (Lng32)scanOptimizer->getNumActivePartitions();
+    countOfStreams = (int)scanOptimizer->getNumActivePartitions();
 
   // ------------------------------------------------------------------------
   // If we are on the right leg of a parallel nested join, the
@@ -3745,7 +3745,7 @@ Cost *CostMethodFileScan::computeOperatorCostInternal(RelExpr *op, const Context
 /*                         CostMethodDP2Scan                          */
 /*                                                                    */
 /**********************************************************************/
-Cost *CostMethodDP2Scan::computeOperatorCostInternal(RelExpr *op, const Context *myContext, Lng32 &countOfStreams) {
+Cost *CostMethodDP2Scan::computeOperatorCostInternal(RelExpr *op, const Context *myContext, int &countOfStreams) {
   DP2Scan *p = (DP2Scan *)op;  // downcast
 
   // The DP2 costing is exactly as the file scan, thus use
@@ -3769,7 +3769,7 @@ Cost *CostMethodDP2Scan::computeOperatorCostInternal(RelExpr *op, const Context 
 // CostMethodFixedCostPerRow::computeOperatorCostInternal().
 // -----------------------------------------------------------------------
 Cost *CostMethodFixedCostPerRow::computeOperatorCostInternal(RelExpr *op, const Context *myContext,
-                                                             Lng32 &countOfStreams) {
+                                                             int &countOfStreams) {
   // ---------------------------------------------------------------------
   // Preparatory work.
   // ---------------------------------------------------------------------
@@ -3827,7 +3827,7 @@ Cost *CostMethodFixedCostPerRow::computeOperatorCostInternal(RelExpr *op, const 
   // ---------------------------------------------------------------------
 
   // Find out the number of cpus and number of fragments per cpu.
-  Lng32 cpuCount, fragmentsPerCPU;
+  int cpuCount, fragmentsPerCPU;
   determineCpuCountAndFragmentsPerCpu(cpuCount, fragmentsPerCPU);
 
   Cost *costPtr = new STMTHEAP Cost(&cvFR, &cvLR, NULL, cpuCount, fragmentsPerCPU);
@@ -3892,7 +3892,7 @@ void CostMethodSort::cacheParameters(RelExpr *op, const Context *myContext) {
     sortKeyVis.insertList(sort_->getSortKey());
   }
 
-  Lng32 myRowLength = myVis().getRowLength();
+  int myRowLength = myVis().getRowLength();
 
   // allocate space for atleast 2 rows
   memoryLimit_ = MAXOF(memoryLimit_, 2 * myRowLength);
@@ -3959,7 +3959,7 @@ void CostMethodSort::cacheParameters(RelExpr *op, const Context *myContext) {
 // -----------------------------------------------------------------------
 // CostMethodSort computeOperatorCost().
 // -----------------------------------------------------------------------
-Cost *CostMethodSort::computeOperatorCostInternal(RelExpr *op, const Context *myContext, Lng32 &countOfStreams) {
+Cost *CostMethodSort::computeOperatorCostInternal(RelExpr *op, const Context *myContext, int &countOfStreams) {
   // ---------------------------------------------------------------------
   // Preparatory work.
   // ---------------------------------------------------------------------
@@ -4203,7 +4203,7 @@ Cost *CostMethodSort::computeOperatorCostInternal(RelExpr *op, const Context *my
   // ---------------------------------------------------------------------
 
   // Find out the number of cpus and number of fragments per cpu.
-  Lng32 cpuCount, fragmentsPerCPU;
+  int cpuCount, fragmentsPerCPU;
   determineCpuCountAndFragmentsPerCpu(cpuCount, fragmentsPerCPU);
 
   Cost *costPtr = new STMTHEAP Cost(&cvFR, &cvLR, &cvBK, cpuCount, fragmentsPerCPU);
@@ -4395,7 +4395,7 @@ void CostMethodGroupByAgg::estimateDegreeOfParallelism() {
       // streams will be inactive.
       if ((partReq_ != NULL) AND partReq_->isRequirementReplicateNoBroadcast()) {
         CostScalar tempCountOfStreams = MINOF(CostScalar(countOfStreams_), noOfProbes_.getCeiling());
-        countOfStreams_ = Lng32(tempCountOfStreams.value());
+        countOfStreams_ = int(tempCountOfStreams.value());
       }
 
       // Compute the number of rows per stream.
@@ -4443,7 +4443,7 @@ void CostMethodGroupByAgg::estimateDegreeOfParallelism() {
       // streams will be inactive.
       if ((partReq_ != NULL) AND partReq_->isRequirementReplicateNoBroadcast()) {
         CostScalar tempCountOfStreams = MINOF(CostScalar(countOfStreams_), noOfProbes_.getCeiling());
-        countOfStreams_ = Lng32(tempCountOfStreams.value());
+        countOfStreams_ = int(tempCountOfStreams.value());
       }
 
       // -----------------------------------------------------------------
@@ -4520,7 +4520,7 @@ void CostMethodGroupByAgg::estimateDegreeOfParallelism() {
       // streams will be inactive.
       if ((partReq_ != NULL) AND partReq_->isRequirementReplicateNoBroadcast()) {
         CostScalar tempCountOfStreams = MINOF(CostScalar(countOfStreams_), noOfProbes_.getCeiling());
-        countOfStreams_ = Lng32(tempCountOfStreams.value());
+        countOfStreams_ = int(tempCountOfStreams.value());
       }
 
       // -----------------------------------------------------------------
@@ -4584,7 +4584,7 @@ void CostMethodGroupByAgg::estimateDegreeOfParallelism() {
     // streams will be inactive.
     if ((partReq_ != NULL) AND partReq_->isRequirementReplicateNoBroadcast()) {
       CostScalar tempCountOfStreams = MINOF(CostScalar(countOfStreams_), noOfProbes_.getCeiling());
-      countOfStreams_ = Lng32(tempCountOfStreams.value());
+      countOfStreams_ = int(tempCountOfStreams.value());
     }
 
     // -----------------------------------------------------------------
@@ -4956,7 +4956,7 @@ void CostMethodGroupByAgg::cleanUp() {
 // -----------------------------------------------------------------------
 // CostMethodSortGroupBy::computeOperatorCostInternal().
 // -----------------------------------------------------------------------
-Cost *CostMethodSortGroupBy::computeOperatorCostInternal(RelExpr *op, const Context *myContext, Lng32 &countOfStreams) {
+Cost *CostMethodSortGroupBy::computeOperatorCostInternal(RelExpr *op, const Context *myContext, int &countOfStreams) {
   // ---------------------------------------------------------------------
   // CostScalars to be computed.
   // ---------------------------------------------------------------------
@@ -5070,7 +5070,7 @@ Cost *CostMethodSortGroupBy::computeOperatorCostInternal(RelExpr *op, const Cont
   // ---------------------------------------------------------------------
 
   // Find out the number of cpus and number of fragments per cpu.
-  Lng32 cpuCount, fragmentsPerCPU;
+  int cpuCount, fragmentsPerCPU;
   determineCpuCountAndFragmentsPerCpu(cpuCount, fragmentsPerCPU);
 
   // If this is a partial Group By leaf in an ESP adjust it's cost
@@ -5623,7 +5623,7 @@ NABoolean CostMethodHashGroupBy::computePassCost(NABoolean isFirstPass, SimpleCo
   //----------------------------------------------
   //  Number of clusters which can stay in memory.
   //----------------------------------------------
-  Lng32 noOfClustersInMemory = (Lng32)(memoryLeft / (clusterSize - bufferSize_)).getFloor().value();
+  int noOfClustersInMemory = (int)(memoryLeft / (clusterSize - bufferSize_)).getFloor().value();
 
   //----------------------------------------------------------------------
   // for the clusters that stay in memory, calculate average chain length
@@ -5652,7 +5652,7 @@ NABoolean CostMethodHashGroupBy::computePassCost(NABoolean isFirstPass, SimpleCo
   //------------------------------------------------------------
   //  Number of clusters which spills over to disk in this pass.
   //------------------------------------------------------------
-  Lng32 noOfClustersSpilled = noOfClustersToBeAllocated_ - noOfClustersInMemory;
+  int noOfClustersSpilled = noOfClustersToBeAllocated_ - noOfClustersInMemory;
 
   // -----------------------------------------------------------------------
   //  Groups in spilled clusters are only partial groups. Thus, they take
@@ -5767,14 +5767,14 @@ CostScalar CostMethodHashGroupBy::calculateCostToInsertIntoChain(CostScalar &ave
 //  Number of clusters used by Hash GroupBy algorithm.
 //
 //==============================================================================
-Lng32 CostMethodHashGroupBy::computeCountOfClusters(const CostScalar &memoryLimit, const CostScalar &tableSize) {
+int CostMethodHashGroupBy::computeCountOfClusters(const CostScalar &memoryLimit, const CostScalar &tableSize) {
   CostScalar clusters;
-  Lng32 maxClusters;
+  int maxClusters;
 
   if (CmpCommon::getDefault(COMP_BOOL_52) == DF_ON) {
     clusters = (tableSize / memoryLimit);
 
-    maxClusters = (Lng32)((memoryLimit / bufferSize_).getFloor().value());
+    maxClusters = (int)((memoryLimit / bufferSize_).getFloor().value());
 
     if (clusters > double(maxClusters)) return maxClusters;
   } else {
@@ -5808,14 +5808,14 @@ Lng32 CostMethodHashGroupBy::computeCountOfClusters(const CostScalar &memoryLimi
     //---------------------------------------------
     //  We must retain one buffer for each cluster.
     //---------------------------------------------
-    maxClusters = (Lng32)((memoryLimit / bufferSize_).getFloor().value());
+    maxClusters = (int)((memoryLimit / bufferSize_).getFloor().value());
 
     if (maxClusters != 0 && clusters > double(maxClusters)) {
       return maxClusters;
     }
   }
 
-  return Lng32(clusters.getCeiling().value());
+  return int(clusters.getCeiling().value());
 
 }  // CostMethodHashGroupBy::computeCountOfClusters().
 //<pb>
@@ -5835,7 +5835,7 @@ Lng32 CostMethodHashGroupBy::computeCountOfClusters(const CostScalar &memoryLimi
 //  Pointer to computed cost object for this Hash GroupBy operator.
 //
 //==============================================================================
-Cost *CostMethodHashGroupBy::computeOperatorCostInternal(RelExpr *op, const Context *myContext, Lng32 &countOfStreams) {
+Cost *CostMethodHashGroupBy::computeOperatorCostInternal(RelExpr *op, const Context *myContext, int &countOfStreams) {
   //-----------------------------
   //  CostScalars to be computed.
   //-----------------------------
@@ -6031,7 +6031,7 @@ Cost *CostMethodHashGroupBy::computeOperatorCostInternal(RelExpr *op, const Cont
   //----------------------------------------
 
   // Find out the number of cpus and number of fragments per cpu.
-  Lng32 cpuCount, fragmentsPerCPU;
+  int cpuCount, fragmentsPerCPU;
   determineCpuCountAndFragmentsPerCpu(cpuCount, fragmentsPerCPU);
 
   // If this is a partial Group By leaf in an ESP adjust it's cost
@@ -6091,7 +6091,7 @@ Cost *CostMethodHashGroupBy::computeOperatorCostInternal(RelExpr *op, const Cont
 //
 //==============================================================================
 Cost *CostMethodHashGroupBy::computePlanCost(RelExpr *hashGroupByOp, const Context *myContext, const PlanWorkSpace *pws,
-                                             Lng32 planNumber) {
+                                             int planNumber) {
   //-----------------------------------------------------------------------
   //  Get a local copy of the required physical properties for use in later
   // roll-up computations.
@@ -6247,7 +6247,7 @@ Cost *CostMethodHashGroupBy::computePlanCost(RelExpr *hashGroupByOp, const Conte
 // CostMethodShortCutGroupBy::computeOperatorCostInternal().
 // -----------------------------------------------------------------------
 Cost *CostMethodShortCutGroupBy::computeOperatorCostInternal(RelExpr *op, const Context *myContext,
-                                                             Lng32 &countOfStreams) {
+                                                             int &countOfStreams) {
   // ---------------------------------------------------------------------
   // CostScalars to be computed.
   // ---------------------------------------------------------------------
@@ -6332,7 +6332,7 @@ Cost *CostMethodShortCutGroupBy::computeOperatorCostInternal(RelExpr *op, const 
     // ---------------------------------------------------------------------
 
     // Find out the number of cpus and number of fragments per cpu.
-    Lng32 cpuCount, fragmentsPerCPU;
+    int cpuCount, fragmentsPerCPU;
     determineCpuCountAndFragmentsPerCpu(cpuCount, fragmentsPerCPU);
 
     Cost *costPtr = new STMTHEAP Cost(&cv, &cv, NULL, cpuCount, fragmentsPerCPU);
@@ -6352,7 +6352,7 @@ Cost *CostMethodShortCutGroupBy::computeOperatorCostInternal(RelExpr *op, const 
     CMPASSERT(op->getFirstNRows() == 1);
     cpu = cpuCostPassRow_;  // it only passes along a single row
     SimpleCostVector cv(cpu / countOfStreams_ * ff_cpu, csZero, csZero, csZero, noOfProbesPerStream_);
-    Lng32 cpuCount, fragmentsPerCPU;
+    int cpuCount, fragmentsPerCPU;
     determineCpuCountAndFragmentsPerCpu(cpuCount, fragmentsPerCPU);
     Cost *costPtr = new STMTHEAP Cost(&cv, &cv, NULL, cpuCount, fragmentsPerCPU);
     return costPtr;
@@ -6360,7 +6360,7 @@ Cost *CostMethodShortCutGroupBy::computeOperatorCostInternal(RelExpr *op, const 
 }  // ShortCutGroupBy::computeOperatorCostInternal().
 
 Cost *CostMethodShortCutGroupBy::computePlanCost(RelExpr *op, const Context *myContext, const PlanWorkSpace *pws,
-                                                 Lng32 planNumber) {
+                                                 int planNumber) {
   if (CmpCommon::getDefault(COSTING_SHORTCUT_GROUPBY_FIX) == DF_ON && isUnderNestedJoin(op, myContext) == FALSE)
     return CostMethod::computePlanCost(op, myContext, pws, planNumber);
 
@@ -6616,7 +6616,7 @@ void CostMethodJoin::estimateEquiJoinStats() {
   ColStatDescList &child1ColStatDescList = child1LogProp_->colStats();
 
   // No of equijoin predicates which are not VEGPreds. Ex (x.a + 1 = y.b).
-  Lng32 noOfNonVEGPreds = 0;
+  int noOfNonVEGPreds = 0;
 
   // ---------------------------------------------------------------------
   // Products of the uec's from all the single column statistics of those
@@ -6913,7 +6913,7 @@ void CostMethodJoin::estimateDegreeOfParallelism() {
         // child1 rows, i.e. this is a Type-2 join.
         // If we are on the way down the tree (child1PartFunc is NULL) and
         // if planNumber is 0, then it's a Type-2 join.
-        Lng32 planNumber = -1;
+        int planNumber = -1;
         PlanWorkSpace *myPws = context_->getPlanWorkSpace();
         if (myPws != NULL && (myPws->getCountOfChildContexts() <= 2)) planNumber = PLAN0;
 
@@ -7022,10 +7022,10 @@ NABoolean CostMethodJoin::computeRepresentativeStream() {
   // countOfStreams_ is designed to be smaller than INT_MAX.
   if (maxDegreeOfParallelism_.value() < double(INT_MAX))
   {
-    if (countOfStreams_ > Lng32(maxDegreeOfParallelism_.value()))
+    if (countOfStreams_ > int(maxDegreeOfParallelism_.value()))
     {
       // Not all streams could be active.
-      countOfStreams_ = Lng32(maxDegreeOfParallelism_.value());
+      countOfStreams_ = int(maxDegreeOfParallelism_.value());
 
       CollIndex intIndex;
       // Pick biggest merged result set to be our representative stream.
@@ -7473,7 +7473,7 @@ void CostMethodHashJoin::cacheParameters(RelExpr *op, const Context *myContext) 
   // get partition function from child context that has been already optimized.
 
   if (child1PartFunc_ == NULL) {
-    Lng32 planNumber = 0;
+    int planNumber = 0;
     PlanWorkSpace *myPws = myContext->getPlanWorkSpace();
     if (myPws != NULL) planNumber = myPws->getLatestPlan();
 
@@ -7625,7 +7625,7 @@ void CostMethodHashJoin::deriveParameters() {
   // Decide number of clusters to allocate and also decide number of overflow
   // clusters
   // ---------------------------------------------------------------------
-  Lng32 idealNoOfClusters;
+  int idealNoOfClusters;
 
   if (CmpCommon::getDefault(COMP_BOOL_54) == DF_ON) {
     // -------------------------------------------------------------------
@@ -7838,7 +7838,7 @@ void CostMethodHashJoin::deriveParameters() {
 // the uec (of the hash keys) of the table restricts the maximum number of
 // clusters the rows can be hashed to.
 // -----------------------------------------------------------------------
-Lng32 CostMethodHashJoin::computeIdealCountOfClusters(const CostScalar &memoryLimit, const CostScalar &tableSize) {
+int CostMethodHashJoin::computeIdealCountOfClusters(const CostScalar &memoryLimit, const CostScalar &tableSize) {
   // We couldn't even have one cluster this way. Memory is too limited to
   // do a HJ.
   CMPASSERT(memoryLimit >= bufferSize_);
@@ -7868,13 +7868,13 @@ Lng32 CostMethodHashJoin::computeIdealCountOfClusters(const CostScalar &memoryLi
   // i.e. smaller number of clusters
   // ---------------------------------------------------------------------
   CostScalar c;
-  Lng32 cLong;
+  int cLong;
   CostScalar bM = (memoryLimit + bufferSize_);
   CostScalar bM2 = (bM * bM);
   CostScalar bM2Minus4bT = bM2 - tableSize * bufferSize_ * 4.;
 
   // Max no of clusters that could be used.
-  Lng32 cLongMax = (Lng32)(memoryLimit / bufferSize_).getFloor().value();
+  int cLongMax = (int)(memoryLimit / bufferSize_).getFloor().value();
 
   if (bM2Minus4bT.isLessThanZero() /* < csZero */) {
     // -------------------------------------------------------------------
@@ -7893,7 +7893,7 @@ Lng32 CostMethodHashJoin::computeIdealCountOfClusters(const CostScalar &memoryLi
     // This is a result of the fact that (tableSize > memoryLimit) here.
     CMPASSERT(NOT c.isLessThanOne() /* >= csOne*/);
 
-    cLong = (Lng32)c.getCeiling().value();
+    cLong = (int)c.getCeiling().value();
     cLong = MINOF(cLong, cLongMax);
   }
   return cLong;
@@ -7916,10 +7916,10 @@ Lng32 CostMethodHashJoin::computeIdealCountOfClusters(const CostScalar &memoryLi
 // product; estimatedNumberOfOverflowClusters_ would reflect the memory needs
 // of the cross product operation.
 // -----------------------------------------------------------------------
-Lng32 CostMethodHashJoin::computeInitialCountOfClusters(const CostScalar &memoryLimit, const CostScalar &tableSize) {
+int CostMethodHashJoin::computeInitialCountOfClusters(const CostScalar &memoryLimit, const CostScalar &tableSize) {
   CostScalar clusters = (tableSize / memoryLimit);
 
-  Lng32 clustersL = (Lng32)clusters.getCeiling().value();
+  int clustersL = (int)clusters.getCeiling().value();
 
   // there are at most 16 buckets and the initial number of clusters
   // is at most 4
@@ -7953,7 +7953,7 @@ Lng32 CostMethodHashJoin::computeInitialCountOfClusters(const CostScalar &memory
     clusters = 1;
   }
 
-  Lng32 initialClusters = (Lng32)MINOF(clusters, maxClusters).getCeiling().value();
+  int initialClusters = (int)MINOF(clusters, maxClusters).getCeiling().value();
   return initialClusters;
 }  // CostMethodHashJoin::computeInitialCountOfClusters().
 
@@ -8507,7 +8507,7 @@ void CostMethodHashJoin::computeStage3Cost() {
 // -----------------------------------------------------------------------
 // CostMethodHashJoin::computeOperatorCostInternal().
 // -----------------------------------------------------------------------
-Cost *CostMethodHashJoin::computeOperatorCostInternal(RelExpr *op, const Context *myContext, Lng32 &countOfStreams) {
+Cost *CostMethodHashJoin::computeOperatorCostInternal(RelExpr *op, const Context *myContext, int &countOfStreams) {
   // ---------------------------------------------------------------------
   // Preparatory work.
   // ---------------------------------------------------------------------
@@ -8580,7 +8580,7 @@ Cost *CostMethodHashJoin::computeOperatorCostInternal(RelExpr *op, const Context
   // ---------------------------------------------------------------------
 
   // Find out the number of cpus and number of fragments per cpu.
-  Lng32 cpuCount, fragmentsPerCPU;
+  int cpuCount, fragmentsPerCPU;
   determineCpuCountAndFragmentsPerCpu(cpuCount, fragmentsPerCPU);
 
   // ---------------------------------------------------------------------
@@ -8670,7 +8670,7 @@ void CostMethodHashJoin::cleanUp() {
 //
 //==============================================================================
 Cost *CostMethodHashJoin::computePlanCost(RelExpr *hashJoinOp, const Context *myContext, const PlanWorkSpace *pws,
-                                          Lng32 planNumber) {
+                                          int planNumber) {
   //-----------------------------------------------------------------------
   //  Get a local copy of the required physical properties for use in later
   // roll-up computations.
@@ -9342,7 +9342,7 @@ CostScalar CostMethodMergeJoin::computeTotalMergingCost(CostScalar &mem) {
 // -----------------------------------------------------------------------
 // CostMethodMergeJoin::computeOperatorCostInternal().
 // -----------------------------------------------------------------------
-Cost *CostMethodMergeJoin::computeOperatorCostInternal(RelExpr *op, const Context *myContext, Lng32 &countOfStreams) {
+Cost *CostMethodMergeJoin::computeOperatorCostInternal(RelExpr *op, const Context *myContext, int &countOfStreams) {
   // ---------------------------------------------------------------------
   // Preparatory work.
   // ---------------------------------------------------------------------
@@ -9406,7 +9406,7 @@ Cost *CostMethodMergeJoin::computeOperatorCostInternal(RelExpr *op, const Contex
   // ---------------------------------------------------------------------
 
   // Find out the number of cpus and number of fragments per cpu.
-  Lng32 cpuCount, fragmentsPerCPU;
+  int cpuCount, fragmentsPerCPU;
   determineCpuCountAndFragmentsPerCpu(cpuCount, fragmentsPerCPU);
 
   Cost *costPtr = new STMTHEAP Cost(&cvFR, &cvLR, NULL, cpuCount, fragmentsPerCPU);
@@ -9446,7 +9446,7 @@ Cost *CostMethodMergeJoin::computeOperatorCostInternal(RelExpr *op, const Contex
 //
 //==============================================================================
 Cost *CostMethodMergeJoin::computePlanCost(RelExpr *mergeJoinOp, const Context *myContext, const PlanWorkSpace *pws,
-                                           Lng32 planNumber) {
+                                           int planNumber) {
   //----------------------------------------------------------------------
   //  Merge JOINs and Merge UNIONs share a general strategy with differing
   // details specified in specialized virtual functions.
@@ -10103,7 +10103,7 @@ void CostMethodNestedJoin::cacheParameters(RelExpr *op, const Context *myContext
 // -----------------------------------------------------------------------
 // CostMethodNestedJoin::computeOperatorCostInternal()
 // -----------------------------------------------------------------------
-Cost *CostMethodNestedJoin::computeOperatorCostInternal(RelExpr *op, const Context *myContext, Lng32 &countOfStreams) {
+Cost *CostMethodNestedJoin::computeOperatorCostInternal(RelExpr *op, const Context *myContext, int &countOfStreams) {
   // ---------------------------------------------------------------------
   // Preparatory work.
   // ---------------------------------------------------------------------
@@ -10240,7 +10240,7 @@ Cost *CostMethodNestedJoin::computeOperatorCostInternal(RelExpr *op, const Conte
   // ---------------------------------------------------------------------
 
   // Find out the number of cpus and number of fragments per cpu.
-  Lng32 cpuCount, fragmentsPerCPU;
+  int cpuCount, fragmentsPerCPU;
   determineCpuCountAndFragmentsPerCpu(cpuCount, fragmentsPerCPU);
 
   Cost *costPtr = new STMTHEAP Cost(&cvFR, &cvLR, NULL, cpuCount, fragmentsPerCPU);
@@ -10281,7 +10281,7 @@ Cost *CostMethodNestedJoin::computeOperatorCostInternal(RelExpr *op, const Conte
 //
 //==============================================================================
 Cost *CostMethodNestedJoin::computePlanCost(RelExpr *nestedJoinOp, const Context *myContext, const PlanWorkSpace *pws,
-                                            Lng32 planNumber) {
+                                            int planNumber) {
   //--------------------------------------------------------------------------
   //  Get cumulative costs associated with each child of this nested loops
   // join operator.
@@ -10377,7 +10377,7 @@ Cost *CostMethodNestedJoin::computePlanCost(RelExpr *nestedJoinOp, const Context
 // CostMethodNestedJoinFlow::computeOperatorCostInternal().
 // -----------------------------------------------------------------------
 Cost *CostMethodNestedJoinFlow::computeOperatorCostInternal(RelExpr *op, const Context *myContext,
-                                                            Lng32 &countOfStreams) {
+                                                            int &countOfStreams) {
   // ---------------------------------------------------------------------
   // Preparatory work.
   // ---------------------------------------------------------------------
@@ -10431,7 +10431,7 @@ Cost *CostMethodNestedJoinFlow::computeOperatorCostInternal(RelExpr *op, const C
   // ---------------------------------------------------------------------
 
   // Find out the number of cpus and number of fragments per cpu.
-  Lng32 cpuCount, fragmentsPerCPU;
+  int cpuCount, fragmentsPerCPU;
   determineCpuCountAndFragmentsPerCpu(cpuCount, fragmentsPerCPU);
 
   Cost *costPtr = new STMTHEAP Cost(&cvFR, &cvLR, NULL, cpuCount, fragmentsPerCPU);
@@ -10475,7 +10475,7 @@ void CostMethodMergeUnion::cacheParameters(RelExpr *op, const Context *myContext
 // -----------------------------------------------------------------------
 // CostMethodMergeUnion::computeOperatorCostInternal().
 // -----------------------------------------------------------------------
-Cost *CostMethodMergeUnion::computeOperatorCostInternal(RelExpr *op, const Context *myContext, Lng32 &countOfStreams) {
+Cost *CostMethodMergeUnion::computeOperatorCostInternal(RelExpr *op, const Context *myContext, int &countOfStreams) {
   // ---------------------------------------------------------------------
   // Preparatory work.
   // ---------------------------------------------------------------------
@@ -10566,7 +10566,7 @@ Cost *CostMethodMergeUnion::computeOperatorCostInternal(RelExpr *op, const Conte
   // ---------------------------------------------------------------------
 
   // Find out the number of cpus and number of fragments per cpu.
-  Lng32 cpuCount, fragmentsPerCPU;
+  int cpuCount, fragmentsPerCPU;
   determineCpuCountAndFragmentsPerCpu(cpuCount, fragmentsPerCPU);
 
   Cost *costPtr = new STMTHEAP Cost(&cvFR, &cvLR, NULL, cpuCount, fragmentsPerCPU);
@@ -10605,7 +10605,7 @@ Cost *CostMethodMergeUnion::computeOperatorCostInternal(RelExpr *op, const Conte
 //
 //==============================================================================
 Cost *CostMethodMergeUnion::computePlanCost(RelExpr *unionOp, const Context *myContext, const PlanWorkSpace *pws,
-                                            Lng32 planNumber) {
+                                            int planNumber) {
   //----------------------------------------------------------------------
   //  For now, UNIONs use a generic roll-up strategy for binary operators.
   //----------------------------------------------------------------------
@@ -10888,7 +10888,7 @@ Cost *CostMethodMergeUnion::mergeBothLegsBlocking(const CostPtr leftChildCost, c
 // -----------------------------------------------------------------------
 // CostMethodRelRoot::computeOperatorCostInternal().
 // -----------------------------------------------------------------------
-Cost *CostMethodRelRoot::computeOperatorCostInternal(RelExpr *op, const Context *myContext, Lng32 &countOfStreams) {
+Cost *CostMethodRelRoot::computeOperatorCostInternal(RelExpr *op, const Context *myContext, int &countOfStreams) {
   // ---------------------------------------------------------------------
   // Preparatory work.
   // ---------------------------------------------------------------------
@@ -10968,7 +10968,7 @@ Cost *CostMethodRelRoot::computeOperatorCostInternal(RelExpr *op, const Context 
 // -----------------------------------------------------------------------
 // CostMethodTuple::computeOperatorCostInternal().
 // -----------------------------------------------------------------------
-Cost *CostMethodTuple::computeOperatorCostInternal(RelExpr *op, const Context *myContext, Lng32 &countOfStreams) {
+Cost *CostMethodTuple::computeOperatorCostInternal(RelExpr *op, const Context *myContext, int &countOfStreams) {
   // ---------------------------------------------------------------------
   // Preparatory work.
   // ---------------------------------------------------------------------
@@ -10987,7 +10987,7 @@ Cost *CostMethodTuple::computeOperatorCostInternal(RelExpr *op, const Context *m
   // expressions in the tuple.
   // ---------------------------------------------------------------------
   CostScalar cpuCostEvalExpr = csZero;
-  for (Lng32 i = 0; i < Lng32(tp->tupleExpr().entries()); i++)
+  for (int i = 0; i < int(tp->tupleExpr().entries()); i++)
     cpuCostEvalExpr += CostPrimitives::cpuCostForEvalExpr(tp->tupleExpr()[i]);
 
   CostScalar cpuFR = cpuCostAllocateTuple_ + cpuCostEvalExpr;
@@ -11007,7 +11007,7 @@ Cost *CostMethodTuple::computeOperatorCostInternal(RelExpr *op, const Context *m
   // divide this value by countOfStreams to compute the cost per ESP.
   // If COMP_INT_80  = 0 means fix is OFF.
   //                 > 0 means fix is ON. Default value is 3, so fix is ON.
-  Lng32 compInt80 = (ActiveSchemaDB()->getDefaults()).getAsLong(COMP_INT_80);
+  int compInt80 = (ActiveSchemaDB()->getDefaults()).getAsLong(COMP_INT_80);
   if ((compInt80 > 0) AND isUnderNestedJoin_) {
     cpuLR = cpuFR * ((myRowCount_ / countOfStreams).minCsOne());
     // scale up by CPUCOST_NJ_TUPLST_FF to avoid TupList under NJ.
@@ -11042,7 +11042,7 @@ Cost *CostMethodTuple::computeOperatorCostInternal(RelExpr *op, const Context *m
   // ---------------------------------------------------------------------
 
   // Find out the number of cpus and number of fragments per cpu.
-  Lng32 cpuCount, fragmentsPerCPU;
+  int cpuCount, fragmentsPerCPU;
   determineCpuCountAndFragmentsPerCpu(cpuCount, fragmentsPerCPU);
 
   Cost *costPtr = new STMTHEAP Cost(&cvFR, &cvLR, NULL, cpuCount, fragmentsPerCPU);
@@ -11118,7 +11118,7 @@ void CostMethodTranspose::cacheParameters(RelExpr *op, const Context *myContext)
 // long& countOfStreams
 //  OUT - Estimated degree of parallelism for returned preliminary cost.
 //
-Cost *CostMethodTranspose::computeOperatorCostInternal(RelExpr *op, const Context *myContext, Lng32 &countOfStreams) {
+Cost *CostMethodTranspose::computeOperatorCostInternal(RelExpr *op, const Context *myContext, int &countOfStreams) {
   // Just to make sure things are working as expected
   //
   CMPASSERT(op->getOperatorType() == REL_TRANSPOSE);
@@ -11150,7 +11150,7 @@ Cost *CostMethodTranspose::computeOperatorCostInternal(RelExpr *op, const Contex
   // ---------------------------------------------------------------------
 
   // Find out the number of cpus and number of fragments per cpu.
-  Lng32 cpuCount, fragmentsPerCPU;
+  int cpuCount, fragmentsPerCPU;
   determineCpuCountAndFragmentsPerCpu(cpuCount, fragmentsPerCPU);
 
   return new STMTHEAP Cost(&cvFirstRow, &cvLastRow, NULL, cpuCount, fragmentsPerCPU);
@@ -11192,7 +11192,7 @@ void CostMethodCompoundStmt::cacheParameters(RelExpr *op, const Context *myConte
 //  IN - The optimization context within which to cost this node.
 //-------------------------------------------------------------------------
 Cost *CostMethodCompoundStmt::computeOperatorCostInternal(RelExpr *op, const Context *myContext,
-                                                          Lng32 &countOfStreams) {
+                                                          int &countOfStreams) {
   // Just to make sure things are working as expected
   //
   CMPASSERT(op->getOperatorType() == REL_COMPOUND_STMT);
@@ -11221,7 +11221,7 @@ Cost *CostMethodCompoundStmt::computeOperatorCostInternal(RelExpr *op, const Con
   // ---------------------------------------------------------------------
 
   // Find out the number of cpus and number of fragments per cpu.
-  Lng32 cpuCount, fragmentsPerCPU;
+  int cpuCount, fragmentsPerCPU;
   determineCpuCountAndFragmentsPerCpu(cpuCount, fragmentsPerCPU);
 
   return new STMTHEAP Cost(&cvFirstRow, &cvLastRow, NULL, cpuCount, fragmentsPerCPU);
@@ -11250,7 +11250,7 @@ Cost *CostMethodCompoundStmt::computeOperatorCostInternal(RelExpr *op, const Con
 // long& countOfStreams
 //  OUT - Estimated degree of parallelism for returned preliminary cost.
 //
-Cost *CostMethodStoredProc::computeOperatorCostInternal(RelExpr *op, const Context *myContext, Lng32 &countOfStreams) {
+Cost *CostMethodStoredProc::computeOperatorCostInternal(RelExpr *op, const Context *myContext, int &countOfStreams) {
   // Completely ficticious cost for now of 1000 CPU instructions and
   // no I/O or message cost.
   //
@@ -11286,7 +11286,7 @@ Cost *CostMethodStoredProc::computeOperatorCostInternal(RelExpr *op, const Conte
 //  OUT - Estimated degree of parallelism for returned preliminary cost.
 //
 Cost *CostMethodTableMappingUDF::computeOperatorCostInternal(RelExpr *op, const Context *myContext,
-                                                             Lng32 &countOfStreams) {
+                                                             int &countOfStreams) {
   CostScalar cpuTimeForFirstRow;
   CostScalar cpuTimeForLastRow;
 
@@ -11357,7 +11357,7 @@ Cost *CostMethodTableMappingUDF::computeOperatorCostInternal(RelExpr *op, const 
                         noOfProbesPerStream_);
 
   // Find out the number of cpus and number of fragments per cpu.
-  Lng32 cpuCount, fragmentsPerCPU;
+  int cpuCount, fragmentsPerCPU;
   determineCpuCountAndFragmentsPerCpu(cpuCount, fragmentsPerCPU);
 
   return new STMTHEAP Cost(&cvFR, &cvLR, NULL, countOfStreams_, fragmentsPerCPU);
@@ -11384,7 +11384,7 @@ Cost *CostMethodTableMappingUDF::computeOperatorCostInternal(RelExpr *op, const 
 // long& countOfStreams
 //  OUT - Estimated degree of parallelism for returned preliminary cost.
 //
-Cost *CostMethodFastExtract::computeOperatorCostInternal(RelExpr *op, const Context *myContext, Lng32 &countOfStreams) {
+Cost *CostMethodFastExtract::computeOperatorCostInternal(RelExpr *op, const Context *myContext, int &countOfStreams) {
   CostScalar cpuTimeForFirstRow;
   CostScalar cpuTimeForLastRow;
 
@@ -11426,7 +11426,7 @@ Cost *CostMethodFastExtract::computeOperatorCostInternal(RelExpr *op, const Cont
                         noOfProbesPerStream_);
 
   // Find out the number of cpus and number of fragments per cpu.
-  Lng32 cpuCount, fragmentsPerCPU;
+  int cpuCount, fragmentsPerCPU;
   determineCpuCountAndFragmentsPerCpu(cpuCount, fragmentsPerCPU);
 
   return new STMTHEAP Cost(&cvFR, &cvLR, NULL, countOfStreams_, fragmentsPerCPU);
@@ -11472,7 +11472,7 @@ void CostMethodHbaseInsert::cacheParameters(RelExpr *op, const Context *myContex
 // -----------------------------------------------------------------------
 // CostMethodHbaseInsert::computeOperatorCostInternal()
 // -----------------------------------------------------------------------
-Cost *CostMethodHbaseInsert::computeOperatorCostInternal(RelExpr *op, const Context *myContext, Lng32 &countOfStreams) {
+Cost *CostMethodHbaseInsert::computeOperatorCostInternal(RelExpr *op, const Context *myContext, int &countOfStreams) {
   cacheParameters(op, myContext);
   estimateDegreeOfParallelism();
 
@@ -11487,7 +11487,7 @@ Cost *CostMethodHbaseInsert::computeOperatorCostInternal(RelExpr *op, const Cont
 
   // update count of streams; the caller of the method uses this value
   if ((countOfAsynchronousStreams_ > 0) && (countOfAsynchronousStreams_ < countOfStreams))
-    countOfStreams = (Lng32)countOfAsynchronousStreams_.getValue();
+    countOfStreams = (int)countOfAsynchronousStreams_.getValue();
 
   streamsPerCpu_ = (countOfAsynchronousStreams_ / activeCpus_).getCeiling();
 
@@ -11565,7 +11565,7 @@ Cost *CostMethodHbaseInsert::computeOperatorCostInternal(RelExpr *op, const Cont
   // ---------------------------------------------------------------------
 
   Cost *costPtr =
-      new STMTHEAP Cost(&cvFR, &cvLR, NULL, Lng32(activeCpus_.getValue()), Lng32(streamsPerCpu_.getValue()));
+      new STMTHEAP Cost(&cvFR, &cvLR, NULL, int(activeCpus_.getValue()), int(streamsPerCpu_.getValue()));
 
 #ifndef NDEBUG
   if (CmpCommon::getDefault(OPTIMIZER_PRINT_COST) == DF_ON) {
@@ -11648,7 +11648,7 @@ void CostMethodUnPackRows::cacheParameters(RelExpr *op, const Context *myContext
 // long& countOfStreams
 //  OUT - Estimated degree of parallelism for returned preliminary cost.
 //
-Cost *CostMethodUnPackRows::computeOperatorCostInternal(RelExpr *op, const Context *myContext, Lng32 &countOfStreams) {
+Cost *CostMethodUnPackRows::computeOperatorCostInternal(RelExpr *op, const Context *myContext, int &countOfStreams) {
   // Just to make sure things are working as expected
   //
   CMPASSERT(op->getOperatorType() == REL_UNPACKROWS);
@@ -11680,7 +11680,7 @@ Cost *CostMethodUnPackRows::computeOperatorCostInternal(RelExpr *op, const Conte
   // ---------------------------------------------------------------------
 
   // Find out the number of cpus and number of fragments per cpu.
-  Lng32 cpuCount, fragmentsPerCPU;
+  int cpuCount, fragmentsPerCPU;
   determineCpuCountAndFragmentsPerCpu(cpuCount, fragmentsPerCPU);
 
   return new STMTHEAP Cost(&cvFirstRow, &cvLastRow, NULL, cpuCount, fragmentsPerCPU);
@@ -11710,7 +11710,7 @@ void CostMethodRelSequence::cacheParameters(RelExpr *op, const Context *myContex
 
   historyBufferWidthInBytes_ = relSequence->getEstHistoryRowLength();  // historyIds.getRowLength();
 
-  const Lng32 numHistoryRows = MIN_ONE(relSequence->numHistoryRows());
+  const int numHistoryRows = MIN_ONE(relSequence->numHistoryRows());
 
   historyBufferSizeInBytes_ = numHistoryRows * historyBufferWidthInBytes_;
 
@@ -11746,7 +11746,7 @@ void CostMethodRelSequence::cacheParameters(RelExpr *op, const Context *myContex
 // long& countOfStreams
 //  OUT - Estimated degree of parallelism for returned preliminary cost.
 //
-Cost *CostMethodRelSequence::computeOperatorCostInternal(RelExpr *op, const Context *myContext, Lng32 &countOfStreams) {
+Cost *CostMethodRelSequence::computeOperatorCostInternal(RelExpr *op, const Context *myContext, int &countOfStreams) {
   // Just to make sure things are working as expected
   //
   DCMPASSERT(op->getOperatorType() == REL_SEQUENCE);
@@ -11787,7 +11787,7 @@ Cost *CostMethodRelSequence::computeOperatorCostInternal(RelExpr *op, const Cont
     seekFR = csOne;
     transferFRInKB = seekFR * pageSizeInKB;
 
-    Lng32 numHistoryRowsPerPage = (Lng32)((pageSizeInKB * 1024)) / historyBufferWidthInBytes_;
+    int numHistoryRowsPerPage = (int)((pageSizeInKB * 1024)) / historyBufferWidthInBytes_;
 
     // Since the history buffer does not fit in memory and since it is
     // accessed in a circular fashion, there will be a page fault for
@@ -11841,7 +11841,7 @@ Cost *CostMethodRelSequence::computeOperatorCostInternal(RelExpr *op, const Cont
   // ---------------------------------------------------------------------
 
   // Find out the number of cpus and number of fragments per cpu.
-  Lng32 cpuCount, fragmentsPerCPU;
+  int cpuCount, fragmentsPerCPU;
   determineCpuCountAndFragmentsPerCpu(cpuCount, fragmentsPerCPU);
 
   return new STMTHEAP Cost(&cvFR, &cvLR, NULL, cpuCount, fragmentsPerCPU);
@@ -11869,7 +11869,7 @@ Cost *CostMethodRelSequence::computeOperatorCostInternal(RelExpr *op, const Cont
 // long& countOfStreams
 //  OUT - Estimated degree of parallelism for returned preliminary cost.
 //
-Cost *CostMethodSample::computeOperatorCostInternal(RelExpr *op, const Context *myContext, Lng32 &countOfStreams) {
+Cost *CostMethodSample::computeOperatorCostInternal(RelExpr *op, const Context *myContext, int &countOfStreams) {
   // Just to make sure things are working as expected
   //
   DCMPASSERT(op->getOperatorType() == REL_SAMPLE);
@@ -11889,7 +11889,7 @@ Cost *CostMethodSample::computeOperatorCostInternal(RelExpr *op, const Context *
   // -----------------------------------------
   countOfStreams = countOfStreams_;
 
-  Lng32 numBalanceExpr = 0;
+  int numBalanceExpr = 0;
 
   DCMPASSERT(relSample->balanceExpr().entries() == 1);
 
@@ -11938,7 +11938,7 @@ Cost *CostMethodSample::computeOperatorCostInternal(RelExpr *op, const Context *
   // ---------------------------------------------------------------------
 
   // Find out the number of cpus and number of fragments per cpu.
-  Lng32 cpuCount, fragmentsPerCPU;
+  int cpuCount, fragmentsPerCPU;
   determineCpuCountAndFragmentsPerCpu(cpuCount, fragmentsPerCPU);
 
   return new STMTHEAP Cost(&cvFR, &cvLR, NULL, cpuCount, fragmentsPerCPU);
@@ -11950,7 +11950,7 @@ Cost *CostMethodSample::computeOperatorCostInternal(RelExpr *op, const Context *
 // -----------------------------------------------------------------------
 
 Cost *CostMethodIsolatedScalarUDF::computeOperatorCostInternal(RelExpr *op, const Context *myContext,
-                                                               Lng32 &countOfStreams) {
+                                                               int &countOfStreams) {
   // ---------------------------------------------------------------------
   // Preparatory work.
   // ---------------------------------------------------------------------
@@ -12077,7 +12077,7 @@ Cost *CostMethodIsolatedScalarUDF::computeOperatorCostInternal(RelExpr *op, cons
   // ---------------------------------------------------------------------
 
   // Find out the number of cpus and number of fragments per cpu.
-  Lng32 cpuCount, fragmentsPerCPU;
+  int cpuCount, fragmentsPerCPU;
   determineCpuCountAndFragmentsPerCpu(cpuCount, fragmentsPerCPU);
 
   Cost *costPtr = new STMTHEAP Cost(&cvFR, &cvLR, NULL, cpuCount, fragmentsPerCPU);

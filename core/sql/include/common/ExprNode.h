@@ -122,11 +122,11 @@ class ExprNode : public NABasicObject {
   virtual ~ExprNode();
 
   // access a child of an ExprNode
-  virtual ExprNode *getChild(Lng32 index);
-  virtual const ExprNode *getConstChild(Lng32 index) const;
+  virtual ExprNode *getChild(int index);
+  virtual const ExprNode *getConstChild(int index) const;
 
   // Method for replacing a particular child
-  virtual void setChild(Lng32 index, ExprNode *);
+  virtual void setChild(int index, ExprNode *);
 
   // arity of the operator (required number of children)
   virtual Int32 getArity() const;

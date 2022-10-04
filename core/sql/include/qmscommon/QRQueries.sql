@@ -243,7 +243,7 @@ Int32 QRQueries::rollbackTransaction()
 // QRQueries::openSystemDefault
 //
 *********************************************************/
-Lng32 QRQueries::openSystemDefault(const char* defaultName)
+int QRQueries::openSystemDefault(const char* defaultName)
 {
   EXEC SQL BEGIN DECLARE SECTION;
     char CHARACTER SET IS ISO88591 defName[MAX_DEFAULTS_VALUE];
@@ -265,7 +265,7 @@ Lng32 QRQueries::openSystemDefault(const char* defaultName)
 /*********************************************************
 // QRQueries::fetchSystemDefault
 *********************************************************/
-Lng32 QRQueries::fetchSystemDefault(char* value)
+int QRQueries::fetchSystemDefault(char* value)
 {
   EXEC SQL BEGIN DECLARE SECTION;
     char defaultValue[MAX_DEFAULTS_UTF8_VALUE_IN_BYTES];
@@ -302,7 +302,7 @@ Int32 QRQueries::closeSystemDefault()
 // QRQueries::openCatalogName
 //
 *********************************************************/
-Lng32 QRQueries::openCatalogName(long long  catalogUID)
+int QRQueries::openCatalogName(long long  catalogUID)
 {
   EXEC SQL BEGIN DECLARE SECTION;
    long long  catUID;
@@ -323,7 +323,7 @@ Lng32 QRQueries::openCatalogName(long long  catalogUID)
 /*********************************************************
 // QRQueries::fetchCatalogName
 *********************************************************/
-Lng32 QRQueries::fetchCatalogName(NAString& catalogName)
+int QRQueries::fetchCatalogName(NAString& catalogName)
 {
   EXEC SQL BEGIN DECLARE SECTION;
     char CHARACTER SET IS UCS2 catName[MAX_1_PART_INTERNAL_NAME_LEN_PLUS_1];
@@ -384,7 +384,7 @@ Int32 QRQueries::closeCatalogName()
 // QRQueries::openCatalogUID
 //
 *********************************************************/
-Lng32 QRQueries::openCatalogUID(const char *catalogName)
+int QRQueries::openCatalogUID(const char *catalogName)
 {
   EXEC SQL BEGIN DECLARE SECTION;
     char catName[MAX_CATALOG_NAME];
@@ -406,7 +406,7 @@ Lng32 QRQueries::openCatalogUID(const char *catalogName)
 /*********************************************************
 // QRQueries::fetchCatalogUID
 *********************************************************/
-Lng32 QRQueries::fetchCatalogUID(long long & catalogUID)
+int QRQueries::fetchCatalogUID(long long & catalogUID)
 {
   EXEC SQL BEGIN DECLARE SECTION;
     long long  catUID;
@@ -435,7 +435,7 @@ Int32 QRQueries::closeCatalogUID()
 // QRQueries::openVersion
 //
 *********************************************************/
-Lng32 QRQueries::openVersion(long long  catalogUID)
+int QRQueries::openVersion(long long  catalogUID)
 {
   EXEC SQL BEGIN DECLARE SECTION;
     long long  catUID;
@@ -456,7 +456,7 @@ Lng32 QRQueries::openVersion(long long  catalogUID)
 /*********************************************************
 // QRQueries::fetchVersion
 *********************************************************/
-Lng32 QRQueries::fetchVersion(Int32& version)
+int QRQueries::fetchVersion(Int32& version)
 {
   EXEC SQL BEGIN DECLARE SECTION;
     Int32 ver;
@@ -484,7 +484,7 @@ Int32 QRQueries::closeVersion()
 // QRQueries::openCatalogNames
 //
 *********************************************************/
-Lng32 QRQueries::openCatalogNames()
+int QRQueries::openCatalogNames()
 {
  EXEC SQL DECLARE ObtainCatalogNames CURSOR FOR
     SELECT rtrim(cat_name) from :catsysName_ prototype 'HP_SYSTEM_CATALOG.SYSTEM_SCHEMA.CATSYS'
@@ -498,7 +498,7 @@ Lng32 QRQueries::openCatalogNames()
 /*********************************************************
 // QRQueries::fetchCatalogNames
 *********************************************************/
-Lng32 QRQueries::fetchCatalogNames(NAString& catalogName)
+int QRQueries::fetchCatalogNames(NAString& catalogName)
 {
   EXEC SQL BEGIN DECLARE SECTION;
     char CHARACTER SET IS UCS2 catName[MAX_1_PART_INTERNAL_NAME_LEN_PLUS_1];
@@ -558,7 +558,7 @@ Int32 QRQueries::closeCatalogNames()
 // QRQueries::openMvUIDs
 //
 *********************************************************/
-Lng32 QRQueries::openMvInformation(const NAString& definitionSchema)
+int QRQueries::openMvInformation(const NAString& definitionSchema)
 {
   EXEC SQL BEGIN DECLARE SECTION;
     char objectsTable[MAX_SMD_TABLE_NAME];
@@ -607,7 +607,7 @@ Lng32 QRQueries::openMvInformation(const NAString& definitionSchema)
 /*********************************************************
 // QRQueries::fetchMvUIDs
 *********************************************************/
-Lng32 QRQueries::fetchMvInformation(QRMVData *data)
+int QRQueries::fetchMvInformation(QRMVData *data)
 {
   EXEC SQL BEGIN DECLARE SECTION;
     QRMVDataStruct *hostVarP = data;
@@ -624,7 +624,7 @@ Lng32 QRQueries::fetchMvInformation(QRMVData *data)
 /*********************************************************
 // QRQueries::closeMvUIDs
 *********************************************************/
-Lng32 QRQueries::closeMvInformation()
+int QRQueries::closeMvInformation()
 {
   EXEC SQL CLOSE ObtainMvUID;
 
@@ -636,7 +636,7 @@ Lng32 QRQueries::closeMvInformation()
 // QRQueries::openMvDescriptorText
 //
 *********************************************************/
-Lng32 QRQueries::openMvDescriptorText(const NAString& textTable, 
+int QRQueries::openMvDescriptorText(const NAString& textTable, 
                                      long long  objectUID)
 {
   EXEC SQL BEGIN DECLARE SECTION;
@@ -723,7 +723,7 @@ Int32 QRQueries::closeMvDescriptorText()
 // QRQueries::openRewritePublish
 //
 *********************************************************/
-Lng32 QRQueries::openRewritePublish(const char* rewriteTableName)
+int QRQueries::openRewritePublish(const char* rewriteTableName)
 {
   EXEC SQL BEGIN DECLARE SECTION;
    char rewriteTable[MAX_REWRITE_TABLE];
@@ -755,7 +755,7 @@ Lng32 QRQueries::openRewritePublish(const char* rewriteTableName)
 /*********************************************************
 // QRQueries::fetchRewritePublish
 *********************************************************/
-Lng32 QRQueries::fetchRewritePublish(MVQR_Publish *publish)
+int QRQueries::fetchRewritePublish(MVQR_Publish *publish)
 {
   EXEC SQL BEGIN DECLARE SECTION;
     MVQR_PublishStruct *hostVarP = publish;
@@ -909,7 +909,7 @@ Int32 QRQueries::closeRewritePublish()
 // QRQueries::openMVNames
 //
 *********************************************************/
-Lng32 QRQueries::openMVNames(const NAString& definitionSchema)
+int QRQueries::openMVNames(const NAString& definitionSchema)
 {
   EXEC SQL BEGIN DECLARE SECTION;
     char objectsTable[MAX_SMD_TABLE_NAME];
@@ -945,7 +945,7 @@ Lng32 QRQueries::openMVNames(const NAString& definitionSchema)
 /*********************************************************
 // QRQueries::fetchMVNames
 *********************************************************/
-Lng32 QRQueries::fetchMVNames(NAString& objectName, NAString& schemaName)
+int QRQueries::fetchMVNames(NAString& objectName, NAString& schemaName)
 {
   EXEC SQL BEGIN DECLARE SECTION;
     char objName[MAX_OBJECT_NAME];         
@@ -969,7 +969,7 @@ Lng32 QRQueries::fetchMVNames(NAString& objectName, NAString& schemaName)
 /*********************************************************
 // QRQueries::closeMVNames
 *********************************************************/
-Lng32 QRQueries::closeMVNames()
+int QRQueries::closeMVNames()
 {
   EXEC SQL CLOSE ObtainMVNames;
 
@@ -979,7 +979,7 @@ Lng32 QRQueries::closeMVNames()
 /*********************************************************
 // QRQueries::setParserFlags
 *********************************************************/
-Lng32 QRQueries::setParserFlags()
+int QRQueries::setParserFlags()
 {
   EXEC SQL set parserflags 3;  
   
@@ -989,7 +989,7 @@ Lng32 QRQueries::setParserFlags()
 /*********************************************************
 // QRQueries::controlQueryDefault
 *********************************************************/
-Lng32 QRQueries::controlQueryDefault(const NAString& cqdName, 
+int QRQueries::controlQueryDefault(const NAString& cqdName, 
                                     const NAString& cqdValue)
 {
   EXEC SQL BEGIN DECLARE SECTION;
@@ -1012,7 +1012,7 @@ Lng32 QRQueries::controlQueryDefault(const NAString& cqdName,
 /*********************************************************
 // QRQueries::reDescribeMV
 *********************************************************/
-Lng32 QRQueries::reDescribeMV(const NAString& mvName, NABoolean rePublish)
+int QRQueries::reDescribeMV(const NAString& mvName, NABoolean rePublish)
 {
   EXEC SQL BEGIN DECLARE SECTION;
     char catRequestText[MAX_UTF8_CMD_LEN_IN_BYTES_PLUS_1];

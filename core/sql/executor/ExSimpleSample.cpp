@@ -319,7 +319,7 @@ ExWorkProcRetcode ExSimpleSampleTcb::workUp()
             pEntryUp->upState.parentIndex = pEntryDown->downState.parentIndex;
             pEntryUp->upState.downIndex = qParent_.down->getHeadIndex();
             qParent_.up->insert();
-            sampleCountDown_ = (Lng32)(((float)1E6 /
+            sampleCountDown_ = (int)(((float)1E6 /
                                    (float)simpleSampleTdb().samplingRatio_) -
                                    1.);
             if(sampleCountDown_ < 0) sampleCountDown_ = 0;

@@ -183,7 +183,7 @@ void CompoundStmt::transformNode(NormWA &normWARef, ExprGroupId &locationOfPoint
 
 void CompoundStmt::pushdownCoveredExpr(const ValueIdSet &outputExpr, const ValueIdSet &newExternalInputs,
                                        ValueIdSet &predicatesOnParent, const ValueIdSet *setOfValuesReqdByParent,
-                                       Lng32 childIndex) {
+                                       int childIndex) {
   ValueIdSet requiredValues;
   if (setOfValuesReqdByParent) requiredValues = *setOfValuesReqdByParent;
 

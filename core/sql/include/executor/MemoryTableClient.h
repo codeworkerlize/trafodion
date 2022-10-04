@@ -42,17 +42,17 @@ class MemoryTableClient : public NABasicObject {
 
   void setFetchMode(MemoryTableClient::FETCH_MODE fetchMode) { fetchMode_ = fetchMode; }
 
-  Lng32 startGet(const char *tableName, const HbaseStr &rowID);
+  int startGet(const char *tableName, const HbaseStr &rowID);
 
-  Lng32 startGets(const char *tableName, const NAList<HbaseStr> *rowIDs);
+  int startGets(const char *tableName, const NAList<HbaseStr> *rowIDs);
 
-  Lng32 startGets(const char *tableName, const HbaseStr &rowIDs, const UInt32 keyLen);
+  int startGets(const char *tableName, const HbaseStr &rowIDs, const UInt32 keyLen);
 
-  HTC_RetCode getColVal(BYTE *colVal, Lng32 &colValLen);
+  HTC_RetCode getColVal(BYTE *colVal, int &colValLen);
   HTC_RetCode nextRow();
   HTC_RetCode getRowID(HbaseStr &rowID);
   void cleanupResultInfo();
-  Lng32 scanOpen(const char *tableName, const Text &startRow, const Text &stopRow, const Lng32 numCacheRows);
+  int scanOpen(const char *tableName, const Text &startRow, const Text &stopRow, const int numCacheRows);
   void setFetchPos(const Text &startRow);
   HTC_RetCode fetchRows();
 

@@ -65,7 +65,7 @@ ex_tcb *ex_split_bottom_tdb::build(ex_globals *) {
 
 ex_split_bottom_tcb *ex_split_bottom_tdb::buildESPTcbTree(ExExeStmtGlobals *glob, ExEspFragInstanceDir *espInstanceDir,
                                                           const ExFragKey &myKey, const ExFragKey &parentKey,
-                                                          int myHandle, Lng32 numOfParentInstances) {
+                                                          int myHandle, int numOfParentInstances) {
   ex_split_bottom_tcb *result;
 
   // set this plan version in the statement globals.
@@ -145,7 +145,7 @@ ex_split_bottom_tcb *ex_split_bottom_tdb::buildESPTcbTree(ExExeStmtGlobals *glob
 ex_split_bottom_tcb::ex_split_bottom_tcb(const ex_split_bottom_tdb &splitBottomTdb, const ex_tcb *child_tcb,
                                          ExExeStmtGlobals *glob, ExEspFragInstanceDir *espInstanceDir,
                                          const ExFragKey &myKey, const ExFragKey &parentKey, int myHandle,
-                                         Lng32 numOfParentInstances)
+                                         int numOfParentInstances)
     : ex_tcb(splitBottomTdb, 1, glob),
       sendNodes_(glob->getSpace()),
       sendNodesUpQ_(glob->getSpace()),
@@ -196,7 +196,7 @@ ex_split_bottom_tcb::ex_split_bottom_tcb(const ex_split_bottom_tdb &splitBottomT
   }
 
   // build the send nodes, one for each parent fragment instance
-  for (Lng32 i = 0; i < numOfParentInstances_; i++) {
+  for (int i = 0; i < numOfParentInstances_; i++) {
     ex_send_bottom_tcb *sendTcb = splitBottomTdb.sendTdb_->buildInstance(glob, espInstanceDir, myKey, parentKey,
                                                                          myHandle, firstParentNum_ + i, FALSE);
     sendNodes_.insertAt(i, sendTcb);
@@ -213,7 +213,7 @@ ex_split_bottom_tcb::ex_split_bottom_tcb(const ex_split_bottom_tdb &splitBottomT
   // If this is a parallel extract operation then we need one
   // additional send node to connect to the extract consumer query
   if (splitBottomTdb.getExtractProducerFlag()) {
-    Lng32 i = numOfParentInstances_;
+    int i = numOfParentInstances_;
     ex_send_bottom_tcb *sendTcb =
         splitBottomTdb.sendTdb_->buildInstance(glob, espInstanceDir, myKey, parentKey, myHandle, i, FALSE);
     sendTcb->setExtractConsumerFlag(TRUE);
@@ -240,7 +240,7 @@ ex_split_bottom_tcb::ex_split_bottom_tcb(const ex_split_bottom_tdb &splitBottomT
   workAtp_->getTupp(splitBottomTdb.minMaxValsWorkAtpIndex_) = &minMaxDataTupp_;
 
   // Initial min/max tuple to all null values.
-  memset(workAtp_->getTupp(splitBottomTdb.minMaxValsWorkAtpIndex_).getDataPointer(), 0, (Lng32)minMaxTuppSpaceNeeded);
+  memset(workAtp_->getTupp(splitBottomTdb.minMaxValsWorkAtpIndex_).getDataPointer(), 0, (int)minMaxTuppSpaceNeeded);
 
   // fixup expression
   unsigned short expMode = getExpressionMode();
@@ -298,7 +298,7 @@ ex_split_bottom_tcb::ex_split_bottom_tcb(const ex_split_bottom_tdb &splitBottomT
 
     // Populate the skewHdrs_ and skewLinks_ with the skew keys.
     for (Int32 skewArrayIdx = 0; skewArrayIdx < sbSkewInfoP->getNumSkewHashValues(); skewArrayIdx++) {
-      Int64 sv = sbSkewInfoP->getSkewHashValues()[skewArrayIdx];
+      long sv = sbSkewInfoP->getSkewHashValues()[skewArrayIdx];
       Int32 slot = (Int32)(sv % numSkewHdrs_);
       if (skewHdrs_[slot] == noLink_) {
         skewHdrs_[slot] = skewArrayIdx;
@@ -534,13 +534,13 @@ void ex_split_bottom_tcb::releaseWorkRequest() {
   // Q: is this the right place to commit/rollback savepoint
   // TBD: how to return error info.
   if (glob_->getContext()->getTransaction()->getSavepointState() == SP_TO_COMMIT) {
-    Int64 transId = -1;
+    long transId = -1;
     if (NOT NAExecTrans(&transId)) transId = -1;
     glob_->getContext()->getTransaction()->commitSavepoint(
         glob_->getContext()->getTransaction()->getSavepointIdWithFlag(),
         glob_->getContext()->getTransaction()->getPSavepointIdWithFlag());
   } else if (glob_->getContext()->getTransaction()->getSavepointState() == SP_TO_ROLLBACK) {
-    Int64 transId = -1;
+    long transId = -1;
     if (NOT NAExecTrans(&transId)) transId = -1;
 
     glob_->getContext()->getTransaction()->rollbackSavepoint(
@@ -1021,15 +1021,15 @@ ExWorkProcRetcode ex_split_bottom_tcb::work() {
           upEntry->upState.setMatchNo(0);
           ComDiagsArea *da = ComDiagsArea::allocate(getGlobals()->getDefaultHeap());
           *da << DgSqlCode(-EXE_QUERY_LIMITS_CPU);
-          *da << DgInt0((Lng32)splitBottomTdb().cpuLimit_);
+          *da << DgInt0((int)splitBottomTdb().cpuLimit_);
           *da << DgInt1((Int32)getGlobals()->getMyFragId());
 
           if (splitBottomTdb().getQueryLimitDebug()) {
             *da << DgSqlCode(EXE_QUERY_LIMITS_CPU_DEBUG);
-            *da << DgInt0((Lng32)splitBottomTdb().cpuLimit_);
+            *da << DgInt0((int)splitBottomTdb().cpuLimit_);
             *da << DgInt1((Int32)getGlobals()->getMyFragId());
 
-            Int64 localCpuTime = 0;
+            long localCpuTime = 0;
             ExFragRootOperStats *fragRootStats;
             ExMeasStats *measRootStats;
             ExOperStats *rootStats = glob_->getStatsArea()->getRootStats();
@@ -1041,7 +1041,7 @@ ExWorkProcRetcode ex_split_bottom_tcb::work() {
             else
               ex_assert(0, "Cpu limit evaluated without runtime stats.");
 
-            *da << DgInt2((Lng32)localCpuTime / 1000);
+            *da << DgInt2((int)localCpuTime / 1000);
           }
 
           upEntry->setDiagsArea(da);
@@ -1849,7 +1849,7 @@ void SplitBottomRequestMessage::workOnReceivedMessage() {
 
           // does data follow?
           if (moreObjects() AND getNextObjType() == ESP_INPUT_SQL_BUFFER) {
-            TupMsgBuffer recBuffer((Lng32)getNextObjSize() + 1000, TupMsgBuffer::MSG_IN, heap);
+            TupMsgBuffer recBuffer((int)getNextObjSize() + 1000, TupMsgBuffer::MSG_IN, heap);
 
             *this >> recBuffer;
 

@@ -74,7 +74,7 @@ class SQLLM_LIB_FUNC LmResultSet : public NABasicObject {
   virtual char *getProxySyntax() = 0;
 
   // Gets a row from JDBC. It can not get a row from CLI.
-  virtual Lng32 fetchSpecialRows(void *, LmParameter *, ComUInt32, ComDiagsArea &, ComDiagsArea *) = 0;
+  virtual int fetchSpecialRows(void *, LmParameter *, ComUInt32, ComDiagsArea &, ComDiagsArea *) = 0;
 
  protected:
   // Constructor

@@ -72,19 +72,19 @@ class QueryCacheStatStoredProcedure {
   // sp_InputFormat is called with action=OPEN before any compile-time
   // functions are called.  It is then again called after all compile-time
   // functions have been called, this time with action=CLOSE.
-  static SP_STATUS sp_InputFormat(SP_FIELDDESC_STRUCT *inputFieldFormat, Lng32 numFields,
+  static SP_STATUS sp_InputFormat(SP_FIELDDESC_STRUCT *inputFieldFormat, int numFields,
                                   SP_COMPILE_HANDLE spCompileObj, SP_HANDLE spObj, SP_ERROR_STRUCT *error);
 
   // sp_NumOutputFields function is called at compile-time of the stored
   // procedure to inquire about the number of output fields in a row.
-  static SP_STATUS sp_NumOutputFields(Lng32 *numFields, SP_COMPILE_HANDLE spCompileObj, SP_HANDLE spObj,
+  static SP_STATUS sp_NumOutputFields(int *numFields, SP_COMPILE_HANDLE spCompileObj, SP_HANDLE spObj,
                                       SP_ERROR_STRUCT *error);
 
   // sp_OutputFormat is called at compile-time of the stored procedure to
   // determine  the format (type info) of each field that will become part of the
   // row being  output from the stored procedure.
   static SP_STATUS sp_OutputFormat(SP_FIELDDESC_STRUCT *outputFieldFormat, SP_KEYDESC_STRUCT keyFields[],
-                                   Lng32 *numKeyFields, SP_HANDLE spCompileObj, SP_HANDLE spObj,
+                                   int *numKeyFields, SP_HANDLE spCompileObj, SP_HANDLE spObj,
                                    SP_ERROR_STRUCT *error);
 
   // sp_Process is called at run-time of the stored procedure.
@@ -121,19 +121,19 @@ class QueryCacheEntriesStoredProcedure {
   // sp_InputFormat is called with action OPEN before any compile-time
   // functions are called.  It is then again called after all compile-time
   // functions have been called, this time with action CLOSE.
-  static SP_STATUS sp_InputFormat(SP_FIELDDESC_STRUCT *inputFieldFormat, Lng32 numFields,
+  static SP_STATUS sp_InputFormat(SP_FIELDDESC_STRUCT *inputFieldFormat, int numFields,
                                   SP_COMPILE_HANDLE spCompileObj, SP_HANDLE spObj, SP_ERROR_STRUCT *error);
 
   // sp_NumOutputFields function is called at compile-time of the stored
   // procedure to inquire about the number of output fields in a row.
-  static SP_STATUS sp_NumOutputFields(Lng32 *numFields, SP_COMPILE_HANDLE spCompileObj, SP_HANDLE spObj,
+  static SP_STATUS sp_NumOutputFields(int *numFields, SP_COMPILE_HANDLE spCompileObj, SP_HANDLE spObj,
                                       SP_ERROR_STRUCT *error);
 
   // sp_OutputFormat is called at compile-time of the stored procedure to
   // determine the format (type info) of each field that will become part of the
   // row being output from the stored procedure.
   static SP_STATUS sp_OutputFormat(SP_FIELDDESC_STRUCT *outputFieldFormat, SP_KEYDESC_STRUCT keyFields[],
-                                   Lng32 *numKeyFields, SP_HANDLE spCompileObj, SP_HANDLE spObj,
+                                   int *numKeyFields, SP_HANDLE spCompileObj, SP_HANDLE spObj,
                                    SP_ERROR_STRUCT *error);
 
   // sp_Process is called at run-time of the stored procedure.
@@ -167,12 +167,12 @@ class QueryCacheDeleteStoredProcedure {
   // sp_InputFormat is called with action=OPEN before any compile-time
   // functions are called.  It is then again called after all compile-time
   // functions have been called, this time with action=CLOSE.
-  static SP_STATUS sp_InputFormat(SP_FIELDDESC_STRUCT *inputFieldFormat, Lng32 numFields,
+  static SP_STATUS sp_InputFormat(SP_FIELDDESC_STRUCT *inputFieldFormat, int numFields,
                                   SP_COMPILE_HANDLE spCompileObj, SP_HANDLE spObj, SP_ERROR_STRUCT *error);
 
   // sp_NumOutputFields function is called at compile-time of the stored
   // procedure to inquire about the number of output fields in a row.
-  static SP_STATUS sp_NumOutputFields(Lng32 *numFields, SP_COMPILE_HANDLE spCompileObj, SP_HANDLE spObj,
+  static SP_STATUS sp_NumOutputFields(int *numFields, SP_COMPILE_HANDLE spCompileObj, SP_HANDLE spObj,
                                       SP_ERROR_STRUCT *error) {
     *numFields = 0;
     return SP_SUCCESS;
@@ -182,7 +182,7 @@ class QueryCacheDeleteStoredProcedure {
   // determine  the format (type info) of each field that will become part of the
   // row being  output from the stored procedure.
   static SP_STATUS sp_OutputFormat(SP_FIELDDESC_STRUCT *outputFieldFormat, SP_KEYDESC_STRUCT keyFields[],
-                                   Lng32 *numKeyFields, SP_HANDLE spCompileObj, SP_HANDLE spObj,
+                                   int *numKeyFields, SP_HANDLE spCompileObj, SP_HANDLE spObj,
                                    SP_ERROR_STRUCT *error) {
     return SP_SUCCESS;
   }
@@ -215,19 +215,19 @@ class HybridQueryCacheStatStoredProcedure {
   // sp_InputFormat is called with action=OPEN before any compile-time
   // functions are called.  It is then again called after all compile-time
   // functions have been called, this time with action=CLOSE.
-  static SP_STATUS sp_InputFormat(SP_FIELDDESC_STRUCT *inputFieldFormat, Lng32 numFields,
+  static SP_STATUS sp_InputFormat(SP_FIELDDESC_STRUCT *inputFieldFormat, int numFields,
                                   SP_COMPILE_HANDLE spCompileObj, SP_HANDLE spObj, SP_ERROR_STRUCT *error);
 
   // sp_NumOutputFields function is called at compile-time of the stored
   // procedure to inquire about the number of output fields in a row.
-  static SP_STATUS sp_NumOutputFields(Lng32 *numFields, SP_COMPILE_HANDLE spCompileObj, SP_HANDLE spObj,
+  static SP_STATUS sp_NumOutputFields(int *numFields, SP_COMPILE_HANDLE spCompileObj, SP_HANDLE spObj,
                                       SP_ERROR_STRUCT *error);
 
   // sp_OutputFormat is called at compile-time of the stored procedure to
   // determine  the format (type info) of each field that will become part of the
   // row being  output from the stored procedure.
   static SP_STATUS sp_OutputFormat(SP_FIELDDESC_STRUCT *outputFieldFormat, SP_KEYDESC_STRUCT keyFields[],
-                                   Lng32 *numKeyFields, SP_HANDLE spCompileObj, SP_HANDLE spObj,
+                                   int *numKeyFields, SP_HANDLE spCompileObj, SP_HANDLE spObj,
                                    SP_ERROR_STRUCT *error);
 
   // sp_Process is called at run-time of the stored procedure.
@@ -258,19 +258,19 @@ class HybridQueryCacheEntriesStoredProcedure {
   // sp_InputFormat is called with action=OPEN before any compile-time
   // functions are called.  It is then again called after all compile-time
   // functions have been called, this time with action=CLOSE.
-  static SP_STATUS sp_InputFormat(SP_FIELDDESC_STRUCT *inputFieldFormat, Lng32 numFields,
+  static SP_STATUS sp_InputFormat(SP_FIELDDESC_STRUCT *inputFieldFormat, int numFields,
                                   SP_COMPILE_HANDLE spCompileObj, SP_HANDLE spObj, SP_ERROR_STRUCT *error);
 
   // sp_NumOutputFields function is called at compile-time of the stored
   // procedure to inquire about the number of output fields in a row.
-  static SP_STATUS sp_NumOutputFields(Lng32 *numFields, SP_COMPILE_HANDLE spCompileObj, SP_HANDLE spObj,
+  static SP_STATUS sp_NumOutputFields(int *numFields, SP_COMPILE_HANDLE spCompileObj, SP_HANDLE spObj,
                                       SP_ERROR_STRUCT *error);
 
   // sp_OutputFormat is called at compile-time of the stored procedure to
   // determine  the format (type info) of each field that will become part of the
   // row being  output from the stored procedure.
   static SP_STATUS sp_OutputFormat(SP_FIELDDESC_STRUCT *outputFieldFormat, SP_KEYDESC_STRUCT keyFields[],
-                                   Lng32 *numKeyFields, SP_HANDLE spCompileObj, SP_HANDLE spObj,
+                                   int *numKeyFields, SP_HANDLE spCompileObj, SP_HANDLE spObj,
                                    SP_ERROR_STRUCT *error);
 
   // sp_Process is called at run-time of the stored procedure.

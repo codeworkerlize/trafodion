@@ -65,12 +65,12 @@ class ComTdbSplitTop : public ComTdb {
  public:
   // Constructors
   ComTdbSplitTop() : ComTdb(ex_SPLIT_TOP, "FAKE") {}
-  ComTdbSplitTop(ComTdb *child, ex_expr *childInputPartFunction, Lng32 inputPartAtpIndex, ex_expr *mergeKeyExpr,
-                 Lng32 mergeKeyAtpIndex, Lng32 mergeKeyLength, ExPartInputDataDesc *partInputDataDesc,
-                 Lng32 partInputDataAtpIndex, Lng32 paPartNoAtpIndex, ex_cri_desc *givenCriDesc,
+  ComTdbSplitTop(ComTdb *child, ex_expr *childInputPartFunction, int inputPartAtpIndex, ex_expr *mergeKeyExpr,
+                 int mergeKeyAtpIndex, int mergeKeyLength, ExPartInputDataDesc *partInputDataDesc,
+                 int partInputDataAtpIndex, int paPartNoAtpIndex, ex_cri_desc *givenCriDesc,
                  ex_cri_desc *returnedCriDesc, ex_cri_desc *downCriDesc, ex_cri_desc *workCriDesc,
                  NABoolean bufferedInserts, queue_index fromParent, queue_index toParent, Cardinality estimatedRowCount,
-                 Lng32 bottomNumParts, Int32 streamTimeout, Lng32 sidNumBuffers, ULng32 sidBufferSize);
+                 int bottomNumParts, Int32 streamTimeout, int sidNumBuffers, ULng32 sidBufferSize);
 
   // ---------------------------------------------------------------------
   // Redefine virtual functions required for Versioning.
@@ -96,7 +96,7 @@ class ComTdbSplitTop : public ComTdb {
   void setLRUOperation() { splitTopFlags_ |= LRU_OPERATION; }
 
   Long pack(void *);
-  Lng32 unpack(void *, void *reallocator);
+  int unpack(void *, void *reallocator);
 
   void display() const;
 

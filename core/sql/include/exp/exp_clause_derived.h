@@ -260,7 +260,7 @@ class ex_pivot_group_clause : public ex_aggregate_clause {
   // Construction
   //
   ex_pivot_group_clause(){};
-  ex_pivot_group_clause(OperatorTypeEnum oper_type, short num_operands, Attributes **attr, Lng32 maxLen,
+  ex_pivot_group_clause(OperatorTypeEnum oper_type, short num_operands, Attributes **attr, int maxLen,
                         NABoolean isOrderBy, Space *space)
       : ex_aggregate_clause(oper_type, num_operands, attr, space), maxLen_(maxLen) {
     setOrderBy(isOrderBy);
@@ -299,9 +299,9 @@ class ex_pivot_group_clause : public ex_aggregate_clause {
  private:
   enum { ORDER_BY = 0x0001, OVFL_WARN = 0x0002 };
 
-  Lng32 currPos_;
-  Lng32 currTgtLen_;
-  Lng32 maxLen_;
+  int currPos_;
+  int currTgtLen_;
+  int maxLen_;
   UInt32 flags_;
 
   // ---------------------------------------------------------------------
@@ -426,10 +426,10 @@ class ex_arith_clause : public ex_clause {
   short isArithSupported(OperatorTypeEnum op, Attributes *attr1, Attributes *attr2, Attributes *result);
 
   static const ArithInstrStruct arithInstrInfo[];
-  static const char *getInstructionStr(Lng32 index) { return arithInstrInfo[index].instrStr; }
-  static const ArithInstruction getInstruction(Lng32 index) { return arithInstrInfo[index].instruction; }
+  static const char *getInstructionStr(int index) { return arithInstrInfo[index].instrStr; }
+  static const ArithInstruction getInstruction(int index) { return arithInstrInfo[index].instruction; }
 
-  Lng32 findIndexIntoInstrArray(ArithInstruction ci);
+  int findIndexIntoInstrArray(ArithInstruction ci);
 
   // Null Semantics
   //
@@ -721,7 +721,7 @@ class ex_branch_clause : public ex_clause {
   // Fixup
   //
   Long pack(void *);
-  Lng32 unpack(void *, void *reallocator);
+  int unpack(void *, void *reallocator);
   ex_expr::exp_return_type fixup(Space *space = 0, CollHeap *exHeap = 0, char *constants_area = 0, char *temps_area = 0,
                                  char *persistentArea = 0, short = 0, NABoolean spaceCompOnly = FALSE);
   ex_expr::exp_return_type pCodeGenerate(Space *space, UInt32 flags);
@@ -1030,10 +1030,10 @@ class ex_comp_clause : public ex_clause {
   short isComparisonSupported(OperatorTypeEnum op, Attributes *attr1, Attributes *attr2);
 
   static const CompInstrStruct compInstrInfo[];
-  static const char *getInstructionStr(Lng32 index) { return compInstrInfo[index].instrStr; }
-  static const CompInstruction getInstruction(Lng32 index) { return compInstrInfo[index].instruction; }
+  static const char *getInstructionStr(int index) { return compInstrInfo[index].instrStr; }
+  static const CompInstruction getInstruction(int index) { return compInstrInfo[index].instruction; }
 
-  Lng32 findIndexIntoInstrArray(CompInstruction ci);
+  int findIndexIntoInstrArray(CompInstruction ci);
 
   void setRollupColumnNum(Int16 v) { rollupColumnNum_ = v; }
   Int16 getRollupColumnNum() { return rollupColumnNum_; }
@@ -1095,7 +1095,7 @@ class ex_comp_clause : public ex_clause {
   // that the size of the object remains the same (and is modulo 8).
   // ---------------------------------------------------------------------
   char fillers_[24];  // 08-31
-  ex_expr::exp_return_type processResult(Int32 compare_code, Lng32 *result, CollHeap *heap, ComDiagsArea **diagsArea);
+  ex_expr::exp_return_type processResult(Int32 compare_code, int *result, CollHeap *heap, ComDiagsArea **diagsArea);
 
   const CompInstrStruct *getMatchingRow(OperatorTypeEnum op, short datatype1, short datatype2);
 
@@ -1533,14 +1533,14 @@ class ex_conv_clause : public ex_clause {
       return CONV_NOT_SUPPORTED;
   };
 
-  ConvInstruction findInstruction(short sourceType, Lng32 sourceLen, short targetType, Lng32 targetLen,
-                                  Lng32 scaleDifference);
+  ConvInstruction findInstruction(short sourceType, int sourceLen, short targetType, int targetLen,
+                                  int scaleDifference);
 
-  NABoolean isConversionSupported(short sourceType, Lng32 srcLen, short targetType, Lng32 tgtLen);
+  NABoolean isConversionSupported(short sourceType, int srcLen, short targetType, int tgtLen);
 
   static const ConvInstrStruct convInstrInfo[];
-  static const char *getInstructionStr(Lng32 index) { return convInstrInfo[index].instrStr; }
-  static const ConvInstruction getInstruction(Lng32 index) { return convInstrInfo[index].instruction; }
+  static const char *getInstructionStr(int index) { return convInstrInfo[index].instrStr; }
+  static const ConvInstruction getInstruction(int index) { return convInstrInfo[index].instruction; }
 
   static bool sv_instrOffsetIndexPopulated;
   static short sv_MaxOpTypeValue;
@@ -1548,7 +1548,7 @@ class ex_conv_clause : public ex_clause {
   static void populateInstrOffsetIndex();
   static int getInstrOffset(short pv_op1);
 
-  Lng32 findIndexIntoInstrArray(ConvInstruction ci);
+  int findIndexIntoInstrArray(ConvInstruction ci);
 
   NABoolean treatAllSpacesAsZero() { return ((flags_ & TREAT_ALL_SPACES_AS_ZERO) != 0); };
 
@@ -1711,8 +1711,8 @@ enum ConvDoItFlags {
 // REC_BYTE_V_ANSI to one of these three types: Does the conversion
 // involve charset conversions, check for partial characters, or check
 // for max. number of characters?
-inline int requiresNoConvOrVal(Lng32 sourceLen, Lng32 sourcePrecision, Lng32 sourceScale, Lng32 targetLen,
-                               Lng32 targetPrecision, Lng32 targetScale, ConvInstruction index) {
+inline int requiresNoConvOrVal(int sourceLen, int sourcePrecision, int sourceScale, int targetLen,
+                               int targetPrecision, int targetScale, ConvInstruction index) {
   return (
       // ISO chars are ok - treat UNKNOWN as ISO88591 if the other operand is ISO88591 or unknown
       ((sourceScale == SQLCHARSETCODE_ISO88591 || sourceScale == SQLCHARSETCODE_UNKNOWN) &&
@@ -1734,33 +1734,33 @@ inline int requiresNoConvOrVal(Lng32 sourceLen, Lng32 sourcePrecision, Lng32 sou
             index != CONV_ASCII_F_V))));
 }
 
-ex_expr::exp_return_type convDoIt(char *source, Lng32 sourceLen, short sourceType, Lng32 sourcePrecision,
-                                  Lng32 sourceScale, char *target, Lng32 targetLen, short targetType,
-                                  Lng32 targetPrecision, Lng32 scale,
+ex_expr::exp_return_type convDoIt(char *source, int sourceLen, short sourceType, int sourcePrecision,
+                                  int sourceScale, char *target, int targetLen, short targetType,
+                                  int targetPrecision, int scale,
                                   char *varCharLen,      // NULL if not a varChar
-                                  Lng32 varCharLenSize,  // 0 if not a varChar
+                                  int varCharLenSize,  // 0 if not a varChar
                                   CollHeap *heap = 0, ComDiagsArea **diagsArea = 0,
-                                  ConvInstruction index = CONV_UNKNOWN, Lng32 *dataConversionErrorFlag = 0,
+                                  ConvInstruction index = CONV_UNKNOWN, int *dataConversionErrorFlag = 0,
                                   ULng32 flags = 0);
 
 ex_expr::exp_return_type scaleDoIt(char *operand,           // ptr to operand
-                                   Lng32 operandLen,        // len of operand
-                                   Lng32 operandType,       // FS2 type of operand (current representation)
-                                   Lng32 operandCurrScale,  // scale of operand,
+                                   int operandLen,        // len of operand
+                                   int operandType,       // FS2 type of operand (current representation)
+                                   int operandCurrScale,  // scale of operand,
                                                             // could be charset if converted from char
-                                   Lng32 newScale,          // scale the operand should have
-                                   Lng32 typeOfOldScale,    // type of previous representation of operand,
+                                   int newScale,          // scale the operand should have
+                                   int typeOfOldScale,    // type of previous representation of operand,
                                                             // to determine what scale really means
                                    CollHeap *heap);
 
-ex_expr::exp_return_type convAsciiToInt64(Int64 &target, Lng32 targetScale, char *source, Lng32 sourceLen,
+ex_expr::exp_return_type convAsciiToInt64(long &target, int targetScale, char *source, int sourceLen,
                                           CollHeap *heap, ComDiagsArea **diagsArea, ULng32 flags);
 
-ex_expr::exp_return_type convAsciiToFloat64(char *target, char *source, Lng32 sourceLen, CollHeap *heap,
+ex_expr::exp_return_type convAsciiToFloat64(char *target, char *source, int sourceLen, CollHeap *heap,
                                             ComDiagsArea **diagsArea, ULng32 flags);
 
 // convert decimal returned from hive orc/parquet into traf numeric format
-ex_expr::exp_return_type convHiveDecimalToNumeric(char *sourceData, Lng32 srcLen, char *targetData, Attributes *attr,
+ex_expr::exp_return_type convHiveDecimalToNumeric(char *sourceData, int srcLen, char *targetData, Attributes *attr,
                                                   CollHeap *heap, ComDiagsArea **diagsArea);
 
 inline void swapBytes(void *ptr, UInt32 size) {
@@ -1772,7 +1772,7 @@ inline void swapBytes(void *ptr, UInt32 size) {
       *(UInt32 *)ptr = bswap_32(*(UInt32 *)ptr);
       break;
     case 8:
-      *(Int64 *)ptr = bswap_64(*(Int64 *)ptr);
+      *(long *)ptr = bswap_64(*(long *)ptr);
       break;
   }
 }
@@ -1935,7 +1935,7 @@ class ex_inout_clause : public ex_clause {
   // Fixup
   //
   Long pack(void *);
-  Lng32 unpack(void *, void *reallocator);
+  int unpack(void *, void *reallocator);
   ex_expr::exp_return_type pCodeGenerate(Space *space, UInt32 flags);
 
   // Display
@@ -2423,7 +2423,7 @@ class ExFunctionRangeOfValues : public ex_aggregate_clause {
   ex_expr::exp_return_type eval(char *op_data[], CollHeap *, ComDiagsArea ** = 0);
 
   Long pack(void *);
-  Lng32 unpack(void *, void *reallocator);
+  int unpack(void *, void *reallocator);
 
   virtual short getClassSize() { return (short)sizeof(*this); }
 
@@ -2433,7 +2433,7 @@ class ExFunctionRangeOfValues : public ex_aggregate_clause {
   NABoolean insertData(char *op_data[], CollHeap *hea);
   NABoolean lookupData(char *op_data[], CollHeap *hea);
 
-  void packRanges(char *target, char *vcLenPtr, Lng32 vcLenSize, NABoolean clearWhenDone = TRUE,
+  void packRanges(char *target, char *vcLenPtr, int vcLenSize, NABoolean clearWhenDone = TRUE,
                   ScanFilterStatsList *stats = NULL, ScanFilterStats::MergeSemantics = ScanFilterStats::COPY);
 
   // conditional pack for all ExFunctionRangeOfValues objects

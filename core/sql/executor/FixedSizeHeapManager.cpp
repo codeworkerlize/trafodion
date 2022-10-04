@@ -50,7 +50,7 @@
 // *****************************************************************************
 
 // Constructor.
-FixedSizeHeapManager::FixedSizeHeapManager(const size_t elementSize, const Lng32 numberOfElements)
+FixedSizeHeapManager::FixedSizeHeapManager(const size_t elementSize, const int numberOfElements)
     : adjustedElementSize_(elementSize),
       numberOfElements_(numberOfElements),
       freeListHeadPtr_(0),
@@ -106,10 +106,10 @@ ExeErrorCode FixedSizeHeapManager::acquireHeapMemory(CollHeap *defaultHeapPtr) {
 
   // elementsStillNeeded is the number of elements for which we still need memory.
   // Initially, we need memory for all elements.
-  Lng32 elementsStillNeeded = numberOfElements_;
+  int elementsStillNeeded = numberOfElements_;
 
   // The number of elements for the request.  Initially ask for all that is needed.
-  Lng32 elementsRequested = numberOfElements_;
+  int elementsRequested = numberOfElements_;
 
   // Size of the request in bytes.
   size_t requestSize = 0;
@@ -177,7 +177,7 @@ void FixedSizeHeapManager::releaseHeapMemory() {
 #ifdef NA_MDAM_EXECUTOR_DEBUG
   // Check that all element memory has been returned to the free list.
   if (heapMemoryAcquired()) {
-    Lng32 freeElementCount = 0;
+    int freeElementCount = 0;
     FixedSizeHeapElement *tempElementPtr = 0;
     for (tempElementPtr = freeListHeadPtr_; tempElementPtr != 0; tempElementPtr = tempElementPtr->getNextElementPtr()) {
       ++freeElementCount;
@@ -206,7 +206,7 @@ void FixedSizeHeapManager::releaseHeapMemory() {
 
 // Constructor.
 FixedSizeHeapManagerBlock::FixedSizeHeapManagerBlock(FixedSizeHeapManager &fixedSizeHeapManagerRef,
-                                                     const Lng32 numberOfElements, const size_t rawMemorySize)
+                                                     const int numberOfElements, const size_t rawMemorySize)
     : nextBlockPtr_(fixedSizeHeapManagerRef.firstBlockPtr_),
       rawMemorySize_(rawMemorySize),
       numberOfElements_(numberOfElements),

@@ -143,9 +143,9 @@ class Qms : public NABasicObject {
   /**
    * Get the redefinition timestamp of an MV.
    * @param mvName The name of the MV to find.
-   * @return The redefinition timestamp as an Int64 number, or NULL if the MV is not contained in QMS.
+   * @return The redefinition timestamp as an long number, or NULL if the MV is not contained in QMS.
    */
-  const Int64 *getMVTimestamp(const NAString &mvName);
+  const long *getMVTimestamp(const NAString &mvName);
 
   /**
    * Perform workload analysis.

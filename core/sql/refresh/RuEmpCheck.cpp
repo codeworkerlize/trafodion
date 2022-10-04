@@ -75,7 +75,7 @@ void CRUEmpCheck::LoadData(CUOFsIpcMessageTranslator &translator) {
 
   pVec_->LoadData(translator);
 
-  translator.ReadBlock(&checkMask_, sizeof(Lng32));
+  translator.ReadBlock(&checkMask_, sizeof(int));
 }
 
 //--------------------------------------------------------------------------//
@@ -86,7 +86,7 @@ void CRUEmpCheck::StoreData(CUOFsIpcMessageTranslator &translator) {
   pSQLContainer_->StoreData(translator);
   pVec_->StoreData(translator);
 
-  translator.WriteBlock(&checkMask_, sizeof(Lng32));
+  translator.WriteBlock(&checkMask_, sizeof(int));
 }
 
 //--------------------------------------------------------------------------//

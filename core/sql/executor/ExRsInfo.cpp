@@ -186,7 +186,7 @@ void ExRsInfo::populate(ULng32 index, const char *proxySyntax) {
   exrsinfo_assert(proxySyntax, "ExRsInfo::populate() - invalid proxy syntax pointer");
 
   // Copy the proxy syntax
-  Lng32 psLen = (Lng32)str_len(proxySyntax);
+  int psLen = (int)str_len(proxySyntax);
   char *ps = (char *)collHeap()->allocateMemory(psLen + 1);
   str_cpy_all(ps, proxySyntax, psLen);
   ps[psLen] = 0;
@@ -790,8 +790,8 @@ void ExRsInfo::sendTxMessage(ExExeStmtGlobals &stmtGlobals, TxMsgType t) {
 
   // Send Enter Tx with transaction. Exit Tx and Suspend Tx messages
   // do not carry transaction
-  Int64 &stmtTransId = stmtGlobals.getTransid();
-  Int64 transIdToSend = -1;  // -1 is an invalid transid
+  long &stmtTransId = stmtGlobals.getTransid();
+  long transIdToSend = -1;  // -1 is an invalid transid
   if (t == ENTER) transIdToSend = stmtTransId;
 
   NABoolean isTransactional = (transIdToSend == -1 ? FALSE : TRUE);
@@ -833,7 +833,7 @@ void ExRsInfo::sendTxMessage(ExExeStmtGlobals &stmtGlobals, TxMsgType t) {
   s->send(sendWaited, transIdToSend);
 
   ExRsDebug2("  %s sent on control stream %p", getTxMsgTypeString(t), s);
-  ExRsDebug1("  N UDR msgs outstanding for this statement: %d", (Lng32)stmtGlobals.numUdrMsgsOut());
+  ExRsDebug1("  N UDR msgs outstanding for this statement: %d", (int)stmtGlobals.numUdrMsgsOut());
 
   msg->decrRefCount();
   txState_ = nextState;

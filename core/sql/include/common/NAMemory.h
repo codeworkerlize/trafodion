@@ -53,7 +53,7 @@
 #include "common/NAStringDefGlobals.h"
 #include <stddef.h>
 
-#include "NAError.h"
+#include "sqlci/SqlciParseGlobals.h"
 #include "export/HeapID.h"
 
 #include "NAMutex.h"
@@ -97,7 +97,7 @@ class MemoryStats {
 
   void addEntry(size_t value);
 #if (defined(_DEBUG) || defined(NSK_MEMDEBUG))
-  void dump(ostream *outstream, const char *name, Lng32 indent);
+  void dump(ostream *outstream, const char *name, int indent);
 #endif
  private:
   size_t count_;            // number of entries
@@ -154,8 +154,8 @@ class NABlock {
   NAHeapFragment *alignAsFragment();
 
 #if (defined(_DEBUG) || defined(NSK_MEMDEBUG))
-  void dump(ostream *outstream, Lng32 debugLevel, MemoryStats &freeStats, MemoryStats &allocStats, NAHeapFragment *top,
-            Lng32 indent, bool dumpFragmentDetails = false);
+  void dump(ostream *outstream, int debugLevel, MemoryStats &freeStats, MemoryStats &allocStats, NAHeapFragment *top,
+            int indent, bool dumpFragmentDetails = false);
 #endif
 
   NABlock();
@@ -268,7 +268,7 @@ class NAMemory : public NABasicObject {
 
   void setType(NAMemoryType type, size_t blockSize = 0);
 
-  Lng32 getAllocatedSpaceSize();
+  int getAllocatedSpaceSize();
 
   // This method takes and returns the same arguments as an "operator new".
   // It is used to allocate arrays(!!) of the collected object(type T).
@@ -285,9 +285,9 @@ class NAMemory : public NABasicObject {
   void handleExhaustedMemory();
 
 #if (defined(_DEBUG) || defined(NSK_MEMDEBUG))
-  void dump(ostream *outstream, Lng32 indent);
+  void dump(ostream *outstream, int indent);
 #else
-  inline void dump(void *outstream, Lng32 indent) {}
+  inline void dump(void *outstream, int indent) {}
 #endif
 
   void incrementStats(size_t size);
@@ -399,9 +399,9 @@ class NAMemory : public NABasicObject {
 
   void deallocateMMapBlock(NABlock *blk);
 
-  Lng32 getVmSize();
-  void allocationIncrement(Lng32 size);
-  void allocationDecrement(Lng32 size);
+  int getVmSize();
+  void allocationIncrement(int size);
+  void allocationDecrement(int size);
 
  private:
   // these ctors make no sense at all -- should never be used
@@ -447,7 +447,7 @@ class NAMemory : public NABasicObject {
   NAMemory *lastListEntry_;  // last entry of this list
   NAMemory *nextEntry_;      // pointer if this memory is on a memoryList_
 
-  Lng32 debugLevel_;  // 0 - no debugging
+  int debugLevel_;  // 0 - no debugging
                       // 1 - re-initialize after alloc/de-alloc
                       // 2 - keep stack trace for each allocation
 
@@ -456,14 +456,14 @@ class NAMemory : public NABasicObject {
   NABoolean exhaustedMem_;       // Set to true if cannot satisfy memory request
   unsigned short errorsMask_;    // SEGMENT_ALLOCATE_ errors that have occurred
   HeapID heapID_;                // For tracking leaks.  (eric)
-  Int64 crowdedTotalSize_;       // Total size at which memory pressure seen
-  Int64 allocationDelta_;        // Change in memory size since last check of VmSize
+  long crowdedTotalSize_;       // Total size at which memory pressure seen
+  long allocationDelta_;        // Change in memory size since last check of VmSize
   FILE *procStatusFile_;         // FILE pointer for "reading" process status
-  Lng32 executorVmReserveSize_;  // Size in MB of VM safety net
+  int executorVmReserveSize_;  // Size in MB of VM safety net
   Int32 mmapErrno_;
   Int32 munmapErrno_;
-  Lng32 lastVmSize_;
-  Lng32 maxVmSize_;
+  int lastVmSize_;
+  int maxVmSize_;
   DerivedClass derivedClass_;  // The derived class (removes virtual functions)
   off_t heapStartOffset_;
   void *heapStartAddr_;
@@ -491,7 +491,7 @@ class NAMemory : public NABasicObject {
   NABoolean allocFailed() { return allocFailed_; }
 
  protected:
-  Lng32 nullNAStringRep_[(sizeof(NAStringRef) + 1) / sizeof(Lng32) + 1 + 4];  // +4 for good luck :-)
+  int nullNAStringRep_[(sizeof(NAStringRef) + 1) / sizeof(int) + 1 + 4];  // +4 for good luck :-)
 
   // The following two flags concern the behavior of the heap sharing.
   //
@@ -537,7 +537,7 @@ class NAMemory : public NABasicObject {
   // will see NABasicObject as an object without virtual functions.
   // Add this filler for the non-priv code so NAMemory will have
   // the same length for both PRIV and non-PRIV code.
-  Lng32 fillerForVtblPtr_;
+  int fillerForVtblPtr_;
 };
 
 #ifdef _DEBUG
@@ -593,7 +593,7 @@ class NAHeap : public NAMemory {
   void setErrorCallback(void (*errCallback)(NAHeap *, size_t));
 
 #if (defined(_DEBUG) || defined(NSK_MEMDEBUG))
-  void dumpHeapInfo(ostream *outstream, Lng32 indent, bool doCheck = true, bool dumpFragmentDetail = false);
+  void dumpHeapInfo(ostream *outstream, int indent, bool doCheck = true, bool dumpFragmentDetail = false);
 #endif
 
   // setThreadSafe must be called by the thread that creates the heap
@@ -922,7 +922,7 @@ class NAHeapFragment {
   NAHeapFragment *getNext();
   NAHeapFragment *getPrev();
   size_t getPrevFoot();
-  void adjustBlockSize(Lng32 s);
+  void adjustBlockSize(int s);
   NAHeapFragment *fragmentPlusOffset(size_t s);
   NAHeapFragment *fragmentMinusOffset(size_t s);
   NAHeapFragment *nextFragment();
@@ -1080,7 +1080,7 @@ class DefaultIpcHeap : public CollHeap {
   void destroy();
   // bogus fn needed simply because of inheritance
 #if (defined(_DEBUG) || defined(NSK_MEMDEBUG))
-  void dumpIpcHeapInfo(ostream *outstream, Lng32 indent);
+  void dumpIpcHeapInfo(ostream *outstream, int indent);
 #endif
 };
 

@@ -153,12 +153,12 @@ using namespace std;
 #include "common/OperTypeEnum.h"
 #include "optimizer/OptHints.h"
 #include "sqlcomp/parser.h"
-#include "ParserMsg.h"
+#include "sqlmsg/ParserMsg.h"
 #include "RelDCL.h"
 #include "RelPackedRows.h"
 #include "RelSample.h"
 #include "RelSequence.h"
-#include "SqlciError.h"
+#include "sqlci/SqlciError.h"
 #include "cli/sqlcli.h"
 #include "SqlParserAux.h"
 #include "parser/StmtCompilationMode.h"
@@ -1853,8 +1853,8 @@ static void setPartionInfo(RelExpr *re)
   IntervalQualifier             *intervalQualifier;
   ItemExpr             		*item;
   ItemExprList        		*itemList;
-  Lng32              	     	longint;
-  Int64                         int64;
+  int              	     	longint;
+  long                         int64;
   LockMode                      lockmode;
   ForUpdateSpec			*forUpdateSpec;
   NABoolean         	     	boolean;
@@ -3474,7 +3474,7 @@ character_literal_sbyte : sbyte_string_literal character_literal_notcasespecific
                      else // $1->length() != 0
                      {
                        // Convert to UCS2 because the existing code handles UCS2 string literals reliably.
-                       wstr = charToUnicode ( (Lng32)cs     // char set of src str
+                       wstr = charToUnicode ( (int)cs     // char set of src str
                                             , $1->data()    // src str
                                             , $1->length()  // src str len in bytes
                                             , PARSERHEAP()  // heap for allocated target str
@@ -3493,10 +3493,10 @@ character_literal_sbyte : sbyte_string_literal character_literal_notcasespecific
                        else // cs == CharInfo::UTF8
                        {
                          // Convert to DEFAULT_CHARSET if possible to preserve the old behavior.
-                         NAString * newstr = charToChar ( (Lng32)SqlParser_DEFAULT_CHARSET // targetCS
+                         NAString * newstr = charToChar ( (int)SqlParser_DEFAULT_CHARSET // targetCS
                                                         , $1->data()              // const char *s
                                                         , $1->length()            // Int32 sLenInBytes
-                                                        , (Lng32)getStringCharSet(&$1)     // sourceCS
+                                                        , (int)getStringCharSet(&$1)     // sourceCS
                                                         , PARSERHEAP() // heap for allocated target str
                                                         );
                          if (newstr == NULL) // conversion failed
@@ -3525,16 +3525,16 @@ character_literal_sbyte : sbyte_string_literal character_literal_notcasespecific
                      else // cs == CharInfo::UTF8
                      {
                        // Convert to UTF8 because the existing code handles UTF8 string literals reliably.
-                       NAString * wstr3 = charToChar ((Lng32)cs     // char set of src str
+                       NAString * wstr3 = charToChar ((int)cs     // char set of src str
                                                          , $1->data()    // src str
                                                          , $1->length()  // src str len in bytes
-                                                         , (Lng32)getStringCharSet(&$1)     // sourceCS
+                                                         , (int)getStringCharSet(&$1)     // sourceCS
                                                          , PARSERHEAP()  // heap for allocated target str
                                                          );
                        if (wstr3 != NULL) // str converted to UCS2/UTF16 successfully
                        {
                          // Convert to DEFAULT_CHARSET if possible to preserve the old behavior.
-                         NAString * cstr3 = charToChar ( (Lng32)SqlParser_DEFAULT_CHARSET // targetCS
+                         NAString * cstr3 = charToChar ( (int)SqlParser_DEFAULT_CHARSET // targetCS
                                                           , wstr3->data()
                                                           , wstr3->length() // in NAWchars
                                                           , cs
@@ -3816,7 +3816,7 @@ character_string_literal: sbyte_string_literal
     {
       // Convert text from getStringCharSet(&$1) to UTF8 to keep the same semantic as
       // that of the non-terminal symbol std_char_string_literal.
-      NAString * utf8str = charToChar ( (Lng32) CharInfo::UTF8 // targetCS
+      NAString * utf8str = charToChar ( (int) CharInfo::UTF8 // targetCS
                                       , $1->data()             // source string
                                       , $1->length()           // src str len in bytes
                                       , getStringCharSet(&$1)  // sourceCS
@@ -3897,10 +3897,10 @@ sbyte_string_literal : TOK_SBYTE_LITERAL
                 }
                 else if (getStringCharSet(&$1) != getStringCharSet(&$2))
                 {
-                   NAString * newcstr = charToChar ( (Lng32)getStringCharSet(&$1) // targetCS
+                   NAString * newcstr = charToChar ( (int)getStringCharSet(&$1) // targetCS
                                                    , $2->data()              // const char *s
                                                    , $2->length()            // Int32 sLenInBytes
-                                                   , (Lng32)getStringCharSet(&$2) // sourceCS
+                                                   , (int)getStringCharSet(&$2) // sourceCS
                                                    , PARSERHEAP()            // heap for allocated target str
                                                    );
                    if (newcstr != NULL) // str converted successfully
@@ -3949,10 +3949,10 @@ sbyte_string_literal : TOK_SBYTE_LITERAL
                 }
                 else if (getStringCharSet(&$1) != getStringCharSet(&$2))
                 {
-                  NAString * newstr = charToChar ( (Lng32)getStringCharSet(&$2) // targetCS
+                  NAString * newstr = charToChar ( (int)getStringCharSet(&$2) // targetCS
                                                  , $1->data()              // const char *s
                                                  , $1->length()            // Int32 sLenInBytes
-                                                 , (Lng32)getStringCharSet(&$1) // sourceCS
+                                                 , (int)getStringCharSet(&$1) // sourceCS
                                                  , PARSERHEAP()            // heap for allocated target str
                                                  );
                   if (newstr != NULL) // str converted successfully
@@ -4037,7 +4037,7 @@ unicode_string_literal : TOK_MBYTE_LITERAL
                 }
                 else
                 {
-                  newwstr = charToUnicode ( (Lng32)getStringCharSet(&$1)     // char set of src str
+                  newwstr = charToUnicode ( (int)getStringCharSet(&$1)     // char set of src str
                                           , $1->data()             // src str
                                           , $1->length()           // src str len in bytes
                                           , PARSERHEAP()           // heap for allocated target str
@@ -4085,7 +4085,7 @@ unicode_string_literal : TOK_MBYTE_LITERAL
                 }
                 else
                 {
-                  newwstr = charToUnicode ( (Lng32)getStringCharSet(&$2)     // char set of src str
+                  newwstr = charToUnicode ( (int)getStringCharSet(&$2)     // char set of src str
                                           , $2->data()             // src str
                                           , $2->length()           // src str len in bytes
                                           , PARSERHEAP()           // heap for allocated target str
@@ -5152,7 +5152,7 @@ module_timestamp : TOK_TIMESTAMP TOK_DEFINITION left_largeint_right
            NABoolean junkme = FALSE;
            ConstValue *theValue = $3->castToConstValue(junkme);
            $$ = new (PARSERHEAP()) StmtTimeStamp( 
-                   * (Int64 *) (theValue->getConstValue()) );
+                   * (long *) (theValue->getConstValue()) );
         }
 
 
@@ -5784,7 +5784,7 @@ optional_special_utility_open_clause : empty
                | TOK_OPEN NUMERIC_LITERAL_EXACT_NO_SCALE
                  {
                    // assuming here SQL/MX Utility will 
-		   // always pass a valid Int64 value (correct
+		   // always pass a valid long value (correct
                    // number of digits)
 		   $$ = atoInt64($2->data()); 
 		   delete $2;
@@ -6282,7 +6282,7 @@ qualified_name : identifier
                 | qualified_name '[' NUMERIC_LITERAL_EXACT_NO_SCALE ']'
                 {
                   // composite array index
-                  Int64 value = atoInt64($3->data()); 
+                  long value = atoInt64($3->data()); 
 
                   NABoolean useHiveIndexing = 
                     (CmpCommon::getDefault(HIVE_ARRAY_INDEX_MODE) == DF_ON);
@@ -7117,7 +7117,7 @@ hbase_access_options : empty
 
 num_versions : TOK_HBASE TOK_VERSIONS NUMERIC_LITERAL_EXACT_NO_SCALE
                {
-                 Int64 value = atoInt64($3->data()); 
+                 long value = atoInt64($3->data()); 
                  if (value <= 0)
                    YYERROR;
                  
@@ -7450,7 +7450,7 @@ table_reference : table_name_and_hint
 
               | rel_subquery
                  {
-                   //Int64 sqAddr = (Int64)$1;
+                   //long sqAddr = (long)$1;
                    //char sqAddrStr[100];
                    //str_itoa(sqAddr, sqAddrStr);
 
@@ -8363,11 +8363,11 @@ concat_option : TOK_ORDER TOK_BY sort_spec_list
                       }
                    | TOK_MAX TOK_LENGTH NUMERIC_LITERAL_EXACT_NO_SCALE
                       {
-                        Int64 value = atoInt64($3->data());
+                        long value = atoInt64($3->data());
 
                         PivotGroup::PivotOption * po =
                           new (PARSERHEAP ()) PivotGroup::PivotOption
-                          (PivotGroup::MAX_LENGTH_, NULL, (Lng32)value);
+                          (PivotGroup::MAX_LENGTH_, NULL, (int)value);
 
                         $$ = po;
                       }
@@ -8391,11 +8391,11 @@ pivot_option : TOK_DELIMITER QUOTED_STRING
 		      }
                    | TOK_MAX TOK_LENGTH NUMERIC_LITERAL_EXACT_NO_SCALE
                       {
-                        Int64 value = atoInt64($3->data());
+                        long value = atoInt64($3->data());
   
 			PivotGroup::PivotOption * po = 
 			  new (PARSERHEAP ()) PivotGroup::PivotOption
-			  (PivotGroup::MAX_LENGTH_, NULL, (Lng32)value);
+			  (PivotGroup::MAX_LENGTH_, NULL, (int)value);
 			
 			$$ = po;
 		      }
@@ -10262,7 +10262,7 @@ string_function :
 
      | TOK_REPEAT '(' value_expression ',' value_expression ',' NUMERIC_LITERAL_EXACT_NO_SCALE ')'
                   {
-                    Int64 value = atoInt64($7->data()); 
+                    long value = atoInt64($7->data()); 
                     if (value == 0)
                       value = -1; 
 		    $$ = new (PARSERHEAP()) Repeat 
@@ -10727,7 +10727,7 @@ start_with_option : TOK_START_WITH sg_sign NUMERIC_LITERAL_EXACT_NO_SCALE
       if (result == FALSE)
         YYERROR;
 
-      Int64 value = atoInt64($3->data()); 
+      long value = atoInt64($3->data()); 
      if (NOT $2)
         value = -value;
        
@@ -10752,7 +10752,7 @@ restart_with_option : TOK_RESTART TOK_WITH sg_sign NUMERIC_LITERAL_EXACT_NO_SCAL
       if (result == FALSE)
         YYERROR;
 
-      Int64 value = atoInt64($4->data()); 
+      long value = atoInt64($4->data()); 
      if (NOT $3)
         value = -value;
        
@@ -10776,11 +10776,11 @@ max_value_option : TOK_MAXVALUE sg_sign NUMERIC_LITERAL_EXACT_NO_SCALE
       if (result == FALSE)
         YYERROR;
 
-      Int64 value = atoInt64($3->data()); 
+      long value = atoInt64($3->data()); 
       if (NOT $2)
         value = -value;
       $$ = new (PARSERHEAP())
-	ElemDDLSGOptionMaxValue(value /*Int64*/); 
+	ElemDDLSGOptionMaxValue(value /*long*/); 
     }
     
     | TOK_NO TOK_MAXVALUE               
@@ -10807,11 +10807,11 @@ max_value_option : TOK_MAXVALUE sg_sign NUMERIC_LITERAL_EXACT_NO_SCALE
       if (result == FALSE)
         YYERROR;
 
-      Int64 value = atoInt64($3->data()); 
+      long value = atoInt64($3->data()); 
       if (NOT $2)
         value = -value;
       $$ = new (PARSERHEAP())
-	ElemDDLSGOptionMinValue(value /*Int64*/); 
+	ElemDDLSGOptionMinValue(value /*long*/); 
      }
                                                                       
     | TOK_NO TOK_MINVALUE               
@@ -10838,12 +10838,12 @@ max_value_option : TOK_MAXVALUE sg_sign NUMERIC_LITERAL_EXACT_NO_SCALE
       if (result == FALSE)
         YYERROR;
 
-      Int64 value = atoInt64($4->data()); 
+      long value = atoInt64($4->data()); 
       if (NOT $3)
 	value = -value;
 
       $$ = new (PARSERHEAP())
-	ElemDDLSGOptionIncrement(value /*Int64*/); 
+	ElemDDLSGOptionIncrement(value /*long*/); 
      }
     | TOK_INCREMENT TOK_BY non_supported_numeric_literal_for_seq
     {
@@ -10885,7 +10885,7 @@ cache_option : TOK_CACHE sg_sign NUMERIC_LITERAL_EXACT_NO_SCALE
        if (result == FALSE)
          YYERROR;
 
-       Int64 value = atoInt64($3->data()); 
+       long value = atoInt64($3->data()); 
        if (NOT $2)
 	     value = -value;
 
@@ -10949,8 +10949,8 @@ optional_timeout_spec : empty
                                 }
                       | TOK_TIMEOUT NUMERIC_LITERAL_EXACT_NO_SCALE
                       {
-                        Int64 timeout_value = atoInt64($2->data());
-                        Int64 mininum_timeout = 100;
+                        long timeout_value = atoInt64($2->data());
+                        long mininum_timeout = 100;
                         if (timeout_value < mininum_timeout)
                           timeout_value = mininum_timeout;
                         /* overload Increment field with timeout value */
@@ -10980,7 +10980,7 @@ set_next_value_option : TOK_SET identifier {
                  NABoolean result = validateSGOption(TRUE, FALSE, (char *)$4->data(), "NEXTVAL", "SEQUENCE");
                  if (result == FALSE)
                    YYERROR;
-                 Int64 nextVal = atoInt64($4->data());
+                 long nextVal = atoInt64($4->data());
 
                  $$ = new (PARSERHEAP())
                       ElemDDLSGOptionNextValOption(nextVal); 
@@ -11727,7 +11727,7 @@ misc_function :
 			      }
         | TOK_COLUMN_DISPLAY '(' dml_column_reference ',' NUMERIC_LITERAL_EXACT_NO_SCALE ')'
 	                      {
-				Int64 longIntVal = atoInt64($5->data());
+				long longIntVal = atoInt64($5->data());
 
 				  $$ = new (PARSERHEAP()) 
 				    HbaseColumnsDisplay($3, NULL, longIntVal);
@@ -11739,7 +11739,7 @@ misc_function :
 			      }
         | TOK_COLUMN_DISPLAY '(' dml_column_reference ',' '(' quoted_string_list ')'  ',' NUMERIC_LITERAL_EXACT_NO_SCALE ')'
 	                      {
-				Int64 longIntVal = atoInt64($9->data());
+				long longIntVal = atoInt64($9->data());
 
 				  $$ = new (PARSERHEAP()) 
 				    HbaseColumnsDisplay($3, $6, longIntVal);
@@ -11876,7 +11876,7 @@ misc_function :
 
        | TOK_COMPOSITE_EXTRACT '(' value_expression ',' NUMERIC_LITERAL_EXACT_NO_SCALE ')'
          {
-           Int64 elemNum = atol($5->data());
+           long elemNum = atol($5->data());
            $$ = new (PARSERHEAP()) CompositeExtract($3, elemNum);
          }
        | TOK_ARRAY_LENGTH '(' value_expression ')'
@@ -12429,7 +12429,7 @@ cast_specification : TOK_CAST '(' value_expression  TOK_AS  Set_Cast_Global_Fals
                                 }
                    | TOK_CAST '(' value_expression TOK_AS TOK_ARRAY '[' NUMERIC_LITERAL_EXACT_NO_SCALE ']'  ')'
                                 {
-                                  Int64 size = atol($7->data());
+                                  long size = atol($7->data());
                                   if (size <= 0)
                                     {
                                       *SqlParser_Diags << DgSqlCode(-3003);
@@ -12492,7 +12492,7 @@ data_type : predef_type
 
 composite_type : predef_type TOK_ARRAY '[' NUMERIC_LITERAL_EXACT_NO_SCALE ']'
             {
-              Int64 size = atol($4->data());
+              long size = atol($4->data());
                 if (size <= 0)
                 {
                   *SqlParser_Diags << DgSqlCode(-3003);
@@ -12789,7 +12789,7 @@ non_int_type : numeric_type_token left_uint_uint_right signed_option
          | numeric_type_token signed_option
 	     {
 	       // Default (precision,scale) for NUMERIC is (18,0)
-               Lng32 prec = 18;
+               int prec = 18;
 
 	       const Int16 DisAmbiguate = 0; // added for 64bit project
 	       $$ = new (PARSERHEAP()) SQLNumeric(PARSERHEAP(), $2, prec, 0, DisAmbiguate);
@@ -12897,7 +12897,7 @@ float_type : TOK_FLOAT
                    if ($2 > (ULng32)CmpCommon::getDefaultNumeric(MAX_NUMERIC_PRECISION_ALLOWED))
                      {
                        *SqlParser_Diags << DgSqlCode(-3014) << DgInt0($2)
-                                        << DgInt1((Lng32)CmpCommon::getDefaultNumeric(MAX_NUMERIC_PRECISION_ALLOWED));
+                                        << DgInt1((int)CmpCommon::getDefaultNumeric(MAX_NUMERIC_PRECISION_ALLOWED));
                      }
                  }
              }
@@ -13526,13 +13526,13 @@ string_type : tok_char_or_character_or_byte new_optional_left_charlen_right char
        }
      | TOK_LONGWVARCHAR left_unsigned_right collation_option upshift_flag notcasespecific_option
        {
-         Lng32 maxSize = getDefaultMaxLengthForLongVarChar(CharInfo::UNICODE);
+         int maxSize = getDefaultMaxLengthForLongVarChar(CharInfo::UNICODE);
 
          if ($2 > maxSize) {
            *SqlParser_Diags << DgSqlCode(-3209) << DgInt0(maxSize);
            YYABORT;
          }
-         Lng32 minSize = getDefaultMinLengthForLongVarChar(CharInfo::UNICODE);
+         int minSize = getDefaultMinLengthForLongVarChar(CharInfo::UNICODE);
 
          if ($2 < minSize) {
            *SqlParser_Diags << DgSqlCode(-3210) << DgInt0(minSize);
@@ -13603,12 +13603,12 @@ string_type : tok_char_or_character_or_byte new_optional_left_charlen_right char
        }
      | TOK_LONG TOK_VARBINARY left_unsigned_right
        {
-         Lng32 maxSize = getDefaultMaxLengthForLongVarChar(CharInfo::ISO88591);
+         int maxSize = getDefaultMaxLengthForLongVarChar(CharInfo::ISO88591);
          if ($3 > maxSize) {
            *SqlParser_Diags << DgSqlCode(-3211) << DgInt0(maxSize);
            YYABORT;
          }
-         Lng32 minSize = getDefaultMinLengthForLongVarChar(CharInfo::ISO88591);
+         int minSize = getDefaultMinLengthForLongVarChar(CharInfo::ISO88591);
          if ($3 < minSize) {
            *SqlParser_Diags << DgSqlCode(-3212) << DgInt0(minSize);
            YYABORT;
@@ -13655,7 +13655,7 @@ blob_type : TOK_BLOB blob_optional_left_len_right
 blob_optional_left_len_right: '(' NUMERIC_LITERAL_EXACT_NO_SCALE optional_lob_unit optional_lob_bytes')'
         {
 	 
-	  Int64 longIntVal = atoInt64($2->data());
+	  long longIntVal = atoInt64($2->data());
 	  if (longIntVal < 0)
 	  {
 	    // Error: Expected an unsigned integer
@@ -13665,7 +13665,7 @@ blob_optional_left_len_right: '(' NUMERIC_LITERAL_EXACT_NO_SCALE optional_lob_un
 	  
 	  longIntVal = longIntVal * $3;
 
-	  $$ = (Int64)longIntVal;
+	  $$ = (long)longIntVal;
 	  delete $2;
 	 
 	}
@@ -13682,7 +13682,7 @@ optional_lob_bytes : TOK_BYTES | empty
 
 clob_optional_left_len_right: '(' NUMERIC_LITERAL_EXACT_NO_SCALE optional_lob_unit optional_lob_bytes')' 
         {
-	  Int64 longIntVal = atoInt64($2->data());
+	  long longIntVal = atoInt64($2->data());
 	  if (longIntVal < 0)
 	  {
 	    // Error: Expected an unsigned integer
@@ -13691,7 +13691,7 @@ clob_optional_left_len_right: '(' NUMERIC_LITERAL_EXACT_NO_SCALE optional_lob_un
 	  }
 	  longIntVal = longIntVal * $3;
 
-	  $$ = (Int64)longIntVal;
+	  $$ = (long)longIntVal;
 	  delete $2;
 	}
 
@@ -13826,7 +13826,7 @@ pic_notcasespecific_option : empty
 /* type int */
 signed_integer : sign NUMERIC_LITERAL_EXACT_NO_SCALE
     {
-      Lng32 longIntVal = atol(*$2);
+      int longIntVal = atol(*$2);
       delete $2;
       if($1=='-')
         longIntVal = -longIntVal;
@@ -13840,7 +13840,7 @@ signed_integer : sign NUMERIC_LITERAL_EXACT_NO_SCALE
 /* type uint */
 unsigned_integer : NUMERIC_LITERAL_EXACT_NO_SCALE
     {
-      Lng32 longIntVal = atol(*$1);
+      int longIntVal = atol(*$1);
       if (longIntVal < 0)
       {
         // Error: Expected an unsigned integer
@@ -13854,7 +13854,7 @@ unsigned_integer : NUMERIC_LITERAL_EXACT_NO_SCALE
 /* type usmallint */
 unsigned_smallint : NUMERIC_LITERAL_EXACT_NO_SCALE
     {
-      Lng32 longIntVal = atol(*$1);
+      int longIntVal = atol(*$1);
       if (longIntVal < 0 AND longIntVal > USHRT_MAX)
       {
 	// *** Error *** Expected an unsigned smallint
@@ -13865,7 +13865,7 @@ unsigned_smallint : NUMERIC_LITERAL_EXACT_NO_SCALE
       $$ = (UInt16)longIntVal;
     }
 
-/* type Int64 */
+/* type long */
 left_largeint_right : '(' NUMERIC_LITERAL_EXACT_NO_SCALE ')'
     {
       NAString *theValue = new (PARSERHEAP()) NAString($2->data(), PARSERHEAP());
@@ -13880,7 +13880,7 @@ left_largeint_right : '(' NUMERIC_LITERAL_EXACT_NO_SCALE ')'
 /* type uint */
 ts_left_unsigned_right : '(' NUMERIC_LITERAL_EXACT_NO_SCALE ')'
     {
-      Lng32  theValue = atol($2->data());
+      int  theValue = atol($2->data());
       if (theValue < 0)
       { // time_precision can be 0
         // Parse Error: Expected an unsigned number
@@ -13945,9 +13945,9 @@ left_unsigned_right : left_unsigned ')'
 left_unsigned: '(' NUMERIC_LITERAL_EXACT_NO_SCALE 
     {
       const char *numStr = $2->data();
-      Lng32 strLen = (Lng32)($2->length());
-      Lng32  theValue;
-      Lng32 convErrFlag = ex_conv_clause::CONV_RESULT_OK;      
+      int strLen = (int)($2->length());
+      int  theValue;
+      int convErrFlag = ex_conv_clause::CONV_RESULT_OK;      
 
       /* for char(n), we limit the value of n to be no more than
          2^31-1, so convert it to 32bit signed first, then check 
@@ -14021,7 +14021,7 @@ left_unsigned: '(' NUMERIC_LITERAL_EXACT_NO_SCALE
 left_uint_uint_right: '(' NUMERIC_LITERAL_EXACT_NO_SCALE ',' NUMERIC_LITERAL_EXACT_NO_SCALE ')'
     {
       UInt32  theLeftValue,theRightValue;
-      Lng32  theValue = atol($2->data());
+      int  theValue = atol($2->data());
       if (theValue < 0)
       {
         // Parse Error: Expected an unsigned number 
@@ -15721,7 +15721,7 @@ query_specification : select_token '[' firstn_sorted NUMERIC_LITERAL_EXACT_NO_SC
 	  assert($$->getOperatorType() == REL_ROOT);
 	  
 	  RelRoot * rootNode = (RelRoot *)$$;
-	  Int64 numRows = atoInt64($4->data());
+	  long numRows = atoInt64($4->data());
 	  if (($3 == TOK_LAST) && 
 	      ((numRows < 0) || (numRows > 1)))
 	    {
@@ -17130,7 +17130,7 @@ dml_query : query_expression order_by_clause access_type
                           if ($6->castToConstValue(negate))
                             {
                               ConstValue * limit = (ConstValue*)$6;
-                              Lng32 scale = 0;
+                              int scale = 0;
                               rr->setFirstNRows(limit->getExactNumericValue(scale));
                               rr->setFirstNRowsParam(NULL);
                             }
@@ -17188,7 +17188,7 @@ dml_query : query_expression order_by_clause access_type
 
                 // save FIRST N settings 
                 NABoolean needFirstSortedRows = ((RelRoot *)$$)->needFirstSortedRows();
-                Int64 firstNRows = ((RelRoot *)$$)->getFirstNRows();
+                long firstNRows = ((RelRoot *)$$)->getFirstNRows();
                 
                 $$ = finalize(gbyPtr);
                 
@@ -17218,7 +17218,7 @@ dml_query : query_expression order_by_clause access_type
 
 optional_limit_spec : TOK_LIMIT NUMERIC_LITERAL_EXACT_NO_SCALE
                    {
-		     Int64 rows = atoInt64($2->data());
+		     long rows = atoInt64($2->data());
 
                      ConstValue * limit = new(PARSERHEAP()) ConstValue(rows);
 
@@ -20062,7 +20062,7 @@ backup_restore_option :
         }
     | TOK_CREATE NUMERIC_LITERAL_EXACT_NO_SCALE TOK_SYSTEM TOK_TAGS
         {
-          Lng32 longIntVal = atol(*$2);
+          int longIntVal = atol(*$2);
           if (longIntVal < 0)
             {
               // Error: Expected an unsigned integer
@@ -20393,15 +20393,15 @@ gen_load_querycache:
                     ConstValue *cv = $6->castToConstValue(negate);
                     if(negate)
                         YYERROR;
-                    Lng32 value = -1;
+                    int value = -1;
                     if (cv AND cv->canGetExactNumericValue())
                     {
-                        Lng32 scale;
-                        Int64 value64 = cv->getExactNumericValue(scale);
+                        int scale;
+                        long value64 = cv->getExactNumericValue(scale);
                         if(scale!=0)
                             YYERROR;
                         if(value64 >= 0 && value64 < INT_MAX) 
-                            value = (Lng32)value64;
+                            value = (int)value64;
                         else YYERROR;
                     }
                     else
@@ -21341,9 +21341,9 @@ maintain_object_option : TOK_ALL
 			    UInt32 fractionPrec2;
 			    DatetimeValue * from = NULL;
 			    DatetimeValue * to = NULL;
-			    Int64 * fromJTS = NULL;
-			    Int64 * toJTS = NULL;
-			    Int64 forVal = $4;
+			    long * fromJTS = NULL;
+			    long * toJTS = NULL;
+			    long forVal = $4;
 
 			    if (fromStr)
 			      {
@@ -21366,14 +21366,14 @@ maintain_object_option : TOK_ALL
 
 			    if (from)
 			      {
-				fromJTS = (Int64 *)(new (PARSERHEAP()) char[sizeof(Int64)]);
+				fromJTS = (long *)(new (PARSERHEAP()) char[sizeof(long)]);
 				*fromJTS = DatetimeType::julianTimestampValue
 				  ((char*)from->getValue(), from->getValueLen(), fractionPrec1);
 				if (*fromJTS <= 0)
 				  YYERROR;
 			      }
 
-			    toJTS = (Int64 *)(new (PARSERHEAP()) char [sizeof(Int64)]);
+			    toJTS = (long *)(new (PARSERHEAP()) char [sizeof(long)]);
 			    if (to)
 			      {
 				*toJTS = DatetimeType::julianTimestampValue
@@ -21396,9 +21396,9 @@ maintain_object_option : TOK_ALL
 			      new (PARSERHEAP ()) 
 			      ExeUtilMaintainObject::MaintainObjectOption
 			      (ExeUtilMaintainObject::RUN_,
-			       (fromJTS ? sizeof(Int64) : 0),
+			       (fromJTS ? sizeof(long) : 0),
 			       (fromJTS ? (char*)fromJTS : NULL),
-			       (toJTS ? sizeof(Int64) : 0),
+			       (toJTS ? sizeof(long) : 0),
 			       (toJTS ? (char*)toJTS : NULL));
 			    
 			    $$ = mto;
@@ -21745,7 +21745,7 @@ aqr_options_list : aqr_option
 
 aqr_option : TOK_SQLCODE '=' NUMERIC_LITERAL_EXACT_NO_SCALE
                       {
-                        Lng32 longIntVal = atol(*$3);
+                        int longIntVal = atol(*$3);
 			if (longIntVal < 0)
 			  {
 			    // Error: Expected an unsigned integer
@@ -21762,7 +21762,7 @@ aqr_option : TOK_SQLCODE '=' NUMERIC_LITERAL_EXACT_NO_SCALE
 		      }
              | TOK_NSK_CODE '=' NUMERIC_LITERAL_EXACT_NO_SCALE
                       {
-		 Lng32 longIntVal = atol(*$3);
+		 int longIntVal = atol(*$3);
 			if (longIntVal < 0)
 			  {
 			    // Error: Expected an unsigned integer
@@ -21779,7 +21779,7 @@ aqr_option : TOK_SQLCODE '=' NUMERIC_LITERAL_EXACT_NO_SCALE
 		      }
              | TOK_NUMBER TOK_OF TOK_RETRIES '=' NUMERIC_LITERAL_EXACT_NO_SCALE
                       {
-		 Lng32 longIntVal = atol(*$5);
+		 int longIntVal = atol(*$5);
 			if (longIntVal < 0)
 			  {
 			    // Error: Expected an unsigned integer
@@ -21796,7 +21796,7 @@ aqr_option : TOK_SQLCODE '=' NUMERIC_LITERAL_EXACT_NO_SCALE
 		      }
              | TOK_DELAY '=' NUMERIC_LITERAL_EXACT_NO_SCALE
                       {
-		 Lng32 longIntVal = atol(*$3);
+		 int longIntVal = atol(*$3);
 			if (longIntVal < 0)
 			  {
 			    // Error: Expected an unsigned integer
@@ -21813,7 +21813,7 @@ aqr_option : TOK_SQLCODE '=' NUMERIC_LITERAL_EXACT_NO_SCALE
 		      }
              | TOK_TYPE '=' NUMERIC_LITERAL_EXACT_NO_SCALE
                       {
-		 Lng32 longIntVal = atol(*$3);
+		 int longIntVal = atol(*$3);
 			if (longIntVal < 0)
 			  {
 			    // Error: Expected an unsigned integer
@@ -21911,7 +21911,7 @@ load_statement : load_token TOK_TRANSFORM load_sample_option TOK_INTO table_name
                           if ($7->castToConstValue(negate))
                             {
                               ConstValue * limit = (ConstValue*)$7;
-                              Lng32 scale = 0;
+                              int scale = 0;
                               query->setFirstNRows(limit->getExactNumericValue(scale));
                             }
                         }
@@ -21962,7 +21962,7 @@ load_statement : load_token TOK_TRANSFORM load_sample_option TOK_INTO table_name
                             if ($6->castToConstValue(negate))
                               {
                                 ConstValue * limit = (ConstValue*)$6;
-                                Lng32 scale = 0;
+                                int scale = 0;
                                 top->setFirstNRows(limit->getExactNumericValue(scale));
                                 top->setFirstNRowsParam(NULL);
                               }
@@ -22572,7 +22572,7 @@ rel_subquery : '(' query_expression order_by_clause optional_limit_spec ')'
                           if ($4->castToConstValue(negate))
                             {
                               ConstValue *limit = (ConstValue *)$4;
-                              Lng32 scale = 0;
+                              int scale = 0;
                               query->setFirstNRows(limit->getExactNumericValue(scale));
                             }
                           else
@@ -23253,7 +23253,7 @@ Rest_Of_insert_statement : no_check_log_rep_read no_rollback TOK_INTO table_name
                 if ($8->castToConstValue(negate))
                   {
                     ConstValue * limit = (ConstValue*)$8;
-                    Lng32 scale = 0;
+                    int scale = 0;
                     query->setFirstNRows(limit->getExactNumericValue(scale));
                   }
               }
@@ -23317,7 +23317,7 @@ Rest_Of_insert_statement : no_check_log_rep_read no_rollback TOK_INTO table_name
                 if ($9->castToConstValue(negate))
                   {
                     ConstValue * limit = (ConstValue*)$9;
-                    Lng32 scale = 0;
+                    int scale = 0;
                     query->setFirstNRows(limit->getExactNumericValue(scale));
                   }
               }
@@ -23381,7 +23381,7 @@ Rest_Of_insert_statement : no_check_log_rep_read no_rollback TOK_INTO table_name
                 if ($8->castToConstValue(negate))
                   {
                     ConstValue * limit = (ConstValue*)$8;
-                    Lng32 scale = 0;
+                    int scale = 0;
                     query->setFirstNRows(limit->getExactNumericValue(scale));
                   }
               }
@@ -23425,7 +23425,7 @@ Rest_Of_insert_statement : no_check_log_rep_read no_rollback TOK_INTO table_name
                 if ($11->castToConstValue(negate))
                   {
                     ConstValue * limit = (ConstValue*)$11;
-                    Lng32 scale = 0;
+                    int scale = 0;
                     query->setFirstNRows(limit->getExactNumericValue(scale));
                   }
               }
@@ -23560,7 +23560,7 @@ Rest_Of_insert_statement : no_check_log_rep_read no_rollback TOK_INTO table_name
                           if ($10->castToConstValue(negate))
                             {
                               ConstValue * limit = (ConstValue*)$10;
-                              Lng32 scale = 0;
+                              int scale = 0;
                               query->setFirstNRows(limit->getExactNumericValue(scale));
                             }
                         }
@@ -23617,7 +23617,7 @@ Rest_Of_insert_statement : no_check_log_rep_read no_rollback TOK_INTO table_name
                         if ($11->castToConstValue(negate))
                         {
                             ConstValue * limit = (ConstValue*)$11;
-                            Lng32 scale = 0;
+                            int scale = 0;
                             query->setFirstNRows(limit->getExactNumericValue(scale));
                         }
                     }
@@ -24280,7 +24280,7 @@ update_statement_searched_body : update_statement_target_table set_update_list w
                 | '[' firstn_sorted NUMERIC_LITERAL_EXACT_NO_SCALE ']' update_statement_target_table set_update_list
                        where_clause
                 {
-                  Int64 numRows = atoInt64($3->data());
+                  long numRows = atoInt64($3->data());
                   if ($2 == TOK_LAST)
                     {
                       yyerror("LAST option not supported with UPDATE statement. \n");
@@ -24301,7 +24301,7 @@ update_statement_searched_body : update_statement_target_table set_update_list w
                             where_clause
                 {
                   $5->getTableName().setCorrName(*$6); 
-                  Int64 numRows = atoInt64($3->data());
+                  long numRows = atoInt64($3->data());
                   if ($2 == TOK_LAST)
                     {
                       yyerror("LAST option not supported with UPDATE statement. \n");
@@ -24330,7 +24330,7 @@ update_statement_searched_body : update_statement_target_table set_update_list w
                       YYERROR; /*internal syntax for testing only!*/
                     }
                   
-		  Int64 numRows = atoInt64($6->data());
+		  long numRows = atoInt64($6->data());
                   if ($5 == TOK_LAST)
                     {
                       yyerror("LAST option not supported with UPDATE statement. \n");
@@ -24362,7 +24362,7 @@ update_statement_searched_body : update_statement_target_table set_update_list w
                   
                   $8->getTableName().setCorrName(*$9); 
 
-		  Int64 numRows = atoInt64($6->data());
+		  long numRows = atoInt64($6->data());
                   if ($5 == TOK_LAST)
                     {
                       yyerror("LAST option not supported with UPDATE statement. \n");
@@ -24852,7 +24852,7 @@ delete_statement : delete_token no_check_log_rep_read ignore_triggers '[' firstn
 				  Scan * inputScan =
                                     new (PARSERHEAP()) Scan(CorrName(*$9, PARSERHEAP()));
 
-				  Int64 numRows = atoInt64($6->data());
+				  long numRows = atoInt64($6->data());
 				  if ($5 == TOK_LAST)
 				    {
 				      yyerror("LAST option not supported with DELETE statement. \n");
@@ -24907,7 +24907,7 @@ delete_statement : delete_token no_check_log_rep_read ignore_triggers '[' firstn
                   Scan * inputScan =
                     new (PARSERHEAP()) Scan(CorrName(*$11, PARSERHEAP()));
 
-                  Int64 numRows = atoInt64($8->data());
+                  long numRows = atoInt64($8->data());
                   if ($7 == TOK_LAST)
                     {
                       yyerror("LAST option not supported with DELETE statement. \n");
@@ -26163,10 +26163,10 @@ query_shape_control : shape_identifier
                                   if (cv && nat->getTypeQualifier() == NA_CHARACTER_TYPE)
                                     {
                                       NAString * tempstr =
-                                        charToChar((Lng32)CharInfo::UTF8, // targetCS
+                                        charToChar((int)CharInfo::UTF8, // targetCS
                                                    (const char *) cv->getConstValue(),
                                                    cv->getStorageSize(), 
-                                                   (Lng32)((CharType *) nat)->getCharSet(), // sourceCS
+                                                   (int)((CharType *) nat)->getCharSet(), // sourceCS
                                                    PARSERHEAP());
                                       if (tempstr == NULL)
                                         {
@@ -26303,7 +26303,7 @@ query_shape_control : shape_identifier
 
 				  else if ((*$1 == "BLOCKS_PER_ACCESS"))
 				    {
-				      Lng32 blocksPerAccess;
+				      int blocksPerAccess;
 				      if (!cv)
 					{
 					  *SqlParser_Diags << DgSqlCode(-3113) <<
@@ -26317,7 +26317,7 @@ query_shape_control : shape_identifier
                                           else if (cv->getStorageSize() <= 2)
                                             blocksPerAccess = *((short *) cv->getConstValue());
                                           else if (cv->getStorageSize() <= 4)
-                                            blocksPerAccess = *((Lng32 *) cv->getConstValue());
+                                            blocksPerAccess = *((int *) cv->getConstValue());
                                           else
                                             {
                                               *SqlParser_Diags << DgSqlCode(-3113) <<
@@ -27720,7 +27720,7 @@ sort_or_group_key :   value_expression
                          ((cv = (ConstValue*)ie)->canGetExactNumericValue()) &&
                          (cv->getType()->getScale() == 0))
                        {
-                         Int64 val = cv->getExactNumericValue();
+                         long val = cv->getExactNumericValue();
                          ie = new (PARSERHEAP()) SelIndex(val);
                        }
                      else if (ie->getOperatorType() == ITM_REFERENCE)
@@ -29660,7 +29660,7 @@ udf_cost : TOK_SYSTEM
   }
          | unsigned_integer
   {
-    $$ = (Lng32)$1; // unsigned_integer
+    $$ = (int)$1; // unsigned_integer
   }
 
 /* type tokval */
@@ -29941,7 +29941,7 @@ table_definition : create_table_start_tokens
                          if ($12->castToConstValue(negate))
                            {
                              ConstValue * limit = (ConstValue*)$12;
-                             Lng32 scale = 0;
+                             int scale = 0;
                              top->setFirstNRows(limit->getExactNumericValue(scale));
                              top->setFirstNRowsParam(NULL);
                            }
@@ -30337,7 +30337,7 @@ column_definition : qualified_name data_type optional_column_attributes
                                                (((SQLDoublePrecision*)type)->fromFloat()))
                                         {
                                           SQLDoublePrecision* f = (SQLDoublePrecision*) type;
-                                          Lng32 numPrec = f->origPrecision();
+                                          int numPrec = f->origPrecision();
                                           if (numPrec == 0)
                                             numPrec = 18;
 
@@ -30360,7 +30360,7 @@ column_definition : qualified_name data_type optional_column_attributes
                                   if (strseq->errorChecks())
                                     YYERROR;
 
-                                  Lng32 numParts = strseq->numParts();
+                                  int numParts = strseq->numParts();
                                   if (CmpCommon::getDefault(TRAF_MULTI_COL_FAM) == DF_OFF)
                                     {
                                       if (numParts != 1)
@@ -30395,7 +30395,7 @@ column_definition : qualified_name
                                   NAString * colFam = NULL;
                                   NAString * colNam = NULL;
                                   ShortStringSequence *strseq = $1;
-                                  Lng32 numParts = strseq->numParts();
+                                  int numParts = strseq->numParts();
                                   if (CmpCommon::getDefault(TRAF_MULTI_COL_FAM) == DF_OFF)
                                     {
                                       if (numParts != 1)
@@ -30446,7 +30446,7 @@ column_definition_set_data_type : qualified_name optional_set_data_type set_in_c
                                                (((SQLDoublePrecision*)type)->fromFloat()))
                                         {
                                           SQLDoublePrecision* f = (SQLDoublePrecision*) type;
-                                          Lng32 numPrec = f->origPrecision();
+                                          int numPrec = f->origPrecision();
                                           if (numPrec == 0)
                                             numPrec = 18;
 
@@ -30466,7 +30466,7 @@ column_definition_set_data_type : qualified_name optional_set_data_type set_in_c
                                   NAString * colFam = NULL;
                                   NAString * colNam = NULL;
                                   ShortStringSequence *strseq = $1;
-                                  Lng32 numParts = strseq->numParts();
+                                  int numParts = strseq->numParts();
                                   if (CmpCommon::getDefault(TRAF_MULTI_COL_FAM) == DF_OFF)
                                     {
                                       if (numParts != 1)
@@ -31049,7 +31049,7 @@ heading_character_string_literal : character_string_literal
                                        pCString = unicodeToChar
                                        ( $1/*unicode_string_literal*/->data()   // const NAWchar *
                                        , $1/*unicode_string_literal*/->length() // in NAWchars
-                                       , (Lng32) ComGetNameInterfaceCharSet()   // CharInfo::UTF8
+                                       , (int) ComGetNameInterfaceCharSet()   // CharInfo::UTF8
                                        , PARSERHEAP()                           // heap for *pCString
                                        , FALSE                     // in - NABoolean allowInvalidChar
                                        );
@@ -31672,7 +31672,7 @@ optional_page : empty
               | TOK_PAGES
 
 /* longint */
-extent_page : unsigned_integer optional_page { $$ = (Lng32)$1; }
+extent_page : unsigned_integer optional_page { $$ = (int)$1; }
 
 /* longint */
 signed_extent_page : sign extent_page 
@@ -32345,7 +32345,7 @@ lob_storage_options_list : lob_storage_option
 lob_storage_option : identifier sg_sign NUMERIC_LITERAL_EXACT_NO_SCALE
                      {
 		       NAString key($1->data());
-		       Int64 val = atol($3->data());
+		       long val = atol($3->data());
                        if (!$2)
                          val = -val;
 
@@ -37571,7 +37571,7 @@ alter_table_alter_column_set_sg_option : TOK_ALTER TOK_COLUMN qualified_name TOK
 				{
                   NAString * colNam = NULL;
                   ShortStringSequence *strseq = $3;
-                  Lng32 numParts = strseq->numParts();
+                  int numParts = strseq->numParts();
                   if (CmpCommon::getDefault(TRAF_MULTI_COL_FAM) == DF_OFF)
                     {
                       if (numParts != 1)
@@ -38833,10 +38833,10 @@ component_str_lit : std_char_string_literal
                                   }
                                   else
                                   {
-                                    pCStr = charToChar ( (Lng32)CharInfo::ISO88591    // targetCS
+                                    pCStr = charToChar ( (int)CharInfo::ISO88591    // targetCS
                                                        , $1->data()                   // const char *s - std_char_string_literal
                                                        , $1->length()                 // Int32 sLenInBytes
-                                                       , (Lng32)getStringCharSet(&$1) // sourceCS
+                                                       , (int)getStringCharSet(&$1) // sourceCS
                                                        , PARSERHEAP()                 // heap for allocated target string
                                                        );
                                     if (pCStr == NULL) // conversion failed
@@ -40118,7 +40118,7 @@ merge_partition_into_optional : empty
                           // generate a random system partition name
                           NAString *sys_part_name = new (PARSERHEAP()) NAString("SYS_P");
                           char sqAddrStr[100];
-                          str_itoa((Int64)sys_part_name, sqAddrStr);
+                          str_itoa((long)sys_part_name, sqAddrStr);
                           *sys_part_name += sqAddrStr;
 
                           $$ = sys_part_name;

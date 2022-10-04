@@ -57,12 +57,12 @@ void testXML() {
   size_t len = fread(inbuf, 1, sizeof(inbuf), fp);
   if (len >= sizeof(inbuf)) output("Buffer overflow reading xml file");
 
-  NAHeap xmlParseHeap("XML Parse Heap", NAMemory::DERIVED_FROM_SYS_HEAP, (Lng32)32768);
+  NAHeap xmlParseHeap("XML Parse Heap", NAMemory::DERIVED_FROM_SYS_HEAP, (int)32768);
 
   try {
     QRElementMapper em;
     XMLDocument doc = XMLDocument(&xmlParseHeap, em);
-    XMLElementPtr descriptor = doc.parse(inbuf, (Lng32)len, 1);
+    XMLElementPtr descriptor = doc.parse(inbuf, (int)len, 1);
     if (!descriptor) {
       output("XMLDocument.parse() returned NULL");
     } else {

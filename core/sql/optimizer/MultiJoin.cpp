@@ -49,7 +49,7 @@ MultiJoin::MultiJoin(const JBBSubset &jbbSubset, CollHeap *oHeap)
   // Need to initialize the childrenMap
   // This will set all children to NULL
   CANodeIdSet jbbcs = jbbSubset_.getJBBCs();
-  Lng32 index = 0;
+  int index = 0;
 
   for (CANodeId x = jbbcs.init(); jbbcs.next(x); jbbcs.advance(x)) {
     JBBCExprGroupEntry *entry = new (oHeap) JBBCExprGroupEntry(x, (RelExpr *)NULL, oHeap);
@@ -69,7 +69,7 @@ NABoolean MultiJoin::isSymmetricMultiJoin() const {
 
 void MultiJoin::pushdownCoveredExpr(const ValueIdSet &outputExpr, const ValueIdSet &newExternalInputs,
                                     ValueIdSet &predicatesOnParent, const ValueIdSet *setOfValuesReqdByParent,
-                                    Lng32 childIndex) {
+                                    int childIndex) {
   CMPASSERT(0);
 }  // MultiJoin::pushdownCoveredExpr
 
@@ -80,7 +80,7 @@ void MultiJoin::getPotentialOutputValues(ValueIdSet &outputValues) const {
 
   Int32 arity = getArity();
 
-  for (Lng32 i = 0; i < arity; i++) {
+  for (int i = 0; i < arity; i++) {
     JBBC *jbbci = child(i)->getGroupAnalysis()->getNodeAnalysis()->getJBBC();
 
     if (jbbci->parentIsLeftJoin())
@@ -348,7 +348,7 @@ void MultiJoin::setChildren(const JBBCExprGroupMap &map) {
 
   CMPASSERT(map.getJBBCs().contains(jbbcs));
 
-  Lng32 index = 0;
+  int index = 0;
 
   for (CANodeId x = jbbcs.init(); jbbcs.next(x); jbbcs.advance(x)) {
     JBBCExprGroupEntry *entry = new (outHeap) JBBCExprGroupEntry(x, map.getExprGroupIdOfJBBC(x), outHeap);
@@ -370,7 +370,7 @@ void MultiJoin::setChildrenFromOrigExprs(QueryAnalysis *qa) {
 
   CMPASSERT(qa->getJBBCs().contains(jbbcs));
 
-  Lng32 index = 0;
+  int index = 0;
 
   for (CANodeId x = jbbcs.init(); jbbcs.next(x); jbbcs.advance(x)) {
     JBBCExprGroupEntry *entry = new (outHeap) JBBCExprGroupEntry(x, qa->getNodeAnalysis(x)->getOriginalExpr(), outHeap);
@@ -698,7 +698,7 @@ void MultiJoin::primeGroupAnalysis() {
   JBBSubset *localView = new (groupAnalysis->outHeap()) JBBSubset(groupAnalysis->outHeap());
   CANodeIdSet allSubtreeTables;
   Int32 arity = getArity();
-  for (Lng32 i = 0; i < arity; i++) {
+  for (int i = 0; i < arity; i++) {
     GroupAnalysis *childAnalysis = child(i).getPtr()->getGroupAnalysis();
     // use children parentViews to build this join local view
     localView->addSubset(*(childAnalysis->getParentJBBView()));

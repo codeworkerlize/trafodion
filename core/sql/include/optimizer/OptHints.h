@@ -99,7 +99,7 @@ class Hint : public NABasicObject {
 
 class OptHbaseAccessOptions : public HbaseAccessOptions {
  public:
-  OptHbaseAccessOptions(Lng32 v, NAMemory *h = HEAP);
+  OptHbaseAccessOptions(int v, NAMemory *h = HEAP);
 
   OptHbaseAccessOptions(const char *minTSstr, const char *maxTSstr);
 
@@ -113,7 +113,7 @@ class OptHbaseAccessOptions : public HbaseAccessOptions {
   NABoolean authsSpecified() { return (NOT hbaseAuths_.isNull()); }
   NABoolean isValid() { return isValid_; }
 
-  static Int64 computeHbaseTS(const char *tsStr);
+  static long computeHbaseTS(const char *tsStr);
 
   short setOptionsFromDefs(QualifiedName &tableName);
 

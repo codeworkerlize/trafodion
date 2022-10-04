@@ -48,17 +48,17 @@ class OptSqlTableOpenInfo : public NABasicObject {
   const CorrName &getCorrName() { return corrName_; }
   void setTable(NATable *ta) { table_ = ta; }
   NATable *getTable() { return table_; }
-  const LIST(Lng32) & getInsertColList() const { return insertColList_; }
-  const LIST(Lng32) & getSelectColList() const { return selectColList_; }
-  const LIST(Lng32) & getUpdateColList() const { return updateColList_; }
+  const LIST(int) & getInsertColList() const { return insertColList_; }
+  const LIST(int) & getSelectColList() const { return selectColList_; }
+  const LIST(int) & getUpdateColList() const { return updateColList_; }
 
-  void addInsertColumn(Lng32 col) {
+  void addInsertColumn(int col) {
     if (!insertColList_.contains(col)) insertColList_.insert(col);
   }
-  void addUpdateColumn(Lng32 col) {
+  void addUpdateColumn(int col) {
     if (!updateColList_.contains(col)) updateColList_.insert(col);
   }
-  void addSelectColumn(Lng32 col) {
+  void addSelectColumn(int col) {
     if (!selectColList_.contains(col)) selectColList_.insert(col);
   }
   bool checkColPriv(const PrivType privType, const PrivMgrUserPrivs *pPrivInfo);
@@ -67,9 +67,9 @@ class OptSqlTableOpenInfo : public NABasicObject {
   SqlTableOpenInfo *stoi_;
   CorrName corrName_;
   NATable *table_;
-  LIST(Lng32) insertColList_;
-  LIST(Lng32) selectColList_;
-  LIST(Lng32) updateColList_;
+  LIST(int) insertColList_;
+  LIST(int) selectColList_;
+  LIST(int) updateColList_;
 };
 
 class OltOptInfo : public NABasicObject {
@@ -164,10 +164,10 @@ class OptUdrOpenInfo : public NABasicObject {
 
 class OptUDFInfo : public NABasicObject {
  public:
-  OptUDFInfo(Int64 udfUID, const ComObjectName &udfName, CollHeap *heap = CmpCommon::statementHeap())
+  OptUDFInfo(long udfUID, const ComObjectName &udfName, CollHeap *heap = CmpCommon::statementHeap())
       : udfUID_(udfUID), udfName_(udfName), heap_(heap), nameSpace_(COM_UDF_NAME) {}
 
-  OptUDFInfo(Int64 udfUID, const ComObjectName &udfName, const ComAnsiNameSpace &ansiNameSpace,
+  OptUDFInfo(long udfUID, const ComObjectName &udfName, const ComAnsiNameSpace &ansiNameSpace,
              const ComObjectName &internalObjectNameForAction, CollHeap *heap = CmpCommon::statementHeap())
       : udfUID_(udfUID),
         udfName_(udfName),
@@ -182,7 +182,7 @@ class OptUDFInfo : public NABasicObject {
   inline const ComObjectName &getUDFName() const { return udfName_; }
   inline const NAString getUDFExternalName() const { return udfName_.getExternalName(); }
   inline const ComAnsiNameSpace getUDFNameSpace() const { return nameSpace_; }
-  inline const Int64 getUDFUID() const { return udfUID_; }
+  inline const long getUDFUID() const { return udfUID_; }
 
   inline const ComObjectName &getInternalObjectNameForAction() const { return internalObjectNameForAction_; }
 
@@ -200,7 +200,7 @@ class OptUDFInfo : public NABasicObject {
   inline void setUDFNameSpace(ComAnsiNameSpace nameSpace) { nameSpace_ = nameSpace; }
 
  private:
-  Int64 udfUID_;
+  long udfUID_;
   ComObjectName udfName_;
   ComAnsiNameSpace nameSpace_;
   ComObjectName internalObjectNameForAction_;

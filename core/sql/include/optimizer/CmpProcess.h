@@ -41,10 +41,10 @@ class CmpProcess {
   inline short getNodeNum() { return nodeNum_; }
   inline short getPin() { return pin_; }
   inline Int32 getSegmentNum() { return segmentNum_; }
-  inline Int64 getProcessStartTime() { return processStartTime_; }
+  inline long getProcessStartTime() { return processStartTime_; }
 
-  Int64 getProcessDuration();
-  Lng32 getCurrentSystemHeapSize();
+  long getProcessDuration();
+  int getCurrentSystemHeapSize();
 
   // generate the compiler id out of cpu#, pin, node#, and process start timestamp
   void getCompilerId(char *id, int len);
@@ -55,13 +55,13 @@ class CmpProcess {
   Int32 segmentNum_;
   //
   // timestamp for when this CmpProcess was created
-  Int64 processStartTime_;
+  long processStartTime_;
 };
 /************************************************************************
 helper functions for timestamps
 
 ************************************************************************/
-static void getTimestampAsBuffer(Int64 juliantimestamp, char *datetime) {
+static void getTimestampAsBuffer(long juliantimestamp, char *datetime) {
   short timestamp[8];
 
   CMPASSERT(NULL != datetime);
@@ -77,13 +77,13 @@ static void getTimestampAsBuffer(Int64 juliantimestamp, char *datetime) {
               timestamp[6],   // fraction
               timestamp[7]);  // fraction
 }
-static Int64 getCurrentTimestamp() {
+static long getCurrentTimestamp() {
   // return timestamp in local civil time
   // return CONVERTTIMESTAMP(JULIANTIMESTAMP(0,0,0,-1),0,-1,0);
   return JULIANTIMESTAMP(0, 0, 0, -1);
 }
 
-static Int64 getCurrentTimestampUEpoch() {
+static long getCurrentTimestampUEpoch() {
   // return local timestamp in unix epoch (since January 1, 1970). This is what
   // is expected by the repository UNC
   time_t utcTimeStamp = time(0);
@@ -91,7 +91,7 @@ static Int64 getCurrentTimestampUEpoch() {
   localtime_r(&utcTimeStamp, &localTime);
   time_t lctTimeStamp = timegm(&localTime);
 
-  Int64 usLctTimestamp = 1000000 * (Int64)lctTimeStamp;
+  long usLctTimestamp = 1000000 * (long)lctTimeStamp;
   return usLctTimestamp;
 }
 

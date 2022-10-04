@@ -111,7 +111,7 @@ class REFRESH_LIB_CLASS CRURangeFragment {
   const CRUIUDLogRecord *GetERRecord() const { return bp_.GetERRecord(); }
 
   // The boundaries' bitmap
-  Lng32 GetType() const { return type_; }
+  int GetType() const { return type_; }
 
  public:
   void SetBRRecord(const CRUIUDLogRecord *pBRRec) { bp_.SetBRRecord(pBRRec); }
@@ -127,7 +127,7 @@ class REFRESH_LIB_CLASS CRURangeFragment {
 
  private:
   CRURangeBoundaryPair bp_;
-  Lng32 type_;
+  int type_;
 };
 
 // Delcare the class CRURangeFragment with this macro

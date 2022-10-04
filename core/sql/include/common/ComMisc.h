@@ -118,7 +118,7 @@ NAString ComGetReservedNamespace(NAString schName);
 
 // Converts a library name like myfile.jar or myfile.so to this format
 // $TRAF_VAR/$UDR_CACHE_LIBDIR/<user>|myfile_<redeftime>.jar|so
-Int32 ComGenerateUdrCachedLibName(NAString libname, Int64 redeftime, NAString schemaName, NAString user,
+Int32 ComGenerateUdrCachedLibName(NAString libname, long redeftime, NAString schemaName, NAString user,
                                   NAString &cachedLibName, NAString &cachedPathName);
 
 NABoolean getEnvEnableRowLevelLock();

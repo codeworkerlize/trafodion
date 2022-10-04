@@ -45,7 +45,7 @@
 #include "ComTdb.h"
 #include "ex_tcb.h"
 #include "ExStats.h"
-#include "NAError.h"
+#include "sqlci/SqlciParseGlobals.h"
 #include "exp_expr.h"
 #include "ExCextdecs.h"
 #include "sqlmxevents/logmxevent.h"
@@ -258,7 +258,7 @@ void ex_tcb::registerResizeSubtasks() {
   // than the max size for the queue). Set the resize limit.
 
   ExScheduler *sched = globals_->getScheduler();
-  Lng32 resizeLimit = (Lng32)getTdb()->getQueueResizeLimit();
+  int resizeLimit = (int)getTdb()->getQueueResizeLimit();
   ex_queue *whichQueue;
 
   whichQueue = getParentQueue().up;
@@ -274,8 +274,8 @@ void ex_tcb::registerResizeSubtasks() {
   }
 }
 
-ex_tcb_private_state *ex_tcb::allocatePstates(Lng32 &numElems,      // inout, desired/actual elements
-                                              Lng32 &pstateLength)  // out, length of one element
+ex_tcb_private_state *ex_tcb::allocatePstates(int &numElems,      // inout, desired/actual elements
+                                              int &pstateLength)  // out, length of one element
 {
   // This method can't be implemented in the base class, every
   // derived TCB class needs to allocate an array of its own
@@ -299,7 +299,7 @@ ex_tcb_private_state *ex_tcb::allocatePstates(Lng32 &numElems,      // inout, de
 // this method find the first set of children in the child tree
 // that have a valid stats area and sets their parent id to the
 // input tdb id.
-void ex_tcb::propagateTdbIdForStats(Lng32 tdbId) {
+void ex_tcb::propagateTdbIdForStats(int tdbId) {
   Int32 nc = numChildren();
   ExOperStats *stat, *currentStat;
   currentStat = getStatsEntry();
@@ -431,21 +431,21 @@ void ex_tcb::cleanup() {
   }
 }
 
-short ex_tcb::moveRowToUpQueue(ex_queue_pair *qparent, UInt16 tuppIndex, const char *row, Lng32 len, short *rc,
+short ex_tcb::moveRowToUpQueue(ex_queue_pair *qparent, UInt16 tuppIndex, const char *row, int len, short *rc,
                                NABoolean isVarchar) {
   if (qparent->up->isFull()) {
     if (rc) *rc = WORK_CALL_AGAIN;
     return -1;
   }
 
-  Lng32 length;
+  int length;
   if (len <= 0)
     length = strlen(row);
   else
     length = len;
 
   tupp p;
-  if (pool_->get_free_tuple(p, (Lng32)((isVarchar ? SQL_VARCHAR_HDR_SIZE : 0) + length))) {
+  if (pool_->get_free_tuple(p, (int)((isVarchar ? SQL_VARCHAR_HDR_SIZE : 0) + length))) {
     if (rc) *rc = WORK_POOL_BLOCKED;
     return -1;
   }
@@ -462,7 +462,7 @@ short ex_tcb::moveRowToUpQueue(ex_queue_pair *qparent, UInt16 tuppIndex, const c
   ex_queue_entry *up_entry = qparent->up->getTailEntry();
 
   up_entry->copyAtp(pentry_down);
-  up_entry->getAtp()->getTupp((Lng32)tuppIndex) = p;
+  up_entry->getAtp()->getTupp((int)tuppIndex) = p;
 
   up_entry->upState.parentIndex = pentry_down->downState.parentIndex;
 

@@ -48,7 +48,7 @@
 #include "arkcmp/CmpContext.h"
 #include "arkcmp/CmpErrors.h"
 #include "arkcmp/CmpStatement.h"
-#include "ErrorMessage.h"
+#include "sqlmsg/ErrorMessage.h"
 
 #include "sqlmxevents/logmxevent.h"
 
@@ -142,7 +142,7 @@ void CmpCommon::dumpDiags(ostream &outStream, NABoolean newline) { NADumpDiags(o
 // The following functions allow access to the defaults table
 // in sqlcomp/NADefaults.cpp; given the id number of the default, it
 // returns the value
-Lng32 CmpCommon::getDefaultLong(DefaultConstants id) { return ActiveSchemaDB()->getDefaults().getAsLong(id); }
+int CmpCommon::getDefaultLong(DefaultConstants id) { return ActiveSchemaDB()->getDefaults().getAsLong(id); }
 
 double CmpCommon::getDefaultNumeric(DefaultConstants id) {
   float result;

@@ -250,7 +250,7 @@ struct GuaProcessHandle {
   NABoolean compare(const GuaProcessHandle &other) const;
   NABoolean fromAscii(const char *ascii);
   Int32 toAscii(char *ascii, Int32 asciiLen) const;
-  Lng32 decompose(Int32 &cpu, Int32 &pin, Int32 &nodeNumber, SB_Int64_Type &seqNum) const;
+  int decompose(Int32 &cpu, Int32 &pin, Int32 &nodeNumber, SB_Int64_Type &seqNum) const;
 
   Int32 decompose2(Int32 &cpu, Int32 &pin, Int32 &node, SB_Int64_Type &seqNum) const;
 
@@ -349,9 +349,9 @@ struct NowaitedEspStartup {
 struct NowaitedEspServer {
   pthread_mutex_t cond_mutex_;
   pthread_cond_t cond_cond_;
-  Int64 startTag_;
-  Int64 callbackCount_;
-  Int64 completionCount_;
+  long startTag_;
+  long callbackCount_;
+  long completionCount_;
   NABoolean waiting_;
   char waitedStartupArg_;
 };
@@ -393,7 +393,7 @@ class IpcProcessId : public IpcMessageObj {
   void addProcIdToDiagsArea(ComDiagsArea &diags, Int32 stringno = 0) const;
 
   // make a connection to the process
-  IpcConnection *createConnectionToServer(IpcEnvironment *env, NABoolean usesTransactions, Lng32 maxNowaitRequests,
+  IpcConnection *createConnectionToServer(IpcEnvironment *env, NABoolean usesTransactions, int maxNowaitRequests,
                                           NABoolean parallelOpen = FALSE, Int32 *openCompletionScheduled = NULL,
                                           NABoolean dataConnectionToEsp = FALSE) const;
 
@@ -546,7 +546,7 @@ class IpcConnection : public NABasicObject {
   inline IpcConnectionId getId() const { return id_; }
 
   // get error info
-  inline Lng32 getErrorInfo() const { return errorInfo_; }
+  inline int getErrorInfo() const { return errorInfo_; }
   // no mutex, caller must have mutex
   virtual void populateDiagsArea(ComDiagsArea *&d, CollHeap *diagsHeap) = 0;
 
@@ -574,7 +574,7 @@ class IpcConnection : public NABasicObject {
   inline NABoolean receiveIOPending() const { return (state_ == RECEIVING); }
   virtual Int32 numQueuedSendMessages() = 0;
   virtual Int32 numQueuedReceiveMessages() = 0;
-  virtual Int64 getSqlTableTransid();
+  virtual long getSqlTableTransid();
 
 #ifdef IPC_INTEGRITY_CHECKING
   // methods used for data structure integrity checking
@@ -650,7 +650,7 @@ class IpcConnection : public NABasicObject {
   // set the stopWait_ flag.
   inline void stopWait(NABoolean b) { stopWait_ = b; }
 
-  inline void setErrorInfo(Lng32 x) { errorInfo_ = x; }
+  inline void setErrorInfo(int x) { errorInfo_ = x; }
   inline void clearErrorInfo() { errorInfo_ = 0; }
   inline void setOtherEnd(const IpcProcessId &pid) { otherEnd_ = pid; }
 
@@ -744,7 +744,7 @@ class IpcConnection : public NABasicObject {
   IpcConnectionId id_;
 
   // error information associated with the connection
-  Lng32 errorInfo_;
+  int errorInfo_;
 
   // environment information
   IpcEnvironment *environment_;
@@ -903,15 +903,15 @@ class IpcWaitableSetOfConnections : public IpcSetOfConnections {
   //   object is part of a connection
   NABoolean eventDriven_;  // Drive polling by waiting on LDONE
   NABoolean esp_;
-  Int64 callCount_;               // Number of times wait method was called
-  Int64 pollCount_;               // Number of times connections were polled
-  Int64 waitCount_;               // Number of times WAIT was called
-  Int64 ldoneCount_;              // Number of LDONE completions
-  Int64 lreqCount_;               // Number of LREQ completions
-  Int64 lsigCount_;               // Number of LSIG completions
-  Int64 smCompletionCount_;       // Number of seamonster (LRABBIT) completions
-  Int64 timeoutCount_;            // Number of timeout completions
-  Int64 activityPollCount_;       // Number of times connections were polled due to activity
+  long callCount_;               // Number of times wait method was called
+  long pollCount_;               // Number of times connections were polled
+  long waitCount_;               // Number of times WAIT was called
+  long ldoneCount_;              // Number of LDONE completions
+  long lreqCount_;               // Number of LREQ completions
+  long lsigCount_;               // Number of LSIG completions
+  long smCompletionCount_;       // Number of seamonster (LRABBIT) completions
+  long timeoutCount_;            // Number of timeout completions
+  long activityPollCount_;       // Number of times connections were polled due to activity
   short lastWaitStatus_;          // Last status returned by WAIT
   NABoolean ipcAwaitioxEnabled_;  // IPC AWAITIOX(-1) is enabled where applicable
   IpcAwaitiox ipcAwaitiox_;
@@ -1391,7 +1391,7 @@ class GuaConnectionToClient : public IpcConnection {
   // number of bytes received for that buffer
   IpcMessageBuffer *partiallyReceivedBuffer_;
   Int32 numChunksReceived_;
-  Lng32 numOutstandingRequests_;
+  int numOutstandingRequests_;
 
   // private methods
 
@@ -1438,7 +1438,7 @@ class IpcControlConnection {
   virtual GuaReceiveControlConnection *castToGuaReceiveControlConnection();
 
   // get number of requestors
-  inline Lng32 getNumRequestors() const { return numRequestors_; }
+  inline int getNumRequestors() const { return numRequestors_; }
 
  protected:
   inline void incrNumRequestors() { numRequestors_++; }
@@ -1450,7 +1450,7 @@ class IpcControlConnection {
  private:
   IpcNetworkDomain domain_;   // which domain is the control
                               // connection in
-  Lng32 numRequestors_;       // how many processes are requestors
+  int numRequestors_;       // how many processes are requestors
   IpcEyeCatcher eyeCatcher_;  // eye catcher
 };
 
@@ -1564,8 +1564,8 @@ class GuaReceiveControlConnection : public IpcControlConnection {
   }
 
   // needed for LRU when esp initiates its own transaction
-  inline void setBeginTransTag(Lng32 transTag) { beginTransTag_ = transTag; }
-  inline Lng32 getBeginTransTag() { return beginTransTag_; }
+  inline void setBeginTransTag(int transTag) { beginTransTag_ = transTag; }
+  inline int getBeginTransTag() { return beginTransTag_; }
   inline void clearBeginTransTag() { beginTransTag_ = -1; }
 
   // On Linux, if an ESP starts a transaction, before replying to the master,
@@ -1612,7 +1612,7 @@ class GuaReceiveControlConnection : public IpcControlConnection {
 
   // a count on how many connections are currently in the receiving
   // state and waiting for data from $RECEIVE
-  Lng32 numReceivingConnections_;
+  int numReceivingConnections_;
 
   // a pool of receive buffers that are in use by an outstanding
   // READUPDATEX (search for buffer here when AWAITIOX completes)
@@ -1627,15 +1627,15 @@ class GuaReceiveControlConnection : public IpcControlConnection {
 
   // how many nowaited READUPDATEX calls can be active at a time?
   // A number between 1 and receiveDepth_
-  Lng32 maxOutstandingIOs_;
+  int maxOutstandingIOs_;
 
   // a count of how many active READUPDATEX calls we have
   // (minimum of (maxOutstandingIOs_,numActiveReceiveCalls_,1))
-  Lng32 numOutstandingIOs_;
+  int numOutstandingIOs_;
 
   // a count of how many outstanding REPLYX calls we have
   // (numOutstandingIOs_ + numOutstandingRequests_ <= receiveDepth_)
-  Lng32 numOutstandingRequests_;
+  int numOutstandingRequests_;
 
   // For certain operations such as LRU, the master does not initiate
   // a transaction. instead each of the esps initiates their own transactions.
@@ -1643,7 +1643,7 @@ class GuaReceiveControlConnection : public IpcControlConnection {
   // returned from BEGINTRANSACTION. later the trans tag can be used by ESP
   // to invoke RESUMETRANSACTION and resume the transaction that was initiated
   // by BEGINTRANSACTION.
-  Lng32 beginTransTag_;
+  int beginTransTag_;
 
   // Transaction handle of transaction received by an ESP via the message
   // system on Linux.
@@ -1723,7 +1723,7 @@ struct InternalMessageBufferHeader {
   //   IpcMessageObjSize   4 bytes
   //   short               2 bytes
   //   IpcMessageRefCount  4 bytes
-  //   Int64               8 bytes
+  //   long               8 bytes
   //   pointers            8 bytes
   //
   // ---------------------------------------------------------------------
@@ -1738,7 +1738,7 @@ struct InternalMessageBufferHeader {
   IpcMessageRefCount refCount_;  // how many msges & connections use it
   IpcMessageObjSize maxIOSize_;  // IO transmission chunk size
 
-  Int64 transid_;  // save context transid
+  long transid_;  // save context transid
 
   IpcMessageStreamBase *message_;  // what is the message (used for callbacks)
   CollHeap *heap_;                 // can point to NAMemory or is NULL if
@@ -1750,7 +1750,7 @@ struct InternalMessageBufferHeader {
 
   InternalMessageBufferHeader(CollHeap *heap, IpcMessageObjSize maxLen, IpcMessageObjSize msgLen,
                               IpcMessageStreamBase *msg, short replyTag, IpcMessageObjSize maxReplyLength,
-                              Int64 transid, short flags) {
+                              long transid, short flags) {
     maxLength_ = maxLen;
     msgLength_ = msgLen;
     flags_ = flags;
@@ -1791,8 +1791,8 @@ class IpcMessageBuffer : private InternalMessageBufferHeader {
     assert(refCount_ == 0);
   }
 
-  inline Int64 getTransid() { return transid_; }
-  inline void setTransid(Int64 transid) { transid_ = transid; }
+  inline long getTransid() { return transid_; }
+  inline void setTransid(long transid) { transid_ = transid; }
 
   // There is no constructor to make this object, the static member
   // function allocate needs to be used instead, so the object can
@@ -1897,7 +1897,7 @@ class IpcMessageBuffer : private InternalMessageBufferHeader {
   // Private constructor. Only called by public methods such as
   // allocate(), createBuffer(), copy(), copyFromOffset().
   IpcMessageBuffer(CollHeap *heap, IpcMessageObjSize maxLen, IpcMessageObjSize msgLen, IpcMessageStreamBase *msg,
-                   short flags, short replyTag, IpcMessageObjSize maxReplyLength, Int64 transid);
+                   short flags, short replyTag, IpcMessageObjSize maxReplyLength, long transid);
 
   // "placement new" to allocate the right size at the right place
   void *operator new(size_t) {
@@ -2098,7 +2098,7 @@ struct MsgTraceEntry
 #endif
 
 // eye catcher for SQL/ARK messages (NOAH in big-endian HAON in little-endian)
-const Lng32 Release1MessageEyeCatcher = 1313816904;
+const int Release1MessageEyeCatcher = 1313816904;
 
 // default buffer size value for non-shared message streams
 const IpcMessageObjSize DefaultInitialMessageBufSize = 2048;
@@ -2204,7 +2204,7 @@ class IpcMessageStream : public IpcMessageStreamBase {
   inline void setType(IpcMessageType t) { h_.setType(t); }
   inline void setVersion(IpcMessageObjVersion v) { h_.setVersion(v); }
   enum MessageStateEnum getState() { return state_; }
-  inline Lng32 getErrorInfo() const { return errorInfo_; }
+  inline int getErrorInfo() const { return errorInfo_; }
   IpcMessageObjSize getFixedMsgBufferLength() const { return fixedBufLen_; }
 
   // Include an object into a message
@@ -2270,7 +2270,7 @@ class IpcMessageStream : public IpcMessageStreamBase {
 
   // send a message and call the actOnSend callback
   // once for each completed send operation to a recipient
-  void send(NABoolean waited = TRUE, Int64 transid = (Int64)-1, IpcMessageObjSize *bytesSent = NULL);
+  void send(NABoolean waited = TRUE, long transid = (long)-1, IpcMessageObjSize *bytesSent = NULL);
 
   // Receive a message and call the actOnReceive callback when done.
   // If <waited> is set to TRUE, all receive operations on all connections
@@ -2337,7 +2337,7 @@ class IpcMessageStream : public IpcMessageStreamBase {
   IpcWaitableSetOfConnections activeIOs_;  // active communication partners
   IpcMessageObj *tail_;                    // last object in linked object list
   IpcMessageObj *current_;                 // current object in linked obj list
-  Lng32 errorInfo_;                        // fix this later to contain error info
+  int errorInfo_;                        // fix this later to contain error info
   std::atomic<UInt32> numOfSendCallbacks_;
   MessageStateEnum state_;  // state of the message (buffer)
 
@@ -2376,7 +2376,7 @@ class IpcBufferedMsgStream : public IpcMessageStreamBase {
  public:
   // constructor
   IpcBufferedMsgStream(IpcEnvironment *env, IpcMessageType msgType, IpcMessageObjVersion version,
-                       Lng32 inUseBufferLimit, IpcMessageObjSize bufferSize, IpcThreadInfo *threadInfo = NULL);
+                       int inUseBufferLimit, IpcMessageObjSize bufferSize, IpcThreadInfo *threadInfo = NULL);
   // destructor
   virtual ~IpcBufferedMsgStream();
 
@@ -2455,29 +2455,29 @@ class IpcBufferedMsgStream : public IpcMessageStreamBase {
 
   // get number of inuse buffers (unpacked messages with objects
   // still in use by the application)
-  Lng32 numOfInUseBuffers() const { return inUseBufList_.entries(); }
+  int numOfInUseBuffers() const { return inUseBufList_.entries(); }
 
   // get number of buffers in the input mesage queue
-  Lng32 numOfInputBuffers() const { return inBufList_.entries(); }
+  int numOfInputBuffers() const { return inBufList_.entries(); }
 
   // get number of buffers in the output mesage queue
-  Lng32 numOfOutputBuffers() const { return outBufList_.entries(); }
+  int numOfOutputBuffers() const { return outBufList_.entries(); }
 
   // get number of buffers in the send mesage queue
-  Lng32 numOfSendBuffers() const { return sendBufList_.entries(); }
+  int numOfSendBuffers() const { return sendBufList_.entries(); }
 
   // get number of pending reply tags
-  Lng32 numOfReplyTagBuffers() const { return replyTagBufList_.entries(); }
+  int numOfReplyTagBuffers() const { return replyTagBufList_.entries(); }
 
   // get last error information from connection
-  Lng32 getErrorInfo() const { return errorInfo_; }
+  int getErrorInfo() const { return errorInfo_; }
 
   // check limit of in use message buffers.
   NABoolean inUseLimitReached() const { return ((numOfInUseBuffers() + numOfInputBuffers()) >= inUseBufferLimit_); }
 
   IpcMessageObjSize getBufferSize() { return bufferSize_; }
 
-  Lng32 getInUseBufferLimit() const { return inUseBufferLimit_; }
+  int getInUseBufferLimit() const { return inUseBufferLimit_; }
 
   virtual IpcConnection *getConnection();
 
@@ -2529,9 +2529,9 @@ class IpcBufferedMsgStream : public IpcMessageStreamBase {
   IpcMessageObjType msgType_;                // message object type
   IpcMessageObjVersion msgVersion_;          // message object version
   IpcMessageObjSize bufferSize_;             // minimum length of message buffers
-  Lng32 inUseBufferLimit_;                   // inuse receive buffer limit
-  Lng32 garbageCollectLimit_;                // inuse buf limit for garbage collect
-  Lng32 errorInfo_;                          // error info from connection
+  int inUseBufferLimit_;                   // inuse receive buffer limit
+  int garbageCollectLimit_;                // inuse buf limit for garbage collect
+  int errorInfo_;                          // error info from connection
   NABoolean receiveMsgComplete_;             // complete receive msg ready to unpack
                                              // is in receiveBufList_, also stored
                                              // in receiveMsgObj_
@@ -2574,8 +2574,8 @@ class IpcBufferedMsgStream : public IpcMessageStreamBase {
 class IpcClientMsgStream : public IpcBufferedMsgStream {
  public:
   // constructor
-  IpcClientMsgStream(IpcEnvironment *env, IpcMessageType msgType, IpcMessageObjVersion version, Lng32 sendBufferLimit,
-                     Lng32 inUseBufferLimit, IpcMessageObjSize bufferSize, IpcThreadInfo *threadInfo);
+  IpcClientMsgStream(IpcEnvironment *env, IpcMessageType msgType, IpcMessageObjVersion version, int sendBufferLimit,
+                     int inUseBufferLimit, IpcMessageObjSize bufferSize, IpcThreadInfo *threadInfo);
 
   // get/set the recipients of a message to send
   inline const IpcSetOfConnections &getRecipients() const { return recipients_; }
@@ -2590,20 +2590,20 @@ class IpcClientMsgStream : public IpcBufferedMsgStream {
   NABoolean sendLimitReached() { return (responsesPending_ >= sendBufferLimit_); }
 
   // get number of responses pending from IpcServerMsgStream
-  Lng32 numOfResponsesPending() { return responsesPending_; }
+  int numOfResponsesPending() { return responsesPending_; }
 
-  Lng32 getSendBufferLimit() const { return sendBufferLimit_; }
+  int getSendBufferLimit() const { return sendBufferLimit_; }
 
   // broadcast the current send message to all recipients
-  void sendRequest(Int64 transid = (Int64)-1);
+  void sendRequest(long transid = (long)-1);
 
   // we may want to add the capability to send() to a specific connection
   // rather than broadcast
-  // void sendRequest(IpcConnection* connection, Int64 transid = (Int64)-1); ???
+  // void sendRequest(IpcConnection* connection, long transid = (long)-1); ???
 
   // we may want to add the capability to send() to a specific local message
   // stream rather than broadcast
-  // void sendRequest(IpcServerMsgStream* msgStream, Int64 transid = (Int64)-1); ???
+  // void sendRequest(IpcServerMsgStream* msgStream, long transid = (long)-1); ???
 
   // abort any outstanding I/Os on this stream
   void abandonPendingIOs();
@@ -2627,8 +2627,8 @@ class IpcClientMsgStream : public IpcBufferedMsgStream {
     return (localReplyTag_);
   }
 
-  Lng32 sendBufferLimit_;           // outstanding request buffer limit
-  Lng32 responsesPending_;          // responses pending count
+  int sendBufferLimit_;           // outstanding request buffer limit
+  int responsesPending_;          // responses pending count
   IpcSetOfConnections recipients_;  // remote connections to receive broadcast
   SET(IpcServerMsgStream *)
   localRecipients_;      // local msg streams to receive broadcast
@@ -2645,8 +2645,8 @@ class IpcClientMsgStream : public IpcBufferedMsgStream {
 class IpcServerMsgStream : public IpcBufferedMsgStream {
  public:
   // constructor
-  IpcServerMsgStream(IpcEnvironment *env, IpcMessageType msgType, IpcMessageObjVersion version, Lng32 sendBufferLimit,
-                     Lng32 inUseBufferLimit, IpcMessageObjSize bufferSize, IpcThreadInfo *threadInfo);
+  IpcServerMsgStream(IpcEnvironment *env, IpcMessageType msgType, IpcMessageObjVersion version, int sendBufferLimit,
+                     int inUseBufferLimit, IpcMessageObjSize bufferSize, IpcThreadInfo *threadInfo);
 
   // set remote client connection to receive request messages from
   void setClient(IpcConnection *connection, NABoolean receive = TRUE) {
@@ -2685,7 +2685,7 @@ class IpcServerMsgStream : public IpcBufferedMsgStream {
 
  private:
   IpcConnection *client_;  // remote client connection
-  Lng32 sendBufferLimit_;  // output queue response buffer limit
+  int sendBufferLimit_;  // output queue response buffer limit
 
   // The SeaMonster continue protocol allows a batch of replies per
   // request. The batch size is sendBufferLimit_.
@@ -2701,7 +2701,7 @@ class IpcServerMsgStream : public IpcBufferedMsgStream {
   // buffer in the batch is marked LAST IN BATCH. This informs the
   // client to decrement stream and connection counters which enables
   // a continue message to be sent by the client.
-  Lng32 buffersSentInBatch_;
+  int buffersSentInBatch_;
 };
 
 // -----------------------------------------------------------------------
@@ -2754,7 +2754,7 @@ class IpcGuardianServer : public IpcServer {
                     IpcPriority priority = IPC_PRIORITY_DONT_CARE,
                     IpcServerAllocationMethod allocMethod = IPC_LAUNCH_GUARDIAN_PROCESS, short uniqueTag = 0,
                     NABoolean usesTransactions = FALSE, NABoolean debugServer = FALSE, NABoolean waitedStartup = TRUE,
-                    Lng32 maxNowaitRequests = 2, const char *overridingDefineForProgFile = "",
+                    int maxNowaitRequests = 2, const char *overridingDefineForProgFile = "",
                     const char *processName = NULL, NABoolean parallelOpens = FALSE);
 
   inline void setStateReady() { serverState_ = READY; }
@@ -2784,9 +2784,9 @@ class IpcGuardianServer : public IpcServer {
 
   // caller has a system message that indicates something about the
   // startup of this server (leave type of sys msg unspecified)
-  void acceptSystemMessage(const char *sysMsg, Lng32 sysMsgLength);
+  void acceptSystemMessage(const char *sysMsg, int sysMsgLength);
 
-  short changePriority(Lng32 priority, NABoolean isDelta = FALSE);
+  short changePriority(int priority, NABoolean isDelta = FALSE);
 
   NABoolean serverDied();  // return TRUE iff server is dead
 
@@ -2915,8 +2915,8 @@ class IpcServerClass : public NABasicObject {
   // allocate and free a server
   IpcServer *allocateServerProcess(ComDiagsArea **diags = NULL, CollHeap *diagsHeap = NULL, const char *nodeName = NULL,
                                    IpcCpuNum cpuNum = IPC_CPU_DONT_CARE, IpcPriority priority = IPC_PRIORITY_DONT_CARE,
-                                   Lng32 espLevel = 1, NABoolean usesTransactions = TRUE,
-                                   NABoolean waitedCreation = TRUE, Lng32 maxNowaitRequests = 2,
+                                   int espLevel = 1, NABoolean usesTransactions = TRUE,
+                                   NABoolean waitedCreation = TRUE, int maxNowaitRequests = 2,
                                    const char *progFileName = NULL, const char *processName = NULL,
                                    NABoolean parallelOpens = FALSE, IpcGuardianServer **creatingProcess = NULL,
                                    NAWNodeSetWrapper *availableNodes = NULL);
@@ -2982,7 +2982,7 @@ class IpcAllConnections : public ARRAY(IpcConnection *) {
   // wait for something to happen on any of the connections like awaitio(-1)
   // no mutex, calls IpcConnection::waitOnSet
   WaitReturnStatus waitOnAll(IpcTimeout timeout = IpcInfiniteTimeout, NABoolean calledByESP = FALSE,
-                             NABoolean *timedout = NULL, Int64 *waitTime = NULL, short ldoneRetryTimes = 0);
+                             NABoolean *timedout = NULL, long *waitTime = NULL, short ldoneRetryTimes = 0);
 
   // used by asynchronous CLI cancel.
   // no mutex, calls IpcAllConnections::cancelWait
@@ -3134,8 +3134,8 @@ class IpcEnvironment : public NABasicObject {
 
   void setMultiThreaded() { isMultiThreaded_ = TRUE; }
   bool getMultiThreaded() { return isMultiThreaded_; }
-  Lng32 getMaxPollingInterval() { return maxPollingInterval_; }
-  void setMaxPollingInterval(Lng32 arg) { maxPollingInterval_ = arg; }
+  int getMaxPollingInterval() { return maxPollingInterval_; }
+  void setMaxPollingInterval(int arg) { maxPollingInterval_ = arg; }
   NABoolean getPersistentOpens() { return persistentOpens_; }
   void setPersistentOpens(NABoolean arg) { persistentOpens_ = arg; }
   unsigned short getPersistentOpenAssigned() { return persistentOpenAssigned_; }
@@ -3191,16 +3191,16 @@ class IpcEnvironment : public NABasicObject {
   inline NABoolean lsigConsumed() { return eventConsumedAddr_ && *eventConsumedAddr_ & LSIG; }
 
   inline char **getEnvVars() { return envvars_; }
-  inline Lng32 getEnvVarsLen() { return envvarsLen_; }
+  inline int getEnvVarsLen() { return envvarsLen_; }
   void setEnvVars(char **envvars);
-  void setEnvVarsLen(Lng32 envvarsLen);
+  void setEnvVarsLen(int envvarsLen);
 
 #ifdef IPC_INTEGRITY_CHECKING
   // for debug integrity checking
   void setExRtFragTableIntegrityCheckPtr(void (*fnptr)(ExRtFragTable *ft));
   void setCurrentExRtFragTable(ExRtFragTable *ft);
   void removeCurrentExRtFragTable(ExRtFragTable *ft);
-  ExRtFragTable *getCurrentExRtFragTable(Lng32 i);
+  ExRtFragTable *getCurrentExRtFragTable(int i);
   void checkIntegrity(void);       // traverses to the "top" to begin integrity check
   void checkLocalIntegrity(void);  // checks integrity of this object
 #endif
@@ -3221,16 +3221,16 @@ class IpcEnvironment : public NABasicObject {
   void releaseSafetyBuffer();
   IpcTimeout getStopAfter() const { return stopAfter_; }
   void setStopAfter(IpcTimeout stopAfter) { stopAfter_ = stopAfter; }
-  Int64 getIdleTimestamp() const { return idleTimestamp_; }
+  long getIdleTimestamp() const { return idleTimestamp_; }
   void clearIdleTimestamp() { idleTimestamp_ = 0; }
   void setIdleTimestamp();
   IpcTimeout getInactiveTimeout() const { return inactiveTimeout_; }
   void setInactiveTimeout(IpcTimeout inactiveTimeout) { inactiveTimeout_ = inactiveTimeout; }
-  Int64 getInactiveTimestamp() const { return inactiveTimestamp_; }
+  long getInactiveTimestamp() const { return inactiveTimestamp_; }
   void clearInactiveTimestamp() { inactiveTimestamp_ = 0; }
   void setInactiveTimestamp();
-  Lng32 getEspFreeMemTimeout() const { return espFreeMemTimeout_; }
-  void setEspFreeMemTimeout(Lng32 freeMemTimeout) { espFreeMemTimeout_ = freeMemTimeout; }
+  int getEspFreeMemTimeout() const { return espFreeMemTimeout_; }
+  void setEspFreeMemTimeout(int freeMemTimeout) { espFreeMemTimeout_ = freeMemTimeout; }
   NABoolean getEspCloseErrorLogging() const { return espCloseErrorLogging_; }
   void setEspCloseErrorLogging(NABoolean espCloseErrorLogging) { espCloseErrorLogging_ = espCloseErrorLogging; }
   inline NABoolean useGuaIpcAtRuntime() const { return useGuaIpcAtRuntime_; }
@@ -3333,7 +3333,7 @@ class IpcEnvironment : public NABasicObject {
   // on how this is set. See spawnProcess method in IPC on how envs
   // are passed on.
   char **envvars_;
-  Lng32 envvarsLen_;
+  int envvarsLen_;
 
   void (*integrityCheckExRtFragTablePtr_)(ExRtFragTable *ft);
   UInt32 *eventConsumedAddr_;  // address of event consumed indicator
@@ -3342,12 +3342,12 @@ class IpcEnvironment : public NABasicObject {
   char *safetyBuffer_;
   NABoolean useGuaIpcAtRuntime_;
   IpcTimeout stopAfter_;  // Exit after time interval in microseconds
-  Int64 idleTimestamp_;
+  long idleTimestamp_;
   IpcTimeout inactiveTimeout_;  // Exit after time interval in microseconds
-  Int64 inactiveTimestamp_;
+  long inactiveTimestamp_;
   NABoolean espCloseErrorLogging_;  // Log EMS event if close is received with req outstanding
   IpcServerType serverType_;
-  Lng32 maxPollingInterval_;
+  int maxPollingInterval_;
   NABoolean persistentOpens_;
   unsigned short persistentOpenEntries_;   // Entries in array
   unsigned short persistentOpenAssigned_;  // Entries assigned
@@ -3355,7 +3355,7 @@ class IpcEnvironment : public NABasicObject {
   NABoolean masterFastCompletion_;
   NABoolean persistentProcess_;
   CliGlobals *cliGlobals_;   // CliGlobals
-  Lng32 espFreeMemTimeout_;  // secs after which idle ESP frees up memory.
+  int espFreeMemTimeout_;  // secs after which idle ESP frees up memory.
   IpcMessageObjSize guaMaxMsgIOSize_;
   unsigned short maxCCNowaitDepthLow_;
   unsigned short maxCCNowaitDepthHigh_;

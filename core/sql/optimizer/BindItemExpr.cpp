@@ -57,7 +57,7 @@
 #include "parser/StmtDDLCreateTrigger.h"
 #include "parser/StmtDDLCreateView.h"
 #include "StmtDDLCreateMV.h"
-#include "ex_error.h"
+#include "executor/ex_error.h"
 #include "exp/exp_like.h"
 #include "optimizer/ItemColRef.h"
 #include "optimizer/TriggerDB.h"
@@ -80,14 +80,14 @@
 
 #include "sqlcat/TrafDDLdesc.h"
 #include "exp/exp_datetime.h"
-#include "exp_bignum.h"
+#include "exp/exp_bignum.h"
 
 #include <stack>
 
 // defined in SynthType.cpp
-extern void emitDyadicTypeSQLnameMsg(Lng32 sqlCode, const NAType &op1, const NAType &op2, const char *str1 = NULL,
+extern void emitDyadicTypeSQLnameMsg(int sqlCode, const NAType &op1, const NAType &op2, const char *str1 = NULL,
                                      const char *str2 = NULL, ComDiagsArea *diagsArea = NULL,
-                                     const Lng32 int1 = -999999);
+                                     const int int1 = -999999);
 
 // defined in parser/SqlParserAux.h
 extern ItemExpr *literalOfDate(NAString *strptr, NABoolean noDealloc = FALSE);
@@ -889,7 +889,7 @@ ItemExpr *ItemExpr::performImplicitCasting(CharInfo::CharSet cs, BindWA *bindWA)
 
     else if (chld_opertyp == ITM_CONSTANT) {
       NABoolean cv_is_NULL;
-      Lng32 cv_StorageSize;
+      int cv_StorageSize;
       const char *cv_ConstValue;
       ValueId cv_ValueId;
 
@@ -1828,7 +1828,7 @@ static NABoolean getAdjustedDate(NAString &inputStr, NAString &outputStr) {
     if (ExpDatetime::validateDate(REC_DATE_YEAR, REC_DATE_DAY, dtVal, NULL, 0, lastDayPrevMonth))
       return FALSE;  // invalid date
 
-    Int64 interval;
+    long interval;
     char intervalBignum[BigNum::BIGNUM_TEMP_LEN];
     NABoolean isBignum = FALSE;
     edt.convertDatetimeToInterval(REC_DATE_YEAR, REC_DATE_DAY, 0, REC_DATE_DAY, dtVal, interval, intervalBignum,
@@ -2211,7 +2211,7 @@ static void findAndAddTranslateToConstantChild(ItemExpr *pItemExpr, BindWA *bind
     NAString cs = CmpCommon::getDefaultString(DYNAMIC_PARAM_DEFAULT_CHARSET);
     CharInfo::CharSet new_cs = CharInfo::getCharSetEnum(cs);
 
-    Lng32 nTranslateChild = -1;
+    int nTranslateChild = -1;
     if ((eType1 == NA_CHARACTER_TYPE && eOp1 == ITM_CONSTANT) &&
         (eOp2 == ITM_DYN_PARAM || eOp2 == ITM_ROWSETARRAY_SCAN)) {
       const CharType &ct = (CharType &)ty1;
@@ -2307,8 +2307,8 @@ ItemExpr *BiRelat::bindNode(BindWA *bindWA) {
         CharInfo::CharSet cs2 = chType2.getCharSet();
         if ((cs1 == CharInfo::ISO88591 && cs2 == CharInfo::UTF8) ||
             (cs1 == CharInfo::UTF8 && cs2 == CharInfo::ISO88591)) {
-          Lng32 byte1 = chType1.getNominalSize();
-          Lng32 byte2 = chType2.getNominalSize();
+          int byte1 = chType1.getNominalSize();
+          int byte2 = chType2.getNominalSize();
           if (byte1 > byte2) {
             CharType *targetType =
                 new (bindWA->wHeap()) SQLChar(bindWA->wHeap(), CharLenInfo(0, byte1), chType2.supportsSQLnull(),
@@ -2331,8 +2331,8 @@ ItemExpr *BiRelat::bindNode(BindWA *bindWA) {
                    (cs1 == CharInfo::UCS2 && cs2 == CharInfo::ISO88591) ||
                    (cs1 == CharInfo::UTF8 && cs2 == CharInfo::UCS2) ||
                    (cs1 == CharInfo::UCS2 && cs2 == CharInfo::UTF8)) {
-          Lng32 char1 = chType1.getNominalSize() / chType1.getBytesPerChar();
-          Lng32 char2 = chType2.getNominalSize() / chType2.getBytesPerChar();
+          int char1 = chType1.getNominalSize() / chType1.getBytesPerChar();
+          int char2 = chType2.getNominalSize() / chType2.getBytesPerChar();
           if (char1 > char2) {
             CharType *targetType = new (bindWA->wHeap())
                 SQLChar(bindWA->wHeap(), CharLenInfo(char1, char1 * chType2.getBytesPerChar()),
@@ -2368,8 +2368,8 @@ ItemExpr *BiRelat::bindNode(BindWA *bindWA) {
       if (pcodeOptLevel == DF_OFF) {
         char *isTrailingBlankSensitive = getenv("VARCHAR_TRAILING_BLANK_SENSITIVE");
         if (isTrailingBlankSensitive && atoi(isTrailingBlankSensitive) == 1) {
-          Lng32 char1 = chType1.getNominalSize() / chType1.getBytesPerChar();
-          Lng32 char2 = chType2.getNominalSize() / chType2.getBytesPerChar();
+          int char1 = chType1.getNominalSize() / chType1.getBytesPerChar();
+          int char2 = chType2.getNominalSize() / chType2.getBytesPerChar();
           if (char1 > char2) {
             CharType *targetType = new (bindWA->wHeap())
                 SQLChar(bindWA->wHeap(), CharLenInfo(char1, char1 * chType2.getBytesPerChar()),
@@ -2398,7 +2398,7 @@ ItemExpr *BiRelat::bindNode(BindWA *bindWA) {
   // We will cast dynamic parameter to NUMERIC(64,26).
   NABoolean bInWhere = bindWA->getCurrentScope()->context()->inWhereClause();
   if (bInWhere) {
-    const Lng32 PRECISON = 64;
+    const int PRECISON = 64;
     Int32 nDynParamIdx = -1;
     Int32 nNumericIdx = -1;
     ItemExpr *ie1 = child(0);
@@ -2426,8 +2426,8 @@ ItemExpr *BiRelat::bindNode(BindWA *bindWA) {
         bUserTable = TRUE;  // where ? > 10.5
       const NumericType &type = (NumericType &)(child(nNumericIdx)->getValueId().getType());
       if (bUserTable && type.isExact()) {
-        Lng32 nPrecision = MAXOF(PRECISON, type.getPrecision());
-        Lng32 nScale = 26;
+        int nPrecision = MAXOF(PRECISON, type.getPrecision());
+        int nScale = 26;
         if (nScale <= type.getScale()) nScale = type.getScale() + 1;
         if (nScale > nPrecision) nScale = nPrecision;
         if (MAX_HARDWARE_SUPPORTED_SIGNED_NUMERIC_PRECISION < nPrecision) {
@@ -2846,7 +2846,7 @@ static ItemExpr *ItemExpr_handleIncompatibleComparison(BindWA *bindWA, ItemExpr 
             (NumericType &)(srcOpIndex == 0 ? op1 : op2)->castToItemExpr()->getValueId().getType();
         const IntervalType &interval =
             (IntervalType &)(tgtOpIndex == 0 ? op1 : op2)->castToItemExpr()->getValueId().getType();
-        Lng32 maxDigits = (numeric.getMagnitude() + 9) / 10;
+        int maxDigits = (numeric.getMagnitude() + 9) / 10;
         maxDigits = MINOF(maxDigits, SQLInterval::MAX_LEADING_PRECISION);
 
         SQLInterval *newInterval = new (bindWA->wHeap()) SQLInterval(
@@ -3169,7 +3169,7 @@ NABoolean KeyRangeCompare::verifyPartitioningKeys(BindWA *bindWA, ItemExpr *tree
 
   if (partKeyCols.entries() != num) {
     // 4042 The operands of a comparison predicate must be of equal degree.
-    *CmpCommon::diags() << DgSqlCode(-4335) << DgInt0((Lng32)num) << DgInt1((Lng32)partKeyCols.entries())
+    *CmpCommon::diags() << DgSqlCode(-4335) << DgInt0((int)num) << DgInt1((int)partKeyCols.entries())
                         << DgTableName(objectName_.getExposedNameAsAnsiString());
     return FALSE;
   }
@@ -3299,7 +3299,7 @@ ItemExpr *Between::checkAndApplySubstrTransformation() {
 
   Int32 column_len = 0;
   NABoolean col_support_null = FALSE;
-  Lng32 substr_len = 0;
+  int substr_len = 0;
 
   // check substr() first
   ItemExpr *c = substr->child(0)->castToItemExpr();
@@ -3582,7 +3582,7 @@ ItemExpr *BuiltinFunction::bindNode(BindWA *bindWA) {
       if (NOT typ1.isCompatible(typ2) && (child(0).getPtr()->getOperatorType() != ITM_DYN_PARAM) && !bOpera1IsNull) {
         if (typ1.getTypeQualifier() == NA_CHARACTER_TYPE && child(1).getPtr()->getOperatorType() == ITM_DYN_PARAM) {
           CharType *typ1_tmp = (CharType *)(&typ1);
-          Lng32 len = CmpCommon::getDefaultNumeric(VARCHAR_PARAM_DEFAULT_SIZE);
+          int len = CmpCommon::getDefaultNumeric(VARCHAR_PARAM_DEFAULT_SIZE);
           const NAType *desiredType = new (bindWA->wHeap()) SQLVarChar(
               bindWA->wHeap(), len, typ1_tmp->supportsSQLnull(), typ1_tmp->isUpshifted(), typ1_tmp->isCaseinsensitive(),
               typ1_tmp->getCharSet(), typ1_tmp->getCollation(), typ1_tmp->getCoercibility());
@@ -4026,7 +4026,7 @@ ItemExpr *Concat::bindNode(BindWA *bindWA) {
       ItemExpr *newChild = NULL;
 
       if (type.getTypeQualifier() == NA_DATETIME_TYPE) {
-        Lng32 dLen = 0;
+        int dLen = 0;
         DatetimeType &dtType = (DatetimeType &)child(idx)->castToItemExpr()->getValueId().getType();
         dLen = dtType.getDisplayLength();
 
@@ -4197,7 +4197,7 @@ ItemExpr *Format::bindNode(BindWA *bindWA) {
   NABoolean formatX = FALSE;
   NABoolean format9 = FALSE;
   NABoolean formatExtract = FALSE;
-  Lng32 dotPos = 0;
+  int dotPos = 0;
   NABoolean formatNumericAsX = FALSE;
   NABoolean formatStringAsX = FALSE;
 
@@ -4232,7 +4232,7 @@ ItemExpr *Format::bindNode(BindWA *bindWA) {
     }
     if (formatX) {
       if ((naType0->getTypeQualifier() == NA_CHARACTER_TYPE) &&
-          ((Lng32)(formatStr_.length()) != naType0->getNominalSize()))
+          ((int)(formatStr_.length()) != naType0->getNominalSize()))
         formatStringAsX = TRUE;
       else if ((naType0->getTypeQualifier() == NA_NUMERIC_TYPE) && ((nType0 = ((NumericType *)naType0))->isExact()) &&
                (NOT nType0->isBigNum()) && (nType0->getScale() == 0))
@@ -4244,7 +4244,7 @@ ItemExpr *Format::bindNode(BindWA *bindWA) {
     if (NOT formatX) {
       format9 = TRUE;
       // check if format is of the form:   99999[.99]
-      Lng32 numDots = 0;
+      int numDots = 0;
       dotPos = -1;
       for (CollIndex i = 0; i < formatStr_.length(); i++) {
         if ((formatStr_.data()[i] != '9') && (formatStr_.data()[i] != '.'))
@@ -4265,20 +4265,20 @@ ItemExpr *Format::bindNode(BindWA *bindWA) {
     buf[0] = 0;
 
     if (formatNumericAsX) {
-      Lng32 dLen = nType0->getDisplayLength(nType0->getFSDatatype(), nType0->getNominalSize(), nType0->getPrecision(),
+      int dLen = nType0->getDisplayLength(nType0->getFSDatatype(), nType0->getNominalSize(), nType0->getPrecision(),
                                             nType0->getScale(), 0);
 
-      if ((Lng32)(formatStr_.length()) < dLen) {
+      if ((int)(formatStr_.length()) < dLen) {
         sprintf(buf, "SUBSTRING(CAST(@A1 as CHAR(%d)), %d, " PFSZ ")", dLen, 1, formatStr_.length());
-      } else if ((Lng32)(formatStr_.length()) >= dLen) {
+      } else if ((int)(formatStr_.length()) >= dLen) {
         // format using Cast
         sprintf(buf, "CAST(@A1 as CHAR(" PFSZ "))", formatStr_.length());
       }
 
     } else if (formatStringAsX) {
-      if ((Lng32)(formatStr_.length()) < naType0->getNominalSize()) {
+      if ((int)(formatStr_.length()) < naType0->getNominalSize()) {
         sprintf(buf, "SUBSTRING(@A1, %d, " PFSZ ")", 1, formatStr_.length());
-      } else if ((Lng32)(formatStr_.length()) > naType0->getNominalSize()) {
+      } else if ((int)(formatStr_.length()) > naType0->getNominalSize()) {
         // format using Cast
         sprintf(buf, "CAST(@A1 as CHAR(" PFSZ "))", formatStr_.length());
       }
@@ -4287,7 +4287,7 @@ ItemExpr *Format::bindNode(BindWA *bindWA) {
         dotPos = 0;
       else
         dotPos = formatStr_.length() - dotPos - 1;
-      sprintf(buf, "CAST(@A1 as NUMERIC(%d,%d))", (Lng32)formatStr_.length(), dotPos);
+      sprintf(buf, "CAST(@A1 as NUMERIC(%d,%d))", (int)formatStr_.length(), dotPos);
     } else if (formatExtract) {
       if (formatStr_ == "YYYY")
         sprintf(buf, "CAST(EXTRACT (YEAR FROM @A1) AS CHAR(4))");
@@ -4375,8 +4375,8 @@ void DateFormat::checkCaseSensitivity() {
 ///////////////////////////////////////////////////////
 // various error checks, details below.
 //////////////////////////////////////////////////////
-NABoolean DateFormat::errorChecks(Lng32 frmt, BindWA *bindWA, const NAType *opType) {
-  Lng32 error = 0;
+NABoolean DateFormat::errorChecks(int frmt, BindWA *bindWA, const NAType *opType) {
+  int error = 0;
 
   NABoolean toChar = (formatType_ == FORMAT_TO_CHAR);
   NABoolean toDate = (formatType_ == FORMAT_TO_DATE);
@@ -4525,7 +4525,7 @@ NABoolean DateFormat::errorChecks(Lng32 frmt, BindWA *bindWA, const NAType *opTy
 }
 
 // used for TO_DATE, TO_CHAR, TO_TIME, DATEFORMAT functions.
-DateFormat::DateFormat(ItemExpr *val1Ptr, const NAString &formatStr, Lng32 formatType, NABoolean wasDateformat)
+DateFormat::DateFormat(ItemExpr *val1Ptr, const NAString &formatStr, int formatType, NABoolean wasDateformat)
     : CacheableBuiltinFunction(ITM_DATEFORMAT, 1, val1Ptr),
       formatStr_(formatStr),
       wasDateformat_(wasDateformat),
@@ -4550,7 +4550,7 @@ DateFormat::DateFormat(ItemExpr *val1Ptr, const NAString &formatStr, Lng32 forma
   frmt_ = ExpDatetime::getDatetimeFormat(sFormat.data());
 }
 
-DateFormat::DateFormat(ItemExpr *val1Ptr, ItemExpr *val2Ptr, Lng32 formatType, NABoolean wasDateformat)
+DateFormat::DateFormat(ItemExpr *val1Ptr, ItemExpr *val2Ptr, int formatType, NABoolean wasDateformat)
     : CacheableBuiltinFunction(ITM_DATEFORMAT, 2, val1Ptr, val2Ptr),
       wasDateformat_(wasDateformat),
       formatType_(formatType),
@@ -4581,21 +4581,21 @@ DateFormat::DateFormat(ItemExpr *val1Ptr, ItemExpr *val2Ptr, Lng32 formatType, N
     sFormat = formatStr_ = "HH24:MI:SS.FF";
   else if (DateFormat::FORMAT_TO_CHAR == formatType && toUpper(formatStr_).index(NAString("FF")) == 0) {
     // formatStr must in [FF or FF1 ~ FF9]
-    Lng32 nLen = strlen("FF");
+    int nLen = strlen("FF");
     if (formatStr_.length() == nLen)
       sFormat = formatStr_ = "FF";
     else if (formatStr_.length() == strlen("FF1") && formatStr_[nLen] >= '1' && formatStr_[nLen] <= '9')
       sFormat = formatStr_ = "FF";
   } else if (DateFormat::FORMAT_TO_CHAR == formatType && toUpper(formatStr_).index(NAString("HH24MISSFF")) == 0) {
     // formatStr must in [HH24MISSFF or HH24MISSFF1 ~ HH24MISSFF9]
-    Lng32 nLen = strlen("HH24MISSFF");
+    int nLen = strlen("HH24MISSFF");
     if (formatStr_.length() == nLen)
       sFormat = formatStr_ = "HH24MISSFF";
     else if (formatStr_.length() == strlen("HH24MISSFF1") && formatStr_[nLen] >= '1' && formatStr_[nLen] <= '9')
       sFormat = formatStr_ = "HH24MISSFF";
   } else if (DateFormat::FORMAT_TO_CHAR == formatType && toUpper(formatStr_).index(NAString("HHMISSFF")) == 0) {
     // formatStr must in [HHMISSFF or HHMISSFF1 ~ HHMISSFF9]
-    Lng32 nLen = strlen("HHMISSFF");
+    int nLen = strlen("HHMISSFF");
     if (formatStr_.length() == nLen)
       sFormat = formatStr_ = "HHMISSFF";
     else if (formatStr_.length() == strlen("HHMISSFF1") && formatStr_[nLen] >= '1' && formatStr_[nLen] <= '9')
@@ -4631,7 +4631,7 @@ ItemExpr *DateFormat::bindNode(BindWA *bindWA) {
   if (frmt_ == ExpDatetime::DATETIME_FORMAT_UNSPECIFIED) {
     if (formatType_ == FORMAT_TO_CHAR) {
       // format string unspecified, cast child(0) as char
-      Lng32 nCharLen = naType0->getDisplayLength();
+      int nCharLen = naType0->getDisplayLength();
       ItemExpr *newExpr = new (bindWA->wHeap())
           Cast(child(0), new (bindWA->wHeap()) SQLVarChar(
                              bindWA->wHeap(), nCharLen,  // to_char return type is varchar.(compatible with Oracle)
@@ -4723,7 +4723,7 @@ ItemExpr *DateFormat::bindNode(BindWA *bindWA) {
     } else if (NA_CHARACTER_TYPE == naType0->getTypeQualifier()) {
       ItemExpr *newChild = new (bindWA->wHeap())
           Cast(child(0),
-               new (bindWA->wHeap()) SQLNumeric(bindWA->wHeap(), sizeof(Int64), 18, 6, TRUE,
+               new (bindWA->wHeap()) SQLNumeric(bindWA->wHeap(), sizeof(long), 18, 6, TRUE,
                                                 child(0)->castToItemExpr()->getValueId().getType().supportsSQLnull()));
       setChild(0, newChild->bindNode(bindWA));
     }
@@ -4787,7 +4787,7 @@ ItemExpr *Trim::bindNode(BindWA *bindWA) {
     const NAType &type1 = child(1)->castToItemExpr()->getValueId().getType();
     if (type1.getTypeQualifier() == NA_NUMERIC_TYPE) {
       const NumericType &numeric = (NumericType &)type1;
-      Lng32 dLen = numeric.getDisplayLength(numeric.getFSDatatype(), numeric.getNominalSize(), numeric.getPrecision(),
+      int dLen = numeric.getDisplayLength(numeric.getFSDatatype(), numeric.getNominalSize(), numeric.getPrecision(),
                                             numeric.getScale(), 0);
 
       ItemExpr *newChild = new (bindWA->wHeap())
@@ -5418,7 +5418,7 @@ ItemExpr *Aggregate::bindNode(BindWA *bindWA) {
       case ITM_USER_DEF_FUNCTION: {
         subq = (Subquery *)child(chld)->castToItemExpr();
         udf = (UDFunction *)child(chld)->castToItemExpr();
-        Lng32 myDegree = (child(chld)->getOperatorType() == ITM_ROW_SUBQUERY)
+        int myDegree = (child(chld)->getOperatorType() == ITM_ROW_SUBQUERY)
                              ? subq->getSubquery()->getDegree()
                              : udf->getRoutineDesc()->getOutputColumnList().entries();
         childDegree += myDegree;
@@ -5894,7 +5894,7 @@ ItemExpr *BiArith::bindNode(BindWA *bindWA) {
         // NAType : IntervalType : SQLInterval : IntervalQualifier
         const IntervalQualifier *qualifier = (IntervalQualifier *)naType;
         NAString *literal;
-        Lng32 tmpvallen = 20;
+        int tmpvallen = 20;
         char tmpval[20];
         CMPASSERT(tmpvallen >= qualifier->getTotalSize());
         qualifier->getZeroValue(tmpval, &tmpvallen, &literal, bindWA->wHeap());
@@ -5981,7 +5981,7 @@ ItemExpr *BiArith::bindNode(BindWA *bindWA) {
       const DatetimeType *datetime = (DatetimeType *)naType0;
       const NumericType *numeric = (NumericType *)naType1;
       if (((getOperatorType() == ITM_PLUS) || (getOperatorType() == ITM_MINUS)) && (numeric->isExact())) {
-        Lng32 maxDigits = (numeric->getMagnitude() + 9) / 10;
+        int maxDigits = (numeric->getMagnitude() + 9) / 10;
         maxDigits = MINOF(maxDigits, SQLInterval::MAX_LEADING_PRECISION);
 
         SQLInterval *interval = NULL;
@@ -6071,7 +6071,7 @@ ItemExpr *BiArith::bindNode(BindWA *bindWA) {
       if ((numeric->isExact()) && (NOT numeric->isBigNum()) && (numeric->getScale() == 0) &&
           (interval->getFractionPrecision() == 0) &&
           ((getOperatorType() == ITM_PLUS) || (getOperatorType() == ITM_MINUS))) {
-        Lng32 maxDigits = (numeric->getMagnitude() + 9) / 10;
+        int maxDigits = (numeric->getMagnitude() + 9) / 10;
         maxDigits = MINOF(maxDigits, SQLInterval::MAX_LEADING_PRECISION);
         SQLInterval *newInterval =
             new (bindWA->wHeap()) SQLInterval(bindWA->wHeap(), numeric->supportsSQLnull(), interval->getEndField(),
@@ -6094,7 +6094,7 @@ ItemExpr *BiArith::bindNode(BindWA *bindWA) {
       if ((numeric->isExact()) && (NOT numeric->isBigNum()) && (numeric->getScale() == 0) &&
           (interval->getFractionPrecision() == 0) &&
           ((getOperatorType() == ITM_PLUS) || (getOperatorType() == ITM_MINUS))) {
-        Lng32 maxDigits = (numeric->getMagnitude() + 9) / 10;
+        int maxDigits = (numeric->getMagnitude() + 9) / 10;
         maxDigits = MINOF(maxDigits, SQLInterval::MAX_LEADING_PRECISION);
         SQLInterval *newInterval =
             new (bindWA->wHeap()) SQLInterval(bindWA->wHeap(), numeric->supportsSQLnull(), interval->getEndField(),
@@ -6234,7 +6234,7 @@ ItemExpr *BiArith::bindNode(BindWA *bindWA) {
   if ((result_type->getTypeQualifier() == NA_NUMERIC_TYPE) && (getRoundingMode()) &&
       (getOperatorType() == ITM_DIVIDE) && (((NumericType *)result_type)->isExact()) &&
       (result_type->getFSDatatype() != REC_BIN64_SIGNED)) {
-    // rounded division are only supported for Int64 datatypes.
+    // rounded division are only supported for long datatypes.
     // Make the result to be NUMERIC(MAX_PRECISION, original_result_scale).
     // Save the current result attribute (attr_result).
     // Converted rounded result to the original result datatype.
@@ -6358,9 +6358,9 @@ ItemExpr *Assign::bindNode(BindWA *bindWA) {
         desiredType.getTypeQualifier() == NA_NUMERIC_TYPE) {
       const NumericType &desiredNumericType = (NumericType &)desiredType;
       if (desiredNumericType.isExact()) {
-        Lng32 nDesiredScale = desiredNumericType.getScale();
-        Lng32 nCastPrecision = desiredNumericType.getPrecision();
-        Lng32 nCastScale = nDesiredScale + 1;
+        int nDesiredScale = desiredNumericType.getScale();
+        int nCastPrecision = desiredNumericType.getPrecision();
+        int nCastScale = nDesiredScale + 1;
         nCastPrecision = nCastPrecision + 1;
         if (nCastPrecision > CmpCommon::getDefaultNumeric(MAX_NUMERIC_PRECISION_ALLOWED))
           nCastPrecision = CmpCommon::getDefaultNumeric(MAX_NUMERIC_PRECISION_ALLOWED);
@@ -6388,8 +6388,8 @@ ItemExpr *Assign::bindNode(BindWA *bindWA) {
       const NumericType &desiredNumericType = (NumericType &)desiredType;
       const NumericType &sourceNumericType = (NumericType &)sourceType;
       if (desiredNumericType.isExact() && sourceNumericType.isExact()) {
-        Lng32 nDesiredScale = desiredNumericType.getScale();
-        Lng32 nSourceScale = sourceNumericType.getScale();
+        int nDesiredScale = desiredNumericType.getScale();
+        int nSourceScale = sourceNumericType.getScale();
         if (nSourceScale > nDesiredScale) {
           char *str = new (bindWA->wHeap()) char[100];
           sprintf(str, "round(@A1,%d)", nDesiredScale);
@@ -6523,10 +6523,10 @@ ItemExpr *Assign::bindNode(BindWA *bindWA) {
   // than the target.
   targetType = child(0)->castToItemExpr()->getValueId().getType().getTypeQualifier();
   if (targetType == NA_CHARACTER_TYPE) {
-    Lng32 sourceLength = ((CharType &)(child(1)->getValueId().getType())).getStrCharLimit();
-    Lng32 targetLength = ((CharType &)(child(0)->getValueId().getType())).getStrCharLimit();
-    Lng32 sourceLength_bytes = ((CharType &)(child(1)->getValueId().getType())).getNominalSize();
-    Lng32 targetLength_bytes = ((CharType &)(child(0)->getValueId().getType())).getNominalSize();
+    int sourceLength = ((CharType &)(child(1)->getValueId().getType())).getStrCharLimit();
+    int targetLength = ((CharType &)(child(0)->getValueId().getType())).getStrCharLimit();
+    int sourceLength_bytes = ((CharType &)(child(1)->getValueId().getType())).getNominalSize();
+    int targetLength_bytes = ((CharType &)(child(0)->getValueId().getType())).getNominalSize();
     if ((targetLength < sourceLength) || (targetLength_bytes < sourceLength_bytes)) {
       ItemExpr *newChild;
 
@@ -7172,7 +7172,7 @@ ItemExpr *Like::applyBeginEndKeys(BindWA *bindWA, ItemExpr *boundExpr, CollHeap 
 
       // Get the prefix, e.g. "ab", and the minimal key value, e.g. '\0'
       NAString prefix(pattern.getPattern(), pattern.getClauseLength(), heap);
-      Lng32 zeroChar = matchCharType->getMinSingleCharacterValue();
+      int zeroChar = matchCharType->getMinSingleCharacterValue();
 
       // Get the maximum length of the comparands.
       // Note that there's another silly case we don't bother optimizing
@@ -7369,8 +7369,8 @@ ItemExpr *Case::bindNode(BindWA *bindWA) {
     NABoolean charFound = FALSE;
     NABoolean numericFound = FALSE;
     NABoolean nullconstantFound = FALSE;
-    Lng32 dLen = 0;
-    Lng32 thenClauseNum = 1;
+    int dLen = 0;
+    int thenClauseNum = 1;
     while ((ifThenElse) && (NOT done)) {
       thenClause = thenClause->bindNode(bindWA);
       if (bindWA->errStatus()) return this;
@@ -7385,7 +7385,7 @@ ItemExpr *Case::bindNode(BindWA *bindWA) {
         charFound = TRUE;
       } else if (thenClause->getValueId().getType().getTypeQualifier() == NA_NUMERIC_TYPE) {
         NumericType &numeric = (NumericType &)thenClause->getValueId().getType();
-        Lng32 numericDLen = numeric.getDisplayLength(numeric.getFSDatatype(), numeric.getNominalSize(),
+        int numericDLen = numeric.getDisplayLength(numeric.getFSDatatype(), numeric.getNominalSize(),
                                                      numeric.getPrecision(), numeric.getScale(), 0);
 
         if (numericDLen > dLen) dLen = numericDLen;
@@ -7928,7 +7928,7 @@ ItemExpr *ColReference::bindNode(BindWA *bindWA) {
     return this;
   }  // ColReference::bindNode -- reference to "*" or "CORR.*"
 
-  Lng32 sqlCode = 0;
+  int sqlCode = 0;
   BindScope *bindScope;
   NABoolean maybeCompCol = isCompCol();
   ColumnNameMap *xcnmEntry = bindWA->findColumn(this, bindScope);
@@ -8095,7 +8095,7 @@ ItemExpr *ColReference::bindNode(BindWA *bindWA) {
     BindContext *context = bindWA->getCurrentScope()->context();
     ItemExpr *jPred = context->inJoinPred();
     ItemExpr *mPred = context->inMultaryPred();
-    Lng32 mPredChNo = mPred ? mPred->currChildNo() : 0;
+    int mPredChNo = mPred ? mPred->currChildNo() : 0;
     if (jPred && jPred->containsRightmost(mPred) &&  // BiR/Func is rtmost in JoinPrd
         mPredChNo &&                                 // RHS of BiRelat/Function
         (mPredChNo >= mPred->getArity() - 1 ||       // absolute rightmost item
@@ -8105,8 +8105,8 @@ ItemExpr *ColReference::bindNode(BindWA *bindWA) {
       // the degree of the LHS comparand list?
       //
       ItemExpr *iList = context->inItemList();
-      Lng32 iListChNo = iList ? iList->currChildNo() : 0;
-      Lng32 mPredPrevDegree = mPred->child(mPredChNo - 1)->currChildNo();
+      int iListChNo = iList ? iList->currChildNo() : 0;
+      int mPredPrevDegree = mPred->child(mPredChNo - 1)->currChildNo();
       if (iListChNo && iListChNo >= mPredPrevDegree) {  // degree, not arity!
 
         if (!sqlCode) {
@@ -9046,7 +9046,7 @@ ItemExpr *RegexpSubstr::bindNode(BindWA *bindWA) {
     // Only convert numeric or integer type to character
     NAString sTypName = type1.getSimpleTypeName();
     if (sTypName != "FLOAT" && sTypName != "REAL" && sTypName != "DOUBLE PRECISION") {
-      Lng32 nLen = type1.getDisplayLength();
+      int nLen = type1.getDisplayLength();
       ItemExpr *newChild = new (bindWA->wHeap()) Cast(
           child(0), new (bindWA->wHeap()) SQLChar(
                         bindWA->wHeap(), nLen, child(0)->castToItemExpr()->getValueId().getType().supportsSQLnull()));
@@ -9082,7 +9082,7 @@ ItemExpr *RegexpCount::bindNode(BindWA *bindWA) {
     //"1.23221" is not the same as "1.2322100E+000"
     // so we prohibit convert inexact numeric type to character type
     if (!(type1.getTypeQualifier() == NA_NUMERIC_TYPE && !((NumericType &)type1).isExact())) {
-      Lng32 nLen = type1.getDisplayLength();
+      int nLen = type1.getDisplayLength();
       ItemExpr *newChild = new (bindWA->wHeap())
           Cast(child(0),
                new (bindWA->wHeap()) SQLVarChar(bindWA->wHeap(), nLen,  // varchar to avoid space
@@ -9346,7 +9346,7 @@ ItemExpr *Substring::bindNode(BindWA *bindWA) {
         Parser parser(bindWA->currentCmpContext());
         char buf[1000];
 
-        Lng32 dlen = nType.getDisplayLength(nType.getFSDatatype(), nType.getNominalSize(), nType.getPrecision(),
+        int dlen = nType.getDisplayLength(nType.getFSDatatype(), nType.getNominalSize(), nType.getPrecision(),
                                             nType.getScale(), 0);
         ItemExpr *parseTree;
         // right justify the string representation of numeric operand
@@ -9395,8 +9395,8 @@ ItemExpr *Substring::bindNode(BindWA *bindWA) {
     for (int i = 1; i < getArity(); i++) {
       const NAType *operandi = &child(i)->getValueId().getType();
       if (operandi->getTypeQualifier() == NA_NUMERIC_TYPE && operandi->getScale() > 0) {
-        Lng32 precision = operandi->getPrecision();
-        Lng32 scale = operandi->getScale();
+        int precision = operandi->getPrecision();
+        int scale = operandi->getScale();
         NumericType *newType = (NumericType *)(((NumericType *)operandi)->newCopy(HEAP));
         newType->setPrecision(precision - scale);
         newType->setScale(0);
@@ -9727,7 +9727,7 @@ ItemExpr *UDFunction::bindNode(BindWA *bindWA) {
     if (bindWA->getSchemaDB()->getNARoutineDB()->cachingMetaData()) {
       // Create new heap for this NARoutine.  The reason for this is to be able to
       // track the size of this object.  Otherwise we might use the context heap.
-      const Lng32 size = 16 * 1024;  // The initial size
+      const int size = 16 * 1024;  // The initial size
       routineHeap = new CTXTHEAP NAHeap("NARoutine Heap", (NAHeap *)CTXTHEAP, size);
     }
     // If not caching, put NARoutine on statement heap.
@@ -10136,7 +10136,7 @@ void UDFunction::setInOrOutParam(RoutineDesc *routine, ItemExpr *argument, Int32
         // Error, data types dont match
         if (!routine->isUUDFRoutine())
           // Create error for user-defined function.
-          *CmpCommon::diags() << DgSqlCode(-4455) << DgInt0((Lng32)ordinalPosition + 1)
+          *CmpCommon::diags() << DgSqlCode(-4455) << DgInt0((int)ordinalPosition + 1)
                               << DgString0(functionName_.getExternalName()) << DgString1(inputType.getTypeSQLname(TRUE))
                               << DgString2(paramType.getTypeSQLname(TRUE));
         else {
@@ -10144,7 +10144,7 @@ void UDFunction::setInOrOutParam(RoutineDesc *routine, ItemExpr *argument, Int32
           NAString actionName = "UNKNOWN";
           if (routine->getActionNARoutine() && routine->getActionNARoutine()->getActionName())
             actionName = routine->getActionNARoutine()->getActionName()->data();
-          *CmpCommon::diags() << DgSqlCode(-4456) << DgInt0((Lng32)ordinalPosition + 1) << DgString0(actionName.data())
+          *CmpCommon::diags() << DgSqlCode(-4456) << DgInt0((int)ordinalPosition + 1) << DgString0(actionName.data())
                               << DgString1(functionName_.getExternalName()) << DgString2(inputType.getTypeSQLname(TRUE))
                               << DgString3(paramType.getTypeSQLname(TRUE));
         }
@@ -10243,7 +10243,7 @@ ItemExpr *ValueIdUnion::bindNode(BindWA *bindWA) {
                                                 NAString((char *)(cv->getConstValue()), cv->getStorageSize()), FALSE);
 
       } else if (convType == 2) {
-        Lng32 dLen = 0;
+        int dLen = 0;
 
         NumericType &nType = (NumericType &)getSource(srcChildIndex).getType();
         dLen = nType.getDisplayLength(nType.getFSDatatype(), nType.getNominalSize(), nType.getPrecision(),
@@ -10542,10 +10542,10 @@ ItemExpr *ZZZBinderFunction::bindNode(BindWA *bindWA) {
   // one of those parameters is a subquer of degree 2 or an MVF that returns
   // 2 outputs.
 
-  Lng32 childDegree = 0;
-  Lng32 origArity = getArity();
+  int childDegree = 0;
+  int origArity = getArity();
 
-  for (Lng32 idx = 0; idx < origArity; idx++) {
+  for (int idx = 0; idx < origArity; idx++) {
     // Break when we have no more parameters
     // This can happen since we have some function with optional params.
     // getArity() may sometime return the maximum allowed, instead of actual
@@ -10563,7 +10563,7 @@ ItemExpr *ZZZBinderFunction::bindNode(BindWA *bindWA) {
 
         Subquery *subq = (Subquery *)child(idx)->castToItemExpr();
         UDFunction *udf = (UDFunction *)child(idx)->castToItemExpr();
-        Lng32 myDegree = (chldExpr->getOperatorType() == ITM_ROW_SUBQUERY)
+        int myDegree = (chldExpr->getOperatorType() == ITM_ROW_SUBQUERY)
                              ? subq->getSubquery()->getDegree()
                              : udf->getRoutineDesc()->getOutputColumnList().entries();
 
@@ -10574,7 +10574,7 @@ ItemExpr *ZZZBinderFunction::bindNode(BindWA *bindWA) {
         if (myDegree > 1 && ((getOperatorType() == ITM_LPAD) || (getOperatorType() == ITM_RPAD)) && origArity == 2) {
           // Expand the child() array
           // First shift any existing ones over
-          for (Lng32 shiftIdx = origArity - 1; shiftIdx > idx; shiftIdx--) {
+          for (int shiftIdx = origArity - 1; shiftIdx > idx; shiftIdx--) {
             child(shiftIdx + myDegree) = child(shiftIdx);
           }
 
@@ -10588,7 +10588,7 @@ ItemExpr *ZZZBinderFunction::bindNode(BindWA *bindWA) {
           ValueIdList mDegreeVlist;
           ie->convertToValueIdList(mDegreeVlist, bindWA, ITM_ITEM_LIST);
 
-          for (Lng32 expIdx = 0; expIdx < myDegree; expIdx++) {
+          for (int expIdx = 0; expIdx < myDegree; expIdx++) {
             child(idx + expIdx) = mDegreeVlist[expIdx].getItemExpr();
           }
 
@@ -11171,7 +11171,7 @@ ItemExpr *ZZZBinderFunction::bindNode(BindWA *bindWA) {
             Int32 maxRepeatLength = lpadLength;
 
             if (parseTree && parseTree->getOperatorType() == ITM_SUBSTR) {
-              NAList<Lng32> childNumList(CmpCommon::statementHeap(), 7);
+              NAList<int> childNumList(CmpCommon::statementHeap(), 7);
               NAList<OperatorTypeEnum> opTypeList(CmpCommon::statementHeap(), 7);
 
               childNumList.insertAt(0, 0);
@@ -11496,7 +11496,7 @@ ItemExpr *ZZZBinderFunction::bindNode(BindWA *bindWA) {
             Int32 maxRepeatLength = rpadLength;
 
             if (parseTree && parseTree->getOperatorType() == ITM_SUBSTR) {
-              NAList<Lng32> childNumList(CmpCommon::statementHeap(), 6);
+              NAList<int> childNumList(CmpCommon::statementHeap(), 6);
               NAList<OperatorTypeEnum> opTypeList(CmpCommon::statementHeap(), 6);
 
               childNumList.insertAt(0, 0);
@@ -11880,7 +11880,7 @@ ItemExpr *ZZZBinderFunction::bindNode(BindWA *bindWA) {
       }
 
       // second operand.
-      Lng32 roundTo = -1;
+      int roundTo = -1;
       if (child(1) == NULL) {
         // round all digits after the decimal point
         roundTo = 0;
@@ -11909,9 +11909,9 @@ ItemExpr *ZZZBinderFunction::bindNode(BindWA *bindWA) {
         }
 
         if (secondOpExpr->getOperatorType() == ITM_CONSTANT) {
-          roundTo = (Lng32)((ConstValue *)secondOpExpr)->getExactNumericValue();
+          roundTo = (int)((ConstValue *)secondOpExpr)->getExactNumericValue();
 
-          Lng32 maxPrecision = MAX_NUMERIC_PRECISION;
+          int maxPrecision = MAX_NUMERIC_PRECISION;
           if (type_op1.isComplexType()) maxPrecision = CmpCommon::getDefaultNumeric(MAX_NUMERIC_PRECISION_ALLOWED);
 
           if (roundTo > maxPrecision) {
@@ -11963,7 +11963,7 @@ ItemExpr *ZZZBinderFunction::bindNode(BindWA *bindWA) {
         // If roundTo(second) param is a const, create a literal instead
         // of an expression.
         ItemExpr *divExpr = NULL;
-        Int64 denom = 0;
+        long denom = 0;
         buf[0] = 0;
         if ((roundTo >= 0) && (type_op1.getScale() > roundTo)) {
           denom = 1;
@@ -11991,7 +11991,7 @@ ItemExpr *ZZZBinderFunction::bindNode(BindWA *bindWA) {
 
           // multiply by 10 ** (number of digits rounded off) to
           // get back to the original scale.
-          Lng32 nPrecision = max((Lng32)MAX_NUMERIC_PRECISION, type_op1.getPrecision());
+          int nPrecision = max((int)MAX_NUMERIC_PRECISION, type_op1.getPrecision());
           // if we use MAX_NUMERIC_PRECISION instead of nPrecision in below str_sprintf,
           // we may cause some potential errors.
           // e.g.
@@ -12204,7 +12204,7 @@ ItemExpr *ZZZBinderFunction::bindNode(BindWA *bindWA) {
       if (tempBoundTree->getValueId().getType().getTypeQualifier() == NA_NUMERIC_TYPE) {
         NumericType &type_op1 = (NumericType &)tempBoundTree->getValueId().getType();
 
-        Lng32 truncVal = (Lng32)((ConstValue *)child(1)->castToItemExpr())->getExactNumericValue();
+        int truncVal = (int)((ConstValue *)child(1)->castToItemExpr())->getExactNumericValue();
 
         int precision = type_op1.getPrecision();
         // for non-exact value, precision larger than 16 would be meaningless, and return wrong result
@@ -12398,7 +12398,7 @@ ItemExpr *ZZZBinderFunction::bindNode(BindWA *bindWA) {
       }
 
       ConstValue *cv2 = (ConstValue *)tempBoundTree2;
-      Int64 splitVal = cv2->getExactNumericValue();
+      long splitVal = cv2->getExactNumericValue();
       if (splitVal < 0 || splitVal > 1) {
         *CmpCommon::diags() << DgSqlCode(-3242)
                             << DgString0("Invalid split value specified. Only values 0 and 1 are currently supported.");
@@ -12455,7 +12455,7 @@ ItemExpr *ZZZBinderFunction::bindNode(BindWA *bindWA) {
       ItemExpr *child0 = child(0)->castToItemExpr()->bindNode(bindWA);
       if (bindWA->errStatus()) return this;
 
-      Lng32 binLen = 0;
+      int binLen = 0;
       if (child(1) != NULL) {
         ItemExpr *child1 = child(1)->castToItemExpr()->bindNode(bindWA);
         if (bindWA->errStatus()) return this;
@@ -12463,7 +12463,7 @@ ItemExpr *ZZZBinderFunction::bindNode(BindWA *bindWA) {
         // parser has already validated that child1 is an unsigned const.
         NABoolean negate;
         ConstValue *cv = child1->castToConstValue(negate);
-        binLen = (Lng32)cv->getExactNumericValue();
+        binLen = (int)cv->getExactNumericValue();
       }
 
       SQLVarChar c1(NULL, (binLen > 0 ? binLen : CmpCommon::getDefaultNumeric(VARCHAR_PARAM_DEFAULT_SIZE)));
@@ -12489,7 +12489,7 @@ ItemExpr *ZZZBinderFunction::bindNode(BindWA *bindWA) {
       if (type0.getTypeQualifier() == NA_DATETIME_TYPE) {
         ie = new (bindWA->wHeap()) DateFormat(child0, "UNSPECIFIED", DateFormat::FORMAT_TO_CHAR);
       } else {
-        Lng32 len = type0.getDisplayLength();
+        int len = type0.getDisplayLength();
         SQLVarChar *vc = new (bindWA->wHeap()) SQLVarChar(bindWA->wHeap(), len, type0.supportsSQLnull());
 
         ie = new (bindWA->wHeap()) Cast(child0, vc);
@@ -12549,7 +12549,7 @@ ItemExpr *ZZZBinderFunction::bindNode(BindWA *bindWA) {
         errReason = "Start position of replacement string specified in function " + funcName +
                     " cannot be less than or equal to zero.";
         RaiseError *ire = new (bindWA->wHeap())
-            RaiseError((Lng32)EXE_STMT_NOT_SUPPORTED, "", "", errReason, &child(2)->getValueId().getType());
+            RaiseError((int)EXE_STMT_NOT_SUPPORTED, "", "", errReason, &child(2)->getValueId().getType());
         ire->bindNode(bindWA);
         if (bindWA->errStatus()) return this;
 
@@ -12570,7 +12570,7 @@ ItemExpr *ZZZBinderFunction::bindNode(BindWA *bindWA) {
         // values
         errReason = "Number of characters to replace specified in function " + funcName + " cannot be less than zero.";
         RaiseError *ire = new (bindWA->wHeap())
-            RaiseError((Lng32)EXE_STMT_NOT_SUPPORTED, "", "", errReason, &child(3)->getValueId().getType());
+            RaiseError((int)EXE_STMT_NOT_SUPPORTED, "", "", errReason, &child(3)->getValueId().getType());
         ire->bindNode(bindWA);
         if (bindWA->errStatus()) return this;
 
@@ -12863,7 +12863,7 @@ ItemExpr *ItmOlapFirstLastValue::bindNode(BindWA *bindWA) {
 }
 
 ItmOlapPivotGroup::ItmOlapPivotGroup(OperatorTypeEnum itemType, ItemExpr *column, ItemExpr *orderBy, ItemExpr *delim,
-                                     const Lng32 maxLen)
+                                     const int maxLen)
     : ItmSeqOlapFunction(itemType, column), delimiter_(delim), maxPivotLen_(maxLen) {
   setOlapOrderBy(orderBy);
 }
@@ -12925,10 +12925,10 @@ ItemExpr *ItmSequenceFunction::bindNode(BindWA *bindWA) {
     if (!olap->isFrameStartUnboundedPreceding() &&  // olap->getframeStart() != -INT_MAX &&
         !olap->isFrameEndUnboundedFollowing() &&    // olap->getframeEnd()   != INT_MAX &&
         olap->getframeEnd() - olap->getframeStart() >
-            (Lng32)CmpCommon::getDefaultNumeric(OLAP_MAX_FIXED_WINDOW_FRAME)) {
+            (int)CmpCommon::getDefaultNumeric(OLAP_MAX_FIXED_WINDOW_FRAME)) {
       // Maximum Window frame size exceeded.
       *CmpCommon::diags() << DgSqlCode(-4347)
-                          << DgInt0((Lng32)CmpCommon::getDefaultNumeric(OLAP_MAX_FIXED_WINDOW_FRAME));
+                          << DgInt0((int)CmpCommon::getDefaultNumeric(OLAP_MAX_FIXED_WINDOW_FRAME));
       bindWA->setErrStatus();
     }
 
@@ -13206,7 +13206,7 @@ ItemExpr *HbaseColumnsDisplay::bindNode(BindWA *bindWA) {
     NAString nas("*");
     bindWA->hbaseColUsageInfo()->insert((QualifiedName *)&naTable->getTableName(), &nas);
   } else {
-    for (Lng32 i = 0; i < csl()->entries(); i++) {
+    for (int i = 0; i < csl()->entries(); i++) {
       NAString *nas = (NAString *)(*csl())[i];
 
       bindWA->hbaseColUsageInfo()->insert((QualifiedName *)&naTable->getTableName(), nas);
@@ -13320,11 +13320,11 @@ ItemExpr *HbaseColumnCreate::bindNode(BindWA *bindWA) {
   resultNull = TRUE;
   NAType *childResultType = new (bindWA->wHeap()) SQLVarChar(bindWA->wHeap(), colValMaxLen_, resultNull);
 
-  Lng32 totalLen = 0;
+  int totalLen = 0;
   totalLen +=
       sizeof(numEntries) + sizeof(colNameMaxLen_) + sizeof(short) /*VCLenIndicatorSize*/ + sizeof(colValMaxLen_);
 
-  for (Lng32 i = 0; i < numEntries; i++) {
+  for (int i = 0; i < numEntries; i++) {
     HbaseColumnCreateOptions *hcco = (*hccol_)[i];
 
     NAType *cnType = new (bindWA->wHeap()) SQLVarChar(bindWA->wHeap(), colNameMaxLen_, FALSE);
@@ -13396,7 +13396,7 @@ ItemExpr *HbaseAttribute::bindNode(BindWA *bindWA) {
   NAType *tsValsType = NULL;
 
   if ((getOperatorType() == ITM_HBASE_TIMESTAMP) || (getOperatorType() == ITM_HBASE_VERSION))
-    tsValsType = new (bindWA->wHeap()) SQLVarChar(bindWA->wHeap(), sizeof(Int64), FALSE);
+    tsValsType = new (bindWA->wHeap()) SQLVarChar(bindWA->wHeap(), sizeof(long), FALSE);
   else if (getOperatorType() == ITM_HBASE_VISIBILITY)
     tsValsType = new (bindWA->wHeap()) SQLVarChar(bindWA->wHeap(), HbaseVisibility::HBASE_VISIBILITY_MAXLEN, FALSE);
   else

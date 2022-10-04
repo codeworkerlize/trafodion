@@ -60,7 +60,7 @@ class ElemDDLFileAttrMaxExtents : public ElemDDLFileAttr {
 
   // constructors
   ElemDDLFileAttrMaxExtents();
-  ElemDDLFileAttrMaxExtents(Lng32 maxExtent);
+  ElemDDLFileAttrMaxExtents(int maxExtent);
 
   // virtual destructor
   virtual ~ElemDDLFileAttrMaxExtents();
@@ -82,8 +82,8 @@ class ElemDDLFileAttrMaxExtents : public ElemDDLFileAttr {
   // methods
   //
 
-  NABoolean isLegalMaxExtentValue(Lng32 maxExtent) const;
-  void initializeMaxExtents(Lng32 maxExtent);
+  NABoolean isLegalMaxExtentValue(int maxExtent) const;
+  void initializeMaxExtents(int maxExtent);
 
   //
   // data members

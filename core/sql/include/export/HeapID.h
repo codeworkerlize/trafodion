@@ -72,7 +72,7 @@ class HeapID {
   ~HeapID() {}
 
 #endif
-  Lng32 heapNum;
+  int heapNum;
 };
 
 #endif

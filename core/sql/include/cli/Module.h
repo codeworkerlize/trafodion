@@ -44,22 +44,22 @@
 
 class Module : public ExGod {
   char *module_name_;
-  Lng32 module_name_len_;
+  int module_name_len_;
   char *path_name_;
-  Lng32 path_name_len_;
+  int path_name_len_;
   NAHeap *heap_;
   Int32 statementCount_;
   COM_VERSION version_;
   char *vproc_;
 
  public:
-  Module(const char *module_name, Lng32 module_name_len, char *pathName, Lng32 pathNameLen, NAHeap *heap);
+  Module(const char *module_name, int module_name_len, char *pathName, int pathNameLen, NAHeap *heap);
   ~Module();
 
   inline char *getModuleName() { return module_name_; };
-  inline Lng32 getModuleNameLen() { return module_name_len_; };
+  inline int getModuleNameLen() { return module_name_len_; };
   inline char *getPathName() { return path_name_; };
-  inline Lng32 getPathNameLen() { return path_name_len_; };
+  inline int getPathNameLen() { return path_name_len_; };
   inline Int32 getStatementCount() { return statementCount_; }
   inline void setStatementCount(Int32 c) { statementCount_ = c; }
   void setVersion(COM_VERSION v) { version_ = v; }

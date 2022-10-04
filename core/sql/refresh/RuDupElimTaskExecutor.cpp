@@ -181,10 +181,10 @@ void CRUDupElimTaskExecutor::Work() {
 //
 //--------------------------------------------------------------------------//
 
-Lng32 CRUDupElimTaskExecutor::GetIpcBufferSize() const {
-  Lng32 requestSize = SIZE_OF_REQUEST_PACK_BUFFER;
+int CRUDupElimTaskExecutor::GetIpcBufferSize() const {
+  int requestSize = SIZE_OF_REQUEST_PACK_BUFFER;
 
-  Lng32 replySize = ((CRUDupElimTask *)GetParentTask())->GetDeltaStatisticsBufSize() + FIXED_PART_OF_REPLY_PACK_BUFFER;
+  int replySize = ((CRUDupElimTask *)GetParentTask())->GetDeltaStatisticsBufSize() + FIXED_PART_OF_REPLY_PACK_BUFFER;
 
   return (requestSize > replySize) ? requestSize : replySize;
 }
@@ -351,10 +351,10 @@ void CRUDupElimTaskExecutor::InitGlobals(CRUDupElimTask *pParentTask) {
   // The @IGNORE and @UPDATE_BITMAP columns is extracted from the log
   // only if there is single-row resolution.
 
-  Lng32 nCtrlColumns = (TRUE == isSingleRowResolv) ? CRUDupElimConst::NUM_IUD_LOG_CONTROL_COLS_EXTEND
+  int nCtrlColumns = (TRUE == isSingleRowResolv) ? CRUDupElimConst::NUM_IUD_LOG_CONTROL_COLS_EXTEND
                                                    : CRUDupElimConst::NUM_IUD_LOG_CONTROL_COLS_BASIC;
 
-  Lng32 updateBmpSize = (TRUE == isSingleRowResolv) ? tbl.GetUpdateBitmapSize() : 0;
+  int updateBmpSize = (TRUE == isSingleRowResolv) ? tbl.GetUpdateBitmapSize() : 0;
 
   globals_.Init(isRangeResolv, isSingleRowResolv, updateBmpSize, nCtrlColumns, tbl.GetKeyColumnList().GetCount(),
                 tbl.GetLastDupElimEpoch(), pParentTask->GetBeginEpoch(), pParentTask->GetEndEpoch(),

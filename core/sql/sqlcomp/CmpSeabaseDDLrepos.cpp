@@ -40,7 +40,7 @@
 #include "sqlmxevents/logmxevent_traf.h"
 
 short CmpSeabaseDDL::createRepos(ExeCliInterface *cliInterface) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
 
   char queryBuf[20000];
 
@@ -90,7 +90,7 @@ short CmpSeabaseDDL::createRepos(ExeCliInterface *cliInterface) {
 
     Int32 qryArraySize = sizeOfqs / sizeof(QString);
     char *gluedQuery;
-    Lng32 gluedQuerySize;
+    int gluedQuerySize;
     glueQueryFragments(qryArraySize, qs, gluedQuery, gluedQuerySize);
 
     param_[0] = getSystemCatalog();
@@ -124,7 +124,7 @@ label_error:
 
 short CmpSeabaseDDL::dropRepos(ExeCliInterface *cliInterface, NABoolean oldRepos, NABoolean dropSchema,
                                NABoolean inRecovery) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
   NABoolean xnWasStartedHere = FALSE;
   char queryBuf[1000];
 
@@ -198,8 +198,8 @@ short CmpSeabaseDDL::dropRepos(ExeCliInterface *cliInterface, NABoolean oldRepos
 }
 
 short CmpSeabaseMDupgrade::dropReposTables(ExpHbaseInterface *ehi, NABoolean oldRepos) {
-  Lng32 retcode = 0;
-  Lng32 errcode = 0;
+  int retcode = 0;
+  int errcode = 0;
 
   for (Int32 i = 0; i < sizeof(allReposUpgradeInfo) / sizeof(MDUpgradeInfo); i++) {
     const MDUpgradeInfo &rti = allReposUpgradeInfo[i];
@@ -233,7 +233,7 @@ short CmpSeabaseMDupgrade::dropReposTables(ExpHbaseInterface *ehi, NABoolean old
 }
 
 short CmpSeabaseDDL::alterRenameRepos(ExeCliInterface *cliInterface, NABoolean newToOld) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
 
   char queryBuf[10000];
 
@@ -271,7 +271,7 @@ short CmpSeabaseDDL::alterRenameRepos(ExeCliInterface *cliInterface, NABoolean n
 }
 
 short CmpSeabaseDDL::copyOldReposToNew(ExeCliInterface *cliInterface) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
 
   char queryBuf[10000];
 
@@ -310,7 +310,7 @@ short CmpSeabaseDDL::dropAndLogReposViews(ExeCliInterface *cliInterface, NABoole
 
     if ((!rti.oldName) || (NOT rti.upgradeNeeded)) continue;
 
-    Int64 tableUID = getObjectUID(cliInterface, getSystemCatalog(), SEABASE_REPOS_SCHEMA, rti.oldName,
+    long tableUID = getObjectUID(cliInterface, getSystemCatalog(), SEABASE_REPOS_SCHEMA, rti.oldName,
                                   COM_BASE_TABLE_OBJECT_LIT, NULL, NULL, NULL, FALSE, FALSE /* ignore error */);
 
     if (tableUID != -1)  // if we got it
@@ -367,7 +367,7 @@ short CmpSeabaseDDL::dropAndLogReposViews(ExeCliInterface *cliInterface, NABoole
 }
 
 short CmpSeabaseDDL::upgradeRepos(ExeCliInterface *cliInterface, CmpDDLwithStatusInfo *mdui) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
 
   while (1)  // exit via return stmt in switch
   {
@@ -477,7 +477,7 @@ short CmpSeabaseDDL::upgradeRepos(ExeCliInterface *cliInterface, CmpDDLwithStatu
 }
 
 short CmpSeabaseDDL::upgradeReposComplete(ExeCliInterface *cliInterface, CmpDDLwithStatusInfo *mdui) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
 
   while (1)  // exit via return stmt in switch
   {
@@ -550,7 +550,7 @@ short CmpSeabaseDDL::upgradeReposComplete(ExeCliInterface *cliInterface, CmpDDLw
 }
 
 short CmpSeabaseDDL::upgradeReposUndo(ExeCliInterface *cliInterface, CmpDDLwithStatusInfo *mdui) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
 
   while (1)  // exit via return stmt in switch
   {

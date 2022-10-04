@@ -490,7 +490,7 @@ void fixupComVtblPtr(ComTdb *tdb) {
   tdb->setVTblPtr(vtblPtr);
 }
 
-void resetBufSize(ex_tcb *tcb, Lng32 &tcbSpaceNeeded, Lng32 &poolSpaceNeeded) {
+void resetBufSize(ex_tcb *tcb, int &tcbSpaceNeeded, int &poolSpaceNeeded) {
   for (Int32 i = 0; i < tcb->numChildren(); i++) {
     resetBufSize((ex_tcb *)(tcb->getChild(i)), tcbSpaceNeeded, poolSpaceNeeded);
   }
@@ -515,7 +515,7 @@ void resetBufSize(ex_tcb *tcb, Lng32 &tcbSpaceNeeded, Lng32 &poolSpaceNeeded) {
   }
 }
 
-Lng32 getTotalTcbSpace(char *inTdb, char *otherInfo, char *parentMemory) {
+int getTotalTcbSpace(char *inTdb, char *otherInfo, char *parentMemory) {
   ComTdb *tdb = (ComTdb *)inTdb;
 
   Space space(Space::EXECUTOR_SPACE);
@@ -552,9 +552,9 @@ Lng32 getTotalTcbSpace(char *inTdb, char *otherInfo, char *parentMemory) {
   ex_tcb *tcb = tdb->build(g);
   fixupComVtblPtr(tdb);
 
-  Lng32 totalSpaceNeeded = 0;
-  Lng32 tcbSpaceNeeded = 0;
-  Lng32 poolSpaceNeeded = 0;
+  int totalSpaceNeeded = 0;
+  int tcbSpaceNeeded = 0;
+  int poolSpaceNeeded = 0;
   tcbSpaceNeeded = space.getAllocatedSpaceSize();
 
   resetBufSize(tcb, tcbSpaceNeeded, poolSpaceNeeded);

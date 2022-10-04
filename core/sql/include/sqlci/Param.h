@@ -1,47 +1,7 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-//
-**********************************************************************/
+
 #ifndef PARAM_H
 #define PARAM_H
 
-/* -*-C++-*-
- *****************************************************************************
- *
- * File:         Param.h
- * RCS:          $Id: Param.h,v 1.6 1998/07/20 07:27:28  Exp $
- * Description:
- *
- *
- * Created:      4/15/95
- * Modified:     $ $Date: 1998/07/20 07:27:28 $ (GMT)
- * Language:     C++
- * Status:       $State: Exp $
- *
- *
- *
- *
- *****************************************************************************
- */
 
 #include "common/Int64.h"
 #include "common/NAString.h"
@@ -103,8 +63,8 @@ class Param {
   CharInfo::CharSet getCharSet() { return cs; };
   NABoolean isInSingleByteForm() { return inSingleByteForm_; };
 
-  short convertValue(SqlciEnv *, short targetType, Lng32 &targetLength, Lng32 targetPrecision, Lng32 targetScale,
-                     Lng32 vcIndLen, ComDiagsArea *&diags);
+  short convertValue(SqlciEnv *, short targetType, int &targetLength, int targetPrecision, int targetScale,
+                     int vcIndLen, ComDiagsArea *&diags);
   void setName(const char *name_);
 
   void setValue(const char *, CharInfo::CharSet cs = CharInfo::UnknownCharSet);

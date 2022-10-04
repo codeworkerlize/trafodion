@@ -720,7 +720,7 @@ void CmAnsiNameToUCS2(const NAString &inMbs, NAWString &outWcs) {
   if (inMbs.length() <= 0) {
     return;
   }
-  NAWString *pTargetNAWString = charToUnicode((Lng32)ComGetNameInterfaceCharSet()  // in - Lng32        strCharSet
+  NAWString *pTargetNAWString = charToUnicode((int)ComGetNameInterfaceCharSet()  // in - int        strCharSet
                                               ,
                                               inMbs.data()  // in - const char * str
                                               ,
@@ -748,7 +748,7 @@ void CmAnsiNameToUTF8(const NAWString &inWcs, NAString &outMbs) {
                                      ,
                                      (Int32)inWcs.length()  // in - Int32        len
                                      ,
-                                     (Lng32)ComGetNameInterfaceCharSet()  // in - Lng32        strCharSet
+                                     (int)ComGetNameInterfaceCharSet()  // in - int        strCharSet
                                      ,
                                      (NAMemory *)STMTHEAP  // in - NAMemory *   h
                                      ,

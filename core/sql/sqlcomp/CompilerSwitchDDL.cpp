@@ -158,7 +158,7 @@ short CompilerSwitchDDL::sendAllControlsAndFlags(CmpContext *prevContext, Int32 
 }
 
 void CompilerSwitchDDL::restoreAllControlsAndFlags() {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
   CmpContext *cmpctxt = CmpCommon::context();
 
   if (cmpctxt->getCIClass() != CmpContextInfo::CMPCONTEXT_TYPE_META) {

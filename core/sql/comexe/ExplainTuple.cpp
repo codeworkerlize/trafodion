@@ -68,7 +68,7 @@
 //
 //  Called from RelRoot::codeGen()
 
-ExplainDesc::ExplainDesc(Lng32 numCols, Lng32 recLength, Space *space)
+ExplainDesc::ExplainDesc(int numCols, int recLength, Space *space)
     :  // version_(EXPLAIN_VERSION), // handled now by NAVersionedObject
       explainTreeRoot_(0),
       numCols_(numCols),
@@ -92,7 +92,7 @@ Long ExplainDesc::pack(void *space) {
 }
 
 // Unpack the Explain Descriptor and all its children
-Lng32 ExplainDesc::unpack(void *base, void *reallocator) {
+int ExplainDesc::unpack(void *base, void *reallocator) {
   if (explainCols_.unpack(base)) return -1;
   if (explainTreeRoot_.unpack(base, reallocator)) return -1;
   return NAVersionedObject::unpack(base, reallocator);
@@ -147,8 +147,8 @@ ExplainTuple::~ExplainTuple() {
 short ExplainTuple::genExplainTupleData(Space *space) {
   if (explainTupleStr_) {
     // find out used record size by removing unused bytes in description field.
-    Lng32 descrColSize = getColLength(EX_COL_DESCRIPT);
-    Lng32 usedRecLength;
+    int descrColSize = getColLength(EX_COL_DESCRIPT);
+    int usedRecLength;
     if (descrColSize >= descCursor_)
       usedRecLength = getRecLength() - (descrColSize - descCursor_);
     else
@@ -188,7 +188,7 @@ Long ExplainTuple::pack(void *space) {
 }
 
 // unpack this node and all it children
-Lng32 ExplainTuple::unpack(void *base, void *reallocator) {
+int ExplainTuple::unpack(void *base, void *reallocator) {
   // Unpack the children pointers and the children nodes.
   if (children_[0].unpack(base, reallocator)) return -1;
   if (children_[1].unpack(base, reallocator)) return -1;
@@ -391,7 +391,7 @@ void ExplainTuple::setModuleName(const char *modName) { setCol(EX_COL_MODNAME, m
 // a method on ExplainTuple - is called from executor.
 void ExplainTuple::setStatementName(const char *stmtName) { setCol(EX_COL_STMTNAME, stmtName, 0, 0); }
 
-void ExplainTupleMaster::setPlanId(Int64 planId) { setCol(EX_COL_PLANID, &planId, 0, 0); }
+void ExplainTupleMaster::setPlanId(long planId) { setCol(EX_COL_PLANID, &planId, 0, 0); }
 
 void ExplainTuple::setSeqNum(Int32 seqNum) { setCol(EX_COL_SEQNUM, &seqNum, 0, 0); }
 

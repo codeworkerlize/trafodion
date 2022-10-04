@@ -60,7 +60,7 @@ StmtDDLCleanupObjects *StmtDDLCleanupObjects::castToStmtDDLCleanupObjects() { re
 
 Int32 StmtDDLCleanupObjects::getArity() const { return 0; }
 
-ExprNode *StmtDDLCleanupObjects::getChild(Lng32 index) { return NULL; }
+ExprNode *StmtDDLCleanupObjects::getChild(int index) { return NULL; }
 
 const NAString StmtDDLCleanupObjects::getText() const { return "StmtDDLCleanupObjects"; }
 

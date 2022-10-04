@@ -417,7 +417,7 @@ IpcMessageObjSize packCharStarIntoBuffer(IpcMessageBufferPtr &buffer, char *strP
 IpcMessageObjSize packCharStarIntoBuffer(IpcMessageBufferPtr &buffer, NAWchar *strPtr, NABoolean swapBytes = FALSE);
 
 inline IpcMessageObjSize packStrIntoBuffer(char *&buffer, char *targetObj, ULng32 objSize) {
-  str_cpy_all(buffer, targetObj, (Lng32)objSize);
+  str_cpy_all(buffer, targetObj, (int)objSize);
   buffer += objSize;
   return objSize;
 }
@@ -425,7 +425,7 @@ inline IpcMessageObjSize packStrIntoBuffer(char *&buffer, char *targetObj, ULng3
 void unpackBuffer(const char *&buffer, char *&strPtr, CollHeap *collHeapPtr);
 
 inline void unpackStrFromBuffer(const char *&buffer, char *targetObj, ULng32 objSize) {
-  str_cpy_all(targetObj, buffer, (Lng32)objSize);
+  str_cpy_all(targetObj, buffer, (int)objSize);
   buffer += objSize;
 }
 

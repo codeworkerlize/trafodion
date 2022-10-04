@@ -83,7 +83,7 @@ class ActiveQueryStream : public IpcMessageStream {
 
 class ActiveQueryEntry : public NABasicObject {
  public:
-  ActiveQueryEntry(char *qid, Lng32 qidLen, Int64 startTime, GuaProcessHandle master, short masterFileNum,
+  ActiveQueryEntry(char *qid, int qidLen, long startTime, GuaProcessHandle master, short masterFileNum,
                    Int32 executionCount, IpcEnvironment *ipcEnv, SsmpGlobals *ssmpG);
 
   ~ActiveQueryEntry();
@@ -92,9 +92,9 @@ class ActiveQueryEntry : public NABasicObject {
 
   char *getQid() const { return qid_; }
 
-  Lng32 getQidLen() const { return qidLen_; }
+  int getQidLen() const { return qidLen_; }
 
-  Int64 getQueryStartTime() const { return queryStartTime_; }
+  long getQueryStartTime() const { return queryStartTime_; }
 
   GuaProcessHandle getMasterPhandle() const { return master_; }
 
@@ -108,9 +108,9 @@ class ActiveQueryEntry : public NABasicObject {
 
  private:
   char *qid_;
-  Lng32 qidLen_;
+  int qidLen_;
   ActiveQueryStream *replyStartedStream_;
-  Int64 queryStartTime_;
+  long queryStartTime_;
   GuaProcessHandle master_;
   short masterFileNum_;
   Int32 executionCount_;
@@ -127,16 +127,16 @@ class ActiveQueryMgr : public NABasicObject {
   ~ActiveQueryMgr(){};
 
   // Called from actOnCancelQueryReq for the Cancel Query msg.
-  ActiveQueryEntry *getActiveQuery(char *qid, Lng32 qidLen);
+  ActiveQueryEntry *getActiveQuery(char *qid, int qidLen);
 
   // Called from actOnQueryStartedReq for the Begin Query msg
-  void addActiveQuery(char *qid, Lng32 qidLen, Int64 startTime, GuaProcessHandle masterPhandle, Int32 executionCount,
+  void addActiveQuery(char *qid, int qidLen, long startTime, GuaProcessHandle masterPhandle, Int32 executionCount,
                       SsmpNewIncomingConnectionStream *cStream, IpcConnection *conn);
 
   // Called from actOnQueryFinishedReq for the Finished Query msg.  This call
   // will send a reply to the QueryStarted message.  The caller is responsible
   // for replying to the FinishedQuery msg.
-  void rmActiveQuery(char *qid, Lng32 qidLen, NAHeap *ipcHeap, NextActionForSubject nxtA, bool cancelLogging);
+  void rmActiveQuery(char *qid, int qidLen, NAHeap *ipcHeap, NextActionForSubject nxtA, bool cancelLogging);
 
   // Called from actOnSystemMessage for the close message, if the master
   // process ends before the Finished Query message is sent.
@@ -156,20 +156,20 @@ class ActiveQueryMgr : public NABasicObject {
 
 class PendingQueryEntry : public NABasicObject {
  public:
-  PendingQueryEntry(char *qid, Lng32 qidLen, Int32 executionCount, GuaProcessHandle master, short masterFileNum,
-                    Int64 escalateTime1, Int64 escalateTime2, bool cancelEscalationSaveabend, bool cancelLogging);
+  PendingQueryEntry(char *qid, int qidLen, Int32 executionCount, GuaProcessHandle master, short masterFileNum,
+                    long escalateTime1, long escalateTime2, bool cancelEscalationSaveabend, bool cancelLogging);
 
   ~PendingQueryEntry();
 
   char *getQid() const { return qid_; }
 
-  Lng32 getQidLen() const { return qidLen_; }
+  int getQidLen() const { return qidLen_; }
 
   Int32 getExecutionCount() const { return executionCount_; }
 
-  Int64 getEscalateTime1() const { return escalateTime1_; }
+  long getEscalateTime1() const { return escalateTime1_; }
 
-  Int64 getEscalateTime2() const { return escalateTime2_; }
+  long getEscalateTime2() const { return escalateTime2_; }
 
   bool getCancelEscalationSaveabend() const { return cancelEscalationSaveabend_; }
 
@@ -185,10 +185,10 @@ class PendingQueryEntry : public NABasicObject {
 
  private:
   char *qid_;
-  Lng32 qidLen_;
+  int qidLen_;
   Int32 executionCount_;
-  Int64 escalateTime1_;
-  Int64 escalateTime2_;
+  long escalateTime1_;
+  long escalateTime2_;
   bool cancelEscalationSaveabend_;
   bool haveEscalated1_;
   GuaProcessHandle master_;

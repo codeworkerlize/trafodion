@@ -40,10 +40,10 @@
 //   return TRUE, if there is a transaction, transId will hold
 //                transaction ID if passed in.
 //   return FALSE, if there is no transaction
-NABoolean NAExecTrans(Int64 *transId) {
+NABoolean NAExecTrans(long *transId) {
   short retcode = 0;
 
-  Int64 l_transid;
+  long l_transid;
   retcode = GETTRANSID((short *)&l_transid);
   if (transId) *transId = l_transid;
 

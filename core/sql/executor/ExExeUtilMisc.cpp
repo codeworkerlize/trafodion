@@ -95,7 +95,7 @@ ExExeUtilLongRunningTcb::~ExExeUtilLongRunningTcb() {}
 Int32 ExExeUtilLongRunningTcb::fixup() { return ex_tcb::fixup(); }
 
 short ExExeUtilLongRunningTcb::doLongRunning() {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
   short retcode = 0;
   NABoolean xnAlreadyStarted = FALSE;
 
@@ -170,9 +170,9 @@ short ExExeUtilLongRunningTcb::doLongRunning() {
 //////////////////////////////////////////////////////
 short ExExeUtilLongRunningTcb::work() {
   short rc = 0;
-  Lng32 cliRC = 0;
-  Int64 rowsDeleted = 0;
-  Int64 transactions = 0;
+  int cliRC = 0;
+  long rowsDeleted = 0;
+  long transactions = 0;
 
   // if no parent request, return
   if (qparent_.down->isEmpty()) return WORK_OK;
@@ -201,7 +201,7 @@ short ExExeUtilLongRunningTcb::work() {
     char *cqd = new (getHeap()) char[bufSize];
     snprintf(cqd, bufSize, "control query default SCHEMA '%s.%s'", lrTdb().getDefaultCatalogName(),
              lrTdb().getDefaultSchemaName());
-    Lng32 cliRC = cliInterface()->executeImmediate(cqd);
+    int cliRC = cliInterface()->executeImmediate(cqd);
 
     if (cliRC < 0) {
       cliInterface()->allocAndRetrieveSQLDiagnostics(diagsArea_);
@@ -218,7 +218,7 @@ short ExExeUtilLongRunningTcb::work() {
       case LONG_RUNNING_: {
         rc = doLongRunning();
         if ((rc < 0) || (rc == 100)) {
-          Lng32 cliRC = cliInterface()->executeImmediate("control query default SCHEMA reset");
+          int cliRC = cliInterface()->executeImmediate("control query default SCHEMA reset");
           if (cliRC < 0) {
             cliInterface()->allocAndRetrieveSQLDiagnostics(diagsArea_);
             return WORK_OK;
@@ -257,7 +257,7 @@ short ExExeUtilLongRunningTcb::work() {
         ComDiagsArea *diagsArea = getDiagAreaFromUpQueueTail();
         if (lrTdb().longRunningQueryPlan()) {
           (*diagsArea) << DgSqlCode(8450) << DgString0((char *)exeUtilTdb().getTableName()) << DgInt0(espNum)
-                       << DgInt1((Lng32)getTransactionCount());
+                       << DgInt1((int)getTransactionCount());
         }
 
         // insert into parent
@@ -343,10 +343,10 @@ ComDiagsArea *ExExeUtilLongRunningTcb::getDiagAreaFromUpQueueTail() {
 }
 
 short ExExeUtilLongRunningTcb::executeLongRunningQuery() {
-  Lng32 rc = 0;
+  int rc = 0;
 
   if (getInitial()) {
-    Lng32 cliRC = cliInterface()->executeImmediate("control query default HIST_ON_DEMAND_STATS_SIZE '0'");
+    int cliRC = cliInterface()->executeImmediate("control query default HIST_ON_DEMAND_STATS_SIZE '0'");
     if (cliRC < 0) {
       cliInterface()->allocAndRetrieveSQLDiagnostics(diagsArea_);
       return cliRC;
@@ -410,7 +410,7 @@ short ExExeUtilLongRunningTcb::executeLongRunningQuery() {
 
 short ExExeUtilLongRunningTcb::finalizeDoLongRunning() {
   // Close the statements
-  // Lng32 rc = cliInterface()->prepareAndExecRowsEpilogue();
+  // int rc = cliInterface()->prepareAndExecRowsEpilogue();
 
   // NADELETE(initialOutputVarPtrList_, Queue, getHeap());
   // NADELETE(continuingOutputVarPtrList_, Queue, getHeap());
@@ -427,8 +427,8 @@ short ExExeUtilLongRunningTcb::finalizeDoLongRunning() {
   return 0;
 }
 
-short ExExeUtilLongRunningTcb::processInitial(Lng32 &rc) {
-  Int64 rowsAffected = 0;
+short ExExeUtilLongRunningTcb::processInitial(int &rc) {
+  long rowsAffected = 0;
 
   // setInitialOutputVarPtrList(new(getHeap()) Queue(getHeap()));
   // setContinuingOutputVarPtrList(new(getHeap()) Queue(getHeap()));
@@ -510,8 +510,8 @@ short ExExeUtilLongRunningTcb::processInitial(Lng32 &rc) {
   return 0;
 }
 
-short ExExeUtilLongRunningTcb::processContinuing(Lng32 &rc) {
-  Int64 rowsAffected = 0;
+short ExExeUtilLongRunningTcb::processContinuing(int &rc) {
+  long rowsAffected = 0;
 
   /*rc = cliInterface()->execContinuingRows(getContinuingOutputVarPtrList(),
                                           rowsAffected);*/
@@ -545,8 +545,8 @@ short ExExeUtilLongRunningTcb::processContinuing(Lng32 &rc) {
 // Redefine virtual method allocatePstates, to be used by dynamic queue
 // resizing, as well as the initial queue construction.
 ////////////////////////////////////////////////////////////////////////
-ex_tcb_private_state *ExExeUtilLongRunningTcb::allocatePstates(Lng32 &numElems,      // inout, desired/actual elements
-                                                               Lng32 &pstateLength)  // out, length of one element
+ex_tcb_private_state *ExExeUtilLongRunningTcb::allocatePstates(int &numElems,      // inout, desired/actual elements
+                                                               int &pstateLength)  // out, length of one element
 {
   PstateAllocator<ExExeUtilLongRunningPrivateState> pa;
 
@@ -631,8 +631,8 @@ short ExExeUtilAQRTcb::work() {
         // Come back later.
         if (qparent_.up->isFull()) return WORK_OK;
 
-        Lng32 sqlcode, nskcode, retries, delay, type, intAQR;
-        Lng32 eof = 0;
+        int sqlcode, nskcode, retries, delay, type, intAQR;
+        int eof = 0;
         eof = aqr->getNextAQREntry(sqlcode, nskcode, retries, delay, type, intAQR);
         if (eof) {
           step_ = DONE_;
@@ -764,7 +764,7 @@ static const QueryString populateHistintsStatsQuery[] = {
 
 short ExExeUtilPopulateInMemStatsTcb::work() {
   //  short rc = 0;
-  Lng32 cliRC = 0;
+  int cliRC = 0;
 
   // if no parent request, return
   if (qparent_.down->isEmpty()) return WORK_OK;
@@ -818,10 +818,10 @@ short ExExeUtilPopulateInMemStatsTcb::work() {
         ;
 
         char *gluedQuery;
-        Lng32 gluedQuerySize;
+        int gluedQuerySize;
         glueQueryFragments(qry_array_size, queryString, gluedQuery, gluedQuerySize);
 
-        Lng32 extraSpace = ComMAX_3_PART_EXTERNAL_UTF8_NAME_LEN_IN_BYTES /* fullyQualTableName */
+        int extraSpace = ComMAX_3_PART_EXTERNAL_UTF8_NAME_LEN_IN_BYTES /* fullyQualTableName */
                            + 20                                          /* UID */
                            + 200 /* overhead */;
 
@@ -857,10 +857,10 @@ short ExExeUtilPopulateInMemStatsTcb::work() {
         ;
 
         char *gluedQuery;
-        Lng32 gluedQuerySize;
+        int gluedQuerySize;
         glueQueryFragments(qry_array_size, queryString, gluedQuery, gluedQuerySize);
 
-        Lng32 extraSpace = ComMAX_3_PART_EXTERNAL_UTF8_NAME_LEN_IN_BYTES   /* fullyQualInMemHistTableName */
+        int extraSpace = ComMAX_3_PART_EXTERNAL_UTF8_NAME_LEN_IN_BYTES   /* fullyQualInMemHistTableName */
                            + 20                                            /* UID */
                            + ComMAX_3_PART_EXTERNAL_UTF8_NAME_LEN_IN_BYTES /* fullyQualSourceHistTableName */
                            + 2 * 10                                        /*segment name*/
@@ -901,10 +901,10 @@ short ExExeUtilPopulateInMemStatsTcb::work() {
         ;
 
         char *gluedQuery;
-        Lng32 gluedQuerySize;
+        int gluedQuerySize;
         glueQueryFragments(qry_array_size, queryString, gluedQuery, gluedQuerySize);
 
-        Lng32 extraSpace = ComMAX_3_PART_EXTERNAL_UTF8_NAME_LEN_IN_BYTES   /* fullyQualInMemHistTableName */
+        int extraSpace = ComMAX_3_PART_EXTERNAL_UTF8_NAME_LEN_IN_BYTES   /* fullyQualInMemHistTableName */
                            + 20                                            /* UID */
                            + ComMAX_3_PART_EXTERNAL_UTF8_NAME_LEN_IN_BYTES /* fullyQualSourceHistTableName */
                            + 2 * 10                                        /*segment name*/
@@ -1015,8 +1015,8 @@ short ExExeUtilPopulateInMemStatsTcb::work() {
 // resizing, as well as the initial queue construction.
 ////////////////////////////////////////////////////////////////////////
 ex_tcb_private_state *ExExeUtilPopulateInMemStatsTcb::allocatePstates(
-    Lng32 &numElems,      // inout, desired/actual elements
-    Lng32 &pstateLength)  // out, length of one element
+    int &numElems,      // inout, desired/actual elements
+    int &pstateLength)  // out, length of one element
 {
   PstateAllocator<ExExeUtilPopulateInMemStatsPrivateState> pa;
 
@@ -1077,8 +1077,8 @@ ExExeUtilCompositeUnnestTcb::ExExeUtilCompositeUnnestTcb(const ComTdbExeUtilComp
   step_ = INITIAL_;
 }
 
-ex_tcb_private_state *ExExeUtilCompositeUnnestTcb::allocatePstates(Lng32 &numElems,  // inout, desired/actual elements
-                                                                   Lng32 &pstateLength)  // out, length of one element
+ex_tcb_private_state *ExExeUtilCompositeUnnestTcb::allocatePstates(int &numElems,  // inout, desired/actual elements
+                                                                   int &pstateLength)  // out, length of one element
 {
   PstateAllocator<ExExeUtilConnectbyTdbState> pa;
 
@@ -1087,7 +1087,7 @@ ex_tcb_private_state *ExExeUtilCompositeUnnestTcb::allocatePstates(Lng32 &numEle
 
 short ExExeUtilCompositeUnnestTcb::work() {
   short rc = 0;
-  Lng32 cliRC = 0;
+  int cliRC = 0;
   ex_expr::exp_return_type exprRetCode;
 
   if (qparent_.down->isEmpty()) return WORK_OK;

@@ -48,7 +48,7 @@
 
 #include "sqlmxevents/logmxevent.h"
 
-char *GetHistoryRowOLAP(void *data, Int32 n, NABoolean leading, Lng32 winSize, Int32 &retcode) {
+char *GetHistoryRowOLAP(void *data, Int32 n, NABoolean leading, int winSize, Int32 &retcode) {
   ExSequenceTcb *tcb = (ExSequenceTcb *)data;
 
   retcode = 0;
@@ -102,7 +102,7 @@ char *GetHistoryRowOLAP(void *data, Int32 n, NABoolean leading, Lng32 winSize, I
   return tmpBuf->getFirstRow() + (tcb->maxRowsInOLAPBuffer_ - n) * tcb->recLen();
 };
 
-char *GetHistoryRowFollowingOLAP(void *data, Int32 n, NABoolean leading, Lng32 winSize, Int32 &retcode) {
+char *GetHistoryRowFollowingOLAP(void *data, Int32 n, NABoolean leading, int winSize, Int32 &retcode) {
   ExSequenceTcb *tcb = (ExSequenceTcb *)data;
 
   // flip the sign of n for now. The logic to handle negative offsets should be done
@@ -147,7 +147,7 @@ char *GetHistoryRowFollowingOLAP(void *data, Int32 n, NABoolean leading, Lng32 w
   return tmpBuf->getFirstRow() + n * tcb->recLen();
 };
 
-char *GetHistoryRow(void *data, Int32 n, NABoolean leading, Lng32 winSize, Int32 &retcode) {
+char *GetHistoryRow(void *data, Int32 n, NABoolean leading, int winSize, Int32 &retcode) {
   ExSequenceTcb *tcb = (ExSequenceTcb *)data;
 
   retcode = 0;
@@ -402,7 +402,7 @@ short ExSequenceTcb::work() {
     //
     if ((pstate->step_ == ExSeq_WORKING_READ) || (pstate->step_ == ExSeq_WORKING_RETURN)) {
       if ((request == ex_queue::GET_NOMORE) ||
-          ((request == ex_queue::GET_N) && (pentry_down->downState.requestValue <= (Lng32)pstate->matchCount_))) {
+          ((request == ex_queue::GET_N) && (pentry_down->downState.requestValue <= (int)pstate->matchCount_))) {
         qchild_.down->cancelRequestWithParentIndex(qparent_.down->getHeadIndex());
         pstate->step_ = ExSeq_CANCELLED;
       }
@@ -776,7 +776,7 @@ short ExSequenceTcb::work() {
             cluster_->nextBufferToRead_ = firstOLAPBufferFromOF_;
             HashBuffer *afterLast = firstOLAPBufferFromOF_;
             // last buffer to read into is the current buffer - maybe ?
-            for (Lng32 bufcount = numberOfOLAPBuffersFromOF_; bufcount; bufcount--) {
+            for (int bufcount = numberOfOLAPBuffersFromOF_; bufcount; bufcount--) {
               afterLast = afterLast->getNext();
               // Don't cycle back if bufcount == 1 because the logic in
               // Cluster::read relies on the NULL ptr to stop reading
@@ -1254,7 +1254,7 @@ void ExSequenceTcb::updateDiagsArea(ExeErrorCode rc_) {
     da = ComDiagsArea::allocate(heap_);
     workAtp_->setDiagsArea(da);
   }
-  if (!da->contains((Lng32)-rc_)) {
+  if (!da->contains((int)-rc_)) {
     *da << DgSqlCode(-rc_);
     *da << DgString0("Sequence Operator Error occurred.");
   }
@@ -1277,8 +1277,8 @@ ex_tcb_private_state *ExSequencePrivateState::allocate_new(const ex_tcb *tcb) {
 // Redefine virtual method allocatePstates, to be used by dynamic queue
 // resizing, as well as the initial queue construction.
 ////////////////////////////////////////////////////////////////////////
-ex_tcb_private_state *ExSequenceTcb::allocatePstates(Lng32 &numElems,      // inout, desired/actual elements
-                                                     Lng32 &pstateLength)  // out, length of one element
+ex_tcb_private_state *ExSequenceTcb::allocatePstates(int &numElems,      // inout, desired/actual elements
+                                                     int &pstateLength)  // out, length of one element
 {
   PstateAllocator<ExSequencePrivateState> pa;
 

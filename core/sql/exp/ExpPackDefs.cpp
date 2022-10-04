@@ -250,7 +250,7 @@ Long ex_function_explode_varchar::pack(void *space_) { return packClause(space_,
 Long ex_function_hash::pack(void *space_) { return packClause(space_, sizeof(ex_function_hash)); }
 
 Long ex_function_hivehash::pack(void *space_) {
-  Lng32 x = sizeof(ex_function_hivehash);
+  int x = sizeof(ex_function_hivehash);
   return packClause(space_, sizeof(ex_function_hivehash));
 }
 
@@ -395,7 +395,7 @@ Long ExFunctionRangeOfValues::pack(void *space) { return packClause(space, sizeo
 // U N P A C K
 // -----------------------------------------------------------------------
 
-Lng32 ex_expr::unpack(void *base, void *reallocator) {
+int ex_expr::unpack(void *base, void *reallocator) {
   ExClausePtr currClausePtr;
   ex_clause *nextClause;
   ex_clause *currClause;
@@ -453,7 +453,7 @@ void ex_expr_lean::convOffsetToAddrInPCode(void *base) {
   }
 }
 
-Lng32 ex_expr_lean::unpack(void *base, void *reallocator) {
+int ex_expr_lean::unpack(void *base, void *reallocator) {
   if (constantsArea_.unpack(base)) return -1;
   if (tempsArea_.unpack(base)) return -1;
   if (persistentArea_.unpack(base)) return -1;
@@ -463,7 +463,7 @@ Lng32 ex_expr_lean::unpack(void *base, void *reallocator) {
   return NAVersionedObject::unpack(base, reallocator);
 }
 
-Lng32 AggrExpr::unpack(void *base, void *reallocator) {
+int AggrExpr::unpack(void *base, void *reallocator) {
   if (initExpr_.unpack(base, reallocator)) return -1;
   if (perrecExpr_.unpack(base, reallocator)) return -1;
   if (finalNullExpr_.unpack(base, reallocator)) return -1;
@@ -473,13 +473,13 @@ Lng32 AggrExpr::unpack(void *base, void *reallocator) {
   return ex_expr::unpack(base, reallocator);
 }
 
-Lng32 ex_branch_clause::unpack(void *base, void *reallocator) {
+int ex_branch_clause::unpack(void *base, void *reallocator) {
   if (branch_clause.unpack(base, reallocator)) return -1;
   if (saved_next_clause.unpack(base, reallocator)) return -1;
   return unpackClause(base, reallocator);
 }
 
-Lng32 ex_inout_clause::unpack(void *base, void *reallocator) {
+int ex_inout_clause::unpack(void *base, void *reallocator) {
   if (name.unpack(base)) return -1;
   if (heading_.unpack(base)) return -1;
   if (table_name_.unpack(base)) return -1;
@@ -489,21 +489,21 @@ Lng32 ex_inout_clause::unpack(void *base, void *reallocator) {
   return unpackClause(base, reallocator);
 }
 
-Lng32 ExpRaiseErrorFunction::unpack(void *base, void *reallocator) {
+int ExpRaiseErrorFunction::unpack(void *base, void *reallocator) {
   if (constraintName_.unpack(base)) return -1;
   if (tableName_.unpack(base)) return -1;
   return unpackClause(base, reallocator);
 }
 
-Lng32 ExFunctionHbaseColumnCreate::unpack(void *base, void *reallocator) { return unpackClause(base, reallocator); }
+int ExFunctionHbaseColumnCreate::unpack(void *base, void *reallocator) { return unpackClause(base, reallocator); }
 
-Lng32 ExFunctionHbaseColumnsDisplay::unpack(void *base, void *reallocator) {
+int ExFunctionHbaseColumnsDisplay::unpack(void *base, void *reallocator) {
   if (colNames_.unpack(base)) return -1;
 
   return unpackClause(base, reallocator);
 }
 
-Lng32 ExFunctionRangeOfValues::unpack(void *base, void *reallocator) { return unpackClause(base, reallocator); }
+int ExFunctionRangeOfValues::unpack(void *base, void *reallocator) { return unpackClause(base, reallocator); }
 
 Long ex_function_beginkey::pack(void *space_) { return packClause(space_, sizeof(ex_function_beginkey)); }
 

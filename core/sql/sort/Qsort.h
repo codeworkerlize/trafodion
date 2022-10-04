@@ -118,30 +118,30 @@ class Qsort : public SortAlgo {  // SortAlgo inherits from NABasicObject
 
  public:
   Qsort(ULng32 recmax, ULng32 sortmaxmem, ULng32 recsize, NABoolean doNotallocRec, ULng32 keysize,
-        SortScratchSpace *scratch, NABoolean iterQuickSort, CollHeap *heap, SortError *sorterror, Lng32 explainNodeId,
+        SortScratchSpace *scratch, NABoolean iterQuickSort, CollHeap *heap, SortError *sorterror, int explainNodeId,
         ExBMOStats *bmoStats, SortUtil *sortutil);
   ~Qsort(void);
 
-  Lng32 sortSend(void *rec, ULng32 len, void *tupp);
+  int sortSend(void *rec, ULng32 len, void *tupp);
 
-  Lng32 sortClientOutOfMem(void);
+  int sortClientOutOfMem(void);
 
-  Lng32 sortSendEnd();
+  int sortSendEnd();
 
-  Lng32 sortReceive(void *rec, ULng32 &len);
-  Lng32 sortReceive(void *&rec, ULng32 &len, void *&tupp);
+  int sortReceive(void *rec, ULng32 &len);
+  int sortReceive(void *&rec, ULng32 &len, void *&tupp);
 
-  Lng32 generateInterRuns();
+  int generateInterRuns();
 
   UInt32 getOverheadPerRecord(void);
 
  private:
-  char *median(RecKeyBuffer keysToSort[], Int64 left, Int64 right);
-  NABoolean quickSort(RecKeyBuffer keysToSort[], Int64 left, Int64 right);
-  NABoolean iterativeQuickSort(RecKeyBuffer keysToSort[], Int64 left, Int64 right);
-  void heapSort(RecKeyBuffer keysToSort[], Int64 runsize);
-  void siftDown(RecKeyBuffer keysToSort[], Int64 root, Int64 bottom);
-  Lng32 generateARun();
+  char *median(RecKeyBuffer keysToSort[], long left, long right);
+  NABoolean quickSort(RecKeyBuffer keysToSort[], long left, long right);
+  NABoolean iterativeQuickSort(RecKeyBuffer keysToSort[], long left, long right);
+  void heapSort(RecKeyBuffer keysToSort[], long runsize);
+  void siftDown(RecKeyBuffer keysToSort[], long root, long bottom);
+  int generateARun();
   NABoolean swap(RecKeyBuffer *recKeyOne, RecKeyBuffer *recKeyTwo);
   void cleanUpMemoryQuota(void);
 

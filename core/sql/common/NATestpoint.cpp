@@ -60,7 +60,7 @@ CNATestPoint::CNATestPoint()
 // -----------------------------------------------------------------------
 // Constructor
 // -----------------------------------------------------------------------
-CNATestPoint::CNATestPoint(Lng32 testPoint, Lng32 iterator, CNATestPoint::ETestPointRqst rqst)
+CNATestPoint::CNATestPoint(int testPoint, int iterator, CNATestPoint::ETestPointRqst rqst)
     : m_iTestPoint(testPoint),
       m_iIterator(iterator),
       m_iInnerLoopIterator(0),
@@ -123,8 +123,8 @@ void CNATestPoint::GetRqstText(char *text) {
 //
 // Returns detailed information about testpoints
 // -----------------------------------------------------------------------
-Lng32 CNATestPoint::GetDetails() {
-  Lng32 value = DETAILS_NOT_DEFINED;
+int CNATestPoint::GetDetails() {
+  int value = DETAILS_NOT_DEFINED;
   switch (m_eRqst) {
     case CNATestPoint::eERROR:
       value = m_iError;
@@ -200,10 +200,10 @@ Int32 CNATestPoint::Execute(void) {
     case CNATestPoint::eKILL: {
       NAString msg("Utility code died at test point ");
       NAString msg_temp;
-      msg_temp = LongToNAString((Lng32)m_iTestPoint);
+      msg_temp = LongToNAString((int)m_iTestPoint);
       msg += msg_temp;
       msg += " Iterator: ";
-      msg_temp = LongToNAString((Lng32)m_iIterator);
+      msg_temp = LongToNAString((int)m_iIterator);
       msg += msg_temp;
       NAAbort("NATestpoint.cpp", __LINE__, (char *)msg.data());
 
@@ -224,7 +224,7 @@ Int32 CNATestPoint::Execute(void) {
 // If the delay time is greater than 1 hours - it is set to 1 hour
 // If the delay time is less than or equal to 0 - it is set to 20 seconds
 // ------------------------------------------------------------------------
-void CNATestPoint::SetDelayTime(const Lng32 delayTime) {
+void CNATestPoint::SetDelayTime(const int delayTime) {
   if (delayTime <= 0)
     m_iDelayTime = 20;
   else
@@ -270,7 +270,7 @@ void CNATestPoint::RecursiveCall(char buffer[100000]) {
 // A function that suspense the process for the specified duration
 // in milliseconds. This function is copied from dsguardiancalls.cpp
 // -------------------------------------------------------------------
-void CNATestPoint::Wait(Lng32 delayTime_in_millisecs) {
+void CNATestPoint::Wait(int delayTime_in_millisecs) {
   if (delayTime_in_millisecs == 0) return;
   // The Sleep() function can be used to give up the processor.
   Sleep(delayTime_in_millisecs);
@@ -307,7 +307,7 @@ CNATestPointList::~CNATestPointList() {}
 //   rqstStr - what to do when executed (TRAP, ERROR, FSERROR, DELAY, KILL)
 //   details - optional details: e.g. how long to wait for a DELAY
 // ---------------------------------------------------------------------
-void CNATestPointList::AddTestPoint(const Lng32 number, const Lng32 iterator, const Lng32 innerLoopIterator,
+void CNATestPointList::AddTestPoint(const int number, const int iterator, const int innerLoopIterator,
                                     const NAString rqstStr, const Int32 details) {
   CNATestPoint::ETestPointRqst rqst = ConvertStrToENum(rqstStr);
   CNATestPoint *pTestPoint = new CNATestPoint(number, iterator, rqst);
@@ -381,7 +381,7 @@ CNATestPoint::ETestPointRqst CNATestPointList::ConvertStrToENum(const NAString r
 //   Returns a pointer to a CNATestPoint class or NULL, the calling
 //   program should check for NULL.
 // ---------------------------------------------------------------------
-CNATestPoint *CNATestPointList::Find(const Lng32 number, const Lng32 iterator, const Lng32 innerLoopIterator) {
+CNATestPoint *CNATestPointList::Find(const int number, const int iterator, const int innerLoopIterator) {
   CNATestPoint *pTestPoint;
   for (CollIndex i = 0; i < entries(); i++) {
     pTestPoint = at(i);
@@ -500,7 +500,7 @@ bool CNATestPointArray::configureTestPoint(const NAString &testPointSpec) {
   return rc;
 }
 
-bool CNATestPointArray::configureDelayTestPoint(enum ETestPointValue testPoint, const Lng32 delayInSeconds) {
+bool CNATestPointArray::configureDelayTestPoint(enum ETestPointValue testPoint, const int delayInSeconds) {
   bool rc = false;                                       // assume testPoint is invalid
   if ((testPoint >= 0) && (testPoint < LAST_TESTPOINT))  // do nothing if testPoint is out of bounds
   {

@@ -77,13 +77,13 @@ inline unsigned short reversebytesUS(unsigned short s) { return (s >> 8 | s << 8
 
 inline ULng32 reversebytes(ULng32 x) { return ((x << 24) | (x << 8 & 0x00ff0000) | (x >> 8 & 0x0000ff00) | (x >> 24)); }
 
-inline Lng32 reversebytes(Lng32 x) {
+inline int reversebytes(int x) {
   return ((x << 24) | (x << 8 & 0x00ff0000) | (x >> 8 & 0x0000ff00) | (x >> 24 & 0x000000ff));
 }
 
 // SQ TBD NGG
 #if 0
-inline Int64 reversebytes( Int64 x )
+inline long reversebytes( long x )
 {
   return ((x<<56)
 	  |(x<<40 & 0x00ff000000000000LL)
@@ -97,14 +97,14 @@ inline Int64 reversebytes( Int64 x )
 }
 #endif
 
-inline Int64 reversebytes(Int64 xx) {
+inline long reversebytes(long xx) {
   union {
-    Int64 xx;
+    long xx;
     char c[8];
   } source;
 
   union {
-    Int64 xx;
+    long xx;
     char c[8];
   } sink;
 
@@ -144,6 +144,6 @@ void copyToInteger1(Int8 *destination, void *sourceAddress, Int32 sourceSize);
 
 void copyToInteger2(short *destination, void *sourceAddress, Int32 sourceSize);
 
-void copyToInteger4(Lng32 *destination, void *sourceAddress, Int32 sourceSize);
+void copyToInteger4(int *destination, void *sourceAddress, Int32 sourceSize);
 
-void copyToInteger8(Int64 *destination, void *sourceAddress, Int32 sourceSize);
+void copyToInteger8(long *destination, void *sourceAddress, Int32 sourceSize);

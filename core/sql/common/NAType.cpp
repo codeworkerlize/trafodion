@@ -45,7 +45,7 @@
 #include "common/str.h"
 
 // extern declaration
-extern short convertTypeToText_basic(char *text, Lng32 fs_datatype, Lng32 length, Lng32 precision, Lng32 scale,
+extern short convertTypeToText_basic(char *text, int fs_datatype, int length, int precision, int scale,
                                      rec_datetime_field datetimestart, rec_datetime_field datetimeend,
                                      short datetimefractprec, short intervalleadingprec, short upshift,
                                      short caseinsensitive, CharInfo::CharSet charSet, const char *collation_name,
@@ -68,9 +68,9 @@ NAType::NAType(const NAType &rhs, NAMemory *h)
       displayDataType_(rhs.displayDataType_, h),
       hiveType_(rhs.hiveType_) {}
 
-NAType::NAType(NAMemory *h, const NAString &adtName, NABuiltInTypeEnum ev, Lng32 dataStorageSize, NABoolean nullable,
-               Lng32 SQLnullHdrSize, NABoolean varLenFlag, Lng32 lengthHdrSize,
-               Lng32 dataAlignment)
+NAType::NAType(NAMemory *h, const NAString &adtName, NABuiltInTypeEnum ev, int dataStorageSize, NABoolean nullable,
+               int SQLnullHdrSize, NABoolean varLenFlag, int lengthHdrSize,
+               int dataAlignment)
     : typeName_(h)  // memleak fix
       ,
       displayDataType_(h),
@@ -125,9 +125,9 @@ void NAType::setNullable(NABoolean physicalNulls, NABoolean logicalNulls) {
 }
 
 // -- Compute the size of the storage required for this ADT
-Lng32 NAType::getTotalAlignedSize() const {
-  Lng32 size = SQLnullHdrSize_;
-  Lng32 align = getDataAlignment();  // must be divisible by data alignment
+int NAType::getTotalAlignedSize() const {
+  int size = SQLnullHdrSize_;
+  int align = getDataAlignment();  // must be divisible by data alignment
 
   if (size > 0) {
     size = (((size - 1) / align) + 1) * align;
@@ -139,16 +139,16 @@ Lng32 NAType::getTotalAlignedSize() const {
   return size;
 }  // getTotalSize()
 
-Lng32 NAType::getTotalSize() const { return dataStorageSize_ + getPrefixSize(); }  // getTotalSize()
+int NAType::getTotalSize() const { return dataStorageSize_ + getPrefixSize(); }  // getTotalSize()
 
 // -- Compute the total size of null indicator, variable length
 //    indicator, and fillers between them and the data field
 
-Lng32 NAType::getPrefixSize() const {
+int NAType::getPrefixSize() const {
   // the result must be the smallest number that is greater or equal
   // to SQLnullHdrSize_ + lengthHdrSize_ and that is divisible by
   // the data alignment.
-  Lng32 align = getDataAlignment();  // must be divisible by data alignment
+  int align = getDataAlignment();  // must be divisible by data alignment
 
   // long prefixLen = SQLnullHdrSize_ + lengthHdrSize_;
 
@@ -164,12 +164,12 @@ Lng32 NAType::getPrefixSize() const {
   return (SQLnullHdrSize_ + lengthHdrSize_);
 }
 
-Lng32 NAType::getPrefixSizeWithAlignment() const {
+int NAType::getPrefixSizeWithAlignment() const {
   // Previous method does not consider alignment and is used by getTotalSize()
   // the result must be the smallest number that is greater or equal
   // to SQLnullHdrSize_ + lengthHdrSize_ and that is divisible by
   // the data alignment.
-  Lng32 align = getDataAlignment();  // must be divisible by data alignment
+  int align = getDataAlignment();  // must be divisible by data alignment
 
   // if the var length field has an alignment greater than that of the
   // null indicator, there is an extra filler between those two fields
@@ -221,7 +221,7 @@ NABoolean NAType::equalPhysical(const NAType &other) const {
 
 NABoolean NAType::equalIgnoreCoercibility(const NAType &other) const { return (*this) == other; }
 
-Lng32 NAType::getEncodedKeyLength() const {
+int NAType::getEncodedKeyLength() const {
   // by default we assume that a NULL indicator gets prepended to the
   // encoded form and that any variable indicators get eliminated and
   // the data field is extended up to its maximum length.
@@ -279,13 +279,13 @@ NABoolean NAType::isNumeric() const {
 // Methods that return the binary form of the minimum and the maximum
 // representable values.
 // ---------------------------------------------------------------------
-void NAType::minRepresentableValue(void *, Lng32 *, NAString **, NAMemory *h) const {}
+void NAType::minRepresentableValue(void *, int *, NAString **, NAMemory *h) const {}
 
-void NAType::maxRepresentableValue(void *, Lng32 *, NAString **, NAMemory *h) const {}
+void NAType::maxRepresentableValue(void *, int *, NAString **, NAMemory *h) const {}
 
 NAString *NAType::convertToString(double v, NAMemory *h) const { return NULL; }
 
-NAString *NAType::convertToString(Int64 v, NAMemory *h) const { return convertToString((double)v, h); }
+NAString *NAType::convertToString(long v, NAMemory *h) const { return convertToString((double)v, h); }
 
 NABoolean NAType::createSQLLiteral(const char *buf, NAString *&stringLiteral, NABoolean &isNull, CollHeap *h) const {
   // the base class can handle the case of a NULL value and
@@ -353,15 +353,15 @@ NAString *NAType::getKey(NAMemory *h) const { return new (h) NAString(getTypeSQL
 
 short NAType::getFSDatatype() const { return -1; }
 
-Lng32 NAType::getPrecision() const { return -1; }
+int NAType::getPrecision() const { return -1; }
 
-Lng32 NAType::getMagnitude() const { return -1; }
+int NAType::getMagnitude() const { return -1; }
 
-Lng32 NAType::getScale() const { return -1; }
+int NAType::getScale() const { return -1; }
 
-Lng32 NAType::getPrecisionOrMaxNumChars() const { return getPrecision(); }
+int NAType::getPrecisionOrMaxNumChars() const { return getPrecision(); }
 
-Lng32 NAType::getScaleOrCharset() const { return getScale(); }
+int NAType::getScaleOrCharset() const { return getScale(); }
 
 // Implementation of a pure virtual function.
 // Check if a conversion error can occur because of nulls.
@@ -371,13 +371,13 @@ NABoolean NAType::errorsCanOccur(const NAType &target, NABoolean lax) const {
   return TRUE;
 }
 
-Lng32 NAType::getDisplayLength() const {
+int NAType::getDisplayLength() const {
   return getDisplayLength(getFSDatatype(), getNominalSize(), getPrecision(), getScale(), 0);
 }
 
 // Gets the length that a given data type would use in the display tool
-Lng32 NAType::getDisplayLengthStatic(Lng32 datatype, Lng32 length, Lng32 precision, Lng32 scale, Lng32 heading_len) {
-  Lng32 d_len = 0;
+int NAType::getDisplayLengthStatic(int datatype, int length, int precision, int scale, int heading_len) {
+  int d_len = 0;
 
   Int32 scale_len = 0;
   if (scale > 0) scale_len = 1;
@@ -523,7 +523,7 @@ Lng32 NAType::getDisplayLengthStatic(Lng32 datatype, Lng32 length, Lng32 precisi
 }
 
 // Gets the length that a given data type would use in the display tool
-Lng32 NAType::getDisplayLength(Lng32 datatype, Lng32 length, Lng32 precision, Lng32 scale, Lng32 heading_len) const {
+int NAType::getDisplayLength(int datatype, int length, int precision, int scale, int heading_len) const {
   return getDisplayLengthStatic(datatype, length, precision, scale, heading_len);
 }
 
@@ -533,8 +533,8 @@ Lng32 NAType::getDisplayLength(Lng32 datatype, Lng32 length, Lng32 precision, Ln
 // Returns -1 in case of error, 0 if all is ok.
 /*static*/
 short NAType::convertTypeToText(char *text,         // OUTPUT
-                                Lng32 fs_datatype,  // all other vars: INPUT
-                                Lng32 length, Lng32 precision, Lng32 scale, rec_datetime_field datetimestart,
+                                int fs_datatype,  // all other vars: INPUT
+                                int length, int precision, int scale, rec_datetime_field datetimestart,
                                 rec_datetime_field datetimeend, short datetimefractprec, short intervalleadingprec,
                                 short upshift, short caseinsensitive, CharInfo::CharSet charSet,
                                 CharInfo::Collation collation, const char *displaydatatype, short displayCaseSpecific,
@@ -545,7 +545,7 @@ short NAType::convertTypeToText(char *text,         // OUTPUT
                                  isVarchar2);
 }
 
-short NAType::getHiveTypeStr(Lng32 hiveType, Lng32 precision, Lng32 scale, NAString *outputStr /*out*/) const {
+short NAType::getHiveTypeStr(int hiveType, int precision, int scale, NAString *outputStr /*out*/) const {
   if (hiveType == HIVE_DECIMAL_TYPE) {
     NAString decStr;
 
@@ -568,9 +568,9 @@ short NAType::getHiveTypeStr(Lng32 hiveType, Lng32 precision, Lng32 scale, NAStr
 }
 
 short NAType::genHiveTypeStrFromMyType(NAString *outputStr /*out*/) const {
-  Lng32 fs_datatype = getFSDatatype();
-  Lng32 precision = getPrecision();
-  Lng32 scale = getScale();
+  int fs_datatype = getFSDatatype();
+  int precision = getPrecision();
+  int scale = getScale();
   Int32 hiveType = HIVE_UNKNOWN_TYPE;
 
   if (((DFS2REC::isBinaryNumeric(fs_datatype) && (((NumericType *)this)->decimalPrecision())) ||
@@ -646,7 +646,7 @@ short NAType::genHiveTypeStrFromMyType(NAString *outputStr /*out*/) const {
 }
 
 short NAType::getHiveTypeStrForMyType(NAString *outputStr /*out*/) const {
-  Lng32 precision = getPrecision();
+  int precision = getPrecision();
   if (getTypeQualifier() == NA_CHARACTER_TYPE) {
     precision = ((CharType *)this)->getStrCharLimit();
   }
@@ -657,7 +657,7 @@ short NAType::getHiveTypeStrForMyType(NAString *outputStr /*out*/) const {
 short NAType::getMyTypeAsText(NAString *outputStr,  // output
                               NABoolean addNullability, NABoolean addCollation) const {
   // get the right value for all these
-  Lng32 fs_datatype = getFSDatatype();
+  int fs_datatype = getFSDatatype();
   ComSInt32 precision = 0;
   ComSInt32 scale = 0;
   ComDateTimeStartEnd dtStartField = COM_DTSE_UNKNOWN;
@@ -730,9 +730,9 @@ short NAType::getMyTypeAsText(NAString *outputStr,  // output
   return 0;
 }
 
-Lng32 NAType::getSize() const { return sizeof(*this) + typeName_.length(); }
+int NAType::getSize() const { return sizeof(*this) + typeName_.length(); }
 
-Lng32 NAType::hashKey() const { return typeName_.hash(); }
+int NAType::hashKey() const { return typeName_.hash(); }
 
 // return true iff it is safe to call NAType::hashKey on me
 NABoolean NAType::amSafeToHash() const { return typeName_.data() != NULL; }

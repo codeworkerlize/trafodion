@@ -51,7 +51,7 @@
 #include "ex_transaction.h"
 #include "ex_exe_stmt_globals.h"
 #include "exp_expr.h"
-#include "ex_error.h"
+#include "executor/ex_error.h"
 #include "ExSqlComp.h"
 #include "ExpHbaseInterface.h"
 
@@ -112,8 +112,8 @@ TransMode *ExTransaction::getUserTransMode() {
 }
 
 void ExTransaction::resetXnState0() {
-  exeXnId_ = Int64(-1);
-  transid_ = Int64(-1);
+  exeXnId_ = long(-1);
+  transid_ = long(-1);
   transtag_ = -1;
   exeStartedXn_ = FALSE;
   implicitXn_ = FALSE;
@@ -121,8 +121,8 @@ void ExTransaction::resetXnState0() {
 }
 
 void ExTransaction::resetSavedXnState() {
-  savedExeXnId_ = Int64(-1);
-  savedTransId_ = Int64(-1);
+  savedExeXnId_ = long(-1);
+  savedTransId_ = long(-1);
   savedTransTag_ = -1;
   savedExeStartedXn_ = FALSE;
   savedXnInProgress_ = FALSE;
@@ -182,7 +182,7 @@ void ExTransaction::resetXnState() {
 }
 
 // Soln 10-050210-4624
-short ExTransaction::getCurrentXnId(Int64 *tcbref, Int64 *transId, short *txHandle) {
+short ExTransaction::getCurrentXnId(long *tcbref, long *transId, short *txHandle) {
   /* This method retrieves from TMF and returns the TCBREF associated with the
    * currently active transaction. If the optional parameters, transId and
    * txHandle, are supplied, the transaction identifier and handle also are
@@ -194,8 +194,8 @@ short ExTransaction::getCurrentXnId(Int64 *tcbref, Int64 *transId, short *txHand
   short tx_handle[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
   short retcode = 0;
 
-  Int64 *l_tcbref = tcbref;
-  Int64 l_transid;
+  long *l_tcbref = tcbref;
+  long l_transid;
   if (!tcbref) l_tcbref = &l_transid;
   retcode = GETTRANSID((short *)l_tcbref);
   if (txHandle != NULL) memcpy(txHandle, tx_handle, sizeof(TmfPhandle_Struct));
@@ -204,7 +204,7 @@ short ExTransaction::getCurrentXnId(Int64 *tcbref, Int64 *transId, short *txHand
   return retcode;
 }
 
-short ExTransaction::getCurrentSvptIdWithFlag(Int64 *svptId, Int64 *pSvptId) {
+short ExTransaction::getCurrentSvptIdWithFlag(long *svptId, long *pSvptId) {
   short retcode = 0;
 
   retcode = GETSAVEPOINTIDWITHFLAG(svptId, pSvptId);
@@ -223,7 +223,7 @@ short ExTransaction::getCurrentTxHandle(short *txHandle) {
 }
 
 // Soln 10-050210-4624
-short ExTransaction::waitForRollbackCompletion(Int64 transid) {
+short ExTransaction::waitForRollbackCompletion(long transid) {
   if (transMode_->rollbackMode() == TransMode::ROLLBACK_MODE_NOWAITED_) return 0;
 
   short status;
@@ -238,7 +238,7 @@ short ExTransaction::waitForRollbackCompletion(Int64 transid) {
   if ((rc == 0) && (status != 5)) {
     // check for return status in a loop until the transaction
     // is aborted.
-    Lng32 delayTime = 100;  // units of 1/100th of a seconds.
+    int delayTime = 100;  // units of 1/100th of a seconds.
                             // 100 = 1 sec.
     NABoolean done = FALSE;
     while (!done) {
@@ -293,7 +293,7 @@ void ExTransaction::setImplicitSavepointState(SavepointState s) {
   implicitSavepointState_ = s;
 }
 
-static void setSpecialAIValues(Lng32 &aivalue) {
+static void setSpecialAIValues(int &aivalue) {
   // on Linux we get these definitions from tm.h
 
   //  0 => default
@@ -332,11 +332,11 @@ static void setNoRollBackAndReadOnlyFlags(NABoolean autoCommit, Int16 roval, Int
   return;
 }
 
-static Int64 costTh = -2;
+static long costTh = -2;
 static pid_t pid = getpid();
 
 short ExTransaction::beginTransaction() {
-  Int64 timeCost = JULIANTIMESTAMP();
+  long timeCost = JULIANTIMESTAMP();
 
   if (costTh == -2) {
     char *costThreshold = getenv("RECORD_TIME_COST_SQL");
@@ -399,7 +399,7 @@ short ExTransaction::beginTransaction() {
     volatileSchemaExists_ = FALSE;
   }
 
-  Lng32 aivalue = (Lng32)getAIVal();
+  int aivalue = (int)getAIVal();
   // set aivalue to TM_AUTOABORT_DEFAULT or TM_NEVERABORT if aivalue has the value
   // 0,-1,-2,or -3.
   setSpecialAIValues(aivalue);
@@ -412,7 +412,7 @@ short ExTransaction::beginTransaction() {
 
   if (rc == 0) {
     // Soln 10-050210-4624
-    getCurrentXnId((Int64 *)&exeXnId_, (Int64 *)&transid_);
+    getCurrentXnId((long *)&exeXnId_, (long *)&transid_);
 
     // If BEGINTRANSACTION is being called from within an ESP, save
     // the transtag returned by BEGINTRANSACTION. Later this transtag can be
@@ -475,7 +475,7 @@ short ExTransaction::resumeTransaction() {
   return retcode;
 }
 
-short ExTransaction::joinTransaction(Int64 transID) {
+short ExTransaction::joinTransaction(long transID) {
   if (transID <= 0) return 0;
 
   short retcode = 0;
@@ -483,7 +483,7 @@ short ExTransaction::joinTransaction(Int64 transID) {
   return retcode;
 }
 
-short ExTransaction::suspendTransaction(Int64 transID) {
+short ExTransaction::suspendTransaction(long transID) {
   short retcode = FEOK;
 
   if (transID <= 0) return 0;
@@ -636,8 +636,8 @@ void ExTransaction::cleanupTransaction() {
 }
 
 short ExTransaction::commitTransaction() {
-  Int64 timeCost = JULIANTIMESTAMP();
-  Int64 transactionid = transid_;
+  long timeCost = JULIANTIMESTAMP();
+  long transactionid = transid_;
 
   if (costTh == -2) {
     char *costThreshold = getenv("RECORD_TIME_COST_SQL");
@@ -671,13 +671,13 @@ short ExTransaction::commitTransaction() {
     void *res = NULL;
     int s = 0;
 
-    Int64 tlob_commit11 = NA_JulianTimestamp();
+    long tlob_commit11 = NA_JulianTimestamp();
     s = pthread_join(lob_ddl_thread_id, &res);
     if (s != 0) {
       return -1;
     }
 
-    Int64 tlob_commit12 = NA_JulianTimestamp();
+    long tlob_commit12 = NA_JulianTimestamp();
 
     lob_ddl_thread_id = 0;
   }
@@ -745,11 +745,11 @@ short ExTransaction::inheritTransaction() {
   //     -- invalid Xn (FEINVTRANSID = 78, or others)
   //     -- no Xn (FENOTRANSID = 75)
   //     -- valid Xn (FEOK = 0)
-  Int64 currentXnId = (Int64)0;
-  Int64 transid = (Int64)0;  // Soln 10-050210-4624
+  long currentXnId = (long)0;
+  long transid = (long)0;  // Soln 10-050210-4624
   TmfPhandle_Struct currentTxHandle;
 
-  short retcode = getCurrentXnId((Int64 *)&currentXnId, (Int64 *)&transid, (short *)&currentTxHandle);
+  short retcode = getCurrentXnId((long *)&currentXnId, (long *)&transid, (short *)&currentTxHandle);
 
   if (xnInProgress())  // a transaction was in progress
   {
@@ -785,8 +785,8 @@ short ExTransaction::inheritTransaction() {
           getTransMode()->setXnInProgress(FALSE);
           if (retcode == 75)  //  No transaction.
           {
-            exeXnId_ = Int64(-1);
-            transid_ = Int64(-1);
+            exeXnId_ = long(-1);
+            transid_ = long(-1);
           }
         }
 
@@ -846,9 +846,9 @@ short ExTransaction::validateTransaction() {
     //     -- invalid Xn (FEINVTRANSID = 78) or others.
     //     -- no Xn (FENOTRANSID = 75)
     //     -- valid Xn (FEOK = 0)
-    Int64 currentXnId = 0;
+    long currentXnId = 0;
 
-    short retcode = getCurrentXnId((Int64 *)&currentXnId);
+    short retcode = getCurrentXnId((long *)&currentXnId);
     if (retcode == FEOK) {
       if (currentXnId != exeXnId_) {
         // Can this condition happen? Can someone called by
@@ -868,7 +868,7 @@ short ExTransaction::validateTransaction() {
       // to that method has been added, to allow the executor's notion of
       // the current txn to be used, instead of TMF's notion.
 
-      Int64 executorTx = exeXnId_;  // save our txn id
+      long executorTx = exeXnId_;  // save our txn id
 
       if (retcode == FEINVTRANSID) {
         // Someone else aborted/committed the transaction.
@@ -943,7 +943,7 @@ short ExTransaction::resetProcessTrans(TmfPhandle_Struct *oldProcessTxHandle) {
   return retcode;
 }
 
-void ExTransaction::setTransId(Int64 transid) { exeXnId_ = transid; }
+void ExTransaction::setTransId(long transid) { exeXnId_ = transid; }
 
 short ExTransaction::setTransMode(TransMode *trans_mode) {
   transMode_->updateTransMode(trans_mode);
@@ -986,11 +986,11 @@ void ExTransaction::createDiagsArea(Int32 error1, Int32 retCode, const char *str
   (errorCond_)->setNskCode(retCode);
 }
 
-Int64 ExTransaction::getSavepointIdWithFlag() { return getSavepointId(); }
+long ExTransaction::getSavepointIdWithFlag() { return getSavepointId(); }
 
-Int64 ExTransaction::getPSavepointIdWithFlag() { return getPSavepointId(); }
+long ExTransaction::getPSavepointIdWithFlag() { return getPSavepointId(); }
 
-Int64 ExTransaction::getPPSavepointIdWithFlag() { return getPPSavepointId(); }
+long ExTransaction::getPPSavepointIdWithFlag() { return getPPSavepointId(); }
 
 void ExTransaction::generateImplicitSavepointId() {
   if (xnInProgress() && NOT implicitSavepointInProgress()) {
@@ -1000,8 +1000,8 @@ void ExTransaction::generateImplicitSavepointId() {
   }
 }
 
-Int64 ExTransaction::getImplicitSavepointIdWithFlag() {
-  Int64 innerSavepointIdFlag = implicitSavepointId_;
+long ExTransaction::getImplicitSavepointIdWithFlag() {
+  long innerSavepointIdFlag = implicitSavepointId_;
 
   if (innerSavepointIdFlag > 0) {
     // inner savepoint is always implicit
@@ -1011,8 +1011,8 @@ Int64 ExTransaction::getImplicitSavepointIdWithFlag() {
   return innerSavepointIdFlag;
 }
 
-short ExTransaction::commitSavepoint(Int64 savepointId, Int64 parentSvptId) {
-  Lng32 rc = 0;
+short ExTransaction::commitSavepoint(long savepointId, long parentSvptId) {
+  int rc = 0;
 
   if (getSavepointState() != SP_TO_COMMIT) return 0;
 
@@ -1034,8 +1034,8 @@ short ExTransaction::commitSavepoint(Int64 savepointId, Int64 parentSvptId) {
   return rc;
 }
 
-short ExTransaction::commitImplicitSavepoint(Int64 implicitSvptId, Int64 parentSvptId) {
-  Lng32 rc = 0;
+short ExTransaction::commitImplicitSavepoint(long implicitSvptId, long parentSvptId) {
+  int rc = 0;
   NABoolean doRealCommit = TRUE;
 
   if (implicitSavepointState_ != SP_TO_COMMIT) return 0;
@@ -1061,7 +1061,7 @@ short ExTransaction::commitImplicitSavepoint(Int64 implicitSvptId, Int64 parentS
   return rc;
 }
 
-short ExTransaction::rollbackSavepoint(Int64 savepointId) {
+short ExTransaction::rollbackSavepoint(long savepointId) {
   short rc = 0;
 
   if (getSavepointState() != SP_TO_ROLLBACK) return 0;
@@ -1079,7 +1079,7 @@ short ExTransaction::rollbackSavepoint(Int64 savepointId) {
 
 short ExTransaction::rollbackToSavepoint(NAString svptName) { return savepointStack_->popToSvpt(svptName); }
 
-short ExTransaction::rollbackImplicitSavepoint(Int64 implicitSvptId) {
+short ExTransaction::rollbackImplicitSavepoint(long implicitSvptId) {
   short rc = 0;
 
   if (implicitSavepointState_ != SP_TO_ROLLBACK) return 0;
@@ -1136,7 +1136,7 @@ ExTransTcb::ExTransTcb(const ExTransTdb &trans_tdb, ex_globals *glob) : ex_tcb(t
     workAtp_ = allocateAtp(trans_tdb.workCriDesc_, space);
 
     // allocate tuple where the diag area size will be moved
-    pool_->get_free_tuple(workAtp_->getTupp(trans_tdb.workCriDesc_->noTuples() - 1), sizeof(Lng32));
+    pool_->get_free_tuple(workAtp_->getTupp(trans_tdb.workCriDesc_->noTuples() - 1), sizeof(int));
 
     (void)diagAreaSizeExpr()->fixup(0, getExpressionMode(), this, space, heap, FALSE, glob);
   } else
@@ -1232,8 +1232,8 @@ short ExTransTcb::work() {
           ta->implicitXn() = FALSE;
 
           if (rc == 0) {
-            // Lng32 xnOper = (Lng32)BEGIN_;
-            CmpMessageXnOperData xnOper = {(Lng32)BEGIN_, NULL_SAVEPOINT_ID};
+            // int xnOper = (int)BEGIN_;
+            CmpMessageXnOperData xnOper = {(int)BEGIN_, NULL_SAVEPOINT_ID};
             ComDiagsArea *diagsArea = NULL;
             ExSqlComp::ReturnStatus cmpStatus = cliGlobals->currContext()->sendXnMsgToArkcmp(
                 (char *)&xnOper, sizeof(xnOper), EXSQLCOMP::XN_OPER, diagsArea);
@@ -1271,8 +1271,8 @@ short ExTransTcb::work() {
           if (rc != 0) handleErrors(pentry_down, ta->getDiagsArea());
 
           if (rc == 0) {
-            // Lng32 xnOper = (Lng32)COMMIT_;
-            CmpMessageXnOperData xnOper = {(Lng32)COMMIT_, NULL_SAVEPOINT_ID};
+            // int xnOper = (int)COMMIT_;
+            CmpMessageXnOperData xnOper = {(int)COMMIT_, NULL_SAVEPOINT_ID};
             ComDiagsArea *diagsArea = NULL;
             ExSqlComp::ReturnStatus cmpStatus = cliGlobals->currContext()->sendXnMsgToArkcmp(
                 (char *)&xnOper, sizeof(xnOper), EXSQLCOMP::XN_OPER, diagsArea);
@@ -1299,8 +1299,8 @@ short ExTransTcb::work() {
           }
 
           if (cliGlobals->currContext()->ddlStmtsExecuted()) {
-            // Lng32 xnOper = (Lng32)COMMIT_;
-            CmpMessageXnOperData xnOper = {(Lng32)COMMIT_, NULL_SAVEPOINT_ID};
+            // int xnOper = (int)COMMIT_;
+            CmpMessageXnOperData xnOper = {(int)COMMIT_, NULL_SAVEPOINT_ID};
             ComDiagsArea *diagsArea = NULL;
             ExSqlComp::ReturnStatus cmpStatus = cliGlobals->currContext()->sendXnMsgToArkcmp(
                 (char *)&xnOper, sizeof(xnOper), EXSQLCOMP::DDL_NATABLE_INVALIDATE, diagsArea);
@@ -1357,8 +1357,8 @@ short ExTransTcb::work() {
             handleErrors(pentry_down, ta->getDiagsArea());
 
           if (rc == 0) {
-            // Lng32 xnOper = (Lng32)ROLLBACK_;
-            CmpMessageXnOperData xnOper = {(Lng32)ROLLBACK_, NULL_SAVEPOINT_ID};
+            // int xnOper = (int)ROLLBACK_;
+            CmpMessageXnOperData xnOper = {(int)ROLLBACK_, NULL_SAVEPOINT_ID};
             ComDiagsArea *diagsArea = NULL;
             ExSqlComp::ReturnStatus cmpStatus = cliGlobals->currContext()->sendXnMsgToArkcmp(
                 (char *)&xnOper, sizeof(xnOper), EXSQLCOMP::XN_OPER, diagsArea);
@@ -1370,8 +1370,8 @@ short ExTransTcb::work() {
           }
 
           if (cliGlobals->currContext()->ddlStmtsExecuted()) {
-            // Lng32 xnOper = (Lng32)ROLLBACK_;
-            CmpMessageXnOperData xnOper = {(Lng32)ROLLBACK_, NULL_SAVEPOINT_ID};
+            // int xnOper = (int)ROLLBACK_;
+            CmpMessageXnOperData xnOper = {(int)ROLLBACK_, NULL_SAVEPOINT_ID};
             ComDiagsArea *diagsArea = NULL;
             ExSqlComp::ReturnStatus cmpStatus = cliGlobals->currContext()->sendXnMsgToArkcmp(
                 (char *)&xnOper, sizeof(xnOper), EXSQLCOMP::DDL_NATABLE_INVALIDATE, diagsArea);
@@ -1424,8 +1424,8 @@ short ExTransTcb::work() {
           if (rc != 0) handleErrors(pentry_down, ta->getDiagsArea());
 
           if (rc == 0) {
-            // Lng32 xnOper = (Lng32)ROLLBACK_WAITED_;
-            CmpMessageXnOperData xnOper = {(Lng32)ROLLBACK_WAITED_, NULL_SAVEPOINT_ID};
+            // int xnOper = (int)ROLLBACK_WAITED_;
+            CmpMessageXnOperData xnOper = {(int)ROLLBACK_WAITED_, NULL_SAVEPOINT_ID};
             ComDiagsArea *diagsArea = NULL;
             ExSqlComp::ReturnStatus cmpStatus = cliGlobals->currContext()->sendXnMsgToArkcmp(
                 (char *)&xnOper, sizeof(xnOper), EXSQLCOMP::XN_OPER, diagsArea);
@@ -1437,8 +1437,8 @@ short ExTransTcb::work() {
           }
 
           if (cliGlobals->currContext()->ddlStmtsExecuted()) {
-            // Lng32 xnOper = (Lng32)ROLLBACK_WAITED_;
-            CmpMessageXnOperData xnOper = {(Lng32)ROLLBACK_WAITED_, -1};
+            // int xnOper = (int)ROLLBACK_WAITED_;
+            CmpMessageXnOperData xnOper = {(int)ROLLBACK_WAITED_, -1};
             ComDiagsArea *diagsArea = NULL;
             ExSqlComp::ReturnStatus cmpStatus = cliGlobals->currContext()->sendXnMsgToArkcmp(
                 (char *)&xnOper, sizeof(xnOper), EXSQLCOMP::DDL_NATABLE_INVALIDATE, diagsArea);
@@ -1479,8 +1479,8 @@ short ExTransTcb::work() {
           rc = ta->pushSavepoint(svptName);
 
           if (rc == 0) {
-            // Lng32 xnOper = (Lng32)BEGIN_SAVEPOINT_;
-            CmpMessageXnOperData xnOper = {(Lng32)BEGIN_SAVEPOINT_, ta->getSavepointId()};
+            // int xnOper = (int)BEGIN_SAVEPOINT_;
+            CmpMessageXnOperData xnOper = {(int)BEGIN_SAVEPOINT_, ta->getSavepointId()};
             ComDiagsArea *diagsArea = NULL;
             ExSqlComp::ReturnStatus cmpStatus = cliGlobals->currContext()->sendXnMsgToArkcmp(
                 (char *)&xnOper, sizeof(xnOper), EXSQLCOMP::XN_OPER, diagsArea);
@@ -1514,12 +1514,12 @@ short ExTransTcb::work() {
             break;
           }
 
-          Int64 svptToCommit = ta->getSavepointId();
+          long svptToCommit = ta->getSavepointId();
           ta->setSavepointState(SP_TO_COMMIT);
           rc = ta->commitSavepoint(ta->getSavepointIdWithFlag(), ta->getPSavepointIdWithFlag());
 
-          // Lng32 xnOper = (Lng32)COMMIT_SAVEPOINT_;
-          CmpMessageXnOperData xnOper = {(Lng32)COMMIT_SAVEPOINT_, NULL_SAVEPOINT_ID};
+          // int xnOper = (int)COMMIT_SAVEPOINT_;
+          CmpMessageXnOperData xnOper = {(int)COMMIT_SAVEPOINT_, NULL_SAVEPOINT_ID};
           ComDiagsArea *diagsArea = NULL;
           ExSqlComp::ReturnStatus cmpStatus = cliGlobals->currContext()->sendXnMsgToArkcmp(
               (char *)&xnOper, sizeof(xnOper), EXSQLCOMP::XN_OPER, diagsArea);
@@ -1612,8 +1612,8 @@ short ExTransTcb::work() {
           }
 
           if (cliGlobals->currContext()->ddlStmtsInSPExecuted()) {
-            // Lng32 xnOper = (Lng32)ROLLBACK_SAVEPOINT_;
-            CmpMessageXnOperData xnOper = {(Lng32)ROLLBACK_SAVEPOINT_, ta->getSavepointId()};
+            // int xnOper = (int)ROLLBACK_SAVEPOINT_;
+            CmpMessageXnOperData xnOper = {(int)ROLLBACK_SAVEPOINT_, ta->getSavepointId()};
             ComDiagsArea *diagsArea = NULL;
             ExSqlComp::ReturnStatus cmpStatus = cliGlobals->currContext()->sendXnMsgToArkcmp(
                 (char *)&xnOper, sizeof(xnOper), EXSQLCOMP::DDL_NATABLE_INVALIDATE, diagsArea);
@@ -1626,12 +1626,12 @@ short ExTransTcb::work() {
             }
           }
 
-          Int64 svptToRollback = ta->getSavepointId();
+          long svptToRollback = ta->getSavepointId();
           ta->setSavepointState(SP_TO_ROLLBACK);
           rc = ta->rollbackSavepoint(ta->getSavepointIdWithFlag());
 
-          // Lng32 xnOper = (Lng32)ROLLBACK_SAVEPOINT_;
-          CmpMessageXnOperData xnOper = {(Lng32)ROLLBACK_SAVEPOINT_, ta->getSavepointId()};
+          // int xnOper = (int)ROLLBACK_SAVEPOINT_;
+          CmpMessageXnOperData xnOper = {(int)ROLLBACK_SAVEPOINT_, ta->getSavepointId()};
           ComDiagsArea *diagsArea = NULL;
           ExSqlComp::ReturnStatus cmpStatus = cliGlobals->currContext()->sendXnMsgToArkcmp(
               (char *)&xnOper, sizeof(xnOper), EXSQLCOMP::XN_OPER, diagsArea);
@@ -1677,8 +1677,8 @@ short ExTransTcb::work() {
           }
 
           if (ta->getSavepointState() != SP_GENERATED) {
-            // Lng32 xnOper = (Lng32)COMMIT_SAVEPOINT_;
-            CmpMessageXnOperData xnOper = {(Lng32)RELEASE_SAVEPOINT_, NULL_SAVEPOINT_ID};
+            // int xnOper = (int)COMMIT_SAVEPOINT_;
+            CmpMessageXnOperData xnOper = {(int)RELEASE_SAVEPOINT_, NULL_SAVEPOINT_ID};
             ComDiagsArea *diagsArea = NULL;
             ExSqlComp::ReturnStatus cmpStatus = cliGlobals->currContext()->sendXnMsgToArkcmp(
                 (char *)&xnOper, sizeof(xnOper), EXSQLCOMP::XN_OPER, diagsArea);
@@ -1715,7 +1715,7 @@ short ExTransTcb::work() {
             }
 
             ta->getTransMode()->diagAreaSize() =
-                *(Lng32 *)(workAtp_->getTupp(transTdb().workCriDesc_->noTuples() - 1).getDataPointer());
+                *(int *)(workAtp_->getTupp(transTdb().workCriDesc_->noTuples() - 1).getDataPointer());
           }
 
           if (cmpStatus != ExSqlComp::ERROR) {

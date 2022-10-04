@@ -56,7 +56,7 @@ class ComTdbTransaction : public ComTdb {
 
   ComTdbTransaction(TransStmtType trans_type, TransMode *trans_mode, ex_expr *diag_area_size_expr,
                     ex_cri_desc *work_cri_desc, ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc,
-                    queue_index down, queue_index up, Lng32 num_buffers, ULng32 buffer_size);
+                    queue_index down, queue_index up, int num_buffers, ULng32 buffer_size);
 
   // ---------------------------------------------------------------------
   // Redefine virtual functions required for Versioning.
@@ -71,7 +71,7 @@ class ComTdbTransaction : public ComTdb {
   virtual short getClassSize() { return (short)sizeof(ComTdbTransaction); }
 
   Long pack(void *);
-  Lng32 unpack(void *, void *reallocator);
+  int unpack(void *, void *reallocator);
 
   Int32 orderedQueueProtocol() const { return -1; };
 

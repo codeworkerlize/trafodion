@@ -79,11 +79,11 @@ CmpSeabaseMDcleanup::CmpSeabaseMDcleanup(NAHeap *heap)
       numInconsistentTextEntries_(0),
       isHive_(FALSE){};
 
-Int64 CmpSeabaseMDcleanup::getCleanupObjectUID(ExeCliInterface *cliInterface, const char *catName, const char *schName,
+long CmpSeabaseMDcleanup::getCleanupObjectUID(ExeCliInterface *cliInterface, const char *catName, const char *schName,
                                                const char *objName, const char *inObjType, char *outObjType,
-                                               Int32 &objectOwner, Int64 *objectFlags, Int64 *objDataUID) {
-  Lng32 cliRC = 0;
-  Int64 objUID = -1;
+                                               Int32 &objectOwner, long *objectFlags, long *objDataUID) {
+  int cliRC = 0;
+  long objUID = -1;
   objectOwner = -1;
 
   ExeCliInterface cqdCliInterface(STMTHEAP);
@@ -131,10 +131,10 @@ Int64 CmpSeabaseMDcleanup::getCleanupObjectUID(ExeCliInterface *cliInterface, co
   return -1;
 }
 
-short CmpSeabaseMDcleanup::getCleanupObjectName(ExeCliInterface *cliInterface, Int64 objUID, NAString &catName,
+short CmpSeabaseMDcleanup::getCleanupObjectName(ExeCliInterface *cliInterface, long objUID, NAString &catName,
                                                 NAString &schName, NAString &objName, NAString &objType,
-                                                Int32 &objectOwner, Int64 *objectFlags, Int64 *objDataUID) {
-  Lng32 cliRC = 0;
+                                                Int32 &objectOwner, long *objectFlags, long *objDataUID) {
+  int cliRC = 0;
   char objTypeBuf[10];
 
   objectOwner = -1;
@@ -191,15 +191,15 @@ short CmpSeabaseMDcleanup::getCleanupObjectName(ExeCliInterface *cliInterface, I
   return 0;
 }
 
-short CmpSeabaseMDcleanup::hasInferiorPartitons(ExeCliInterface *cliInterface, Int64 objUID) {
-  Lng32 cliRC = 0;
+short CmpSeabaseMDcleanup::hasInferiorPartitons(ExeCliInterface *cliInterface, long objUID) {
+  int cliRC = 0;
   char query[1000];
 
   str_sprintf(query, "select count(parent_uid) from %s.\"%s\".%s where parent_uid = %ld", getSystemCatalog(),
               SEABASE_MD_SCHEMA, SEABASE_PARTITIONS, objUID);
 
-  Lng32 len = 0;
-  Int64 rowCount = 0;
+  int len = 0;
+  long rowCount = 0;
   cliRC = cliInterface->executeImmediate(query, (char *)&rowCount, &len, FALSE);
 
   // If unexpected error occurred
@@ -212,7 +212,7 @@ short CmpSeabaseMDcleanup::hasInferiorPartitons(ExeCliInterface *cliInterface, I
 }
 
 short CmpSeabaseMDcleanup::validateInputValues(StmtDDLCleanupObjects *stmtCleanupNode, ExeCliInterface *cliInterface) {
-  Lng32 cliRC;
+  int cliRC;
 
   objUID_ = -1;
   objectOwner_ = -1;
@@ -352,7 +352,7 @@ short CmpSeabaseMDcleanup::validateInputValues(StmtDDLCleanupObjects *stmtCleanu
   if (objType_ == COM_INDEX_OBJECT_LIT) {
     NAString btCatName;
     NAString btSchName;
-    Int64 btUID;
+    long btUID;
     Int32 btObjOwner = 0;
     Int32 btSchemaOwner = 0;
 
@@ -396,7 +396,7 @@ short CmpSeabaseMDcleanup::processCleanupErrors(ExeCliInterface *cliInterface, N
 }
 
 short CmpSeabaseMDcleanup::gatherDependentObjects(ExeCliInterface *cliInterface, ExpHbaseInterface *ehi) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
   char query[2000];
 
   NABoolean errorSeen = FALSE;
@@ -461,7 +461,7 @@ short CmpSeabaseMDcleanup::gatherDependentObjects(ExeCliInterface *cliInterface,
     extTableName = ComConvertNativeNameToTrafName(catName_, schName_, objName_);
     if (NOT extTableName.isNull()) {
       QualifiedName qn(extTableName, 3);
-      Int64 extObjUID = getObjectUID(cliInterface, qn.getCatalogName(), qn.getSchemaName(), qn.getObjectName(),
+      long extObjUID = getObjectUID(cliInterface, qn.getCatalogName(), qn.getSchemaName(), qn.getObjectName(),
                                      COM_BASE_TABLE_OBJECT_LIT, NULL, NULL, NULL, FALSE, FALSE);
       if (extObjUID > 0) {
         char query[1000];
@@ -482,7 +482,7 @@ short CmpSeabaseMDcleanup::gatherDependentObjects(ExeCliInterface *cliInterface,
 }
 
 short CmpSeabaseMDcleanup::deleteMDentries(ExeCliInterface *cliInterface) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
   char query[1000];
 
   NABoolean errorSeen = FALSE;
@@ -587,16 +587,16 @@ short CmpSeabaseMDcleanup::deleteMDentries(ExeCliInterface *cliInterface) {
 }
 
 short CmpSeabaseMDcleanup::deleteMDConstrEntries(ExeCliInterface *cliInterface) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
   char query[1000];
 
   if (uniqueConstrUIDlist_) {
     uniqueConstrUIDlist_->position();
     for (size_t i = 0; i < uniqueConstrUIDlist_->numEntries(); i++) {
-      Int64 ucUID;
+      long ucUID;
 
       OutputInfo *oi = (OutputInfo *)uniqueConstrUIDlist_->getCurr();
-      ucUID = *(Int64 *)oi->get(0);
+      ucUID = *(long *)oi->get(0);
 
       // If unique constraint is being referenced by other tables, remove foreign key constraints
       // First get the referencing table information
@@ -621,7 +621,7 @@ short CmpSeabaseMDcleanup::deleteMDConstrEntries(ExeCliInterface *cliInterface) 
       referencingTableQueue->position();
       for (size_t j = 0; j < referencingTableQueue->numEntries(); j++) {
         OutputInfo *roi = (OutputInfo *)referencingTableQueue->getCurr();
-        Int64 flags = *(Int64 *)roi->get(0);
+        long flags = *(long *)roi->get(0);
         NABoolean storedDesc = ((flags & MD_OBJECTS_STORED_DESC) != 0);
         storedDescs.insert(storedDesc);
         NAString referencingTable = (char *)roi->get(1);
@@ -695,10 +695,10 @@ short CmpSeabaseMDcleanup::deleteMDConstrEntries(ExeCliInterface *cliInterface) 
   if (refConstrUIDlist_) {
     refConstrUIDlist_->position();
     for (size_t i = 0; i < refConstrUIDlist_->numEntries(); i++) {
-      Int64 rcUID;
+      long rcUID;
 
       OutputInfo *oi = (OutputInfo *)refConstrUIDlist_->getCurr();
-      rcUID = *(Int64 *)oi->get(0);
+      rcUID = *(long *)oi->get(0);
       str_sprintf(query, "delete from %s.\"%s\".%s where ref_constraint_uid = %ld", getSystemCatalog(),
                   SEABASE_MD_SCHEMA, SEABASE_REF_CONSTRAINTS, rcUID);
       cliRC = cliInterface->executeImmediate(query);
@@ -742,7 +742,7 @@ short CmpSeabaseMDcleanup::deleteMDConstrEntries(ExeCliInterface *cliInterface) 
 }
 
 short CmpSeabaseMDcleanup::deleteMDViewEntries(ExeCliInterface *cliInterface) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
   char query[1000];
 
   str_sprintf(query, "delete from %s.\"%s\".%s where view_uid = %ld", getSystemCatalog(), SEABASE_MD_SCHEMA,
@@ -767,7 +767,7 @@ short CmpSeabaseMDcleanup::deleteMDViewEntries(ExeCliInterface *cliInterface) {
 short CmpSeabaseMDcleanup::deleteHistogramEntries(ExeCliInterface *cliInterface) {
   if (isHistogramTable(objName_)) return 0;
 
-  Lng32 cliRC = 0;
+  int cliRC = 0;
   char query[1000];
 
   if ((objType_ == COM_BASE_TABLE_OBJECT_LIT) && (objUID_ > 0) && (NOT catName_.isNull()) && (NOT schName_.isNull())) {
@@ -782,17 +782,17 @@ short CmpSeabaseMDcleanup::deleteHistogramEntries(ExeCliInterface *cliInterface)
 }
 
 short CmpSeabaseMDcleanup::dropIndexes(ExeCliInterface *cliInterface) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
   char query[1000];
 
   if ((!indexesUIDlist_) || (indexesUIDlist_->numEntries() == 0)) return 0;
 
   indexesUIDlist_->position();
   for (size_t i = 0; i < indexesUIDlist_->numEntries(); i++) {
-    Int64 iUID;
+    long iUID;
 
     OutputInfo *oi = (OutputInfo *)indexesUIDlist_->getCurr();
-    iUID = *(Int64 *)oi->get(0);
+    iUID = *(long *)oi->get(0);
 
     str_sprintf(query, "cleanup uid %ld", iUID);
     cliRC = cliInterface->executeImmediate(query);
@@ -808,17 +808,17 @@ short CmpSeabaseMDcleanup::dropIndexes(ExeCliInterface *cliInterface) {
 }
 
 short CmpSeabaseMDcleanup::dropSequences(ExeCliInterface *cliInterface) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
   char query[1000];
 
   if ((!seqUIDlist_) || (seqUIDlist_->numEntries() == 0)) return 0;
 
   seqUIDlist_->position();
   for (size_t i = 0; i < seqUIDlist_->numEntries(); i++) {
-    Int64 iUID;
+    long iUID;
 
     OutputInfo *oi = (OutputInfo *)seqUIDlist_->getCurr();
-    iUID = *(Int64 *)oi->get(0);
+    iUID = *(long *)oi->get(0);
 
     str_sprintf(query, "cleanup uid %ld", iUID);
     cliRC = cliInterface->executeImmediate(query);
@@ -834,7 +834,7 @@ short CmpSeabaseMDcleanup::dropSequences(ExeCliInterface *cliInterface) {
 }
 
 short CmpSeabaseMDcleanup::dropUsingViews(ExeCliInterface *cliInterface) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
   char query[1000];
 
   if ((!usingViewsList_) || (usingViewsList_->numEntries() == 0)) return 0;
@@ -858,7 +858,7 @@ short CmpSeabaseMDcleanup::dropUsingViews(ExeCliInterface *cliInterface) {
 }
 
 short CmpSeabaseMDcleanup::deletePrivs(ExeCliInterface *cliInterface) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
   char query[1000];
 
   if (NOT isAuthorizationEnabled()) return 0;
@@ -883,7 +883,7 @@ short CmpSeabaseMDcleanup::deletePrivs(ExeCliInterface *cliInterface) {
 }
 
 short CmpSeabaseMDcleanup::deleteSchemaPrivs(ExeCliInterface *cliInterface) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
   char query[1000];
 
   if (NOT isAuthorizationEnabled()) return 0;
@@ -900,7 +900,7 @@ short CmpSeabaseMDcleanup::deleteSchemaPrivs(ExeCliInterface *cliInterface) {
 }
 
 short CmpSeabaseMDcleanup::deleteTenantSchemaUsages(ExeCliInterface *cliInterface) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
 
   cliRC = isTenantMetadataInitialized(cliInterface);
   if (cliRC != 1) return cliRC;
@@ -931,7 +931,7 @@ short CmpSeabaseMDcleanup::deleteTenantSchemaUsages(ExeCliInterface *cliInterfac
 }
 
 short CmpSeabaseMDcleanup::deletePartitionEntries(ExeCliInterface *cliInterface) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
   char query[1000];
 
   NABoolean errorSeen = FALSE;
@@ -957,9 +957,9 @@ short CmpSeabaseMDcleanup::deletePartitionEntries(ExeCliInterface *cliInterface)
 }
 
 void CmpSeabaseMDcleanup::cleanupSchemaObjects(ExeCliInterface *cliInterface) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
   char query[1000];
-  Int64 schemaUid = 0;
+  long schemaUid = 0;
 
   NABoolean errorSeen = FALSE;
 
@@ -989,7 +989,7 @@ void CmpSeabaseMDcleanup::cleanupSchemaObjects(ExeCliInterface *cliInterface) {
   schObjList->position();
   for (size_t i = 0; i < schObjList->numEntries(); i++) {
     OutputInfo *oi = (OutputInfo *)schObjList->getCurr();
-    Int64 uid = *(Int64 *)oi->get(0);
+    long uid = *(long *)oi->get(0);
     NAString obj_name((char *)oi->get(2));
     if (isHistogramTable(obj_name)) {
       str_sprintf(query, "cleanup uid %ld", uid);
@@ -1011,7 +1011,7 @@ void CmpSeabaseMDcleanup::cleanupSchemaObjects(ExeCliInterface *cliInterface) {
   schObjList->position();
   for (size_t i = 0; i < schObjList->numEntries(); i++) {
     OutputInfo *oi = (OutputInfo *)schObjList->getCurr();
-    Int64 uid = *(Int64 *)oi->get(0);
+    long uid = *(long *)oi->get(0);
 
     NAString obj_type((char *)oi->get(1));
     NAString obj_name((char *)oi->get(2));
@@ -1119,7 +1119,7 @@ void CmpSeabaseMDcleanup::cleanupSchemaObjects(ExeCliInterface *cliInterface) {
 }
 
 short CmpSeabaseMDcleanup::cleanupUIDs(ExeCliInterface *cliInterface, Queue *entriesList, CmpDDLwithStatusInfo *dws) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
   char query[1000];
   NABoolean errorSeen = FALSE;
 
@@ -1128,7 +1128,7 @@ short CmpSeabaseMDcleanup::cleanupUIDs(ExeCliInterface *cliInterface, Queue *ent
   entriesList->position();
   for (size_t i = 0; i < entriesList->numEntries(); i++) {
     OutputInfo *oi = (OutputInfo *)entriesList->getCurr();
-    Int64 objUID = *(Int64 *)oi->get(0);
+    long objUID = *(long *)oi->get(0);
 
     str_sprintf(query, "cleanup uid %ld", objUID);
     cliRC = cliInterface->executeImmediate(query);
@@ -1144,7 +1144,7 @@ short CmpSeabaseMDcleanup::cleanupUIDs(ExeCliInterface *cliInterface, Queue *ent
 
 void CmpSeabaseMDcleanup::cleanupHBaseObject(const StmtDDLCleanupObjects *stmtCleanupNode,
                                              ExeCliInterface *cliInterface) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
   char query[1000];
   NABoolean errorSeen = FALSE;
 
@@ -1190,7 +1190,7 @@ short CmpSeabaseMDcleanup::addReturnDetailsEntry(ExeCliInterface *cliInterface, 
   return 0;
 }
 
-short CmpSeabaseMDcleanup::addReturnDetailsEntryForText(ExeCliInterface *cliInterface, Queue *&list, Int64 objUID,
+short CmpSeabaseMDcleanup::addReturnDetailsEntryForText(ExeCliInterface *cliInterface, Queue *&list, long objUID,
                                                         Int32 objType, NABoolean init) {
   if (NOT returnDetails_) return 0;
 
@@ -1301,9 +1301,9 @@ short CmpSeabaseMDcleanup::addReturnDetailsEntryForText(ExeCliInterface *cliInte
 }
 
 short CmpSeabaseMDcleanup::addReturnDetailsEntryFromList(ExeCliInterface *cliInterface, Queue *fromList,
-                                                         Lng32 fromIndex, Queue *toList, NABoolean isUID,
+                                                         int fromIndex, Queue *toList, NABoolean isUID,
                                                          NABoolean processTextInfo) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
   char query[1000];
   NABoolean errorSeen = FALSE;
 
@@ -1315,7 +1315,7 @@ short CmpSeabaseMDcleanup::addReturnDetailsEntryFromList(ExeCliInterface *cliInt
     char *val = (char *)oi->get(fromIndex);
 
     if (processTextInfo) {
-      Int64 objUID = *(Int64 *)oi->get(0);
+      long objUID = *(long *)oi->get(0);
       Int32 objType = *(Int32 *)oi->get(1);
       if (addReturnDetailsEntryForText(cliInterface, toList, objUID, objType, FALSE)) return -1;
     } else {
@@ -1330,7 +1330,7 @@ short CmpSeabaseMDcleanup::addReturnDetailsEntryFromList(ExeCliInterface *cliInt
 
 short CmpSeabaseMDcleanup::cleanupOrphanObjectsEntries(ExeCliInterface *cliInterface, ExpHbaseInterface *ehi,
                                                        CmpDDLwithStatusInfo *dws) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
   char query[2000];
   NABoolean errorSeen = FALSE;
 
@@ -1364,13 +1364,13 @@ short CmpSeabaseMDcleanup::cleanupOrphanObjectsEntries(ExeCliInterface *cliInter
 
     if (cliRC != 100) {
       char *ptr;
-      Lng32 len;
+      int len;
 
       cliInterface->getPtrAndLen(1, ptr, len);
-      Int64 objUID = *(Int64 *)ptr;
+      long objUID = *(long *)ptr;
 
       cliInterface->getPtrAndLen(2, ptr, len);
-      Int64 objDataUID = *(Int64 *)ptr;
+      long objDataUID = *(long *)ptr;
 
       cliInterface->getPtrAndLen(3, ptr, len);
       NAString catName(ptr, len);
@@ -1391,9 +1391,9 @@ short CmpSeabaseMDcleanup::cleanupOrphanObjectsEntries(ExeCliInterface *cliInter
       if (rc == 0)                                     // does not exist
       {
         OutputInfo *oi = new (STMTHEAP) OutputInfo(1);
-        char *r = new (STMTHEAP) char[sizeof(Int64)];
-        str_cpy_all(r, (char *)&objUID, sizeof(Int64));
-        oi->insert(0, r, sizeof(Int64));
+        char *r = new (STMTHEAP) char[sizeof(long)];
+        str_cpy_all(r, (char *)&objUID, sizeof(long));
+        oi->insert(0, r, sizeof(long));
 
         obsoleteEntriesList_->insert(oi);
 
@@ -1418,7 +1418,7 @@ short CmpSeabaseMDcleanup::cleanupOrphanObjectsEntries(ExeCliInterface *cliInter
 // cleanup user objects that exist in hbase but not in metadata.
 short CmpSeabaseMDcleanup::cleanupOrphanHbaseEntries(ExeCliInterface *cliInterface, ExpHbaseInterface *ehi,
                                                      CmpDDLwithStatusInfo *dws) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
   char query[1000];
   NABoolean errorSeen = FALSE;
 
@@ -1438,7 +1438,7 @@ short CmpSeabaseMDcleanup::cleanupOrphanHbaseEntries(ExeCliInterface *cliInterfa
     strncpy(cBuf, hbaseStr->val, hbaseStr->len);
     cBuf[hbaseStr->len] = '\0';
     char *c = cBuf;
-    Lng32 numParts = 0;
+    int numParts = 0;
     char *parts[4];
     NAString originStr = NAString(cBuf);
     LateNameInfo::extractParts(c, cBuf, numParts, parts, FALSE);
@@ -1492,7 +1492,7 @@ short CmpSeabaseMDcleanup::cleanupOrphanHbaseEntries(ExeCliInterface *cliInterfa
 
     NAString extHbaseName;
     NAString extTableName;
-    Int64 objUID = -1;
+    long objUID = -1;
 
     if (numParts == 3) {
       extTableName = catalogNamePart + "." + "\"" + schemaNamePart + "\"" + "." + "\"" + objectNamePart + "\"";
@@ -1564,7 +1564,7 @@ short CmpSeabaseMDcleanup::cleanupOrphanHbaseEntries(ExeCliInterface *cliInterfa
 
 short CmpSeabaseMDcleanup::cleanupInconsistentObjectsEntries(ExeCliInterface *cliInterface, ExpHbaseInterface *ehi,
                                                              CmpDDLwithStatusInfo *dws) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
   char query[1000];
   NABoolean errorSeen = FALSE;
 
@@ -1676,7 +1676,7 @@ error_return2:
 
 short CmpSeabaseMDcleanup::cleanupOrphanViewsEntries(ExeCliInterface *cliInterface, ExpHbaseInterface *ehi,
                                                      CmpDDLwithStatusInfo *dws) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
   char query[1000];
   NABoolean errorSeen = FALSE;
 
@@ -1758,7 +1758,7 @@ short CmpSeabaseMDcleanup::cleanupOrphanViewsEntries(ExeCliInterface *cliInterfa
 
 short CmpSeabaseMDcleanup::cleanupInconsistentPartitionEntries(ExeCliInterface *cliInterface, ExpHbaseInterface *ehi,
                                                                CmpDDLwithStatusInfo *dws) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
   char query[2000];
   NABoolean errorSeen = FALSE;
 
@@ -1802,7 +1802,7 @@ short CmpSeabaseMDcleanup::cleanupInconsistentPartitionEntries(ExeCliInterface *
 //      metadata tables.  This can happen after a restore where the authIDs on
 //      the source system do not match the target system.
 short CmpSeabaseMDcleanup::cleanupInconsistentPrivEntries(ExeCliInterface *cliInterface, ExpHbaseInterface *ehi) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
   char query[4000];
   NABoolean errorSeen = FALSE;
 
@@ -1883,7 +1883,7 @@ short CmpSeabaseMDcleanup::cleanupInconsistentPrivEntries(ExeCliInterface *cliIn
 
 // remove tenant group usages for groups that are no longer registered
 short CmpSeabaseMDcleanup::cleanupInconsistentGroupEntries(ExeCliInterface *cliInterface, ExpHbaseInterface *ehi) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
   char query[4000];
   NABoolean errorSeen = FALSE;
 
@@ -1914,7 +1914,7 @@ short CmpSeabaseMDcleanup::cleanupInconsistentGroupEntries(ExeCliInterface *cliI
   for (size_t i = 0; i < orphanGroups->numEntries(); i++) {
     OutputInfo *oi = (OutputInfo *)orphanGroups->getCurr();
     Int32 tenantID = *(Int32 *)oi->get(0);
-    Int64 usageUID = *(Int64 *)oi->get(1);
+    long usageUID = *(long *)oi->get(1);
     char intStr[100];
     str_ltoa(usageUID, intStr);
 
@@ -1943,7 +1943,7 @@ short CmpSeabaseMDcleanup::cleanupInconsistentGroupEntries(ExeCliInterface *cliI
 
 short CmpSeabaseMDcleanup::cleanupInconsistentTextEntries(ExeCliInterface *cliInterface, ExpHbaseInterface *ehi,
                                                           CmpDDLwithStatusInfo *dws) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
   char query[1000];
   NABoolean errorSeen = FALSE;
 
@@ -1994,7 +1994,7 @@ error_return2:
 }
 
 void CmpSeabaseMDcleanup::cleanupInferiorPartitionEntries(ExeCliInterface *cliInterface) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
   char query[1000];
   NABoolean errorSeen = FALSE;
   CMPASSERT(objUID_ != -1);
@@ -2012,7 +2012,7 @@ void CmpSeabaseMDcleanup::cleanupInferiorPartitionEntries(ExeCliInterface *cliIn
   ipeList->position();
   for (size_t i = 0; i < ipeList->numEntries(); i++) {
     OutputInfo *oi = (OutputInfo *)ipeList->getCurr();
-    Int64 uid = *(Int64 *)oi->get(0);
+    long uid = *(long *)oi->get(0);
     str_sprintf(query, "cleanup uid %ld", uid);
     cliRC = cliInterface->executeImmediate(query);
     if (cliRC < 0) {
@@ -2026,7 +2026,7 @@ void CmpSeabaseMDcleanup::cleanupInferiorPartitionEntries(ExeCliInterface *cliIn
 
 void CmpSeabaseMDcleanup::cleanupMetadataEntries(ExeCliInterface *cliInterface, ExpHbaseInterface *ehi,
                                                  CmpDDLwithStatusInfo *dws) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
   char query[1000];
   NABoolean errorSeen = FALSE;
 
@@ -2355,7 +2355,7 @@ void CmpSeabaseMDcleanup::cleanupMetadataEntries(ExeCliInterface *cliInterface, 
 
 void CmpSeabaseMDcleanup::cleanupObjects(StmtDDLCleanupObjects *stmtCleanupNode, NAString &currCatName,
                                          NAString &currSchName, CmpDDLwithStatusInfo *dws) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
   ExeCliInterface cliInterface(STMTHEAP);
 
   if ((xnInProgress(&cliInterface)) && (!Get_SqlParser_Flags(INTERNAL_QUERY_FROM_EXEUTIL))) {

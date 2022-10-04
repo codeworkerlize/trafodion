@@ -95,7 +95,7 @@ need to be executed in the mxlobsrvr process, the sqstart/sqstop need to modifie
 extern int ms_transid_reg(MS_Mon_Transid_Type, MS_Mon_Transseq_Type, SB_Int64_Type, SB_Int64_Type);
 extern void ms_transid_clear(MS_Mon_Transid_Type, MS_Mon_Transseq_Type);
 extern "C" short GETTRANSID(short *transid);
-extern "C" short JOINTRANSACTION(Int64 transid);
+extern "C" short JOINTRANSACTION(long transid);
 extern "C" short SUSPENDTRANSACTION(short *transid);
 #define TRANSID_IS_VALID(idin) (idin.id[0] != 0)
 
@@ -145,9 +145,9 @@ class rcv_struct {
  public:
   union {
     unsigned char *databuf;
-    Lng32 *datalen;
+    int *datalen;
   };
-  Lng32 buflen;
+  int buflen;
   short file;
   short state;
 };
@@ -167,7 +167,7 @@ class awaitio_tag_struct {
 
 class awaitio_struct {
  public:
-  Lng32 Iocount;
+  int Iocount;
   short Error;
   short File;
 };
@@ -187,7 +187,7 @@ rcv_struct rcv;
 pthread_mutex_t cnfg_mutex;
 pthread_mutex_t g_mutex;
 pthread_attr_t thr_attr;
-Lng32 total_dynamic_memory;
+int total_dynamic_memory;
 CliGlobals *cliGlobals = NULL;
 char *myProgramName = NULL;
 xzsys_ddl_smsg_def *sysmsg = NULL;
@@ -195,7 +195,7 @@ FS_Receiveinfo_Type rcvinfo;
 
 //*****************************************************************************
 //*****************************************************************************
-static void sigterm_handler(Lng32 signo) { printf("sigterm received\n"); }
+static void sigterm_handler(int signo) { printf("sigterm received\n"); }
 
 void LOB_process_stop(short flag) {
   if (rcv.state == READ_POSTED)
@@ -208,7 +208,7 @@ void LOB_process_stop(short flag) {
 
 static void *Calloc(size_t memsize) {
   void *ptr;
-  Lng32 retval;
+  int retval;
 
   retval = pthread_mutex_lock(&g_mutex);
   ex_assert(retval == 0, "Calloc 1");
@@ -244,7 +244,7 @@ void post_receive_read(void) {
 }  // post_receive_read
 
 short process_open(void) {
-  Lng32 retval;
+  int retval;
   short retvals = XZFIL_ERR_OK;
 
   return retvals;
@@ -253,7 +253,7 @@ short process_open(void) {
 //*****************************************************************************
 //*****************************************************************************
 short process_close(void) {
-  Lng32 retval;
+  int retval;
   short retvals = XZFIL_ERR_OK;
 
   return retvals;

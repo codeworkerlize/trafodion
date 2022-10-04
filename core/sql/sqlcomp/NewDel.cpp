@@ -93,7 +93,7 @@
 //
 THREAD_P PNH globalCmpNewHandler = 0;
 
-const Lng32 DEFAULT_SYSTEM_HEAP_ID = 999;
+const int DEFAULT_SYSTEM_HEAP_ID = 999;
 
 void *operator new(size_t size) {
   void *p = malloc(size);

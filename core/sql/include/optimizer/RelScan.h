@@ -340,12 +340,12 @@ class Scan : public RelExpr {
 
   const SET(IndexProperty *) & getIndexOnlyIndexes() { return indexOnlyIndexes_; }
   const LIST(ScanIndexInfo *) & getPossibleIndexJoins() { return possibleIndexJoins_; }
-  Lng32 getNumIndexJoins() { return numIndexJoins_; }
-  void setNumIndexJoins(Lng32 n) { numIndexJoins_ = n; }
+  int getNumIndexJoins() { return numIndexJoins_; }
+  void setNumIndexJoins(int n) { numIndexJoins_ = n; }
 
   // the maximal number of index joins that a scan node will be
   // transformed into
-  static const Lng32 MAX_NUM_INDEX_JOINS;
+  static const int MAX_NUM_INDEX_JOINS;
 
   NABoolean isHiveTable() const;
   NABoolean isHiveOrcTable() const;
@@ -518,8 +518,8 @@ class Scan : public RelExpr {
   inline ValueIdSet &sampledColumns() { return sampledColumns_; };
   inline const ValueIdSet &sampledColumns() const { return sampledColumns_; };
 
-  Lng32 clusterSize() const { return clusterSize_; };
-  void clusterSize(Lng32 cs) { clusterSize_ = cs; };
+  int clusterSize() const { return clusterSize_; };
+  void clusterSize(int cs) { clusterSize_ = cs; };
   NABoolean isClusterSampling() const { return clusterSize_ > 0; };
 
   ULng32 scanFlags() const { return scanFlags_; };
@@ -650,7 +650,7 @@ class Scan : public RelExpr {
   // answer as to whether applying the transformation will yield
   // better plans. Method is called in Normalizer so we use
   // heuristics rather than computed cost.
-  NABoolean passSemiJoinHeuristicCheck(ValueId vid, Lng32 numValues, Lng32 numParams, ValueId colVid) const;
+  NABoolean passSemiJoinHeuristicCheck(ValueId vid, int numValues, int numParams, ValueId colVid) const;
 
   // NO_SECURITY_CHECK: if this Scan node was created as part of another
   // operation (ex., UPDATE becomes UPDATE(SCAN) in parser),
@@ -715,7 +715,7 @@ class Scan : public RelExpr {
 
   // indicate how many index joins on this table we've already done before
   // creating this node
-  Lng32 numIndexJoins_;
+  int numIndexJoins_;
 
   // Contains user specified BROWSE, STABLE or REPEATABLE access type and
   // user specified SHARE or EXCLUSIVE lock mode.
@@ -760,7 +760,7 @@ class Scan : public RelExpr {
   // Cluster size for sampling (in number of blocks). Set to > 0 if cluster
   // sampling, 0 otherwise.
   //
-  Lng32 clusterSize_;
+  int clusterSize_;
 
   // MV --
   // These are columns prepared by the TCB during execution and projected
@@ -838,9 +838,9 @@ class FileScan : public Scan {
   virtual NABoolean isLogical() const;
   virtual NABoolean isPhysical() const;
 
-  virtual PhysicalProperty *synthPhysicalProperty(const Context *context, const Lng32 planNumber, PlanWorkSpace *pws);
+  virtual PhysicalProperty *synthPhysicalProperty(const Context *context, const int planNumber, PlanWorkSpace *pws);
 
-  PhysicalProperty *synthHbaseScanPhysicalProperty(const Context *context, const Lng32 planNumber,
+  PhysicalProperty *synthHbaseScanPhysicalProperty(const Context *context, const int planNumber,
                                                    ValueIdList &sortOrderVEG);
 
   // Obtain a pointer to a CostMethod object that provides access
@@ -939,24 +939,24 @@ class FileScan : public Scan {
 
   virtual NABoolean okToAttemptESPParallelism(const Context *myContext, /*IN*/
                                               PlanWorkSpace *pws,       /*IN*/
-                                              Lng32 &numOfESPs,         /*OUT*/
+                                              int &numOfESPs,         /*OUT*/
                                               float &allowedDeviation,  /*OUT*/
                                               NABoolean &numOfESPsForced /*OUT*/);
 
   virtual void addPartKeyPredsToSelectionPreds(const ValueIdSet &partKeyPreds, const ValueIdSet &pivs);
 
-  virtual Lng32 getNumberOfBlocksToReadPerAccess() const {
+  virtual int getNumberOfBlocksToReadPerAccess() const {
     // make sure that value has been initialized before using it:
     CMPASSERT(numberOfBlocksToReadPerAccess_ > -1);
     return numberOfBlocksToReadPerAccess_;
   }
 
-  virtual void setNumberOfBlocksToReadPerAccess(const Lng32 &blocks) {
+  virtual void setNumberOfBlocksToReadPerAccess(const int &blocks) {
     DCMPASSERT(blocks > -1);
     numberOfBlocksToReadPerAccess_ = blocks;
   }
 
-  virtual PlanPriority computeOperatorPriority(const Context *context, PlanWorkSpace *pws = NULL, Lng32 planNumber = 0);
+  virtual PlanPriority computeOperatorPriority(const Context *context, PlanWorkSpace *pws = NULL, int planNumber = 0);
 
   // -----------------------------------------------------
   // generate CONTROL QUERY SHAPE fragment for this node.
@@ -989,7 +989,7 @@ class FileScan : public Scan {
   void setDoUseSearchKey(NABoolean x) { doUseSearchKey_ = x; };
   NABoolean getDoUseSearchKey() { return doUseSearchKey_; };
 
-  RangePartitioningFunction *createRangePartFuncForHbaseTableUsingStats(Lng32 &partns,
+  RangePartitioningFunction *createRangePartFuncForHbaseTableUsingStats(int &partns,
                                                                         const ValueIdSet &partitioningKeyColumns,
                                                                         const ValueIdList &partitioningKeyColumnsList,
                                                                         const ValueIdList &partitioningKeyColumnsOrder);
@@ -1002,7 +1002,7 @@ class FileScan : public Scan {
 
   // Compute the total width of all columns in this scan that involve in
   // the executor predicates
-  Lng32 getTotalColumnWidthForExecPreds() const;
+  int getTotalColumnWidthForExecPreds() const;
 
   void findNestedJoinPredicates(ValueIdSet &njPreds);
 
@@ -1070,7 +1070,7 @@ class FileScan : public Scan {
   // DP2 uses it to decide whether it will do read ahead
   // or not.
   // Its value is -1 if uninitialized
-  Lng32 numberOfBlocksToReadPerAccess_;
+  int numberOfBlocksToReadPerAccess_;
   MdamFlags mdamFlag_;
 
   // This flag is needed only by EXPLAIN.
@@ -1210,7 +1210,7 @@ class HbaseAccess : public FileScan {
   // a virtual function for computing the potential outputValues
   virtual void getPotentialOutputValues(ValueIdSet &vs) const;
 
-  virtual Lng32 numParams() { return 1; }
+  virtual int numParams() { return 1; }
 
   // acessors
   //! getVirtualTableName method
@@ -1333,7 +1333,7 @@ class HbaseAccess : public FileScan {
 
   static void addColReferenceFromRightChildOfVIDarray(ValueIdArray &exprList, ValueIdSet &colRefVIDset);
 
-  static short convNumToId(const char *colQualPtr, Lng32 colQualLen, NAString &cid);
+  static short convNumToId(const char *colQualPtr, int colQualLen, NAString &cid);
 
   static short createHbaseColId(const NAColumn *nac, NAString &cid, NABoolean isSecondaryIndex = FALSE,
                                 NABoolean noLenPrefix = FALSE);
@@ -1600,7 +1600,7 @@ class Describe : public Scan {
   virtual void getPotentialOutputValues(ValueIdSet &vs) const;
 
   // cost functions
-  virtual PhysicalProperty *synthPhysicalProperty(const Context *context, const Lng32 planNumber, PlanWorkSpace *pws);
+  virtual PhysicalProperty *synthPhysicalProperty(const Context *context, const int planNumber, PlanWorkSpace *pws);
 
   // method to do code generation
   virtual short codeGen(Generator *);

@@ -613,7 +613,7 @@ NodeMap *NodeMap::synthesizeLogicalMap(const CollIndex logicalNumEntries, NABool
   }
 #endif
 
-  Lng32 requiredESPs = CURRSTMT_OPTDEFAULTS->getRequiredESPs();
+  int requiredESPs = CURRSTMT_OPTDEFAULTS->getRequiredESPs();
 
   if (requiredESPs == -1 && forESP && type() == NodeMap::SQ)
     CMPASSERT(logicalNumEntries >= 1 && logicalNumEntries <= totalESPs);
@@ -653,7 +653,7 @@ NodeMap *NodeMap::synthesizeLogicalMap(const CollIndex logicalNumEntries, NABool
   // get a list of the nodes in the cluster
   const NAArray<CollIndex> &cpuArray(CURRCONTEXT_CLUSTERINFO->getCPUArray());
   Int32 cpuCount = cpuArray.entries();
-  Lng32 affinityDef = ActiveSchemaDB()->getDefaults().getAsLong(AS_AFFINITY_VALUE);
+  int affinityDef = ActiveSchemaDB()->getDefaults().getAsLong(AS_AFFINITY_VALUE);
 
   // "float" single ESP
   if (logicalNumEntries == 1 && forESP) {
@@ -999,26 +999,26 @@ NABoolean NodeMap::isActive(const CollIndex position) const {
 
 }  // NodeMap::isActive()
 
-Lng32 NodeMap::getPopularNodeNumber(CollIndex beginPos, CollIndex endPos) const {
-  Lng32 numNodes = CmpCommon::context()->getNumOfSMPs();
+int NodeMap::getPopularNodeNumber(CollIndex beginPos, CollIndex endPos) const {
+  int numNodes = CmpCommon::context()->getNumOfSMPs();
   // an array of nodes in the cluster
-  Int64 *nodes = new (CmpCommon::statementHeap()) Int64[numNodes];
-  for (Lng32 i = 0; i < numNodes; i++) nodes[i] = 0;  // init the array with 0
+  long *nodes = new (CmpCommon::statementHeap()) long[numNodes];
+  for (int i = 0; i < numNodes; i++) nodes[i] = 0;  // init the array with 0
 
-  for (Lng32 index = beginPos; index < endPos; index++) {
+  for (int index = beginPos; index < endPos; index++) {
     CMPASSERT(map_.getUsage(index) != UNUSED_COLL_ENTRY);
-    Lng32 currNodeNum = getNodeNumber(index);
+    int currNodeNum = getNodeNumber(index);
 
     if (currNodeNum != IPC_CPU_DONT_CARE) nodes[currNodeNum] += 1;  // keep count regions node number
   }
 
-  Lng32 nodeFrequency = 0;
-  Lng32 popularNodeNumber = -1;  // first node number is popular to start with
+  int nodeFrequency = 0;
+  int popularNodeNumber = -1;  // first node number is popular to start with
   // introduce a pseudo-random offset to avoid a bias
   // towards particular nodes
-  Lng32 offset = ExHDPHash::hash((char *)&beginPos, 0, sizeof(beginPos)) % numNodes;
-  for (Lng32 index = 0; index < numNodes; index++) {
-    Lng32 offsetIndex = (index + offset) % numNodes;
+  int offset = ExHDPHash::hash((char *)&beginPos, 0, sizeof(beginPos)) % numNodes;
+  for (int index = 0; index < numNodes; index++) {
+    int offsetIndex = (index + offset) % numNodes;
     if (nodes[offsetIndex] > nodeFrequency) {
       nodeFrequency = nodes[offsetIndex];
       popularNodeNumber = offsetIndex;
@@ -1065,22 +1065,22 @@ Lng32 NodeMap::getPopularNodeNumber(CollIndex beginPos, CollIndex endPos) const 
 //    NodeMapIndex   0   1   2   3  4  5
 //    NodeMapEntry   0   1   0   3  3  5
 //
-NABoolean NodeMap::smooth(Lng32 numNodes) {
+NABoolean NodeMap::smooth(int numNodes) {
   NABoolean smoothed = FALSE;
 
   typedef ClusteredBitmap *ClusteredBitmapPtr;
 
   ClusteredBitmap **nodeUsageMap = new (heap_) ClusteredBitmapPtr[numNodes];
 
-  for (Lng32 index = 0; index < numNodes; index++) {
+  for (int index = 0; index < numNodes; index++) {
     nodeUsageMap[index] = NULL;
   }
 
   ClusteredBitmap includedNodes(heap_);
 
-  Lng32 highestFreq = 0;
-  for (Lng32 index = 0; index < getNumEntries(); index++) {
-    Lng32 currNodeNum = getNodeNumber(index);
+  int highestFreq = 0;
+  for (int index = 0; index < getNumEntries(); index++) {
+    int currNodeNum = getNodeNumber(index);
 
     if (currNodeNum != IPC_CPU_DONT_CARE) {
       if (nodeUsageMap[currNodeNum] == NULL) nodeUsageMap[currNodeNum] = new (heap_) ClusteredBitmap(heap_);
@@ -1088,7 +1088,7 @@ NABoolean NodeMap::smooth(Lng32 numNodes) {
       nodeUsageMap[currNodeNum]->insert(index);
       includedNodes.insert(currNodeNum);
 
-      Lng32 entries = nodeUsageMap[currNodeNum]->entries();
+      int entries = nodeUsageMap[currNodeNum]->entries();
       if (highestFreq < entries) {
         highestFreq = entries;
       }
@@ -1098,10 +1098,10 @@ NABoolean NodeMap::smooth(Lng32 numNodes) {
   // Find how many entries wth the highest frequency, and compute the number of entries with
   // normal frequency (normEntries) and the number of nodes that appear with normal frequency
   // (normalNodesCt).
-  Lng32 count = 0;
-  Lng32 normalEntries = 0;
-  Lng32 normalNodesCt = 0;
-  for (Lng32 index = 0; index < numNodes; index++) {
+  int count = 0;
+  int normalEntries = 0;
+  int normalNodesCt = 0;
+  for (int index = 0; index < numNodes; index++) {
     if (!nodeUsageMap[index]) continue;
 
     if (nodeUsageMap[index]->entries() == highestFreq) {
@@ -1114,13 +1114,13 @@ NABoolean NodeMap::smooth(Lng32 numNodes) {
   }
 
   if (normalEntries >= 1 && count <= 2 && count < getNumEntries() && count * highestFreq < floor(numNodes * 0.67)) {
-    Lng32 baseFreq = ceil(normalNodesCt / normalEntries);
+    int baseFreq = ceil(normalNodesCt / normalEntries);
     CollIndex availableNode = 0;
 
-    for (Lng32 index = 0; index < numNodes; index++) {
+    for (int index = 0; index < numNodes; index++) {
       if (nodeUsageMap[index] && nodeUsageMap[index]->entries() == highestFreq) {
         // skip first baseFreq entries and reassign the rest starting at the (baseFreq+1)th entry
-        Lng32 notTouched = 0;
+        int notTouched = 0;
         NABoolean canAssign = FALSE;
         for (CollIndex j = 0; nodeUsageMap[index]->nextUsed(j); j++) {
           if (canAssign) {
@@ -1165,13 +1165,13 @@ NABoolean NodeMap::smooth(Lng32 numNodes) {
 //  Node number of node map entry at a specified position.
 //
 //==============================================================================
-Lng32 NodeMap::getNodeNumber(const CollIndex position) const {
+int NodeMap::getNodeNumber(const CollIndex position) const {
   CMPASSERT(map_.getUsage(position) != UNUSED_COLL_ENTRY);
   return map_[position]->getNodeNumber();
 
 }  // NodeMap::getNodeNum
 
-Lng32 NodeMap::mapNodeNameToNodeNum(const NAString node) const {
+int NodeMap::mapNodeNameToNodeNum(const NAString node) const {
   return CURRCONTEXT_CLUSTERINFO->mapNodeNameToNodeNum(node);
 }  // NodeMap::getNodeNmber
 
@@ -1189,7 +1189,7 @@ Lng32 NodeMap::mapNodeNameToNodeNum(const NAString node) const {
 //  cluster number of node map entry at a specified position.
 //
 //==============================================================================
-Lng32 NodeMap::getClusterNumber(const CollIndex position) const {
+int NodeMap::getClusterNumber(const CollIndex position) const {
   CMPASSERT(map_.getUsage(position) != UNUSED_COLL_ENTRY);
   return map_[position]->getClusterNumber();
 }
@@ -1557,7 +1557,7 @@ void NodeMap::setPartitionState(const CollIndex &position, const NodeMapEntry::P
 //  none
 //
 //==============================================================================
-void NodeMap::setNodeNumber(const CollIndex position, const Lng32 nodeNumber) {
+void NodeMap::setNodeNumber(const CollIndex position, const int nodeNumber) {
   //---------------------------------------------------------------
   //  Verify that specified position refers to an existing node map
   // entry.
@@ -1583,7 +1583,7 @@ void NodeMap::setNodeNumber(const CollIndex position, const Lng32 nodeNumber) {
 //  none
 //
 //==============================================================================
-void NodeMap::setClusterNumber(const CollIndex position, const Lng32 clusterNumber) {
+void NodeMap::setClusterNumber(const CollIndex position, const int clusterNumber) {
   //---------------------------------------------------------------
   //  Verify that specified position refers to an existing node map
   // entry.
@@ -1611,7 +1611,7 @@ void NodeMap::setClusterNumber(const CollIndex position, const Lng32 clusterNumb
 //  != 0 if an error occurred
 //
 //==============================================================================
-short NodeMap::codeGen(const PartitioningFunction *partFunc, const Lng32 numESPs, Generator *generator) {
+short NodeMap::codeGen(const PartitioningFunction *partFunc, const int numESPs, Generator *generator) {
   Int32 rc = 0;
   if (partFunc == NULL) {
     generator->setGenObj(NULL, NULL);
@@ -1630,7 +1630,7 @@ short NodeMap::codeGen(const PartitioningFunction *partFunc, const Lng32 numESPs
 
   exeNodeMap->setMapArray(numESPs, mapEntries);
   MS_Mon_Node_Info_Type nodeInfo;
-  for (Lng32 i = 0; i < numESPs; i++) {
+  for (int i = 0; i < numESPs; i++) {
     const NodeMapEntry *ne = compNodeMap->getNodeMapEntry(i);
 
     // For a virtual node setup that is only good for compilation,

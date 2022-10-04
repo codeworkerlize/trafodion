@@ -24,6 +24,7 @@
 #include <iomanip>
 #include <iostream>
 #include <sstream>
+#include <stddef.h>
 
 NAHeap *ipcHeap;
 const size_t numTotalBins = NAHeap::NSMALLBINS + NAHeap::NTREEBINS;

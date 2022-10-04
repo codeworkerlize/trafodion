@@ -94,7 +94,7 @@ class ChangesTable : public NABasicObject {
   inline const CorrName &getCorrNameForOldRow() const { return corrNameForOldRow_; }
 
   // Work methods
-  RelExpr *buildInsert(NABoolean useLeafInsert, Lng32 enforceRowsTypeForUpdate = ALL_ROWS, NABoolean isUndo = FALSE,
+  RelExpr *buildInsert(NABoolean useLeafInsert, int enforceRowsTypeForUpdate = ALL_ROWS, NABoolean isUndo = FALSE,
                        NABoolean isForMvLogging = FALSE) const;
   RelExpr *buildUndo() const;
   RelExpr *buildDelete(RowsType whichRows = ALL_ROWS) const;
@@ -251,7 +251,7 @@ class MvIudLog : public ChangesTable {
   // one of the columns of the current mv
   virtual ItemExpr *buildBitmapColPredicate() const;
 
-  ItemExpr *constructUpdateBitmapFromList(const LIST(Lng32) & columnList) const;
+  ItemExpr *constructUpdateBitmapFromList(const LIST(int) & columnList) const;
 
   ItemExpr *buildOrigScanPredicate() const;
 
@@ -298,7 +298,7 @@ class MvIudLogForMvLog : public MvIudLog {
 //////////////////////////////////////////////////////////////////////////////
 class MvLogForContextRows : public ChangesTable {
  public:
-  MvLogForContextRows(const QualifiedName &baseTableName, const CorrName &mvName, Lng32 epochNumber,
+  MvLogForContextRows(const QualifiedName &baseTableName, const CorrName &mvName, int epochNumber,
                       ItemExpr *catchupNo, BindWA *bindWA);
 
   virtual ~MvLogForContextRows() {}
@@ -320,7 +320,7 @@ class MvLogForContextRows : public ChangesTable {
   static ItemExpr *buildLogEpochPredicate(const DeltaDefinition *deltaDef, CollHeap *heap);
 
  private:
-  Lng32 epochNumber_;
+  int epochNumber_;
   ItemExpr *catchupNo_;
 };
 

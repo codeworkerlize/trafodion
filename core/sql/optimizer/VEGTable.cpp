@@ -146,12 +146,12 @@ void VEGMember::display() { VEGMember::print(); }  // VEGMember::display()
 // ***********************************************************************
 
 VEGMember *VEGRegion::findVEGMember(VEGReference *vegReference) {
-  Lng32 ne = members_.entries();
-  Lng32 i = 0;
+  int ne = members_.entries();
+  int i = 0;
   NABoolean found = FALSE;
   ValueId memberValueId;
   VEGReference *memberVEGReference;
-  Lng32 index = 0;
+  int index = 0;
   for (index = 0; index < ne; index++) {
     memberVEGReference = members_[index]->getVEG()->getVEGReference();
     if (memberVEGReference == vegReference) {
@@ -167,8 +167,8 @@ VEGMember *VEGRegion::findVEGMember(VEGReference *vegReference) {
 // VEGRegion::findVEGMember()
 // -----------------------------------------------------------------------
 VEGMember *VEGRegion::findVEGMember(const ValueId &vid) const {
-  Lng32 ne = members_.entries();
-  Lng32 i = 0;
+  int ne = members_.entries();
+  int i = 0;
   NABoolean found = FALSE;
   ValueId memberValueId;
 
@@ -259,7 +259,7 @@ void VEGRegion::mergeVEG(const ValueId &newVEG, const ValueId &oldVEG) {
 
     // Walk through the VEGRegion and replace a reference to oldVEG
     // with a reference to newVEG.
-    for (Lng32 i = 0; i < (Lng32)members_.entries(); i++) {
+    for (int i = 0; i < (int)members_.entries(); i++) {
       if (members_[i]->getVEGValueId() == oldVEG) {
         VEGMember *vegDesc = members_[i];
         vegDesc->setVEGValueId(newVEG);
@@ -432,7 +432,7 @@ void VEGRegion::replaceVEGMember(const ValueId &existingMemberId, const ValueId 
 
   // If this method is not called for deleting the member only
   // and fix is enabled
-  Lng32 compInt54 = (ActiveSchemaDB()->getDefaults()).getAsLong(COMP_INT_54);
+  int compInt54 = (ActiveSchemaDB()->getDefaults()).getAsLong(COMP_INT_54);
   if (newMemberId != NULL_VALUE_ID AND compInt54 >= 0) {
     // reject if replacing existingMemberId in the VEG with newMemberId
     // results in circular VegReference see QC_1348.
@@ -482,12 +482,12 @@ void VEGRegion::replaceVEGMember(const ValueId &existingMemberId, const ValueId 
 // Accumulate the ValueIds of all VEGs that are defined in this Region.
 // -----------------------------------------------------------------------
 void VEGRegion::gatherValueIdsOfVEGs(ValueIdSet &vidSet) const {
-  for (Lng32 index = 0; index < (Lng32)members_.entries(); index++) vidSet += members_[index]->getVEGValueId();
+  for (int index = 0; index < (int)members_.entries(); index++) vidSet += members_[index]->getVEGValueId();
 }  // VEGRegion::gatherValueIdsOfVEGs()
 
 void VEGRegion::gatherValueIdsOfMembersWithVEGVid(ValueIdSet &vidSet, ValueId vid) const {
   ValueIdSet vegVid;
-  for (Lng32 index = 0; index < (Lng32)members_.entries(); index++) {
+  for (int index = 0; index < (int)members_.entries(); index++) {
     vegVid = members_[index]->getVEGValueId();
     if (vegVid == vid) vidSet += members_[index]->getMemberValueId();
   }
@@ -515,7 +515,7 @@ void VEGRegion::replaceAllVEGs(ValueIdSet &vidSet, ValueId vid) {
 // Accumulate the ValueIds of all the members of VEGs of this Region.
 // -----------------------------------------------------------------------
 void VEGRegion::gatherValueIdsOfMembers(ValueIdSet &vidSet) const {
-  for (Lng32 index = 0; index < (Lng32)members_.entries(); index++) vidSet += members_[index]->getMemberValueId();
+  for (int index = 0; index < (int)members_.entries(); index++) vidSet += members_[index]->getMemberValueId();
 }  // VEGRegion::gatherValueIdsOfMembers()
 
 // -----------------------------------------------------------------------
@@ -529,11 +529,11 @@ VEGReference *VEGRegion::getVEGReferenceFromCurrentVEGRegion(const ValueId &expr
 
   VEGMember *memberPtr = findVEGMember(exprId);
 
-  Lng32 count = zones_.entries();
+  int count = zones_.entries();
 
   if (memberPtr == NULL && searchThisVegRegionFirst && searchThisVegRegionFirst->exportsVEG() &&
       searchThisVegRegionFirst != ignoreThisChildVEGRegion) {
-    for (Lng32 i = 0; i < count && currRegion == NULL; i++) {
+    for (int i = 0; i < count && currRegion == NULL; i++) {
       if (searchThisVegRegionFirst == zones_[i]) currRegion = zones_[i];
     }
 
@@ -615,7 +615,7 @@ void VEGRegion::importVEGsForUnionChildVEGRegion() {
   VEGRegion *parentRegion = getParentVEGRegion();
   VEGRegion *parentZone;
   VEGRegion *unionChildRegion = this;
-  Lng32 parentZoneCount, parentZoneCountPlusOne;
+  int parentZoneCount, parentZoneCountPlusOne;
   Int32 iterations;
 
   // ---------------------------------------------------------------------
@@ -740,8 +740,8 @@ void VEGRegion::importVEGsForUnionChildVEGRegion() {
 // VEGRegion::gatherInstantiateNullMembers()
 // -----------------------------------------------------------------------
 void VEGRegion::gatherInstantiateNullMembers(ValueIdSet &vidset) {
-  Lng32 ne = members_.entries();
-  Lng32 index;
+  int ne = members_.entries();
+  int index;
   for (index = 0; index < ne; index++) {
     VEGMember *memberPtr = members_[index];
     if (memberPtr->getItemExpr()->getOperatorType() == ITM_INSTANTIATE_NULL) {
@@ -754,8 +754,8 @@ void VEGRegion::gatherInstantiateNullMembers(ValueIdSet &vidset) {
 // VEGRegion::replaceInstantiateNullMembers()
 // -----------------------------------------------------------------------
 void VEGRegion::replaceInstantiateNullMembers() {
-  Lng32 ne = members_.entries();            // number of entries in the VEGRegion
-  Lng32 index;                              // loop index
+  int ne = members_.entries();            // number of entries in the VEGRegion
+  int index;                              // loop index
   InstantiateNull *instNullPtr;             // -> an InstantiateNull
   VEGMember *memberPtr;                     // -> a VEGMember
   LIST(VEGMember *) deleteStack(STMTHEAP);  // VEGMember that are to be deleted
@@ -956,25 +956,25 @@ void VEGRegion::mergeZonesFromSameVEGRegion(VEGRegion *fromRegion, VEGRegion *pa
     // null instantiated columns for left join.
 
     if (joinPtr->getOperatorType() == REL_LEFT_JOIN) {
-      Lng32 index = 0;
+      int index = 0;
       ValueIdList &nullExprList = (ValueIdList &)joinPtr->nullInstantiatedOutput();
-      for (index = 0; index < (Lng32)nullExprList.entries(); index++) {
+      for (index = 0; index < (int)nullExprList.entries(); index++) {
         ItemExpr *instNullPtr = nullExprList[index].getItemExpr();
         instNullPtr->setReplacementExpr(instNullPtr->child(0).getPtr());
       }
     }
     // null instantiated columns for full outer join.
     else if (joinPtr->getOperatorType() == REL_FULL_JOIN) {
-      Lng32 index = 0;
+      int index = 0;
       ValueIdList &nullExprList = (ValueIdList &)joinPtr->nullInstantiatedOutput();
-      for (index = 0; index < (Lng32)nullExprList.entries(); index++) {
+      for (index = 0; index < (int)nullExprList.entries(); index++) {
         ItemExpr *instNullPtr = nullExprList[index].getItemExpr();
         if (fromRegion->findVEGMember(instNullPtr->child(0).getValueId()))
           instNullPtr->setReplacementExpr(instNullPtr->child(0).getPtr());
       }
 
       ValueIdList &nullExprListForRightJoinOutout = (ValueIdList &)joinPtr->nullInstantiatedForRightJoinOutput();
-      for (index = 0; index < (Lng32)nullExprListForRightJoinOutout.entries(); index++) {
+      for (index = 0; index < (int)nullExprListForRightJoinOutout.entries(); index++) {
         ItemExpr *instNullPtr = nullExprListForRightJoinOutout[index].getItemExpr();
         if (fromRegion->findVEGMember(instNullPtr->child(0).getValueId()))
           instNullPtr->setReplacementExpr(instNullPtr->child(0).getPtr());
@@ -995,11 +995,11 @@ void VEGRegion::mergeZonesFromSameVEGRegion(VEGRegion *fromRegion, VEGRegion *pa
     replaceInstantiateNullMembers();
 
   // Process all the descendant VEGRegions
-  Lng32 ne = zones_.entries();
+  int ne = zones_.entries();
 
   // this call is not needed as the above call to
   // replaceInstantiateNullMembers() already does this
-  for (Lng32 index = 0; index < ne; index++) zones_[index]->replaceInstantiateNullMembers();
+  for (int index = 0; index < ne; index++) zones_[index]->replaceInstantiateNullMembers();
 
   // ---------------------------------------------------------------------
   // Construct a set of all the VEGs that belong to the "fromRegion" and
@@ -1024,8 +1024,8 @@ void VEGRegion::mergeZonesFromSameVEGRegion(VEGRegion *fromRegion, VEGRegion *pa
 // VEGRegion::processZones()
 // -----------------------------------------------------------------------
 void VEGRegion::processZones() {
-  Lng32 index;
-  Lng32 ne = members_.entries();
+  int index;
+  int ne = members_.entries();
   LIST(VEGMember *) deleteStack(STMTHEAP);
 
   // Walk through the members of this VEGRegion to check if any member
@@ -1060,8 +1060,8 @@ void VEGRegion::processZones() {
 }  // VEGRegion::processZones()
 
 void VEGRegion::fixupZonesAfterFullToLeftConversion() {
-  Lng32 index;
-  Lng32 ne = zones_.entries();
+  int index;
+  int ne = zones_.entries();
 
   // And that this method is invoked right after conversion
   // of full outer Join to left outer join.
@@ -1090,8 +1090,8 @@ void VEGRegion::fixupActiveZones(VEGRegion *activeParentRegion, const ValueIdSet
   // we should never come here for a region that is already merged (inactive)
   CMPASSERT(isActive());
 
-  Lng32 index;
-  Lng32 ne = zones_.entries();
+  int index;
+  int ne = zones_.entries();
 
   ValueIdSet newOuterReferences(outerReferences);
   ValueIdSet setOfMembers;
@@ -1113,7 +1113,7 @@ void VEGRegion::fixupActiveZones(VEGRegion *activeParentRegion, const ValueIdSet
     if (fullJoinExpr->getOperatorType() == REL_FULL_JOIN) {
       // before fixing up the decendents, export as outerReferences any
       // values from the other decendents.
-      Lng32 index1 = 0;
+      int index1 = 0;
       ValueIdSet setOfMembersFromDecendents, noLongerOuterReferences;
       for (index1 = 0; index1 < ne; index1++)  // for index1 - inner loop
       {
@@ -1231,11 +1231,11 @@ void VEGRegion::fixupZonesAndParentPointers() {
 
       parentRegion->zones_.remove(candidateRegion);
 
-      Lng32 ne = candidateRegion->zones_.entries();
+      int ne = candidateRegion->zones_.entries();
 
       // loop throught the zones of this region and add them to the
       // parent region zones
-      for (Lng32 i = ne - 1; i >= 0; i--) {
+      for (int i = ne - 1; i >= 0; i--) {
         parentRegion->zones_.insertAt(indexOfThisInParentZone, candidateRegion->zones_[i]);
         candidateRegion->zones_[i]->setParentVEGRegion(parentRegion);
       }
@@ -1308,7 +1308,7 @@ ItemExpr *VEGRegion::performTC(const ValueId &vegMember) {
 // display operator
 // -----------------------------------------------------------------------
 void VEGRegion::print(FILE *ofd, const char *indent, const char *title) {
-  Lng32 ne;
+  int ne;
 
   BUMP_INDENT(indent);
   fprintf(ofd, "************\n");
@@ -1327,14 +1327,14 @@ void VEGRegion::print(FILE *ofd, const char *indent, const char *title) {
   if (zones_.entries() == 0)
     fprintf(ofd, "(none) ");
   else
-    for (ne = 0; ne < (Lng32)zones_.entries(); ne++) fprintf(ofd, "(%d) ", zones_[ne]->getRegionId());
+    for (ne = 0; ne < (int)zones_.entries(); ne++) fprintf(ofd, "(%d) ", zones_[ne]->getRegionId());
 
   if (processingDone())
     fprintf(ofd, "processing DONE \n");
   else
     fprintf(ofd, "\n");
   fprintf(ofd, "************\n");
-  for (ne = 0; ne < (Lng32)members_.entries(); ne++) members_[ne]->print(ofd, indent);
+  for (ne = 0; ne < (int)members_.entries(); ne++) members_[ne]->print(ofd, indent);
 }  // VEGRegion::print()
 
 // To be called from the debugger
@@ -1356,7 +1356,7 @@ VEGTable::VEGTable()
 // VEGTable::allocateRegion()
 // -----------------------------------------------------------------------
 VEGRegion *VEGTable::allocateVEGRegion(VEGRegion *parentRegion, const VEGRegionTypeEnum tev,
-                                       const ExprNode *const ownerOfRegion, Lng32 subtreeId) {
+                                       const ExprNode *const ownerOfRegion, int subtreeId) {
   // Create the new Region.
   VEGRegion *newRegion = new (CmpCommon::statementHeap()) VEGRegion(this,             // -> the VEGTable
                                                                     parentRegion,     // parent
@@ -1373,7 +1373,7 @@ VEGRegion *VEGTable::allocateVEGRegion(VEGRegion *parentRegion, const VEGRegionT
 // -----------------------------------------------------------------------
 // VEGTable::locateAndSetVEGRegion()
 // -----------------------------------------------------------------------
-void VEGTable::locateAndSetVEGRegion(const ExprNode *const ownerExpr, Lng32 subtreeId) {
+void VEGTable::locateAndSetVEGRegion(const ExprNode *const ownerExpr, int subtreeId) {
   VEGRegion *regionPtr = getVEGRegion(ownerExpr, subtreeId);
 
   CMPASSERT(regionPtr);
@@ -1424,7 +1424,7 @@ VEGRegion *VEGTable::getVEGRegion(const ValueId exprId) const {
 // -----------------------------------------------------------------------
 // VEGTable::getVEGRegion(ExprNode *)
 // -----------------------------------------------------------------------
-VEGRegion *VEGTable::getVEGRegion(const ExprNode *const ownerExpr, Lng32 subtreeId) const {
+VEGRegion *VEGTable::getVEGRegion(const ExprNode *const ownerExpr, int subtreeId) const {
   VEGRegion *candidateRegion = NULL;
   const ExprNode *ownerOrOrig = ownerExpr;
 
@@ -1567,7 +1567,7 @@ VEGRegion *VEGTable::locateVEGRegionAndMarkToBeMerged(const ValueId &exprId) {
   CMPASSERT(getCurrentVEGRegion());  // assert that we have a Region
   NABoolean found = FALSE;
   VEGRegion *regPtr;
-  for (RegionId index = FIRST_VEG_REGION; index < (Lng32)arrayEntry_.entries(); index++) {
+  for (RegionId index = FIRST_VEG_REGION; index < (int)arrayEntry_.entries(); index++) {
     regPtr = arrayEntry_[index];
 
     ValueId childVid = exprId.getItemExpr()->child(0)->getValueId();
@@ -1599,9 +1599,9 @@ VEGRegion *VEGTable::locateVEGRegionAndMarkToBeMerged(const ValueId &exprId) {
 void VEGRegion::locateDescendantVEGRegionAndMarkToBeMerged(const RelExpr *owner, const ValueId &exprId) {
   CMPASSERT(owner->getOperatorType() == REL_FULL_JOIN);
 
-  Lng32 arity = owner->getArity();
+  int arity = owner->getArity();
 
-  for (Lng32 index = 0; index < arity; index++) {
+  for (int index = 0; index < arity; index++) {
     if (owner->child(index)->getGroupAttr()->getCharacteristicOutputs().contains(exprId)) {
       zones_[index]->markAsToBeMerged();  // note, there is 1:1 correspondence
                                           // between zones and children. For example.
@@ -1628,7 +1628,7 @@ void VEGTable::processVEGRegions() {
   // they are also available in the Union child VEGRegion.
   // ---------------------------------------------------------------------
   RegionId index = FIRST_VEG_REGION;
-  for (; index < (Lng32)arrayEntry_.entries(); index++) arrayEntry_[index]->importVEGsForUnionChildVEGRegion();
+  for (; index < (int)arrayEntry_.entries(); index++) arrayEntry_[index]->importVEGsForUnionChildVEGRegion();
 
   // ---------------------------------------------------------------------
   // In the second pass over the VEGTable, perform the following steps:
@@ -1655,7 +1655,7 @@ void VEGTable::print(FILE *ofd, const char *indent, const char *title) {
     fprintf(ofd, "nextInSequence = %d\n>>>> Current Region is Region[%d] <<<<\n", nextInSequence_,
             getCurrentVEGRegion()->getRegionId());
 
-    Lng32 ne = arrayEntry_.entries();
+    int ne = arrayEntry_.entries();
     // Print all the regions
     for (RegionId index = FIRST_VEG_REGION; index < (RegionId)arrayEntry_.entries(); index++)
       arrayEntry_[index]->print(ofd, indent);

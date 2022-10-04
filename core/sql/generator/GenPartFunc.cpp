@@ -65,7 +65,7 @@
 //
 /////////////////////////////////////////////////////////
 
-short PartitioningFunction::codeGen(Generator *, Lng32) {
+short PartitioningFunction::codeGen(Generator *, int) {
   ABORT("Need to override PartitioningFunction::codeGen()");
   return 0;
 }
@@ -76,8 +76,8 @@ short PartitioningFunction::codeGen(Generator *, Lng32) {
 //
 /////////////////////////////////////////////////////////
 
-void PartitioningFunction::generatePivLayout(Generator *generator, Lng32 &partitionInputDataLength, Lng32 atp,
-                                             Lng32 atpIndex, Attributes ***pivAttrs) {
+void PartitioningFunction::generatePivLayout(Generator *generator, int &partitionInputDataLength, int atp,
+                                             int atpIndex, Attributes ***pivAttrs) {
   // assign offsets to the PIVs in a standard way
 
   ExpGenerator *expGen = generator->getExpGenerator();
@@ -93,7 +93,7 @@ void PartitioningFunction::generatePivLayout(Generator *generator, Lng32 &partit
 //
 /////////////////////////////////////////////////////////
 
-short SinglePartitionPartitioningFunction::codeGen(Generator *generator, Lng32 partInputDataLength) {
+short SinglePartitionPartitioningFunction::codeGen(Generator *generator, int partInputDataLength) {
   GenAssert(partInputDataLength == 0, "Part input values for single part.");
 
   // there is no object generated for a single part. function
@@ -107,7 +107,7 @@ short SinglePartitionPartitioningFunction::codeGen(Generator *generator, Lng32 p
 //
 /////////////////////////////////////////////////////////
 
-short ReplicateViaBroadcastPartitioningFunction::codeGen(Generator *generator, Lng32 partInputDataLength) {
+short ReplicateViaBroadcastPartitioningFunction::codeGen(Generator *generator, int partInputDataLength) {
   GenAssert(partInputDataLength == 0, "Part input values for replication");
 
   // there is no object generated for a replication part. function
@@ -121,7 +121,7 @@ short ReplicateViaBroadcastPartitioningFunction::codeGen(Generator *generator, L
 //
 /////////////////////////////////////////////////////////
 
-short ReplicateNoBroadcastPartitioningFunction::codeGen(Generator *generator, Lng32 partInputDataLength) {
+short ReplicateNoBroadcastPartitioningFunction::codeGen(Generator *generator, int partInputDataLength) {
   GenAssert(partInputDataLength == 0, "Part input values for replication");
 
   // there is no object generated for a replication part. function
@@ -135,7 +135,7 @@ short ReplicateNoBroadcastPartitioningFunction::codeGen(Generator *generator, Ln
 //
 /////////////////////////////////////////////////////////
 
-short HashPartitioningFunction::codeGen(Generator *generator, Lng32 /*partInputDataLength*/) {
+short HashPartitioningFunction::codeGen(Generator *generator, int /*partInputDataLength*/) {
   // a hash partitioning scheme always produces a partition number as output
   ex_cri_desc *partInputCriDesc = new (generator->getSpace()) ex_cri_desc(1, generator->getSpace());
   // GenAssert(partInputDataLength == 4,"NOT partInputDataLength == 4");
@@ -151,7 +151,7 @@ short HashPartitioningFunction::codeGen(Generator *generator, Lng32 /*partInputD
 //
 /////////////////////////////////////////////////////////
 
-short HashDistPartitioningFunction::codeGen(Generator *generator, Lng32 /*partInputDataLength*/) {
+short HashDistPartitioningFunction::codeGen(Generator *generator, int /*partInputDataLength*/) {
   // a HashDist partitioning scheme always produces a partition number
   // as output
   //
@@ -172,7 +172,7 @@ short HashDistPartitioningFunction::codeGen(Generator *generator, Lng32 /*partIn
 //
 /////////////////////////////////////////////////////////
 
-short Hash2PartitioningFunction::codeGen(Generator *generator, Lng32 /*partInputDataLength*/) {
+short Hash2PartitioningFunction::codeGen(Generator *generator, int /*partInputDataLength*/) {
   ex_cri_desc *partInputCriDesc = new (generator->getSpace()) ex_cri_desc(1, generator->getSpace());
 
   // GenAssert(partInputDataLength == 4,"NOT partInputDataLength == 4");
@@ -184,7 +184,7 @@ short Hash2PartitioningFunction::codeGen(Generator *generator, Lng32 /*partInput
   return 0;
 }
 
-short SkewedDataPartitioningFunction::codeGen(Generator *generator, Lng32 partInputDataLength) {
+short SkewedDataPartitioningFunction::codeGen(Generator *generator, int partInputDataLength) {
   return partialPartFunc_->codeGen(generator, partInputDataLength);
 }
 
@@ -194,7 +194,7 @@ short SkewedDataPartitioningFunction::codeGen(Generator *generator, Lng32 partIn
 //
 /////////////////////////////////////////////////////////
 
-short LogPhysPartitioningFunction::codeGen(Generator * /*generator*/, Lng32 /*partInputDataLength*/) {
+short LogPhysPartitioningFunction::codeGen(Generator * /*generator*/, int /*partInputDataLength*/) {
   GenAssert(0, "Should not generate code for logphys part func.");
   return 0;
 }
@@ -205,7 +205,7 @@ short LogPhysPartitioningFunction::codeGen(Generator * /*generator*/, Lng32 /*pa
 //
 /////////////////////////////////////////////////////////
 
-short RoundRobinPartitioningFunction::codeGen(Generator *generator, Lng32 /*partInputDataLength*/) {
+short RoundRobinPartitioningFunction::codeGen(Generator *generator, int /*partInputDataLength*/) {
   // A round-robin partitioning function produces a partition
   // number as output, for now at least.
   //
@@ -227,9 +227,9 @@ short RoundRobinPartitioningFunction::codeGen(Generator *generator, Lng32 /*part
 //
 /////////////////////////////////////////////////////////
 
-short RangePartitioningFunction::codeGen(Generator *generator, Lng32 partInputDataLength) {
+short RangePartitioningFunction::codeGen(Generator *generator, int partInputDataLength) {
   ExpGenerator *exp_gen = generator->getExpGenerator();
-  Lng32 myOwnPartInputDataLength;
+  int myOwnPartInputDataLength;
 
   const Int32 pivMoveAtp = 0;                      // only one atp is used for this expr
   const Int32 pivMoveAtpIndex = 2;                 // 0: consts, 1: temps, 2: result
@@ -271,7 +271,7 @@ short RangePartitioningFunction::codeGen(Generator *generator, Lng32 partInputDa
   // make sure we fulfill the assertions we made
 
   // optimizer and generator should agree on the part input data length
-  GenAssert(partInputDataLength == (Lng32)myOwnPartInputDataLength,
+  GenAssert(partInputDataLength == (int)myOwnPartInputDataLength,
             "NOT partInputDataLength == myOwnPartInputDataLength");
   // the length of the begin key and the end key must be the same
   // (compare offsets of their last fields)
@@ -296,7 +296,7 @@ short RangePartitioningFunction::codeGen(Generator *generator, Lng32 partInputDa
   // now fill in the individual partition boundaries
   // (NOTE: there is one more than there are partitions)
   ULng32 boundaryDataLength = 0;
-  for (Lng32 i = 0; i <= getCountOfPartitions(); i++) {
+  for (int i = 0; i <= getCountOfPartitions(); i++) {
     const ItemExprList *iel = partitionBoundaries_->getBoundaryValues(i);
     ex_expr *generatedExpr = NULL;
 
@@ -339,8 +339,8 @@ short RangePartitioningFunction::codeGen(Generator *generator, Lng32 partInputDa
   return 0;
 }
 
-void RangePartitioningFunction::generatePivLayout(Generator *generator, Lng32 &partitionInputDataLength, Lng32 atp,
-                                                  Lng32 atpIndex, Attributes ***pivAttrs) {
+void RangePartitioningFunction::generatePivLayout(Generator *generator, int &partitionInputDataLength, int atp,
+                                                  int atpIndex, Attributes ***pivAttrs) {
   // Make a layout of the partition input data record such that
   // begin and end key are aligned in the same way.
   // (layout = ((beg. key) (filler1) (end key) (filler2) (exclusion flag)))
@@ -357,8 +357,8 @@ void RangePartitioningFunction::generatePivLayout(Generator *generator, Lng32 &p
   ValueIdList partialPivs;
   Attributes **returnedAttrs = NULL;
   Attributes **localPartialAttrs;
-  Lng32 maxAlignment = 1;
-  Lng32 alignedPartKeyLen;
+  int maxAlignment = 1;
+  int alignedPartKeyLen;
 
   if (pivAttrs) {
     returnedAttrs = new (generator->wHeap()) Attributes *[numPartInputs];

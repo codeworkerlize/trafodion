@@ -98,7 +98,7 @@ ExExeUtilDisplayExplainTcb::ExExeUtilDisplayExplainTcb(const ComTdbExeUtilDispla
   MWIDE = MLEN - 1;
 
   lines_ = new (getMyHeap()) char *[MLINE];
-  for (Lng32 i = 0; i < MLINE; i++) {
+  for (int i = 0; i < MLINE; i++) {
     lines_[i] = new (getMyHeap()) char[MLEN];
   }
   optFOutput = new (getMyHeap()) char[MLEN];
@@ -106,7 +106,7 @@ ExExeUtilDisplayExplainTcb::ExExeUtilDisplayExplainTcb(const ComTdbExeUtilDispla
 
 ExExeUtilDisplayExplainTcb::~ExExeUtilDisplayExplainTcb() {
   if (lines_) {
-    for (Lng32 i = 0; i < MLINE; i++) {
+    for (int i = 0; i < MLINE; i++) {
       NADELETEBASIC(lines_[i], getMyHeap());
     }
 
@@ -124,8 +124,8 @@ ExExeUtilDisplayExplainTcb::~ExExeUtilDisplayExplainTcb() {
 // Redefine virtual method allocatePstates, to be used by dynamic queue
 // resizing, as well as the initial queue construction.
 ////////////////////////////////////////////////////////////////////////
-ex_tcb_private_state *ExExeUtilDisplayExplainTcb::allocatePstates(Lng32 &numElems,  // inout, desired/actual elements
-                                                                  Lng32 &pstateLength)  // out, length of one element
+ex_tcb_private_state *ExExeUtilDisplayExplainTcb::allocatePstates(int &numElems,  // inout, desired/actual elements
+                                                                  int &pstateLength)  // out, length of one element
 {
   PstateAllocator<ExExeUtilDisplayExplainPrivateState> pa;
 
@@ -163,7 +163,7 @@ short ExExeUtilDisplayExplainTcb::processExplainRows() { return 0; }
 // work() for ExExeUtilDisplayExplainTcb
 //////////////////////////////////////////////////////
 short ExExeUtilDisplayExplainTcb::work() {
-  Lng32 retcode;
+  int retcode;
 
   // if no parent request, return
   if (qparent_.down->isEmpty()) return WORK_OK;
@@ -259,7 +259,7 @@ short ExExeUtilDisplayExplainTcb::work() {
         }
 
         char *gluedQuery;
-        Lng32 gluedQuerySize;
+        int gluedQuerySize;
         glueQueryFragments(explain_qry_array_size, explainQuery, gluedQuery, gluedQuerySize);
 
         char explArg1[200];
@@ -445,7 +445,7 @@ short ExExeUtilDisplayExplainTcb::work() {
 
       case RETURN_EXPLAIN_ROW_: {
         char *ptr;
-        Lng32 len;
+        int len;
         short rc;
 
         if (optFlag_ == F_) {
@@ -574,11 +574,11 @@ number, we return EXE_EXPLAIN_BAD_DATA back to caller as we can�t handle this
 easily, so we pass the fail back which will abort the display.
 *****/
 short ExExeUtilDisplayExplainTcb::GetColumns() {
-  Lng32 len;
-  Lng32 rc;
+  int len;
+  int rc;
   short *ind;
   char *ptr;
-  Lng32 opDone = 0;  // =1 after doing operator, used to reorder
+  int opDone = 0;  // =1 after doing operator, used to reorder
 
   for (Int32 i = 5; i < 14; ++i)  // start with operator to check for root
   {
@@ -625,13 +625,13 @@ short ExExeUtilDisplayExplainTcb::GetColumns() {
         if ((*ind) != 0)  // NULL or truncation indicated, means bad data
           return EXE_EXPLAIN_BAD_DATA;
         else  // indicator is zero, normal data
-          planId_ = *((Int64 *)ptr);
+          planId_ = *((long *)ptr);
         break;
       case 4:             // sequence number
         if ((*ind) != 0)  // NULL or truncation indicated, means bad data
           return EXE_EXPLAIN_BAD_DATA;
         else  // indicator is zero, normal data
-          seqNum_ = *((Lng32 *)ptr);
+          seqNum_ = *((int *)ptr);
         break;
       case 5:            // operator name is processed first, then restart at 1 or 4
         opDone = 1;      // skip next pass here
@@ -664,7 +664,7 @@ short ExExeUtilDisplayExplainTcb::GetColumns() {
           return EXE_EXPLAIN_BAD_DATA;  // expected a NULL or a valid value
         } else                          // indicator is zero, normal data
         {
-          leftChild_ = *((Lng32 *)ptr);
+          leftChild_ = *((int *)ptr);
         }
         break;
       case 7:            // right child
@@ -676,7 +676,7 @@ short ExExeUtilDisplayExplainTcb::GetColumns() {
           return EXE_EXPLAIN_BAD_DATA;  // expected a NULL or a valid value
         } else                          // indicator is zero, normal data
         {
-          rightChild_ = *((Lng32 *)ptr);
+          rightChild_ = *((int *)ptr);
         }
         break;
       case 8:            // table name
@@ -1496,9 +1496,9 @@ void ExExeUtilDisplayExplainTcb::FormatForF() {
 
   // place the cardinality
   float absval = cardinality_;  // absolute value of input
-  Lng32 valInt = 0;             // integer part of float value
-  Lng32 valDec = 0;             // decimal part of float value
-  Lng32 valExp = 0;             // expontial part of float value
+  int valInt = 0;             // integer part of float value
+  int valDec = 0;             // decimal part of float value
+  int valExp = 0;             // expontial part of float value
   float nbrDec = 100.0F;        // 2 decimal digits
   // float valRnd  = 0.005F;     // value to add for rounding if we did it
   // we do no rounding since this is the way things were done in older options 'f'
@@ -1521,9 +1521,9 @@ void ExExeUtilDisplayExplainTcb::FormatForF() {
   }
 
   // absval += valRnd; //there shall be no rounding yet
-  valInt = (Lng32)absval;  // get the integer part
+  valInt = (int)absval;  // get the integer part
   absval -= valInt;
-  valDec = (Lng32)(absval * nbrDec);  // get the decimal part as long
+  valDec = (int)(absval * nbrDec);  // get the decimal part as long
 
   if (psign)
     str_sprintf(current, "%d.%02dE+%03d", valInt, valDec, valExp);
@@ -1565,9 +1565,9 @@ In R2 it will also display any non-defaulted CQDs here if they get into the root
 node.
 *****/
 void ExExeUtilDisplayExplainTcb::DoHeader() {
-  Lng32 fullSize = 0;
-  Lng32 intSize = 0;
-  Lng32 valSize = (Lng32)strlen(moduleName_);
+  int fullSize = 0;
+  int intSize = 0;
+  int valSize = (int)strlen(moduleName_);
   char outStr[MUSERSP];
   char *stmt;
 
@@ -1575,12 +1575,12 @@ void ExExeUtilDisplayExplainTcb::DoHeader() {
 
   // change statement name if still default
   if (str_cmp_c("__EXPL_STMT_NAME__", statementName_) == 0) str_cpy_c(statementName_, "NOT NAMED");
-  valSize = (Lng32)strlen(statementName_);
+  valSize = (int)strlen(statementName_);
   FormatLongLine("STATEMENT_NAME", statementName_, 14, valSize);
 
-  // convert the Int64 to string
+  // convert the long to string
   str_sprintf(outStr, "%ld", planId_);
-  FormatLine("PLAN_ID", outStr, 7, (Lng32)str_len(outStr));
+  FormatLine("PLAN_ID", outStr, 7, (int)str_len(outStr));
 
   // rework cardinality as rows out.  Assume probe count is always 1
   // on the root node, so use ROWS_OUT token always
@@ -1632,30 +1632,30 @@ This function might have to modify some other data in the description field when
 OptFlag_ is N_, but not in R1.
 *****/
 void ExExeUtilDisplayExplainTcb::DoOperator() {
-  Lng32 intSize = 0;
-  Lng32 valSize = 0;
+  int intSize = 0;
+  int valSize = 0;
   char outStr[MUSERSP];
   char *keyptr;
   char *fieldptr;
-  Lng32 keySize;
-  Lng32 fullSize;
-  Lng32 done;           // =1 when no data left to parse
-  Lng32 firstAttr = 1;  // =1 for start of description_
-  Lng32 dispAttr;       // =1 display string attribute
-  Lng32 reqIn = 1;      // default probe value
-  Lng32 i;              // iteration variable
-  Lng32 errorSeen = 0;  // no errors in detailed cost yet
+  int keySize;
+  int fullSize;
+  int done;           // =1 when no data left to parse
+  int firstAttr = 1;  // =1 for start of description_
+  int dispAttr;       // =1 display string attribute
+  int reqIn = 1;      // default probe value
+  int i;              // iteration variable
+  int errorSeen = 0;  // no errors in detailed cost yet
   // the following 4 arrays are initialized only once per object
   const char *tokExp[] =  // expected detailed cost tokens
       {"CPU_TIME", "IO_TIME", "MSG_TIME", "IDLE_TIME"};
   const char *tokRep[] =  // replacement detailed cost tokens
       {"cpu_cost", "io_cost", "msg_cost", "idle_cost"};
-  Lng32 tokRepSz[] = {8, 7, 8, 9};  // replacement detailed cost tokens sizes
+  int tokRepSz[] = {8, 7, 8, 9};  // replacement detailed cost tokens sizes
 
   // put up to 4 fields on the first line
   FormatFirstLine();
 
-  valSize = (Lng32)str_len(tName_);
+  valSize = (int)str_len(tName_);
   if (valSize != 0)  // if table name not null, display it
     FormatLongLine("TABLE_NAME", tName_, 10, valSize);
 
@@ -1905,8 +1905,8 @@ const FilterKeyValueStruct filterKeyValue[] = {
 
 };
 
-NABoolean ExExeUtilDisplayExplainTcb::filterKey(const char *key, Lng32 keySize, char *value, char *retVal,
-                                                Lng32 &decLoc) {
+NABoolean ExExeUtilDisplayExplainTcb::filterKey(const char *key, int keySize, char *value, char *retVal,
+                                                int &decLoc) {
   if ((!key) || (keySize == 0)) return FALSE;
 
   Int32 maxSize = sizeof(filterKeyValue) / sizeof(FilterKeyValueStruct);
@@ -1953,20 +1953,20 @@ NABoolean ExExeUtilDisplayExplainTcb::filterKey(const char *key, Lng32 keySize, 
   return FALSE;
 }
 
-void ExExeUtilDisplayExplainTcb::FormatLine(const char *key, const char *inval, Lng32 keySize, Lng32 valSize,
-                                            Lng32 indent, Lng32 decLoc) {
+void ExExeUtilDisplayExplainTcb::FormatLine(const char *key, const char *inval, int keySize, int valSize,
+                                            int indent, int decLoc) {
   char *line;    // ptr to line to insert
   char *temp;    // working ptr
-  Lng32 cnt;     // value space available
-  Lng32 dashes;  // count of dots to set
-  Lng32 keycut;  // size of keyword col permitted (cut if not zero)
-  Lng32 field1;  // space for col 1, keyword
+  int cnt;     // value space available
+  int dashes;  // count of dots to set
+  int keycut;  // size of keyword col permitted (cut if not zero)
+  int field1;  // space for col 1, keyword
 
   char valBuf[1000];
   char *val = (char *)inval;
   // See if we can do anything
   if (cntLines_ >= MLINE) {                       // if output is full
-    cnt = (Lng32)str_len(lines_[cntLines_ - 1]);  // size line
+    cnt = (int)str_len(lines_[cntLines_ - 1]);  // size line
     if (cnt > 60) {
       cnt = 60;
     }  // decide to concat or cut
@@ -2043,8 +2043,8 @@ void ExExeUtilDisplayExplainTcb::FormatLine(const char *key, const char *inval, 
   }
 
   // Do the value
-  cnt = (MLEN - 1) - (Lng32)(temp - line);  // see what we have left
-  //    cnt = 79 - (Lng32)(temp - line);             // see what we have left
+  cnt = (MLEN - 1) - (int)(temp - line);  // see what we have left
+  //    cnt = 79 - (int)(temp - line);             // see what we have left
   if (valSize > cnt) {         // if input too large
     str_ncpy(temp, val, cnt);  // do it the hard way
     Int32 indexOfLastByteOfUtf8Char = IndexOfLastByteOfUTF8CharAtOrBeforePos(
@@ -2117,18 +2117,18 @@ The input value string must not be in a constant because this routine cuts
 it as needed (and restores the cut after).  So val = "this is a test" does
 not work.
 *****/
-void ExExeUtilDisplayExplainTcb::FormatLongLine(const char *key, char *val, Lng32 keySize, Lng32 valSize,
-                                                Lng32 indent) {
+void ExExeUtilDisplayExplainTcb::FormatLongLine(const char *key, char *val, int keySize, int valSize,
+                                                int indent) {
   char *inptr = val;        // current ptr to value string remaining
-  Lng32 locSize = valSize;  // size of value string remaining
+  int locSize = valSize;  // size of value string remaining
   char *tmp;                // working ptr
-  Lng32 cnt;                // value space available for this pass
-  Lng32 scancnt;            // count of characters backscanned
-  Lng32 cutSize;            // size of string after cut
+  int cnt;                // value space available for this pass
+  int scancnt;            // count of characters backscanned
+  int cutSize;            // size of string after cut
   char c;                   // temp for cut character
-  Lng32 sp;                 // space not found on this pass if 0
-  Lng32 comma;              // comma not found on this pass if 0
-  Lng32 first = 1;          // first line of fold being done if 1
+  int sp;                 // space not found on this pass if 0
+  int comma;              // comma not found on this pass if 0
+  int first = 1;          // first line of fold being done if 1
 
   // Set the limit for the value string for line 1
   if (indent < COL2) {  // if keyword also
@@ -2190,7 +2190,7 @@ void ExExeUtilDisplayExplainTcb::FormatLongLine(const char *key, char *val, Lng3
     }
     c = *tmp;  // cut here beyond good
     *tmp = '\0';
-    cutSize = (Lng32)(tmp - inptr);
+    cutSize = (int)(tmp - inptr);
     FormatLine(key, inptr, keySize, cutSize, indent);  // do it finally
     *tmp = c;                                          // restore cut char
     while (*tmp++ == ' ') {
@@ -2272,7 +2272,7 @@ just use the basic folding provided by FormatLongLine().
 Because of the line cutting, only one return is permitted in this routine.  The
 white space compression may pad the end with blanks and change the last char.
 *****/
-void ExExeUtilDisplayExplainTcb::FormatSQL(const char *key, char *val, Lng32 keySize, Lng32 valSize, Lng32 indent) {
+void ExExeUtilDisplayExplainTcb::FormatSQL(const char *key, char *val, int keySize, int valSize, int indent) {
   // Initialize working constants once only, order important for DMLword use
   char DMLUsel[8][12] = {"SELECT", "FROM", "WHERE", "UNION", "GROUP BY", "HAVING", "ORDER BY", "FOR"};
   char DMLLsel[8][12] = {"select", "from", "where", "union", "group by", "having", "order by", "for"};
@@ -2282,30 +2282,30 @@ void ExExeUtilDisplayExplainTcb::FormatSQL(const char *key, char *val, Lng32 key
   char DMLLupd[4][12] = {"update", "set", "where", "for"};
   char DMLUdel[3][12] = {"DELETE FROM", "WHERE", "FOR"};
   char DMLLdel[3][12] = {"delete from", "where", "for"};
-  Lng32 DMLword[8] = {8, 8, 6, 6, 4, 4, 3, 3};  // entries/array
+  int DMLword[8] = {8, 8, 6, 6, 4, 4, 3, 3};  // entries/array
 
   // The working variables can go on the stack
   char *inptr = val;              // current ptr to value string remaining
-  Lng32 locSize = valSize;        // size of value string remaining
+  int locSize = valSize;        // size of value string remaining
   char *the_end = val + valSize;  // pointer to real end of string + 1
   char last_char = *the_end;      // last char in string + 1, usually a blank
-  Lng32 cnt;                      // value space available for this pass
+  int cnt;                      // value space available for this pass
   char *DMLptr = NULL;            // DML array to be used for this command
-  Lng32 DMLtype = 0;              // DML array, 0 = DMLUsel, 1 = DMLLsel, etc. order above
-  Lng32 DMLpos = 0;               // DML entry being tested
-  Lng32 DMLecnt;                  // Entry count in chosen DML array
-  Lng32 paren[2];                 // next parens found, start/end position
-  Lng32 toksize;                  // size of next token in the array
-  Lng32 cut;                      // position of cut (relative to inptr)
-  Lng32 parUsed = 0;              // flag saying we skipped over parens now
-  Lng32 valSeen = 0;              // flag, =1 insert being processed, =2 values now
-  Lng32 good;                     // end paren for last good data looked at
-  Lng32 good2;                    // end paren for last cut looked at
+  int DMLtype = 0;              // DML array, 0 = DMLUsel, 1 = DMLLsel, etc. order above
+  int DMLpos = 0;               // DML entry being tested
+  int DMLecnt;                  // Entry count in chosen DML array
+  int paren[2];                 // next parens found, start/end position
+  int toksize;                  // size of next token in the array
+  int cut;                      // position of cut (relative to inptr)
+  int parUsed = 0;              // flag saying we skipped over parens now
+  int valSeen = 0;              // flag, =1 insert being processed, =2 values now
+  int good;                     // end paren for last good data looked at
+  int good2;                    // end paren for last cut looked at
   char *locinptr;                 // temp in ptr for use in substrings
   char *tn = NULL;                // working ptr, temp next for compression
-  Lng32 moving = 0;               // =1 compression has begun
-  Lng32 cnt_blank;                // count of space characters seen together
-  Lng32 quoting = 0;              // =1 we are in a quoted string, no compression
+  int moving = 0;               // =1 compression has begun
+  int cnt_blank;                // count of space characters seen together
+  int quoting = 0;              // =1 we are in a quoted string, no compression
   char *tmp;                      // working ptr (ptr to cut spot)
   char c;                         // temp for cut character
   char d = 0;                     // temp for quote char
@@ -2356,7 +2356,7 @@ void ExExeUtilDisplayExplainTcb::FormatSQL(const char *key, char *val, Lng32 key
         break;
       }
     }
-    toksize = (Lng32)str_len(DMLptr);
+    toksize = (int)str_len(DMLptr);
     if (str_ncmp(DMLptr, inptr, toksize) == 0) {  // if this is it
       break;
     }
@@ -2461,7 +2461,7 @@ void ExExeUtilDisplayExplainTcb::FormatSQL(const char *key, char *val, Lng32 key
         // Scan for next close parens
         while (c = *locinptr++) {              // while end not seen
           if (c == ')') {                      // if close paren
-            good = (Lng32)(locinptr - inptr);  // note possible cut
+            good = (int)(locinptr - inptr);  // note possible cut
             locinptr--;                        // back up in case of end
             break;
           }
@@ -2489,7 +2489,7 @@ void ExExeUtilDisplayExplainTcb::FormatSQL(const char *key, char *val, Lng32 key
             goto DONE;            // just finish up
           }
           tmp = locinptr;  // point to next open
-          cut = (Lng32)(tmp - inptr);
+          cut = (int)(tmp - inptr);
         } else {  // we know there is another and where to cut
           cut = good2;
           tmp += cut;  // point to last good close
@@ -2525,7 +2525,7 @@ void ExExeUtilDisplayExplainTcb::FormatSQL(const char *key, char *val, Lng32 key
       if (tmp == NULL) {                // if not found
         break;                          // try another
       }
-      cut = (Lng32)(tmp - inptr);  // see how many char we have this time
+      cut = (int)(tmp - inptr);  // see how many char we have this time
 
       // Found but make sure not in parens
       if (paren[0] > 0) {        // if there is a paren somewhere
@@ -2599,10 +2599,10 @@ This function will scan the input string for the next set of parenthesis.
 It will accept at most 2 levels of nesting (-1 when 3rd seen) and return
 their char positions from inStr.  It will return -1 if no match found.
 *****/
-Lng32 ExExeUtilDisplayExplainTcb::FindParens(char *inStr, Lng32 par[]) const {
+int ExExeUtilDisplayExplainTcb::FindParens(char *inStr, int par[]) const {
   char *tmp1 = inStr;  // working ptr
-  Lng32 par2dp = 0;    // nesting found if not 0
-  Lng32 cnt = 0;       // char counter
+  int par2dp = 0;    // nesting found if not 0
+  int cnt = 0;       // char counter
   char c;
 
   // Begin first scan for open paren
@@ -2676,8 +2676,8 @@ if there is no space.  That should never happen.
 *****/
 void ExExeUtilDisplayExplainTcb::FormatFirstLine(void) {
   char *line;    // ptr to line to insert
-  Lng32 cnt;     // process name size
-  Lng32 dashes;  // count of equals to set
+  int cnt;     // process name size
+  int dashes;  // count of equals to set
 
   // See if we can do anything, we require two lines left
   if (cntLines_ >= MLINE - 1) {    // if output is almost full
@@ -2688,7 +2688,7 @@ void ExExeUtilDisplayExplainTcb::FormatFirstLine(void) {
   line = lines_[cntLines_];  // point to empty line
 
   // Format the first two fields of the line
-  cnt = (Lng32)str_len(operName_);  // see what we got, max is MOPER=30
+  cnt = (int)str_len(operName_);  // see what we got, max is MOPER=30
   str_cpy_c(line, operName_);       // start the line with operator name
   line += cnt;
   *line++ = ' ';          // one space
@@ -2712,7 +2712,7 @@ void ExExeUtilDisplayExplainTcb::FormatFirstLine(void) {
   }
   // verify numbers were not too long
   cnt = MWIDE - 61;                  // set max size in char
-  if ((Lng32)str_len(line) > cnt) {  // if it exceed 79 char
+  if ((int)str_len(line) > cnt) {  // if it exceed 79 char
     line += cnt;                     // point to last char
     *line-- = '\0';                  // do cut
     *line = '*';                     // show cut
@@ -2761,8 +2761,8 @@ if there is no space.
 void ExExeUtilDisplayExplainTcb::DoSeparator(void) {
   char *line;             // ptr to line to insert
   const char *proc_name;  // ptr to process name string, ""=none
-  Lng32 cnt;              // process name size
-  Lng32 dashes;           // count of dashes to set
+  int cnt;              // process name size
+  int dashes;           // count of dashes to set
 
   // See if we can do anything
   if (cntLines_ >= MLINE) {  // if output is full
@@ -2791,7 +2791,7 @@ void ExExeUtilDisplayExplainTcb::DoSeparator(void) {
     }
     */
   // Output line now if needed
-  cnt = (Lng32)str_len(proc_name);  // get size
+  cnt = (int)str_len(proc_name);  // get size
   if (cnt) {                        // if something to output
     dashes = MWIDE - cnt;           // see how many dashes needed
     while (dashes--) {
@@ -2835,8 +2835,8 @@ the field scan that failed.  In this case there could be a value pointer returne
 or not, but only the done paramater can be used.  There are several ways
 it could fail, but they should not happen unless the input data is corrupted.
 *****/
-Lng32 ExExeUtilDisplayExplainTcb::ParseField(char *&keyptr, char *&fieldptr, Lng32 &keySize, Lng32 &fullSize,
-                                             Lng32 &done) {
+int ExExeUtilDisplayExplainTcb::ParseField(char *&keyptr, char *&fieldptr, int &keySize, int &fullSize,
+                                             int &done) {
   // Initialize working variables
   char *wrkptr;  // working ptr
 
@@ -2849,7 +2849,7 @@ Lng32 ExExeUtilDisplayExplainTcb::ParseField(char *&keyptr, char *&fieldptr, Lng
     return (-1);
   }
   *wrkptr = '\0';                      // cut off colon
-  keySize = (Lng32)(wrkptr - keyptr);  // get size
+  keySize = (int)(wrkptr - keyptr);  // get size
   wrkptr++;                            // move to blank
   while ((*wrkptr) == ' ') {
     wrkptr++;
@@ -2859,7 +2859,7 @@ Lng32 ExExeUtilDisplayExplainTcb::ParseField(char *&keyptr, char *&fieldptr, Lng
   fieldptr = wrkptr;                      // must be value for keyword
   wrkptr = str_str(fieldptr, ": ");       // see if we can find next keyword
   if (wrkptr == NULL) {                   // if not found, must be last in string
-    fullSize = (Lng32)str_len(fieldptr);  // just use all of it
+    fullSize = (int)str_len(fieldptr);  // just use all of it
     wrkptr = fieldptr + fullSize - 1;     // locates last char
     while (*(wrkptr--) == ' ') {          // backscan over blanks
       fullSize--;
@@ -2884,7 +2884,7 @@ Lng32 ExExeUtilDisplayExplainTcb::ParseField(char *&keyptr, char *&fieldptr, Lng
   if (fieldptr >= parsePtr_)  // an erroneous overflow into the next keyword
     fieldptr = wrkptr;        // due to no value, empty string value, or error
 
-  fullSize = (Lng32)(wrkptr - fieldptr);  // get length of value string
+  fullSize = (int)(wrkptr - fieldptr);  // get length of value string
   return (0);                             // return success
 }
 
@@ -2912,12 +2912,12 @@ validation is provided for these cases, and weird combinations are flagged
 as strings.  This is hard as the characters are not processed in a full
 state machine.
 *****/
-Lng32 ExExeUtilDisplayExplainTcb::IsNumberFmt(char *fieldptr) const {
+int ExExeUtilDisplayExplainTcb::IsNumberFmt(char *fieldptr) const {
   char *wrkptr = fieldptr;  // working ptr
   char c;                   // temp for current char
-  Lng32 n_cnt = 0;          // Number of digits seen
-  Lng32 d_cnt = 1;          // Number of '.' permitted in string
-  Lng32 e_cnt = 1;          // Number of 'E' permitted in string
+  int n_cnt = 0;          // Number of digits seen
+  int d_cnt = 1;          // Number of '.' permitted in string
+  int e_cnt = 1;          // Number of 'E' permitted in string
 
   // Scan for simple numeric of type 22, 22.22, -3.0E-003, ignore single digits
   if (*(wrkptr + 1) == '\0') {
@@ -2983,7 +2983,7 @@ the field scan that failed.  In this case there could be a value pointer returne
 or not, but none of the return parameters should be used.  There are several ways
 it could fail, but they should not happen unless the input data is corrupted.
 *****/
-Lng32 ExExeUtilDisplayExplainTcb::GetField(char *col, const char *key, char *&fieldptr, Lng32 &fullSize) const {
+int ExExeUtilDisplayExplainTcb::GetField(char *col, const char *key, char *&fieldptr, int &fullSize) const {
   // Initialize working variables
   char *keyptr;  // keyword start
   char *wrkptr;  // working ptr
@@ -3011,7 +3011,7 @@ Lng32 ExExeUtilDisplayExplainTcb::GetField(char *col, const char *key, char *&fi
   fieldptr = wrkptr;                      // must be value for keyword
   wrkptr = str_str(fieldptr, ": ");       // see if we can find next keyword
   if (wrkptr == NULL) {                   // if not found, must be last in string
-    fullSize = (Lng32)str_len(fieldptr);  // just use all of it
+    fullSize = (int)str_len(fieldptr);  // just use all of it
     wrkptr = fieldptr + fullSize - 1;     // locates last char
     while (*(wrkptr--) == ' ') {          // backscan over blanks
       fullSize--;
@@ -3027,7 +3027,7 @@ Lng32 ExExeUtilDisplayExplainTcb::GetField(char *col, const char *key, char *&fi
     }          // back over blanks
     wrkptr++;  // point to where null should be
   }
-  fullSize = (Lng32)(wrkptr - fieldptr);  // get length of value string
+  fullSize = (int)(wrkptr - fieldptr);  // get length of value string
   return (0);                             // return success
 }
 
@@ -3060,22 +3060,22 @@ at the cut.  The code will just move the decimal point as indicated by the expon
 
 This routine must be careful to use only string functions that exist in the executor.
 *****/
-void ExExeUtilDisplayExplainTcb::FormatNumber(char *outStr, Lng32 &intSize, Lng32 &fullSize, char *strVal) const {
+void ExExeUtilDisplayExplainTcb::FormatNumber(char *outStr, int &intSize, int &fullSize, char *strVal) const {
   char c;                 // temp
-  Lng32 cnt = 0;          // count of characters in input
-  Lng32 neg = 0;          // input is negative if 1
-  Lng32 cntzero;          // count of trailing zeros
-  Lng32 maxIntDig;        // max int digits we can add commas into
-  Lng32 decSize;          // final dot and digit size when a float
-  Lng32 maxSize;          // place to cut long floats
-  Lng32 intexp;           // exponent string converted to int
-  Lng32 expdig = 0;       // loc of E if found
-  Lng32 dotdig = 0;       // loc of decimal point if found
+  int cnt = 0;          // count of characters in input
+  int neg = 0;          // input is negative if 1
+  int cntzero;          // count of trailing zeros
+  int maxIntDig;        // max int digits we can add commas into
+  int decSize;          // final dot and digit size when a float
+  int maxSize;          // place to cut long floats
+  int intexp;           // exponent string converted to int
+  int expdig = 0;       // loc of E if found
+  int dotdig = 0;       // loc of decimal point if found
   char *ptrin1 = strVal;  // input pointer, chg only if neg
   char *ptrout = outStr;  // output pointer, chg only if neg
   char *ptrwrk = strVal;  // working variables
   char *tmpPtr;           // working variable
-  Lng32 negFlg = 0;       // exponent is not negative
+  int negFlg = 0;       // exponent is not negative
 
   // Scan the input for decimal point and E and total length.
   if (*ptrin1 == '-') {     // if input negative
@@ -3162,11 +3162,11 @@ void ExExeUtilDisplayExplainTcb::FormatNumber(char *outStr, Lng32 &intSize, Lng3
     // We cannot use sscanf and str_sprintf which can't take "%.4f" yet.
     //
     // first calc the locations of stuff defining the output
-    Lng32 begzero = 0;
-    Lng32 decloc = 1;
-    Lng32 digmove = expdig - 1;  // digits we have to move
-    Lng32 i = 0;                 // digits moved
-    Lng32 decdig = 2;            // decimal digits max for normal mode
+    int begzero = 0;
+    int decloc = 1;
+    int digmove = expdig - 1;  // digits we have to move
+    int i = 0;                 // digits moved
+    int decdig = 2;            // decimal digits max for normal mode
     if (optFlag_ == E_) {        // if 4 decimals needed
       decdig = 4;
     }
@@ -3297,7 +3297,7 @@ void ExExeUtilDisplayExplainTcb::FormatNumber(char *outStr, Lng32 &intSize, Lng3
   // finish up and exit
 DONE:
   intSize += neg;  // consider minus now
-  fullSize = (Lng32)str_len(outStr);
+  fullSize = (int)str_len(outStr);
   return;  // return nothing
 }
 
@@ -3328,15 +3328,15 @@ point.  Negative numbers work, but are not expected.
 This routine must avoid formats %E and %.4f that do not exist in the executor.
 The format %04d tells it to zero pad with exactly 4 digits.
 *****/
-void ExExeUtilTcb::FormatFloat(char *outStr, Lng32 &intSize, Lng32 &fullSize, double floatVal, NABoolean normalMode,
+void ExExeUtilTcb::FormatFloat(char *outStr, int &intSize, int &fullSize, double floatVal, NABoolean normalMode,
                                NABoolean expertMode) const {
-  Lng32 neg = 0;             // input is negative if 1
+  int neg = 0;             // input is negative if 1
   double absval = floatVal;  // absolute value of input
-  Lng32 cntzero;             // count of trailing zeros
+  int cntzero;             // count of trailing zeros
   char *ptr;                 // working variable for neg use
-  Lng32 valInt = 0;          // integer part of float value
-  Lng32 valDec = 0;          // decimal part of float value
-  Lng32 valExp = 0;          // expontial part of float value
+  int valInt = 0;          // integer part of float value
+  int valDec = 0;          // decimal part of float value
+  int valExp = 0;          // expontial part of float value
   float nbrDec;              // 10*(number_of_decimal_digits)
   float valRnd;              // value to add for rounding
   const char *fmtPtr;        // points to correct format string
@@ -3363,9 +3363,9 @@ void ExExeUtilTcb::FormatFloat(char *outStr, Lng32 &intSize, Lng32 &fullSize, do
     nbrDec = 1000000.0F;  // take 6 digits
     valRnd = 0.0000005F;
     absval += valRnd;        // first round up if needed
-    valInt = (Lng32)absval;  // get the integer part
+    valInt = (int)absval;  // get the integer part
     absval -= valInt;
-    valDec = (Lng32)(absval * nbrDec);  // get the decimal part as long
+    valDec = (int)(absval * nbrDec);  // get the decimal part as long
     str_sprintf(ptr, "%d.%06dE+%03d", valInt, valDec, valExp);
     intSize = 0;  // force, even if neg
     goto DONE;    // set fullSize and return
@@ -3395,9 +3395,9 @@ void ExExeUtilTcb::FormatFloat(char *outStr, Lng32 &intSize, Lng32 &fullSize, do
     cntzero = 2;         // set count of digits
   }
   absval += valRnd;        // first round up if needed
-  valInt = (Lng32)absval;  // get the integer part
+  valInt = (int)absval;  // get the integer part
   absval -= valInt;
-  valDec = (Lng32)(absval * nbrDec);  // get the decimal part as long
+  valDec = (int)(absval * nbrDec);  // get the decimal part as long
   str_sprintf(ptr, fmtPtr, valInt, valDec);
   // got the number now, see what size the parts are
   while (*ptr++ != '.') {
@@ -3433,7 +3433,7 @@ void ExExeUtilTcb::FormatFloat(char *outStr, Lng32 &intSize, Lng32 &fullSize, do
 
   // Finish up and exit
 DONE:
-  fullSize = (Lng32)str_len(outStr);
+  fullSize = (int)str_len(outStr);
   return;  // return nothing
 }
 
@@ -3457,7 +3457,7 @@ fractional part (except that it is null terminated).  Example input is 1234567.8
 and output will be 1,234,567.89.  This routine will not work properly on negative
 numbers, so don't call it.
 *****/
-void ExExeUtilTcb::AddCommas(char *outStr, Lng32 &intSize) const {
+void ExExeUtilTcb::AddCommas(char *outStr, int &intSize) const {
   Int32 loc;      // character position to cut before, 0 base
   Int32 iter;     // iterations needed
   char temp[40];  // save cut data here
@@ -3529,8 +3529,8 @@ ExExeUtilDisplayExplainComplexTcb::~ExExeUtilDisplayExplainComplexTcb() {}
 // resizing, as well as the initial queue construction.
 ////////////////////////////////////////////////////////////////////////
 ex_tcb_private_state *ExExeUtilDisplayExplainComplexTcb::allocatePstates(
-    Lng32 &numElems,      // inout, desired/actual elements
-    Lng32 &pstateLength)  // out, length of one element
+    int &numElems,      // inout, desired/actual elements
+    int &pstateLength)  // out, length of one element
 {
   PstateAllocator<ExExeUtilDisplayExplainComplexPrivateState> pa;
 
@@ -3541,7 +3541,7 @@ ex_tcb_private_state *ExExeUtilDisplayExplainComplexTcb::allocatePstates(
 // work() for ExExeUtilDisplayExplainComplexTcb
 //////////////////////////////////////////////////////
 short ExExeUtilDisplayExplainComplexTcb::work() {
-  Lng32 cliRC;
+  int cliRC;
   short rc;
 
   // if no parent request, return
@@ -3732,8 +3732,8 @@ ExExeUtilDisplayExplainShowddlTcb::~ExExeUtilDisplayExplainShowddlTcb() {
 // resizing, as well as the initial queue construction.
 ////////////////////////////////////////////////////////////////////////
 ex_tcb_private_state *ExExeUtilDisplayExplainShowddlTcb::allocatePstates(
-    Lng32 &numElems,      // inout, desired/actual elements
-    Lng32 &pstateLength)  // out, length of one element
+    int &numElems,      // inout, desired/actual elements
+    int &pstateLength)  // out, length of one element
 {
   PstateAllocator<ExExeUtilDisplayExplainShowddlPrivateState> pa;
 
@@ -3744,7 +3744,7 @@ ex_tcb_private_state *ExExeUtilDisplayExplainShowddlTcb::allocatePstates(
 // work() for ExExeUtilDisplayExplainShowddlTcb
 //////////////////////////////////////////////////////
 short ExExeUtilDisplayExplainShowddlTcb::work() {
-  Lng32 cliRC;
+  int cliRC;
   short rc;
 
   // if no parent request, return
@@ -3783,7 +3783,7 @@ short ExExeUtilDisplayExplainShowddlTcb::work() {
             break;
           }
 
-          Lng32 len = 0;
+          int len = 0;
           cliRC = cliInterface()->executeImmediate(exeUtilTdb().qry3_, countBuf, &len, TRUE);
 
           // reset CONTROL SESSION

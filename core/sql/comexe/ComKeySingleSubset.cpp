@@ -64,7 +64,7 @@ Long keySingleSubsetGen::pack(void *space) {
   return keyRangeGen::pack(space);
 };
 
-Lng32 keySingleSubsetGen::unpack(void *base, void *reallocator) {
+int keySingleSubsetGen::unpack(void *base, void *reallocator) {
   if (bkPred_.unpack(base, reallocator)) return -1;
   if (ekPred_.unpack(base, reallocator)) return -1;
   if (lowKeyExcludedExpr_.unpack(base, reallocator)) return -1;

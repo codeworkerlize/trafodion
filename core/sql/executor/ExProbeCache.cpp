@@ -144,8 +144,8 @@ void ExProbeCacheTcb::registerSubtasks() {
   if (getPool()) getPool()->setStaticMode(FALSE);
 }
 
-ex_tcb_private_state *ExProbeCacheTcb::allocatePstates(Lng32 &numElems,      // inout, desired/actual elements
-                                                       Lng32 &pstateLength)  // out, length of one element
+ex_tcb_private_state *ExProbeCacheTcb::allocatePstates(int &numElems,      // inout, desired/actual elements
+                                                       int &pstateLength)  // out, length of one element
 {
   PstateAllocator<ExProbeCachePrivateState> pa;
 

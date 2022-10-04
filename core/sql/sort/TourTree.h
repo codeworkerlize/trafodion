@@ -55,21 +55,21 @@ class Tree : public SortAlgo {  // SortAlgo inherits from NABasciObject
 
  public:
   Tree(ULng32 numruns, ULng32 runsize, ULng32 recsize, NABoolean doNotallocRec, ULng32 keysize,
-       SortScratchSpace *scratch, CollHeap *heap, SortError *sorterror, Lng32 explainNodeId, ExBMOStats *bmoStats,
-       SortUtil *sortUtil, Lng32 runnum = 0, NABoolean merge = FALSE_L, NABoolean waited = FALSE_L);
+       SortScratchSpace *scratch, CollHeap *heap, SortError *sorterror, int explainNodeId, ExBMOStats *bmoStats,
+       SortUtil *sortUtil, int runnum = 0, NABoolean merge = FALSE_L, NABoolean waited = FALSE_L);
 
   ~Tree(void);
 
-  Lng32 sortSend(void *rec, ULng32 len, void *tupp);
+  int sortSend(void *rec, ULng32 len, void *tupp);
 
-  Lng32 sortClientOutOfMem(void);
+  int sortClientOutOfMem(void);
 
-  Lng32 sortSendEnd();
+  int sortSendEnd();
 
-  Lng32 sortReceive(void *rec, ULng32 &len);
-  Lng32 sortReceive(void *&rec, ULng32 &len, void *&tupp);
+  int sortReceive(void *rec, ULng32 &len);
+  int sortReceive(void *&rec, ULng32 &len, void *&tupp);
 
-  Lng32 generateInterRuns(void);
+  int generateInterRuns(void);
 
   UInt32 getOverheadPerRecord(void);
 

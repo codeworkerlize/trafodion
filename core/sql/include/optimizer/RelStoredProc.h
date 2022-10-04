@@ -89,7 +89,7 @@ class RelInternalSP : public TableValuedFunction {
   virtual void synthEstLogProp(const EstLogPropSharedPtr &inputEstLogProp);
 
   // cost functions
-  virtual PhysicalProperty *synthPhysicalProperty(const Context *context, const Lng32 planNumber, PlanWorkSpace *pws);
+  virtual PhysicalProperty *synthPhysicalProperty(const Context *context, const int planNumber, PlanWorkSpace *pws);
   virtual CostMethod *costMethod() const;
 
   // this is both logical and physical node
@@ -98,7 +98,7 @@ class RelInternalSP : public TableValuedFunction {
 
   virtual void pushdownCoveredExpr(const ValueIdSet &outputExprOnOperator, const ValueIdSet &newExternalInputs,
                                    ValueIdSet &predOnOperator, const ValueIdSet *nonPredExprOnOperator = NULL,
-                                   Lng32 childId = (-MAX_REL_ARITY));
+                                   int childId = (-MAX_REL_ARITY));
 
   // method for transformer.
   virtual void transformNode(NormWA &normWARef, ExprGroupId &locationOfPointerToMe);

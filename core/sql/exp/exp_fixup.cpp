@@ -41,13 +41,13 @@
 #include "exp/exp_stdh.h"
 #include "exp/exp_clause_derived.h"
 #include "exp_function.h"
-#include "exp_interval.h"
+#include "exp/exp_interval.h"
 #include "SQLTypeDefs.h"
 
 __declspec(dllimport) NABoolean ExExprComputeSpace(ex_tcb *tcb);
 
-static void getCaseDatatypes(short attr_type1, Lng32 attr_len1, short &type_op1, short attr_type2, Lng32 attr_len2,
-                             short &type_op2, Lng32 scaleDifference) {
+static void getCaseDatatypes(short attr_type1, int attr_len1, short &type_op1, short attr_type2, int attr_len2,
+                             short &type_op2, int scaleDifference) {
   type_op1 = attr_type1;
   type_op2 = attr_type2;
   //
@@ -153,8 +153,8 @@ static void getCaseDatatypes(short attr_type1, Lng32 attr_len1, short &type_op1,
   }  // end if type_op2 is an interval
 }
 
-static void getConvCaseDatatypes(short attr_type1, Lng32 attr_len1, short &type_op1, short attr_type2, Lng32 attr_len2,
-                                 short &type_op2, Lng32 scaleDifference) {
+static void getConvCaseDatatypes(short attr_type1, int attr_len1, short &type_op1, short attr_type2, int attr_len2,
+                                 short &type_op2, int scaleDifference) {
   //
   // If an operand is ASCII and other is interval, just return
   // some interval type (so as to not add multiple entries in
@@ -174,7 +174,7 @@ static void getConvCaseDatatypes(short attr_type1, Lng32 attr_len1, short &type_
     getCaseDatatypes(attr_type1, attr_len1, type_op1, attr_type2, attr_len2, type_op2, scaleDifference);
 }
 
-ex_expr::exp_return_type ex_expr::fixup(Lng32 /*base*/, unsigned short mode, const ex_tcb *tcb, Space *space,
+ex_expr::exp_return_type ex_expr::fixup(int /*base*/, unsigned short mode, const ex_tcb *tcb, Space *space,
                                         CollHeap *exHeap, NABoolean computeSpaceOnly, ex_globals *glob) {
   exp_return_type retcode = EXPR_OK;
 
@@ -211,7 +211,7 @@ ex_expr::exp_return_type ex_expr::fixup(Lng32 /*base*/, unsigned short mode, con
   return EXPR_OK;
 };
 
-ex_expr::exp_return_type ex_expr_lean::fixup(Lng32 /*base*/, unsigned short mode, const ex_tcb *tcb, Space *space,
+ex_expr::exp_return_type ex_expr_lean::fixup(int /*base*/, unsigned short mode, const ex_tcb *tcb, Space *space,
                                              CollHeap *exHeap, NABoolean computeSpaceOnly) {
   exp_return_type retcode = EXPR_OK;
 
@@ -227,7 +227,7 @@ ex_expr::exp_return_type ex_expr_lean::fixup(Lng32 /*base*/, unsigned short mode
   return retcode;
 };
 
-ex_expr::exp_return_type AggrExpr::fixup(Lng32 base, unsigned short mode, const ex_tcb *tcb, Space *space,
+ex_expr::exp_return_type AggrExpr::fixup(int base, unsigned short mode, const ex_tcb *tcb, Space *space,
                                          CollHeap *exHeap, NABoolean computeSpaceOnly, ex_globals *glob) {
   ex_expr::exp_return_type retcode;
 
@@ -266,7 +266,7 @@ ex_expr::exp_return_type AggrExpr::fixup(Lng32 base, unsigned short mode, const 
 /////////////////////////////////////////////////////////
 ex_expr::exp_return_type ex_clause::fixup(Space *space, CollHeap *exHeap, char *constantsArea, char *tempsArea,
                                           char *persistentArea, short fixupFlag, NABoolean spaceCompOnly) {
-  for (Lng32 i = 0; i < numOperands_; i++)
+  for (int i = 0; i < numOperands_; i++)
     if (op_[i]) op_[i]->fixup(space, constantsArea, tempsArea, persistentArea, fixupFlag, spaceCompOnly);
 
   return ex_expr::EXPR_OK;
@@ -422,7 +422,7 @@ const ex_arith_clause::ArithInstrStruct *ex_arith_clause::getMatchingRow(Operato
     return 0;
 }
 
-Lng32 ex_arith_clause::findIndexIntoInstrArray(ArithInstruction ci) {
+int ex_arith_clause::findIndexIntoInstrArray(ArithInstruction ci) {
   Int32 max_array_size = sizeof(arithInstrInfo) / sizeof(ArithInstrStruct);
 
   Int32 i = 0;
@@ -968,7 +968,7 @@ const ex_comp_clause::CompInstrStruct *ex_comp_clause::getMatchingRow(OperatorTy
     return 0;
 }
 
-Lng32 ex_comp_clause::findIndexIntoInstrArray(CompInstruction ci) {
+int ex_comp_clause::findIndexIntoInstrArray(CompInstruction ci) {
   Int32 max_array_size = sizeof(compInstrInfo) / sizeof(CompInstrStruct);
 
   Int32 i = 0;
@@ -1574,7 +1574,7 @@ const ex_conv_clause::ConvInstrStruct ex_conv_clause::convInstrInfo[] = {
 
 };
 
-Lng32 ex_conv_clause::findIndexIntoInstrArray(ConvInstruction ci) {
+int ex_conv_clause::findIndexIntoInstrArray(ConvInstruction ci) {
   Int32 max_array_size = sizeof(convInstrInfo) / sizeof(ConvInstrStruct);
 
   Int32 i = 0;
@@ -1676,8 +1676,8 @@ int ex_conv_clause::getInstrOffset(short pv_op1) {
   return sv_convIndexSparse[pv_op1];
 }
 
-ConvInstruction ex_conv_clause::findInstruction(short sourceType, Lng32 sourceLen, short targetType, Lng32 targetLen,
-                                                Lng32 scaleDifference) {
+ConvInstruction ex_conv_clause::findInstruction(short sourceType, int sourceLen, short targetType, int targetLen,
+                                                int scaleDifference) {
   ConvInstruction instruction = CONV_NOT_SUPPORTED;
   setInstrArrayIndex(-1);
 
@@ -1753,7 +1753,7 @@ ConvInstruction ex_conv_clause::findInstruction(short sourceType, Lng32 sourceLe
   return (enum ConvInstruction)instruction;
 };
 
-NABoolean ex_conv_clause::isConversionSupported(short sourceType, Lng32 sourceLen, short targetType, Lng32 targetLen) {
+NABoolean ex_conv_clause::isConversionSupported(short sourceType, int sourceLen, short targetType, int targetLen) {
   ConvInstruction ci = findInstruction(sourceType, sourceLen, targetType, targetLen, 0);
   if (ci == CONV_NOT_SUPPORTED)
     return FALSE;
@@ -1772,7 +1772,7 @@ void ex_conv_clause::setInstruction() {
     SimpleType *op0 = (SimpleType *)getOperand(0);
     SimpleType *op1 = (SimpleType *)getOperand(1);
     if (!(op0->getUseTotalRowsetSize())) {
-      op0->setLength(sizeof(Lng32) + (op0->getLength() * op0->getRowsetSize()));
+      op0->setLength(sizeof(int) + (op0->getLength() * op0->getRowsetSize()));
       op0->setUseTotalRowsetSize();
       op1->setUseTotalRowsetSize();
     }

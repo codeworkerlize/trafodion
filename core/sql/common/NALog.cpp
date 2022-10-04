@@ -295,7 +295,7 @@ Int32 CNALogfile::Open(void) {
           newstr += "\n";
           Int32 retcode = inherited::WriteString(newstr);
           NAString numWritten;
-          numWritten = LongToNAString((Lng32)retcode);
+          numWritten = LongToNAString((int)retcode);
           numWritten += ": Number of bytes written \n";
           inherited::WriteString(numWritten);
         }
@@ -363,7 +363,7 @@ void CNALogfile::Close() {
 // FALSE is also returned if Write is called and logging is not activated
 // or the log file is not opened
 // ----------------------------------------------------------------------
-NABoolean CNALogfile::Write(const char *pBuffer, Lng32 buflen) {
+NABoolean CNALogfile::Write(const char *pBuffer, int buflen) {
   if (!IsLoggingEnabled()) return FALSE;
 
   // If for some reason logging is enabled but the log operation failed
@@ -428,7 +428,7 @@ Int32 CNALogfile::Log(const char *pBuffer, ELoggingLevel level) {
     if (level == CNALogfile::eLEVEL3) return 0;
 #endif
     // If the write wrote something - flush the buffer
-    if (Write(pBuffer, (Lng32)strlen(pBuffer))) {
+    if (Write(pBuffer, (int)strlen(pBuffer))) {
       if (Flush() != ENOERR) {
         TURNOFFLOGGING;
 #ifdef _DEBUG

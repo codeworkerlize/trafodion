@@ -84,7 +84,7 @@ enum ArkcmpFailMode { arkcmpIS_OK_ = FALSE /*no failure*/, arkcmpWARN_, arkcmpER
 
 class CliGlobals : public NAAssertGlobals {
  public:
-  Lng32 getNextUniqueContextHandle();
+  int getNextUniqueContextHandle();
 
   ExControlArea *getSharedControl() { return sharedCtrl_; }
   CollHeap *exCollHeap() { return &executorMemory_; }
@@ -118,9 +118,9 @@ class CliGlobals : public NAAssertGlobals {
   IpcEnvironment *getEnvironment();
   char **getEnvVars() { return envvars_; };
   char *getEnv(const char *envvar);
-  Lng32 setEnvVars(char **envvars);
-  Lng32 setEnvVar(const char *name, const char *value, NABoolean reset = FALSE);
-  Lng32 sendEnvironToMxcmp();
+  int setEnvVars(char **envvars);
+  int setEnvVar(const char *name, const char *value, NABoolean reset = FALSE);
+  int sendEnvironToMxcmp();
 
   ExEspManager *getEspManager();
   ExUdrServerManager *getUdrServerManager();
@@ -128,14 +128,14 @@ class CliGlobals : public NAAssertGlobals {
   inline NAHeap *getExecutorMemory() { return &executorMemory_; }
 
   NAClusterInfo *getNAClusterInfo() { return clusterInfo_; }
-  inline Lng32 incrNumOfCliCalls() { return ++numCliCalls_; }
-  inline Lng32 decrNumOfCliCalls() {
+  inline int incrNumOfCliCalls() { return ++numCliCalls_; }
+  inline int decrNumOfCliCalls() {
     if (numCliCalls_ > 0)
       return --numCliCalls_;
     else
       return numCliCalls_;
   }
-  inline Int64 incrTotalOfCliCalls() { return ++totalCliCalls_; }
+  inline long incrTotalOfCliCalls() { return ++totalCliCalls_; }
 
   inline UInt32 *getEventConsumed() { return &eventConsumed_; }
   inline NABoolean processIsStopping() { return processIsStopping_; }
@@ -149,7 +149,7 @@ class CliGlobals : public NAAssertGlobals {
   // points into unallocated memory that doesn't violate the bounds
   // (note that the method always returns a SQLCODE value, AND that it
   // side-effects retcode in case of an error)
-  Lng32 boundsCheck(void *startAddress, ULng32 length, Lng32 &retcode);
+  int boundsCheck(void *startAddress, ULng32 length, int &retcode);
 
   inline NABoolean breakEnabled() { return breakEnabled_; }
   inline void setBreakEnabled(NABoolean enabled) {
@@ -163,17 +163,17 @@ class CliGlobals : public NAAssertGlobals {
   inline NABoolean isESPProcess() { return isESPProcess_; }
   inline void setIsESPProcess(NABoolean val) { isESPProcess_ = val; }
 
-  Lng32 createContext(ContextCli *&newContext);
-  Lng32 dropContext(ContextCli *context);
+  int createContext(ContextCli *&newContext);
+  int dropContext(ContextCli *context);
   ContextCli *getContext(SQLCTX_HANDLE context_handle, NABoolean calledFromDrop = FALSE);
   ContextTidMap *getThreadContext(pid_t tid);
-  Lng32 switchContext(ContextCli *newContext);
+  int switchContext(ContextCli *newContext);
 
   //
   // Context management functions added to implement user-defined routines
   //
-  // Lng32 deleteContext(SQLCTX_HANDLE contextHandle);
-  Lng32 resetContext(ContextCli *context, void *contextMsg);
+  // int deleteContext(SQLCTX_HANDLE contextHandle);
+  int resetContext(ContextCli *context, void *contextMsg);
   inline HashQueue *getContextList() { return contextList_; }
 
   NAHeap *getIpcHeap();
@@ -196,7 +196,7 @@ class CliGlobals : public NAAssertGlobals {
   const char *getJniErrorStr() { return getSqlJniErrorStr(); }
   int createLocalCGroup(const char *tenantName, ComDiagsArea &diags);
   void updateTransMode(TransMode *transMode);
-  Int64 getTransactionId();
+  long getTransactionId();
 
   inline short getGlobalSbbCount() { return globalSbbCount_; }
   inline void incGlobalSbbCount() { globalSbbCount_++; }
@@ -208,16 +208,16 @@ class CliGlobals : public NAAssertGlobals {
   // declarations.
   //
   NABoolean getUdrErrorChecksEnabled();
-  Lng32 getUdrSQLAccessMode();
+  int getUdrSQLAccessMode();
   NABoolean getUdrAccessModeViolation();
   NABoolean getUdrXactViolation();
   NABoolean getUdrXactAborted();
 
   void setUdrErrorChecksEnabled(NABoolean b);
-  void setUdrSQLAccessMode(Lng32 mode);
+  void setUdrSQLAccessMode(int mode);
   void setUdrAccessModeViolation(NABoolean b);
   void setUdrXactViolation(NABoolean b);
-  void setUdrXactAborted(Int64 currTransId, NABoolean b);
+  void setUdrXactAborted(long currTransId, NABoolean b);
 
   //
   // A few useful wrapper functions to ease management of the UDR
@@ -244,8 +244,8 @@ class CliGlobals : public NAAssertGlobals {
   Int32 myAncestorNid() { return myAncestorNid_; };
   Int32 myAncestorPid() { return myAncestorPid_; };
 
-  Lng32 myNodeNumber() { return myNodeNumber_; };
-  Int64 myStartTime() { return myStartTime_; };
+  int myNodeNumber() { return myNodeNumber_; };
+  long myStartTime() { return myStartTime_; };
 
   IpcPriority myPriority() { return myPriority_; }
   void setMyPriority(IpcPriority p) { myPriority_ = p; }
@@ -253,13 +253,13 @@ class CliGlobals : public NAAssertGlobals {
   void setPriorityChanged(NABoolean v) { priorityChanged_ = v; }
   IpcPriority myCurrentPriority();
 
-  Int64 getNextUniqueNumber() { return ++lastUniqueNumber_; }
+  long getNextUniqueNumber() { return ++lastUniqueNumber_; }
 
   void genSessionUniqueNumber() { sessionUniqueNumber_++; }
-  Int64 getSessionUniqueNumber() { return sessionUniqueNumber_; }
+  long getSessionUniqueNumber() { return sessionUniqueNumber_; }
 
   // returns the current ENVVAR context.
-  Int64 getCurrentEnvvarsContext() { return envvarsContext_; };
+  long getCurrentEnvvarsContext() { return envvarsContext_; };
 
   void incrCurrentEnvvarsContext() { envvarsContext_++; };
   Long &getSemId() { return semId_; };
@@ -368,7 +368,7 @@ class CliGlobals : public NAAssertGlobals {
   // copy of the oss envvars
   char **envvars_;
 
-  Int64 envvarsContext_;
+  long envvarsContext_;
 
   // to return a unique SQLCTX_HANDLE on a new ContextCli
   SQLCTX_HANDLE nextUniqueContextHandle;
@@ -377,7 +377,7 @@ class CliGlobals : public NAAssertGlobals {
   UInt32 eventConsumed_;
   NABoolean processIsStopping_;
 
-  Int64 totalCliCalls_;
+  long totalCliCalls_;
   short globalSbbCount_;
   short savedSqlTerminateAction_;
 
@@ -396,11 +396,11 @@ class CliGlobals : public NAAssertGlobals {
   Int32 myCpu_;
   SB_Verif_Type myVerifier_;
   pid_t myPin_;
-  Lng32 myNodeNumber_;
+  int myNodeNumber_;
 
   // For object lock
   pid_t myAncestorPid_;
-  Lng32 myAncestorNid_;
+  int myAncestorNid_;
 
   NAClusterInfo *clusterInfo_;
 
@@ -408,15 +408,15 @@ class CliGlobals : public NAAssertGlobals {
   NABoolean priorityChanged_;
 
   // timestamp when cli globals were initialized. Start of master executor.
-  Int64 myStartTime_;
+  long myStartTime_;
 
   // remember the last unique number.
   // Starts at 0 and increments when needed.
-  Int64 lastUniqueNumber_;
+  long lastUniqueNumber_;
 
   // remember the last session unique number.
   // Starts at 0 and increments when needed.
-  Int64 sessionUniqueNumber_;
+  long sessionUniqueNumber_;
 
   // EMS event descriptor
   SQLMXLoggingArea::ExperienceLevel emsEventExperienceLevel_;

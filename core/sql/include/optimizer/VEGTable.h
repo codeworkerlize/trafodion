@@ -59,7 +59,7 @@ class VEGReference;
 // -----------------------------------------------------------------------
 // Declarations.
 // -----------------------------------------------------------------------
-typedef Lng32 RegionId;
+typedef int RegionId;
 
 const RegionId NULL_VEG_REGION = -1;
 const RegionId FIRST_VEG_REGION = 0;
@@ -319,7 +319,7 @@ class VEGMember : public NABasicObject {
 class VEGRegion : public NABasicObject {
  public:
   VEGRegion(VEGTable *vegTable, VEGRegion *parentVEGRegionPtr, const RegionId newRegionId, enum VEGRegionTypeEnum tev,
-            const ExprNode *const ownerExpr, Lng32 subtreeId = 0)
+            const ExprNode *const ownerExpr, int subtreeId = 0)
       : stateEnum_(ACTIVE_STATE),
         typeEnum_(tev),
         processedFlag_(FALSE),
@@ -425,7 +425,7 @@ class VEGRegion : public NABasicObject {
   // ---------------------------------------------------------------------
   const ExprNode *getOwnerExpr() const { return ownerExpr_; }
 
-  Lng32 getSubtreeId() const { return subtreeId_; }
+  int getSubtreeId() const { return subtreeId_; }
 
   RegionId getRegionId() const { return myRegionId_; }
 
@@ -436,7 +436,7 @@ class VEGRegion : public NABasicObject {
   // ---------------------------------------------------------------------
   void setOwnerExpr(const ExprNode *const ownerExpr) { ownerExpr_ = ownerExpr; }
 
-  void setSubtreeId(const Lng32 subtreeId) { subtreeId_ = subtreeId; }
+  void setSubtreeId(const int subtreeId) { subtreeId_ = subtreeId; }
 
   // ---------------------------------------------------------------------
   // Parent Region
@@ -575,7 +575,7 @@ class VEGRegion : public NABasicObject {
   // ---------------------------------------------------------------------
   // Get the VEGMember at the given position in the VEGRegion.
   // ---------------------------------------------------------------------
-  VEGMember *getVEGMember(Lng32 index) { return members_[index]; }
+  VEGMember *getVEGMember(int index) { return members_[index]; }
 
   // ---------------------------------------------------------------------
   // Get the ValueId for the VEG to which the given two expressions
@@ -643,7 +643,7 @@ class VEGRegion : public NABasicObject {
 
   const ExprNode *ownerExpr_;  // the owner of this VEGRegion
 
-  Lng32 subtreeId_;  // VEGRegion is for which child
+  int subtreeId_;  // VEGRegion is for which child
 
   const RegionId myRegionId_;  // should be equal to my array index
 
@@ -672,7 +672,7 @@ class VEGTable : public NABasicObject {
   // VEGTable::allocateAndSetVEGRegion()
   // Allocate a new VEGRegion and set currency pointer.
   // ---------------------------------------------------------------------
-  void allocateAndSetVEGRegion(const VEGRegionTypeEnum tev, const ExprNode *const ownerExpr, Lng32 subtreeId = 0) {
+  void allocateAndSetVEGRegion(const VEGRegionTypeEnum tev, const ExprNode *const ownerExpr, int subtreeId = 0) {
     setCurrentVEGRegion(allocateVEGRegion(getCurrentVEGRegion(), tev, ownerExpr, subtreeId));
   }
 
@@ -681,14 +681,14 @@ class VEGTable : public NABasicObject {
   // This is a helper function that is used internally.
   // ---------------------------------------------------------------------
   VEGRegion *allocateVEGRegion(VEGRegion *parentRegion, const VEGRegionTypeEnum tev, const ExprNode *const ownerExpr,
-                               Lng32 subtreeId = 0);
+                               int subtreeId = 0);
 
   // ---------------------------------------------------------------------
   // Locates the Region to which a given ExprNode belongs and sets
   // it to become the current Region. If no Region contains the
   // given ExprNode, it makes the FIRST_VEG_REGION the current Region.
   // ---------------------------------------------------------------------
-  void locateAndSetVEGRegion(const ExprNode *const exprPtr, Lng32 subtreeId = 0);
+  void locateAndSetVEGRegion(const ExprNode *const exprPtr, int subtreeId = 0);
 
   //-----------------------------------------------------------------------
   // A method to locate the VEG region given an ExprNode
@@ -701,7 +701,7 @@ class VEGTable : public NABasicObject {
   //-----------------------------------------------------------------------
   // A method to locate the VEG region given an ExprNode
   //-----------------------------------------------------------------------
-  VEGRegion *locateVEGRegion(ExprNode *ownerENptr, Lng32 subtreeId) {
+  VEGRegion *locateVEGRegion(ExprNode *ownerENptr, int subtreeId) {
     const ExprNode *const op = (ExprNode *)ownerENptr;
     return getVEGRegion(op, subtreeId);
   }
@@ -711,7 +711,7 @@ class VEGTable : public NABasicObject {
   // Currently only used for reasigning the regioin of a scalar-agg to
   // a leftjoin during unnesting.
   //-----------------------------------------------------------------------
-  void reassignVEGRegion(ExprNode *ownerENptr, Lng32 oldSubtreeId, ExprNode *newOwnerENptr, Lng32 newSubtreeId) {
+  void reassignVEGRegion(ExprNode *ownerENptr, int oldSubtreeId, ExprNode *newOwnerENptr, int newSubtreeId) {
     VEGRegion *vr = getVEGRegion(ownerENptr, oldSubtreeId);
     CMPASSERT(vr != NULL);
     vr->setOwnerExpr(newOwnerENptr);
@@ -740,7 +740,7 @@ class VEGTable : public NABasicObject {
     return getVEGRegion(ownerExpr)->isMerged();
   }
 
-  NABoolean locateVEGRegionAndCheckIfMerged(const ExprNode *const ownerExpr, Lng32 subtreeId) {
+  NABoolean locateVEGRegionAndCheckIfMerged(const ExprNode *const ownerExpr, int subtreeId) {
     return getVEGRegion(ownerExpr, subtreeId)->isMerged();
   }
 
@@ -785,7 +785,7 @@ class VEGTable : public NABasicObject {
 
   VEGRegion *getCurrentVEGRegion() const { return currentRegion_; }
 
-  Lng32 numberOfRegions() { return arrayEntry_.entries(); }
+  int numberOfRegions() { return arrayEntry_.entries(); }
 
   // --------------------------------------------------------------------
   // Get addressability to the entry at the given entryIndex.
@@ -802,7 +802,7 @@ class VEGTable : public NABasicObject {
   // --------------------------------------------------------------------
   // Locate the Region and VEGRegion to which a given ExprNode belongs.
   // --------------------------------------------------------------------
-  VEGRegion *getVEGRegion(const ExprNode *const exprPtr, Lng32 subtreeId = 0) const;
+  VEGRegion *getVEGRegion(const ExprNode *const exprPtr, int subtreeId = 0) const;
 
   // --------------------------------------------------------------------
   // Get the first VEGRegion that contains a vegmember for a given ValueId

@@ -67,41 +67,41 @@ SortStatistics::~SortStatistics() {}
 // SortStatistics Retrieval Functions.
 //----------------------------------------------------------------------
 
-Lng32 SortStatistics::getStatRunSize() const { return runSize_; }
-Lng32 SortStatistics::getStatNumRuns() const { return numRuns_; }
+int SortStatistics::getStatRunSize() const { return runSize_; }
+int SortStatistics::getStatNumRuns() const { return numRuns_; }
 
-Lng32 SortStatistics::getStatMemSizeB() const { return memSizeB_; }
+int SortStatistics::getStatMemSizeB() const { return memSizeB_; }
 
-Int64 SortStatistics::getStatNumRecs() const { return numRecs_; }
+long SortStatistics::getStatNumRecs() const { return numRecs_; }
 
-Lng32 SortStatistics::getStatRecLen() const { return recLen_; }
+int SortStatistics::getStatRecLen() const { return recLen_; }
 
-Lng32 SortStatistics::getStatNumInitRuns() const { return numInitRuns_; }
+int SortStatistics::getStatNumInitRuns() const { return numInitRuns_; }
 
-Lng32 SortStatistics::getStatFirstMergeOrder() const { return firstMergeOrder_; }
+int SortStatistics::getStatFirstMergeOrder() const { return firstMergeOrder_; }
 
-Lng32 SortStatistics::getStatFinalMergeOrder() const { return finalMergeOrder_; }
+int SortStatistics::getStatFinalMergeOrder() const { return finalMergeOrder_; }
 
-Lng32 SortStatistics::getStatMergeOrder() const { return mergeOrder_; }
+int SortStatistics::getStatMergeOrder() const { return mergeOrder_; }
 
-Lng32 SortStatistics::getStatNumInterPasses() const { return numInterPasses_; }
+int SortStatistics::getStatNumInterPasses() const { return numInterPasses_; }
 
-Lng32 SortStatistics::getStatNumCompares() const { return numCompares_; }
+int SortStatistics::getStatNumCompares() const { return numCompares_; }
 
-Lng32 SortStatistics::getStatNumDupRecs() const { return numDupRecs_; }
+int SortStatistics::getStatNumDupRecs() const { return numDupRecs_; }
 
-Int64 SortStatistics::getStatBeginSortTime() const { return beginSortTime_; }
+long SortStatistics::getStatBeginSortTime() const { return beginSortTime_; }
 
-Int64 SortStatistics::getStatElapsedTime() const { return elapsedTime_; }
+long SortStatistics::getStatElapsedTime() const { return elapsedTime_; }
 
-Int64 SortStatistics::getStatIoWaitTime() const { return ioWaitTime_; }
+long SortStatistics::getStatIoWaitTime() const { return ioWaitTime_; }
 
-Lng32 SortStatistics::getStatScrBlockSize() const { return scrBlockSize_; }
+int SortStatistics::getStatScrBlockSize() const { return scrBlockSize_; }
 
-Lng32 SortStatistics::getStatScrNumBlocks() const { return scrNumBlocks_; }
+int SortStatistics::getStatScrNumBlocks() const { return scrNumBlocks_; }
 
-Lng32 SortStatistics::getStatScrNumWrites() const { return scrNumWrites_; }
+int SortStatistics::getStatScrNumWrites() const { return scrNumWrites_; }
 
-Lng32 SortStatistics::getStatScrNumReads() const { return scrNumReads_; }
+int SortStatistics::getStatScrNumReads() const { return scrNumReads_; }
 
-Lng32 SortStatistics::getStatScrAwaitIo() const { return scrNumAwaitio_; }
+int SortStatistics::getStatScrAwaitIo() const { return scrNumAwaitio_; }

@@ -177,9 +177,9 @@ short ExFirstNTcb::work() {
         // TRAFODION-2930
         // fix [first 600000000000] crash
         // effectiveFirstN_ = firstnTdb().firstNRows();
-        Int64 nFirstN = firstnTdb().firstNRows();
-        Int64 nMaxInt = INT_MAX;
-        effectiveFirstN_ = Lng32(min(nMaxInt, nFirstN));
+        long nFirstN = firstnTdb().firstNRows();
+        long nMaxInt = INT_MAX;
+        effectiveFirstN_ = int(min(nMaxInt, nFirstN));
         // TRAFODION-2930
 
         returnedSoFar_ = 0;

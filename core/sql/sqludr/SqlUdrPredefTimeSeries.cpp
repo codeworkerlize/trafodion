@@ -554,6 +554,6 @@ void InternalColumns::setOutputCols(int sliceNum) {
 }
 
 time_t convertToLocalTimeStamp(time_t partitionTime) {
-  Int64 juliantimestamp = partitionTime * 1000000 + COM_EPOCH_TIMESTAMP;
+  long juliantimestamp = partitionTime * 1000000 + COM_EPOCH_TIMESTAMP;
   return ((CONVERTTIMESTAMP(juliantimestamp, 0, -1, 0) - COM_EPOCH_TIMESTAMP) / 1000000);
 }

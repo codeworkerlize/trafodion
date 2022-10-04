@@ -42,7 +42,7 @@ static Int32 recordJniAll = costJniAll ? atoi(costJniAll) : -1;
 static pid_t pid = getpid();
 static Int32 callCount[40] = {0};
 static double sumCost[40] = {0};
-static Int64 curTransId = 0;
+static long curTransId = 0;
 
 ExHbaseAccessInsertTcb::ExHbaseAccessInsertTcb(const ExHbaseAccessTdb &tdb, ex_globals *glob)
     : ExHbaseAccessTcb(tdb, glob), step_(NOT_STARTED) {
@@ -50,14 +50,14 @@ ExHbaseAccessInsertTcb::ExHbaseAccessInsertTcb(const ExHbaseAccessTdb &tdb, ex_g
 }
 
 ExWorkProcRetcode ExHbaseAccessInsertTcb::work() {
-  Lng32 retcode = 0;
+  int retcode = 0;
   short rc = 0;
 
-  Int64 transId = GetCliGlobals() ? GetCliGlobals()->getTransactionId() : -1;
+  long transId = GetCliGlobals() ? GetCliGlobals()->getTransactionId() : -1;
   if (transId == -1 || curTransId != transId) {
     if (curTransId >= 0) {
-      Int64 count = 0;
-      Int64 cost = 0;
+      long count = 0;
+      long cost = 0;
       for (Int32 idx = 0; idx < 40; idx++) {
         count += callCount[idx];
         cost += sumCost[idx];
@@ -112,14 +112,14 @@ ExWorkProcRetcode ExHbaseAccessInsertTcb::work() {
         ExpTupleDesc *convertRowTD =
             hbaseAccessTdb().workCriDesc_->getTupleDescriptor(hbaseAccessTdb().convertTuppIndex_);
 
-        for (Lng32 i = 0; i < convertRowTD->numAttrs(); i++) {
+        for (int i = 0; i < convertRowTD->numAttrs(); i++) {
           Attributes *attr = convertRowTD->getAttr(i);
-          Lng32 len = 0;
+          int len = 0;
           if (attr) {
             if (attr->getVCIndicatorLength() == sizeof(short))
               len = *(short *)&convertRow_[attr->getVCLenIndOffset()];
             else
-              len = *(Lng32 *)&convertRow_[attr->getVCLenIndOffset()];
+              len = *(int *)&convertRow_[attr->getVCLenIndOffset()];
 
             switch (i) {
               case HBASE_ROW_ID_INDEX: {
@@ -139,7 +139,7 @@ ExWorkProcRetcode ExHbaseAccessInsertTcb::work() {
               } break;
 
               case HBASE_COL_TS_INDEX: {
-                insColTS_ = (Int64 *)&convertRow_[attr->getOffset()];
+                insColTS_ = (long *)&convertRow_[attr->getOffset()];
               } break;
 
             }  // switch
@@ -154,13 +154,13 @@ ExWorkProcRetcode ExHbaseAccessInsertTcb::work() {
         HbaseStr rowID;
         rowID.val = (char *)insRowId_.data();
         rowID.len = insRowId_.size();
-        Int64 time1 = JULIANTIMESTAMP();
+        long time1 = JULIANTIMESTAMP();
         retcode = ehi_->insertRow(table_, rowID, row_, hbaseAccessTdb().useHbaseXn(), hbaseAccessTdb().replSync(),
                                   hbaseAccessTdb().incrementalBackup(), hbaseAccessTdb().useRegionXn(), *insColTS_,
                                   FALSE);  // AsyncOperations is always FALSE for native HBase
 
         if (recordCostTh_ >= 0) {
-          Int64 time2 = (JULIANTIMESTAMP() - time1) / 1000;
+          long time2 = (JULIANTIMESTAMP() - time1) / 1000;
           if (transId > 0) {
             callCount[0]++;
             sumCost[0] += time2;
@@ -183,10 +183,10 @@ ExWorkProcRetcode ExHbaseAccessInsertTcb::work() {
       } break;
 
       case INSERT_CLOSE: {
-        Int64 time1 = JULIANTIMESTAMP();
+        long time1 = JULIANTIMESTAMP();
         retcode = ehi_->close();
         if (recordCostTh_ >= 0) {
-          Int64 time2 = (JULIANTIMESTAMP() - time1) / 1000;
+          long time2 = (JULIANTIMESTAMP() - time1) / 1000;
           if (transId > 0) {
             callCount[1]++;
             sumCost[1] += time2;
@@ -212,10 +212,10 @@ ExWorkProcRetcode ExHbaseAccessInsertTcb::work() {
       case DONE:
       case CLOSE_AND_DONE: {
         if (step_ == CLOSE_AND_DONE) {
-          Int64 time1 = JULIANTIMESTAMP();
+          long time1 = JULIANTIMESTAMP();
           ehi_->close();
           if (recordCostTh_ >= 0) {
-            Int64 time2 = (JULIANTIMESTAMP() - time1) / 1000;
+            long time2 = (JULIANTIMESTAMP() - time1) / 1000;
             if (transId > 0) {
               callCount[1]++;
               sumCost[1] += time2;
@@ -241,13 +241,13 @@ ExHbaseAccessInsertRowwiseTcb::ExHbaseAccessInsertRowwiseTcb(const ExHbaseAccess
     : ExHbaseAccessInsertTcb(hbaseAccessTdb, glob) {}
 
 ExWorkProcRetcode ExHbaseAccessInsertRowwiseTcb::work() {
-  Lng32 retcode = 0;
+  int retcode = 0;
   short rc = 0;
 
-  Int64 transId = GetCliGlobals() ? GetCliGlobals()->getTransactionId() : -1;
+  long transId = GetCliGlobals() ? GetCliGlobals()->getTransactionId() : -1;
   if (transId == -1 || curTransId != transId) {
     if (curTransId >= 0) {
-      Int64 count = 0;
+      long count = 0;
       double cost = 0;
       for (Int32 idx = 0; idx < 40; idx++) {
         count += callCount[idx];
@@ -304,7 +304,7 @@ ExWorkProcRetcode ExHbaseAccessInsertRowwiseTcb::work() {
         ExpTupleDesc *convertRowTD =
             hbaseAccessTdb().workCriDesc_->getTupleDescriptor(hbaseAccessTdb().convertTuppIndex_);
 
-        for (Lng32 i = 0; i < convertRowTD->numAttrs(); i++) {
+        for (int i = 0; i < convertRowTD->numAttrs(); i++) {
           Attributes *attr = convertRowTD->getAttr(i);
           short len = 0;
           if (attr) {
@@ -331,7 +331,7 @@ ExWorkProcRetcode ExHbaseAccessInsertRowwiseTcb::work() {
       case PROCESS_INSERT: {
         if (numColsInDirectBuffer() > 0) {
           HbaseStr rowID;
-          Int64 time1 = JULIANTIMESTAMP();
+          long time1 = JULIANTIMESTAMP();
 
           rowID.val = (char *)insRowId_.data();
           rowID.len = insRowId_.size();
@@ -341,7 +341,7 @@ ExWorkProcRetcode ExHbaseAccessInsertRowwiseTcb::work() {
                                     FALSE);  // AsyncOperations is always FALSE for native HBase
 
           if (recordCostTh_ >= 0) {
-            Int64 time2 = (JULIANTIMESTAMP() - time1) / 1000;
+            long time2 = (JULIANTIMESTAMP() - time1) / 1000;
             if (transId > 0) {
               callCount[2]++;
               sumCost[2] += time2;
@@ -365,10 +365,10 @@ ExWorkProcRetcode ExHbaseAccessInsertRowwiseTcb::work() {
       } break;
 
       case INSERT_CLOSE: {
-        Int64 time1 = JULIANTIMESTAMP();
+        long time1 = JULIANTIMESTAMP();
         retcode = ehi_->close();
         if (recordCostTh_ >= 0) {
-          Int64 time2 = (JULIANTIMESTAMP() - time1) / 1000;
+          long time2 = (JULIANTIMESTAMP() - time1) / 1000;
           if (transId > 0) {
             callCount[3]++;
             sumCost[3] += time2;
@@ -395,10 +395,10 @@ ExWorkProcRetcode ExHbaseAccessInsertRowwiseTcb::work() {
       case DONE:
       case CLOSE_AND_DONE: {
         if (step_ == CLOSE_AND_DONE) {
-          Int64 time1 = JULIANTIMESTAMP();
+          long time1 = JULIANTIMESTAMP();
           ehi_->close();
           if (recordCostTh_ >= 0) {
-            Int64 time2 = (JULIANTIMESTAMP() - time1) / 1000;
+            long time2 = (JULIANTIMESTAMP() - time1) / 1000;
             if (transId > 0) {
               callCount[3]++;
               sumCost[3] += time2;
@@ -425,13 +425,13 @@ ExHbaseAccessInsertSQTcb::ExHbaseAccessInsertSQTcb(const ExHbaseAccessTdb &tdb, 
     : ExHbaseAccessInsertTcb(tdb, glob) {}
 
 ExWorkProcRetcode ExHbaseAccessInsertSQTcb::work() {
-  Lng32 retcode = 0;
+  int retcode = 0;
   short rc = 0;
 
-  Int64 transId = GetCliGlobals() ? GetCliGlobals()->getTransactionId() : -1;
+  long transId = GetCliGlobals() ? GetCliGlobals()->getTransactionId() : -1;
   if (transId == -1 || curTransId != transId) {
     if (curTransId >= 0) {
-      Int64 count = 0;
+      long count = 0;
       double cost = 0;
       for (Int32 idx = 0; idx < 40; idx++) {
         count += callCount[idx];
@@ -553,7 +553,7 @@ ExWorkProcRetcode ExHbaseAccessInsertSQTcb::work() {
       } break;
 
       case CHECK_AND_INSERT: {
-        Int64 time2 = 0L, time1 = JULIANTIMESTAMP();
+        long time2 = 0L, time1 = JULIANTIMESTAMP();
 
         if (g != NULL && g->getStatement() != NULL && g->getStatement()->getTriggerExecErr() == TRUE) {
           retcode = TRIGGER_EXECUTE_EXCEPTION;
@@ -660,7 +660,7 @@ ExWorkProcRetcode ExHbaseAccessInsertSQTcb::work() {
         step_ = INSERT_CLOSE;
       } break;
       case PROCESS_INSERT: {
-        Int64 time2 = 0L, time1 = JULIANTIMESTAMP();
+        long time2 = 0L, time1 = JULIANTIMESTAMP();
 
         if (g != NULL && g->getStatement() != NULL && g->getStatement()->getTriggerExecErr() == TRUE) {
           retcode = TRIGGER_EXECUTE_EXCEPTION;
@@ -756,10 +756,10 @@ ExWorkProcRetcode ExHbaseAccessInsertSQTcb::work() {
       } break;
 
       case INSERT_CLOSE: {
-        Int64 time1 = JULIANTIMESTAMP();
+        long time1 = JULIANTIMESTAMP();
         retcode = ehi_->close();
         if (recordCostTh_ >= 0) {
-          Int64 time2 = (JULIANTIMESTAMP() - time1) / 1000;
+          long time2 = (JULIANTIMESTAMP() - time1) / 1000;
           if (transId > 0) {
             callCount[6]++;
             sumCost[6] += time2;
@@ -787,10 +787,10 @@ ExWorkProcRetcode ExHbaseAccessInsertSQTcb::work() {
         ehi_->setDDLValidator(NULL);
 
         if (step_ == CLOSE_AND_DONE) {
-          Int64 time1 = JULIANTIMESTAMP();
+          long time1 = JULIANTIMESTAMP();
           ehi_->close();
           if (recordCostTh_ >= 0) {
-            Int64 time2 = (JULIANTIMESTAMP() - time1) / 1000;
+            long time2 = (JULIANTIMESTAMP() - time1) / 1000;
             if (transId > 0) {
               callCount[6]++;
               sumCost[6] += time2;
@@ -828,15 +828,15 @@ ExHbaseAccessUpsertVsbbSQTcb::ExHbaseAccessUpsertVsbbSQTcb(const ExHbaseAccessTd
 }
 
 ExWorkProcRetcode ExHbaseAccessUpsertVsbbSQTcb::work() {
-  Lng32 retcode = 0;
+  int retcode = 0;
   short rc = 0;
 
   ExMasterStmtGlobals *g = getGlobals()->castToExExeStmtGlobals()->castToExMasterStmtGlobals();
 
-  Int64 transId = GetCliGlobals() ? GetCliGlobals()->getTransactionId() : -1;
+  long transId = GetCliGlobals() ? GetCliGlobals()->getTransactionId() : -1;
   if (transId == -1 || curTransId != transId) {
     if (curTransId >= 0) {
-      Int64 count = 0;
+      long count = 0;
       double cost = 0;
       for (Int32 idx = 0; idx < 40; idx++) {
         count += callCount[idx];
@@ -1039,7 +1039,7 @@ ExWorkProcRetcode ExHbaseAccessUpsertVsbbSQTcb::work() {
         if (g != NULL && g->getStatement() != NULL && g->getStatement()->getTriggerExecErr() == TRUE) {
           retcode = TRIGGER_EXECUTE_EXCEPTION;
         } else {
-          Int64 time1 = JULIANTIMESTAMP();
+          long time1 = JULIANTIMESTAMP();
           ehi_->setPutIsUpsert(TRUE);
           retcode =
               ehi_->insertRows(table_, hbaseAccessTdb().getRowIDLen(), rowIDs_, rows_, hbaseAccessTdb().useHbaseXn(),
@@ -1050,7 +1050,7 @@ ExWorkProcRetcode ExHbaseAccessUpsertVsbbSQTcb::work() {
                                hbaseAccessTdb().noConflictCheck());
 
           if (recordCostTh_ >= 0) {
-            Int64 time2 = (JULIANTIMESTAMP() - time1) / 1000;
+            long time2 = (JULIANTIMESTAMP() - time1) / 1000;
             if (transId > 0) {
               callCount[7]++;
               sumCost[7] += time2;
@@ -1078,7 +1078,7 @@ ExWorkProcRetcode ExHbaseAccessUpsertVsbbSQTcb::work() {
           break;
         }
         if (getHbaseAccessStats()) {
-          getHbaseAccessStats()->incUsedRows((Int64)numRowsInVsbbBuffer_);
+          getHbaseAccessStats()->incUsedRows((long)numRowsInVsbbBuffer_);
         }
         rowsInserted_ += numRowsInVsbbBuffer_;
         if (asyncOperation_) {
@@ -1096,10 +1096,10 @@ ExWorkProcRetcode ExHbaseAccessUpsertVsbbSQTcb::work() {
           asyncOperationTimeout_ = asyncOperationTimeout_ * 2;
           timeout = asyncOperationTimeout_;
         }
-        Int64 time1 = JULIANTIMESTAMP();
+        long time1 = JULIANTIMESTAMP();
         retcode = ehi_->completeAsyncOperation(timeout, resultArray_, numRowsInVsbbBuffer_);
         if (recordCostTh_ >= 0) {
-          Int64 time2 = (JULIANTIMESTAMP() - time1) / 1000;
+          long time2 = (JULIANTIMESTAMP() - time1) / 1000;
           if (transId > 0) {
             callCount[8]++;
             sumCost[8] += time2;
@@ -1136,10 +1136,10 @@ ExWorkProcRetcode ExHbaseAccessUpsertVsbbSQTcb::work() {
           step_ = ALL_DONE;
       } break;
       case INSERT_CLOSE: {
-        Int64 time1 = JULIANTIMESTAMP();
+        long time1 = JULIANTIMESTAMP();
         retcode = ehi_->close();
         if (recordCostTh_ >= 0) {
-          Int64 time2 = (JULIANTIMESTAMP() - time1) / 1000;
+          long time2 = (JULIANTIMESTAMP() - time1) / 1000;
           if (transId > 0) {
             callCount[9]++;
             sumCost[9] += time2;
@@ -1166,10 +1166,10 @@ ExWorkProcRetcode ExHbaseAccessUpsertVsbbSQTcb::work() {
       case CLOSE_AND_DONE:
       case ALL_DONE: {
         if (step_ == CLOSE_AND_DONE) {
-          Int64 time1 = JULIANTIMESTAMP();
+          long time1 = JULIANTIMESTAMP();
           ehi_->close();
           if (recordCostTh_ >= 0) {
-            Int64 time2 = (JULIANTIMESTAMP() - time1) / 1000;
+            long time2 = (JULIANTIMESTAMP() - time1) / 1000;
             if (transId > 0) {
               callCount[9]++;
               sumCost[9] += time2;
@@ -1223,7 +1223,7 @@ ExWorkProcRetcode ExHbaseAccessUpsertVsbbSQTcb::work() {
 // the Hive type we use to represent it in the Hive sample table created by
 // the bulk load utility.
 static const char *TrafToHiveType(Attributes *attrs) {
-  Int64 maxValue = 0;
+  long maxValue = 0;
   Int16 precision = 0;
   Int16 scale = 0;
   Int16 datatype = attrs->getDatatype();
@@ -1259,7 +1259,7 @@ static const char *TrafToHiveType(Attributes *attrs) {
     case REC_DECIMAL_UNSIGNED:
     case REC_DECIMAL_LS:
     case REC_DECIMAL_LSE:
-      maxValue = (Int64)pow(10, dynamic_cast<SimpleType *>(attrs)->getPrecision());
+      maxValue = (long)pow(10, dynamic_cast<SimpleType *>(attrs)->getPrecision());
       break;
 
       // case REC_NUM_BIG_UNSIGNED: return extFormat? (char *)"NUMERIC":(char *)"REC_NUM_BIG_UNSIGNED";
@@ -1290,39 +1290,39 @@ static const char *TrafToHiveType(Attributes *attrs) {
     case REC_INT_DAY:
     case REC_INT_HOUR:
     case REC_INT_MINUTE:
-      maxValue = (Int64)pow(10, precision);
+      maxValue = (long)pow(10, precision);
       break;
 
     case REC_INT_SECOND:
-      maxValue = (Int64)pow(10, precision + scale);
+      maxValue = (long)pow(10, precision + scale);
       break;
 
     case REC_INT_YEAR_MONTH:
-      maxValue = 12 * (Int64)pow(10, precision);
+      maxValue = 12 * (long)pow(10, precision);
       break;
 
     case REC_INT_DAY_HOUR:
-      maxValue = 24 * (Int64)pow(10, precision);
+      maxValue = 24 * (long)pow(10, precision);
       break;
 
     case REC_INT_HOUR_MINUTE:
-      maxValue = 60 * (Int64)pow(10, precision);
+      maxValue = 60 * (long)pow(10, precision);
       break;
 
     case REC_INT_DAY_MINUTE:
-      maxValue = 24 * 60 * (Int64)pow(10, precision);
+      maxValue = 24 * 60 * (long)pow(10, precision);
       break;
 
     case REC_INT_MINUTE_SECOND:
-      maxValue = (Int64)pow(10, precision + 2 + scale);
+      maxValue = (long)pow(10, precision + 2 + scale);
       break;
 
     case REC_INT_HOUR_SECOND:
-      maxValue = (Int64)pow(10, precision + 4 + scale);
+      maxValue = (long)pow(10, precision + 4 + scale);
       break;
 
     case REC_INT_DAY_SECOND:
-      maxValue = (Int64)pow(10, precision + 5 + scale);
+      maxValue = (long)pow(10, precision + 5 + scale);
       break;
 
     default:
@@ -1352,16 +1352,16 @@ ExHbaseUMDtrafUniqueTaskTcb::ExHbaseUMDtrafUniqueTaskTcb(ExHbaseAccessUMDTcb *tc
 void ExHbaseUMDtrafUniqueTaskTcb::init() { step_ = NOT_STARTED; }
 
 ExWorkProcRetcode ExHbaseUMDtrafUniqueTaskTcb::work(short &rc) {
-  Lng32 retcode = 0;
+  int retcode = 0;
   rc = 0;
   char *skvValLen = NULL;
   char *skvValOffset = NULL;
   char *skvBuffer = NULL;
 
-  Int64 transId = GetCliGlobals() ? GetCliGlobals()->getTransactionId() : -1;
+  long transId = GetCliGlobals() ? GetCliGlobals()->getTransactionId() : -1;
   if (transId == -1 || curTransId != transId) {
     if (curTransId >= 0) {
-      Int64 count = 0;
+      long count = 0;
       double cost = 0;
       for (Int32 idx = 0; idx < 40; idx++) {
         count += callCount[idx];
@@ -1412,7 +1412,7 @@ ExWorkProcRetcode ExHbaseUMDtrafUniqueTaskTcb::work(short &rc) {
       } break;
 
       case GET_NEXT_ROWID: {
-        Int64 time1 = JULIANTIMESTAMP();
+        long time1 = JULIANTIMESTAMP();
 
         if (tcb_->currRowidIdx_ == tcb_->rowIds_.entries()) {
           step_ = GET_CLOSE;
@@ -1449,7 +1449,7 @@ ExWorkProcRetcode ExHbaseUMDtrafUniqueTaskTcb::work(short &rc) {
           step_ = NEXT_ROW;
 
         if (recordCostTh_ >= 0) {
-          Int64 time2 = (JULIANTIMESTAMP() - time1) / 1000;
+          long time2 = (JULIANTIMESTAMP() - time1) / 1000;
           if (transId > 0) {
             callCount[10]++;
             sumCost[10] += time2;
@@ -1462,10 +1462,10 @@ ExWorkProcRetcode ExHbaseUMDtrafUniqueTaskTcb::work(short &rc) {
       } break;
 
       case NEXT_ROW: {
-        Int64 time1 = JULIANTIMESTAMP();
+        long time1 = JULIANTIMESTAMP();
         retcode = tcb_->ehi_->nextRow();
         if (recordCostTh_ >= 0) {
-          Int64 time2 = (JULIANTIMESTAMP() - time1) / 1000;
+          long time2 = (JULIANTIMESTAMP() - time1) / 1000;
           if (transId > 0) {
             callCount[11]++;
             sumCost[11] += time2;
@@ -1693,7 +1693,7 @@ ExWorkProcRetcode ExHbaseUMDtrafUniqueTaskTcb::work(short &rc) {
       } break;
 
       case UPDATE_ROW: {
-        Int64 time1 = JULIANTIMESTAMP();
+        long time1 = JULIANTIMESTAMP();
 
         if (tcb_->row_.len == 0) {
           step_ = UPDATE_TAG;
@@ -1718,7 +1718,7 @@ ExWorkProcRetcode ExHbaseUMDtrafUniqueTaskTcb::work(short &rc) {
           tcb_->ehi_->settrigger_operation(COM_UNKNOWN_IUD);
 
           if (recordCostTh_ >= 0) {
-            Int64 time2 = (JULIANTIMESTAMP() - time1) / 1000;
+            long time2 = (JULIANTIMESTAMP() - time1) / 1000;
             if (transId > 0) {
               callCount[12]++;
               sumCost[12] += time2;
@@ -1791,7 +1791,7 @@ ExWorkProcRetcode ExHbaseUMDtrafUniqueTaskTcb::work(short &rc) {
         if (g != NULL && g->getStatement() != NULL && g->getStatement()->getTriggerExecErr() == TRUE) {
           retcode = TRIGGER_EXECUTE_EXCEPTION;
         } else {
-          Int64 time1 = JULIANTIMESTAMP();
+          long time1 = JULIANTIMESTAMP();
 
           retcode = tcb_->ehi_->checkAndUpdateRow(tcb_->table_, tcb_->rowIds_[tcb_->currRowidIdx_], tcb_->row_,
                                                   columnToCheck_, colValToCheck_, tcb_->hbaseAccessTdb().useHbaseXn(),
@@ -1807,7 +1807,7 @@ ExWorkProcRetcode ExHbaseUMDtrafUniqueTaskTcb::work(short &rc) {
           }
 
           if (recordCostTh_ >= 0) {
-            Int64 time2 = (JULIANTIMESTAMP() - time1) / 1000;
+            long time2 = (JULIANTIMESTAMP() - time1) / 1000;
             if (transId > 0) {
               callCount[13]++;
               sumCost[13] += time2;
@@ -1858,11 +1858,11 @@ ExWorkProcRetcode ExHbaseUMDtrafUniqueTaskTcb::work(short &rc) {
         HbaseStr tagRow;
         tagRow.val = tcb_->hbTagRow_;
         tagRow.len = tcb_->hbaseAccessTdb().hbTagRowLen_;
-        Int64 time1 = JULIANTIMESTAMP();
+        long time1 = JULIANTIMESTAMP();
         retcode = tcb_->ehi_->updateVisibility(tcb_->table_, tcb_->rowIds_[tcb_->currRowidIdx_], tagRow,
                                                tcb_->hbaseAccessTdb().useHbaseXn());
         if (recordCostTh_ >= 0) {
-          Int64 time2 = (JULIANTIMESTAMP() - time1) / 1000;
+          long time2 = (JULIANTIMESTAMP() - time1) / 1000;
           if (transId > 0) {
             callCount[14]++;
             sumCost[14] += time2;
@@ -1909,7 +1909,7 @@ ExWorkProcRetcode ExHbaseUMDtrafUniqueTaskTcb::work(short &rc) {
         if (g != NULL && g->getStatement() != NULL && g->getStatement()->getTriggerExecErr() == TRUE) {
           retcode = TRIGGER_EXECUTE_EXCEPTION;
         } else {
-          Int64 time1 = JULIANTIMESTAMP();
+          long time1 = JULIANTIMESTAMP();
 
           retcode = tcb_->ehi_->checkAndInsertRow(
               tcb_->table_, rowID, tcb_->row_, tcb_->hbaseAccessTdb().useHbaseXn(), tcb_->hbaseAccessTdb().replSync(),
@@ -1924,7 +1924,7 @@ ExWorkProcRetcode ExHbaseUMDtrafUniqueTaskTcb::work(short &rc) {
           }
 
           if (recordCostTh_ >= 0) {
-            Int64 time2 = (JULIANTIMESTAMP() - time1) / 1000;
+            long time2 = (JULIANTIMESTAMP() - time1) / 1000;
             if (transId > 0) {
               callCount[15]++;
               sumCost[15] += time2;
@@ -1969,7 +1969,7 @@ ExWorkProcRetcode ExHbaseUMDtrafUniqueTaskTcb::work(short &rc) {
       } break;
 
       case DELETE_ROW: {
-        Int64 time1 = JULIANTIMESTAMP();
+        long time1 = JULIANTIMESTAMP();
 
         rc = tcb_->evalPartQualPreCondExpr();
         if (rc == -1) {
@@ -2012,7 +2012,7 @@ ExWorkProcRetcode ExHbaseUMDtrafUniqueTaskTcb::work(short &rc) {
                                                    : NULL));
           tcb_->ehi_->settrigger_operation(COM_UNKNOWN_IUD);
           if (recordCostTh_ >= 0) {
-            Int64 time2 = (JULIANTIMESTAMP() - time1) / 1000;
+            long time2 = (JULIANTIMESTAMP() - time1) / 1000;
             if (transId > 0) {
               callCount[16]++;
               sumCost[16] += time2;
@@ -2112,7 +2112,7 @@ ExWorkProcRetcode ExHbaseUMDtrafUniqueTaskTcb::work(short &rc) {
         if (g != NULL && g->getStatement() != NULL && g->getStatement()->getTriggerExecErr() == TRUE) {
           retcode = TRIGGER_EXECUTE_EXCEPTION;
         } else {
-          Int64 time1 = JULIANTIMESTAMP();
+          long time1 = JULIANTIMESTAMP();
 
           retcode = tcb_->ehi_->checkAndDeleteRow(
               tcb_->table_, tcb_->rowIds_[tcb_->currRowidIdx_], &tcb_->deletedColumns_, columnToCheck_, colValToCheck_,
@@ -2127,7 +2127,7 @@ ExWorkProcRetcode ExHbaseUMDtrafUniqueTaskTcb::work(short &rc) {
           );
 
           if (recordCostTh_ >= 0) {
-            Int64 time2 = (JULIANTIMESTAMP() - time1) / 1000;
+            long time2 = (JULIANTIMESTAMP() - time1) / 1000;
             if (transId > 0) {
               callCount[17]++;
               sumCost[17] += time2;
@@ -2264,10 +2264,10 @@ ExWorkProcRetcode ExHbaseUMDtrafUniqueTaskTcb::work(short &rc) {
       } break;
 
       case GET_CLOSE: {
-        Int64 time1 = JULIANTIMESTAMP();
+        long time1 = JULIANTIMESTAMP();
         retcode = tcb_->ehi_->getClose();
         if (recordCostTh_ >= 0) {
-          Int64 time2 = (JULIANTIMESTAMP() - time1) / 1000;
+          long time2 = (JULIANTIMESTAMP() - time1) / 1000;
           if (transId > 0) {
             callCount[18]++;
             sumCost[18] += time2;
@@ -2307,13 +2307,13 @@ ExHbaseUMDnativeUniqueTaskTcb::ExHbaseUMDnativeUniqueTaskTcb(ExHbaseAccessUMDTcb
 void ExHbaseUMDnativeUniqueTaskTcb::init() { step_ = NOT_STARTED; }
 
 ExWorkProcRetcode ExHbaseUMDnativeUniqueTaskTcb::work(short &rc) {
-  Lng32 retcode = 0;
+  int retcode = 0;
   rc = 0;
 
-  Int64 transId = GetCliGlobals() ? GetCliGlobals()->getTransactionId() : -1;
+  long transId = GetCliGlobals() ? GetCliGlobals()->getTransactionId() : -1;
   if (transId == -1 || curTransId != transId) {
     if (curTransId >= 0) {
-      Int64 count = 0;
+      long count = 0;
       double cost = 0;
       for (Int32 idx = 0; idx < 40; idx++) {
         count += callCount[idx];
@@ -2375,7 +2375,7 @@ ExWorkProcRetcode ExHbaseUMDnativeUniqueTaskTcb::work(short &rc) {
               columns.insert(tcb_->columns_);
           }
         }
-        Int64 time1 = JULIANTIMESTAMP();
+        long time1 = JULIANTIMESTAMP();
 
         retcode = tcb_->ehi_->getRowOpen(
             tcb_->table_, tcb_->rowIds_[tcb_->currRowidIdx_], columns, -1, tcb_->hbaseAccessTdb().getNumReplications(),
@@ -2383,7 +2383,7 @@ ExWorkProcRetcode ExHbaseUMDnativeUniqueTaskTcb::work(short &rc) {
             tcb_->hbaseAccessTdb().getScanMemoryTable(), true);
 
         if (recordCostTh_ >= 0) {
-          Int64 time2 = (JULIANTIMESTAMP() - time1) / 1000;
+          long time2 = (JULIANTIMESTAMP() - time1) / 1000;
           if (transId > 0) {
             callCount[19]++;
             sumCost[19] += time2;
@@ -2400,10 +2400,10 @@ ExWorkProcRetcode ExHbaseUMDnativeUniqueTaskTcb::work(short &rc) {
       } break;
 
       case NEXT_ROW: {
-        Int64 time1 = JULIANTIMESTAMP();
+        long time1 = JULIANTIMESTAMP();
         retcode = tcb_->ehi_->nextRow();
         if (recordCostTh_ >= 0) {
-          Int64 time2 = (JULIANTIMESTAMP() - time1) / 1000;
+          long time2 = (JULIANTIMESTAMP() - time1) / 1000;
           if (transId > 0) {
             callCount[20]++;
             sumCost[20] += time2;
@@ -2427,10 +2427,10 @@ ExWorkProcRetcode ExHbaseUMDnativeUniqueTaskTcb::work(short &rc) {
         if (tcb_->colVal_.val == NULL)
           tcb_->colVal_.val = new (tcb_->getHeap()) char[tcb_->hbaseAccessTdb().convertRowLen()];
         tcb_->colVal_.len = tcb_->hbaseAccessTdb().convertRowLen();
-        Int64 time1 = JULIANTIMESTAMP();
+        long time1 = JULIANTIMESTAMP();
         retcode = tcb_->ehi_->nextCell(tcb_->rowId_, tcb_->colFamName_, tcb_->colName_, tcb_->colVal_, tcb_->colTS_);
         if (recordCostTh_ >= 0) {
-          Int64 time2 = (JULIANTIMESTAMP() - time1) / 1000;
+          long time2 = (JULIANTIMESTAMP() - time1) / 1000;
           if (transId > 0) {
             callCount[21]++;
             sumCost[21] += time2;
@@ -2522,7 +2522,7 @@ ExWorkProcRetcode ExHbaseUMDnativeUniqueTaskTcb::work(short &rc) {
         if (g != NULL && g->getStatement() != NULL && g->getStatement()->getTriggerExecErr() == TRUE) {
           retcode = TRIGGER_EXECUTE_EXCEPTION;
         } else {
-          Int64 time1 = JULIANTIMESTAMP();
+          long time1 = JULIANTIMESTAMP();
 
           tcb_->ehi_->settrigger_operation(COM_DELETE);
           retcode = tcb_->ehi_->deleteRow(
@@ -2539,7 +2539,7 @@ ExWorkProcRetcode ExHbaseUMDnativeUniqueTaskTcb::work(short &rc) {
                                                    : NULL));
 
           if (recordCostTh_ >= 0) {
-            Int64 time2 = (JULIANTIMESTAMP() - time1) / 1000;
+            long time2 = (JULIANTIMESTAMP() - time1) / 1000;
             if (transId > 0) {
               callCount[22]++;
               sumCost[22] += time2;
@@ -2574,7 +2574,7 @@ ExWorkProcRetcode ExHbaseUMDnativeUniqueTaskTcb::work(short &rc) {
           if (g != NULL && g->getStatement() != NULL && g->getStatement()->getTriggerExecErr() == TRUE) {
             retcode = TRIGGER_EXECUTE_EXCEPTION;
           } else {
-            Int64 time1 = JULIANTIMESTAMP();
+            long time1 = JULIANTIMESTAMP();
             retcode = tcb_->ehi_->insertRow(
                 tcb_->table_, tcb_->rowIds_[tcb_->currRowidIdx_], tcb_->row_, tcb_->hbaseAccessTdb().useHbaseXn(),
                 tcb_->hbaseAccessTdb().replSync(), tcb_->hbaseAccessTdb().incrementalBackup(),
@@ -2585,7 +2585,7 @@ ExWorkProcRetcode ExHbaseUMDnativeUniqueTaskTcb::work(short &rc) {
                 (tcb_->hbaseAccessTdb().useTrigger() ? tcb_->getCurExecUtf8sql() : NULL));
 
             if (recordCostTh_ >= 0) {
-              Int64 time2 = (JULIANTIMESTAMP() - time1) / 1000;
+              long time2 = (JULIANTIMESTAMP() - time1) / 1000;
               if (transId > 0) {
                 callCount[23]++;
                 sumCost[23] += time2;
@@ -2616,10 +2616,10 @@ ExWorkProcRetcode ExHbaseUMDnativeUniqueTaskTcb::work(short &rc) {
       } break;
 
       case GET_CLOSE: {
-        Int64 time1 = JULIANTIMESTAMP();
+        long time1 = JULIANTIMESTAMP();
         retcode = tcb_->ehi_->getClose();
         if (recordCostTh_ >= 0) {
-          Int64 time2 = (JULIANTIMESTAMP() - time1) / 1000;
+          long time2 = (JULIANTIMESTAMP() - time1) / 1000;
           if (transId > 0) {
             callCount[24]++;
             sumCost[24] += time2;
@@ -2656,15 +2656,15 @@ ExHbaseUMDtrafSubsetTaskTcb::ExHbaseUMDtrafSubsetTaskTcb(ExHbaseAccessUMDTcb *tc
 void ExHbaseUMDtrafSubsetTaskTcb::init() { step_ = NOT_STARTED; }
 
 ExWorkProcRetcode ExHbaseUMDtrafSubsetTaskTcb::work(short &rc) {
-  Lng32 retcode = 0;
+  int retcode = 0;
   HbaseStr rowID;
   rc = 0;
-  Lng32 remainingInBatch = batchSize_;
+  int remainingInBatch = batchSize_;
 
-  Int64 transId = GetCliGlobals() ? GetCliGlobals()->getTransactionId() : -1;
+  long transId = GetCliGlobals() ? GetCliGlobals()->getTransactionId() : -1;
   if (transId == -1 || curTransId != transId) {
     if (curTransId >= 0) {
-      Int64 count = 0;
+      long count = 0;
       double cost = 0;
       for (Int32 idx = 0; idx < 40; idx++) {
         count += callCount[idx];
@@ -2709,7 +2709,7 @@ ExWorkProcRetcode ExHbaseUMDtrafSubsetTaskTcb::work(short &rc) {
         }
         // Pre-fetch is disabled because it interfers with
         // Delete operations
-        Int64 time1 = JULIANTIMESTAMP();
+        long time1 = JULIANTIMESTAMP();
         retcode = tcb_->ehi_->scanOpen(
             tcb_->table_, tcb_->beginRowId_, tcb_->endRowId_, tcb_->columns_, -1,
             tcb_->hbaseAccessTdb().readUncommittedScan(), tcb_->hbaseAccessTdb().getScanMemoryTable(),
@@ -2723,7 +2723,7 @@ ExWorkProcRetcode ExHbaseUMDtrafSubsetTaskTcb::work(short &rc) {
             tcb_->hbaseAccessTdb().getHbasePerfAttributes()->dopParallelScanner());
 
         if (recordCostTh_ >= 0) {
-          Int64 time2 = (JULIANTIMESTAMP() - time1) / 1000;
+          long time2 = (JULIANTIMESTAMP() - time1) / 1000;
           if (transId > 0) {
             callCount[25]++;
             sumCost[25] += time2;
@@ -2745,10 +2745,10 @@ ExWorkProcRetcode ExHbaseUMDtrafSubsetTaskTcb::work(short &rc) {
           return 1;
         }
 
-        Int64 time1 = JULIANTIMESTAMP();
+        long time1 = JULIANTIMESTAMP();
         retcode = tcb_->ehi_->nextRow();
         if (recordCostTh_ >= 0) {
-          Int64 time2 = (JULIANTIMESTAMP() - time1) / 1000;
+          long time2 = (JULIANTIMESTAMP() - time1) / 1000;
           if (transId > 0) {
             callCount[26]++;
             sumCost[26] += time2;
@@ -2883,7 +2883,7 @@ ExWorkProcRetcode ExHbaseUMDtrafSubsetTaskTcb::work(short &rc) {
         if (g != NULL && g->getStatement() != NULL && g->getStatement()->getTriggerExecErr() == TRUE) {
           retcode = TRIGGER_EXECUTE_EXCEPTION;
         } else {
-          Int64 time1 = JULIANTIMESTAMP();
+          long time1 = JULIANTIMESTAMP();
           if (tcb_->hbaseAccessTdb().getAccessType() == ComTdbHbaseAccess::UPDATE_) {
             tcb_->ehi_->settrigger_operation(COM_UPDATE);
           }
@@ -2897,7 +2897,7 @@ ExWorkProcRetcode ExHbaseUMDtrafSubsetTaskTcb::work(short &rc) {
               (tcb_->hbaseAccessTdb().useTrigger() ? tcb_->getCurExecUtf8sql() : NULL));
 
           if (recordCostTh_ >= 0) {
-            Int64 time2 = (JULIANTIMESTAMP() - time1) / 1000;
+            long time2 = (JULIANTIMESTAMP() - time1) / 1000;
             if (transId > 0) {
               callCount[27]++;
               sumCost[27] += time2;
@@ -2970,7 +2970,7 @@ ExWorkProcRetcode ExHbaseUMDtrafSubsetTaskTcb::work(short &rc) {
         if (g != NULL && g->getStatement() != NULL && g->getStatement()->getTriggerExecErr() == TRUE) {
           retcode = TRIGGER_EXECUTE_EXCEPTION;
         } else {
-          Int64 time1 = JULIANTIMESTAMP();
+          long time1 = JULIANTIMESTAMP();
           tcb_->ehi_->settrigger_operation(COM_DELETE);
           retcode = tcb_->ehi_->deleteRow(
               tcb_->table_, rowID, &tcb_->deletedColumns_, tcb_->hbaseAccessTdb().useHbaseXn(),
@@ -2985,7 +2985,7 @@ ExWorkProcRetcode ExHbaseUMDtrafSubsetTaskTcb::work(short &rc) {
                                                    : NULL));
 
           if (recordCostTh_ >= 0) {
-            Int64 time2 = (JULIANTIMESTAMP() - time1) / 1000;
+            long time2 = (JULIANTIMESTAMP() - time1) / 1000;
             if (transId > 0) {
               callCount[28]++;
               sumCost[28] += time2;
@@ -3120,10 +3120,10 @@ ExWorkProcRetcode ExHbaseUMDtrafSubsetTaskTcb::work(short &rc) {
       } break;
 
       case SCAN_CLOSE: {
-        Int64 time1 = JULIANTIMESTAMP();
+        long time1 = JULIANTIMESTAMP();
         retcode = tcb_->ehi_->scanClose();
         if (recordCostTh_ >= 0) {
-          Int64 time2 = (JULIANTIMESTAMP() - time1) / 1000;
+          long time2 = (JULIANTIMESTAMP() - time1) / 1000;
           if (transId > 0) {
             callCount[29]++;
             sumCost[29] += time2;
@@ -3162,19 +3162,19 @@ ExHbaseUMDnativeSubsetTaskTcb::ExHbaseUMDnativeSubsetTaskTcb(ExHbaseAccessUMDTcb
 void ExHbaseUMDnativeSubsetTaskTcb::init() { step_ = NOT_STARTED; }
 
 ExWorkProcRetcode ExHbaseUMDnativeSubsetTaskTcb::work(short &rc) {
-  Lng32 retcode = 0;
+  int retcode = 0;
   rc = 0;
-  Lng32 remainingInBatch = batchSize_;
+  int remainingInBatch = batchSize_;
   ExMasterStmtGlobals *g = NULL;
   if (tcb_->hbaseAccessTdb().useTrigger() && tcb_->getGlobals() != NULL &&
       tcb_->getGlobals()->castToExExeStmtGlobals() != NULL) {
     g = tcb_->getGlobals()->castToExExeStmtGlobals()->castToExMasterStmtGlobals();
   }
 
-  Int64 transId = GetCliGlobals() ? GetCliGlobals()->getTransactionId() : -1;
+  long transId = GetCliGlobals() ? GetCliGlobals()->getTransactionId() : -1;
   if (transId == -1 || curTransId != transId) {
     if (curTransId >= 0) {
-      Int64 count = 0;
+      long count = 0;
       double cost = 0;
       for (Int32 idx = 0; idx < 40; idx++) {
         count += callCount[idx];
@@ -3224,7 +3224,7 @@ ExWorkProcRetcode ExHbaseUMDnativeSubsetTaskTcb::work(short &rc) {
               columns.insert(tcb_->columns_);
           }
         }
-        Int64 time1 = JULIANTIMESTAMP();
+        long time1 = JULIANTIMESTAMP();
         retcode = tcb_->ehi_->scanOpen(
             tcb_->table_, tcb_->beginRowId_, tcb_->endRowId_, columns, -1, tcb_->hbaseAccessTdb().readUncommittedScan(),
             tcb_->hbaseAccessTdb().getScanMemoryTable(), tcb_->hbaseAccessTdb().getLockMode(),
@@ -3236,7 +3236,7 @@ ExWorkProcRetcode ExHbaseUMDnativeSubsetTaskTcb::work(short &rc) {
             tcb_->hbaseAccessTdb().getHbasePerfAttributes()->dopParallelScanner());
 
         if (recordCostTh_ >= 0) {
-          Int64 time2 = (JULIANTIMESTAMP() - time1) / 1000;
+          long time2 = (JULIANTIMESTAMP() - time1) / 1000;
           if (transId > 0) {
             callCount[30]++;
             sumCost[30] += time2;
@@ -3259,10 +3259,10 @@ ExWorkProcRetcode ExHbaseUMDnativeSubsetTaskTcb::work(short &rc) {
           rc = WORK_CALL_AGAIN;
           return 1;
         }
-        Int64 time1 = JULIANTIMESTAMP();
+        long time1 = JULIANTIMESTAMP();
         retcode = tcb_->ehi_->nextRow();
         if (recordCostTh_ >= 0) {
-          Int64 time2 = (JULIANTIMESTAMP() - time1) / 1000;
+          long time2 = (JULIANTIMESTAMP() - time1) / 1000;
           if (transId > 0) {
             callCount[31]++;
             sumCost[31] += time2;
@@ -3287,10 +3287,10 @@ ExWorkProcRetcode ExHbaseUMDnativeSubsetTaskTcb::work(short &rc) {
         if (tcb_->colVal_.val == NULL)
           tcb_->colVal_.val = new (tcb_->getHeap()) char[tcb_->hbaseAccessTdb().convertRowLen()];
         tcb_->colVal_.len = tcb_->hbaseAccessTdb().convertRowLen();
-        Int64 time1 = JULIANTIMESTAMP();
+        long time1 = JULIANTIMESTAMP();
         retcode = tcb_->ehi_->nextCell(tcb_->rowId_, tcb_->colFamName_, tcb_->colName_, tcb_->colVal_, tcb_->colTS_);
         if (recordCostTh_ >= 0) {
-          Int64 time2 = (JULIANTIMESTAMP() - time1) / 1000;
+          long time2 = (JULIANTIMESTAMP() - time1) / 1000;
           if (transId > 0) {
             callCount[32]++;
             sumCost[32] += time2;
@@ -3381,7 +3381,7 @@ ExWorkProcRetcode ExHbaseUMDnativeSubsetTaskTcb::work(short &rc) {
           if (g != NULL && g->getStatement() != NULL && g->getStatement()->getTriggerExecErr() == TRUE) {
             retcode = TRIGGER_EXECUTE_EXCEPTION;
           } else {
-            Int64 time1 = JULIANTIMESTAMP();
+            long time1 = JULIANTIMESTAMP();
             retcode = tcb_->ehi_->insertRow(
                 tcb_->table_, tcb_->rowId_, tcb_->row_, tcb_->hbaseAccessTdb().useHbaseXn(),
                 tcb_->hbaseAccessTdb().replSync(), tcb_->hbaseAccessTdb().incrementalBackup(),
@@ -3392,7 +3392,7 @@ ExWorkProcRetcode ExHbaseUMDnativeSubsetTaskTcb::work(short &rc) {
                 (tcb_->hbaseAccessTdb().useTrigger() ? tcb_->getCurExecUtf8sql() : NULL));
 
             if (recordCostTh_ >= 0) {
-              Int64 time2 = (JULIANTIMESTAMP() - time1) / 1000;
+              long time2 = (JULIANTIMESTAMP() - time1) / 1000;
               if (transId > 0) {
                 callCount[33]++;
                 sumCost[33] += time2;
@@ -3424,7 +3424,7 @@ ExWorkProcRetcode ExHbaseUMDnativeSubsetTaskTcb::work(short &rc) {
         if (g != NULL && g->getStatement() != NULL && g->getStatement()->getTriggerExecErr() == TRUE) {
           retcode = TRIGGER_EXECUTE_EXCEPTION;
         } else {
-          Int64 time1 = JULIANTIMESTAMP();
+          long time1 = JULIANTIMESTAMP();
           tcb_->ehi_->settrigger_operation(COM_DELETE);
           retcode = tcb_->ehi_->deleteRow(
               tcb_->table_, tcb_->rowId_, &tcb_->deletedColumns_, tcb_->hbaseAccessTdb().useHbaseXn(),
@@ -3439,7 +3439,7 @@ ExWorkProcRetcode ExHbaseUMDnativeSubsetTaskTcb::work(short &rc) {
                                                    : NULL));
 
           if (recordCostTh_ >= 0) {
-            Int64 time2 = (JULIANTIMESTAMP() - time1) / 1000;
+            long time2 = (JULIANTIMESTAMP() - time1) / 1000;
             if (transId > 0) {
               callCount[34]++;
               sumCost[34] += time2;
@@ -3470,10 +3470,10 @@ ExWorkProcRetcode ExHbaseUMDnativeSubsetTaskTcb::work(short &rc) {
       } break;
 
       case SCAN_CLOSE: {
-        Int64 time1 = JULIANTIMESTAMP();
+        long time1 = JULIANTIMESTAMP();
         retcode = tcb_->ehi_->scanClose();
         if (recordCostTh_ >= 0) {
-          Int64 time2 = (JULIANTIMESTAMP() - time1) / 1000;
+          long time2 = (JULIANTIMESTAMP() - time1) / 1000;
           if (transId > 0) {
             callCount[35]++;
             sumCost[35] += time2;
@@ -3509,7 +3509,7 @@ ExHbaseAccessUMDTcb::ExHbaseAccessUMDTcb(const ExHbaseAccessTdb &hbaseAccessTdb,
   umdSQSubsetTaskTcb_ = NULL;
   umdSQUniqueTaskTcb_ = NULL;
 
-  for (Lng32 i = 0; i < UMD_MAX_TASKS; i++) {
+  for (int i = 0; i < UMD_MAX_TASKS; i++) {
     tasks_[i] = FALSE;
   }
 
@@ -3553,7 +3553,7 @@ ExHbaseAccessUMDTcb::ExHbaseAccessUMDTcb(const ExHbaseAccessTdb &hbaseAccessTdb,
 }
 
 ExWorkProcRetcode ExHbaseAccessUMDTcb::work() {
-  Lng32 retcode = 0;
+  int retcode = 0;
   short rc = 0;
 
   ExMasterStmtGlobals *g = getGlobals()->castToExExeStmtGlobals()->castToExMasterStmtGlobals();
@@ -3786,7 +3786,7 @@ ExHbaseAccessSQRowsetTcb::ExHbaseAccessSQRowsetTcb(const ExHbaseAccessTdb &hbase
   numRowsInVsbbBuffer_ = 0;
 }
 
-Lng32 ExHbaseAccessSQRowsetTcb::setupUniqueKey() {
+int ExHbaseAccessSQRowsetTcb::setupUniqueKey() {
   ex_queue_entry *pentry_down = qparent_.down->getQueueEntry(nextRequest_);
 
   if (pentry_down->downState.request == ex_queue::GET_NOMORE || pentry_down->downState.request == ex_queue::GET_EOD)
@@ -3824,8 +3824,8 @@ Lng32 ExHbaseAccessSQRowsetTcb::setupUniqueKey() {
   return 0;
 }
 
-Lng32 ExHbaseAccessSQRowsetTcb::setupRowIds() {
-  Lng32 retcode;
+int ExHbaseAccessSQRowsetTcb::setupRowIds() {
+  int retcode;
   UInt16 rowsetMaxRows = hbaseAccessTdb().getHbaseRowsetVsbbSize();
 
   queue_index tlindex = qparent_.down->getTailIndex();
@@ -3840,13 +3840,13 @@ Lng32 ExHbaseAccessSQRowsetTcb::setupRowIds() {
 }
 
 ExWorkProcRetcode ExHbaseAccessSQRowsetTcb::work() {
-  Lng32 retcode = 0;
+  int retcode = 0;
   short rc = 0;
 
-  Int64 transId = GetCliGlobals() ? GetCliGlobals()->getTransactionId() : -1;
+  long transId = GetCliGlobals() ? GetCliGlobals()->getTransactionId() : -1;
   if (transId == -1 || curTransId != transId) {
     if (curTransId >= 0) {
-      Int64 count = 0;
+      long count = 0;
       double cost = 0;
       for (Int32 idx = 0; idx < 40; idx++) {
         count += callCount[idx];
@@ -4116,7 +4116,7 @@ ExWorkProcRetcode ExHbaseAccessSQRowsetTcb::work() {
         if (g != NULL && g->getStatement() != NULL && g->getStatement()->getTriggerExecErr() == TRUE) {
           retcode = TRIGGER_EXECUTE_EXCEPTION;
         } else if (numRowsInVsbbBuffer_ > 0) {
-          Int64 time1 = JULIANTIMESTAMP();
+          long time1 = JULIANTIMESTAMP();
           ehi_->setNoConflictCheckForIndex(hbaseAccessTdb().noConflictCheck());
           retcode = ehi_->deleteRows(
               table_, hbaseAccessTdb().getRowIDLen(), rowIDs_, &deletedColumns_, hbaseAccessTdb().useHbaseXn(),
@@ -4128,7 +4128,7 @@ ExWorkProcRetcode ExHbaseAccessSQRowsetTcb::work() {
               (hbaseAccessTdb().useTrigger() ? getCurExecUtf8sql(hbaseAccessTdb().withNoReplicate()) : NULL));
 
           if (recordCostTh_ >= 0) {
-            Int64 time2 = (JULIANTIMESTAMP() - time1) / 1000;
+            long time2 = (JULIANTIMESTAMP() - time1) / 1000;
             if (transId > 0) {
               callCount[36]++;
               sumCost[36] += time2;
@@ -4170,7 +4170,7 @@ ExWorkProcRetcode ExHbaseAccessSQRowsetTcb::work() {
 
       case PROCESS_SELECT: {
         if (numRowsInDirectBuffer() > 0) {
-          Int64 time1 = JULIANTIMESTAMP();
+          long time1 = JULIANTIMESTAMP();
           numRowsInVsbbBuffer_ = patchDirectRowIDBuffers();
           retcode =
               ehi_->getRowsOpen(table_, hbaseAccessTdb().getRowIDLen(), rowIDs_, columns_,
@@ -4179,7 +4179,7 @@ ExWorkProcRetcode ExHbaseAccessSQRowsetTcb::work() {
                                 hbaseAccessTdb().skipReadConflict(), hbaseAccessTdb().skipTransactionForced(), NULL);
 
           if (recordCostTh_ >= 0) {
-            Int64 time2 = (JULIANTIMESTAMP() - time1) / 1000;
+            long time2 = (JULIANTIMESTAMP() - time1) / 1000;
             if (transId > 0) {
               callCount[37]++;
               sumCost[37] += time2;
@@ -4236,7 +4236,7 @@ ExWorkProcRetcode ExHbaseAccessSQRowsetTcb::work() {
         if (g != NULL && g->getStatement() != NULL && g->getStatement()->getTriggerExecErr() == TRUE) {
           retcode = TRIGGER_EXECUTE_EXCEPTION;
         } else {
-          Int64 time1 = JULIANTIMESTAMP();
+          long time1 = JULIANTIMESTAMP();
           retcode =
               ehi_->insertRows(table_, hbaseAccessTdb().getRowIDLen(), rowIDs_, rows_, hbaseAccessTdb().useHbaseXn(),
                                hbaseAccessTdb().replSync(), hbaseAccessTdb().incrementalBackup(), -1, asyncOperation_,
@@ -4245,7 +4245,7 @@ ExWorkProcRetcode ExHbaseAccessSQRowsetTcb::work() {
                                (hbaseAccessTdb().useTrigger() ? getCurExecUtf8sql() : NULL), FALSE);
 
           if (recordCostTh_ >= 0) {
-            Int64 time2 = (JULIANTIMESTAMP() - time1) / 1000;
+            long time2 = (JULIANTIMESTAMP() - time1) / 1000;
             if (transId > 0) {
               callCount[38]++;
               sumCost[38] += time2;
@@ -4317,10 +4317,10 @@ ExWorkProcRetcode ExHbaseAccessSQRowsetTcb::work() {
         step_ = RS_CLOSE;
       } break;
       case RS_CLOSE: {
-        Int64 time1 = JULIANTIMESTAMP();
+        long time1 = JULIANTIMESTAMP();
         retcode = ehi_->close();
         if (recordCostTh_ >= 0) {
-          Int64 time2 = (JULIANTIMESTAMP() - time1) / 1000;
+          long time2 = (JULIANTIMESTAMP() - time1) / 1000;
           if (transId > 0) {
             callCount[39]++;
             sumCost[39] += time2;
@@ -4343,7 +4343,7 @@ ExWorkProcRetcode ExHbaseAccessSQRowsetTcb::work() {
       case HANDLE_ERROR: {
         if (handleError(rc)) return rc;
         if (gEnableRowLevelLock) {
-          Lng32 absRc = ABS(retcode);
+          int absRc = ABS(retcode);
           if (absRc >= HBASE_LOCK_TIME_OUT_ERROR && absRc <= HBASE_LOCK_NOT_ENOUGH_RESOURCE) {
             return WORK_OK;
           }
@@ -4358,10 +4358,10 @@ ExWorkProcRetcode ExHbaseAccessSQRowsetTcb::work() {
       case CLOSE_AND_DONE:
       case ALL_DONE: {
         if (step_ == CLOSE_AND_DONE) {
-          Int64 time1 = JULIANTIMESTAMP();
+          long time1 = JULIANTIMESTAMP();
           ehi_->close();
           if (recordCostTh_ >= 0) {
-            Int64 time2 = (JULIANTIMESTAMP() - time1) / 1000;
+            long time2 = (JULIANTIMESTAMP() - time1) / 1000;
             if (transId > 0) {
               callCount[39]++;
               sumCost[39] += time2;

@@ -324,7 +324,7 @@ NABoolean PCodeOperand::canOverlap(PCodeOperand *op2) {
  * PCodeConstants
  *****************************************************************************/
 
-NABoolean PCodeConstants::isQualifiedConstant(Int64 value) { return ((value == 0) || (value == 1) || (value == -1)); }
+NABoolean PCodeConstants::isQualifiedConstant(long value) { return ((value == 0) || (value == 1) || (value == -1)); }
 
 void PCodeConstants::clearConstantVectors(CollIndex operandIndex, NABitVector &zeroes, NABitVector &ones,
                                           NABitVector &neg1) {
@@ -1871,7 +1871,7 @@ void PCodeCfg::optimize() {
 #if OPT_PCC_DEBUG == 1
 
       if (CURROPTPCODECACHE->getPCECLoggingEnabled()) {
-        Int64 totalSearchTime = computeTimeUsed(begSrch.ru_utime);
+        long totalSearchTime = computeTimeUsed(begSrch.ru_utime);
         CURROPTPCODECACHE->addToTotalSearchTime(totalSearchTime);
       }
 #endif  // OPT_PCC_DEBUG==1
@@ -2509,7 +2509,7 @@ void PCodeCfg::generateShowPlan(PCodeBinary *pCode, Space *space) {
 // propagation.  Otherwise return FALSE
 //
 NABoolean PCodeCfg::updateConstVectors(PCodeOperand *operand) {
-  Int64 value;
+  long value;
 
   // Make sure that we're passed in a constant operand
   assert(operand->isConst());
@@ -2554,7 +2554,7 @@ NABoolean PCodeCfg::updateConstVectors(PCodeOperand *operand) {
 //
 void PCodeCfg::initConstants() {
   CollIndex i, j;
-  Int64 oldValue;
+  long oldValue;
 
   // First initialize constant hash tables
   newConstsAreaLen_ = expr_->getConstsLength();
@@ -3014,7 +3014,7 @@ void PCodeCfg::computeReachingDefs(Int32 flags) {
   NABoolean noTemps = flags & 0x1;
 
   // Allocate reach defs memory in separate heap for faster destruction.
-  rDefsHeap_ = new (heap_) NAHeap("Pcode Rdef", (NAHeap *)heap_, (Lng32)32768);
+  rDefsHeap_ = new (heap_) NAHeap("Pcode Rdef", (NAHeap *)heap_, (int)32768);
 
   // Initialize reaching defs table for each live block
   FOREACH_BLOCK_REV_DFO(block, firstInst, lastInst, index) {
@@ -4926,11 +4926,11 @@ PCodeOperand *PCodeBlock::isIndirectBranchCandidate(PCodeBlock *headBlock, PCode
   // missing.  Because an item in the IN-list could indeed be INVALID_INT64, we
   // have to prevent that from being a candidate for the opt.
   if (eqComp->isIntEqComp() || eqComp->isFloatEqComp()) {
-    Int64 iVal;
+    long iVal;
 
     if (eqComp->isFloatEqComp()) {
       double dVal = cfg_->getFloatConstValue(constant);
-      iVal = *((Int64 *)(&dVal));
+      iVal = *((long *)(&dVal));
     } else
       iVal = cfg_->getIntConstValue(constant);
 
@@ -4966,7 +4966,7 @@ CollIndex *PCodeCfg::createLookupTableForSwitch(OPLIST &constants, BLOCKLIST &bl
   NAList<UInt32> hashVals(heap_);
   NAList<char *> strVals(heap_);
   NAList<Int32> strLens(heap_);
-  NAList<Int64> intVals(heap_);
+  NAList<long> intVals(heap_);
 
   // Save last block in list of blocks - it's needed when processing default
   // cases for a switch statement.  We record it now, since it may get removed
@@ -5020,11 +5020,11 @@ CollIndex *PCodeCfg::createLookupTableForSwitch(OPLIST &constants, BLOCKLIST &bl
 
       // Integers and Floats
       default: {
-        Int64 val;
+        long val;
 
         if ((type == PCIT::MFLT64) || (type == PCIT::MFLT32)) {
           double fVal = getFloatConstValue(constant);
-          val = *((Int64 *)(&fVal));
+          val = *((long *)(&fVal));
         } else
           val = getIntConstValue(constant);
 
@@ -5178,9 +5178,9 @@ CollIndex *PCodeCfg::createLookupTableForSwitch(OPLIST &constants, BLOCKLIST &bl
 
         // Integers
         default: {
-          Int64 *table64 = (Int64 *)table;
+          long *table64 = (long *)table;
 
-          Int64 val = intVals[i];
+          long val = intVals[i];
           UInt32 hashVal = ExHDPHash::hash8((char *)&val, ExHDPHash::NO_FLAGS);
           UInt32 index = (hashVal % tableSize);
 
@@ -5224,7 +5224,7 @@ CollIndex *PCodeCfg::createLookupTableForSwitch(OPLIST &constants, BLOCKLIST &bl
     // how close in proximity are they to each other.
 
     if (!restart && collisionOccurred) {
-      Int64 *table64 = (Int64 *)table;
+      long *table64 = (long *)table;
 
       Int32 totalWorstCaseChecks = 0;
       Int32 totalCount = 0;
@@ -8299,11 +8299,11 @@ void PCodeCfg::loadOperandsOfInst(PCodeInst *newInst) {
 // the cpu time used (in microseconds) from the beginning time
 // until the present time.
 //
-Int64 computeTimeUsed(timeval begTime) {
+long computeTimeUsed(timeval begTime) {
   struct rusage endTime;
   (void)getrusage(RUSAGE_THREAD, &endTime);
 
-  Int64 timeUsed = (endTime.ru_utime.tv_sec - begTime.tv_sec) * 1000000 + (endTime.ru_utime.tv_usec - begTime.tv_usec);
+  long timeUsed = (endTime.ru_utime.tv_sec - begTime.tv_sec) * 1000000 + (endTime.ru_utime.tv_usec - begTime.tv_usec);
   return (timeUsed);
 }
 
@@ -8430,7 +8430,7 @@ void OptPCodeCache::addPCodeExpr(PCECacheEntry *newPCE
 
 #if OPT_PCC_DEBUG == 1
   if (PCECLoggingEnabled_) {
-    Int64 totalAddTime = computeTimeUsed(begAdd);
+    long totalAddTime = computeTimeUsed(begAdd);
 
     //
     // We now add the cpu time spent creating the new PCEC Entry
@@ -8631,7 +8631,7 @@ void OptPCodeCache::genUniqFileNamePart() {
 
     timeval curTime;
     GETTIMEOFDAY(&curTime, 0);
-    Int64 timeInMics = ((Int64)curTime.tv_sec) * 1000000 + curTime.tv_usec;
+    long timeInMics = ((long)curTime.tv_sec) * 1000000 + curTime.tv_usec;
 
     fileNamePid_ = myPid;
     fileNameTime_ = timeInMics;

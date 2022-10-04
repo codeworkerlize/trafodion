@@ -65,7 +65,7 @@ CRUEmpCheckVector::~CRUEmpCheckVector() { delete[] pVec_; }
 
 void CRUEmpCheckVector::LoadData(CUOFsIpcMessageTranslator &translator) {
   // Handle size_ data member
-  translator.ReadBlock(&size_, sizeof(Lng32));
+  translator.ReadBlock(&size_, sizeof(int));
 
   // Handle final_ data member
   translator.ReadBlock(&isFinal_, sizeof(BOOL));
@@ -77,7 +77,7 @@ void CRUEmpCheckVector::LoadData(CUOFsIpcMessageTranslator &translator) {
   // Handle pVec_ data member
   for (Int32 i = 0; i < size_; i++) {
     translator.ReadBlock(&(pVec_[i].epoch_), sizeof(TInt32));
-    translator.ReadBlock(&(pVec_[i].checkBitmap_), sizeof(Lng32));
+    translator.ReadBlock(&(pVec_[i].checkBitmap_), sizeof(int));
   }
 }
 
@@ -87,7 +87,7 @@ void CRUEmpCheckVector::LoadData(CUOFsIpcMessageTranslator &translator) {
 
 void CRUEmpCheckVector::StoreData(CUOFsIpcMessageTranslator &translator) {
   // Handle size_ data member
-  translator.WriteBlock(&size_, sizeof(Lng32));
+  translator.WriteBlock(&size_, sizeof(int));
 
   // Handle final_ data member
   translator.WriteBlock(&isFinal_, sizeof(BOOL));
@@ -95,7 +95,7 @@ void CRUEmpCheckVector::StoreData(CUOFsIpcMessageTranslator &translator) {
   // Handle pVec_ data member
   for (Int32 i = 0; i < size_; i++) {
     translator.WriteBlock(&(pVec_[i].epoch_), sizeof(TInt32));
-    translator.WriteBlock(&(pVec_[i].checkBitmap_), sizeof(Lng32));
+    translator.WriteBlock(&(pVec_[i].checkBitmap_), sizeof(int));
   }
 }
 
@@ -150,7 +150,7 @@ CRUEmpCheckVector &CRUEmpCheckVector::operator=(const CRUEmpCheckVector &other) 
 //
 //--------------------------------------------------------------------------//
 
-BOOL CRUEmpCheckVector::IsDeltaNonEmpty(TInt32 epoch, Lng32 checkMask) const {
+BOOL CRUEmpCheckVector::IsDeltaNonEmpty(TInt32 epoch, int checkMask) const {
   RUASSERT(NULL != pVec_);
 
   for (Int32 i = size_ - 1; i >= 0; i--) {
@@ -207,8 +207,8 @@ void CRUEmpCheckVector::Build() {
 
   pVec_ = new Elem[size_];
 
-  CDSMapPosition<Lng32> mpos;
-  Lng32 i, ep, val;
+  CDSMapPosition<int> mpos;
+  int i, ep, val;
 
   for (i = 0, epMap_.GetStartPosition(mpos); TRUE == mpos.IsValid(); i++) {
     epMap_.GetNextAssoc(mpos, ep, val);

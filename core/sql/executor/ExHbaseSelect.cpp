@@ -45,21 +45,21 @@ static Int32 recordJniAll = costJniAll ? atoi(costJniAll) : -1;
 static pid_t pid = getpid();
 static Int32 callCount[30] = {0};
 static double sumCost[30] = {0};
-static Int64 curTransId = 0;
+static long curTransId = 0;
 
 ExHbaseScanTaskTcb::ExHbaseScanTaskTcb(ExHbaseAccessSelectTcb *tcb) : ExHbaseTaskTcb(tcb), step_(NOT_STARTED) {}
 
 void ExHbaseScanTaskTcb::init() { step_ = NOT_STARTED; }
 
 ExWorkProcRetcode ExHbaseScanTaskTcb::work(short &rc) {
-  Lng32 retcode = 0;
+  int retcode = 0;
   rc = 0;
-  Lng32 remainingInBatch = batchSize_;
+  int remainingInBatch = batchSize_;
 
-  Int64 transId = GetCliGlobals() ? GetCliGlobals()->getTransactionId() : -1;
+  long transId = GetCliGlobals() ? GetCliGlobals()->getTransactionId() : -1;
   if (transId == -1 || curTransId != transId) {
     if (curTransId >= 0) {
-      Int64 count = 0;
+      long count = 0;
       double cost = 0;
       for (Int32 idx = 0; idx < 30; idx++) {
         count += callCount[idx];
@@ -83,7 +83,7 @@ ExWorkProcRetcode ExHbaseScanTaskTcb::work(short &rc) {
       } break;
 
       case SCAN_OPEN: {
-        Int64 time1 = JULIANTIMESTAMP();
+        long time1 = JULIANTIMESTAMP();
         tcb_->fixObjName4PartTbl(tcb_->hbaseAccessTdb().getTableName(), tcb_->hbaseAccessTdb().getDataUIDName(),
                                  tcb_->hbaseAccessTdb().replaceNameByUID());
         // Bypass scan when beginRowId_ is less than endRowId_
@@ -120,7 +120,7 @@ ExWorkProcRetcode ExHbaseScanTaskTcb::work(short &rc) {
         //                                            : 0));
 
         if (recordCostTh_ >= 0) {
-          Int64 time2 = (JULIANTIMESTAMP() - time1) / 1000;
+          long time2 = (JULIANTIMESTAMP() - time1) / 1000;
           if (transId > 0) {
             callCount[0]++;
             sumCost[0] += time2;
@@ -140,10 +140,10 @@ ExWorkProcRetcode ExHbaseScanTaskTcb::work(short &rc) {
           rc = WORK_CALL_AGAIN;
           return 1;
         }
-        Int64 time1 = JULIANTIMESTAMP();
+        long time1 = JULIANTIMESTAMP();
         retcode = tcb_->ehi_->nextRow();
         if (recordCostTh_ >= 0) {
-          Int64 time2 = (JULIANTIMESTAMP() - time1) / 1000;
+          long time2 = (JULIANTIMESTAMP() - time1) / 1000;
           if (transId > 0) {
             callCount[1]++;
             sumCost[1] += time2;
@@ -165,10 +165,10 @@ ExWorkProcRetcode ExHbaseScanTaskTcb::work(short &rc) {
         if (tcb_->colVal_.val == NULL)
           tcb_->colVal_.val = new (tcb_->getHeap()) char[tcb_->hbaseAccessTdb().convertRowLen()];
         tcb_->colVal_.len = tcb_->hbaseAccessTdb().convertRowLen();
-        Int64 time1 = JULIANTIMESTAMP();
+        long time1 = JULIANTIMESTAMP();
         retcode = tcb_->ehi_->nextCell(tcb_->rowId_, tcb_->colFamName_, tcb_->colName_, tcb_->colVal_, tcb_->colTS_);
         if (recordCostTh_ >= 0) {
-          Int64 time2 = (JULIANTIMESTAMP() - time1) / 1000;
+          long time2 = (JULIANTIMESTAMP() - time1) / 1000;
           if (transId > 0) {
             callCount[2]++;
             sumCost[2] += time2;
@@ -230,10 +230,10 @@ ExWorkProcRetcode ExHbaseScanTaskTcb::work(short &rc) {
       } break;
 
       case SCAN_CLOSE: {
-        Int64 time1 = JULIANTIMESTAMP();
+        long time1 = JULIANTIMESTAMP();
         retcode = tcb_->ehi_->scanClose();
         if (recordCostTh_ >= 0) {
-          Int64 time2 = (JULIANTIMESTAMP() - time1) / 1000;
+          long time2 = (JULIANTIMESTAMP() - time1) / 1000;
           if (transId > 0) {
             callCount[3]++;
             sumCost[3] += time2;
@@ -269,14 +269,14 @@ ExHbaseScanRowwiseTaskTcb::ExHbaseScanRowwiseTaskTcb(ExHbaseAccessSelectTcb *tcb
 void ExHbaseScanRowwiseTaskTcb::init() { step_ = NOT_STARTED; }
 
 ExWorkProcRetcode ExHbaseScanRowwiseTaskTcb::work(short &rc) {
-  Lng32 retcode = 0;
+  int retcode = 0;
   rc = 0;
-  Lng32 remainingInBatch = batchSize_;
+  int remainingInBatch = batchSize_;
 
-  Int64 transId = GetCliGlobals() ? GetCliGlobals()->getTransactionId() : -1;
+  long transId = GetCliGlobals() ? GetCliGlobals()->getTransactionId() : -1;
   if (transId == -1 || curTransId != transId) {
     if (curTransId >= 0) {
-      Int64 count = 0;
+      long count = 0;
       double cost = 0;
       for (Int32 idx = 0; idx < 30; idx++) {
         count += callCount[idx];
@@ -300,7 +300,7 @@ ExWorkProcRetcode ExHbaseScanRowwiseTaskTcb::work(short &rc) {
       } break;
 
       case SCAN_OPEN: {
-        Int64 time1 = JULIANTIMESTAMP();
+        long time1 = JULIANTIMESTAMP();
         tcb_->fixObjName4PartTbl(tcb_->hbaseAccessTdb().getTableName(), tcb_->hbaseAccessTdb().getDataUIDName(),
                                  tcb_->hbaseAccessTdb().replaceNameByUID());
         // Bypass scan when beginRowId_ is less than endRowId_
@@ -332,7 +332,7 @@ ExWorkProcRetcode ExHbaseScanRowwiseTaskTcb::work(short &rc) {
                  : NULL));
 
         if (recordCostTh_ >= 0) {
-          Int64 time2 = (JULIANTIMESTAMP() - time1) / 1000;
+          long time2 = (JULIANTIMESTAMP() - time1) / 1000;
           if (transId > 0) {
             callCount[4]++;
             sumCost[4] += time2;
@@ -357,10 +357,10 @@ ExWorkProcRetcode ExHbaseScanRowwiseTaskTcb::work(short &rc) {
         }
 
         tcb_->rowwiseRowLen_ = 0;
-        Int64 time1 = JULIANTIMESTAMP();
+        long time1 = JULIANTIMESTAMP();
         retcode = tcb_->ehi_->nextRow();
         if (recordCostTh_ >= 0) {
-          Int64 time2 = (JULIANTIMESTAMP() - time1) / 1000;
+          long time2 = (JULIANTIMESTAMP() - time1) / 1000;
           if (transId > 0) {
             callCount[5]++;
             sumCost[5] += time2;
@@ -384,10 +384,10 @@ ExWorkProcRetcode ExHbaseScanRowwiseTaskTcb::work(short &rc) {
         if (tcb_->colVal_.val == NULL)
           tcb_->colVal_.val = new (tcb_->getHeap()) char[tcb_->hbaseAccessTdb().convertRowLen()];
         tcb_->colVal_.len = tcb_->hbaseAccessTdb().convertRowLen();
-        Int64 time1 = JULIANTIMESTAMP();
+        long time1 = JULIANTIMESTAMP();
         retcode = tcb_->ehi_->nextCell(tcb_->rowId_, tcb_->colFamName_, tcb_->colName_, tcb_->colVal_, tcb_->colTS_);
         if (recordCostTh_ >= 0) {
-          Int64 time2 = (JULIANTIMESTAMP() - time1) / 1000;
+          long time2 = (JULIANTIMESTAMP() - time1) / 1000;
           if (transId > 0) {
             callCount[6]++;
             sumCost[6] += time2;
@@ -459,10 +459,10 @@ ExWorkProcRetcode ExHbaseScanRowwiseTaskTcb::work(short &rc) {
       } break;
 
       case SCAN_CLOSE: {
-        Int64 time1 = JULIANTIMESTAMP();
+        long time1 = JULIANTIMESTAMP();
         retcode = tcb_->ehi_->scanClose();
         if (recordCostTh_ >= 0) {
-          Int64 time2 = (JULIANTIMESTAMP() - time1) / 1000;
+          long time2 = (JULIANTIMESTAMP() - time1) / 1000;
           if (transId > 0) {
             callCount[7]++;
             sumCost[7] += time2;
@@ -502,9 +502,9 @@ ExHbaseScanSQTaskTcb::ExHbaseScanSQTaskTcb(ExHbaseAccessSelectTcb *tcb) : ExHbas
 void ExHbaseScanSQTaskTcb::init() { step_ = NOT_STARTED; }
 
 ExWorkProcRetcode ExHbaseScanSQTaskTcb::work(short &rc) {
-  Lng32 retcode = 0;
+  int retcode = 0;
   rc = 0;
-  Lng32 remainingInBatch = batchSize_;
+  int remainingInBatch = batchSize_;
   NABoolean isFirstBatch = false;
   // isFirstInBatch is a stack variable for optimization reason. It is used for the mdam small scanner optimization
   // heuristic that is performed at runtime. Since this function is invoke intensively for all scan (mdam or regular
@@ -518,10 +518,10 @@ ExWorkProcRetcode ExHbaseScanSQTaskTcb::work(short &rc) {
   // work, and we will use regular scanner, meaning optimization is off for the scan part of MDAM (still on for the
   // probe side of it).
 
-  Int64 transId = GetCliGlobals() ? GetCliGlobals()->getTransactionId() : -1;
+  long transId = GetCliGlobals() ? GetCliGlobals()->getTransactionId() : -1;
   if (transId == -1 || curTransId != transId) {
     if (curTransId >= 0) {
-      Int64 count = 0;
+      long count = 0;
       double cost = 0;
       for (Int32 idx = 0; idx < 30; idx++) {
         count += callCount[idx];
@@ -545,7 +545,7 @@ ExWorkProcRetcode ExHbaseScanSQTaskTcb::work(short &rc) {
       } break;
 
       case SCAN_OPEN: {
-        Int64 time1 = JULIANTIMESTAMP();
+        long time1 = JULIANTIMESTAMP();
         tcb_->fixObjName4PartTbl(tcb_->hbaseAccessTdb().getTableName(), tcb_->hbaseAccessTdb().getDataUIDName(),
                                  tcb_->hbaseAccessTdb().replaceNameByUID());
         // Bypass scan when beginRowId_ is less than endRowId_
@@ -597,7 +597,7 @@ ExWorkProcRetcode ExHbaseScanSQTaskTcb::work(short &rc) {
         }
 
         if (recordCostTh_ >= 0) {
-          Int64 time2 = (JULIANTIMESTAMP() - time1) / 1000;
+          long time2 = (JULIANTIMESTAMP() - time1) / 1000;
           if (transId > 0) {
             callCount[8]++;
             sumCost[8] += time2;
@@ -622,10 +622,10 @@ ExWorkProcRetcode ExHbaseScanSQTaskTcb::work(short &rc) {
           rc = WORK_CALL_AGAIN;
           return 1;
         }
-        Int64 time1 = JULIANTIMESTAMP();
+        long time1 = JULIANTIMESTAMP();
         retcode = tcb_->ehi_->nextRow();
         if (recordCostTh_ >= 0) {
-          Int64 time2 = (JULIANTIMESTAMP() - time1) / 1000;
+          long time2 = (JULIANTIMESTAMP() - time1) / 1000;
           if (transId > 0) {
             callCount[9]++;
             sumCost[9] += time2;
@@ -746,10 +746,10 @@ ExWorkProcRetcode ExHbaseScanSQTaskTcb::work(short &rc) {
         if (isFirstBatch)  // only if closed happen in a single batch, batchSize - remainingInBatch = nb rows retrieved
           tcb_->hbaseAccessTdb().getHbasePerfAttributes()->setUseSmallScannerForMDAMifNeeded(
               batchSize_ - remainingInBatch);  // calculate MDAM small scanner flag for next scan if it was MDAM
-        Int64 time1 = JULIANTIMESTAMP();
+        long time1 = JULIANTIMESTAMP();
         retcode = tcb_->ehi_->scanClose();
         if (recordCostTh_ >= 0) {
-          Int64 time2 = (JULIANTIMESTAMP() - time1) / 1000;
+          long time2 = (JULIANTIMESTAMP() - time1) / 1000;
           if (transId > 0) {
             callCount[10]++;
             sumCost[10] += time2;
@@ -782,15 +782,15 @@ ExWorkProcRetcode ExHbaseScanSQTaskTcb::work(short &rc) {
   }  // while
 }
 
-Lng32 ExHbaseScanSQTaskTcb::getProbeResult(char *&keyData) {
-  Lng32 retcode = 0;
-  Lng32 rc = 0;
-  Lng32 probeSize = 100;  // using fewer rows results in intermittent wrong
+int ExHbaseScanSQTaskTcb::getProbeResult(char *&keyData) {
+  int retcode = 0;
+  int rc = 0;
+  int probeSize = 100;  // using fewer rows results in intermittent wrong
   // results. Using the hbase default scan size of 100 as a workarorund.
-  Int64 transId = GetCliGlobals() ? GetCliGlobals()->getTransactionId() : -1;
+  long transId = GetCliGlobals() ? GetCliGlobals()->getTransactionId() : -1;
   if (transId == -1 || curTransId != transId) {
     if (curTransId >= 0) {
-      Int64 count = 0;
+      long count = 0;
       double cost = 0;
       for (Int32 idx = 0; idx < 30; idx++) {
         count += callCount[idx];
@@ -807,7 +807,7 @@ Lng32 ExHbaseScanSQTaskTcb::getProbeResult(char *&keyData) {
     probeSize = 1;  // if performance is vital, comp_bool_184 can be set to ON
   // to choose this path.
 
-  Int64 time1 = JULIANTIMESTAMP();
+  long time1 = JULIANTIMESTAMP();
   retcode = tcb_->ehi_->scanOpen(
       tcb_->table_, tcb_->beginRowId_, tcb_->endRowId_, tcb_->columns_, -1,
       tcb_->hbaseAccessTdb().readUncommittedScan(), tcb_->hbaseAccessTdb().getScanMemoryTable(),
@@ -821,7 +821,7 @@ Lng32 ExHbaseScanSQTaskTcb::getProbeResult(char *&keyData) {
       tcb_->hbaseAccessTdb().getHbasePerfAttributes()->useSmallScannerForProbes(), probeSize, TRUE, NULL, NULL, NULL,
       tcb_->hbaseAccessTdb().getNumReplications());
   if (recordCostTh_ >= 0) {
-    Int64 time2 = (JULIANTIMESTAMP() - time1) / 1000;
+    long time2 = (JULIANTIMESTAMP() - time1) / 1000;
     if (transId > 0) {
       callCount[11]++;
       sumCost[11] += time2;
@@ -840,7 +840,7 @@ Lng32 ExHbaseScanSQTaskTcb::getProbeResult(char *&keyData) {
   time1 = JULIANTIMESTAMP();
   retcode = tcb_->ehi_->nextRow();
   if (recordCostTh_ >= 0) {
-    Int64 time2 = (JULIANTIMESTAMP() - time1) / 1000;
+    long time2 = (JULIANTIMESTAMP() - time1) / 1000;
     if (transId > 0) {
       callCount[12]++;
       sumCost[12] += time2;
@@ -884,7 +884,7 @@ label_return:
   time1 = JULIANTIMESTAMP();
   retcode = tcb_->ehi_->scanClose();
   if (recordCostTh_ >= 0) {
-    Int64 time2 = (JULIANTIMESTAMP() - time1) / 1000;
+    long time2 = (JULIANTIMESTAMP() - time1) / 1000;
     if (transId > 0) {
       callCount[13]++;
       sumCost[13] += time2;
@@ -908,14 +908,14 @@ ExHbaseGetTaskTcb::ExHbaseGetTaskTcb(ExHbaseAccessSelectTcb *tcb) : ExHbaseTaskT
 void ExHbaseGetTaskTcb::init() { step_ = NOT_STARTED; }
 
 ExWorkProcRetcode ExHbaseGetTaskTcb::work(short &rc) {
-  Lng32 retcode = 0;
+  int retcode = 0;
   rc = 0;
-  Lng32 remainingInBatch = batchSize_;
+  int remainingInBatch = batchSize_;
 
-  Int64 transId = GetCliGlobals() ? GetCliGlobals()->getTransactionId() : -1;
+  long transId = GetCliGlobals() ? GetCliGlobals()->getTransactionId() : -1;
   if (transId == -1 || curTransId != transId) {
     if (curTransId >= 0) {
-      Int64 count = 0;
+      long count = 0;
       double cost = 0;
       for (Int32 idx = 0; idx < 30; idx++) {
         count += callCount[idx];
@@ -937,7 +937,7 @@ ExWorkProcRetcode ExHbaseGetTaskTcb::work(short &rc) {
       } break;
 
       case GET_OPEN: {
-        Int64 time1 = JULIANTIMESTAMP();
+        long time1 = JULIANTIMESTAMP();
         tcb_->fixObjName4PartTbl(tcb_->hbaseAccessTdb().getTableName(), tcb_->hbaseAccessTdb().getDataUIDName(),
                                  tcb_->hbaseAccessTdb().replaceNameByUID());
         tcb_->ehi_->setWaitOnSelectForUpdate(tcb_->hbaseAccessTdb().waitOnSelectForUpdate());
@@ -970,7 +970,7 @@ ExWorkProcRetcode ExHbaseGetTaskTcb::work(short &rc) {
         }
 
         if (recordCostTh_ >= 0) {
-          Int64 time2 = (JULIANTIMESTAMP() - time1) / 1000;
+          long time2 = (JULIANTIMESTAMP() - time1) / 1000;
           if (transId > 0) {
             callCount[14]++;
             sumCost[14] += time2;
@@ -993,10 +993,10 @@ ExWorkProcRetcode ExHbaseGetTaskTcb::work(short &rc) {
           rc = WORK_CALL_AGAIN;
           return 1;
         }
-        Int64 time1 = JULIANTIMESTAMP();
+        long time1 = JULIANTIMESTAMP();
         retcode = tcb_->ehi_->nextRow();
         if (recordCostTh_ >= 0) {
-          Int64 time2 = (JULIANTIMESTAMP() - time1) / 1000;
+          long time2 = (JULIANTIMESTAMP() - time1) / 1000;
           if (transId > 0) {
             callCount[15]++;
             sumCost[15] += time2;
@@ -1021,10 +1021,10 @@ ExWorkProcRetcode ExHbaseGetTaskTcb::work(short &rc) {
         if (tcb_->colVal_.val == NULL)
           tcb_->colVal_.val = new (tcb_->getHeap()) char[tcb_->hbaseAccessTdb().convertRowLen()];
         tcb_->hbaseAccessTdb().convertRowLen();
-        Int64 time1 = JULIANTIMESTAMP();
+        long time1 = JULIANTIMESTAMP();
         retcode = tcb_->ehi_->nextCell(tcb_->rowId_, tcb_->colFamName_, tcb_->colName_, tcb_->colVal_, tcb_->colTS_);
         if (recordCostTh_ >= 0) {
-          Int64 time2 = (JULIANTIMESTAMP() - time1) / 1000;
+          long time2 = (JULIANTIMESTAMP() - time1) / 1000;
           if (transId > 0) {
             callCount[16]++;
             sumCost[16] += time2;
@@ -1090,10 +1090,10 @@ ExWorkProcRetcode ExHbaseGetTaskTcb::work(short &rc) {
       } break;
 
       case GET_CLOSE: {
-        Int64 time1 = JULIANTIMESTAMP();
+        long time1 = JULIANTIMESTAMP();
         retcode = tcb_->ehi_->getClose();
         if (recordCostTh_ >= 0) {
-          Int64 time2 = (JULIANTIMESTAMP() - time1) / 1000;
+          long time2 = (JULIANTIMESTAMP() - time1) / 1000;
           if (transId > 0) {
             callCount[17]++;
             sumCost[17] += time2;
@@ -1131,14 +1131,14 @@ ExHbaseGetRowwiseTaskTcb::ExHbaseGetRowwiseTaskTcb(ExHbaseAccessSelectTcb *tcb)
 void ExHbaseGetRowwiseTaskTcb::init() { step_ = NOT_STARTED; }
 
 ExWorkProcRetcode ExHbaseGetRowwiseTaskTcb::work(short &rc) {
-  Lng32 retcode = 0;
+  int retcode = 0;
   rc = 0;
-  Lng32 remainingInBatch = batchSize_;
+  int remainingInBatch = batchSize_;
 
-  Int64 transId = GetCliGlobals() ? GetCliGlobals()->getTransactionId() : -1;
+  long transId = GetCliGlobals() ? GetCliGlobals()->getTransactionId() : -1;
   if (transId == -1 || curTransId != transId) {
     if (curTransId >= 0) {
-      Int64 count = 0;
+      long count = 0;
       double cost = 0;
       for (Int32 idx = 0; idx < 30; idx++) {
         count += callCount[idx];
@@ -1162,7 +1162,7 @@ ExWorkProcRetcode ExHbaseGetRowwiseTaskTcb::work(short &rc) {
       } break;
 
       case GET_OPEN: {
-        Int64 time1 = JULIANTIMESTAMP();
+        long time1 = JULIANTIMESTAMP();
         tcb_->fixObjName4PartTbl(tcb_->hbaseAccessTdb().getTableName(), tcb_->hbaseAccessTdb().getDataUIDName(),
                                  tcb_->hbaseAccessTdb().replaceNameByUID());
         tcb_->ehi_->setWaitOnSelectForUpdate(tcb_->hbaseAccessTdb().waitOnSelectForUpdate());
@@ -1194,7 +1194,7 @@ ExWorkProcRetcode ExHbaseGetRowwiseTaskTcb::work(short &rc) {
         }
 
         if (recordCostTh_ >= 0) {
-          Int64 time2 = (JULIANTIMESTAMP() - time1) / 1000;
+          long time2 = (JULIANTIMESTAMP() - time1) / 1000;
           if (transId > 0) {
             callCount[18]++;
             sumCost[18] += time2;
@@ -1218,10 +1218,10 @@ ExWorkProcRetcode ExHbaseGetRowwiseTaskTcb::work(short &rc) {
           return 1;
         }
 
-        Int64 time1 = JULIANTIMESTAMP();
+        long time1 = JULIANTIMESTAMP();
         retcode = tcb_->ehi_->nextRow();
         if (recordCostTh_ >= 0) {
-          Int64 time2 = (JULIANTIMESTAMP() - time1) / 1000;
+          long time2 = (JULIANTIMESTAMP() - time1) / 1000;
           if (transId > 0) {
             callCount[19]++;
             sumCost[19] += time2;
@@ -1246,10 +1246,10 @@ ExWorkProcRetcode ExHbaseGetRowwiseTaskTcb::work(short &rc) {
         if (tcb_->colVal_.val == NULL)
           tcb_->colVal_.val = new (tcb_->getHeap()) char[tcb_->hbaseAccessTdb().convertRowLen()];
         tcb_->colVal_.len = tcb_->hbaseAccessTdb().convertRowLen();
-        Int64 time1 = JULIANTIMESTAMP();
+        long time1 = JULIANTIMESTAMP();
         retcode = tcb_->ehi_->nextCell(tcb_->rowId_, tcb_->colFamName_, tcb_->colName_, tcb_->colVal_, tcb_->colTS_);
         if (recordCostTh_ >= 0) {
-          Int64 time2 = (JULIANTIMESTAMP() - time1) / 1000;
+          long time2 = (JULIANTIMESTAMP() - time1) / 1000;
           if (transId > 0) {
             callCount[20]++;
             sumCost[20] += time2;
@@ -1311,10 +1311,10 @@ ExWorkProcRetcode ExHbaseGetRowwiseTaskTcb::work(short &rc) {
       } break;
 
       case GET_CLOSE: {
-        Int64 time1 = JULIANTIMESTAMP();
+        long time1 = JULIANTIMESTAMP();
         retcode = tcb_->ehi_->getClose();
         if (recordCostTh_ >= 0) {
-          Int64 time2 = (JULIANTIMESTAMP() - time1) / 1000;
+          long time2 = (JULIANTIMESTAMP() - time1) / 1000;
           if (transId > 0) {
             callCount[21]++;
             sumCost[21] += time2;
@@ -1352,13 +1352,13 @@ ExHbaseGetSQTaskTcb::ExHbaseGetSQTaskTcb(ExHbaseAccessTcb *tcb, NABoolean rowset
 void ExHbaseGetSQTaskTcb::init() { step_ = NOT_STARTED; }
 
 ExWorkProcRetcode ExHbaseGetSQTaskTcb::work(short &rc) {
-  Lng32 retcode = 0;
+  int retcode = 0;
   rc = 0;
 
-  Int64 transId = GetCliGlobals() ? GetCliGlobals()->getTransactionId() : -1;
+  long transId = GetCliGlobals() ? GetCliGlobals()->getTransactionId() : -1;
   if (transId == -1 || curTransId != transId) {
     if (curTransId >= 0) {
-      Int64 count = 0;
+      long count = 0;
       double cost = 0;
       for (Int32 idx = 0; idx < 30; idx++) {
         count += callCount[idx];
@@ -1383,7 +1383,7 @@ ExWorkProcRetcode ExHbaseGetSQTaskTcb::work(short &rc) {
       } break;
 
       case GET_OPEN: {
-        Int64 time1 = JULIANTIMESTAMP();
+        long time1 = JULIANTIMESTAMP();
         tcb_->fixObjName4PartTbl(tcb_->hbaseAccessTdb().getTableName(), tcb_->hbaseAccessTdb().getDataUIDName(),
                                  tcb_->hbaseAccessTdb().replaceNameByUID());
         remainingInBatch_ = tcb_->rowIds_.entries();
@@ -1419,7 +1419,7 @@ ExWorkProcRetcode ExHbaseGetSQTaskTcb::work(short &rc) {
                    : NULL),
               (tcb_->hbaseAccessTdb().useEncryption() ? (char *)&tcb_->encryptionInfo_ : NULL));
           if (recordCostTh_ >= 0) {
-            Int64 time2 = (JULIANTIMESTAMP() - time1) / 1000;
+            long time2 = (JULIANTIMESTAMP() - time1) / 1000;
             if (transId > 0) {
               callCount[22]++;
               sumCost[22] += time2;
@@ -1447,10 +1447,10 @@ ExWorkProcRetcode ExHbaseGetSQTaskTcb::work(short &rc) {
           step_ = GET_CLOSE;
           break;
         }
-        Int64 time1 = JULIANTIMESTAMP();
+        long time1 = JULIANTIMESTAMP();
         retcode = tcb_->ehi_->nextRow();
         if (recordCostTh_ >= 0) {
-          Int64 time2 = (JULIANTIMESTAMP() - time1) / 1000;
+          long time2 = (JULIANTIMESTAMP() - time1) / 1000;
           if (transId > 0) {
             callCount[23]++;
             sumCost[23] += time2;
@@ -1574,10 +1574,10 @@ ExWorkProcRetcode ExHbaseGetSQTaskTcb::work(short &rc) {
       } break;
 
       case GET_CLOSE: {
-        Int64 time1 = JULIANTIMESTAMP();
+        long time1 = JULIANTIMESTAMP();
         retcode = tcb_->ehi_->getClose();
         if (recordCostTh_ >= 0) {
-          Int64 time2 = (JULIANTIMESTAMP() - time1) / 1000;
+          long time2 = (JULIANTIMESTAMP() - time1) / 1000;
           if (transId > 0) {
             callCount[24]++;
             sumCost[24] += time2;
@@ -1676,7 +1676,7 @@ ExHbaseAccessSelectTcb::ExHbaseAccessSelectTcb(const ExHbaseAccessTdb &hbaseAcce
 }
 
 ExWorkProcRetcode ExHbaseAccessSelectTcb::work() {
-  Lng32 retcode = 0;
+  int retcode = 0;
   short rc = 0;
 
   while (!qparent_.down->isEmpty()) {
@@ -1896,7 +1896,7 @@ ExHbaseAccessMdamSelectTcb::ExHbaseAccessMdamSelectTcb(const ExHbaseAccessTdb &h
     : ExHbaseAccessSelectTcb(hbaseAccessTdb, glob), step_(NOT_STARTED) {}
 
 ExWorkProcRetcode ExHbaseAccessMdamSelectTcb::work() {
-  Lng32 retcode = 0;
+  int retcode = 0;
   short rc = 0;
 
   while (!qparent_.down->isEmpty()) {
@@ -2058,13 +2058,13 @@ ExHbaseCoProcAggrTcb::ExHbaseCoProcAggrTcb(const ComTdbHbaseCoProcAggr &hbaseAcc
     : ExHbaseAccessTcb(hbaseAccessTdb, glob), step_(NOT_STARTED) {}
 
 ExWorkProcRetcode ExHbaseCoProcAggrTcb::work() {
-  Lng32 retcode = 0;
+  int retcode = 0;
   short rc = 0;
 
-  Int64 transId = GetCliGlobals() ? GetCliGlobals()->getTransactionId() : -1;
+  long transId = GetCliGlobals() ? GetCliGlobals()->getTransactionId() : -1;
   if (transId == -1 || curTransId != transId) {
     if (curTransId >= 0) {
-      Int64 count = 0;
+      long count = 0;
       double cost = 0;
       for (Int32 idx = 0; idx < 30; idx++) {
         count += callCount[idx];
@@ -2111,9 +2111,9 @@ ExWorkProcRetcode ExHbaseCoProcAggrTcb::work() {
       } break;
 
       case COPROC_EVAL: {
-        Lng32 aggrType = *(short *)hbaseAccessTdb().listOfAggrTypes()->getCurr();
+        int aggrType = *(short *)hbaseAccessTdb().listOfAggrTypes()->getCurr();
         char *col = (char *)hbaseAccessTdb().listOfFetchedColNames()->getCurr();
-        Int64 time1 = JULIANTIMESTAMP();
+        long time1 = JULIANTIMESTAMP();
 
         Text startKey;
         Text endKey;
@@ -2142,7 +2142,7 @@ ExWorkProcRetcode ExHbaseCoProcAggrTcb::work() {
                                    hbaseAccessTdb().replSync(), aggrVal, hbaseAccessTdb().getIsolationLevel(),
                                    hbaseAccessTdb().getLockMode());
         if (recordCostTh_ >= 0) {
-          Int64 time2 = (JULIANTIMESTAMP() - time1) / 1000;
+          long time2 = (JULIANTIMESTAMP() - time1) / 1000;
           if (transId > 0) {
             callCount[25]++;
             sumCost[25] += time2;

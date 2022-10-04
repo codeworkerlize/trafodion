@@ -292,7 +292,7 @@ class ScanOptimizer : public NABasicObject  // Abstract class
   virtual CollIndex getNumActiveDP2Volumes() const;
   virtual CollIndex getEstNumActivePartitionsAtRuntimeForHbaseRegions() const;
 
-  Lng32 getNumberOfBlocksToReadPerAccess() const {
+  int getNumberOfBlocksToReadPerAccess() const {
     // make sure that value has been initialized before using it:
     CMPASSERT(numberOfBlocksToReadPerAccess_ > -1);
     return numberOfBlocksToReadPerAccess_;
@@ -409,7 +409,7 @@ class ScanOptimizer : public NABasicObject  // Abstract class
     probesForceSynchronousAccess_ = probesForceSynchronousAccess;
   }
 
-  void setNumberOfBlocksToReadPerAccess(const Lng32 &blocks) {
+  void setNumberOfBlocksToReadPerAccess(const int &blocks) {
     DCMPASSERT(blocks > -1);
     numberOfBlocksToReadPerAccess_ = blocks;
   }
@@ -518,7 +518,7 @@ class ScanOptimizer : public NABasicObject  // Abstract class
   // DP2 uses it to decide whether it will do read ahead
   // or not.
   // Its value is -1 if uninitialized
-  Lng32 numberOfBlocksToReadPerAccess_;
+  int numberOfBlocksToReadPerAccess_;
 
   // Indicates if the probes are completely in order, or partially
   // in order, but cache is big enough so that we get the same

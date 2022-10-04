@@ -296,7 +296,7 @@ short HashJoin::codeGen(Generator *generator) {
 
   // Incoming records will be divided equally (sans data skew) among the ESPs
   // so each HJ instance will handle only its share (i.e. divide by #esps)
-  Lng32 saveNumEsps = generator->getNumESPs();
+  int saveNumEsps = generator->getNumESPs();
 
   ////////////////////////////////////////////////////////////////////////////
   // generate the right child
@@ -1572,14 +1572,14 @@ short HashJoin::codeGen(Generator *generator) {
       leftChildTdb, rightChildTdb, givenDesc, returnedDesc, rightHashExpr, rightMoveInExpr, rightMoveOutExpr,
       rightSearchExpr, leftHashExpr, leftMoveExpr, leftMoveInExpr, leftMoveOutExpr, probeSearchExpr1, probeSearchExpr2,
       leftJoinExpr, nullInstForLeftJoinExpr, beforeJoinPred1, beforeJoinPred2, afterJoinPred1, afterJoinPred2,
-      afterJoinPred3, afterJoinPred4, afterJoinPred5, checkInputPred, moveInputExpr, (Lng32)inputValuesLen,
+      afterJoinPred3, afterJoinPred4, afterJoinPred5, checkInputPred, moveInputExpr, (int)inputValuesLen,
       prevInputTuppIndex, rightRowLength, extRightRowLength, leftRowLength, extLeftRowLength, instRowLength,
       workCriDesc, leftRowAtpIndex, extLeftRowAtpIndex, rightRowAtpIndex, extRightRowAtpIndex1, extRightRowAtpIndex2,
       hashValueAtpIndex, instRowForLeftJoinAtpIndex, returnedLeftRowAtpIndex, returnedRightRowAtpIndex,
       returnedInstRowAtpIndex, memUsagePercent, (short)getDefault(GEN_MEM_PRESSURE_THRESHOLD), scrthreshold,
       (queue_index)getDefault(GEN_HSHJ_SIZE_DOWN), upQueueSize, isSemiJoin(), isLeftJoin(), isAntiSemiJoin(),
       useUniqueHashJoin, (isNoOverflow() || (CmpCommon::getDefault(EXE_BMO_DISABLE_OVERFLOW) == DF_ON)), isReuse(),
-      (Lng32)getDefault(GEN_HSHJ_NUM_BUFFERS), bufferSize, hashBufferSize,
+      (int)getDefault(GEN_HSHJ_NUM_BUFFERS), bufferSize, hashBufferSize,
       (Cardinality)getGroupAttr()->getOutputLogPropList()[0]->getResultCardinality().value(), innerExpectedRows,
       outerExpectedRows, isRightJoin(), rightJoinExpr, nullInstForRightJoinExpr, instRowForRightJoinAtpIndex,
       returnedInstRowForRightJoinAtpIndex, instRowForRightJoinLength,
@@ -1634,7 +1634,7 @@ short HashJoin::codeGen(Generator *generator) {
 
   double memQuota = 0;
   double memQuotaRatio;
-  Lng32 numStreams;
+  int numStreams;
   double bmoMemoryUsagePerNode = generator->getEstMemPerNode(getKey(), numStreams);
   if (useUniqueHashJoin) {
     UInt16 innerTableSizePerInstanceLimitInMB = (UInt16)getDefault(UNIQUE_HASH_JOIN_MAX_INNER_SIZE_PER_INSTANCE);
@@ -1656,8 +1656,8 @@ short HashJoin::codeGen(Generator *generator) {
                                     generator->getTotalBMOsMemoryPerNode().value(), numBMOsInFrag,
                                     bmoMemoryUsagePerNode, numStreams, memQuotaRatio);
     }
-    Lng32 hjMemoryLowbound = defs.getAsLong(BMO_MEMORY_LIMIT_LOWER_BOUND_HASHJOIN);
-    Lng32 memoryUpperbound = defs.getAsLong(BMO_MEMORY_LIMIT_UPPER_BOUND);
+    int hjMemoryLowbound = defs.getAsLong(BMO_MEMORY_LIMIT_LOWER_BOUND_HASHJOIN);
+    int memoryUpperbound = defs.getAsLong(BMO_MEMORY_LIMIT_UPPER_BOUND);
 
     if (memQuota < hjMemoryLowbound) {
       memQuota = hjMemoryLowbound;
@@ -1844,7 +1844,7 @@ ExpTupleDesc::TupleDataFormat HashJoin::determineInternalFormat(const ValueIdLis
   return ExpTupleDesc::SQLARK_EXPLODED_FORMAT;
 }
 
-CostScalar HashJoin::getEstimatedRunTimeMemoryUsage(Generator *generator, NABoolean perNode, Lng32 *numStreams) {
+CostScalar HashJoin::getEstimatedRunTimeMemoryUsage(Generator *generator, NABoolean perNode, int *numStreams) {
   GroupAttributes *childGroupAttr = child(1).getGroupAttr();
   const CostScalar childRecordSize = childGroupAttr->getCharacteristicOutputs().getRowLength();
   const CostScalar childRowCount = child(1).getPtr()->getEstRowsUsed();
@@ -1864,7 +1864,7 @@ CostScalar HashJoin::getEstimatedRunTimeMemoryUsage(Generator *generator, NABool
   totalHashTableMemory += ActiveSchemaDB()->getDefaults().getAsLong(GEN_HSHJ_BUFFER_SIZE);
 
   const PhysicalProperty *const phyProp = getPhysicalProperty();
-  Lng32 numOfStreams = 1;
+  int numOfStreams = 1;
   PartitioningFunction *partFunc = NULL;
   if (phyProp) {
     partFunc = phyProp->getPartitioningFunction();
@@ -1957,7 +1957,7 @@ NABoolean HashJoin::canUseUniqueHashJoin() {
       //
       rowSize = ROUND8(rowSize);
 
-      Lng32 numPartitions = 1;
+      int numPartitions = 1;
       if (getParallelJoinType() == 1) {
         const PhysicalProperty *physProp = child(1)->getPhysicalProperty();
         PartitioningFunction *partFunc = physProp->getPartitioningFunction();
@@ -2655,7 +2655,7 @@ short MergeJoin::codeGen(Generator *generator) {
 
   double BMOsMemoryLimit = 0;
   UInt16 quotaMB = 0;
-  Lng32 numStreams;
+  int numStreams;
   double memQuotaRatio;
   double bmoMemoryUsage = generator->getEstMemPerNode(getKey(), numStreams);
 
@@ -2673,8 +2673,8 @@ short MergeJoin::codeGen(Generator *generator) {
                                            generator->getTotalBMOsMemoryPerNode().value(), numBMOsInFrag,
                                            bmoMemoryUsage, numStreams, memQuotaRatio);
     }
-    Lng32 mjMemoryLowbound = defs.getAsLong(EXE_MEMORY_LIMIT_LOWER_BOUND_MERGEJOIN);
-    Lng32 memoryUpperbound = defs.getAsLong(BMO_MEMORY_LIMIT_UPPER_BOUND);
+    int mjMemoryLowbound = defs.getAsLong(EXE_MEMORY_LIMIT_LOWER_BOUND_MERGEJOIN);
+    int memoryUpperbound = defs.getAsLong(BMO_MEMORY_LIMIT_UPPER_BOUND);
 
     if (quotaMB < mjMemoryLowbound) {
       quotaMB = (UInt16)mjMemoryLowbound;
@@ -2682,7 +2682,7 @@ short MergeJoin::codeGen(Generator *generator) {
     } else if (quotaMB > memoryUpperbound)
       quotaMB = memoryUpperbound;
   } else {
-    Lng32 quotaMB = defs.getAsLong(EXE_MEMORY_LIMIT_LOWER_BOUND_MERGEJOIN);
+    int quotaMB = defs.getAsLong(EXE_MEMORY_LIMIT_LOWER_BOUND_MERGEJOIN);
   }
 
   bool yieldQuota = !(generator->getRightSideOfFlow());
@@ -3034,7 +3034,7 @@ short NestedJoin::codeGen(Generator *generator) {
   // be blocked waiting for an empty buffer and too large a number might imply
   // waste of memory space
   if (rowlen) {
-    bufferSize = MAXOF(bufferSize, SqlBufferNeededSize(5, (Lng32)rowlen, SqlBuffer::NORMAL_));
+    bufferSize = MAXOF(bufferSize, SqlBufferNeededSize(5, (int)rowlen, SqlBuffer::NORMAL_));
   }
 
   // is this join used to drive mv logging

@@ -230,7 +230,7 @@ void CRUDupElimLogScanner::SetupScan() {
   ckStartColumn_ = globals.GetNumCtrlColumns() + 2;
 
   // Retrieve the tuple's descriptors ...
-  Lng32 len = tupleDesc_.GetLength();
+  int len = tupleDesc_.GetLength();
   for (i = 0; i < len; i++) {
     Int32 colIndex = i + ckStartColumn_;
     tupleDesc_.GetItemDesc(i).Build(*pResultSet_, colIndex);
@@ -358,7 +358,7 @@ void CRUDupElimLogScanner::CopyLowerBoundParams() {
   Int32 tupleDescLen = tupleDesc_.GetLength();
 
   // Compute the number of the query's parameters
-  Lng32 nParams = pCurrentStmt_->GetParamCount();
+  int nParams = pCurrentStmt_->GetParamCount();
 
   // There is an integral number of blocks
   RUASSERT(nParams > 0 && 0 == nParams % tupleDescLen);

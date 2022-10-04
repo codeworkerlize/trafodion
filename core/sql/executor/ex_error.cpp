@@ -42,11 +42,11 @@
 #include "ex_expr.h"
 #include "str.h"
 #include "ex_exe_stmt_globals.h"
-#include "ex_error.h"
+#include "executor/ex_error.h"
 #include "ex_queue.h"
 #include "export/ComDiags.h"
 
-ComDiagsArea *ExRaiseSqlError(CollHeap *heap, ex_queue_entry *req, ExeErrorCode err, Lng32 *intParam1,
+ComDiagsArea *ExRaiseSqlError(CollHeap *heap, ex_queue_entry *req, ExeErrorCode err, int *intParam1,
                               char *stringParam1, ComCondition **newCond) {
   ComDiagsArea *da = req->getDiagsArea();
   if (da == NULL)
@@ -57,7 +57,7 @@ ComDiagsArea *ExRaiseSqlError(CollHeap *heap, ex_queue_entry *req, ExeErrorCode 
   return ExRaiseSqlError(heap, &da, (ExeErrorCode)(-err), newCond, intParam1, NULL, NULL, stringParam1);
 }
 
-ComDiagsArea *ExRaiseSqlWarning(CollHeap *heap, ex_queue_entry *req, ExeErrorCode code, Lng32 *intParam1,
+ComDiagsArea *ExRaiseSqlWarning(CollHeap *heap, ex_queue_entry *req, ExeErrorCode code, int *intParam1,
                                 char *stringParam1, ComCondition **cond) {
   return ExRaiseSqlError(heap, req, (ExeErrorCode)(-code), intParam1, stringParam1, cond);
 }
@@ -73,7 +73,7 @@ ComDiagsArea *ExRaiseSqlWarning(CollHeap *heap, ex_queue_entry *req, ExeErrorCod
 // ## ExDDLTcb::handleErrors() does not currently call this,
 // ## though it's very similar -- perhaps its logic can be brought in?
 //
-void ExHandleArkcmpErrors(ex_queue_pair &qparent, ex_queue_entry *down_entry, Lng32 matchNo, ex_globals *globals,
+void ExHandleArkcmpErrors(ex_queue_pair &qparent, ex_queue_entry *down_entry, int matchNo, ex_globals *globals,
                           ComDiagsArea *diags_in, ExeErrorCode err) {
   ex_queue_entry *up_entry = qparent.up->getTailEntry();
 
@@ -101,8 +101,8 @@ void ExHandleArkcmpErrors(ex_queue_pair &qparent, ex_queue_entry *down_entry, Ln
   qparent.up->insert();
 }
 
-void ExHandleErrors(ex_queue_pair &qparent, ex_queue_entry *down_entry, Lng32 matchNo, ex_globals *globals,
-                    ComDiagsArea *diags_in, ExeErrorCode err, Lng32 *intParam1, const char *stringParam1, Lng32 *nskErr,
+void ExHandleErrors(ex_queue_pair &qparent, ex_queue_entry *down_entry, int matchNo, ex_globals *globals,
+                    ComDiagsArea *diags_in, ExeErrorCode err, int *intParam1, const char *stringParam1, int *nskErr,
                     const char *stringParam2) {
   ex_queue_entry *up_entry = qparent.up->getTailEntry();
 

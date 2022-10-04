@@ -42,7 +42,7 @@
 #include <stdlib.h>
 #include <wchar.h>
 
-#include "SqlciCmd.h"
+#include "sqlci/SqlciCmd.h"
 #include "common/str.h"
 #include "common/dfs2rec.h"
 #include "exp/exp_clause_derived.h"
@@ -52,9 +52,9 @@
 
 extern NAHeap sqlci_Heap;
 
-short convDoItMxcs(char *source, Lng32 sourceLen, short sourceType, Lng32 sourcePrecision, Lng32 sourceScale,
-                   char *target, Lng32 targetLen, short targetType, Lng32 targetPrecision, Lng32 targetScale,
-                   Lng32 flags);
+short convDoItMxcs(char *source, int sourceLen, short sourceType, int sourcePrecision, int sourceScale,
+                   char *target, int targetLen, short targetType, int targetPrecision, int targetScale,
+                   int flags);
 
 Param::Param(char *name_, SetParam *sp_)
     : name(0),
@@ -208,8 +208,8 @@ void Param::makeNull() {
   *(short *)nullValue_ = -1;
 }
 
-short Param::convertValue(SqlciEnv *sqlci_env, short targetType, Lng32 &targetLen, Lng32 targetPrecision,
-                          Lng32 targetScale, Lng32 vcIndLen, ComDiagsArea *&diags) {
+short Param::convertValue(SqlciEnv *sqlci_env, short targetType, int &targetLen, int targetPrecision,
+                          int targetScale, int vcIndLen, ComDiagsArea *&diags) {
   // get rid of the old converted value
   if (converted_value) {
     delete[] converted_value;
@@ -217,11 +217,11 @@ short Param::convertValue(SqlciEnv *sqlci_env, short targetType, Lng32 &targetLe
   };
 
   short sourceType;
-  Lng32 sourceLen;
+  int sourceLen;
 
   // set up the source and its length based on the how the value is passed-in.
   if (isInSingleByteForm() == FALSE) {
-    sourceLen = (Lng32)(NAWstrlen((NAWchar *)value) * BYTES_PER_NAWCHAR);
+    sourceLen = (int)(NAWstrlen((NAWchar *)value) * BYTES_PER_NAWCHAR);
     switch (getCharSet()) {
       case CharInfo::UNICODE:
         sourceType = REC_NCHAR_F_UNICODE;
@@ -236,7 +236,7 @@ short Param::convertValue(SqlciEnv *sqlci_env, short targetType, Lng32 &targetLe
         return SQL_Error;  // error case
     }
   } else {
-    sourceLen = (Lng32)strlen(value);  // for any source in single-byte format
+    sourceLen = (int)strlen(value);  // for any source in single-byte format
     sourceType = REC_BYTE_F_ASCII;
   }
 
@@ -255,7 +255,7 @@ short Param::convertValue(SqlciEnv *sqlci_env, short targetType, Lng32 &targetLe
     if (targetCharSet == CharInfo::UNICODE) {
       if (getUTF16StrLit() == (NAWchar *)NULL) {
         utf16StrLit_ = new NAWchar[sourceLen * 2 + 1];  // plenty of room
-        Lng32 utf16StrLenInNAWchars =
+        int utf16StrLenInNAWchars =
             LocaleStringToUnicode(cs /*sourceCS*/, /*sourceStr*/ value, sourceLen, utf16StrLit_ /*outputBuf*/,
                                   sourceLen + 1 /*outputBufSizeInNAWchars*/, TRUE /* in - NABoolean addNullAtEnd*/);
         if (sourceLen > 0 && utf16StrLenInNAWchars == 0) return SQL_Error;
@@ -268,7 +268,7 @@ short Param::convertValue(SqlciEnv *sqlci_env, short targetType, Lng32 &targetLe
         delete[] utf16StrLit_;
         utf16StrLit_ = pNAWcharBuf;  // do not deallocate pNAWcharBuf
       }
-      sourceLen = (Lng32)(NAWstrlen(getUTF16StrLit()) * BYTES_PER_NAWCHAR);
+      sourceLen = (int)(NAWstrlen(getUTF16StrLit()) * BYTES_PER_NAWCHAR);
       // check to see if the parameter utf16 string fits in the target
       if (sourceLen > targetLen) return SQL_Error;
 
@@ -402,7 +402,7 @@ short Param::convertValue(SqlciEnv *sqlci_env, short targetType, Lng32 &targetLe
     case REC_INT_DAY_SECOND: {
       // convert target back to string.
       converted_value = new char[targetLen];
-      Lng32 convFlags = CONV_ALLOW_SIGN_IN_INTERVAL;
+      int convFlags = CONV_ALLOW_SIGN_IN_INTERVAL;
       short ok = convDoItMxcs(value, sourceLen, sourceType,
                               0,  // source Precision
                               0,  // source Scale
@@ -461,7 +461,7 @@ char *Param::getDisplayValue(CharInfo::CharSet display_cs) {
   if (isInSingleByteForm() == FALSE && getCharSet() == CharInfo::UNICODE) {
     if (display_value == NULL) {
       NAWchar *wvalue = (NAWchar *)value;
-      Lng32 wlen = (Lng32)NAWstrlen(wvalue);
+      int wlen = (int)NAWstrlen(wvalue);
       display_value = new char[wlen + 1];
       UnicodeStringToLocale(display_cs, wvalue, wlen, display_value, wlen + 1,
                             TRUE,  // add null at end

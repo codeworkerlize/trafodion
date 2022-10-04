@@ -800,9 +800,9 @@ RelExpr *MjvOnRequestBuilder::buildMjvUpdateSubtree(LogsInfo *logsInfo, const Co
   // Remove from the list columns that are in the indirect update column list,
   // because for the rows for which they are updated, we don't get here.
   const MVUsedObjectInfo *usedObject = getMvInfo()->findUsedInfoForTable(baseNaTable->getTableName());
-  const LIST(Lng32) &mvInfoIndirectCols = usedObject->getIndirectUpdateCols();
+  const LIST(int) &mvInfoIndirectCols = usedObject->getIndirectUpdateCols();
   for (CollIndex i = 0; i < mvInfoIndirectCols.entries(); i++) {
-    Lng32 currentTempCol = mvInfoIndirectCols[i];
+    int currentTempCol = mvInfoIndirectCols[i];
     if (updatedCols.contains(currentTempCol)) {
       updatedCols.remove(currentTempCol);
     }

@@ -190,14 +190,14 @@ CollHeap *ExUdrServer::myIpcHeap() const { return myIpcEnv()->getHeap(); }
 // Bring a UDR Server process to life if one hasn't been
 // started already
 //
-ExUdrServer::ExUdrServerStatus ExUdrServer::start(ComDiagsArea **diags, CollHeap *diagsHeap, Int64 transId,
+ExUdrServer::ExUdrServerStatus ExUdrServer::start(ComDiagsArea **diags, CollHeap *diagsHeap, long transId,
                                                   IpcProcessId &newId, NABoolean usesTransactions) {
 #ifdef UDR_DEBUG
   UdrDebug1("[BEGIN ExUdrServer::start()] %p", this);
   UdrDebug1("  Startup options '%s'", options_);
   UdrDebug1("  Startup option delimiters '%s'", optionDelimiters_);
   if (diags && *diags) {
-    Lng32 numDiags = (*diags)->getNumber();
+    int numDiags = (*diags)->getNumber();
     UdrDebug1("  The diagnostics area initially contains %d entries", numDiags);
   } else {
     UdrDebug0("  No diagnostics area exists yet");
@@ -234,7 +234,7 @@ ExUdrServer::ExUdrServerStatus ExUdrServer::start(ComDiagsArea **diags, CollHeap
     //   from Guardian which is to start the process on the same CPU as
     //   the caller.
 
-    Lng32 nowaitDepth = 2;
+    int nowaitDepth = 2;
 
 #ifdef _DEBUG
     char *e = getenv("UDR_NOWAIT_DEPTH");
@@ -260,7 +260,7 @@ ExUdrServer::ExUdrServerStatus ExUdrServer::start(ComDiagsArea **diags, CollHeap
 #ifdef UDR_DEBUG
     UdrDebug1("  allocateServerProcess() returned %p", ipcServer_);
     if (diags && *diags) {
-      Lng32 numDiags = (*diags)->getNumber();
+      int numDiags = (*diags)->getNumber();
       UdrDebug1("  The diagnostics area contains %d entries", numDiags);
     } else {
       UdrDebug0("  No diagnostics area exists");
@@ -270,7 +270,7 @@ ExUdrServer::ExUdrServerStatus ExUdrServer::start(ComDiagsArea **diags, CollHeap
     startAttempts_++;
 
     if (diags && *diags) {
-      Lng32 sqlcode = ((*diags)->mainSQLCODE());
+      int sqlcode = ((*diags)->mainSQLCODE());
       if (sqlcode < 0) {
         //
         // An error occurrred
@@ -332,7 +332,7 @@ ExUdrServer::ExUdrServerStatus ExUdrServer::start(ComDiagsArea **diags, CollHeap
       // create the generic "Unable to receive reply from MXUDR" diagnostic
       // here.
       //
-      Lng32 numDiags = 0;
+      int numDiags = 0;
       if (diags && *diags) {
         numDiags = (*diags)->getNumber();
       }
@@ -359,7 +359,7 @@ ExUdrServer::ExUdrServerStatus ExUdrServer::start(ComDiagsArea **diags, CollHeap
   return result;
 }
 
-void ExUdrServer::sendStartupOptions(ComDiagsArea **diags, CollHeap *diagsHeap, Int64 transId) {
+void ExUdrServer::sendStartupOptions(ComDiagsArea **diags, CollHeap *diagsHeap, long transId) {
   // Send down any requested runtime options. Right now the only
   // options we support are JVM startup options. To do the work we
   // will allocate a stream and a message on the IPC heap. The
@@ -638,7 +638,7 @@ IpcConnection *ExUdrServer::getAnIpcConnection() const {
 
     UdrDebug1("    An existing connection %p will be reused", conn);
   } else {
-    Lng32 nowaitDepth = DEFAULT_NOWAIT_DEPTH;
+    int nowaitDepth = DEFAULT_NOWAIT_DEPTH;
 
 #ifdef _DEBUG
     char *e = getenv("UDR_NOWAIT_DEPTH");

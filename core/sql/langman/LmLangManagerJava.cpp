@@ -301,7 +301,7 @@ void LmLanguageManagerJava::initialize(LmResult &result, ComUInt32 maxLMJava, Lm
     }
 
     JavaVMInitArgs args;
-    args.nOptions = (Lng32)(numUserOpts + numHookOpts);
+    args.nOptions = (int)(numUserOpts + numHookOpts);
     args.version = JNI_VERSION_1_6;
     args.options = vmOptions;
     args.ignoreUnrecognized = JNI_TRUE;
@@ -740,12 +740,12 @@ void LmLanguageManagerJava::initialize(LmResult &result, ComUInt32 maxLMJava, Lm
   short myProcessType;
   Int32 myCPU;
   char myNodeName[MAX_SEGMENT_NAME_LEN + 1];
-  Lng32 myNodeNum;
+  int myNodeNum;
   short myNodeNameLen = MAX_SEGMENT_NAME_LEN;
   char myProcessName[PROCESSNAME_STRING_LEN];
-  Int64 myProcessStartTime;
+  long myProcessStartTime;
   pid_t myPin;
-  Lng32 retStatus = ComRtGetProgramInfo(myProgramDir, MAX_PROGRAM_DIR_LEN, myProcessType, myCPU, myPin, myNodeNum,
+  int retStatus = ComRtGetProgramInfo(myProgramDir, MAX_PROGRAM_DIR_LEN, myProcessType, myCPU, myPin, myNodeNum,
                                         myNodeName, myNodeNameLen, myProcessStartTime, myProcessName);
   if (retStatus) {
     char errStr[LMJ_ERR_SIZE_256];
@@ -803,7 +803,7 @@ void LmLanguageManagerJava::initialize(LmResult &result, ComUInt32 maxLMJava, Lm
     maxHeapKB = 1;
   }
   jint enforce = jni->GetStaticIntField((jclass)utilityClass_, (jfieldID)classCacheEnforceId_);
-  LM_DEBUG1("LM container cache max size is %d KB", (Lng32)maxHeapKB);
+  LM_DEBUG1("LM container cache max size is %d KB", (int)maxHeapKB);
   LM_DEBUG1("LM container cache limits %s be enforced", (enforce != 0 ? "WILL" : "WILL NOT"));
   contManager_ = new (collHeap())
       LmContainerManagerCache(this, (maxHeapKB * 1024) / (2 * maxLMJava_), (enforce != 0 ? TRUE : FALSE), diagsArea_);
@@ -2212,7 +2212,7 @@ LmResult LmLanguageManagerJava::processOutParameters(LmRoutineJava *handle, LmPa
           *da << DgSqlCode(-LME_JDBC_SUPPORT_SPJRS_ERROR) << DgString0(handle->getNameForDiags());
         else
           *da << DgSqlCode(-LME_JDBC_SPJRS_VERSION_ERROR) << DgString0(handle->getNameForDiags())
-              << DgInt0((Lng32)jdbcSPJRSVer_) << DgInt1((Lng32)JDBC_SPJRS_VERSION);
+              << DgInt0((int)jdbcSPJRSVer_) << DgInt1((int)JDBC_SPJRS_VERSION);
 
         rsResult = LM_ERR;
         jni->DeleteLocalRef(jobj);
@@ -2225,8 +2225,8 @@ LmResult LmLanguageManagerJava::processOutParameters(LmRoutineJava *handle, LmPa
     // Check if the SPJ method returned more result sets than it's
     // declared maximum
     if (result == LM_OK && !uncaughtExp && handle->getNumResultSets() > handle->maxResultSets_) {
-      *da << DgSqlCode(LME_TOO_MANY_RS) << DgString0(handle->getNameForDiags()) << DgInt0((Lng32)handle->maxResultSets_)
-          << DgInt1((Lng32)handle->getNumResultSets());
+      *da << DgSqlCode(LME_TOO_MANY_RS) << DgString0(handle->getNameForDiags()) << DgInt0((int)handle->maxResultSets_)
+          << DgInt1((int)handle->getNumResultSets());
 
       handle->deleteLmResultSetsOverMax(da);
     }
@@ -2311,13 +2311,13 @@ LmResult LmLanguageManagerJava::convertToString(LmParameter *param, void *inputR
     char *localInputChars = inputChars;
     inputChars = new (collHeap()) char[len + 1];
     singleCharWorkAround = TRUE;
-    str_cpy_all(inputChars, localInputChars, (Lng32)len);
+    str_cpy_all(inputChars, localInputChars, (int)len);
     inputChars[len] = '\0';
     len++;
   }
 
   // Allocate Byte Array in JVM.
-  jbyteArray javaBytes = jni->NewByteArray((Lng32)len);
+  jbyteArray javaBytes = jni->NewByteArray((int)len);
   LmResult result = exceptionReporter_->checkNewObjectExceptions(javaBytes, da);
   if (result == LM_ERR) {
     // Deallocate inputChars if it was allocated
@@ -2327,7 +2327,7 @@ LmResult LmLanguageManagerJava::convertToString(LmParameter *param, void *inputR
   }
 
   // Set the Byte array with the input bytes
-  jni->SetByteArrayRegion(javaBytes, 0, (Lng32)len, (jbyte *)inputChars);
+  jni->SetByteArrayRegion(javaBytes, 0, (int)len, (jbyte *)inputChars);
   LM_ASSERT(jni->ExceptionOccurred() == NULL);
 
   // Deallocate inputChars if it was allocated
@@ -2493,7 +2493,7 @@ LmResult LmLanguageManagerJava::convertToBigdec(LmParameter *param, void *inputR
   LM_ASSERT(len < 131);
 
   // First create the java.lang.String from the input bytes
-  str_cpy_all(tempbuf, inputChars, (Lng32)len);
+  str_cpy_all(tempbuf, inputChars, (int)len);
   tempbuf[len] = '\0';
   jstring jstr = jni->NewStringUTF(tempbuf);
   if (exceptionReporter_->checkNewObjectExceptions(jstr, da) == LM_ERR) return LM_ERR;
@@ -2553,7 +2553,7 @@ LmResult LmLanguageManagerJava::convertToDate(LmParameter *param, void *inputRow
   len = (len <= 10) ? len : 10;
 
   // First create the java.lang.String from the input bytes
-  str_cpy_all(tempbuf, inputChars, (Lng32)len);
+  str_cpy_all(tempbuf, inputChars, (int)len);
   tempbuf[len] = '\0';
   jstr = jni->NewStringUTF(tempbuf);
   if (exceptionReporter_->checkNewObjectExceptions(jstr, da) == LM_ERR) return LM_ERR;
@@ -2603,7 +2603,7 @@ LmResult LmLanguageManagerJava::convertToTime(LmParameter *param, void *inputRow
   len = (len <= 8) ? len : 8;
 
   // First create the java.lang.String from the input bytes
-  str_cpy_all(tempbuf, inputChars, (Lng32)len);
+  str_cpy_all(tempbuf, inputChars, (int)len);
   tempbuf[len] = '\0';
   jstring jstr = jni->NewStringUTF(tempbuf);
   if (exceptionReporter_->checkNewObjectExceptions(jstr, da) == LM_ERR) return LM_ERR;
@@ -2654,7 +2654,7 @@ LmResult LmLanguageManagerJava::convertToTimestamp(LmParameter *param, void *inp
   len = (len <= 29) ? len : 29;
 
   // First create the java.lang.String from the input bytes
-  str_cpy_all(tempbuf, inputChars, (Lng32)len);
+  str_cpy_all(tempbuf, inputChars, (int)len);
   tempbuf[len] = '\0';
   jstring jstr = jni->NewStringUTF(tempbuf);
   if (exceptionReporter_->checkNewObjectExceptions(jstr, da) == LM_ERR) return LM_ERR;
@@ -2843,9 +2843,9 @@ LmResult LmLanguageManagerJava::getSystemProperty(const char *key, char *value, 
 
   ComUInt32 len = (ComUInt32)str_len(cstrOut);
   if (len < bufferLen)
-    str_cpy_all(value, cstrOut, (Lng32)(len + 1));
+    str_cpy_all(value, cstrOut, (int)(len + 1));
   else if (bufferLen > 0) {
-    str_cpy_all(value, cstrOut, (Lng32)(bufferLen - 1));
+    str_cpy_all(value, cstrOut, (int)(bufferLen - 1));
     value[bufferLen - 1] = 0;
   }
 

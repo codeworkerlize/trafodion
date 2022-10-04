@@ -257,7 +257,7 @@ class ContextCli : public ExGod {
 
   void initGlobalNADefaultsEntries();
 
-  ExSqlComp::ReturnStatus sendXnMsgToArkcmp(char *data, Lng32 dataSize, Lng32 xnMsgType, ComDiagsArea *&diagsArea);
+  ExSqlComp::ReturnStatus sendXnMsgToArkcmp(char *data, int dataSize, int xnMsgType, ComDiagsArea *&diagsArea);
 
   inline NABoolean grabMemoryQuotaIfAvailable(ULng32 size) {
     if (unusedBMOsMemoryQuota_ < size) return FALSE;
@@ -277,15 +277,15 @@ class ContextCli : public ExGod {
   char *getProfileName() { return profileName_; }
 
   inline ExeCliInterface *getCliInterfaceTrigger() { return cliInterfaceTrigger_; }
-  Lng32 prepareCallTrigger();
-  inline Lng32 setTriggerParam(short entry, char *ptr, Lng32 len) {
+  int prepareCallTrigger();
+  inline int setTriggerParam(short entry, char *ptr, int len) {
     return cliInterfaceTrigger_->setInputValue(entry, ptr, len);
   }
-  inline Lng32 setTriggerParam(short entry, char *ptr) { return cliInterfaceTrigger_->setInputValue(entry, ptr); }
-  inline Lng32 setTriggerParam(short entry, Lng32 val) { return cliInterfaceTrigger_->setInputValue(entry, val); }
-  Lng32 executeCallTrigger(char *tblName, Lng32 isBefore, Lng32 opType, char *oldSKVBuffer, char *oldBufSize,
-                           char *oldRowIDs, char *oldRowIDsLen, Lng32 newRowIDLen, char *newRowIDs, Lng32 newRowIDsLen,
-                           char *newRows, Lng32 newRowsLen, char *curExecSql);
+  inline int setTriggerParam(short entry, char *ptr) { return cliInterfaceTrigger_->setInputValue(entry, ptr); }
+  inline int setTriggerParam(short entry, int val) { return cliInterfaceTrigger_->setInputValue(entry, val); }
+  int executeCallTrigger(char *tblName, int isBefore, int opType, char *oldSKVBuffer, char *oldBufSize,
+                           char *oldRowIDs, char *oldRowIDsLen, int newRowIDLen, char *newRowIDs, int newRowIDsLen,
+                           char *newRows, int newRowsLen, char *curExecSql);
 
  private:
   // The heap where executor 'stuff' will be allocated from.
@@ -451,15 +451,15 @@ class ContextCli : public ExGod {
   // stmtReclaimCount_ is the number of statements on the closeStmtList_
   // for which space reclaim has been done.
 
-  Lng32 closeStmtListSize_;
-  Lng32 stmtReclaimCount_;
-  Lng32 stmtReclaimMinPctFree_;  // Reclaim space when free is <= percent of total
+  int closeStmtListSize_;
+  int stmtReclaimCount_;
+  int stmtReclaimMinPctFree_;  // Reclaim space when free is <= percent of total
   IpcTimeout espReleaseTimeout_;
 
   // currSequence_ is the sequence of the latest close of a statement.
   // prevFixupSequence_ is the sequence of the latest fixup.
-  Lng32 currSequence_;
-  Lng32 prevFixupSequence_;
+  int currSequence_;
+  int prevFixupSequence_;
 
   // a pointer containing information that catman
   // wants to persist across multiple calls to catman interface
@@ -559,7 +559,7 @@ class ContextCli : public ExGod {
   TriggerDB *triggerDB_;
 
   CLISemaphore *cliSemaphore_;
-  Lng32 numCliCalls_;
+  int numCliCalls_;
   IpcEnvironment *env_;
   NAHeap *ipcHeap_;
   UInt32 eventConsumed_;
@@ -600,11 +600,11 @@ class ContextCli : public ExGod {
   //  enables the UDR error checking is the UDR server.
   //
   NABoolean udrErrorChecksEnabled_;
-  Lng32 udrSqlAccessMode_;
+  int udrSqlAccessMode_;
   NABoolean udrAccessModeViolation_;
   NABoolean udrXactViolation_;
   NABoolean udrXactAborted_;
-  Int64 udrXactId_;  // transid that UDR Server is interested to know
+  long udrXactId_;  // transid that UDR Server is interested to know
                      // if aborted
   NAString jniErrorStr_;
   DistributedLock_JNI *DLockClientJNI_;
@@ -697,16 +697,16 @@ class ContextCli : public ExGod {
   // declarations.
   //
   NABoolean getUdrErrorChecksEnabled() { return udrErrorChecksEnabled_; }
-  Lng32 getUdrSQLAccessMode() { return udrSqlAccessMode_; }
+  int getUdrSQLAccessMode() { return udrSqlAccessMode_; }
   NABoolean getUdrAccessModeViolation() { return udrAccessModeViolation_; }
   NABoolean getUdrXactViolation() { return udrXactViolation_; }
   NABoolean getUdrXactAborted() { return udrXactAborted_; }
 
   void setUdrErrorChecksEnabled(NABoolean b) { udrErrorChecksEnabled_ = b; }
-  void setUdrSQLAccessMode(Lng32 mode) { udrSqlAccessMode_ = mode; }
+  void setUdrSQLAccessMode(int mode) { udrSqlAccessMode_ = mode; }
   void setUdrAccessModeViolation(NABoolean b) { udrAccessModeViolation_ = b; }
   void setUdrXactViolation(NABoolean b) { udrXactViolation_ = b; }
-  void setUdrXactAborted(Int64 currTransId, NABoolean b);
+  void setUdrXactAborted(long currTransId, NABoolean b);
   //
   // A few useful wrapper functions to ease management of the UDR
   // error checking fields
@@ -722,20 +722,20 @@ class ContextCli : public ExGod {
   }
 
   inline CLISemaphore *getSemaphore() { return cliSemaphore_; }
-  inline Lng32 incrNumOfCliCalls() { return ++numCliCalls_; }
-  inline Lng32 decrNumOfCliCalls() {
+  inline int incrNumOfCliCalls() { return ++numCliCalls_; }
+  inline int decrNumOfCliCalls() {
     if (numCliCalls_ > 0)
       return --numCliCalls_;
     else
       return numCliCalls_;
   }
-  inline Lng32 getNumOfCliCalls() { return numCliCalls_; }
-  Lng32 initializeSessionDefaults();
-  Lng32 initializeExeBDRConfigInfo(char *mgbltyCatName, ComDiagsArea *diagsArea);
+  inline int getNumOfCliCalls() { return numCliCalls_; }
+  int initializeSessionDefaults();
+  int initializeExeBDRConfigInfo(char *mgbltyCatName, ComDiagsArea *diagsArea);
 
   short moduleAdded(const SQLMODULE_ID *module_name);
 
-  RETCODE allocateDesc(SQLDESC_ID *desc_id, Lng32 max_entries);
+  RETCODE allocateDesc(SQLDESC_ID *desc_id, int max_entries);
   RETCODE deallocDesc(SQLDESC_ID *desc_id, NABoolean deallocStaticDesc);
   Descriptor *getDescriptor(SQLDESC_ID *desc_id);
 
@@ -759,10 +759,10 @@ class ContextCli : public ExGod {
   short commitTransaction();
   short releaseAllTransactionalRequests();
 
-  void closeAllCursors(enum CloseCursorType, enum closeTransactionType transType, const Int64 executorXnId = 0,
+  void closeAllCursors(enum CloseCursorType, enum closeTransactionType transType, const long executorXnId = 0,
                        NABoolean inRollback = FALSE);
   void checkIfNeedToClose(Statement *stmt, enum CloseCursorType type, NABoolean &closeStmt, NABoolean &releaseStmt);
-  void clearAllTransactionInfoInClosedStmt(Int64 transid);
+  void clearAllTransactionInfoInClosedStmt(long transid);
   void closeAllCursorsFor(SQLSTMT_ID *statement_id);
 
   inline NAHeap *exHeap() { return &exHeap_; }
@@ -840,7 +840,7 @@ class ContextCli : public ExGod {
   ArkcmpFailMode &arkcmpInitFailed(short index = 0) { return (ContextCli::ArkcmpFailMode &)arkcmpInitFailed_[index]; }
 
   short getNumArkcmps() { return arkcmpArray_.entries(); }
-  Lng32 setOrStartCompiler(short mxcmpVersionToUse, char *remoteNodeName, short &indexIntoCompilerArray);
+  int setOrStartCompiler(short mxcmpVersionToUse, char *remoteNodeName, short &indexIntoCompilerArray);
 
   inline short getVersionOfCompiler() { return versionOfMxcmp_; }
   inline void setVersionOfMxcmp(short version) { versionOfMxcmp_ = version; }
@@ -877,7 +877,7 @@ class ContextCli : public ExGod {
   // only caller of that function.
   const char *getUdrRuntimeOptions() const { return udrRuntimeOptions_; }
   const char *getUdrRuntimeOptionDelimiters() const { return udrRuntimeOptionDelimiters_; }
-  Lng32 setUdrRuntimeOptions(const char *options, ULng32 optionsLen, const char *delimiters, ULng32 delimsLen);
+  int setUdrRuntimeOptions(const char *options, ULng32 optionsLen, const char *delimiters, ULng32 delimsLen);
 
   ExTransaction *getTransaction() { return transaction_; }
 
@@ -889,7 +889,7 @@ class ContextCli : public ExGod {
   NABoolean &ddlStmtsInSPExecuted() { return ddlStmtsInSPExecuted_; }
   NABoolean &execDDLOptions() { return execDDLOptions_; }
 
-  Lng32 setAuthID(const USERS_INFO &usersInfo, const char *authToken, Int32 authTokenLen, const char *slaName,
+  int setAuthID(const USERS_INFO &usersInfo, const char *authToken, Int32 authTokenLen, const char *slaName,
                   const char *profileName, Int32 resetAttributes);
 
   Int32 completeSetAuthID(const USERS_INFO &usersInfo, const char *authToken, Int32 authTokenLen, const char *slaName,
@@ -903,7 +903,7 @@ class ContextCli : public ExGod {
       return NULL;
   }
 
-  Lng32 boundsCheckMemory(void *startAddress, ULng32 length);
+  int boundsCheckMemory(void *startAddress, ULng32 length);
 
   inline SQLCTX_HANDLE getContextHandle() const { return contextHandle_; }
 
@@ -955,7 +955,7 @@ class ContextCli : public ExGod {
   inline void setPendingNoWaitPrepare(Statement *statement) { pendingNoWaitPrepare_ = statement; };
 
   inline void resetPendingNoWaitPrepare() { pendingNoWaitPrepare_ = NULL; };
-  void logReclaimEvent(Lng32 freeSize, Lng32 totalSize);
+  void logReclaimEvent(int freeSize, int totalSize);
 
   SessionDefaults *getSessionDefaults() { return sessionDefaults_; }
   HashQueue *getBDRConfigInfoList() { return bdrConfigInfoList_; }
@@ -972,7 +972,7 @@ class ContextCli : public ExGod {
   short ddlResetObjectEpochs(ComDiagsArea *diags);
 
   void beginSession(char *userSpecifiedSessionName);
-  Lng32 reduceEsps();
+  int reduceEsps();
   void endSession(NABoolean cleanupEsps = FALSE, NABoolean cleanupEspsOnly = FALSE, NABoolean cleanupOpens = FALSE,
                   NABoolean cleanupCmpContext = FALSE);
   void dropSession(NABoolean clearCmpCache = FALSE);
@@ -1003,10 +1003,10 @@ class ContextCli : public ExGod {
   void killIdleMxcmp();
   void killAndRecreateMxcmp();
 
-  ExStatisticsArea *getObjectEpochStats(const char *objectName, Lng32 objectNameLen, short cpu, bool locked,
+  ExStatisticsArea *getObjectEpochStats(const char *objectName, int objectNameLen, short cpu, bool locked,
                                         short &retryAttempts);
 
-  ExStatisticsArea *getObjectLockStats(const char *objectName, Lng32 objectNameLen, short cpu, short &retryAttempts);
+  ExStatisticsArea *getObjectLockStats(const char *objectName, int objectNameLen, short cpu, short &retryAttempts);
 
   Int32 performObjectLockRequest(const char *objectName, ComObjectType objectType, ObjectLockRequest::OpType opType,
                                  Int32 nid, Int32 pid, Int32 maxRetries, Int32 delay);
@@ -1038,26 +1038,26 @@ class ContextCli : public ExGod {
   ExStatisticsArea *getMergedStats(
       /* IN */ short statsReqType,
       /* IN */ char *statsReqStr,
-      /* IN */ Lng32 statsReqStrLen,
+      /* IN */ int statsReqStrLen,
       /* IN */ short activeQueryNum,
       /* IN */ short statsMergeType,
       /*IN/out */ short &retryAttempts);
 
-  Lng32 GetStatistics2(
+  int GetStatistics2(
       /* IN */ short statsReqType,
       /* IN */ char *statsReqStr,
-      /* IN */ Lng32 statsReqStrLen,
+      /* IN */ int statsReqStrLen,
       /* IN */ short activeQueryNum,
       /* IN */ short statsMergeType,
       /* OUT */ short *statsCollectType,
       /* IN/OUT */ SQLSTATS_DESC sqlstats_desc[],
-      /* IN */ Lng32 max_stats_desc,
-      /* OUT */ Lng32 *no_returned_stats_desc);
+      /* IN */ int max_stats_desc,
+      /* OUT */ int *no_returned_stats_desc);
   StmtStats *getPrevStmtStats() { return prevStmtStats_; }
 
   void setPrevStmtStats(StmtStats *ss) { prevStmtStats_ = ss; }
 
-  Lng32 setSecInvalidKeys(
+  int setSecInvalidKeys(
       /* IN */ Int32 numSiKeys,
       /* IN */ SQL_QIKEY siKeys[]);
 
@@ -1065,8 +1065,8 @@ class ContextCli : public ExGod {
       /* IN */ Int32 operation,
       /* IN */ Int32 objectNameLength,
       /* IN */ const char *objectName,
-      /* IN */ Int64 redefTime,
-      /* IN */ Int64 key,
+      /* IN */ long redefTime,
+      /* IN */ long key,
       /* IN */ UInt32 expectedEpoch,
       /* IN */ UInt32 expectedFlags,
       /* IN */ UInt32 newEpoch,
@@ -1076,11 +1076,11 @@ class ContextCli : public ExGod {
 
   Int32 checkLobLock(char *inLobLockId, NABoolean *found);
 
-  Lng32 holdAndSetCQD(const char *defaultName, const char *defaultValue);
-  Lng32 restoreCQD(const char *defaultName);
+  int holdAndSetCQD(const char *defaultName, const char *defaultValue);
+  int restoreCQD(const char *defaultName);
 
-  Lng32 setCS(const char *csName, char *csValue);
-  Lng32 resetCS(const char *csName);
+  int setCS(const char *csName, char *csValue);
+  int resetCS(const char *csName);
   inline IpcTimeout getEspReleaseTimeout() const { return espReleaseTimeout_; }
 
   // Private method to initialize the context's user identity based on
@@ -1128,5 +1128,5 @@ struct hdfsConnectStruct {
 
 #endif
 
-Lng32 parse_statsReq(short statsReqType, char *statsReqPtr, Lng32 statsReqStrLen, char *nodeName, short &cpu,
-                     pid_t &pid, Int64 &timeStamp, Lng32 &queryNumber);
+int parse_statsReq(short statsReqType, char *statsReqPtr, int statsReqStrLen, char *nodeName, short &cpu,
+                     pid_t &pid, long &timeStamp, int &queryNumber);

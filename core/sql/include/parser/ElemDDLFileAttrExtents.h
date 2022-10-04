@@ -61,8 +61,8 @@ class ElemDDLFileAttrExtents : public ElemDDLFileAttr {
 
   // constructors
   ElemDDLFileAttrExtents();
-  ElemDDLFileAttrExtents(Lng32 priExt);
-  ElemDDLFileAttrExtents(Lng32 priExt, Lng32 secExt);
+  ElemDDLFileAttrExtents(int priExt);
+  ElemDDLFileAttrExtents(int priExt, int secExt);
 
   // virtual destructor
   virtual ~ElemDDLFileAttrExtents();
@@ -85,9 +85,9 @@ class ElemDDLFileAttrExtents : public ElemDDLFileAttr {
   // methods
   //
 
-  NABoolean isLegalExtentValue(Lng32 extent) const;
-  void initializeExtents(Lng32 priExt, Lng32 secExt);
-  void initializePriExtent(Lng32 priExt);
+  NABoolean isLegalExtentValue(int extent) const;
+  void initializeExtents(int priExt, int secExt);
+  void initializePriExtent(int priExt);
 
   //
   // data members

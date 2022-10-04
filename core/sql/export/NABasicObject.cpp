@@ -245,7 +245,7 @@ void NABasicObject::operator delete[](void *p, NAMemory *h, NABoolean) {
 #if !defined(NDEBUG)
 Int32 NABasicObject::checkInvalidObject(const void *const referencingObject) {
   if (this && maybeInvalidObject()) {
-    Lng32 stackVar = (char *)this - (char *)&stackVar;
+    int stackVar = (char *)this - (char *)&stackVar;
     if (stackVar < 0) stackVar = -stackVar;
 
     cerr << "**ERROR: Object " << (void *)this;

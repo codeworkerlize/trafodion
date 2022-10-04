@@ -159,7 +159,7 @@ Int32 vfprintf(SPRINTF_BUF *fp, const NAWchar *fmt0, va_list ap) {
 #endif
 
 #ifdef __GNUC__ /* gcc has builtin quad type (long long) SOS */
-#define quad_t   Int64
+#define quad_t   long
 #define u_quad_t UInt64
 #endif
 
@@ -217,8 +217,8 @@ Int32 vfprintf(SPRINTF_BUF *fp, const NAWchar *fmt0, va_list ap) {
    */
 #define SARG()                                           \
   (flags & QUADINT ? va_arg(ap, quad_t)                  \
-                   : flags & LONGINT ? va_arg(ap, Lng32) \
-                                     : flags & SHORTINT ? (Lng32)(short)va_arg(ap, Int32) : (Lng32)va_arg(ap, Int32))
+                   : flags & LONGINT ? va_arg(ap, int) \
+                                     : flags & SHORTINT ? (int)(short)va_arg(ap, Int32) : (int)va_arg(ap, Int32))
 #define UARG()                                \
   (flags & QUADINT                            \
        ? va_arg(ap, u_quad_t)                 \
@@ -389,7 +389,7 @@ Int32 vfprintf(SPRINTF_BUF *fp, const NAWchar *fmt0, va_list ap) {
         }
 
         if (flags & LONGDBL) {
-          _double = (double)va_arg(ap, Lng32 double);
+          _double = (double)va_arg(ap, int double);
         } else {
           _double = va_arg(ap, double);
         }
@@ -439,7 +439,7 @@ Int32 vfprintf(SPRINTF_BUF *fp, const NAWchar *fmt0, va_list ap) {
         if (flags & QUADINT)
           *va_arg(ap, quad_t *) = ret;
         else if (flags & LONGINT)
-          *va_arg(ap, Lng32 *) = ret;
+          *va_arg(ap, int *) = ret;
         else if (flags & SHORTINT)
           *va_arg(ap, short *) = ret;
         else

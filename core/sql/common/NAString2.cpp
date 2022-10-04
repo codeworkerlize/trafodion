@@ -81,7 +81,7 @@ char *ToAnsiIdentifier2(const char *nsData, size_t nsLen, CollHeap *heap) {
 }
 
 // -----------------------------------------------------------------------
-char *ToAnsiIdentifier2(const char *nsData, size_t nsLen, CollHeap *heap, Lng32 isoMapCS) {
+char *ToAnsiIdentifier2(const char *nsData, size_t nsLen, CollHeap *heap, int isoMapCS) {
   const Int32 SMAX = 2048;  // See ToAnsiIdentifier for explanation of this const.
 
   if ((nsData == NULL) || (nsLen == 0) || (nsLen > SMAX)) return NULL;
@@ -114,7 +114,7 @@ void ToAnsiIdentifier3(const char *inputData, size_t inputLen, char *outputData,
 
 // -----------------------------------------------------------------------
 void ToAnsiIdentifier3(const char *inputData, size_t inputLen, char *outputData, size_t outputMaxLen, size_t *outputLen,
-                       Lng32 isoMapCS) {
+                       int isoMapCS) {
   const Int32 SMAX = 2048;  // See ToAnsiIdentifier for explanation of this const.
 
   if ((inputData == NULL) || (inputLen == 0) || (inputLen > SMAX) || (outputMaxLen < inputLen)) {

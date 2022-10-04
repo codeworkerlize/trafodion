@@ -73,7 +73,7 @@ static void initDWS(CmpDDLwithStatusInfo *dws) {
   dws->setReturnET(FALSE);
 }
 
-static void setValuesInDWS(CmpDDLwithStatusInfo *dws, Lng32 nextStep, const char *msg = NULL, Lng32 subStep = 0,
+static void setValuesInDWS(CmpDDLwithStatusInfo *dws, int nextStep, const char *msg = NULL, int subStep = 0,
                            NABoolean isEndStep = FALSE, NABoolean computeST = FALSE, NABoolean computeET = FALSE,
                            NABoolean returnET = FALSE, NABoolean done = FALSE) {
   if (msg) dws->setMsg(msg);
@@ -89,7 +89,7 @@ static void setValuesInDWS(CmpDDLwithStatusInfo *dws, Lng32 nextStep, const char
 }
 
 short CmpSeabaseDDL::initTrafMD(CmpDDLwithStatusInfo *dws) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
 
   initDWS(dws);
 
@@ -140,7 +140,7 @@ short CmpSeabaseDDL::initTrafMD(CmpDDLwithStatusInfo *dws) {
       } break;
 
       case IT_VERSION_CHECK: {
-        Lng32 hbaseErrNum = 0;
+        int hbaseErrNum = 0;
         NAString hbaseErrStr;
 
         ExpHbaseInterface *ehi = allocEHI(COM_STORAGE_HBASE);
@@ -159,7 +159,7 @@ short CmpSeabaseDDL::initTrafMD(CmpDDLwithStatusInfo *dws) {
 
           case 1: {
             // check if traf is already initialized
-            Lng32 errNum = validateVersions(&ActiveSchemaDB()->getDefaults(), ehi, NULL, NULL, NULL, NULL, NULL, NULL,
+            int errNum = validateVersions(&ActiveSchemaDB()->getDefaults(), ehi, NULL, NULL, NULL, NULL, NULL, NULL,
                                             NULL, NULL, NULL, &hbaseErrNum, &hbaseErrStr);
             deallocEHI(ehi);
 
@@ -361,11 +361,11 @@ short CmpSeabaseDDL::initTrafMD(CmpDDLwithStatusInfo *dws) {
               return 0;
             }
 
-            Lng32 numTables = sizeof(allMDtablesInfo) / sizeof(MDTableInfo);
+            int numTables = sizeof(allMDtablesInfo) / sizeof(MDTableInfo);
             const char *sysCat = ActiveSchemaDB()->getDefaults().getValue(SEABASE_CATALOG);
 
             // create hbase physical objects
-            for (Lng32 i = 0; i < numTables; i++) {
+            for (int i = 0; i < numTables; i++) {
               const MDTableInfo &mdti = allMDtablesInfo[i];
 
               HbaseStr hbaseObject;
@@ -407,8 +407,8 @@ short CmpSeabaseDDL::initTrafMD(CmpDDLwithStatusInfo *dws) {
           case 1: {
             ExeCliInterface cliInterface(STMTHEAP, 0, NULL, CmpCommon::context()->sqlSession()->getParentQid());
 
-            Int64 objectFlags = 0;
-            Int64 schemaUID = -1;
+            long objectFlags = 0;
+            long schemaUID = -1;
 
             const char *sysCat = ActiveSchemaDB()->getDefaults().getValue(SEABASE_CATALOG);
 
@@ -426,14 +426,14 @@ short CmpSeabaseDDL::initTrafMD(CmpDDLwithStatusInfo *dws) {
             }
 
             // update MD with information about metadata objects
-            Lng32 numTables = sizeof(allMDtablesInfo) / sizeof(MDTableInfo);
-            for (Lng32 i = 0; i < numTables; i++) {
+            int numTables = sizeof(allMDtablesInfo) / sizeof(MDTableInfo);
+            for (int i = 0; i < numTables; i++) {
               const MDTableInfo &mdti = allMDtablesInfo[i];
               MDDescsInfo &mddi = CmpCommon::context()->getTrafMDDescsInfo()[i];
 
               if (mdti.isIndex) continue;
 
-              Int64 objUID = -1;
+              long objUID = -1;
               if (updateSeabaseMDTable(&cliInterface, sysCat, SEABASE_MD_SCHEMA, mdti.newName, COM_BASE_TABLE_OBJECT,
                                        "Y", mddi.tableInfo, mddi.numNewCols, mddi.newColInfo, mddi.numNewKeys,
                                        mddi.newKeyInfo, mddi.numIndexes, mddi.indexInfo, objUID)) {
@@ -445,13 +445,13 @@ short CmpSeabaseDDL::initTrafMD(CmpDDLwithStatusInfo *dws) {
             }  // for
 
             // update metadata with metadata indexes information
-            for (Lng32 i = 0; i < numTables; i++) {
+            for (int i = 0; i < numTables; i++) {
               const MDTableInfo &mdti = allMDtablesInfo[i];
               MDDescsInfo &mddi = CmpCommon::context()->getTrafMDDescsInfo()[i];
 
               if (NOT mdti.isIndex) continue;
 
-              Int64 objUID = -1;
+              long objUID = -1;
               if (updateSeabaseMDTable(&cliInterface, sysCat, SEABASE_MD_SCHEMA, mdti.newName, COM_INDEX_OBJECT, "Y",
                                        mddi.tableInfo, mddi.numNewCols, mddi.newColInfo, mddi.numNewKeys,
                                        mddi.newKeyInfo, 0, NULL, objUID)) {
@@ -597,7 +597,7 @@ short CmpSeabaseDDL::initTrafMD(CmpDDLwithStatusInfo *dws) {
             NAString installJar("trafodion-sql-currversion.jar");
 
             // update library info
-            Int64 libUID;
+            long libUID;
             if (updateSeabaseMDLibrary(&cliInterface, sysCat, SEABASE_MD_SCHEMA, SEABASE_VALIDATE_LIBRARY,
                                        installJar.data(), 1 /* libVersion */, libUID, SUPER_USER, SUPER_USER)) {
               setValuesInDWS(dws, IT_STEP_FAILED, "Update Libraries Tables: Failed", 0, TRUE, FALSE, TRUE, TRUE);
@@ -847,7 +847,7 @@ short CmpSeabaseDDL::initTrafMD(CmpDDLwithStatusInfo *dws) {
 }
 
 short CmpSeabaseDDL::createOrDropLobMD(ExeCliInterface *cliInterface, NABoolean isCreate) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
 
   char queryBuf[4000];
 
@@ -857,7 +857,7 @@ short CmpSeabaseDDL::createOrDropLobMD(ExeCliInterface *cliInterface, NABoolean 
   Int32 sizeOfqs = 0;
   Int32 qryArraySize = 0;
   char *gluedQuery;
-  Lng32 gluedQuerySize;
+  int gluedQuerySize;
 
   if (isCreate && beginXnIfNotInProgress(cliInterface, xnWasStartedHere)) goto label_return;
 

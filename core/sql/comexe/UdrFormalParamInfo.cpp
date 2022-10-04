@@ -49,7 +49,7 @@ Long UdrFormalParamInfo::pack(void *space) {
   return NAVersionedObject::pack(space);
 }
 
-Lng32 UdrFormalParamInfo::unpack(void *base, void *reallocator) {
+int UdrFormalParamInfo::unpack(void *base, void *reallocator) {
   if (paramName_.unpack(base)) return -1;
   return NAVersionedObject::unpack(base, reallocator);
 }

@@ -147,7 +147,7 @@ struct HbaseTableColInfoStruct {
   char rowId[128];
   char colFamily[128];
   char colName[128];
-  Int64 colTS;
+  long colTS;
   char colVal[256];
 };
 
@@ -319,7 +319,7 @@ class ComTdbHbaseAccess : public ComTdb {
 
     virtual Long pack(void *space);
 
-    virtual Lng32 unpack(void *base, void *reallocator);
+    virtual int unpack(void *base, void *reallocator);
 
     char *beginRowId() { return beginRowId_; }
     char *endRowId() { return endRowId_; }
@@ -329,12 +329,12 @@ class ComTdbHbaseAccess : public ComTdb {
     NABasicPtr beginRowId_;
     NABasicPtr endRowId_;
 
-    Lng32 beginKeyExclusive_;
-    Lng32 endKeyExclusive_;
+    int beginKeyExclusive_;
+    int endKeyExclusive_;
 
     QueuePtr colNames_;
 
-    Int64 colTS_;
+    long colTS_;
   };
 
   class HbaseGetRows : public NAVersionedObject {
@@ -349,7 +349,7 @@ class ComTdbHbaseAccess : public ComTdb {
 
     virtual Long pack(void *space);
 
-    virtual Lng32 unpack(void *base, void *reallocator);
+    virtual int unpack(void *base, void *reallocator);
 
     Queue *rowIds() { return rowIds_; }
     Queue *colNames() { return colNames_; }
@@ -357,7 +357,7 @@ class ComTdbHbaseAccess : public ComTdb {
     QueuePtr rowIds_;
     QueuePtr colNames_;
 
-    Int64 colTS_;
+    long colTS_;
   };
 
   class HbasePerfAttributes : public NAVersionedObject {
@@ -372,7 +372,7 @@ class ComTdbHbaseAccess : public ComTdb {
 
     virtual Long pack(void *space);
 
-    virtual Lng32 unpack(void *base, void *reallocator);
+    virtual int unpack(void *base, void *reallocator);
 
     void setNumCacheRows(UInt32 n) { numCacheRows_ = n; }
     UInt32 numCacheRows() { return numCacheRows_; }
@@ -442,7 +442,7 @@ class ComTdbHbaseAccess : public ComTdb {
 
     virtual Long pack(void *space);
 
-    virtual Lng32 unpack(void *base, void *reallocator);
+    virtual int unpack(void *base, void *reallocator);
 
     void setUseSnapshotScan(NABoolean v) {
       (v ? flags_ |= TRAF_USE_SNAPSHOT_SCAN_ATTR : flags_ &= ~TRAF_USE_SNAPSHOT_SCAN_ATTR);
@@ -485,7 +485,7 @@ class ComTdbHbaseAccess : public ComTdb {
 
     // Pack and Unpack routines
     Long pack(void *);
-    Lng32 unpack(void *, void *reallocator);
+    int unpack(void *, void *reallocator);
 
     HbaseAccessOptions &hbaseAccessOptions() { return hbo_; }
 
@@ -541,7 +541,7 @@ class ComTdbHbaseAccess : public ComTdb {
                     keyRangeGen *keyInfo, char *keyColName,
 
                     ex_cri_desc *workCriDesc, ex_cri_desc *criDescParentDown, ex_cri_desc *criDescParentUp,
-                    queue_index queueSizeDown, queue_index queueSizeUp, Cardinality expectedRows, Lng32 numBuffers,
+                    queue_index queueSizeDown, queue_index queueSizeUp, Cardinality expectedRows, int numBuffers,
                     ULng32 bufferSize, char *server, char *zkPort, HbasePerfAttributes *hbasePerfAttributes,
                     Float32 samplingRate = -1, HbaseSnapshotScanAttributes *hbaseSnapshotScanAttributes = NULL,
 
@@ -556,7 +556,7 @@ class ComTdbHbaseAccess : public ComTdb {
                     const UInt16 returnedTuppIndex, Queue *colFamNameList,
 
                     ex_cri_desc *workCriDesc, ex_cri_desc *criDescParentDown, ex_cri_desc *criDescParentUp,
-                    queue_index queueSizeDown, queue_index queueSizeUp, Cardinality expectedRows, Lng32 numBuffers,
+                    queue_index queueSizeDown, queue_index queueSizeUp, Cardinality expectedRows, int numBuffers,
                     ULng32 bufferSize, char *server, char *zkPort);
 
   ~ComTdbHbaseAccess();
@@ -605,7 +605,7 @@ class ComTdbHbaseAccess : public ComTdb {
 
   // Pack and Unpack routines
   Long pack(void *);
-  Lng32 unpack(void *, void *reallocator);
+  int unpack(void *, void *reallocator);
 
   // For the GUI, Does nothing right now
   void display() const {};
@@ -862,11 +862,11 @@ class ComTdbHbaseAccess : public ComTdb {
       return rowIdLen_;
   }
 
-  void setHbaseCellTS(Int64 ts) { hbaseCellTS_ = ts; }
-  Int64 getHbaseCellTS() { return hbaseCellTS_; }
+  void setHbaseCellTS(long ts) { hbaseCellTS_ = ts; }
+  long getHbaseCellTS() { return hbaseCellTS_; }
 
-  void setFirstNRows(Int64 f) { firstNRows_ = f; }
-  Int64 getFirstNRows() { return firstNRows_; }
+  void setFirstNRows(long f) { firstNRows_ = f; }
+  long getFirstNRows() { return firstNRows_; }
 
   void setIsTrafLoadCleanup(NABoolean v) { (v ? flags2_ |= TRAF_LOAD_CLEANUP : flags2_ &= ~TRAF_LOAD_CLEANUP); };
   NABoolean getIsTrafLoadCleanup() { return (flags2_ & TRAF_LOAD_CLEANUP) != 0; };
@@ -954,22 +954,22 @@ class ComTdbHbaseAccess : public ComTdb {
   void setUseEncryption(NABoolean v) { (v ? flags_ |= USE_ENCRYPTION : flags_ &= ~USE_ENCRYPTION); };
   NABoolean useEncryption() { return (flags_ & USE_ENCRYPTION) != 0; };
 
-  void setEncryptionInfo(char *encInfo, Lng32 encInfoLen) {
+  void setEncryptionInfo(char *encInfo, int encInfoLen) {
     encryptionInfo_ = encInfo;
     encryptionInfoLen_ = encInfoLen;
   }
   char *getEncryptionInfo() { return encryptionInfo_; }
-  Lng32 getEncryptionInfoLen() { return encryptionInfoLen_; }
+  int getEncryptionInfoLen() { return encryptionInfoLen_; }
 
   void setUseTrigger(NABoolean v) { (v ? flags_ |= USE_TRIGGER : flags_ &= ~USE_TRIGGER); }
   NABoolean useTrigger() { return (flags_ & USE_TRIGGER) != 0; };
   BeforeAndAfterTriggers *getTriggers(const char *tableName);
-  void setTableId(Int64 tabId) { tableId_ = tabId; }
-  Int64 getTableId() { return tableId_; }
+  void setTableId(long tabId) { tableId_ = tabId; }
+  long getTableId() { return tableId_; }
 
   // this is the id for reall hbase table
-  void setDataUId(Int64 Id) { objDataUID_ = Id; }
-  Int64 getDataUId() { return objDataUID_; }
+  void setDataUId(long Id) { objDataUID_ = Id; }
+  long getDataUId() { return objDataUID_; }
   void setUpdateKey(NABoolean v) { (v ? flags_ |= UPDATE_CKORUNIQUEINDEXKEY : flags_ &= ~UPDATE_CKORUNIQUEINDEXKEY); }
   NABoolean updateKey() { return (flags_ & UPDATE_CKORUNIQUEINDEXKEY) != 0; }
   void setHasCallBeforeTrigger(NABoolean v) { hasCallBeforeTrigger_ = v; }
@@ -1108,9 +1108,9 @@ class ComTdbHbaseAccess : public ComTdb {
   UInt32 hbaseFilterValRowLen_;
   UInt32 hbTagRowLen_;
 
-  Int64 tableId_;
+  long tableId_;
 
-  Int64 objDataUID_;
+  long objDataUID_;
 
   // expr to create the hbase row
   ExExprPtr convertExpr_;
@@ -1171,7 +1171,7 @@ class ComTdbHbaseAccess : public ComTdb {
   NABasicPtr zkPort_;
 
   // user specified hbase cell timestamp value to be used during ins/ups/upd
-  Int64 hbaseCellTS_;
+  long hbaseCellTS_;
 
   HbasePerfAttributesPtr hbasePerfAttributes_;
   Float32 samplingRate_;
@@ -1199,10 +1199,10 @@ class ComTdbHbaseAccess : public ComTdb {
   // number of column in row being inserted, not of the column in table.
   Int16 colIndexOfPK1_;
 
-  Int64 firstNRows_;
+  long firstNRows_;
 
   NABasicPtr encryptionInfo_;
-  Lng32 encryptionInfoLen_;
+  int encryptionInfoLen_;
 
   BeforeAndAfterTriggers *triggers_;
   NABoolean hasFetchTrigger_;
@@ -1219,7 +1219,7 @@ class ComTdbHbaseAccess : public ComTdb {
   bool validateDDL_;  // if true, we'll do the RMS checking (e.g. we skip for metadata)
   UInt32 expectedEpoch_;
   UInt32 expectedFlags_;  // see ObjectEpochChangeRequest::Flags in runtimestats/rts_msg.h
-  Int64 recordCostTh_;
+  long recordCostTh_;
   NABoolean withNoReplicate_;
   NABoolean optLargVar_;
   NABoolean replaceNameByUID_;
@@ -1240,7 +1240,7 @@ class ComTdbHbaseCoProcAccess : public ComTdbHbaseAccess {
 
                           ex_cri_desc *workCriDesc, ex_cri_desc *criDescParentDown, ex_cri_desc *criDescParentUp,
                           queue_index queueSizeDown, queue_index queueSizeUp, Cardinality expectedRows,
-                          Lng32 numBuffers, ULng32 bufferSize, char *server, char *zkPort,
+                          int numBuffers, ULng32 bufferSize, char *server, char *zkPort,
                           HbasePerfAttributes *hbasePerfAttributes, Queue *tdbListOfRangeRows, ex_expr *rowIdExpr,
                           Int32 rowIdTuppIndex, Int32 rowIdAsciiTuppIndex, ULng32 rowIdLength, ULng32 rowIdAsciiRowLen);
 
@@ -1278,7 +1278,7 @@ class ComTdbHbaseCoProcAggr : public ComTdbHbaseCoProcAccess {
                         Queue *listOfAggrTypes, Queue *listOfAggrColNames,
 
                         ex_cri_desc *workCriDesc, ex_cri_desc *criDescParentDown, ex_cri_desc *criDescParentUp,
-                        queue_index queueSizeDown, queue_index queueSizeUp, Cardinality expectedRows, Lng32 numBuffers,
+                        queue_index queueSizeDown, queue_index queueSizeUp, Cardinality expectedRows, int numBuffers,
                         ULng32 bufferSize, char *server, char *zkPort, HbasePerfAttributes *hbasePerfAttributes,
                         Queue *tdbListOfRangeRows, ex_expr *rowIdExpr, Int32 rowIdTuppIndex, Int32 rowIdAsciiTuppIndex,
                         ULng32 rowIdLength, ULng32 rowIdAsciiRowLen, int filterForNull);
@@ -1297,7 +1297,7 @@ class ComTdbHbaseCoProcAggr : public ComTdbHbaseCoProcAccess {
 
   // Pack and Unpack routines
   Long pack(void *);
-  Lng32 unpack(void *, void *reallocator);
+  int unpack(void *, void *reallocator);
 
   Queue *listOfAggrTypes() { return listOfAggrTypes_; }
 

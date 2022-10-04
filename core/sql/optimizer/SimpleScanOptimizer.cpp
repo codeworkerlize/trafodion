@@ -292,7 +292,7 @@ void SimpleFileScanOptimizer::computeNumberOfBlocksToReadPerAccess(FileScanBasic
   // probes:
   CostScalar blocksToRead((numKBytes / getBlockSizeInKb()).getCeiling());
 
-  Lng32 indexBlocks = MAXOF(getIndexDesc()->getIndexLevels(), 1);
+  int indexBlocks = MAXOF(getIndexDesc()->getIndexLevels(), 1);
 
   // Substract index blocks. minCsOne is another sanity check.
   blocksToRead = (blocksToRead - indexBlocks).minCsOne();
@@ -526,7 +526,7 @@ CostScalar SimpleFileScanOptimizer::estimateNumberOfSeeksPerScan(const CostScala
   // indexLevels is the max index levels of all partitions.
   // Assume the worst case
   //
-  Lng32 indexBlocks = MAXOF(getIndexDesc()->getIndexLevels(), 1);
+  int indexBlocks = MAXOF(getIndexDesc()->getIndexLevels(), 1);
 
   CostScalar seeks(indexBlocks);
 
@@ -578,7 +578,7 @@ CostScalar SimpleFileScanOptimizer::estimateSeqKBReadPerScan() const {
   // indexLevels is the max index levels of all partitions.
   // Assume at least 1 block (root) needs to be read.
   //
-  Lng32 indexBlocks = MAXOF(getIndexDesc()->getIndexLevels(), 1);
+  int indexBlocks = MAXOF(getIndexDesc()->getIndexLevels(), 1);
 
   // For single subset, all rows are contiguous. Get the number of KB
   // required to hold the expected result.  Assumes rows are dense (no
@@ -1050,9 +1050,9 @@ CostScalar SimpleFileScanOptimizer::getRepeatCount() const {
 
 CostScalar SimpleFileScanOptimizer::getProbeCacheCostAdjFactor() const {
   CostScalar probeCacheCostAdj = csOne;
-  Lng32 cacheEntries = (ActiveSchemaDB()->getDefaults()).getAsLong(GEN_PROBE_CACHE_NUM_ENTRIES);
+  int cacheEntries = (ActiveSchemaDB()->getDefaults()).getAsLong(GEN_PROBE_CACHE_NUM_ENTRIES);
 
-  Lng32 downCacheSize = (ActiveSchemaDB()->getDefaults()).getAsLong(GEN_PROBE_CACHE_SIZE_DOWN);
+  int downCacheSize = (ActiveSchemaDB()->getDefaults()).getAsLong(GEN_PROBE_CACHE_SIZE_DOWN);
 
   // upper bound cost adjustment as a saftey net
   CostScalar ubound = (ActiveSchemaDB()->getDefaults()).getAsDouble(NCM_NJ_PC_THRESHOLD);
@@ -1064,7 +1064,7 @@ CostScalar SimpleFileScanOptimizer::getProbeCacheCostAdjFactor() const {
   // ignore cacheEntries if it is smaller than downCacheSize.
   cacheEntries = MAXOF(cacheEntries, downCacheSize);
   // get number of streams (ESPs)
-  Lng32 countOfStreams = getContext().getPlan()->getPhysicalProperty()->getCurrentCountOfCPUs();
+  int countOfStreams = getContext().getPlan()->getPhysicalProperty()->getCurrentCountOfCPUs();
 
   CostScalar dupSuccProbes = getDuplicateSuccProbes();
   CostScalar totalProbes = getProbes();
@@ -1434,7 +1434,7 @@ void SimpleFileScanOptimizer::categorizeProbes(CostScalar &successfulProbes /* o
 
 void SimpleFileScanOptimizer::estimateIndexBlockUsageMultiProbeScan() {
   const IndexDesc *index = getIndexDesc();
-  Lng32 curLevel = index->getIndexLevels();
+  int curLevel = index->getIndexLevels();
   const double avrgSlack = 0.7;
 
   CostScalar leafProbesPerScan = (uniqueProbes_ / getNumActivePartitions()).getCeiling();
@@ -2497,8 +2497,8 @@ NABoolean SimpleFileScanOptimizer::ordersMatch(const InputPhysicalProperty *ipp,
     // The direct way of accounting partition skew would be to divide the
     // accessed rows by number of skewed partitions instead of total partitions.
 
-    Lng32 nj_leading_key_skew_threshold =
-        (Lng32)(ActiveSchemaDB()->getDefaults()).getAsLong(NESTED_JOINS_LEADING_KEY_SKEW_THRESHOLD);
+    int nj_leading_key_skew_threshold =
+        (int)(ActiveSchemaDB()->getDefaults()).getAsLong(NESTED_JOINS_LEADING_KEY_SKEW_THRESHOLD);
 
     if (multiColUec.isGreaterThanZero() && rowcount / multiColUec < CostScalar(nj_leading_key_skew_threshold))
       partialOrderProbes_ = TRUE;

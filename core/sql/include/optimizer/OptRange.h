@@ -353,9 +353,9 @@ class OptRangeSpec : public RangeSpec {
    * @return Pointer to the item expression for the constant value, or \c NULL
    *         if there is not one, or if the column compared is not the right one.
    */
-  ConstValue *getConstOperand(ItemExpr *predExpr, Lng32 constInx = 1);
+  ConstValue *getConstOperand(ItemExpr *predExpr, int constInx = 1);
 
-  ConstValue *reconstituteInt64Value(NAType *type, Int64 val) const;
+  ConstValue *reconstituteInt64Value(NAType *type, long val) const;
   ConstValue *reconstituteDoubleValue(NAType *type, Float64 val) const;
 
  private:

@@ -22,7 +22,7 @@
 // **********************************************************************
 
 #include <ComCextdecs.h>
-#include <Int64.h>
+#include <long.h>
 #include "qmscommon/QRSharedPtr.h"
 #include "qmscommon/QRLogger.h"
 #include "QmsMain.h"
@@ -117,7 +117,7 @@ Int32 main(Int32 argc, char *argv[]) {
     exit(1);
   }
 
-  NAHeap qmpHeap("QMP Heap", NAMemory::DERIVED_FROM_SYS_HEAP, (Lng32)131072);
+  NAHeap qmpHeap("QMP Heap", NAMemory::DERIVED_FROM_SYS_HEAP, (int)131072);
 
   QmpPublish qmpPublisher(&qmpHeap);
 
@@ -126,7 +126,7 @@ Int32 main(Int32 argc, char *argv[]) {
   MvQueryRewriteServer::setHeap(&qmpHeap);
   qmpPublisher.setIpcEnvironment(MvQueryRewriteServer::getIpcEnv());
 
-  Lng32 result = 0;
+  int result = 0;
 
   QRLogger::instance().setModule(QRLogger::QRL_QMP);
   QRLogger::instance().initLog4cxx("log4cxx.qmp.config");

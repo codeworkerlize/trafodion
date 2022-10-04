@@ -40,7 +40,7 @@
 #include "sqlmxevents/logmxevent_traf.h"
 
 short CmpSeabaseDDL::createXDCMeta(ExeCliInterface *cliInterface) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
 
   char queryBuf[2000];
 
@@ -83,7 +83,7 @@ short CmpSeabaseDDL::createXDCMeta(ExeCliInterface *cliInterface) {
 
     Int32 qryArraySize = sizeOfqs / sizeof(QString);
     char *gluedQuery;
-    Lng32 gluedQuerySize;
+    int gluedQuerySize;
     glueQueryFragments(qryArraySize, qs, gluedQuery, gluedQuerySize);
 
     param_[0] = getSystemCatalog();
@@ -114,7 +114,7 @@ label_error:
 }
 
 short CmpSeabaseDDL::dropXDCMeta(ExeCliInterface *cliInterface, NABoolean dropSchema) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
   NABoolean xnWasStartedHere = FALSE;
   char queryBuf[1000];
 

@@ -86,7 +86,7 @@ NAString trigTempToSubjectName(const NAString &trigTempTableName) {
 
 // Ctor from STOI column list
 UpdateColumns::UpdateColumns(SqlTableOpenInfo *stoi) : allColumns_(FALSE) {
-  columns_ = new (Trigger::Heap()) SET(Lng32)(Trigger::Heap());
+  columns_ = new (Trigger::Heap()) SET(int)(Trigger::Heap());
   if (stoi != NULL) {
     for (short i = 0; i < stoi->getColumnListCount(); i++) addColumn(stoi->getUpdateColumn(i));
   }
@@ -515,8 +515,8 @@ BeforeAndAfterTriggers::~BeforeAndAfterTriggers() {
 //
 // returns the total number of triggers in all the lists together.
 
-Lng32 BeforeAndAfterTriggers::entries() const {
-  Lng32 triggerCount = 0;
+int BeforeAndAfterTriggers::entries() const {
+  int triggerCount = 0;
 
   // add before triggers to the total count
   if (beforeTriggers_) {

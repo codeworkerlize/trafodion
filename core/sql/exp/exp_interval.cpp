@@ -38,7 +38,7 @@
 
 #include "common/Platform.h"
 
-#include "exp_interval.h"
+#include "exp/exp_interval.h"
 
 // ***********************************************************************
 //
@@ -48,7 +48,7 @@
 //
 // ***********************************************************************
 
-short ExpInterval::getIntervalStartField(Lng32 fsDatatype, rec_datetime_field &startField) {
+short ExpInterval::getIntervalStartField(int fsDatatype, rec_datetime_field &startField) {
   switch (fsDatatype) {
     case REC_INT_YEAR:
     case REC_INT_YEAR_MONTH:
@@ -89,7 +89,7 @@ short ExpInterval::getIntervalStartField(Lng32 fsDatatype, rec_datetime_field &s
 //
 // ***********************************************************************
 
-short ExpInterval::getIntervalEndField(Lng32 fsDatatype, rec_datetime_field &endField) {
+short ExpInterval::getIntervalEndField(int fsDatatype, rec_datetime_field &endField) {
   switch (fsDatatype) {
     case REC_INT_YEAR:
       endField = REC_DATE_YEAR;
@@ -124,7 +124,7 @@ short ExpInterval::getIntervalEndField(Lng32 fsDatatype, rec_datetime_field &end
 
 static const Int32 IntervalFieldStringSize = 3;  // punc plus two digits
 
-Lng32 ExpInterval::getDisplaySize(Lng32 fsDatatype, short leadingPrecision, short fractionPrecision) {
+int ExpInterval::getDisplaySize(int fsDatatype, short leadingPrecision, short fractionPrecision) {
   size_t result;
 
   rec_datetime_field startField, endField;

@@ -140,7 +140,7 @@ class REFRESH_LIB_CLASS CRUMV : public CRUObject {
     POPINDEX = 0x8    // (If recompute) Populate indexes?
   };
 
-  Lng32 GetRefreshPatternMap() const { return refreshPatternMap_; }
+  int GetRefreshPatternMap() const { return refreshPatternMap_; }
 
   // Should the MV be recomputed
   BOOL WillBeRecomputed() const { return (0 != (refreshPatternMap_ & RECOMPUTE)); }
@@ -176,7 +176,7 @@ class REFRESH_LIB_CLASS CRUMV : public CRUObject {
     DELETE_PRIV = 0x4
   };
 
-  Lng32 GetPrivMap() const { return privMap_; }
+  int GetPrivMap() const { return privMap_; }
 
   //-- Accessor wrappers
  public:
@@ -397,8 +397,8 @@ class REFRESH_LIB_CLASS CRUMV : public CRUObject {
   // The delta-def list for INTERNAL REFRESH syntax and scheduling
   CRUDeltaDefList *pDeltaDefList_;
 
-  Lng32 privMap_;            // Privileges for the current user
-  Lng32 refreshPatternMap_;  // Incremental/recompute? Optimizations?
+  int privMap_;            // Privileges for the current user
+  int refreshPatternMap_;  // Incremental/recompute? Optimizations?
 
   CRUMVForceOptions *pMvForceOptions_;
 };

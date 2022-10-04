@@ -86,7 +86,7 @@ class REFRESH_LIB_CLASS CRULockEquivSetTaskExecutor : public CRUTaskExecutor {
   //----------------------------------//
  protected:
   //-- Implementation of pure virtual
-  virtual Lng32 GetIpcBufferSize() const {
+  virtual int GetIpcBufferSize() const {
     return 0;  // The task is always performed locally
   }
 

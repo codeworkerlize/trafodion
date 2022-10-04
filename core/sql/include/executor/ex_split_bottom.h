@@ -37,7 +37,7 @@ class ex_split_bottom_tdb : public ComTdbSplitBottom {
 
   ex_split_bottom_tcb *buildESPTcbTree(ExExeStmtGlobals *glob, ExEspFragInstanceDir *espInstanceDir,
                                        const ExFragKey &myKey, const ExFragKey &parentKey, int myHandle,
-                                       Lng32 numOfParentInstances);
+                                       int numOfParentInstances);
 };
 
 class ex_split_bottom_tcb : public ex_tcb {
@@ -47,7 +47,7 @@ class ex_split_bottom_tcb : public ex_tcb {
   // Constructor
   ex_split_bottom_tcb(const ex_split_bottom_tdb &split_bottom_tdb, const ex_tcb *child_tcb, ExExeStmtGlobals *glob,
                       ExEspFragInstanceDir *espInstanceDir, const ExFragKey &myKey, const ExFragKey &parentKey,
-                      int myHandle, Lng32 numOfParentInstances);
+                      int myHandle, int numOfParentInstances);
 
   ~ex_split_bottom_tcb();
 
@@ -121,7 +121,7 @@ class ex_split_bottom_tcb : public ex_tcb {
   ex_queue_pair qChild_;
   ExEspFragInstanceDir *espInstanceDir_;
   int myHandle_;
-  Lng32 numOfParentInstances_;
+  int numOfParentInstances_;
   ARRAY(ex_send_bottom_tcb *) sendNodes_;
   ARRAY(ex_queue *) sendNodesUpQ_;
   ARRAY(ex_queue *) sendNodesDownQ_;
@@ -130,7 +130,7 @@ class ex_split_bottom_tcb : public ex_tcb {
   struct {
     ULng32 calculatedPartNum_;  // target of part # expr.
     char pad[4];                // alignment
-    Int64 partHash_;            // Used for skew buster only,
+    long partHash_;            // Used for skew buster only,
                                 // this is the intermediate
                                 // result of the application
                                 // of the hash function to the
@@ -142,7 +142,7 @@ class ex_split_bottom_tcb : public ex_tcb {
                                 // partitioning function.
   } partNumInfo_;
   tupp_descriptor convErrTupp_;        // tupp for Narrow flag
-  Lng32 conversionErrorFlg_;           // side-effected by Narrow
+  int conversionErrorFlg_;           // side-effected by Narrow
   tupp_descriptor partInputDataTupp_;  // part input data
   SplitBottomWorkState workState_;
   ExSubtask *ioHandler_;  // for part input message
@@ -186,7 +186,7 @@ class ex_split_bottom_tcb : public ex_tcb {
   SplitBottomSavedMessage *savedReleaseMessage_;
 
   // for canceling.
-  Lng32 numCanceledPartitions_;
+  int numCanceledPartitions_;
 
   queue_index bugCatcher3041_;  // bugzilla 3041.
 
@@ -232,7 +232,7 @@ class ex_split_bottom_tcb : public ex_tcb {
   Int32 *skewLinks_;
 
   // For table N-M way repartition validation
-  Lng32 firstParentNum_;  // index of the first ESP
+  int firstParentNum_;  // index of the first ESP
 
   NABoolean broadcastOneRow_;
 
@@ -285,13 +285,13 @@ class ex_split_bottom_tcb : public ex_tcb {
   // For EPS i where i in [0, n), the number of target ESPs can be found
   // by this function:
 
-  inline Lng32 numOfTargetESPs(Lng32 numOfTopPs, Lng32 numOfBottomPs, Lng32 myIndex) {
+  inline int numOfTargetESPs(int numOfTopPs, int numOfBottomPs, int myIndex) {
     ex_assert(myIndex < numOfBottomPs, "Invalid N-M repartition mapping at bottom!");
     return ((myIndex * numOfTopPs + numOfTopPs - 1) / numOfBottomPs - (myIndex * numOfTopPs) / numOfBottomPs + 1);
   }
 
   // To find the index of my first parent ESP:
-  inline Lng32 myFirstTargetESP(Lng32 numOfTopPs, Lng32 numOfBottomPs, Lng32 myIndex) {
+  inline int myFirstTargetESP(int numOfTopPs, int numOfBottomPs, int myIndex) {
     return ((myIndex * numOfTopPs) / numOfBottomPs);
   }
 };

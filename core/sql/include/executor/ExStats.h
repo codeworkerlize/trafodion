@@ -88,7 +88,7 @@ class SsmpClientMsgStream;
 #define _UNINITIALIZED_TDB_ID 9999999
 #define _NO_TDB_NAME          "NO_TDB"
 
-const Lng32 StatsCurrVersion = _STATS_RTS_VERSION_R25_1;
+const int StatsCurrVersion = _STATS_RTS_VERSION_R25_1;
 
 //////////////////////////////////////////////////////////////////////
 // this class is used to provide some utility methods (like, pack
@@ -141,15 +141,15 @@ class ExStatsCounter {
 
   ExStatsCounter &operator=(const ExStatsCounter &other);
 
-  void addEntry(Int64 value);
+  void addEntry(long value);
 
   ULng32 entryCnt() const { return entryCnt_; };
 
-  Int64 min() const { return (entryCnt_ ? min_ : 0); }
+  long min() const { return (entryCnt_ ? min_ : 0); }
 
-  Int64 max() const { return (entryCnt_ ? max_ : 0); }
+  long max() const { return (entryCnt_ ? max_ : 0); }
 
-  Int64 sum() const { return sum_; };
+  long sum() const { return sum_; };
 
   float sum2() const { return sum2_; };
 
@@ -167,9 +167,9 @@ class ExStatsCounter {
 
  private:
   ULng32 entryCnt_;
-  Int64 min_;
-  Int64 max_;
-  Int64 sum_;   // sum of all values
+  long min_;
+  long max_;
+  long sum_;   // sum of all values
   float sum2_;  // sum of the square of all values
 };
 
@@ -182,16 +182,16 @@ class ExStatsCounter {
 class ExClusterStats : public ExStatsBase {
  public:
   ExClusterStats();
-  ExClusterStats(NABoolean isInner, ULng32 bucketCnt, Int64 actRows, Int64 totalSize, ExStatsCounter hashChains,
-                 Int64 writeIOCnt, Int64 readIOCnt);
+  ExClusterStats(NABoolean isInner, ULng32 bucketCnt, long actRows, long totalSize, ExStatsCounter hashChains,
+                 long writeIOCnt, long readIOCnt);
 
   ~ExClusterStats(){};
 
   ExClusterStats &operator=(const ExClusterStats &other);
 
-  void getVariableStatsInfo(char *dataBuffer, char *datalen, Lng32 maxLen);
+  void getVariableStatsInfo(char *dataBuffer, char *datalen, int maxLen);
 
-  void getVariableStatsInfoAggr(char *dataBuffer, char *datalen, Lng32 maxLen);
+  void getVariableStatsInfoAggr(char *dataBuffer, char *datalen, int maxLen);
 
   //////////////////////////////////////////////////////////////////
   // accessors, mutators
@@ -201,15 +201,15 @@ class ExClusterStats : public ExStatsBase {
 
   inline ULng32 getBucketCnt() const { return bucketCnt_; };
 
-  inline Int64 getActRows() const { return actRows_; };
+  inline long getActRows() const { return actRows_; };
 
-  inline Int64 getTotalSize() const { return totalSize_; };
+  inline long getTotalSize() const { return totalSize_; };
 
   inline ExStatsCounter getHashChains() const { return hashChains_; };
 
-  inline Int64 getWriteIOCnt() const { return writeIOCnt_; };
+  inline long getWriteIOCnt() const { return writeIOCnt_; };
 
-  inline Int64 getReadIOCnt() const { return readIOCnt_; };
+  inline long getReadIOCnt() const { return readIOCnt_; };
 
   inline void setNext(ExClusterStats *i) { next_ = i; };
 
@@ -225,14 +225,14 @@ class ExClusterStats : public ExStatsBase {
   void unpack(const char *&buffer);
 
  private:
-  Lng32 version_;
+  int version_;
   NABoolean isInner_;          // inner or outer Cluster
   ULng32 bucketCnt_;           // number of buckets in this cluster
-  Int64 actRows_;              // for this cluster
-  Int64 totalSize_;            // total size in bytes
+  long actRows_;              // for this cluster
+  long totalSize_;            // total size in bytes
   ExStatsCounter hashChains_;  // stats about the hash table
-  Int64 writeIOCnt_;           // write operations to scratch file
-  Int64 readIOCnt_;            // read operations from scratch file
+  long writeIOCnt_;           // write operations to scratch file
+  long readIOCnt_;            // read operations from scratch file
   ExClusterStats *next_;
 };
 
@@ -257,34 +257,34 @@ class ExTimeStats : public ExStatsBase {
     return *this;
   }
 
-  inline void incTime(Int64 time) { sumTime_ += time; }
+  inline void incTime(long time) { sumTime_ += time; }
 
   // start an active period (record the starting time)
   void start();
 
   // stop an active period and record the spent time
   // returns increment Time
-  Int64 stop();
+  long stop();
 
   inline void reset();
 
-  inline Int64 getTime() const { return sumTime_; }
+  inline long getTime() const { return sumTime_; }
 
   UInt32 packedLength();
 
   UInt32 pack(char *buffer);
 
   void unpack(const char *&buffer);
-  void setVersion(Lng32 ver) { version_ = ver; }
+  void setVersion(int ver) { version_ = ver; }
 
-  Lng32 filterForSEstats(struct timespec currTimespec);
+  int filterForSEstats(struct timespec currTimespec);
 
  private:
-  Lng32 version_;
+  int version_;
   // aggregated times (microseconds) over multiple start/stop operations
   // This is computed for the process, but the merge of DP2 stats will
   // add to this also.
-  Int64 sumTime_;
+  long sumTime_;
 
   // start/stop indicator and timestamps of the latest start() operation
   NABoolean isStarted_;
@@ -300,9 +300,9 @@ class ExTimeStats : public ExStatsBase {
 //////////////////////////////////////////////////////////////////
 struct ExOperStatsId {
   ExFragId fragId_;
-  Lng32 tdbId_;
-  Lng32 instNum_;
-  Lng32 subInstNum_;
+  int tdbId_;
+  int instNum_;
+  int subInstNum_;
 
   // some methods that make use of this struct like a basic data type easier
   // fragID_ is a type ExFragId.  Set to 0, rather than a negative value
@@ -338,29 +338,29 @@ class ExeSEStats : public ExStatsBase {
  public:
   ExeSEStats() : accessedRows_(0), usedRows_(0), numIOCalls_(0), numIOBytes_(0), maxIOTime_(0), filteredRows_(0){};
 
-  inline Int64 getAccessedRows() const { return accessedRows_; }
-  inline void setAccessedRows(Int64 cnt) { accessedRows_ = cnt; }
-  inline void incAccessedRows(Int64 i = 1) { accessedRows_ += i; }
+  inline long getAccessedRows() const { return accessedRows_; }
+  inline void setAccessedRows(long cnt) { accessedRows_ = cnt; }
+  inline void incAccessedRows(long i = 1) { accessedRows_ += i; }
 
-  inline Int64 getUsedRows() const { return usedRows_; }
-  inline void setUsedRows(Int64 cnt) { usedRows_ = cnt; }
-  inline void incUsedRows(Int64 i = 1) { usedRows_ += +i; }
+  inline long getUsedRows() const { return usedRows_; }
+  inline void setUsedRows(long cnt) { usedRows_ = cnt; }
+  inline void incUsedRows(long i = 1) { usedRows_ += +i; }
 
-  inline Int64 getNumIOCalls() const { return numIOCalls_; }
-  inline void setNumIOCalls(Int64 cnt) { numIOCalls_ = cnt; }
-  inline void incNumIOCalls(Int64 i = 1) { numIOCalls_ += +i; }
+  inline long getNumIOCalls() const { return numIOCalls_; }
+  inline void setNumIOCalls(long cnt) { numIOCalls_ = cnt; }
+  inline void incNumIOCalls(long i = 1) { numIOCalls_ += +i; }
 
-  inline Int64 getNumIOBytes() const { return numIOBytes_; }
-  inline void setNumIOBytes(Int64 cnt) { numIOBytes_ = cnt; }
-  inline void incNumIOBytes(Int64 i = 1) { numIOBytes_ += +i; }
+  inline long getNumIOBytes() const { return numIOBytes_; }
+  inline void setNumIOBytes(long cnt) { numIOBytes_ = cnt; }
+  inline void incNumIOBytes(long i = 1) { numIOBytes_ += +i; }
 
-  inline Int64 getMaxIOTime() const { return maxIOTime_; }
-  inline void setMaxIOTime(Int64 cnt) { maxIOTime_ = cnt; }
-  inline void incMaxIOTime(Int64 i = 1) { maxIOTime_ += +i; }
+  inline long getMaxIOTime() const { return maxIOTime_; }
+  inline void setMaxIOTime(long cnt) { maxIOTime_ = cnt; }
+  inline void incMaxIOTime(long i = 1) { maxIOTime_ += +i; }
 
-  inline Int64 getFilteredRows() const { return filteredRows_; }
-  inline void setFilteredRows(Int64 cnt) { filteredRows_ = cnt; }
-  inline void incFilteredRows(Int64 i) { filteredRows_ += i; };
+  inline long getFilteredRows() const { return filteredRows_; }
+  inline void setFilteredRows(long cnt) { filteredRows_ = cnt; }
+  inline void incFilteredRows(long i) { filteredRows_ += i; };
 
   void init(NABoolean resetDop) {
     accessedRows_ = 0;
@@ -383,12 +383,12 @@ class ExeSEStats : public ExStatsBase {
   void copyContents(ExeSEStats *other);
 
  private:
-  Int64 accessedRows_;
-  Int64 usedRows_;
-  Int64 numIOCalls_;
-  Int64 numIOBytes_;
-  Int64 maxIOTime_;
-  Int64 filteredRows_;
+  long accessedRows_;
+  long usedRows_;
+  long numIOCalls_;
+  long numIOBytes_;
+  long maxIOTime_;
+  long filteredRows_;
 };
 
 /////////////////////////////////////////////////////////////////////
@@ -413,11 +413,11 @@ class ExBufferStats : public ExStatsBase {
 
   ULng32 &recdBufferSize() { return recdBufferSize_; }
 
-  Int64 &totalSentBytes() { return totalSentBytes_; }
+  long &totalSentBytes() { return totalSentBytes_; }
 
-  Int64 &totalRecdBytes() { return totalRecdBytes_; }
+  long &totalRecdBytes() { return totalRecdBytes_; }
 
-  Int64 &statsBytes() { return statsBytes_; }
+  long &statsBytes() { return statsBytes_; }
 
   ExStatsCounter &sentBuffers() { return sentBuffers_; }
 
@@ -449,11 +449,11 @@ class ExBufferStats : public ExStatsBase {
  private:
   ULng32 sendBufferSize_;
   ULng32 recdBufferSize_;
-  Int64 totalSentBytes_;
-  Int64 totalRecdBytes_;
+  long totalSentBytes_;
+  long totalRecdBytes_;
 
   // number of bytes out of the totalRecdBytes used for statistics data.
-  Int64 statsBytes_;
+  long statsBytes_;
 
   ExStatsCounter sentBuffers_;  // counts buffers sent and the
                                 // used data bytes in these buffers
@@ -516,8 +516,8 @@ class ExOperStats : public ExStatsBaseNew {
   ExOperStats(NAMemory *heap, StatType statType = EX_OPER_STATS);
 
   ExOperStats(NAMemory *heap, StatType statType, ComTdb::CollectStatsType collectStatsType, ExFragId fragId,
-              Lng32 tdbId, Lng32 explainTdbId, Lng32 instNum, ComTdb::ex_node_type tdbType, char *tdbName,
-              Lng32 tdbNameLen);
+              int tdbId, int explainTdbId, int instNum, ComTdb::ex_node_type tdbType, char *tdbName,
+              int tdbNameLen);
   ExOperStats();
 
   ~ExOperStats();
@@ -543,7 +543,7 @@ class ExOperStats : public ExStatsBaseNew {
     if (statsInTcb()) savedDop_++;
   }
 
-  inline Lng32 getExplainNodeId() const { return explainNodeId_; }
+  inline int getExplainNodeId() const { return explainNodeId_; }
 
   inline queue_index getDownQueueSize() const { return allStats.downQueueSize_; }
 
@@ -557,35 +557,35 @@ class ExOperStats : public ExStatsBaseNew {
 
   inline ExStatsCounter &getUpQueueStats() { return allStats.upQueueStats_; }
 
-  inline Lng32 getParentTdbId() const { return (Lng32)parentTdbId_; }
+  inline int getParentTdbId() const { return (int)parentTdbId_; }
 
-  inline Lng32 getLeftChildTdbId() const { return (Lng32)leftChildTdbId_; }
+  inline int getLeftChildTdbId() const { return (int)leftChildTdbId_; }
 
-  inline Lng32 getRightChildTdbId() const { return (Lng32)rightChildTdbId_; }
+  inline int getRightChildTdbId() const { return (int)rightChildTdbId_; }
 
-  inline Lng32 getNTProcessId() const { return (Lng32)allStats.ntProcessId_; }
+  inline int getNTProcessId() const { return (int)allStats.ntProcessId_; }
 
-  inline void setParentTdbId(Lng32 id) { parentTdbId_ = id; }
+  inline void setParentTdbId(int id) { parentTdbId_ = id; }
 
-  inline void setLeftChildTdbId(Lng32 id) { leftChildTdbId_ = id; }
+  inline void setLeftChildTdbId(int id) { leftChildTdbId_ = id; }
 
-  inline void setRightChildTdbId(Lng32 id) { rightChildTdbId_ = id; }
+  inline void setRightChildTdbId(int id) { rightChildTdbId_ = id; }
 
-  inline void setPertableStatsId(Lng32 id) { pertableStatsId_ = id; }
+  inline void setPertableStatsId(int id) { pertableStatsId_ = id; }
 
-  inline Lng32 getPertableStatsId() { return pertableStatsId_; }
+  inline int getPertableStatsId() { return pertableStatsId_; }
 
   inline const ExOperStatsId *getId() const { return &id_; }
 
-  inline Lng32 getFragId() const { return (Lng32)id_.fragId_; }
+  inline int getFragId() const { return (int)id_.fragId_; }
 
-  inline Lng32 getTdbId() const { return id_.tdbId_; }
+  inline int getTdbId() const { return id_.tdbId_; }
 
-  inline Lng32 getInstNum() const { return id_.instNum_; }
+  inline int getInstNum() const { return id_.instNum_; }
 
-  inline Lng32 getSubInstNum() const { return id_.subInstNum_; }
+  inline int getSubInstNum() const { return id_.subInstNum_; }
 
-  inline void setSubInstNum(Lng32 n) { id_.subInstNum_ = n; }
+  inline void setSubInstNum(int n) { id_.subInstNum_ = n; }
 
   inline char *getTdbName() { return tdbName_; }
 
@@ -597,15 +597,15 @@ class ExOperStats : public ExStatsBaseNew {
 
   virtual const char *getStatTypeAsString() const { return "EX_OPER_STATS"; };
 
-  inline Int64 getActualRowsReturned() const { return actualRowsReturned_; }
+  inline long getActualRowsReturned() const { return actualRowsReturned_; }
 
-  inline void setActualRowsReturned(Int64 cnt) { actualRowsReturned_ = cnt; }
+  inline void setActualRowsReturned(long cnt) { actualRowsReturned_ = cnt; }
 
-  inline void incActualRowsReturned(Int64 i = 1) { actualRowsReturned_ = actualRowsReturned_ + i; }
+  inline void incActualRowsReturned(long i = 1) { actualRowsReturned_ = actualRowsReturned_ + i; }
 
-  inline Int64 getEstimatedRowsReturned() const { return u.estRowsReturned_; }
+  inline long getEstimatedRowsReturned() const { return u.estRowsReturned_; }
 
-  inline void setEstimatedRowsReturned(Int64 cnt) { u.estRowsReturned_ = cnt; }
+  inline void setEstimatedRowsReturned(long cnt) { u.estRowsReturned_ = cnt; }
 
   inline Float32 getEstRowsUsed() const { return u.est.estRowsUsed_; }
 
@@ -615,9 +615,9 @@ class ExOperStats : public ExStatsBaseNew {
 
   inline void setEstRowsAccessed(Float32 cnt) { u.est.estRowsAccessed_ = cnt; }
 
-  inline Int64 getNumberCalls() const { return numberCalls_; }
+  inline long getNumberCalls() const { return numberCalls_; }
 
-  inline void setNumberCalls(Int64 cnt) { numberCalls_ = cnt; }
+  inline void setNumberCalls(long cnt) { numberCalls_ = cnt; }
 
   inline void incNumberCalls() { numberCalls_++; }
 
@@ -629,9 +629,9 @@ class ExOperStats : public ExStatsBaseNew {
 
   virtual void done();
 
-  virtual void addMessage(Lng32 x);
+  virtual void addMessage(int x);
   virtual void addMessage(const char *);
-  virtual void addMessage(const char *, Lng32);
+  virtual void addMessage(const char *, int);
 
   //////////////////////////////////////////////////////////////////
   // subTaskReturn is used by the scheduler to set the return code
@@ -714,11 +714,11 @@ class ExOperStats : public ExStatsBaseNew {
   virtual ExQryInvalidStats *castToExQryInvalidStats() { return NULL; }
   ExTimeStats *getTimer() { return &operTimer_; }
 
-  inline void incCpuTime(Int64 cpuTime){};
+  inline void incCpuTime(long cpuTime){};
 
   NABoolean operator==(ExOperStats *other);
 
-  Int64 getHashData(UInt16 statsMergeType = SQLCLI_SAME_STATS);
+  long getHashData(UInt16 statsMergeType = SQLCLI_SAME_STATS);
 
   //////////////////////////////////////////////////////////////////
   // format stats for display
@@ -728,7 +728,7 @@ class ExOperStats : public ExStatsBaseNew {
   // identification what the counter means
   virtual const char *getNumValTxt(Int32 i) const;
 
-  virtual Int64 getNumVal(Int32 i) const;
+  virtual long getNumVal(Int32 i) const;
 
   virtual const char *getTextVal();
 
@@ -738,8 +738,8 @@ class ExOperStats : public ExStatsBaseNew {
   // It returns data in dataBuffer provided by caller and the length
   // of data(2 bytes short) in location pointed to by datalen.
   // This method is called by ExStatsTcb::work().
-  virtual void getVariableStatsInfo(char *dataBuffer, char *datalen, Lng32 maxLen);
-  virtual Lng32 getStatsItem(SQLSTATS_ITEM *sqlStats_item);
+  virtual void getVariableStatsInfo(char *dataBuffer, char *datalen, int maxLen);
+  virtual int getStatsItem(SQLSTATS_ITEM *sqlStats_item);
 
   void setCpuStatsHistory() { return; }
 
@@ -767,7 +767,7 @@ class ExOperStats : public ExStatsBaseNew {
 
   void initTdbForRootOper();
 
-  void setQueryId(char *queryId, Lng32 queryIdLen) {}
+  void setQueryId(char *queryId, int queryIdLen) {}
 
   UInt32 getRecordLength() { return recordLength_; }
 
@@ -786,11 +786,11 @@ class ExOperStats : public ExStatsBaseNew {
   // that in some cases the caller alters the subInstNum_ immediately
   // after the constructor call.
   struct ExOperStatsId id_;
-  Lng32 parentTdbId_;
-  Lng32 leftChildTdbId_;
-  Lng32 rightChildTdbId_;
-  Lng32 explainNodeId_;
-  Lng32 pertableStatsId_;
+  int parentTdbId_;
+  int leftChildTdbId_;
+  int rightChildTdbId_;
+  int explainNodeId_;
+  int pertableStatsId_;
 
   char tdbName_[MAX_TDB_NAME_LEN + 1];
   ComTdb::ex_node_type tdbType_;
@@ -802,7 +802,7 @@ class ExOperStats : public ExStatsBaseNew {
 
   union {
     // optimizer estimate of rows returned by this operator
-    Int64 estRowsReturned_;
+    long estRowsReturned_;
 
     struct {
       Float32 estRowsAccessed_;
@@ -811,16 +811,16 @@ class ExOperStats : public ExStatsBaseNew {
   } u;
 
   // actual rows returned by this operator at runtime
-  Int64 actualRowsReturned_;
+  long actualRowsReturned_;
   // Number of times this operator was called
-  Int64 numberCalls_;
+  long numberCalls_;
 
   char processNameString_[40];  // PROCESSNAME_STRING_LEN in ComRtUtils.h
 
   UInt32 recordLength_;  // record length
 
   struct {
-    Lng32 ntProcessId_;
+    int ntProcessId_;
     queue_index downQueueSize_;
     queue_index upQueueSize_;
     ExStatsCounter downQueueStats_;
@@ -828,7 +828,7 @@ class ExOperStats : public ExStatsBaseNew {
 
     // no filler is strictly needed here, but we pack and send this
     // filler in messages, which may come in handy some day
-    Int64 fillerForFutureUse_;
+    long fillerForFutureUse_;
 
     // counters for the different return codes returned by the work
     // procedure of a tcb. These counters are incremented by the
@@ -854,18 +854,18 @@ class ExBMOStats : public ExOperStats {
   ExOperStats *copyOper(NAMemory *heap);
   void copyContents(ExBMOStats *other);
   virtual const char *getNumValTxt(Int32 i) const;
-  virtual Int64 getNumVal(Int32 i) const;
-  void getVariableStatsInfo(char *dataBuffer, char *dataLen, Lng32 maxLen);
+  virtual long getNumVal(Int32 i) const;
+  void getVariableStatsInfo(char *dataBuffer, char *dataLen, int maxLen);
   ExBMOStats *castToExBMOStats();
   void merge(ExBMOStats *other);
-  Lng32 getStatsItem(SQLSTATS_ITEM *sqlStats_item);
+  int getStatsItem(SQLSTATS_ITEM *sqlStats_item);
   inline void setScratchBufferBlockSize(Int32 size) { scratchBufferBlockSize_ = size >> 10; }
   inline void incSratchFileCount() { scratchFileCount_++; }
   inline void incScratchBufferBlockRead(Int32 count = 1) { scratchBufferBlockRead_ += count; }
   inline void incScratchBufferBlockWritten(Int32 count = 1) { scratchBufferBlockWritten_ += count; }
   inline void incScratchReadCount(Int32 count = 1) { scratchReadCount_ += count; }
   inline void incScratchWriteCount(Int32 count = 1) { scratchWriteCount_ += count; }
-  inline void incScratchIOMaxTime(Int64 v) { scratchIOMaxTime_ += v; }
+  inline void incScratchIOMaxTime(long v) { scratchIOMaxTime_ += v; }
   inline void setSpaceBufferSize(Int32 size) { spaceBufferSize_ = size >> 10; }
   inline void setSpaceBufferCount(Int32 count) { spaceBufferCount_ = count; }
   inline void updateBMOHeapUsage(NAHeap *heap) {
@@ -876,10 +876,10 @@ class ExBMOStats : public ExOperStats {
   }
   inline void setScratchOverflowMode(Int16 overflowMode) { scratchOverflowMode_ = overflowMode; }
   inline void setTopN(Int32 size) { topN_ = size; }
-  inline Int64 getScratchReadCount(void) { return scratchReadCount_; }
+  inline long getScratchReadCount(void) { return scratchReadCount_; }
   static const char *getScratchOverflowMode(Int16 overflowMode);
   ExTimeStats &getScratchIOTimer() { return timer_; }
-  inline void setScratchIOSize(Int64 size) { scratchIOSize_ = size; }
+  inline void setScratchIOSize(long size) { scratchIOSize_ = size; }
   const char *getBmoPhaseStr();
   inline void setBmoPhase(Int16 phase) { phase_ = phase; }
   inline Int16 getBmoPhase() { return phase_; }
@@ -900,13 +900,13 @@ class ExBMOStats : public ExOperStats {
   Int32 scratchBufferBlockRead_;
   Int32 scratchBufferBlockWritten_;
   Int32 scratchIOSize_;
-  Int64 scratchReadCount_;
-  Int64 scratchWriteCount_;
-  Int64 scratchIOMaxTime_;
+  long scratchReadCount_;
+  long scratchWriteCount_;
+  long scratchIOMaxTime_;
   Int16 scratchOverflowMode_;  // 0 - disk 1 - SSD
   Int32 topN_;                 // TOPN value
   Float32 estMemoryUsage_;
-  Int64 interimRowCount_;
+  long interimRowCount_;
   Int16 phase_;
 
   ScanFilterStatsList scanFilterStats_;
@@ -923,9 +923,9 @@ class ExFragRootOperStats : public ExOperStats {
 
   ExFragRootOperStats(NAMemory *heap);
 
-  ExFragRootOperStats(NAMemory *heap, ComTdb::CollectStatsType collectStatsType, ExFragId fragId, Lng32 tdbId,
-                      Lng32 explainNodeId, Lng32 instNum, ComTdb::ex_node_type tdbType, char *tdbName,
-                      Lng32 tdbNameLen);
+  ExFragRootOperStats(NAMemory *heap, ComTdb::CollectStatsType collectStatsType, ExFragId fragId, int tdbId,
+                      int explainNodeId, int instNum, ComTdb::ex_node_type tdbType, char *tdbName,
+                      int tdbNameLen);
 
   ~ExFragRootOperStats();
 
@@ -959,27 +959,27 @@ class ExFragRootOperStats : public ExOperStats {
 
   void setFragSuspended(bool s) { isFragSuspended_ = s; }
 
-  inline Int64 getCpuTime() const { return cpuTime_; }
+  inline long getCpuTime() const { return cpuTime_; }
 
-  inline Int64 getLocalCpuTime() const { return localCpuTime_; }
+  inline long getLocalCpuTime() const { return localCpuTime_; }
 
-  inline void incCpuTime(Int64 cpuTime) {
+  inline void incCpuTime(long cpuTime) {
     cpuTime_ += cpuTime;
     localCpuTime_ += cpuTime;
   }
 
-  inline void setCpuTime(Int64 cpuTime) { cpuTime_ = cpuTime; }
+  inline void setCpuTime(long cpuTime) { cpuTime_ = cpuTime; }
 
-  inline Int64 getMaxSpaceUsage() const { return spaceUsage_; }
+  inline long getMaxSpaceUsage() const { return spaceUsage_; }
 
-  inline Int64 getMaxHeapUsage() const { return heapUsage_; }
-  inline Lng32 getStmtIndex() const { return stmtIndex_; }
+  inline long getMaxHeapUsage() const { return heapUsage_; }
+  inline int getStmtIndex() const { return stmtIndex_; }
 
-  inline void setStmtIndex(Lng32 i) { stmtIndex_ = i; }
+  inline void setStmtIndex(int i) { stmtIndex_ = i; }
 
-  inline Int64 getTimestamp() const { return timestamp_; }
+  inline long getTimestamp() const { return timestamp_; }
 
-  inline void setTimestamp(Int64 t) { timestamp_ = t; }
+  inline void setTimestamp(long t) { timestamp_ = t; }
 
   inline void updateSpaceUsage(Space *space, CollHeap *heap) {
     spaceUsage_ = (Int32)(space->getAllocSize() >> 10);
@@ -993,11 +993,11 @@ class ExFragRootOperStats : public ExOperStats {
 
   virtual const char *getNumValTxt(Int32 i) const;
 
-  virtual Int64 getNumVal(Int32 i) const;
+  virtual long getNumVal(Int32 i) const;
 
   virtual const char *getTextVal();
 
-  virtual void getVariableStatsInfo(char *dataBuffer, char *datalen, Lng32 maxLen);
+  virtual void getVariableStatsInfo(char *dataBuffer, char *datalen, int maxLen);
   void initHistory();
 
   Int32 getExecutionCount() const { return executionCount_; }
@@ -1006,44 +1006,44 @@ class ExFragRootOperStats : public ExOperStats {
   inline void setNewprocess(Int32 n) { newprocess_ = n; }
   inline void incNewprocess(Int32 n = 1) { newprocess_ = newprocess_ + n; }
 
-  inline Int64 getNewprocessTime() { return newprocessTime_; }
-  inline void setNewprocessTime(Int64 t) { newprocessTime_ = t; }
-  inline void incNewprocessTime(Int64 t) { newprocessTime_ = newprocessTime_ + t; }
+  inline long getNewprocessTime() { return newprocessTime_; }
+  inline void setNewprocessTime(long t) { newprocessTime_ = t; }
+  inline void incNewprocessTime(long t) { newprocessTime_ = newprocessTime_ + t; }
 
-  inline Int64 getEspCpuTime() const { return espCpuTime_; }
+  inline long getEspCpuTime() const { return espCpuTime_; }
 
-  Lng32 getStatsItem(SQLSTATS_ITEM *sqlStats_item);
+  int getStatsItem(SQLSTATS_ITEM *sqlStats_item);
   void setCpuStatsHistory() { histCpuTime_ = cpuTime_; }
 
   NABoolean filterForCpuStats();
-  void setQueryId(char *queryId, Lng32 queryIdLen) {
+  void setQueryId(char *queryId, int queryIdLen) {
     queryId_ = queryId;
     queryIdLen_ = queryIdLen;
   }
   char *getQueryId() { return queryId_; }
-  Lng32 getQueryIdLen() { return queryIdLen_; }
-  inline void incReqMsg(Int64 msgBytes) {
+  int getQueryIdLen() { return queryIdLen_; }
+  inline void incReqMsg(long msgBytes) {
     reqMsgCnt_++;
     reqMsgBytes_ += msgBytes;
   }
-  inline void incReplyMsg(Int64 msgBytes) {
+  inline void incReplyMsg(long msgBytes) {
     replyMsgCnt_++;
     replyMsgBytes_ += msgBytes;
   }
 
-  inline Int64 getPagesInUse() { return pagesInUse_; }
-  inline void setPagesInUse(Int64 pagesInUse) { pagesInUse_ = pagesInUse; }
-  inline void incWaitTime(Int64 incWaitTime) {
+  inline long getPagesInUse() { return pagesInUse_; }
+  inline void setPagesInUse(long pagesInUse) { pagesInUse_ = pagesInUse; }
+  inline void incWaitTime(long incWaitTime) {
     waitTime_ += incWaitTime;
     maxWaitTime_ = waitTime_;
   }
-  inline Int64 getAvgWaitTime() {
+  inline long getAvgWaitTime() {
     if (dop() == 0)
       return -1;
     else
       return waitTime_ / dop();
   }
-  inline Int64 getMaxWaitTime() { return maxWaitTime_; }
+  inline long getMaxWaitTime() { return maxWaitTime_; }
 
   NABoolean hdfsAccess() { return (flags_ & HDFS_ACCESS) != 0; }
   void setHdfsAccess(NABoolean v) { (v ? flags_ |= HDFS_ACCESS : flags_ &= ~HDFS_ACCESS); }
@@ -1059,53 +1059,53 @@ class ExFragRootOperStats : public ExOperStats {
   Int32 heapUsage_;
   Int32 heapAlloc_;
   Int32 heapWM_;
-  Int64 cpuTime_;
+  long cpuTime_;
   Int16 scratchOverflowMode_;
   Int32 newprocess_;
-  Int64 newprocessTime_;
+  long newprocessTime_;
   Int32 espSpaceUsage_;
   Int32 espSpaceAlloc_;
   Int32 espHeapUsage_;
   Int32 espHeapAlloc_;
   Int32 espHeapWM_;
-  Int64 espCpuTime_;
-  Int64 histCpuTime_;
-  Int64 reqMsgCnt_;
-  Int64 reqMsgBytes_;
-  Int64 replyMsgCnt_;
-  Int64 replyMsgBytes_;
-  Int64 pagesInUse_;
+  long espCpuTime_;
+  long histCpuTime_;
+  long reqMsgCnt_;
+  long reqMsgBytes_;
+  long replyMsgCnt_;
+  long replyMsgBytes_;
+  long pagesInUse_;
   // Helps with cancel escalation.  Local only.  Do not merge.
   Int32 executionCount_;
-  Lng32 stmtIndex_;  // Statement index used by Measure
-  Int64 timestamp_;  // timestamp indicating when the statement executed
+  int stmtIndex_;  // Statement index used by Measure
+  long timestamp_;  // timestamp indicating when the statement executed
                      // (master executor only)
   char *queryId_;
-  Lng32 queryIdLen_;
+  int queryIdLen_;
   Int32 scratchFileCount_;
   Int32 spaceBufferSize_;
-  Int64 spaceBufferCount_;
+  long spaceBufferCount_;
   Int32 scratchIOSize_;
-  Int64 scratchReadCount_;
-  Int64 scratchWriteCount_;
-  Int64 interimRowCount_;
-  Int64 scratchIOMaxTime_;
-  Int64 udrCpuTime_;
+  long scratchReadCount_;
+  long scratchWriteCount_;
+  long interimRowCount_;
+  long scratchIOMaxTime_;
+  long udrCpuTime_;
   Int32 topN_;
   // process id of this fragment instance (to correlate it with MEASURE data)
   // Also used by logic on runtimestats/CancelBroker.cpp
   SB_Phandle_Type phandle_;
   // This is aggregated only for the process.  It is never merged into or
   // from.
-  Int64 localCpuTime_;
+  long localCpuTime_;
 
   // Set to true and reset to false by the MXSSCP process under the
   // stats global semaphore.  Read by master and ESP EXE without the
   // semaphore.
   bool isFragSuspended_;
-  Int64 maxWaitTime_;
-  Int64 waitTime_;
-  Int64 diffCpuTime_;
+  long maxWaitTime_;
+  long waitTime_;
+  long diffCpuTime_;
 
   Int32 flags_;
 
@@ -1155,7 +1155,7 @@ class ExPartitionAccessStats : public ExOperStats {
 
   virtual const char *getTextVal();
 
-  virtual Int64 getNumVal(Int32 i) const;
+  virtual long getNumVal(Int32 i) const;
   ExeSEStats *castToExeSEStats() { return exeSEStats(); }
 
   ExeSEStats *exeSEStats() { return &seStats_; }
@@ -1164,13 +1164,13 @@ class ExPartitionAccessStats : public ExOperStats {
   inline void setOpens(Int32 o) { opens_ = o; }
   inline void incOpens(Int32 o = 1) { opens_ += o; }
 
-  inline Int64 getOpenTime() { return openTime_; }
-  inline void setOpenTime(Int64 t) { openTime_ = t; }
-  inline void incOpenTime(Int64 t) { openTime_ += t; }
+  inline long getOpenTime() { return openTime_; }
+  inline void setOpenTime(long t) { openTime_ = t; }
+  inline void incOpenTime(long t) { openTime_ += t; }
 
-  Lng32 getStatsItem(SQLSTATS_ITEM *sqlStats_item);
+  int getStatsItem(SQLSTATS_ITEM *sqlStats_item);
 
-  virtual void getVariableStatsInfo(char *dataBuffer, char *datalen, Lng32 maxLen);
+  virtual void getVariableStatsInfo(char *dataBuffer, char *datalen, int maxLen);
 
  private:
   ExeSEStats seStats_;
@@ -1179,7 +1179,7 @@ class ExPartitionAccessStats : public ExOperStats {
   char *ansiName_;
   char *fileName_;
   Int32 opens_;
-  Int64 openTime_;
+  long openTime_;
 };
 
 /////////////////////////////////////////////////////////////////
@@ -1245,9 +1245,9 @@ class ExProbeCacheStats : public ExOperStats {
 
   virtual const char *getNumValTxt(Int32 i) const;
 
-  virtual Int64 getNumVal(Int32 i) const;
+  virtual long getNumVal(Int32 i) const;
 
-  virtual void getVariableStatsInfo(char *dataBuffer, char *datalen, Lng32 maxLen);
+  virtual void getVariableStatsInfo(char *dataBuffer, char *datalen, int maxLen);
 
  private:
   ULng32 cacheHits_;
@@ -1299,9 +1299,9 @@ class ExHashGroupByStats : public ExBMOStats {
 
   virtual const char *getNumValTxt(Int32 i) const;
 
-  virtual Int64 getNumVal(Int32 i) const;
+  virtual long getNumVal(Int32 i) const;
 
-  virtual void getVariableStatsInfo(char *dataBuffer, char *datalen, Lng32 maxLen);
+  virtual void getVariableStatsInfo(char *dataBuffer, char *datalen, int maxLen);
 
   // just add the pointer as last element to cluster stats list
   void addClusterStats(ExClusterStats *clusterStats);
@@ -1312,16 +1312,16 @@ class ExHashGroupByStats : public ExBMOStats {
   // delete all the clusterstats
   void deleteClusterStats();
 
-  inline void updMemorySize(Int64 memSize) {
+  inline void updMemorySize(long memSize) {
     if (memSize_ < memSize) memSize_ = memSize;
   }
 
-  inline void updIoSize(Int64 newSize) { ioSize_ = newSize; }
+  inline void updIoSize(long newSize) { ioSize_ = newSize; }
 
  private:
-  Int64 partialGroups_;
-  Int64 memSize_;  // max amount of memory used (bytes)
-  Int64 ioSize_;   // number of bytes transferred from and to disk
+  long partialGroups_;
+  long memSize_;  // max amount of memory used (bytes)
+  long ioSize_;   // number of bytes transferred from and to disk
   ULng32 clusterCnt_;
   ExClusterStats *clusterStats_;
   ExClusterStats *lastStat_;
@@ -1361,9 +1361,9 @@ class ExHashJoinStats : public ExBMOStats {
 
   virtual const char *getNumValTxt(Int32 i) const;
 
-  virtual Int64 getNumVal(Int32 i) const;
+  virtual long getNumVal(Int32 i) const;
 
-  virtual void getVariableStatsInfo(char *dataBuffer, char *datalen, Lng32 maxLen);
+  virtual void getVariableStatsInfo(char *dataBuffer, char *datalen, int maxLen);
 
   // just add the pointer as last element to cluster stats list
   void addClusterStats(ExClusterStats *clusterStats);
@@ -1382,11 +1382,11 @@ class ExHashJoinStats : public ExBMOStats {
 
   inline ULng32 getEmptyChains() const { return emptyChains_; };
 
-  inline void updMemorySize(Int64 memSize) {
+  inline void updMemorySize(long memSize) {
     if (memSize_ < memSize) memSize_ = memSize;
   }
 
-  inline void updIoSize(Int64 newSize) { ioSize_ = newSize; }
+  inline void updIoSize(long newSize) { ioSize_ = newSize; }
 
   inline void incrClusterSplits() { clusterSplits_++; }
   inline void incrHashLoops() { hashLoops_++; }
@@ -1394,8 +1394,8 @@ class ExHashJoinStats : public ExBMOStats {
  private:
   ExTimeStats phaseTimes_[3];
   short phase_;    // indicates which phase to charge with times
-  Int64 memSize_;  // max. amount of memory bytes used
-  Int64 ioSize_;   // number of bytes transferred from and to disk
+  long memSize_;  // max. amount of memory bytes used
+  long ioSize_;   // number of bytes transferred from and to disk
   ULng32 emptyChains_;
   ULng32 clusterCnt_;
   ULng32 clusterSplits_;  // how many times clusters were split
@@ -1409,7 +1409,7 @@ class ExHashJoinStats : public ExBMOStats {
 //////////////////////////////////////////////////////////////////
 class ExESPStats : public ExOperStats {
  public:
-  ExESPStats(NAMemory *heap, ULng32 sendBufferSize, ULng32 recBufferSize, Lng32 subInstNum, ex_tcb *tcb,
+  ExESPStats(NAMemory *heap, ULng32 sendBufferSize, ULng32 recBufferSize, int subInstNum, ex_tcb *tcb,
              const ComTdb *tdb);
 
   ExESPStats(NAMemory *heap);
@@ -1433,9 +1433,9 @@ class ExESPStats : public ExOperStats {
 
   ExOperStats *copyOper(NAMemory *heap);
 
-  inline Int64 getSendTopStatID() const { return sendTopStatID_; }
+  inline long getSendTopStatID() const { return sendTopStatID_; }
 
-  inline void setSendTopStatID(Int64 id) { sendTopStatID_ = id; }
+  inline void setSendTopStatID(long id) { sendTopStatID_ = id; }
 
   ExBufferStats *bufferStats() { return &bufferStats_; }
 
@@ -1443,14 +1443,14 @@ class ExESPStats : public ExOperStats {
 
   virtual const char *getNumValTxt(Int32 i) const;
 
-  virtual Int64 getNumVal(Int32 i) const;
+  virtual long getNumVal(Int32 i) const;
 
-  virtual void getVariableStatsInfo(char *dataBuffer, char *datalen, Lng32 maxLen);
+  virtual void getVariableStatsInfo(char *dataBuffer, char *datalen, int maxLen);
 
  private:
   ExBufferStats bufferStats_;
 
-  Int64 sendTopStatID_;  // used for send bottoms to make
+  long sendTopStatID_;  // used for send bottoms to make
                          // the connection to the corresponding
                          // send tops
 };
@@ -1491,9 +1491,9 @@ class ExSplitTopStats : public ExOperStats {
 
   virtual const char *getNumValTxt(Int32 i) const;
 
-  virtual Int64 getNumVal(Int32 i) const;
+  virtual long getNumVal(Int32 i) const;
 
-  virtual void getVariableStatsInfo(char *dataBuffer, char *datalen, Lng32 maxLen);
+  virtual void getVariableStatsInfo(char *dataBuffer, char *datalen, int maxLen);
 
   NABoolean isPapa() { return (flags_ & IS_PAPA) != 0; }
 
@@ -1548,9 +1548,9 @@ class ExSortStats : public ExBMOStats {
 
   virtual const char *getNumValTxt(Int32 i) const;
 
-  virtual Int64 getNumVal(Int32 i) const;
+  virtual long getNumVal(Int32 i) const;
 
-  virtual void getVariableStatsInfo(char *dataBuffer, char *datalen, Lng32 maxLen);
+  virtual void getVariableStatsInfo(char *dataBuffer, char *datalen, int maxLen);
 
   UInt32 &runSize() { return runSize_; }
   UInt32 &numRuns() { return numRuns_; }
@@ -1618,29 +1618,29 @@ class ExStorageEngineStats : public ExOperStats {
   ExTimeStats &getHdfsTimer() { return timer_; }
   ExTimeStats &getHbaseTimer() { return timer_; }
 
-  inline void incBytesRead(Int64 bytesRead) { numBytesRead_ += bytesRead; }
+  inline void incBytesRead(long bytesRead) { numBytesRead_ += bytesRead; }
 
   inline void incAccessedRows() { ++accessedRows_; }
-  inline void incAccessedRows(Int64 v) { accessedRows_ += v; }
+  inline void incAccessedRows(long v) { accessedRows_ += v; }
 
   inline void incUsedRows() { ++usedRows_; }
-  inline void incUsedRows(Int64 v) { usedRows_ += v; }
+  inline void incUsedRows(long v) { usedRows_ += v; }
 
   void incFilteredRows() { incFilteredRows(1); }
-  void incFilteredRows(Int64 v) { filteredRows_ += v; };
+  void incFilteredRows(long v) { filteredRows_ += v; };
 
-  inline void incMaxHdfsIOTime(Int64 v) { maxIOTime_ += v; }
-  inline void incMaxHbaseIOTime(Int64 v) { maxIOTime_ += v; }
+  inline void incMaxHdfsIOTime(long v) { maxIOTime_ += v; }
+  inline void incMaxHbaseIOTime(long v) { maxIOTime_ += v; }
 
-  Int64 numBytesRead() const { return numBytesRead_; }
-  Int64 rowsAccessed() const { return accessedRows_; }
-  Int64 rowsUsed() const { return usedRows_; }
-  Int64 filteredRows() const { return filteredRows_; }
+  long numBytesRead() const { return numBytesRead_; }
+  long rowsAccessed() const { return accessedRows_; }
+  long rowsUsed() const { return usedRows_; }
+  long filteredRows() const { return filteredRows_; }
 
-  NABoolean filterForSEstats(struct timespec currTimespec, Lng32 filter);
+  NABoolean filterForSEstats(struct timespec currTimespec, int filter);
 
-  Int64 maxHdfsIOTime() const { return maxIOTime_; }
-  Int64 maxHbaseIOTime() const { return maxIOTime_; }
+  long maxHdfsIOTime() const { return maxIOTime_; }
+  long maxHbaseIOTime() const { return maxIOTime_; }
 
   ExHdfsScanStats *castToExHdfsScanStats();
 
@@ -1648,24 +1648,24 @@ class ExStorageEngineStats : public ExOperStats {
 
   virtual const char *getNumValTxt(Int32 i) const;
 
-  virtual Int64 getNumVal(Int32 i) const;
+  virtual long getNumVal(Int32 i) const;
 
-  virtual void getVariableStatsInfo(char *dataBuffer, char *datalen, Lng32 maxLen);
+  virtual void getVariableStatsInfo(char *dataBuffer, char *datalen, int maxLen);
 
-  Lng32 getStatsItem(SQLSTATS_ITEM *sqlStats_item);
+  int getStatsItem(SQLSTATS_ITEM *sqlStats_item);
 
-  void setQueryId(char *queryId, Lng32 queryIdLen) {
+  void setQueryId(char *queryId, int queryIdLen) {
     queryId_ = queryId;
     queryIdLen_ = queryIdLen;
   }
   char *getQueryId() { return queryId_; }
-  Lng32 getQueryIdLen() { return queryIdLen_; }
+  int getQueryIdLen() { return queryIdLen_; }
 
-  inline void incHdfsCalls(Int64 i = 1) { numIOCalls_ += i; }
-  inline void incHbaseCalls(Int64 i = 1) { numIOCalls_ += i; }
+  inline void incHdfsCalls(long i = 1) { numIOCalls_ += i; }
+  inline void incHbaseCalls(long i = 1) { numIOCalls_ += i; }
 
-  Int64 hdfsCalls() const { return numIOCalls_; }
-  Int64 hbaseCalls() const { return numIOCalls_; }
+  long hdfsCalls() const { return numIOCalls_; }
+  long hbaseCalls() const { return numIOCalls_; }
 
   void addScanFilterStats(ScanFilterStats &stats, ScanFilterStats::MergeSemantics);
 
@@ -1675,15 +1675,15 @@ class ExStorageEngineStats : public ExOperStats {
  private:
   ExTimeStats timer_;
   char *tableName_;
-  Int64 numBytesRead_;
-  Int64 accessedRows_;
-  Int64 usedRows_;
-  Int64 numIOCalls_;
-  Int64 maxIOTime_;
-  Int64 filteredRows_;
+  long numBytesRead_;
+  long accessedRows_;
+  long usedRows_;
+  long numIOCalls_;
+  long maxIOTime_;
+  long filteredRows_;
   char *queryId_;
-  Lng32 queryIdLen_;
-  Lng32 blockTime_;
+  int queryIdLen_;
+  int blockTime_;
 
   ScanFilterStatsList scanFilterStats_;
 };
@@ -1718,21 +1718,21 @@ class ExMeasBaseStats : public ExOperStats {
 
   ExeSEStats *exeSEStats() { return &seStats_; }
 
-  virtual void getVariableStatsInfo(char *dataBuffer, char *datalen, Lng32 maxLen);
+  virtual void getVariableStatsInfo(char *dataBuffer, char *datalen, int maxLen);
 
   virtual const char *getNumValTxt(Int32 i) const;
 
-  virtual Int64 getNumVal(Int32 i) const;
+  virtual long getNumVal(Int32 i) const;
 
-  void setVersion(Lng32 version);
+  void setVersion(int version);
   /*
   inline Int32 getOpens()          { return opens_; }
   inline void setOpens(Int32 o)    { opens_ = o; }
   inline void incOpens(Int32 o = 1)    { opens_ = opens_ + o; }
 
-  inline Int64 getOpenTime()          { return openTime_; }
-  inline void setOpenTime(Int64 t)    { openTime_ = t; }
-  inline void incOpenTime(Int64 t)    { openTime_ = openTime_ + t; }
+  inline long getOpenTime()          { return openTime_; }
+  inline void setOpenTime(long t)    { openTime_ = t; }
+  inline void incOpenTime(long t)    { openTime_ = openTime_ + t; }
   */
   ExMeasBaseStats *castToExMeasBaseStats();
 
@@ -1743,7 +1743,7 @@ class ExMeasBaseStats : public ExOperStats {
 
     UInt16 filler1_;
     Int32 opens_;
-    Int64 openTime_;
+    long openTime_;
   */
   ExeSEStats seStats_;
 };
@@ -1783,16 +1783,16 @@ class ExMeasStats : public ExMeasBaseStats {
 
   void copyContents(ExMeasStats *other);
 
-  virtual void getVariableStatsInfo(char *dataBuffer, char *datalen, Lng32 maxLen);
+  virtual void getVariableStatsInfo(char *dataBuffer, char *datalen, int maxLen);
   void updateSpaceUsage(Space *space, CollHeap *heap);
 
   inline Int32 getNewprocess() { return newprocess_; }
   inline void setNewprocess(Int32 n) { newprocess_ = n; }
   inline void incNewprocess(Int32 n = 1) { newprocess_ = newprocess_ + n; }
 
-  inline Int64 getNewprocessTime() { return newprocessTime_; }
-  inline void setNewprocessTime(Int64 t) { newprocessTime_ = t; }
-  inline void incNewprocessTime(Int64 t) { newprocessTime_ = newprocessTime_ + t; }
+  inline long getNewprocessTime() { return newprocessTime_; }
+  inline void setNewprocessTime(long t) { newprocessTime_ = t; }
+  inline void incNewprocessTime(long t) { newprocessTime_ = newprocessTime_ + t; }
   inline Int32 getTimeouts() { return timeouts_; }
   inline void setTimeouts(Int32 t) { timeouts_ = t; }
   virtual const char *getNumValTxt(Int32 i) const;
@@ -1801,11 +1801,11 @@ class ExMeasStats : public ExMeasBaseStats {
   inline void setNumSorts(Int32 n) { numSorts_ = n; }
   inline void incNumSorts(Int32 n = 1) { numSorts_ = numSorts_ + n; }
 
-  inline Int64 getSortElapsedTime() { return sortElapsedTime_; }
-  inline void setSortElapsedTime(Int64 t) { sortElapsedTime_ = t; }
-  inline void incSortElapsedTime(Int64 t) { sortElapsedTime_ = sortElapsedTime_ + t; }
+  inline long getSortElapsedTime() { return sortElapsedTime_; }
+  inline void setSortElapsedTime(long t) { sortElapsedTime_ = t; }
+  inline void incSortElapsedTime(long t) { sortElapsedTime_ = sortElapsedTime_ + t; }
 
-  virtual Int64 getNumVal(Int32 i) const;
+  virtual long getNumVal(Int32 i) const;
 
   void initHistory();
 
@@ -1813,31 +1813,31 @@ class ExMeasStats : public ExMeasBaseStats {
 
   void setFragSuspended(bool s) { isFragSuspended_ = s; }
 
-  inline Int64 getCpuTime() const { return cpuTime_; }
+  inline long getCpuTime() const { return cpuTime_; }
 
-  inline Int64 getLocalCpuTime() const { return localCpuTime_; }
+  inline long getLocalCpuTime() const { return localCpuTime_; }
 
-  inline void incCpuTime(Int64 cpuTime) {
+  inline void incCpuTime(long cpuTime) {
     cpuTime_ += cpuTime;
     localCpuTime_ += cpuTime;
   }
 
-  inline void setCpuTime(Int64 cpuTime) { cpuTime_ = cpuTime; }
+  inline void setCpuTime(long cpuTime) { cpuTime_ = cpuTime; }
 
-  Lng32 getStatsItem(SQLSTATS_ITEM *sqlStats_item);
+  int getStatsItem(SQLSTATS_ITEM *sqlStats_item);
   void setCpuStatsHistory() { histCpuTime_ = cpuTime_; }
   NABoolean filterForCpuStats();
-  void setQueryId(char *queryId, Lng32 queryIdLen) {
+  void setQueryId(char *queryId, int queryIdLen) {
     queryId_ = queryId;
     queryIdLen_ = queryIdLen;
   }
   char *getQueryId() { return queryId_; }
-  Lng32 getQueryIdLen() { return queryIdLen_; }
-  inline void incReqMsg(Int64 msgBytes) {
+  int getQueryIdLen() { return queryIdLen_; }
+  inline void incReqMsg(long msgBytes) {
     reqMsgCnt_++;
     reqMsgBytes_ += msgBytes;
   }
-  inline void incReplyMsg(Int64 msgBytes) {
+  inline void incReplyMsg(long msgBytes) {
     replyMsgCnt_++;
     replyMsgBytes_ += msgBytes;
   }
@@ -1847,30 +1847,30 @@ class ExMeasStats : public ExMeasBaseStats {
 
  private:
   Int32 newprocess_;
-  Int64 newprocessTime_;
+  long newprocessTime_;
   Int32 timeouts_;
   Int32 numSorts_;
-  Int64 sortElapsedTime_;
+  long sortElapsedTime_;
   // some heap statistics for the entire fragment instance
   Int32 spaceUsage_;
   Int32 spaceAlloc_;
   Int32 heapUsage_;
   Int32 heapAlloc_;
   Int32 heapWM_;
-  Int64 cpuTime_;
+  long cpuTime_;
   Int32 espSpaceUsage_;
   Int32 espSpaceAlloc_;
   Int32 espHeapUsage_;
   Int32 espHeapAlloc_;
   Int32 espHeapWM_;
-  Int64 espCpuTime_;
-  Int64 histCpuTime_;
+  long espCpuTime_;
+  long histCpuTime_;
   char *queryId_;
-  Lng32 queryIdLen_;
-  Int64 reqMsgCnt_;
-  Int64 reqMsgBytes_;
-  Int64 replyMsgCnt_;
-  Int64 replyMsgBytes_;
+  int queryIdLen_;
+  long reqMsgCnt_;
+  long reqMsgBytes_;
+  long replyMsgCnt_;
+  long replyMsgBytes_;
   // Helps with cancel escalation.  Local only.  Do not merge.
   Int32 executionCount_;
   // Used by logic on runtimestats/CancelBroker.cpp (cancel escalation).
@@ -1881,18 +1881,18 @@ class ExMeasStats : public ExMeasBaseStats {
   // semaphore.
   bool isFragSuspended_;
 
-  Int64 localCpuTime_;
+  long localCpuTime_;
   Int16 scratchOverflowMode_;
   Int32 scratchFileCount_;
   Int32 spaceBufferSize_;
-  Int64 spaceBufferCount_;
-  Int64 scratchReadCount_;
-  Int64 scratchWriteCount_;
-  Int64 udrCpuTime_;
+  long spaceBufferCount_;
+  long scratchReadCount_;
+  long scratchWriteCount_;
+  long udrCpuTime_;
   Int32 topN_;
   Int32 scratchIOSize_;
-  Int64 interimRowCount_;
-  Int64 scratchIOMaxTime_;
+  long interimRowCount_;
+  long scratchIOMaxTime_;
 };
 
 class ExUDRBaseStats : public ExOperStats {
@@ -1911,33 +1911,33 @@ class ExUDRBaseStats : public ExOperStats {
   void deleteMe() {}
   ExOperStats *copyOper(NAMemory *heap);
   void copyContents(ExUDRBaseStats *other);
-  void getVariableStatsInfo(char *dataBuffer, char *dataLen, Lng32 maxLen);
+  void getVariableStatsInfo(char *dataBuffer, char *dataLen, int maxLen);
   ExUDRBaseStats *castToExUDRBaseStats();
   void merge(ExUDRBaseStats *other);
-  Lng32 getStatsItem(SQLSTATS_ITEM *sqlStats_item);
-  void setUDRServerId(const char *serverId, Lng32 maxlen);
+  int getStatsItem(SQLSTATS_ITEM *sqlStats_item);
+  void setUDRServerId(const char *serverId, int maxlen);
   inline const char *getUDRServerId() const { return UDRServerId_; }
-  void incReplyMsg(Int64 msgBytes) {
+  void incReplyMsg(long msgBytes) {
     replyMsgCnt_++;
     replyMsgBytes_ += msgBytes;
     recentReplyTS_ = NA_JulianTimestamp();
   }
 
-  void incReqMsg(Int64 msgBytes) {
+  void incReqMsg(long msgBytes) {
     reqMsgCnt_++;
     reqMsgBytes_ += msgBytes;
     recentReqTS_ = NA_JulianTimestamp();
   }
 
  private:
-  Int64 reqMsgCnt_;
-  Int64 reqMsgBytes_;
-  Int64 replyMsgCnt_;
-  Int64 replyMsgBytes_;
-  Int64 udrCpuTime_;
+  long reqMsgCnt_;
+  long reqMsgBytes_;
+  long replyMsgCnt_;
+  long replyMsgBytes_;
+  long udrCpuTime_;
   char UDRServerId_[40];  // PROCESSNAME_STRING_LEN in ComRtUtils.h
-  Int64 recentReqTS_;
-  Int64 recentReplyTS_;
+  long recentReqTS_;
+  long recentReplyTS_;
 };
 
 //////////////////////////////////////////////////////////////////
@@ -1979,31 +1979,31 @@ class ExUDRStats : public ExUDRBaseStats {
 
   inline ExStatsCounter &getSentContinueBuffers() { return sentContinueBuffers_; }
 
-  inline void setUDRServerInit(Int64 i = 0) { UDRServerInit_ = i; }
+  inline void setUDRServerInit(long i = 0) { UDRServerInit_ = i; }
 
-  inline void setUDRServerStart(Int64 s = 0) { UDRServerStart_ = s; }
+  inline void setUDRServerStart(long s = 0) { UDRServerStart_ = s; }
 
   inline const char *getUDRName() const { return UDRName_; }
 
-  void setUDRName(const char *udrName, Lng32 maxlen);
+  void setUDRName(const char *udrName, int maxlen);
 
   ExUDRStats *castToExUDRStats();
 
   virtual const char *getNumValTxt(Int32 i) const;
 
-  virtual Int64 getNumVal(Int32 i) const;
+  virtual long getNumVal(Int32 i) const;
 
   virtual const char *getTextVal();
 
-  virtual void getVariableStatsInfo(char *dataBuffer, char *datalen, Lng32 maxLen);
+  virtual void getVariableStatsInfo(char *dataBuffer, char *datalen, int maxLen);
 
  private:
   ExBufferStats bufferStats_;           // request and reply buffer statistics
   ExStatsCounter sentControlBuffers_;   // counts control msg buffers and bytes
   ExStatsCounter sentContinueBuffers_;  // counts continue msg buffers and bytes
 
-  Int64 UDRServerInit_;   // UDR Server initialization time
-  Int64 UDRServerStart_;  // UDR Server successfull start time
+  long UDRServerInit_;   // UDR Server initialization time
+  long UDRServerStart_;  // UDR Server successfull start time
   char *UDRName_;         // UDR name registered in CREATE
 };
 
@@ -2016,7 +2016,7 @@ class ExUDRStats : public ExUDRBaseStats {
 
 class ExStatisticsArea : public IpcMessageObj {
  public:
-  ExStatisticsArea(NAMemory *heap = NULL, Lng32 sendBottomNum = 0, ComTdb::CollectStatsType cst = ComTdb::ALL_STATS,
+  ExStatisticsArea(NAMemory *heap = NULL, int sendBottomNum = 0, ComTdb::CollectStatsType cst = ComTdb::ALL_STATS,
                    ComTdb::CollectStatsType origCst = ComTdb::NO_STATS);
   ~ExStatisticsArea();
 
@@ -2031,7 +2031,7 @@ class ExStatisticsArea : public IpcMessageObj {
 
   void restoreDop();
 
-  Lng32 numEntries();
+  int numEntries();
 
   inline NAMemory *getHeap() { return heap_; }
 
@@ -2068,7 +2068,7 @@ class ExStatisticsArea : public IpcMessageObj {
   //////////////////////////////////////////////////////////////////
   // positions to the entry with the hash data passed in.
   //////////////////////////////////////////////////////////////////
-  void position(char *hashData, Lng32 hashDatalen);
+  void position(char *hashData, int hashDatalen);
 
   //////////////////////////////////////////////////////////////////
   // get the next entry
@@ -2081,10 +2081,10 @@ class ExStatisticsArea : public IpcMessageObj {
   ExOperStats *get(ExOperStats::StatType type, ComTdb::ex_node_type tdbType);
 
   // gets the next 'type' of stat entry with 'tdbId'
-  ExOperStats *get(ExOperStats::StatType type, Lng32 tdbId);
+  ExOperStats *get(ExOperStats::StatType type, int tdbId);
 
   // gets the next stat entry with 'tdbId'
-  ExOperStats *get(Lng32 tdbId);
+  ExOperStats *get(int tdbId);
 
   IpcMessageObjSize packedLength();
 
@@ -2098,13 +2098,13 @@ class ExStatisticsArea : public IpcMessageObj {
   void unpackObj(IpcMessageObjType objType, IpcMessageObjVersion objVersion, NABoolean sameEndianness,
                  IpcMessageObjSize objSize, IpcConstMessageBufferPtr buffer);
 
-  void unpackObjFromEid(IpcConstMessageBufferPtr buffer, ExOperStats *parentStatsEntry = NULL, Lng32 parentTdb = -1);
+  void unpackObjFromEid(IpcConstMessageBufferPtr buffer, ExOperStats *parentStatsEntry = NULL, int parentTdb = -1);
 
-  void unpackSmallObjFromEid(IpcConstMessageBufferPtr buffer, Lng32 version = _STATS_PRE_RTS_VERSION);
+  void unpackSmallObjFromEid(IpcConstMessageBufferPtr buffer, int version = _STATS_PRE_RTS_VERSION);
 
-  Int64 getExplainPlanId() const { return explainPlanId_; }
+  long getExplainPlanId() const { return explainPlanId_; }
 
-  void setExplainPlanId(Int64 pid) { explainPlanId_ = pid; }
+  void setExplainPlanId(long pid) { explainPlanId_ = pid; }
 
   ComTdb::CollectStatsType getCollectStatsType() { return (ComTdb::CollectStatsType)collectStatsType_; };
   void setCollectStatsType(ComTdb::CollectStatsType s) { collectStatsType_ = s; };
@@ -2121,13 +2121,13 @@ class ExStatisticsArea : public IpcMessageObj {
   // get Opens counter from  ExMeasStats entry.
   //////////////////////////////////////////////////////////////////
   Int32 getMeasOpensCntr();
-  Int64 getMeasOpenTimeCntr();
+  long getMeasOpenTimeCntr();
 
   //////////////////////////////////////////////////////////////////
   // get Newprocess counter from  ExMeasStats entry.
   //////////////////////////////////////////////////////////////////
   Int32 getMeasNewprocessCntr();
-  Int64 getMeasNewprocessTimeCntr();
+  long getMeasNewprocessTimeCntr();
 
   NABoolean statsInDp2() { return (detailedFlags_.smallFlags_ & STATS_IN_DP2) != 0; }
 
@@ -2174,32 +2174,32 @@ class ExStatisticsArea : public IpcMessageObj {
 
   ExOperStats *getRootStats() { return rootStats_; };
   void setRootStats(ExOperStats *root) { rootStats_ = root; }
-  Lng32 getStatsItems(Lng32 no_of_stats_items, SQLSTATS_ITEM sqlStats_items[]);
-  Lng32 getStatsDesc(short *statsCollectType,
+  int getStatsItems(int no_of_stats_items, SQLSTATS_ITEM sqlStats_items[]);
+  int getStatsDesc(short *statsCollectType,
                      /* IN/OUT */ SQLSTATS_DESC sqlstats_desc[],
-                     /* IN */ Lng32 max_stats_desc,
-                     /* OUT */ Lng32 *no_returned_stats_desc);
+                     /* IN */ int max_stats_desc,
+                     /* OUT */ int *no_returned_stats_desc);
   static const char *getStatsTypeText(short statsType);
   void setCpuStatsHistory();
   NABoolean appendCpuStats(ExStatisticsArea *other, NABoolean appendAlways = FALSE);
-  NABoolean appendCpuStats(ExMasterStats *masterStats, NABoolean appendAlways, short subReqType, Lng32 etTimeFilter,
-                           Int64 currTimestamp);  // Return TRUE if the stats is appended
-  NABoolean appendCpuStats(ExOperStats *stat, NABoolean appendAlways, Lng32 filter,
+  NABoolean appendCpuStats(ExMasterStats *masterStats, NABoolean appendAlways, short subReqType, int etTimeFilter,
+                           long currTimestamp);  // Return TRUE if the stats is appended
+  NABoolean appendCpuStats(ExOperStats *stat, NABoolean appendAlways, int filter,
                            struct timespec currTimespec);  // Return TRUE if the stats is appended
-  NABoolean appendCpuStats(ExStatisticsArea *stats, NABoolean appendAlways, Lng32 filter,
+  NABoolean appendCpuStats(ExStatisticsArea *stats, NABoolean appendAlways, int filter,
                            struct timespec currTimespec);  // Return TRUE if the stats is appended
-  void incReqMsg(Int64 msgBytes);
-  void incReplyMsg(Int64 msgBytes);
+  void incReqMsg(long msgBytes);
+  void incReplyMsg(long msgBytes);
   void setDetailLevel(short level) { detailLevel_ = level; }
   void setSubReqType(short subReqType) { subReqType_ = subReqType; }
   short getSubReqType() { return subReqType_; }
-  void setQueryId(char *queryId, Lng32 queryIdLen);
-  Int64 getHashData(ExOperStats::StatType type, Lng32 tdbId);
+  void setQueryId(char *queryId, int queryIdLen);
+  long getHashData(ExOperStats::StatType type, int tdbId);
 
   NABoolean anyHaveSentMsgIUD();
 
  private:
-  void unpackThisClass(const char *&buffer, ExOperStats *parentStatsEntry = NULL, Lng32 parentTdb = -1);
+  void unpackThisClass(const char *&buffer, ExOperStats *parentStatsEntry = NULL, int parentTdb = -1);
 
   enum SmallFlags {
     STATS_IN_DP2 = 0x01,
@@ -2220,7 +2220,7 @@ class ExStatisticsArea : public IpcMessageObj {
     RTS_STATS_COLLECT_ENABLED = 0x0002
   };
 
-  IDInfo *IDLookup(HashQueue *hq, Int64 id);
+  IDInfo *IDLookup(HashQueue *hq, long id);
 
   void preProcessStats();
 
@@ -2229,15 +2229,15 @@ class ExStatisticsArea : public IpcMessageObj {
 
   // some info that relates to the entire statement
   // (used only in the master fragment)
-  Int64 explainPlanId_;
+  long explainPlanId_;
 
   // the following 2 members are only meaningful in an ESP.
   // The split-bottom sets the sendBottomNum_ member. Whenever
   // a send-bottom sees an EOF, it increments the sendBottomCnt_.
   // Statistics are only sent by the "last" send-bottom
   // (sendBottomCnt == sendBottomNum)
-  Lng32 sendBottomNum_;
-  Lng32 sendBottomCnt_;
+  int sendBottomNum_;
+  int sendBottomCnt_;
 
   // ---------------------------------------------------------------------
   // this fields contains details about what
@@ -2271,9 +2271,9 @@ class ExStatisticsArea : public IpcMessageObj {
 //////////////////////////////////////////////////////////////////
 class IDInfo : public NABasicObject {
  public:
-  IDInfo(Int64 id, ExOperStats *stat);
+  IDInfo(long id, ExOperStats *stat);
 
-  Int64 newId_;
+  long newId_;
   ExOperStats *stat_;
   // count the number of child TCBs processed during the tree building
   ULng32 childrenProcessed_;
@@ -2349,12 +2349,12 @@ class ExStatsTcb : public ex_tcb {
   virtual Int32 numChildren() const { return 0; };
   virtual const ex_tcb *getChild(Int32 pos) const { return NULL; };
   ExStatisticsArea *sendToSsmp();
-  Lng32 parse_stmt_name(char *string, Lng32 len);
+  int parse_stmt_name(char *string, int len);
   ComDiagsArea *getDiagsArea() { return diagsArea_; }
 
-  Lng32 str_parse_stmt_name(char *string, Lng32 len, char *nodeName, short *cpu, pid_t *pid, Int64 *timeStamp,
-                            Lng32 *queryNumber, short *qidOffset, short *qidLen, short *activeQueryNum,
-                            UInt16 *statsMergeType, short *detailLevel, short *subReqType, Lng32 *filterTimeInSecs);
+  int str_parse_stmt_name(char *string, int len, char *nodeName, short *cpu, pid_t *pid, long *timeStamp,
+                            int *queryNumber, short *qidOffset, short *qidLen, short *activeQueryNum,
+                            UInt16 *statsMergeType, short *detailLevel, short *subReqType, int *filterTimeInSecs);
   enum StatsStep {
     INITIAL_,
     GET_NEXT_STATS_ENTRY_,
@@ -2395,8 +2395,8 @@ class ExStatsTcb : public ex_tcb {
   char *qid_;
   pid_t pid_;
   short cpu_;
-  Int64 timeStamp_;
-  Lng32 queryNumber_;
+  long timeStamp_;
+  int queryNumber_;
   char nodeName_[MAX_SEGMENT_NAME_LEN + 1];
   short reqType_;
   short retryAttempts_;
@@ -2407,7 +2407,7 @@ class ExStatsTcb : public ex_tcb {
   short detailLevel_;
   char *stmtName_;
   short subReqType_;
-  Lng32 filter_;
+  int filter_;
 };
 
 class ExStatsPrivateState : public ex_tcb_private_state {
@@ -2421,7 +2421,7 @@ class ExStatsPrivateState : public ex_tcb_private_state {
  private:
   ExStatsTcb::StatsStep step_;
 
-  Int64 matchCount_;  // number of rows returned for this parent row
+  long matchCount_;  // number of rows returned for this parent row
 };
 
 //////////////////////////////////////////////////////////////////
@@ -2430,8 +2430,8 @@ class ExStatsPrivateState : public ex_tcb_private_state {
 class ExMasterStats : public ExOperStats {
  public:
   ExMasterStats(NAHeap *heap);
-  ExMasterStats(NAHeap *heap, char *sourceStr, Lng32 storedSqlTextLen, Lng32 originalSqlTextLen, char *queryId,
-                Lng32 queryIdLen);
+  ExMasterStats(NAHeap *heap, char *sourceStr, int storedSqlTextLen, int originalSqlTextLen, char *queryId,
+                int queryIdLen);
   ExMasterStats();
   ~ExMasterStats();
   UInt32 packedLength();
@@ -2448,97 +2448,97 @@ class ExMasterStats : public ExOperStats {
 
   void copyContents(ExMasterStats *other);
 
-  void getVariableStatsInfo(char *dataBuffer, char *dataLen, Lng32 maxLen);
+  void getVariableStatsInfo(char *dataBuffer, char *dataLen, int maxLen);
 
   ExMasterStats *castToExMasterStats();
 
-  void setElapsedStartTime(Int64 elapsedStartTime) {
+  void setElapsedStartTime(long elapsedStartTime) {
     elapsedStartTime_ = elapsedStartTime;
     firstRowReturnTime_ = -1;
     elapsedEndTime_ = -1;
   }
 
-  void setElapsedEndTime(Int64 elapsedEndTime) { elapsedEndTime_ = elapsedEndTime; }
+  void setElapsedEndTime(long elapsedEndTime) { elapsedEndTime_ = elapsedEndTime; }
 
-  void setCompStartTime(Int64 compStartTime) {
+  void setCompStartTime(long compStartTime) {
     compStartTime_ = compStartTime;
     compEndTime_ = -1;
   }
 
-  void setCompEndTime(Int64 compEndTime) { compEndTime_ = compEndTime; }
+  void setCompEndTime(long compEndTime) { compEndTime_ = compEndTime; }
 
-  void setExeStartTime(Int64 exeStartTime) {
+  void setExeStartTime(long exeStartTime) {
     exeStartTime_ = exeStartTime;
     exeEndTime_ = -1;
     canceledTime_ = -1;
     querySuspendedTime_ = -1;
   }
 
-  void setExeEndTime(Int64 exeEndTime) {
+  void setExeEndTime(long exeEndTime) {
     exeEndTime_ = exeEndTime;
     exeTimes_.addEntry(exeEndTime_ - exeStartTime_);
   }
 
-  void setCanceledTime(Int64 canceledTime) { canceledTime_ = canceledTime; }
+  void setCanceledTime(long canceledTime) { canceledTime_ = canceledTime; }
 
-  void setFixupStartTime(Int64 fixupStartTime) {
+  void setFixupStartTime(long fixupStartTime) {
     fixupStartTime_ = fixupStartTime;
     fixupEndTime_ = -1;
   }
 
-  void setFixupEndTime(Int64 fixupEndTime) { fixupEndTime_ = fixupEndTime; }
+  void setFixupEndTime(long fixupEndTime) { fixupEndTime_ = fixupEndTime; }
 
-  void setFreeupStartTime(Int64 freeupStartTime) {
+  void setFreeupStartTime(long freeupStartTime) {
     freeupStartTime_ = freeupStartTime;
     freeupEndTime_ = -1;
   }
 
-  void setFreeupEndTime(Int64 freeupEndTime) { freeupEndTime_ = freeupEndTime; }
+  void setFreeupEndTime(long freeupEndTime) { freeupEndTime_ = freeupEndTime; }
 
-  void setReturnedRowsIOTime(Int64 rrIOtime) { returnedRowsIOTime_ = rrIOtime; }
+  void setReturnedRowsIOTime(long rrIOtime) { returnedRowsIOTime_ = rrIOtime; }
 
   void setStmtState(short state) { stmtState_ = state; }
 
   char *getQueryId() { return queryId_; }
-  Lng32 getQueryIdLen() { return queryIdLen_; }
+  int getQueryIdLen() { return queryIdLen_; }
 
-  Int64 getCompStartTime() { return compStartTime_; }
+  long getCompStartTime() { return compStartTime_; }
 
-  Int64 getCompEndTime() { return compEndTime_; }
+  long getCompEndTime() { return compEndTime_; }
 
-  Int64 getElapsedStartTime() { return elapsedStartTime_; }
+  long getElapsedStartTime() { return elapsedStartTime_; }
 
-  Int64 getElapsedEndTime() { return elapsedEndTime_; }
+  long getElapsedEndTime() { return elapsedEndTime_; }
 
-  Int64 getFirstRowReturnTime() { return firstRowReturnTime_; }
+  long getFirstRowReturnTime() { return firstRowReturnTime_; }
 
-  Int64 getExeStartTime() { return exeStartTime_; }
+  long getExeStartTime() { return exeStartTime_; }
 
-  Int64 getExeEndTime() { return exeEndTime_; }
+  long getExeEndTime() { return exeEndTime_; }
 
-  Int64 getCanceledTime() { return canceledTime_; }
+  long getCanceledTime() { return canceledTime_; }
 
-  void setRowsAffected(Int64 rowsAffected) { rowsAffected_ = rowsAffected; }
+  void setRowsAffected(long rowsAffected) { rowsAffected_ = rowsAffected; }
 
-  void setSqlErrorCode(Lng32 sqlErrorCode) { sqlErrorCode_ = sqlErrorCode; }
+  void setSqlErrorCode(int sqlErrorCode) { sqlErrorCode_ = sqlErrorCode; }
 
-  Lng32 getSqlErrorCode() { return sqlErrorCode_; }
+  int getSqlErrorCode() { return sqlErrorCode_; }
 
-  void setStatsErrorCode(Lng32 errorCode) { statsErrorCode_ = errorCode; }
+  void setStatsErrorCode(int errorCode) { statsErrorCode_ = errorCode; }
 
-  Lng32 getStatsErrorCode() { return statsErrorCode_; }
+  int getStatsErrorCode() { return statsErrorCode_; }
 
-  Int64 getFixupStartTime() { return fixupStartTime_; }
+  long getFixupStartTime() { return fixupStartTime_; }
 
-  Int64 getFixupEndTime() { return fixupEndTime_; }
+  long getFixupEndTime() { return fixupEndTime_; }
 
-  Int64 getFreeupStartTime() { return freeupStartTime_; }
+  long getFreeupStartTime() { return freeupStartTime_; }
 
-  Int64 getFreeupEndTime() { return freeupEndTime_; }
+  long getFreeupEndTime() { return freeupEndTime_; }
 
-  Int64 getReturnedRowsIOTime() { return returnedRowsIOTime_; }
+  long getReturnedRowsIOTime() { return returnedRowsIOTime_; }
 
-  Int64 getRowsAffected() { return rowsAffected_; }
+  long getRowsAffected() { return rowsAffected_; }
 
   Int32 &numOfTotalEspsUsed() { return numOfTotalEspsUsed_; }
   Int32 &numOfNewEspsStarted() { return numOfNewEspsStarted_; }
@@ -2554,14 +2554,14 @@ class ExMasterStats : public ExOperStats {
 
   inline short getNumCpus() { return numCpus_; }
 
-  inline void setAqrLastErrorCode(Lng32 ec) { aqrLastErrorCode_ = ec; }
-  inline Lng32 getAqrLastErrorCode() { return aqrLastErrorCode_; }
+  inline void setAqrLastErrorCode(int ec) { aqrLastErrorCode_ = ec; }
+  inline int getAqrLastErrorCode() { return aqrLastErrorCode_; }
 
-  inline void setNumAqrRetries(Lng32 numRetries) { numAqrRetries_ = numRetries; }
-  inline Lng32 getNumAqrRetries() { return numAqrRetries_; }
+  inline void setNumAqrRetries(int numRetries) { numAqrRetries_ = numRetries; }
+  inline int getNumAqrRetries() { return numAqrRetries_; }
 
-  inline void setAqrDelayBeforeRetry(Lng32 d) { delayBeforeAqrRetry_ = d; }
-  inline Lng32 getAqrDelayBeforeRetry() { return delayBeforeAqrRetry_; }
+  inline void setAqrDelayBeforeRetry(int d) { delayBeforeAqrRetry_ = d; }
+  inline int getAqrDelayBeforeRetry() { return delayBeforeAqrRetry_; }
 
   short getState() { return stmtState_; }
 
@@ -2611,26 +2611,26 @@ class ExMasterStats : public ExOperStats {
 
   void init(NABoolean resetDop);
   void reuse();
-  void initBeforeExecute(Int64 currentTimestamp);
+  void initBeforeExecute(long currentTimestamp);
   void resetAqrInfo();
 
-  Lng32 getStatsItem(SQLSTATS_ITEM *sqlStats_item);
-  void setParentQid(char *queryId, Lng32 queryIdLen);
+  int getStatsItem(SQLSTATS_ITEM *sqlStats_item);
+  void setParentQid(char *queryId, int queryIdLen);
   char *getParentQid() { return parentQid_; }
-  Lng32 getParentQidLen() { return parentQidLen_; }
-  void setParentQidSystem(char *parentQidSystem, Lng32 len);
+  int getParentQidLen() { return parentQidLen_; }
+  void setParentQidSystem(char *parentQidSystem, int len);
   char *getParentQidSystem() { return parentQidSystem_; }
-  Int64 getTransId() { return transId_; }
-  void setTransId(Int64 transId) { transId_ = transId; }
-  void setChildQid(char *queryId, Lng32 queryIdLen);
+  long getTransId() { return transId_; }
+  void setTransId(long transId) { transId_ = transId; }
+  void setChildQid(char *queryId, int queryIdLen);
   char *getChildQid() { return childQid_; }
-  Lng32 getChildQidLen() { return childQidLen_; }
-  Lng32 getReclaimSpaceCount() { return reclaimSpaceCount_; }
+  int getChildQidLen() { return childQidLen_; }
+  int getReclaimSpaceCount() { return reclaimSpaceCount_; }
   void incReclaimSpaceCount() { reclaimSpaceCount_++; }
-  NABoolean filterForCpuStats(short subReqType, Int64 currTimestamp, Lng32 etTimeInSecs);
-  Int64 getRowsReturned() const { return rowsReturned_; }
-  void setRowsReturned(Int64 cnt) { rowsReturned_ = cnt; }
-  void incRowsReturned(Int64 i = 1) {
+  NABoolean filterForCpuStats(short subReqType, long currTimestamp, int etTimeInSecs);
+  long getRowsReturned() const { return rowsReturned_; }
+  void setRowsReturned(long cnt) { rowsReturned_ = cnt; }
+  void incRowsReturned(long i = 1) {
     rowsReturned_ += i;
     if (firstRowReturnTime_ == -1) firstRowReturnTime_ = NA_JulianTimestamp();
   }
@@ -2640,7 +2640,7 @@ class ExMasterStats : public ExOperStats {
     isQuerySuspended_ = s;
     if (isQuerySuspended_) querySuspendedTime_ = NA_JulianTimestamp();
   }
-  Int64 getQuerySuspendedTime() const { return querySuspendedTime_; }
+  long getQuerySuspendedTime() const { return querySuspendedTime_; }
   char *getCancelComment() const { return cancelComment_; }
 
   // setCancelComment is called by Control Broker mxssmp under semaphore.
@@ -2657,19 +2657,19 @@ class ExMasterStats : public ExOperStats {
   Int32 getNumSIKeys() const { return numSIKeys_; }
   SQL_QIKEY *getSIKeys() const { return sIKeys_; }
   void setInvalidationKeys(CliGlobals *cliGlobals, SecurityInvKeyInfo *sikInfo, Int32 numObjUIDs,
-                           const Int64 *objectUIDs);
+                           const long *objectUIDs);
   void setValidDDL(bool v) { validDDL_ = v; }
   bool getValidDDL() { return validDDL_; }
   void setValidHistogram(bool v) { validHistogram_ = v; }
   bool getValidHistogram() { return validHistogram_; }
   Int32 getNumObjUIDs() const { return numObjUIDs_; }
-  Int64 *getObjUIDs() const { return objUIDs_; }
+  long *getObjUIDs() const { return objUIDs_; }
 
   char *getSourceString() { return sourceStr_; }
-  Lng32 getOriginalSqlTextLen() { return originalSqlTextLen_; }
+  int getOriginalSqlTextLen() { return originalSqlTextLen_; }
 
-  Int64 getQueryHash() { return queryHash_; }
-  void setQueryHash(Int64 x) { queryHash_ = x; }
+  long getQueryHash() { return queryHash_; }
+  void setQueryHash(long x) { queryHash_ = x; }
   void setSlaName(char *slaName) {
     if (slaName != NULL)
       strcpy(slaName_, slaName);
@@ -2693,26 +2693,26 @@ class ExMasterStats : public ExOperStats {
   };
 
   char *sourceStr_;
-  Lng32 storedSqlTextLen_;
-  Lng32 originalSqlTextLen_;
+  int storedSqlTextLen_;
+  int originalSqlTextLen_;
   char *queryId_;
-  Lng32 queryIdLen_;
-  Int64 elapsedStartTime_;
-  Int64 elapsedEndTime_;
-  Int64 firstRowReturnTime_;
-  Int64 compStartTime_;
-  Int64 compEndTime_;
-  Int64 exeStartTime_;
-  Int64 exeEndTime_;
-  Int64 canceledTime_;
-  Int64 fixupStartTime_;
-  Int64 fixupEndTime_;
-  Int64 freeupStartTime_;
-  Int64 freeupEndTime_;
-  Int64 returnedRowsIOTime_;
-  Int64 rowsAffected_;
-  Lng32 sqlErrorCode_;
-  Lng32 statsErrorCode_;
+  int queryIdLen_;
+  long elapsedStartTime_;
+  long elapsedEndTime_;
+  long firstRowReturnTime_;
+  long compStartTime_;
+  long compEndTime_;
+  long exeStartTime_;
+  long exeEndTime_;
+  long canceledTime_;
+  long fixupStartTime_;
+  long fixupEndTime_;
+  long freeupStartTime_;
+  long freeupEndTime_;
+  long returnedRowsIOTime_;
+  long rowsAffected_;
+  int sqlErrorCode_;
+  int statsErrorCode_;
 
   short stmtState_;
   UInt16 masterFlags_;
@@ -2735,18 +2735,18 @@ class ExMasterStats : public ExOperStats {
 
   CompilerStatsInfo compilerStatsInfo_;
   char *parentQid_;
-  Lng32 parentQidLen_;
+  int parentQidLen_;
   char parentQidSystem_[24];
-  Int64 transId_;
-  Int64 rowsReturned_;
-  Lng32 aqrLastErrorCode_;
-  Lng32 numAqrRetries_;
-  Lng32 delayBeforeAqrRetry_;
+  long transId_;
+  long rowsReturned_;
+  int aqrLastErrorCode_;
+  int numAqrRetries_;
+  int delayBeforeAqrRetry_;
   char *childQid_;
-  Lng32 childQidLen_;
-  Lng32 reclaimSpaceCount_;
+  int childQidLen_;
+  int reclaimSpaceCount_;
   bool isQuerySuspended_;
-  Int64 querySuspendedTime_;
+  long querySuspendedTime_;
   Int32 cancelCommentLen_;
   char *cancelComment_;
   // These helpers for suspend/resume are written in the master of the
@@ -2781,9 +2781,9 @@ class ExMasterStats : public ExOperStats {
   bool validDDL_;
   bool validHistogram_;
   Int32 numObjUIDs_;
-  Int64 *objUIDs_;
-  Int64 preallocdObjUIDs_[PreAllocatedObjUIDs];
-  Int64 queryHash_;
+  long *objUIDs_;
+  long preallocdObjUIDs_[PreAllocatedObjUIDs];
+  long queryHash_;
   ExStatsCounter exeTimes_;
   char slaName_[MAX_SLA_NAME_LEN + 1];
   char profileName_[MAX_PROFILE_NAME_LEN + 1];
@@ -2798,14 +2798,14 @@ class ExRMSStats : public ExOperStats {
   void deleteMe() {}
   ExOperStats *copyOper(NAMemory *heap);
   void copyContents(ExRMSStats *other);
-  void getVariableStatsInfo(char *dataBuffer, char *dataLen, Lng32 maxLen);
+  void getVariableStatsInfo(char *dataBuffer, char *dataLen, int maxLen);
   ExRMSStats *castToExRMSStats();
   void merge(ExRMSStats *other);
-  inline void setRmsVersion(Lng32 version) { rmsVersion_ = version; }
+  inline void setRmsVersion(int version) { rmsVersion_ = version; }
   void setNodeName(char *nodeName);
   inline pid_t getSsmpPid() { return ssmpPid_; }
   inline pid_t getSscpPid() { return sscpPid_; }
-  inline Int64 getSsmpTimestamp() { return ssmpTimestamp_; }
+  inline long getSsmpTimestamp() { return ssmpTimestamp_; }
   inline void setCpu(short cpu) { cpu_ = cpu; }
   inline void setSscpPid(pid_t pid) { sscpPid_ = pid; }
   inline void setSsmpPid(pid_t pid) { ssmpPid_ = pid; }
@@ -2813,93 +2813,93 @@ class ExRMSStats : public ExOperStats {
   inline void setSsmpPriority(short pri) { ssmpPriority_ = pri; }
   inline void setStoreSqlSrcLen(short srcLen) { storeSqlSrcLen_ = srcLen; }
   inline void setRmsEnvType(short envType) { rmsEnvType_ = envType; }
-  inline void setGlobalStatsHeapAlloc(Int64 size) { currGlobalStatsHeapAlloc_ = size; }
-  inline void setGlobalStatsHeapUsed(Int64 size) { currGlobalStatsHeapUsage_ = size; }
-  inline void setStatsHeapWaterMark(Int64 size) { globalStatsHeapWatermark_ = size; }
-  inline void setNoOfStmtStats(Lng32 noOfStmts) { currNoOfStmtStats_ = noOfStmts; }
+  inline void setGlobalStatsHeapAlloc(long size) { currGlobalStatsHeapAlloc_ = size; }
+  inline void setGlobalStatsHeapUsed(long size) { currGlobalStatsHeapUsage_ = size; }
+  inline void setStatsHeapWaterMark(long size) { globalStatsHeapWatermark_ = size; }
+  inline void setNoOfStmtStats(int noOfStmts) { currNoOfStmtStats_ = noOfStmts; }
   inline void incProcessStatsHeaps() { currNoOfProcessStatsHeap_++; }
   inline void decProcessStatsHeaps() { currNoOfProcessStatsHeap_--; }
   inline void incProcessRegd() { currNoOfRegProcesses_++; }
   inline void decProcessRegd() { currNoOfRegProcesses_--; }
-  inline Lng32 getProcessRegd() { return currNoOfProcessStatsHeap_; }
+  inline int getProcessRegd() { return currNoOfProcessStatsHeap_; }
   inline void setSemPid(pid_t pid) { semPid_ = pid; }
   inline void setSscpOpens(short numSscps) { sscpOpens_ = numSscps; }
   inline void setSscpDeletedOpens(short numSscps) { sscpDeletedOpens_ = numSscps; }
-  inline void setSscpTimestamp(Int64 timestamp) { sscpTimestamp_ = timestamp; }
-  inline void setSsmpTimestamp(Int64 timestamp) { ssmpTimestamp_ = timestamp; }
-  inline void setRMSStatsResetTimestamp(Int64 timestamp) { rmsStatsResetTimestamp_ = timestamp; }
+  inline void setSscpTimestamp(long timestamp) { sscpTimestamp_ = timestamp; }
+  inline void setSsmpTimestamp(long timestamp) { ssmpTimestamp_ = timestamp; }
+  inline void setRMSStatsResetTimestamp(long timestamp) { rmsStatsResetTimestamp_ = timestamp; }
   inline void incStmtStatsGCed(short inc) {
     stmtStatsGCed_ = inc;
     totalStmtStatsGCed_ += inc;
   }
-  inline Int64 getLastGCTime() { return lastGCTime_; }
-  inline void setLastGCTime(Int64 gcTime) { lastGCTime_ = gcTime; }
-  inline void incSsmpReqMsg(Int64 msgBytes) {
+  inline long getLastGCTime() { return lastGCTime_; }
+  inline void setLastGCTime(long gcTime) { lastGCTime_ = gcTime; }
+  inline void incSsmpReqMsg(long msgBytes) {
     ssmpReqMsgCnt_++;
     ssmpReqMsgBytes_ += msgBytes;
   }
-  inline void incSsmpReplyMsg(Int64 msgBytes) {
+  inline void incSsmpReplyMsg(long msgBytes) {
     ssmpReplyMsgCnt_++;
     ssmpReplyMsgBytes_ += msgBytes;
   }
-  inline void incSscpReqMsg(Int64 msgBytes) {
+  inline void incSscpReqMsg(long msgBytes) {
     sscpReqMsgCnt_++;
     sscpReqMsgBytes_ += msgBytes;
   }
-  inline void incSscpReplyMsg(Int64 msgBytes) {
+  inline void incSscpReplyMsg(long msgBytes) {
     sscpReplyMsgCnt_++;
     sscpReplyMsgBytes_ += msgBytes;
   }
   inline void setNumQueryInvKeys(Int32 n) { numQueryInvKeys_ = n; }
   inline void setNodesInCluster(short n) { nodesInCluster_ = n; }
   inline void setConfiguredPidMax(pid_t pid) { configuredPidMax_ = pid; }
-  Lng32 getStatsItem(SQLSTATS_ITEM *sqlStats_item);
+  int getStatsItem(SQLSTATS_ITEM *sqlStats_item);
   void reset();
-  inline void setEpochHeapAlloc(Int64 size) { epochHeapAlloc_ = size; }
-  inline void setEpochHeapUsed(Int64 size) { epochHeapUsage_ = size; }
-  inline void setEpochHeapWaterMark(Int64 size) { epochHeapWatermark_ = size; }
-  inline void setNoOfEpochEntries(Lng32 num) { currNoOfEpochEntries_ = num; }
+  inline void setEpochHeapAlloc(long size) { epochHeapAlloc_ = size; }
+  inline void setEpochHeapUsed(long size) { epochHeapUsage_ = size; }
+  inline void setEpochHeapWaterMark(long size) { epochHeapWatermark_ = size; }
+  inline void setNoOfEpochEntries(int num) { currNoOfEpochEntries_ = num; }
 
  private:
-  Lng32 rmsVersion_;
+  int rmsVersion_;
   char nodeName_[MAX_SEGMENT_NAME_LEN + 1];
   short cpu_;
   pid_t sscpPid_;
   short sscpPriority_;
-  Int64 sscpTimestamp_;
+  long sscpTimestamp_;
   pid_t ssmpPid_;
   short ssmpPriority_;
-  Int64 ssmpTimestamp_;
+  long ssmpTimestamp_;
   short storeSqlSrcLen_;
   short rmsEnvType_;
-  Int64 currGlobalStatsHeapAlloc_;
-  Int64 currGlobalStatsHeapUsage_;
-  Int64 globalStatsHeapWatermark_;
-  Lng32 currNoOfStmtStats_;
-  Lng32 currNoOfRegProcesses_;
-  Lng32 currNoOfProcessStatsHeap_;
+  long currGlobalStatsHeapAlloc_;
+  long currGlobalStatsHeapUsage_;
+  long globalStatsHeapWatermark_;
+  int currNoOfStmtStats_;
+  int currNoOfRegProcesses_;
+  int currNoOfProcessStatsHeap_;
   pid_t semPid_;
   short sscpOpens_;
   short sscpDeletedOpens_;
   short stmtStatsGCed_;
-  Int64 lastGCTime_;
-  Int64 totalStmtStatsGCed_;
-  Int64 ssmpReqMsgCnt_;
-  Int64 ssmpReqMsgBytes_;
-  Int64 ssmpReplyMsgCnt_;
-  Int64 ssmpReplyMsgBytes_;
-  Int64 sscpReqMsgCnt_;
-  Int64 sscpReqMsgBytes_;
-  Int64 sscpReplyMsgCnt_;
-  Int64 sscpReplyMsgBytes_;
-  Int64 rmsStatsResetTimestamp_;
+  long lastGCTime_;
+  long totalStmtStatsGCed_;
+  long ssmpReqMsgCnt_;
+  long ssmpReqMsgBytes_;
+  long ssmpReplyMsgCnt_;
+  long ssmpReplyMsgBytes_;
+  long sscpReqMsgCnt_;
+  long sscpReqMsgBytes_;
+  long sscpReplyMsgCnt_;
+  long sscpReplyMsgBytes_;
+  long rmsStatsResetTimestamp_;
   Int32 numQueryInvKeys_;
   short nodesInCluster_;
   pid_t configuredPidMax_;
-  Int64 epochHeapAlloc_;
-  Int64 epochHeapUsage_;
-  Int64 epochHeapWatermark_;
-  Lng32 currNoOfEpochEntries_;
+  long epochHeapAlloc_;
+  long epochHeapUsage_;
+  long epochHeapWatermark_;
+  int currNoOfEpochEntries_;
 };
 
 //////////////////////////////////////////////////////////////////
@@ -2934,9 +2934,9 @@ class ExFastExtractStats : public ExOperStats {
 
   virtual const char *getNumValTxt(Int32 i) const;
 
-  virtual Int64 getNumVal(Int32 i) const;
+  virtual long getNumVal(Int32 i) const;
 
-  virtual void getVariableStatsInfo(char *dataBuffer, char *datalen, Lng32 maxLen);
+  virtual void getVariableStatsInfo(char *dataBuffer, char *datalen, int maxLen);
   UInt32 &buffersCount() { return buffersCount_; }
   UInt32 &processedRowsCount() { return processedRowsCount_; }
   UInt32 &readyToSendBuffersCount() { return readyToSendBuffersCount_; }
@@ -3002,9 +3002,9 @@ class ExProcessStats : public ExOperStats {
 
   virtual const char *getNumValTxt(Int32 i) const;
 
-  virtual Int64 getNumVal(Int32 i) const;
+  virtual long getNumVal(Int32 i) const;
 
-  virtual void getVariableStatsInfo(char *dataBuffer, char *datalen, Lng32 maxLen);
+  virtual void getVariableStatsInfo(char *dataBuffer, char *datalen, int maxLen);
   virtual const char *getTextVal();
   inline size_t getExeMemHighWM() { return exeMemHighWM_; }
   inline size_t getExeMemAlloc() { return exeMemAlloc_; }
@@ -3043,8 +3043,8 @@ class ExProcessStats : public ExOperStats {
   inline short getReclaimStmtCount() { return reclaimStmtCount_; }
   inline void incReclaimStmtCount() { reclaimStmtCount_++; }
   inline void decReclaimStmtCount() { reclaimStmtCount_--; }
-  inline Int64 getStartTime() { return startTime_; }
-  void setStartTime(Int64 startTime) { startTime_ = startTime; }
+  inline long getStartTime() { return startTime_; }
+  void setStartTime(long startTime) { startTime_ = startTime; }
   inline Int32 getPfsSize() { return pfsSize_; }
   void setPfsSize(Int32 pfsSize) { pfsSize_ = pfsSize; }
   inline Int32 getPfsCurUse() { return pfsCurUse_; }
@@ -3083,7 +3083,7 @@ class ExProcessStats : public ExOperStats {
   inline Int32 getNumESPsStartupCompleted() { return numESPsStartupCompleted_; }
   inline void incBadEsps() { numESPsBad_++; }
 
-  inline Lng32 getQidLen() { return qidLen_; }
+  inline int getQidLen() { return qidLen_; }
 
   void setSourceStr(char *sourcestr, Int32 sqlLen) {
     if (sourcestr == NULL || sqlLen == 0) {
@@ -3141,7 +3141,7 @@ class ExProcessStats : public ExOperStats {
   size_t ipcMemHighWM_;
   size_t ipcMemAlloc_;
   size_t ipcMemUsed_;
-  Int64 startTime_;
+  long startTime_;
   Int32 staticStmtCount_;
   Int32 dynamicStmtCount_;
   short openStmtCount_;
@@ -3153,11 +3153,11 @@ class ExProcessStats : public ExOperStats {
   short sqlOpenCount_;
   short arkfsSessionCount_;
   char *recentQid_;
-  Lng32 qidLen_;
+  int qidLen_;
   NABoolean delQid_;
   char *recentSourceStr_;
   NABoolean delStr_;
-  Lng32 strLen_;
+  int strLen_;
   Int32 numESPsStarted_;
   Int32 numESPsStartupCompleted_;
   Int32 numESPsDeleted_;
@@ -3170,7 +3170,7 @@ class ExObjectEpochStats : public ExOperStats {
  public:
   ExObjectEpochStats(NAMemory *heap) : ExOperStats(heap, OBJECT_EPOCH_STATS) {}
   ExObjectEpochStats(NAMemory *heap, short cpu, const NAString &objectName, ComObjectType objectType, ULng32 hash,
-                     Int64 redefTime, UInt32 epoch, UInt32 flags)
+                     long redefTime, UInt32 epoch, UInt32 flags)
       : ExOperStats(heap, OBJECT_EPOCH_STATS),
         cpu_(cpu),
         objectType_(objectType),
@@ -3243,8 +3243,8 @@ class ExObjectEpochStats : public ExOperStats {
   void setObjectType(ComObjectType objectType) { objectType_ = objectType; }
   ULng32 getHash() const { return hash_; }
   void setHash(ULng32 hash) { hash_ = hash; }
-  Int64 getRedefTime() const { return redefTime_; }
-  void setRedefTime(Int64 redefTime) { redefTime_ = redefTime; }
+  long getRedefTime() const { return redefTime_; }
+  void setRedefTime(long redefTime) { redefTime_ = redefTime; }
   UInt32 getEpoch() const { return epoch_; }
   void setEpoch(UInt32 epoch) { epoch_ = epoch; }
   UInt32 getFlags() const { return flags_; }
@@ -3261,7 +3261,7 @@ class ExObjectEpochStats : public ExOperStats {
   char objectName_[1024];  // Hope this is enough
   ULng32 hash_;
   ComObjectType objectType_;
-  Int64 redefTime_;
+  long redefTime_;
   UInt32 epoch_;
   UInt32 flags_;
 };
@@ -3390,7 +3390,7 @@ class ExQryInvalidStats : public ExOperStats {
  public:
   ExQryInvalidStats(NAMemory *heap) : ExOperStats(heap, QUERY_INVALIDATION_STATS) { init(); }
 
-  ExQryInvalidStats(NAMemory *heap, short cpu, char *op, Int64 objUid, Int32 subHash, Int32 objHash, Int64 revokeTime)
+  ExQryInvalidStats(NAMemory *heap, short cpu, char *op, long objUid, Int32 subHash, Int32 objHash, long revokeTime)
       : ExOperStats(heap, QUERY_INVALIDATION_STATS),
         cpu_(cpu),
         objectUid_(objUid),
@@ -3457,8 +3457,8 @@ class ExQryInvalidStats : public ExOperStats {
   short getCpu() const { return cpu_; }
   void setCpu(short cpu) { cpu_ = cpu; }
 
-  Int64 getObjectUid() const { return objectUid_; }
-  void setObjectUid(Int64 objUid) { objectUid_ = objUid; }
+  long getObjectUid() const { return objectUid_; }
+  void setObjectUid(long objUid) { objectUid_ = objUid; }
 
   UInt32 getSubjectHash() const { return subjectHash_; }
   void setSubjectHash(UInt32 hash) { subjectHash_ = hash; }
@@ -3466,8 +3466,8 @@ class ExQryInvalidStats : public ExOperStats {
   UInt32 getObjectHash() const { return objectHash_; }
   void setObjectHash(UInt32 hash) { objectHash_ = hash; }
 
-  Int64 getRevokeTime() const { return revokeTime_; }
-  void setRevokeTime(Int64 revokeTime) { revokeTime_ = revokeTime; }
+  long getRevokeTime() const { return revokeTime_; }
+  void setRevokeTime(long revokeTime) { revokeTime_ = revokeTime; }
 
   const char *getOperation() const { return oper_; }
   void setOperation(char *op) { memcpy(oper_, op, sizeof(oper_)); }
@@ -3475,10 +3475,10 @@ class ExQryInvalidStats : public ExOperStats {
  private:
   short cpu_;
   char oper_[2];
-  Int64 objectUid_;
+  long objectUid_;
   UInt32 subjectHash_;
   UInt32 objectHash_;
-  Int64 revokeTime_;
+  long revokeTime_;
 };
 
 // -----------------------------------------------------------------------
@@ -3508,7 +3508,7 @@ class ExQryInvalidStatsTcb : public ex_tcb {
   virtual Int32 numChildren() const { return 0; };
   virtual const ex_tcb *getChild(Int32 pos) const { return NULL; };
   ExStatisticsArea *sendToSsmp();
-  void parse_stmt_name(char *string, Lng32 len);
+  void parse_stmt_name(char *string, int len);
   ComDiagsArea *getDiagsArea() { return diagsArea_; }
   enum QIStatsStep {
     INITIAL_,
@@ -3550,7 +3550,7 @@ class ExQryInvalidStatsTcb : public ex_tcb {
   short cpu_;
   char nodeName_[MAX_SEGMENT_NAME_LEN + 1];
   short retryAttempts_;
-  Int64 flags_;
+  long flags_;
   ComDiagsArea *diagsArea_;
 };
 
@@ -3565,7 +3565,7 @@ class ExQIStatsPrivateState : public ex_tcb_private_state {
  private:
   ExQryInvalidStatsTcb::QIStatsStep step_;
 
-  Int64 matchCount_;  // number of rows returned for this parent row
+  long matchCount_;  // number of rows returned for this parent row
 };
 
 #endif

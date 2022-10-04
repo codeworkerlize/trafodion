@@ -97,7 +97,7 @@ ElemDDLSGOptions *ElemDDLSGOptions::castToElemDDLSGOptions() { return this; }
 // get the degree of this node
 Int32 ElemDDLSGOptions::getArity() const { return MAX_ELEM_DDL_SG_OPTS_ARITY; }
 
-ExprNode *ElemDDLSGOptions::getChild(Lng32 index) {
+ExprNode *ElemDDLSGOptions::getChild(int index) {
   ComASSERT(index >= 0 AND index < getArity());
   return children_[index];
 }
@@ -159,7 +159,7 @@ void ElemDDLSGOptions::initializeDataMembers() {
 
 }  // ElemDDLSGOptions::initializeDataMembers()
 
-void ElemDDLSGOptions::setChild(Lng32 index, ExprNode *pChildNode) {
+void ElemDDLSGOptions::setChild(int index, ExprNode *pChildNode) {
   ComASSERT(index >= 0 AND index < getArity());
   if (pChildNode NEQ NULL) {
     ComASSERT(pChildNode->castToElemDDLNode() NEQ NULL);
@@ -364,10 +364,10 @@ short ElemDDLSGOptions::validate(short queryType) {
   else
     strcpy(queryTypeStr, "IDENTITY column");
 
-  Int64 minValue = 0;
-  Int64 startValue = 0;
-  Int64 increment = 0;
-  Int64 maxValue = LONG_MAX - 1;
+  long minValue = 0;
+  long startValue = 0;
+  long increment = 0;
+  long maxValue = LONG_MAX - 1;
 
   NAString dtStr;
   if (fsDataType_ != COM_UNKNOWN_FSDT) {
@@ -521,10 +521,10 @@ short ElemDDLSGOptions::validate(short queryType) {
     return -1;
   }
 
-  Int64 cache = 0;
-  Int64 minVal = MAXOF(startValue, minValue);
-  Int64 rangeOfVals = (maxValue - minVal) / increment + 1;
-  Int64 defaultCache = isOrder() ? 5000 : 25;
+  long cache = 0;
+  long minVal = MAXOF(startValue, minValue);
+  long rangeOfVals = (maxValue - minVal) / increment + 1;
+  long defaultCache = isOrder() ? 5000 : 25;
 
   if (isCacheSpecified())
     cache = getCache();
@@ -673,7 +673,7 @@ short ElemDDLSGOptions::importSGO(const ElemDDLSGOptions *sgo) {
 }
 
 void ElemDDLSGOptions::recomputeMaxValue(ComFSDataType datatype) {
-  Int64 maxValue = LONG_MAX - 1;
+  long maxValue = LONG_MAX - 1;
   if (datatype != COM_UNKNOWN_FSDT) {
     switch (datatype) {
       case COM_UNSIGNED_BIN16_FSDT:

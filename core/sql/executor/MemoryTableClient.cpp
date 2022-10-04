@@ -121,7 +121,7 @@ void MemoryTableClient::remove(const char *tableName) {
   if (memDB = getMemTableDB()) memDB->remove(tableName);
 }
 
-Lng32 MemoryTableClient::startGet(const char *tableName, const HbaseStr &rowID) {
+int MemoryTableClient::startGet(const char *tableName, const HbaseStr &rowID) {
   ex_assert((htableCache_ && strcmp((fixNamePtr(tableName)), tableName_) == 0),
             "MemoryTableClient::startGet assert failed");
 
@@ -131,7 +131,7 @@ Lng32 MemoryTableClient::startGet(const char *tableName, const HbaseStr &rowID) 
   return 0;  // HBASE_ACCESS_SUCCESS
 }
 
-Lng32 MemoryTableClient::startGets(const char *tableName, const NAList<HbaseStr> *rowIDs) {
+int MemoryTableClient::startGets(const char *tableName, const NAList<HbaseStr> *rowIDs) {
   ex_assert((htableCache_ && strcmp((fixNamePtr(tableName)), tableName_) == 0),
             "MemoryTableClient::startGet assert failed");
 
@@ -141,7 +141,7 @@ Lng32 MemoryTableClient::startGets(const char *tableName, const NAList<HbaseStr>
   return 0;  // HBASE_ACCESS_SUCCESS
 }
 
-Lng32 MemoryTableClient::startGets(const char *tableName, const HbaseStr &rowIDs, const UInt32 keyLen) {
+int MemoryTableClient::startGets(const char *tableName, const HbaseStr &rowIDs, const UInt32 keyLen) {
   ex_assert((htableCache_ && strcmp((fixNamePtr(tableName)), tableName_) == 0),
             "MemoryTableClient::startGet assert failed");
 
@@ -205,7 +205,7 @@ void MemoryTableClient::cleanupResultInfo() {
   kvArray_.clear();
 }
 
-HTC_RetCode MemoryTableClient::getColVal(BYTE *colVal, Lng32 &colValLen) {
+HTC_RetCode MemoryTableClient::getColVal(BYTE *colVal, int &colValLen) {
   if (kvArray_.entries() == 0) return HTC_DONE_DATA;
 
   HTableRow *row = kvArray_[currentRowNum_];
@@ -231,8 +231,8 @@ HTC_RetCode MemoryTableClient::getRowID(HbaseStr &rowID) {
   return HTC_OK;
 }
 
-Lng32 MemoryTableClient::scanOpen(const char *tableName, const Text &startRow, const Text &stopRow,
-                                  const Lng32 numCacheRows) {
+int MemoryTableClient::scanOpen(const char *tableName, const Text &startRow, const Text &stopRow,
+                                  const int numCacheRows) {
   numReqRows_ = numCacheRows;
   currentRowNum_ = -1;
   if (startRow.size() == 0)  //<min>

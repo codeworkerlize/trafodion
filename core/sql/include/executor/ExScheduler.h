@@ -120,10 +120,10 @@ struct TraceEntry {
   ExSubtask *lastCalledTask_;
   ExWorkProcRetcode lastWorkRetcode_;
 #ifdef TRACE_DP2_CPU_LIMIT
-  Int64 dp2TimeConsumed_;
-  Int64 dp2QidCummulative_;
+  long dp2TimeConsumed_;
+  long dp2QidCummulative_;
 #endif
-  Int64 rmsTimeConsumed_;
+  long rmsTimeConsumed_;
 };
 
 // -----------------------------------------------------------------------
@@ -141,7 +141,7 @@ class ExScheduler : public ExGod {
   // program. The work procedure returns when there is nothing more to
   // do. The work procedure does not wait for external events.
   // ---------------------------------------------------------------------
-  ExWorkProcRetcode work(Int64 prevWaitTime = 0);
+  ExWorkProcRetcode work(long prevWaitTime = 0);
 
   // ---------------------------------------------------------------------
   // At build time, TCBs register their work procedures with the
@@ -220,7 +220,7 @@ class ExScheduler : public ExGod {
   // if a query takes too much of a ESP or master's CPU time.  These are
   // defined also for exe-in-dp2, though the feature is not used there.
   // ---------------------------------------------------------------------
-  void setMaxCpuTime(Int64 m) { maxCpuTime_ = m * 1000L * 1000L; }
+  void setMaxCpuTime(long m) { maxCpuTime_ = m * 1000L * 1000L; }
 
   void setCpuLimitCheckFreq(Int32 m) {
     maxSubtaskLoops_ = m;
@@ -298,7 +298,7 @@ class ExScheduler : public ExGod {
 
   // Query execution limits - CPU time for this fragment instance.
   // On DP2, this is max for all sessions of the query in this process.
-  Int64 maxCpuTime_;
+  long maxCpuTime_;
 
   // Flag to tell scheduler to exit and let caller wait for reactivation.
   bool suspended_;

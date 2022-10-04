@@ -76,7 +76,7 @@ ex_tcb *ex_send_bottom_tdb::build(ex_globals *) {
 
 ex_send_bottom_tcb *ex_send_bottom_tdb::buildInstance(ExExeStmtGlobals *glob, ExEspFragInstanceDir *espInstanceDir,
                                                       const ExFragKey &myKey, const ExFragKey &parentKey, int myHandle,
-                                                      Lng32 parentInstanceNum, NABoolean isLocal) {
+                                                      int parentInstanceNum, NABoolean isLocal) {
   ex_send_bottom_tcb *result = new (glob->getSpace())
       ex_send_bottom_tcb(*this, glob, espInstanceDir, myKey, parentKey, myHandle, parentInstanceNum);
   result->registerSubtasks();
@@ -124,7 +124,7 @@ ExOperStats *ex_send_bottom_tcb::doAllocateStatsEntry(CollHeap *heap, ComTdb *td
 // constructor
 ex_send_bottom_tcb::ex_send_bottom_tcb(const ex_send_bottom_tdb &sendBottomTdb, ExExeStmtGlobals *glob,
                                        ExEspFragInstanceDir *espInstanceDir, const ExFragKey &myKey,
-                                       const ExFragKey &parentKey, int myHandle, Lng32 parentInstanceNum)
+                                       const ExFragKey &parentKey, int myHandle, int parentInstanceNum)
     : ex_tcb(sendBottomTdb, 1, glob),
       workAtp_(0),
       myFragId_(myKey.getFragId()),
@@ -156,7 +156,7 @@ ex_send_bottom_tcb::ex_send_bottom_tcb(const ex_send_bottom_tdb &sendBottomTdb, 
     Int32 parentFrag = (Int32)parentKey.getFragId();
     Int32 parentInst = (Int32)parentInstanceNum_;
 
-    const IpcProcessId &otherEnd = glob->getInstanceProcessId((ExFragId)parentFrag, (Lng32)parentInst);
+    const IpcProcessId &otherEnd = glob->getInstanceProcessId((ExFragId)parentFrag, (int)parentInst);
 
     const GuaProcessHandle &phandle = otherEnd.getPhandle();
     Int32 otherCPU, otherPID, otherNode;
@@ -284,7 +284,7 @@ ex_send_bottom_tcb::ex_send_bottom_tcb(const ex_send_bottom_tdb &sendBottomTdb, 
     // allocate the deframentation space
     // if (resizeCifRecord())
     {
-      Lng32 neededBufferSize = (Lng32)SqlBufferNeededSize(1, sendBottomTdb.getUpRecordLength(), SqlBuffer::DENSE_);
+      int neededBufferSize = (int)SqlBufferNeededSize(1, sendBottomTdb.getUpRecordLength(), SqlBuffer::DENSE_);
 
       defragPool_ = new (space) sql_buffer_pool(1, neededBufferSize * 2, space);  // *2 not necesary here
 
@@ -567,7 +567,7 @@ TupMsgBuffer *ex_send_bottom_tcb::getRequestBuffer() {
 // check for reply data in the queue and send reply message to send top
 short ex_send_bottom_tcb::checkReply() {
   ControlInfo *msgControlInfo;
-  Int64 finalReplyBytes = 0;
+  long finalReplyBytes = 0;
 
   workMsgStream_->tickleOutputIo();  // send any buffers in the output queue
   workMsgStream_->cleanupBuffers();  // free up rec. buffers no longer in use
@@ -1028,7 +1028,7 @@ void ex_send_bottom_tcb::setClient(IpcConnection *connection) {
 /////////////////////////////////////////////////////////////////////////////
 IpcConnection *ex_send_bottom_tcb::getClient() { return routeMsgStream_->getClient(); }
 
-void ex_send_bottom_tcb::incReplyMsg(Int64 msgBytes) {
+void ex_send_bottom_tcb::incReplyMsg(long msgBytes) {
   ExStatisticsArea *statsArea;
 
   if ((statsArea = getGlobals()->getStatsArea()) != NULL) {
@@ -1133,8 +1133,8 @@ void ExSendBottomRouteMessageStream::actOnReceive(IpcConnection *connection) {
 
 /////////////////////////////////////////////////////////////////////////////
 // constructor
-ExSendBottomWorkMessageStream::ExSendBottomWorkMessageStream(ExExeStmtGlobals *glob, Lng32 sendBufferLimit,
-                                                             Lng32 inUseBufferLimit, IpcMessageObjSize bufferSize,
+ExSendBottomWorkMessageStream::ExSendBottomWorkMessageStream(ExExeStmtGlobals *glob, int sendBufferLimit,
+                                                             int inUseBufferLimit, IpcMessageObjSize bufferSize,
                                                              ex_send_bottom_tcb *sendBottomTcb,
                                                              ExEspInstanceThread *threadInfo)
     : IpcServerMsgStream(glob->getIpcEnvironment(), IPC_MSG_SQLESP_DATA_REPLY, CurrEspReplyMessageVersion,

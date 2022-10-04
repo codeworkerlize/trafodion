@@ -80,15 +80,15 @@ class CmpStatement : public NABasicObject {
 
   // get user sql query
   char *userSqlText() const { return sqlTextStr_; }
-  Lng32 userSqlTextLen() const { return sqlTextLen_; }
-  Lng32 userSqlTextCharSet() const { return sqlTextCharSet_; }
+  int userSqlTextLen() const { return sqlTextLen_; }
+  int userSqlTextCharSet() const { return sqlTextCharSet_; }
 
-  NABoolean isUserDMLQuery(char *query, Lng32 len);
+  NABoolean isUserDMLQuery(char *query, int len);
 
   // set user sql query
   void setUserSqlText(char *sqlTextStr) { sqlTextStr_ = sqlTextStr; }
-  void setSqlTextLen(Lng32 txtLen) { sqlTextLen_ = txtLen; }
-  void setSqlTextCharSet(Lng32 charSet) { sqlTextCharSet_ = charSet; }
+  void setSqlTextLen(int txtLen) { sqlTextLen_ = txtLen; }
+  void setSqlTextCharSet(int charSet) { sqlTextCharSet_ = charSet; }
 
   void setSMDRecompile(NABoolean TorF) { isSMDRecompile_ = TorF; }
   // set the exceptionRaised_ flag;
@@ -109,7 +109,7 @@ class CmpStatement : public NABasicObject {
   // destructor
   virtual ~CmpStatement();
 
-  NABoolean error(Lng32 no = arkcmpErrorNoDiags, const char *s = 0);
+  NABoolean error(int no = arkcmpErrorNoDiags, const char *s = 0);
 
   // is this compilation a re-compilation
   inline NABoolean recompiling() { return recompiling_; };
@@ -173,7 +173,7 @@ class CmpStatement : public NABasicObject {
   const LIST(const NAString *) * getDetailsOnRefusedRequirements() const { return detailsOnRefusedRequirements_; }
   void setTMUDFRefusedRequirements(const char *details);
 
-  short getDDLExprAndNode(char *sqlStr, Lng32 inputCS, DDLExpr *&ddlExpr, ExprNode *&ddlNode);
+  short getDDLExprAndNode(char *sqlStr, int inputCS, DDLExpr *&ddlExpr, ExprNode *&ddlNode);
 
   CSEInfo *getCSEInfo(const char *cseName) const;
   CSEInfo *getCSEInfoForMainQuery() const;
@@ -238,8 +238,8 @@ class CmpStatement : public NABasicObject {
  private:
   // SQL Query in text form; used for debugging purposes
   char *sqlTextStr_;
-  Lng32 sqlTextLen_;
-  Lng32 sqlTextCharSet_;
+  int sqlTextLen_;
+  int sqlTextCharSet_;
 
   // flag, indicates if this is a recompilation
   NABoolean recompiling_;
@@ -312,11 +312,11 @@ class CmpStatementISP : public CmpStatement {
   // returns TRUE if expecting more data to be fetched from the internalsp in this CmpStatement
   NABoolean moreData();
   // member to retrieve the ISP reqeust ID which this CmpStatementISP is processing
-  Int64 ISPReqId() const { return ISPReqId_; }
+  long ISPReqId() const { return ISPReqId_; }
 
  private:
   // the execution of the isp for certain ISP request of CmpMessageObject.
-  Int64 ISPReqId_;
+  long ISPReqId_;
 
   CmpStatementISP(const CmpStatementISP &);
   CmpStatementISP &operator=(const CmpStatementISP &);

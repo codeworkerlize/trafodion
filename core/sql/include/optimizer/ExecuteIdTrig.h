@@ -30,8 +30,8 @@
 // temporary table.
 
 typedef struct {
-  Lng32 cpuNum;          // cpu number in the cluster
-  Lng32 pid;             // process id
+  int cpuNum;          // cpu number in the cluster
+  int pid;             // process id
   void *rootTcbAddress;  // root tcb address
 } ExecuteId;
 

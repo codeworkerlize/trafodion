@@ -206,7 +206,7 @@ class REFRESH_LIB_CLASS CRUTbl : public CRUObject {
 
   CRUDeltaDef::DELevel GetDELevel() const { return deLevel_; }
 
-  Lng32 getNumberOfPartitions();
+  int getNumberOfPartitions();
 
  public:
   // Implementation of pure virtual
@@ -221,7 +221,7 @@ class REFRESH_LIB_CLASS CRUTbl : public CRUObject {
   BOOL IsLogRPOpenPending() const { return isLogRPOpenPending_; }
 
   // What is the size of the @UPDATE_BITMAP column in the log?
-  Lng32 GetUpdateBitmapSize();
+  int GetUpdateBitmapSize();
 
  public:
   enum IUDLogContentType {
@@ -233,7 +233,7 @@ class REFRESH_LIB_CLASS CRUTbl : public CRUObject {
   };
 
   // Which kind of records can the IUD log hold?
-  Lng32 GetIUDLogContentTypeBitmap();
+  int GetIUDLogContentTypeBitmap();
 
   // Should the utility perform DE on this table's log?
   BOOL IsDENeeded() const { return isDENeeded_; }

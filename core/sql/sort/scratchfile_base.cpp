@@ -45,7 +45,7 @@
 #define NDEBUG
 #endif
 
-ScratchFile::ScratchFile(ScratchSpace *scratchSpace, Int64 fileSize, SortError *sorterror, CollHeap *heap,
+ScratchFile::ScratchFile(ScratchSpace *scratchSpace, long fileSize, SortError *sorterror, CollHeap *heap,
                          Int32 numOpens, NABoolean breakEnabled)
     : asynchronousReadQueueHead_(NULL),
       asynchronousReadQueueTail_(NULL),
@@ -115,7 +115,7 @@ AsyncIOBuffer *ScratchFile::dequeueAsynchronousRead(void) {
 // completion in general -- if the asynchronous read queue is empty, it
 // simply does nothing.
 //--------------------------------------------------------------------------
-RESULT ScratchFile::serveAsynchronousReadQueue(Int64 &ioWaitTime, NABoolean onlyIfFreeHandles, NABoolean waited) {
+RESULT ScratchFile::serveAsynchronousReadQueue(long &ioWaitTime, NABoolean onlyIfFreeHandles, NABoolean waited) {
   RESULT rc = SCRATCH_SUCCESS;  // assume success
   ioWaitTime = 0;
   Int32 index = -1;
@@ -217,7 +217,7 @@ RESULT ScratchFile::processAsynchronousReadCompletion(Int32 index) {
   return rc;
 }
 
-RESULT ScratchFile::queueReadRequestAndServe(AsyncIOBuffer *ab, Int64 &ioWaitTime) {
+RESULT ScratchFile::queueReadRequestAndServe(AsyncIOBuffer *ab, long &ioWaitTime) {
   // queue the SortMergeBuffer for asynchronous I/O
   queueAsynchronousRead(ab);
 

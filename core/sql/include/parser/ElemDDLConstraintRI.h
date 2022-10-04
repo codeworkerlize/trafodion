@@ -72,7 +72,7 @@ class ElemDDLConstraintRI : public ElemDDLConstraint {
   //
 
   virtual Int32 getArity() const;
-  virtual ExprNode *getChild(Lng32 index);
+  virtual ExprNode *getChild(int index);
 
   inline ComRCDeleteRule getDeleteRule() const;
 
@@ -118,7 +118,7 @@ class ElemDDLConstraintRI : public ElemDDLConstraint {
   inline NABoolean isUpdateRuleSpecified() const;
 
   // mutators
-  virtual void setChild(Lng32 index, ExprNode *pChildNode);
+  virtual void setChild(int index, ExprNode *pChildNode);
   void setReferencingColumnNameList(ElemDDLNode *pReferencingColumnNameList);
 
   // methods for tracing

@@ -225,7 +225,7 @@ class ExPackPrivateState : public ex_tcb_private_state {
 
   tupp packTupp_;
   ExPackRowsTcb::workState childState_;
-  Int64 matchCount_;
+  long matchCount_;
 
   void init();
 

@@ -230,7 +230,7 @@ void CRUSQLDynamicStatementContainer::DynamicStmt::PrepareStatement(BOOL DeleteU
   // This way the compiler locks are freed as soon as possible
   CUOFsTransManager &transManager = CRUGlobals::GetInstance()->GetTransactionManager();
   // Remember the current txn for later use
-  Lng32 transIdx = transManager.GetCurrentTrans();
+  int transIdx = transManager.GetCurrentTrans();
 
   transManager.LeaveTransaction();
 
@@ -262,7 +262,7 @@ void CRUSQLDynamicStatementContainer::DynamicStmt::PrepareStatement(BOOL DeleteU
                      );
 --- */
 #ifdef NA_NSK
-      Lng32 iso_cs = 0;
+      int iso_cs = 0;
       SQLCHARSET_CODE mapCS = SQLCHARSETCODE_ISO88591;
 
       iso_cs = ComRtGetIsoMappingEnum();
@@ -369,7 +369,7 @@ void CRUSQLDynamicStatementContainer::DynamicStmt::StoreData(CUOFsIpcMessageTran
   size = strlen(sql_) + 1;
   translator.WriteBlock(&size, sizeof(short));
 
-  translator.WriteBlock(&paramNum_, sizeof(Lng32));
+  translator.WriteBlock(&paramNum_, sizeof(int));
 
   for (Int32 i = 0; i < paramNum_; i++) {
     translator.WriteBlock(&(paramsPos_[i]), sizeof(Int32));
@@ -392,7 +392,7 @@ void CRUSQLDynamicStatementContainer::DynamicStmt::LoadData(CUOFsIpcMessageTrans
     return;
   }
 
-  translator.ReadBlock(&paramNum_, sizeof(Lng32));
+  translator.ReadBlock(&paramNum_, sizeof(int));
 
   for (Int32 i = 0; i < paramNum_; i++) {
     translator.ReadBlock(&(paramsPos_[i]), sizeof(Int32));

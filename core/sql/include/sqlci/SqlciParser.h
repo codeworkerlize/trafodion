@@ -85,7 +85,7 @@ class SqlciEnv;
 
 Int32 sqlci_parser(char *instr, char *origstr, SqlciNode **node, SqlciEnv *sqlci_env);
 Int32 sqlci_parser_syntax_error_cleanup(char *instr, SqlciEnv *sqlci_env);
-Int32 sqlci_parser_handle_report_writer(SqlciEnv *sqlci_env, Lng32 retval);
-Int32 sqlci_parser_handle_error(SqlciNode **node, Lng32 retval);
+Int32 sqlci_parser_handle_report_writer(SqlciEnv *sqlci_env, int retval);
+Int32 sqlci_parser_handle_error(SqlciNode **node, int retval);
 
 #endif /* SQLCIPARSER_H */

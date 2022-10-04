@@ -232,18 +232,18 @@ class Statement : public ExGod {
   SQLSTMT_ID *cursor_name_;
 
   char *source_str;
-  Lng32 source_length;  // octet length of source_str
-  Lng32 charset_;
+  int source_length;  // octet length of source_str
+  int charset_;
 
   // name of cat.sch when this query was initially compiled.
   // Used at recomp time.
   char *schemaName_;
-  Lng32 schemaNameLength_;
+  int schemaNameLength_;
 
   ex_root_tdb *root_tdb;
   ex_root_tcb *root_tcb;
 
-  Lng32 root_tdb_size;
+  int root_tdb_size;
 
   CliGlobals *cliGlobals_;
   ContextCli *context_;
@@ -292,7 +292,7 @@ class Statement : public ExGod {
   unsigned short defineContext_;
 
   // keeps track of current envvars context.
-  Int64 envvarsContext_;
+  long envvarsContext_;
 
   // Double linked list of close statements eligible for space reclaim.
   Statement *prevCloseStatement_;
@@ -300,7 +300,7 @@ class Statement : public ExGod {
 
   // Sequence number assigned at close.
   // Used to measure the age of the statement after close.
-  Lng32 closeSequence_;
+  int closeSequence_;
 
   SQLATTRHOLDABLE_INTERNAL_TYPE holdable_;
 
@@ -315,7 +315,7 @@ class Statement : public ExGod {
 
   // Number of nonfatal errors that will be tolerated by a NOT ATOMIC rowset insert.
   // used by ODBC
-  Lng32 notAtomicFailureLimit_;
+  int notAtomicFailureLimit_;
 
   // statement index in a module, to identify Measure statement counters.
   Int32 statementIndex_;
@@ -356,18 +356,18 @@ class Statement : public ExGod {
                                    // prepared user statement. This is used during AQR
   NABoolean wmsMonitorQuery_;
   ULng32 tasks_;
-  Lng32 fileNumber_;
+  int fileNumber_;
 
   // the following fields are used to hold the defaults related information
   // which is used at auto recomp time. They are currently no looked at
   // by cli. This info is created during static compilation and stored
   // in rtdu(see cli/rtdu.h). It is then shipped back to mxcmp during
   // auto recomp(see Statement::prepare method).
-  Lng32 recompControlInfoLen_;
+  int recompControlInfoLen_;
   char *recompControlInfo_;
 
   char *uniqueStmtId_;
-  Lng32 uniqueStmtIdLen_;
+  int uniqueStmtIdLen_;
 
   AQRStatementInfo *aqrStmtInfo_;
 
@@ -380,7 +380,7 @@ class Statement : public ExGod {
   // cursors/statements which were instantiated at the same level where
   // the closeAllCursors call is being issued from.
   // Prevents closing of cursors/statements in parent's (or child's scope).
-  Lng32 cliLevel_;
+  int cliLevel_;
   StatementInfo *stmtInfo_;
 
   // VO, Plan Versioning Support.
@@ -411,13 +411,13 @@ class Statement : public ExGod {
   char parentQidSystem_[25];
   // StatsArea to return master stats when the statement is not yet fixed up
   ExStatisticsArea *compileStatsArea_;
-  Int64 compileEndTime_;  // In case there are no statistics.
+  long compileEndTime_;  // In case there are no statistics.
 
   char *childQueryId_;
-  Lng32 childQueryIdLen_;
+  int childQueryIdLen_;
   SQL_QUERY_COST_INFO *childQueryCostInfo_;
   SQL_QUERY_COMPILER_STATS_INFO *childQueryCompStatsInfo_;
-  Int64 aqrInitialExeStartTime_;
+  long aqrInitialExeStartTime_;
   bool multiThreadedEsp_;
   NABoolean skipEndValidDDLCheck_;
   char utf8sql_[TRIGGER_ID_LEN];
@@ -460,7 +460,7 @@ class Statement : public ExGod {
 
   unsigned short &defineContext() { return defineContext_; };
 
-  Int64 &envvarsContext() { return envvarsContext_; };
+  long &envvarsContext() { return envvarsContext_; };
 
   ex_root_tdb *assignRootTdb(ex_root_tdb *new_root_tdb);
 
@@ -471,9 +471,9 @@ class Statement : public ExGod {
   void resetTmodeValues(void);
   void commitImplicitTransAndResetTmodes(void);
 
-  NABoolean isExeDebug(char *src, Lng32 charset);
-  Int32 octetLen(char *s, Lng32 charset);
-  Int32 octetLenplus1(char *s, Lng32 charset);
+  NABoolean isExeDebug(char *src, int charset);
+  Int32 octetLen(char *s, int charset);
+  Int32 octetLenplus1(char *s, int charset);
   Int32 sourceLenplus1();
 
   // For stored procedure result set proxy statements, see if a
@@ -499,12 +499,12 @@ class Statement : public ExGod {
   ~Statement();
 
   RETCODE prepare(char *source, ComDiagsArea &diagsArea, char *passed_gen_code, ULng32 passed_gen_code_len,
-                  Lng32 charset = SQLCHARSETCODE_ISO88591, NABoolean unpackTdbs = TRUE, ULng32 cliFlags = 0);
+                  int charset = SQLCHARSETCODE_ISO88591, NABoolean unpackTdbs = TRUE, ULng32 cliFlags = 0);
 
-  RETCODE prepare2(char *source, ComDiagsArea &diagsArea, char *gen_code, ULng32 gen_code_len, Lng32 charset,
+  RETCODE prepare2(char *source, ComDiagsArea &diagsArea, char *gen_code, ULng32 gen_code_len, int charset,
                    NABoolean unpackTdbs, ULng32 cliFlags);
 
-  Lng32 unpackAndInit(ComDiagsArea &diagsArea, short indexIntoCompilerArray);
+  int unpackAndInit(ComDiagsArea &diagsArea, short indexIntoCompilerArray);
 
   RETCODE fixup(CliGlobals *cliGlobals, Descriptor *input_desc, ComDiagsArea &diagsArea, NABoolean &doSimCheck,
                 NABoolean &partitionUnavailable, const NABoolean donePrepare);
@@ -518,14 +518,14 @@ class Statement : public ExGod {
   RETCODE doOltExecute(CliGlobals *cliGlobals, Descriptor *input_desc, Descriptor *output_desc, ComDiagsArea &diagsArea,
                        NABoolean &doNormalExecute, NABoolean &reExecute);
 
-  Lng32 cancel();  // called by the cancel thread only.
-  RETCODE describe(Descriptor *desc, Lng32 what_desc, ComDiagsArea &diagsArea);
+  int cancel();  // called by the cancel thread only.
+  RETCODE describe(Descriptor *desc, int what_desc, ComDiagsArea &diagsArea);
 
-  RETCODE addDescInfoIntoStaticDesc(Descriptor *desc, Lng32 what_desc, ComDiagsArea &diagsArea);
+  RETCODE addDescInfoIntoStaticDesc(Descriptor *desc, int what_desc, ComDiagsArea &diagsArea);
 
-  RETCODE getRSProxySyntax(char *proxy, Lng32 maxlength, Lng32 *spaceRequired);
-  RETCODE getExtractConsumerSyntax(char *proxy, Lng32 maxlength, Lng32 *spaceRequired);
-  RETCODE getProxySyntax(char *proxy, Lng32 maxlength, Lng32 *spaceRequired, const char *prefix, const char *suffix);
+  RETCODE getRSProxySyntax(char *proxy, int maxlength, int *spaceRequired);
+  RETCODE getExtractConsumerSyntax(char *proxy, int maxlength, int *spaceRequired);
+  RETCODE getProxySyntax(char *proxy, int maxlength, int *spaceRequired, const char *prefix, const char *suffix);
 
   RETCODE doQuerySimilarityCheck(TrafQuerySimilarityInfo *qsi, NABoolean &simCheckFailed, ComDiagsArea &diagsArea);
 
@@ -595,11 +595,11 @@ class Statement : public ExGod {
 
   ExMasterStmtGlobals *getGlobals() { return statementGlobals_; }
 
-  Int64 getRowsAffected();
+  long getRowsAffected();
   NABoolean noRowsAffected(ComDiagsArea &diags);
 
-  inline void addDefaultDesc(Descriptor *desc, Lng32 what_desc);
-  inline Descriptor *getDefaultDesc(Lng32 what_desc);
+  inline void addDefaultDesc(Descriptor *desc, int what_desc);
+  inline Descriptor *getDefaultDesc(int what_desc);
 
   inline State getState() const { return stmt_state; }
   inline ExecState getExecState() const { return state_; }
@@ -616,40 +616,40 @@ class Statement : public ExGod {
   void setState(State state);
 
   inline StatementType getStatementType();
-  Lng32 getQueryType();
+  int getQueryType();
 
   void copyGenCode(char *gen_code, ULng32 gen_code_len, NABoolean unpackTDBs = TRUE);
 
-  void copyInSourceStr(char *in_source_str_, Lng32 in_source_length_, Lng32 charset = SQLCHARSETCODE_ISO88591);
+  void copyInSourceStr(char *in_source_str_, int in_source_length_, int charset = SQLCHARSETCODE_ISO88591);
 
-  void copyOutSourceStr(char *out_source_str_, Lng32 &out_source_length_);
+  void copyOutSourceStr(char *out_source_str_, int &out_source_length_);
 
-  void copySchemaName(char *schemaName, Lng32 schemaNameLength);
+  void copySchemaName(char *schemaName, int schemaNameLength);
 
-  void copyRecompControlInfo(char *basePtr, char *controlInfo, Lng32 controlInfoLength);
+  void copyRecompControlInfo(char *basePtr, char *controlInfo, int controlInfoLength);
 
   Statement *getCurrentOfCursorStatement(char *cursorName);
 
   Statement *currentOfCursorStatement() { return currentOfCursorStatement_; };
   short handleUpdDelCurrentOf(ComDiagsArea &diags);
 
-  Lng32 recompControlInfoLen() { return recompControlInfoLen_; };
+  int recompControlInfoLen() { return recompControlInfoLen_; };
   char *recompControlInfo() { return recompControlInfo_; };
 
   Queue *getClonedStatements() { return clonedStatements; };
 
   void setUniqueStmtId(char *id);
   char *getUniqueStmtId() { return uniqueStmtId_; }
-  Lng32 getUniqueStmtIdLen() { return uniqueStmtIdLen_; }
+  int getUniqueStmtIdLen() { return uniqueStmtIdLen_; }
 
-  Lng32 setParentQid(char *queryId);
+  int setParentQid(char *queryId);
   char *getParentQid();
   void setParentQidSystem(char *parentQidSystem);
   char *getParentQidSystem();
-  Int64 getExeStartTime();
-  void setExeStartTime(Int64 exeStartTime);
+  long getExeStartTime();
+  void setExeStartTime(long exeStartTime);
 
-  Lng32 getCliLevel() const { return cliLevel_; }
+  int getCliLevel() const { return cliLevel_; }
 
   inline short isResecureNeeded();
   inline void setResecureNeeded();
@@ -736,22 +736,22 @@ class Statement : public ExGod {
   RETCODE setAnsiHoldable(ComDiagsArea &diagsArea, NABoolean h);
   inline NABoolean isAnsiHoldable() { return holdable_ == SQLCLIDEV_ANSI_HOLDABLE; }
 
-  RETCODE setInputArrayMaxsize(ComDiagsArea &diagsArea, const Lng32 inpArrSize);
+  RETCODE setInputArrayMaxsize(ComDiagsArea &diagsArea, const int inpArrSize);
   inline ULng32 getInputArrayMaxsize() const { return inputArrayMaxsize_; }
 
   RETCODE setRowsetAtomicity(ComDiagsArea &diagsArea, const AtomicityType atomicity);
   inline AtomicityType getRowsetAtomicity() const { return (AtomicityType)rowsetAtomicity_; }
 
-  RETCODE setNotAtomicFailureLimit(ComDiagsArea &diagsArea, const Lng32 limit);
-  inline Lng32 getNotAtomicFailureLimit() const { return notAtomicFailureLimit_; }
+  RETCODE setNotAtomicFailureLimit(ComDiagsArea &diagsArea, const int limit);
+  inline int getNotAtomicFailureLimit() const { return notAtomicFailureLimit_; }
 
-  inline Lng32 getRootTdbSize() { return root_tdb_size; }
+  inline int getRootTdbSize() { return root_tdb_size; }
 
-  inline Lng32 getSrcStrSize() { return source_length; }
+  inline int getSrcStrSize() { return source_length; }
 
   inline char *getSrcStr() { return source_str; }
 
-  inline Lng32 getCharSet() { return charset_; }
+  inline int getCharSet() { return charset_; }
 
   inline RmsLimitLevel getRmsLimitLevel() const { return (RmsLimitLevel)rmsLimit_; }
 
@@ -762,13 +762,13 @@ class Statement : public ExGod {
   // A method return the masterStats when the statement is not yet fixed up
   ExStatisticsArea *getCompileStatsArea();
 
-  void setCompileEndTime(Int64 julianTime) { compileEndTime_ = julianTime; };
-  Int64 getCompileEndTime() const { return compileEndTime_; };
+  void setCompileEndTime(long julianTime) { compileEndTime_ = julianTime; };
+  long getCompileEndTime() const { return compileEndTime_; };
 
   inline Statement *&prevCloseStatement() { return prevCloseStatement_; }
   inline Statement *&nextCloseStatement() { return nextCloseStatement_; }
-  inline Lng32 &closeSequence() { return closeSequence_; }
-  Lng32 releaseSpace();
+  inline int &closeSequence() { return closeSequence_; }
+  int releaseSpace();
   NABoolean isReclaimable();
 
   // Wait for completion of UDR requests associated with this
@@ -797,11 +797,11 @@ class Statement : public ExGod {
   // BM Gil Someone needs to use the following method
   inline NABoolean noWaitOpIncomplete(void) { return noWaitOpIncomplete_; };
   inline void setNoWaitOpIncomplete(void) { noWaitOpIncomplete_ = TRUE; };
-  inline Lng32 getNowaitTag(void) { return statement_id->tag; };
-  inline void setNowaitTag(Lng32 tag) { statement_id->tag = tag; };
-  inline Lng32 getFileNumber(void) { return fileNumber_; };
+  inline int getNowaitTag(void) { return statement_id->tag; };
+  inline void setNowaitTag(int tag) { statement_id->tag = tag; };
+  inline int getFileNumber(void) { return fileNumber_; };
 
-  inline RETCODE setFileNumber(Lng32 fileNumber) {
+  inline RETCODE setFileNumber(int fileNumber) {
     RETCODE rc = SUCCESS;  // assume success
 
     if (fileNumber_ == -1)
@@ -837,19 +837,19 @@ class Statement : public ExGod {
   void issuePlanVersioningWarnings(ComDiagsArea &diagsArea);
 
   // For returning statement attributes related to parallel extract
-  Lng32 getConsumerQueryLen(ULng32 index);
-  void getConsumerQuery(ULng32 index, char *buf, Lng32 buflen);
-  Lng32 getConsumerCpu(ULng32 index);
-  Lng32 initStrTarget(SQLDESC_ID *sql_source, ContextCli &currContext, ComDiagsArea &diags, StrTarget &strTarget);
+  int getConsumerQueryLen(ULng32 index);
+  void getConsumerQuery(ULng32 index, char *buf, int buflen);
+  int getConsumerCpu(ULng32 index);
+  int initStrTarget(SQLDESC_ID *sql_source, ContextCli &currContext, ComDiagsArea &diags, StrTarget &strTarget);
   // auto query retry
   AQRStatementInfo *aqrStmtInfo() { return aqrStmtInfo_; };
   void setAqrStmtInfo(AQRStatementInfo *v) { aqrStmtInfo_ = v; }
   NABoolean updateChildQid();
   void updateStatsAreaInContext();
-  Lng32 setChildQueryInfo(ComDiagsArea *diagsArea, char *uniqueQueryId, Lng32 uniqueQueryIdLen,
+  int setChildQueryInfo(ComDiagsArea *diagsArea, char *uniqueQueryId, int uniqueQueryIdLen,
                           SQL_QUERY_COST_INFO *query_cost_info, SQL_QUERY_COMPILER_STATS_INFO *comp_stats_info);
-  Lng32 getChildQueryInfo(ComDiagsArea &diagsArea, char *uniqueQueryId, Lng32 uniqueQueryIdMaxLen,
-                          Lng32 *uniqueQueryIdLen, SQL_QUERY_COST_INFO *query_cost_info,
+  int getChildQueryInfo(ComDiagsArea &diagsArea, char *uniqueQueryId, int uniqueQueryIdMaxLen,
+                          int *uniqueQueryIdLen, SQL_QUERY_COST_INFO *query_cost_info,
                           SQL_QUERY_COMPILER_STATS_INFO *comp_stats_info);
   // return TRUE if query is prefixed by display,
   // e.g. display select ...
@@ -936,14 +936,14 @@ inline short Statement::allocated() {
 
 inline SQLSTMT_ID *Statement::getCursorName() { return cursor_name_; }
 
-inline void Statement::addDefaultDesc(Descriptor *desc, Lng32 what_desc) {
+inline void Statement::addDefaultDesc(Descriptor *desc, int what_desc) {
   if (what_desc == SQLWHAT_INPUT_DESC)
     default_input_desc = desc;
   else if (what_desc == SQLWHAT_OUTPUT_DESC)
     default_output_desc = desc;
 }
 
-inline Descriptor *Statement::getDefaultDesc(Lng32 what_desc) {
+inline Descriptor *Statement::getDefaultDesc(int what_desc) {
   if (what_desc == SQLWHAT_INPUT_DESC)
     return default_input_desc;
   else if (what_desc == SQLWHAT_OUTPUT_DESC)
@@ -967,7 +967,7 @@ class UdrSecurityInfo : public NABasicObject {
   // Accessors
   const char *getUdrName() { return udrName_; }
 
-  Int64 getPreviousSecurityTS() const { return previousSecurityTS_; }
+  long getPreviousSecurityTS() const { return previousSecurityTS_; }
 
   NABoolean isPreviouslyChecked() const { return previouslyChecked_; }
 
@@ -976,7 +976,7 @@ class UdrSecurityInfo : public NABasicObject {
   // Mutators
   void setUdrName(char *udrName) { udrName_ = udrName; }
 
-  void setPreviousSecurityTS(Int64 secTime) { previousSecurityTS_ = secTime; }
+  void setPreviousSecurityTS(long secTime) { previousSecurityTS_ = secTime; }
 
   void setPreviouslyChecked(NABoolean checked) { previouslyChecked_ = checked; }
 
@@ -984,7 +984,7 @@ class UdrSecurityInfo : public NABasicObject {
 
  private:
   char *udrName_;
-  Int64 previousSecurityTS_;
+  long previousSecurityTS_;
   NABoolean previouslyChecked_;
   RETCODE previousResult_;
 };

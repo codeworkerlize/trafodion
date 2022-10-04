@@ -269,7 +269,7 @@ Int32 UdrCfgParser::readPair(FILE *is, char *buf, Int32 bufSize, NAString &error
 
     if (bufSize - 1 < len) {
       errorText += "*** ERROR: UdrCfgParser():fgets read line longer than BUFFMAX of ";
-      errorText += LongToNAString((Lng32)BUFFMAX);
+      errorText += LongToNAString((int)BUFFMAX);
       errorText += " in config file ";
       errorText += cfgFileName;
       errorText += ".\n";

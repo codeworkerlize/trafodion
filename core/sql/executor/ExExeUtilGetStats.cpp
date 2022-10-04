@@ -122,7 +122,7 @@ static short getSubstrInfo(char *str,          // IN
                            const char *token,  // IN
                            char *sstrbuf)      // OUT
 {
-  Lng32 startPos, currPos, length;
+  int startPos, currPos, length;
   const char space = ' ';
   const char quote = '\"';
   char *ptr = str_str(str, token);
@@ -346,7 +346,7 @@ void ExExeUtilGetStatisticsTcb::moveCompilationStatsToUpQueue(CompilationStatsDa
 //////////////////////////////////////////////////////
 short ExExeUtilGetStatisticsTcb::work() {
   //  short rc = 0;
-  Lng32 cliRC = 0;
+  int cliRC = 0;
   char sstrbuf[ComMAX_ANSI_NAME_EXTERNAL_LEN + 1];
 
   // if no parent request, return
@@ -433,8 +433,8 @@ short ExExeUtilGetStatisticsTcb::work() {
         moveRowToUpQueue(" ");
 
         char formattedFloatVal[25];
-        Lng32 intSize = 0;
-        Lng32 valSize = 0;
+        int intSize = 0;
+        int valSize = 0;
 
         strcpy(statsBuf_, "Stats Collection Type  ");
         strcat(statsBuf_, ExStatisticsArea::getStatsTypeText(csi.collectStatsType()));
@@ -565,7 +565,7 @@ short ExExeUtilGetStatisticsTcb::work() {
 
         // Display Start Time
         short timestamp[8];
-        Int64 juliantimestamp = CONVERTTIMESTAMP(masterStats->getElapsedStartTime(), 0, -1, 0);
+        long juliantimestamp = CONVERTTIMESTAMP(masterStats->getElapsedStartTime(), 0, -1, 0);
 
         INTERPRETTIMESTAMP(juliantimestamp, timestamp);
         sprintf(statsBuf_, "Start Time             %04d/%02d/%02d %02d:%02d:%02d.%03u%03u", timestamp[0], timestamp[1],
@@ -592,7 +592,7 @@ short ExExeUtilGetStatisticsTcb::work() {
         moveRowToUpQueue(statsBuf_);
 
         // Display Elapsed Time
-        Int64 elapsedTime = masterStats->getElapsedEndTime() - masterStats->getElapsedStartTime();
+        long elapsedTime = masterStats->getElapsedEndTime() - masterStats->getElapsedStartTime();
         if (elapsedTime < 0) elapsedTime = 0;
         ULng32 sec = (ULng32)(elapsedTime / 1000000);
         ULng32 usec = (ULng32)(elapsedTime % 1000000);
@@ -604,7 +604,7 @@ short ExExeUtilGetStatisticsTcb::work() {
         moveRowToUpQueue(statsBuf_);
 
         // Display Compile Time
-        Int64 compileTime =
+        long compileTime =
             (((masterStats->isPrepare() || masterStats->isPrepAndExec()) && (masterStats->getCompEndTime() != -1))
                  ? masterStats->getCompEndTime() - masterStats->getCompStartTime()
                  : 0);
@@ -620,7 +620,7 @@ short ExExeUtilGetStatisticsTcb::work() {
 
         if ((NOT getStatsTdb().oldFormat()) && (NOT getStatsTdb().shortFormat())) {
           // Display Fixup Time
-          Int64 fixupTime = ((masterStats->getFixupEndTime() != -1)
+          long fixupTime = ((masterStats->getFixupEndTime() != -1)
                                  ? (masterStats->getFixupEndTime() - masterStats->getFixupStartTime())
                                  : 0);
           if (fixupTime < 0) fixupTime = 0;
@@ -634,7 +634,7 @@ short ExExeUtilGetStatisticsTcb::work() {
           moveRowToUpQueue(statsBuf_);
 
           // Display Freeup Time
-          Int64 freeupTime = masterStats->getFreeupEndTime() - masterStats->getFreeupStartTime();
+          long freeupTime = masterStats->getFreeupEndTime() - masterStats->getFreeupStartTime();
           if (freeupTime < 0) freeupTime = 0;
           sec = (ULng32)(freeupTime / 1000000);
           usec = (ULng32)(freeupTime % 1000000);
@@ -647,7 +647,7 @@ short ExExeUtilGetStatisticsTcb::work() {
         }
 
         // Display Execution Time
-        Int64 executionTime = masterStats->getExeEndTime() - masterStats->getExeStartTime();
+        long executionTime = masterStats->getExeEndTime() - masterStats->getExeStartTime();
         if (executionTime < 0) executionTime = 0;
         sec = (ULng32)(executionTime / 1000000);
         usec = (ULng32)(executionTime % 1000000);
@@ -781,7 +781,7 @@ short ExExeUtilGetStatisticsTcb::work() {
           const QueryString *getStatsQueryString = getStatsAllDefaultViewQuery;
 
           char *gluedQuery;
-          Lng32 gluedQuerySize;
+          int gluedQuerySize;
           glueQueryFragments(stats_qry_array_size, getStatsQueryString, gluedQuery, gluedQuerySize);
 
           const char *s = getStatsTdb().stmtName_;
@@ -1151,8 +1151,8 @@ short ExExeUtilGetStatisticsTcb::work() {
 // Redefine virtual method allocatePstates, to be used by dynamic queue
 // resizing, as well as the initial queue construction.
 ////////////////////////////////////////////////////////////////////////
-ex_tcb_private_state *ExExeUtilGetStatisticsTcb::allocatePstates(Lng32 &numElems,      // inout, desired/actual elements
-                                                                 Lng32 &pstateLength)  // out, length of one element
+ex_tcb_private_state *ExExeUtilGetStatisticsTcb::allocatePstates(int &numElems,      // inout, desired/actual elements
+                                                                 int &pstateLength)  // out, length of one element
 {
   PstateAllocator<ExExeUtilGetStatisticsPrivateState> pa;
 
@@ -1274,16 +1274,16 @@ ExExeUtilGetRTSStatisticsTcb::~ExExeUtilGetRTSStatisticsTcb() {
 }
 
 void ExExeUtilGetRTSStatisticsTcb::formatInt64(SQLSTATS_ITEM stat, char *targetString) {
-  Int64 value = stat.int64_value;
+  long value = stat.int64_value;
   sprintf(targetString, "%ld", value);
   if (value >= 1000) {
-    Lng32 intSize = str_len(targetString);
+    int intSize = str_len(targetString);
     AddCommas(targetString, intSize);
   }
 }
 
 void ExExeUtilGetRTSStatisticsTcb::convertInt64(SQLSTATS_ITEM stat, char *targetString) {
-  Int64 value = stat.int64_value;
+  long value = stat.int64_value;
   sprintf(targetString, "%ld", value);
 }
 
@@ -1291,9 +1291,9 @@ void ExExeUtilGetRTSStatisticsTcb::formatWInt64(SQLSTATS_ITEM stat, char *target
   if (stat.error_code)
     strcpy(targetString, "");
   else {
-    Int64 value = stat.int64_value;
+    long value = stat.int64_value;
     sprintf(targetString, "%ld", value);
-    Lng32 intSize = str_len(targetString);
+    int intSize = str_len(targetString);
     AddCommas(targetString, intSize);
   }
 }
@@ -1326,8 +1326,8 @@ void ExExeUtilGetRTSStatisticsTcb::formatOperStatItems(SQLSTATS_ITEM operStatsIt
 
 void ExExeUtilGetRTSStatisticsTcb::formatOperStats(SQLSTATS_ITEM *operStatsItems) {
   char valString[25];
-  Lng32 intSize = 0;
-  Lng32 valSize = 0;
+  int intSize = 0;
+  int valSize = 0;
   if (!isHeadingDisplayed_) {
     moveRowToUpQueue("");
     isHeadingDisplayed_ = TRUE;
@@ -1414,8 +1414,8 @@ void ExExeUtilGetRTSStatisticsTcb::formatOperStats(SQLSTATS_ITEM *operStatsItems
 // data into a HDFS file.
 void ExExeUtilGetRTSStatisticsTcb::formatOperStatsDataUsed(SQLSTATS_ITEM *operStatsItems) {
   char valString[25];
-  Lng32 intSize = 0;
-  Lng32 valSize = 0;
+  int intSize = 0;
+  int valSize = 0;
 
   // Explain Node Id
   convertInt64(operStatsItems[4], valString);
@@ -1451,14 +1451,14 @@ void ExExeUtilGetRTSStatisticsTcb::initSqlStatsItems(SQLSTATS_ITEM *sqlStatsItem
 //////////////////////////////////////////////////////
 short ExExeUtilGetRTSStatisticsTcb::work() {
   //  short rc = 0;
-  Lng32 cliRC = 0;
+  int cliRC = 0;
   ULng32 sec;
   ULng32 usec;
   ULng32 min;
   ULng32 hour;
   ULng32 i;
   short rc;
-  Int64 jtime;
+  long jtime;
 
   short stmtState;
   short queryType;
@@ -1467,10 +1467,10 @@ short ExExeUtilGetRTSStatisticsTcb::work() {
 
   char formattedFloatVal[25];
   char Int64Val[50];
-  Lng32 intSize = 0;
-  Lng32 valSize = 0;
+  int intSize = 0;
+  int valSize = 0;
   char timestampVal[50];
-  Lng32 microSecs;
+  int microSecs;
 
   // if no parent request, return
   if (qparent_.down->isEmpty()) return WORK_OK;
@@ -1517,7 +1517,7 @@ short ExExeUtilGetRTSStatisticsTcb::work() {
             maxStatsDescEntries_ = MAX_OPERATOR_STATS_DESC;
             break;
         }
-        Lng32 diagMarkValue = currContext->getDiagsArea()->mark();
+        int diagMarkValue = currContext->getDiagsArea()->mark();
         cliRC = SQL_EXEC_GetStatistics2(getStatsTdb().statsReqType_, getStatsTdb().stmtName_,
                                         getStatsTdb().stmtName_ ? str_len(getStatsTdb().stmtName_) : 0,
                                         getStatsTdb().activeQueryNum_, getStatsTdb().statsMergeType_,
@@ -1843,10 +1843,10 @@ short ExExeUtilGetRTSStatisticsTcb::work() {
               sprintf(statsBuf_, "%-25s%s", "Rows Returned", Int64Val);
               break;
             case SQLSTATS_SQL_ERROR_CODE:
-              sprintf(statsBuf_, "%-25s%-d", "SQL Error Code", (Lng32)masterStatsItems_[i].int64_value);
+              sprintf(statsBuf_, "%-25s%-d", "SQL Error Code", (int)masterStatsItems_[i].int64_value);
               break;
             case SQLSTATS_STATS_ERROR_CODE:
-              sprintf(statsBuf_, "%-25s%-d", "Stats Error Code", (Lng32)masterStatsItems_[i].int64_value);
+              sprintf(statsBuf_, "%-25s%-d", "Stats Error Code", (int)masterStatsItems_[i].int64_value);
               break;
             case SQLSTATS_QUERY_TYPE:
               queryType = (short)masterStatsItems_[i].int64_value;
@@ -1902,7 +1902,7 @@ short ExExeUtilGetRTSStatisticsTcb::work() {
                 sprintf(statsBuf_, "%-25s%s", "Last Suspend Time", "-1");
               break;
             case SQLSTATS_AQR_LAST_ERROR:
-              sprintf(statsBuf_, "%-25s%-d", "Last Error before AQR", (Lng32)masterStatsItems_[i].int64_value);
+              sprintf(statsBuf_, "%-25s%-d", "Last Error before AQR", (int)masterStatsItems_[i].int64_value);
               break;
             case SQLSTATS_AQR_NUM_RETRIES:
               sprintf(Int64Val, "%ld", masterStatsItems_[i].int64_value);
@@ -1917,7 +1917,7 @@ short ExExeUtilGetRTSStatisticsTcb::work() {
               sprintf(statsBuf_, "%-25s%s", "Delay before AQR", Int64Val);
               break;
             case SQLSTATS_RECLAIM_SPACE_COUNT:
-              sprintf(statsBuf_, "%-25s%-d", "No. of times reclaimed", (Lng32)masterStatsItems_[i].int64_value);
+              sprintf(statsBuf_, "%-25s%-d", "No. of times reclaimed", (int)masterStatsItems_[i].int64_value);
               break;
             case SQLSTATS_EXECUTE_COUNT:
               sprintf(Int64Val, "%ld", masterStatsItems_[i].int64_value);
@@ -2476,7 +2476,7 @@ short ExExeUtilGetRTSStatisticsTcb::work() {
       case FORMAT_AND_RETURN_HIVE_STATS_: {
         short tableNameIndex = 2;
         SQLSTATS_ITEM *statsItems;
-        Lng32 maxStatsItems;
+        int maxStatsItems;
 
         if (step_ == FORMAT_AND_RETURN_HBASE_STATS_) {
           statsItems = hbaseStatsItems_;
@@ -3531,8 +3531,8 @@ short ExExeUtilGetRTSStatisticsTcb::work() {
   }  // while
 }  // ExExeUtilGetRTSStatisticsTcb::work()
 
-char *ExExeUtilGetRTSStatisticsTcb::formatTimestamp(char *buf, Int64 inTime) {
-  Int64 jtime;
+char *ExExeUtilGetRTSStatisticsTcb::formatTimestamp(char *buf, long inTime) {
+  long jtime;
   short timestamp[8];
 
   if (inTime == -1)
@@ -3548,7 +3548,7 @@ char *ExExeUtilGetRTSStatisticsTcb::formatTimestamp(char *buf, Int64 inTime) {
   return buf;
 }
 
-char *ExExeUtilGetRTSStatisticsTcb::formatElapsedTime(char *buf, Int64 inTime) {
+char *ExExeUtilGetRTSStatisticsTcb::formatElapsedTime(char *buf, long inTime) {
   ULng32 sec = (ULng32)(inTime / 1000000);
   ULng32 usec = (ULng32)(inTime % 1000000);
   ULng32 min = sec / 60;
@@ -3564,8 +3564,8 @@ char *ExExeUtilGetRTSStatisticsTcb::formatElapsedTime(char *buf, Int64 inTime) {
 // Redefine virtual method allocatePstates, to be used by dynamic queue
 // resizing, as well as the initial queue construction.
 ////////////////////////////////////////////////////////////////////////
-ex_tcb_private_state *ExExeUtilGetRTSStatisticsTcb::allocatePstates(Lng32 &numElems,  // inout, desired/actual elements
-                                                                    Lng32 &pstateLength)  // out, length of one element
+ex_tcb_private_state *ExExeUtilGetRTSStatisticsTcb::allocatePstates(int &numElems,  // inout, desired/actual elements
+                                                                    int &pstateLength)  // out, length of one element
 {
   PstateAllocator<ExExeUtilGetRTSStatisticsPrivateState> pa;
 
@@ -3602,10 +3602,10 @@ ExExeUtilGetProcessStatisticsTcb::ExExeUtilGetProcessStatisticsTcb(
 }
 
 short ExExeUtilGetProcessStatisticsTcb::work() {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
   char outBuf[1024];
   short timestamp[8];
-  Int64 juliantimestamp;
+  long juliantimestamp;
 
   // if no parent request, return
   if (qparent_.down->isEmpty()) return WORK_OK;
@@ -3758,8 +3758,8 @@ ex_tcb *ExExeUtilGetObjectEpochStatsTdb::build(ex_globals *glob) {
 // resizing, as well as the initial queue construction.
 ////////////////////////////////////////////////////////////////////////
 ex_tcb_private_state *ExExeUtilGetObjectEpochStatsTcb::allocatePstates(
-    Lng32 &numElems,      // inout, desired/actual elements
-    Lng32 &pstateLength)  // out, length of one element
+    int &numElems,      // inout, desired/actual elements
+    int &pstateLength)  // out, length of one element
 {
   PstateAllocator<ExExeUtilGetObjectEpochStatsPrivateState> pa;
 
@@ -3780,7 +3780,7 @@ ExExeUtilGetObjectEpochStatsTcb::ExExeUtilGetObjectEpochStatsTcb(const ComTdbExe
 ExExeUtilGetObjectEpochStatsTcb::~ExExeUtilGetObjectEpochStatsTcb() {}
 
 short ExExeUtilGetObjectEpochStatsTcb::work() {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
 
   // If no parent request, return
   if (qparent_.down->isEmpty()) {
@@ -3905,8 +3905,8 @@ ex_tcb *ExExeUtilGetObjectLockStatsTdb::build(ex_globals *glob) {
 // resizing, as well as the initial queue construction.
 ////////////////////////////////////////////////////////////////////////
 ex_tcb_private_state *ExExeUtilGetObjectLockStatsTcb::allocatePstates(
-    Lng32 &numElems,      // inout, desired/actual elements
-    Lng32 &pstateLength)  // out, length of one element
+    int &numElems,      // inout, desired/actual elements
+    int &pstateLength)  // out, length of one element
 {
   PstateAllocator<ExExeUtilGetObjectLockStatsPrivateState> pa;
 
@@ -3940,9 +3940,9 @@ ExStatisticsArea *ExExeUtilGetObjectLockStatsTcb::distinctLockStats() {
   ExObjectLockStats *lockStat2 = NULL;
   stats_->position();
   while (stat1 = stats_->getNext()) {
-    Int64 hash = stat1->getHashData();
+    long hash = stat1->getHashData();
     bool found = false;
-    statsArea->position((char *)&hash, sizeof(Int64));
+    statsArea->position((char *)&hash, sizeof(long));
     while (stat2 = statsArea->getNext()) {
       lockStat1 = stat1->castToExObjectLockStats();
       lockStat2 = stat2->castToExObjectLockStats();
@@ -3964,7 +3964,7 @@ ExStatisticsArea *ExExeUtilGetObjectLockStatsTcb::distinctLockStats() {
 }
 
 short ExExeUtilGetObjectLockStatsTcb::work() {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
 
   // If no parent request, return
   if (qparent_.down->isEmpty()) {

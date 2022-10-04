@@ -51,12 +51,12 @@ class SequenceGeneratorAttributes : public NABasicObject {
   // ---------------------------------------------------------------------
   // Constructor functions
   // ---------------------------------------------------------------------
-  SequenceGeneratorAttributes(const Int64 psgStartValue, const Int64 psgIncrement, const Int64 psgMaxValue,
-                              const Int64 psgMinValue, const ComSequenceGeneratorType psgSGType,
+  SequenceGeneratorAttributes(const long psgStartValue, const long psgIncrement, const long psgMaxValue,
+                              const long psgMinValue, const ComSequenceGeneratorType psgSGType,
                               const ComSQLDataType psgSQLDataType, const ComFSDataType psgFSDataType,
                               const NABoolean psgCycleOption, const NABoolean psgResetOption, const ComUID psgObjectUID,
-                              const Int64 psgCache, const Int64 psgNextValue, const NABoolean psgOrderOption,
-                              const Int64 psgEndValue = 0, const Int64 psgRedefTime = 0, const Int64 psgTimeout = -1,
+                              const long psgCache, const long psgNextValue, const NABoolean psgOrderOption,
+                              const long psgEndValue = 0, const long psgRedefTime = 0, const long psgTimeout = -1,
                               CollHeap *h = 0)
       : sgStartValue_(psgStartValue),
         sgIncrement_(psgIncrement),
@@ -127,20 +127,20 @@ class SequenceGeneratorAttributes : public NABasicObject {
   // Sequence generator functions
   // ---------------------------------------------------------------------
 
-  const Int64 &getSGStartValue() const { return sgStartValue_; }
-  const Int64 &getSGIncrement() const { return sgIncrement_; }
-  const Int64 &getSGMaxValue() const { return sgMaxValue_; }
-  const Int64 &getSGMinValue() const { return sgMinValue_; }
+  const long &getSGStartValue() const { return sgStartValue_; }
+  const long &getSGIncrement() const { return sgIncrement_; }
+  const long &getSGMaxValue() const { return sgMaxValue_; }
+  const long &getSGMinValue() const { return sgMinValue_; }
   const ComSequenceGeneratorType &getSGType() const { return sgSGType_; }
   const ComSQLDataType &getSGSQLDataType() const { return sgSQLDataType_; }
   const ComFSDataType &getSGFSDataType() const { return sgFSDataType_; }
   const NABoolean &getSGCycleOption() const { return sgCycleOption_; }
   const NABoolean &getSGResetOption() const { return sgResetOption_; }
   const ComUID &getSGObjectUID() const { return sgObjectUID_; }
-  const Int64 &getSGCache() const { return sgCache_; }
-  const Int64 &getSGNextValue() const { return sgNextValue_; }
-  const Int64 &getSGEndValue() const { return sgEndValue_; }
-  const Int64 &getSGRedefTime() const { return sgRedefTime_; }
+  const long &getSGCache() const { return sgCache_; }
+  const long &getSGNextValue() const { return sgNextValue_; }
+  const long &getSGEndValue() const { return sgEndValue_; }
+  const long &getSGRedefTime() const { return sgRedefTime_; }
   const UInt32 &getSGRetryNum() const { return sgRetryNum_; }
   const NABoolean getSGUseDlockImpl() const { return sgUseDlockImpl_; }
   const NABoolean getSGUseDtmImpl() const { return sgUseDtmImpl_; }
@@ -156,13 +156,13 @@ class SequenceGeneratorAttributes : public NABasicObject {
 
   void setSGReplType(const ComReplType type) { sgReplType_ = type; }
 
-  void setSGStartValue(const Int64 psgStartValue) { sgStartValue_ = psgStartValue; }
+  void setSGStartValue(const long psgStartValue) { sgStartValue_ = psgStartValue; }
 
-  void setSGIncrement(const Int64 psgIncrement) { sgIncrement_ = psgIncrement; }
+  void setSGIncrement(const long psgIncrement) { sgIncrement_ = psgIncrement; }
 
-  void setSGMaxValue(const Int64 psgMaxValue) { sgMaxValue_ = psgMaxValue; }
+  void setSGMaxValue(const long psgMaxValue) { sgMaxValue_ = psgMaxValue; }
 
-  void setSGMinValue(const Int64 psgMinValue) { sgMinValue_ = psgMinValue; }
+  void setSGMinValue(const long psgMinValue) { sgMinValue_ = psgMinValue; }
 
   void setSGType(const ComSequenceGeneratorType psgSGType) { sgSGType_ = psgSGType; }
 
@@ -176,20 +176,20 @@ class SequenceGeneratorAttributes : public NABasicObject {
 
   void setSGObjectUID(const ComUID psgObjectUID) { sgObjectUID_ = psgObjectUID; }
 
-  void setSGCache(const Int64 psgCache) { sgCache_ = psgCache; }
+  void setSGCache(const long psgCache) { sgCache_ = psgCache; }
 
-  void setSGNextValue(const Int64 psgNextValue) { sgNextValue_ = psgNextValue; }
+  void setSGNextValue(const long psgNextValue) { sgNextValue_ = psgNextValue; }
 
-  void setSGEndValue(const Int64 psgEndValue) { sgEndValue_ = psgEndValue; }
+  void setSGEndValue(const long psgEndValue) { sgEndValue_ = psgEndValue; }
 
-  void setSGRedefTime(const Int64 psgRedefTime) { sgRedefTime_ = psgRedefTime; }
+  void setSGRedefTime(const long psgRedefTime) { sgRedefTime_ = psgRedefTime; }
 
   void setSGOrder(const NABoolean sgOrder) { sgOrder_ = sgOrder; }
 
   NABoolean isSystemSG() const { return (sgSGType_ == COM_SYSTEM_SG); }
 
-  Int64 getSGTimeout() const { return sgTimeout_; }
-  void setSGTimeout(Int64 sgt) { sgTimeout_ = sgt; }
+  long getSGTimeout() const { return sgTimeout_; }
+  void setSGTimeout(long sgt) { sgTimeout_ = sgt; }
   static void genSequenceName(const NAString &catName, const NAString &schName, const NAString &tabName,
                               const NAString &colName, NAString &seqName);
 
@@ -211,26 +211,26 @@ class SequenceGeneratorAttributes : public NABasicObject {
  private:
   // Sequence generator
 
-  Int64 sgStartValue_;
-  Int64 sgIncrement_;
-  Int64 sgMaxValue_;
-  Int64 sgMinValue_;
+  long sgStartValue_;
+  long sgIncrement_;
+  long sgMaxValue_;
+  long sgMinValue_;
   ComSequenceGeneratorType sgSGType_;
   ComSQLDataType sgSQLDataType_;
   ComFSDataType sgFSDataType_;
   NABoolean sgCycleOption_;
   NABoolean sgResetOption_;
   ComUID sgObjectUID_;
-  Int64 sgCache_;
-  Int64 sgNextValue_;
-  Int64 sgEndValue_;
-  Int64 sgRedefTime_;
+  long sgCache_;
+  long sgNextValue_;
+  long sgEndValue_;
+  long sgRedefTime_;
   UInt32 sgRetryNum_;
   NABoolean sgUseDlockImpl_;
   NABoolean sgOrder_;
   NABoolean sgUseDtmImpl_;
   ComReplType sgReplType_;
-  Int64 sgTimeout_;
+  long sgTimeout_;
 };  // class SequenceGeneratorAttributes
 
 #endif /* SEQUENCEGENERATORATTRIBUTES_H */

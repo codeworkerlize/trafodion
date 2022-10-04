@@ -23,7 +23,7 @@
 /* -*-C++-*-
 **************************************************************************
 *
-* File:         Int64.C
+* File:         long.C
 * Description:  64-bit integer
 * Created:      3/5/96
 * Language:     C++
@@ -39,9 +39,9 @@
 #include "common/str.h"
 #include "common/NAStdlib.h"
 
-Int64 uint32ToInt64(UInt32 value) { return (Int64)value; }
+long uint32ToInt64(UInt32 value) { return (long)value; }
 
-Int32 int64ToInt32(Int64 value) {
+Int32 int64ToInt32(long value) {
   UInt32 val32u;
   Int32 val32;
 
@@ -51,14 +51,14 @@ Int32 int64ToInt32(Int64 value) {
   return val32;
 }
 
-double convertInt64ToDouble(const Int64 &src) { return (double)src; }
+double convertInt64ToDouble(const long &src) { return (double)src; }
 
 double convertUInt64ToDouble(const UInt64 &src) { return (double)src; }
 
-Int64 uint32ArrayToInt64(const UInt32 array[2]) {
-  Int64 result = uint32ToInt64(array[0]);
-  Int64 array1 = uint32ToInt64(array[1]);
-  Int64 shift = INT_MAX;  // 2^31 - 1
+long uint32ArrayToInt64(const UInt32 array[2]) {
+  long result = uint32ToInt64(array[0]);
+  long array1 = uint32ToInt64(array[1]);
+  long shift = INT_MAX;  // 2^31 - 1
   shift += 1;             // 2^31
   result *= shift;
   result *= 2;       // 2*32, so result now has array[0] in high word
@@ -85,14 +85,14 @@ Int32 aToInt32(const char *src) {
     return tgt;
 }
 
-Int64 atoInt64(const char *src) {
+long atoInt64(const char *src) {
   NABoolean isNeg = FALSE;
   if (*src == '-') {
     isNeg = TRUE;
     src++;
   }
 
-  Int64 tgt = 0;
+  long tgt = 0;
   while ((*src >= '0') && (*src <= '9')) {
     tgt = tgt * 10 + (*src - '0');
     src++;
@@ -104,9 +104,9 @@ Int64 atoInt64(const char *src) {
     return tgt;
 }
 
-void convertInt64ToAscii(const Int64 &src, char *tgt) {
+void convertInt64ToAscii(const long &src, char *tgt) {
 #if 0
-  Int64 temp = src;  // (src >= 0) ? src : - src;
+  long temp = src;  // (src >= 0) ? src : - src;
   char buffer[21];
   char *s = &buffer[21];
   *--s = '\0';
@@ -138,8 +138,8 @@ void convertUInt64ToAscii(const UInt64 &src, char *tgt) {
   strcpy(tgt, s);
 }
 
-void convertInt64ToUInt32Array(const Int64 &src, UInt32 *tgt) {
-  Lng32 *tPtr = (Lng32 *)&src;
+void convertInt64ToUInt32Array(const long &src, UInt32 *tgt) {
+  int *tPtr = (int *)&src;
 #ifdef NA_LITTLE_ENDIAN
   tgt[0] = tPtr[1];
   tgt[1] = tPtr[0];

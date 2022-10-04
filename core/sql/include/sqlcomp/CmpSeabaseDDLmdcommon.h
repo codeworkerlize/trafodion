@@ -54,16 +54,16 @@ struct MDUpgradeInfo {
 
   // ddl stmt corresponding to the current ddl.
   const QString *newDDL;
-  Lng32 sizeOfnewDDL;
+  int sizeOfnewDDL;
 
   // ddl stmt corresponding to the old ddl which is being upgraded.
   // If null, then old/new ddl are the same.
   const QString *oldDDL;
-  Lng32 sizeOfoldDDL;
+  int sizeOfoldDDL;
 
   // ddl stmt corresponding to index on this table, if one exists
   const QString *indexDDL;
-  Lng32 sizeOfIndexDDL;
+  int sizeOfIndexDDL;
 
   const NABoolean upgradeNeeded;
 

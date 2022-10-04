@@ -38,7 +38,7 @@ ComTdbHbaseAccess::ComTdbHbaseAccess(
     keyRangeGen *keyInfo, char *keyColName,
 
     ex_cri_desc *workCriDesc, ex_cri_desc *criDescParentDown, ex_cri_desc *criDescParentUp, queue_index queueSizeDown,
-    queue_index queueSizeUp, Cardinality expectedRows, Lng32 numBuffers, ULng32 bufferSize, char *server, char *zkPort,
+    queue_index queueSizeUp, Cardinality expectedRows, int numBuffers, ULng32 bufferSize, char *server, char *zkPort,
     HbasePerfAttributes *hbasePerfAttributes, Float32 samplingRate,
     HbaseSnapshotScanAttributes *hbaseSnapshotScanAttributes,
 
@@ -170,7 +170,7 @@ ComTdbHbaseAccess::ComTdbHbaseAccess(ComTdbAccessType type, char *tableName, cha
 
                                      ex_cri_desc *workCriDesc, ex_cri_desc *criDescParentDown,
                                      ex_cri_desc *criDescParentUp, queue_index queueSizeDown, queue_index queueSizeUp,
-                                     Cardinality expectedRows, Lng32 numBuffers, ULng32 bufferSize, char *server,
+                                     Cardinality expectedRows, int numBuffers, ULng32 bufferSize, char *server,
                                      char *zkPort)
     : ComTdb(ComTdb::ex_HBASE_ACCESS, eye_HBASE_ACCESS, expectedRows, criDescParentDown, criDescParentUp, queueSizeDown,
              queueSizeUp, numBuffers, bufferSize),
@@ -301,7 +301,7 @@ BeforeAndAfterTriggers *ComTdbHbaseAccess::getTriggers(const char *tableName) {
 
   char tableNameBuf[strlen(tableName) + 100];
   char *parts[4];
-  Lng32 numParts = 0;
+  int numParts = 0;
   LateNameInfo::extractParts(tableName, tableNameBuf, numParts, parts, FALSE);
   if (numParts == 3) {
     QualifiedName qname(parts[2], parts[1], parts[0]);
@@ -461,7 +461,7 @@ Long ComTdbHbaseAccess::pack(void *space) {
   // pack elements in listOfScanRows_
   if (listOfScanRows() && listOfScanRows()->numEntries() > 0) {
     listOfScanRows()->position();
-    for (Lng32 i = 0; i < listOfScanRows()->numEntries(); i++) {
+    for (int i = 0; i < listOfScanRows()->numEntries(); i++) {
       HbaseScanRows *hsr = (HbaseScanRows *)listOfScanRows()->getNext();
       //	  hsr->pack(space);
       hsr->beginRowId_.pack(space);
@@ -474,7 +474,7 @@ Long ComTdbHbaseAccess::pack(void *space) {
   // pack elements in listOfGetRows_
   if (listOfGetRows() && listOfGetRows()->numEntries() > 0) {
     listOfGetRows()->position();
-    for (Lng32 i = 0; i < listOfGetRows()->numEntries(); i++) {
+    for (int i = 0; i < listOfGetRows()->numEntries(); i++) {
       HbaseGetRows *hgr = (HbaseGetRows *)listOfGetRows()->getNext();
       //	  hgr->pack(space);
       hgr->rowIds_.pack(space);
@@ -491,7 +491,7 @@ Long ComTdbHbaseAccess::pack(void *space) {
   return ComTdb::pack(space);
 }
 
-Lng32 ComTdbHbaseAccess::unpack(void *base, void *reallocator) {
+int ComTdbHbaseAccess::unpack(void *base, void *reallocator) {
   if (tableName_.unpack(base)) return -1;
   if (replaceNameByUID_) {
     if (tableNameForUID_.unpack(base)) return -1;
@@ -540,7 +540,7 @@ Lng32 ComTdbHbaseAccess::unpack(void *base, void *reallocator) {
   if (listOfScanRows_.unpack(base, reallocator)) return -1;
   if (listOfScanRows() && listOfScanRows()->numEntries() > 0) {
     listOfScanRows()->position();
-    for (Lng32 i = 0; i < listOfScanRows()->numEntries(); i++) {
+    for (int i = 0; i < listOfScanRows()->numEntries(); i++) {
       HbaseScanRows *hsr = (HbaseScanRows *)listOfScanRows()->getNext();
 
       if (hsr->beginRowId_.unpack(base)) return -1;
@@ -554,7 +554,7 @@ Lng32 ComTdbHbaseAccess::unpack(void *base, void *reallocator) {
   if (listOfGetRows_.unpack(base, reallocator)) return -1;
   if (listOfGetRows() && listOfGetRows()->numEntries() > 0) {
     listOfGetRows()->position();
-    for (Lng32 i = 0; i < listOfGetRows()->numEntries(); i++) {
+    for (int i = 0; i < listOfGetRows()->numEntries(); i++) {
       HbaseGetRows *hgr = (HbaseGetRows *)listOfGetRows()->getNext();
       if (hgr->rowIds_.unpack(base, reallocator)) return -1;
       if (hgr->colNames_.unpack(base, reallocator)) return -1;
@@ -573,11 +573,11 @@ Lng32 ComTdbHbaseAccess::unpack(void *base, void *reallocator) {
 void ComTdbHbaseAccess::displayRowId(Space *space, char *inputRowIdBuf) {
   char buf[100];
   char keyVal[41];
-  Lng32 keyValLen = 0;
+  int keyValLen = 0;
 
   ExpTupleDesc *asciiSourceTD = workCriDesc_->getTupleDescriptor(rowIdAsciiTuppIndex_);
 
-  Lng32 currPos = 0;
+  int currPos = 0;
   if (asciiSourceTD) {
     for (CollIndex i = 0; i < asciiSourceTD->numAttrs(); i++) {
       Attributes *attr = asciiSourceTD->getAttr(i);
@@ -631,7 +631,7 @@ Long ComTdbHbaseAccess::ComHbaseAccessOptions::pack(void *space) {
   return NAVersionedObject::pack(space);
 }
 
-Lng32 ComTdbHbaseAccess::ComHbaseAccessOptions::unpack(void *base, void *reallocator) {
+int ComTdbHbaseAccess::ComHbaseAccessOptions::unpack(void *base, void *reallocator) {
   if (hbaseAuths_.unpack(base)) return -1;
 
   return NAVersionedObject::unpack(base, reallocator);
@@ -641,11 +641,11 @@ static void showColNames(Queue *listOfColNames, Space *space) {
   char buf[1000];
 
   listOfColNames->position();
-  for (Lng32 j = 0; j < listOfColNames->numEntries(); j++) {
+  for (int j = 0; j < listOfColNames->numEntries(); j++) {
     char *currPtr = (char *)listOfColNames->getCurr();
 
-    Lng32 currPos = 0;
-    Lng32 jj = 0;
+    int currPos = 0;
+    int jj = 0;
     short colNameLen = *(short *)currPtr;
     currPos += sizeof(short);
     char colFam[100];
@@ -666,12 +666,12 @@ static void showColNames(Queue *listOfColNames, Space *space) {
       withAt = TRUE;
     }
 
-    Int64 v;
+    long v;
     if (colNameLen == sizeof(char))
       v = *(char *)colName;
     else if (colNameLen == sizeof(unsigned short))
       v = *(UInt16 *)colName;
-    else if (colNameLen == sizeof(Lng32))
+    else if (colNameLen == sizeof(int))
       v = *(ULng32 *)colName;
     else
       v = 0;
@@ -688,7 +688,7 @@ static void showStrColNames(Queue *listOfColNames, Space *space, NABoolean nullT
   char buf[1000];
 
   listOfColNames->position();
-  for (Lng32 j = 0; j < listOfColNames->numEntries(); j++) {
+  for (int j = 0; j < listOfColNames->numEntries(); j++) {
     char *currPtr = (char *)listOfColNames->getCurr();
 
     char *colNamePtr = NULL;
@@ -1009,7 +1009,7 @@ void ComTdbHbaseAccess::displayContents(Space *space, ULng32 flag) {
       space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
 
       listOfScanRows()->position();
-      for (Lng32 i = 0; i < listOfScanRows()->numEntries(); i++) {
+      for (int i = 0; i < listOfScanRows()->numEntries(); i++) {
         HbaseScanRows *hsr = (HbaseScanRows *)listOfScanRows()->getNext();
 
         str_sprintf(buf, "\n  Entry #%d:", i + 1);
@@ -1031,7 +1031,7 @@ void ComTdbHbaseAccess::displayContents(Space *space, ULng32 flag) {
           space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
 
           hsr->colNames()->position();
-          for (Lng32 j = 0; j < hsr->colNames()->numEntries(); j++) {
+          for (int j = 0; j < hsr->colNames()->numEntries(); j++) {
             str_sprintf(buf, "\n      Entry #%d:", j + 1);
             space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
 
@@ -1052,7 +1052,7 @@ void ComTdbHbaseAccess::displayContents(Space *space, ULng32 flag) {
       space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
 
       listOfGetRows()->position();
-      for (Lng32 i = 0; i < listOfGetRows()->numEntries(); i++) {
+      for (int i = 0; i < listOfGetRows()->numEntries(); i++) {
         HbaseGetRows *hgr = (HbaseGetRows *)listOfGetRows()->getNext();
 
         str_sprintf(buf, "\n  Entry #%d:", i + 1);
@@ -1063,7 +1063,7 @@ void ComTdbHbaseAccess::displayContents(Space *space, ULng32 flag) {
           space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
 
           hgr->rowIds()->position();
-          for (Lng32 j = 0; j < hgr->rowIds()->numEntries(); j++) {
+          for (int j = 0; j < hgr->rowIds()->numEntries(); j++) {
             str_sprintf(buf, "      Entry #%d:", j + 1);
             space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
 
@@ -1085,7 +1085,7 @@ void ComTdbHbaseAccess::displayContents(Space *space, ULng32 flag) {
           space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
 
           hgr->colNames()->position();
-          for (Lng32 j = 0; j < hgr->colNames()->numEntries(); j++) {
+          for (int j = 0; j < hgr->colNames()->numEntries(); j++) {
             str_sprintf(buf, "      Entry #%d:", j + 1);
             space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
 
@@ -1127,7 +1127,7 @@ ComTdbHbaseCoProcAccess::ComTdbHbaseCoProcAccess(
     Queue *listOfColNames,
 
     ex_cri_desc *workCriDesc, ex_cri_desc *criDescParentDown, ex_cri_desc *criDescParentUp, queue_index queueSizeDown,
-    queue_index queueSizeUp, Cardinality expectedRows, Lng32 numBuffers, ULng32 bufferSize, char *server, char *zkPort,
+    queue_index queueSizeUp, Cardinality expectedRows, int numBuffers, ULng32 bufferSize, char *server, char *zkPort,
     HbasePerfAttributes *hbasePerfAttributes, Queue *tdbListOfRangeRows, ex_expr *rowIdExpr, Int32 rowIdTuppIndex,
     Int32 rowIdAsciiTuppIndex, ULng32 rowIdLength, ULng32 rowIdAsciiRowLen)
     : ComTdbHbaseAccess(COPROC_, tableName, baseTableName, projExpr, NULL, rowIdExpr, NULL, NULL, NULL, NULL, NULL,
@@ -1154,7 +1154,7 @@ ComTdbHbaseCoProcAggr::ComTdbHbaseCoProcAggr(
     Queue *listOfAggrTypes, Queue *listOfAggrColNames,
 
     ex_cri_desc *workCriDesc, ex_cri_desc *criDescParentDown, ex_cri_desc *criDescParentUp, queue_index queueSizeDown,
-    queue_index queueSizeUp, Cardinality expectedRows, Lng32 numBuffers, ULng32 bufferSize, char *server, char *zkPort,
+    queue_index queueSizeUp, Cardinality expectedRows, int numBuffers, ULng32 bufferSize, char *server, char *zkPort,
     HbasePerfAttributes *hbasePerfAttributes, Queue *tdbListOfRangeRows, ex_expr *rowIdExpr, Int32 rowIdTuppIndex,
     Int32 rowIdAsciiTuppIndex, ULng32 rowIdLength, ULng32 rowIdAsciiRowLen, int filterForNull)
     : ComTdbHbaseCoProcAccess(tableName, baseTableName, ComTdbHbaseCoProcAccess::AGGR_, projExpr, projRowLen,
@@ -1174,7 +1174,7 @@ Long ComTdbHbaseCoProcAggr::pack(void *space) {
   return ComTdbHbaseCoProcAccess::pack(space);
 }
 
-Lng32 ComTdbHbaseCoProcAggr::unpack(void *base, void *reallocator) {
+int ComTdbHbaseCoProcAggr::unpack(void *base, void *reallocator) {
   if (listOfAggrTypes_.unpack(base, reallocator)) return -1;
 
   return ComTdbHbaseCoProcAccess::unpack(base, reallocator);
@@ -1193,7 +1193,7 @@ Long ComTdbHbaseAccess::HbaseScanRows::pack(void *space) {
   return NAVersionedObject::pack(space);
 }
 
-Lng32 ComTdbHbaseAccess::HbaseScanRows::unpack(void *base, void *reallocator) {
+int ComTdbHbaseAccess::HbaseScanRows::unpack(void *base, void *reallocator) {
   if (beginRowId_.unpack(base)) return -1;
   if (endRowId_.unpack(base)) return -1;
 
@@ -1209,7 +1209,7 @@ Long ComTdbHbaseAccess::HbaseGetRows::pack(void *space) {
   return NAVersionedObject::pack(space);
 }
 
-Lng32 ComTdbHbaseAccess::HbaseGetRows::unpack(void *base, void *reallocator) {
+int ComTdbHbaseAccess::HbaseGetRows::unpack(void *base, void *reallocator) {
   if (rowIds_.unpack(base, reallocator)) return -1;
   if (colNames_.unpack(base, reallocator)) return -1;
 
@@ -1218,7 +1218,7 @@ Lng32 ComTdbHbaseAccess::HbaseGetRows::unpack(void *base, void *reallocator) {
 
 Long ComTdbHbaseAccess::HbasePerfAttributes::pack(void *space) { return NAVersionedObject::pack(space); }
 
-Lng32 ComTdbHbaseAccess::HbasePerfAttributes::unpack(void *base, void *reallocator) {
+int ComTdbHbaseAccess::HbasePerfAttributes::unpack(void *base, void *reallocator) {
   return NAVersionedObject::unpack(base, reallocator);
 }
 ///////////////////////////////////////////////////////////////////
@@ -1230,7 +1230,7 @@ Long ComTdbHbaseAccess::HbaseSnapshotScanAttributes::pack(void *space) {
   return NAVersionedObject::pack(space);
 }
 
-Lng32 ComTdbHbaseAccess::HbaseSnapshotScanAttributes::unpack(void *base, void *reallocator) {
+int ComTdbHbaseAccess::HbaseSnapshotScanAttributes::unpack(void *base, void *reallocator) {
   if (snapScanTmpLocation_.unpack(base)) return -1;
   if (snapshotName_.unpack(base)) return -1;
   return NAVersionedObject::unpack(base, reallocator);

@@ -130,7 +130,7 @@ class REFRESH_LIB_CLASS CRUAuditRefreshTaskExecutor : public CRUSimpleRefreshTas
   void PrologueHandleOnStatementMV();
   void EpilogueHandleOnStatementMV();
 
-  void ExecuteIndexStatmenents(CRUSQLDynamicStatementContainer &container, Lng32 errorCode);
+  void ExecuteIndexStatmenents(CRUSQLDynamicStatementContainer &container, int errorCode);
 
  private:
   // The FSM's state definitions

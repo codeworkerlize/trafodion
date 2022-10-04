@@ -90,7 +90,7 @@ void ComTdbParams::getValues(Cardinality &estimatedRowCount, ExCriDescPtr &criDo
 // TDB constructor & Destructor
 // -----------------------------------------------------------------------
 ComTdb::ComTdb(ex_node_type type, const char *eye, Cardinality estRowsUsed, ex_cri_desc *criDown, ex_cri_desc *criUp,
-               queue_index sizeDown, queue_index sizeUp, Int32 numBuffers, UInt32 bufferSize, Lng32 uniqueId,
+               queue_index sizeDown, queue_index sizeUp, Int32 numBuffers, UInt32 bufferSize, int uniqueId,
                ULng32 initialQueueSizeDown, ULng32 initialQueueSizeUp, short queueResizeLimit, short queueResizeFactor,
                ComTdbParams *params)
     : criDescDown_(criDown),
@@ -146,7 +146,7 @@ Long ComTdb::pack(void *space) {
   return NAVersionedObject::pack(space);
 }
 
-Lng32 ComTdb::unpack(void *base, void *reallocator) {
+int ComTdb::unpack(void *base, void *reallocator) {
   if (criDescDown_.unpack(base, reallocator)) return -1;
   if (criDescUp_.unpack(base, reallocator)) return -1;
   if (parentTdb_.unpack(base, reallocator)) return -1;

@@ -98,7 +98,7 @@ class keySingleSubsetGen : public keyRangeGen {
   virtual ~keySingleSubsetGen();
 
   virtual Long pack(void *space);
-  virtual Lng32 unpack(void *base, void *reallocator);
+  virtual int unpack(void *base, void *reallocator);
 
   virtual ex_expr *getExpressionNode(Int32 pos);
 

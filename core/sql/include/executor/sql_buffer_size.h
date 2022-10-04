@@ -50,7 +50,7 @@
 
 static inline ULng32 SqlBufferHeaderSize(SqlBufferHeader::BufferType bufType) {
   // Return the buffer header size
-  Lng32 headerSize = 0;
+  int headerSize = 0;
   switch (bufType) {
     case SqlBufferHeader::DENSE_:
       headerSize = sizeof(SqlBufferDense);
@@ -74,20 +74,20 @@ static inline ULng32 SqlBufferHeaderSize(SqlBufferHeader::BufferType bufType) {
   return (headerSize);
 }
 
-static inline ULng32 SqlBufferGetTuppSize(Lng32 recordLength = 0,
+static inline ULng32 SqlBufferGetTuppSize(int recordLength = 0,
                                           SqlBufferHeader::BufferType bufType = SqlBufferHeader::NORMAL_) {
-  Lng32 sizeofTuppDescriptor =
+  int sizeofTuppDescriptor =
       ((bufType == SqlBufferHeader::DENSE_) ? ROUND8(sizeof(TupleDescInfo)) : sizeof(tupp_descriptor));
 
   return ROUND8(recordLength) + sizeofTuppDescriptor;
 }
 
-static inline ULng32 SqlBufferNeededSize(Lng32 numTuples = 0, Lng32 recordLength = 0,
+static inline ULng32 SqlBufferNeededSize(int numTuples = 0, int recordLength = 0,
                                          SqlBufferHeader::BufferType bufType = SqlBufferHeader::NORMAL_) {
   // Return the header size plus the size of any tuple descriptors
   // beyond the first (which is included in the header) plus the
   // size for the aligned data.
-  Lng32 headerSize = SqlBufferHeaderSize(bufType);
+  int headerSize = SqlBufferHeaderSize(bufType);
   return (headerSize + (numTuples * SqlBufferGetTuppSize(recordLength, bufType)));
 }
 

@@ -73,10 +73,10 @@ class ComTdbSortGrby : public ComTdb {
   // Constructor
   ComTdbSortGrby();  // dummy constructor. Used by 'unpack' routines.
 
-  ComTdbSortGrby(ex_expr *aggr_expr, ex_expr *grby_expr, ex_expr *move_expr, ex_expr *having_expr, Lng32 reclen,
+  ComTdbSortGrby(ex_expr *aggr_expr, ex_expr *grby_expr, ex_expr *move_expr, ex_expr *having_expr, int reclen,
                  const unsigned short tupp_index, ComTdb *child_tdb, ex_cri_desc *given_cri_desc,
                  ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, Cardinality estimatedRowCount,
-                 Lng32 num_buffers, ULng32 buffer_size, NABoolean tolerateNonFatalError);
+                 int num_buffers, ULng32 buffer_size, NABoolean tolerateNonFatalError);
 
   ~ComTdbSortGrby();
 
@@ -97,7 +97,7 @@ class ComTdbSortGrby : public ComTdb {
 
   virtual short getClassSize() { return (short)sizeof(ComTdbSortGrby); }
   Long pack(void *);
-  Lng32 unpack(void *, void *reallocator);
+  int unpack(void *, void *reallocator);
 
   void display() const;
 

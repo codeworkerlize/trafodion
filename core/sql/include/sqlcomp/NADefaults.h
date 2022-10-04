@@ -186,7 +186,7 @@ class NADefaults : public NABasicObject {
 
   NABoolean getFloat(Int32 attrEnum, float &result) const;
   double getAsDouble(Int32 attrEnum) const;
-  Lng32 getAsLong(Int32 attrEnum) const;
+  int getAsLong(Int32 attrEnum) const;
   ULng32 getAsULong(Int32 attrEnum) const;
 
   NAString getString(Int32 attrEnum) const;
@@ -197,7 +197,7 @@ class NADefaults : public NABasicObject {
   // get the number of configured ESPs per cluster.
   ULng32 getTotalNumOfESPs(NABoolean &fakeEnv) const;
 
-  Lng32 figureOutMaxLength(UInt32 uec);
+  int figureOutMaxLength(UInt32 uec);
 
   NABoolean domainMatch(Int32 attrEnum, Int32 expectedDefaultValidatorType, float *flt = NULL) const;
 
@@ -218,7 +218,7 @@ class NADefaults : public NABasicObject {
     return validateAndInsert(attrName, value, reset, errOrWarn, UNINITIALIZED);
   }
 
-  DefaultConstants holdOrRestore(const char *attrName, Lng32 holdOrRestoreCQD);
+  DefaultConstants holdOrRestore(const char *attrName, int holdOrRestoreCQD);
 
   Int32 validateFloat(const char *value, float &result, Int32 attrEnum, Int32 errOrWarn = -1) const;
 
@@ -283,10 +283,10 @@ class NADefaults : public NABasicObject {
   SqlParser_NADefaults *getSqlParser_NADefaults_Ptr() { return SqlParser_NADefaults_; }
   static void getNodeAndClusterNumbers(short &nodeNum, Int32 &clusterNum);
 
-  Lng32 packedLengthDefaults();
-  Lng32 packDefaultsToBuffer(char *buffer);
-  Lng32 unpackDefaultsFromBuffer(Lng32 numEntriesInBuffer, char *buffer);
-  NABoolean isSameCQD(Lng32 numEntriesInBuffer, char *buffer, Lng32 bufLen);
+  int packedLengthDefaults();
+  int packDefaultsToBuffer(char *buffer);
+  int unpackDefaultsFromBuffer(int numEntriesInBuffer, char *buffer);
+  NABoolean isSameCQD(int numEntriesInBuffer, char *buffer, int bufLen);
 
   void setSchemaAsLdapUser(const NAString val = "");
   static float computeNumESPsPerCore();
@@ -309,7 +309,7 @@ class NADefaults : public NABasicObject {
  private:
   UInt32 defFlags_;
 
-  static float computeNumESPsPerCore(Lng32 coresPerNode);
+  static float computeNumESPsPerCore(int coresPerNode);
 
   void initCurrentDefaultsWithDefaultDefaults();
   void initCurrentDefaultsFromSavedDefaults();
@@ -354,7 +354,7 @@ class NADefaults : public NABasicObject {
   NABoolean resetAll_;
 };
 
-inline Lng32 ToErrorOrWarning(Lng32 sqlCode, Int32 eow) {
+inline int ToErrorOrWarning(int sqlCode, Int32 eow) {
   sqlCode = ABS(sqlCode);
   return (eow < 0) ? -sqlCode : (eow > 0) ? +sqlCode : 0;
 }

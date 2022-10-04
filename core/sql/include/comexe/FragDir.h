@@ -99,7 +99,7 @@ class ExEspNodeMapEntry : public NAVersionedObject {
   virtual void populateImageVersionIDArray() { setImageVersionID(0, getClassVersionID()); }
 
   Long pack(void *space);
-  Lng32 unpack(void *, void *reallocator);
+  int unpack(void *, void *reallocator);
 
  private:
   NABasicPtr clusterName_;        // EXPAND node name        // 00-07
@@ -121,22 +121,22 @@ class ExEspNodeMap {
   // which causes some inconvenience to deallocate the ExEspNodeMap[]
   // from an NAHeap.  Need to locate the starting byte of array.
 
-  Lng32 getNodeNumber(Lng32 instance) const;
-  const char *getClusterName(Lng32 instance) const;
-  NABoolean needToWork(Lng32 instance) const;
+  int getNodeNumber(int instance) const;
+  const char *getClusterName(int instance) const;
+  NABoolean needToWork(int instance) const;
 
   // Mutator methods (for code generator only)
-  void setMapArray(Lng32 entries, ExEspNodeMapEntry *me) {
+  void setMapArray(int entries, ExEspNodeMapEntry *me) {
     map_ = me;
     entries_ = entries;
   }
-  void setEntry(Lng32 instance, const char *clusterName, Lng32 nodeNumber, NABoolean needToWork, Space *space);
+  void setEntry(int instance, const char *clusterName, int nodeNumber, NABoolean needToWork, Space *space);
 
-  Lng32 isNodeNumDuplicate(Lng32 numCpus);
+  int isNodeNumDuplicate(int numCpus);
 
   // pack and unpack
   Long pack(void *space);
-  Lng32 unpack(void *base, void *reallocator);
+  int unpack(void *base, void *reallocator);
 
   void display(NAText &output);
 
@@ -171,7 +171,7 @@ class ExFragDirEntry : public NAVersionedObject {
   ExFragDirEntry() : NAVersionedObject(-1) {}
 
   virtual Long pack(void *);
-  virtual Lng32 unpack(void *, void *reallocator);
+  virtual int unpack(void *, void *reallocator);
 
   NABoolean isNeedsTransaction() { return (flags_ & NEEDS_TRANSACTION); }
   NABoolean isCompressFrag() { return (flags_ & COMPRESS_FRAGMENT); }
@@ -195,14 +195,14 @@ class ExFragDirEntry : public NAVersionedObject {
   UInt32 parentId_;  // 04-07
 
   // offset of this fragment within buffer that contains all fragments.
-  Int64 globalOffset_;  // 08-15
+  long globalOffset_;  // 08-15
 
   // length of this fragment (always a multiple of 8)
-  Int64 fragmentLength_;  // 16-23
+  long fragmentLength_;  // 16-23
 
   // offset of the top-level node of the fragment within its buffer
   // (usually this is 0)
-  Int64 topNodeOffset_;  // 24-31
+  long topNodeOffset_;  // 24-31
 
   // partitioning information
   ExPartInputDataDescPtr partDescriptor_;  // 32-39
@@ -245,7 +245,7 @@ class ExFragDir : public NAVersionedObject {
   // allocate a fragment directory with <entries> entries in a particular
   // space (constructor can be used at compile time only)
   //
-  ExFragDir(Lng32 entries, Space *space, NABoolean multiFragments, NABoolean fragmentQuotas, UInt16 multiFragmentVm,
+  ExFragDir(int entries, Space *space, NABoolean multiFragments, NABoolean fragmentQuotas, UInt16 multiFragmentVm,
             UInt8 numMultiFragments, ComASNodes *asNodes);
 
   ExFragDir() : NAVersionedObject(-1) {}
@@ -260,7 +260,7 @@ class ExFragDir : public NAVersionedObject {
   virtual short getClassSize() { return (short)sizeof(ExFragDir); }
 
   // access members that are not part of fragment directory entries
-  inline Lng32 getNumEntries() const { return numEntries_; }
+  inline int getNumEntries() const { return numEntries_; }
 
   inline const ExScratchFileOptions *getScratchFileOptions() const { return scratchFileOptions_; }
   inline void setScratchFileOptions(ExScratchFileOptions *sfo) { scratchFileOptions_ = sfo; }
@@ -271,9 +271,9 @@ class ExFragDir : public NAVersionedObject {
   inline void setMaxESPsPerNode(Int32 v) { maxESPsPerNode_ = v; }
 
   // access fragment directory entries
-  inline void set(ExFragId index, ExFragEntryType type, ExFragId parentId, Lng32 globalOffset, Lng32 fragmentLength,
-                  Lng32 topNodeOffset, ExPartInputDataDesc *partDescriptor, ExEspNodeMap *espNodeMap, Lng32 numESPs,
-                  Lng32 espLevel, Lng32 needsTransaction, NABoolean compressFrag = FALSE, NABoolean soloFrag = FALSE,
+  inline void set(ExFragId index, ExFragEntryType type, ExFragId parentId, int globalOffset, int fragmentLength,
+                  int topNodeOffset, ExPartInputDataDesc *partDescriptor, ExEspNodeMap *espNodeMap, int numESPs,
+                  int espLevel, int needsTransaction, NABoolean compressFrag = FALSE, NABoolean soloFrag = FALSE,
                   UInt16 fragmentMemoryQuota = 0, NABoolean containsBMOs = FALSE) {
     ExFragDirEntry *entry = fragments_[index];
 
@@ -296,14 +296,14 @@ class ExFragDir : public NAVersionedObject {
 
   inline ExFragEntryType getType(ExFragId ix) const { return (ExFragEntryType)fragments_[ix]->type_; }
   inline ExFragId getParentId(ExFragId ix) const { return fragments_[ix]->parentId_; }
-  inline Lng32 getGlobalOffset(ExFragId ix) const { return (Lng32)(fragments_[ix]->globalOffset_); }
-  inline Lng32 getFragmentLength(ExFragId ix) const { return (Lng32)(fragments_[ix]->fragmentLength_); }
-  inline Lng32 getTopNodeOffset(ExFragId ix) const { return (Lng32)(fragments_[ix]->topNodeOffset_); }
-  inline Lng32 getNumESPs(ExFragId ix) const { return fragments_[ix]->numESPs_; }
-  inline Lng32 getEspLevel(ExFragId ix) const { return fragments_[ix]->espLevel_; }
+  inline int getGlobalOffset(ExFragId ix) const { return (int)(fragments_[ix]->globalOffset_); }
+  inline int getFragmentLength(ExFragId ix) const { return (int)(fragments_[ix]->fragmentLength_); }
+  inline int getTopNodeOffset(ExFragId ix) const { return (int)(fragments_[ix]->topNodeOffset_); }
+  inline int getNumESPs(ExFragId ix) const { return fragments_[ix]->numESPs_; }
+  inline int getEspLevel(ExFragId ix) const { return fragments_[ix]->espLevel_; }
   inline ExPartInputDataDesc *getPartDesc(ExFragId ix) const { return fragments_[ix]->partDescriptor_; }
   inline ExEspNodeMap *getEspNodeMap(ExFragId ix) const { return &fragments_[ix]->espNodeMap_; }
-  inline Lng32 needsTransaction(ExFragId ix) const { return fragments_[ix]->isNeedsTransaction(); }
+  inline int needsTransaction(ExFragId ix) const { return fragments_[ix]->isNeedsTransaction(); }
   inline ULng32 getPlanVersion(void) const { return planVersion_; }
   inline void setPlanVersion(ULng32 pv) { planVersion_ = pv; }
   inline NABoolean isCompressFrag(ExFragId ix) const { return fragments_[ix]->isCompressFrag(); }
@@ -319,9 +319,9 @@ class ExFragDir : public NAVersionedObject {
   // pack and unpack procedures for it (they handle the entries as well)
   //
   Long pack(void *space);
-  Lng32 unpack(void *, void *reallocator);
+  int unpack(void *, void *reallocator);
 
-  Lng32 getExplainFragDirEntry(Lng32 &fragOffset, Lng32 &fragLen, Lng32 &topNodeOffset);
+  int getExplainFragDirEntry(int &fragOffset, int &fragLen, int &topNodeOffset);
 
  private:
   // ptr to an array of <numEntries_> entries

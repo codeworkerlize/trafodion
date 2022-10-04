@@ -65,7 +65,7 @@ inline void CLISemaphore::release() { LeaveCriticalSection(&cs); }
 
 inline CLISemaphore::CLISemaphore() { InitializeCriticalSection(&cs); }
 
-inline CLISemaphore::~CLISemaphore() { DeleteCriticalSection(&cs); }
+inline CLISemaphore::~CLISemaphore() {  }
 
 extern CLISemaphore globalSemaphore;
 

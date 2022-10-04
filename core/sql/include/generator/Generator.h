@@ -288,7 +288,7 @@ class Generator : public NABasicObject {
 
   // points to the TDB of the last generated code (set for each node)
   ComTdb *genObj;
-  Lng32 genObjLength;
+  int genObjLength;
 
   // Fragment directory. When the plan uses multiple Executor Server
   // Processes (ESPs), this directory contains information about which
@@ -323,8 +323,8 @@ class Generator : public NABasicObject {
 
   ULng32 flags2_;
 
-  Int64 planId_;         // timestamp used by explain
-  Lng32 explainNodeId_;  // current number for EXPLAIN node
+  long planId_;         // timestamp used by explain
+  int explainNodeId_;  // current number for EXPLAIN node
 
   // Pointer to a DP2 table update (as oppossed to index update) operator.
   // Both pointers are set by the update codeGen and then
@@ -476,13 +476,13 @@ class Generator : public NABasicObject {
   // temporary value holder that indicates number of esp instances. This value
   // is accessed by child sort operator during code gen. Value set in exchange
   // operator which is the parent operator. Default is 1.
-  Lng32 numESPs_;
+  int numESPs_;
 
   // total number of ESPs for the query.
-  Lng32 totalNumESPs_;
+  int totalNumESPs_;
 
   // level of esp layer relative to root node. First esp layer is 1.
-  Lng32 espLevel_;
+  int espLevel_;
 
   // Member to hold if RTS stats like (process busy time in master, ESPs and to get
   // Memory usage if COMP_BOOL_156 is ON. Default is COMP_BOOL_156 is ON
@@ -528,9 +528,9 @@ class Generator : public NABasicObject {
   // -1: Never recompile (the default)
   //  0: Always recompile
   // >0: Recompile after this timestamp
-  Int64 planExpirationTimestamp_;
+  long planExpirationTimestamp_;
 
-  NASet<Int64> objectUids_;
+  NASet<long> objectUids_;
 
   NASet<NAString> objectNames_;
   char *snapshotScanTmpLocation_;
@@ -595,7 +595,7 @@ class Generator : public NABasicObject {
   // estimated memory for an individual operator. Used by Explain
   // set to 0 after Explain has been called so that next operator
   // can used this field. In KB and on a per Node basis.
-  Lng32 operEstimatedMemory_;
+  int operEstimatedMemory_;
 
   Int16 maxCpuUsage_;
 
@@ -806,10 +806,10 @@ class Generator : public NABasicObject {
   // of error.
   char *getFinalObj(char *out_buf, ULng32 out_buflen);
 
-  inline Lng32 getFinalObjLength() { return fragmentDir_->getTotalLength(); };
+  inline int getFinalObjLength() { return fragmentDir_->getTotalLength(); };
 
   //  void doRuntimeSpaceComputation();
-  void doRuntimeSpaceComputation(char *root_tdb, char *fragTopNode, Lng32 &tcbSize);
+  void doRuntimeSpaceComputation(char *root_tdb, char *fragTopNode, int &tcbSize);
 
   inline ex_cri_desc *getCriDesc(cri_desc_type type) {
     if (type == UP)
@@ -948,15 +948,15 @@ class Generator : public NABasicObject {
   inline void setBindWA(BindWA *bindWA_) { bindWA = bindWA_; };
 
   // returns current base table/index id and increments it.
-  inline Lng32 getTableId() { return tableId_++; }
+  inline int getTableId() { return tableId_++; }
 
   // returns current temp table id and increments it.
-  inline Lng32 getTempTableId() { return tempTableId_++; }
+  inline int getTempTableId() { return tempTableId_++; }
 
   // returns current TDB id and increments it.
-  inline Lng32 getTdbId() { return tdbId_; }
+  inline int getTdbId() { return tdbId_; }
 
-  inline Lng32 getAndIncTdbId() { return tdbId_++; }
+  inline int getAndIncTdbId() { return tdbId_++; }
   // returns current TDB id and increments it.
   inline ULng32 getPertableStatsTdbId() { return pertableStatsTdbId_; }
   inline void setPertableStatsTdbId(ULng32 tdbId) { pertableStatsTdbId_ = tdbId; }
@@ -1230,9 +1230,9 @@ class Generator : public NABasicObject {
     v ? flags2_ |= SKIP_WRITE_MUTATION_FOR_IB : flags2_ &= ~SKIP_WRITE_MUTATION_FOR_IB;
   }
 
-  inline Int64 getPlanId();
-  inline Lng32 getExplainNodeId() const;
-  inline Lng32 getNextExplainNodeId();
+  inline long getPlanId();
+  inline int getExplainNodeId() const;
+  inline int getNextExplainNodeId();
   inline const char *getStmtSource();
   inline CollIndex getExplainFragDirIndex() const;
   inline void setExplainFragDirIndex(CollIndex index);
@@ -1321,7 +1321,7 @@ class Generator : public NABasicObject {
   ComTdbRoot *getTopRoot();
   const Space *getTopSpace() const;
 
-  static Lng32 getRecordLength(ComTdbVirtTableIndexInfo *indexInfo, ComTdbVirtTableColumnInfo *columnInfoArray);
+  static int getRecordLength(ComTdbVirtTableIndexInfo *indexInfo, ComTdbVirtTableColumnInfo *columnInfoArray);
 
   static TrafDesc *createColDescs(const char *tableName, ComTdbVirtTableColumnInfo *columnInfo, Int16 numCols,
                                   UInt32 &offset, NAMemory *space);
@@ -1355,7 +1355,7 @@ class Generator : public NABasicObject {
                                             ComTdbVirtTablePrivInfo *privInfo, Space *space);
   static TrafDesc *createVirtualLibraryDesc(const char *libraryName, ComTdbVirtTableLibraryInfo *libraryInfo,
                                             Space *space);
-  static short genAndEvalExpr(CmpContext *cmpContext, char *exprStr, Lng32 numChildren, ItemExpr *childNode0,
+  static short genAndEvalExpr(CmpContext *cmpContext, char *exprStr, int numChildren, ItemExpr *childNode0,
                               ItemExpr *childNode1, ComDiagsArea *diagsArea);
 
   inline void incrBMOsMemory(CostScalar x) { totalBMOsMemoryPerNode_ += x; }
@@ -1384,12 +1384,12 @@ class Generator : public NABasicObject {
   inline unsigned short getTotalNumBMOs() { return totalNumBMOs_; }
 
   void incTotalESPs() { totalNumESPs_++; }
-  Lng32 getTotalESPs(void) { return totalNumESPs_; }
+  int getTotalESPs(void) { return totalNumESPs_; }
 
-  void setNumESPs(Lng32 numEsps) { numESPs_ = numEsps; }
-  Lng32 getNumESPs(void) { return numESPs_; }
+  void setNumESPs(int numEsps) { numESPs_ = numEsps; }
+  int getNumESPs(void) { return numESPs_; }
 
-  Lng32 getEspLevel() { return espLevel_; }
+  int getEspLevel() { return espLevel_; }
   void incrEspLevel() { espLevel_++; }
   void decrEspLevel() { espLevel_--; }
 
@@ -1554,8 +1554,8 @@ class Generator : public NABasicObject {
   CorrName &utilInsertTable() { return utilInsertTable_; }
 
   NExDbgInfo *getNExDbgInfoAddr() { return &(NExDbgInfoObj_); }
-  void setPlanExpirationTimestamp(Int64 t);
-  Int64 getPlanExpirationTimestamp() { return planExpirationTimestamp_; }
+  void setPlanExpirationTimestamp(long t);
+  long getPlanExpirationTimestamp() { return planExpirationTimestamp_; }
 
   ItemExpr *addCompDecodeForDerialization(ItemExpr *ie, NABoolean isAlignedFormat);
 
@@ -1566,7 +1566,7 @@ class Generator : public NABasicObject {
                             ComTdbHbaseAccess::HbasePerfAttributes *hbpa);
   void setHBaseParallelScanner(ComTdbHbaseAccess::HbasePerfAttributes *hbpa);
 
-  NASet<Int64> &objectUids() { return objectUids_; }
+  NASet<long> &objectUids() { return objectUids_; }
 
   NASet<NAString> &objectNames() { return objectNames_; }
 
@@ -1595,7 +1595,7 @@ class Generator : public NABasicObject {
   inline void setTopNRows(ULng32 topNRows) { topNRows_ = topNRows; }
   inline ULng32 getTopNRows() { return topNRows_; }
   inline XBMOQuotaMap *getBMOQuotaMap() { return &bmoQuotaMap_; }
-  double getEstMemPerNode(NAString *key, Lng32 &numStreams);
+  double getEstMemPerNode(NAString *key, int &numStreams);
   double getEstMemForTdb(NAString *key);
   double getEstMemPerInst(NAString *key);
   void finetuneBMOEstimates();
@@ -1674,11 +1674,11 @@ class OperBMOQuota : public NABasicObject {
 extern const NAString GenGetQualifiedName(const CorrName &, NABoolean formatForDisplay = FALSE,
                                           NABoolean asAnsiString = FALSE);
 
-inline Int64 Generator::getPlanId() { return planId_; }
+inline long Generator::getPlanId() { return planId_; }
 
-inline Lng32 Generator::getExplainNodeId() const { return explainNodeId_; }
+inline int Generator::getExplainNodeId() const { return explainNodeId_; }
 
-inline Lng32 Generator::getNextExplainNodeId() { return ++explainNodeId_; }
+inline int Generator::getNextExplainNodeId() { return ++explainNodeId_; }
 
 inline const char *Generator::getStmtSource() { return stmtSource_; }
 

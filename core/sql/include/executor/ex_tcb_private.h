@@ -58,15 +58,15 @@ class ex_tcb;
 class ex_tcb_private_state : public ExGod {
   // Error related information. For now, make it a long.
   // Later, make it the SQLDiagnosticStruct (or something similar).
-  Lng32 errorCode_;
+  int errorCode_;
 
  public:
   ex_tcb_private_state();
   virtual ex_tcb_private_state *allocate_new(const ex_tcb *tcb);
   virtual ~ex_tcb_private_state();
 
-  inline Lng32 getErrorCode() { return errorCode_; }
-  inline void setErrorCode(Lng32 error_code) { errorCode_ = error_code; }
+  inline int getErrorCode() { return errorCode_; }
+  inline void setErrorCode(int error_code) { errorCode_ = error_code; }
 };
 
 #endif

@@ -93,7 +93,7 @@ class UdrTableDescInfo : public NAVersionedObject {
   virtual short getClassSize() { return sizeof(UdrTableDescInfo); }
 
   virtual Long pack(void *);
-  virtual Lng32 unpack(void *, void *);
+  virtual int unpack(void *, void *);
 
  private:
   // Fields in this class describe a UDR table desc . They do not

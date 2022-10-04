@@ -270,7 +270,7 @@ class CompositeConcat : public BuiltinFunction {
 class CompositeExtract : public BuiltinFunction {
  public:
   // extract elem number elemNum from the composite array or row operand.
-  CompositeExtract(ItemExpr *valPtr, Lng32 elemNum)
+  CompositeExtract(ItemExpr *valPtr, int elemNum)
       : BuiltinFunction(ITM_COMPOSITE_EXTRACT, CmpCommon::statementHeap(), 1, valPtr),
         elemNum_(elemNum),
         names_(CmpCommon::statementHeap()),
@@ -322,7 +322,7 @@ class CompositeExtract : public BuiltinFunction {
 
  private:
   // element to be extracted. 1-based (first elem is 1)
-  Lng32 elemNum_;
+  int elemNum_;
 
   const NAType *resultType_;
 

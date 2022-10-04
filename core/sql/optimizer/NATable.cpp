@@ -125,17 +125,17 @@ static NABoolean createNAPartitions(TrafDesc *partition_desc, Int32 partCnt, LIS
 // first non-blank character.
 // -----------------------------------------------------------------------
 
-Int64 HistogramsCacheEntry::getLastUpdateStatsTime() { return cmpCurrentContext->getLastUpdateStatsTime(); }
+long HistogramsCacheEntry::getLastUpdateStatsTime() { return cmpCurrentContext->getLastUpdateStatsTime(); }
 
-void HistogramsCacheEntry::setUpdateStatsTime(Int64 updateTime) {
+void HistogramsCacheEntry::setUpdateStatsTime(long updateTime) {
   cmpCurrentContext->setLastUpdateStatsTime(updateTime);
 }
 
 /*
-static Int64 getCurrentTime()
+static long getCurrentTime()
 {
   // GETTIMEOFDAY returns -1, in case of an error
-  Int64 currentTime;
+  long currentTime;
   TimeVal currTime;
   if (GETTIMEOFDAY(&currTime, 0) != -1)
     currentTime = currTime.tv_sec;
@@ -146,13 +146,13 @@ static Int64 getCurrentTime()
 */
 
 void HistogramsCacheEntry::updateRefreshTime() {
-  Int64 currentTime = getCurrentTime();
+  long currentTime = getCurrentTime();
   this->setRefreshTime(currentTime);
 }
 
-static Lng32 skipLeadingBlanks(const char *keyValueBuffer, const Lng32 startIndex, const Lng32 length) {
-  Lng32 newIndex = startIndex;
-  Lng32 stopIndex = newIndex + length;
+static int skipLeadingBlanks(const char *keyValueBuffer, const int startIndex, const int length) {
+  int newIndex = startIndex;
+  int stopIndex = newIndex + length;
   // Localize the search for blanks between the startIndex and stopIndex.
   while ((newIndex <= stopIndex) AND(keyValueBuffer[newIndex] == ' ')) newIndex++;
   return newIndex;
@@ -164,8 +164,8 @@ static Lng32 skipLeadingBlanks(const char *keyValueBuffer, const Lng32 startInde
 // 0 and skips any blanks that appear as a suffix of the first non-blank
 // character.
 // -----------------------------------------------------------------------
-static Lng32 skipTrailingBlanks(const char *keyValueBuffer, const Lng32 startIndex) {
-  Lng32 newIndex = startIndex;
+static int skipTrailingBlanks(const char *keyValueBuffer, const int startIndex) {
+  int newIndex = startIndex;
   while ((newIndex >= 0) AND(keyValueBuffer[newIndex] == ' ')) newIndex--;
   return newIndex;
 }  // static skipTrailingBlanks
@@ -188,7 +188,7 @@ ULng32 qualNameHashFunc(const QualifiedName &qualName) {
 //-------------------------------------------------------------------------
 // constructor() for HistogramCache
 //-------------------------------------------------------------------------
-HistogramCache::HistogramCache(NAMemory *heap, Lng32 initSize)
+HistogramCache::HistogramCache(NAMemory *heap, int initSize)
     : heap_(heap),
       lastTouchTime_(getCurrentTime()),
       hits_(0),
@@ -236,10 +236,10 @@ void HistogramCache::getHistograms(NATable &table, NABoolean useStoredStats) {
   ExtendedQualName::SpecialTableType type = table.getTableType();
   const NAColumnArray &colArray = table.getNAColumnArray();
   StatsList &colStatsList = *(table.getColStats());
-  const Int64 &redefTime = table.getRedefTime();
-  Int64 &statsTime = const_cast<Int64 &>(table.getStatsTime());
-  Int64 tableUID = table.objectUid().castToInt64();
-  Int64 siKeyGCinterval = CURRSTMT_OPTDEFAULTS->siKeyGCinterval();
+  const long &redefTime = table.getRedefTime();
+  long &statsTime = const_cast<long &>(table.getStatsTime());
+  long tableUID = table.objectUid().castToInt64();
+  long siKeyGCinterval = CURRSTMT_OPTDEFAULTS->siKeyGCinterval();
 
   // Fail safe logic: Make sure that we haven't been idle longer than
   // the RMS security invalidation garbage collection logic. If we have,
@@ -355,8 +355,8 @@ void HistogramCache::createColStatsList(NATable &table, HistogramsCacheEntry *ca
   NAColumnArray &colArray = const_cast<NAColumnArray &>(table.getNAColumnArray());
   const QualifiedName &qualifiedName = table.getFullyQualifiedGuardianName();
   ExtendedQualName::SpecialTableType type = table.getTableType();
-  const Int64 &redefTime = table.getRedefTime();
-  Int64 &statsTime = const_cast<Int64 &>(table.getStatsTime());
+  const long &redefTime = table.getRedefTime();
+  long &statsTime = const_cast<long &>(table.getStatsTime());
 
   // The singleColsFound is used to prevent stats from being inserted
   // more than once in the output list.
@@ -584,7 +584,7 @@ Int32 HistogramCache::getStatsListFromCache(StatsList &list,                    
   }
 
   // append the mc stats at the end of the output lit.
-  for (Lng32 i = 0; i < mcStatsList.entries(); i++) {
+  for (int i = 0; i < mcStatsList.entries(); i++) {
     list.insertAt(list.entries(), mcStatsList[i]);
   }
 
@@ -594,8 +594,8 @@ Int32 HistogramCache::getStatsListFromCache(StatsList &list,                    
 // this method is used to put into the cache stats lists, that
 // needed to be re-read or were not there in the cache
 void HistogramCache::putStatsListIntoCache(StatsList &colStatsList, const NAColumnArray &colArray,
-                                           const QualifiedName &qualifiedName, Int64 tableUID, Int64 statsTime,
-                                           const Int64 &redefTime, NABoolean allFakeStats) {
+                                           const QualifiedName &qualifiedName, long tableUID, long statsTime,
+                                           const long &redefTime, NABoolean allFakeStats) {
   ULng32 histCacheHeapSize = heap_->getAllocSize();
   // create memory efficient representation of colStatsList
   HistogramsCacheEntry *histogramsForCache =
@@ -756,7 +756,7 @@ void HistogramCache::freeInvalidEntries(Int32 numKeys, SQL_QIKEY *qiKeyArray) {
 // constructor for memory efficient representation of colStats.
 // colStats has both single-column & multi-column histograms.
 HistogramsCacheEntry::HistogramsCacheEntry(const StatsList &colStats, const QualifiedName &qualifiedName,
-                                           Int64 tableUID, const Int64 &statsTime, const Int64 &redefTime,
+                                           long tableUID, const long &statsTime, const long &redefTime,
                                            NAMemory *heap)
     : full_(NULL),
       multiColumn_(NULL),
@@ -787,13 +787,13 @@ HistogramsCacheEntry::HistogramsCacheEntry(const StatsList &colStats, const Qual
     // fill-in pointers to deep copy of single-column histograms
     for (UInt32 i = 0; i < colStats.entries(); i++) {
       const NAColumnArray &colArray = colStats[i]->getStatColumns();
-      Lng32 position = (Lng32)colArray.getColumn(Lng32(0))->getPosition();
+      int position = (int)colArray.getColumn(int(0))->getPosition();
       if ((colArray.entries() == 1) && (position >= 0)) {
         // keep pointer to deep copy of single-column histogram
         full_->insertAt(full_->entries(), ColStats::deepCopyHistIntoCache(*(colStats[i]), heap_));
 
         // update singleColumnPositions
-        singleColumnPositions_ += (Lng32)colArray.getColumn(Lng32(0))->getPosition();
+        singleColumnPositions_ += (int)colArray.getColumn(int(0))->getPosition();
       }
     }
   }
@@ -806,7 +806,7 @@ HistogramsCacheEntry::HistogramsCacheEntry(const StatsList &colStats, const Qual
     // fill-in pointers to deep copy of single-column histograms
     for (UInt32 i = 0; i < colStats.entries(); i++) {
       const NAColumnArray &colArray = colStats[i]->getStatColumns();
-      Lng32 position = (Lng32)colArray.getColumn(Lng32(0))->getPosition();
+      int position = (int)colArray.getColumn(int(0))->getPosition();
       if ((colArray.entries() == 1) && (position < 0)) {
         // Keep pointer to deep copy of expressions histogram.
         // Note that we call ColStats::deepCopy directly, so we can
@@ -842,10 +842,10 @@ void HistogramsCacheEntry::addToCachedEntry(NAColumnArray &columns, StatsList &l
 
     // get the first column for the columns represented by
     // the current colstats
-    NAColumn *column = colList.getColumn(Lng32(0));
+    NAColumn *column = colList.getColumn(int(0));
 
     // column position of first column
-    Lng32 currentColPosition = column->getPosition();
+    int currentColPosition = column->getPosition();
 
     // check if current column requires full histograms
     NABoolean requiresHistogram = column->needHistogram();
@@ -1120,13 +1120,13 @@ void HistogramsCacheEntry::print(FILE *ofd, const char *indent, const char *titl
 //                                 (<value1>)  (<value2>)  (<value3>)
 //
 // -----------------------------------------------------------------------
-ItemExpr *NATable::getRangePartitionBoundaryValues(const char *keyValueBuffer, const Lng32 keyValueBufferSize,
+ItemExpr *NATable::getRangePartitionBoundaryValues(const char *keyValueBuffer, const int keyValueBufferSize,
                                                    NAMemory *heap, CharInfo::CharSet strCharSet) {
   char *keyValue;          // the string for the key value
   ItemExpr *partKeyValue;  // -> dynamically allocated expression
-  Lng32 length;            // index to the next key value and its length
-  Lng32 startIndex = 0;
-  Lng32 stopIndex = keyValueBufferSize - 1;
+  int length;            // index to the next key value and its length
+  int startIndex = 0;
+  int stopIndex = keyValueBufferSize - 1;
 
   startIndex = skipLeadingBlanks(keyValueBuffer, startIndex, stopIndex);
   // Skip leading '('
@@ -1179,23 +1179,23 @@ ItemExpr *NATable::getRangePartitionBoundaryValues(const char *keyValueBuffer, c
 // only the encoded keys (e.g. from HBase regions start keys). In this
 // case, un-encode these binary values and form ConstValues from them.
 static ItemExpr *getRangePartitionBoundaryValuesFromEncodedKeys(const NAColumnArray &partColArray,
-                                                                const char *encodedKey, const Lng32 encodedKeyLen,
+                                                                const char *encodedKey, const int encodedKeyLen,
                                                                 NAMemory *heap) {
-  Lng32 keyColOffset = 0;
+  int keyColOffset = 0;
   ItemExpr *result = NULL;
   char *actEncodedKey = (char *)encodedKey;  // original key or a copy
   const char *encodedKeyP = NULL;
   char *varCharstr = NULL;
-  Lng32 totalKeyLength = 0;
-  Lng32 numProvidedCols = 0;
-  Lng32 lenOfFullyProvidedCols = 0;
-  Lng32 vcHdrExtraBytes = 0;
-  Lng32 tmpCurrOffset = 0;
+  int totalKeyLength = 0;
+  int numProvidedCols = 0;
+  int lenOfFullyProvidedCols = 0;
+  int vcHdrExtraBytes = 0;
+  int tmpCurrOffset = 0;
 
   // in newer HBase versions, the region start key may be shorter than an actual key
   for (CollIndex i = 0; i < partColArray.entries(); i++) {
     const NAType *pkType = partColArray[i]->getType();
-    Lng32 colEncodedLength = pkType->getSQLnullHdrSize() + pkType->getNominalSize();
+    int colEncodedLength = pkType->getSQLnullHdrSize() + pkType->getNominalSize();
 
     totalKeyLength += colEncodedLength;
     if (totalKeyLength <= encodedKeyLen) {
@@ -1225,16 +1225,16 @@ static ItemExpr *getRangePartitionBoundaryValuesFromEncodedKeys(const NAColumnAr
     // extend the remainder with zeroes, assuming that this is what
     // HBase does when deciding which region a row belongs to
     memset(&actEncodedKey[encodedKeyLen], 0, totalKeyLength - encodedKeyLen + vcHdrExtraBytes);
-    Lng32 currOffset = lenOfFullyProvidedCols;
+    int currOffset = lenOfFullyProvidedCols;
 
     // go through the partially or completely missing columns and make something up
     // so that we can treat the buffer as fully encoded in the final loop below
     for (CollIndex j = numProvidedCols; j < partColArray.entries(); j++) {
       const NAType *pkType = partColArray[j]->getType();
-      Lng32 nullHdrSize = pkType->getSQLnullHdrSize();
+      int nullHdrSize = pkType->getSQLnullHdrSize();
       int valOffset = currOffset + nullHdrSize;
       int valEncodedLength = pkType->getNominalSize();
-      Lng32 colEncodedLength = pkType->getTotalSize();
+      int colEncodedLength = pkType->getTotalSize();
       NABoolean isDescending = (partColArray[j]->getClusteringKeyOrdering() == DESCENDING);
 
       NABoolean nullHdrAlreadySet = FALSE;
@@ -1425,7 +1425,7 @@ static ItemExpr *getRangePartitionBoundaryValuesFromEncodedKeys(const NAColumnAr
         //       the values we get from HBase. The next loop below
         //       will skip decoding for any values generated here.
         if (pkType->getTypeName() == "VARCHAR") colEncodedLength += pkType->getVarLenHdrSize();
-        Lng32 remainingBufLen = colEncodedLength;
+        int remainingBufLen = colEncodedLength;
 
         if (nullHdrSize && !nullHdrAlreadySet) {
           // generate a NULL indicator
@@ -1448,7 +1448,7 @@ static ItemExpr *getRangePartitionBoundaryValuesFromEncodedKeys(const NAColumnAr
 
   for (CollIndex c = 0; c < partColArray.entries(); c++) {
     const NAType *pkType = partColArray[c]->getType();
-    Lng32 decodedValueLen = pkType->getNominalSize() + pkType->getSQLnullHdrSize();
+    int decodedValueLen = pkType->getNominalSize() + pkType->getSQLnullHdrSize();
     ItemExpr *keyColVal = NULL;
 
     // does this column need encoding (only if it actually came
@@ -1601,7 +1601,7 @@ NABoolean checkColumnTypeForSupportability(const NAColumnArray &partColArray, co
 // permissible values that the partitioning key columns can contain
 // within a certain partition, for range-partitioned data.
 // -----------------------------------------------------------------------
-static RangePartitionBoundaries *createRangePartitionBoundaries(TrafDesc *part_desc_list, Lng32 numberOfPartitions,
+static RangePartitionBoundaries *createRangePartitionBoundaries(TrafDesc *part_desc_list, int numberOfPartitions,
                                                                 const NAColumnArray &partColArray, NAMemory *heap) {
   // ---------------------------------------------------------------------
   // ASSUMPTION: The partitions descriptor list is a singly-linked list
@@ -1641,7 +1641,7 @@ static RangePartitionBoundaries *createRangePartitionBoundaries(TrafDesc *part_d
   // NOTE: The RangePartitionBoundaries is 0 based.
   // ---------------------------------------------------------------------
   partns_desc = partns_desc->next;  // skip the primary partition
-  Lng32 counter = 1;
+  int counter = 1;
   char *encodedKey;
 
   while (partns_desc AND(counter < numberOfPartitions)) {
@@ -1720,7 +1720,7 @@ static PartitioningFunction *createRangePartitioningFunction(TrafDesc *part_desc
   // Compute the number of partitions.
   // ---------------------------------------------------------------------
   TrafDesc *partns_desc = part_desc_list;
-  Lng32 numberOfPartitions = 0;
+  int numberOfPartitions = 0;
   while (partns_desc) {
     numberOfPartitions++;
     partns_desc = partns_desc->next;
@@ -1772,7 +1772,7 @@ static PartitioningFunction *createRoundRobinPartitioningFunction(TrafDesc *part
   // Compute the number of partitions.
   // ---------------------------------------------------------------------
   TrafDesc *partns_desc = part_desc_list;
-  Lng32 numberOfPartitions = 0;
+  int numberOfPartitions = 0;
   while (partns_desc) {
     numberOfPartitions++;
     partns_desc = partns_desc->next;
@@ -1805,7 +1805,7 @@ static PartitioningFunction *createHashDistPartitioningFunction(TrafDesc *part_d
   // Compute the number of partitions.
   // ---------------------------------------------------------------------
   TrafDesc *partns_desc = part_desc_list;
-  Lng32 numberOfPartitions = 0;
+  int numberOfPartitions = 0;
   while (partns_desc) {
     numberOfPartitions++;
     partns_desc = partns_desc->next;
@@ -1833,7 +1833,7 @@ static PartitioningFunction *createHash2PartitioningFunction(TrafDesc *part_desc
   // Compute the number of partitions.
   // ---------------------------------------------------------------------
   TrafDesc *partns_desc = part_desc_list;
-  Lng32 numberOfPartitions = 0;
+  int numberOfPartitions = 0;
   while (partns_desc) {
     numberOfPartitions++;
     partns_desc = partns_desc->next;
@@ -1929,7 +1929,7 @@ static PartitioningFunction *createHash2PartitioningFunctionForHBase(TrafDesc *d
 //
 // -----------------------------------------------------------------------
 RangePartitionBoundaries *createRangePartitionBoundariesFromStats(const IndexDesc *idesc, HistogramSharedPtr &hist,
-                                                                  Lng32 numberOfPartitions,
+                                                                  int numberOfPartitions,
                                                                   const NAColumnArray &partColArray,
                                                                   const ValueIdList &partitioningKeyColumnsOrder,
                                                                   const Int32 statsColsCount, NAMemory *heap) {
@@ -1955,7 +1955,7 @@ RangePartitionBoundaries *createRangePartitionBoundariesFromStats(const IndexDes
   // string in the SMD.
   // NOTE: The RangePartitionBoundaries is 0 based.
   // ---------------------------------------------------------------------
-  Lng32 counter = 1;
+  int counter = 1;
   ULng32 totalEncodedKeyLength = 0;
 
   Interval iter = hist->getFirstInterval();
@@ -1979,7 +1979,7 @@ RangePartitionBoundaries *createRangePartitionBoundariesFromStats(const IndexDes
         // the leading key column
         evInStr = nt->convertToString(ev, heap);
       else {
-        Int64 nValue = 0;
+        long nValue = 0;
         (((SQLNumeric *)nt))->getMaxValue(&nValue);
         evInStr = (((SQLNumeric *)nt))->convertToString(nValue, heap);
       }
@@ -2026,8 +2026,8 @@ RangePartitionBoundaries *createRangePartitionBoundariesFromStats(const IndexDes
 
       char *encodedKeyBuffer = new (heap) char[encodedKeyLength];
 
-      Lng32 offset;
-      Lng32 length;
+      int offset;
+      int length;
       ValueIdList vidList;
 
       short ok =
@@ -2074,7 +2074,7 @@ static PartitioningFunction *createRangePartitioningFunctionForSingleRegionHBase
                                                                                  NAMemory *heap) {
   NodeMap *nodeMap = NULL;
 
-  Lng32 regionsToFake = (ActiveSchemaDB()->getDefaults()).getAsLong(HBASE_USE_FAKED_REGIONS);
+  int regionsToFake = (ActiveSchemaDB()->getDefaults()).getAsLong(HBASE_USE_FAKED_REGIONS);
 
   if (regionsToFake == 0) {
     nodeMap = new (heap) NodeMap(heap, 1, NodeMapEntry::ACTIVE, NodeMap::HBASE);
@@ -2312,7 +2312,7 @@ static NAString makeColumnName(const NATable *table, const TrafColumnsDesc *colu
 // Method for inserting new NAColumn entries in NATable::colArray_,
 // one for each column_desc in the list supplied as input.
 // -----------------------------------------------------------------------
-static NABoolean createNAColumns(TrafDesc *column_desc_list /*IN*/, NATable *table /*IN*/, Int64 tablesFlags, /*IN*/
+static NABoolean createNAColumns(TrafDesc *column_desc_list /*IN*/, NATable *table /*IN*/, long tablesFlags, /*IN*/
                                  NAColumnArray &colArray /*OUT*/, NAMemory *heap /*IN*/) {
   NAType *type;
   ColumnClass colClass;
@@ -2687,7 +2687,7 @@ static NABoolean createNAFileSets(TrafDesc *table_desc /*IN*/, const NATable *ta
   // loop over all indexes/VPs defined on the base table
   // ---------------------------------------------------------------------
   while (indexes_desc) {
-    Lng32 numberOfFiles = 1;  // always at least 1
+    int numberOfFiles = 1;  // always at least 1
     NAColumn *indexColumn;    // an index/VP key column
     NAColumn *newIndexColumn;
     NAFileSet *newIndex;  // a new file set
@@ -2711,7 +2711,7 @@ static NABoolean createNAFileSets(TrafDesc *table_desc /*IN*/, const NATable *ta
     NABoolean isNotAvailable = FALSE;
 
     ItemExprList hbaseSaltColumnList(CmpCommon::statementHeap());
-    Int64 numOfSaltedPartitions = 0;
+    long numOfSaltedPartitions = 0;
     Int16 numTrafReplicas = 0;
 
     // ---------------------------------------------------------------------
@@ -3265,10 +3265,10 @@ ULng32 hashColPosList(const CollIndexSet &colSet) { return colSet.hash(); }
 // the diags area contains details of any error detected
 //
 // ----------------------------------------------------------------------------
-static Int64 lookupObjectUidByName(const QualifiedName &qualName, ComObjectType objectType, NABoolean reportError,
-                                   Int64 *objectFlags = NULL, Int64 *createTime = NULL, Int64 *objDataUID = NULL) {
+static long lookupObjectUidByName(const QualifiedName &qualName, ComObjectType objectType, NABoolean reportError,
+                                   long *objectFlags = NULL, long *createTime = NULL, long *objDataUID = NULL) {
   ExeCliInterface cliInterface(STMTHEAP);
-  Int64 objectUID = 0;
+  long objectUID = 0;
 
   CmpSeabaseDDL cmpSBD(STMTHEAP);
   if (cmpSBD.switchCompiler(CmpContextInfo::CMPCONTEXT_TYPE_META)) {
@@ -3278,9 +3278,9 @@ static Int64 lookupObjectUidByName(const QualifiedName &qualName, ComObjectType 
   }
 
   Int32 objectOwner, schemaOwner;
-  Int64 l_objFlags = 0;
-  Int64 l_createTime = -1;
-  Int64 l_objDataUID = -1;
+  long l_objFlags = 0;
+  long l_createTime = -1;
+  long l_objDataUID = -1;
   objectUID = cmpSBD.getObjectInfo(&cliInterface, qualName.getCatalogName().data(), qualName.getSchemaName().data(),
                                    qualName.getObjectName().data(), objectType, objectOwner, schemaOwner, l_objFlags,
                                    l_objDataUID, reportError, FALSE, &l_createTime, NULL);
@@ -3320,14 +3320,14 @@ NABoolean NATable::fetchObjectUIDForNativeTable(const CorrName &corrName, NABool
   objectUID_ = 0;
 
   // get uid if this hive table has been registered in traf metadata.
-  Int64 regCreateTime = -1;
-  Int64 extCreateTime = -1;
-  Int64 regObjectUID = -1;
-  Int64 extObjectUID = -1;
-  Int64 objDataUID = -1;
+  long regCreateTime = -1;
+  long extCreateTime = -1;
+  long regObjectUID = -1;
+  long extObjectUID = -1;
+  long objDataUID = -1;
   if ((corrName.isHive()) || (corrName.isHbase())) {
     // first get uid for the registered table/view.
-    Int64 objectFlags = 0;
+    long objectFlags = 0;
 
     ComObjectType objType;
     if (isView)
@@ -3405,7 +3405,7 @@ NABoolean NATable::fetchObjectUIDForNativeTable(const CorrName &corrName, NABool
 // NATable::NATable() constructor
 // -----------------------------------------------------------------------
 
-const Lng32 initHeapSize = 32 * 1024;  // ## 32K: tune this someday!
+const int initHeapSize = 32 * 1024;  // ## 32K: tune this someday!
 
 ULng32 minmaxKeyHashFunction(const minmaxKey &key) { return key.hash(); }
 
@@ -3451,7 +3451,7 @@ void populateColumnIdxArray(char *source, Int32 **target, Int32 size, NAMemory *
 // NATable::NATable() constructor
 // -----------------------------------------------------------------------
 
-// const Lng32 initHeapSize = 32 * 1024;		// ## 32K: tune this someday!
+// const int initHeapSize = 32 * 1024;		// ## 32K: tune this someday!
 
 NATable::NATable(BindWA *bindWA, const CorrName &corrName, NAMemory *heap, TrafDesc *inTableDesc, UInt32 currentEpoch,
                  UInt32 currentFlags)
@@ -3601,7 +3601,7 @@ NATable::NATable(BindWA *bindWA, const CorrName &corrName, NAMemory *heap, TrafD
   NAString tblName = qualifiedName_.getQualifiedNameObj().getQualifiedNameAsString();
   NAString mmPhase;
 
-  Lng32 preCreateNATableWarnings = CmpCommon::diags()->getNumber(DgSqlCode::WARNING_);
+  int preCreateNATableWarnings = CmpCommon::diags()->getNumber(DgSqlCode::WARNING_);
 
   // set heap type
   if (heap_ == CmpCommon::statementHeap()) {
@@ -3840,7 +3840,7 @@ NATable::NATable(BindWA *bindWA, const CorrName &corrName, NAMemory *heap, TrafD
   memset(lobHdfsServer, 0, 256);
   strncpy(lobHdfsServer, CmpCommon::getDefaultString(LOB_HDFS_SERVER),
           sizeof(lobHdfsServer) - 1);  // leave a NULL terminator at the end.
-  Int32 lobHdfsPort = (Lng32)CmpCommon::getDefaultNumeric(LOB_HDFS_PORT);
+  Int32 lobHdfsPort = (int)CmpCommon::getDefaultNumeric(LOB_HDFS_PORT);
 
   setNumLOBdatafiles(-1);
 
@@ -3892,7 +3892,7 @@ NATable::NATable(BindWA *bindWA, const CorrName &corrName, NAMemory *heap, TrafD
     memcpy(viewFileName_, view_desc->viewDesc()->viewfilename, viewFileNameLength);
   } else {
     // keep track of memory used by NAFileSets
-    Lng32 preCreateNAFileSetsMemSize = heap_->getAllocSize();
+    int preCreateNAFileSetsMemSize = heap_->getAllocSize();
 
     //
     // Process indexes and vertical partitions for this table.
@@ -3998,7 +3998,7 @@ NATable::NATable(BindWA *bindWA, const CorrName &corrName, NAMemory *heap, TrafD
           (ComSQLDataType)sg_desc->sqlDataType, (ComFSDataType)sg_desc->fsDataType, sg_desc->cycleOption, FALSE,
           sg_desc->objectUID, sg_desc->cache, sg_desc->nextValue, sg_desc->seqOrder, 0, sg_desc->redefTime);
       if (sgAttributes_->isSystemSG()) {
-        Int64 override_seq_timeout = 0;
+        long override_seq_timeout = 0;
         // Value of -2 is used for special debugging.
         if ((override_seq_timeout = CmpCommon::getDefaultNumeric(OVERRIDE_GLOBAL_SEQ_TIMEOUT)) != -1)
           sgAttributes_->setSGTimeout(override_seq_timeout);
@@ -4189,7 +4189,7 @@ NATable::NATable(BindWA *bindWA, const CorrName &corrName, NAMemory *heap, TrafD
       primaryNodeNum = CURRCONTEXT_CLUSTERINFO->mapNodeNameToNodeNum(NAString(nodeName));
     }
   }
-  Lng32 postCreateNATableWarnings = CmpCommon::diags()->getNumber(DgSqlCode::WARNING_);
+  int postCreateNATableWarnings = CmpCommon::diags()->getNumber(DgSqlCode::WARNING_);
   if (postCreateNATableWarnings != preCreateNATableWarnings) tableConstructionHadWarnings_ = TRUE;
 
   // add encryption info
@@ -5029,7 +5029,7 @@ NABoolean NATable::getCorrespondingIndex(NAList<NAString> &inputCols, NABoolean 
     lookForAnyIndexOrPkey = FALSE;
   }
 
-  Lng32 numBTpkeys = getClusteringIndex()->getIndexKeyColumns().entries();
+  int numBTpkeys = getClusteringIndex()->getIndexKeyColumns().entries();
 
   const NAFileSetList &indexList = getIndexList();
   for (Int32 i = 0; (NOT indexFound && (i < indexList.entries())); i++) {
@@ -5070,7 +5070,7 @@ NABoolean NATable::getCorrespondingIndex(NAList<NAString> &inputCols, NABoolean 
     if (numInputCols > 0) {
       const NAColumnArray &nacArr = naf->getIndexKeyColumns();
 
-      Lng32 numKeyCols = naf->getCountOfColumns(TRUE,           // exclude non-key cols
+      int numKeyCols = naf->getCountOfColumns(TRUE,           // exclude non-key cols
                                                 !isPrimaryKey,  // exclude cols other than user-specified index cols
                                                 FALSE,          // don't exclude all system cols like SYSKEY
                                                 excludeAlwaysComputedSystemCols);
@@ -5485,8 +5485,8 @@ void NATable::readPrivileges() {
 // the uid for a metadata table is requested, since 0 is usually stored for
 // these tables.
 //
-Int64 NATable::lookupObjectUid() {
-  Int64 objDataUID = 0;
+long NATable::lookupObjectUid() {
+  long objDataUID = 0;
   QualifiedName qualName = getExtendedQualName().getQualifiedNameObj();
   objectUID_ = lookupObjectUidByName(qualName, objectType_, FALSE, NULL, NULL, &objDataUID);
   objDataUID_ = objDataUID;
@@ -5805,7 +5805,7 @@ void NATable::setupForStatementAfterCopyCstr() {
 static void formatPartitionNameString(const NAString &tbl, const NAString &pName, NAString &fmtOut) {
   fmtOut = NAString("(TABLE ") + tbl + ", PARTITION " + pName + ")";
 }
-static void formatPartitionNumberString(const NAString &tbl, Lng32 pNumber, NAString &fmtOut) {
+static void formatPartitionNumberString(const NAString &tbl, int pNumber, NAString &fmtOut) {
   char buf[10];
   sprintf(buf, "%d", pNumber);
 
@@ -5972,7 +5972,7 @@ CollIndex NATable::getUserColumnCount() const {
   return result;
 }
 
-void NATable::getNAColumnMap(std::map<Lng32, char *> &colMap, NABoolean lowercase) {
+void NATable::getNAColumnMap(std::map<int, char *> &colMap, NABoolean lowercase) {
   for (Int32 i = 0; i < colArray_.entries(); i++) {
     NAColumn *colEntry = colArray_[i];
     NAString colName = colEntry->getColName();
@@ -6065,11 +6065,11 @@ NATable *NATableDB::get(const ExtendedQualName *key, BindWA *bindWA, NABoolean f
     // Read label to get time of last catalog operation
     short error = 0;
     // Get redef time of table
-    const Int64 tableRedefTime = cachedNATable->getRedefTime();
+    const long tableRedefTime = cachedNATable->getRedefTime();
     // Get last catalog operation time
-    Int64 labelCatalogOpTime = tableRedefTime;
-    Int64 currentSchemaRedefTS = 0;
-    Int64 cachedSchemaRedefTS = 0;
+    long labelCatalogOpTime = tableRedefTime;
+    long currentSchemaRedefTS = 0;
+    long cachedSchemaRedefTS = 0;
 
     // if time of last catalog operation and table redef times
     // don't match, then delete this cache entry since it is
@@ -6208,7 +6208,7 @@ const QualifiedName &NATable::getFullyQualifiedGuardianName() {
 
 ExtendedQualName::SpecialTableType NATable::getTableType() { return qualifiedName_.getSpecialType(); }
 
-NABoolean NATable::hasSaltedColumn(Lng32 *saltColPos) const {
+NABoolean NATable::hasSaltedColumn(int *saltColPos) const {
   for (CollIndex i = 0; i < colArray_.entries(); i++) {
     if (colArray_[i]->isSaltColumn()) {
       if (saltColPos) *saltColPos = i;
@@ -6218,7 +6218,7 @@ NABoolean NATable::hasSaltedColumn(Lng32 *saltColPos) const {
   return FALSE;
 }
 
-NABoolean NATable::hasTrafReplicaColumn(Lng32 *repColPos) const {
+NABoolean NATable::hasTrafReplicaColumn(int *repColPos) const {
   for (CollIndex i = 0; i < colArray_.entries(); i++) {
     if (colArray_[i]->isReplicaColumn()) {
       if (repColPos) *repColPos = i;
@@ -6246,13 +6246,13 @@ Int16 NATable::getNumTrafReplicas() const {
 }
 
 /*
-const NABoolean NATable::hasSaltedColumn(Lng32 * saltColPos) const
+const NABoolean NATable::hasSaltedColumn(int * saltColPos) const
 {
   return ((NATable*)this)->hasSaltedColumn(saltColPos);
 }
 */
 
-NABoolean NATable::hasDivisioningColumn(Lng32 *divColPos) {
+NABoolean NATable::hasDivisioningColumn(int *divColPos) {
   for (CollIndex i = 0; i < colArray_.entries(); i++) {
     if (colArray_[i]->isDivisioningColumn()) {
       if (divColPos) *divColPos = i;
@@ -6323,8 +6323,8 @@ Int32 NATable::computeHBaseRowSizeFromMetaData() const {
     // Get length of the column qualifier and its data.
     NAColumn *col = colArray_[colInx];
     ;
-    Lng32 colLen = col->getType()->getNominalSize();  // data length
-    Lng32 colPos = col->getPosition();                // position in table
+    int colLen = col->getType()->getNominalSize();  // data length
+    int colPos = col->getPosition();                // position in table
 
     partialRowSize += colLen;
 
@@ -6352,8 +6352,8 @@ Int32 NATable::computeHBaseRowSizeFromMetaData() const {
 // For an HBase table, we can estimate the number of rows by dividing the number
 // of KeyValues in all HFiles of the table by the number of columns (with a few
 // other considerations).
-Int64 NATable::estimateHBaseRowCount(Int32 retryLimitMilliSeconds, Int32 &errorCode, Int32 &breadCrumb) const {
-  Int64 estRowCount = 0;
+long NATable::estimateHBaseRowCount(Int32 retryLimitMilliSeconds, Int32 &errorCode, Int32 &breadCrumb) const {
+  long estRowCount = 0;
   ExpHbaseInterface *ehi = getHBaseInterface();
   errorCode = -1;
   breadCrumb = -1;
@@ -6447,7 +6447,7 @@ ExpHbaseInterface *NATable::getHBaseInterfaceRaw(ComStorageType storageType) {
   ExpHbaseInterface *ehi =
       ExpHbaseInterface::newInstance(STMTHEAP, connectParam1, connectParam2, storageType, replSync);
 
-  Lng32 retcode = ehi->init(NULL);
+  int retcode = ehi->init(NULL);
   if (retcode < 0) {
     *CmpCommon::diags() << DgSqlCode(-8448) << DgString0((char *)"ExpHbaseInterface::init()")
                         << DgString1(getHbaseErrStr(-retcode)) << DgInt0(-retcode)
@@ -6496,7 +6496,7 @@ NABoolean NATable::getRegionsNodeName(Int32 partns, ARRAY(const char *) & nodeNa
     strncpy(fqTblName.val, tblName.data(), fqTblName.len);
     fqTblName.val[fqTblName.len] = '\0';
 
-    Lng32 retcode = ehi->getRegionsNodeName(fqTblName, partns, nodeNames);
+    int retcode = ehi->getRegionsNodeName(fqTblName, partns, nodeNames);
 
     NADELETEBASIC(fqTblName.val, STMTHEAP);
 
@@ -6522,7 +6522,7 @@ NABoolean NATable::getHbaseTableInfo(Int32 &hbtIndexLevels, Int32 &hbtBlockSize)
     strncpy(fqTblName.val, tblName.data(), fqTblName.len);
     fqTblName.val[fqTblName.len] = '\0';
 
-    Lng32 retcode = ehi->getHbaseTableInfo(fqTblName, hbtIndexLevels, hbtBlockSize);
+    int retcode = ehi->getHbaseTableInfo(fqTblName, hbtIndexLevels, hbtBlockSize);
 
     NADELETEBASIC(fqTblName.val, STMTHEAP);
     delete ehi;
@@ -7077,7 +7077,7 @@ NATable *NATableDB::get(CorrName &corrName, BindWA *bindWA, TrafDesc *inTableDes
         // the shared cache lookup and get definition from metadata.
         // We use the DistributedLockObserver class which looks for an existing
         // shared lock entry. No distributed locks are obtained.
-        Int64 retryLimit = (ActiveSchemaDB()->getDefaults()).getAsLong(TRAF_CONCURRENT_DDL_WAIT_RETRIES);
+        long retryLimit = (ActiveSchemaDB()->getDefaults()).getAsLong(TRAF_CONCURRENT_DDL_WAIT_RETRIES);
         NABoolean sharedCacheLocked = TRUE;
         for (int retry = 0; (retry < retryLimit); retry++) {
           DistributedLockObserver dlock(SHARED_CACHE_DLOCK_KEY, 0);
@@ -7523,7 +7523,7 @@ NATable *NATableDB::get(CorrName &corrName, BindWA *bindWA, TrafDesc *inTableDes
   return table;
 }
 
-TrafDesc *NATableDB::getTableDescFromCacheOrText(const ExtendedQualName &extQualName, Int64 objectUid,
+TrafDesc *NATableDB::getTableDescFromCacheOrText(const ExtendedQualName &extQualName, long objectUid,
                                                  NAHeap **descHeap) {
   if (extQualName.getSpecialType() != ExtendedQualName::NORMAL_TABLE) return NULL;
 
@@ -7571,7 +7571,7 @@ TrafDesc *NATableDB::getTableDescFromCacheOrText(const ExtendedQualName &extQual
   return tableDesc;
 }
 
-void removeFromAllUsers(const QualifiedName &objName, ComQiScope qiScope, ComObjectType ot, NASet<Int64> &objectUIDs,
+void removeFromAllUsers(const QualifiedName &objName, ComQiScope qiScope, ComObjectType ot, NASet<long> &objectUIDs,
                         NABoolean ddlXns, NABoolean atCommit, NABoolean noCheck) {
   // DDL xns enabled and committing, clear out other user's cache will
   // be handled in CmpSeabaseDDL::ddlInvalidateNATables.
@@ -7583,7 +7583,7 @@ void removeFromAllUsers(const QualifiedName &objName, ComQiScope qiScope, ComObj
   // does not have an NATable cache entry. Need to get one and
   // add its objectUID to the set.
   if (0 == objectUIDs.entries()) {
-    Int64 ouid = lookupObjectUidByName(objName, ot, FALSE);
+    long ouid = lookupObjectUidByName(objName, ot, FALSE);
     if (ouid > 0) objectUIDs.insert(ouid);
   }
 
@@ -7638,7 +7638,7 @@ void removeFromAllUsers(const QualifiedName &objName, ComQiScope qiScope, ComObj
 #endif
 
       NABoolean found = FALSE;
-      for (Lng32 i = 0; ((NOT found) && (i < CmpCommon::context()->ddlObjsList().entries())); i++) {
+      for (int i = 0; ((NOT found) && (i < CmpCommon::context()->ddlObjsList().entries())); i++) {
         DDLObjInfo &ddlObjInList = CmpCommon::context()->ddlObjsList()[i];
         if (ddlObj.objName_ == ddlObjInList.objName_ && ddlObj.isDDLOp() == ddlObjInList.isDDLOp()) found = TRUE;
       }
@@ -7688,7 +7688,7 @@ void removeFromAllUsers(const QualifiedName &objName, ComQiScope qiScope, ComObj
 }
 
 void NATableDB::removeNATable(CorrName &corrName, ComQiScope qiScope, ComObjectType ot, NABoolean ddlXns,
-                              NABoolean atCommit, Int64 objUID, NABoolean noCheck) {
+                              NABoolean atCommit, long objUID, NABoolean noCheck) {
   const ExtendedQualName *toRemove = &(corrName.getExtendedQualNameObj());
   // mantis m17845
   const QualifiedName &qualName = toRemove->getQualifiedNameObj();
@@ -7699,7 +7699,7 @@ void NATableDB::removeNATable(CorrName &corrName, ComQiScope qiScope, ComObjectT
   ExtendedQualName *key = NULL;
   NATable *cachedNATable = NULL;
   NABoolean found = FALSE;
-  NASet<Int64> objectUIDs(CmpCommon::statementHeap(), 1);
+  NASet<long> objectUIDs(CmpCommon::statementHeap(), 1);
 
   // iterate over all entries and remove the ones that match the name
   // ignoring any partition clauses and other additional info

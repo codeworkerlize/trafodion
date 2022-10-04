@@ -446,7 +446,7 @@ IpcMessageObjSize ExEspReturnStatusReplyHeader::packedLength() { return sizeof(*
 // Methods for class TupMsgBuffer
 // -----------------------------------------------------------------------
 
-TupMsgBuffer::TupMsgBuffer(Lng32 bufferLen, InOut inOut, NAMemory *heap)
+TupMsgBuffer::TupMsgBuffer(int bufferLen, InOut inOut, NAMemory *heap)
     : ExEspMsgObj(inOut == MSG_IN ? ESP_INPUT_SQL_BUFFER : ESP_OUTPUT_SQL_BUFFER,
                   inOut == MSG_IN ? CurrInputSqlBufferVersion : CurrOutputSqlBufferVersion, heap),
       filler64BitPtr_(0),
@@ -462,7 +462,7 @@ TupMsgBuffer::TupMsgBuffer(Lng32 bufferLen, InOut inOut, NAMemory *heap)
 
 ///////////////////////////////////////////////////////////////////////////////
 // Constructor used to create a packed send message object.
-TupMsgBuffer::TupMsgBuffer(Lng32 bufferLen, InOut inOut, IpcBufferedMsgStream *msgStream)
+TupMsgBuffer::TupMsgBuffer(int bufferLen, InOut inOut, IpcBufferedMsgStream *msgStream)
     : ExEspMsgObj(inOut == MSG_IN ? ESP_INPUT_SQL_BUFFER : ESP_OUTPUT_SQL_BUFFER,
                   inOut == MSG_IN ? CurrInputSqlBufferVersion : CurrOutputSqlBufferVersion, NULL),
       endianness_(IpcMyEndianness),
@@ -542,7 +542,7 @@ void TupMsgBuffer::unpackObj(IpcMessageObjType objType, IpcMessageObjVersion obj
 
   IpcMessageObjSize sqlBufferSize = objSize - sizeof(IpcMessageObj);
 
-  ex_assert(allocSize_ >= (Lng32)sqlBufferSize, "TupMsgBuffer too small for unpack");
+  ex_assert(allocSize_ >= (int)sqlBufferSize, "TupMsgBuffer too small for unpack");
 
   str_cpy_all((char *)theBuffer_, buffer, sqlBufferSize);
 
@@ -670,12 +670,12 @@ ExMsgFragment::ExMsgFragment(NAMemory *heap) : ExEspMsgObj(ESP_FRAGMENT, CurrFra
 }
 
 ExMsgFragment::ExMsgFragment(const ExFragKey &key, ExFragDir::ExFragEntryType fragType, ExFragId parentId,
-                             Lng32 topNodeOffset, IpcMessageObjSize fragmentLength, char *fragment, Lng32 numTemps,
+                             int topNodeOffset, IpcMessageObjSize fragmentLength, char *fragment, int numTemps,
                              unsigned short mxvOfOriginator, unsigned short planVersion, NABoolean needsTransaction,
                              ULng32 injectErrorAtExprFreq, NAMemory *heap, NABoolean takeOwnership,
-                             NABoolean displayInGui, const char *queryId, Lng32 queryIdLen, Lng32 userID,
-                             const char *userName, Lng32 userNameLen, const char *tenantName, Lng32 tenantNameLen,
-                             const char *needToWorkVec, Lng32 needToWorkVecLen, IpcMessageObjSize compressedLength)
+                             NABoolean displayInGui, const char *queryId, int queryIdLen, int userID,
+                             const char *userName, int userNameLen, const char *tenantName, int tenantNameLen,
+                             const char *needToWorkVec, int needToWorkVecLen, IpcMessageObjSize compressedLength)
     : ExEspMsgObj(ESP_FRAGMENT, CurrFragmentVersion, heap) {
   key_ = key;
   fragment_ = fragment;
@@ -957,7 +957,7 @@ void ExMsgFragment::displayNeedToWorkVec(ostream &out) {
 // Methods for class ExMsgTransId
 // -----------------------------------------------------------------------
 
-ExMsgTransId::ExMsgTransId(NAMemory *heap, Int64 tid, Int64 sid, Int64 psid)
+ExMsgTransId::ExMsgTransId(NAMemory *heap, long tid, long sid, long psid)
     : ExEspMsgObj(ESP_TRANSID, CurrTransidVersion, heap),
       localTransId_(tid),
       originatingTransId_(tid),
@@ -1015,7 +1015,7 @@ void ExMsgTimeoutData::unpackObj(IpcMessageObjType objType, IpcMessageObjVersion
 // -----------------------------------------------------------------------
 
 // Constructor to send a message
-ExSMDownloadInfo::ExSMDownloadInfo(NAMemory *heap, Int64 smQueryID, Int32 smTraceLevel, const char *smTraceFilePrefix,
+ExSMDownloadInfo::ExSMDownloadInfo(NAMemory *heap, long smQueryID, Int32 smTraceLevel, const char *smTraceFilePrefix,
                                    Int32 flags)
     : ExEspMsgObj(ESP_SM_DOWNLOAD_INFO, CurrSMDownloadInfoVersion, heap),
       smQueryID_(smQueryID),
@@ -1048,7 +1048,7 @@ ExSMDownloadInfo::~ExSMDownloadInfo() {
 IpcMessageObjSize ExSMDownloadInfo::packedLength() {
   UInt32 len = (smTraceFilePrefix_ ? (str_len(smTraceFilePrefix_) + 1) : 0);
 
-  return baseClassPackedLength() + sizeof(Int64)  // smQueryID_
+  return baseClassPackedLength() + sizeof(long)  // smQueryID_
          + sizeof(Int32)                          // smTraceLevel_
          + sizeof(Int32)                          // flags_
          + sizeof(UInt32)                         // length of smTraceFilePrefix_
@@ -1178,5 +1178,5 @@ void ExMsgSecurityInfo::unpackObj(IpcMessageObjType objType, IpcMessageObjVersio
 // Since packed object includes sizes of each string as prefix to the string itself,
 // add 4 bytes for each char string packed.
 IpcMessageObjSize ExMsgSecurityInfo::packedLength() {
-  return baseClassPackedLength() + strlen(securityKey_) + 1 + sizeof(Lng32) + strlen(authid_) + 1 + sizeof(Lng32);
+  return baseClassPackedLength() + strlen(securityKey_) + 1 + sizeof(int) + strlen(authid_) + 1 + sizeof(int);
 }

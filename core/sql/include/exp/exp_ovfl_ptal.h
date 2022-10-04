@@ -41,12 +41,12 @@
 
 #include "common/Int64.h"
 
-Int64 EXP_FIXED_OV_ADD(Int64 op1, Int64 op2, short *ov);
-Int64 EXP_FIXED_OV_SUB(Int64 op1, Int64 op2, short *ov);
-Int64 EXP_FIXED_OV_MUL(Int64 op1, Int64 op2, short *ov);
-Int64 EXP_FIXED_OV_DIV(Int64 op1, Int64 op2, short *ov);
+long EXP_FIXED_OV_ADD(long op1, long op2, short *ov);
+long EXP_FIXED_OV_SUB(long op1, long op2, short *ov);
+long EXP_FIXED_OV_MUL(long op1, long op2, short *ov);
+long EXP_FIXED_OV_DIV(long op1, long op2, short *ov);
 
-Int64 EXP_FIXED_OV_ADD_SETMAX(Int64 op1, Int64 op2);
+long EXP_FIXED_OV_ADD_SETMAX(long op1, long op2);
 short EXP_SHORT_OV_ADD_SETMAX(short op1, short op2);
 
 #endif

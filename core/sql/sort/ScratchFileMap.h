@@ -56,7 +56,7 @@ class SQScratchFile;
 
 struct FileMap : public NABasicObject {
   short index_;
-  Lng32 firstScrBlockWritten_;  // First scr block written to this scr file
+  int firstScrBlockWritten_;  // First scr block written to this scr file
 
   SQScratchFile *scrFile_;
 };
@@ -73,12 +73,12 @@ class ScratchFileMap : public NABasicObject {
   ScratchFile *createNewScrFile(ScratchSpace *scratchSpace, Int32 scratchMgmtOption, Int32 scratchMaxOpens,
                                 NABoolean preAllocateExtents, NABoolean asynchReadQueue);
 
-  ScratchFile *mapBlockNumToScrFile(SBN blockNum, Lng32 &blockOffset);
+  ScratchFile *mapBlockNumToScrFile(SBN blockNum, int &blockOffset);
   void setFirstScrBlockNum(SBN blockNum);
   SBN getFirstScrBlockNum(ScratchFile *scr);
-  Lng32 totalNumOfReads();
-  Lng32 totalNumOfWrites();
-  Lng32 totalNumOfAwaitio();
+  int totalNumOfReads();
+  int totalNumOfWrites();
+  int totalNumOfAwaitio();
   void closeScrFilesUpto(SBN uptoBlockNum);
 
  private:

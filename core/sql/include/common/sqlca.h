@@ -27,19 +27,19 @@
 enum { SQL_NUM_ERROR_ENTRIES = 8, SQL_PARAMS_BUF_SIZE = 180 };
 
 struct sql_error_struct {
-  Lng32 errcode;
+  int errcode;
 
-  Lng32 subsystem_id;
+  int subsystem_id;
 
-  Lng32 param_offset;
+  int param_offset;
 
-  Lng32 params_count;
+  int params_count;
 };
 
 struct sqlca_struct {
-  Lng32 num_errors;
+  int num_errors;
 
-  Lng32 params_buffer_len;
+  int params_buffer_len;
 
   sql_error_struct errors[SQL_NUM_ERROR_ENTRIES];
 

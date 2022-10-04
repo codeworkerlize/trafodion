@@ -39,7 +39,7 @@ class NAHeap;
 
 #define OPT_PCC_DEBUG 1 /* Set to 1 if PCEC Logging needed, 0 otherwise */
 
-Int64 computeTimeUsed(timeval begTime);
+long computeTimeUsed(timeval begTime);
 
 class PCECacheEntry {  // Doubly-linked PCode Expr Cache Entry
  public:
@@ -53,8 +53,8 @@ class PCECacheEntry {  // Doubly-linked PCode Expr Cache Entry
   UInt64 getPCEHits() const { return hits_; }
 
 #if OPT_PCC_DEBUG == 1
-  Int64 getNEgenTime() const { return NEgenTime_; }
-  Int64 getOptTime() const { return optTime_; }
+  long getNEgenTime() const { return NEgenTime_; }
+  long getOptTime() const { return optTime_; }
   UInt64 getUniqCtr() const { return myUniqueCtr_; }
 #endif /* OPT_PCC_DEBUG==1 */
 
@@ -76,7 +76,7 @@ class PCECacheEntry {  // Doubly-linked PCode Expr Cache Entry
   void setPrevInMRUOrder(PCECacheEntry *prevp) { pprevMRU_ = prevp; }
   void setNextInMRUOrder(PCECacheEntry *nextp) { pnextMRU_ = nextp; }
 
-  void addToOptTime(Int64 totAddTime) { optTime_ += totAddTime; }
+  void addToOptTime(long totAddTime) { optTime_ += totAddTime; }
   UInt64 incrPCEHits() { return ++hits_; }
 
   NABoolean matches(PCodeBinary *unOptPCodePtr, char *unOptConstantsArea, UInt32 unOptPCodeLen, UInt32 unOptConstsLen,
@@ -146,8 +146,8 @@ class PCECacheEntry {  // Doubly-linked PCode Expr Cache Entry
   UInt32 tempsLenO_;     // Length of TempsArea needed
 #if OPT_PCC_DEBUG == 1
   UInt64 myUniqueCtr_;
-  Int64 optTime_;  // Will incl time to Add to the cache
-  Int64 NEgenTime_;
+  long optTime_;  // Will incl time to Add to the cache
+  long NEgenTime_;
 #endif /* OPT_PCC_DEBUG==1 */
 };
 
@@ -193,8 +193,8 @@ class OptPCodeCache : public NABasicObject {  // Anchor for PCode Expr Cache
 
 #if OPT_PCC_DEBUG == 1
   UInt64 genNewUniqCtrVal() { return ++uniqueCtr_; }
-  void addToTotalSavedTime(Int64 totSavedTime) { totalSavedTime_ += totSavedTime; }
-  void addToTotalSearchTime(Int64 totSearchTime) { totalSearchTime_ += totSearchTime; }
+  void addToTotalSavedTime(long totSavedTime) { totalSavedTime_ += totSavedTime; }
+  void addToTotalSearchTime(long totSearchTime) { totalSearchTime_ += totSearchTime; }
 
   const OptPCodeCache *getThisPtr() const { return this; }  // Strictly for debug
   char *getPCDlogDirPath() const { return logDirPath_; };
@@ -295,10 +295,10 @@ class OptPCodeCache : public NABasicObject {  // Anchor for PCode Expr Cache
   Int32 PCECLoggingEnabled_;
   Int32 PCECHeaderWritten_;
 #if OPT_PCC_DEBUG == 1
-  Int64 totalSavedTime_;
-  Int64 totalSearchTime_;
-  Int64 totalOptTime_;
-  Int64 totalNEgenTime_;
+  long totalSavedTime_;
+  long totalSearchTime_;
+  long totalOptTime_;
+  long totalNEgenTime_;
   UInt64 uniqueCtr_;
   UInt64 fileNameTime_;
   UInt32 fileNamePid_;

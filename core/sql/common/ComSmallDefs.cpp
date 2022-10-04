@@ -61,7 +61,7 @@
 #endif
 
 // This function now for non-NSKLite platforms only (UNIX)
-Int64 ComSmallDef_local_GetTimeStamp(void) { return (JULIANTIMESTAMP()); }
+long ComSmallDef_local_GetTimeStamp(void) { return (JULIANTIMESTAMP()); }
 
 //**********************************************************************************
 //
@@ -86,10 +86,10 @@ void ComUID::make_UID(void) {
 }
 
 // This method was adapted from the definition of function
-// void convertInt64ToAscii(const Int64 &src, char* tgt)
-// defined in w:/common/Int64.cpp
+// void convertInt64ToAscii(const long &src, char* tgt)
+// defined in w:/common/long.cpp
 void ComUID::convertTo19BytesFixedWidthStringWithZeroesPrefix(ComString &tgt) const {
-  Int64 temp = get_value();
+  long temp = get_value();
   char buffer[20];
   char *s = &buffer[occurs(buffer) - 1];
   memset(buffer, '0', occurs(buffer) - 1);
@@ -105,7 +105,7 @@ void ComUID::convertTo19BytesFixedWidthStringWithZeroesPrefix(ComString &tgt) co
 // friend
 ostream &operator<<(ostream &s, const ComUID &uid) {
   char buf[21];
-  Int64 num;
+  long num;
   Int32 i;
   Int32 digit;
 

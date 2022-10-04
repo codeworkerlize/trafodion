@@ -59,7 +59,7 @@ IndexDesc::IndexDesc(TableDesc *tdesc, NAFileSet *fileSet, CmpContext *cmpContex
       scanBasicCosts_(NULL) {
   DCMPASSERT(tdesc != NULL AND fileSet != NULL);
 
-  Lng32 ixColNumber;
+  int ixColNumber;
   ValueId keyValueId;
   ValueId baseValueId;
 
@@ -268,9 +268,9 @@ const NAString &IndexDesc::getExtIndexName() const {
   return fileSet_->getExtFileSetName();
 }  // IndexDesc::getExtIndexName()
 
-Lng32 IndexDesc::getRecordLength() const { return fileSet_->getRecordLength(); }  // IndexDesc::getRecordLength()
+int IndexDesc::getRecordLength() const { return fileSet_->getRecordLength(); }  // IndexDesc::getRecordLength()
 
-Lng32 IndexDesc::getKeyLength() const { return fileSet_->getKeyLength(); }  // IndexDesc::getKeyLength()
+int IndexDesc::getKeyLength() const { return fileSet_->getKeyLength(); }  // IndexDesc::getKeyLength()
 
 const NAColumnArray &IndexDesc::getAllColumns() const {
   return fileSet_->getAllColumns();
@@ -424,7 +424,7 @@ CostScalar IndexDesc::getEstimatedIndexBlocksLowerBound(const CostScalar &probes
   // T(2) = 5
   // T(n) = T(n-1)*40, n > 2
   // -----------------------------------------------------------------------
-  Lng32 levels = getIndexLevels();
+  int levels = getIndexLevels();
   CostScalar indexBlocksLowerBound = csZero;
   if (levels == 0.0 OR levels == 1.0) {
     // Index blocks touch by all probes for level zero and one

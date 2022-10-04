@@ -51,7 +51,7 @@ FILE *UdrTraceFile = stdout;
 
 #define TF_STRING(x) ((x) ? ("TRUE") : ("FALSE"))
 
-void displaySqlBuffer(SqlBuffer *sbuf, Lng32 sbuflen, ostream &os) {
+void displaySqlBuffer(SqlBuffer *sbuf, int sbuflen, ostream &os) {
   os << "Display an SQL Buffer:" << endl;
   os << "  Buffer Size          : " << sbuf->get_buffer_size() << endl;
   os << "  Used Size            : " << sbuf->get_used_size() << endl;
@@ -77,7 +77,7 @@ void displaySqlBuffer(SqlBuffer *sbuf, Lng32 sbuflen, ostream &os) {
   os << "  Full?                : " << TF_STRING(sbuf->isEmpty()) << endl;
   os << "  Free?                : " << TF_STRING(sbuf->isFree()) << endl;
 
-  Lng32 numtuppdescs = sbuf->getTotalTuppDescs();
+  int numtuppdescs = sbuf->getTotalTuppDescs();
   os << "  Total Tupp Descs     : " << numtuppdescs << endl;
   os << "  Processed Tupp Descs : " << sbuf->getProcessedTuppDescs() << endl;
 
@@ -91,7 +91,7 @@ void displaySqlBuffer(SqlBuffer *sbuf, Lng32 sbuflen, ostream &os) {
   char *ctupp;
   ControlInfo *ci;
 
-  for (Lng32 i = 1; i <= numtuppdescs; i++) {
+  for (int i = 1; i <= numtuppdescs; i++) {
     td = sbuf->getTuppDescriptor(i);
     if (td == NULL) {
       break;
@@ -257,7 +257,7 @@ void displayStatement(SQLSTMT_ID s) {
   cout << "    Identifier Length    :" << s.identifier_len << endl;
 }  // displayStatement
 
-void dumpLmParameter(LmParameter &p, Lng32 i, const char *prefix) {
+void dumpLmParameter(LmParameter &p, int i, const char *prefix) {
   if (prefix == NULL) prefix = "";
 
   ServerDebug("%s [%ld] Name [%s]", prefix, i, p.getParamName() ? p.getParamName() : "");
@@ -385,8 +385,8 @@ void dumpComCondition(ComCondition *cc, char *ind) {
   // ServerDebug("%s  Message Length      : %ld", ind,
   //            (long) cc->getMessageLength());
 
-  ServerDebug("%s  Condition Nbr       : %ld", ind, (Lng32)cc->getConditionNumber());
-  ServerDebug("%s  SQL Code            : %ld", ind, (Lng32)cc->getSQLCODE());
+  ServerDebug("%s  Condition Nbr       : %ld", ind, (int)cc->getConditionNumber());
+  ServerDebug("%s  SQL Code            : %ld", ind, (int)cc->getSQLCODE());
   ServerDebug("%s  Server Name         : %s", ind, cc->getServerName());
   ServerDebug("%s  Connection Name     : %s", ind, cc->getConnectionName());
   ServerDebug("%s  Constraint Name     : %s", ind, cc->getConstraintName());
@@ -397,26 +397,26 @@ void dumpComCondition(ComCondition *cc, char *ind) {
   ServerDebug("%s  Table Name          : %s", ind, cc->getTableName());
   ServerDebug("%s  Column Name         : %s", ind, cc->getColumnName());
   ServerDebug("%s  Cursor Name         : ", ind, cc->getSqlID());
-  ServerDebug("%s  Row Number          : %ld", ind, (Lng32)cc->getRowNumber());
+  ServerDebug("%s  Row Number          : %ld", ind, (int)cc->getRowNumber());
 
   for (Int32 jj = 0; jj < ComCondition::NumOptionalParms; jj++) {
     if (cc->getOptionalString(jj) != NULL) {
-      ServerDebug("%s  OptionalString(%ld) : %s", ind, (Lng32)jj, cc->getOptionalString(jj));
+      ServerDebug("%s  OptionalString(%ld) : %s", ind, (int)jj, cc->getOptionalString(jj));
     }
 
     if (cc->getOptionalInteger(jj) != ComDiags_UnInitialized_Int) {
-      ServerDebug("%s  OptionalInteger(%ld): %ld", ind, (Lng32)jj, (Lng32)cc->getOptionalInteger(jj));
+      ServerDebug("%s  OptionalInteger(%ld): %ld", ind, (int)jj, (int)cc->getOptionalInteger(jj));
     }
   }
 
 }  // dumpComCondition...
 
-void dumpDiagnostics(ComDiagsArea *diags, Lng32 indent) {
+void dumpDiagnostics(ComDiagsArea *diags, int indent) {
   ComCondition *cc;
-  Lng32 ii;
-  Lng32 nbrW, nbrE, nbrA;
+  int ii;
+  int nbrW, nbrE, nbrA;
 
-  Lng32 indmax;
+  int indmax;
   if (indent > 99) {
     indmax = 99;
   } else {
@@ -424,7 +424,7 @@ void dumpDiagnostics(ComDiagsArea *diags, Lng32 indent) {
   }
 
   char ind[100];
-  Lng32 indIdx = 0;
+  int indIdx = 0;
   for (indIdx = 0; indIdx < indmax; indIdx++) ind[indIdx] = ' ';
   ind[indIdx] = '\0';
 
@@ -435,27 +435,27 @@ void dumpDiagnostics(ComDiagsArea *diags, Lng32 indent) {
   ServerDebug(" ");
   ServerDebug("%sContents of Diagnostics Area:", ind);
   ServerDebug("%s-----------------------------", ind);
-  ServerDebug("%sMain Error              : %ld", ind, (Lng32)diags->mainSQLCODE());
-  ServerDebug("%sNumber                  : %ld", ind, (Lng32)diags->getNumber());
+  ServerDebug("%sMain Error              : %ld", ind, (int)diags->mainSQLCODE());
+  ServerDebug("%sNumber                  : %ld", ind, (int)diags->getNumber());
   ServerDebug("%sAre More?               : %s", ind, (diags->areMore() ? "TRUE" : "FALSE"));
-  ServerDebug("%sRow Count               : %ld", ind, (Lng32)diags->getRowCount());
+  ServerDebug("%sRow Count               : %ld", ind, (int)diags->getRowCount());
   ServerDebug("%sCost                    : %le", ind, (double)diags->getCost());
-  ServerDebug("%sAvg Stream Wait Time    : %ld", ind, (Lng32)diags->getAvgStreamWaitTime());
-  ServerDebug("%sLength Limit            : %ld", ind, (Lng32)diags->getLengthLimit());
-  ServerDebug("%sSQL Function            : %ld", ind, (Lng32)diags->getFunction());
+  ServerDebug("%sAvg Stream Wait Time    : %ld", ind, (int)diags->getAvgStreamWaitTime());
+  ServerDebug("%sLength Limit            : %ld", ind, (int)diags->getLengthLimit());
+  ServerDebug("%sSQL Function            : %ld", ind, (int)diags->getFunction());
   ServerDebug("%sSQL Function Name       : %s", ind, diags->getFunctionName());
-  ServerDebug("%sNbr Warnings            : %ld", ind, (Lng32)nbrW);
-  ServerDebug("%sNbr Errors              : %ld", ind, (Lng32)nbrE);
+  ServerDebug("%sNbr Warnings            : %ld", ind, (int)nbrW);
+  ServerDebug("%sNbr Errors              : %ld", ind, (int)nbrE);
 
   for (ii = 1; ii <= nbrW; ii++) {
     cc = diags->getWarningEntry(ii);
-    ServerDebug("%sWarning(%ld)          :", ind, (Lng32)ii);
+    ServerDebug("%sWarning(%ld)          :", ind, (int)ii);
     dumpComCondition(cc, ind);
   }
 
   for (ii = 1; ii <= nbrE; ii++) {
     cc = diags->getErrorEntry(ii);
-    ServerDebug("%sError(%ld)            :", ind, (Lng32)ii);
+    ServerDebug("%sError(%ld)            :", ind, (int)ii);
     dumpComCondition(cc, ind);
   }
 
@@ -464,7 +464,7 @@ void dumpDiagnostics(ComDiagsArea *diags, Lng32 indent) {
 
   // errors and warnings in order added
   for (ii = 1; ii <= nbrA; ii++) {
-    ServerDebug("%sErrors/Warnings(%ld)  :", ind, (Lng32)ii);
+    ServerDebug("%sErrors/Warnings(%ld)  :", ind, (int)ii);
     dumpComCondition(cc, ind);
   }
 
@@ -510,13 +510,13 @@ void doMessageBox(UdrGlobals *UdrGlob, Int32 trLevel, NABoolean moduleType, cons
 
 #ifdef _DEBUG
 void sleepIfPropertySet(LmLanguageManager &lm, const char *property, ComDiagsArea *d) {
-  Lng32 delay = 0;
+  int delay = 0;
   if (getLmProperty(lm, property, delay, d) && delay > 0) {
     Sleep(delay * 1000);
   }
 }
 
-NABoolean getLmProperty(LmLanguageManager &lm, const char *property, Lng32 &result, ComDiagsArea *diags) {
+NABoolean getLmProperty(LmLanguageManager &lm, const char *property, int &result, ComDiagsArea *diags) {
   NABoolean ok = FALSE;
   char buf[100];
   NABoolean isSet = FALSE;

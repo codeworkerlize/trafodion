@@ -1,43 +1,3 @@
-/**********************************************************************
-// @@@ START COPYRIGHT @@@
-//
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-// @@@ END COPYRIGHT @@@
-//
-**********************************************************************/
-/* -*-C++-*-
- *****************************************************************************
- *
- * File:         Formatter.C
- * RCS:          $Id: Formatter.cpp,v 1.18 1998/08/10 15:33:54  Exp $
- * Description:
- *
- * Created:      4/15/95
- * Modified:     $ $Date: 1998/08/10 15:33:54 $ (GMT)
- * Language:     C++
- * Status:       $State: Exp $
- *
- *
- *
- *
- *****************************************************************************
- */
 
 #include "common/NAWinNT.h"
 
@@ -52,35 +12,35 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "Debug.h"
+#include "common/Debug.h"
 #include "common/dfs2rec.h"
-#include "exp_bignum.h"
+#include "exp/exp_bignum.h"
 #include "exp/exp_clause.h"
 #include "exp/exp_clause_derived.h"
-#include "exp_interval.h"
+#include "exp/exp_interval.h"
 #include "exp/exp_datetime.h"
 #include "common/DatetimeType.h"
-#include "Formatter.h"
+#include "sqlci/Formatter.h"
 #include "common/Int64.h"
 #include "common/IntervalType.h"
 #include "cli/SQLCLIdev.h"
 #include "common/str.h"
 
-#include "SqlciCmd.h"
+#include "sqlci/SqlciCmd.h"
 #include "common/NLSConversion.h"
 
-short convDoItMxcs(char *source, Lng32 sourceLen, short sourceType, Lng32 sourcePrecision, Lng32 sourceScale,
-                   char *target, Lng32 targetLen, short targetType, Lng32 targetPrecision, Lng32 targetScale,
-                   Lng32 flags);
+short convDoItMxcs(char *source, int sourceLen, short sourceType, int sourcePrecision, int sourceScale,
+                   char *target, int targetLen, short targetType, int targetPrecision, int targetScale,
+                   int flags);
 
-short convDoItMxcs(char *source, Lng32 sourceLen, short sourceType, Lng32 sourcePrecision, Lng32 sourceScale,
-                   char *target, Lng32 targetLen, short targetType, Lng32 targetPrecision, Lng32 targetScale,
-                   Lng32 flags);
+short convDoItMxcs(char *source, int sourceLen, short sourceType, int sourcePrecision, int sourceScale,
+                   char *target, int targetLen, short targetType, int targetPrecision, int targetScale,
+                   int flags);
 
-Lng32 Formatter::display_length(Lng32 datatype, Lng32 length, Lng32 precision, Lng32 scale, Lng32 charsetEnum,
-                                Lng32 heading_len, SqlciEnv *sqlci_env, Lng32 *output_buflen) {
-  Lng32 d_len;
-  Lng32 d_buflen;
+int Formatter::display_length(int datatype, int length, int precision, int scale, int charsetEnum,
+                                int heading_len, SqlciEnv *sqlci_env, int *output_buflen) {
+  int d_len;
+  int d_buflen;
 
   Int32 scale_len = 0;
   if (scale > 0) scale_len = 1;
@@ -220,9 +180,9 @@ Lng32 Formatter::display_length(Lng32 datatype, Lng32 length, Lng32 precision, L
   return d_len;
 }
 
-Int32 Formatter::buffer_it(SqlciEnv *sqlci_env, char *data, Int32 datatype, Lng32 length, Lng32 precision, Lng32 scale,
+Int32 Formatter::buffer_it(SqlciEnv *sqlci_env, char *data, Int32 datatype, int length, int precision, int scale,
                            char *ind_data, Int32 display_length, Int32 display_buf_length, Int32 null_flag,
-                           Int32 vcIndLen, char *buf, Lng32 *curpos, NABoolean separatorNeeded,
+                           Int32 vcIndLen, char *buf, int *curpos, NABoolean separatorNeeded,
                            NABoolean checkShowNonPrinting) {
   CharInfo::CharSet tcs = sqlci_env->getTerminalCharset();
   Int32 tcsDataType = CharInfo::getFSTypeFixedChar(tcs);
@@ -248,15 +208,15 @@ Int32 Formatter::buffer_it(SqlciEnv *sqlci_env, char *data, Int32 datatype, Lng3
         (datatype == REC_VARBINARY_STRING) || (datatype == REC_BLOB) || (datatype == REC_CLOB)) {
       varchar = TRUE;
 
-      if (vcIndLen == sizeof(Lng32)) {
+      if (vcIndLen == sizeof(int)) {
         Int32 VCLen;
         str_cpy_all((char *)&VCLen, data, sizeof(Int32));
-        length = (Lng32)VCLen;
+        length = (int)VCLen;
         data = &data[sizeof(Int32)];
       } else {
         short VCLen;
         str_cpy_all((char *)&VCLen, data, sizeof(short));
-        length = (Lng32)VCLen;
+        length = (int)VCLen;
         data = &data[sizeof(short)];
       }
 
@@ -407,7 +367,7 @@ Int32 Formatter::buffer_it(SqlciEnv *sqlci_env, char *data, Int32 datatype, Lng3
 
       case REC_BINARY_STRING:
       case REC_VARBINARY_STRING: {
-        Lng32 retLen = 0;
+        int retLen = 0;
         if (length > 0) {
           retLen = str_convertToHexAscii(data, length, buf, display_length, FALSE);
           if (retLen < 0) {

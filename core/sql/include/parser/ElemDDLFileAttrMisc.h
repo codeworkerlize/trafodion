@@ -143,7 +143,7 @@ class ElemDDLFileAttrIncrBackup : public ElemDDLFileAttr {
 
 class LobStorageOption : public NABasicObject {
  public:
-  LobStorageOption(const char *key, const Int64 val) {
+  LobStorageOption(const char *key, const long val) {
     key_ = key;
     val_ = val;
   }
@@ -154,12 +154,12 @@ class LobStorageOption : public NABasicObject {
   }
 
   NAString &key() { return key_; }
-  Int64 &val() { return val_; }
-  void setVal(Int64 val) { val_ = val; }
+  long &val() { return val_; }
+  void setVal(long val) { val_ = val; }
 
  private:
   NAString key_;
-  Int64 val_;
+  long val_;
 };
 
 class ElemDDLLobStorageOptions : public ElemDDLNode {
@@ -180,20 +180,20 @@ class ElemDDLLobStorageOptions : public ElemDDLNode {
   virtual const NAString displayLabel1() const;
   virtual const NAString getText() const;
 
-  const Int64 inlineDataMaxBytes() { return inlineDataMaxBytes_; };
-  const Int64 inlineDataMaxChars() { return inlineDataMaxChars_; };
-  const Int64 hbaseDataMaxLen() { return hbaseDataMaxLen_; };
-  const Int64 chunksColMaxLen() { return chunksColMaxLen_; };
-  const Int64 numChunksPartitions() { return numChunksPartitions_; };
+  const long inlineDataMaxBytes() { return inlineDataMaxBytes_; };
+  const long inlineDataMaxChars() { return inlineDataMaxChars_; };
+  const long hbaseDataMaxLen() { return hbaseDataMaxLen_; };
+  const long chunksColMaxLen() { return chunksColMaxLen_; };
+  const long numChunksPartitions() { return numChunksPartitions_; };
 
  private:
   NAList<LobStorageOption *> lobStorageOptions_;
 
-  Int64 inlineDataMaxBytes_;
-  Int64 inlineDataMaxChars_;
-  Int64 hbaseDataMaxLen_;
-  Int64 chunksColMaxLen_;
-  Int64 numChunksPartitions_;
+  long inlineDataMaxBytes_;
+  long inlineDataMaxChars_;
+  long hbaseDataMaxLen_;
+  long chunksColMaxLen_;
+  long numChunksPartitions_;
 
   NABoolean isError_;
 };  // class ElemDDLLobStorageOptions

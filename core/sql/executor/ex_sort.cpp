@@ -137,7 +137,7 @@ void ExSortTcb::setupPoolBuffers(ex_queue_entry *pentry_down) {
   // maximum of GEN_SORT_MAX_BUFFER_SIZE. The memory quota system will
   // come into force for additional buffers following this initial buffer.
   initialNumOfPoolBuffers_ = sortTdb().numBuffers_;
-  Lng32 numSortBuffs = 0;
+  int numSortBuffs = 0;
 
   // need separate pools for sorting and saving result rows
   if (sortTdb().partialSort()) {
@@ -380,8 +380,8 @@ ExSortTcb::ExSortTcb(const ExSortTdb &sort_tdb,
     sortCfg_->setScratchDiskLogging(sfo->getScratchDiskLogging());
   }
   // In the case of ESPs set up number of ESPs and ESP instance information
-  Lng32 espInstance = 0;
-  Lng32 numEsps = 0;
+  int espInstance = 0;
+  int numEsps = 0;
   glob->castToExExeStmtGlobals()->getMyNodeLocalInstanceNumber(espInstance, numEsps);
   sortCfg_->setCallingTcb(this);
 
@@ -486,8 +486,8 @@ void ExSortTcb::registerSubtasks() {
 // Redefine virtual method allocatePstates, to be used by dynamic queue
 // resizing, as well as the initial queue construction.
 ////////////////////////////////////////////////////////////////////////
-ex_tcb_private_state *ExSortTcb::allocatePstates(Lng32 &numElems,      // inout, desired/actual elements
-                                                 Lng32 &pstateLength)  // out, length of one element
+ex_tcb_private_state *ExSortTcb::allocatePstates(int &numElems,      // inout, desired/actual elements
+                                                 int &pstateLength)  // out, length of one element
 {
   PstateAllocator<ExSortPrivateState> pa;
 
@@ -537,7 +537,7 @@ void ExSortTcb::createSortDiags() {
 ////////////////////////////////////////////////////////////////////////
 
 // LCOV_EXCL_START
-void ExSortTcb::createSortNRetryDiags(ULng32 firstNCount, Lng32 sortCount) {
+void ExSortTcb::createSortNRetryDiags(ULng32 firstNCount, int sortCount) {
   ExExeStmtGlobals *exe_glob = getGlobals()->castToExExeStmtGlobals();
   CollHeap *heap = getGlobals()->getDefaultHeap();
   ComDiagsArea *da = exe_glob->getDiagsArea();
@@ -639,7 +639,7 @@ short ExSortTcb::workDown() {
 }
 
 short ExSortTcb::workUp() {
-  Lng32 rc = 0;
+  int rc = 0;
   short workRC = 0;
   ULng32 topNCount = 0;
 
@@ -827,9 +827,9 @@ short ExSortTcb::workUp() {
 //              if -1, error.
 ///////////////////////////////////////////////////////////////////////
 short ExSortTcb::sortSend(ex_queue_entry *srcEntry, ex_queue::up_status srcStatus, ex_queue_entry *pentry_down,
-                          ex_queue_entry *upEntry, NABoolean sortFromTop, SortStep &step, Int64 &matchCount,
+                          ex_queue_entry *upEntry, NABoolean sortFromTop, SortStep &step, long &matchCount,
                           tupp_descriptor *&allocatedTuppDesc, NABoolean &noOverflow, short &workRC) {
-  Lng32 rc = 0;
+  int rc = 0;
 
   ComDiagsArea *cda = NULL;
 
@@ -1209,9 +1209,9 @@ short ExSortTcb::sortSend(ex_queue_entry *srcEntry, ex_queue::up_status srcStatu
 //              if -1, error.
 ///////////////////////////////////////////////////////////////////////
 short ExSortTcb::sortReceive(ex_queue_entry *pentry_down, ex_queue::down_request request, ex_queue_entry *tgtEntry,
-                             NABoolean sortFromTop, queue_index parentIndex, SortStep &step, Int64 &matchCount,
+                             NABoolean sortFromTop, queue_index parentIndex, SortStep &step, long &matchCount,
                              tupp_descriptor *&allocatedTuppDesc, NABoolean &noOverflow, short &workRC) {
-  Lng32 rc = 0;
+  int rc = 0;
   SqlBuffer *buf = NULL;
 
   // if recs were written out to disk, then
@@ -1383,7 +1383,7 @@ short ExSortTcb::sortReceive(ex_queue_entry *pentry_down, ex_queue::down_request
 
         // stop if first N sorted rows have been returned.
         if ((request == ex_queue::GET_NOMORE) ||
-            ((request == ex_queue::GET_N) && ((Lng32)matchCount >= pentry_down->downState.requestValue))) {
+            ((request == ex_queue::GET_N) && ((int)matchCount >= pentry_down->downState.requestValue))) {
           // If sort partially complete, lets cancel rest of
           // of the child row reads.
           if (sortPartiallyComplete_) {
@@ -1433,7 +1433,7 @@ short ExSortTcb::sortReceive(ex_queue_entry *pentry_down, ex_queue::down_request
 
           if (bmoStats_ == NULL && getStatsEntry()->castToExMeasStats()) {
             getStatsEntry()->castToExMeasStats()->incNumSorts(1);
-            Int64 elapsedTime;
+            long elapsedTime;
             elapsedTime = s.getStatElapsedTime();
 
             getStatsEntry()->castToExMeasStats()->incSortElapsedTime(elapsedTime);
@@ -1446,7 +1446,7 @@ short ExSortTcb::sortReceive(ex_queue_entry *pentry_down, ex_queue::down_request
   return 0;
 }
 
-short ExSortTcb::done(NABoolean sendQND, queue_index parentIndex, SortStep &step, Int64 &matchCount) {
+short ExSortTcb::done(NABoolean sendQND, queue_index parentIndex, SortStep &step, long &matchCount) {
   ex_queue_entry *pentry = qparent_.up->getTailEntry();
 
   // all sorted rows have been returned.
@@ -1600,7 +1600,7 @@ void ExSortFromTopTcb::registerSubtasks() {
 }
 
 short ExSortFromTopTcb::work() {
-  Lng32 rc = 0;
+  int rc = 0;
   short workRC = 0;
 
   if (qparent_.down->isEmpty()) {
@@ -1937,8 +1937,8 @@ short ExSortFromTopTcb::work() {
 // Redefine virtual method allocatePstates, to be used by dynamic queue
 // resizing, as well as the initial queue construction.
 ////////////////////////////////////////////////////////////////////////
-ex_tcb_private_state *ExSortFromTopTcb::allocatePstates(Lng32 &numElems,      // inout, desired/actual elements
-                                                        Lng32 &pstateLength)  // out, length of one element
+ex_tcb_private_state *ExSortFromTopTcb::allocatePstates(int &numElems,      // inout, desired/actual elements
+                                                        int &pstateLength)  // out, length of one element
 {
   PstateAllocator<ExSortFromTopPrivateState> pa;
 

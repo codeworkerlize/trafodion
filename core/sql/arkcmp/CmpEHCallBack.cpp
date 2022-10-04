@@ -40,7 +40,7 @@
 #include <signal.h>
 #include "CmpEHCallBack.h"
 #include "common/CmpCommon.h"
-#include "NAError.h"
+#include "sqlci/SqlciParseGlobals.h"
 #include "arkcmp/CmpStatement.h"
 
 //-------------------------------------------------------------------------

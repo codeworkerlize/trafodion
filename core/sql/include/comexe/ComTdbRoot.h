@@ -18,15 +18,15 @@ class LateNameInfoList;
 class TrafQuerySimilarityInfo;
 class Queue;
 
-typedef NABasicPtrTempl<Int64> Int64Ptr;  // Needed for triggersList_
+typedef NABasicPtrTempl<long> Int64Ptr;  // Needed for triggersList_
 
 class QCacheInfo {
  public:
-  QCacheInfo(Int64 planId, NABasicPtr parameterBuffer)
+  QCacheInfo(long planId, NABasicPtr parameterBuffer)
       : planId_(-1), parameterBuffer_(NULL), tablenameParameterBuffer_(NULL), flags_(0), filler_(0) {}
 
-  Int64 getPlanId() { return planId_; }
-  void setPlanId(Int64 planId) { planId_ = planId; }
+  long getPlanId() { return planId_; }
+  void setPlanId(long planId) { planId_ = planId; }
 
   NABasicPtr getParameterBuffer() { return parameterBuffer_; }
   void setParameterBuffer(NABasicPtr parameterBuffer) { parameterBuffer_ = parameterBuffer; }
@@ -36,7 +36,7 @@ class QCacheInfo {
     tablenameParameterBuffer_ = tablenameParameterBuffer;
   }
 
-  Lng32 unpack(void *base) {
+  int unpack(void *base) {
     if (parameterBuffer_.unpack(base)) return -1;
 
     if (tablenameParameterBuffer_.unpack(base)) return -1;
@@ -58,7 +58,7 @@ class QCacheInfo {
 
   UInt32 flags_;
   UInt32 filler_;
-  Int64 planId_;
+  long planId_;
   NABasicPtr parameterBuffer_;
   NABasicPtr tablenameParameterBuffer_;
 };
@@ -81,14 +81,14 @@ class RWRSInfo {
         rwrsDcomBufLen_(0),
         flags_(0) {}
 
-  Lng32 rwrsMaxSize() { return rwrsMaxSize_; }
-  Lng32 rwrsInputSizeIndex() { return rwrsInputSizeIndex_; }
-  Lng32 rwrsMaxInputRowlenIndex() { return rwrsMaxInputRowlenIndex_; }
-  Lng32 rwrsBufferAddrIndex() { return rwrsBufferAddrIndex_; }
-  Lng32 rwrsPartnNumIndex() { return rwrsPartnNumIndex_; }
-  Lng32 rwrsMaxInternalRowlen() { return rwrsMaxInternalRowlen_; }
-  void setRwrsInfo(Lng32 maxSize, short inputSizeIndex, short maxInputRowlenIndex, short bufferAddrIndex,
-                   short partnNumIndex, Lng32 maxInternalRowlen) {
+  int rwrsMaxSize() { return rwrsMaxSize_; }
+  int rwrsInputSizeIndex() { return rwrsInputSizeIndex_; }
+  int rwrsMaxInputRowlenIndex() { return rwrsMaxInputRowlenIndex_; }
+  int rwrsBufferAddrIndex() { return rwrsBufferAddrIndex_; }
+  int rwrsPartnNumIndex() { return rwrsPartnNumIndex_; }
+  int rwrsMaxInternalRowlen() { return rwrsMaxInternalRowlen_; }
+  void setRwrsInfo(int maxSize, short inputSizeIndex, short maxInputRowlenIndex, short bufferAddrIndex,
+                   short partnNumIndex, int maxInternalRowlen) {
     rwrsMaxSize_ = maxSize;
     rwrsInputSizeIndex_ = inputSizeIndex;
     rwrsMaxInputRowlenIndex_ = maxInputRowlenIndex;
@@ -103,8 +103,8 @@ class RWRSInfo {
   void setRWRSDcompressedBufferAddr(char *dBuf) { rwrsDcompressedBufferAddr_ = dBuf; }
   char *getRWRSDcompressedBufferAddr() { return rwrsDcompressedBufferAddr_; }
 
-  void setRWRSDcompressedBufferLen(Lng32 len) { rwrsDcomBufLen_ = len; }
-  Lng32 getRWRSDcompressedBufferLen() { return rwrsDcomBufLen_; }
+  void setRWRSDcompressedBufferLen(int len) { rwrsDcomBufLen_ = len; }
+  int getRWRSDcompressedBufferLen() { return rwrsDcomBufLen_; }
 
   void setUseUserRWRSBuffer(short v) { (v ? flags_ |= USE_USER_RWRS_BUFFER : flags_ &= ~USE_USER_RWRS_BUFFER); };
   NABoolean useUserRWRSBuffer() { return (flags_ & USE_USER_RWRS_BUFFER) != 0; };
@@ -133,7 +133,7 @@ class RWRSInfo {
   };
 
   // max number of rows in rowwise rowset.
-  Lng32 rwrsMaxSize_;
+  int rwrsMaxSize_;
 
   // index into the user params to find the value of the number of
   // actual rows in the rowwise rowset buffer.
@@ -153,13 +153,13 @@ class RWRSInfo {
 
   UInt16 flags_;
 
-  Lng32 rwrsMaxInternalRowlen_;
+  int rwrsMaxInternalRowlen_;
 
   char *rwrsInternalBufferAddr_;
 
   // valid if RWRS_IS_COMPRESSED and DCOMPRESS_IN_MASTER are TRUE.
   char *rwrsDcompressedBufferAddr_;
-  Lng32 rwrsDcomBufLen_;
+  int rwrsDcomBufLen_;
 
   char fillerRwrs_[32];
 };
@@ -191,7 +191,7 @@ class SecurityInvKeyInfo : public NAVersionedObject {
   virtual short getClassSize() { return (short)sizeof(SecurityInvKeyInfo); }
 
   Long pack(void *);
-  Lng32 unpack(void *base, void *reallocator);
+  int unpack(void *base, void *reallocator);
 
  private:
   Int32 numSiks_;                // 00 - 03
@@ -353,7 +353,7 @@ class ComTdbRoot : public ComTdb {
   // Executor stops processing (cancel) after
   // returning these many rows. If set to -1,
   // then all rows are to be returned.
-  Int64 firstNRows_;  // 88-95
+  long firstNRows_;  // 88-95
 
   // Compile time estimate of the 'cost' of this query (the
   // elapsed time).
@@ -434,7 +434,7 @@ class ComTdbRoot : public ComTdb {
   // The plan id is used by the EXPLAIN stored procedure. To allow a
   // join with the STATISTICS stored procedure we supply it to the
   // root tdb.
-  Int64 explainPlanId_;  // 192-199
+  long explainPlanId_;  // 192-199
 
   // A list of referenced UDRs and the number of referenced UDRs
   SqlTableOpenInfoPtrPtr udrStoiList_;  // 200-207
@@ -475,7 +475,7 @@ class ComTdbRoot : public ComTdb {
   UInt32 rtFlags4_;  // 272-275
   UInt32 rtFlags5_;  // 276-279
 
-  Int64 cpuLimit_;  // 280-287
+  long cpuLimit_;  // 280-287
 
   CompilationStatsDataPtr compilationStatsData_;  // 288-295
 
@@ -487,14 +487,14 @@ class ComTdbRoot : public ComTdb {
   SecurityInvKeyInfoPtr sikPtr_;     // 304-311
   Int64Ptr objectUidList_;           // 312-319
   Int32 numObjectUids_;              // 320-323
-  Int64 queryHash_;                  // 324-327
+  long queryHash_;                  // 324-327
   Int32 clientMaxStatementPooling_;  // 328-331
   char fillersComTdbRoot2_[20];      // 332-351
 
   // if non zero, gives the expiration time stamp for
   // Apache Sentry authorizations (after which, this query
   // must go through re-authorization)
-  Int64 sentryAuthExpirationTimeStamp_;  // 344-351
+  long sentryAuthExpirationTimeStamp_;  // 344-351
 
   // predicate to be applied before a row is returned.
   ExExprPtr predExpr_;  // 352-359
@@ -566,20 +566,20 @@ class ComTdbRoot : public ComTdb {
   ComTdbRoot();
 
   void init(ComTdb *child_tdb, ex_cri_desc *cri_desc, InputOutputExpr *input_expr, InputOutputExpr *output_expr,
-            Lng32 input_vars_size, ex_expr *pkey_expr, ULng32 pkey_len, ex_expr *pred_expr, ex_cri_desc *work_cri_desc,
+            int input_vars_size, ex_expr *pkey_expr, ULng32 pkey_len, ex_expr *pred_expr, ex_cri_desc *work_cri_desc,
             ExFragDir *fragDir, TransMode *transMode, char *fetchedCursorName, short fetchedCursorHvar,
-            NABoolean delCurrOf, Lng32 numUpdateCol, Lng32 *updateColList, NABoolean selectInto, short tableCount,
-            Int64 firstNRows, NABoolean userInputVars, double cost, SqlTableOpenInfo **stoiList,
+            NABoolean delCurrOf, int numUpdateCol, int *updateColList, NABoolean selectInto, short tableCount,
+            long firstNRows, NABoolean userInputVars, double cost, SqlTableOpenInfo **stoiList,
             LateNameInfoList *lateNameInfoList, Queue *viewStoiList, TrafQuerySimilarityInfo *qsi, Space *space,
-            Lng32 uniqueExecuteIdOffset,  //++Triggers -
-            Lng32 triggersStatusOffset, short triggersCount, Int64 *triggersList, short tempTableCount,
+            int uniqueExecuteIdOffset,  //++Triggers -
+            int triggersStatusOffset, short triggersCount, long *triggersList, short tempTableCount,
             short baseTablenamePosition, NABoolean updDelInsert, NABoolean retryableStmt, NABoolean streamScan,
-            NABoolean embeddedUpdateOrDelete, Int32 streamTimeout, Int64 explainPlanId, NABasicPtr qCacheInfo,
+            NABoolean embeddedUpdateOrDelete, Int32 streamTimeout, long explainPlanId, NABasicPtr qCacheInfo,
             Int32 cacheVarsSize, SqlTableOpenInfo **udrStoiList, short udrCount, short maxResultSets,
             NABasicPtr queryCostInfo, UninitializedMvName *uninitializedMvList, short uninitializedMvCount,
-            NABasicPtr compilerStatsInfo, NABasicPtr rwrsInfo, Int32 numObjectUIDs, Int64 *objectUIDs,
-            CompilationStatsData *compilationStatsData, Int64 sentryAuthExpirationTimeStamp, char *snapTmpLocation,
-            Queue *listOfSnapshotscanTables, Int64 queryHash);
+            NABasicPtr compilerStatsInfo, NABasicPtr rwrsInfo, Int32 numObjectUIDs, long *objectUIDs,
+            CompilationStatsData *compilationStatsData, long sentryAuthExpirationTimeStamp, char *snapTmpLocation,
+            Queue *listOfSnapshotscanTables, long queryHash);
 
   ~ComTdbRoot();
 
@@ -600,7 +600,7 @@ class ComTdbRoot : public ComTdb {
   virtual void setPlanVersion(UInt32 value) { planVersion_ = value; }
 
   Long pack(void *space);
-  Lng32 unpack(void *, void *reallocator);
+  int unpack(void *, void *reallocator);
 
   Int32 describe(Descriptor *desc, short output_desc_flag);
 
@@ -710,7 +710,7 @@ class ComTdbRoot : public ComTdb {
   NABoolean isEmbeddedCompiler() const { return ((rtFlags2_ & EMBEDDED_COMPILER) != 0); };
   NABoolean isLobExtract() const { return ((rtFlags2_ & EXE_LOB_ACCESS) != 0); };
 
-  Int64 sentryAuthExpirationTimeStamp() { return sentryAuthExpirationTimeStamp_; }
+  long sentryAuthExpirationTimeStamp() { return sentryAuthExpirationTimeStamp_; }
   char *getSnapshotScanTempLocation() { return snapshotscanTempLocation_; }
   Queue *getListOfSnapshotScanTables() { return listOfSnapshotScanTables_; }
 
@@ -822,7 +822,7 @@ class ComTdbRoot : public ComTdb {
       rtFlags1_ &= ~CHECK_AUTOCOMMIT;
   }
 
-  NABoolean aqrEnabledForSqlcode(Lng32 sqlcode);
+  NABoolean aqrEnabledForSqlcode(int sqlcode);
   NABoolean aqrEnabled() { return (rtFlags1_ & AQR_ENABLED) != 0; }
   void setAqrEnabled(NABoolean v) { (v ? rtFlags1_ |= AQR_ENABLED : rtFlags1_ &= ~AQR_ENABLED); }
 
@@ -911,16 +911,16 @@ class ComTdbRoot : public ComTdb {
   virtual NABoolean isRoot() const { return TRUE; };
 
   //++ Triggers -
-  inline Lng32 getUniqueExecuteIdOffset() { return uniqueExecuteIdOffset_; }
-  inline Lng32 getTriggersStatusOffset() { return triggersStatusOffset_; }
-  inline Int64 *getTriggersList() { return triggersList_; }
+  inline int getUniqueExecuteIdOffset() { return uniqueExecuteIdOffset_; }
+  inline int getTriggersStatusOffset() { return triggersStatusOffset_; }
+  inline long *getTriggersList() { return triggersList_; }
   inline short const getTriggersCount() {
     assert((triggersCount_ > 0) == (triggersList_ != 0));
     return triggersCount_;
   }
   //-- Triggers -
 
-  Int64 getFirstNRows() { return firstNRows_; }
+  long getFirstNRows() { return firstNRows_; }
 
   double getCost() { return getDoubleValue((char *)&p_cost_); };
 
@@ -1024,9 +1024,9 @@ class ComTdbRoot : public ComTdb {
 
   void setQueryType(QueryType q) { queryType_ = q; }
 
-  Lng32 getQueryType() { return (Lng32)queryType_; }
+  int getQueryType() { return (int)queryType_; }
 
-  static const char *getQueryTypeText(Lng32 queryType);
+  static const char *getQueryTypeText(int queryType);
 
   Int16 getSubqueryType() { return subqueryType_; }
 
@@ -1034,9 +1034,9 @@ class ComTdbRoot : public ComTdb {
 
   static const char *getSubqueryTypeText(Int16 subQueryType);
 
-  inline Lng32 getNotAtomicFailureLimit() const { return notAtomicFailureLimit_; }
+  inline int getNotAtomicFailureLimit() const { return notAtomicFailureLimit_; }
 
-  inline void setNotAtomicFailureLimit(Lng32 val) { notAtomicFailureLimit_ = val; }
+  inline void setNotAtomicFailureLimit(int val) { notAtomicFailureLimit_ = val; }
 
   inline Cardinality getAccEstRowsAccessed() {
     return (Cardinality)(getCompilerStatsInfo() ? getCompilerStatsInfo()->dp2RowsAccessed() : 0);
@@ -1086,9 +1086,9 @@ class ComTdbRoot : public ComTdb {
 
   void setAbendType(Int32 a) { abendType_ = a; }
 
-  void setCpuLimit(Int64 cpuLimit) { cpuLimit_ = cpuLimit; }
+  void setCpuLimit(long cpuLimit) { cpuLimit_ = cpuLimit; }
 
-  Int64 getCpuLimit() { return cpuLimit_; }
+  long getCpuLimit() { return cpuLimit_; }
 
   void setBmoMemoryLimitPerNode(double limit) { bmoMemLimitPerNode_ = limit; }
   double getBmoMemoryLimitPerNode() { return bmoMemLimitPerNode_; }
@@ -1126,11 +1126,11 @@ class ComTdbRoot : public ComTdb {
   NABoolean childTdbIsNull() const { return (rtFlags4_ & CHILD_TDB_IS_NULL) ? TRUE : FALSE; }
   void setChildTdbIsNull() { rtFlags4_ |= CHILD_TDB_IS_NULL; }
 
-  const Int64 *getUnpackedPtrToObjectUIDs(char *base) const {
-    return ((Int64 *)(base - (char *)objectUidList_.getPointer()));
+  const long *getUnpackedPtrToObjectUIDs(char *base) const {
+    return ((long *)(base - (char *)objectUidList_.getPointer()));
   }
 
-  const Int64 *getObjectUIDs() const { return objectUidList_.getPointer(); }
+  const long *getObjectUIDs() const { return objectUidList_.getPointer(); }
 
   Int32 getNumObjectUIDs() const { return numObjectUids_; }
 
@@ -1140,7 +1140,7 @@ class ComTdbRoot : public ComTdb {
   NABoolean hiveAllowSubdirs() const { return (rtFlags4_ & HIVE_ALLOW_SUBDIRS) ? TRUE : FALSE; }
   void setHiveAllowSubdirs() { rtFlags4_ |= HIVE_ALLOW_SUBDIRS; }
 
-  Int64 getQueryHash() const { return queryHash_; }
+  long getQueryHash() const { return queryHash_; }
 
   void setClientMaxStatementPooling(int n) { clientMaxStatementPooling_ = n; }
 

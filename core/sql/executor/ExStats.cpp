@@ -84,7 +84,7 @@
 #include "seabed/ms.h"
 
 inline void advanceSize2(UInt32 &size, const char *const buffPtr) {
-  const Int32 lenSize = sizeof(Lng32);
+  const Int32 lenSize = sizeof(int);
   size += lenSize;
   if (buffPtr != NULL) size += str_len(buffPtr) + 1;  // 1 is for the buffer's null-terminator
 }
@@ -149,7 +149,7 @@ ExStatsCounter &ExStatsCounter::operator=(const ExStatsCounter &other) {
   return *this;
 }
 
-void ExStatsCounter::addEntry(Int64 value) {
+void ExStatsCounter::addEntry(long value) {
   // we got another value
   entryCnt_++;
 
@@ -208,8 +208,8 @@ ExClusterStats::ExClusterStats()
       readIOCnt_(0),
       next_(NULL){};
 
-ExClusterStats::ExClusterStats(NABoolean isInner, ULng32 bucketCnt, Int64 actRows, Int64 totalSize,
-                               ExStatsCounter hashChains, Int64 writeIOCnt, Int64 readIOCnt)
+ExClusterStats::ExClusterStats(NABoolean isInner, ULng32 bucketCnt, long actRows, long totalSize,
+                               ExStatsCounter hashChains, long writeIOCnt, long readIOCnt)
     : version_(StatsCurrVersion),
       isInner_(isInner),
       bucketCnt_(bucketCnt),
@@ -273,7 +273,7 @@ void ExClusterStats::unpack(const char *&buffer) {
   unpackBuffer(buffer, readIOCnt_);
 };
 
-void ExClusterStats::getVariableStatsInfo(char *dataBuffer, char *dataLen, Lng32 maxLen) {
+void ExClusterStats::getVariableStatsInfo(char *dataBuffer, char *dataLen, int maxLen) {
   char *buf = dataBuffer;
 
   sprintf(buf, "NumBuckets: %u ActRows: %ld NumChains: %u MaxChain: %ld VarChain: %f ", bucketCnt_, actRows_,
@@ -283,7 +283,7 @@ void ExClusterStats::getVariableStatsInfo(char *dataBuffer, char *dataLen, Lng32
   *(short *)dataLen = (short)(buf - dataBuffer);
 }
 
-void ExClusterStats::getVariableStatsInfoAggr(char *dataBuffer, char *dataLen, Lng32 maxLen) {
+void ExClusterStats::getVariableStatsInfoAggr(char *dataBuffer, char *dataLen, int maxLen) {
   char *buf = dataBuffer;
   ExClusterStats *tempNext = this;
 
@@ -292,8 +292,8 @@ void ExClusterStats::getVariableStatsInfoAggr(char *dataBuffer, char *dataLen, L
   ExStatsCounter actRowsTot;
   ExStatsCounter totalSizeTot;
   ExStatsCounter hashChainsTot;
-  Int64 writeIOCntTot = 0;
-  Int64 readIOCntTot = 0;
+  long writeIOCntTot = 0;
+  long readIOCntTot = 0;
   ULng32 numClusters = 0;
   ULng32 residentClusters = 0;
 
@@ -312,7 +312,7 @@ void ExClusterStats::getVariableStatsInfoAggr(char *dataBuffer, char *dataLen, L
   sprintf(buf, "NumClusters: %u ResidentClusters: %u TotNumBuckets: %u ", numClusters, residentClusters, bucketCntTot);
   buf += str_len(buf);
 
-  Int64 val;
+  long val;
 
   val = totalSizeTot.sum();
   if (val) {
@@ -347,7 +347,7 @@ void ExClusterStats::getVariableStatsInfoAggr(char *dataBuffer, char *dataLen, L
   // while there is space in the buffer, loop over the individual
   // clusters and print out their statistics
   tempNext = this;
-  Lng32 tempMaxLen = maxLen - (buf - dataBuffer);
+  int tempMaxLen = maxLen - (buf - dataBuffer);
   ULng32 c = 0;
   while (tempNext && tempMaxLen > 200) {
     sprintf(buf, "ClusterNo: %u ", c);
@@ -392,8 +392,8 @@ void ExTimeStats::start() {
   }
 }
 
-Int64 ExTimeStats::stop() {
-  Int64 incTime = 0;
+long ExTimeStats::stop() {
+  long incTime = 0;
   if (isStarted_) {
     struct timespec endTime;
 
@@ -433,7 +433,7 @@ UInt32 ExTimeStats::pack(char *buffer) {
 }
 
 void ExTimeStats::unpack(const char *&buffer) {
-  Int64 elaspedTime;
+  long elaspedTime;
   // if the version doesn't match, tough. Just lose the contents
   // of mismatched versions.
   unpackBuffer(buffer, version_);
@@ -445,8 +445,8 @@ void ExTimeStats::unpack(const char *&buffer) {
   }
 }
 
-Lng32 ExTimeStats::filterForSEstats(struct timespec currTimespec) {
-  Lng32 diffTime = 0;
+int ExTimeStats::filterForSEstats(struct timespec currTimespec) {
+  int diffTime = 0;
 
   if (isStarted_) diffTime = currTimespec.tv_sec - startTime_.tv_sec;
   return diffTime;
@@ -591,7 +591,7 @@ ExOperStats::ExOperStats(NAMemory *heap, StatType statType, ex_tcb *tcb, const C
     pertableStatsId_ = -1;
     u.est.estRowsAccessed_ = 0;
     u.est.estRowsUsed_ = 0;
-    Lng32 len = str_len(_NO_TDB_NAME);
+    int len = str_len(_NO_TDB_NAME);
     str_cpy_all(tdbName_, _NO_TDB_NAME, len);
     tdbName_[len] = 0;
     processNameString_[0] = '\0';
@@ -613,7 +613,7 @@ ExOperStats::ExOperStats(NAMemory *heap, StatType statType, ex_tcb *tcb, const C
     u.est.estRowsUsed_ = tdb->getEstRowsUsed();
     // set the tdb name if we have one
     if (tdb->getNodeName() != NULL) {
-      Lng32 len = (Lng32)str_len(tdb->getNodeName());
+      int len = (int)str_len(tdb->getNodeName());
       if (len > MAX_TDB_NAME_LEN) len = MAX_TDB_NAME_LEN;
       str_cpy_all(tdbName_, tdb->getNodeName(), len);
       tdbName_[len] = 0;
@@ -659,7 +659,7 @@ ExOperStats::ExOperStats(NAMemory *heap, StatType type)
   id_.subInstNum_ = _UNINITIALIZED_TDB_ID;
   processNameString_[0] = '\0';
 
-  Lng32 len = str_len(_NO_TDB_NAME);
+  int len = str_len(_NO_TDB_NAME);
   str_cpy_all(tdbName_, _NO_TDB_NAME, len);
   tdbName_[len] = 0;
   tdbType_ = ComTdb::ex_TDB;
@@ -702,8 +702,8 @@ ExOperStats::ExOperStats()
 }
 
 ExOperStats::ExOperStats(NAMemory *heap, StatType statType, ComTdb::CollectStatsType collectStatsType, ExFragId fragId,
-                         Lng32 tdbId, Lng32 explainTdbId, Lng32 instNum, ComTdb::ex_node_type tdbType, char *tdbName,
-                         Lng32 tdbNameLen)
+                         int tdbId, int explainTdbId, int instNum, ComTdb::ex_node_type tdbType, char *tdbName,
+                         int tdbNameLen)
     : ExStatsBaseNew((NAHeap *)NULL),
       version_(StatsCurrVersion),
       subReqType_(-1),
@@ -814,7 +814,7 @@ void ExOperStats::unpack(const char *&buffer) {
   // we do not ship the statType in the object. Instead, it is shipped in front of
   // the object so that we later can assemble the StatsArea
   // (see ExStatisticssArea::packObjIntoMessage)
-  Lng32 len;
+  int len;
   unpackBuffer(buffer, id_);
   unpackBuffer(buffer, parentTdbId_);
   unpackBuffer(buffer, leftChildTdbId_);
@@ -845,7 +845,7 @@ void ExOperStats::unpack(const char *&buffer) {
   if (collectStatsType_ == ComTdb::ALL_STATS || collectStatsType_ == ComTdb::OPERATOR_STATS ||
       version_ <= _STATS_RTS_VERSION_R23) {
     // unpack the retcodes, one element at a time
-    for (Lng32 i = 0; i < STATS_WORK_LAST_RETCODE_PREV + 2; i++) {
+    for (int i = 0; i < STATS_WORK_LAST_RETCODE_PREV + 2; i++) {
       unpackBuffer(buffer, allStats.retCodes_[i]);
     };
   }
@@ -953,7 +953,7 @@ const char *ExOperStats::getNumValTxt(Int32 i) const {
   return NULL;
 }
 
-Int64 ExOperStats::getNumVal(Int32 i) const {
+long ExOperStats::getNumVal(Int32 i) const {
   switch (i) {
     case 1:
       return operTimer_.getTime();
@@ -968,7 +968,7 @@ const char *ExOperStats::getTextVal() {
     return processNameString_;
 }
 
-void ExOperStats::getVariableStatsInfo(char *dataBuffer, char *dataLen, Lng32 maxLen) {
+void ExOperStats::getVariableStatsInfo(char *dataBuffer, char *dataLen, int maxLen) {
   char *buf = dataBuffer;
 
   ex_assert(maxLen > 1000, "Assume varchar has plenty of room");
@@ -1018,7 +1018,7 @@ void ExOperStats::getVariableStatsInfo(char *dataBuffer, char *dataLen, Lng32 ma
 //   EXE_ERROR_IN_STAT_ITEM if stats_item is found but is truncated
 //   -EXE_STAT_NOT_FOUND if statsItem_Id is not found
 
-Lng32 ExOperStats::getStatsItem(SQLSTATS_ITEM *sqlStats_item) {
+int ExOperStats::getStatsItem(SQLSTATS_ITEM *sqlStats_item) {
   sqlStats_item->error_code = 0;
   switch (sqlStats_item->statsItem_id) {
     case SQLSTATS_EXPLAIN_NODE_ID:
@@ -1031,7 +1031,7 @@ Lng32 ExOperStats::getStatsItem(SQLSTATS_ITEM *sqlStats_item) {
 
     case SQLSTATS_TDB_NAME:
       if (sqlStats_item->str_value != NULL) {
-        Lng32 len = str_len(getTdbName());
+        int len = str_len(getTdbName());
         if (len > sqlStats_item->str_max_len) {
           len = sqlStats_item->str_max_len;
           sqlStats_item->error_code = EXE_ERROR_IN_STAT_ITEM;
@@ -1082,7 +1082,7 @@ Lng32 ExOperStats::getStatsItem(SQLSTATS_ITEM *sqlStats_item) {
       break;
     case SQLSTATS_INST_ID:
       if (sqlStats_item->str_value != NULL) {
-        Lng32 len = str_len(processNameString_);
+        int len = str_len(processNameString_);
         if (len > sqlStats_item->str_max_len) {
           len = sqlStats_item->str_max_len;
           sqlStats_item->error_code = EXE_ERROR_IN_STAT_ITEM;
@@ -1122,7 +1122,7 @@ NABoolean ExOperStats::operator==(ExOperStats *other) {
   }
 }
 
-Int64 ExOperStats::getHashData(UInt16 statsMergeType) {
+long ExOperStats::getHashData(UInt16 statsMergeType) {
   UInt16 tempStatsMergeType;
   if (statsMergeType == SQLCLI_SAME_STATS)
     tempStatsMergeType = getCollectStatsType();
@@ -1190,8 +1190,8 @@ ExFragRootOperStats::ExFragRootOperStats(NAMemory *heap) : ExOperStats(heap, ROO
 }
 
 ExFragRootOperStats::ExFragRootOperStats(NAMemory *heap, ComTdb::CollectStatsType collectStatsType, ExFragId fragId,
-                                         Lng32 tdbId, Lng32 explainNodeId, Lng32 instNum, ComTdb::ex_node_type tdbType,
-                                         char *tdbName, Lng32 tdbNameLen)
+                                         int tdbId, int explainNodeId, int instNum, ComTdb::ex_node_type tdbType,
+                                         char *tdbName, int tdbNameLen)
     : ExOperStats(heap, ROOT_OPER_STATS, collectStatsType, fragId, tdbId, explainNodeId, instNum, tdbType, tdbName,
                   tdbNameLen),
       flags_(0) {
@@ -1520,7 +1520,7 @@ const char *ExFragRootOperStats::getNumValTxt(Int32 i) const {
   return NULL;
 }
 
-Int64 ExFragRootOperStats::getNumVal(Int32 i) const {
+long ExFragRootOperStats::getNumVal(Int32 i) const {
   switch (i) {
     case 1:
       return ExOperStats::getNumVal(i);
@@ -1536,7 +1536,7 @@ Int64 ExFragRootOperStats::getNumVal(Int32 i) const {
 
 const char *ExFragRootOperStats::getTextVal() { return ExOperStats::getTextVal(); }
 
-void ExFragRootOperStats::getVariableStatsInfo(char *dataBuffer, char *dataLen, Lng32 maxLen) {
+void ExFragRootOperStats::getVariableStatsInfo(char *dataBuffer, char *dataLen, int maxLen) {
   char *buf = dataBuffer;
   const char *txtVal;
   if ((Int32)getCollectStatsType() == SQLCLI_CPU_OFFENDER_STATS) {
@@ -1575,10 +1575,10 @@ void ExFragRootOperStats::getVariableStatsInfo(char *dataBuffer, char *dataLen, 
   *(short *)dataLen = (short)(buf - dataBuffer);
 }
 
-Lng32 ExFragRootOperStats::getStatsItem(SQLSTATS_ITEM *sqlStats_item) {
+int ExFragRootOperStats::getStatsItem(SQLSTATS_ITEM *sqlStats_item) {
   char *tmpBuf;
   Int32 len;
-  Lng32 retcode = 0;
+  int retcode = 0;
   sqlStats_item->error_code = 0;
   switch (sqlStats_item->statsItem_id) {
     case SQLSTATS_SQL_CPU_BUSY_TIME:
@@ -1712,7 +1712,7 @@ ExStorageEngineStats::ExStorageEngineStats(NAMemory *heap, ex_tcb *tcb, ComTdb *
   }
 
   // allocate memory and copy the ansi name into the stats entry
-  Lng32 len = (Lng32)str_len(name);
+  int len = (int)str_len(name);
   tableName_ = (char *)heap_->allocateMemory(len + 1);
   sprintf(tableName_, "%s", name);
 
@@ -1854,7 +1854,7 @@ void ExStorageEngineStats::copyContents(ExStorageEngineStats *other) {
   memcpy((void *)destPtr, (void *)srcPtr, srcLen);
 
   if (other->tableName_ != NULL) {
-    Lng32 len = (Lng32)str_len(other->tableName_);
+    int len = (int)str_len(other->tableName_);
     tableName_ = (char *)heap_->allocateMemory(len + 1);
     str_cpy_all(tableName_, other->tableName_, len);
     tableName_[len] = 0;
@@ -1901,7 +1901,7 @@ const char *ExStorageEngineStats::getNumValTxt(Int32 i) const {
   return NULL;
 }
 
-Int64 ExStorageEngineStats::getNumVal(Int32 i) const {
+long ExStorageEngineStats::getNumVal(Int32 i) const {
   switch (i) {
     case 1:
       return ExOperStats::getNumVal(i);
@@ -1915,8 +1915,8 @@ Int64 ExStorageEngineStats::getNumVal(Int32 i) const {
   return 0;
 }
 
-NABoolean ExStorageEngineStats::filterForSEstats(struct timespec currTimespec, Lng32 filter) {
-  Int64 sumIOTime;
+NABoolean ExStorageEngineStats::filterForSEstats(struct timespec currTimespec, int filter) {
+  long sumIOTime;
 
   if (filter > 0) {
     blockTime_ = timer_.filterForSEstats(currTimespec);
@@ -1929,8 +1929,8 @@ NABoolean ExStorageEngineStats::filterForSEstats(struct timespec currTimespec, L
   return FALSE;
 }
 
-void ExStorageEngineStats::getVariableStatsInfo(char *dataBuffer, char *dataLen, Lng32 maxLen) {
-  Lng32 len = 0;
+void ExStorageEngineStats::getVariableStatsInfo(char *dataBuffer, char *dataLen, int maxLen) {
+  int len = 0;
   char *buf = dataBuffer;
   if ((Int32)getCollectStatsType() == SQLCLI_SE_OFFENDER_STATS) {
     sprintf(buf, "statsRowType: %d Qid: %s blockedFor: %d ", statType(), ((queryId_ != NULL) ? queryId_ : "NULL"),
@@ -1960,7 +1960,7 @@ void ExStorageEngineStats::getVariableStatsInfo(char *dataBuffer, char *dataLen,
   *(short *)dataLen = (short)(buf - dataBuffer);
 }
 
-Lng32 ExStorageEngineStats::getStatsItem(SQLSTATS_ITEM *sqlStats_item) {
+int ExStorageEngineStats::getStatsItem(SQLSTATS_ITEM *sqlStats_item) {
   sqlStats_item->error_code = 0;
   Int32 len;
   Int32 len1;
@@ -2034,7 +2034,7 @@ Lng32 ExStorageEngineStats::getStatsItem(SQLSTATS_ITEM *sqlStats_item) {
           len = 0;
 
         tmpBuf = sqlStats_item->str_value + len;
-        Lng32 bufLen = sqlStats_item->str_max_len - len;
+        int bufLen = sqlStats_item->str_max_len - len;
         snprintf(tmpBuf, bufLen, "|%ld|%ld|%ld|", getNumVal(2), getNumVal(3), getNumVal(4));
 
         len1 = strlen(tmpBuf);  // the length of the above new string
@@ -2066,7 +2066,7 @@ void ExOperStats::done() {
   fileout.close();
 }
 
-void ExOperStats::addMessage(Lng32 len) {
+void ExOperStats::addMessage(int len) {
   char msg[100];
   snprintf(msg, sizeof(msg), "%d", len);
   addMessage(msg, strlen(msg));
@@ -2074,7 +2074,7 @@ void ExOperStats::addMessage(Lng32 len) {
 
 void ExOperStats::addMessage(const char *msg) { addMessage(msg, strlen(msg)); }
 
-void ExOperStats::addMessage(const char *msg, Lng32 len) {
+void ExOperStats::addMessage(const char *msg, int len) {
   char fname[100];
   snprintf(fname, sizeof(fname), "Tdb-%s-Inst-%d.data", getTdbName(), getInstNum());
   ofstream fileout(fname, ios::app);
@@ -2229,7 +2229,7 @@ const char *ExProbeCacheStats::getNumValTxt(Int32 i) const {
   return NULL;
 }
 
-Int64 ExProbeCacheStats::getNumVal(Int32 i) const {
+long ExProbeCacheStats::getNumVal(Int32 i) const {
   switch (i) {
     case 1:
       return ExOperStats::getNumVal(i);
@@ -2245,7 +2245,7 @@ Int64 ExProbeCacheStats::getNumVal(Int32 i) const {
   return 0;
 }
 
-void ExProbeCacheStats::getVariableStatsInfo(char *dataBuffer, char *dataLen, Lng32 maxLen) {
+void ExProbeCacheStats::getVariableStatsInfo(char *dataBuffer, char *dataLen, int maxLen) {
   char *buf = dataBuffer;
 
   ExOperStats::getVariableStatsInfo(dataBuffer, dataLen, maxLen);
@@ -2297,14 +2297,14 @@ void ExPartitionAccessStats::copyContents(ExPartitionAccessStats *other) {
 
   // copy names only if we don't have one
   if (ansiName_ == NULL && other->ansiName_) {
-    Lng32 len = (Lng32)str_len(other->ansiName_);
+    int len = (int)str_len(other->ansiName_);
     ansiName_ = (char *)heap_->allocateMemory(len + 1);
     str_cpy_all(ansiName_, other->ansiName_, len);
     ansiName_[len] = 0;
   }
 
   if (fileName_ == NULL && other->fileName_) {
-    Lng32 len = (Lng32)str_len(other->fileName_);
+    int len = (int)str_len(other->fileName_);
     fileName_ = (char *)heap_->allocateMemory(len + 1);
     str_cpy_all(fileName_, other->fileName_, len);
     fileName_[len] = 0;
@@ -2400,7 +2400,7 @@ const char *ExPartitionAccessStats::getNumValTxt(Int32 i) const {
   return NULL;
 }
 
-Int64 ExPartitionAccessStats::getNumVal(Int32 i) const {
+long ExPartitionAccessStats::getNumVal(Int32 i) const {
   switch (i) {
     case 1:
       return ExOperStats::getNumVal(i);
@@ -2419,7 +2419,7 @@ Int64 ExPartitionAccessStats::getNumVal(Int32 i) const {
 
 const char *ExPartitionAccessStats::getTextVal() { return ansiName_; }
 
-void ExPartitionAccessStats::getVariableStatsInfo(char *dataBuffer, char *dataLen, Lng32 maxLen) {
+void ExPartitionAccessStats::getVariableStatsInfo(char *dataBuffer, char *dataLen, int maxLen) {
   char *buf = dataBuffer;
 
   ExOperStats::getVariableStatsInfo(dataBuffer, dataLen, maxLen);
@@ -2444,14 +2444,14 @@ void ExPartitionAccessStats::getVariableStatsInfo(char *dataBuffer, char *dataLe
   *(short *)dataLen = (short)(buf - dataBuffer);
 }
 
-Lng32 ExPartitionAccessStats::getStatsItem(SQLSTATS_ITEM *sqlStats_item) {
+int ExPartitionAccessStats::getStatsItem(SQLSTATS_ITEM *sqlStats_item) {
   ExOperStats::getStatsItem(sqlStats_item);
   if (sqlStats_item->error_code == -EXE_STAT_NOT_FOUND) {
     sqlStats_item->error_code = 0;
     switch (sqlStats_item->statsItem_id) {
       case SQLSTATS_TABLE_ANSI_NAME:
         if (sqlStats_item->str_value != NULL) {
-          Lng32 len = str_len(ansiName_);
+          int len = str_len(ansiName_);
           if (len > sqlStats_item->str_max_len) {
             len = sqlStats_item->str_max_len;
             sqlStats_item->error_code = EXE_ERROR_IN_STAT_ITEM;
@@ -2620,7 +2620,7 @@ const char *ExHashGroupByStats::getNumValTxt(Int32 i) const {
   return NULL;
 }
 
-Int64 ExHashGroupByStats::getNumVal(Int32 i) const {
+long ExHashGroupByStats::getNumVal(Int32 i) const {
   switch (i) {
     case 1:
       return ExOperStats::getNumVal(i);
@@ -2636,7 +2636,7 @@ Int64 ExHashGroupByStats::getNumVal(Int32 i) const {
   return 0;
 }
 
-void ExHashGroupByStats::getVariableStatsInfo(char *dataBuffer, char *dataLen, Lng32 maxLen) {
+void ExHashGroupByStats::getVariableStatsInfo(char *dataBuffer, char *dataLen, int maxLen) {
   char *buf = dataBuffer;
 
   ExOperStats::getVariableStatsInfo(dataBuffer, dataLen, maxLen);
@@ -2870,7 +2870,7 @@ const char *ExHashJoinStats::getNumValTxt(Int32 i) const {
   return NULL;
 }
 
-Int64 ExHashJoinStats::getNumVal(Int32 i) const {
+long ExHashJoinStats::getNumVal(Int32 i) const {
   switch (i) {
     case 1:
       return ExOperStats::getNumVal(i);
@@ -2884,7 +2884,7 @@ Int64 ExHashJoinStats::getNumVal(Int32 i) const {
   return 0;
 }
 
-void ExHashJoinStats::getVariableStatsInfo(char *dataBuffer, char *dataLen, Lng32 maxLen) {
+void ExHashJoinStats::getVariableStatsInfo(char *dataBuffer, char *dataLen, int maxLen) {
   char *buf = dataBuffer;
 
   ExOperStats::getVariableStatsInfo(dataBuffer, dataLen, maxLen);
@@ -2946,7 +2946,7 @@ void ExHashJoinStats::deleteClusterStats() {
 ////////////////////////////////////////////////////////////////
 // class ExESPStats
 ////////////////////////////////////////////////////////////////
-ExESPStats::ExESPStats(NAMemory *heap, ULng32 sendBufferSize, ULng32 recdBufferSize, Lng32 numSubInst, ex_tcb *tcb,
+ExESPStats::ExESPStats(NAMemory *heap, ULng32 sendBufferSize, ULng32 recdBufferSize, int numSubInst, ex_tcb *tcb,
                        const ComTdb *tdb)
     : ExOperStats(heap, ESP_STATS, tcb, tdb), sendTopStatID_(-1) {
   setSubInstNum(numSubInst);
@@ -3035,7 +3035,7 @@ const char *ExESPStats::getNumValTxt(Int32 i) const {
   return NULL;
 }
 
-Int64 ExESPStats::getNumVal(Int32 i) const {
+long ExESPStats::getNumVal(Int32 i) const {
   switch (i) {
     case 1:
       return ExOperStats::getNumVal(i);
@@ -3051,7 +3051,7 @@ Int64 ExESPStats::getNumVal(Int32 i) const {
   return 0;
 }
 
-void ExESPStats::getVariableStatsInfo(char *dataBuffer, char *dataLen, Lng32 maxLen) {
+void ExESPStats::getVariableStatsInfo(char *dataBuffer, char *dataLen, int maxLen) {
   char *buf = dataBuffer;
 
   ExOperStats::getVariableStatsInfo(dataBuffer, dataLen, maxLen);
@@ -3149,7 +3149,7 @@ const char *ExSplitTopStats::getNumValTxt(Int32 i) const {
   return NULL;
 }
 
-Int64 ExSplitTopStats::getNumVal(Int32 i) const {
+long ExSplitTopStats::getNumVal(Int32 i) const {
   switch (i) {
     case 1:
       return ExOperStats::getNumVal(i);
@@ -3161,7 +3161,7 @@ Int64 ExSplitTopStats::getNumVal(Int32 i) const {
   return 0;
 }
 
-void ExSplitTopStats::getVariableStatsInfo(char *dataBuffer, char *dataLen, Lng32 maxLen) {
+void ExSplitTopStats::getVariableStatsInfo(char *dataBuffer, char *dataLen, int maxLen) {
   char *buf = dataBuffer;
 
   ExOperStats::getVariableStatsInfo(dataBuffer, dataLen, maxLen);
@@ -3324,7 +3324,7 @@ const char *ExSortStats::getNumValTxt(Int32 i) const {
   return NULL;
 }
 
-Int64 ExSortStats::getNumVal(Int32 i) const {
+long ExSortStats::getNumVal(Int32 i) const {
   switch (i) {
     case 1:
       return ExOperStats::getNumVal(i);
@@ -3340,7 +3340,7 @@ Int64 ExSortStats::getNumVal(Int32 i) const {
   return 0;
 }
 
-void ExSortStats::getVariableStatsInfo(char *dataBuffer, char *dataLen, Lng32 maxLen) {
+void ExSortStats::getVariableStatsInfo(char *dataBuffer, char *dataLen, int maxLen) {
   char *buf = dataBuffer;
 
   ExOperStats::getVariableStatsInfo(dataBuffer, dataLen, maxLen);
@@ -3405,7 +3405,7 @@ void ExMeasBaseStats::unpack(const char *&buffer) {
   setEstRowsAccessed(temp);
   unpackBuffer(buffer, temp);
   setEstRowsUsed(temp);
-  Int64 temp1;
+  long temp1;
   unpackBuffer(buffer, temp1);
   exeSEStats()->setAccessedRows(temp1);
   unpackBuffer(buffer, temp1);
@@ -3451,7 +3451,7 @@ const char *ExMeasBaseStats::getNumValTxt(Int32 i) const {
   return NULL;
 }
 
-Int64 ExMeasBaseStats::getNumVal(Int32 i) const {
+long ExMeasBaseStats::getNumVal(Int32 i) const {
   switch (i) {
     case 1:
       return ExOperStats::getNumVal(i);
@@ -3465,7 +3465,7 @@ Int64 ExMeasBaseStats::getNumVal(Int32 i) const {
   return 0;
 }
 
-void ExMeasBaseStats::getVariableStatsInfo(char *dataBuffer, char *datalen, Lng32 maxLen) {
+void ExMeasBaseStats::getVariableStatsInfo(char *dataBuffer, char *datalen, int maxLen) {
   char *buf = dataBuffer;
 
   sprintf(buf,
@@ -3479,7 +3479,7 @@ void ExMeasBaseStats::getVariableStatsInfo(char *dataBuffer, char *datalen, Lng3
   *(short *)datalen = (short)(buf - dataBuffer);
 }
 
-void ExMeasBaseStats::setVersion(Lng32 version) {}
+void ExMeasBaseStats::setVersion(int version) {}
 //////////////////////////////////////////////////////////////////
 // class ExMeasStats
 //////////////////////////////////////////////////////////////////
@@ -3886,9 +3886,9 @@ ExMeasStats *ExMeasStats::castToExMeasStats() { return this; }
 
 const char *ExMeasStats::getNumValTxt(Int32 i) const { return ExMeasBaseStats::getNumValTxt(i); }
 
-Int64 ExMeasStats::getNumVal(Int32 i) const { return ExMeasBaseStats::getNumVal(i); }
+long ExMeasStats::getNumVal(Int32 i) const { return ExMeasBaseStats::getNumVal(i); }
 
-void ExMeasStats::getVariableStatsInfo(char *dataBuffer, char *datalen, Lng32 maxLen) {
+void ExMeasStats::getVariableStatsInfo(char *dataBuffer, char *datalen, int maxLen) {
   char *buf = dataBuffer;
   if ((Int32)getCollectStatsType() == SQLCLI_CPU_OFFENDER_STATS) {
     sprintf(
@@ -3940,7 +3940,7 @@ void ExMeasStats::updateSpaceUsage(Space *space, CollHeap *heap) {
   }
 }
 
-Lng32 ExMeasStats::getStatsItem(SQLSTATS_ITEM *sqlStats_item) {
+int ExMeasStats::getStatsItem(SQLSTATS_ITEM *sqlStats_item) {
   sqlStats_item->error_code = 0;
   switch (sqlStats_item->statsItem_id) {
     case SQLSTATS_ACT_ROWS_ACCESSED:
@@ -4058,7 +4058,7 @@ ExUDRStats::ExUDRStats(NAMemory *heap, ULng32 sendBufferSize, ULng32 recBufferSi
 
   // name is valid for CALL stmts but not for RS stmts.
   if (name != NULL) {
-    Lng32 len = str_len(name);
+    int len = str_len(name);
     UDRName_ = (char *)heap_->allocateMemory(len + 1);
     str_cpy_all(UDRName_, name, len);
     UDRName_[len] = 0;
@@ -4148,7 +4148,7 @@ ExOperStats *ExUDRStats::copyOper(NAMemory *heap) {
 
 ExUDRStats *ExUDRStats::castToExUDRStats() { return this; }
 
-void ExUDRStats::getVariableStatsInfo(char *dataBuffer, char *datalen, Lng32 maxLen) {
+void ExUDRStats::getVariableStatsInfo(char *dataBuffer, char *datalen, int maxLen) {
   char *buf = dataBuffer;
 
   ExOperStats::getVariableStatsInfo(dataBuffer, datalen, maxLen);
@@ -4188,7 +4188,7 @@ const char *ExUDRStats::getNumValTxt(Int32 i) const {
   }
 }
 
-Int64 ExUDRStats::getNumVal(Int32 i) const {
+long ExUDRStats::getNumVal(Int32 i) const {
   switch (i) {
     case 1:
       return ExOperStats::getNumVal(i);
@@ -4208,7 +4208,7 @@ const char *ExUDRStats::getTextVal() { return UDRName_; }
 //////////////////////////////////////////////////////////////////
 // class ExStatisticsArea
 //////////////////////////////////////////////////////////////////
-ExStatisticsArea::ExStatisticsArea(NAMemory *heap, Lng32 sendBottomNum, ComTdb::CollectStatsType cst,
+ExStatisticsArea::ExStatisticsArea(NAMemory *heap, int sendBottomNum, ComTdb::CollectStatsType cst,
                                    ComTdb::CollectStatsType origCst)
     : IpcMessageObj(IPC_SQL_STATS_AREA, StatsCurrVersion),  // IpcCurrSqlStatisticsVersion),
       heap_(heap),
@@ -4346,13 +4346,13 @@ void ExStatisticsArea::restoreDop() {
   while ((stat = getNext()) != NULL) stat->restoreDop();
 }
 
-Lng32 ExStatisticsArea::numEntries() { return entries_->numEntries(); }
+int ExStatisticsArea::numEntries() { return entries_->numEntries(); }
 
 NABoolean ExStatisticsArea::merge(ExOperStats *other, UInt16 statsMergeType) {
   // search for the 'other' entry by matching the statID
   //  position();
-  Int64 hashData = other->getHashData(statsMergeType);
-  position((char *)&hashData, sizeof(Int64));
+  long hashData = other->getHashData(statsMergeType);
+  position((char *)&hashData, sizeof(long));
 
   ExOperStats *stat;
   switch (statsMergeType) {
@@ -4720,15 +4720,15 @@ NABoolean ExStatisticsArea::insert(ExOperStats *stats) {
   stats->setCollectStatsType(getCollectStatsType());
   stats->setSubReqType(subReqType_);
   // use addr of stats as its hash value
-  Int64 hashData = stats->getHashData();
-  entries_->insert((char *)&hashData, sizeof(Int64), stats);
+  long hashData = stats->getHashData();
+  entries_->insert((char *)&hashData, sizeof(long), stats);
   return TRUE;
 }
 
 // positions to the head of ExOperStats list
 void ExStatisticsArea::position() { entries_->position(); }
 
-void ExStatisticsArea::position(char *hashData, Lng32 hashDatalen) { entries_->position(hashData, hashDatalen); }
+void ExStatisticsArea::position(char *hashData, int hashDatalen) { entries_->position(hashData, hashDatalen); }
 
 void ExStatisticsArea::fixup(ExStatisticsArea *other) {
   char *addrOfStatsVFTPtr, *myStatsVFTPtr;
@@ -4774,7 +4774,7 @@ void ExStatisticsArea::fixup(ExStatisticsArea *other) {
   }
 }
 
-Int64 ExStatisticsArea::getHashData(ExOperStats::StatType type, Lng32 tdbId) {
+long ExStatisticsArea::getHashData(ExOperStats::StatType type, int tdbId) {
   switch (getCollectStatsType()) {
     case ComTdb::ACCUMULATED_STATS:
       return 1;
@@ -4844,10 +4844,10 @@ ExOperStats *ExStatisticsArea::get(ExOperStats::StatType type, ComTdb::ex_node_t
 }
 
 // gets the first 'type' of stat entry with 'operType'.
-ExOperStats *ExStatisticsArea::get(ExOperStats::StatType type, Lng32 tdbId) {
-  Int64 hashData = getHashData(type, tdbId);
+ExOperStats *ExStatisticsArea::get(ExOperStats::StatType type, int tdbId) {
+  long hashData = getHashData(type, tdbId);
   if (hashData != -1)
-    entries_->position((char *)&hashData, sizeof(Int64));
+    entries_->position((char *)&hashData, sizeof(long));
   else
     entries_->position();
 
@@ -4864,7 +4864,7 @@ ExOperStats *ExStatisticsArea::get(ExOperStats::StatType type, Lng32 tdbId) {
   return NULL;
 }
 // gets the next stat entry with 'tdbId'
-ExOperStats *ExStatisticsArea::get(Lng32 tdbId) { return get(ExOperStats::NO_OP, tdbId); }
+ExOperStats *ExStatisticsArea::get(int tdbId) { return get(ExOperStats::NO_OP, tdbId); }
 
 void ExStatisticsArea::setMasterStats(ExMasterStats *masterStats) { masterStats_ = masterStats; }
 
@@ -4897,7 +4897,7 @@ IpcMessageObjSize ExStatisticsArea::packedLength() {
 
   // then we tell unPack how may ExOperStats it will find in this
   // stats area. This counter is a long
-  size += sizeof(Lng32);
+  size += sizeof(int);
 
   // now visit all the entries and all their packed length
   entries_->position();
@@ -4972,7 +4972,7 @@ IpcMessageObjSize ExStatisticsArea::packObjIntoMessage(IpcMessageBufferPtr buffe
   }
 
   // then pack the entry count
-  Lng32 count = numEntries();
+  int count = numEntries();
   size += packIntoBuffer(buffer, count);
 
   // now pack all the entries
@@ -5000,12 +5000,12 @@ IpcMessageObjSize ExStatisticsArea::packObjIntoMessage(IpcMessageBufferPtr buffe
   return size;
 }
 
-void ExStatisticsArea::unpackThisClass(const char *&buffer, ExOperStats *parentStatsEntry, Lng32 parentTdb) {
-  Lng32 counter;
+void ExStatisticsArea::unpackThisClass(const char *&buffer, ExOperStats *parentStatsEntry, int parentTdb) {
+  int counter;
   // get the entry count
   unpackBuffer(buffer, counter);
   // set up all the ExOperStat entries
-  for (Lng32 i = 0; i < counter; i++) {
+  for (int i = 0; i < counter; i++) {
     ExOperStats::StatType statType;
     ExOperStats *stat = NULL;
     unpackBuffer(buffer, statType);
@@ -5111,7 +5111,7 @@ void ExStatisticsArea::unpackObj(IpcMessageObjType objType, IpcMessageObjVersion
   }
 }
 
-void ExStatisticsArea::unpackSmallObjFromEid(IpcConstMessageBufferPtr buffer, Lng32 version) {
+void ExStatisticsArea::unpackSmallObjFromEid(IpcConstMessageBufferPtr buffer, int version) {
   if (getCollectStatsType() == ComTdb::ACCUMULATED_STATS) {
     ExMeasStats *stat = new (heap_) ExMeasStats(heap_);
     stat->setStatsInDp2(statsInDp2());
@@ -5123,7 +5123,7 @@ void ExStatisticsArea::unpackSmallObjFromEid(IpcConstMessageBufferPtr buffer, Ln
 }
 
 void ExStatisticsArea::unpackObjFromEid(IpcConstMessageBufferPtr buffer, ExOperStats *parentStatsEntry,
-                                        Lng32 parentTdb) {
+                                        int parentTdb) {
   // get the version
   char version;
   unpackBuffer(buffer, version);
@@ -5163,9 +5163,9 @@ void ExStatisticsArea::initHistoryEntries() {
   }
 }
 
-Lng32 ExStatisticsArea::getStatsItems(Lng32 no_of_stats_items, SQLSTATS_ITEM sqlStats_items[]) {
-  Lng32 retcode = 0;
-  Lng32 tempRetcode = 0;
+int ExStatisticsArea::getStatsItems(int no_of_stats_items, SQLSTATS_ITEM sqlStats_items[]) {
+  int retcode = 0;
+  int tempRetcode = 0;
   ExESPStats *espStats = NULL;
   ExFragRootOperStats *rootStats = NULL;
   ExHashGroupByStats *groupByStats = NULL;
@@ -5336,15 +5336,15 @@ Lng32 ExStatisticsArea::getStatsItems(Lng32 no_of_stats_items, SQLSTATS_ITEM sql
   return retcode;
 }
 
-Lng32 ExStatisticsArea::getStatsDesc(short *statsCollectType,
+int ExStatisticsArea::getStatsDesc(short *statsCollectType,
                                      /* IN/OUT */ SQLSTATS_DESC sqlstats_desc[],
-                                     /* IN */ Lng32 max_stats_desc,
-                                     /* OUT */ Lng32 *no_returned_stats_desc) {
+                                     /* IN */ int max_stats_desc,
+                                     /* OUT */ int *no_returned_stats_desc) {
   ExOperStats *stat;
-  Lng32 no_of_stats_desc = 0;
-  Lng32 currTdbId = 0;
+  int no_of_stats_desc = 0;
+  int currTdbId = 0;
   Int32 i = 0;
-  Lng32 tdbId;
+  int tdbId;
 
   switch (getCollectStatsType()) {
     case SQLCLI_ACCUMULATED_STATS:
@@ -5515,7 +5515,7 @@ void ExStatisticsArea::setCpuStatsHistory() {
   }
 }
 
-NABoolean ExStatisticsArea::appendCpuStats(ExStatisticsArea *stats, NABoolean appendAlways, Lng32 filter,
+NABoolean ExStatisticsArea::appendCpuStats(ExStatisticsArea *stats, NABoolean appendAlways, int filter,
                                            struct timespec currTimespec) {
   ExMasterStats *masterStats;
   ExOperStats *stat;
@@ -5534,7 +5534,7 @@ NABoolean ExStatisticsArea::appendCpuStats(ExStatisticsArea *stats, NABoolean ap
 }
 
 NABoolean ExStatisticsArea::appendCpuStats(ExMasterStats *masterStats, NABoolean appendAlways, short subReqType,
-                                           Lng32 etFilter, Int64 currTimestamp) {
+                                           int etFilter, long currTimestamp) {
   NABoolean append = appendAlways;
   NABoolean retcode = FALSE;
   ExMasterStats *append_masterStats;
@@ -5550,7 +5550,7 @@ NABoolean ExStatisticsArea::appendCpuStats(ExMasterStats *masterStats, NABoolean
   return retcode;
 }
 
-NABoolean ExStatisticsArea::appendCpuStats(ExOperStats *stat, NABoolean appendAlways, Lng32 filter,
+NABoolean ExStatisticsArea::appendCpuStats(ExOperStats *stat, NABoolean appendAlways, int filter,
                                            struct timespec currTimespec) {
   NABoolean append = appendAlways;
   NABoolean retcode = FALSE;
@@ -5797,7 +5797,7 @@ NABoolean ExStatisticsArea::appendCpuStats(ExStatisticsArea *other, NABoolean ap
   return retcode;
 }
 
-void ExStatisticsArea::incReqMsg(Int64 msgBytes) {
+void ExStatisticsArea::incReqMsg(long msgBytes) {
   ExFragRootOperStats *fragRootOperStats;
   ExMeasStats *measStats;
 
@@ -5809,7 +5809,7 @@ void ExStatisticsArea::incReqMsg(Int64 msgBytes) {
   }
 }
 
-void ExStatisticsArea::incReplyMsg(Int64 msgBytes) {
+void ExStatisticsArea::incReplyMsg(long msgBytes) {
   ExFragRootOperStats *fragRootOperStats;
   ExMeasStats *measStats;
 
@@ -5821,7 +5821,7 @@ void ExStatisticsArea::incReplyMsg(Int64 msgBytes) {
   }
 }
 
-void ExStatisticsArea::setQueryId(char *queryId, Lng32 queryIdLen) {
+void ExStatisticsArea::setQueryId(char *queryId, int queryIdLen) {
   if (!statsInDp2()) return;
   entries_->position();
   ExOperStats *stat;
@@ -5850,7 +5850,7 @@ ExStatsTcb::ExStatsTcb(const ExStatsTdb &statsTdb, ex_globals *glob) : ex_tcb(st
 
   // Allocate the buffer pool
   // Allocate the specified number of buffers each can hold 5 tuples.
-  pool_ = new (space) sql_buffer_pool(statsTdb.numBuffers_, (Lng32)statsTdb.bufferSize_, space);
+  pool_ = new (space) sql_buffer_pool(statsTdb.numBuffers_, (int)statsTdb.bufferSize_, space);
 
   // Allocate the queues used to communicate with parent
   qparent_.down = new (space) ex_queue(ex_queue::DOWN_QUEUE, statsTdb.queueSizeDown_, statsTdb.criDescDown_, space);
@@ -5870,7 +5870,7 @@ ExStatsTcb::ExStatsTcb(const ExStatsTdb &statsTdb, ex_globals *glob) : ex_tcb(st
     workAtp_ = allocateAtp(statsTdb.workCriDesc_, glob->getSpace());
     pool_->get_free_tuple(workAtp_->getTupp(statsTdb.getStatsTupleAtpIndex()), 0);
     if (statsTdb.inputExpr_)
-      pool_->get_free_tuple(workAtp_->getTupp(statsTdb.getInputTupleAtpIndex()), (Lng32)statsTdb.getInputTupleLength());
+      pool_->get_free_tuple(workAtp_->getTupp(statsTdb.getInputTupleAtpIndex()), (int)statsTdb.getInputTupleLength());
   } else
     workAtp_ = 0;
 
@@ -5945,7 +5945,7 @@ short ExStatsTcb::work() {
   ex_queue_entry *pentry_down = qparent_.down->getHeadEntry();
   ExStatsPrivateState *pstate = (ExStatsPrivateState *)pentry_down->pstate;
   NABoolean found = FALSE;
-  Lng32 statsParamType = SQLCLI_STATS_REQ_NONE;
+  int statsParamType = SQLCLI_STATS_REQ_NONE;
   char *stmtName = NULL;
   ExStatisticsArea *stats = NULL;
 
@@ -6265,16 +6265,16 @@ void ExStatsTcb::getColumnValues(ExOperStats *stat) {
   ExpTupleDesc *tDesc = statsTdb().workCriDesc_->getTupleDescriptor(statsTdb().getStatsTupleAtpIndex());
   for (UInt32 i = 0; i < tDesc->numAttrs(); i++) {
     Attributes *attr = tDesc->getAttr(i);
-    Int64 int64Val = 0;
+    long int64Val = 0;
     char *src = (char *)&int64Val;
     short srcType;
-    Lng32 srcLen;
+    int srcLen;
     short valIsNull = 0;
     srcType = REC_BIN64_SIGNED;
     srcLen = 8;
     NABoolean callConvDoit = TRUE;
     char sName[42];
-    Int64 sNameLen = 40;
+    long sNameLen = 40;
 
     Int32 valNum = 1;
     switch (i) {
@@ -6362,7 +6362,7 @@ void ExStatsTcb::getColumnValues(ExOperStats *stat) {
         break;
 
       case STAT_EST_ROWS:
-        int64Val = (Int64)stat->getEstRowsUsed();
+        int64Val = (long)stat->getEstRowsUsed();
         break;
 
       case STAT_ACT_ROWS:
@@ -6434,7 +6434,7 @@ void ExStatsTcb::getColumnValues(ExOperStats *stat) {
         *(short *)(&data_[attr->getNullIndOffset()]) = valIsNull;
       } else {
         ex_assert(attr->getNullIndicatorLength() == 4, "NULL indicator must be 2 or 4 bytes");
-        *(Lng32 *)(&data_[attr->getNullIndOffset()]) = valIsNull;
+        *(int *)(&data_[attr->getNullIndOffset()]) = valIsNull;
       }
     } else
       ex_assert(!valIsNull, "NULL source for NOT NULL stats column");
@@ -6535,7 +6535,7 @@ ExStatisticsArea *ExStatsTcb::sendToSsmp() {
   // Retrieve the Rts collection interval and active queries. If they are valid, calculate the timeout
   // and send to the SSMP process.
   SessionDefaults *sd = cliGlobals->currContext()->getSessionDefaults();
-  Lng32 RtsTimeout;
+  int RtsTimeout;
   NABoolean wmsProcess;
   if (sd) {
     RtsTimeout = sd->getRtsTimeout();
@@ -6560,7 +6560,7 @@ ExStatisticsArea *ExStatsTcb::sendToSsmp() {
       case SQLCLI_STATS_REQ_QID:
       case SQLCLI_STATS_REQ_QID_DETAIL:
         rtsQueryId =
-            new (cliGlobals->getIpcHeap()) RtsQueryId(cliGlobals->getIpcHeap(), qid_, (Lng32)str_len(qid_),
+            new (cliGlobals->getIpcHeap()) RtsQueryId(cliGlobals->getIpcHeap(), qid_, (int)str_len(qid_),
                                                       statsMergeType_, activeQueryNum_, reqType_, detailLevel_);
         break;
       case SQLCLI_STATS_REQ_CPU:
@@ -6593,14 +6593,14 @@ ExStatisticsArea *ExStatsTcb::sendToSsmp() {
 
   // Send the message
   ssmpMsgStream->send(FALSE, -1);
-  Int64 startTime = NA_JulianTimestamp();
-  Int64 currTime;
-  Int64 elapsedTime;
+  long startTime = NA_JulianTimestamp();
+  long currTime;
+  long elapsedTime;
   IpcTimeout timeout = (IpcTimeout)RtsTimeout;
   while (timeout > 0 && ssmpMsgStream->hasIOPending()) {
     ssmpMsgStream->waitOnMsgStream(timeout);
     currTime = NA_JulianTimestamp();
-    elapsedTime = (Int64)(currTime - startTime) / 10000;
+    elapsedTime = (long)(currTime - startTime) / 10000;
     timeout = (IpcTimeout)(RtsTimeout - elapsedTime);
   }
   // Callbacks would have placed broken connections into
@@ -6646,7 +6646,7 @@ ExStatisticsArea *ExStatsTcb::sendToSsmp() {
     inputStmtName_ = new (getHeap()) char[ssmpMsgStream->getRtsQueryId()->getQueryIdLen() + 1 + 4];  // 4 for QID=
 
     str_cat("QID=", ssmpMsgStream->getRtsQueryId()->getQueryId(), inputStmtName_);
-    Lng32 retcode = parse_stmt_name(inputStmtName_, str_len(inputStmtName_));
+    int retcode = parse_stmt_name(inputStmtName_, str_len(inputStmtName_));
     ssmpMsgStream->getRtsQueryId()->decrRefCount();
     stats = sendToSsmp();
     return stats;
@@ -6674,7 +6674,7 @@ ExStatisticsArea *ExStatsTcb::sendToSsmp() {
   return stats;
 }
 
-Lng32 ExStatsTcb::parse_stmt_name(char *string, Lng32 len) {
+int ExStatsTcb::parse_stmt_name(char *string, int len) {
   short idOffset;
   short idLen;
 
@@ -6688,7 +6688,7 @@ Lng32 ExStatsTcb::parse_stmt_name(char *string, Lng32 len) {
     if (strncasecmp(qid_, "CURRENT", 7) == 0)
       reqType_ = SQLCLI_STATS_REQ_QID_CURRENT;
     else {
-      if (getMasterCpu(qid_, (Lng32)str_len(qid_), nodeName_, MAX_SEGMENT_NAME_LEN + 1, cpu_) == -1) {
+      if (getMasterCpu(qid_, (int)str_len(qid_), nodeName_, MAX_SEGMENT_NAME_LEN + 1, cpu_) == -1) {
         nodeName_[0] = '\0';
         cpu_ = -1;
       }
@@ -6777,7 +6777,7 @@ void ExMasterStats::init(NABoolean resetDop) {
   numObjUIDs_ = 0;
   if ((objUIDs_ != NULL) && (objUIDs_ != &preallocdObjUIDs_[0])) NADELETEBASIC(objUIDs_, getHeap());
   objUIDs_ = &preallocdObjUIDs_[0];
-  memset(objUIDs_, 0, PreAllocatedObjUIDs * sizeof(Int64));
+  memset(objUIDs_, 0, PreAllocatedObjUIDs * sizeof(long));
   isBlocking_ = false;
   lastActivity_ = 0;
   blockOrUnblockSince_.tv_sec = blockOrUnblockSince_.tv_usec = 0;
@@ -6788,7 +6788,7 @@ void ExMasterStats::reuse() {
   init(FALSE);
 }
 
-void ExMasterStats::initBeforeExecute(Int64 currentTimeStamp) {
+void ExMasterStats::initBeforeExecute(long currentTimeStamp) {
   exeEndTime_ = -1;
   canceledTime_ = -1;
   fixupStartTime_ = currentTimeStamp;
@@ -6854,8 +6854,8 @@ ExMasterStats::ExMasterStats() : ExOperStats() {
   init(FALSE);
 }
 
-ExMasterStats::ExMasterStats(NAHeap *heap, char *sourceStr, Lng32 storedSqlTextLen, Lng32 originalSqlTextLen,
-                             char *queryId, Lng32 queryIdLen)
+ExMasterStats::ExMasterStats(NAHeap *heap, char *sourceStr, int storedSqlTextLen, int originalSqlTextLen,
+                             char *queryId, int queryIdLen)
     : ExOperStats(heap, MASTER_STATS) {
   if (queryId != NULL) {
     queryId_ = new (heap_) char[queryIdLen + 1];
@@ -7023,11 +7023,11 @@ UInt32 ExMasterStats::pack(char *buffer) {
   return size;
 }
 
-void ExMasterStats::getVariableStatsInfo(char *dataBuffer, char *dataLen, Lng32 maxLen) {
+void ExMasterStats::getVariableStatsInfo(char *dataBuffer, char *dataLen, int maxLen) {
   char *buf = dataBuffer;
 
-  Int64 exeElapsedTime;
-  Int64 compElapsedTime;
+  long exeElapsedTime;
+  long compElapsedTime;
 
   if (compStartTime_ == -1)
     compElapsedTime = 0;
@@ -7208,14 +7208,14 @@ void ExMasterStats::fixup(ExMasterStats *other) {
   *((Long *)addrOfStatsVFTPtr) = *((Long *)myStatsVFTPtr);
 }
 
-Lng32 ExMasterStats::getStatsItem(SQLSTATS_ITEM *sqlStats_item) {
+int ExMasterStats::getStatsItem(SQLSTATS_ITEM *sqlStats_item) {
   sqlStats_item->error_code = 0;
   switch (sqlStats_item->statsItem_id) {
     case SQLSTATS_QUERY_ID:
     case SQLSTATS_PARENT_QUERY_ID:
     case SQLSTATS_CHILD_QUERY_ID:
       char *queryId;
-      Lng32 queryIdLen;
+      int queryIdLen;
       if (sqlStats_item->statsItem_id == SQLSTATS_QUERY_ID) {
         queryId = queryId_;
         queryIdLen = queryIdLen_;
@@ -7244,7 +7244,7 @@ Lng32 ExMasterStats::getStatsItem(SQLSTATS_ITEM *sqlStats_item) {
       }
       break;
     case SQLSTATS_SOURCE_STR:
-      Lng32 sourceLen;
+      int sourceLen;
       if (sqlStats_item->str_value != NULL) {
         if (sourceStr_ != NULL) {
           if (storedSqlTextLen_ <= sqlStats_item->str_max_len)
@@ -7262,7 +7262,7 @@ Lng32 ExMasterStats::getStatsItem(SQLSTATS_ITEM *sqlStats_item) {
     case SQLSTATS_PARENT_QUERY_SYSTEM:
     case SQLSTATS_SLA_NAME:
     case SQLSTATS_PROFILE_NAME:
-      Lng32 tempNameLen;
+      int tempNameLen;
       const char *tempName;
 
       if (sqlStats_item->statsItem_id == SQLSTATS_PARENT_QUERY_SYSTEM)
@@ -7410,7 +7410,7 @@ Lng32 ExMasterStats::getStatsItem(SQLSTATS_ITEM *sqlStats_item) {
   return 0;
 }
 
-void ExMasterStats::setParentQid(char *queryId, Lng32 queryIdLen) {
+void ExMasterStats::setParentQid(char *queryId, int queryIdLen) {
   if (parentQid_ != NULL) {
     NADELETEBASIC(parentQid_, (NAHeap *)getHeap());
     parentQid_ = NULL;
@@ -7424,7 +7424,7 @@ void ExMasterStats::setParentQid(char *queryId, Lng32 queryIdLen) {
   }
 }
 
-void ExMasterStats::setParentQidSystem(char *parentQidSystem, Lng32 len) {
+void ExMasterStats::setParentQidSystem(char *parentQidSystem, int len) {
   if (parentQidSystem != NULL) {
     str_cpy_all(parentQidSystem_, parentQidSystem, len);
     parentQidSystem_[len] = '\0';
@@ -7432,7 +7432,7 @@ void ExMasterStats::setParentQidSystem(char *parentQidSystem, Lng32 len) {
     parentQidSystem_[0] = '\0';
 }
 
-void ExMasterStats::setChildQid(char *queryId, Lng32 queryIdLen) {
+void ExMasterStats::setChildQid(char *queryId, int queryIdLen) {
   if (childQid_ != NULL) {
     NADELETEBASIC(childQid_, (NAHeap *)getHeap());
     childQid_ = NULL;
@@ -7507,11 +7507,11 @@ Int32 ExMasterStats::timeSinceUnblocking(Int32 s) {
   return r;
 }
 
-NABoolean ExMasterStats::filterForCpuStats(short subReqType, Int64 currTimestamp, Lng32 etTimeInSecs)
+NABoolean ExMasterStats::filterForCpuStats(short subReqType, long currTimestamp, int etTimeInSecs)
 
 {
   NABoolean retcode = FALSE;
-  Int64 tsToCompare;
+  long tsToCompare;
 
   if (queryId_ == NULL) return FALSE;
   if (subReqType != SQLCLI_STATS_REQ_UNMONITORED_QUERIES && subReqType != SQLCLI_STATS_REQ_QUERIES_IN_COMPILE &&
@@ -7523,7 +7523,7 @@ NABoolean ExMasterStats::filterForCpuStats(short subReqType, Int64 currTimestamp
         tsToCompare = compEndTime_;
       else
         tsToCompare = exeEndTime_;
-      lastActivity_ = (Int32)((currTimestamp - tsToCompare) / (Int64)1000000);
+      lastActivity_ = (Int32)((currTimestamp - tsToCompare) / (long)1000000);
       if (lastActivity_ > etTimeInSecs) retcode = TRUE;
     }
   } else if (subReqType == SQLCLI_STATS_REQ_UNMONITORED_QUERIES) {
@@ -7543,7 +7543,7 @@ NABoolean ExMasterStats::filterForCpuStats(short subReqType, Int64 currTimestamp
       if (tsToCompare == -1)
         retcode = FALSE;
       else {
-        lastActivity_ = (Int32)((currTimestamp - tsToCompare) / (Int64)1000000);
+        lastActivity_ = (Int32)((currTimestamp - tsToCompare) / (long)1000000);
         if (lastActivity_ > etTimeInSecs)
           retcode = TRUE;
         else
@@ -7562,7 +7562,7 @@ NABoolean ExMasterStats::filterForCpuStats(short subReqType, Int64 currTimestamp
           tsToCompare = compEndTime_;
         else
           tsToCompare = exeEndTime_;
-        lastActivity_ = (Int32)((currTimestamp - tsToCompare) / (Int64)1000000);
+        lastActivity_ = (Int32)((currTimestamp - tsToCompare) / (long)1000000);
         if (lastActivity_ > etTimeInSecs) retcode = TRUE;
       }
     }
@@ -7573,7 +7573,7 @@ NABoolean ExMasterStats::filterForCpuStats(short subReqType, Int64 currTimestamp
           tsToCompare = exeEndTime_;
         else
           tsToCompare = exeStartTime_;
-        lastActivity_ = (Int32)((currTimestamp - tsToCompare) / (Int64)1000000);
+        lastActivity_ = (Int32)((currTimestamp - tsToCompare) / (long)1000000);
         if (exeEndTime_ == -1)
           return TRUE;
         else if (lastActivity_ <= etTimeInSecs) {
@@ -7590,7 +7590,7 @@ NABoolean ExMasterStats::filterForCpuStats(short subReqType, Int64 currTimestamp
     if (stmtState_ != Statement::PROCESS_ENDED_) {
       if (compStartTime_ != -1 && compEndTime_ == -1) {
         tsToCompare = compStartTime_;
-        lastActivity_ = (Int32)((currTimestamp - tsToCompare) / (Int64)1000000);
+        lastActivity_ = (Int32)((currTimestamp - tsToCompare) / (long)1000000);
         if (lastActivity_ >= etTimeInSecs) retcode = TRUE;
       }
     }
@@ -7599,7 +7599,7 @@ NABoolean ExMasterStats::filterForCpuStats(short subReqType, Int64 currTimestamp
 }
 
 void ExMasterStats::setInvalidationKeys(CliGlobals *cliGlobals, SecurityInvKeyInfo *sikInfo, Int32 numObjUIDs,
-                                        const Int64 *objectUIDs) {
+                                        const long *objectUIDs) {
   ex_assert((numObjUIDs_ == 0) && (numSIKeys_ == 0), "setKeys called twice.");
   Int32 numSIKeys = sikInfo ? sikInfo->getNumSiks() : 0;
   if ((numSIKeys > PreAllocatedSikKeys) || (numObjUIDs > PreAllocatedObjUIDs)) {
@@ -7615,7 +7615,7 @@ void ExMasterStats::setInvalidationKeys(CliGlobals *cliGlobals, SecurityInvKeyIn
     }
     if (numObjUIDs > PreAllocatedObjUIDs) {
       if (objUIDs_ != &preallocdObjUIDs_[0]) NADELETEBASIC(objUIDs_, (NAHeap *)getHeap());
-      objUIDs_ = new ((NAHeap *)(getHeap())) Int64[numObjUIDs];
+      objUIDs_ = new ((NAHeap *)(getHeap())) long[numObjUIDs];
     }
 
     if (statsGlobals) statsGlobals->releaseStatsSemaphore(semId, cliGlobals->myPin());
@@ -7637,7 +7637,7 @@ void ExMasterStats::setInvalidationKeys(CliGlobals *cliGlobals, SecurityInvKeyIn
   }
 
   numObjUIDs_ = numObjUIDs;
-  memcpy(objUIDs_, objectUIDs, numObjUIDs_ * sizeof(Int64));
+  memcpy(objUIDs_, objectUIDs, numObjUIDs_ * sizeof(long));
   validHistogram_ = true;
 
   if (numObjUIDs == 0 || Get_SqlParser_Flags(INTERNAL_QUERY_FROM_EXEUTIL) ||
@@ -7646,9 +7646,9 @@ void ExMasterStats::setInvalidationKeys(CliGlobals *cliGlobals, SecurityInvKeyIn
     validPrivs_ = true;
   }
 }
-Lng32 ExStatsTcb::str_parse_stmt_name(char *string, Lng32 len, char *nodeName, short *cpu, pid_t *pid, Int64 *timeStamp,
-                                      Lng32 *queryNumber, short *idOffset, short *idLen, short *activeQueryNum,
-                                      UInt16 *statsMergeType, short *detailLevel, short *subReqType, Lng32 *filter) {
+int ExStatsTcb::str_parse_stmt_name(char *string, int len, char *nodeName, short *cpu, pid_t *pid, long *timeStamp,
+                                      int *queryNumber, short *idOffset, short *idLen, short *activeQueryNum,
+                                      UInt16 *statsMergeType, short *detailLevel, short *subReqType, int *filter) {
   char temp[500];
   char *ptr;
   char *internal;
@@ -7668,8 +7668,8 @@ Lng32 ExStatsTcb::str_parse_stmt_name(char *string, Lng32 len, char *nodeName, s
   char *seOffendTemp = NULL;
   char *memThreshold = NULL;
   short retcode = SQLCLI_STATS_REQ_NONE;
-  Int64 tempNum;
-  Lng32 tempLen;
+  long tempNum;
+  int tempLen;
   NABoolean cpuOffender = FALSE;
   NABoolean diskOffender = FALSE;
   NABoolean etOffender = FALSE;
@@ -7877,12 +7877,12 @@ Lng32 ExStatsTcb::str_parse_stmt_name(char *string, Lng32 len, char *nodeName, s
   }
   if (seTemp != NULL) {
     tempNum = atoi(seTemp);
-    *filter = (Lng32)tempNum;
+    *filter = (int)tempNum;
     retcode = SQLCLI_STATS_REQ_SE_OFFENDER;
   }
   if (seOffendTemp != NULL) {
     tempNum = atoi(seOffendTemp);
-    *filter = (Lng32)-tempNum;
+    *filter = (int)-tempNum;
     retcode = SQLCLI_STATS_REQ_SE_OFFENDER;
   }
   if (pidTemp != NULL) {
@@ -7899,12 +7899,12 @@ Lng32 ExStatsTcb::str_parse_stmt_name(char *string, Lng32 len, char *nodeName, s
   if (timeTemp != NULL) {
     tempNum = str_atoi(timeTemp, str_len(timeTemp));
     if (tempNum < 0) tempNum = -1;
-    *timeStamp = (Int64)tempNum;
+    *timeStamp = (long)tempNum;
   }
   if (queryNumTemp != NULL) {
     tempNum = str_atoi(queryNumTemp, str_len(queryNumTemp));
     if (tempNum < 0) tempNum = -1;
-    *queryNumber = (Lng32)tempNum;
+    *queryNumber = (int)tempNum;
   }
   if (memThreshold != NULL) {
     tempNum = str_atoi(memThreshold, str_len(memThreshold));
@@ -7914,7 +7914,7 @@ Lng32 ExStatsTcb::str_parse_stmt_name(char *string, Lng32 len, char *nodeName, s
   }
   if (etTemp != NULL) {
     tempNum = atoi(etTemp);
-    *filter = (Lng32)tempNum;
+    *filter = (int)tempNum;
     retcode = SQLCLI_STATS_REQ_ET_OFFENDER;
   }
   if (nodeNameTemp != NULL) {
@@ -8106,7 +8106,7 @@ void ExRMSStats::copyContents(ExRMSStats *other) {
   memcpy((void *)destPtr, (void *)srcPtr, srcLen);
 }
 
-void ExRMSStats::getVariableStatsInfo(char *dataBuffer, char *dataLen, Lng32 maxLen) {
+void ExRMSStats::getVariableStatsInfo(char *dataBuffer, char *dataLen, int maxLen) {
   char *buf = dataBuffer;
   char tmpbuf[150];
   int status = 0;  // 0 - ok - 1 warning 2- Error
@@ -8172,7 +8172,7 @@ ExRMSStats *ExRMSStats::castToExRMSStats() { return this; }
 
 void ExRMSStats::merge(ExRMSStats *other) { copyContents(other); }
 
-Lng32 ExRMSStats::getStatsItem(SQLSTATS_ITEM *sqlStats_item) {
+int ExRMSStats::getStatsItem(SQLSTATS_ITEM *sqlStats_item) {
   sqlStats_item->error_code = 0;
   short len;
   switch (sqlStats_item->statsItem_id) {
@@ -8426,7 +8426,7 @@ const char *ExBMOStats::getNumValTxt(Int32 i) const {
   return NULL;
 }
 
-Int64 ExBMOStats::getNumVal(Int32 i) const {
+long ExBMOStats::getNumVal(Int32 i) const {
   switch (i) {
     case 1:
       return ExOperStats::getNumVal(i);
@@ -8440,7 +8440,7 @@ Int64 ExBMOStats::getNumVal(Int32 i) const {
   return 0;
 }
 
-void ExBMOStats::getVariableStatsInfo(char *dataBuffer, char *dataLen, Lng32 maxLen) {
+void ExBMOStats::getVariableStatsInfo(char *dataBuffer, char *dataLen, int maxLen) {
   char *buf = dataBuffer;
   sprintf(buf,
           "statsRowType: %d explainTdbId: %d bmoPhase: %s bmoIntCount: %ld estMemory: %f bmoHeapUsed: %d bmoHeapTotal: "
@@ -8501,7 +8501,7 @@ const char *ExBMOStats::getBmoPhaseStr() {
     return "UNKNOWN";
 }
 
-Lng32 ExBMOStats::getStatsItem(SQLSTATS_ITEM *sqlStats_item) {
+int ExBMOStats::getStatsItem(SQLSTATS_ITEM *sqlStats_item) {
   sqlStats_item->error_code = 0;
   short len;
   char *tmpBuf;
@@ -8679,7 +8679,7 @@ void ExUDRBaseStats::copyContents(ExUDRBaseStats *other) {
   memcpy((void *)destPtr, (void *)srcPtr, srcLen);
 }
 
-void ExUDRBaseStats::getVariableStatsInfo(char *dataBuffer, char *dataLen, Lng32 maxLen) {
+void ExUDRBaseStats::getVariableStatsInfo(char *dataBuffer, char *dataLen, int maxLen) {
   char *buf = dataBuffer;
   char tmpBuf[300];
   sprintf(buf,
@@ -8709,9 +8709,9 @@ void ExUDRBaseStats::merge(ExUDRBaseStats *other) {
   if (other->recentReplyTS_ > recentReplyTS_) recentReplyTS_ = other->recentReplyTS_;
 }
 
-Lng32 ExUDRBaseStats::getStatsItem(SQLSTATS_ITEM *sqlStats_item) {
+int ExUDRBaseStats::getStatsItem(SQLSTATS_ITEM *sqlStats_item) {
   sqlStats_item->error_code = 0;
-  Lng32 len;
+  int len;
   switch (sqlStats_item->statsItem_id) {
     case SQLSTATS_REQ_MSG_CNT:
       sqlStats_item->int64_value = reqMsgCnt_;
@@ -8752,7 +8752,7 @@ Lng32 ExUDRBaseStats::getStatsItem(SQLSTATS_ITEM *sqlStats_item) {
   return 0;
 }
 
-void ExUDRBaseStats::setUDRServerId(const char *serverId, Lng32 maxlen) {
+void ExUDRBaseStats::setUDRServerId(const char *serverId, int maxlen) {
   if (maxlen >= (sizeof(UDRServerId_) - 1)) maxlen = sizeof(UDRServerId_) - 1;
   str_cpy_all(UDRServerId_, serverId, maxlen);
   UDRServerId_[maxlen] = 0;
@@ -8892,7 +8892,7 @@ const char *ExFastExtractStats::getNumValTxt(Int32 i) const {
   return NULL;
 }
 
-Int64 ExFastExtractStats::getNumVal(Int32 i) const {
+long ExFastExtractStats::getNumVal(Int32 i) const {
   switch (i) {
     case 1:
       return ExOperStats::getNumVal(i);
@@ -8906,7 +8906,7 @@ Int64 ExFastExtractStats::getNumVal(Int32 i) const {
   return 0;
 }
 
-void ExFastExtractStats::getVariableStatsInfo(char *dataBuffer, char *dataLen, Lng32 maxLen) {
+void ExFastExtractStats::getVariableStatsInfo(char *dataBuffer, char *dataLen, int maxLen) {
   char *buf = dataBuffer;
 
   ExOperStats::getVariableStatsInfo(dataBuffer, dataLen, maxLen);
@@ -9019,7 +9019,7 @@ const char *ExProcessStats::getNumValTxt(Int32 i) const {
   return NULL;
 }
 
-Int64 ExProcessStats::getNumVal(Int32 i) const {
+long ExProcessStats::getNumVal(Int32 i) const {
   switch (i) {
     case 1:
       return nid_;
@@ -9089,7 +9089,7 @@ void ExProcessStats::unpack(const char *&buffer) {
   }
 }
 
-void ExProcessStats::getVariableStatsInfo(char *dataBuffer, char *dataLen, Lng32 maxLen) {
+void ExProcessStats::getVariableStatsInfo(char *dataBuffer, char *dataLen, int maxLen) {
   char *buf = dataBuffer;
   sprintf(buf,
           "statsRowType: %d nodeId: %d processId: %d startTime: %ld "
@@ -9138,7 +9138,7 @@ ExQryInvalidStatsTcb::ExQryInvalidStatsTcb(const ExQryInvalidStatsTdb &qryInvali
   Space *space = (glob ? glob->getSpace() : 0);
   CollHeap *heap = (glob ? glob->getDefaultHeap() : 0);
 
-  pool_ = new (space) sql_buffer_pool(qryInvalidTdb.numBuffers_, (Lng32)qryInvalidTdb.bufferSize_, space);
+  pool_ = new (space) sql_buffer_pool(qryInvalidTdb.numBuffers_, (int)qryInvalidTdb.bufferSize_, space);
 
   // Allocate the queues used to communicate with parent
   qparent_.down =
@@ -9159,7 +9159,7 @@ ExQryInvalidStatsTcb::ExQryInvalidStatsTcb(const ExQryInvalidStatsTdb &qryInvali
     pool_->get_free_tuple(workAtp_->getTupp(qryInvalidTdb.getStatsTupleAtpIndex()), 0);
     if (qryInvalidTdb.inputExpr_)
       pool_->get_free_tuple(workAtp_->getTupp(qryInvalidTdb.getInputTupleAtpIndex()),
-                            (Lng32)qryInvalidTdb.getInputTupleLength());
+                            (int)qryInvalidTdb.getInputTupleLength());
   } else
     workAtp_ = 0;
 
@@ -9404,12 +9404,12 @@ void ExQryInvalidStatsTcb::getColumnValues(ExOperStats *operStat) {
   ExQryInvalidStats *stat = operStat->castToExQryInvalidStats();
   for (UInt32 i = 0; i < tDesc->numAttrs(); i++) {
     Attributes *attr = tDesc->getAttr(i);
-    Int64 int64Val = 0;
+    long int64Val = 0;
     UInt32 uint32Val = 0;
     Int32 int32Val = 0;
     char *src = (char *)&int64Val;
     short srcType;
-    Lng32 srcLen;
+    int srcLen;
     srcType = REC_BIN64_SIGNED;
     srcLen = 8;
 
@@ -9486,7 +9486,7 @@ ExStatisticsArea *ExQryInvalidStatsTcb::sendToSsmp() {
   QueryInvalidStatsRequest *qiStatsReq = NULL;
 
   SessionDefaults *sd = cliGlobals->currContext()->getSessionDefaults();
-  Lng32 RtsTimeout;
+  int RtsTimeout;
   NABoolean wmsProcess;
   if (sd) {
     RtsTimeout = sd->getRtsTimeout();
@@ -9506,14 +9506,14 @@ ExStatisticsArea *ExQryInvalidStatsTcb::sendToSsmp() {
 
   // Send the message
   ssmpMsgStream->send(FALSE, -1);
-  Int64 startTime = NA_JulianTimestamp();
-  Int64 currTime;
-  Int64 elapsedTime;
+  long startTime = NA_JulianTimestamp();
+  long currTime;
+  long elapsedTime;
   IpcTimeout timeout = (IpcTimeout)RtsTimeout;
   while (timeout > 0 && ssmpMsgStream->hasIOPending()) {
     ssmpMsgStream->waitOnMsgStream(timeout);
     currTime = NA_JulianTimestamp();
-    elapsedTime = (Int64)(currTime - startTime) / 10000;
+    elapsedTime = (long)(currTime - startTime) / 10000;
     timeout = (IpcTimeout)(RtsTimeout - elapsedTime);
   }
   ssmpManager->cleanupDeletedSsmpServers();
@@ -9546,7 +9546,7 @@ ExStatisticsArea *ExQryInvalidStatsTcb::sendToSsmp() {
   return stats;
 }
 
-void ExQryInvalidStatsTcb::parse_stmt_name(char *string, Lng32 len) {
+void ExQryInvalidStatsTcb::parse_stmt_name(char *string, int len) {
   char temp[256];
   char *internal;
   ex_assert((len > 0 && len < sizeof(temp)), "Len should be between 1 and 256");

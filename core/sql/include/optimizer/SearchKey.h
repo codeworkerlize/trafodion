@@ -819,7 +819,7 @@ class SearchKeyWorkSpace : public NABasicObject {
   // ----------------------------------------------------------------------
   // The number of key columns processed  in this workspace.
   // ----------------------------------------------------------------------
-  Lng32 keyCount_;
+  int keyCount_;
 
   LIST(SearchKeyBounds *) keyBounds_;
 

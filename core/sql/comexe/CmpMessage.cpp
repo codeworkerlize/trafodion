@@ -23,7 +23,7 @@ IpcMessageObjSize CmpMessageObj::packIntoBuffer(IpcMessageBufferPtr &buffer, cha
   return result + length;
 }
 
-IpcMessageObjSize CmpMessageObj::packIntoBuffer(IpcMessageBufferPtr &buffer, void *strPtr, Lng32 sz) {
+IpcMessageObjSize CmpMessageObj::packIntoBuffer(IpcMessageBufferPtr &buffer, void *strPtr, int sz) {
   // NOT a recursive call.
   IpcMessageObjSize result = ::packIntoBuffer(buffer, sz);
 
@@ -153,8 +153,8 @@ void CmpMessageReplyBasic::unpackMyself(IpcMessageObjType objType, IpcMessageObj
   unpackBuffer(buffer, request_);
 }
 
-CmpCompileInfo::CmpCompileInfo(char *sourceStr, Lng32 sourceStrLen, Lng32 sourceStrCharSet, char *schemaName,
-                               Lng32 schemaNameLen, ULng32 inputArrayMaxsize, short atomicity)
+CmpCompileInfo::CmpCompileInfo(char *sourceStr, int sourceStrLen, int sourceStrCharSet, char *schemaName,
+                               int schemaNameLen, ULng32 inputArrayMaxsize, short atomicity)
     : flags_(0),
       sqltext_(sourceStr),
       sqlTextLen_(sourceStrLen),
@@ -195,15 +195,15 @@ void CmpCompileInfo::init() {
   inputArrayMaxsize_ = 0;
 }
 
-Lng32 CmpCompileInfo::getLength() {
-  Lng32 sizeOfThis = getClassSize();
-  Lng32 totalLength = ROUND8(sizeOfThis) + getVarLength();
+int CmpCompileInfo::getLength() {
+  int sizeOfThis = getClassSize();
+  int totalLength = ROUND8(sizeOfThis) + getVarLength();
   return totalLength;
 }
 
-Lng32 CmpCompileInfo::getVarLength() { return ROUND8(sqlTextLen_) + ROUND8(schemaNameLen_); }
+int CmpCompileInfo::getVarLength() { return ROUND8(sqlTextLen_) + ROUND8(schemaNameLen_); }
 
-void CmpCompileInfo::packVars(char *buffer, CmpCompileInfo *ci, Lng32 &nextOffset) {
+void CmpCompileInfo::packVars(char *buffer, CmpCompileInfo *ci, int &nextOffset) {
   if (sqltext_ && (sqlTextLen_ > 0)) {
     str_cpy_all(&buffer[nextOffset], sqltext_, sqlTextLen_);
     ci->sqltext_ = (char *)((long)nextOffset);
@@ -220,8 +220,8 @@ void CmpCompileInfo::packVars(char *buffer, CmpCompileInfo *ci, Lng32 &nextOffse
 void CmpCompileInfo::pack(char *buffer) {
   CmpCompileInfo *ci = (CmpCompileInfo *)buffer;
 
-  Lng32 classSize = getClassSize();
-  Lng32 nextOffset = 0;
+  int classSize = getClassSize();
+  int nextOffset = 0;
   str_cpy_all(buffer, (char *)this, classSize);
 
   nextOffset += ROUND8(classSize);
@@ -231,11 +231,11 @@ void CmpCompileInfo::pack(char *buffer) {
 
 void CmpCompileInfo::unpack(char *base) {
   if (sqltext_) {
-    sqltext_ = base + (Lng32)((Long)sqltext_);
+    sqltext_ = base + (int)((Long)sqltext_);
   }
 
   if (schemaName_) {
-    schemaName_ = base + (Lng32)(Long)schemaName_;
+    schemaName_ = base + (int)(Long)schemaName_;
   }
 }
 
@@ -243,11 +243,11 @@ void CmpCompileInfo::getUnpackedFields(char *&sqltext, char *&schemaName) {
   char *base = (char *)this;
 
   if (sqltext_) {
-    sqltext = base + (Lng32)(Long)sqltext_;
+    sqltext = base + (int)(Long)sqltext_;
   }
 
   if (schemaName_) {
-    schemaName = base + (Lng32)(Long)schemaName_;
+    schemaName = base + (int)(Long)schemaName_;
   }
 }
 
@@ -286,8 +286,8 @@ CmpDDLwithStatusInfo::CmpDDLwithStatusInfo() : CmpCompileInfo() {
   blackBox_ = NULL;
 };
 
-CmpDDLwithStatusInfo::CmpDDLwithStatusInfo(char *sourceStr, Lng32 sourceStrLen, Lng32 sourceStrCharSet,
-                                           char *schemaName, Lng32 schemaNameLen)
+CmpDDLwithStatusInfo::CmpDDLwithStatusInfo(char *sourceStr, int sourceStrLen, int sourceStrCharSet,
+                                           char *schemaName, int schemaNameLen)
     : CmpCompileInfo(sourceStr, sourceStrLen, sourceStrCharSet, schemaName, schemaNameLen, 0, 0) {
   statusFlags_ = 0;
   step_ = 0;
@@ -309,9 +309,9 @@ void CmpDDLwithStatusInfo::copyStatusInfo(CmpDDLwithStatusInfo *from) {
   myPin_ = from->myPin_;
 }
 
-Lng32 CmpDDLwithStatusInfo::getLength() {
-  Lng32 sizeOfThis = getClassSize();
-  Lng32 totalLength = ROUND8(sizeOfThis) + getVarLength();
+int CmpDDLwithStatusInfo::getLength() {
+  int sizeOfThis = getClassSize();
+  int totalLength = ROUND8(sizeOfThis) + getVarLength();
 
   if ((blackBoxLen_ > 0) && (blackBox_)) totalLength += ROUND8(blackBoxLen_);
   return totalLength;
@@ -320,8 +320,8 @@ Lng32 CmpDDLwithStatusInfo::getLength() {
 void CmpDDLwithStatusInfo::pack(char *buffer) {
   CmpDDLwithStatusInfo *ci = (CmpDDLwithStatusInfo *)buffer;
 
-  Lng32 classSize = getClassSize();
-  Lng32 nextOffset = 0;
+  int classSize = getClassSize();
+  int nextOffset = 0;
   str_cpy_all(buffer, (char *)this, classSize);
 
   nextOffset += ROUND8(classSize);
@@ -339,7 +339,7 @@ void CmpDDLwithStatusInfo::unpack(char *base) {
   CmpCompileInfo::unpack(base);
 
   if (blackBox_) {
-    blackBox_ = base + (Lng32)((Long)blackBox_);
+    blackBox_ = base + (int)((Long)blackBox_);
   }
 }
 
@@ -426,7 +426,7 @@ IpcMessageObjSize CmpMessageReplyCode::packMyself(IpcMessageBufferPtr &buffer) {
   // copy the objects of all spaces into one big buffer
   size += ::packIntoBuffer(buffer, getSize());
   if (getSize() > 0) {
-    Lng32 outputLengthSoFar = 0;
+    int outputLengthSoFar = 0;
     ULng32 out_buflen = getSize();
     for (CollIndex i = 0; i < fragmentDir_->entries(); i++) {
       // copy the next space into the buffer
@@ -444,7 +444,7 @@ IpcMessageObjSize CmpMessageReplyCode::packMyself(IpcMessageBufferPtr &buffer) {
 IpcMessageObjSize CmpMessageReplyCode::copyFragsToBuffer(IpcMessageBufferPtr &buffer) {
   IpcMessageObjSize size = 0;
   if (getSize() > 0) {
-    Lng32 outputLengthSoFar = 0;
+    int outputLengthSoFar = 0;
     ULng32 out_buflen = getSize();
     for (CollIndex i = 0; i < fragmentDir_->entries(); i++) {
       // copy the next space into the buffer
@@ -463,8 +463,8 @@ IpcMessageObjSize CmpMessageReplyCode::copyFragsToBuffer(IpcMessageBufferPtr &bu
 // methods for CmpMessageRequest
 // -----------------------------------------------------------------------
 
-CmpMessageRequest::CmpMessageRequest(MessageTypeEnum e, char *data, CmpMsgBufLenType l, CollHeap *h, Lng32 cs,
-                                     const char *parentQid, Lng32 parentQidLen)
+CmpMessageRequest::CmpMessageRequest(MessageTypeEnum e, char *data, CmpMsgBufLenType l, CollHeap *h, int cs,
+                                     const char *parentQid, int parentQidLen)
     : CmpMessageRequestBasic(e, h) {
   data_ = 0;
   sz_ = 0;
@@ -556,7 +556,7 @@ CmpMessageEnvs::CmpMessageEnvs(EnvsOperatorEnum o, char **inEnviron, NABoolean e
   // information to be sent to arkcmp.
   // The storage allocated will later be deallocated in destroyMe() method.
   // setup envs_
-  Lng32 count = 0;
+  int count = 0;
   char **e = NULL;
   if (inEnviron) {
     e = inEnviron;
@@ -568,7 +568,7 @@ CmpMessageEnvs::CmpMessageEnvs(EnvsOperatorEnum o, char **inEnviron, NABoolean e
   nEnvs_ = count;
   envs_ = new (getHeap()) char *[nEnvs_];
   for (count = 0; ((e != NULL) && (count < nEnvs_)); count++) {
-    Lng32 l = str_len(e[count]) + 1;
+    int l = str_len(e[count]) + 1;
     envs_[count] = new (getHeap()) char[l];
     str_cpy_all(envs_[count], e[count], l);
   }
@@ -578,7 +578,7 @@ CmpMessageEnvs::CmpMessageEnvs(EnvsOperatorEnum o, char **inEnviron, NABoolean e
     char cwd[500];
     char *pwd = getcwd(cwd, 500);
     if (pwd == cwd) {
-      Lng32 l = str_len(cwd) + 1;
+      int l = str_len(cwd) + 1;
       cwd_ = new (getHeap()) char[l];
       str_cpy_all(cwd_, cwd, l);
       // free(cwd); // free the one from getcwd() function,
@@ -591,7 +591,7 @@ CmpMessageEnvs::CmpMessageEnvs(EnvsOperatorEnum o, char **inEnviron, NABoolean e
   // if a transaction is active, get the transid by calling
   // the CLI procedure.
 
-  Int64 transid = -1;
+  long transid = -1;
   if (NAExecTrans(&transid)) {
     activeTrans_ = 1;
     transId_ = transid;
@@ -653,7 +653,7 @@ CmpMessageEnvs::~CmpMessageEnvs() { destroyMe(); }
 CmpMessageISPRequest::CmpMessageISPRequest(char *procName, void *inputExpr, ULng32 inputExprSize, void *outputExpr,
                                            ULng32 outputExprSize, void *keyExpr, ULng32 keyExprSize, void *inputData,
                                            ULng32 inputDataSize, ULng32 outputRowSize, ULng32 outputTotalSize,
-                                           CollHeap *h, const char *parentQid, Lng32 parentQidLen)
+                                           CollHeap *h, const char *parentQid, int parentQidLen)
     : CmpMessageRequest(INTERNALSP_REQUEST, NULL, 0, h, SQLCHARSETCODE_UNKNOWN, parentQid, parentQidLen) {
   procName_ = procName;
   inputExpr_ = inputExpr;
@@ -740,8 +740,8 @@ void CmpMessageISPRequest::unpackMyself(IpcMessageObjType objType, IpcMessageObj
 // Methods for CmpMessageISPGetNext
 // -----------------------------------------------------------------------
 
-CmpMessageISPGetNext::CmpMessageISPGetNext(ULng32 bufSize, ID ispRequest, Lng32 serialNo, CollHeap *h,
-                                           const char *parentQid, Lng32 parentQidLen)
+CmpMessageISPGetNext::CmpMessageISPGetNext(ULng32 bufSize, ID ispRequest, int serialNo, CollHeap *h,
+                                           const char *parentQid, int parentQidLen)
     : CmpMessageRequest(INTERNALSP_GETNEXT, NULL, 0, h, SQLCHARSETCODE_UNKNOWN, parentQid, parentQidLen) {
   bufSize_ = bufSize;
   ispRequest_ = ispRequest;
@@ -811,7 +811,7 @@ CmpMessageConnectionType::CmpMessageConnectionType(ConnectionTypeEnum t, CollHea
 
 IpcMessageObjSize CmpMessageConnectionType::mypackedLength() {
   IpcMessageObjSize size = CmpMessageRequestBasic::mypackedLength();
-  size += sizeof(Lng32);
+  size += sizeof(int);
 
   return size;
 }
@@ -819,7 +819,7 @@ IpcMessageObjSize CmpMessageConnectionType::mypackedLength() {
 IpcMessageObjSize CmpMessageConnectionType::packMyself(IpcMessageBufferPtr &buffer) {
   IpcMessageObjSize size = CmpMessageRequestBasic::packMyself(buffer);
 
-  Lng32 t = (Lng32)type_;
+  int t = (int)type_;
   size += ::packIntoBuffer(buffer, t);
 
   return size;
@@ -829,7 +829,7 @@ void CmpMessageConnectionType::unpackMyself(IpcMessageObjType objType, IpcMessag
                                             NABoolean sameEndianness, IpcMessageObjSize objSize,
                                             IpcConstMessageBufferPtr &buffer) {
   CmpMessageRequestBasic::unpackMyself(objType, objVersion, sameEndianness, objSize, buffer);
-  Lng32 t;
+  int t;
   ::unpackBuffer(buffer, t);
   type_ = ((t == DMLDDL) ? DMLDDL : ISP);
 }

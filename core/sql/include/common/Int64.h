@@ -25,7 +25,7 @@
 /* -*-C++-*-
 **************************************************************************
 *
-* File:         Int64.h
+* File:         long.h
 * Description:  64-bit integer
 * Created:      3/5/96
 * Language:     C++
@@ -50,20 +50,20 @@
 // ***********************************************************************
 
 // -----------------------------------------------------------------------
-// Convert an unsigned int to Int64.
+// Convert an unsigned int to long.
 // -----------------------------------------------------------------------
-Int64 uint32ToInt64(UInt32 value);
+long uint32ToInt64(UInt32 value);
 
 // -----------------------------------------------------------------------
-// Convert an Int64 to long.
+// Convert an long to long.
 // -----------------------------------------------------------------------
-Int32 int64ToInt32(Int64 value);
+Int32 int64ToInt32(long value);
 
 // -----------------------------------------------------------------------
 // Convert the integer from array of two longs, most significant first
 // (Guardian-style LARGEINT datatype).
 // -----------------------------------------------------------------------
-Int64 uint32ArrayToInt64(const UInt32 array[2]);
+long uint32ArrayToInt64(const UInt32 array[2]);
 
 // -----------------------------------------------------------------------
 // Convert an array of two unsigned longs to the integer, most
@@ -71,7 +71,7 @@ Int64 uint32ArrayToInt64(const UInt32 array[2]);
 // endian and big endian problems.  Parameter tgt must point to
 // an array of two (2) unsigned long elements.
 // -----------------------------------------------------------------------
-void convertInt64ToUInt32Array(const Int64 &src, UInt32 *tgt);
+void convertInt64ToUInt32Array(const long &src, UInt32 *tgt);
 
 // -----------------------------------------------------------------------
 // Convert the integer from ascii.
@@ -81,12 +81,12 @@ Int32 aToInt32(const char *src);
 // -----------------------------------------------------------------------
 // Convert the integer from ascii.
 // -----------------------------------------------------------------------
-Int64 atoInt64(const char *src);
+long atoInt64(const char *src);
 
 // -----------------------------------------------------------------------
 // Convert the integer to ascii.
 // -----------------------------------------------------------------------
-void convertInt64ToAscii(const Int64 &src, char *tgt);
+void convertInt64ToAscii(const long &src, char *tgt);
 
 // -----------------------------------------------------------------------
 // Convert the unsigned integer to ascii.
@@ -96,7 +96,7 @@ void convertUInt64ToAscii(const UInt64 &src, char *tgt);
 // -----------------------------------------------------------------------
 // Convert the integer to double.
 // -----------------------------------------------------------------------
-double convertInt64ToDouble(const Int64 &src);
+double convertInt64ToDouble(const long &src);
 
 // -----------------------------------------------------------------------
 // Convert the integer to double.

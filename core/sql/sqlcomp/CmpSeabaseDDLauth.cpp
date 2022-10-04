@@ -158,7 +158,7 @@ short AuthConflictList::generateConflicts(ExeCliInterface *cliInterface) {
               PRIVMGR_SCHEMA_PRIVILEGES, TRAFODION_SYSCAT_LIT, SEABASE_MD_SCHEMA, SEABASE_AUTHS, TRAFODION_SYSCAT_LIT,
               SEABASE_PRIVMGR_SCHEMA, PRIVMGR_SCHEMA_PRIVILEGES);
 
-  Lng32 cliRC = cliInterface->fetchAllRows(tableQueue, queryBuf, 0, false, false, true);
+  int cliRC = cliInterface->fetchAllRows(tableQueue, queryBuf, 0, false, false, true);
   if (cliRC < 0) {
     cliInterface->retrieveSQLDiagnostics(CmpCommon::diags());
     return -1;
@@ -230,14 +230,14 @@ short AuthConflictList::updateObjects(ExeCliInterface *cliInterface) {
               "where (schema_owner in (%s) or object_owner in (%s))",
               TRAFODION_SYSCAT_LIT, SEABASE_MD_SCHEMA, SEABASE_OBJECTS, sourceIDList.data(), sourceIDList.data());
 
-  Lng32 cliRC = cliInterface->fetchAllRows(tableQueue, queryBuf, 0, false, false, true);
+  int cliRC = cliInterface->fetchAllRows(tableQueue, queryBuf, 0, false, false, true);
   if (cliRC < 0) {
     cliInterface->retrieveSQLDiagnostics(CmpCommon::diags());
     return -1;
   }
 
   tableQueue->position();
-  Int64 rowCount = 0;
+  long rowCount = 0;
 
   // For each row in the objects table, update those where the schema_owner
   // and/or object_owner needs adjustment
@@ -247,7 +247,7 @@ short AuthConflictList::updateObjects(ExeCliInterface *cliInterface) {
   for (Int32 i = 0; i < tableQueue->numEntries(); i++) {
     OutputInfo *pCliRow = (OutputInfo *)tableQueue->getNext();
 
-    Int64 objectUID(*(Int64 *)pCliRow->get(0));
+    long objectUID(*(long *)pCliRow->get(0));
 
     Int32 schOwner(*(Int32 *)pCliRow->get(1));
     CollIndex schIndex = getIndexForSourceID(schOwner);
@@ -344,7 +344,7 @@ short AuthConflictList::updatePrivs(ExeCliInterface *cliInterface, const char *s
                 MAX_DBUSERNAME_LEN + 200;
   char queryBuf[bufSize];
 
-  Int64 rowCount = 0;
+  long rowCount = 0;
 
   // For each conflict, update grantee_id/grantor_id for xxxxxx_privileges table
   // -> update object_privileges set grantee_id = 33344 where grantee_name = 'USER1'
@@ -354,7 +354,7 @@ short AuthConflictList::updatePrivs(ExeCliInterface *cliInterface, const char *s
   // again.
   int32_t diagsMark = CmpCommon::diags()->mark();
   std::vector<Int32> uniqueConflictList;
-  Lng32 invalidUID = LOWER_INVALID_ID;
+  int invalidUID = LOWER_INVALID_ID;
   for (Int32 i = 0; i < entries(); i++) {
     AuthConflict &conflict = operator[](i);
     if (strcmp(conflict.getMDTable().data(), objName) == 0) {
@@ -363,7 +363,7 @@ short AuthConflictList::updatePrivs(ExeCliInterface *cliInterface, const char *s
                   (conflict.getMDColumn() == "grantee_id") ? "grantee_name" : "grantor_name",
                   conflict.getAuthName().data());
 
-      Lng32 cliRC = cliInterface->executeImmediate(queryBuf, NULL, NULL, TRUE, &rowCount);
+      int cliRC = cliInterface->executeImmediate(queryBuf, NULL, NULL, TRUE, &rowCount);
       if (cliRC < 0) {
         // First, ignore error. Maybe check the error number, we should only ignore
         // 8102, indicates violating a unique constraint
@@ -374,7 +374,7 @@ short AuthConflictList::updatePrivs(ExeCliInterface *cliInterface, const char *s
                     conflict.getMDColumn().data(), invalidUID--,
                     (conflict.getMDColumn() == "grantee_id") ? "grantee_name" : "grantor_name",
                     conflict.getAuthName().data());
-        Lng32 cliRC1 = cliInterface->executeImmediate(queryBuf, NULL, NULL, TRUE, &rowCount);
+        int cliRC1 = cliInterface->executeImmediate(queryBuf, NULL, NULL, TRUE, &rowCount);
         if (cliRC1 < 0) {
           cliInterface->retrieveSQLDiagnostics(CmpCommon::diags());
           return -1;
@@ -397,7 +397,7 @@ short AuthConflictList::updatePrivs(ExeCliInterface *cliInterface, const char *s
                     (conflict.getMDColumn() == "grantee_id") ? "grantee_name" : "grantor_name",
                     conflict.getAuthName().data());
 
-        Lng32 cliRC = cliInterface->executeImmediate(queryBuf, NULL, NULL, TRUE, &rowCount);
+        int cliRC = cliInterface->executeImmediate(queryBuf, NULL, NULL, TRUE, &rowCount);
         if (cliRC < 0) {
           cliInterface->retrieveSQLDiagnostics(CmpCommon::diags());
           return -1;
@@ -478,7 +478,7 @@ CmpSeabaseDDLauth::~CmpSeabaseDDLauth() {
 // ----------------------------------------------------------------------------
 bool CmpSeabaseDDLauth::authExists(const NAString &authName, bool isExternal) {
   // Read the auths table to get a count of rows for the authName
-  Int64 rowCount = 0;
+  long rowCount = 0;
   try {
     NAString whereClause("where ");
     whereClause += (isExternal) ? "auth_ext_name = '" : "auth_db_name = '";
@@ -566,7 +566,7 @@ CmpSeabaseDDLauth::AuthStatus CmpSeabaseDDLauth::getAdminRole(const Int32 authID
 //   STATUS_ERROR - unexpected error, ComDiags contains the error
 // ----------------------------------------------------------------------------
 CmpSeabaseDDLauth::AuthStatus CmpSeabaseDDLauth::getAdminRoles(std::vector<Int32> &roleIDs) {
-  Int64 authFlags = 0;
+  long authFlags = 0;
   authFlags |= SEABASE_IS_ADMIN_ROLE;
 
   char buf[200];
@@ -591,7 +591,7 @@ CmpSeabaseDDLauth::AuthStatus CmpSeabaseDDLauth::getAdminRoles(std::vector<Int32
 CmpSeabaseDDLauth::AuthStatus CmpSeabaseDDLauth::getAuthsForCreator(Int32 authCreator,
                                                                     std::vector<std::string> &userNames,
                                                                     std::vector<std::string> &roleNames) {
-  Int64 authFlags = 0;
+  long authFlags = 0;
   authFlags |= SEABASE_IS_TENANT_AUTH;
 
   char buf[200];
@@ -804,7 +804,7 @@ NAString CmpSeabaseDDLauth::getObjectName(const std::vector<int64_t> objectUIDs)
 
   // get the objectname
   char *ptr = NULL;
-  Lng32 len = 0;
+  int len = 0;
 
   // object name returned
   cliInterface.getPtrAndLen(1, ptr, len);
@@ -819,7 +819,7 @@ NAString CmpSeabaseDDLauth::getObjectName(const std::vector<int64_t> objectUIDs)
 // If unexpected error occurs -1 is returned and ComDiags is set up.
 //
 // -----------------------------------------------------------------------------
-Int64 CmpSeabaseDDLauth::getNumberTenants() {
+long CmpSeabaseDDLauth::getNumberTenants() {
   try {
     NAString whereClause(" WHERE AUTH_TYPE = 'T' ");
     return selectCount(whereClause);
@@ -904,8 +904,8 @@ Int32 CmpSeabaseDDLauth::getUniqueAuthID(const Int32 minValue, const Int32 maxVa
   }
 
   // get cqd
-  Lng32 cliRC = 0;
-  Int64 metadataValue = 0;
+  int cliRC = 0;
+  long metadataValue = 0;
   bool nullTerminate = false;
   Int32 specialID = SUPER_USER;
 
@@ -936,7 +936,7 @@ Int32 CmpSeabaseDDLauth::getUniqueAuthID(const Int32 minValue, const Int32 maxVa
     assert(len <= 300);
 
     len = 0;
-    Int64 metadataValue = 0;
+    long metadataValue = 0;
     bool nullTerminate = false;
 
     cliRC = cliInterface.executeImmediate(buf, (char *)&metadataValue, &len, nullTerminate);
@@ -1288,7 +1288,7 @@ bool CmpSeabaseDDLauth::createStandardAuth(const std::string authName, const int
   setAuthInTenant(false);
   setAuthConfig(DEFAULT_AUTH_CONFIG);
 
-  Int64 createTime = NA_JulianTimestamp();
+  long createTime = NA_JulianTimestamp();
   setAuthCreateTime(createTime);
   setAuthRedefTime(createTime);  // make redef time the same as create time
 
@@ -1375,7 +1375,7 @@ void CmpSeabaseDDLauth::deleteRow(const NAString &authName) {
               systemCatalog.data(), SEABASE_MD_SCHEMA, SEABASE_TEXT, systemCatalog.data(), SEABASE_MD_SCHEMA,
               SEABASE_AUTHS, authName.data(), COM_USER_PASSWORD);
 
-  Lng32 cliRC = cliInterface.executeImmediate(buf);
+  int cliRC = cliInterface.executeImmediate(buf);
 
   if (cliRC > -1) {
     str_sprintf(buf, "delete from %s.\"%s\".%s where auth_db_name = '%s'", systemCatalog.data(), SEABASE_MD_SCHEMA,
@@ -1413,17 +1413,17 @@ short CmpSeabaseDDLauth::updateSeabaseXDCDDLTable() {
   NAString quotedObjName;
   ToQuotedString(quotedObjName, NAString(XDC_AUTH_TABLE), FALSE);
 
-  Lng32 cliRC;
+  int cliRC;
 
-  Lng32 dataLen = ddlLength_;
+  int dataLen = ddlLength_;
   char *dataToInsert = ddlQuery_;
   Int32 maxLen = 10000;
   char queryBuf[1000];
-  Lng32 numRows = ((dataLen - 1) / maxLen) + 1;
-  Lng32 currPos = 0;
-  Lng32 currDataLen = 0;
+  int numRows = ((dataLen - 1) / maxLen) + 1;
+  int currPos = 0;
+  int currDataLen = 0;
 
-  for (Lng32 i = 0; i < numRows; i++) {
+  for (int i = 0; i < numRows; i++) {
     if (i < numRows - 1)
       currDataLen = maxLen;
     else
@@ -1475,7 +1475,7 @@ void CmpSeabaseDDLauth::insertRow() {
 
   // add config number first
   // config resides in bits 3 - 6
-  Int64 authFlags = 0;
+  long authFlags = 0;
   if (getAuthConfig() != DEFAULT_AUTH_CONFIG) {
     Int16 config = getAuthConfig();
     config = config << 2;  // shift over bits 1 and 2
@@ -1524,7 +1524,7 @@ void CmpSeabaseDDLauth::updateRow(NAString &setClause) {
   else
     setClause = "set ";
 
-  Int64 redefTime = NA_JulianTimestamp();
+  long redefTime = NA_JulianTimestamp();
   NAString sysCat = CmpSeabaseDDL::getSystemCatalogStatic();
   str_sprintf(buf, "update %s.\"%s\".%s %s auth_redef_time = %ld where auth_id = %d", sysCat.data(), SEABASE_MD_SCHEMA,
               SEABASE_AUTHS, setClause.data(), redefTime, getAuthID());
@@ -1656,7 +1656,7 @@ CmpSeabaseDDLauth::AuthStatus CmpSeabaseDDLauth::updateRedefTime() {
   char buf[1000];
   ExeCliInterface cliInterface(STMTHEAP);
 
-  Int64 redefTime = NA_JulianTimestamp();
+  long redefTime = NA_JulianTimestamp();
   NAString sysCat = CmpSeabaseDDL::getSystemCatalogStatic();
   str_sprintf(buf, "update %s.\"%s\".%s set auth_redef_time = %ld where auth_id = %d", sysCat.data(), SEABASE_MD_SCHEMA,
               SEABASE_AUTHS, redefTime, getAuthID());
@@ -1837,7 +1837,7 @@ CmpSeabaseDDLauth::AuthStatus CmpSeabaseDDLauth::selectAllWhere(const NAString &
   queue->position();
   for (int idx = 0; idx < queue->numEntries(); idx++) {
     char *ptr = NULL;
-    Lng32 len = 0;
+    int len = 0;
     OutputInfo *pCliRow = (OutputInfo *)queue->getNext();
     pCliRow->get(0, ptr, len);
     Int32 roleID = *(reinterpret_cast<int32_t *>(ptr));
@@ -1884,7 +1884,7 @@ CmpSeabaseDDLauth::AuthStatus CmpSeabaseDDLauth::selectExactRow(const NAString &
 
   // Populate the class
   char *ptr = NULL;
-  Lng32 len = 0;
+  int len = 0;
   char type[6];
 
   // value 1:  auth_id (int32)
@@ -1930,22 +1930,22 @@ CmpSeabaseDDLauth::AuthStatus CmpSeabaseDDLauth::selectExactRow(const NAString &
 
   // value 7: auth_create_time (int64)
   cliInterface.getPtrAndLen(7, ptr, len);
-  Int64 intValue = *(Int64 *)ptr;
+  long intValue = *(long *)ptr;
   setAuthCreateTime((ComTimestamp)intValue);
 
   // value 8: auth_redef_time (int64)
   cliInterface.getPtrAndLen(8, ptr, len);
-  intValue = *(Int64 *)ptr;
+  intValue = *(long *)ptr;
   setAuthRedefTime((ComTimestamp)intValue);
 
   // value 9: flags (int64)
   cliInterface.getPtrAndLen(9, ptr, len);
-  intValue = *(Int64 *)ptr;
+  intValue = *(long *)ptr;
   setAuthIsAdmin(intValue & SEABASE_IS_ADMIN_ROLE);
   setAuthInTenant(intValue & SEABASE_IS_TENANT_AUTH);
   setAutoCreated(intValue & SEABASE_IS_AUTO_CREATED);
 
-  Int64 mask = 60;             // (3C hex) config number stored in bits 3 - 6
+  long mask = 60;             // (3C hex) config number stored in bits 3 - 6
   intValue = intValue & mask;  // turn off all other bits
   intValue = intValue >> 2;    // shift over bits 1 & 2
   setAuthConfig((Int16)intValue);
@@ -1984,7 +1984,7 @@ CmpSeabaseDDLauth::AuthStatus CmpSeabaseDDLauth::selectExactRow(const NAString &
 
       // value 2: passwordLifeTime_ (int64)
       subCliInterface.getPtrAndLen(2, ptr, len);
-      intValue = *(Int64 *)ptr;
+      intValue = *(long *)ptr;
       setPasswdModTime((ComTimestamp)intValue);
       subCliInterface.fetchRowsEpilogue(NULL, true);
     }
@@ -1993,15 +1993,15 @@ CmpSeabaseDDLauth::AuthStatus CmpSeabaseDDLauth::selectExactRow(const NAString &
 }
 
 // selectCount - returns the number of rows based on the where clause
-Int64 CmpSeabaseDDLauth::selectCount(const NAString &whereClause) {
+long CmpSeabaseDDLauth::selectCount(const NAString &whereClause) {
   NAString sysCat = CmpSeabaseDDL::getSystemCatalogStatic();
   char buf[1000];
   str_sprintf(buf, "select count(*) from %s.%s %s ", MDSchema_.data(), SEABASE_AUTHS, whereClause.data());
 
-  Lng32 len = 0;
-  Int64 rowCount = 0;
+  int len = 0;
+  long rowCount = 0;
   ExeCliInterface cliInterface(STMTHEAP);
-  Lng32 cliRC = cliInterface.executeImmediate(buf, (char *)&rowCount, &len, FALSE);
+  int cliRC = cliInterface.executeImmediate(buf, (char *)&rowCount, &len, FALSE);
 
   // If unexpected error occurred, return an exception
   if (cliRC < 0) {
@@ -2019,11 +2019,11 @@ Int32 CmpSeabaseDDLauth::selectMaxAuthID(const NAString &whereClause) {
   char buf[400];
   str_sprintf(buf, "select nvl(max (auth_id),0) from %s.%s %s", MDSchema_.data(), SEABASE_AUTHS, whereClause.data());
 
-  Lng32 len = 0;
-  Int64 maxValue = 0;
+  int len = 0;
+  long maxValue = 0;
   bool nullTerminate = false;
   ExeCliInterface cliInterface(STMTHEAP);
-  Lng32 cliRC = cliInterface.executeImmediate(buf, (char *)&maxValue, &len, nullTerminate);
+  int cliRC = cliInterface.executeImmediate(buf, (char *)&maxValue, &len, nullTerminate);
   if (cliRC != 0) {
     cliInterface.retrieveSQLDiagnostics(CmpCommon::diags());
     UserException excp(NULL, 0);
@@ -2408,7 +2408,7 @@ Int32 CmpSeabaseDDLuser::registerUserInternal(const NAString &extUserName, const
     setAuthType(COM_USER_CLASS);  // we are a user
     setAuthValid(true);           // assume a valid user
 
-    Int64 createTime = NA_JulianTimestamp();
+    long createTime = NA_JulianTimestamp();
     setAuthCreateTime(createTime);
     setAuthRedefTime(createTime);  // make redef time the same as create time
 
@@ -2651,9 +2651,9 @@ void CmpSeabaseDDLuser::unregisterUser(StmtDDLRegisterUser *pNode) {
                 whereClause2.data(), getAuthID());
 
     Int32 len = 0;
-    Int64 rowCount = 0;
+    long rowCount = 0;
     ExeCliInterface cliInterface(STMTHEAP);
-    Lng32 cliRC = cliInterface.executeImmediate(buf, (char *)&rowCount, &len, FALSE);
+    int cliRC = cliInterface.executeImmediate(buf, (char *)&rowCount, &len, FALSE);
     if (cliRC != 0) {
       cliInterface.retrieveSQLDiagnostics(CmpCommon::diags());
       UserException excp(NULL, 0);
@@ -2668,7 +2668,7 @@ void CmpSeabaseDDLuser::unregisterUser(StmtDDLRegisterUser *pNode) {
     // Does user own any resources
     if (msg_license_multitenancy_enabled()) {
       NAString resourceNames;
-      Int64 rowCount = CmpSeabaseDDL::authIDOwnsResources(getAuthID(), resourceNames);
+      long rowCount = CmpSeabaseDDL::authIDOwnsResources(getAuthID(), resourceNames);
       if (rowCount < 0) return;
       if (rowCount > 0) {
         *CmpCommon::diags() << DgSqlCode(-CAT_NO_UNREG_USER_OWNS_OBJECT) << DgString0("resources");
@@ -2813,7 +2813,7 @@ void CmpSeabaseDDLuser::alterUser(StmtDDLAlterUser *pNode) {
     setAuthDbName(pNode->getDatabaseUsername());
     switch (pNode->getAlterUserCmdSubType()) {
       case StmtDDLAlterUser::SET_EXTERNAL_NAME: {
-        Int64 authFlags = 0;
+        long authFlags = 0;
         NAString setList;
         // If authExtName not set to specified name, make sure name is distinct
         if (getAuthExtName() != pNode->getExternalUsername()) {
@@ -2935,7 +2935,7 @@ void CmpSeabaseDDLuser::alterUser(StmtDDLAlterUser *pNode) {
             // only unlock for expired password or password retry count
             // user password is expired
             {
-              Int64 lifetime = (Int64)CmpCommon::getDefaultNumeric(PASSWORD_LIFE_TIME);
+              long lifetime = (long)CmpCommon::getDefaultNumeric(PASSWORD_LIFE_TIME);
               if (lifetime > 0) {
                 // 60 * 60 * 1000 * 1000 usecs
                 lifetime = (getPasswdModTime() + lifetime * 24 * 3600000000LL - NA_JulianTimestamp());
@@ -3454,7 +3454,7 @@ void CmpSeabaseDDLrole::createRole(StmtDDLCreateRole *pNode) {
     setAuthType(COM_ROLE_CLASS);  // we are a role
     setAuthValid(true);           // assume a valid role
 
-    Int64 createTime = NA_JulianTimestamp();
+    long createTime = NA_JulianTimestamp();
     setAuthCreateTime(createTime);
     setAuthRedefTime(createTime);  // make redef time the same as create time
 
@@ -3582,7 +3582,7 @@ Int32 CmpSeabaseDDLrole::createAdminRole(const NAString &roleName, const NAStrin
   setAuthCreator(roleOwner);
   setAuthIsAdmin(true);
 
-  Int64 createTime = NA_JulianTimestamp();
+  long createTime = NA_JulianTimestamp();
   setAuthCreateTime(createTime);
   setAuthRedefTime(createTime);  // make redef time the same as create time
 
@@ -4000,7 +4000,7 @@ void CmpSeabaseDDLrole::dropRole(StmtDDLCreateRole *pNode)
       // Does role own any resources
       if (msg_license_multitenancy_enabled()) {
         NAString resourceNames;
-        Int64 rowCount = CmpSeabaseDDL::authIDOwnsResources(getAuthID(), resourceNames);
+        long rowCount = CmpSeabaseDDL::authIDOwnsResources(getAuthID(), resourceNames);
         if (rowCount < 0) return;
         if (rowCount > 0) {
           *CmpCommon::diags() << DgSqlCode(-CAT_ROLE_OWNS_RESOURCES) << DgString0(roleName.data())
@@ -4231,7 +4231,7 @@ CmpSeabaseDDLauth::AuthStatus CmpSeabaseDDLtenant::getTenantDetails(const char *
 #if 0
 CmpSeabaseDDLauth::AuthStatus
 CmpSeabaseDDLtenant::getTenantDetails(
-  const Int64 schemaUID,
+  const long schemaUID,
   TenantInfo &tenantInfo)
 {
   if (!msg_license_multitenancy_enabled())
@@ -4426,7 +4426,7 @@ short CmpSeabaseDDLtenant::generateTenantID(Int32 &tenantID) {
 //  STATUS_ERROR - unexpected error occurred (diags area has been populated)
 // ----------------------------------------------------------------------------
 CmpSeabaseDDLauth::AuthStatus CmpSeabaseDDLtenant::getSchemaDetails(ExeCliInterface *cliInterface,
-                                                                    const SchemaName *schemaName, Int64 &schUID,
+                                                                    const SchemaName *schemaName, long &schUID,
                                                                     ComObjectType &schType, Int32 &schOwner) {
   CMPASSERT(schemaName);
 
@@ -4498,7 +4498,7 @@ void CmpSeabaseDDLtenant::addGroups(const StmtDDLTenant *pNode, const Int32 tena
       if (tenantGroupList != NULL) {
         for (CollIndex j = 0; j < tenantGroupList->entries(); j++) {
           TenantUsage groupUsage = (*tenantGroupList)[j];
-          if (groupUsage.getUsageID() == (Int64)groupID) {
+          if (groupUsage.getUsageID() == (long)groupID) {
             *CmpCommon::diags() << DgSqlCode(-CAT_GROUP_ALREADY_DEFINED) << DgString0(group->getGroupName().data())
                                 << DgString1(pNode->getTenantName().data());
             UserException excp(NULL, 0);
@@ -4549,7 +4549,7 @@ void CmpSeabaseDDLtenant::dropGroups(const StmtDDLTenant *pNode, TenantInfo &ten
 
     // verify that group is part of tenant
     // return an error?
-    Int64 usageUID = groupInfo.getAuthID();
+    long usageUID = groupInfo.getAuthID();
     TenantUsage tenantUsage(tenantInfo.getTenantID(), usageUID, TenantUsage::TENANT_USAGE_GROUP);
     if (tenantInfo.findTenantUsage(usageUID, tenantUsage)) {
       // Add group to list to remove
@@ -5052,7 +5052,7 @@ short CmpSeabaseDDLtenant::getTenantResource(const NAString &resourceName, const
 // -----------------------------------------------------------------------------
 void CmpSeabaseDDLtenant::createSchemas(ExeCliInterface *cliInterface, const StmtDDLTenant *pNode,
                                         const Int32 &tenantID, const TenantUsageList *origUsageList,
-                                        NAString schemaOwner, Int64 &defSchUID, TenantUsageList *&usageList) {
+                                        NAString schemaOwner, long &defSchUID, TenantUsageList *&usageList) {
   defSchUID = NA_UserIdDefault;
 
   bool hasSchemaUsages = (origUsageList && origUsageList->hasSchemaUsages());
@@ -5066,7 +5066,7 @@ void CmpSeabaseDDLtenant::createSchemas(ExeCliInterface *cliInterface, const Stm
       // requester may want to change schema attributes (e.g. default schema)
       if (hasSchemaUsages) {
         // Get the UID for the schema and see if it exists in the usage list
-        Int64 schUID = getSchemaUID(cliInterface, schemaName);
+        long schUID = getSchemaUID(cliInterface, schemaName);
         if (schUID > 0) {
           TenantUsage tenantUsage;
           if (origUsageList->findTenantUsage(schUID, tenantUsage)) {
@@ -5095,7 +5095,7 @@ void CmpSeabaseDDLtenant::createSchemas(ExeCliInterface *cliInterface, const Stm
                schemaName->getSchemaNameAsAnsiString().data(), schemaOwner.data(), tenantID);
 
       NAString createStmt(buf);
-      Lng32 cliRC = cliInterface->executeImmediate(createStmt);
+      int cliRC = cliInterface->executeImmediate(createStmt);
       if (cliRC < 0) {
         cliInterface->retrieveSQLDiagnostics(CmpCommon::diags());
         UserException excp(NULL, 0);
@@ -5129,7 +5129,7 @@ void CmpSeabaseDDLtenant::createSchemas(ExeCliInterface *cliInterface, const Stm
         }
       }
 
-      Int64 schUID = getSchemaUID(cliInterface, schemaName);
+      long schUID = getSchemaUID(cliInterface, schemaName);
       if (schUID <= 0) {
         *CmpCommon::diags() << DgSqlCode(-CAT_SCHEMA_DOES_NOT_EXIST_ERROR)
                             << DgString0(schemaName->getCatalogName().data())
@@ -5183,7 +5183,7 @@ void CmpSeabaseDDLtenant::dropSchemas(ExeCliInterface *cliInterface, const Int32
   }
 }
 
-NAString CmpSeabaseDDLtenant::getNodeName(const Int64 nodeID) {
+NAString CmpSeabaseDDLtenant::getNodeName(const long nodeID) {
   ExeCliInterface cliInterface(STMTHEAP, 0, NULL, CmpCommon::context()->sqlSession()->getParentQid());
 
   TenantResourceUsageList usageList(&cliInterface, STMTHEAP);
@@ -5197,7 +5197,7 @@ NAString CmpSeabaseDDLtenant::getNodeName(const Int64 nodeID) {
   return usage->getUsageName();
 }
 
-NAString CmpSeabaseDDLtenant::getRGroupName(const Int64 groupUID) {
+NAString CmpSeabaseDDLtenant::getRGroupName(const long groupUID) {
   ExeCliInterface cliInterface(STMTHEAP, 0, NULL, CmpCommon::context()->sqlSession()->getParentQid());
 
   NAString whereClause("WHERE resource_uid = ");
@@ -5220,7 +5220,7 @@ NAString CmpSeabaseDDLtenant::getRGroupName(const Int64 groupUID) {
 //
 // If schema name is not found, then "?" is returned
 // ----------------------------------------------------------------------------
-NAString CmpSeabaseDDLtenant::getSchemaName(const Int64 schUID) {
+NAString CmpSeabaseDDLtenant::getSchemaName(const long schUID) {
   // Get schema details
   NAString catName;
   NAString schName;
@@ -5256,7 +5256,7 @@ NAString CmpSeabaseDDLtenant::getSchemaName(const Int64 schUID) {
 //      0 - schema not found
 //     >0 - schemaUID
 // -----------------------------------------------------------------------------
-Int64 CmpSeabaseDDLauth::getSchemaUID(ExeCliInterface *cliInterface, const SchemaName *schemaName) {
+long CmpSeabaseDDLauth::getSchemaUID(ExeCliInterface *cliInterface, const SchemaName *schemaName) {
   Int32 selectStmtSize = 600;
   char selectStmt[selectStmtSize];
   Int32 stmtSize = snprintf(selectStmt, sizeof(selectStmt),
@@ -5287,11 +5287,11 @@ Int64 CmpSeabaseDDLauth::getSchemaUID(ExeCliInterface *cliInterface, const Schem
   }
 
   tableQueue->position();
-  Int64 schUID = -1;
+  long schUID = -1;
   OutputInfo *pCliRow = (OutputInfo *)tableQueue->getNext();
 
   // column 1:  usage_uid
-  schUID = (*(Int64 *)pCliRow->get(0));
+  schUID = (*(long *)pCliRow->get(0));
 
   return schUID;
 }
@@ -5305,7 +5305,7 @@ Int64 CmpSeabaseDDLauth::getSchemaUID(ExeCliInterface *cliInterface, const Schem
 //   -1 = error (ComDiags contains error)
 //    0 = successful, schemaUIDList contains value, schemaUIDList can be empty
 // -----------------------------------------------------------------------------
-Int32 CmpSeabaseDDLtenant::getTenantSchemas(ExeCliInterface *cliInterface, NAList<Int64> *&schemaUIDList) {
+Int32 CmpSeabaseDDLtenant::getTenantSchemas(ExeCliInterface *cliInterface, NAList<long> *&schemaUIDList) {
   assert(schemaUIDList);
   NAString MDLoc;
   CONCAT_CATSCH(MDLoc, CmpSeabaseDDL::getSystemCatalogStatic(), SEABASE_TENANT_SCHEMA);
@@ -5336,7 +5336,7 @@ Int32 CmpSeabaseDDLtenant::getTenantSchemas(ExeCliInterface *cliInterface, NALis
     OutputInfo *pCliRow = (OutputInfo *)tableQueue->getNext();
 
     // column 1:  usage_uid
-    Int64 schemaUID(*(Int64 *)pCliRow->get(0));
+    long schemaUID(*(long *)pCliRow->get(0));
 
     // add to list
     schemaUIDList->insert(schemaUID);
@@ -5407,7 +5407,7 @@ void CmpSeabaseDDLtenant::alterTenant(ExeCliInterface *cliInterface, StmtDDLTena
       // alter tenant change default schema
       // change default schema
       if (pNode->getDefaultSchema() && pNode->isDefaultSchemaOpt() && pNode->getSchemaList() == NULL) {
-        Int64 defSchUID = 0;
+        long defSchUID = 0;
         const SchemaName *defaultSchema = pNode->getDefaultSchema();
         int32_t schOwnerID;
         ComObjectType schType;
@@ -5464,7 +5464,7 @@ void CmpSeabaseDDLtenant::alterTenant(ExeCliInterface *cliInterface, StmtDDLTena
         assert(pNode->getSchemaList()->entries() > 0);
         if (usageList == NULL) usageList = new (STMTHEAP) TenantUsageList(STMTHEAP);
         const LIST(SchemaName *) *schemaList = pNode->getSchemaList();
-        Int64 defSchUID = NA_UserIdDefault;
+        long defSchUID = NA_UserIdDefault;
 
         char roleName[MAX_DBUSERNAME_LEN + 1];
         int32_t length;
@@ -5511,7 +5511,7 @@ void CmpSeabaseDDLtenant::alterTenant(ExeCliInterface *cliInterface, StmtDDLTena
       // ======================================================================
       // drop schemas
       if (pNode->getSchemaList() && !pNode->addSchemaList()) {
-        Int64 schUID = 0;
+        long schUID = 0;
         assert(pNode->getSchemaList() && pNode->getSchemaList()->entries() > 0);
         NAList<NAString> *schemaList = NULL;
         try {
@@ -5856,9 +5856,9 @@ Int32 CmpSeabaseDDLtenant::getNodesForRGroups(const TenantUsageList *usageList, 
 // method:  getDefSchemaUID
 //
 // ----------------------------------------------------------------------------
-Int64 CmpSeabaseDDLtenant::getDefSchemaUID(TenantInfo &tenantInfo, const TenantUsageList *dropUsageList) {
+long CmpSeabaseDDLtenant::getDefSchemaUID(TenantInfo &tenantInfo, const TenantUsageList *dropUsageList) {
   // Determine default schema
-  Int64 defSchUID = tenantInfo.getDefaultSchemaUID();
+  long defSchUID = tenantInfo.getDefaultSchemaUID();
 
   // See if current default schema is in drop list
   TenantUsage droppedUsage(tenantInfo.getTenantID(), defSchUID, TenantUsage::TENANT_USAGE_SCHEMA);
@@ -5999,7 +5999,7 @@ Int32 CmpSeabaseDDLtenant::registerTenantPrepare(StmtDDLTenant *pNode, Int32 &ad
   setAuthIsAdmin(false);
   setAuthCreator(ComUser::getCurrentUser());
 
-  Int64 createTime = NA_JulianTimestamp();
+  long createTime = NA_JulianTimestamp();
   setAuthCreateTime(createTime);
   setAuthRedefTime(createTime);  // make redef time the same as create time
 
@@ -6021,7 +6021,7 @@ Int32 CmpSeabaseDDLtenant::registerTenantPrepare(StmtDDLTenant *pNode, Int32 &ad
 //   -1 = failed (ComDiags contains error)
 // ----------------------------------------------------------------------------
 Int32 CmpSeabaseDDLtenant::registerTenant(ExeCliInterface *cliInterface, StmtDDLTenant *pNode, Int32 adminRoleID) {
-  Int64 defSchUID = 0;
+  long defSchUID = 0;
   TenantUsageList *usageList = new (STMTHEAP) TenantUsageList(STMTHEAP);
   TenantNodeInfoList *nodeList = NULL;
   TenantResourceUsageList *resourceUsageList = NULL;
@@ -6096,7 +6096,7 @@ Int32 CmpSeabaseDDLtenant::registerTenant(ExeCliInterface *cliInterface, StmtDDL
     if (pNode->getDefaultSchema()) {
       // get schema UID
       const SchemaName *defaultSchema = pNode->getDefaultSchema();
-      Int64 schUID = getSchemaUID(cliInterface, defaultSchema);
+      long schUID = getSchemaUID(cliInterface, defaultSchema);
       if (schUID <= 0) {
         *CmpCommon::diags() << DgSqlCode(-CAT_SCHEMA_DOES_NOT_EXIST_ERROR)
                             << DgString0(defaultSchema->getCatalogName().data())
@@ -6635,7 +6635,7 @@ void CmpSeabaseDDLgroup::alterGroup(StmtDDLUserGroup *pNode) {
 
   // Process the requested operation
   NAString setClause;
-  Int64 authFlags = 0;
+  long authFlags = 0;
 
   if (COM_LDAP_AUTH == currentAuthType_) {
     // Verify that the external group exists in configured identity store
@@ -6875,7 +6875,7 @@ Int32 CmpSeabaseDDLgroup::registerGroupInternal(const NAString &groupName, const
   setAuthType(COM_USER_GROUP_CLASS);  // we are a group
   setAuthValid(true);                 // assume a valid group
 
-  Int64 createTime = NA_JulianTimestamp();
+  long createTime = NA_JulianTimestamp();
   setAuthCreateTime(createTime);
   setAuthRedefTime(createTime);  // make redef time the same as create time
 
@@ -7251,7 +7251,7 @@ CmpSeabaseDDLauth::AuthStatus CmpSeabaseDDLauth::getUserGroupMembers(std::vector
                                                                         foundConfigurationNumber, members_)) {
         if (foundConfigurationNumber != configurationNumber && foundConfigurationNumber != -2) {
           try {
-            Int64 authFlags = foundConfigurationNumber << 2;  // shift over bits 1 and 2
+            long authFlags = foundConfigurationNumber << 2;  // shift over bits 1 and 2
 
             // Add remaining flags
             if (isAuthAdmin()) authFlags |= SEABASE_IS_ADMIN_ROLE;
@@ -7305,7 +7305,7 @@ CmpSeabaseDDLauth::AuthStatus CmpSeabaseDDLauth::getUserGroupMembers(std::vector
         return STATUS_NOTFOUND;
       }
       cntQueue->position();
-      for (Lng32 count = cntQueue->numEntries(); count; count--) {
+      for (int count = cntQueue->numEntries(); count; count--) {
         OutputInfo *pCliRow = (OutputInfo *)cntQueue->getNext();
         memberIDs.push_back(*((Int32 *)pCliRow->get(0)));
       }
@@ -7398,7 +7398,7 @@ CmpSeabaseDDLauth::AuthStatus CmpSeabaseDDLuser::getAllJoinedUserGroup(std::vect
         return STATUS_NOTFOUND;
       }
       cntQueue->position();
-      for (Lng32 count = cntQueue->numEntries(); count; count--) {
+      for (int count = cntQueue->numEntries(); count; count--) {
         OutputInfo *pCliRow = (OutputInfo *)cntQueue->getNext();
         groupIDs.push_back(*((Int32 *)pCliRow->get(0)));
       }
@@ -7547,7 +7547,7 @@ void CmpSeabaseDDLauth::initAuthPwd(ExeCliInterface *cliInterface) {
     goto UPDATE_MAX_USERID;
   }
   cntQueue->position();
-  for (Lng32 count = cntQueue->numEntries(); count; count--) {
+  for (int count = cntQueue->numEntries(); count; count--) {
     OutputInfo *pCliRow = (OutputInfo *)cntQueue->getNext();
     Int32 uid = *((Int32 *)pCliRow->get(0));
     NAString stmt = CmpSeabaseDDLuser::getDefAuthInfo(uid);

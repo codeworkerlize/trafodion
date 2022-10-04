@@ -191,7 +191,7 @@ void CRUExecController::HandleExecuteTaskStepRqst(CRURuntimeControllerRqst *pRqs
 //--------------------------------------------------------------------------//
 
 void CRUExecController::HandleAwaitEventRqst() {
-  Lng32 pid;
+  int pid;
 
   for (;;) {
     try {
@@ -405,7 +405,7 @@ void CRUExecController::SerializeTaskExecutor(CRUTaskExecutor &executor) {
 //
 //--------------------------------------------------------------------------//
 
-void CRUExecController::HandleReturnOfRemoteExecutor(Lng32 pid) {
+void CRUExecController::HandleReturnOfRemoteExecutor(int pid) {
   CRUTask *pTask = FindRunningTask(pid);
   RUASSERT(NULL != pTask);
   CRUTaskExecutor &executor = pTask->GetExecutor();
@@ -444,7 +444,7 @@ void CRUExecController::HandleRemoteExecutorSuccess(CRUTask *pTask, CUOFsIpcMess
 //--------------------------------------------------------------------------//
 //	CRUExecController::HandleRemoteExecutorFailure()
 //--------------------------------------------------------------------------//
-void CRUExecController::HandleRemoteExecutorFailure(CRUTask *pTask, Lng32 pid, CUOFsIpcMessageTranslator &translator) {
+void CRUExecController::HandleRemoteExecutorFailure(CRUTask *pTask, int pid, CUOFsIpcMessageTranslator &translator) {
   CRUException ex;
 
   if (TRUE == translator.IsSystemMessage()) {
@@ -472,7 +472,7 @@ void CRUExecController::HandleRemoteExecutorFailure(CRUTask *pTask, Lng32 pid, C
 //	Locate a remotely executed task by pid.
 //--------------------------------------------------------------------------//
 
-CRUTask *CRUExecController::FindRunningTask(Lng32 pid) {
+CRUTask *CRUExecController::FindRunningTask(int pid) {
   CRUTask *pTask = NULL;
   DSListPosition pos = runningTaskList_.GetHeadPosition();
 
@@ -500,7 +500,7 @@ CRUTask *CRUExecController::FindRunningTask(Lng32 pid) {
 void CRUExecController::AllocateTaskProcess(CRUTask &task) {
   RUASSERT(TRUE == useParallelism_);
 
-  Lng32 pid = processPool_.GetInactiveTaskProcessPid();
+  int pid = processPool_.GetInactiveTaskProcessPid();
   if (-1 == pid) {
     // No inactive process, create a new server ...
     pid = InitiateTaskProcess();
@@ -520,8 +520,8 @@ void CRUExecController::AllocateTaskProcess(CRUTask &task) {
 //
 //-------------------------------------------------------------------//
 
-Lng32 CRUExecController::InitiateTaskProcess() {
-  Lng32 pid = processPool_.LaunchTaskProcess();
+int CRUExecController::InitiateTaskProcess() {
+  int pid = processPool_.LaunchTaskProcess();
 
   char buffer[CRUOptions::PACK_BUFFER_SIZE];
   CUOFsIpcMessageTranslator translator(buffer, CRUOptions::PACK_BUFFER_SIZE);
@@ -535,7 +535,7 @@ Lng32 CRUExecController::InitiateTaskProcess() {
   translator.StartWrite();
 
   // Tell him his pid
-  translator.WriteBlock(&pid, sizeof(Lng32));
+  translator.WriteBlock(&pid, sizeof(int));
   translator.WriteBlock(&len, sizeof(short));
   if (len > 0) translator.WriteBlock(parentQid, len);
 
@@ -570,7 +570,7 @@ Lng32 CRUExecController::InitiateTaskProcess() {
 //-------------------------------------------------------------------//
 
 void CRUExecController::DeAllocateTaskProcess(CRUTask &task) {
-  Lng32 pid = task.GetExecutor().GetProcessId();
+  int pid = task.GetExecutor().GetProcessId();
 
   if (-1 == pid) {
     // The task was executed in the main process

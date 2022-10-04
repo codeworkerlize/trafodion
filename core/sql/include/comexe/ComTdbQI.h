@@ -57,7 +57,7 @@ enum QIStatType {
   - OBJECT_UID : object uid, validate for COM_QI_OBJECT_REDEF and COM_QI_STATS_UPDATED
   - SUBJECT_HASH : generateHash(subjectUserID), validate for priviledge operation
   - OBJECT_HASH :  generateHash(objectUserID), validate for priviledge operation
-  - REVOKE_TIME : update timestamp in Int64
+  - REVOKE_TIME : update timestamp in long
 ****************************************************************************/
 
 static const ComTdbVirtTableColumnInfo queryInvalidateVirtTableColumnInfo[] = {  // offset
@@ -194,7 +194,7 @@ class ComTdbQryInvalid : public ComTdb {
 
   // Constructor used by the generator.
   ComTdbQryInvalid(ULng32 tupleLen, ULng32 returnedTuplelen, ULng32 inputTuplelen, ex_cri_desc *criDescParentDown,
-                   ex_cri_desc *criDescParentUp, queue_index queueSizeDown, queue_index queueSizeUp, Lng32 numBuffers,
+                   ex_cri_desc *criDescParentUp, queue_index queueSizeDown, queue_index queueSizeUp, int numBuffers,
                    ULng32 bufferSize, ex_expr *scanExpr, ex_expr *inputExpr, ex_expr *projExpr,
                    ex_cri_desc *workCriDesc, UInt16 qi_row_atp_index, UInt16 input_row_atp_index);
 
@@ -211,7 +211,7 @@ class ComTdbQryInvalid : public ComTdb {
 
   // Pack and Unpack routines
   Long pack(void *);
-  Lng32 unpack(void *, void *reallocator);
+  int unpack(void *, void *reallocator);
 
   // For the GUI, Does nothing right now
   void display() const {};

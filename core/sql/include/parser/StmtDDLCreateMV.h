@@ -106,7 +106,7 @@ class StmtDDLCreateMV : public StmtDDLNode {
 
   virtual Int32 getArity() const;
 
-  virtual ExprNode *getChild(Lng32 index);
+  virtual ExprNode *getChild(int index);
 
   inline CollIndex getCurViewColNum() const;  // for Binder use only
 
@@ -236,7 +236,7 @@ class StmtDDLCreateMV : public StmtDDLNode {
 
   inline void resetCurViewColNum();
 
-  virtual void setChild(Lng32 index, ExprNode *pChildNode);
+  virtual void setChild(int index, ExprNode *pChildNode);
 
   inline void setCurViewColNum(const CollIndex curVwCol);  // for Binder use
 

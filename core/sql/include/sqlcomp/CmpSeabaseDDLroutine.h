@@ -357,7 +357,7 @@ struct LibmgrRoutineInfo {
 
   // ddl stmt corresponding to the current ddl.
   const QString *newDDL;
-  Lng32 sizeOfnewDDL;
+  int sizeOfnewDDL;
 
   enum LibmgrLibEnum { JAVA_LIB, CPP_LIB } whichLib;
 

@@ -628,7 +628,7 @@ class GroupAttributes : public ReferenceCounter {
   // -----------------------------------------------------------------------
 
   ValueIdList recommendedOrderForNJProbing(GroupAttributes *child0GA,        // IN
-                                           Lng32 numForcedParts,             // IN
+                                           int numForcedParts,             // IN
                                            RequirementGenerator &rg,         // IN
                                            ValueIdList &reqdOrder1,          // IN
                                            ValueIdSet &reqdArr1,             // IN

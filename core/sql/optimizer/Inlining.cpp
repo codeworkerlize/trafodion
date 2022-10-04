@@ -44,7 +44,7 @@
 #include "sqlcomp/parser.h"
 #include "parser/StmtNode.h"
 #include "optimizer/Inlining.h"
-#include "ex_error.h"
+#include "executor/ex_error.h"
 #include "optimizer/Triggers.h"
 #include "optimizer/TriggerDB.h"
 #include "TriggerEnable.h"
@@ -413,7 +413,7 @@ Update::MvUpdateType Update::checkUpdateType(MVInfoForDML *mvInfo, const Qualifi
   MvUpdateType updateType = IRELEVANT;
   mvInfo->initUsedObjectsHash();  // initialization for the searching
   const MVUsedObjectInfo *mvUseInfo = mvInfo->findUsedInfoForTable(subjectTable);
-  const LIST(Lng32) &colsUsedByMv = mvUseInfo->getUsedColumnList();
+  const LIST(int) &colsUsedByMv = mvUseInfo->getUsedColumnList();
   for (CollIndex i = 0; i < colsUsedByMv.entries(); i++) {
     // Check whether the column was updated in the current update operation.
     // If so, this update is not IRELEVANT anymore. Otherwise, skip this column.
@@ -670,7 +670,7 @@ NABoolean GenericUpdate::isIMNeeded(UpdateColumns *updatedColumns) {
       CMPASSERT(updatedColumns != NULL);
       const ValueIdList &indexColumns = index->getIndexColumns();
       for (CollIndex j = 0; j < indexColumns.entries() && !imNeeded; j++) {
-        Lng32 indexCol = indexColumns[j].getNAColumn()->getPosition();
+        int indexCol = indexColumns[j].getNAColumn()->getPosition();
         if (updatedColumns->contains(indexCol)) {
           imNeeded = TRUE;
           break;
@@ -1225,7 +1225,7 @@ void BeforeTrigger::addUpdatedColumns(UpdateColumns *colsToSet, const NATable *n
 
   // For each Assign expression, add the col position to ColsToSet.
   for (CollIndex i = 0; i < setList_->entries(); i++) {
-    Lng32 targetColPosition = getTargetColumn(i, NULL, naTable);
+    int targetColPosition = getTargetColumn(i, NULL, naTable);
     CMPASSERT(targetColPosition != -1);
     colsToSet->addColumn(targetColPosition);
   }
@@ -1519,13 +1519,13 @@ RelExpr *GenericUpdate::createIMTree(BindWA *bindWA, UpdateColumns *updatedColum
         const ValueIdList &indexColumns = index->getIndexColumns();
 
         for (CollIndex j = 0; j < indexColumns.entries() && !imNeeded; j++) {
-          Lng32 indexCol = indexColumns[j].getNAColumn()->getPosition();
+          int indexCol = indexColumns[j].getNAColumn()->getPosition();
 
           if (updatedColumns != NULL)  // -- Triggers
             imNeeded |= updatedColumns->contains(indexCol);
           else {
             for (CollIndex k = 0; k < newRecExprArray().entries(); k++) {
-              Lng32 tableCol = newRecExprArray()[k].getItemExpr()->child(0).getNAColumn()->getPosition();
+              int tableCol = newRecExprArray()[k].getItemExpr()->child(0).getNAColumn()->getPosition();
 
               if (indexCol <= tableCol) {
                 if (indexCol == tableCol) imNeeded = TRUE;
@@ -2185,7 +2185,7 @@ RelExpr *GenericUpdate::createRISubtree(BindWA *bindWA, const NATable *naTable, 
   ItemExpr *grbySelectionPred = new (heap)
       Case(NULL,
            new (heap) IfThenElse(newAggExpr, new (heap) BoolVal(ITM_RETURN_FALSE),
-                                 new (heap) RaiseError((Lng32)EXE_RI_CONSTRAINT_VIOLATION, constraintName, tableName)));
+                                 new (heap) RaiseError((int)EXE_RI_CONSTRAINT_VIOLATION, constraintName, tableName)));
 
   // Create a GroupBy on the newScan, and attach the new case as "having" predicate.
   RelExpr *newGrby = new (heap) GroupByAgg(newScan, REL_GROUPBY);
@@ -2398,7 +2398,7 @@ RelExpr *GenericUpdate::createMvLogInsert(BindWA *bindWA, CollHeap *heap, Update
 // It checks if we are compiling a NOT ATOMIC statement as raises the appropriate
 // error/warning. A warning is raised for ODBC and the statement will be compiled as an
 // ATOMIC statement. This method retuns TRUE if an error is raised and returns FALSE otherwise
-NABoolean GenericUpdate::checkForNotAtomicStatement(BindWA *bindWA, Lng32 sqlcode, NAString objname, NAString tabname) {
+NABoolean GenericUpdate::checkForNotAtomicStatement(BindWA *bindWA, int sqlcode, NAString objname, NAString tabname) {
   if (bindWA->getHostArraysArea() && bindWA->getHostArraysArea()->getTolerateNonFatalError()) {
     if (CmpCommon::getDefault(ODBC_PROCESS) != DF_ON) {
       *CmpCommon::diags() << DgSqlCode(-sqlcode) << DgString0(objname) << DgString1(tabname);
@@ -3431,7 +3431,7 @@ RelExpr *GenericUpdate::handleInlining(BindWA *bindWA, RelExpr *boundExpr) {
 
   // Save the previous IudNum, it will be restored at the end of the
   // inlining of the current backbone.
-  Lng32 prevIudNum = bindWA->getUniqueIudNum();
+  int prevIudNum = bindWA->getUniqueIudNum();
   // Set the IudNum for the current generic update backbone.
   // This value is used later as part of the uniquifier
   // as the temporary table column UNIQUEIUD_COLUMN

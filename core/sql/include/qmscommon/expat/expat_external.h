@@ -103,11 +103,11 @@ typedef char XML_LChar;
 typedef long XML_Index;
 typedef UInt64 XML_Size;
 #else
-typedef Int64 XML_Index;
+typedef long XML_Index;
 typedef UInt64 XML_Size;
 #endif
 #else
-typedef Lng32 XML_Index;
+typedef int XML_Index;
 typedef ULng32 XML_Size;
 #endif /* XML_LARGE_SIZE */
 

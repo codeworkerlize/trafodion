@@ -39,9 +39,9 @@
 #include "common/str.h"
 
 class ComViewColUsage {
-  Int64 viewUID_;
+  long viewUID_;
   Int32 viewColNumber_;
-  Int64 refdUID_;
+  long refdUID_;
   Int32 refdColNumber_;
   ComObjectType refdObjectType_;
 
@@ -49,7 +49,7 @@ class ComViewColUsage {
   ComViewColUsage()
       : viewUID_(0), viewColNumber_(-1), refdUID_(0), refdColNumber_(-1), refdObjectType_(COM_UNKNOWN_OBJECT) {}
 
-  ComViewColUsage(Int64 viewUID, Int32 viewColNumber, Int64 refdUID, Int32 refdColNumber, ComObjectType refdObjectType)
+  ComViewColUsage(long viewUID, Int32 viewColNumber, long refdUID, Int32 refdColNumber, ComObjectType refdObjectType)
       : viewUID_(viewUID),
         viewColNumber_(viewColNumber),
         refdUID_(refdUID),
@@ -58,14 +58,14 @@ class ComViewColUsage {
 
   virtual ~ComViewColUsage(){};
 
-  Int64 getViewUID() { return viewUID_; }
-  void setViewUID(Int64 viewUID) { viewUID_ = viewUID; }
+  long getViewUID() { return viewUID_; }
+  void setViewUID(long viewUID) { viewUID_ = viewUID; }
 
   Int32 getViewColNumber() { return viewColNumber_; }
   void setViewColNumber(Int32 viewColNumber) { viewColNumber_ = viewColNumber; }
 
-  Int64 getRefdUID() { return refdUID_; }
-  void setRefdUID(Int64 refdUID) { refdUID_ = refdUID; }
+  long getRefdUID() { return refdUID_; }
+  void setRefdUID(long refdUID) { refdUID_ = refdUID; }
 
   Int32 getRefdColNumber() { return refdColNumber_; }
   void setRefdColNumber(Int32 refdColNumber) { refdColNumber_ = refdColNumber; }

@@ -80,14 +80,14 @@ CmpSqlSession::~CmpSqlSession() {
 // tenantID_ and tenantName_ members. The return value is a SQLCODE.
 // When a value other than zero is returned, error information is
 // written into CmpCommon::diags().
-Lng32 CmpSqlSession::getUserInfoFromCLI() {
+int CmpSqlSession::getUserInfoFromCLI() {
   NABoolean doDebug = FALSE;
 #ifdef _DEBUG
   doDebug = (getenv("DBUSER_DEBUG") ? TRUE : FALSE);
   if (doDebug) printf("[DBUSER:%d] BEGIN CmpSqlSession::getUserInfoFromCLI\n", (int)getpid());
 #endif
 
-  Lng32 sqlcode = 0;
+  int sqlcode = 0;
   Int32 localUserID = 0;
   char localUserName[MAX_DBUSERNAME_LEN + 1] = "";
   Int32 localTenantID = 0;
@@ -169,7 +169,7 @@ Lng32 CmpSqlSession::getUserInfoFromCLI() {
 // 3. Call a helper method that will retrieve the current user and tenant
 //    information from CLI and store copies of those values in data
 //    members.
-Lng32 CmpSqlSession::setDatabaseUserAndTenant(Int32 userID, const char *userName, Int32 tenantID,
+int CmpSqlSession::setDatabaseUserAndTenant(Int32 userID, const char *userName, Int32 tenantID,
                                               const char *tenantName, const char *tenantNodes,
                                               const char *tenantDefaultSchema) {
   NABoolean doDebug = FALSE;
@@ -190,7 +190,7 @@ Lng32 CmpSqlSession::setDatabaseUserAndTenant(Int32 userID, const char *userName
     return 0;
   }
 
-  Lng32 sqlcode = 0;
+  int sqlcode = 0;
 
   // 2a. Call CLI with the new tenant
   if (tenantID_ != tenantID) {
@@ -256,13 +256,13 @@ void CmpSqlSession::setSessionId(NAString &sessionID) {
     volatileSchemaName_ += COM_SESSION_ID_PREFIX;
 
     char sName[200];
-    Int64 cpu_l;
-    Int64 pin_l;
-    Int64 schemaNameCreateTime = 0;
-    Int64 sessionUniqNum;
-    Lng32 userNameLen = 0;
-    Lng32 userSessionNameLen = 0;
-    Lng32 tenantIdLen = 0;
+    long cpu_l;
+    long pin_l;
+    long schemaNameCreateTime = 0;
+    long sessionUniqNum;
+    int userNameLen = 0;
+    int userSessionNameLen = 0;
+    int tenantIdLen = 0;
     ComSqlId::extractSqlSessionIdAttrs((char *)sessionID.data(), sessionID.length(), segmentNum_, cpu_l, pin_l,
                                        schemaNameCreateTime, sessionUniqNum, userNameLen, NULL, tenantIdLen, NULL,
                                        userSessionNameLen, NULL);
@@ -295,7 +295,7 @@ void CmpSqlSession::setSessionUsername(NAString &userName) {
        revived.
 
     char uName[42];
-    Int64 uNameLen = 40;
+    long uNameLen = 40;
 
     ComSqlId::getSqlSessionIdAttr
       (ComSqlId::SQLQUERYID_USERNAME,
@@ -354,7 +354,7 @@ NABoolean CmpSqlSession::isValidVolatileSchemaName(NAString &schName) {
       return FALSE;
     }
 
-    Lng32 len = MINOF(strlen(csn.getSchemaNamePartAsAnsiString().data()), strlen(COM_VOLATILE_SCHEMA_PREFIX));
+    int len = MINOF(strlen(csn.getSchemaNamePartAsAnsiString().data()), strlen(COM_VOLATILE_SCHEMA_PREFIX));
     NAString upSch(csn.getSchemaNamePartAsAnsiString().data());
     upSch.toUpper();
     if ((len > 0) && (strncmp(upSch.data(), COM_VOLATILE_SCHEMA_PREFIX, len) == 0)) {
@@ -375,7 +375,7 @@ NABoolean CmpSqlSession::validateVolatileSchemaName(NAString &schName) {
       return FALSE;
     }
 
-    Lng32 len = MINOF(strlen(csn.getSchemaNamePartAsAnsiString().data()), strlen(COM_VOLATILE_SCHEMA_PREFIX));
+    int len = MINOF(strlen(csn.getSchemaNamePartAsAnsiString().data()), strlen(COM_VOLATILE_SCHEMA_PREFIX));
     NAString upSch(csn.getSchemaNamePartAsAnsiString().data());
     upSch.toUpper();
     if ((NOT Get_SqlParser_Flags(ALLOW_VOLATILE_SCHEMA_IN_TABLE_NAME)) && (len > 0) &&

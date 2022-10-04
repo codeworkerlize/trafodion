@@ -50,7 +50,7 @@
 //	Constructor and destructor of CRUDupElimTask
 //--------------------------------------------------------------------------//
 
-CRUDupElimTask::CRUDupElimTask(Lng32 id, CRUTbl &table)
+CRUDupElimTask::CRUDupElimTask(int id, CRUTbl &table)
     : inherited(id, table),
       isRangeResolv_(FALSE),
       isSingleRowResolv_(FALSE),
@@ -116,7 +116,7 @@ void CRUDupElimTask::PullDataFromExecutor() {
 //
 //--------------------------------------------------------------------------//
 
-Lng32 CRUDupElimTask::GetDeltaStatisticsBufSize() const {
+int CRUDupElimTask::GetDeltaStatisticsBufSize() const {
   CRUTbl &tbl = GetTable();
 
   Int32 nStatEntries = tbl.GetIncrementalInvolvedMVsUsingMe().GetCount();

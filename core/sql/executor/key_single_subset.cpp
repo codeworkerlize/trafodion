@@ -78,8 +78,8 @@ keyRangeEx::getNextKeyRangeReturnType keySingleSubsetEx::getNextKeyRange(atp_str
     ex_expr::exp_return_type rcekef = ex_expr::EXPR_OK;
 
     // for saving data conversion error flags
-    Lng32 bkConvErrorFlag = 0;  // s/b exp_conv_clause::CONV_RESULT_OK
-    Lng32 ekConvErrorFlag = 0;  // s/b exp_conv_clause::CONV_RESULT_OK
+    int bkConvErrorFlag = 0;  // s/b exp_conv_clause::CONV_RESULT_OK
+    int ekConvErrorFlag = 0;  // s/b exp_conv_clause::CONV_RESULT_OK
 
     if (bkPred()) {
       dataConvErrorFlag_ = 0;  // The zero hard-coded here should be

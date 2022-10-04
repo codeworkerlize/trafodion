@@ -50,7 +50,7 @@
 #include "ExTrieTable.h"
 #include "ExBitMapTable.h"
 #include "executor/ExStats.h"
-#include "ex_error.h"
+#include "executor/ex_error.h"
 #include "ex_exe_stmt_globals.h"
 
 #include "sqlmxevents/logmxevent.h"
@@ -183,7 +183,7 @@ ex_hash_grby_tcb::ex_hash_grby_tcb(const ex_hash_grby_tdb &hash_grby_tdb, const 
 
   // allocate the buffer for the result rows. This is
   // controlled by GEN_HGBY_NUM_BUFFERS CQD at compile time.
-  Lng32 numBuffers = ((hash_grby_tdb.numBuffers_ == 0) ? 5 : hash_grby_tdb.numBuffers_);
+  int numBuffers = ((hash_grby_tdb.numBuffers_ == 0) ? 5 : hash_grby_tdb.numBuffers_);
 
   resultPool_ = new (space_) sql_buffer_pool(numBuffers, (Int32)hash_grby_tdb.bufferSize_, space_);
 
@@ -439,7 +439,7 @@ short ex_hash_grby_tcb::work() {
 
         // if we have given to the parent all the rows needed,
         // we are done
-        if ((request == ex_queue::GET_N) && (downParentEntry->downState.requestValue <= (Lng32)matchCount_))
+        if ((request == ex_queue::GET_N) && (downParentEntry->downState.requestValue <= (int)matchCount_))
           setState(HASH_GRBY_DONE);
         else {
           // make sure that we have space in the up queue
@@ -554,9 +554,9 @@ short ex_hash_grby_tcb::work() {
         if (rc_ == EXE_SORT_ERROR) {
           char msg[512];
           char errorMsg[100];
-          Lng32 scratchError = 0;
-          Lng32 scratchSysError = 0;
-          Lng32 scratchSysErrorDetail = 0;
+          int scratchError = 0;
+          int scratchSysError = 0;
+          int scratchSysErrorDetail = 0;
 
           if (clusterDb_)
             clusterDb_->getScratchErrorDetail(scratchError, scratchSysError, scratchSysErrorDetail, errorMsg);
@@ -633,11 +633,11 @@ void ex_hash_grby_tcb::workInitialize() {
     // least 100 KB. Don't completely trust the optimizer ;-)
     // (With available memory usually at 100MB, that's a max of 80 clusters).
     NAFloat innerTableSizeF = hashGrbyTdb().getEstRowsUsed() * (NAFloat)(hashGrbyTdb().extGroupedRowLength_);
-    Int64 innerTableSize;
+    long innerTableSize;
     if (innerTableSizeF > MAX_INPUT_SIZE)
       innerTableSize = MAX_INPUT_SIZE;
     else
-      innerTableSize = MAXOF(MIN_INPUT_SIZE, (Int64)innerTableSizeF);
+      innerTableSize = MAXOF(MIN_INPUT_SIZE, (long)innerTableSizeF);
 
     // required number of buffers for table
     ULng32 totalResBuffers = (ULng32)(innerTableSize / hashGrbyTdb().bufferSize_);
@@ -792,7 +792,7 @@ void ex_hash_grby_tcb::returnResultCurrentRow(HashRow *dataPointer) {
 
   // in case of GET_N : we are done if we returned enough
   if (downParentEntry->downState.request == ex_queue::GET_N &&
-      downParentEntry->downState.requestValue <= (Lng32)matchCount_) {
+      downParentEntry->downState.requestValue <= (int)matchCount_) {
     setState(HASH_GRBY_CANCELED);
     return;
   }
@@ -1058,13 +1058,13 @@ void ex_hash_grby_tcb::workReadChild() {
         // if had overflow, then provide some data about the clusters
         if (haveSpilled_) {
           ULng32 ind, numSpilled = 0;
-          Int64 nonSpilledSize = 0, spilledSize = 0;
-          Int64 maxSpilledSize = 0, minSpilledSize = -1;
-          Int64 maxNonSpilledSize = 0, minNonSpilledSize = -1;
+          long nonSpilledSize = 0, spilledSize = 0;
+          long maxSpilledSize = 0, minSpilledSize = -1;
+          long maxNonSpilledSize = 0, minNonSpilledSize = -1;
           // traverse all clusters
           for (ind = 0; ind < bucketCount_; ind++) {
             Cluster *cluster = buckets_[ind].getInnerCluster();
-            Int64 clusterSize = cluster->getRowCount() * hashGrbyTdb().extGroupedRowLength_;
+            long clusterSize = cluster->getRowCount() * hashGrbyTdb().extGroupedRowLength_;
             if (cluster->getState() == Cluster::FLUSHED) {
               spilledSize += clusterSize;
               numSpilled++;
@@ -1077,11 +1077,11 @@ void ex_hash_grby_tcb::workReadChild() {
             }
           }
           char msg[512];
-          Int64 MB = 1024 * 1024;
-          Lng32 nonSpilledSizeMB = (Lng32)(nonSpilledSize / MB), spilledSizeMB = (Lng32)(spilledSize / MB),
-                maxSpilledSizeMB = (Lng32)(maxSpilledSize / MB), minSpilledSizeMB = (Lng32)(minSpilledSize / MB),
-                maxNonSpilledSizeMB = (Lng32)(maxNonSpilledSize / MB),
-                minNonSpilledSizeMB = (Lng32)(minNonSpilledSize / MB);
+          long MB = 1024 * 1024;
+          int nonSpilledSizeMB = (int)(nonSpilledSize / MB), spilledSizeMB = (int)(spilledSize / MB),
+                maxSpilledSizeMB = (int)(maxSpilledSize / MB), minSpilledSizeMB = (int)(minSpilledSize / MB),
+                maxNonSpilledSizeMB = (int)(maxNonSpilledSize / MB),
+                minNonSpilledSizeMB = (int)(minNonSpilledSize / MB);
 
           if (bucketCount_ == numSpilled)
             sprintf(msg,
@@ -1370,7 +1370,7 @@ void ex_hash_grby_tcb::workSpill() {
     setState(oldState_);
     clusterDb_->setClusterToFlush(NULL);
     if (hashGrbyTdb().logDiagnostics()) {
-      Int64 elapsedIOTime = ioTimer_.endTimer();  // stop timing, get current total
+      long elapsedIOTime = ioTimer_.endTimer();  // stop timing, get current total
       if (!haveSpilled_) {
         char msg[256];
         sprintf(msg, "HASH GRBY finished first spill, numChecks: %d., elapsed time = " PF64, numIOChecks_,
@@ -1768,7 +1768,7 @@ void ex_hash_grby_tcb::workDone() {
 
   if (haveSpilled_ && hashGrbyTdb().logDiagnostics()) {
     char msg[256];
-    Int64 elapsedIOTime = ioTimer_.endTimer();  // stop timing, get current total
+    long elapsedIOTime = ioTimer_.endTimer();  // stop timing, get current total
 
     sprintf(msg, "HASH GRBY returns last row; for spills, numChecks: %d , elapsed time = " PF64, numIOChecks_,
             elapsedIOTime);

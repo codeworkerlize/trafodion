@@ -399,7 +399,7 @@ void ParDDLFileAttrsAlterIndex::setFileAttr(ElemDDLFileAttr *pFileAttr) {
         /////////////////////////////////////////////////////////////////
         // error checking while specifying the MAXEXTENTS attribute clause
         /////////////////////////////////////////////////////////////////
-        Lng32 maxext = pMaxExtents->getMaxExtents();
+        int maxext = pMaxExtents->getMaxExtents();
         if ((maxext <= 0) || (maxext > COM_MAX_MAXEXTENTS)) {
           *SqlParser_Diags << DgSqlCode(-3191);
         } else {
@@ -478,7 +478,7 @@ NATraceList ParDDLFileAttrsAlterIndex::getDetailInfo() const {
   if (isAllocateSpecified()) {
     detailText = "extents to allocate: ";
     // cast to long needed to suppress warning
-    detailText += LongToNAString((Lng32)getExtentsToAllocate());
+    detailText += LongToNAString((int)getExtentsToAllocate());
     detailTextList.append(detailText);
   } else {
     detailTextList.append("allocate not spec");
@@ -531,7 +531,7 @@ NATraceList ParDDLFileAttrsAlterIndex::getDetailInfo() const {
       detailTextList.append(detailText);
     } else {
       detailText = "maximum size:  ";
-      detailText += LongToNAString((Lng32)getMaxSize());
+      detailText += LongToNAString((int)getMaxSize());
       detailTextList.append(detailText);
 
       detailText = "max size unit: ";
@@ -976,7 +976,7 @@ void ParDDLFileAttrsAlterTable::setFileAttr(ElemDDLFileAttr *pFileAttr) {
       {
         ElemDDLFileAttrMaxExtents *pMaxExtents = pFileAttr->castToElemDDLFileAttrMaxExtents();
         // error checking for limits when we specify the MAXEXTENTS clause
-        Lng32 maxext = pMaxExtents->getMaxExtents();
+        int maxext = pMaxExtents->getMaxExtents();
         if ((maxext <= 0) || (maxext > COM_MAX_MAXEXTENTS)) {
           *SqlParser_Diags << DgSqlCode(-3191);
         } else {
@@ -1121,7 +1121,7 @@ NATraceList ParDDLFileAttrsAlterTable::getDetailInfo() const {
   if (isAllocateSpecified()) {
     detailText = "extents to allocate: ";
     // cast to long needed to suppress warning
-    detailText += LongToNAString((Lng32)getExtentsToAllocate());
+    detailText += LongToNAString((int)getExtentsToAllocate());
     detailTextList.append(detailText);
   } else {
     detailTextList.append("allocate not spec");
@@ -1184,7 +1184,7 @@ NATraceList ParDDLFileAttrsAlterTable::getDetailInfo() const {
       detailTextList.append(detailText);
     } else {
       detailText = "maximum size:  ";
-      detailText += LongToNAString((Lng32)getMaxSize());
+      detailText += LongToNAString((int)getMaxSize());
       detailTextList.append(detailText);
 
       detailText = "max size unit: ";
@@ -1610,7 +1610,7 @@ void ParDDLFileAttrsCreateIndex::setFileAttr(ElemDDLFileAttr *pFileAttr) {
         //////////////////////////////////////////////////////
         // error checking when we define the MAXEXTENTS clause
         //////////////////////////////////////////////////////
-        Lng32 maxext = pMaxExtents->getMaxExtents();
+        int maxext = pMaxExtents->getMaxExtents();
         if ((maxext <= 0) || (maxext > COM_MAX_MAXEXTENTS)) {
           *SqlParser_Diags << DgSqlCode(-3191);
         } else
@@ -1667,7 +1667,7 @@ NATraceList ParDDLFileAttrsCreateIndex::getDetailInfo() const {
 
   detailText = "extents to allocate: ";
   // cast to long needed to suppress warning
-  detailText += LongToNAString((Lng32)getExtentsToAllocate());
+  detailText += LongToNAString((int)getExtentsToAllocate());
   detailTextList.append(detailText);
 
   detailText = "audcompr?      ";
@@ -1675,7 +1675,7 @@ NATraceList ParDDLFileAttrsCreateIndex::getDetailInfo() const {
   detailTextList.append(detailText);
 
   detailText = "blocksize:     ";
-  detailText += LongToNAString((Lng32)getBlockSize());
+  detailText += LongToNAString((int)getBlockSize());
   detailTextList.append(detailText);
 
   detailText = "buffered?      ";
@@ -1719,7 +1719,7 @@ NATraceList ParDDLFileAttrsCreateIndex::getDetailInfo() const {
 
   if (NOT isMaxSizeUnbounded()) {
     detailText = "maximum size:  ";
-    detailText += LongToNAString((Lng32)getMaxSize());
+    detailText += LongToNAString((int)getMaxSize());
     detailTextList.append(detailText);
 
     detailText = "max size unit: ";

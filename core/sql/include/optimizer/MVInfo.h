@@ -286,7 +286,7 @@ class ViewColumnGraph : public NABasicObject {
 class MVVegPredicateColumn : public NABasicObject {
  public:
   // Detailed Ctor for DML
-  MVVegPredicateColumn(const QualifiedName &tableName, Lng32 colNumber, NABoolean isComplex,
+  MVVegPredicateColumn(const QualifiedName &tableName, int colNumber, NABoolean isComplex,
                        ComLeftJoinTableType joinSide, ComMVSUsageType usageType, const NAString &text,
                        CharInfo::CharSet textCharSet, CollHeap *heap)
       : tableName_(tableName, heap),
@@ -315,7 +315,7 @@ class MVVegPredicateColumn : public NABasicObject {
 
   // Accessors
   const QualifiedName &getTableName() const { return tableName_; }
-  Lng32 getColNumber() const { return colNumber_; }
+  int getColNumber() const { return colNumber_; }
   NABoolean isComplex() const { return isComplex_; }
   ComLeftJoinTableType getJoinSide() const { return joinSide_; }
   ComMVSUsageType getUsageType() const { return usageType_; }
@@ -337,7 +337,7 @@ class MVVegPredicateColumn : public NABasicObject {
   MVVegPredicateColumn(const MVVegPredicateColumn &other);
 
   const QualifiedName tableName_;
-  const Lng32 colNumber_;
+  const int colNumber_;
   const NABoolean isComplex_;
   const ComLeftJoinTableType joinSide_;
   const ItemExpr *complexExpr_;
@@ -369,11 +369,11 @@ class MVVegPredicate : public LIST(const MVVegPredicateColumn *) {
 
   // If this VegPredicate is on tableName/colPosition, return its index.
   // otherwise return -1.
-  Lng32 findIndexFor(const QualifiedName &tableName, Lng32 colPosition) const;
+  int findIndexFor(const QualifiedName &tableName, int colPosition) const;
 
   // Return the index of some other column on this veg, that covers the one
   // on colIndex.
-  Lng32 getCoveringColFor(Lng32 colIndex, const MVInfo *mvInfo) const;
+  int getCoveringColFor(int colIndex, const MVInfo *mvInfo) const;
 
   // Get one of the VEG columns, that is not complex.
   const MVVegPredicateColumn *getRepresentativeCol() const;
@@ -515,15 +515,15 @@ class MVUsedObjectColNameMap : public NABasicObject {
   void initColNameMap(const NATable *naTable, CollHeap *heap);
 
   // Find the column position into the base table using the column name.
-  Lng32 getColPositionFor(const NAString &colName) const;
+  int getColPositionFor(const NAString &colName) const;
 
   NABoolean isEmpty() const { return colNameHash_.isEmpty(); }
 
  private:
-  typedef NAHashDictionary<const NAString, Lng32> ColNameHash;
+  typedef NAHashDictionary<const NAString, int> ColNameHash;
 
   ColNameHash colNameHash_;
-  Lng32 *colPositionTable_;
+  int *colPositionTable_;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -540,8 +540,8 @@ class MVUsedObjectInfo : public NABasicObject {
 
   // DML Ctor
   MVUsedObjectInfo(CollHeap *heap, const QualifiedName &name, ComObjectType objectType, ComMVSUsageType usageType,
-                   const LIST(Lng32) & usedColumnList, const LIST(Lng32) & indirectUpdateCols, Lng32 ordinalNumber,
-                   Lng32 isInner, NAString selectionPreds)
+                   const LIST(int) & usedColumnList, const LIST(int) & indirectUpdateCols, int ordinalNumber,
+                   int isInner, NAString selectionPreds)
       : objectName_(name, heap),
         objectType_(objectType),
         isUsedDirectly_(TRUE),
@@ -570,16 +570,16 @@ class MVUsedObjectInfo : public NABasicObject {
   // operator== required for use in templates
   NABoolean operator==(const MVUsedObjectInfo &other) const;
 
-  NABoolean isUsedColumn(Lng32 col) const { return usedColumnList_.contains(col); }
-  NABoolean isIndirectUpdateCol(Lng32 col) const { return indirectUpdateCols_.contains(col); }
-  NABoolean isMVColRCI(Lng32 col) const { return MVColsReferencingTheCI_.contains(col); }
-  void addUsedColumn(Lng32 col) {
+  NABoolean isUsedColumn(int col) const { return usedColumnList_.contains(col); }
+  NABoolean isIndirectUpdateCol(int col) const { return indirectUpdateCols_.contains(col); }
+  NABoolean isMVColRCI(int col) const { return MVColsReferencingTheCI_.contains(col); }
+  void addUsedColumn(int col) {
     if (!isUsedColumn(col)) usedColumnList_.insert(col);
   }
-  void addIndirectUpdateCol(Lng32 col) {
+  void addIndirectUpdateCol(int col) {
     if (!isIndirectUpdateCol(col)) indirectUpdateCols_.insert(col);
   }
-  void addMVColRCI(Lng32 col) {
+  void addMVColRCI(int col) {
     if (!isMVColRCI(col)) MVColsReferencingTheCI_.insert(col);
   }
 
@@ -591,17 +591,17 @@ class MVUsedObjectInfo : public NABasicObject {
   ComObjectType getObjectType() const { return objectType_; }
   NABoolean isUsedDirectly() const { return isUsedDirectly_; }
   void setIsUsedDirectly(NABoolean flag) { isUsedDirectly_ = flag; }
-  const LIST(Lng32) & getUsedColumnList() const { return usedColumnList_; }
-  const LIST(Lng32) & getIndirectUpdateCols() const { return indirectUpdateCols_; }
-  const LIST(Lng32) & getMVColsReferencingTheCI() const { return MVColsReferencingTheCI_; }
-  Lng32 getOrdinalNumber() const { return ordinalNumber_; }
+  const LIST(int) & getUsedColumnList() const { return usedColumnList_; }
+  const LIST(int) & getIndirectUpdateCols() const { return indirectUpdateCols_; }
+  const LIST(int) & getMVColsReferencingTheCI() const { return MVColsReferencingTheCI_; }
+  int getOrdinalNumber() const { return ordinalNumber_; }
   NABoolean isInnerTableOfLeftJoin() const { return isInnerTableOfLeftJoin_; }
   const NAString &getSelectionPredicates() const { return selectionPredicates_; }
 
   void setSelectionPredicates(const NAString &preds) { selectionPredicates_ = preds; }
 
   // Used after running the join graph algorithm.
-  void setOrdinalNumber(Lng32 ordinalNumber) { ordinalNumber_ = ordinalNumber; }
+  void setOrdinalNumber(int ordinalNumber) { ordinalNumber_ = ordinalNumber; }
   void setAsInnerTable() { isInnerTableOfLeftJoin_ = TRUE; }
 
   // These methods are used by the catman.
@@ -642,19 +642,19 @@ class MVUsedObjectInfo : public NABasicObject {
   const QualifiedName internalObjectNameForAction_;  // Internal object name for the UUDF ACTION
 
   // A list of all the table's columns that are used by this MV.
-  LIST(Lng32) usedColumnList_;
+  LIST(int) usedColumnList_;
 
   // The columns that are used either by the clustering index of the base
   // table, or by one of the join predicates.
-  LIST(Lng32) indirectUpdateCols_;
+  LIST(int) indirectUpdateCols_;
 
   // This is a list of column positions of MV columns that correspond to
   // the clustering index columns of this table. This is later used for
   // creating the minimal set of secondary indices for MJVs.
-  LIST(Lng32) MVColsReferencingTheCI_;
+  LIST(int) MVColsReferencingTheCI_;
 
   // The position of this table in the join graph solution.
-  Lng32 ordinalNumber_;
+  int ordinalNumber_;
 
   // All the catman ever wanted to know about this used object...
   MVUsedObjectCatmanFlags catmanFlags_;
@@ -734,13 +734,13 @@ class MVColumnInfo : public NABasicObject {
   void setNotNull(NABoolean value = TRUE) { isNotNull_ = value; }
   void setNotNullFrom(ItemExpr *expr);
   void setNormalizedText(const NAString &text) { normalizedColText_ = text; }
-  void setAsRedundant(Lng32 firstMvCol);
+  void setAsRedundant(int firstMvCol);
   void setInMVCI() { isInMVCI_ = TRUE; }
 
   void insertIntoExpHash(ExpressionHash &expHash, CollHeap *heap);
   void createDependentColumns(ExpressionHash &expHash, MVInfoForDDL &mvInfoObj, CollHeap *heap);
 
-  static void calcBaseColHashKey(const QualifiedName &tableName, Lng32 position, NAString &hashKey);
+  static void calcBaseColHashKey(const QualifiedName &tableName, int position, NAString &hashKey);
 
   // Display/print, for debugging.
 #ifndef NDEBUG
@@ -807,17 +807,17 @@ class MVColumns : public NABasicObject {
   void insert(MVColumnInfo *colInfo, NABoolean isIncremental);
 
   MVColumnInfo *getMvColInfoByName(const NAString &name) const;
-  MVColumnInfo *getMvColInfoByBaseColumn(const QualifiedName &tableName, Lng32 position) const;
-  MVColumnInfo *getMvColInfoByBaseColumn(const QualifiedName &tableName, Lng32 baseColPosition,
-                                         Lng32 mvColPosition) const;
-  MVColumnInfo *getMvColInfoByIndex(Lng32 index, NABoolean adjustIndex = TRUE) const;
-  const MVColumnInfoList *getAllMvColsAffectedBy(const QualifiedName &tableName, Lng32 position) const;
+  MVColumnInfo *getMvColInfoByBaseColumn(const QualifiedName &tableName, int position) const;
+  MVColumnInfo *getMvColInfoByBaseColumn(const QualifiedName &tableName, int baseColPosition,
+                                         int mvColPosition) const;
+  MVColumnInfo *getMvColInfoByIndex(int index, NABoolean adjustIndex = TRUE) const;
+  const MVColumnInfoList *getAllMvColsAffectedBy(const QualifiedName &tableName, int position) const;
 
   // The entries() method and [] operator are shortcuts for accessing the
   // direct column list, and should only be used for serial access to the
   // columns list - for loops etc.
   // For access to specific columns by index use getMvColInfoByIndex().
-  MVColumnInfo *operator[](Lng32 index) const { return getMvColInfoByIndex(index, FALSE); }
+  MVColumnInfo *operator[](int index) const { return getMvColInfoByIndex(index, FALSE); }
   ULng32 entries() const  // Only real direct columns.
   {
     return directColumnList_.entries();
@@ -826,7 +826,7 @@ class MVColumns : public NABasicObject {
   // returns # of direct + extra columns.
   ULng32 getTotalNumberOfColumns() const;
 
-  Lng32 getFirstSysAddedColumn() const { return firstSysAddedColumn_; }
+  int getFirstSysAddedColumn() const { return firstSysAddedColumn_; }
 
   void setNewColumnName(MVColumnInfo *colInfo, const NAString &newName);
 
@@ -848,11 +848,11 @@ class MVColumns : public NABasicObject {
   MVColumnInfoList extraColumnList_;
   ColumnInfoHash columnInfoByNameHash_;
   ColumnInfoListHash columnInfoByBaseHash_;
-  Lng32 syskeyIndexCorrection_;
-  Lng32 firstSysAddedColumn_;
+  int syskeyIndexCorrection_;
+  int firstSysAddedColumn_;
   CollHeap *heap_;
 
-  static const Lng32 initialHashTableSize_;
+  static const int initialHashTableSize_;
 };  // class MVColumns
 
 //////////////////////////////////////////////////////////////////////////////
@@ -885,7 +885,7 @@ class MVInfo : public NABasicObject {
   ComMVType getMVType() const { return mvType_; }
   NABoolean isMinMaxUsed() const { return isMinMaxUsed_; }
   MVJoinGraph *getJoinGraph() const { return joinGraph_; }
-  Lng32 getPosOfCountStar() const { return posOfCountStar_; }
+  int getPosOfCountStar() const { return posOfCountStar_; }
   const NAString &getMVSelectText() const { return mvSelectText_; }
   CharInfo::CharSet getMVSelectTextCharSet() const { return mvSelectTextCharSet_; }
 
@@ -903,15 +903,15 @@ class MVInfo : public NABasicObject {
   const LIST(MVUsedObjectInfo *) & getUsedObjectsList() const { return usedObjectsList_; }
   LIST(MVVegPredicate *) & getEqPredicateList() { return eqPredicateList_; }
   MVUsedObjectInfo *findUsedInfoForTable(const QualifiedName &tableName) const;
-  const LIST(Lng32) & getUsedColumns(const QualifiedName &tableName) const;
-  const LIST(Lng32) & getIndirectUpdateColumns(const QualifiedName &tableName) const;
+  const LIST(int) & getUsedColumns(const QualifiedName &tableName) const;
+  const LIST(int) & getIndirectUpdateColumns(const QualifiedName &tableName) const;
 
   // Find an equal predicate keyColis part of.
-  Lng32 findEqPredicateCovering(NAColumn *keyCol);
+  int findEqPredicateCovering(NAColumn *keyCol);
 
   // Is there an equal predicate between these two columns?
-  NABoolean isEqPredicateBetween(const QualifiedName &table1, Lng32 col1, const QualifiedName &table2,
-                                 Lng32 col2) const;
+  NABoolean isEqPredicateBetween(const QualifiedName &table1, int col1, const QualifiedName &table2,
+                                 int col2) const;
 
   // Return a parsed RelExpr tree of the MV select text.
   RelRoot *buildMVSelectTree(const NAString *alternativeText = NULL,
@@ -944,7 +944,7 @@ class MVInfo : public NABasicObject {
 
  protected:
   // Simple mutators
-  void setPosOfCountStar(Lng32 pos) { posOfCountStar_ = pos; }
+  void setPosOfCountStar(int pos) { posOfCountStar_ = pos; }
   void setIsIncremental(NABoolean isInc) { isIncremental_ = isInc; }
   void setMinMaxIsUsed() { isMinMaxUsed_ = TRUE; }
   void setMvType(ComMVType mvType) { mvType_ = mvType; }
@@ -994,7 +994,7 @@ class MVInfo : public NABasicObject {
   LIST(MVVegPredicate *) eqPredicateList_;
   const NAString mvSelectText_;
   CharInfo::CharSet mvSelectTextCharSet_;
-  Lng32 posOfCountStar_;
+  int posOfCountStar_;
   MVJoinGraph *joinGraph_;
 };  // class MVInfo
 
@@ -1013,7 +1013,7 @@ class MVInfoForDDL : public MVInfo {
   NAString &getTextForSysCols() { return textForSysCols_; }
   NABoolean isLeftLinear() const { return isLeftLinear_; }
   NABoolean usesOtherMVs() const { return usesOtherMVs_; }
-  Lng32 getUserColumnCount() const { return userColumnCount_; }
+  int getUserColumnCount() const { return userColumnCount_; }
   NABoolean isOnView() { return (usedViewsList_.entries() > 0); }
   NABoolean isOnUDF() { return (udfList_.entries() > 0); }
 
@@ -1049,7 +1049,7 @@ class MVInfoForDDL : public MVInfo {
   // !!!ATTENTION!!!
   // The responsibility of the return LIST(MVColumnInfoList*)* deletion
   // falls on the function's caller
-  LIST(MVColumnInfoList *) * getOptimalMJVIndexList(const LIST(Lng32) * mvCI);
+  LIST(MVColumnInfoList *) * getOptimalMJVIndexList(const LIST(int) * mvCI);
 
   //++ MV -
   NABoolean isUsedObjectNotIgnoreChanges(const QualifiedName &tableName);
@@ -1087,7 +1087,7 @@ class MVInfoForDDL : public MVInfo {
   void initJoinPredicates(BindWA *bindWA);
   MVVegPredicate *buildNewVegPred(ValueId predValueId, LIST(const VEG *) & vegPtrList, ComMVSUsageType usageType,
                                   NABoolean isLeftJoin);
-  void extractParsedColumnText(Lng32 colIndex, ItemExpr *colExpr);
+  void extractParsedColumnText(int colIndex, ItemExpr *colExpr);
   void addBaseColsUsedByComputedMvColumns();
   void verifyGroupByColumns(GroupByAgg *groupByNode);
   void addViewsToUsedObjectList();
@@ -1095,7 +1095,7 @@ class MVInfoForDDL : public MVInfo {
   RelExpr *getChildBelowRootAndRenameNodes(RelExpr *node);
   void addClusteringIndexAsSystemAdded(TableDesc *tDesc, BindWA *bindWA);
   NABoolean isColumnInMVCI(const NAString &colName);
-  MVColumnInfo *addNewMjvSystemColumnIfNeeded(BindWA *bindWA, NAColumn *keyCol, Lng32 MVColIndex);
+  MVColumnInfo *addNewMjvSystemColumnIfNeeded(BindWA *bindWA, NAColumn *keyCol, int MVColIndex);
 
   // Recompute MV Used Objects clustering information
   void addRecomputeMVUSedObjectsCIColumns(BindWA *bindWA);
@@ -1112,15 +1112,15 @@ class MVInfoForDDL : public MVInfo {
   LIST(GroupByAgg *) groupByNodes_;
   RelRoot *rootNode_;
   const ColumnDescList *colDescList_;
-  Lng32 sysColCounter_;
+  int sysColCounter_;
   NABoolean isLeftLinear_;
   NAString sysColNames_;
   NAString sysColExprs_;
   NAString textForSysCols_;
-  Lng32 userColumnCount_;
+  int userColumnCount_;
   NABoolean usesOtherMVs_;
   ViewColumnGraph *viewColumnGraph_;
-  Lng32 realColumnCount_;
+  int realColumnCount_;
   LIST(const QualifiedName *) leftJoinInnerTables_;
   LIST(MVUsedObjectInfo *) usedViewsList_;
   LIST(const NAString *) unBoundColumnsText_;
@@ -1142,12 +1142,12 @@ class MVInfoForDML : public MVInfo {
 
   // Copy Ctor
   MVInfoForDML(const MVInfo &other, CollHeap *heap)
-      : MVInfo(other, heap), usedObjectsHash_(QualifiedName::hash, (Lng32)20, FALSE, heap) {}
+      : MVInfo(other, heap), usedObjectsHash_(QualifiedName::hash, (int)20, FALSE, heap) {}
 
   virtual ~MVInfoForDML();
 
   // Return a list of MV column positions for the GroupBy columns.
-  void getMavGroupByColumns(LIST(Lng32) & gbColList) const;
+  void getMavGroupByColumns(LIST(int) & gbColList) const;
 
   // Is this MV defined on a single base table?
   NABoolean isMvOnSingleTable();

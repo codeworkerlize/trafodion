@@ -71,9 +71,9 @@ class NATable;
 typedef NAHashDictionary<const NAString, MVJoinTable> MVJoinTableHash;
 
 // A set of tableIndex values, each an index to MVJoinGraph::usedTables_.
-typedef SET(Lng32) MVTableSet;
+typedef SET(int) MVTableSet;
 
-typedef ARRAY(Lng32) GraphRoute;
+typedef ARRAY(int) GraphRoute;
 
 //////////////////////////////////////////////////////////////////////////////
 // This class holds the information of the connections a specific table has
@@ -81,7 +81,7 @@ typedef ARRAY(Lng32) GraphRoute;
 // This class implements the rules and heuristic functions of the algorithm.
 class MVJoinTable : public NABasicObject {
  public:
-  MVJoinTable(Lng32 tableIndex, Lng32 usedIndex, Lng32 nofTables, const NATable *naTable, CollHeap *heap)
+  MVJoinTable(int tableIndex, int usedIndex, int nofTables, const NATable *naTable, CollHeap *heap)
       : tableIndex_(tableIndex),
         usedObjectsIndex_(usedIndex),
         tableName_(naTable->getTableName().getQualifiedNameAsAnsiString(), heap),
@@ -95,8 +95,8 @@ class MVJoinTable : public NABasicObject {
   NABoolean operator==(const MVJoinTable &other) const;
 
   // Accessors
-  Lng32 getTableIndex() const { return tableIndex_; }
-  Lng32 getUsedObjectsIndex() const { return usedObjectsIndex_; }
+  int getTableIndex() const { return tableIndex_; }
+  int getUsedObjectsIndex() const { return usedObjectsIndex_; }
   const NAString *getTableName() const { return &tableName_; }
   const NABitVector &getPredicateBitmap() const { return predicateBitmap_; }
   const NABitVector &getIncomingRiBitmap() const { return incomingRiBitmap_; }
@@ -108,17 +108,17 @@ class MVJoinTable : public NABasicObject {
   // Mutators
   void setNonEmptyDelta() { deltaType_ = NONEMPTY_DELTA; }
   void setInsertOnlyDelta() { deltaType_ = INSERTONLY_DELTA; }
-  void markPredicateTo(Lng32 table) { predicateBitmap_.setBit(table); }
-  void markRiTo(Lng32 table) { outgoingRiBitmap_.setBit(table); }
-  void markRiFrom(Lng32 table) { incomingRiBitmap_.setBit(table); }
-  Lng32 markRiConstraints(BindWA *bindWA, MVInfo *mvInfo);
+  void markPredicateTo(int table) { predicateBitmap_.setBit(table); }
+  void markRiTo(int table) { outgoingRiBitmap_.setBit(table); }
+  void markRiFrom(int table) { incomingRiBitmap_.setBit(table); }
+  int markRiConstraints(BindWA *bindWA, MVInfo *mvInfo);
 
   // Is there a predicate from the Connected Set to me?
   NABoolean isOnPredicate(const MVJoinGraphState &state) const;
   // Is there an RI from the Connected Set to me?
   NABoolean isOnRI(const MVJoinGraphState &state) const;
   // How good am I as a candidate for the next table on the route?
-  Lng32 calcHeuristics(const MVJoinGraphState &state) const;
+  int calcHeuristics(const MVJoinGraphState &state) const;
 
 #ifndef NDEBUG
   void display() const;
@@ -128,8 +128,8 @@ class MVJoinTable : public NABasicObject {
  private:
   enum DeltaType { EMPTY_DELTA, INSERTONLY_DELTA, NONEMPTY_DELTA };
 
-  const Lng32 tableIndex_;        // Index into MVJoinGraph::usedTables_
-  const Lng32 usedObjectsIndex_;  // Index into MVInfo::usedObjectsList_
+  const int tableIndex_;        // Index into MVJoinGraph::usedTables_
+  const int usedObjectsIndex_;  // Index into MVInfo::usedObjectsList_
   const NAString tableName_;      // For persistance of the name pointer
   const NATable *naTable_;        // For finding the RIs
   NABitVector predicateBitmap_;   // Who do I have a prediucate to?
@@ -143,20 +143,20 @@ class MVJoinTable : public NABasicObject {
 // table is connected to at lease one of its predecessors.
 class MVJoinGraphSolution : public NABasicObject {
  public:
-  MVJoinGraphSolution(Lng32 nofTables, CollHeap *heap);
+  MVJoinGraphSolution(int nofTables, CollHeap *heap);
 
   MVJoinGraphSolution(const MVJoinGraphSolution &other, CollHeap *heap)
       : route_(other.route_, heap), entries_(other.entries_), bitmap_(bitmap_), riTables_(other.riTables_, heap) {}
 
   NABoolean isEmpty() const { return entries_ == 0; }
-  Lng32 getScore() const { return riTables_.entries(); }
+  int getScore() const { return riTables_.entries(); }
   const GraphRoute &getRoute() const { return route_; }
   const NABitVector &getBitmap() const { return bitmap_; }
   const MVTableSet &getRiTables() const { return riTables_; }
-  NABoolean isTableOnRI(Lng32 tableIndex) const { return riTables_.contains(tableIndex); }
+  NABoolean isTableOnRI(int tableIndex) const { return riTables_.contains(tableIndex); }
 
   // Add a table to the route.
-  void pushTable(Lng32 tableIndex, NABoolean isOnRi);
+  void pushTable(int tableIndex, NABoolean isOnRi);
 
   void reset();
 
@@ -167,7 +167,7 @@ class MVJoinGraphSolution : public NABasicObject {
 
  private:
   GraphRoute route_;     // The list of tableIndex values.
-  Lng32 entries_;        // The length of the current route.
+  int entries_;        // The length of the current route.
   NABitVector bitmap_;   // Bitmap of route tables.
   MVTableSet riTables_;  // Set of tables for which RI opt. can be used.
 };                       // MVJoinGraphSolution
@@ -183,10 +183,10 @@ class MVJoinGraphSolution : public NABasicObject {
 //    chosen (used only during Refresh activation).
 class MVJoinGraphState : public NABasicObject {
  public:
-  MVJoinGraphState(Lng32 nofTables, Lng32 nofRIs, const MVTableSet &reorderGroup, CollHeap *heap);
+  MVJoinGraphState(int nofTables, int nofRIs, const MVTableSet &reorderGroup, CollHeap *heap);
 
   // Accessors
-  Lng32 getNofRIs() const { return nofRI_; }
+  int getNofRIs() const { return nofRI_; }
   const MVTableSet &getConnectedSet() const { return connectedSet_; }
   const MVTableSet &getAvailableSet() const { return availableSet_; }
   const NABitVector &getAvailableBitmap() const { return availableBitmap_; }
@@ -197,10 +197,10 @@ class MVJoinGraphState : public NABasicObject {
 
   // Pick the next table to be added to the route, according to the
   // heuristic function.
-  Lng32 pickNextTable(const MVJoinGraph &joinGraph, NABoolean isFirst) const;
+  int pickNextTable(const MVJoinGraph &joinGraph, NABoolean isFirst) const;
 
   // Update the state according to the next table that was chosen.
-  void nextTableIs(Lng32 tableIndex, NABoolean isOnRI);
+  void nextTableIs(int tableIndex, NABoolean isOnRI);
 
   // Start fresh for a new reorder group.
   void reset(const MVTableSet &reorderGroup);
@@ -209,8 +209,8 @@ class MVJoinGraphState : public NABasicObject {
   void chooseBestSolution();
 
  private:
-  const Lng32 nofTables_;             // The number of tables in the join.
-  const Lng32 nofRI_;                 // The total number of RIs
+  const int nofTables_;             // The number of tables in the join.
+  const int nofRI_;                 // The total number of RIs
   MVTableSet connectedSet_;           // The connected set.
   MVTableSet availableSet_;           // The available set.
   NABitVector availableBitmap_;       // A bitmap representing the available set.
@@ -235,7 +235,7 @@ class MVJoinGraphState : public NABasicObject {
 // left join.
 class MVJoinGraph : public NABasicObject {
  public:
-  MVJoinGraph(Lng32 nofTables, CollHeap *heap)
+  MVJoinGraph(int nofTables, CollHeap *heap)
       : nofTables_(nofTables),
         nofRI_(0),
         usedTables_(heap, nofTables),
@@ -244,19 +244,19 @@ class MVJoinGraph : public NABasicObject {
         tableHash_(hashKey, nofTables * 2, FALSE, heap),  // Pass NAString::hashKey as function ptr
         theSolution_(nofTables, heap),
         heap_(heap) {
-    for (Lng32 i = 0; i < nofTables; i++) usedTables_.insert(i, NULL);
+    for (int i = 0; i < nofTables; i++) usedTables_.insert(i, NULL);
   }
 
   // Initializing the data structures.
-  void addTable(Lng32 tableIndex, Lng32 usedObjectsIndex, const NATable *naTable);
+  void addTable(int tableIndex, int usedObjectsIndex, const NATable *naTable);
   void addTable(MVJoinTable *newNode);
   void markPredicateBetween(const QualifiedName &leftTable, const QualifiedName &rightTable);
   void markRiConstraints(BindWA *bindWA, MVInfo *mvInfo);
-  void setNofTables(Lng32 finalNumber) { nofTables_ = finalNumber; }
+  void setNofTables(int finalNumber) { nofTables_ = finalNumber; }
 
   // Accessors
   MVJoinTable *getTableObjectFor(const NAString *tableName);
-  MVJoinTable *getTableObjectAt(Lng32 tableIndex) const { return usedTables_[tableIndex]; }
+  MVJoinTable *getTableObjectAt(int tableIndex) const { return usedTables_[tableIndex]; }
   const MVTableSet &getNotStartedSet() const { return notStartedSet_; }
 
   // Methods used during the DDL activation only:
@@ -286,8 +286,8 @@ class MVJoinGraph : public NABasicObject {
   NAString fixName(const QualifiedName &tableName) const;
 
  private:
-  Lng32 nofTables_;  // The number of tables in the join.
-  Lng32 nofRI_;      // The total number of RIs
+  int nofTables_;  // The number of tables in the join.
+  int nofRI_;      // The total number of RIs
   ARRAY(MVJoinTable *)
   usedTables_;                       // accessing tableIndex objects by
                                      // index (tableIndex).

@@ -169,7 +169,7 @@ class CRUSQLDynamicStatementContainer::DynamicStmt : public CRUSQLDynamicStateme
  private:
   // These fields are the only one who travels between processes
   char *sql_;
-  Lng32 paramNum_;
+  int paramNum_;
 
  private:
   // Is the statment already prepared ?

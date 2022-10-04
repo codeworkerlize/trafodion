@@ -57,34 +57,34 @@
   (((sqlcli_obj_ptr)->version < SQLCLI_CURRENT_VERSION) ? SQLCHARSETSTRING_ISO88591 : (sqlcli_obj_ptr)->charset)
 #if 0
 SQLMODULE_ID* new_SQLMODULE_ID(
-	Lng32 version = SQLCLI_CURRENT_VERSION, 
+	int version = SQLCLI_CURRENT_VERSION, 
 	const char* module_name = 0,
-	Lng32 creation_timestamp = 0,
+	int creation_timestamp = 0,
 	const char* charset = SQLCHARSETSTRING_ISO88591,
-	Lng32 module_name_len = 0
+	int module_name_len = 0
 	);
 #endif
 
-void init_SQLMODULE_ID(SQLMODULE_ID *m, Lng32 version = SQLCLI_CURRENT_VERSION, const char *module_name = 0,
-                       Lng32 timestamp = 0, const char *charset = SQLCHARSETSTRING_ISO88591, Lng32 name_len = 0);
+void init_SQLMODULE_ID(SQLMODULE_ID *m, int version = SQLCLI_CURRENT_VERSION, const char *module_name = 0,
+                       int timestamp = 0, const char *charset = SQLCHARSETSTRING_ISO88591, int name_len = 0);
 #if 0
-SQLCLI_OBJ_ID* new_SQLCLI_OBJ_ID( Lng32 version = SQLCLI_CURRENT_VERSION, 
+SQLCLI_OBJ_ID* new_SQLCLI_OBJ_ID( int version = SQLCLI_CURRENT_VERSION, 
 	enum SQLOBJ_ID_NAME_MODE mode = stmt_name, 
 	const SQLMODULE_ID* module = 0, 
 	const char* id = 0, 
 	void* handle_ = 0,
 	const char* charset = SQLCHARSETSTRING_ISO88591,
-        Lng32 id_len = 0, Lng32 tag = 0
+        int id_len = 0, int tag = 0
 	);
 
 #define new_SQLSTMT_ID new_SQLCLI_OBJ_ID
 #define new_SQLDESC_ID new_SQLCLI_OBJ_ID
 
 #endif
-void init_SQLCLI_OBJ_ID(SQLCLI_OBJ_ID *x, Lng32 version = SQLCLI_CURRENT_VERSION,
+void init_SQLCLI_OBJ_ID(SQLCLI_OBJ_ID *x, int version = SQLCLI_CURRENT_VERSION,
                         enum SQLOBJ_ID_NAME_MODE mode = stmt_name, const SQLMODULE_ID *module = 0, const char *id = 0,
-                        void *handle_ = 0, const char *charset = SQLCHARSETSTRING_ISO88591, Lng32 id_len = 0,
-                        Lng32 tag = 0);
+                        void *handle_ = 0, const char *charset = SQLCHARSETSTRING_ISO88591, int id_len = 0,
+                        int tag = 0);
 
 #define init_SQLSTMT_ID init_SQLCLI_OBJ_ID
 #define init_SQLDESC_ID init_SQLCLI_OBJ_ID
@@ -93,7 +93,7 @@ Int32 isEqualByName(SQLCLI_OBJ_ID *x, SQLCLI_OBJ_ID *y);
 
 Int32 isEqualByName(const SQLMODULE_ID *x, const SQLMODULE_ID *y);
 
-void setNameForId(SQLCLI_OBJ_ID *x, const char *name, Lng32 len, const char *charset = SQLCHARSETSTRING_ISO88591);
+void setNameForId(SQLCLI_OBJ_ID *x, const char *name, int len, const char *charset = SQLCHARSETSTRING_ISO88591);
 
-void setNameForModule(SQLMODULE_ID *x, const char *name, Lng32 len, const char *charset = SQLCHARSETSTRING_ISO88591);
+void setNameForModule(SQLMODULE_ID *x, const char *name, int len, const char *charset = SQLCHARSETSTRING_ISO88591);
 #endif

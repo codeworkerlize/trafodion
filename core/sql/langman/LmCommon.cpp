@@ -77,10 +77,10 @@ char *copy_chars(NAMemory *heap, const char *src, ComUInt32 len, NABoolean termi
   LMCOMMON_ASSERT(tgt);
 
   if (terminate) {
-    str_cpy_all(tgt, src, (Lng32)len - 1);
+    str_cpy_all(tgt, src, (int)len - 1);
     tgt[len - 1] = '\0';
   } else
-    str_cpy_all(tgt, src, (Lng32)len);
+    str_cpy_all(tgt, src, (int)len);
 
   return tgt;
 }
@@ -128,7 +128,7 @@ char *strip_spaces(char *str) {
 
 // This function maps INTERVAL FS datatypes to the corresponding
 // INTERVAL codes from sqlcli.h
-Lng32 getIntervalCode(short fstype) {
+int getIntervalCode(short fstype) {
   switch (fstype) {
     case REC_INT_YEAR:
       return SQLINTCODE_YEAR;

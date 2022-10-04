@@ -49,7 +49,7 @@ class ComExtractProducerInfo : public NAVersionedObject {
   virtual void populateImageVersionIDArray() { setImageVersionID(0, getClassVersionID()); }
   virtual short getClassSize() { return (short)sizeof(ComExtractProducerInfo); }
   Long pack(void *space);
-  Lng32 unpack(void *base, void *reallocator);
+  int unpack(void *base, void *reallocator);
 
   // Accessor functions
   const char *getSecurityKey() const { return securityKey_; }
@@ -81,7 +81,7 @@ class ComExtractConsumerInfo : public NAVersionedObject {
   virtual void populateImageVersionIDArray() { setImageVersionID(0, getClassVersionID()); }
   virtual short getClassSize() { return (short)sizeof(ComExtractConsumerInfo); }
   Long pack(void *space);
-  Lng32 unpack(void *base, void *reallocator);
+  int unpack(void *base, void *reallocator);
 
   // Accessor functions
   const char *getEspPhandle() const { return espPhandle_; }

@@ -29,20 +29,20 @@ class OutputInfo {
  public:
   enum { MAX_OUTPUT_ENTRIES = 100 };
 
-  OutputInfo(Lng32 numEntries);
+  OutputInfo(int numEntries);
   void dealloc(CollHeap *heap);
-  void insert(Lng32 index, char *data);
-  void insert(Lng32 index, char *data, Lng32 len);
-  void insert(Lng32 index, char *data, Lng32 len, Lng32 type, Lng32 *indOffset = NULL, Lng32 *varOffset = NULL);
-  char *get(Lng32 index);
-  short get(Lng32 index, char *&data, Lng32 &len);
-  short get(Lng32 index, char *&data, Lng32 &len, Lng32 &type, Lng32 *indOffset, Lng32 *varOffset);
+  void insert(int index, char *data);
+  void insert(int index, char *data, int len);
+  void insert(int index, char *data, int len, int type, int *indOffset = NULL, int *varOffset = NULL);
+  char *get(int index);
+  short get(int index, char *&data, int &len);
+  short get(int index, char *&data, int &len, int &type, int *indOffset, int *varOffset);
 
  private:
-  Lng32 numEntries_;
+  int numEntries_;
   char *data_[MAX_OUTPUT_ENTRIES];
-  Lng32 len_[MAX_OUTPUT_ENTRIES];
-  Lng32 type_[MAX_OUTPUT_ENTRIES];
+  int len_[MAX_OUTPUT_ENTRIES];
+  int type_[MAX_OUTPUT_ENTRIES];
 };
 
 class ExeCliInterface : public NABasicObject {
@@ -58,92 +58,92 @@ class ExeCliInterface : public NABasicObject {
 
   virtual ~ExeCliInterface();
 
-  Lng32 allocStuff(SQLMODULE_ID *&module, SQLSTMT_ID *&stmt, SQLDESC_ID *&sql_src, SQLDESC_ID *&input_desc,
+  int allocStuff(SQLMODULE_ID *&module, SQLSTMT_ID *&stmt, SQLDESC_ID *&sql_src, SQLDESC_ID *&input_desc,
                    SQLDESC_ID *&output_desc, const char *stmtName = NULL);
 
-  Lng32 deallocStuff(SQLMODULE_ID *&module, SQLSTMT_ID *&stmt, SQLDESC_ID *&sql_src, SQLDESC_ID *&input_desc,
+  int deallocStuff(SQLMODULE_ID *&module, SQLSTMT_ID *&stmt, SQLDESC_ID *&sql_src, SQLDESC_ID *&input_desc,
                      SQLDESC_ID *&output_desc);
 
-  Lng32 executeImmediate(const char *stmt, char *outputBuf = NULL, Lng32 *outputBufLen = NULL,
-                         NABoolean nullTerminate = TRUE, Int64 *rowsAffected = NULL, NABoolean monitorThis = FALSE,
+  int executeImmediate(const char *stmt, char *outputBuf = NULL, int *outputBufLen = NULL,
+                         NABoolean nullTerminate = TRUE, long *rowsAffected = NULL, NABoolean monitorThis = FALSE,
                          ComDiagsArea **globalDiags = NULL);
 
-  Lng32 executeImmediatePrepare(const char *stmt, char *outputBuf = NULL, Lng32 *outputBufLen = NULL,
-                                Int64 *rowsAffected = NULL, NABoolean monitorThis = FALSE, char *stmtName = NULL);
+  int executeImmediatePrepare(const char *stmt, char *outputBuf = NULL, int *outputBufLen = NULL,
+                                long *rowsAffected = NULL, NABoolean monitorThis = FALSE, char *stmtName = NULL);
 
-  Lng32 executeImmediatePrepare2(const char *stmt, char *uniqueStmtId, Lng32 *uniqueStmtIdLen,
+  int executeImmediatePrepare2(const char *stmt, char *uniqueStmtId, int *uniqueStmtIdLen,
                                  SQL_QUERY_COST_INFO *query_cost_info, SQL_QUERY_COMPILER_STATS_INFO *comp_stats_info,
-                                 char *outputBuf = NULL, Lng32 *outputBufLen = NULL, Int64 *rowsAffected = NULL,
+                                 char *outputBuf = NULL, int *outputBufLen = NULL, long *rowsAffected = NULL,
                                  NABoolean monitorThis = FALSE, Int32 *retGenCodeSize = NULL);
 
   // retrieve generated code for a previously prepared stmt
-  Lng32 getGeneratedCode(char *genCodeBuf, Int32 genCodeSize);
+  int getGeneratedCode(char *genCodeBuf, Int32 genCodeSize);
 
-  Lng32 executeImmediateExec(const char *stmt, char *outputBuf = NULL, Lng32 *outputBufLen = NULL,
-                             NABoolean nullTerminate = TRUE, Int64 *rowsAffected = NULL,
+  int executeImmediateExec(const char *stmt, char *outputBuf = NULL, int *outputBufLen = NULL,
+                             NABoolean nullTerminate = TRUE, long *rowsAffected = NULL,
                              ComDiagsArea **diagsArea = NULL);
 
-  Lng32 prepare(const char *stmtStr, SQLMODULE_ID *module, SQLSTMT_ID *stmt, SQLDESC_ID *sql_src,
+  int prepare(const char *stmtStr, SQLMODULE_ID *module, SQLSTMT_ID *stmt, SQLDESC_ID *sql_src,
                 SQLDESC_ID *input_desc, SQLDESC_ID *output_desc, char **outputBuf, Queue *outputVarPtrList = NULL,
                 char **inputBuf = NULL, Queue *inputVarPtrList = NULL, char *uniqueStmtId = NULL,
-                Lng32 *uniqueStmtIdLen = NULL, SQL_QUERY_COST_INFO *query_cost_info = NULL,
+                int *uniqueStmtIdLen = NULL, SQL_QUERY_COST_INFO *query_cost_info = NULL,
                 SQL_QUERY_COMPILER_STATS_INFO *comp_stats_info = NULL, NABoolean monitorThis = FALSE,
                 NABoolean doNotCachePlan = FALSE, Int32 *retGenCodeSize = NULL);
 
-  Lng32 setupExplainData(SQLMODULE_ID *module, SQLSTMT_ID *stmt);
-  Lng32 setupExplainData();
+  int setupExplainData(SQLMODULE_ID *module, SQLSTMT_ID *stmt);
+  int setupExplainData();
   char *getExplainDataPtr() { return explainData_; }
-  Lng32 getExplainDataLen() { return explainDataLen_; }
+  int getExplainDataLen() { return explainDataLen_; }
 
-  Lng32 exec(char *inputBuf = NULL, Lng32 inputBufLen = 0);
-  Lng32 fetch();
+  int exec(char *inputBuf = NULL, int inputBufLen = 0);
+  int fetch();
 
   // if ignoreIfNotOpen is TRUE, do not return an error is cursor is not open
-  Lng32 close(NABoolean ignoreIfNotOpen = FALSE);
+  int close(NABoolean ignoreIfNotOpen = FALSE);
 
-  Lng32 dealloc();
+  int dealloc();
 
-  short clearExecFetchClose(char *inputBuf, Lng32 inputBufLen, char *outputBuf = NULL, Lng32 *outputBufLen = 0);
+  short clearExecFetchClose(char *inputBuf, int inputBufLen, char *outputBuf = NULL, int *outputBufLen = 0);
 
-  short clearExecFetchCloseOpt(char *inputBuf, Lng32 inputBufLen, char *outputBuf = NULL, Lng32 *outputBufLen = 0,
-                               Int64 *rowsAffected = NULL);
+  short clearExecFetchCloseOpt(char *inputBuf, int inputBufLen, char *outputBuf = NULL, int *outputBufLen = 0,
+                               long *rowsAffected = NULL);
 
-  Lng32 executeImmediateCEFC(const char *stmtStr, char *inputBuf, Lng32 inputBufLen, char *outputBuf,
-                             Lng32 *outputBufLen, Int64 *rowsAffected = NULL);
+  int executeImmediateCEFC(const char *stmtStr, char *inputBuf, int inputBufLen, char *outputBuf,
+                             int *outputBufLen, long *rowsAffected = NULL);
 
-  Lng32 rwrsPrepare(const char *stmStr, Lng32 rs_maxsize, NABoolean monitorThis = FALSE);
+  int rwrsPrepare(const char *stmStr, int rs_maxsize, NABoolean monitorThis = FALSE);
 
-  Lng32 rwrsExec(char *inputRow, Int32 inputRowLen, Int64 *rowsAffected);
+  int rwrsExec(char *inputRow, Int32 inputRowLen, long *rowsAffected);
 
-  Lng32 rwrsClose();
+  int rwrsClose();
 
-  Lng32 cwrsAllocStuff(SQLMODULE_ID *&module, SQLSTMT_ID *&stmt, SQLDESC_ID *&sql_src, SQLDESC_ID *&input_desc,
+  int cwrsAllocStuff(SQLMODULE_ID *&module, SQLSTMT_ID *&stmt, SQLDESC_ID *&sql_src, SQLDESC_ID *&input_desc,
                        SQLDESC_ID *&output_desc, SQLDESC_ID *&rs_input_maxsize_desc, const char *stmtName = NULL);
 
-  Lng32 cwrsDeallocStuff(SQLMODULE_ID *&module, SQLSTMT_ID *&stmt, SQLDESC_ID *&sql_src, SQLDESC_ID *&input_desc,
+  int cwrsDeallocStuff(SQLMODULE_ID *&module, SQLSTMT_ID *&stmt, SQLDESC_ID *&sql_src, SQLDESC_ID *&input_desc,
                          SQLDESC_ID *&output_desc, SQLDESC_ID *&rs_input_maxsize_desc);
 
-  Lng32 cwrsPrepare(const char *stmtStr, Lng32 rs_maxsize, NABoolean monitorThis = FALSE);
+  int cwrsPrepare(const char *stmtStr, int rs_maxsize, NABoolean monitorThis = FALSE);
 
-  Lng32 cwrsExec(char *inputRow, Int32 inputRowLen, Int64 *rowsAffected);
+  int cwrsExec(char *inputRow, Int32 inputRowLen, long *rowsAffected);
 
-  Lng32 cwrsClose(Int64 *rowsAffected);
+  int cwrsClose(long *rowsAffected);
 
-  Lng32 setInputValue(short entry, char *ptr, Lng32 len);
+  int setInputValue(short entry, char *ptr, int len);
   // TODO support more data types
-  inline Lng32 setInputValue(short entry, char *ptr) {
+  inline int setInputValue(short entry, char *ptr) {
     return setInputValue(entry, ptr, (ptr == NULL) ? 0 : strlen(ptr));
   }
-  inline Lng32 setInputValue(short entry, Lng32 val) { return setInputValue(entry, (char *)&val, 4); }
-  Lng32 getPtrAndLen(short entry, char *&ptr, Lng32 &len, short **ind = NULL);
-  Lng32 getHeadingAndLen(short entry, char *heading, Lng32 &len);
+  inline int setInputValue(short entry, int val) { return setInputValue(entry, (char *)&val, 4); }
+  int getPtrAndLen(short entry, char *&ptr, int &len, short **ind = NULL);
+  int getHeadingAndLen(short entry, char *heading, int &len);
 
-  Lng32 getNumEntries(Lng32 &numInput, Lng32 &numOutput);
-  Lng32 getAttributes(short entry, NABoolean forInput, Lng32 &fsDatatype, Lng32 &length, Lng32 &vcIndLen,
-                      Lng32 *indOffset, Lng32 *varOffset);
-  Lng32 getDataOffsets(short entry, Lng32 forInput, Lng32 *indOffset, Lng32 *varOffset);
+  int getNumEntries(int &numInput, int &numOutput);
+  int getAttributes(short entry, NABoolean forInput, int &fsDatatype, int &length, int &vcIndLen,
+                      int *indOffset, int *varOffset);
+  int getDataOffsets(short entry, int forInput, int *indOffset, int *varOffset);
 
-  Lng32 getStmtAttr(char *stmtName, Lng32 attrName, Lng32 *numeric_value, char *string_value);
+  int getStmtAttr(char *stmtName, int attrName, int *numeric_value, char *string_value);
 
   short fetchRowsPrologue(const char *sqlStrBuf, NABoolean noExec = FALSE, NABoolean monitorThis = FALSE,
                           char *stmtName = NULL);
@@ -151,40 +151,40 @@ class ExeCliInterface : public NABasicObject {
 
   short initializeInfoList(Queue *&infoList, NABoolean infoListIsOutputInfo);
 
-  short fetchAllRows(Queue *&infoList, const char *query, Lng32 numOutputEntries = 0, NABoolean varcharFormat = FALSE,
+  short fetchAllRows(Queue *&infoList, const char *query, int numOutputEntries = 0, NABoolean varcharFormat = FALSE,
                      NABoolean monitorThis = FALSE, NABoolean initInfoList = FALSE);
 
   short prepareAndExecRowsPrologue(const char *sqlInitialStrBuf, char *sqlSecondaryStrBuf,
                                    Queue *initialOutputVarPtrList, Queue *continuingOutputVarPtrList,
-                                   Int64 &rowsAffected, NABoolean monitorThis = FALSE);
+                                   long &rowsAffected, NABoolean monitorThis = FALSE);
 
-  short execContinuingRows(Queue *secondaryOutputVarPtrs, Int64 &rowsAffected);
+  short execContinuingRows(Queue *secondaryOutputVarPtrs, long &rowsAffected);
 
   void setOutputPtrsAsInputPtrs(Queue *entry, SQLDESC_ID *target_inputDesc = NULL);
 
-  Lng32 setCharsetTypes();
+  int setCharsetTypes();
 
-  Lng32 prepareAndExecRowsEpilogue();
+  int prepareAndExecRowsEpilogue();
 
-  Lng32 beginWork();
-  Lng32 commitWork();
-  Lng32 rollbackWork();
-  Lng32 autoCommit(NABoolean v);  // TRUE, set to ON. FALSE, set to OFF.
-  Lng32 beginXn();
-  Lng32 commitXn();
-  Lng32 rollbackXn();
-  Lng32 statusXn();
-  Lng32 suspendXn();
-  Lng32 resumeXn();
-  static Lng32 saveXnState0();
-  static Lng32 restoreXnState0();
+  int beginWork();
+  int commitWork();
+  int rollbackWork();
+  int autoCommit(NABoolean v);  // TRUE, set to ON. FALSE, set to OFF.
+  int beginXn();
+  int commitXn();
+  int rollbackXn();
+  int statusXn();
+  int suspendXn();
+  int resumeXn();
+  static int saveXnState0();
+  static int restoreXnState0();
 
-  Lng32 createContext(char *contextHandle);   // out buf will return context handle
-  Lng32 switchContext(char *contextHandle);   // in buf contains context handle
-  Lng32 currentContext(char *contextHandle);  // out buf will return context handle
-  Lng32 deleteContext(char *contextHandle);   // in buf contains context handle
+  int createContext(char *contextHandle);   // out buf will return context handle
+  int switchContext(char *contextHandle);   // in buf contains context handle
+  int currentContext(char *contextHandle);  // out buf will return context handle
+  int deleteContext(char *contextHandle);   // in buf contains context handle
 
-  Lng32 retrieveSQLDiagnostics(ComDiagsArea *toDiags);
+  int retrieveSQLDiagnostics(ComDiagsArea *toDiags);
   ComDiagsArea *allocAndRetrieveSQLDiagnostics(ComDiagsArea *&toDiags);
 
   CollHeap *getHeap() { return heap_; }
@@ -202,16 +202,16 @@ class ExeCliInterface : public NABasicObject {
   Int32 getIsoMapping() { return isoMapping_; };
   void setIsoMapping(Int32 isoMapping) { isoMapping_ = isoMapping; };
 
-  Lng32 GetRowsAffected(Int64 *rowsAffected);
+  int GetRowsAffected(long *rowsAffected);
 
-  Lng32 holdAndSetCQD(const char *defaultName, const char *defaultValue, ComDiagsArea *globalDiags = NULL);
+  int holdAndSetCQD(const char *defaultName, const char *defaultValue, ComDiagsArea *globalDiags = NULL);
 
-  Lng32 holdAndSetCQDs(const char *holdStr, const char *setStr, ComDiagsArea *globalDiags = NULL);
+  int holdAndSetCQDs(const char *holdStr, const char *setStr, ComDiagsArea *globalDiags = NULL);
 
-  Lng32 restoreCQD(const char *defaultName, ComDiagsArea *globalDiags = NULL);
+  int restoreCQD(const char *defaultName, ComDiagsArea *globalDiags = NULL);
 
-  Lng32 getCQDval(const char *defaultName, char *val, ComDiagsArea *globalDiags = NULL);
-  Lng32 restoreCQDs(const char *restoreStr, ComDiagsArea *globalDiags = NULL);
+  int getCQDval(const char *defaultName, char *val, ComDiagsArea *globalDiags = NULL);
+  int restoreCQDs(const char *restoreStr, ComDiagsArea *globalDiags = NULL);
 
   void setNotExeUtilInternalQuery(NABoolean v) {
     (v ? flags_ |= NOT_EXEUTIL_INTERNAL_QUERY : flags_ &= ~NOT_EXEUTIL_INTERNAL_QUERY);
@@ -221,11 +221,11 @@ class ExeCliInterface : public NABasicObject {
   void setCursorOpen(NABoolean v) { (v ? flags_ |= CURSOR_OPEN : flags_ &= ~CURSOR_OPEN); };
   NABoolean cursorOpen() { return (flags_ & CURSOR_OPEN) != 0; };
 
-  Lng32 setCQS(const char *shape, ComDiagsArea *globalDiags = NULL);
-  Lng32 resetCQS(ComDiagsArea *globalDiags = NULL);
+  int setCQS(const char *shape, ComDiagsArea *globalDiags = NULL);
+  int resetCQS(ComDiagsArea *globalDiags = NULL);
 
   // methods for routine invocation
-  Lng32 getRoutine(
+  int getRoutine(
       /* IN */ const char *serializedInvocationInfo,
       /* IN */ Int32 invocationInfoLen,
       /* IN */ const char *serializedPlanInfo,
@@ -239,7 +239,7 @@ class ExeCliInterface : public NABasicObject {
       /* OUT */ Int32 *handle,
       /* IN/OUT */ ComDiagsArea *diags);
 
-  Lng32 invokeRoutine(
+  int invokeRoutine(
       /* IN */ Int32 handle,
       /* IN */ Int32 phaseEnumAsInt,
       /* IN */ const char *serializedInvocationInfo,
@@ -255,7 +255,7 @@ class ExeCliInterface : public NABasicObject {
       /* IN */ Int32 outputRowLen,
       /* IN/OUT */ ComDiagsArea *diags);
 
-  Lng32 getRoutineInvocationInfo(
+  int getRoutineInvocationInfo(
       /* IN */ Int32 handle,
       /* IN/OUT */ char *serializedInvocationInfo,
       /* IN */ Int32 invocationInfoMaxLen,
@@ -266,7 +266,7 @@ class ExeCliInterface : public NABasicObject {
       /* OUT */ Int32 *planInfoLenOut,
       /* IN/OUT */ ComDiagsArea *diags);
 
-  Lng32 putRoutine(
+  int putRoutine(
       /* IN */ Int32 handle,
       /* IN/OUT */ ComDiagsArea *diags);
 
@@ -275,12 +275,12 @@ class ExeCliInterface : public NABasicObject {
 
  private:
   struct Attrs {
-    Lng32 fsDatatype_;
-    Lng32 nullFlag_;
-    Lng32 length_;
-    Lng32 varOffset_;
-    Lng32 indOffset_;
-    Lng32 vcIndLen_;
+    int fsDatatype_;
+    int nullFlag_;
+    int length_;
+    int varOffset_;
+    int indOffset_;
+    int vcIndLen_;
   };
 
   SQLMODULE_ID *module_;
@@ -327,7 +327,7 @@ class ExeCliInterface : public NABasicObject {
   ContextCli *currContext_;
   const char *parentQid_;
 
-  Lng32 flags_;
+  int flags_;
 
   // max length of prepared stmt 1000 bytes.
   char sqlStmtStr_[1001];

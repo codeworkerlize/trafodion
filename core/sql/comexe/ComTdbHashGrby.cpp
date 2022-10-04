@@ -21,7 +21,7 @@ ComTdbHashGrby::ComTdbHashGrby(
     ex_cri_desc *workCriDesc, short hbRowAtpIndex, short ofRowAtpIndex, short hashValueAtpIndex, short bitMuxAtpIndex,
     short bitMuxCountOffset, short resultRowAtpIndex, short returnedAtpIndex, unsigned short memUsagePercent,
     short pressureThreshold, short scratchThresholdPct, queue_index fromParent, queue_index toParent,
-    NABoolean isPartialGroup, Cardinality estimatedRowCount, Lng32 numBuffers, ULng32 bufferSize,
+    NABoolean isPartialGroup, Cardinality estimatedRowCount, int numBuffers, ULng32 bufferSize,
     ULng32 partialGrbyFlushThreshold, ULng32 partialGrbyRowsPerCluster, ULng32 initialHashTableSize,
     unsigned short minBuffersToFlush, ULng32 numInBatch, short hgbGrowthPercent)
     : ComTdb(ComTdb::ex_HASH_GRBY, eye_HASH_GRBY, estimatedRowCount, givenDesc, returnedDesc, fromParent, toParent,
@@ -110,7 +110,7 @@ Long ComTdbHashGrby::pack(void *space) {
   return ComTdb::pack(space);
 };
 
-Lng32 ComTdbHashGrby::unpack(void *base, void *reallocator) {
+int ComTdbHashGrby::unpack(void *base, void *reallocator) {
   if (workCriDesc_.unpack(base, reallocator)) return -1;
   if (childTdb_.unpack(base, reallocator)) return -1;
   if (hashExpr_.unpack(base, reallocator)) return -1;

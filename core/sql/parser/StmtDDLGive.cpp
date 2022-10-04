@@ -89,7 +89,7 @@ StmtDDLGiveCatalog *StmtDDLGiveCatalog::castToStmtDDLGiveCatalog() { return this
 
 Int32 StmtDDLGiveCatalog::getArity() const { return MAX_STMT_DDL_GIVE_CATALOG_ARITY; }
 
-ExprNode *StmtDDLGiveCatalog::getChild(Lng32 index) {
+ExprNode *StmtDDLGiveCatalog::getChild(int index) {
   ComASSERT(index EQU INDEX_GIVE_CATALOG_ATTRIBUTE_LIST);
   return attributeList_;
 }
@@ -109,7 +109,7 @@ void StmtDDLGiveCatalog::setAttribute(ElemDDLNode *pAttrNode) {
   { NAAbort("StmtDDLGiveCatalog.C", __LINE__, "internal logic error"); }
 }
 
-void StmtDDLGiveCatalog::setChild(Lng32 index, ExprNode *pChildNode) {
+void StmtDDLGiveCatalog::setChild(int index, ExprNode *pChildNode) {
   ComASSERT(index EQU INDEX_GIVE_CATALOG_ATTRIBUTE_LIST);
   if (pChildNode NEQ NULL) {
     attributeList_ = pChildNode->castToElemDDLNode();

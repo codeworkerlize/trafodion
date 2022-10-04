@@ -57,47 +57,47 @@
 #include "ex_dp2exe_root.h"
 #include "ex_partn_access.h"
 
-Int32 ex_tdb::fixup(Lng32 /*base*/) { return 0; };
+Int32 ex_tdb::fixup(int /*base*/) { return 0; };
 
-Int32 ex_root_tdb::fixup(Lng32 /*base*/) { return 0; };
+Int32 ex_root_tdb::fixup(int /*base*/) { return 0; };
 
-Int32 ex_onlj_tdb::fixup(Lng32 /*base*/) { return 0; }
+Int32 ex_onlj_tdb::fixup(int /*base*/) { return 0; }
 
-Int32 ex_hashj_tdb::fixup(Lng32 /*base*/) { return 0; }
+Int32 ex_hashj_tdb::fixup(int /*base*/) { return 0; }
 
-Int32 ex_mj_tdb::fixup(Lng32 /*base*/) { return 0; }
+Int32 ex_mj_tdb::fixup(int /*base*/) { return 0; }
 
-Int32 ex_update_tdb::fixup(Lng32 /*base*/) { return 0; }
+Int32 ex_update_tdb::fixup(int /*base*/) { return 0; }
 
-Int32 ex_delete_tdb::fixup(Lng32 /*base*/) { return 0; }
+Int32 ex_delete_tdb::fixup(int /*base*/) { return 0; }
 
-Int32 ex_union_tdb::fixup(Lng32 /*base*/) { return 0; }
+Int32 ex_union_tdb::fixup(int /*base*/) { return 0; }
 
-Int32 ex_tuple_tdb::fixup(Lng32 /*base*/) { return 0; }
+Int32 ex_tuple_tdb::fixup(int /*base*/) { return 0; }
 
-Int32 ex_hash_grby_tdb::fixup(Lng32 /*base*/) { return 0; }
+Int32 ex_hash_grby_tdb::fixup(int /*base*/) { return 0; }
 
-Int32 ex_sort_grby_tdb::fixup(Lng32 /*base*/) { return 0; }
+Int32 ex_sort_grby_tdb::fixup(int /*base*/) { return 0; }
 
-Int32 ex_split_top_tdb::fixup(Lng32 base) {
+Int32 ex_split_top_tdb::fixup(int base) {
   if (partInputDataDesc_) return partInputDataDesc_->fixup(base);
   return 0;
 }
 
-Int32 ex_split_bottom_tdb::fixup(Lng32 /*base*/) { return 0; }
+Int32 ex_split_bottom_tdb::fixup(int /*base*/) { return 0; }
 
-Int32 ex_send_top_tdb::fixup(Lng32 /*base*/) { return 0; }
+Int32 ex_send_top_tdb::fixup(int /*base*/) { return 0; }
 
-Int32 ex_send_bottom_tdb::fixup(Lng32 /*base*/) { return 0; }
+Int32 ex_send_bottom_tdb::fixup(int /*base*/) { return 0; }
 
-Int32 ex_dp2exe_root_tdb::fixup(Lng32 /*base*/) { return 0; }
+Int32 ex_dp2exe_root_tdb::fixup(int /*base*/) { return 0; }
 
-Int32 ex_partn_access_tdb::fixup(Lng32 /*base*/) { return 0; }
+Int32 ex_partn_access_tdb::fixup(int /*base*/) { return 0; }
 
-Int32 ExPartInputDataDesc::fixup(Lng32 /*base*/) { return 0; }
+Int32 ExPartInputDataDesc::fixup(int /*base*/) { return 0; }
 
-Int32 ExHashPartInputData::fixup(Lng32 /*base*/) { return 0; }
+Int32 ExHashPartInputData::fixup(int /*base*/) { return 0; }
 
-Int32 ExRoundRobinPartInputData::fixup(Lng32 /*base*/) { return 0; }
+Int32 ExRoundRobinPartInputData::fixup(int /*base*/) { return 0; }
 
-Int32 ExRangePartInputData::fixup(Lng32 /*base*/) { return 0; }
+Int32 ExRangePartInputData::fixup(int /*base*/) { return 0; }

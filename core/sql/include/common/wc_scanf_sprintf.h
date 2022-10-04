@@ -51,7 +51,7 @@ Int32 na_wsprintf(NAWchar *str, NAWchar const *fmt, ...);
 
 #if (defined(NA_C89) || defined(NA_WINNT))
 typedef UInt64 u_quad_t;
-typedef Int64 quad_t;
+typedef long quad_t;
 #endif
 
 typedef unsigned short u_short;

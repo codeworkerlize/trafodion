@@ -166,7 +166,7 @@ DiagnosticSizeItem::DiagnosticSizeItem(ItemExpr *child) : ItemExpr(ITM_SET_TRANS
 TxnRollbackModeItem::TxnRollbackModeItem(TransMode::RollbackMode rb)
     : rollbackMode_(rb), ItemExpr(ITM_SET_TRANS_ROLLBACK_MODE) {}
 
-TxnAutoabortIntervalItem::TxnAutoabortIntervalItem(Lng32 val)
+TxnAutoabortIntervalItem::TxnAutoabortIntervalItem(int val)
     : autoabortInterval_(val), ItemExpr(ITM_SET_TRANS_AUTOABORT_INTERVAL) {}
 
 TxnMultiCommitItem::TxnMultiCommitItem(ULng32 val, NABoolean mc)

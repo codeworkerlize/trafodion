@@ -32,7 +32,7 @@ class unicode_char_set {
 
   static void to_upper(NAWchar *, size_t, NAWString &);
 
-  static Lng32 to_upper(NAWchar *, Lng32, NAWchar *, Lng32);
+  static int to_upper(NAWchar *, int, NAWchar *, int);
 
   // For full case mapping, an lower case character may map to
   // more than one upper case character

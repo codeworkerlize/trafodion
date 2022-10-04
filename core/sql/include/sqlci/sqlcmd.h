@@ -45,8 +45,8 @@
  */
 
 #include "common/NAType.h"  // for DEFAULT_CHARACTER_LENGTH
-#include "SqlciNode.h"
-#include "SqlciEnv.h"
+#include "sqlci/SqlciNode.h"
+#include "sqlci/SqlciEnv.h"
 #include "common/ComDistribution.h"
 #include "qmscommon/QRLogger.h"
 
@@ -54,13 +54,13 @@
 // reaching nchar milestone
 //
 extern void HandleCLIErrorInit();
-extern void HandleCLIError(Lng32 &err, SqlciEnv *sqlci_env, NABoolean displayErr = TRUE, NABoolean *isEOD = NULL,
+extern void HandleCLIError(int &err, SqlciEnv *sqlci_env, NABoolean displayErr = TRUE, NABoolean *isEOD = NULL,
                            Int32 prepcode = 0, NABoolean getWarningsWithEOF = FALSE);
-extern void HandleCLIError(SQLSTMT_ID *stmt, Lng32 &err, SqlciEnv *sqlci_env, NABoolean displayErr = TRUE,
+extern void HandleCLIError(SQLSTMT_ID *stmt, int &err, SqlciEnv *sqlci_env, NABoolean displayErr = TRUE,
                            NABoolean *isEOD = NULL, Int32 prepcode = 0);
 
 void handleLocalError(ComDiagsArea *diags, SqlciEnv *sqlci_env);
-Int64 getRowsAffected(SQLSTMT_ID *stmt);
+long getRowsAffected(SQLSTMT_ID *stmt);
 Int32 getDiagsCondCount(SQLSTMT_ID *stmt);
 // for unnamed parameters
 #define MAX_NUM_UNNAMED_PARAMS 128
@@ -95,8 +95,8 @@ class SqlCmd : public SqlciNode {
   char *get_sql_stmt() { return sql_stmt; }
   inline Int32 get_sql_stmt_oct_length() { return sql_stmt_oct_length; };
 
-  static short do_prepare(SqlciEnv *, PrepStmt *, char *sqlStmt, NABoolean resetLastExecStmt = TRUE, Lng32 rsIndex = 0,
-                          Int32 *prepcode = NULL, Lng32 *statisticsType = NULL);
+  static short do_prepare(SqlciEnv *, PrepStmt *, char *sqlStmt, NABoolean resetLastExecStmt = TRUE, int rsIndex = 0,
+                          Int32 *prepcode = NULL, int *statisticsType = NULL);
 
   static short updateRepos(SqlciEnv *sqlci_env, SQLSTMT_ID *stmt, char *queryId);
 
@@ -112,7 +112,7 @@ class SqlCmd : public SqlciNode {
 
   static short doExec(SqlciEnv *, SQLSTMT_ID *, PrepStmt *, Int32 numUnnamedParams = 0, char **unnamedParamArray = NULL,
                       CharInfo::CharSet *unnamedParamCharSetArray = NULL, NABoolean handleError = TRUE);
-  static short doDescribeInput(SqlciEnv *, SQLSTMT_ID *, PrepStmt *, Lng32 num_input_entries,
+  static short doDescribeInput(SqlciEnv *, SQLSTMT_ID *, PrepStmt *, int num_input_entries,
                                Int32 numUnnamedParams = 0, char **unnamedParamArray = NULL,
                                CharInfo::CharSet *unnamedParamCharSetArray = NULL);
   static short doFetch(SqlciEnv *, SQLSTMT_ID *stmt, PrepStmt *prep_stmt, NABoolean firstFetch = FALSE,
@@ -123,7 +123,7 @@ class SqlCmd : public SqlciNode {
   static short getHeadingInfo(SqlciEnv *sqlci_env, PrepStmt *prep_stmt, char *headingRow, char *underline);
 
   static short displayHeading(SqlciEnv *sqlci_env, PrepStmt *prep_stmt);
-  static Lng32 displayRow(SqlciEnv *sqlci_env, PrepStmt *prep_stmt);
+  static int displayRow(SqlciEnv *sqlci_env, PrepStmt *prep_stmt);
 
   static void addOutputInfoToPrepStmt(SqlciEnv *sqlci_env, PrepStmt *prep_stmt);
 
@@ -131,7 +131,7 @@ class SqlCmd : public SqlciNode {
 
   static short executeQuery(const char *query, SqlciEnv *sqlci_env);
 
-  static short setEnviron(SqlciEnv *sqlci_env, Lng32 propagate);
+  static short setEnviron(SqlciEnv *sqlci_env, int propagate);
 
   static short showShape(SqlciEnv *sqlci_env, const char *query);
 
@@ -139,7 +139,7 @@ class SqlCmd : public SqlciNode {
 
   static void clearCLIDiagnostics();
 
-  static short cleanupAfterError(Lng32 retcode, SqlciEnv *sqlci_env, SQLSTMT_ID *stmt, SQLDESC_ID *sql_src,
+  static short cleanupAfterError(int retcode, SqlciEnv *sqlci_env, SQLSTMT_ID *stmt, SQLDESC_ID *sql_src,
                                  SQLDESC_ID *output_desc, SQLDESC_ID *input_desc, NABoolean resetLastExecStmt);
   static void logDDLQuery(PrepStmt *prepStmt);
 };
@@ -150,7 +150,7 @@ class DML : public SqlCmd {
   dml_type type;
 
   // $$$$ SPJ RS THROWAWAY
-  Lng32 rsIndex_;
+  int rsIndex_;
 
  public:
   DML(const char *argument_, dml_type type_, const char *stmt_name_ = NULL);
@@ -158,8 +158,8 @@ class DML : public SqlCmd {
   short process(SqlciEnv *sqlci_env);
 
   // $$$$ SPJ RS THROWAWAY
-  void setResultSetIndex(Lng32 i) { rsIndex_ = i; }
-  Lng32 getResultSetIndex() const { return rsIndex_; }
+  void setResultSetIndex(int i) { rsIndex_ = i; }
+  int getResultSetIndex() const { return rsIndex_; }
 };
 
 class Prepare : public SqlCmd {
@@ -179,7 +179,7 @@ class DescribeStmt : public SqlCmd {
   DescribeStmt(char *stmtName, char *argument);
   ~DescribeStmt();
   short process(SqlciEnv *sqlciEnv);
-  short displayEntries(SqlciEnv *sqlci_env, SQLDESC_ID *desc, Lng32 numEntries, Logfile *log);
+  short displayEntries(SqlciEnv *sqlci_env, SQLDESC_ID *desc, int numEntries, Logfile *log);
 };
 
 class Execute : public SqlCmd {
@@ -193,7 +193,7 @@ class Execute : public SqlCmd {
   Execute(char *stmt_name_, char *argument_, short flag = 0, SqlciEnv *sqlci_env = NULL);
   ~Execute();
   short process(SqlciEnv *sqlci_env);
-  static Lng32 storeParams(char *argument_, short &num_params, char *using_params[], CharInfo::CharSet[] = NULL,
+  static int storeParams(char *argument_, short &num_params, char *using_params[], CharInfo::CharSet[] = NULL,
                            SqlciEnv *sqlci_env = NULL);
   short getNumParams() const { return num_params; }
   char **getUnnamedParamArray() { return using_params; }
@@ -214,22 +214,22 @@ class Cursor : public SqlCmd {
   inline NABoolean isHoldable() { return isHoldable_; }
   // QSTUFF
 
-  short declareC(SqlciEnv *sqlci_env, char *donemsg, Lng32 &retcode);
-  short declareCursorStmt(SqlciEnv *sqlci_env, Lng32 &retcode);
-  short declareCursorStmtForRS(SqlciEnv *sqlci_env, Lng32 &retcode);
+  short declareC(SqlciEnv *sqlci_env, char *donemsg, int &retcode);
+  short declareCursorStmt(SqlciEnv *sqlci_env, int &retcode);
+  short declareCursorStmtForRS(SqlciEnv *sqlci_env, int &retcode);
 
-  short open(SqlciEnv *sqlci_env, char *donemsg, Lng32 &retcode);
+  short open(SqlciEnv *sqlci_env, char *donemsg, int &retcode);
 
-  short fetch(SqlciEnv *sqlci_env, NABoolean doDisplayRow, char *donemsg, Lng32 &retcode);
+  short fetch(SqlciEnv *sqlci_env, NABoolean doDisplayRow, char *donemsg, int &retcode);
 
-  short close(SqlciEnv *sqlci_env, char *donemsg, Lng32 &retcode);
+  short close(SqlciEnv *sqlci_env, char *donemsg, int &retcode);
 
-  short dealloc(SqlciEnv *sqlci_env, char *donemsg, Lng32 &retcode);
+  short dealloc(SqlciEnv *sqlci_env, char *donemsg, int &retcode);
 
   void cleanupCursorStmt(SqlciEnv *sqlci_env, CursorStmt *c);
 
-  void setResultSetIndex(Lng32 i) { resultSetIndex_ = i; }
-  Lng32 getResultSetIndex() const { return resultSetIndex_; }
+  void setResultSetIndex(int i) { resultSetIndex_ = i; }
+  int getResultSetIndex() const { return resultSetIndex_; }
 
  private:
   char *cursorName_;
@@ -243,7 +243,7 @@ class Cursor : public SqlCmd {
   // QSTUFF
 
   NABoolean internalCursor_;
-  Lng32 resultSetIndex_;
+  int resultSetIndex_;
 };
 
 // This class is used by the query cache virtual interface to execute

@@ -251,8 +251,8 @@ class CANodeIdSetMap : public HASHDICTIONARY(CANodeIdSet, JBBSubsetAnalysis) {
   JBBSubsetAnalysis *getFirstValue(const CANodeIdSet *key) const;
 
  private:
-  Lng32 hits_;    // # of cache hits
-  Lng32 misses_;  // # of cache misses
+  int hits_;    // # of cache hits
+  int misses_;  // # of cache misses
 };
 
 //-----------------------------------------------------------------------
@@ -500,7 +500,7 @@ class QueryAnalysis : public NABasicObject {
 
   inline NABoolean skippedSomeJoins() { return skippedSomeJoins_; }
 
-  inline Lng32 getHighestNumOfPartns() { return highestNumOfPartns_; }
+  inline int getHighestNumOfPartns() { return highestNumOfPartns_; }
 
   void setHistogramsToDisplay(RelRoot *root);
 
@@ -570,7 +570,7 @@ class QueryAnalysis : public NABasicObject {
   NABoolean hasMandatoryXP_;
 
   // highest number of partitions among all tables
-  Lng32 highestNumOfPartns_;
+  int highestNumOfPartns_;
 
   /* Do not inspect monitor members and methods */
   // Comile Time Monitors
@@ -1004,7 +1004,7 @@ class TableAnalysis : public NABasicObject {
   // Get the JBBCs that are connected to the maximum prefix size in the given column list
   // This table must be JBBC
   CANodeIdSet getJBBCsConnectedToPrefixOfList(const CANodeIdSet &jbbcs, const ValueIdList &cols,
-                                              Lng32 &prefixSize /*OUT*/, ValueIdSet &joinPreds /*OUT*/,
+                                              int &prefixSize /*OUT*/, ValueIdSet &joinPreds /*OUT*/,
                                               ValueIdSet &localPreds /*OUT*/);
 
   // get columns that are connected via join preds with the set being passed in
@@ -1016,7 +1016,7 @@ class TableAnalysis : public NABasicObject {
 
   // Compute the local predicates on this table that references a prefix of this
   // column list. compute also the prefix size.
-  ValueIdSet getLocalPredsOnPrefixOfList(const ValueIdList &cols, Lng32 &prefixSize /*OUT*/);
+  ValueIdSet getLocalPredsOnPrefixOfList(const ValueIdList &cols, int &prefixSize /*OUT*/);
 
   // Get all my columns connected via this set of predicates
   ValueIdSet getMyConnectedCols(const ValueIdSet &preds);
@@ -2030,7 +2030,7 @@ class JBBSubset : public JBBItem {
 
   // Calculate number of disjunct subgraphs in this JBBSubset
   // xxx: this function will be moved to JBBSubsetAnalysis
-  Lng32 numConnectedSubgraphs(NABoolean followSuccessors = TRUE, NABoolean pullInPredecessors = FALSE) const;
+  int numConnectedSubgraphs(NABoolean followSuccessors = TRUE, NABoolean pullInPredecessors = FALSE) const;
 
   CANodeIdSet getJBBCsAndGB() const;
 

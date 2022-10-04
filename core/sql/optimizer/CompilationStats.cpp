@@ -110,7 +110,7 @@ method CompilationStats::cmpPhaseLength
  get the cpu path length for the given compilation phase
 
 ************************************************************************/
-Lng32 CompilationStats::cmpPhaseLength(CompilationPhase phase) {
+int CompilationStats::cmpPhaseLength(CompilationPhase phase) {
   if (!isValidPhase(phase)) return 0;
 
   // for now, combine the semantic query optimization phase counter
@@ -234,9 +234,9 @@ void CompilationStats::setIsRecompile() { isRecompile_ = TRUE; }
 
 NABoolean CompilationStats::isRecompile() { return isRecompile_; }
 
-Int64 CompilationStats::compileStartTime() { return compileStartTime_; }
+long CompilationStats::compileStartTime() { return compileStartTime_; }
 
-Int64 CompilationStats::compileEndTime() { return compileEndTime_; }
+long CompilationStats::compileEndTime() { return compileEndTime_; }
 
 void CompilationStats::dumpToFile() {
   FILE *myf = fopen("CmpStatsDump", "ac");
@@ -265,8 +265,8 @@ void CompilationStats::dumpToFile() {
   fprintf(myf, "  Query Cache Hits: %d\n", getQueryCacheState());
   fprintf(myf, "  Histogram Cache Hits: %d\n", histogramCacheHits());
   fprintf(myf, "  Histogram Cache Lookups: %d\n", histogramCacheLookups());
-  fprintf(myf, "  Stmt Heap current Size: %ld\n", (Int64)stmtHeapCurrentSize());
-  fprintf(myf, "  Context Heap current size: %ld\n", (Int64)cxtHeapCurrentSize());
+  fprintf(myf, "  Stmt Heap current Size: %ld\n", (long)stmtHeapCurrentSize());
+  fprintf(myf, "  Context Heap current size: %ld\n", (long)cxtHeapCurrentSize());
   fprintf(myf, "  Compiler Optimization Tasks: %d\n", optimizationTasks());
   fprintf(myf, "  Compiler Optimization Contexts: %d\n", optimizationContexts());
 

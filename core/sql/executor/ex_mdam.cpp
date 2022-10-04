@@ -44,7 +44,7 @@
 #include "ex_mdam.h"
 // #include "exp/exp_clause_derived.h"
 
-MdamPredIterator::MdamPredIterator(MdamColumn *first, Lng32 maxDisjunctNumber)
+MdamPredIterator::MdamPredIterator(MdamColumn *first, int maxDisjunctNumber)
     : currentDisjunctNumber_(-1), maxDisjunctNumber_(maxDisjunctNumber), returnedAPred_(FALSE) {
   for (MdamColumn *c = first; c != 0; c = c->nextColumn()) {
     // initialize state in MdamColumn objects used by MdamPredIterator
@@ -52,8 +52,8 @@ MdamPredIterator::MdamPredIterator(MdamColumn *first, Lng32 maxDisjunctNumber)
   }
 };
 
-Lng32 MdamPredIterator::getNextDisjunctNumber() {
-  Lng32 rc = -1;  // assume no more disjuncts
+int MdamPredIterator::getNextDisjunctNumber() {
+  int rc = -1;  // assume no more disjuncts
 
   if (currentDisjunctNumber_ < maxDisjunctNumber_) {
     // increment disjunct number and return
@@ -383,7 +383,7 @@ void MdamColumn::reportProbeResult(char *keyData) {
   if (keyData) {
     // the sparse probe was successful -- save the key value
     Int32 len = Int32(columnGenInfo_->getLength());
-    Lng32 offset = columnGenInfo_->getOffset();
+    int offset = columnGenInfo_->getOffset();
     char *cv = currentValue_.getDataPointer();
 
     str_cpy_all(cv, keyData + offset, len);
@@ -422,10 +422,10 @@ void MdamColumn::completeKey(char *bktarget, char *ektarget, short bkexcl, short
 };
 
 NABoolean MdamColumn::buildDisjunct(MdamPredIterator &predIterator, sql_buffer_pool *pool, atp_struct *atp0,
-                                    atp_struct *workAtp, unsigned short valueAtpIndex, Lng32 disjunct_number,
+                                    atp_struct *workAtp, unsigned short valueAtpIndex, int disjunct_number,
                                     NABoolean disjunct_number_in_stop_list, FixedSizeHeapManager &mdamIntervalHeap,
                                     FixedSizeHeapManager &mdamRefListEntryHeap,
-                                    FixedSizeHeapManager &mdamRefListEntrysForStopListsHeap, Lng32 &dataConvErrorFlag) {
+                                    FixedSizeHeapManager &mdamRefListEntrysForStopListsHeap, int &dataConvErrorFlag) {
   NABoolean rc = disjunct_number_in_stop_list;
   NABoolean got_a_predicate = FALSE;
 
@@ -607,7 +607,7 @@ void MdamColumn::tossDisjunct(FixedSizeHeapManager &mdamIntervalHeap, FixedSizeH
   tentative_intervals_.deleteAllIntervals(mdamIntervalHeap, mdamRefListEntryHeap);
 }
 
-void MdamColumn::mergeDisjunct(Lng32 disjunct_number, FixedSizeHeapManager &mdamIntervalHeap,
+void MdamColumn::mergeDisjunct(int disjunct_number, FixedSizeHeapManager &mdamIntervalHeap,
                                FixedSizeHeapManager &mdamRefListEntryHeap) {
   intervals_.unionSeparateDisjuncts(tentative_intervals_, (Int32)disjunct_number, columnGenInfo_->getLength(),
                                     mdamIntervalHeap, mdamRefListEntryHeap);
@@ -691,11 +691,11 @@ ExeErrorCode keyMdamEx::buildNetwork(sql_buffer_pool *pool, atp_struct *atp0) {
 
   MdamPredIterator predIterator(first_column_, mdamGen.getMaxDisjunctNumber());
 
-  Lng32 disjunct_number;
+  int disjunct_number;
   while ((disjunct_number = predIterator.getNextDisjunctNumber()) >= 0) {
     NABoolean disjunct_number_in_stop_list = stop_lists_built_;
     NABoolean empty_disjunct = FALSE;
-    Lng32 column_number = number_of_key_cols_ - 1;  // $$$ remove later
+    int column_number = number_of_key_cols_ - 1;  // $$$ remove later
 
     for (MdamColumn *m = last_column_; m != 0; m = m->previousColumn()) {
       ex_assert(column_number >= 0,
@@ -839,7 +839,7 @@ keyRangeEx::getNextKeyRangeReturnType keyMdamEx::getNextKeyRange(atp_struct *, N
       case MdamColumn::SUBSET:
       case MdamColumn::PROBE: {
         MdamColumn *col;
-        Lng32 index = current_column_index_ + 1;
+        int index = current_column_index_ + 1;
 
         for (col = current_column_->nextColumn(); col != 0; col = col->nextColumn()) {
           col->completeKey(bktarget, ektarget, bkExcludeFlag_, ekExcludeFlag_);
@@ -928,7 +928,7 @@ void keyMdamEx::print(const char *header) const {
   cout << header << endl;
 
   MdamColumn *c;
-  Lng32 i = 0;
+  int i = 0;
 
   for (c = first_column_; c != 0; c = c->nextColumn()) {
     cout << "Column " << i;

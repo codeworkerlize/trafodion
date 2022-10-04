@@ -104,8 +104,8 @@ class NARoutine : public NABasicObject {
   // -------------------------------------------------------------------
   // Accessor functions
   // -------------------------------------------------------------------
-  inline Int64 getRedefTime() const { return redefTime_; }
-  inline const Int64 getLastUsedTime() const { return lastUsedTime_; }
+  inline long getRedefTime() const { return redefTime_; }
+  inline const long getLastUsedTime() const { return lastUsedTime_; }
   inline NABoolean &getAccessedInCurStmt() { return accessedInCurrentStatement_; }
   inline const NAColumnArray &getInParams() const { return *inParams_; }
   inline ComSInt32 getInParamCount() const { return inParams_->entries(); }
@@ -131,15 +131,15 @@ class NARoutine : public NABasicObject {
   inline const ComObjectName &getLibrarySqlName() const { return librarySqlName_; }
   inline const QualifiedName &getSqlName() const { return name_; }
   inline ComSecurityKeySet getSecKeySet() { return secKeySet_; }
-  inline const Int64 getRoutineID() const { return objectUID_; }
+  inline const long getRoutineID() const { return objectUID_; }
   inline const Int32 getStateAreaSize() const { return stateAreaSize_; }
   inline const NAString &getDllName() const { return dllName_; }
   inline const NAString &getDllEntryPoint() const { return dllEntryPoint_; }
   inline const NAString &getParallelism() const { return comRoutineParallelism_; }
   inline const NAString &getSasFormatWidth() const { return sasFormatWidth_; }
-  inline const Int64 getDataNumEntries() const { return passThruDataNumEntries_; }
+  inline const long getDataNumEntries() const { return passThruDataNumEntries_; }
   inline const char *getData(Int32 index) const { return passThruData_[index]; }
-  inline const Int64 getDataSize(Int32 index) const { return passThruDataSize_[index]; }
+  inline const long getDataSize(Int32 index) const { return passThruDataSize_[index]; }
   inline const NAString &getSystemName() const { return systemName_; }
   inline const NAString &getDataSource() const { return dataSource_; }
   inline const NAString &getFileSuffix() const { return fileSuffix_; }
@@ -166,25 +166,25 @@ class NARoutine : public NABasicObject {
 
   inline void setSecKeySet(ComSecurityKeySet secKeySet) { secKeySet_ = secKeySet; }
 
-  inline Int64 getLibRedefTime() const { return libRedefTime_; }
+  inline long getLibRedefTime() const { return libRedefTime_; }
   inline const NAString &getLibBlobHandle() const { return libBlobHandle_; }
   inline const NAString &getLibSchName() const { return libSchName_; }
   inline Int32 getLibVersion() const { return libVersion_; }
-  inline Int64 getLibObjUID() const { return libObjUID_; }
+  inline long getLibObjUID() const { return libObjUID_; }
   inline void setudfFanOut(Int32 fanOut) { udfFanOut_ = fanOut; }
   inline void setExternalPath(ComString path) { externalPath_ = path; }
   inline void setFile(ComString file) { externalFile_ = file; }
   inline void setExternalName(ComString fname) { externalName_ = fname; }
-  inline void setLibRedefTime(Int64 rtime) { libRedefTime_ = rtime; }
+  inline void setLibRedefTime(long rtime) { libRedefTime_ = rtime; }
   inline void setLibBlobHandle(NAString lobHandle) { libBlobHandle_ = lobHandle; }
   inline void setLibVersion(Int32 version) { libVersion_ = version; }
-  inline void setLibObjUID(Int64 libobjuid) { libObjUID_ = libobjuid; }
+  inline void setLibObjUID(long libobjuid) { libObjUID_ = libobjuid; }
   inline void setLibSchName(NAString schName) { libSchName_ = schName; }
   inline void setLibrarySqlName(ComObjectName lib) { librarySqlName_ = lib; }
   inline void setLanguage(ComRoutineLanguage lang) { language_ = lang; }
   inline void setRoutineType(ComRoutineType typ) { UDRType_ = typ; }
   inline void setParamStyle(ComRoutineParamStyle st) { paramStyle_ = st; }
-  inline void setLastUsedTime(Int64 time) { lastUsedTime_ = time; }
+  inline void setLastUsedTime(long time) { lastUsedTime_ = time; }
   inline void setUecForParam(Int32 index, Int32 uec) { uecValues_[index] = uec; }
 
   inline ComRoutineExecutionMode getExecutionMode() const { return executionMode_; }
@@ -231,8 +231,8 @@ class NARoutine : public NABasicObject {
   ComObjectName *intActionName_;  // The <UUDF uid>_<action> name from
                                   // metadata. Empty if not an action.
   NARoutineDBKey hashKey_;        // For caching
-  Int64 redefTime_;
-  Int64 lastUsedTime_;
+  long redefTime_;
+  long lastUsedTime_;
   NABoolean accessedInCurrentStatement_;
 
   NAColumnArray *inParams_;   // IN & INOUT params
@@ -247,11 +247,11 @@ class NARoutine : public NABasicObject {
   ComString externalPath_;  // URL
   ComString externalFile_;
   ComString externalName_;  // Java method name
-  Int64 libRedefTime_;
+  long libRedefTime_;
   NAString libBlobHandle_;
   NAString libSchName_;
   Int32 libVersion_;
-  Int64 libObjUID_;
+  long libObjUID_;
   ComString signature_;
   ComObjectName librarySqlName_;  // ANSI name of JAR/DLL
   ComRoutineParamStyle paramStyle_;
@@ -263,7 +263,7 @@ class NARoutine : public NABasicObject {
   NABoolean isExtraCall_;
   NABoolean hasOutParams_;
 
-  Int64 objectUID_;
+  long objectUID_;
   NABoolean isUniversal_;
   Int32 actionPosition_;
   ComRoutineExecutionMode executionMode_;
@@ -273,8 +273,8 @@ class NARoutine : public NABasicObject {
   NAString comRoutineParallelism_;
   NAString sasFormatWidth_;
   char **passThruData_;
-  Int64 *passThruDataSize_;
-  Int64 passThruDataNumEntries_;
+  long *passThruDataSize_;
+  long passThruDataNumEntries_;
   NAString systemName_;
   NAString dataSource_;
   NAString fileSuffix_;
@@ -317,19 +317,19 @@ class NARoutineCacheStatStoredProcedure {
   // sp_InputFormat is called with action=OPEN before any compile-time
   // functions are called.  It is then again called after all compile-time
   // functions have been called, this time with action=CLOSE.
-  static SP_STATUS sp_InputFormat(SP_FIELDDESC_STRUCT *inputFieldFormat, Lng32 numFields,
+  static SP_STATUS sp_InputFormat(SP_FIELDDESC_STRUCT *inputFieldFormat, int numFields,
                                   SP_COMPILE_HANDLE spCompileObj, SP_HANDLE spObj, SP_ERROR_STRUCT *error);
 
   // sp_NumOutputFields function is called at compile-time of the stored
   // procedure to inquire about the number of output fields in a row.
-  static SP_STATUS sp_NumOutputFields(Lng32 *numFields, SP_COMPILE_HANDLE spCompileObj, SP_HANDLE spObj,
+  static SP_STATUS sp_NumOutputFields(int *numFields, SP_COMPILE_HANDLE spCompileObj, SP_HANDLE spObj,
                                       SP_ERROR_STRUCT *error);
 
   // sp_OutputFormat is called at compile-time of the stored procedure to
   // determine  the format (type info) of each field that will become part of the
   // row being  output from the stored procedure.
   static SP_STATUS sp_OutputFormat(SP_FIELDDESC_STRUCT *outputFieldFormat, SP_KEYDESC_STRUCT keyFields[],
-                                   Lng32 *numKeyFields, SP_HANDLE spCompileObj, SP_HANDLE spObj,
+                                   int *numKeyFields, SP_HANDLE spCompileObj, SP_HANDLE spObj,
                                    SP_ERROR_STRUCT *error);
 
   // sp_Process is called at run-time of the stored procedure.
@@ -367,12 +367,12 @@ class NARoutineCacheDeleteStoredProcedure {
   // sp_InputFormat is called with action=OPEN before any compile-time
   // functions are called.  It is then again called after all compile-time
   // functions have been called, this time with action=CLOSE.
-  static SP_STATUS sp_InputFormat(SP_FIELDDESC_STRUCT *inputFieldFormat, Lng32 numFields,
+  static SP_STATUS sp_InputFormat(SP_FIELDDESC_STRUCT *inputFieldFormat, int numFields,
                                   SP_COMPILE_HANDLE spCompileObj, SP_HANDLE spObj, SP_ERROR_STRUCT *error);
 
   // sp_NumOutputFields function is called at compile-time of the stored
   // procedure to inquire about the number of output fields in a row.
-  static SP_STATUS sp_NumOutputFields(Lng32 *numFields, SP_COMPILE_HANDLE spCompileObj, SP_HANDLE spObj,
+  static SP_STATUS sp_NumOutputFields(int *numFields, SP_COMPILE_HANDLE spCompileObj, SP_HANDLE spObj,
                                       SP_ERROR_STRUCT *error) {
     *numFields = 0;
     return SP_SUCCESS;
@@ -382,7 +382,7 @@ class NARoutineCacheDeleteStoredProcedure {
   // determine  the format (type info) of each field that will become part of the
   // row being  output from the stored procedure.
   static SP_STATUS sp_OutputFormat(SP_FIELDDESC_STRUCT *outputFieldFormat, SP_KEYDESC_STRUCT keyFields[],
-                                   Lng32 *numKeyFields, SP_HANDLE spCompileObj, SP_HANDLE spObj,
+                                   int *numKeyFields, SP_HANDLE spCompileObj, SP_HANDLE spObj,
                                    SP_ERROR_STRUCT *error) {
     return SP_SUCCESS;
   }

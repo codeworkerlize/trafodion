@@ -52,31 +52,31 @@
 class SortAlgo : public NABasicObject {
  public:
   SortAlgo(ULng32 runsize, ULng32 recsize, NABoolean doNotallocRec, ULng32 keysize, SortScratchSpace *scratch,
-           Lng32 explainNodeId, ExBMOStats *bmoStats);
+           int explainNodeId, ExBMOStats *bmoStats);
   ~SortAlgo(){};
 
   //------------------------------------------------------------
   // Note that sort is implemented as a pure virtual function.
   //------------------------------------------------------------
 
-  virtual Lng32 sortSend(void *rec, ULng32 len, void *tupp) = 0;
+  virtual int sortSend(void *rec, ULng32 len, void *tupp) = 0;
 
-  virtual Lng32 sortClientOutOfMem(void) = 0;
+  virtual int sortClientOutOfMem(void) = 0;
 
-  virtual Lng32 sortSendEnd(void) = 0;
+  virtual int sortSendEnd(void) = 0;
 
-  virtual Lng32 sortReceive(void *rec, ULng32 &len) = 0;
-  virtual Lng32 sortReceive(void *&rec, ULng32 &len, void *&tupp) = 0;
+  virtual int sortReceive(void *rec, ULng32 &len) = 0;
+  virtual int sortReceive(void *&rec, ULng32 &len, void *&tupp) = 0;
   virtual UInt32 getOverheadPerRecord(void) = 0;
   //-----------------------------------------------------------
   // Since the compare routine is independent of the sort
   // algorithm it can be a member of this base class.
   //-----------------------------------------------------------
   short compare(char *key1, char *key2);
-  virtual Lng32 generateInterRuns() = 0;
+  virtual int generateInterRuns() = 0;
   ULng32 getNumOfCompares() const;
   SortScratchSpace *getScratch() const;
-  Lng32 getRunSize() const;
+  int getRunSize() const;
   void setExternalSort(void) { internalSort_ = FALSE_L; }
   NABoolean isInternalSort(void) { return internalSort_; }
 
@@ -89,7 +89,7 @@ class SortAlgo : public NABasicObject {
   NABoolean sendNotDone_;
   NABoolean internalSort_;
   NABoolean doNotallocRec_;
-  Lng32 explainNodeId_;
+  int explainNodeId_;
   ExBMOStats *bmoStats_;
 };
 

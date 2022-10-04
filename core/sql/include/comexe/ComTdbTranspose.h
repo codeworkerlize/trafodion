@@ -127,9 +127,9 @@ class ComTdbTranspose : public ComTdb {
   //  IN: Recommended size for pool buffers.
   //
   ComTdbTranspose(ComTdb *childTdb, ex_expr **transColExprs, Int32 numTransExprs, ex_expr *afterTransPred,
-                  Lng32 transRowLen, const unsigned short transTuppIndex, ex_cri_desc *givenCriDesc,
+                  int transRowLen, const unsigned short transTuppIndex, ex_cri_desc *givenCriDesc,
                   ex_cri_desc *returnedCriDesc, queue_index down, queue_index up, Cardinality estimatedRowCount,
-                  Lng32 numBuffers, ULng32 bufferSize, Space *space);
+                  int numBuffers, ULng32 bufferSize, Space *space);
 
   // ---------------------------------------------------------------------
   // Redefine virtual functions required for Versioning.
@@ -171,7 +171,7 @@ class ComTdbTranspose : public ComTdb {
   //  IN - The base address of the TDB fragment.  Pointers are calculated
   //       by adding the offset to the base address (more or less).
   //
-  Lng32 unpack(void *, void *reallocator);
+  int unpack(void *, void *reallocator);
 
   // ComTdbTranspose::Display() -----------------------------------------
   // (Don't know why this is here.  It does not seem to be virtual and

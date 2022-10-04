@@ -85,11 +85,11 @@ class NAProcessHandle {
   SB_Phandle_Type *getPhandle() { return &phandle_; }
   Int32 getCpu() { return cpu_; }
   Int32 getPin() { return pin_; }
-  Int64 getSeqNum() { return seqNum_; }
+  long getSeqNum() { return seqNum_; }
   void setPhandle(SB_Phandle_Type *phandle);
 
-  Lng32 getNodeNumber() { return nodeNumber_; }
-  Lng32 getSegment() { return nodeNumber_; }
+  int getNodeNumber() { return nodeNumber_; }
+  int getSegment() { return nodeNumber_; }
   char *getNodeName();
   short getNodeNameLen();
   char *getPhandleString();
@@ -99,9 +99,9 @@ class NAProcessHandle {
   SB_Phandle_Type phandle_;  // 64 bytes phandle
   Int32 cpu_;
   Int32 pin_;
-  Int64 seqNum_;
+  long seqNum_;
 
-  Lng32 nodeNumber_;
+  int nodeNumber_;
   char nodeName_[NodeNameLen + 1];
   short nodeNameLen_;
   char phandleString_[PhandleStringLen + 1];

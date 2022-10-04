@@ -14,17 +14,17 @@ class ComTdbSequence : public ComTdb {
  public:
   ComTdbSequence();
 
-  ComTdbSequence(ex_expr *sequenceExpr, ex_expr *returnExpr, ex_expr *postPred, ex_expr *cancelExpr, Lng32 minFollowing,
-                 Lng32 reclen, const unsigned short tupp_index, ComTdb *child_tdb, ex_cri_desc *given_cri_desc,
-                 ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, Lng32 num_buffers,
+  ComTdbSequence(ex_expr *sequenceExpr, ex_expr *returnExpr, ex_expr *postPred, ex_expr *cancelExpr, int minFollowing,
+                 int reclen, const unsigned short tupp_index, ComTdb *child_tdb, ex_cri_desc *given_cri_desc,
+                 ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, int num_buffers,
                  ULng32 buffer_size,      // for SQL buffer (with results)
-                 Lng32 OLAP_buffer_size,  // for OLAP buffer
+                 int OLAP_buffer_size,  // for OLAP buffer
                  // olap_number_of_buffers is for testing purposes, can be removed later
-                 Lng32 max_number_of_OLAP_buffers,  // number of olap buffers
+                 int max_number_of_OLAP_buffers,  // number of olap buffers
                  Int32 maxHistoryRows, NABoolean unboundedFollowing, NABoolean logDiagnostics,
                  NABoolean possibleMultipleCalls, short scratchThresholdPct, unsigned short memUsagePercent,
-                 short pressureThreshold, Lng32 maxRowsInOLAPBuffer, Lng32 minNumberOfOLAPBuffers,
-                 Lng32 numberOfWinOLAPBuffers, NABoolean noOverflow, ex_expr *partExpr);
+                 short pressureThreshold, int maxRowsInOLAPBuffer, int minNumberOfOLAPBuffers,
+                 int numberOfWinOLAPBuffers, NABoolean noOverflow, ex_expr *partExpr);
 
   ~ComTdbSequence();
 
@@ -41,7 +41,7 @@ class ComTdbSequence : public ComTdb {
   virtual short getClassSize() { return (short)sizeof(*this); }
 
   Long pack(void *);
-  Lng32 unpack(void *, void *reallocator);
+  int unpack(void *, void *reallocator);
 
   void display() const;
 

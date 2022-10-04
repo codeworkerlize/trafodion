@@ -481,7 +481,7 @@ class MvBindContext : public NABasicObject {
  public:
   MvBindContext(CollHeap *heap)
       : replacementTreeHash_(QualifiedName::hash,
-                             (Lng32)10,  // initialHashSize
+                             (int)10,  // initialHashSize
                              TRUE,       // enforceUniqueness
                              heap),
         builder_(NULL),
@@ -1010,9 +1010,9 @@ class HostArraysWA : public NABasicObject {
 
   SelectStates hasInputRowsetsInSelectPredicate() { return hasInputRowsetsInSelect_; }
 
-  void setRowsetRowCountArraySize(const Lng32 size) { rowsetRowCountArraySize_ = size; }
+  void setRowsetRowCountArraySize(const int size) { rowsetRowCountArraySize_ = size; }
 
-  Lng32 getRowsetRowCountArraySize() { return rowsetRowCountArraySize_; }
+  int getRowsetRowCountArraySize() { return rowsetRowCountArraySize_; }
 
  private:
   BindWA *bindWA_;
@@ -1020,7 +1020,7 @@ class HostArraysWA : public NABasicObject {
   // Total number of instances of direct host arrays found. i.e. If the same
   // host array is used twice in a statement (within the same scope) then
   // numHostArrays = 2.
-  Lng32 numHostArrays_;
+  int numHostArrays_;
 
   // flag to indicate the presence of derived rowsets.  numHostArrays_ is only
   // used to indicate the presence of direct rowsets.
@@ -1132,7 +1132,7 @@ class HostArraysWA : public NABasicObject {
   // for rowset updates and deletes. Has non-zero value only if rowset_row_count
   // feature is enabled. Onlj will send this value through the TDB to executor
   // where an array of this length will be allocated at run-time.
-  Lng32 rowsetRowCountArraySize_;
+  int rowsetRowCountArraySize_;
 
   // Scans the node parent->childNumber) searching for host vars. Puts them
   // in list pointed by listOfHostArrays_
@@ -1294,7 +1294,7 @@ class BindWA : public NABasicObject {
   void markAsReferencedColumn(const ItemExpr *ie, NABoolean groupByRefForSingleIntHist = FALSE) {
     markAsReferencedColumn(ie->getValueId(), groupByRefForSingleIntHist);
   }
-  void setColumnRefsInStoi(const char *fileName, Lng32 colPosition);
+  void setColumnRefsInStoi(const char *fileName, int colPosition);
 
   // --------------------------------------------------------------------
   // A rather miscellaneous utility, in the class so as to be more
@@ -1411,9 +1411,9 @@ class BindWA : public NABasicObject {
   enum uniqueIudNumOffset { uniqueIudNumForInsert = 0, uniqueIudNumForDelete = 1 };
   // set uniqueIudNum_ to the next unused number
   inline void setUniqueIudNum() { uniqueIudNum_ = maxIudNum_ += 2; }
-  inline void setUniqueIudNum(Lng32 newNum) { uniqueIudNum_ = newNum; }
-  inline void resetUniqueIudNum(Lng32 iudNum) { uniqueIudNum_ = iudNum; }
-  inline Lng32 getUniqueIudNum(uniqueIudNumOffset offset = uniqueIudNumForInsert) { return uniqueIudNum_ + offset; }
+  inline void setUniqueIudNum(int newNum) { uniqueIudNum_ = newNum; }
+  inline void resetUniqueIudNum(int iudNum) { uniqueIudNum_ = iudNum; }
+  inline int getUniqueIudNum(uniqueIudNumOffset offset = uniqueIudNumForInsert) { return uniqueIudNum_ + offset; }
 
   inline LIST(ComTimestamp) * getTriggersList() const { return triggersList_; }
   CollIndex addTrigger(const ComTimestamp &tr);
@@ -1706,9 +1706,9 @@ class BindWA : public NABasicObject {
   // in the temporary table used for triggers.
   // ---------------------------------------------------------------------
   // current identifier
-  Lng32 uniqueIudNum_;
+  int uniqueIudNum_;
   // next unused identifier - max is not the current because of cascading
-  Lng32 maxIudNum_;
+  int maxIudNum_;
 
   // List of all triggers inlined in this statement. Used for trigger-enable.
   LIST(ComTimestamp) * triggersList_;
@@ -1990,7 +1990,7 @@ class BindWA : public NABasicObject {
 
 class HbaseColUsageInfo : public NABasicObject {
  public:
-  HbaseColUsageInfo(NAMemory *h, Lng32 initSize = 67) {
+  HbaseColUsageInfo(NAMemory *h, int initSize = 67) {
     HashFunctionPtr hashFunc = (HashFunctionPtr)(&BindWA::qualNameHashFunc);
     usageInfo_ = new (h) NAHashDictionary<QualifiedName, NASet<NAString>>(hashFunc, initSize, TRUE, h);
 

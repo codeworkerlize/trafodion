@@ -58,11 +58,11 @@
 #include "ScratchSpace.h"
 #include "executor/ExStats.h"
 
-static Int64 juliantimestamp_() {
+static long juliantimestamp_() {
   struct timeval tv;
 
   gettimeofday(&tv, NULL);
-  Int64 tUsec = (Int64)tv.tv_sec * (Int64)1000000 + (Int64)tv.tv_usec;
+  long tUsec = (long)tv.tv_sec * (long)1000000 + (long)tv.tv_usec;
   return tUsec;
 }
 
@@ -317,7 +317,7 @@ NABoolean SQScratchFile::checkDirectory(char *path) {
 //--------------------------------------------------------------------------
 // seekOffset
 //--------------------------------------------------------------------------
-RESULT SQScratchFile::seekOffset(Int32 index, Lng32 offset, Int64 &iowaittime, Lng32 *transfered, DWORD seekDirection) {
+RESULT SQScratchFile::seekOffset(Int32 index, int offset, long &iowaittime, int *transfered, DWORD seekDirection) {
   // Assert that there is no pending IO on this file num.
   ex_assert(fileHandle_[index].IOPending == FALSE, "SQScratchFile::seekOffset, Pending IO on file handle");
 
@@ -353,7 +353,7 @@ RESULT SQScratchFile::checkScratchIO(Int32 index, DWORD timeout, NABoolean initi
 
   if (fileHandle_[index].IOPending) {
     while (retry) {
-      Lng32 count = 0;
+      int count = 0;
       NABoolean readIO = type_ == PEND_READ;     // redriveIO resets type_ if IO completes
       error = redriveIO(index, count, timeout);  // similar to AWAITIOX redriveIO also resets IOPending
       retry = FALSE;
@@ -366,7 +366,7 @@ RESULT SQScratchFile::checkScratchIO(Int32 index, DWORD timeout, NABoolean initi
             return result;
           }
           if (initiateIO) {
-            Int64 iowaittime = 0;
+            long iowaittime = 0;
             result = serveAsynchronousReadQueue(iowaittime);
             if (result != SCRATCH_SUCCESS) {
               return result;
@@ -410,7 +410,7 @@ RESULT SQScratchFile::checkScratchIO(Int32 index, DWORD timeout, NABoolean initi
   return SCRATCH_SUCCESS;
 }
 
-Int32 SQScratchFile::redriveIO(Int32 index, Lng32 &count, Lng32 timeout) {
+Int32 SQScratchFile::redriveIO(Int32 index, int &count, int timeout) {
   Int32 err = 0;
   RESULT result;
   Int32 retval;
@@ -449,14 +449,14 @@ RESULT SQScratchFile::doSelect(Int32 index, DWORD timeout, EPendingIOType type, 
   struct timeval tv;
   Int32 retval;
 
-  Int64 tLeft = LONG_MAX;
+  long tLeft = LONG_MAX;
   if (timeout >= 0) tLeft = timeout * 10000;
 
   STFS_FH_ZERO(&fds);
   STFS_FH_SET(fileHandle_[index].fileNum, &fds);
   /* Wait up to five seconds. */
 
-  Int64 tBegin = 0;
+  long tBegin = 0;
   if (timeout == -1) {  // infinit wait
     switch (type) {
       case PEND_READ:
@@ -495,8 +495,8 @@ RESULT SQScratchFile::doSelect(Int32 index, DWORD timeout, EPendingIOType type, 
   return SCRATCH_SUCCESS;
 }
 
-RESULT SQScratchFile::writeBlock(Int32 index, char *data, Lng32 length, Int64 &iowaittime, Int32 blockNum,
-                                 Lng32 *transfered, NABoolean waited) {
+RESULT SQScratchFile::writeBlock(Int32 index, char *data, int length, long &iowaittime, Int32 blockNum,
+                                 int *transfered, NABoolean waited) {
   ex_assert(vectorIndex_ < vectorSize_, "SQScratchFile::writeBlock, vectorIndex is out of bounds");
 
   // This assert is necessary to catch mixing of write and read operations before
@@ -542,7 +542,7 @@ RESULT SQScratchFile::writeBlock(Int32 index, char *data, Lng32 length, Int64 &i
   return executeVectorIO();
 }
 
-RESULT SQScratchFile::readBlock(Int32 index, char *data, Lng32 length, Int64 &iowaittime, Lng32 *transfered,
+RESULT SQScratchFile::readBlock(Int32 index, char *data, int length, long &iowaittime, int *transfered,
                                 Int32 synchronous) {
   ex_assert(vectorIndex_ < vectorSize_, "SQScratchFile::readBlockV, vectorIndex is out of bounds");
 
@@ -764,7 +764,7 @@ Int32 SQScratchFile::redriveVectorIO(Int32 index) {
   return 0;
 }
 
-NABoolean SQScratchFile::isNewVecElemPossible(Int64 byteOffset, Int32 blockSize) {
+NABoolean SQScratchFile::isNewVecElemPossible(long byteOffset, Int32 blockSize) {
   if (vectorIndex_ == 0)  // vector not populated
     return TRUE;
   else if (type_ = PEND_READ)  // vector populated for READ
@@ -792,7 +792,7 @@ RESULT SQScratchFile::getError(Int32 index) {
   //------------------------------------------------------------------------
   // call obtain error and then determine the right value to return.
   //------------------------------------------------------------------------
-  Lng32 error = obtainError();
+  int error = obtainError();
   switch (error) {
     case 0:
       return SCRATCH_SUCCESS;

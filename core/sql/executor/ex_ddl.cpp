@@ -130,7 +130,7 @@ void ExDDLTcb::freeResources() {
   pool_ = 0;
 }
 
-char *ExDDLTcb::getQueryIdInfo(Lng32 &len) {
+char *ExDDLTcb::getQueryIdInfo(int &len) {
   ExExeStmtGlobals *stmtGlobals = getGlobals()->castToExExeStmtGlobals();
 
   assert(stmtGlobals);
@@ -186,7 +186,7 @@ short ExDDLTcb::work() {
 
   ComDiagsArea *cpDiagsArea = NULL;
 
-  Lng32 parentQidLen = 0;
+  int parentQidLen = 0;
   char *parentQid = getQueryIdInfo(parentQidLen);
 
   CmpContext *cmpCxt = NULL;
@@ -210,7 +210,7 @@ short ExDDLTcb::work() {
     ex_queue_entry *pentry_down = qparent_.down->getHeadEntry();
     ExDDLPrivateState &pstate = *((ExDDLPrivateState *)pentry_down->pstate);
 
-    CmpCompileInfo c(ddlTdb().query_, ddlTdb().queryLen_ + 1, (Lng32)ddlTdb().queryCharSet_, ddlTdb().objectName_,
+    CmpCompileInfo c(ddlTdb().query_, ddlTdb().queryLen_ + 1, (int)ddlTdb().queryCharSet_, ddlTdb().objectName_,
                      ddlTdb().objectNameLen_ + 1, 0, 0);
 
     size_t dataLen = c.getLength();
@@ -269,7 +269,7 @@ short ExDDLTcb::work() {
         if (masterStmtGlobals->getStatement()->syncQueryForBinglog() &&
             (NOT(Get_SqlParser_Flags(INTERNAL_QUERY_FROM_EXEUTIL)))) {
           int ret = 0;
-          Int64 eventID;
+          long eventID;
           msg_seqid_get_id(&eventID, -1);
           NAString objschema = "UN_KONW_SCHEMA";
 
@@ -326,7 +326,7 @@ short ExDDLTcb::work() {
       // We cannot use the enum SQLCHARSETCODE_ISO_MAPPING out here as that
       // will cause mxcmp to use the default charset as iso88591.
       // So we send the charset of this input string.
-      cmpStatus = cmp->sendRequest(EXSQLCOMP::PROCESSDDL, data, dataLen, TRUE, NULL, (Lng32)ddlTdb().queryCharSet_,
+      cmpStatus = cmp->sendRequest(EXSQLCOMP::PROCESSDDL, data, dataLen, TRUE, NULL, (int)ddlTdb().queryCharSet_,
                                    TRUE, /*resend, if needed*/
                                    parentQid, parentQidLen);
 
@@ -429,7 +429,7 @@ short ExDDLwithStatusTcb::work() {
 
   short indexToCmp = 0;
 
-  Lng32 parentQidLen = 0;
+  int parentQidLen = 0;
   char *parentQid = getQueryIdInfo(parentQidLen);
 
   ComDiagsArea *cpDiagsArea = NULL;
@@ -472,7 +472,7 @@ short ExDDLwithStatusTcb::work() {
     ExMsgFragment *msgFragment = espFragDir->getFragment(fragHandle);
 
     // Find out my ESP instance number
-    Lng32 myInstNum = espGlobals->getMyInstanceNumber();
+    int myInstNum = espGlobals->getMyInstanceNumber();
 
     // Do a lookup in the downloaded message about whether this ESP
     // should do the work.
@@ -520,7 +520,7 @@ short ExDDLwithStatusTcb::work() {
 
       case SETUP_INITIAL_REQ_: {
         mdi_ =
-            new (getHeap()) CmpDDLwithStatusInfo(ddlTdb().query_, ddlTdb().queryLen_ + 1, (Lng32)ddlTdb().queryCharSet_,
+            new (getHeap()) CmpDDLwithStatusInfo(ddlTdb().query_, ddlTdb().queryLen_ + 1, (int)ddlTdb().queryCharSet_,
                                                  ddlTdb().objectName_, ddlTdb().objectNameLen_ + 1);
 
         if (ddlTdb().getMDVersion())
@@ -613,7 +613,7 @@ short ExDDLwithStatusTcb::work() {
         cmp_ = getArkcmp();
 
         cmpStatus = cmp_->sendRequest(EXSQLCOMP::DDL_WITH_STATUS, data_, dataLen_, TRUE, NULL,
-                                      (Lng32)ddlTdb().queryCharSet_, TRUE, /*resend, if needed*/
+                                      (int)ddlTdb().queryCharSet_, TRUE, /*resend, if needed*/
                                       parentQid, parentQidLen);
 
         if (cmpStatus != ExSqlComp::SUCCESS) {
@@ -663,7 +663,7 @@ short ExDDLwithStatusTcb::work() {
         }
 
         if ((replyDWS_) && (replyDWS_->blackBoxLen() > 0) && (replyDWS_->blackBox())) {
-          Lng32 blackBoxLen = replyDWS_->blackBoxLen();
+          int blackBoxLen = replyDWS_->blackBoxLen();
           char *blackBox = replyDWS_->blackBox();
           currPtr_ = blackBox;
 
@@ -1109,7 +1109,7 @@ short ExDescribeTcb::work() {
   }    // while
 }
 
-Lng32 ExDescribeTcb::returnLeaks(short &error) {
+int ExDescribeTcb::returnLeaks(short &error) {
   error = 0;
   ex_queue_entry *pentry_down = qparent_.down->getHeadEntry();
   ExDDLPrivateState &pstate = *((ExDDLPrivateState *)pentry_down->pstate);
@@ -1186,7 +1186,7 @@ ExProcessVolatileTableTcb::ExProcessVolatileTableTcb(const ComTdbProcessVolatile
 // work() for ExProcessVolatileTableTcb
 //////////////////////////////////////////////////////
 short ExProcessVolatileTableTcb::work() {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
   short retcode = 0;
 
   // if no parent request, return
@@ -1474,8 +1474,8 @@ short ExProcessVolatileTableTcb::work() {
 // Redefine virtual method allocatePstates, to be used by dynamic queue
 // resizing, as well as the initial queue construction.
 ////////////////////////////////////////////////////////////////////////
-ex_tcb_private_state *ExProcessVolatileTableTcb::allocatePstates(Lng32 &numElems,      // inout, desired/actual elements
-                                                                 Lng32 &pstateLength)  // out, length of one element
+ex_tcb_private_state *ExProcessVolatileTableTcb::allocatePstates(int &numElems,      // inout, desired/actual elements
+                                                                 int &pstateLength)  // out, length of one element
 {
   PstateAllocator<ExProcessVolatileTablePrivateState> pa;
 
@@ -1513,7 +1513,7 @@ ExProcessInMemoryTableTcb::ExProcessInMemoryTableTcb(const ComTdbProcessInMemory
 // work() for ExProcessInMemoryTableTcb
 //////////////////////////////////////////////////////
 short ExProcessInMemoryTableTcb::work() {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
 
   // if no parent request, return
   if (qparent_.down->isEmpty()) return WORK_OK;
@@ -1741,8 +1741,8 @@ short ExProcessInMemoryTableTcb::work() {
 // Redefine virtual method allocatePstates, to be used by dynamic queue
 // resizing, as well as the initial queue construction.
 ////////////////////////////////////////////////////////////////////////
-ex_tcb_private_state *ExProcessInMemoryTableTcb::allocatePstates(Lng32 &numElems,      // inout, desired/actual elements
-                                                                 Lng32 &pstateLength)  // out, length of one element
+ex_tcb_private_state *ExProcessInMemoryTableTcb::allocatePstates(int &numElems,      // inout, desired/actual elements
+                                                                 int &pstateLength)  // out, length of one element
 {
   PstateAllocator<ExProcessInMemoryTablePrivateState> pa;
 

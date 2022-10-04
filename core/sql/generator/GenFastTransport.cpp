@@ -60,8 +60,8 @@ static char *AllocDataInSpace(ComSpace &space, const char *data, UInt32 len) {
 // Helper function to get the maximum number of characters required
 // to represent a value of a given NAType.
 //
-static Lng32 GetDisplayLength(const NAType &t) {
-  Lng32 result = t.getDisplayLength(t.getFSDatatype(), t.getNominalSize(), t.getPrecision(), t.getScale(), 0);
+static int GetDisplayLength(const NAType &t) {
+  int result = t.getDisplayLength(t.getFSDatatype(), t.getNominalSize(), t.getPrecision(), t.getScale(), 0);
   return result;
 }
 
@@ -102,7 +102,7 @@ int CreateAllCharsExpr(const NAType &formalType, ItemExpr &actualValue, CmpConte
   NAMemory *h = cmpContext->statementHeap();
   NAType *typ = NULL;
 
-  Lng32 maxLength = GetDisplayLength(formalType);
+  int maxLength = GetDisplayLength(formalType);
   maxLength = MAXOF(maxLength, 1);
 
   if (NOT DFS2REC::isCharacterString(formalType.getFSDatatype())) {

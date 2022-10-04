@@ -169,7 +169,7 @@ class CmpCommon {
   // The third one doesn't have the overhead of returning the value
   // as a string. This one should be used most of the time.
   //
-  static Lng32 getDefaultLong(DefaultConstants id);
+  static int getDefaultLong(DefaultConstants id);
   static double getDefaultNumeric(DefaultConstants id);
   static NAString getDefaultString(DefaultConstants id);
   static DefaultToken getDefault(DefaultConstants id, NAString &result, Int32 errOrWarn = -1);

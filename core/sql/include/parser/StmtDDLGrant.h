@@ -71,7 +71,7 @@ class StmtDDLGrant : public StmtDDLNode {
   //
 
   virtual Int32 getArity() const;
-  virtual ExprNode *getChild(Lng32 index);
+  virtual ExprNode *getChild(int index);
 
   inline const ElemDDLGranteeArray &getGranteeArray() const;
   inline ElemDDLGranteeArray &getGranteeArray();
@@ -134,7 +134,7 @@ class StmtDDLGrant : public StmtDDLNode {
   // (in the form of an ElemDDLGrantee).
 
   // mutator
-  virtual void setChild(Lng32 index, ExprNode *pChildNode);
+  virtual void setChild(int index, ExprNode *pChildNode);
 
   // for processing
   ExprNode *bindNode(BindWA *bindWAPtr);

@@ -97,7 +97,7 @@ class ElemDDLList : public ElemDDLNode {
   // gets the degree of this node (the number of child
   // parse node).
 
-  virtual ExprNode *getChild(Lng32 index);
+  virtual ExprNode *getChild(int index);
 
   virtual CollIndex entries() const;
 
@@ -133,7 +133,7 @@ class ElemDDLList : public ElemDDLNode {
   inline ElemDDLList *getParentListNode() const;
 
   // mutators
-  virtual void setChild(Lng32 index, ExprNode *pElemDDLNode);
+  virtual void setChild(int index, ExprNode *pElemDDLNode);
   inline void setParentListNode(ElemDDLList *pParentListNode);
 
   // method for tracing

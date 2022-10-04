@@ -58,7 +58,7 @@ class CompilerTrackingInfo {
   //
   // the cpu time for the longest compilation is updated
   // if the parameter is longer than the current longest
-  void updateLongestCompile(Lng32 c);
+  void updateLongestCompile(int c);
   //
   // the largest statement heap size so far
   // update this right before deleting the CmpStatement
@@ -100,25 +100,25 @@ class CompilerTrackingInfo {
   void resetInterval();
 
   // the duration of the interval in minutes
-  Int32 currentIntervalDuration(Int64 endTime);
+  Int32 currentIntervalDuration(long endTime);
   //
   // the cpu time for the interval
-  Lng32 cpuPathLength();
+  int cpuPathLength();
   //
   // getters
-  inline Int64 beginIntervalTime() { return beginIntervalTime_; }
+  inline long beginIntervalTime() { return beginIntervalTime_; }
 
   // return the beginning of the interval in unix epoch
-  inline Int64 beginIntervalTimeUEpoch() { return beginIntervalTimeUEpoch_; }
+  inline long beginIntervalTimeUEpoch() { return beginIntervalTimeUEpoch_; }
 
-  inline Int64 endIntervalTime() { return endIntervalTime_; }
+  inline long endIntervalTime() { return endIntervalTime_; }
 
-  inline Lng32 beginIntervalClock() { return beginIntervalClock_; }
+  inline int beginIntervalClock() { return beginIntervalClock_; }
   //
   // the compiler age in minutes
-  inline Lng32 compilerAge() {
-    Int64 seconds = (processInfo_->getProcessDuration() / 1000000);
-    Int64 minutes = (seconds / 60);
+  inline int compilerAge() {
+    long seconds = (processInfo_->getProcessDuration() / 1000000);
+    long minutes = (seconds / 60);
     return int64ToInt32(minutes);
   }
   //
@@ -164,9 +164,9 @@ class CompilerTrackingInfo {
   inline ULng32 hCacheLookups();
   void resetHistogramCacheCounters();
 
-  inline Lng32 systemHeapIntervalWaterMark() { return systemHeapWaterMark_; }
+  inline int systemHeapIntervalWaterMark() { return systemHeapWaterMark_; }
 
-  inline Lng32 longestCompile() { return longestCompileClock_; }
+  inline int longestCompile() { return longestCompileClock_; }
 
   inline ULng32 successfulQueryCount() { return successfulQueryCount_; }
 
@@ -197,25 +197,25 @@ class CompilerTrackingInfo {
   CmpProcess *processInfo_;
   //
   // timestamp for when this interval began
-  Int64 beginIntervalTime_;
+  long beginIntervalTime_;
   //
   // timestamp for when this interval began in unix epoch
-  Int64 beginIntervalTimeUEpoch_;
+  long beginIntervalTimeUEpoch_;
   //
   // timestamp for when this interval ended
-  Int64 endIntervalTime_;
+  long endIntervalTime_;
   //
   //  cpu path length for this interval
-  Lng32 beginIntervalClock_;
+  int beginIntervalClock_;
   //
   // the most memory used in a CmpStatement so far
   size_t largestStmtIntervalWaterMark_;
   //
   // the most memory used by system heap so far
-  Lng32 systemHeapWaterMark_;
+  int systemHeapWaterMark_;
   //
   // cpu path for the longest compile so far
-  Lng32 longestCompileClock_;
+  int longestCompileClock_;
   //
   // metadata cache counters
   ULng32 mdCacheHits_;

@@ -43,7 +43,7 @@ ComTdbGenericUtil::ComTdbGenericUtil(char *query, ULng32 querylen, Int16 querych
                                      ex_expr *output_expr, ULng32 output_rowlen, ex_cri_desc *work_cri_desc,
                                      const unsigned short work_atp_index, ex_cri_desc *given_cri_desc,
                                      ex_cri_desc *returned_cri_desc, queue_index down, queue_index up,
-                                     Lng32 num_buffers, ULng32 buffer_size)
+                                     int num_buffers, ULng32 buffer_size)
     : ComTdb(ComTdb::ex_DDL, eye_DDL, (Cardinality)0.0, given_cri_desc, returned_cri_desc, down, up, num_buffers,
              buffer_size),
       query_(query),
@@ -73,7 +73,7 @@ Long ComTdbGenericUtil::pack(void *space) {
   return ComTdb::pack(space);
 }
 
-Lng32 ComTdbGenericUtil::unpack(void *base, void *reallocator) {
+int ComTdbGenericUtil::unpack(void *base, void *reallocator) {
   if (query_.unpack(base)) return -1;
   if (objectName_.unpack(base)) return -1;
   if (inputExpr_.unpack(base, reallocator)) return -1;
@@ -93,7 +93,7 @@ ComTdbDDL::ComTdbDDL(char *ddl_query, ULng32 ddl_querylen, Int16 ddl_querycharse
                      ULng32 schemaNameLen, ex_expr *input_expr, ULng32 input_rowlen, ex_expr *output_expr,
                      ULng32 output_rowlen, ex_cri_desc *work_cri_desc, const unsigned short work_atp_index,
                      ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc, queue_index down, queue_index up,
-                     Lng32 num_buffers, ULng32 buffer_size)
+                     int num_buffers, ULng32 buffer_size)
     : ComTdbGenericUtil(ddl_query, ddl_querylen, ddl_querycharset, schemaName, schemaNameLen, input_expr, input_rowlen,
                         output_expr, output_rowlen, work_cri_desc, work_atp_index, given_cri_desc, returned_cri_desc,
                         down, up, num_buffers, buffer_size),
@@ -113,7 +113,7 @@ ComTdbDDLwithStatus::ComTdbDDLwithStatus(char *ddl_query, ULng32 ddl_querylen, I
                                          ex_expr *output_expr, ULng32 output_rowlen, ex_cri_desc *work_cri_desc,
                                          const unsigned short work_atp_index, ex_cri_desc *given_cri_desc,
                                          ex_cri_desc *returned_cri_desc, queue_index down, queue_index up,
-                                         Lng32 num_buffers, ULng32 buffer_size)
+                                         int num_buffers, ULng32 buffer_size)
     : ComTdbDDL(ddl_query, ddl_querylen, ddl_querycharset, schemaName, schemaNameLen, input_expr, input_rowlen,
                 output_expr, output_rowlen, work_cri_desc, work_atp_index, given_cri_desc, returned_cri_desc, down, up,
                 num_buffers, buffer_size),
@@ -130,7 +130,7 @@ ComTdbDescribe::ComTdbDescribe(char *query, ULng32 querylen, Int16 ddl_querychar
                                ULng32 input_rowlen, ex_expr *output_expr, ULng32 output_rowlen,
                                ex_cri_desc *work_cri_desc, const unsigned short work_atp_index, DescribeType type,
                                ULng32 flags, ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc,
-                               queue_index down, queue_index up, Lng32 num_buffers, Lng32 buffer_size)
+                               queue_index down, queue_index up, int num_buffers, int buffer_size)
     : ComTdbDDL(query, querylen, ddl_querycharset, NULL, 0, input_expr, input_rowlen, output_expr, output_rowlen,
                 work_cri_desc, work_atp_index, given_cri_desc, returned_cri_desc, down, up, num_buffers, buffer_size),
       type_(type),
@@ -148,7 +148,7 @@ ComTdbProcessVolatileTable::ComTdbProcessVolatileTable(
     NABoolean isTable, NABoolean isIndex, NABoolean isSchema, char *schemaName, ULng32 schemaNameLen,
     ex_expr *input_expr, ULng32 input_rowlen, ex_expr *output_expr, ULng32 output_rowlen, ex_cri_desc *work_cri_desc,
     const unsigned short work_atp_index, ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc, queue_index down,
-    queue_index up, Lng32 num_buffers, ULng32 buffer_size)
+    queue_index up, int num_buffers, ULng32 buffer_size)
     : ComTdbDDL(query, querylen, querycharset, schemaName, schemaNameLen, input_expr, input_rowlen, output_expr,
                 output_rowlen, work_cri_desc, work_atp_index, given_cri_desc, returned_cri_desc, down, up, num_buffers,
                 buffer_size),
@@ -169,7 +169,7 @@ Long ComTdbProcessVolatileTable::pack(void *space) {
   return ComTdbDDL::pack(space);
 }
 
-Lng32 ComTdbProcessVolatileTable::unpack(void *base, void *reallocator) {
+int ComTdbProcessVolatileTable::unpack(void *base, void *reallocator) {
   if (volTabName_.unpack(base)) return -1;
 
   return ComTdbDDL::unpack(base, reallocator);
@@ -185,7 +185,7 @@ ComTdbProcessInMemoryTable::ComTdbProcessInMemoryTable(
     NABoolean isVolatile, NABoolean isTable, NABoolean isIndex, NABoolean isMV, char *schemaName, ULng32 schemaNameLen,
     ex_expr *input_expr, ULng32 input_rowlen, ex_expr *output_expr, ULng32 output_rowlen, ex_cri_desc *work_cri_desc,
     const unsigned short work_atp_index, ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc, queue_index down,
-    queue_index up, Lng32 num_buffers, ULng32 buffer_size)
+    queue_index up, int num_buffers, ULng32 buffer_size)
     : ComTdbDDL(query, querylen, querycharset, schemaName, schemaNameLen, input_expr, input_rowlen, output_expr,
                 output_rowlen, work_cri_desc, work_atp_index, given_cri_desc, returned_cri_desc, down, up, num_buffers,
                 buffer_size),
@@ -207,7 +207,7 @@ Long ComTdbProcessInMemoryTable::pack(void *space) {
   return ComTdbDDL::pack(space);
 }
 
-Lng32 ComTdbProcessInMemoryTable::unpack(void *base, void *reallocator) {
+int ComTdbProcessInMemoryTable::unpack(void *base, void *reallocator) {
   if (objName_.unpack(base)) return -1;
 
   return ComTdbDDL::unpack(base, reallocator);

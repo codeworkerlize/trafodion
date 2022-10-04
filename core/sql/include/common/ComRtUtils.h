@@ -42,7 +42,7 @@ NABoolean ComRtIsInternalModName(const char *modName);
 // returns 'next' internal mod name.
 // 'index' keeps track of the current mod name returned. It should
 // be initialized to 0 on the first call to this method.
-const char *ComRtGetNextInternalModName(Lng32 &index, char *modNameBuf);
+const char *ComRtGetNextInternalModName(int &index, char *modNameBuf);
 
 NABoolean getLinuxGroups(const char *userName, std::set<std::string> &userGroups);
 
@@ -60,7 +60,7 @@ class ModuleOSFile {
   Int32 open(const char *fname);
   Int32 openGuardianFile(const char *fname);
   Int32 close();
-  Int32 readpos(char *buf, Lng32 pos, Lng32 len, short &countRead);
+  Int32 readpos(char *buf, int pos, int len, short &countRead);
 
  private:
   fstream fs_;
@@ -80,29 +80,29 @@ class ModuleOSFile {
 // Get the directory name where NonStop SQL software resides
 // (from registry on NT, $SYSTEM.SYSTEM on NSK)
 // -----------------------------------------------------------------------
-Lng32 ComRtGetInstallDir(char *buffer, Lng32 inputBufferLength, Lng32 *resultLength);
+int ComRtGetInstallDir(char *buffer, int inputBufferLength, int *resultLength);
 
 // -----------------------------------------------------------------------
 // Convert a 3-part module name into the file name in which the module
 // is stored
 // -----------------------------------------------------------------------
-Lng32 ComRtGetModuleFileName(const char *moduleName, const char *moduleDir, char *buffer, Lng32 inputBufferLength,
+int ComRtGetModuleFileName(const char *moduleName, const char *moduleDir, char *buffer, int inputBufferLength,
                              char *sysModuleDir,   // location of SYSTEMMODULES
                              char *userModuleDir,  // location of USERMODULES
-                             Lng32 *resultLength, short &isSystemModule);
+                             int *resultLength, short &isSystemModule);
 
 // -----------------------------------------------------------------------
 // Get the cluster (EXPAND node) name (returns "NSK" on NT)
 // -----------------------------------------------------------------------
-Lng32 ComRtGetOSClusterName(char *buffer, Lng32 inputBufferLength, Lng32 *resultLength, short *nodeNumber = NULL);
+int ComRtGetOSClusterName(char *buffer, int inputBufferLength, int *resultLength, short *nodeNumber = NULL);
 
 // -----------------------------------------------------------------------
 // Get the MP system catalog name.
 // -----------------------------------------------------------------------
-Lng32 ComRtGetMPSysCatName(char *sysCatBuffer,      /* out */
-                           Lng32 inputBufferLength, /* in  */
+int ComRtGetMPSysCatName(char *sysCatBuffer,      /* out */
+                           int inputBufferLength, /* in  */
                            char *inputSysName,      /* in must set to NULL if no name is passed */
-                           Lng32 *sysCatLength,     /* out */
+                           int *sysCatLength,     /* out */
                            short *detailError,      /* out */
                            NAMemory *heap = 0);     /* in  */
 
@@ -126,7 +126,7 @@ NABoolean ComRtIsNSKName(char *name);
 // to convert the nanosecond part of the unix timespec to microseconds. The
 // JulianTimesamp returned is in microseconds so it can be used directly
 // with the Guardian INTERPRETTIMESTAMP function.
-inline Int64 ComRtGetJulianFromUTC(timespec ts) {
+inline long ComRtGetJulianFromUTC(timespec ts) {
   return (((ts.tv_sec + (2440588LL * 86400LL) - 43200LL) * 1000000LL) + (ts.tv_nsec / 1000));
 }
 
@@ -147,33 +147,33 @@ inline Int64 ComRtGetJulianFromUTC(timespec ts) {
 // // Return status:      0, if all ok. <errnum>, in case of an error.
 //
 // -----------------------------------------------------------------------
-Lng32 ComRtGetProgramInfo(char *pathName,       /* out */
-                          Lng32 pathNameMaxLen, /* in */
+int ComRtGetProgramInfo(char *pathName,       /* out */
+                          int pathNameMaxLen, /* in */
                           short &processType,   /* out */
                           Int32 &cpu,           /* cpu */
                           pid_t &pin,           /* pin */
-                          Lng32 &nodeNumber,
+                          int &nodeNumber,
                           char *nodeName,  // GuaNodeNameMaxLen+1
-                          short &nodeNameLen, Int64 &processCreateTime, char *processNameString,
+                          short &nodeNameLen, long &processCreateTime, char *processNameString,
                           char *parentProcessNameString = NULL, SB_Verif_Type *verifier = NULL,
                           Int32 *ancestorNid = NULL, pid_t *ancestorPid = NULL);
 
 // OUT: processPriority: current priority of process
-Lng32 ComRtGetProcessPriority(Lng32 &processPriority /* out */);
+int ComRtGetProcessPriority(int &processPriority /* out */);
 
-Lng32 ComRtSetProcessPriority(Lng32 priority, NABoolean isDelta);
+int ComRtSetProcessPriority(int priority, NABoolean isDelta);
 
 // OUT: pagesInUse: Pages(16k) currently in use by process
-Lng32 ComRtGetProcessPagesInUse(Int64 &pagesInUse /* out */);
+int ComRtGetProcessPagesInUse(long &pagesInUse /* out */);
 
 // IN:  if cpu, pin and nodeName are passed in, is that to find process.
 //      Otherwise, use current process
 // OUT: processCreateTime: time when this process was created.
-Lng32 ComRtGetProcessCreateTime(short *cpu, /* cpu */
+int ComRtGetProcessCreateTime(short *cpu, /* cpu */
                                 pid_t *pin, /* pin */
-                                short *nodeNumber, Int64 &processCreateTime, short &errorDetail);
+                                short *nodeNumber, long &processCreateTime, short &errorDetail);
 
-Lng32 ComRtGetIsoMappingEnum();
+int ComRtGetIsoMappingEnum();
 char *ComRtGetIsoMappingName();
 
 // -----------------------------------------------------------------------
@@ -181,7 +181,7 @@ char *ComRtGetIsoMappingName();
 // -----------------------------------------------------------------------
 void ComRt_Upshift(char *buf);
 
-const char *ComRtGetEnvValueFromEnvvars(const char **envvars, const char *envvar, Lng32 *envvarPos = NULL);
+const char *ComRtGetEnvValueFromEnvvars(const char **envvars, const char *envvar, int *envvarPos = NULL);
 
 #if defined(_DEBUG)
 // -----------------------------------------------------------------------
@@ -190,7 +190,7 @@ const char *ComRtGetEnvValueFromEnvvars(const char **envvars, const char *envvar
 // -----------------------------------------------------------------------
 NABoolean ComRtGetEnvValue(const char *envvar, const char **envvarValue = NULL);
 
-NABoolean ComRtGetEnvValue(const char *envvar, Lng32 *envvarValue);
+NABoolean ComRtGetEnvValue(const char *envvar, int *envvarValue);
 
 NABoolean ComRtGetValueFromFile(const char *envvar, char *valueBuffer, const UInt32 valueBufferSizeInBytes);
 #endif  // #if defined (_DEBUG) ...
@@ -198,9 +198,9 @@ NABoolean ComRtGetValueFromFile(const char *envvar, char *valueBuffer, const UIn
 // -----------------------------------------------------------------------
 // Get the MX system catalog name.
 // -----------------------------------------------------------------------
-Lng32 ComRtGetMXSysVolName(char *sysCatBuffer,              /* out */
-                           Lng32 inputBufferLength,         /* in  */
-                           Lng32 *sysCatLength,             /* out */
+int ComRtGetMXSysVolName(char *sysCatBuffer,              /* out */
+                           int inputBufferLength,         /* in  */
+                           int *sysCatLength,             /* out */
                            const char *nodeName,            /* in */
                            NABoolean fakeReadError,         /* in */
                            NABoolean fakeCorruptAnchorError /* in */
@@ -209,14 +209,14 @@ Lng32 ComRtGetMXSysVolName(char *sysCatBuffer,              /* out */
 // -----------------------------------------------------------------------
 // Extract System MetaData Location ( VolumeName ).
 // -----------------------------------------------------------------------
-Lng32 extract_SMDLocation(char *buffer,       /* in */
+int extract_SMDLocation(char *buffer,       /* in */
                           Int32 bufferLength, /* in */
                           char *SMDLocation); /* out */
 
 // -----------------------------------------------------------------------
 // Validate MetaData Location ( VolumeName ) format.
 // -----------------------------------------------------------------------
-Lng32 validate_SMDLocation(char *SMDLocation); /* in */
+int validate_SMDLocation(char *SMDLocation); /* in */
 
 // allocate and populate an array with entries for all the configured
 // CPUs (Trafodion node ids) and return the number of CPUs. Usually,
@@ -226,7 +226,7 @@ Lng32 validate_SMDLocation(char *SMDLocation); /* in */
 Int32 ComRtPopulatePhysicalCPUArray(Int32 *&cpuArray, NAHeap *heap);
 
 NABoolean ComRtGetCpuStatus(char *nodeName, short cpuNum);
-Lng32 ComRtTransIdToText(Int64 transId, char *buf, short len);
+int ComRtTransIdToText(long transId, char *buf, short len);
 
 // A function to return the string "UNKNOWN (<val>)" which can be
 // useful when displaying values from an enumeration and an unexpected
@@ -334,7 +334,7 @@ class ScanFilterStats {
   enum MergeSemantics { MAX, ADD, COPY };
 
  public:
-  ScanFilterStats(Int16 id, Int64 rows, NABoolean enabled, NABoolean selected = FALSE) : totalRowsAffected_(rows) {
+  ScanFilterStats(Int16 id, long rows, NABoolean enabled, NABoolean selected = FALSE) : totalRowsAffected_(rows) {
     packedBits_.flags_ = 0;
 
     setIsEnabled(enabled);
@@ -364,7 +364,7 @@ class ScanFilterStats {
   Int16 getFilterId() const { return (Int16)packedBits_.filterId_; }
 
   void getVariableStatsInfo(char *buf, Int32 len) const;
-  Lng32 getVariableStatsInfoLen() const;
+  int getVariableStatsInfoLen() const;
 
   void setIsEnabled(NABoolean x) {
     x ? packedBits_.flags_ |= FILTER_STATS_ENABLED : packedBits_.flags_ &= ~FILTER_STATS_ENABLED;
@@ -382,7 +382,7 @@ class ScanFilterStats {
   Int32 getStateCode() const;
 
  private:
-  Int64 totalRowsAffected_;
+  long totalRowsAffected_;
   packedBits packedBits_;
 
 } __attribute__((packed));
@@ -403,7 +403,7 @@ class ScanFilterStatsList {
   void merge(ScanFilterStatsList &, ScanFilterStats::MergeSemantics);
 
   void getVariableStatsInfo(char *buf, Int32 len, const char *msg = NULL) const;
-  Lng32 getVariableStatsInfoLen(const char *msg = NULL) const;
+  int getVariableStatsInfoLen(const char *msg = NULL) const;
 
   void dump(ostream &out, const char *msg = NULL);
 
@@ -433,7 +433,7 @@ void outputOrcSearchArgLessThanEqPred(std::string& text,
 
 pid_t ComRtGetConfiguredPidMax();
 
-Int64 getCurrentTime();
+long getCurrentTime();
 
 // convert the 1st argument to a 11 byte string in following format.
 
@@ -445,7 +445,7 @@ Int64 getCurrentTime();
 // second: 1-byte
 // mllisec: integer (4-bytes)
 //
-Int32 convertJulianTimestamp(Int64 julianTimestamp, char *target);
+Int32 convertJulianTimestamp(long julianTimestamp, char *target);
 
 class ClusterRole {
  public:

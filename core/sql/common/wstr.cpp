@@ -177,10 +177,10 @@ NAWchar *na_wcscat(NAWchar *wstr1, const NAWchar *wstr2) {
 
 // copies src to tgt for length bytes and upshifts, if upshift <> 0,
 // else downshifts. Src and Tgt may point to the same location.
-Int32 na_wstr_cpy_convert(NAWchar *tgt, NAWchar *src, Lng32 length, Int32 upshift) {
+Int32 na_wstr_cpy_convert(NAWchar *tgt, NAWchar *src, int length, Int32 upshift) {
   assert((tgt && src) || !length);
 
-  for (Lng32 i = 0; i < length; i++) {
+  for (int i = 0; i < length; i++) {
     if (upshift)
       tgt[i] = na_towupper(src[i]);
     else
@@ -298,11 +298,11 @@ NAWchar *na_wcsrchr(const NAWchar *wstr, NAWchar wc) {
   return NULL;
 }
 
-Int64 na_wcstoll(const NAWchar *wstr) {
+long na_wcstoll(const NAWchar *wstr) {
   // pattern recognized: [ws]*[+|-]*[digit]*
 
   Int16 sign = 1;
-  Int64 res = 0;
+  long res = 0;
 
   while (wstr && *wstr == L' ') wstr++;
 
@@ -322,20 +322,20 @@ Int64 na_wcstoll(const NAWchar *wstr) {
   return res * sign;
 }
 
-Lng32 na_wcstol(const NAWchar *wstr) {
+int na_wcstol(const NAWchar *wstr) {
   // Get the value.
-  Int64 val = na_wcstoll(wstr);
+  long val = na_wcstoll(wstr);
 
   // If the value is outside 32-bit range, set errno and return upper/lower bound.
-  if (val > numeric_limits<Lng32>::max()) {
+  if (val > numeric_limits<int>::max()) {
     errno = ERANGE;
-    return numeric_limits<Lng32>::max();
-  } else if (val < numeric_limits<Lng32>::min()) {
+    return numeric_limits<int>::max();
+  } else if (val < numeric_limits<int>::min()) {
     errno = ERANGE;
-    return numeric_limits<Lng32>::min();
+    return numeric_limits<int>::min();
   }
 
-  return (Lng32)na_wcstoll(wstr);
+  return (int)na_wcstoll(wstr);
 }
 
 double na_wcstod(const NAWchar *, NAWchar **) {

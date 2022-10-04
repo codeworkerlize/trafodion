@@ -258,7 +258,7 @@ int ExEspFragInstanceDir::addEntry(ExMsgFragment *msgFragment, IpcConnection *co
   return result;
 }
 
-void ExEspFragInstanceDir::fixupEntry(int handle, Lng32 numOfParentInstances, ComDiagsArea &da) {
+void ExEspFragInstanceDir::fixupEntry(int handle, int numOfParentInstances, ComDiagsArea &da) {
   NAMutexScope ms(mutex_);
   ExEspFragInstance *entry = NULL;
   FragmentInstanceState entryState = UNUSED;
@@ -462,7 +462,7 @@ void ExEspFragInstanceDir::finishedRequest(int handle, NABoolean testAllQueues) 
   }
 }
 
-Lng32 ExEspFragInstanceDir::numLateCancelRequests(int handle) {
+int ExEspFragInstanceDir::numLateCancelRequests(int handle) {
   NAMutexScope ms(mutex_);
 
   return instances_[handle]->numLateCancelRequests_;
@@ -578,7 +578,7 @@ void ExEspFragInstanceDir::hasReleaseRequest(int handle) {
   setFiState(handle, WAIT_TO_RELEASE, __LINE__);
 }
 
-void ExEspFragInstanceDir::work(Int64 prevWaitTime) {
+void ExEspFragInstanceDir::work(long prevWaitTime) {
   ULng32 startSeqNo;
   char errorBuf[200];
   int retcode;
@@ -880,7 +880,7 @@ void ExEspFragInstanceDir::traceIdleMemoryUsage() {
   }
 }
 
-Lng32 ExEspFragInstanceDir::checkPlanVersion(const ExEspFragInstance *entry, ComDiagsArea &da) {
+int ExEspFragInstanceDir::checkPlanVersion(const ExEspFragInstance *entry, ComDiagsArea &da) {
   VersionErrorCode versionError = VERSION_NO_ERROR;
 
   return versionError;
@@ -1056,7 +1056,7 @@ void ExEspControlMessage::workOnReceivedMessage() {
 
           // First see if the query uses SM
           bool queryUsesSM = false;
-          Int64 smQueryID = 0;
+          long smQueryID = 0;
           if (fragInstanceDir_ && fragInstanceDir_->instances_.used(currHandle_)) {
             ExEspFragInstanceDir::ExEspFragInstance *inst = fragInstanceDir_->instances_[currHandle_];
             ex_split_bottom_tdb *splitBottomTdb = inst->localRootTdb_;
@@ -1102,9 +1102,9 @@ void ExEspControlMessage::workOnReceivedMessage() {
             int32_t rc = m.send();
 
             if (rc != 0) {
-              *da << DgSqlCode(-EXE_SM_FUNCTION_ERROR) << DgString0("ExSM_SendShortMessage") << DgInt0((Lng32)rc)
-                  << DgInt1((Lng32)getpid()) << DgString1(fragInstanceDir_->getCliGlobals()->myProcessNameString())
-                  << DgNskCode((Lng32)10000 + abs(rc));
+              *da << DgSqlCode(-EXE_SM_FUNCTION_ERROR) << DgString0("ExSM_SendShortMessage") << DgInt0((int)rc)
+                  << DgInt1((int)getpid()) << DgString1(fragInstanceDir_->getCliGlobals()->myProcessNameString())
+                  << DgNskCode((int)10000 + abs(rc));
             }
           }  // if (queryUsesSM)
 
@@ -1243,8 +1243,8 @@ void ExEspControlMessage::actOnFixupFragmentReq(ComDiagsArea &da) {
 
   *this >> receivedRequest;
 
-  Lng32 maxPollingInterval = receivedRequest.getMaxPollingInterval();
-  Lng32 persistentOpens = receivedRequest.getPersistentOpens();
+  int maxPollingInterval = receivedRequest.getMaxPollingInterval();
+  int persistentOpens = receivedRequest.getPersistentOpens();
   environment_->setMaxPollingInterval(maxPollingInterval);
   environment_->setPersistentOpens(persistentOpens > 0);
 
@@ -1312,7 +1312,7 @@ void ExEspControlMessage::actOnFixupFragmentReq(ComDiagsArea &da) {
 
   // if execute priority has been sent, set my priority to that value.
   if (receivedRequest.getEspExecutePriority() > 0) {
-    Lng32 rc = 0;
+    int rc = 0;
 
     // get my current priority and save it in stmt globals.
     // If an error is returned, ignore and leave priorities as is.
@@ -1394,7 +1394,7 @@ void ExEspControlMessage::actOnReleaseFragmentReq(ComDiagsArea & /*da*/) {
 
   // change my priority back to my 'fixup' priority.
   if (myFixupPriority > 0) {
-    Lng32 rc = ComRtSetProcessPriority(myFixupPriority, FALSE);
+    int rc = ComRtSetProcessPriority(myFixupPriority, FALSE);
     if (rc != 0) {
       // ignore error.
     }
@@ -1449,7 +1449,7 @@ void ExEspControlMessage::actOnReqForSplitBottom(IpcConnection *connection) {
       ExEspStmtGlobals *glob = fragInstanceDir_->getGlobals(currHandle_);
       IpcPriority myFixupPriority = glob->getMyFixupPriority();
       if (myFixupPriority > 0) {
-        Lng32 rc = ComRtSetProcessPriority(myFixupPriority, FALSE);
+        int rc = ComRtSetProcessPriority(myFixupPriority, FALSE);
         if (rc != 0) {
           // ignore error.
         }
@@ -1474,7 +1474,7 @@ void ExEspControlMessage::actOnReqForSplitBottom(IpcConnection *connection) {
   // the reply is handled by the split bottom node
 }
 
-void ExEspControlMessage::incReplyMsg(Int64 msgBytes) {
+void ExEspControlMessage::incReplyMsg(long msgBytes) {
   ExStatisticsArea *statsArea;
 
   if (currHandle_ != NullFragInstanceHandle) {
@@ -1497,7 +1497,7 @@ ex_split_bottom_tcb *ExEspFragInstanceDir::getExtractTop(const char *securityKey
 
 ExEspInstanceThread::ExEspInstanceThread(NAHeap *heap, ExEspFragInstanceDir *instanceDir,
                                          ExEspFragInstanceDir::ExEspFragInstance *instance, CollIndex instanceIndex,
-                                         Int64 prevWaitTime)
+                                         long prevWaitTime)
     : IpcThreadInfo("EspInstanceThread", instanceIndex, -1),
       heap_(heap),
       instanceDir_(instanceDir),

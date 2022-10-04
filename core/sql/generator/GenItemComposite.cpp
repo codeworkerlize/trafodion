@@ -143,7 +143,7 @@ short CompositeCreate::codeGen(Generator *generator) {
   ULng32 compRowLen = 0;
   ex_expr *compExpr = NULL;
 
-  Lng32 numEntries = elementsVIDlist().entries();
+  int numEntries = elementsVIDlist().entries();
 
   // generate an expression in a new context. This expressions is a standalone
   // expr with all the needed info contained in it.
@@ -180,7 +180,7 @@ short CompositeCreate::codeGen(Generator *generator) {
                                     2,     // at atpindex 2
                                     tdf, compRowLen, &compExpr);
   ExExprPtr(compExpr).pack(mySpace);
-  Lng32 compExprLen = mySpace->getAllocatedSpaceSize();
+  int compExprLen = mySpace->getAllocatedSpaceSize();
   compExprStr = new (generator->getSpace()) char[compExprLen];
   mySpace->makeContiguous(compExprStr, compExprLen);
   myGenerator.removeLast();

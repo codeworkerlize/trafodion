@@ -375,7 +375,7 @@ void QRLatticeIndex::removeMV(LatticeKeyList &keys, MVDetailsPtr mvDetails) {
   // front changes the index of the other items. We could just delete elem 0
   // on each loop iteration, but this would cause a bug if the list became an
   // array some day.
-  Lng32 inx;  // Can't use CollIndex here because it is unsigned
+  int inx;  // Can't use CollIndex here because it is unsigned
   for (inx = childList.entries() - 1; inx >= 0; inx--) nodeToRemove->disown(childList[inx]);
   for (inx = parentList.entries() - 1; inx >= 0; inx--) parentList[inx]->disown(nodeToRemove);
 

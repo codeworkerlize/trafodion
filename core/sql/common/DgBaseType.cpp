@@ -39,8 +39,8 @@
 
 // no inline constructors for SRL's sake
 
-DgSqlCode::DgSqlCode(Lng32 aSqlCode) : theSQLCODE_(aSqlCode) {}
-DgSqlCode::DgSqlCode(Lng32 aSqlCode, ErrorOrWarning e) : theSQLCODE_(aSqlCode) {
+DgSqlCode::DgSqlCode(int aSqlCode) : theSQLCODE_(aSqlCode) {}
+DgSqlCode::DgSqlCode(int aSqlCode, ErrorOrWarning e) : theSQLCODE_(aSqlCode) {
   if ((theSQLCODE_ > 0 && e == ERROR_) || (theSQLCODE_ < 0 && e == WARNING_)) theSQLCODE_ = -theSQLCODE_;
 }
 
@@ -56,7 +56,7 @@ DgConstraintCatalog::DgConstraintCatalog(const char *const cName) : theCharStr_(
 
 DgConstraintSchema::DgConstraintSchema(const char *const cName) : theCharStr_(cName) {}
 
-DgRowNumber::DgRowNumber(Lng32 rownum) : theLong_(rownum) {}
+DgRowNumber::DgRowNumber(int rownum) : theLong_(rownum) {}
 
 DgTriggerCatalog::DgTriggerCatalog(const char *const cName) : theCharStr_(cName) {}
 
@@ -64,7 +64,7 @@ DgTriggerSchema::DgTriggerSchema(const char *const cName) : theCharStr_(cName) {
 
 DgTriggerName::DgTriggerName(const char *const cName) : theCharStr_(cName) {}
 
-DgNskCode::DgNskCode(Lng32 l) : theLong_(l) {}
+DgNskCode::DgNskCode(int l) : theLong_(l) {}
 
 DgString0::DgString0(const char *const str) : theCharStr_(str) {}
 DgString1::DgString1(const char *const str) : theCharStr_(str) {}
@@ -72,11 +72,11 @@ DgString2::DgString2(const char *const str) : theCharStr_(str) {}
 DgString3::DgString3(const char *const str) : theCharStr_(str) {}
 DgString4::DgString4(const char *const str) : theCharStr_(str) {}
 
-DgInt0::DgInt0(Lng32 l) : theLong_(l) {}
-DgInt1::DgInt1(Lng32 l) : theLong_(l) {}
-DgInt2::DgInt2(Lng32 l) : theLong_(l) {}
-DgInt3::DgInt3(Lng32 l) : theLong_(l) {}
-DgInt4::DgInt4(Lng32 l) : theLong_(l) {}
+DgInt0::DgInt0(int l) : theLong_(l) {}
+DgInt1::DgInt1(int l) : theLong_(l) {}
+DgInt2::DgInt2(int l) : theLong_(l) {}
+DgInt3::DgInt3(int l) : theLong_(l) {}
+DgInt4::DgInt4(int l) : theLong_(l) {}
 
 DGTYPE DgSqlCode::getTypeName() const { return DGSQLCODE; }
 DGTYPE DgCustomSQLState::getTypeName() const { return DGCUSTOMSQLSTATE; }

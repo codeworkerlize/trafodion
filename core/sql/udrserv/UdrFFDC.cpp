@@ -49,7 +49,7 @@
 #include "UdrFFDC.h"
 #include "sqlmxevents/logmxevent.h"
 
-#include "copyright.h"
+#include "common/copyright.h"
 
 extern void my_mpi_fclose();
 

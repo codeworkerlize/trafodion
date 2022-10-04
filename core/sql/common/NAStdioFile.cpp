@@ -112,7 +112,7 @@ void CNAStdioFile::Close() {
 // is zero (0) before calling the CNAStdioFile::IsEOF method
 // to find out whether an EOF condition has been encountered.
 // -------------------------------------------------------------------
-Int32 CNAStdioFile::ReadString(char *buffer, Lng32 bufferSize, NABoolean flipByteOrderNeeded) {
+Int32 CNAStdioFile::ReadString(char *buffer, int bufferSize, NABoolean flipByteOrderNeeded) {
   if (Initialize() == FALSE) return -1;
   ULng32 numRead = 0L;
 
@@ -168,7 +168,7 @@ Int32 CNAStdioFile::ReadString(char *buffer, Lng32 bufferSize, NABoolean flipByt
 //    call was successful, the method CNAStdioFile::GetLastError
 //    returns the ENOERR (i.e. 0) value.
 // -------------------------------------------------------------------
-Int32 CNAStdioFile::ReadBlock(char *buffer, Lng32 numBytes, NABoolean flipByteOrderNeeded) {
+Int32 CNAStdioFile::ReadBlock(char *buffer, int numBytes, NABoolean flipByteOrderNeeded) {
   if (Initialize() == FALSE) return (-1);  // an error has occurred
   ULng32 numRead = 0L;
 
@@ -188,7 +188,7 @@ Int32 CNAStdioFile::ReadBlock(char *buffer, Lng32 numBytes, NABoolean flipByteOr
 }
 
 // -------------------------------------------------------------------
-void CNADataSource::FlipByteOrder(char *buffer, Lng32 bufferSize) {
+void CNADataSource::FlipByteOrder(char *buffer, int bufferSize) {
   ComASSERT(bufferSize % 2 == 0);
 
   // modified based on wc_swap_bytes(NAWchar *str, int length), in w:/common/wstr.h
@@ -197,7 +197,7 @@ void CNADataSource::FlipByteOrder(char *buffer, Lng32 bufferSize) {
 
   if (buffer == 0 || bufferSize == 0) return;
 
-  for (Lng32 i = 0; i < bufferSize; i += 2) {
+  for (int i = 0; i < bufferSize; i += 2) {
     ptr = (unsigned char *)&buffer[i];
     temp = *ptr;
     *ptr = *(ptr + 1);
@@ -250,7 +250,7 @@ ULng32 CNAStdioFile::CheckIOCompletion() {
 // the user's request.  The user then needs to call the method
 // CNAStdioFile::GetLastError to get the errno.h error number.
 // -------------------------------------------------------------------
-Int32 CNAStdioFile::Read(void *buffer, Lng32 bufferSize) {
+Int32 CNAStdioFile::Read(void *buffer, int bufferSize) {
   if (Initialize() == FALSE) return -1;
   Int32 numRead = 0;
 
@@ -289,7 +289,7 @@ NABoolean CNAStdioFile::IsEOF() {
 // the user needs to invoke the CNAStdioFile::IsEOF method
 // to find out if an EOF condition has occurred.
 // -------------------------------------------------------------------
-NABoolean CNAStdioFile::ReadLine(char *buffer, Lng32 bufferSize) {
+NABoolean CNAStdioFile::ReadLine(char *buffer, int bufferSize) {
   if (Initialize() == FALSE) return FALSE;
   Int32 numRead = 0;
   char *str = NULL;
@@ -345,7 +345,7 @@ Int32 CNAStdioFile::WriteString(const char *strLine) {
 // the user's request.  The user then needs to call the method
 // CNAStdioFile::GetLastError to get the error number.
 // -------------------------------------------------------------------
-Int32 CNAStdioFile::Write(const char *buffer, Lng32 bufferSize) {
+Int32 CNAStdioFile::Write(const char *buffer, int bufferSize) {
   if (Initialize() == FALSE) return -1;
   Int32 numWrite = 0;
 
@@ -372,7 +372,7 @@ Int32 CNAStdioFile::Write(const char *buffer, Lng32 bufferSize) {
 // (in parameter buffer) to be written.
 // -------------------------------------------------------------------
 
-Int32 CNAStdioFile::Write(const NAWchar *buffer, Lng32 bufferSize, NABoolean flipByteOrderNeeded) {
+Int32 CNAStdioFile::Write(const NAWchar *buffer, int bufferSize, NABoolean flipByteOrderNeeded) {
   if (Initialize() == FALSE) return -1;
   NAWchar *buffer_write = NULL;
 

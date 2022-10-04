@@ -142,7 +142,7 @@ inline static IpcMessageObjSize packedStringLength(const char *s) {
   // include the null-terminator
   //
   IpcMessageObjSize result;
-  result = sizeof(Lng32);
+  result = sizeof(int);
   if (s) {
     result += str_len(s) + 1;
   }
@@ -285,9 +285,9 @@ UdrParameterInfo &UdrParameterInfo::operator=(const UdrParameterInfo &other) {
 
 }  // UdrParameterInfo::operator=
 
-void UdrParameterInfo::display(FILE *f, Lng32 indent, UdrParameterInfo *pi) const {
+void UdrParameterInfo::display(FILE *f, int indent, UdrParameterInfo *pi) const {
   char ind[100];
-  Lng32 indIdx = 0;
+  int indIdx = 0;
   if (indent > 99) {
     indent = 99;
   }
@@ -300,13 +300,13 @@ void UdrParameterInfo::display(FILE *f, Lng32 indent, UdrParameterInfo *pi) cons
   fprintf(f, "%sContents of UdrParameterInfo:\n", ind);
   fprintf(f, "%s-----------------------------\n", ind);
 
-  fprintf(f, "%sPosition                 : %d\n", ind, (Lng32)pi->getPosition());
-  fprintf(f, "%sFS Data Type             : %d\n", ind, (Lng32)pi->getFSType());
-  fprintf(f, "%sANSI Data Type           : %d\n", ind, (Lng32)pi->getAnsiType());
-  fprintf(f, "%sPrecision                : %d\n", ind, (Lng32)pi->getPrec());
-  fprintf(f, "%sScale                    : %d\n", ind, (Lng32)pi->getScale());
-  fprintf(f, "%sencodingCharSet          : %d\n", ind, (Lng32)pi->getEncodingCharSet());
-  fprintf(f, "%scollation                : %d\n", ind, (Lng32)pi->getCollation());
+  fprintf(f, "%sPosition                 : %d\n", ind, (int)pi->getPosition());
+  fprintf(f, "%sFS Data Type             : %d\n", ind, (int)pi->getFSType());
+  fprintf(f, "%sANSI Data Type           : %d\n", ind, (int)pi->getAnsiType());
+  fprintf(f, "%sPrecision                : %d\n", ind, (int)pi->getPrec());
+  fprintf(f, "%sScale                    : %d\n", ind, (int)pi->getScale());
+  fprintf(f, "%sencodingCharSet          : %d\n", ind, (int)pi->getEncodingCharSet());
+  fprintf(f, "%scollation                : %d\n", ind, (int)pi->getCollation());
 
   if (pi->isInOut()) {
     fprintf(f, "%sMode                     : INOUT\n", ind);
@@ -328,19 +328,19 @@ void UdrParameterInfo::display(FILE *f, Lng32 indent, UdrParameterInfo *pi) cons
   else
     fprintf(f, "%sNull Flag                : FALSE\n", ind);
 
-  fprintf(f, "%sNull Indicator Length    : %d\n", ind, (Lng32)pi->getNullIndicatorLength());
+  fprintf(f, "%sNull Indicator Length    : %d\n", ind, (int)pi->getNullIndicatorLength());
 
-  fprintf(f, "%sNull Indicator Offset    : %d\n", ind, (Lng32)pi->getNullIndicatorOffset());
+  fprintf(f, "%sNull Indicator Offset    : %d\n", ind, (int)pi->getNullIndicatorOffset());
 
-  fprintf(f, "%sVC Len Indicator Offset  : %d\n", ind, (Lng32)pi->getVCLenIndOffset());
+  fprintf(f, "%sVC Len Indicator Offset  : %d\n", ind, (int)pi->getVCLenIndOffset());
 
-  fprintf(f, "%sVC Indicator Length      : %d\n", ind, (Lng32)pi->getVCIndicatorLength());
+  fprintf(f, "%sVC Indicator Length      : %d\n", ind, (int)pi->getVCIndicatorLength());
 
-  fprintf(f, "%sData Offset              : %d\n", ind, (Lng32)pi->getDataOffset());
+  fprintf(f, "%sData Offset              : %d\n", ind, (int)pi->getDataOffset());
 
-  fprintf(f, "%sData Length              : %d\n", ind, (Lng32)pi->getDataLength());
+  fprintf(f, "%sData Length              : %d\n", ind, (int)pi->getDataLength());
 
-  fprintf(f, "%sPosition                 : %d\n\n", ind, (Lng32)pi->getPosition());
+  fprintf(f, "%sPosition                 : %d\n\n", ind, (int)pi->getPosition());
 
   fflush(f);
 
@@ -638,7 +638,7 @@ char *UdrMessageObj::allocateString(const char *s) {
   if (s) {
     ComUInt32 n = str_len(s) + 1;
     result = allocateMemory(n);
-    str_cpy_all(result, s, (Lng32)n);
+    str_cpy_all(result, s, (int)n);
   }
   return result;
 }
@@ -914,7 +914,7 @@ void UdrLoadMsg::setOptionalDataBuf(ComUInt32 i, const char *buf, ComUInt32 bufL
   const char *buf2 = buf;
   if (!optionalDataIsShared_) {
     buf2 = allocateMemory(bufLen);
-    str_cpy_all((char *)buf2, buf, (Lng32)bufLen);
+    str_cpy_all((char *)buf2, buf, (int)bufLen);
   }
   optionalData_[i] = (char *)buf2;
 }
@@ -1224,7 +1224,7 @@ void UdrSessionMsg::unpackObj(IpcMessageObjType objType, IpcMessageObjVersion ob
 
 #ifdef UDR_DEBUG
 void UdrSessionMsg::display(FILE *f, const char *prefix) const {
-  fprintf(f, "%s[UdrSessionMsg] type %d, flags 0x%08x\n", prefix, (Lng32)attrType_, (Lng32)flags_);
+  fprintf(f, "%s[UdrSessionMsg] type %d, flags 0x%08x\n", prefix, (int)attrType_, (int)flags_);
 
   ComUInt32 e = strings_.entries();
   for (ULng32 i = 0; i < e; i++) {
@@ -1440,7 +1440,7 @@ IpcMessageObjSize UdrDataBuffer::packObjIntoMessage(IpcMessageBufferPtr buffer) 
   // Convert pointers in the SqlBuffer to offsets and copy the SqlBuffer
   //
   theBuffer_->drivePack();
-  str_cpy_all(buffer, (char *)theBuffer_, (Lng32)sqlBufferLength_);
+  str_cpy_all(buffer, (char *)theBuffer_, (int)sqlBufferLength_);
   result += sqlBufferLength_;
   result += packIntoBuffer(buffer, tableIndex_);
   return result;
@@ -1459,7 +1459,7 @@ void UdrDataBuffer::unpackObj(IpcMessageObjType objType, IpcMessageObjVersion ob
   //
   // Unpack the SqlBuffer
   //
-  str_cpy_all((char *)theBuffer_, buffer, (Lng32)sqlBufferLength_);
+  str_cpy_all((char *)theBuffer_, buffer, (int)sqlBufferLength_);
   theBuffer_->driveUnpack();
   unpackBuffer(buffer, tableIndex_);
 }
@@ -1674,7 +1674,7 @@ char *ResultSetInfo::allocateString(const char *s) {
     else
       result = new char[n];
 
-    str_cpy_all(result, s, (Lng32)n);
+    str_cpy_all(result, s, (int)n);
   }
 
   return result;

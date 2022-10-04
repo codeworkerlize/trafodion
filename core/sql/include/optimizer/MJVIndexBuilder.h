@@ -56,7 +56,7 @@ typedef SET(ColIndSet) ColIndSetBucket;
 // Actually this structure objects are used as rows of ColIndSetMatrix.
 // The structure is not mentioned in the document,
 // because it has no logical value.
-typedef ARRAY(Lng32) EnumArray;
+typedef ARRAY(int) EnumArray;
 
 // Uncomment the following define for debug printing:
 //#define MJVIB_VERBOSE
@@ -88,14 +88,14 @@ typedef ARRAY(Lng32) EnumArray;
 // ColIndSet is simply a set of longs (column positions from MJV view).
 //-----------------------------------------------------------------------------
 
-class ColIndSet : public SET(Lng32) {
+class ColIndSet : public SET(int) {
  public:
   //
   // ctors
   //
-  ColIndSet(CollHeap *heap = 0) : SET(Lng32)(heap){};
+  ColIndSet(CollHeap *heap = 0) : SET(int)(heap){};
 
-  ColIndSet(const ColIndSet &other, CollHeap *heap) : SET(Lng32)(other, heap){};
+  ColIndSet(const ColIndSet &other, CollHeap *heap) : SET(int)(other, heap){};
 
   ColIndSet(ColIndList indexList, CollHeap *heap);
 

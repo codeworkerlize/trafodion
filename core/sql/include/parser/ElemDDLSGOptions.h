@@ -88,17 +88,17 @@ class ElemDDLSGOptions : public ElemDDLNode {
   // Accessors
 
   virtual Int32 getArity() const;
-  virtual ExprNode *getChild(Lng32 index);
+  virtual ExprNode *getChild(int index);
 
-  inline Int64 getStartValue() const { return startValue_; }
-  inline Int64 getIncrement() const { return increment_; }
-  inline Int64 getMinValue() const { return minValue_; }
-  inline Int64 getMaxValue() const { return maxValue_; }
+  inline long getStartValue() const { return startValue_; }
+  inline long getIncrement() const { return increment_; }
+  inline long getMinValue() const { return minValue_; }
+  inline long getMaxValue() const { return maxValue_; }
 
   inline SEQUENCE_ORDER getOrder() const { return seq_order_; }
 
   inline NABoolean getCycle() const { return cycle_; }
-  inline Int64 getCache() const { return cache_; }
+  inline long getCache() const { return cache_; }
 
   inline SG_TYPE getSGType() const { return sgType_; }
 
@@ -130,24 +130,24 @@ class ElemDDLSGOptions : public ElemDDLNode {
   inline NABoolean isExternalSG() const { return sgType_ == SG_EXTERNAL; }
   inline NABoolean isUnknownSG() const { return sgType_ == SG_UNKNOWN; }
   inline NABoolean isSystemSG() const { return sgType_ == SG_SYSTEM; }
-  inline Int64 getGlobalTimeoutVal() const { return globalTimeoutVal_; }
+  inline long getGlobalTimeoutVal() const { return globalTimeoutVal_; }
   inline ComReplType getReplType() const { return replType_; }
   inline NABoolean isGeneratedByDefault() const { return cdType_ == CD_GENERATED_BY_DEFAULT; }
   inline NABoolean isGeneratedAlways() const { return cdType_ == CD_GENERATED_ALWAYS; }
   inline NABoolean isUnknownCD() const { return cdType_ == CD_UNKNOWN; }
 
   // Mutators
-  virtual void setChild(Lng32 index, ExprNode *pChildNode);
+  virtual void setChild(int index, ExprNode *pChildNode);
 
-  inline void setStartValue(Int64 startValue) { startValue_ = startValue; }
-  inline void setIncrement(Int64 increment) { increment_ = increment; }
-  inline void setMinValue(Int64 minValue) { minValue_ = minValue; }
-  inline void setMaxValue(Int64 maxValue) { maxValue_ = maxValue; }
+  inline void setStartValue(long startValue) { startValue_ = startValue; }
+  inline void setIncrement(long increment) { increment_ = increment; }
+  inline void setMinValue(long minValue) { minValue_ = minValue; }
+  inline void setMaxValue(long maxValue) { maxValue_ = maxValue; }
 
   inline void setSGType(SG_TYPE sgType) { sgType_ = sgType; }
   inline void setCDType(CD_TYPE cdType) { cdType_ = cdType; }
   void setCDType(Int32 cdType);
-  inline void setNextVal(Int64 val) { nextVal_ = val; }
+  inline void setNextVal(long val) { nextVal_ = val; }
 
   inline void setStartValueSpec(NABoolean startValue) { isStartValueSpec_ = startValue; }
   inline void setRestartValueSpec(NABoolean startValue) { isRestartValueSpec_ = startValue; }
@@ -160,13 +160,13 @@ class ElemDDLSGOptions : public ElemDDLNode {
   inline void setOrderSpec(NABoolean order) { isOrderSpec_ = order; }
 
   inline void setSystemSpec(NABoolean TorF) { isSystemSpec_ = TorF; }
-  inline void setGlobalTimeoutVal(Int64 timeout) { globalTimeoutVal_ = timeout; }
+  inline void setGlobalTimeoutVal(long timeout) { globalTimeoutVal_ = timeout; }
   inline void setReplSpec(NABoolean rs) { isReplSpec_ = rs; }
   inline void setReplType(ComReplType v) { replType_ = v; }
   inline void setNoMinValue(NABoolean minValue) { isNoMinValue_ = minValue; }
   inline void setNoMaxValue(NABoolean maxValue) { isNoMaxValue_ = maxValue; }
   inline void setCycle(NABoolean cycle) { cycle_ = cycle; }
-  inline void setCache(Int64 cache) { cache_ = cache; }
+  inline void setCache(long cache) { cache_ = cache; }
   inline void setReset(NABoolean reset) { reset_ = reset; }
   inline void setOrder(SEQUENCE_ORDER seq_order) { seq_order_ = seq_order; }
   inline void setNextValSpec(NABoolean nextValSpec) { isNextValSpec_ = nextValSpec; }
@@ -174,7 +174,7 @@ class ElemDDLSGOptions : public ElemDDLNode {
   ComFSDataType getFSDataType() { return fsDataType_; }
   void setFSDataType(ComFSDataType dt) { fsDataType_ = dt; }
 
-  inline Int64 getNextVal() const { return nextVal_; }
+  inline long getNextVal() const { return nextVal_; }
 
   //
   // method for binding
@@ -222,21 +222,21 @@ class ElemDDLSGOptions : public ElemDDLNode {
   // StartValue RestartValue
   NABoolean isStartValueSpec_;
   NABoolean isRestartValueSpec_;
-  Int64 startValue_;
+  long startValue_;
 
   // Increment
   NABoolean isIncrementSpec_;
-  Int64 increment_;
+  long increment_;
 
   // MinValue
   NABoolean isMinValueSpec_;
   NABoolean isNoMinValue_;
-  Int64 minValue_;
+  long minValue_;
 
   // MaxValue
   NABoolean isMaxValueSpec_;
   NABoolean isNoMaxValue_;
-  Int64 maxValue_;
+  long maxValue_;
 
   // Cycle
   NABoolean isCycleSpec_;
@@ -245,7 +245,7 @@ class ElemDDLSGOptions : public ElemDDLNode {
   // Cache
   NABoolean isCacheSpec_;
   NABoolean isNoCache_;
-  Int64 cache_;
+  long cache_;
 
   // Order
   NABoolean isOrderSpec_;
@@ -261,7 +261,7 @@ class ElemDDLSGOptions : public ElemDDLNode {
   NABoolean isSystemSpec_;
   // Internal or External or System  SG
   SG_TYPE sgType_;
-  Int64 globalTimeoutVal_;
+  long globalTimeoutVal_;
 
   NABoolean isReplSpec_;
   ComReplType replType_;
@@ -274,6 +274,6 @@ class ElemDDLSGOptions : public ElemDDLNode {
 
   // nextVal
   NABoolean isNextValSpec_;
-  Int64 nextVal_;
+  long nextVal_;
 };  // class ElemDDLSGOptions
 #endif

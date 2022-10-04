@@ -37,8 +37,8 @@
  */
 
 #include "common/NAType.h"
-#include "SqlciNode.h"
-#include "SqlciEnv.h"
+#include "sqlci/SqlciNode.h"
+#include "sqlci/SqlciEnv.h"
 #include "common/ComSmallDefs.h"
 
 // abstract class for all SqlCliCmds
@@ -86,32 +86,32 @@ class CurrentContext : public SqlCliCmd {
 
 class SwitchContext : public SqlCliCmd {
  public:
-  SwitchContext(Lng32 ctxHandle);
+  SwitchContext(int ctxHandle);
   virtual ~SwitchContext();
   virtual short process(SqlciEnv *sqlci_env);
 
  private:
-  Lng32 ctxHdl_;
+  int ctxHdl_;
 };
 
 class DeleteContext : public SqlCliCmd {
  public:
-  DeleteContext(Lng32 ctxHandle);
+  DeleteContext(int ctxHandle);
   virtual ~DeleteContext();
   virtual short process(SqlciEnv *sqlci_env);
 
  private:
-  Lng32 ctxHdl_;
+  int ctxHdl_;
 };
 
 class ResetContext : public SqlCliCmd {
  public:
-  ResetContext(Lng32 ctxHandle);
+  ResetContext(int ctxHandle);
   virtual ~ResetContext();
   virtual short process(SqlciEnv *sqlci_env);
 
  private:
-  Lng32 ctxHdl_;
+  int ctxHdl_;
 };
 
 #endif

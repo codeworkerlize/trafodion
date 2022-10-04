@@ -111,7 +111,7 @@ void ex_globals::deleteMemory(void *mem) {
   //  ::operator delete(mem); // for now use global operator delete
 }
 
-void ex_globals::setNumOfTemps(Lng32 numTemps) {
+void ex_globals::setNumOfTemps(int numTemps) {
   numTemps_ = (short)numTemps;
   if (tempList_) space_->deallocateMemory(tempList_);
   if (numTemps <= 0) {

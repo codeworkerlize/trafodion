@@ -43,7 +43,7 @@
 //	Constructor
 //--------------------------------------------------------------------------//
 
-CRULogProcessingTask::CRULogProcessingTask(Lng32 id, CRUTbl &table) : inherited(id), table_(table) {}
+CRULogProcessingTask::CRULogProcessingTask(int id, CRUTbl &table) : inherited(id), table_(table) {}
 
 CRULogProcessingTask::~CRULogProcessingTask() {}
 

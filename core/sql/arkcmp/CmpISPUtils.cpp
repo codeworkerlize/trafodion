@@ -48,7 +48,7 @@
 // CmpSPFormatFunc
 // CmpSPKeyValueFunc
 
-SP_HELPER_STATUS CmpSPExtractFunc_(Lng32 fieldNo, SP_ROW_DATA rowData, Lng32 fieldLen, void *fieldData, Lng32 casting) {
+SP_HELPER_STATUS CmpSPExtractFunc_(int fieldNo, SP_ROW_DATA rowData, int fieldLen, void *fieldData, int casting) {
   CmpSPExecDataItemInput *inPtr = (CmpSPExecDataItemInput *)rowData;
   ULng32 tempNum = (ULng32)fieldNo;
   ULng32 tempLen = (ULng32)fieldLen;
@@ -67,7 +67,7 @@ SP_HELPER_STATUS CmpSPExtractFunc_(Lng32 fieldNo, SP_ROW_DATA rowData, Lng32 fie
   return SP_NO_ERROR;
 }
 
-SP_HELPER_STATUS CmpSPFormatFunc_(Lng32 fieldNo, SP_ROW_DATA rowData, Lng32 fieldLen, void *fieldData, Lng32 casting) {
+SP_HELPER_STATUS CmpSPFormatFunc_(int fieldNo, SP_ROW_DATA rowData, int fieldLen, void *fieldData, int casting) {
   CmpSPExecDataItemReply *replyPtr = (CmpSPExecDataItemReply *)rowData;
   ULng32 tempNum = (ULng32)fieldNo;
   ULng32 tempLen = (ULng32)fieldLen;
@@ -80,7 +80,7 @@ SP_HELPER_STATUS CmpSPFormatFunc_(Lng32 fieldNo, SP_ROW_DATA rowData, Lng32 fiel
     return SP_NO_ERROR;
 }
 
-SP_HELPER_STATUS CmpSPKeyValueFunc_(Lng32 keyIndex, SP_KEY_VALUE key, Lng32 keyLength, void *keyValue, Lng32 casting) {
+SP_HELPER_STATUS CmpSPKeyValueFunc_(int keyIndex, SP_KEY_VALUE key, int keyLength, void *keyValue, int casting) {
   return SP_NOT_SUPPORTED_YET;
 }
 

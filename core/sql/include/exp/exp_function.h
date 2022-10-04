@@ -416,18 +416,18 @@ class ex_function_position : public ex_function_clause {
   // otherwise return the position of searchStr in
   // sourceStr.
   ////////////////////////////////////////////////////////
-  static Lng32 findPosition(char *sourceStr, Lng32 sourceLen, char *searchStr, Lng32 searchLen, short bytesPerChar = 1,
+  static int findPosition(char *sourceStr, int sourceLen, char *searchStr, int searchLen, short bytesPerChar = 1,
                             Int16 nPasses = 1, CharInfo::Collation collation = CharInfo::DefaultCollation,
 
                             // returns number of characters, if passed in
-                            Lng32 *numChars = NULL,
+                            int *numChars = NULL,
 
                             CharInfo::CharSet cs = CharInfo::ISO88591);
 
-  static Lng32 findPositionInReverse(char *sourceStr, Lng32 sourceLen, char *searchStr, Lng32 searchLen,
+  static int findPositionInReverse(char *sourceStr, int sourceLen, char *searchStr, int searchLen,
                                      Int32 occurrence, CharInfo::CharSet cs = CharInfo::ISO88591);
 
-  static Lng32 errorChecks(Lng32 startPos, Lng32 occurrence,
+  static int errorChecks(int startPos, int occurrence,
                            NABoolean isInstr,  // INSTR function
                            const char *userTextStr, CharInfo::Collation collation, CharInfo::CharSet cs, CollHeap *heap,
                            ComDiagsArea **diagsArea);
@@ -757,7 +757,7 @@ class ExFunctionSha : public ex_function_clause {
 
 class ExFunctionSha2 : public ex_function_clause {
  public:
-  ExFunctionSha2(OperatorTypeEnum oper_type, Attributes **attr, Space *space, Lng32 mode);
+  ExFunctionSha2(OperatorTypeEnum oper_type, Attributes **attr, Space *space, int mode);
   ExFunctionSha2();
 
   ex_expr::exp_return_type eval(char *op_data[], CollHeap *, ComDiagsArea ** = 0);
@@ -777,7 +777,7 @@ class ExFunctionSha2 : public ex_function_clause {
   // ---------------------------------------------------------------------
 
  private:
-  Lng32 mode;
+  int mode;
 };
 
 class ExFunctionSoundex : public ex_function_clause {
@@ -1612,19 +1612,19 @@ class ex_function_hivehash : public ex_function_clause {
   virtual short getClassSize() { return (short)sizeof(*this); }
 
  protected:
-  virtual Lng32 hashForCharType(char *, Lng32);
-  virtual Lng32 hashForDateType(char *, Lng32);
-  virtual Lng32 hashForTimestampType(char *, Lng32);
-  virtual Lng32 hashForIntType(Lng32 *);
-  virtual Lng32 hashForLargeIntType(Int64 *);
-  virtual Lng32 hashForFloatType(float *);
-  virtual Lng32 hashForDoubleType(double *);
+  virtual int hashForCharType(char *, int);
+  virtual int hashForDateType(char *, int);
+  virtual int hashForTimestampType(char *, int);
+  virtual int hashForIntType(int *);
+  virtual int hashForLargeIntType(long *);
+  virtual int hashForFloatType(float *);
+  virtual int hashForDoubleType(double *);
 
  private:
   char fillers_[8];  // 00-07
-  Lng32 getLocalTimeZone();
-  Lng32 getDateSeconds(char *data, bool calcSecond);
-  Lng32 getMicroseconds(char *data, Lng32 length);
+  int getLocalTimeZone();
+  int getDateSeconds(char *data, bool calcSecond);
+  int getMicroseconds(char *data, int length);
 };
 
 class ExHashComb : public ex_function_clause {
@@ -2046,7 +2046,7 @@ class ex_function_bool : public ex_function_clause {
 
 class ex_function_converttimestamp : public ex_function_clause {
  public:
-  ex_function_converttimestamp(OperatorTypeEnum oper_type, Attributes **attr, Space *space, Int64 gmtDiff);
+  ex_function_converttimestamp(OperatorTypeEnum oper_type, Attributes **attr, Space *space, long gmtDiff);
   ex_function_converttimestamp();
 
   ex_expr::exp_return_type eval(char *op_data[], CollHeap *, ComDiagsArea ** = 0);
@@ -2078,19 +2078,19 @@ class ex_function_converttimestamp : public ex_function_clause {
   // difference in microseconds between gmt/utc time and local time.
   // It is +ve number for times west of gmt and -ve for times east.
   // Subtracting this number from utc time will get local time.
-  Int64 gmtDiff_;
+  long gmtDiff_;
 };
 
 class ex_function_dateformat : public ex_function_clause {
  public:
-  ex_function_dateformat(OperatorTypeEnum oper_type, Attributes **attr, Space *space, Int32 dateformat, Lng32 num_attrs,
-                         Lng32 nCaseSensitive = 0);
+  ex_function_dateformat(OperatorTypeEnum oper_type, Attributes **attr, Space *space, Int32 dateformat, int num_attrs,
+                         int nCaseSensitive = 0);
   ex_function_dateformat();
 
   void displayContents(Space *space, const char *displayStr, Int32 clauseNum, char *constsArea);
 
   inline Int32 getDateFormat() const { return dateformat_; }
-  inline Lng32 getCaseSensitivity() const { return caseSensitivity_; }
+  inline int getCaseSensitivity() const { return caseSensitivity_; }
   ex_expr::exp_return_type eval(char *op_data[], CollHeap *, ComDiagsArea ** = 0);
   Long pack(void *);
 
@@ -2110,7 +2110,7 @@ class ex_function_dateformat : public ex_function_clause {
  private:
   // formats defined in class ExpDatetime in exp/exp_datetime.h
   Int32 dateformat_;       // 00-03
-  Lng32 caseSensitivity_;  // 04-07
+  int caseSensitivity_;  // 04-07
   // ---------------------------------------------------------------------
   // Fillers for potential future extensions without changing class size.
   // When a new member is added, size of this filler should be reduced so
@@ -2123,7 +2123,7 @@ class ex_function_dateformat : public ex_function_clause {
 // translate a value of NUMERIC,INT,FLOAT to varchar
 class ex_function_numberformat : public ex_function_clause {
  public:
-  ex_function_numberformat(OperatorTypeEnum oper_type, Attributes **attr, Space *space, Lng32 nFormatStrLen);
+  ex_function_numberformat(OperatorTypeEnum oper_type, Attributes **attr, Space *space, int nFormatStrLen);
   ex_function_numberformat();
 
   ex_expr::exp_return_type eval(char *op_data[], CollHeap *, ComDiagsArea ** = 0);
@@ -2145,7 +2145,7 @@ class ex_function_numberformat : public ex_function_clause {
  private:
   enum { MAX_NUMFORMAT_STR_LEN = 63 };
 
-  Lng32 formatStringLen_;  // 0 - 3
+  int formatStringLen_;  // 0 - 3
   // ---------------------------------------------------------------------
   // Fillers for potential future extensions without changing class size.
   // When a new member is added, size of this filler should be reduced so
@@ -2187,7 +2187,7 @@ class ex_function_extract : public ex_function_clause {
 
   ex_expr::exp_return_type eval(char *op_data[], CollHeap *, ComDiagsArea ** = 0);
 
-  Int64 getExtraTimeValue(rec_datetime_field eField, Lng32 eCode, char *dateTime);
+  long getExtraTimeValue(rec_datetime_field eField, int eCode, char *dateTime);
   Long pack(void *);
 
   // ---------------------------------------------------------------------
@@ -2284,7 +2284,7 @@ class ex_function_exec_count : public ex_function_clause {
   // the true number of executions. Each statement will still get
   // a unique, increasing count each time it executes, but the
   // number may sometimes increase by more than 1 between executions.
-  Int64 execCount_;  // 00-07
+  long execCount_;  // 00-07
   // ---------------------------------------------------------------------
   // Fillers for potential future extensions without changing class size.
   // When a new member is added, size of this filler should be reduced so
@@ -2318,8 +2318,8 @@ class ex_function_curr_transid : public ex_function_clause {
 // Helper routines used by ansi_user::eval and MXUDR code to obtain
 // CURRENT_USER or SESSION_USER value. Not used by DP2.
 
-short exp_function_get_user(OperatorTypeEnum user_type, char *userNameBuffer, Lng32 inputBufferLength,
-                            Lng32 *actualLength);  // OUT optional
+short exp_function_get_user(OperatorTypeEnum user_type, char *userNameBuffer, int inputBufferLength,
+                            int *actualLength);  // OUT optional
 
 class ex_function_ansi_user : public ex_function_clause {
  public:
@@ -2343,8 +2343,8 @@ class ex_function_ansi_user : public ex_function_clause {
   // ---------------------------------------------------------------------
 };
 
-short exp_function_get_tenant(OperatorTypeEnum user_type, char *userNameBuffer, Lng32 inputBufferLength,
-                              Lng32 &actualLength);
+short exp_function_get_tenant(OperatorTypeEnum user_type, char *userNameBuffer, int inputBufferLength,
+                              int &actualLength);
 
 class ex_function_ansi_tenant : public ex_function_clause {
  public:
@@ -2392,7 +2392,7 @@ class ex_function_user : public ex_function_clause {
 
 class ExpRaiseErrorFunction : public ex_function_clause {
  public:
-  ExpRaiseErrorFunction(Attributes **attr, Space *space, Lng32 sqlCode, NABoolean raiseError = TRUE,
+  ExpRaiseErrorFunction(Attributes **attr, Space *space, int sqlCode, NABoolean raiseError = TRUE,
                         const char *constraintName = NULL, const char *tableName = NULL,
                         const NABoolean hasStringExp = FALSE,  // -- Triggers
                         const char *optionalStr = NULL);
@@ -2402,9 +2402,9 @@ class ExpRaiseErrorFunction : public ex_function_clause {
   // isNullRelevant() const {return 0;};
   ex_expr::exp_return_type eval(char *op_data[], CollHeap *, ComDiagsArea ** = 0);
   Long pack(void *);
-  Lng32 unpack(void *, void *reallocator);
+  int unpack(void *, void *reallocator);
 
-  Lng32 getSQLCODE() { return theSQLCODE_; };
+  int getSQLCODE() { return theSQLCODE_; };
   const char *getConstraintName() { return constraintName_; };
   void setConstraintName(const char *constraintName) { constraintName_ = (char *)constraintName; };
   const char *getTableName() { return tableName_; };
@@ -2520,7 +2520,7 @@ class ExFunctionSStddev : public ex_function_clause {
 //
 class ExUnPackCol : public ex_function_clause {
  public:
-  ExUnPackCol(Attributes **attr, Space *space, Lng32 width, Lng32 base, NABoolean nullsPresent);
+  ExUnPackCol(Attributes **attr, Space *space, int width, int base, NABoolean nullsPresent);
 
   ExUnPackCol();
 
@@ -2598,7 +2598,7 @@ class ExFunctionRandomNum : public ex_function_clause {
 
   void genRand(char *op_data[]);
 
-  Lng32 getRand() { return seed_; };
+  int getRand() { return seed_; };
 
   virtual ex_expr::exp_return_type eval(char *op_data[], CollHeap *, ComDiagsArea **diagsArea = 0);
 
@@ -2784,7 +2784,7 @@ class ExPAGroup : public ex_function_clause {
 
 class ExFunctionPack : public ex_function_clause {
  public:
-  ExFunctionPack(Attributes **attr, Space *space, Lng32 width, Lng32 base, NABoolean nullsPresent);
+  ExFunctionPack(Attributes **attr, Space *space, int width, int base, NABoolean nullsPresent);
 
   ExFunctionPack();
 
@@ -2838,7 +2838,7 @@ class ExFunctionPack : public ex_function_clause {
 
 class ExFunctionRangeLookup : public ex_function_clause {
  public:
-  ExFunctionRangeLookup(Attributes **attr, Space *space, Lng32 numParts, Lng32 partKeyLen);
+  ExFunctionRangeLookup(Attributes **attr, Space *space, int numParts, int partKeyLen);
 
   ExFunctionRangeLookup();
 
@@ -2887,7 +2887,7 @@ class ExFunctionRangeLookup : public ex_function_clause {
 
 class ExRowsetArrayScan : public ex_function_clause {
  public:
-  ExRowsetArrayScan(Attributes **attr, Space *space, Lng32 maxNumElem, Lng32 elemSize, NABoolean elemNullInd,
+  ExRowsetArrayScan(Attributes **attr, Space *space, int maxNumElem, int elemSize, NABoolean elemNullInd,
                     NABoolean optLargVar);
 
   ExRowsetArrayScan();
@@ -2921,7 +2921,7 @@ class ExRowsetArrayScan : public ex_function_clause {
 
 class ExRowsetArrayRowid : public ex_function_clause {
  public:
-  ExRowsetArrayRowid(Attributes **attr, Space *space, Lng32 maxNumElem);
+  ExRowsetArrayRowid(Attributes **attr, Space *space, int maxNumElem);
 
   ExRowsetArrayRowid();
 
@@ -2953,7 +2953,7 @@ class ExRowsetArrayRowid : public ex_function_clause {
 
 class ExRowsetArrayInto : public ex_function_clause {
  public:
-  ExRowsetArrayInto(Attributes **attr, Space *space, Lng32 maxNumElem, Lng32 elemSize, NABoolean elemNullInd);
+  ExRowsetArrayInto(Attributes **attr, Space *space, int maxNumElem, int elemSize, NABoolean elemNullInd);
 
   ExRowsetArrayInto();
 
@@ -3142,24 +3142,24 @@ class ExFunctionHbaseColumnLookup : public ex_function_clause {
 
 class ExFunctionHbaseColumnsDisplay : public ex_function_clause {
  public:
-  ExFunctionHbaseColumnsDisplay(OperatorTypeEnum oper_type, Attributes **attr, Lng32 numCols, char *colNames,
+  ExFunctionHbaseColumnsDisplay(OperatorTypeEnum oper_type, Attributes **attr, int numCols, char *colNames,
                                 Space *space);
   ExFunctionHbaseColumnsDisplay();
 
-  void init(OperatorTypeEnum oper_type, Attributes **attr, Lng32 numCols, char *colNames, Space *space);
+  void init(OperatorTypeEnum oper_type, Attributes **attr, int numCols, char *colNames, Space *space);
 
   ex_expr::exp_return_type eval(char *op_data[], CollHeap *, ComDiagsArea ** = 0);
   Long pack(void *);
-  Lng32 unpack(void *base, void *reallocator);
+  int unpack(void *base, void *reallocator);
 
   virtual short getClassSize() { return (short)sizeof(*this); }
 
   char *colNames() { return colNames_; }
 
  private:
-  NABoolean toBeDisplayed(char *colName, Lng32 colNameLen);
+  NABoolean toBeDisplayed(char *colName, int colNameLen);
 
-  Lng32 numCols_;
+  int numCols_;
   char filler1_[4];
   NABasicPtr colNames_;
 
@@ -3174,12 +3174,12 @@ class ExFunctionHbaseColumnCreate : public ex_function_clause {
 
   ex_expr::exp_return_type eval(char *op_data[], CollHeap *, ComDiagsArea ** = 0);
   Long pack(void *);
-  Lng32 unpack(void *base, void *reallocator);
+  int unpack(void *base, void *reallocator);
 
   virtual short getClassSize() { return (short)sizeof(*this); }
 
  private:
-  Lng32 flags_;
+  int flags_;
 
   short numEntries_;
   short colNameMaxLen_;
@@ -3255,7 +3255,7 @@ class ExFunctionSequenceValue : public ex_function_clause {
 
 class ExFunctionHbaseVisibility : public ex_function_clause {
  public:
-  ExFunctionHbaseVisibility(OperatorTypeEnum oper_type, Attributes **attr, Lng32 tagType, Lng32 colIndex, Space *space);
+  ExFunctionHbaseVisibility(OperatorTypeEnum oper_type, Attributes **attr, int tagType, int colIndex, Space *space);
   ExFunctionHbaseVisibility();
 
   void displayContents(Space *space, const char *displayStr, Int32 clauseNum, char *constsArea);
@@ -3265,8 +3265,8 @@ class ExFunctionHbaseVisibility : public ex_function_clause {
   virtual short getClassSize() { return (short)sizeof(*this); }
 
  private:
-  Lng32 colIndex_;
-  Lng32 tagType_;
+  int colIndex_;
+  int tagType_;
   ULng32 flags_;
   ULng32 filler_;
   // ---------------------------------------------------------------------
@@ -3277,7 +3277,7 @@ class ExFunctionHbaseVisibilitySet : public ex_function_clause {
   enum { MAX_VIS_EXPR_LEN = 1024 };
 
   ExFunctionHbaseVisibilitySet(OperatorTypeEnum oper_type, Attributes **attr, short colIDlen, const char *colID,
-                               Lng32 visExprLen, const char *visExpr, Space *space);
+                               int visExprLen, const char *visExpr, Space *space);
   ExFunctionHbaseVisibilitySet();
 
   void displayContents(Space *space, const char *displayStr, Int32 clauseNum, char *constsArea);
@@ -3294,7 +3294,7 @@ class ExFunctionHbaseVisibilitySet : public ex_function_clause {
 
   UInt32 flags_;
 
-  Lng32 visExprLen_;
+  int visExprLen_;
 
   char visExpr_[MAX_VIS_EXPR_LEN];
 
@@ -3303,7 +3303,7 @@ class ExFunctionHbaseVisibilitySet : public ex_function_clause {
 
 class ExFunctionHbaseTimestamp : public ex_function_clause {
  public:
-  ExFunctionHbaseTimestamp(OperatorTypeEnum oper_type, Attributes **attr, Lng32 colIndex, Space *space);
+  ExFunctionHbaseTimestamp(OperatorTypeEnum oper_type, Attributes **attr, int colIndex, Space *space);
   ExFunctionHbaseTimestamp();
 
   void displayContents(Space *space, const char *displayStr, Int32 clauseNum, char *constsArea);
@@ -3313,14 +3313,14 @@ class ExFunctionHbaseTimestamp : public ex_function_clause {
   virtual short getClassSize() { return (short)sizeof(*this); }
 
  private:
-  Lng32 colIndex_;
+  int colIndex_;
   ULng32 flags_;
   // ---------------------------------------------------------------------
 };
 
 class ExFunctionHbaseVersion : public ex_function_clause {
  public:
-  ExFunctionHbaseVersion(OperatorTypeEnum oper_type, Attributes **attr, Lng32 colIndex, Space *space);
+  ExFunctionHbaseVersion(OperatorTypeEnum oper_type, Attributes **attr, int colIndex, Space *space);
   ExFunctionHbaseVersion();
 
   void displayContents(Space *space, const char *displayStr, Int32 clauseNum, char *constsArea);
@@ -3330,7 +3330,7 @@ class ExFunctionHbaseVersion : public ex_function_clause {
   virtual short getClassSize() { return (short)sizeof(*this); }
 
  private:
-  Lng32 colIndex_;
+  int colIndex_;
   ULng32 flags_;
   // ---------------------------------------------------------------------
 };

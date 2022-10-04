@@ -229,7 +229,7 @@ class GroupByAgg : public RelExpr {
   // children
   virtual void pushdownCoveredExpr(const ValueIdSet &outputExprOnOperator, const ValueIdSet &newExternalInputs,
                                    ValueIdSet &predOnOperator, const ValueIdSet *nonPredExprOnOperator = NULL,
-                                   Lng32 childId = (-MAX_REL_ARITY));
+                                   int childId = (-MAX_REL_ARITY));
 
   // The set of values that I can potentially produce as output.
   virtual void getPotentialOutputValues(ValueIdSet &vs) const;
@@ -380,7 +380,7 @@ class GroupByAgg : public RelExpr {
   // ---------------------------------------------------------------------
   NABoolean rppAreCompatibleWithOperator(const ReqdPhysicalProperty *const rppForGrby) const;
 
-  virtual Context *createContextForAChild(Context *myContext, PlanWorkSpace *pws, Lng32 &childIndex);
+  virtual Context *createContextForAChild(Context *myContext, PlanWorkSpace *pws, int &childIndex);
 
   virtual void addArrangementAndOrderRequirements(RequirementGenerator &rg);
 
@@ -494,7 +494,7 @@ class GroupByAgg : public RelExpr {
 
   NABoolean okToAttemptESPParallelism(const Context *myContext, /*IN*/
                                       PlanWorkSpace *pws,       /*IN*/
-                                      Lng32 &numOfESPs,         /*IN,OUT*/
+                                      int &numOfESPs,         /*IN,OUT*/
                                       float &allowedDeviation,  /*OUT*/
                                       NABoolean &numOfESPsForced /*OUT*/);
 
@@ -638,9 +638,9 @@ class SortGroupBy : public GroupByAgg {
 
   // cost and physical property functions
   virtual CostMethod *costMethod() const;
-  virtual PhysicalProperty *synthPhysicalProperty(const Context *context, const Lng32 planNumber, PlanWorkSpace *pws);
+  virtual PhysicalProperty *synthPhysicalProperty(const Context *context, const int planNumber, PlanWorkSpace *pws);
 
-  virtual PlanPriority computeOperatorPriority(const Context *context, PlanWorkSpace *pws = NULL, Lng32 planNumber = 0);
+  virtual PlanPriority computeOperatorPriority(const Context *context, PlanWorkSpace *pws = NULL, int planNumber = 0);
 
  private:
   CostMethodSortGroupBy *pCostMethod_;
@@ -677,7 +677,7 @@ class ShortCutGroupBy : public GroupByAgg {
   inline NABoolean isOptForMin() { return opt_for_min_; }
   inline NABoolean isNullable() { return isnullable_; }
 
-  virtual PlanPriority computeOperatorPriority(const Context *context, PlanWorkSpace *pws = NULL, Lng32 planNumber = 0);
+  virtual PlanPriority computeOperatorPriority(const Context *context, PlanWorkSpace *pws = NULL, int planNumber = 0);
 
  protected:
   NABoolean opt_for_max_;  // anytrue lhs <, <= rhs
@@ -708,7 +708,7 @@ class PhysShortCutGroupBy : public ShortCutGroupBy {
 
   // cost and physical property functions
   virtual CostMethod *costMethod() const;
-  virtual PhysicalProperty *synthPhysicalProperty(const Context *context, const Lng32 planNumber, PlanWorkSpace *pws);
+  virtual PhysicalProperty *synthPhysicalProperty(const Context *context, const int planNumber, PlanWorkSpace *pws);
 
  private:
   CostMethodShortCutGroupBy *pCostMethod_;
@@ -732,7 +732,7 @@ class HashGroupBy : public GroupByAgg {
 
   // cost and physical property functions
   virtual CostMethod *costMethod() const;
-  virtual PhysicalProperty *synthPhysicalProperty(const Context *context, const Lng32 planNumber, PlanWorkSpace *pws);
+  virtual PhysicalProperty *synthPhysicalProperty(const Context *context, const int planNumber, PlanWorkSpace *pws);
 
   virtual RelExpr *preCodeGen(Generator *generator, const ValueIdSet &externalInputs, ValueIdSet &pulledNewInputs);
 
@@ -740,11 +740,11 @@ class HashGroupBy : public GroupByAgg {
   virtual short codeGen(Generator *);
 
   // The method gets refined since HGB may be a BMO depending on its inputs.
-  virtual NABoolean isBigMemoryOperator(const PlanWorkSpace *pws, const Lng32 planNumber);
+  virtual NABoolean isBigMemoryOperator(const PlanWorkSpace *pws, const int planNumber);
 
-  virtual CostScalar getEstimatedRunTimeMemoryUsage(Generator *generator, NABoolean perNode, Lng32 *numStreams = NULL);
+  virtual CostScalar getEstimatedRunTimeMemoryUsage(Generator *generator, NABoolean perNode, int *numStreams = NULL);
 
-  virtual PlanPriority computeOperatorPriority(const Context *context, PlanWorkSpace *pws = NULL, Lng32 planNumber = 0);
+  virtual PlanPriority computeOperatorPriority(const Context *context, PlanWorkSpace *pws = NULL, int planNumber = 0);
 
   ExpTupleDesc::TupleDataFormat determineInternalFormat(const ValueIdList &valIdList, RelExpr *relExpr,
                                                         NABoolean &resizeCifRecord, Generator *generator,

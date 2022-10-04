@@ -263,7 +263,7 @@ class SQLLM_LIB_FUNC LmParameter {
   // SQL type
   LmResult setOutSmallInt(void *, short);
   LmResult setOutInteger(void *, Int32);
-  LmResult setOutLargeInt(void *, Int64);
+  LmResult setOutLargeInt(void *, long);
   LmResult setOutReal(void *, float);
   LmResult setOutFloat(void *, double);
   LmResult setOutDouble(void *, double);

@@ -58,51 +58,51 @@ class SortStatistics {
  public:
   SortStatistics();
   ~SortStatistics();
-  Lng32 getStatMemSizeB() const;
-  Int64 getStatNumRecs() const;
-  Lng32 getStatRecLen() const;
-  Lng32 getStatRunSize() const;
-  Lng32 getStatNumRuns() const;
-  Lng32 getStatNumInitRuns() const;
-  Lng32 getStatFirstMergeOrder() const;
-  Lng32 getStatFinalMergeOrder() const;
-  Lng32 getStatMergeOrder() const;
-  Lng32 getStatNumInterPasses() const;
-  Lng32 getStatNumCompares() const;
-  Lng32 getStatNumDupRecs() const;
-  Int64 getStatBeginSortTime() const;
-  Int64 getStatElapsedTime() const;
-  Int64 getStatIoWaitTime() const;
-  Lng32 getStatScrBlockSize() const;
-  Lng32 getStatScrNumBlocks() const;
-  Lng32 getStatScrNumWrites() const;
-  Lng32 getStatScrNumReads() const;
-  Lng32 getStatScrAwaitIo() const;
+  int getStatMemSizeB() const;
+  long getStatNumRecs() const;
+  int getStatRecLen() const;
+  int getStatRunSize() const;
+  int getStatNumRuns() const;
+  int getStatNumInitRuns() const;
+  int getStatFirstMergeOrder() const;
+  int getStatFinalMergeOrder() const;
+  int getStatMergeOrder() const;
+  int getStatNumInterPasses() const;
+  int getStatNumCompares() const;
+  int getStatNumDupRecs() const;
+  long getStatBeginSortTime() const;
+  long getStatElapsedTime() const;
+  long getStatIoWaitTime() const;
+  int getStatScrBlockSize() const;
+  int getStatScrNumBlocks() const;
+  int getStatScrNumWrites() const;
+  int getStatScrNumReads() const;
+  int getStatScrAwaitIo() const;
 
   friend class SortUtil;
 
  private:
-  Lng32 memSizeB_;
-  Int64 numRecs_;
-  Lng32 recLen_;
-  Lng32 runSize_;  // number of nodes in the tournament tree
-  Lng32 numRuns_;
+  int memSizeB_;
+  long numRecs_;
+  int recLen_;
+  int runSize_;  // number of nodes in the tournament tree
+  int numRuns_;
 
-  Lng32 numInitRuns_;
-  Lng32 firstMergeOrder_;
-  Lng32 finalMergeOrder_;
-  Lng32 mergeOrder_;
-  Lng32 numInterPasses_;
-  Lng32 numCompares_;
-  Lng32 numDupRecs_;
-  Int64 beginSortTime_;
-  Int64 ioWaitTime_;   // hr min sec millisec microsec in each respective word
-  Int64 elapsedTime_;  // in seconds
-  Lng32 scrBlockSize_;
-  Lng32 scrNumBlocks_;
-  Lng32 scrNumWrites_;
-  Lng32 scrNumReads_;
-  Lng32 scrNumAwaitio_;
+  int numInitRuns_;
+  int firstMergeOrder_;
+  int finalMergeOrder_;
+  int mergeOrder_;
+  int numInterPasses_;
+  int numCompares_;
+  int numDupRecs_;
+  long beginSortTime_;
+  long ioWaitTime_;   // hr min sec millisec microsec in each respective word
+  long elapsedTime_;  // in seconds
+  int scrBlockSize_;
+  int scrNumBlocks_;
+  int scrNumWrites_;
+  int scrNumReads_;
+  int scrNumAwaitio_;
 };
 
 #endif

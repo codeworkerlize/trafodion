@@ -135,7 +135,7 @@ class StmtDDLCreateTable : public StmtDDLNode {
 
   // methods relating to parse tree
   virtual Int32 getArity() const;
-  virtual ExprNode *getChild(Lng32 index);
+  virtual ExprNode *getChild(int index);
 
   inline const QualifiedName &getTableNameAsQualifiedName() const;
   inline QualifiedName &getTableNameAsQualifiedName();
@@ -458,7 +458,7 @@ class StmtDDLCreateTable : public StmtDDLNode {
   // mutators
   // ---------------------------------------------------------------------
 
-  void setChild(Lng32 index, ExprNode *newNode);
+  void setChild(int index, ExprNode *newNode);
 
   void setConstraint(ElemDDLNode *pConstraint);
 
@@ -1329,7 +1329,7 @@ class StmtDDLCreateHbaseTable : public StmtDDLNode {
 
   // methods relating to parse tree
   virtual Int32 getArity() const { return 0; };
-  virtual ExprNode *getChild(Lng32 index) { return NULL; }
+  virtual ExprNode *getChild(int index) { return NULL; }
 
   inline const QualifiedName &getTableNameAsQualifiedName() const;
   inline QualifiedName &getTableNameAsQualifiedName();

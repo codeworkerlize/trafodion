@@ -139,9 +139,9 @@ void BloomFilter::dump(ostream &out, const char *msg) {
   ;
 }
 
-UInt32 BloomFilter::computeFinalHash(UInt32 hash, Lng32 hashFunc) { return computeFinalHash(hash, hashFunc, m_); }
+UInt32 BloomFilter::computeFinalHash(UInt32 hash, int hashFunc) { return computeFinalHash(hash, hashFunc, m_); }
 
-UInt32 BloomFilter::computeFinalHash(UInt32 hash, Lng32 hashFunc, UInt32 bits) {
+UInt32 BloomFilter::computeFinalHash(UInt32 hash, int hashFunc, UInt32 bits) {
   UInt32 h2 = 0;
 
   // Some pre-computed values to use for h2. These values are computed
@@ -551,7 +551,7 @@ CountingBloomFilter::INSERT_ENUM CountingBloomFilter::insert(char *key, UInt32 k
   ULng32 newFreq = 0;
   NABoolean slotFound = FALSE;
 
-  for (Lng32 i = 0; i < k_; i++) {
+  for (int i = 0; i < k_; i++) {
     UInt32 hash_index = computeFinalHash(hashValueCommon, i);
 
 #if 0     
@@ -674,7 +674,7 @@ NABoolean CountingBloomFilter::remove(char *key, UInt32 key_len, UInt32 bucket, 
   //
   UInt32 cached_hash[6];
 
-  for (Lng32 i = 0; i < k_; i++) {
+  for (int i = 0; i < k_; i++) {
     UInt32 hash_index = cached_hash[i] = computeFinalHash(hashValueCommon, i);
 
     UInt32 b = bucketNums_[hash_index];
@@ -722,7 +722,7 @@ NABoolean CountingBloomFilter::remove(char *key, UInt32 key_len, UInt32 bucket, 
 
         // Set the count entry to max-1, as the content of the entry is
         // sticky once reach the max value.
-        for (Lng32 i = 0; i < k_; i++) freqsL_.put(cached_hash[i], freqsL_.getMaxVal() - 1);
+        for (int i = 0; i < k_; i++) freqsL_.put(cached_hash[i], freqsL_.getMaxVal() - 1);
       } else
         (*freq)--;
     }
@@ -755,7 +755,7 @@ NABoolean CountingBloomFilter::contain(char *key, UInt32 key_len, UInt64 *freq, 
   UInt32 f = 0;
   UInt32 hash_index = 0;
 
-  for (Lng32 i = 0; i < k_; i++) {
+  for (int i = 0; i < k_; i++) {
     hash_index = computeFinalHash(hashValueCommon, i);
 
     DISPLAY_HASH_ENTRY("", hash_index);
@@ -919,7 +919,7 @@ CountingBloomFilterWithKnownSkews::CountingBloomFilterWithKnownSkews(
 
   actualOverflowF2s_ = numSkewedElements;
 
-  Lng32 sz = (Lng32)CountingBloomFilterWithKnownSkews::estimateMemoryInBytes(maxHashFuncs,
+  int sz = (int)CountingBloomFilterWithKnownSkews::estimateMemoryInBytes(maxHashFuncs,
                                                                              n,  // # of distinct elements
                                                                              p,  // probability of false positives
                                                                              // non-overflow freq of n elements
@@ -1070,7 +1070,7 @@ NABoolean FastStatsCountingBloomFilter::insert(char *key, UInt32 key_len, UInt32
   ULng32 newFreq = 0;
   NABoolean slotFound = FALSE;
 
-  for (Lng32 i = 0; i < k_; i++) {
+  for (int i = 0; i < k_; i++) {
     UInt32 hash_index = computeFinalHash(hashValueCommon, i);
 
     counters_.add(hash_index, freq, newFreq);
@@ -1123,7 +1123,7 @@ NABoolean FastStatsCountingBloomFilter::remove(char *key, UInt32 key_len) {
   //
   UInt32 cached_hash[6];
 
-  for (Lng32 i = 0; i < k_; i++) {
+  for (int i = 0; i < k_; i++) {
     UInt32 hash_index = cached_hash[i] = computeFinalHash(hashValueCommon, i);
 
     // If the content is zero, the key is not in CBF
@@ -1157,7 +1157,7 @@ NABoolean FastStatsCountingBloomFilter::remove(char *key, UInt32 key_len) {
 
         // Set the count entry to max-1, as the content of the entry is
         // sticky once reach the max value.
-        for (Lng32 i = 0; i < k_; i++) counters_.put(cached_hash[i], counters_.getMaxVal() - 1);
+        for (int i = 0; i < k_; i++) counters_.put(cached_hash[i], counters_.getMaxVal() - 1);
       } else
         (*freq)--;
     }
@@ -1178,7 +1178,7 @@ NABoolean FastStatsCountingBloomFilter::contain(char *key, UInt32 key_len, UInt6
   UInt32 f = 0;
   UInt32 hash_index = 0;
 
-  for (Lng32 i = 0; i < k_; i++) {
+  for (int i = 0; i < k_; i++) {
     hash_index = computeFinalHash(hashValueCommon, i);
 
     DISPLAY_HASH_ENTRY("", hash_index);
@@ -1343,7 +1343,7 @@ NABoolean RegularBloomFilter::insert(char *key, UInt32 key_len) {
   NABoolean prevBitOff = FALSE;
   UInt32 hash_index = 0;
 
-  for (Lng32 i = 0; i < k_; i++) {
+  for (int i = 0; i < k_; i++) {
     hash_index = computeFinalHash(hashValueCommon, i);
 
     hashTable_.put(hash_index, 1, &prevBitOff);  // turn on the bit
@@ -1362,7 +1362,7 @@ NABoolean RegularBloomFilter::contain(char *key, UInt32 key_len) {
   UInt32 hashValueCommon = ExHDPHash::hash(key, keyLenInfo_, key_len);
   UInt32 hash_index = 0;
 
-  for (Lng32 i = 0; i < k_; i++) {
+  for (int i = 0; i < k_; i++) {
     hash_index = computeFinalHash(hashValueCommon, i);
     if (hashTable_.get(hash_index) == 0)  // is the bit on?
       return FALSE;
@@ -1526,7 +1526,7 @@ void RegularBloomFilter::testMultiHashInt(const char *dataFile, UInt32 maxFuncs,
     cout << ", commonHash=";
     cout << " 0x" << std::hex << hashValueCommon << std::dec << endl;
 
-    for (Lng32 i = 0; i < maxFuncs; i++) {
+    for (int i = 0; i < maxFuncs; i++) {
       UInt32 hash = BloomFilter::computeFinalHash(hashValueCommon, i, 8 * bytes);
 
       cout << "hash(" << i;
@@ -1559,7 +1559,7 @@ void RegularBloomFilter::testMultiHashTimestamp(const char *dataFile, UInt32 max
     cout << ", commonHash=";
     cout << " 0x" << std::hex << hashValueCommon << std::dec << endl;
 
-    for (Lng32 i = 0; i < maxFuncs; i++) {
+    for (int i = 0; i < maxFuncs; i++) {
       UInt32 hash = BloomFilter::computeFinalHash(hashValueCommon, i, bytes * 8);
 
       cout << "hash(" << i;

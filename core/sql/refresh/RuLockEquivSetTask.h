@@ -59,7 +59,7 @@ class REFRESH_LIB_CLASS CRULockEquivSetTask : public CRUTask {
   //	PUBLIC AREA
   //---------------------------------------//
  public:
-  CRULockEquivSetTask(Lng32 id, const CRUTblList &tblList);
+  CRULockEquivSetTask(int id, const CRUTblList &tblList);
   virtual ~CRULockEquivSetTask();
 
   //-----------------------------------//

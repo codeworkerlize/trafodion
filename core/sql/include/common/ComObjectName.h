@@ -273,7 +273,7 @@ class ComObjectName : public NABasicObject {
                        const ComAnsiNamePart::formatEnum format = ComAnsiNamePart::EXTERNAL_FORMAT,
                        ComBoolean parseInputNameParts = TRUE);
 
-  inline Lng32 getFlags() const { return flags_; }
+  inline int getFlags() const { return flags_; }
 
  private:
   enum Flags { IS_VOLATILE = 0x1, IS_AMBIGUOUS = 0x2 };
@@ -284,7 +284,7 @@ class ComObjectName : public NABasicObject {
   ComAnsiNameSpace nameSpace_;
   CollHeap *heap_;
 
-  Lng32 flags_;
+  int flags_;
 
   NABoolean scan(const NAString &objectName, size_t &count, NABoolean createDropAlias = FALSE,
                  unsigned short toInternalIdentifierFlags = NASTRING_ALLOW_NSK_GUARDIAN_NAME_FORMAT);

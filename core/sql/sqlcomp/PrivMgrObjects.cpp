@@ -727,7 +727,7 @@ PrivStatus MyTable::selectWhereUnique(const std::string &whereClause, PrivMgrMDR
   // Row read successfully.  Extract the columns.
 
   char *ptr = NULL;
-  Lng32 length = 0;
+  int length = 0;
   char value[500];
   MyRow &row = static_cast<MyRow &>(rowOut);
 

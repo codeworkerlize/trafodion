@@ -144,7 +144,7 @@ class UdrClientDataStream : public IpcClientMsgStream {
  public:
   typedef IpcClientMsgStream super;
 
-  UdrClientDataStream(IpcEnvironment *env, Lng32 sendBufferLimit, Lng32 inUseBufferLimit, IpcMessageObjSize bufferSize,
+  UdrClientDataStream(IpcEnvironment *env, int sendBufferLimit, int inUseBufferLimit, IpcMessageObjSize bufferSize,
                       ExUdrTcb *tcb, ExExeStmtGlobals *stmtGlobals, NABoolean isTransactional,
                       ExEspInstanceThread *threadInfo);
 

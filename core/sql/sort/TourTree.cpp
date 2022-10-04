@@ -68,8 +68,8 @@
 //----------------------------------------------------------------------
 
 Tree::Tree(ULng32 numruns, ULng32 runsize, ULng32 recsize, NABoolean doNotAllocRec, ULng32 keysize,
-           SortScratchSpace *scratch, CollHeap *heap, SortError *sorterror, Lng32 explainNodeId, ExBMOStats *bmoStats,
-           SortUtil *sortUtil, Lng32 runnum, NABoolean merge, NABoolean waited)
+           SortScratchSpace *scratch, CollHeap *heap, SortError *sorterror, int explainNodeId, ExBMOStats *bmoStats,
+           SortUtil *sortUtil, int runnum, NABoolean merge, NABoolean waited)
     : SortAlgo(runsize, recsize, doNotAllocRec, keysize, scratch, explainNodeId, bmoStats),
       maxRuns_(0),
       currentRun_(0),
@@ -202,8 +202,8 @@ RESULT Tree::outputWinnerToScr(void) {
   return status;
 }
 
-Lng32 Tree::sortReceive(void *rec, ULng32 &len) {
-  Lng32 retcode = SORT_SUCCESS;
+int Tree::sortReceive(void *rec, ULng32 &len) {
+  int retcode = SORT_SUCCESS;
 
   //-----------------------------------------------------------------
   // Case of zero input records.
@@ -286,10 +286,10 @@ Lng32 Tree::sortReceive(void *rec, ULng32 &len) {
   }
 }
 
-Lng32 Tree::generateInterRuns() {
+int Tree::generateInterRuns() {
   // ex_assert(0, "CIF not implemented yet")
-  Lng32 retcode = SORT_SUCCESS;
-  Lng32 numRuns = scratch_->getTotalNumOfRuns();
+  int retcode = SORT_SUCCESS;
+  int numRuns = scratch_->getTotalNumOfRuns();
 
   while (TRUE_L) {
     if (winnerRun_ != currentRun_) {
@@ -364,9 +364,9 @@ Lng32 Tree::generateInterRuns() {
 
 //  **********************UNUSED METHODS ********************************
 
-Lng32 Tree::sortClientOutOfMem(void) { return sortSendEnd(); }
+int Tree::sortClientOutOfMem(void) { return sortSendEnd(); }
 
-Lng32 Tree::sortSendEnd() {
+int Tree::sortSendEnd() {
   while (TRUE_L) {
     if ((winnerRun_ != currentRun_)) {
       if ((currentRun_ != 0) && sendNotDone_) {
@@ -384,7 +384,7 @@ Lng32 Tree::sortSendEnd() {
   }
 }
 
-Lng32 Tree::sortSend(void *rec, ULng32 len, void *tupp) {
+int Tree::sortSend(void *rec, ULng32 len, void *tupp) {
   ex_assert(rec != NULL, "Tree::sortSend, rec is NULL");
 
   if (winnerRun_ != currentRun_) {
@@ -419,7 +419,7 @@ Lng32 Tree::sortSend(void *rec, ULng32 len, void *tupp) {
   return SORT_SUCCESS;
 }
 
-Lng32 Tree::sortReceive(void *&rec, ULng32 &len, void *&tupp) {
+int Tree::sortReceive(void *&rec, ULng32 &len, void *&tupp) {
   // Dummy function. Currently only QuickSort is used for internal sort.
   return SORT_SUCCESS;
 }

@@ -38,7 +38,7 @@
 #include "common/Platform.h"
 
 #include "common/BaseTypes.h"
-#include "NAError.h"
+#include "sqlci/SqlciParseGlobals.h"
 #ifdef SQLPARSERGLOBALS_FLAGS
 #include "parser/SqlParserGlobals.h"
 #else
@@ -278,8 +278,8 @@ short getIntervalTypeText(char *text,                        // OUTPUT
 //
 // Returns -1 in case of error, 0 if all is ok.
 short convertTypeToText_basic(char *text,         // OUTPUT
-                              Lng32 fs_datatype,  // all other vars: INPUT
-                              Lng32 length, Lng32 precision, Lng32 scale, rec_datetime_field datetimestart,
+                              int fs_datatype,  // all other vars: INPUT
+                              int length, int precision, int scale, rec_datetime_field datetimestart,
                               rec_datetime_field datetimeend, short datetimefractprec, short intervalleadingprec,
                               short upshift, short caseinsensitive, CharInfo::CharSet charSet,
                               const char *collation_name, const char *displaydatatype, short displayCaseSpecific,
@@ -516,8 +516,8 @@ short convertTypeToText_basic(char *text,         // OUTPUT
       break;
 
     case REC_BLOB: {
-      Int64 len = 0;
-      len = (((Int64)precision) << 32 | scale & 0xFFFFFFFFL);
+      long len = 0;
+      len = (((long)precision) << 32 | scale & 0xFFFFFFFFL);
       str_sprintf(text, "BLOB( %ld bytes)", len);
     }
 
@@ -525,8 +525,8 @@ short convertTypeToText_basic(char *text,         // OUTPUT
 
     case REC_CLOB: {
       addCharSet = 1;
-      Int64 len = 0;
-      len = (((Int64)precision) << 32 | scale & 0xFFFFFFFFL);
+      long len = 0;
+      len = (((long)precision) << 32 | scale & 0xFFFFFFFFL);
       str_sprintf(text, "CLOB( %ld bytes)", len);
     }
 
@@ -579,8 +579,8 @@ short convertTypeToText_basic(char *text,         // OUTPUT
 
 // Helper functions to map between FS types and ANSI types. ANSI types
 // are defined by the SQLTYPE_CODE enumeration in cli/sqlcli.h
-Lng32 getAnsiTypeFromFSType(Lng32 datatype) {
-  Lng32 numeric_value = -1;
+int getAnsiTypeFromFSType(int datatype) {
+  int numeric_value = -1;
 
   switch (datatype) {
     case REC_BIN8_SIGNED:
@@ -711,7 +711,7 @@ Lng32 getAnsiTypeFromFSType(Lng32 datatype) {
   return numeric_value;
 }
 
-const char *getAnsiTypeStrFromFSType(Lng32 datatype) {
+const char *getAnsiTypeStrFromFSType(int datatype) {
   switch (datatype) {
     case REC_BIN8_SIGNED:
       return COM_TINYINT_SIGNED_SDT_LIT;
@@ -843,8 +843,8 @@ const char *getAnsiTypeStrFromFSType(Lng32 datatype) {
   return NULL;
 }
 
-Lng32 getDatetimeCodeFromFSType(Lng32 datatype) {
-  Lng32 numeric_value = -1;
+int getDatetimeCodeFromFSType(int datatype) {
+  int numeric_value = -1;
 
   switch (datatype) {
     case REC_INT_YEAR:
@@ -906,8 +906,8 @@ Lng32 getDatetimeCodeFromFSType(Lng32 datatype) {
   return numeric_value;
 }
 
-Lng32 getFSTypeFromDatetimeCode(Lng32 datetime_code) {
-  Lng32 datatype;
+int getFSTypeFromDatetimeCode(int datetime_code) {
+  int datatype;
 
   switch (datetime_code) {
     case SQLINTCODE_YEAR:
@@ -970,8 +970,8 @@ Lng32 getFSTypeFromDatetimeCode(Lng32 datetime_code) {
   return datatype;
 }
 
-Lng32 getFSTypeFromANSIType(Lng32 ansitype) {
-  Lng32 datatype;
+int getFSTypeFromANSIType(int ansitype) {
+  int datatype;
 
   switch (ansitype) {
     case SQLTYPECODE_TINYINT:

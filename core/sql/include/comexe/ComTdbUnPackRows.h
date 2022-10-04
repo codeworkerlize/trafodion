@@ -128,7 +128,7 @@ class ComTdbUnPackRows : public ComTdb {
   //  IN: Used to set flags_ if nonfatal errors are tolerated.
   //
 
-  ComTdbUnPackRows(ComTdb *childTdb, ex_expr *packingFactor, ex_expr *unPackColsExpr, Lng32 unPackColsTupleLen,
+  ComTdbUnPackRows(ComTdb *childTdb, ex_expr *packingFactor, ex_expr *unPackColsExpr, int unPackColsTupleLen,
                    unsigned short unPackColsAtpIndex, unsigned short indexValueAtpIndex, ex_cri_desc *criDescDown,
                    ex_cri_desc *criDescUp, ex_cri_desc *workCriDesc, queue_index queueSizeDown, queue_index queueSizeUp,
                    Cardinality estimatedRowCount, NABoolean rowsetIterator, NABoolean tolerateNonFatalError);
@@ -136,7 +136,7 @@ class ComTdbUnPackRows : public ComTdb {
   ComTdbUnPackRows(ComTdb *childTdb, ex_expr *inputSizeExpr, ex_expr *maxInputRowlenExpr, ex_expr *rwrsBufferAddrExpr,
                    unsigned short rwrsAtpIndex, ex_cri_desc *criDescDown, ex_cri_desc *criDescUp,
                    ex_cri_desc *workCriDesc, queue_index queueSizeDown, queue_index queueSizeUp,
-                   Cardinality estimatedRowCount, Lng32 num_buffers, ULng32 buffer_size);
+                   Cardinality estimatedRowCount, int num_buffers, ULng32 buffer_size);
 
   // ---------------------------------------------------------------------
   // Redefine virtual functions required for Versioning.
@@ -179,7 +179,7 @@ class ComTdbUnPackRows : public ComTdb {
   //  IN - The base address of the TDB fragment.  Pointers are calculated
   //       by adding the offset to the base address (more or less).
   //
-  Lng32 unpack(void *, void *reallocator);
+  int unpack(void *, void *reallocator);
 
   // methods used for rowwise rowset processing
   ex_expr *rwrsInputSizeExpr() { return packingFactor_; }

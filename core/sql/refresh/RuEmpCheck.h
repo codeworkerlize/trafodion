@@ -116,7 +116,7 @@ class REFRESH_LIB_CLASS CRUEmpCheck {
   CRUSQLDynamicStatementContainer *pSQLContainer_;
 
   // Which checks to perform?
-  Lng32 checkMask_;
+  int checkMask_;
 };
 
 #endif

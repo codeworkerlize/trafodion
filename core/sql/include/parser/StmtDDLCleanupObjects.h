@@ -86,7 +86,7 @@ class StmtDDLCleanupObjects : public StmtDDLNode {
 
   // methods relating to parse tree
   virtual Int32 getArity() const;
-  virtual ExprNode *getChild(Lng32 index);
+  virtual ExprNode *getChild(int index);
 
   inline const QualifiedName &getOrigTableNameAsQualifiedName() const;
   inline QualifiedName &getOrigTableNameAsQualifiedName();
@@ -98,7 +98,7 @@ class StmtDDLCleanupObjects : public StmtDDLNode {
   // returns table name, in external format.
   const NAString getTableName() const;
 
-  const Int64 getObjectUID() const { return objectUID_; }
+  const long getObjectUID() const { return objectUID_; }
 
   const ObjectType getType() const { return type_; }
 
@@ -155,7 +155,7 @@ class StmtDDLCleanupObjects : public StmtDDLNode {
   // [ [ catalog-name . ] schema-name . ] table-name
   QualifiedName *tableQualName_;
 
-  Int64 objectUID_;
+  long objectUID_;
 
   NABoolean stopOnError_;
 

@@ -57,7 +57,7 @@ class ComTdbHashj : public ComTdb {
               ex_expr *probeSearchExpr1, ex_expr *probeSearchExpr2, ex_expr *leftJoinExpr,
               ex_expr *nullInstForLeftJoinExpr, ex_expr *beforeJoinPred1, ex_expr *beforeJoinPred2,
               ex_expr *afterJoinPred1, ex_expr *afterJoinPred2, ex_expr *afterJoinPred3, ex_expr *afterJoinPred4,
-              ex_expr *afterJoinPred5, ex_expr *checkInputPred, ex_expr *moveInputExpr, Lng32 inputValuesLen,
+              ex_expr *afterJoinPred5, ex_expr *checkInputPred, ex_expr *moveInputExpr, int inputValuesLen,
               short prevInputTuppIndex, ULng32 rightRowLength, ULng32 extRightRowLength, ULng32 leftRowLength,
               ULng32 extLeftRowLength, ULng32 instRowForLeftJoinLength, ex_cri_desc *workCriDesc, short leftRowAtpIndex,
               short extLeftRowAtpIndex, short rightRowAtpIndex, short extRightRowAtpIndex1, short extRightRowAtpIndex2,
@@ -65,7 +65,7 @@ class ComTdbHashj : public ComTdb {
               short returnedRightRowAtpIndex, short returnedInstRowForLeftJoinAtpIndex, unsigned short memUsagePercent,
               short pressureThreshold, short scrThreshold, queue_index down, queue_index up, Int32 isSemiJoin,
               Int32 isLeftJoin, Int32 isAntiSemiJoin, Int32 isUniqueHashJoin, Int32 isNoOverflow, Int32 isReuse,
-              Lng32 numBuffers, ULng32 bufferSize, ULng32 hashBufferSize, Cardinality estimatedRowount,
+              int numBuffers, ULng32 bufferSize, ULng32 hashBufferSize, Cardinality estimatedRowount,
               Cardinality innerExpectedRows, Cardinality outerExpectedRows, Int32 isRightJoin, ex_expr *rightJoinExpr,
               ex_expr *nullInstForRightJoinExpr, short instRowForRightJoinAtpIndex,
               short returnedInstRowForRightJoinAtpIndex, ULng32 instRowForRightJoinLength,
@@ -93,7 +93,7 @@ class ComTdbHashj : public ComTdb {
   // ex_queue_pair  getParentQueue() const;
   Int32 orderedQueueProtocol() const;
   Long pack(void *);
-  Lng32 unpack(void *, void *reallocator);
+  int unpack(void *, void *reallocator);
 
   inline ComTdb *getLeftChildTdb();
   inline ComTdb *getRightChildTdb();

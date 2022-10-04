@@ -41,7 +41,7 @@
 
 NAString *getMinMaxValue(TrafDesc *column, TrafDesc *key, NABoolean highKey, CollHeap *h);
 
-NAString **createInArrayForLowOrHighKeys(TrafDesc *column_descs, TrafDesc *key_descs, Lng32 numKeys, NABoolean highKey,
+NAString **createInArrayForLowOrHighKeys(TrafDesc *column_descs, TrafDesc *key_descs, int numKeys, NABoolean highKey,
                                          NABoolean isIndex, CollHeap *h);
 
 ItemExpr *buildEncodeTree(TrafDesc *column, TrafDesc *key,

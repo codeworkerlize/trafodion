@@ -197,14 +197,14 @@ SFR_RetCode SequenceFileReader::open(const char *path) {
 //////////////////////////////////////////////////////////////////////////////
 //
 //////////////////////////////////////////////////////////////////////////////
-SFR_RetCode SequenceFileReader::getPosition(Int64 &pos) {
+SFR_RetCode SequenceFileReader::getPosition(long &pos) {
   QRLogger::log(CAT_SQL_HDFS_SEQ_FILE_READER, LL_DEBUG, "SequenceFileReader::getPosition(%ld) called.", pos);
 
   if (initJNIEnv() != JOI_OK) return SFR_ERROR_GETPOS_EXCEPTION;
 
   // long getPosition();
   tsRecentJMFromJNI = JavaMethods_[JM_GETPOS].jm_full_name;
-  Int64 result = jenv_->CallLongMethod(javaObj_, JavaMethods_[JM_GETPOS].methodID);
+  long result = jenv_->CallLongMethod(javaObj_, JavaMethods_[JM_GETPOS].methodID);
 
   if (jenv_->ExceptionCheck()) {
     getExceptionDetails(__FILE__, __LINE__, "SequenceFileReader::getPosition()");
@@ -226,7 +226,7 @@ SFR_RetCode SequenceFileReader::getPosition(Int64 &pos) {
 //////////////////////////////////////////////////////////////////////////////
 //
 //////////////////////////////////////////////////////////////////////////////
-SFR_RetCode SequenceFileReader::seeknSync(Int64 pos) {
+SFR_RetCode SequenceFileReader::seeknSync(long pos) {
   QRLogger::log(CAT_SQL_HDFS_SEQ_FILE_READER, LL_DEBUG, "SequenceFileReader::seeknSync(%ld) called.", pos);
 
   if (initJNIEnv() != JOI_OK) return SFR_ERROR_SYNC_EXCEPTION;
@@ -276,7 +276,7 @@ SFR_RetCode SequenceFileReader::isEOF(bool &isEOF) {
 //////////////////////////////////////////////////////////////////////////////
 //
 //////////////////////////////////////////////////////////////////////////////
-SFR_RetCode SequenceFileReader::fetchNextRow(Int64 stopOffset, char *buffer) {
+SFR_RetCode SequenceFileReader::fetchNextRow(long stopOffset, char *buffer) {
   if (initJNIEnv() != JOI_OK) return SFR_ERROR_FETCHROW_EXCEPTION;
 
   // java.lang.String fetchNextRow(long stopOffset);
@@ -330,14 +330,14 @@ SFR_RetCode SequenceFileReader::close() {
 //////////////////////////////////////////////////////////////////////////////
 //
 //////////////////////////////////////////////////////////////////////////////
-SFR_RetCode SequenceFileReader::fetchRowsIntoBuffer(Int64 stopOffset, char *buffer, Int64 buffSize, Int64 &bytesRead,
+SFR_RetCode SequenceFileReader::fetchRowsIntoBuffer(long stopOffset, char *buffer, long buffSize, long &bytesRead,
                                                     char rowDelimiter) {
   QRLogger::log(CAT_SQL_HDFS_SEQ_FILE_READER, LL_DEBUG,
                 "SequenceFileReader::fetchRowsIntoBuffer(stopOffset: %ld, buffSize: %ld) called.", stopOffset,
                 buffSize);
   Int32 maxRowLength = 0;
   char *pos = buffer;
-  Int64 limit = buffSize;
+  long limit = buffSize;
   SFR_RetCode retCode;
   long rowsRead = 0;
   bytesRead = 0;
@@ -493,7 +493,7 @@ SFW_RetCode SequenceFileWriter::write(const char *data) {
 //////////////////////////////////////////////////////////////////////////////
 //
 //////////////////////////////////////////////////////////////////////////////
-SFW_RetCode SequenceFileWriter::writeBuffer(char *data, Int64 buffSize, const char *rowDelimiter) {
+SFW_RetCode SequenceFileWriter::writeBuffer(char *data, long buffSize, const char *rowDelimiter) {
   QRLogger::log(CAT_SQL_HDFS_SEQ_FILE_WRITER, LL_DEBUG, "SequenceFileWriter::writeBuffer() called.");
 
   // Point to the first row.

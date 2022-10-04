@@ -43,13 +43,13 @@
 // Methods for class ComTdbSplitTop
 // -----------------------------------------------------------------------
 
-ComTdbSplitTop::ComTdbSplitTop(ComTdb *child, ex_expr *childInputPartFunction, Lng32 inputPartAtpIndex,
-                               ex_expr *mergeKeyExpr, Lng32 mergeKeyAtpIndex, Lng32 mergeKeyLength,
-                               ExPartInputDataDesc *partInputDataDesc, Lng32 partInputDataAtpIndex,
-                               Lng32 paPartNoAtpIndex, ex_cri_desc *criDescDown, ex_cri_desc *criDescUp,
+ComTdbSplitTop::ComTdbSplitTop(ComTdb *child, ex_expr *childInputPartFunction, int inputPartAtpIndex,
+                               ex_expr *mergeKeyExpr, int mergeKeyAtpIndex, int mergeKeyLength,
+                               ExPartInputDataDesc *partInputDataDesc, int partInputDataAtpIndex,
+                               int paPartNoAtpIndex, ex_cri_desc *criDescDown, ex_cri_desc *criDescUp,
                                ex_cri_desc *downCriDesc, ex_cri_desc *workCriDesc, NABoolean bufferedInserts,
                                queue_index fromParent, queue_index toParent, Cardinality estimatedRowCount,
-                               Lng32 bottomNumParts, Int32 streamTimeout, Lng32 sidNumBuffers, ULng32 sidBufferSize)
+                               int bottomNumParts, Int32 streamTimeout, int sidNumBuffers, ULng32 sidBufferSize)
     : ComTdb(ex_SPLIT_TOP, eye_SPLIT_TOP, estimatedRowCount, criDescDown, criDescUp, fromParent, toParent,
              sidNumBuffers, sidBufferSize)
 
@@ -115,7 +115,7 @@ Long ComTdbSplitTop::pack(void *space) {
   return ComTdb::pack(space);
 }
 
-Lng32 ComTdbSplitTop::unpack(void *base, void *reallocator) {
+int ComTdbSplitTop::unpack(void *base, void *reallocator) {
   if (child_.unpack(base, reallocator)) return -1;
   if (childInputPartFunction_.unpack(base, reallocator)) return -1;
   if (mergeKeyExpr_.unpack(base, reallocator)) return -1;
@@ -135,7 +135,7 @@ void ComTdbSplitTop::displayContents(Space *space, ULng32 flag) {
     str_sprintf(buf, "\nFor ComTdbSplitTop :\nFlags = %x ", flags_);
     space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
 
-    str_sprintf(buf, "splitTopFlags_ = %x", (Lng32)splitTopFlags_);
+    str_sprintf(buf, "splitTopFlags_ = %x", (int)splitTopFlags_);
     space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
 
     str_sprintf(buf, "bottomNumParts_ = %d", (Int32)bottomNumParts_);

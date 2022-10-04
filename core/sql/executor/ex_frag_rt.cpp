@@ -66,13 +66,13 @@
 class AssignEspArrays {
  public:
   ExRtFragInstance **instance_;
-  Lng32 *creatingEspFragEntry_;
+  int *creatingEspFragEntry_;
   IpcGuardianServer **creatingEspEntry_;
   NAHeap *heap_;
-  AssignEspArrays(NAHeap *heap, Lng32 numEsps) {
+  AssignEspArrays(NAHeap *heap, int numEsps) {
     heap_ = heap;
     instance_ = (ExRtFragInstance **)heap_->allocateMemory(sizeof(ExRtFragInstance *) * numEsps);
-    creatingEspFragEntry_ = (Lng32 *)heap_->allocateMemory(sizeof(Lng32) * numEsps);
+    creatingEspFragEntry_ = (int *)heap_->allocateMemory(sizeof(int) * numEsps);
     creatingEspEntry_ = (IpcGuardianServer **)heap_->allocateMemory(sizeof(IpcGuardianServer *) * numEsps);
     for (int i = 0; i < numEsps; i++) {
       instance_[i] = NULL;
@@ -256,8 +256,8 @@ void ExRtFragTable::assignEsps(NABoolean /*checkResourceGovernor*/, UInt32 &numO
   IpcPriority espPriority = IPC_PRIORITY_DONT_CARE;
 
   ExEspManager *espManager = glob_->getEspManager();
-  Lng32 idleTimeout = getEspIdleTimeout();
-  Lng32 assignTimeWindow = currentContext->getSessionDefaults()->getEspAssignTimeWindow();
+  int idleTimeout = getEspIdleTimeout();
+  int assignTimeWindow = currentContext->getSessionDefaults()->getEspAssignTimeWindow();
   Int32 totalESPLimit = fragDir_->getMaxESPsPerNode();
   Int32 numNodesToUse = 0;
 
@@ -339,7 +339,7 @@ void ExRtFragTable::assignEsps(NABoolean /*checkResourceGovernor*/, UInt32 &numO
       }
       numOfTotalEspsUsed += fragEntry.numEsps_;
       AssignEspArrays assignEspArrays((NAHeap *)heap, fragEntry.numEsps_);
-      Lng32 espLevel = fragDir_->getEspLevel(i);
+      int espLevel = fragDir_->getEspLevel(i);
       NABoolean soloFragment = fragDir_->soloFrag(i);
       NABoolean containsBMOs = fragDir_->containsBMOs(i);
 
@@ -349,7 +349,7 @@ void ExRtFragTable::assignEsps(NABoolean /*checkResourceGovernor*/, UInt32 &numO
       if (cmpContext) nac = cmpContext->getClusterInfo();
 
       entryNumber = launchesStarted = 0;
-      for (Lng32 e = 0; e < fragEntry.numEsps_ && state_ != ERROR; e++) {
+      for (int e = 0; e < fragEntry.numEsps_ && state_ != ERROR; e++) {
         // Decide on an ESP to use and link the instance to that
         // ESP by adding a new entry. Don't download yet, so the
         // fragment instance handle is not valid yet.
@@ -442,7 +442,7 @@ void ExRtFragTable::assignEsps(NABoolean /*checkResourceGovernor*/, UInt32 &numO
       for (entryNumber = 0; launchesCompleted < launchesStarted; entryNumber++) {
         if (entryNumber == numEntries) entryNumber = 0;
         if (assignEspArrays.creatingEspEntry_[entryNumber]->isCreatingProcess() == FALSE) continue;
-        Lng32 e = assignEspArrays.creatingEspFragEntry_[entryNumber];
+        int e = assignEspArrays.creatingEspFragEntry_[entryNumber];
         NABoolean startedANewEsp = FALSE;
         assignEspArrays.instance_[e]->usedEsp_ = glob_->getEspManager()->shareEsp(
             &diags, alreadyAssignedEsps, heap, currentStatement, assignEspArrays.instance_[e]->clusterName_,
@@ -507,7 +507,7 @@ void ExRtFragTable::assignEsps(NABoolean /*checkResourceGovernor*/, UInt32 &numO
         alreadyAssignedEsps.clear();
       }
       // multi fragment esp - end
-      for (Lng32 e = 0; e < fragEntry.numEsps_; e++) {
+      for (int e = 0; e < fragEntry.numEsps_; e++) {
         if (assignEspArrays.instance_[e] && assignEspArrays.instance_[e]->usedEsp_) {
           IpcServer *ipcs = assignEspArrays.instance_[e]->usedEsp_->getIpcServer();
           if (NOT ipcs OR NOT ipcs->getControlConnection() OR ipcs->getControlConnection()->getState() ==
@@ -622,7 +622,7 @@ void ExRtFragTable::downloadAndFixup() {
   // Without these replies flowing from ESP to master, if the master
   // were to send a data request to the ESP, the receiving SM service
   // might report that ESP preposts are not yet available.
-  Int64 smQueryID = glob_->getSMQueryID();
+  long smQueryID = glob_->getSMQueryID();
   UInt32 smFixupMsgsSent = 0;
   if (smQueryID > 0) ExSMGlobals::initFixupReplyCount();
 
@@ -665,8 +665,8 @@ void ExRtFragTable::downloadAndFixup() {
     // We wait for half of our I/Os to complete if the IPC heap
     // became full during the previous iteration of this loop
     if (!abortFixup && glob_->getIpcEnvironment()->getHeapFullFlag()) {
-      Lng32 numOut = numLoadFixupMsgesOut_;
-      Lng32 half = numOut / 2;
+      int numOut = numLoadFixupMsgesOut_;
+      int half = numOut / 2;
       while (numLoadFixupMsgesOut_ > half && getState() != ERROR) {
         glob_->getIpcEnvironment()->getAllConnections()->waitOnAll();
         workOnRequests();
@@ -804,10 +804,10 @@ void ExRtFragTable::downloadAndFixup() {
     }
 
     // add the fixup request to the message
-    Lng32 maxPollingInterval = sd->getMaxPollingInterval();
-    Lng32 persistentOpens = sd->getPersistentOpens();
+    int maxPollingInterval = sd->getMaxPollingInterval();
+    int persistentOpens = sd->getPersistentOpens();
     NABoolean espCloseErrorLogging = sd->getEspCloseErrorLogging();
-    Lng32 espFreeMemTimeout = sd->getEspFreeMemTimeout();
+    int espFreeMemTimeout = sd->getEspFreeMemTimeout();
     addFixupRequestToMessage(mm, frag, (altpriInEsp ? espFixupPriority : 0), (altpriInEsp ? espExecutePriority : 0),
                              maxPollingInterval, persistentOpens, espCloseErrorLogging, espFreeMemTimeout);
 
@@ -918,8 +918,8 @@ void ExRtFragTable::downloadAndFixup() {
           da->decrRefCount();
         }
 
-        *da << DgSqlCode(-EXE_SM_FIXUP_REPLY_TIMEOUT) << DgString0(processName) << DgInt0((Lng32)timeoutInSeconds)
-            << DgInt1((Lng32)smFixupMsgsSent) << DgInt2((Lng32)replyCount);
+        *da << DgSqlCode(-EXE_SM_FIXUP_REPLY_TIMEOUT) << DgString0(processName) << DgInt0((int)timeoutInSeconds)
+            << DgInt1((int)smFixupMsgsSent) << DgInt2((int)replyCount);
 
         EXSM_TRACE(EXSM_TRACE_MAIN_THR, "Setting frag table state to ERROR");
         state_ = ERROR;
@@ -1016,7 +1016,7 @@ void ExRtFragTable::assignPartRangesAndTA(NABoolean /*initial*/) {
           NABoolean needToSendStaticPIVs = (needToSendPIVs AND NOT entry->dynamicLoadBalancing_);
 
           NABoolean needToSendDynamicPIVs =
-              (needToSendPIVs AND entry->dynamicLoadBalancing_ AND(Lng32)
+              (needToSendPIVs AND entry->dynamicLoadBalancing_ AND(int)
                    entry->assignedPartInputValues_.entries() < partDesc->getNumPartitions());
 
           ExMasterEspMessage *workMsg = NULL;
@@ -1066,18 +1066,18 @@ void ExRtFragTable::assignPartRangesAndTA(NABoolean /*initial*/) {
             preq->decrRefCount();
             preq = NULL;
 
-            Lng32 dataLen = partDesc->getPartInputDataLength();
+            int dataLen = partDesc->getPartInputDataLength();
 
             // now add the actual data to the message
             TupMsgBuffer *buf = new (ipcHeap)
-                TupMsgBuffer((Lng32)SqlBufferNeededSize(1, dataLen, SqlBuffer::DENSE_), TupMsgBuffer::MSG_IN, ipcHeap);
+                TupMsgBuffer((int)SqlBufferNeededSize(1, dataLen, SqlBuffer::DENSE_), TupMsgBuffer::MSG_IN, ipcHeap);
             // the buffer contains a single tupp
             tupp_descriptor *tuppd = buf->get_sql_buffer()->add_tuple_desc(dataLen);
             // initialize the tupp with the actual part. input values
             // $$$$ need to pick an index into the partition input
             // values if we do dynamic load balancing
-            Lng32 loPart = -1;
-            Lng32 hiPart = -1;
+            int loPart = -1;
+            int hiPart = -1;
             if (needToSendDynamicPIVs) {
               ex_assert(0, "Dynamic load balancing not implemented");
               // NOTE: when implementing this, use a separate
@@ -1087,7 +1087,7 @@ void ExRtFragTable::assignPartRangesAndTA(NABoolean /*initial*/) {
               // from the partition input values
               // (no need to maintain the bit vector) and
               // send the request along with the work request
-              loPart = hiPart = (Lng32)espNum;
+              loPart = hiPart = (int)espNum;
             }
             partDesc->copyPartInputValue(loPart, hiPart, tuppd->getTupleAddress(), dataLen);
             *pivMsg << *buf;
@@ -1125,8 +1125,8 @@ void ExRtFragTable::assignPartRangesAndTA(NABoolean /*initial*/) {
             treq = NULL;
 
             if (needToSendTransaction) {
-              Int64 svptId = -1;
-              Int64 psvptId = -1;
+              long svptId = -1;
+              long psvptId = -1;
               if (glob_->getContext()->getTransaction()->implicitSavepointInProgress()) {
                 svptId = glob_->getContext()->getTransaction()->getImplicitSavepointIdWithFlag();
                 psvptId = glob_->getContext()->getTransaction()->getImplicitPSavepointIdWithFlag();
@@ -1166,7 +1166,7 @@ void ExRtFragTable::assignPartRangesAndTA(NABoolean /*initial*/) {
 }
 
 void ExRtFragTable::releaseTransaction(NABoolean allWorkRequests, NABoolean alwaysSendReleaseMsg,
-                                       NABoolean commitSavepoint, NABoolean rollbackSavepoint, Int64 savepointId) {
+                                       NABoolean commitSavepoint, NABoolean rollbackSavepoint, long savepointId) {
 #ifdef IPC_INTEGRITY_CHECKING
   checkIntegrity();
 #endif
@@ -1183,7 +1183,7 @@ void ExRtFragTable::releaseTransaction(NABoolean allWorkRequests, NABoolean alwa
   // message, indicating to the server to reply to both the release message
   // and the work request.
 
-  Lng32 inactiveTimeout = getEspInactiveTimeout();
+  int inactiveTimeout = getEspInactiveTimeout();
 
   // loop over fragments
   for (ExFragId fragId = 0; fragId < (ExFragId)fragDir_->getNumEntries(); fragId++) {
@@ -1285,8 +1285,8 @@ void ExRtFragTable::releaseEsps(NABoolean closeAllOpens) {
   ExMasterEspMessage *msg = NULL;
   SET(ExEspDbEntry *) releasedEsps(glob_->getDefaultHeap());
 
-  Lng32 idleTimeout = getEspIdleTimeout();
-  Lng32 stopIdleEspsTimeout = getStopIdleEspsTimeout();
+  int idleTimeout = getEspIdleTimeout();
+  int stopIdleEspsTimeout = getStopIdleEspsTimeout();
 
   // broadcast one message to all ESPs that know about the statement
   for (CollIndex frag = 0; frag < fragmentEntries_.entries(); frag++)
@@ -1364,7 +1364,7 @@ void ExRtFragTable::releaseEsps(NABoolean closeAllOpens) {
     // count the outgoing transactional messages (this is the
     // reason why we use a separate message for transactional
     // release messages)
-    numReleaseEspMsgesOut_ += (Lng32)(msg->getRecipients().entries());
+    numReleaseEspMsgesOut_ += (int)(msg->getRecipients().entries());
 
     // send the release message to all ESPs in nowait mode
     addRequestToBeSent(msg);
@@ -1423,7 +1423,7 @@ const IpcProcessId &ExRtFragTable::getInstanceProcessId(ExFragId fragId, CollInd
   return fragmentEntries_[fragId]->assignedEsps_[espNum]->usedEsp_->getIpcServer()->getServerId();
 }
 
-Lng32 ExRtFragTable::getNumOfInstances(ExFragId fragId) const { return fragmentEntries_[fragId]->numEsps_; }
+int ExRtFragTable::getNumOfInstances(ExFragId fragId) const { return fragmentEntries_[fragId]->numEsps_; }
 
 IpcConnection *ExRtFragTable::getControlConnection(ExFragId fragId, CollIndex espNum) const {
   return fragmentEntries_[fragId]->assignedEsps_[espNum]->usedEsp_->getIpcServer()->getControlConnection();
@@ -1497,9 +1497,9 @@ void ExRtFragTable::addLoadRequestToMessage(ExMasterEspMessage *msg, ExFragId fr
   // of the ExMsgFragment message object that gets sent to the ESP.
   Int32 userID = 0;
   const char *userName = NULL;
-  Lng32 userNameLen = 0;
+  int userNameLen = 0;
   const char *tenantName = NULL;
-  Lng32 tenantNameLen = 0;
+  int tenantNameLen = 0;
   ContextCli *context = glob_->getContext();
   Int32 *pUserID = context->getDatabaseUserID();
   userID = *((Int32 *)pUserID);
@@ -1526,7 +1526,7 @@ void ExRtFragTable::addLoadRequestToMessage(ExMasterEspMessage *msg, ExFragId fr
   //    0: if ith ESP process should not work
   //    1: if ith ESP process should work
   char *needToWorkVec = NULL;
-  Lng32 needToWorkVecLen = 0;
+  int needToWorkVecLen = 0;
 
   NABoolean addNeedToWorkVec = FALSE;
   ExRtFragTableEntry *fragEntry = fragmentEntries_[fragId];
@@ -1567,9 +1567,9 @@ void ExRtFragTable::addLoadRequestToMessage(ExMasterEspMessage *msg, ExFragId fr
 }
 
 void ExRtFragTable::addFixupRequestToMessage(ExMasterEspMessage *msg, ExFragId fragId, IpcPriority fixupPriority,
-                                             IpcPriority executePriority, Lng32 maxPollingInterval,
-                                             Lng32 persistentOpens, NABoolean espCloseErrorLogging,
-                                             Lng32 espFreeMemTimeout) {
+                                             IpcPriority executePriority, int maxPollingInterval,
+                                             int persistentOpens, NABoolean espCloseErrorLogging,
+                                             int espFreeMemTimeout) {
   CollHeap *ipcHeap = glob_->getIpcEnvironment()->getHeap();
   ExEspFixupFragmentReqHeader *req = new (ipcHeap) ExEspFixupFragmentReqHeader(ipcHeap);
   ExRtFragTableEntry *fragEntry = fragmentEntries_[fragId];
@@ -1670,7 +1670,7 @@ void ExRtFragTable::addFixupRequestToMessage(ExMasterEspMessage *msg, ExFragId f
 
   // Add SeaMonster info if needed
   if (glob_->getSMQueryID() > 0) {
-    Int64 smQueryID = glob_->getSMQueryID();
+    long smQueryID = glob_->getSMQueryID();
     Int32 traceLevel = glob_->getSMTraceLevel();
     const char *traceFilePrefix = glob_->getSMTraceFilePrefix();
     Int32 flags = 0;
@@ -1684,7 +1684,7 @@ void ExRtFragTable::addFixupRequestToMessage(ExMasterEspMessage *msg, ExFragId f
   msg->markAsFixupRequest();
 }
 
-void ExRtFragTable::addReleaseRequestToMessage(ExMasterEspMessage *msg, ExFragId fragId, Lng32 idleTimeout,
+void ExRtFragTable::addReleaseRequestToMessage(ExMasterEspMessage *msg, ExFragId fragId, int idleTimeout,
                                                NABoolean releaseAll, NABoolean closeAllOpens) {
   CollHeap *ipcHeap = glob_->getIpcEnvironment()->getHeap();
 
@@ -1729,12 +1729,12 @@ ExRtFragInstance *ExRtFragTable::findInstance(ExFragId fragId, IpcConnection *co
   return NULL;
 }
 
-Lng32 ExRtFragTable::getStopIdleEspsTimeout() {
+int ExRtFragTable::getStopIdleEspsTimeout() {
   return glob_->castToExMasterStmtGlobals()->getContext()->getSessionDefaults()->getEspStopIdleTimeout();
 }
 
-Lng32 ExRtFragTable::getEspIdleTimeout() {
-  Lng32 timeout = glob_->getContext()->getSessionDefaults()->getEspIdleTimeout();
+int ExRtFragTable::getEspIdleTimeout() {
+  int timeout = glob_->getContext()->getSessionDefaults()->getEspIdleTimeout();
   if (timeout <= 0)
     // idle esps never time out
     timeout = 0;
@@ -1742,8 +1742,8 @@ Lng32 ExRtFragTable::getEspIdleTimeout() {
   return timeout;
 }
 
-Lng32 ExRtFragTable::getEspInactiveTimeout() {
-  Lng32 timeout = glob_->getContext()->getSessionDefaults()->getEspInactiveTimeout();
+int ExRtFragTable::getEspInactiveTimeout() {
+  int timeout = glob_->getContext()->getSessionDefaults()->getEspInactiveTimeout();
   if (timeout <= 0)
     // inactive esps never time out
     timeout = 0;
@@ -1761,7 +1761,7 @@ short ExRtFragTable::countSQLNodes(short masterNode) {
   for (CollIndex i = 0; i < fragmentEntries_.entries(); i++) {
     if (fragDir_->getType(i) == ExFragDir::ESP) {
       ExRtFragTableEntry &fragEntry = *fragmentEntries_[i];
-      for (Lng32 e = 0; e < fragEntry.numEsps_; e++) {
+      for (int e = 0; e < fragEntry.numEsps_; e++) {
         ExRtFragInstance *inst = fragEntry.assignedEsps_[e];
         if (inst->cpuNum_ != -1) uniqueNodes += inst->cpuNum_;
       }
@@ -1857,7 +1857,7 @@ void ExRtFragTable::print() {
 
   for (CollIndex i = 0; i < fragmentEntries_.entries(); i++) {
     ExRtFragTableEntry *fragEntry = fragmentEntries_[i];
-    Lng32 partInputDataLength = (fragEntry->partDesc_ ? fragEntry->partDesc_->getPartInputDataLength() : 0);
+    int partInputDataLength = (fragEntry->partDesc_ ? fragEntry->partDesc_->getPartInputDataLength() : 0);
     unsigned char *pivBuf = new unsigned char[partInputDataLength];
     const int pivMaxDisplayChars = 20;
     char hexPiv[2 * pivMaxDisplayChars + 1];
@@ -2276,7 +2276,7 @@ void ExMasterEspMessage::actOnErrorConnection(IpcConnection *connection) {
   }
 }
 
-void ExMasterEspMessage::incReqMsg(Int64 msgBytes) {
+void ExMasterEspMessage::incReqMsg(long msgBytes) {
   ExStatisticsArea *statsArea;
 
   if (rtFragTable_) {
@@ -2399,7 +2399,7 @@ ExEspDbEntry *ExEspManager::shareEsp(ComDiagsArea **diags,
                                      NABoolean &startedANewEsp, IpcCpuNum cpuNum, short memoryQuota, Int32 user_id,
                                      Int32 tenantId, const NAWNodeSet *availableNodes, NABoolean verifyESP,
                                      NABoolean *verifyCPUptr,  // both input and output
-                                     IpcPriority priority, Lng32 espLevel, Lng32 idleTimeout, Lng32 assignTimeWindow,
+                                     IpcPriority priority, int espLevel, int idleTimeout, int assignTimeWindow,
                                      IpcGuardianServer **creatingEsp, NABoolean soloFragment, Int16 esp_multi_fragment,
                                      Int16 esp_num_fragments, bool esp_multi_threaded) {
   Int32 nowaitDepth;
@@ -2559,8 +2559,8 @@ const char *EspEntryTraceDesc =
 ExEspDbEntry *ExEspManager::getEspFromCache(LIST(ExEspDbEntry *) & alreadyAssignedEsps,  // multi fragment esp
                                             CollHeap *statementHeap, Statement *statement, const char *clusterName,
                                             IpcCpuNum cpuNum, short memoryQuota, Int32 user_id, Int32 tenantId,
-                                            NABoolean verifyESP, Lng32 espLevel, Lng32 idleTimeout,
-                                            Lng32 assignTimeWindow, Int32 nowaitDepth, NABoolean &espServerError,
+                                            NABoolean verifyESP, int espLevel, int idleTimeout,
+                                            int assignTimeWindow, Int32 nowaitDepth, NABoolean &espServerError,
                                             NABoolean soloFragment, Int16 esp_multi_fragment, Int16 esp_num_fragments,
                                             bool esp_multi_threaded) {
   ExEspDbEntry *result = NULL;
@@ -2588,7 +2588,7 @@ ExEspDbEntry *ExEspManager::getEspFromCache(LIST(ExEspDbEntry *) & alreadyAssign
       Int32 numTraceEntries = NUM_ESP_STATE_TRACE_ENTRIES;
       const char *envvar = getenv("ESP_NUM_TRACE_ENTRIES");
       if (envvar != NULL) {
-        Int64 nums = str_atoi(envvar, str_len(envvar));
+        long nums = str_atoi(envvar, str_len(envvar));
         if (nums >= 0 && nums < MAX_NUM_ESP_STATE_TRACE_ENTRIES)
           numTraceEntries = (Int32)nums;  // ignore any other value or invalid
       }
@@ -2689,8 +2689,8 @@ ExEspDbEntry *ExEspManager::getEspFromCache(LIST(ExEspDbEntry *) & alreadyAssign
 
     if (idleTimeout > 0 && e->idleTimestamp_ > 0 && (e->usageCount_ == 0))  // multi-fragment
     {
-      Int64 currentTimestamp = NA_JulianTimestamp();
-      Int64 timeDiff = currentTimestamp - e->idleTimestamp_ - (Int64)idleTimeout * 1000000;
+      long currentTimestamp = NA_JulianTimestamp();
+      long timeDiff = currentTimestamp - e->idleTimestamp_ - (long)idleTimeout * 1000000;
       if (timeDiff >= 0) {
         // this esp has been idle for the specified ESP_IDLE_TIMEOUT
         // limit or longer. let's release it.
@@ -2892,9 +2892,9 @@ short ExEspManager::changePriorities(IpcPriority priority, NABoolean isDelta, bo
   return retRC;
 }
 
-Lng32 ExEspManager::endSession(ContextCli *context) {
+int ExEspManager::endSession(ContextCli *context) {
   // iterate thru all esps in cache and delete/kill free esps
-  Lng32 numEspsStopped = 0;
+  int numEspsStopped = 0;
   ExEspCacheKey *key = NULL;
   NAList<ExEspDbEntry *> *espList = NULL;
   NAHashDictionaryIterator<ExEspCacheKey, NAList<ExEspDbEntry *> > iter(*espCache_);
@@ -2936,7 +2936,7 @@ Lng32 ExEspManager::endSession(ContextCli *context) {
 }
 
 void ExEspManager::stopIdleEsps(ContextCli *context, NABoolean ignoreTimeout) {
-  Lng32 stopIdleEspsTimeout = context->getSessionDefaults()->getEspStopIdleTimeout();
+  int stopIdleEspsTimeout = context->getSessionDefaults()->getEspStopIdleTimeout();
   if (stopIdleEspsTimeout <= 0 && !ignoreTimeout)
     // do not kill idle esps
     return;
@@ -2958,8 +2958,8 @@ void ExEspManager::stopIdleEsps(ContextCli *context, NABoolean ignoreTimeout) {
         // esp still being used
         continue;
 
-      Int64 currentTimestamp = NA_JulianTimestamp();
-      if (ignoreTimeout || (currentTimestamp - entry->idleTimestamp_ > (Int64)stopIdleEspsTimeout * 1000000)) {
+      long currentTimestamp = NA_JulianTimestamp();
+      if (ignoreTimeout || (currentTimestamp - entry->idleTimestamp_ > (long)stopIdleEspsTimeout * 1000000)) {
         // this esp has been idle longer than ESP_STOP_IDLE_TIMEOUT
         // or we want to kill all the idle ESPs
         NABoolean removed = espList->removeAt(j--);
@@ -3029,7 +3029,7 @@ NABoolean ExEspManager::checkESPLimitPerNodeEst(ExFragDir *fragDir, Int32 totalE
 // Methods for class ExEspDbEntry
 // -----------------------------------------------------------------------
 
-ExEspDbEntry::ExEspDbEntry(CollHeap *heap, IpcServer *server, const char *clusterName, IpcCpuNum cpuNum, Lng32 espLevel,
+ExEspDbEntry::ExEspDbEntry(CollHeap *heap, IpcServer *server, const char *clusterName, IpcCpuNum cpuNum, int espLevel,
                            Int32 userId, Int32 tenantId, bool multiThreaded) {
   key_ = new (heap) ExEspCacheKey(clusterName, cpuNum, userId, heap);
   server_ = server;

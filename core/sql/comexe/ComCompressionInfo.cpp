@@ -8,7 +8,7 @@ void ComCompressionInfo::setCompressionMethod(const char *fileName) {
   compressionMethod_ = getCompressionMethodFromFileName(fileName);
 }
 
-Int64 ComCompressionInfo::getMinScratchBufferSize() const {
+long ComCompressionInfo::getMinScratchBufferSize() const {
   switch (compressionMethod_) {
     case LZO_DEFLATE:
     case LZOP:
@@ -51,4 +51,4 @@ short ComCompressionInfo::getClassSize() { return (short)sizeof(ComCompressionIn
 
 Long ComCompressionInfo::pack(void *space) { return NAVersionedObject::pack(space); }
 
-Lng32 ComCompressionInfo::unpack(void *base, void *reallocator) { return NAVersionedObject::unpack(base, reallocator); }
+int ComCompressionInfo::unpack(void *base, void *reallocator) { return NAVersionedObject::unpack(base, reallocator); }

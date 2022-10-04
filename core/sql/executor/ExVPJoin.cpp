@@ -225,7 +225,7 @@ ExWorkProcRetcode ExVPJoinTcb::workUp() {
     const ex_queue::down_request &request = pentry->downState.request;
     Int32 requestCancelled = (request == ex_queue::GET_NOMORE);
     Int32 isGetNRowsRequest = (request == ex_queue::GET_N);
-    Lng32 numRowsOfGetNRequest = pentry->downState.requestValue;
+    int numRowsOfGetNRequest = pentry->downState.requestValue;
 
     if (pstate.started_) {
       // Request has been started, which means that child nodes
@@ -235,7 +235,7 @@ ExWorkProcRetcode ExVPJoinTcb::workUp() {
       // expression), pass reply to parent.
       //
 
-      Lng32 eodReply = 0;  // is current reply from children end-ofdata?
+      int eodReply = 0;  // is current reply from children end-ofdata?
 
       // Loop until there are no more replies to process or until
       // end-of-data is read for current request.
@@ -325,7 +325,7 @@ ExWorkProcRetcode ExVPJoinTcb::workUp() {
             qParent_.up->insert();
             upEntry = 0;
 
-            if (isGetNRowsRequest && (Lng32)pstate.matchCount_ >= numRowsOfGetNRequest) {
+            if (isGetNRowsRequest && (int)pstate.matchCount_ >= numRowsOfGetNRequest) {
               // Current request is of the type "get N rows" and
               // we have returned at least N rows, so cancel the
               // request.

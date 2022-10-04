@@ -129,14 +129,14 @@ class AuthConflict {
   const NAString getAuthName() { return authName_; }
   const NAString getMDColumn() { return mdColumn_; }
   const NAString getMDTable() { return mdTable_; }
-  const Int64 getRowCount() { return rowCount_; }
+  const long getRowCount() { return rowCount_; }
   const Int32 getSourceID() { return sourceID_; }
   const Int32 getTargetID() { return targetID_; }
 
   void setAuthName(NAString authName) { authName_ = authName; }
   void setMDColName(NAString mdColName) { mdColumn_ = mdColName; }
   void setMDTableName(NAString mdTableName) { mdTable_ = mdTableName; }
-  void setRowCount(Int64 rowCount) { rowCount_ = rowCount; }
+  void setRowCount(long rowCount) { rowCount_ = rowCount; }
   void setSourceID(Int32 sourceAuthID) { sourceID_ = sourceAuthID; }
   void setTargetID(Int32 targetAuthID) { targetID_ = targetAuthID; }
 
@@ -144,7 +144,7 @@ class AuthConflict {
   NAString authName_;
   NAString mdColumn_;
   NAString mdTable_;
-  Int64 rowCount_;
+  long rowCount_;
   Int32 sourceID_;
   Int32 targetID_;
 };
@@ -208,14 +208,14 @@ class CmpSeabaseDDLauth {
   // accessors
   Int16 getAuthConfig() const { return authConfig_; }
   Int32 getAuthCreator() const { return authCreator_; }
-  Int64 getAuthCreateTime() const { return authCreateTime_; }
+  long getAuthCreateTime() const { return authCreateTime_; }
   const NAString getAuthDbName() const { return authDbName_; }
   const NAString getAuthExtName() const { return authExtName_; }
   const NAString getAuthPassword() const { return authPassword_; }
   TenantGroupInfoList *getAuthGroupList() { return authGroupList_; }
   Int32 getAuthID() const { return authID_; }
-  Int64 getAuthRedefTime() const { return authRedefTime_; }
-  Int64 getPasswdModTime() const { return passwdModTime_; }
+  long getAuthRedefTime() const { return authRedefTime_; }
+  long getPasswdModTime() const { return passwdModTime_; }
   ComIdClass getAuthType() const { return authType_; }
 
   bool isAutoCreated() const { return authAutoCreated_; }
@@ -242,9 +242,9 @@ class CmpSeabaseDDLauth {
   CmpSeabaseDDLauth::AuthStatus getAuthsForCreator(Int32 authCreator, std::vector<std::string> &userNames,
                                                    std::vector<std::string> &roleNames);
 
-  Int64 getNumberTenants();
+  long getNumberTenants();
 
-  Int64 getSchemaUID(ExeCliInterface *cliInterface, const SchemaName *schemaName);
+  long getSchemaUID(ExeCliInterface *cliInterface, const SchemaName *schemaName);
 
   // Static function is used to get groups by directly using userName
   // Instanced function is used to get groups by instance with userID which is aways means 'get user groups by self'
@@ -253,7 +253,7 @@ class CmpSeabaseDDLauth {
   static Int32 getUserGroups(const char *userName, std::vector<int32_t> &groupIDs);
 
   inline void setDDLQuery(char *query) { ddlQuery_ = query; }
-  inline void setDDLLen(Lng32 len) { ddlLength_ = len; }
+  inline void setDDLLen(int len) { ddlLength_ = len; }
 
   CmpSeabaseDDLauth::AuthStatus getUserGroupMembers(std::vector<int32_t> &);
   static Int32 getUserGroupMembers(const char *, std::vector<int32_t> &);
@@ -294,12 +294,12 @@ class CmpSeabaseDDLauth {
   // mutators
   void setAuthConfig(const Int16 authConfig) { authConfig_ = authConfig; }
   void setAuthCreator(const Int32 authCreator) { authCreator_ = authCreator; }
-  void setAuthCreateTime(const Int64 authCreateTime) { authCreateTime_ = authCreateTime; }
+  void setAuthCreateTime(const long authCreateTime) { authCreateTime_ = authCreateTime; }
   void setAuthDbName(const NAString &authDbName) { authDbName_ = authDbName; }
   void setAuthExtName(const NAString &authExtName) { authExtName_ = authExtName; }
   void setAuthPassword(const NAString &authPassword) { authPassword_ = authPassword; }
-  void setAuthRedefTime(const Int64 authRedefTime) { authRedefTime_ = authRedefTime; }
-  void setPasswdModTime(const Int64 passwdModTime) { passwdModTime_ = passwdModTime; }
+  void setAuthRedefTime(const long authRedefTime) { authRedefTime_ = authRedefTime; }
+  void setPasswdModTime(const long passwdModTime) { passwdModTime_ = passwdModTime; }
   void setAuthType(ComIdClass authType) { authType_ = authType; }
   void setAuthValid(bool isValid) { authValid_ = isValid; }
   void setAuthIsAdmin(bool isAdmin) { authIsAdmin_ = isAdmin; }
@@ -325,7 +325,7 @@ class CmpSeabaseDDLauth {
                              std::vector<std::string> &roleNames, std::vector<std::string> &tenantNames);
   AuthStatus selectAllWhere(const NAString &whereClause, std::vector<Int32> &roleIDs);
   AuthStatus selectExactRow(const NAString &cmd);
-  Int64 selectCount(const NAString &whereClause);
+  long selectCount(const NAString &whereClause);
   Int32 selectMaxAuthID(const NAString &whereClause);
 
   // function is static for using function point
@@ -341,13 +341,13 @@ class CmpSeabaseDDLauth {
  private:
   Int16 authConfig_;
   Int32 authCreator_;
-  Int64 authCreateTime_;
+  long authCreateTime_;
   NAString authDbName_;
   NAString authExtName_;
   NAString authPassword_;
   Int32 authID_;
-  Int64 authRedefTime_;
-  Int64 passwdModTime_;
+  long authRedefTime_;
+  long passwdModTime_;
   ComIdClass authType_;
   bool authValid_;
   bool authIsAdmin_;
@@ -357,7 +357,7 @@ class CmpSeabaseDDLauth {
 
   // for DDL XDC, we do not own this memory
   char *ddlQuery_;
-  Lng32 ddlLength_;
+  int ddlLength_;
 };
 
 // ----------------------------------------------------------------------------
@@ -488,11 +488,11 @@ class CmpSeabaseDDLtenant : public CmpSeabaseDDLauth {
   bool isDetached() const { return isDetached_; }
   void setIsDetached(bool isDetached) { isDetached_ = isDetached; }
 
-  static NAString getNodeName(const Int64 nodeID);
-  static NAString getRGroupName(const Int64 rgroupUID);
-  static NAString getSchemaName(const Int64 schUID);
+  static NAString getNodeName(const long nodeID);
+  static NAString getRGroupName(const long rgroupUID);
+  static NAString getSchemaName(const long schUID);
 
-  Int64 getDefSchemaUID(TenantInfo &tenantInfo, const TenantUsageList *usageList);
+  long getDefSchemaUID(TenantInfo &tenantInfo, const TenantUsageList *usageList);
 
   static short getNodeDetails(const TenantResourceUsageList *usageList, TenantNodeInfoList *&nodeInfoList);
 
@@ -502,9 +502,9 @@ class CmpSeabaseDDLtenant : public CmpSeabaseDDLauth {
 
   CmpSeabaseDDLauth::AuthStatus getTenantDetails(Int32 tenantID, TenantInfo &tenantInfo);
 
-  CmpSeabaseDDLauth::AuthStatus getTenantDetails(Int64 schemaUID, TenantInfo &tenantInfo);
+  CmpSeabaseDDLauth::AuthStatus getTenantDetails(long schemaUID, TenantInfo &tenantInfo);
 
-  Int32 getTenantSchemas(ExeCliInterface *cliInterface, NAList<Int64> *&schemaUIDList);
+  Int32 getTenantSchemas(ExeCliInterface *cliInterface, NAList<long> *&schemaUIDList);
 
   TenantGroupInfoList *getTenantGroupList(TenantInfo &tenantInfo, NAHeap *heap);
 
@@ -537,7 +537,7 @@ class CmpSeabaseDDLtenant : public CmpSeabaseDDLauth {
                           TenantResource &tenantResource);
 
   void createSchemas(ExeCliInterface *cliInterface, const StmtDDLTenant *pNode, const Int32 &tenantID,
-                     const TenantUsageList *origUsageList, NAString schemaOwner, Int64 &defSchUID,
+                     const TenantUsageList *origUsageList, NAString schemaOwner, long &defSchUID,
                      TenantUsageList *&usageList);
 
   void dropSchemas(ExeCliInterface *cliInterface, const Int32 tenantID, const NAList<NAString> *schemaList);
@@ -547,7 +547,7 @@ class CmpSeabaseDDLtenant : public CmpSeabaseDDLauth {
   short generateTenantID(Int32 &tenantID);
 
   CmpSeabaseDDLauth::AuthStatus getSchemaDetails(ExeCliInterface *cliInterface, const SchemaName *schemaName,
-                                                 Int64 &schUID, ComObjectType &schType, Int32 &schOwner);
+                                                 long &schUID, ComObjectType &schType, Int32 &schOwner);
 
  private:
   bool isDetached_;

@@ -68,7 +68,7 @@ ElemDDLConstraint *ElemDDLConstraint::castToElemDDLConstraint() { return this; }
 
 Int32 ElemDDLConstraint::getArity() const { return MAX_ELEM_DDL_CONSTRAINT_ARITY; }
 
-ExprNode *ElemDDLConstraint::getChild(Lng32 index) {
+ExprNode *ElemDDLConstraint::getChild(int index) {
   ComASSERT(index EQU INDEX_CONSTRAINT_ATTRIBUTES);
   return pConstraintAttributes_;
 }
@@ -77,7 +77,7 @@ ExprNode *ElemDDLConstraint::getChild(Lng32 index) {
 // mutators
 //
 
-void ElemDDLConstraint::setChild(Lng32 index, ExprNode *pChildNode) {
+void ElemDDLConstraint::setChild(int index, ExprNode *pChildNode) {
   ComASSERT(index EQU INDEX_CONSTRAINT_ATTRIBUTES);
   if (NOT pChildNode) {
     pConstraintAttributes_ = NULL;
@@ -293,7 +293,7 @@ NABoolean ElemDDLConstraintCheck::getColumnsNotNull(ItemExprList &il) {
 
 Int32 ElemDDLConstraintCheck::getArity() const { return MAX_ELEM_DDL_CONSTRAINT_CHECK_ARITY; }
 
-ExprNode *ElemDDLConstraintCheck::getChild(Lng32 index) {
+ExprNode *ElemDDLConstraintCheck::getChild(int index) {
   ComASSERT(index >= 0 AND index < getArity());
   if (index < ElemDDLConstraint::getArity()) {
     return ElemDDLConstraint::getChild(index);
@@ -307,7 +307,7 @@ ExprNode *ElemDDLConstraintCheck::getChild(Lng32 index) {
 // mutator
 //
 
-void ElemDDLConstraintCheck::setChild(Lng32 index, ExprNode *pChildNode) {
+void ElemDDLConstraintCheck::setChild(int index, ExprNode *pChildNode) {
   ComASSERT(index >= 0 AND index < getArity());
   if (index < ElemDDLConstraint::getArity()) {
     ElemDDLConstraint::setChild(index, pChildNode);
@@ -481,7 +481,7 @@ ElemDDLConstraintRI *ElemDDLConstraintRI::castToElemDDLConstraintRI() { return t
 
 Int32 ElemDDLConstraintRI::getArity() const { return MAX_ELEM_DDL_CONSTRAINT_RI_ARITY; }
 
-ExprNode *ElemDDLConstraintRI::getChild(Lng32 index) {
+ExprNode *ElemDDLConstraintRI::getChild(int index) {
   ComASSERT(index >= 0 AND index < getArity());
   if (index < ElemDDLConstraint::getArity()) {
     return ElemDDLConstraint::getChild(index);
@@ -519,7 +519,7 @@ ElemDDLReferences *ElemDDLConstraintRI::getReferencesNode() const {
 // mutators
 //
 
-void ElemDDLConstraintRI::setChild(Lng32 index, ExprNode *pChildNode) {
+void ElemDDLConstraintRI::setChild(int index, ExprNode *pChildNode) {
   ComASSERT(index >= 0 AND index < getArity());
   if (index < ElemDDLConstraint::getArity()) {
     ElemDDLConstraint::setChild(index, pChildNode);
@@ -678,13 +678,13 @@ NATraceList ElemDDLConstraintRI::getDetailInfo() const {
     detailTextList.append("Referencing column list is empty.");
   } else {
     detailText = "Referencing column list [";
-    detailText += LongToNAString((Lng32)nbrRefCols);
+    detailText += LongToNAString((int)nbrRefCols);
     detailText += " element(s)]:";
     detailTextList.append(detailText);
 
     for (CollIndex i = 0; i < nbrRefCols; i++) {
       detailText = "[referencing column ";
-      detailText += LongToNAString((Lng32)i);
+      detailText += LongToNAString((int)i);
       detailText += "]";
       detailTextList.append(detailText);
 
@@ -746,7 +746,7 @@ ElemDDLConstraintUnique *ElemDDLConstraintUnique::castToElemDDLConstraintUnique(
 
 Int32 ElemDDLConstraintUnique::getArity() const { return MAX_ELEM_DDL_CONSTRAINT_UNIQUE_ARITY; }
 
-ExprNode *ElemDDLConstraintUnique::getChild(Lng32 index) {
+ExprNode *ElemDDLConstraintUnique::getChild(int index) {
   ComASSERT(index >= 0 AND index < getArity());
   if (index < ElemDDLConstraint::getArity()) {
     return ElemDDLConstraint::getChild(index);
@@ -760,7 +760,7 @@ ExprNode *ElemDDLConstraintUnique::getChild(Lng32 index) {
 // mutators
 //
 
-void ElemDDLConstraintUnique::setChild(Lng32 index, ExprNode *pChildNode) {
+void ElemDDLConstraintUnique::setChild(int index, ExprNode *pChildNode) {
   ComASSERT(index >= 0 AND index < getArity());
   if (index < ElemDDLConstraint::getArity()) {
     ElemDDLConstraint::setChild(index, pChildNode);
@@ -807,13 +807,13 @@ NATraceList ElemDDLConstraintUnique::getDetailInfo() const {
     NAString detailText;
 
     detailText = "Key Column List [";
-    detailText += LongToNAString((Lng32)getKeyColumnArray().entries());
+    detailText += LongToNAString((int)getKeyColumnArray().entries());
     detailText += " element(s)]:";
     detailTextList.append(detailText);
 
     for (CollIndex i = 0; i < getKeyColumnArray().entries(); i++) {
       detailText = "[column ";
-      detailText += LongToNAString((Lng32)i);
+      detailText += LongToNAString((int)i);
       detailText += "]";
       detailTextList.append(detailText);
 

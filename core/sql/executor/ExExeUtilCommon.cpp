@@ -253,12 +253,12 @@ NABoolean ExExeUtilTcb::isUpQueueFull(short size) {
     return FALSE;
 }
 
-short ExExeUtilTcb::moveRowToUpQueue(const char *row, Lng32 len, short *rc, NABoolean isVarchar) {
+short ExExeUtilTcb::moveRowToUpQueue(const char *row, int len, short *rc, NABoolean isVarchar) {
   short retcode = ex_tcb::moveRowToUpQueue(&qparent_, exeUtilTdb().tuppIndex_, row, len, rc, isVarchar);
   return retcode;
 }
 
-char *ExExeUtilTcb::getTimeAsString(Int64 elapsedTime, char *timeBuf, NABoolean noUsec) {
+char *ExExeUtilTcb::getTimeAsString(long elapsedTime, char *timeBuf, NABoolean noUsec) {
   ULng32 sec = (ULng32)(elapsedTime / 1000000);
   ULng32 usec = (ULng32)(elapsedTime % 1000000);
   ULng32 min = sec / 60;
@@ -274,9 +274,9 @@ char *ExExeUtilTcb::getTimeAsString(Int64 elapsedTime, char *timeBuf, NABoolean 
   return timeBuf;
 }
 
-char *ExExeUtilTcb::getTimestampAsString(Int64 juliantimestamp, char *timeBuf) {
+char *ExExeUtilTcb::getTimestampAsString(long juliantimestamp, char *timeBuf) {
   short timestamp[8];
-  Int64 localTimestamp = CONVERTTIMESTAMP(juliantimestamp, 0, -1, 0);
+  long localTimestamp = CONVERTTIMESTAMP(juliantimestamp, 0, -1, 0);
   INTERPRETTIMESTAMP(localTimestamp, timestamp);
   short year = timestamp[0];
   char month = (char)timestamp[1];
@@ -284,7 +284,7 @@ char *ExExeUtilTcb::getTimestampAsString(Int64 juliantimestamp, char *timeBuf) {
   char hour = (char)timestamp[3];
   char minute = (char)timestamp[4];
   char second = (char)timestamp[5];
-  Lng32 fraction = timestamp[6] * 1000 + timestamp[7];
+  int fraction = timestamp[6] * 1000 + timestamp[7];
 
   str_sprintf(timeBuf, "%04u-%02u-%02u %02u:%02u:%02u.%03u", year, month, day, hour, minute, second, fraction);
 
@@ -305,8 +305,8 @@ char *ExExeUtilTcb::getTimestampAsString(Int64 juliantimestamp, char *timeBuf) {
 //
 // Space is allocated for the gluedQuery
 // ----------------------------------------------------------------------------
-void ExExeUtilTcb::glueQueryFragments(Lng32 queryArraySize, const QueryString *queryArray, char *&gluedQuery,
-                                      Lng32 &gluedQuerySize) {
+void ExExeUtilTcb::glueQueryFragments(int queryArraySize, const QueryString *queryArray, char *&gluedQuery,
+                                      int &gluedQuerySize) {
   Int32 i = 0;
   gluedQuerySize = 0;
   gluedQuery = NULL;
@@ -324,13 +324,13 @@ void ExExeUtilTcb::glueQueryFragments(Lng32 queryArraySize, const QueryString *q
   gluedQuery[gluedQuerySize] = '\0';
 }
 
-void ExExeUtilTcb::handleErrors(Lng32 rc) { cliInterface()->allocAndRetrieveSQLDiagnostics(diagsArea_); }
+void ExExeUtilTcb::handleErrors(int rc) { cliInterface()->allocAndRetrieveSQLDiagnostics(diagsArea_); }
 
 short ExExeUtilTcb::initializeInfoList(Queue *&infoList) {
   return cliInterface()->initializeInfoList(infoList, infoListIsOutputInfo_);
 }
 
-short ExExeUtilTcb::fetchAllRows(Queue *&infoList, char *query, Lng32 numOutputEntries, NABoolean varcharFormat,
+short ExExeUtilTcb::fetchAllRows(Queue *&infoList, char *query, int numOutputEntries, NABoolean varcharFormat,
                                  short &rc, NABoolean monitorThis) {
   rc = cliInterface()->fetchAllRows(infoList, query, numOutputEntries, varcharFormat, monitorThis);
   if (rc < 0) {
@@ -370,7 +370,7 @@ char *ExExeUtilTcb::getStatusString(const char *operation, const char *status, c
 }
 
 short ExExeUtilTcb::executeQuery(char *task, char *object, char *query, NABoolean displayStartTime,
-                                 NABoolean displayEndTime, short &rc, short *warning, Lng32 *ec, NABoolean moveErrorRow,
+                                 NABoolean displayEndTime, short &rc, short *warning, int *ec, NABoolean moveErrorRow,
                                  NABoolean continueOnError, NABoolean monitorThis) {
   short retcode = 0;
   char buf[BUFFER_SIZE];
@@ -420,7 +420,7 @@ short ExExeUtilTcb::executeQuery(char *task, char *object, char *query, NABoolea
 
       case RETURN_ROW_: {
         char *ptr;
-        Lng32 len;
+        int len;
 
         cliInterface()->getPtrAndLen(1, ptr, len);
         retcode = moveRowToUpQueue(ptr, len, &rc);
@@ -458,9 +458,9 @@ short ExExeUtilTcb::executeQuery(char *task, char *object, char *query, NABoolea
       } break;
 
       case ERROR_RETURN_: {
-        Lng32 sqlcode = 0;
+        int sqlcode = 0;
         char *stringParam1 = NULL;
-        Lng32 intParam1 = ComDiags_UnInitialized_Int;
+        int intParam1 = ComDiags_UnInitialized_Int;
 
         cliInterface()->allocAndRetrieveSQLDiagnostics(diagsArea_);
         if (getDiagsArea() != NULL) retcode = 0;
@@ -488,7 +488,7 @@ short ExExeUtilTcb::executeQuery(char *task, char *object, char *query, NABoolea
             sqlcode = retcode;
           }
 
-          Lng32 errorBufLen = 200 + (stringParam1 ? strlen(stringParam1) : 0);
+          int errorBufLen = 200 + (stringParam1 ? strlen(stringParam1) : 0);
 
           char *errorBuf = new (getHeap()) char[errorBufLen];
 
@@ -536,7 +536,7 @@ short ExExeUtilTcb::executeQuery(char *task, char *object, char *query, NABoolea
 }
 
 short ExExeUtilTcb::holdAndSetCQD(const char *defaultName, const char *defaultValue, ComDiagsArea *globalDiags) {
-  Lng32 cliRC;
+  int cliRC;
 
   cliRC = holdAndSetCQD(defaultName, defaultValue, cliInterface(), globalDiags);
   if (cliRC < 0) {
@@ -548,7 +548,7 @@ short ExExeUtilTcb::holdAndSetCQD(const char *defaultName, const char *defaultVa
 }
 
 short ExExeUtilTcb::restoreCQD(const char *defaultName, ComDiagsArea *globalDiags) {
-  Lng32 cliRC;
+  int cliRC;
 
   cliRC = restoreCQD(defaultName, cliInterface(), globalDiags);
   if (cliRC < 0) {
@@ -559,16 +559,16 @@ short ExExeUtilTcb::restoreCQD(const char *defaultName, ComDiagsArea *globalDiag
   return 0;
 }
 
-Lng32 ExExeUtilTcb::holdAndSetCQD(const char *defaultName, const char *defaultValue, ExeCliInterface *cliInterface,
+int ExExeUtilTcb::holdAndSetCQD(const char *defaultName, const char *defaultValue, ExeCliInterface *cliInterface,
                                   ComDiagsArea *globalDiags) {
-  Lng32 cliRC;
+  int cliRC;
 
   cliRC = cliInterface->holdAndSetCQD(defaultName, defaultValue, globalDiags);
   return cliRC;
 }
 
-Lng32 ExExeUtilTcb::restoreCQD(const char *defaultName, ExeCliInterface *cliInterface, ComDiagsArea *globalDiags) {
-  Lng32 cliRC;
+int ExExeUtilTcb::restoreCQD(const char *defaultName, ExeCliInterface *cliInterface, ComDiagsArea *globalDiags) {
+  int cliRC;
 
   cliRC = cliInterface->restoreCQD(defaultName, globalDiags);
 
@@ -576,7 +576,7 @@ Lng32 ExExeUtilTcb::restoreCQD(const char *defaultName, ExeCliInterface *cliInte
 }
 
 short ExExeUtilTcb::setCS(const char *csName, char *csValue, ComDiagsArea *globalDiags) {
-  Lng32 cliRC;
+  int cliRC;
 
   cliRC = setCS(csName, csValue, cliInterface(), globalDiags);
   if (cliRC < 0) {
@@ -588,7 +588,7 @@ short ExExeUtilTcb::setCS(const char *csName, char *csValue, ComDiagsArea *globa
 }
 
 short ExExeUtilTcb::resetCS(const char *csName, ComDiagsArea *globalDiags) {
-  Lng32 cliRC;
+  int cliRC;
 
   cliRC = resetCS(csName, cliInterface(), globalDiags);
   if (cliRC < 0) {
@@ -599,8 +599,8 @@ short ExExeUtilTcb::resetCS(const char *csName, ComDiagsArea *globalDiags) {
   return 0;
 }
 
-Lng32 ExExeUtilTcb::setCS(const char *csName, char *csValue, ExeCliInterface *cliInterface, ComDiagsArea *globalDiags) {
-  Lng32 cliRC;
+int ExExeUtilTcb::setCS(const char *csName, char *csValue, ExeCliInterface *cliInterface, ComDiagsArea *globalDiags) {
+  int cliRC;
 
   char buf[400];
 
@@ -618,8 +618,8 @@ Lng32 ExExeUtilTcb::setCS(const char *csName, char *csValue, ExeCliInterface *cl
   return 0;
 }
 
-Lng32 ExExeUtilTcb::resetCS(const char *csName, ExeCliInterface *cliInterface, ComDiagsArea *globalDiags) {
-  Lng32 cliRC;
+int ExExeUtilTcb::resetCS(const char *csName, ExeCliInterface *cliInterface, ComDiagsArea *globalDiags) {
+  int cliRC;
 
   char buf[400];
 
@@ -636,7 +636,7 @@ Lng32 ExExeUtilTcb::resetCS(const char *csName, ExeCliInterface *cliInterface, C
 
 short ExExeUtilTcb::disableCQS() {
   // disable any CQS in affect
-  Lng32 rc = cliInterface()->executeImmediate("control query shape hold;");
+  int rc = cliInterface()->executeImmediate("control query shape hold;");
   if (rc < 0) {
     handleErrors(rc);
     return -1;
@@ -646,7 +646,7 @@ short ExExeUtilTcb::disableCQS() {
 }
 
 short ExExeUtilTcb::restoreCQS() {
-  Lng32 rc = cliInterface()->executeImmediate("control query shape restore;");
+  int rc = cliInterface()->executeImmediate("control query shape restore;");
   if (rc < 0) {
     handleErrors(rc);
     return -1;
@@ -656,11 +656,11 @@ short ExExeUtilTcb::restoreCQS() {
 }
 
 void ExExeUtilTcb::setMaintainControlTableTimeout(char *catalog) {
-  Lng32 cliRC;
+  int cliRC;
   char buf[400 + ComMAX_1_PART_EXTERNAL_UTF8_NAME_LEN_IN_BYTES];
-  Lng32 markValue = -1;
+  int markValue = -1;
   char timeoutHoldBuf[100];
-  Lng32 timeoutHoldBufLen = 0;
+  int timeoutHoldBufLen = 0;
 
   // The MAINTAIN_CONTROL_TABLE_TIMEOUT CQD default is '30000', 5 minutes
   restoreTimeout_ = FALSE;
@@ -725,9 +725,9 @@ void ExExeUtilTcb::setMaintainControlTableTimeout(char *catalog) {
 }
 
 void ExExeUtilTcb::restoreMaintainControlTableTimeout(char *catalog) {
-  Lng32 cliRC;
+  int cliRC;
   char buf[400 + ComMAX_1_PART_EXTERNAL_UTF8_NAME_LEN_IN_BYTES];
-  Lng32 markValue = -1;
+  int markValue = -1;
 
   // If the restoration timeout flag is not set,
   // then just return.
@@ -766,7 +766,7 @@ short ExExeUtilTcb::setSchemaVersion(char *param1) {
 }
 
 short ExExeUtilTcb::setSystemVersion() {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
 
   if (sysVersionStrLen_ == 0) {
     // since SUBSTRING isn't currently supported for UTF-8 strings
@@ -802,7 +802,7 @@ static const QueryString getObjectUidQuery[] = {{" select cast(O.object_uid as c
 
 short ExExeUtilTcb::getObjectUid(char *catName, char *schName, char *objName, NABoolean isIndex, NABoolean isMv,
                                  char *uid) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
 
   ex_queue_entry *pentry_down = qparent_.down->getHeadEntry();
   ExExeUtilPrivateState &pstate = *((ExExeUtilPrivateState *)pentry_down->pstate);
@@ -819,10 +819,10 @@ short ExExeUtilTcb::getObjectUid(char *catName, char *schName, char *objName, NA
 
   Int32 qryArraySize = sizeOfqs / sizeof(QueryString);
   char *gluedQuery;
-  Lng32 gluedQuerySize;
+  int gluedQuerySize;
   glueQueryFragments(qryArraySize, qs, gluedQuery, gluedQuerySize);
 
-  Lng32 extraSpace =
+  int extraSpace =
       10 /*segment name*/ + ComMAX_3_PART_EXTERNAL_UTF8_NAME_LEN_IN_BYTES /*cat/sch/obj name in UTF8*/ + 100;
 
   char *infoQuery = new (getHeap()) char[gluedQuerySize + extraSpace + 1];
@@ -832,7 +832,7 @@ short ExExeUtilTcb::getObjectUid(char *catName, char *schName, char *objName, NA
 
   NADELETEBASIC(gluedQuery, getMyHeap());
 
-  Lng32 uidLen;
+  int uidLen;
   cliRC = cliInterface()->executeImmediate(infoQuery, uid, &uidLen);
   if (cliRC < 0) {
     cliInterface()->allocAndRetrieveSQLDiagnostics(diagsArea_);
@@ -843,9 +843,9 @@ short ExExeUtilTcb::getObjectUid(char *catName, char *schName, char *objName, NA
   return 0;
 }
 
-Int64 ExExeUtilTcb::getObjectFlags(Int64 objectUID) {
-  Lng32 retcode = 0;
-  Lng32 cliRC = 0;
+long ExExeUtilTcb::getObjectFlags(long objectUID) {
+  int retcode = 0;
+  int cliRC = 0;
 
   NAString exeQuery;
 
@@ -871,9 +871,9 @@ Int64 ExExeUtilTcb::getObjectFlags(Int64 objectUID) {
   }
 
   char *ptr = NULL;
-  Lng32 len = 0;
+  int len = 0;
   cliInterface()->getPtrAndLen(1, ptr, len);
-  Int64 objflags = *(Int64 *)ptr;
+  long objflags = *(long *)ptr;
 
   cliInterface()->fetchRowsEpilogue(NULL, TRUE);
 
@@ -882,7 +882,7 @@ Int64 ExExeUtilTcb::getObjectFlags(Int64 objectUID) {
 
 short ExExeUtilTcb::alterObjectState(NABoolean online, char *tableName, char *failReason, NABoolean forPurgedata) {
   char buf[4000];
-  Lng32 cliRC = 0;
+  int cliRC = 0;
 
   // Get the globals stucture of the master executor.
   ExExeStmtGlobals *exeGlob = getGlobals()->castToExExeStmtGlobals();
@@ -910,7 +910,7 @@ short ExExeUtilTcb::alterObjectState(NABoolean online, char *tableName, char *fa
 
 short ExExeUtilTcb::lockUnlockObject(char *tableName, NABoolean lock, NABoolean parallel, char *failReason) {
   char buf[4000];
-  Lng32 cliRC = 0;
+  int cliRC = 0;
 
   // Get the globals stucture of the master executor.
   ExExeStmtGlobals *exeGlob = getGlobals()->castToExExeStmtGlobals();
@@ -981,7 +981,7 @@ short ExExeUtilTcb::doubleQuoteStr(char *str, char *newStr, NABoolean singleQuot
 short ExExeUtilTcb::alterDDLLock(NABoolean add, char *tableName, char *failReason, NABoolean isMV, Int32 lockType,
                                  const char *lockSuffix, NABoolean skipDDLLockCheck) {
   char buf[4000];
-  Lng32 cliRC = 0;
+  int cliRC = 0;
 
   // Get the globals stucture of the master executor.
   ExExeStmtGlobals *exeGlob = getGlobals()->castToExExeStmtGlobals();
@@ -990,7 +990,7 @@ short ExExeUtilTcb::alterDDLLock(NABoolean add, char *tableName, char *failReaso
   AnsiName aonn(tableName);
   aonn.convertAnsiName(FALSE);
   char *parts[4];
-  Lng32 numParts;
+  int numParts;
   aonn.extractParts(numParts, parts);
 
   char *quotedParts0 = NULL;
@@ -1062,7 +1062,7 @@ short ExExeUtilTcb::alterDDLLock(NABoolean add, char *tableName, char *failReaso
 
 short ExExeUtilTcb::alterCorruptBit(short val, char *tableName, char *failReason, Queue *indexList) {
   char buf[4000];
-  Lng32 cliRC = 0;
+  int cliRC = 0;
 
   // Get the globals stucture of the master executor.
   ExExeStmtGlobals *exeGlob = getGlobals()->castToExExeStmtGlobals();
@@ -1113,7 +1113,7 @@ short ExExeUtilTcb::alterCorruptBit(short val, char *tableName, char *failReason
 
 short ExExeUtilTcb::alterAuditFlag(NABoolean audited, char *tableName, NABoolean isIndex) {
   char buf[4000];
-  Lng32 cliRC = 0;
+  int cliRC = 0;
 
   // Get the globals stucture of the master executor.
   ExExeStmtGlobals *exeGlob = getGlobals()->castToExExeStmtGlobals();
@@ -1158,7 +1158,7 @@ short ExExeUtilTcb::handleDone() {
 
 short ExExeUtilTcb::createServer(char *serverName, const char *inPName, IpcServerTypeEnum serverType,
                                  IpcServerAllocationMethod servAllocMethod, char *nodeName, short cpu,
-                                 const char *partnName, Lng32 priority, IpcServer *&ipcServer, NABoolean logError,
+                                 const char *partnName, int priority, IpcServer *&ipcServer, NABoolean logError,
                                  const char *operation) {
   short error = 0;
 
@@ -1222,13 +1222,13 @@ void ExExeUtilTcb::deleteServer(IpcServer *ipcServer) {
   NADELETE(sc, IpcServerClass, env->getHeap());
 }
 
-NABoolean ExExeUtilTcb::isProcessObsolete(short cpu, pid_t pin, short segmentNum, Int64 procCreateTime) {
-  Lng32 retcode = 0;
+NABoolean ExExeUtilTcb::isProcessObsolete(short cpu, pid_t pin, short segmentNum, long procCreateTime) {
+  int retcode = 0;
 
   // see if process exists. If it exists, check if it is the same
   // process that is specified in the schemaName.
   short errorDetail = 0;
-  Int64 l_procCreateTime = 0;
+  long l_procCreateTime = 0;
   retcode = ComRtGetProcessCreateTime(&cpu, &pin, &segmentNum, l_procCreateTime, errorDetail);
   if (retcode == XZFIL_ERR_OK) {
     // process specified exists.
@@ -1247,11 +1247,11 @@ NABoolean ExExeUtilTcb::isProcessObsolete(short cpu, pid_t pin, short segmentNum
     return 0;
 }
 
-Lng32 ExExeUtilTcb::extractParts(char *objectName, char **paramParts0, char **paramParts1, char **paramParts2,
+int ExExeUtilTcb::extractParts(char *objectName, char **paramParts0, char **paramParts1, char **paramParts2,
                                  NABoolean noValidate) {
   char *parts[4];
-  Lng32 numParts = 0;
-  Lng32 rc = 0;
+  int numParts = 0;
+  int rc = 0;
 
   // We want to ignore any "." dots within a delimited
   // name.  The AnsiName object is ultimately deleted
@@ -1269,17 +1269,17 @@ Lng32 ExExeUtilTcb::extractParts(char *objectName, char **paramParts0, char **pa
   char *parts1 = NULL;
   char *parts2 = NULL;
 
-  Lng32 parts0Len = strlen(parts[0]);
-  Lng32 parts1Len = strlen(parts[1]);
-  Lng32 parts2Len = strlen(parts[2]);
+  int parts0Len = strlen(parts[0]);
+  int parts1Len = strlen(parts[1]);
+  int parts2Len = strlen(parts[2]);
 
-  Lng32 parts0OffsetLen = 0;
-  Lng32 parts1OffsetLen = 0;
-  Lng32 parts2OffsetLen = 0;
+  int parts0OffsetLen = 0;
+  int parts1OffsetLen = 0;
+  int parts2OffsetLen = 0;
 
-  Lng32 foundParts0 = 0;
-  Lng32 foundParts1 = 0;
-  Lng32 foundParts2 = 0;
+  int foundParts0 = 0;
+  int foundParts1 = 0;
+  int foundParts2 = 0;
 
   char *testParts = NULL;
   char *ptr = NULL;
@@ -1308,10 +1308,10 @@ Lng32 ExExeUtilTcb::extractParts(char *objectName, char **paramParts0, char **pa
     ptr = (char *)strchr(ptr + 1, '\'');
   }
 
-  Lng32 lenToCopy = 0;
+  int lenToCopy = 0;
   char *beginTestParts = NULL;
   char *formattedParts = NULL;
-  Lng32 totalLen = 0;
+  int totalLen = 0;
 
   if (foundParts0) {
     totalLen = parts0Len + foundParts0 + 1;
@@ -1469,7 +1469,7 @@ Lng32 ExExeUtilTcb::extractParts(char *objectName, char **paramParts0, char **pa
   return 0;
 }
 
-ex_expr::exp_return_type ExExeUtilTcb::evalScanExpr(char *ptr, Lng32 len, NABoolean copyToVCbuf) {
+ex_expr::exp_return_type ExExeUtilTcb::evalScanExpr(char *ptr, int len, NABoolean copyToVCbuf) {
   ex_expr::exp_return_type exprRetCode = ex_expr::EXPR_OK;
 
   if (exeUtilTdb().scanExpr_) {

@@ -44,7 +44,7 @@
 #include "ExpPCode.h"
 #include "exp_function.h"
 #include "common/ComSysUtils.h"
-#include "exp_bignum.h"
+#include "exp/exp_bignum.h"
 #include "BigNumHelper.h"
 #include "ExpPCodeOptimizations.h"
 #include "common/unicode_char_set.h"
@@ -262,7 +262,7 @@ void displayData(Int16 dataType, char *dataPtr) {
       cout << "x=" << x << endl;
     } break;
     case REC_BIN64_SIGNED: {
-      Int64 x = *((Int64 *)(dataPtr));
+      long x = *((long *)(dataPtr));
       cout << "x=" << x << endl;
     } break;
     case REC_FLOAT64: {
@@ -791,12 +791,12 @@ static ex_expr::exp_return_type alignAndEval(ex_clause *clause, char **op_data, 
 // NOTE   : When introducing new pcode instructions that involve an
 //          an operation between signed shorter length operand and
 //          unsigned longer length operand, then one of the operands
-//          must be typecasted to Int64 to account for negetive values.
+//          must be typecasted to long to account for negetive values.
 //          See case PCIT::LT_MBIN32S_MBIN16S_MBIN32U below for example.
 //
 // This variable provides 4096 bytes of null indicators.
 //
-static const Int64 nullData[] = {
+static const long nullData[] = {
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
@@ -1103,7 +1103,7 @@ static const Int32 compTable[6][3] = {
     /* ITM_GREATER_EQ */ {0, 1, 1}};
 
 #define FLT64ASSIGN(tgtptr, srcptr) \
-  { *((Int64 *)(tgtptr)) = *((Int64 *)(srcptr)); }
+  { *((long *)(tgtptr)) = *((long *)(srcptr)); }
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -1150,13 +1150,13 @@ static const Int32 compTable[6][3] = {
                                                                                 \
   stack[1] = (Long)(e->getConstantsArea()); /* Set up constants array */        \
                                                                                 \
-  stack[4] = (Long)atps[pCode[1]]->getTupp((Lng32)pCode[2]).getDataPointer();   \
+  stack[4] = (Long)atps[pCode[1]]->getTupp((int)pCode[2]).getDataPointer();   \
   if (!stack[4]) {                                                              \
     DBGASSERT(0); /* don't expect null tuples */                                \
     stack[4] = (Long)nullData;                                                  \
   }                                                                             \
   if (startOffset != 4) {                                                       \
-    stack[5] = (Long)atps[pCode[3]]->getTupp((Lng32)pCode[4]).getDataPointer(); \
+    stack[5] = (Long)atps[pCode[3]]->getTupp((int)pCode[4]).getDataPointer(); \
     if (!stack[5]) {                                                            \
       DBGASSERT(0); /* don't expect null tuples */                              \
       stack[5] = (Long)nullData;                                                \
@@ -1491,8 +1491,8 @@ ex_expr::exp_return_type ex_expr_base::evalFast203(PCodeBinary *p, atp_struct *a
   SETUP_EVAL_STK(p, atp1, atp2, e);
 #pragma refaligned 8 pCode
 
-  PTR_DEF_ASSIGN(Int64, x, 0);
-  PTR_DEF_ASSIGN(Int64, y, 2);
+  PTR_DEF_ASSIGN(long, x, 0);
+  PTR_DEF_ASSIGN(long, y, 2);
 
   *x = *y;
   return ex_expr::EXPR_OK;
@@ -1552,7 +1552,7 @@ ex_expr::exp_return_type ex_expr_base::evalFast223(PCodeBinary *p, atp_struct *a
   PTR_DEF_ASSIGN(UInt32, y, 2);
   PTR_DEF_ASSIGN(UInt32, z, 4);
 
-  *x = (UInt32)(((Int64)(*y) * (Int64)(*z)) >> 32);
+  *x = (UInt32)(((long)(*y) * (long)(*z)) >> 32);
   return ex_expr::EXPR_OK;
 }
 
@@ -1662,8 +1662,8 @@ ex_expr::exp_return_type ex_expr_base::evalFast162(PCodeBinary *p, atp_struct *a
   SETUP_EVAL_STK(p, atp1, atp2, e);
 #pragma refaligned 8 pCode
 
-  PTR_DEF_ASSIGN(Int64, x, 2);
-  PTR_DEF_ASSIGN(Int64, y, 4);
+  PTR_DEF_ASSIGN(long, x, 2);
+  PTR_DEF_ASSIGN(long, y, 4);
 
   return (*x == *y) ? ex_expr::EXPR_TRUE : ex_expr::EXPR_FALSE;
 }
@@ -1825,7 +1825,7 @@ ex_expr::exp_return_type ex_expr::evalPCodeAligned(PCodeBinary *pCode32, atp_str
 //	 str_cpy_all(tgt, &src[start], len0);
 
 ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *atp1, atp_struct *atp2, atp_struct *atp3,
-                                            Lng32 datalen, ULng32 *rowLen) {
+                                            int datalen, ULng32 *rowLen) {
   ComDiagsArea *diagsArea;
 
   PCodeBinary *pCode = pCode32;
@@ -1874,7 +1874,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
   pCode++;
 
   for (Long i = 4; i < lengthPlus4; i++) {
-    stack[i] = (Long)atps[pCode[0]]->getTupp((Lng32)pCode[1]).getDataPointer();
+    stack[i] = (Long)atps[pCode[0]]->getTupp((int)pCode[1]).getDataPointer();
 
     // A null (C++ NULL) tuple data pointer indicates that the tuple
     // value is null (SQL NULL). This special case is handled here
@@ -2170,12 +2170,12 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
 
           switch (pCode[i]) {
             case PCIT::MOVE_MBIN8_MBIN8_IBIN32S:
-              str_cpy_all((char *)tgt, (char *)src, (Lng32)pCode[i + 3]);
+              str_cpy_all((char *)tgt, (char *)src, (int)pCode[i + 3]);
               i++;
               break;
 
             case PCIT::MOVE_MBIN64S_MBIN64S:
-              *((Int64 *)tgt) = *((Int64 *)src);
+              *((long *)tgt) = *((long *)src);
               break;
 
             case PCIT::MOVE_MBIN32U_MBIN32U:
@@ -2211,7 +2211,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         // Use PCODEBINARIES_PER_PTR to handle both platforms
         branchClause = (ex_branch_clause *)*(Long *)&(pCode[PCODEBINARIES_PER_PTR]);
         if (branchClause->get_branch_clause() == branchClause->getNextClause())
-          pCode += (Int64)pCode[0];
+          pCode += (long)pCode[0];
         else
           pCode += PCODEBINARIES_PER_PTR + PCODEBINARIES_PER_PTR;
         break;
@@ -2424,7 +2424,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         pCode += 8;
       } break;
 
-      // convert varchar ptr source to Int32 or Int64
+      // convert varchar ptr source to Int32 or long
       case PCIT::CONVVCPTR_MBIN32S_MATTR5_IBIN32S:
       case PCIT::CONVVCPTR_MBIN64S_MATTR5_IBIN32S: {
         DEF_ASSIGN(Int32, maxTgtLen, 7);
@@ -2446,8 +2446,8 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
 
         srcLen = ExpTupleDesc::getVarLength(src, srcVCIndLen);
 
-        // ptr to source value is stored at src as an Int64.
-        Int64 ptrVal = *(Int64 *)(src + srcVCIndLen);
+        // ptr to source value is stored at src as an long.
+        long ptrVal = *(long *)(src + srcVCIndLen);
         char *ptrSrc = (char *)ptrVal;
 
         // convert source to target (Int32)
@@ -2459,12 +2459,12 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
           srcLen--;
         }
 
-        Int64 srcNumericVal = str_atoi(ptrSrc, srcLen);
+        long srcNumericVal = str_atoi(ptrSrc, srcLen);
         if (srcNumericVal == -1) {
           diagsArea = atp1->getDiagsArea();
 
           ex_expr::exp_return_type er =
-              convDoIt(ptrSrc, srcLen, REC_BYTE_F_ASCII, 0, 0, (char *)&srcNumericVal, sizeof(Int64),
+              convDoIt(ptrSrc, srcLen, REC_BYTE_F_ASCII, 0, 0, (char *)&srcNumericVal, sizeof(long),
                        (pCodeOpc == PCIT::CONVVCPTR_MBIN64S_MATTR5_IBIN32S ? REC_BIN64_SIGNED : REC_BIN32_SIGNED), 0, 0,
                        NULL, 0, heap_, &diagsArea, CONV_ASCII_BIN64S, NULL, 0);
 
@@ -2474,14 +2474,14 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
 
         if (pCodeOpc == PCIT::CONVVCPTR_MBIN64S_MATTR5_IBIN32S) {
           if (neg)
-            *(Int64 *)dst = -srcNumericVal;
+            *(long *)dst = -srcNumericVal;
           else
-            *(Int64 *)dst = srcNumericVal;
+            *(long *)dst = srcNumericVal;
         } else {
           if (neg)
-            *(Lng32 *)dst = -(Int32)srcNumericVal;
+            *(int *)dst = -(Int32)srcNumericVal;
           else
-            *(Lng32 *)dst = (Int32)srcNumericVal;
+            *(int *)dst = (Int32)srcNumericVal;
         }
 
         pCode += 8;
@@ -2508,8 +2508,8 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
 
         srcLen = ExpTupleDesc::getVarLength(src, srcVCIndLen);
 
-        // ptr to source value is stored at src as an Int64.
-        Int64 ptrVal = *(Int64 *)(src + srcVCIndLen);
+        // ptr to source value is stored at src as an long.
+        long ptrVal = *(long *)(src + srcVCIndLen);
         char *ptrSrc = (char *)ptrVal;
 
         // convert source to target (Flt32).
@@ -2567,8 +2567,8 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         srcLen = ExpTupleDesc::getVarLength(src, srcVCIndLen);
         copyLen = ((maxTgtLen >= srcLen) ? srcLen : maxTgtLen);
 
-        // ptr to source value is stored at src as an Int64.
-        Int64 ptrVal = *(Int64 *)(src + srcVCIndLen);
+        // ptr to source value is stored at src as an long.
+        long ptrVal = *(long *)(src + srcVCIndLen);
         char *ptrSrc = (char *)ptrVal;
 
         DEF_ASSIGN(Int32, tgtOffset, 1);
@@ -2907,10 +2907,10 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
 
         PTR_DEF_ASSIGN(Int32, startPtr, 10);
         PTR_DEF_ASSIGN(Int32, lengthPtr, 12);
-        Int64 start = *startPtr;
-        Int64 length = *lengthPtr;
+        long start = *startPtr;
+        long length = *lengthPtr;
 
-        Int64 temp = ((numOperands > 0) ? (start + length) : ((start > (srcMaxLen + 1)) ? start : (srcMaxLen + 1)));
+        long temp = ((numOperands > 0) ? (start + length) : ((start > (srcMaxLen + 1)) ? start : (srcMaxLen + 1)));
 
         // This error case must be when we have a potential overflow
         if (temp < start) {
@@ -2972,7 +2972,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         MOVE_INSTR(UInt32, UInt8);
 
       case PCIT::MOVE_MBIN64S_MBIN8S:
-        MOVE_INSTR(Int64, Int8);
+        MOVE_INSTR(long, Int8);
 
       case PCIT::MOVE_MBIN64U_MBIN8U:
         MOVE_INSTR(UInt64, UInt8);
@@ -2984,7 +2984,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         MOVE_INSTR(Int32, UInt16);
 
       case PCIT::MOVE_MBIN64S_MBIN16U:
-        MOVE_INSTR(Int64, UInt16);
+        MOVE_INSTR(long, UInt16);
 
       case PCIT::MOVE_MBIN32U_MBIN16S:
         MOVE_INSTR(UInt32, Int16);
@@ -2993,13 +2993,13 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         MOVE_INSTR(Int32, Int16);
 
       case PCIT::MOVE_MBIN64S_MBIN16S:
-        MOVE_INSTR(Int64, Int16);
+        MOVE_INSTR(long, Int16);
 
       case PCIT::MOVE_MBIN64S_MBIN32U:
-        MOVE_INSTR(Int64, UInt32);
+        MOVE_INSTR(long, UInt32);
 
       case PCIT::MOVE_MBIN64S_MBIN32S:
-        MOVE_INSTR(Int64, Int32);
+        MOVE_INSTR(long, Int32);
 
       case PCIT::MOVE_MBIN8_MBIN8:
         MOVE_INSTR(unsigned char, unsigned char);
@@ -3011,20 +3011,20 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         MOVE_INSTR(UInt32, UInt32);
 
       case PCIT::MOVE_MBIN64S_MBIN64S:
-        MOVE_INSTR(Int64, Int64);
+        MOVE_INSTR(long, long);
 
       case PCIT::MOVE_MBIN64S_MBIN64U:
-        MOVE_INSTR(Int64, UInt64);
+        MOVE_INSTR(long, UInt64);
 
       case PCIT::MOVE_MBIN64U_MBIN64S:
-        MOVE_INSTR(UInt64, Int64);
+        MOVE_INSTR(UInt64, long);
 
       case PCIT::MOVE_MBIN64U_MBIN64U:
         MOVE_INSTR(UInt64, UInt64);
 
       case PCIT::MOVE_MBIN64S_MDECS_IBIN32S: {
         PTR_DEF_ASSIGN(char, src, 2);
-        PTR_DEF_ASSIGN(Int64, tgt, 0);
+        PTR_DEF_ASSIGN(long, tgt, 0);
 
         if (src[0] & 0200) {
           *tgt = ((src[0] & 0177) - '0');
@@ -3044,7 +3044,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
 
       case PCIT::MOVE_MBIN64S_MDECU_IBIN32S: {
         PTR_DEF_ASSIGN(char, src, 2);
-        PTR_DEF_ASSIGN(Int64, tgt, 0);
+        PTR_DEF_ASSIGN(long, tgt, 0);
 
         *tgt = 0;
         for (Int32 k = 0; k < pCode[4]; k++) {
@@ -3061,7 +3061,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         MOVE_INSTR(double, Int32);
 
       case PCIT::MOVE_MFLT64_MBIN64S:
-        MOVE_CAST_INSTR(double, double, Int64);
+        MOVE_CAST_INSTR(double, double, long);
 
       case PCIT::MOVE_MFLT64_MFLT32:
         MOVE_INSTR(double, float);
@@ -3158,9 +3158,9 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       case PCIT::NOT_NULL_BRANCH_MBIN16S_IBIN32S: {
         PTR_DEF_ASSIGN(Int16, resultPtr, 0);
 
-        // Not sure why we cast to Int64 ?
+        // Not sure why we cast to long ?
         if (*resultPtr == 0)
-          pCode += (Int64)pCode[2];
+          pCode += (long)pCode[2];
         else
           pCode += 3;
       } break;
@@ -3170,7 +3170,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         PTR_DEF_ASSIGN(Int16, resultPtr, 2);
         *returnResultPtr = *resultPtr;
         if (*resultPtr == 0)
-          pCode += (Int64)pCode[4];
+          pCode += (long)pCode[4];
         else
           pCode += 5;
       } break;
@@ -3180,7 +3180,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         PTR_DEF_ASSIGN(Int16, resultPtr16, 2);
         *returnResultPtr32 = *resultPtr16;
         if (*resultPtr16 == 0)
-          pCode += (Int64)pCode[4];
+          pCode += (long)pCode[4];
         else
           pCode += 5;
       } break;
@@ -3224,7 +3224,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
           } else {
             ExpTupleDesc::clearNullValue((char *)(stack[pCode[0]] + op1NullIndOff), (Int16)attrs->op1NullBitIndex_,
                                          (ExpTupleDesc::TupleDataFormat)attrs->fmt_.op1Fmt_);
-            pCode += (Int64)pCode[10];
+            pCode += (long)pCode[10];
           }
         }
         break;
@@ -3263,7 +3263,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
           } else {
             ExpTupleDesc::clearNullValue((char *)(stack[pCode[0]] + op1NullIndOff), (Int16)attrs->op1NullBitIndex_,
                                          (ExpTupleDesc::TupleDataFormat)attrs->fmt_.op1Fmt_);
-            pCode += (Int64)pCode[7];
+            pCode += (long)pCode[7];
           }
         }
         break;
@@ -3293,7 +3293,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
           PTR_DEF_ASSIGN(Int32, result, 0);
           *result = rslt;
           if (rslt == 0)
-            pCode += (Int64)pCode[10];
+            pCode += (long)pCode[10];
           else
             pCode += attrs->fmt_.size_;
         }
@@ -3320,7 +3320,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
           PTR_DEF_ASSIGN(Int32, result, 0);
           *result = rslt;
           if (rslt == 0)
-            pCode += (Int64)pCode[7];
+            pCode += (long)pCode[7];
           else
             pCode += attrs->fmt_.size_;
         }
@@ -3332,7 +3332,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         DEF_ASSIGN(Int32, val32, 4);
 
         if (*resultPtr16 == 0)
-          pCode += (Int64)pCode[5];
+          pCode += (long)pCode[5];
         else {
           *resultPtr32 = val32;
           pCode += 6;
@@ -3347,7 +3347,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
 
         *ptr32 = result;
         if (result == 0)
-          pCode += (Int64)pCode[6];
+          pCode += (long)pCode[6];
         else
           pCode += 7;
       } break;
@@ -3362,7 +3362,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
           if (nullp) {
             pCode += 4;
           } else {
-            pCode += (Int64)pCode[3];
+            pCode += (long)pCode[3];
           }
         }
         break;
@@ -3381,7 +3381,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
             *retPtr = retVal;
             pCode += 7;
           } else {
-            pCode += (Int64)pCode[6];
+            pCode += (long)pCode[6];
           }
         }
         break;
@@ -3400,7 +3400,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
 
           if ((NOT op1Null) && (NOT op2Null)) {
             *retPtr = 0;
-            pCode += (Int64)pCode[9];
+            pCode += (long)pCode[9];
           } else {
             // only equi case is supported. Could be extended later.
             // pCode[8] contains the operator type (ITM_EQUAL for now).
@@ -3417,7 +3417,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
 
         *ptr16_0 = *ptr16_2 | *ptr16_4;
         if (*ptr16_0 == 0)
-          pCode += (Int64)pCode[6];
+          pCode += (long)pCode[6];
         else
           pCode += 7;
       } break;
@@ -3549,12 +3549,12 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         break;
       }
       case PCIT::ADD_MBIN64S_MBIN64S_MBIN64S: {
-        PTR_DEF_ASSIGN(Int64, result, 0);
-        PTR_DEF_ASSIGN(Int64, xptr, 2);
-        PTR_DEF_ASSIGN(Int64, yptr, 4);
+        PTR_DEF_ASSIGN(long, result, 0);
+        PTR_DEF_ASSIGN(long, xptr, 2);
+        PTR_DEF_ASSIGN(long, yptr, 4);
 #if (!defined _DEBUG)
-        Int64 x = *xptr, y = *yptr;
-        Int64 z = x + y;
+        long x = *xptr, y = *yptr;
+        long z = x + y;
 
         *result = z;
 
@@ -3592,13 +3592,13 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::ADD_MBIN64S_MBIN32S_MBIN64S: {
-        PTR_DEF_ASSIGN(Int64, result, 0);
+        PTR_DEF_ASSIGN(long, result, 0);
         PTR_DEF_ASSIGN(Int32, xptr32, 2);
-        PTR_DEF_ASSIGN(Int64, yptr, 4);
+        PTR_DEF_ASSIGN(long, yptr, 4);
 #if (!defined _DEBUG)
 
-        Int64 x = (Int64)*xptr32, y = *yptr;
-        Int64 z = x + y;
+        long x = (long)*xptr32, y = *yptr;
+        long z = x + y;
 
         *result = z;
 
@@ -3634,12 +3634,12 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         break;
       }
       case PCIT::SUB_MBIN64S_MBIN64S_MBIN64S: {
-        PTR_DEF_ASSIGN(Int64, result, 0);
-        PTR_DEF_ASSIGN(Int64, xptr, 2);
-        PTR_DEF_ASSIGN(Int64, yptr, 4);
+        PTR_DEF_ASSIGN(long, result, 0);
+        PTR_DEF_ASSIGN(long, xptr, 2);
+        PTR_DEF_ASSIGN(long, yptr, 4);
 #if (!defined _DEBUG)
-        Int64 x = *xptr, y = *yptr;
-        Int64 z = x - y;
+        long x = *xptr, y = *yptr;
+        long z = x - y;
 
         *result = z;
 
@@ -3700,26 +3700,26 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         break;
       }
       case PCIT::MUL_MBIN64S_MBIN16S_MBIN32S: {
-        PTR_DEF_ASSIGN(Int64, result, 0);
+        PTR_DEF_ASSIGN(long, result, 0);
         PTR_DEF_ASSIGN(Int16, operand1, 2);
         PTR_DEF_ASSIGN(Int32, operand2, 4);
-        *result = (Int64)*operand1 * (Int64)*operand2;
+        *result = (long)*operand1 * (long)*operand2;
 
         pCode += 6;
         break;
       }
       case PCIT::MUL_MBIN64S_MBIN32S_MBIN32S: {
-        PTR_DEF_ASSIGN(Int64, result, 0);
+        PTR_DEF_ASSIGN(long, result, 0);
         PTR_DEF_ASSIGN(Int32, operand1, 2);
         PTR_DEF_ASSIGN(Int32, operand2, 4);
-        *result = (Int64)*operand1 * (Int64)*operand2;
+        *result = (long)*operand1 * (long)*operand2;
         pCode += 6;
         break;
       }
       case PCIT::MUL_MBIN64S_MBIN64S_MBIN64S: {
-        PTR_DEF_ASSIGN(Int64, result, 0);
-        PTR_DEF_ASSIGN(Int64, xptr, 2);
-        PTR_DEF_ASSIGN(Int64, yptr, 4);
+        PTR_DEF_ASSIGN(long, result, 0);
+        PTR_DEF_ASSIGN(long, xptr, 2);
+        PTR_DEF_ASSIGN(long, yptr, 4);
         *result = EXP_FIXED_OV_MUL(*xptr, *yptr, &ov);
 
         if (ov) {
@@ -3747,12 +3747,12 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::DIV_MBIN64S_MBIN64S_MBIN64S: {
-        PTR_DEF_ASSIGN(Int64, result, 0);
-        PTR_DEF_ASSIGN(Int64, xptr, 2);
-        PTR_DEF_ASSIGN(Int64, yptr, 4);
+        PTR_DEF_ASSIGN(long, result, 0);
+        PTR_DEF_ASSIGN(long, xptr, 2);
+        PTR_DEF_ASSIGN(long, yptr, 4);
 #if (!defined _DEBUG)
 
-        Int64 x = *xptr, y = *yptr;
+        long x = *xptr, y = *yptr;
 
         // Same check C/C++ compiler uses to check for overflow
         if (y != 0) {
@@ -3780,9 +3780,9 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::DIV_MBIN64S_MBIN64S_MBIN64S_ROUND: {
-        PTR_DEF_ASSIGN(Int64, result, 0);
-        PTR_DEF_ASSIGN(Int64, xptr, 2);
-        PTR_DEF_ASSIGN(Int64, yptr, 4);
+        PTR_DEF_ASSIGN(long, result, 0);
+        PTR_DEF_ASSIGN(long, xptr, 2);
+        PTR_DEF_ASSIGN(long, yptr, 4);
 
         if (*yptr == 0) {  // div by zero
           goto Error1_;
@@ -3790,9 +3790,9 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
 
         // upscale numerator by 1
         NABoolean upscaled;
-        Int64 temp;
+        long temp;
         DEF_ASSIGN(Int32, bitmap, 6);
-        Lng32 roundingMode = (Lng32)(bitmap & 0x77);
+        int roundingMode = (int)(bitmap & 0x77);
         NABoolean divToDownscale = ((bitmap & 0x100) != 0);
         if (divToDownscale) {
           temp = *yptr / 10;
@@ -3820,13 +3820,13 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
           short nsign = 0;  // indicates negative sign when set to 1.
 
           // get the last digit
-          Lng32 v = (Lng32)(temp % (Int64)10);
+          int v = (int)(temp % (long)10);
 
           if (v < 0) v = -v;
           if (temp < 0) nsign = 1;
 
           // downscale the result
-          temp = temp / (Int64)10;
+          temp = temp / (long)10;
 
           if (roundingMode == 1) {
             // ROUND HALF UP MODE
@@ -3844,7 +3844,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
               // 'v' is zero and 'w' is even. If 'w' is odd, irrespective
               // of trailing digits following 'v', 'w' is rounded up.
               // w is second last digit.
-              Lng32 w = (Lng32)(temp % (Int64)10);
+              int w = (int)(temp % (long)10);
               if ((w & 0x1) != 0) {
                 // odd number, round up.
                 temp = nsign ? temp - 1 : temp + 1;
@@ -3856,15 +3856,15 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
                 NABoolean vGT5 = FALSE;
                 if (!divToDownscale) {
                   // Figure out if digits following 'v' is non zero.
-                  Int64 multiplier = 100;  // For digit following 'v'.
-                  Int64 temp1;
+                  long multiplier = 100;  // For digit following 'v'.
+                  long temp1;
                   NABoolean biggerPrecision = FALSE;
                   while (!vGT5) {
                     temp1 = EXP_FIXED_OV_MUL(*xptr, multiplier, &ov);
                     if (ov) {
                       // end of digits.
                       // When we reach here, temp1 is overflowed over
-                      // Int64.  In this rare but possible situation,
+                      // long.  In this rare but possible situation,
                       // we should try checking
                       // for additional digits using BigNum datatype.
                       biggerPrecision = TRUE;
@@ -3876,7 +3876,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
                       // it as end of digits.
                       break;
                     }
-                    if (temp1 % (Int64)10) {
+                    if (temp1 % (long)10) {
                       vGT5 = TRUE;
                       break;
                     }
@@ -3888,14 +3888,14 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
                   }
                   if (biggerPrecision) {
                     short rc = 0;
-                    Int64 dividend = *xptr;
-                    Int64 divisor = *yptr;
+                    long dividend = *xptr;
+                    long divisor = *yptr;
                     char *op_data[3];
                     char result1[100];
                     char result2[100];
-                    Int64 result3 = 0;
-                    Int64 ten = 10;
-                    SimpleType opST(REC_BIN64_SIGNED, sizeof(Int64), 0, 0, ExpTupleDesc::SQLMX_FORMAT, 8, 0, 0, 0,
+                    long result3 = 0;
+                    long ten = 10;
+                    SimpleType opST(REC_BIN64_SIGNED, sizeof(long), 0, 0, ExpTupleDesc::SQLMX_FORMAT, 8, 0, 0, 0,
                                     Attributes::NO_DEFAULT, 0);
 
                     BigNum opBN(16, 38, 0, 0);
@@ -3941,8 +3941,8 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
                     }
                   }
                 } else {
-                  Int64 divisor = 100;  // divisor=10 corresponds to v digit.
-                  Int64 temp1;
+                  long divisor = 100;  // divisor=10 corresponds to v digit.
+                  long temp1;
                   while (!vGT5) {
                     temp1 = *yptr / divisor;
                     if (!temp1)  // reached end of digits.
@@ -3950,7 +3950,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
                       break;
                     }
                     temp1 = *xptr / temp1;
-                    if (temp1 % (Int64)10) {
+                    if (temp1 % (long)10) {
                       vGT5 = TRUE;
                       break;
                     }
@@ -4033,7 +4033,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
 
         PTR_DEF_ASSIGN(char, nv1, 0);
         DEF_ASSIGN(Int16, off1, 2);
-        PTR_DEF_ASSIGN(Int64, target, 7);
+        PTR_DEF_ASSIGN(long, target, 7);
 
         if (ExpTupleDesc::isNullValue(nv1, off1)) {
           // Clear the target null bytes/bit ...
@@ -4055,13 +4055,13 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         //
       }
       case PCIT::SUM_MBIN64S_MBIN64S: {
-        PTR_DEF_ASSIGN(Int64, result, 0);
-        PTR_DEF_ASSIGN(Int64, yptr, 2);
+        PTR_DEF_ASSIGN(long, result, 0);
+        PTR_DEF_ASSIGN(long, yptr, 2);
         //#if defined NA_YOS && !defined _DEBUG
-        Int64 y = *yptr;
-        Int64 x = *result;
+        long y = *yptr;
+        long x = *result;
 
-        Int64 z = x + y;
+        long z = x + y;
 
         // Same check C/C++ compiler uses to check for overflow
         if ((((UInt64)(~(x ^ y) & (x ^ z))) >> 63) == 0) {
@@ -4088,7 +4088,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
 
         PTR_DEF_ASSIGN(char, nv1, 0);
         DEF_ASSIGN(Int16, off1, 2);
-        PTR_DEF_ASSIGN(Int64, target, 7);
+        PTR_DEF_ASSIGN(long, target, 7);
 
         if (ExpTupleDesc::isNullValue(nv1, off1)) {
           // Clear the target null bytes/bit ...
@@ -4110,13 +4110,13 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         //
       }
       case PCIT::SUM_MBIN64S_MBIN32S: {
-        PTR_DEF_ASSIGN(Int64, result, 0);
+        PTR_DEF_ASSIGN(long, result, 0);
         PTR_DEF_ASSIGN(Int32, yptr, 2);
 #if (!defined _DEBUG)
         Int32 y = *yptr;
-        Int64 x = *result;
+        long x = *result;
 
-        Int64 z = x + (Int64)y;
+        long z = x + (long)y;
 
         // Same check C/C++ compiler uses to check for overflow
         if ((((UInt64)(~(x ^ y) & (x ^ z))) >> 63) == 0) {
@@ -4125,8 +4125,8 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
           goto Error1_;
         }
 #else
-        Int64 op1 = *result;
-        Int64 theResult = EXP_FIXED_OV_ADD(op1, (Int64)*yptr, &ov);
+        long op1 = *result;
+        long theResult = EXP_FIXED_OV_ADD(op1, (long)*yptr, &ov);
         if (ov) {
           goto Error1_;
         }
@@ -4157,11 +4157,11 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
           // Clear the target null bytes/bit ...
           ExpTupleDesc::clearNullValue(nv1, off1);
 
-          PTR_DEF_ASSIGN(Int64, target, 7);
+          PTR_DEF_ASSIGN(long, target, 7);
 
           // Now set the target value to 0 so it can be used in the sum ...
           flt64_1 = 0;
-          *target = (Int64)flt64_1;  // why not just use a simple zero ?
+          *target = (long)flt64_1;  // why not just use a simple zero ?
         }
 
         pCode += 7;
@@ -4361,7 +4361,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       case PCIT::EQ_MBIN32S_MASCII_MASCII:
         // both are fixed chars
         {
-          PTR_DEF_ASSIGN(Lng32, tgt, 0);
+          PTR_DEF_ASSIGN(int, tgt, 0);
           PTR_DEF_ASSIGN(unsigned char, src1, 2);
           PTR_DEF_ASSIGN(unsigned char, src2, 4);
 
@@ -4376,7 +4376,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       case PCIT::COMP_MBIN32S_MUNI_MUNI_IBIN32S_IBIN32S_IBIN32S: {
         Int32 i;
 
-        PTR_DEF_ASSIGN(Lng32, res, 0);
+        PTR_DEF_ASSIGN(int, res, 0);
         PTR_DEF_ASSIGN(NAWchar, src1, 2);
         PTR_DEF_ASSIGN(NAWchar, src2, 4);
 
@@ -4410,7 +4410,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       case PCIT::COMP_MBIN32S_MASCII_MASCII_IBIN32S_IBIN32S_IBIN32S: {
         Int32 i, compCode;
 
-        PTR_DEF_ASSIGN(Lng32, res, 0);
+        PTR_DEF_ASSIGN(int, res, 0);
         PTR_DEF_ASSIGN(unsigned char, src1, 2);
         PTR_DEF_ASSIGN(unsigned char, src2, 4);
 
@@ -4731,8 +4731,8 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         PTR_DEF_ASSIGN(short, x, 2);
         PTR_DEF_ASSIGN(UInt32, y, 4);
 
-        // typecast x to Int64 to account for negetive values
-        *result = ((Int64)*x == *y);
+        // typecast x to long to account for negetive values
+        *result = ((long)*x == *y);
 
         pCode += 6;
         break;
@@ -4740,8 +4740,8 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
 
       case PCIT::EQ_MBIN32S_MBIN64S_MBIN64S: {
         PTR_DEF_ASSIGN(Int32, result, 0);
-        PTR_DEF_ASSIGN(Int64, x, 2);
-        PTR_DEF_ASSIGN(Int64, y, 4);
+        PTR_DEF_ASSIGN(long, x, 2);
+        PTR_DEF_ASSIGN(long, y, 4);
 
         *result = (*x == *y);
 
@@ -4752,7 +4752,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       // LESS THAN ("<") operations
       case PCIT::LT_MBIN32S_MASCII_MASCII:  // both are fixed chars
       {
-        PTR_DEF_ASSIGN(Lng32, tgt, 0);
+        PTR_DEF_ASSIGN(int, tgt, 0);
         PTR_DEF_ASSIGN(unsigned char, src1, 2);
         PTR_DEF_ASSIGN(unsigned char, src2, 4);
 
@@ -4844,8 +4844,8 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         PTR_DEF_ASSIGN(short, x, 2);
         PTR_DEF_ASSIGN(UInt32, y, 4);
 
-        // typecast x to Int64 to account for negetive values
-        *result = ((Int64)*x < *y);
+        // typecast x to long to account for negetive values
+        *result = ((long)*x < *y);
 
         pCode += 6;
         break;
@@ -4853,8 +4853,8 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
 
       case PCIT::LT_MBIN32S_MBIN64S_MBIN64S: {
         PTR_DEF_ASSIGN(Int32, result, 0);
-        PTR_DEF_ASSIGN(Int64, x, 2);
-        PTR_DEF_ASSIGN(Int64, y, 4);
+        PTR_DEF_ASSIGN(long, x, 2);
+        PTR_DEF_ASSIGN(long, y, 4);
 
         *result = (*x < *y);
 
@@ -4865,7 +4865,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       // GREATER THAN (">") operations
       case PCIT::GT_MBIN32S_MASCII_MASCII:  // both are fixed chars
       {
-        PTR_DEF_ASSIGN(Lng32, tgt, 0);
+        PTR_DEF_ASSIGN(int, tgt, 0);
         PTR_DEF_ASSIGN(unsigned char, src1, 2);
         PTR_DEF_ASSIGN(unsigned char, src2, 4);
 
@@ -4957,8 +4957,8 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         PTR_DEF_ASSIGN(short, x, 2);
         PTR_DEF_ASSIGN(UInt32, y, 4);
 
-        // typecast x to Int64 to account for negetive values
-        *result = ((Int64)*x > *y);
+        // typecast x to long to account for negetive values
+        *result = ((long)*x > *y);
 
         pCode += 6;
         break;
@@ -4966,8 +4966,8 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
 
       case PCIT::GT_MBIN32S_MBIN64S_MBIN64S: {
         PTR_DEF_ASSIGN(Int32, result, 0);
-        PTR_DEF_ASSIGN(Int64, x, 2);
-        PTR_DEF_ASSIGN(Int64, y, 4);
+        PTR_DEF_ASSIGN(long, x, 2);
+        PTR_DEF_ASSIGN(long, y, 4);
 
         *result = (*x > *y);
 
@@ -4978,7 +4978,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       // LESS THAN EQUAL TO("<=") operations
       case PCIT::LE_MBIN32S_MASCII_MASCII:  // both are fixed chars
       {
-        PTR_DEF_ASSIGN(Lng32, tgt, 0);
+        PTR_DEF_ASSIGN(int, tgt, 0);
         PTR_DEF_ASSIGN(unsigned char, src1, 2);
         PTR_DEF_ASSIGN(unsigned char, src2, 4);
 
@@ -5070,8 +5070,8 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         PTR_DEF_ASSIGN(short, x, 2);
         PTR_DEF_ASSIGN(UInt32, y, 4);
 
-        // typecast x to Int64 to account for negetive values
-        *result = ((Int64)*x <= *y);
+        // typecast x to long to account for negetive values
+        *result = ((long)*x <= *y);
 
         pCode += 6;
         break;
@@ -5079,8 +5079,8 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
 
       case PCIT::LE_MBIN32S_MBIN64S_MBIN64S: {
         PTR_DEF_ASSIGN(Int32, result, 0);
-        PTR_DEF_ASSIGN(Int64, x, 2);
-        PTR_DEF_ASSIGN(Int64, y, 4);
+        PTR_DEF_ASSIGN(long, x, 2);
+        PTR_DEF_ASSIGN(long, y, 4);
 
         *result = (*x <= *y);
 
@@ -5091,7 +5091,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       // GREATER THAN EQUAL TO (">=") operations
       case PCIT::GE_MBIN32S_MASCII_MASCII:  // both are fixed chars
       {
-        PTR_DEF_ASSIGN(Lng32, tgt, 0);
+        PTR_DEF_ASSIGN(int, tgt, 0);
         PTR_DEF_ASSIGN(unsigned char, src1, 2);
         PTR_DEF_ASSIGN(unsigned char, src2, 4);
 
@@ -5183,8 +5183,8 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         PTR_DEF_ASSIGN(short, x, 2);
         PTR_DEF_ASSIGN(UInt32, y, 4);
 
-        // typecast x to Int64 to account for negetive values
-        *result = ((Int64)*x >= *y);
+        // typecast x to long to account for negetive values
+        *result = ((long)*x >= *y);
 
         pCode += 6;
         break;
@@ -5192,8 +5192,8 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
 
       case PCIT::GE_MBIN32S_MBIN64S_MBIN64S: {
         PTR_DEF_ASSIGN(Int32, result, 0);
-        PTR_DEF_ASSIGN(Int64, x, 2);
-        PTR_DEF_ASSIGN(Int64, y, 4);
+        PTR_DEF_ASSIGN(long, x, 2);
+        PTR_DEF_ASSIGN(long, y, 4);
 
         *result = (*x >= *y);
 
@@ -5204,7 +5204,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       // NOT EQUAL TO ("<>") operations
       case PCIT::NE_MBIN32S_MASCII_MASCII:  // both are fixed chars
       {
-        PTR_DEF_ASSIGN(Lng32, tgt, 0);
+        PTR_DEF_ASSIGN(int, tgt, 0);
         PTR_DEF_ASSIGN(unsigned char, src1, 2);
         PTR_DEF_ASSIGN(unsigned char, src2, 4);
 
@@ -5216,8 +5216,8 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
 
       case PCIT::NE_MBIN32S_MBIN64S_MBIN64S: {
         PTR_DEF_ASSIGN(Int32, result, 0);
-        PTR_DEF_ASSIGN(Int64, x, 2);
-        PTR_DEF_ASSIGN(Int64, y, 4);
+        PTR_DEF_ASSIGN(long, x, 2);
+        PTR_DEF_ASSIGN(long, y, 4);
 
         *result = (*x != *y);
 
@@ -5403,10 +5403,10 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       } break;
 
       case PCIT::ENCODE_MASCII_MBIN64S_IBIN32S: {
-        PTR_DEF_ASSIGN(Int64, outputPtr, 0);
-        PTR_DEF_ASSIGN(Int64, resultPtr, 2);
+        PTR_DEF_ASSIGN(long, outputPtr, 0);
+        PTR_DEF_ASSIGN(long, resultPtr, 2);
         DEF_ASSIGN(Int32, bitwiseNOT, 4);
-        Int64 result = *resultPtr;
+        long result = *resultPtr;
 
         result ^= 0x8000000000000000LL;
 #ifdef NA_LITTLE_ENDIAN
@@ -5534,10 +5534,10 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       } break;
 
       case PCIT::DECODE_MASCII_MBIN64S_IBIN32S: {
-        PTR_DEF_ASSIGN(Int64, outputPtr, 0);
-        PTR_DEF_ASSIGN(Int64, resultPtr, 2);
+        PTR_DEF_ASSIGN(long, outputPtr, 0);
+        PTR_DEF_ASSIGN(long, resultPtr, 2);
         DEF_ASSIGN(Int32, bitwiseNOT, 4);
-        Int64 result = *resultPtr;
+        long result = *resultPtr;
 
         if (bitwiseNOT) result = ~result;
 
@@ -5575,7 +5575,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         }
 
         if (NOT(src[0] & 0200)) {
-          for (Lng32 i = 0; i < length; i++) tgt[i] = ~src[i];
+          for (int i = 0; i < length; i++) tgt[i] = ~src[i];
         } else {
           if (tgt != src) str_cpy_all(tgt, src, length);
           tgt[0] &= ~0200;
@@ -5586,12 +5586,12 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
 
       case PCIT::BRANCH_INDIRECT_MBIN32S: {
         PTR_DEF_ASSIGN(Int32, srcPtr, 0);
-        pCode += (Int64)*srcPtr;
+        pCode += (long)*srcPtr;
         break;
       }
 
       case PCIT::BRANCH: {
-        DEF_ASSIGN(Int64, branchOffset, 0);
+        DEF_ASSIGN(long, branchOffset, 0);
         pCode += branchOffset;
         break;
       }
@@ -5602,7 +5602,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         Int32 src = *srcPtr;
 
         if (src == 0) {
-          DEF_ASSIGN_PTR(Int64, branchOffset, 0);
+          DEF_ASSIGN_PTR(long, branchOffset, 0);
           *tgtPtr = 0;
           pCode += branchOffset;
         } else {
@@ -5623,7 +5623,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         enableRuntimeOpts = enableRuntimeOpts | (pCode[6] == pCode[1]);
 
         if (src == 0) {
-          DEF_ASSIGN(Int64, branchOffset, 0);
+          DEF_ASSIGN(long, branchOffset, 0);
           pCode[7]++;  // Increment taken count
           *tgtPtr = 0;
           pCode += branchOffset;
@@ -5640,7 +5640,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         Int32 src = *srcPtr;
 
         if (src == 1) {
-          DEF_ASSIGN_PTR(Int64, branchOffset, 0);
+          DEF_ASSIGN_PTR(long, branchOffset, 0);
           *tgtPtr = 1;
           pCode += branchOffset;
         } else {
@@ -5661,7 +5661,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         enableRuntimeOpts = enableRuntimeOpts | (pCode[6] == pCode[1]);
 
         if (src == 1) {
-          DEF_ASSIGN(Int64, branchOffset, 0);
+          DEF_ASSIGN(long, branchOffset, 0);
           pCode[7]++;  // Increment taken count
           *tgtPtr = 1;
           pCode += branchOffset;
@@ -5672,9 +5672,9 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       } break;
 
       case PCIT::RANGE_LOW_S64S64: {
-        DEF_ASSIGN(Lng32, op, RANGE_INST_LEN);  // the next op
-        PTR_DEF_ASSIGN(Int64, valPtr, 0);
-        PTR_TO_PCODE(Int64, minvalPtr, 2);
+        DEF_ASSIGN(int, op, RANGE_INST_LEN);  // the next op
+        PTR_DEF_ASSIGN(long, valPtr, 0);
+        PTR_TO_PCODE(long, minvalPtr, 2);
 
         if (*valPtr < *minvalPtr) {
           goto Error1_;
@@ -5693,8 +5693,8 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::RANGE_HIGH_S64S64: {
-        PTR_DEF_ASSIGN(Int64, valPtr, 0);
-        PTR_TO_PCODE(Int64, maxvalPtr, 2);
+        PTR_DEF_ASSIGN(long, valPtr, 0);
+        PTR_TO_PCODE(long, maxvalPtr, 2);
         if (*valPtr > *maxvalPtr) {
           goto Error1_;
         }
@@ -5702,9 +5702,9 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         break;
       }
       case PCIT::RANGE_LOW_S32S64: {
-        DEF_ASSIGN(Lng32, op, RANGE_INST_LEN);  // the next op
+        DEF_ASSIGN(int, op, RANGE_INST_LEN);  // the next op
         PTR_DEF_ASSIGN(Int32, valPtr, 0);
-        PTR_TO_PCODE(Int64, minvalPtr, 2);
+        PTR_TO_PCODE(long, minvalPtr, 2);
 
         if (*valPtr < *minvalPtr) {
           goto Error1_;
@@ -5724,7 +5724,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
 
       case PCIT::RANGE_HIGH_S32S64: {
         PTR_DEF_ASSIGN(Int32, valPtr, 0);
-        PTR_TO_PCODE(Int64, maxvalPtr, 2);
+        PTR_TO_PCODE(long, maxvalPtr, 2);
         if (*valPtr > *maxvalPtr) {
           goto Error1_;
         }
@@ -5732,9 +5732,9 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         break;
       }
       case PCIT::RANGE_LOW_U32S64: {
-        DEF_ASSIGN(Lng32, op, RANGE_INST_LEN);  // the next op
+        DEF_ASSIGN(int, op, RANGE_INST_LEN);  // the next op
         PTR_DEF_ASSIGN(UInt32, valPtr, 0);
-        PTR_TO_PCODE(Int64, minvalPtr, 2);
+        PTR_TO_PCODE(long, minvalPtr, 2);
 
         if (*valPtr < *minvalPtr) {
           goto Error1_;
@@ -5754,7 +5754,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
 
       case PCIT::RANGE_HIGH_U32S64: {
         PTR_DEF_ASSIGN(UInt32, valPtr, 0);
-        PTR_TO_PCODE(Int64, maxvalPtr, 2);
+        PTR_TO_PCODE(long, maxvalPtr, 2);
 
         if (*valPtr > *maxvalPtr) {
           goto Error1_;
@@ -5763,9 +5763,9 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         break;
       }
       case PCIT::RANGE_LOW_S8S64: {
-        DEF_ASSIGN(Lng32, op, RANGE_INST_LEN);  // the next op
+        DEF_ASSIGN(int, op, RANGE_INST_LEN);  // the next op
         PTR_DEF_ASSIGN(Int8, valPtr, 0);
-        PTR_TO_PCODE(Int64, minvalPtr, 2);
+        PTR_TO_PCODE(long, minvalPtr, 2);
 
         if (*valPtr < *minvalPtr) {
           goto Error1_;
@@ -5785,7 +5785,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
 
       case PCIT::RANGE_HIGH_S8S64: {
         PTR_DEF_ASSIGN(Int8, valPtr, 0);
-        PTR_TO_PCODE(Int64, maxvalPtr, 2);
+        PTR_TO_PCODE(long, maxvalPtr, 2);
         if (*valPtr > *maxvalPtr) {
           goto Error1_;
         }
@@ -5794,9 +5794,9 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::RANGE_LOW_S16S64: {
-        DEF_ASSIGN(Lng32, op, RANGE_INST_LEN);  // the next op
+        DEF_ASSIGN(int, op, RANGE_INST_LEN);  // the next op
         PTR_DEF_ASSIGN(short, valPtr, 0);
-        PTR_TO_PCODE(Int64, minvalPtr, 2);
+        PTR_TO_PCODE(long, minvalPtr, 2);
 
         if (*valPtr < *minvalPtr) {
           goto Error1_;
@@ -5816,7 +5816,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
 
       case PCIT::RANGE_HIGH_S16S64: {
         PTR_DEF_ASSIGN(short, valPtr, 0);
-        PTR_TO_PCODE(Int64, maxvalPtr, 2);
+        PTR_TO_PCODE(long, maxvalPtr, 2);
         if (*valPtr > *maxvalPtr) {
           goto Error1_;
         }
@@ -5825,9 +5825,9 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::RANGE_LOW_U16S64: {
-        DEF_ASSIGN(Lng32, op, RANGE_INST_LEN);  // the next op
+        DEF_ASSIGN(int, op, RANGE_INST_LEN);  // the next op
         PTR_DEF_ASSIGN(unsigned short, valPtr, 0);
-        PTR_TO_PCODE(Int64, minvalPtr, 2);
+        PTR_TO_PCODE(long, minvalPtr, 2);
 
         if (*valPtr < *minvalPtr) {
           goto Error1_;
@@ -5847,7 +5847,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
 
       case PCIT::RANGE_HIGH_U16S64: {
         PTR_DEF_ASSIGN(unsigned short, valPtr, 0);
-        PTR_TO_PCODE(Int64, maxvalPtr, 2);
+        PTR_TO_PCODE(long, maxvalPtr, 2);
 
         if (*valPtr > *maxvalPtr) {
           goto Error1_;
@@ -5857,9 +5857,9 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
       }
 
       case PCIT::RANGE_LOW_U8S64: {
-        DEF_ASSIGN(Lng32, op, RANGE_INST_LEN);  // the next op
+        DEF_ASSIGN(int, op, RANGE_INST_LEN);  // the next op
         PTR_DEF_ASSIGN(UInt8, valPtr, 0);
-        PTR_TO_PCODE(Int64, minvalPtr, 2);
+        PTR_TO_PCODE(long, minvalPtr, 2);
 
         if (*valPtr < *minvalPtr) {
           goto Error1_;
@@ -5879,7 +5879,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
 
       case PCIT::RANGE_HIGH_U8S64: {
         PTR_DEF_ASSIGN(UInt8, valPtr, 0);
-        PTR_TO_PCODE(Int64, maxvalPtr, 2);
+        PTR_TO_PCODE(long, maxvalPtr, 2);
 
         if (*valPtr > *maxvalPtr) {
           goto Error1_;
@@ -6239,7 +6239,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
             pCode += 9;
             break;
 
-          // bitand, bitor, bitxor done for int32 or Int64 operands
+          // bitand, bitor, bitxor done for int32 or long operands
           // and result. This has been validated during pcode gen for
           // this operation.
           case ITM_BITAND: {
@@ -6257,9 +6257,9 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
 
               *result = *op1 & *op2;
             } else {
-              PTR_DEF_ASSIGN(Int64, result, 1);
-              PTR_DEF_ASSIGN(Int64, op1, 3);
-              PTR_DEF_ASSIGN(Int64, op2, 5);
+              PTR_DEF_ASSIGN(long, result, 1);
+              PTR_DEF_ASSIGN(long, op1, 3);
+              PTR_DEF_ASSIGN(long, op2, 5);
 
               *result = *op1 & *op2;
             }
@@ -6282,9 +6282,9 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
 
               *result = *op1 | *op2;
             } else {
-              PTR_DEF_ASSIGN(Int64, result, 1);
-              PTR_DEF_ASSIGN(Int64, op1, 3);
-              PTR_DEF_ASSIGN(Int64, op2, 5);
+              PTR_DEF_ASSIGN(long, result, 1);
+              PTR_DEF_ASSIGN(long, op1, 3);
+              PTR_DEF_ASSIGN(long, op2, 5);
 
               *result = *op1 | *op2;
             }
@@ -6307,9 +6307,9 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
 
               *result = *op1 ^ *op2;
             } else {
-              PTR_DEF_ASSIGN(Int64, result, 1);
-              PTR_DEF_ASSIGN(Int64, op1, 3);
-              PTR_DEF_ASSIGN(Int64, op2, 5);
+              PTR_DEF_ASSIGN(long, result, 1);
+              PTR_DEF_ASSIGN(long, op1, 3);
+              PTR_DEF_ASSIGN(long, op2, 5);
 
               *result = *op1 ^ *op2;
             }
@@ -6330,8 +6330,8 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
 
               *result = ~*op1;
             } else {
-              PTR_DEF_ASSIGN(Int64, result, 1);
-              PTR_DEF_ASSIGN(Int64, op1, 3);
+              PTR_DEF_ASSIGN(long, result, 1);
+              PTR_DEF_ASSIGN(long, op1, 3);
 
               *result = ~*op1;
             }
@@ -6413,8 +6413,8 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
           case ITM_TRIM: {
             // Find how many leading characters in operand 2 correspond
             // to the trim character.
-            Lng32 len0 = srcLen;
-            Lng32 start = 0;
+            int len0 = srcLen;
+            int start = 0;
 
             if (subOpc == ITM_LTRIM || subOpc == ITM_TRIM) {
               while ((start < srcLen) && (src[start] == ' ')) {
@@ -6425,7 +6425,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
 
             // Find how many trailing characters in operand 2 correspond
             // to the trim character.
-            Lng32 end = srcLen;
+            int end = srcLen;
             if (subOpc == ITM_RTRIM || subOpc == ITM_TRIM) {
               while ((end > (start)) && (src[end - 1] == ' ')) {
                 end--;
@@ -6483,7 +6483,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         PTR_DEF_ASSIGN(UInt32, hashValPtr, 2);
         PTR_DEF_ASSIGN(UInt32, numPartsPtr, 4);
 
-        *resultPtr = (UInt32)((Int64)*hashValPtr * (Int64)*numPartsPtr >> 32);
+        *resultPtr = (UInt32)((long)*hashValPtr * (long)*numPartsPtr >> 32);
 
         pCode += 6;
       } break;
@@ -6495,13 +6495,13 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         // Lookup the indexed row in the history buffer. Compute pointers
         // to the attribute data, null indicator, and varchar indicator.
         //
-        Int64 *srcData = NULL;
+        long *srcData = NULL;
 
         {
-          char *(*getRow)(void *, Int32, NABoolean, Lng32, Int32 &);
+          char *(*getRow)(void *, Int32, NABoolean, int, Int32 &);
           Int32 rc;
 
-          getRow = (char *(*)(void *, Int32, NABoolean, Lng32, Int32 &))GetPCodeBinaryAsPtr(pCode, 0);
+          getRow = (char *(*)(void *, Int32, NABoolean, int, Int32 &))GetPCodeBinaryAsPtr(pCode, 0);
 
           char *row = (*(getRow))((void *)GetPCodeBinaryAsPtr(pCode, PCODEBINARIES_PER_PTR), index, TRUE, 0, rc);
           if (rc) {
@@ -6512,11 +6512,11 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
           }
 
           if (row) {
-            srcData = (Int64 *)(row + pCode[5 + 2 * PCODEBINARIES_PER_PTR]);
+            srcData = (long *)(row + pCode[5 + 2 * PCODEBINARIES_PER_PTR]);
           }
         }
 
-        PTR_DEF_ASSIGN(Int64, dstData, 2 + 2 * PCODEBINARIES_PER_PTR);
+        PTR_DEF_ASSIGN(long, dstData, 2 + 2 * PCODEBINARIES_PER_PTR);
 
         *dstData = (srcData ? *srcData : 0);
 
@@ -6529,12 +6529,12 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         // Lookup the indexed row in the history buffer. Compute pointers
         // to the attribute data, null indicator, and varchar indicator.
         //
-        Int64 *srcData = NULL;
+        long *srcData = NULL;
 
         {
-          char *(*getRow)(void *, Int32, NABoolean, Lng32, Int32 &);
+          char *(*getRow)(void *, Int32, NABoolean, int, Int32 &);
           Int32 rc;
-          getRow = (char *(*)(void *, Int32, NABoolean, Lng32, Int32 &))GetPCodeBinaryAsPtr(pCode, 0);
+          getRow = (char *(*)(void *, Int32, NABoolean, int, Int32 &))GetPCodeBinaryAsPtr(pCode, 0);
           char *row = (*(getRow))((void *)GetPCodeBinaryAsPtr(pCode, PCODEBINARIES_PER_PTR), index, TRUE, 0, rc);
           if (rc) {
             diagsArea = atp1->getDiagsArea();
@@ -6544,11 +6544,11 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
           }
 
           if (row) {
-            srcData = (Int64 *)(row + pCode[4 + 2 * PCODEBINARIES_PER_PTR]);
+            srcData = (long *)(row + pCode[4 + 2 * PCODEBINARIES_PER_PTR]);
           }
         }
 
-        PTR_DEF_ASSIGN(Int64, dstData, 1 + 2 * PCODEBINARIES_PER_PTR);
+        PTR_DEF_ASSIGN(long, dstData, 1 + 2 * PCODEBINARIES_PER_PTR);
 
         *dstData = (srcData ? *srcData : 0);
 
@@ -6661,10 +6661,10 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         DEF_ASSIGN(Int32, tgtLength, 4);
         Int32 tgtLength16 = tgtLength >> 1;
         PTR_DEF_ASSIGN(UInt16, tgt, 0);
-        PTR_DEF_ASSIGN(Int64, src, 2);
-        Int64 *tgt64 = (Int64 *)tgt;
+        PTR_DEF_ASSIGN(long, src, 2);
+        long *tgt64 = (long *)tgt;
 
-        Int64 srcVal;
+        long srcVal;
 
         if (pCodeOpc == PCIT::MOVE_MBIGS_MBIN64S_IBIN32S)
           srcVal = *src;
@@ -6705,7 +6705,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         DEF_ASSIGN(Int32, srcLength, 4);
         Int32 srcLength16 = srcLength >> 1;
 
-        PTR_DEF_ASSIGN(Int64, tgt, 0);
+        PTR_DEF_ASSIGN(long, tgt, 0);
         PTR_DEF_ASSIGN(char, src, 2);
 
         // Get source sign bit and then temporarily clear it
@@ -6720,7 +6720,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
           }
         }
 
-        *tgt = *((Int64 *)src);
+        *tgt = *((long *)src);
 
 #ifndef NA_LITTLE_ENDIAN
         UInt16 temp1 = ((UInt16 *)tgt)[0];
@@ -6943,7 +6943,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
 
       case PCIT::SWITCH_MBIN32S_MBIN64S_MPTR32_IBIN32S_IBIN32S: {
         PTR_DEF_ASSIGN(UInt32, result, 0);
-        PTR_DEF_ASSIGN(Int64, src, 2);
+        PTR_DEF_ASSIGN(long, src, 2);
         DEF_ASSIGN(UInt32, flags, 7);
         NABoolean isInList = flags & 0x01;
         DEF_ASSIGN(Int32, size, 6);
@@ -6958,7 +6958,7 @@ ex_expr::exp_return_type ex_expr::evalPCode(PCodeBinary *pCode32, atp_struct *at
         // Case:     val1, val2, ..., valN, pcOff1, pcOff2, ..., pcOffN, pcOffDflt
         //
 
-        PTR_DEF_ASSIGN(Int64, vals, 4);
+        PTR_DEF_ASSIGN(long, vals, 4);
         Long *pcOffs = (Long *)(&vals[size]);  // i.e. the jump table
 
         // Assume no match
@@ -7193,7 +7193,7 @@ ex_expr::exp_return_type ex_expr_base::reportOverflowError(atp_struct *atp1, PCo
       op1 = ((char *)(stack[pCode[2]] + pCode[3]));
       op2 = ((char *)(stack[pCode[4]] + pCode[5]));
 
-      if (*((Int64 *)(stack[pCode[4]] + pCode[5])) == 0) {
+      if (*((long *)(stack[pCode[4]] + pCode[5])) == 0) {
         ovfl = EXE_DIVISION_BY_ZERO;
       } else {
         ovfl = EXE_NUMERIC_OVERFLOW;
@@ -7223,8 +7223,8 @@ ex_expr::exp_return_type ex_expr_base::reportOverflowError(atp_struct *atp1, PCo
       op1 = ((char *)(stack[pCode[0]] + pCode[1]));
       op2 = (char *)(&pCode[2]);
 
-      if (((*((Int64 *)(stack[pCode[0]] + pCode[1]))) < 0) &&
-          ((*(Int64 *)&pCode[2]) >= 0)) {  // conversion of -ve num to unsigned field
+      if (((*((long *)(stack[pCode[0]] + pCode[1]))) < 0) &&
+          ((*(long *)&pCode[2]) >= 0)) {  // conversion of -ve num to unsigned field
         ovfl = EXE_UNSIGNED_OVERFLOW;
       } else {
         ovfl = EXE_NUMERIC_OVERFLOW;
@@ -7237,7 +7237,7 @@ ex_expr::exp_return_type ex_expr_base::reportOverflowError(atp_struct *atp1, PCo
       op2 = (char *)(&pCode[2]);
 
       if (((*((Int32 *)(stack[pCode[0]] + pCode[1]))) < 0) &&
-          ((*(Int64 *)&pCode[2]) >= 0)) {  // conversion of -ve num to unsigned field
+          ((*(long *)&pCode[2]) >= 0)) {  // conversion of -ve num to unsigned field
         ovfl = EXE_UNSIGNED_OVERFLOW;
       } else {
         ovfl = EXE_NUMERIC_OVERFLOW;
@@ -7250,7 +7250,7 @@ ex_expr::exp_return_type ex_expr_base::reportOverflowError(atp_struct *atp1, PCo
       op2 = (char *)(&pCode[2]);
 
       if (((*((short *)(stack[pCode[0]] + pCode[1]))) < 0) &&
-          ((*(Int64 *)&pCode[2]) >= 0)) {  // conversion of -ve num to unsigned field
+          ((*(long *)&pCode[2]) >= 0)) {  // conversion of -ve num to unsigned field
         ovfl = EXE_UNSIGNED_OVERFLOW;
       } else {
         ovfl = EXE_NUMERIC_OVERFLOW;
@@ -7263,7 +7263,7 @@ ex_expr::exp_return_type ex_expr_base::reportOverflowError(atp_struct *atp1, PCo
       op2 = (char *)(&pCode[2]);
 
       if (((*((Int8 *)(stack[pCode[0]] + pCode[1]))) < 0) &&
-          ((*(Int64 *)&pCode[2]) >= 0)) {  // conversion of -ve num to unsigned field
+          ((*(long *)&pCode[2]) >= 0)) {  // conversion of -ve num to unsigned field
         ovfl = EXE_UNSIGNED_OVERFLOW;
       } else {
         ovfl = EXE_NUMERIC_OVERFLOW;

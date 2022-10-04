@@ -54,7 +54,7 @@ void SQL_EXEC_SetParserFlagsForExSqlComp_Internal(
     /*IN*/ ULng32 flagbits);
 
 // For internal use only -- do not document!
-Lng32 SQL_EXEC_SetParserFlagsForExSqlComp_Internal2(
+int SQL_EXEC_SetParserFlagsForExSqlComp_Internal2(
     /*IN*/ ULng32 flagbits);
 
 // For internal use only -- do not document!
@@ -62,16 +62,16 @@ void SQL_EXEC_ResetParserFlagsForExSqlComp_Internal(
     /*IN*/ ULng32 flagbits);
 
 // For internal use only -- do not document!
-Lng32 SQL_EXEC_ResetParserFlagsForExSqlComp_Internal2(
+int SQL_EXEC_ResetParserFlagsForExSqlComp_Internal2(
     /*IN*/ ULng32 flagbits);
 
-Lng32 SQL_EXEC_AssignParserFlagsForExSqlComp_Internal(
+int SQL_EXEC_AssignParserFlagsForExSqlComp_Internal(
     /*IN*/ ULng32 flagbits);
 
-Lng32 SQL_EXEC_GetParserFlagsForExSqlComp_Internal(
+int SQL_EXEC_GetParserFlagsForExSqlComp_Internal(
     /*IN*/ ULng32 &flagbits);
 
-Lng32 SQL_EXEC_GetTotalTcbSpace(char *tdb, char *otherInfo);
+int SQL_EXEC_GetTotalTcbSpace(char *tdb, char *otherInfo);
 
 // For internal use only -- do not document!
 // This method returns the type of stats that were collected.
@@ -109,7 +109,7 @@ enum SQLATTRHOLDABLE_INTERNAL_TYPE {
   SQLCLIDEV_PUBSUB_HOLDABLE = 3
 };
 
-Lng32 SQL_EXEC_GetCollectStatsType_Internal(
+int SQL_EXEC_GetCollectStatsType_Internal(
     /*OUT*/ ULng32 *collectStatsType,
     /*IN*/ SQLSTMT_ID *statement_id);
 
@@ -119,7 +119,7 @@ Lng32 SQL_EXEC_GetCollectStatsType_Internal(
 // if propagate is set to 1, then propagate environment to mxcmp now.
 // Otherwise, set them in internal cli globals so they could be propagated
 // the next time mxcmp is started.
-Lng32 SQL_EXEC_SetEnviron_Internal(/*IN*/ Lng32 propagate);
+int SQL_EXEC_SetEnviron_Internal(/*IN*/ int propagate);
 
 #ifndef NO_SQLCLIDEV_INCLUDES
 #include "common/sql_charset_strings.h"
@@ -193,42 +193,42 @@ enum UDRErrorFlag {
   SQLUDR_XACT_ABORT = 0x10 /* transaction was aborted */
 };
 
-Lng32 SQL_EXEC_GetUdrErrorFlags_Internal(/*OUT*/ Lng32 *udrErrorFlags);
+int SQL_EXEC_GetUdrErrorFlags_Internal(/*OUT*/ int *udrErrorFlags);
 /* returns a bitmap vector of flags defined in enum UDRErrorFlag */
 
-Lng32 SQL_EXEC_ResetUdrErrorFlags_Internal();
+int SQL_EXEC_ResetUdrErrorFlags_Internal();
 
-Lng32 SQL_EXEC_SetUdrAttributes_Internal(/*IN*/ Lng32 sqlAccessMode,
-                                         /*IN*/ Lng32 /* for future use */);
+int SQL_EXEC_SetUdrAttributes_Internal(/*IN*/ int sqlAccessMode,
+                                         /*IN*/ int /* for future use */);
 
-Lng32 SQL_EXEC_SetUdrRuntimeOptions_Internal(/*IN*/ const char *options,
+int SQL_EXEC_SetUdrRuntimeOptions_Internal(/*IN*/ const char *options,
                                              /*IN*/ ULng32 optionsLen,
                                              /*IN*/ const char *delimiters,
                                              /*IN*/ ULng32 delimsLen);
 
 // For internal use only -- do not document!
 // This method sets flag in CliGlobal to enable break handling.
-Lng32 SQL_EXEC_BreakEnabled_Internal(/*IN*/ UInt32 enabled);
+int SQL_EXEC_BreakEnabled_Internal(/*IN*/ UInt32 enabled);
 
 // For internal use only -- do not document!
 // This method checks a flag in CliGlobal to see if a break signal was
 // received while executing a stored proc. It also resets this
 // flag. This flag is used by mxci to display the appropriate break error
 // message for operations that require the RECOVER command to be run.
-Lng32 SQL_EXEC_SPBreakReceived_Internal(/*OUT*/ UInt32 *breakRecvd);
+int SQL_EXEC_SPBreakReceived_Internal(/*OUT*/ UInt32 *breakRecvd);
 
 // For internal use only -- do not document!
 // This method merges the CLI diags area into the caller's diags area
-Lng32 SQL_EXEC_MergeDiagnostics_Internal(/*INOUT*/ ComDiagsArea &newDiags);
+int SQL_EXEC_MergeDiagnostics_Internal(/*INOUT*/ ComDiagsArea &newDiags);
 
 // For internal use only -- do not document!
 // This method returns the CLI diags area in packed format
-Lng32 SQL_EXEC_GetPackedDiagnostics_Internal(
+int SQL_EXEC_GetPackedDiagnostics_Internal(
     /*OUT*/ char *message_buffer_ptr,
     /*IN*/ ULng32 message_obj_size,
     /*OUT*/ ULng32 *message_obj_size_needed,
-    /*OUT*/ Lng32 *message_obj_type,
-    /*OUT*/ Lng32 *message_obj_version);
+    /*OUT*/ int *message_obj_type,
+    /*OUT*/ int *message_obj_version);
 
 enum ROWSET_TYPE {
   ROWSET_NOT_SPECIFIED = 0,
@@ -247,8 +247,8 @@ enum SQLCLIDevVersionType {
   SQLCLIDEV_MODULE_VPROC_VERSION = 6
 };
 
-Lng32 SQL_EXEC_GetVersion_Internal(/*IN*/ Lng32 versionType,
-                                   /*OUT*/ Lng32 *versionValue,
+int SQL_EXEC_GetVersion_Internal(/*IN*/ int versionType,
+                                   /*OUT*/ int *versionValue,
                                    /*IN OPTIONAL*/ const char *nodeName,
                                    /*IN OPTIONAL*/ const SQLMODULE_ID *module_name,
                                    /*IN OPTIONAL*/ const SQLSTMT_ID *statement_id);
@@ -258,32 +258,32 @@ Lng32 SQL_EXEC_GetVersion_Internal(/*IN*/ Lng32 versionType,
 extern "C" {
 #endif
 
-Lng32 SQL_EXEC_GetAuthID(const char *authName, Lng32 &authID);
+int SQL_EXEC_GetAuthID(const char *authName, int &authID);
 
-Lng32 SQL_EXEC_GetAuthName_Internal(Lng32 auth_id, char *string_value, Lng32 max_string_len, Lng32 &len_of_item);
+int SQL_EXEC_GetAuthName_Internal(int auth_id, char *string_value, int max_string_len, int &len_of_item);
 
-Lng32 SQL_EXEC_GetDatabaseUserName_Internal(
-    /*IN*/ Lng32 user_id,
+int SQL_EXEC_GetDatabaseUserName_Internal(
+    /*IN*/ int user_id,
     /*OUT*/ char *string_value,
-    /*IN*/ Lng32 max_string_len,
-    /*OUT OPTIONAL*/ Lng32 *len_of_item);
+    /*IN*/ int max_string_len,
+    /*OUT OPTIONAL*/ int *len_of_item);
 
-Lng32 SQL_EXEC_GetDatabaseUserID_Internal(
+int SQL_EXEC_GetDatabaseUserID_Internal(
     /*IN*/ char *string_value,
-    /*OUT*/ Lng32 *numeric_value);
+    /*OUT*/ int *numeric_value);
 
-Lng32 SQL_EXEC_SetSessionAttr_Internal(
-    /*IN (SESSIONATTR_TYPE)*/ Lng32 attrName,
-    /*IN OPTIONAL*/ Lng32 numeric_value,
+int SQL_EXEC_SetSessionAttr_Internal(
+    /*IN (SESSIONATTR_TYPE)*/ int attrName,
+    /*IN OPTIONAL*/ int numeric_value,
     /*IN OPTIONAL*/ const char *string_value);
 
-Lng32 SQL_EXEC_SetErrorCodeInRTS(
+int SQL_EXEC_SetErrorCodeInRTS(
     /*IN*/ SQLSTMT_ID *statement_id,
-    /*IN*/ Lng32 sqlErrorCode);
+    /*IN*/ int sqlErrorCode);
 
-Lng32 SQL_EXEC_GetRoleList(Int32 &numEntries, Int32 *&roleIDs, Int32 *&granteeIDs);
+int SQL_EXEC_GetRoleList(Int32 &numEntries, Int32 *&roleIDs, Int32 *&granteeIDs);
 
-Lng32 SQL_EXEC_ResetRoleList_Internal();
+int SQL_EXEC_ResetRoleList_Internal();
 
 void SQL_EXEC_InitGlobals();
 
@@ -322,13 +322,13 @@ on  the tdb type.
 Tdb Type                    Struct type
 ComTdb::ex_REPLICATE        SQL_REPLICATOR_OPERATOR_STATS
 */
-Lng32 SQL_EXEC_RegisterQuery(SQLQUERY_ID *queryId, Lng32 fragId, Lng32 tdbId, Lng32 explainTdbId,
-                             short collectStatsType, Lng32 instNum, Lng32 tdbType, char *tdbName, Lng32 tdbNameLen);
+int SQL_EXEC_RegisterQuery(SQLQUERY_ID *queryId, int fragId, int tdbId, int explainTdbId,
+                             short collectStatsType, int instNum, int tdbType, char *tdbName, int tdbNameLen);
 
 /*
 Deregisters the query in RMS shared segment
 */
-Lng32 SQL_EXEC_DeregisterQuery(SQLQUERY_ID *queryId, Lng32 fragId);
+int SQL_EXEC_DeregisterQuery(SQLQUERY_ID *queryId, int fragId);
 
 enum SECliQueryType {
   SE_CLI_CREATE_CONTEXT,
@@ -384,7 +384,7 @@ enum SECliQueryType {
   SE_CLI_TRAFQ_GET
 };
 
-Lng32 SQL_EXEC_SEcliInterface(
+int SQL_EXEC_SEcliInterface(
     SECliQueryType qType,
 
     void **cliInterface, /* IN: if passed in and not null, use it.
@@ -392,31 +392,31 @@ Lng32 SQL_EXEC_SEcliInterface(
 
     const char *inStrParam1 = NULL, const char *inStrParam2 = NULL, int inIntParam1 = -1, int inIntParam2 = -1,
 
-    char **outStrParam1 = NULL, char **outStrParam2 = NULL, Lng32 *outIntParam1 = NULL
+    char **outStrParam1 = NULL, char **outStrParam2 = NULL, int *outIntParam1 = NULL
 
 );
 
 // This method returns the pointer to the CLI ExStatistics area.
 // The returned pointer is a read only pointer, its contents cannot be
 // modified by the caller.
-Lng32 SQL_EXEC_GetStatisticsArea_Internal(
+int SQL_EXEC_GetStatisticsArea_Internal(
     /* IN */ short statsReqType,
     /* IN */ char *statsReqStr,
-    /* IN */ Lng32 statsReqStrLen,
+    /* IN */ int statsReqStrLen,
     /* IN */ short activeQueryNum,
     /* IN */ short statsMergeType,
     /*INOUT*/ const ExStatisticsArea *&exStatsArea);
 
 Int32 SQL_EXEC_GetObjectEpochStats_Internal(
     /* IN */ const char *objectName,
-    /* IN */ Lng32 objectNameLen,
+    /* IN */ int objectNameLen,
     /* IN */ short cpu,
     /* IN */ bool active,
     /*INOUT*/ ExStatisticsArea *&exStatsArea);
 
 Int32 SQL_EXEC_GetObjectLockStats_Internal(
     /* IN */ const char *objectName,
-    /* IN */ Lng32 objectNameLen,
+    /* IN */ int objectNameLen,
     /* IN */ short cpu,
     /*INOUT*/ ExStatisticsArea *&exStatsArea);
 
@@ -428,14 +428,14 @@ Int32 SQL_EXEC_SWITCH_TO_COMPILER(
 
 Int32 SQL_EXEC_SWITCH_BACK_COMPILER();
 
-Lng32 SQL_EXEC_SeqGenCliInterface(void **cliInterface, /* IN: if passed in and not null, use it.
+int SQL_EXEC_SeqGenCliInterface(void **cliInterface, /* IN: if passed in and not null, use it.
                                                                 OUT: if returned, save it and pass it back in */
 
                                   void *seqGenAttrs);
 
-Lng32 SQL_EXEC_OrderSeqXDCCliInterface(void **cliInterface, /* IN: if passed in and not null, use it.
+int SQL_EXEC_OrderSeqXDCCliInterface(void **cliInterface, /* IN: if passed in and not null, use it.
                                                                      OUT: if returned, save it and pass it back in */
-                                       void *seqGenAttrs, Int64 endValue);
+                                       void *seqGenAttrs, long endValue);
 
 const Int32 NullCliRoutineHandle = -1;
 

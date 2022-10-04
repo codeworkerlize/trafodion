@@ -156,10 +156,10 @@ class ExpDatetime : public SimpleType {
   };
 
   struct DatetimeFormatInfo {
-    Lng32 format;     // defined by enum DatetimeFormats
+    int format;     // defined by enum DatetimeFormats
     const char *str;  // string representation of datetime format
-    Lng32 minLen;     // minimum length to hold this format
-    Lng32 maxLen;
+    int minLen;     // minimum length to hold this format
+    int maxLen;
   };
 
   static const DatetimeFormatInfo datetimeFormat[];
@@ -188,9 +188,9 @@ class ExpDatetime : public SimpleType {
   ExpDatetime();
   ~ExpDatetime();
 
-  static Int64 getTotalDays(short year, short month, short day);
+  static long getTotalDays(short year, short month, short day);
 
-  static short getDatetimeFields(Lng32 datetimeCode, rec_datetime_field &startField, rec_datetime_field &endField);
+  static short getDatetimeFields(int datetimeCode, rec_datetime_field &startField, rec_datetime_field &endField);
 
   short computeLastDayOfMonth(rec_datetime_field startField, rec_datetime_field endField, char *inDatetimeOpData,
                               char *outDatetimeOpData);
@@ -199,11 +199,11 @@ class ExpDatetime : public SimpleType {
 
   void convertDatetimeToInterval(rec_datetime_field datetimeStartField, rec_datetime_field datetimeEndField,
                                  short fractionPrecision, rec_datetime_field intervalEndField, char *datetimeOpData,
-                                 Int64 &interval, char *intervalBignum, NABoolean &isBignum) const;
+                                 long &interval, char *intervalBignum, NABoolean &isBignum) const;
 
-  static short getYearMonthDay(Int64 totalDays, short &year, char &month, char &day);
+  static short getYearMonthDay(long totalDays, short &year, char &month, char &day);
 
-  short convertIntervalToDatetime(Int64 interval, char *intervalBignum, rec_datetime_field startField,
+  short convertIntervalToDatetime(long interval, char *intervalBignum, rec_datetime_field startField,
                                   rec_datetime_field endField, short fractionPrecision, char *datetimeOpData) const;
 
   static short validateDate(rec_datetime_field startField, rec_datetime_field endField, char *datetimeOpData,
@@ -223,9 +223,9 @@ class ExpDatetime : public SimpleType {
   short subDatetimeDatetime(Attributes *datetimeOpType, Attributes *intervalOpType, char *datetimeOpData1,
                             char *datetimeOpData2, char *resultData, CollHeap *heap, ComDiagsArea **diagsArea) const;
 
-  static short getDisplaySize(Lng32 datetimeCode, short fractionPrecision);
+  static short getDisplaySize(int datetimeCode, short fractionPrecision);
 
-  static Lng32 getDatetimeFormatLen(Lng32 format, NABoolean to_date, rec_datetime_field startField,
+  static int getDatetimeFormatLen(int format, NABoolean to_date, rec_datetime_field startField,
                                     rec_datetime_field endField);
 
   Attributes *newCopy();
@@ -240,7 +240,7 @@ class ExpDatetime : public SimpleType {
   virtual ExpDatetime *castToExpDatetime();
 
   short convDatetimeDatetime(char *srcData, rec_datetime_field dstStartField, rec_datetime_field dstEndField,
-                             short dstFractPrec, char *dstData, Lng32 dstLen, short validateFlag,
+                             short dstFractPrec, char *dstData, int dstLen, short validateFlag,
                              NABoolean *roundedDownFlag = NULL);
 
   static short currentTimeStamp(char *dstData, rec_datetime_field startField, rec_datetime_field endField,
@@ -249,26 +249,26 @@ class ExpDatetime : public SimpleType {
   short extractDatetime(rec_datetime_field srcStartField, rec_datetime_field srcEndField, short srcFractPrec,
                         char *srcData, char *dstData);
 
-  static short convAsciiToDatetime(char *source, Lng32 sourceLen, char *target, Lng32 targetLen,
-                                   rec_datetime_field dstStartField, rec_datetime_field dstEndField, Lng32 format,
-                                   Lng32 &scale, CollHeap *heap, ComDiagsArea **diagsArea, ULng32 flags);
+  static short convAsciiToDatetime(char *source, int sourceLen, char *target, int targetLen,
+                                   rec_datetime_field dstStartField, rec_datetime_field dstEndField, int format,
+                                   int &scale, CollHeap *heap, ComDiagsArea **diagsArea, ULng32 flags);
 
-  short convAsciiToDatetime(char *source, Lng32 sourceLen, char *target, Lng32 targetLen, Lng32 format, CollHeap *heap,
+  short convAsciiToDatetime(char *source, int sourceLen, char *target, int targetLen, int format, CollHeap *heap,
                             ComDiagsArea **diagsArea, ULng32 flags);
 
-  short convAsciiToDate(char *target, Lng32 targetLen, char *source, Lng32 sourceLen, Int32 format, CollHeap *heap,
+  short convAsciiToDate(char *target, int targetLen, char *source, int sourceLen, Int32 format, CollHeap *heap,
                         ComDiagsArea **diagsArea, ULng32 flags);
 
-  Lng32 convDatetimeToASCII(char *srcData, char *dstData, Lng32 dstLen, Int32 format, char *formatStr, CollHeap *heap,
-                            ComDiagsArea **diagsArea, Lng32 caseSensitive = 0, ULng32 nsrcLen = -1);
+  int convDatetimeToASCII(char *srcData, char *dstData, int dstLen, Int32 format, char *formatStr, CollHeap *heap,
+                            ComDiagsArea **diagsArea, int caseSensitive = 0, ULng32 nsrcLen = -1);
 
-  static Lng32 convNumericTimeToASCII(char *srcData, char *dstData, Lng32 dstLen, Int32 format, char *formatStr,
+  static int convNumericTimeToASCII(char *srcData, char *dstData, int dstLen, Int32 format, char *formatStr,
                                       CollHeap *heap, ComDiagsArea **diagsArea);
 
-  static short convAsciiDatetimeToASCII(char *srcData, Lng32 srcPrecision, Lng32 srcScale, Lng32 srcLen, char *dstData,
-                                        Lng32 dstLen, Int32 format, CollHeap *heap, ComDiagsArea **diagsArea);
+  static short convAsciiDatetimeToASCII(char *srcData, int srcPrecision, int srcScale, int srcLen, char *dstData,
+                                        int dstLen, Int32 format, CollHeap *heap, ComDiagsArea **diagsArea);
 
-  static short convAsciiDatetimeToUtcOrLocal(char *srcData, Lng32 srcLen, char *dstData, Lng32 dstLen, Int64 gmtDiff,
+  static short convAsciiDatetimeToUtcOrLocal(char *srcData, int srcLen, char *dstData, int dstLen, long gmtDiff,
                                              NABoolean toUTC, CollHeap *heap, ComDiagsArea **diagsArea);
 
   char *getDefaultStringValue(CollHeap *heap);
@@ -286,11 +286,11 @@ class ExpDatetime : public SimpleType {
   virtual short getClassSize() { return (short)sizeof(*this); }
   // ---------------------------------------------------------------------
 
-  static const char *getDatetimeFormatStr(Lng32 frmt) { return datetimeFormat[frmt].str; }
+  static const char *getDatetimeFormatStr(int frmt) { return datetimeFormat[frmt].str; }
 
-  static const Lng32 getDatetimeFormat(const char *formatStr) {
+  static const int getDatetimeFormat(const char *formatStr) {
     if (0 == strlen(formatStr)) return DATETIME_FORMAT_NULL;
-    for (Lng32 i = DATETIME_FORMAT_MIN; i <= DATETIME_FORMAT_MAX; i++) {
+    for (int i = DATETIME_FORMAT_MIN; i <= DATETIME_FORMAT_MAX; i++) {
       if (stricmp(formatStr, datetimeFormat[i].str) == 0) {
         if (datetimeFormat[i].format != i) return -1;
 
@@ -298,7 +298,7 @@ class ExpDatetime : public SimpleType {
       }
     }
 
-    for (Lng32 i = DATETIME_FORMAT_MIN_NUM; i <= DATETIME_FORMAT_MAX_NUM; i++) {
+    for (int i = DATETIME_FORMAT_MIN_NUM; i <= DATETIME_FORMAT_MAX_NUM; i++) {
       if (stricmp(formatStr, datetimeFormat[i].str) == 0) {
         if (datetimeFormat[i].format != i) return -1;
 
@@ -306,7 +306,7 @@ class ExpDatetime : public SimpleType {
       }
     }
 
-    for (Lng32 i = DATETIME_FORMAT_EXTRA_MIN; i <= DATETIME_FORMAT_EXTRA_MAX; i++) {
+    for (int i = DATETIME_FORMAT_EXTRA_MIN; i <= DATETIME_FORMAT_EXTRA_MAX; i++) {
       if (stricmp(formatStr, datetimeFormat[i].str) == 0) {
         if (datetimeFormat[i].format != i) return -1;
 
@@ -314,7 +314,7 @@ class ExpDatetime : public SimpleType {
       }
     }
 
-    for (Lng32 i = DATETIME_FORMAT_MIN_UNRESOLVED; i <= DATETIME_FORMAT_MAX_UNRESOLVED; i++) {
+    for (int i = DATETIME_FORMAT_MIN_UNRESOLVED; i <= DATETIME_FORMAT_MAX_UNRESOLVED; i++) {
       if (stricmp(formatStr, datetimeFormat[i].str) == 0) {
         if (datetimeFormat[i].format != i) return -1;
 
@@ -323,15 +323,15 @@ class ExpDatetime : public SimpleType {
     }
 
     // check if alternate datetime format is specified
-    Lng32 f = getAltDatetimeFormat(formatStr);
+    int f = getAltDatetimeFormat(formatStr);
     if (f >= 0) return f;
 
     return -1;
   }
 
-  // static const Lng32 getAltDatetimeFormat(const char * formatStr);
-  static const Lng32 getAltDatetimeFormat(const char *formatStr) {
-    for (Lng32 i = 0; i < altDatetimeFormatArraySize; i++) {
+  // static const int getAltDatetimeFormat(const char * formatStr);
+  static const int getAltDatetimeFormat(const char *formatStr) {
+    for (int i = 0; i < altDatetimeFormatArraySize; i++) {
       if (stricmp(formatStr, altDatetimeFormat[i].str) == 0) {
         return altDatetimeFormat[i].format;
       }
@@ -340,33 +340,33 @@ class ExpDatetime : public SimpleType {
     return -1;
   }
 
-  static NABoolean isDateTimeFormat(Lng32 frmt) {
+  static NABoolean isDateTimeFormat(int frmt) {
     return ((frmt >= DATETIME_FORMAT_MIN) && (frmt <= DATETIME_FORMAT_MAX));
   }
 
-  static NABoolean isDateFormat(Lng32 frmt) {
+  static NABoolean isDateFormat(int frmt) {
     return ((frmt >= DATETIME_FORMAT_MIN_DATE) && (frmt <= DATETIME_FORMAT_MAX_DATE));
   }
 
-  static NABoolean isTimestampFormat(Lng32 frmt) {
+  static NABoolean isTimestampFormat(int frmt) {
     return ((frmt >= DATETIME_FORMAT_MIN_TS) && (frmt <= DATETIME_FORMAT_MAX_TS));
   }
 
-  static NABoolean isTimeFormat(Lng32 frmt) {
+  static NABoolean isTimeFormat(int frmt) {
     return ((frmt >= DATETIME_FORMAT_MIN_TIME) && (frmt <= DATETIME_FORMAT_MAX_TIME));
   }
 
-  static NABoolean isExtraFormat(Lng32 frmt) {
+  static NABoolean isExtraFormat(int frmt) {
     return ((frmt >= DATETIME_FORMAT_EXTRA_MIN) && (frmt <= DATETIME_FORMAT_EXTRA_MAX));
   }
 
-  static NABoolean isNumericFormat(Lng32 frmt) {
+  static NABoolean isNumericFormat(int frmt) {
     return ((frmt == DATETIME_FORMAT_NUM1) || (frmt == DATETIME_FORMAT_NUM2));
   }
 
-  static Lng32 getDatetimeFormatLen(Lng32 frmt) { return datetimeFormat[frmt].minLen; }
+  static int getDatetimeFormatLen(int frmt) { return datetimeFormat[frmt].minLen; }
 
-  static Lng32 getDatetimeFormatMaxLen(Lng32 frmt) { return datetimeFormat[frmt].maxLen; }
+  static int getDatetimeFormatMaxLen(int frmt) { return datetimeFormat[frmt].maxLen; }
 
  private:
 };

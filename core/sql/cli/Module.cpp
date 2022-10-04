@@ -40,7 +40,7 @@
 
 #include "cli_stdh.h"
 
-Module::Module(const char *module_name, Lng32 len, char *pathName, Lng32 pathNameLen, NAHeap *heap)
+Module::Module(const char *module_name, int len, char *pathName, int pathNameLen, NAHeap *heap)
     : module_name_len_(len), path_name_len_(pathNameLen), heap_(heap), statementCount_(0), vproc_(NULL) {
   module_name_ = (char *)(heap->allocateMemory((size_t)(len + 1)));
 

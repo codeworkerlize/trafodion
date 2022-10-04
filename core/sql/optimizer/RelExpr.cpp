@@ -35,7 +35,7 @@
 #define SQLPARSERGLOBALS_FLAGS  // must precede all #include's
 #define SQLPARSERGLOBALS_NADEFAULTS
 
-#include "Debug.h"
+#include "common/Debug.h"
 #include "optimizer/Sqlcomp.h"
 #include "optimizer/AllRelExpr.h"
 #include "optimizer/AllItemExpr.h"
@@ -74,7 +74,7 @@
 
 #include <fstream>
 #include <unistd.h>
-#include "CostMethod.h"
+#include "optimizer/CostMethod.h"
 // ----------------------------------------------------------------------
 // forward declarations
 // ----------------------------------------------------------------------
@@ -320,7 +320,7 @@ RelExpr::~RelExpr() {
 
   // delete all children, if this is a standalone query
   // (NOTE: can't use the virtual function getArity() in a destructor!!!)
-  for (Lng32 i = 0; i < MAX_REL_ARITY; i++) {
+  for (int i = 0; i < MAX_REL_ARITY; i++) {
     if (child(i).getMode() == ExprGroupId::STANDALONE) {
       // the input was not obtained from CascadesMemo, so delete it
       if (child(i).getPtr() != NULL) delete child(i).getPtr();
@@ -366,7 +366,7 @@ Int32 RelExpr::getArity() const {
 void RelExpr::deleteInstance() {
   Int32 nc = getArity();
   // avoid deleting the children by resetting all child pointers first
-  for (Lng32 i = 0; i < nc; i++) {
+  for (int i = 0; i < nc; i++) {
     child(i) = (RelExpr *)NULL;
   }
   delete this;
@@ -374,9 +374,9 @@ void RelExpr::deleteInstance() {
 
 TableMappingUDF *RelExpr::castToTableMappingUDF() { return NULL; }
 
-ExprNode *RelExpr::getChild(Lng32 index) { return child(index); }  // RelExpr::getChild()
+ExprNode *RelExpr::getChild(int index) { return child(index); }  // RelExpr::getChild()
 
-void RelExpr::setChild(Lng32 index, ExprNode *newChild) {
+void RelExpr::setChild(int index, ExprNode *newChild) {
   if (newChild) {
     CMPASSERT(newChild->castToRelExpr());
     child(index) = newChild->castToRelExpr();
@@ -421,7 +421,7 @@ void RelExpr::clearLogExprForSynthDuringAnalysis() {
   }
 
   // clear the log expr for all children
-  for (Lng32 i = 0; i < numChildren; i++) {
+  for (int i = 0; i < numChildren; i++) {
     // only if the child is not a CascadesGroup or NULL
     if (child(i).getPtr() != NULL) {
       child(i)->clearLogExprForSynthDuringAnalysis();
@@ -432,7 +432,7 @@ void RelExpr::clearLogExprForSynthDuringAnalysis() {
 void RelExpr::releaseBindingTree(NABoolean memoIsMoribund) {
   Int32 nc = getArity();
 
-  for (Lng32 i = 0; i < nc; i++) {
+  for (int i = 0; i < nc; i++) {
     if (memoIsMoribund || child(i).getMode() == ExprGroupId::BINDING) {
       // recursively release the bindings of the children's children
       if (child(i).getPtr() != NULL) child(i)->releaseBindingTree(memoIsMoribund);
@@ -559,7 +559,7 @@ HashValue RelExpr::treeHash() {
   HashValue result = topHash();
   Int32 maxc = getArity();
 
-  for (Lng32 i = 0; i < maxc; i++) {
+  for (int i = 0; i < maxc; i++) {
     if (child(i).getMode() == ExprGroupId::MEMOIZED)
       // use the numbers of the input CascadesGroup
       result ^= child(i).getGroupId();
@@ -695,7 +695,7 @@ NABoolean RelExpr::duplicateMatch(const RelExpr &other) const {
   Int32 maxc = getArity();
 
   // determine whether the children match
-  for (Lng32 i = 0; i < maxc; i++) {
+  for (int i = 0; i < maxc; i++) {
     // different situations, depending on whether the child
     // and the other node's child is in state MEMOIZED,
     // BINDING, or STANDALONE. See ExprGroupId::operator ==
@@ -805,7 +805,7 @@ RelExpr *RelExpr::copyTree(CollHeap *outHeap) {
   RelExpr *result = copyTopNode(0, outHeap);
   Int32 arity = getArity();
 
-  for (Lng32 i = 0; i < arity; i++) result->child(i) = child(i)->copyTree(outHeap);
+  for (int i = 0; i < arity; i++) result->child(i) = child(i)->copyTree(outHeap);
 
   return result;
 }
@@ -822,7 +822,7 @@ RelExpr *RelExpr::copyRelExprTree(CollHeap *outHeap) {
 
   Int32 arity = getArity();
 
-  for (Lng32 i = 0; i < arity; i++) result->child(i) = child(i)->copyRelExprTree(outHeap);
+  for (int i = 0; i < arity; i++) result->child(i) = child(i)->copyRelExprTree(outHeap);
 
   return result;
 }
@@ -851,13 +851,13 @@ void RelExpr::setBlockStmtRecursively(NABoolean x) {
   setBlockStmt(x);
   Int32 arity = getArity();
 
-  for (Lng32 i = 0; i < arity; i++) child(i)->setBlockStmtRecursively(x);
+  for (int i = 0; i < arity; i++) child(i)->setBlockStmtRecursively(x);
 }
 
 // -----------------------------------------------------------------------
 // create or share an optimization goal for a child group
 // -----------------------------------------------------------------------
-Context *RelExpr::shareContext(Lng32 childIndex, const ReqdPhysicalProperty *const reqdPhys,
+Context *RelExpr::shareContext(int childIndex, const ReqdPhysicalProperty *const reqdPhys,
                                const InputPhysicalProperty *const inputPhys, CostLimit *costLimit,
                                Context *parentContext, const EstLogPropSharedPtr &inputLogProp,
                                RelExpr *explicitlyRequiredShape) const {
@@ -1112,7 +1112,7 @@ void RelExpr::computeValuesReqdForOutput(const ValueIdSet &setOfExpr, const Valu
 // -----------------------------------------------------------------------
 void RelExpr::pushdownCoveredExpr(const ValueIdSet &outputExpr, const ValueIdSet &newExternalInputs,
                                   ValueIdSet &predicatesOnParent, const ValueIdSet *setOfValuesReqdByParent,
-                                  Lng32 childIndex) {
+                                  int childIndex) {
   ValueIdSet exprToEvalOnParent, outputSet, extraHubNonEssOutputs;
   Int32 firstChild, lastChild;  // loop bounds
   Int32 iter;                   // loop index variable
@@ -1400,7 +1400,7 @@ void RelExpr::getPotentialOutputValues(ValueIdSet &outputValues) const {
   // For operators that are not leaves, clear the potential outputs
   // and rebuild them.
   if (nc > 0)
-    for (Lng32 i = 0; i < nc; i++) outputValues += child(i).getGroupAttr()->getCharacteristicOutputs();
+    for (int i = 0; i < nc; i++) outputValues += child(i).getGroupAttr()->getCharacteristicOutputs();
   else
     outputValues += getGroupAttr()->getCharacteristicOutputs();
 
@@ -1443,7 +1443,7 @@ void RelExpr::primeGroupAttributes() {
 void RelExpr::allocateAndPrimeGroupAttributes() {
   Int32 nc = getArity();
 
-  for (Lng32 i = 0; i < nc; i++) {
+  for (int i = 0; i < nc; i++) {
     CMPASSERT(child(i).getMode() == ExprGroupId::STANDALONE);
     // Terminate the recursive descent upon reaching a CutOp.
     // Ignore CutOps because they exist simply to facilitate
@@ -1478,7 +1478,7 @@ void RelExpr::allocateAndPrimeGroupAttributes() {
 
 void RelExpr::getEssentialOutputsFromChildren(ValueIdSet &essOutputs) {
   Int32 nc = getArity();
-  for (Lng32 i = 0; i < nc; i++) {
+  for (int i = 0; i < nc; i++) {
     essOutputs += child(i).getGroupAttr()->getEssentialCharacteristicOutputs();
   }
 }
@@ -1496,17 +1496,17 @@ void RelExpr::fixEssentialCharacteristicOutputs() {
 void RelExpr::analyzeInitialPlan() {
   Int32 nc = getArity();
 
-  for (Lng32 i = 0; i < nc; i++) {
+  for (int i = 0; i < nc; i++) {
     child(i)->analyzeInitialPlan();
   }
 }
 
-double RelExpr::calculateNoOfLogPlans(Lng32 &numOfMergedExprs) {
+double RelExpr::calculateNoOfLogPlans(int &numOfMergedExprs) {
   double result = 1;
   Int32 nc = getArity();
   CascadesGroup *group;
 
-  for (Lng32 i = 0; i < nc; i++) {
+  for (int i = 0; i < nc; i++) {
     if (getGroupId() == child(i).getGroupId()) {
       // This is  a recursive reference of an expression to itself
       // due to a group merge. We cannot call this method on the
@@ -1707,7 +1707,7 @@ void RelExpr::makeListBySize(LIST(CostScalar) & orderedList,  // order list of s
     }
   }
 
-  for (Lng32 i = 0; i < nc; i++) {
+  for (int i = 0; i < nc; i++) {
     CascadesGroup *group1 = (*CURRSTMT_OPTGLOBALS->memo)[expr->child(i).getGroupId()];
     // Only one log expr exist in the group at this point
     // if onlyMemoryOps is ever set true, we will have to traverse
@@ -1718,7 +1718,7 @@ void RelExpr::makeListBySize(LIST(CostScalar) & orderedList,  // order list of s
 }
 
 // Default implementation every RelExpr returns normal priority
-PlanPriority RelExpr::computeOperatorPriority(const Context *context, PlanWorkSpace *pws, Lng32 planNumber) {
+PlanPriority RelExpr::computeOperatorPriority(const Context *context, PlanWorkSpace *pws, int planNumber) {
   PlanPriority result;  // This will create normal plan priority
   return result;
 }
@@ -1739,7 +1739,7 @@ void RelExpr::print(FILE *f, const char *prefix, const char *suffix) const {
 
   // print children or input equivalence classes
   Int32 nc = getArity();
-  for (Lng32 i = 0; i < nc; i++) {
+  for (int i = 0; i < nc; i++) {
     fprintf(f, "%sExpression input %d:\n", prefix, i);
     if (child(i).getMode() == ExprGroupId::MEMOIZED) {
       fprintf(f, "%s    input eq. class #%d\n", prefix, child(i).getGroupId());
@@ -1756,7 +1756,7 @@ void RelExpr::print(FILE *f, const char *prefix, const char *suffix) const {
 Int32 RelExpr::nodeCount() const {
   Int32 result = 1;  // start from me.
   Int32 nc = getArity();
-  for (Lng32 i = 0; i < nc; i++)
+  for (int i = 0; i < nc; i++)
     if (child(i).getPtr() != NULL) result += child(i)->nodeCount();
 
   return result;
@@ -1779,9 +1779,9 @@ double RelExpr::computeMemoryQuota(NABoolean inMaster, NABoolean perNode,
                                    double totalBMOsMemoryUsage,  // for all BMOs per node in bytes
                                    UInt16 numBMOsPerFragment,    // per fragment
                                    double bmoMemoryUsage,        // for the current BMO/Operator per node in bytes
-                                   Lng32 numStreams, double &bmoQuotaRatio) {
+                                   int numStreams, double &bmoQuotaRatio) {
   if (perNode == TRUE) {
-    Lng32 exeMem = Lng32(BMOsMemoryLimit / (1024 * 1024));
+    int exeMem = int(BMOsMemoryLimit / (1024 * 1024));
 
     // the quota is allocated in 2 parts
     // The constant part divided equally across all bmo operators
@@ -1806,14 +1806,14 @@ double RelExpr::computeMemoryQuota(NABoolean inMaster, NABoolean perNode,
     return bmoMemoryQuotaPerInstance;
   } else {
     // the old way to compute quota
-    Lng32 exeMem = getExeMemoryAvailable(inMaster);
+    int exeMem = getExeMemoryAvailable(inMaster);
     bmoQuotaRatio = BMOQuotaRatio::NO_RATIO;
     return exeMem / numBMOsPerFragment;
   }
 }
 
-Lng32 RelExpr::getExeMemoryAvailable(NABoolean inMaster) const {
-  Lng32 exeMemAvailMB = ActiveSchemaDB()->getDefaults().getAsLong(EXE_MEMORY_AVAILABLE_IN_MB);
+int RelExpr::getExeMemoryAvailable(NABoolean inMaster) const {
+  int exeMemAvailMB = ActiveSchemaDB()->getDefaults().getAsLong(EXE_MEMORY_AVAILABLE_IN_MB);
   return exeMemAvailMB;
 }
 
@@ -1864,7 +1864,7 @@ void RelExprList::insertOrderByRowcount(RelExpr *expr) {
 NABoolean RelExprList::operator==(const RelExprList &other) const {
   if (entries() != other.entries()) return FALSE;
 
-  for (Lng32 i = 0; i < (Lng32)entries(); i++) {
+  for (int i = 0; i < (int)entries(); i++) {
     if ((*this)[i] != other[i]) return FALSE;
   }
   return TRUE;
@@ -2483,7 +2483,7 @@ const NAString JoinForceWildCard::getText() const {
 // -----------------------------------------------------------------------
 
 ExchangeForceWildCard::ExchangeForceWildCard(RelExpr *child0, forcedExchEnum which, forcedLogPartEnum whatLogPart,
-                                             Lng32 numBottomEsps, CollHeap *outHeap)
+                                             int numBottomEsps, CollHeap *outHeap)
     : WildCardOp(REL_FORCE_EXCHANGE, 0, child0, NULL, outHeap),
       which_(which),
       whatLogPart_(whatLogPart),
@@ -2723,7 +2723,7 @@ const NAString ControlQueryShape::getText() const {
 
 ControlQueryDefault::ControlQueryDefault(const NAString &sqlText, CharInfo::CharSet sqlTextCharSet,
                                          const NAString &token, const NAString &value, NABoolean dyn,
-                                         Lng32 holdOrRestoreCQD, CollHeap *h, Int32 reset)
+                                         int holdOrRestoreCQD, CollHeap *h, Int32 reset)
     : ControlAbstractClass(REL_CONTROL_QUERY_DEFAULT, sqlText, sqlTextCharSet, token, value, dyn, h, reset),
       holdOrRestoreCQD_(holdOrRestoreCQD),
       attrEnum_(__INVALID_DEFAULT_ATTRIBUTE) {}
@@ -2747,7 +2747,7 @@ const NAString ControlQueryDefault::getText() const { return getControlTextPrefi
 // -----------------------------------------------------------------------
 
 ControlQueryDefaults::ControlQueryDefaults(const NAString &sqlText, CharInfo::CharSet sqlTextCharSet,
-                                           const NAList<GroupOfNAString *> *cqds, Lng32 holdOrRestoreCQD, Int32 reset,
+                                           const NAList<GroupOfNAString *> *cqds, int holdOrRestoreCQD, Int32 reset,
                                            CollHeap *h)
     : ControlQueryDefault(sqlText, sqlTextCharSet, "", "", FALSE, holdOrRestoreCQD, h, reset),
       cqds_((NAList<GroupOfNAString *> *)cqds) {}
@@ -2959,9 +2959,9 @@ NABoolean Sort::isPhysical() const { return TRUE; }
 
 const NAString Sort::getText() const { return "sort"; }
 
-PlanPriority Sort::computeOperatorPriority(const Context *context, PlanWorkSpace *pws, Lng32 planNumber) {
+PlanPriority Sort::computeOperatorPriority(const Context *context, PlanWorkSpace *pws, int planNumber) {
   const PhysicalProperty *spp = context->getPlan()->getPhysicalProperty();
-  Lng32 degreeOfParallelism = spp->getCountOfPartitions();
+  int degreeOfParallelism = spp->getCountOfPartitions();
   double val = 1;
   if (degreeOfParallelism <= 1) {
     // serial plans are risky. exact an insurance premium from serial plans.
@@ -2976,7 +2976,7 @@ PlanPriority Sort::computeOperatorPriority(const Context *context, PlanWorkSpace
   // For the option of Max Degree of Parallelism we can either use the
   // value set in comp_int_9 (if positive) or we use the number of CPUs
   // if the CQD is set to -1, or feature is disabled if CQD is 0 (default).
-  Lng32 maxDegree = ActiveSchemaDB()->getDefaults().getAsLong(COMP_INT_9);
+  int maxDegree = ActiveSchemaDB()->getDefaults().getAsLong(COMP_INT_9);
   if (CURRSTMT_OPTDEFAULTS->maxParallelismIsFeasible() OR(maxDegree == -1)) {
     // if CQD is set to -1 this mean use the number of CPUs
     maxDegree = spp->getCurrentCountOfCPUs();
@@ -3138,8 +3138,8 @@ const NAString Exchange::getText() const {
   const PartitioningFunction *topPartFunc = getTopPartitioningFunction();
   const PartitioningFunction *bottomPartFunc = getBottomPartitioningFunction();
 
-  Lng32 topNumParts = ANY_NUMBER_OF_PARTITIONS;
-  Lng32 bottomNumParts = ANY_NUMBER_OF_PARTITIONS;
+  int topNumParts = ANY_NUMBER_OF_PARTITIONS;
+  int bottomNumParts = ANY_NUMBER_OF_PARTITIONS;
 
   if (topPartFunc) topNumParts = topPartFunc->getCountOfPartitions();
   if (bottomPartFunc) bottomNumParts = bottomPartFunc->getCountOfPartitions();
@@ -3176,12 +3176,12 @@ const NAString Exchange::getText() const {
   return result;
 }
 
-PlanPriority Exchange::computeOperatorPriority(const Context *context, PlanWorkSpace *pws, Lng32 planNumber) {
+PlanPriority Exchange::computeOperatorPriority(const Context *context, PlanWorkSpace *pws, int planNumber) {
   PlanPriority result;
 
   OperatorTypeEnum parOperType = context->getCurrentAncestor()->getPlan()->getPhysicalExpr()->getOperatorType();
 
-  Lng32 cqdValue = ActiveSchemaDB()->getDefaults().getAsLong(COMP_INT_9);
+  int cqdValue = ActiveSchemaDB()->getDefaults().getAsLong(COMP_INT_9);
   if ((cqdValue == -2) AND((parOperType == REL_ROOT) OR(parOperType == REL_FIRST_N))) result.incrementLevels(10, 0);
 
   return result;
@@ -3495,7 +3495,7 @@ OperatorTypeEnum Join::getMergeJoinOpType() {
 
 void Join::pushdownCoveredExpr(const ValueIdSet &outputExpr, const ValueIdSet &newExternalInputs,
                                ValueIdSet &predicatesOnParent, const ValueIdSet *setOfValuesReqdByParent,
-                               Lng32 childIndex) {
+                               int childIndex) {
 #ifdef NDEBUG
   NAString pushdownDebugStr(CmpCommon::statementHeap());
 #define PUSHDOWN_DEBUG_SAVE(str)
@@ -5093,9 +5093,9 @@ NABoolean Join::splitArrangementReq(const ValueIdSet &myArrangReq, /*IN*/
 
 NABoolean Join::ownsVEGRegions() const { return isLeftJoin() OR isAntiSemiJoin() OR isFullOuterJoin(); }
 
-PlanPriority NestedJoin::computeOperatorPriority(const Context *context, PlanWorkSpace *pws, Lng32 planNumber) {
+PlanPriority NestedJoin::computeOperatorPriority(const Context *context, PlanWorkSpace *pws, int planNumber) {
   const PhysicalProperty *spp = context->getPlan()->getPhysicalProperty();
-  Lng32 degreeOfParallelism = spp->getCountOfPartitions();
+  int degreeOfParallelism = spp->getCountOfPartitions();
   NABoolean applySerialPremium = TRUE;
 
   double val;
@@ -5149,7 +5149,7 @@ PlanPriority NestedJoin::computeOperatorPriority(const Context *context, PlanWor
   // For the option of Max Degree of Parallelism we can either use the
   // value set in comp_int_9 (if positive) or we use the number of CPUs
   // if the CQD is set to -1, or feature is disabled if CQD is 0 (default).
-  Lng32 maxDegree = ActiveSchemaDB()->getDefaults().getAsLong(COMP_INT_9);
+  int maxDegree = ActiveSchemaDB()->getDefaults().getAsLong(COMP_INT_9);
   if (CURRSTMT_OPTDEFAULTS->maxParallelismIsFeasible() OR(maxDegree == -1)) {
     // if CQD is set to -1 this mean use the number of CPUs
     maxDegree = spp->getCurrentCountOfCPUs();
@@ -5385,8 +5385,8 @@ NABoolean NestedJoin::isProbeCacheApplicable(PlanExecutionEnum loc) const {
   if (result) {
     double memoryLimitPerInstance =
         ActiveSchemaDB()->getDefaults().getAsLong(EXE_MEMORY_FOR_PROBE_CACHE_IN_MB) * 1024 * 1024;
-    Lng32 innerTupleLen = rightGA.getCharacteristicOutputs().getRowLength();
-    Lng32 probeLen = rightGA.getCharacteristicInputs().getRowLength();
+    int innerTupleLen = rightGA.getCharacteristicOutputs().getRowLength();
+    int probeLen = rightGA.getCharacteristicInputs().getRowLength();
     if (probeLen + innerTupleLen > memoryLimitPerInstance) result = FALSE;
   }
   return result;
@@ -5444,9 +5444,9 @@ void MergeJoin::addLocalExpr(LIST(ExprNode *) & xlist, LIST(NAString) & llist) c
   Join::addLocalExpr(xlist, llist);
 }
 
-PlanPriority MergeJoin::computeOperatorPriority(const Context *context, PlanWorkSpace *pws, Lng32 planNumber) {
+PlanPriority MergeJoin::computeOperatorPriority(const Context *context, PlanWorkSpace *pws, int planNumber) {
   const PhysicalProperty *spp = context->getPlan()->getPhysicalProperty();
-  Lng32 degreeOfParallelism = spp->getCountOfPartitions();
+  int degreeOfParallelism = spp->getCountOfPartitions();
   double val = CURRSTMT_OPTDEFAULTS->riskPremiumMJ();
   if (degreeOfParallelism <= 1) {
     // serial plans are risky. exact an insurance premium from serial plans.
@@ -5458,7 +5458,7 @@ PlanPriority MergeJoin::computeOperatorPriority(const Context *context, PlanWork
   // For the option of Max Degree of Parallelism we can either use the
   // value set in comp_int_9 (if positive) or we use the number of CPUs
   // if the CQD is set to -1, or feature is disabled if CQD is 0 (default).
-  Lng32 maxDegree = ActiveSchemaDB()->getDefaults().getAsLong(COMP_INT_9);
+  int maxDegree = ActiveSchemaDB()->getDefaults().getAsLong(COMP_INT_9);
   if (CURRSTMT_OPTDEFAULTS->maxParallelismIsFeasible() OR(maxDegree == -1)) {
     // if CQD is set to -1 this mean use the number of CPUs
     maxDegree = spp->getCurrentCountOfCPUs();
@@ -5581,9 +5581,9 @@ RelExpr *HashJoin::copyTopNode(RelExpr *derivedNode, CollHeap *outHeap) {
   return Join::copyTopNode(result, outHeap);
 }
 
-PlanPriority HashJoin::computeOperatorPriority(const Context *context, PlanWorkSpace *pws, Lng32 planNumber) {
+PlanPriority HashJoin::computeOperatorPriority(const Context *context, PlanWorkSpace *pws, int planNumber) {
   const PhysicalProperty *spp = context->getPlan()->getPhysicalProperty();
-  Lng32 degreeOfParallelism = spp->getCountOfPartitions();
+  int degreeOfParallelism = spp->getCountOfPartitions();
   double val = 1;
   if (degreeOfParallelism <= 1 && getInnerAccessOnePartition() == FALSE) {
     // serial plans are risky. exact an insurance premium from serial plans.
@@ -5599,7 +5599,7 @@ PlanPriority HashJoin::computeOperatorPriority(const Context *context, PlanWorkS
   // For the option of Max Degree of Parallelism we can either use the
   // value set in comp_int_9 (if positive) or we use the number of CPUs
   // if the CQD is set to -1, or feature is disabled if CQD is 0 (default).
-  Lng32 maxDegree = ActiveSchemaDB()->getDefaults().getAsLong(COMP_INT_9);
+  int maxDegree = ActiveSchemaDB()->getDefaults().getAsLong(COMP_INT_9);
   if (CURRSTMT_OPTDEFAULTS->maxParallelismIsFeasible() OR(maxDegree == -1)) {
     // if CQD is set to -1 this mean use the number of CPUs
     maxDegree = spp->getCurrentCountOfCPUs();
@@ -5937,7 +5937,7 @@ void Union::rewriteUnionExpr(const ValueIdSet &unionExpr, ValueIdSet &leftExpr, 
 
 void Union::pushdownCoveredExpr(const ValueIdSet &outputExpr, const ValueIdSet &newExternalInputs,
                                 ValueIdSet &predicatesOnParent, const ValueIdSet *setOfValuesReqdByParent,
-                                Lng32  // childIndex ignored
+                                int  // childIndex ignored
 ) {
   ValueIdSet resultSet = outputExpr;
   if (setOfValuesReqdByParent) resultSet += *setOfValuesReqdByParent;
@@ -5989,8 +5989,8 @@ void Union::getPotentialOutputValues(ValueIdSet &outputValues) const {
   // The output of the union is defined by the ValueIdUnion
   // expressions that are maintained in the colMapTable_.
   //
-  Lng32 ne = unionMap_->colMapTable_.entries();
-  for (Lng32 index = 0; index < ne; index++) {
+  int ne = unionMap_->colMapTable_.entries();
+  for (int index = 0; index < ne; index++) {
     // Accumulate the ValueIds of the result of the union
     // in the set provided by the caller.
     outputValues += ((ValueIdUnion *)(unionMap_->colMapTable_[index].getItemExpr()))->getResult();
@@ -6488,7 +6488,7 @@ void MergeUnion::buildMergeExpr() {
   BiRelat *result = NULL;
 
   if (sortOrder_.entries() > 0) {
-    for (Lng32 i = 0; i < (Lng32)sortOrder_.entries(); i++) {
+    for (int i = 0; i < (int)sortOrder_.entries(); i++) {
       ItemExpr *leftItem;
       ItemExpr *rightItem;
 
@@ -6557,7 +6557,7 @@ NABoolean GroupByAgg::isUniqueOper() {
 
 void GroupByAgg::pushdownCoveredExpr(const ValueIdSet &outputExpr, const ValueIdSet &newExternalInputs,
                                      ValueIdSet &predicatesOnParent, const ValueIdSet *setOfValuesReqdByParent,
-                                     Lng32 childIndex) {
+                                     int childIndex) {
   // ---------------------------------------------------------------------
   // predicates can only be pushed down if the group by did contain
   // a group by clause or if this is a scalar groupby for a subquery that
@@ -6745,7 +6745,7 @@ void GroupByAgg::getValuesRequiredForEvaluatingAggregate(ValueIdSet &relevantVal
   // for each aggregate expression in the groupby node
   for (ValueId x = aggregateExpr_.init(); aggregateExpr_.next(x); aggregateExpr_.advance(x)) {
     Aggregate *agg = (Aggregate *)x.getItemExpr();
-    Lng32 nc = agg->getArity();
+    int nc = agg->getArity();
 
     // handle special cases for special aggregate functions
     switch (agg->getOperatorType()) {
@@ -6800,7 +6800,7 @@ void GroupByAgg::getValuesRequiredForEvaluatingAggregate(ValueIdSet &relevantVal
           relevantValues += agg->child(0)->getValueId();
 
         // for each child of this particular aggregate expression
-        for (Lng32 i = 1; i < nc; i++) {
+        for (int i = 1; i < nc; i++) {
           // add the value id of that child to "relevantValues"
           relevantValues += agg->child(i)->getValueId();
         }
@@ -6980,7 +6980,7 @@ RelExpr *SortGroupBy::copyTopNode(RelExpr *derivedNode, CollHeap *outHeap) {
   return GroupByAgg::copyTopNode(result, outHeap);
 }
 
-PlanPriority ShortCutGroupBy::computeOperatorPriority(const Context *context, PlanWorkSpace *pws, Lng32 planNumber) {
+PlanPriority ShortCutGroupBy::computeOperatorPriority(const Context *context, PlanWorkSpace *pws, int planNumber) {
   // For min(X) or max(X) where X is the first clustering key column,
   // allow shortcutgroupby plan to compete with other plans based on cost.
   // Specifically, match the priority of the wave fix so that a
@@ -6994,9 +6994,9 @@ PlanPriority ShortCutGroupBy::computeOperatorPriority(const Context *context, Pl
   return result;
 }
 
-PlanPriority SortGroupBy::computeOperatorPriority(const Context *context, PlanWorkSpace *pws, Lng32 planNumber) {
+PlanPriority SortGroupBy::computeOperatorPriority(const Context *context, PlanWorkSpace *pws, int planNumber) {
   const PhysicalProperty *spp = context->getPlan()->getPhysicalProperty();
-  Lng32 degreeOfParallelism = spp->getCountOfPartitions();
+  int degreeOfParallelism = spp->getCountOfPartitions();
   double val = 1;
   if (degreeOfParallelism <= 1) {
     // serial plans are risky. exact an insurance premium from serial plans.
@@ -7040,7 +7040,7 @@ PlanPriority SortGroupBy::computeOperatorPriority(const Context *context, PlanWo
   // For the option of Max Degree of Parallelism we can either use the
   // value set in comp_int_9 (if positive) or we use the number of CPUs
   // if the CQD is set to -1, or feature is disabled if CQD is 0 (default).
-  Lng32 maxDegree = ActiveSchemaDB()->getDefaults().getAsLong(COMP_INT_9);
+  int maxDegree = ActiveSchemaDB()->getDefaults().getAsLong(COMP_INT_9);
   if (CURRSTMT_OPTDEFAULTS->maxParallelismIsFeasible() OR(maxDegree == -1)) {
     // if CQD is set to -1 this mean use the number of CPUs
     maxDegree = spp->getCurrentCountOfCPUs();
@@ -7150,9 +7150,9 @@ RelExpr *HashGroupBy::copyTopNode(RelExpr *derivedNode, CollHeap *outHeap) {
   return GroupByAgg::copyTopNode(result, outHeap);
 }
 
-PlanPriority HashGroupBy::computeOperatorPriority(const Context *context, PlanWorkSpace *pws, Lng32 planNumber) {
+PlanPriority HashGroupBy::computeOperatorPriority(const Context *context, PlanWorkSpace *pws, int planNumber) {
   const PhysicalProperty *spp = context->getPlan()->getPhysicalProperty();
-  Lng32 degreeOfParallelism = spp->getCountOfPartitions();
+  int degreeOfParallelism = spp->getCountOfPartitions();
   double val = 1;
   if (degreeOfParallelism <= 1) {
     // Don't command premium for serial hash partial groupby plan if :
@@ -7188,7 +7188,7 @@ PlanPriority HashGroupBy::computeOperatorPriority(const Context *context, PlanWo
   // For the option of Max Degree of Parallelism we can either use the
   // value set in comp_int_9 (if positive) or we use the number of CPUs
   // if the CQD is set to -1, or feature is disabled if CQD is 0 (default).
-  Lng32 maxDegree = ActiveSchemaDB()->getDefaults().getAsLong(COMP_INT_9);
+  int maxDegree = ActiveSchemaDB()->getDefaults().getAsLong(COMP_INT_9);
   if (CURRSTMT_OPTDEFAULTS->maxParallelismIsFeasible() OR(maxDegree == -1)) {
     // if CQD is set to -1 this mean use the number of CPUs
     maxDegree = spp->getCurrentCountOfCPUs();
@@ -7549,7 +7549,7 @@ void Scan::addIndexInfo() {
 
   if (printIndexElimination) {
     out << endl << "call addIndexInfo()" << endl;
-    out << "tryToEliminateIndex=" << (Lng32)tryToEliminateIndex << endl;
+    out << "tryToEliminateIndex=" << (int)tryToEliminateIndex << endl;
   }
 
   // ---------------------------------------------------------------------
@@ -7802,14 +7802,14 @@ void Scan::addIndexInfo() {
                 ValueIdSet indexCols;
                 newIndexPredicates.findAllReferencedIndexCols(indexCols);
 
-                Lng32 currentPrefixLen = idesc->getIndexKey().findPrefixLength(indexCols);
+                int currentPrefixLen = idesc->getIndexKey().findPrefixLength(indexCols);
 
-                Lng32 currentSuffixLen = idesc->getIndexKey().entries() - currentPrefixLen;
+                int currentSuffixLen = idesc->getIndexKey().entries() - currentPrefixLen;
 
-                Lng32 previousPrefixLen =
+                int previousPrefixLen =
                     ixi->usableIndexes_[0]->getIndexDesc()->getIndexKey().findPrefixLength(indexCols);
 
-                Lng32 previousSuffixLen =
+                int previousSuffixLen =
                     ixi->usableIndexes_[0]->getIndexDesc()->getIndexKey().entries() - previousPrefixLen;
 
                 if (currentSuffixLen < previousSuffixLen) {
@@ -8626,7 +8626,7 @@ NABoolean FileScan::isLogical() const { return FALSE; }
 
 NABoolean FileScan::isPhysical() const { return TRUE; }
 
-PlanPriority FileScan::computeOperatorPriority(const Context *context, PlanWorkSpace *pws, Lng32 planNumber) {
+PlanPriority FileScan::computeOperatorPriority(const Context *context, PlanWorkSpace *pws, int planNumber) {
   PlanPriority result;
 
   // ---------------------------------------------------------------------
@@ -8658,7 +8658,7 @@ PlanPriority FileScan::computeOperatorPriority(const Context *context, PlanWorkS
 
 // currently only used by MV query rewrite
 PlanPriority PhysicalMapValueIds::computeOperatorPriority(const Context *context, PlanWorkSpace *pws,
-                                                          Lng32 planNumber) {
+                                                          int planNumber) {
   PlanPriority result;
 
   // is this MVI wraps one of the favorite MVs
@@ -9549,7 +9549,7 @@ void RelRoot::getPotentialOutputValues(ValueIdSet &outputValues) const {
 
 void RelRoot::pushdownCoveredExpr(const ValueIdSet &outputExpr, const ValueIdSet &newExternalInputs,
                                   ValueIdSet &predicatesOnParent, const ValueIdSet *setOfValuesReqdByParent,
-                                  Lng32  // childIndex ignored
+                                  int  // childIndex ignored
 ) {
   //---------------------------------------------------------------------
   // case 10-030708-7671: In the case of a cast, the RelRoot operator
@@ -9975,7 +9975,7 @@ NABoolean PhysicalRelRoot::isPhysical() const { return TRUE; }
 // methods for class Tuple
 // -----------------------------------------------------------------------
 
-THREAD_P Lng32 Tuple::idCounter_(0);
+THREAD_P int Tuple::idCounter_(0);
 
 Tuple::Tuple(OperatorTypeEnum oper, ItemExpr *tupleExpr /*= NULL*/, CollHeap *oHeap /*= CmpCommon::statementHeap()*/)
     : RelExpr(oper, NULL, NULL, oHeap), tupleExprTree_(tupleExpr), rejectPredicates_(FALSE) {
@@ -10467,7 +10467,7 @@ Int32 MapValueIds::getArity() const { return 1; }
 
 void MapValueIds::pushdownCoveredExpr(const ValueIdSet &outputExpr, const ValueIdSet &newExternalInputs,
                                       ValueIdSet &predicatesOnParent, const ValueIdSet *setOfValuesReqdByParent,
-                                      Lng32 childIndex) {
+                                      int childIndex) {
   // ---------------------------------------------------------------------
   // Since the MapValueIds node rewrites predicates, the characteristic
   // outputs of the node usually make no sense to the child node. For
@@ -11361,7 +11361,7 @@ RelExpr *GenericUpdate::copyTopNode(RelExpr *derivedNode, CollHeap *outHeap) {
   return RelExpr::copyTopNode(result, outHeap);
 }
 
-PlanPriority GenericUpdate::computeOperatorPriority(const Context *context, PlanWorkSpace *pws, Lng32 planNumber) {
+PlanPriority GenericUpdate::computeOperatorPriority(const Context *context, PlanWorkSpace *pws, int planNumber) {
   PlanPriority result;
 
   NABoolean interactiveAccess = (CmpCommon::getDefault(INTERACTIVE_ACCESS) == DF_ON)
@@ -11527,8 +11527,8 @@ void GenericUpdate::configTSJforHalloween(Join *tsj, OperatorTypeEnum opType, Co
     // runtime errors.
 
     const PartitioningFunction *partFunc = getTableDesc()->getClusteringIndex()->getPartitioningFunction();
-    const Lng32 numParts = partFunc ? partFunc->getCountOfPartitions() : 1;
-    const Lng32 maxLocksAllParts = 25000 * numParts;
+    const int numParts = partFunc ? partFunc->getCountOfPartitions() : 1;
+    const int maxLocksAllParts = 25000 * numParts;
 
     if ((opType == REL_LEAF_INSERT) && (inputCardinality < maxLocksAllParts) && !getHalloweenCannotUseDP2Locks() &&
         (CmpCommon::getDefault(BLOCK_TO_PREVENT_HALLOWEEN) != DF_ON))
@@ -11540,7 +11540,7 @@ void GenericUpdate::configTSJforHalloween(Join *tsj, OperatorTypeEnum opType, Co
 
 void GenericUpdate::pushdownCoveredExpr(const ValueIdSet &outputExpr, const ValueIdSet &newExternalInputs,
                                         ValueIdSet &predicatesOnParent, const ValueIdSet *setOfValuesReqdByParent,
-                                        Lng32 childIndex) {
+                                        int childIndex) {
   // ---------------------------------------------------------------------
   // determine the set of local expressions that need to be evaluated
   // - assign expressions (reference source & target cols)
@@ -12118,7 +12118,7 @@ void RelExpr::unparse(NAString &result, PhaseEnum /* phase */, UnparseFormatEnum
   Int32 maxi = getArity();
   if (maxi) {
     result += "(";
-    for (Lng32 i = 0; i < maxi; i++) {
+    for (int i = 0; i < maxi; i++) {
       if (i > 0) result += ", ";
       if (child(i).getPtr() == NULL) continue;
       child(i)->unparse(result);
@@ -12382,7 +12382,7 @@ void Transpose::getPotentialOutputValues(ValueIdSet &outputValues) const {
 // ---------------------------------------------------------------------
 void Transpose::pushdownCoveredExpr(const ValueIdSet &outputExpr, const ValueIdSet &newExternalInputs,
                                     ValueIdSet &predicatesOnParent, const ValueIdSet *setOfValuesReqdByParent,
-                                    Lng32 childIndex) {
+                                    int childIndex) {
   ValueIdSet exprOnParent;
   if (setOfValuesReqdByParent) exprOnParent = *setOfValuesReqdByParent;
 
@@ -12685,7 +12685,7 @@ void Pack::getNonPackedExpr(ValueIdSet &vidset) {
 // can be pushed down though.
 // -----------------------------------------------------------------------
 void Pack::pushdownCoveredExpr(const ValueIdSet &outputExpr, const ValueIdSet &newExternalInputs,
-                               ValueIdSet &predOnOperator, const ValueIdSet *nonPredExprOnOperator, Lng32 childId) {
+                               ValueIdSet &predOnOperator, const ValueIdSet *nonPredExprOnOperator, int childId) {
   ValueIdSet exprNeededByOperator;
   getNonPackedExpr(exprNeededByOperator);
   if (nonPredExprOnOperator) exprNeededByOperator += *nonPredExprOnOperator;
@@ -12984,14 +12984,14 @@ const NAString RowsetInto::getText() const {
 }
 
 NABoolean RelExpr::treeContainsEspExchange() {
-  Lng32 nc = getArity();
+  int nc = getArity();
   if (nc > 0) {
     if ((getOperatorType() == REL_EXCHANGE) &&
         (child(0)->castToRelExpr()->getPhysicalProperty()->getPlanExecutionLocation() != EXECUTE_IN_DP2)) {
       return TRUE;
     }
 
-    for (Lng32 i = 0; i < nc; i++) {
+    for (int i = 0; i < nc; i++) {
       if (child(i)->treeContainsEspExchange()) return TRUE;
     }
   }
@@ -13060,7 +13060,7 @@ void Exchange::computeBufferLength(const Context *myContext, const CostScalar &n
 
   // we MUST be able to fit at least one row into a buffer
 
-  CostScalar controlAppendedLength = ComTdbSendTop::minSendBufferSize((Lng32)downRecordLength.getValue());
+  CostScalar controlAppendedLength = ComTdbSendTop::minSendBufferSize((int)downRecordLength.getValue());
   downMessageBufferLength = MAXOF(controlAppendedLength, reasonableBufferSpace1);
 
   // Total size of output buffer that needs to be sent to the parent.
@@ -13104,7 +13104,7 @@ void Exchange::computeBufferLength(const Context *myContext, const CostScalar &n
   if (upSizeOverride.isGreaterThanZero()) reasonableBufferSpace2 = upSizeOverride;
 
   // we MUST be able to fit at least one row into a buffer
-  controlAppendedLength = ComTdbSendTop::minReceiveBufferSize((Lng32)(upRecordLength.getValue()));
+  controlAppendedLength = ComTdbSendTop::minReceiveBufferSize((int)(upRecordLength.getValue()));
   upMessageBufferLength = MAXOF(controlAppendedLength, reasonableBufferSpace2);
 
   // convert Buffers to kilo bytes
@@ -13170,7 +13170,7 @@ void pcgEspFragment::computeDesirableDoP(NABoolean isRoot) {
 
       desirableDoP_ = MAXOF(desirableDoP_, 1);
 
-      Lng32 numSQNodes = CmpCommon::context()->getNumOfSMPs();
+      int numSQNodes = CmpCommon::context()->getNumOfSMPs();
 
       double minESPsPerNode = getDefaultAsDouble(DOP_ADJUST_MIN_NUM_ESPS_PER_NODE);
 
@@ -13179,12 +13179,12 @@ void pcgEspFragment::computeDesirableDoP(NABoolean isRoot) {
       if (getNumOfOperators() > getNumOfHiveTables())
         desirableDoP_ = MAXOF(desirableDoP_, (Int32)ceil(minESPsPerNode * numSQNodes));
 
-      Lng32 upLimit = 0;
+      int upLimit = 0;
 
       if (getNumOfHiveTables() > 0) {
         double numESPsPerDataNode = getDefaultAsDouble(HIVE_NUM_ESPS_PER_DATANODE);
 
-        upLimit = (Lng32)ceil(numESPsPerDataNode * numSQNodes);
+        upLimit = (int)ceil(numESPsPerDataNode * numSQNodes);
       } else {
         NADefaults &defs = ActiveSchemaDB()->getDefaults();
         NABoolean fakeEnv = FALSE;
@@ -13220,7 +13220,7 @@ void pcgEspFragment::computeDesirableDoP(NABoolean isRoot) {
 }
 
 NABoolean pcgEspFragment::performDopReduction() {
-  Lng32 newDoP = getDesirableDoP();
+  int newDoP = getDesirableDoP();
 
   RelExpr *root = getRoot();
 
@@ -13358,7 +13358,7 @@ Int32 RelExpr::findHiveTables(NABoolean inEspFragment) {
 
   Int32 nc = getArity();
 
-  for (Lng32 i = 0; i < nc; i++) {
+  for (int i = 0; i < nc; i++) {
     hiveTables += child(i)->findHiveTables(inEspFragment);
   }
 
@@ -13374,7 +13374,7 @@ void Scan::collectTableNames(NAString &queryData) {
 void RelExpr::collectTableNames(NAString &queryData) {
   Int32 nc = getArity();
 
-  for (Lng32 i = 0; i < nc; i++) {
+  for (int i = 0; i < nc; i++) {
     child(i)->collectTableNames(queryData);
   }
 }
@@ -13387,7 +13387,7 @@ Int32 RelExpr::findNumOperators(NABoolean inEspFragment) {
 
   Int32 nc = getArity();
 
-  for (Lng32 i = 0; i < nc; i++) {
+  for (int i = 0; i < nc; i++) {
     ops += child(i)->findNumOperators(inEspFragment);
   }
 
@@ -13412,7 +13412,7 @@ NABoolean RelRoot::dopReductionRTFeasible() {
 NABoolean RelExpr::dopReductionRTFeasible() {
   Int32 nc = getArity();
 
-  for (Lng32 i = 0; i < nc; i++) {
+  for (int i = 0; i < nc; i++) {
     if (!child(i)->dopReductionRTFeasible()) return FALSE;
   }
 
@@ -13437,17 +13437,17 @@ NABoolean Exchange::dopReductionRTFeasible() {
 // generated through RelExpr::addExplainInf(), which is a post-order
 // traversal of the query tree previously compilied. Here we assume
 // that the query tree and the current RelExpr tree are the same.
-NABoolean RelExpr::assignRTStats(NAArray<Int64> &rtStats, Int32 &order) {
+NABoolean RelExpr::assignRTStats(NAArray<long> &rtStats, Int32 &order) {
   Int32 nc = getArity();
 
-  for (Lng32 i = 0; i < nc; i++) {
+  for (int i = 0; i < nc; i++) {
     if (!child(i)->assignRTStats(rtStats, order)) return FALSE;
   }
   return assignRTStatsPostProcessing(rtStats, order);
 }
 
 // MapValueIds is skipped for assignment.
-NABoolean MapValueIds::assignRTStats(NAArray<Int64> &rtStats, Int32 &order) {
+NABoolean MapValueIds::assignRTStats(NAArray<long> &rtStats, Int32 &order) {
   ostream *out = openDopAdjustDebugOutput();
 
   if (out) {
@@ -13460,20 +13460,20 @@ NABoolean MapValueIds::assignRTStats(NAArray<Int64> &rtStats, Int32 &order) {
 }
 
 // Hash join is handled specially.
-NABoolean Join::assignRTStats(NAArray<Int64> &rtStats, Int32 &order) {
+NABoolean Join::assignRTStats(NAArray<long> &rtStats, Int32 &order) {
   if (!isHashJoin()) return RelExpr::assignRTStats(rtStats, order);
 
   Int32 nc = getArity();
 
   // hash join processes child1 first
-  for (Lng32 i = nc - 1; i >= 0; i--) {
+  for (int i = nc - 1; i >= 0; i--) {
     if (!child(i)->assignRTStats(rtStats, order)) return FALSE;
   }
 
   return assignRTStatsPostProcessing(rtStats, order);
 }
 
-NABoolean RelExpr::assignRTStatsPostProcessing(NAArray<Int64> &rtStats, Int32 &order) {
+NABoolean RelExpr::assignRTStatsPostProcessing(NAArray<long> &rtStats, Int32 &order) {
   ostream *out = openDopAdjustDebugOutput();
 
   // If the visiting order is beyond the number of valid entries or
@@ -13523,7 +13523,7 @@ NABoolean RelExpr::assignRTStatsPostProcessing(NAArray<Int64> &rtStats, Int32 &o
 // Recursively adjust top partition function
 // for this fragment (i.e., anything connectet, excluding
 // any child Exchange node)
-void RelExpr::adjustTopPartFuncRecursively(Lng32 newDop) {
+void RelExpr::adjustTopPartFuncRecursively(int newDop) {
   ((PhysicalProperty *)getPhysicalProperty())->scaleNumberOfPartitions(newDop, FALSE);
 
   setDopReduced(TRUE);
@@ -13533,7 +13533,7 @@ void RelExpr::adjustTopPartFuncRecursively(Lng32 newDop) {
 
   Int32 nc = getArity();
 
-  for (Lng32 i = 0; i < nc; i++) {
+  for (int i = 0; i < nc; i++) {
     child(i)->adjustTopPartFuncRecursively(newDop);
   }
 }
@@ -13547,7 +13547,7 @@ void RelExpr::prepareDopReduction(Generator *generator, NABoolean useRTstats) {
 
   Int32 nc = getArity();
 
-  for (Lng32 i = 0; i < nc; i++) {
+  for (int i = 0; i < nc; i++) {
     child(i)->prepareDopReduction(generator, useRTstats);
   }
 }
@@ -13571,7 +13571,7 @@ void Exchange::prepareDopReduction(Generator *generator, NABoolean useRTstats) {
 void RelExpr::computeRequiredResources(RequiredResources &reqResources, EstLogPropSharedPtr &inLP) {
   Int32 nc = getArity();
 
-  for (Lng32 i = 0; i < nc; i++) {
+  for (int i = 0; i < nc; i++) {
     if (child(i))
       child(i)->computeRequiredResources(reqResources, inLP);
     else
@@ -13627,7 +13627,7 @@ void RelExpr::computeMyRequiredResources(RequiredResources &reqResources, EstLog
 
   Int32 nc = getArity();
 
-  for (Lng32 i = 0; i < nc; i++) {
+  for (int i = 0; i < nc; i++) {
     GroupAttributes *childGroupAttr = child(i).getGroupAttr();
     CostScalar childCardinality = childGroupAttr->outputLogProp(inLP)->getResultCardinality();
     CostScalar childRecordSize = childGroupAttr->getCharacteristicOutputs().getRowLength();
@@ -13696,7 +13696,7 @@ void Join::computeMyRequiredResources(RequiredResources &reqResources, EstLogPro
     Int32 nc = getArity();
     EstLogPropSharedPtr inputForChild = inLP;
 
-    for (Lng32 i = 0; i < nc; i++) {
+    for (int i = 0; i < nc; i++) {
       GroupAttributes *childGroupAttr = child(i).getGroupAttr();
       CostScalar childCardinality = childGroupAttr->outputLogProp(inputForChild)->getResultCardinality();
       CostScalar childRecordSize = childGroupAttr->getCharacteristicOutputs().getRowLength();
@@ -13892,7 +13892,7 @@ IndexProperty *Scan::findSmallestIndex(const LIST(ScanIndexInfo *) & possibleInd
   return smallestIndex;
 }
 
-Lng32 FileScan::getTotalColumnWidthForExecPreds() const {
+int FileScan::getTotalColumnWidthForExecPreds() const {
   TableDesc *tdesc = getTableDesc();
 
   const TableAnalysis *tAnalysis = tdesc->getTableAnalysis();
@@ -14074,7 +14074,7 @@ NABoolean Join::singleColumnjoinPredOKforSB(ValueIdSet &joinPreds) {
     return TRUE;
   } else if (DFS2REC::isAnyCharacter(colVid.getType().getFSDatatype())) {
     if (((const CharType &)colVid.getType()).getStrCharLimit() >
-        (Lng32)CmpCommon::getDefaultNumeric(USTAT_MAX_CHAR_BOUNDARY_LEN))
+        (int)CmpCommon::getDefaultNumeric(USTAT_MAX_CHAR_BOUNDARY_LEN))
       return FALSE;
   }
 
@@ -14094,7 +14094,7 @@ NABoolean Join::multiColumnjoinPredOKforSB(ValueIdSet &joinPreds) {
 NABoolean Join::childNodeContainMultiColumnSkew(CollIndex i,                  // IN: which child to work on
                                                 const ValueIdSet &joinPreds,  // IN: the join predicate
                                                 double mc_threshold,          // IN: multi-column threshold
-                                                Lng32 countOfPipelines,       // IN:
+                                                int countOfPipelines,       // IN:
                                                 SkewedValueList **skList      // OUT: the skew list
 ) {
   if (joinPreds.entries() <= 1) return FALSE;
@@ -14159,7 +14159,7 @@ NABoolean Join::childNodeContainMultiColumnSkew(CollIndex i,                    
                                                 const ValueIdSet &joinPreds,    // IN: the join predicate
                                                 double mc_threshold,            // IN: multi-column threshold
                                                 double sc_threshold,            // IN: single-column threshold
-                                                Lng32 countOfPipelines,         // IN:
+                                                int countOfPipelines,         // IN:
                                                 SkewedValueList **skList,       // OUT: the skew list
                                                 ValueId &vidOfEquiJoinWithSkew  // OUT: the valueId of the column
                                                                                 // whose skew list is returned
@@ -14516,7 +14516,7 @@ NABoolean RelExpr::findRtStatsStorePath(NAString &path) {
 NAString *RelExpr::getKey() {
   if (operKey_.length() == 0) {
     char keyBuffer[30];
-    snprintf(keyBuffer, sizeof(keyBuffer), "%ld", (Int64)this);
+    snprintf(keyBuffer, sizeof(keyBuffer), "%ld", (long)this);
     operKey_ = keyBuffer;
   }
   return &operKey_;
@@ -14587,7 +14587,7 @@ void RelExpr::establishReverseParentPointers(RelExpr *parent) {
 
   Int32 arity = getArity();
 
-  for (Lng32 i = 0; i < arity; i++) {
+  for (int i = 0; i < arity; i++) {
     child(i)->establishReverseParentPointers(this);
   }
 }
@@ -14607,7 +14607,7 @@ void RelExpr::collectNumNativeParquetScans(Int32 &totalScans, Int32 &numNativePa
     return;
   }
 
-  for (Lng32 i = 0; i < arity; i++) {
+  for (int i = 0; i < arity; i++) {
     child(i)->collectNumNativeParquetScans(totalScans, numNativeParquetScans);
   }
 }
@@ -14637,7 +14637,7 @@ void RelExpr::collectNumOrcScans(Int32 &totalScans, Int32 &numOrcScans) {
     return;
   }
 
-  for (Lng32 i = 0; i < arity; i++) {
+  for (int i = 0; i < arity; i++) {
     child(i)->collectNumOrcScans(totalScans, numOrcScans);
   }
 }
@@ -14679,7 +14679,7 @@ Int32 RelExpr::maxForcedDoP() {
 
   Int32 arity = getArity();
 
-  for (Lng32 i = 0; i < arity; i++) {
+  for (int i = 0; i < arity; i++) {
     Int32 childForcedDoP = child(i)->maxForcedDoP();
     if (currentMaxDop < childForcedDoP) currentMaxDop = childForcedDoP;
   }
@@ -15033,7 +15033,7 @@ ItemExpr *BiConnectBy::copyTopNode(ItemExpr *derivedNode, CollHeap *outHeap) {
   return result2;
 }
 
-void ConnectByMap::normalizeSpecificChild(NormWA &normWARef, Lng32 childIndex) {
+void ConnectByMap::normalizeSpecificChild(NormWA &normWARef, int childIndex) {
   ValueIdUnion *viduPtr;
   for (CollIndex index = 0; index < colMapTable_.entries(); index++) {
     viduPtr = ((ValueIdUnion *)(colMapTable_[index].getItemExpr()));
@@ -15113,8 +15113,8 @@ ConnectByMap *ConnectByMap::copyTree(CollHeap *h) {
 void ConnectBy::getPotentialOutputValues(ValueIdSet &outputValues) const {
   outputValues.clear();
 
-  Lng32 ne = connectByMap_->colMapTable_.entries();
-  for (Lng32 index = 0; index < ne; index++) {
+  int ne = connectByMap_->colMapTable_.entries();
+  for (int index = 0; index < ne; index++) {
     outputValues += ((ValueIdUnion *)(connectByMap_->colMapTable_[index].getItemExpr()))->getResult();
   }
   outputValues += leftPathItemList();
@@ -15147,7 +15147,7 @@ RelExpr *ConnectBy::normalizeForCache(CacheWA &cwa, BindWA &bindWA) { return Rel
 
 void ConnectByTempTable::pushdownCoveredExpr(const ValueIdSet &outputExpr, const ValueIdSet &newExternalInputs,
                                              ValueIdSet &predicatesOnParent, const ValueIdSet *setOfValuesReqdByParent,
-                                             Lng32 cid  // childIndex ignored
+                                             int cid  // childIndex ignored
 ) {
   ValueIdSet resultSet = outputExpr;
   if (setOfValuesReqdByParent) resultSet += *setOfValuesReqdByParent;
@@ -15160,7 +15160,7 @@ void ConnectByTempTable::pushdownCoveredExpr(const ValueIdSet &outputExpr, const
 
 void ConnectBy::pushdownCoveredExpr(const ValueIdSet &outputExpr, const ValueIdSet &newExternalInputs,
                                     ValueIdSet &predicatesOnParent, const ValueIdSet *setOfValuesReqdByParent,
-                                    Lng32  // childIndex ignored
+                                    int  // childIndex ignored
 ) {
   ValueIdSet resultSet = outputExpr;
   if (setOfValuesReqdByParent) resultSet += *setOfValuesReqdByParent;

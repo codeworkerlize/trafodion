@@ -78,7 +78,7 @@ extern NAString LiteralDoublePrecision;
 // utility functions
 // -----------------------------------------------------------------------
 
-unsigned short getBinaryStorageSize(Lng32 precision);
+unsigned short getBinaryStorageSize(int precision);
 
 // ***********************************************************************
 //
@@ -126,9 +126,9 @@ class NumericType : public NAType {
   // where m is the maximum representable value.  For example, signed
   // SMALLINT is 45 and unsigned SMALLINT is 48.
   // ---------------------------------------------------------------------
-  virtual Lng32 getPrecision() const { return precision_; }
+  virtual int getPrecision() const { return precision_; }
 
-  Lng32 getBinaryPrecision() const;
+  int getBinaryPrecision() const;
 
   // ALERT: ANTI-KLUDGE! ALERT: ANTI-KLUDGE! ALERT: ANTI-KLUDGE!
   // The above functions: getPrecision() and getBinaryPrecision() may fool
@@ -152,19 +152,19 @@ class NumericType : public NAType {
   // So, to fix this case without breaking other tests, we are forced to
   // introduce the following two new functions that return the true precision
   // for numeric types including all floating-point types.
-  virtual Lng32 getTruePrecision() const { return getPrecision(); }
-  Lng32 getTrueBinaryPrecision() const;
+  virtual int getTruePrecision() const { return getPrecision(); }
+  int getTrueBinaryPrecision() const;
 
-  virtual Lng32 getMagnitude() const { return (precision_ - scale_) * 10; }
+  virtual int getMagnitude() const { return (precision_ - scale_) * 10; }
 
   // should this numeric type be checked for value type fitting in query cache?
   virtual NABoolean shouldCheckValueFitInType() const { return FALSE; }
   // get normalized value from the buffer
   virtual double getNormalizedValue(void *) const { return -1; }
 
-  virtual Lng32 getScale() const { return scale_; }
+  virtual int getScale() const { return scale_; }
 
-  virtual Lng32 getColFlags() const { return colFlags_; }
+  virtual int getColFlags() const { return colFlags_; }
 
   virtual NABoolean isUnsigned() const { return unsigned_; }
   NABoolean isSigned() const { return NOT isUnsigned(); }
@@ -177,9 +177,9 @@ class NumericType : public NAType {
   virtual NABoolean decimalPrecision() const { return FALSE; }
   virtual NABoolean binaryPrecision() const { return TRUE; }
 
-  void setScale(Lng32 scale) { scale_ = scale; };
-  void setColFlags(Lng32 colFlags) { colFlags_ = colFlags; };
-  void setPrecision(Lng32 precision) { precision_ = precision; };
+  void setScale(int scale) { scale_ = scale; };
+  void setColFlags(int colFlags) { colFlags_ = colFlags; };
+  void setPrecision(int precision) { precision_ = precision; };
 
   // ---------------------------------------------------------------------
   // Methods for comparing if two ADT definitions are equal.
@@ -194,8 +194,8 @@ class NumericType : public NAType {
   // Methods that return the binary form of the minimum and the maximum
   // representable values.
   // ---------------------------------------------------------------------
-  virtual void minRepresentableValue(void *, Lng32 *, NAString **stringLiteral = NULL, CollHeap *h = 0) const;
-  virtual void maxRepresentableValue(void *, Lng32 *, NAString **stringLiteral = NULL, CollHeap *h = 0) const;
+  virtual void minRepresentableValue(void *, int *, NAString **stringLiteral = NULL, CollHeap *h = 0) const;
+  virtual void maxRepresentableValue(void *, int *, NAString **stringLiteral = NULL, CollHeap *h = 0) const;
 
   virtual NABoolean createSQLLiteral(const char *buf,        // in
                                      NAString *&sqlLiteral,  // out
@@ -237,8 +237,8 @@ class NumericType : public NAType {
   // ---------------------------------------------------------------------
   // Constructor functions
   // ---------------------------------------------------------------------
-  NumericType(NAMemory *heap, const NAString &adtName, Lng32 dataStorageSize, Lng32 precision, Lng32 scale,
-              Lng32 alignment, NABoolean allowNegValues = TRUE, NABoolean allowSQLnull = TRUE,
+  NumericType(NAMemory *heap, const NAString &adtName, int dataStorageSize, int precision, int scale,
+              int alignment, NABoolean allowNegValues = TRUE, NABoolean allowSQLnull = TRUE,
               NABoolean varLenFlag = FALSE);
   NumericType(const NumericType &numeric, CollHeap *heap = 0);
 
@@ -290,7 +290,7 @@ class NumericType : public NAType {
   //      the mantissa. Some exact and all approximate numeric data
   //      types use the binary precision.
   // ---------------------------------------------------------------------
-  Lng32 precision_;
+  int precision_;
 
   // ---------------------------------------------------------------------
   // The scale_ is another overloaded value. It contains either
@@ -303,7 +303,7 @@ class NumericType : public NAType {
   //    binary precision. The scale_ contains the signed exponent
   //       numeric value = mantissa * 10**(scale_)
   // ---------------------------------------------------------------------
-  Lng32 scale_;
+  int scale_;
 
   // ---------------------------------------------------------------------
   // If true, then 2**(n-1) more values can be represented in the
@@ -317,7 +317,7 @@ class NumericType : public NAType {
   // whether this column is subjected to ZNS format or not.
   // Other bits are available for future work.
   // ---------------------------------------------------------------------
-  Lng32 colFlags_;
+  int colFlags_;
 
 };  // class NumericType
 
@@ -341,10 +341,10 @@ class SQLBPInt : public NumericType {
     return declaredSize_;  // in number of bits
   }
 
-  virtual Lng32 getMagnitude() const {
+  virtual int getMagnitude() const {
     // Magnitude = 10 * log (2**declaredSize)
     // Must be greater than 10 to make precision >= 1
-    return MAXOF((Lng32)(10 * declaredSize_ * 0.30103), 10);
+    return MAXOF((int)(10 * declaredSize_ * 0.30103), 10);
   }
 
   virtual double getMaxValue() const {
@@ -365,8 +365,8 @@ class SQLBPInt : public NumericType {
   // Methods that return the binary form of the minimum and the maximum
   // representable values.
   // ---------------------------------------------------------------------
-  void minRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **stringLiteral = NULL, CollHeap *h = 0) const;
-  void maxRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **stringLiteral = NULL, CollHeap *h = 0) const;
+  void minRepresentableValue(void *bufPtr, int *bufLen, NAString **stringLiteral = NULL, CollHeap *h = 0) const;
+  void maxRepresentableValue(void *bufPtr, int *bufLen, NAString **stringLiteral = NULL, CollHeap *h = 0) const;
 
   // ---------------------------------------------------------------------
   // Method that returns the encoded form for a given value to be
@@ -414,7 +414,7 @@ class SQLTiny : public NumericType {
 
   NABoolean roundTripConversionToDouble() const { return TRUE; };
 
-  virtual Lng32 getMagnitude() const { return isUnsigned() ? 28 : 25; }
+  virtual int getMagnitude() const { return isUnsigned() ? 28 : 25; }
 
   virtual double getMaxValue() const { return isUnsigned() ? 255 : 127; }
 
@@ -443,8 +443,8 @@ class SQLTiny : public NumericType {
   // Methods that return the binary form of the minimum and the maximum
   // representable values.
   // ---------------------------------------------------------------------
-  void minRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **stringLiteral = NULL, CollHeap *h = 0) const;
-  void maxRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **stringLiteral = NULL, CollHeap *h = 0) const;
+  void minRepresentableValue(void *bufPtr, int *bufLen, NAString **stringLiteral = NULL, CollHeap *h = 0) const;
+  void maxRepresentableValue(void *bufPtr, int *bufLen, NAString **stringLiteral = NULL, CollHeap *h = 0) const;
 
   NAString *convertToString(double v, CollHeap *h = 0) const;
 
@@ -490,7 +490,7 @@ class SQLSmall : public NumericType {
 
   NABoolean roundTripConversionToDouble() const { return TRUE; };
 
-  virtual Lng32 getMagnitude() const { return isUnsigned() ? 48 : 45; }
+  virtual int getMagnitude() const { return isUnsigned() ? 48 : 45; }
 
   virtual double getMaxValue() const { return isUnsigned() ? 65535 : 32767; }
 
@@ -519,8 +519,8 @@ class SQLSmall : public NumericType {
   // Methods that return the binary form of the minimum and the maximum
   // representable values.
   // ---------------------------------------------------------------------
-  void minRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **stringLiteral = NULL, CollHeap *h = 0) const;
-  void maxRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **stringLiteral = NULL, CollHeap *h = 0) const;
+  void minRepresentableValue(void *bufPtr, int *bufLen, NAString **stringLiteral = NULL, CollHeap *h = 0) const;
+  void maxRepresentableValue(void *bufPtr, int *bufLen, NAString **stringLiteral = NULL, CollHeap *h = 0) const;
 
   NAString *convertToString(double v, CollHeap *h = 0) const;
 
@@ -566,7 +566,7 @@ class SQLInt : public NumericType {
 
   NABoolean roundTripConversionToDouble() const { return TRUE; };
 
-  virtual Lng32 getMagnitude() const { return isUnsigned() ? 96 : 93; }
+  virtual int getMagnitude() const { return isUnsigned() ? 96 : 93; }
 
   virtual double getMaxValue() const { return isUnsigned() ? 4294967295U : 2147483647; }
 
@@ -595,8 +595,8 @@ class SQLInt : public NumericType {
   // Methods that return the binary form of the minimum and the maximum
   // representable values.
   // ---------------------------------------------------------------------
-  void minRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **stringLiteral = NULL, CollHeap *h = 0) const;
-  void maxRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **stringLiteral = NULL, CollHeap *h = 0) const;
+  void minRepresentableValue(void *bufPtr, int *bufLen, NAString **stringLiteral = NULL, CollHeap *h = 0) const;
+  void maxRepresentableValue(void *bufPtr, int *bufLen, NAString **stringLiteral = NULL, CollHeap *h = 0) const;
 
   NAString *convertToString(double v, CollHeap *h = 0) const;
 
@@ -615,7 +615,7 @@ class SQLInt : public NumericType {
     if (isUnsigned())
       return (double)(*(ULng32 *)buf);
     else
-      return (double)(*(Lng32 *)buf);
+      return (double)(*(int *)buf);
   };
 
  private:
@@ -633,7 +633,7 @@ class SQLLargeInt : public NumericType {
   // ---------------------------------------------------------------------
   SQLLargeInt(NAMemory *heap, NABoolean allowNegValues = TRUE, NABoolean allowSQLnull = TRUE);
 
-  SQLLargeInt(NAMemory *heap, Lng32 scale,
+  SQLLargeInt(NAMemory *heap, int scale,
               UInt16 disAmbiguate,  // 64bit
               NABoolean allowNegValues = TRUE, NABoolean allowSQLnull = TRUE);
 
@@ -644,7 +644,7 @@ class SQLLargeInt : public NumericType {
       return REC_BIN64_SIGNED;
   }
 
-  virtual Lng32 getMagnitude() const { return (isUnsigned() ? 195 : 189); }
+  virtual int getMagnitude() const { return (isUnsigned() ? 195 : 189); }
 
   virtual double getMaxValue() const { return (isUnsigned() ? 18446744073709551615ULL : 9223372036854775807ULL); }
 
@@ -675,8 +675,8 @@ class SQLLargeInt : public NumericType {
   // Methods that return the binary form of the minimum and the maximum
   // representable values.
   // ---------------------------------------------------------------------
-  void minRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **stringLiteral = NULL, CollHeap *h = 0) const;
-  void maxRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **stringLiteral = NULL, CollHeap *h = 0) const;
+  void minRepresentableValue(void *bufPtr, int *bufLen, NAString **stringLiteral = NULL, CollHeap *h = 0) const;
+  void maxRepresentableValue(void *bufPtr, int *bufLen, NAString **stringLiteral = NULL, CollHeap *h = 0) const;
 
   // ---------------------------------------------------------------------
   // Method that returns the encoded form for a given value to be
@@ -693,7 +693,7 @@ class SQLLargeInt : public NumericType {
     return new (h) SQLLargeInt(h, getScale(), (UInt16)0, !isUnsigned(), supportsSQLnull());
   }
 
-  virtual double getNormalizedValue(void *buf) const { return (double)*(Int64 *)buf; }
+  virtual double getNormalizedValue(void *buf) const { return (double)*(long *)buf; }
 
  private:
   NAString clientDataType_;  // added the protected string to distinguish
@@ -741,12 +741,12 @@ class SQLNumeric : public NumericType {
   // ---------------------------------------------------------------------
   // Constructor functions
   // ---------------------------------------------------------------------
-  SQLNumeric(NAMemory *heap, Lng32 length, Lng32 precision, Lng32 scale, NABoolean allowNegValues = TRUE,
+  SQLNumeric(NAMemory *heap, int length, int precision, int scale, NABoolean allowNegValues = TRUE,
              NABoolean allowSQLnull = TRUE);
 
   // Note: DisAmbiguate arg added so Compiler can distinguish between
   //       this constructor and the one above....for 64bit project.
-  SQLNumeric(NAMemory *heap, NABoolean allowNegValues, Lng32 precision, Lng32 scale, const Int16 DisAmbiguate,
+  SQLNumeric(NAMemory *heap, NABoolean allowNegValues, int precision, int scale, const Int16 DisAmbiguate,
              NABoolean allowSQLnull = TRUE);
 
   short getFSDatatype() const {
@@ -755,7 +755,7 @@ class SQLNumeric : public NumericType {
         return REC_BIN8_UNSIGNED;
       else if (getNominalSize() == sizeof(short))
         return REC_BIN16_UNSIGNED;
-      else if (getNominalSize() == sizeof(Lng32))
+      else if (getNominalSize() == sizeof(int))
         return REC_BIN32_UNSIGNED;
       else
         return REC_BIN64_UNSIGNED;
@@ -764,14 +764,14 @@ class SQLNumeric : public NumericType {
         return REC_BIN8_SIGNED;
       else if (getNominalSize() == sizeof(short))
         return REC_BIN16_SIGNED;
-      else if (getNominalSize() == sizeof(Lng32))
+      else if (getNominalSize() == sizeof(int))
         return REC_BIN32_SIGNED;
       else
         return REC_BIN64_SIGNED;
     }
   }
 
-  NABoolean roundTripConversionToDouble() const { return getNominalSize() <= sizeof(Lng32); };
+  NABoolean roundTripConversionToDouble() const { return getNominalSize() <= sizeof(int); };
 
   // ---------------------------------------------------------------------
   // Does this data type use decimal or binary precision?
@@ -784,14 +784,14 @@ class SQLNumeric : public NumericType {
   // Methods that return the binary form of the minimum and the maximum
   // representable values.
   // ---------------------------------------------------------------------
-  void minRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **stringLiteral = NULL, CollHeap *h = 0) const;
-  void maxRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **stringLiteral = NULL, CollHeap *h = 0) const;
+  void minRepresentableValue(void *bufPtr, int *bufLen, NAString **stringLiteral = NULL, CollHeap *h = 0) const;
+  void maxRepresentableValue(void *bufPtr, int *bufLen, NAString **stringLiteral = NULL, CollHeap *h = 0) const;
 
   NAString *convertToString(double v, CollHeap *h = 0) const;
-  NAString *convertToString(Int64 v, CollHeap *h = 0) const;
+  NAString *convertToString(long v, CollHeap *h = 0) const;
   virtual double getMinValue() const;
   virtual double getMaxValue() const;
-  void getMaxValue(Int64 *nValue) const;
+  void getMaxValue(long *nValue) const;
   // ---------------------------------------------------------------------
   // Method that returns the encoded form for a given value to be
   // used by the optimizer for estimations.
@@ -822,7 +822,7 @@ class SQLDecimal : public NumericType {
   // ---------------------------------------------------------------------
   // Constructor functions
   // ---------------------------------------------------------------------
-  SQLDecimal(NAMemory *heap, Lng32 length, Lng32 scale, NABoolean allowNegValues = TRUE, NABoolean allowSQLnull = TRUE);
+  SQLDecimal(NAMemory *heap, int length, int scale, NABoolean allowNegValues = TRUE, NABoolean allowSQLnull = TRUE);
 
   short getFSDatatype() const {
     if (isUnsigned())
@@ -842,8 +842,8 @@ class SQLDecimal : public NumericType {
   // Methods that return the binary form of the minimum and the maximum
   // representable values.
   // ---------------------------------------------------------------------
-  void minRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **stringLiteral = NULL, CollHeap *h = 0) const;
-  void maxRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **stringLiteral = NULL, CollHeap *h = 0) const;
+  void minRepresentableValue(void *bufPtr, int *bufLen, NAString **stringLiteral = NULL, CollHeap *h = 0) const;
+  void maxRepresentableValue(void *bufPtr, int *bufLen, NAString **stringLiteral = NULL, CollHeap *h = 0) const;
 
   NAString *convertToString(double v, CollHeap *h = 0) const;
 
@@ -879,7 +879,7 @@ class SQLBigNum : public NumericType {
   // ---------------------------------------------------------------------
   // Constructor functions
   // ---------------------------------------------------------------------
-  SQLBigNum(NAMemory *heap, Lng32 precision, Lng32 scale,
+  SQLBigNum(NAMemory *heap, int precision, int scale,
             NABoolean isARealBigNum,   // = TRUE,
             NABoolean allowNegValues,  // = TRUE,
             NABoolean allowSQLnull);   // = TRUE);
@@ -895,7 +895,7 @@ class SQLBigNum : public NumericType {
   // For NAType::getDisplayLength().
   // ---------------------------------------------------------------------
 
-  virtual Lng32 getDisplayLength() const { return getPrecision() + (getScale() > 0 ? 2 : 1); }
+  virtual int getDisplayLength() const { return getPrecision() + (getScale() > 0 ? 2 : 1); }
 
   // ---------------------------------------------------------------------
   // Does this data type use decimal or binary precision?
@@ -923,9 +923,9 @@ class SQLBigNum : public NumericType {
   // Methods that return the binary form of the minimum and the maximum
   // representable values.
   // ---------------------------------------------------------------------
-  void minRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **stringLiteral = NULL, CollHeap *h = 0) const;
+  void minRepresentableValue(void *bufPtr, int *bufLen, NAString **stringLiteral = NULL, CollHeap *h = 0) const;
 
-  void maxRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **stringLiteral = NULL, CollHeap *h = 0) const;
+  void maxRepresentableValue(void *bufPtr, int *bufLen, NAString **stringLiteral = NULL, CollHeap *h = 0) const;
 
   // ---------------------------------------------------------------------
   // Method that returns the encoded form for a given value to be
@@ -971,7 +971,7 @@ class LSDecimal : public NumericType {
   // ---------------------------------------------------------------------
   // Constructor functions
   // ---------------------------------------------------------------------
-  LSDecimal(NAMemory *heap, Lng32 length, Lng32 scale, NABoolean allowSQLnull = TRUE);
+  LSDecimal(NAMemory *heap, int length, int scale, NABoolean allowSQLnull = TRUE);
 
   short getFSDatatype() const { return REC_DECIMAL_LS; }
 
@@ -992,8 +992,8 @@ class LSDecimal : public NumericType {
   // Methods that return the binary form of the minimum and the maximum
   // representable values.
   // ---------------------------------------------------------------------
-  void minRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **stringLiteral = NULL, CollHeap *h = 0) const;
-  void maxRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **stringLiteral = NULL, CollHeap *h = 0) const;
+  void minRepresentableValue(void *bufPtr, int *bufLen, NAString **stringLiteral = NULL, CollHeap *h = 0) const;
+  void maxRepresentableValue(void *bufPtr, int *bufLen, NAString **stringLiteral = NULL, CollHeap *h = 0) const;
 
   // ---------------------------------------------------------------------
   // Method that returns the encoded form for a given value to be
@@ -1021,7 +1021,7 @@ class SQLFloat : public NumericType {
   // ---------------------------------------------------------------------
   // Constructor functions
   // ---------------------------------------------------------------------
-  SQLFloat(NAMemory *heap, NABoolean allowSQLnull, Lng32 dataStorageSize, Lng32 precision = SQL_FLOAT_PRECISION,
+  SQLFloat(NAMemory *heap, NABoolean allowSQLnull, int dataStorageSize, int precision = SQL_FLOAT_PRECISION,
            const NAString &adtName = LiteralFloat)
       : NumericType(heap, adtName, dataStorageSize, precision, 0, dataStorageSize, TRUE, allowSQLnull, FALSE) {
     // Should not assert precision <= SQL_FLOAT_PRECISION.
@@ -1039,7 +1039,7 @@ class SQLFloat : public NumericType {
   // mislead callers of getPrecision() into thinking type FLOAT
   // has zero precision. The true default precision of type FLOAT is
   // SQL_FLOAT_PRECISION.
-  virtual Lng32 getTruePrecision() const { return getPrecision() ? getPrecision() : SQL_DOUBLE_PRECISION; }
+  virtual int getTruePrecision() const { return getPrecision() ? getPrecision() : SQL_DOUBLE_PRECISION; }
 
   NABoolean checkValid(ComDiagsArea *diags) {
     if ((getPrecision()) > SQL_FLOAT_PRECISION) {
@@ -1059,8 +1059,8 @@ class SQLFloat : public NumericType {
   // Methods that return the binary form of the minimum and the maximum
   // representable values.
   // ---------------------------------------------------------------------
-  void minRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **stringLiteral = NULL, CollHeap *h = 0) const;
-  void maxRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **stringLiteral = NULL, CollHeap *h = 0) const;
+  void minRepresentableValue(void *bufPtr, int *bufLen, NAString **stringLiteral = NULL, CollHeap *h = 0) const;
+  void maxRepresentableValue(void *bufPtr, int *bufLen, NAString **stringLiteral = NULL, CollHeap *h = 0) const;
 
   // ---------------------------------------------------------------------
   // Method that returns the encoded form for a given value to be
@@ -1102,13 +1102,13 @@ class SQLReal : public SQLFloat {
   // ---------------------------------------------------------------------
   // Constructor functions
   // ---------------------------------------------------------------------
-  SQLReal(NAMemory *heap, NABoolean allowSQLnull = TRUE, Lng32 precision = 0)
+  SQLReal(NAMemory *heap, NABoolean allowSQLnull = TRUE, int precision = 0)
       : SQLFloat(heap, allowSQLnull, SQL_REAL_SIZE, 0, LiteralReal) {}
 
   // The above constructor can mislead callers of getPrecision() into
   // thinking type REAL has zero precision. The true precision of type
   // REAL is SQL_REAL_PRECISION.
-  virtual Lng32 getTruePrecision() const { return SQL_REAL_PRECISION; }
+  virtual int getTruePrecision() const { return SQL_REAL_PRECISION; }
 
   short getFSDatatype() const { return REC_FLOAT32; }
 
@@ -1134,7 +1134,7 @@ class SQLDoublePrecision : public SQLFloat {
   // ---------------------------------------------------------------------
   // Constructor functions
   // ---------------------------------------------------------------------
-  SQLDoublePrecision(NAMemory *heap, NABoolean allowSQLnull = TRUE, Lng32 precision = SQL_DOUBLE_PRECISION,
+  SQLDoublePrecision(NAMemory *heap, NABoolean allowSQLnull = TRUE, int precision = SQL_DOUBLE_PRECISION,
                      NABoolean fromFloat = FALSE)
       : SQLFloat(heap, allowSQLnull, SQL_DOUBLE_PRECISION_SIZE, precision, LiteralDoublePrecision),
         fromFloat_(fromFloat),
@@ -1144,7 +1144,7 @@ class SQLDoublePrecision : public SQLFloat {
   // mislead callers of getPrecision() into thinking type DOUBLE PRECISION
   // has zero precision. The true precision of type DOUBLE PRECISION is
   // SQL_DOUBLE_PRECISION.
-  virtual Lng32 getTruePrecision() const { return SQL_DOUBLE_PRECISION; }
+  virtual int getTruePrecision() const { return SQL_DOUBLE_PRECISION; }
 
   short getFSDatatype() const { return REC_FLOAT64; }
 
@@ -1166,13 +1166,13 @@ class SQLDoublePrecision : public SQLFloat {
   }  // operator==()
 
   const NABoolean fromFloat() const { return fromFloat_; }
-  const Lng32 origPrecision() const { return origPrecision_; }
+  const int origPrecision() const { return origPrecision_; }
 
  private:
   // if this type was created through the use of FLOAT keyword and not
   // DOUBLE or DOUBLE PRECISION.
   NABoolean fromFloat_;
-  Lng32 origPrecision_;
+  int origPrecision_;
 };  // class SQLDoublePrecision
 
 #endif /* NUMERICTYPE_H */

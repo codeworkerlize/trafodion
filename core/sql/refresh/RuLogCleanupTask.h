@@ -60,7 +60,7 @@ class REFRESH_LIB_CLASS CRULogCleanupTask : public CRULogProcessingTask {
   //	PUBLIC AREA
   //---------------------------------------//
  public:
-  CRULogCleanupTask(Lng32 id, CRUTbl &table);
+  CRULogCleanupTask(int id, CRUTbl &table);
   virtual ~CRULogCleanupTask() {}
 
   //-----------------------------------//

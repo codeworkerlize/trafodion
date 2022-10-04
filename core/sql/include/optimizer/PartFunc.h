@@ -73,7 +73,7 @@ class Attributes;
 class NAColumnArray;
 class SearchKey;
 class SkewedValueList;
-typedef LIST(Int64) Int64List;
+typedef LIST(long) Int64List;
 typedef NABoolean (*compFuncPtrT)(const char *low, const char *key, const char *high, Int32 keyLen,
                                   NABoolean checkLast);
 
@@ -309,7 +309,7 @@ class PartitioningFunction : public NABasicObject {
   // ---------------------------------------------------------------------
   // Accessor method for the number of partitions.
   // ---------------------------------------------------------------------
-  virtual Lng32 getCountOfPartitions() const;
+  virtual int getCountOfPartitions() const;
 
   // --------------------------------------------------------------------
   // Method used for run-time type identification.
@@ -459,7 +459,7 @@ class PartitioningFunction : public NABasicObject {
   // two of its partitions zero or more times. The combined partitions
   // do not have to be adjacent.
   // ---------------------------------------------------------------------
-  virtual NABoolean isAGroupingOf(const PartitioningFunction &other, Lng32 *maxPartsPerGroup = NULL) const;
+  virtual NABoolean isAGroupingOf(const PartitioningFunction &other, int *maxPartsPerGroup = NULL) const;
 
   // ---------------------------------------------------------------------
   // Transform a partitioning function into a partitioning requirement
@@ -473,7 +473,7 @@ class PartitioningFunction : public NABasicObject {
   // number used is returned as the result value.
   // --------------------------------------------------------------------
   virtual PartitioningFunction *scaleNumberOfPartitions(
-      Lng32 &suggestedNewNumberOfPartitions, PartitionGroupingDistEnum partGroupDist = DEFAULT_PARTITION_GROUPING,
+      int &suggestedNewNumberOfPartitions, PartitionGroupingDistEnum partGroupDist = DEFAULT_PARTITION_GROUPING,
       NABoolean scaleByFactor = TRUE);
 
   // --------------------------------------------------------------------
@@ -620,7 +620,7 @@ class PartitioningFunction : public NABasicObject {
   // --------------------------------------------------------------------
   // Generate an equivalent executor structure.
   // --------------------------------------------------------------------
-  virtual short codeGen(Generator *generator, Lng32 partInputDataLength);
+  virtual short codeGen(Generator *generator, int partInputDataLength);
 
   // --------------------------------------------------------------------
   // Assign offsets to partition input values that are sent in a tuple.
@@ -628,7 +628,7 @@ class PartitioningFunction : public NABasicObject {
   // in two different places (the sender and the receiver) and it must
   // match. Also, range partitioning requires a non-standard alignment.
   // --------------------------------------------------------------------
-  virtual void generatePivLayout(Generator *generator, Lng32 &partitionInputDataLength, Lng32 atp, Lng32 atpIndex,
+  virtual void generatePivLayout(Generator *generator, int &partitionInputDataLength, int atp, int atpIndex,
                                  Attributes ***pivAttrs);
 
   // Make a new partSearchKey with the partitioning key preds of
@@ -659,10 +659,10 @@ class PartitioningFunction : public NABasicObject {
     return ((restrictedBeginPartNumber_ > 0) || (restrictedEndPartNumber_ > 0));
   }
 
-  Lng32 getRestrictedBeginPartNumber() const { return restrictedBeginPartNumber_; }
-  Lng32 getRestrictedEndPartNumber() const { return restrictedEndPartNumber_; }
-  void setRestrictedBeginPartNumber(Lng32 v) { restrictedBeginPartNumber_ = v; }
-  void setRestrictedEndPartNumber(Lng32 v) { restrictedEndPartNumber_ = v; }
+  int getRestrictedBeginPartNumber() const { return restrictedBeginPartNumber_; }
+  int getRestrictedEndPartNumber() const { return restrictedEndPartNumber_; }
+  void setRestrictedBeginPartNumber(int v) { restrictedBeginPartNumber_ = v; }
+  void setRestrictedEndPartNumber(int v) { restrictedEndPartNumber_ = v; }
 
   // ---------------------------------------------------------------------
   // Print and get a short descriptive text
@@ -816,8 +816,8 @@ class PartitioningFunction : public NABasicObject {
   NABoolean setupForStatement_;
   NABoolean resetAfterStatement_;
 
-  Lng32 restrictedBeginPartNumber_;
-  Lng32 restrictedEndPartNumber_;
+  int restrictedBeginPartNumber_;
+  int restrictedEndPartNumber_;
   // to store number of active streams
   CostScalar activeStreams_;
 
@@ -862,9 +862,9 @@ class SinglePartitionPartitioningFunction : public PartitioningFunction {
   // ---------------------------------------------------------------------
   virtual const SinglePartitionPartitioningFunction *castToSinglePartitionPartitioningFunction() const;
 
-  virtual Lng32 getCountOfPartitions() const;
+  virtual int getCountOfPartitions() const;
 
-  virtual NABoolean isAGroupingOf(const PartitioningFunction &other, Lng32 *maxPartsPerGroup = NULL) const;
+  virtual NABoolean isAGroupingOf(const PartitioningFunction &other, int *maxPartsPerGroup = NULL) const;
 
   virtual PartitioningRequirement *makePartitioningRequirement();
 
@@ -878,7 +878,7 @@ class SinglePartitionPartitioningFunction : public PartitioningFunction {
 
   virtual ItemExpr *createPartitioningExpression();
 
-  virtual short codeGen(Generator *generator, Lng32 partInputDataLength);
+  virtual short codeGen(Generator *generator, int partInputDataLength);
 
   virtual NABoolean shouldUseSynchronousAccess(const ReqdPhysicalProperty *rpp, const EstLogPropSharedPtr &inputLogProp,
                                                GroupAttributes *ga) const;
@@ -913,13 +913,13 @@ class ReplicateViaBroadcastPartitioningFunction : public PartitioningFunction {
   // --------------------------------------------------------------------
   // Constructor functions
   // --------------------------------------------------------------------
-  ReplicateViaBroadcastPartitioningFunction(Lng32 numberOfPartitions, NAMemory *heap = CmpCommon::statementHeap())
+  ReplicateViaBroadcastPartitioningFunction(int numberOfPartitions, NAMemory *heap = CmpCommon::statementHeap())
       : PartitioningFunction(REPLICATE_VIA_BROADCAST_PARTITIONING_FUNCTION, NULL, heap),
         numberOfPartitions_(numberOfPartitions) {
     hasNoPartitioningKeyPredicates();
   }
 
-  ReplicateViaBroadcastPartitioningFunction(Lng32 numberOfPartitions, NodeMap *nodemap,
+  ReplicateViaBroadcastPartitioningFunction(int numberOfPartitions, NodeMap *nodemap,
                                             NAMemory *heap = CmpCommon::statementHeap())
       : PartitioningFunction(REPLICATE_VIA_BROADCAST_PARTITIONING_FUNCTION, nodemap, heap),
         numberOfPartitions_(numberOfPartitions) {
@@ -942,7 +942,7 @@ class ReplicateViaBroadcastPartitioningFunction : public PartitioningFunction {
   // ---------------------------------------------------------------------
   virtual const ReplicateViaBroadcastPartitioningFunction *castToReplicateViaBroadcastPartitioningFunction() const;
 
-  virtual Lng32 getCountOfPartitions() const;
+  virtual int getCountOfPartitions() const;
 
   virtual PartitioningRequirement *makePartitioningRequirement();
 
@@ -956,13 +956,13 @@ class ReplicateViaBroadcastPartitioningFunction : public PartitioningFunction {
 
   virtual ItemExpr *createPartitioningExpression();
 
-  virtual NABoolean isAGroupingOf(const PartitioningFunction &other, Lng32 *maxPartsPerGroup = NULL) const;
+  virtual NABoolean isAGroupingOf(const PartitioningFunction &other, int *maxPartsPerGroup = NULL) const;
 
   virtual PartitioningFunction *scaleNumberOfPartitions(
-      Lng32 &suggestedNewNumberOfPartitions, PartitionGroupingDistEnum partGroupDist = DEFAULT_PARTITION_GROUPING,
+      int &suggestedNewNumberOfPartitions, PartitionGroupingDistEnum partGroupDist = DEFAULT_PARTITION_GROUPING,
       NABoolean scaleByFactor = TRUE);
 
-  virtual short codeGen(Generator *generator, Lng32 partInputDataLength);
+  virtual short codeGen(Generator *generator, int partInputDataLength);
 
   virtual const NAString getText() const;
   virtual void print(FILE *ofd = stdout, const char *indent = DEFAULT_INDENT,
@@ -972,7 +972,7 @@ class ReplicateViaBroadcastPartitioningFunction : public PartitioningFunction {
   // ---------------------------------------------------------------------
   // The number of partitions that are desired.
   // ---------------------------------------------------------------------
-  Lng32 numberOfPartitions_;
+  int numberOfPartitions_;
 
 };  // class ReplicateViaBroadcastPartitioningFunction
 
@@ -997,13 +997,13 @@ class ReplicateNoBroadcastPartitioningFunction : public PartitioningFunction {
   // --------------------------------------------------------------------
   // Constructor functions
   // --------------------------------------------------------------------
-  ReplicateNoBroadcastPartitioningFunction(Lng32 numberOfPartitions, NAMemory *heap = CmpCommon::statementHeap())
+  ReplicateNoBroadcastPartitioningFunction(int numberOfPartitions, NAMemory *heap = CmpCommon::statementHeap())
       : PartitioningFunction(REPLICATE_NO_BROADCAST_PARTITIONING_FUNCTION, heap),
         numberOfPartitions_(numberOfPartitions) {
     hasNoPartitioningKeyPredicates();
   }
 
-  ReplicateNoBroadcastPartitioningFunction(Lng32 numberOfPartitions, NodeMap *nodemap,
+  ReplicateNoBroadcastPartitioningFunction(int numberOfPartitions, NodeMap *nodemap,
                                            NAMemory *heap = CmpCommon::statementHeap())
       : PartitioningFunction(REPLICATE_NO_BROADCAST_PARTITIONING_FUNCTION, nodemap, heap),
         numberOfPartitions_(numberOfPartitions) {
@@ -1026,7 +1026,7 @@ class ReplicateNoBroadcastPartitioningFunction : public PartitioningFunction {
   // ---------------------------------------------------------------------
   virtual const ReplicateNoBroadcastPartitioningFunction *castToReplicateNoBroadcastPartitioningFunction() const;
 
-  virtual Lng32 getCountOfPartitions() const;
+  virtual int getCountOfPartitions() const;
 
   virtual PartitioningRequirement *makePartitioningRequirement();
 
@@ -1040,13 +1040,13 @@ class ReplicateNoBroadcastPartitioningFunction : public PartitioningFunction {
 
   virtual ItemExpr *createPartitioningExpression();
 
-  virtual NABoolean isAGroupingOf(const PartitioningFunction &other, Lng32 *maxPartsPerGroup = NULL) const;
+  virtual NABoolean isAGroupingOf(const PartitioningFunction &other, int *maxPartsPerGroup = NULL) const;
 
   virtual PartitioningFunction *scaleNumberOfPartitions(
-      Lng32 &suggestedNewNumberOfPartitions, PartitionGroupingDistEnum partGroupDist = DEFAULT_PARTITION_GROUPING,
+      int &suggestedNewNumberOfPartitions, PartitionGroupingDistEnum partGroupDist = DEFAULT_PARTITION_GROUPING,
       NABoolean scaleByFactor = TRUE);
 
-  virtual short codeGen(Generator *generator, Lng32 partInputDataLength);
+  virtual short codeGen(Generator *generator, int partInputDataLength);
 
   virtual const NAString getText() const;
   virtual void print(FILE *ofd = stdout, const char *indent = DEFAULT_INDENT,
@@ -1056,7 +1056,7 @@ class ReplicateNoBroadcastPartitioningFunction : public PartitioningFunction {
   // ---------------------------------------------------------------------
   // The number of partitions that are desired.
   // ---------------------------------------------------------------------
-  Lng32 numberOfPartitions_;
+  int numberOfPartitions_;
 
 };  // class ReplicateNoBroadcastPartitioningFunction
 
@@ -1072,12 +1072,12 @@ class HashPartitioningFunction : public PartitioningFunction {
   // --------------------------------------------------------------------
   // Constructor functions
   // --------------------------------------------------------------------
-  HashPartitioningFunction(Lng32 numberOfHashPartitions, NodeMap *nodeMap, NAMemory *heap = CmpCommon::statementHeap(),
+  HashPartitioningFunction(int numberOfHashPartitions, NodeMap *nodeMap, NAMemory *heap = CmpCommon::statementHeap(),
                            const PartitioningFunctionTypeEnum ftype = HASH_PARTITIONING_FUNCTION)
       : PartitioningFunction(ftype, nodeMap, heap), numberOfHashPartitions_(numberOfHashPartitions) {}
 
   HashPartitioningFunction(const ValueIdSet &partitioningKeyColumns, const ValueIdList &partitioningKeyColumnList,
-                           Lng32 numberOfHashPartitions, NodeMap *nodeMap = 0,
+                           int numberOfHashPartitions, NodeMap *nodeMap = 0,
                            NAMemory *heap = CmpCommon::statementHeap(),
                            const PartitioningFunctionTypeEnum ftype = HASH_PARTITIONING_FUNCTION)
       : PartitioningFunction(ftype, partitioningKeyColumns, nodeMap, heap),
@@ -1107,7 +1107,7 @@ class HashPartitioningFunction : public PartitioningFunction {
   // ---------------------------------------------------------------------
   virtual const HashPartitioningFunction *castToHashPartitioningFunction() const;
 
-  virtual Lng32 getCountOfPartitions() const;
+  virtual int getCountOfPartitions() const;
 
   const ValueIdList &getKeyColumnList() const { return keyColumnList_; }
   const ValueIdList &getOriginalKeyColumnList() const { return originalKeyColumnList_; }
@@ -1130,12 +1130,12 @@ class HashPartitioningFunction : public PartitioningFunction {
   virtual void remapIt(const PartitioningFunction *opf, ValueIdMap &map, NABoolean mapItUp);
 
   virtual PartitioningFunction *scaleNumberOfPartitions(
-      Lng32 &suggestedNewNumberOfPartitions, PartitionGroupingDistEnum partGroupDist = DEFAULT_PARTITION_GROUPING,
+      int &suggestedNewNumberOfPartitions, PartitionGroupingDistEnum partGroupDist = DEFAULT_PARTITION_GROUPING,
       NABoolean scaleByFactor = TRUE);
 
   virtual void preCodeGen(const ValueIdSet &availableValues);
 
-  virtual short codeGen(Generator *generator, Lng32 partInputDataLength);
+  virtual short codeGen(Generator *generator, int partInputDataLength);
 
   virtual const NAString getText() const;
   virtual void print(FILE *ofd = stdout, const char *indent = DEFAULT_INDENT,
@@ -1156,7 +1156,7 @@ class HashPartitioningFunction : public PartitioningFunction {
   // The size of the hash table that is built using this partitioning
   // function.
   // ---------------------------------------------------------------------
-  Lng32 numberOfHashPartitions_;
+  int numberOfHashPartitions_;
 
   // ----------------------------------------------------------------------
   // An order-sensitive representation for the partitioning keys.
@@ -1182,7 +1182,7 @@ class TableHashPartitioningFunction : public PartitioningFunction {
   // --------------------------------------------------------------------
   // Constructor functions
   // --------------------------------------------------------------------
-  TableHashPartitioningFunction(const PartitioningFunctionTypeEnum ftype, Lng32 numberOfHashPartitions,
+  TableHashPartitioningFunction(const PartitioningFunctionTypeEnum ftype, int numberOfHashPartitions,
                                 NodeMap *nodeMap, NAMemory *heap = CmpCommon::statementHeap())
       : PartitioningFunction(ftype, nodeMap, heap),
         numberOfOrigHashPartitions_(numberOfHashPartitions),
@@ -1192,7 +1192,7 @@ class TableHashPartitioningFunction : public PartitioningFunction {
         doVarCharCast_(FALSE) {}
 
   TableHashPartitioningFunction(const PartitioningFunctionTypeEnum ftype, const ValueIdSet &partitioningKeyColumns,
-                                const ValueIdList &partitioningKeyColumnList, Lng32 numberOfHashPartitions,
+                                const ValueIdList &partitioningKeyColumnList, int numberOfHashPartitions,
                                 NodeMap *nodeMap = 0, NAMemory *heap = CmpCommon::statementHeap())
       : PartitioningFunction(ftype, partitioningKeyColumns, nodeMap, heap),
         keyColumnList_(partitioningKeyColumnList),
@@ -1230,7 +1230,7 @@ class TableHashPartitioningFunction : public PartitioningFunction {
   // ---------------------------------------------------------------------
   virtual const TableHashPartitioningFunction *castToTableHashPartitioningFunction() const;
 
-  virtual Lng32 getCountOfPartitions() const;
+  virtual int getCountOfPartitions() const;
 
   virtual void normalizePartitioningKeys(NormWA &normWARef);
 
@@ -1247,7 +1247,7 @@ class TableHashPartitioningFunction : public PartitioningFunction {
 
   virtual void preCodeGen(const ValueIdSet &availableValues);
 
-  virtual short codeGen(Generator *generator, Lng32 partInputDataLength) = 0;
+  virtual short codeGen(Generator *generator, int partInputDataLength) = 0;
 
   // Make a new partSearchKey that indicates that
   // PA_PARTITION_GROUPING is being done.  Note that a search key can
@@ -1268,7 +1268,7 @@ class TableHashPartitioningFunction : public PartitioningFunction {
   // ---------------------------------------------------------------------
   // The original (physical) number of hash partitions before any scaling.
   // ---------------------------------------------------------------------
-  Lng32 getCountOfOrigHashPartitions() const
+  int getCountOfOrigHashPartitions() const
   // Replace the pivs, partitioning key predicates and partitioning
   // expression with those passed in.
   {
@@ -1297,11 +1297,11 @@ class TableHashPartitioningFunction : public PartitioningFunction {
   // The number of partitions of the original (physical) partitioning
   // function before any scaling.
   // ---------------------------------------------------------------------
-  Lng32 numberOfOrigHashPartitions_;
+  int numberOfOrigHashPartitions_;
 
   // After any scaling
   //
-  Lng32 numberOfPartitions_;
+  int numberOfPartitions_;
 
   // ----------------------------------------------------------------------
   // An order-sensitive representation for the partitioning keys.
@@ -1342,12 +1342,12 @@ class HashDistPartitioningFunction : public TableHashPartitioningFunction {
   // --------------------------------------------------------------------
   // Constructor functions
   // --------------------------------------------------------------------
-  HashDistPartitioningFunction(Lng32 numberOfHashPartitions, NodeMap *nodeMap,
+  HashDistPartitioningFunction(int numberOfHashPartitions, NodeMap *nodeMap,
                                NAMemory *heap = CmpCommon::statementHeap())
       : TableHashPartitioningFunction(HASH_DIST_PARTITIONING_FUNCTION, numberOfHashPartitions, nodeMap, heap){};
 
   HashDistPartitioningFunction(const ValueIdSet &partitioningKeyColumns, const ValueIdList &partitioningKeyColumnList,
-                               Lng32 numberOfHashPartitions, NodeMap *nodeMap = 0,
+                               int numberOfHashPartitions, NodeMap *nodeMap = 0,
                                NAMemory *heap = CmpCommon::statementHeap())
       : TableHashPartitioningFunction(HASH_DIST_PARTITIONING_FUNCTION, partitioningKeyColumns,
                                       partitioningKeyColumnList, numberOfHashPartitions, nodeMap, heap) {}
@@ -1367,7 +1367,7 @@ class HashDistPartitioningFunction : public TableHashPartitioningFunction {
 
   virtual PartitioningRequirement *makePartitioningRequirement();
 
-  virtual short codeGen(Generator *generator, Lng32 partInputDataLength);
+  virtual short codeGen(Generator *generator, int partInputDataLength);
 
   virtual PartitioningFunction *copy(NAMemory *h = CmpCommon::statementHeap()) const;
 
@@ -1380,10 +1380,10 @@ class HashDistPartitioningFunction : public TableHashPartitioningFunction {
   virtual COMPARE_RESULT comparePartFuncToFunc(const PartitioningFunction &other) const;
 
   virtual PartitioningFunction *scaleNumberOfPartitions(
-      Lng32 &suggestedNewNumberOfPartitions, PartitionGroupingDistEnum partGroupDist = DEFAULT_PARTITION_GROUPING,
+      int &suggestedNewNumberOfPartitions, PartitionGroupingDistEnum partGroupDist = DEFAULT_PARTITION_GROUPING,
       NABoolean scaleByFactor = TRUE);
 
-  virtual NABoolean isAGroupingOf(const PartitioningFunction &other, Lng32 *maxPartsPerGroup = NULL) const;
+  virtual NABoolean isAGroupingOf(const PartitioningFunction &other, int *maxPartsPerGroup = NULL) const;
 
  protected:
  private:
@@ -1399,11 +1399,11 @@ class Hash2PartitioningFunction : public TableHashPartitioningFunction {
   // --------------------------------------------------------------------
   // Constructor functions
   // --------------------------------------------------------------------
-  Hash2PartitioningFunction(Lng32 numberOfHashPartitions, NodeMap *nodeMap, NAMemory *heap = CmpCommon::statementHeap())
+  Hash2PartitioningFunction(int numberOfHashPartitions, NodeMap *nodeMap, NAMemory *heap = CmpCommon::statementHeap())
       : TableHashPartitioningFunction(HASH2_PARTITIONING_FUNCTION, numberOfHashPartitions, nodeMap, heap) {}
 
   Hash2PartitioningFunction(const ValueIdSet &partitioningKeyColumns, const ValueIdList &partitioningKeyColumnList,
-                            Lng32 numberOfHashPartitions, NodeMap *nodeMap = 0,
+                            int numberOfHashPartitions, NodeMap *nodeMap = 0,
                             NAMemory *heap = CmpCommon::statementHeap())
       : TableHashPartitioningFunction(HASH2_PARTITIONING_FUNCTION, partitioningKeyColumns, partitioningKeyColumnList,
                                       numberOfHashPartitions, nodeMap, heap) {}
@@ -1423,7 +1423,7 @@ class Hash2PartitioningFunction : public TableHashPartitioningFunction {
 
   virtual PartitioningRequirement *makePartitioningRequirement();
 
-  virtual short codeGen(Generator *generator, Lng32 partInputDataLength);
+  virtual short codeGen(Generator *generator, int partInputDataLength);
 
   virtual PartitioningFunction *copy(NAMemory *h = CmpCommon::statementHeap()) const;
 
@@ -1439,10 +1439,10 @@ class Hash2PartitioningFunction : public TableHashPartitioningFunction {
   virtual COMPARE_RESULT comparePartFuncToFunc(const PartitioningFunction &other) const;
 
   virtual PartitioningFunction *scaleNumberOfPartitions(
-      Lng32 &suggestedNewNumberOfPartitions, PartitionGroupingDistEnum partGroupDist = DEFAULT_PARTITION_GROUPING,
+      int &suggestedNewNumberOfPartitions, PartitionGroupingDistEnum partGroupDist = DEFAULT_PARTITION_GROUPING,
       NABoolean scaleByFactor = TRUE);
 
-  virtual NABoolean isAGroupingOf(const PartitioningFunction &other, Lng32 *maxPartsPerGroup = NULL) const;
+  virtual NABoolean isAGroupingOf(const PartitioningFunction &other, int *maxPartsPerGroup = NULL) const;
 
   NABoolean canHandleSkew() const { return TRUE; };
 
@@ -1495,7 +1495,7 @@ class SkewedDataPartitioningFunction : public PartitioningFunction {
   const PartitioningFunction *getPartialPartitioningFunction() const { return partialPartFunc_; }
 
   void createPartitioningKeyPredicates();
-  Lng32 getCountOfPartitions() const;
+  int getCountOfPartitions() const;
   void createPIV(ValueIdList &partInputValues);
 
   void replacePivs(const ValueIdList &newPivs, const ValueIdSet &newPartKeyPreds);
@@ -1512,7 +1512,7 @@ class SkewedDataPartitioningFunction : public PartitioningFunction {
   ItemExpr *createPartitioningExpression();
 
   virtual void preCodeGen(const ValueIdSet &availableValues);
-  virtual short codeGen(Generator *generator, Lng32 partInputDataLength);
+  virtual short codeGen(Generator *generator, int partInputDataLength);
 
   virtual PartitioningFunction *copy(NAMemory *h = CmpCommon::statementHeap()) const;
 
@@ -1523,10 +1523,10 @@ class SkewedDataPartitioningFunction : public PartitioningFunction {
   virtual COMPARE_RESULT comparePartFuncToFunc(const PartitioningFunction &other) const;
 
   virtual PartitioningFunction *scaleNumberOfPartitions(
-      Lng32 &suggestedNewNumberOfPartitions, PartitionGroupingDistEnum partGroupDist = DEFAULT_PARTITION_GROUPING,
+      int &suggestedNewNumberOfPartitions, PartitionGroupingDistEnum partGroupDist = DEFAULT_PARTITION_GROUPING,
       NABoolean scaleByFactor = TRUE);
 
-  virtual NABoolean isAGroupingOf(const PartitioningFunction &other, Lng32 *maxPartsPerGroup = NULL) const;
+  virtual NABoolean isAGroupingOf(const PartitioningFunction &other, int *maxPartsPerGroup = NULL) const;
 
   // Helper functions on skewed values
   const skewProperty &getSkewProperty() const { return skewProperty_; };
@@ -1571,11 +1571,11 @@ class HivePartitioningFunction : public HashPartitioningFunction {
   // --------------------------------------------------------------------
   // Constructor functions
   // --------------------------------------------------------------------
-  HivePartitioningFunction(Lng32 numberOfHashPartitions, NodeMap *nodeMap, NAMemory *heap = CmpCommon::statementHeap())
+  HivePartitioningFunction(int numberOfHashPartitions, NodeMap *nodeMap, NAMemory *heap = CmpCommon::statementHeap())
       : HashPartitioningFunction(numberOfHashPartitions, nodeMap, heap, HIVE_PARTITIONING_FUNCTION) {}
 
   HivePartitioningFunction(const ValueIdSet &partitioningKeyColumns, const ValueIdList &partitioningKeyColumnList,
-                           Lng32 numberOfHashPartitions, NodeMap *nodeMap = 0,
+                           int numberOfHashPartitions, NodeMap *nodeMap = 0,
                            NAMemory *heap = CmpCommon::statementHeap())
       : HashPartitioningFunction(partitioningKeyColumns, partitioningKeyColumnList, numberOfHashPartitions, nodeMap,
                                  heap, HIVE_PARTITIONING_FUNCTION) {}
@@ -1605,7 +1605,7 @@ class HivePartitioningFunction : public HashPartitioningFunction {
   // virtual void remapIt(const PartitioningFunction* opf,
   //                     ValueIdMap& map, NABoolean mapItUp);
 
-  // virtual short codeGen(Generator* generator, Lng32 partInputDataLength);
+  // virtual short codeGen(Generator* generator, int partInputDataLength);
 
   virtual const NAString getText() const;
   virtual void print(FILE *ofd = stdout, const char *indent = DEFAULT_INDENT,
@@ -1617,7 +1617,7 @@ class HivePartitioningFunction : public HashPartitioningFunction {
 
   PartitioningFunction *createPartitioningFunctionForIndexDesc(IndexDesc *idesc) const;
 
-  virtual NABoolean isAGroupingOf(const PartitioningFunction &other, Lng32 *maxPartsPerGroup = NULL) const;
+  virtual NABoolean isAGroupingOf(const PartitioningFunction &other, int *maxPartsPerGroup = NULL) const;
 
   virtual void normalizePartitioningKeys(NormWA &normWARef);
 
@@ -1651,7 +1651,7 @@ class RangePartitionBoundaries : public NABasicObject {
   // Constructor functions
   // Allocate an array with 'numberOfPartitions+1' elements.
   // --------------------------------------------------------------------
-  RangePartitionBoundaries(Lng32 numberOfPartitions, Lng32 numberOfPartitioningKeyColumns,
+  RangePartitionBoundaries(int numberOfPartitions, int numberOfPartitioningKeyColumns,
                            NAMemory *h = CmpCommon::statementHeap());
 
   // copy constructor
@@ -1679,56 +1679,56 @@ class RangePartitionBoundaries : public NABasicObject {
   // Each partition boundary is a tuple that contains as many values
   // as there are partitioning key columns.
   // --------------------------------------------------------------------
-  void defineUnboundBoundary(Lng32 partitionNumber, const ItemExpr *boundaryValue, const char *encodedKeyValue);
+  void defineUnboundBoundary(int partitionNumber, const ItemExpr *boundaryValue, const char *encodedKeyValue);
 
   // --------------------------------------------------------------------
   // Each partition boundary is a tuple that contains as many values
   // as there are partitioning key columns.
   // --------------------------------------------------------------------
-  void defineBoundary(Lng32 partitionNumber, const ItemExprList *boundaryValue, const char *encodedKeyValue);
+  void defineBoundary(int partitionNumber, const ItemExprList *boundaryValue, const char *encodedKeyValue);
 
   // --------------------------------------------------------------------
   // bind a unbound boundary value and add it to the list of
   // boundaryValues_
   // --------------------------------------------------------------------
-  void bindAddBoundaryValue(Lng32 partitionNumber);
+  void bindAddBoundaryValue(int partitionNumber);
 
-  void checkConsistency(const Lng32 numberOfPartitions) const;
+  void checkConsistency(const int numberOfPartitions) const;
 
   // ---------------------------------------------------------------------
   // The number of partitions = the number of partition boundaries.
   // ---------------------------------------------------------------------
-  Lng32 getCountOfPartitions() const { return partitionCount_; }
+  int getCountOfPartitions() const { return partitionCount_; }
 
   // ---------------------------------------------------------------------
   // the length of the encoded partition boundary key
   // ---------------------------------------------------------------------
-  Lng32 getEncodedBoundaryKeyLength() const { return encodedBoundaryKeyLength_; }
+  int getEncodedBoundaryKeyLength() const { return encodedBoundaryKeyLength_; }
 
   // ---------------------------------------------------------------------
   // Like for partitioning functions, change the number of partitions
   // to be close to a suggested new value and return the chosen new value.
   // ---------------------------------------------------------------------
-  Lng32 scaleNumberOfPartitions(Lng32 suggestedNewNumberOfPartitions, const NodeMap *nodeMap,
+  int scaleNumberOfPartitions(int suggestedNewNumberOfPartitions, const NodeMap *nodeMap,
                                 PartitionGroupingDistEnum partGroupDist = DEFAULT_PARTITION_GROUPING);
 
   // ---------------------------------------------------------------------
   // Check whether one set of boundaries is a grouping of another
   // ---------------------------------------------------------------------
-  NABoolean isAGroupingOf(const RangePartitionBoundaries &other, Lng32 *maxPartsPerGroup = NULL) const;
+  NABoolean isAGroupingOf(const RangePartitionBoundaries &other, int *maxPartsPerGroup = NULL) const;
 
   // --------------------------------------------------------------------
   // Indexing operator
   // --------------------------------------------------------------------
-  const ItemExprList *getBoundaryValues(Lng32 index) const;
-  const char *getBinaryBoundaryValue(Lng32 index) const;
+  const ItemExprList *getBoundaryValues(int index) const;
+  const char *getBinaryBoundaryValue(int index) const;
 
   // ---------------------------------------------------------------------
   // A method that is used for comparing two range partition boundaries
   // by the optimizer.
   // ---------------------------------------------------------------------
   NABoolean compareRangePartitionBoundaries(const RangePartitionBoundaries &other, NABoolean groupingAllowed = FALSE,
-                                            Lng32 *maxPartsPerGroup = NULL) const;
+                                            int *maxPartsPerGroup = NULL) const;
 
   // ---------------------------------------------------------------------
   // Merge two compatible sets of boundaries and produce a corresponding
@@ -1742,14 +1742,14 @@ class RangePartitionBoundaries : public NABasicObject {
   // start key values that are specified. Columns for which no explicit
   // start key values are specified need not be part of the part key
   // ---------------------------------------------------------------------
-  Lng32 getOptimizedNumberOfPartKeys();
+  int getOptimizedNumberOfPartKeys();
 
   // ---------------------------------------------------------------------
   // Add the start boundary for the first partition (min key) and the
   // end boundary for the last range partition (max key).
   // This method is defined in PartFunc.cpp
   // ---------------------------------------------------------------------
-  void completePartitionBoundaries(const ValueIdList &partitioningKeyOrder, Lng32 encodedBoundaryKeyLength);
+  void completePartitionBoundaries(const ValueIdList &partitioningKeyOrder, int encodedBoundaryKeyLength);
 
   // find a boundary pair [low, high) with smallest low value in which keys fall, and return the
   // // index of the boundary low. Return -1 otherwise, or the key lengths are different.
@@ -1775,8 +1775,8 @@ class RangePartitionBoundaries : public NABasicObject {
   // This data is maintained simply to check the consistency of the
   // values supplied for each partition boundary.
   // --------------------------------------------------------------------
-  Lng32 partKeyColumnCount_;
-  Lng32 origPartKeyColumnCount_;
+  int partKeyColumnCount_;
+  int origPartKeyColumnCount_;
 
   ARRAY(const ItemExpr *) boundaryValuesList_;
 
@@ -1794,13 +1794,13 @@ class RangePartitionBoundaries : public NABasicObject {
   ARRAY(const ItemExprList *) boundaryValues_;
   ARRAY(const char *) binaryBoundaryValues_;
 
-  Lng32 partitionCount_;
-  Lng32 origPartitionCount_;
+  int partitionCount_;
+  int origPartitionCount_;
 
   // --------------------------------------------------------------------
   // length of the encoded boundary keys
   // --------------------------------------------------------------------
-  Lng32 encodedBoundaryKeyLength_;
+  int encodedBoundaryKeyLength_;
 
   NABoolean setupForStatement_;
   NABoolean resetAfterStatement_;
@@ -1858,7 +1858,7 @@ class RangePartitioningFunction : public PartitioningFunction {
   // ---------------------------------------------------------------------
   // The number of range partitions that will be formed using this scheme.
   // ---------------------------------------------------------------------
-  virtual Lng32 getCountOfPartitions() const;
+  virtual int getCountOfPartitions() const;
 
   // ---------------------------------------------------------------------
   // Accessor method for the list of key columns.
@@ -1884,7 +1884,7 @@ class RangePartitioningFunction : public PartitioningFunction {
   // ---------------------------------------------------------------------
   virtual COMPARE_RESULT comparePartFuncToFunc(const PartitioningFunction &other) const;
 
-  virtual NABoolean isAGroupingOf(const PartitioningFunction &other, Lng32 *maxPartsPerGroup = NULL) const;
+  virtual NABoolean isAGroupingOf(const PartitioningFunction &other, int *maxPartsPerGroup = NULL) const;
 
   virtual PartitioningRequirement *makePartitioningRequirement();
 
@@ -1899,7 +1899,7 @@ class RangePartitioningFunction : public PartitioningFunction {
   virtual void replacePivs(const ValueIdList &newPivs, const ValueIdSet &newPartKeyPreds);
 
   virtual PartitioningFunction *scaleNumberOfPartitions(
-      Lng32 &suggestedNewNumberOfPartitions, PartitionGroupingDistEnum partGroupDist = DEFAULT_PARTITION_GROUPING,
+      int &suggestedNewNumberOfPartitions, PartitionGroupingDistEnum partGroupDist = DEFAULT_PARTITION_GROUPING,
       NABoolean scaleByFactor = TRUE);
 
   virtual void remapIt(const PartitioningFunction *opf, ValueIdMap &map, NABoolean mapItUp);
@@ -1910,9 +1910,9 @@ class RangePartitioningFunction : public PartitioningFunction {
 
   virtual void preCodeGen(const ValueIdSet &availableValues);
 
-  virtual short codeGen(Generator *generator, Lng32 partInputDataLength);
+  virtual short codeGen(Generator *generator, int partInputDataLength);
 
-  virtual void generatePivLayout(Generator *generator, Lng32 &partitionInputDataLength, Lng32 atp, Lng32 atpIndex,
+  virtual void generatePivLayout(Generator *generator, int &partitionInputDataLength, int atp, int atpIndex,
                                  Attributes ***pivAttrs);
 
   void setupForStatement();
@@ -2038,7 +2038,7 @@ class LogPhysPartitioningFunction : public PartitioningFunction {
   // Constructor functions
   // --------------------------------------------------------------------
   LogPhysPartitioningFunction(PartitioningFunction *logPartFunc, PartitioningFunction *physPartFunc,
-                              logPartType logPartType, Lng32 numOfClients, NABoolean usePapa,
+                              logPartType logPartType, int numOfClients, NABoolean usePapa,
                               NABoolean synchronousAccess, NAMemory *heap = CmpCommon::statementHeap());
 
   LogPhysPartitioningFunction(const LogPhysPartitioningFunction &other, NAMemory *heap = CmpCommon::statementHeap())
@@ -2064,21 +2064,21 @@ class LogPhysPartitioningFunction : public PartitioningFunction {
   inline PartitioningFunction *getPhysPartitioningFunction() const { return physPartFunc_; }
   inline PartitioningFunction *getRealPartitioningFunction() const { return realPartFunc_; }
   inline logPartType getLogPartType() const { return logPartType_; }
-  inline Lng32 getNumOfClients() const { return numOfClients_; }
+  inline int getNumOfClients() const { return numOfClients_; }
   inline NABoolean getUsePapa() const { return usePapa_; }
   inline NABoolean getSynchronousAccess() const { return synchronousAccess_; }
 
   // ---------------------------------------------------------------------
   // mutator methods
   // ---------------------------------------------------------------------
-  inline void setNumOfClients(Lng32 numOfClients) { numOfClients_ = numOfClients; }
+  inline void setNumOfClients(int numOfClients) { numOfClients_ = numOfClients; }
 
   // ---------------------------------------------------------------------
   // see base class for explanations of the virtual methods
   // ---------------------------------------------------------------------
   virtual const LogPhysPartitioningFunction *castToLogPhysPartitioningFunction() const;
 
-  virtual Lng32 getCountOfPartitions() const;
+  virtual int getCountOfPartitions() const;
 
   virtual PartitioningRequirement *makePartitioningRequirement();
 
@@ -2113,11 +2113,11 @@ class LogPhysPartitioningFunction : public PartitioningFunction {
 
   virtual COMPARE_RESULT comparePartFuncToFunc(const PartitioningFunction &other) const;
 
-  virtual NABoolean isAGroupingOf(const PartitioningFunction &other, Lng32 *maxPartsPerGroup = NULL) const;
+  virtual NABoolean isAGroupingOf(const PartitioningFunction &other, int *maxPartsPerGroup = NULL) const;
 
   virtual void remapIt(const PartitioningFunction *opf, ValueIdMap &map, NABoolean mapItUp);
 
-  virtual short codeGen(Generator *generator, Lng32 partInputDataLength);
+  virtual short codeGen(Generator *generator, int partInputDataLength);
 
   virtual const NAString getText() const;
 
@@ -2185,7 +2185,7 @@ class LogPhysPartitioningFunction : public PartitioningFunction {
   // of logical partitions. We will then generate a PAPA node with
   // #log parts / numOfClients_ PA nodes.
   // ---------------------------------------------------------------------
-  Lng32 numOfClients_;
+  int numOfClients_;
 
   // ---------------------------------------------------------------------
   // Indicator whether to use a PAPA node. The number of partitions of
@@ -2219,7 +2219,7 @@ class RoundRobinPartitioningFunction : public PartitioningFunction {
   // --------------------------------------------------------------------
   // Constructor functions
   // --------------------------------------------------------------------
-  RoundRobinPartitioningFunction(const Lng32 partitionCount, NodeMap *nodeMap,
+  RoundRobinPartitioningFunction(const int partitionCount, NodeMap *nodeMap,
                                  NAMemory *heap = CmpCommon::statementHeap())
       : PartitioningFunction(ROUND_ROBIN_PARTITIONING_FUNCTION, nodeMap, heap),
         numberOfOrigRRPartitions_(partitionCount),
@@ -2227,7 +2227,7 @@ class RoundRobinPartitioningFunction : public PartitioningFunction {
         setupForStatement_(FALSE),
         resetAfterStatement_(FALSE) {}
 
-  RoundRobinPartitioningFunction(const Lng32 partitionCount, const ValueIdSet &partitioningKeyColumns, NodeMap *nodeMap,
+  RoundRobinPartitioningFunction(const int partitionCount, const ValueIdSet &partitioningKeyColumns, NodeMap *nodeMap,
                                  NAMemory *heap = CmpCommon::statementHeap())
       : PartitioningFunction(ROUND_ROBIN_PARTITIONING_FUNCTION, partitioningKeyColumns, nodeMap, heap),
         numberOfOrigRRPartitions_(partitionCount),
@@ -2263,7 +2263,7 @@ class RoundRobinPartitioningFunction : public PartitioningFunction {
   // ---------------------------------------------------------------------
   virtual const RoundRobinPartitioningFunction *castToRoundRobinPartitioningFunction() const { return this; }
 
-  virtual Lng32 getCountOfPartitions() const { return partitionCount_; }
+  virtual int getCountOfPartitions() const { return partitionCount_; }
 
   virtual PartitioningRequirement *makePartitioningRequirement();
 
@@ -2271,7 +2271,7 @@ class RoundRobinPartitioningFunction : public PartitioningFunction {
 
   virtual COMPARE_RESULT comparePartFuncToFunc(const PartitioningFunction &other) const;
 
-  virtual NABoolean isAGroupingOf(const PartitioningFunction &other, Lng32 *maxPartsPerGroup = NULL) const;
+  virtual NABoolean isAGroupingOf(const PartitioningFunction &other, int *maxPartsPerGroup = NULL) const;
 
   virtual void createPartitioningKeyPredicates();
 
@@ -2280,7 +2280,7 @@ class RoundRobinPartitioningFunction : public PartitioningFunction {
   virtual void replacePivs(const ValueIdList &newPivs, const ValueIdSet &newPartKeyPreds);
 
   virtual PartitioningFunction *scaleNumberOfPartitions(
-      Lng32 &suggestedNewNumberOfPartitions, PartitionGroupingDistEnum partGroupDist = DEFAULT_PARTITION_GROUPING,
+      int &suggestedNewNumberOfPartitions, PartitionGroupingDistEnum partGroupDist = DEFAULT_PARTITION_GROUPING,
       NABoolean scaleByFactor = TRUE);
 
   virtual PartitioningFunction *createPartitioningFunctionForIndexDesc(IndexDesc *idesc) const;
@@ -2289,7 +2289,7 @@ class RoundRobinPartitioningFunction : public PartitioningFunction {
 
   virtual ItemExpr *createPartitionSelectionExpr(const SearchKey *partSearchKey, const ValueIdSet &availableValues);
 
-  virtual short codeGen(Generator *generator, Lng32 partInputDataLength);
+  virtual short codeGen(Generator *generator, int partInputDataLength);
 
   // Make a new partSearchKey that indicates that
   // PA_PARTITION_GROUPING is being done.  Note that a search key can
@@ -2304,7 +2304,7 @@ class RoundRobinPartitioningFunction : public PartitioningFunction {
   // ---------------------------------------------------------------------
   // The original (physical) number of RR partitions before any scaling.
   // ---------------------------------------------------------------------
-  Lng32 getCountOfOrigRRPartitions() const { return numberOfOrigRRPartitions_; };
+  int getCountOfOrigRRPartitions() const { return numberOfOrigRRPartitions_; };
 
   void setupForStatement();
   void resetAfterStatement();
@@ -2318,12 +2318,12 @@ class RoundRobinPartitioningFunction : public PartitioningFunction {
   // The number of partitions of the original (physical) partitioning
   // function before any scaling.
   // ---------------------------------------------------------------------
-  Lng32 numberOfOrigRRPartitions_;
+  int numberOfOrigRRPartitions_;
 
   // ----------------------------------------------------------------------
   // The number of partitions.
   // ----------------------------------------------------------------------
-  Lng32 partitionCount_;
+  int partitionCount_;
 
   NABoolean setupForStatement_;
   NABoolean resetAfterStatement_;

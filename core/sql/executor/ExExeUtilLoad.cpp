@@ -95,9 +95,9 @@ ExExeUtilCreateTableAsTcb::ExExeUtilCreateTableAsTcb(const ComTdbExeUtil &exe_ut
 // work() for ExExeUtilCreateTableAsTcb
 //////////////////////////////////////////////////////
 short ExExeUtilCreateTableAsTcb::work() {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
   short retcode = 0;
-  Int64 rowsAffected = 0;
+  long rowsAffected = 0;
   NABoolean redriveCTAS = FALSE;
 
   // if no parent request, return
@@ -294,7 +294,7 @@ short ExExeUtilCreateTableAsTcb::work() {
         ComDiagsArea *diagsArea = up_entry->getDiagsArea();
 
         // issue the insert command
-        Int64 rowsAffected = 0;
+        long rowsAffected = 0;
         Int32 savedIsoMapping = currContext->getSessionDefaults()->getIsoMappingEnum();
         cliInterface()->setIsoMapping(currContext->getSessionDefaults()->getIsoMappingEnum());
         NABoolean redriveCTAS = currContext->getSessionDefaults()->getRedriveCTAS();
@@ -432,8 +432,8 @@ short ExExeUtilCreateTableAsTcb::work() {
 // Redefine virtual method allocatePstates, to be used by dynamic queue
 // resizing, as well as the initial queue construction.
 ////////////////////////////////////////////////////////////////////////
-ex_tcb_private_state *ExExeUtilCreateTableAsTcb::allocatePstates(Lng32 &numElems,      // inout, desired/actual elements
-                                                                 Lng32 &pstateLength)  // out, length of one element
+ex_tcb_private_state *ExExeUtilCreateTableAsTcb::allocatePstates(int &numElems,      // inout, desired/actual elements
+                                                                 int &pstateLength)  // out, length of one element
 {
   PstateAllocator<ExExeUtilCreateTableAsPrivateState> pa;
 
@@ -535,7 +535,7 @@ void ExExeUtilAqrWnrInsertTcb::setStep(Step newStep, int lineNum) {
 
 ExWorkProcRetcode ExExeUtilAqrWnrInsertTcb::work() {
   ExWorkProcRetcode rc = WORK_OK;
-  Lng32 cliRC = 0;
+  int cliRC = 0;
 
   // Get the globals stucture of the master executor.
   ExExeStmtGlobals *exeGlob = getGlobals()->castToExExeStmtGlobals();
@@ -566,7 +566,7 @@ ExWorkProcRetcode ExExeUtilAqrWnrInsertTcb::work() {
 
         query_ = new (getGlobals()->getDefaultHeap()) char[1000];
         str_sprintf(query_, "lock table %s in share mode;", ulTdb().getTableName());
-        Lng32 len = 0;
+        int len = 0;
         char dummyArg[128];
 #ifdef VERIFY_CLI_UTIL
         for (size_t i = 0; i < sizeof(dummyArg); i++) dummyArg[i] = i;
@@ -595,8 +595,8 @@ ExWorkProcRetcode ExExeUtilAqrWnrInsertTcb::work() {
 
         query_ = new (getGlobals()->getDefaultHeap()) char[1000];
         str_sprintf(query_, "select row count from %s;", ulTdb().getTableName());
-        Lng32 len = 0;
-        Int64 rowCount = 0;
+        int len = 0;
+        long rowCount = 0;
         cliRC = cliInterface()->executeImmediate(query_, (char *)&rowCount, &len, FALSE);
         NADELETEBASIC(query_, getMyHeap());
         if (cliRC < 0) {
@@ -667,7 +667,7 @@ ExWorkProcRetcode ExExeUtilAqrWnrInsertTcb::work() {
               // Find out if any messages were sent to insert TSE sessions,
               // because we'd like to skip CLEANUP_TARGET_ if not.
               const ExStatisticsArea *constStatsArea = NULL;
-              Lng32 cliRc = SQL_EXEC_GetStatisticsArea_Internal(
+              int cliRc = SQL_EXEC_GetStatisticsArea_Internal(
                   SQLCLI_STATS_REQ_QID, masterGlob->getStatement()->getUniqueStmtId(),
                   masterGlob->getStatement()->getUniqueStmtIdLen(), -1, SQLCLI_SAME_STATS, constStatsArea);
               ExStatisticsArea *statsArea = (ExStatisticsArea *)constStatsArea;
@@ -699,7 +699,7 @@ ExWorkProcRetcode ExExeUtilAqrWnrInsertTcb::work() {
 
         query_ = new (getGlobals()->getDefaultHeap()) char[1000];
         str_sprintf(query_, "delete with no rollback from %s;", ulTdb().getTableName());
-        Lng32 len = 0;
+        int len = 0;
         char dummyArg[128];
         cliRC = cliInterface()->executeImmediate(query_, dummyArg, &len, FALSE);
 
@@ -840,11 +840,11 @@ NABoolean ExExeUtilHBaseBulkLoadTcb::generateTrafSampleTable(const char *cTableN
   sSampleTableName_ = cSampleTableName;
   NAString sQuery = "DROP TABLE IF EXISTS ";
   sQuery.append(sSampleTableName_);
-  Lng32 nRet = cliInterface()->executeImmediate(sQuery.data());
+  int nRet = cliInterface()->executeImmediate(sQuery.data());
   if (nRet < 0) return FALSE;
 
   NAString sOptions = " WITHOUT LOB COLUMNS ";
-  Lng32 maxlength = (Lng32)CmpCommon::getDefaultNumeric(USTAT_MAX_CHAR_COL_LENGTH_IN_BYTES);
+  int maxlength = (int)CmpCommon::getDefaultNumeric(USTAT_MAX_CHAR_COL_LENGTH_IN_BYTES);
   char temp[20];
   sprintf(temp, "%d", maxlength);
   sOptions.append("LIMIT COLUMN LENGTH TO ").append(temp);
@@ -868,7 +868,7 @@ NABoolean ExExeUtilHBaseBulkLoadTcb::generateTrafSampleTable(const char *cTableN
 // Those param values are input from root and then passed to
 // the internal 'load transform' query at hblTdb().ldQuery_.
 short ExExeUtilHBaseBulkLoadTcb::loadWithParams(ComDiagsArea *&diagsArea) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
 
   ex_queue_entry *pentry_down = qparent_.down->getHeadEntry();
 
@@ -911,7 +911,7 @@ short ExExeUtilHBaseBulkLoadTcb::loadWithParams(ComDiagsArea *&diagsArea) {
       srcVal = &inputParamsBuf[srcAttr->getOffset()];
     }
 
-    Lng32 dummy;
+    int dummy;
     Int32 tgtParamVcIndLen = 0;
     Int32 tgtParamOffset = 0;
     Int32 tgtParamNullIndOffset = 0;
@@ -951,10 +951,10 @@ short ExExeUtilHBaseBulkLoadTcb::loadWithParams(ComDiagsArea *&diagsArea) {
 // work() for ExExeUtilHbaseLoadTcb
 //////////////////////////////////////////////////////
 short ExExeUtilHBaseBulkLoadTcb::work() {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
   short retcode = 0;
   short rc;
-  Lng32 errorRowCount = 0;
+  int errorRowCount = 0;
   int len;
 
   // if no parent request, return
@@ -1028,8 +1028,8 @@ short ExExeUtilHBaseBulkLoadTcb::work() {
         strcat(ttQuery, hblTdb().getTableName());
         strcat(ttQuery, ";");
 
-        Lng32 len = 0;
-        Int64 rowCount = 0;
+        int len = 0;
+        long rowCount = 0;
         cliRC = cliInterface()->executeImmediate(ttQuery, NULL, NULL, TRUE, NULL, TRUE);
         NADELETEBASIC(ttQuery, getHeap());
         ttQuery = NULL;
@@ -1060,8 +1060,8 @@ short ExExeUtilHBaseBulkLoadTcb::work() {
         retcode = ehi_->initHBLC();
         if (retcode == 0) retcode = ehi_->createCounterTable(hblTdb().getErrCountTable(), (char *)"ERRORS");
         if (retcode != 0) {
-          Lng32 cliError = 0;
-          Lng32 intParam1 = -retcode;
+          int cliError = 0;
+          int intParam1 = -retcode;
           ExRaiseSqlError(getHeap(), &diagsArea_, (ExeErrorCode)(8448), NULL, &intParam1, &cliError, NULL, " ",
                           getHbaseErrStr(retcode), (char *)GetCliGlobals()->getJniErrorStr());
           step_ = LOAD_END_ERROR_;
@@ -1210,7 +1210,7 @@ short ExExeUtilHBaseBulkLoadTcb::work() {
             step_ = COMPLETE_BULK_LOAD_;
             if (diagsArea != NULL) {
               ComCondition *cond;
-              Lng32 entryNumber;
+              int entryNumber;
               while ((cond = diagsArea->findCondition(EXE_ERROR_ROWS_FOUND, &entryNumber)) != NULL) {
                 if (errorRowCount < cond->getOptionalInteger(0)) errorRowCount = cond->getOptionalInteger(0);
                 diagsArea->deleteWarning(entryNumber);
@@ -1571,7 +1571,7 @@ short ExExeUtilHBaseBulkLoadTcb::restoreCQDs() {
   return 0;
 }
 
-short ExExeUtilHBaseBulkLoadTcb::moveRowToUpQueue(const char *row, Lng32 len, short *rc, NABoolean isVarchar) {
+short ExExeUtilHBaseBulkLoadTcb::moveRowToUpQueue(const char *row, int len, short *rc, NABoolean isVarchar) {
   if (hblTdb().getNoOutput()) return 0;
 
   return ExExeUtilTcb::moveRowToUpQueue(row, len, rc, isVarchar);
@@ -1612,7 +1612,7 @@ void ExExeUtilHBaseBulkLoadTcb::setEndStatusMsg(const char *operation, int bufPo
   nextStep_ = step_;
   step_ = RETURN_STATUS_MSG_;
 
-  Int64 elapsedTime;
+  long elapsedTime;
   if (withtime) {
     endTime_ = NA_JulianTimestamp();
     elapsedTime = endTime_ - startTime_;
@@ -1646,8 +1646,8 @@ void ExExeUtilHBaseBulkLoadTcb::setLoggingLocation() {
 // Redefine virtual method allocatePstates, to be used by dynamic queue
 // resizing, as well as the initial queue construction.
 ////////////////////////////////////////////////////////////////////////
-ex_tcb_private_state *ExExeUtilHBaseBulkLoadTcb::allocatePstates(Lng32 &numElems,      // inout, desired/actual elements
-                                                                 Lng32 &pstateLength)  // out, length of one element
+ex_tcb_private_state *ExExeUtilHBaseBulkLoadTcb::allocatePstates(int &numElems,      // inout, desired/actual elements
+                                                                 int &pstateLength)  // out, length of one element
 {
   PstateAllocator<ExExeUtilHbaseLoadPrivateState> pa;
 
@@ -1699,8 +1699,8 @@ short ExExeUtilLobExtractLibrary(ExeCliInterface *cliInterface, char *libHandle,
 // Redefine virtual method allocatePstates, to be used by dynamic queue
 // resizing, as well as the initial queue construction.
 ////////////////////////////////////////////////////////////////////////
-ex_tcb_private_state *ExExeUtilUpdataDeleteTcb::allocatePstates(Lng32 &numElems,      // inout, desired/actual elements
-                                                                Lng32 &pstateLength)  // out, length of one element
+ex_tcb_private_state *ExExeUtilUpdataDeleteTcb::allocatePstates(int &numElems,      // inout, desired/actual elements
+                                                                int &pstateLength)  // out, length of one element
 {
   PstateAllocator<ExExeUtilUpdataDeletePrivateState> pa;
 
@@ -1744,8 +1744,8 @@ void ExExeUtilUpdataDeleteTcb::freeResources() {
   ehi_ = NULL;
 }
 
-Lng32 ExExeUtilUpdataDeleteTcb::lockOperatingTable() {
-  Lng32 cliRC = 0;
+int ExExeUtilUpdataDeleteTcb::lockOperatingTable() {
+  int cliRC = 0;
   NAString exequery;
 
   // use MD_OBJECTS_TRUNCATE_IN_PROGRESS to block BR op
@@ -1760,8 +1760,8 @@ Lng32 ExExeUtilUpdataDeleteTcb::lockOperatingTable() {
   return 0;
 }
 
-Lng32 ExExeUtilUpdataDeleteTcb::unLockOperatingTable() {
-  Lng32 cliRC = 0;
+int ExExeUtilUpdataDeleteTcb::unLockOperatingTable() {
+  int cliRC = 0;
   NAString exequery;
 
   exequery.format("update %s.\"%s\".%s set flags = bitand(flags, %d) where object_uid = %ld", TRAFODION_SYSCAT_LIT,
@@ -1774,10 +1774,10 @@ Lng32 ExExeUtilUpdataDeleteTcb::unLockOperatingTable() {
   return 0;
 }
 
-Lng32 ExExeUtilUpdataDeleteTcb::isBRInProgress()
+int ExExeUtilUpdataDeleteTcb::isBRInProgress()
 
 {
-  Int64 objFlags = 0;
+  long objFlags = 0;
   NAString exequery;
 
   objFlags = getObjectFlags(hblTdb().objectUid());
@@ -1858,9 +1858,9 @@ short ExExeUtilUpdataDeleteTcb::restoreCQDs() {
 // DONE_
 /////////////////////////////////////////////////////////////////////////
 short ExExeUtilUpdataDeleteTcb::work() {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
   short retcode = 0;
-  Int64 rowsAffected = 0;
+  long rowsAffected = 0;
   Queue *indexList = NULL;
   char *indexName;
   NABoolean isProcessError = FALSE;

@@ -114,7 +114,7 @@ ComTdbUnPackRows::ComTdbUnPackRows(const ComTdbUnPackRows *unPackRowsTdb)
 //  IN: compiler estimate on number of returned rows
 //
 ComTdbUnPackRows::ComTdbUnPackRows(ComTdb *childTdb, ex_expr *packingFactor, ex_expr *unPackColsExpr,
-                                   Lng32 unPackColsTupleLen, unsigned short unPackColsAtpIndex,
+                                   int unPackColsTupleLen, unsigned short unPackColsAtpIndex,
                                    unsigned short indexValueAtpIndex, ex_cri_desc *criDescDown, ex_cri_desc *criDescUp,
                                    ex_cri_desc *workCriDesc, queue_index queueSizeDown, queue_index queueSizeUp,
                                    Cardinality estimatedRowCount, NABoolean rowsetIterator,
@@ -137,7 +137,7 @@ ComTdbUnPackRows::ComTdbUnPackRows(ComTdb *childTdb, ex_expr *packingFactor, ex_
 ComTdbUnPackRows::ComTdbUnPackRows(ComTdb *childTdb, ex_expr *inputSizeExpr, ex_expr *maxInputRowlenExpr,
                                    ex_expr *rwrsBufferAddrExpr, unsigned short rwrsAtpIndex, ex_cri_desc *criDescDown,
                                    ex_cri_desc *criDescUp, ex_cri_desc *workCriDesc, queue_index queueSizeDown,
-                                   queue_index queueSizeUp, Cardinality estimatedRowCount, Lng32 num_buffers,
+                                   queue_index queueSizeUp, Cardinality estimatedRowCount, int num_buffers,
                                    ULng32 buffer_size)
     : ComTdb(ComTdb::ex_UNPACKROWS, eye_UNPACKROWS, estimatedRowCount, criDescDown, criDescUp, queueSizeDown,
              queueSizeUp, num_buffers, buffer_size),
@@ -212,7 +212,7 @@ Long ComTdbUnPackRows::pack(void *space) {
 //  IN - The base address of the TDB fragment.  Pointers are calculated
 //       by adding the offset to the base address (more or less).
 //
-Lng32 ComTdbUnPackRows::unpack(void *base, void *reallocator) {
+int ComTdbUnPackRows::unpack(void *base, void *reallocator) {
   if (childTdb_.unpack(base, reallocator)) return -1;
   if (workCriDesc_.unpack(base, reallocator)) return -1;
   if (packingFactor_.unpack(base, reallocator)) return -1;

@@ -69,7 +69,7 @@ class ExpHbaseInterface;
 
 typedef QualifiedName *QualifiedNamePtr;
 typedef ULng32 (*HashFunctionPtr)(const QualifiedName &);
-typedef SUBARRAY(Lng32) CollIndexSet;
+typedef SUBARRAY(int) CollIndexSet;
 
 NAType *getSQColTypeForHive(const char *hiveType, NAMemory *heap);
 
@@ -90,8 +90,8 @@ class HistogramsCacheEntry : public NABasicObject {
 
  public:
   // constructor for creating memory efficient representation of colStats
-  HistogramsCacheEntry(const StatsList &colStats, const QualifiedName &qualifiedName, Int64 tableUID,
-                       const Int64 &statsTime, const Int64 &redefTime, NAMemory *heap);
+  HistogramsCacheEntry(const StatsList &colStats, const QualifiedName &qualifiedName, long tableUID,
+                       const long &statsTime, const long &redefTime, NAMemory *heap);
 
   // destructor
   virtual ~HistogramsCacheEntry();
@@ -140,21 +140,21 @@ class HistogramsCacheEntry : public NABasicObject {
   // overloaded operator to satisfy hashdictionary
   inline NABoolean operator==(const HistogramsCacheEntry &other) { return (this == &other); };
 
-  Int64 getRefreshTime() const { return refreshTime_; };
+  long getRefreshTime() const { return refreshTime_; };
 
-  void setRefreshTime(Int64 refreshTime) { refreshTime_ = refreshTime; };
+  void setRefreshTime(long refreshTime) { refreshTime_ = refreshTime; };
 
   void updateRefreshTime();
 
-  void setRedefTime(Int64 redefTime) { redefTime_ = redefTime; };
+  void setRedefTime(long redefTime) { redefTime_ = redefTime; };
 
-  Int64 getRedefTime() const { return redefTime_; };
+  long getRedefTime() const { return redefTime_; };
 
-  Int64 getStatsTime() const { return statsTime_; };
+  long getStatsTime() const { return statsTime_; };
 
-  static Int64 getLastUpdateStatsTime();
+  static long getLastUpdateStatsTime();
 
-  static void setUpdateStatsTime(Int64 updateTime);
+  static void setUpdateStatsTime(long updateTime);
 
   inline NABoolean isAllStatsFake() { return allFakeStats_; };
 
@@ -162,7 +162,7 @@ class HistogramsCacheEntry : public NABasicObject {
 
   inline ULng32 getSize() { return size_; }
 
-  Int64 getTableUID() const { return tableUID_; };
+  long getTableUID() const { return tableUID_; };
 
   void display() const;
   void print(FILE *ofd = stdout, const char *indent = DEFAULT_INDENT, const char *title = "HistogramsCacheEntry") const;
@@ -178,14 +178,14 @@ class HistogramsCacheEntry : public NABasicObject {
   // ---------------------------------------------------------------------
   // The time histograms for this table were last refreshed
   // ---------------------------------------------------------------------
-  Int64 refreshTime_;
+  long refreshTime_;
 
   // ---------------------------------------------------------------------
   // The time this table was last altered
   // ---------------------------------------------------------------------
-  Int64 redefTime_;
+  long redefTime_;
 
-  Int64 statsTime_;  // STATS_TIME value from SB_HISTOGRAMS table
+  long statsTime_;  // STATS_TIME value from SB_HISTOGRAMS table
 
   // ----------------------------------------------------------------
   // Do all columns of this table consis of default statistics
@@ -210,7 +210,7 @@ class HistogramsCacheEntry : public NABasicObject {
 
   // pointer to qualified name of the table
   QualifiedName *name_;
-  Int64 tableUID_;
+  long tableUID_;
   NABoolean accessedInCurrentStatement_;
   ULng32 size_;
 };  // class HistogramsCacheEntry
@@ -229,7 +229,7 @@ class HistogramsCacheEntry : public NABasicObject {
 
 class HistogramCache : public NABasicObject {
  public:
-  HistogramCache(NAMemory *heap, Lng32 initSize = 107);
+  HistogramCache(NAMemory *heap, int initSize = 107);
 
   // method called by NATable to get the cached histogram if any
   void getHistograms(NATable &table, NABoolean useStoredStats = FALSE);
@@ -288,7 +288,7 @@ class HistogramCache : public NABasicObject {
 
   // This method is used to put a StatsList object, that has been
   void putStatsListIntoCache(StatsList &colStatsList, const NAColumnArray &colArray, const QualifiedName &qualifiedName,
-                             Int64 tableUID, Int64 statsTime, const Int64 &redefTime, NABoolean allFakeStats);
+                             long tableUID, long statsTime, const long &redefTime, NABoolean allFakeStats);
 
   // lookup given table's histograms.
   // if found, return its HistogramsCacheEntry*.
@@ -318,7 +318,7 @@ class HistogramCache : public NABasicObject {
   // The Cache
   NAHashDictionary<QualifiedName, HistogramsCacheEntry> *histogramsCache_;
 
-  Int64 lastTouchTime_;  // last time cache was touched
+  long lastTouchTime_;  // last time cache was touched
   ULng32 hits_;          // cache hit counter
   ULng32 lookups_;       // entries lookup counter
   ULng32 size_;
@@ -482,7 +482,7 @@ class NATable : public NABasicObject {
   CollIndex getUserColumnCount() const;
   const NAColumnArray &getNAColumnArray() const { return colArray_; }
   const NAColumnArray &getHiveNAColumnArray() const { return hiveColArray_; }
-  void getNAColumnMap(std::map<Lng32, char *> &colMap, NABoolean lowercase);
+  void getNAColumnMap(std::map<int, char *> &colMap, NABoolean lowercase);
 
   const NAPartitionArray &getNAPartitionArray() const { return partArray_; }
 
@@ -521,9 +521,9 @@ class NATable : public NABasicObject {
   // Currently, column and key info is moved.
   short updateExtTableAttrs(NATable *etTable);
 
-  const Int64 &getCreateTime() const { return createTime_; }
-  const Int64 &getRedefTime() const { return redefTime_; }
-  const Int64 &getStatsTime() const { return statsTime_; }
+  const long &getCreateTime() const { return createTime_; }
+  const long &getRedefTime() const { return redefTime_; }
+  const long &getStatsTime() const { return statsTime_; }
 
   const ComUID &getCatalogUid() const { return catalogUID_; }
   const ComUID &getSchemaUid() const { return schemaUID_; }
@@ -554,7 +554,7 @@ class NATable : public NABasicObject {
   // set objectUID_ to -1 if there is error during the fetch operation;
   NABoolean fetchObjectUIDForNativeTable(const CorrName &corrName, NABoolean isView);
 
-  Int64 lookupObjectUid();  // Used to look up uid on demand for metadata tables.
+  long lookupObjectUid();  // Used to look up uid on demand for metadata tables.
                             // On return, the "Object Not Found" error (-1389)
                             // is filtered out from CmpCommon::diags().
 
@@ -598,10 +598,10 @@ class NATable : public NABasicObject {
   const char *getHiveExpandedViewText() const { return hiveExpandedViewText_; }
   const char *getHiveOriginalViewText() const { return hiveOriginalViewText_; }
 
-  NABoolean hasSaltedColumn(Lng32 *saltColPos = NULL) const;
-  //  const NABoolean hasSaltedColumn(Lng32 * saltColPos = NULL) const;
-  NABoolean hasDivisioningColumn(Lng32 *divColPos = NULL);
-  NABoolean hasTrafReplicaColumn(Lng32 *repColPos = NULL) const;
+  NABoolean hasSaltedColumn(int *saltColPos = NULL) const;
+  //  const NABoolean hasSaltedColumn(int * saltColPos = NULL) const;
+  NABoolean hasDivisioningColumn(int *divColPos = NULL);
+  NABoolean hasTrafReplicaColumn(int *repColPos = NULL) const;
   Int16 getNumTrafReplicas() const;
 
   void setUpdatable(NABoolean value) { value ? flags_ |= IS_UPDATABLE : flags_ &= ~IS_UPDATABLE; }
@@ -882,7 +882,7 @@ class NATable : public NABasicObject {
   // size is the size of the table's heap
   // this is useful for NATable caching because a seperate
   // heap is created for each cached NATable
-  Lng32 getSize() { return (heap_ ? heap_->getTotalSize() : 0); }
+  int getSize() { return (heap_ ? heap_->getTotalSize() : 0); }
 
   // returns true if this is an MP table with an Ansi Name
   NABoolean isAnMPTableWithAnsiName() const { return isAnMPTableWithAnsiName_; };
@@ -984,7 +984,7 @@ class NATable : public NABasicObject {
   // without accessing HBase. The result is passed to estimateHBaseRowCount(),
   // which completes the row size calculation with HBase info.
   Int32 computeHBaseRowSizeFromMetaData() const;
-  Int64 estimateHBaseRowCount(Int32 retryLimitMilliSeconds, Int32 &errorCode, Int32 &breadCrumb) const;
+  long estimateHBaseRowCount(Int32 retryLimitMilliSeconds, Int32 &errorCode, Int32 &breadCrumb) const;
   NABoolean getHbaseTableInfo(Int32 &hbtIndexLevels, Int32 &hbtBlockSize) const;
   NABoolean getRegionsNodeName(Int32 partns, ARRAY(const char *) & nodeNames) const;
 
@@ -1005,7 +1005,7 @@ class NATable : public NABasicObject {
   };
   static void getConnectParams(ComStorageType storageType, char **connectParam1, char **connectParam2);
 
-  static ItemExpr *getRangePartitionBoundaryValues(const char *keyValueBuffer, const Lng32 keyValueBufferSize,
+  static ItemExpr *getRangePartitionBoundaryValues(const char *keyValueBuffer, const int keyValueBufferSize,
                                                    NAMemory *heap, CharInfo::CharSet strCharSet = CharInfo::UTF8);
 
   NAHashDictionary<minmaxKey, minmaxValue> &minmaxCache() { return minmaxCache_; }
@@ -1024,7 +1024,7 @@ class NATable : public NABasicObject {
   const Int32 getLobChunksTableDataInHbaseColLen() const { return lobChunksTableDataInHbaseColLen_; }
   void setLobChunksTableDataInHbaseColLen(Int32 n) { lobChunksTableDataInHbaseColLen_ = n; }
 
-  Int64 &lobHbaseDataMaxLen() { return lobHbaseDataMaxLen_; }
+  long &lobHbaseDataMaxLen() { return lobHbaseDataMaxLen_; }
   Int32 &lobInlinedDataMaxLen() { return lobInlinedDataMaxLen_; }
 
   // Methods to support run-time DDL validation
@@ -1077,14 +1077,14 @@ class NATable : public NABasicObject {
   // size of All NATable related data after construction
   // this is used when NATables are cached and only then
   // is it meaningful as each NATable has its own heap
-  Lng32 initialSize_;
+  int initialSize_;
 
   // size of All NATable related stuff after the end of the
   // previous statement. This is used when NATables are
   // cached and only then is it meaningful as each NATable
   // has its own heap. This is simply the allocated size
   // on the NATable heap.
-  Lng32 sizeAfterLastStatement_;
+  int sizeAfterLastStatement_;
 
   // -----------------------------------------------------------------------
   // The heap for the dynamic allocation of the NATable members.
@@ -1272,9 +1272,9 @@ class NATable : public NABasicObject {
   // ---------------------------------------------------------------------
   // Catalog timestamps
   // ---------------------------------------------------------------------
-  Int64 createTime_;
-  Int64 redefTime_;
-  Int64 statsTime_;  // set by NATable::getStatistics()
+  long createTime_;
+  long redefTime_;
+  long statsTime_;  // set by NATable::getStatistics()
 
   // ---------------------------------------------------------------------
   // UIDs
@@ -1378,7 +1378,7 @@ class NATable : public NABasicObject {
   // Caching stats
   UInt32 hitCount_;
   UInt32 replacementCounter_;
-  Int64 sizeInCache_;
+  long sizeInCache_;
   NABoolean recentlyUsed_;
 
   COM_VERSION osv_;
@@ -1461,7 +1461,7 @@ class NATable : public NABasicObject {
 
   // lob data stored in hbase chunks table.
   // Based on cqd traf_lob_hbase_data_maxlen
-  Int64 lobHbaseDataMaxLen_;
+  long lobHbaseDataMaxLen_;
 
   // length of DATA_IN_HBASE column in LOBCHUNKS table. For V2 lobs.
   Int32 lobChunksTableDataInHbaseColLen_;
@@ -1494,7 +1494,7 @@ class NATable : public NABasicObject {
   char *subpartitionInterval_;
   Int32 partitionAutolist_;
   Int32 subpartitionAutolist_;
-  Int64 partitionV2Flags_;
+  long partitionV2Flags_;
 
   /**************************partitionV2 end*****************/
 };  // class NATable
@@ -1550,7 +1550,7 @@ class NATableDB : public NAKeyLookup<ExtendedQualName, NATable> {
   NATable *get(CorrName &corrName, BindWA *bindWA, TrafDesc *inTableDescStruct, NABoolean writeReference);
 
   void removeNATable(CorrName &corrName, ComQiScope qiScope, ComObjectType ot, NABoolean ddlXns, NABoolean atCommit,
-                     Int64 objUID = 0, NABoolean noCheck = FALSE);
+                     long objUID = 0, NABoolean noCheck = FALSE);
 
   void RemoveFromNATableCache(NATable *NATablep, UInt32 currIndx);
   void remove_entries_marked_for_removal();
@@ -1621,7 +1621,7 @@ class NATableDB : public NAKeyLookup<ExtendedQualName, NATable> {
   void display();
 
   // it is used when we need the lastest stored desc
-  TrafDesc *getTableDescFromCacheOrText(const ExtendedQualName &extQualName, Int64 objectUid, NAHeap **descHeap = NULL);
+  TrafDesc *getTableDescFromCacheOrText(const ExtendedQualName &extQualName, long objectUid, NAHeap **descHeap = NULL);
 
  private:
   void flushCache();
@@ -1712,7 +1712,7 @@ class NATableDB : public NAKeyLookup<ExtendedQualName, NATable> {
 };  // class NATableDB
 
 // Remove objects from other users's cache
-void removeFromAllUsers(const QualifiedName &objName, ComQiScope qiScope, ComObjectType ot, NASet<Int64> &objectUIDs,
+void removeFromAllUsers(const QualifiedName &objName, ComQiScope qiScope, ComObjectType ot, NASet<long> &objectUIDs,
                         NABoolean ddlXns, NABoolean atCommit, NABoolean noCheck = FALSE);
 
 #endif /* NATABLE_H */

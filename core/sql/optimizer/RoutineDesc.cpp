@@ -40,7 +40,7 @@
 #include "optimizer/ItemColRef.h"
 #include "ParNameLocList.h"
 #include "optimizer/Sqlcomp.h"
-#include "ex_error.h"
+#include "executor/ex_error.h"
 #include "Cost.h"
 
 // -----------------------------------------------------------------------

@@ -21,7 +21,7 @@
 #include "optimizer/BindWA.h"
 #include "optimizer/TriggerDB.h"
 #include "Cost.h"
-#include "CostMethod.h"
+#include "optimizer/CostMethod.h"
 #include "ItmFlowControlFunction.h"
 #include "optimizer/UdfDllInteraction.h"
 #include "StmtDDLNode.h"
@@ -467,7 +467,7 @@ ItemExpr *ItemExpr::replaceVEGExpressions(const ValueIdSet &availableValues, con
         CMPASSERT(FALSE);  // No predicates of arity > 3 (so far)
     }
   } else  // ItemExpr is not an mdam key predicate, go ahead with the rewrite:
-    for (Lng32 index = 0; index < getArity(); index++) {
+    for (int index = 0; index < getArity(); index++) {
       ValueIdSet currAvailableValues(availableValues);
 
       if (left_ga != NULL && right_ga != NULL && getArity() == 2) {
@@ -602,7 +602,7 @@ void ItemExpr::replaceOperandsOfInstantiateNull(const ValueIdSet &availableValue
     }
 
     default: {
-      for (Lng32 i = 0; i < getArity(); i++) {
+      for (int i = 0; i < getArity(); i++) {
         child(i) = child(i)->replaceVEGExpressions(availableValues, inputValues);
       }
       break;
@@ -1120,9 +1120,9 @@ ItemExpr *VEGReference::replaceVEGReference(const ValueIdSet &origAvailableValue
 // -----------------------------------------------------------------------
 void RelExpr::getOutputValuesOfMyChildren(ValueIdSet &vs) const {
   ValueIdSet valueMask;
-  Lng32 nc = getArity();
+  int nc = getArity();
   if (nc > 0) {
-    for (Lng32 i = 0; i < nc; i++) {
+    for (int i = 0; i < nc; i++) {
       valueMask += child(i)->getGroupAttr()->getCharacteristicOutputs();
     }
   } else  // if leaf operators, use all available values
@@ -1596,7 +1596,7 @@ RelExpr *RelRoot::preCodeGen(Generator *generator, const ValueIdSet & /* externa
     // the actual data processed in the previous exeecution of the query.
     // This is run-time stats assisted dop reduction.
 
-    Lng32 dopReduction = (ActiveSchemaDB()->getDefaults()).getAsLong(DOP_ADJUST);
+    int dopReduction = (ActiveSchemaDB()->getDefaults()).getAsLong(DOP_ADJUST);
 
     ostream *out = openDopAdjustDebugOutput();
 
@@ -1615,7 +1615,7 @@ RelExpr *RelRoot::preCodeGen(Generator *generator, const ValueIdSet & /* externa
             *out << "dopReductionRT is feasible" << endl;
           }
 
-          NAArray<Int64> rtStats(CmpCommon::statementHeap());
+          NAArray<long> rtStats(CmpCommon::statementHeap());
 
           NAString host;
           Int32 port = 0;
@@ -2822,7 +2822,7 @@ RelExpr *HashJoin::preCodeGen(Generator *generator, const ValueIdSet &externalIn
         )
           c1Uec = child1ColStats->getTotalUec();
 
-        Lng32 maxLength = (ActiveSchemaDB()->getDefaults()).figureOutMaxLength((UInt32)(c1Uec.getValue()));
+        int maxLength = (ActiveSchemaDB()->getDefaults()).figureOutMaxLength((UInt32)(c1Uec.getValue()));
 
         SQLVarChar *rangeValueType = new (generator->wHeap()) SQLVarChar(generator->wHeap(), maxLength);
 
@@ -4007,7 +4007,7 @@ static NABoolean hasColReference(ItemExpr *ie) {
       (ie->getOperatorType() == ITM_REFERENCE))
     return TRUE;
 
-  for (Lng32 i = 0; i < ie->getArity(); i++) {
+  for (int i = 0; i < ie->getArity(); i++) {
     if (hasColReference(ie->child(i))) return TRUE;
   }
 
@@ -4057,7 +4057,7 @@ void HbaseAccess::addReferenceFromItemExprTree(ItemExpr *ie, NABoolean addCol, N
     return;
   }
 
-  for (Lng32 i = 0; i < ie->getArity(); i++) {
+  for (int i = 0; i < ie->getArity(); i++) {
     addReferenceFromItemExprTree(ie->child(i), addCol, addHBF, colRefVIDset);
   }
 
@@ -4219,7 +4219,7 @@ RelExpr *HbaseDelete::preCodeGen(Generator *generator, const ValueIdSet &externa
     const NAColumnArray &naColArray = getTableDesc()->getNATable()->getNAColumnArray();
 
     NAColumn *nac = NULL;
-    for (Lng32 i = 0; i < naColArray.entries(); i++) {
+    for (int i = 0; i < naColArray.entries(); i++) {
       nac = naColArray[i];
 
       const NAString &hbColFam = nac->getHbaseColFam();
@@ -4237,7 +4237,7 @@ RelExpr *HbaseDelete::preCodeGen(Generator *generator, const ValueIdSet &externa
   // if a column list is specified, make sure all column names are of valid hbase
   // column name format ("ColFam:ColNam")
   if (csl()) {
-    for (Lng32 i = 0; i < csl()->entries(); i++) {
+    for (int i = 0; i < csl()->entries(); i++) {
       const NAString *nas = (*csl())[i];
 
       std::string colFam;
@@ -4289,7 +4289,7 @@ RelExpr *HbaseDelete::preCodeGen(Generator *generator, const ValueIdSet &externa
 
     if ((getTableDesc()->getNATable()->isHbaseRowTable()) || (getTableDesc()->getNATable()->isHbaseCellTable()) ||
         isAlignedFormat) {
-      for (Lng32 i = 0; i < getIndexDesc()->getIndexColumns().entries(); i++) {
+      for (int i = 0; i < getIndexDesc()->getIndexColumns().entries(); i++) {
         retColRefSet_.insert(getIndexDesc()->getIndexColumns()[i]);
       }
     }
@@ -4501,11 +4501,11 @@ RelExpr *HbaseUpdate::preCodeGen(Generator *generator, const ValueIdSet &externa
   if (isAlignedFormat && (newRecExprArray().entries() > 0) && (newRecExprArray().entries() < totalColCount)) {
     ValueIdArray holeyArray(totalColCount);
 
-    Lng32 i;
+    int i;
     for (i = 0; i < newRecExprArray().entries(); i++) {
       ItemExpr *assign = newRecExprArray()[i].getItemExpr();
       const NAColumn *nacol = assign->child(0).getNAColumn();
-      Lng32 colPos = nacol->getPosition();
+      int colPos = nacol->getPosition();
       holeyArray.insertAt(colPos, assign->getValueId());
     }  // for
 
@@ -4590,7 +4590,7 @@ RelExpr *HbaseUpdate::preCodeGen(Generator *generator, const ValueIdSet &externa
     HbaseAccess::addReferenceFromVIDset(getPrecondition(), TRUE, FALSE, colRefSet);
     if ((getTableDesc()->getNATable()->isHbaseRowTable()) || (getTableDesc()->getNATable()->isHbaseCellTable()) ||
         (isAlignedFormat)) {
-      for (Lng32 i = 0; i < getIndexDesc()->getIndexColumns().entries(); i++) {
+      for (int i = 0; i < getIndexDesc()->getIndexColumns().entries(); i++) {
         retColRefSet_.insert(getIndexDesc()->getIndexColumns()[i]);
       }
     } else {
@@ -5152,7 +5152,7 @@ RelExpr *GroupByAgg::transformForAggrPushdown(Generator *generator, const ValueI
     for (ValueId valId = aggregateExpr().init(); aggregateExpr().next(valId); aggregateExpr().advance(valId)) {
       ItemExpr *ae = valId.getItemExpr();
       if ((ae->getOperatorType() == ITM_ORC_MAX_NV) || (ae->getOperatorType() == ITM_ORC_SUM_NV)) {
-        Lng32 sqlcode = isOrc ? -7006 : -4370;
+        int sqlcode = isOrc ? -7006 : -4370;
         *CmpCommon::diags() << DgSqlCode(sqlcode) << DgString0(ae->getTextUpper());
         generator->getBindWA()->setErrStatus();
         return NULL;
@@ -5509,9 +5509,9 @@ RelExpr *MergeUnion::preCodeGen(Generator *generator, const ValueIdSet &external
   }
 
   // My Characteristic Inputs become the external inputs for my children.
-  Lng32 nc = (Lng32)getArity();
+  int nc = (int)getArity();
   const ValueIdSet &inputs = getGroupAttr()->getCharacteristicInputs();
-  for (Lng32 index = 0; index < nc; index++) {
+  for (int index = 0; index < nc; index++) {
     ValueIdSet pulledInputs;
     ValueIdList savedMinMaxKeys;
 
@@ -6183,7 +6183,7 @@ RelExpr *Exchange::preCodeGen(Generator *generator, const ValueIdSet &externalIn
     if (lppf->getUsePapa() || getGroupAttr()->isEmbeddedUpdateOrDelete()) {
       // Will a merge of sorted streams need to be done?
       if (NOT sortKeyForMyOutput_.isEmpty()) {
-        Lng32 maxPartsPerGroup;
+        int maxPartsPerGroup;
 
         // Since a merge of sorted streams is needed, we must
         // ensure that there is one PA for every partition in every
@@ -6853,7 +6853,7 @@ ItemExpr *BiArithSum::preCodeGen(Generator *generator) {
   if (!result) return NULL;
 
   ItemExpr *outExpr = NULL;
-  Lng32 rc = generator->getExpGenerator()->foldConstants(child(0), &outExpr);
+  int rc = generator->getExpGenerator()->foldConstants(child(0), &outExpr);
   if ((rc == 0) && (outExpr)) {
     child(0) = outExpr->preCodeGen(generator);
   }
@@ -6889,7 +6889,7 @@ ItemExpr *BiArith::preCodeGen(Generator *generator) {
       // Upscale = (RS - NS) + DS
       // Newscale = NS + Upscale = RS + DS
 
-      Lng32 newscale = ((NumericType *)result_type)->getScale() + ((NumericType *)type_op2)->getScale();
+      int newscale = ((NumericType *)result_type)->getScale() + ((NumericType *)type_op2)->getScale();
 
       if (newscale != ((NumericType *)type_op1)->getScale()) {
         NAType *new_type = result_type->newCopy(generator->wHeap());
@@ -6971,7 +6971,7 @@ ItemExpr *BiArith::preCodeGen(Generator *generator) {
       // Upscale = (RS - NS) + DS
       // Newscale = NS + Upscale = RS + DS
 
-      Lng32 newscale = ((NumericType *)result_type)->getScale() + ((NumericType *)type_op2)->getScale();
+      int newscale = ((NumericType *)result_type)->getScale() + ((NumericType *)type_op2)->getScale();
 
       if (newscale != ((NumericType *)type_op1)->getScale()) {
         NAType *new_type = result_type->newCopy(generator->wHeap());
@@ -6987,8 +6987,8 @@ ItemExpr *BiArith::preCodeGen(Generator *generator) {
       case ITM_PLUS:
       case ITM_MINUS:
         if (type_op1->getTypeQualifier() == NA_DATETIME_TYPE) {
-          Lng32 fp1 = ((DatetimeType *)type_op1)->getFractionPrecision();
-          Lng32 fp2 = ((DatetimeType *)type_op2)->getFractionPrecision();
+          int fp1 = ((DatetimeType *)type_op1)->getFractionPrecision();
+          int fp2 = ((DatetimeType *)type_op2)->getFractionPrecision();
           if (fp1 < fp2) {
             child(0) = new (generator->wHeap()) Cast(child(0), type_op2);
             child(0)->bindNode(generator->getBindWA());
@@ -7105,13 +7105,13 @@ ItemExpr *BiArith::preCodeGen(Generator *generator) {
       case ITM_MINUS: {
         if ((type_op1->getTypeQualifier() == NA_INTERVAL_TYPE) &&
             (((IntervalType *)type_op1)->getEndField() == REC_DATE_SECOND)) {
-          Lng32 sourceScale = ((IntervalType *)type_op1)->getFractionPrecision();
-          Lng32 targetScale = ((DatetimeType *)type_op2)->getFractionPrecision();
+          int sourceScale = ((IntervalType *)type_op1)->getFractionPrecision();
+          int targetScale = ((DatetimeType *)type_op2)->getFractionPrecision();
           child(0) = generator->getExpGenerator()->scaleBy10x(child(0)->getValueId(), targetScale - sourceScale);
         } else if ((type_op2->getTypeQualifier() == NA_INTERVAL_TYPE) &&
                    (((IntervalType *)type_op2)->getEndField() == REC_DATE_SECOND)) {
-          Lng32 targetScale = ((DatetimeType *)type_op1)->getFractionPrecision();
-          Lng32 sourceScale = ((IntervalType *)type_op2)->getFractionPrecision();
+          int targetScale = ((DatetimeType *)type_op1)->getFractionPrecision();
+          int sourceScale = ((IntervalType *)type_op2)->getFractionPrecision();
           child(1) = generator->getExpGenerator()->scaleBy10x(child(1)->getValueId(), targetScale - sourceScale);
         }
 
@@ -7387,8 +7387,8 @@ ItemExpr *BiRelat::preCodeGen(Generator *generator) {
           cType2A.getVarLenHdrSize() == 0)  // Both are char
       {
         if (tran_type == Translate::ISO88591_TO_UTF8) {
-          Lng32 byte1 = cType1A.getNominalSize();
-          Lng32 byte2 = cType2A.getNominalSize();
+          int byte1 = cType1A.getNominalSize();
+          int byte2 = cType2A.getNominalSize();
           if (chld_to_trans == 0 && byte1 < byte2) {
             CharType *targetType = new (generator->wHeap())
                 SQLChar(generator->wHeap(), CharLenInfo(0, byte2), cType1A.supportsSQLnull(), cType1A.isUpshifted(),
@@ -7419,8 +7419,8 @@ ItemExpr *BiRelat::preCodeGen(Generator *generator) {
         }  // end if (ISO88591_TO_UTF8)
         else if (tran_type == Translate::UCS2_TO_UTF8 || tran_type == Translate::UTF8_TO_UCS2 ||
                  tran_type == Translate::ISO88591_TO_UNICODE) {
-          Lng32 char1 = cType1A.getNominalSize() / cType1A.getBytesPerChar();
-          Lng32 char2 = cType2A.getNominalSize() / cType2A.getBytesPerChar();
+          int char1 = cType1A.getNominalSize() / cType1A.getBytesPerChar();
+          int char2 = cType2A.getNominalSize() / cType2A.getBytesPerChar();
           if (chld_to_trans == 0 && char1 < char2) {
             CharType *targetType = new (generator->wHeap())
                 SQLChar(generator->wHeap(), CharLenInfo(char2, char2 * cType1A.getBytesPerChar()),
@@ -7483,8 +7483,8 @@ ItemExpr *BiRelat::preCodeGen(Generator *generator) {
 
         if (!(cType1 == cType2)) {
           NAType *resultType;
-          Lng32 len = MAXOF(cType1.getMaxLenInBytesOrNAWChars(), cType2.getMaxLenInBytesOrNAWChars());
-          Lng32 Prec = MAXOF(cType1.getStrCharLimit(), cType2.getStrCharLimit());
+          int len = MAXOF(cType1.getMaxLenInBytesOrNAWChars(), cType2.getMaxLenInBytesOrNAWChars());
+          int Prec = MAXOF(cType1.getStrCharLimit(), cType2.getStrCharLimit());
 
           if (len != cType1.getMaxLenInBytesOrNAWChars()) {
             if (DFS2REC::isAnyVarChar(cType1.getFSDatatype())) {
@@ -7668,9 +7668,9 @@ ItemExpr *BiRelat::preCodeGen(Generator *generator) {
     child(0) = generator->getExpGenerator()->matchScales(child(0)->getValueId(), *result_type);
     child(1) = generator->getExpGenerator()->matchScales(child(1)->getValueId(), *result_type);
   } else if (result_type->getTypeQualifier() == NA_DATETIME_TYPE) {
-    Lng32 fp1 = ((DatetimeType *)type_op1)->getFractionPrecision();
-    Lng32 fp2 = ((DatetimeType *)type_op2)->getFractionPrecision();
-    Lng32 fpResult = ((DatetimeType *)result_type)->getFractionPrecision();
+    int fp1 = ((DatetimeType *)type_op1)->getFractionPrecision();
+    int fp2 = ((DatetimeType *)type_op2)->getFractionPrecision();
+    int fpResult = ((DatetimeType *)result_type)->getFractionPrecision();
     if (fp1 != fpResult) {
       child(0) = new (generator->wHeap()) Cast(child(0), result_type, ITM_CAST, FALSE);
       child(0)->bindNode(generator->getBindWA());
@@ -7723,7 +7723,7 @@ ItemExpr *BiRelat::preCodeGen(Generator *generator) {
   if (!child(1).getPtr()) return NULL;
 
   ItemExpr *outExpr = NULL;
-  Lng32 rc = generator->getExpGenerator()->foldConstants(child(0), &outExpr);
+  int rc = generator->getExpGenerator()->foldConstants(child(0), &outExpr);
   if ((rc == 0) && (outExpr)) {
     child(0) = outExpr->preCodeGen(generator);
   }
@@ -8044,8 +8044,8 @@ ItemExpr *Cast::preCodeGen(Generator *generator) {
       if (targetNumType->isBigNum()) {
         child(0) = generator->getExpGenerator()->matchScales(child(0)->getValueId(), *targetNumType);
       } else {
-        Lng32 intermediatePrecision = sourceNumType->getPrecision();
-        Lng32 intermediateScale = sourceNumType->getScale();
+        int intermediatePrecision = sourceNumType->getPrecision();
+        int intermediateScale = sourceNumType->getScale();
 
         // SQLBigNum takes decimal precision, so if the source
         // has binary precision, we need to adjust.
@@ -8630,7 +8630,7 @@ ItemExpr *Generator::addCompDecodeForDerialization(ItemExpr *ie, NABoolean isAli
       return ie;
   }
 
-  for (Lng32 i = 0; i < ie->getArity(); i++) {
+  for (int i = 0; i < ie->getArity(); i++) {
     ItemExpr *nie = addCompDecodeForDerialization(ie->child(i), isAlignedFormat);
     if (nie) ie->setChild(i, nie);
   }
@@ -8746,7 +8746,7 @@ ItemExpr *PivotGroup::preCodeGen(Generator *generator) {
     // if child is not Character type, or child's CharSet does not match
     // PivotGroup's result CharSet, then do a child CAST.
     if (childType.getTypeQualifier() != NA_CHARACTER_TYPE || childType.getCharSet() != pivotType.getCharSet()) {
-      Lng32 displayLen = childType.getDisplayLength(childType.getFSDatatype(), childType.getNominalSize(),
+      int displayLen = childType.getDisplayLength(childType.getFSDatatype(), childType.getNominalSize(),
                                                     childType.getPrecision(), childType.getScale(), 0);
 
       CharLenInfo charLenInfo(displayLen, displayLen * CharInfo::minBytesPerChar(pivotType.getCharSet()));
@@ -9029,9 +9029,9 @@ ItemExpr *RegexpCount::preCodeGen(Generator *generator) {
 ItemExpr *ItemExpr::preCodeGen(Generator *generator) {
   if (nodeIsPreCodeGenned()) return this;
 
-  Lng32 nc = (Lng32)getArity();
+  int nc = (int)getArity();
 
-  for (Lng32 index = 0; index < nc; index++) {
+  for (int index = 0; index < nc; index++) {
     child(index) = child(index)->preCodeGen(generator);
     if (!child(index).getPtr()) return NULL;
   }
@@ -9081,7 +9081,7 @@ void VEGRewritePairs::insert(const ValueId &original, const ValueId &rewritten) 
 }
 
 void VEGRewritePairs::VEGRewritePair::print(FILE *ofd) const {
-  Lng32 orId = CollIndex(original_), reId = CollIndex(rewritten_);
+  int orId = CollIndex(original_), reId = CollIndex(rewritten_);
   fprintf(ofd, "<%d, %d>\n", orId, reId);
 }
 
@@ -9949,7 +9949,7 @@ NABoolean HbaseAccess::isHbaseFilterPred(Generator *generator, ItemExpr *ie, Val
         // remove trailing '\0' characters since this is being pushed down to hbase.
         ConstValue *cv = (ConstValue *)(valueVID.getItemExpr());
         char *cvv = (char *)cv->getConstValue();
-        Lng32 len = cv->getStorageSize() - 1;
+        int len = cv->getStorageSize() - 1;
         while ((len > 0) && (cvv[len] == '\0')) len--;
 
         NAString newCVV(cvv, len + 1);
@@ -10205,7 +10205,7 @@ NABoolean HbaseAccess::isHbaseFilterPredV2(Generator *generator, ItemExpr *ie, V
         // remove trailing '\0' characters since this is being pushed down to hbase.
         ConstValue *cv = (ConstValue *)(valueVID.getItemExpr());
         char *cvv = (char *)cv->getConstValue();
-        Lng32 len = cv->getStorageSize() - 1;
+        int len = cv->getStorageSize() - 1;
         while ((len > 0) && (cvv[len] == '\0')) len--;
 
         NAString newCVV(cvv, len + 1);
@@ -10503,7 +10503,7 @@ RelExpr *HbaseAccess::preCodeGen(Generator *generator, const ValueIdSet &externa
   }
 
   if (getTableDesc()->getNATable()->isHbaseCellTable()) {
-    for (Lng32 i = 0; i < getIndexDesc()->getIndexColumns().entries(); i++) {
+    for (int i = 0; i < getIndexDesc()->getIndexColumns().entries(); i++) {
       //	  retColRefSet_.insert(getIndexDesc()->getIndexColumns()[i]);
     }
     HbaseAccess::addReferenceFromVIDset(executorPred(), TRUE, TRUE, colRefSet);
@@ -10513,7 +10513,7 @@ RelExpr *HbaseAccess::preCodeGen(Generator *generator, const ValueIdSet &externa
       if (NOT getGroupAttr()->getCharacteristicInputs().referencesTheGivenValue(valId, dummyValId)) {
         retColRefSet_.insert(valId);
         if (valId.getItemExpr()->getOperatorType() == ITM_HBASE_ROWID) {
-          Lng32 colNumber = ((BaseColumn *)((HbaseRowid *)valId.getItemExpr())->col())->getColNumber();
+          int colNumber = ((BaseColumn *)((HbaseRowid *)valId.getItemExpr())->col())->getColNumber();
           ValueId colVID = getIndexDesc()->getIndexColumns()[colNumber];
           retColRefSet_.insert(colVID);
         }
@@ -10524,7 +10524,7 @@ RelExpr *HbaseAccess::preCodeGen(Generator *generator, const ValueIdSet &externa
         (QualifiedName *)&getTableDesc()->getNATable()->getTableName());
 
     NABoolean starFound = FALSE;
-    for (Lng32 ij = 0; (hbaseColNameSet && (ij < hbaseColNameSet->entries())); ij++) {
+    for (int ij = 0; (hbaseColNameSet && (ij < hbaseColNameSet->entries())); ij++) {
       NAString &colName = (*hbaseColNameSet)[ij];
 
       retHbaseColRefSet_.insert(colName);
@@ -10546,25 +10546,25 @@ RelExpr *HbaseAccess::preCodeGen(Generator *generator, const ValueIdSet &externa
         retColRefSet_.insert(valId);
 
         if (valId.getItemExpr()->getOperatorType() == ITM_HBASE_VISIBILITY) {
-          Lng32 colNumber = ((BaseColumn *)((HbaseVisibility *)valId.getItemExpr())->col())->getColNumber();
+          int colNumber = ((BaseColumn *)((HbaseVisibility *)valId.getItemExpr())->col())->getColNumber();
           ValueId colVID = getIndexDesc()->getIndexColumns()[colNumber];
           retColRefSet_.insert(colVID);
         }
 
         if (valId.getItemExpr()->getOperatorType() == ITM_HBASE_TIMESTAMP) {
-          Lng32 colNumber = ((BaseColumn *)((HbaseTimestamp *)valId.getItemExpr())->col())->getColNumber();
+          int colNumber = ((BaseColumn *)((HbaseTimestamp *)valId.getItemExpr())->col())->getColNumber();
           ValueId colVID = getIndexDesc()->getIndexColumns()[colNumber];
           retColRefSet_.insert(colVID);
         }
 
         if (valId.getItemExpr()->getOperatorType() == ITM_HBASE_VERSION) {
-          Lng32 colNumber = ((BaseColumn *)((HbaseVersion *)valId.getItemExpr())->col())->getColNumber();
+          int colNumber = ((BaseColumn *)((HbaseVersion *)valId.getItemExpr())->col())->getColNumber();
           ValueId colVID = getIndexDesc()->getIndexColumns()[colNumber];
           retColRefSet_.insert(colVID);
         }
 
         if (valId.getItemExpr()->getOperatorType() == ITM_HBASE_ROWID) {
-          Lng32 colNumber = ((BaseColumn *)((HbaseRowid *)valId.getItemExpr())->col())->getColNumber();
+          int colNumber = ((BaseColumn *)((HbaseRowid *)valId.getItemExpr())->col())->getColNumber();
           ValueId colVID = getIndexDesc()->getIndexColumns()[colNumber];
           retColRefSet_.insert(colVID);
         }
@@ -10767,9 +10767,9 @@ RelExpr *ConnectBy::preCodeGen(Generator *generator, const ValueIdSet &externalI
       colMapTable().insert(v);
   }
 #endif
-  Lng32 nc = (Lng32)getArity();
+  int nc = (int)getArity();
   const ValueIdSet &inputs = getGroupAttr()->getCharacteristicInputs();
-  for (Lng32 index = 0; index < nc; index++) {
+  for (int index = 0; index < nc; index++) {
     ValueIdSet pulledInputs;
 
     child(index) = child(index)->preCodeGen(generator, inputs, pulledInputs);

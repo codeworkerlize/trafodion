@@ -727,11 +727,11 @@ class ColStatDescList : public SHPTR_LIST(ColStatDescSharedPtr) {
   // returns cardinality of busiest stream based on the given list
   // of histograms
 
-  CostScalar getCardOfBusiestStream(const PartitioningFunction *partFunc, Lng32 numOfParts, GroupAttributes *grpAttr,
-                                    Lng32 countOfCPUs = 1);
+  CostScalar getCardOfBusiestStream(const PartitioningFunction *partFunc, int numOfParts, GroupAttributes *grpAttr,
+                                    int countOfCPUs = 1);
 
   CostScalar getCardOfBusiestStreamForUnderNJ(CANodeIdSet *outerNodeSet, const PartitioningFunction *pf,
-                                              Lng32 numOfParts, GroupAttributes *gr, Lng32 countOfCpus = 1);
+                                              int numOfParts, GroupAttributes *gr, int countOfCpus = 1);
 
   void addRecentlyJoinedCols(CollIndex startIdx, CollIndex stopIdx);
 

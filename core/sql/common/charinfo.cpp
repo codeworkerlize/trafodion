@@ -51,7 +51,7 @@
 #include "common/wstr.h"
 #include "SQLTypeDefs.h"
 #include "comexe/CmpMessage.h"
-#include "CmpConnection.h"
+#include "arkcmp/CmpConnection.h"
 #include "arkcmp/CmpContext.h"
 #include "common/CmpCommon.h"
 #include "CliSemaphore.h"
@@ -535,7 +535,7 @@ Int32 CharInfo::compareCoercibility(CharInfo::Coercibility ce1, CharInfo::Coerci
 
 const char *const CharInfo::localeCharSet_ = NULL;
 
-Lng32 CharInfo::findLocaleCharSet() { return SQLCHARSETCODE_ISO88591; }
+int CharInfo::findLocaleCharSet() { return SQLCHARSETCODE_ISO88591; }
 
 const char *CharInfo::getLocaleCharSetAsString() {
   if (!localeCharSet_) {

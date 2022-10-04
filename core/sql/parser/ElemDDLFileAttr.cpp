@@ -330,7 +330,7 @@ ElemDDLFileAttrClause *ElemDDLFileAttrClause::castToElemDDLFileAttrClause() { re
 // get the degree of this node
 Int32 ElemDDLFileAttrClause::getArity() const { return MAX_ELEM_DDL_FILE_ATTR_CLAUSE_ARITY; }
 
-ExprNode *ElemDDLFileAttrClause::getChild(Lng32 index) {
+ExprNode *ElemDDLFileAttrClause::getChild(int index) {
   ComASSERT(index >= 0 AND index < getArity());
   return children_[index];
 }
@@ -339,7 +339,7 @@ ExprNode *ElemDDLFileAttrClause::getChild(Lng32 index) {
 // mutators
 //
 
-void ElemDDLFileAttrClause::setChild(Lng32 index, ExprNode *pChildNode) {
+void ElemDDLFileAttrClause::setChild(int index, ExprNode *pChildNode) {
   ComASSERT(index >= 0 AND index < getArity());
   if (pChildNode NEQ NULL) {
     ComASSERT(pChildNode->castToElemDDLNode() NEQ NULL);
@@ -390,7 +390,7 @@ ElemDDLMVFileAttrClause *ElemDDLMVFileAttrClause::castToElemDDLMVFileAttrClause(
 // get the degree of this node
 Int32 ElemDDLMVFileAttrClause::getArity() const { return MAX_ELEM_DDL_MV_FILE_ATTR_CLAUSE_ARITY; }
 
-ExprNode *ElemDDLMVFileAttrClause::getChild(Lng32 index) {
+ExprNode *ElemDDLMVFileAttrClause::getChild(int index) {
   ComASSERT(index >= 0 AND index < getArity());
   return children_[index];
 }
@@ -399,7 +399,7 @@ ExprNode *ElemDDLMVFileAttrClause::getChild(Lng32 index) {
 // mutators
 //
 
-void ElemDDLMVFileAttrClause::setChild(Lng32 index, ExprNode *pChildNode) {
+void ElemDDLMVFileAttrClause::setChild(int index, ExprNode *pChildNode) {
   ComASSERT(index >= 0 AND index < getArity());
   if (pChildNode NEQ NULL) {
     ComASSERT(pChildNode->castToElemDDLNode() NEQ NULL);
@@ -775,12 +775,12 @@ ElemDDLFileAttrMaxSize::ElemDDLFileAttrMaxSize() : ElemDDLFileAttr(ELM_FILE_ATTR
   ParSetDefaultMaxSize(maxSize_, maxSizeUnit_);
 }
 
-ElemDDLFileAttrMaxSize::ElemDDLFileAttrMaxSize(Lng32 maxSize)
+ElemDDLFileAttrMaxSize::ElemDDLFileAttrMaxSize(int maxSize)
     : ElemDDLFileAttr(ELM_FILE_ATTR_MAX_SIZE_ELEM), isUnbounded_(FALSE), maxSizeUnit_((ComUnits)DEFAULT_MAX_SIZE_UNIT) {
   initializeMaxSize(maxSize);
 }
 
-ElemDDLFileAttrMaxSize::ElemDDLFileAttrMaxSize(Lng32 maxSize, ComUnits maxSizeUnit)
+ElemDDLFileAttrMaxSize::ElemDDLFileAttrMaxSize(int maxSize, ComUnits maxSizeUnit)
     : ElemDDLFileAttr(ELM_FILE_ATTR_MAX_SIZE_ELEM), isUnbounded_(FALSE), maxSizeUnit_(maxSizeUnit) {
   initializeMaxSize(maxSize);
 }
@@ -834,7 +834,7 @@ NAString ElemDDLFileAttrMaxSize::getSyntax() const {
 }  // getSyntax
 
 // is specified maximum size a legal value?
-NABoolean ElemDDLFileAttrMaxSize::isLegalMaxSizeValue(Lng32 maxSize) const {
+NABoolean ElemDDLFileAttrMaxSize::isLegalMaxSizeValue(int maxSize) const {
   if (maxSize >= 0) {
     return TRUE;
   } else {
@@ -846,7 +846,7 @@ NABoolean ElemDDLFileAttrMaxSize::isLegalMaxSizeValue(Lng32 maxSize) const {
 // mutator
 //
 
-void ElemDDLFileAttrMaxSize::initializeMaxSize(Lng32 maxSize) {
+void ElemDDLFileAttrMaxSize::initializeMaxSize(int maxSize) {
   if (isLegalMaxSizeValue(maxSize)) {
     maxSize_ = maxSize;
   } else {
@@ -897,12 +897,12 @@ ElemDDLFileAttrExtents::ElemDDLFileAttrExtents() : ElemDDLFileAttr(ELM_FILE_ATTR
   ParSetDefaultExtents(priExt_, secExt_);
 }
 
-ElemDDLFileAttrExtents::ElemDDLFileAttrExtents(Lng32 priExt, Lng32 secExt)
+ElemDDLFileAttrExtents::ElemDDLFileAttrExtents(int priExt, int secExt)
     : ElemDDLFileAttr(ELM_FILE_ATTR_EXTENT_ELEM) {
   initializeExtents(priExt, secExt);
 }
 
-ElemDDLFileAttrExtents::ElemDDLFileAttrExtents(Lng32 priExt) : ElemDDLFileAttr(ELM_FILE_ATTR_EXTENT_ELEM) {
+ElemDDLFileAttrExtents::ElemDDLFileAttrExtents(int priExt) : ElemDDLFileAttr(ELM_FILE_ATTR_EXTENT_ELEM) {
   initializePriExtent(priExt);
 }
 
@@ -913,7 +913,7 @@ ElemDDLFileAttrExtents::~ElemDDLFileAttrExtents() {}
 ElemDDLFileAttrExtents *ElemDDLFileAttrExtents::castToElemDDLFileAttrExtents() { return this; }
 
 // is specified extent a legal value?
-NABoolean ElemDDLFileAttrExtents::isLegalExtentValue(Lng32 Ext) const {
+NABoolean ElemDDLFileAttrExtents::isLegalExtentValue(int Ext) const {
   if (Ext >= 0) {
     return TRUE;
   } else {
@@ -925,7 +925,7 @@ NABoolean ElemDDLFileAttrExtents::isLegalExtentValue(Lng32 Ext) const {
 // mutator
 //
 
-void ElemDDLFileAttrExtents::initializeExtents(Lng32 priExt, Lng32 secExt)
+void ElemDDLFileAttrExtents::initializeExtents(int priExt, int secExt)
 
 {
   if (isLegalExtentValue(priExt) && isLegalExtentValue(secExt)) {
@@ -938,7 +938,7 @@ void ElemDDLFileAttrExtents::initializeExtents(Lng32 priExt, Lng32 secExt)
   }
 }
 
-void ElemDDLFileAttrExtents::initializePriExtent(Lng32 priExt) {
+void ElemDDLFileAttrExtents::initializePriExtent(int priExt) {
   if (isLegalExtentValue(priExt)) {
     priExt_ = priExt;
     secExt_ = ElemDDLFileAttrExtents::DEFAULT_SEC_EXTENT;
@@ -972,7 +972,7 @@ ElemDDLFileAttrMaxExtents::ElemDDLFileAttrMaxExtents() : ElemDDLFileAttr(ELM_FIL
   ParSetDefaultMaxExtents(maxExt_);
 }
 
-ElemDDLFileAttrMaxExtents::ElemDDLFileAttrMaxExtents(Lng32 maxExt) : ElemDDLFileAttr(ELM_FILE_ATTR_MAXEXTENTS_ELEM) {
+ElemDDLFileAttrMaxExtents::ElemDDLFileAttrMaxExtents(int maxExt) : ElemDDLFileAttr(ELM_FILE_ATTR_MAXEXTENTS_ELEM) {
   initializeMaxExtents(maxExt);
 }
 
@@ -983,7 +983,7 @@ ElemDDLFileAttrMaxExtents::~ElemDDLFileAttrMaxExtents() {}
 ElemDDLFileAttrMaxExtents *ElemDDLFileAttrMaxExtents::castToElemDDLFileAttrMaxExtents() { return this; }
 
 // is specified extent a legal value?
-NABoolean ElemDDLFileAttrMaxExtents::isLegalMaxExtentValue(Lng32 maxExt) const {
+NABoolean ElemDDLFileAttrMaxExtents::isLegalMaxExtentValue(int maxExt) const {
   if (maxExt >= 0) {
     return TRUE;
   } else {
@@ -995,7 +995,7 @@ NABoolean ElemDDLFileAttrMaxExtents::isLegalMaxExtentValue(Lng32 maxExt) const {
 // mutator
 //
 
-void ElemDDLFileAttrMaxExtents::initializeMaxExtents(Lng32 maxExt) {
+void ElemDDLFileAttrMaxExtents::initializeMaxExtents(int maxExt) {
   if (isLegalMaxExtentValue(maxExt)) {
     maxExt_ = maxExt;
   } else {
@@ -1021,7 +1021,7 @@ void ParSetDefaultMaxExtents(ULng32 &maxExt) { maxExt = ElemDDLFileAttrMaxExtent
 
 // Constructors
 
-ElemDDLFileAttrUID::ElemDDLFileAttrUID(Int64 UID) : ElemDDLFileAttr(ELM_FILE_ATTR_UID_ELEM), UID_(UID) {}
+ElemDDLFileAttrUID::ElemDDLFileAttrUID(long UID) : ElemDDLFileAttr(ELM_FILE_ATTR_UID_ELEM), UID_(UID) {}
 
 // virtual destructor
 ElemDDLFileAttrUID::~ElemDDLFileAttrUID() {}
@@ -1236,11 +1236,11 @@ ElemDDLLobStorageOptions::ElemDDLLobStorageOptions(NAList<LobStorageOption *> *l
 }
 
 short ElemDDLLobStorageOptions::synthesize(NAString &invalidOption) {
-  inlineDataMaxBytes_ = (Int64)CmpCommon::getDefaultNumeric(TRAF_LOB_INLINED_DATA_MAXBYTES);
-  inlineDataMaxChars_ = (Int64)CmpCommon::getDefaultNumeric(TRAF_LOB_INLINED_DATA_MAXCHARS);
-  hbaseDataMaxLen_ = (Int64)CmpCommon::getDefaultNumeric(TRAF_LOB_HBASE_DATA_MAXLEN_DDL);
+  inlineDataMaxBytes_ = (long)CmpCommon::getDefaultNumeric(TRAF_LOB_INLINED_DATA_MAXBYTES);
+  inlineDataMaxChars_ = (long)CmpCommon::getDefaultNumeric(TRAF_LOB_INLINED_DATA_MAXCHARS);
+  hbaseDataMaxLen_ = (long)CmpCommon::getDefaultNumeric(TRAF_LOB_HBASE_DATA_MAXLEN_DDL);
   if (hbaseDataMaxLen_ == -1) hbaseDataMaxLen_ = LOB_HBASE_DATA_MAXLEN_VAL;
-  chunksColMaxLen_ = (Int64)CmpCommon::getDefaultNumeric(TRAF_LOB_DATA_IN_HBASE_COL_LEN);
+  chunksColMaxLen_ = (long)CmpCommon::getDefaultNumeric(TRAF_LOB_DATA_IN_HBASE_COL_LEN);
   numChunksPartitions_ = 0;
 
   for (CollIndex i = 0; i < lobStorageOptions_.entries(); i++) {

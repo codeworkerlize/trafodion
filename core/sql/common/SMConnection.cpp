@@ -828,7 +828,7 @@ void SMConnection::handleIOErrorForSM() {
   if (dataStream_) {
     IpcClientMsgStream *dataStream = (IpcClientMsgStream *)dataStream_;
 
-    for (Lng32 i = 0; i < dataStream->numOfResponsesPending(); i++) {
+    for (int i = 0; i < dataStream->numOfResponsesPending(); i++) {
       decrOutstandingSMRequests();
       dataStream->setSMBatchIsComplete(TRUE);
       dataStream->internalActOnReceive(NULL, this);
@@ -838,7 +838,7 @@ void SMConnection::handleIOErrorForSM() {
   if (cancelStream_) {
     IpcClientMsgStream *cancelStream = (IpcClientMsgStream *)cancelStream_;
 
-    for (Lng32 i = 0; i < cancelStream->numOfResponsesPending(); i++) {
+    for (int i = 0; i < cancelStream->numOfResponsesPending(); i++) {
       decrOutstandingSMRequests();
       cancelStream->internalActOnReceive(NULL, this);
     }
@@ -878,8 +878,8 @@ void SMConnection::populateDiagsArea(ComDiagsArea *&diags, CollHeap *diagsHeap) 
     char processName[12];
     sprintf(processName, "%d,%d", smTarget_.node, smTarget_.pid);
 
-    *diags << DgSqlCode(-EXE_SM_FUNCTION_ERROR) << DgString0(smErrorFunction_) << DgInt0((Lng32)smErrorNumber_)
-           << DgInt1((Lng32)smTarget_.pid) << DgString1(processName) << DgNskCode((Lng32)10000 + abs(smErrorNumber_));
+    *diags << DgSqlCode(-EXE_SM_FUNCTION_ERROR) << DgString0(smErrorFunction_) << DgInt0((int)smErrorNumber_)
+           << DgInt1((int)smTarget_.pid) << DgString1(processName) << DgNskCode((int)10000 + abs(smErrorNumber_));
   }
 
   // Case (b)

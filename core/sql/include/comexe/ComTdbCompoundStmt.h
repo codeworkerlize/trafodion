@@ -55,14 +55,14 @@ class ComTdbCompoundStmt : public ComTdb {
   ComTdbCompoundStmt();
 
   ComTdbCompoundStmt(ComTdb *left, ComTdb *right, ex_cri_desc *given, ex_cri_desc *returned, queue_index down,
-                     queue_index up, Lng32 numBuffers, ULng32 bufferSize, NABoolean rowsFromLeft,
+                     queue_index up, int numBuffers, ULng32 bufferSize, NABoolean rowsFromLeft,
                      NABoolean rowsFromRight, NABoolean AfterUpdate);
 
   // exclude from code coverage analsysis since this method is not used
   Int32 orderedQueueProtocol() const { return -1; }
 
   Long pack(void *);
-  Lng32 unpack(void *, void *reallocator);
+  int unpack(void *, void *reallocator);
 
   void display() const {};
 

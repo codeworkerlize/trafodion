@@ -121,8 +121,8 @@ ExExeUtilConnectbyTcb::ExExeUtilConnectbyTcb(const ComTdbExeUtilConnectby &exe_u
   pool_->get_free_tuple(workAtp_->getTupp(((ComTdbExeUtilConnectby &)exe_util_tdb).dynParamTuppIndex), 0);
 }
 
-ex_tcb_private_state *ExExeUtilConnectbyTcb::allocatePstates(Lng32 &numElems,      // inout, desired/actual elements
-                                                             Lng32 &pstateLength)  // out, length of one element
+ex_tcb_private_state *ExExeUtilConnectbyTcb::allocatePstates(int &numElems,      // inout, desired/actual elements
+                                                             int &pstateLength)  // out, length of one element
 {
   PstateAllocator<ExExeUtilConnectbyTdbState> pa;
 
@@ -138,7 +138,7 @@ short ExExeUtilConnectbyTcb::emitRow(ExpTupleDesc *tDesc, int level, int isleaf,
                                      NABoolean chkForStartWith) {
   short retcode = 0, rc = 0;
   char *ptr;
-  Lng32 len;
+  int len;
   short nullind = 0;
   short *pn = &nullind;
   short **ind = &pn;
@@ -148,7 +148,7 @@ short ExExeUtilConnectbyTcb::emitRow(ExpTupleDesc *tDesc, int level, int isleaf,
   if (exeUtilTdb().isDual() == TRUE) {
     for (UInt32 i = 0; i < tDesc->numAttrs(); i++) {
       short srcType = REC_BIN32_UNSIGNED;
-      Lng32 srcLen = 4;
+      int srcLen = 4;
       int *src = &currLevel_;
       Attributes *attr = tDesc->getAttr(i);
       ::convDoIt((char *)src, srcLen, srcType, 0, 0, &data_[attr->getOffset()], attr->getLength(), attr->getDatatype(),
@@ -178,7 +178,7 @@ short ExExeUtilConnectbyTcb::emitRow(ExpTupleDesc *tDesc, int level, int isleaf,
     char *src = ptr;
     Attributes *attr = tDesc->getAttr(i - 2);
     short srcType = 0;
-    Lng32 srcLen;
+    int srcLen;
     short valIsNull = 0;
     srcType = attr->getDatatype();
     srcLen = len;
@@ -192,7 +192,7 @@ short ExExeUtilConnectbyTcb::emitRow(ExpTupleDesc *tDesc, int level, int isleaf,
         *(short *)(&data_[attr->getNullIndOffset()]) = valIsNull;
       } else {
         ex_assert(attr->getNullIndicatorLength() == 4, "NULL indicator must be 2 or 4 bytes");
-        *(Lng32 *)(&data_[attr->getNullIndOffset()]) = valIsNull;
+        *(int *)(&data_[attr->getNullIndOffset()]) = valIsNull;
       }
     } else
       ex_assert(!valIsNull, "NULL source for NOT NULL stats column");
@@ -209,7 +209,7 @@ short ExExeUtilConnectbyTcb::emitRow(ExpTupleDesc *tDesc, int level, int isleaf,
   }
 
   short srcType = REC_BIN32_UNSIGNED;
-  Lng32 srcLen = 4;
+  int srcLen = 4;
   int src = isleaf;
   Attributes *attr = tDesc->getAttr(tDesc->numAttrs() - 2);
   if (::convDoIt((char *)&src, srcLen, srcType, 0, 0, &data_[attr->getOffset()], attr->getLength(), attr->getDatatype(),
@@ -251,8 +251,8 @@ short ExExeUtilConnectbyTcb::emitRow(ExpTupleDesc *tDesc, int level, int isleaf,
     char pathBuf[CONNECT_BY_MAX_PATH_SIZE];
     memset(pathBuf, 0, CONNECT_BY_MAX_PATH_SIZE);
     char tmpbuf1[256];
-    Lng32 pathlength = 0;
-    Lng32 dlen = strlen(exeUtilTdb().delimiter_.data());
+    int pathlength = 0;
+    int dlen = strlen(exeUtilTdb().delimiter_.data());
     Queue *pathq = NULL;
     if (exeUtilTdb().hasPath_ == TRUE) {
       pathq = new (getHeap()) Queue(getHeap());
@@ -305,7 +305,7 @@ short ExExeUtilConnectbyTcb::emitPrevRow(ExpTupleDesc *tDesc, int level, int isl
   short retcode = 0, rc = 0;
   connectByStackItem *vi = NULL;
   char *ptr;
-  Lng32 len;
+  int len;
   short nullInd = 0;
   short *ind = &nullInd;
   short **indadd = &ind;
@@ -339,7 +339,7 @@ short ExExeUtilConnectbyTcb::emitPrevRow(ExpTupleDesc *tDesc, int level, int isl
     char *src = ptr;
     Attributes *attr = tDesc->getAttr(i - 2);
     short srcType = 0;
-    Lng32 srcLen;
+    int srcLen;
     short valIsNull = 0;
     srcType = attr->getDatatype();
     srcLen = len;
@@ -352,7 +352,7 @@ short ExExeUtilConnectbyTcb::emitPrevRow(ExpTupleDesc *tDesc, int level, int isl
         *(short *)(&data_[attr->getNullIndOffset()]) = valIsNull;
       } else {
         ex_assert(attr->getNullIndicatorLength() == 4, "NULL indicator must be 2 or 4 bytes");
-        *(Lng32 *)(&data_[attr->getNullIndOffset()]) = valIsNull;
+        *(int *)(&data_[attr->getNullIndOffset()]) = valIsNull;
       }
     } else
       ex_assert(!valIsNull, "NULL source for NOT NULL stats column");
@@ -369,7 +369,7 @@ short ExExeUtilConnectbyTcb::emitPrevRow(ExpTupleDesc *tDesc, int level, int isl
   }
 
   short srcType = REC_BIN32_UNSIGNED;
-  Lng32 srcLen = 4;
+  int srcLen = 4;
   int src = isleaf;
   Attributes *attr = tDesc->getAttr(tDesc->numAttrs() - 2);
   if (::convDoIt((char *)&src, srcLen, srcType, 0, 0, &data_[attr->getOffset()], attr->getLength(), attr->getDatatype(),
@@ -396,8 +396,8 @@ short ExExeUtilConnectbyTcb::emitPrevRow(ExpTupleDesc *tDesc, int level, int isl
     char pathBuf[CONNECT_BY_MAX_PATH_SIZE];
     memset(pathBuf, 0, CONNECT_BY_MAX_PATH_SIZE);
     char tmpbuf1[256];
-    Lng32 pathlength = 0;
-    Lng32 dlen = strlen(exeUtilTdb().delimiter_.data());
+    int pathlength = 0;
+    int dlen = strlen(exeUtilTdb().delimiter_.data());
     Queue *pathq = new (getHeap()) Queue(getHeap());
     ;
     if (exeUtilTdb().hasPath_ == TRUE) {
@@ -551,7 +551,7 @@ short ExExeUtilConnectbyTcb::work() {
   char q1[CONNECT_BY_MAX_SQL_TEXT_SIZE];  // TODO: the max len of supported query len
   void *uppderid = NULL;
   char *ptr, *ptr1;
-  Lng32 len, len1;
+  int len, len1;
   short rc;
   int tmpCounter = 0;
   NAString nq11, nq21;
@@ -591,11 +591,11 @@ short ExExeUtilConnectbyTcb::work() {
   }
   ExpTupleDesc *tDesc = exeUtilTdb().workCriDesc_->getTupleDescriptor(exeUtilTdb().sourceDataTuppIndex_);
 
-  Lng32 fsDatatype = 0;
-  Lng32 length = 0;
-  Lng32 vcIndLen = 0;
-  Lng32 indOffset = 0;
-  Lng32 varOffset = 0;
+  int fsDatatype = 0;
+  int length = 0;
+  int vcIndLen = 0;
+  int indOffset = 0;
+  int varOffset = 0;
 
   // if (exeUtilTdb().hasPath_ == TRUE || exeUtilTdb().hasIsLeaf_ == TRUE || exeUtilTdb().orderSiblingsByCol_ != "")
   if (exeUtilTdb().hasPath_ == TRUE || exeUtilTdb().hasIsLeaf_ == TRUE) {
@@ -662,7 +662,7 @@ short ExExeUtilConnectbyTcb::work() {
             if (attr->getVCIndicatorLength() == sizeof(short))
               len = *(short *)&inputDynParamBuf_[attr->getVCLenIndOffset()];
             else
-              len = *(Lng32 *)&inputDynParamBuf_[attr->getVCLenIndOffset()];
+              len = *(int *)&inputDynParamBuf_[attr->getVCLenIndOffset()];
             newsize += attr->getLength() + 1;
             // since dynparam already cast to visible string, so strncpy should be OK
             char *srcptr = inputDynParamBuf_ + attr->getOffset();
@@ -880,7 +880,7 @@ short ExExeUtilConnectbyTcb::work() {
         if (exeUtilTdb().hasIsLeaf_ == TRUE) {
           tmpPrevQueue_ = new (getHeap()) Queue(getHeap());  // TODO: check later
         }
-        Lng32 seedNum = currQueue_->numEntries();
+        int seedNum = currQueue_->numEntries();
         Int8 loopDetected = 0;
 
         currQueue_->position();
@@ -893,11 +893,11 @@ short ExExeUtilConnectbyTcb::work() {
           nq21 = q1;
           nq21.append((exeUtilTdb().childColName_).data());
           nq21.append(" in ( ");
-          Lng32 sybnum = 0;
+          int sybnum = 0;
 
           for (int batchIdx = 0; batchIdx < connBatchSize_ && i < seedNum;) {
             connectByStackItem *vi = (connectByStackItem *)currQueue_->get(i);
-            Lng32 tmpLevel = vi->level;
+            int tmpLevel = vi->level;
             i++;
             if (tmpLevel == currLevel_ - 1) {
               sybnum++;

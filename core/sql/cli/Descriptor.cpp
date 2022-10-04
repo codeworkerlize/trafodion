@@ -58,14 +58,14 @@
 #define VCPREFIX_LEN sizeof(Int32)
 
 // extern declaration
-extern short convertTypeToText_basic(char *text, Lng32 fs_datatype, Lng32 length, Lng32 precision, Lng32 scale,
+extern short convertTypeToText_basic(char *text, int fs_datatype, int length, int precision, int scale,
                                      rec_datetime_field datetimestart, rec_datetime_field datetimeend,
                                      short datetimefractprec, short intervalleadingprec, short upshift,
                                      short caseinsensitive, CharInfo::CharSet charSet, const char *collation_name,
                                      const char *displaydatatype, short displayCaseSpecific, NABoolean isVarchar2);
 
 // The length of an indicator host variable depends on its type
-Lng32 Descriptor::setIndLength(desc_struct &descItem) {
+int Descriptor::setIndLength(desc_struct &descItem) {
   switch (descItem.ind_datatype) {
     case REC_BIN16_SIGNED:
     case REC_BIN16_UNSIGNED:
@@ -85,7 +85,7 @@ Lng32 Descriptor::setIndLength(desc_struct &descItem) {
   return descItem.ind_length;
 }
 
-Lng32 Descriptor::setVarLength(desc_struct &descItem) {
+int Descriptor::setVarLength(desc_struct &descItem) {
   switch (descItem.datatype) {
     case REC_BIN16_SIGNED:
     case REC_BIN16_UNSIGNED:
@@ -107,7 +107,7 @@ Lng32 Descriptor::setVarLength(desc_struct &descItem) {
   return descItem.length;
 }
 
-Descriptor::Descriptor(SQLDESC_ID *descriptor_id_, Lng32 max_entries_, ContextCli *context) : context_(context) {
+Descriptor::Descriptor(SQLDESC_ID *descriptor_id_, int max_entries_, ContextCli *context) : context_(context) {
   ContextCli &currContext = *context;
   NAHeap &heap = *(currContext.exHeap());
 
@@ -122,7 +122,7 @@ Descriptor::Descriptor(SQLDESC_ID *descriptor_id_, Lng32 max_entries_, ContextCl
 
   switch (descriptor_id.name_mode) {
     case desc_name: {
-      Lng32 module_nm_len = getModNameLen(descriptor_id_->module);
+      int module_nm_len = getModNameLen(descriptor_id_->module);
 
       // use of a descriptor name doesn't necessitate use of a module name.
       if (module_nm_len > 0) {
@@ -138,7 +138,7 @@ Descriptor::Descriptor(SQLDESC_ID *descriptor_id_, Lng32 max_entries_, ContextCl
 
       module.module_name_len = module_nm_len;
 
-      Lng32 identifier_len = getIdLen(descriptor_id_);
+      int identifier_len = getIdLen(descriptor_id_);
 
       char *id = (char *)heap.allocateMemory(identifier_len + 1);
 
@@ -194,7 +194,7 @@ Descriptor::Descriptor(SQLDESC_ID *descriptor_id_, Lng32 max_entries_, ContextCl
           // error
         }
 
-        Lng32 module_nm_len = getModNameLen(descriptor_id_->module);
+        int module_nm_len = getModNameLen(descriptor_id_->module);
 
         char *mn = (char *)heap.allocateMemory(module_nm_len + 1);
         str_cpy_all(mn, descriptor_id_->module->module_name, module_nm_len);
@@ -268,14 +268,14 @@ NABoolean Descriptor::operator==(Descriptor &other) {
         (descItem.output_name && (!otherDescItem.output_name)) ||
         ((!descItem.output_name) && otherDescItem.output_name) ||
         (descItem.output_name && otherDescItem.output_name &&
-         ((*(Lng32 *)descItem.output_name != *(Lng32 *)otherDescItem.output_name) ||
-          (memcmp(&(descItem.output_name[sizeof(Lng32)]), &(otherDescItem.output_name[sizeof(Lng32)]),
-                  *(Lng32 *)descItem.output_name) != 0))) ||
+         ((*(int *)descItem.output_name != *(int *)otherDescItem.output_name) ||
+          (memcmp(&(descItem.output_name[sizeof(int)]), &(otherDescItem.output_name[sizeof(int)]),
+                  *(int *)descItem.output_name) != 0))) ||
         (descItem.heading && (!otherDescItem.heading)) || ((!descItem.heading) && otherDescItem.heading) ||
         (descItem.heading && otherDescItem.heading &&
-         ((*(Lng32 *)descItem.heading != *(Lng32 *)otherDescItem.heading) ||
-          (memcmp(&(descItem.heading[sizeof(Lng32)]), &(otherDescItem.heading[sizeof(Lng32)]),
-                  *(Lng32 *)descItem.heading) != 0))) ||
+         ((*(int *)descItem.heading != *(int *)otherDescItem.heading) ||
+          (memcmp(&(descItem.heading[sizeof(int)]), &(otherDescItem.heading[sizeof(int)]),
+                  *(int *)descItem.heading) != 0))) ||
         (descItem.generated_output_name != otherDescItem.generated_output_name))
       return FALSE;
 
@@ -285,7 +285,7 @@ NABoolean Descriptor::operator==(Descriptor &other) {
   return TRUE;
 }
 
-char *Descriptor::getVarItem(desc_struct &descItem, Lng32 idxrow) {
+char *Descriptor::getVarItem(desc_struct &descItem, int idxrow) {
   char *ptr;
 
   if (descItem.var_data)
@@ -314,7 +314,7 @@ char *Descriptor::getVarItem(desc_struct &descItem, Lng32 idxrow) {
   return ptr;
 }
 
-char *Descriptor::getIndItem(desc_struct &descItem, Lng32 idxrow) {
+char *Descriptor::getIndItem(desc_struct &descItem, int idxrow) {
   char *ptr;
 
   if (descItem.ind_data)
@@ -326,62 +326,62 @@ char *Descriptor::getIndItem(desc_struct &descItem, Lng32 idxrow) {
   return ptr;
 }
 
-char *Descriptor::getVarData(Lng32 entry) {
+char *Descriptor::getVarData(int entry) {
   assert(entry >= 1 && entry <= used_entries);
 
   return getVarItem(desc[entry - 1], rowsetHandle);  // Zero Base
 }
 
-char *Descriptor::getVarData(Lng32 entry, Lng32 idxrow) {
+char *Descriptor::getVarData(int entry, int idxrow) {
   assert(entry >= 1 && entry <= used_entries);
   assert(idxrow >= 1 && idxrow <= rowsetSize);
 
   return getVarItem(desc[entry - 1], idxrow - 1);  // Zero Base
 }
 
-char *Descriptor::getIndData(Lng32 entry) {
+char *Descriptor::getIndData(int entry) {
   assert(entry >= 1 && entry <= used_entries);
 
   return getIndItem(desc[entry - 1], rowsetHandle);  // Zero Base
 }
 
-char *Descriptor::getIndData(Lng32 entry, Lng32 idxrow) {
+char *Descriptor::getIndData(int entry, int idxrow) {
   assert(entry >= 1 && entry <= used_entries);
   assert(idxrow >= 1 && idxrow <= rowsetSize);
 
   return getIndItem(desc[entry - 1], idxrow - 1);  // Zero Base
 }
 
-Int32 Descriptor::getVarDataLength(Lng32 entry) {
-  register Lng32 entryZB = entry - 1;
+Int32 Descriptor::getVarDataLength(int entry) {
+  register int entryZB = entry - 1;
   return desc[entryZB].length;
 }
 
-Int32 Descriptor::getVarIndicatorLength(Lng32 entry) {
-  register Lng32 entryZB = entry - 1;
+Int32 Descriptor::getVarIndicatorLength(int entry) {
+  register int entryZB = entry - 1;
   return desc[entryZB].vc_ind_length;
 }
 
-Int32 Descriptor::getIndLength(Lng32 entry) {
-  register Lng32 entryZB = entry - 1;
+Int32 Descriptor::getIndLength(int entry) {
+  register int entryZB = entry - 1;
   return desc[entryZB].ind_length;
 }
 
-Int32 Descriptor::getVarDataType(Lng32 entry) {
-  register Lng32 entryZB = entry - 1;
+Int32 Descriptor::getVarDataType(int entry) {
+  register int entryZB = entry - 1;
   return desc[entryZB].datatype;
 }
 
-const char *Descriptor::getVarDataCharSet(Lng32 entry) {
-  register Lng32 entryZB = entry - 1;
+const char *Descriptor::getVarDataCharSet(int entry) {
+  register int entryZB = entry - 1;
   return CharInfo::getCharSetName((CharInfo::CharSet)desc[entryZB].charset);
 }
 
-Lng32 Descriptor::ansiTypeFromFSType(Lng32 datatype) { return getAnsiTypeFromFSType(datatype); }
+int Descriptor::ansiTypeFromFSType(int datatype) { return getAnsiTypeFromFSType(datatype); }
 
-const char *Descriptor::ansiTypeStrFromFSType(Lng32 datatype) { return getAnsiTypeStrFromFSType(datatype); }
+const char *Descriptor::ansiTypeStrFromFSType(int datatype) { return getAnsiTypeStrFromFSType(datatype); }
 
-Lng32 Descriptor::datetimeIntCodeFromTypePrec(Lng32 datatype, Lng32 precision) {
+int Descriptor::datetimeIntCodeFromTypePrec(int datatype, int precision) {
   if (datatype == _SQLDT_DATETIME) {
     return precision;
   } else if (isIntervalFSType(datatype))
@@ -390,11 +390,11 @@ Lng32 Descriptor::datetimeIntCodeFromTypePrec(Lng32 datatype, Lng32 precision) {
     return 0;  // not a defined value, indicates not a DT/INT
 }
 
-short Descriptor::isIntervalFSType(Lng32 datatype) {
+short Descriptor::isIntervalFSType(int datatype) {
   return ((datatype >= REC_MIN_INTERVAL) && (datatype <= REC_MAX_INTERVAL));
 }
 
-static void setVCLength(char *tgt, Lng32 len, size_t vcPrefixLength) {
+static void setVCLength(char *tgt, int len, size_t vcPrefixLength) {
   if (!tgt) {
 #ifdef _DEBUG
     // TBD: better error handling
@@ -418,8 +418,8 @@ static void setVCLength(char *tgt, Lng32 len, size_t vcPrefixLength) {
   }
 }
 
-static Lng32 getVCLength(const char *source_string, size_t vcPrefixLength) {
-  Lng32 returned_len = 0L;
+static int getVCLength(const char *source_string, size_t vcPrefixLength) {
+  int returned_len = 0L;
 
   if (!source_string) {
     // a source string that is NULL is considered a string with length 0
@@ -440,8 +440,8 @@ static Lng32 getVCLength(const char *source_string, size_t vcPrefixLength) {
   return returned_len;
 }
 
-static Lng32 desc_set_string_value_from_varchar(char *string_value, Lng32 max_string_len, char *source_string) {
-  Lng32 returned_len;
+static int desc_set_string_value_from_varchar(char *string_value, int max_string_len, char *source_string) {
+  int returned_len;
 
   if (!string_value) {
 #ifdef _DEBUG
@@ -479,9 +479,9 @@ static Lng32 desc_set_string_value_from_varchar(char *string_value, Lng32 max_st
 // info_desc and info_desc_index: describing the host variable in
 // details (such as its type).
 //
-static RETCODE setCharHostVar(char *source, char *host_var_buf, Lng32 host_var_buf_size, Lng32 *returned_len,
+static RETCODE setCharHostVar(char *source, char *host_var_buf, int host_var_buf_size, int *returned_len,
                               Descriptor *info_desc = 0, Int32 info_desc_index = 0) {
-  Lng32 target_type;
+  int target_type;
 
   if (info_desc == 0 ||
       info_desc->getDescItem(info_desc_index + 1, SQLDESC_TYPE_FS, &target_type, NULL, 0, NULL, 0) < 0) {
@@ -497,11 +497,11 @@ static RETCODE setCharHostVar(char *source, char *host_var_buf, Lng32 host_var_b
   }
 
   char *target = host_var_buf;
-  Lng32 target_len = host_var_buf_size;
+  int target_len = host_var_buf_size;
 
   // The source type is hard-wired!
-  Lng32 source_type = REC_BYTE_F_ASCII;
-  Lng32 source_len = getVCLength(source, VCPREFIX_LEN);
+  int source_type = REC_BYTE_F_ASCII;
+  int source_len = getVCLength(source, VCPREFIX_LEN);
 
   *returned_len = target_len;
 
@@ -523,7 +523,7 @@ static RETCODE setCharHostVar(char *source, char *host_var_buf, Lng32 host_var_b
   return SUCCESS;
 }
 
-RETCODE Descriptor::getDescItemPtr(Lng32 entry, Lng32 what_to_get, char **string_ptr, Lng32 *returned_len) {
+RETCODE Descriptor::getDescItemPtr(int entry, int what_to_get, char **string_ptr, int *returned_len) {
   desc_struct &descItem = desc[entry - 1];  // Zero base
   *returned_len = 0;
 
@@ -665,11 +665,11 @@ static NABoolean unicodeDataType (long type)
 }
 */
 
-RETCODE Descriptor::getDescItem(Lng32 entry, Lng32 what_to_get, void *numeric_value, char *string_value,
-                                Lng32 max_string_len, Lng32 *returned_len, Lng32 /*start_from_offset*/,
+RETCODE Descriptor::getDescItem(int entry, int what_to_get, void *numeric_value, char *string_value,
+                                int max_string_len, int *returned_len, int /*start_from_offset*/,
                                 Descriptor *info_desc, Int32 info_desc_index) {
   desc_struct &descItem = desc[entry - 1];  // Zero base
-  Lng32 idxrow = rowsetHandle;
+  int idxrow = rowsetHandle;
 
   switch (what_to_get) {
     case SQLDESC_TYPE:
@@ -926,9 +926,9 @@ RETCODE Descriptor::getDescItem(Lng32 entry, Lng32 what_to_get, void *numeric_va
 
     case SQLDESC_DESCRIPTOR_TYPE:
       if (isDescTypeWide())
-        *(Int32 *)numeric_value = (Lng32)DESCRIPTOR_TYPE_WIDE;
+        *(Int32 *)numeric_value = (int)DESCRIPTOR_TYPE_WIDE;
       else
-        *(Int32 *)numeric_value = (Lng32)DESCRIPTOR_TYPE_NARROW;
+        *(Int32 *)numeric_value = (int)DESCRIPTOR_TYPE_NARROW;
       break;
 
       // Vicz: add two new desc item to support call stmt
@@ -990,8 +990,8 @@ RETCODE Descriptor::getDescItem(Lng32 entry, Lng32 what_to_get, void *numeric_va
 // function getVarData and getIndData. Any specific information can be
 // retrived by calling the getDescItem function.
 
-RETCODE Descriptor::getDescItemMainVarInfo(Lng32 entry, short &var_isnullable, Lng32 &var_datatype, Lng32 &var_length,
-                                           void **var_ptr, Lng32 &ind_datatype, Lng32 &ind_length, void **ind_ptr) {
+RETCODE Descriptor::getDescItemMainVarInfo(int entry, short &var_isnullable, int &var_datatype, int &var_length,
+                                           void **var_ptr, int &ind_datatype, int &ind_length, void **ind_ptr) {
   desc_struct &descItem = desc[entry - 1];  // Zero base
 
   var_isnullable = descItem.nullable;
@@ -1015,11 +1015,11 @@ RETCODE Descriptor::getDescItemMainVarInfo(Lng32 entry, short &var_isnullable, L
 // char with length = length.
 // Allocate a varchar target. Length bytes = 4.
 // WARNING - assuming that varchar indicator is 4 bytes - i.e. sizeof(long)
-static char *desc_varchar_alloc_and_copy(const char *src, NAHeap &heap, Lng32 length = 0,
+static char *desc_varchar_alloc_and_copy(const char *src, NAHeap &heap, int length = 0,
                                          size_t vcIndLen = VCPREFIX_LEN) {
   char *tgt;
 
-  Lng32 len = (length > 0) ? length : getVCLength(src, vcIndLen);
+  int len = (length > 0) ? length : getVCLength(src, vcIndLen);
 
   tgt = (char *)(heap.allocateMemory((size_t)(vcIndLen + len + 1)));
 
@@ -1033,11 +1033,11 @@ static char *desc_varchar_alloc_and_copy(const char *src, NAHeap &heap, Lng32 le
   return tgt;
 }
 
-static char *desc_var_data_alloc(char *source, Lng32 sourceType, Lng32 sourceLen, CharInfo::CharSet sourceCharSet,
-                                 char **target, Lng32 targetType, Lng32 *targetLen, CharInfo::CharSet targetCharSet,
-                                 char **targetVCLen, Lng32 *targetVCLenSize, NAHeap &heap) {
+static char *desc_var_data_alloc(char *source, int sourceType, int sourceLen, CharInfo::CharSet sourceCharSet,
+                                 char **target, int targetType, int *targetLen, CharInfo::CharSet targetCharSet,
+                                 char **targetVCLen, int *targetVCLenSize, NAHeap &heap) {
   char *tgt;
-  Lng32 sourceDataLen, reqLen;
+  int sourceDataLen, reqLen;
   short tempSourceDataLen;
 
   *targetVCLenSize = 0;
@@ -1046,7 +1046,7 @@ static char *desc_var_data_alloc(char *source, Lng32 sourceType, Lng32 sourceLen
     case REC_BYTE_V_DOUBLE:
     case REC_BYTE_V_ASCII_LONG:
       str_cpy_all((char *)&tempSourceDataLen, source, sizeof(short));
-      sourceDataLen = (Lng32)tempSourceDataLen;
+      sourceDataLen = (int)tempSourceDataLen;
       break;
     case REC_BYTE_V_ANSI:
       if (CharInfo::is_NCHAR_MP(sourceCharSet) == FALSE)
@@ -1093,11 +1093,11 @@ static char *desc_var_data_alloc(char *source, Lng32 sourceType, Lng32 sourceLen
   return tgt;
 }
 
-short Descriptor::isCharacterFSType(Lng32 datatype) {
+short Descriptor::isCharacterFSType(int datatype) {
   return (DFS2REC::isDoubleCharacter(datatype) || DFS2REC::is8bitCharacter(datatype));
 }
 
-short Descriptor::isIntegralFSType(Lng32 datatype) {
+short Descriptor::isIntegralFSType(int datatype) {
   switch (datatype) {
     case REC_BIN8_SIGNED:
     case REC_BIN8_UNSIGNED:
@@ -1116,7 +1116,7 @@ short Descriptor::isIntegralFSType(Lng32 datatype) {
   return FALSE;
 }
 
-short Descriptor::isFloatFSType(Lng32 datatype) {
+short Descriptor::isFloatFSType(int datatype) {
   switch (datatype) {
     case REC_FLOAT32:
     case REC_FLOAT64:
@@ -1129,7 +1129,7 @@ short Descriptor::isFloatFSType(Lng32 datatype) {
   return FALSE;
 }
 
-short Descriptor::isNumericFSType(Lng32 datatype) {
+short Descriptor::isNumericFSType(int datatype) {
   switch (datatype) {
     case REC_DECIMAL_UNSIGNED:
     case REC_DECIMAL_LSE:
@@ -1142,7 +1142,7 @@ short Descriptor::isNumericFSType(Lng32 datatype) {
   return FALSE;
 }
 
-short Descriptor::isDatetimeFSType(Lng32 datatype) {
+short Descriptor::isDatetimeFSType(int datatype) {
   switch (datatype) {
     case REC_DATETIME:
       return TRUE;
@@ -1154,7 +1154,7 @@ short Descriptor::isDatetimeFSType(Lng32 datatype) {
   return FALSE;
 }
 
-short Descriptor::isBitFSType(Lng32 datatype) {
+short Descriptor::isBitFSType(int datatype) {
   switch (datatype) {
     case REC_BPINT_UNSIGNED:
       return TRUE;
@@ -1165,8 +1165,8 @@ short Descriptor::isBitFSType(Lng32 datatype) {
   return FALSE;
 }
 
-Lng32 Descriptor::DefaultPrecision(Lng32 datatype) {
-  Lng32 precision = 0;
+int Descriptor::DefaultPrecision(int datatype) {
+  int precision = 0;
 
   switch (datatype) {
     case SQLTYPECODE_IEEE_REAL:
@@ -1193,8 +1193,8 @@ Lng32 Descriptor::DefaultPrecision(Lng32 datatype) {
   return precision;
 }
 
-Lng32 Descriptor::DefaultScale(Lng32 datatype) {
-  Lng32 scale = 0;
+int Descriptor::DefaultScale(int datatype) {
+  int scale = 0;
 
   switch (datatype) {
     case REC_DECIMAL_UNSIGNED:
@@ -1209,15 +1209,15 @@ Lng32 Descriptor::DefaultScale(Lng32 datatype) {
   return scale;
 }
 
-static short isIntervalANSIType(Lng32 datatype) { return (datatype == SQLTYPECODE_INTERVAL); }
+static short isIntervalANSIType(int datatype) { return (datatype == SQLTYPECODE_INTERVAL); }
 
-static short isIntervalType(Lng32 datatype) {
+static short isIntervalType(int datatype) {
   return (isIntervalANSIType(datatype) || Descriptor::isIntervalFSType(datatype));
 }
 
 void Descriptor::DescItemDefaultsForDatetimeCode(
     /*INOUT*/ desc_struct &descItem,
-    /*IN*/ Lng32 datetime_interval) {
+    /*IN*/ int datetime_interval) {
   // sanity should dictate that descItem.datetime_code == datetime_interval
   // we'll assume it's true and use them interchangable in here...
 
@@ -1287,7 +1287,7 @@ void Descriptor::DescItemDefaultsForDatetimeCode(
 // A new argument to NAHeap is needed because memory will be allocated and
 // deallocated to set character data type related desc
 void Descriptor::DescItemDefaultsForType(/*INOUT*/ desc_struct &descItem,
-                                         /*IN*/ Lng32 datatype,
+                                         /*IN*/ int datatype,
                                          /*IN*/ NAHeap &heap) {
   // the scheme for the following is...
   // extra indentation -
@@ -1523,9 +1523,9 @@ void Descriptor::DescItemDefaultsForType(/*INOUT*/ desc_struct &descItem,
 // in relation to a SQL descriptor entry (e.g., a NAME option).
 //
 char *Descriptor::getCharDataFromCharHostVar(ComDiagsArea &diags, NAHeap &heap, char *host_var_string_value,
-                                             Lng32 host_var_string_value_length, const char *the_SQLDESC_option,
+                                             int host_var_string_value_length, const char *the_SQLDESC_option,
                                              Descriptor *info_desc, Int32 info_desc_index, short target_type) {
-  Lng32 source_type = 0;
+  int source_type = 0;
 
   if (info_desc == 0 || info_desc->getDescItem(info_desc_index + 1, SQLDESC_TYPE_FS, &source_type, 0, 0, 0, 0) <
                             0) {  // assume fixed CHAR.
@@ -1541,7 +1541,7 @@ char *Descriptor::getCharDataFromCharHostVar(ComDiagsArea &diags, NAHeap &heap, 
   }
 
   char *source = host_var_string_value;
-  Lng32 source_len = host_var_string_value_length;
+  int source_len = host_var_string_value_length;
 
   enum SQLDESC_option_enum { dont_care_option, COLUMN_NAME_option, CURSOR_NAME_option };
   SQLDESC_option_enum the_SQLDESC_option_enum = dont_care_option;
@@ -1565,7 +1565,7 @@ char *Descriptor::getCharDataFromCharHostVar(ComDiagsArea &diags, NAHeap &heap, 
     assert(0);
   }
 
-  Lng32 target_len = source_len;
+  int target_len = source_len;
   char *target = 0;
   ex_expr::exp_return_type expRetcode = ex_expr::EXPR_OK;
 
@@ -1599,7 +1599,7 @@ char *Descriptor::getCharDataFromCharHostVar(ComDiagsArea &diags, NAHeap &heap, 
   return target;
 }
 
-RETCODE Descriptor::processNumericDatatype(desc_struct &descItem, Lng32 numeric_value) {
+RETCODE Descriptor::processNumericDatatype(desc_struct &descItem, int numeric_value) {
   // In case of exact numeric type, we need to set the flags bit 1 to indicate
   // that this is really a NUMERIC and not SMALLINT, LARGEINT or INT type.
   if (numeric_value == SQLTYPECODE_NUMERIC)
@@ -1658,7 +1658,7 @@ RETCODE Descriptor::processNumericDatatypeWithPrecision(desc_struct &descItem, C
           ((descItem.datatype == REC_BIN32_SIGNED) && (descItem.precision > 9)) ||
           ((descItem.datatype == REC_BIN64_SIGNED) && (descItem.precision > 18)) ||
           ((descItem.datatype == REC_NUM_BIG_SIGNED) && (descItem.precision > 128))) {
-        Lng32 maxPrec;
+        int maxPrec;
         if (descItem.datatype == REC_BIN16_SIGNED)
           maxPrec = 4;
         else if (descItem.datatype == REC_BIN32_SIGNED)
@@ -1679,7 +1679,7 @@ RETCODE Descriptor::processNumericDatatypeWithPrecision(desc_struct &descItem, C
           ((descItem.datatype == REC_BIN32_UNSIGNED) && (descItem.precision > 9)) ||
           ((descItem.datatype == REC_BIN64_UNSIGNED) && (descItem.precision > 20)) ||
           ((descItem.datatype == REC_NUM_BIG_UNSIGNED) && (descItem.precision > 128))) {
-        Lng32 maxPrec;
+        int maxPrec;
         if (descItem.datatype == REC_BIN16_UNSIGNED)
           maxPrec = 4;
         else if (descItem.datatype == REC_BIN32_UNSIGNED)
@@ -1713,17 +1713,17 @@ RETCODE Descriptor::processNumericDatatypeWithPrecision(desc_struct &descItem, C
   return SUCCESS;
 }
 
-RETCODE Descriptor::setDescItem(Lng32 entry, Lng32 what_to_set, Long numeric_value, char *string_value,
+RETCODE Descriptor::setDescItem(int entry, int what_to_set, Long numeric_value, char *string_value,
                                 Descriptor *info_desc, Int32 info_desc_index) {
   RETCODE rc = SUCCESS;
 
   desc_struct &descItem = ((entry > 0) ? desc[entry - 1] : desc[0]);  // Zero base
 
-  Lng32 sourceType = 0, sourceLen = 0, sourcePrecision = 0, sourceScale = 0;
-  Lng32 targetType = 0, targetLen = 0, targetPrecision = 0, targetScale = 0;
-  Lng32 targetVCLenSize = 0;
+  int sourceType = 0, sourceLen = 0, sourcePrecision = 0, sourceScale = 0;
+  int targetType = 0, targetLen = 0, targetPrecision = 0, targetScale = 0;
+  int targetVCLenSize = 0;
   char *target = NULL, *targetVCLen = NULL, *source = NULL;
-  Lng32 whichPrecision, whichScale;
+  int whichPrecision, whichScale;
 
   CharInfo::CharSet newCharSet = CharInfo::UnknownCharSet;
   char *charset_name = NULL;
@@ -1807,7 +1807,7 @@ RETCODE Descriptor::setDescItem(Lng32 entry, Lng32 what_to_set, Long numeric_val
         // the same charset.  Do the test only for non-Unicode hostvars because
         // Unicode ones can be relaxed.
         if (DFS2REC::isAnyCharacter(sourceType) && DFS2REC::isAnyCharacter(descItem.datatype)) {
-          Lng32 sourceCharSet;
+          int sourceCharSet;
           info_desc->getDescItem(info_desc_index + 1, SQLDESC_CHAR_SET, &sourceCharSet, NULL, 0, NULL, 0);
 
           if (sourceCharSet != CharInfo::UNICODE && sourceCharSet != descItem.charset) {
@@ -1865,7 +1865,7 @@ RETCODE Descriptor::setDescItem(Lng32 entry, Lng32 what_to_set, Long numeric_val
         source = string_value;
         target = (char *)&descItem.datatype;
       } else {
-        Lng32 datatype = getFSTypeFromANSIType(numeric_value);
+        int datatype = getFSTypeFromANSIType(numeric_value);
         // Here is case of NUMERIC types , the above procedure, sets
         // the internal datatype to the default type - INT.
         // Further down, we will check for the precision and may re assign
@@ -2141,7 +2141,7 @@ RETCODE Descriptor::setDescItem(Lng32 entry, Lng32 what_to_set, Long numeric_val
       if (string_value)  // some real data area passed in.
       {
         if (info_desc != NULL) {
-          Lng32 sourceCharSet;
+          int sourceCharSet;
 
           info_desc->getDescItem(info_desc_index + 1, SQLDESC_CHAR_SET, &sourceCharSet, NULL, 0, NULL, 0);
 
@@ -2319,7 +2319,7 @@ RETCODE Descriptor::setDescItem(Lng32 entry, Lng32 what_to_set, Long numeric_val
       // the first 2 bytes of data are actually the variable length indicator
       short VCLen;
       str_cpy_all((char *)&VCLen, source, sizeof(short));
-      sourceLen = (Lng32)VCLen;
+      sourceLen = (int)VCLen;
       source = &source[sizeof(short)];
 #ifdef _DEBUG
       static UInt32 asserted = 0;
@@ -2358,7 +2358,7 @@ RETCODE Descriptor::setDescItem(Lng32 entry, Lng32 what_to_set, Long numeric_val
 
     switch (what_to_set) {
       case SQLDESC_TYPE: {
-        Lng32 ansiType = descItem.datatype;
+        int ansiType = descItem.datatype;
         descItem.datatype = getFSTypeFromANSIType(ansiType);
         DescItemDefaultsForType(descItem, descItem.datatype, heap);
         processNumericDatatype(descItem, ansiType);
@@ -2548,7 +2548,7 @@ RETCODE Descriptor::setDescItem(Lng32 entry, Lng32 what_to_set, Long numeric_val
   return SUCCESS;
 }
 
-RETCODE Descriptor::setDescItemInternal(Lng32 entry, Lng32 what_to_set, Lng32 numeric_value, char *string_value) {
+RETCODE Descriptor::setDescItemInternal(int entry, int what_to_set, int numeric_value, char *string_value) {
   RETCODE rc = SUCCESS;
 
   desc_struct &descItem = ((entry > 0) ? desc[entry - 1] : desc[0]);  // Zero base
@@ -2580,7 +2580,7 @@ RETCODE Descriptor::setDescItemInternal(Lng32 entry, Lng32 what_to_set, Lng32 nu
   return SUCCESS;
 }
 
-RETCODE Descriptor::alloc(Lng32 used_entries_) {
+RETCODE Descriptor::alloc(int used_entries_) {
   ComDiagsArea &diags = context_->diags();
   NAHeap &heap = *(context_->exHeap());
 
@@ -2671,7 +2671,7 @@ RETCODE Descriptor::dealloc() {
 RETCODE Descriptor::allocBulkMoveInfo() {
   NAHeap *heap = context_->exHeap();
 
-  if ((!bulkMoveInfo()) || ((Lng32)bulkMoveInfo()->maxEntries() < used_entries)) {
+  if ((!bulkMoveInfo()) || ((int)bulkMoveInfo()->maxEntries() < used_entries)) {
     if (bmInfo_) heap->deallocateMemory(bmInfo_);
 
     bmInfo_ = (BulkMoveInfo *)heap->allocateMemory(sizeof(BulkMoveInfo) +
@@ -2692,7 +2692,7 @@ ULng32 Descriptor::getCompoundStmtsInfo() const { return compoundStmtsInfo_; }
 
 void Descriptor::setCompoundStmtsInfo(ULng32 info) { compoundStmtsInfo_ = info; }
 
-Lng32 Descriptor::getUsedEntryCount() { return used_entries; }
+int Descriptor::getUsedEntryCount() { return used_entries; }
 
 NABoolean Descriptor::isDescTypeWide() { return (flags_ & DESC_TYPE_WIDE) != 0; }
 
@@ -2729,10 +2729,10 @@ RETCODE Descriptor::deallocBulkMoveInfo() {
   return SUCCESS;
 }
 
-void Descriptor::setUsedEntryCount(Lng32 used_entries_) { used_entries = used_entries_; }
+void Descriptor::setUsedEntryCount(int used_entries_) { used_entries = used_entries_; }
 
-RETCODE Descriptor::addEntry(Lng32 entry) {
-  Lng32 currUsedEntries = used_entries;
+RETCODE Descriptor::addEntry(int entry) {
+  int currUsedEntries = used_entries;
   desc_struct *currDesc = desc;
 
   alloc(entry);
@@ -2756,7 +2756,7 @@ RETCODE Descriptor::addEntry(Lng32 entry) {
   return SUCCESS;
 }
 
-void stripBlanks(char *buf, Lng32 &len) {
+void stripBlanks(char *buf, int &len) {
   // NOTE: buf is assumed to be non-NULL so it will not be checked again
 
   char *p = 0;  // for locating the first non-blank char.
@@ -2824,7 +2824,7 @@ SQLCLI_OBJ_ID *Descriptor::GetNameViaDesc(SQLDESC_ID *desc_id, ContextCli *conte
   SQLDESC_ID tmpDescId;
 
   init_SQLCLI_OBJ_ID(&tmpDescId, SQLCLI_CURRENT_VERSION, desc_name, desc_id->module, desc_id->identifier, 0,
-                     SQLCHARSETSTRING_ISO88591, (Lng32)getIdLen(desc_id));
+                     SQLCHARSETSTRING_ISO88591, (int)getIdLen(desc_id));
 
   Descriptor *desc = context->getDescriptor(&tmpDescId);
   if (desc == NULL) {
@@ -2836,19 +2836,19 @@ SQLCLI_OBJ_ID *Descriptor::GetNameViaDesc(SQLDESC_ID *desc_id, ContextCli *conte
     return NULL;
   }
 
-  Lng32 nullable;
+  int nullable;
 
   desc->getDescItem(1, SQLDESC_NULLABLE, &nullable, 0, 0, 0, 0);
 
   if (nullable) {
-    Lng32 *isnullp;
+    int *isnullp;
     desc->getDescItem(1, SQLDESC_IND_PTR, &isnullp, 0, 0, 0, 0);
     if ((isnullp == 0) || *isnullp) return NULL;
   }
 
   char *data = 0;
-  Lng32 datatype = 0L;
-  Lng32 length = 0L;
+  int datatype = 0L;
+  int length = 0L;
   char *buf = 0;
 
   desc->getDescItem(1, SQLDESC_TYPE_FS, &datatype, 0, 0, 0, 0);

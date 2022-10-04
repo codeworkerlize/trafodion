@@ -58,7 +58,7 @@
 
 // forward declaration
 static void check_assert_bug_catcher();
-Lng32 sqlToSLSeverity(const char *severity, NABoolean isWarning);
+int sqlToSLSeverity(const char *severity, NABoolean isWarning);
 
 #if 0 /* No longer needed with sqlTextBuf moved to CmpContext */
 THREAD_P NAWString* sqlTextBuf = 0;
@@ -137,12 +137,12 @@ void SQLMXLoggingArea::resetSqlText()
 
 Int32 SQLMXLoggingArea::logSQLMXEventForError(
     ULng32 sqlcode, const char *experienceLevel, const char *severityLevel, const char *eventTarget, const char *msgTxt,
-    const char *sqlId, const Lng32 Int0, const Lng32 Int1, const Lng32 Int2, const Lng32 Int3, const Lng32 Int4,
+    const char *sqlId, const int Int0, const int Int1, const int Int2, const int Int3, const int Int4,
     const char *String0, const char *String1, const char *String2, const char *String3, const char *String4,
     const char *serverName, const char *connectionName, const char *constraintCatalog, const char *constraintSchema,
     const char *constraintName, const char *triggerCatalog, const char *triggerSchema, const char *triggerName,
     const char *catalogName, const char *schemaName, const char *tableName, const char *columnName,
-    const Int64 currTransid, const Lng32 rowNumber, const Lng32 platformCode, NABoolean isWarning) {
+    const long currTransid, const int rowNumber, const int platformCode, NABoolean isWarning) {
   Int32 rc = 0;
   // sealog logging of sql error events
   // declare a event stack variable and populate
@@ -165,10 +165,10 @@ Int32 SQLMXLoggingArea::logSQLMXEventForError(
   }
 
   char eventidStr[10] = "        ";
-  Lng32 eventidLen = 0;
+  int eventidLen = 0;
   str_sprintf(eventidStr, "10%d%06d", SQEVL_SQL, sqlcode);
   str_strip_blanks(eventidStr, eventidLen);
-  Lng32 eventIdVal = (Lng32)str_atoi(eventidStr, eventidLen);
+  int eventIdVal = (int)str_atoi(eventidStr, eventidLen);
 
   sql_error_event.mutable_header()->set_event_id(eventIdVal);
   sql_error_event.mutable_header()->set_event_severity(sqlToSLSeverity(severityLevel, isWarning));
@@ -249,7 +249,7 @@ Int32 SQLMXLoggingArea::logSQLMXEventForError(
   return rc;
 }
 
-Lng32 sqlToSLSeverity(const char *severity, NABoolean isWarning) {
+int sqlToSLSeverity(const char *severity, NABoolean isWarning) {
   if (isWarning) return SQ_LOG_WARNING;
   if (str_cmp(severity, "CRTCL", str_len(severity)) == 0)
     return SQ_LOG_CRIT;
@@ -271,7 +271,7 @@ void SQLMXLoggingArea::logCompNQCretryEvent(char *stmt) {
   str_cpy_all(msg + mLen, stmt, MINOF(sLen, 8192 - mLen));
   logSQLMXEventForError(SQEV_CMP_NQC_RETRY_OCCURED, "ADVANCED", "INFRM", "LOGONLY", msg);
 }
-void SQLMXLoggingArea::logExecRtInfo(const char *fileName, ULng32 lineNo, const char *msg, Lng32 explainSeqNum) {
+void SQLMXLoggingArea::logExecRtInfo(const char *fileName, ULng32 lineNo, const char *msg, int explainSeqNum) {
   bool lockedMutex = lockMutex();
   short rc = 0;
   SqlSealogEvent sevent;
@@ -376,7 +376,7 @@ void SQLMXLoggingArea::logSQLMXDebugEvent(const char *msg, short errorcode, bool
   // set the required parameters
 
   sevent.setMessageText((char *)msg);
-  sevent.setError1((Lng32)errorcode);
+  sevent.setError1((int)errorcode);
   // set the event id and severity and send the event
   sevent.sendEvent(SQEV_SQL_DEBUG_EVENT, SQ_LOG_DEBUG);
   // close the connection.
@@ -404,7 +404,7 @@ void SQLMXLoggingArea::logSQLMXAbortEvent(const char *file, Int32 line, const ch
 
 // log an ASSERTION FAILURE event
 void SQLMXLoggingArea::logSQLMXAssertionFailureEvent(const char *file, Int32 line, const char *msg,
-                                                     const char *condition, const Lng32 *tid) {
+                                                     const char *condition, const int *tid) {
   bool lockedMutex = lockMutex();
   SqlSealogEvent sevent;
   // Open a  new connection
@@ -438,7 +438,7 @@ void SQLMXLoggingArea::logPOSInfoEvent(const char *msg) {
   sevent.closeConnection();
   if (lockedMutex) unlockMutex();
 }
-void SQLMXLoggingArea::logPOSErrorEvent(const Lng32 errorCode, const char *msg1, const char *msg2, const char *msg3) {
+void SQLMXLoggingArea::logPOSErrorEvent(const int errorCode, const char *msg1, const char *msg2, const char *msg3) {
   bool lockedMutex = lockMutex();
   SqlSealogEvent sevent;
   // Open a  new connection
@@ -541,8 +541,8 @@ void SQLMXLoggingArea::logMVRefreshErrorEvent(const char *msg) {
   if (lockedMutex) unlockMutex();
 }
 
-void SQLMXLoggingArea::logCliReclaimSpaceEvent(Lng32 freeSize, Lng32 totalSize, Lng32 totalContexts,
-                                               Lng32 totalStatements) {
+void SQLMXLoggingArea::logCliReclaimSpaceEvent(int freeSize, int totalSize, int totalContexts,
+                                               int totalStatements) {
   bool lockedMutex = lockMutex();
   SqlSealogEvent sevent;
   // Open a  new connection
@@ -607,52 +607,52 @@ void SqlSealogEvent::setFileName(char *fn) {
   sqlInfoEvent_.set_file_name(fn ? fn : "(not available)");
 #endif
 }
-void SqlSealogEvent::setLineNumber(Lng32 ln) {
+void SqlSealogEvent::setLineNumber(int ln) {
 #ifndef SP_DIS
   sqlInfoEvent_.set_line_number((ln > 0) ? ln : 0);
 #endif
 }
-void SqlSealogEvent::setExplainSeqNum(Lng32 esn) {
+void SqlSealogEvent::setExplainSeqNum(int esn) {
 #ifndef SP_DIS
   sqlInfoEvent_.set_explain_seq_num(esn);
 #endif
 }
-void SqlSealogEvent::setError1(Lng32 e1) {
+void SqlSealogEvent::setError1(int e1) {
 #ifndef SP_DIS
   sqlInfoEvent_.set_error1(e1);
 #endif
 }
-void SqlSealogEvent::setError2(Lng32 e2) {
+void SqlSealogEvent::setError2(int e2) {
 #ifndef SP_DIS
   sqlInfoEvent_.set_error2(e2);
 #endif
 }
-void SqlSealogEvent::setError3(Lng32 e3) {
+void SqlSealogEvent::setError3(int e3) {
 #ifndef SP_DIS
   sqlInfoEvent_.set_error3(e3);
 #endif
 }
-void SqlSealogEvent::setInt0(Lng32 i0) {
+void SqlSealogEvent::setInt0(int i0) {
 #ifndef SP_DIS
   sqlInfoEvent_.set_int0(i0);
 #endif
 }
-void SqlSealogEvent::setInt1(Lng32 i1) {
+void SqlSealogEvent::setInt1(int i1) {
 #ifndef SP_DIS
   sqlInfoEvent_.set_int1(i1);
 #endif
 }
-void SqlSealogEvent::setInt2(Lng32 i2) {
+void SqlSealogEvent::setInt2(int i2) {
 #ifndef SP_DIS
   sqlInfoEvent_.set_int2(i2);
 #endif
 }
-void SqlSealogEvent::setInt3(Lng32 i3) {
+void SqlSealogEvent::setInt3(int i3) {
 #ifndef SP_DIS
   sqlInfoEvent_.set_int3(i3);
 #endif
 }
-void SqlSealogEvent::setInt4(Lng32 i4) {
+void SqlSealogEvent::setInt4(int i4) {
 #ifndef SP_DIS
   sqlInfoEvent_.set_int4(i4);
 #endif
@@ -682,17 +682,17 @@ void SqlSealogEvent::setString4(char *string4) {
   sqlInfoEvent_.set_string4(string4 ? string4 : "");
 #endif
 }
-void SqlSealogEvent::setInt64_0(Int64 i64_0) {
+void SqlSealogEvent::setInt64_0(long i64_0) {
 #ifndef SP_DIS
   sqlInfoEvent_.set_int64_0(i64_0);
 #endif
 }
-void SqlSealogEvent::setInt64_1(Int64 i64_1) {
+void SqlSealogEvent::setInt64_1(long i64_1) {
 #ifndef SP_DIS
   sqlInfoEvent_.set_int64_1(i64_1);
 #endif
 }
-void SqlSealogEvent::setInt64_2(Int64 i64_2) {
+void SqlSealogEvent::setInt64_2(long i64_2) {
 #ifndef SP_DIS
   sqlInfoEvent_.set_int64_2(i64_2);
 #endif
@@ -708,14 +708,14 @@ void SqlSealogEvent::setInt64_2(Int64 i64_2) {
 // any other event tokens into a string form and sends the buffer
 // to sealog
 
-Int16 SqlSealogEvent::sendEvent(Int16 eventId, Lng32 slSeverity) {
+Int16 SqlSealogEvent::sendEvent(Int16 eventId, int slSeverity) {
   Int32 rc = 0;
 #ifndef SP_DIS
   char eventidStr[10] = "        ";
-  Lng32 eventidLen = 0;
+  int eventidLen = 0;
   str_sprintf(eventidStr, "10%d%06d", SQEVL_SQL, eventId);
   str_strip_blanks(eventidStr, eventidLen);
-  Lng32 eventIdVal = (Lng32)str_atoi(eventidStr, eventidLen);
+  int eventIdVal = (int)str_atoi(eventidStr, eventidLen);
   common::event_header *eventHeader = sqlInfoEvent_.mutable_header();
   common::info_header *infoHeader = eventHeader->mutable_header();
 
@@ -759,7 +759,7 @@ void SQLMXLoggingArea::logSortDiskInfo(char *diskname, short percentfree, short 
 
 static void check_assert_bug_catcher() {}
 
-void SQLMXLoggingArea::logUtilErrorsEvent(const char *utilName, const Int32 numOfErrors, const Lng32 errorCode,
+void SQLMXLoggingArea::logUtilErrorsEvent(const char *utilName, const Int32 numOfErrors, const int errorCode,
                                           const char *msg1, const char *msg2, const char *msg3, const char *msg4,
                                           const char *msg5) {
   /* TBD
@@ -955,7 +955,7 @@ void SQLMXLoggingArea::logPMEventWithInterval(ULng32 eventId,
 
 void SQLMXLoggingArea::logPMErrorsEvent (const char *operation,
 					 const Int32 numOfErrors,
-					 const Lng32  errorCode,
+					 const int  errorCode,
 					 const char *msg1,
 					 const char *msg2,
 					 const char *msg3,

@@ -285,21 +285,21 @@ class RangeOfValues : public NABasicObject {
 
   virtual NABoolean insert(Int32 value) = 0;
   virtual NABoolean insert(UInt32 value) = 0;
-  virtual NABoolean insert(Int64 value) = 0;
-  virtual NABoolean insert(char *, Lng32) = 0;
-  virtual NABoolean insert(wchar_t *, Lng32) = 0;
-  virtual NABoolean insertDate(char *, Lng32) = 0;
-  virtual NABoolean insertTime(char *, Lng32) = 0;
-  virtual NABoolean insertTimestamp(char *, Lng32) = 0;
+  virtual NABoolean insert(long value) = 0;
+  virtual NABoolean insert(char *, int) = 0;
+  virtual NABoolean insert(wchar_t *, int) = 0;
+  virtual NABoolean insertDate(char *, int) = 0;
+  virtual NABoolean insertTime(char *, int) = 0;
+  virtual NABoolean insertTimestamp(char *, int) = 0;
 
   virtual NABoolean lookup(Int32 value) = 0;
   virtual NABoolean lookup(UInt32 value) = 0;
-  virtual NABoolean lookup(Int64 value) = 0;
-  virtual NABoolean lookup(char *, Lng32) = 0;
-  virtual NABoolean lookup(wchar_t *, Lng32) = 0;
-  virtual NABoolean lookupDate(char *, Lng32) = 0;
-  virtual NABoolean lookupTime(char *, Lng32) = 0;
-  virtual NABoolean lookupTimestamp(char *, Lng32) = 0;
+  virtual NABoolean lookup(long value) = 0;
+  virtual NABoolean lookup(char *, int) = 0;
+  virtual NABoolean lookup(wchar_t *, int) = 0;
+  virtual NABoolean lookupDate(char *, int) = 0;
+  virtual NABoolean lookupTime(char *, int) = 0;
+  virtual NABoolean lookupTimestamp(char *, int) = 0;
 
   virtual RangeOfValues &remove(Int32 value) { return *this; };
 
@@ -364,21 +364,21 @@ class ClusteredBitmapForIntegers : public RangeOfValues {
 
   NABoolean insert(Int32 value);
   NABoolean insert(UInt32 value);
-  NABoolean insert(Int64 value) { return TRUE; };
-  NABoolean insert(char *, Lng32) { return TRUE; };
-  NABoolean insert(wchar_t *, Lng32) { return TRUE; };
-  NABoolean insertDate(char *, Lng32) { return TRUE; };
-  NABoolean insertTime(char *, Lng32) { return TRUE; };
-  NABoolean insertTimestamp(char *, Lng32) { return TRUE; };
+  NABoolean insert(long value) { return TRUE; };
+  NABoolean insert(char *, int) { return TRUE; };
+  NABoolean insert(wchar_t *, int) { return TRUE; };
+  NABoolean insertDate(char *, int) { return TRUE; };
+  NABoolean insertTime(char *, int) { return TRUE; };
+  NABoolean insertTimestamp(char *, int) { return TRUE; };
 
   NABoolean lookup(Int32 value) { return FALSE; };
   NABoolean lookup(UInt32 value) { return FALSE; };
-  NABoolean lookup(Int64 value) { return FALSE; };
-  NABoolean lookup(char *, Lng32) { return FALSE; };
-  NABoolean lookup(wchar_t *, Lng32) { return FALSE; };
-  NABoolean lookupDate(char *, Lng32) { return FALSE; };
-  NABoolean lookupTime(char *, Lng32) { return FALSE; };
-  NABoolean lookupTimestamp(char *, Lng32) { return FALSE; };
+  NABoolean lookup(long value) { return FALSE; };
+  NABoolean lookup(char *, int) { return FALSE; };
+  NABoolean lookup(wchar_t *, int) { return FALSE; };
+  NABoolean lookupDate(char *, int) { return FALSE; };
+  NABoolean lookupTime(char *, int) { return FALSE; };
+  NABoolean lookupTimestamp(char *, int) { return FALSE; };
 
   RangeOfValues &remove(Int32 value);
 
@@ -422,21 +422,21 @@ class RangeSpecRT : public RangeOfValues {
 
   NABoolean insert(Int32 value);
   NABoolean insert(UInt32 value);
-  NABoolean insert(Int64 value);
-  NABoolean insert(char *, Lng32);
-  NABoolean insert(wchar_t *, Lng32);
-  NABoolean insertDate(char *, Lng32);
-  NABoolean insertTime(char *, Lng32);
-  NABoolean insertTimestamp(char *, Lng32);
+  NABoolean insert(long value);
+  NABoolean insert(char *, int);
+  NABoolean insert(wchar_t *, int);
+  NABoolean insertDate(char *, int);
+  NABoolean insertTime(char *, int);
+  NABoolean insertTimestamp(char *, int);
 
   NABoolean lookup(Int32 value);
   NABoolean lookup(UInt32 value);
-  NABoolean lookup(Int64 value);
-  NABoolean lookup(char *, Lng32);
-  NABoolean lookup(wchar_t *, Lng32);
-  NABoolean lookupDate(char *, Lng32);
-  NABoolean lookupTime(char *, Lng32);
-  NABoolean lookupTimestamp(char *, Lng32);
+  NABoolean lookup(long value);
+  NABoolean lookup(char *, int);
+  NABoolean lookup(wchar_t *, int);
+  NABoolean lookupDate(char *, int);
+  NABoolean lookupTime(char *, int);
+  NABoolean lookupTimestamp(char *, int);
 
   RangeOfValues &remove(Int32 value);
 
@@ -479,35 +479,35 @@ class BloomFilterRT : public RangeOfValues {
   // in big endian byte order.
   NABoolean insert(Int32 value);
   NABoolean insert(UInt32 value);
-  NABoolean insert(Int64 value);
-  NABoolean insert(wchar_t *, Lng32);
+  NABoolean insert(long value);
+  NABoolean insert(wchar_t *, int);
 
   // Compute the hash with the data
   // in the order supplied
-  NABoolean insert(char *, Lng32);
+  NABoolean insert(char *, int);
 
   // Compute the hash with the data
   // in the ASCII format
-  NABoolean insertDate(char *, Lng32);
-  NABoolean insertTime(char *, Lng32);
-  NABoolean insertTimestamp(char *, Lng32);
+  NABoolean insertDate(char *, int);
+  NABoolean insertTime(char *, int);
+  NABoolean insertTimestamp(char *, int);
 
   // Compute the hash with the data
   // in big endian byte order.
   NABoolean lookup(Int32 value);
   NABoolean lookup(UInt32 value);
-  NABoolean lookup(Int64 value);
-  NABoolean lookup(wchar_t *, Lng32);
+  NABoolean lookup(long value);
+  NABoolean lookup(wchar_t *, int);
 
   // Compute the hash with the data
   // in the order supplied
-  NABoolean lookup(char *, Lng32);
+  NABoolean lookup(char *, int);
 
   // Compute the hash with the data
   // in the ASCII format
-  NABoolean lookupDate(char *, Lng32);
-  NABoolean lookupTime(char *, Lng32);
-  NABoolean lookupTimestamp(char *, Lng32);
+  NABoolean lookupDate(char *, int);
+  NABoolean lookupTime(char *, int);
+  NABoolean lookupTimestamp(char *, int);
 
   UInt32 entries(NABoolean estimate = FALSE) { return rbf_.entries(estimate); };
 
@@ -529,7 +529,7 @@ class BloomFilterRT : public RangeOfValues {
 
   static UInt32 minPackedLength() { return RangeOfValues::minPackedLength() + RegularBloomFilter::minPackedLength(); }
 
-  static Lng32 computeMaxLength(UInt32 m, float p = FALSE_POSITIVE_PROBABILITY);
+  static int computeMaxLength(UInt32 m, float p = FALSE_POSITIVE_PROBABILITY);
 
  protected:
   RegularBloomFilter rbf_;
@@ -551,15 +551,15 @@ class NativeBloomFilterRT : public BloomFilterRT {
   // in big endian byte order.
   NABoolean insert(Int32 value);
   NABoolean insert(UInt32 value);
-  NABoolean insert(Int64 value);
-  NABoolean insert(wchar_t *, Lng32);
+  NABoolean insert(long value);
+  NABoolean insert(wchar_t *, int);
 
   // Compute the hash with the data
   // in big endian byte order.
   NABoolean lookup(Int32 value);
   NABoolean lookup(UInt32 value);
-  NABoolean lookup(Int64 value);
-  NABoolean lookup(wchar_t *, Lng32);
+  NABoolean lookup(long value);
+  NABoolean lookup(wchar_t *, int);
 
  private:
 };

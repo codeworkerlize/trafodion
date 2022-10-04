@@ -122,9 +122,9 @@ class Sort : public RelExpr {
 
   // Cascades-related functions
   virtual CostMethod *costMethod() const;
-  virtual Context *createContextForAChild(Context *myContext, PlanWorkSpace *pws, Lng32 &childindex);
+  virtual Context *createContextForAChild(Context *myContext, PlanWorkSpace *pws, int &childindex);
 
-  virtual PhysicalProperty *synthPhysicalProperty(const Context *myContext, const Lng32 planNumber, PlanWorkSpace *pws);
+  virtual PhysicalProperty *synthPhysicalProperty(const Context *myContext, const int planNumber, PlanWorkSpace *pws);
 
   void synthPartialSortKeyFromChild(const Context *);
   virtual void produceFinalSortKey();
@@ -144,11 +144,11 @@ class Sort : public RelExpr {
   inline ValueIdSet &getArrangedCols() { return arrangedCols_; }
 
   // The method gets refined since Sort may be a BMO depending on its inputs.
-  virtual NABoolean isBigMemoryOperator(const PlanWorkSpace *pws, const Lng32 planNumber);
+  virtual NABoolean isBigMemoryOperator(const PlanWorkSpace *pws, const int planNumber);
 
-  virtual CostScalar getEstimatedRunTimeMemoryUsage(Generator *generator, NABoolean perNode, Lng32 *numStreams = NULL);
+  virtual CostScalar getEstimatedRunTimeMemoryUsage(Generator *generator, NABoolean perNode, int *numStreams = NULL);
 
-  virtual PlanPriority computeOperatorPriority(const Context *context, PlanWorkSpace *pws = NULL, Lng32 planNumber = 0);
+  virtual PlanPriority computeOperatorPriority(const Context *context, PlanWorkSpace *pws = NULL, int planNumber = 0);
 
   inline void markAsHalloweenProtection() { forcedHalloweenProtection_ = TRUE; }
   inline void setCollectNFErrors(NABoolean cf = TRUE) { collectNFErrors_ = cf; }
@@ -196,7 +196,7 @@ class Sort : public RelExpr {
 
   short generateTdb(Generator *generator, ComTdb *child_tdb, ex_expr *sortKeyExpr, ex_expr *sortRecExpr,
                     ULng32 sortKeyLen, ULng32 sortRecLen, ULng32 sortPrefixKeyLen, ex_cri_desc *given_desc,
-                    ex_cri_desc *returned_desc, ex_cri_desc *work_cri_desc, Lng32 saveNumEsps,
+                    ex_cri_desc *returned_desc, ex_cri_desc *work_cri_desc, int saveNumEsps,
                     ExplainTuple *childExplainTuple, NABoolean resizeCifRecord, NABoolean considerBufferDefrag,
                     NABoolean operatorCIF = FALSE);
 
@@ -266,11 +266,11 @@ class pcgEspFragment {
 
     // invalidate DoP for my fragment and my child fragments
     void invalidate();
-    Lng32 getNewDop() { return newDoP_;}
+    int getNewDop() { return newDoP_;}
   */
 
   // adjust the dop
-  void adjustDoP(Lng32 newDop);
+  void adjustDoP(int newDop);
 
   // compute a desirable dop based on total data size
   // known processed (e.g., through run-time stats)
@@ -293,9 +293,9 @@ class pcgEspFragment {
 
   CostScalar totalRows_;  // total rows to be rocessed;
 
-  Lng32 newDoP_;  // new proposed dop for the fragment
+  int newDoP_;  // new proposed dop for the fragment
 
-  Lng32 commonDoP_;  // a common dop fro the 1st child esp with
+  int commonDoP_;  // a common dop fro the 1st child esp with
                      // non-broadcast parf func, for other
                      // non-broadcast child esps to match
 
@@ -447,9 +447,9 @@ class Exchange : public RelExpr {
 
   // Cascades-related functions
   virtual CostMethod *costMethod() const;
-  virtual Context *createContextForAChild(Context *myContext, PlanWorkSpace *pws, Lng32 &childIndex);
+  virtual Context *createContextForAChild(Context *myContext, PlanWorkSpace *pws, int &childIndex);
 
-  virtual PhysicalProperty *synthPhysicalProperty(const Context *context, const Lng32 planNumber, PlanWorkSpace *pws);
+  virtual PhysicalProperty *synthPhysicalProperty(const Context *context, const int planNumber, PlanWorkSpace *pws);
 
   // ---------------------------------------------------------------------
   // Methods used by the generator.
@@ -494,7 +494,7 @@ class Exchange : public RelExpr {
   inline NABoolean isOverReverseScan() { return isOverReverseScan_ == TRUE; }
   void setOverReverseScan() { isOverReverseScan_ = TRUE; }
 
-  virtual PlanPriority computeOperatorPriority(const Context *context, PlanWorkSpace *pws = NULL, Lng32 planNumber = 0);
+  virtual PlanPriority computeOperatorPriority(const Context *context, PlanWorkSpace *pws = NULL, int planNumber = 0);
 
   // for Hash2 or Hash1 pf functions, used in costing of probes
   NABoolean areProbesHashed(const ValueIdSet);
@@ -511,7 +511,7 @@ class Exchange : public RelExpr {
   inline void setBMOsMemoryUsage(CostScalar x) { BMOsMemoryUsage_ = x; }
   inline CostScalar getBMOsMemoryUsage() { return BMOsMemoryUsage_; }
 
-  virtual CostScalar getEstimatedRunTimeMemoryUsage(Generator *generator, NABoolean perNode, Lng32 *numStreams = NULL);
+  virtual CostScalar getEstimatedRunTimeMemoryUsage(Generator *generator, NABoolean perNode, int *numStreams = NULL);
   virtual double getEstimatedRunTimeMemoryUsage(Generator *generator, ComTdb *tdb);
 
   void setExtractProducerFlag() { isExtractProducer_ = TRUE; }

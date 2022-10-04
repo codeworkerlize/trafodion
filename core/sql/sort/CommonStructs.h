@@ -61,11 +61,11 @@
 //----------------------------------------------------------------------
 
 struct ScrBlockHeader {
-  Lng32 thisBlockNum_;
-  Lng32 nextBlockNum_;
-  Lng32 bytesUsed_;
-  Lng32 runNum_;
-  Lng32 numRecs_;
+  int thisBlockNum_;
+  int nextBlockNum_;
+  int bytesUsed_;
+  int runNum_;
+  int numRecs_;
 };
 
 //---------------------------------------------------------------------

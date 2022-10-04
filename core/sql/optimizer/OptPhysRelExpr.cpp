@@ -47,7 +47,7 @@
 #include "optimizer/PhyProp.h"
 #include "Cost.h"
 #include "optimizer/ControlDB.h"
-#include "CostMethod.h"
+#include "optimizer/CostMethod.h"
 #include "EstLogProp.h"
 #include "ScanOptimizer.h"
 #include "sqlcomp/DefaultConstants.h"
@@ -126,7 +126,7 @@ Context *RelExpr::createPlan(Context *myContext, PlanWorkSpace *pws, Rule *rule,
                                            limit_for_CPT * CURRSTMT_OPTDEFAULTS->level1SafetyNet()))
     return result;
 
-  Lng32 childIndex;
+  int childIndex;
   // check the cost limit if the context has a cost limit,
   // but don't check it if pruning has been disabled:
   NABoolean checkCostLimit = ((myContext->getCostLimit() != NULL) AND(myContext->isPruningEnabled()));
@@ -153,7 +153,7 @@ Context *RelExpr::createPlan(Context *myContext, PlanWorkSpace *pws, Rule *rule,
     // Check if the operator is a big memory operator. Cache result in
     // pws and in the plan.
     // -----------------------------------------------------------------
-    Lng32 planNumber = pws->getCountOfChildContexts() / (getArity() > 0 ? getArity() : 1);
+    int planNumber = pws->getCountOfChildContexts() / (getArity() > 0 ? getArity() : 1);
     if (isBigMemoryOperator(pws, planNumber)) {
       pws->setBigMemoryOperator(TRUE);
       myPlan->setBigMemoryOperator(TRUE);
@@ -190,7 +190,7 @@ Context *RelExpr::createPlan(Context *myContext, PlanWorkSpace *pws, Rule *rule,
     // -----------------------------------------------------------------
     // Now compute the operator cost.
     // -----------------------------------------------------------------
-    Lng32 countOfStreams;
+    int countOfStreams;
     Cost *operatorCost;
 
     if ((myContext->isPruningEnabled() AND checkCostLimit)OR(getArity() == 0) OR(getOperatorType() == REL_ROOT)) {
@@ -323,8 +323,8 @@ Context *RelExpr::createPlan(Context *myContext, PlanWorkSpace *pws, Rule *rule,
       myPlan->setRollUpCost(costBefore);
 
       RelExpr *op = myPlan->getPhysicalExpr();
-      Lng32 opArity = op->getArity();
-      for (Lng32 childIndex = 0; childIndex < opArity; childIndex++) {
+      int opArity = op->getArity();
+      for (int childIndex = 0; childIndex < opArity; childIndex++) {
         Context *childContext = pws->getChildContext(childIndex, pws->getLatestPlan());
         if (childContext) CURRCONTEXT_OPTDEBUG->showTree(NULL, childContext->getSolution(), "  *** ", TRUE);
       }
@@ -445,7 +445,7 @@ Context *RelExpr::createPlan(Context *myContext, PlanWorkSpace *pws, Rule *rule,
     // -----------------------------------------------------------------
     CascadesPlan *myPlan = myContext->getPlan();
     if (myPlan->getPhysicalProperty() == NULL) {
-      Lng32 planNumber = pws->getBestPlanSoFar();
+      int planNumber = pws->getBestPlanSoFar();
       myPlan->setPhysicalProperty(synthPhysicalProperty(myContext, planNumber, pws));
     }
 
@@ -518,7 +518,7 @@ NABoolean RelExpr::isParHeuristic4Feasible(Context *myContext, const ReqdPhysica
 // Therefore, perform the "easy" step first and come up with a
 // cost limit earlier.
 // -----------------------------------------------------------------------
-Context *RelExpr::createContextForAChild(Context *myContext, PlanWorkSpace *pws, Lng32 &childIndex) {
+Context *RelExpr::createContextForAChild(Context *myContext, PlanWorkSpace *pws, int &childIndex) {
   const ReqdPhysicalProperty *rppForMe = myContext->getReqdPhysicalProperty();
 
   // ---------------------------------------------------------------------
@@ -556,7 +556,7 @@ Context *RelExpr::createContextForAChild(Context *myContext, PlanWorkSpace *pws,
 
   if (NOT rg.checkFeasibility()) return NULL;
 
-  Lng32 planNumber = 0;
+  int planNumber = 0;
 
   // ---------------------------------------------------------------------
   // Compute the cost limit to be applied to the child.
@@ -674,7 +674,7 @@ NABoolean RelExpr::findOptimalSolution(Context *myContext, PlanWorkSpace *pws) {
   // ---------------------------------------------------------------------
 
   // Plan # is only an output param, initialize it to an impossible value.
-  Lng32 planNumber = -1;
+  int planNumber = -1;
   return pws->findOptimalSolution(planNumber);
 
 }  // RelExpr::findOptimalSolution()
@@ -688,7 +688,7 @@ NABoolean RelExpr::findOptimalSolution(Context *myContext, PlanWorkSpace *pws) {
 // This default implementation assumes all plans for this operator are
 // acceptable.
 // -----------------------------------------------------------------------
-NABoolean RelExpr::currentPlanIsAcceptable(Lng32 planNo, const ReqdPhysicalProperty *const rppForMe) const {
+NABoolean RelExpr::currentPlanIsAcceptable(int planNo, const ReqdPhysicalProperty *const rppForMe) const {
   return TRUE;
 
 }  // RelExpr::currentPlanIsAcceptable()
@@ -712,7 +712,7 @@ NABoolean RelExpr::currentPlanIsAcceptable(Lng32 planNo, const ReqdPhysicalPrope
 //  Pointer to this operator's synthesized physical properties.
 //
 //==============================================================================
-PhysicalProperty *RelExpr::synthPhysicalProperty(const Context *myContext, const Lng32 planNumber, PlanWorkSpace *pws) {
+PhysicalProperty *RelExpr::synthPhysicalProperty(const Context *myContext, const int planNumber, PlanWorkSpace *pws) {
   // ---------------------------------------------------------------------
   // By the time synthPhysicalProperty() is done, the plan whose spp is
   // to be synthesized is stored as currentPlan_ in myContext.
@@ -720,7 +720,7 @@ PhysicalProperty *RelExpr::synthPhysicalProperty(const Context *myContext, const
   CascadesPlan *plan = myContext->getPlan();
   CMPASSERT(plan != NULL);
 
-  Lng32 currentCountOfCPUs = 0;
+  int currentCountOfCPUs = 0;
 
   // ---------------------------------------------------------------------
   // Get the count of CPUs from child0, if it exists.
@@ -757,7 +757,7 @@ PhysicalProperty *RelExpr::synthPhysicalProperty(const Context *myContext, const
 //<pb>
 
 DefaultToken RelExpr::getParallelControlSettings(const ReqdPhysicalProperty *const rppForMe, /*IN*/
-                                                 Lng32 &numOfESPs,                           /*OUT*/
+                                                 int &numOfESPs,                           /*OUT*/
                                                  float &allowedDeviation,                    /*OUT*/
                                                  NABoolean &numOfESPsForced /*OUT*/) const {
   // This default implementation does not handle forcing the number
@@ -779,7 +779,7 @@ DefaultToken RelExpr::getParallelControlSettings(const ReqdPhysicalProperty *con
 
 NABoolean RelExpr::okToAttemptESPParallelism(const Context *myContext, /*IN*/
                                              PlanWorkSpace *pws,       /*IN*/
-                                             Lng32 &numOfESPs,         /*OUT*/
+                                             int &numOfESPs,         /*OUT*/
                                              float &allowedDeviation,  /*OUT*/
                                              NABoolean &numOfESPsForced /*OUT*/) {
   const ReqdPhysicalProperty *rppForMe = myContext->getReqdPhysicalProperty();
@@ -956,7 +956,7 @@ void RelExpr::replacePivs() {
   if (myPivs.entries() == 0) return;
 
   // Process all children.
-  for (Lng32 childIndex = 0; childIndex < getArity(); childIndex++) {
+  for (int childIndex = 0; childIndex < getArity(); childIndex++) {
     PhysicalProperty *sppOfChild = (PhysicalProperty *)(child(childIndex)->getPhysicalProperty());
 
     CMPASSERT(sppOfChild != NULL);
@@ -1031,7 +1031,7 @@ PartitioningFunction *RelExpr::mapPartitioningFunction(const PartitioningFunctio
 // -----------------------------------------------------------------------
 // member functions for class Sort
 // -----------------------------------------------------------------------
-NABoolean Sort::isBigMemoryOperator(const PlanWorkSpace *pws, const Lng32 planNumber) {
+NABoolean Sort::isBigMemoryOperator(const PlanWorkSpace *pws, const int planNumber) {
   const Context *context = pws->getContext();
 
   // Get addressability to the defaults table and extract default memory.
@@ -1049,10 +1049,10 @@ NABoolean Sort::isBigMemoryOperator(const PlanWorkSpace *pws, const Lng32 planNu
   // ---------------------------------------------------------------------
   const ReqdPhysicalProperty *rppForMe = context->getReqdPhysicalProperty();
   // Start off assuming that the sort will use all available CPUs.
-  Lng32 cpuCount = rppForMe->getCountOfAvailableCPUs();
+  int cpuCount = rppForMe->getCountOfAvailableCPUs();
   PartitioningRequirement *partReq = rppForMe->getPartitioningRequirement();
   const PhysicalProperty *spp = context->getPlan()->getPhysicalProperty();
-  Lng32 numOfStreams;
+  int numOfStreams;
 
   // If the physical properties are available, then this means we
   // are on the way back up the tree. Get the actual level of
@@ -1090,8 +1090,8 @@ NABoolean Sort::isBigMemoryOperator(const PlanWorkSpace *pws, const Lng32 planNu
   ValueIdSet sortKeyVis;
   sortKeyVis.insertList(sortKey_);
 
-  const Lng32 keyLength(sortKeyVis.getRowLength());
-  const Lng32 rowLength(keyLength + outputVis.getRowLength());
+  const int keyLength(sortKeyVis.getRowLength());
+  const int rowLength(keyLength + outputVis.getRowLength());
   // Executor`s  rowlength  includes size of tuple descriptor (12 bytes).
   // We need to consider this while determing whether the plan is BMO or NOT,
   // otherwise optimizer thinks some queries as non-BMO but the executor
@@ -1145,11 +1145,11 @@ CostMethod *Sort::costMethod() const {
 // sort key. Right now, we always perform a full sort in the sort node
 // without making use of partial orders of the child.
 // -----------------------------------------------------------------------
-Context *Sort::createContextForAChild(Context *myContext, PlanWorkSpace *pws, Lng32 &childIndex) {
+Context *Sort::createContextForAChild(Context *myContext, PlanWorkSpace *pws, int &childIndex) {
   childIndex = 0;
 
   const ReqdPhysicalProperty *rppForMe = myContext->getReqdPhysicalProperty();
-  Lng32 childNumPartsRequirement = ANY_NUMBER_OF_PARTITIONS;
+  int childNumPartsRequirement = ANY_NUMBER_OF_PARTITIONS;
   float childNumPartsAllowedDeviation = 0.0;
   NABoolean numOfESPsForced = FALSE;
 
@@ -1225,7 +1225,7 @@ Context *Sort::createContextForAChild(Context *myContext, PlanWorkSpace *pws, Ln
 //  Pointer to this operator's synthesized physical properties.
 //
 //==============================================================================
-PhysicalProperty *Sort::synthPhysicalProperty(const Context *myContext, const Lng32 planNumber, PlanWorkSpace *pws) {
+PhysicalProperty *Sort::synthPhysicalProperty(const Context *myContext, const int planNumber, PlanWorkSpace *pws) {
   // ---------------------------------------------------------------------
   // Call the default implementation (RelExpr::synthPhysicalProperty())
   // to synthesize the properties on the number of cpus.
@@ -1553,7 +1553,7 @@ CostMethod *Exchange::costMethod() const {
 //    ESP Exchange or REPARTITION in EXPLAIN.
 //
 // -----------------------------------------------------------------------
-Context *Exchange::createContextForAChild(Context *myContext, PlanWorkSpace *pws, Lng32 &childIndex) {
+Context *Exchange::createContextForAChild(Context *myContext, PlanWorkSpace *pws, int &childIndex) {
   // ---------------------------------------------------------------------
   // An enforcer rule MUST be given a required physical property to enforce.
   // Compute the number of plans that will be created for this Exchange.
@@ -1584,7 +1584,7 @@ Context *Exchange::createContextForAChild(Context *myContext, PlanWorkSpace *pws
   // ---------------------------------------------------------------------
   // Allocate local variables.
   // ---------------------------------------------------------------------
-  Lng32 planNumber = pws->getCountOfChildContexts();
+  int planNumber = pws->getCountOfChildContexts();
   PlanExecutionEnum plenum;
   ReqdPhysicalProperty *rppForChild = NULL;
   Context *result = NULL;
@@ -1796,7 +1796,7 @@ ReqdPhysicalProperty *Exchange::processCQS(const ReqdPhysicalProperty *rppForMe,
       ExchangeForceWildCard *mm = (ExchangeForceWildCard *)rppForMe->getMustMatch();
       ExchangeForceWildCard::forcedExchEnum whichType = mm->getWhich();
       ExchangeForceWildCard::forcedLogPartEnum logPart = mm->getWhichLogPart();
-      Lng32 numClients = mm->getHowMany();
+      int numClients = mm->getHowMany();
 
       // translate invalid numClients into literal
       if (numClients <= 0) numClients = ANY_NUMBER_OF_PARTITIONS;
@@ -1806,7 +1806,7 @@ ReqdPhysicalProperty *Exchange::processCQS(const ReqdPhysicalProperty *rppForMe,
         if (whichType == ExchangeForceWildCard::FORCED_ESP_EXCHANGE) return NULL;
 
         LogPhysPartitioningFunction::logPartType logPartType = LogPhysPartitioningFunction::ANY_LOGICAL_PARTITIONING;
-        Lng32 numClients = mm->getHowMany();
+        int numClients = mm->getHowMany();
         NABoolean mustUsePapa = FALSE;
         NABoolean numberOfPAsForced = FALSE;
 
@@ -2020,7 +2020,7 @@ void Exchange::storePhysPropertiesInNode(const ValueIdList &partialSortKey) {
 //  Pointer to this operator's synthesized physical properties.
 //
 //==============================================================================
-PhysicalProperty *Exchange::synthPhysicalProperty(const Context *myContext, const Lng32 planNumber,
+PhysicalProperty *Exchange::synthPhysicalProperty(const Context *myContext, const int planNumber,
                                                   PlanWorkSpace *pws) {
   const PhysicalProperty *sppOfChild = myContext->getPhysicalPropertyOfSolutionForChild(0);
 
@@ -2087,7 +2087,7 @@ PhysicalProperty *Exchange::synthPhysicalPropertyDP2(const Context *myContext) {
     } else {
       const NodeMap *childNodeMap = logPhysChildPartFunc->getPhysPartitioningFunction()->getNodeMap();
 
-      Lng32 myPartitionCount = myPartFunc->getCountOfPartitions();
+      int myPartitionCount = myPartFunc->getCountOfPartitions();
       myNodeMap = ((NodeMap *)(childNodeMap))->synthesizeLogicalMap(myPartitionCount, FALSE /*forDP2*/);
 
       if (myPartFunc->castToReplicateNoBroadcastPartitioningFunction()) {
@@ -2288,7 +2288,7 @@ PhysicalProperty *Exchange::synthPhysicalPropertyESP(const Context *myContext) {
     if (!(myPartReq->isRequirementFullySpecified() && (CmpCommon::getDefault(COMP_BOOL_87) != DF_ON) &&
           myPartFunc->getNodeMap() &&
           (myPartFunc->getNodeMap()->getNumEntries() == (ULng32)myPartFunc->getCountOfPartitions()))) {
-      Lng32 myPartitionCount = myPartFunc->getCountOfPartitions();
+      int myPartitionCount = myPartFunc->getCountOfPartitions();
 
       const NodeMap *childNodeMap = childPartFunc->getNodeMap();
 
@@ -2490,8 +2490,8 @@ PhysicalProperty *Exchange::synthPhysicalPropertyFinalize(const Context *myConte
   // -----------------------------------------------------------------------
   NADefaults &defs = ActiveSchemaDB()->getDefaults();
 
-  Lng32 smpVal = defs.getAsLong(DEF_NUM_SMP_CPUS);
-  Lng32 nodeVal = CmpCommon::context()->getNumOfSMPs();
+  int smpVal = defs.getAsLong(DEF_NUM_SMP_CPUS);
+  int nodeVal = CmpCommon::context()->getNumOfSMPs();
 
   if (CURRSTMT_OPTDEFAULTS->isFakeHardware()) {
     nodeVal = defs.getAsLong(DEF_NUM_NODES_IN_ACTIVE_CLUSTERS);
@@ -2499,7 +2499,7 @@ PhysicalProperty *Exchange::synthPhysicalPropertyFinalize(const Context *myConte
 
   const CostScalar totalCPUsInCluster = MAXOF((smpVal * nodeVal), 1.);
 
-  sppForMe->setCurrentCountOfCPUs((Lng32)totalCPUsInCluster.getValue());
+  sppForMe->setCurrentCountOfCPUs((int)totalCPUsInCluster.getValue());
 
   // transfer the onePartitionAccess flag to my physical property.
   // We check the flag in HashJoin::computeOperatorPriority().
@@ -2545,11 +2545,11 @@ JoinForceWildCard::forcedPlanEnum Join::getParallelJoinPlanToEnforce(const ReqdP
 }  // Join::getParallelJoinPlanToEnforce()
 
 DefaultToken Join::getParallelControlSettings(const ReqdPhysicalProperty *const rppForMe, /*IN*/
-                                              Lng32 &numOfESPs,                           /*OUT*/
+                                              int &numOfESPs,                           /*OUT*/
                                               float &allowedDeviation,                    /*OUT*/
                                               NABoolean &numOfESPsForced /*OUT*/) const {
   DefaultToken result;
-  Lng32 forcedNumOfESPs = ANY_NUMBER_OF_PARTITIONS;
+  int forcedNumOfESPs = ANY_NUMBER_OF_PARTITIONS;
 
   // Check for the number of ESPs being forced.
   if (rppForMe->getMustMatch()) {
@@ -2704,7 +2704,7 @@ NABoolean NestedJoin::genLeftChildPartReq(Context *myContext,                   
 {
   const ReqdPhysicalProperty *rppForMe = myContext->getReqdPhysicalProperty();
   PartitioningRequirement *partReqForMe = rppForMe->getPartitioningRequirement();
-  Lng32 childNumPartsRequirement = ANY_NUMBER_OF_PARTITIONS;
+  int childNumPartsRequirement = ANY_NUMBER_OF_PARTITIONS;
   float childNumPartsAllowedDeviation = 0.0;
   NABoolean numOfESPsForced = FALSE;
   NABoolean createPartReqForChild = TRUE;
@@ -2725,13 +2725,13 @@ NABoolean NestedJoin::genLeftChildPartReq(Context *myContext,                   
   if (adjustPFForTrafBulkLoadPrep) {
     baseNumPartsOnAP = TRUE;
   }
-  Lng32 numActivePartitions = 1;
+  int numActivePartitions = 1;
   if (baseNumPartsOnAP) {
     if ((physicalPartFunc == NULL) OR(physicalPartFunc->castToRangePartitioningFunction() == NULL))
       baseNumPartsOnAP = FALSE;
     else {
       CostScalar activePartitions = ((NodeMap *)(physicalPartFunc->getNodeMap()))->getNumActivePartitions();
-      numActivePartitions = (Lng32)activePartitions.getValue();
+      numActivePartitions = (int)activePartitions.getValue();
     }
   }
 
@@ -2850,7 +2850,7 @@ NABoolean NestedJoin::genLeftChildPartReq(Context *myContext,                   
     PartitioningFunction *cpf = physicalPartFunc->copy();
     // If we haven't estimated the active parts yet, all parts will be active.
     // So, both grouping distribution algorithms are the same in this case.
-    Lng32 scaleNumPartReq = childNumPartsRequirement;
+    int scaleNumPartReq = childNumPartsRequirement;
     cpf = cpf->scaleNumberOfPartitions(scaleNumPartReq);
     // Was scale able to do it's job?
     if ((NOT cpf->isAGroupingOf(*physicalPartFunc)) && (scaleNumPartReq != childNumPartsRequirement))  // No
@@ -3453,7 +3453,7 @@ NABoolean NestedJoin::checkCompleteSortOrder(const PhysicalProperty *sppForChild
 }
 
 //<pb>
-Context *NestedJoin::createContextForAChild(Context *myContext, PlanWorkSpace *pws, Lng32 &childIndex) {
+Context *NestedJoin::createContextForAChild(Context *myContext, PlanWorkSpace *pws, int &childIndex) {
   // ---------------------------------------------------------------------
   // For a nested join we try up to 5 child plans, named plan 0 ... plan 4
   // (10 contexts, 5 for each child). Here is a short summary of those
@@ -3588,7 +3588,7 @@ Context *NestedJoin::createContextForAChild(Context *myContext, PlanWorkSpace *p
   // If this is the first time we invoke this method for a CreatePlanTask,
   // initialize some values and store them in our custom plan work space
   if (njPws->isEmpty()) {
-    Lng32 childPlansToConsider = 4;  // means plan 0 and plan 1 for this join
+    int childPlansToConsider = 4;  // means plan 0 and plan 1 for this join
     NABoolean OCBJoinIsConsidered = FALSE;
     NABoolean OCRJoinIsConsidered = FALSE;
 
@@ -3673,7 +3673,7 @@ Context *NestedJoin::createContextForAChild(Context *myContext, PlanWorkSpace *p
       childPlansToConsider = 10;
     }
 
-    Lng32 childNumPartsRequirement = ANY_NUMBER_OF_PARTITIONS;
+    int childNumPartsRequirement = ANY_NUMBER_OF_PARTITIONS;
     float childNumPartsAllowedDeviation = 0.0;
     NABoolean numOfESPsForced = FALSE;
 
@@ -3715,7 +3715,7 @@ Context *NestedJoin::createContextForAChild(Context *myContext, PlanWorkSpace *p
   if (njPws->getCountOfChildContexts() == njPws->getChildPlansToConsider()) return NULL;
 
   Context *result = NULL;
-  Lng32 planNumber = 0;
+  int planNumber = 0;
   Context *childContext = NULL;
   PartitioningRequirement *partReqForMe = rppForMe->getPartitioningRequirement();
   const ReqdPhysicalProperty *rppForChild = NULL;
@@ -4125,7 +4125,7 @@ Context *NestedJoin::createContextForAChild(Context *myContext, PlanWorkSpace *p
           // because both are superset of OCR (i.e., push the part func and
           // sort order from the right side to the left).
           if (OCRJoinIsConsideredInCase2) {
-            Lng32 childNumPartsRequirement = njPws->getChildNumPartsRequirement();
+            int childNumPartsRequirement = njPws->getChildNumPartsRequirement();
             PartitioningRequirement *partReqForChild = NULL;
 
             const NATable *naTable = getNATableForRightChild();
@@ -4148,7 +4148,7 @@ Context *NestedJoin::createContextForAChild(Context *myContext, PlanWorkSpace *p
 
               // Set deviation to 1 to allow partitions from 1 to dop
               float deviation = 1;
-              Lng32 dop = rppForMe->getCountOfPipelines();
+              int dop = rppForMe->getCountOfPipelines();
               partReqForChild =
                   new (CmpCommon::statementHeap()) RequireApproximatelyNPartitions(partKey, deviation, dop);
 
@@ -4196,7 +4196,7 @@ Context *NestedJoin::createContextForAChild(Context *myContext, PlanWorkSpace *p
                 // because we want to deal with both the ESP and DP2 skew, Probe
                 // cache can deal with DP2 skew, but not the ESP skew.
                 if (childNodeContainSkew(0, joinPreds, threshold, &skList)) {
-                  Lng32 cop = rightPartFunc->getCountOfPartitions();
+                  int cop = rightPartFunc->getCountOfPartitions();
 
                   antiskewSkewEsps = MINOF(cop, antiskewSkewEsps);
 
@@ -4403,7 +4403,7 @@ Context *NestedJoin::createContextForAChild(Context *myContext, PlanWorkSpace *p
           {
             NABoolean numOfESPsForced = FALSE;
 
-            Lng32 childNumPartsRequirement = ANY_NUMBER_OF_PARTITIONS;
+            int childNumPartsRequirement = ANY_NUMBER_OF_PARTITIONS;
             float childNumPartsAllowedDeviation = 0.0;
             DefaultToken parallelControlSettings = getParallelControlSettings(
                 rppForMe, childNumPartsRequirement, childNumPartsAllowedDeviation, numOfESPsForced);
@@ -4937,7 +4937,7 @@ Context *NestedJoin::createContextForAChild(Context *myContext, PlanWorkSpace *p
 NABoolean NestedJoin::findOptimalSolution(Context *myContext, PlanWorkSpace *pws) {
   NABoolean hasOptSol;
   // Plan # is only an output param, initialize it to an impossible value.
-  Lng32 planNumber = -1;
+  int planNumber = -1;
 
   hasOptSol = pws->findOptimalSolution(planNumber);
 
@@ -4953,7 +4953,7 @@ NABoolean NestedJoin::findOptimalSolution(Context *myContext, PlanWorkSpace *pws
 
 }  // NestedJoin::findOptimalSolution()
 
-NABoolean NestedJoin::currentPlanIsAcceptable(Lng32 planNo, const ReqdPhysicalProperty *const rppForMe) const {
+NABoolean NestedJoin::currentPlanIsAcceptable(int planNo, const ReqdPhysicalProperty *const rppForMe) const {
   // ---------------------------------------------------------------------
   // Check whether the user wants to enforce a particular plan type.
   // ---------------------------------------------------------------------
@@ -5081,7 +5081,7 @@ NABoolean NestedJoin::OCBJoinIsFeasible(const Context *myContext) const {
     }
 
     PartitioningFunction *rightPartFunc = NULL;
-    Lng32 numOfESPs = rppForMe->getCountOfPipelines();
+    int numOfESPs = rppForMe->getCountOfPipelines();
 
     const NATable *naTable = getNATableForRightChild();
     // OCB into hive tables is not allowed because NJ into hive is
@@ -5095,7 +5095,7 @@ NABoolean NestedJoin::OCBJoinIsFeasible(const Context *myContext) const {
       rightPartFunc = availIndexes[i]->getPartitioningFunction();
 
       if (rightPartFunc) {
-        Lng32 numOfparts = rightPartFunc->getCountOfPartitions();
+        int numOfparts = rightPartFunc->getCountOfPartitions();
 
         if (numOfparts < numOfESPs) {
           // don't use OCB if the number of partition of inner child
@@ -5210,7 +5210,7 @@ NABoolean NestedJoin::OCRJoinIsFeasible(const Context *myContext) const {
   // IF N2Js, which demand opens, are not to be disabled, make sure
   // OCR is allowed only if the threshold of #opens is reached.
   if (CmpCommon::getDefault(NESTED_JOINS_NO_NSQUARE_OPENS) != DF_ON) {
-    Lng32 threshold = ActiveSchemaDB()->getDefaults().getAsLong(NESTED_JOINS_OCR_MAXOPEN_THRESHOLD);
+    int threshold = ActiveSchemaDB()->getDefaults().getAsLong(NESTED_JOINS_OCR_MAXOPEN_THRESHOLD);
 
     // the threshold is -1, do not do OCR.
     if (threshold == -1) return FALSE;
@@ -5220,7 +5220,7 @@ NABoolean NestedJoin::OCRJoinIsFeasible(const Context *myContext) const {
       return FALSE;
   }
 
-  Lng32 antiskewSkewEsps = ActiveSchemaDB()->getDefaults().getAsLong(NESTED_JOINS_ANTISKEW_ESPS);
+  int antiskewSkewEsps = ActiveSchemaDB()->getDefaults().getAsLong(NESTED_JOINS_ANTISKEW_ESPS);
 
   if (antiskewSkewEsps > 0) return TRUE;  // the skew busting for OCR is enabled. No more check.
 
@@ -5302,7 +5302,7 @@ NABoolean NestedJoin::JoinPredicateCoversChild1PartKey(const ValueIdSet &child1P
 
 NABoolean NestedJoin::okToAttemptESPParallelism(const Context *myContext, /*IN*/
                                                 PlanWorkSpace *,          /*IN, ignored*/
-                                                Lng32 &numOfESPs,         /*OUT*/
+                                                int &numOfESPs,         /*OUT*/
                                                 float &allowedDeviation,  /*OUT*/
                                                 NABoolean &numOfESPsForced /*OUT*/) {
   const ReqdPhysicalProperty *rppForMe = myContext->getReqdPhysicalProperty();
@@ -5415,17 +5415,17 @@ NABoolean NestedJoin::okToAttemptESPParallelism(const Context *myContext, /*IN*/
         // to work on this
         double sizePerESP = CURRSTMT_OPTDEFAULTS->updatedBytesPerESP();
         double numOfESPsDbl = ceil(child0TableSize.value() / sizePerESP);
-        Lng32 countOfPipelines = rppForMe->getCountOfPipelines();
+        int countOfPipelines = rppForMe->getCountOfPipelines();
 
         // require no more ESPs than there are pipelines in the system,
         if (numOfESPsDbl > countOfPipelines)
           numOfESPs = countOfPipelines;
         else
-          numOfESPs = (Lng32)numOfESPsDbl;
+          numOfESPs = (int)numOfESPsDbl;
 
         // don't ask for more ESPs than there are updated partitions,
         // the ESPs must be a grouping of that partitioning scheme
-        Lng32 countOfPartitions = updPartFunc->getCountOfPartitions();
+        int countOfPartitions = updPartFunc->getCountOfPartitions();
         if (numOfESPs > countOfPartitions) numOfESPs = countOfPartitions;
 
         // This in an adjustment to allow control of parallelism by CQDs
@@ -5443,15 +5443,15 @@ NABoolean NestedJoin::okToAttemptESPParallelism(const Context *myContext, /*IN*/
           const CostScalar numberOfRowsThreshold = CURRSTMT_OPTDEFAULTS->numberOfRowsParallelThreshold();
 
           if (rowCount > numberOfRowsThreshold) {
-            Lng32 optimalNumOfESPs = MINOF(countOfPipelines, (Lng32)(rowCount / numberOfRowsThreshold).value());
+            int optimalNumOfESPs = MINOF(countOfPipelines, (int)(rowCount / numberOfRowsThreshold).value());
 
             // make numOfESPs as available level of parallelism
             // 16*N, 8*N, 4*N,..., N,1 where N is the number of segments
-            Lng32 i = CURRSTMT_OPTDEFAULTS->getMaximumDegreeOfParallelism();
+            int i = CURRSTMT_OPTDEFAULTS->getMaximumDegreeOfParallelism();
             if (numOfESPs > i) {
               numOfESPs = i;
             } else {
-              Lng32 MinParallelism =
+              int MinParallelism =
                   MAXOF(MAXOF(CURRSTMT_OPTDEFAULTS->getMinimumESPParallelism(), optimalNumOfESPs), numOfESPs);
 
               while (i > MinParallelism) i /= 2;
@@ -5535,7 +5535,7 @@ NABoolean NestedJoin::okToAttemptESPParallelism(const Context *myContext, /*IN*/
 //  Pointer to this operator's synthesized physical properties.
 //
 //==============================================================================
-PhysicalProperty *NestedJoin::synthPhysicalProperty(const Context *myContext, const Lng32 planNumber,
+PhysicalProperty *NestedJoin::synthPhysicalProperty(const Context *myContext, const int planNumber,
                                                     PlanWorkSpace *pws) {
   const PhysicalProperty *const sppOfLeftChild = myContext->getPhysicalPropertyOfSolutionForChild(0);
   const PhysicalProperty *const sppOfRightChild = myContext->getPhysicalPropertyOfSolutionForChild(1);
@@ -5681,7 +5681,7 @@ PhysicalProperty *NestedJoin::synthPhysicalProperty(const Context *myContext, co
     const ValueIdList &rightSortKey = sppOfRightChild->getSortKey();
 
     if (!isLeftJoin()) {
-      for (Lng32 i = 0; i < (Lng32)rightSortKey.entries(); i++) newSortKey.insert(rightSortKey[i]);
+      for (int i = 0; i < (int)rightSortKey.entries(); i++) newSortKey.insert(rightSortKey[i]);
     }
     //++MV
     else {
@@ -5691,7 +5691,7 @@ PhysicalProperty *NestedJoin::synthPhysicalProperty(const Context *myContext, co
       ValueIdList newRightSortKey;
       ValueIdMap &map = rightChildMapForLeftJoin();
       map.mapValueIdListUp(newRightSortKey, rightSortKey);
-      for (Lng32 i = 0; i < (Lng32)newRightSortKey.entries(); i++) newSortKey.insert(newRightSortKey[i]);
+      for (int i = 0; i < (int)newRightSortKey.entries(); i++) newSortKey.insert(newRightSortKey[i]);
     }
     //--MV
 
@@ -5855,7 +5855,7 @@ NABoolean MergeJoin::parentAndChildPartReqsCompatible(const ReqdPhysicalProperty
   // If there are any parent partitioning requirements, then check them.
   if (partReq != NULL) {
     ValueIdSet reqPartKey = partReq->getPartitioningKey();
-    Lng32 reqPartCount = partReq->getCountOfPartitions();
+    int reqPartCount = partReq->getCountOfPartitions();
     ValueIdSet joinLeftPartKey(getEquiJoinExprFromChild0());
     ValueIdSet joinRightPartKey(getEquiJoinExprFromChild1());
 
@@ -5910,14 +5910,14 @@ void MergeJoin::generateSortOrders(const ValueIdList &ordering, /* input */
                                    NABoolean &completelyCovered /* output */
 ) const {
   NABoolean done = FALSE;
-  Lng32 i = 0;
+  int i = 0;
 
   ValueId predId, referencedValId;
   ValueId leftOrderValId, rightOrderValId;
   NABoolean isOrderPreserving;
   OrderComparison order1, order2;
 
-  while (!done && i < (Lng32)ordering.entries()) {
+  while (!done && i < (int)ordering.entries()) {
     // Get the value id for the simplified form of the ordering expression.
     referencedValId = ordering[i].getItemExpr()->simplifyOrderExpr(&order1)->getValueId();
 
@@ -5949,7 +5949,7 @@ void MergeJoin::generateSortOrders(const ValueIdList &ordering, /* input */
 
         ValueIdSet mjPredAsVidSet(predId);
 
-        for (Lng32 childIdx = 0; childIdx < predExpr->getArity(); childIdx++) {
+        for (int childIdx = 0; childIdx < predExpr->getArity(); childIdx++) {
           mjPredAsVidSet.insert(predExpr->child(childIdx)->castToItemExpr()->getValueId());
         }
 
@@ -6005,7 +6005,7 @@ void MergeJoin::generateSortOrders(const ValueIdList &ordering, /* input */
   }
 
   // Were all columns of the provided order covered by join predicates?
-  if (i == (Lng32)ordering.entries())
+  if (i == (int)ordering.entries())
     completelyCovered = TRUE;
   else
     completelyCovered = FALSE;
@@ -6190,7 +6190,7 @@ CostMethod *MergeJoin::costMethod() const {
 }  // MergeJoin::costMethod()
 
 //<pb>
-Context *MergeJoin::createContextForAChild(Context *myContext, PlanWorkSpace *pws, Lng32 &childIndex) {
+Context *MergeJoin::createContextForAChild(Context *myContext, PlanWorkSpace *pws, int &childIndex) {
   // ---------------------------------------------------------------------
   // Merge Join generates at most 2 context pairs. The first is
   // either a non-parallel plan or a matching partitions parallel plan,
@@ -6215,12 +6215,12 @@ Context *MergeJoin::createContextForAChild(Context *myContext, PlanWorkSpace *pw
   // ---------------------------------------------------------------------
 
   Context *result = NULL;
-  Lng32 planNumber;
+  int planNumber;
   Context *childContext = NULL;
   const ReqdPhysicalProperty *rppForMe = myContext->getReqdPhysicalProperty();
   PartitioningRequirement *partReqForMe = rppForMe->getPartitioningRequirement();
   const ReqdPhysicalProperty *rppForChild = NULL;
-  Lng32 childNumPartsRequirement = ANY_NUMBER_OF_PARTITIONS;
+  int childNumPartsRequirement = ANY_NUMBER_OF_PARTITIONS;
   float childNumPartsAllowedDeviation = 0.0;
   NABoolean numOfESPsForced = FALSE;
 
@@ -6239,7 +6239,7 @@ Context *MergeJoin::createContextForAChild(Context *myContext, PlanWorkSpace *pw
   // ---------------------------------------------------------------------
   // Compute the number of child plans to consider.
   // ---------------------------------------------------------------------
-  Lng32 childPlansToConsider = 4;
+  int childPlansToConsider = 4;
   CollIndex numJoinCols = getEquiJoinExprFromChild0().entries();
   NABoolean mustTryBothChildrenFirst = TRUE;
 
@@ -6735,7 +6735,7 @@ Context *MergeJoin::createContextForAChild(Context *myContext, PlanWorkSpace *pw
 NABoolean MergeJoin::findOptimalSolution(Context *myContext, PlanWorkSpace *pws) {
   NABoolean hasOptSol;
   // Plan # is only an output param, initialize it to an impossible value.
-  Lng32 planNumber = -1;
+  int planNumber = -1;
 
   hasOptSol = pws->findOptimalSolution(planNumber);
 
@@ -6749,7 +6749,7 @@ NABoolean MergeJoin::findOptimalSolution(Context *myContext, PlanWorkSpace *pws)
 
 }  // MergeJoin::findOptimalSolution()
 
-NABoolean MergeJoin::currentPlanIsAcceptable(Lng32 planNo, const ReqdPhysicalProperty *const rppForMe) const {
+NABoolean MergeJoin::currentPlanIsAcceptable(int planNo, const ReqdPhysicalProperty *const rppForMe) const {
   // This is probably not the best place to check it. It should work
   // temporarily. We are trying to force potentially hanging plan
   // to fail. See solution 10-051219-3501.
@@ -6806,7 +6806,7 @@ NABoolean MergeJoin::currentPlanIsAcceptable(Lng32 planNo, const ReqdPhysicalPro
 //  Pointer to this operator's synthesized physical properties.
 //
 //==============================================================================
-PhysicalProperty *MergeJoin::synthPhysicalProperty(const Context *myContext, const Lng32 planNumber,
+PhysicalProperty *MergeJoin::synthPhysicalProperty(const Context *myContext, const int planNumber,
                                                    PlanWorkSpace *pws) {
   const PhysicalProperty *const sppOfLeftChild = myContext->getPhysicalPropertyOfSolutionForChild(0);
 
@@ -6900,12 +6900,12 @@ PartitioningFunction *HashJoin::mapPartitioningFunction(const PartitioningFuncti
   return newPartFunc;
 }  // end HashJoin::mapPartitioningFunction()
 
-NABoolean HashJoin::isBigMemoryOperator(const PlanWorkSpace *pws, const Lng32 planNumber) {
+NABoolean HashJoin::isBigMemoryOperator(const PlanWorkSpace *pws, const int planNumber) {
   double dummy;
   return isBigMemoryOperatorSetRatio(pws->getContext(), planNumber, dummy);
 }
 
-NABoolean HashJoin::isBigMemoryOperatorSetRatio(const Context *context, const Lng32 planNumber, double &ratio) {
+NABoolean HashJoin::isBigMemoryOperatorSetRatio(const Context *context, const int planNumber, double &ratio) {
   double memoryLimitPerCPU = CURRSTMT_OPTDEFAULTS->getMemoryLimitPerCPU();
 
   // ---------------------------------------------------------------------
@@ -6916,14 +6916,14 @@ NABoolean HashJoin::isBigMemoryOperatorSetRatio(const Context *context, const Ln
   // ---------------------------------------------------------------------
   const ReqdPhysicalProperty *rppForMe = context->getReqdPhysicalProperty();
   // Start off assuming that the operator will use all available CPUs.
-  Lng32 cpuCount = rppForMe->getCountOfAvailableCPUs();
+  int cpuCount = rppForMe->getCountOfAvailableCPUs();
   PartitioningRequirement *partReq = rppForMe->getPartitioningRequirement();
 
   // This check to ensure that a plan exists before calling getPhysProp <oa>
   PhysicalProperty *spp = NULL;
   if (context->getPlan()) spp = context->getPlan()->getPhysicalProperty();
 
-  Lng32 numOfStreams;
+  int numOfStreams;
 
   // If the physical properties are available, then this means we
   // are on the way back up the tree. Get the actual level of
@@ -6956,8 +6956,8 @@ NABoolean HashJoin::isBigMemoryOperatorSetRatio(const Context *context, const Ln
 
   const double rowsPerCpuPerProbe = MAXOF(1., (rowsPerCpu / probeCount));
 
-  const Lng32 innerRowLength = child(1).getGroupAttr()->getCharacteristicOutputs().getRowLength();
-  const Lng32 extInnerRowLength = innerRowLength + 8;
+  const int innerRowLength = child(1).getGroupAttr()->getCharacteristicOutputs().getRowLength();
+  const int extInnerRowLength = innerRowLength + 8;
   const double fileSizePerCpu = ((rowsPerCpuPerProbe * extInnerRowLength) / 1024.);
 
   if (spp != NULL && CmpCommon::getDefault(COMP_BOOL_51) == DF_ON) {
@@ -6994,7 +6994,7 @@ NABoolean HashJoin::isBigMemoryOperatorSetRatio(const Context *context, const Ln
 
 // <pb>
 
-NABoolean HashJoin::isSkewBusterFeasible(SkewedValueList **skList, Lng32 countOfPipelines,
+NABoolean HashJoin::isSkewBusterFeasible(SkewedValueList **skList, int countOfPipelines,
                                          ValueId &vidOfEquiPredWithSkew) {
   CMPASSERT(skList != NULL);
 
@@ -7086,7 +7086,7 @@ CostMethod *HashJoin::costMethod() const {
 // HashJoin::createContextForAChild() can create up to 3 sets of contexts for
 // its children.
 // -----------------------------------------------------------------------
-Context *HashJoin::createContextForAChild(Context *myContext, PlanWorkSpace *pws, Lng32 &childIndex) {
+Context *HashJoin::createContextForAChild(Context *myContext, PlanWorkSpace *pws, int &childIndex) {
   // ---------------------------------------------------------------------
   // Hash Join generates at most 3 context pairs. The first pair is
   // either a non-parallel plan or Type 2 parallel plan. The second
@@ -7105,21 +7105,21 @@ Context *HashJoin::createContextForAChild(Context *myContext, PlanWorkSpace *pws
   // ---------------------------------------------------------------------
 
   Context *result = NULL;
-  Lng32 planNumber = 0;
+  int planNumber = 0;
   Context *childContext = NULL;
   const ReqdPhysicalProperty *rppForMe = myContext->getReqdPhysicalProperty();
   const PartitioningRequirement *partReqForMe = rppForMe->getPartitioningRequirement();
   ReqdPhysicalProperty *rppForChild = NULL;
-  Lng32 childNumPartsRequirement = ANY_NUMBER_OF_PARTITIONS;
+  int childNumPartsRequirement = ANY_NUMBER_OF_PARTITIONS;
   float childNumPartsAllowedDeviation = 0.0;
   NABoolean numOfESPsForced = FALSE;
 
   // ---------------------------------------------------------------------
   // Compute the number of child plans to consider.
   // ---------------------------------------------------------------------
-  Lng32 childPlansToConsider = 6;
+  int childPlansToConsider = 6;
 
-  Lng32 baseTableThreshold = ActiveSchemaDB()->getDefaults().getAsLong(COMP_INT_19);
+  int baseTableThreshold = ActiveSchemaDB()->getDefaults().getAsLong(COMP_INT_19);
 
   // part of fix to genesis case 10-061222-1068, soln 10-061222-1347.
   // our goal here is to avoid arithmetic overflow in the computation
@@ -7813,7 +7813,7 @@ Context *HashJoin::createContextForAChild(Context *myContext, PlanWorkSpace *pws
 
 }  // HashJoin::createContextForAChild()
 
-NABoolean HashJoin::currentPlanIsAcceptable(Lng32 planNo, const ReqdPhysicalProperty *const rppForMe) const {
+NABoolean HashJoin::currentPlanIsAcceptable(int planNo, const ReqdPhysicalProperty *const rppForMe) const {
   // ---------------------------------------------------------------------
   // Check whether the user wants to enforce a particular plan type.
   // ---------------------------------------------------------------------
@@ -7855,7 +7855,7 @@ NABoolean HashJoin::currentPlanIsAcceptable(Lng32 planNo, const ReqdPhysicalProp
 
 NABoolean HashJoin::okToAttemptESPParallelism(const Context *myContext, /*IN*/
                                               PlanWorkSpace *pws,       /*IN*/
-                                              Lng32 &numOfESPs,         /*OUT*/
+                                              int &numOfESPs,         /*OUT*/
                                               float &allowedDeviation,  /*OUT*/
                                               NABoolean &numOfESPsForced /*OUT*/) {
   const ReqdPhysicalProperty *rppForMe = myContext->getReqdPhysicalProperty();
@@ -7964,8 +7964,8 @@ NABoolean HashJoin::okToAttemptESPParallelism(const Context *myContext, /*IN*/
     EstLogPropSharedPtr child1OutputLogProp = child(1).outputLogProp(inLogProp);
     const CostScalar child1RowCount = (child1OutputLogProp->getResultCardinality()).minCsOne();
 
-    const Lng32 child1RowLength = child(1).getGroupAttr()->getCharacteristicOutputs().getRowLength();
-    const Lng32 extChild1RowLength = child1RowLength + 8;
+    const int child1RowLength = child(1).getGroupAttr()->getCharacteristicOutputs().getRowLength();
+    const int extChild1RowLength = child1RowLength + 8;
     const CostScalar child1SizeInKB = ((child1RowCount * extChild1RowLength) / 1024.);
 
     const CostScalar numberOfRowsThreshold = CURRSTMT_OPTDEFAULTS->numberOfRowsParallelThreshold();
@@ -8082,7 +8082,7 @@ CostLimit *HashJoin::computeCostLimit(const Context *myContext, PlanWorkSpace *p
 //  Pointer to this operator's synthesized physical properties.
 //
 //==============================================================================
-PhysicalProperty *HashJoin::synthPhysicalProperty(const Context *myContext, const Lng32 planNumber,
+PhysicalProperty *HashJoin::synthPhysicalProperty(const Context *myContext, const int planNumber,
                                                   PlanWorkSpace *pws) {
   if (isNoOverflow()) {
     CMPASSERT((getOperatorType() == REL_ORDERED_HASH_JOIN) OR(getOperatorType() == REL_ORDERED_HASH_SEMIJOIN) OR(
@@ -8189,7 +8189,7 @@ PhysicalProperty *HashJoin::synthPhysicalProperty(const Context *myContext, cons
     // then set the physical properties to have (left child order, right child order).
     if (canAppendRightColumns && childSortOrderTypesAreSame) {
       const ValueIdList &rightSortKey = sppOfRightChild->getSortKey();
-      for (Lng32 i = 0; i < (Lng32)rightSortKey.entries(); i++) newSortKey.insert(rightSortKey[i]);
+      for (int i = 0; i < (int)rightSortKey.entries(); i++) newSortKey.insert(rightSortKey[i]);
     }
 
     PartitioningFunction *newDP2SortOrderPartFunc = sppOfLeftChild->getDp2SortOrderPartFunc();
@@ -8536,7 +8536,7 @@ void MergeUnion::synthUnionSortKeyFromChild(const ValueIdList &childSortKey,  /*
 //   arrCols:       the arragement requirement on columns
 //   unionSortKey:  the union sort key to extend if necessary.
 //
-NABoolean MergeUnion::finalizeUnionSortKey(const ValueIdList &knownSortKey, Lng32 knownSide, const ValueIdSet &arrCols,
+NABoolean MergeUnion::finalizeUnionSortKey(const ValueIdList &knownSortKey, int knownSide, const ValueIdSet &arrCols,
                                            ValueIdList &unionSortKey) {
   // Before finalizing the sortKey, we shall remove any duplicate
   // entries that are already present in the unionSortKey
@@ -8620,7 +8620,7 @@ NABoolean MergeUnion::finalizeUnionSortKey(const ValueIdList &knownSortKey, Lng3
 }
 
 //<pb>
-Context *MergeUnion::createContextForAChild(Context *myContext, PlanWorkSpace *pws, Lng32 &childIndex) {
+Context *MergeUnion::createContextForAChild(Context *myContext, PlanWorkSpace *pws, int &childIndex) {
   // ---------------------------------------------------------------------
   //   Merge Union generates at most 2 context pairs. The first is
   // either a non-parallel plan or a matching partitions parallel plan,
@@ -8653,12 +8653,12 @@ Context *MergeUnion::createContextForAChild(Context *myContext, PlanWorkSpace *p
   // ---------------------------------------------------------------------
 
   Context *result = NULL;
-  Lng32 planNumber = 0;
+  int planNumber = 0;
   Context *childContext = NULL;
   const ReqdPhysicalProperty *rppForMe = myContext->getReqdPhysicalProperty();
   PartitioningRequirement *partReqForMe = rppForMe->getPartitioningRequirement();
   const ReqdPhysicalProperty *rppForChild = NULL;
-  Lng32 childNumPartsRequirement = ANY_NUMBER_OF_PARTITIONS;
+  int childNumPartsRequirement = ANY_NUMBER_OF_PARTITIONS;
   float childNumPartsAllowedDeviation = 0.0;
   NABoolean numOfESPsForced = FALSE;
 
@@ -8668,7 +8668,7 @@ Context *MergeUnion::createContextForAChild(Context *myContext, PlanWorkSpace *p
   // ---------------------------------------------------------------------
   // Compute the number of child plans to consider.
   // ---------------------------------------------------------------------
-  Lng32 childPlansToConsider = 4;
+  int childPlansToConsider = 4;
   NABoolean mustTryBothChildrenFirst = FALSE;
 
   // If there is a required arrangement of more than one column,
@@ -8836,7 +8836,7 @@ Context *MergeUnion::createContextForAChild(Context *myContext, PlanWorkSpace *p
             !(child(0).getGroupAttr()->getCharacteristicOutputs().contains(
                 leftPartFunc->getPartialPartitioningKey()))) {
           // Get the number of partitions from the left child.
-          Lng32 numOfPartitions = leftPartFunc->getCountOfPartitions();
+          int numOfPartitions = leftPartFunc->getCountOfPartitions();
           // Create a new requirement for the right child and require a
           // hash2 partitioning only (TRUE).
           partReqForRight =
@@ -9097,7 +9097,7 @@ Context *MergeUnion::createContextForAChild(Context *myContext, PlanWorkSpace *p
             !(child(1).getGroupAttr()->getCharacteristicOutputs().contains(
                 rightPartFunc->getPartialPartitioningKey()))) {
           // Get the number of partitions from the right child.
-          Lng32 numOfPartitions = rightPartFunc->getCountOfPartitions();
+          int numOfPartitions = rightPartFunc->getCountOfPartitions();
           // Create a new requirement for the left child and require a
           // hash2 partitioning only (TRUE).
           partReqForLeft = new (CmpCommon::statementHeap()) RequireApproximatelyNPartitions(0.0, numOfPartitions, TRUE);
@@ -9243,7 +9243,7 @@ Context *MergeUnion::createContextForAChild(Context *myContext, PlanWorkSpace *p
 //<pb>
 NABoolean MergeUnion::findOptimalSolution(Context *myContext, PlanWorkSpace *pws) {
   // Plan # is only an output param, initialize it to an impossible value.
-  Lng32 planNumber = -1;
+  int planNumber = -1;
   NABoolean hasOptSol = pws->findOptimalSolution(planNumber);
 
   if (hasOptSol) {
@@ -9286,7 +9286,7 @@ NABoolean MergeUnion::findOptimalSolution(Context *myContext, PlanWorkSpace *pws
 //  Pointer to this operator's synthesized physical properties.
 //
 //==============================================================================
-PhysicalProperty *MergeUnion::synthPhysicalProperty(const Context *myContext, const Lng32 planNumber,
+PhysicalProperty *MergeUnion::synthPhysicalProperty(const Context *myContext, const int planNumber,
                                                     PlanWorkSpace *pws) {
   const ReqdPhysicalProperty *rppForMe = myContext->getReqdPhysicalProperty();
   const PhysicalProperty *const sppOfLeftChild = myContext->getPhysicalPropertyOfSolutionForChild(0);
@@ -9570,7 +9570,7 @@ NABoolean GroupByAgg::rppAreCompatibleWithOperator(const ReqdPhysicalProperty *c
   // Compute the number of pipelines that are available for executing
   // the plan for this GroupBy.
   // ---------------------------------------------------------------------
-  Lng32 numberOfPipelines = rppForMe->getCountOfPipelines();
+  int numberOfPipelines = rppForMe->getCountOfPipelines();
   // ---------------------------------------------------------------------
   // A partial groupby that is a non leaf performs an intermediate
   // consolidation of partial groups/aggregates. The heuristic that
@@ -9602,7 +9602,7 @@ NABoolean GroupByAgg::rppAreCompatibleWithOperator(const ReqdPhysicalProperty *c
     } else  // fuzzy requirement
     {
       CMPASSERT(partReq->isRequirementApproximatelyN());
-      Lng32 reqPartCount = partReq->getCountOfPartitions();
+      int reqPartCount = partReq->getCountOfPartitions();
       if (groupExpr().isEmpty()) {
         // Scalar aggregates cannot execute in parallel, so the
         // requirement must allow a single partition part func.
@@ -9632,7 +9632,7 @@ NABoolean GroupByAgg::rppAreCompatibleWithOperator(const ReqdPhysicalProperty *c
 };  // GroupByAgg::rppAreCompatibleWithOperator()
 
 //<pb>
-Context *GroupByAgg::createContextForAChild(Context *myContext, PlanWorkSpace *pws, Lng32 &childIndex) {
+Context *GroupByAgg::createContextForAChild(Context *myContext, PlanWorkSpace *pws, int &childIndex) {
   // ---------------------------------------------------------------------
   // If one Context has been generated for each child, return NULL
   // to signal completion.
@@ -9641,9 +9641,9 @@ Context *GroupByAgg::createContextForAChild(Context *myContext, PlanWorkSpace *p
 
   childIndex = 0;
 
-  Lng32 planNumber = 0;
+  int planNumber = 0;
   const ReqdPhysicalProperty *rppForMe = myContext->getReqdPhysicalProperty();
-  Lng32 childNumPartsRequirement = ANY_NUMBER_OF_PARTITIONS;
+  int childNumPartsRequirement = ANY_NUMBER_OF_PARTITIONS;
   float childNumPartsAllowedDeviation = 0.0;
   NABoolean numOfESPsForced = FALSE;
 
@@ -9764,7 +9764,7 @@ void GroupByAgg::addArrangementAndOrderRequirements(RequirementGenerator &rg) {
 
 NABoolean GroupByAgg::okToAttemptESPParallelism(const Context *myContext, /*IN*/
                                                 PlanWorkSpace *pws,       /*IN*/
-                                                Lng32 &numOfESPs,         /*IN,OUT*/
+                                                int &numOfESPs,         /*IN,OUT*/
                                                 float &allowedDeviation,  /*OUT*/
                                                 NABoolean &numOfESPsForced /*OUT*/) {
   if (!parallelAggrPushdown() && isFeasibleToTransformForAggrPushdown() == GroupByAgg::TVL_TRUE) return FALSE;
@@ -9844,7 +9844,7 @@ void SortGroupBy::addArrangementAndOrderRequirements(RequirementGenerator &rg) {
 //  Pointer to this operator's synthesized physical properties.
 //
 //==============================================================================
-PhysicalProperty *SortGroupBy::synthPhysicalProperty(const Context *myContext, const Lng32 planNumber,
+PhysicalProperty *SortGroupBy::synthPhysicalProperty(const Context *myContext, const int planNumber,
                                                      PlanWorkSpace *pws) {
   const PhysicalProperty *const sppOfChild = myContext->getPhysicalPropertyOfSolutionForChild(0);
 
@@ -9971,7 +9971,7 @@ void PhysShortCutGroupBy::addArrangementAndOrderRequirements(RequirementGenerato
 //  Pointer to this operator's synthesized physical properties.
 //
 //==============================================================================
-PhysicalProperty *PhysShortCutGroupBy::synthPhysicalProperty(const Context *myContext, const Lng32 planNumber,
+PhysicalProperty *PhysShortCutGroupBy::synthPhysicalProperty(const Context *myContext, const int planNumber,
                                                              PlanWorkSpace *pws) {
   ValueIdList emptySortKey;
   const PhysicalProperty *sppOfChild = myContext->getPhysicalPropertyOfSolutionForChild(0);
@@ -10010,7 +10010,7 @@ PhysicalProperty *PhysShortCutGroupBy::synthPhysicalProperty(const Context *myCo
 // -----------------------------------------------------------------------
 // member functions for class HashGroupBy
 // -----------------------------------------------------------------------
-NABoolean HashGroupBy::isBigMemoryOperator(const PlanWorkSpace *pws, const Lng32 planNumber) {
+NABoolean HashGroupBy::isBigMemoryOperator(const PlanWorkSpace *pws, const int planNumber) {
   const Context *context = pws->getContext();
   double memoryLimitPerCPU = CURRSTMT_OPTDEFAULTS->getMemoryLimitPerCPU();
 
@@ -10021,10 +10021,10 @@ NABoolean HashGroupBy::isBigMemoryOperator(const PlanWorkSpace *pws, const Lng32
   // ---------------------------------------------------------------------
   const ReqdPhysicalProperty *rppForMe = context->getReqdPhysicalProperty();
   // Start off assuming that the operator will use all available CPUs.
-  Lng32 cpuCount = rppForMe->getCountOfAvailableCPUs();
+  int cpuCount = rppForMe->getCountOfAvailableCPUs();
   PartitioningRequirement *partReq = rppForMe->getPartitioningRequirement();
   const PhysicalProperty *spp = context->getPlan()->getPhysicalProperty();
-  Lng32 numOfStreams;
+  int numOfStreams;
 
   // If the physical properties are available, then this means we
   // are on the way back up the tree. Get the actual level of
@@ -10048,8 +10048,8 @@ NABoolean HashGroupBy::isBigMemoryOperator(const PlanWorkSpace *pws, const Lng32
   const double rowsPerCpu = MAXOF(1., (myGroupCount / cpuCount));
   const double rowsPerCpuPerProbe = MAXOF(1., (rowsPerCpu / probeCount));
 
-  const Lng32 myRowLength = getGroupAttr()->getCharacteristicOutputs().getRowLength();
-  const Lng32 extRowLength = myRowLength + 8;
+  const int myRowLength = getGroupAttr()->getCharacteristicOutputs().getRowLength();
+  const int extRowLength = myRowLength + 8;
   const double fileSizePerCpu = ((rowsPerCpuPerProbe * extRowLength) / 1024.);
 
   if (spp != NULL && CmpCommon::getDefault(COMP_BOOL_51) == DF_ON) {
@@ -10112,7 +10112,7 @@ CostMethod *HashGroupBy::costMethod() const {
 //  Pointer to this operator's synthesized physical properties.
 //
 //==============================================================================
-PhysicalProperty *HashGroupBy::synthPhysicalProperty(const Context *myContext, const Lng32 planNumber,
+PhysicalProperty *HashGroupBy::synthPhysicalProperty(const Context *myContext, const int planNumber,
                                                      PlanWorkSpace *pws) {
   ValueIdList emptySortKey;
   const PhysicalProperty *sppOfChild = myContext->getPhysicalPropertyOfSolutionForChild(0);
@@ -10169,9 +10169,9 @@ CostMethod *RelRoot::costMethod() const {
 }  // RelRoot::costMethod()
 
 //<pb>
-Context *RelRoot::createContextForAChild(Context *myContext, PlanWorkSpace *pws, Lng32 &childIndex) {
+Context *RelRoot::createContextForAChild(Context *myContext, PlanWorkSpace *pws, int &childIndex) {
   childIndex = 0;
-  Lng32 planNumber = pws->getCountOfChildContexts();
+  int planNumber = pws->getCountOfChildContexts();
 
   const ReqdPhysicalProperty *rppForMe = myContext->getReqdPhysicalProperty();
   const ReqdPhysicalProperty *rppForChild;
@@ -10217,9 +10217,9 @@ Context *RelRoot::createContextForAChild(Context *myContext, PlanWorkSpace *pws,
   // - If PARALLEL_NUM_ESPS is a positive number, ensure that it does not
   //   exceed the number of available CPUs in the system.
   // ---------------------------------------------------------------------
-  Lng32 countOfCPUs = DEFAULT_SINGLETON;
+  int countOfCPUs = DEFAULT_SINGLETON;
 
-  Lng32 pipelinesPerCPU = DEFAULT_SINGLETON;
+  int pipelinesPerCPU = DEFAULT_SINGLETON;
 
   // Regardless of how the ATTEMPT_ESP_PARALLELISM CQD is set, some operations
   // like LRU always execute under ESPs for partitioned tables.
@@ -10319,7 +10319,7 @@ Context *RelRoot::createContextForAChild(Context *myContext, PlanWorkSpace *pws,
       PartitioningFunction *pf = ins->getTableDesc()->getClusteringIndex()->getPartitioningFunction();
 
       const NodeMap *np;
-      Lng32 partns = 1;
+      int partns = 1;
       if (pf && (np = pf->getNodeMap())) {
         partns = np->getNumEntries();
       }
@@ -10330,7 +10330,7 @@ Context *RelRoot::createContextForAChild(Context *myContext, PlanWorkSpace *pws,
         canAdjustDoP = FALSE;
       } else if (partns == 1) {
         NADefaults &defs = ActiveSchemaDB()->getDefaults();
-        Lng32 maxDopForLoad = defs.getAsLong(MAX_DOP_FOR_LOAD);
+        int maxDopForLoad = defs.getAsLong(MAX_DOP_FOR_LOAD);
         countOfCPUs = MINOF(CURRSTMT_OPTDEFAULTS->getTotalNumberOfCPUs(), maxDopForLoad);
         pipelinesPerCPU = 1;
         canAdjustDoP = TRUE;  // Can vary upto countOfCPUs
@@ -10347,7 +10347,7 @@ Context *RelRoot::createContextForAChild(Context *myContext, PlanWorkSpace *pws,
 
     NADefaults &defs = ActiveSchemaDB()->getDefaults();
 
-    Lng32 ocrControl = defs.getAsLong(OCR_FOR_SIDETREE_INSERT);
+    int ocrControl = defs.getAsLong(OCR_FOR_SIDETREE_INSERT);
 
     // setting for OCR_FOR_SIDETREE_INSERT:
     //  0: OCR repartition is disableld
@@ -10362,7 +10362,7 @@ Context *RelRoot::createContextForAChild(Context *myContext, PlanWorkSpace *pws,
         PartitioningFunction *pf = ins->getTableDesc()->getClusteringIndex()->getPartitioningFunction();
 
         const NodeMap *np;
-        Lng32 partns = 1;
+        int partns = 1;
         if (pf && (np = pf->getNodeMap())) {
           partns = np->getNumEntries();
         }
@@ -10378,7 +10378,7 @@ Context *RelRoot::createContextForAChild(Context *myContext, PlanWorkSpace *pws,
     }
 
     // handle fast extract
-    Lng32 hiveInsertRepartitionDoP = ActiveSchemaDB()->getDefaults().getAsLong(HIVE_PARTITION_INSERT_REPART);
+    int hiveInsertRepartitionDoP = ActiveSchemaDB()->getDefaults().getAsLong(HIVE_PARTITION_INSERT_REPART);
 
     // Handle CQS last when some DoP M is specified in the CQS.
     // The countOfCPUs will be adjusted to M if it is smaller
@@ -10397,7 +10397,7 @@ Context *RelRoot::createContextForAChild(Context *myContext, PlanWorkSpace *pws,
       }
     }
 
-    Lng32 minBytesPerESP = defs.getAsLong(HBASE_MIN_BYTES_PER_ESP_PARTITION);
+    int minBytesPerESP = defs.getAsLong(HBASE_MIN_BYTES_PER_ESP_PARTITION);
 
     // To be replaced later by a different CQD
     if (CmpCommon::getDefault(HBASE_RANGE_PARTITIONING) == DF_OFF || isASON || hasTMUDFsOrLRU) canAdjustDoP = FALSE;
@@ -10412,7 +10412,7 @@ Context *RelRoot::createContextForAChild(Context *myContext, PlanWorkSpace *pws,
 
         CostScalar espsInCS = tableSize / CostScalar(minBytesPerESP);
 
-        Lng32 esps = (Lng32)(espsInCS.getCeiling().getValue());
+        int esps = (int)(espsInCS.getCeiling().getValue());
 
         if (esps < 0)
           esps = countOfCPUs;
@@ -10600,7 +10600,7 @@ Context *RelRoot::createContextForAChild(Context *myContext, PlanWorkSpace *pws,
 
 }  //  RelRoot::createContextForAChild()
 
-NABoolean RelRoot::currentPlanIsAcceptable(Lng32 planNo, const ReqdPhysicalProperty *const rppForMe) const {
+NABoolean RelRoot::currentPlanIsAcceptable(int planNo, const ReqdPhysicalProperty *const rppForMe) const {
   DefaultToken attESPPara = CURRSTMT_OPTDEFAULTS->attemptESPParallelism();
 
   // Don't consider plan 0 when ATTEMPT_ESP_PARALLELISM is set
@@ -10637,7 +10637,7 @@ NABoolean RelRoot::currentPlanIsAcceptable(Lng32 planNo, const ReqdPhysicalPrope
 //  Pointer to this operator's synthesized physical properties.
 //
 //==============================================================================
-PhysicalProperty *RelRoot::synthPhysicalProperty(const Context *myContext, const Lng32 planNumber, PlanWorkSpace *pws) {
+PhysicalProperty *RelRoot::synthPhysicalProperty(const Context *myContext, const int planNumber, PlanWorkSpace *pws) {
   const PhysicalProperty *sppForChild = myContext->getPhysicalPropertyOfSolutionForChild(0);
 
   // ---------------------------------------------------------------------
@@ -10693,9 +10693,9 @@ PartitioningFunction *MapValueIds::mapPartitioningFunction(const PartitioningFun
 }  // end MapValueIds::mapPartitioningFunction()
 
 //<pb>
-Context *MapValueIds::createContextForAChild(Context *myContext, PlanWorkSpace *pws, Lng32 &childIndex) {
+Context *MapValueIds::createContextForAChild(Context *myContext, PlanWorkSpace *pws, int &childIndex) {
   childIndex = 0;
-  Lng32 planNumber = 0;
+  int planNumber = 0;
 
   const ReqdPhysicalProperty *rppForMe = myContext->getReqdPhysicalProperty();
   const ReqdPhysicalProperty *rppForChild;
@@ -10790,7 +10790,7 @@ Context *MapValueIds::createContextForAChild(Context *myContext, PlanWorkSpace *
 //  Pointer to this operator's synthesized physical properties.
 //
 //==============================================================================
-PhysicalProperty *MapValueIds::synthPhysicalProperty(const Context *myContext, const Lng32 planNumber,
+PhysicalProperty *MapValueIds::synthPhysicalProperty(const Context *myContext, const int planNumber,
                                                      PlanWorkSpace *pws) {
   const PhysicalProperty *const sppOfChild = myContext->getPhysicalPropertyOfSolutionForChild(0);
 
@@ -10873,11 +10873,11 @@ static void computeDP2CostDataThatDependsOnSPP(PartitioningFunction &physicalPar
   CostScalar activePartitions = ((NodeMap *)(physicalPartFunc.getNodeMap()))->getNumActivePartitions();
 
   //  Assume at least one DP2 volume even if node map indicates otherwise.
-  Lng32 numOfDP2Volumes = MIN_ONE(((NodeMap *)(physicalPartFunc.getNodeMap()))->getNumOfDP2Volumes());
+  int numOfDP2Volumes = MIN_ONE(((NodeMap *)(physicalPartFunc.getNodeMap()))->getNumOfDP2Volumes());
 
   //  The number of cpus executing DP2's cannot be more than the number
   //  of active partitions :
-  Lng32 cpusExecutingDP2s = MINOF((Lng32)totalCPUsExecutingDP2s.getValue(), (Lng32)activePartitions.getValue());
+  int cpusExecutingDP2s = MINOF((int)totalCPUsExecutingDP2s.getValue(), (int)activePartitions.getValue());
 
   //  The number of cpus executing DP2's cannot be more than the number
   //  of DP2 volumes:
@@ -11062,7 +11062,7 @@ static void computeDP2CostDataThatDependsOnSPP(PartitioningFunction &physicalPar
 
       // Find out the highest column covered by an equijoin
 
-      Lng32 highestColumn = 0;
+      int highestColumn = 0;
       const ValueIdSet &inputValues = scanGroupAttr.getCharacteristicInputs();
 
       const ValueIdSet &operatorValues = indexDesc.getIndexKey();
@@ -11109,7 +11109,7 @@ static void computeDP2CostDataThatDependsOnSPP(PartitioningFunction &physicalPar
         // Reuse the partKeyHist:
         // the synthesis for AP:
 
-        Lng32 affectedPartitions = newNodeMapPtr->getNumActivePartitions();
+        int affectedPartitions = newNodeMapPtr->getNumActivePartitions();
 
         // Now estimate the RC:
 
@@ -11390,8 +11390,8 @@ PhysicalProperty *RelExpr::synthDP2PhysicalProperty(const Context *myContext, co
   const LogicalPartitioningRequirement *lpr = rppForMe->getLogicalPartRequirement();
   PartitioningRequirement *logPartReq = NULL;
 
-  Lng32 numPAs = ANY_NUMBER_OF_PARTITIONS;
-  Lng32 numEsps = 1;
+  int numPAs = ANY_NUMBER_OF_PARTITIONS;
+  int numEsps = 1;
   NABoolean usePapa = FALSE;
   NABoolean shouldUseSynchronousAccess = FALSE;
   NABoolean mergeOfSortedStreams = FALSE;
@@ -11444,7 +11444,7 @@ PhysicalProperty *RelExpr::synthDP2PhysicalProperty(const Context *myContext, co
                                      ,
                                      *this);
 
-  Lng32 currentCountOfCPUs = dp2CostInfo.getCountOfCPUsExecutingDP2s();
+  int currentCountOfCPUs = dp2CostInfo.getCountOfCPUsExecutingDP2s();
 
   // ---------------------------------------------------------------------
   // determine the logical partitioning type
@@ -11663,7 +11663,7 @@ PhysicalProperty *RelExpr::synthDP2PhysicalProperty(const Context *myContext, co
                                   AND NOT physicalPartFunc->isASinglePartitionPartitioningFunction()))
       numPAs = physicalPartFunc->getCountOfPartitions();
     else
-      numPAs = (Lng32)activePartitions.getValue();
+      numPAs = (int)activePartitions.getValue();
   }
 
   // Now that we know if synchronous access will be done, see if
@@ -11731,15 +11731,15 @@ PhysicalProperty *RelExpr::synthDP2PhysicalProperty(const Context *myContext, co
         logicalPartFunc = logicalPartFunc->copy();
 
       // Now group the number of partitions down to a reasonable #
-      Lng32 scaleNumOfParts = numEsps;
+      int scaleNumOfParts = numEsps;
 
       // First, need to see if we need to base the parallelism on
       // the number of active partitions.
-      Lng32 numActivePartitions = 1;
+      int numActivePartitions = 1;
       if ((CmpCommon::getDefault(BASE_NUM_PAS_ON_ACTIVE_PARTS) == DF_ON)
               AND(logicalPartFunc->castToRangePartitioningFunction() != NULL)) {
         CostScalar activePartitions = ((NodeMap *)(logicalPartFunc->getNodeMap()))->getNumActivePartitions();
-        numActivePartitions = (Lng32)activePartitions.getValue();
+        numActivePartitions = (int)activePartitions.getValue();
         // If we are grouping based on the number of active partitions,
         // and there won't be enough active partitions to go around,
         // then reduce the number of groups to the number of active
@@ -11780,7 +11780,7 @@ PhysicalProperty *RelExpr::synthDP2PhysicalProperty(const Context *myContext, co
   // or if synchronous access is being done, or if there is only one
   // logical partition.
   if (NOT numPAsForced AND NOT shouldUseSynchronousAccess AND numEsps > 1) {
-    Lng32 maxPartsPerGroup;
+    int maxPartsPerGroup;
 
     if (logicalPartFunc->isAReplicateNoBroadcastPartitioningFunction()) {
       // Does the REP-N really replicate to all partitions or is there
@@ -11795,7 +11795,7 @@ PhysicalProperty *RelExpr::synthDP2PhysicalProperty(const Context *myContext, co
 
       if (rnbReq) {
         const PartitioningFunction *parentPartFunc = rnbReq->getParentPartFunc();
-        Lng32 factor;
+        int factor;
         if (parentPartFunc) grouping = parentPartFunc->isAGroupingOf(*physicalPartFunc, &factor);
       }
 
@@ -11813,7 +11813,7 @@ PhysicalProperty *RelExpr::synthDP2PhysicalProperty(const Context *myContext, co
       // Compute the maximum number of physical partitions that would result
       // if the groups were formed based on a uniform distribution of all
       // physical partitions.
-      Lng32 maxPartsPerUniformGroup = (physicalPartFunc->getCountOfPartitions() + numEsps - 1) / numEsps;
+      int maxPartsPerUniformGroup = (physicalPartFunc->getCountOfPartitions() + numEsps - 1) / numEsps;
       if (mergeOfSortedStreams) {
         //   Since a merge of sorted streams is being done, each group
         // (ESP) will need to have as many PAs as the group that has
@@ -11838,7 +11838,7 @@ PhysicalProperty *RelExpr::synthDP2PhysicalProperty(const Context *myContext, co
         // performed here, AND was based on an active partition distribution,
         // AND there are enough inactive partitions to make it worthwhile
         // to allocate some extra PAs to handle them, then do that.
-        Lng32 roundedUpNumOfPAs = ((numPAs + numEsps - 1) / numEsps) * numEsps;
+        int roundedUpNumOfPAs = ((numPAs + numEsps - 1) / numEsps) * numEsps;
         if (((logPartReq == NULL) OR logPartReq->isRequirementFuzzy()) AND(maxPartsPerUniformGroup != maxPartsPerGroup)
                 AND(roundedUpNumOfPAs < physicalPartFunc->getCountOfPartitions()))
           numPAs += numEsps;
@@ -12009,7 +12009,7 @@ PhysicalProperty *RelExpr::synthDP2PhysicalProperty(const Context *myContext, co
 //<pb>
 
 RangePartitionBoundaries *createRangePartitionBoundariesFromStats(const IndexDesc *idesc, HistogramSharedPtr &hist,
-                                                                  Lng32 numberOfPartitions,
+                                                                  int numberOfPartitions,
                                                                   const NAColumnArray &partColArray,
                                                                   const ValueIdList &partitioningKeyColumnsOrder,
                                                                   const Int32 statsColsCount, NAMemory *heap);
@@ -12080,7 +12080,7 @@ RangePartitioningFunction *FileScan::createRangePartFuncForHbaseTableUsingStats(
     // indexDesc_->getPrimaryTableDesc()->
     // getNATable()->getClusteringIndex();
 
-    Lng32 recLength = fset->getRecordLength();
+    int recLength = fset->getRecordLength();
 
     if ((colStats->getRowcount() * recLength) < CostScalar(bytesPerESP)) return NULL;
 
@@ -12121,7 +12121,7 @@ RangePartitioningFunction *FileScan::createRangePartFuncForHbaseTableUsingStats(
 // Synthesize physical property for a Hive table scan node,
 // running in the master or an ESP
 // -----------------------------------------------------------------------
-PhysicalProperty *FileScan::synthHbaseScanPhysicalProperty(const Context *context, const Lng32 planNumber,
+PhysicalProperty *FileScan::synthHbaseScanPhysicalProperty(const Context *context, const int planNumber,
                                                            ValueIdList &sortOrderVEG) {
   // my required phys props (always non-NULL)
   const ReqdPhysicalProperty *rppForMe = context->getReqdPhysicalProperty();
@@ -12130,8 +12130,8 @@ PhysicalProperty *FileScan::synthHbaseScanPhysicalProperty(const Context *contex
   PartitioningFunction *myPartFunc = NULL;
 
   NABoolean partnsScaled = FALSE;
-  Lng32 oldPartns = 0;
-  Lng32 numESPs = 1;
+  int oldPartns = 0;
+  int numESPs = 1;
   PartitioningFunction *ixDescPartFunc = NULL;
 
   // Nothing we can do if the requirement is a single partition func
@@ -12149,8 +12149,8 @@ PhysicalProperty *FileScan::synthHbaseScanPhysicalProperty(const Context *contex
     //////////////////////////////////////
 
     // minimum and maximum # of ESPs required by the parent
-    Lng32 minESPs = 0;
-    Lng32 maxESPs = 0;
+    int minESPs = 0;
+    int maxESPs = 0;
 
     NABoolean canFreelyAdjustDoP = TRUE;
 
@@ -12207,7 +12207,7 @@ PhysicalProperty *FileScan::synthHbaseScanPhysicalProperty(const Context *contex
 
         // Get the threshold in MB of using # of partitions as the scan dop.
         // Default value is 10MB.
-        Lng32 numPartitionsAsDopThreshold = getDefaultAsLong(HBASE_SCAN_DOP_AS_PARTITIONS_THRESHOLD) * 1024 * 1024;
+        int numPartitionsAsDopThreshold = getDefaultAsLong(HBASE_SCAN_DOP_AS_PARTITIONS_THRESHOLD) * 1024 * 1024;
 
         // If canFreelyAdjustDoP is TRUE, the table is partitioned
         // and the table size is over the threashold, use
@@ -12217,7 +12217,7 @@ PhysicalProperty *FileScan::synthHbaseScanPhysicalProperty(const Context *contex
             minESPs = maxESPs = numOfPartitions;
           } else {
             // CQDs related to # of ESPs for a HBase table scan
-            Lng32 maxESPsByUser = getDefaultAsLong(HBASE_MAX_ESPS);
+            int maxESPsByUser = getDefaultAsLong(HBASE_MAX_ESPS);
 
             // adjust maxESPsByUser to a multiple of totalESPsAllowed
             if (CURRSTMT_OPTDEFAULTS->isAdaptiveSegForHadoop())
@@ -12259,7 +12259,7 @@ PhysicalProperty *FileScan::synthHbaseScanPhysicalProperty(const Context *contex
       myPartFunc = ixDescPartFunc->copy();
       oldPartns = myPartFunc->getCountOfPartitions();
 
-      Lng32 partns = numESPs;
+      int partns = numESPs;
 
       const RangePartitioningFunction *myPartFuncAsRange = NULL;
       if ((myPartFuncAsRange = myPartFunc->castToRangePartitioningFunction())) {
@@ -12285,7 +12285,7 @@ PhysicalProperty *FileScan::synthHbaseScanPhysicalProperty(const Context *contex
       // (1 region only).
 
       if (performStatsSplit) {
-        Lng32 partns = numESPs;
+        int partns = numESPs;
 
         const ValueIdList &keyColumnList = indexDesc_->getPartitioningKey();
 
@@ -12335,17 +12335,17 @@ PhysicalProperty *FileScan::synthHbaseScanPhysicalProperty(const Context *contex
 
     // m : n allocation strategy where m < n using most popular node num
     if (m < n) {
-      Lng32 regionsPerEsp = n / m;
-      Lng32 beginPos = 0;
-      for (Lng32 index = 0; (index < m && beginPos < n); index++) {
-        Lng32 endPos = beginPos + regionsPerEsp;
-        Lng32 popularNodeId = regNodeMap->getPopularNodeNumber(beginPos, endPos);
+      int regionsPerEsp = n / m;
+      int beginPos = 0;
+      for (int index = 0; (index < m && beginPos < n); index++) {
+        int endPos = beginPos + regionsPerEsp;
+        int popularNodeId = regNodeMap->getPopularNodeNumber(beginPos, endPos);
         myNodeMap->setNodeNumber(index, popularNodeId);
         beginPos = endPos;
       }
       myNodeMap->smooth(CmpCommon::context()->getNumOfSMPs());
     } else if (m == n) {  // 1:1 allocation strategy
-      for (Lng32 index = 0; index < n; index++) {
+      for (int index = 0; index < n; index++) {
         myNodeMap->setNodeNumber(index, regNodeMap->getNodeNumber(index));
       }
     }
@@ -12428,7 +12428,7 @@ CostMethod *FileScan::costMethod() const {
 //  Pointer to this operator's synthesized physical properties.
 //
 //==============================================================================
-PhysicalProperty *FileScan::synthPhysicalProperty(const Context *myContext, const Lng32 planNumber,
+PhysicalProperty *FileScan::synthPhysicalProperty(const Context *myContext, const int planNumber,
                                                   PlanWorkSpace *pws) {
   PhysicalProperty *sppForMe;
   // synthesized order
@@ -12484,7 +12484,7 @@ PhysicalProperty *FileScan::synthPhysicalProperty(const Context *myContext, cons
   if (getReverseScan()) {
     ItemExpr *inverseCol;
 
-    for (Lng32 i = 0; i < (Lng32)sortOrderVEG.entries(); i++) {
+    for (int i = 0; i < (int)sortOrderVEG.entries(); i++) {
       ItemExpr *ix = sortOrderVEG[i].getItemExpr();
 
       if (ix->getOperatorType() == ITM_INVERSE) {
@@ -12564,7 +12564,7 @@ void FileScan::addPartKeyPredsToSelectionPreds(const ValueIdSet &partKeyPreds, c
 
 NABoolean FileScan::okToAttemptESPParallelism(const Context *myContext, /*IN*/
                                               PlanWorkSpace *pws,       /*IN*/
-                                              Lng32 &numOfESPs,         /*IN,OUT*/
+                                              int &numOfESPs,         /*IN,OUT*/
                                               float &allowedDeviation,  /*OUT*/
                                               NABoolean &numOfESPsForced /*OUT*/) {
   const ReqdPhysicalProperty *rppForMe = myContext->getReqdPhysicalProperty();
@@ -12613,12 +12613,12 @@ NABoolean FileScan::okToAttemptESPParallelism(const Context *myContext, /*IN*/
     numOfESPs = rppForMe->getCountOfPipelines();
 
     if ((rowCount > numberOfRowsThreshold) AND(CmpCommon::getDefault(COMP_BOOL_128) == DF_ON)) {
-      Lng32 optimalNumOfESPs = MINOF(numOfESPs, (Lng32)(rowCount / numberOfRowsThreshold).value());
+      int optimalNumOfESPs = MINOF(numOfESPs, (int)(rowCount / numberOfRowsThreshold).value());
 
       // make numOfESPs as available level of parallelism
       // 16*N, 8*N, 4*N,..., N,1 where N is the number of segments
-      Lng32 i = CURRSTMT_OPTDEFAULTS->getMaximumDegreeOfParallelism();
-      Lng32 MinParallelism = MAXOF(CURRSTMT_OPTDEFAULTS->getMinimumESPParallelism(), optimalNumOfESPs);
+      int i = CURRSTMT_OPTDEFAULTS->getMaximumDegreeOfParallelism();
+      int MinParallelism = MAXOF(CURRSTMT_OPTDEFAULTS->getMinimumESPParallelism(), optimalNumOfESPs);
       while (i > MinParallelism) i /= 2;
 
       numOfESPs = (i < MinParallelism) ? i *= 2 : i;
@@ -12666,7 +12666,7 @@ CostMethod *DP2Scan::costMethod() const {
 //  Pointer to this operator's synthesized physical properties.
 //
 //==============================================================================
-PhysicalProperty *Describe::synthPhysicalProperty(const Context *myContext, const Lng32 planNumber,
+PhysicalProperty *Describe::synthPhysicalProperty(const Context *myContext, const int planNumber,
                                                   PlanWorkSpace *pws) {
   //----------------------------------------------------------
   // Create a node map with a single, active, wild-card entry.
@@ -12706,7 +12706,7 @@ PhysicalProperty *Describe::synthPhysicalProperty(const Context *myContext, cons
 //  Pointer to this operator's synthesized physical properties.
 //
 //==============================================================================
-PhysicalProperty *GenericUtilExpr::synthPhysicalProperty(const Context *myContext, const Lng32 planNumber,
+PhysicalProperty *GenericUtilExpr::synthPhysicalProperty(const Context *myContext, const int planNumber,
                                                          PlanWorkSpace *pws) {
   // my required phys props
   const ReqdPhysicalProperty *rppForMe = myContext->getReqdPhysicalProperty();
@@ -12715,7 +12715,7 @@ PhysicalProperty *GenericUtilExpr::synthPhysicalProperty(const Context *myContex
   PlanExecutionEnum location = EXECUTE_IN_MASTER;
 
   NABoolean doSerialPlan = TRUE;
-  Lng32 countOfPartitions = 1;
+  int countOfPartitions = 1;
   NAHeap *heap = CmpCommon::statementHeap();
 
   NABoolean doParallelDDL = FALSE;
@@ -12854,7 +12854,7 @@ PhysicalProperty *GenericUtilExpr::synthPhysicalProperty(const Context *myContex
 // implementation that deals with childIndex > 0 is unnecessary and has
 // been removed.
 // -----------------------------------------------------------------------
-Context *FirstN::createContextForAChild(Context *myContext, PlanWorkSpace *pws, Lng32 &childIndex) {
+Context *FirstN::createContextForAChild(Context *myContext, PlanWorkSpace *pws, int &childIndex) {
   const ReqdPhysicalProperty *rppForMe = myContext->getReqdPhysicalProperty();
 
   CMPASSERT(getArity() == 1);
@@ -12879,7 +12879,7 @@ Context *FirstN::createContextForAChild(Context *myContext, PlanWorkSpace *pws, 
 
   if (NOT rg.checkFeasibility()) return NULL;
 
-  Lng32 planNumber = 0;
+  int planNumber = 0;
 
   // ---------------------------------------------------------------------
   // Compute the cost limit to be applied to the child.
@@ -12925,7 +12925,7 @@ Context *FirstN::createContextForAChild(Context *myContext, PlanWorkSpace *pws, 
 //  Pointer to this operator's synthesized physical properties.
 //
 //==============================================================================
-PhysicalProperty *FirstN::synthPhysicalProperty(const Context *context, const Lng32 planNumber, PlanWorkSpace *pws) {
+PhysicalProperty *FirstN::synthPhysicalProperty(const Context *context, const int planNumber, PlanWorkSpace *pws) {
   // ---------------------------------------------------------------------
   // Simply propogate child's physical property.
   // ---------------------------------------------------------------------
@@ -12963,7 +12963,7 @@ PhysicalProperty *FirstN::synthPhysicalProperty(const Context *context, const Ln
 //  Pointer to this operator's synthesized physical properties.
 //
 //==============================================================================
-PhysicalProperty *RelTransaction::synthPhysicalProperty(const Context *myContext, const Lng32 planNumber,
+PhysicalProperty *RelTransaction::synthPhysicalProperty(const Context *myContext, const int planNumber,
                                                         PlanWorkSpace *pws) {
   //----------------------------------------------------------
   // Create a node map with a single, active, wild-card entry.
@@ -13002,7 +13002,7 @@ PhysicalProperty *RelTransaction::synthPhysicalProperty(const Context *myContext
 //  Pointer to this operator's synthesized physical properties.
 //
 //============================================================================
-PhysicalProperty *RelSetTimeout::synthPhysicalProperty(const Context *myContext, const Lng32 planNumber,
+PhysicalProperty *RelSetTimeout::synthPhysicalProperty(const Context *myContext, const int planNumber,
                                                        PlanWorkSpace *pws) {
   //----------------------------------------------------------
   // Create a node map with a single, active, wild-card entry.
@@ -13041,7 +13041,7 @@ PhysicalProperty *RelSetTimeout::synthPhysicalProperty(const Context *myContext,
 //  Pointer to this operator's synthesized physical properties.
 //
 //==============================================================================
-PhysicalProperty *RelLock::synthPhysicalProperty(const Context *myContext, const Lng32 planNumber, PlanWorkSpace *pws) {
+PhysicalProperty *RelLock::synthPhysicalProperty(const Context *myContext, const int planNumber, PlanWorkSpace *pws) {
   PartitioningFunction *myPartFunc = NULL;
   const ReqdPhysicalProperty *rpp = myContext->getReqdPhysicalProperty();
 
@@ -13099,7 +13099,7 @@ PhysicalProperty *RelLock::synthPhysicalProperty(const Context *myContext, const
 //  Pointer to this operator's synthesized physical properties.
 //
 //==============================================================================
-PhysicalProperty *ControlAbstractClass::synthPhysicalProperty(const Context *myContext, const Lng32 planNumber,
+PhysicalProperty *ControlAbstractClass::synthPhysicalProperty(const Context *myContext, const int planNumber,
                                                               PlanWorkSpace *pws) {
   //----------------------------------------------------------
   // Create a node map with a single, active, wild-card entry.
@@ -13158,7 +13158,7 @@ CostMethod *Tuple::costMethod() const {
 // should change as well.
 //
 //==============================================================================
-PhysicalProperty *Tuple::synthPhysicalProperty(const Context *myContext, const Lng32 planNumber, PlanWorkSpace *pws) {
+PhysicalProperty *Tuple::synthPhysicalProperty(const Context *myContext, const int planNumber, PlanWorkSpace *pws) {
   CMPASSERT(myContext != NULL);
 
   PlanExecutionEnum planExecutionLocation = EXECUTE_IN_MASTER_AND_ESP;
@@ -13249,8 +13249,8 @@ PhysicalProperty *Tuple::synthPhysicalProperty(const Context *myContext, const L
       lpr = rppForMe->getLogicalPartRequirement();
 
       PartitioningRequirement *logPartReq = NULL;
-      Lng32 numPAs = ANY_NUMBER_OF_PARTITIONS;
-      Lng32 numEsps = 1;
+      int numPAs = ANY_NUMBER_OF_PARTITIONS;
+      int numEsps = 1;
       NABoolean usePapa = FALSE;
       NABoolean shouldUseSynchronousAccess = FALSE;
       LogPhysPartitioningFunction::logPartType logPartType;
@@ -13315,12 +13315,12 @@ PhysicalProperty *Tuple::synthPhysicalProperty(const Context *myContext, const L
   // Estimate the number of cpus executing executing copies of this
   // instance:
   // -----------------------------------------------------------------------
-  Lng32 countOfCPUs = 1;
+  int countOfCPUs = 1;
 
-  Lng32 countOfStreams = 1;
+  int countOfStreams = 1;
   if (myPartFunc != NULL) countOfStreams = myPartFunc->getCountOfPartitions();
 
-  Lng32 countOfAvailableCPUs = 1;
+  int countOfAvailableCPUs = 1;
   if (myContext->getReqdPhysicalProperty())
     countOfAvailableCPUs = myContext->getReqdPhysicalProperty()->getCountOfAvailableCPUs();
 
@@ -13363,7 +13363,7 @@ PhysicalProperty *Tuple::synthPhysicalProperty(const Context *myContext, const L
 //  Pointer to this operator's synthesized physical properties.
 //
 //==============================================================================
-PhysicalProperty *InsertCursor::synthPhysicalProperty(const Context *myContext, const Lng32 planNumber,
+PhysicalProperty *InsertCursor::synthPhysicalProperty(const Context *myContext, const int planNumber,
                                                       PlanWorkSpace *pws) {
   ValueIdList emptySortKey;
   PhysicalProperty *sppForMe = synthDP2PhysicalProperty(myContext, emptySortKey, getIndexDesc(), getPartKey());
@@ -13394,7 +13394,7 @@ PhysicalProperty *InsertCursor::synthPhysicalProperty(const Context *myContext, 
 //  Pointer to this operator's synthesized physical properties.
 //
 //==============================================================================
-PhysicalProperty *UpdateCursor::synthPhysicalProperty(const Context *myContext, const Lng32 planNumber,
+PhysicalProperty *UpdateCursor::synthPhysicalProperty(const Context *myContext, const int planNumber,
                                                       PlanWorkSpace *pws) {
   ValueIdList emptySortKey;
 
@@ -13426,7 +13426,7 @@ PhysicalProperty *UpdateCursor::synthPhysicalProperty(const Context *myContext, 
 //  Pointer to this operator's synthesized physical properties.
 //
 //==============================================================================
-PhysicalProperty *DeleteCursor::synthPhysicalProperty(const Context *myContext, const Lng32 planNumber,
+PhysicalProperty *DeleteCursor::synthPhysicalProperty(const Context *myContext, const int planNumber,
                                                       PlanWorkSpace *pws) {
   ValueIdList emptySortKey;
   PhysicalProperty *sppForMe = synthDP2PhysicalProperty(myContext, emptySortKey, getIndexDesc(), getPartKey());
@@ -13440,7 +13440,7 @@ PhysicalProperty *DeleteCursor::synthPhysicalProperty(const Context *myContext, 
 
 NABoolean GenericUpdate::okToAttemptESPParallelism(const Context *myContext, /*IN*/
                                                    PlanWorkSpace *pws,       /*IN*/
-                                                   Lng32 &numOfESPs,         /*IN,OUT*/
+                                                   int &numOfESPs,         /*IN,OUT*/
                                                    float &allowedDeviation,  /*OUT*/
                                                    NABoolean &numOfESPsForced /*OUT*/) {
   const ReqdPhysicalProperty *rppForMe = myContext->getReqdPhysicalProperty();
@@ -13493,7 +13493,7 @@ NABoolean GenericUpdate::okToAttemptESPParallelism(const Context *myContext, /*I
       double optimalNumOfESPsDbl = ceil((rowCount / numberOfRowsThreshold).value());
 
       // Don't need / can't have more ESPs than PAs
-      numOfESPs = (Lng32)MINOF(numOfESPs, optimalNumOfESPsDbl);
+      numOfESPs = (int)MINOF(numOfESPs, optimalNumOfESPsDbl);
       // Can't have more ESPs than the maximum
       numOfESPs = MINOF(numOfESPs, rppForMe->getCountOfPipelines());
 
@@ -13527,7 +13527,7 @@ NABoolean GenericUpdate::okToAttemptESPParallelism(const Context *myContext, /*I
 //  Pointer to this operator's synthesized physical properties.
 //
 //==============================================================================
-PhysicalProperty *ExplainFunc::synthPhysicalProperty(const Context *myContext, const Lng32 planNumber,
+PhysicalProperty *ExplainFunc::synthPhysicalProperty(const Context *myContext, const int planNumber,
                                                      PlanWorkSpace *pws) {
   //----------------------------------------------------------
   // Create a node map with a single, active, wild-card entry.
@@ -13549,7 +13549,7 @@ PhysicalProperty *ExplainFunc::synthPhysicalProperty(const Context *myContext, c
 
 }  // ExplainFunc::synthPhysicalProperty()
 
-PhysicalProperty *StatisticsFunc::synthPhysicalProperty(const Context *myContext, const Lng32 planNumber,
+PhysicalProperty *StatisticsFunc::synthPhysicalProperty(const Context *myContext, const int planNumber,
                                                         PlanWorkSpace *pws) {
   //----------------------------------------------------------
   // Create a node map with a single, active, wild-card entry.
@@ -13571,7 +13571,7 @@ PhysicalProperty *StatisticsFunc::synthPhysicalProperty(const Context *myContext
 
 }  // StatisticsFunc::synthPhysicalProperty()
 
-PhysicalProperty *PhysicalSPProxyFunc::synthPhysicalProperty(const Context *myContext, const Lng32 planNumber,
+PhysicalProperty *PhysicalSPProxyFunc::synthPhysicalProperty(const Context *myContext, const int planNumber,
                                                              PlanWorkSpace *pws) {
   //----------------------------------------------------------
   // Create a node map with a single, active, wild-card entry.
@@ -13593,7 +13593,7 @@ PhysicalProperty *PhysicalSPProxyFunc::synthPhysicalProperty(const Context *myCo
 
 }  // PhysicalSPProxyFunc::synthPhysicalProperty()
 
-PhysicalProperty *PhysicalExtractSource::synthPhysicalProperty(const Context *myContext, const Lng32 planNumber,
+PhysicalProperty *PhysicalExtractSource::synthPhysicalProperty(const Context *myContext, const int planNumber,
                                                                PlanWorkSpace *pws) {
   //----------------------------------------------------------
   // Create a node map with a single, active, wild-card entry.
@@ -13645,7 +13645,7 @@ CostMethod *PhysTranspose::costMethod() const {
 //  Pointer to this operator's synthesized physical properties.
 //
 //==============================================================================
-PhysicalProperty *PhysTranspose::synthPhysicalProperty(const Context *context, const Lng32 planNumber,
+PhysicalProperty *PhysTranspose::synthPhysicalProperty(const Context *context, const int planNumber,
                                                        PlanWorkSpace *pws) {
   // for now, simply propagate the physical property
 
@@ -13677,7 +13677,7 @@ PhysicalProperty *PhysTranspose::synthPhysicalProperty(const Context *context, c
 //  Pointer to this operator's synthesized physical properties.
 //
 //==============================================================================
-PhysicalProperty *RelInternalSP::synthPhysicalProperty(const Context *myContext, const Lng32 planNumber,
+PhysicalProperty *RelInternalSP::synthPhysicalProperty(const Context *myContext, const int planNumber,
                                                        PlanWorkSpace *pws) {
   //----------------------------------------------------------
   // Create a node map with a single, active, wild-card entry.
@@ -13727,7 +13727,7 @@ CostMethod *HbaseDelete::costMethod() const {
   return pCostMethod_;
 }  // HbaseDelete::costMethod()
 
-PhysicalProperty *HbaseDelete::synthPhysicalProperty(const Context *myContext, const Lng32 planNumber,
+PhysicalProperty *HbaseDelete::synthPhysicalProperty(const Context *myContext, const int planNumber,
                                                      PlanWorkSpace *pws) {
   const ReqdPhysicalProperty *rppForMe = myContext->getReqdPhysicalProperty();
   PartitioningRequirement *partReqForMe = rppForMe->getPartitioningRequirement();
@@ -13775,7 +13775,7 @@ CostMethod *HbaseUpdate::costMethod() const {
   return pCostMethod_;
 }  // HbaseUpdate::costMethod()
 
-PhysicalProperty *HbaseUpdate::synthPhysicalProperty(const Context *myContext, const Lng32 planNumber,
+PhysicalProperty *HbaseUpdate::synthPhysicalProperty(const Context *myContext, const int planNumber,
                                                      PlanWorkSpace *pws) {
   const ReqdPhysicalProperty *rppForMe = myContext->getReqdPhysicalProperty();
   PartitioningRequirement *partReqForMe = rppForMe->getPartitioningRequirement();
@@ -13810,7 +13810,7 @@ PhysicalProperty *HbaseUpdate::synthPhysicalProperty(const Context *myContext, c
 
 }  // HbaseUpdate::synthPhysicalProperty()
 
-PhysicalProperty *HiveInsert::synthPhysicalProperty(const Context *myContext, const Lng32 planNumber,
+PhysicalProperty *HiveInsert::synthPhysicalProperty(const Context *myContext, const int planNumber,
                                                     PlanWorkSpace *pws) {
   const ReqdPhysicalProperty *rppForMe = myContext->getReqdPhysicalProperty();
 
@@ -13848,7 +13848,7 @@ CostMethod *HbaseInsert::costMethod() const {
   return pCostMethod_;
 }  // HbaseInsert::costMethod()
 
-PhysicalProperty *HbaseInsert::synthPhysicalProperty(const Context *myContext, const Lng32 planNumber,
+PhysicalProperty *HbaseInsert::synthPhysicalProperty(const Context *myContext, const int planNumber,
                                                      PlanWorkSpace *pws) {
   const ReqdPhysicalProperty *rppForMe = myContext->getReqdPhysicalProperty();
   PartitioningRequirement *partReqForMe = rppForMe->getPartitioningRequirement();
@@ -13915,7 +13915,7 @@ CostMethod *PhyPack::costMethod() const {
 //  Pointer to this operator's synthesized physical properties.
 //
 //==============================================================================
-PhysicalProperty *PhyPack::synthPhysicalProperty(const Context *context, const Lng32 planNumber, PlanWorkSpace *pws) {
+PhysicalProperty *PhyPack::synthPhysicalProperty(const Context *context, const int planNumber, PlanWorkSpace *pws) {
   /*
     PlanExecutionEnum planExecutionLocation;
 
@@ -13985,7 +13985,7 @@ CostMethod *PhysCompoundStmt::costMethod() const {
   return pCostMethod_;
 }
 
-PhysicalProperty *PhysCompoundStmt::synthPhysicalProperty(const Context *context, const Lng32 /*unused*/,
+PhysicalProperty *PhysCompoundStmt::synthPhysicalProperty(const Context *context, const int /*unused*/,
                                                           PlanWorkSpace *pws) {
   const PhysicalProperty *const sppOfLeftChild = context->getPhysicalPropertyOfSolutionForChild(0);
 
@@ -14017,7 +14017,7 @@ PhysicalProperty *PhysCompoundStmt::synthPhysicalProperty(const Context *context
 }  // CompoundStmt::synthPhysicalProperty()
 
 //<pb>
-Context *CompoundStmt::createContextForAChild(Context *myContext, PlanWorkSpace *pws, Lng32 &childIndex) {
+Context *CompoundStmt::createContextForAChild(Context *myContext, PlanWorkSpace *pws, int &childIndex) {
   // ---------------------------------------------------------------------
   // If one Context has been generated for each child, return NULL
   // to signal completion.
@@ -14025,7 +14025,7 @@ Context *CompoundStmt::createContextForAChild(Context *myContext, PlanWorkSpace 
   if (pws->getCountOfChildContexts() == getArity()) return NULL;
 
   childIndex = pws->getCountOfChildContexts();
-  Lng32 planNumber = 0;
+  int planNumber = 0;
   Context *childContext = NULL;
   const ReqdPhysicalProperty *rppForMe = myContext->getReqdPhysicalProperty();
 
@@ -14123,7 +14123,7 @@ Context *CompoundStmt::createContextForAChild(Context *myContext, PlanWorkSpace 
 
 }  // CompoundStmt::createContextForAChild()
 
-Context *Pack::createContextForAChild(Context *myContext, PlanWorkSpace *pws, Lng32 &childIndex) {
+Context *Pack::createContextForAChild(Context *myContext, PlanWorkSpace *pws, int &childIndex) {
   // ---------------------------------------------------------------------
   // If one Context has been generated for each child, return NULL
   // to signal completion.
@@ -14132,7 +14132,7 @@ Context *Pack::createContextForAChild(Context *myContext, PlanWorkSpace *pws, Ln
 
   childIndex = 0;
 
-  Lng32 planNumber = 0;
+  int planNumber = 0;
   const ReqdPhysicalProperty *rppForMe = myContext->getReqdPhysicalProperty();
 
   RequirementGenerator rg(child(0), rppForMe);
@@ -14233,7 +14233,7 @@ CostMethod *PhysicalIsolatedScalarUDF::costMethod() const {
 // should change as well.
 //
 //==============================================================================
-PhysicalProperty *IsolatedScalarUDF::synthPhysicalProperty(const Context *myContext, const Lng32 planNumber,
+PhysicalProperty *IsolatedScalarUDF::synthPhysicalProperty(const Context *myContext, const int planNumber,
                                                            PlanWorkSpace *pws) {
   CMPASSERT(myContext != NULL);
 
@@ -14343,12 +14343,12 @@ PhysicalProperty *IsolatedScalarUDF::synthPhysicalProperty(const Context *myCont
   // Estimate the number of cpus executing executing copies of this
   // instance:
   // -----------------------------------------------------------------------
-  Lng32 countOfCPUs = 1;
+  int countOfCPUs = 1;
 
-  Lng32 countOfStreams = 1;
+  int countOfStreams = 1;
   if (myPartFunc != NULL) countOfStreams = myPartFunc->getCountOfPartitions();
 
-  Lng32 countOfAvailableCPUs = 1;
+  int countOfAvailableCPUs = 1;
   if (myContext->getReqdPhysicalProperty())
     countOfAvailableCPUs = myContext->getReqdPhysicalProperty()->getCountOfAvailableCPUs();
 
@@ -14372,7 +14372,7 @@ PhysicalProperty *IsolatedScalarUDF::synthPhysicalProperty(const Context *myCont
 
 }  //  IsolatedScalarUDF::synthPhysicalProperty()
 
-PhysicalProperty *CallSP::synthPhysicalProperty(const Context *context, const Lng32 /*unused*/, PlanWorkSpace *pws) {
+PhysicalProperty *CallSP::synthPhysicalProperty(const Context *context, const int /*unused*/, PlanWorkSpace *pws) {
   //----------------------------------------------------------
   // Create a node map with a single, active, wild-card entry.
   //----------------------------------------------------------
@@ -14393,7 +14393,7 @@ PhysicalProperty *CallSP::synthPhysicalProperty(const Context *context, const Ln
 }  // CallSP::synthPhysicalProperty()
 
 DefaultToken TableMappingUDF::getParallelControlSettings(const ReqdPhysicalProperty *const rppForMe, /*IN*/
-                                                         Lng32 &numOfESPs,                           /*OUT*/
+                                                         int &numOfESPs,                           /*OUT*/
                                                          float &allowedDeviation,                    /*OUT*/
                                                          NABoolean &numOfESPsForced /*OUT*/) const {
   return RelExpr::getParallelControlSettings(rppForMe, numOfESPs, allowedDeviation, numOfESPsForced);
@@ -14401,7 +14401,7 @@ DefaultToken TableMappingUDF::getParallelControlSettings(const ReqdPhysicalPrope
 
 NABoolean TableMappingUDF::okToAttemptESPParallelism(const Context *myContext, /*IN*/
                                                      PlanWorkSpace *pws,       /*IN*/
-                                                     Lng32 &numOfESPs,         /*OUT*/
+                                                     int &numOfESPs,         /*OUT*/
                                                      float &allowedDeviation,  /*OUT*/
                                                      NABoolean &numOfESPsForced /*OUT*/) {
   const ReqdPhysicalProperty *rppForMe = myContext->getReqdPhysicalProperty();
@@ -14409,7 +14409,7 @@ NABoolean TableMappingUDF::okToAttemptESPParallelism(const Context *myContext, /
   // call the base class method
   NABoolean result = RelExpr::okToAttemptESPParallelism(myContext, pws, numOfESPs, allowedDeviation, numOfESPsForced);
 
-  Lng32 reqdNumOfPartitions =
+  int reqdNumOfPartitions =
       (rppForMe->requiresPartitioning() ? rppForMe->getCountOfPartitions() : ANY_NUMBER_OF_PARTITIONS);
   int udfDoP = 0;
 
@@ -14421,7 +14421,7 @@ NABoolean TableMappingUDF::okToAttemptESPParallelism(const Context *myContext, /
     // return the same DoP as suggested by the base class method
     // (and we are not forcing the # of ESPs)
     DefaultToken parallelControlSetting = CURRSTMT_OPTDEFAULTS->attemptESPParallelism();
-    Lng32 maxDoP = CURRSTMT_OPTDEFAULTS->getMaximumDegreeOfParallelism();
+    int maxDoP = CURRSTMT_OPTDEFAULTS->getMaximumDegreeOfParallelism();
 
     switch (udfDoP) {
       case tmudr::UDRPlanInfo::MAX_DEGREE_OF_PARALLELISM:
@@ -14498,7 +14498,7 @@ PartitioningFunction *TableMappingUDF::mapPartitioningFunction(const Partitionin
   return RelExpr::mapPartitioningFunction(partFunc, rewriteForChild0);
 };
 
-NABoolean TableMappingUDF::isBigMemoryOperator(const PlanWorkSpace *pws, const Lng32 /*planNumber*/) {
+NABoolean TableMappingUDF::isBigMemoryOperator(const PlanWorkSpace *pws, const int /*planNumber*/) {
   NABoolean result = FALSE;
   const Context *context = pws->getContext();
   const TMUDFPlanWorkSpace *udfPWS = static_cast<const TMUDFPlanWorkSpace *>(pws);
@@ -14560,7 +14560,7 @@ PlanWorkSpace *PhysicalTableMappingUDF::allocateWorkSpace() const {
   return result;
 }
 
-Context *PhysicalTableMappingUDF::createContextForAChild(Context *myContext, PlanWorkSpace *pws, Lng32 &childIndex) {
+Context *PhysicalTableMappingUDF::createContextForAChild(Context *myContext, PlanWorkSpace *pws, int &childIndex) {
   // ---------------------------------------------------------------------
   // If one Context has been generated for each child, return NULL
   // to signal completion. This will also take care of 0 child case.
@@ -14569,9 +14569,9 @@ Context *PhysicalTableMappingUDF::createContextForAChild(Context *myContext, Pla
 
   if (childIndex == getArity()) return NULL;
 
-  Lng32 planNumber = 0;
+  int planNumber = 0;
   const ReqdPhysicalProperty *rppForMe = myContext->getReqdPhysicalProperty();
-  Lng32 childNumPartsRequirement = ANY_NUMBER_OF_PARTITIONS;
+  int childNumPartsRequirement = ANY_NUMBER_OF_PARTITIONS;
   float childNumPartsAllowedDeviation = 0.0;
   NABoolean numOfESPsForced = FALSE;
 
@@ -14593,7 +14593,7 @@ Context *PhysicalTableMappingUDF::createContextForAChild(Context *myContext, Pla
     } else if (childPartReqType == REPLICATE_PARTITIONING) {
       // get the number of replicas
       // for right now just get what ever number of streams the parent requires
-      Lng32 countOfPartitions = childNumPartsRequirement;
+      int countOfPartitions = childNumPartsRequirement;
       if (rppForMe->getPartitioningRequirement() && (countOfPartitions < rppForMe->getCountOfPartitions()))
         countOfPartitions = rppForMe->getCountOfPartitions();
 
@@ -14676,11 +14676,11 @@ Context *PhysicalTableMappingUDF::createContextForAChild(Context *myContext, Pla
   return result;
 };
 
-PhysicalProperty *PhysicalTableMappingUDF::synthPhysicalProperty(const Context *myContext, const Lng32 planNumber,
+PhysicalProperty *PhysicalTableMappingUDF::synthPhysicalProperty(const Context *myContext, const int planNumber,
                                                                  PlanWorkSpace *pws) {
   PartitioningFunction *myPartFunc = NULL;
   Int32 arity = getArity();
-  Lng32 numOfESPs = 0;
+  int numOfESPs = 0;
   NABoolean createSinglePartFunc = FALSE;
   NABoolean createRandomPartFunc = FALSE;
 
@@ -14787,7 +14787,7 @@ PhysicalProperty *PhysicalTableMappingUDF::synthPhysicalProperty(const Context *
 //
 //
 //***********************************************************************
-NABoolean RelExpr::isBigMemoryOperator(const PlanWorkSpace *pws, const Lng32) {
+NABoolean RelExpr::isBigMemoryOperator(const PlanWorkSpace *pws, const int) {
   const Context *context = pws->getContext();
   const PhysicalProperty *spp = context->getPlan()->getPhysicalProperty();
 
@@ -14821,7 +14821,7 @@ NABoolean RelExpr::isBigMemoryOperator(const PlanWorkSpace *pws, const Lng32) {
   return FALSE;
 }
 
-PhysicalProperty *ControlRunningQuery::synthPhysicalProperty(const Context *myContext, const Lng32 planNumber,
+PhysicalProperty *ControlRunningQuery::synthPhysicalProperty(const Context *myContext, const int planNumber,
                                                              PlanWorkSpace *pws)
 
 {
@@ -14845,7 +14845,7 @@ PhysicalProperty *ControlRunningQuery::synthPhysicalProperty(const Context *myCo
 
 }  // ControlRunningQuery::synthPhysicalProperty()
 
-Context *ConnectBy::createContextForAChild(Context *myContext, PlanWorkSpace *pws, Lng32 &childIndex) {
+Context *ConnectBy::createContextForAChild(Context *myContext, PlanWorkSpace *pws, int &childIndex) {
   SortOrderTypeEnum childSortOrderTypeReq = NO_SOT;
   PartitioningRequirement *dp2SortOrderPartReq = NULL;
   const ReqdPhysicalProperty *rppForMe = myContext->getReqdPhysicalProperty();
@@ -14867,7 +14867,7 @@ Context *ConnectBy::createContextForAChild(Context *myContext, PlanWorkSpace *pw
 
   if (NOT rg.checkFeasibility()) return NULL;
 
-  Lng32 planNumber = 0;
+  int planNumber = 0;
 
   // ---------------------------------------------------------------------
   // Compute the cost limit to be applied to the child.
@@ -14893,7 +14893,7 @@ Context *ConnectBy::createContextForAChild(Context *myContext, PlanWorkSpace *pw
 
 }  // ConnectBy::createContextForAChild()
 
-PhysicalProperty *ConnectBy::synthPhysicalProperty(const Context *context, const Lng32 planNumber, PlanWorkSpace *pws) {
+PhysicalProperty *ConnectBy::synthPhysicalProperty(const Context *context, const int planNumber, PlanWorkSpace *pws) {
   // ---------------------------------------------------------------------
   // Simply propogate child's physical property.
   // ---------------------------------------------------------------------
@@ -14908,7 +14908,7 @@ PhysicalProperty *ConnectBy::synthPhysicalProperty(const Context *context, const
 
   return sppForMe;
 }
-PhysicalProperty *ConnectByTempTable::synthPhysicalProperty(const Context *context, const Lng32 planNumber,
+PhysicalProperty *ConnectByTempTable::synthPhysicalProperty(const Context *context, const int planNumber,
                                                             PlanWorkSpace *pws) {
   // ---------------------------------------------------------------------
   // Simply propogate child's physical property.
@@ -14922,7 +14922,7 @@ PhysicalProperty *ConnectByTempTable::synthPhysicalProperty(const Context *conte
 
   return sppForMe;
 }
-Context *ConnectByTempTable::createContextForAChild(Context *myContext, PlanWorkSpace *pws, Lng32 &childIndex) {
+Context *ConnectByTempTable::createContextForAChild(Context *myContext, PlanWorkSpace *pws, int &childIndex) {
   const ReqdPhysicalProperty *rppForMe = myContext->getReqdPhysicalProperty();
 
   CMPASSERT(getArity() == 1);
@@ -14936,7 +14936,7 @@ Context *ConnectByTempTable::createContextForAChild(Context *myContext, PlanWork
 
   if (NOT rg.checkFeasibility()) return NULL;
 
-  Lng32 planNumber = 0;
+  int planNumber = 0;
 
   // ---------------------------------------------------------------------
   // Compute the cost limit to be applied to the child.
@@ -14962,7 +14962,7 @@ Context *ConnectByTempTable::createContextForAChild(Context *myContext, PlanWork
 
 }  // ConnectByTempTable::createContextForAChild()
 
-PhysicalProperty *QueryInvalidationFunc::synthPhysicalProperty(const Context *myContext, const Lng32 planNumber,
+PhysicalProperty *QueryInvalidationFunc::synthPhysicalProperty(const Context *myContext, const int planNumber,
                                                                PlanWorkSpace *pws) {
   NodeMap *myNodeMap = new (CmpCommon::statementHeap()) NodeMap(CmpCommon::statementHeap(), 1, NodeMapEntry::ACTIVE);
 

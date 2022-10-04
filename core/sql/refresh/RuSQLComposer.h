@@ -192,7 +192,7 @@ inline void CRUSQLComposer::AddPrefixToString(const CDSString &prefix, CDSString
 //--------------------------------------------------------------------------//
 
 inline void CRUSQLComposer::AddSuffixToString(const CDSString &suffix, CDSString &to) {
-  Lng32 len = to.GetLength();
+  int len = to.GetLength();
   RUASSERT(len > 0);
 
   char lastchar = to.operator[](len - 1);

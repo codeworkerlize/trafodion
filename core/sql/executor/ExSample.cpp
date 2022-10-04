@@ -182,7 +182,7 @@ short ExSampleTcb::work() {
     //
     if ((pstate->step_ == ExSamp_WORKING) || (pstate->step_ == ExSamp_RETURNINGROWS)) {
       if ((request == ex_queue::GET_NOMORE) ||
-          ((request == ex_queue::GET_N) && (pentry_down->downState.requestValue <= (Lng32)pstate->matchCount_))) {
+          ((request == ex_queue::GET_N) && (pentry_down->downState.requestValue <= (int)pstate->matchCount_))) {
         qchild_.down->cancelRequestWithParentIndex(qparent_.down->getHeadIndex());
         pstate->step_ = ExSamp_CANCELLED;
       }
@@ -304,7 +304,7 @@ short ExSampleTcb::work() {
               retCode = balanceExpr()->eval(centry->getAtp(), centry->getAtp());
 
               if (retCode == ex_expr::EXPR_OK) {
-                samplingFactor = *(Lng32 *)balanceExpr()->getPersistentData(returnFactorOffset());
+                samplingFactor = *(int *)balanceExpr()->getPersistentData(returnFactorOffset());
 
                 // If the sampling factor is less than 0, then
                 // we are done with this request. Mark the
@@ -364,7 +364,7 @@ short ExSampleTcb::work() {
                   // break out of here so we can stop processing.
                   //
                   if ((request == ex_queue::GET_N) &&
-                      (pentry_down->downState.requestValue <= (Lng32)pstate->matchCount_)) {
+                      (pentry_down->downState.requestValue <= (int)pstate->matchCount_)) {
                     samplingFactor = 0;
                     break;
                   }
@@ -454,7 +454,7 @@ short ExSampleTcb::work() {
           // If we have satisfied a GET_N request, then
           // break out of here so we can stop processing.
           //
-          if ((request == ex_queue::GET_N) && (pentry_down->downState.requestValue <= (Lng32)pstate->matchCount_)) {
+          if ((request == ex_queue::GET_N) && (pentry_down->downState.requestValue <= (int)pstate->matchCount_)) {
             pstate->rowsToReturn_ = 0;
             break;
           }

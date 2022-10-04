@@ -57,20 +57,20 @@ class ExBMOStats;
 
 class SortUtil : public NABasicObject {
  public:
-  SortUtil(Lng32 explainNodeId);
+  SortUtil(int explainNodeId);
   ~SortUtil();
 
   NABoolean sortInitialize(SortUtilConfig &config, ULng32 topNSize);
   NABoolean sortEnd(void);
 
-  Lng32 sortSend(void *record, ULng32 len, void *tupp);
+  int sortSend(void *record, ULng32 len, void *tupp);
 
-  Lng32 sortClientOutOfMem(void);
+  int sortClientOutOfMem(void);
 
-  Lng32 sortSendEnd(NABoolean &internalSort);
+  int sortSendEnd(NABoolean &internalSort);
 
-  Lng32 sortReceive(void *record, ULng32 &len);
-  Lng32 sortReceive(void *&record, ULng32 &len, void *&tupp);
+  int sortReceive(void *record, ULng32 &len);
+  int sortReceive(void *&record, ULng32 &len, void *&tupp);
 
   void DeleteSortAlgo();
 
@@ -92,7 +92,7 @@ class SortUtil : public NABasicObject {
     return (config_ != NULL && config_->initialMemoryQuotaMB_ > 0);
   }
   UInt32 getMaxAvailableQuotaMB(void);
-  NABoolean withinMemoryLimitsAndPressure(Int64 reqMembytes);
+  NABoolean withinMemoryLimitsAndPressure(long reqMembytes);
 
   SortUtilConfig *config(void) { return config_; }
   SortScratchSpace *getScratch() const { return scratch_; };
@@ -101,10 +101,10 @@ class SortUtil : public NABasicObject {
   void setBMOStats(ExBMOStats *stat) { bmoStats_ = stat; };
   UInt32 estimateMemoryToAvoidIntMerge(UInt32 numruns, Int32 sortMergeBlocksPerBuffer);
   UInt32 estimateMergeOrder(UInt32 maxMergeMemory, Int32 sortMergeBlocksPerBuffer);
-  Lng32 getRunSize() const { return sortAlgo_->getRunSize(); };
+  int getRunSize() const { return sortAlgo_->getRunSize(); };
 
  protected:
-  Lng32 sortReceivePrepare();
+  int sortReceivePrepare();
 
  private:
   void reInit();
@@ -128,7 +128,7 @@ class SortUtil : public NABasicObject {
 
   SortError sortError_;  // Error code of Last Sort error if any.
 
-  Lng32 explainNodeId_;  // Help runtime reporting.
+  int explainNodeId_;  // Help runtime reporting.
 
   UInt32 memoryQuotaUtil_;  // memory quota consumed at the util level.
 

@@ -50,7 +50,7 @@ ex_function_upper_unicode::ex_function_upper_unicode() {}
 extern NAWchar unicodeToUpper(NAWchar wc);
 
 ex_expr::exp_return_type ex_function_upper_unicode::eval(char *op_data[], CollHeap *heap, ComDiagsArea **diagsArea) {
-  Lng32 len1 = getOperand(1)->getLength(op_data[-MAX_OPERANDS + 1]);
+  int len1 = getOperand(1)->getLength(op_data[-MAX_OPERANDS + 1]);
   // Now, copy the contents of operand 1 after the case change into
   // operand 0.
 

@@ -196,7 +196,7 @@ class ExVPJoinPrivateState : public ex_tcb_private_state {
  private:
   inline void init();
 
-  Int64 matchCount_;  // number of rows returned for
+  long matchCount_;  // number of rows returned for
                       // associated request
 
   Int32 started_;  // has associated request been "started"

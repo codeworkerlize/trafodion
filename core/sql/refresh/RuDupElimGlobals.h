@@ -56,8 +56,8 @@ class REFRESH_LIB_CLASS CRUDupElimGlobals {
   CRUDupElimGlobals();
   virtual ~CRUDupElimGlobals() {}
 
-  void Init(BOOL isRangeResolv, BOOL isSingleRowResolv, Lng32 updateBmpSize, Lng32 nCtrlColumns, Lng32 nCKColumns,
-            TInt32 lastDEEpoch, TInt32 beginEpoch, TInt32 endEpoch, Lng32 rangeLogType,
+  void Init(BOOL isRangeResolv, BOOL isSingleRowResolv, int updateBmpSize, int nCtrlColumns, int nCKColumns,
+            TInt32 lastDEEpoch, TInt32 beginEpoch, TInt32 endEpoch, int rangeLogType,
             BOOL wasPrevDEInvocationCompleted, BOOL isSkipCrossTypeResoultion);
 
   // Pack/Unpack methods for IPC
@@ -69,29 +69,29 @@ class REFRESH_LIB_CLASS CRUDupElimGlobals {
   BOOL IsSingleRowResolv() const { return isSingleRowResolv_; }
 
   // The number of bytes in the @UPDATE_BITMAP column
-  Lng32 GetUpdateBmpSize() const { return updateBmpSize_; }
+  int GetUpdateBmpSize() const { return updateBmpSize_; }
   // The number of control columns to be retrieved by the query
-  Lng32 GetNumCtrlColumns() const { return nCtrlColumns_; }
+  int GetNumCtrlColumns() const { return nCtrlColumns_; }
   // The number of clustering key columns in the table
-  Lng32 GetNumCKColumns() const { return nCKColumns_; }
+  int GetNumCKColumns() const { return nCKColumns_; }
   // The last epoch scanned by DE until now
   TInt32 GetLastDEEpoch() const { return lastDEEpoch_; }
   TInt32 GetBeginEpoch() const { return beginEpoch_; }
   TInt32 GetEndEpoch() const { return endEpoch_; }
-  Lng32 GetRangeLogType() const { return rangeLogType_; }
+  int GetRangeLogType() const { return rangeLogType_; }
   BOOL WasPrevDEInvocationCompleted() const { return wasPrevDEInvocationCompleted_; }
   BOOL IsSkipCrossTypeResoultion() const { return isSkipCrossTypeResoultion_; }
 
  private:
   BOOL isRangeResolv_;
   BOOL isSingleRowResolv_;
-  Lng32 updateBmpSize_;
-  Lng32 nCtrlColumns_;
-  Lng32 nCKColumns_;
+  int updateBmpSize_;
+  int nCtrlColumns_;
+  int nCKColumns_;
   TInt32 lastDEEpoch_;
   TInt32 beginEpoch_;
   TInt32 endEpoch_;
-  Lng32 rangeLogType_;
+  int rangeLogType_;
   BOOL wasPrevDEInvocationCompleted_;
   BOOL isSkipCrossTypeResoultion_;
 };

@@ -61,7 +61,7 @@ class ItemExprList : public LIST(ItemExpr *) {
   ItemExprList(CollHeap *h /*=0*/) : LIST(ItemExpr *)(h), heap_(h) {}
 
   // Constructor
-  ItemExprList(Lng32 numberOfElements, CollHeap *h) : LIST(ItemExpr *)(h, numberOfElements), heap_(h) {}
+  ItemExprList(int numberOfElements, CollHeap *h) : LIST(ItemExpr *)(h, numberOfElements), heap_(h) {}
 
   ItemExprList(ItemExpr *tree, CollHeap *h, OperatorTypeEnum backBoneType = ITM_ITEM_LIST,
                NABoolean flattenSubqueries = TRUE, NABoolean flattenUDFs = TRUE)
@@ -111,7 +111,7 @@ class ItemExprTreeAsList : public NABasicObject {
   ItemExprTreeAsList(ExprValueId *treePtr, OperatorTypeEnum op, ItemExprShapeEnum shape = RIGHT_LINEAR_TREE);
 
   // return number of entries
-  Lng32 entries() const;
+  int entries() const;
 
   // insert a new entry to bottom of list
   void insert(ItemExpr *treeToInsert);

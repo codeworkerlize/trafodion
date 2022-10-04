@@ -218,7 +218,7 @@ extern THREAD_P LimitedStack *inJoinSpec;  // can handle <STACK_LIMIT> nested Jo
 
 char *SQLTEXT();
 charBuf *SQLTEXTCHARBUF();
-Lng32 SQLTEXTCHARSET();
+int SQLTEXTCHARSET();
 NAWchar *SQLTEXTW();  // in UCS-2/UTF-16
 NAWcharBuf *SQLTEXTNAWCHARBUF();
 
@@ -266,7 +266,7 @@ void resetHostVars();
 extern THREAD_P Int32 in3GL_;
 
 void MarkInteriorNodesAsInCompoundStmt(RelExpr *node);
-NAWString *localeMBStringToUnicode(NAString *localeString, Lng32 charset, CollHeap *heap = NULL);
+NAWString *localeMBStringToUnicode(NAString *localeString, int charset, CollHeap *heap = NULL);
 RelRoot *finalize(RelExpr *top, NABoolean outputVarCntValid = TRUE);
 
 NAString *getSqlStmtStr(CharInfo::CharSet &sqlStmtCharSet, CollHeap *heap);
@@ -676,13 +676,13 @@ void conditionalDelimit(NAString &, const NAString &);
 // LONG_MAX is returned if the parser is invoked by the preprocessor. This is
 // because the value that can be obtained on NT in the context of ETK may be different
 // from that in the defaults table on NSK.
-Lng32 getDefaultMaxLengthForLongVarChar(CharInfo::CharSet cs);
+int getDefaultMaxLengthForLongVarChar(CharInfo::CharSet cs);
 
 // Get the default min column width from the defaults table for LONG VARCHAR/WVARCHAR.
 // 0 is returned if the parser is invoked by the preprocessor. This is
 // because the value that can be obtained on NT in the context of EKT may be different
 // from that in the defaults table on NSK.
-Lng32 getDefaultMinLengthForLongVarChar(CharInfo::CharSet cs);
+int getDefaultMinLengthForLongVarChar(CharInfo::CharSet cs);
 
 // Get the charset inference setting from the defaults table. The defVal's content
 // is updated with the INFER_CHARSET entry in the table if the parser is not
@@ -730,9 +730,9 @@ SchemaName *processVolatileSchemaName(SchemaName *schName, NABoolean validateVol
 
 RelExpr *processReturningClause(RelExpr *insert, UInt32 returningType);
 
-// Process the ascii characters for an Int64.
+// Process the ascii characters for an long.
 // Ensure that the number is not larger than
-// the maximum allowed for an Int64
+// the maximum allowed for an long
 NABoolean validateSGOption(NABoolean positive, NABoolean negAllowed, char *value, const char *optionName,
                            const char *objectType);
 
@@ -938,7 +938,7 @@ RelExpr *SqlParserAux_buildDescribeForFunctionAndAction(CorrName *actual_routine
                                                         ,
                                                         CorrName *optional_showddl_action_name_clause  // in - deep copy
                                                         ,
-                                                        Lng32 optional_showddlroutine_options  // in
+                                                        int optional_showddlroutine_options  // in
 );
 
 class OlapMultiWindowExpander : public NABasicObject {

@@ -486,7 +486,7 @@ typedef struct __zsys_ddl_inheritance {
 typedef struct __zsys_ddl_sigset
 
 {
-  Int64 z_item64[2];
+  long z_item64[2];
 } zsys_ddl_sigset_def;
 // #pragma section zsys_ddl_inheritance_native
 #pragma fieldalign shared2 __zsys_ddl_inheritance_native
@@ -748,7 +748,7 @@ typedef struct __zsys_ddl_smsg_cpuup {
 typedef struct __zsys_ddl_smsg_settime {
   short z_msgnumber;
   short z_cpunumber;
-  Int64 z_timedelta;
+  long z_timedelta;
   short z_reasoncode;
 } zsys_ddl_smsg_settime_def;
 // #pragma section zsys_ddl_smsg_poweron
@@ -889,7 +889,7 @@ typedef struct __zsys_ddl_smsg_procdeath {
     char z_base[2];
   } u_z_msgnumber;
   zsys_ddl_phandle_def z_phandle;
-  Int64 z_cputime;
+  long z_cputime;
   short z_jobid;
   short z_completion_code;
   union {

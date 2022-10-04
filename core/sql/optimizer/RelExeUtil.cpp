@@ -36,7 +36,7 @@
 #define SQLPARSERGLOBALS_NADEFAULTS
 
 #include "common/ComRtUtils.h"
-#include "Debug.h"
+#include "common/Debug.h"
 #include "optimizer/Sqlcomp.h"
 #include "optimizer/AllRelExpr.h"
 #include "optimizer/AllItemExpr.h"
@@ -522,7 +522,7 @@ RelExpr *RelBackupRestore::bindNode(BindWA *bindWA) {
   }
 
   if (NOT backupTag().isNull()) {
-    Lng32 tagMaxLen = 32;
+    int tagMaxLen = 32;
     if ((backup()) && (NOT showObjects()) && (NOT getOverride()))
       tagMaxLen = 32;
     else
@@ -548,7 +548,7 @@ RelExpr *RelBackupRestore::bindNode(BindWA *bindWA) {
     if (backup() && (NOT showObjects()) && (NOT getOverride())) {
       // append current utc timestamp to backup tag
       char tsbuf[100];
-      Int64 jts = NA_JulianTimestamp();
+      long jts = NA_JulianTimestamp();
       str_sprintf(tsbuf, "%020ld", jts);
 
       NAString newTag(backupTag());
@@ -618,7 +618,7 @@ RelExpr *RelBackupRestore::bindNode(BindWA *bindWA) {
     if (CmpCommon::context()->gmtDiff() != 0) {
       ComDiagsArea *diags = CmpCommon::diags();
       ExpDatetime::convAsciiDatetimeToUtcOrLocal(utcStr, strlen(utcStr), utcStrBuf, strlen(utcStr),
-                                                 (Int64)CmpCommon::context()->gmtDiff() * 60 * 1000000,
+                                                 (long)CmpCommon::context()->gmtDiff() * 60 * 1000000,
                                                  TRUE,  // toUTC
                                                  STMTHEAP, &diags);
 
@@ -2686,7 +2686,7 @@ ExeUtilMaintainObject::ExeUtilMaintainObject(enum MaintainObjectType type, const
 
     if (formatOptions_) {
       size_t currIndex = 0;
-      Lng32 numFormats = 0;
+      int numFormats = 0;
       while (currIndex < formatOptions_.length()) {
         if ((formatOptions_.length() - currIndex) < 2) {
           errorInParams_ = TRUE;
@@ -3324,10 +3324,10 @@ NAString ExeUtilLongRunning::constructKeyRangeComparePredicate() {
 
     const NAType *colType = column->getType();
     const char *colTypeNameNA = column->getType()->getTypeName();
-    Lng32 precision = colType->getPrecision();
-    Lng32 scale = colType->getScale();
-    Lng32 varlen = colType->getVarLenHdrSize();
-    Lng32 charSize = colType->getNominalSize();
+    int precision = colType->getPrecision();
+    int scale = colType->getScale();
+    int varlen = colType->getVarLenHdrSize();
+    int charSize = colType->getNominalSize();
     NAString sqlTypeName = colType->getTypeSQLname(TRUE);
 
     // Prepare the casting strings
@@ -5107,7 +5107,7 @@ RelExpr *ExeUtilLongRunning::bindNode(BindWA *bindWA) {
 //////////////////////////////////////////////////////////////////////////////
 // OptPhysRelExpr and LogPhysRelExpr methods for ExeUtil operators
 //////////////////////////////////////////////////////////////////////////////
-PhysicalProperty *ExeUtilLongRunning::synthPhysicalProperty(const Context *context, const Lng32 planNumber,
+PhysicalProperty *ExeUtilLongRunning::synthPhysicalProperty(const Context *context, const int planNumber,
                                                             PlanWorkSpace *pws) {
   const ReqdPhysicalProperty *rppForMe = context->getReqdPhysicalProperty();
 
@@ -5173,7 +5173,7 @@ void ExeUtilCompositeUnnest::synthEstLogProp(const EstLogPropSharedPtr &inputEst
 
 }  // ExeUtilCompositeUnnest::synthEstLogProp
 
-PhysicalProperty *ExeUtilCompositeUnnest::synthPhysicalProperty(const Context *context, const Lng32 planNumber,
+PhysicalProperty *ExeUtilCompositeUnnest::synthPhysicalProperty(const Context *context, const int planNumber,
                                                                 PlanWorkSpace *pws) {
   const ReqdPhysicalProperty *rppForMe = context->getReqdPhysicalProperty();
 
@@ -5735,7 +5735,7 @@ RelExpr *ExeUtilCompositeUnnest::copyTopNode(RelExpr *derivedNode, CollHeap *out
 
 void ExeUtilCompositeUnnest::pushdownCoveredExpr(const ValueIdSet &outputExpr, const ValueIdSet &newExternalInputs,
                                                  ValueIdSet &predicatesOnParent,
-                                                 const ValueIdSet *setOfValuesReqdByParent, Lng32 childIndex) {
+                                                 const ValueIdSet *setOfValuesReqdByParent, int childIndex) {
   ValueIdSet exprOnParent;
   exprOnParent += colNameExpr_->getValueId();
 

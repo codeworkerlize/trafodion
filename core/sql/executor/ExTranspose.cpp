@@ -389,7 +389,7 @@ ExWorkProcRetcode ExTransposeTcb::workUp() {
         processError();
         continue;
       } else if (pEntryDown->downState.request == ex_queue::GET_N &&
-                 pEntryDown->downState.requestValue <= (Lng32)pState.matchCount_) {
+                 pEntryDown->downState.requestValue <= (int)pState.matchCount_) {
         qParent_.down->cancelRequest(qParent_.down->getHeadIndex());
         processCancel();
         continue;
@@ -405,7 +405,7 @@ ExWorkProcRetcode ExTransposeTcb::workUp() {
         //
         while (pState.transCount_ < transTdb().numTransExprs() && !qParent_.up->isFull()) {
           if (pEntryDown->downState.request == ex_queue::GET_N &&
-              pEntryDown->downState.requestValue <= (Lng32)pState.matchCount_) {
+              pEntryDown->downState.requestValue <= (int)pState.matchCount_) {
             qParent_.down->cancelRequest(qParent_.down->getHeadIndex());
             processCancel();
             cancelled = TRUE;
@@ -572,8 +572,8 @@ ex_tcb_private_state *ExTransposePrivateState::allocate_new(const ex_tcb *tcb) {
 // Redefine virtual method allocatePstates, to be used by dynamic queue
 // resizing, as well as the initial queue construction.
 ////////////////////////////////////////////////////////////////////////
-ex_tcb_private_state *ExTransposeTcb::allocatePstates(Lng32 &numElems,      // inout, desired/actual elements
-                                                      Lng32 &pstateLength)  // out, length of one element
+ex_tcb_private_state *ExTransposeTcb::allocatePstates(int &numElems,      // inout, desired/actual elements
+                                                      int &pstateLength)  // out, length of one element
 {
   PstateAllocator<ExTransposePrivateState> pa;
 

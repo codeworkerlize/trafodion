@@ -46,11 +46,11 @@
 // Methods for class ComTdbSplitBottom
 // -----------------------------------------------------------------------
 ComTdbSplitBottom::ComTdbSplitBottom(ComTdb *child, ComTdbSendBottom *sendTdb, ex_expr *partFunction,
-                                     Lng32 partNoATPIndex, Lng32 partFunctionUsesNarrow,
-                                     Lng32 conversionErrorFlagATPIndex, Lng32 partInputATPIndex, Lng32 partInputDataLen,
+                                     int partNoATPIndex, int partFunctionUsesNarrow,
+                                     int conversionErrorFlagATPIndex, int partInputATPIndex, int partInputDataLen,
                                      Cardinality estimatedRowCount, ex_cri_desc *criDescDown, ex_cri_desc *criDescUp,
-                                     ex_cri_desc *workCriDesc, NABoolean combineRequests, Lng32 topNumESPs,
-                                     Lng32 topNumParts, Lng32 bottomNumESPs, Lng32 bottomNumParts,
+                                     ex_cri_desc *workCriDesc, NABoolean combineRequests, int topNumESPs,
+                                     int topNumParts, int bottomNumESPs, int bottomNumParts,
                                      SplitBottomSkewInfo *skewInfo, short minMaxValsWorkAtpIndex,
                                      ULng32 minMaxRowLength, ULng32 minValStartOffset, ex_expr *minMaxExpr,
                                      ex_expr *minMaxMoveOutExpr)
@@ -138,7 +138,7 @@ Long ComTdbSplitBottom::pack(void *space) {
   return ComTdb::pack(space);
 }
 
-Lng32 ComTdbSplitBottom::unpack(void *base, void *reallocator) {
+int ComTdbSplitBottom::unpack(void *base, void *reallocator) {
   if (child_.unpack(base, reallocator)) return -1;
   if (sendTdb_.unpack(base, reallocator)) return -1;
   if (partFunction_.unpack(base, reallocator)) return -1;
@@ -159,7 +159,7 @@ void ComTdbSplitBottom::displayContents(Space *space, ULng32 flag) {
     str_sprintf(buf, "\nFor ComTdbSplitBottom :");
     space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
 
-    str_sprintf(buf, "splitBottomFlags_ = %x", (Lng32)splitBottomFlags_);
+    str_sprintf(buf, "splitBottomFlags_ = %x", (int)splitBottomFlags_);
     space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
 
     str_sprintf(buf, "topNumESPs = %d, bottomNumESPs = %d", topNumESPs_, bottomNumESPs_);
@@ -251,7 +251,7 @@ Long SplitBottomSkewInfo::pack(void *space) {
   return NAVersionedObject::pack(space);
 }
 
-Lng32 SplitBottomSkewInfo::unpack(void *base, void *reallocator) {
+int SplitBottomSkewInfo::unpack(void *base, void *reallocator) {
   if (skewHashValues_.unpack(base)) return -1;
   return NAVersionedObject::unpack(base, reallocator);
 }

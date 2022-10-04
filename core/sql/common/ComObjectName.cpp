@@ -105,7 +105,7 @@ ComBoolean ComRoutineActionName::extractUudfUidAndIntActNameFromFunnyIntActNameI
   ComString uidStr(uidStrBuf);
   RemoveLeadingZeros(uidStr);
   if (NOT NAStringHasOnlyDecimalDigitAsciiChars(uidStr)) return FALSE;  // wrong parameter value
-  Int64 i64 = atoInt64(uidStr.data());                                  // in - const char * src
+  long i64 = atoInt64(uidStr.data());                                  // in - const char * src
   if (i64 <= 0) return FALSE;                                           // wrong parameter value
   pr_uudfUid = i64;
   pr_computedIntActName = &p[20];

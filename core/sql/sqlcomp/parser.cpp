@@ -54,18 +54,18 @@
 
 #include "arkcmp/CmpContext.h"
 #include "arkcmp/CmpStatement.h"
-#include "CmpErrLog.h"
+#include "arkcmp/CmpErrLog.h"
 #include "HvRoles.h"
 #include "common/NAExit.h"
 #include "common/NAMemory.h"
-#include "ParserMsg.h"
+#include "sqlmsg/ParserMsg.h"
 #include "sqlcomp/parser.h"
 #include "common/QueryText.h"
 #include "optimizer/RelExeUtil.h"
 #include "optimizer/RelMisc.h"        // for RelRoot
 #include "optimizer/RelStoredProc.h"  // for RelInternalSP
 #include "optimizer/SchemaDB.h"
-#include "SqlciError.h"
+#include "sqlci/SqlciError.h"
 #include "parser/StmtNode.h"  // for StmtQuery and for ItemColRef.h classes
 #include "common/str.h"
 #include "arkcmp/CompException.h"  // for CmpInternalException
@@ -144,7 +144,7 @@ Parser::Parser(const CmpContext *cmpContext)
 
   HQCKey_ = NULL;
 
-  Lng32 initsize = 10;
+  int initsize = 10;
   with_clauses_ = new (wHeap_) NAHashDictionary<NAString, RelExpr>(&cmmHashFunc_NAString, initsize, TRUE, wHeap_);
 
   pHint_ = NULL;
@@ -690,8 +690,8 @@ Int32 Parser::parseSQL(ExprNode **node,              // (OUT): parse tree if all
   // is marked here and at the end merged into the SqlParser_Diags
   // (the diags area maintained by parser).
   //
-  Lng32 diagsMark = CmpCommon::diags()->mark();
-  Lng32 initialErrCnt = SqlParser_Diags->getNumber(DgSqlCode::ERROR_);
+  int diagsMark = CmpCommon::diags()->mark();
+  int initialErrCnt = SqlParser_Diags->getNumber(DgSqlCode::ERROR_);
   Int32 parseError = 1;  // error
 
   // This static flag will be TRUE on entry if a previous yyparse ComASSERTed
@@ -1411,12 +1411,12 @@ void HQCParseKey::addTokenToNormalizedString(Int32 &tokCod) {
   if (SqlParser_CurrentParser->getLexer()->isLiteral4HQC(tokCod)) {
     keyText_ += "#np# ";
     NAString *literal = unicodeToChar(SqlParser_CurrentParser->YYText(), SqlParser_CurrentParser->YYLeng(),
-                                      (Lng32)ParScannedInputCharset, heap_);
+                                      (int)ParScannedInputCharset, heap_);
     CMPASSERT(literal);
     getParams().getNPLiterals().insert(*literal);
   } else {
     NAString *tok = unicodeToChar(SqlParser_CurrentParser->YYText(), SqlParser_CurrentParser->YYLeng(),
-                                  (Lng32)ParScannedInputCharset, heap_);
+                                  (int)ParScannedInputCharset, heap_);
     if (tok) {
       // for first token which is select/insert/update/delete, it might be HQC cacheable.
       tok->toLower();  // make case insensitive

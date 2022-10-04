@@ -102,7 +102,7 @@ charBuf *unicodeToUtf8(const NAWcharBuf &unicodeString, CollHeap *heap, charBuf 
                       ,
                       heap  // in - CollHeap *
                       ,
-                      cbufPtr, (Lng32)SQLCHARSETCODE_UTF8  // in - Lng32 targetCharSet
+                      cbufPtr, (int)SQLCHARSETCODE_UTF8  // in - int targetCharSet
                       ,
                       errorcode  // out - Int32 &
                       ,
@@ -127,7 +127,7 @@ charBuf *unicodeToUtf8(const NAWcharBuf &unicodeString, CollHeap *heap, charBuf 
   return output;
 }
 
-Lng32 UnicodeStringToLocale(Lng32 charset, const NAWchar *wstr, Lng32 wstrLen, char *buf, Lng32 bufLen,
+int UnicodeStringToLocale(int charset, const NAWchar *wstr, int wstrLen, char *buf, int bufLen,
                             NABoolean addNullAtEnd, NABoolean allowInvalidCodePoint) {
   charBuf cbuf((unsigned char *)buf, bufLen);
   charBuf *cbufPtr = &cbuf;
@@ -165,7 +165,7 @@ Lng32 UnicodeStringToLocale(Lng32 charset, const NAWchar *wstr, Lng32 wstrLen, c
   return (res) ? res->getStrLen() : 0;
 }
 
-Lng32 LocaleStringToUnicode(Lng32 charset, const char *str, Lng32 strLen, NAWchar *wstrBuf, Lng32 wstrBufLen,
+int LocaleStringToUnicode(int charset, const char *str, int strLen, NAWchar *wstrBuf, int wstrBufLen,
                             NABoolean addNullAtEnd) {
   // Changed the algorithm to call the new LocaleToUTF16() but keep
   // the old call to old ISO88591ToUnicode() when the character set is
@@ -173,7 +173,7 @@ Lng32 LocaleStringToUnicode(Lng32 charset, const char *str, Lng32 strLen, NAWcha
   // Use of ISO 8859-15 characters (a.k.a., Latin-9) in
   // CHARACTER SET ISO88591 target column continues to work.
 
-  if (charset == (Lng32)CharInfo::ISO88591) {
+  if (charset == (int)CharInfo::ISO88591) {
     NAWcharBuf wcbuf(wstrBuf, wstrBufLen);
     NAWcharBuf *wcbufPtr = &wcbuf;
     NAWcharBuf *res = 0;
@@ -182,7 +182,7 @@ Lng32 LocaleStringToUnicode(Lng32 charset, const char *str, Lng32 strLen, NAWcha
   }
 
   //
-  // else (charset != (Lng32) CharInfo::ISO88591)
+  // else (charset != (int) CharInfo::ISO88591)
   //
 
   enum cnv_charset convCS = convertCharsetEnum(charset);
@@ -226,17 +226,17 @@ Lng32 LocaleStringToUnicode(Lng32 charset, const char *str, Lng32 strLen, NAWcha
 // ***************************************************************
 #if 0  /* As of 8/30/2011, there are no callers in SQ SQL */
   Int32 localeConvertToUTF8(char* source,
-                    Lng32 sourceLen,
+                    int sourceLen,
                     char* target,
-                    Lng32 targetLen,
-                    Lng32 charset,
+                    int targetLen,
+                    int charset,
                     CollHeap * heap,
                     Int32  *rtnCharCount,
                     Int32  *errorByteOff)
   {
  
      char * buffer = NULL;
-     Lng32 bufferLen = 0;
+     int bufferLen = 0;
      Int32 retCode = 1;
      char *OrigSource = source;
  
@@ -255,7 +255,7 @@ Lng32 LocaleStringToUnicode(Lng32 charset, const char *str, Lng32 strLen, NAWcha
 
      // The resulting string will be bigger by a given factor.
      Int32 multiplier = 8;  // Includes future charset multiplier sizes
-     bufferLen = sourceLen + ((Lng32)strlen(source) * multiplier) + 1;
+     bufferLen = sourceLen + ((int)strlen(source) * multiplier) + 1;
 
      // Check that the target buffer was provided and its length
      // will be able to hold the converted characters
@@ -275,9 +275,9 @@ Lng32 LocaleStringToUnicode(Lng32 charset, const char *str, Lng32 strLen, NAWcha
      char * p1stUnstranslatedChar = NULL;
      UInt32  utf8StrLenInBytes = 0;  // 64-bit
      UInt32  charCount = 0;  // number of characters translated/converted
-     Lng32 inStrLen = (Lng32)strlen(source);
+     int inStrLen = (int)strlen(source);
  
-     for (Lng32 loopCounter = 0; retCode != 0 &&
+     for (int loopCounter = 0; retCode != 0 &&
            (retCode != CNV_ERR_INVALID_CHAR ||
             retCode != CNV_ERR_INVALID_CS    || 
             retCode != CNV_ERR_NOINPUT) &&
@@ -343,7 +343,7 @@ Lng32 LocaleStringToUnicode(Lng32 charset, const char *str, Lng32 strLen, NAWcha
 
 	    pinstr = p1stUnstranslatedChar; // We're going again, adjust the pointer to the input buffer.
 	    // prepare local variables for the next conversion
-            inStrLen = (Lng32)(inStrLen - (p1stUnstranslatedChar - pinstr));
+            inStrLen = (int)(inStrLen - (p1stUnstranslatedChar - pinstr));
             p1stUnstranslatedChar = NULL;
             // intentionally keep the retCode == CNV_ERR_BUFFER_OVERRUN setting
             // just in case we exceed the loop count limit
@@ -398,10 +398,10 @@ Lng32 LocaleStringToUnicode(Lng32 charset, const char *str, Lng32 strLen, NAWcha
 
 #if 0  /* As of 8/30/2011, there are no callers in SQ SQL */
   Int32 UTF8ConvertToLocale(char* source,
-                          Lng32 sourceLen,
+                          int sourceLen,
                           char* target,
-                          Lng32 targetLen,
-                          Lng32 charset,
+                          int targetLen,
+                          int charset,
                           CollHeap *heap,
                           Int32  *charCount,
                           Int32  *errorByteOff)
@@ -422,7 +422,7 @@ Lng32 LocaleStringToUnicode(Lng32 charset, const char *str, Lng32 strLen, NAWcha
         return CNV_ERR_NO_CONVERSION_NEEDED;
       }
 
-    Lng32 bufferLen = (Lng32)strlen(source) + 1;
+    int bufferLen = (int)strlen(source) + 1;
     char * buffer = NULL;
 
     // Check that the target buffer was provided and its length
@@ -447,7 +447,7 @@ Lng32 LocaleStringToUnicode(Lng32 charset, const char *str, Lng32 strLen, NAWcha
     UInt32 numTran = 0;   // number of characters translated
 
 
-    for (Lng32 loopCounter = 0; retCode != 0 &&
+    for (int loopCounter = 0; retCode != 0 &&
           (retCode != CNV_ERR_INVALID_CHAR ||
            retCode != CNV_ERR_INVALID_CS    || 
            retCode != CNV_ERR_NOINPUT) &&
@@ -456,7 +456,7 @@ Lng32 LocaleStringToUnicode(Lng32 charset, const char *str, Lng32 strLen, NAWcha
       {
         retCode = UTF8ToLocale(cnv_version1,
 			      (const char*)source, 
-			      (Lng32)strlen(source),
+			      (int)strlen(source),
 			      (const char*)buffer, 
 			      bufferLen,
 			      (cnv_charset)charset,

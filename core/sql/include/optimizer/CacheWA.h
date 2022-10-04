@@ -124,7 +124,7 @@ class ConstantParameters : public LIST(ConstantParameter *) {
   virtual ~ConstantParameters();
 
   // return our elements' total size in bytes
-  Lng32 getSize() const;
+  int getSize() const;
 
   // return true & matching element if val is in this list
   NABoolean find(ConstValue *val, ConstantParameter **match);
@@ -144,7 +144,7 @@ class SelParameters : public LIST(SelParameter *) {
   virtual ~SelParameters();
 
   // return our elements' total size in bytes
-  Lng32 getSize() const;
+  int getSize() const;
 
   // return true & matching element if val is in this list
   NABoolean find(ConstValue *val, SelParameter **match);
@@ -221,10 +221,10 @@ class CacheWA : public NABasicObject {
   const SelParamTypeList *getFormalSelParamTypes();
 
   // compose and return TextKey of current query
-  TextKey *getTextKey(const char *sText, Lng32 charset, const QryStmtAttributeSet &attrs);
+  TextKey *getTextKey(const char *sText, int charset, const QryStmtAttributeSet &attrs);
 
   // traverse queryExpr and put together its cacheKey
-  void generateCacheKey(RelExpr *queryExpr, const char *sText, Lng32 charset, const NAString &viewsUsed);
+  void generateCacheKey(RelExpr *queryExpr, const char *sText, int charset, const NAString &viewsUsed);
 
   // save cqdsInHint into cwa.qryText_
   void generateCacheKeyFromCqdsInHint();
@@ -293,7 +293,7 @@ class CacheWA : public NABasicObject {
 
   void setAutoCommit(TransMode::AutoCommit a) { autoCmt_ = a; }
   void setRollbackMode(TransMode::RollbackMode r) { rbackMode_ = r; }
-  void setAutoabortInterval(Lng32 val) { autoabortInterval_ = val; }
+  void setAutoabortInterval(int val) { autoabortInterval_ = val; }
   void setMultiCommit(TransMode::MultiCommit a) { multiCmt_ = a; }
 
   NABoolean hasRewriteEnabledMV() { return hasRewriteEnabledMV_; }
@@ -342,7 +342,7 @@ class CacheWA : public NABasicObject {
   TransMode::MultiCommit multiCmt_;    // tx multi-commit
   Int16 flags_;                        // tx flags
   TransMode::RollbackMode rbackMode_;  // tx rollback mode
-  Lng32 autoabortInterval_;            // tx autoabortInterval
+  int autoabortInterval_;            // tx autoabortInterval
 
   SelParameters sels_;  // list of actual selection parameters
   LIST(Int32) sqlStmtConstParamPos_;

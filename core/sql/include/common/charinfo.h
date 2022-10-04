@@ -229,7 +229,7 @@ class CharInfo {
   // The result is one of the SQLCHARSETCODE_xxx values defined in SQLCLI.h,
   // or "UNKNOWN" for a unknown locale.
   // Used by the sql_id and Formatter classes.
-  static Lng32 findLocaleCharSet();
+  static int findLocaleCharSet();
   static const char *getLocaleCharSetAsString();
   static Int32 getTargetCharTypeFromLocale();
 
@@ -417,7 +417,7 @@ class CollationDB : private CollationDBSupertype {
   CollHeap *heap_;
   NABoolean refreshNeeded_;
 
-  static Lng32 nextUserCo_;
+  static int nextUserCo_;
 };  // CollationDB
 
 #endif  // CHARINFO_H

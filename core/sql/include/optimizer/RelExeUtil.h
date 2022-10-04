@@ -104,7 +104,7 @@ class GenericUtilExpr : public RelExpr {
   virtual void getPotentialOutputValues(ValueIdSet &vs) const;
 
   // cost functions
-  virtual PhysicalProperty *synthPhysicalProperty(const Context *context, const Lng32 planNumber, PlanWorkSpace *pws);
+  virtual PhysicalProperty *synthPhysicalProperty(const Context *context, const int planNumber, PlanWorkSpace *pws);
 
   // this is both logical and physical node
   virtual NABoolean isLogical() const { return TRUE; };
@@ -242,7 +242,7 @@ class DDLExpr : public GenericUtilExpr {
 
   char *getDDLStmtText() { return getStmtText(); }
 
-  Lng32 getDDLStmtTextCharSet() const { return getStmtTextCharSet(); }
+  int getDDLStmtTextCharSet() const { return getStmtTextCharSet(); }
 
   CorrName &purgedataTableName() { return purgedataTableName_; }
   void setPurgedataTableName(CorrName &cn) {
@@ -548,7 +548,7 @@ class DDLExpr : public GenericUtilExpr {
   // the execution location of the DDL.
   NABoolean executeInESP_;
 
-  Int64 flags_;
+  long flags_;
 
   // if TRUE, ddl transactions are enabled. Actual operation may
   // run under one transaction or multiple transactions.
@@ -753,13 +753,13 @@ class RelBackupRestore : public DDLExpr {
   NAString &getMatchPattern() { return matchPattern_; }
   void setMatchPattern(NAString mp) { matchPattern_ = mp; }
 
-  Lng32 numSysTags() { return numSysTags_; }
-  void setNumSysTags(Lng32 v) { numSysTags_ = v; }
+  int numSysTags() { return numSysTags_; }
+  void setNumSysTags(int v) { numSysTags_ = v; }
 
   NAString &exportImportLocation() { return exportImportLocation_; }
   void setExportImportLocation(NAString &l) { exportImportLocation_ = l; }
 
-  Int64 brUID() { return brUID_; }
+  long brUID() { return brUID_; }
 
   void setBREIoper(const NAString o) { breiOper_ = o; }
   NAString &getBREIoper() { return breiOper_; }
@@ -821,7 +821,7 @@ class RelBackupRestore : public DDLExpr {
     FAST_RECOVERY = 0x100000000000
   };
 
-  Int64 flags_;
+  long flags_;
   NAString backupTag_;
 
   NAString timestampVal_;
@@ -841,11 +841,11 @@ class RelBackupRestore : public DDLExpr {
 
   // number of system generated tags to be created.
   // tag name is:  TRAF_SYSTAG_<unique-id>
-  Lng32 numSysTags_;
+  int numSysTags_;
 
   NAString exportImportLocation_;
 
-  Int64 brUID_;
+  long brUID_;
 
   NAString breiOper_;  // BREI: one of backup,restore,export,import
 };
@@ -1224,7 +1224,7 @@ class ExeUtilCleanupVolatileTables : public ExeUtilExpr {
 enum errorType { MAIN_ERROR_ = 0, HBASE_ERROR_, TM_ERROR_ };
 class ExeUtilGetErrorInfo : public ExeUtilExpr {
  public:
-  ExeUtilGetErrorInfo(errorType type, Lng32 errNum, CollHeap *oHeap = CmpCommon::statementHeap())
+  ExeUtilGetErrorInfo(errorType type, int errNum, CollHeap *oHeap = CmpCommon::statementHeap())
       : ExeUtilExpr(GET_ERROR_INFO_, CorrName("dummyName"), NULL, NULL, NULL  // in - char * stmt
                     ,
                     CharInfo::UnknownCharSet  // in - CharInfo::CharSet stmtCharSet
@@ -1243,7 +1243,7 @@ class ExeUtilGetErrorInfo : public ExeUtilExpr {
 
  private:
   errorType errType_;
-  Lng32 errNum_;
+  int errNum_;
 };
 
 class ExeUtilGetVolatileInfo : public ExeUtilExpr {
@@ -1363,7 +1363,7 @@ class ExeUtilConnectby : public ExeUtilExpr {
 
   virtual void pushdownCoveredExpr(const ValueIdSet &outputExprOnOperator, const ValueIdSet &newExternalInputs,
                                    ValueIdSet &predOnOperator, const ValueIdSet *nonPredExprOnOperator = NULL,
-                                   Lng32 childId = (-MAX_REL_ARITY)) {
+                                   int childId = (-MAX_REL_ARITY)) {
     ValueIdSet emptySet;
     RelExpr::pushdownCoveredExpr(outputExprOnOperator, newExternalInputs, emptySet, nonPredExprOnOperator, 0);
   }
@@ -1492,8 +1492,8 @@ class ExeUtilMaintainObject : public ExeUtilExpr {
     friend class ExeUtilMaintainObject;
 
    public:
-    MaintainObjectOption(MaintainObjectOptionType option, Lng32 numericVal1, const char *stringVal1,
-                         Lng32 numericVal2 = 0, const char *stringVal2 = NULL)
+    MaintainObjectOption(MaintainObjectOptionType option, int numericVal1, const char *stringVal1,
+                         int numericVal2 = 0, const char *stringVal2 = NULL)
         : option_(option),
           numericVal1_(numericVal1),
           stringVal1_(stringVal1),
@@ -1502,9 +1502,9 @@ class ExeUtilMaintainObject : public ExeUtilExpr {
 
    private:
     MaintainObjectOptionType option_;
-    Lng32 numericVal1_;
+    int numericVal1_;
     const char *stringVal1_;
-    Lng32 numericVal2_;
+    int numericVal2_;
     const char *stringVal2_;
   };
 
@@ -1569,11 +1569,11 @@ class ExeUtilMaintainObject : public ExeUtilExpr {
                         NABoolean enableIndexLabelStats, NABoolean disableIndexLabelStats,
                         NABoolean resetIndexLabelStats);
 
-  void setMaintainedTableCreateTime(Int64 createTime) { maintainedTableCreateTime_ = createTime; }
-  Int64 getMaintainedTableCreateTime() { return maintainedTableCreateTime_; }
+  void setMaintainedTableCreateTime(long createTime) { maintainedTableCreateTime_ = createTime; }
+  long getMaintainedTableCreateTime() { return maintainedTableCreateTime_; }
 
-  void setParentTableObjectUID(Int64 objectUID) { parentTableObjectUID_ = objectUID; }
-  Int64 getParentTableObjectUID() { return parentTableObjectUID_; }
+  void setParentTableObjectUID(long objectUID) { parentTableObjectUID_ = objectUID; }
+  long getParentTableObjectUID() { return parentTableObjectUID_; }
 
   const char *getParentTableName() { return parentTableName_.data(); }
   void setParentTableName(char *parent) { parentTableName_ = parent; }
@@ -1586,8 +1586,8 @@ class ExeUtilMaintainObject : public ExeUtilExpr {
 
  private:
   MaintainObjectType type_;
-  Int64 maintainedTableCreateTime_;
-  Int64 parentTableObjectUID_;
+  long maintainedTableCreateTime_;
+  long parentTableObjectUID_;
 
   NAString parentTableName_;
   UInt32 parentTableNameLen_;
@@ -1633,8 +1633,8 @@ class ExeUtilMaintainObject : public ExeUtilExpr {
   NAString formatOptions_;
 
   // set if RUN option is specified.
-  Int64 runFrom_;
-  Int64 runTo_;
+  long runFrom_;
+  long runTo_;
 
   NABoolean disable_;
   NABoolean disableReorgTable_;
@@ -1980,12 +1980,12 @@ class ExeUtilAQR : public ExeUtilExpr {
     friend class ExeUtilAQR;
 
    public:
-    AQROption(AQROptionType option, Lng32 numericVal, char *stringVal)
+    AQROption(AQROptionType option, int numericVal, char *stringVal)
         : option_(option), numericVal_(numericVal), stringVal_(stringVal) {}
 
    private:
     AQROptionType option_;
-    Lng32 numericVal_;
+    int numericVal_;
     char *stringVal_;
   };
 
@@ -2001,11 +2001,11 @@ class ExeUtilAQR : public ExeUtilExpr {
   virtual short codeGen(Generator *);
 
  private:
-  Lng32 sqlcode_;
-  Lng32 nskcode_;
-  Lng32 retries_;
-  Lng32 delay_;
-  Lng32 type_;
+  int sqlcode_;
+  int nskcode_;
+  int retries_;
+  int delay_;
+  int type_;
 
   AQRTask task_;
 };
@@ -2073,7 +2073,7 @@ class ExeUtilLongRunning : public ExeUtilExpr {
   virtual ~ExeUtilLongRunning();
 
   // cost functions
-  virtual PhysicalProperty *synthPhysicalProperty(const Context *context, const Lng32 planNumber, PlanWorkSpace *pws);
+  virtual PhysicalProperty *synthPhysicalProperty(const Context *context, const int planNumber, PlanWorkSpace *pws);
 
   virtual RelExpr *bindNode(BindWA *bindWAPtr);
 
@@ -2089,7 +2089,7 @@ class ExeUtilLongRunning : public ExeUtilExpr {
   const char *getPredicate() { return predicate_; };
   void setPredicate(char *predicate) { predicate_ = predicate; };
 
-  Int64 getPredicateLen() { return predicateLen_; };
+  long getPredicateLen() { return predicateLen_; };
 
   // LongRunning operation type
   LongRunningType getLongRunningType() { return type_; };
@@ -2113,13 +2113,13 @@ class ExeUtilLongRunning : public ExeUtilExpr {
   NAString constructKeyRangeComparePredicate();
 
   char *lruStmt_;
-  Int64 lruStmtLen_;
+  long lruStmtLen_;
 
   char *lruStmtWithCK_;
-  Int64 lruStmtWithCKLen_;
+  long lruStmtWithCKLen_;
 
   char *predicate_;
-  Int64 predicateLen_;
+  long predicateLen_;
 
   LongRunningType type_;
 
@@ -2161,7 +2161,7 @@ class ExeUtilGetUID : public ExeUtilExpr {
   // purpose. We could also move this enum to base ExeUtilExpr. TBD.
   ExeUtilMaintainObject::MaintainObjectType type_;
 
-  Int64 uid_;
+  long uid_;
 };
 
 ////////////////////////////////////////////////////////////////////
@@ -2218,7 +2218,7 @@ class ExeUtilPopulateInMemStats : public ExeUtilExpr {
   CorrName inMemTableName_;
 
   // table UID of the inMem table
-  Int64 uid_;
+  long uid_;
 
   // source table whose stats are to be used to populate InMem table's stats
   CorrName sourceTableName_;
@@ -2301,12 +2301,12 @@ class ExeUtilHBaseBulkLoad : public ExeUtilExpr {
     friend class ExeUtilHBaseBulkLoad;
 
    public:
-    HBaseBulkLoadOption(HBaseBulkLoadOptionType option, Lng32 numericVal, char *stringVal)
+    HBaseBulkLoadOption(HBaseBulkLoadOptionType option, int numericVal, char *stringVal)
         : option_(option), numericVal_(numericVal), stringVal_(stringVal){};
 
    private:
     HBaseBulkLoadOptionType option_;
-    Lng32 numericVal_;
+    int numericVal_;
     char *stringVal_;
   };
 
@@ -2491,7 +2491,7 @@ class ExeUtilCompositeUnnest : public ExeUtilExpr {
   //  virtual void recomputeOuterReferences();
 
   void pushdownCoveredExpr(const ValueIdSet &outputExpr, const ValueIdSet &newExternalInputs,
-                           ValueIdSet &predicatesOnParent, const ValueIdSet *setOfValuesReqdByParent, Lng32 childIndex);
+                           ValueIdSet &predicatesOnParent, const ValueIdSet *setOfValuesReqdByParent, int childIndex);
 
   virtual void rewriteNode(NormWA &normWARef);
 
@@ -2501,7 +2501,7 @@ class ExeUtilCompositeUnnest : public ExeUtilExpr {
 
   virtual void synthEstLogProp(const EstLogPropSharedPtr &inputEstLogProp);
 
-  virtual PhysicalProperty *synthPhysicalProperty(const Context *context, const Lng32 planNumber, PlanWorkSpace *pws);
+  virtual PhysicalProperty *synthPhysicalProperty(const Context *context, const int planNumber, PlanWorkSpace *pws);
 
   RelExpr *preCodeGen(Generator *generator, const ValueIdSet &externalInputs, ValueIdSet &pulledNewInputs);
 
@@ -2709,7 +2709,7 @@ class ExeUtilSnapShotUpdataDelete : public ExeUtilExpr {
  private:
   ExeUtilUpdataDeleteType type_;
   NABoolean incrBackupEnabled_;
-  Int64 objUID_;
+  long objUID_;
 }; /* END  class RelGenLoadQueryCache */
 
 #endif /* RELEXEUTIL_H */

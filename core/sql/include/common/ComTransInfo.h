@@ -124,7 +124,7 @@ class DP2LockFlags {
   void setNoLockEscalation(unsigned char v) { flags_.noLockEscalation_ = v; }
   short getNoLockEscalation() const { return flags_.noLockEscalation_; }
 
-  Lng32 getValue() const { return value_; }
+  int getValue() const { return value_; }
 
   // BertBert VV
   void setBounceLockFlag() { flags_.bounceLockFlag_ = 1; };
@@ -156,7 +156,7 @@ class DP2LockFlags {
 
  private:
   union {
-    Lng32 value_;
+    int value_;
     LockFlagsType flags_;
   };
 };
@@ -222,7 +222,7 @@ class TransMode : public NAVersionedObject {
   };
 
   TransMode(IsolationLevel il = IL_NOT_SPECIFIED_, AccessMode am = AM_NOT_SPECIFIED_, AutoCommit ac = AC_NOT_SPECIFIED_,
-            RollbackMode rm = ROLLBACK_MODE_NOT_SPECIFIED_, Lng32 das = -1, Lng32 aiVal = -1,
+            RollbackMode rm = ROLLBACK_MODE_NOT_SPECIFIED_, int das = -1, int aiVal = -1,
             MultiCommit mc = MC_NOT_SPECIFIED_, ULng32 mcs = 0)
       : il_(il),
         am_((short)am),
@@ -264,7 +264,7 @@ class TransMode : public NAVersionedObject {
 
   RollbackMode getRollbackMode() { return (RollbackMode)rm_; }
   NABoolean anyNoRollback() { return (rm_ == NO_ROLLBACK_ || rm_ == NO_ROLLBACK_IN_IUD_STATEMENT_); }
-  Lng32 getDiagAreaSize() { return diagAreaSize_; }
+  int getDiagAreaSize() { return diagAreaSize_; }
   Int16 getFlags() const { return flags_; }
   Int16 &setFlags() { return flags_; }
   Int32 getAutoAbortIntervalInSeconds() const { return autoAbortInterval_; }
@@ -317,8 +317,8 @@ class TransMode : public NAVersionedObject {
   void saveAutoCommitSavepointOption() { savedAutoCommitSP_ = autoCommitSP_; }
   void restoreAutoCommitSavepointOption() { autoCommitSP_ = savedAutoCommitSP_; }
 
-  void setCurrSavepointId(Int64 svptId) { currentSavepointId_ = svptId; }
-  Int64 getCurrSaveointId() { return currentSavepointId_; }
+  void setCurrSavepointId(long svptId) { currentSavepointId_ = svptId; }
+  long getCurrSaveointId() { return currentSavepointId_; }
 
   NABoolean userTransMode() const { return (flags_ & USER_TRANS_MODE_) != 0; }
   void setUserTransMode(NABoolean v) {
@@ -414,7 +414,7 @@ class TransMode : public NAVersionedObject {
 
   // Fast encoding for DgInt0 diags display.
   // Shift things left (more zeroes in each xx_*10) if want to add more members
-  Lng32 display() const { return multiCommit_ * 1000000 + il_ * 10000 + am_ * 100 + rm_ * 10 + autoCommit_; }
+  int display() const { return multiCommit_ * 1000000 + il_ * 10000 + am_ * 100 + rm_ * 10 + autoCommit_; }
 
   void print(ostream &out) {
     out << "IsolationLevel :" << il_ << endl;
@@ -456,7 +456,7 @@ class TransMode : public NAVersionedObject {
   Int16 autoCommitSP_;       // 24-25
   Int16 savedAutoCommitSP_;  // 26-27
 
-  Int64 currentSavepointId_;  // 28-35
+  long currentSavepointId_;  // 28-35
 
   char filler0_[4];  // 36-39
 };
@@ -528,7 +528,7 @@ class StmtLevelAccessOptions {
 // verify that statement-level access and session-level setting are OK.
 // set errCodeA/errCodeB to 0/0 if all OK, else to -3140/-3141.
 void verifyUpdatableTrans(StmtLevelAccessOptions *sAxOpt, TransMode *tm,
-                          TransMode::IsolationLevel isolationLevelForUpdate, Lng32 &errCodeA, Lng32 &errCodeB);
+                          TransMode::IsolationLevel isolationLevelForUpdate, int &errCodeA, int &errCodeB);
 
 // ---------------------------------------------------------------------
 // Template instantiation to produce a 64-bit pointer emulator class

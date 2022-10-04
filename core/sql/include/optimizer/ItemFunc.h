@@ -248,7 +248,7 @@ class Aggregate : public ItemExpr {
 
   // method to do code generation
   virtual short codeGen(Generator *);
-  virtual void codegen_and_set_attributes(Generator *, Attributes **, Lng32);
+  virtual void codegen_and_set_attributes(Generator *, Attributes **, int);
 
   virtual ItemExpr *copyTopNode(ItemExpr *derivedNode = NULL, CollHeap *outHeap = 0);
 
@@ -284,7 +284,7 @@ class Aggregate : public ItemExpr {
   NABoolean isOLAP() { return isOLAP_; };
   const ItemExpr *getOlapPartitionBy() const { return olapPartitionBy_; }
   const ItemExpr *getOlapOrderBy() const { return olapOrderBy_; }
-  void setOLAPInfo(ItemExpr *partBy, ItemExpr *orderBy, Lng32 rowsStart, Lng32 rowsEnd) {
+  void setOLAPInfo(ItemExpr *partBy, ItemExpr *orderBy, int rowsStart, int rowsEnd) {
     olapPartitionBy_ = partBy;
     olapOrderBy_ = orderBy;
     frameStart_ = rowsStart;
@@ -296,9 +296,9 @@ class Aggregate : public ItemExpr {
   ItemExpr *getOlapOrderBy() { return olapOrderBy_; };
   */
 
-  Lng32 getframeStart() { return frameStart_; }
+  int getframeStart() { return frameStart_; }
 
-  Lng32 getframeEnd() { return frameEnd_; }
+  int getframeEnd() { return frameEnd_; }
 
   NABoolean isFrameStartUnboundedPreceding() const { return (frameStart_ == -INT_MAX); }
 
@@ -366,8 +366,8 @@ class Aggregate : public ItemExpr {
   ItemExpr *olapPartitionBy_;
   ItemExpr *olapOrderBy_;
 
-  Lng32 frameStart_;
-  Lng32 frameEnd_;
+  int frameStart_;
+  int frameEnd_;
 
   // true iff am top part of a rewritten COUNT aggregate
   NABoolean treatAsACount_;
@@ -516,7 +516,7 @@ class PivotGroup : public Aggregate {
              NABoolean isDistinct = FALSE);
 
   PivotGroup(OperatorTypeEnum otype, ItemExpr *child0, ItemExpr *child1, NABoolean orderBy, ValueIdList &reqdOrder,
-             Lng32 maxLen, NABoolean isDistinct = FALSE)
+             int maxLen, NABoolean isDistinct = FALSE)
       : Aggregate(otype, child0, child1, isDistinct),
         orderBy_(orderBy),
         reqdOrder_(reqdOrder),
@@ -546,7 +546,7 @@ class PivotGroup : public Aggregate {
 
   NABoolean orderBy() { return orderBy_; }
   ValueIdList &reqdOrder() { return reqdOrder_; }
-  Lng32 maxLen() { return maxLen_; }
+  int maxLen() { return maxLen_; }
   ItemExpr *getOrderbyItemExpr() { return orgReqOrder_; }
 
  private:
@@ -556,7 +556,7 @@ class PivotGroup : public Aggregate {
   ValueIdList reqdOrder_;  // ORDER BY list
   ItemExpr *orgReqOrder_;
 
-  Lng32 maxLen_;
+  int maxLen_;
 };  // class PivotGroup
 
 // -----------------------------------------------------------------------
@@ -566,7 +566,7 @@ class Function : public ItemExpr {
   // ITM_BETWEEN, ITM_LIKE, ITM_USER_DEF_FUNCTION
  public:
   Function(OperatorTypeEnum otype = ITM_USER_DEF_FUNCTION, NAMemory *h = CmpCommon::statementHeap(),
-           Lng32 argumentCount = 0, ItemExpr *child0 = NULL, ItemExpr *child1 = NULL, ItemExpr *child2 = NULL,
+           int argumentCount = 0, ItemExpr *child0 = NULL, ItemExpr *child1 = NULL, ItemExpr *child2 = NULL,
            ItemExpr *child3 = NULL, ItemExpr *child4 = NULL, ItemExpr *child5 = NULL);
 
   Function(OperatorTypeEnum otype, const LIST(ItemExpr *) & children, CollHeap *h = CmpCommon::statementHeap());
@@ -582,7 +582,7 @@ class Function : public ItemExpr {
 
   // ## This should be moved to ExprNode.h.
   // ## See how Aggregate::getArity() duplicates its logic...
-  Lng32 getNumChildren() const;
+  int getNumChildren() const;
 
   NABoolean &allowsSQLnullArg() { return allowsSQLnullArg_; }
 
@@ -598,12 +598,12 @@ class Function : public ItemExpr {
 
   // since this operator may have variable arity, the access operators
   // to its children are overloaded and use a private child list
-  virtual ExprValueId &operator[](Lng32 ix);
-  virtual const ExprValueId &operator[](Lng32 ix) const;
+  virtual ExprValueId &operator[](int ix);
+  virtual const ExprValueId &operator[](int ix) const;
 
   // for cases where a named method is more convenient than operator []
-  ExprValueId &child(Lng32 index) { return operator[](index); }
-  const ExprValueId &child(Lng32 index) const { return operator[](index); }
+  ExprValueId &child(int index) { return operator[](index); }
+  const ExprValueId &child(int index) const { return operator[](index); }
 
   ARRAY(ExprValueId) & children() { return children_; }
 
@@ -635,7 +635,7 @@ class Function : public ItemExpr {
 class BuiltinFunction : public Function {
   // ITM_BETWEEN, ITM_LIKE, ITM_CURRENT and more
  public:
-  BuiltinFunction(OperatorTypeEnum otype, NAMemory *h = CmpCommon::statementHeap(), Lng32 argumentCount = 0,
+  BuiltinFunction(OperatorTypeEnum otype, NAMemory *h = CmpCommon::statementHeap(), int argumentCount = 0,
                   ItemExpr *child0 = NULL, ItemExpr *child1 = NULL, ItemExpr *child2 = NULL, ItemExpr *child3 = NULL,
                   ItemExpr *child4 = NULL, ItemExpr *child5 = NULL);
 
@@ -708,7 +708,7 @@ class BuiltinFunction : public Function {
 
 class CacheableBuiltinFunction : public BuiltinFunction {
  public:
-  CacheableBuiltinFunction(OperatorTypeEnum otype, Lng32 argumentCount = 0, ItemExpr *child0 = NULL,
+  CacheableBuiltinFunction(OperatorTypeEnum otype, int argumentCount = 0, ItemExpr *child0 = NULL,
                            ItemExpr *child1 = NULL, ItemExpr *child2 = NULL, ItemExpr *child3 = NULL,
                            ItemExpr *child4 = NULL, ItemExpr *child5 = NULL)
       : BuiltinFunction(otype, CmpCommon::statementHeap(), argumentCount, child0, child1, child2, child3, child4,
@@ -735,7 +735,7 @@ class CacheableBuiltinFunction : public BuiltinFunction {
 // Built in function that should be evaluate only once
 class EvaluateOnceBuiltinFunction : public BuiltinFunction {
  public:
-  EvaluateOnceBuiltinFunction(OperatorTypeEnum otype, Lng32 argumentCount = 0, ItemExpr *child0 = NULL,
+  EvaluateOnceBuiltinFunction(OperatorTypeEnum otype, int argumentCount = 0, ItemExpr *child0 = NULL,
                               ItemExpr *child1 = NULL, ItemExpr *child2 = NULL, ItemExpr *child3 = NULL,
                               ItemExpr *child4 = NULL, ItemExpr *child5 = NULL)
       : BuiltinFunction(otype, CmpCommon::statementHeap(), argumentCount, child0, child1, child2, child3, child4,
@@ -815,7 +815,7 @@ class GetBitValueAt : public BuiltinFunction {
 // Supported functions: ITM_CURRENTEPOCH, ITM_VSBBROWTYPE, ITM_VSBBROWCOUNT.
 class GenericUpdateOutputFunction : public BuiltinFunction {
  public:
-  GenericUpdateOutputFunction(OperatorTypeEnum otype, Lng32 argumentCount = 0, ItemExpr *child0 = NULL,
+  GenericUpdateOutputFunction(OperatorTypeEnum otype, int argumentCount = 0, ItemExpr *child0 = NULL,
                               ItemExpr *child1 = NULL, ItemExpr *child2 = NULL, ItemExpr *child3 = NULL,
                               ItemExpr *child4 = NULL, ItemExpr *child5 = NULL)
       : BuiltinFunction(otype, CmpCommon::statementHeap(), argumentCount, child0, child1, child2, child3, child4,
@@ -1672,7 +1672,7 @@ class UnixTimestamp : public CacheableBuiltinFunction {
 class CurrentTimestamp : public CacheableBuiltinFunction {
  public:
   CurrentTimestamp(DatetimeType::Subtype dtCode = DatetimeType::SUBTYPE_SQLTimestamp,
-                   Lng32 fractPrec = SQLTimestamp::DEFAULT_FRACTION_PRECISION)
+                   int fractPrec = SQLTimestamp::DEFAULT_FRACTION_PRECISION)
       : CacheableBuiltinFunction(ITM_CURRENT_TIMESTAMP), dtCode_(dtCode), fractPrec_(fractPrec) {}
 
   // virtual destructor
@@ -1695,11 +1695,11 @@ class CurrentTimestamp : public CacheableBuiltinFunction {
   virtual NABoolean hasEquivalentProperties(ItemExpr *other) { return TRUE; }
 
   static ItemExpr *construct(CollHeap *heap, DatetimeType::Subtype dtCode = DatetimeType::SUBTYPE_SQLTimestamp,
-                             Lng32 fractPrec = SQLTimestamp::DEFAULT_FRACTION_PRECISION);
+                             int fractPrec = SQLTimestamp::DEFAULT_FRACTION_PRECISION);
 
  private:
   DatetimeType::Subtype dtCode_;
-  Lng32 fractPrec_;
+  int fractPrec_;
 };  // class CurrentTimestamp
 
 class CurrentTimestampRunning : public CacheableBuiltinFunction {
@@ -1739,8 +1739,8 @@ class DateFormat : public CacheableBuiltinFunction {
     FIRST_UPPERCASE_ONLY = 3  // Sunday
   };
 
-  DateFormat(ItemExpr *val1Ptr, const NAString &formatStr, Lng32 formatType, NABoolean wasDateformat = FALSE);
-  DateFormat(ItemExpr *val1Ptr, ItemExpr *val2Ptr, Lng32 formatType, NABoolean wasDateformat = FALSE);
+  DateFormat(ItemExpr *val1Ptr, const NAString &formatStr, int formatType, NABoolean wasDateformat = FALSE);
+  DateFormat(ItemExpr *val1Ptr, ItemExpr *val2Ptr, int formatType, NABoolean wasDateformat = FALSE);
   // virtual destructor
   virtual ~DateFormat();
 
@@ -1748,14 +1748,14 @@ class DateFormat : public CacheableBuiltinFunction {
   Int32 getDateFormat() const { return dateFormat_; }
 
   Int32 getExpDatetimeFormat() const { return frmt_; }
-  Lng32 getCaseSensitivity() const { return caseSensitivity_; }
+  int getCaseSensitivity() const { return caseSensitivity_; }
   // do not change format literals of DateFormat into constant parameters
   virtual ItemExpr *normalizeForCache(CacheWA &cwa, BindWA &bindWA) { return this; }
 
   // append an ascii-version of ItemExpr into cachewa.qryText_
   virtual void generateCacheKey(CacheWA &cwa) const;
 
-  NABoolean errorChecks(Lng32 frmt, BindWA *bindWA, const NAType *opType);
+  NABoolean errorChecks(int frmt, BindWA *bindWA, const NAType *opType);
   void checkCaseSensitivity();
 
   ItemExpr *quickDateFormatOpt(BindWA *bindWA);
@@ -1785,7 +1785,7 @@ class DateFormat : public CacheableBuiltinFunction {
   NAString formatStr_;
 
   // TO_DATE or TO_CHAR
-  Lng32 formatType_;
+  int formatType_;
 
   // DATE, TIME or TIMESTAMP
   Int32 dateFormat_;
@@ -1794,7 +1794,7 @@ class DateFormat : public CacheableBuiltinFunction {
   NABoolean wasDateformat_;
 
   // actual datetime format (defined in class ExpDatetime in exp_datetime.h)
-  Lng32 frmt_;
+  int frmt_;
 
   // original string
   NAString origString_;
@@ -2303,13 +2303,13 @@ class RaiseError : public BuiltinFunction {
  public:
   // -- Triggers
   // This Ctor is used for SIGNAL statements with a string expression.
-  RaiseError(Lng32 sqlcode, NAString SqlState, ItemExpr *messageExpr, CollHeap *h = 0)
+  RaiseError(int sqlcode, NAString SqlState, ItemExpr *messageExpr, CollHeap *h = 0)
       : BuiltinFunction(ITM_RAISE_ERROR, CmpCommon::statementHeap(), 1, messageExpr),
         theSQLCODE_(sqlcode),
         constraintName_(SqlState, h),
         tableName_("", h){};
 
-  RaiseError(Lng32 sqlcode = 0, const NAString &constraintName = "", const NAString &tableName = "",
+  RaiseError(int sqlcode = 0, const NAString &constraintName = "", const NAString &tableName = "",
              const NAString &optionalStr = "", const NAType *type = NULL, CollHeap *h = 0)
       : BuiltinFunction(ITM_RAISE_ERROR),
         theSQLCODE_(sqlcode),
@@ -2331,10 +2331,10 @@ class RaiseError : public BuiltinFunction {
   const NAString &getConstraintName() const { return constraintName_; }
   const NAString &getTableName() const { return tableName_; }
   Int32 getSQLCODE() const { return theSQLCODE_; }
-  void setSQLCODE(Lng32 sqlcode) { theSQLCODE_ = sqlcode; }
+  void setSQLCODE(int sqlcode) { theSQLCODE_ = sqlcode; }
 
  private:
-  Lng32 theSQLCODE_;
+  int theSQLCODE_;
   NAString constraintName_;
   NAString tableName_;
 
@@ -2615,7 +2615,7 @@ class Format : public BuiltinFunction {
  public:
   enum FormatType { FORMAT_GENERIC = 0, FORMAT_TO_DATE, FORMAT_TO_CHAR };
 
-  Format(ItemExpr *val1Ptr, const NAString &formatStr, NABoolean formatCharToDate, Lng32 formatType = FORMAT_GENERIC)
+  Format(ItemExpr *val1Ptr, const NAString &formatStr, NABoolean formatCharToDate, int formatType = FORMAT_GENERIC)
       : BuiltinFunction(ITM_FORMAT, CmpCommon::statementHeap(), 1, val1Ptr),
         formatStr_(formatStr),
         formatType_(formatType),
@@ -2643,14 +2643,14 @@ class Format : public BuiltinFunction {
 
   const NAString &getFormatStr() const { return formatStr_; }
 
-  Lng32 getFormatType() const { return formatType_; }
+  int getFormatType() const { return formatType_; }
 
   NABoolean getFormatCharToDate() const { return formatCharToDate_; }
 
   virtual QR::ExprElement getQRExprElem() const { return QR::QRFunctionWithParameters; }
 
  private:
-  Lng32 formatType_;
+  int formatType_;
   NABoolean formatCharToDate_;
 };  // class Format
 
@@ -2671,14 +2671,14 @@ class CompEncode : public BuiltinFunction {
   // length of encoded result, if passed in to the constructor.
   // If not passed in, or passed in and is -1, then the total
   // size of child is the length of CompEncode result.
-  Lng32 length_;
+  int length_;
 
   // if set, then result is nullable if child is nullable (same as other exprs and function).
   // Only the data bytes are encoded in this case.
   NABoolean regularNullability_;
 
   // Constructor used by derived class
-  CompEncode(ItemExpr *val1Ptr, short descFlag, Lng32 length, CollationInfo::CollationType collType,
+  CompEncode(ItemExpr *val1Ptr, short descFlag, int length, CollationInfo::CollationType collType,
              NABoolean regularNullability, OperatorTypeEnum operType, NAMemory *h)
       : BuiltinFunction(operType, h, 1, val1Ptr),
         descFlag_(descFlag),
@@ -2689,7 +2689,7 @@ class CompEncode : public BuiltinFunction {
         regularNullability_(regularNullability) {}
 
  public:
-  CompEncode(ItemExpr *val1Ptr, short descFlag = FALSE, Lng32 length = -1,
+  CompEncode(ItemExpr *val1Ptr, short descFlag = FALSE, int length = -1,
              CollationInfo::CollationType collType = CollationInfo::Sort, NABoolean regularNullability = FALSE,
              NAMemory *h = CmpCommon::statementHeap())
       : BuiltinFunction(ITM_COMP_ENCODE, h, 1, val1Ptr),
@@ -2730,8 +2730,8 @@ class CompEncode : public BuiltinFunction {
 
   NABoolean isDecode() const { return getOperatorType() == ITM_COMP_DECODE; }
 
-  static Lng32 getEncodedLength(const CharInfo::Collation collation, const CollationInfo::CollationType ct,
-                                const Lng32 srcLength, const NABoolean nullable);
+  static int getEncodedLength(const CharInfo::Collation collation, const CollationInfo::CollationType ct,
+                                const int srcLength, const NABoolean nullable);
 
   virtual QR::ExprElement getQRExprElem() const { return QR::QRFunctionWithParameters; }
 
@@ -2739,7 +2739,7 @@ class CompEncode : public BuiltinFunction {
 
 class CompDecode : public CompEncode {
  public:
-  CompDecode(ItemExpr *val1Ptr, const NAType *unencodedType, short descFlag = FALSE, Lng32 length = -1,
+  CompDecode(ItemExpr *val1Ptr, const NAType *unencodedType, short descFlag = FALSE, int length = -1,
              CollationInfo::CollationType collType = CollationInfo::Sort, NABoolean regularNullability = TRUE,
              NAMemory *h = CmpCommon::statementHeap())
       : CompEncode(val1Ptr, descFlag, length, collType, regularNullability, ITM_COMP_DECODE, h),
@@ -2793,7 +2793,7 @@ class HashCommon : public BuiltinFunction {
   enum { CASESENSITIVE_HASH_ = 0x0001 };
 
  public:
-  HashCommon(OperatorTypeEnum otype, Lng32 argumentCount = 0, ItemExpr *child0 = NULL, ItemExpr *child1 = NULL,
+  HashCommon(OperatorTypeEnum otype, int argumentCount = 0, ItemExpr *child0 = NULL, ItemExpr *child1 = NULL,
              ItemExpr *child2 = NULL, ItemExpr *child3 = NULL, ItemExpr *child4 = NULL, ItemExpr *child5 = NULL)
       : BuiltinFunction(otype, CmpCommon::statementHeap(), argumentCount, child0, child1, child2, child3, child4,
                         child5),
@@ -2805,7 +2805,7 @@ class HashCommon : public BuiltinFunction {
   NABoolean casesensitiveHash() { return (flags_ & CASESENSITIVE_HASH_) != 0; }
 
  protected:
-  NABoolean areChildrenExactNumeric(Lng32 left, Lng32 right);
+  NABoolean areChildrenExactNumeric(int left, int right);
 
  private:
   UInt32 flags_;
@@ -3545,10 +3545,10 @@ class RangeLookup : public BuiltinFunction {
  private:
   // private methods to avoid teaching the expression generator about
   // partitioning functions
-  Lng32 splitKeysLen();
-  void copySplitKeys(char *tgt, Lng32 tgtLen);
-  Lng32 getNumOfPartitions();
-  Lng32 getEncodedBoundaryKeyLength();
+  int splitKeysLen();
+  void copySplitKeys(char *tgt, int tgtLen);
+  int getNumOfPartitions();
+  int getEncodedBoundaryKeyLength();
 
   // private data members
 
@@ -3608,7 +3608,7 @@ class ScalarVariance : public CacheableBuiltinFunction {
 
 class RowsetArrayScan : public BuiltinFunction {
  public:
-  RowsetArrayScan(ItemExpr *source, ItemExpr *index, Lng32 maxNumElem, Lng32 elemSize, NABoolean elemNullInd,
+  RowsetArrayScan(ItemExpr *source, ItemExpr *index, int maxNumElem, int elemSize, NABoolean elemNullInd,
                   const NAType *elemType, OperatorTypeEnum opType = ITM_ROWSETARRAY_SCAN)
       : BuiltinFunction(opType, CmpCommon::statementHeap(), 2, source, index),
         maxNumElem_(maxNumElem),
@@ -3657,8 +3657,8 @@ class RowsetArrayScan : public BuiltinFunction {
   const NAType *pushDownType(NAType &desiredType, enum NABuiltInTypeEnum defaultQualifier);
 
  private:
-  Lng32 maxNumElem_;        // Maximum number of elements
-  Lng32 elemSize_;          // Element storage length in bytes
+  int maxNumElem_;        // Maximum number of elements
+  int elemSize_;          // Element storage length in bytes
   NABoolean elemNullInd_;   // Null Indicator ?
   const NAType *elemType_;  // The datatype of the array elements
 
@@ -3667,7 +3667,7 @@ class RowsetArrayScan : public BuiltinFunction {
 
 class RowsetArrayInto : public BuiltinFunction {
  public:
-  RowsetArrayInto(ItemExpr *source, ItemExpr *numElemExpr, Lng32 maxNumElem, Lng32 elemSize, NABoolean elemNullInd,
+  RowsetArrayInto(ItemExpr *source, ItemExpr *numElemExpr, int maxNumElem, int elemSize, NABoolean elemNullInd,
                   const NAType *hostVarType, OperatorTypeEnum opType = ITM_ROWSETARRAY_INTO)
       : BuiltinFunction(opType, CmpCommon::statementHeap(), 2, source, numElemExpr),
         maxNumElem_(maxNumElem),
@@ -3706,8 +3706,8 @@ class RowsetArrayInto : public BuiltinFunction {
   virtual const NAString getText() const { return "RowsetArrayInto"; };
 
  private:
-  Lng32 maxNumElem_;           // Maximum number of elements
-  Lng32 elemSize_;             // Element storage length in bytes
+  int maxNumElem_;           // Maximum number of elements
+  int elemSize_;             // Element storage length in bytes
   NABoolean elemNullInd_;      // Null Indicator ?
   const NAType *hostVarType_;  // The datatype of the array elements
 };
@@ -3718,7 +3718,7 @@ class RowsetArrayInto : public BuiltinFunction {
 //
 class UnPackCol : public BuiltinFunction {
  public:
-  UnPackCol(ItemExpr *source, ItemExpr *index, Lng32 width, Lng32 base, NABoolean nullsPresent, const NAType *type,
+  UnPackCol(ItemExpr *source, ItemExpr *index, int width, int base, NABoolean nullsPresent, const NAType *type,
             OperatorTypeEnum opType = ITM_UNPACKCOL)
       : BuiltinFunction(opType, CmpCommon::statementHeap(), 2, source, index),
         width_(width),
@@ -3759,11 +3759,11 @@ class UnPackCol : public BuiltinFunction {
  private:
   // The width of the packed column in bits.
   //
-  Lng32 width_;
+  int width_;
 
   // The base offset of the packed data in bytes.
   //
-  Lng32 base_;
+  int base_;
 
   // If TRUE, then a null bitmap is present in the packed row.
   //
@@ -3905,7 +3905,7 @@ class PackFunc : public BuiltinFunction {
       : BuiltinFunction(ITM_PACK_FUNC, CmpCommon::statementHeap(), 2, val1Ptr, pf), isFormatInfoValid_(FALSE) {}
 
   // This constructor is used when format is predetermined.
-  PackFunc(ItemExpr *val1Ptr, ItemExpr *pf, Lng32 base, Lng32 width, NABoolean nullsPresent);
+  PackFunc(ItemExpr *val1Ptr, ItemExpr *pf, int base, int width, NABoolean nullsPresent);
 
   // The type given is the type of one logical row before packing is done.
   PackFunc(ItemExpr *val1Ptr, ItemExpr *pf, const NAType *unpackType);
@@ -3914,7 +3914,7 @@ class PackFunc : public BuiltinFunction {
   virtual ~PackFunc();
 
   // Allow setting and clearing of format information after construction.
-  void setFormatInfo(Lng32 base, Lng32 width, NABoolean nullsPresent, const NAType *type) {
+  void setFormatInfo(int base, int width, NABoolean nullsPresent, const NAType *type) {
     base_ = base;
     width_ = width;
     nullsPresent_ = nullsPresent, type_ = type;
@@ -3961,10 +3961,10 @@ class PackFunc : public BuiltinFunction {
   NABoolean isFormatInfoValid_;
 
   // Offset of where packed data begin.
-  Lng32 base_;
+  int base_;
 
   // Width of one logical row. Negative means bits; Positive means bytes.
-  Lng32 width_;
+  int width_;
 
   // Whether the null bit map is going to be present in the packed record.
   NABoolean nullsPresent_;
@@ -4018,7 +4018,7 @@ class ZZZBinderFunction : public BuiltinFunction {
   static ItemExpr *tryToUndoBindTransformation(ItemExpr *expr);
 
  private:
-  Int64 flags_;
+  long flags_;
 };
 
 class ItmSysConnectByPathFunc : public ZZZBinderFunction {
@@ -4193,7 +4193,7 @@ class ItmSeqRunningFunction : public ItmSequenceFunction {
 class ItmSeqRunningPivotGroup : public ItmSeqRunningFunction {
  public:
   ItmSeqRunningPivotGroup(OperatorTypeEnum itemType, ItemExpr *valPtr, ItemExpr *orderBy, ItemExpr *delim,
-                          const Lng32 maxLen)
+                          const int maxLen)
       : ItmSeqRunningFunction(itemType, valPtr), delimiter_(delim), maxPivotLen_(maxLen) {
     setOlapOrderBy(orderBy);
   }
@@ -4211,14 +4211,14 @@ class ItmSeqRunningPivotGroup : public ItmSeqRunningFunction {
 
   ItemExpr *getPivotDelimiter() { return delimiter_; }
 
-  void setPivotMaxLen(Lng32 maxLen) { maxPivotLen_ = maxLen; }
-  Lng32 getPivotMaxLen() { return maxPivotLen_; }
+  void setPivotMaxLen(int maxLen) { maxPivotLen_ = maxLen; }
+  int getPivotMaxLen() { return maxPivotLen_; }
 
   void generateCacheKey(CacheWA &cwa) const;
 
  private:
   ItemExpr *delimiter_;
-  Lng32 maxPivotLen_;
+  int maxPivotLen_;
 };  // ItmSeqRunningPivotGroup
 
 //------------------------------------------------------------------------
@@ -4257,15 +4257,15 @@ class ItmSeqOlapFunction : public ItmSequenceFunction {
   // a virtual function for type propagating the node
   virtual const NAType *synthesizeType();
 
-  Lng32 getframeStart() { return frameStart_; }
+  int getframeStart() { return frameStart_; }
 
-  Lng32 getframeEnd() { return frameEnd_; }
+  int getframeEnd() { return frameEnd_; }
 
-  void setframeStart(Lng32 v) { frameStart_ = v; }
+  void setframeStart(int v) { frameStart_ = v; }
 
-  void setframeEnd(Lng32 v) { frameEnd_ = v; }
+  void setframeEnd(int v) { frameEnd_ = v; }
 
-  void setOlapWindowFrame(Lng32 s, Lng32 e) {
+  void setOlapWindowFrame(int s, int e) {
     frameStart_ = s;
     frameEnd_ = e;
   }
@@ -4297,8 +4297,8 @@ class ItmSeqOlapFunction : public ItmSequenceFunction {
   // olap window frame -- start and end--
   // will add patition and order by here too later and remove them from ItemSequenceFunction
   //
-  Lng32 frameStart_;
-  Lng32 frameEnd_;
+  int frameStart_;
+  int frameEnd_;
 };  // ItmSeqOlapFunction
 
 class ItmLeadOlapFunction : public ItmSeqOlapFunction {
@@ -4356,7 +4356,7 @@ class ItmLeadOlapFunction : public ItmSeqOlapFunction {
 class ItmSeqOffset : public ItmSequenceFunction {
  public:
   ItmSeqOffset(ItemExpr *val1Ptr, ItemExpr *val2Ptr, ItemExpr *val3Ptr = NULL, NABoolean nullRowIsZero = FALSE,
-               NABoolean leading = TRUE, Lng32 winSize = 0)
+               NABoolean leading = TRUE, int winSize = 0)
       : ItmSequenceFunction(ITM_OFFSET, val1Ptr, val2Ptr, val3Ptr),
         nullRowIsZero_(nullRowIsZero),
         offsetConstantValue_(0),
@@ -4366,7 +4366,7 @@ class ItmSeqOffset : public ItmSequenceFunction {
   }
 
   ItmSeqOffset(ItemExpr *valPtr, Int32 offsetConstantValue, NABoolean nullRowIsZero = FALSE, NABoolean leading = TRUE,
-               Lng32 winSize = 0)
+               int winSize = 0)
       : ItmSequenceFunction(ITM_OFFSET, valPtr),
         nullRowIsZero_(nullRowIsZero),
         offsetConstantValue_(offsetConstantValue),
@@ -4403,7 +4403,7 @@ class ItmSeqOffset : public ItmSequenceFunction {
   Int32 getOffsetConstantValue() const { return offsetConstantValue_; }
 
   NABoolean isLeading() const { return leading_; }
-  Lng32 winSize() const { return winSize_; }
+  int winSize() const { return winSize_; }
 
   virtual NABoolean hasEquivalentProperties(ItemExpr *other);
 
@@ -4413,7 +4413,7 @@ class ItmSeqOffset : public ItmSequenceFunction {
   NABoolean nullRowIsZero_;
   Int32 offsetConstantValue_;
   NABoolean leading_;
-  Lng32 winSize_;
+  int winSize_;
 
 };  // class ItmSeqOffset
 
@@ -4735,7 +4735,7 @@ class ItmOlapFirstLastValue : public ItmSeqOlapFunction {
 class ItmOlapPivotGroup : public ItmSeqOlapFunction {
  public:
   ItmOlapPivotGroup(OperatorTypeEnum itemType, ItemExpr *column, ItemExpr *orderBy, ItemExpr *delim,
-                    const Lng32 maxLen);
+                    const int maxLen);
 
   virtual ~ItmOlapPivotGroup() {}
 
@@ -4759,14 +4759,14 @@ class ItmOlapPivotGroup : public ItmSeqOlapFunction {
 
   ItemExpr *getPivotDelimiter() { return delimiter_; }
 
-  void setPivotMaxLen(Lng32 maxLen) { maxPivotLen_ = maxLen; }
-  Lng32 getPivotMaxLen() { return maxPivotLen_; }
+  void setPivotMaxLen(int maxLen) { maxPivotLen_ = maxLen; }
+  int getPivotMaxLen() { return maxPivotLen_; }
 
   void generateCacheKey(CacheWA &cwa) const;
 
  private:
   ItemExpr *delimiter_;
-  Lng32 maxPivotLen_;
+  int maxPivotLen_;
 };
 
 // lookup a column in a native hbase table that is being accessed in row format
@@ -4801,7 +4801,7 @@ class HbaseColumnLookup : public BuiltinFunction {
 // format hbase columns that are being accessed to be displayed
 class HbaseColumnsDisplay : public BuiltinFunction {
  public:
-  HbaseColumnsDisplay(ItemExpr *child0, ConstStringList *csl = NULL, Lng32 displayWidth = 100000)
+  HbaseColumnsDisplay(ItemExpr *child0, ConstStringList *csl = NULL, int displayWidth = 100000)
       : BuiltinFunction(ITM_HBASE_COLUMNS_DISPLAY, CmpCommon::statementHeap(), 1, child0),
         csl_(csl),
         displayWidth_(displayWidth) {}
@@ -4824,7 +4824,7 @@ class HbaseColumnsDisplay : public BuiltinFunction {
  private:
   ConstStringList *csl_;
 
-  Lng32 displayWidth_;
+  int displayWidth_;
 };  // class HbaseColumnsDisplay
 
 // create a column to update/insert into an hbase native table
@@ -4911,8 +4911,8 @@ class HbaseAttribute : public BuiltinFunction {
 
   virtual short codeGen(Generator *);
 
-  void setColIndex(Lng32 idx) { colIndex_ = idx; }
-  Lng32 getColIndex() { return colIndex_; }
+  void setColIndex(int idx) { colIndex_ = idx; }
+  int getColIndex() { return colIndex_; }
 
   const ItemExpr *col() const { return col_; }
   ItemExpr *col() { return col_; }
@@ -4923,7 +4923,7 @@ class HbaseAttribute : public BuiltinFunction {
   ItemExpr *col_;
   ItemExpr *tsVals_;
 
-  Lng32 colIndex_;
+  int colIndex_;
 
   NAString colName_;
 };  // class HbaseAttribute

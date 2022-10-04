@@ -56,7 +56,7 @@ static const NAString LiteralBLOB("BLOB");
 static const NAString LiteralCLOB("CLOB");
 
 // constructor used for CHAR length semantics only
-CharType::CharType(NAMemory *h, const NAString &adtName, Lng32 maxLenInBytesOrNAWchars, short maxBytesPerChar,
+CharType::CharType(NAMemory *h, const NAString &adtName, int maxLenInBytesOrNAWchars, short maxBytesPerChar,
                    NABoolean nullTerminated, NABoolean allowSQLnull, NABoolean isUpShifted, NABoolean isCaseInsensitive,
                    NABoolean varLenFlag, CharInfo::CharSet cs, CharInfo::Collation co, CharInfo::Coercibility ce,
                    CharInfo::CharSet encoding,
@@ -204,7 +204,7 @@ NAString CharType::getTypeSQLname(NABoolean terse) const {
 }  // getTypeSQLname()
 
 // This method is written based on the implememtation contained in
-// EncVal_encodeString(const char * str, Lng32 strLen, CharType *cType).
+// EncVal_encodeString(const char * str, int strLen, CharType *cType).
 NAString *CharType::convertToString(double v, NAMemory *h) const {
   // From EncVal_encodeString(), a CHAR string is encoded into a
   // double as follows.
@@ -389,8 +389,8 @@ const NAType *CharType::synthesizeType(NATypeSynthRuleEnum synthRule, const NATy
       op2.getCharSet() != CharInfo::UnknownCharSet)
     return NULL;
 
-  Lng32 res_len_in_Chars;
-  Lng32 res_nominalSize;
+  int res_len_in_Chars;
+  int res_nominalSize;
   CharInfo::Collation co;
   CharInfo::Coercibility ce;
   NABoolean caseinsensitive = FALSE;
@@ -574,18 +574,18 @@ NABoolean CharType::isEncodingNeeded() const {
 // ## These too will need to be changed to handle different collating sequences
 // ## and character sets and such ...
 
-Lng32 CharType::getBlankCharacterValue() const {
+int CharType::getBlankCharacterValue() const {
   switch (getCharSet()) {
     case CharInfo::UNICODE:
       return unicode_char_set::space_char();
     default:
-      return Lng32(' ');  //##NCHAR: is this correct for Kanji etc?
+      return int(' ');  //##NCHAR: is this correct for Kanji etc?
   }
 }
 
-Lng32 CharType::getMinSingleCharacterValue() const { return 0; }
+int CharType::getMinSingleCharacterValue() const { return 0; }
 
-Lng32 CharType::getMaxSingleCharacterValue() const {
+int CharType::getMaxSingleCharacterValue() const {
   //##NCHAR:  This switches-within-switch-stmt is not optimally maintainable.
   //##	      Best way to implement this would likely be to augment the
   //##		CharInfo.cpp charset-map-struct and the CollationInfo class...
@@ -713,10 +713,10 @@ NABoolean CharType::createSQLLiteral(const char *buf, NAString *&stringLiteral, 
 
   switch (sourceCS) {
     case CharInfo::BINARY: {
-      Lng32 hexlen = str_computeHexAsciiLen(valLen);
+      int hexlen = str_computeHexAsciiLen(valLen);
 
       tempBuf = new (h) char[hexlen + 1];
-      Lng32 rc = str_convertToHexAscii(valPtr, valLen, tempBuf, hexlen + 1, TRUE /*append null*/);
+      int rc = str_convertToHexAscii(valPtr, valLen, tempBuf, hexlen + 1, TRUE /*append null*/);
       *resultLiteral += tempBuf;
     } break;
 
@@ -771,7 +771,7 @@ NABoolean CharType::createSQLLiteral(const char *buf, NAString *&stringLiteral, 
   return result;
 }
 
-SQLChar::SQLChar(NAMemory *h, Lng32 maxLen, NABoolean allowSQLnull, NABoolean isUpShifted, NABoolean isCaseInsensitive,
+SQLChar::SQLChar(NAMemory *h, int maxLen, NABoolean allowSQLnull, NABoolean isUpShifted, NABoolean isCaseInsensitive,
                  NABoolean varLenFlag, CharInfo::CharSet cs, CharInfo::Collation co, CharInfo::Coercibility ce,
                  CharInfo::CharSet encoding)
     : CharType(h, varLenFlag ? LiteralVARCHAR : LiteralCHAR, maxLen, CharInfo::maxBytesPerChar(cs), FALSE, allowSQLnull,
@@ -783,9 +783,9 @@ SQLChar::SQLChar(NAMemory *h, const CharLenInfo &maxLenInfo, NABoolean allowSQLn
     : CharType(h, varLenFlag ? LiteralVARCHAR : LiteralCHAR, maxLenInfo, CharInfo::maxBytesPerChar(cs), FALSE,
                allowSQLnull, isUpShifted, isCaseInsensitive, varLenFlag, cs, co, ce, encoding) {}
 
-SQLVarChar::SQLVarChar(NAMemory *h, Lng32 maxLen, NABoolean allowSQLnull, NABoolean isUpShifted,
+SQLVarChar::SQLVarChar(NAMemory *h, int maxLen, NABoolean allowSQLnull, NABoolean isUpShifted,
                        NABoolean isCaseInsensitive, CharInfo::CharSet cs, CharInfo::Collation co,
-                       CharInfo::Coercibility ce, CharInfo::CharSet encoding, Lng32 vcIndLen)
+                       CharInfo::Coercibility ce, CharInfo::CharSet encoding, int vcIndLen)
     : CharType(h, LiteralVARCHAR, maxLen, CharInfo::maxBytesPerChar(cs), FALSE, allowSQLnull, isUpShifted,
                isCaseInsensitive, TRUE, cs, co, ce, encoding, vcIndLen),
       clientDataType_(collHeap())  // Get heap from NABasicObject. Can't allocate on stack.
@@ -826,7 +826,7 @@ NABoolean SQLVarChar::operator==(const NAType &other) const {
 // In fact, the varLenFlag param is unused:  lots of things break
 // in cli + rfork if a CharType is both nul-terminated and has a vc-header.
 // -----------------------------------------------------------------------
-ANSIChar::ANSIChar(NAMemory *h, Lng32 maxLen, NABoolean allowSQLnull, NABoolean isUpShifted,
+ANSIChar::ANSIChar(NAMemory *h, int maxLen, NABoolean allowSQLnull, NABoolean isUpShifted,
                    NABoolean varLenFlag,  // *unused*
                    CharInfo::CharSet cs, CharInfo::Collation co, CharInfo::Coercibility ce, CharInfo::CharSet encoding)
     : CharType(h, LiteralCHAR, maxLen, CharInfo::maxBytesPerChar(cs), TRUE, allowSQLnull, isUpShifted, FALSE, FALSE, cs,
@@ -902,14 +902,14 @@ short CharType::getFSDatatype() const {
   return -1;
 }
 
-Lng32 CharType::getPrecisionOrMaxNumChars() const {
+int CharType::getPrecisionOrMaxNumChars() const {
   if ((charLimitInUCS2or4chars_ > 0) && (charSet_ == CharInfo::UTF8) &&
       (charLimitInUCS2or4chars_ < getDataStorageSize()))
     return charLimitInUCS2or4chars_;
   return 0;  // no limits for now
 }
 
-Lng32 CharType::getScaleOrCharset() const { return (Lng32)getCharSet(); }
+int CharType::getScaleOrCharset() const { return (int)getCharSet(); }
 
 void CharType::generateTextThenSetDisplayDataType(CharInfo::CharSet cs  // in
                                                   ,
@@ -964,7 +964,7 @@ Int32 CharType::determineVCHdrSize(Int32 len) {
 // -----------------------------------------------------------------------
 NAString *CharType::getKey(CollHeap *h) const { return new (h) NAString(getTypeSQLname(), h); }
 
-void CharType::minMaxRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **stringLiteral, NABoolean isMax,
+void CharType::minMaxRepresentableValue(void *bufPtr, int *bufLen, NAString **stringLiteral, NABoolean isMax,
                                         CollHeap *h) const {
   Int32 i;
   Int32 vcLenHdrSize = getVarLenHdrSize();
@@ -1033,11 +1033,11 @@ void CharType::minMaxRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **
 // ## These too will need to be changed to handle different collating sequences
 // ## and character sets and multibyte chars and such ...
 
-void SQLChar::minRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **stringLiteral, CollHeap *h) const {
+void SQLChar::minRepresentableValue(void *bufPtr, int *bufLen, NAString **stringLiteral, CollHeap *h) const {
   minMaxRepresentableValue(bufPtr, bufLen, stringLiteral, FALSE, h);
 }
 
-void SQLChar::maxRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **stringLiteral, CollHeap *h) const {
+void SQLChar::maxRepresentableValue(void *bufPtr, int *bufLen, NAString **stringLiteral, CollHeap *h) const {
   minMaxRepresentableValue(bufPtr, bufLen, stringLiteral, TRUE, h);
 }
 
@@ -1075,11 +1075,11 @@ double SQLChar::encode(void *bufPtr) const {
 // ## These too will need to be changed to handle different collating sequences
 // ## and character sets and multibyte chars and such ...
 
-void SQLVarChar::minRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **stringLiteral, CollHeap *h) const {
+void SQLVarChar::minRepresentableValue(void *bufPtr, int *bufLen, NAString **stringLiteral, CollHeap *h) const {
   minMaxRepresentableValue(bufPtr, bufLen, stringLiteral, FALSE, h);
 }
 
-void SQLVarChar::maxRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **stringLiteral, CollHeap *h) const {
+void SQLVarChar::maxRepresentableValue(void *bufPtr, int *bufLen, NAString **stringLiteral, CollHeap *h) const {
   minMaxRepresentableValue(bufPtr, bufLen, stringLiteral, TRUE, h);
 }
 
@@ -1184,9 +1184,9 @@ const CharType *CharType::desiredCharType(enum CharInfo::CharSet cs) {
 }
 
 // round length up to next bigger quantum step
-static Lng32 quantize(Lng32 len) {
-  static const Lng32 quanLen[] = {8, 16, 32, 64, 128, 256, 512, 1024};
-  Lng32 x, limit = sizeof(quanLen) / sizeof(quanLen[0]);
+static int quantize(int len) {
+  static const int quanLen[] = {8, 16, 32, 64, 128, 256, 512, 1024};
+  int x, limit = sizeof(quanLen) / sizeof(quanLen[0]);
   if (len <= 0) {
     return quanLen[0];
   }
@@ -1203,8 +1203,8 @@ static Lng32 quantize(Lng32 len) {
 
 // A virtual function to return a char equivalent of this type
 NAType *SQLVarChar::equivalentCharType(NAMemory *h, NABoolean quantizeLen) {
-  Lng32 len_in_chars;
-  Lng32 len_in_bytes;
+  int len_in_chars;
+  int len_in_bytes;
 
   len_in_chars = quantizeLen ? quantize(getStrCharLimit()) : getStrCharLimit();
   len_in_bytes = quantizeLen ? quantize(getNominalSize()) : getNominalSize();
@@ -1221,7 +1221,7 @@ NAType *SQLVarChar::equivalentCharType(NAMemory *h, NABoolean quantizeLen) {
   // It will cause 1) and 2) will hit the same query cache,
   // and 10 UTF8 characters will be truncated.
   if (quantizeLen && getCharSet() == CharInfo::UTF8) {
-    Lng32 tmp = quantize(getStrCharLimit() * CharInfo::maxBytesPerChar(getCharSet()));
+    int tmp = quantize(getStrCharLimit() * CharInfo::maxBytesPerChar(getCharSet()));
     len_in_bytes = max(len_in_bytes, tmp);
   }
   CharLenInfo CLInfo(len_in_chars, len_in_bytes);
@@ -1231,8 +1231,8 @@ NAType *SQLVarChar::equivalentCharType(NAMemory *h, NABoolean quantizeLen) {
 
 // A virtual function to return a varchar equivalent of this type
 NAType *SQLChar::equivalentVarCharType(NAMemory *h, NABoolean quantizeLen) {
-  Lng32 len_in_chars;
-  Lng32 len_in_bytes;
+  int len_in_chars;
+  int len_in_bytes;
 
   len_in_chars = quantizeLen ? quantize(getStrCharLimit()) : getStrCharLimit();
   len_in_bytes = quantizeLen ? quantize(getNominalSize()) : getNominalSize();
@@ -1249,7 +1249,7 @@ NAType *SQLChar::equivalentVarCharType(NAMemory *h, NABoolean quantizeLen) {
   // It will cause 1) and 2) will hit the same query cache,
   // and 10 UTF8 characters will be truncated.
   if (quantizeLen && getCharSet() == CharInfo::UTF8) {
-    Lng32 tmp = quantize(getStrCharLimit() * CharInfo::maxBytesPerChar(getCharSet()));
+    int tmp = quantize(getStrCharLimit() * CharInfo::maxBytesPerChar(getCharSet()));
     len_in_bytes = max(len_in_bytes, tmp);
   }
   CharLenInfo CLInfo(len_in_chars, len_in_bytes);
@@ -1259,7 +1259,7 @@ NAType *SQLChar::equivalentVarCharType(NAMemory *h, NABoolean quantizeLen) {
 
 // A virtual function to return a varchar equivalent of this type
 NAType *ANSIChar::equivalentVarCharType(NAMemory *h, NABoolean quantizeLen) {
-  Lng32 len = quantizeLen ? quantize(getStrCharLimit()) : getStrCharLimit();
+  int len = quantizeLen ? quantize(getStrCharLimit()) : getStrCharLimit();
   return new (h) SQLVarChar(h, len, supportsSQLnull(), isUpshifted(), isCaseinsensitive(), getCharSet(), getCollation(),
                             getCoercibility());
 }
@@ -1276,8 +1276,8 @@ short SQLLongVarChar::getTrueFSDatatype() const { return REC_BYTE_V_ASCII_LONG; 
 //////////////////////////////
 // class SQLlob
 //////////////////////////////
-SQLlob::SQLlob(NAMemory *h, NABuiltInTypeEnum ev, Int64 lobLength, ComLobsStorageType ls, NABoolean allowSQLnull,
-               Lng32 extFormatLen)
+SQLlob::SQLlob(NAMemory *h, NABuiltInTypeEnum ev, long lobLength, ComLobsStorageType ls, NABoolean allowSQLnull,
+               int extFormatLen)
     : NAType(h, (ev == NA_LOB_TYPE ? LiteralLOB : LiteralLOB), ev, extFormatLen, allowSQLnull,
              allowSQLnull ? SQL_NULL_HDR_SIZE : 0, TRUE, SQL_VARCHAR_HDR_SIZE_4),
       lobHandleLen_(extFormatLen),
@@ -1310,8 +1310,8 @@ NAString SQLlob::getTypeSQLname(NABoolean terse) const {
 /////////////////////////////////////
 // class SQLBlob
 /////////////////////////////////////
-SQLBlob::SQLBlob(NAMemory *h, Int64 blobLength, ComLobsStorageType lobStorage, NABoolean allowSQLnull,
-                 Lng32 extFormatLen,  // inline data max len or param len
+SQLBlob::SQLBlob(NAMemory *h, long blobLength, ComLobsStorageType lobStorage, NABoolean allowSQLnull,
+                 int extFormatLen,  // inline data max len or param len
                  NABoolean lobV2)
     : SQLlob(h, NA_LOB_TYPE, blobLength, lobStorage, allowSQLnull,
              (lobV2 ? LOB_V2_EXT_HANDLE_LEN : LOB_V1_EXT_HANDLE_LEN) + extFormatLen) {
@@ -1343,8 +1343,8 @@ const NAType *SQLBlob::synthesizeType(NATypeSynthRuleEnum synthRule, const NATyp
 /////////////////////////////////////
 // class SQLClob
 /////////////////////////////////////
-SQLClob::SQLClob(NAMemory *h, Int64 clobLength, CharInfo::CharSet charset, ComLobsStorageType lobStorage,
-                 NABoolean allowSQLnull, Lng32 extFormatLen, NABoolean lobV2)
+SQLClob::SQLClob(NAMemory *h, long clobLength, CharInfo::CharSet charset, ComLobsStorageType lobStorage,
+                 NABoolean allowSQLnull, int extFormatLen, NABoolean lobV2)
     : SQLlob(h, NA_LOB_TYPE, clobLength, lobStorage, allowSQLnull,
              (lobV2 ? LOB_V2_EXT_HANDLE_LEN : LOB_V1_EXT_HANDLE_LEN) + extFormatLen) {
   setDataCharSet(charset);
@@ -1375,7 +1375,7 @@ const NAType *SQLClob::synthesizeType(NATypeSynthRuleEnum synthRule, const NATyp
 // ----------------------------------------------------------------------
 // class SQLBinaryString
 // ----------------------------------------------------------------------
-SQLBinaryString::SQLBinaryString(NAMemory *h, Lng32 maxLen, NABoolean allowSQLnull, NABoolean varLenFlag)
+SQLBinaryString::SQLBinaryString(NAMemory *h, int maxLen, NABoolean allowSQLnull, NABoolean varLenFlag)
     : CharType(h, varLenFlag ? LiteralVARCHAR : LiteralCHAR, maxLen, 1, FALSE, allowSQLnull, FALSE, FALSE, varLenFlag,
                CharInfo::BINARY, CharInfo::DefaultCollation, CharInfo::COERCIBLE, CharInfo::UnknownCharSet) {}
 
@@ -1427,7 +1427,7 @@ const NAType *SQLBinaryString::synthesizeType(NATypeSynthRuleEnum synthRule, con
   if (operand2.getSynthesisPrecedence() > getSynthesisPrecedence())
     return operand2.synthesizeType(synthRule, operand1, operand2, h, flags);
 
-  Lng32 res_nominalSize = 0;
+  int res_nominalSize = 0;
   NABoolean makeTypeVarchar = FALSE;
 
   switch (synthRule) {
@@ -1448,10 +1448,10 @@ const NAType *SQLBinaryString::synthesizeType(NATypeSynthRuleEnum synthRule, con
   return new (h) SQLBinaryString(h, res_nominalSize, null, makeTypeVarchar);
 }  // synthesizeType()
 
-void SQLBinaryString::minRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **stringLiteral, CollHeap *h) const {
+void SQLBinaryString::minRepresentableValue(void *bufPtr, int *bufLen, NAString **stringLiteral, CollHeap *h) const {
   minMaxRepresentableValue(bufPtr, bufLen, stringLiteral, FALSE, h);
 }
 
-void SQLBinaryString::maxRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **stringLiteral, CollHeap *h) const {
+void SQLBinaryString::maxRepresentableValue(void *bufPtr, int *bufLen, NAString **stringLiteral, CollHeap *h) const {
   minMaxRepresentableValue(bufPtr, bufLen, stringLiteral, TRUE, h);
 }

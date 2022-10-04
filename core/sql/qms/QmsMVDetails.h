@@ -431,10 +431,10 @@ class MVDetails : public DescriptorDetails {
   const NAString &getMVName() { return name_; }
 
   /**
-   * Get the MV redefinition timestamp as an Int64
+   * Get the MV redefinition timestamp as an long
    * @return
    */
-  const Int64 &getRedefTimestamp() { return redefTimestamp_; }
+  const long &getRedefTimestamp() { return redefTimestamp_; }
 
   /**
    * Get the MV redefinition timestamp as a string
@@ -443,10 +443,10 @@ class MVDetails : public DescriptorDetails {
   const NAString &getRedefTimestampAsString() { return redefTimestampString_; }
 
   /**
-   * Get the MV refresh timestamp as an Int64
+   * Get the MV refresh timestamp as an long
    * @return
    */
-  const Int64 &getRefreshTimestamp() { return refreshTimestamp_; }
+  const long &getRefreshTimestamp() { return refreshTimestamp_; }
 
   /**
    * Get the MV refresh timestamp as a string
@@ -681,9 +681,9 @@ class MVDetails : public DescriptorDetails {
 
  private:
   NAString name_;
-  Int64 redefTimestamp_;
+  long redefTimestamp_;
   NAString redefTimestampString_;
-  Int64 refreshTimestamp_;
+  long refreshTimestamp_;
   NAString refreshTimestampString_;
   NABoolean hasIgnoreChanges_;
   NABoolean isIncremental_;

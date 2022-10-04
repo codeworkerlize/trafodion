@@ -38,7 +38,7 @@
 #include "comexe/ComTdb.h"
 #include "executor/ex_tcb.h"
 #include "executor/ex_expr.h"
-#include "ex_error.h"
+#include "executor/ex_error.h"
 #include "common/str.h"
 #include "ExCompoundStmt.h"
 #include "executor/ExStats.h"
@@ -555,7 +555,7 @@ void ExCatpoundStmtTcb::processEODErrorOrWarning(NABoolean isWarning) {
   puentry->upState.status = ex_queue::Q_SQLERROR;
   puentry->upState.parentIndex = pdentry->downState.parentIndex;
   puentry->upState.downIndex = qparent_.down->getHeadIndex();
-  puentry->upState.setMatchNo((Lng32)0);
+  puentry->upState.setMatchNo((int)0);
 
   qparent_.up->insert();
 }

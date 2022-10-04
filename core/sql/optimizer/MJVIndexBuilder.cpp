@@ -56,7 +56,7 @@ static void PrintColIndList(const IndexList &toPrint, char *name);
 //---------------------------------------------------
 // constructs ColIndSet of the elements of the given CollHeap
 //---------------------------------------------------------------------------//
-ColIndSet::ColIndSet(ColIndList indexList, CollHeap *heap) : SET(Lng32)(heap) {
+ColIndSet::ColIndSet(ColIndList indexList, CollHeap *heap) : SET(int)(heap) {
   size_t length = indexList.entries();
   for (size_t i = 0; i < length; i++) {
     insert(indexList.at(i));
@@ -126,7 +126,7 @@ NABoolean ColIndSet::isSubsetOf(const ColIndSet &other) const {
 ColIndSet ColIndSet::intersect(const ColIndSet &another) const {
   size_t minSize = entries();
   ColIndSet result;
-  Lng32 currColInd;
+  int currColInd;
 
   if (minSize < another.entries()) {
     for (size_t i = 0; i < minSize; i++) {
@@ -506,7 +506,7 @@ void NestingStack::buildIndex(ColIndList &result) {
   ColIndSet *last;
   ColIndSet currSet;
   size_t currSetSize;
-  Lng32 currColumnNumber;
+  int currColumnNumber;
 
   while (!isEmpty())  // while there is a ColIndSet in the NestingStack
   {

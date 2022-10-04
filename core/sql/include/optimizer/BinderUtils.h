@@ -101,7 +101,7 @@ class BinderUtils {
   static ItemExpr *buildPredOnCol(OperatorTypeEnum opType, const NAString &colName, Int32 constVal, CollHeap *heap);
 
   static ItemExpr *buildClusteringIndexVector(const NATable *naTable, CollHeap *heap,
-                                              const CorrName *nameOverride = NULL, Lng32 specialFlags = 0,
+                                              const CorrName *nameOverride = NULL, int specialFlags = 0,
                                               IntegerList *directionVector = NULL, const NAString *prefixColName = NULL,
                                               const NAString *prefixRenameColName = NULL);
 
@@ -109,18 +109,18 @@ class BinderUtils {
 
  private:
   // Called by buildClusteringIndexVector().
-  static ColReference *buildExpressionForSyskey(const CorrName *tableNameCorr, CollHeap *heap, Lng32 specialFlags,
+  static ColReference *buildExpressionForSyskey(const CorrName *tableNameCorr, CollHeap *heap, int specialFlags,
                                                 const NAString *prefixColName);
 
 };  // class BinderUtils
 
 //----------------------------------------------------------------------------
-class IntegerList : public LIST(Lng32) {
+class IntegerList : public LIST(int) {
  public:
-  IntegerList(CollHeap *h = CmpCommon::statementHeap()) : LIST(Lng32)(h) {}
+  IntegerList(CollHeap *h = CmpCommon::statementHeap()) : LIST(int)(h) {}
 
   // Copy Ctor.
-  IntegerList(const IntegerList &other, CollHeap *h = CmpCommon::statementHeap()) : LIST(Lng32)(other, h) {}
+  IntegerList(const IntegerList &other, CollHeap *h = CmpCommon::statementHeap()) : LIST(int)(other, h) {}
 
   virtual ~IntegerList(){};
 };

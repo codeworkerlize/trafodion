@@ -209,7 +209,7 @@ ItemExpr *MvRefreshBuilder::buildSelectionListForScanOnIudLog() const {
 //    Build the list of columns from the base table which are used by
 //    this MV
 //
-ItemExpr *MvRefreshBuilder::buildBaseTableColumnList(Lng32 specialFlags) const {
+ItemExpr *MvRefreshBuilder::buildBaseTableColumnList(int specialFlags) const {
   const NATable *baseTable = getLogsInfo().getBaseNaTable();
   const NAColumnArray &baseCols = baseTable->getNAColumnArray();
 
@@ -631,7 +631,7 @@ RelExpr *MvRefreshBuilder::buildReadRangesBlock() const {
 
   RelExpr *joinNode = buildJoinBaseTableWithRangeLog(scanRangeLog, scanBaseTable);
 
-  Lng32 coveredRows = getLogsInfo().getDeltaDefinition().getCoveredRows();
+  int coveredRows = getLogsInfo().getDeltaDefinition().getCoveredRows();
 
   // Limit the Join cardinality with the coveredRows information
   if (coveredRows != 0) {
@@ -655,7 +655,7 @@ RelExpr *MvRefreshBuilder::buildReadRangesBlock() const {
 RelExpr *MvRefreshBuilder::buildReadBaseTable() const {
   RelExpr *topNode = new (heap_) Scan(getLogsInfo().getBaseTableName());
 
-  Lng32 coveredRows = getLogsInfo().getDeltaDefinition().getCoveredRows();
+  int coveredRows = getLogsInfo().getDeltaDefinition().getCoveredRows();
 
   // Fix the cardinality of the base table to its initial cardinality.
   // For hash join and merge join this is the exact cardinality.
@@ -766,7 +766,7 @@ RelExpr *MvRefreshBuilder::buildUnionBakeboneToMergeEpochs(RelExpr *topNode) con
   RelExpr *unionTree = topNode;
   ItemExpr *epochPred = NULL;
 
-  for (Lng32 epoch = deltaDef.getBeginEpoch() + 1; epoch <= deltaDef.getEndEpoch(); epoch++) {
+  for (int epoch = deltaDef.getBeginEpoch() + 1; epoch <= deltaDef.getEndEpoch(); epoch++) {
     RelExpr *newScan = topNode->copyTree(heap_);
 
     epochPred = BinderUtils::buildPredOnCol(ITM_EQUAL, COMMV_EPOCH_COL, epoch, heap_);
@@ -832,12 +832,12 @@ MultiDeltaRefreshMatrix *MvRefreshBuilder::prepareProductMatrix(NABoolean suppor
   }
 
   const MVJoinGraphSolution &graphSolution = joinGraph->getSolution();
-  const ARRAY(Lng32) &theRoute = graphSolution.getRoute();
+  const ARRAY(int) &theRoute = graphSolution.getRoute();
 
   // Every iteration adds another table (another column to the matrix),
   // and if the delta for that table should be read, add rows as well.
   for (CollIndex i = productMatrix->getRowLength(); i < theRoute.entries(); i++) {
-    Lng32 tableIndex = theRoute[i];
+    int tableIndex = theRoute[i];
     NABoolean isOptimized = graphSolution.isTableOnRI(tableIndex);
     NABoolean isEmptyDelta = joinGraph->getTableObjectAt(tableIndex)->isEmptyDelta();
     // The delta should be read if it is non-empty, and if it cannot be
@@ -910,7 +910,7 @@ RelRoot *MvRefreshBuilder::prepareProductFromMatrix(const MultiDeltaRefreshMatri
     // If for this matrix row, we should read the table's log
     if (currentRow->isScanOnDelta(i)) {
       // Get the table's index into the MVInfo used object list.
-      Lng32 tableIndex = productMatrix.getTableIndexFor(i);
+      int tableIndex = productMatrix.getTableIndexFor(i);
 
       // Find the table name.
       MVUsedObjectInfo *usedObject = getMvInfo()->getUsedObjectsList()[tableIndex];
@@ -1177,7 +1177,7 @@ ItemExpr *MavBuilder::buildGroupByColumnsPredicate(const NAString &table1Name, c
   const CorrName table1CorrName(table1Name);
   const CorrName table2CorrName(table2Name);
   // Get the MAV GroupBy columns from the MVInfo.
-  LIST(Lng32) gbColPositionList(heap_);
+  LIST(int) gbColPositionList(heap_);
   getMvInfo()->getMavGroupByColumns(gbColPositionList);
   if (gbColPositionList.entries() == 0) {
     // When there are no GroupBy columns, the predicate evaluates to TRUE.
@@ -1196,7 +1196,7 @@ ItemExpr *MavBuilder::buildGroupByColumnsPredicate(const NAString &table1Name, c
   for (CollIndex i = 0; i < gbColPositionList.entries(); i++) {
     // Get the name of the column, by using its position from the GroupBy
     // column list.
-    Lng32 gbColIndex = gbColPositionList[i];
+    int gbColIndex = gbColPositionList[i];
     const MVColumnInfo *gbColInfo = getMvInfo()->getMVColumns().getMvColInfoByIndex(gbColIndex);
     const NAString &colName = gbColInfo->getColName();
 
@@ -1524,7 +1524,7 @@ Int32 MavBuilder::isGroupByAprefixOfTableCKeyColumns() const {
   const NATable &baseTable = *getLogsInfo().getBaseNaTable();
   const NAColumnArray &indexColumns = baseTable.getClusteringIndex()->getIndexKeyColumns();
 
-  LIST(Lng32) gbColPositionList(heap_);
+  LIST(int) gbColPositionList(heap_);
   getMvInfo()->getMavGroupByColumns(gbColPositionList);
 
   Int32 numOfGroupByCols = gbColPositionList.entries();
@@ -2316,7 +2316,7 @@ MultiDeltaRefreshMatrix::MultiDeltaRefreshMatrix(Int32 maxNumOfRows, MVJoinGraph
   // Find the solution for the join graph.
   CMPASSERT(joinGraph != NULL);
   const MVJoinGraphSolution &graphSolution = joinGraph->getSolution();
-  const ARRAY(Lng32) &theRoute = graphSolution.getRoute();
+  const ARRAY(int) &theRoute = graphSolution.getRoute();
   // Get the mapping between the route tableIndex to the MVInfo used tables.
   joinGraph->getRouteOfSolution(tableIndexMapping_);
 

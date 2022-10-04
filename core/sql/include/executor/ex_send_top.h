@@ -90,7 +90,7 @@ class ex_send_top_tdb : public ComTdbSendTop {
   // send top nodes are usually built such that many tcbs exist for a
   // single tdb and that each tcb can use a different form of communication
   // ---------------------------------------------------------------------
-  ex_tcb *buildInstance(ExExeStmtGlobals *glob, Lng32 myInstanceNum, Lng32 childInstanceNum);
+  ex_tcb *buildInstance(ExExeStmtGlobals *glob, int myInstanceNum, int childInstanceNum);
 
  private:
   // ---------------------------------------------------------------------
@@ -132,7 +132,7 @@ class ex_send_top_tcb : public ex_tcb {
 
   // Constructor
   ex_send_top_tcb(const ex_send_top_tdb &sendTopTdb, ExExeStmtGlobals *glob, const IpcProcessId &sendBottomProcId,
-                  Lng32 myInstanceNum, Lng32 childInstanceNum);
+                  int myInstanceNum, int childInstanceNum);
 
   // Destructor
   ~ex_send_top_tcb();
@@ -149,8 +149,8 @@ class ex_send_top_tcb : public ex_tcb {
   ex_queue_pair getParentQueue() const;
   inline ex_queue_pair getParentQueueForSendTop() const { return qParent_; }
 
-  inline Lng32 getMyInstanceNum() const { return myInstanceNum_; }
-  inline Lng32 getChildInstanceNum() const { return childInstanceNum_; }
+  inline int getMyInstanceNum() const { return myInstanceNum_; }
+  inline int getChildInstanceNum() const { return childInstanceNum_; }
 
   // access predicates in tdb
   inline ex_expr *moveInputValues() const { return sendTopTdb().moveInputValues_; }
@@ -179,7 +179,7 @@ class ex_send_top_tcb : public ex_tcb {
   // Stub to processCancel() used by scheduler.
   static ExWorkProcRetcode sCancel(ex_tcb *tcb);
 
-  void incReqMsg(Int64 msgBytes);
+  void incReqMsg(long msgBytes);
 
   ExSendTopMsgStream *getMsgStream() { return msgStream_; }
   ExSendTopCancelMessageStream *getCancelMsgStream() { return cancelMessageStream_; }
@@ -306,16 +306,16 @@ class ex_send_top_tcb : public ex_tcb {
 
   // remember my own instance number and the instance number of the
   // child ESP that I'm talking to
-  Lng32 myInstanceNum_;
-  Lng32 childInstanceNum_;
+  int myInstanceNum_;
+  int childInstanceNum_;
 
   queue_index nextToSendDown_;  // next down queue index to send to server
 
   TupMsgBuffer *currentSendBuffer_;     // send sql buffer being built
   TupMsgBuffer *currentReceiveBuffer_;  // receive sql buffer being processed
 
-  Lng32 sendBufferSize_;     // size of send sql buffer
-  Lng32 receiveBufferSize_;  // size of receive sql buffer
+  int sendBufferSize_;     // size of send sql buffer
+  int receiveBufferSize_;  // size of receive sql buffer
 
   // subtasks to be executed when an I/O completes
   ExSubtask *ioCancelSubtask_;
@@ -353,7 +353,7 @@ class ExSendTopCancelMessageStream : public IpcClientMsgStream {
  public:
   // Constructors
   // construct a message stream associated with a particular send top node
-  ExSendTopCancelMessageStream(ExExeStmtGlobals *glob, Lng32 sendBufferLimit, Lng32 inUseBufferLimit,
+  ExSendTopCancelMessageStream(ExExeStmtGlobals *glob, int sendBufferLimit, int inUseBufferLimit,
                                IpcMessageObjSize bufferSize, ex_send_top_tcb *sendTopTcb,
                                ExEspInstanceThread *threadInfo);
 
@@ -389,7 +389,7 @@ class ExSendTopCancelMessageStream : public IpcClientMsgStream {
 class ExSendTopMsgStream : public IpcClientMsgStream {
  public:
   // constructor
-  ExSendTopMsgStream(ExExeStmtGlobals *glob, Lng32 sendBufferLimit, Lng32 inUseBufferLimit,
+  ExSendTopMsgStream(ExExeStmtGlobals *glob, int sendBufferLimit, int inUseBufferLimit,
                      IpcMessageObjSize bufferSize, ex_send_top_tcb *sendTopTcb, ExEspInstanceThread *threadInfo);
 
   // method called upon send complete
@@ -422,7 +422,7 @@ class ex_send_top_private_state : public ex_tcb_private_state {
  private:
   ex_send_top_tcb::sendStep step_;  // step in processing this parent row
   ULng32 bufferNumber_;
-  Int64 matchCount_;
+  long matchCount_;
 };
 
 #endif /* EX_SEND_TOP_H */

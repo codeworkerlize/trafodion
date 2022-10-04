@@ -217,7 +217,7 @@ ElemDDLColDef *ElemDDLColDef::castToElemDDLColDef() { return this; }
 // get the degree of this node
 Int32 ElemDDLColDef::getArity() const { return MAX_ELEM_DDL_COL_DEF_ARITY; }
 
-ExprNode *ElemDDLColDef::getChild(Lng32 index) {
+ExprNode *ElemDDLColDef::getChild(int index) {
   ComASSERT(index >= 0 AND index < getArity());
   return children_[index];
 }
@@ -226,7 +226,7 @@ ExprNode *ElemDDLColDef::getChild(Lng32 index) {
 // mutators
 //
 
-void ElemDDLColDef::setChild(Lng32 index, ExprNode *pChildNode) {
+void ElemDDLColDef::setChild(int index, ExprNode *pChildNode) {
   ComASSERT(index >= 0 AND index < getArity());
   if (pChildNode NEQ NULL) {
     ComASSERT(pChildNode->castToElemDDLNode() NEQ NULL);
@@ -814,7 +814,7 @@ NATraceList ElemDDLColDef::getDetailInfo() const {
     detailTextList.append("No column constraints.");
   } else {
     detailText = "Column Constraints list [";
-    detailText += LongToNAString((Lng32)nbrConstraints);
+    detailText += LongToNAString((int)nbrConstraints);
     detailText += " element(s)]:";
     detailTextList.append(detailText);
 
@@ -822,7 +822,7 @@ NATraceList ElemDDLColDef::getDetailInfo() const {
       ElemDDLConstraint *cons = consList[i];
 
       detailText = "[column constraint ";
-      detailText += LongToNAString((Lng32)i);
+      detailText += LongToNAString((int)i);
       detailText += "]";
       detailTextList.append(detailText);
 
@@ -882,13 +882,13 @@ ElemDDLColDefault *ElemDDLColDefault::castToElemDDLColDefault() { return this; }
 
 Int32 ElemDDLColDefault::getArity() const { return MAX_ELEM_DDL_COL_DEFAULT_ARITY; }
 
-ExprNode *ElemDDLColDefault::getChild(Lng32 index) {
+ExprNode *ElemDDLColDefault::getChild(int index) {
   ComASSERT(index EQU INDEX_DEFAULT_VALUE_EXPR);
   return defaultValueExpr_;
 }
 
 // mutator
-void ElemDDLColDefault::setChild(Lng32 index, ExprNode *pChildNode) {
+void ElemDDLColDefault::setChild(int index, ExprNode *pChildNode) {
   ComASSERT(index EQU INDEX_DEFAULT_VALUE_EXPR);
   if (pChildNode NEQ NULL) {
     ComASSERT(pChildNode->castToItemExpr() NEQ NULL);
@@ -1187,7 +1187,7 @@ ElemDDLColViewDef *ElemDDLColViewDef::castToElemDDLColViewDef() { return this; }
 // get the degree of this node
 Int32 ElemDDLColViewDef::getArity() const { return MAX_ELEM_DDL_COL_VIEW_DEF_ARITY; }
 
-ExprNode *ElemDDLColViewDef::getChild(Lng32 index) {
+ExprNode *ElemDDLColViewDef::getChild(int index) {
   ComASSERT(index >= 0 AND index < getArity());
   return children_[index];
 }
@@ -1196,7 +1196,7 @@ ExprNode *ElemDDLColViewDef::getChild(Lng32 index) {
 // mutators
 //
 
-void ElemDDLColViewDef::setChild(Lng32 index, ExprNode *pChildNode) {
+void ElemDDLColViewDef::setChild(int index, ExprNode *pChildNode) {
   ComASSERT(index >= 0 AND index < getArity());
   if (pChildNode NEQ NULL) {
     ComASSERT(pChildNode->castToElemDDLNode() NEQ NULL);

@@ -138,11 +138,11 @@ class CompilationStatsData : public NAVersionedObject {
         compileInfo_(NULL),
         compileInfoLen_(0){};
 
-  CompilationStatsData(Int64 compileStartTime, Int64 compileEndTime, char *compilerId, Lng32 cmpCpuTotal,
-                       Lng32 cmpCpuBinder, Lng32 cmpCpuNormalizer, Lng32 cmpCpuAnalyzer, Lng32 cmpCpuOptimizer,
-                       Lng32 cmpCpuGenerator, ULng32 metadataCacheHits, ULng32 metadataCacheLookups,
+  CompilationStatsData(long compileStartTime, long compileEndTime, char *compilerId, int cmpCpuTotal,
+                       int cmpCpuBinder, int cmpCpuNormalizer, int cmpCpuAnalyzer, int cmpCpuOptimizer,
+                       int cmpCpuGenerator, ULng32 metadataCacheHits, ULng32 metadataCacheLookups,
                        Int32 queryCacheState, ULng32 histogramCacheHits, ULng32 histogramCacheLookups,
-                       Lng32 stmtHeapSize, Lng32 cxtHeapSize, Lng32 optTasks, Lng32 optContexts, short isRecompile,
+                       int stmtHeapSize, int cxtHeapSize, int optTasks, int optContexts, short isRecompile,
                        char *compileInfo, Int32 compileInfoLen)
       : NAVersionedObject(-1),
         compileStartTime_(compileStartTime),
@@ -179,39 +179,39 @@ class CompilationStatsData : public NAVersionedObject {
   virtual short getClassSize() { return (short)sizeof(CompilationStatsData); }
 
   Long pack(void *space);
-  Lng32 unpack(void *, void *reallocator);
+  int unpack(void *, void *reallocator);
 
-  Int64 compileStartTime() { return compileStartTime_; }
-  Int64 compileEndTime() { return compileEndTime_; }
+  long compileStartTime() { return compileStartTime_; }
+  long compileEndTime() { return compileEndTime_; }
   char *compilerId() { return (char *)compilerId_.getPointer(); }
-  Lng32 cmpCpuTotal() { return cmpCpuTotal_; }
-  Lng32 cmpCpuBinder() { return cmpCpuBinder_; }
-  Lng32 cmpCpuNormalizer() { return cmpCpuNormalizer_; }
-  Lng32 cmpCpuAnalyzer() { return cmpCpuAnalyzer_; }
-  Lng32 cmpCpuOptimizer() { return cmpCpuOptimizer_; }
-  Lng32 cmpCpuGenerator() { return cmpCpuGenerator_; }
+  int cmpCpuTotal() { return cmpCpuTotal_; }
+  int cmpCpuBinder() { return cmpCpuBinder_; }
+  int cmpCpuNormalizer() { return cmpCpuNormalizer_; }
+  int cmpCpuAnalyzer() { return cmpCpuAnalyzer_; }
+  int cmpCpuOptimizer() { return cmpCpuOptimizer_; }
+  int cmpCpuGenerator() { return cmpCpuGenerator_; }
   ULng32 metadataCacheHits() { return metadataCacheHits_; }
   ULng32 metadataCacheLookups() { return metadataCacheLookups_; }
   Int32 queryCacheState() { return queryCacheState_; }
   ULng32 histogramCacheHits() { return histogramCacheHits_; }
   ULng32 histogramCacheLookups() { return histogramCacheLookups_; }
-  Lng32 stmtHeapSize() { return stmtHeapSize_; }
-  Lng32 contextHeapSize() { return cxtHeapSize_; }
-  Lng32 optTasks() { return optTasks_; }
-  Lng32 optContexts() { return optContexts_; }
+  int stmtHeapSize() { return stmtHeapSize_; }
+  int contextHeapSize() { return cxtHeapSize_; }
+  int optTasks() { return optTasks_; }
+  int optContexts() { return optContexts_; }
   short isRecompile() { return isRecompile_; }
   char *compileInfo() { return (char *)compileInfo_.getPointer(); }
   Int32 compileInfoLen() { return compileInfoLen_; }
   //
   // these values are found after the object is created and added back in
-  void setCmpCpuGenerator(Lng32 cmpCpuGenerator) { cmpCpuGenerator_ = cmpCpuGenerator; }
-  void setCmpCpuTotal(Lng32 cmpCpuTotal) { cmpCpuTotal_ = cmpCpuTotal; }
-  void setCompileEndTime(Int64 endTime) { compileEndTime_ = endTime; }
-  void translateToExternalFormat(SQL_COMPILATION_STATS_DATA *cmpData, Int64 cmpStartTime, Int64 cmpEndTime);
+  void setCmpCpuGenerator(int cmpCpuGenerator) { cmpCpuGenerator_ = cmpCpuGenerator; }
+  void setCmpCpuTotal(int cmpCpuTotal) { cmpCpuTotal_ = cmpCpuTotal; }
+  void setCompileEndTime(long endTime) { compileEndTime_ = endTime; }
+  void translateToExternalFormat(SQL_COMPILATION_STATS_DATA *cmpData, long cmpStartTime, long cmpEndTime);
 
  private:
-  Int64 compileStartTime_;       //  0 -  7
-  Int64 compileEndTime_;         //  8 - 15
+  long compileStartTime_;       //  0 -  7
+  long compileEndTime_;         //  8 - 15
   NABasicPtr compilerId_;        // 16 - 23
   Int32 cmpCpuTotal_;            // 24 - 27
   Int32 cmpCpuBinder_;           // 28 - 31
@@ -1018,7 +1018,7 @@ class ComTdbStats : public ComTdb {
 
   // Constructor used by the generator.
   ComTdbStats(ULng32 tupleLen, ULng32 returnedTuplelen, ULng32 inputTuplelen, ex_cri_desc *criDescParentDown,
-              ex_cri_desc *criDescParentUp, queue_index queueSizeDown, queue_index queueSizeUp, Lng32 numBuffers,
+              ex_cri_desc *criDescParentUp, queue_index queueSizeDown, queue_index queueSizeUp, int numBuffers,
               ULng32 bufferSize, ex_expr *scanExpr, ex_expr *inputExpr, ex_expr *projExpr, ex_cri_desc *workCriDesc,
               UInt16 stats_row_atp_index, UInt16 input_row_atp_index);
 
@@ -1039,7 +1039,7 @@ class ComTdbStats : public ComTdb {
 
   // Pack and Unpack routines
   Long pack(void *);
-  Lng32 unpack(void *, void *reallocator);
+  int unpack(void *, void *reallocator);
 
   // For the GUI, Does nothing right now
   void display() const {};

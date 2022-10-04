@@ -22,7 +22,7 @@
 // **********************************************************************
 
 #include "common/Platform.h"
-#include <Int64.h>
+#include <long.h>
 #include "QmsRequest.h"
 #include "QRMessage.h"
 #include "qmscommon/XMLUtil.h"
@@ -114,7 +114,7 @@ Int32 main(Int32 argc, char *argv[]) {
     QRLogger::log(CAT_QMS_MAIN, LL_DEBUG, "QMS invoked via command-line interface.");
 
   // Create the singleton instances of Qms and QmsInitializer.
-  NAHeap qmsHeap("QMS Heap", NAMemory::DERIVED_FROM_SYS_HEAP, (Lng32)131072);
+  NAHeap qmsHeap("QMS Heap", NAMemory::DERIVED_FROM_SYS_HEAP, (int)131072);
   Qms &qms = *Qms::getInstance(&qmsHeap);
   QmsInitializer &qmsInitializer = *QmsInitializer::getInstance(&qms);
 

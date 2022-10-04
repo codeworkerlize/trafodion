@@ -183,7 +183,7 @@ ex_expr::exp_return_type ex_clause::pCodeGenerate(Space *space, UInt32 f) {
   // clause->eval(), and then pops the stack.
   //
   AML aml(PCIT::IPTR, PCIT::IBIN32S);
-  OL ol((Int64)this, useProcessNulls);
+  OL ol((long)this, useProcessNulls);
   PCI pci(PCIT::Op_CLAUSE_EVAL, aml, ol);
 
   setNoPCodeAvailable(TRUE);
@@ -202,7 +202,7 @@ ex_expr::exp_return_type ex_clause::pCodeGenerate(Space *space, UInt32 f) {
   //
   if (branchEndA) {
     AML aml1;
-    OL ol1((Int64)branchEndA);
+    OL ol1((long)branchEndA);
     PCI pci1(PCIT::Op_TARGET, aml1, ol1);
     code.append(pci1);
   }
@@ -217,7 +217,7 @@ ex_expr::exp_return_type ex_clause::pCodeGenerate(Space *space, UInt32 f) {
     ex_branch_clause *branchClause = (ex_branch_clause *)this;
     ex_clause *targetClause = branchClause->get_branch_clause();
     AML aml(PCIT::IPTR, PCIT::IPTR);
-    OL ol((Int64)targetClause, (Int64)this);
+    OL ol((long)targetClause, (long)this);
     PCI pci(PCIT::Op_CLAUSE_BRANCH, aml, ol);
     code.append(pci);
   }
@@ -323,7 +323,7 @@ ex_expr::exp_return_type ex_aggr_min_max_clause::pCodeGenerate(Space *space, UIn
   // End branch target.
   //
   AML aml6;
-  OL ol6((Int64)branchTgt);
+  OL ol6((long)branchTgt);
   PCI pci6(PCIType::Op_TARGET, aml6, ol6);
   code.append(pci6);
 
@@ -370,8 +370,8 @@ ex_expr::exp_return_type ex_function_encode::pCodeGenerate(Space *space, UInt32 
 
   AttributesPtr *attrs = getOperand();
   Attributes *src = attrs[1];
-  Lng32 fsDataType = src->getDatatype();
-  Lng32 length = src->getLength();
+  int fsDataType = src->getDatatype();
+  int length = src->getLength();
 
   if (isDecode()) {
     if (!getenv("PCODE_DECODE")) return ex_clause::pCodeGenerate(space, f);
@@ -490,7 +490,7 @@ ex_expr::exp_return_type ex_function_encode::pCodeGenerate(Space *space, UInt32 
   //
   if (branchToEnd) {
     AML aml;
-    OL ol((Int64)branchToEnd);
+    OL ol((long)branchToEnd);
     PCI pci(PCIT::Op_TARGET, aml, ol);
     code.append(pci);
   }
@@ -663,7 +663,7 @@ ex_expr::exp_return_type ex_branch_clause::pCodeGenerate(Space *space, UInt32 f)
 
   ex_clause *targetClause = get_branch_clause();
   AML aml(PCIT::IPTR, PCIT::IPTR, PCIT::MBIN32S, PCIT::MBIN32S);
-  OL ol((Int64)targetClause, (Int64)0, attrs[0]->getAtp(), attrs[0]->getAtpIndex(), (Int32)attrs[0]->getOffset(),
+  OL ol((long)targetClause, (long)0, attrs[0]->getAtp(), attrs[0]->getAtpIndex(), (Int32)attrs[0]->getOffset(),
         attrs[1]->getAtp(), attrs[1]->getAtpIndex(), (Int32)attrs[1]->getOffset());
 
   // Generate the branch instruction
@@ -1238,7 +1238,7 @@ ex_expr::exp_return_type ex_comp_clause::pCodeGenerate(Space *space, UInt32 f) {
   //
   if (branchToEnd) {
     AML aml;
-    OL ol((Int64)branchToEnd);
+    OL ol((long)branchToEnd);
     PCI pci(PCIT::Op_TARGET, aml, ol);
     code.append(pci);
   }
@@ -1527,7 +1527,7 @@ ex_expr::exp_return_type ExHDPHash::pCodeGenerate(Space *space, UInt32 f) {
   //
   if (branchToEnd) {
     AML aml;
-    OL ol((Int64)branchToEnd);
+    OL ol((long)branchToEnd);
     PCI pci(PCIT::Op_TARGET, aml, ol);
     code.append(pci);
   }
@@ -1615,7 +1615,7 @@ ex_expr::exp_return_type ex_function_hash::pCodeGenerate(Space *space, UInt32 f)
   //
   if (branchToEnd) {
     AML aml;
-    OL ol((Int64)branchToEnd);
+    OL ol((long)branchToEnd);
     PCI pci(PCIT::Op_TARGET, aml, ol);
     code.append(pci);
   }
@@ -1895,7 +1895,7 @@ ex_expr::exp_return_type ex_arith_clause::unaryArithPCodeGenerate(Space *space, 
   //
   if (branchToEnd) {
     AML aml;
-    OL ol((Int64)branchToEnd);
+    OL ol((long)branchToEnd);
     PCI pci(PCIT::Op_TARGET, aml, ol);
     code.append(pci);
   }
@@ -2033,8 +2033,8 @@ ex_expr::exp_return_type ex_arith_clause::pCodeGenerate(Space *space, UInt32 f) 
   // if this rounding division is being done to downscale.
   // Lowest byte(byte 4) in roundingInfo is rounding mode.
   // Rightmost bit in byte 3 is divToDownscale.
-  Lng32 roundingInfo;
-  roundingInfo = (Lng32)arithRoundingMode_;
+  int roundingInfo;
+  roundingInfo = (int)arithRoundingMode_;
   if (getDivToDownscale()) roundingInfo |= 0x100;
 
   OL ol_rd(dst->getAtp(), dst->getAtpIndex(), (Int32)dst->getOffset(), op1->getAtp(), op1->getAtpIndex(),
@@ -2176,7 +2176,7 @@ ex_expr::exp_return_type ex_arith_clause::pCodeGenerate(Space *space, UInt32 f) 
   //
   if (branchToEnd) {
     AML aml;
-    OL ol((Int64)branchToEnd);
+    OL ol((long)branchToEnd);
     PCI pci(PCIT::Op_TARGET, aml, ol);
     code.append(pci);
   }
@@ -2332,7 +2332,7 @@ ex_expr::exp_return_type ex_arith_count_clause::pCodeGenerate(Space *space, UInt
   return ex_clause::pCodeGenerate(space, f);
 };
 
-static void computeBounds(Attributes *attr, Int64 &lowBounds, UInt64 &highBounds, Int32 &bigBounds, Int32 &isSigned) {
+static void computeBounds(Attributes *attr, long &lowBounds, UInt64 &highBounds, Int32 &bigBounds, Int32 &isSigned) {
   const UInt64 decimalPrecision[] = {0,
                                      9,
                                      99,
@@ -2438,10 +2438,10 @@ static void computeBounds(Attributes *attr, Int64 &lowBounds, UInt64 &highBounds
 
       case REC_BIN64_SIGNED:
         bigBounds = 1;
-        // lowBounds = -(Int64)9223372036854775808;
-        lowBounds = (Int64)LLONG_MIN;
-        // highBounds = (Int64)9223372036854775807;
-        highBounds = (Int64)LLONG_MAX;
+        // lowBounds = -(long)9223372036854775808;
+        lowBounds = (long)LLONG_MIN;
+        // highBounds = (long)9223372036854775807;
+        highBounds = (long)LLONG_MAX;
         isSigned = 1;
         break;
 
@@ -2702,7 +2702,7 @@ ex_expr::exp_return_type ex_conv_clause::pCodeGenerate(Space *space, UInt32 f) {
       // we'll jump here if the value is NULL
       if (nullJmp) {
         AML aml;
-        OL ol((Int64)nullJmp);
+        OL ol((long)nullJmp);
         PCI pci(PCIT::Op_TARGET, aml, ol);
         code.append(pci);
       }
@@ -2781,9 +2781,9 @@ ex_expr::exp_return_type ex_conv_clause::pCodeGenerate(Space *space, UInt32 f) {
     //
     Int32 srcBig, dstBig, srcSigned, dstSigned;
     UInt64 srcHighBounds = 0;
-    Int64 srcLowBounds = 0;
+    long srcLowBounds = 0;
     UInt64 dstHighBounds = 0;
-    Int64 dstLowBounds = 0;
+    long dstLowBounds = 0;
 
     computeBounds(src, srcLowBounds, srcHighBounds, srcBig, srcSigned);
     computeBounds(dst, dstLowBounds, dstHighBounds, dstBig, dstSigned);
@@ -2799,14 +2799,14 @@ ex_expr::exp_return_type ex_conv_clause::pCodeGenerate(Space *space, UInt32 f) {
     if (srcLowBounds < dstLowBounds) {
       if (getInstruction() == CONV_DECS_BIN64S) return ex_clause::pCodeGenerate(space, f);
 
-      OL ol(srcAtp, srcAtpIndex, srcOffset, (Int64)dstLowBounds);
+      OL ol(srcAtp, srcAtpIndex, srcOffset, (long)dstLowBounds);
       PCI pci(PCIT::Op_RANGE_LOW, srcAml, ol);  // RANGE_LOW_S32S64, RANGE_LOW_U32S64, RANGE_LOW_S64S64,
       code.append(pci);
     }
     if (srcHighBounds > dstHighBounds) {
       if (getInstruction() == CONV_DECS_BIN64S) return ex_clause::pCodeGenerate(space, f);
 
-      OL ol(srcAtp, srcAtpIndex, srcOffset, (Int64)dstHighBounds);
+      OL ol(srcAtp, srcAtpIndex, srcOffset, (long)dstHighBounds);
       PCI pci(PCIT::Op_RANGE_HIGH, srcAml, ol);  // RANGE_HIGH_S32S64, RANGE_HIGH_U32S64, RANGE_HIGH_S64S64,
       code.append(pci);
     }
@@ -2979,7 +2979,7 @@ ex_expr::exp_return_type ex_conv_clause::pCodeGenerate(Space *space, UInt32 f) {
   //
   if (nullBranch) {
     AML aml;
-    OL ol((Int64)nullBranch);
+    OL ol((long)nullBranch);
     PCI pci(PCIT::Op_TARGET, aml, ol);
     code.append(pci);
   }
@@ -3248,7 +3248,7 @@ ex_expr::exp_return_type ex_function_mod::pCodeGenerate(Space *space, UInt32 f) 
   PCode::postClausePCI(this, code);
   if (branchEnd) {
     AML aml1;
-    OL ol1((Int64)branchEnd);
+    OL ol1((long)branchEnd);
     PCI pci1(PCIT::Op_TARGET, aml1, ol1);
     code.append(pci1);
   }
@@ -3291,7 +3291,7 @@ ex_expr::exp_return_type ex_function_nullifzero::pCodeGenerate(Space *space, UIn
   //
   if (nullBranch) {
     AML aml;
-    OL ol((Int64)nullBranch);
+    OL ol((long)nullBranch);
     PCI pci(PCIT::Op_TARGET, aml, ol);
     code.append(pci);
   }
@@ -3421,7 +3421,7 @@ ex_expr::exp_return_type ex_function_nvl::pCodeGenerate(Space *space, UInt32 f) 
   //
   if (nullBranch) {
     AML aml;
-    OL ol((Int64)nullBranch);
+    OL ol((long)nullBranch);
     PCI pci(PCIT::Op_TARGET, aml, ol);
     code.append(pci);
   }
@@ -3458,7 +3458,7 @@ ex_expr::exp_return_type ExFunctionRandomNum::pCodeGenerate(Space *space, UInt32
           PCIT::IBIN32S,   // not needed
           PCIT::MBIN8,     // not needed
           PCIT::IBIN32S);  // seed
-  OL ol(getOperType(), dst->getAtp(), dst->getAtpIndex(), (Lng32)dst->getOffset(), -1, -1, -1, -1, -1, -1, -1, seed_);
+  OL ol(getOperType(), dst->getAtp(), dst->getAtpIndex(), (int)dst->getOffset(), -1, -1, -1, -1, -1, -1, -1, seed_);
   PCI pci(PCIT::Op_GENFUNC, aml, ol);
   code.append(pci);
 
@@ -3562,7 +3562,7 @@ ex_expr::exp_return_type ex_function_concat::pCodeGenerate(Space *space, UInt32 
   //
   if (branchToEnd) {
     AML aml;
-    OL ol((Int64)branchToEnd);
+    OL ol((long)branchToEnd);
     PCI pci(PCIT::Op_TARGET, aml, ol);
     code.append(pci);
   }
@@ -3653,7 +3653,7 @@ ex_expr::exp_return_type ex_function_substring::pCodeGenerate(Space *space, UInt
   //
   if (nullBranch) {
     AML aml;
-    OL ol((Int64)nullBranch);
+    OL ol((long)nullBranch);
     PCI pci(PCIT::Op_TARGET, aml, ol);
     code.append(pci);
   }
@@ -3690,11 +3690,11 @@ ex_expr::exp_return_type ExFunctionBitOper::pCodeGenerate(Space *space, UInt32 f
           PCIT::MBIN8,     // operand2
           PCIT::IBIN32S,   // datatype operand0
           PCIT::IBIN32S);  // length operand0
-  OL ol(getOperType(), attrs[0]->getAtp(), attrs[0]->getAtpIndex(), (Lng32)attrs[0]->getOffset(), attrs[1]->getAtp(),
-        attrs[1]->getAtpIndex(), (Lng32)attrs[1]->getOffset(),
+  OL ol(getOperType(), attrs[0]->getAtp(), attrs[0]->getAtpIndex(), (int)attrs[0]->getOffset(), attrs[1]->getAtp(),
+        attrs[1]->getAtpIndex(), (int)attrs[1]->getOffset(),
         ((getOperType() == ITM_BITNOT) ? attrs[1]->getAtp() : attrs[2]->getAtp()),
         ((getOperType() == ITM_BITNOT) ? attrs[1]->getAtpIndex() : attrs[2]->getAtpIndex()),
-        ((getOperType() == ITM_BITNOT) ? (Lng32)attrs[1]->getOffset() : (Lng32)attrs[2]->getOffset()),
+        ((getOperType() == ITM_BITNOT) ? (int)attrs[1]->getOffset() : (int)attrs[2]->getOffset()),
         attrs[0]->getDatatype(), attrs[0]->getLength());
   PCI pci(PCIT::Op_GENFUNC, aml, ol);
   code.append(pci);
@@ -3703,7 +3703,7 @@ ex_expr::exp_return_type ExFunctionBitOper::pCodeGenerate(Space *space, UInt32 f
   //
   if (branchToEnd) {
     AML aml;
-    OL ol((Int64)branchToEnd);
+    OL ol((long)branchToEnd);
     PCI pci(PCIT::Op_TARGET, aml, ol);
     code.append(pci);
   }
@@ -3798,7 +3798,7 @@ ex_expr::exp_return_type ex_function_upper::pCodeGenerate(Space *space, UInt32 f
   //
   if (nullBranch) {
     AML aml;
-    OL ol((Int64)nullBranch);
+    OL ol((long)nullBranch);
     PCI pci(PCIT::Op_TARGET, aml, ol);
     code.append(pci);
   }
@@ -3864,7 +3864,7 @@ ex_expr::exp_return_type ex_function_lower::pCodeGenerate(Space *space, UInt32 f
   //
   if (nullBranch) {
     AML aml;
-    OL ol((Int64)nullBranch);
+    OL ol((long)nullBranch);
     PCI pci(PCIT::Op_TARGET, aml, ol);
     code.append(pci);
   }
@@ -3935,7 +3935,7 @@ ex_expr::exp_return_type ex_function_trim_char::pCodeGenerate(Space *space, UInt
   //
   if (nullBranch) {
     AML aml;
-    OL ol((Int64)nullBranch);
+    OL ol((long)nullBranch);
     PCI pci(PCIT::Op_TARGET, aml, ol);
     code.append(pci);
   }
@@ -3992,7 +3992,7 @@ ex_expr::exp_return_type ex_function_char_length_doublebyte::pCodeGenerate(Space
   //
   if (branchToEnd) {
     AML aml;
-    OL ol((Int64)branchToEnd);
+    OL ol((long)branchToEnd);
     PCI pci(PCIT::Op_TARGET, aml, ol);
     code.append(pci);
   }
@@ -4049,7 +4049,7 @@ ex_expr::exp_return_type ex_function_char_length::pCodeGenerate(Space *space, UI
   //
   if (branchToEnd) {
     AML aml;
-    OL ol((Int64)branchToEnd);
+    OL ol((long)branchToEnd);
     PCI pci(PCIT::Op_TARGET, aml, ol);
     code.append(pci);
   }
@@ -4107,7 +4107,7 @@ ex_expr::exp_return_type ExFunctionRepeat::pCodeGenerate(Space *space, UInt32 f)
   //
   if (nullBranch) {
     AML aml;
-    OL ol((Int64)nullBranch);
+    OL ol((long)nullBranch);
     PCI pci(PCIT::Op_TARGET, aml, ol);
     code.append(pci);
   }
@@ -4175,7 +4175,7 @@ ex_expr::exp_return_type ex_function_position::pCodeGenerate(Space *space, UInt3
   //
   if (branchToEnd) {
     AML aml;
-    OL ol((Int64)branchToEnd);
+    OL ol((long)branchToEnd);
     PCI pci(PCIT::Op_TARGET, aml, ol);
     code.append(pci);
   }
@@ -4326,7 +4326,7 @@ ex_expr::exp_return_type ex_like_clause_base::pCodeGenerate(Space *space, UInt32
   //
   if (branchToEnd) {
     AML aml;
-    OL ol((Int64)branchToEnd);
+    OL ol((long)branchToEnd);
     PCI pci(PCIT::Op_TARGET, aml, ol);
     code.append(pci);
   }
@@ -4401,7 +4401,7 @@ ex_expr::exp_return_type ex_function_extract::pCodeGenerate(Space *space, UInt32
   //
   if (branchToEnd) {
     AML aml;
-    OL ol((Int64)branchToEnd);
+    OL ol((long)branchToEnd);
     PCI pci(PCIT::Op_TARGET, aml, ol);
     code.append(pci);
   }

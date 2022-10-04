@@ -83,7 +83,7 @@ DEFINE_DOVERS(tdm_arkesp)
 
 #include "rosetta/rosgen.h"
 #include "nsk/nskprocess.h"
-#include "zsysc.h"
+#include "common/zsysc.h"
 #include "qmscommon/QRLogger.h"
 #include <sys/syscall.h>
 
@@ -105,7 +105,7 @@ class EspGuaControlConnection : public GuaReceiveControlConnection {
 
   virtual NABoolean fakeErrorFromNSK(short errorFromNSK, GuaProcessHandle *clientPhandle);
 
-  NABoolean getErrorDefine(char *defineName, ExFragId &targetFragId, short &targetCpu, Lng32 &targetSegment);
+  NABoolean getErrorDefine(char *defineName, ExFragId &targetFragId, short &targetCpu, int &targetSegment);
 
   // Cannot do in-place initialization of static const integral
   // member data in Visual C++.  See MS Knowledge base
@@ -198,7 +198,7 @@ Int32 main(Int32 argc, char **argv) {
 
 GuaReceiveFastStart::GuaReceiveFastStart() {
   _bcc_status status;
-  Lng32 bufferAddr;
+  int bufferAddr;
   readUpdate_ = FALSE;
   awaitiox_ = FALSE;
   replyx_ = FALSE;
@@ -277,7 +277,7 @@ GuaReceiveFastStart::GuaReceiveFastStart() {
 static void *waiterThreadStart(void *arg) {
   IpcAllConnections *allc = ((IpcEnvironment *)arg)->getAllConnections();
   NABoolean timeout;
-  Int64 prevWaitTime = 0;
+  long prevWaitTime = 0;
 
   while (1)
     allc->waitOnAll(IpcInfiniteTimeout,
@@ -307,7 +307,7 @@ Int32 runESP(Int32 argc, char **argv, GuaReceiveFastStart *guaReceiveFastStart) 
     exit(0);
   }
   cliGlobals->setSharedMemId(shmid);
-  // Lng32 numCliCalls = cliGlobals->incrNumOfCliCalls();
+  // int numCliCalls = cliGlobals->incrNumOfCliCalls();
   cliGlobals->setIsESPProcess(TRUE);
   NAHeap *espExecutorHeap = cliGlobals->getExecutorMemory();
   // must create default context after set IpcEnvironment in CliGlobals first
@@ -356,7 +356,7 @@ Int32 runESP(Int32 argc, char **argv, GuaReceiveFastStart *guaReceiveFastStart) 
   espIpcControlMessage.receive(FALSE);
 
   NABoolean timeout;
-  Int64 prevWaitTime = 0;
+  long prevWaitTime = 0;
   pthread_t waiterThreadId;
 
   if (multiThreaded) {
@@ -587,7 +587,7 @@ void EspGuaControlConnection::actOnSystemMessage(short messageNum, IpcMessageBuf
 // more than one statement per ESP.
 
 NABoolean EspGuaControlConnection::getErrorDefine(char *defineName, ExFragId &targetFragId, short &targetCpu,
-                                                  Lng32 &targetSegment) {
+                                                  int &targetSegment) {
   NABoolean fakeOpenDefineIsSet = FALSE;
   return fakeOpenDefineIsSet;
 }
@@ -648,7 +648,7 @@ void EspNewIncomingConnectionStream::actOnReceive(IpcConnection *connection) {
     case ESP_OPEN_HDR:
     case ESP_LATE_CANCEL_HDR: {
       ExFragKey key;
-      Lng32 remoteInstNum;
+      int remoteInstNum;
       NABoolean isParallelExtract = false;
 
       // peek at the message header to see for whom it is

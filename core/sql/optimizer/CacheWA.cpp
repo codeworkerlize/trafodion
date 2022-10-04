@@ -55,8 +55,8 @@ ConstantParameters::~ConstantParameters() {
 }
 
 // return our elements' total byte size
-Lng32 ConstantParameters::getSize() const {
-  Lng32 result = 0;
+int ConstantParameters::getSize() const {
+  int result = 0;
   CollIndex x, limit = entries();
   for (x = 0; x < limit; x++) {
     result += (*this)[x]->getSize();
@@ -76,8 +76,8 @@ SelParameters::~SelParameters() {
 }
 
 // return our elements' total byte size
-Lng32 SelParameters::getSize() const {
-  Lng32 result = 0;
+int SelParameters::getSize() const {
+  int result = 0;
   CollIndex x, limit = entries();
   for (x = 0; x < limit; x++) {
     result += (*this)[x]->getSize();
@@ -298,7 +298,7 @@ const SelParamTypeList *CacheWA::getFormalSelParamTypes() {
 }
 
 // compose and return TextKey of current query
-TextKey *CacheWA::getTextKey(const char *sText, Lng32 charset, const QryStmtAttributeSet &attrs) {
+TextKey *CacheWA::getTextKey(const char *sText, int charset, const QryStmtAttributeSet &attrs) {
   if (!tkey_) {
     // capture compiler environment for this query
     CompilerEnv *env = new (wHeap()) CompilerEnv(wHeap(), CmpMain::PREPARSE, attrs);
@@ -333,7 +333,7 @@ void CacheWA::foundViewJoin() {
 }
 
 // traverse queryExpr and put together its cacheKey
-void CacheWA::generateCacheKey(RelExpr *queryExpr, const char *sText, Lng32 charset, const NAString &viewsUsed) {
+void CacheWA::generateCacheKey(RelExpr *queryExpr, const char *sText, int charset, const NAString &viewsUsed) {
   if (viewsUsed.length() > 0) {
     qryText_ += "v:";
     qryText_ += viewsUsed.data();
@@ -428,7 +428,7 @@ NABoolean SelParameters::find(ConstValue *val, SelParameter **match) {
 // replace constant with new or existing ConstantParameter
 void CacheWA::replaceWithNewOrOldConstParam(ConstValue *val, const NAType *typ, ExprValueId &tgt, BindWA &bindWA) {
   // match ConstantParameters only in complex queries
-  Lng32 complexity = (Lng32)CmpCommon::getDefaultNumeric(MATCH_CONSTANTS_OF_EQUALITY_PREDICATES);
+  int complexity = (int)CmpCommon::getDefaultNumeric(MATCH_CONSTANTS_OF_EQUALITY_PREDICATES);
   if (complexity >= 0 && numberOfScans_ >= complexity) {
     ConstantParameter *cParm;
     if (actuals_.find(val, &cParm)) {
@@ -453,7 +453,7 @@ void CacheWA::replaceWithNewOrOldConstParam(ConstValue *val, const NAType *typ, 
 void CacheWA::replaceWithNewOrOldSelParam(ConstValue *val, const NAType *typ, const Selectivity sel, ExprValueId &tgt,
                                           BindWA &bindWA) {
   // match SelParameters only in complex queries
-  Lng32 complexity = (Lng32)CmpCommon::getDefaultNumeric(MATCH_CONSTANTS_OF_EQUALITY_PREDICATES);
+  int complexity = (int)CmpCommon::getDefaultNumeric(MATCH_CONSTANTS_OF_EQUALITY_PREDICATES);
   if (complexity >= 0 && numberOfScans_ >= complexity) {
     SelParameter *sParm;
     if (actuals_.find(val, (ConstantParameter **)&sParm)) {

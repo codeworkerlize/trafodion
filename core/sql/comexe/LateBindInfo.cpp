@@ -114,7 +114,7 @@ NABoolean LateNameInfo::makeSQLIdentifier(char *invalue, char *outvalue) {
 NABoolean LateNameInfo::extractParts(const char *inName,  // IN: inName separated by "."s
                                      char *outBuffer,     // IN/OUT: space where parts will be moved.
                                                           // Must be allocated by caller
-                                     Lng32 &numParts,     // OUT: number of parts extracted
+                                     int &numParts,     // OUT: number of parts extracted
                                      char *parts[],       // IN/OUT: array entries initialized to parts on return
                                      NABoolean dQuote)    // IN: if TRUE, parts are double quoted.
 {
@@ -170,7 +170,7 @@ Long LateNameInfoList::pack(void *space) {
   return NAVersionedObject::pack(space);
 }
 
-Lng32 LateNameInfoList::unpack(void *base, void *reallocator) {
+int LateNameInfoList::unpack(void *base, void *reallocator) {
   if (lateNameInfo_.unpack(base, numEntries_, reallocator)) return -1;
   return NAVersionedObject::unpack(base, reallocator);
 }
@@ -409,7 +409,7 @@ Int16 AnsiName::convertAnsiName(bool doCheck, bool noValidate) {
   return 0;
 }
 
-Int16 AnsiName::extractParts(Lng32 &numParts, char *parts[], bool noValidate) {
+Int16 AnsiName::extractParts(int &numParts, char *parts[], bool noValidate) {
   Int16 ret;
   Int16 i;
 
@@ -683,7 +683,7 @@ Long LateNameInfo::pack(void *space) {
   return NAVersionedObject::pack(space);
 }
 
-Lng32 LateNameInfo::unpack(void *base, void *reallocator) {
+int LateNameInfo::unpack(void *base, void *reallocator) {
   NABasicPtr name;
 
   if (!isCompileNameCompEmbedded()) {
@@ -712,7 +712,7 @@ void LateNameInfo::resetRuntimeFlags() {
 ///////////////////////////////////////////////////////////////////
 // class TrafSimilarityTableInfo
 ///////////////////////////////////////////////////////////////////
-TrafSimilarityTableInfo::TrafSimilarityTableInfo(char *tableName, NABoolean isHive, char *hdfsRootDir, Int64 modTS,
+TrafSimilarityTableInfo::TrafSimilarityTableInfo(char *tableName, NABoolean isHive, char *hdfsRootDir, long modTS,
                                                  Int32 numPartnLevels, Queue *hdfsDirsToCheck, char *hdfsHostName,
                                                  Int32 hdfsPort)
     : NAVersionedObject(-1),
@@ -754,7 +754,7 @@ Long TrafSimilarityTableInfo::pack(void *space) {
   return NAVersionedObject::pack(space);
 }
 
-Lng32 TrafSimilarityTableInfo::unpack(void *base, void *reallocator) {
+int TrafSimilarityTableInfo::unpack(void *base, void *reallocator) {
   if (tableName_.unpack(base)) return -1;
   if (hdfsRootDir_.unpack(base)) return -1;
   if (hdfsHostName_.unpack(base)) return -1;
@@ -779,7 +779,7 @@ Long TrafQuerySimilarityInfo::pack(void *space) {
   return NAVersionedObject::pack(space);
 }
 
-Lng32 TrafQuerySimilarityInfo::unpack(void *base, void *reallocator) {
+int TrafQuerySimilarityInfo::unpack(void *base, void *reallocator) {
   UnpackQueueOfNAVersionedObjects(siList_, base, TrafSimilarityTableInfo, reallocator);
 
   return NAVersionedObject::unpack(base, reallocator);

@@ -55,19 +55,19 @@ using namespace std;
 // Initialize static members.
 // -----------------------------------------------------------------------
 HeapLog *HeapLogRoot::log = NULL;
-Lng32 HeapLogRoot::track = FALSE;
-Lng32 HeapLogRoot::trackDealloc = FALSE;
-Lng32 HeapLogRoot::maxHeapNum = HEAP_NUM_RESERVED;
+int HeapLogRoot::track = FALSE;
+int HeapLogRoot::trackDealloc = FALSE;
+int HeapLogRoot::maxHeapNum = HEAP_NUM_RESERVED;
 
 static void BreakNow() { DebugBreak(); }
 
 // -----------------------------------------------------------------------
 // Break to show call stack when the break condition is satisfied.
 // -----------------------------------------------------------------------
-static void BreakOnLeak(const Lng32 heapNum, const Lng32 indx, const Lng32 size) {
-  static Lng32 object_index = -1;
-  static Lng32 object_size = -1;
-  static Lng32 heap_id = -1;
+static void BreakOnLeak(const int heapNum, const int indx, const int size) {
+  static int object_index = -1;
+  static int object_size = -1;
+  static int heap_id = -1;
   // ------------------------------------------------------------------
   // To catch memory leaks one by one:
   // 1. Set or enable a breakpoint at the if-statement.
@@ -96,7 +96,7 @@ static void BreakOnLeak(const Lng32 heapNum, const Lng32 indx, const Lng32 size)
 // -----------------------------------------------------------------------
 // Add a log entry to track allocations.
 // -----------------------------------------------------------------------
-void HeapLogRoot::addEntry(void *addr, Lng32 size, Lng32 &heapNum, const char *heapName) {
+void HeapLogRoot::addEntry(void *addr, int size, int &heapNum, const char *heapName) {
   if ((heapNum >= MAX_NUM_HEAPS) || (log != NULL && log->disableLevel_ > 0)) return;
 
   if (log == NULL) initLog();
@@ -106,7 +106,7 @@ void HeapLogRoot::addEntry(void *addr, Lng32 size, Lng32 &heapNum, const char *h
   }
 
   assert(heapNum > 0);
-  Lng32 indx = log->addEntry(addr, size, heapNum, heapName);
+  int indx = log->addEntry(addr, size, heapNum, heapName);
   BreakOnLeak(heapNum, indx, size);
 
   return;
@@ -116,7 +116,7 @@ void HeapLogRoot::addEntry(void *addr, Lng32 size, Lng32 &heapNum, const char *h
 // Reset a log entry associated with this object addr.
 // Called when an object is deleted.
 // -----------------------------------------------------------------------
-void HeapLogRoot::deleteEntry(void *addr, Lng32 heapNum) {
+void HeapLogRoot::deleteEntry(void *addr, int heapNum) {
   if ((heapNum < 0) || (heapNum >= MAX_NUM_HEAPS) || (log == NULL) || (log->disableLevel_ > 0)) return;
 
   // Locate the log segment for the heap.
@@ -124,16 +124,16 @@ void HeapLogRoot::deleteEntry(void *addr, Lng32 heapNum) {
   if (seg.object_ == NULL) return;
 
   // Find the entry with matching addr.
-  Lng32 i;
+  int i;
   if (seg.deleted_ == -1) {
     for (i = seg.last_; i >= 0; i--)
       if ((seg.object_[i].size > 0) && (seg.object_[i].addr == addr)) goto cont;
   } else {  // Search the neighborhood of last deleted entry
     // indicated by seg.deleted_
-    Lng32 left = seg.deleted_;
-    Lng32 right = seg.deleted_ + 1;
-    Lng32 limit;
-    Lng32 RANGE = 3;
+    int left = seg.deleted_;
+    int right = seg.deleted_ + 1;
+    int limit;
+    int RANGE = 3;
 
     while ((left >= 0) || (right <= seg.last_)) {
       if (left >= 0) {  // search the left side.
@@ -170,7 +170,7 @@ cont:
   if (seg.usageCount_ > seg.last_ * 0.5) return;
 
   // Compress the log segment when usage rate drops below 0.5.
-  Lng32 freePos = 0;
+  int freePos = 0;
   for (i = 0; i <= seg.last_; i++) {
     if (seg.object_[i].size <= 0) continue;
 
@@ -189,7 +189,7 @@ cont:
 // Delete a log segment associated with a heap.
 // Called when a heap is deleted or reinitialized.
 // -----------------------------------------------------------------------
-void HeapLogRoot::deleteLogSegment(Lng32 heapNum, NABoolean setfree) {
+void HeapLogRoot::deleteLogSegment(int heapNum, NABoolean setfree) {
   if ((heapNum < 0) || (heapNum >= MAX_NUM_HEAPS) || (log == NULL)) return;
 
   HeapLogSegment &seg = log->header_[heapNum];
@@ -288,14 +288,14 @@ void HeapLogRoot::disable(NABoolean b) {
 // Open a console window if none.
 // If prompt is TRUE, prompt the user to enter a character n, c, or o.
 // -----------------------------------------------------------------------
-void HeapLogRoot::display(NABoolean prompt, Lng32 sqlci) {}
+void HeapLogRoot::display(NABoolean prompt, int sqlci) {}
 
 // ---------------------------------------------------------------------
 // Called by ARKCMP to allocate buffer.
 // ---------------------------------------------------------------------
-Lng32 HeapLogRoot::getPackSize() {
-  Lng32 heapCount = 0;
-  Lng32 objCount = 0;
+int HeapLogRoot::getPackSize() {
+  int heapCount = 0;
+  int objCount = 0;
   if (log == NULL) return 8;
   for (Int32 i = 0; i <= maxHeapNum; i++) {
     if (log->header_[i].usageCount_ > 0) {
@@ -304,7 +304,7 @@ Lng32 HeapLogRoot::getPackSize() {
     }
   }
   // must be in multiple of 8.
-  Lng32 size = (heapCount * 3 + objCount + 25) * HeapLog::DISPLAY_LEN;
+  int size = (heapCount * 3 + objCount + 25) * HeapLog::DISPLAY_LEN;
   return size;
 }
 
@@ -326,7 +326,7 @@ void HeapLogRoot::pack(char *buf, ULng32 flags) {
   }
 
   // Pack all lines, each of which is terminated with '\0'.
-  Lng32 len = 0;
+  int len = 0;
   log->status_ = HeapLog::PHASE_1;
   while (log->fetchLine(&buf[len], 0 /*arkcmp*/) != FETCH_EOF) {
     len += strlen(&buf[len]) + 1;
@@ -342,9 +342,9 @@ void HeapLogRoot::pack(char *buf, ULng32 flags) {
 // Optionally prompt the user for input.
 // return FETCH_EOF if eof else 0.
 // ---------------------------------------------------------------------
-Lng32 HeapLogRoot::fetchLine(char *buf, ULng32 flags, char *packdata /*=NULL*/
+int HeapLogRoot::fetchLine(char *buf, ULng32 flags, char *packdata /*=NULL*/
                              ,
-                             Lng32 datalen /*=0*/
+                             int datalen /*=0*/
 ) {
   if ((flags & (LeakDescribe::FLAG_SQLCI | LeakDescribe::FLAG_ARKCMP)) == 0) {  // neither sqlci nor arkcmp.  Done.
     control(LOG_RESET_DISABLE);
@@ -364,7 +364,7 @@ Lng32 HeapLogRoot::fetchLine(char *buf, ULng32 flags, char *packdata /*=NULL*/
     return FETCH_EOF;
   }
 
-  Lng32 error = log->fetchLine(&buf[2], 1 /*sqlci*/);
+  int error = log->fetchLine(&buf[2], 1 /*sqlci*/);
   *((short *)buf) = strlen(&buf[2]);
   if (error == FETCH_EOF) control2(flags, LeakDescribe::FLAG_SQLCI);
   return error;
@@ -373,7 +373,7 @@ Lng32 HeapLogRoot::fetchLine(char *buf, ULng32 flags, char *packdata /*=NULL*/
 // ---------------------------------------------------------------------
 // Called by heap constructor.
 // ---------------------------------------------------------------------
-Lng32 HeapLogRoot::assignHeapNum() {
+int HeapLogRoot::assignHeapNum() {
   if (log == NULL) {  // Haven't started logging.
     if (maxHeapNum >= HEAP_NUM_BASE)
       return HEAP_NUM_NULL;
@@ -383,7 +383,7 @@ Lng32 HeapLogRoot::assignHeapNum() {
     }
   }
   // Find a free entry.
-  for (Lng32 i = log->currHeapNum_ + 1; i < MAX_NUM_HEAPS; i++) {
+  for (int i = log->currHeapNum_ + 1; i < MAX_NUM_HEAPS; i++) {
     if (log->header_[i].free_) {
       log->currHeapNum_ = i;
       log->header_[i].free_ = FALSE;
@@ -402,7 +402,7 @@ Lng32 HeapLogRoot::assignHeapNum() {
 // -----------------------------------------------------------------------
 void HeapLogRoot::initLog() {
   if (log != NULL) return;
-  Lng32 old = track;
+  int old = track;
   track = FALSE;
   log = new HeapLog;
   track = old;
@@ -421,7 +421,7 @@ void HeapLogRoot::reset() {
   log->close();
 
   // Find the maximun heap number that is still in-use.
-  for (Lng32 i = 0; i < MAX_NUM_HEAPS; i++) {
+  for (int i = 0; i < MAX_NUM_HEAPS; i++) {
     if (log->header_[i].free_) continue;
     deleteLogSegment(i, (i <= HEAP_NUM_BASE ? FALSE : setFree));
     maxHeapNum = i;
@@ -492,7 +492,7 @@ HeapLog::HeapLog()
 // Fill in heapNum, object index, object size, object addr.
 // Called when a new object is allocated in a heap.
 // -----------------------------------------------------------------------
-Lng32 HeapLog::addEntry(void *addr, Lng32 size, Lng32 heapNum, const char *heapName) {
+int HeapLog::addEntry(void *addr, int size, int heapNum, const char *heapName) {
   HeapLogSegment &seg = header_[heapNum];
   if (seg.object_ == NULL) {
     HEAPLOG_OFF();
@@ -533,7 +533,7 @@ Lng32 HeapLog::addEntry(void *addr, Lng32 size, Lng32 heapNum, const char *heapN
 // -----------------------------------------------------------------------
 // Prepare to fetch packdata returned from arkcmp.
 // -----------------------------------------------------------------------
-Lng32 HeapLog::fetchInit(ULng32 flags, char *packdata, Lng32 datalen) {
+int HeapLog::fetchInit(ULng32 flags, char *packdata, int datalen) {
   if (status_ != PHASE_CLOSED)
     // fetchInit has been performed.
     return 0;
@@ -566,11 +566,11 @@ void HeapLog::close() {
 // Fetch log data line by line.  Each line is terminated by '\0'.
 // return FETCH_EOF if eof, else 0.
 // -----------------------------------------------------------------------
-Lng32 HeapLog::fetchLine(char *buf, Lng32 sqlci) {
+int HeapLog::fetchLine(char *buf, int sqlci) {
   assert(status_ != PHASE_CLOSED);
 
   if (datalen_ > 0) {  // Fetch log data from ARKCMP.
-    Lng32 s = strlen(packdata_) + 1;
+    int s = strlen(packdata_) + 1;
     if (currlen_ >= datalen_ || s == 1) {  // eof
       *buf = '\0';
       close();
@@ -678,9 +678,9 @@ Lng32 HeapLog::fetchLine(char *buf, Lng32 sqlci) {
         return 0;
       }
     case PHASE_5: {  // Total
-      Lng32 heapCount = 0;
-      Lng32 totalSize = 0;
-      for (Lng32 i = 0; i <= HeapLogRoot::maxHeapNum; i++) {
+      int heapCount = 0;
+      int totalSize = 0;
+      for (int i = 0; i <= HeapLogRoot::maxHeapNum; i++) {
         seg = &header_[i];
         if (seg->usageCount_ == 0) continue;
         heapCount++;

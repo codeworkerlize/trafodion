@@ -162,8 +162,8 @@ CDSString CRUTbl::GetLogShortName(const CDSString &nmsp) {
 //	CRUTbl::GetIUDLogContentTypeBitmap()
 //------------------------------------------------------------------------//
 
-Lng32 CRUTbl::GetIUDLogContentTypeBitmap() {
-  Lng32 contentType = 0;
+int CRUTbl::GetIUDLogContentTypeBitmap() {
+  int contentType = 0;
 
   CDDObject::ERangeLogType rlType = GetRangeLogType();
 
@@ -182,7 +182,7 @@ Lng32 CRUTbl::GetIUDLogContentTypeBitmap() {
 //	CRUTbl::GetUpdateBitmapSize()
 //------------------------------------------------------------------------//
 
-Lng32 CRUTbl::GetUpdateBitmapSize() {
+int CRUTbl::GetUpdateBitmapSize() {
   RUASSERT(NULL != pddIUDLogTbl_);
 
   CDSString colName("UPDATE_BITMAP");
@@ -566,7 +566,7 @@ void CRUTbl::BuildPartitionFileNamesList() {
 //	Return the number of partitions of this table.
 //------------------------------------------------------------------------//
 
-Lng32 CRUTbl::getNumberOfPartitions() { return GetPartitionFileList()->GetCount(); }
+int CRUTbl::getNumberOfPartitions() { return GetPartitionFileList()->GetCount(); }
 
 //------------------------------------------------------------------------//
 //	CRUTbl::BuildKeyColumnList()

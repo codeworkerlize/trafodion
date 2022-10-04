@@ -109,10 +109,10 @@ class REFRESH_LIB_CLASS CRUDupElimSingleRowResolver : public CRUDupElimResolver 
   BOOL isPureUpdateChain_;
 
   // Statistics for the number of performed IUD statements
-  Lng32 numDeleteRecord_;
-  Lng32 numUpdateIgnMark_;
-  Lng32 numUpdateBitmap_;
-  Lng32 numUpdateOpType_;
+  int numDeleteRecord_;
+  int numUpdateIgnMark_;
+  int numUpdateBitmap_;
+  int numUpdateOpType_;
 
  private:
   //-- Prevent copying

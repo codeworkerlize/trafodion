@@ -423,7 +423,7 @@ class NACollection : public NABasicObject
   CollIndex findUsage(const CollIndex &toFind);
 
   // return byte size of this collection
-  Lng32 getByteSize() const { return sizeof(*this) + (maxLength_ * (sizeof(T) + sizeof(CollIndex))); }
+  int getByteSize() const { return sizeof(*this) + (maxLength_ * (sizeof(T) + sizeof(CollIndex))); }
 
   // Resize the arrays to a new size(return new size)
   CollIndex resize(CollIndex newSize);
@@ -571,7 +571,7 @@ const WordAsBits SingleBitArray[BitsPerWord] = {
     0x00008000, 0x00004000, 0x00002000, 0x00001000, 0x00000800, 0x00000400, 0x00000200, 0x00000100,
     0x00000080, 0x00000040, 0x00000020, 0x00000010, 0x00000008, 0x00000004, 0x00000002, 0x00000001};
 
-const Lng32 bitsSet[] = {
+const int bitsSet[] = {
     0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4, 1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5, 1, 2, 2, 3, 2,
     3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5, 2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6, 1, 2, 2, 3, 2, 3, 3, 4, 2, 3,
     3, 4, 3, 4, 4, 5, 2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6, 2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5,
@@ -592,7 +592,7 @@ const Lng32 bitsSet[] = {
 //
 // ***********************************************************************
 
-inline Lng32 firstOne(ULng32 x) {
+inline int firstOne(ULng32 x) {
 #define FIRSTHALFWORDBITS           0xFFFF0000
 #define FIRSTQUARTERWORDBITS        0xFF000000
 #define FIRSTEIGHTHWORDBITS         0xF0000000
@@ -766,7 +766,7 @@ inline Lng32 firstOne(ULng32 x) {
 //        to compiler intrinsic _m64_popcnt - much *MUCH* faster.
 //
 // ***********************************************************************
-inline Lng32 lastOne(ULng32 x) {
+inline int lastOne(ULng32 x) {
 #define LASTHALFWORDBITS            0x0000FFFF
 #define LASTQUARTERWORDBITS         0x000000FF
 #define LASTEIGHTHWORDBITS          0x0000000F
@@ -934,7 +934,7 @@ inline Lng32 lastOne(ULng32 x) {
 // argument.
 //
 // ***********************************************************************
-inline Lng32 ones(ULng32 x) {
+inline int ones(ULng32 x) {
   unsigned char *px = (unsigned char *)&x;
 
   return (bitsSet[px[0]] + bitsSet[px[1]] + bitsSet[px[2]] + bitsSet[px[3]]);
@@ -992,7 +992,7 @@ class NASubCollection : public NABasicObject {
     } else {
       CollIndex i = wordSize_ - newSize;
 
-      if ((Lng32)i > 0) {
+      if ((int)i > 0) {
         WordAsBits *pBits = &pBits_[newSize];
 
         do {
@@ -1246,7 +1246,7 @@ class NASubCollection : public NABasicObject {
 
         i = wordSize_ - other.wordSize_;
 
-        if ((Lng32)i > 0) {
+        if ((int)i > 0) {
           do {
             *pBits++ = 0x0;
           } while (--i);
@@ -1326,13 +1326,13 @@ class NASubCollection : public NABasicObject {
  private:
   CollIndex maxLength_;  // Allocated size in dwords.
   CollIndex wordSize_;   // Dwords in use.
-  Lng32 entries_;        // Number of bits set (or -1 if don't know).
+  int entries_;        // Number of bits set (or -1 if don't know).
   NABoolean builtin_;    // TRUE if using builtin array.
 
   // sbits_ is defined as an array of double words instead of an array of
   // words so that we ensure it starts on an 8-byte boundary.  This is
   // important for routines like prevUsedFast() so that an unalignment trap
-  // doesn't occur whenever we read an Int64 from the start of the array.
+  // doesn't occur whenever we read an long from the start of the array.
   // Also, there is no problem if we don't use the builtin words since any
   // dynamic allocation done will start the allocated buffer on a 16-byte
   // boundry
@@ -1452,11 +1452,11 @@ inline ULng32 FindLastOne(uint64_t x) {
 // twice as fast if we access 64-bits at a time - no need to implement now.
 template <class T>
 CollIndex NASubCollection<T>::prevUsedSlow(CollIndex start) const {
-  Lng32 startWordBucket;
+  int startWordBucket;
   ULng32 startWord;
   ULng32 shiftAmount;
 
-  startWordBucket = (Lng32)(start >> 5);               // word bucket to start search in
+  startWordBucket = (int)(start >> 5);               // word bucket to start search in
   shiftAmount = 32 - (start & 0x1f) - 1;               // used to calculate prev bit position
   startWord = pBits_[startWordBucket] >> shiftAmount;  // portion of bit vector
                                                        // with start bit as the
@@ -1671,7 +1671,7 @@ class NASet : public NACollection<T> {
   inline const T &at(CollIndex i) const { return operator[](i); }
 
   // return byte size of this collection
-  Lng32 getByteSize() const { return NACollection<T>::getByteSize() + sizeof(*this) - sizeof(NACollection<T>); }
+  int getByteSize() const { return NACollection<T>::getByteSize() + sizeof(*this) - sizeof(NACollection<T>); }
 
   inline NABoolean insert(const T &elem, NABoolean *inserted = NULL) {
     invalidateCache();
@@ -1830,7 +1830,7 @@ class NAList : public NACollection<T> {
   NABoolean getLast(T &elem);
 
   // return byte size of this collection
-  Lng32 getByteSize() const { return NACollection<T>::getByteSize() + sizeof(*this) - sizeof(NACollection<T>); }
+  int getByteSize() const { return NACollection<T>::getByteSize() + sizeof(*this) - sizeof(NACollection<T>); }
 
   // remove the index'th element from the list
   //(returns TRUE if list[index] was found, FALSE if index was out of bounds)
@@ -2234,7 +2234,7 @@ class NAHashBucketEntry : public NABasicObject {
   Int32 printStatistics(char *buf);
 
   // return byte size of this object
-  Lng32 getByteSize() const { return sizeof(*this); }
+  int getByteSize() const { return sizeof(*this); }
 
   NABoolean isEnabled() const { return isEnabled_; };
   void setIsEnabled(NABoolean x) { isEnabled_ = x; };
@@ -2262,7 +2262,7 @@ class NAHashBucketEntry : public NABasicObject {
 };  // class NAHashBucketEntry
 
 template <>
-void NAHashBucketEntry<Int64, NAString>::display() const;
+void NAHashBucketEntry<long, NAString>::display() const;
 
 // -----------------------------------------------------------------------
 // class NAHashBucket - A hash bucket.
@@ -2313,7 +2313,7 @@ class NAHashBucket : public NABasicObject {
   void getKeyValuePair(const K *key, const V *value, NAHashBucket<K, V> &container, NABoolean *inserted = NULL) const;
 
   // Overload the array index operator to access a particular entry.
-  inline const NAHashBucketEntry<K, V> *operator[](Lng32 index) const { return bucket_[index]; }
+  inline const NAHashBucketEntry<K, V> *operator[](int index) const { return bucket_[index]; }
 
   // --------------------------------------------------------------------
   // Mutator functions for a NAHashBucket
@@ -2335,26 +2335,26 @@ class NAHashBucket : public NABasicObject {
   }
 
   // Remove the first hash bucket entry that contains the given key.
-  K *remove(K *key, Lng32 &entriesEnabled, NABoolean removeKV = FALSE);
+  K *remove(K *key, int &entriesEnabled, NABoolean removeKV = FALSE);
 
   void display() const;
 
   Int32 printStatistics(char *buf);
 
   // return byte size of this object
-  Lng32 getByteSize() const { return sizeof(*this) + (bucket_ ? bucket_->getByteSize() : 0); }
+  int getByteSize() const { return sizeof(*this) + (bucket_ ? bucket_->getByteSize() : 0); }
 
   // Enable all key entres that are equal to 'key'. If ''enforceuniqueness'
   // is true, the operation completes when the 1st matching key is found.
   // The number of keys enabled is reflected in argument 'entriesEnabled':
   // new value = old value + # of keys enabled.
-  K *enable(K *key, NABoolean enforceUniqueness, Lng32 &entriesEnabled);
+  K *enable(K *key, NABoolean enforceUniqueness, int &entriesEnabled);
 
   // Disable a particular key entry.  If 'enforceuniqueness'
   // is true, the operation completes when the 1st matching key is found.
   // The number of keys disabled is reflected in argument 'entriesEnabled':
   // new value = old value - # of keys enabled.
-  K *disable(K *key, NABoolean enforceUniqueness, Lng32 &entriesEnabled);
+  K *disable(K *key, NABoolean enforceUniqueness, int &entriesEnabled);
 
   NABoolean isEnable(K *key, NABoolean enforceUniqueness);
   // A set method which forces the simulation of an event of a
@@ -2450,10 +2450,10 @@ class NAHashDictionary : public NABasicObject {
   }
 
   // The number of key value pairs that are contained in this dictionary.
-  inline Lng32 entries() const { return entries_; }
+  inline int entries() const { return entries_; }
 
   // The number of enabled key value pairs that are contained in this dictionary.
-  inline Lng32 entriesEnabled() const { return entriesEnabled_; }
+  inline int entriesEnabled() const { return entriesEnabled_; }
 
   // Find the first value corresponding to the given key.
   // This method is especially useful(and effcient) when the hash
@@ -2525,10 +2525,10 @@ class NAHashDictionary : public NABasicObject {
   Int32 printStatistics(char *buf);
 
   // return byte size of this object
-  Lng32 getByteSize() const { return sizeof(*this) + (hashTable_ ? hashTable_->getByteSize() : 0); }
+  int getByteSize() const { return sizeof(*this) + (hashTable_ ? hashTable_->getByteSize() : 0); }
 
   // return byte size of one NAHashBucketEntry
-  static Lng32 getBucketEntrySize() { return sizeof(NAHashBucketEntry<K, V>); }
+  static int getBucketEntrySize() { return sizeof(NAHashBucketEntry<K, V>); }
 
   ULng32 getNumBuckets() { return hashSize_; }
 
@@ -2580,7 +2580,7 @@ class NAHashDictionary : public NABasicObject {
   // The number of key value pairs existing in the hash dictionary are
   // cached here.
   // --------------------------------------------------------------------
-  Lng32 entries_;
+  int entries_;
 
   // --------------------------------------------------------------------
   // The application is allowed to insert only one instance of a key
@@ -2602,7 +2602,7 @@ class NAHashDictionary : public NABasicObject {
 
   NABoolean failureIsFatal_;  // TRUE if memory allocation failure is fatal
 
-  Lng32 entriesEnabled_;  // total number entries that are enabled.
+  int entriesEnabled_;  // total number entries that are enabled.
 
 };  // class NAHashDictionary
 
@@ -2689,7 +2689,7 @@ class NAHashDictionaryIterator : public NABasicObject {
   inline CollIndex entries() const { return iterator_.entries(); }
 
   // Our current position within the list
-  inline Lng32 position() const { return iteratorPosition_; }
+  inline int position() const { return iteratorPosition_; }
 
   // Reset the counter so we can iterate again from the start
   inline void reset() {
@@ -2716,7 +2716,7 @@ class NAHashDictionaryIterator : public NABasicObject {
   // bucket entries when the iterator is created.
   // --------------------------------------------------------------------
   NAHashBucket<K, V> iterator_;
-  Lng32 iteratorPosition_;  // where in iterator_ we currently are
+  int iteratorPosition_;  // where in iterator_ we currently are
 
   NABoolean isComplete_;  // FALSE: the object is not in usable state.
 };
@@ -2780,7 +2780,7 @@ class NAHashDictionaryIteratorNoCopy : public NABasicObject {
   CollIndex beginBucket_;
   CollIndex currentBucket_;
   CollIndex endBucket_;
-  Lng32 iteratorPosition_;  // where in currentBucket_ we currently are
+  int iteratorPosition_;  // where in currentBucket_ we currently are
 
   enum iteratorEntryType type_;  // the type of entries to be traversed.
 };

@@ -150,11 +150,11 @@ ex_expr::exp_return_type ex_aggr_any_true_max_clause::init() {
 ex_expr::exp_return_type ex_aggr_any_true_max_clause::eval(char *op_data[], CollHeap *heap, ComDiagsArea **diagsArea) {
   ex_expr::exp_return_type retcode = ex_expr::EXPR_OK;
 
-  switch (*(Lng32 *)op_data[1]) {
+  switch (*(int *)op_data[1]) {
     case 1:  // operand is TRUE
     {
       // return TRUE as result
-      *(Lng32 *)op_data[0] = 1;
+      *(int *)op_data[0] = 1;
       retcode = ex_expr::EXPR_TRUE;
     } break;
 
@@ -167,15 +167,15 @@ ex_expr::exp_return_type ex_aggr_any_true_max_clause::eval(char *op_data[], Coll
       // Fix for nested query returning different number of rows with ESP CQD.
       // The case where all operands are NULL wasnt being handled. When all
       // the operands are NULL, the result too is NULL.
-      *(Lng32 *)op_data[0] = -1;
+      *(int *)op_data[0] = -1;
     } break;
 
     case 0:  // operand is FALSE
     {
       if (nullSeen_)
-        *(Lng32 *)op_data[0] = -1;
+        *(int *)op_data[0] = -1;
       else
-        *(Lng32 *)op_data[0] = 0;
+        *(int *)op_data[0] = 0;
 
       retcode = ex_expr::EXPR_TRUE;
     } break;
@@ -203,7 +203,7 @@ ex_expr::exp_return_type ex_aggr_min_max_clause::eval(char *op_data[], CollHeap 
 
   // if the second expression is true, make child to be current
   // aggregate.
-  if (*(Lng32 *)op_data[2] == 1) {
+  if (*(int *)op_data[2] == 1) {
     if (getOperand(0)->getNullFlag()) {
       // A pointer to the null indicators of the operands.
       //
@@ -219,8 +219,8 @@ ex_expr::exp_return_type ex_aggr_min_max_clause::eval(char *op_data[], CollHeap 
     if (getOperand(0)->getVCIndicatorLength() > 0) {
       // variable length operand. Note that first child (operand1)
       // and result have the SAME attributes for min/max aggr.
-      Lng32 src_length = getOperand(1)->getLength(op_data[-MAX_OPERANDS + 1]);
-      Lng32 tgt_length = getOperand(0)->getLength();  // max varchar length
+      int src_length = getOperand(1)->getLength(op_data[-MAX_OPERANDS + 1]);
+      int tgt_length = getOperand(0)->getLength();  // max varchar length
 
       str_cpy_all(op_data[0], op_data[1], src_length);
 
@@ -280,8 +280,8 @@ ex_expr::exp_return_type ex_pivot_group_clause::eval(char *op_data[], CollHeap *
     return ex_expr::EXPR_OK;
   }
 
-  Lng32 src_length = srcOp->getLength(op_data[-MAX_OPERANDS + 1]);
-  Lng32 delim_length = delimOp->getLength(op_data[-MAX_OPERANDS + 2]);
+  int src_length = srcOp->getLength(op_data[-MAX_OPERANDS + 1]);
+  int delim_length = delimOp->getLength(op_data[-MAX_OPERANDS + 2]);
 
   char *tgt = op_data[0];
   char *src = op_data[1];
@@ -298,10 +298,10 @@ ex_expr::exp_return_type ex_pivot_group_clause::eval(char *op_data[], CollHeap *
     delim_length = Attributes::trimFillerSpaces(op_data[2], prec1, delim_length, cs);
   }
 
-  Lng32 currSrcPos = currPos_;
+  int currSrcPos = currPos_;
 
-  Lng32 delimSize = delim_length;
-  Lng32 tgtBufNeeded = (currPos_ > 0 ? delimSize : 0) + src_length;
+  int delimSize = delim_length;
+  int tgtBufNeeded = (currPos_ > 0 ? delimSize : 0) + src_length;
 
   if ((currTgtLen_ + tgtBufNeeded) > maxLen_) {
     ExRaiseSqlError(heap, diagsArea, EXE_STRING_OVERFLOW);

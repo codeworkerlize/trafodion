@@ -145,7 +145,7 @@ struct SharedRefCountBase {
   // objects.
   virtual void destroyObjects() = 0;
 
-  Lng32 useCount_;  // Reference count of this object
+  int useCount_;  // Reference count of this object
   T *objectP_;      // Pointer to object
 };
 
@@ -322,7 +322,7 @@ class SharedPtr {
   T *get() const { return objectP_; }
 
   // Return the reference count
-  Lng32 getUseCount() const { return (refCount_ ? refCount_->useCount_ : 0); }
+  int getUseCount() const { return (refCount_ ? refCount_->useCount_ : 0); }
 
   // Return whether this SharePtr is not null.
   operator bool() const { return objectP_ != 0; }

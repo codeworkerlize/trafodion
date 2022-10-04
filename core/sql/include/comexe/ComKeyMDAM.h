@@ -107,7 +107,7 @@ class MdamPred : public NAVersionedObject {
   MdamPred()  // for use by unpack only
       : NAVersionedObject(-1) {}
 
-  MdamPred(Lng32 disjunctNumber, MdamPredType pred_type, ex_expr *value, ex_expr *value2 = NULL,
+  MdamPred(int disjunctNumber, MdamPredType pred_type, ex_expr *value, ex_expr *value2 = NULL,
            Int16 val1Inclusive = 1, Int16 val2Inclusive = 1, Int16 reverse = 0)
       : disjunctNumber_(disjunctNumber),
         predType_(pred_type),
@@ -135,14 +135,14 @@ class MdamPred : public NAVersionedObject {
   void setOr() { firstInOrGroup_ = FALSE; };
 
   Long pack(void *);
-  Lng32 unpack(void *, void *reallocator);
+  int unpack(void *, void *reallocator);
 
-  ex_expr::exp_return_type fixup(Lng32 base, unsigned short, const ex_tcb *tcb, Space *space, CollHeap *heap);
+  ex_expr::exp_return_type fixup(int base, unsigned short, const ex_tcb *tcb, Space *space, CollHeap *heap);
 
   void setNext(MdamPred *next) { next_ = next; };
   MdamPred *getNext() { return next_; };
   NABoolean firstInOrGroup() { return firstInOrGroup_; };
-  Lng32 getDisjunctNumber() { return disjunctNumber_; };
+  int getDisjunctNumber() { return disjunctNumber_; };
 
   MdamPredType getPredType() { return (enum MdamPredType)predType_; };
 
@@ -160,7 +160,7 @@ class MdamPred : public NAVersionedObject {
 
   // This function computes a transformed predicate type based on
   // predType_ and dataConvErrorFlag.
-  MdamPredType getTransformedPredType(Lng32 dataConvErrorFlag, Lng32 dataConvErrorFlag2,
+  MdamPredType getTransformedPredType(int dataConvErrorFlag, int dataConvErrorFlag2,
                                       MdamEnums::MdamInclusion &startInclusion, MdamEnums::MdamInclusion &endInclusion);
 
   // Get the value used in this predicate. For MDAM_BETWEEN, which has two values,
@@ -256,15 +256,15 @@ class MdamColumnGen : public NAVersionedObject {
 
   virtual short getClassSize() { return (short)sizeof(MdamColumnGen); }
 
-  ex_expr::exp_return_type fixup(Lng32 base, unsigned short mode, Space *space, CollHeap *heap, const ex_tcb *tcb);
+  ex_expr::exp_return_type fixup(int base, unsigned short mode, Space *space, CollHeap *heap, const ex_tcb *tcb);
 
   MdamColumnGen *getNext() { return next_; };
   void setNext(MdamColumnGen *next) { next_ = next; };
 
   // the following function is used in the Generator to obtain the
   // maximum disjunct number
-  Lng32 getLastDisjunctNumber() {
-    Lng32 rc = -1;
+  int getLastDisjunctNumber() {
+    int rc = -1;
 
     if (lastPred_) rc = lastPred_->getDisjunctNumber();
 
@@ -299,7 +299,7 @@ class MdamColumnGen : public NAVersionedObject {
   MdamPred *getFirstPred() { return preds_; };
 
   Long pack(void *);
-  Lng32 unpack(void *, void *reallocator);
+  int unpack(void *, void *reallocator);
 };
 
 ///////////////////////////////////////////////////////////
@@ -369,18 +369,18 @@ class keyMdamGen : public keyRangeGen {
 
   unsigned short getValueAtpIndex() const { return valueAtpIndex_; };
 
-  Lng32 getMaxDisjunctNumber() const { return maxDisjunctNumber_; };
+  int getMaxDisjunctNumber() const { return maxDisjunctNumber_; };
 
-  Lng32 getMaxMdamIntervals() const { return maxMdamIntervals_; };
+  int getMaxMdamIntervals() const { return maxMdamIntervals_; };
 
-  Lng32 getMaxMdamRefs() const { return maxMdamRefs_; };
+  int getMaxMdamRefs() const { return maxMdamRefs_; };
 
-  Lng32 getMaxMdamRefsForStopLists() const { return maxMdamRefsForStopLists_; };
+  int getMaxMdamRefsForStopLists() const { return maxMdamRefsForStopLists_; };
 
   NABoolean complementKeysBeforeReturning() const { return complementKeysBeforeReturning_; };
 
   virtual Long pack(void *space);
-  virtual Lng32 unpack(void *base, void *reallocator);
+  virtual int unpack(void *base, void *reallocator);
   virtual ex_expr *getExpressionNode(Int32 pos);
 
   virtual keyMdamGen *castToKeyMdamGen() { return this; }

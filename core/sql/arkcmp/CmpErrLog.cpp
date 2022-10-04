@@ -65,7 +65,7 @@
 #include <execinfo.h>
 #include <sys/file.h>
 
-#include "CmpErrLog.h"
+#include "arkcmp/CmpErrLog.h"
 #include "common/CmpCommon.h"
 #include "arkcmp/CmpContext.h"
 #include "arkcmp/CmpStatement.h"

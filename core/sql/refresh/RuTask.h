@@ -96,7 +96,7 @@ class REFRESH_LIB_CLASS CRUTask {
   enum { MAX_COST = 65536 };
 
  public:
-  CRUTask(Lng32 taskId);
+  CRUTask(int taskId);
   virtual ~CRUTask();
 
   //-----------------------------------//
@@ -104,7 +104,7 @@ class REFRESH_LIB_CLASS CRUTask {
   //-----------------------------------//
  public:
   // Unique task identifier
-  Lng32 GetId() const { return taskId_; }
+  int GetId() const { return taskId_; }
 
   // To be applied after building the executor.
   CRUTaskExecutor &GetExecutor() const {
@@ -126,7 +126,7 @@ class REFRESH_LIB_CLASS CRUTask {
   // Framework for error reporting mechanism
   CRUException &GetErrorDesc() { return errorDesc_; }
 
-  Lng32 GetStatus() { return GetErrorDesc().GetStatus(); }
+  int GetStatus() { return GetErrorDesc().GetStatus(); }
 
  public:
   //---- Connectivity queries ----//
@@ -233,7 +233,7 @@ class REFRESH_LIB_CLASS CRUTask {
   //	Core data members
   //---------------------------------------//
  private:
-  Lng32 taskId_;
+  int taskId_;
 
   CRUException errorDesc_;
 
@@ -273,8 +273,8 @@ class REFRESH_LIB_CLASS CRUTaskList : public CDSPtrList<CRUTask> {
   // Accessors
   //-----------------------------------//
  public:
-  CRUTask *FindTask(Lng32 taskId);
-  DSListPosition FindTaskPos(Lng32 taskId);
+  CRUTask *FindTask(int taskId);
+  DSListPosition FindTaskPos(int taskId);
 
   //-----------------------------------//
   // Mutators

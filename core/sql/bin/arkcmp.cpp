@@ -16,11 +16,11 @@ extern void my_mpi_fclose();
 DEFINE_DOVERS(tdm_arkcmp)
 
 #include "comexe/CmpMessage.h"
-#include "CmpConnection.h"
+#include "arkcmp/CmpConnection.h"
 #include "arkcmp/CmpContext.h"
 #include "common/CmpCommon.h"
 #include "arkcmp/CmpStoredProc.h"
-#include "CmpErrLog.h"
+#include "arkcmp/CmpErrLog.h"
 #include "arkcmp/CompException.h"
 #include "cmpargs.h"
 #include "sqlmxevents/logmxevent.h"
@@ -290,7 +290,7 @@ Int32 main(Int32 argc, char **argv) {
 
       CmpContext *context = NULL;
       NAHeap *parentHeap = GetCliGlobals()->getCurrContextHeap();
-      NAHeap *cmpContextHeap = new (parentHeap) NAHeap((char *)"Cmp Context Heap", parentHeap, (Lng32)524288);
+      NAHeap *cmpContextHeap = new (parentHeap) NAHeap((char *)"Cmp Context Heap", parentHeap, (int)524288);
 
       try {
         context = new (cmpContextHeap)

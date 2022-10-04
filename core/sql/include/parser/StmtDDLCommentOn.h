@@ -81,7 +81,7 @@ class StmtDDLCommentOn : public StmtDDLNode {
 
   // methods relating to parse tree
   // virtual Int32 getArity() const;
-  // virtual ExprNode * getChild(Lng32 index);
+  // virtual ExprNode * getChild(int index);
 
   // method for binding
   ExprNode *bindNode(BindWA *bindWAPtr);
@@ -97,7 +97,7 @@ class StmtDDLCommentOn : public StmtDDLNode {
   NAString getCommentEscaped();
   inline const NAString &getColName() const { return colRef_->getColRefNameObj().getColName(); }
   inline NABoolean getIsViewCol() { return isViewCol_; }
-  inline Lng32 getColNum() { return colNum_; }
+  inline int getColNum() { return colNum_; }
 
   inline Int32 getVersion() { return 1; }
 
@@ -114,7 +114,7 @@ class StmtDDLCommentOn : public StmtDDLNode {
   QualifiedName objectName_;
   ColReference *colRef_;
   NABoolean isViewCol_;
-  Lng32 colNum_;
+  int colNum_;
 
   const NAString &comment_;
 

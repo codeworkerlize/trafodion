@@ -96,7 +96,7 @@
 #define BIGN_SET_SIGN(bignum, len) (((char *)bignum)[len - 1] |= MSB_SET_MSK);
 #define BIGN_GET_SIGN(bignum, len) ((char)(((char *)bignum)[len - 1] & MSB_SET_MSK));
 #else
-#typedef Int64 Int64;  // 64-bit: get Int64 define below
+#typedef long long;  // 64-bit: get long define below
 #include "common/Int64.h"
 
 #define BIGN_CLR_SIGN(bignum, len) (((char *)bignum)[len - 2] &= MSB_CLR_MSK);
@@ -134,19 +134,19 @@ static const unsigned short powersOfTen[] = {10,      // 10^1
 // and with the more significant decimal digits in the lower addresses)
 // into its equivalent Big Num representation.
 
-static short BigNumHelper_ConvBcdToBigNumHelper(Lng32 sourceLength, Lng32 targetLength, char *sourceData,
+static short BigNumHelper_ConvBcdToBigNumHelper(int sourceLength, int targetLength, char *sourceData,
                                                 char *targetData) {
   // Recast from bytes to unsigned shorts.
-  Lng32 targetLengthInShorts = targetLength / 2;
+  int targetLengthInShorts = targetLength / 2;
   unsigned short *targetDataInShorts = (unsigned short *)targetData;
 
   // Initialize the Big Num to zero.
   Int32 i = 0;
   for (i = 0; i < targetLengthInShorts; i++) targetDataInShorts[i] = 0;
-  Lng32 finalTargetLengthInShorts = 1;
+  int finalTargetLengthInShorts = 1;
 
   // Ignore leading zeros in BCD. If all zeros, return.
-  Lng32 zeros = 0;
+  int zeros = 0;
   while (zeros < sourceLength && !sourceData[zeros]) zeros++;
   if (zeros == sourceLength) return 0;
 
@@ -210,7 +210,7 @@ static short BigNumHelper_ConvBcdToBigNumHelper(Lng32 sourceLength, Lng32 target
 // (with sign, and with the more significant decimal digits in the lower
 // addresses) into its equivalent Big Num representation.
 
-static short BigNumHelper_ConvBcdToBigNumWithSignHelper(Lng32 sourceLength, Lng32 targetLength, char *sourceData,
+static short BigNumHelper_ConvBcdToBigNumWithSignHelper(int sourceLength, int targetLength, char *sourceData,
                                                         char *targetData) {
   short result = BigNumHelper_ConvBcdToBigNumHelper(sourceLength - 1, targetLength, sourceData + 1, targetData);
 
@@ -228,10 +228,10 @@ static short BigNumHelper_ConvBcdToBigNumWithSignHelper(Lng32 sourceLength, Lng3
 // its equivalent BCD string representation (with the more significant decimal
 // digits in the lower addresses).
 
-static short BigNumHelper_ConvBigNumToBcdHelper(Lng32 sourceLength, Lng32 targetLength, char *sourceData,
+static short BigNumHelper_ConvBigNumToBcdHelper(int sourceLength, int targetLength, char *sourceData,
                                                 char *targetData) {
   // Recast from bytes to unsigned shorts.
-  Lng32 sourceLengthInShorts = sourceLength / 2;
+  int sourceLengthInShorts = sourceLength / 2;
   unsigned short *sourceDataInShorts = (unsigned short *)sourceData;
 
   unsigned short *tempSourceDataInShorts = new unsigned short[sourceLength / 2];
@@ -242,10 +242,10 @@ static short BigNumHelper_ConvBigNumToBcdHelper(Lng32 sourceLength, Lng32 target
   // Initialize the BCD to zero.
   for (i = 0; i < targetLength; i++) targetData[i] = 0;
   char *finalTargetData = targetData + targetLength - 1;
-  Lng32 finalTargetLength = 1;
+  int finalTargetLength = 1;
 
   // Ignore trailing zeros in the Big Num. If all zeros, return.
-  Lng32 actualSourceLengthInShorts = sourceLengthInShorts;
+  int actualSourceLengthInShorts = sourceLengthInShorts;
   while (actualSourceLengthInShorts > 0 && !tempSourceDataInShorts[actualSourceLengthInShorts - 1])
     actualSourceLengthInShorts--;
   if (!actualSourceLengthInShorts) {
@@ -319,7 +319,7 @@ static short BigNumHelper_ConvBigNumToBcdHelper(Lng32 sourceLength, Lng32 target
   return 0;
 }
 
-static short BigNumHelper_ConvBigNumWithSignToBcdHelper(Lng32 sourceLength, Lng32 targetLength, char *sourceData,
+static short BigNumHelper_ConvBigNumWithSignToBcdHelper(int sourceLength, int targetLength, char *sourceData,
                                                         char *targetData) {
   char sign = BIGN_GET_SIGN(sourceData, sourceLength);
 
@@ -337,10 +337,10 @@ static short BigNumHelper_ConvBigNumWithSignToBcdHelper(Lng32 sourceLength, Lng3
   return result;
 }
 
-static short convInt64ToDecMxcs(char *target, Lng32 targetLen, Int64 source) {
+static short convInt64ToDecMxcs(char *target, int targetLen, long source) {
   ULng32 flags = 0;
   bool negative = (source < 0);
-  Lng32 currPos = targetLen - 1;
+  int currPos = targetLen - 1;
 
   if (negative && (currPos >= 0)) {
     if (source == LLONG_MIN) {
@@ -379,14 +379,14 @@ static short safe_add_digit_to_double(double dvalue,  // Original value
   return 0;
 }
 
-static short convAsciiToFloat64Mxcs(char *target, char *source, Lng32 sourceLen) {
+static short convAsciiToFloat64Mxcs(char *target, char *source, int sourceLen) {
   short err = 0;
 
   double ptarget;
 
   // skip leading and trailing blanks and adjust source and sourceLen
   // accordingly
-  Lng32 i = 0;
+  int i = 0;
   for (; i < sourceLen && *source == ' '; i++) source++;
 
   if (i == sourceLen) {
@@ -548,12 +548,12 @@ static short convAsciiToFloat64Mxcs(char *target, char *source, Lng32 sourceLen)
 // The function assumes that source is at least
 // sourceLen long. Trailing '\0' is not recongnized
 ///////////////////////////////////////////////////////////////////
-static short convAsciiToDecMxcs(char *target, Lng32 targetLen, Lng32 targetScale, char *source, Lng32 sourceLen,
+static short convAsciiToDecMxcs(char *target, int targetLen, int targetScale, char *source, int sourceLen,
                                 char offset) {
   short negative = 0;               // default is a positive value
-  Lng32 sourceStart = 0;            // start of source after skipping 0 and ' '
-  Lng32 sourceScale = 0;            // by default the scale is 0
-  Lng32 targetPos = targetLen - 1;  // current positon in the target
+  int sourceStart = 0;            // start of source after skipping 0 and ' '
+  int sourceScale = 0;            // by default the scale is 0
+  int targetPos = targetLen - 1;  // current positon in the target
 
   // skip leading blanks
   while ((sourceStart < sourceLen) && (source[sourceStart] == ' ')) sourceStart++;
@@ -574,7 +574,7 @@ static short convAsciiToDecMxcs(char *target, Lng32 targetLen, Lng32 targetScale
   // we go on with this function.
   // Also, start at the end of the string, if we have an 'e' it
   // is probably closer to the end.
-  for (Lng32 i = sourceLen - 1; i >= sourceStart; i--) {
+  for (int i = sourceLen - 1; i >= sourceStart; i--) {
     if (source[i] == 'E' || source[i] == 'e') {
       // found a float representation.
 
@@ -584,7 +584,7 @@ static short convAsciiToDecMxcs(char *target, Lng32 targetLen, Lng32 targetScale
         return EXE_CONVERT_STRING_ERROR;
 
       // scale the intermediate
-      for (Lng32 j = 0; j < targetScale; j++) {
+      for (int j = 0; j < targetScale; j++) {
         intermediate *= 10.0;
 
         if ((intermediate < LLONG_MIN) || (intermediate > LLONG_MAX)) {
@@ -592,14 +592,14 @@ static short convAsciiToDecMxcs(char *target, Lng32 targetLen, Lng32 targetScale
         };
       }
 
-      if (convInt64ToDecMxcs(target, targetLen, (Int64)intermediate)) return EXE_CONVERT_STRING_ERROR;
+      if (convInt64ToDecMxcs(target, targetLen, (long)intermediate)) return EXE_CONVERT_STRING_ERROR;
       return 0;
     }
   }
 
   // the string does not represent a float value. Go on with
   // the processing
-  Lng32 sourcePos = sourceLen - 1;  // current position in the string
+  int sourcePos = sourceLen - 1;  // current position in the string
 
   // check for sign
   if (source[sourceStart] == '+')
@@ -619,8 +619,8 @@ static short convAsciiToDecMxcs(char *target, Lng32 targetLen, Lng32 targetScale
   };
 
   // determine the scale of the source
-  Lng32 index = sourceStart;
-  Lng32 pointPos = -1;
+  int index = sourceStart;
+  int pointPos = -1;
   while ((index < sourceLen) && pointPos < 0) {
     if (source[index] == '.')
       pointPos = index;
@@ -683,7 +683,7 @@ static short convAsciiToDecMxcs(char *target, Lng32 targetLen, Lng32 targetScale
 //////////////////////////////////////////////////////////////////
 // function to convert BIGNUM to LARGEDEC
 ///////////////////////////////////////////////////////////////////
-static short convBigNumToLargeDecMxcs(char *target, Lng32 targetLen, char *source, Lng32 sourceLen) {
+static short convBigNumToLargeDecMxcs(char *target, int targetLen, char *source, int sourceLen) {
   // Convert the Big Num (with sign) into a BCD representation by calling
   // a BigNumHelper method
   short retCode = BigNumHelper_ConvBigNumWithSignToBcdHelper(sourceLen, targetLen, source, target);
@@ -708,14 +708,14 @@ static short convBigNumToLargeDecMxcs(char *target, Lng32 targetLen, char *sourc
 // convDoIt sets leftPad to true if callers pass in a
 // CONV_UNKNOWN_LEFTPAD to convDoIt.
 ///////////////////////////////////////////////////////////////////
-static short convLargeDecToAsciiMxcs(char *target, Lng32 targetLen, char *source, Lng32 sourceLen, Lng32 sourceScale,
-                                     char *varCharLen, Lng32 varCharLenSize, short leftPad) {
+static short convLargeDecToAsciiMxcs(char *target, int targetLen, char *source, int sourceLen, int sourceScale,
+                                     char *varCharLen, int varCharLenSize, short leftPad) {
   // trim tail '0'
   // e.g.
   // select -123.4345435435435435000 from dual;
   // The result will be -123.4345435435435435 instead of -123.4345435435435435000
   if (sourceScale > 0 && sourceLen > 0) {
-    Lng32 nCount = 0;
+    int nCount = 0;
     char *p = &source[sourceLen - 1];
     while (*p == 0 && p != source) {
       ++nCount;
@@ -757,12 +757,12 @@ static short convLargeDecToAsciiMxcs(char *target, Lng32 targetLen, char *source
   // skip leading zeros; start with index == 1; index == 0 is sign
   // stop looking one position before the decimal point. This
   // position is sourceLen - sourceScale - 1
-  Lng32 currPos = 1;
+  int currPos = 1;
   while ((currPos < (sourceLen - sourceScale - 1)) && source[currPos] == 0) currPos++;
 
-  Lng32 padLen = targetLen;
+  int padLen = targetLen;
   if (source[0] == '-') padLen--;
-  Lng32 requiredDigits = sourceLen - currPos - sourceScale;
+  int requiredDigits = sourceLen - currPos - sourceScale;
 
   padLen -= requiredDigits;
 
@@ -777,7 +777,7 @@ static short convLargeDecToAsciiMxcs(char *target, Lng32 targetLen, char *source
       sourceScale = 0;
   }
 
-  Lng32 targetPos = 0;
+  int targetPos = 0;
 
   // if target is fixed length and leftPad, left pad blanks
   if (leftPad) {
@@ -788,7 +788,7 @@ static short convLargeDecToAsciiMxcs(char *target, Lng32 targetLen, char *source
   if (source[0] == '-') target[targetPos++] = '-';
 
   // fill in digits
-  Lng32 i = 0;
+  int i = 0;
   for (i = 0; i < requiredDigits; i++, targetPos++, currPos++) target[targetPos] = source[currPos] + '0';
 
   // if we have a scale, add decimal point and some digits
@@ -803,8 +803,8 @@ static short convLargeDecToAsciiMxcs(char *target, Lng32 targetLen, char *source
 
   // set length field for variable length targets
   if (varCharLenSize) {
-    if (varCharLenSize == sizeof(Lng32))
-      memcpy(varCharLen, (char *)&targetPos, sizeof(Lng32));
+    if (varCharLenSize == sizeof(int))
+      memcpy(varCharLen, (char *)&targetPos, sizeof(int));
     else {
       short VCLen = (short)targetPos;
       memcpy(varCharLen, (char *)&VCLen, sizeof(short));
@@ -831,8 +831,8 @@ static short convLargeDecToAsciiMxcs(char *target, Lng32 targetLen, char *source
 // First convert from ASCII to LARGEDEC, then convert from LARGEDEC
 // to BIGNUM
 ///////////////////////////////////////////////////////////////////
-static short convAsciiToBigNumMxcs(char *target, Lng32 targetLen, Lng32 targetType, Lng32 targetPrecision,
-                                   Lng32 targetScale, char *source, Lng32 sourceLen) {
+static short convAsciiToBigNumMxcs(char *target, int targetLen, int targetType, int targetPrecision,
+                                   int targetScale, char *source, int sourceLen) {
   short retCode = 0;
   // Convert from ASCII to an intermediate LARGEDEC, using the function convAsciiToDec().
   // To understand this function call, it will be helpful to review the
@@ -877,8 +877,8 @@ static short convAsciiToBigNumMxcs(char *target, Lng32 targetLen, Lng32 targetTy
 // This function first converts the BIGNUM to an intermediate
 // LARGEDEC, then calls the previous function convLargeDecToAscii()
 ///////////////////////////////////////////////////////////////////
-static short convBigNumToAsciiMxcs(char *target, Lng32 targetLen, char *source, Lng32 sourceLen, Lng32 sourcePrecision,
-                                   Lng32 sourceScale) {
+static short convBigNumToAsciiMxcs(char *target, int targetLen, char *source, int sourceLen, int sourcePrecision,
+                                   int sourceScale) {
   char *intermediateLargeDec = new char[sourcePrecision + 1];  // one extra byte for the sign.
   short retCode = convBigNumToLargeDecMxcs(intermediateLargeDec, sourcePrecision + 1, source, sourceLen);
   if (retCode) return retCode;
@@ -894,7 +894,7 @@ static short convBigNumToAsciiMxcs(char *target, Lng32 targetLen, char *source, 
   return retCode;
 };
 
-static short getIntervalStartField(Lng32 datatype) {
+static short getIntervalStartField(int datatype) {
   switch (datatype) {
     case REC_INT_YEAR:
       return REC_DATE_YEAR;
@@ -928,7 +928,7 @@ static short getIntervalStartField(Lng32 datatype) {
   return REC_DATE_YEAR;
 }
 
-static short getIntervalEndField(Lng32 datatype) {
+static short getIntervalEndField(int datatype) {
   switch (datatype) {
     case REC_INT_YEAR:
       return REC_DATE_YEAR;
@@ -963,12 +963,12 @@ static short getIntervalEndField(Lng32 datatype) {
 }
 
 //////////////////////////////////////////////////////////////////
-// This function count the number of digits in a non-negative Int64.
+// This function count the number of digits in a non-negative long.
 // The function assumes that targetLen is 1 to 19, inclusive.
 ///////////////////////////////////////////////////////////////////
 
-static Lng32 getDigitCount(Int64 value) {
-  static const Int64 decValue[] = {0,
+static int getDigitCount(long value) {
+  static const long decValue[] = {0,
                                    9,
                                    99,
                                    999,
@@ -1003,7 +1003,7 @@ static Lng32 getDigitCount(Int64 value) {
 }
 
 ///////////////////////////////////////////////////////////////////
-// function to convert interval field ASCII string to Int64
+// function to convert interval field ASCII string to long
 // The function reads at most sourceLen number of characters.
 // Or until it encounters a non-digit character and sets the
 // sourceLen to the actual length of the string read if it is
@@ -1011,8 +1011,8 @@ static Lng32 getDigitCount(Int64 value) {
 // This function is used for ASCII to INTERVAL conversions only.
 // Blanks and sign are already removed.
 ///////////////////////////////////////////////////////////////////
-static short convAsciiFieldToInt64Mxcs(Int64 &target, Lng32 targetScale, char *source, Lng32 &sourceLen, ULng32 flags) {
-  Lng32 currPos = 0;  // current position in the string
+static short convAsciiFieldToInt64Mxcs(long &target, int targetScale, char *source, int &sourceLen, ULng32 flags) {
+  int currPos = 0;  // current position in the string
   target = 0;         // result
   while ((currPos < sourceLen) && ((source[currPos] >= '0') && (source[currPos] <= '9'))) {
     short thisDigit = source[currPos] - '0';
@@ -1038,8 +1038,8 @@ static short convAsciiFieldToInt64Mxcs(Int64 &target, Lng32 targetScale, char *s
 ///////////////////////////////////////////////////////////////////
 // function to convert an ASCII string to an interval datatype.
 ///////////////////////////////////////////////////////////////////
-static short convAsciiToIntervalMxcs(char *target, Lng32 targetLen, Lng32 targetDatatype, Lng32 leadingPrecision,
-                                     Lng32 fractionPrecision, char *source, Lng32 sourceLen, short allowSignInInterval,
+static short convAsciiToIntervalMxcs(char *target, int targetLen, int targetDatatype, int leadingPrecision,
+                                     int fractionPrecision, char *source, int sourceLen, short allowSignInInterval,
                                      ULng32 flags) {
   short retCode = 0;
 
@@ -1078,8 +1078,8 @@ static short convAsciiToIntervalMxcs(char *target, Lng32 targetLen, Lng32 target
   short end = getIntervalEndField(targetDatatype);
 
   // convert the first field
-  Int64 intermediate;
-  Lng32 fieldLen = leadingPrecision;
+  long intermediate;
+  int fieldLen = leadingPrecision;
   if (fieldLen > sourceLen) fieldLen = sourceLen;  // so we don't read garbage past end of string
 
   retCode = convAsciiFieldToInt64Mxcs(intermediate,
@@ -1087,8 +1087,8 @@ static short convAsciiToIntervalMxcs(char *target, Lng32 targetLen, Lng32 target
                                       source, fieldLen, flags);
   if (retCode) return retCode;
 
-  Lng32 strIndex = fieldLen;
-  Int64 fieldValue;
+  int strIndex = fieldLen;
+  long fieldValue;
 
   for (Int32 field = start + 1; field <= end; field++) {
     Int32 index = field - REC_DATE_YEAR;
@@ -1138,10 +1138,10 @@ static short convAsciiToIntervalMxcs(char *target, Lng32 targetLen, Lng32 target
 
   // if the end field is SECOND, it may have a fractional part
   if ((end == REC_DATE_SECOND) && (source[strIndex] == '.')) {
-    Lng32 sourcePrecision = (sourceLen - strIndex - 1);
+    int sourcePrecision = (sourceLen - strIndex - 1);
     ULng32 fraction = 0;
     if (sourcePrecision) {
-      Int64 interm;
+      long interm;
       retCode = convAsciiFieldToInt64Mxcs(interm, 0, &source[strIndex + 1],
                                           sourcePrecision,  // sourceLen
                                           flags);
@@ -1207,9 +1207,9 @@ static short convAsciiToIntervalMxcs(char *target, Lng32 targetLen, Lng32 target
 
     case SQL_LARGE_SIZE:
       if (negInterval)
-        *(Int64 *)target = -intermediate;
+        *(long *)target = -intermediate;
       else
-        *(Int64 *)target = intermediate;
+        *(long *)target = intermediate;
       break;
 
     default:
@@ -1219,7 +1219,7 @@ static short convAsciiToIntervalMxcs(char *target, Lng32 targetLen, Lng32 target
 };
 
 //////////////////////////////////////////////////////////////////
-// function to convert an Int64  to an ASCII string
+// function to convert an long  to an ASCII string
 // Trailing '\0' is not set!
 //
 // For fixed char targets, left pad fillers if leftPad is
@@ -1232,20 +1232,20 @@ static short convAsciiToIntervalMxcs(char *target, Lng32 targetLen, Lng32 target
 // e.g., caller wants to convert 7 -> 07        as in month -> ascii
 //                           or  8 -> '    8'   as in sqlci display
 ///////////////////////////////////////////////////////////////////
-static short convInt64ToAsciiMxcs(char *target, Lng32 targetLen, Int64 source, Lng32 scale, char filler,
+static short convInt64ToAsciiMxcs(char *target, int targetLen, long source, int scale, char filler,
                                   short leadingSign, short leftPad) {
-  Lng32 digitCnt = 0;
+  int digitCnt = 0;
   short negative = (source < 0);
   short fixRightMost = 0;  // true if need to fix the rightmost digit.
 
-  Lng32 padLen = targetLen;
-  Lng32 requiredDigits = 0;
-  Lng32 leftMost;   // leftmost digit.
-  Lng32 rightMost;  // rightmost digit.
-  Lng32 sign = 0;
+  int padLen = targetLen;
+  int requiredDigits = 0;
+  int leftMost;   // leftmost digit.
+  int rightMost;  // rightmost digit.
+  int sign = 0;
 
-  //  Int64 newSource = (negative ? -source : source);
-  Int64 newSource = 0;
+  //  long newSource = (negative ? -source : source);
+  long newSource = 0;
   if ((negative) && (source == 0x8000000000000000LL))  // = -2 ** 63
   {
     newSource = 0x7fffffffffffffffLL;
@@ -1278,11 +1278,11 @@ static short convInt64ToAsciiMxcs(char *target, Lng32 targetLen, Int64 source, L
     leftMost = sign;
   }
 
-  Lng32 currPos;
+  int currPos;
   // Add filler.
   rightMost = currPos = targetLen - 1;
   if (padLen) {
-    Lng32 start;
+    int start;
     if (leftPad) {  // Pad to the left.
       start = sign;
     } else {  // Pad to the right
@@ -1294,7 +1294,7 @@ static short convInt64ToAsciiMxcs(char *target, Lng32 targetLen, Int64 source, L
 
   // Convert the fraction part and add decimal point.
   if (scale) {
-    Lng32 low = (currPos - scale);
+    int low = (currPos - scale);
     for (; currPos > low; currPos--) {
       target[currPos] = (char)((newSource % 10) + '0');
       newSource /= 10;
@@ -1330,19 +1330,19 @@ static short convInt64ToAsciiMxcs(char *target, Lng32 targetLen, Int64 source, L
 ///////////////////////////////////////////////////////////////////
 // function to convert a INTERVAL to a string.
 ///////////////////////////////////////////////////////////////////
-static short convIntervalToAsciiMxcs(char *source, Lng32 sourceLen, Lng32 leadingPrecision, Lng32 fractionPrecision,
-                                     short sourceType, char *inTarget, Lng32 inTargetLen, short leftPad) {
+static short convIntervalToAsciiMxcs(char *source, int sourceLen, int leadingPrecision, int fractionPrecision,
+                                     short sourceType, char *inTarget, int inTargetLen, short leftPad) {
   short retCode = 0;
 
   char delimiter[] = "^-^ ::";
   unsigned short maxFieldValue[] = {0, 11, 0, 23, 59, 59};
 
-  Lng32 realTargetLen;
+  int realTargetLen;
 
   short startField = getIntervalStartField(sourceType);
   short endField = getIntervalEndField(sourceType);
 
-  Int64 value;
+  long value;
   switch (sourceLen) {
     case SQL_SMALL_SIZE: {
       short temp;
@@ -1351,7 +1351,7 @@ static short convIntervalToAsciiMxcs(char *source, Lng32 sourceLen, Lng32 leadin
       break;
     }
     case SQL_INT_SIZE: {
-      Lng32 temp;
+      int temp;
       memcpy((char *)&temp, source, sourceLen);
       value = temp;
       break;
@@ -1378,7 +1378,7 @@ static short convIntervalToAsciiMxcs(char *source, Lng32 sourceLen, Lng32 leadin
     return EXE_STRING_OVERFLOW;
   }
 
-  Lng32 targetLen = inTargetLen;
+  int targetLen = inTargetLen;
   char *target = inTarget;
   if ((leftPad) && (targetLen > realTargetLen)) {
     // left blankpad the target.
@@ -1391,8 +1391,8 @@ static short convIntervalToAsciiMxcs(char *source, Lng32 sourceLen, Lng32 leadin
     targetLen = realTargetLen;
   }
 
-  Int64 factor = 1;
-  Int64 fieldVal = 0;
+  long factor = 1;
+  long fieldVal = 0;
   if (fractionPrecision) {
     //    realTargetLen += fractionPrecision + 1; // 1 for '.'
     for (UInt32 i = fractionPrecision; i > 0; i--) {
@@ -1421,7 +1421,7 @@ static short convIntervalToAsciiMxcs(char *source, Lng32 sourceLen, Lng32 leadin
     memset(target + targetIndex, '0', fractionPrecision);
     retCode = convInt64ToAsciiMxcs(target + targetIndex,
                                    fractionPrecision,  // targetLen
-                                   (Int64)fieldVal,
+                                   (long)fieldVal,
                                    0,    // scale,
                                    '0',  // filler character
                                    0,
@@ -1444,7 +1444,7 @@ static short convIntervalToAsciiMxcs(char *source, Lng32 sourceLen, Lng32 leadin
 
     retCode = convInt64ToAsciiMxcs(target + targetIndex,
                                    2,  // targetLen
-                                   (Int64)fieldVal,
+                                   (long)fieldVal,
                                    0,    // scale,
                                    '0',  // filler character
                                    0,
@@ -1458,7 +1458,7 @@ static short convIntervalToAsciiMxcs(char *source, Lng32 sourceLen, Lng32 leadin
   // leading field
   retCode = convInt64ToAsciiMxcs(target + (sign == '-' ? 1 : 0),
                                  leadingPrecision,  // targetLen
-                                 (Int64)value,
+                                 (long)value,
                                  0,    // scale,
                                  ' ',  // filler character
                                  0,
@@ -1539,9 +1539,9 @@ static short convIntervalToAsciiMxcs(char *source, Lng32 sourceLen, Lng32 leadin
 //   Doing that will cause incompatibility and lost code.
 //
 ///////////////////////////////////////////////////////////////////////////////
-short convDoItMxcs(char *source, Lng32 sourceLen, short sourceType, Lng32 sourcePrecision, Lng32 sourceScale,
-                   char *target, Lng32 targetLen, short targetType, Lng32 targetPrecision, Lng32 targetScale,
-                   Lng32 flags) {
+short convDoItMxcs(char *source, int sourceLen, short sourceType, int sourcePrecision, int sourceScale,
+                   char *target, int targetLen, short targetType, int targetPrecision, int targetScale,
+                   int flags) {
   short retCode = -1;
   if (sourceType == 0) {
     if ((targetType == REC_NUM_BIG_UNSIGNED) || (targetType == REC_NUM_BIG_SIGNED)) {

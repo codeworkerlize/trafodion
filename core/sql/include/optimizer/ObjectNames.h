@@ -539,7 +539,7 @@ class ExtendedQualName : public NABasicObject {
 
   StringPos getNamePosition() const { return qualName_.getNamePosition(); }
   const NAString &getLocationName() const { return partnClause_.getLocationName(); }
-  Int64 getUtilityOpenId() const { return utilityOpenId_; }
+  long getUtilityOpenId() const { return utilityOpenId_; }
   const QualifiedName &getQualifiedNameObj() const { return qualName_; }
   QualifiedName &getQualifiedNameObj() { return qualName_; }
   SpecialTableType getSpecialType() const { return type_; }
@@ -550,7 +550,7 @@ class ExtendedQualName : public NABasicObject {
 
   // Mutator to fill in qualified name from prototype value, if one.
   void setLocationName(const NAString &locName) { partnClause_.setLocationName(locName); }
-  void setUtilityOpenId(Int64 &openId) { utilityOpenId_ = openId; }
+  void setUtilityOpenId(long &openId) { utilityOpenId_ = openId; }
   void setIsNSAOperation(NABoolean isNSAOperation) { isNSAOperation_ = isNSAOperation; }
   void setNamePosition(StringPos pos, NABoolean setD = TRUE) { qualName_.setNamePosition(pos, setD); }
   void setSpecialType(SpecialTableType stt) { type_ = stt; }
@@ -584,7 +584,7 @@ class ExtendedQualName : public NABasicObject {
   // in the LOCATION clause.
   // Eg: LOCATION <locationName_> OPEN <utilityOpenId_>. Note that
   // the OPEN clause is optional.
-  Int64 utilityOpenId_;
+  long utilityOpenId_;
 
   // This member is set to TRUE, if the SQL/MX Utility
   // specifies WITH SHARE ACCESS along with LOCATION clause.
@@ -722,7 +722,7 @@ class CorrName : public NABasicObject {
   const NAString getUgivenName() const { return ugivenName_; }
   // ct-bug-10-030102-3803 -End
 
-  Int64 getUtilityOpenId() const { return qualName_.getUtilityOpenId(); }
+  long getUtilityOpenId() const { return qualName_.getUtilityOpenId(); }
   NABoolean isUtilityOpenIdSpecified() const { return qualName_.isUtilityOpenIdSpecified(); }
   NABoolean isNSAOperation() const { return qualName_.isNSAOperation(); }
 
@@ -753,7 +753,7 @@ class CorrName : public NABasicObject {
   void setUgivenName(const NAString &corrName);
   // ct-bug-10-030102-3803 -End
   void setLocationName(const NAString &loc) { qualName_.setLocationName(loc); }
-  void setUtilityOpenId(Int64 &openId) { qualName_.setUtilityOpenId(openId); }
+  void setUtilityOpenId(long &openId) { qualName_.setUtilityOpenId(openId); }
   void setNamePosition(StringPos pos, NABoolean setD = TRUE) { qualName_.setNamePosition(pos, setD); }
 
   void setIsNSAOperation(NABoolean isNSAOperation) { qualName_.setIsNSAOperation(isNSAOperation); }
@@ -1096,10 +1096,10 @@ ULng32 hashKey(const ColRefName &);
 
 class ObjectCounter {
  public:
-  ObjectCounter(Lng32 startPoint = 0) { count_ = waterMark_ = totalAllocations_ = startPoint; };
-  inline Lng32 counter() { return count_; };
-  inline Lng32 waterMark() { return waterMark_; };
-  inline Lng32 totalAllocations() { return totalAllocations_; };
+  ObjectCounter(int startPoint = 0) { count_ = waterMark_ = totalAllocations_ = startPoint; };
+  inline int counter() { return count_; };
+  inline int waterMark() { return waterMark_; };
+  inline int totalAllocations() { return totalAllocations_; };
   inline void incrementCounter() {
 #ifdef OPT_ANALYSIS
     ++count_;
@@ -1115,9 +1115,9 @@ class ObjectCounter {
   inline void initializeCounter() { count_ = waterMark_ = 0; };
 
  private:
-  Lng32 count_;
-  Lng32 waterMark_;
-  Lng32 totalAllocations_;
+  int count_;
+  int waterMark_;
+  int totalAllocations_;
 };
 
 //------------------------------------------------------------
@@ -1132,7 +1132,7 @@ class TaskMonitor {
   // This function was added to reset counters to initial values,
   // usually zeros, to allow monitor statistics being collected
   // and printed several times inside the loop.
-  inline void init(Lng32 initval) {
+  inline void init(int initval) {
     count_ = goodCounts_ = initval;
     timer_ = (clock_t)initval;
     et_ = 0.0;
@@ -1159,16 +1159,16 @@ class TaskMonitor {
     timer_ += currTime_;
     if (currTime_) goodCounts_++;
   }
-  inline Lng32 count() { return count_; }
-  inline Lng32 goodcount() { return goodCounts_; }
+  inline int count() { return count_; }
+  inline int goodcount() { return goodCounts_; }
   inline clock_t timer() { return timer_; }
 
   // return the elapsed time in seconds
   float elapsed_time() { return et_; }
 
  private:
-  Lng32 count_;
-  Lng32 goodCounts_;  // counts of tasks that took more than 1 ms
+  int count_;
+  int goodCounts_;  // counts of tasks that took more than 1 ms
                       // to execute (not accurate).
   clock_t timer_;
   clock_t currTime_;

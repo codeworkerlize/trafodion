@@ -45,7 +45,7 @@ ComTdbStoredProc::ComTdbStoredProc(char *spName, ex_expr *inputExpr, ULng32 inpu
                                    ULng32 outputRowlen, ex_cri_desc *workCriDesc, const unsigned short workAtpIndex,
                                    ex_cri_desc *criDescDown, ex_cri_desc *criDescUp, ExSPInputOutput *extractInputExpr,
                                    ExSPInputOutput *moveOutputExpr, queue_index fromParent, queue_index toParent,
-                                   Cardinality estimatedRowCount, Lng32 numBuffers, ULng32 bufferSize,
+                                   Cardinality estimatedRowCount, int numBuffers, ULng32 bufferSize,
                                    ex_expr *predExpr, UInt16 arkcmpInfo)
     : ComTdb(ComTdb::ex_STORED_PROC, eye_STORED_PROC, estimatedRowCount, criDescDown, criDescUp, fromParent, toParent,
              numBuffers, bufferSize),
@@ -86,7 +86,7 @@ Long ComTdbStoredProc::pack(void *space) {
   return ComTdb::pack(space);
 }
 
-Lng32 ComTdbStoredProc::unpack(void *base, void *reallocator) {
+int ComTdbStoredProc::unpack(void *base, void *reallocator) {
   if (spName_.unpack(base)) return -1;
   if (workCriDesc_.unpack(base, reallocator)) return -1;
   if (inputExpr_.unpack(base, reallocator)) return -1;
@@ -124,7 +124,7 @@ Long ExSPInputOutput::pack(void *space) {
   return NAVersionedObject::pack(space);
 }
 
-Lng32 ExSPInputOutput::unpack(void *base, void *reallocator) {
+int ExSPInputOutput::unpack(void *base, void *reallocator) {
   if (tupleDesc_.unpack(base, reallocator)) return -1;
   if (caseIndexArray_.unpack(base)) return -1;
   return NAVersionedObject::unpack(base, reallocator);

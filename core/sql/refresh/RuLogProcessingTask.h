@@ -62,7 +62,7 @@ class REFRESH_LIB_CLASS CRULogProcessingTask : public CRUTask {
   typedef CRUTask inherited;
 
  public:
-  CRULogProcessingTask(Lng32 id, CRUTbl &table);
+  CRULogProcessingTask(int id, CRUTbl &table);
   virtual ~CRULogProcessingTask();
 
   //-----------------------------------//

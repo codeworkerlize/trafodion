@@ -19,10 +19,10 @@ keyMdamGen::keyMdamGen(ULng32 keyLen, ex_cri_desc *workCriDesc, unsigned short k
   maxDisjunctNumber_ = 0;  // make sure there is at least one disjunct
                            // (if there aren't any the query is known
                            // to be false and we should not get here)
-  Lng32 numberOfColumns = 0;
+  int numberOfColumns = 0;
   MdamColumnGen *cg = first;
   for (; cg != 0; cg = cg->getNext()) {
-    Lng32 temp = cg->getLastDisjunctNumber();
+    int temp = cg->getLastDisjunctNumber();
     if (temp > maxDisjunctNumber_) maxDisjunctNumber_ = temp;
     numberOfColumns++;
   }
@@ -36,15 +36,15 @@ keyMdamGen::keyMdamGen(ULng32 keyLen, ex_cri_desc *workCriDesc, unsigned short k
   maxMdamRefs_ = 0;
   maxMdamRefsForStopLists_ = 0;
 
-  Lng32 sumByColumn = 0;
-  Lng32 maxByColumn = -1;
-  Lng32 numberOfDisjuncts = maxDisjunctNumber_ + 1;
-  Lng32 *sumsByDisjunct = NULL;
-  sumsByDisjunct = new (heap) Lng32[numberOfDisjuncts];
-  Lng32 d;
-  Lng32 maxByColumnAndDisjunct = -1;
-  Lng32 nullableCount = 0;
-  Lng32 totalSum = 0;
+  int sumByColumn = 0;
+  int maxByColumn = -1;
+  int numberOfDisjuncts = maxDisjunctNumber_ + 1;
+  int *sumsByDisjunct = NULL;
+  sumsByDisjunct = new (heap) int[numberOfDisjuncts];
+  int d;
+  int maxByColumnAndDisjunct = -1;
+  int nullableCount = 0;
+  int totalSum = 0;
 
   for (d = 0; d < numberOfDisjuncts; d++) sumsByDisjunct[d] = 0;
 
@@ -61,8 +61,8 @@ keyMdamGen::keyMdamGen(ULng32 keyLen, ex_cri_desc *workCriDesc, unsigned short k
     for (d = 0; d < numberOfDisjuncts; d++) {
       // calculate the number of equality predicates and the
       // number of other predicates for this column and disjunct
-      Lng32 equalityPreds = 0;
-      Lng32 otherPreds = 0;
+      int equalityPreds = 0;
+      int otherPreds = 0;
 
       while ((p) && (p->getDisjunctNumber() <= d)) {
         if (p->getPredType() == MdamPred::MDAM_EQ)
@@ -72,7 +72,7 @@ keyMdamGen::keyMdamGen(ULng32 keyLen, ex_cri_desc *workCriDesc, unsigned short k
         p = p->getNext();
       }
 
-      Lng32 columnDisjunctCount = 2 * equalityPreds + otherPreds + 1;
+      int columnDisjunctCount = 2 * equalityPreds + otherPreds + 1;
       if (isNullable) columnDisjunctCount++;
 
       // at this point,
@@ -102,7 +102,7 @@ keyMdamGen::keyMdamGen(ULng32 keyLen, ex_cri_desc *workCriDesc, unsigned short k
   //    sumsByDisjunct[d] = 2 * # of equality predicates on disjunct d
   //                      + # of other predicates on disjunct d
 
-  Lng32 maxByDisjunct = -1;
+  int maxByDisjunct = -1;
 
   for (d = 0; d < numberOfDisjuncts; d++) {
     totalSum += sumsByDisjunct[d];
@@ -156,7 +156,7 @@ Long keyMdamGen::pack(void *space) {
   return keyRangeGen::pack(space);
 }
 
-Lng32 keyMdamGen::unpack(void *base, void *reallocator) {
+int keyMdamGen::unpack(void *base, void *reallocator) {
   // On NSK and Linux, there are stack limitations that are hit when we use
   // recursive calls. Make this an iterative function instead.
 
@@ -204,7 +204,7 @@ Lng32 keyMdamGen::unpack(void *base, void *reallocator) {
 
 ex_expr *keyMdamGen::getExpressionNode(Int32) { return NULL; }
 
-ex_expr::exp_return_type MdamColumnGen::fixup(Lng32 base, unsigned short mode, Space *space, CollHeap *heap,
+ex_expr::exp_return_type MdamColumnGen::fixup(int base, unsigned short mode, Space *space, CollHeap *heap,
                                               const ex_tcb *tcb) {
   // the return from this procedure will be either EXPR_OK or it will be
   // the return from the first fixup() that fails
@@ -254,7 +254,7 @@ Long MdamColumnGen::pack(void *space) {
   return NAVersionedObject::pack(space);
 }
 
-Lng32 MdamColumnGen::unpack(void *base, void *reallocator) {
+int MdamColumnGen::unpack(void *base, void *reallocator) {
   if (loExpr_.unpack(base, reallocator)) return -1;
   if (hiExpr_.unpack(base, reallocator)) return -1;
   if (nonNullLoExpr_.unpack(base, reallocator)) return -1;
@@ -287,7 +287,7 @@ Lng32 MdamColumnGen::unpack(void *base, void *reallocator) {
   return NAVersionedObject::unpack(base, reallocator);
 }
 
-MdamPred::MdamPredType MdamPred::getTransformedPredType(Lng32 dataConvErrorFlag, Lng32 dataConvErrorFlag2,
+MdamPred::MdamPredType MdamPred::getTransformedPredType(int dataConvErrorFlag, int dataConvErrorFlag2,
                                                         MdamEnums::MdamInclusion &startInclusion,
                                                         MdamEnums::MdamInclusion &endInclusion) {
   MdamPredType returnPredType = (MdamPredType)predType_;
@@ -493,13 +493,13 @@ Long MdamPred::pack(void *space) {
   return NAVersionedObject::pack(space);
 }
 
-Lng32 MdamPred::unpack(void *base, void *reallocator) {
+int MdamPred::unpack(void *base, void *reallocator) {
   if (value_.unpack(base, reallocator)) return -1;
   if (value2_.unpack(base, reallocator)) return -1;
   return NAVersionedObject::unpack(base, reallocator);
 }
 
-ex_expr::exp_return_type MdamPred::fixup(Lng32 base, unsigned short mode, const ex_tcb *tcb, Space *space,
+ex_expr::exp_return_type MdamPred::fixup(int base, unsigned short mode, const ex_tcb *tcb, Space *space,
                                          CollHeap *heap) {
   ex_expr::exp_return_type rc = ex_expr::EXPR_OK;
 

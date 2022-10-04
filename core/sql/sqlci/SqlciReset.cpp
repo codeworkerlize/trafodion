@@ -80,8 +80,8 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-#include "sqlcmd.h"
-#include "SqlciCmd.h"
+#include "sqlci/sqlcmd.h"
+#include "sqlci/SqlciCmd.h"
 
 Reset::~Reset() {}
 

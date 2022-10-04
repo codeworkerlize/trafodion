@@ -598,7 +598,7 @@ ex_expr::exp_return_type ex_expr::pCodeGenerate(Space *space, CollHeap *heap, UI
 #endif
         {
           if (NOT doPCodeMoveFastpathOpt) {
-            Lng32 length = storePci->getOperand(6);
+            int length = storePci->getOperand(6);
 
             if (length == 1 || length == 2 || length == 4 || length == 8) {
               PCIType::AddressingMode am = PCIT::AM_NONE;

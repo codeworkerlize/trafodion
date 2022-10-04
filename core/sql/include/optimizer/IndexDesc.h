@@ -78,9 +78,9 @@ class IndexDesc : public NABasicObject {
   const QualifiedName &getIndexName() const;
   const NAString &getExtIndexName() const;
 
-  Lng32 getRecordLength() const;
-  Lng32 getKeyLength() const;
-  Lng32 getIndexLevels() const { return indexLevels_; }
+  int getRecordLength() const;
+  int getKeyLength() const;
+  int getIndexLevels() const { return indexLevels_; }
 
   const NAColumnArray &getAllColumns() const;
 
@@ -107,7 +107,7 @@ class IndexDesc : public NABasicObject {
 
   NABoolean isHivePartitioned() { return hivePartCols_.entries() > 0; }
 
-  void setIndexLevels(Lng32 indexLevels) { indexLevels_ = indexLevels; }
+  void setIndexLevels(int indexLevels) { indexLevels_ = indexLevels; }
   void setOrderOfKeyValues(const ValueIdList &no) { orderOfKeyValues_ = no; }
 
   NABoolean containsClusteringKey() const { return clusteringKey_.entries() > 0; }
@@ -188,7 +188,7 @@ class IndexDesc : public NABasicObject {
   // The number of levels in the index between the root and a leaf page.
   // If the root is one level from the leaf then indexLevel_ is set to 1.
   // ---------------------------------------------------------------------
-  Lng32 indexLevels_;
+  int indexLevels_;
 
   // ---------------------------------------------------------------------
   // all columns (index key and non-key columns) of the index

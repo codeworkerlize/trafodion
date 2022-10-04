@@ -107,7 +107,7 @@ NABoolean MdamInterval::contains(const ULng32 keyLen, const char *v) const {
 // in an error or a value that is outside the interval.
 NABoolean MdamInterval::getFirstValue(const ULng32 keyLen, char *s) const {
   // Move the string.
-  str_cpy_all(s, beginPoint_.getDataPointer(), Lng32(keyLen));
+  str_cpy_all(s, beginPoint_.getDataPointer(), int(keyLen));
 
   // If the begin endpoint is included, then it is the first value.
   if (beginPoint_.included()) {

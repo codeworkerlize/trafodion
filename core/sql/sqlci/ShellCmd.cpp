@@ -48,9 +48,9 @@
 #include <unistd.h>
 
 #include "common/NAString.h"
-#include "ShellCmd.h"
-#include "sqlcmd.h"
-#include "SqlciError.h"
+#include "sqlci/ShellCmd.h"
+#include "sqlci/sqlcmd.h"
+#include "sqlci/SqlciError.h"
 
 ShellCmd::ShellCmd(const shell_cmd_type cmd_type_, char *argument_)
     : SqlciNode(SqlciNode::SHELL_CMD_TYPE), cmd_type(cmd_type_) {

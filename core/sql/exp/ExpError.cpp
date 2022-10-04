@@ -59,14 +59,14 @@
 class PCIType;
 extern char *exClauseGetText(OperatorTypeEnum ote);
 extern char *getDatatypeAsString(Int32 Datatype, NABoolean extFormat);
-extern short convertTypeToText_basic(char *text, Lng32 fs_datatype, Lng32 length, Lng32 precision, Lng32 scale,
+extern short convertTypeToText_basic(char *text, int fs_datatype, int length, int precision, int scale,
                                      rec_datetime_field datetimestart, rec_datetime_field datetimeend,
                                      short datetimefractprec, short intervalleadingprec, short upshift,
                                      short caseinsensitive, CharInfo::CharSet charSet, const char *collation_name,
                                      const char *displaydatatype, short displayCaseSpecific, NABoolean isVarchar2);
 
-ComDiagsArea *ExAddCondition(CollHeap *heap, ComDiagsArea **diagsArea, Lng32 err, ComCondition **newCond,
-                             Lng32 *intParam1, Lng32 *intParam2, Lng32 *intParam3, const char *stringParam1,
+ComDiagsArea *ExAddCondition(CollHeap *heap, ComDiagsArea **diagsArea, int err, ComCondition **newCond,
+                             int *intParam1, int *intParam2, int *intParam3, const char *stringParam1,
                              const char *stringParam2, const char *stringParam3) {
   //
   // This version of ExRaiseSqlError is used by the expressions code.  In
@@ -123,27 +123,27 @@ ComDiagsArea *ExAddCondition(CollHeap *heap, ComDiagsArea **diagsArea, Lng32 err
 }
 
 ComDiagsArea *ExRaiseSqlError(CollHeap *heap, ComDiagsArea **diagsArea, ExeErrorCode err, ComCondition **cond,
-                              Lng32 *intParam1, Lng32 *intParam2, Lng32 *intParam3, const char *stringParam1,
+                              int *intParam1, int *intParam2, int *intParam3, const char *stringParam1,
                               const char *stringParam2, const char *stringParam3) {
-  return ExAddCondition(heap, diagsArea, -(Lng32)err, cond, intParam1, intParam2, intParam3, stringParam1, stringParam2,
+  return ExAddCondition(heap, diagsArea, -(int)err, cond, intParam1, intParam2, intParam3, stringParam1, stringParam2,
                         stringParam3);
 }
 
-ComDiagsArea *ExRaiseSqlError(CollHeap *heap, ComDiagsArea **diagsArea, Lng32 err, Lng32 *intParam1, Lng32 *intParam2,
-                              Lng32 *intParam3, const char *stringParam1, const char *stringParam2,
+ComDiagsArea *ExRaiseSqlError(CollHeap *heap, ComDiagsArea **diagsArea, int err, int *intParam1, int *intParam2,
+                              int *intParam3, const char *stringParam1, const char *stringParam2,
                               const char *stringParam3) {
   return ExAddCondition(heap, diagsArea, err, NULL, intParam1, intParam2, intParam3, stringParam1, stringParam2,
                         stringParam3);
 }
 
 ComDiagsArea *ExRaiseSqlWarning(CollHeap *heap, ComDiagsArea **diagsArea, ExeErrorCode err, ComCondition **cond,
-                                Lng32 *intParam1, Lng32 *intParam2, Lng32 *intParam3, const char *stringParam1,
+                                int *intParam1, int *intParam2, int *intParam3, const char *stringParam1,
                                 const char *stringParam2, const char *stringParam3) {
-  return ExAddCondition(heap, diagsArea, (Lng32)err, cond, intParam1, intParam2, intParam3, stringParam1, stringParam2,
+  return ExAddCondition(heap, diagsArea, (int)err, cond, intParam1, intParam2, intParam3, stringParam1, stringParam2,
                         stringParam3);
 }
 ComDiagsArea *ExRaiseSqlWarning(CollHeap *heap, ComDiagsArea **diagsArea, ExeErrorCode err, ComCondition **cond) {
-  return ExAddCondition(heap, diagsArea, (Lng32)err, cond, NULL, NULL, NULL);
+  return ExAddCondition(heap, diagsArea, (int)err, cond, NULL, NULL, NULL);
 }
 
 ComDiagsArea *ExRaiseFunctionSqlError(CollHeap *heap, ComDiagsArea **diagsArea, ExeErrorCode err,

@@ -211,8 +211,8 @@ class InliningInfo {
   static const char *getRowCountVirtualColName() { return rowcountVirtualColName_; }
 
   // Mutators
-  inline void setFlags(Int64 flags) { flags_ |= flags; }
-  inline void resetFlags(Int64 flags) { flags_ &= ~flags; }
+  inline void setFlags(long flags) { flags_ |= flags; }
+  inline void resetFlags(long flags) { flags_ &= ~flags; }
   inline void setTriggerObject(Trigger *trigger) { triggerObject_ = trigger; }
 
   void merge(InliningInfo *other);
@@ -226,7 +226,7 @@ class InliningInfo {
   // instead of zero and non-zero.
   inline NABoolean forceBool(InliningInfoEnum bitToTest) const { return (flags_ & bitToTest) ? TRUE : FALSE; }
 
-  Int64 flags_;
+  long flags_;
   Trigger *triggerObject_;
 
   //++MV
@@ -286,12 +286,12 @@ class TriggerBindInfo : public NABasicObject {
   // Accessors
   UniqueExecuteId *getExecuteId() const { return exeId_; }
   UniqueExecuteIdPtr &getExecuteId() { return exeId_; }
-  Lng32 getBackboneIudNum() const { return backboneIudNum_; }
+  int getBackboneIudNum() const { return backboneIudNum_; }
   const ColumnDescList *getIudColumnList() const { return origIudColumnList_; }
 
   // Mutators
   void setExecuteId() { exeId_ = new (heap_) UniqueExecuteId(); }
-  void setBackboneIudNum(Lng32 iudNum) { backboneIudNum_ = iudNum; }
+  void setBackboneIudNum(int iudNum) { backboneIudNum_ = iudNum; }
   void setIudColumnList(const ColumnDescList *colList) { origIudColumnList_ = colList; }
 
   // Normalize all the data members that need normalization
@@ -310,7 +310,7 @@ class TriggerBindInfo : public NABasicObject {
   // Since exeId_ is used in the tree, it is not owned by this object
   // (although it is allocated by it!), thus must not be freed in the Dtor.
   UniqueExecuteId *exeId_;
-  Lng32 backboneIudNum_;
+  int backboneIudNum_;
 
   const ColumnDescList *origIudColumnList_;
 };

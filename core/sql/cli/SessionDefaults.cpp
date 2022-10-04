@@ -186,7 +186,7 @@ SessionDefaults::SessionDefaults(CollHeap *heap)
       exsmTraceLevel_(0),
       exsmTraceFilePrefix_(NULL) {
   parentQidSystem_[0] = '\0';
-  Lng32 len = sizeof(sessionDefaultMap) / sizeof(SessionDefaultMap);
+  int len = sizeof(sessionDefaultMap) / sizeof(SessionDefaultMap);
   ex_assert(len == LAST_SESSION_DEFAULT_ATTRIBUTE, "Mismatch between sessionDefaultMap and SessionDefaultAttribute");
 
   defaultsValueString_ = new (heap) char *[len];
@@ -294,8 +294,8 @@ SessionDefaults::SessionDefaults(CollHeap *heap)
 
 SessionDefaults::~SessionDefaults() { delete sessionEnvvars_; }
 
-SessionDefaults::SessionDefaultMap SessionDefaults::getSessionDefaultMap(char *attribute, Lng32 attrLen) {
-  Lng32 len = sizeof(sessionDefaultMap) / sizeof(SessionDefaultMap);
+SessionDefaults::SessionDefaultMap SessionDefaults::getSessionDefaultMap(char *attribute, int attrLen) {
+  int len = sizeof(sessionDefaultMap) / sizeof(SessionDefaultMap);
   for (Int32 i = 0; i < len; i++) {
     if ((sessionDefaultMap[i].fromDefaultsTable) && (strcmp(sessionDefaultMap[i].attributeString, attribute) == 0)) {
       return sessionDefaultMap[i];
@@ -311,7 +311,7 @@ SessionDefaults::SessionDefaultMap SessionDefaults::getSessionDefaultMap(char *a
   return sdm;
 }
 
-void SessionDefaults::setIsoMappingName(const char *attrValue, Lng32 attrValueLen) {
+void SessionDefaults::setIsoMappingName(const char *attrValue, int attrValueLen) {
   if (isoMappingName_) {
     NADELETEBASIC(isoMappingName_, heap_);
   }
@@ -326,16 +326,16 @@ void SessionDefaults::setIsoMappingName(const char *attrValue, Lng32 attrValueLe
   setIsoMappingEnum();
 }
 
-void SessionDefaults::setIsoMappingEnum() { isoMappingEnum_ = (Lng32)CharInfo::getCharSetEnum(isoMappingName_); }
+void SessionDefaults::setIsoMappingEnum() { isoMappingEnum_ = (int)CharInfo::getCharSetEnum(isoMappingName_); }
 
-void SessionDefaults::setSessionDefaultAttributeValue(SessionDefaultMap sda, char *attrValue, Lng32 attrValueLen) {
-  Lng32 defaultValueAsLong = -1;
+void SessionDefaults::setSessionDefaultAttributeValue(SessionDefaultMap sda, char *attrValue, int attrValueLen) {
+  int defaultValueAsLong = -1;
   NABoolean defaultValueAsBoolean = FALSE;
 
   if (attrValue) {
     if (sda.attributeType == SessionDefaults::SDT_BINARY_SIGNED) {
       ex_expr::exp_return_type rc =
-          convDoIt(attrValue, attrValueLen, REC_BYTE_F_ASCII, 0, 0, (char *)&defaultValueAsLong, sizeof(Lng32),
+          convDoIt(attrValue, attrValueLen, REC_BYTE_F_ASCII, 0, 0, (char *)&defaultValueAsLong, sizeof(int),
                    REC_BIN32_SIGNED, 0, 0, NULL, 0);
       if (rc != ex_expr::EXPR_OK) {
         return;  // error
@@ -526,7 +526,7 @@ void SessionDefaults::setSessionDefaultAttributeValue(SessionDefaultMap sda, cha
   };
 }
 
-void SessionDefaults::initializeSessionDefault(char *attribute, Lng32 attrLen, char *attrValue, Lng32 attrValueLen) {
+void SessionDefaults::initializeSessionDefault(char *attribute, int attrLen, char *attrValue, int attrValueLen) {
   SessionDefaultMap sda = getSessionDefaultMap(attribute, attrLen);
 
   if (sda.attribute == INVALID_SESSION_DEFAULT) return;
@@ -546,7 +546,7 @@ void SessionDefaults::updateDefaultsValueString(SessionDefaultAttribute sda, con
     strcpy(defaultsValueString_[sda], "FALSE");
 }
 
-void SessionDefaults::updateDefaultsValueString(SessionDefaultAttribute sda, Lng32 value) {
+void SessionDefaults::updateDefaultsValueString(SessionDefaultAttribute sda, int value) {
   if (defaultsValueString_[sda]) NADELETEBASIC(defaultsValueString_[sda], heap_);
 
   defaultsValueString_[sda] = new (heap_) char[12];
@@ -569,10 +569,10 @@ void SessionDefaults::updateDefaultsValueString(SessionDefaultAttribute sda, cha
     defaultsValueString_[sda] = NULL;
 }
 
-Lng32 SessionDefaults::setIsoMappingDefine() { return 0; }
+int SessionDefaults::setIsoMappingDefine() { return 0; }
 
 void SessionDefaults::saveSessionDefaults() {
-  Lng32 len = sizeof(sessionDefaultMap) / sizeof(SessionDefaultMap);
+  int len = sizeof(sessionDefaultMap) / sizeof(SessionDefaultMap);
 
   for (Int32 i = 0; i < len; i++) {
     NADELETEBASIC(savedDefaultsValueString_[i], heap_);
@@ -587,7 +587,7 @@ void SessionDefaults::saveSessionDefaults() {
 }
 
 void SessionDefaults::restoreSessionDefaults() {
-  Lng32 len = sizeof(sessionDefaultMap) / sizeof(SessionDefaultMap);
+  int len = sizeof(sessionDefaultMap) / sizeof(SessionDefaultMap);
 
   for (Int32 i = 0; i < len; i++) {
     if (savedDefaultsValueString_[i]) {
@@ -597,7 +597,7 @@ void SessionDefaults::restoreSessionDefaults() {
   }
 }
 
-Lng32 SessionDefaults::readFromDefaultsTable(CliGlobals *cliGlobals) {
+int SessionDefaults::readFromDefaultsTable(CliGlobals *cliGlobals) {
   // Read system defaults from configuration file
   // keep this name in sync with file sqlcomp/nadefaults.cpp
   NAString confFile(getenv("TRAF_CONF"));
@@ -625,9 +625,9 @@ Lng32 SessionDefaults::readFromDefaultsTable(CliGlobals *cliGlobals) {
 
 void SessionDefaults::position() { currDef_ = 0; }
 
-short SessionDefaults::getNextSessionDefault(char *&attributeString, char *&attributeValue, Lng32 &isCQD,
-                                             Lng32 &fromDefaultsTable, Lng32 &isSSD, Lng32 &isExternalized) {
-  Lng32 len = sizeof(sessionDefaultMap) / sizeof(SessionDefaultMap);
+short SessionDefaults::getNextSessionDefault(char *&attributeString, char *&attributeValue, int &isCQD,
+                                             int &fromDefaultsTable, int &isSSD, int &isExternalized) {
+  int len = sizeof(sessionDefaultMap) / sizeof(SessionDefaultMap);
   if (currDef_ == len) return -1;
 
   attributeString = (char *)sessionDefaultMap[currDef_].attributeString;
@@ -833,7 +833,7 @@ static const AQRInfo::AQRErrorMap aqrErrorMap[] = {
 };
 
 AQRInfo::AQRInfo(CollHeap *heap) : heap_(heap), currErr_(0), aqrStmtInfo_(NULL), flags_(0) {
-  Lng32 numEntries = sizeof(aqrErrorMap) / sizeof(AQRErrorMap);
+  int numEntries = sizeof(aqrErrorMap) / sizeof(AQRErrorMap);
 
   aqrErrorList_ = new (heap) LIST(AQRErrorMap)(heap);
   for (Int32 i = 0; i < numEntries; i++) {
@@ -862,8 +862,8 @@ AQRInfo::AQRInfo(CollHeap *heap) : heap_(heap), currErr_(0), aqrStmtInfo_(NULL),
 
 AQRInfo::~AQRInfo() {}
 
-short AQRInfo::setAQREntry(Lng32 task, Lng32 sqlcode, Lng32 nskcode, Int32 retries, Int32 delay, Int32 type,
-                           Int32 numCQDs, char *cqdStr, Lng32 cmpInfo, Lng32 intAQR) {
+short AQRInfo::setAQREntry(int task, int sqlcode, int nskcode, Int32 retries, Int32 delay, Int32 type,
+                           Int32 numCQDs, char *cqdStr, int cmpInfo, int intAQR) {
   if ((sqlcode < 0) || (nskcode < 0) || (retries < 0) || (delay < 0) || (type < 0) || (numCQDs < 0) || (cmpInfo < 0) ||
       (cmpInfo > 1))
     return -1;
@@ -873,8 +873,8 @@ short AQRInfo::setAQREntry(Lng32 task, Lng32 sqlcode, Lng32 nskcode, Int32 retri
   while ((NOT found) && (entry < aqrErrorList_->entries())) {
     entry++;
 
-    Int64 currSqlcode = (*aqrErrorList_)[(entry - 1)].sqlcode;
-    Int64 currNskcode = (*aqrErrorList_)[(entry - 1)].nskcode;
+    long currSqlcode = (*aqrErrorList_)[(entry - 1)].sqlcode;
+    long currNskcode = (*aqrErrorList_)[(entry - 1)].nskcode;
     if ((currSqlcode == sqlcode) && (currNskcode == nskcode)) {
       found = TRUE;
     }
@@ -912,8 +912,8 @@ short AQRInfo::setAQREntry(Lng32 task, Lng32 sqlcode, Lng32 nskcode, Int32 retri
         NABoolean done = FALSE;
         entry = 0;
         while ((NOT done) && (entry < aqrErrorList_->entries())) {
-          Int64 currSqlcode = (*aqrErrorList_)[entry].sqlcode;
-          Int64 currNskcode = (*aqrErrorList_)[entry].nskcode;
+          long currSqlcode = (*aqrErrorList_)[entry].sqlcode;
+          long currNskcode = (*aqrErrorList_)[entry].nskcode;
           if ((sqlcode < currSqlcode) || ((sqlcode == currSqlcode) && (nskcode < currNskcode))) {
             done = TRUE;
           } else
@@ -961,13 +961,13 @@ short AQRInfo::setAQREntry(Lng32 task, Lng32 sqlcode, Lng32 nskcode, Int32 retri
   return 0;
 }
 
-short AQRInfo::setAQREntriesFromInputStr(char *inStr, Lng32 inStrLen) {
+short AQRInfo::setAQREntriesFromInputStr(char *inStr, int inStrLen) {
   if ((!inStr) || (inStrLen <= 0)) return -1;
 
   char *newStr = new (heap_) char[inStrLen + 1 + 1];
   str_cpy_all(newStr, inStr, inStrLen);
   newStr[inStrLen] = 0;
-  Lng32 n = 0;
+  int n = 0;
 
   Int32 i = 0;
   while (i < inStrLen) {
@@ -992,16 +992,16 @@ short AQRInfo::setAQREntriesFromInputStr(char *inStr, Lng32 inStrLen) {
   i = 0;
   Int32 j = 0;
   Int32 k = 1;
-  Lng32 sqlcode = -1;
-  Lng32 nskcode = 0;
-  Lng32 retries = 1;
-  Lng32 delay = 60;
-  Lng32 type = 0;
-  Lng32 numCQDs = 0;
+  int sqlcode = -1;
+  int nskcode = 0;
+  int retries = 1;
+  int delay = 60;
+  int type = 0;
+  int numCQDs = 0;
   char *cqdStr = NULL;
-  Lng32 cmpInfo = 0;
-  Lng32 intAQR = 0;
-  Lng32 task = ComTdbExeUtilAQR::NONE_;
+  int cmpInfo = 0;
+  int intAQR = 0;
+  int task = ComTdbExeUtilAQR::NONE_;
   NABoolean numberSeen = FALSE;
   while (i < n) {
     if ((newStr[i] >= '0') && (newStr[i] <= '9')) numberSeen = TRUE;
@@ -1025,14 +1025,14 @@ short AQRInfo::setAQREntriesFromInputStr(char *inStr, Lng32 inStrLen) {
 
     if ((newStr[i] == ',') || (newStr[i] == '|')) {
       if (i > j) {
-        Lng32 v = 0;
+        int v = 0;
         if ((k < 7) || (k == 8) || (k == 9)) {
-          Int64 bigV = str_atoi(&newStr[j], i - j);
+          long bigV = str_atoi(&newStr[j], i - j);
           if (bigV == -1) return -1;
 
           if (bigV > INT_MAX) return -1;
 
-          v = (Lng32)bigV;
+          v = (int)bigV;
         }
 
         switch (k) {
@@ -1110,8 +1110,8 @@ short AQRInfo::setAQREntriesFromInputStr(char *inStr, Lng32 inStrLen) {
   return 0;
 }
 
-short AQRInfo::getAQREntry(Lng32 sqlcode, Lng32 nskcode, Lng32 &retries, Lng32 &delay, Lng32 &type, Int32 &numCQDs,
-                           char *&cqdStr, Lng32 &cmpInfo, Lng32 &intAQR) {
+short AQRInfo::getAQREntry(int sqlcode, int nskcode, int &retries, int &delay, int &type, Int32 &numCQDs,
+                           char *&cqdStr, int &cmpInfo, int &intAQR) {
   NABoolean sqlcodeZeroFound = FALSE;
   UInt32 sqlcodeZeroEntryNum = 0;
   NABoolean nskcodeZeroFound = FALSE;
@@ -1161,8 +1161,8 @@ short AQRInfo::getAQREntry(Lng32 sqlcode, Lng32 nskcode, Lng32 &retries, Lng32 &
 
 void AQRInfo::position() { currErr_ = 0; }
 
-short AQRInfo::getNextAQREntry(Lng32 &sqlcode, Lng32 &nskcode, Lng32 &retries, Lng32 &delay, Lng32 &type,
-                               Lng32 &intAQR) {
+short AQRInfo::getNextAQREntry(int &sqlcode, int &nskcode, int &retries, int &delay, int &type,
+                               int &intAQR) {
   if (currErr_ == aqrErrorList_->entries()) return -1;
 
   sqlcode = (*aqrErrorList_)[currErr_].sqlcode;
@@ -1267,7 +1267,7 @@ void AQRStatementAttributes::setAttributesInStatement(Statement *targetStmt) {
   return;
 }
 void AQRStatementAttributes::getAttributesFromStatement(Statement *fromStmt) {
-  Lng32 len;
+  int len;
   if (fromStmt) {
     holdable_ = fromStmt->getHoldable();
     rowsetAtomicity_ = fromStmt->getRowsetAtomicity();
@@ -1294,10 +1294,10 @@ void AQRStatementAttributes::getAttributesFromStatement(Statement *fromStmt) {
   return;
 }
 
-Lng32 AQRInfo::setCQDs(Lng32 numCQDs, char *cqdStr, ContextCli *context) {
-  Lng32 rc = 0;
+int AQRInfo::setCQDs(int numCQDs, char *cqdStr, ContextCli *context) {
+  int rc = 0;
   if (numCQDs > 0) {
-    for (Lng32 i = 0; i < numCQDs; i++) {
+    for (int i = 0; i < numCQDs; i++) {
       // for each entry in the cqdStr, extract the corresponding
       // entry from cqdInfo array and execute that cqd.
       // Entries in cqdStr are of the form:
@@ -1305,7 +1305,7 @@ Lng32 AQRInfo::setCQDs(Lng32 numCQDs, char *cqdStr, ContextCli *context) {
       //  For ex:   numCQDs=2 and cqdStr = 01:03
       // would indicate that entries #1 and #3 from the cqdInfo
       // array need to be executed and set.
-      Int64 v = str_atoi(&cqdStr[i * 3], 2);
+      long v = str_atoi(&cqdStr[i * 3], 2);
       if (v <= 0) return -1;
 
       rc = context->holdAndSetCQD(cqdInfo[(v - 1) * 2].str, cqdInfo[(v - 1) * 2 + 1].str);
@@ -1316,11 +1316,11 @@ Lng32 AQRInfo::setCQDs(Lng32 numCQDs, char *cqdStr, ContextCli *context) {
   return 0;
 }
 
-Lng32 AQRInfo::resetCQDs(Lng32 numCQDs, char *cqdStr, ContextCli *context) {
-  Lng32 rc = 0;
+int AQRInfo::resetCQDs(int numCQDs, char *cqdStr, ContextCli *context) {
+  int rc = 0;
   if (numCQDs > 0) {
-    for (Lng32 i = 0; i < numCQDs; i++) {
-      Int64 v = str_atoi(&cqdStr[i * 3], 2);
+    for (int i = 0; i < numCQDs; i++) {
+      long v = str_atoi(&cqdStr[i * 3], 2);
       if (v <= 0) return -1;
 
       rc = context->restoreCQD(cqdInfo[(v - 1) * 2].str);
@@ -1331,11 +1331,11 @@ Lng32 AQRInfo::resetCQDs(Lng32 numCQDs, char *cqdStr, ContextCli *context) {
   return rc;
 }
 
-Lng32 AQRInfo::setCompilerInfo(char *queryId, ComCondition *errCond, ContextCli *context) {
-  Lng32 rc = 0;
+int AQRInfo::setCompilerInfo(char *queryId, ComCondition *errCond, ContextCli *context) {
+  int rc = 0;
   char *csVal = NULL;
 
-  Lng32 len = 0;
+  int len = 0;
   len = strlen("QUERY_ID: ") + strlen(queryId) + 1;
 
   csVal = new (heap_) char[len];
@@ -1347,8 +1347,8 @@ Lng32 AQRInfo::setCompilerInfo(char *queryId, ComCondition *errCond, ContextCli 
   return rc;
 }
 
-Lng32 AQRInfo::resetCompilerInfo(char *queryId, ComCondition *errCond, ContextCli *context) {
-  Lng32 rc = 0;
+int AQRInfo::resetCompilerInfo(char *queryId, ComCondition *errCond, ContextCli *context) {
+  int rc = 0;
 
   rc = context->resetCS("AQR_COMPILER_INFO");
 
@@ -1419,7 +1419,7 @@ SessionEnvvar &SessionEnvvar::operator=(const SessionEnvvar &other) {
 
 SessionEnvvar::SessionEnvvar(const SessionEnvvar &other) { *this = other; }
 
-void SessionDefaults::setParentQid(const char *attrValue, Lng32 attrValueLen) {
+void SessionDefaults::setParentQid(const char *attrValue, int attrValueLen) {
   if (parentQid_) {
     NADELETEBASIC(parentQid_, heap_);
   }
@@ -1436,7 +1436,7 @@ void SessionDefaults::setParentQid(const char *attrValue, Lng32 attrValueLen) {
   updateDefaultsValueString(PARENT_QID, parentQid_);
 }
 
-void SessionDefaults::setParentQidSystem(const char *attrValue, Lng32 attrValueLen) {
+void SessionDefaults::setParentQidSystem(const char *attrValue, int attrValueLen) {
   if (attrValue != NULL) {
     if (attrValueLen == 4 && strncmp(attrValue, "NONE", 4) == 0)
       parentQidSystem_[0] = '\0';

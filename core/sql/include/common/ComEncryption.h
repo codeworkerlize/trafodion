@@ -52,7 +52,7 @@ class ComEncryption : public NABasicObject {
     Int16 rowidCipherType;
     Int16 dataCipherType;
     Int32 flags;
-    Int64 encryptionKeyID;
+    long encryptionKeyID;
     Int32 rowIdKeyLen;
     unsigned char rowIdKey[EVP_MAX_KEY_LENGTH];
     Int32 dataKeyLen;
@@ -107,7 +107,7 @@ class ComEncryption : public NABasicObject {
 
   static void resetFlag(EncryptionInfo &ei, Int32 bitFlags) { ei.flags &= ~bitFlags; }
 
-  static short initEncryptionInfo(Int64 encryptionKeyID, Int16 rowidCipherType, Int16 dataCipherType,
+  static short initEncryptionInfo(long encryptionKeyID, Int16 rowidCipherType, Int16 dataCipherType,
                                   EncryptionInfo &ei);
 
   static short setRowidEncryptionKey(EncryptionInfo &ei);

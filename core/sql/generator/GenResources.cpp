@@ -46,7 +46,7 @@
 
 // static helper function to generate one list of disks
 // (returns an array of ExScratchDiskDrive objects)
-static ExScratchDiskDrive *genScratchDisks(const NAString &def, Lng32 &numDirs, Generator *generator,
+static ExScratchDiskDrive *genScratchDisks(const NAString &def, int &numDirs, Generator *generator,
                                            const char *defName) {
   ExScratchDiskDrive *result = NULL;
 
@@ -71,7 +71,7 @@ static ExScratchDiskDrive *genScratchDisks(const NAString &def, Lng32 &numDirs, 
   LIST(ExScratchDiskDrive *) tempList(heap);
   struct stat st;
 
-  Lng32 nodeNum;
+  int nodeNum;
 
   char *token, *saveptr = NULL;
   // save the pointer to this since token will keep changing.
@@ -99,7 +99,7 @@ static ExScratchDiskDrive *genScratchDisks(const NAString &def, Lng32 &numDirs, 
   // ---------------------------------------------------------------------
   numDirs = tempList.entries();
 
-  Lng32 allDirNamesLen = 0;
+  int allDirNamesLen = 0;
   char *generatedDirNames = NULL;
 
   Int32 i = 0;
@@ -117,7 +117,7 @@ static ExScratchDiskDrive *genScratchDisks(const NAString &def, Lng32 &numDirs, 
   // ---------------------------------------------------------------------
   for (i = 0; i < numDirs; i++) {
     ExScratchDiskDrive *src = tempList[i];
-    Lng32 dirNameLen = src->getDirNameLength();
+    int dirNameLen = src->getDirNameLength();
 
     str_cpy_all(generatedDirNames, src->getDirName(), dirNameLen);
     generatedDirNames[dirNameLen] = 0;
@@ -149,16 +149,16 @@ ExScratchFileOptions *genScratchFileOptions(Generator *generator) {
   CmpCommon::getDefault(sEnum, sDirs, 0);
 
   // convert into executor structures and give warnings for syntax errors
-  Lng32 numEntries;
+  int numEntries;
   ExScratchDiskDrive *l;
 
   l = genScratchDisks(sDirs, numEntries, generator, sDefaultName);
   result->setSpecifiedScratchDirs(l, numEntries);
 
   NADefaults &defs = ActiveSchemaDB()->getDefaults();
-  result->setScratchMgmtOption((Lng32)defs.getAsULong(SCRATCH_MGMT_OPTION));
-  result->setScratchMaxOpensHash((Lng32)defs.getAsULong(SCRATCH_MAX_OPENS_HASH));
-  result->setScratchMaxOpensSort((Lng32)defs.getAsULong(SCRATCH_MAX_OPENS_SORT));
+  result->setScratchMgmtOption((int)defs.getAsULong(SCRATCH_MGMT_OPTION));
+  result->setScratchMaxOpensHash((int)defs.getAsULong(SCRATCH_MAX_OPENS_HASH));
+  result->setScratchMaxOpensSort((int)defs.getAsULong(SCRATCH_MAX_OPENS_SORT));
   if (CmpCommon::getDefault(SCRATCH_PREALLOCATE_EXTENTS) == DF_ON) result->setScratchPreallocateExtents(TRUE);
   if (CmpCommon::getDefault(SCRATCH_DISK_LOGGING) == DF_ON) result->setScratchDiskLogging(TRUE);
   return result;

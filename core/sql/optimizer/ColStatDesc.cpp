@@ -1537,8 +1537,8 @@ CostScalar ColStatDesc::selForRelativeRange(const OperatorTypeEnum op, const Val
     // calculate the multiplier we will use for scaling some constants we want to add
     //   to the hi/lo/cn.
     double scaleMult = 1;
-    Lng32 scale = column.getType().getScale();
-    for (Lng32 i = 0; i < scale; i++) {
+    int scale = column.getType().getScale();
+    for (int i = 0; i < scale; i++) {
       if (scale > 0)
         scaleMult = scaleMult / 10.0;
       else
@@ -2757,8 +2757,8 @@ CostScalar ColStatDescList::adjustRowcountWithHint(const CardinalityHint *cardHi
 // partitioning key
 // -------------------------------------------------------------------
 
-CostScalar ColStatDescList::getCardOfBusiestStream(const PartitioningFunction *partFunc, Lng32 numOfParts,
-                                                   GroupAttributes *groupAttr, Lng32 countOfCPUs) {
+CostScalar ColStatDescList::getCardOfBusiestStream(const PartitioningFunction *partFunc, int numOfParts,
+                                                   GroupAttributes *groupAttr, int countOfCPUs) {
   // get the partitioning key and number of partitions
 
   ValueIdSet partKey = partFunc->getPartitioningKey();
@@ -2779,7 +2779,7 @@ CostScalar ColStatDescList::getCardOfBusiestStream(const PartitioningFunction *p
   //   3) the skew buster partitioning scheme is used.
   if ((partKey.isEmpty()) || (partFunc->isASkewedDataPartitioningFunction()) ||
       (partFunc->isARoundRobinPartitioningFunction())) {
-    Lng32 availableCpus = MINOF(numOfParts, countOfCPUs);
+    int availableCpus = MINOF(numOfParts, countOfCPUs);
     return (rowCount / availableCpus).minCsOne();
   }
 
@@ -4467,7 +4467,7 @@ NABoolean ColStatDescList::applyPred(ItemExpr *pred, CostScalar &newRowcount, Co
           const NAColumnArray &columnList = currLhsColStats->getStatColumns();
           NATable *lhsTable = ((NATable *)columnList[0]->getNATable());
           StatsList &lhsStats = *(lhsTable->getStatistics());
-          Lng32 colPosition = columnList[0]->getPosition();
+          int colPosition = columnList[0]->getPosition();
 
           ColStatsSharedPtr origLhsColStats = lhsStats.getSingleColumnColStats(colPosition);
 
@@ -7579,7 +7579,7 @@ MultiColumnUecList::MultiColumnUecList(const StatsList &initStats, const ValueId
 
     // for each NAColumnArray, map each NAColumn to a ValueId
     for (CollIndex j = 0; j < uecCols.entries(); j++) {
-      Lng32 position = uecCols[j]->getPosition();
+      int position = uecCols[j]->getPosition();
       const ValueId &id = tableColumns[position];
       CostScalar singleColUec = initStats.getSingleColumnUECCount(position);
 
@@ -7732,7 +7732,7 @@ void MultiColumnUecList::initializeMCUecForUniqueIndxes(TableDesc &table, const 
       const NAColumnArray &uecCols = indexList[listi]->getIndexKeyColumns();
       ValueIdSet insertCols;
       for (CollIndex j = 0; j < uecCols.entries(); j++) {
-        Lng32 position = uecCols[j]->getPosition();
+        int position = uecCols[j]->getPosition();
         const ValueId &id = tableColumns[position];
         insertCols.insert(id);
       }  // for all columns in the index
@@ -9661,8 +9661,8 @@ NABoolean MultiColumnUecList::isMCStatsUseful(ValueIdSet columnSet, TableDesc *t
 }  // isMCStatsUseful
 
 CostScalar ColStatDescList::getCardOfBusiestStreamForUnderNJ(CANodeIdSet *outerNodeSet,
-                                                             const PartitioningFunction *partFunc, Lng32 numOfParts,
-                                                             GroupAttributes *groupAttr, Lng32 countOfCPUs)
+                                                             const PartitioningFunction *partFunc, int numOfParts,
+                                                             GroupAttributes *groupAttr, int countOfCPUs)
 
 {
   // get the partitioning key and number of partitions
@@ -9686,7 +9686,7 @@ CostScalar ColStatDescList::getCardOfBusiestStreamForUnderNJ(CANodeIdSet *outerN
   //   3) the skew buster partitioning scheme is used.
   if ((partKey.isEmpty()) || (partFunc->isASkewedDataPartitioningFunction()) ||
       (partFunc->isARoundRobinPartitioningFunction())) {
-    Lng32 availableCpus = MINOF(numOfParts, countOfCPUs);
+    int availableCpus = MINOF(numOfParts, countOfCPUs);
     return (rowCount / availableCpus).minCsOne();
   }
 
@@ -10781,7 +10781,7 @@ MultiColumnSkewedValueLists::MultiColumnSkewedValueLists(const StatsList &initSt
 
     ValueIdList groupCols;
     for (CollIndex j = 0; j < cols.entries(); j++) {
-      Lng32 position = cols[j]->getPosition();
+      int position = cols[j]->getPosition();
       const ValueId &id = tableColumns[position];
       groupCols.insert(id);
     }

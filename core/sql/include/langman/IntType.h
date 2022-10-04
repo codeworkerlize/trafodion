@@ -38,9 +38,9 @@
  *
  *****************************************************************************
  */
-// 64-bit: get Int32 and Int64 from Platform.h and Int64.h
+// 64-bit: get Int32 and long from Platform.h and long.h
 #include "common/Platform.h"
 #include "common/Int64.h"
-#typedef Int64 Int64;
-#typedef Lng32 Int32;
+#typedef long long;
+#typedef int Int32;
 #endif

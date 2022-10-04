@@ -59,7 +59,7 @@ ExLobStats &ExLobStats::operator+(const ExLobStats &other) {
   return *this;
 }
 
-void ExLobStats::getVariableStatsInfo(char *dataBuffer, char *datalen, Lng32 maxLen) {
+void ExLobStats::getVariableStatsInfo(char *dataBuffer, char *datalen, int maxLen) {
   char *buf = dataBuffer;
 
   sprintf(buf, " BytesRead: %ld", bytesRead);

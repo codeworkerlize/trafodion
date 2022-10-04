@@ -483,7 +483,7 @@ Int32 pb_encode_short(unsigned short *dbuf, Int32 dlen_bytes, unsigned short *eb
   return 0;
 }
 
-Int32 ExDecode(unsigned char *ebuf, Int32 elen, unsigned char *dbuf, Int32 *dlen, Lng32 &param1, Lng32 &param2) {
+Int32 ExDecode(unsigned char *ebuf, Int32 elen, unsigned char *dbuf, Int32 *dlen, int &param1, int &param2) {
   comp_buf *b = (comp_buf *)ebuf;
   Int32 saved_checksum = b->u.hdr.checksum;
   Int32 checksum = 0;

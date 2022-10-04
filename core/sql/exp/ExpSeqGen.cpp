@@ -41,13 +41,13 @@
 #include "cli/SQLCLIdev.h"
 #include "exp/ExpSeqGen.h"
 #include "export/ComDiags.h"
-#include "ex_error.h"
+#include "executor/ex_error.h"
 #include "seabed/ms.h"
 
 //**************************************************************************
 // class SeqGenEntry
 //**************************************************************************
-SeqGenEntry::SeqGenEntry(Int64 sgUID, CollHeap *heap) : heap_(heap), sgUID_(sgUID), flags_(0) {
+SeqGenEntry::SeqGenEntry(long sgUID, CollHeap *heap) : heap_(heap), sgUID_(sgUID), flags_(0) {
   cliInterfaceArr_ = NULL;
   retryNum_ = 100;  // default retry times
   ehi_ = NULL;
@@ -59,7 +59,7 @@ SeqGenEntry::~SeqGenEntry() {
 }
 
 short SeqGenEntry::fetchNewRange(SequenceGeneratorAttributes &inSGA) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
 
   // fetch new range from Seq Generator database
   SequenceGeneratorAttributes sga;
@@ -86,7 +86,7 @@ short SeqGenEntry::fetchNewRange(SequenceGeneratorAttributes &inSGA) {
   return 0;
 }
 
-short SeqGenEntry::getNextSeqVal(SequenceGeneratorAttributes &sga, Int64 &seqVal) {
+short SeqGenEntry::getNextSeqVal(SequenceGeneratorAttributes &sga, long &seqVal) {
   short rc = 0;
 
   if (redefTime_ != sga.getSGRedefTime()) {
@@ -109,7 +109,7 @@ short SeqGenEntry::getNextSeqVal(SequenceGeneratorAttributes &sga, Int64 &seqVal
   return 0;
 }
 
-short SeqGenEntry::getNextSeqValOrder(SequenceGeneratorAttributes &sga, Int64 &seqVal) {
+short SeqGenEntry::getNextSeqValOrder(SequenceGeneratorAttributes &sga, long &seqVal) {
   short ret = 0;
   if (ehi_ == NULL) ehi_ = ExpHbaseInterface::newInstance(heap_, (char *)"", (char *)"", COM_STORAGE_HBASE, FALSE);
   // Assert
@@ -133,7 +133,7 @@ short SeqGenEntry::getNextSeqValOrder(SequenceGeneratorAttributes &sga, Int64 &s
   return 0;
 }
 
-short SeqGenEntry::getCurrSeqValOrder(SequenceGeneratorAttributes &sga, Int64 &seqVal) {
+short SeqGenEntry::getCurrSeqValOrder(SequenceGeneratorAttributes &sga, long &seqVal) {
   short ret = 0;
   if (ehi_ == NULL) ehi_ = ExpHbaseInterface::newInstance(heap_, (char *)"", (char *)"", COM_STORAGE_HBASE, FALSE);
   // Assert
@@ -154,7 +154,7 @@ short SeqGenEntry::getCurrSeqValOrder(SequenceGeneratorAttributes &sga, Int64 &s
   return 0;
 }
 
-short SeqGenEntry::getCurrSeqVal(SequenceGeneratorAttributes &sga, Int64 &seqVal) {
+short SeqGenEntry::getCurrSeqVal(SequenceGeneratorAttributes &sga, long &seqVal) {
   short rc = 0;
 
   if (redefTime_ != sga.getSGRedefTime()) {
@@ -172,12 +172,12 @@ short SeqGenEntry::getCurrSeqVal(SequenceGeneratorAttributes &sga, Int64 &seqVal
   return 0;
 }
 
-short SeqGenEntry::validateSeqValOrder(SequenceGeneratorAttributes &sga, Int64 &seqVal) {
-  Int64 seqValTmp = seqVal;
-  Int64 maxVal = sga.getSGMaxValue();
-  Int64 minVal = sga.getSGMinValue();
-  Int64 modOp = maxVal - minVal + 1;
-  Lng32 cliRC = 0;
+short SeqGenEntry::validateSeqValOrder(SequenceGeneratorAttributes &sga, long &seqVal) {
+  long seqValTmp = seqVal;
+  long maxVal = sga.getSGMaxValue();
+  long minVal = sga.getSGMinValue();
+  long modOp = maxVal - minVal + 1;
+  int cliRC = 0;
 
   if (((seqVal > maxVal) || (seqVal < 0)) && (!sga.getSGCycleOption())) {
     return -1579;
@@ -185,16 +185,16 @@ short SeqGenEntry::validateSeqValOrder(SequenceGeneratorAttributes &sga, Int64 &
 
   if (seqVal > maxVal) {
     if (sga.getSGCycleOption()) {
-      Int64 valueToAdd = modOp - (maxVal + 1) % (modOp);
+      long valueToAdd = modOp - (maxVal + 1) % (modOp);
       seqVal = (seqValTmp + valueToAdd) % modOp + minVal;
     }
   }
-  Int64 cache = sga.getSGCache();
+  long cache = sga.getSGCache();
   if (cache == 0)  // no cache
     cache = 1;
-  Int64 xdcInterval = sga.getSGIncrement() * cache;
+  long xdcInterval = sga.getSGIncrement() * cache;
   if ((seqVal % xdcInterval) == 0) {
-    Int64 endValue = seqVal + xdcInterval + sga.getSGIncrement();
+    long endValue = seqVal + xdcInterval + sga.getSGIncrement();
     cliRC = SQL_EXEC_OrderSeqXDCCliInterface(&cliInterfaceArr_, &sga, endValue);
   }
   return cliRC;
@@ -205,7 +205,7 @@ SequenceValueGenerator::SequenceValueGenerator(CollHeap *heap) : heap_(heap), fl
 }
 
 SeqGenEntry *SequenceValueGenerator::getEntry(SequenceGeneratorAttributes &sga) {
-  Int64 hashVal = sga.getSGObjectUID().get_value();
+  long hashVal = sga.getSGObjectUID().get_value();
 
   sgQueue()->position((char *)&hashVal, sizeof(hashVal));
 
@@ -227,7 +227,7 @@ SeqGenEntry *SequenceValueGenerator::getEntry(SequenceGeneratorAttributes &sga) 
   return sge;
 }
 
-short SequenceValueGenerator::getNextSeqVal(SequenceGeneratorAttributes &sga, Int64 &seqVal) {
+short SequenceValueGenerator::getNextSeqVal(SequenceGeneratorAttributes &sga, long &seqVal) {
   short ret = 0;
   SeqGenEntry *sge = getEntry(sga);
   if (sga.getSGOrder()) {
@@ -238,7 +238,7 @@ short SequenceValueGenerator::getNextSeqVal(SequenceGeneratorAttributes &sga, In
     return sge->getNextSeqVal(sga, seqVal);
 }
 
-short SequenceValueGenerator::getCurrSeqVal(SequenceGeneratorAttributes &sga, Int64 &seqVal) {
+short SequenceValueGenerator::getCurrSeqVal(SequenceGeneratorAttributes &sga, long &seqVal) {
   short ret = 0;
   SeqGenEntry *sge = getEntry(sga);
   if (sga.getSGOrder()) {
@@ -249,13 +249,13 @@ short SequenceValueGenerator::getCurrSeqVal(SequenceGeneratorAttributes &sga, In
     return sge->getCurrSeqVal(sga, seqVal);
 }
 
-short SequenceValueGenerator::getIdtmSeqVal(SequenceGeneratorAttributes &sga, Int64 &seqVal, ComDiagsArea **diags) {
+short SequenceValueGenerator::getIdtmSeqVal(SequenceGeneratorAttributes &sga, long &seqVal, ComDiagsArea **diags) {
   Int32 retcode = 0;
   short rc = 0;
   //  system wide unique id option is set, call interface to get the next value from idtmsrv
   Int32 trycount = 0;
-  Int64 idtm_nextVal = 0;
-  Int64 timeout = sga.getSGTimeout();
+  long idtm_nextVal = 0;
+  long timeout = sga.getSGTimeout();
   // For debugging only. Remove after perf tests are complete
   // If timeout value is set as -2, then return without calling idtmserver
   if (timeout == -2) {

@@ -229,8 +229,8 @@ class SharedDescriptorCache : public SharedCache {
   void display();
   char *collectSummaryDataForHeap();
 
-  Lng32 entries(const QualifiedName &inSchName);
-  Lng32 entries();
+  int entries(const QualifiedName &inSchName);
+  int entries();
 
   char *collectSummaryDataForAll();
   char *collectSummaryDataForSchema(const QualifiedName &schemaName);
@@ -280,7 +280,7 @@ class SharedTableDataCache : public SharedCache {
   NABoolean contains(const QualifiedName &name, bool checkAll = false);
 
   NABoolean isEnable(const QualifiedName &name);
-  Lng32 entries();
+  int entries();
   void findAll();
 
  protected:

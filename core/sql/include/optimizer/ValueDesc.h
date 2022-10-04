@@ -250,13 +250,13 @@ const ValueId NULL_VALUE_ID((CollIndex)0);
 
 class ValueIdArray : public ARRAY(ValueId) {
  public:
-  ValueIdArray(Lng32 numberOfElements = 0) : NAArray<ValueId>(CmpCommon::statementHeap(), numberOfElements) {}
+  ValueIdArray(int numberOfElements = 0) : NAArray<ValueId>(CmpCommon::statementHeap(), numberOfElements) {}
 
   // copy ctor
   ValueIdArray(const ValueIdArray &orig) : NAArray<ValueId>(orig, CmpCommon::statementHeap()) {}
 
   // constructor that takes a ValueIdList
-  ValueIdArray(const ValueIdList &orig, Lng32 numberOfElements);
+  ValueIdArray(const ValueIdList &orig, int numberOfElements);
 
  private:
 };  // class ValueIdArray
@@ -270,7 +270,7 @@ class ValueIdList : public LIST(ValueId) {
   // --------------------------------------------------------------------
   // Constructor that pre allocates storage for the list.
   // --------------------------------------------------------------------
-  ValueIdList(Lng32 numberOfElements = 0, CollHeap *h = CmpCommon::statementHeap())
+  ValueIdList(int numberOfElements = 0, CollHeap *h = CmpCommon::statementHeap())
       : NAList<ValueId>(h, numberOfElements) {
     (*counter_).incrementCounter();
   }
@@ -310,7 +310,7 @@ class ValueIdList : public LIST(ValueId) {
   //  return 2 when this = [1, 2, 3, 4], and x = {1, 2, 4}
   //  return 0 when this = [1, 2, 3, 4], and x = {2, 4}
   //  return 1 when this = [1], and x = {1, 2}
-  Lng32 findPrefixLength(const ValueIdSet &x) const;
+  int findPrefixLength(const ValueIdSet &x) const;
 
   // --------------------------------------------------------------------
   // transformNode()
@@ -488,24 +488,24 @@ class ValueIdList : public LIST(ValueId) {
   // ---------------------------------------------------------------------
   //  Calculate the number of character columns
   // ---------------------------------------------------------------------
-  Lng32 getNumOfCharColumns() const;
+  int getNumOfCharColumns() const;
 
   // ---------------------------------------------------------------------
   // Calculate the length of the row containing all the value ids
   // ---------------------------------------------------------------------
-  Lng32 getRowLength() const;
+  int getRowLength() const;
 
   // ---------------------------------------------------------------------
   // Calculate the length of the row containing all the value ids
   // except those of type NA_CHARACTER_TYPE
   // ---------------------------------------------------------------------
-  Lng32 getRowLengthOfNonCharColumns() const;
+  int getRowLengthOfNonCharColumns() const;
 
   // ---------------------------------------------------------------------
   // Calculate the length of numeric type vids in the row containing all
   // the value ids
   // ---------------------------------------------------------------------
-  Lng32 getRowLengthOfNumericCols() const;
+  int getRowLengthOfNumericCols() const;
 
   // ---------------------------------------------------------------------
   // Calculate the space needed in an sql_buffer for Mdam values.
@@ -513,7 +513,7 @@ class ValueIdList : public LIST(ValueId) {
   // There are five per key column.  Data in sql_buffer is eight-byte
   // alligned.
   // ---------------------------------------------------------------------
-  Lng32 getMdamSqlBufferSpace() const;
+  int getMdamSqlBufferSpace() const;
 
   // ---------------------------------------------------------------------
   // rebuildExprTree()
@@ -620,8 +620,8 @@ class ValueIdList : public LIST(ValueId) {
       ExpTupleDesc::TupleDataFormat tf,  //(IN): tuple format of resulting expr(s)
       char *resultBuffer,                //(INOUT): tuple buffer of resulting expr(s)
       ULng32 resultBufferLength,         //(IN): length of the result buffer
-      Lng32 *length = NULL,              //(OUT) : length of 1st result expr
-      Lng32 *offset = NULL               //(OUT) : offset of 1st result expr
+      int *length = NULL,              //(OUT) : length of 1st result expr
+      int *offset = NULL               //(OUT) : offset of 1st result expr
       ,
       ComDiagsArea *diagsArea = NULL, NAHeap *workingHeap = NULL) const;
 
@@ -644,10 +644,10 @@ class ValueIdList : public LIST(ValueId) {
   // 2.- encodedKeyBuffer, which is a pointer to the result.
   // 3.- The length of the result
   //
-  static short evaluateTree(const ItemExpr *root, char *encodedKeyBuffer, ULng32 encodedKeyLength, Lng32 *length,
-                            Lng32 *offset, ComDiagsArea *diagsArea = NULL);
+  static short evaluateTree(const ItemExpr *root, char *encodedKeyBuffer, ULng32 encodedKeyLength, int *length,
+                            int *offset, ComDiagsArea *diagsArea = NULL);
 
-  static Lng32 evaluateConstantTree(const ValueId &parent, const ValueId &ch, Int32 childNumber, ItemExpr **outItemExpr,
+  static int evaluateConstantTree(const ValueId &parent, const ValueId &ch, Int32 childNumber, ItemExpr **outItemExpr,
                                     ComDiagsArea *diagsArea = NULL);
 
   static Int32 evaluateExpr(const ValueId &parent, const ValueId &ch, Int32 childNumber, NABoolean simplifyExpr = TRUE,
@@ -727,24 +727,24 @@ class ValueIdSet : public ClusteredBitmap {
   // ---------------------------------------------------------------------
   //  Calculate the number of character columns
   // ---------------------------------------------------------------------
-  Lng32 getNumOfCharColumns() const;
+  int getNumOfCharColumns() const;
 
   // ---------------------------------------------------------------------
   // Calculate the estimated length of the row containing all the value ids
   // ---------------------------------------------------------------------
-  Lng32 getRowLength() const;
+  int getRowLength() const;
 
   // ---------------------------------------------------------------------
   // Calculate the estimated length of the row containing all the value ids
   // except those of type NA_CHARACTER_TYPE
   // ---------------------------------------------------------------------
-  Lng32 getRowLengthOfNonCharColumns() const;
+  int getRowLengthOfNonCharColumns() const;
 
   // ---------------------------------------------------------------------
   // Calculate the length of numeric type vids in the row containing all
   // the value ids
   // ---------------------------------------------------------------------
-  Lng32 getRowLengthOfNumericCols() const;
+  int getRowLengthOfNumericCols() const;
 
   // ---------------------------------------------------------------------
   // Iterator methods for a ValueIdSet
@@ -1694,7 +1694,7 @@ class ValueIdCostScalarArray {
     csArray_.insertAt(idx, cs);
   }
 
-  inline Lng32 entries() const { return vidArray_.entries(); }
+  inline int entries() const { return vidArray_.entries(); }
 
  private:
   ARRAY(ValueId) vidArray_;

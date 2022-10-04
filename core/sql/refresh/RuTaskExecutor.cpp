@@ -185,16 +185,16 @@ void CRUTaskExecutor::LeaveTransaction() {
 //	CRUTaskExecutor::StoreData()
 //--------------------------------------------------------------------------//
 void CRUTaskExecutor::StoreData(CUOFsIpcMessageTranslator &translator) {
-  translator.WriteBlock(&state_, sizeof(Lng32));
-  translator.WriteBlock(&processId_, sizeof(Lng32));
+  translator.WriteBlock(&state_, sizeof(int));
+  translator.WriteBlock(&processId_, sizeof(int));
 }
 
 //--------------------------------------------------------------------------//
 //	CRUTaskExecutor::LoadData()
 //--------------------------------------------------------------------------//
 void CRUTaskExecutor::LoadData(CUOFsIpcMessageTranslator &translator) {
-  translator.ReadBlock(&state_, sizeof(Lng32));
-  translator.ReadBlock(&processId_, sizeof(Lng32));
+  translator.ReadBlock(&state_, sizeof(int));
+  translator.ReadBlock(&processId_, sizeof(int));
 }
 
 //--------------------------------------------------------------------------//
@@ -208,7 +208,7 @@ void CRUTaskExecutor::AllocateBuffer() {
   RUASSERT(NULL == pIpcBuffer_ && NULL == pIpcTranslator_);
 
   // The value depends on the type of task (pure virtual)
-  Lng32 bufsize = GetIpcBufferSize();
+  int bufsize = GetIpcBufferSize();
 
 #ifdef _DEBUG
   // Force here an artificially small buffer size for testing purposes
@@ -264,7 +264,7 @@ void CRUTaskExecutor::ReAllocateBuffer(Int32 factor) {
 //
 //--------------------------------------------------------------------------//
 
-void CRUTaskExecutor::ExecuteStatement(CDMPreparedStatement &stmt, Lng32 errorCode, const char *errorArgument,
+void CRUTaskExecutor::ExecuteStatement(CDMPreparedStatement &stmt, int errorCode, const char *errorArgument,
                                        BOOL needRowCount, BOOL isQuery) {
   //++ MV - Eran
   // Adding retry mechanism
@@ -319,7 +319,7 @@ void CRUTaskExecutor::ExecuteStatement(CDMPreparedStatement &stmt, Lng32 errorCo
 //	error code and (optionally) a string argument.
 //
 //--------------------------------------------------------------------------//
-void CRUTaskExecutor::HandleSqlError(CDSException &ex, Lng32 errorCode, const char *errorArgument) {
+void CRUTaskExecutor::HandleSqlError(CDSException &ex, int errorCode, const char *errorArgument) {
   ex.SetError(errorCode);
 
   if (NULL != errorArgument) {

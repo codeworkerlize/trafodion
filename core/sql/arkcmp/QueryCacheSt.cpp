@@ -40,7 +40,7 @@
 #include "cli/Context.h"
 #include "arkcmp/CmpStoredProc.h"
 
-SP_STATUS QueryCacheStatStoredProcedure::sp_InputFormat(SP_FIELDDESC_STRUCT *inputFieldFormat, Lng32 numFields,
+SP_STATUS QueryCacheStatStoredProcedure::sp_InputFormat(SP_FIELDDESC_STRUCT *inputFieldFormat, int numFields,
                                                         SP_COMPILE_HANDLE spCompileObj, SP_HANDLE spObj,
                                                         SP_ERROR_STRUCT *error) {
   if (numFields != 2) {
@@ -57,7 +57,7 @@ SP_STATUS QueryCacheStatStoredProcedure::sp_InputFormat(SP_FIELDDESC_STRUCT *inp
   return SP_SUCCESS;
 }
 
-SP_STATUS QueryCacheStatStoredProcedure::sp_NumOutputFields(Lng32 *numFields, SP_COMPILE_HANDLE spCompileObj,
+SP_STATUS QueryCacheStatStoredProcedure::sp_NumOutputFields(int *numFields, SP_COMPILE_HANDLE spCompileObj,
                                                             SP_HANDLE spObj, SP_ERROR_STRUCT *error) {
   *numFields = 21;
   return SP_SUCCESS;
@@ -65,7 +65,7 @@ SP_STATUS QueryCacheStatStoredProcedure::sp_NumOutputFields(Lng32 *numFields, SP
 
 // Specifies the columns of the QueryCache table and their types
 SP_STATUS QueryCacheStatStoredProcedure::sp_OutputFormat(SP_FIELDDESC_STRUCT *format, SP_KEYDESC_STRUCT keyFields[],
-                                                         Lng32 *numKeyFields, SP_HANDLE spCompileObj, SP_HANDLE spObj,
+                                                         int *numKeyFields, SP_HANDLE spCompileObj, SP_HANDLE spObj,
                                                          SP_ERROR_STRUCT *error) {
   strcpy(&((format++)->COLUMN_DEF[0]), "Avg_template_size     	INT UNSIGNED");                       //  0
   strcpy(&((format++)->COLUMN_DEF[0]), "Current_size       	INT UNSIGNED");                       //  1
@@ -155,7 +155,7 @@ QueryCacheStatStoredProcedure::sp_Process(SP_PROCESS_ACTION action, SP_ROW_DATA 
         break;
     }
 
-    fFunc(15, outputData, (Lng32)strlen(optimizationLevel), optimizationLevel, 1);
+    fFunc(15, outputData, (int)strlen(optimizationLevel), optimizationLevel, 1);
     fFunc(16, outputData, sizeof(stats.s.nCacheHitsPP), &(stats.s.nCacheHitsPP), 0);
     fFunc(17, outputData, sizeof(stats.avgTEntSize), &(stats.avgTEntSize), 0);
     fFunc(18, outputData, sizeof(stats.nTextEntries), &(stats.nTextEntries), 0);
@@ -179,7 +179,7 @@ void QueryCacheStatStoredProcedure::Initialize(SP_REGISTER_FUNCPTR regFunc) {
           CMPISPVERSION);
 }
 
-SP_STATUS QueryCacheEntriesStoredProcedure::sp_InputFormat(SP_FIELDDESC_STRUCT *inputFieldFormat, Lng32 numFields,
+SP_STATUS QueryCacheEntriesStoredProcedure::sp_InputFormat(SP_FIELDDESC_STRUCT *inputFieldFormat, int numFields,
                                                            SP_COMPILE_HANDLE spCompileObj, SP_HANDLE spObj,
                                                            SP_ERROR_STRUCT *error) {
   if (numFields != 2) {
@@ -197,7 +197,7 @@ SP_STATUS QueryCacheEntriesStoredProcedure::sp_InputFormat(SP_FIELDDESC_STRUCT *
 }
 
 SP_STATUS
-QueryCacheEntriesStoredProcedure::sp_NumOutputFields(Lng32 *numFields, SP_COMPILE_HANDLE spCompileObj, SP_HANDLE spObj,
+QueryCacheEntriesStoredProcedure::sp_NumOutputFields(int *numFields, SP_COMPILE_HANDLE spCompileObj, SP_HANDLE spObj,
                                                      SP_ERROR_STRUCT *error) {
   *numFields = 23;
   return SP_SUCCESS;
@@ -206,7 +206,7 @@ QueryCacheEntriesStoredProcedure::sp_NumOutputFields(Lng32 *numFields, SP_COMPIL
 // Specifies the columns of the QueryCacheEntries table and their types
 SP_STATUS QueryCacheEntriesStoredProcedure::sp_OutputFormat(SP_FIELDDESC_STRUCT *format,
                                                             SP_KEYDESC_STRUCT * /*keyFields */,
-                                                            Lng32 * /*numKeyFields */, SP_COMPILE_HANDLE cmpHandle,
+                                                            int * /*numKeyFields */, SP_COMPILE_HANDLE cmpHandle,
                                                             SP_HANDLE /* spHandle */, SP_ERROR_STRUCT * /* error */) {
   strcpy(&((format++)->COLUMN_DEF[0]), "Row_id        		INT UNSIGNED");
   strcpy(&((format++)->COLUMN_DEF[0]), "Plan_id     		LARGEINT");
@@ -274,7 +274,7 @@ SP_STATUS QueryCacheEntriesStoredProcedure::sp_Process(SP_PROCESS_ACTION action,
         strncpy(temp + 4, details.qryTxt, len);
         fFunc(2, outputData, len + 4, (void *)temp, 1);
       } else
-        fFunc(2, outputData, (Lng32)strlen(details.qryTxt), (void *)(details.qryTxt), 1);
+        fFunc(2, outputData, (int)strlen(details.qryTxt), (void *)(details.qryTxt), 1);
       fFunc(3, outputData, sizeof(details.entrySize), &(details.entrySize), 0);
       fFunc(4, outputData, sizeof(details.planLength), &(details.planLength), 0);
       fFunc(5, outputData, sizeof(details.nOfHits), &(details.nOfHits), 0);
@@ -295,7 +295,7 @@ SP_STATUS QueryCacheEntriesStoredProcedure::sp_Process(SP_PROCESS_ACTION action,
           strcpy(phase, "UNKNOWN   ");
           break;
       }
-      fFunc(6, outputData, (Lng32)strlen(phase), phase, 1);
+      fFunc(6, outputData, (int)strlen(phase), phase, 1);
 
       char optimizationLevel[8];
 
@@ -316,25 +316,25 @@ SP_STATUS QueryCacheEntriesStoredProcedure::sp_Process(SP_PROCESS_ACTION action,
           strcpy(optimizationLevel, "UNKNOWN");
           break;
       }
-      fFunc(7, outputData, (Lng32)strlen(optimizationLevel), optimizationLevel, 1);
-      fFunc(8, outputData, (Lng32)strlen(details.catalog), (void *)(details.catalog), 1);
-      fFunc(9, outputData, (Lng32)strlen(details.schema), (void *)(details.schema), 1);
+      fFunc(7, outputData, (int)strlen(optimizationLevel), optimizationLevel, 1);
+      fFunc(8, outputData, (int)strlen(details.catalog), (void *)(details.catalog), 1);
+      fFunc(9, outputData, (int)strlen(details.schema), (void *)(details.schema), 1);
       fFunc(10, outputData, sizeof(details.nParams), &(details.nParams), 0);
-      fFunc(11, outputData, (Lng32)strlen(details.paramTypes), (void *)(details.paramTypes), 1);
+      fFunc(11, outputData, (int)strlen(details.paramTypes), (void *)(details.paramTypes), 1);
 
       ULong time = details.compTime / 1000;
       fFunc(12, outputData, sizeof(time), &(time), 0);
       time = details.avgHitTime / 1000;
       fFunc(13, outputData, sizeof(time), &(time), 0);
-      fFunc(14, outputData, (Lng32)strlen(details.reqdShape), (void *)(details.reqdShape), 1);
+      fFunc(14, outputData, (int)strlen(details.reqdShape), (void *)(details.reqdShape), 1);
 
       char isolationLevel[18];
 
       setIsolationLevelAsString(details.isoLvl, isolationLevel, 18);
-      fFunc(15, outputData, (Lng32)strlen(isolationLevel), isolationLevel, 1);
+      fFunc(15, outputData, (int)strlen(isolationLevel), isolationLevel, 1);
 
       setIsolationLevelAsString(details.isoLvlForUpdates, isolationLevel, 18);
-      fFunc(16, outputData, (Lng32)strlen(isolationLevel), isolationLevel, 1);
+      fFunc(16, outputData, (int)strlen(isolationLevel), isolationLevel, 1);
 
       char accessMode[14];
       switch (details.accMode) {
@@ -349,7 +349,7 @@ SP_STATUS QueryCacheEntriesStoredProcedure::sp_Process(SP_PROCESS_ACTION action,
           strcpy(accessMode, "NOT SPECIFIED");
           break;
       }
-      fFunc(17, outputData, (Lng32)strlen(accessMode), accessMode, 1);
+      fFunc(17, outputData, (int)strlen(accessMode), accessMode, 1);
 
       char autoCommit[14];
       switch (details.autoCmt) {
@@ -363,7 +363,7 @@ SP_STATUS QueryCacheEntriesStoredProcedure::sp_Process(SP_PROCESS_ACTION action,
           strcpy(autoCommit, "NOT SPECIFIED");
           break;
       }
-      fFunc(18, outputData, (Lng32)strlen(autoCommit), autoCommit, 1);
+      fFunc(18, outputData, (int)strlen(autoCommit), autoCommit, 1);
 
       char rollBackMode[14];
       switch (details.rbackMode) {
@@ -377,7 +377,7 @@ SP_STATUS QueryCacheEntriesStoredProcedure::sp_Process(SP_PROCESS_ACTION action,
           strcpy(rollBackMode, "NOT SPECIFIED");
           break;
       }
-      fFunc(19, outputData, (Lng32)strlen(rollBackMode), rollBackMode, 1);
+      fFunc(19, outputData, (int)strlen(rollBackMode), rollBackMode, 1);
 
       fFunc(20, outputData, sizeof(details.hash), &(details.hash), 0);
 
@@ -446,7 +446,7 @@ void QueryCacheDeleteStoredProcedure::Initialize(SP_REGISTER_FUNCPTR regFunc) {
           CMPISPVERSION);
 }
 
-SP_STATUS QueryCacheDeleteStoredProcedure::sp_InputFormat(SP_FIELDDESC_STRUCT *inputFieldFormat, Lng32 numFields,
+SP_STATUS QueryCacheDeleteStoredProcedure::sp_InputFormat(SP_FIELDDESC_STRUCT *inputFieldFormat, int numFields,
                                                           SP_COMPILE_HANDLE spCompileObj, SP_HANDLE spObj,
                                                           SP_ERROR_STRUCT *error) {
   if (numFields != 2) {
@@ -469,7 +469,7 @@ void HybridQueryCacheStatStoredProcedure::Initialize(SP_REGISTER_FUNCPTR regFunc
           CMPISPVERSION);
 }
 
-SP_STATUS HybridQueryCacheStatStoredProcedure::sp_InputFormat(SP_FIELDDESC_STRUCT *inputFieldFormat, Lng32 numFields,
+SP_STATUS HybridQueryCacheStatStoredProcedure::sp_InputFormat(SP_FIELDDESC_STRUCT *inputFieldFormat, int numFields,
                                                               SP_COMPILE_HANDLE spCompileObj, SP_HANDLE spObj,
                                                               SP_ERROR_STRUCT *error) {
   if (numFields != 2) {
@@ -487,7 +487,7 @@ SP_STATUS HybridQueryCacheStatStoredProcedure::sp_InputFormat(SP_FIELDDESC_STRUC
 }
 
 SP_STATUS
-HybridQueryCacheStatStoredProcedure::sp_NumOutputFields(Lng32 *numFields, SP_COMPILE_HANDLE spCompileObj,
+HybridQueryCacheStatStoredProcedure::sp_NumOutputFields(int *numFields, SP_COMPILE_HANDLE spCompileObj,
                                                         SP_HANDLE spObj, SP_ERROR_STRUCT *error) {
   *numFields = 5;
   return SP_SUCCESS;
@@ -495,7 +495,7 @@ HybridQueryCacheStatStoredProcedure::sp_NumOutputFields(Lng32 *numFields, SP_COM
 
 SP_STATUS HybridQueryCacheStatStoredProcedure::sp_OutputFormat(SP_FIELDDESC_STRUCT *format,
                                                                SP_KEYDESC_STRUCT * /*keyFields */,
-                                                               Lng32 * /*numKeyFields */, SP_COMPILE_HANDLE cmpHandle,
+                                                               int * /*numKeyFields */, SP_COMPILE_HANDLE cmpHandle,
                                                                SP_HANDLE /* spHandle */,
                                                                SP_ERROR_STRUCT * /* error */) {
   strcpy(&((format++)->COLUMN_DEF[0]), "num_hkeys                                    INT UNSIGNED");
@@ -555,7 +555,7 @@ void HybridQueryCacheEntriesStoredProcedure::Initialize(SP_REGISTER_FUNCPTR regF
           CMPISPVERSION);
 }
 
-SP_STATUS HybridQueryCacheEntriesStoredProcedure::sp_InputFormat(SP_FIELDDESC_STRUCT *inputFieldFormat, Lng32 numFields,
+SP_STATUS HybridQueryCacheEntriesStoredProcedure::sp_InputFormat(SP_FIELDDESC_STRUCT *inputFieldFormat, int numFields,
                                                                  SP_COMPILE_HANDLE spCompileObj, SP_HANDLE spObj,
                                                                  SP_ERROR_STRUCT *error) {
   if (numFields != 2) {
@@ -573,7 +573,7 @@ SP_STATUS HybridQueryCacheEntriesStoredProcedure::sp_InputFormat(SP_FIELDDESC_ST
 }
 
 SP_STATUS
-HybridQueryCacheEntriesStoredProcedure::sp_NumOutputFields(Lng32 *numFields, SP_COMPILE_HANDLE spCompileObj,
+HybridQueryCacheEntriesStoredProcedure::sp_NumOutputFields(int *numFields, SP_COMPILE_HANDLE spCompileObj,
                                                            SP_HANDLE spObj, SP_ERROR_STRUCT *error) {
   *numFields = 8;
   return SP_SUCCESS;
@@ -581,7 +581,7 @@ HybridQueryCacheEntriesStoredProcedure::sp_NumOutputFields(Lng32 *numFields, SP_
 
 SP_STATUS HybridQueryCacheEntriesStoredProcedure::sp_OutputFormat(SP_FIELDDESC_STRUCT *format,
                                                                   SP_KEYDESC_STRUCT * /*keyFields */,
-                                                                  Lng32 * /*numKeyFields */,
+                                                                  int * /*numKeyFields */,
                                                                   SP_COMPILE_HANDLE cmpHandle, SP_HANDLE /* spHandle */,
                                                                   SP_ERROR_STRUCT * /* error */) {
   strcpy(&((format++)->COLUMN_DEF[0]), "plan_id     		LARGEINT");
@@ -621,23 +621,23 @@ SP_STATUS HybridQueryCacheEntriesStoredProcedure::sp_Process(SP_PROCESS_ACTION a
 
       fFunc(0, outputData, sizeof(details.planId), &(details.planId), 0);
 
-      Lng32 len = (Lng32)details.hkeyTxt.length() < 2048 ? (Lng32)details.hkeyTxt.length() : 2048;
+      int len = (int)details.hkeyTxt.length() < 2048 ? (int)details.hkeyTxt.length() : 2048;
       fFunc(1, outputData, len, (void *)(details.hkeyTxt.data()), 1);
 
-      len = (Lng32)details.skeyTxt.length() < 2048 ? (Lng32)details.skeyTxt.length() : 2048;
-      fFunc(2, outputData, (Lng32)details.skeyTxt.length(), (void *)(details.skeyTxt.data()), 1);
+      len = (int)details.skeyTxt.length() < 2048 ? (int)details.skeyTxt.length() : 2048;
+      fFunc(2, outputData, (int)details.skeyTxt.length(), (void *)(details.skeyTxt.data()), 1);
 
       fFunc(3, outputData, sizeof(details.nHits), &(details.nHits), 0);
 
       fFunc(4, outputData, sizeof(details.nOfPConst), &(details.nOfPConst), 0);
 
-      len = (Lng32)details.PConst.length() < 1024 ? (Lng32)details.PConst.length() : 1024;
-      fFunc(5, outputData, (Lng32)details.PConst.length(), (void *)(details.PConst.data()), 1);
+      len = (int)details.PConst.length() < 1024 ? (int)details.PConst.length() : 1024;
+      fFunc(5, outputData, (int)details.PConst.length(), (void *)(details.PConst.data()), 1);
 
       fFunc(6, outputData, sizeof(details.nOfNPConst), &(details.nOfNPConst), 0);
 
-      len = (Lng32)details.NPConst.length() < 1024 ? (Lng32)details.NPConst.length() : 1024;
-      fFunc(7, outputData, (Lng32)details.NPConst.length(), (void *)(details.NPConst.data()), 1);
+      len = (int)details.NPConst.length() < 1024 ? (int)details.NPConst.length() : 1024;
+      fFunc(7, outputData, (int)details.NPConst.length(), (void *)(details.NPConst.data()), 1);
 
       return SP_MOREDATA;
     } break;
@@ -661,7 +661,7 @@ NABoolean ISPIterator::initializeISPCaches(SP_ROW_DATA inputData, SP_EXTRACT_FUN
   // extract ISP input, find QueryCache belonging to specified context
   // and use it for fetch later
   CmpSPExecDataItemInput *inPtr = (CmpSPExecDataItemInput *)inputData;
-  Lng32 maxSize = inPtr->rowLength();
+  int maxSize = inPtr->rowLength();
   char *receivingField;
 
   if (heap_)
@@ -669,7 +669,7 @@ NABoolean ISPIterator::initializeISPCaches(SP_ROW_DATA inputData, SP_EXTRACT_FUN
   else
     receivingField = new char[maxSize + 1];
 
-  if (eFunc(0, inputData, (Lng32)maxSize, receivingField, FALSE) == SP_ERROR_EXTRACT_DATA) {
+  if (eFunc(0, inputData, (int)maxSize, receivingField, FALSE) == SP_ERROR_EXTRACT_DATA) {
     error->error = arkcmpErrorISPFieldDef;
     if (heap_)
       NADELETEBASIC(receivingField, heap_);

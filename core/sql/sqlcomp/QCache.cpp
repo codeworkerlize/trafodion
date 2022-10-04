@@ -46,7 +46,7 @@
 #include "optimizer/ValueDesc.h"
 #include "optimizer/SchemaDB.h"
 #include "optimizer/ControlDB.h"
-#include "CmpErrLog.h"
+#include "arkcmp/CmpErrLog.h"
 #include "optimizer/CompilerTracking.h"
 #include "exp/exp_clause_derived.h"
 #include "common/NumericType.h"
@@ -69,7 +69,7 @@ ofstream fileForExport;
 NABoolean isCompacting = FALSE;
 NABoolean isExporting = FALSE;
 
-void int64TimetoStr(Int64 i, char *c) {
+void int64TimetoStr(long i, char *c) {
   time_t t = time_t(i);
   tm *_tm = localtime(&t);
   int year = _tm->tm_year + 1900;
@@ -1357,7 +1357,7 @@ const char *CacheKey::getParameterTypes(NAString *parameterTypes) const {
 }
 
 // constructor used by CacheWA::getKey() to construct a query's TextKey
-TextKey::TextKey(const char *sText, CompilerEnv *e, NAHeap *h, Lng32 cSet)
+TextKey::TextKey(const char *sText, CompilerEnv *e, NAHeap *h, int cSet)
     : Key(CmpMain::PREPARSE, e, h), charset_(cSet) {
   // strip some useless character in sText
   size_t start = 0;            // Index of first character
@@ -1477,7 +1477,7 @@ Plan::Plan(Plan &s, NAHeap *h)
     //
     if (planL_ > 0) {
       plan_ = new (h) char[planL_];
-      str_cpy_all(plan_, s.plan_, (Lng32)planL_);
+      str_cpy_all(plan_, s.plan_, (int)planL_);
     } else {
       // Otherwise, this is a pointer to the generator that has access
       // to the plan.  Convert to a contiguous packed plan on copy.
@@ -1520,7 +1520,7 @@ void Plan::packIntoBuffer(TMUDRSerializableObject &t, char *&buffer, int &buffer
 Plan *Plan::unpackFromBuffer(TMUDRSerializableObject &t, const char *&buffer, int &bufferSize) {
   ULng32 plen;
   t.deserializeInt((int &)plen, buffer, bufferSize);
-  Int64 id;
+  long id;
   t.deserializeLong(id, buffer, bufferSize);
   const char *cs;
   int size;
@@ -1538,8 +1538,8 @@ const Int32 initialTextPtrArrayLen = 10;
 // constructor used by CmpMain::sqlcomp on a cache miss to create a new
 // cache entry of a compiled plan for possible addition into the cache.
 CacheData::CacheData(Generator *plan, const ParameterTypeList &f, const SelParamTypeList &s, LIST(Int32) hqcParamPos,
-                     LIST(Int32) hqcSelPos, LIST(Int32) hqcConstPos, Int64 planId, const char *text, Lng32 cs,
-                     Int64 queryHash, NAHeap *h)
+                     LIST(Int32) hqcSelPos, LIST(Int32) hqcConstPos, long planId, const char *text, int cs,
+                     long queryHash, NAHeap *h)
     : CData(h),
       formals_(f, h),
       fSels_(s, h),
@@ -1758,10 +1758,10 @@ CacheData *CacheData::unpackFromBuffer(ComDiagsArea *diags, TMUDRSerializableObj
   memcpy(normalizedStmt, temp, size);
   normalizedStmt[size] = 0;
 
-  Lng32 charset;
+  int charset;
   t.deserializeInt(charset, buffer, bufferSize);
 
-  Int64 queryHash;
+  long queryHash;
   t.deserializeLong(queryHash, buffer, bufferSize);
 
   t.deserializeInt(paramSize, buffer, bufferSize);
@@ -1834,7 +1834,7 @@ ULng32 TextData::getSize() const {
 void CacheData::allocNcopyPlan(NAHeap *h, char **plan, ULng32 *pLen) {
   *pLen = plan_->getPlanLen();
   *plan = new (h) char[*pLen];
-  str_cpy_all(*plan, plan_->getPlan(), (Lng32)*pLen);
+  str_cpy_all(*plan, plan_->getPlan(), (int)*pLen);
 }
 
 // helper method to unpack parameter buffer part of plan_
@@ -1985,7 +1985,7 @@ NABoolean CacheData::backpatchParams(LIST(hqcConstant *) & listOfConstantParamet
   }  // QUERY_CACHE_USE_CONVDOIT_FOR_BACKPATCH is OFF
   else {
     char *targetBugPtr = parameterBuffer.getPointer();
-    Lng32 offset = 0;
+    int offset = 0;
     CollIndex x = 0;
     CollIndex y = 0;
 
@@ -1998,14 +1998,14 @@ NABoolean CacheData::backpatchParams(LIST(hqcConstant *) & listOfConstantParamet
       targetType = CONST_CAST(NAType *, hqcTypes[j]);
 
       sourceType = constVal->getType();
-      Lng32 targetLen = targetType->getNominalSize();
-      Lng32 sourceScale = constVal->getType()->getScale();
-      Lng32 targetScale = targetType->getScale();
-      Lng32 varCharLenSize = 0;
+      int targetLen = targetType->getNominalSize();
+      int sourceScale = constVal->getType()->getScale();
+      int targetScale = targetType->getScale();
+      int varCharLenSize = 0;
       char *varCharLen = NULL;
 
       if ((targetType->getFSDatatype() >= REC_MIN_NUMERIC) and (targetType->getFSDatatype() <= REC_MAX_FLOAT)) {
-        Lng32 extraBuffer = targetLen - (offset % targetLen);
+        int extraBuffer = targetLen - (offset % targetLen);
         if (extraBuffer != targetLen) offset += extraBuffer;
       }
 
@@ -2028,7 +2028,7 @@ NABoolean CacheData::backpatchParams(LIST(hqcConstant *) & listOfConstantParamet
 
       char *charVal = (char *)(constVal->getConstValue());
       Int32 val = 0;
-      Int64 val64 = 0;
+      long val64 = 0;
       short source_fstype = (short)sourceType->getFSDatatype();
 
       // NEED TO TEST FOR BIGNUM
@@ -2044,13 +2044,13 @@ NABoolean CacheData::backpatchParams(LIST(hqcConstant *) & listOfConstantParamet
       // NEED TO TEST FOR DECIMAL
       if ((targetType->getTypeQualifier() == NA_NUMERIC_TYPE) &&
           (((NumericType *)targetType)->getSimpleTypeName() == "DECIMAL") && (targetScale > sourceScale)) {
-        val64 = *((Int64 *)(constVal->getConstValue()));
+        val64 = *((long *)(constVal->getConstValue()));
         val64 = val64 * pow(10, targetScale - sourceScale);
         charVal = (char *)(&val64);
         source_fstype = ((NumericType *)sourceType)->isUnsigned() ? REC_BIN64_UNSIGNED : REC_BIN64_SIGNED;
       }
 
-      Lng32 dataConversionErrorFlag = 0;
+      int dataConversionErrorFlag = 0;
       short retCode =
           convDoIt((char *)charVal, constVal->getStorageSize(), source_fstype, sourceType->getPrecisionOrMaxNumChars(),
                    sourceScale, (char *)(targetBugPtr + offset), targetLen, (short)(targetType->getFSDatatype()),
@@ -2179,7 +2179,7 @@ NABoolean CacheData::backpatchParams(const ConstantParameters &listOfConstantPar
   }  // QUERY_CACHE_USE_CONVDOIT_FOR_BACKPATCH is OFF
   else {
     char *targetBugPtr = parameterBuffer.getPointer();
-    Lng32 offset = 0;
+    int offset = 0;
     CollIndex x = 0;
     CollIndex y = 0;
 
@@ -2199,14 +2199,14 @@ NABoolean CacheData::backpatchParams(const ConstantParameters &listOfConstantPar
       }
 
       sourceType = constVal->getType();
-      Lng32 targetLen = targetType->getNominalSize();
-      Lng32 sourceScale = constVal->getType()->getScale();
-      Lng32 targetScale = targetType->getScale();
-      Lng32 varCharLenSize = 0;
+      int targetLen = targetType->getNominalSize();
+      int sourceScale = constVal->getType()->getScale();
+      int targetScale = targetType->getScale();
+      int varCharLenSize = 0;
       char *varCharLen = NULL;
 
       if ((targetType->getFSDatatype() >= REC_MIN_NUMERIC) and (targetType->getFSDatatype() <= REC_MAX_FLOAT)) {
-        Lng32 extraBuffer = targetLen - (offset % targetLen);
+        int extraBuffer = targetLen - (offset % targetLen);
         if (extraBuffer != targetLen) offset += extraBuffer;
       }
 
@@ -2229,7 +2229,7 @@ NABoolean CacheData::backpatchParams(const ConstantParameters &listOfConstantPar
 
       char *charVal = (char *)(constVal->getConstValue());
       Int32 val = 0;
-      Int64 val64 = 0;
+      long val64 = 0;
       short source_fstype = (short)sourceType->getFSDatatype();
 
       // NEED TO TEST FOR BIGNUM
@@ -2244,7 +2244,7 @@ NABoolean CacheData::backpatchParams(const ConstantParameters &listOfConstantPar
       // NEED TO TEST FOR DECIMAL
       if ((targetType->getTypeQualifier() == NA_NUMERIC_TYPE) &&
           (((NumericType *)targetType)->getSimpleTypeName() == "DECIMAL") && (targetScale > sourceScale)) {
-        val64 = *((Int64 *)(constVal->getConstValue()));
+        val64 = *((long *)(constVal->getConstValue()));
         val64 = val64 * pow(10, targetScale - sourceScale);
         charVal = (char *)(&val64);
         source_fstype = ((NumericType *)sourceType)->isUnsigned() ? REC_BIN64_UNSIGNED : REC_BIN64_SIGNED;
@@ -2336,15 +2336,15 @@ void CData::print(ostream &out) {
   // int64TimetoStr(cumHitTime_, tmp);
   out << "cumHitTime_ :" << cumHitTime_ << endl;
   // time_t t = time(NULL);
-  // int64TimetoStr(Int64(t), tmp);
+  // int64TimetoStr(long(t), tmp);
   // cout << "now :" << tmp << endl;
 }
 
 // return elapsed msec since begTime
-Int64 CData::timeSince(TimeVal &begTime) {
+long CData::timeSince(TimeVal &begTime) {
   TimeVal endTime;
   GETTIMEOFDAY(&endTime, 0);
-  return ((endTime.tv_sec * (Int64)1000000) + endTime.tv_usec) - ((begTime.tv_sec * (Int64)1000000) + begTime.tv_usec);
+  return ((endTime.tv_sec * (long)1000000) + endTime.tv_usec) - ((begTime.tv_sec * (long)1000000) + begTime.tv_usec);
 }
 
 // return the prime number closest to nEntries used by QCache::QCache() &
@@ -2825,7 +2825,7 @@ void QCache::deCacheAll(CacheKey *stmt) {
 }
 
 // remove all entries with the query signature from the cache
-void QCache::deCacheAll(Int64 queryHash) {
+void QCache::deCacheAll(long queryHash) {
   LRUList::iterator mru = clruQ_.begin();
 
   while (mru != clruQ_.end()) {
@@ -3047,7 +3047,7 @@ void QCache::free_entries_with_QI_keys(Int32 pNumKeys, SQL_QIKEY *pSiKeyEntry) {
         if (rootTdb->getNumObjectUIDs() > 0) {
           // this key passed in as a param is for object redefinition
           // (DDL) so look for matching ObjectUIDs.
-          const Int64 *planObjectUIDs = rootTdb->getUnpackedPtrToObjectUIDs(base);
+          const long *planObjectUIDs = rootTdb->getUnpackedPtrToObjectUIDs(base);
           for (Int32 ii = 0; ii < rootTdb->getNumObjectUIDs() && !found; ii++) {
             if (planObjectUIDs[ii] == pSiKeyEntry[jj].ddlObjectUID) found = TRUE;
           }
@@ -3327,19 +3327,19 @@ void cleanUserQueryCacheInHBase(ComDiagsArea *diagsArea) {
               CmpSeabaseDDL::getSystemCatalogStatic().data(), SEABASE_MD_SCHEMA, SEABASE_TEXT,
               COM_USER_QUERYCACHE_TEXT);
 
-  Lng32 cliRC = cliInterface.executeImmediate(buf);
+  int cliRC = cliInterface.executeImmediate(buf);
   if (cliRC < 0) {
     QRLogger::log(CAT_SQL_EXE, LL_WARN, "cleanup querycache, failed to delete index in TEXT table.");
   }
   cmpSBD.switchBackCompiler();
 }
 
-int QCache::writeUserQueryCacheToHBase(ComDiagsArea *diagsArea, CacheKey *cKey, CacheData *cData, Int64 offset) {
+int QCache::writeUserQueryCacheToHBase(ComDiagsArea *diagsArea, CacheKey *cKey, CacheData *cData, long offset) {
   ComTdbRoot *rootTdb = (ComTdbRoot *)cData->getPlan()->getPlan();
   char *base = (char *)rootTdb;
 
   int num = rootTdb->getNumObjectUIDs();
-  const Int64 *planObjectUIDs = rootTdb->getUnpackedPtrToObjectUIDs(base);
+  const long *planObjectUIDs = rootTdb->getUnpackedPtrToObjectUIDs(base);
 
   ULng32 h = cKey->hashKey();
   char queryBuf[1000] = {0};
@@ -3355,7 +3355,7 @@ int QCache::writeUserQueryCacheToHBase(ComDiagsArea *diagsArea, CacheKey *cKey, 
     if (querycache_replace == DF_ON) {
       SQL_QIKEY qiKeys[num];
       for (CollIndex i = 0; i < num; i++) {
-        Int64 objUID = planObjectUIDs[i];
+        long objUID = planObjectUIDs[i];
         LOGINFO(CAT_SQL_LOCK, "replace querycache, Adding QIKEY to invalidate (UID: %lu)", objUID);
         qiKeys[i].ddlObjectUID = objUID;
         qiKeys[i].operation[0] = 'U';
@@ -3370,8 +3370,8 @@ int QCache::writeUserQueryCacheToHBase(ComDiagsArea *diagsArea, CacheKey *cKey, 
                   "update /*+TRAF_NO_DTM_XN('ON')*/ %s.\"%s\".%s set flags = 1 where \
 text_type=%d and SUB_ID = %d and flags = 3",
                   CmpSeabaseDDL::getSystemCatalogStatic().data(), SEABASE_MD_SCHEMA, SEABASE_TEXT,
-                  COM_USER_QUERYCACHE_TEXT, (Lng32)h);
-      Lng32 cliRC = cliInterface.executeImmediateCEFC(queryBuf, NULL, NULL, NULL, NULL, NULL);
+                  COM_USER_QUERYCACHE_TEXT, (int)h);
+      int cliRC = cliInterface.executeImmediateCEFC(queryBuf, NULL, NULL, NULL, NULL, NULL);
       if (cliRC < 0) {
         cmpSBD.switchBackCompiler();
         return -1;
@@ -3379,7 +3379,7 @@ text_type=%d and SUB_ID = %d and flags = 3",
     }
 
     for (Int32 i = 0; i < num; i++) {
-      Int64 objUID = planObjectUIDs[i];
+      long objUID = planObjectUIDs[i];
       // stored querycache in HDFS could not exceed 4g
       char *data = (char *)cData->getNormalizedStmt();
       int len = strlen(data);
@@ -3394,8 +3394,8 @@ text_type=%d and SUB_ID = %d and flags = 3",
                   "upsert /*+TRAF_NO_DTM_XN('ON')*/ into %s.\"%s\".%s values \
 (%ld, %d, %d, %d, %d, cast(? as char(%d bytes) character set utf8 not null))",
                   CmpSeabaseDDL::getSystemCatalogStatic().data(), SEABASE_MD_SCHEMA, SEABASE_TEXT, objUID,
-                  COM_USER_QUERYCACHE_TEXT, (Lng32)h, (Lng32)offset, flag, len);
-      Lng32 cliRC = cliInterface.executeImmediateCEFC(queryBuf, sqlstr, len, NULL, NULL, NULL);
+                  COM_USER_QUERYCACHE_TEXT, (int)h, (int)offset, flag, len);
+      int cliRC = cliInterface.executeImmediateCEFC(queryBuf, sqlstr, len, NULL, NULL, NULL);
 
       if (cliRC < 0) {
         cmpSBD.switchBackCompiler();
@@ -3406,7 +3406,7 @@ text_type=%d and SUB_ID = %d and flags = 3",
 
     cKey->setHDFSOffset(offset);
 
-    if (NOT cKey->env()->getIgnoreCqdOrCqs()) loadedOffset_.insert((Lng32)offset);
+    if (NOT cKey->env()->getIgnoreCqdOrCqs()) loadedOffset_.insert((int)offset);
     return 0;
   }
   return -1;
@@ -3487,7 +3487,7 @@ void QCache::deleteUserQueryCache(int offset) {
               CmpSeabaseDDL::getSystemCatalogStatic().data(), SEABASE_MD_SCHEMA, SEABASE_TEXT, COM_USER_QUERYCACHE_TEXT,
               offset);
 
-  Lng32 cliRC = cliInterface.executeImmediate(buf);
+  int cliRC = cliInterface.executeImmediate(buf);
   if (cliRC < 0) {
     QRLogger::log(CAT_SQL_EXE, LL_ERROR, "failed to delete querycache");
   }
@@ -4326,7 +4326,7 @@ NABoolean HybridQCache::ejectHQCKeyAndData(ULng32 bytesNeeded) {
   HQCCacheKey *lruKey = mruTail_;
   HQCCacheKey *prevLruKey = NULL;
 
-  Lng32 sz = 0;
+  int sz = 0;
   while (lruKey) {
     sz += lruKey->getSize();
 
@@ -5273,7 +5273,7 @@ ULng32 HQCParseKey::getSize() {
   //  HQCParams params_;
   //  LIST(HQCDParamPair) HQCDynParamMap_;
   //  NABoolean isCacheable_;
-  //  Lng32 nOfTokens_i
+  //  int nOfTokens_i
   //  NABoolean isStringNormalized_;
   //  Int32 paramStart_;
 
@@ -5309,7 +5309,7 @@ ULng32 HybridQCache::computeSize() {
   // NABoolean planNoAQROrHiveAccess_;
 
   // for data structures used by the hashTbl_
-  Lng32 sz = hashTbl_->getByteSize();
+  int sz = hashTbl_->getByteSize();
 
   // NAHashBucketEntry::getByteSize() used by
   // NAHashDiretionary::getByteSize() does not count the
@@ -5333,7 +5333,7 @@ ULng32 HybridQCache::computeSize() {
   return sz;
 }
 
-Lng32 HybridQCache::getHQCHeapSize() {
+int HybridQCache::getHQCHeapSize() {
   // return the HQC heap size. See method NAMemory::incrementStats()
   // and NAMemory::decrementStats() on the update of NAMemory::allocSize_.
   return heap_->getAllocSize();
@@ -5730,7 +5730,7 @@ CacheKey *CacheKey::unpackFromBuffer(ComDiagsArea *diagsArea, TMUDRSerializableO
   if (limit < 0 || limit > 102400) return NULL;
 
   for (x = 0; x < limit; x++) {
-    Int64 time;
+    long time;
     t.deserializeLong((long &)time, buffer, bufferSize);
     ckey->updateStatsTime_.insert(time);
   }
@@ -5789,7 +5789,7 @@ void HQCParseKey::display(ostream &out, NABoolean simpleFormat) const {
   //  HQCParams params_;
   //  LIST(HQCDParamPair) HQCDynParamMap_;
   //  NABoolean isCacheable_;
-  //  Lng32 nOfTokens_i
+  //  int nOfTokens_i
   //  NABoolean isStringNormalized_;
   //  Int32 paramStart_;
 

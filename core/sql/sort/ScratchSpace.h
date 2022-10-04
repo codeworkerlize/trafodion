@@ -91,10 +91,10 @@ class SortMergeBuffer : public AsyncIOBuffer {
 
 class SortMergeNode {
  public:
-  Lng32 associatedRun_;
+  int associatedRun_;
   SortMergeBuffer *readQHead_;  // read queue head for this node. linklist of buffers in order.
   SortMergeBuffer *readQTail_;  // pointer to the last io buffer in the read queue.
-  Lng32 numRecsRead_;
+  int numRecsRead_;
   char *nextReadPosition_;
   ScrBlockHeader blockHead_;
   SBN beginBlockNum_;       // beginning block number of run associated with this node
@@ -103,24 +103,24 @@ class SortMergeNode {
   Int32 numReadQBlocks_;    // realtime num of blocks attached to readQHead
   Int32 numOutStandingIO_;  // realtime num of blocks beginning from readQHead that have outstanding IO.
   SortScratchSpace *scratch_;
-  SortMergeNode(Lng32 associatedrun, SortScratchSpace *sortScratchSpace);
+  SortMergeNode(int associatedrun, SortScratchSpace *sortScratchSpace);
   ~SortMergeNode();
   void cleanup(void);
-  RESULT checkIO(Int64 &ioWaitTime, NABoolean waited = FALSE);
+  RESULT checkIO(long &ioWaitTime, NABoolean waited = FALSE);
   void linkToReadQ(SortMergeBuffer *mb);
   SortMergeBuffer *delinkReadQ(void);
 };
 
 class ScratchSpace : public NABasicObject {
  public:
-  ScratchSpace(CollHeap *heap, SortError *error, Lng32 blocksize, Int32 scratchIOVectorSize, Int32 explainNodeId,
+  ScratchSpace(CollHeap *heap, SortError *error, int blocksize, Int32 scratchIOVectorSize, Int32 explainNodeId,
                NABoolean logInfoEvent = FALSE, Int32 scratchMgmtOption = 0);
   ~ScratchSpace(void);
 
   virtual RESULT writeFile(char *block, ULng32 blockNum, ULng32 blockLen);
 
   RESULT writeThru(char *buf, ULng32 bufLen, DWORD &blockNum);
-  RESULT readThru(char *buf, Lng32 blockNum, ULng32 buflen, ScratchFile *readScratchFile = NULL,
+  RESULT readThru(char *buf, int blockNum, ULng32 buflen, ScratchFile *readScratchFile = NULL,
                   Int32 readBlockOffset = -1);
 
   DiskPool *getDiskPool();
@@ -138,8 +138,8 @@ class ScratchSpace : public NABasicObject {
   // Get Executor SQLCODE for last ScratchSpace error
   Int16 getLastSqlCode(void);
 
-  Lng32 getTotalNumOfScrBlocks() const;
-  void getTotalIoWaitTime(Int64 &iowaitTime) const;
+  int getTotalNumOfScrBlocks() const;
+  void getTotalIoWaitTime(long &iowaitTime) const;
   ScratchFileMap *getScrFilesMap() const;
   const IpcEnvironment *getIpcEnvironment() { return ipcEnv_; }
   void setIpcEnvironment(IpcEnvironment *ipc) {
@@ -168,7 +168,7 @@ class ScratchSpace : public NABasicObject {
   void setScratchThreshold(unsigned short scratchThreshold) { scratchThreshold_ = scratchThreshold; }
 
   inline unsigned short getScratchThreshold() { return scratchThreshold_; }
-  inline Lng32 getBlockSize() const { return blockSize_; }
+  inline int getBlockSize() const { return blockSize_; }
 
   SortError *getSortError() { return sortError_; }
 
@@ -189,13 +189,13 @@ class ScratchSpace : public NABasicObject {
   ScratchOverflowMode getScratchOverflowMode(void) { return ovMode_; }
 
  protected:
-  Lng32 totalNumOfScrBlocks_;  // The total number of scratch blocks used.
-  Lng32 blockSize_;            // Size of the block used for buffering
+  int totalNumOfScrBlocks_;  // The total number of scratch blocks used.
+  int blockSize_;            // Size of the block used for buffering
 
   SortError *sortError_;
   CollHeap *heap_;
   ScratchFileMap *scrFilesMap_;
-  Int64 totalIoWaitTime_;
+  long totalIoWaitTime_;
   RESULT CreateANewScrFileAndWrite(char *buffer, Int32 blockNum, UInt32 blockLen, NABoolean waited = FALSE_L);
   ScratchFile *currentWriteScrFile_;
 
@@ -243,7 +243,7 @@ class SortScratchSpace : public ScratchSpace {
   RESULT readSortMergeNode(SortMergeNode *sortMergeNode, char *&rec, ULng32 reclen, ULng32 &actRecLen,
                            NABoolean waited = FALSE, Int16 numberOfBytesForRecordSize = 0);
   RESULT serveAnyFreeSortMergeBufferRead(void);
-  Lng32 getTotalNumOfRuns(void);
+  int getTotalNumOfRuns(void);
   SortMergeBuffer *getFreeSortMergeBuffer(void);
   void returnFreeSortMergeBuffer(SortMergeBuffer *mb);
   RESULT setupSortMergeBufferPool(Int32 numBuffers);
@@ -253,7 +253,7 @@ class SortScratchSpace : public ScratchSpace {
   // Cleanup scratch files in between intermediate merges. This call
   // is not to be called for general cleanup of scratch files.
   // The run number this call expects includes the run specified.
-  RESULT cleanupScratchFiles(Lng32 inRun);
+  RESULT cleanupScratchFiles(int inRun);
   RunDirectory *runDirectory_;
 
  protected:

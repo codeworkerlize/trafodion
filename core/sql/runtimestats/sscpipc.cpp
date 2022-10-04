@@ -37,7 +37,7 @@
 #include "seabed/ms.h"
 #include "seabed/fs.h"
 #include "common/NAStdlib.h"
-#include "zsysc.h"
+#include "common/zsysc.h"
 #include "executor/ExStats.h"
 #include "runtimestats/rts_msg.h"
 #include "porting/PortProcessCalls.h"
@@ -52,9 +52,9 @@ SscpGlobals::SscpGlobals(NAHeap *sscpheap, StatsGlobals *statsGlobals)
   char programDir[100];
   short processType;
   char myNodeName[MAX_SEGMENT_NAME_LEN + 1];
-  Lng32 myNodeNumber;
+  int myNodeNumber;
   short myNodeNameLen = MAX_SEGMENT_NAME_LEN;
-  Int64 myStartTime;
+  long myStartTime;
   short pri;
   char myProcessNameString[PROCESSNAME_STRING_LEN];
 
@@ -323,7 +323,7 @@ void SscpNewIncomingConnectionStream::processStatsReq(IpcConnection *connection)
 }
 
 void SscpNewIncomingConnectionStream::processCpuStatsReq(IpcConnection *connection) {
-  Int64 currTimestamp;
+  long currTimestamp;
   struct timespec currTimespec;
   size_t memThreshold;
 
@@ -351,7 +351,7 @@ void SscpNewIncomingConnectionStream::processCpuStatsReq(IpcConnection *connecti
   short reqType = request->getReqType();
   short noOfQueries = request->getNoOfQueries();
   short subReqType = request->getSubReqType();
-  Lng32 filter = request->getFilter();
+  int filter = request->getFilter();
   switch (reqType) {
     case SQLCLI_STATS_REQ_CPU_OFFENDER:
       mergedStats =
@@ -455,7 +455,7 @@ void SscpNewIncomingConnectionStream::processKillServersReq() {
 
   *this >> *queryId;
   char *qid = queryId->getQueryId();
-  Lng32 qidLen = queryId->getQueryIdLen();
+  int qidLen = queryId->getQueryIdLen();
 
   SscpGlobals *sscpGlobals = getSscpGlobals();
   StatsGlobals *statsGlobals = sscpGlobals->getStatsGlobals();
@@ -597,7 +597,7 @@ void SscpNewIncomingConnectionStream::suspendActivateSchedulers() {
 
   *this >> *queryId;
   char *qid = queryId->getQueryId();
-  Lng32 qidLen = queryId->getQueryIdLen();
+  int qidLen = queryId->getQueryIdLen();
 
   SscpGlobals *sscpGlobals = getSscpGlobals();
   StatsGlobals *statsGlobals = sscpGlobals->getStatsGlobals();
@@ -751,7 +751,7 @@ void SscpNewIncomingConnectionStream::processSecInvReq() {
     statsGlobals->releaseStatsSemaphore(sscpGlobals->getSemId(), sscpGlobals->myPin());
     if (revokeTimer) {
       timer.stop();
-      Int64 microSeconds = timer.getTime();
+      long microSeconds = timer.getTime();
       char msg[256];
       str_sprintf(msg,
                   "MXSSCP has processed %d security invalidation "

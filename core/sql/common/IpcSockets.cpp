@@ -36,7 +36,7 @@
 // -----------------------------------------------------------------------
 
 #include "common/Platform.h"
-#include "copyright.h"
+#include "common/copyright.h"
 
 // At this point we don't really want to use sockets on NSK because
 // of problems with C/C++ runtime. Set this define to comment out all
@@ -409,7 +409,7 @@ void SockSocket::assignToStdInOut() {
 NABoolean SockSocket::send(IpcMessageBuffer *message, IpcTimeout timeout) {
   IpcMessageObjSize bytesToSend = message->getMessageLength();
   IpcMessageObjSize bytesSentSoFar = 0;
-  Lng32 bytesSentThisTime;
+  int bytesSentThisTime;
 
   lastError_.clear();
 
@@ -479,7 +479,7 @@ NABoolean SockSocket::receive(IpcMessageBuffer *&message, IpcTimeout timeout) {
   // copy of the message header on the stack
   char header[sizeof(InternalMsgHdrInfoStruct)];
   // variable that remembers how many bytes came in the message
-  Lng32 receivedBytesThisTime;
+  int receivedBytesThisTime;
 
   // the actual message length (initialize to header length until we know it)
   if (receivedBytesSoFar_ == 0) {

@@ -57,7 +57,7 @@ extern NAUnsigned SortEnforcerRuleNumber;
 // Tasks
 // -----------------------------------------------------------------------
 
-CascadesTask::CascadesTask(Guidance *guidance, Context *context, Lng32 parentTaskId, short stride)
+CascadesTask::CascadesTask(Guidance *guidance, Context *context, int parentTaskId, short stride)
     : parentTaskId_(parentTaskId), guidance_(guidance), context_(context), next_(NULL), stride_(stride) {
   // search guidance
   if (guidance_ != NULL) guidance_->incrementReferenceCount();
@@ -88,7 +88,7 @@ void CascadesTask::garbageCollection(RelExpr *, RelExpr *, Int32) {
 
 // This is really no reason to have this function as a method in
 // CascadesTask but I left it as is, for now.
-NABoolean CascadesTask::taskNumberExceededLimit(Lng32 id) {
+NABoolean CascadesTask::taskNumberExceededLimit(int id) {
   return (id > getDefaultAsLong(OPTIMIZATION_TASKS_LIMIT));
   // note that if OPTIMIZATION_TASKS_LIMIT was inserted incorrectly
   // such as 'w3' the getUnit() will return a -1 as the conversion
@@ -131,7 +131,7 @@ Int32 comparePromisingMoves(const void *ax, const void *bx) {
   Task to optimize a group
   */
 
-OptimizeGroupTask::OptimizeGroupTask(Context *context, Guidance *guidance, NABoolean reoptimize, Lng32 parentTaskId,
+OptimizeGroupTask::OptimizeGroupTask(Context *context, Guidance *guidance, NABoolean reoptimize, int parentTaskId,
                                      short stride)
     : CascadesTask(guidance, context, parentTaskId, stride),
       groupId_(context->getGroupId()),
@@ -173,7 +173,7 @@ NABoolean OptimizeGroupTask::canCauseCycle(const CascadesPlan *plan) const {
 }
 
 //<pb>
-void OptimizeGroupTask::perform(Lng32 taskId) {
+void OptimizeGroupTask::perform(int taskId) {
   CascadesGroup *group = (*CURRSTMT_OPTGLOBALS->memo)[groupId_];
   short stride = 0;
 
@@ -282,12 +282,12 @@ void OptimizeGroupTask::perform(Lng32 taskId) {
     // partitions) from another context (req: inESP).
     // --------------------------------------------------------------
 
-    Lng32 countOfPlans = group->getCountOfPlans();
+    int countOfPlans = group->getCountOfPlans();
 
     // Loop thru the initial # of plans.  Please note that scheduling
     // the CreatePlanTask will have the side-effect of adding more
     // plans to the end of the plans list.
-    for (Lng32 i = 0; i < countOfPlans; i++) {
+    for (int i = 0; i < countOfPlans; i++) {
       const CascadesPlan *plan = group->getPlans()[i];
 
       // Reoptimize this plan if it points to this context or
@@ -358,7 +358,7 @@ void OptimizeGroupTask::perform(Lng32 taskId) {
 //<pb>
 /* ------------------------------------------------------------ */
 
-OptimizeExprTask::OptimizeExprTask(RelExpr *expr, Guidance *guidance, Context *context, Lng32 parentTaskId,
+OptimizeExprTask::OptimizeExprTask(RelExpr *expr, Guidance *guidance, Context *context, int parentTaskId,
                                    short stride)
     : CascadesTask(guidance, context, parentTaskId, stride), expr_(expr) {
   context_->incrOutstanding();
@@ -399,7 +399,7 @@ CascadesGroupId OptimizeExprTask::getGroupId() const { return expr_->getGroupId(
 
 RelExpr *OptimizeExprTask::getExpr() { return expr_; }
 //<pb>
-void OptimizeExprTask::perform(Lng32 taskId) {
+void OptimizeExprTask::perform(int taskId) {
   // ---------------------------------------------------------------------
   // identify valid and promising rules
   // ---------------------------------------------------------------------
@@ -449,7 +449,7 @@ void OptimizeExprTask::perform(Lng32 taskId) {
 
     // or if any of its children has an xp
     Int32 nc = expr_->getArity();
-    for (Lng32 i = 0; i < nc; i++) {
+    for (int i = 0; i < nc; i++) {
       const JBBSubset *childlocalView = expr_->child(i).getGroupAttr()->getGroupAnalysis()->getLocalJBBView();
 
       if (childlocalView && childlocalView->hasMandatoryXP() && !childlocalView->getJBB()->hasMandatoryXP()) {
@@ -542,10 +542,10 @@ void OptimizeExprTask::perform(Lng32 taskId) {
     // create earlier tasks to explore patterns
     RelExpr *pattern = rule->getPattern();
 
-    Lng32 arity = 0;
+    int arity = 0;
     if (pattern) arity = pattern->getArity();
 
-    for (Lng32 childIndex = arity; --childIndex >= 0;) {
+    for (int childIndex = arity; --childIndex >= 0;) {
       RelExpr *patternInput = (*pattern)[childIndex];
 
       // explore only child nodes of the pattern that are neither a
@@ -590,7 +590,7 @@ void OptimizeExprTask::garbageCollection(RelExpr *oldx, RelExpr *newx, Int32 /* 
   Task to explore a group
   */
 
-ExploreGroupTask::ExploreGroupTask(CascadesGroupId group_no, RelExpr *pattern, Guidance *guidance, Lng32 parentTaskId,
+ExploreGroupTask::ExploreGroupTask(CascadesGroupId group_no, RelExpr *pattern, Guidance *guidance, int parentTaskId,
                                    short stride)
     : CascadesTask(guidance, NULL, parentTaskId, stride),
       groupId_(group_no),
@@ -612,8 +612,8 @@ NAString ExploreGroupTask::taskText() const {
 
 CascadesGroupId ExploreGroupTask::getGroupId() const { return groupId_; }
 //<pb>
-void ExploreGroupTask::perform(Lng32 taskId) {
-  Lng32 currentPass = GlobalRuleSet->getCurrentPassNumber();
+void ExploreGroupTask::perform(int taskId) {
+  int currentPass = GlobalRuleSet->getCurrentPassNumber();
   short stride = 0;
 
   RuleSubset applicableRules(CmpCommon::statementHeap());
@@ -655,7 +655,7 @@ void ExploreGroupTask::perform(Lng32 taskId) {
   Task to explore a logical expression
   */
 
-ExploreExprTask::ExploreExprTask(RelExpr *expr, RelExpr *pattern, Guidance *guidance, Lng32 parentTaskId, short stride)
+ExploreExprTask::ExploreExprTask(RelExpr *expr, RelExpr *pattern, Guidance *guidance, int parentTaskId, short stride)
     : CascadesTask(guidance, NULL, parentTaskId, stride),
       expr_(expr),
       pattern_(pattern) {}  // ExploreExprTask::ExploreExprTask
@@ -684,7 +684,7 @@ CascadesGroupId ExploreExprTask::getGroupId() const { return expr_->getGroupId()
 
 RelExpr *ExploreExprTask::getExpr() { return expr_; }
 //<pb>
-void ExploreExprTask::perform(Lng32 taskId) {
+void ExploreExprTask::perform(int taskId) {
   // arity of the log expr's top node
   Int32 arity = expr_->getArity();
 
@@ -760,7 +760,7 @@ void ExploreExprTask::perform(Lng32 taskId) {
     if (!new_rule_pattern) continue;
 
     // earlier tasks: expand all children to match the pattern
-    for (Lng32 childIndex = arity; --childIndex >= 0;) {
+    for (int childIndex = arity; --childIndex >= 0;) {
       RelExpr *patternInput = (*new_rule_pattern)[childIndex]->castToRelExpr();
 
       // not for sub-patterns that represent anon. children
@@ -795,7 +795,7 @@ void ExploreExprTask::garbageCollection(RelExpr *oldx, RelExpr *newx, Int32 /* g
 /* ------------------------------------------------------------ */
 
 ApplyRuleTask::ApplyRuleTask(Rule *rule, RelExpr *expr, RelExpr *pattern, Guidance *guidance, Context *context,
-                             Lng32 parentTaskId, short stride)
+                             int parentTaskId, short stride)
     : CascadesTask(guidance, context, parentTaskId, stride), rule_(rule), expr_(expr), pattern_(pattern) {
   if (context_ != NULL) context_->incrOutstanding();
 }  // ApplyRuleTask::ApplyRuleTask
@@ -833,7 +833,7 @@ CascadesGroupId ApplyRuleTask::getGroupId() const {
 
 RelExpr *ApplyRuleTask::getExpr() { return expr_; }
 //<pb>
-void ApplyRuleTask::perform(Lng32 taskId) {
+void ApplyRuleTask::perform(int taskId) {
   if (((expr_ == NULL AND NOT context_->getTriedEnforcerRules().contains(rule_->getNumber()))
            OR(expr_ != NULL AND((rule_->isContextSensitive() AND NOT expr_->getContextSensRules().applied(
                            context_, rule_->getNumber()))
@@ -967,9 +967,9 @@ void ApplyRuleTask::perform(Lng32 taskId) {
                 // First, see if there are any outstanding contexts
                 // for this group.  If so, schedule a optimizeExprTask
                 // for those outstanding contexts also for this new expression.
-                Lng32 numContexts = (*CURRSTMT_OPTGLOBALS->memo)[new_expr->getGroupId()]->getCountOfContexts();
+                int numContexts = (*CURRSTMT_OPTGLOBALS->memo)[new_expr->getGroupId()]->getCountOfContexts();
                 if (numContexts > 1 && context_ != NULL) {
-                  for (Lng32 i = 0; i < numContexts; i++) {
+                  for (int i = 0; i < numContexts; i++) {
                     Context *otherContext = (*CURRSTMT_OPTGLOBALS->memo)[new_expr->getGroupId()]->getContext(i);
                     if (otherContext != NULL AND context_ !=
                         otherContext AND otherContext->getOutstanding() > 0 AND NOT otherContext->isADuplicate()) {
@@ -1049,7 +1049,7 @@ void ApplyRuleTask::garbageCollection(RelExpr *oldx, RelExpr *newx, Int32 /* gro
 //<pb>
 /* ------------------------------------------------------------ */
 
-CreatePlanTask::CreatePlanTask(Rule *rule, RelExpr *expr, Guidance *guidance, Context *context, Lng32 parentTaskId,
+CreatePlanTask::CreatePlanTask(Rule *rule, RelExpr *expr, Guidance *guidance, Context *context, int parentTaskId,
                                short stride, CascadesPlan *failedPlan)
     : CascadesTask(guidance, context, parentTaskId, stride), workSpace_(expr->allocateWorkSpace()), rule_(rule) {
   // this task must have an associated context
@@ -1080,9 +1080,9 @@ RelExpr *CreatePlanTask::getExpr() { return NULL; }
 
 CascadesPlan *CreatePlanTask::getPlan() { return plan_; }
 //<pb>
-THREAD_P Lng32 Cyes = 0;
-THREAD_P Lng32 Cno = 0;
-void CreatePlanTask::perform(Lng32 taskId) {
+THREAD_P int Cyes = 0;
+THREAD_P int Cno = 0;
+void CreatePlanTask::perform(int taskId) {
   short stride = 0;
   Context *childContext = NULL;
   Guidance *childGuidance = NULL;
@@ -1361,7 +1361,7 @@ void GarbageCollectionTask::print(FILE *f, const char *prefix, const char * /*su
 
 NAString GarbageCollectionTask::taskText() const { return "Garbage Collection"; }
 
-void GarbageCollectionTask::perform(Lng32 /*taskId*/) {
+void GarbageCollectionTask::perform(int /*taskId*/) {
   if (NOT alreadyDone_) {
     Int32 changedExprs = CURRSTMT_OPTGLOBALS->memo->garbageCollection();
     CURRSTMT_OPTGLOBALS->garbage_expr_count += changedExprs;

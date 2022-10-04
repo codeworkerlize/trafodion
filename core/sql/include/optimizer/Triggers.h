@@ -222,8 +222,8 @@ class Trigger : public NABasicObject {
   // for debug
   void print(ostream &os, const char *indent, const char *title) const;
 
-  inline void setTableId(Int64 id) { tableId_ = id; }
-  inline Int64 getTableId() { return tableId_; }
+  inline void setTableId(long id) { tableId_ = id; }
+  inline long getTableId() { return tableId_; }
 
  private:
   StmtDDLCreateTrigger *parseTriggerText() const;
@@ -244,7 +244,7 @@ class Trigger : public NABasicObject {
 
   // Is this the result of the first parse, or a copy of the second?
   NABoolean isVirginCopy_;
-  Int64 tableId_;
+  long tableId_;
 };
 
 //-----------------------------------------------------------------------------
@@ -306,7 +306,7 @@ class UpdateColumns : public NABasicObject {
  public:
   UpdateColumns(NABoolean allColumns) : allColumns_(allColumns) {
     if (!allColumns)
-      columns_ = new (Trigger::Heap()) SET(Lng32)(Trigger::Heap());
+      columns_ = new (Trigger::Heap()) SET(int)(Trigger::Heap());
     else
       columns_ = NULL;
   }
@@ -316,14 +316,14 @@ class UpdateColumns : public NABasicObject {
 
   virtual ~UpdateColumns();
 
-  inline void addColumn(const Lng32 column) { columns_->insert(column); }
+  inline void addColumn(const int column) { columns_->insert(column); }
 
   // Implements match-any: It is enough that there is a common column in the
   // subject columns and in the updated columns for the relevant trigger to
   // fire.
   NABoolean match(const UpdateColumns &other) const;
 
-  inline NABoolean contains(const Lng32 col) const { return columns_->contains(col); }
+  inline NABoolean contains(const int col) const { return columns_->contains(col); }
 
   inline NABoolean isAllColumns() const { return allColumns_; }
 
@@ -333,7 +333,7 @@ class UpdateColumns : public NABasicObject {
 
  private:
   NABoolean allColumns_;  // no explicit subject columns
-  SET(Lng32) * columns_;
+  SET(int) * columns_;
 };
 
 //-----------------------------------------------------------------------------
@@ -403,7 +403,7 @@ class BeforeAndAfterTriggers : public NABasicObject {
   inline TriggerList *getAfterRowTriggers() const { return afterRowTriggers_; }
   inline ComTimestamp getSubjectTableTimeStamp() const { return subjectTableTimestamp_; }
 
-  Lng32 entries() const;
+  int entries() const;
 
   // initialize lists for insertions
   void addNewAfterStatementTrigger(Trigger *newTrigger);

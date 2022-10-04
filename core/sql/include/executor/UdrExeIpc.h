@@ -247,14 +247,14 @@ const char *GetUdrIpcTypeString(UdrIpcObjectType t);
 //----------------------------------------------------------------------
 // UDR handle
 //----------------------------------------------------------------------
-typedef Int64 UdrHandle;
+typedef long UdrHandle;
 #define INVALID_UDR_HANDLE  0
 #define UdrHandleIsValid(x) ((x) != (INVALID_UDR_HANDLE))
 
 //----------------------------------------------------------------------
 // RS handle
 //----------------------------------------------------------------------
-typedef Int64 RSHandle;
+typedef long RSHandle;
 #define INVALID_RS_HANDLE  0
 #define RSHandleIsValid(x) ((x) != (INVALID_RS_HANDLE))
 
@@ -312,7 +312,7 @@ struct UdrParameterInfo {
   //
   // Display function
   //
-  void display(FILE *f, Lng32 indent, UdrParameterInfo *pi) const;
+  void display(FILE *f, int indent, UdrParameterInfo *pi) const;
 
   //
   // Assignment operator
@@ -394,7 +394,7 @@ struct UdrTableInputInfo {
   //
   // Display function
   //
-  void display(FILE *f, Lng32 indent, UdrTableInputInfo *pi) const {};
+  void display(FILE *f, int indent, UdrTableInputInfo *pi) const {};
 
   //
   // Assignment operator

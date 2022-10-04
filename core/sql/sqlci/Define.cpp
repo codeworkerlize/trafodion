@@ -44,13 +44,13 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "Define.h"
-#include "GetErrorMessage.h"
-#include "SqlciCmd.h"
-#include "sqlcmd.h"
-#include "SqlciEnv.h"
+#include "sqlci/Define.h"
+#include "sqlmsg/GetErrorMessage.h"
+#include "sqlci/SqlciCmd.h"
+#include "sqlci/sqlcmd.h"
+#include "sqlci/SqlciEnv.h"
 #include "common/str.h"
-#include "SqlciError.h"
+#include "sqlci/SqlciError.h"
 
 extern char **environ;
 #define ENVIRON environ

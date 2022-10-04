@@ -37,7 +37,7 @@
 // -----------------------------------------------------------------------
 #include "common/Platform.h"
 
-#include "NAIpc.h"
+#include "common/NAIpc.h"
 
 // -----------------------------------------------------------------------
 // A method that implements a global variable for the IPC environment
@@ -57,7 +57,7 @@ IpcEnvironment *GetIpcEnv() {
 // How many requestors do we have (if we are a server process)
 // -----------------------------------------------------------------------
 
-Lng32 GetNumRequestors() {
+int GetNumRequestors() {
   IpcEnvironment *e = GetIpcEnv();
   IpcControlConnection *cc = e->getControlConnection();
 

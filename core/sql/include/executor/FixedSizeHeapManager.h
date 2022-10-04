@@ -41,7 +41,7 @@
 #include "common/NABoolean.h"
 #include "FixedSizeHeapElement.h"
 #include "common/NAHeap.h"  //
-#include "ex_error.h"       // for ExeErrorCode
+#include "executor/ex_error.h"       // for ExeErrorCode
 #ifdef NA_MDAM_EXECUTOR_DEBUG
 #include <iostream>
 #endif /* NA_MDAM_EXECUTOR_DEBUG */
@@ -60,7 +60,7 @@ class FixedSizeHeapManager {
 
  public:
   // Constructor.
-  FixedSizeHeapManager(const size_t elementSize, const Lng32 numberOfElements);
+  FixedSizeHeapManager(const size_t elementSize, const int numberOfElements);
 
   // Destructor.
   ~FixedSizeHeapManager();
@@ -96,7 +96,7 @@ class FixedSizeHeapManager {
   size_t adjustedElementSize_;
 
   // Maximum number of elements in the heap.
-  const Lng32 numberOfElements_;
+  const int numberOfElements_;
 
   // Pointer to the head of the free list.  Zero if the heap is full or
   // if the heap memory has not been acquired.
@@ -111,7 +111,7 @@ class FixedSizeHeapManager {
   NAMemory *defaultHeapPtr_;
 
   // Size of a FixedSizeHeapManagerBlock rounded up for allignment.
-  Lng32 sizeBlockRounded_;
+  int sizeBlockRounded_;
 
   // Copy constructor disallowed.
   inline FixedSizeHeapManager(const FixedSizeHeapManager &);
@@ -148,7 +148,7 @@ inline NABoolean FixedSizeHeapManager::elementSpaceAvailable() const { return fr
 class FixedSizeHeapManagerBlock {
  public:
   // Constructor.
-  FixedSizeHeapManagerBlock(FixedSizeHeapManager &fixedSizeHeapManagerRef, const Lng32 numberOfElements,
+  FixedSizeHeapManagerBlock(FixedSizeHeapManager &fixedSizeHeapManagerRef, const int numberOfElements,
                             const size_t rawMemorySize);
 
   // Destructor.
@@ -171,7 +171,7 @@ class FixedSizeHeapManagerBlock {
   const size_t rawMemorySize_;
 
   // Maximum number of elements in the block.
-  const Lng32 numberOfElements_;
+  const int numberOfElements_;
 
   // Pointer to first element in the block.
   FixedSizeHeapElement *firstElementPtr_;

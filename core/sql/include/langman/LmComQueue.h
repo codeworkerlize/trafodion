@@ -109,7 +109,7 @@ class Q_Entry {
   ~Q_Entry();
 
   Long pack(void *space);
-  Lng32 unpack(void *base);
+  int unpack(void *base);
 
   ULng32 packedLength() { return packedLength_; }
 };
@@ -190,12 +190,12 @@ class Queue {
 
   Long pack(void *space);
 
-  Lng32 unpack(void *base);
+  int unpack(void *base);
 
   // returns -1, if queue is empty. Otherwise, returns 0.
   Int32 isEmpty() { return ((numEntries() == 0) ? -1 : 0); }
 
-  Lng32 numEntries() { return numEntries_; }
+  int numEntries() { return numEntries_; }
 
   ULng32 packedLength() { return packedLength_; }
 
@@ -265,7 +265,7 @@ class HashQueue : public NABasicObject {
 
   void remove(void *entry);
 
-  Lng32 numEntries() { return (Lng32)entries_; }
+  int numEntries() { return (int)entries_; }
 
  private:
   ULng32 entries_;                // number of entries in this HashQueue

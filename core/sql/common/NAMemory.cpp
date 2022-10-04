@@ -71,7 +71,7 @@
 #include <fstream>
 #endif
 
-#include "NAError.h"
+#include "sqlci/SqlciParseGlobals.h"
 #include "export/HeapLog.h"
 #include "common/Platform.h"
 #include "common/NAAssert.h"
@@ -243,7 +243,7 @@ const size_t DEFAULT_MAX_INCREMENT = 4194304;
 #define CORRUPTION_ERROR_ACTION assert(0)
 #define USAGE_ERROR_ACTION      assert(0)
 #define allocDebugProcess(P, S)                                                   \
-  HEAPLOG_ADD_ENTRY(P->getMemory(), (Lng32)userSize, heapID_.heapNum, getName()); \
+  HEAPLOG_ADD_ENTRY(P->getMemory(), (int)userSize, heapID_.heapNum, getName()); \
   if (debugLevel_) doAllocDebugProcess(P, S);
 #define deallocDebugProcess(P) \
   if (debugLevel_) doDeallocDebugProcess(P)
@@ -271,18 +271,18 @@ const size_t DEFAULT_MAX_INCREMENT = 4194304;
 // On Windows NT, use malloc16() and free16() to aligned memory like it
 // is on NSK.
 void *malloc16(Int32 size) {
-  Lng32 startAddr, retAddr, *saveStartAddr;
-  startAddr = (Lng32)malloc(size + 20);
+  int startAddr, retAddr, *saveStartAddr;
+  startAddr = (int)malloc(size + 20);
   if (startAddr == 0) return (void *)NULL;
   retAddr = startAddr + 4;
   retAddr = (((retAddr - 1) / 16 + 1) * 16);
-  saveStartAddr = (Lng32 *)(retAddr - 4);
+  saveStartAddr = (int *)(retAddr - 4);
   *saveStartAddr = startAddr;
   return (void *)retAddr;
 }
 
 void free16(void *retAddr) {
-  void **startAddr = (void **)((Lng32)retAddr - 4);
+  void **startAddr = (void **)((int)retAddr - 4);
   free(*startAddr);
 }
 
@@ -409,7 +409,7 @@ inline size_t NAHeapFragment::getPrevFoot() { return prevFoot_; }
 // in an NABlock, the prevFoot_ is used to indicate the size of the block.
 // This function is only used to adjust the size of the prevFoot_ when the
 // block is resized.
-inline void NAHeapFragment::adjustBlockSize(Lng32 s) { prevFoot_ += s; }
+inline void NAHeapFragment::adjustBlockSize(int s) { prevFoot_ += s; }
 
 // Return pointer offset as a greater NAHeapFragment pointer
 inline NAHeapFragment *NAHeapFragment::fragmentPlusOffset(size_t s) { return (NAHeapFragment *)((char *)this + s); }
@@ -532,7 +532,7 @@ inline short NATreeFragment::getFreedNSKMemory() { return freedNSKMemory_; }
 
 inline void NATreeFragment::setFreedNSKMemory(short value) { freedNSKMemory_ = value; }
 
-Lng32 NAMemory::getVmSize() {
+int NAMemory::getVmSize() {
   pid_t myPid;
   char fileName[32], buffer[1024], *currPtr;
   size_t bytesRead;
@@ -557,20 +557,20 @@ Lng32 NAMemory::getVmSize() {
   return memSize;
 }
 
-void NAMemory::allocationIncrement(Lng32 increment) {
+void NAMemory::allocationIncrement(int increment) {
   allocationDelta_ += increment;
   if (allocationDelta_ >= 128 * 1024 * 1024) {
     allocationDelta_ = 0ll;
-    Lng32 vmSize = getVmSize();
-    if (vmSize >= (4 * 1024 * 1024) - ((128 + executorVmReserveSize_) * 1024)) crowdedTotalSize_ = (Int64)vmSize * 1024;
+    int vmSize = getVmSize();
+    if (vmSize >= (4 * 1024 * 1024) - ((128 + executorVmReserveSize_) * 1024)) crowdedTotalSize_ = (long)vmSize * 1024;
   }
 }
 
-void NAMemory::allocationDecrement(Lng32 decrement) {
+void NAMemory::allocationDecrement(int decrement) {
   allocationDelta_ -= decrement;
   if (allocationDelta_ <= -128 * 1024 * 1024) {
     allocationDelta_ = 0ll;
-    Lng32 vmSize = getVmSize();
+    int vmSize = getVmSize();
     if (vmSize < (4 * 1024 * 1024) - ((128 + executorVmReserveSize_) * 1024)) crowdedTotalSize_ = 0ll;
   }
 }
@@ -656,7 +656,7 @@ NAMemory::NAMemory(const char *name)
 #if (defined(_DEBUG) || defined(NSK_MEMDEBUG))
   char *debugLevel = getenv("MEMDEBUG");
   if (debugLevel)
-    debugLevel_ = (Lng32)atoi(debugLevel);
+    debugLevel_ = (int)atoi(debugLevel);
   else
     debugLevel_ = 0;
 #else  // Release build with no debugging
@@ -716,7 +716,7 @@ NAMemory::NAMemory(const char *name, NAHeap *parent, size_t blockSize, size_t up
 #if (defined(_DEBUG) || defined(NSK_MEMDEBUG))
   char *debugLevel = getenv("MEMDEBUG");
   if (debugLevel)
-    debugLevel_ = (Lng32)atoi(debugLevel);
+    debugLevel_ = (int)atoi(debugLevel);
   else
     debugLevel_ = 0;
 #else  // Release build with no debugging
@@ -774,7 +774,7 @@ NAMemory::NAMemory(const char *name, NAMemoryType type, size_t blockSize, size_t
 #if (defined(_DEBUG) || defined(NSK_MEMDEBUG))
   char *debugLevel = getenv("MEMDEBUG");
   if (debugLevel)
-    debugLevel_ = (Lng32)atoi(debugLevel);
+    debugLevel_ = (int)atoi(debugLevel);
   else
     debugLevel_ = 0;
 #else  // Release build with no debugging
@@ -828,7 +828,7 @@ void NAMemory::initMe(const char *name, SEG_ID segmentId, void *baseAddr, off_t 
 #if (defined(_DEBUG) || defined(NSK_MEMDEBUG))
   char *debugLevel = getenv("MEMDEBUG");
   if (debugLevel)
-    debugLevel_ = (Lng32)atoi(debugLevel);
+    debugLevel_ = (int)atoi(debugLevel);
   else
     debugLevel_ = 0;
 #else  // Release build with no debugging
@@ -1011,7 +1011,7 @@ void NAMemory::setType(NAMemoryType type, size_t blockSize) {
 
     case DERIVED_MEMORY: {
       assert(parent_);
-      if (blockSize == 0) blockSize = (Lng32)32768;
+      if (blockSize == 0) blockSize = (int)32768;
       initialSize_ = incrementSize_ = blockSize;
       maximumSize_ = (size_t)-1;  // no maximum
     } break;
@@ -1069,7 +1069,7 @@ void NAMemory::deallocateMemory(void *addr) {
 // It is used as an aid for debugging memory problems and for saving memory
 // statistics during certain tests.
 #if (defined(_DEBUG) || defined(NSK_MEMDEBUG))
-void NAMemory::dump(ostream *outstream, Lng32 indent) {
+void NAMemory::dump(ostream *outstream, int indent) {
   switch (derivedClass_) {
     case NAHEAP_CLASS:
       ((NAHeap *)this)->dumpHeapInfo(outstream, indent);
@@ -1755,13 +1755,13 @@ NAHeapFragment *NAHeap::tmallocSmall(size_t nb) {
   return NULL;
 }  // NAHeap::tmallocSmall(size_t nb)
 
-Lng32 NAMemory::getAllocatedSpaceSize() {
+int NAMemory::getAllocatedSpaceSize() {
   assert(type_ != NO_MEMORY_TYPE);
   return allocSize_;
 }
 
 void NAMemory::setName(const char *name) {
-  Lng32 copyLen = str_len(name);
+  int copyLen = str_len(name);
   if (copyLen > 20) copyLen = 20;
   memcpy(name_, name, copyLen);
   name_[copyLen] = 0;
@@ -2053,7 +2053,7 @@ NABoolean NAMemory::getUsage(size_t *lastBlockSize, size_t *freeSize, size_t *to
       if (memory->crowdedTotalSize_ > 0ll && *freeSize < *totalSize / 2)  // Free size is < half total alloc'd
       {
         // Simulate size on NSK when unable to allocate 128 MB flat segment
-        *lastBlockSize = (Lng32)((4ll * 1024ll * 1024ll * 1024ll - memory->crowdedTotalSize_) / 2);
+        *lastBlockSize = (int)((4ll * 1024ll * 1024ll * 1024ll - memory->crowdedTotalSize_) / 2);
         crowded = TRUE;
       }
     }
@@ -2673,7 +2673,7 @@ void *NAHeap::allocateHeapMemory(size_t userSize, NABoolean failureIsFatal) {
     // adjust the size of prevFoot_ in the first fragment.
     if (newBlock == firstBlk_) {
       assert(newBlock->size_ > prevFirstBlockSize);
-      Lng32 increasedSize = (Lng32)(newBlock->size_ - prevFirstBlockSize);
+      int increasedSize = (int)(newBlock->size_ - prevFirstBlockSize);
       resizeTop(topsize_ + increasedSize);
 
       // Adjust prevFoot_ in first fragment.
@@ -2964,12 +2964,12 @@ void NAHeap::deallocateHeapMemory(void *addr) {
 }  // NAHeap::deallocateHeapMemory(void* addr)
 
 #if (defined(_DEBUG) || defined(NSK_MEMDEBUG))
-void NAHeap::dumpHeapInfo(ostream *outstream, Lng32 indent, bool doCheck, bool dumpFragmentDetails) {
+void NAHeap::dumpHeapInfo(ostream *outstream, int indent, bool doCheck, bool dumpFragmentDetails) {
   NAMutexScope mutex(mutex_);
 
   char ind[100];
 
-  Lng32 indIdx = 0;
+  int indIdx = 0;
   for (; indIdx < indent; indIdx++) ind[indIdx] = ' ';
   ind[indIdx] = '\0';
 
@@ -3034,10 +3034,10 @@ void NAHeap::dumpHeapInfo(ostream *outstream, Lng32 indent, bool doCheck, bool d
 // ---------------------------------------------------------------------------
 
 #if (defined(_DEBUG) || defined(NSK_MEMDEBUG))
-void NABlock::dump(ostream *outstream, Lng32 debugLevel, MemoryStats &freeStats, MemoryStats &allocStats,
-                   NAHeapFragment *top, Lng32 indent, bool dumpFragmentDetails) {
+void NABlock::dump(ostream *outstream, int debugLevel, MemoryStats &freeStats, MemoryStats &allocStats,
+                   NAHeapFragment *top, int indent, bool dumpFragmentDetails) {
   char ind[100];
-  Lng32 indIdx = 0;
+  int indIdx = 0;
   for (; indIdx < indent; indIdx++) ind[indIdx] = ' ';
   ind[indIdx] = '\0';
   if (!outstream) outstream = &cerr;
@@ -3070,7 +3070,7 @@ void NABlock::dump(ostream *outstream, Lng32 debugLevel, MemoryStats &freeStats,
 //////////////////////////////////////////////////////////////////////////////
 
 MemoryStats::MemoryStats() : count_(0), sum_(0.0), sum2_(0.0) {
-  for (Lng32 i = 0; i < 18; i++) histBuckets_[i] = 0;
+  for (int i = 0; i < 18; i++) histBuckets_[i] = 0;
 }
 
 void MemoryStats::addEntry(size_t value) {
@@ -3080,7 +3080,7 @@ void MemoryStats::addEntry(size_t value) {
   sum2_ += (fvalue * fvalue);
   // determine the histogram bucket
   value = value >> 5;  // everything <= 32 ends up in the first bucket
-  Lng32 i = 0;
+  int i = 0;
   while (value) {
     value = value >> 1;
     i++;
@@ -3091,9 +3091,9 @@ void MemoryStats::addEntry(size_t value) {
 }
 
 #if (defined(_DEBUG) || defined(NSK_MEMDEBUG))
-void MemoryStats::dump(ostream *outstream, const char *name, Lng32 indent) {
+void MemoryStats::dump(ostream *outstream, const char *name, int indent) {
   char ind[100];
-  Lng32 indIdx = 0;
+  int indIdx = 0;
   for (; indIdx < indent; indIdx++) ind[indIdx] = ' ';
   ind[indIdx] = '\0';
   if (!outstream) outstream = &cerr;
@@ -3104,9 +3104,9 @@ void MemoryStats::dump(ostream *outstream, const char *name, Lng32 indent) {
              << ((count_ > 1) ? ((1.0 / (double)(count_ - 1)) * (sum2_ - (1.0 / (double)count_) * sum_ * sum_)) : 0.0)
              << endl;
 
-  Lng32 size = 16;
+  int size = 16;
   char unit = 'B';
-  for (Lng32 i = 0; i < 17; i++) {
+  for (int i = 0; i < 17; i++) {
     size *= 2;
     if (i == 5) {
       unit = 'K';
@@ -3604,7 +3604,7 @@ void DefaultIpcHeap::deallocateIpcHeapMemory(void *buffer) {
 }
 
 #if (defined(_DEBUG) || defined(NSK_MEMDEBUG))
-void DefaultIpcHeap::dumpIpcHeapInfo(ostream *outstream, Lng32 indent) {
+void DefaultIpcHeap::dumpIpcHeapInfo(ostream *outstream, int indent) {
   // This class doesn't keep track of anything so it can't dump anything
   // useful.
 }
@@ -3667,7 +3667,7 @@ void NAHeap::destoryAndInit() {
 }
 
 template <>
-void NAHashBucketEntry<Int64, NAString>::display() const {
+void NAHashBucketEntry<long, NAString>::display() const {
   printf("(%ld,%p) ", *key_, value_);
 }  //  NAHashBucketEntry<K,V>::display()
 

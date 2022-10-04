@@ -65,7 +65,7 @@ const EncodedValue UNINIT_ENCODEDVALUE(_ENCODEDVALUE_UNINIT_VALUE_);
 // CharType.cpp's encodeString() routine were the ONLY places that needed
 // that functionality, so the encodeString() logic more properly belonged here.
 //
-double EncVal_encodeString(const char *str, Lng32 strLen, CharType *cType) {
+double EncVal_encodeString(const char *str, int strLen, CharType *cType) {
   double result;
 
   // the blank-padded first 8 bytes of string <str>
@@ -173,14 +173,14 @@ double EncVal_Char_encode(const char *theValue, const NAType *theType) {
   if (cType->isVaryingLen()) {
     // copy the actual length of the string into an aligned variable
     short actualLenShort;
-    Lng32 actualLen;
+    int actualLen;
 
     //      ComASSERT(sizeof(short) == cType->getVarLenHdrSize());
     if (cType->getVarLenHdrSize() == sizeof(short)) {
       str_cpy_all((char *)&actualLenShort, charBufPtr, sizeof(short));
       actualLen = actualLenShort;
     } else
-      str_cpy_all((char *)&actualLen, charBufPtr, sizeof(Lng32));
+      str_cpy_all((char *)&actualLen, charBufPtr, sizeof(int));
 
     return EncVal_encodeString(&charBufPtr[cType->getVarLenHdrSize()], actualLen, cType);
   } else  // Fixed length
@@ -477,7 +477,7 @@ void EncodedValue::outputToBufferToComputeRTHash(const NAType *naType,
       len = 8;
       flags = ExHDPHash::SWAP_EIGHT;
       {
-        Int64 y = (Int64)x;
+        long y = (long)x;
         len = 8;
         memcpy(data, &y, len);
       }
@@ -525,12 +525,12 @@ void EncodedValue::addANormValue(EncodedValue *thisPtr, ItemExpr *exprPtr, NABoo
 }  // EncodedValue::addANormValue()
 
 double EncodedValue::minMaxValue(const NAType *pType, const NABoolean wantMin) {
-  Lng32 len = pType->getTotalSize();
+  int len = pType->getTotalSize();
   char *buf = new char[len + 2 + 2];
   char *pt = buf;
 
   if (pType->supportsSQLnullPhysical()) {
-    Lng32 nullHdrSize = pType->getSQLnullHdrSize();
+    int nullHdrSize = pType->getSQLnullHdrSize();
     pt = &buf[nullHdrSize];
     buf[0] = buf[1] = '\0';
     len -= nullHdrSize;
@@ -634,7 +634,7 @@ void EncodedValue::constructorFunction(const NAWchar *theValue, const NAColumnAr
   // when this method is called, we'll lose the histogram warnings
   // anyway. Sigh.
 
-  Lng32 mark = okToReportErrors ? CmpCommon::diags()->mark() : -1;
+  int mark = okToReportErrors ? CmpCommon::diags()->mark() : -1;
 
   // Find the first non-blank char.
   const NAWchar *item = theValue;
@@ -752,9 +752,9 @@ void EncodedValue::constructorFunction(const NAWchar *theValue, const NAColumnAr
       }
     }
 
-    Lng32 len = BOUNDARY_LEN;
-    Lng32 storageSize = 0;
-    Lng32 offset = 0;
+    int len = BOUNDARY_LEN;
+    int storageSize = 0;
+    int offset = 0;
 
     switch (*item) {
       case L'>': {  // generate min as default.
@@ -1035,10 +1035,10 @@ UInt32 EncodedValue::computeHashForNumeric(SQLNumeric *nt) { return getValue().c
 
 UInt32 NormValue::computeHashForNumeric(SQLNumeric *nt) {
   CMPASSERT(nt);
-  Lng32 len = nt->getNominalSize();
+  int len = nt->getNominalSize();
   CMPASSERT(len >= 0);
 
-  Lng32 longTemp;
+  int longTemp;
   ULng32 usLongTemp;
   short shrtTemp;
   unsigned short usShrtTemp;
@@ -1050,7 +1050,7 @@ UInt32 NormValue::computeHashForNumeric(SQLNumeric *nt) {
   // Fix 10-091117-6417.
   // Warning: some of the following conversions can be lossy when the
   // scale is relatively big.  For example, 2.9998611111111111
-  // will become 2.9998611111111112 after converting to Int64,
+  // will become 2.9998611111111112 after converting to long,
   // where 2.9998611111111111 is of type NUMERIC(18, 16). When that value
   // is skewed, we will miss it in the skew buster.
 
@@ -1071,12 +1071,12 @@ UInt32 NormValue::computeHashForNumeric(SQLNumeric *nt) {
       usLongTemp = (ULng32)(x * pow(10.0, nt->getScale()));
       memcpy(result, (char *)&usLongTemp, len);
     } else {
-      longTemp = (Lng32)(x * pow(10.0, nt->getScale()));
+      longTemp = (int)(x * pow(10.0, nt->getScale()));
       memcpy(result, (char *)&longTemp, len);
     }
   } else {
     flags = ExHDPHash::SWAP_EIGHT;
-    Int64 int64Temp = (Int64)(x * pow(10.0, nt->getScale()));
+    long int64Temp = (long)(x * pow(10.0, nt->getScale()));
     memcpy(result, (char *)&int64Temp, len);
   }
 

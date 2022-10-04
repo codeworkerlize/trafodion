@@ -25,7 +25,7 @@ class ComASNodes : public NAVersionedObject {
   virtual void populateImageVersionIDArray();
   virtual short getClassSize();
   virtual Long pack(void *space);
-  virtual Lng32 unpack(void *base, void *reallocator);
+  virtual int unpack(void *base, void *reallocator);
 
  private:
   NABasicPtr serializedNodes_;  // 00-07

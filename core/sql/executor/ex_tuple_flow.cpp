@@ -225,7 +225,7 @@ short ExTupleFlowTcb::work() {
               pstate.srcRequestCount_++;
               tgt_entry->downState.request = pentry_down->downState.request;
               tgt_entry->downState.requestValue = pentry_down->downState.requestValue;
-              tgt_entry->downState.parentIndex = (Lng32)pstate.srcRequestCount_;
+              tgt_entry->downState.parentIndex = (int)pstate.srcRequestCount_;
               tgt_entry->copyAtp(src_entry);
               qTgt_.down->insert();
               pstate.tgtRequests_++;
@@ -242,7 +242,7 @@ short ExTupleFlowTcb::work() {
                 }
 
                 tgt_entry->downState.requestValue = pentry_down->downState.requestValue;
-                tgt_entry->downState.parentIndex = (Lng32)pstate.srcRequestCount_;
+                tgt_entry->downState.parentIndex = (int)pstate.srcRequestCount_;
                 tgt_entry->copyAtp(src_entry);
 
                 qTgt_.down->insert();
@@ -285,7 +285,7 @@ short ExTupleFlowTcb::work() {
               }
 
               pstate.srcRequestCount_++;
-              if (tflowTdb().isRowsetIterator()) da->setAllRowNumber((Lng32)pstate.srcRequestCount_);
+              if (tflowTdb().isRowsetIterator()) da->setAllRowNumber((int)pstate.srcRequestCount_);
 
               ComDiagsArea *accumulatedDiagsArea = pentry->getDiagsArea();
               if (accumulatedDiagsArea) {
@@ -388,7 +388,7 @@ short ExTupleFlowTcb::work() {
                   // when NAR is on, for -8102 error.  Just consume the OK_MMORE.
 
                   if (tflowTdb().isRowsetIterator()) {
-                    da->setAllRowNumber(Lng32(tgt_entry->upState.parentIndex));
+                    da->setAllRowNumber(int(tgt_entry->upState.parentIndex));
                   }
 
                   pstate.nonFatalErrorSeen_ = TRUE;
@@ -448,7 +448,7 @@ short ExTupleFlowTcb::work() {
                 ex_queue_entry *pentry = qParent_.up->getTailEntry();
                 ComDiagsArea *da = pentry->getDiagsArea();
                 ex_assert(da, "To set RowNumber, an error condition must be present in the diags area");
-                da->setAllRowNumber(Lng32(tgt_entry->upState.parentIndex));
+                da->setAllRowNumber(int(tgt_entry->upState.parentIndex));
               }
 
             } break;

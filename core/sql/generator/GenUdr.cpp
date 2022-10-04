@@ -84,7 +84,7 @@ static void addOptionalData(Queue *optData, NAString &description) {
       // Create a buffer containing at most 200 bytes of data
       if (len > 200) len = 200;
       char truncatedBuf[201];
-      str_cpy_all(truncatedBuf, s + 4, (Lng32)len);
+      str_cpy_all(truncatedBuf, s + 4, (int)len);
       truncatedBuf[len] = 0;
 
       // Change NULL bytes and non-ASCII characters to a dot for
@@ -773,11 +773,11 @@ static short udr_codegen(Generator *generator, RelExpr &relExpr, ComTdbUdr *&new
   char *container = NULL;
   char *path = NULL;
   char *librarySqlName = NULL;
-  Int64 libraryRedefTime = NULL;
+  long libraryRedefTime = NULL;
   char *libraryBlobHandle;
   char *librarySchName = NULL;
   Int32 libraryVersion = 0;
-  Int64 libraryObjUID = 0;
+  long libraryObjUID = 0;
   char *runtimeOptions = NULL;
   char *runtimeOptionDelimiters = NULL;
   ComRoutineType rtype = COM_UNKNOWN_ROUTINE_TYPE;
@@ -935,7 +935,7 @@ static short udr_codegen(Generator *generator, RelExpr &relExpr, ComTdbUdr *&new
 
                 estimatedRowCount, given_desc, returned_desc, work_cri_desc, downQueueMaxSize, upQueueMaxSize,
 
-                (Lng32)numOutputBuffers, outputBufferSize, requestBufferSize, replyBufferSize,
+                (int)numOutputBuffers, outputBufferSize, requestBufferSize, replyBufferSize,
 
                 input_expr, output_expr, scan_expr, proj_expr, requestTuppIndex, replyTuppIndex, requestRowLen,
                 replyRowLen, outputRowLen,
@@ -1331,7 +1331,7 @@ short IsolatedScalarUDF::codeGen(Generator *generator) {
   // done.
 
   for (Int32 i = passThruIndex; i < dataEntries; i++) {
-    Int64 dataSize = effectiveMetadata.getDataSize(i);
+    long dataSize = effectiveMetadata.getDataSize(i);
     if (dataSize < 0) dataSize = 0;
 
     const char *data = "";
@@ -1678,7 +1678,7 @@ TrafDesc *TableMappingUDF::createVirtualTableDesc() {
     outColsInfo[i].colName = outCol->getColName().data();
     outColsInfo[i].datatype = outCol->getType()->getFSDatatype();
     outColsInfo[i].length = outCol->getType()->getNominalSize();
-    outColsInfo[i].nullable = (Lng32)outCol->getType()->supportsSQLnull();
+    outColsInfo[i].nullable = (int)outCol->getType()->supportsSQLnull();
   }
   TrafDesc *table_desc = Generator::createVirtualTableDesc(getRoutineName().getQualifiedNameAsString().data(),
                                                            NULL,  // let it decide what heap to use

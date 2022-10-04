@@ -77,7 +77,7 @@
 // for their own purposes and do not need a run directory.
 //-----------------------------------------------------------------------------
 
-ScratchSpace::ScratchSpace(CollHeap *heap, SortError *sorterror, Lng32 blocksize, Int32 scratchIOVectorSize,
+ScratchSpace::ScratchSpace(CollHeap *heap, SortError *sorterror, int blocksize, Int32 scratchIOVectorSize,
                            Int32 explainNodeId, NABoolean logInfoEvent, Int32 scratchMgmtOption)
     : sortError_(sorterror),
       heap_(heap),
@@ -200,7 +200,7 @@ void ScratchSpace::setCallingTcb(ex_tcb *tcb) {
 RESULT ScratchSpace::CreateANewScrFileAndWrite(char *buffer, Int32 blockNum, UInt32 blockLen, NABoolean waited) {
   RESULT retval = SCRATCH_SUCCESS;
 
-  Int64 iowaittime = 0;
+  long iowaittime = 0;
 
   // Before creating the new scratch file, make sure if there are any
   // pending IOs on the current scratch file. If there is, then create
@@ -360,10 +360,10 @@ RESULT ScratchSpace::CreateANewScrFileAndWrite(char *buffer, Int32 blockNum, UIn
 //
 //-----------------------------------------------------------------------
 RESULT ScratchSpace::writeThru(char *buf, ULng32 len, DWORD &blockNum) {
-  Int64 iowaittime = 0;
+  long iowaittime = 0;
   RESULT retval = WRITE_EOF;
   DWORD byteAddr = 0;
-  Int64 byteOffset = 0;
+  long byteOffset = 0;
   Int32 fileIndex = -1;
 
   // ScratchSpace::WriteThru is only applicable for single opens to
@@ -497,7 +497,7 @@ RESULT ScratchSpace::writeThru(char *buf, ULng32 len, DWORD &blockNum) {
 //
 //-----------------------------------------------------------------------
 RESULT ScratchSpace::readThru(char *buf,
-                              Lng32 blockNum,  // block# starting from one
+                              int blockNum,  // block# starting from one
                               ULng32 buflen, ScratchFile *readScratchFile, Int32 readBlockOffset) {
   // sanity check
   ex_assert(buflen == blockSize_, "ScratchSpace::readThru buffer size mismatch");
@@ -514,8 +514,8 @@ RESULT ScratchSpace::readThru(char *buf,
     return SCRATCH_FAILURE;
   }
 
-  Int64 iowaittime = 0;
-  Lng32 blockOffset = 0, byteOffset = 0;
+  long iowaittime = 0;
+  int blockOffset = 0, byteOffset = 0;
   Int32 fileIndex = -1;
 
   if (readScratchFile != NULL) {
@@ -572,9 +572,9 @@ RESULT ScratchSpace::readThru(char *buf,
 // Position and then write, given the file and block number.
 RESULT ScratchSpace::writeFile(char *block, UInt32 blockNum, UInt32 blockLen) {
   RESULT retval = WRITE_EOF;
-  Lng32 blockOffset = 0;
-  Int64 byteOffset = 0;
-  Int64 iowaittime = 0;
+  int blockOffset = 0;
+  long byteOffset = 0;
+  long iowaittime = 0;
   Int32 fileIndex = -1;
 
   //---------------------------------------------------------------
@@ -616,7 +616,7 @@ RESULT ScratchSpace::writeFile(char *block, UInt32 blockNum, UInt32 blockLen) {
         );
         return SCRATCH_FAILURE;
       }
-      Lng32 lByteOffset = (Lng32)byteOffset;
+      int lByteOffset = (int)byteOffset;
       retval = currentWriteScrFile_->seekOffset(fileIndex, lByteOffset, iowaittime);
       if (retval) {
         // Error 45 or 43 means reached EOF or no more
@@ -694,7 +694,7 @@ RESULT ScratchSpace::writeFile(char *block, UInt32 blockNum, UInt32 blockLen) {
 //-----------------------------------------------------------------------
 
 RESULT ScratchSpace::checkIO(ScratchFile *sFile, NABoolean checkAll) {
-  Int64 iowaittime = 0;
+  long iowaittime = 0;
   RESULT retval = IO_COMPLETE;
   ScratchFile *tempFile = (sFile != NULL) ? sFile : currentIOScrFile_;
 
@@ -961,7 +961,7 @@ void ScratchSpace::configure(const ExExeStmtGlobals *stmtGlobals, ExSubtask *ioE
 //
 //-----------------------------------------------------------------------
 
-Lng32 ScratchSpace::getTotalNumOfScrBlocks() const { return totalNumOfScrBlocks_; }
+int ScratchSpace::getTotalNumOfScrBlocks() const { return totalNumOfScrBlocks_; }
 //-----------------------------------------------------------------------
 // Name         : getTotalIoWaitTime
 //
@@ -969,11 +969,11 @@ Lng32 ScratchSpace::getTotalNumOfScrBlocks() const { return totalNumOfScrBlocks_
 //
 // Description  : This function retrieves totalo wait time
 //
-// Return Value : Int64 totalIoWaitTime_
+// Return Value : long totalIoWaitTime_
 //
 //-----------------------------------------------------------------------
 
-void ScratchSpace::getTotalIoWaitTime(Int64 &iowaitTime) const { iowaitTime = totalIoWaitTime_; }
+void ScratchSpace::getTotalIoWaitTime(long &iowaitTime) const { iowaitTime = totalIoWaitTime_; }
 
 //-----------------------------------------------------------------------
 // Name         : getScrFilesMap
@@ -1225,7 +1225,7 @@ RESULT SortScratchSpace::writeRunData(char *data, ULng32 reclen, ULng32 run, NAB
   // there may be cases where setmode(141,*) switches to different value if mirror is
   // down.
   // We could do some cleanup to not perform subtraction for every row.
-  if ((blockHead_.bytesUsed_ + (Lng32)reclen) <= (blockSize_ - DP2_CHECKSUM_BYTES)) {
+  if ((blockHead_.bytesUsed_ + (int)reclen) <= (blockSize_ - DP2_CHECKSUM_BYTES)) {
     memcpy(nextWritePosition_, data, (Int32)reclen);
     blockHead_.bytesUsed_ += reclen;
     blockHead_.numRecs_ += 1;
@@ -1323,8 +1323,8 @@ RESULT SortScratchSpace::flushRun(NABoolean endrun, NABoolean waited) {
 //-----------------------------------------------------------------------
 
 RESULT SortScratchSpace::initiateSortMergeNodeRead(SortMergeNode *sortMergeNode, NABoolean waited) {
-  Lng32 blockOffset;
-  Int64 iowaittime = 0;
+  int blockOffset;
+  long iowaittime = 0;
   Int32 numOutStandingIO = 0;
   SortMergeBuffer *mbTemp;
   RESULT retval = SCRATCH_SUCCESS;
@@ -1421,7 +1421,7 @@ RESULT SortScratchSpace::initiateSortMergeNodeRead(SortMergeNode *sortMergeNode,
 
 RESULT SortScratchSpace::readSortMergeNode(SortMergeNode *sortMergeNode, char *&rec, ULng32 reclen, ULng32 &actRecLen,
                                            NABoolean waited, Int16 numberOfBytesForRecordSize) {
-  Int64 ioWaitTime = 0;
+  long ioWaitTime = 0;
   RESULT retval = SCRATCH_SUCCESS;
   actRecLen = reclen;
 
@@ -1552,7 +1552,7 @@ NABoolean SortScratchSpace::switchScratchBuffers(void) {
 
 RESULT SortScratchSpace::serveAnyFreeSortMergeBufferRead(void) {
   RESULT retval;
-  Int64 ioWaitTime = 0;
+  long ioWaitTime = 0;
   ScratchFile *tempFile;
   for (Int32 i = 0; i < scrFilesMap_->numScratchFiles_; i++) {
     tempFile = scrFilesMap_->fileMap_[i].scrFile_;
@@ -1566,7 +1566,7 @@ RESULT SortScratchSpace::serveAnyFreeSortMergeBufferRead(void) {
 // This call is not to be called for general cleanup of
 // scratch files. inRun is the greatest run number that
 // needs to be cleanedup from the beginning.
-RESULT SortScratchSpace::cleanupScratchFiles(Lng32 inRun) {
+RESULT SortScratchSpace::cleanupScratchFiles(int inRun) {
   // calculate the beginning block number of the (inRun + 1).
   // Basic idea is to retain scratch file that hosts this blocknum
   // and cleanup all scratch files before this scratch file.
@@ -1608,7 +1608,7 @@ RESULT SortScratchSpace::cleanupScratchFiles(Lng32 inRun) {
 //
 //-----------------------------------------------------------------------
 
-Lng32 SortScratchSpace::getTotalNumOfRuns(void) { return runDirectory_->getTotalNumOfRuns(); }
+int SortScratchSpace::getTotalNumOfRuns(void) { return runDirectory_->getTotalNumOfRuns(); }
 
 //-------------------------------------------------------------
 // HashScratchSpace is a specialization over ScratchSpace providing
@@ -2017,7 +2017,7 @@ RESULT HashScratchSpace::registerClusterBlock(UInt32 clusterID, DWORD blockNum) 
   return SCRATCH_SUCCESS;
 }
 
-SortMergeNode::SortMergeNode(Lng32 associatedrun, SortScratchSpace *sortScratchSpace)
+SortMergeNode::SortMergeNode(int associatedrun, SortScratchSpace *sortScratchSpace)
     : associatedRun_(associatedrun),
       numRecsRead_(0),
       nextReadPosition_(NULL),
@@ -2047,7 +2047,7 @@ void SortMergeNode::cleanup(void) {
   while (readQHead_) scratch_->returnFreeSortMergeBuffer(delinkReadQ());
 }
 
-RESULT SortMergeNode::checkIO(Int64 &ioWaitTime, NABoolean waited) {
+RESULT SortMergeNode::checkIO(long &ioWaitTime, NABoolean waited) {
   ioWaitTime = 0;
 
   // State should never be IDLE to begin with. IDLE is the last state of the buffer.

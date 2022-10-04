@@ -215,7 +215,7 @@ class ComNodeName : public ComGuardianFileNamePart {
   const char *getNodeNameWithoutBackslash(void) const { return &((char *)(&namePart_))[1]; };
   NABoolean isValid(const NABoolean emptyIsOK = FALSE) const { return isNamePartValid('\\', emptyIsOK, 2); };
   // Get the node number - return value is FE error
-  Int32 getNodeNumber(Lng32 &nodeNumber) const;
+  Int32 getNodeNumber(int &nodeNumber) const;
 
   // Mutators
   void setLocal(void) { namePart_ = ComGetNodeNameAsInt64(-1); };

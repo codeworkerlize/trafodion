@@ -82,12 +82,12 @@ class ElemDDLLike : public ElemDDLNode {
 
   // accessors
   virtual Int32 getArity() const;
-  virtual ExprNode *getChild(Lng32 index);
+  virtual ExprNode *getChild(int index);
   inline const NAString &getSourceTableName() const;
   inline const CorrName &getDDLLikeNameAsCorrName() const;
   inline CorrName &getDDLLikeNameAsCorrName();
   // mutators
-  virtual void setChild(Lng32 index, ExprNode *pChildNode);
+  virtual void setChild(int index, ExprNode *pChildNode);
   inline void setSourceTableName(const NAString &sourceTableName);
 
   // methods for tracing

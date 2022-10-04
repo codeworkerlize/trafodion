@@ -70,10 +70,10 @@ class AsyncIOBuffer : public NABasicObject {
   char *scrBlock_;
   ScratchFile *currentScrFile_;  // scratch file associated when IO pending, else NULL
   enum AsyncIOBufferState state_;
-  Lng32 currentIOByteOffset_;  // seekoffset into currentScrFile_ for IO
+  int currentIOByteOffset_;  // seekoffset into currentScrFile_ for IO
 
   // Not used on NSK
-  Lng32 currentIOByteLength_;  // expected IO size read
+  int currentIOByteLength_;  // expected IO size read
   ULng32 tag_;
 
   void reset(void) {
@@ -117,7 +117,7 @@ class ScratchFile : public NABasicObject {
   };
 
  public:
-  ScratchFile(ScratchSpace *scratchSpace, Int64 fileSize, SortError *sorterror, CollHeap *heap, Int32 numOpens = 1,
+  ScratchFile(ScratchSpace *scratchSpace, long fileSize, SortError *sorterror, CollHeap *heap, Int32 numOpens = 1,
               NABoolean breakEnabled = FALSE);
   ScratchFile(NABoolean breakEnabled);
   virtual ~ScratchFile();
@@ -125,28 +125,28 @@ class ScratchFile : public NABasicObject {
   virtual RESULT checkScratchIO(Int32 index, DWORD timeout = 0, NABoolean initiateIO = FALSE) = 0;
   virtual void setEventHandler(ExSubtask *eh, IpcEnvironment *ipc, ex_tcb *tcb) = 0;
   virtual RESULT getError(Int32 index) { return SCRATCH_FAILURE; };
-  virtual RESULT isEOF(Int32 index, Int64 &iowaittime, Lng32 *transfered = NULL) = 0;
-  virtual RESULT readBlock(Int32 index, char *data, Lng32 length, Int64 &iowaittime, Lng32 *transfered = NULL,
+  virtual RESULT isEOF(Int32 index, long &iowaittime, int *transfered = NULL) = 0;
+  virtual RESULT readBlock(Int32 index, char *data, int length, long &iowaittime, int *transfered = NULL,
                            Int32 synchronous = 1) = 0;
-  virtual RESULT queueReadRequestAndServe(AsyncIOBuffer *ab, Int64 &ioWaitTime);
-  virtual RESULT seekEnd(Int32 index, DWORD &eofAddr, Int64 &iowaittime, Lng32 *transfered = NULL) = 0;
-  virtual RESULT seekOffset(Int32 index, Lng32 offset, Int64 &iowaittime, Lng32 *transfered = NULL,
+  virtual RESULT queueReadRequestAndServe(AsyncIOBuffer *ab, long &ioWaitTime);
+  virtual RESULT seekEnd(Int32 index, DWORD &eofAddr, long &iowaittime, int *transfered = NULL) = 0;
+  virtual RESULT seekOffset(Int32 index, int offset, long &iowaittime, int *transfered = NULL,
                             DWORD seekDirection = 0 /* FILE_BEGIN */) = 0;
-  virtual RESULT writeBlock(Int32 index, char *data, Lng32 length, Int64 &iowaittime, Int32 blockNum = 0,
-                            Lng32 *transfered = NULL, NABoolean waited = FALSE_L) = 0;
-  virtual RESULT serveAsynchronousReadQueue(Int64 &ioWaitTime, NABoolean onlyIfFreeHandles = FALSE,
+  virtual RESULT writeBlock(Int32 index, char *data, int length, long &iowaittime, Int32 blockNum = 0,
+                            int *transfered = NULL, NABoolean waited = FALSE_L) = 0;
+  virtual RESULT serveAsynchronousReadQueue(long &ioWaitTime, NABoolean onlyIfFreeHandles = FALSE,
                                             NABoolean waited = FALSE);
   virtual RESULT processAsynchronousReadCompletion(Int32 index);
-  virtual RESULT completeSomeAsynchronousReadIO(DWORD timeout, ULng32 &eventIndex, Int64 &ioWaitTime) {
+  virtual RESULT completeSomeAsynchronousReadIO(DWORD timeout, ULng32 &eventIndex, long &ioWaitTime) {
     return SCRATCH_FAILURE;
   }
-  virtual RESULT completeAsynchronousReadIO(ULng32 eventIndex, Int64 &ioWaitTime) { return SCRATCH_FAILURE; }
+  virtual RESULT completeAsynchronousReadIO(ULng32 eventIndex, long &ioWaitTime) { return SCRATCH_FAILURE; }
   // Truncate file and cancel any pending I/O operation
   virtual void truncate(void) = 0;
 
-  Lng32 getNumOfReads() { return numOfReads_; }
-  Lng32 getNumOfWrites() { return numOfWrites_; }
-  Lng32 getNumOfAwaitio() { return numOfAwaitio_; }
+  int getNumOfReads() { return numOfReads_; }
+  int getNumOfWrites() { return numOfWrites_; }
+  int getNumOfAwaitio() { return numOfAwaitio_; }
 
   virtual Int32 getFreeFileHandle(void) = 0;
   virtual NABoolean isAnyIOPending(void) { return FALSE; }
@@ -161,7 +161,7 @@ class ScratchFile : public NABasicObject {
 
   virtual RESULT executeVectorIO() { return SCRATCH_FAILURE; };
   virtual NABoolean isVectorIOPending(Int32 index) { return FALSE; }
-  virtual NABoolean isNewVecElemPossible(Int64 byteOffset, Int32 blockSize) { return FALSE; }
+  virtual NABoolean isNewVecElemPossible(long byteOffset, Int32 blockSize) { return FALSE; }
   virtual NABoolean isVectorPartiallyFilledAndPending(Int32 index) { return FALSE; }
   virtual void copyVectorElements(ScratchFile *newFile){};
   virtual Int32 getBlockNumFirstVectorElement() { return -1; };
@@ -169,8 +169,8 @@ class ScratchFile : public NABasicObject {
   virtual Int32 lastError() { return -1; }
 
   NABoolean breakEnabled() { return breakEnabled_; };
-  Int64 &bytesWritten() { return bytesWritten_; };
-  Int64 resultFileSize() { return resultFileSize_; }
+  long &bytesWritten() { return bytesWritten_; };
+  long resultFileSize() { return resultFileSize_; }
   FileHandle1 fileHandle_[MAX_SCRATCH_FILE_OPENS];
   NABoolean diskError() { return diskError_; };
 
@@ -180,16 +180,16 @@ class ScratchFile : public NABasicObject {
   ScratchSpace *scratchSpace_;
   SortError *sortError_;
   CollHeap *heap_;
-  Lng32 numReadsPending_;
-  Lng32 numBytesTransfered_;  // keep track of count returned by AWAITIOX
-  Lng32 numOfReads_;
-  Lng32 numOfWrites_;
-  Lng32 numOfAwaitio_;
-  Int64 bytesWritten_;
+  int numReadsPending_;
+  int numBytesTransfered_;  // keep track of count returned by AWAITIOX
+  int numOfReads_;
+  int numOfWrites_;
+  int numOfAwaitio_;
+  long bytesWritten_;
   Int32 primaryExtentSize_;
   Int32 secondaryExtentSize_;
   Int32 maxExtents_;
-  Int64 resultFileSize_;
+  long resultFileSize_;
   Int32 numOpens_;             // Indicates number of opens on file.
   NABoolean asynchReadQueue_;  // indicates if the user needs asynchIObuffer use
 

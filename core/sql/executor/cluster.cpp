@@ -239,7 +239,7 @@ void Bucket::init() {
 };
 /////////////////////////////////////////////////////////////////////////////
 
-ClusterDB::ClusterDB(HashOperator hashOperator, ULng32 bufferSize, atp_struct *workAtp, Lng32 explainNodeId,
+ClusterDB::ClusterDB(HashOperator hashOperator, ULng32 bufferSize, atp_struct *workAtp, int explainNodeId,
                      short hashTableRowAtpIndex1, short hashTableRowAtpIndex2, ex_expr *searchExpr, Bucket *buckets,
                      ULng32 bucketCount, ULng32 availableMemory, short pressureThreshold, ExExeStmtGlobals *stmtGlobals,
                      ExeErrorCode *rc, NABoolean noOverFlow, NABoolean isPartialGroupBy,
@@ -336,7 +336,7 @@ ClusterDB::ClusterDB(HashOperator hashOperator, ULng32 bufferSize, atp_struct *w
   // we are not running in DP2. Setup our own bufferHeap. We want at least
   // 10 buffers in each block of this heap. Also add a few bytes to the buffer
   // size to account for some memory management overhead.
-  bufferHeap_ = new (collHeap()) NAHeap("Buffer Heap", bufferHeap_, 10 * ((Lng32)bufferSize_ + 20));
+  bufferHeap_ = new (collHeap()) NAHeap("Buffer Heap", bufferHeap_, 10 * ((int)bufferSize_ + 20));
 
   // These fields are used to ensure that #buckets and #hash-table-entries
   // have no common prime factors (to make even use of the hash table entries)
@@ -387,7 +387,7 @@ ClusterDB::~ClusterDB() {
 
 /////////////////////////////////////////////////////////////////////////////
 // given the time it took some cluster to run phase 3, add to local stats
-void ClusterDB::updatePhase3Time(Int64 someClusterTime) {
+void ClusterDB::updatePhase3Time(long someClusterTime) {
   totalPhase3TimeNoHL_ += someClusterTime;
   if (!minPhase3Time_ ||                 // first time
       minPhase3Time_ > someClusterTime)  // found smaller time
@@ -426,7 +426,7 @@ void ClusterDB::YieldQuota(UInt32 memNeeded) {
   memNeededMB = MAXOF(memNeededMB, minMemoryQuotaMB_);
 
   // mem quota to yield (could be negative; e.g. with a big flushed cluster)
-  Lng32 memToYieldMB = (Lng32)memoryQuotaMB_ - (Lng32)memNeededMB;
+  int memToYieldMB = (int)memoryQuotaMB_ - (int)memNeededMB;
 
   // if there is no memory to yield - then return
   if (memToYieldMB <= 1) return;  // 1 MB - to avoid thrashing
@@ -483,7 +483,7 @@ void ClusterDB::yieldUnusedMemoryQuota(Cluster *theOFList, ULng32 extraBuffers) 
   // Need to keep the greater of what is currently used, or the largest
   // flushed (inner) cluster plus a needed hash table
 
-  Int64 maxFlushedClusterSize = 0;  // find max size of flushed cluster
+  long maxFlushedClusterSize = 0;  // find max size of flushed cluster
   ULng32 maxRowCount = 0;
   // HGB uses a seperate list for the overflown clusters
   Cluster *clusters = theOFList ? theOFList : clusterList_;
@@ -512,7 +512,7 @@ void ClusterDB::yieldUnusedMemoryQuota(Cluster *theOFList, ULng32 extraBuffers) 
   memNeededMB = MAXOF(memNeededMB, minMemoryQuotaMB_);
 
   // mem quota to yield (could be negative; e.g. with a big flushed cluster)
-  Lng32 memToYieldMB = (Lng32)memoryQuotaMB_ - (Lng32)memNeededMB;
+  int memToYieldMB = (int)memoryQuotaMB_ - (int)memNeededMB;
 
   // if there is no memory to yield - then return
   if (memToYieldMB <= 1) return;  // 1 MB - to avoid thrashing
@@ -775,7 +775,7 @@ NABoolean ClusterDB::enoughMemory(ULng32 reqSize, NABoolean checkCompilerHints) 
   // 	      if ( ! earlyOverflowStarted_ && doLog_ ) { // log first time
   // 		sprintf(msg,
   // 			"Estimate %ld MB exceeded quota %ld MB: OVERFLOW started. Total memory used %lu",
-  // 			(Lng32) E, (Lng32) memoryQuotaMB_,
+  // 			(int) E, (int) memoryQuotaMB_,
   // 			memoryUsed_);
   // 		// log an EMS event and continue
   // 		SQLMXLoggingArea::logExecRtInfo(NULL, 0, msg, explainNodeId_);
@@ -1386,8 +1386,8 @@ NABoolean Cluster::initScratch(ExeErrorCode *rc) {
   if (!clusterDb_->tempFile_) {
     ExExeStmtGlobals *stmtGlobals = clusterDb_->stmtGlobals_;
     const ExScratchFileOptions *sfo = stmtGlobals->getScratchFileOptions();
-    Lng32 numOfInstances = stmtGlobals->getNumOfInstances();
-    Lng32 myInstanceNumber = stmtGlobals->getMyInstanceNumber();
+    int numOfInstances = stmtGlobals->getNumOfInstances();
+    int myInstanceNumber = stmtGlobals->getMyInstanceNumber();
     SortError *sortError = new (collHeap(), FALSE) SortError();
 
     HashScratchSpace *tempFile = new (collHeap(), FALSE)
@@ -1452,9 +1452,9 @@ NABoolean Cluster::flush(ComDiagsArea *&da, CollHeap *heap) {
       char msg[512];
       if (rc == EXE_SORT_ERROR) {
         char errorMsg[100];
-        Lng32 scratchError = 0;
-        Lng32 scratchSysError = 0;
-        Lng32 scratchSysErrorDetail = 0;
+        int scratchError = 0;
+        int scratchSysError = 0;
+        int scratchSysErrorDetail = 0;
 
         if (clusterDb_ != NULL) {
           clusterDb_->getScratchErrorDetail(scratchError, scratchSysError, scratchSysErrorDetail, errorMsg);
@@ -2158,9 +2158,9 @@ NABoolean Cluster::read(ComDiagsArea *&da, CollHeap *heap) {
       char msg[512];
       if (rc == EXE_SORT_ERROR) {
         char errorMsg[100];
-        Lng32 scratchError = 0;
-        Lng32 scratchSysError = 0;
-        Lng32 scratchSysErrorDetail = 0;
+        int scratchError = 0;
+        int scratchSysError = 0;
+        int scratchSysErrorDetail = 0;
 
         if (clusterDb_ != NULL) {
           clusterDb_->getScratchErrorDetail(scratchError, scratchSysError, scratchSysErrorDetail, errorMsg);
@@ -2195,7 +2195,7 @@ NABoolean Cluster::checkAndSplit(ExeErrorCode *rc) {
   // Check if a Cluster-Split is needed
 
   // total memory needed == inner cluster + outer cluster buffer + hash table
-  Int64 requiredMem = totalClusterSize_ + clusterDb_->bufferSize_ + getMemorySizeForHashTable(rowCount_);
+  long requiredMem = totalClusterSize_ + clusterDb_->bufferSize_ + getMemorySizeForHashTable(rowCount_);
   if ((requiredMem <= clusterDb_->maxClusterSize_  // need more than max ?
        || clusterDb_->earlyOverflowStarted_)       // can't tell max cluster size
       && (!clusterDb_->forceClusterSplitAfterMB_   // testing CQD was set ?
@@ -2541,7 +2541,7 @@ NABoolean IOTimer::startTimer() {
   }
 };
 
-Int64 IOTimer::endTimer() {
+long IOTimer::endTimer() {
   if (ioStarted_) {
     ioStarted_ = FALSE;
     accumTime_ += NA_JulianTimestamp() - startTime_;
@@ -2549,22 +2549,22 @@ Int64 IOTimer::endTimer() {
   return accumTime_;
 };
 
-void ClusterDB::getScratchErrorDetail(Lng32 &scratchError, Lng32 &scratchSysError, Lng32 &scratchSysErrorDetail,
+void ClusterDB::getScratchErrorDetail(int &scratchError, int &scratchSysError, int &scratchSysErrorDetail,
                                       char *errorMsg) {
   SortError *sError = NULL;
   if (tempFile_) sError = tempFile_->getSortError();
 
   if (sError) {
-    scratchError = (Lng32)sError->getSortError();
-    scratchSysError = (Lng32)sError->getSysError();
-    scratchSysErrorDetail = (Lng32)sError->getErrorDetail();
+    scratchError = (int)sError->getSortError();
+    scratchSysError = (int)sError->getSysError();
+    scratchSysErrorDetail = (int)sError->getErrorDetail();
     strcpy(errorMsg, sError->getSortErrorMsg());
   }
 }
 
 // Every time totalIOCnt_ grows, update the stats for this operator
 void ClusterDB::updateIOStats() {
-  Int64 ioSize = (Int64)bufferSize_ * (Int64)totalIOCnt_;
+  long ioSize = (long)bufferSize_ * (long)totalIOCnt_;
   if (hashOperStats_->castToExHashGroupByStats())
     hashOperStats_->castToExHashGroupByStats()->updIoSize(ioSize);
   else if (hashOperStats_->castToExHashJoinStats())

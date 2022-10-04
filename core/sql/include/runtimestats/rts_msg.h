@@ -146,7 +146,7 @@ enum RtsMessageObjType {
 
 };
 
-typedef Int64 RtsHandle;
+typedef long RtsHandle;
 #define INVALID_RTS_HANDLE  0
 #define RtsHandleIsValid(x) ((x) != (INVALID_RTS_HANDLE))
 
@@ -375,7 +375,7 @@ class RtsQueryId : public RtsMessageObj {
     subReqType_ = -1;
   }
 
-  RtsQueryId(NAMemory *heap, char *queryId, Lng32 queryIdLen, UInt16 statsMergeType = SQLCLI_SAME_STATS,
+  RtsQueryId(NAMemory *heap, char *queryId, int queryIdLen, UInt16 statsMergeType = SQLCLI_SAME_STATS,
              short activeQueryNum = 1, short reqType = SQLCLI_STATS_REQ_QID, short detailLevel = 0)
       : RtsMessageObj(RTS_QUERY_ID, currRtsQueryIdVersionNumber, heap),
         statsMergeType_(statsMergeType),
@@ -398,7 +398,7 @@ class RtsQueryId : public RtsMessageObj {
              short activeQueryNum = 1);
   RtsQueryId(NAMemory *heap, char *nodeName, short cpu, pid_t pid, UInt16 statsMergeType = SQLCLI_SAME_STATS,
              short activeQueryNum = 1, short reqType = SQLCLI_STATS_REQ_PID);
-  RtsQueryId(NAMemory *heap, char *nodeName, short cpu, pid_t pid, Int64 timeStamp, Lng32 queryNumber,
+  RtsQueryId(NAMemory *heap, char *nodeName, short cpu, pid_t pid, long timeStamp, int queryNumber,
              UInt16 statsMergeType = SQLCLI_SAME_STATS, short activeQueryNum = 1,
              short reqType = SQLCLI_STATS_REQ_QID_INTERNAL);
   char *getQid() { return queryId_; }
@@ -408,8 +408,8 @@ class RtsQueryId : public RtsMessageObj {
   void setSubReqType(short subReqType) { subReqType_ = subReqType; }
   short getCpu() { return cpu_; }
   pid_t getPid() { return pid_; }
-  Int64 getTimeStamp() { return timeStamp_; }
-  Lng32 getQueryNumber() { return queryNumber_; }
+  long getTimeStamp() { return timeStamp_; }
+  int getQueryNumber() { return queryNumber_; }
   short getActiveQueryNum() { return activeQueryNum_; }
   short getDetailLevel() { return detailLevel_; }
 
@@ -432,7 +432,7 @@ class RtsQueryId : public RtsMessageObj {
   void unpackObj(IpcMessageObjType objType, IpcMessageObjVersion objVersion, NABoolean sameEndianness,
                  IpcMessageObjSize objSize, IpcConstMessageBufferPtr buffer);
   char *getQueryId() { return queryId_; }
-  Lng32 getQueryIdLen() { return queryIdLen_; }
+  int getQueryIdLen() { return queryIdLen_; }
   enum activeQueryDef {
     ALL_ACTIVE_QUERIES_ = 0,
     ANY_QUERY_ = -1
@@ -448,12 +448,12 @@ class RtsQueryId : public RtsMessageObj {
   RtsQueryId &operator=(const RtsQueryId &);
 
   char *queryId_;
-  Lng32 queryIdLen_;
+  int queryIdLen_;
   char nodeName_[MAX_SEGMENT_NAME_LEN + 1];
   short cpu_;
   pid_t pid_;
-  Int64 timeStamp_;
-  Lng32 queryNumber_;
+  long timeStamp_;
+  int queryNumber_;
   short reqType_;
   UInt16 statsMergeType_;
   short activeQueryNum_;
@@ -487,8 +487,8 @@ class RtsCpuStatsReq : public RtsMessageObj {
   short getReqType() { return reqType_; }
   void setSubReqType(short subReqType) { subReqType_ = subReqType; }
   short getSubReqType() { return subReqType_; }
-  void setFilter(Lng32 filter) { filter_ = filter; }
-  Lng32 getFilter() { return filter_; }
+  void setFilter(int filter) { filter_ = filter; }
+  int getFilter() { return filter_; }
   short getCpu() { return cpu_; }
   enum noOfQueriesDef {
     SE_PERTABLE_STATS = -4,
@@ -504,7 +504,7 @@ class RtsCpuStatsReq : public RtsMessageObj {
   short noOfQueries_;
   short reqType_;
   short subReqType_;
-  Lng32 filter_;
+  int filter_;
 };
 
 class RtsExplainFrag : public RtsMessageObj {
@@ -550,15 +550,15 @@ class RtsExplainFrag : public RtsMessageObj {
   IpcMessageObjSize packObjIntoMessage(IpcMessageBufferPtr buffer);
   void unpackObj(IpcMessageObjType objType, IpcMessageObjVersion objVersion, NABoolean sameEndianness,
                  IpcMessageObjSize objSize, IpcConstMessageBufferPtr buffer);
-  void setExplainFrag(void *explainFrag, Lng32 len, Lng32 topNodeOffset);
-  inline Lng32 getExplainFragLen() { return explainFragLen_; }
+  void setExplainFrag(void *explainFrag, int len, int topNodeOffset);
+  inline int getExplainFragLen() { return explainFragLen_; }
   inline void *getExplainFrag() { return explainFrag_; }
-  inline Lng32 getTopNodeOffset() { return topNodeOffset_; }
+  inline int getTopNodeOffset() { return topNodeOffset_; }
 
  private:
   void *explainFrag_;
-  Lng32 explainFragLen_;
-  Lng32 topNodeOffset_;
+  int explainFragLen_;
+  int topNodeOffset_;
 };
 
 class RtsExplainReq : public RtsMessageObj {
@@ -573,9 +573,9 @@ class RtsExplainReq : public RtsMessageObj {
     qidLen_ = 0;
   }
 
-  RtsExplainReq(const RtsHandle &h, NAMemory *heap, char *qid, Lng32 qidLen);
+  RtsExplainReq(const RtsHandle &h, NAMemory *heap, char *qid, int qidLen);
   char *getQid() { return qid_; }
-  Lng32 getQidLen() { return qidLen_; }
+  int getQidLen() { return qidLen_; }
 
   ~RtsExplainReq();
 
@@ -586,7 +586,7 @@ class RtsExplainReq : public RtsMessageObj {
 
  private:
   char *qid_;
-  Lng32 qidLen_;
+  int qidLen_;
 };
 
 class RtsExplainReply : public RtsMessageObj {
@@ -623,7 +623,7 @@ class QueryStarted : public RtsMessageObj {
     XPROCESSHANDLE_NULLIT_(&master_.phandle_);
   }
 
-  QueryStarted(const RtsHandle &h, NAMemory *heap, Int64 startTime, Int32 executionCount)
+  QueryStarted(const RtsHandle &h, NAMemory *heap, long startTime, Int32 executionCount)
       : RtsMessageObj(CANCEL_QUERY_STARTED_REQ, CurrQueryStartedReqVersionNumber, heap),
         startTime_(startTime),
         executionCount_(executionCount),
@@ -637,7 +637,7 @@ class QueryStarted : public RtsMessageObj {
   void unpackObj(IpcMessageObjType objType, IpcMessageObjVersion objVersion, NABoolean sameEndianness,
                  IpcMessageObjSize objSize, IpcConstMessageBufferPtr buffer);
 
-  Int64 getStartTime() const { return startTime_; }
+  long getStartTime() const { return startTime_; }
 
   GuaProcessHandle getMasterPhandle() const { return master_; }
 
@@ -646,7 +646,7 @@ class QueryStarted : public RtsMessageObj {
  private:
   // Compare to Cancel message's timestamp to disallow cancel
   // before target query has started.
-  Int64 startTime_;
+  long startTime_;
 
   // If query has no servers, or second interval lapses, then kill
   // master if the CANCEL.
@@ -748,7 +748,7 @@ class CancelQueryRequest : public RtsMessageObj {
     setHandle(h);
   }
 
-  CancelQueryRequest(const RtsHandle &h, NAMemory *heap, Int64 startTime, Int32 firstEscalationInterval,
+  CancelQueryRequest(const RtsHandle &h, NAMemory *heap, long startTime, Int32 firstEscalationInterval,
                      Int32 secondEscalationInterval, NABoolean cancelEscalationSaveabend, char *comment,
                      Int32 commentLength, bool cancelLogging, bool cancelByPid, Int32 cancelPid, Int32 minimumAge)
       : RtsMessageObj(CANCEL_QUERY_REQ, CurrCancelQueryReqVersionNumber, heap),
@@ -776,7 +776,7 @@ class CancelQueryRequest : public RtsMessageObj {
   void unpackObj(IpcMessageObjType objType, IpcMessageObjVersion objVersion, NABoolean sameEndianness,
                  IpcMessageObjSize objSize, IpcConstMessageBufferPtr buffer);
 
-  Int64 getCancelStartTime() const { return cancelStartTime_; }
+  long getCancelStartTime() const { return cancelStartTime_; }
 
   Int32 getFirstEscalationInterval() const { return firstEscalationInterval_; }
 
@@ -799,7 +799,7 @@ class CancelQueryRequest : public RtsMessageObj {
  private:
   // Compare to target query's timestamp to disallow cancel
   // before target query has started.
-  Int64 cancelStartTime_;
+  long cancelStartTime_;
 
   // CANCEL_ESCALATION_INTERVAL1 - in seconds
   Int32 firstEscalationInterval_;
@@ -1101,7 +1101,7 @@ class ObjectEpochChangeRequest : public RtsMessageObj {
   }
 
   ObjectEpochChangeRequest(NAMemory *heap, Operation operation, Int32 objectNameLength, const char *objectName,
-                           Int64 redefTime, UInt64 key, UInt32 expectedEpoch, UInt32 expectedFlags, UInt32 newEpoch,
+                           long redefTime, UInt64 key, UInt32 expectedEpoch, UInt32 expectedFlags, UInt32 newEpoch,
                            UInt32 newFlags);
 
   virtual ~ObjectEpochChangeRequest();
@@ -1125,7 +1125,7 @@ class ObjectEpochChangeRequest : public RtsMessageObj {
   Int32 operation_;  // takes value from enum Operation
   Int32 objectNameLength_;
   char *objectName_;
-  Int64 redefTime_;       // redefinition timestamp of object (0 if not available)
+  long redefTime_;       // redefinition timestamp of object (0 if not available)
   UInt64 key_;            // key for Object Epoch Entry
   UInt32 expectedEpoch_;  // expected epoch for START, COMPLETE operations
   UInt32 expectedFlags_;  // expected flags for START, COMPLETE operations
@@ -1183,7 +1183,7 @@ class ObjectEpochStatsRequest : public RtsMessageObj {
   ObjectEpochStatsRequest(NAMemory *heap)
       : RtsMessageObj(OBJECT_EPOCH_STATS_REQ, CurrObjectEpochStatsRequestVersionNumber, heap) {}
 
-  ObjectEpochStatsRequest(NAMemory *heap, const char *objectName, Lng32 objectNameLen, short cpu, bool locked)
+  ObjectEpochStatsRequest(NAMemory *heap, const char *objectName, int objectNameLen, short cpu, bool locked)
       : RtsMessageObj(OBJECT_EPOCH_STATS_REQ, CurrObjectEpochStatsRequestVersionNumber, heap),
         objectName_(NULL),
         objectNameLen_(objectNameLen),
@@ -1236,13 +1236,13 @@ class ObjectEpochStatsRequest : public RtsMessageObj {
   }
 
   const char *getObjectName() const { return objectName_; }
-  Lng32 getObjectNameLen() const { return objectNameLen_; }
+  int getObjectNameLen() const { return objectNameLen_; }
   short getCpu() const { return cpu_; }
   bool getLocked() const { return locked_; }
 
  private:
   char *objectName_;
-  Lng32 objectNameLen_;
+  int objectNameLen_;
   short cpu_;
   bool locked_;
 };
@@ -1289,7 +1289,7 @@ class ObjectLockRequest : public RtsMessageObj {
   }
 
   ObjectLockRequest(NAMemory *heap) : RtsMessageObj(OBJECT_LOCK_REQ, CurrObjectLockRequestVersionNumber, heap) {}
-  ObjectLockRequest(NAMemory *heap, const char *objectName, Lng32 objectNameLen, ComObjectType objectType,
+  ObjectLockRequest(NAMemory *heap, const char *objectName, int objectNameLen, ComObjectType objectType,
                     OpType opType, Int32 lockNid, Int32 lockPid, UInt32 maxRetries, UInt32 delay);
 
   virtual ~ObjectLockRequest() {
@@ -1308,7 +1308,7 @@ class ObjectLockRequest : public RtsMessageObj {
                  IpcMessageObjSize objSize, IpcConstMessageBufferPtr buffer);
 
   const char *getObjectName() const { return objectName_; }
-  Lng32 getObjectNameLen() const { return objectNameLen_; }
+  int getObjectNameLen() const { return objectNameLen_; }
   ComObjectType getObjectType() const { return objectType_; }
   OpType getOpType() const { return opType_; }
   const char *getOpTypeLit() const { return opTypeLit(opType_); }
@@ -1319,7 +1319,7 @@ class ObjectLockRequest : public RtsMessageObj {
 
  private:
   char *objectName_;
-  Lng32 objectNameLen_;
+  int objectNameLen_;
   ComObjectType objectType_;
   OpType opType_;
   Int32 lockNid_;
@@ -1396,7 +1396,7 @@ class ObjectLockStatsRequest : public RtsMessageObj {
   ObjectLockStatsRequest(NAMemory *heap)
       : RtsMessageObj(OBJECT_LOCK_STATS_REQ, CurrObjectLockStatsRequestVersionNumber, heap) {}
 
-  ObjectLockStatsRequest(NAMemory *heap, const char *objectName, Lng32 objectNameLen, ComObjectType objectType,
+  ObjectLockStatsRequest(NAMemory *heap, const char *objectName, int objectNameLen, ComObjectType objectType,
                          short cpu)
       : RtsMessageObj(OBJECT_LOCK_STATS_REQ, CurrObjectLockStatsRequestVersionNumber, heap),
         objectName_(NULL),
@@ -1458,13 +1458,13 @@ class ObjectLockStatsRequest : public RtsMessageObj {
   }
 
   const char *getObjectName() const { return objectName_; }
-  Lng32 getObjectNameLen() const { return objectNameLen_; }
+  int getObjectNameLen() const { return objectNameLen_; }
   ComObjectType getObjectType() const { return objectType_; }
   short getCpu() const { return cpu_; }
 
  private:
   char *objectName_;
-  Lng32 objectNameLen_;
+  int objectNameLen_;
   ComObjectType objectType_;
   short cpu_;
 };

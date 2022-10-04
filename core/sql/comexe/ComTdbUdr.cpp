@@ -40,7 +40,7 @@
 // ComTdbUdr::ComTdbUdr()
 // ---------------------------------------------------------------------
 ComTdbUdr::ComTdbUdr(char *sqlName, char *routineName, char *routineSignature, char *containerName, char *externalPath,
-                     char *librarySqlName, Int64 libraryRedefTime, char *libraryBlobHandle, char *librarySchName,
+                     char *librarySqlName, long libraryRedefTime, char *libraryBlobHandle, char *librarySchName,
                      Int32 libraryVersion, char *runtimeOptions, char *runtimeOptionDelimiters,
 
                      ULng32 flags, ULng32 numInputValues, ULng32 numOutputValues, ULng32 numParams,
@@ -49,7 +49,7 @@ ComTdbUdr::ComTdbUdr(char *sqlName, char *routineName, char *routineSignature, c
                      Cardinality estimatedRowCount, ex_cri_desc *criDescParent, ex_cri_desc *criDescReturned,
                      ex_cri_desc *workCriDesc, queue_index downQueueMaxSize, queue_index upQueueMaxSize,
 
-                     Lng32 numOutputBuffers, ULng32 outputBufferSize, ULng32 requestBufferSize, ULng32 replyBufferSize,
+                     int numOutputBuffers, ULng32 outputBufferSize, ULng32 requestBufferSize, ULng32 replyBufferSize,
 
                      ex_expr *inputExpr, ex_expr *outputExpr, ex_expr *scanExpr, ex_expr *projExpr,
 
@@ -161,21 +161,21 @@ Long ComTdbUdr::pack(void *space) {
   // param count as unsigned long. E.g. the PARAMS table stores column
   // number as INT.
   //
-  paramInfo_.pack(space, (Lng32)numParams_);
+  paramInfo_.pack(space, (int)numParams_);
 
   optionalData_.pack(space);
   udrSerInvocationInfo_.pack(space);
   udrSerPlanInfo_.pack(space);
   libraryBlobHandle_.pack(space);
   librarySchName_.pack(space);
-  udrChildTableDescInfo_.pack(space, (Lng32)numChildTableInputs_);
-  childInputExprs_.pack(space, (Lng32)numChildTableInputs_);
-  childTdbs_.pack(space, (Lng32)numChildTableInputs_);
+  udrChildTableDescInfo_.pack(space, (int)numChildTableInputs_);
+  childInputExprs_.pack(space, (int)numChildTableInputs_);
+  childTdbs_.pack(space, (int)numChildTableInputs_);
 
   return ComTdb::pack(space);
 }
 
-Lng32 ComTdbUdr::unpack(void *base, void *reallocator) {
+int ComTdbUdr::unpack(void *base, void *reallocator) {
   if (sqlName_.unpack(base)) return -1;
   if (routineName_.unpack(base)) return -1;
   if (routineSignature_.unpack(base)) return -1;
@@ -197,12 +197,12 @@ Lng32 ComTdbUdr::unpack(void *base, void *reallocator) {
   // param count as unsigned long. E.g. the PARAMS table stores column
   // number as INT.
   //
-  if (paramInfo_.unpack(base, (Lng32)numParams_, reallocator)) return -1;
+  if (paramInfo_.unpack(base, (int)numParams_, reallocator)) return -1;
 
   if (optionalData_.unpack(base, reallocator)) return -1;
-  if (udrChildTableDescInfo_.unpack(base, (Lng32)numChildTableInputs_, reallocator)) return -1;
-  if (childInputExprs_.unpack(base, (Lng32)numChildTableInputs_, reallocator)) return -1;
-  if (childTdbs_.unpack(base, (Lng32)numChildTableInputs_, reallocator)) return -1;
+  if (udrChildTableDescInfo_.unpack(base, (int)numChildTableInputs_, reallocator)) return -1;
+  if (childInputExprs_.unpack(base, (int)numChildTableInputs_, reallocator)) return -1;
+  if (childTdbs_.unpack(base, (int)numChildTableInputs_, reallocator)) return -1;
   if (udrSerInvocationInfo_.unpack(base)) return -1;
   if (udrSerPlanInfo_.unpack(base)) return -1;
   if (libraryBlobHandle_.unpack(base)) return -1;
@@ -220,8 +220,8 @@ void ComTdbUdr::displayContents(Space *space, ULng32 flag) {
     str_sprintf(buf, "\nFor ComTdbUdr :");
     space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sz);
 
-    Lng32 lowFlags = (Lng32)(flags_ % 65536);
-    Lng32 highFlags = (Lng32)((flags_ - lowFlags) / 65536);
+    int lowFlags = (int)(flags_ % 65536);
+    int highFlags = (int)((flags_ - lowFlags) / 65536);
     str_sprintf(buf, "flags = %x%x", highFlags, lowFlags);
     space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sz);
 

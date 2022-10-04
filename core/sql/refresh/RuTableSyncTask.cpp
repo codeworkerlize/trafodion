@@ -44,7 +44,7 @@
 //	Constructor and destructor of CRUTableSyncTask
 //---------------------------------------------------------------//
 
-CRUTableSyncTask::CRUTableSyncTask(Lng32 id, CRUTbl &table) : CRULogProcessingTask(id, table) {}
+CRUTableSyncTask::CRUTableSyncTask(int id, CRUTbl &table) : CRULogProcessingTask(id, table) {}
 
 CRUTableSyncTask::~CRUTableSyncTask() {}
 

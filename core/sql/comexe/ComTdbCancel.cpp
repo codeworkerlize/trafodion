@@ -40,7 +40,7 @@ Long ComTdbCancel::pack(void *space) {
   return ComTdb::pack(space);
 }
 
-Lng32 ComTdbCancel::unpack(void *base, void *reallocator) {
+int ComTdbCancel::unpack(void *base, void *reallocator) {
   if (qid_.unpack(base)) return -1;
 
   if (comment_.unpack(base)) return -1;

@@ -186,7 +186,7 @@ class ex_queue : public ExGod {
   // allocate PSTATE objects for queue entries that don't have a
   // PSTATE yet, using an array of pre-allocated PSTATEs if passed in
   NABoolean allocatePstate(ex_tcb *tcb, ex_tcb_private_state *pstates = NULL, queue_index numNewPstates = 0,
-                           Lng32 pstateLength = 0, NABoolean failureIsFatal = TRUE);
+                           int pstateLength = 0, NABoolean failureIsFatal = TRUE);
 
   void deallocateAtps();
   void deallocatePstate();
@@ -196,8 +196,8 @@ class ex_queue : public ExGod {
 
   // resize a queue (including the ATPs and the pstates), return new size
   NABoolean needsResize() const { return needsResize_; }
-  Lng32 getResizeLimit() const { return (Lng32)resizeLimit_; }
-  void setResizeLimit(Lng32 l) { resizeLimit_ = (ULng32)l; }
+  int getResizeLimit() const { return (int)resizeLimit_; }
+  void setResizeLimit(int l) { resizeLimit_ = (ULng32)l; }
   queue_index resize(ex_tcb *tcb, queue_index newSize);
 
   ex_cri_desc *getCriDesc();
@@ -234,17 +234,17 @@ class ex_queue : public ExGod {
   void cancelRequestWithParentIndexRange(queue_index startPI, queue_index endPI);
 
   //?johannes?
-  void getNextNRequestInit(const Lng32 tuples);
-  void getNextNRequest(const Lng32 tuples);
+  void getNextNRequestInit(const int tuples);
+  void getNextNRequest(const int tuples);
 
-  void getNextNMaybeWaitRequestInit(const Lng32 tuples);
-  void getNextNMaybeWaitRequest(const Lng32 tuples);
+  void getNextNMaybeWaitRequestInit(const int tuples);
+  void getNextNMaybeWaitRequest(const int tuples);
 
-  void getNextNSkipRequestInit(const Lng32 tuples);
-  void getNextNSkipRequest(const Lng32 tuples);
+  void getNextNSkipRequestInit(const int tuples);
+  void getNextNSkipRequest(const int tuples);
 
-  void getNextNMaybeWaitSkipRequestInit(const Lng32 tuples);
-  void getNextNMaybeWaitSkipRequest(const Lng32 tuples);
+  void getNextNMaybeWaitSkipRequestInit(const int tuples);
+  void getNextNMaybeWaitSkipRequest(const int tuples);
 
   void getNext0MaybeWaitRequest(void);
   void getNext0MaybeWaitRequestInit(void);
@@ -449,10 +449,10 @@ class down_state  // public down status
   // For GET_N, this is the number of rows that is requested.
   // For GET_NEXT_N, this is the total number of rows
   //  requested across all GET_NEXT_Ns received so far (i.e. accumulative)
-  Lng32 requestValue;
+  int requestValue;
 
   // A count of the number of GET_NEXT_Ns issued by the parent.
-  Lng32 numGetNextsIssued;
+  int numGetNextsIssued;
   // BertBert ^^
 
   queue_index parentIndex;
@@ -464,8 +464,8 @@ class down_state  // public down status
 };
 
 // Some special values for a matchNo.
-const Lng32 OverflowedMatchNo = -1;
-const Lng32 GetDoneNoRowsMatchNo = -2;
+const int OverflowedMatchNo = -1;
+const int GetDoneNoRowsMatchNo = -2;
 
 class up_state  // public up state
 {
@@ -483,11 +483,11 @@ class up_state  // public up state
   ex_queue::up_status status;  // type of entry (end-of-data, error, etc.)
 
   // accessors
-  inline Lng32 getMatchNo(void) const;
+  inline int getMatchNo(void) const;
   inline NABoolean getDoneNoRowsMatchNo(void) const;
 
   // mutators
-  inline Lng32 setMatchNo(Int64 n);
+  inline int setMatchNo(long n);
   inline void setDoneNoRowsMatchNo(void);
 
  private:
@@ -503,7 +503,7 @@ class up_state  // public up state
   // BertBert VV
   // For Q_GET_DONE, this is the 'requestValue' that is matched by this
   //  control tuple.
-  Lng32 matchNo;  // number of matches
+  int matchNo;  // number of matches
   // BertBert ^^
 };
 
@@ -523,7 +523,7 @@ class ex_queue_entry {
 
   inline unsigned short numTuples() const;
 
-  inline tupp &getTupp(Lng32 i) const;
+  inline tupp &getTupp(int i) const;
 
   void passAtp(const ex_queue_entry *from);
 
@@ -581,7 +581,7 @@ inline unsigned short ex_queue_entry::numTuples() const { return criDesc()->noTu
 
 inline atp_struct *ex_queue_entry::getAtp() const { return atp_; }
 
-inline tupp &ex_queue_entry::getTupp(Lng32 i) const { return atp_->getTupp(i); }
+inline tupp &ex_queue_entry::getTupp(int i) const { return atp_->getTupp(i); }
 
 inline void ex_queue_entry::copyAtp(const ex_queue_entry *from) { atp_->copyAtp(from->getAtp()); }
 
@@ -709,7 +709,7 @@ inline void ex_queue::cancelRequest() {
 
 //?johannes?
 
-inline void ex_queue::getNextNRequest(const Lng32 tuples) {
+inline void ex_queue::getNextNRequest(const int tuples) {
   // It better be a down request
   ExQueueAssert(upDown_ == DOWN_QUEUE, "Can't put GET_NEXT_N into up queue entries");
   queue_[head_ & mask_].downState.request = GET_NEXT_N;
@@ -724,7 +724,7 @@ inline void ex_queue::getNextNRequest(const Lng32 tuples) {
   nextSubtask_->schedule();
 }
 
-inline void ex_queue::getNextNRequestInit(const Lng32 tuples) {
+inline void ex_queue::getNextNRequestInit(const int tuples) {
   // It better be a down request
   ExQueueAssert(upDown_ == DOWN_QUEUE, "Can't put GET_NEXT_N into up queue entries");
   queue_[head_ & mask_].downState.request = GET_NEXT_N;
@@ -740,7 +740,7 @@ inline void ex_queue::getNextNRequestInit(const Lng32 tuples) {
   nextSubtask_->schedule();
 }
 
-inline void ex_queue::getNextNMaybeWaitRequest(const Lng32 tuples) {
+inline void ex_queue::getNextNMaybeWaitRequest(const int tuples) {
   // It better be a down request
   ExQueueAssert(upDown_ == DOWN_QUEUE, "Can't put GET_NEXT_N_MAYBE_WAIT into up queue entries");
   queue_[head_ & mask_].downState.request = GET_NEXT_N_MAYBE_WAIT;
@@ -755,7 +755,7 @@ inline void ex_queue::getNextNMaybeWaitRequest(const Lng32 tuples) {
   nextSubtask_->schedule();
 }
 
-inline void ex_queue::getNextNMaybeWaitRequestInit(const Lng32 tuples) {
+inline void ex_queue::getNextNMaybeWaitRequestInit(const int tuples) {
   // It better be a down request
   ExQueueAssert(upDown_ == DOWN_QUEUE, "Can't put GET_NEXT_N_MAYBE_WAIT into up queue entries");
   queue_[head_ & mask_].downState.request = GET_NEXT_N_MAYBE_WAIT;
@@ -770,7 +770,7 @@ inline void ex_queue::getNextNMaybeWaitRequestInit(const Lng32 tuples) {
   nextSubtask_->schedule();
 }
 
-inline void ex_queue::getNextNSkipRequest(const Lng32 tuples) {
+inline void ex_queue::getNextNSkipRequest(const int tuples) {
   // It better be a down request
   ExQueueAssert(upDown_ == DOWN_QUEUE, "Can't put GET_NEXT_N_SKIP into up queue entries");
   queue_[head_ & mask_].downState.request = GET_NEXT_N_SKIP;
@@ -785,7 +785,7 @@ inline void ex_queue::getNextNSkipRequest(const Lng32 tuples) {
   nextSubtask_->schedule();
 }
 
-inline void ex_queue::getNextNSkipRequestInit(const Lng32 tuples) {
+inline void ex_queue::getNextNSkipRequestInit(const int tuples) {
   // It better be a down request
   ExQueueAssert(upDown_ == DOWN_QUEUE, "Can't put GET_NEXT_N_SKIP into up queue entries");
   queue_[head_ & mask_].downState.request = GET_NEXT_N_SKIP;
@@ -800,7 +800,7 @@ inline void ex_queue::getNextNSkipRequestInit(const Lng32 tuples) {
   nextSubtask_->schedule();
 }
 
-inline void ex_queue::getNextNMaybeWaitSkipRequest(const Lng32 tuples) {
+inline void ex_queue::getNextNMaybeWaitSkipRequest(const int tuples) {
   // It better be a down request
   ExQueueAssert(upDown_ == DOWN_QUEUE, "Can't put GET_NEXT_N_MAYBE_WAIT_SKIP into up queue entries");
   queue_[head_ & mask_].downState.request = GET_NEXT_N_MAYBE_WAIT_SKIP;
@@ -815,7 +815,7 @@ inline void ex_queue::getNextNMaybeWaitSkipRequest(const Lng32 tuples) {
   nextSubtask_->schedule();
 }
 
-inline void ex_queue::getNextNMaybeWaitSkipRequestInit(const Lng32 tuples) {
+inline void ex_queue::getNextNMaybeWaitSkipRequestInit(const int tuples) {
   // It better be a down request
   ExQueueAssert(upDown_ == DOWN_QUEUE, "Can't put GET_NEXT_N_MAYBE_WAIT_SKIP into up queue entries");
   queue_[head_ & mask_].downState.request = GET_NEXT_N_MAYBE_WAIT_SKIP;
@@ -898,13 +898,13 @@ inline void atp_struct::copyAtp(const ex_queue_entry *from) { copyAtp(from->getA
 /////////////////////////////////////////////////////////////////////////////
 // Inline procedures -- class up_state
 
-inline Lng32 up_state::getMatchNo(void) const { return matchNo; };
+inline int up_state::getMatchNo(void) const { return matchNo; };
 
 inline NABoolean up_state::getDoneNoRowsMatchNo(void) const { return (matchNo == GetDoneNoRowsMatchNo); }
 
-inline Lng32 up_state::setMatchNo(Int64 n) {
+inline int up_state::setMatchNo(long n) {
   if (n <= INT_MAX)
-    matchNo = (Lng32)n;
+    matchNo = (int)n;
   else
     matchNo = OverflowedMatchNo;
   return matchNo;

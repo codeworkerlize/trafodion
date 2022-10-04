@@ -63,7 +63,7 @@ class NAErrorStack;
 // ***********************************************************************
 // The error code datatype.
 // ***********************************************************************
-typedef Lng32 NAErrorCode;
+typedef int NAErrorCode;
 
 // ***********************************************************************
 // A wrapper for an error parameter.
@@ -75,7 +75,7 @@ class NAErrorParam {
   // ---------------------------------------------------------------------
   // Constructor
   // ---------------------------------------------------------------------
-  NAErrorParam(Lng32 l) : errParamType_(NAERROR_PARAM_TYPE_INTEGER), longValue_(l) {}
+  NAErrorParam(int l) : errParamType_(NAERROR_PARAM_TYPE_INTEGER), longValue_(l) {}
 
   NAErrorParam(char *s) : errParamType_(NAERROR_PARAM_TYPE_CHAR_STRING), stringValue_(s) {}
 
@@ -116,13 +116,13 @@ class NAErrorParam {
   // ---------------------------------------------------------------------
   NAErrorParamType getNAErrorParamType() const { return errParamType_; }
 
-  Lng32 getIntegerNAErrorParam() const { return longValue_; }
+  int getIntegerNAErrorParam() const { return longValue_; }
 
   char *getStringNAErrorParam() const { return stringValue_; }
 
  protected:
   NAErrorParamType errParamType_;
-  Lng32 longValue_;
+  int longValue_;
   char *stringValue_;
 
 };  // class NAErrorParam
@@ -139,7 +139,7 @@ class NAErrorParamArray {
   // The first argument, numParams, ends up deciding how many of the
   // following parameters are relevant.
   // ---------------------------------------------------------------------
-  NAErrorParamArray(Lng32 numParams = 0, NAErrorParam *errParam0 = 0, NAErrorParam *errParam1 = 0,
+  NAErrorParamArray(int numParams = 0, NAErrorParam *errParam0 = 0, NAErrorParam *errParam1 = 0,
                     NAErrorParam *errParam2 = 0, NAErrorParam *errParam3 = 0, NAErrorParam *errParam4 = 0,
                     NAErrorParam *errParam5 = 0, NAErrorParam *errParam6 = 0, NAErrorParam *errParam7 = 0,
                     NAErrorParam *errParam8 = 0, NAErrorParam *errParam9 = 0);
@@ -149,12 +149,12 @@ class NAErrorParamArray {
   // ---------------------------------------------------------------------
   // How many NAErrorParams are contained in the NAErrorParamArray?
   // ---------------------------------------------------------------------
-  Lng32 entries() const { return numParams_; }
+  int entries() const { return numParams_; }
 
   // ---------------------------------------------------------------------
   // Accessor function.
   // ---------------------------------------------------------------------
-  NAErrorParam *getNAErrorParam(Lng32 paramNo) const {
+  NAErrorParam *getNAErrorParam(int paramNo) const {
     if ((paramNo >= 0) && (paramNo < numParams_))
       return array_[paramNo].errParam_;
     else
@@ -174,7 +174,7 @@ class NAErrorParamArray {
   };  // struct NAErrorParamArrayElement
 
  private:
-  Lng32 numParams_;
+  int numParams_;
   NAErrorParamArrayElement *array_;
 };  // class NAErrorParamArray
 
@@ -237,14 +237,14 @@ class NAError {
   // ---------------------------------------------------------------------
   // Error Parameters.
   // ---------------------------------------------------------------------
-  Lng32 getErrParamCount() const {
+  int getErrParamCount() const {
     if (errParams_)
       return errParams_->entries();
     else
       return 0;
   }
 
-  NAErrorParam *getNAErrorParam(Lng32 paramNo) const {
+  NAErrorParam *getNAErrorParam(int paramNo) const {
     if (errParams_)
       return errParams_->getNAErrorParam(paramNo);
     else
@@ -256,7 +256,7 @@ class NAError {
   // ---------------------------------------------------------------------
   char *getProcName() const { return procName_; }
 
-  Lng32 getLineNumber() const { return lineNumber_; }
+  int getLineNumber() const { return lineNumber_; }
 
   // ---------------------------------------------------------------------
   // Method for traversing error list
@@ -269,7 +269,7 @@ class NAError {
   // tree to and from contiguous storage.
   // ---------------------------------------------------------------------
   Long pack(void *space);
-  Lng32 unpack(Lng32);
+  int unpack(int);
 
  private:
   // ---------------------------------------------------------------------
@@ -292,9 +292,9 @@ class NAError {
   // ---------------------------------------------------------------------
   // Procedure name and line numbers.
   // ---------------------------------------------------------------------
-  const Lng32 lineNumber_;
+  const int lineNumber_;
   char *procName_;
-  const Lng32 offset_;
+  const int offset_;
 
 };  // class NAError
 
@@ -306,7 +306,7 @@ class NAErrorStack {
   // ---------------------------------------------------------------------
   // Constructor
   // ---------------------------------------------------------------------
-  NAErrorStack(Lng32 maxSize) : maxEntries_(maxSize), numEntries_(0), errEntry_(0), nextEntry_(0), iterEntries_(0) {}
+  NAErrorStack(int maxSize) : maxEntries_(maxSize), numEntries_(0), errEntry_(0), nextEntry_(0), iterEntries_(0) {}
 
   // ---------------------------------------------------------------------
   // Destructor
@@ -343,11 +343,11 @@ class NAErrorStack {
   // ---------------------------------------------------------------------
   // The error stack
   // ---------------------------------------------------------------------
-  Lng32 maxEntries_;    // if prescribed by a SET TRANSACTION
-  Lng32 numEntries_;    // number of entries allocated so far
+  int maxEntries_;    // if prescribed by a SET TRANSACTION
+  int numEntries_;    // number of entries allocated so far
   NAError *errEntry_;   // an array of NAError
   NAError *nextEntry_;  // maintained after an iterator is initialized
-  Lng32 iterEntries_;   // for terminating iterations over unused entries
+  int iterEntries_;   // for terminating iterations over unused entries
 
 };  // class NAErrorStack
 

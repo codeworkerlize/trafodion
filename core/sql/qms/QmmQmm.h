@@ -37,7 +37,7 @@
 #include "nsk/nskprocess.h"
 extern "C" {
 #include "common/cextdecs.h"
-#include "zsysc.h"
+#include "common/zsysc.h"
 }
 
 // Classes defined in this file.
@@ -187,7 +187,7 @@ class QRProcessStub : public NABasicObject {
   SB_Phandle_Type getProcessHandle() const { return processHandle_; }
 
   void setProcessHandle(SB_Phandle_Type ph) { memcpy(&processHandle_, &ph, sizeof(SB_Phandle_Type)); }
-  Int64 getLockoutEndTS() const { return lockoutEndTS_; }
+  long getLockoutEndTS() const { return lockoutEndTS_; }
 
   /**
    * Nulls out the process handle. A null process handle consists of all -1s.
@@ -204,8 +204,8 @@ class QRProcessStub : public NABasicObject {
 
   // zsys_ddl_phandle_def processHandle_;
   SB_Phandle_Type processHandle_;
-  Int64 lockoutEndTS_;
-  Lng32 retryNumber_;
+  long lockoutEndTS_;
+  int retryNumber_;
   CollHeap *heap_;
 };
 

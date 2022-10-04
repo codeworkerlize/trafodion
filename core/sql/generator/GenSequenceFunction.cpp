@@ -73,8 +73,8 @@ ItemExpr *ItmSeqOffset::preCodeGen(Generator *generator) {
     ConstValue *cv = child(1)->castToConstValue(negate);
 
     if (cv AND cv->canGetExactNumericValue()) {
-      Lng32 scale;
-      Int64 value = cv->getExactNumericValue(scale);
+      int scale;
+      long value = cv->getExactNumericValue(scale);
 
       if (scale == 0 && value >= 0 && value < INT_MAX) {
         value = (negate ? -value : value);

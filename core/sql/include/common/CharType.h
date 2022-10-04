@@ -39,7 +39,7 @@
 // Some ANSI compilers require this function to be declared even though
 // the template NAKeyLookup is not instantiated (that class template is a
 // subclass of NAHashDictionary ... in /common/Collections.h )
-Lng32 hashKey();  // a dummy -- hopefully the linker won't look for it ...
+int hashKey();  // a dummy -- hopefully the linker won't look for it ...
 #include "common/NAType.h"
 #include "common/str.h"
 #include "common/nawstring.h"
@@ -104,12 +104,12 @@ class CharType : public NAType {
   // ---------------------------------------------------------------------
   // Constructor functions
   // ---------------------------------------------------------------------
-  CharType(NAMemory *h, const NAString &adtName, Lng32 maxCharStrLen, short bytesPerChar = 0,
+  CharType(NAMemory *h, const NAString &adtName, int maxCharStrLen, short bytesPerChar = 0,
            NABoolean nullTerminated = FALSE, NABoolean allowSQLnull = TRUE, NABoolean isUpShifted = FALSE,
            NABoolean isCaseInsensitive = FALSE, NABoolean varLenFlag = FALSE,
            CharInfo::CharSet cs = CharInfo::DefaultCharSet, CharInfo::Collation co = CharInfo::DefaultCollation,
            CharInfo::Coercibility ce = CharInfo::COERCIBLE, CharInfo::CharSet encoding = CharInfo::UnknownCharSet,
-           Lng32 vcIndLen = 0  // not passed in, need to be computed
+           int vcIndLen = 0  // not passed in, need to be computed
   );
   CharType(NAMemory *h, const NAString &adtName, const CharLenInfo &maxLenInfo,
            short /*max*/ bytesPerChar = 0,  // is maxBytesPerChar when cs is SJIS or UTF8
@@ -133,8 +133,8 @@ class CharType : public NAType {
         isVarchar2_(charType.isVarchar2_),
         isSpaceSensitive_(charType.isSpaceSensitive_) {}
   virtual short getFSDatatype() const;
-  virtual Lng32 getPrecisionOrMaxNumChars() const;
-  virtual Lng32 getScaleOrCharset() const;
+  virtual int getPrecisionOrMaxNumChars() const;
+  virtual int getScaleOrCharset() const;
 
   // ---------------------------------------------------------------------
   // Accessor functions
@@ -163,9 +163,9 @@ class CharType : public NAType {
   void setUpshifted(NABoolean us) { upshifted_ = us; }
   NABoolean isCaseinsensitive() const { return caseinsensitive_; }
   void setCaseinsensitive(NABoolean ci) { caseinsensitive_ = ci; }
-  void setDataStorageSize(Lng32 size) { dataStorageSize_ = size; }
-  Lng32 getDataStorageSize() const { return dataStorageSize_; }
-  Lng32 getStrCharLimit() const {
+  void setDataStorageSize(int size) { dataStorageSize_ = size; }
+  int getDataStorageSize() const { return dataStorageSize_; }
+  int getStrCharLimit() const {
     if (getNominalSize() > 0 && getCharLimitInUCS2or4chars() > 0 && (getCharSet() == CharInfo::UTF8))
       return getCharLimitInUCS2or4chars();
 
@@ -174,33 +174,33 @@ class CharType : public NAType {
     else
       return getNominalSize();
   }
-  Lng32 getMaxLenInBytesOrNAWChars() const {
+  int getMaxLenInBytesOrNAWChars() const {
     if (getCharSet() == CharInfo::UNICODE)
       return getNominalSize() / getBytesPerChar();
     else
       return getNominalSize();
   }
 
-  Lng32 getCharLimitInUCS2or4chars() const { return charLimitInUCS2or4chars_; }
+  int getCharLimitInUCS2or4chars() const { return charLimitInUCS2or4chars_; }
 
   // Useful for testing compatibility with double-byte char's
   NABoolean sizeIsEven() const {
-    Lng32 rem = getNominalSize() % 2;
+    int rem = getNominalSize() % 2;
     if (isNullTerminated() && getBytesPerChar() == 1) return (rem == 1);
     return (rem == 0);
   }
 
   // the blank character is used to fill strings when comparing strings of
   // different length or when converting a shorter string to a longer one
-  virtual Lng32 getBlankCharacterValue() const;
+  virtual int getBlankCharacterValue() const;
 
   // get the smallest and the greatest single character in this
   // character set and collation
-  Lng32 getMinSingleCharacterValue() const;
-  Lng32 getMaxSingleCharacterValue() const;
+  int getMinSingleCharacterValue() const;
+  int getMaxSingleCharacterValue() const;
 
   // encode a string into a double precision, preserving the order of values
-  double encodeString(const char *str, Lng32 strLen) const;
+  double encodeString(const char *str, int strLen) const;
 
   NAString *convertToString(double v, NAMemory *h) const;
 
@@ -310,7 +310,7 @@ class CharType : public NAType {
   void setSpaceSensitive(NABoolean isSpaceSensitive) { isSpaceSensitive_ = isSpaceSensitive; }
 
  protected:
-  void minMaxRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **stringLiteral, NABoolean isMax,
+  void minMaxRepresentableValue(void *bufPtr, int *bufLen, NAString **stringLiteral, NABoolean isMax,
                                 CollHeap *h) const;
 
  private:
@@ -349,7 +349,7 @@ class CharType : public NAType {
   //     the unit is UCS4 (the actual character specified by the user).
   // Set this field to -1 if it is not used.
   // ---------------------------------------------------------------------
-  Lng32 charLimitInUCS2or4chars_;
+  int charLimitInUCS2or4chars_;
 
   // ---------------------------------------------------------------------
   // TRUE if these character strings are terminated using C nul character
@@ -387,7 +387,7 @@ class SQLChar : public CharType {
   // ---------------------------------------------------------------------
   // Constructor functions
   // ---------------------------------------------------------------------
-  SQLChar(NAMemory *h, Lng32 maxLength, NABoolean allowSQLnull = TRUE, NABoolean isUpShifted = FALSE,
+  SQLChar(NAMemory *h, int maxLength, NABoolean allowSQLnull = TRUE, NABoolean isUpShifted = FALSE,
           NABoolean isCaseInsensitive = FALSE, NABoolean varLenFlag = FALSE,
           CharInfo::CharSet = CharInfo::DefaultCharSet, CharInfo::Collation = CharInfo::DefaultCollation,
           CharInfo::Coercibility = CharInfo::COERCIBLE, CharInfo::CharSet encoding = CharInfo::UnknownCharSet);
@@ -403,8 +403,8 @@ class SQLChar : public CharType {
   // Methods that return the binary form of the minimum and the maximum
   // representable values.
   // ---------------------------------------------------------------------
-  virtual void minRepresentableValue(void *, Lng32 *, NAString **stringLiteral = NULL, CollHeap *h = 0) const;
-  virtual void maxRepresentableValue(void *, Lng32 *, NAString **stringLiteral = NULL, CollHeap *h = 0) const;
+  virtual void minRepresentableValue(void *, int *, NAString **stringLiteral = NULL, CollHeap *h = 0) const;
+  virtual void maxRepresentableValue(void *, int *, NAString **stringLiteral = NULL, CollHeap *h = 0) const;
   // get the encoding of the max char value
   double getMaxValue() const;
 
@@ -433,10 +433,10 @@ class SQLVarChar : public CharType {
   // ---------------------------------------------------------------------
   // Constructor functions
   // ---------------------------------------------------------------------
-  SQLVarChar(NAMemory *h, Lng32 maxLength, NABoolean allowSQLnull = TRUE, NABoolean isUpShifted = FALSE,
+  SQLVarChar(NAMemory *h, int maxLength, NABoolean allowSQLnull = TRUE, NABoolean isUpShifted = FALSE,
              NABoolean isCaseInsensitive = FALSE, CharInfo::CharSet = CharInfo::DefaultCharSet,
              CharInfo::Collation = CharInfo::DefaultCollation, CharInfo::Coercibility = CharInfo::COERCIBLE,
-             CharInfo::CharSet encoding = CharInfo::UnknownCharSet, Lng32 vcIndLen = 0);
+             CharInfo::CharSet encoding = CharInfo::UnknownCharSet, int vcIndLen = 0);
   SQLVarChar(NAMemory *h, const CharLenInfo &maxLenInfo, NABoolean allowSQLnull = TRUE, NABoolean isUpShifted = FALSE,
              NABoolean isCaseInsensitive = FALSE, CharInfo::CharSet = CharInfo::DefaultCharSet,
              CharInfo::Collation = CharInfo::DefaultCollation, CharInfo::Coercibility = CharInfo::COERCIBLE,
@@ -446,8 +446,8 @@ class SQLVarChar : public CharType {
   // copy ctor
   SQLVarChar(const SQLVarChar &varChar, NAMemory *heap)
       : CharType(varChar, heap), clientDataType_(varChar.getClientDataTypeName(), heap) {}
-  virtual void minRepresentableValue(void *, Lng32 *, NAString **stringLiteral = NULL, CollHeap *h = 0) const;
-  virtual void maxRepresentableValue(void *, Lng32 *, NAString **stringLiteral = NULL, CollHeap *h = 0) const;
+  virtual void minRepresentableValue(void *, int *, NAString **stringLiteral = NULL, CollHeap *h = 0) const;
+  virtual void maxRepresentableValue(void *, int *, NAString **stringLiteral = NULL, CollHeap *h = 0) const;
 
   // True FS data type is the type that the object gets in the sqlparser.
   // That type usually the same through out the life span of the object: from
@@ -493,7 +493,7 @@ class ANSIChar : public CharType {
   // ---------------------------------------------------------------------
   // Constructor functions
   // ---------------------------------------------------------------------
-  ANSIChar(NAMemory *h, Lng32 maxLength, NABoolean allowSQLnull = TRUE, NABoolean isUpShifted = FALSE,
+  ANSIChar(NAMemory *h, int maxLength, NABoolean allowSQLnull = TRUE, NABoolean isUpShifted = FALSE,
            NABoolean varLenFlag = FALSE, CharInfo::CharSet = CharInfo::DefaultCharSet,
            CharInfo::Collation = CharInfo::DefaultCollation, CharInfo::Coercibility = CharInfo::COERCIBLE,
            CharInfo::CharSet encoding = CharInfo::UnknownCharSet);
@@ -515,9 +515,9 @@ class ANSIChar : public CharType {
   // Methods that returns the binary form of the minimum and the maximum
   // representable values.
   // ---------------------------------------------------------------------
-  virtual void minRepresentableValue(void *, Lng32 *, NAString ** /*stringLiteral*/ = NULL, CollHeap * = 0) const {};
+  virtual void minRepresentableValue(void *, int *, NAString ** /*stringLiteral*/ = NULL, CollHeap * = 0) const {};
 
-  virtual void maxRepresentableValue(void *, Lng32 *, NAString ** /*stringLiteral*/ = NULL, CollHeap * = 0) const {};
+  virtual void maxRepresentableValue(void *, int *, NAString ** /*stringLiteral*/ = NULL, CollHeap * = 0) const {};
 
   virtual double encode(void *) const { return 0E0; }
 
@@ -538,7 +538,7 @@ class ANSIChar : public CharType {
 
 class SQLLongVarChar : public SQLVarChar {
  public:
-  SQLLongVarChar(NAMemory *h, Lng32 maxLength, NABoolean validLength = FALSE, NABoolean allowSQLnull = TRUE,
+  SQLLongVarChar(NAMemory *h, int maxLength, NABoolean validLength = FALSE, NABoolean allowSQLnull = TRUE,
                  NABoolean isUpShifted = FALSE, NABoolean isCaseInsensitive = FALSE,
                  CharInfo::CharSet cs = CharInfo::DefaultCharSet, CharInfo::Collation co = CharInfo::DefaultCollation,
                  CharInfo::Coercibility ce = CharInfo::COERCIBLE, CharInfo::CharSet encoding = CharInfo::UnknownCharSet)
@@ -566,7 +566,7 @@ class SQLLongVarChar : public SQLVarChar {
 
   NABoolean isLengthNotSet() const { return lengthNotSet_; }
 
-  void setLength(Lng32 size) {
+  void setLength(int size) {
     dataStorageSize_ = size;
     lengthNotSet_ = FALSE;
   }
@@ -585,8 +585,8 @@ class SQLLongVarChar : public SQLVarChar {
 
 class SQLlob : public NAType {
  public:
-  SQLlob(NAMemory *h, NABuiltInTypeEnum ev, Int64 lobLength, ComLobsStorageType lobStorage, NABoolean allowSQLnull,
-         Lng32 lobHandleLen);
+  SQLlob(NAMemory *h, NABuiltInTypeEnum ev, long lobLength, ComLobsStorageType lobStorage, NABoolean allowSQLnull,
+         int lobHandleLen);
   SQLlob(const SQLlob &aLob, NAMemory *heap) : NAType(aLob, heap) {
     lobLength_ = aLob.lobLength_;
     lobStorage_ = aLob.lobStorage_;
@@ -608,19 +608,19 @@ class SQLlob : public NAType {
   // ---------------------------------------------------------------------
   virtual NAString getTypeSQLname(NABoolean terse = FALSE) const;
 
-  Int64 getLobLength() { return lobLength_; }
-  Lng32 extFormatLen() { return lobHandleLen_; }
+  long getLobLength() { return lobLength_; }
+  int extFormatLen() { return lobHandleLen_; }
   void adjustLobHandleLen(Int32 v) { lobHandleLen_ += v; }
 
-  virtual Lng32 getPrecision() const { return lobLength_ >> 32; }
-  virtual Lng32 getScale() const { return (Int32)lobLength_ & 0xFFFFFFFF; }
+  virtual int getPrecision() const { return lobLength_ >> 32; }
+  virtual int getScale() const { return (Int32)lobLength_ & 0xFFFFFFFF; }
   virtual CharInfo::CharSet getCharSet() const { return charSet_; }
   void setCharSet(CharInfo::CharSet cs) { charSet_ = cs; }
   ComLobsStorageType getLobStorage() { return lobStorage_; }
 
  private:
-  Int64 lobLength_;
-  Lng32 lobHandleLen_;
+  long lobLength_;
+  int lobHandleLen_;
   CharInfo::CharSet charSet_;  // handle charset
   ComLobsStorageType lobStorage_;
 };  // class SQLlob
@@ -634,7 +634,7 @@ class SQLlob : public NAType {
 
 class SQLBlob : public SQLlob {
  public:
-  SQLBlob(NAMemory *h, Int64 blobLength, ComLobsStorageType lobStorage, NABoolean allowSQLnull, Lng32 lobHandleLen,
+  SQLBlob(NAMemory *h, long blobLength, ComLobsStorageType lobStorage, NABoolean allowSQLnull, int lobHandleLen,
           NABoolean lobV2 = FALSE);
   SQLBlob(const SQLBlob &aBlob, NAMemory *heap) : SQLlob(aBlob, heap) {}
   virtual short getFSDatatype() const { return REC_BLOB; }
@@ -659,8 +659,8 @@ class SQLBlob : public SQLlob {
 
 class SQLClob : public SQLlob {
  public:
-  SQLClob(NAMemory *h, Int64 blobLength, CharInfo::CharSet clobCharSet, ComLobsStorageType lobStorage,
-          NABoolean allowSQLnull, Lng32 lobHandleLen, NABoolean lobV2 = FALSE);
+  SQLClob(NAMemory *h, long blobLength, CharInfo::CharSet clobCharSet, ComLobsStorageType lobStorage,
+          NABoolean allowSQLnull, int lobHandleLen, NABoolean lobV2 = FALSE);
   SQLClob(const SQLClob &aClob, NAMemory *heap) : SQLlob(aClob, heap) { setDataCharSet(aClob.getDataCharSet()); }
   virtual short getFSDatatype() const { return REC_CLOB; }
   virtual CharInfo::CharSet getDataCharSet() const { return dataCharSet_; }
@@ -688,7 +688,7 @@ class SQLBinaryString : public CharType {
   // ---------------------------------------------------------------------
   // Constructor functions
   // ---------------------------------------------------------------------
-  SQLBinaryString(NAMemory *h, Lng32 maxLength, NABoolean allowSQLnull = TRUE, NABoolean varLenFlag = FALSE);
+  SQLBinaryString(NAMemory *h, int maxLength, NABoolean allowSQLnull = TRUE, NABoolean varLenFlag = FALSE);
   SQLBinaryString(const SQLBinaryString &sqlCharBinary, NAMemory *heap) : CharType(sqlCharBinary, heap) {}
 
   short getFSDatatype() const { return (isVaryingLen() ? REC_VARBINARY_STRING : REC_BINARY_STRING); }
@@ -709,8 +709,8 @@ class SQLBinaryString : public CharType {
   // Methods that return the binary form of the minimum and the maximum
   // representable values.
   // ---------------------------------------------------------------------
-  virtual void minRepresentableValue(void *, Lng32 *, NAString **stringLiteral = NULL, CollHeap *h = 0) const;
-  virtual void maxRepresentableValue(void *, Lng32 *, NAString **stringLiteral = NULL, CollHeap *h = 0) const;
+  virtual void minRepresentableValue(void *, int *, NAString **stringLiteral = NULL, CollHeap *h = 0) const;
+  virtual void maxRepresentableValue(void *, int *, NAString **stringLiteral = NULL, CollHeap *h = 0) const;
 
   virtual NABoolean isEncodingNeeded() const { return isVaryingLen(); }
 

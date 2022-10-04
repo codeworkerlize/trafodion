@@ -52,7 +52,7 @@
 #include "exp/exp_attrs.h"
 #include "exp_function.h"
 #include "exp/exp_datetime.h"
-#include "exp_bignum.h"
+#include "exp/exp_bignum.h"
 #include "common/DatetimeType.h"
 #include "common/NumericType.h"
 #include "common/IntervalType.h"
@@ -262,7 +262,7 @@ Attributes *ExpGenerator::convertNATypeToAttributes(const NAType &naType_x, Coll
     if (naType_x.getTypeQualifier() == NA_ROWSET_TYPE) {
       if (((SQLRowset *)(&naType_x))->useTotalSize()) {
         // This indicates us to use the whole array size
-        attr->setLength(sizeof(Lng32) + (attr->getRowsetSize() * naType->getTotalSize()));
+        attr->setLength(sizeof(int) + (attr->getRowsetSize() * naType->getTotalSize()));
         result->setUseTotalRowsetSize();
         ((SQLRowset *)(&naType_x))->useTotalSize() = FALSE;
       }
@@ -355,7 +355,7 @@ Attributes *ExpGenerator::convertNATypeToAttributes(const NAType &naType_x, Coll
       if (naType_x.getTypeQualifier() == NA_ROWSET_TYPE) {
         if (((SQLRowset *)(&naType_x))->useTotalSize()) {
           // This indicates us to use the whole array size
-          attr->setLength(sizeof(Lng32) + (attr->getRowsetSize() * naType->getTotalSize()));
+          attr->setLength(sizeof(int) + (attr->getRowsetSize() * naType->getTotalSize()));
           result->setUseTotalRowsetSize();
           ((SQLRowset *)(&naType_x))->useTotalSize() = FALSE;
         }
@@ -574,9 +574,9 @@ short ExpGenerator::addDefaultValue(NAColumn *col, Attributes *attr, ComDiagsAre
                                                     defaultValueLen];
   } else
     defaultValue = new (generator->getSpace()) char[attr->getDefaultValueStorageLength()];
-  Lng32 length;
-  Lng32 offset;
-  Lng32 daMark;
+  int length;
+  int offset;
+  int daMark;
 
   da = (diagsArea ? diagsArea : CmpCommon::diags());
   daMark = da->mark();
@@ -696,7 +696,7 @@ void ExpGenerator::addDefaultValues(const ValueIdList &val_id_list, const NAColu
 }
 
 void ExpGenerator::copyDefaultValues(ExpTupleDesc *tgtTupleDesc, ExpTupleDesc *srcTupleDesc) {
-  Lng32 numAttrs = MINOF(srcTupleDesc->numAttrs(), tgtTupleDesc->numAttrs());
+  int numAttrs = MINOF(srcTupleDesc->numAttrs(), tgtTupleDesc->numAttrs());
   for (CollIndex i = 0; i < numAttrs; i++) {
     Attributes *srcAttr = srcTupleDesc->getAttr(i);
     Attributes *tgtAttr = tgtTupleDesc->getAttr(i);
@@ -706,8 +706,8 @@ void ExpGenerator::copyDefaultValues(ExpTupleDesc *tgtTupleDesc, ExpTupleDesc *s
     tgtAttr->setDefaultClass(srcAttr->getDefaultClass());
 
     if (srcAttr->getDefaultValue()) {
-      Lng32 tgtDefLen = 0;
-      Lng32 srcDefLen = 0;
+      int tgtDefLen = 0;
+      int srcDefLen = 0;
       if (srcAttr->getDefaultClass() == Attributes::DEFAULT_NULL) {
         tgtDefLen = ExpTupleDesc::NULL_INDICATOR_LENGTH + tgtAttr->getVCIndicatorLength();
         srcDefLen = ExpTupleDesc::NULL_INDICATOR_LENGTH + srcAttr->getVCIndicatorLength();
@@ -745,7 +745,7 @@ void ExpGenerator::copyDefaultValues(ExpTupleDesc *tgtTupleDesc, ExpTupleDesc *s
           tgtDefValCurr += ExpTupleDesc::NULL_INDICATOR_LENGTH;
         }
 
-        Lng32 srcDefLen = srcAttr->getLength(srcDefVal);
+        int srcDefLen = srcAttr->getLength(srcDefVal);
         tgtAttr->setVarLength(srcDefLen, tgtDefValCurr);
         tgtDefValCurr += tgtAttr->getVCIndicatorLength();
         srcDefVal += srcAttr->getVCIndicatorLength();
@@ -873,7 +873,7 @@ short ExpGenerator::handleUnsupportedCast(Cast *castNode) {
 // by 10 ** exponent.  If exponent is negative, the returned expr
 // tree divides the source by 10 ** (- exponent).
 /////////////////////////////////////////////////////////////////
-ItemExpr *ExpGenerator::scaleBy10x(const ValueId &source, Lng32 exponent) {
+ItemExpr *ExpGenerator::scaleBy10x(const ValueId &source, int exponent) {
   ItemExpr *retTree = source.getItemExpr();
   OperatorTypeEnum srcOrigOpType = retTree->origOpType();
 
@@ -924,7 +924,7 @@ ItemExpr *ExpGenerator::scaleBy10x(const ValueId &source, Lng32 exponent) {
   retTree->bindNode(generator->getBindWA());
   const NAType &resultType = retTree->getValueId().getType();
   if (resultType.getTypeQualifier() == NA_NUMERIC_TYPE) {
-    Lng32 sourceScale = ((NumericType &)source.getType()).getScale();
+    int sourceScale = ((NumericType &)source.getType()).getScale();
     if (((NumericType &)resultType).getScale() != sourceScale) ((NumericType &)resultType).setScale(sourceScale);
   }
   return retTree;
@@ -992,10 +992,10 @@ ItemExpr *ExpGenerator::matchScalesNoCast(const ValueId &source, const NAType &t
   // Upscale or downscale the source to the target scale.  If the source scale
   // is the same as the target scale, return the source tree unchanged.
   //
-  Lng32 sourceScale = (source.getType().getTypeQualifier() == NA_NUMERIC_TYPE)
+  int sourceScale = (source.getType().getTypeQualifier() == NA_NUMERIC_TYPE)
                           ? ((NumericType &)source.getType()).getScale()
                           : ((IntervalType &)source.getType()).getFractionPrecision();
-  Lng32 targetScale = (targetType.getTypeQualifier() == NA_NUMERIC_TYPE)
+  int targetScale = (targetType.getTypeQualifier() == NA_NUMERIC_TYPE)
                           ? ((NumericType &)targetType).getScale()
                           : ((IntervalType &)targetType).getFractionPrecision();
   if (sourceScale == targetScale) return retTree;
@@ -1256,7 +1256,7 @@ short ExpGenerator::generateAggrExpr(const ValueIdSet &val_id_set, ex_expr::exp_
           else  // SUM
           {
             if (val_id.getType().getTypeQualifier() == NA_INTERVAL_TYPE) {
-              Int64 zero = 0;
+              long zero = 0;
               NAType *type = val_id.getType().newCopy(wHeap());
               type->setNullable(FALSE);
               NAString *nas = new (wHeap()) NAString("0", wHeap());
@@ -1789,7 +1789,7 @@ short ExpGenerator::generateArithExpr(const ValueId &val_id, ex_expr::exp_node_t
 
   temp = temp->preCodeGen(generator);
   ItemExpr *newTemp = NULL;
-  Lng32 rc = foldConstants(temp, &newTemp);
+  int rc = foldConstants(temp, &newTemp);
   if ((rc == 0) && (newTemp)) temp = newTemp;
 
   temp->codeGen(generator);
@@ -1958,7 +1958,7 @@ short ExpGenerator::generateBulkMoveAligned(const ValueIdList &inValIdList, Valu
 // the routine ExpGenerator::generateBulkMoveAligned if the target attribute
 // has data format Compressed Internal format.
 short ExpGenerator::generateBulkMove(const ValueIdList &inValIdList, ValueIdList &outValIdList, ULng32 tupleLength,
-                                     Lng32 *bulkMoveSrcStartOffset)  // IN(O)
+                                     int *bulkMoveSrcStartOffset)  // IN(O)
 {
   if (bulkMoveSrcStartOffset)  // param passed in.
   {
@@ -2142,7 +2142,7 @@ short ExpGenerator::generateContiguousMoveExpr(const ValueIdList &valIdList, sho
                                                ULng32 &tupleLength, ex_expr **moveExpr, ExpTupleDesc **tupleDesc,
                                                ExpTupleDesc::TupleDescFormat tdescF, MapTable **newMapTable,
                                                ValueIdList *tgtValues, ULng32 startOffset,
-                                               Lng32 *bulkMoveSrcStartOffset, NABoolean disableConstFolding,
+                                               int *bulkMoveSrcStartOffset, NABoolean disableConstFolding,
                                                NAColumnArray *colArray, NABoolean doBulkMoves, Attributes **offsets) {
   // ---------------------------------------------------------------------
   // Generate an expression to take scattered values (given in valIdList)
@@ -2634,7 +2634,7 @@ short ExpGenerator::generateKeyEncodeExpr(const IndexDesc *indexDesc, Int32 atp,
   ValueIdList encode_val_id_list;
   CollIndex i = 0;
 
-  Lng32 numEntries = indexDesc->getIndexKey().entries();
+  int numEntries = indexDesc->getIndexKey().entries();
   if (inKeyList) numEntries = MINOF(inKeyList->entries(), indexDesc->getIndexKey().entries());
 
   for (i = 0; i < numEntries; i++) {
@@ -2709,7 +2709,7 @@ short ExpGenerator::generateDeserializedMoveExpr(const ValueIdList &valIdList, I
                                                  ex_expr **moveExpr, ExpTupleDesc **tupleDesc,
                                                  ExpTupleDesc::TupleDescFormat tdescF, ValueIdList &deserVIDlist,
                                                  ValueIdSet &alreadyDeserialized) {
-  for (Lng32 i = 0; i < valIdList.entries(); i++) {
+  for (int i = 0; i < valIdList.entries(); i++) {
     ValueId vid = valIdList[i];
     NAColumn *nac = vid.getNAColumn(TRUE);
 
@@ -2786,7 +2786,7 @@ short ExpGenerator::generateKeyColValueExpr(const ValueId vid, Int32 atp, Int32 
 }
 
 ItemExpr *ExpGenerator::generateKeyCast(const ValueId vid, ItemExpr *dataConversionErrorFlag, NABoolean desc_flag,
-                                        ExpTupleDesc::TupleDataFormat tf, Lng32 &possibleErrorCount,
+                                        ExpTupleDesc::TupleDataFormat tf, int &possibleErrorCount,
                                         NABoolean allChosenPredsAreEqualPreds, NABoolean castVarcharToAnsiChar) {
   ItemExpr *eq_node = (vid.getValueDesc())->getItemExpr();
 
@@ -2968,7 +2968,7 @@ short ExpGenerator::generateKeyExpr(const NAColumnArray &indexKeyColumns, const 
     // as the key length of the table. Allocate convert nodes
     // to move the key values to the key buffer.
 
-    Lng32 possibleErrorCount = 0;
+    int possibleErrorCount = 0;
 
     short prevAtp = -1, prevAtpIndex = -1;
     UInt32 prevOffset = 0;
@@ -3025,7 +3025,7 @@ short ExpGenerator::generateExclusionExpr(ItemExpr *expr, Int32 atp, Int32 atpin
                                atp, atpindex, ExpTupleDesc::SQLARK_EXPLODED_FORMAT, resultLen, excl_expr);
 
     // executor has hard-coded assumption that the result is a long
-    GenAssert(resultLen == sizeof(Lng32), "Exclusion flag expression result must have length 4");
+    GenAssert(resultLen == sizeof(int), "Exclusion flag expression result must have length 4");
   }
   return 0;
 }
@@ -3035,7 +3035,7 @@ short ExpGenerator::generateExclusionExpr(ItemExpr *expr, Int32 atp, Int32 atpin
 short ExpGenerator::generateInputExpr(const ValueIdList &val_id_list, ex_expr::exp_node_type /* node_type */,
                                       ex_expr **expr) {
   Space *space;
-  Lng32 num_input_entries = 0;
+  int num_input_entries = 0;
   InputOutputExpr *ioExpr;
   Attributes **attr;
   short retCode;
@@ -3073,7 +3073,7 @@ short ExpGenerator::generateInputExpr(const ValueIdList &val_id_list, ex_expr::e
         hostvarOrParamName = &((DynamicParam *)item_expr)->getName();
       }
 
-      Lng32 numAttrs = 1;
+      int numAttrs = 1;
       if (getShowplan()) numAttrs *= 2;
 
       attr = new (wHeap()) Attributes *[numAttrs];
@@ -3124,18 +3124,18 @@ short ExpGenerator::generateInputExpr(const ValueIdList &val_id_list, ex_expr::e
         input_clause->lobChunkMaxLen() = param->lobChunkMaxLen();
       }
 
-      char *nameBuffer = getSpace()->AllocateAndCopyToAlignedSpace(*nameForClause, sizeof(Lng32));
+      char *nameBuffer = getSpace()->AllocateAndCopyToAlignedSpace(*nameForClause, sizeof(int));
       input_clause->setName(nameBuffer);
 
       if (isDynamicParam) {
         DynamicParam *param = (DynamicParam *)item_expr;
         if (NOT param->getParamHeading().isNull()) {
-          char *heading = getSpace()->AllocateAndCopyToAlignedSpace(param->getParamHeading(), sizeof(Lng32));
+          char *heading = getSpace()->AllocateAndCopyToAlignedSpace(param->getParamHeading(), sizeof(int));
           input_clause->setHeading(heading);
         }
 
         if (NOT param->getParamTablename().isNull()) {
-          char *tablename = getSpace()->AllocateAndCopyToAlignedSpace(param->getParamTablename(), sizeof(Lng32));
+          char *tablename = getSpace()->AllocateAndCopyToAlignedSpace(param->getParamTablename(), sizeof(int));
           input_clause->setTableName(tablename);
         }
       } else {  // HostVar
@@ -3143,12 +3143,12 @@ short ExpGenerator::generateInputExpr(const ValueIdList &val_id_list, ex_expr::e
         input_clause->lobInlinedDataMaxLen() = hv->lobInlinedDataMaxLen() / bpc;
         input_clause->lobChunkMaxLen() = hv->lobChunkMaxLen();
         if (NOT hv->getParamHeading().isNull()) {
-          char *heading = getSpace()->AllocateAndCopyToAlignedSpace(hv->getParamHeading(), sizeof(Lng32));
+          char *heading = getSpace()->AllocateAndCopyToAlignedSpace(hv->getParamHeading(), sizeof(int));
           input_clause->setHeading(heading);
         }
 
         if (NOT hv->getParamTablename().isNull()) {
-          char *tablename = getSpace()->AllocateAndCopyToAlignedSpace(hv->getParamTablename(), sizeof(Lng32));
+          char *tablename = getSpace()->AllocateAndCopyToAlignedSpace(hv->getParamTablename(), sizeof(int));
           input_clause->setTableName(tablename);
         }
       }
@@ -3324,9 +3324,9 @@ short ExpGenerator::genGuardedListExpr(const ValueIdSet guard, const ValueIdList
 short ExpGenerator::generateOutputExpr(const ValueIdList &val_id_list, ex_expr::exp_node_type /* node_type */,
                                        ex_expr **expr, RETDesc *ret_desc, const ItemExprList *spOutParams,
                                        ConstNAStringPtr *colNamesForExpr, ConstQualifiedNamePtr *tblNamesForExpr) {
-  Lng32 rc;
+  int rc;
   Space *space;
-  Lng32 num_output_entries;
+  int num_output_entries;
   InputOutputExpr *ioExpr;
 
   initExprGen();
@@ -3420,11 +3420,11 @@ short ExpGenerator::generateOutputExpr(const ValueIdList &val_id_list, ex_expr::
 
     }  // if (colNameFromCaller) else ...
 
-    nameForClause = space->AllocateAndCopyToAlignedSpace(*colname_ptr, sizeof(Lng32));
+    nameForClause = space->AllocateAndCopyToAlignedSpace(*colname_ptr, sizeof(int));
 
     if (ret_desc->getHeading(i) != NULL) {
       heading =
-          space->allocateAndCopyToAlignedSpace(ret_desc->getHeading(i), strlen(ret_desc->getHeading(i)), sizeof(Lng32));
+          space->allocateAndCopyToAlignedSpace(ret_desc->getHeading(i), strlen(ret_desc->getHeading(i)), sizeof(int));
     }
 
     // if the output expression (item_expr) and the select list
@@ -3530,7 +3530,7 @@ short ExpGenerator::generateOutputExpr(const ValueIdList &val_id_list, ex_expr::
       }
 
       if (NOT qaname->getObjectName().isNull()) {
-        tableName = space->AllocateAndCopyToAlignedSpace(qaname->getObjectName(), sizeof(Lng32));
+        tableName = space->AllocateAndCopyToAlignedSpace(qaname->getObjectName(), sizeof(int));
       }
 
       // If nametype is Shortansi, we need to extract the schema name
@@ -3542,16 +3542,16 @@ short ExpGenerator::generateOutputExpr(const ValueIdList &val_id_list, ex_expr::
         SchemaName shortAnsiSchema = ActiveSchemaDB()->getDefaultSchema();
 
         if (NOT shortAnsiSchema.getSchemaName().isNull())
-          schemaName = space->AllocateAndCopyToAlignedSpace(shortAnsiSchema.getSchemaName(), sizeof(Lng32));
+          schemaName = space->AllocateAndCopyToAlignedSpace(shortAnsiSchema.getSchemaName(), sizeof(int));
 
         if (NOT shortAnsiSchema.getCatalogName().isNull())
-          catalogName = space->AllocateAndCopyToAlignedSpace(shortAnsiSchema.getCatalogName(), sizeof(Lng32));
+          catalogName = space->AllocateAndCopyToAlignedSpace(shortAnsiSchema.getCatalogName(), sizeof(int));
       } else {
         if (NOT qaname->getSchemaName().isNull()) {
-          schemaName = space->AllocateAndCopyToAlignedSpace(qaname->getSchemaName(), sizeof(Lng32));
+          schemaName = space->AllocateAndCopyToAlignedSpace(qaname->getSchemaName(), sizeof(int));
         }
         if (NOT qaname->getCatalogName().isNull()) {
-          catalogName = space->AllocateAndCopyToAlignedSpace(qaname->getCatalogName(), sizeof(Lng32));
+          catalogName = space->AllocateAndCopyToAlignedSpace(qaname->getCatalogName(), sizeof(int));
         }
       }
 
@@ -3791,7 +3791,7 @@ short ExpGenerator::processAttributes(ULng32 numAttrs, Attributes **attrs, ExpTu
 
 short ExpGenerator::processValIdList(ValueIdList valIdList, ExpTupleDesc::TupleDataFormat tdataF, ULng32 &tupleLength,
                                      Int32 atp, Int32 atpIndex, ExpTupleDesc **tupleDesc,
-                                     ExpTupleDesc::TupleDescFormat tdescF, Lng32 startOffset,
+                                     ExpTupleDesc::TupleDescFormat tdescF, int startOffset,
                                      Attributes ***returnedAttrs, NAColumnArray *colArray, NABoolean isIndex,
                                      NABoolean placeGuOutputFunctionsAtEnd, ExpHdrInfo *hdrInfo) {
   MapTable *myMapTable = generator->appendAtEnd();
@@ -3868,7 +3868,7 @@ short ExpGenerator::processValIdList(ValueIdList valIdList, ExpTupleDesc::TupleD
 }
 
 short ExpGenerator::computeTupleSize(const ValueIdList &valIdList, ExpTupleDesc::TupleDataFormat tdataF,
-                                     ULng32 &tupleLength, Lng32 startOffset, UInt32 *varCharSize, UInt32 *headerSize) {
+                                     ULng32 &tupleLength, int startOffset, UInt32 *varCharSize, UInt32 *headerSize) {
   MapTable *myMapTable = generator->appendAtEnd();
   UInt32 vcSize = 0;
   UInt32 numAttrs = valIdList.entries();
@@ -4036,7 +4036,7 @@ short ExpGenerator::endExprGen(ex_expr **expr, short gen_last_clause) {
     generator->removeLast();
   }
 
-  Lng32 len1 = getSpace()->getAllocatedSpaceSize();
+  int len1 = getSpace()->getAllocatedSpaceSize();
 
   // generate pcode at compile time
   UInt32 f = 0;
@@ -4047,8 +4047,8 @@ short ExpGenerator::endExprGen(ex_expr **expr, short gen_last_clause) {
   (*expr)->setPCodeGenCompile(1);
   if ((*expr)->getPCodeNative() && CmpCommon::getDefault(PCODE_NE_IN_SHOWPLAN) == DF_ON) (*expr)->setNEInShowplan(TRUE);
 
-  Lng32 pcodeExprLen = getSpace()->getAllocatedSpaceSize() - len1;
-  Lng32 totalExprLen = getSpace()->getAllocatedSpaceSize() - (*expr)->getLength();
+  int pcodeExprLen = getSpace()->getAllocatedSpaceSize() - len1;
+  int totalExprLen = getSpace()->getAllocatedSpaceSize() - (*expr)->getLength();
 
   (*expr)->setLength(totalExprLen);
 
@@ -4158,7 +4158,7 @@ short ExpGenerator::endExprGen(ex_expr **expr, short gen_last_clause) {
                                                                                    : clause->getClassSize();
 
           // Record size of space before allocation of clause and other stuff.
-          Lng32 beforeSize = getSpace()->getAllocatedSpaceSize();
+          int beforeSize = getSpace()->getAllocatedSpaceSize();
 
           // Allocate space for new clause
           ex_clause *newClause = (ex_clause *)new (getSpace()) char[clauseSize];
@@ -4227,7 +4227,7 @@ short ExpGenerator::endExprGen(ex_expr **expr, short gen_last_clause) {
           }
 
           // Record size of space after clause and other stuff allocated.
-          Lng32 afterSize = getSpace()->getAllocatedSpaceSize();
+          int afterSize = getSpace()->getAllocatedSpaceSize();
 
           // If showplan is being generated, make sure to discount the size of
           // those clauses which would be deleted if this wasn't a showplan.
@@ -4579,7 +4579,7 @@ MapInfo *ExpGenerator::addPersistent(ValueId val, MapTable *mapTable) {
   return mapInfo;
 }
 
-short ExpGenerator::genItemExpr(ItemExpr *item_expr, Attributes ***out_attr, Lng32 num_attrs, short gen_child)
+short ExpGenerator::genItemExpr(ItemExpr *item_expr, Attributes ***out_attr, int num_attrs, short gen_child)
 /////////////////////////////////////////////////////////////////////////////
 // Description of parameters:
 // item_expr (IN) : the tree for which code is to be generated
@@ -4614,7 +4614,7 @@ short ExpGenerator::genItemExpr(ItemExpr *item_expr, Attributes ***out_attr, Lng
     addTempsLength(len);
   }
 
-  Lng32 numAttrs = num_attrs;
+  int numAttrs = num_attrs;
   if (getShowplan()) numAttrs *= 2;
 
   Attributes **attr = new (wHeap()) Attributes *[numAttrs];
@@ -4773,8 +4773,8 @@ void ExpGeneratorCache::clear(void) {
   level_ = 0;
 }
 
-Lng32 ExpGenerator::foldConstants(ItemExpr *inExpr, ItemExpr **outExpr) {
-  Lng32 rc = 0;
+int ExpGenerator::foldConstants(ItemExpr *inExpr, ItemExpr **outExpr) {
+  int rc = 0;
 
   if (outExpr) *outExpr = inExpr;
 
@@ -4783,7 +4783,7 @@ Lng32 ExpGenerator::foldConstants(ItemExpr *inExpr, ItemExpr **outExpr) {
   if (CmpCommon::getDefault(CONSTANT_FOLDING) == DF_OFF) return 0;
 
   ValueId dummy;
-  Lng32 daMark = CmpCommon::diags()->mark();
+  int daMark = CmpCommon::diags()->mark();
   rc = ValueIdList::evaluateExpr(dummy, inExpr->getValueId(), -1,
                                  FALSE,  // don't simplify expr
                                  TRUE,   // do eval all consts

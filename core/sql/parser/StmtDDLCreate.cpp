@@ -313,7 +313,7 @@ NABoolean ParViewColTablesUsageList::insert(const CollIndex usingViewColumnNumbe
     LIST(ParViewColTablesUsage *)::insert(vctu);
 #ifndef NDEBUG
     if (ParIsTracingViewUsages()) {
-      NAString traceStr = "vct-u: " + LongToNAString((Lng32)usingViewColumnNumber) + "   " +
+      NAString traceStr = "vct-u: " + LongToNAString((int)usingViewColumnNumber) + "   " +
                           usedObjectName.getQualifiedNameObj().getQualifiedNameAsAnsiString();
       cout << traceStr << endl;
       //      *SqlParser_Diags << DgSqlCode(3066)  // kludge to print trace message
@@ -488,7 +488,7 @@ NABoolean ParViewColTableColsUsageList::insert(const CollIndex usingViewColumnNu
     }
 #ifndef NDEBUG
     if (ParIsTracingViewUsages()) {
-      NAString traceStr = "vctcu: " + LongToNAString((Lng32)usingViewColumnNumber) + "   " +
+      NAString traceStr = "vctcu: " + LongToNAString((int)usingViewColumnNumber) + "   " +
                           usedObjectColumnName.getCorrNameObj().getQualifiedNameObj().getQualifiedNameAsAnsiString() +
                           "." + ToAnsiIdentifier(usedObjectColumnName.getColName());
       cout << traceStr << endl;
@@ -671,7 +671,7 @@ StmtDDLCreateCatalog *StmtDDLCreateCatalog::castToStmtDDLCreateCatalog() { retur
 
 Int32 StmtDDLCreateCatalog::getArity() const { return MAX_STMT_DDL_CREATE_CATALOG_ARITY; }
 
-ExprNode *StmtDDLCreateCatalog::getChild(Lng32 index) {
+ExprNode *StmtDDLCreateCatalog::getChild(int index) {
   ComASSERT(index EQU INDEX_CREATE_CATALOG_ATTRIBUTE_LIST);
   return attributeList_;
 }
@@ -680,7 +680,7 @@ ExprNode *StmtDDLCreateCatalog::getChild(Lng32 index) {
 // mutators
 //
 
-void StmtDDLCreateCatalog::setChild(Lng32 index, ExprNode *pChildNode) {
+void StmtDDLCreateCatalog::setChild(int index, ExprNode *pChildNode) {
   ComASSERT(index EQU INDEX_CREATE_CATALOG_ATTRIBUTE_LIST);
   if (pChildNode NEQ NULL) {
     attributeList_ = pChildNode->castToElemDDLNode();
@@ -916,7 +916,7 @@ StmtDDLCreateTrigger *StmtDDLCreateTrigger::castToStmtDDLCreateTrigger() { retur
 
 Int32 StmtDDLCreateTrigger::getArity() const { return MAX_STMT_DDL_CREATE_TRIGGER_ARITY; }
 
-ExprNode *StmtDDLCreateTrigger::getChild(Lng32 index) {
+ExprNode *StmtDDLCreateTrigger::getChild(int index) {
   ComASSERT(index >= 0 AND index < getArity());
   switch (index) {
     case TRIGGER_OPTIONAL_UPDATE_COLUMN_LIST:
@@ -936,7 +936,7 @@ ExprNode *StmtDDLCreateTrigger::getChild(Lng32 index) {
 // mutators
 //
 
-void StmtDDLCreateTrigger::setChild(Lng32 index, ExprNode *pChildNode) {
+void StmtDDLCreateTrigger::setChild(int index, ExprNode *pChildNode) {
   ComASSERT(index >= 0 AND index < getArity());
   switch (index) {
     case TRIGGER_OPTIONAL_UPDATE_COLUMN_LIST:
@@ -1034,7 +1034,7 @@ NATraceList StmtDDLCreateTrigger::getDetailInfo() const {
     detailTextList.append("No columns.");
   } else {
     detailText = "Column list [";
-    detailText += LongToNAString((Lng32)nbrCols);
+    detailText += LongToNAString((int)nbrCols);
     detailText += " column(s)]:";
     detailTextList.append(detailText);
 
@@ -1042,7 +1042,7 @@ NATraceList StmtDDLCreateTrigger::getDetailInfo() const {
       col = colsList[i];
 
       detailText = "[column ";
-      detailText += LongToNAString((Lng32)i);
+      detailText += LongToNAString((int)i);
       detailText += "]";
       detailTextList.append(detailText);
 
@@ -1154,7 +1154,7 @@ StmtDDLCreateIndex *StmtDDLCreateIndex::castToStmtDDLCreateIndex() { return this
 
 Int32 StmtDDLCreateIndex::getArity() const { return MAX_STMT_DDL_CREATE_INDEX_ARITY; }
 
-ExprNode *StmtDDLCreateIndex::getChild(Lng32 index) {
+ExprNode *StmtDDLCreateIndex::getChild(int index) {
   ComASSERT(index >= 0 AND index < getArity());
   return children_[index];
 }
@@ -1165,7 +1165,7 @@ const NAString StmtDDLCreateIndex::getTableName() const { return tableQualName_.
 // mutators
 //
 
-void StmtDDLCreateIndex::setChild(Lng32 index, ExprNode *pChildNode) {
+void StmtDDLCreateIndex::setChild(int index, ExprNode *pChildNode) {
   ComASSERT(index >= 0 AND index < getArity());
   if (pChildNode EQU NULL) {
     children_[index] = NULL;
@@ -1709,7 +1709,7 @@ NATraceList StmtDDLCreateIndex::getDetailInfo() const {
     detailTextList.append("No columns.");
   } else {
     detailText = "Column list [";
-    detailText += LongToNAString((Lng32)nbrCols);
+    detailText += LongToNAString((int)nbrCols);
     detailText += " column(s)]:";
     detailTextList.append(detailText);
 
@@ -1717,7 +1717,7 @@ NATraceList StmtDDLCreateIndex::getDetailInfo() const {
       col = colsList[i];
 
       detailText = "[column ";
-      detailText += LongToNAString((Lng32)i);
+      detailText += LongToNAString((int)i);
       detailText += "]";
       detailTextList.append(detailText);
 
@@ -1775,7 +1775,7 @@ NATraceList StmtDDLCreateIndex::getDetailInfo() const {
     detailTextList.append("No partitions.");
   } else {
     detailText = "Partition list [";
-    detailText += LongToNAString((Lng32)nbrParts);
+    detailText += LongToNAString((int)nbrParts);
     detailText += " partition(s)]: ";
     detailTextList.append(detailText);
 
@@ -1794,7 +1794,7 @@ NATraceList StmtDDLCreateIndex::getDetailInfo() const {
       }
 
       detailText = "[partition ";
-      detailText += LongToNAString((Lng32)i);
+      detailText += LongToNAString((int)i);
       detailText += "]";
       detailTextList.append(detailText);
 
@@ -1846,7 +1846,7 @@ StmtDDLPopulateIndex *StmtDDLPopulateIndex::castToStmtDDLPopulateIndex() { retur
 
 Int32 StmtDDLPopulateIndex::getArity() const { return 0; }
 
-ExprNode *StmtDDLPopulateIndex::getChild(Lng32 index) { return NULL; }
+ExprNode *StmtDDLPopulateIndex::getChild(int index) { return NULL; }
 
 const NAString StmtDDLPopulateIndex::getTableName() const { return tableQualName_.getQualifiedNameAsAnsiString(); }
 
@@ -2082,7 +2082,7 @@ StmtDDLCreateRoutine *StmtDDLCreateRoutine::castToStmtDDLCreateRoutine() { retur
 
 Int32 StmtDDLCreateRoutine::getArity() const { return MAX_STMT_DDL_CREATE_ROUTINE_ARITY; }
 
-ExprNode *StmtDDLCreateRoutine::getChild(Lng32 index) {
+ExprNode *StmtDDLCreateRoutine::getChild(int index) {
   ComASSERT(index >= 0 AND index < getArity());
   return children_[index];
 }
@@ -2091,7 +2091,7 @@ ExprNode *StmtDDLCreateRoutine::getChild(Lng32 index) {
 // mutators
 //
 
-void StmtDDLCreateRoutine::setChild(Lng32 index, ExprNode *pChildNode) {
+void StmtDDLCreateRoutine::setChild(int index, ExprNode *pChildNode) {
   ComASSERT(index >= 0 AND index < getArity());
   if (pChildNode EQU NULL) {
     children_[index] = NULL;
@@ -2865,7 +2865,7 @@ NATraceList StmtDDLCreateRoutine::getDetailInfo() const {
     detailTextList.append("No params.");
   } else {
     detailText = "Param list [";
-    detailText += LongToNAString((Lng32)nbrParams);
+    detailText += LongToNAString((int)nbrParams);
     detailText += " param(s)]:";
     detailTextList.append(detailText);
 
@@ -2873,7 +2873,7 @@ NATraceList StmtDDLCreateRoutine::getDetailInfo() const {
       param = paramsList[i];
 
       detailText = "[param ";
-      detailText += LongToNAString((Lng32)i);
+      detailText += LongToNAString((int)i);
       detailText += "]";
       detailTextList.append(detailText);
 
@@ -3002,7 +3002,7 @@ StmtDDLCreateSequence *StmtDDLCreateSequence::castToStmtDDLCreateSequence() { re
 
 Int32 StmtDDLCreateSequence::getArity() const { return 0; }
 
-ExprNode *StmtDDLCreateSequence::getChild(Lng32 index) { return NULL; }
+ExprNode *StmtDDLCreateSequence::getChild(int index) { return NULL; }
 
 //
 // methods for tracing
@@ -3165,7 +3165,7 @@ StmtDDLCreateTable *StmtDDLCreateTable::castToStmtDDLCreateTable() { return this
 
 Int32 StmtDDLCreateTable::getArity() const { return MAX_STMT_DDL_CREATE_TABLE_ARITY; }
 
-ExprNode *StmtDDLCreateTable::getChild(Lng32 index) {
+ExprNode *StmtDDLCreateTable::getChild(int index) {
   ComASSERT(index >= 0 AND index < getArity());
   return children_[index];
 }
@@ -3268,7 +3268,7 @@ void StmtDDLCreateTable::computeDefaultPrimaryPartition() {
   partitionArray_.insert(pPrimaryPartition_);
 }
 
-void StmtDDLCreateTable::setChild(Lng32 index, ExprNode *pChildNode) {
+void StmtDDLCreateTable::setChild(int index, ExprNode *pChildNode) {
   ComASSERT(index >= 0 AND index < getArity());
   if (pChildNode EQU NULL) {
     children_[index] = NULL;
@@ -3495,7 +3495,7 @@ void StmtDDLCreateTable::synthesize() {
     ElemDDLNode *keyColsList = NULL;
     ElemDDLColDef *col = NULL;
     ElemDDLColDef *volTabSbyCol = NULL;
-    Lng32 volTabSbyColPos = -1;
+    int volTabSbyColPos = -1;
     ElemDDLNode *currListElem = pTableDefBody;
     ElemDDLNode *currElem = NULL;
     while (currListElem) {
@@ -3514,7 +3514,7 @@ void StmtDDLCreateTable::synthesize() {
         // Hierarchy of the datatypes that will be used to determine
         // the keys of a volatile table. Hierarchy is low to high
         // (first entry is the lowest)
-        static const Lng32 volTabSbyHier[] = {
+        static const int volTabSbyHier[] = {
             REC_BYTE_V_ASCII,
 
             REC_INT_SECOND,     REC_INT_MINUTE_SECOND, REC_INT_MINUTE,     REC_INT_HOUR_SECOND, REC_INT_DAY_SECOND,
@@ -3546,8 +3546,8 @@ void StmtDDLCreateTable::synthesize() {
         if ((CmpCommon::getDefault(VOLATILE_TABLE_FIND_SUITABLE_KEY) != DF_OFF) && (NOT userSpecifiedPKey) &&
             ((sbkcl == NULL) && (sbpk == NULL) && (pbc == NULL) && (pbcV2 == NULL))) {
           NABoolean found = FALSE;
-          Lng32 j = 0;
-          Lng32 maxSize = sizeof(volTabSbyHier) / sizeof(Lng32);
+          int j = 0;
+          int maxSize = sizeof(volTabSbyHier) / sizeof(int);
           for (j = 0; ((NOT found) && (j < maxSize)); j++) {
             if (col->getColumnDataType() && col->getColumnDataType()->getFSDatatype() == volTabSbyHier[j]) found = TRUE;
           }
@@ -4041,7 +4041,7 @@ void StmtDDLCreateTable::synthesize() {
 
         sscanf(value, "%lf", &tableSize);
 
-        posMaxTableSize_ = (Lng32)tableSize;
+        posMaxTableSize_ = (int)tableSize;
         isPOSMaxTableSizeSpecified_ = TRUE;
       }
     }
@@ -4741,7 +4741,7 @@ NATraceList StmtDDLCreateTable::getDetailInfo() const {
     detailTextList.append("No columns.");
   } else {
     detailText = "Column list [";
-    detailText += LongToNAString((Lng32)nbrCols);
+    detailText += LongToNAString((int)nbrCols);
     detailText += " column(s)]:";
     detailTextList.append(detailText);
 
@@ -4750,7 +4750,7 @@ NATraceList StmtDDLCreateTable::getDetailInfo() const {
       col = colsList[i];
 
       detailText = "[column ";
-      detailText += LongToNAString((Lng32)i);
+      detailText += LongToNAString((int)i);
       detailText += "]";
       detailTextList.append(detailText);
 
@@ -4769,7 +4769,7 @@ NATraceList StmtDDLCreateTable::getDetailInfo() const {
     detailTextList.append("No check constraints.");
   } else {
     detailText = "Check constraint list [";
-    detailText += LongToNAString((Lng32)nbrConstraints);
+    detailText += LongToNAString((int)nbrConstraints);
     detailText += " element(s)]:";
     detailTextList.append(detailText);
 
@@ -4778,7 +4778,7 @@ NATraceList StmtDDLCreateTable::getDetailInfo() const {
       checkConstraint = checkConstraintList[i];
 
       detailText = "[check constraint ";
-      detailText += LongToNAString((Lng32)i);
+      detailText += LongToNAString((int)i);
       detailText += "]";
       detailTextList.append(detailText);
 
@@ -4801,7 +4801,7 @@ NATraceList StmtDDLCreateTable::getDetailInfo() const {
       detailTextList.append("No primary key list.");
     } else {
       detailText = "Primary key column list [";
-      detailText += LongToNAString((Lng32)nbrCols);
+      detailText += LongToNAString((int)nbrCols);
       detailText += " element(s)]:";
       detailTextList.append(detailText);
 
@@ -4810,7 +4810,7 @@ NATraceList StmtDDLCreateTable::getDetailInfo() const {
         keyCol = keysList[i];
 
         detailText = "[primary key column ";
-        detailText += LongToNAString((Lng32)i);
+        detailText += LongToNAString((int)i);
         detailText += "]";
         detailTextList.append(detailText);
 
@@ -4830,7 +4830,7 @@ NATraceList StmtDDLCreateTable::getDetailInfo() const {
     detailTextList.append("No referential integrity constraints.");
   } else {
     detailText = "Referential integrity constraint list [";
-    detailText += LongToNAString((Lng32)nbrConstraints);
+    detailText += LongToNAString((int)nbrConstraints);
     detailText += " element(s)]:";
     detailTextList.append(detailText);
 
@@ -4839,7 +4839,7 @@ NATraceList StmtDDLCreateTable::getDetailInfo() const {
       rIConstraint = rIConstraintList[i];
 
       detailText = "[referential integrity constraint ";
-      detailText += LongToNAString((Lng32)i);
+      detailText += LongToNAString((int)i);
       detailText += "]";
       detailTextList.append(detailText);
 
@@ -4858,7 +4858,7 @@ NATraceList StmtDDLCreateTable::getDetailInfo() const {
     detailTextList.append("No unique constraints.");
   } else {
     detailText = "Unique constraint list [";
-    detailText += LongToNAString((Lng32)nbrConstraints);
+    detailText += LongToNAString((int)nbrConstraints);
     detailText += " element(s)]:";
     detailTextList.append(detailText);
 
@@ -4867,7 +4867,7 @@ NATraceList StmtDDLCreateTable::getDetailInfo() const {
       uniqueConstraint = uniqueConstraintList[i];
 
       detailText = "[unique constraint ";
-      detailText += LongToNAString((Lng32)i);
+      detailText += LongToNAString((int)i);
       detailText += "]";
       detailTextList.append(detailText);
 
@@ -4892,7 +4892,7 @@ NATraceList StmtDDLCreateTable::getDetailInfo() const {
           nbrCols = keyCols.entries();
           ComASSERT(nbrCols NEQ 0);
           detailText = "key column list in Store By clause[";
-          detailText += LongToNAString((Lng32)nbrCols);
+          detailText += LongToNAString((int)nbrCols);
           detailText += " element(s)]:";
           detailTextList.append(detailText);
 
@@ -4901,7 +4901,7 @@ NATraceList StmtDDLCreateTable::getDetailInfo() const {
             keyCol = keyCols[i];
 
             detailText = "[key column ";
-            detailText += LongToNAString((Lng32)i);
+            detailText += LongToNAString((int)i);
             detailText += "]";
             detailTextList.append(detailText);
 
@@ -4946,7 +4946,7 @@ NATraceList StmtDDLCreateTable::getDetailInfo() const {
     detailTextList.append("No partitions.");
   } else {
     detailText = "Partition list [";
-    detailText += LongToNAString((Lng32)nbrParts);
+    detailText += LongToNAString((int)nbrParts);
     detailText += " element(s)]: ";
     detailTextList.append(detailText);
 
@@ -4965,7 +4965,7 @@ NATraceList StmtDDLCreateTable::getDetailInfo() const {
       }
 
       detailText = "[partition ";
-      detailText += LongToNAString((Lng32)i);
+      detailText += LongToNAString((int)i);
       detailText += "]";
       detailTextList.append(detailText);
 
@@ -5124,7 +5124,7 @@ StmtDDLCreateMV *StmtDDLCreateMV::castToStmtDDLCreateMV() { return this; }
 
 Int32 StmtDDLCreateMV::getArity() const { return MAX_STMT_DDL_CREATE_MV_ARITY; }
 
-ExprNode *StmtDDLCreateMV::getChild(Lng32 index) {
+ExprNode *StmtDDLCreateMV::getChild(int index) {
   switch (index) {
     case INDEX_MV_COLUMN_LIST:
       return pMVColumnList_;
@@ -5150,7 +5150,7 @@ void StmtDDLCreateMV::incrCurViewColNum() {
   }
 }
 
-void StmtDDLCreateMV::setChild(Lng32 index, ExprNode *pChildNode) {
+void StmtDDLCreateMV::setChild(int index, ExprNode *pChildNode) {
   switch (index) {
     case INDEX_MV_COLUMN_LIST:
       if (pChildNode NEQ NULL) {
@@ -5587,7 +5587,7 @@ NATraceList StmtDDLCreateMV::getDetailInfo() const {
     detailTextList.append("No columns.");
   } else {
     detailText = "Column list [";
-    detailText += LongToNAString((Lng32)nbrCols);
+    detailText += LongToNAString((int)nbrCols);
     detailText += " column(s)]:";
     detailTextList.append(detailText);
 
@@ -5595,7 +5595,7 @@ NATraceList StmtDDLCreateMV::getDetailInfo() const {
       col = colsList[i];
 
       detailText = "[column ";
-      detailText += LongToNAString((Lng32)i);
+      detailText += LongToNAString((int)i);
       detailText += "]";
       detailTextList.append(detailText);
 
@@ -5663,7 +5663,7 @@ StmtDDLCreateView *StmtDDLCreateView::castToStmtDDLCreateView() { return this; }
 
 Int32 StmtDDLCreateView::getArity() const { return MAX_STMT_DDL_CREATE_VIEW_ARITY; }
 
-ExprNode *StmtDDLCreateView::getChild(Lng32 index) {
+ExprNode *StmtDDLCreateView::getChild(int index) {
   switch (index) {
     case INDEX_VIEW_COLUMN_LIST:
       return pViewColumnList_;
@@ -5693,7 +5693,7 @@ void StmtDDLCreateView::incrCurViewColNum() {
   }
 }
 
-void StmtDDLCreateView::setChild(Lng32 index, ExprNode *pChildNode) {
+void StmtDDLCreateView::setChild(int index, ExprNode *pChildNode) {
   switch (index) {
     case INDEX_VIEW_COLUMN_LIST:
       if (pChildNode NEQ NULL) {
@@ -5827,7 +5827,7 @@ NATraceList StmtDDLCreateView::getDetailInfo() const {
     detailTextList.append("No columns.");
   } else {
     detailText = "Column list [";
-    detailText += LongToNAString((Lng32)nbrCols);
+    detailText += LongToNAString((int)nbrCols);
     detailText += " column(s)]:";
     detailTextList.append(detailText);
 
@@ -5835,7 +5835,7 @@ NATraceList StmtDDLCreateView::getDetailInfo() const {
       col = colsList[i];
 
       detailText = "[column ";
-      detailText += LongToNAString((Lng32)i);
+      detailText += LongToNAString((int)i);
       detailText += "]";
       detailTextList.append(detailText);
 

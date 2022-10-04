@@ -80,7 +80,7 @@ class CNATestPoint {
   // Describes the different types of test point requests
   enum ETestPointRqst { eUNKNOWN, eKILL, eERROR, eFSERROR, eTRAP, eDELAY };
 
-  CNATestPoint(Lng32 number, Lng32 iterator = 1, ETestPointRqst rqst = eKILL);
+  CNATestPoint(int number, int iterator = 1, ETestPointRqst rqst = eKILL);
 
   // --------------------------------------------------------------------------
   // constructors/destructors
@@ -89,29 +89,29 @@ class CNATestPoint {
   virtual ~CNATestPoint();
 
   // accessors
-  Lng32 GetTestPoint() const { return m_iTestPoint; }
-  Lng32 GetIterator() const { return m_iIterator; }
-  Lng32 GetInnerLoopIterator() const { return m_iInnerLoopIterator; }
+  int GetTestPoint() const { return m_iTestPoint; }
+  int GetIterator() const { return m_iIterator; }
+  int GetInnerLoopIterator() const { return m_iInnerLoopIterator; }
   CNATestPoint::ETestPointRqst GetRqst() const { return m_eRqst; }
   void GetRqstText(char *text);
-  Lng32 GetDelayTime() const { return m_iDelayTime; }
+  int GetDelayTime() const { return m_iDelayTime; }
   Int32 GetError() const { return m_iError; }
   Int32 GetFSError() const { return m_iFSError; }
   Int32 GetTrapError() const { return m_iTrapError; }
-  Lng32 GetDetails();
+  int GetDetails();
 
   // mutators
-  void SetTestPoint(const Lng32 number) { m_iTestPoint = number; }
-  void SetIterator(const Lng32 iterator) { m_iIterator = iterator; }
-  void SetInnerLoopIterator(const Lng32 innerLoopIterator) { m_iInnerLoopIterator = innerLoopIterator; }
+  void SetTestPoint(const int number) { m_iTestPoint = number; }
+  void SetIterator(const int iterator) { m_iIterator = iterator; }
+  void SetInnerLoopIterator(const int innerLoopIterator) { m_iInnerLoopIterator = innerLoopIterator; }
   void SetRqst(const CNATestPoint::ETestPointRqst rqst) { m_eRqst = rqst; }
-  void SetDelayTime(const Lng32 delayTime);
+  void SetDelayTime(const int delayTime);
   void SetError(const Int32 error) { m_iError = error; }
   void SetFSError(const Int32 fsError) { m_iFSError = fsError; }
   void SetTrapError(const Int32 trapError);
 
   Int32 Execute(void);
-  void Wait(Lng32 delayTime_in_millisecs);
+  void Wait(int delayTime_in_millisecs);
 
  protected:
   // --------------------------------------------------------------------------
@@ -120,11 +120,11 @@ class CNATestPoint {
   CNATestPoint();
 
  private:
-  Lng32 m_iTestPoint;
-  Lng32 m_iIterator;           // iteration of the outermost loop
-  Lng32 m_iInnerLoopIterator;  // iteration of inner loop - 0 if no inner loop
+  int m_iTestPoint;
+  int m_iIterator;           // iteration of the outermost loop
+  int m_iInnerLoopIterator;  // iteration of inner loop - 0 if no inner loop
   ETestPointRqst m_eRqst;
-  Lng32 m_iDelayTime;
+  int m_iDelayTime;
   Int32 m_iError;
   Int32 m_iFSError;
   Int32 m_iTrapError;
@@ -142,14 +142,14 @@ class CNATestPointList : public NAList<CNATestPoint *> {
   CNATestPointList(EOwnership ownership = eItemsAreOwned);
   ~CNATestPointList();
 
-  inline void AddTestPoint(const Lng32 number, const Lng32 iterator, const NAString rqstStr, const Int32 details);
+  inline void AddTestPoint(const int number, const int iterator, const NAString rqstStr, const Int32 details);
 
-  void AddTestPoint(const Lng32 number, const Lng32 outermostLoopIterator, const Lng32 innerLoopIterator,
+  void AddTestPoint(const int number, const int outermostLoopIterator, const int innerLoopIterator,
                     const NAString rqstStr, const Int32 details);
 
-  CNATestPoint *Find(const Lng32 number,
-                     const Lng32 iterator,                // iteration of outermost loop
-                     const Lng32 innerLoopIterator = 0);  // 0: no inner loop
+  CNATestPoint *Find(const int number,
+                     const int iterator,                // iteration of outermost loop
+                     const int innerLoopIterator = 0);  // 0: no inner loop
  private:
   EOwnership m_ownership;
 };
@@ -170,7 +170,7 @@ class CNATestPointList : public NAList<CNATestPoint *> {
 //   rqstStr - what to do when executed (TRAP, ERROR, FSERROR, DELAY, KILL)
 //   details - optional details: e.g. how long to wait for a DELAY
 // ---------------------------------------------------------------------
-inline void CNATestPointList::AddTestPoint(const Lng32 number, const Lng32 iterator, const NAString rqstStr,
+inline void CNATestPointList::AddTestPoint(const int number, const int iterator, const NAString rqstStr,
                                            const Int32 details) {
   AddTestPoint(number, iterator,
                0,  // no inner loop
@@ -190,7 +190,7 @@ class CNATestPointArray {
   ~CNATestPointArray();
 
   bool configureTestPoint(const NAString &testPointSpec);  // returns false if bad spec
-  bool configureDelayTestPoint(enum ETestPointValue testPoint, const Lng32 delayInSeconds);
+  bool configureDelayTestPoint(enum ETestPointValue testPoint, const int delayInSeconds);
   void resetAllTestPoints();
   Int32 executeTestPoint(enum ETestPointValue testPoint);
 

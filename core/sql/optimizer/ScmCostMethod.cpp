@@ -51,7 +51,7 @@
 #include "SimpleScanOptimizer.h"
 #include "optimizer/NAFileSet.h"
 #include "optimizer/SchemaDB.h"
-#include "CostMethod.h"
+#include "optimizer/CostMethod.h"
 #include "Cost.h"
 #include "NodeMap.h"
 
@@ -67,7 +67,7 @@ static THREAD_P FILE *pfp = NULL;
 // -----------------------------------------------------------------------
 // CostMethod::scmComputeOperatorCost()
 // -----------------------------------------------------------------------
-Cost *CostMethod::scmComputeOperatorCost(RelExpr *op, const PlanWorkSpace *pws, Lng32 &countOfStreams) {
+Cost *CostMethod::scmComputeOperatorCost(RelExpr *op, const PlanWorkSpace *pws, int &countOfStreams) {
   Cost *cost;
   try {
     cost = scmComputeOperatorCostInternal(op, pws, countOfStreams);
@@ -87,7 +87,7 @@ Cost *CostMethod::scmComputeOperatorCost(RelExpr *op, const PlanWorkSpace *pws, 
 // -----------------------------------------------------------------------
 // CostMethod::scmComputeOperatorCostInternal()      (derived class must redefine)
 // -----------------------------------------------------------------------
-Cost *CostMethod::scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, Lng32 &countOfStreams) {
+Cost *CostMethod::scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, int &countOfStreams) {
   countOfStreams = 1;
 
 #ifndef NDEBUG
@@ -120,7 +120,7 @@ Cost *CostMethod::scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpac
 //  Pointer to cumulative final cost.
 //
 //==============================================================================
-Cost *CostMethod::scmComputePlanCost(RelExpr *op, const PlanWorkSpace *pws, Lng32 planNumber) {
+Cost *CostMethod::scmComputePlanCost(RelExpr *op, const PlanWorkSpace *pws, int planNumber) {
   const Context *myContext = pws->getContext();
 
   //----------------------------------------------------------------------
@@ -412,7 +412,7 @@ CostScalar ScanOptimizer::scmRowSizeFactor(CostScalar rowSize, ncmRowSizeFactorT
 /*                         CostMethodRelRoot                         */
 /*                                                                    */
 /**********************************************************************/
-Cost *CostMethodRelRoot::scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, Lng32 &countOfStreams) {
+Cost *CostMethodRelRoot::scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, int &countOfStreams) {
   // -------------------------------------------------------------
   // Save off estimated degree of parallelism.  Always 1 for root.
   // -------------------------------------------------------------
@@ -431,7 +431,7 @@ Cost *CostMethodRelRoot::scmComputeOperatorCostInternal(RelExpr *op, const PlanW
 /*                                                                    */
 /**********************************************************************/
 Cost *CostMethodFixedCostPerRow::scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws,
-                                                                Lng32 &countOfStreams) {
+                                                                int &countOfStreams) {
   // ---------------------------------------------------------------------
   // Preparatory work.
   // ---------------------------------------------------------------------
@@ -457,7 +457,7 @@ Cost *CostMethodFixedCostPerRow::scmComputeOperatorCostInternal(RelExpr *op, con
 /*                         CostMethodFileScan                         */
 /*                                                                    */
 /**********************************************************************/
-Cost *CostMethodFileScan::scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, Lng32 &countOfStreams) {
+Cost *CostMethodFileScan::scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, int &countOfStreams) {
   // call old computeOperatorCostInternal method.
   return computeOperatorCostInternal(op, pws->getContext(), countOfStreams);
 
@@ -469,7 +469,7 @@ Cost *CostMethodFileScan::scmComputeOperatorCostInternal(RelExpr *op, const Plan
 /*                         CostMethodDP2Scan                          */
 /*                                                                    */
 /**********************************************************************/
-Cost *CostMethodDP2Scan::scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, Lng32 &countOfStreams) {
+Cost *CostMethodDP2Scan::scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, int &countOfStreams) {
   const Context *myContext = pws->getContext();
   FileScan *fs = (FileScan *)op;
 
@@ -770,7 +770,7 @@ Cost *SimpleFileScanOptimizer::scmComputeCostVectorsMultiProbes() {
       // re-check risky NJ Heuristics from JoinToTSJRule::topMatch()
       NABoolean allowNJ = TRUE;
 
-      Lng32 ratio = (ActiveSchemaDB()->getDefaults()).getAsLong(HJ_SCAN_TO_NJ_PROBE_SPEED_RATIO);
+      int ratio = (ActiveSchemaDB()->getDefaults()).getAsLong(HJ_SCAN_TO_NJ_PROBE_SPEED_RATIO);
 
       // innerS is size of data scanned for inner table in HJ plan
       CostScalar innerS = effectiveTotalRowCount_ * getRecordSizeInKb() * 1024;
@@ -1416,7 +1416,7 @@ Cost *SimpleFileScanOptimizer::scmComputeCostVectorsMultiProbesForHbase() {
 //  Pointer to computed cost object for this exchange operator.
 //
 //==============================================================================
-Cost *CostMethodExchange::scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, Lng32 &countOfStreams) {
+Cost *CostMethodExchange::scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, int &countOfStreams) {
   const Context *myContext = pws->getContext();
 
   //----------------------------------------------------------------------
@@ -1480,7 +1480,7 @@ Cost *CostMethodExchange::scmComputeOperatorCostInternal(RelExpr *op, const Plan
   //  Exchange operator's number of streams is parent's degree of
   // parallelism (i.e. number of concurrently executing consumers).
   //---------------------------------------------------------------
-  countOfStreams = Lng32(numOfConsumers.getValue());
+  countOfStreams = int(numOfConsumers.getValue());
 
   //---------------------------------------------
   // set output resultset cardinality  as active streams, this value
@@ -1708,13 +1708,13 @@ CostScalar CostMethodExchange::scmComputeUpTuplesSent(const Context *parentConte
   // Calculate number of rows each consumer will receive.
   //------------------------------------------------------------------------
   if (CURRSTMT_OPTDEFAULTS->incorporateSkewInCosting()) {
-    upRowsPerConsumer = childOutputLP->getCardOfBusiestStream(parentPartFunc, (Lng32)numOfConsumers.getValue(),
-                                                              exch->getGroupAttr(), (Lng32)numOfConsumers.getValue());
+    upRowsPerConsumer = childOutputLP->getCardOfBusiestStream(parentPartFunc, (int)numOfConsumers.getValue(),
+                                                              exch->getGroupAttr(), (int)numOfConsumers.getValue());
     // assume number of consumers = number of CPUs;
     // it is only used for round robin pf. where skew is not an issue
 
-    upRowsPerProducer = childOutputLP->getCardOfBusiestStream(childPartFunc, (Lng32)numOfProducers.getValue(),
-                                                              exch->getGroupAttr(), (Lng32)numOfProducers.getValue());
+    upRowsPerProducer = childOutputLP->getCardOfBusiestStream(childPartFunc, (int)numOfProducers.getValue(),
+                                                              exch->getGroupAttr(), (int)numOfProducers.getValue());
   } else {
     upRowsPerConsumer = rowCountPerConsumer;
     upRowsPerProducer = rowCountPerProducer;
@@ -1749,7 +1749,7 @@ CostScalar CostMethodExchange::scmComputeUpTuplesSent(const Context *parentConte
 // -----------------------------------------------------------------------
 // CostMethodSort scmComputeOperatorCostInternal().
 // -----------------------------------------------------------------------
-Cost *CostMethodSort::scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, Lng32 &countOfStreams) {
+Cost *CostMethodSort::scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, int &countOfStreams) {
   const Context *myContext = pws->getContext();
 
   sort_ = (Sort *)op;
@@ -1890,7 +1890,7 @@ CostScalar CostMethodSort::scmComputeOverflowCost(CostScalar numInputTuples, Cos
 //
 //==============================================================================
 Cost *CostMethodSortGroupBy::scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws,
-                                                            Lng32 &countOfStreams) {
+                                                            int &countOfStreams) {
   const Context *myContext = pws->getContext();
 
   // ---------------------------------------------------------------------
@@ -2014,7 +2014,7 @@ Cost *CostMethodSortGroupBy::scmComputeOperatorCostInternal(RelExpr *op, const P
 // CostMethodShortCutGroupBy::scmComputeOperatorCostInternal().
 // -----------------------------------------------------------------------
 Cost *CostMethodShortCutGroupBy::scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws,
-                                                                Lng32 &countOfStreams) {
+                                                                int &countOfStreams) {
   const Context *myContext = pws->getContext();
 
   // ---------------------------------------------------------------------
@@ -2135,7 +2135,7 @@ Cost *CostMethodShortCutGroupBy::scmComputeOperatorCostInternal(RelExpr *op, con
 //
 //==============================================================================
 Cost *CostMethodHashGroupBy::scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws,
-                                                            Lng32 &countOfStreams) {
+                                                            int &countOfStreams) {
   const Context *myContext = pws->getContext();
 
   //-------------------
@@ -2325,7 +2325,7 @@ CostScalar CostMethodHashGroupBy::scmComputeOverflowCost(CostScalar numInputTupl
 // -----------------------------------------------------------------------
 // CostMethodHashJoin::scmComputeOperatorCostInternal().
 // -----------------------------------------------------------------------
-Cost *CostMethodHashJoin::scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, Lng32 &countOfStreams) {
+Cost *CostMethodHashJoin::scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, int &countOfStreams) {
   const Context *myContext = pws->getContext();
 
   hj_ = (HashJoin *)op;
@@ -2348,7 +2348,7 @@ Cost *CostMethodHashJoin::scmComputeOperatorCostInternal(RelExpr *op, const Plan
   //            = 1 means only 1736 fix is ON.
   //            = 2 means only 1769 fix is ON.
   //           >= 3 means 1736 and 1769 fixes are ON.
-  Lng32 compInt80 = (ActiveSchemaDB()->getDefaults()).getAsLong(COMP_INT_80);
+  int compInt80 = (ActiveSchemaDB()->getDefaults()).getAsLong(COMP_INT_80);
 
   // fix for 1736
   // cost of serial HJ is less than cost of parallel one because
@@ -2551,7 +2551,7 @@ CostScalar CostMethodHashJoin::scmComputeOverflowCost(CostScalar numBuildTuples,
 // CostMethodMergeJoin::scmComputeOperatorCostInternal().
 // -----------------------------------------------------------------------
 Cost *CostMethodMergeJoin::scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws,
-                                                          Lng32 &countOfStreams) {
+                                                          int &countOfStreams) {
   const Context *myContext = pws->getContext();
 
   mj_ = (MergeJoin *)op;
@@ -2635,7 +2635,7 @@ Cost *CostMethodMergeJoin::scmComputeOperatorCostInternal(RelExpr *op, const Pla
 // CostMethodNestedJoin::scmComputeOperatorCostInternal().
 // -----------------------------------------------------------------------
 Cost *CostMethodNestedJoin::scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws,
-                                                           Lng32 &countOfStreams) {
+                                                           int &countOfStreams) {
   const Context *myContext = pws->getContext();
 
   // ---------------------------------------------------------------------
@@ -2719,7 +2719,7 @@ Cost *CostMethodNestedJoin::scmComputeOperatorCostInternal(RelExpr *op, const Pl
 // CostMethodNestedJoinFlow::scmComputeOperatorCostInternal().
 // -----------------------------------------------------------------------
 Cost *CostMethodNestedJoinFlow::scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws,
-                                                               Lng32 &countOfStreams) {
+                                                               int &countOfStreams) {
   const Context *myContext = pws->getContext();
 
   // ---------------------------------------------------------------------
@@ -2787,7 +2787,7 @@ Cost *CostMethodNestedJoinFlow::scmComputeOperatorCostInternal(RelExpr *op, cons
 //  OUT - Estimated degree of parallelism for returned preliminary cost.
 //
 Cost *CostMethodTranspose::scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws,
-                                                          Lng32 &countOfStreams) {
+                                                          int &countOfStreams) {
   const Context *myContext = pws->getContext();
 
   // Just to make sure things are working as expected
@@ -2851,7 +2851,7 @@ Cost *CostMethodTranspose::scmComputeOperatorCostInternal(RelExpr *op, const Pla
 // long& countOfStreams
 //  OUT - Estimated degree of parallelism for returned preliminary cost.
 //
-Cost *CostMethodSample::scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, Lng32 &countOfStreams) {
+Cost *CostMethodSample::scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, int &countOfStreams) {
   const Context *myContext = pws->getContext();
 
   // Just to make sure things are working as expected
@@ -2896,7 +2896,7 @@ Cost *CostMethodSample::scmComputeOperatorCostInternal(RelExpr *op, const PlanWo
 }  // CostMethodSample::scmComputeOperatorCostInternal()
 
 Cost *CostMethodRelSequence::scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws,
-                                                            Lng32 &countOfStreams) {
+                                                            int &countOfStreams) {
   const Context *myContext = pws->getContext();
 
   // Just to make sure things are working as expected
@@ -2955,7 +2955,7 @@ Cost *CostMethodRelSequence::scmComputeOperatorCostInternal(RelExpr *op, const P
 //-------------------------------------------------------------------------
 
 Cost *CostMethodCompoundStmt::scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws,
-                                                             Lng32 &countOfStreams) {
+                                                             int &countOfStreams) {
   const Context *myContext = pws->getContext();
 
   // Just to make sure things are working as expected
@@ -3004,7 +3004,7 @@ Cost *CostMethodCompoundStmt::scmComputeOperatorCostInternal(RelExpr *op, const 
 }  // CostMethodCompoundStmt::scmComputeOperatorInternal()
 
 Cost *CostMethodStoredProc::scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws,
-                                                           Lng32 &countOfStreams) {
+                                                           int &countOfStreams) {
   const Context *myContext = pws->getContext();
 
   // ---------------------------------------------------------------------
@@ -3032,7 +3032,7 @@ Cost *CostMethodStoredProc::scmComputeOperatorCostInternal(RelExpr *op, const Pl
   return spCost;
 }  // CostMethodStoredProc::scmComputeOperatorInternal()
 
-Cost *CostMethodTuple::scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, Lng32 &countOfStreams) {
+Cost *CostMethodTuple::scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, int &countOfStreams) {
   // ---------------------------------------------------------------------
   // Preparatory work.
   // ---------------------------------------------------------------------
@@ -3063,7 +3063,7 @@ Cost *CostMethodTuple::scmComputeOperatorCostInternal(RelExpr *op, const PlanWor
 }  // CostMethodTuple::scmComputeOperatorInternal()
 
 Cost *CostMethodUnPackRows::scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws,
-                                                           Lng32 &countOfStreams) {
+                                                           int &countOfStreams) {
   // Just to make sure things are working as expected
   //
   DCMPASSERT(op->getOperatorType() == REL_UNPACKROWS);
@@ -3097,7 +3097,7 @@ Cost *CostMethodUnPackRows::scmComputeOperatorCostInternal(RelExpr *op, const Pl
 // CostMethodMergeUnion::computeOperatorCostInternal().
 // -----------------------------------------------------------------------
 Cost *CostMethodMergeUnion::scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws,
-                                                           Lng32 &countOfStreams) {
+                                                           int &countOfStreams) {
   const Context *myContext = pws->getContext();
 
   // ---------------------------------------------------------------------
@@ -3151,7 +3151,7 @@ Cost *CostMethodMergeUnion::scmComputeOperatorCostInternal(RelExpr *op, const Pl
 // This method is a stub for obsolete old cost model
 // -------------------------------------------------------------------
 Cost *CostMethodHbaseUpdateOrDelete::computeOperatorCostInternal(RelExpr *op, const Context *context,
-                                                                 Lng32 &countOfStreams) {
+                                                                 int &countOfStreams) {
   CMPASSERT(false);  // should never be called
   return NULL;
 }
@@ -3311,7 +3311,7 @@ void CostMethodHbaseUpdateOrDelete::computeIOCostsForCursorOperation(CostScalar 
 // This method computes the cost vector of the HbaseUpdate operation
 //*******************************************************************
 Cost *CostMethodHbaseUpdate::scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws,
-                                                            Lng32 &countOfStreams) {
+                                                            int &countOfStreams) {
   // TODO: Write this method; the code below is a copy of the Delete
   // method which we'll use for the moment. This is better than just
   // a simple constant stub; we will get parallel Update plans with
@@ -3604,7 +3604,7 @@ Cost *CostMethodHbaseUpdate::scmComputeOperatorCostInternal(RelExpr *op, const P
 // This method computes the cost vector of the HbaseDelete operation
 //*******************************************************************
 Cost *CostMethodHbaseDelete::scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws,
-                                                            Lng32 &countOfStreams) {
+                                                            int &countOfStreams) {
   const Context *myContext = pws->getContext();
 
   cacheParameters(op, myContext);
@@ -3888,7 +3888,7 @@ Cost *CostMethodHbaseDelete::scmComputeOperatorCostInternal(RelExpr *op, const P
 // This method computes the cost vector of the HbaseInsert operation
 //**************************************************************
 Cost *CostMethodHbaseInsert::scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws,
-                                                            Lng32 &countOfStreams) {
+                                                            int &countOfStreams) {
   // TODO: For now assume we are always doing an HBase insert.
   // Is it possible we go through this code path for Hive inserts?
   // If so, figure out what to do.
@@ -3958,7 +3958,7 @@ Cost *CostMethodHbaseInsert::scmComputeOperatorCostInternal(RelExpr *op, const P
 // This method computes the cost vector of the IsolatedScalarUDF operation
 //**************************************************************
 Cost *CostMethodIsolatedScalarUDF::scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws,
-                                                                  Lng32 &countOfStreams) {
+                                                                  int &countOfStreams) {
   const Context *myContext = pws->getContext();
 
   // ---------------------------------------------------------------------
@@ -4033,7 +4033,7 @@ Cost *CostMethodIsolatedScalarUDF::scmComputeOperatorCostInternal(RelExpr *op, c
 // This method computes the cost vector of the TableMappingUDF operation
 //**************************************************************
 Cost *CostMethodTableMappingUDF::scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws,
-                                                                Lng32 &countOfStreams) {
+                                                                int &countOfStreams) {
   const Context *myContext = pws->getContext();
   EstLogPropSharedPtr inputLP = myContext->getInputLogProp();
 
@@ -4117,7 +4117,7 @@ Cost *CostMethodTableMappingUDF::scmComputeOperatorCostInternal(RelExpr *op, con
 }
 
 Cost *CostMethodFastExtract::scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws,
-                                                            Lng32 &countOfStreams) {
+                                                            int &countOfStreams) {
   const Context *myContext = pws->getContext();
   EstLogPropSharedPtr inputLP = myContext->getInputLogProp();
 

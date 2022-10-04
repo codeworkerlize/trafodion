@@ -194,7 +194,7 @@ short ExConnectByTcb::setPseudoValue(Int32 lvl, Int32 isleaf, Int32 iscycle, cha
   ExpTupleDesc *tDesc = connectbyTdb().getCriDescUp()->getTupleDescriptor(connectbyTdb().fixedPseudoColRowAtpIndex_);
 
   short srcType = REC_BIN32_UNSIGNED;
-  Lng32 srcLen = 4;
+  int srcLen = 4;
   int src = lvl;
   Attributes *attr = tDesc->getAttr(0);  // level is the first
   if (::convDoIt((char *)&src, srcLen, srcType, 0, 0, &workdata_[attr->getOffset()], attr->getLength(),
@@ -542,7 +542,7 @@ short ExConnectByTcb::work() {
                   if (attr->getVCIndicatorLength() == sizeof(short))
                     tmpPathLen = *(short *)&ptr[attr->getVCLenIndOffset()];
                   else
-                    tmpPathLen = *(Lng32 *)&ptr[attr->getVCLenIndOffset()];
+                    tmpPathLen = *(int *)&ptr[attr->getVCLenIndOffset()];
                 } else
                   tmpPathLen = attr->getLength();
 
@@ -716,7 +716,7 @@ short ExConnectByTcb::work() {
                   if (attr->getVCIndicatorLength() == sizeof(short))
                     tmpPathLen = *(short *)&ptr[attr->getVCLenIndOffset()];
                   else
-                    tmpPathLen = *(Lng32 *)&ptr[attr->getVCLenIndOffset()];
+                    tmpPathLen = *(int *)&ptr[attr->getVCLenIndOffset()];
                 } else
                   tmpPathLen = attr->getLength();
 

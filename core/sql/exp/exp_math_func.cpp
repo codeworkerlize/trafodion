@@ -38,7 +38,7 @@
 
 #include "common/Platform.h"
 #include "errno.h"
-#include "exp_bignum.h"
+#include "exp/exp_bignum.h"
 
 // on NT platform, call system math functions.
 // On NSK, call our own version of math functions named as Math*
@@ -78,11 +78,11 @@
 #define HUGE_VAL_INT64  0777777777777777777777
 #define COT_ERR_BOUND   1E+10
 
-ex_expr::exp_return_type convInt64ToDec(char *target, Lng32 targetLen, Int64 source, CollHeap *heap,
+ex_expr::exp_return_type convInt64ToDec(char *target, int targetLen, long source, CollHeap *heap,
                                         ComDiagsArea **diagsArea);
 
-ex_expr::exp_return_type convDoubleToBigNum(char *target, Lng32 targetLen, Lng32 targetType, Lng32 targetPrecision,
-                                            Lng32 targetScale, double source, CollHeap *heap, ComDiagsArea **diagsArea);
+ex_expr::exp_return_type convDoubleToBigNum(char *target, int targetLen, int targetType, int targetPrecision,
+                                            int targetScale, double source, CollHeap *heap, ComDiagsArea **diagsArea);
 
 ex_expr::exp_return_type ex_function_abs::eval(char *op_data[], CollHeap *heap, ComDiagsArea **diagsArea) {
   ex_expr::exp_return_type retcode = ex_expr::EXPR_OK;
@@ -97,11 +97,11 @@ ex_expr::exp_return_type ex_function_abs::eval(char *op_data[], CollHeap *heap, 
       break;
 
     case REC_BIN32_SIGNED:
-      *(Lng32 *)op_data[0] = labs(*(Lng32 *)op_data[1]);
+      *(int *)op_data[0] = labs(*(int *)op_data[1]);
       break;
 
     case REC_BIN64_SIGNED:
-      if (*(Int64 *)op_data[1] == LLONG_MIN) {
+      if (*(long *)op_data[1] == LLONG_MIN) {
         /*
           -9223372036854775808.
           This is the only value that can overflow. The precision is 19
@@ -114,7 +114,7 @@ ex_expr::exp_return_type ex_function_abs::eval(char *op_data[], CollHeap *heap, 
         **diagsArea << DgString0(tmpbuf);
         return ex_expr::EXPR_ERROR;
       } else {
-        *(Int64 *)op_data[0] = (*(Int64 *)op_data[1] < 0 ? -*(Int64 *)op_data[1] : *(Int64 *)op_data[1]);
+        *(long *)op_data[0] = (*(long *)op_data[1] < 0 ? -*(long *)op_data[1] : *(long *)op_data[1]);
       }
       break;
 
@@ -321,7 +321,7 @@ ex_expr::exp_return_type ExFunctionMath::eval(char *op_data[], CollHeap *heap, C
         }
 
         case REC_DECIMAL_LSE: {
-          Int64 temp = (Int64)MathCeil(*(double *)op_data[1], err);
+          long temp = (long)MathCeil(*(double *)op_data[1], err);
           if (convInt64ToDec(op_data[0], getOperand(0)->getLength(), temp, heap, diagsArea) != ex_expr::EXPR_OK) {
             ExRaiseSqlError(heap, diagsArea, EXE_BAD_ARG_TO_MATH_FUNC);
             **diagsArea << DgString0("CEIL");
@@ -355,7 +355,7 @@ ex_expr::exp_return_type ExFunctionMath::eval(char *op_data[], CollHeap *heap, C
           break;
 
         case REC_BIN64_SIGNED:
-          *(Int64 *)op_data[0] = (Int64)MathCeil(*(double *)op_data[1], err);
+          *(long *)op_data[0] = (long)MathCeil(*(double *)op_data[1], err);
           break;
 
         case REC_BIN64_UNSIGNED:
@@ -427,7 +427,7 @@ ex_expr::exp_return_type ExFunctionMath::eval(char *op_data[], CollHeap *heap, C
           break;
         }
         case REC_DECIMAL_LSE: {
-          Int64 temp = (Int64)MathFloor(*(double *)op_data[1], err);
+          long temp = (long)MathFloor(*(double *)op_data[1], err);
           if (convInt64ToDec(op_data[0], getOperand(0)->getLength(), temp, heap, diagsArea) != ex_expr::EXPR_OK) {
             ExRaiseSqlError(heap, diagsArea, EXE_BAD_ARG_TO_MATH_FUNC);
             **diagsArea << DgString0("FLOOR");
@@ -461,7 +461,7 @@ ex_expr::exp_return_type ExFunctionMath::eval(char *op_data[], CollHeap *heap, C
           break;
 
         case REC_BIN64_SIGNED:
-          *(Int64 *)op_data[0] = (Int64)MathFloor(*(double *)op_data[1], err);
+          *(long *)op_data[0] = (long)MathFloor(*(double *)op_data[1], err);
           break;
 
         case REC_BIN64_UNSIGNED:
@@ -615,7 +615,7 @@ ex_expr::exp_return_type ExFunctionBitOper::eval(char *op_data[], CollHeap *heap
       else if (getOperand(0)->getDatatype() == REC_BIN32_SIGNED)
         *(Int32 *)op_data[0] = *(Int32 *)op_data[1] & *(Int32 *)op_data[2];
       else
-        *(Int64 *)op_data[0] = *(Int64 *)op_data[1] & *(Int64 *)op_data[2];
+        *(long *)op_data[0] = *(long *)op_data[1] & *(long *)op_data[2];
     } break;
 
     case ITM_BITOR: {
@@ -624,7 +624,7 @@ ex_expr::exp_return_type ExFunctionBitOper::eval(char *op_data[], CollHeap *heap
       else if (getOperand(0)->getDatatype() == REC_BIN32_SIGNED)
         *(Int32 *)op_data[0] = *(Int32 *)op_data[1] | *(Int32 *)op_data[2];
       else
-        *(Int64 *)op_data[0] = *(Int64 *)op_data[1] | *(Int64 *)op_data[2];
+        *(long *)op_data[0] = *(long *)op_data[1] | *(long *)op_data[2];
     } break;
 
     case ITM_BITXOR: {
@@ -633,7 +633,7 @@ ex_expr::exp_return_type ExFunctionBitOper::eval(char *op_data[], CollHeap *heap
       else if (getOperand(0)->getDatatype() == REC_BIN32_SIGNED)
         *(Int32 *)op_data[0] = *(Int32 *)op_data[1] ^ *(Int32 *)op_data[2];
       else
-        *(Int64 *)op_data[0] = *(Int64 *)op_data[1] ^ *(Int64 *)op_data[2];
+        *(long *)op_data[0] = *(long *)op_data[1] ^ *(long *)op_data[2];
     } break;
 
     case ITM_BITNOT: {
@@ -642,7 +642,7 @@ ex_expr::exp_return_type ExFunctionBitOper::eval(char *op_data[], CollHeap *heap
       else if (getOperand(0)->getDatatype() == REC_BIN32_SIGNED)
         *(Int32 *)op_data[0] = ~*(Int32 *)op_data[1];
       else if (getOperand(0)->getDatatype() == REC_BIN64_SIGNED)
-        *(Int64 *)op_data[0] = ~*(Int64 *)op_data[1];
+        *(long *)op_data[0] = ~*(long *)op_data[1];
       else {
         for (Int32 i = 0; i < getOperand(0)->getLength(); i++) {
           ((char *)(op_data[0]))[i] = ~((char *)(op_data[1]))[i];
@@ -692,7 +692,7 @@ ex_expr::exp_return_type ExFunctionBitOper::eval(char *op_data[], CollHeap *heap
 
         case REC_BIN64_SIGNED:
         case REC_IEEE_FLOAT64: {
-          result = *(Int64 *)op_data[1] << startBit;
+          result = *(long *)op_data[1] << startBit;
           result = result >> (64 - numBits);
         } break;
 
@@ -709,11 +709,11 @@ ex_expr::exp_return_type ExFunctionBitOper::eval(char *op_data[], CollHeap *heap
       if (getOperand(0)->getDatatype() == REC_BIN32_SIGNED)
         *(Int32 *)op_data[0] = (Int32)result;
       else
-        *(Int64 *)op_data[0] = result;
+        *(long *)op_data[0] = result;
     } break;
 
     case ITM_CONVERTTOBITS: {
-      Lng32 len1 = getOperand(1)->getLength(op_data[-MAX_OPERANDS + 1]);
+      int len1 = getOperand(1)->getLength(op_data[-MAX_OPERANDS + 1]);
       Int32 i;
       if (DFS2REC::isDoubleCharacter(getOperand(1)->getDatatype())) {
         ExRaiseSqlError(heap, diagsArea, EXE_BAD_ARG_TO_MATH_FUNC);
@@ -723,7 +723,7 @@ ex_expr::exp_return_type ExFunctionBitOper::eval(char *op_data[], CollHeap *heap
         char *srcData = op_data[1];
 
 #if defined(NA_LITTLE_ENDIAN)
-        Int64 temp;
+        long temp;
         if (swapBytes(getOperand(1)->getDatatype(), srcData, (char *)&temp)) srcData = (char *)&temp;
 #endif
 

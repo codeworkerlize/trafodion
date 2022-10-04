@@ -74,13 +74,13 @@ class ElemDDLPartitionRange : public ElemDDLPartitionSystem {
   //
 
   virtual Int32 getArity() const;
-  virtual ExprNode *getChild(Lng32 index);
+  virtual ExprNode *getChild(int index);
 
   inline ItemConstValueArray &getKeyValueArray();
   inline const ItemConstValueArray &getKeyValueArray() const;
 
   // mutators
-  virtual void setChild(Lng32 index, ExprNode *pChildNode);
+  virtual void setChild(int index, ExprNode *pChildNode);
 
   // functions for tracing
   virtual NATraceList getDetailInfo() const;

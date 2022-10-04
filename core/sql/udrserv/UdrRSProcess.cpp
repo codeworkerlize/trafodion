@@ -162,9 +162,9 @@ void processAnRSFetchOrContinueMessage(UdrGlobals *udrGlob, UdrServerDataStream 
   UdrResultSet *udrRS = sp->getUdrResultSetByHandle(rsHandle);
   if (udrRS == NULL) {
     if (requestType == UDR_MSG_RS_DATA_HEADER)
-      dataErrorReply(udrGlob, msgStream, UDR_ERR_MISSING_RSHANDLE, (Lng32)rsHandle, "Fetch");
+      dataErrorReply(udrGlob, msgStream, UDR_ERR_MISSING_RSHANDLE, (int)rsHandle, "Fetch");
     else
-      dataErrorReply(udrGlob, msgStream, UDR_ERR_MISSING_RSHANDLE, (Lng32)rsHandle, "Continue");
+      dataErrorReply(udrGlob, msgStream, UDR_ERR_MISSING_RSHANDLE, (int)rsHandle, "Continue");
 
     sendDataReply(udrGlob, msgStream, NULL);
 
@@ -217,7 +217,7 @@ void processAnRSFetchOrContinueMessage(UdrGlobals *udrGlob, UdrServerDataStream 
   // Allocate a diags list where row warning diags will be stored.
   NAList<ComDiagsArea *> *rowDiagsList = new (udrGlob->getIpcHeap()) NAList<ComDiagsArea *>(udrGlob->getIpcHeap());
 
-  Lng32 numRows =
+  int numRows =
       udrRS->fetchRows(udrGlob, request ? request->getSqlBuffer() : NULL, reply->getSqlBuffer(), *diags, rowDiagsList);
   if (numRows == -1) {
     // $$$$ TBD:
@@ -270,7 +270,7 @@ void processAnRSFetchOrContinueMessage(UdrGlobals *udrGlob, UdrServerDataStream 
     ServerDebug("");
     ServerDebug("[UdrServ (%s)] RS reply SqlBuffer", moduleName);
     ServerDebug("[UdrServ (%s)] Exe row size %u", moduleName, replyRowLen);
-    displaySqlBuffer(reply->getSqlBuffer(), (Lng32)reply->getSqlBufferLength());
+    displaySqlBuffer(reply->getSqlBuffer(), (int)reply->getSqlBufferLength());
   }
 
   // Finally set the flag if this is the last buffer.
@@ -322,7 +322,7 @@ void processAnRSCloseMessage(UdrGlobals *udrGlob, UdrServerReplyStream &msgStrea
   // Find the UdrResultSet instance for this request
   UdrResultSet *udrRS = sp->getUdrResultSetByHandle(request.getRSHandle());
   if (udrRS == NULL) {
-    controlErrorReply(udrGlob, msgStream, UDR_ERR_MISSING_RSHANDLE, (Lng32)request.getRSHandle(), "RS Close Message");
+    controlErrorReply(udrGlob, msgStream, UDR_ERR_MISSING_RSHANDLE, (int)request.getRSHandle(), "RS Close Message");
     return;
   }
 
@@ -397,7 +397,7 @@ void processAnRSUnloadMessage(UdrGlobals *udrGlob, UdrServerReplyStream &msgStre
   // Find the UdrResultSet instance for this request
   UdrResultSet *udrRS = sp->getUdrResultSetByHandle(request.getRSHandle());
   if (udrRS == NULL) {
-    controlErrorReply(udrGlob, msgStream, UDR_ERR_MISSING_RSHANDLE, (Lng32)request.getRSHandle(), "Unload");
+    controlErrorReply(udrGlob, msgStream, UDR_ERR_MISSING_RSHANDLE, (int)request.getRSHandle(), "Unload");
     return;
   }
 

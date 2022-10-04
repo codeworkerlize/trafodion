@@ -180,7 +180,7 @@ NABoolean ExtPushdownPredInfoList::validatePushdownForParquet() {
   // legacy TIMESTAMP types.
   // See TrafParquetFileReader.java::extractFilterInfo for details.
   NABoolean cantPushdown = FALSE;
-  for (Lng32 i = 0; ((i < entries()) && (NOT cantPushdown)); i++) {
+  for (int i = 0; ((i < entries()) && (NOT cantPushdown)); i++) {
     ExtPushdownPredInfo &ppi = (*this)[i];
     ExtPushdownOperatorType type = ppi.getType();
 
@@ -218,7 +218,7 @@ NABoolean ExtPushdownPredInfoList::validatePushdownForParquet() {
 }
 
 NABoolean ExtPushdownPredInfoList::validateOperatorsForParquetCppReader() {
-  for (Lng32 i = 0; i < entries(); i++) {
+  for (int i = 0; i < entries(); i++) {
     ExtPushdownPredInfo &ppi = (*this)[i];
     ExtPushdownOperatorType type = ppi.getType();
 
@@ -240,7 +240,7 @@ NABoolean ExtPushdownPredInfoList::validatePushdownForOrc() {
   // bug in hive.
   // See mantis 3340 for details.
   NABoolean cantPushdown = FALSE;
-  for (Lng32 i = 0; ((i < entries()) && (NOT cantPushdown)); i++) {
+  for (int i = 0; ((i < entries()) && (NOT cantPushdown)); i++) {
     ExtPushdownPredInfo &ppi = (*this)[i];
     ExtPushdownOperatorType type = ppi.getType();
 

@@ -125,19 +125,19 @@ class ExRtFragTable : public NABasicObject {
   // a transaction, complete all transaction-bearing I/Os.
   // If savepoints were being used, tell esps to commit or abort them.
   void releaseTransaction(NABoolean allWorkRequests, NABoolean alwaysSendReleaseMsg, NABoolean commitSavepoint,
-                          NABoolean rollbackSavepoint, Int64 savepointId);
+                          NABoolean rollbackSavepoint, long savepointId);
 
   // tell whether there are outstanding transaction requests
   inline NABoolean hasOutstandingWorkRequests() const { return numWorkMsgesOut_ > 0; }
 
   // tell how many outstanding transaction requests
-  inline Lng32 numOutstandingWorkRequests() const { return numWorkMsgesOut_; }
+  inline int numOutstandingWorkRequests() const { return numWorkMsgesOut_; }
 
   // tell whether there are outstanding transaction requests
   inline NABoolean hasOutstandingTransactionalMsges() const { return numTransactionalMsgesOut_ > 0; }
 
   // tell how many outstanding transaction requests
-  inline Lng32 numOutstandingTransactionalMsges() const { return numTransactionalMsgesOut_; }
+  inline int numOutstandingTransactionalMsges() const { return numTransactionalMsgesOut_; }
 
   // tell whether there are outstanding load/fixup requests
   inline NABoolean hasOutstandingLoadFixupMsges() const { return numLoadFixupMsgesOut_ > 0; }
@@ -146,7 +146,7 @@ class ExRtFragTable : public NABasicObject {
   inline NABoolean hasOutstandingReleaseEspMsges() const { return numReleaseEspMsgesOut_ > 0; }
 
   // tell how many outstanding release esp requests
-  inline Lng32 numOutstandingReleaseEspMsges() const { return numReleaseEspMsgesOut_; }
+  inline int numOutstandingReleaseEspMsges() const { return numReleaseEspMsgesOut_; }
 
   // start working again after a call to releaseTransaction()
   void continueWithTransaction();
@@ -158,7 +158,7 @@ class ExRtFragTable : public NABasicObject {
   const IpcProcessId &getInstanceProcessId(ExFragId fragId, CollIndex espNum) const;
 
   // how many instances are there for a given fragment id
-  Lng32 getNumOfInstances(ExFragId fragId) const;
+  int getNumOfInstances(ExFragId fragId) const;
 
   // get the control connection for a given instance
   IpcConnection *getControlConnection(ExFragId fragId, CollIndex espNum) const;
@@ -254,24 +254,24 @@ class ExRtFragTable : public NABasicObject {
   // indicate whether and how many queue entries of the root's down
   // queue to its child are currently active (in most cases we have
   // to restrict this to at most 1)
-  Lng32 numRootRequests_;
+  int numRootRequests_;
 
   // set to TRUE if we need to complete all I/Os that are associated with
   // a transaction, so the application can commit or REPLY.
   NABoolean quiesce_;
 
   // count how many fragment instances still have a fixup message outstanding
-  Lng32 numLoadFixupMsgesOut_;
+  int numLoadFixupMsgesOut_;
 
   // count how many work messages are outstanding
-  Lng32 numWorkMsgesOut_;
+  int numWorkMsgesOut_;
 
   // count how many transactional messages are outstanding
   // (can't commit a transaction while having such messages outstanding)
-  Lng32 numTransactionalMsgesOut_;
+  int numTransactionalMsgesOut_;
 
   // count how many release esp messages are outstanding
-  Lng32 numReleaseEspMsgesOut_;
+  int numReleaseEspMsgesOut_;
 
   // A list of outstanding service messages, to be completed.
   LIST(ExMasterEspMessage *) outstandingServiceRequests_;
@@ -293,17 +293,17 @@ class ExRtFragTable : public NABasicObject {
   void addLoadRequestToMessage(ExMasterEspMessage *msg, ExFragId fragId, NABoolean addHeader = TRUE,
                                NABoolean compressFrag = FALSE);
   void addFixupRequestToMessage(ExMasterEspMessage *msg, ExFragId fragId, IpcPriority fixupPriority,
-                                IpcPriority executePriority, Lng32 maxPollingInterval, Lng32 persistentOpens,
-                                NABoolean espCloseErrorLogging, Lng32 espFreeMemTimeout);
-  void addReleaseRequestToMessage(ExMasterEspMessage *msg, ExFragId fragId, Lng32 idleTimeout,
+                                IpcPriority executePriority, int maxPollingInterval, int persistentOpens,
+                                NABoolean espCloseErrorLogging, int espFreeMemTimeout);
+  void addReleaseRequestToMessage(ExMasterEspMessage *msg, ExFragId fragId, int idleTimeout,
                                   NABoolean releaseAll = FALSE, NABoolean closeAllOpens = FALSE);
 
   // find a particular instance, given its control connection
   ExRtFragInstance *findInstance(ExFragId fragId, IpcConnection *connection) const;
 
-  Lng32 getStopIdleEspsTimeout();
-  Lng32 getEspIdleTimeout();
-  Lng32 getEspInactiveTimeout();
+  int getStopIdleEspsTimeout();
+  int getEspIdleTimeout();
+  int getEspInactiveTimeout();
 };
 
 // -----------------------------------------------------------------------
@@ -321,7 +321,7 @@ class ExRtFragTableEntry {
 
   // how many ESPs are needed (ex_frag_dir has compiler suggestion, this
   // is the REAL number)
-  Lng32 numEsps_;
+  int numEsps_;
 
   // TRUE if we assign partitions to ESPs each time the root query is
   // executed, FALSE if we have a static assignments of partition input
@@ -434,7 +434,7 @@ class ExMasterEspMessage : public IpcMessageStream {
   virtual void actOnReceive(IpcConnection *connection);
   virtual void actOnReceiveAllComplete();
   virtual ExMasterEspMessage *castToExMasterEspMessage(void);
-  void incReqMsg(Int64 msgBytes);
+  void incReqMsg(long msgBytes);
 
  private:
   // a helper method that does book keepings on rtFragTable_
@@ -490,7 +490,7 @@ class ExEspManager {
                          NABoolean verifyESP,   // need to verify that prior ESP is alive ?
                          NABoolean *verifyCPU,  // input: need to verify each CPU
                                                 // output: if create ESP failed -- return TRUE
-                         IpcPriority priority, Lng32 espLevel, Lng32 idleTimeout, Lng32 assignTimeWindow,
+                         IpcPriority priority, int espLevel, int idleTimeout, int assignTimeWindow,
                          IpcGuardianServer **creatingEsp, NABoolean soloFragment, Int16 esp_multi_fragment,
                          Int16 esp_num_fragments, bool esp_multi_threaded);
 
@@ -502,7 +502,7 @@ class ExEspManager {
   short changePriorities(IpcPriority priority, NABoolean isDelta, bool ignoreNotFound = false);
 
   // kill/delete all free esps in cache
-  Lng32 endSession(ContextCli *context);
+  int endSession(ContextCli *context);
   // kill/delete all idle esps in cache
   void stopIdleEsps(ContextCli *context, NABoolean ignoreTimeout = FALSE);
 
@@ -522,7 +522,7 @@ class ExEspManager {
   ExEspDbEntry *getEspFromCache(LIST(ExEspDbEntry *) & alreadyAssignedEsps,  // multi fragment esp
                                 CollHeap *statementHeap, Statement *statement, const char *clusterName,
                                 IpcCpuNum cpuNum, short memoryQuota, Int32 user_id, Int32 tenantId, NABoolean verifyESP,
-                                Lng32 espLevel, Lng32 idleTimeout, Lng32 assignTimeWindow, Int32 nowaitDepth,
+                                int espLevel, int idleTimeout, int assignTimeWindow, Int32 nowaitDepth,
                                 NABoolean &espServerError, NABoolean soloFragment, Int16 esp_multi_fragment,
                                 Int16 esp_num_fragments, bool esp_multi_threaded);
 
@@ -590,7 +590,7 @@ class ExEspDbEntry : public NABasicObject {
  private:
   // private methods
 
-  ExEspDbEntry(CollHeap *heap, IpcServer *server, const char *clusterName, IpcCpuNum cpuNum, Lng32 espLevel,
+  ExEspDbEntry(CollHeap *heap, IpcServer *server, const char *clusterName, IpcCpuNum cpuNum, int espLevel,
                Int32 userId, Int32 tenantId, bool multiThreaded);
   ~ExEspDbEntry();
 
@@ -599,11 +599,11 @@ class ExEspDbEntry : public NABasicObject {
   // data members
   ExEspCacheKey *key_;  // hash key for esp cache
   IpcServer *server_;   // the IPC layer object for the server process
-  Lng32 espLevel_;
-  Int64 idleTimestamp_;
+  int espLevel_;
+  long idleTimestamp_;
   bool inUse_;
   short totalMemoryQuota_;
-  Lng32 usageCount_;      // how many fragment instances use this process - multi-fragment
+  int usageCount_;      // how many fragment instances use this process - multi-fragment
   Statement *statement_;  // Allow multiple fragments for just this statement
   bool soloFragment_;
   Int32 tenantId_;

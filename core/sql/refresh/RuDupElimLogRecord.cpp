@@ -95,7 +95,7 @@ CRUIUDLogRecord::~CRUIUDLogRecord() { delete pUpdateBitmap_; }
 //--------------------------------------------------------------------------//
 
 void CRUIUDLogRecord::CopyCKTupleValuesToParams(CDMPreparedStatement &stmt, Int32 firstParam) const {
-  Lng32 len = GetCKLength();
+  int len = GetCKLength();
   for (Int32 i = 0; i < len; i++) {
     ckTuple_.GetItem(i).SetStatementParam(stmt, firstParam + i);
   }
@@ -178,7 +178,7 @@ void CRUIUDLogRecord::ReadCKColumns(CDMResultSet &rs, Int32 startCKColumn) {
   // Performance optimization - switch the IsNull check off!
   rs.PresetNotNullable(TRUE);
 
-  Lng32 len = GetCKLength();
+  int len = GetCKLength();
 
   for (Int32 i = 0; i < len; i++) {
     Int32 colIndex = i + startCKColumn;

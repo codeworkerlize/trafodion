@@ -170,51 +170,51 @@ class SessionDefaults : public NABasicObject {
     updateDefaultsValueString(WMS_PROCESS, DisAmbiguate, wmsProcess_);
   }
 
-  void setCompilerIdleTimeout(Lng32 compilerIdleTimeout) {
+  void setCompilerIdleTimeout(int compilerIdleTimeout) {
     compilerIdleTimeout_ = compilerIdleTimeout;
     updateDefaultsValueString(COMPILER_IDLE_TIMEOUT, compilerIdleTimeout_);
   }
 
-  void setIsoMappingName(const char *attrValue, Lng32 attrValueLen);
+  void setIsoMappingName(const char *attrValue, int attrValueLen);
   void setIsoMappingEnum();
 
-  void setEspPriority(Lng32 espPriority) {
+  void setEspPriority(int espPriority) {
     espPriority_ = espPriority;
 
     updateDefaultsValueString(ESP_PRIORITY, espPriority_);
   }
 
-  void setMxcmpPriority(Lng32 mxcmpPriority) {
+  void setMxcmpPriority(int mxcmpPriority) {
     mxcmpPriority_ = mxcmpPriority;
 
     updateDefaultsValueString(MXCMP_PRIORITY, mxcmpPriority_);
   }
 
-  void setEspPriorityDelta(Lng32 espPriorityDelta) {
+  void setEspPriorityDelta(int espPriorityDelta) {
     espPriorityDelta_ = espPriorityDelta;
 
     updateDefaultsValueString(ESP_PRIORITY_DELTA, espPriorityDelta_);
   }
 
-  void setMxcmpPriorityDelta(Lng32 mxcmpPriorityDelta) {
+  void setMxcmpPriorityDelta(int mxcmpPriorityDelta) {
     mxcmpPriorityDelta_ = mxcmpPriorityDelta;
 
     updateDefaultsValueString(MXCMP_PRIORITY_DELTA, mxcmpPriorityDelta_);
   }
 
-  void setEspFixupPriority(Lng32 espFixupPriority) {
+  void setEspFixupPriority(int espFixupPriority) {
     espFixupPriority_ = espFixupPriority;
 
     updateDefaultsValueString(ESP_FIXUP_PRIORITY, espFixupPriority_);
   }
 
-  void setEspFixupPriorityDelta(Lng32 espFixupPriorityDelta) {
+  void setEspFixupPriorityDelta(int espFixupPriorityDelta) {
     espFixupPriorityDelta_ = espFixupPriorityDelta;
 
     updateDefaultsValueString(ESP_FIXUP_PRIORITY_DELTA, espFixupPriorityDelta_);
   }
 
-  void setCatalog(const char *attrValue, Lng32 attrValueLen) {
+  void setCatalog(const char *attrValue, int attrValueLen) {
     if (catalog_) {
       NADELETEBASIC(catalog_, heap_);
     }
@@ -228,7 +228,7 @@ class SessionDefaults : public NABasicObject {
 
   char *getCatalog() { return catalog_; }
 
-  void setSchema(const char *attrValue, Lng32 attrValueLen) {
+  void setSchema(const char *attrValue, int attrValueLen) {
     if (schema_) {
       NADELETEBASIC(schema_, heap_);
     }
@@ -250,7 +250,7 @@ class SessionDefaults : public NABasicObject {
 
   NABoolean getSkipEndValidDDLCheck() { return skipEndValidDDLCheck_; }
 
-  void setUEL(char *attrValue, Lng32 attrValueLen) {
+  void setUEL(char *attrValue, int attrValueLen) {
     if (uel_) {
       NADELETEBASIC(uel_, heap_);
     }
@@ -260,53 +260,53 @@ class SessionDefaults : public NABasicObject {
     uel_[attrValueLen] = '\0';
     updateDefaultsValueString(USER_EXPERIENCE_LEVEL, uel_);
   }
-  void setEspAssignDepth(Lng32 espAssignDepth) {
+  void setEspAssignDepth(int espAssignDepth) {
     espAssignDepth_ = espAssignDepth;
 
     updateDefaultsValueString(ESP_ASSIGN_DEPTH, espAssignDepth_);
   }
 
-  void setEspAssignTimeWindow(Lng32 espAssignTimeWindow) {
+  void setEspAssignTimeWindow(int espAssignTimeWindow) {
     espAssignTimeWindow_ = espAssignTimeWindow;
 
     updateDefaultsValueString(ESP_ASSIGN_TIME_WINDOW, espAssignTimeWindow_);
   }
 
-  void setEspStopIdleTimeout(Lng32 espStopIdleTimeout) {
+  void setEspStopIdleTimeout(int espStopIdleTimeout) {
     espStopIdleTimeout_ = espStopIdleTimeout;
 
     updateDefaultsValueString(ESP_STOP_IDLE_TIMEOUT, espStopIdleTimeout_);
   }
 
-  void setEspIdleTimeout(Lng32 espIdleTimeout) {
+  void setEspIdleTimeout(int espIdleTimeout) {
     espIdleTimeout_ = espIdleTimeout;
 
     updateDefaultsValueString(ESP_IDLE_TIMEOUT, espIdleTimeout_);
   }
 
-  void setOnlineBackupTimeout(Lng32 onlineBackupTimeout) {
+  void setOnlineBackupTimeout(int onlineBackupTimeout) {
     onlineBackupTimeout_ = onlineBackupTimeout;
 
     updateDefaultsValueString(ONLINE_BACKUP_TIMEOUT, onlineBackupTimeout_);
   }
 
-  void setEspInactiveTimeout(Lng32 espInactiveTimeout) {
+  void setEspInactiveTimeout(int espInactiveTimeout) {
     espInactiveTimeout_ = espInactiveTimeout;
 
     updateDefaultsValueString(ESP_INACTIVE_TIMEOUT, espInactiveTimeout_);
   }
 
-  void setEspReleaseWorkTimeout(Lng32 espReleaseWorkTimeout) {
+  void setEspReleaseWorkTimeout(int espReleaseWorkTimeout) {
     espReleaseWorkTimeout_ = espReleaseWorkTimeout;
 
     updateDefaultsValueString(ESP_RELEASE_WORK_TIMEOUT, espReleaseWorkTimeout_);
   }
 
-  void setMaxPollingInterval(Lng32 maxPollingInterval) {
+  void setMaxPollingInterval(int maxPollingInterval) {
     maxPollingInterval_ = maxPollingInterval;
     updateDefaultsValueString(MAX_POLLING_INTERVAL, maxPollingInterval_);
   }
-  void setPersistentOpens(Lng32 persistentOpens) {
+  void setPersistentOpens(int persistentOpens) {
     persistentOpens_ = persistentOpens;
     updateDefaultsValueString(PERSISTENT_OPENS, persistentOpens_);
   }
@@ -324,7 +324,7 @@ class SessionDefaults : public NABasicObject {
     updateDefaultsValueString(USE_LIBHDFS, DisAmbiguate, useLibHdfs_);
   }
 
-  void setEspFreeMemTimeout(Lng32 espFreeMemTimeout) {
+  void setEspFreeMemTimeout(int espFreeMemTimeout) {
     espFreeMemTimeout_ = espFreeMemTimeout;
 
     updateDefaultsValueString(ESP_FREEMEM_TIMEOUT, espFreeMemTimeout_);
@@ -360,14 +360,14 @@ class SessionDefaults : public NABasicObject {
 
   void setInternalFormatIO(NABoolean v) { internalFormatIO_ = v; }
 
-  void setRowsetAtomicity(Lng32 rsa) { rowsetAtomicity_ = rsa; }
+  void setRowsetAtomicity(int rsa) { rowsetAtomicity_ = rsa; }
 
-  void setCancelEscalationInterval(Lng32 cei) {
+  void setCancelEscalationInterval(int cei) {
     cancelEscalationInterval_ = cei;
     updateDefaultsValueString(CANCEL_ESCALATION_INTERVAL, cancelEscalationInterval_);
   }
 
-  void setCancelEscalationMxosrvrInterval(Lng32 cei) {
+  void setCancelEscalationMxosrvrInterval(int cei) {
     cancelEscalationMxosrvrInterval_ = cei;
     updateDefaultsValueString(CANCEL_ESCALATION_MXOSRVR_INTERVAL, cancelEscalationMxosrvrInterval_);
   }
@@ -416,24 +416,24 @@ class SessionDefaults : public NABasicObject {
   NABoolean getWmsProcess() { return wmsProcess_; }
   NABoolean getMariaQuestProcess() { return mariaQuestProcess_; }
 
-  Lng32 getEspPriority() { return espPriority_; }
-  Lng32 getMxcmpPriority() { return mxcmpPriority_; }
-  Lng32 getEspPriorityDelta() { return espPriorityDelta_; }
-  Lng32 getMxcmpPriorityDelta() { return mxcmpPriorityDelta_; }
-  Lng32 getEspFixupPriority() { return espFixupPriority_; }
-  Lng32 getEspFixupPriorityDelta() { return espFixupPriorityDelta_; }
-  Lng32 getEspAssignDepth() { return espAssignDepth_; }
-  Lng32 getEspAssignTimeWindow() { return espAssignTimeWindow_; }
-  Lng32 getEspStopIdleTimeout() { return espStopIdleTimeout_; }
-  Lng32 getEspIdleTimeout() { return espIdleTimeout_; }
-  Lng32 getOnlineBackupTimeout() { return onlineBackupTimeout_; }
-  Lng32 getCompilerIdleTimeout() { return compilerIdleTimeout_; }
-  Lng32 getEspInactiveTimeout() { return espInactiveTimeout_; }
-  Lng32 getEspReleaseWorkTimeout() { return espReleaseWorkTimeout_; }
-  Lng32 getMaxPollingInterval() { return maxPollingInterval_; }
-  Lng32 getPersistentOpens() { return persistentOpens_; }
-  Lng32 getEspFreeMemTimeout() { return espFreeMemTimeout_; }
-  Lng32 getEspCloseErrorLogging() { return espCloseErrorLogging_; }
+  int getEspPriority() { return espPriority_; }
+  int getMxcmpPriority() { return mxcmpPriority_; }
+  int getEspPriorityDelta() { return espPriorityDelta_; }
+  int getMxcmpPriorityDelta() { return mxcmpPriorityDelta_; }
+  int getEspFixupPriority() { return espFixupPriority_; }
+  int getEspFixupPriorityDelta() { return espFixupPriorityDelta_; }
+  int getEspAssignDepth() { return espAssignDepth_; }
+  int getEspAssignTimeWindow() { return espAssignTimeWindow_; }
+  int getEspStopIdleTimeout() { return espStopIdleTimeout_; }
+  int getEspIdleTimeout() { return espIdleTimeout_; }
+  int getOnlineBackupTimeout() { return onlineBackupTimeout_; }
+  int getCompilerIdleTimeout() { return compilerIdleTimeout_; }
+  int getEspInactiveTimeout() { return espInactiveTimeout_; }
+  int getEspReleaseWorkTimeout() { return espReleaseWorkTimeout_; }
+  int getMaxPollingInterval() { return maxPollingInterval_; }
+  int getPersistentOpens() { return persistentOpens_; }
+  int getEspFreeMemTimeout() { return espFreeMemTimeout_; }
+  int getEspCloseErrorLogging() { return espCloseErrorLogging_; }
 
   NABoolean getAltpriMaster() { return altpriMaster_; }
   NABoolean getAltpriMasterSeqExe() { return altpriMasterSeqExe_; }
@@ -442,9 +442,9 @@ class SessionDefaults : public NABasicObject {
 
   NABoolean getInternalFormatIO() { return internalFormatIO_; }
   char *getIsoMappingName() { return isoMappingName_; }
-  Lng32 getIsoMappingEnum() { return isoMappingEnum_; }
+  int getIsoMappingEnum() { return isoMappingEnum_; }
 
-  Lng32 getRowsetAtomicity() { return rowsetAtomicity_; }
+  int getRowsetAtomicity() { return rowsetAtomicity_; }
 
   void setCliBulkMove(NABoolean cbm) { cliBulkMove_ = cbm; }
   NABoolean getCliBulkMove() { return cliBulkMove_; }
@@ -452,31 +452,31 @@ class SessionDefaults : public NABasicObject {
   void setAqrEmsEvent(NABoolean aem) { aqrEmsEvent_ = aem; }
   NABoolean getAqrEmsEvent() { return aqrEmsEvent_; }
 
-  void setAqrType(Lng32 aqrt) { aqrType_ = aqrt; }
+  void setAqrType(int aqrt) { aqrType_ = aqrt; }
   NABoolean getAqrType() { return aqrType_; }
 
-  void setRtsTimeout(Lng32 rtsTimeout) {
+  void setRtsTimeout(int rtsTimeout) {
     rtsTimeout_ = rtsTimeout;
 
     updateDefaultsValueString(RTS_TIMEOUT, rtsTimeout_);
   }
-  Lng32 getRtsTimeout() { return rtsTimeout_; }
+  int getRtsTimeout() { return rtsTimeout_; }
   NABoolean getCallEmbeddedArkcmp() { return callEmbeddedArkcmp_; }
-  void setParserFlags(Lng32 parserFlags) {
+  void setParserFlags(int parserFlags) {
     parserFlags_ = parserFlags;
 
     updateDefaultsValueString(PARSER_FLAGS, parserFlags_);
   }
-  Lng32 getParserflags() { return parserFlags_; }
+  int getParserflags() { return parserFlags_; }
 
   Int32 *userId() { return &userId_; }
 
-  void setAQRWarnings(Lng32 v) { aqrWarn_ = v; }
-  Lng32 aqrWarnings() { return aqrWarn_; }
+  void setAQRWarnings(int v) { aqrWarn_ = v; }
+  int aqrWarnings() { return aqrWarn_; }
 
-  Lng32 getCancelEscalationInterval() { return cancelEscalationInterval_; }
+  int getCancelEscalationInterval() { return cancelEscalationInterval_; }
 
-  Lng32 getCancelEscalationMxosrvrInterval() { return cancelEscalationMxosrvrInterval_; }
+  int getCancelEscalationMxosrvrInterval() { return cancelEscalationMxosrvrInterval_; }
 
   NABoolean getCancelEscalationSaveabend() { return cancelEscalationSaveabend_; }
 
@@ -490,27 +490,27 @@ class SessionDefaults : public NABasicObject {
 
   NABoolean getUseLibHdfs() { return useLibHdfs_; }
 
-  Lng32 readFromDefaultsTable(CliGlobals *cliGlobals);
-  Lng32 setIsoMappingDefine();
+  int readFromDefaultsTable(CliGlobals *cliGlobals);
+  int setIsoMappingDefine();
 
-  SessionDefaultMap getSessionDefaultMap(char *attribute, Lng32 attrLen);
+  SessionDefaultMap getSessionDefaultMap(char *attribute, int attrLen);
 
-  void setSessionDefaultAttributeValue(SessionDefaultMap sda, char *attrValue, Lng32 attrValueLen);
+  void setSessionDefaultAttributeValue(SessionDefaultMap sda, char *attrValue, int attrValueLen);
 
-  void initializeSessionDefault(char *attribute, Lng32 attrLen, char *attrValue, Lng32 attrValueLen);
+  void initializeSessionDefault(char *attribute, int attrLen, char *attrValue, int attrValueLen);
 
   void position();
 
-  short getNextSessionDefault(char *&attributeString, char *&attributeValue, Lng32 &isCQD, Lng32 &inDefTab,
-                              Lng32 &isSSD, Lng32 &isExternalized);
+  short getNextSessionDefault(char *&attributeString, char *&attributeValue, int &isCQD, int &inDefTab,
+                              int &isSSD, int &isExternalized);
 
   void saveSessionDefaults();
   void restoreSessionDefaults();
 
   void resetSessionOnlyAttributes();
-  void setParentQid(const char *attrValue, Lng32 attrValueLen);
+  void setParentQid(const char *attrValue, int attrValueLen);
   char *getParentQid() { return parentQid_; }
-  void setParentQidSystem(const char *attrValue, Lng32 attrValueLen);
+  void setParentQidSystem(const char *attrValue, int attrValueLen);
   char *getParentQidSystem() { return parentQidSystem_; }
   void beginSession();
 
@@ -518,14 +518,14 @@ class SessionDefaults : public NABasicObject {
 
   AQRInfo *aqrInfo() { return aqrInfo_; }
 
-  Lng32 getStatisticsViewType() { return statisticsViewType_; }
-  void setStatisticsViewType(Lng32 type) {
+  int getStatisticsViewType() { return statisticsViewType_; }
+  void setStatisticsViewType(int type) {
     statisticsViewType_ = type;
     updateDefaultsValueString(STATISTICS_VIEW_TYPE, statisticsViewType_);
   }
-  Int64 getReclaimTotalMemorySize() { return reclaimTotalMemorySize_; }
+  long getReclaimTotalMemorySize() { return reclaimTotalMemorySize_; }
   // Memory Size in MB
-  void setReclaimTotalMemorySize(Lng32 memorySize) {
+  void setReclaimTotalMemorySize(int memorySize) {
     if (memorySize < 0)
       reclaimTotalMemorySize_ = -1L;
     else
@@ -533,8 +533,8 @@ class SessionDefaults : public NABasicObject {
     updateDefaultsValueString(RECLAIM_MEMORY_AFTER, memorySize);
   }
 
-  Lng32 getReclaimFreeMemoryRatio() { return reclaimFreeMemoryRatio_; }
-  void setReclaimFreeMemoryRatio(Lng32 freeMemoryRatio) {
+  int getReclaimFreeMemoryRatio() { return reclaimFreeMemoryRatio_; }
+  void setReclaimFreeMemoryRatio(int freeMemoryRatio) {
     reclaimFreeMemoryRatio_ = freeMemoryRatio;
     updateDefaultsValueString(RECLAIM_FREE_MEMORY_RATIO, reclaimFreeMemoryRatio_);
   }
@@ -548,8 +548,8 @@ class SessionDefaults : public NABasicObject {
   UInt32 getExSMTraceLevel() { return exsmTraceLevel_; }
   void setExSMTraceLevel(UInt32 lvl) { exsmTraceLevel_ = lvl; }
 
-  Lng32 getReclaimFreePFSRatio() { return reclaimFreePFSRatio_; }
-  void setReclaimFreePFSRatio(Lng32 freePFSRatio) {
+  int getReclaimFreePFSRatio() { return reclaimFreePFSRatio_; }
+  void setReclaimFreePFSRatio(int freePFSRatio) {
     reclaimFreePFSRatio_ = freePFSRatio;
     updateDefaultsValueString(RECLAIM_FREE_PFS_RATIO, reclaimFreePFSRatio_);
   }
@@ -563,7 +563,7 @@ class SessionDefaults : public NABasicObject {
 
  private:
   void updateDefaultsValueString(SessionDefaultAttribute sda, const Int16 DisAmbiguate, NABoolean value);
-  void updateDefaultsValueString(SessionDefaultAttribute sda, Lng32 value);
+  void updateDefaultsValueString(SessionDefaultAttribute sda, int value);
   void updateDefaultsValueString(SessionDefaultAttribute sda, char *value);
 
  private:
@@ -594,43 +594,43 @@ class SessionDefaults : public NABasicObject {
 
   // priorities
   // priorities of ESP and MXCMP
-  Lng32 espPriority_;
-  Lng32 mxcmpPriority_;
+  int espPriority_;
+  int mxcmpPriority_;
   // incremental priorities of ESP and MXCMP relative to current process.
   // Valid if espPriority_ and mxcmpPriority_ are set to -1.
-  Lng32 espPriorityDelta_;
-  Lng32 mxcmpPriorityDelta_;
+  int espPriorityDelta_;
+  int mxcmpPriorityDelta_;
 
   // absolute priorities of ESPs during plan fixup time.
-  Lng32 espFixupPriority_;
+  int espFixupPriority_;
 
   // incremental priorities of ESP during plan fixup time relative to current
   // irrespect to whether espPriority_ and/or espPriorityDelta_ is set or not
-  Lng32 espFixupPriorityDelta_;
+  int espFixupPriorityDelta_;
 
   // Limit on number of statements with ESPs assigned. When the limit is
   // exceeded, releaseSpace() will be called on the closed statement whose
   // ESPs were assigned earliest
-  Lng32 espAssignDepth_;
+  int espAssignDepth_;
   // ESP won't get assigned to new query if it has this much or less time left
   // before idle timed out
-  Lng32 espAssignTimeWindow_;
+  int espAssignTimeWindow_;
   // number of seconds that idle esps are kept alive before killed by master
-  Lng32 espStopIdleTimeout_;
+  int espStopIdleTimeout_;
   // number of seconds an esp should wait idle before it times out
-  Lng32 espIdleTimeout_;
+  int espIdleTimeout_;
   // number of seconds the compiler process can remain idle before it is killed by the master
-  Lng32 compilerIdleTimeout_;
+  int compilerIdleTimeout_;
   // numcompilerIber of seconds an esp should remain inactive before times out
-  Lng32 espInactiveTimeout_;
+  int espInactiveTimeout_;
   // number of seconds that master waits for release work reply from esps
-  Lng32 espReleaseWorkTimeout_;
+  int espReleaseWorkTimeout_;
   // The maximum priv stack size to request when calling HEADROOM_ENSURE_
 
-  Lng32 maxPollingInterval_;
-  Lng32 persistentOpens_;
+  int maxPollingInterval_;
+  int persistentOpens_;
   // secs after which deallocated memory is freed up and given back to kernel
-  Lng32 espFreeMemTimeout_;
+  int espFreeMemTimeout_;
   // Generate an EMS event if a connection is placed in error state due to
   // a close message with a request outstanding
   NABoolean espCloseErrorLogging_;
@@ -664,7 +664,7 @@ class SessionDefaults : public NABasicObject {
   NABoolean aqrEmsEvent_;
 
   // type of aqr: 0, none. 1, system. 2, On. 3, All
-  Lng32 aqrType_;
+  int aqrType_;
 
   // input & output of datatypes to be done in sql internal format.
   // Currently done for datetime and internal datatypes.
@@ -674,21 +674,21 @@ class SessionDefaults : public NABasicObject {
 
   // value of isoMapping. Set in defaults table.
   char *isoMappingName_;
-  Lng32 isoMappingEnum_;
+  int isoMappingEnum_;
 
   // Timeout when requesting run-time stats from the SSMP process, in seconds.
-  Lng32 rtsTimeout_;
+  int rtsTimeout_;
 
-  Lng32 parserFlags_;
+  int parserFlags_;
 
-  Lng32 rowsetAtomicity_;
+  int rowsetAtomicity_;
 
   // if warnings should be returned after recompilation/retry.
   // 0, no warnings. 1, all warnings.
-  Lng32 aqrWarn_;
+  int aqrWarn_;
 
   // variable to return default values for display
-  Lng32 currDef_;
+  int currDef_;
 
   NAList<SessionEnvvar> *sessionEnvvars_;
 
@@ -698,8 +698,8 @@ class SessionDefaults : public NABasicObject {
                               // via MXSSMP when RMS stats is collected after the statement has
                               // been deallocated
 
-  Lng32 cancelEscalationInterval_;         // canceler's session
-  Lng32 cancelEscalationMxosrvrInterval_;  // canceler's session
+  int cancelEscalationInterval_;         // canceler's session
+  int cancelEscalationMxosrvrInterval_;  // canceler's session
   NABoolean cancelEscalationSaveabend_;    // canceler's session
   NABoolean cancelQueryAllowed_;           // target query's session
   NABoolean cancelUniqueQuery_;            // target query's session
@@ -707,14 +707,14 @@ class SessionDefaults : public NABasicObject {
   NABoolean suspendLogging_;               // suspended's session
   NABoolean callEmbeddedArkcmp_;  // call the procedural interface and don't send a message to the arkcmp process.
   AQRInfo *aqrInfo_;
-  Lng32 statisticsViewType_;      // Statistics view type which could be different from the collection statistics type
+  int statisticsViewType_;      // Statistics view type which could be different from the collection statistics type
                                   /*
                                     Memory manager will start to reclaim space when the below conditions are met
                                           a)  Total memory size in executor segments is above the set value (800 MB)
                                           b)  When free to total size memory ratio is less than the set value (25%)
                                   */
-  Int64 reclaimTotalMemorySize_;  // Total Memory size after which memory manager might trigger reclaim memory space
-  Lng32 reclaimFreeMemoryRatio_;  // Free to Total memory ratio
+  long reclaimTotalMemorySize_;  // Total Memory size after which memory manager might trigger reclaim memory space
+  int reclaimFreeMemoryRatio_;  // Free to Total memory ratio
 
   NABoolean redriveCTAS_;
 
@@ -722,11 +722,11 @@ class SessionDefaults : public NABasicObject {
   char *exsmTraceFilePrefix_;
   UInt32 exsmTraceLevel_;
 
-  Lng32 reclaimFreePFSRatio_;  // 100 - (PFS current use / PFS size))
+  int reclaimFreePFSRatio_;  // 100 - (PFS current use / PFS size))
 
-  Lng32 jniDebugPort_;         // port to attache JNI debugger, <=0 to disable
-  Lng32 jniDebugTimeout_;      // timeout (msec) to wait for debugger to attach
-  Lng32 onlineBackupTimeout_;  // timeout to wait/retry until SQL unlock during online backup.
+  int jniDebugPort_;         // port to attache JNI debugger, <=0 to disable
+  int jniDebugTimeout_;      // timeout (msec) to wait for debugger to attach
+  int onlineBackupTimeout_;  // timeout to wait/retry until SQL unlock during online backup.
   NABoolean useLibHdfs_;
   NABoolean multiThreadedEsp_;  // Change the default to match with default value of MULTI_THREADED_ESP cqd settings
 };
@@ -739,15 +739,15 @@ class AQRInfo : public NABasicObject {
  public:
   struct AQRErrorMap {
    public:
-    Lng32 sqlcode;
-    Lng32 nskcode;
-    Lng32 retries;
-    Lng32 delay;
-    Lng32 type;
-    Lng32 numCQDs;
+    int sqlcode;
+    int nskcode;
+    int retries;
+    int delay;
+    int type;
+    int numCQDs;
     const char *cqdStr;
-    Lng32 cmpInfo;
-    Lng32 intAQR;
+    int cmpInfo;
+    int intAQR;
   };
 
   enum RetryType {
@@ -786,28 +786,28 @@ class AQRInfo : public NABasicObject {
 
   void position();
 
-  short getNextAQREntry(Lng32 &sqlcode, Lng32 &nskcode, Lng32 &retries, Lng32 &delay, Lng32 &type, Lng32 &intAQR);
+  short getNextAQREntry(int &sqlcode, int &nskcode, int &retries, int &delay, int &type, int &intAQR);
 
   void saveAQRErrors();
   NABoolean restoreAQRErrors();
 
-  short getAQREntry(Lng32 sqlcode, Lng32 nskcode, Int32 &retries, Int32 &delay, Int32 &type, Int32 &numCQDs,
+  short getAQREntry(int sqlcode, int nskcode, Int32 &retries, Int32 &delay, Int32 &type, Int32 &numCQDs,
                     char *&cqdStr, Int32 &cmpInfo, Int32 &intAQR);
 
-  short setAQREntry(Lng32 task, Lng32 sqlcode, Lng32 nskcode, Int32 retries, Int32 delay, Int32 type, Int32 numCQDs,
+  short setAQREntry(int task, int sqlcode, int nskcode, Int32 retries, Int32 delay, Int32 type, Int32 numCQDs,
                     char *cqdStr, Int32 cmpInfo, Int32 intAQR);
 
-  short setAQREntriesFromInputStr(char *inStr, Lng32 inStrLen);
+  short setAQREntriesFromInputStr(char *inStr, int inStrLen);
 
   AQRStatementInfo *aqrStmtInfo() { return aqrStmtInfo_; }
   void setAqrStmtInfo(AQRStatementInfo *v) { aqrStmtInfo_ = v; }
 
   void clearRetryInfo();
 
-  Lng32 setCQDs(Lng32 numCQDs, char *cqdStr, ContextCli *context);
-  Lng32 resetCQDs(Lng32 numCQDs, char *cqdStr, ContextCli *context);
-  Lng32 setCompilerInfo(char *queryId, ComCondition *errCond, ContextCli *context);
-  Lng32 resetCompilerInfo(char *queryId, ComCondition *errCond, ContextCli *context);
+  int setCQDs(int numCQDs, char *cqdStr, ContextCli *context);
+  int resetCQDs(int numCQDs, char *cqdStr, ContextCli *context);
+  int setCompilerInfo(char *queryId, ComCondition *errCond, ContextCli *context);
+  int resetCompilerInfo(char *queryId, ComCondition *errCond, ContextCli *context);
 
   NABoolean xnStartedAtPrepare() {
     return (flags_ & PREPARE_XN) != 0;
@@ -849,7 +849,7 @@ class AQRInfo : public NABasicObject {
 
   AQRStatementInfo *aqrStmtInfo_;
 
-  Lng32 currErr_;
+  int currErr_;
 
   UInt32 flags_;
 };
@@ -866,10 +866,10 @@ class AQRStatementAttributes : public NABasicObject {
   Statement::AtomicityType rowsetAtomicity_;
   ULng32 inputArrayMaxsize_;
   char *uniqueStmtId_;
-  Lng32 uniqueStmtIdLen_;
+  int uniqueStmtIdLen_;
   char *parentQID_;
   char parentQIDSystem_[25];
-  Int64 exeStartTime_;
+  long exeStartTime_;
 };
 
 class AQRStatementInfo : public NABasicObject {

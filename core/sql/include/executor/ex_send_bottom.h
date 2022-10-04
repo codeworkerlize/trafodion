@@ -91,7 +91,7 @@ class ex_send_bottom_tdb : public ComTdbSendBottom {
   // allocate one node to communicate with a particular parent instance
   virtual ex_send_bottom_tcb *buildInstance(ExExeStmtGlobals *glob, ExEspFragInstanceDir *espInstanceDir,
                                             const ExFragKey &myKey, const ExFragKey &parentKey, int myHandle,
-                                            Lng32 parentInstanceNum, NABoolean isLocal);
+                                            int parentInstanceNum, NABoolean isLocal);
 
  private:
   // ---------------------------------------------------------------------
@@ -132,7 +132,7 @@ class ex_send_bottom_tcb : public ex_tcb {
   // Constructor
   ex_send_bottom_tcb(const ex_send_bottom_tdb &sendBottomTdb, ExExeStmtGlobals *glob,
                      ExEspFragInstanceDir *espInstanceDir, const ExFragKey &myKey, const ExFragKey &parentKey,
-                     int myHandle, Lng32 parentInstanceNum);
+                     int myHandle, int parentInstanceNum);
 
   ~ex_send_bottom_tcb();
 
@@ -146,7 +146,7 @@ class ex_send_bottom_tcb : public ex_tcb {
 
   ex_queue_pair getParentQueue() const;
   inline ex_queue_pair getParentQueueForSendBottom() const { return qSplit_; }
-  inline Lng32 getParentInstanceNum() const { return parentInstanceNum_; }
+  inline int getParentInstanceNum() const { return parentInstanceNum_; }
   inline int getMyHandle() const { return myHandle_; }
   inline ExEspFragInstanceDir *getEspFragInstanceDir() const { return espInstanceDir_; }
 
@@ -174,7 +174,7 @@ class ex_send_bottom_tcb : public ex_tcb {
 
   void setExtractConsumerFlag(NABoolean b) { isExtractConsumer_ = b; }
   NABoolean getExtractConsumerFlag() const { return isExtractConsumer_; }
-  void incReplyMsg(Int64 msgBytes);
+  void incReplyMsg(long msgBytes);
 
   IpcConnection *getConnection() { return connection_; }
 
@@ -214,7 +214,7 @@ class ex_send_bottom_tcb : public ex_tcb {
   int myHandle_;
 
   // remember the instance number of the parent process that I'm talking to
-  Lng32 parentInstanceNum_;
+  int parentInstanceNum_;
 
   ExEspFragInstanceDir *espInstanceDir_;
 
@@ -227,8 +227,8 @@ class ex_send_bottom_tcb : public ex_tcb {
   TupMsgBuffer *currentRequestBuffer_;  // send_top request being processed
   TupMsgBuffer *currentReplyBuffer_;    // reply to send_top being built
 
-  Lng32 requestBufferSize_;  // size of receive sql buffer
-  Lng32 replyBufferSize_;    // size of send sql buffer
+  int requestBufferSize_;  // size of receive sql buffer
+  int replyBufferSize_;    // size of send sql buffer
 
   ULng32 currentBufferNumber_;
   NABoolean cancelReplyPending_;
@@ -277,7 +277,7 @@ class ExSendBottomRouteMessageStream : public IpcServerMsgStream {
 class ExSendBottomWorkMessageStream : public IpcServerMsgStream {
  public:
   // constructor
-  ExSendBottomWorkMessageStream(ExExeStmtGlobals *glob, Lng32 sendBufferLimit, Lng32 inUseBufferLimit,
+  ExSendBottomWorkMessageStream(ExExeStmtGlobals *glob, int sendBufferLimit, int inUseBufferLimit,
                                 IpcMessageObjSize bufferSize, ex_send_bottom_tcb *sendBottomTcb,
                                 ExEspInstanceThread *threadInfo);
 

@@ -39,7 +39,7 @@
 #include "common/Platform.h"
 
 #include "BigNumHelper.h"
-#include "exp_bignum.h"
+#include "exp/exp_bignum.h"
 #include "common/Int64.h"
 #include "common/str.h"
 #include "SQLTypeDefs.h"
@@ -48,7 +48,7 @@
 #include <iostream>
 #include <stdlib.h>
 
-BigNum::BigNum(Lng32 length, Lng32 precision, short scale, short unSigned)
+BigNum::BigNum(int length, int precision, short scale, short unSigned)
     : length_(length), precision_(precision), scale_(scale), unSigned_(unSigned), tempSpacePtr_(0) {
   setClassID(BigNumID);
 }
@@ -74,7 +74,7 @@ void BigNum::copyAttrs(Attributes *source) {
   return;
 };
 
-Lng32 BigNum::setTempSpaceInfo(OperatorTypeEnum operType, ULong offset, Lng32 length) {
+int BigNum::setTempSpaceInfo(OperatorTypeEnum operType, ULong offset, int length) {
   if (length > 0) {
     // if length is passed in and offset is temp space address.
     tempSpaceLength_ = length;
@@ -133,7 +133,7 @@ short BigNum::comp(OperatorTypeEnum compOp, Attributes *other, char *op_data[]) 
   if (thisSign != otherSign) {
     allZeroes = TRUE;
     // check if the values are zeroes.
-    for (Lng32 i = 0; i < getLength() / 2; i++) {
+    for (int i = 0; i < getLength() / 2; i++) {
       // if a nonzero is found, break out.
       if ((thisDataInShorts[i] != 0) || (otherDataInShorts[i] != 0)) {
         allZeroes = FALSE;
@@ -157,7 +157,7 @@ short BigNum::comp(OperatorTypeEnum compOp, Attributes *other, char *op_data[]) 
             // if magnitude of this is
             // larger than other
 
-      for (Lng32 i = 0; i < getLength() / 2; i++) {
+      for (int i = 0; i < getLength() / 2; i++) {
         if (otherDataInShorts[i] > thisDataInShorts[i])
           compCode = -1;
         else if (otherDataInShorts[i] < thisDataInShorts[i])
@@ -336,7 +336,7 @@ short BigNum::div(Attributes *left, Attributes *right, char *op_data[], NAMemory
 
   // Ignore trailing zeros in right.
   unsigned short *rightDataInShorts = (unsigned short *)op_data[2];
-  Lng32 rightLengthInShorts = (((BigNum *)right)->getLength()) / 2;
+  int rightLengthInShorts = (((BigNum *)right)->getLength()) / 2;
   while ((rightDataInShorts[rightLengthInShorts - 1] == 0) && (rightLengthInShorts > 0)) rightLengthInShorts--;
 
   if (rightLengthInShorts == 0) {
@@ -410,11 +410,11 @@ short BigNum::castFrom(Attributes *source, char *op_data[], NAMemory *heap, ComD
     } break;
 
     case REC_BIN32_SIGNED: {
-      if (*((Lng32 *)op_data[1]) < 0) {
-        *((ULng32 *)op_data[0]) = -*((Lng32 *)op_data[1]);
+      if (*((int *)op_data[1]) < 0) {
+        *((ULng32 *)op_data[0]) = -*((int *)op_data[1]);
         BIGN_SET_SIGN(op_data[0], getLength());
       } else {
-        *((ULng32 *)op_data[0]) = *((Lng32 *)op_data[1]);
+        *((ULng32 *)op_data[0]) = *((int *)op_data[1]);
       }
 
 #ifdef NA_LITTLE_ENDIAN
@@ -442,12 +442,12 @@ short BigNum::castFrom(Attributes *source, char *op_data[], NAMemory *heap, ComD
 
     case REC_BIN64_SIGNED: {
       // Since this case is a little more complex, we call a helper method.
-      BigNumHelper::ConvInt64ToBigNumWithSignHelper(getLength(), *((Int64 *)op_data[1]), op_data[0], FALSE);
+      BigNumHelper::ConvInt64ToBigNumWithSignHelper(getLength(), *((long *)op_data[1]), op_data[0], FALSE);
     } break;
 
     case REC_BIN64_UNSIGNED: {
       // Since this case is a little more complex, we call a helper method.
-      BigNumHelper::ConvInt64ToBigNumWithSignHelper(getLength(), *((Int64 *)op_data[1]), op_data[0], TRUE);
+      BigNumHelper::ConvInt64ToBigNumWithSignHelper(getLength(), *((long *)op_data[1]), op_data[0], TRUE);
     } break;
 
     case REC_DECIMAL_LSE: {
@@ -486,7 +486,7 @@ short BigNum::castFrom(Attributes *source, char *op_data[], NAMemory *heap, ComD
                    heap, diagsArea, CONV_UNKNOWN_LEFTPAD) != ex_expr::EXPR_OK)
         return -1;
 
-      Lng32 i;
+      int i;
 
       // Compute the 8-digit mantissa by skipping the decimal point.
       ULng32 mantissa = 0;
@@ -495,8 +495,8 @@ short BigNum::castFrom(Attributes *source, char *op_data[], NAMemory *heap, ComD
       }
 
       // Get the exponent - absolute value only
-      Lng32 exponent = 0;
-      Lng32 multiplier = 100;
+      int exponent = 0;
+      int multiplier = 100;
       for (i = 12; i < 15; i++) {
         exponent += (tempTarget[i] - '0') * multiplier;
         multiplier /= 10;
@@ -523,7 +523,7 @@ short BigNum::castFrom(Attributes *source, char *op_data[], NAMemory *heap, ComD
 
       // Shift down the mantissa so as to leave "scale" digits to the right of
       // the decimal point.
-      Lng32 scaleBy = getScale() + exponent;
+      int scaleBy = getScale() + exponent;
       if (scaleBy < 0) {
         Int8 roundMe = 0;
         for (i = 0; i < -scaleBy; i++) {
@@ -544,7 +544,7 @@ short BigNum::castFrom(Attributes *source, char *op_data[], NAMemory *heap, ComD
       // Create a Big Num (without sign) for 10^(scale + exponent);
       // This can be stored in the temporary area pointed to by tempSpacePtr_.
       char *tempPowersOfTen = (char *)tempSpacePtr_;
-      Lng32 tempPowersOfTenLength;
+      int tempPowersOfTenLength;
       BigNumHelper::ConvPowersOfTenToBigNumHelper(scaleBy, tempSpaceLength_, &tempPowersOfTenLength, tempPowersOfTen);
 
       // Convert the mantissa into a Big Num representation (without sign).
@@ -580,17 +580,17 @@ short BigNum::castFrom(Attributes *source, char *op_data[], NAMemory *heap, ComD
                    0, heap, diagsArea, CONV_UNKNOWN_LEFTPAD) != ex_expr::EXPR_OK)
         return -1;
 
-      Lng32 i;
+      int i;
 
       // Compute the 18-digit mantissa by skipping the decimal point.
-      Int64 mantissa = 0;
+      long mantissa = 0;
       for (i = 1; i <= 19; i++) {
         if (i != 2) mantissa = mantissa * 10 + (tempTarget[i] - '0');
       }
 
       // Get the exponent - absolute value only
-      Lng32 exponent = 0;
-      Lng32 multiplier = 100;
+      int exponent = 0;
+      int multiplier = 100;
       for (i = 22; i < 25; i++) {
         exponent += (tempTarget[i] - '0') * multiplier;
         multiplier /= 10;
@@ -617,7 +617,7 @@ short BigNum::castFrom(Attributes *source, char *op_data[], NAMemory *heap, ComD
 
       // Shift down the mantissa so as to leave "scale" digits to the right of
       // the decimal point.
-      Lng32 scaleBy = getScale() + exponent;
+      int scaleBy = getScale() + exponent;
       if (scaleBy < 0) {
         Int8 roundMe = 0;
         for (i = 0; i < -scaleBy; i++) {
@@ -640,7 +640,7 @@ short BigNum::castFrom(Attributes *source, char *op_data[], NAMemory *heap, ComD
       if (tempSpacePtr_ == 0) {
         tempPowersOfTen = new (heap) char[tempSpaceLength_];
       }
-      Lng32 tempPowersOfTenLength;
+      int tempPowersOfTenLength;
       BigNumHelper::ConvPowersOfTenToBigNumHelper(scaleBy, tempSpaceLength_, &tempPowersOfTenLength, tempPowersOfTen);
 
       // Convert the mantissa into a Big Num representation (without sign).
@@ -682,9 +682,9 @@ short BigNum::castFrom(Attributes *source, char *op_data[], NAMemory *heap, ComD
 // this method implements the ROUND function on big nums
 short BigNum::round(Attributes *left, Attributes *right, char *op_data[], NAMemory *heap, ComDiagsArea **diagsArea) {
   // obtain the rounding value
-  Int64 roundingValue = left->getScale();
+  long roundingValue = left->getScale();
   if (right) {
-    Int64 rightOperandValue = 0;
+    long rightOperandValue = 0;
     switch (right->getDatatype()) {
       case REC_BIN8_SIGNED:
         rightOperandValue = *((char *)op_data[2]);
@@ -706,7 +706,7 @@ short BigNum::round(Attributes *left, Attributes *right, char *op_data[], NAMemo
         rightOperandValue = *((UInt32 *)op_data[2]);
         break;
       case REC_BIN64_SIGNED:
-        rightOperandValue = *((Int64 *)op_data[2]);
+        rightOperandValue = *((long *)op_data[2]);
         break;
       case REC_BIN64_UNSIGNED:
         rightOperandValue = *((UInt64 *)op_data[2]);
@@ -808,7 +808,7 @@ void BigNum::decode(const char *inBuf, char *outBuf, short desc) {
 void BigNum::init(char *op_data, char *str)
 
 {
-  Lng32 strLength = str_len(str);
+  int strLength = str_len(str);
 
   // Skip ascii sign
   Int32 skip = ((str[0] == '-') || (str[0] == '+')) ? 1 : 0;

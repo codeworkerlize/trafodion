@@ -99,8 +99,8 @@ class RequirementGenerator {
   // ---------------------------------------------------------------------
   // accessor methods
   // ---------------------------------------------------------------------
-  inline Lng32 getCountOfPipelines() const { return availableCPUs_ * pipelinesPerCPU_; }
-  inline Lng32 getCountOfAvailableCPUs() const { return availableCPUs_; }
+  inline int getCountOfPipelines() const { return availableCPUs_ * pipelinesPerCPU_; }
+  inline int getCountOfAvailableCPUs() const { return availableCPUs_; }
 
   inline const ReqdPhysicalProperty *getStartRequirements() const { return startRequirements_; }
 
@@ -118,7 +118,7 @@ class RequirementGenerator {
                       PartitioningRequirement *dp2SortOrderPartReq = NULL);
   void addSortOrderTypeReq(SortOrderTypeEnum sortOrderTypeReq, PartitioningRequirement *dp2SortOrderPartReq = NULL);
   void addPartitioningKey(const ValueIdSet &partKey);
-  void addNumOfPartitions(Lng32 newNumberOfPartitions,
+  void addNumOfPartitions(int newNumberOfPartitions,
                           float newNumOfPartsAllowedDeviation = CURRSTMT_OPTDEFAULTS->numberOfPartitionsDeviation());
   void addPartRequirement(PartitioningRequirement *pr);
   void addLocationRequirement(PlanExecutionEnum loc);
@@ -158,7 +158,7 @@ class RequirementGenerator {
   void makeArrangementFeasible(ValueIdSet &proposedArrangement);
 
   // modify the number of required partitions such that it doesn't conflict
-  void makeNumOfPartsFeasible(Lng32 &proposedNumOfParts, float *proposedNumOfPartsAllowedDeviation = NULL);
+  void makeNumOfPartsFeasible(int &proposedNumOfParts, float *proposedNumOfPartsAllowedDeviation = NULL);
 
   // ---------------------------------------------------------------------
   // Methods to do consistency checking and to get information about
@@ -237,7 +237,7 @@ class RequirementGenerator {
   // "fuzzy" requirements
   ValueIdSet addedPartKey_;
   NABoolean partKeyHasBeenAdded_;
-  Lng32 addedNumberOfPartitions_;
+  int addedNumberOfPartitions_;
   float addedNumOfPartsAllowedDeviation_;
   // fully specified partitioning requirement
   PartitioningRequirement *addedPartitioningRequirement_;
@@ -253,8 +253,8 @@ class RequirementGenerator {
   PartitioningRequirement *addedDp2SortOrderPartReq_;
 
   // the other requirements that we don't check
-  Lng32 availableCPUs_;
-  Lng32 pipelinesPerCPU_;
+  int availableCPUs_;
+  int pipelinesPerCPU_;
   const CostWeight *costWeight_;
   const PerformanceGoal *perfGoal_;
   LogicalPartitioningRequirement *logicalPartReq_;

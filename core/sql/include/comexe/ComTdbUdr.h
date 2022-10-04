@@ -59,7 +59,7 @@ class ComTdbUdr : public ComTdb {
   friend class ExUdrTcb;
 
   ComTdbUdr(char *sqlName, char *routineName, char *routineSignature, char *containerName, char *externalPath,
-            char *librarySqlName, Int64 libraryRedefTime, char *libraryBlobHandle, char *librarySchName,
+            char *librarySqlName, long libraryRedefTime, char *libraryBlobHandle, char *librarySchName,
             Int32 libraryVersion, char *javaOptions, char *javaOptionDelimiters,
 
             ULng32 flags, ULng32 numInputValues, ULng32 numOutputValues, ULng32 numParams, ULng32 maxResultSets,
@@ -68,7 +68,7 @@ class ComTdbUdr : public ComTdb {
             ex_cri_desc *criDescParent, ex_cri_desc *criDescReturned, ex_cri_desc *workCriDesc,
             queue_index downQueueMaxSize, queue_index upQueueMaxSize,
 
-            Lng32 numOutputBuffers, ULng32 outputBufferSize, ULng32 requestBufferSize, ULng32 replyBufferSize,
+            int numOutputBuffers, ULng32 outputBufferSize, ULng32 requestBufferSize, ULng32 replyBufferSize,
 
             ex_expr *inputExpr, ex_expr *outputExpr, ex_expr *scanExpr, ex_expr *projExpr,
 
@@ -108,7 +108,7 @@ class ComTdbUdr : public ComTdb {
   // Pack/unpack
   //----------------------------------------------------------------------
   Long pack(void *);
-  Lng32 unpack(void *, void *);
+  int unpack(void *, void *);
 
   //----------------------------------------------------------------------
   // Other required TDB support functions
@@ -240,7 +240,7 @@ class ComTdbUdr : public ComTdb {
 
   Int32 javaDebugPort_;           // 236-239
   Int32 javaDebugTimeout_;        // 240-243
-  Int64 libraryRedefTime_;        // 244-251
+  long libraryRedefTime_;        // 244-251
   NABasicPtr libraryBlobHandle_;  // 252-259
   NABasicPtr librarySchName_;     // 260-267
   Int32 libraryVersion_;          // 268-271

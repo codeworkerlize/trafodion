@@ -94,7 +94,7 @@ void EqualitySet::determineType() {
   }
 
   NABoolean isExact = FALSE, wasExact, isSigned = FALSE, isNullable = FALSE;
-  Lng32 magnitude = 0, otherMagnitude, scale = 0;
+  int magnitude = 0, otherMagnitude, scale = 0;
 
   // Go through each member of the equality set, getting the parameters for the
   // narrowest type common to them all (excluding a constant, if any).
@@ -228,7 +228,7 @@ NABoolean QRDescGenerator::typeSupported(const NAType *type) {
       // case NA_RECORD_TYPE:
       // case NA_ROWSET_TYPE:
 
-      // datetime values are currently converted to Int64 microseconds value
+      // datetime values are currently converted to long microseconds value
       // for rangespec constants. If fractional precision is greater than
       // microsecs, disable rangespec transformation.
       if (type->getScale() > DatetimeType::MAX_FRACTION_PRECISION_USEC) return FALSE;
@@ -674,8 +674,8 @@ QRExprPtr QRDescGenerator::genQRExpr(ItemExpr *pExpr, NABoolean isResidual, UInt
     return exprElement;
   }
 
-  Lng32 treeDepth = 0;
-  Lng32 exprSize = pExpr->getTreeSize(treeDepth, 0);
+  int treeDepth = 0;
+  int exprSize = pExpr->getTreeSize(treeDepth, 0);
   if (exprSize > maxExprSize_ || treeDepth > maxExprDepth_) {
     if (isQueryMode() || isDumpMvMode())
       isNotProvided = TRUE;
@@ -1689,7 +1689,7 @@ static void getLeafValueIds(ItemExpr *itemExpr, ValueIdList &lv) {
     lv.insertSet(itemExpr->getValueId());
   } else {
     // else add the leaf value ids of all the children
-    for (Lng32 i = 0; i < (Lng32)nc; i++) {
+    for (int i = 0; i < (int)nc; i++) {
       getLeafValueIds(itemExpr->child(i), lv);
     }
   }

@@ -309,7 +309,7 @@ static void replaceBaseValue(ItemExpr *incomingExpr, ItemExpr *resultExpr, CollH
       return;
     }
 
-    for (Lng32 i = 0; i < (Lng32)nc; i++) {
+    for (int i = 0; i < (int)nc; i++) {
       if (found == FALSE) replaceBaseValue(incomingExpr->child(i), resultExpr, heap, found);
     }
   }
@@ -581,7 +581,7 @@ short FirstN::codeGen(Generator *generator) {
                                        &firstNRowsExpr, NULL, ExpTupleDesc::SHORT_FORMAT);
   }
 
-  Int64 firstNrows = getFirstNRows();
+  long firstNrows = getFirstNRows();
   if ((firstNrows > 0) && (generator->getNumESPs() > 1)) {
     firstNrows = MAXOF(1, firstNrows / generator->getNumESPs());
   }
@@ -739,7 +739,7 @@ short RelRoot::codeGen(Generator *generator) {
   //  unsigned long tablenameCacheVarsSize = 0;
 
   // max number of rows in user rowwise rowset.
-  Lng32 rwrsMaxSize = 0;
+  int rwrsMaxSize = 0;
 
   // index into the user params to find the value of the number of
   // actual rows in the rowwise rowset buffer.
@@ -759,7 +759,7 @@ short RelRoot::codeGen(Generator *generator) {
 
   // length of the each internal tuple where user's row will be moved in
   // at runtime.
-  Lng32 rwrsMaxInternalRowlen = 0;
+  int rwrsMaxInternalRowlen = 0;
 
   RWRSInfo *rwrsInfo = NULL;
   char *rwrsInfoBuf = NULL;
@@ -768,7 +768,7 @@ short RelRoot::codeGen(Generator *generator) {
 
     rwrsInfoBuf = (char *)rwrsInfo;
 
-    rwrsMaxSize = (Lng32)((ConstValue *)getHostArraysArea()->rwrsMaxSize())->getExactNumericValue();
+    rwrsMaxSize = (int)((ConstValue *)getHostArraysArea()->rwrsMaxSize())->getExactNumericValue();
 
     NABoolean packedFormat = FALSE;
     NABoolean compressed = FALSE;
@@ -911,8 +911,8 @@ short RelRoot::codeGen(Generator *generator) {
   //++Triggers,
   // Save the offsets of triggerStatus and UniqueExecuteId,
   // so ex_root_tcb can set it's value
-  Lng32 triggersStatusOffset = -1;
-  Lng32 uniqueExecuteIdOffset = -1;
+  int triggersStatusOffset = -1;
+  int uniqueExecuteIdOffset = -1;
 
   for (i = 0; i < newInputVars.entries(); i++) {
     ItemExpr *item_expr = (newInputVars)[i].getItemExpr();
@@ -1059,10 +1059,10 @@ short RelRoot::codeGen(Generator *generator) {
     TrafTableDesc *tableDesc = explainDescStruct->tableDesc();
 
     // Determine the length of the Explain Tuple.
-    Lng32 recLength = tableDesc->record_length;
+    int recLength = tableDesc->record_length;
 
     // Determine the number of columns in the Explain Tuple.
-    Lng32 numCols = tableDesc->colcount;
+    int numCols = tableDesc->colcount;
 
     explainDesc = new (explainSpace) ExplainDesc(numCols, recLength, explainSpace);
 
@@ -1228,8 +1228,8 @@ short RelRoot::codeGen(Generator *generator) {
   // SELECT statements (cursors). For UPDATE CURRENT OF, the update columns
   // are obtained from the GenericUpate Node. For cursors, the update columns
   // are obtained from this (RelRoot) node.
-  Lng32 numUpdateCol = 0;
-  Lng32 *updateColList = NULL;
+  int numUpdateCol = 0;
+  int *updateColList = NULL;
 
   if (updateCurrentOf())  // UPDATE/DELETE ... where CURRENT OF query.
   {
@@ -1256,11 +1256,11 @@ short RelRoot::codeGen(Generator *generator) {
         GenAssert(numUpdateCol > 0,
                   "UPDATE CURRENT OF: No update columns");
 
-        updateColList = new(space) Lng32[numUpdateCol];
+        updateColList = new(space) int[numUpdateCol];
 
         // Populate the array with the update columns from the left side
         // of each expression which is a column.
-        for (i = 0; (Lng32)i < numUpdateCol; i++)
+        for (i = 0; (int)i < numUpdateCol; i++)
           {
             updateColList[i] = updateStoi->getUpdateColumn(i);
           }
@@ -1271,10 +1271,10 @@ short RelRoot::codeGen(Generator *generator) {
 
     if (numUpdateCol > 0) {
       // Allocate an array for the column list.
-      updateColList = new (space) Lng32[numUpdateCol];
+      updateColList = new (space) int[numUpdateCol];
 
       // Populate the array with the update columns of this node.
-      for (i = 0; (Lng32)i < numUpdateCol; i++) {
+      for (i = 0; (int)i < numUpdateCol; i++) {
         ValueId val_id = updateCol()[i];
         GenAssert(val_id.getItemExpr()->getOperatorType() == ITM_BASECOLUMN, "UpdateCol should be BaseColumn");
         BaseColumn *col = (BaseColumn *)val_id.getItemExpr();
@@ -1545,7 +1545,7 @@ short RelRoot::codeGen(Generator *generator) {
       // find the position of this hostvar in input var list.
       if ((src->isVariable()) && (!src->isEnvVar())) {
         if (tgt->isCachedParam()) {
-          tgt->setCachedParamOffset((Lng32)cachedAttrs[tgt->getInputListIndex() - 1]->getOffset());
+          tgt->setCachedParamOffset((int)cachedAttrs[tgt->getInputListIndex() - 1]->getOffset());
         } else {
           NABoolean found = FALSE;
           for (CollIndex i = 0; ((i < newInputVars.entries()) && (!found)); i++) {
@@ -1649,7 +1649,7 @@ short RelRoot::codeGen(Generator *generator) {
     if (op == ITM_HOSTVAR) {
       HostVar *hostVar = (HostVar *)item_expr;
       if (hostVar->getType()->getTypeQualifier() == NA_ROWSET_TYPE) {
-        Lng32 thisSize = hostVar->getType()->getTotalSize();
+        int thisSize = hostVar->getType()->getTotalSize();
         input_vars_size += thisSize;
       }
     }
@@ -1780,7 +1780,7 @@ short RelRoot::codeGen(Generator *generator) {
     double cpu, io, msg, idle, seqIOs, randIOs, total, cardinality;
     double totalMemPerCpu, totalMemPerCpuInKB;
     short maxCpuUsage;
-    Lng32 dummy;
+    int dummy;
     Cost const *operatorCost = getRollUpCost();
     const NABoolean inMaster = generator->getEspLevel() == 0;
     operatorCost->getExternalCostAttr(cpu, io, msg, idle, seqIOs, randIOs, total, dummy);
@@ -1841,19 +1841,19 @@ short RelRoot::codeGen(Generator *generator) {
   // Place ObjectUIDs of Trafodion tables used in plan in root tdb
   // These are used to invalidate plans if there is DDL change for  the table.
   CollIndex numObjectUIDs = generator->objectUids().entries();
-  Int64 *objectUIDsPtr = NULL;
+  long *objectUIDsPtr = NULL;
   if (numObjectUIDs > 0) {
-    objectUIDsPtr = new (space) Int64[numObjectUIDs];
+    objectUIDsPtr = new (space) long[numObjectUIDs];
     for (CollIndex i = 0; i < numObjectUIDs; i++) objectUIDsPtr[i] = generator->objectUids()[i];
   }
 
   Queue *listOfSnapshotscanTables = NULL;
   NAString tmpLocNAS;
   char *tmpLoc = NULL;
-  Int64 numObjectNames = generator->objectNames().entries();
+  long numObjectNames = generator->objectNames().entries();
   if (numObjectNames > 0) {
     listOfSnapshotscanTables = new (space) Queue(space);
-    for (Lng32 i = 0; i < generator->objectNames().entries(); i++) {
+    for (int i = 0; i < generator->objectNames().entries(); i++) {
       char *nm = space->allocateAlignedSpace(generator->objectNames()[i].length() + 1);
       strcpy(nm, generator->objectNames()[i].data());
       listOfSnapshotscanTables->insert(nm);
@@ -1922,14 +1922,14 @@ short RelRoot::codeGen(Generator *generator) {
   // If there is a Hive table in this query, and we are using
   // Apache Sentry security, then set a timestamp in the root tdb
   // which, when passed, causes a privilege recheck via AQR.
-  Int64 sentryAuthExpirationTimeStamp = 0;  // 0 means no check
+  long sentryAuthExpirationTimeStamp = 0;  // 0 means no check
   if (generator->hiveAccess())              // if there is a Hive table in this query
   {
     if (NATable::usingSentry()) {
       sentryAuthExpirationTimeStamp = NA_JulianTimestamp();
-      Lng32 refreshIntervalInSeconds = CmpCommon::getDefaultLong(PRIV_SENTRY_RECHECK_INTERVAL);
+      int refreshIntervalInSeconds = CmpCommon::getDefaultLong(PRIV_SENTRY_RECHECK_INTERVAL);
       // the timestamp is in microseconds
-      sentryAuthExpirationTimeStamp += ((Int64)refreshIntervalInSeconds) * 1000000;
+      sentryAuthExpirationTimeStamp += ((long)refreshIntervalInSeconds) * 1000000;
     }
   }
 
@@ -2020,7 +2020,7 @@ short RelRoot::codeGen(Generator *generator) {
 
   root_tdb->setQueryType(ComTdbRoot::SQL_OTHER);
 
-  Lng32 clientMaxStatementPooling = (Lng32)CmpCommon::getDefaultNumeric(CLIENT_MAX_STATEMENT_POOLING);
+  int clientMaxStatementPooling = (int)CmpCommon::getDefaultNumeric(CLIENT_MAX_STATEMENT_POOLING);
   root_tdb->setClientMaxStatementPooling(clientMaxStatementPooling);
 
   // set the EMS Event Experience Level information
@@ -2351,14 +2351,14 @@ short RelRoot::codeGen(Generator *generator) {
   else
     root_tdb->setPsholdUpdateBeforeFetch(FALSE);
 
-  root_tdb->setAbendType((Lng32)CmpCommon::getDefaultNumeric(COMP_INT_38));
+  root_tdb->setAbendType((int)CmpCommon::getDefaultNumeric(COMP_INT_38));
 
   double cpuLimitCheckFreq = CmpCommon::getDefaultNumeric(COMP_INT_48);
   if (cpuLimitCheckFreq > SHRT_MAX) cpuLimitCheckFreq = SHRT_MAX;
   root_tdb->setCpuLimitCheckFreq((short)cpuLimitCheckFreq);
 
   // Config query execution limits.
-  Lng32 cpuLimit = (Lng32)CmpCommon::getDefaultNumeric(QUERY_LIMIT_SQL_PROCESS_CPU);
+  int cpuLimit = (int)CmpCommon::getDefaultNumeric(QUERY_LIMIT_SQL_PROCESS_CPU);
   if (cpuLimit > 0) root_tdb->setCpuLimit(cpuLimit);
 
   if (CmpCommon::getDefault(QUERY_LIMIT_SQL_PROCESS_CPU_DEBUG) == DF_ON) root_tdb->setQueryLimitDebug();
@@ -2447,9 +2447,9 @@ short RelRoot::codeGen(Generator *generator) {
   generator->setMapTable(NULL);
 
   // move data entry by entry from the generator's copy into the executor copy
-  Lng32 offset = 0;
-  Lng32 currLength;
-  Lng32 compressThreshold = getDefault(FRAG_COMPRESSION_THRESHOLD);
+  int offset = 0;
+  int currLength;
+  int compressThreshold = getDefault(FRAG_COMPRESSION_THRESHOLD);
   NABoolean anyEspFragments = FALSE;
 
   for (i = 0; i < compFragDir->entries(); i++) {
@@ -2481,7 +2481,7 @@ short RelRoot::codeGen(Generator *generator) {
 
     // take the pointer of the top-level object in this fragment and
     // convert it to a fragment-relative offset
-    Lng32 offsetOfTopNode = compFragDir->getSpace(i)->convertToOffset((char *)(compFragDir->getTopNode(i)));
+    int offsetOfTopNode = compFragDir->getSpace(i)->convertToOffset((char *)(compFragDir->getTopNode(i)));
 
     // now set the values of the previously allocated directory entry
 
@@ -2556,7 +2556,7 @@ short RelRoot::codeGen(Generator *generator) {
 
 short Sort::generateTdb(Generator *generator, ComTdb *child_tdb, ex_expr *sortKeyExpr, ex_expr *sortRecExpr,
                         ULng32 sortKeyLen, ULng32 sortRecLen, ULng32 sortPrefixKeyLen, ex_cri_desc *given_desc,
-                        ex_cri_desc *returned_desc, ex_cri_desc *work_cri_desc, Lng32 saveNumEsps,
+                        ex_cri_desc *returned_desc, ex_cri_desc *work_cri_desc, int saveNumEsps,
                         ExplainTuple *childExplainTuple, NABoolean resizeCifRecord, NABoolean considerBufferDefrag,
                         NABoolean operatorCIF) {
   NADefaults &defs = ActiveSchemaDB()->getDefaults();
@@ -2576,7 +2576,7 @@ short Sort::generateTdb(Generator *generator, ComTdb *child_tdb, ex_expr *sortKe
   // replacement sort in case of overflow at runtime.
   SortOptions *sort_options = new (generator->getSpace()) SortOptions();
 
-  Lng32 max_num_buffers = (Lng32)numBuffers;
+  int max_num_buffers = (int)numBuffers;
   NAString tmp;
   CmpCommon::getDefault(SORT_ALGO, tmp, -1);
   if (tmp == "HEAP")
@@ -2587,7 +2587,7 @@ short Sort::generateTdb(Generator *generator, ComTdb *child_tdb, ex_expr *sortKe
     sort_options->sortType() = SortOptions::ITER_QUICK;
   else if (tmp == "QS")
     sort_options->sortType() = SortOptions::QUICKSORT;
-  max_num_buffers = (Lng32)getDefault(GEN_SORT_MAX_NUM_BUFFERS);
+  max_num_buffers = (int)getDefault(GEN_SORT_MAX_NUM_BUFFERS);
   sort_options->internalSort() = TRUE;
 
   unsigned short threshold = (unsigned short)CmpCommon::getDefaultLong(SCRATCH_FREESPACE_THRESHOLD_PERCENT);
@@ -2629,7 +2629,7 @@ short Sort::generateTdb(Generator *generator, ComTdb *child_tdb, ex_expr *sortKe
 
   short memoryQuotaMB = 0;
   double memoryQuotaRatio;
-  Lng32 numStreams;
+  int numStreams;
   double bmoMemoryUsagePerNode = generator->getEstMemPerNode(getKey(), numStreams);
 
   if (CmpCommon::getDefault(SORT_MEMORY_QUOTA_SYSTEM) != DF_OFF) {
@@ -2654,8 +2654,8 @@ short Sort::generateTdb(Generator *generator, ComTdb *child_tdb, ex_expr *sortKe
             generator->getTotalNumBMOs(), generator->getTotalBMOsMemoryPerNode().value(), numBMOsInFrag,
             bmoMemoryUsagePerNode, numStreams, memoryQuotaRatio);
       }
-      Lng32 sortMemoryLowbound = defs.getAsLong(BMO_MEMORY_LIMIT_LOWER_BOUND_SORT);
-      Lng32 memoryUpperbound = defs.getAsLong(BMO_MEMORY_LIMIT_UPPER_BOUND);
+      int sortMemoryLowbound = defs.getAsLong(BMO_MEMORY_LIMIT_LOWER_BOUND_SORT);
+      int memoryUpperbound = defs.getAsLong(BMO_MEMORY_LIMIT_UPPER_BOUND);
 
       if (memoryQuotaMB < sortMemoryLowbound) {
         memoryQuotaMB = (short)sortMemoryLowbound;
@@ -2793,7 +2793,7 @@ short Sort::codeGen(Generator *generator) {
 
   // All the records in the table will not be processed by a single sort
   // instance if multiple sort instances are involved within ESPs.
-  Lng32 saveNumEsps = generator->getNumESPs();
+  int saveNumEsps = generator->getNumESPs();
 
   if (sortFromTop()) generator->setCriDesc(returned_desc, Generator::DOWN);
 
@@ -3064,7 +3064,7 @@ short SortFromTop::codeGen(Generator *generator) {
 
   // All the records in the table will not be processed by a single sort
   // instance if multiple sort instances are involved within ESPs.
-  Lng32 saveNumEsps = generator->getNumESPs();
+  int saveNumEsps = generator->getNumESPs();
 
   generator->setCriDesc(child_desc, Generator::DOWN);
 
@@ -3242,9 +3242,9 @@ short SortFromTop::codeGen(Generator *generator) {
   return rc;
 }
 
-CostScalar Sort::getEstimatedRunTimeMemoryUsage(Generator *generator, NABoolean perNode, Lng32 *numStreams) {
+CostScalar Sort::getEstimatedRunTimeMemoryUsage(Generator *generator, NABoolean perNode, int *numStreams) {
   GroupAttributes *childGroupAttr = child(0).getGroupAttr();
-  Lng32 childRecordSize = childGroupAttr->getCharacteristicOutputs().getRowLength();
+  int childRecordSize = childGroupAttr->getCharacteristicOutputs().getRowLength();
   CostScalar rowsUsed;
   if (sortNRows() && (topNRows_ > 0) && (topNRows_ <= getDefault(GEN_SORT_TOPN_THRESHOLD)))
     rowsUsed = topNRows_;
@@ -3258,7 +3258,7 @@ CostScalar Sort::getEstimatedRunTimeMemoryUsage(Generator *generator, NABoolean 
   // const CostScalar maxCard = childGroupAttr->getResultMaxCardinalityForEmptyInput();
   const CostScalar maxCard = 0;
 
-  Lng32 numOfStreams = 1;
+  int numOfStreams = 1;
   const PhysicalProperty *const phyProp = getPhysicalProperty();
   if (phyProp != NULL) {
     PartitioningFunction *partFunc = phyProp->getPartitioningFunction();
@@ -4295,8 +4295,8 @@ short StatisticsFunc::codeGen(Generator *generator) {
   // Change the atp and atpindex of the returned values to indicate that.
   expGen->assignAtpAndAtpIndex(getTableDesc()->getColumnList(), 0, returnedDesc->noTuples() - 1);
 
-  Lng32 numBuffers = 3;
-  Lng32 bufferSize = 10 * tupleLength;
+  int numBuffers = 3;
+  int bufferSize = 10 * tupleLength;
   ComTdbStats *statsTdb = new (space) ComTdbStats(tupleLength,       // Length of stats Tuple
                                                   tupleLength,       // Length of returned tuple
                                                   inputTupleLength,  // length of input tuple
@@ -4337,11 +4337,11 @@ static void initProxyKeyDescStruct(TrafKeysDesc *tgt, ComUInt32 &src) {
   tgt->setDescending(FALSE);
 }
 
-static Lng32 createDescStructsForProxy(const ProxyFunc &proxy, char *tableName, TrafDesc *&colDescs,
+static int createDescStructsForProxy(const ProxyFunc &proxy, char *tableName, TrafDesc *&colDescs,
                                        TrafDesc *&keyDescs) {
   colDescs = NULL;
   keyDescs = NULL;
-  Lng32 reclen = 0;
+  int reclen = 0;
   TrafDesc *prev_desc = NULL;
   ComUInt32 numCols = proxy.getNumColumns();
 
@@ -4815,7 +4815,7 @@ short ConnectByTempTable::codeGen(Generator *generator) {
                                      work_atp, hashInputValIdx, ExpTupleDesc::SQLARK_EXPLODED_FORMAT, hvLengthInput,
                                      &hvInputExpr);
 
-  GenAssert(hvLengthInput == sizeof(Lng32), "Unexpected length of result of hash function.");
+  GenAssert(hvLengthInput == sizeof(int), "Unexpected length of result of hash function.");
 
   ValueIdList encodeInputAsListInput;
 
@@ -4895,7 +4895,7 @@ short ConnectByTempTable::codeGen(Generator *generator) {
                                      0,  // don't add convert node
                                      work_atp, hashValIdx, ExpTupleDesc::SQLARK_EXPLODED_FORMAT, hvLength, &hvExpr);
 
-  GenAssert(hvLength == sizeof(Lng32), "Unexpected length of result of hash function.");
+  GenAssert(hvLength == sizeof(int), "Unexpected length of result of hash function.");
 
   ValueIdList encodeInputAsList;
 
@@ -5050,8 +5050,8 @@ short QueryInvalidationFunc::codeGen(Generator *generator) {
   // Change the atp and atpindex of the returned values to indicate that.
   expGen->assignAtpAndAtpIndex(getTableDesc()->getColumnList(), 0, returnedDesc->noTuples() - 1);
 
-  Lng32 numBuffers = 3;
-  Lng32 bufferSize = 10 * tupleLength;
+  int numBuffers = 3;
+  int bufferSize = 10 * tupleLength;
   ComTdbQryInvalid *qiTdb = new (space) ComTdbQryInvalid(tupleLength,       // Length of stats Tuple
                                                          tupleLength,       // Length of returned tuple
                                                          inputTupleLength,  // length of input tuple

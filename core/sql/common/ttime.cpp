@@ -51,7 +51,7 @@ const char *reportTimestamp() {
   return buf;
 }
 
-const char *reportTimeDiff(Int64 time) {
+const char *reportTimeDiff(long time) {
   static THREAD_P char tdiff[200];
   ULng32 ms = (ULng32)(((time % 1000000) + 500) / 1000);
   ULng32 sec = (ULng32)(time / 1000000);
@@ -65,10 +65,10 @@ const char *reportTimeDiff(Int64 time) {
   return tdiff;
 }
 
-Int64 currentTimeStampInUsec() {
+long currentTimeStampInUsec() {
   struct timeval tv;
 
   gettimeofday(&tv, NULL);
 
-  return (Int64)(tv.tv_sec * 1000000) + tv.tv_usec;
+  return (long)(tv.tv_sec * 1000000) + tv.tv_usec;
 }

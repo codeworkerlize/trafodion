@@ -112,9 +112,9 @@ ExpCompressionWA *ExpCompressionWA::createCompressionWA(const ComCompressionInfo
 ExpLzoCompressionWA::ExpLzoCompressionWA(const ComCompressionInfo *ci, CollHeap *heap)
     : ExpCompressionWA(ci, heap), flags_(0) {}
 
-ExpCompressionWA::CompressionReturnCode ExpLzoCompressionWA::decompress(char *src, Int64 srcLength, char *target,
-                                                                        Int64 targetMaxLen, Int64 &compressedBytesRead,
-                                                                        Int64 &uncompressedBytesProduced) {
+ExpCompressionWA::CompressionReturnCode ExpLzoCompressionWA::decompress(char *src, long srcLength, char *target,
+                                                                        long targetMaxLen, long &compressedBytesRead,
+                                                                        long &uncompressedBytesProduced) {
   lzo_uint newUncompressedLen = 0;
   UInt32 uncompressedLen = 0;
   UInt32 compressedLen = 0;
@@ -231,9 +231,9 @@ ExpCompressionWA::CompressionReturnCode ExpLzoCompressionWA::initCompressionLib(
 ExpLzopCompressionWA::ExpLzopCompressionWA(const ComCompressionInfo *ci, CollHeap *heap)
     : ExpLzoCompressionWA(ci, heap), headerSeen_(FALSE) {}
 
-ExpCompressionWA::CompressionReturnCode ExpLzopCompressionWA::decompress(char *src, Int64 srcLength, char *target,
-                                                                         Int64 targetMaxLen, Int64 &compressedBytesRead,
-                                                                         Int64 &uncompressedBytesProduced) {
+ExpCompressionWA::CompressionReturnCode ExpLzopCompressionWA::decompress(char *src, long srcLength, char *target,
+                                                                         long targetMaxLen, long &compressedBytesRead,
+                                                                         long &uncompressedBytesProduced) {
   UInt32 headerLen = 0;
   ExpCompressionWA::CompressionReturnCode rc;
   if (!headerSeen_) {
@@ -248,7 +248,7 @@ ExpCompressionWA::CompressionReturnCode ExpLzopCompressionWA::decompress(char *s
   return rc;
 }
 
-ExpCompressionWA::CompressionReturnCode ExpLzopCompressionWA::processHeader(char *src, Int64 srcLength,
+ExpCompressionWA::CompressionReturnCode ExpLzopCompressionWA::processHeader(char *src, long srcLength,
                                                                             UInt32 &headerLen) {
   UInt32 offset = 0;
   if ((srcLength > sizeof(lzop_magic)) && memcmp(src, lzop_magic, sizeof(lzop_magic)) != 0)
@@ -346,10 +346,10 @@ ExpDeflateCompressionWA::~ExpDeflateCompressionWA() {
   }
 }
 
-ExpCompressionWA::CompressionReturnCode ExpDeflateCompressionWA::decompress(char *src, Int64 srcLength, char *target,
-                                                                            Int64 targetMaxLen,
-                                                                            Int64 &compressedBytesRead,
-                                                                            Int64 &uncompressedBytesProduced) {
+ExpCompressionWA::CompressionReturnCode ExpDeflateCompressionWA::decompress(char *src, long srcLength, char *target,
+                                                                            long targetMaxLen,
+                                                                            long &compressedBytesRead,
+                                                                            long &uncompressedBytesProduced) {
   int ret;
   UInt32 compressionBlockSize = 256 * 1024;
   z_stream *strm = (z_stream *)compScratchBuffer_;

@@ -245,7 +245,7 @@ void SwapSpace::init(void) {
   ex_assert((!store_), "temporary storage already initialized");
 
   readBuffer_ = memory_.getBuffer(true);
-  Lng32 bufSize = static_cast<Lng32>(swapBufferSize_);
+  int bufSize = static_cast<int>(swapBufferSize_);
   NAMemory *heap = memory_.getHeap();
   store_ = new (heap) ScratchSpace(heap, &sortError_, bufSize, 1, -1,  // explain node
                                    false);                             // logInfoEvent = false

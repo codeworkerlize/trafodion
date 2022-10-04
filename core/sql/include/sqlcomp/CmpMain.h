@@ -197,7 +197,7 @@ class CmpMain {
                        QueryCachingOption useQueryCache = NORMAL);
 
   // sqlcomp will compile a RelExpr into code from generator
-  ReturnStatus sqlcomp(const char *input_str, Lng32 charset, RelExpr *&queryExpr, char **gen_code, ULng32 *gen_code_len,
+  ReturnStatus sqlcomp(const char *input_str, int charset, RelExpr *&queryExpr, char **gen_code, ULng32 *gen_code_len,
                        NAMemory *h = NULL, CompilerPhase p = END, FragmentDir **fragmentDir = NULL,
                        IpcMessageObjType op = CmpMessageObj::SQLTEXT_COMPILE,
                        QueryCachingOption useQueryCache = NOCACHE, NABoolean *cacheable = NULL, TimeVal *begTime = NULL,
@@ -243,7 +243,7 @@ class CmpMain {
   void setHoldableAttr(const short holdable);
   SQLATTRHOLDABLE_INTERNAL_TYPE getHoldableAttr();
 
-  void FlushQueryCachesIfLongTime(Lng32 begTimeInSec);
+  void FlushQueryCachesIfLongTime(int begTimeInSec);
 
 #ifdef NA_DEBUG_GUI
   // GSH : The following variable is used by the tdm_sqlcmpdbg.
@@ -253,7 +253,7 @@ class CmpMain {
 #endif
 
 #ifndef NDEBUG
-  static Lng32 prev_QI_Priv_Value;
+  static int prev_QI_Priv_Value;
 #endif
 
  private:
@@ -261,13 +261,13 @@ class CmpMain {
   const CmpMain &operator=(const CmpMain &);
   QryStmtAttributeSet attrs;
 
-  ReturnStatus compile(const char *input_str, Lng32 charset, RelExpr *&queryExpr, char **gen_code, ULng32 *gen_code_len,
+  ReturnStatus compile(const char *input_str, int charset, RelExpr *&queryExpr, char **gen_code, ULng32 *gen_code_len,
                        NAMemory *h, CompilerPhase p, FragmentDir **fragmentDir, IpcMessageObjType op,
                        QueryCachingOption useQueryCache, NABoolean *cacheable, TimeVal *begTime, NABoolean shouldLog);
 
   // try to compile a query using the cache
   NABoolean compileFromCache(const char *sText,     // (IN) : sql statement text
-                             Lng32 charset,         // (IN) : character set of  sql statement text
+                             int charset,         // (IN) : character set of  sql statement text
                              RelExpr *queryExpr,    // (IN) : the query to be compiled
                              BindWA *bindWA,        // (IN) : work area (used by backpatchParams)
                              CacheWA &cachewa,      // (IN) : work area for normalizeForCache

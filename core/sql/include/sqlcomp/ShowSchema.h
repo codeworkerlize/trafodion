@@ -52,7 +52,7 @@ class ShowSchema {
 
   static const char *ShowSchemaStmt() { return "SHOWCONTROL DEFAULT \"**cat.sch**\";"; }  // ident delimited
 
-  static Lng32 DiagSqlCode() { return ABS(EXE_INFO_DEFAULT_CAT_SCH); }
+  static int DiagSqlCode() { return ABS(EXE_INFO_DEFAULT_CAT_SCH); }
 
   static NABoolean getDefaultCatAndSch(NAString &cat, NAString &sch);
 
@@ -76,7 +76,7 @@ class GetControlDefaults {  // Genesis 10-981211-5986
     return "SHOWCONTROL DEFAULT \"**extlzd.deflts**\";";
   }  // ident delimited
 
-  static Lng32 DiagSqlCode() { return ABS(EXE_INFO_CQD_NAME_VALUE_PAIRS); }
+  static int DiagSqlCode() { return ABS(EXE_INFO_CQD_NAME_VALUE_PAIRS); }
 
   // Handled like the preceding class.
   // Used by ExSqlComp.

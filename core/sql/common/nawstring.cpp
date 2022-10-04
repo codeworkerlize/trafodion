@@ -44,15 +44,15 @@ const size_t NAWString::freeboard = 15;
 
 #endif
 
-void NAWString::initFromSingleByteString(Lng32 charset, const char *str, size_t N, NAMemory *h) {
+void NAWString::initFromSingleByteString(int charset, const char *str, size_t N, NAMemory *h) {
   assert(str != nanil);
   NAWchar buf[N + 1];
-  Lng32 wcs = LocaleStringToUnicode(charset, (char *)str, N, buf, N, FALSE);
+  int wcs = LocaleStringToUnicode(charset, (char *)str, N, buf, N, FALSE);
   buf[wcs] = 0;
   append(buf, wcs);
 }
 
-void NAWString::initFromVariableWidthMultiByteString(Lng32 charset, const char *str, size_t N, NAMemory *h) {
+void NAWString::initFromVariableWidthMultiByteString(int charset, const char *str, size_t N, NAMemory *h) {
   Int32 errorcode;
   assert(str != nanil);
   // if h is uninitialized, then use the (derived) string class's
@@ -66,7 +66,7 @@ void NAWString::initFromVariableWidthMultiByteString(Lng32 charset, const char *
   NADELETE(pWcharBuf, NAWcharBuf, realHeap);
 }
 
-NAWString::NAWString(Lng32 charset, const char *str, NAMemory *h)
+NAWString::NAWString(int charset, const char *str, NAMemory *h)
     : fbwstring_((h == NASTRING_UNINIT_HEAP_PTR) ? this->defaultHeapPtr() : h) {
   // if h is uninitialized, then use the (derived) string class's
   // default h instead
@@ -79,7 +79,7 @@ NAWString::NAWString(Lng32 charset, const char *str, NAMemory *h)
     initFromSingleByteString(charset, str, N, realHeap);
 }
 
-NAWString::NAWString(Lng32 charset, const char *str, size_t N, NAMemory *h)
+NAWString::NAWString(int charset, const char *str, size_t N, NAMemory *h)
     : fbwstring_((h == NASTRING_UNINIT_HEAP_PTR) ? this->defaultHeapPtr() : h) {
   // if h is uninitialized, then use the (derived) string class's
   // default h instead

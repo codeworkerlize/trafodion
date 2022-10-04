@@ -182,7 +182,7 @@ class PrivMgrCommands : public PrivMgr {
 
   PrivStatus unregisterComponent(const std::string &componentName, PrivDropBehavior dropBehavior);
 
-  Lng32 recreateRoleRelationship(ExeCliInterface *);
+  int recreateRoleRelationship(ExeCliInterface *);
 
   // -------------------------------------------------------------------
   // Accessors:

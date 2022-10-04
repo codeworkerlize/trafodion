@@ -72,8 +72,8 @@
 #include "cli/Context.h"
 
 #include "arkcmp/CmpErrors.h"
-#include "CmpErrLog.h"
-#include "ErrorMessage.h"
+#include "arkcmp/CmpErrLog.h"
+#include "sqlmsg/ErrorMessage.h"
 #include "exp/ExpError.h"
 
 #include "sqlcomp/QCache.h"
@@ -114,7 +114,7 @@ extern THREAD_P jmp_buf ExportJmpBuf;
 // helper routines for CmpStatement class
 // -----------------------------------------------------------------------
 
-NABoolean CmpStatement::error(Lng32 no, const char *s) {
+NABoolean CmpStatement::error(int no, const char *s) {
   if (diags()->getNumber())
     return TRUE;  // means the underlying routines have put the errors into
                   // diags.
@@ -139,7 +139,7 @@ CmpStatement::CmpStatement(CmpContext *context, CollHeap *outHeap) : parserStmtL
   prvCmpStatement_ = 0;
   sqlTextStr_ = NULL;
   sqlTextLen_ = 0;
-  sqlTextCharSet_ = (Lng32)SQLCHARSETCODE_UNKNOWN;
+  sqlTextCharSet_ = (int)SQLCHARSETCODE_UNKNOWN;
   recompiling_ = FALSE;
   recompUseNATableCache_ = FALSE;
   isDDL_ = FALSE;
@@ -158,7 +158,7 @@ CmpStatement::CmpStatement(CmpContext *context, CollHeap *outHeap) : parserStmtL
   {
     // set up statement heap with 32 KB allocation units
     size_t memLimit = (size_t)1024 * CmpCommon::getDefaultLong(MEMORY_LIMIT_CMPSTMT_UPPER_KB);
-    heap_ = new (context_->heap()) NAHeap((const char *)"Cmp Statement Heap", context_->heap(), (Lng32)32768, memLimit);
+    heap_ = new (context_->heap()) NAHeap((const char *)"Cmp Statement Heap", context_->heap(), (int)32768, memLimit);
     heap_->setErrorCallback(&CmpErrLog::CmpErrLogCallback);
   }
 
@@ -230,7 +230,7 @@ CmpStatement::ReturnStatus CmpStatement::process(const CmpMessageEnvs &envMessag
 
       envs()->chdir(envMessage.cwd());
       // call CLI to set the transId
-      Int64 transid = (envMessage.activeTrans()) ? envMessage.transId() : Int64(-1);
+      long transid = (envMessage.activeTrans()) ? envMessage.transId() : long(-1);
 
       const char *env;
 
@@ -259,18 +259,18 @@ CmpStatement::ReturnStatus CmpStatement::process(const CmpMessageEnvs &envMessag
   return CmpStatement_SUCCESS;
 }
 
-static NABoolean getCharsetsToUse(Lng32 msgCharSet, Lng32 &inputCS, Lng32 &defaultCS) {
+static NABoolean getCharsetsToUse(int msgCharSet, int &inputCS, int &defaultCS) {
   if (msgCharSet == SQLCHARSETCODE_ISO_MAPPING) {
     // return the value isoMapping set for this system.
     NAString cs;
     CmpCommon::getDefault(ISO_MAPPING, cs);
-    inputCS = (Lng32)CharInfo::getCharSetEnum(cs.data());
-    defaultCS = (Lng32)SQLCHARSETCODE_ISO88591;
+    inputCS = (int)CharInfo::getCharSetEnum(cs.data());
+    defaultCS = (int)SQLCHARSETCODE_ISO88591;
 
     SetSqlParser_DEFAULT_CHARSET(CharInfo::ISO88591);
   } else {
     inputCS = msgCharSet;
-    defaultCS = (Lng32)SQLCHARSETCODE_UNKNOWN;
+    defaultCS = (int)SQLCHARSETCODE_UNKNOWN;
 
     // no change to default charset, if ISO_MAPPING was not specified.
     // Just set it to the same value as the original charset.
@@ -285,7 +285,7 @@ static NABoolean getCharsetsToUse(Lng32 msgCharSet, Lng32 &inputCS, Lng32 &defau
 // Make the cat & schema names current, if passed in.
 static NABoolean processRecvdCmpCompileInfo(CmpStatement *cmpStmt, const CmpMessageRequest &msg,
                                             CmpCompileInfo *cmpInfo, CmpContext *context, char *&sqlStr,
-                                            Int32 &sqlStrLen, Lng32 &inputCS, NABoolean &catSchNameRecvd,
+                                            Int32 &sqlStrLen, int &inputCS, NABoolean &catSchNameRecvd,
                                             NAString &currCatName, NAString &currSchName, NABoolean &nametypeNsk,
                                             NABoolean &odbcProcess, NABoolean &noTextCache, NABoolean &aqrPrepare,
                                             NABoolean &standaloneQuery, NABoolean &sentryPrivRecheck,
@@ -324,7 +324,7 @@ static NABoolean processRecvdCmpCompileInfo(CmpStatement *cmpStmt, const CmpMess
     }
   }
 
-  Lng32 defaultCS;
+  int defaultCS;
   getCharsetsToUse(msg.charSet(), inputCS, defaultCS);
   // assert(cmpInfo->sqlTextCharset_ == inputCS);
   cmpInfo->setSqlTextCharSet(inputCS);
@@ -367,7 +367,7 @@ static NABoolean processRecvdCmpCompileInfo(CmpStatement *cmpStmt, const CmpMess
   return FALSE;  // no error
 }
 
-NABoolean CmpStatement::isUserDMLQuery(char *query, Lng32 len) {
+NABoolean CmpStatement::isUserDMLQuery(char *query, int len) {
   const char *prefix[] = {"CONTROL QUERY DEFAULTS",
                           "CONTROL QUERY SHAPE",
                           "SET TRANSACTION",
@@ -402,7 +402,7 @@ CmpStatement::ReturnStatus CmpStatement::process(const CmpMessageSQLText &sqltex
 
   char *sqlStr = NULL;
   Int32 sqlStrLen = 0;
-  Lng32 inputCS = 0;
+  int inputCS = 0;
   NAString currCatName;
   NAString currSchName;
   NABoolean isSchNameRecvd;
@@ -517,7 +517,7 @@ CmpStatement::ReturnStatus CmpStatement::process(const CmpMessageCompileStmt &co
 
   char *sqlStr = NULL;
   Int32 sqlStrLen = 0;
-  Lng32 inputCS = 0;
+  int inputCS = 0;
   NAString currCatName;
   NAString currSchName;
   NABoolean isSchNameRecvd;
@@ -614,7 +614,7 @@ CmpStatement::ReturnStatus CmpStatement::process(const CmpMessageDDL &statement)
 
   char *sqlStr = NULL;
   Int32 sqlStrLen = 0;
-  Lng32 inputCS = 0;
+  int inputCS = 0;
   NAString currCatName;
   NAString currSchName;
   NABoolean isSchNameRecvd;
@@ -755,7 +755,7 @@ CmpStatement::ReturnStatus CmpStatement::process(const CmpMessageDDL &statement)
   return CmpStatement_ERROR;
 }
 
-short CmpStatement::getDDLExprAndNode(char *sqlStr, Lng32 inputCS, DDLExpr *&ddlExpr, ExprNode *&ddlNode) {
+short CmpStatement::getDDLExprAndNode(char *sqlStr, int inputCS, DDLExpr *&ddlExpr, ExprNode *&ddlNode) {
   ddlNode = NULL;
   ddlExpr = NULL;
 
@@ -837,7 +837,7 @@ CmpStatement::ReturnStatus CmpStatement::process(const CmpMessageDDLwithStatus &
 
   char *sqlStr = NULL;
   Int32 sqlStrLen = 0;
-  Lng32 inputCS = 0;
+  int inputCS = 0;
   NAString currCatName;
   NAString currSchName;
   NABoolean isSchNameRecvd;
@@ -914,7 +914,7 @@ CmpStatement::ReturnStatus CmpStatement::process(const CmpMessageDDLwithStatus &
 
   dws->init();
 
-  Lng32 replyDataLen = dws->getLength();
+  int replyDataLen = dws->getLength();
   char *replyData = new (outHeap_) char[replyDataLen];
   dws->pack(replyData);
 
@@ -947,8 +947,8 @@ CmpStatement::ReturnStatus CmpStatement::process(const CmpMessageDescribe &state
 
   sqlTextStr_ = userStr;
 
-  Lng32 inputCS;
-  Lng32 defaultCS;
+  int inputCS;
+  int defaultCS;
   getCharsetsToUse(statement.charSet(), inputCS, defaultCS);
 
   QueryText qText(statement.data(), inputCS);
@@ -988,10 +988,10 @@ CmpStatement::ReturnStatus CmpStatement::process(const CmpMessageUpdateHist &sta
 }
 
 CmpStatement::ReturnStatus CmpStatement::process(const CmpMessageXnOper &statement) {
-  // TransStmtType tst = (TransStmtType)(*(Lng32*)statement.data());
+  // TransStmtType tst = (TransStmtType)(*(int*)statement.data());
   CmpMessageXnOperData *data = (CmpMessageXnOperData *)statement.data();
   TransStmtType tst = (TransStmtType)(data->type);
-  Int64 svptId = data->svptId;
+  long svptId = data->svptId;
 
   if (tst == BEGIN_) {
     CmpCommon::transMode()->setXnInProgress(TRUE);
@@ -1019,10 +1019,10 @@ CmpStatement::ReturnStatus CmpStatement::process(const CmpMessageSetTrans &state
 }
 
 CmpStatement::ReturnStatus CmpStatement::process(const CmpMessageDDLNATableInvalidate &statement) {
-  // TransStmtType tst = (TransStmtType)(*(Lng32*)statement.data());
+  // TransStmtType tst = (TransStmtType)(*(int*)statement.data());
   CmpMessageXnOperData *data = (CmpMessageXnOperData *)statement.data();
   TransStmtType tst = (TransStmtType)(data->type);
-  Int64 svptId = data->svptId;
+  long svptId = data->svptId;
 
   Int32 processSP = 0;
   /*
@@ -1167,7 +1167,7 @@ CmpStatement::ReturnStatus CmpStatement::process(const CmpMessageDatabaseUser &s
   CmpSqlSession *session = CmpCommon::context()->sqlSession();
   CMPASSERT(session);
 
-  Lng32 sqlcode =
+  int sqlcode =
       session->setDatabaseUserAndTenant(userID, userName, tenantID, tenantName, tenantNodes, tenantDefaultSchema);
   if (doDebug) printf("[DBUSER:%d]   session->setDatabaseUser() returned %d\n", (int)getpid(), (int)sqlcode);
   if (sqlcode < 0) return CmpStatement_ERROR;

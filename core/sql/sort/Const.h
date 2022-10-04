@@ -26,7 +26,7 @@
 #include "common/Platform.h"
 #include "common/BaseTypes.h"
 
-const Lng32 ONE_MB = 1048576;  // 1024 * 1024
+const int ONE_MB = 1048576;  // 1024 * 1024
 
 const Int32 SORT_SUCCESS = 0;
 const Int32 SORT_FAILURE = 1;
@@ -50,7 +50,7 @@ const Int32 MAX_SCRATCH_FILE_OPENS = 4;
 const Int32 PRIMARY_EXTENT_SIZE = 32452;
 const Int32 SECONDARY_EXTENT_SIZE = 32788;
 const Int32 MAX_EXTENTS = 16;
-const Lng32 SCRATCH_FILE_SIZE = 2147483647;  // for NT, UNIX, 2GB
+const int SCRATCH_FILE_SIZE = 2147483647;  // for NT, UNIX, 2GB
 
 // For setmode(141,11), dp2 requires last 8 bytes of 56kb block free.
 // Dp2 recommend using setmode(141,11) instead of setmode(141,9) for performance
@@ -60,7 +60,7 @@ const short KEYS_ARE_EQUAL = 0;
 const short KEY1_IS_SMALLER = -1;
 const short KEY1_IS_GREATER = 1;
 
-typedef Lng32 SBN;
+typedef int SBN;
 const Int32 TRUE_L = 1;
 const Int32 FALSE_L = 0;
 

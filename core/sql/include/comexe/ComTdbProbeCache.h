@@ -92,7 +92,7 @@ class ComTdbProbeCache : public ComTdb {
   virtual short getClassSize() { return (short)sizeof(ComTdbProbeCache); }
   Long pack(void *);
 
-  Lng32 unpack(void *, void *reallocator);
+  int unpack(void *, void *reallocator);
 
   void display() const;
 

@@ -109,9 +109,9 @@ const NAString PartitioningRequirement::getText() const {
     if (getCountOfPartitions() != ANY_NUMBER_OF_PARTITIONS) {
       char numString[30];
       if (castToRequireApproximatelyNPartitions()) {
-        Lng32 lo, hi;
+        int lo, hi;
         hi = getCountOfPartitions();
-        lo = hi - (Lng32)(hi * castToRequireApproximatelyNPartitions()->getAllowedDeviation());
+        lo = hi - (int)(hi * castToRequireApproximatelyNPartitions()->getAllowedDeviation());
         // if rounded down we may have to add one
         if (NOT castToRequireApproximatelyNPartitions()->isPartitionCountWithinRange(lo) OR lo == 0) lo++;
         sprintf(numString, "%d...%d partns. ", lo, hi);
@@ -163,7 +163,7 @@ void PartitioningRequirement::print(FILE *ofd, const char *indent, const char *t
 
 void PartitioningRequirement::display() const { print(); }
 
-Lng32 PartitioningRequirement::getCountOfPartitions() const {
+int PartitioningRequirement::getCountOfPartitions() const {
   ABORT("Redefine PartitioningRequirement::getCountOfPartitions()");
   return 1;
 }
@@ -287,10 +287,10 @@ FullySpecifiedPartitioningRequirement::comparePartReqToReq(const PartitioningReq
 
     ValueIdSet myPartKey = getPartitioningKey();
     ValueIdSet otherPartKey = other->getPartitioningKey();
-    Lng32 myKeyCount = myPartKey.entries();
-    Lng32 otherKeyCount = otherPartKey.entries();
-    Lng32 myPartCount = getCountOfPartitions();
-    Lng32 otherPartCount = other->getCountOfPartitions();
+    int myKeyCount = myPartKey.entries();
+    int otherKeyCount = otherPartKey.entries();
+    int myPartCount = getCountOfPartitions();
+    int otherPartCount = other->getCountOfPartitions();
     float otherAllowedDeviation = other->castToRequireApproximatelyNPartitions()->getAllowedDeviation();
     COMPARE_RESULT result;
 
@@ -386,7 +386,7 @@ void FullySpecifiedPartitioningRequirement::display() const { print(); }
 // -----------------------------------------------------------------------
 RequireApproximatelyNPartitions::RequireApproximatelyNPartitions(const ValueIdSet &partitioningKeyColumns,
                                                                  float numOfPartsAllowedDeviation,
-                                                                 Lng32 numberOfPartitions, NABoolean requireHash2Only,
+                                                                 int numberOfPartitions, NABoolean requireHash2Only,
                                                                  const skewProperty &sk)
     : FuzzyPartitioningRequirement(APPROXIMATELY_N_PART_REQ, partitioningKeyColumns, numberOfPartitions, sk),
       numOfPartsAllowedDeviation_(numOfPartsAllowedDeviation),
@@ -397,7 +397,7 @@ RequireApproximatelyNPartitions::RequireApproximatelyNPartitions(const ValueIdSe
 }
 
 RequireApproximatelyNPartitions::RequireApproximatelyNPartitions(float numOfPartsAllowedDeviation,
-                                                                 Lng32 numberOfPartitions, NABoolean requireHash2Only,
+                                                                 int numberOfPartitions, NABoolean requireHash2Only,
                                                                  const skewProperty &sk)
     : FuzzyPartitioningRequirement(APPROXIMATELY_N_PART_REQ, numberOfPartitions, sk),
       numOfPartsAllowedDeviation_(numOfPartsAllowedDeviation),
@@ -426,9 +426,9 @@ const RequireApproximatelyNPartitions *RequireApproximatelyNPartitions::castToRe
 NABoolean RequireApproximatelyNPartitions::partReqAndFuncCompatible(const PartitioningFunction *other) const {
   CMPASSERT(other != NULL);
 
-  Lng32 reqKeyCount = getPartitioningKey().entries();
-  Lng32 reqPartCount = getCountOfPartitions();
-  Lng32 actualPartCount = other->getCountOfPartitions();
+  int reqKeyCount = getPartitioningKey().entries();
+  int reqPartCount = getCountOfPartitions();
+  int actualPartCount = other->getCountOfPartitions();
   float reqAllowedDeviation = getAllowedDeviation();
 
   if (isRequireHash2Only() && !other->isAHash2PartitioningFunction()) return FALSE;
@@ -475,10 +475,10 @@ RequireApproximatelyNPartitions::comparePartReqToReq(const PartitioningRequireme
 
   ValueIdSet myPartKey = getPartitioningKey();
   ValueIdSet otherPartKey = other->getPartitioningKey();
-  Lng32 myKeyCount = myPartKey.entries();
-  Lng32 otherKeyCount = otherPartKey.entries();
-  Lng32 myPartCount = getCountOfPartitions();
-  Lng32 otherPartCount = other->getCountOfPartitions();
+  int myKeyCount = myPartKey.entries();
+  int otherKeyCount = otherPartKey.entries();
+  int myPartCount = getCountOfPartitions();
+  int otherPartCount = other->getCountOfPartitions();
   float myAllowedDeviation = getAllowedDeviation();
   float myLowerBound = myPartCount - (myPartCount * myAllowedDeviation);
 
@@ -683,8 +683,8 @@ RequireApproximatelyNPartitions::comparePartReqToReq(const PartitioningRequireme
 //  FALSE otherwise.
 //
 //==============================================================================
-NABoolean RequireApproximatelyNPartitions::isPartitionCountWithinRange(Lng32 numOfParts) const {
-  Lng32 reqPartCount = getCountOfPartitions();
+NABoolean RequireApproximatelyNPartitions::isPartitionCountWithinRange(int numOfParts) const {
+  int reqPartCount = getCountOfPartitions();
 
   //--------------------------------------------------------------------
   //  Any number of partitions satisfy this requirement, so return TRUE.
@@ -713,8 +713,8 @@ NABoolean RequireApproximatelyNPartitions::isPartitionCountWithinRange(Lng32 num
 
 // accesor method for the lower bound of the range for the
 // allowed number of partitions
-Lng32 RequireApproximatelyNPartitions::getCountOfPartitionsLowBound() const {
-  Lng32 numberOfPartitions = getCountOfPartitions();
+int RequireApproximatelyNPartitions::getCountOfPartitionsLowBound() const {
+  int numberOfPartitions = getCountOfPartitions();
   if (numberOfPartitions > 0) {
     // this formula should be consistent with the way allowed
     // deviation is calculated. In the first version I used
@@ -722,8 +722,8 @@ Lng32 RequireApproximatelyNPartitions::getCountOfPartitionsLowBound() const {
     // could be a little smaller but this low bond could be
     // out of range, for example, previous formula would give 8
     // partitions which does not satisfy 9..N fuzzy requirement
-    Lng32 numOfPartsLowBound =
-        MINOF(numberOfPartitions, (Lng32)ceil(numberOfPartitions * (1.001 - getAllowedDeviation())));
+    int numOfPartsLowBound =
+        MINOF(numberOfPartitions, (int)ceil(numberOfPartitions * (1.001 - getAllowedDeviation())));
     // make numOfPartitions as available level of parallelism
     // 16*N, 8*N, 4*N,..., N,1 where N is the number of segments
     if (CURRSTMT_OPTDEFAULTS->isAdaptiveSegForHadoop()) {
@@ -732,8 +732,8 @@ Lng32 RequireApproximatelyNPartitions::getCountOfPartitionsLowBound() const {
       numOfPartsLowBound =
           closestFactor(numOfPartsLowBound, numberOfPartitions, CURRSTMT_OPTDEFAULTS->getTotalNumberOfNodes());
     } else {
-      Lng32 i = CURRSTMT_OPTDEFAULTS->getMaximumDegreeOfParallelism();
-      Lng32 MinParallelism = MAXOF(CURRSTMT_OPTDEFAULTS->getMinimumESPParallelism(), numOfPartsLowBound);
+      int i = CURRSTMT_OPTDEFAULTS->getMaximumDegreeOfParallelism();
+      int MinParallelism = MAXOF(CURRSTMT_OPTDEFAULTS->getMinimumESPParallelism(), numOfPartsLowBound);
 
       while (i > MinParallelism) i /= 2;
       numOfPartsLowBound = (i < MinParallelism) ? i * 2 : i;
@@ -779,7 +779,7 @@ PartitioningFunction *RequireApproximatelyNPartitions::realize(const Context *my
   // achieve that partitioning (hash, range, ...). Ok, to be honest,
   // we only consider hash for now...
   // ---------------------------------------------------------------------
-  Lng32 numOfParts =
+  int numOfParts =
       ((CmpCommon::getDefault(COMP_BOOL_127) == DF_ON) AND(CURRSTMT_OPTDEFAULTS->attemptESPParallelism() == DF_SYSTEM))
           ? getCountOfPartitionsLowBound()
           : getCountOfPartitions();
@@ -840,7 +840,7 @@ PartitioningFunction *RequireApproximatelyNPartitions::realize(const Context *my
     PartitioningFunction *spf =
         softRequirements->castToFullySpecifiedPartitioningRequirement()->getPartitioningFunction();
 
-    Lng32 softPartCount = spf->getCountOfPartitions();
+    int softPartCount = spf->getCountOfPartitions();
 
     // This flag is added for "better parallelism project". Otherwise
     // softPartCount will in most cases satisfy the required range and
@@ -850,13 +850,13 @@ PartitioningFunction *RequireApproximatelyNPartitions::realize(const Context *my
 
     // See if we will be grouping based on the number of active partitions
     // and, if so, get the number of active partitions
-    Lng32 numActivePartitions = 1;
+    int numActivePartitions = 1;
     NABoolean baseNumPartsOnAP = FALSE;
     if ((CmpCommon::getDefault(BASE_NUM_PAS_ON_ACTIVE_PARTS) == DF_ON)
             AND(spf->castToRangePartitioningFunction() != NULL)) {
       baseNumPartsOnAP = TRUE;
       CostScalar activePartitions = ((NodeMap *)(spf->getNodeMap()))->getNumActivePartitions();
-      numActivePartitions = (Lng32)activePartitions.getValue();
+      numActivePartitions = (int)activePartitions.getValue();
     }
 
     // Return if the number of partitions from the soft part reqs.
@@ -891,7 +891,7 @@ PartitioningFunction *RequireApproximatelyNPartitions::realize(const Context *my
 
     // we can still try to scale the number of partitions
     // (make sure not to trash the passed-in object and our part count)
-    Lng32 sNumOfParts = numOfParts;
+    int sNumOfParts = numOfParts;
     // If we are grouping based on the number of active partitions, and
     // there won't be enough active partitions to go around, then reduce
     // the number of groups to the number of active partitions. Then check
@@ -937,7 +937,7 @@ PartitioningFunction *RequireApproximatelyNPartitions::realize(const Context *my
   // testing of this possible.
   //
   // All these hash partfuncs can deal with skew.
-  Lng32 hash_type = CmpCommon::getDefaultLong(SOFT_REQ_HASH_TYPE);
+  int hash_type = CmpCommon::getDefaultLong(SOFT_REQ_HASH_TYPE);
   PartitioningFunction *newPartFunc = NULL;
 
   if (NOT(getSkewProperty().isAnySkew()) AND !isRequireHash2Only()) {
@@ -1027,7 +1027,7 @@ void RequireExactlyOnePartition::display() const { print(); }
 // RequireReplicateViaBroadcast
 // -----------------------------------------------------------------------
 
-RequireReplicateViaBroadcast::RequireReplicateViaBroadcast(Lng32 numOfReplicas)
+RequireReplicateViaBroadcast::RequireReplicateViaBroadcast(int numOfReplicas)
     : FullySpecifiedPartitioningRequirement() {
   PartitioningFunction *partFunc =
       new (CmpCommon::statementHeap()) ReplicateViaBroadcastPartitioningFunction(numOfReplicas);

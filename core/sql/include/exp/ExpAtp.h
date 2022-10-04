@@ -38,7 +38,7 @@ class ExStatisticsArea;
 class atp_struct {
  public:
   inline ex_cri_desc *getCriDesc() const;
-  inline tupp &getTupp(Lng32 i);
+  inline tupp &getTupp(int i);
   inline tupp &getTuppForNativeExpr(long i);
   inline void setCriDesc(ex_cri_desc *p);
   // defined in ex_queue.h
@@ -58,7 +58,7 @@ class atp_struct {
   inline void setDiagsArea(ComDiagsArea *diagsArea);
   inline void initDiagsArea(ComDiagsArea *diagsArea);
   Long pack(void *space);
-  Lng32 unpack(Lng32 base);
+  int unpack(int base);
 
   // ****  information for GUI  *** -------------
   inline void set_tag(Int32 tag);
@@ -130,7 +130,7 @@ class atp_struct {
 // the ATP.
 // TBD: move to exp/ExpAtp.h
 
-atp_struct *allocateAtp(Lng32 numTuples, CollHeap *space);
+atp_struct *allocateAtp(int numTuples, CollHeap *space);
 
 atp_struct *allocateAtp(ex_cri_desc *criDesc, CollHeap *space);
 
@@ -140,7 +140,7 @@ atp_struct *createAtpInBuffer(ex_cri_desc *criDesc, char *&buf);
 
 void deallocateAtp(atp_struct *atp, CollHeap *space);
 
-atp_struct *allocateAtpArray(ex_cri_desc *criDesc, Lng32 cnt, Int32 *atpSize, CollHeap *space,
+atp_struct *allocateAtpArray(ex_cri_desc *criDesc, int cnt, Int32 *atpSize, CollHeap *space,
                              NABoolean failureIsFatal = FALSE);
 
 void deallocateAtpArray(atp_struct **atp, CollHeap *space);
@@ -150,7 +150,7 @@ void deallocateAtpArray(atp_struct **atp, CollHeap *space);
 //
 inline ex_cri_desc *atp_struct::getCriDesc() const { return criDesc_; }
 
-inline tupp &atp_struct::getTupp(Lng32 i) {
+inline tupp &atp_struct::getTupp(int i) {
 #ifdef _DEBUG
   if (i >= criDesc_->noTuples()) {
     displayCurrentStack(3);
@@ -189,8 +189,8 @@ inline void atp_struct::copyAtp(atp_struct *from) {
   // copy the tupps from one atp to the other.
   // release those tupps in the target atp that are not being copied
 
-  Lng32 i = numTuples();
-  Lng32 j = from->numTuples();
+  int i = numTuples();
+  int j = from->numTuples();
 
   // release the entries past the number of tuples in the source if any
   while (i > j) {

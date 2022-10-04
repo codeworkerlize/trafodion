@@ -81,7 +81,7 @@ class ElemDDLParamDef : public ElemDDLNode {
   //
 
   virtual Int32 getArity() const;
-  virtual ExprNode *getChild(Lng32 index);
+  virtual ExprNode *getChild(int index);
 
   inline NAType *getParamDataType(void) const;
   inline const NAString &getParamName(void) const;

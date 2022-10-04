@@ -183,19 +183,19 @@ class ControlDB : public NABasicObject {
   NABoolean setControlSessionValue(ControlSession *cs);
   const NAString *getControlSessionValue(const NAString &token);
 
-  Lng32 packedLengthControlTableOptions();
-  Lng32 packControlTableOptionsToBuffer(char *buffer);
-  Lng32 unpackControlTableOptionsFromBuffer(char *buffer);
-  NABoolean isSameCTO(char *buffer, Lng32 bufLen);
-  Lng32 saveCurrentCTO();
-  Lng32 restoreCurrentCTO();
+  int packedLengthControlTableOptions();
+  int packControlTableOptionsToBuffer(char *buffer);
+  int unpackControlTableOptionsFromBuffer(char *buffer);
+  NABoolean isSameCTO(char *buffer, int bufLen);
+  int saveCurrentCTO();
+  int restoreCurrentCTO();
 
-  Lng32 packedLengthControlQueryShape();
-  Lng32 packControlQueryShapeToBuffer(char *buffer);
-  Lng32 unpackControlQueryShapeFromBuffer(char *buffer);
-  NABoolean isSameCQS(char *buffer, Lng32 bufLen);
-  Lng32 saveCurrentCQS();
-  Lng32 restoreCurrentCQS();
+  int packedLengthControlQueryShape();
+  int packControlQueryShapeToBuffer(char *buffer);
+  int unpackControlQueryShapeFromBuffer(char *buffer);
+  NABoolean isSameCQS(char *buffer, int bufLen);
+  int saveCurrentCQS();
+  int restoreCurrentCQS();
 
  private:
   enum RQOsetting { RQO_MIN, RQO_SYS, RQO_HIGH, RQO_MAX, RQO_RESET };
@@ -207,7 +207,7 @@ class ControlDB : public NABasicObject {
   void do_one_CQD(const char *attrName, const char *attrValue, NABoolean reset, NADefaults::Provenance masterOrigin);
 
   void do_one_MVQR_CQD(const char *attrName, const char *attrValue, NABoolean reset);
-  void doMVQRCQDs(Lng32 level);
+  void doMVQRCQDs(int level);
   void resetMVQRCQDs();
   void setMVQRCQDs();
 

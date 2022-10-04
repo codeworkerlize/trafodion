@@ -135,8 +135,8 @@ class ExProbeCacheTcb : public ex_tcb {
       return NULL;
   }
 
-  virtual ex_tcb_private_state *allocatePstates(Lng32 &numElems,       // inout, desired/actual elements
-                                                Lng32 &pstateLength);  // out, length of one element
+  virtual ex_tcb_private_state *allocatePstates(int &numElems,       // inout, desired/actual elements
+                                                int &pstateLength);  // out, length of one element
 
  private:
   /////////////////////////////////////////////////////
@@ -209,7 +209,7 @@ class ExProbeCachePrivateState : public ex_tcb_private_state {
 
   ExPCE *pcEntry_;
 
-  Int64 matchCount_;  // number of rows returned for this parent row
+  long matchCount_;  // number of rows returned for this parent row
 
  public:
   ExProbeCachePrivateState();   // constructor
@@ -239,7 +239,7 @@ class ExPCE {
                         // hash value.
 
   union {
-    Lng32 value_;
+    int value_;
     struct {
       unsigned char useBit_ : 1;           // for second chance replacement.
       unsigned char canceledPending_ : 1;  // cancel has been propagated.

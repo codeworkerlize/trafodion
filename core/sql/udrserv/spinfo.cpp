@@ -59,13 +59,13 @@
 extern void ServerDebug(const char *, ...);
 extern void doMessageBox(UdrGlobals *UdrGlob, Int32 trLevel, NABoolean moduleType, const char *moduleName);
 
-extern void backoutTupps(SqlBuffer &b, Lng32 numTuppsBefore);
+extern void backoutTupps(SqlBuffer &b, int numTuppsBefore);
 
 extern NABoolean allocateReplyRowAndEOD(UdrGlobals *UdrGlob, SqlBuffer &replyBuffer, queue_index parentIndex,
                                         char *&replyData, Int32 rowLen, ControlInfo *&newControlInfo);
 extern NABoolean allocateEODRow(UdrGlobals *UdrGlob, SqlBuffer &replyBuffer, queue_index parentIndex);
 
-extern NABoolean convertReplyRowToErrorRow(SqlBuffer *sqlBuf, Lng32 numTuppsBefore, queue_index requestQueueIndex,
+extern NABoolean convertReplyRowToErrorRow(SqlBuffer *sqlBuf, int numTuppsBefore, queue_index requestQueueIndex,
                                            UdrServerDataStream &msgStream, UdrGlobals *UdrGlob);
 
 //**********************************************************
@@ -227,14 +227,14 @@ SPInfo::SPInfo(UdrGlobals *udrGlobals, NAHeap *heapPtr, const UdrHandle &udrHand
   maxBufSize += sqlBufSize;
   IpcMessageBuffer::alignOffset(maxBufSize);
 
-  Lng32 diagsPad = 1000;
+  int diagsPad = 1000;
 
 #ifdef _DEBUG
   //
   // In a debug build we can get the pad size from the Java system
   // property UDR_BUFFER_PAD.
   //
-  Lng32 tempPad = 0;
+  int tempPad = 0;
   if (udrGlobals_ && udrGlobals_->getJavaLM()) {
     if (getLmProperty(*(udrGlobals_->getJavaLM()), "UDR_BUFFER_PAD", tempPad, NULL)) {
       diagsPad = tempPad;
@@ -392,7 +392,7 @@ void SPInfo::assignStringMember(char *&memberBuff, const char *const src) {
     }
 
     UDR_ASSERT(memberBuff != NULL, "Out of Memory");
-    str_cpy(memberBuff, src, (Lng32)buffsize);
+    str_cpy(memberBuff, src, (int)buffsize);
     memberBuff[buffsize - 1] = '\0';
   }
 
@@ -481,12 +481,12 @@ void SPInfo::resetLastCallTs() {
 }
 
 // displaySPInfo - Used when tracing objects
-void SPInfo::displaySPInfo(Lng32 indent) {
+void SPInfo::displaySPInfo(int indent) {
   char ind[100];
 
-  Lng32 indmax = (indent > 99) ? 99 : indent;
+  int indmax = (indent > 99) ? 99 : indent;
 
-  Lng32 indIdx = 0;
+  int indIdx = 0;
   for (indIdx = 0; indIdx < indmax; indIdx++) ind[indIdx] = ' ';
   ind[indIdx] = '\0';
 
@@ -500,7 +500,7 @@ void SPInfo::displaySPInfo(Lng32 indent) {
     ServerDebug("%sLM Handle           : %p", ind, lmHandle_);
 
 #ifdef UDR_MULTIPLE_CONTEXTS
-  ServerDebug("%sCLI Context Handle  : %d", ind, (Lng32)cliContextHandle_);
+  ServerDebug("%sCLI Context Handle  : %d", ind, (int)cliContextHandle_);
 #endif  // UDR_MULTIPLE_CONTEXTS
   ServerDebug("%sSPInfoState         : %i", ind, (Int32)spInfoState_);
   ServerDebug("%sTransaction Required     : %i", ind, (Int32)transactionAttrs_);
@@ -629,12 +629,12 @@ void SPInfo::displaySPInfo(Lng32 indent) {
 
 }  // SPInfo::displaySPInfo
 
-void SPInfo::displaySPInfoId(Lng32 indent) {
+void SPInfo::displaySPInfoId(int indent) {
   char ind[100];
 
-  Lng32 indmax = (indent > 99) ? 99 : indent;
+  int indmax = (indent > 99) ? 99 : indent;
 
-  Lng32 indIdx = 0;
+  int indIdx = 0;
   for (indIdx = 0; indIdx < indmax; indIdx++) ind[indIdx] = ' ';
   ind[indIdx] = '\0';
 
@@ -643,8 +643,8 @@ void SPInfo::displaySPInfoId(Lng32 indent) {
 }  // SPInfo::displaySPInfoId
 
 // createUniqueIdentifier
-Int64 SPInfo::createUniqueIdentifier() {
-  Int64 result;
+long SPInfo::createUniqueIdentifier() {
+  long result;
   //
   // During R1.6 testing it was discovered that JULIANTIMESTAMP was
   // not always returning unique values on Windows. We believe this is
@@ -657,7 +657,7 @@ Int64 SPInfo::createUniqueIdentifier() {
 }
 
 // releaseSP
-Lng32 SPInfo::releaseSP(NABoolean reportErrors, ComDiagsArea &d) {
+int SPInfo::releaseSP(NABoolean reportErrors, ComDiagsArea &d) {
   const char *moduleName = "SPInfo releaseSP";
   char errorText[MAXERRTEXT];
   LmResult lmResult = LM_OK;
@@ -751,7 +751,7 @@ NABoolean SPInfo::setupUdrResultSets(ComDiagsArea &d) {
 }
 
 SQLSTMT_ID *SPInfo::executeSqlStmt(const char *sql_str, ComDiagsArea &d) {
-  Lng32 retcode = 0;
+  int retcode = 0;
 
   retcode = SQL_EXEC_ClearDiagnostics(NULL);
   if (retcode < 0) {
@@ -815,7 +815,7 @@ SQLSTMT_ID *SPInfo::executeSqlStmt(const char *sql_str, ComDiagsArea &d) {
 
   desc_items[2].item_id = SQLDESC_LENGTH;
   desc_items[2].entry = 1;
-  desc_items[2].num_val_or_len = (Lng32)strlen(sql_str) + 1;
+  desc_items[2].num_val_or_len = (int)strlen(sql_str) + 1;
 
   retcode = SQL_EXEC_SetDescItems2(&sqlsrc_desc, 3, desc_items);
   if (retcode < 0) {
@@ -917,7 +917,7 @@ NABoolean SPInfo::activateTransaction() {
 
 #ifdef UDR_DEBUG
   if (udrGlobals_->verbose_) {
-    Int64 tx_id = 0;
+    long tx_id = 0;
     short tmfRetcode = GETTRANSID((short *)&tx_id);
 
     ServerDebug("[UdrServ (%s)] Activating transaction...", moduleName);
@@ -933,7 +933,7 @@ NABoolean SPInfo::activateTransaction() {
 
 #ifdef UDR_DEBUG
   if (udrGlobals_->verbose_) {
-    Int64 tx_id = 0;
+    long tx_id = 0;
     short tmfRetcode = GETTRANSID((short *)&tx_id);
 
     ServerDebug("         After setting transaction...");
@@ -1055,7 +1055,7 @@ void SPInfo::quiesceExecutor() {
   // we use Type 4 JDBC. But SQL execution is possible in UDR Server on
   // Windows platform.
   if (getParamStyle() == COM_STYLE_JAVA_CALL) {
-    Int64 tx_id = 0;
+    long tx_id = 0;
     short tmfCode = GETTRANSID((short *)&tx_id);
 
     if (doTrace) {
@@ -1070,7 +1070,7 @@ void SPInfo::quiesceExecutor() {
             "         "
             "Message carried a transaction. About to quiesce.");
 
-      Lng32 sqlcode = SQL_EXEC_Xact(SQLTRANS_QUIESCE, NULL);
+      int sqlcode = SQL_EXEC_Xact(SQLTRANS_QUIESCE, NULL);
       if (sqlcode < 0) {
         char msg[MAXERRTEXT];
         str_sprintf(msg, "SQL_EXEC_Xact returned error %d", (Int32)sqlcode);
@@ -1197,7 +1197,7 @@ void SPInfo::work() {
 
   // Process request rows until all rows are processed or ther is no
   // room left in reply buffer
-  Lng32 numRowsProcessed = 0;
+  int numRowsProcessed = 0;
   RequestRowProcessingStatus status;
   do {
     status = processOneRequestRow(reqSqlBuf, reply->getSqlBuffer(), numRowsProcessed);
@@ -1210,9 +1210,9 @@ void SPInfo::work() {
     ServerDebug("[UdrServ (%s)] Processed %d rows from the request buffer.", moduleName, numRowsProcessed);
     ServerDebug("[UdrServ (%s)] %d tupps remaining in request buffer.", moduleName,
                 initialNumRequestTupps - reqSqlBuf->getProcessedTuppDescs());
-    ServerDebug("[UdrServ (%s)] Reply Row Length %d", moduleName, (Lng32)getReplyRowSize());
+    ServerDebug("[UdrServ (%s)] Reply Row Length %d", moduleName, (int)getReplyRowSize());
     ServerDebug("[UdrServ (%s)] Invoke Reply SQL Buffer", moduleName);
-    displaySqlBuffer(reply->getSqlBuffer(), (Lng32)reply->getSqlBufferLength());
+    displaySqlBuffer(reply->getSqlBuffer(), (int)reply->getSqlBufferLength());
   }
 
   // If all the rows in request buffer are processed, make sure
@@ -1239,7 +1239,7 @@ void SPInfo::work() {
 }  // SPInfo::work
 
 RequestRowProcessingStatus SPInfo::processOneRequestRow(SqlBuffer *reqSqlBuf, SqlBuffer *replySqlBuf,
-                                                        Lng32 &numRowsProcessed) {
+                                                        int &numRowsProcessed) {
   const char *moduleName = "SPInfo::processOneRequestRow";
 
   NABoolean traceInvokeDataAreas = false;
@@ -1250,14 +1250,14 @@ RequestRowProcessingStatus SPInfo::processOneRequestRow(SqlBuffer *reqSqlBuf, Sq
   if (udrGlobals_->verbose_ && udrGlobals_->showInvoke_ && udrGlobals_->traceLevel_ >= TRACE_IPMS)
     traceInvokeIPMS = true;
 
-  Lng32 numTuppsBefore = replySqlBuf->getTotalTuppDescs();
+  int numTuppsBefore = replySqlBuf->getTotalTuppDescs();
 
   // First, allocate space in the reply buffer for one row plus EOD
   char *replyData = NULL;
   ControlInfo *replyControlInfo = NULL;
   NABoolean replyRowAllocated = allocateReplyRowAndEOD(udrGlobals_, *replySqlBuf,
                                                        0,  // dummy queue index, will be updated later
-                                                       replyData, (Lng32)getReplyRowSize(), replyControlInfo);
+                                                       replyData, (int)getReplyRowSize(), replyControlInfo);
 
   if (!replyRowAllocated) {
     // There are two cases.
@@ -1303,7 +1303,7 @@ RequestRowProcessingStatus SPInfo::processOneRequestRow(SqlBuffer *reqSqlBuf, Sq
 
   if (traceInvokeDataAreas) {
     ComUInt32 requestRowLen = requestRow.getAllocatedSize();
-    ServerDebug("[UdrServ (%s)] Request info: queue index %d", moduleName, (Lng32)requestQueueIndex);
+    ServerDebug("[UdrServ (%s)] Request info: queue index %d", moduleName, (int)requestQueueIndex);
     ServerDebug("[UdrServ (%s)] Request Row Length %u", moduleName, (ULng32)requestRowLen);
     ServerDebug("[UdrServ (%s)] Dump of Request Invoke Data", moduleName);
     dumpBuffer((unsigned char *)requestData, requestRowLen);
@@ -1685,11 +1685,11 @@ NABoolean SPInfo::moveRSInfoIntoStream() {
   }
 
   if (traceInvokeIPMS) {
-    ServerDebug("[UdrServ (%s)] Number of result sets returned %d", moduleName, (Lng32)rsInfoMsg->getNumResultSets());
+    ServerDebug("[UdrServ (%s)] Number of result sets returned %d", moduleName, (int)rsInfoMsg->getNumResultSets());
     ServerDebug("Dump of result sets Data");
 
     for (ComUInt32 i = 0; i < rsInfoMsg->getNumResultSets(); i++) {
-      ServerDebug("  Data in result set #%d", (Lng32)i + 1);
+      ServerDebug("  Data in result set #%d", (int)i + 1);
       ServerDebug("    Proxy syntax = %s", rsInfoMsg->getRSInfo(i).getProxySyntax());
       ServerDebug("    CLI statement ID pointer = %p", rsInfoMsg->getRSInfo(i).getStmtID());
       ServerDebug("    CLI context handle = %u", rsInfoMsg->getRSInfo(i).getContextID());
@@ -1733,13 +1733,13 @@ SPList::SPList(UdrGlobals *udrGlobals)
 //
 //***********************************************************************
 
-void SPList::displaySPList(Lng32 indent) {
+void SPList::displaySPList(int indent) {
   SPInfo *sp;
 
-  Lng32 indmax = (indent > 99) ? 99 : indent;
+  int indmax = (indent > 99) ? 99 : indent;
 
   char ind[100];
-  Lng32 indIdx = 0;
+  int indIdx = 0;
   for (indIdx = 0; indIdx < indmax; indIdx++) ind[indIdx] = ' ';
   ind[indIdx] = '\0';
 
@@ -1759,13 +1759,13 @@ void SPList::displaySPList(Lng32 indent) {
   }
 }  // SPList::displaySPList
 
-void SPList::displaySPListId(Lng32 indent) {
+void SPList::displaySPListId(int indent) {
   SPInfo *sp;
 
-  Lng32 indmax = (indent > 99) ? 99 : indent;
+  int indmax = (indent > 99) ? 99 : indent;
 
   char ind[100];
-  Lng32 indIdx = 0;
+  int indIdx = 0;
   for (indIdx = 0; indIdx < indmax; indIdx++) ind[indIdx] = ' ';
   ind[indIdx] = '\0';
 
@@ -1821,10 +1821,10 @@ void SPList::releaseOldestSPJ(ComDiagsArea &d) {
   doMessageBox(udrGlobals_, TRACE_SHOW_DIALOGS, udrGlobals_->showSPInfo_, moduleName);
 
   if (!spInfoElement_.isEmpty()) {
-    Int64 oldestTS;
-    Int64 leastNumCalls;
-    Int64 numCalls;
-    Int64 lastTS;
+    long oldestTS;
+    long leastNumCalls;
+    long numCalls;
+    long lastTS;
     CollIndex releaseIdx;
 
     SPInfo *spi;
@@ -1873,7 +1873,7 @@ void SPList::addToSPList(SPInfo *spinfo) {
   udrGlobals_->numCurrSPs_++;
 
   if (udrGlobals_->verbose_ && udrGlobals_->traceLevel_ >= TRACE_DETAILS && udrGlobals_->showSPInfo_) {
-    ServerDebug("[UdrServ (SPINFO)] Added Element to SPList. %d entries", (Lng32)spInfoElement_.entries());
+    ServerDebug("[UdrServ (SPINFO)] Added Element to SPList. %d entries", (int)spInfoElement_.entries());
     displaySPListId(2);
   }
 }  // SPList::addToSPList

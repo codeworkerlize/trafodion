@@ -48,15 +48,15 @@
 #include <string.h>
 #include <iostream>
 #include "common/ComAnsiNamePart.h"
-#include "ParserMsg.h"			// StoreSyntaxError(...ComDiagsArea&...)
-#include "Sqlci.h"
+#include "sqlmsg/ParserMsg.h"			// StoreSyntaxError(...ComDiagsArea&...)
+#include "sqlci/Sqlci.h"
 #include "common/str.h"
 #include "common/nawstring.h"
 #define   SQLCIPARSEGLOBALS__INITIALIZE
-#include "SqlciParseGlobals.h"
+#include "sqlci/SqlciParseGlobals.h"
 #include "export/HeapLog.h"
 #include "common/charinfo.h"
-#include "conversionHex.h"
+#include "common/conversionHex.h"
 #include "common/ComDistribution.h"
 #include "common/ComObjectName.h"
 #include "common/ComSchemaName.h"
@@ -1172,7 +1172,7 @@ sqlci_cmd :	MODE SQL
                 {
                   // remove trailing ";"
                   char * id = &SqlciParse_OriginalStr[pos_internal];
-                  Lng32 i = strlen(&SqlciParse_OriginalStr[pos_internal]) -1;
+                  int i = strlen(&SqlciParse_OriginalStr[pos_internal]) -1;
                   while ((i > 0) && (id[i] != ';'))
                     i--;
                   id[i] = 0;
@@ -1238,7 +1238,7 @@ sqlci_cmd :	MODE SQL
 
         |       SLEEPtoken NUMBER
                   {
-                    Lng32 v = atoi($2);
+                    int v = atoi($2);
                     $$ = new SleepVal(v);
                   }
 

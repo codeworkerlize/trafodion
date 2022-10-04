@@ -204,9 +204,9 @@ Int32 DatetimeType::getExtendedEndField(rec_datetime_field endField, UInt32 frac
 // TIMESTAMP(0) [YMDHMS] is size 7,
 // TIMESTAMP(n) [YMDHMSF] is size 11.
 //
-Lng32 DatetimeType::getStorageSize(rec_datetime_field startField, rec_datetime_field endField,
+int DatetimeType::getStorageSize(rec_datetime_field startField, rec_datetime_field endField,
                                    UInt32 fractionPrecision) {
-  Lng32 storageSize = 0;
+  int storageSize = 0;
   Int32 end = getExtendedEndField(endField, fractionPrecision);
   for (Int32 field = startField; field <= end; field++) {
     Int32 index = field - REC_DATE_YEAR;
@@ -225,7 +225,7 @@ Lng32 DatetimeType::getStorageSize(rec_datetime_field startField, rec_datetime_f
 void DatetimeType::datetimeToLong(void *bufPtr, ULng32 values[]) const {
   char *str = (char *)bufPtr;
   short sw;
-  Lng32 size;
+  int size;
   Int32 start = getStartField();
   Int32 end = getExtendedEndField(getEndField(), getFractionPrecision());
   ULng32 val = 0;
@@ -240,8 +240,8 @@ void DatetimeType::datetimeToLong(void *bufPtr, ULng32 values[]) const {
         memcpy((char *)&sw, str, sizeof(short));
         val = sw;
         break;
-      case sizeof(Lng32):
-        memcpy((char *)&val, str, sizeof(Lng32));
+      case sizeof(int):
+        memcpy((char *)&val, str, sizeof(int));
         break;
       default:
         assert(FALSE);
@@ -264,13 +264,13 @@ void DatetimeType::datetimeToLong(void *bufPtr, ULng32 values[]) const {
 //
 // ***********************************************************************
 
-Lng32 DatetimeType::gregorianDays(const ULng32 values[]) {
-  Lng32 year = values[0] - 1;
+int DatetimeType::gregorianDays(const ULng32 values[]) {
+  int year = values[0] - 1;
 
-  Lng32 leapDays = year / 4 + year / 400 - year / 100;
-  Lng32 days = year * 365 + leapDays;
+  int leapDays = year / 4 + year / 400 - year / 100;
+  int days = year * 365 + leapDays;
 
-  Lng32 month = values[1];
+  int month = values[1];
 
   for (Int32 i = 1; i < month; i++) days += daysInMonth[i];
 
@@ -280,8 +280,8 @@ Lng32 DatetimeType::gregorianDays(const ULng32 values[]) {
   return days;
 }
 
-Int64 DatetimeType::julianTimestampValue(const char *value, const short valueLen, UInt32 fractionPrec) {
-  Int64 juliantimestamp = 0;
+long DatetimeType::julianTimestampValue(const char *value, const short valueLen, UInt32 fractionPrec) {
+  long juliantimestamp = 0;
   const char *datetimeOpData = value;
   short year;
   char month;
@@ -289,7 +289,7 @@ Int64 DatetimeType::julianTimestampValue(const char *value, const short valueLen
   char hour;
   char minute;
   char second;
-  Lng32 fraction = 0;
+  int fraction = 0;
   str_cpy_all((char *)&year, datetimeOpData, sizeof(year));
   datetimeOpData += sizeof(year);
   month = *datetimeOpData++;
@@ -302,9 +302,9 @@ Int64 DatetimeType::julianTimestampValue(const char *value, const short valueLen
     if (fractionPrec > 0) {
       if (fractionPrec > DatetimeType::MAX_FRACTION_PRECISION_USEC)
         // Adjust the fractional seconds part to be the number of microseconds
-        fraction /= (Lng32)pow(10, (fractionPrec - DatetimeType::MAX_FRACTION_PRECISION_USEC));
+        fraction /= (int)pow(10, (fractionPrec - DatetimeType::MAX_FRACTION_PRECISION_USEC));
       else
-        fraction *= (Lng32)pow(10, (DatetimeType::MAX_FRACTION_PRECISION_USEC - fractionPrec));
+        fraction *= (int)pow(10, (DatetimeType::MAX_FRACTION_PRECISION_USEC - fractionPrec));
     }
   }
   short timestamp[] = {year, month, day, hour, minute, second, (short)(fraction / 1000), (short)(fraction % 1000)};
@@ -323,7 +323,7 @@ Int64 DatetimeType::julianTimestampValue(const char *value, const short valueLen
 //
 // ***********************************************************************
 
-Lng32 DatetimeType::secondsInTime(const ULng32 values[]) { return (values[0] * 60 * 60 + values[1] * 60 + values[2]); }
+int DatetimeType::secondsInTime(const ULng32 values[]) { return (values[0] * 60 * 60 + values[1] * 60 + values[2]); }
 
 enum DatetimeType::Subtype DatetimeType::validate(rec_datetime_field startField, rec_datetime_field endField,
                                                   UInt32 fractionPrecision) {
@@ -413,7 +413,7 @@ DatetimeType *DatetimeType::constructSubtype(NABoolean allowSQLnull, rec_datetim
 //
 // ***********************************************************************
 
-Lng32 DatetimeType::getDisplayLength() const {
+int DatetimeType::getDisplayLength() const {
   Int32 field = getStartField() - REC_DATE_YEAR;
   size_t displayLength = maxFieldLen[field];
   while (field < (getEndField() - REC_DATE_YEAR)) displayLength += 1 /* for separator */ + maxFieldLen[++field];
@@ -427,9 +427,9 @@ Lng32 DatetimeType::getDisplayLength() const {
   return displayLength;
 }  // DatetimeType::getDisplayLength
 
-Lng32 DatetimeType::getDisplayLength(Lng32 datatype, Lng32 length, Lng32 precision, Lng32 scale,
-                                     Lng32 heading_len) const {
-  Lng32 d_len = (Lng32)getDisplayLength();
+int DatetimeType::getDisplayLength(int datatype, int length, int precision, int scale,
+                                     int heading_len) const {
+  int d_len = (int)getDisplayLength();
 
   if (d_len >= heading_len)
     return d_len;
@@ -605,7 +605,7 @@ const NAType *DatetimeType::synthesizeTernary(enum NATypeSynthRuleEnum synthRule
 //
 // ***********************************************************************
 
-void DatetimeType::getRepresentableValue(const char *inValueString, void *bufPtr, Lng32 *bufLen,
+void DatetimeType::getRepresentableValue(const char *inValueString, void *bufPtr, int *bufLen,
                                          NAString **stringLiteral, NAMemory *h) const {
   Int32 startIndex = getStartField() - REC_DATE_YEAR;
   Int32 endIndex = getEndField() - REC_DATE_YEAR;
@@ -656,11 +656,11 @@ void DatetimeType::getRepresentableValue(const char *inValueString, void *bufPtr
   }
 }  // DatetimeType::getRepresentableValue
 
-void DatetimeType::minRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **stringLiteral, NAMemory *h) const {
+void DatetimeType::minRepresentableValue(void *bufPtr, int *bufLen, NAString **stringLiteral, NAMemory *h) const {
   getRepresentableValue(minValueString, bufPtr, bufLen, stringLiteral, h);
 }
 
-void DatetimeType::maxRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **stringLiteral, NAMemory *h) const {
+void DatetimeType::maxRepresentableValue(void *bufPtr, int *bufLen, NAString **stringLiteral, NAMemory *h) const {
   getRepresentableValue(maxValueString, bufPtr, bufLen, stringLiteral, h);
 }
 
@@ -700,7 +700,7 @@ NABoolean DatetimeType::createSQLLiteral(const char *buf, NAString *&stringLiter
 //  Converts start/end combination into REC_DATETIME_CODE enum.
 // ***********************************************************************
 
-Lng32 DatetimeType::getRecDateTimeCode(rec_datetime_field startField, rec_datetime_field endField) const {
+int DatetimeType::getRecDateTimeCode(rec_datetime_field startField, rec_datetime_field endField) const {
   switch (startField) {
     case REC_DATE_YEAR:
       switch (endField) {
@@ -885,7 +885,7 @@ NAString *SQLDate::convertToString(double v, NAMemory *h) const {
   secs += v;
 
   UInt32 dtvFields[DatetimeValue::N_DATETIME_FIELDS];
-  DatetimeValue::decodeTimestamp(Int64(secs * 1000000),  // in microseconds
+  DatetimeValue::decodeTimestamp(long(secs * 1000000),  // in microseconds
                                  0,                      // fracSec
                                  dtvFields);
 
@@ -902,7 +902,7 @@ double SQLDate::encodeSqlLiteral(char *source) const {
   memset(target, '\0', sizeof(target));
 
   char *targetPtr = target;
-  Lng32 targetLen = sizeof(target);
+  int targetLen = sizeof(target);
 
   if (supportsSQLnull()) {
     targetPtr += getSQLnullHdrSize();
@@ -962,7 +962,7 @@ NAString *SQLTime::convertToString(double v, NAMemory *h) const {
   secs += v;
 
   UInt32 dtvFields[DatetimeValue::N_DATETIME_FIELDS];
-  DatetimeValue::decodeTimestamp(Int64(secs * 1000000),  // in microseconds
+  DatetimeValue::decodeTimestamp(long(secs * 1000000),  // in microseconds
                                  0,                      // fracSec
                                  dtvFields);
 
@@ -981,7 +981,7 @@ double SQLTime::encodeSqlLiteral(char *source) const {
   memset(target, '\0', sizeof(target));
 
   char *targetPtr = target;
-  Lng32 targetLen = sizeof(target);
+  int targetLen = sizeof(target);
 
   if (supportsSQLnull()) {
     targetPtr += getSQLnullHdrSize();
@@ -1042,7 +1042,7 @@ NAString *SQLTimestamp::convertToString(double v, NAMemory *h) const {
   secs += v;
 
   UInt32 dtvFields[DatetimeValue::N_DATETIME_FIELDS];
-  DatetimeValue::decodeTimestamp(Int64(secs * 1000000),  // in microseconds
+  DatetimeValue::decodeTimestamp(long(secs * 1000000),  // in microseconds
                                  0,                      // fracSec
                                  dtvFields);
 
@@ -1066,7 +1066,7 @@ double SQLTimestamp::encodeSqlLiteral(char *source) const {
   memset(target, '\0', sizeof(target));
 
   char *targetPtr = target;
-  Lng32 targetLen = sizeof(target);
+  int targetLen = sizeof(target);
 
   if (supportsSQLnull()) {
     targetPtr += getSQLnullHdrSize();
@@ -1197,7 +1197,7 @@ DatetimeValue::DatetimeValue(const char *strValue, rec_datetime_field startField
 
   ComDiagsArea *diags = NULL;
 
-  Lng32 trueFP = DatetimeType::MAX_FRACTION_PRECISION;
+  int trueFP = DatetimeType::MAX_FRACTION_PRECISION;
   ULng32 flags = 0;
   flags |= CONV_NO_HADOOP_DATE_FIX;
   short rc = ExpDatetime::convAsciiToDatetime((char *)strValue, strlen(strValue), dstValue, 100, startField, endField,
@@ -1205,12 +1205,12 @@ DatetimeValue::DatetimeValue(const char *strValue, rec_datetime_field startField
   if (rc) return;
 
   if (endField == REC_DATE_SECOND) {
-    Lng32 fp = trueFP;
+    int fp = trueFP;
     for (; fp < DatetimeType::MAX_FRACTION_PRECISION; fp++) {
       if (startField == REC_DATE_YEAR)
-        *(Lng32 *)&dstValue[7] /= 10;
+        *(int *)&dstValue[7] /= 10;
       else
-        *(Lng32 *)&dstValue[3] /= 10;
+        *(int *)&dstValue[3] /= 10;
     }
   } else
     trueFP = 0;
@@ -1301,7 +1301,7 @@ void DatetimeValue::oldConstructor(const char *strValue, rec_datetime_field star
   if (*strValue == '\0') setValue(startField, endField, fractionPrecision, values);
 }
 
-DatetimeValue::DatetimeValue(const char *value, Lng32 storageSize)
+DatetimeValue::DatetimeValue(const char *value, int storageSize)
     : value_(new unsigned char[storageSize]), valueLen_((unsigned short)storageSize) {
   memcpy(value_, value, valueLen_);
 }  // DatetimeValue ctor
@@ -1634,7 +1634,7 @@ void DatetimeValue::print(const DatetimeType &dt, FILE *ofd, const char *indent)
 
 // Decode a Julian timestamp into an array of fields that can be used with
 // setValue().
-void DatetimeValue::decodeTimestamp(Int64 julianTimestamp, UInt32 fracSec, UInt32 *dtvFields) {
+void DatetimeValue::decodeTimestamp(long julianTimestamp, UInt32 fracSec, UInt32 *dtvFields) {
   // Need one extra element in tsFields array; interprettimestamp splits
   // fractional seconds into 2 fields
   short tsFields[N_DATETIME_FIELDS + 1];
@@ -1645,10 +1645,10 @@ void DatetimeValue::decodeTimestamp(Int64 julianTimestamp, UInt32 fracSec, UInt3
   // For fractional seconds, combine milliseconds and microseconds, which are
   // stored in separate fields of the INTERPRETTIMESTAMP output. Scale the result
   // according to the fractional precision of the type.
-  dtvFields[FRACTION] = (UInt32)((tsFields[6] * 1000 + tsFields[7]) / (Int64)pow(10, 6 - MINOF(6, fracSec)));
+  dtvFields[FRACTION] = (UInt32)((tsFields[6] * 1000 + tsFields[7]) / (long)pow(10, 6 - MINOF(6, fracSec)));
 }
 
-void DatetimeValue::decodeTimestamp(bool useUTCTimestmap, Int64 inTimeVal, bool inMillis, short *tsFields) {
+void DatetimeValue::decodeTimestamp(bool useUTCTimestmap, long inTimeVal, bool inMillis, short *tsFields) {
   //
   // The conversion takes the approach of converting to a date in
   // Gregorian calander that returns the value similar to
@@ -1673,7 +1673,7 @@ void DatetimeValue::decodeTimestamp(bool useUTCTimestmap, Int64 inTimeVal, bool 
   static const int64_t C = -38;
 
   timespec timeVal;
-  Int64 UTC_timeVal;
+  long UTC_timeVal;
   if (useUTCTimestmap) {
     if (inMillis)
       UTC_timeVal = inTimeVal / 1000;
@@ -1695,7 +1695,7 @@ void DatetimeValue::decodeTimestamp(bool useUTCTimestmap, Int64 inTimeVal, bool 
   timeVal.tv_sec = UTC_timeVal;
   timeVal.tv_nsec = 0;
 
-  Int64 julianTimeVal = ComRtGetJulianFromUTC(timeVal);
+  long julianTimeVal = ComRtGetJulianFromUTC(timeVal);
 
   // Julian timestamp in # of days
   int64_t jd = INTERPRETTIMESTAMP(julianTimeVal, tsFields);
@@ -1723,7 +1723,7 @@ void DatetimeValue::decodeTimestamp(bool useUTCTimestmap, Int64 inTimeVal, bool 
 }
 
 int DatetimeValue::convertToUtcFromDatetime(const char *value, Int32 valueLen, Int32 fractionPrec, time_t &utcTime,
-                                            Lng32 &nanoSecs) {
+                                            int &nanoSecs) {
   const char *datetimeOpData = value;
   short year;
   char month;
@@ -1731,9 +1731,9 @@ int DatetimeValue::convertToUtcFromDatetime(const char *value, Int32 valueLen, I
   char hour;
   char minute;
   char second;
-  Lng32 fraction = 0;
-  Lng32 microSecs = 0;
-  Lng32 milliSecs;
+  int fraction = 0;
+  int microSecs = 0;
+  int milliSecs;
   str_cpy_all((char *)&year, datetimeOpData, sizeof(year));
   datetimeOpData += sizeof(year);
   month = *datetimeOpData++;
@@ -1746,9 +1746,9 @@ int DatetimeValue::convertToUtcFromDatetime(const char *value, Int32 valueLen, I
     if (fractionPrec > 0) {
       if (fractionPrec > DatetimeType::MAX_FRACTION_PRECISION_USEC)
         // Adjust the fractional seconds part to be the number of microseconds
-        microSecs = fraction / ((Lng32)pow(10, (fractionPrec - DatetimeType::MAX_FRACTION_PRECISION_USEC)));
+        microSecs = fraction / ((int)pow(10, (fractionPrec - DatetimeType::MAX_FRACTION_PRECISION_USEC)));
       else
-        microSecs = fraction / ((Lng32)pow(10, (DatetimeType::MAX_FRACTION_PRECISION_USEC - fractionPrec)));
+        microSecs = fraction / ((int)pow(10, (DatetimeType::MAX_FRACTION_PRECISION_USEC - fractionPrec)));
     }
   } else
     fraction = 0;

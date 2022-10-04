@@ -1638,7 +1638,7 @@ void *PCodeCfg::getPtrConstValue(PCodeOperand *op) {
 //
 // Given an operand known to be an integer, find its value and return it.
 //
-Int64 PCodeCfg::getIntConstValue(PCodeOperand *op) {
+long PCodeCfg::getIntConstValue(PCodeOperand *op) {
   CollIndex off = op->getOffset();
 
   // TODO: move this calculation to getStringValue()
@@ -1663,46 +1663,46 @@ Int64 PCodeCfg::getIntConstValue(PCodeOperand *op) {
 
   assert(constPtr != NULL);
 
-  Int64 value = 0;
+  long value = 0;
 
   switch (op->getType()) {
     case PCIT::MBIN8:
-      value = (Int64) * ((UInt8 *)(constPtr->getData()));
+      value = (long) * ((UInt8 *)(constPtr->getData()));
       break;
     case PCIT::MBIN8S:
-      value = (Int64) * ((Int8 *)(constPtr->getData()));
+      value = (long) * ((Int8 *)(constPtr->getData()));
       break;
     case PCIT::MBIN8U:
-      value = (Int64) * ((UInt8 *)(constPtr->getData()));
+      value = (long) * ((UInt8 *)(constPtr->getData()));
       break;
     case PCIT::MBIN16S:
-      value = (Int64) * ((Int16 *)(constPtr->getData()));
+      value = (long) * ((Int16 *)(constPtr->getData()));
       break;
     case PCIT::MBIN16U:
-      value = (Int64) * ((UInt16 *)(constPtr->getData()));
+      value = (long) * ((UInt16 *)(constPtr->getData()));
       break;
     case PCIT::MBIN32S:
-      value = (Int64) * ((Int32 *)(constPtr->getData()));
+      value = (long) * ((Int32 *)(constPtr->getData()));
       break;
     case PCIT::MBIN32U:
-      value = (Int64) * ((UInt32 *)(constPtr->getData()));
+      value = (long) * ((UInt32 *)(constPtr->getData()));
       break;
     case PCIT::MBIN64S:
-      value = (Int64) * ((Int64 *)(constPtr->getData()));
+      value = (long) * ((long *)(constPtr->getData()));
       break;
     case PCIT::MPTR32:
       switch (constPtr->getLen()) {
         case 1:
-          value = (Int64) * ((UInt8 *)(constPtr->getData()));
+          value = (long) * ((UInt8 *)(constPtr->getData()));
           break;
         case 2:
-          value = (Int64) * ((Int16 *)(constPtr->getData()));
+          value = (long) * ((Int16 *)(constPtr->getData()));
           break;
         case 4:
-          value = (Int64) * ((Int32 *)(constPtr->getData()));
+          value = (long) * ((Int32 *)(constPtr->getData()));
           break;
         case 8:
-          value = (Int64) * ((Int64 *)(constPtr->getData()));
+          value = (long) * ((long *)(constPtr->getData()));
           break;
         default:
           assert(FALSE);
@@ -1756,7 +1756,7 @@ double PCodeCfg::getFloatConstValue(PCodeOperand *op) {
 // Add a new integer constant.  The alignment param is used to indicate the
 // size of the datum as well as it's alignment.
 //
-Int32 PCodeCfg::addNewIntConstant(Int64 value, Int32 alignment) {
+Int32 PCodeCfg::addNewIntConstant(long value, Int32 alignment) {
   // Quickly return the zero offset if it exists and we're looking to add 0.
   if ((value == 0) && (zeroOffset_ != -1)) return zeroOffset_;
 
@@ -1963,7 +1963,7 @@ PCodeInst *PCodeCfg::constantFold(PCodeInst *inst, NABoolean rDefsAvailable) {
       op2 = inst->getROps()[0];
       if (op2->isConst()) {
         CollIndex *off;
-        Int64 value = getIntConstValue(op2);
+        long value = getIntConstValue(op2);
         Int32 tgtLen = inst->getWOps()[0]->getLen();
         char *result = (char *)new (heap_) char[tgtLen];
         BigNumHelper::ConvInt64ToBigNumWithSignHelper(tgtLen, value, result, FALSE);
@@ -2037,7 +2037,7 @@ PCodeInst *PCodeCfg::constantFold(PCodeInst *inst, NABoolean rDefsAvailable) {
 
       op1 = inst->getROps()[0];
       if (op1->isConst()) {
-        Int64 value = getIntConstValue(op1);
+        long value = getIntConstValue(op1);
 
         // Re-define the instruction and reload operands
         switch (inst->getWOps()[0]->getType()) {
@@ -2141,10 +2141,10 @@ PCodeInst *PCodeCfg::constantFold(PCodeInst *inst, NABoolean rDefsAvailable) {
       op2 = inst->getROps()[1];
 
       if (op1->isConst() && op2->isConst()) {
-        Int64 x = getIntConstValue(op1);
-        Int64 y = getIntConstValue(op2);
+        long x = getIntConstValue(op1);
+        long y = getIntConstValue(op2);
 
-        Int64 value = EXP_FIXED_OV_MUL(x, y, &ov);
+        long value = EXP_FIXED_OV_MUL(x, y, &ov);
 
         if (ov) return inst;
 
@@ -2265,8 +2265,8 @@ PCodeInst *PCodeCfg::constantFold(PCodeInst *inst, NABoolean rDefsAvailable) {
       if (op1->isConst() && op2->isConst()) {
         Int32 z = 0;
 
-        Int64 x = getIntConstValue(op1);
-        Int64 y = getIntConstValue(op2);
+        long x = getIntConstValue(op1);
+        long y = getIntConstValue(op2);
 
         switch (opc) {
           case PCIT::LE_MBIN32S_MBIN16S_MBIN16S:
@@ -2356,10 +2356,10 @@ PCodeInst *PCodeCfg::constantFold(PCodeInst *inst, NABoolean rDefsAvailable) {
       op2 = inst->getROps()[1];
 
       if (op1->isConst() && op2->isConst()) {
-        Int64 x = getIntConstValue(op1);
-        Int64 y = getIntConstValue(op2);
+        long x = getIntConstValue(op1);
+        long y = getIntConstValue(op2);
 
-        Int64 value = EXP_FIXED_OV_ADD(x, y, &ov);
+        long value = EXP_FIXED_OV_ADD(x, y, &ov);
 
         if (ov) return inst;
 
@@ -2384,10 +2384,10 @@ PCodeInst *PCodeCfg::constantFold(PCodeInst *inst, NABoolean rDefsAvailable) {
       op2 = inst->getROps()[1];
 
       if (op1->isConst() && op2->isConst()) {
-        Int64 x = getIntConstValue(op1);
-        Int64 y = getIntConstValue(op2);
+        long x = getIntConstValue(op1);
+        long y = getIntConstValue(op2);
 
-        Int64 value = EXP_FIXED_OV_SUB(x, y, &ov);
+        long value = EXP_FIXED_OV_SUB(x, y, &ov);
 
         if (ov) return inst;
 
@@ -2492,7 +2492,7 @@ PCodeInst *PCodeCfg::constantFold(PCodeInst *inst, NABoolean rDefsAvailable) {
     case PCIT::RANGE_LOW_S16S64:
     case PCIT::RANGE_HIGH_S16S64:
     case PCIT::RANGE_MFLT64: {
-      Int64 x, y;
+      long x, y;
       NABoolean error = TRUE;  // Assume range instruction is needed
 
       PCodeOperand *op = inst->getROps()[0];
@@ -2502,7 +2502,7 @@ PCodeInst *PCodeCfg::constantFold(PCodeInst *inst, NABoolean rDefsAvailable) {
 
       if (opc != PCIT::RANGE_MFLT64) {
         x = getIntConstValue(op);
-        y = (*(Int64 *)&inst->code[3]);
+        y = (*(long *)&inst->code[3]);
       }
 
       switch (opc) {

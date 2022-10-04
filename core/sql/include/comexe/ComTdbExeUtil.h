@@ -117,11 +117,11 @@ class ComTdbExeUtil : public ComTdbGenericUtil {
 
   ComTdbExeUtil() : ComTdbGenericUtil() {}
 
-  ComTdbExeUtil(Lng32 type, char *query, ULng32 querylen, Int16 querycharset, char *tableName, ULng32 tableNameLen,
+  ComTdbExeUtil(int type, char *query, ULng32 querylen, Int16 querycharset, char *tableName, ULng32 tableNameLen,
                 ex_expr *input_expr, ULng32 input_rowlen, ex_expr *output_expr, ULng32 output_rowlen,
                 ex_expr_base *scan_expr, ex_cri_desc *work_cri_desc, const unsigned short work_atp_index,
                 ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc, queue_index down, queue_index up,
-                Lng32 num_buffers, ULng32 buffer_size);
+                int num_buffers, ULng32 buffer_size);
 
   char *getTableName() { return objectName_; }
   char *getObjectName() { return objectName_; }
@@ -139,7 +139,7 @@ class ComTdbExeUtil : public ComTdbGenericUtil {
   static ComTdbVirtTableKeyInfo *getVirtTableKeyInfo() { return NULL; }
 
   Long pack(void *);
-  Lng32 unpack(void *, void *reallocator);
+  int unpack(void *, void *reallocator);
 
   // ---------------------------------------------------------------------
   // Redefine virtual functions required for Versioning.
@@ -205,7 +205,7 @@ class ComTdbExeUtil : public ComTdbGenericUtil {
     LOB_VERSION2 = 0x0001,
   };
 
-  Lng32 type_;       // 00-03
+  int type_;       // 00-03
   UInt32 flags_;     // 04-07
   ComTdbPtr child_;  // 08-15
 
@@ -279,12 +279,12 @@ class ComTdbExeUtilDisplayExplain : public ComTdbExeUtil {
 
   ComTdbExeUtilDisplayExplain(char *query, ULng32 querylen, Int16 querycharset, char *moduleName, char *stmtName,
                               ex_expr *input_expr, ULng32 input_rowlen, ex_expr *output_expr, ULng32 output_rowlen,
-                              ex_cri_desc *work_cri_desc, const unsigned short work_atp_index, Lng32 colDescSize,
-                              Lng32 outputRowSize, ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc,
-                              queue_index down, queue_index up, Lng32 num_buffers, ULng32 buffer_size);
+                              ex_cri_desc *work_cri_desc, const unsigned short work_atp_index, int colDescSize,
+                              int outputRowSize, ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc,
+                              queue_index down, queue_index up, int num_buffers, ULng32 buffer_size);
 
   Long pack(void *);
-  Lng32 unpack(void *, void *reallocator);
+  int unpack(void *, void *reallocator);
 
   // ---------------------------------------------------------------------
   // Redefine virtual functions required for Versioning.
@@ -308,8 +308,8 @@ class ComTdbExeUtilDisplayExplain : public ComTdbExeUtil {
   char *getModuleName() { return moduleName_; }
   char *getStmtName() { return stmtName_; }
 
-  Lng32 getColDescSize() { return colDescSize_; }
-  Lng32 getOutputRowSize() { return outputRowSize_; }
+  int getColDescSize() { return colDescSize_; }
+  int getOutputRowSize() { return outputRowSize_; }
 
   // ---------------------------------------------------------------------
   // Used by the internal SHOWPLAN command to get attributes of a TDB.
@@ -345,8 +345,8 @@ class ComTdbExeUtilDisplayExplain : public ComTdbExeUtil {
   NABasicPtr moduleName_;  // 08-15
   NABasicPtr stmtName_;    // 16-23
 
-  Lng32 colDescSize_;
-  Lng32 outputRowSize_;
+  int colDescSize_;
+  int outputRowSize_;
 
   char fillersComTdbExeUtilDisplayExplain_[96];  // 32-127
 };
@@ -361,15 +361,15 @@ class ComTdbExeUtilDisplayExplainComplex : public ComTdbExeUtil {
 
   ComTdbExeUtilDisplayExplainComplex() : ComTdbExeUtil() {}
 
-  ComTdbExeUtilDisplayExplainComplex(Lng32 explainType, char *qry1, char *qry2, char *qry3, char *qry4,
-                                     char *objectName, Lng32 objectNameLen, ex_expr *input_expr, ULng32 input_rowlen,
+  ComTdbExeUtilDisplayExplainComplex(int explainType, char *qry1, char *qry2, char *qry3, char *qry4,
+                                     char *objectName, int objectNameLen, ex_expr *input_expr, ULng32 input_rowlen,
                                      ex_expr *output_expr, ULng32 output_rowlen, ex_cri_desc *work_cri_desc,
                                      const unsigned short work_atp_index, ex_cri_desc *given_cri_desc,
                                      ex_cri_desc *returned_cri_desc, queue_index down, queue_index up,
-                                     Lng32 num_buffers, ULng32 buffer_size);
+                                     int num_buffers, ULng32 buffer_size);
 
   Long pack(void *);
-  Lng32 unpack(void *, void *reallocator);
+  int unpack(void *, void *reallocator);
 
   // ---------------------------------------------------------------------
   // Redefine virtual functions required for Versioning.
@@ -405,7 +405,7 @@ class ComTdbExeUtilDisplayExplainComplex : public ComTdbExeUtil {
 
   UInt32 flags_;  // 32-35
 
-  Lng32 explainType_;  // 36-39
+  int explainType_;  // 36-39
 
   char fillersComTdbExeUtilDisplayExplainComplex_[96];  // 40-135
 };
@@ -431,10 +431,10 @@ class ComTdbExeUtilMaintainObject : public ComTdbExeUtil {
                               ULng32 input_rowlen, ex_expr *output_expr, ULng32 output_rowlen,
                               ex_cri_desc *work_cri_desc, const unsigned short work_atp_index,
                               ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc, queue_index down,
-                              queue_index up, Lng32 num_buffers, ULng32 buffer_size);
+                              queue_index up, int num_buffers, ULng32 buffer_size);
 
   Long pack(void *);
-  Lng32 unpack(void *, void *reallocator);
+  int unpack(void *, void *reallocator);
 
   void setParams(NABoolean reorgTable, NABoolean reorgIndex, NABoolean updStatsTable, NABoolean updStatsMvlog,
                  NABoolean updStatsMvs, NABoolean updStatsMvgroup, NABoolean refreshMvgroup, NABoolean refreshMvs,
@@ -585,10 +585,10 @@ class ComTdbExeUtilMaintainObject : public ComTdbExeUtil {
   };
   NABoolean getLabelStatsIncRelated() { return (flags2_ & GET_LABEL_STATS_INC_RELATED) != 0; }
 
-  void setRunFrom(Int64 v) { from_ = v; }
-  void setRunTo(Int64 v) { to_ = v; }
-  Int64 runFrom() { return from_; }
-  Int64 runTo() { return to_; }
+  void setRunFrom(long v) { from_ = v; }
+  void setRunTo(long v) { to_ = v; }
+  long runFrom() { return from_; }
+  long runTo() { return to_; }
 
   void setDisableReorgTable(NABoolean v) {
     (v ? controlFlags_ |= DISABLE_REORG_TABLE : controlFlags_ &= ~DISABLE_REORG_TABLE);
@@ -844,13 +844,13 @@ class ComTdbExeUtilMaintainObject : public ComTdbExeUtil {
   char *getParentTableName() { return parentTableName_; }
   char *getSchemaName() { return schemaName_; }
 
-  void setMaintainedTableCreateTime(Int64 createTime) { maintainedTableCreateTime_ = createTime; }
+  void setMaintainedTableCreateTime(long createTime) { maintainedTableCreateTime_ = createTime; }
 
-  Int64 getMaintainedTableCreateTime() { return maintainedTableCreateTime_; }
+  long getMaintainedTableCreateTime() { return maintainedTableCreateTime_; }
 
-  void setParentTableObjectUID(Int64 objectUID) { parentTableObjectUID_ = objectUID; }
+  void setParentTableObjectUID(long objectUID) { parentTableObjectUID_ = objectUID; }
 
-  Int64 getParentTableObjectUID() { return parentTableObjectUID_; }
+  long getParentTableObjectUID() { return parentTableObjectUID_; }
 
   void setMultiTablesCreateTimeList(Queue *mtctl) { multiTablesCreateTimeList_ = mtctl; }
   Queue *getMultiTablesCreateTimeList() { return multiTablesCreateTimeList_; }
@@ -1016,8 +1016,8 @@ class ComTdbExeUtilMaintainObject : public ComTdbExeUtil {
   UInt16 formatFlags_;  // 124-125
   UInt16 filler2_;      // 126-127
 
-  Int64 maintainedTableCreateTime_;  // 128-135
-  Int64 parentTableObjectUID_;       // 136-143
+  long maintainedTableCreateTime_;  // 128-135
+  long parentTableObjectUID_;       // 136-143
 
   NABasicPtr updStatsMvsOptions_;       // 144-151
   NABasicPtr updStatsMvgroupOptions_;   // 152-159
@@ -1042,8 +1042,8 @@ class ComTdbExeUtilMaintainObject : public ComTdbExeUtil {
 
   // start and end time to run maintain operations.
   // Used with 'RUN' option.
-  Int64 from_;  // 216-223
-  Int64 to_;    // 224-231
+  long from_;  // 216-223
+  long to_;    // 224-231
 
   // names of tables being reorged. Valid when MULTI_REORG is set.
   // Used when multiple tables are being reorged.
@@ -1067,13 +1067,13 @@ class ComTdbExeUtilLoadVolatileTable : public ComTdbExeUtil {
   ComTdbExeUtilLoadVolatileTable() : ComTdbExeUtil() {}
 
   ComTdbExeUtilLoadVolatileTable(char *tableName, ULng32 tableNameLen, char *insertQuery, char *updStatsQuery,
-                                 Int16 querycharset, Int64 threshold, ex_cri_desc *work_cri_desc,
+                                 Int16 querycharset, long threshold, ex_cri_desc *work_cri_desc,
                                  const unsigned short work_atp_index, ex_cri_desc *given_cri_desc,
-                                 ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, Lng32 num_buffers,
+                                 ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, int num_buffers,
                                  ULng32 buffer_size);
 
   Long pack(void *);
-  Lng32 unpack(void *, void *reallocator);
+  int unpack(void *, void *reallocator);
 
   // ---------------------------------------------------------------------
   // Redefine virtual functions required for Versioning.
@@ -1092,7 +1092,7 @@ class ComTdbExeUtilLoadVolatileTable : public ComTdbExeUtil {
   NABasicPtr updStatsQuery_;  // 08-15
 
   // automatic update stats is done if num rows inserted exceeds threshold.
-  Int64 threshold_;  // 16-23
+  long threshold_;  // 16-23
   UInt32 flags_;     // 24-27
 
   char fillersComTdbExeUtilLoadVolatileTable_[116];  // 28-147
@@ -1108,7 +1108,7 @@ class ComTdbExeUtilCleanupVolatileTables : public ComTdbExeUtil {
   ComTdbExeUtilCleanupVolatileTables(char *catName, ULng32 catNameLen, ex_cri_desc *work_cri_desc,
                                      const unsigned short work_atp_index, ex_cri_desc *given_cri_desc,
                                      ex_cri_desc *returned_cri_desc, queue_index down, queue_index up,
-                                     Lng32 num_buffers, ULng32 buffer_size);
+                                     int num_buffers, ULng32 buffer_size);
 
   // ---------------------------------------------------------------------
   // Redefine virtual functions required for Versioning.
@@ -1151,11 +1151,11 @@ class ComTdbExeUtilGetVolatileInfo : public ComTdbExeUtil {
 
   ComTdbExeUtilGetVolatileInfo(char *param1, char *param2, ex_cri_desc *work_cri_desc,
                                const unsigned short work_atp_index, ex_cri_desc *given_cri_desc,
-                               ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, Lng32 num_buffers,
+                               ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, int num_buffers,
                                ULng32 buffer_size);
 
   Long pack(void *);
-  Lng32 unpack(void *, void *reallocator);
+  int unpack(void *, void *reallocator);
 
   // ---------------------------------------------------------------------
   // Redefine virtual functions required for Versioning.
@@ -1206,9 +1206,9 @@ class ComTdbExeUtilGetErrorInfo : public ComTdbExeUtil {
  public:
   ComTdbExeUtilGetErrorInfo() : ComTdbExeUtil() {}
 
-  ComTdbExeUtilGetErrorInfo(Lng32 errType, Lng32 errNum, ex_cri_desc *work_cri_desc,
+  ComTdbExeUtilGetErrorInfo(int errType, int errNum, ex_cri_desc *work_cri_desc,
                             const unsigned short work_atp_index, ex_cri_desc *given_cri_desc,
-                            ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, Lng32 num_buffers,
+                            ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, int num_buffers,
                             ULng32 buffer_size);
 
   // ---------------------------------------------------------------------
@@ -1224,8 +1224,8 @@ class ComTdbExeUtilGetErrorInfo : public ComTdbExeUtil {
   void displayContents(Space *space, ULng32 flag);
 
  private:
-  Lng32 errorType_;
-  Lng32 errNum_;  // 00-03
+  int errorType_;
+  int errNum_;  // 00-03
   UInt32 flags_;  // 04-07
 
   char fillersComTdbExeUtilGetErrorInfo_[80];  // 08-87
@@ -1239,13 +1239,13 @@ class ComTdbExeUtilCreateTableAs : public ComTdbExeUtil {
   ComTdbExeUtilCreateTableAs() : ComTdbExeUtil() {}
 
   ComTdbExeUtilCreateTableAs(char *tableName, ULng32 tableNameLen, char *createStmtStr, char *siStmtStr,
-                             char *viStmtStr, char *usStmtStr, Int64 threshold, ex_cri_desc *work_cri_desc,
+                             char *viStmtStr, char *usStmtStr, long threshold, ex_cri_desc *work_cri_desc,
                              const unsigned short work_atp_index, ex_cri_desc *given_cri_desc,
-                             ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, Lng32 num_buffers,
+                             ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, int num_buffers,
                              ULng32 buffer_size);
 
   Long pack(void *);
-  Lng32 unpack(void *, void *reallocator);
+  int unpack(void *, void *reallocator);
 
   // ---------------------------------------------------------------------
   // Redefine virtual functions required for Versioning.
@@ -1287,7 +1287,7 @@ class ComTdbExeUtilCreateTableAs : public ComTdbExeUtil {
   NABasicPtr usQuery_;  // 24-31
 
   // automatic update stats is done if num rows inserted exceeds threshold.
-  Int64 threshold_;  // 32-39
+  long threshold_;  // 32-39
 
   UInt32 flags_;  // 40-43
 
@@ -1299,7 +1299,7 @@ class ComTdbExeUtilGetObjectEpochStats : public ComTdbExeUtil {
   ComTdbExeUtilGetObjectEpochStats() : ComTdbExeUtil(), cpu_(-1) {}
   ComTdbExeUtilGetObjectEpochStats(char *objectName, ULng32 objectNameLen, short cpu, bool locked,
                                    ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc, queue_index down,
-                                   queue_index up, Lng32 num_buffers, ULng32 buffer_size)
+                                   queue_index up, int num_buffers, ULng32 buffer_size)
       : ComTdbExeUtil(ComTdbExeUtil::GET_OBJECT_EPOCH_STATS_, NULL, 0, 0, objectName, objectNameLen, NULL, 0, NULL, 0,
                       NULL, 0, 0,  // no work cri desc
                       given_cri_desc, returned_cri_desc, down, up, num_buffers, buffer_size),
@@ -1314,7 +1314,7 @@ class ComTdbExeUtilGetObjectEpochStats : public ComTdbExeUtil {
   bool getLocked() const { return locked_; }
 
   Long pack(void *);
-  Lng32 unpack(void *, void *reallocator);
+  int unpack(void *, void *reallocator);
 
   virtual short getClassSize() { return (short)sizeof(ComTdbExeUtilGetObjectEpochStats); }
   virtual const char *getNodeName() const { return "GET_OBJECT_EPOCH_STATS"; }
@@ -1329,7 +1329,7 @@ class ComTdbExeUtilGetObjectLockStats : public ComTdbExeUtil {
   ComTdbExeUtilGetObjectLockStats() : ComTdbExeUtil(), cpu_(-1) {}
   ComTdbExeUtilGetObjectLockStats(char *objectName, ULng32 objectNameLen, short cpu, bool entry,
                                   ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc, queue_index down,
-                                  queue_index up, Lng32 num_buffers, ULng32 buffer_size)
+                                  queue_index up, int num_buffers, ULng32 buffer_size)
       : ComTdbExeUtil(ComTdbExeUtil::GET_OBJECT_LOCK_STATS_, NULL, 0, 0, objectName, objectNameLen, NULL, 0, NULL, 0,
                       NULL, 0, 0,  // no work cri desc
                       given_cri_desc, returned_cri_desc, down, up, num_buffers, buffer_size),
@@ -1343,7 +1343,7 @@ class ComTdbExeUtilGetObjectLockStats : public ComTdbExeUtil {
   bool isEntry() const { return entry_; }
 
   Long pack(void *);
-  Lng32 unpack(void *, void *reallocator);
+  int unpack(void *, void *reallocator);
 
   virtual short getClassSize() { return (short)sizeof(ComTdbExeUtilGetObjectLockStats); }
   virtual const char *getNodeName() const { return "GET_OBJECT_LOCK_STATS"; }
@@ -1365,11 +1365,11 @@ class ComTdbExeUtilGetStatistics : public ComTdbExeUtil {
   ComTdbExeUtilGetStatistics(char *stmtName, short statsReqType, short statsMergeType, short activeQueryNum,
                              ex_cri_desc *work_cri_desc, const unsigned short work_atp_index,
                              ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc, queue_index down,
-                             queue_index up, Lng32 num_buffers, ULng32 buffer_size, char *host = NULL, Int32 port = 0,
+                             queue_index up, int num_buffers, ULng32 buffer_size, char *host = NULL, Int32 port = 0,
                              char *path = NULL, UInt64 queryHash = 0L);
 
   Long pack(void *);
-  Lng32 unpack(void *, void *reallocator);
+  int unpack(void *, void *reallocator);
 
   // ---------------------------------------------------------------------
   // Redefine virtual functions required for Versioning.
@@ -1460,7 +1460,7 @@ class ComTdbExeUtilGetProcessStatistics : public ComTdbExeUtilGetStatistics {
   ComTdbExeUtilGetProcessStatistics(char *pid, short statsReqType, short statsMergeType, short activeQueryNum,
                                     ex_cri_desc *work_cri_desc, const unsigned short work_atp_index,
                                     ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc, queue_index down,
-                                    queue_index up, Lng32 num_buffers, ULng32 buffer_size)
+                                    queue_index up, int num_buffers, ULng32 buffer_size)
       : ComTdbExeUtilGetStatistics(pid, statsReqType, statsMergeType, activeQueryNum,
                                    // SQLCLI_STATS_REQ_QID, SQLCLI_DEFAULT_STATS, -1,
                                    work_cri_desc, work_atp_index, given_cri_desc, returned_cri_desc, down, up,
@@ -1514,12 +1514,12 @@ class ComTdbExeUtilGetUID : public ComTdbExeUtil {
  public:
   ComTdbExeUtilGetUID() : ComTdbExeUtil() {}
 
-  ComTdbExeUtilGetUID(Int64 uid, ex_cri_desc *work_cri_desc, const unsigned short work_atp_index,
+  ComTdbExeUtilGetUID(long uid, ex_cri_desc *work_cri_desc, const unsigned short work_atp_index,
                       ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc, queue_index down, queue_index up,
-                      Lng32 num_buffers, ULng32 buffer_size);
+                      int num_buffers, ULng32 buffer_size);
 
   Long pack(void *);
-  Lng32 unpack(void *, void *reallocator);
+  int unpack(void *, void *reallocator);
 
   // ---------------------------------------------------------------------
   // Redefine virtual functions required for Versioning.
@@ -1540,7 +1540,7 @@ class ComTdbExeUtilGetUID : public ComTdbExeUtil {
 
   static ComTdbVirtTableKeyInfo *getVirtTableKeyInfo() { return NULL; }
 
-  Int64 getUID() { return uid_; }
+  long getUID() { return uid_; }
 
   // ---------------------------------------------------------------------
   // Used by the internal SHOWPLAN command to get attributes of a TDB.
@@ -1548,7 +1548,7 @@ class ComTdbExeUtilGetUID : public ComTdbExeUtil {
   void displayContents(Space *space, ULng32 flag);
 
  private:
-  Int64 uid_;  // 00-07
+  long uid_;  // 00-07
 
   UInt32 flags_;  // 08-15
 
@@ -1586,10 +1586,10 @@ class ComTdbExeUtilGetQID : public ComTdbExeUtil {
 
   ComTdbExeUtilGetQID(char *stmtName, ex_cri_desc *work_cri_desc, const unsigned short work_atp_index,
                       ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc, queue_index down, queue_index up,
-                      Lng32 num_buffers, ULng32 buffer_size);
+                      int num_buffers, ULng32 buffer_size);
 
   Long pack(void *);
-  Lng32 unpack(void *, void *reallocator);
+  int unpack(void *, void *reallocator);
 
   // ---------------------------------------------------------------------
   // Redefine virtual functions required for Versioning.
@@ -1632,15 +1632,15 @@ class ComTdbExeUtilPopulateInMemStats : public ComTdbExeUtil {
  public:
   ComTdbExeUtilPopulateInMemStats() : ComTdbExeUtil() {}
 
-  ComTdbExeUtilPopulateInMemStats(Int64 uid, char *inMemHistogramsTableName, char *inMemHistintsTableName,
+  ComTdbExeUtilPopulateInMemStats(long uid, char *inMemHistogramsTableName, char *inMemHistintsTableName,
                                   char *sourceTableCatName, char *sourceTableSchName, char *sourceTableObjName,
                                   char *sourceHistogramsTableName, char *sourceHistintsTableName,
                                   ex_cri_desc *work_cri_desc, const unsigned short work_atp_index,
                                   ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc, queue_index down,
-                                  queue_index up, Lng32 num_buffers, ULng32 buffer_size);
+                                  queue_index up, int num_buffers, ULng32 buffer_size);
 
   Long pack(void *);
-  Lng32 unpack(void *, void *reallocator);
+  int unpack(void *, void *reallocator);
 
   // ---------------------------------------------------------------------
   // Redefine virtual functions required for Versioning.
@@ -1669,7 +1669,7 @@ class ComTdbExeUtilPopulateInMemStats : public ComTdbExeUtil {
   inline const char *getSourceHistintsTableName() const { return sourceHistintsTableName_.getPointer(); };
 
  private:
-  Int64 uid_;                             // 00-07
+  long uid_;                             // 00-07
   NABasicPtr inMemHistogramsTableName_;   // 08-15
   NABasicPtr inMemHistintsTableName_;     // 16-23
   NABasicPtr sourceTableCatName_;         // 24-31
@@ -1691,12 +1691,12 @@ class ComTdbExeUtilAqrWnrInsert : public ComTdbExeUtil {
 
   ComTdbExeUtilAqrWnrInsert(char *tableName, ULng32 tableNameLen, ex_cri_desc *work_cri_desc,
                             const unsigned short work_atp_index, ex_cri_desc *given_cri_desc,
-                            ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, Lng32 num_buffers,
+                            ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, int num_buffers,
                             ULng32 buffer_size);
 #if 0
   no need to pack/unpack until this subclass has some ptr type members.
   Long pack (void *);
-  Lng32 unpack(void *, void * reallocator);
+  int unpack(void *, void * reallocator);
 #endif
 
   void lockTarget(bool lt) { lt ? aqrWnrInsflags_ |= LOCK_TARGET : aqrWnrInsflags_ &= ~LOCK_TARGET; }
@@ -1727,11 +1727,11 @@ class ComTdbExeUtilLongRunning : public ComTdbExeUtil {
 
   ComTdbExeUtilLongRunning(char *tableName, ULng32 tableNameLen, ex_cri_desc *work_cri_desc,
                            const unsigned short work_atp_index, ex_cri_desc *given_cri_desc,
-                           ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, Lng32 num_buffers,
+                           ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, int num_buffers,
                            ULng32 buffer_size);
 
   Long pack(void *);
-  Lng32 unpack(void *, void *reallocator);
+  int unpack(void *, void *reallocator);
 
   // ---------------------------------------------------------------------
   // Redefine virtual functions required for Versioning.
@@ -1763,19 +1763,19 @@ class ComTdbExeUtilLongRunning : public ComTdbExeUtil {
   char *getLruStmt() { return lruStmt_; };
   void setLruStmt(char *stmt) { lruStmt_ = stmt; };
 
-  Int64 getLruStmtLen() { return lruStmtLen_; };
-  void setLruStmtLen(Int64 len) { lruStmtLen_ = len; };
+  long getLruStmtLen() { return lruStmtLen_; };
+  void setLruStmtLen(long len) { lruStmtLen_ = len; };
 
   char *getLruStmtWithCK() { return lruStmtWithCK_; };
   void setLruStmtWithCK(char *stmt) { lruStmtWithCK_ = stmt; };
 
-  Int64 getLruStmtWithCKLen() { return lruStmtWithCKLen_; };
-  void setLruStmtWithCKLen(Int64 len) { lruStmtWithCKLen_ = len; };
+  long getLruStmtWithCKLen() { return lruStmtWithCKLen_; };
+  void setLruStmtWithCKLen(long len) { lruStmtWithCKLen_ = len; };
 
   char *getPredicate() { return predicate_; };
   void setPredicate(Space *space, char *predicate);
 
-  Int64 getPredicateLen() { return predicateLen_; };
+  long getPredicateLen() { return predicateLen_; };
 
   ULng32 getMultiCommitSize() { return multiCommitSize_; }
   void setMultiCommitSize(ULng32 multiCommitSize) { multiCommitSize_ = multiCommitSize; };
@@ -1804,17 +1804,17 @@ class ComTdbExeUtilLongRunning : public ComTdbExeUtil {
   NABasicPtr lruStmt_;  // 08-15
 
   // Statement1 length
-  Int64 lruStmtLen_;  // 16-23
+  long lruStmtLen_;  // 16-23
 
   // Statement with CK string
   NABasicPtr lruStmtWithCK_;  // 24-31
 
   // Statement with CK  length
-  Int64 lruStmtWithCKLen_;  // 32-39
+  long lruStmtWithCKLen_;  // 32-39
 
   NABasicPtr predicate_;  // 40-47
 
-  Int64 predicateLen_;  // 48-55
+  long predicateLen_;  // 48-55
 
   // defaultSchema_ in master executor
   NABasicPtr defaultSchemaName_;   // 56-63
@@ -1834,10 +1834,10 @@ class ComTdbExeUtilShowSet : public ComTdbExeUtil {
 
   ComTdbExeUtilShowSet(UInt16 type, char *param1, char *param2, ex_cri_desc *work_cri_desc,
                        const unsigned short work_atp_index, ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc,
-                       queue_index down, queue_index up, Lng32 num_buffers, ULng32 buffer_size);
+                       queue_index down, queue_index up, int num_buffers, ULng32 buffer_size);
 
   Long pack(void *);
-  Lng32 unpack(void *, void *reallocator);
+  int unpack(void *, void *reallocator);
 
   // ---------------------------------------------------------------------
   // Redefine virtual functions required for Versioning.
@@ -1872,13 +1872,13 @@ class ComTdbExeUtilAQR : public ComTdbExeUtil {
 
   ComTdbExeUtilAQR() : ComTdbExeUtil() {}
 
-  ComTdbExeUtilAQR(Lng32 task, ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc, queue_index down,
-                   queue_index up, Lng32 num_buffers, ULng32 buffer_size);
+  ComTdbExeUtilAQR(int task, ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc, queue_index down,
+                   queue_index up, int num_buffers, ULng32 buffer_size);
 
   Long pack(void *);
-  Lng32 unpack(void *, void *reallocator);
+  int unpack(void *, void *reallocator);
 
-  void setParams(Lng32 sqlcode, Lng32 nskcode, Lng32 retries, Lng32 delay, Lng32 type) {
+  void setParams(int sqlcode, int nskcode, int retries, int delay, int type) {
     sqlcode_ = sqlcode;
     nskcode_ = nskcode;
     retries_ = retries;
@@ -1893,7 +1893,7 @@ class ComTdbExeUtilAQR : public ComTdbExeUtil {
 
   virtual const char *getNodeName() const { return "AQR"; };
 
-  Lng32 getTask() { return task_; }
+  int getTask() { return task_; }
 
   // ---------------------------------------------------------------------
   // Used by the internal SHOWPLAN command to get attributes of a TDB.
@@ -1901,12 +1901,12 @@ class ComTdbExeUtilAQR : public ComTdbExeUtil {
   void displayContents(Space *space, ULng32 flag);
 
  private:
-  Lng32 task_;
-  Lng32 sqlcode_;
-  Lng32 nskcode_;
-  Lng32 retries_;
-  Lng32 delay_;
-  Lng32 type_;
+  int task_;
+  int sqlcode_;
+  int nskcode_;
+  int retries_;
+  int delay_;
+  int type_;
   UInt32 flags_;
 
   char fillersComTdbExeUtilAQR_[76];  // 24-103
@@ -2075,10 +2075,10 @@ class ComTdbExeUtilGetMetadataInfo : public ComTdbExeUtil {
   ComTdbExeUtilGetMetadataInfo(QueryType queryType, char *cat, char *sch, char *obj, char *pattern, char *param1,
                                ex_expr_base *scan_expr, ex_cri_desc *work_cri_desc, const unsigned short work_atp_index,
                                ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc, queue_index down,
-                               queue_index up, Lng32 num_buffers, ULng32 buffer_size, char *server, char *zkPort);
+                               queue_index up, int num_buffers, ULng32 buffer_size, char *server, char *zkPort);
 
   Long pack(void *);
-  Lng32 unpack(void *, void *reallocator);
+  int unpack(void *, void *reallocator);
 
   const char *server() const { return server_; }
   const char *zkPort() const { return zkPort_; }
@@ -2206,11 +2206,11 @@ class ComTdbExeUtilHBaseBulkLoad : public ComTdbExeUtil {
   ComTdbExeUtilHBaseBulkLoad(char *tableName, ULng32 tableNameLen, char *ldStmtStr, ex_expr_base *input_expr,
                              ULng32 input_rowlen, ex_cri_desc *work_cri_desc, const unsigned short work_atp_index,
                              ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc, queue_index down,
-                             queue_index up, Lng32 num_buffers, ULng32 buffer_size, char *errCountTab,
+                             queue_index up, int num_buffers, ULng32 buffer_size, char *errCountTab,
                              char *logLocation);
 
   Long pack(void *);
-  Lng32 unpack(void *, void *reallocator);
+  int unpack(void *, void *reallocator);
 
   // ---------------------------------------------------------------------
   // Redefine virtual functions required for Versioning.
@@ -2585,15 +2585,15 @@ struct ComTdbRegionStatsVirtTableColumnStruct {
   char schemaName[STATS_NAME_MAX_LEN];
   char objectName[STATS_NAME_MAX_LEN];
   char regionServer[STATS_NAME_MAX_LEN];
-  Int64 regionNum;
+  long regionNum;
   char regionName[STATS_REGION_NAME_MAX_LEN];
-  Lng32 numStores;
-  Lng32 numStoreFiles;
-  Int64 storeFileUncompSize;
-  Int64 storeFileSize;
-  Int64 memStoreSize;
-  Int64 readRequestsCount;
-  Int64 writeRequestsCount;
+  int numStores;
+  int numStoreFiles;
+  long storeFileUncompSize;
+  long storeFileSize;
+  long memStoreSize;
+  long readRequestsCount;
+  long writeRequestsCount;
 };
 
 static const ComTdbVirtTableColumnInfo comTdbClusterStatsVirtTableColumnInfo[] = {{"REGION_SERVER",
@@ -2860,17 +2860,17 @@ static const ComTdbVirtTableColumnInfo comTdbClusterStatsVirtTableColumnInfo[] =
 struct ComTdbClusterStatsVirtTableColumnStruct {
   char regionServer[STATS_NAME_MAX_LEN];
   char regionName[STATS_REGION_NAME_MAX_LEN];
-  Int64 regionNum;
+  long regionNum;
   char catalogName[STATS_NAME_MAX_LEN];
   char schemaName[STATS_NAME_MAX_LEN];
   char objectName[STATS_NAME_MAX_LEN];
-  Lng32 numStores;
-  Lng32 numStoreFiles;
-  Int64 storeFileUncompSize;
-  Int64 storeFileSize;
-  Int64 memStoreSize;
-  Int64 readRequestsCount;
-  Int64 writeRequestsCount;
+  int numStores;
+  int numStoreFiles;
+  long storeFileUncompSize;
+  long storeFileSize;
+  long memStoreSize;
+  long readRequestsCount;
+  long writeRequestsCount;
 };
 
 class ComTdbExeUtilRegionStats : public ComTdbExeUtil {
@@ -2883,7 +2883,7 @@ class ComTdbExeUtilRegionStats : public ComTdbExeUtil {
   ComTdbExeUtilRegionStats(char *tableName, char *catName, char *schName, char *objName, ex_expr_base *input_expr,
                            ULng32 input_rowlen, ex_expr_base *scan_expr, ex_cri_desc *work_cri_desc,
                            const unsigned short work_atp_index, ex_cri_desc *given_cri_desc,
-                           ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, Lng32 num_buffers,
+                           ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, int num_buffers,
                            ULng32 buffer_size);
 
   void setIsIndex(NABoolean v) { (v ? flags_ |= IS_INDEX : flags_ &= ~IS_INDEX); };
@@ -2900,7 +2900,7 @@ class ComTdbExeUtilRegionStats : public ComTdbExeUtil {
   const NABoolean clusterView() const { return (flags_ & CLUSTER_VIEW) != 0; };
 
   Long pack(void *);
-  Lng32 unpack(void *, void *reallocator);
+  int unpack(void *, void *reallocator);
 
   char *getCatName() const { return catName_; }
   char *getSchName() const { return schName_; }
@@ -3210,13 +3210,13 @@ struct ComTdbParquetStatsVirtTableColumnStruct {
   char rootDir[STATS_REGION_NAME_MAX_LEN];
   char filePath[STATS_REGION_NAME_MAX_LEN];
   char fileName[STATS_NAME_MAX_LEN];
-  Int64 fileNum;
+  long fileNum;
   char blockName[STATS_NAME_MAX_LEN];
-  Int64 blockNum;
-  Int64 compressedSize;
-  Int64 totalSize;
-  Int64 rowCount;
-  Int64 startingPos;
+  long blockNum;
+  long compressedSize;
+  long totalSize;
+  long rowCount;
+  long startingPos;
 };
 
 ///////////////////////////////////////////
@@ -3470,13 +3470,13 @@ struct ComTdbAvroStatsVirtTableColumnStruct {
   char schemaName[STATS_NAME_MAX_LEN];
   char objectName[STATS_NAME_MAX_LEN];
   char rootDir[STATS_REGION_NAME_MAX_LEN];
-  Int64 fileNum;
+  long fileNum;
   char filePath[STATS_REGION_NAME_MAX_LEN];
   char fileName[STATS_NAME_MAX_LEN];
-  Int64 fileSize;
-  Int64 fileMaxSize;
-  Int64 numBlocks;
-  Int64 rowCount;
+  long fileSize;
+  long fileMaxSize;
+  long numBlocks;
+  long rowCount;
   char modTime[24];
 };
 
@@ -3652,8 +3652,8 @@ struct ComTdbLobInfoVirtTableColumnStruct {
   char columnName[LOBINFO_MAX_FILE_LEN];
   char lobLocation[LOBINFO_MAX_FILE_LEN];
   char lobDataFile[LOBINFO_MAX_FILE_LEN];
-  Int64 lobDataFileSizeEod;
-  Int64 lobDataFileSizeUsed;
+  long lobDataFileSizeEod;
+  long lobDataFileSizeUsed;
 };
 
 class ComTdbExeUtilConnectby : public ComTdbExeUtil {
@@ -3663,9 +3663,9 @@ class ComTdbExeUtilConnectby : public ComTdbExeUtil {
   ComTdbExeUtilConnectby(char *query, ULng32 querylen, Int16 querycharset, char *tableName, Int16 tblNameLen,
                          char *stmtName, ex_expr *input_expr, ULng32 input_rowlen, ex_expr *output_expr,
                          ULng32 output_rowlen, ex_expr *scan_expr, ex_cri_desc *work_cri_desc,
-                         const unsigned short work_atp_index, Lng32 colDescSize, Lng32 outputRowSize,
+                         const unsigned short work_atp_index, int colDescSize, int outputRowSize,
                          ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc, queue_index down, queue_index up,
-                         Lng32 num_buffers, ULng32 buffer_size, ExCriDescPtr workCriDesc, ex_expr *startwith_expr);
+                         int num_buffers, ULng32 buffer_size, ExCriDescPtr workCriDesc, ex_expr *startwith_expr);
 
   ComTdbExeUtilConnectby() : ComTdbExeUtil() {
     hasStartWith_ = TRUE;
@@ -3676,7 +3676,7 @@ class ComTdbExeUtilConnectby : public ComTdbExeUtil {
   }
 
   Long pack(void *);
-  Lng32 unpack(void *, void *reallocator);
+  int unpack(void *, void *reallocator);
 
   virtual short getClassSize() { return (short)sizeof(ComTdbExeUtilConnectby); }
   virtual const char *getNodeName() const { return "CONNECT_BY"; };
@@ -3735,7 +3735,7 @@ class ComTdbExeUtilCompositeUnnest : public ComTdbExeUtil {
                                ex_expr *returnColsExpr, UInt16 returnColsAtpIndex, UInt32 returnColsRowLen,
                                ex_cri_desc *work_cri_desc, const unsigned short work_atp_index,
                                ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc, queue_index down,
-                               queue_index up, Lng32 num_buffers, ULng32 buffer_size);
+                               queue_index up, int num_buffers, ULng32 buffer_size);
 
   // ---------------------------------------------------------------------
   // Redefine virtual functions required for Versioning.
@@ -3745,7 +3745,7 @@ class ComTdbExeUtilCompositeUnnest : public ComTdbExeUtil {
   virtual const char *getNodeName() const { return "COMPOSITE_UNNEST"; };
 
   Long pack(void *);
-  Lng32 unpack(void *, void *reallocator);
+  int unpack(void *, void *reallocator);
 
   ex_expr *getExtractColExpr() { return extractColExpr_; }
   ex_expr *getReturnColsExpr() { return returnColsExpr_; }
@@ -3779,11 +3779,11 @@ class ComTdbExeUtilUpdataDelete : public ComTdbExeUtil {
 
   ComTdbExeUtilUpdataDelete(char *tableName, ULng32 tableNameLen, char *ldStmtStr, ex_cri_desc *work_cri_desc,
                             const unsigned short work_atp_index, ex_cri_desc *given_cri_desc,
-                            ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, Lng32 num_buffers,
+                            ex_cri_desc *returned_cri_desc, queue_index down, queue_index up, int num_buffers,
                             ULng32 buffer_size, ComStorageType storageType, char *server, char *zkPort);
 
   Long pack(void *);
-  Lng32 unpack(void *, void *reallocator);
+  int unpack(void *, void *reallocator);
 
   // ---------------------------------------------------------------------
   // Redefine virtual functions required for Versioning.
@@ -3803,14 +3803,14 @@ class ComTdbExeUtilUpdataDelete : public ComTdbExeUtil {
   NABoolean incrBackupEnabled() { return incrBackupEnabled_; }
   void setIncrBackupEnabled(NABoolean v) { incrBackupEnabled_ = v; }
 
-  Int64 objectUid() { return objUID_; }
-  void setObjectUid(Int64 v) { objUID_ = v; }
+  long objectUid() { return objUID_; }
+  void setObjectUid(long v) { objUID_ = v; }
 
  private:
   NABasicPtr query_;  // 00-07
   QueuePtr listOfIndexesAndTable_;
   NABoolean incrBackupEnabled_;
-  Int64 objUID_;
+  long objUID_;
   ComStorageType storageType_;
   NABasicPtr server_;
   NABasicPtr zkPort_;

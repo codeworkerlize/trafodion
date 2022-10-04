@@ -154,7 +154,7 @@ GLOB_ ParNameLocList *ParNameCTLocListPtr INIT_(NULL);
 GLOB_ ParNameLocList *ParNameDivByLocListPtr INIT_(NULL);
 GLOB_ Int32 ParScannedTokenPos INIT_(0);
 GLOB_ Int32 ParScannedTokenOffset INIT_(0);
-GLOB_ Lng32 ParScannedInputCharset INIT_(CharInfo::UTF8);
+GLOB_ int ParScannedInputCharset INIT_(CharInfo::UTF8);
 GLOB_ ParScannedTokenQueue *ParScannedTokens INIT_(NULL);
 
 GLOB_ Int32 WeAreInACreateMVStatement INIT_(FALSE);

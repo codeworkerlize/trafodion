@@ -219,7 +219,7 @@ void CmpSeabaseDDL::unlockAll() {
 short CmpSeabaseDDL::backupInit(const char *oper, NABoolean lock) {
   short error = 0;
   short rc = 0;
-  Lng32 retcode = 0;
+  int retcode = 0;
 
   if (isSQLLocked()) {
     *CmpCommon::diags() << DgSqlCode(-5050) << DgString0(oper)
@@ -291,7 +291,7 @@ static short genBackupSchemaName(const char *backupTag, NAString &backupSch) {
 short CmpSeabaseDDL::genLobChunksTableName(ExeCliInterface *cliInterface, const char *catName, const char *schName,
                                            const char *objName, const char *chunksSchName,
                                            NAString &fullyQualChunksName, NAString *chunksObjName) {
-  Int64 objUID = getObjectUID(cliInterface, (catName ? catName : TRAFODION_SYSCAT_LIT), schName, objName,
+  long objUID = getObjectUID(cliInterface, (catName ? catName : TRAFODION_SYSCAT_LIT), schName, objName,
                               COM_BASE_TABLE_OBJECT_LIT, NULL, NULL, NULL, FALSE, TRUE);
   if (objUID < 0) return -1;  // does not exist
 
@@ -397,7 +397,7 @@ static bool hasAccess(const char *owner, bool checkForShow) {
 //
 //////////////////////////////////////////////////////////////////////
 short CmpSeabaseDDL::createProgressTable(ExeCliInterface *cliInterface) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
 
   // create table, if doesnt exist, where progress status will be updated
   char psQuery[2000];
@@ -425,7 +425,7 @@ short CmpSeabaseDDL::createProgressTable(ExeCliInterface *cliInterface) {
 }
 
 short CmpSeabaseDDL::dropProgressTable(ExeCliInterface *cliInterface) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
 
   char psQuery[2000];
   str_sprintf(psQuery, "drop table if exists %s.\"%s\".\"%s\" ", TRAFODION_SYSCAT_LIT, SEABASE_REPOS_SCHEMA,
@@ -444,7 +444,7 @@ short CmpSeabaseDDL::dropProgressTable(ExeCliInterface *cliInterface) {
 }
 
 short CmpSeabaseDDL::truncateProgressTable(ExeCliInterface *cliInterface) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
 
   char psQuery[2000];
   str_sprintf(psQuery, "truncate table %s.\"%s\".\"%s\" ", TRAFODION_SYSCAT_LIT, SEABASE_REPOS_SCHEMA,
@@ -523,7 +523,7 @@ Int32 CmpSeabaseDDL::getBREIOperCount(ExeCliInterface *cliInterface, const char 
   }
 
   char *ptr = NULL;
-  Lng32 len = 0;
+  int len = 0;
   cliInterface->getPtrAndLen(1, ptr, len);
   Int32 oper_cnt = *(Int32 *)ptr;
   return oper_cnt;
@@ -698,7 +698,7 @@ short CmpSeabaseDDL::getProgressStatus(RelBackupRestore *brExpr, ExeCliInterface
     cntStr = "";
   } else {
     char *result = NULL;
-    Lng32 result_len = 0;
+    int result_len = 0;
     cliInterface->getPtrAndLen(1, result, result_len);
     tagStr = NAString(" and tag = '") + tagStr.append(result, result_len) + NAString("'");
 
@@ -749,7 +749,7 @@ short CmpSeabaseDDL::getProgressStatus(RelBackupRestore *brExpr, ExeCliInterface
   OutputInfo *vi = NULL;
   NAString tag;
   char *ptr = NULL;
-  Lng32 len = 0;
+  int len = 0;
   if (psQueue->numEntries() > 0) {
     psQueue->position();
     vi = (OutputInfo *)psQueue->getCurr();
@@ -782,11 +782,11 @@ short CmpSeabaseDDL::getProgressStatus(RelBackupRestore *brExpr, ExeCliInterface
   psQueue->position();
   NAString startTime;
   NAString endTime;
-  Int64 startTimeJTS = 0;
-  Int64 endTimeJTS = 0;
-  Int64 et = 0;
+  long startTimeJTS = 0;
+  long endTimeJTS = 0;
+  long et = 0;
   Int32 hh, mm, ss;
-  for (Lng32 idx = 0; idx < psQueue->numEntries(); idx++) {
+  for (int idx = 0; idx < psQueue->numEntries(); idx++) {
     vi = (OutputInfo *)psQueue->getCurr();
 
     vi->get(0, ptr, len);
@@ -796,7 +796,7 @@ short CmpSeabaseDDL::getProgressStatus(RelBackupRestore *brExpr, ExeCliInterface
     vi->get(1, ptr, len);
     NAString state(ptr, len);
 
-    et = *(Int64 *)vi->get(3) / 1000000;
+    et = *(long *)vi->get(3) / 1000000;
     ss = et % 60;
     et = et / 60;
     mm = et % 60;
@@ -813,11 +813,11 @@ short CmpSeabaseDDL::getProgressStatus(RelBackupRestore *brExpr, ExeCliInterface
     if (idx == 0) {
       vi->get(7, ptr, len);
       startTime = NAString(ptr, len);
-      startTimeJTS = *(Int64 *)vi->get(9);
+      startTimeJTS = *(long *)vi->get(9);
     } else if ((idx == psQueue->numEntries() - 1) && (step == "Finalize") && (state == "Completed")) {
       vi->get(8, ptr, len);
       endTime = NAString(ptr, len);
-      endTimeJTS = *(Int64 *)vi->get(10);
+      endTimeJTS = *(long *)vi->get(10);
     }
 
     char progressBuf[200];
@@ -878,7 +878,7 @@ short CmpSeabaseDDL::getProgressStatus(RelBackupRestore *brExpr, ExeCliInterface
 }
 
 short CmpSeabaseDDL::truncateBackupMD(NAString &backupSch, ExeCliInterface *cliInterface) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
   char query[2000];
 
   ExpHbaseInterface *ehi = allocEHI(COM_STORAGE_HBASE);
@@ -896,7 +896,7 @@ short CmpSeabaseDDL::truncateBackupMD(NAString &backupSch, ExeCliInterface *cliI
     return 0;
   }
 
-  for (Lng32 i = 0; i < sizeof(backupMDs) / sizeof(BackupMDsInfo); i++) {
+  for (int i = 0; i < sizeof(backupMDs) / sizeof(BackupMDsInfo); i++) {
     NAString lobChunksFullyQualObjName;
     NAString lobChunksObjName;
 
@@ -971,7 +971,7 @@ static short extractFromOperTag(char *operTag, NAString &oper, NAString &tag) {
 //        -1, if error.
 short CmpSeabaseDDL::checkIfBackupMDisLocked(RelBackupRestore *brExpr, ExeCliInterface *cliInterface,
                                              const char *inOper, NAString &oper, NAString &tag) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
 
   char query[1000];
 
@@ -979,7 +979,7 @@ short CmpSeabaseDDL::checkIfBackupMDisLocked(RelBackupRestore *brExpr, ExeCliInt
   genBackupSchemaName(brExpr->backupTag(), backupSch);
 
   // check if backup schema exists in MD
-  Int64 objUID = getObjectUID(cliInterface, TRAFODION_SYSCAT_LIT, backupSch.data(), SEABASE_SCHEMA_OBJECTNAME,
+  long objUID = getObjectUID(cliInterface, TRAFODION_SYSCAT_LIT, backupSch.data(), SEABASE_SCHEMA_OBJECTNAME,
                               COM_PRIVATE_SCHEMA_OBJECT_LIT, NULL, NULL, NULL, FALSE, FALSE);
   if (objUID < 0) return 0;  // does not exist
 
@@ -1011,13 +1011,13 @@ short CmpSeabaseDDL::checkIfBackupMDisLocked(RelBackupRestore *brExpr, ExeCliInt
 
 short CmpSeabaseDDL::lockBackupMD(RelBackupRestore *brExpr, ExeCliInterface *cliInterface, const char *oper,
                                   NABoolean override) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
 
   // check if backup schema exists in MD
   NAString backupSch;
   genBackupSchemaName(brExpr->backupTag(), backupSch);
 
-  Int64 objUID = getObjectUID(cliInterface, TRAFODION_SYSCAT_LIT, backupSch.data(), SEABASE_SCHEMA_OBJECTNAME,
+  long objUID = getObjectUID(cliInterface, TRAFODION_SYSCAT_LIT, backupSch.data(), SEABASE_SCHEMA_OBJECTNAME,
                               COM_PRIVATE_SCHEMA_OBJECT_LIT, NULL, NULL, NULL, FALSE, FALSE);
   if (objUID < 0) return 0;  // nothing to lock, object doesnt exist
 
@@ -1043,13 +1043,13 @@ label_return:
 }
 
 short CmpSeabaseDDL::unlockBackupMD(RelBackupRestore *brExpr, ExeCliInterface *cliInterface, const char *oper) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
 
   // check if backup schema exists in MD
   NAString backupSch;
   genBackupSchemaName(brExpr->backupTag(), backupSch);
 
-  Int64 objUID = getObjectUID(cliInterface, TRAFODION_SYSCAT_LIT, backupSch.data(), SEABASE_SCHEMA_OBJECTNAME,
+  long objUID = getObjectUID(cliInterface, TRAFODION_SYSCAT_LIT, backupSch.data(), SEABASE_SCHEMA_OBJECTNAME,
                               COM_PRIVATE_SCHEMA_OBJECT_LIT, NULL, NULL, NULL, FALSE, FALSE);
   if (objUID < 0) return 0;  // nothing to unlock, object doesnt exist
 
@@ -1072,7 +1072,7 @@ label_return:
 }
 
 static short cleanupBackupSchema(ExeCliInterface *cliInterface, NAString &backupSch) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
 
   char query[1000];
   str_sprintf(query, "drop schema if exists %s.\"%s\" cascade;", TRAFODION_SYSCAT_LIT, backupSch.data());
@@ -1106,7 +1106,7 @@ static short cleanupBackupSchema(ExeCliInterface *cliInterface, NAString &backup
 short CmpSeabaseDDL::createBackupMDschema(RelBackupRestore *brExpr, ExeCliInterface *cliInterface, NAString &backupSch,
                                           const char *oper) {
   short retcode = 0;
-  Lng32 cliRC = 0;
+  int cliRC = 0;
 
   char query[1000];
 
@@ -1159,7 +1159,7 @@ short CmpSeabaseDDL::createBackupMDschema(RelBackupRestore *brExpr, ExeCliInterf
       goto label_return;
     }
 
-    for (Lng32 i = 0; i < numTables; i++) {
+    for (int i = 0; i < numTables; i++) {
       str_sprintf(query, "create table if not exists %s.\"%s\".%s like %s.\"%s\".%s without namespace;",
                   TRAFODION_SYSCAT_LIT, backupSch.data(), backupMDs[i].objName, backupMDs[i].catName,
                   backupMDs[i].schName, backupMDs[i].objName);
@@ -1225,7 +1225,7 @@ short CmpSeabaseDDL::createBackupTags(RelBackupRestore *brExpr, ExeCliInterface 
     for (Int32 i = 0; i < brExpr->numSysTags(); i++) {
       ComUID comUID;
       comUID.make_UID();
-      Int64 systag = comUID.get_value();
+      long systag = comUID.get_value();
 
       char buf[100];
       str_sprintf(buf, "TRAF_SYSTAG_%ld", systag);
@@ -1246,9 +1246,9 @@ short CmpSeabaseDDL::createBackupTags(RelBackupRestore *brExpr, ExeCliInterface 
 // Returned values have 2 formats:
 //  pivoted:   all filenames are comma separated in one entry
 //  unpivoted: each filename is returned as one entry.
-short CmpSeabaseDDL::genLobLocation(Int64 objUID, const char *schName, ExeCliInterface *cliInterface,
+short CmpSeabaseDDL::genLobLocation(long objUID, const char *schName, ExeCliInterface *cliInterface,
                                     TextVec &lobLocList, Int32 &numLOBfiles, NABoolean forDisplay) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
 
   numLOBfiles = 0;
 
@@ -1262,7 +1262,7 @@ short CmpSeabaseDDL::genLobLocation(Int64 objUID, const char *schName, ExeCliInt
 
   char oldLobMDName[100];
   str_sprintf(oldLobMDName, "LOBMD__%020ld", objUID);
-  Lng32 retcode = existsInSeabaseMDTable(cliInterface, TRAFODION_SYSCAT_LIT, schName, oldLobMDName,
+  int retcode = existsInSeabaseMDTable(cliInterface, TRAFODION_SYSCAT_LIT, schName, oldLobMDName,
                                          COM_BASE_TABLE_OBJECT, TRUE, TRUE);
   if (retcode == 1)  // exists. old lob name
   {
@@ -1297,11 +1297,11 @@ short CmpSeabaseDDL::genLobLocation(Int64 objUID, const char *schName, ExeCliInt
   }
 
   lobLocsQueue->position();
-  for (Lng32 idx = 0; idx < lobLocsQueue->numEntries(); idx++) {
+  for (int idx = 0; idx < lobLocsQueue->numEntries(); idx++) {
     OutputInfo *vi = (OutputInfo *)lobLocsQueue->getCurr();
 
     char *ptr = NULL;
-    Lng32 len = 0;
+    int len = 0;
     vi->get(0, ptr, len);
     NAString loc(ptr, len);
     if (forDisplay) loc.prepend("  ");
@@ -1319,7 +1319,7 @@ short CmpSeabaseDDL::genLobLocation(Int64 objUID, const char *schName, ExeCliInt
 
 short CmpSeabaseDDL::genLobObjs(ElemDDLList *tableList, char *srcSch, ExeCliInterface *cliInterface, Queue *&lobsQueue,
                                 NAString &lobObjs) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
 
   if ((!tableList) || (tableList->entries() == 0)) return 0;
 
@@ -1370,7 +1370,7 @@ short CmpSeabaseDDL::genLobObjs(ElemDDLList *tableList, char *srcSch, ExeCliInte
 
   if (lobsQueue->numEntries() == 0) return 0;
 
-  for (Lng32 idx = 0; idx < lobsQueue->numEntries(); idx++) {
+  for (int idx = 0; idx < lobsQueue->numEntries(); idx++) {
     OutputInfo *vi = (OutputInfo *)lobsQueue->getNext();
 
     lobObjs += "'";
@@ -1384,7 +1384,7 @@ short CmpSeabaseDDL::genLobObjs(ElemDDLList *tableList, char *srcSch, ExeCliInte
 
 short CmpSeabaseDDL::genIndexObjs(ElemDDLList *tableList, char *srcSch, ExeCliInterface *cliInterface,
                                   Queue *&indexesQueue, NAString &indexesObjs) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
 
   if ((!tableList) || (tableList->entries() == 0)) return 0;
 
@@ -1426,7 +1426,7 @@ short CmpSeabaseDDL::genIndexObjs(ElemDDLList *tableList, char *srcSch, ExeCliIn
 
   if (indexesQueue->numEntries() == 0) return 0;
 
-  for (Lng32 idx = 0; idx < indexesQueue->numEntries(); idx++) {
+  for (int idx = 0; idx < indexesQueue->numEntries(); idx++) {
     OutputInfo *vi = (OutputInfo *)indexesQueue->getNext();
 
     indexesObjs += "'";
@@ -1440,7 +1440,7 @@ short CmpSeabaseDDL::genIndexObjs(ElemDDLList *tableList, char *srcSch, ExeCliIn
 
 short CmpSeabaseDDL::genReferencedObjs(ElemDDLList *tableList, char *srcSch, ExeCliInterface *cliInterface,
                                        Queue *&refsQueue, NAString &refsObjs) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
 
   if ((!tableList) || (tableList->entries() == 0)) return 0;
 
@@ -1486,7 +1486,7 @@ short CmpSeabaseDDL::genReferencedObjs(ElemDDLList *tableList, char *srcSch, Exe
 
   if (refsQueue->numEntries() == 0) return 0;
 
-  for (Lng32 idx = 0; idx < refsQueue->numEntries(); idx++) {
+  for (int idx = 0; idx < refsQueue->numEntries(); idx++) {
     OutputInfo *vi = (OutputInfo *)refsQueue->getNext();
 
     refsObjs += "'";
@@ -1499,7 +1499,7 @@ short CmpSeabaseDDL::genReferencedObjs(ElemDDLList *tableList, char *srcSch, Exe
 }
 
 short CmpSeabaseDDL::genLibsUsedProcs(NAString libsToBackup, NAString &libsUsedProcs, ExeCliInterface *cliInterface) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
 
   libsToBackup = libsToBackup.strip(NAString::trailing, ',');
 
@@ -1521,7 +1521,7 @@ short CmpSeabaseDDL::genLibsUsedProcs(NAString libsToBackup, NAString &libsUsedP
 
   if (procsQueue->numEntries() == 0) return 0;
 
-  for (Lng32 idx = 0; idx < procsQueue->numEntries(); idx++) {
+  for (int idx = 0; idx < procsQueue->numEntries(); idx++) {
     OutputInfo *vi = (OutputInfo *)procsQueue->getNext();
 
     libsUsedProcs += "'";
@@ -1535,7 +1535,7 @@ short CmpSeabaseDDL::genLibsUsedProcs(NAString libsToBackup, NAString &libsUsedP
 }
 
 short CmpSeabaseDDL::genProcsUsedLibs(NAString procsToBackup, NAString &procsUsedLibs, ExeCliInterface *cliInterface) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
 
   procsToBackup = procsToBackup.strip(NAString::trailing, ',');
 
@@ -1557,7 +1557,7 @@ short CmpSeabaseDDL::genProcsUsedLibs(NAString procsToBackup, NAString &procsUse
 
   if (libsQueue->numEntries() == 0) return 0;
 
-  for (Lng32 idx = 0; idx < libsQueue->numEntries(); idx++) {
+  for (int idx = 0; idx < libsQueue->numEntries(); idx++) {
     OutputInfo *vi = (OutputInfo *)libsQueue->getNext();
 
     procsUsedLibs += "'";
@@ -1749,7 +1749,7 @@ short CmpSeabaseDDL::genBRObjUIDsWherePred(RelBackupRestore *brExpr, ElemDDLList
 }
 
 short CmpSeabaseDDL::cleanupTgtObjectsFromMD(ExeCliInterface *cliInterface, char *objUIDsWherePred, char *srcSch) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
 
   Queue *objsQueue = NULL;
 
@@ -1762,7 +1762,7 @@ short CmpSeabaseDDL::cleanupTgtObjectsFromMD(ExeCliInterface *cliInterface, char
     return -1;
   }
 
-  for (Lng32 idx = 0; idx < objsQueue->numEntries(); idx++) {
+  for (int idx = 0; idx < objsQueue->numEntries(); idx++) {
     OutputInfo *vi = (OutputInfo *)objsQueue->getNext();
 
     NAString catNamePart((char *)vi->get(0));
@@ -1787,7 +1787,7 @@ short CmpSeabaseDDL::cleanupTgtObjectsFromMD(ExeCliInterface *cliInterface, char
 
 short CmpSeabaseDDL::invalidateTgtObjects(ExeCliInterface *cliInterface, char *objUIDsWherePred, char *tgtSch,
                                           char *srcSch, SharedCacheDDLInfoList &sharedCacheList) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
 
   Queue *objsQueue = NULL;
 
@@ -1806,14 +1806,14 @@ short CmpSeabaseDDL::invalidateTgtObjects(ExeCliInterface *cliInterface, char *o
     return -1;
   }
 
-  for (Lng32 idx = 0; idx < objsQueue->numEntries(); idx++) {
+  for (int idx = 0; idx < objsQueue->numEntries(); idx++) {
     OutputInfo *vi = (OutputInfo *)objsQueue->getNext();
 
     NAString catName((char *)vi->get(0));
     NAString schName((char *)vi->get(1));
     NAString objName((char *)vi->get(2));
     NAString objType((char *)vi->get(3));
-    Int64 objectFlags = *(Int64 *)vi->get(4);
+    long objectFlags = *(long *)vi->get(4);
 
     // If shared cache enabled, remove from cache
     if ((CmpCommon::getDefault(TRAF_ENABLE_METADATA_LOAD_IN_SHARED_CACHE) == DF_ON) &&
@@ -1850,7 +1850,7 @@ short CmpSeabaseDDL::invalidateTgtObjects(ExeCliInterface *cliInterface, char *o
 
 short CmpSeabaseDDL::deleteTgtObjectsFromMD(RelBackupRestore *brExpr, ExeCliInterface *cliInterface,
                                             NAString &objUIDsWherePred, char *tgtSch, char *tgtSch2, char *srcSch) {
-  Lng32 cliRC;
+  int cliRC;
 
   char objUIDsQry[1000 + objUIDsWherePred.length()];
   str_sprintf(objUIDsQry, " ( select object_uid from %s.\"%s\".%s O where %s ) ", TRAFODION_SYSCAT_LIT, srcSch,
@@ -2128,13 +2128,13 @@ label_return:
 short CmpSeabaseDDL::copyBRSrcToTgtBasic(RelBackupRestore *brExpr, ExeCliInterface *cliInterface,
                                          const char *objUIDsWherePred, const char *srcSch1, const char *srcSch2,
                                          const char *tgtSch1, const char *tgtSch2, NAString *schPrivsList) {
-  Lng32 cliRC;
+  int cliRC;
 
   char objUIDsQry[1000 + strlen(objUIDsWherePred)];
   str_sprintf(objUIDsQry, " ( select O.object_uid from %s.\"%s\".%s O where %s for skip conflict access) ",
               TRAFODION_SYSCAT_LIT, srcSch1, SEABASE_OBJECTS, objUIDsWherePred);
 
-  Int64 rowCount = 0;
+  long rowCount = 0;
   char query[1000 + sizeof(objUIDsQry)];
 
   cliRC = cliInterface->holdAndSetCQDs(
@@ -2197,7 +2197,7 @@ short CmpSeabaseDDL::copyBRSrcToTgtBasic(RelBackupRestore *brExpr, ExeCliInterfa
               TRAFODION_SYSCAT_LIT, tgtSch1, SEABASE_TEXT, TRAFODION_SYSCAT_LIT, srcSch1, SEABASE_TEXT, objUIDsQry,
               COM_USER_QUERYCACHE_TEXT);
   {
-    Int64 numRows = 0;
+    long numRows = 0;
     cliRC = cliInterface->executeImmediate(query, NULL, NULL, TRUE, &numRows);
     if (cliRC < 0) {
       cliInterface->retrieveSQLDiagnostics(CmpCommon::diags());
@@ -2250,7 +2250,7 @@ label_error:
 short CmpSeabaseDDL::copyBRSrcToTgt(RelBackupRestore *brExpr, ExeCliInterface *cliInterface,
                                     const char *objUIDsWherePred, const char *srcSch1, const char *srcSch2,
                                     const char *tgtSch1, const char *tgtSch2, NAString *schPrivsList) {
-  Lng32 cliRC;
+  int cliRC;
 
   // if metadata is being backed up, then MD tables will be locked
   // It will return an error during upsert stmt compile.
@@ -2575,7 +2575,7 @@ short CmpSeabaseDDL::copyBRSrcToTgt(RelBackupRestore *brExpr, ExeCliInterface *c
       if (NOT schemaName.isNull()) {
         ComObjectType objectType;
         Int32 schemaOwnerID = 0;
-        Int64 schemaUID = getObjectTypeandOwner(cliInterface, TRAFODION_SYSCAT_LIT, schemaName.data(),
+        long schemaUID = getObjectTypeandOwner(cliInterface, TRAFODION_SYSCAT_LIT, schemaName.data(),
                                                 SEABASE_SCHEMA_OBJECTNAME, objectType, schemaOwnerID);
 
         if (schemaUID == -1) {
@@ -2612,7 +2612,7 @@ label_error:
 }
 
 short CmpSeabaseDDL::backupHistStats(ExeCliInterface *cliInterface, ElemDDLList *tableList, char *backupSch) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
 
   if ((!tableList) || (tableList->entries() == 0)) return 0;
 
@@ -2714,7 +2714,7 @@ short CmpSeabaseDDL::expandAndValidate(ExeCliInterface *cliInterface, ElemDDLQua
                           dn->getQualifiedName().getUnqualifiedSchemaNameAsAnsiString(),
                           dn->getQualifiedName().getUnqualifiedObjectNameAsAnsiString());
 
-    Int64 objUID = getObjectUID(
+    long objUID = getObjectUID(
         cliInterface, objName.getCatalogNamePartAsAnsiString(), objName.getSchemaNamePartAsAnsiString(TRUE),
         objName.getObjectNamePartAsAnsiString(TRUE), objectType, NULL, NULL, NULL, FALSE, FALSE);
 
@@ -2776,7 +2776,7 @@ short CmpSeabaseDDL::validateInputNames(ExeCliInterface *cliInterface, RelBackup
           return -1;
         }
 
-        Int64 objUID =
+        long objUID =
             getObjectUID(cliInterface, dn->getQualifiedName().getSchemaName(), dn->getQualifiedName().getObjectName(),
                          SEABASE_SCHEMA_OBJECTNAME, COM_SHARED_SCHEMA_OBJECT_LIT, NULL, NULL, NULL, FALSE, FALSE);
 
@@ -2850,7 +2850,7 @@ short CmpSeabaseDDL::validateInputNames(ExeCliInterface *cliInterface, RelBackup
 short CmpSeabaseDDL::processBRShowObjects(RelBackupRestore *brExpr, NAArray<HbaseStr> *mdList,
                                           NAString &objUIDsWherePred, ExeCliInterface *cliInterface,
                                           CmpDDLwithStatusInfo *dws) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
 
   Queue *objsQueue = NULL;
   cliInterface->initializeInfoList(objsQueue, TRUE);
@@ -2872,7 +2872,7 @@ short CmpSeabaseDDL::processBRShowObjects(RelBackupRestore *brExpr, NAArray<Hbas
     str_sprintf(objsQry,
                 " select count(*) from %s.\"%s\".%s O where %s and O.object_type in ('" COM_LIBRARY_OBJECT_LIT "') ",
                 TRAFODION_SYSCAT_LIT, sourceSch.data(), SEABASE_OBJECTS, objUIDsWherePred.data());
-    Int64 rowCount = 0;
+    long rowCount = 0;
     Int32 length = 0;
     cliRC = cliInterface->executeImmediate(objsQry, (char *)&rowCount, &length, FALSE);
     if (cliRC < 0) {
@@ -2909,7 +2909,7 @@ short CmpSeabaseDDL::processBRShowObjects(RelBackupRestore *brExpr, NAArray<Hbas
       }
       char *parts[3];
       char outBuffer[1000];
-      Lng32 numParts = 0;
+      int numParts = 0;
       LateNameInfo::extractParts(val2, outBuffer, numParts, parts, FALSE);
       NAString catName = ToAnsiIdentifier(NAString(parts[0]));
       NAString schName = ToAnsiIdentifier(NAString(parts[1]));
@@ -2932,7 +2932,7 @@ short CmpSeabaseDDL::processBRShowObjects(RelBackupRestore *brExpr, NAArray<Hbas
     NAString rsrvdStr(TRAF_RESERVED_NAMESPACE3);
     rsrvdStr += ":";
     numMDs = 0;
-    for (Lng32 i = 0; i < sizeof(backupMDs) / sizeof(BackupMDsInfo); i++) {
+    for (int i = 0; i < sizeof(backupMDs) / sizeof(BackupMDsInfo); i++) {
       NAString catName = ToAnsiIdentifier(NAString(backupMDs[i].catName));
       NAString schName = ToAnsiIdentifier(NAString(backupSch));
       NAString objName = ToAnsiIdentifier(NAString(backupMDs[i].objName));
@@ -3008,10 +3008,10 @@ short CmpSeabaseDDL::processBRShowObjects(RelBackupRestore *brExpr, NAArray<Hbas
     return -1;
   }
 
-  for (Lng32 idx = 0; idx < userObjsQueue->numEntries(); idx++) {
+  for (int idx = 0; idx < userObjsQueue->numEntries(); idx++) {
     OutputInfo *vi = (OutputInfo *)userObjsQueue->getNext();
     char *ptr = NULL;
-    Lng32 len = 0;
+    int len = 0;
 
     vi->get(0, ptr, len);
     NAString obj(ptr, len);
@@ -3079,12 +3079,12 @@ short CmpSeabaseDDL::processBRShowObjects(RelBackupRestore *brExpr, NAArray<Hbas
   Int32 numLOBfiles = 0;
   if (brExpr->backup()) {
     TextVec lobLocList;
-    for (Lng32 idx = 0; idx < lobLocQueue->numEntries(); idx++) {
+    for (int idx = 0; idx < lobLocQueue->numEntries(); idx++) {
       OutputInfo *vi = (OutputInfo *)lobLocQueue->getNext();
       char *ptr = NULL;
-      Lng32 len = 0;
+      int len = 0;
 
-      Int64 objUID = *(Int64 *)vi->get(0);
+      long objUID = *(long *)vi->get(0);
       vi->get(1, ptr, len);
       NAString sch(ptr, len);
 
@@ -3246,7 +3246,7 @@ NABoolean CmpSeabaseDDL::getTimeStampFromSnapshotList(NAArray<HbaseStr> *snapsho
       if (CmpCommon::context()->gmtDiff() != 0) {
         ExpDatetime::convAsciiDatetimeToUtcOrLocal((char *)tokens[1].c_str(), strlen(tokens[1].c_str()), timeStamp,
                                                    strlen(tokens[1].c_str()),
-                                                   (Int64)CmpCommon::context()->gmtDiff() * 60 * 1000000,
+                                                   (long)CmpCommon::context()->gmtDiff() * 60 * 1000000,
                                                    FALSE,  // toLocal
                                                    STMTHEAP, diagsArea);
         timeStamp[10] = ':';  // add ':' separator between date and time
@@ -3290,10 +3290,10 @@ static short injectError(const char *errEnvvar) {
 
 short CmpSeabaseDDL::backupSubset(RelBackupRestore *brExpr, ExeCliInterface *cliInterface, NAString &currCatName,
                                   NAString &currSchName, CmpDDLwithStatusInfo *dws) {
-  Lng32 retcode = 0;
-  Lng32 cliRC = 0;
+  int retcode = 0;
+  int cliRC = 0;
 
-  Int64 time0, time1, time2, time3, time4, time5, time6, time7, time8, time9;
+  long time0, time1, time2, time3, time4, time5, time6, time7, time8, time9;
   time0 = NA_JulianTimestamp();
 
   if (createProgressTable(cliInterface)) return -1;
@@ -3381,7 +3381,7 @@ short CmpSeabaseDDL::backupSubset(RelBackupRestore *brExpr, ExeCliInterface *cli
   }
 
   time1 = NA_JulianTimestamp();
-  Int64 operStartTime = NA_JulianTimestamp();
+  long operStartTime = NA_JulianTimestamp();
 
   // check to see if this backup tag exists
   NAString backupType = ehi->getBackupType(brExpr->backupTag());
@@ -3499,7 +3499,7 @@ short CmpSeabaseDDL::backupSubset(RelBackupRestore *brExpr, ExeCliInterface *cli
   }
 
   NAString userOrRoles;
-  Lng32 numUR = 0;
+  int numUR = 0;
   retcode = getUsersAndRoles(cliInterface, objUIDsWherePred.data(), SEABASE_MD_SCHEMA, numUR, userOrRoles);
   if (retcode < 0) {
     *CmpCommon::diags() << DgSqlCode(-5050) << DgString0("BACKUP")
@@ -3660,7 +3660,7 @@ short CmpSeabaseDDL::backupSubset(RelBackupRestore *brExpr, ExeCliInterface *cli
     goto label_return;
   }
 
-  for (Lng32 i = 0; i < sizeof(backupMDs) / sizeof(BackupMDsInfo); i++) {
+  for (int i = 0; i < sizeof(backupMDs) / sizeof(BackupMDsInfo); i++) {
     qTableName = NAString(TRAF_RESERVED_NAMESPACE3) + ":" + NAString(backupMDs[i].catName) + "." + backupSch + "." +
                  NAString(backupMDs[i].objName);
     mdTablesList.push_back(qTableName.data());
@@ -3690,21 +3690,21 @@ short CmpSeabaseDDL::backupSubset(RelBackupRestore *brExpr, ExeCliInterface *cli
   }
 
   if (NOT brExpr->brMetadata()) {
-    for (Lng32 idx = 0; idx < tableQueue->numEntries(); idx++) {
+    for (int idx = 0; idx < tableQueue->numEntries(); idx++) {
       OutputInfo *vi = (OutputInfo *)tableQueue->getNext();
       char *obj = NULL;
-      Lng32 objLen = 0;
+      int objLen = 0;
       vi->get(0, obj, objLen);
 
       userTablesList.push_back(obj);
 
-      Int64 flags = *(Int64 *)vi->get(1);
+      long flags = *(long *)vi->get(1);
       if (isMDflagsSet(flags, MD_OBJECTS_INCR_BACKUP_ENABLED))
         allTablesFlagsList.push_back("YN");
       else
         allTablesFlagsList.push_back("NN");
 
-      Int64 objUID = *(Int64 *)vi->get(2);
+      long objUID = *(long *)vi->get(2);
       vi->get(3, obj, objLen);
 
       Int32 lobFiles = 0;
@@ -3862,7 +3862,7 @@ label_return:
   }
 
   // export backup, if needed
-  Lng32 exportRetcode = 0;
+  int exportRetcode = 0;
   if ((retcode == 0) && brExpr->exportBackup()) {
     Int32 exportImportThreads = CmpCommon::getDefaultNumeric(TRAF_EXPORT_IMPORT_PARALLEL);
 
@@ -3979,8 +3979,8 @@ label_return2:
 }
 
 short CmpSeabaseDDL::updateBackupOperationMetrics(RelBackupRestore *brExpr, ExeCliInterface *cliInterface,
-                                                  Int64 operStartTime, Int64 operEndTime) {
-  Lng32 cliRC = 0;
+                                                  long operStartTime, long operEndTime) {
+  int cliRC = 0;
 
   if (CmpCommon::getDefault(TRAF_BACKUP_REPOSITORY_SUPPORT) == DF_OFF) return 0;
 
@@ -3990,7 +3990,7 @@ short CmpSeabaseDDL::updateBackupOperationMetrics(RelBackupRestore *brExpr, ExeC
   }
 
   // if backup repos doesn't exist, return
-  Int64 objUID = getObjectUID(cliInterface, TRAFODION_SYSTEM_CATALOG, SEABASE_REPOS_SCHEMA,
+  long objUID = getObjectUID(cliInterface, TRAFODION_SYSTEM_CATALOG, SEABASE_REPOS_SCHEMA,
                               TRAF_BACKUP_OPERATION_METRICS, COM_BASE_TABLE_OBJECT_LIT, NULL, NULL, NULL, FALSE, FALSE);
   if (objUID < 0) return 0;  // does not exist
 
@@ -4046,7 +4046,7 @@ short CmpSeabaseDDL::updateBackupOperationMetrics(RelBackupRestore *brExpr, ExeC
 }
 
 short CmpSeabaseDDL::updateBackupObjectsMetrics(RelBackupRestore *brExpr, ExeCliInterface *cliInterface) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
 
   if (CmpCommon::getDefault(TRAF_BACKUP_REPOSITORY_SUPPORT) == DF_OFF) return 0;
 
@@ -4061,13 +4061,13 @@ short CmpSeabaseDDL::updateBackupObjectsMetrics(RelBackupRestore *brExpr, ExeCli
 short CmpSeabaseDDL::createSnapshotForIncrBackup(ExeCliInterface *cliInterface, NABoolean incrBackupEnabled,
                                                  const NAString &btNamespace, const NAString &catalogNamePart,
                                                  const NAString &schemaNamePart, const NAString &objectNamePart,
-                                                 Int64 objDataUID) {
-  Lng32 enableSnapshot = CmpCommon::getDefaultNumeric(TM_SNAPSHOT_TABLE_CREATES);
+                                                 long objDataUID) {
+  int enableSnapshot = CmpCommon::getDefaultNumeric(TM_SNAPSHOT_TABLE_CREATES);
   if (enableSnapshot == 0)  // No need to call JNI::createSnapshotForIncrBackup
     return 0;
 
-  Lng32 retcode = 0;
-  Lng32 cliRC = 0;
+  int retcode = 0;
+  int cliRC = 0;
 
   if (NOT incrBackupEnabled) return 0;
 
@@ -4101,8 +4101,8 @@ short CmpSeabaseDDL::createSnapshotForIncrBackup(ExeCliInterface *cliInterface, 
 
 short CmpSeabaseDDL::setHiatus(const NAString &hiatusObjectName, NABoolean resetHiatus, NABoolean createSnapIfNotExist,
                                NABoolean ignoreSnapIfNotExist) {
-  Lng32 retcode = 0;
-  Lng32 cliRC = 0;
+  int retcode = 0;
+  int cliRC = 0;
   Int32 parallelThreads = CmpCommon::getDefaultNumeric(TRAF_BACKUP_PARALLEL);
 
   ExpHbaseInterface *ehi = allocBRCEHI();
@@ -4135,9 +4135,9 @@ short CmpSeabaseDDL::setHiatus(const NAString &hiatusObjectName, NABoolean reset
 short CmpSeabaseDDL::backupSystem(RelBackupRestore *brExpr, ExeCliInterface *cliInterface, CmpDDLwithStatusInfo *dws) {
   short error = 0;
   short rc = 0;
-  Lng32 retcode = 0;
+  int retcode = 0;
   char query[1000];
-  Lng32 cliRC = 0;
+  int cliRC = 0;
   Queue *objsQueue = NULL;
   TextVec tableList;
   TextVec tableFlagsList;
@@ -4268,16 +4268,16 @@ short CmpSeabaseDDL::backupSystem(RelBackupRestore *brExpr, ExeCliInterface *cli
     updateQueueWithOI("=======================", showObjsQueue, STMTHEAP);
     updateQueueWithOI(" ", showObjsQueue, STMTHEAP);
 
-    for (Lng32 idx = 0; idx < objsQueue->numEntries(); idx++) {
+    for (int idx = 0; idx < objsQueue->numEntries(); idx++) {
       char *obj = NULL;
-      Lng32 objLen = 0;
+      int objLen = 0;
 
       OutputInfo *vi = (OutputInfo *)objsQueue->getNext();
 
       vi->get(0, obj, objLen);
       updateQueueWithOI(obj, showObjsQueue, STMTHEAP, objLen);
 
-      Int64 objUID = *(Int64 *)vi->get(1);
+      long objUID = *(long *)vi->get(1);
       if (objUID != 0) {
         vi->get(2, obj, objLen);
         lobLocList.clear();
@@ -4307,9 +4307,9 @@ short CmpSeabaseDDL::backupSystem(RelBackupRestore *brExpr, ExeCliInterface *cli
     return 0;
   }
 
-  for (Lng32 idx = 0; idx < objsQueue->numEntries(); idx++) {
+  for (int idx = 0; idx < objsQueue->numEntries(); idx++) {
     char *obj = NULL;
-    Lng32 objLen = 0;
+    int objLen = 0;
 
     OutputInfo *vi = (OutputInfo *)objsQueue->getNext();
 
@@ -4321,7 +4321,7 @@ short CmpSeabaseDDL::backupSystem(RelBackupRestore *brExpr, ExeCliInterface *cli
     // here so that flags do no show up as null on java side.
     tableFlagsList.push_back("NN");
 
-    Int64 objUID = *(Int64 *)vi->get(1);
+    long objUID = *(long *)vi->get(1);
     if (objUID == 0) {
       lobLocList.push_back("");
     } else {
@@ -4642,7 +4642,7 @@ short CmpSeabaseDDL::restoreSystem(RelBackupRestore *brExpr, ExeCliInterface *cl
 //         -1, some other error.
 short CmpSeabaseDDL::checkIfObjectsLockedInMD(ExeCliInterface *cliInterface, char *objUIDsWherePred, char *srcSch,
                                               const char *operation, char *backupTag, NAString &lockedObjs) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
   Queue *objsQueue = NULL;
 
   char objsQry[2000 + (objUIDsWherePred ? strlen(objUIDsWherePred) : 0)];
@@ -4684,7 +4684,7 @@ short CmpSeabaseDDL::checkIfObjectsLockedInMD(ExeCliInterface *cliInterface, cha
   if (objsQueue->numEntries() == 0) return 0;
 
   NABoolean someObjsNotPartOfThisTag = FALSE;
-  for (Lng32 idx = 0; idx < objsQueue->numEntries(); idx++) {
+  for (int idx = 0; idx < objsQueue->numEntries(); idx++) {
     OutputInfo *vi = (OutputInfo *)objsQueue->getNext();
 
     NAString oper;
@@ -4713,7 +4713,7 @@ short CmpSeabaseDDL::checkIfObjectsLockedInMD(ExeCliInterface *cliInterface, cha
 
 short CmpSeabaseDDL::lockObjectsInMD(ExeCliInterface *cliInterface, const char *oper, char *objUIDsWherePred,
                                      char *srcSch, char *backupTag, NABoolean schemasOnlyBackup) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
 
   NAString operTag(backupTag);
 
@@ -4771,7 +4771,7 @@ label_return:
 
 short CmpSeabaseDDL::unlockObjectsInMD(ExeCliInterface *cliInterface, char *objUIDsWherePred, char *srcSch,
                                        NABoolean schemasOnlyBackup) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
 
   if ((schemasOnlyBackup) && (CmpCommon::getDefault(TRAF_LOCK_BACKUP_SCHEMA) == DF_OFF)) {
     schemasOnlyBackup = FALSE;
@@ -4824,7 +4824,7 @@ label_return:
 }
 
 short CmpSeabaseDDL::isTruncateTableLockedInMD(ExeCliInterface *cliInterface, NAString &lockedObjs) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
   Queue *objsQueue = NULL;
 
   char objsQry[2000];
@@ -4842,7 +4842,7 @@ short CmpSeabaseDDL::isTruncateTableLockedInMD(ExeCliInterface *cliInterface, NA
   if (objsQueue->numEntries() == 0)
     return 0;
   else {
-    for (Lng32 idx = 0; idx < objsQueue->numEntries(); idx++) {
+    for (int idx = 0; idx < objsQueue->numEntries(); idx++) {
       OutputInfo *vi = (OutputInfo *)objsQueue->getNext();
       NAString objName((char *)vi->get(0));
       lockedObjs += objName;
@@ -4855,7 +4855,7 @@ short CmpSeabaseDDL::isTruncateTableLockedInMD(ExeCliInterface *cliInterface, NA
 
 short CmpSeabaseDDL::returnObjectsList(ExeCliInterface *cliInterface, const char *objUIDsWherePred, char *srcSch,
                                        NAArray<HbaseStr> *&objectsList) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
 
   Queue *tableQueue = NULL;
 
@@ -4893,7 +4893,7 @@ short CmpSeabaseDDL::returnObjectsList(ExeCliInterface *cliInterface, const char
     for (Int32 i = 0; i < tableQueue->numEntries(); i++) {
       OutputInfo *vi = (OutputInfo *)tableQueue->getNext();
       char *obj = NULL;
-      Lng32 objLen = 0;
+      int objLen = 0;
 
       vi->get(0, obj, objLen);
 
@@ -4911,8 +4911,8 @@ short CmpSeabaseDDL::returnObjectsList(ExeCliInterface *cliInterface, const char
 short CmpSeabaseDDL::restoreSubset(RelBackupRestore *brExpr, ExeCliInterface *cliInterface, NAString &currCatName,
                                    NAString &currSchName, CmpDDLwithStatusInfo *dws, ExpHbaseInterface *ehi,
                                    Int32 restoreThreads) {
-  Lng32 retcode = 0;
-  Lng32 cliRC = 0;
+  int retcode = 0;
+  int cliRC = 0;
 
   if (brExpr->restoreToTS()) {
     NAString restoreToTsTag = ehi->getRestoreToTsBackupTag(brExpr->getTimestampVal().data());
@@ -4924,7 +4924,7 @@ short CmpSeabaseDDL::restoreSubset(RelBackupRestore *brExpr, ExeCliInterface *cl
       ComDiagsArea *diags = CmpCommon::diags();
       ExpDatetime::convAsciiDatetimeToUtcOrLocal(
           const_cast<char *>(originTime.data()), originTime.length(), localStrBuf, originTime.length(),
-          (Int64)CmpCommon::context()->gmtDiff() * 60 * 1000000, FALSE, STMTHEAP, &diags);
+          (long)CmpCommon::context()->gmtDiff() * 60 * 1000000, FALSE, STMTHEAP, &diags);
       localStrBuf[10] = ':';  // add ':' separator between date and time
       localStrBuf[originTime.length()] = 0;
       NAString lockedMsg = "Error returned from getRestoreToTsBackupTag while processing to_timestamp value '" +
@@ -5261,10 +5261,10 @@ short CmpSeabaseDDL::restoreSubset(RelBackupRestore *brExpr, ExeCliInterface *cl
 
   if (lobsQueue) {
     lobsQueue->position();
-    for (Lng32 idx = 0; idx < lobsQueue->numEntries(); idx++) {
+    for (int idx = 0; idx < lobsQueue->numEntries(); idx++) {
       OutputInfo *vi = (OutputInfo *)lobsQueue->getNext();
       char *obj = NULL;
-      Lng32 objLen = 0;
+      int objLen = 0;
 
       vi->get(0, obj, objLen);
 
@@ -5276,10 +5276,10 @@ short CmpSeabaseDDL::restoreSubset(RelBackupRestore *brExpr, ExeCliInterface *cl
 
   if (indexesQueue) {
     indexesQueue->position();
-    for (Lng32 idx = 0; idx < indexesQueue->numEntries(); idx++) {
+    for (int idx = 0; idx < indexesQueue->numEntries(); idx++) {
       OutputInfo *vi = (OutputInfo *)indexesQueue->getNext();
       char *obj = NULL;
-      Lng32 objLen = 0;
+      int objLen = 0;
 
       vi->get(0, obj, objLen);
 
@@ -5525,7 +5525,7 @@ label_return:
 
 short CmpSeabaseDDL::restore(RelBackupRestore *brExpr, ExeCliInterface *cliInterface, NAString &currCatName,
                              NAString &currSchName, CmpDDLwithStatusInfo *dws) {
-  Lng32 retcode = 0;
+  int retcode = 0;
   NAString backupType = "";
 
   if (xnInProgress(cliInterface)) {
@@ -5616,7 +5616,7 @@ short CmpSeabaseDDL::deleteSnapshot(ExpHbaseInterface *ehi, const char *oper, co
                                     NABoolean force,     // drop even if this is the last backup
                                     NABoolean skipLock)  // do not lock during drop
 {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
 
   NAString backupType = ehi->getBackupType(backupTag);
   if (backupType.isNull() && (NOT ifExists)) {
@@ -5648,8 +5648,8 @@ short CmpSeabaseDDL::deleteSnapshot(ExpHbaseInterface *ehi, const char *oper, co
 short CmpSeabaseDDL::dropBackupSnapshots(RelBackupRestore *brExpr, ExeCliInterface *cliInterface) {
   short error = 0;
   short rc = 0;
-  Lng32 retcode = 0;
-  Lng32 cliRC = 0;
+  int retcode = 0;
+  int cliRC = 0;
 
   // do not let dropBackup when backup in progress.
   // No need of any other lock for this operation.
@@ -5710,10 +5710,10 @@ short CmpSeabaseDDL::dropBackupSnapshots(RelBackupRestore *brExpr, ExeCliInterfa
           return -1;
         }
 
-        for (Lng32 idx = 0; idx < tagQueue->numEntries(); idx++) {
+        for (int idx = 0; idx < tagQueue->numEntries(); idx++) {
           OutputInfo *vi = (OutputInfo *)tagQueue->getNext();
           char *tag = NULL;
-          Lng32 tagLen = 0;
+          int tagLen = 0;
           vi->get(0, tag, tagLen);
 
           HbaseStr elem;
@@ -5878,7 +5878,7 @@ short CmpSeabaseDDL::dropBackupTags(RelBackupRestore *brExpr, ExeCliInterface *c
     genBackupSchemaName(brExpr->backupTag(), backupSch);
 
     // check if backup schema exists in MD
-    Int64 objUID = getObjectUID(cliInterface, TRAFODION_SYSCAT_LIT, backupSch.data(), SEABASE_SCHEMA_OBJECTNAME,
+    long objUID = getObjectUID(cliInterface, TRAFODION_SYSCAT_LIT, backupSch.data(), SEABASE_SCHEMA_OBJECTNAME,
                                 COM_PRIVATE_SCHEMA_OBJECT_LIT, NULL, NULL, NULL, FALSE, FALSE);
     if (objUID < 0) return 0;  // does not exist, nothing to drop
   }
@@ -5892,8 +5892,8 @@ short CmpSeabaseDDL::dropBackupTags(RelBackupRestore *brExpr, ExeCliInterface *c
 short CmpSeabaseDDL::exportOrImportBackup(RelBackupRestore *brExpr, ExeCliInterface *cliInterface) {
   short error = 0;
   short rc = 0;
-  Lng32 retcode = 0;
-  Lng32 cliRC = 0;
+  int retcode = 0;
+  int cliRC = 0;
 
   NAString oper(brExpr->exportBackup() ? "EXPORT" : "IMPORT");
 
@@ -6058,8 +6058,8 @@ short CmpSeabaseDDL::exportOrImportBackup(RelBackupRestore *brExpr, ExeCliInterf
 
 short CmpSeabaseDDL::getBackupSnapshots(RelBackupRestore *brExpr, ExeCliInterface *cliInterface,
                                         CmpDDLwithStatusInfo *dws) {
-  Lng32 retcode = 0;
-  Lng32 cliRC = 0;
+  int retcode = 0;
+  int cliRC = 0;
 
   ExpHbaseInterface *ehi = allocBRCEHI();
   if (ehi == NULL) {
@@ -6076,7 +6076,7 @@ short CmpSeabaseDDL::getBackupSnapshots(RelBackupRestore *brExpr, ExeCliInterfac
     return -1;
   }
 
-  Lng32 maxTagLen = strlen("BackupTag");
+  int maxTagLen = strlen("BackupTag");
   if (backupList) {
     NAString matchClause;
     if (NOT brExpr->getMatchPattern().isNull())
@@ -6106,13 +6106,13 @@ short CmpSeabaseDDL::getBackupSnapshots(RelBackupRestore *brExpr, ExeCliInterfac
       return -1;
     }
 
-    for (Lng32 idx = 0; idx < tagQueue->numEntries(); idx++) {
+    for (int idx = 0; idx < tagQueue->numEntries(); idx++) {
       OutputInfo *vi = (OutputInfo *)tagQueue->getNext();
       char *tag = NULL;
-      Lng32 tagLen = 0;
+      int tagLen = 0;
       vi->get(0, tag, tagLen);
 
-      Lng32 len = *(Lng32 *)vi->get(1);
+      int len = *(int *)vi->get(1);
 
       if (len > maxTagLen) maxTagLen = len;
 
@@ -6141,7 +6141,7 @@ short CmpSeabaseDDL::getBackupSnapshots(RelBackupRestore *brExpr, ExeCliInterfac
     str_sprintf(brVal, frmt, "BackupTag", "BackupTime", "BackupStatus", "BackupOperation", "BackupOwner");
 
     // max display size
-    Lng32 brValLen = strlen(brVal);
+    int brValLen = strlen(brVal);
 
     OutputInfo *oi = NULL;
 
@@ -6176,7 +6176,7 @@ short CmpSeabaseDDL::getBackupSnapshots(RelBackupRestore *brExpr, ExeCliInterfac
         ComDiagsArea *diags = CmpCommon::diags();
         ExpDatetime::convAsciiDatetimeToUtcOrLocal((char *)tokens[1].c_str(), strlen(tokens[1].c_str()), localStr,
                                                    strlen(tokens[1].c_str()),
-                                                   (Int64)CmpCommon::context()->gmtDiff() * 60 * 1000000,
+                                                   (long)CmpCommon::context()->gmtDiff() * 60 * 1000000,
                                                    FALSE,  // toLocal
                                                    STMTHEAP, &diags);
 
@@ -6224,8 +6224,8 @@ short CmpSeabaseDDL::getBackupSnapshots(RelBackupRestore *brExpr, ExeCliInterfac
 }
 
 short CmpSeabaseDDL::dropBackupMD(RelBackupRestore *brExpr, ExeCliInterface *cliInterface, NABoolean checkPrivs) {
-  Lng32 retcode = 0;
-  Lng32 cliRC = 0;
+  int retcode = 0;
+  int cliRC = 0;
 
   // do not let dropBackup when backup in progress.
   // No need of any other lock for this operation.
@@ -6270,10 +6270,10 @@ short CmpSeabaseDDL::dropBackupMD(RelBackupRestore *brExpr, ExeCliInterface *cli
       return -1;
     }
 
-    for (Lng32 idx = 0; idx < tableQueue->numEntries(); idx++) {
+    for (int idx = 0; idx < tableQueue->numEntries(); idx++) {
       OutputInfo *vi = (OutputInfo *)tableQueue->getNext();
       char *obj = NULL;
-      Lng32 objLen = 0;
+      int objLen = 0;
 
       vi->get(0, obj, objLen);
 
@@ -6311,7 +6311,7 @@ short CmpSeabaseDDL::dropBackupMD(RelBackupRestore *brExpr, ExeCliInterface *cli
 
     ComObjectType objectType;
     Int32 schemaOwnerID = 0;
-    Int64 schemaUID = getObjectTypeandOwner(cliInterface, TRAFODION_SYSCAT_LIT, backupSch.data(),
+    long schemaUID = getObjectTypeandOwner(cliInterface, TRAFODION_SYSCAT_LIT, backupSch.data(),
                                             SEABASE_SCHEMA_OBJECTNAME, objectType, schemaOwnerID);
     if (schemaUID == -1)  // doesn't exist
     {
@@ -6337,8 +6337,8 @@ short CmpSeabaseDDL::dropBackupMD(RelBackupRestore *brExpr, ExeCliInterface *cli
 }
 
 short CmpSeabaseDDL::getBackupMD(RelBackupRestore *brExpr, ExeCliInterface *cliInterface, CmpDDLwithStatusInfo *dws) {
-  Lng32 retcode = 0;
-  Lng32 cliRC = 0;
+  int retcode = 0;
+  int cliRC = 0;
 
   ExpHbaseInterface *ehi = allocBRCEHI();
   if (ehi == NULL) {
@@ -6386,10 +6386,10 @@ short CmpSeabaseDDL::getBackupMD(RelBackupRestore *brExpr, ExeCliInterface *cliI
   Queue *mdQueue = NULL;
   cliInterface->initializeInfoList(mdQueue, TRUE);
   char mdBuf[400];
-  for (Lng32 idx = 0; idx < tableQueue->numEntries(); idx++) {
+  for (int idx = 0; idx < tableQueue->numEntries(); idx++) {
     OutputInfo *vi = (OutputInfo *)tableQueue->getNext();
     char *obj = NULL;
-    Lng32 objLen = 0;
+    int objLen = 0;
 
     vi->get(0, obj, objLen);
 
@@ -6423,8 +6423,8 @@ short CmpSeabaseDDL::getBackupMD(RelBackupRestore *brExpr, ExeCliInterface *cliI
 }
 
 short CmpSeabaseDDL::getBackupTags(RelBackupRestore *brExpr, ExeCliInterface *cliInterface, CmpDDLwithStatusInfo *dws) {
-  Lng32 retcode = 0;
-  Lng32 cliRC = 0;
+  int retcode = 0;
+  int cliRC = 0;
 
   ExpHbaseInterface *ehi = allocBRCEHI();
   if (ehi == NULL) {
@@ -6554,12 +6554,12 @@ short CmpSeabaseDDL::getBackupTags(RelBackupRestore *brExpr, ExeCliInterface *cl
   Int32 maxOwnerLen = strlen("Not Available");
 
   // ts suffix has the format:  "_" + left zero padded 20 digits
-  Lng32 jtsSuffixLen = 21;
-  Lng32 maxTagLen = strlen("BackupTag");
-  for (Lng32 idx = 0; idx < tagQueue->numEntries(); idx++) {
+  int jtsSuffixLen = 21;
+  int maxTagLen = strlen("BackupTag");
+  for (int idx = 0; idx < tagQueue->numEntries(); idx++) {
     OutputInfo *vi = (OutputInfo *)tagQueue->getNext();
     char *obj = NULL;
-    Lng32 objLen = 0;
+    int objLen = 0;
 
     vi->get(0, obj, objLen);
 
@@ -6603,7 +6603,7 @@ short CmpSeabaseDDL::getBackupTags(RelBackupRestore *brExpr, ExeCliInterface *cl
       qry += NAString("('") + tag + "', " + (isExtended ? "'YES'" : "'NO'") + NAString(", '") + NAString(obj) +
              NAString("', '");
       char *time = NULL;
-      Lng32 timeLen = 0;
+      int timeLen = 0;
       vi->get(2, time, timeLen);
       qry += NAString(time) + NAString("')");
     }
@@ -6645,21 +6645,21 @@ short CmpSeabaseDDL::getBackupTags(RelBackupRestore *brExpr, ExeCliInterface *cl
     updateQueueWithOI(" ", mdQueue, STMTHEAP);
   }
 
-  for (Lng32 idx = 0; idx < tagQueue->numEntries(); idx++) {
+  for (int idx = 0; idx < tagQueue->numEntries(); idx++) {
     NABoolean hasMeta = TRUE;
     OutputInfo *vi = (OutputInfo *)tagQueue->getNext();
     char *tag = NULL;
-    Lng32 objLen = 0;
+    int objLen = 0;
     vi->get(0, tag, objLen);
 
     char *suffix = NULL;
-    Lng32 suffixLen = 0;
+    int suffixLen = 0;
     vi->get(1, suffix, suffixLen);
 
     char *ts = NULL;
-    Lng32 tsLen = 0;
+    int tsLen = 0;
 
-    Int64 count = 0;
+    long count = 0;
 
     NAString backupOper;
     NAString backupStatus;
@@ -6667,7 +6667,7 @@ short CmpSeabaseDDL::getBackupTags(RelBackupRestore *brExpr, ExeCliInterface *cl
     if (backupOper == "SYSTEM") continue;  // skip system backups
 
     if (NOT showDetails)
-      count = *(Int64 *)vi->get(2);
+      count = *(long *)vi->get(2);
     else {
       char *snap = NULL;
       Int32 snapLen = 0;
@@ -6700,7 +6700,7 @@ short CmpSeabaseDDL::getBackupTags(RelBackupRestore *brExpr, ExeCliInterface *cl
       } else {
         ComDiagsArea *diags = CmpCommon::diags();
         ExpDatetime::convAsciiDatetimeToUtcOrLocal(ts, strlen(ts), localStrBuf, strlen(ts),
-                                                   (Int64)CmpCommon::context()->gmtDiff() * 60 * 1000000,
+                                                   (long)CmpCommon::context()->gmtDiff() * 60 * 1000000,
                                                    FALSE,  // toLocal
                                                    STMTHEAP, &diags);
 
@@ -6746,8 +6746,8 @@ short CmpSeabaseDDL::getBackupTags(RelBackupRestore *brExpr, ExeCliInterface *cl
 // ----------------------------------------------------------------------------
 short CmpSeabaseDDL::getVersionOfBackup(RelBackupRestore *brExpr, ExeCliInterface *cliInterface,
                                         CmpDDLwithStatusInfo *dws) {
-  Lng32 retcode = 0;
-  Lng32 cliRC = 0;
+  int retcode = 0;
+  int cliRC = 0;
   NAString versionStr;
 
   Queue *mdQueue = NULL;
@@ -6855,7 +6855,7 @@ short CmpSeabaseDDL::getVersionOfBackup(RelBackupRestore *brExpr, ExeCliInterfac
 
 short CmpSeabaseDDL::getBackupLockedObjects(RelBackupRestore *brExpr, ExeCliInterface *cliInterface,
                                             CmpDDLwithStatusInfo *dws) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
   Queue *objsQueue = NULL;
 
   char objsQry[2000];
@@ -6874,7 +6874,7 @@ short CmpSeabaseDDL::getBackupLockedObjects(RelBackupRestore *brExpr, ExeCliInte
   Queue *mdQueue = NULL;
   cliInterface->initializeInfoList(mdQueue, TRUE);
 
-  for (Lng32 idx = 0; idx < objsQueue->numEntries(); idx++) {
+  for (int idx = 0; idx < objsQueue->numEntries(); idx++) {
     OutputInfo *vi = (OutputInfo *)objsQueue->getNext();
 
     NAString oper;
@@ -6933,7 +6933,7 @@ short CmpSeabaseDDL::cleanupLockForTag(RelBackupRestore *brExpr, ExeCliInterface
   snprintf(query, sizeof(query), "update %s.\"%s\".%s set flags = bitand(flags, %d) where object_uid in (%s)",
            TRAFODION_SYSCAT_LIT, SEABASE_MD_SCHEMA, SEABASE_OBJECTS, ~MD_OBJECTS_BR_IN_PROGRESS, objsQryLocked);
 
-  Lng32 cliRC = cliInterface->executeImmediate(query);
+  int cliRC = cliInterface->executeImmediate(query);
   if (cliRC < 0) {
     cliInterface->retrieveSQLDiagnostics(CmpCommon::diags());
     return -1;
@@ -6964,7 +6964,7 @@ short CmpSeabaseDDL::cleanupLockForTag(RelBackupRestore *brExpr, ExeCliInterface
 
   if (tagStatus == NAString("VALID") && internalTagValid) {
     NAString backupType = ehi->getBackupType(brExpr->backupTag());
-    Lng32 retcode = ehi->finalizeRestore(brExpr->backupTag(), backupType + "_(CLEANUP)");
+    int retcode = ehi->finalizeRestore(brExpr->backupTag(), backupType + "_(CLEANUP)");
     if (retcode < 0) {
       populateDiags("CLEANUP", "Error occurred while delete _SAVE_ tag. ", "CmpSeabaseDDL::cleanupLockForTag", NULL,
                     -1);
@@ -6976,8 +6976,8 @@ short CmpSeabaseDDL::cleanupLockForTag(RelBackupRestore *brExpr, ExeCliInterface
 }
 
 short CmpSeabaseDDL::cleanupLockedObjects(RelBackupRestore *brExpr, ExeCliInterface *cliInterface) {
-  Lng32 cliRC = 0;
-  Lng32 retcode = 0;
+  int cliRC = 0;
+  int retcode = 0;
   NAString lockedTag;
   NABoolean isRestore = FALSE;
 
@@ -7249,7 +7249,7 @@ short CmpSeabaseDDL::verifyBRAuthority(const char *privsWherePred, ExeCliInterfa
   Int32 userID = ComUser::getCurrentUser();
   NAString objName("all objects in set");
 
-  Lng32 cliRC = 0;
+  int cliRC = 0;
   Queue *objsQueue = NULL;
   char query[500 + strlen(privsWherePred)];
   str_sprintf(query,
@@ -7285,7 +7285,7 @@ short CmpSeabaseDDL::verifyBRAuthority(const char *privsWherePred, ExeCliInterfa
 
   // Check to see if current user has priv on each object in the request
   PrivMgrUserPrivs privInfo;
-  for (Lng32 idx = 0; idx < objsQueue->numEntries(); idx++) {
+  for (int idx = 0; idx < objsQueue->numEntries(); idx++) {
     OutputInfo *vi = (OutputInfo *)objsQueue->getNext();
 
     // if current user is schema/owner, then has priv
@@ -7303,7 +7303,7 @@ short CmpSeabaseDDL::verifyBRAuthority(const char *privsWherePred, ExeCliInterfa
     if (objType == COM_SHARED_SCHEMA_OBJECT || objType == COM_PRIVATE_SCHEMA_OBJECT) continue;
 
     // Don't check for privs on histogram tables either
-    Int64 objUID = *(Int64 *)vi->get(3);
+    long objUID = *(long *)vi->get(3);
     objName = (char *)vi->get(5);
     if (isHistogramTable(objName)) continue;
 
@@ -7453,8 +7453,8 @@ Int32 CmpSeabaseDDL::getOwnerList(ExpHbaseInterface *ehi, NAArray<HbaseStr> *bac
 }
 
 short CmpSeabaseDDL::getUsersAndRoles(ExeCliInterface *cliInterface, const char *objUIDsWherePred, const char *srcSch,
-                                      Lng32 &numUR, NAString &userOrRoles) {
-  Lng32 cliRC = 0;
+                                      int &numUR, NAString &userOrRoles) {
+  int cliRC = 0;
   char query[1000 + strlen(objUIDsWherePred)];
   str_sprintf(query,
               "select distinct trim(grantee_name), grantee_id from ("
@@ -7480,12 +7480,12 @@ short CmpSeabaseDDL::getUsersAndRoles(ExeCliInterface *cliInterface, const char 
   }
 
   numUR = urQueue->numEntries();
-  for (Lng32 idx = 0; idx < urQueue->numEntries(); idx++) {
+  for (int idx = 0; idx < urQueue->numEntries(); idx++) {
     OutputInfo *vi = (OutputInfo *)urQueue->getNext();
     userOrRoles += "('";
     userOrRoles += (char *)vi->get(0);
     userOrRoles += "':";
-    userOrRoles += Int64ToNAString(*(Int64 *)vi->get(1));
+    userOrRoles += Int64ToNAString(*(long *)vi->get(1));
     userOrRoles += ")";
     if (idx < urQueue->entries() - 1) userOrRoles += ":";
   }
@@ -7509,7 +7509,7 @@ static void replace_all_distinct(NAString &input, const NAString &old_value, con
 
 short CmpSeabaseDDL::checkUsersAndRoles(ExeCliInterface *cliInterface, const char *userOrRoles, NAString &lackedUR,
                                         std::map<Int32, NAString> &userMap) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
   /*
   str_sprintf(query, "select trim(grantee_name), grantee_id from ( "
               "select grantee_name, grantee_id from (values "
@@ -7549,7 +7549,7 @@ short CmpSeabaseDDL::checkUsersAndRoles(ExeCliInterface *cliInterface, const cha
     goto label_checkUser_return;
   }
 
-  for (Lng32 idx = 0; idx < userQueue->numEntries(); idx++) {
+  for (int idx = 0; idx < userQueue->numEntries(); idx++) {
     OutputInfo *vi = (OutputInfo *)userQueue->getNext();
     NAString name((char *)vi->get(0));
     if (name == "NULL") {
@@ -7575,7 +7575,7 @@ short CmpSeabaseDDL::checkUsersAndRoles(ExeCliInterface *cliInterface, const cha
     goto label_checkUser_return;
   }
 
-  for (Lng32 idx = 0; idx < userQueue->numEntries(); idx++) {
+  for (int idx = 0; idx < userQueue->numEntries(); idx++) {
     OutputInfo *vi = (OutputInfo *)userQueue->getNext();
     NAString name((char *)vi->get(0));
     Int32 id = *(Int32 *)vi->get(1);
@@ -7597,7 +7597,7 @@ label_checkUser_return:
 }
 
 short CmpSeabaseDDL::createBackupRepos(ExeCliInterface *cliInterface) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
 
   char queryBuf[20000];
 
@@ -7635,7 +7635,7 @@ short CmpSeabaseDDL::createBackupRepos(ExeCliInterface *cliInterface) {
 
     Int32 qryArraySize = sizeOfqs / sizeof(QString);
     char *gluedQuery;
-    Lng32 gluedQuerySize;
+    int gluedQuerySize;
     glueQueryFragments(qryArraySize, qs, gluedQuery, gluedQuerySize);
 
     param_[0] = TRAFODION_SYSCAT_LIT;
@@ -7666,7 +7666,7 @@ label_error:
 }
 
 short CmpSeabaseDDL::dropBackupRepos(ExeCliInterface *cliInterface) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
   NABoolean xnWasStartedHere = FALSE;
   char queryBuf[1000];
 
@@ -7719,7 +7719,7 @@ void CmpSeabaseDDL::processBackupRepository(NABoolean createR, NABoolean dropR, 
 }
 
 short CmpSeabaseDDL::cleanupBackupMetadata(ExeCliInterface *cliInterface, NAString &backupTag) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
   char objectsUID[200];
   str_sprintf(objectsUID, "select object_uid from %s.\"%s\".%s where schema_name = '%s'", getSystemCatalog(),
               SEABASE_MD_SCHEMA, SEABASE_OBJECTS, backupTag.data());
@@ -7817,7 +7817,7 @@ label_return:
 // when drop regular backup tags force, all the incremental
 // backup tags which is related will be droped
 short CmpSeabaseDDL::cleanupLinkedBackupMD(ExeCliInterface *cliInterface, NAArray<HbaseStr> *backupList) {
-  Int64 time0, time1;
+  long time0, time1;
   time0 = NA_JulianTimestamp();
   for (Int32 i = 0; i < backupList->entries(); i++) {
     Int32 len = backupList->at(i).len;
@@ -7828,7 +7828,7 @@ short CmpSeabaseDDL::cleanupLinkedBackupMD(ExeCliInterface *cliInterface, NAArra
 
     ComObjectType objectType;
     Int32 schemaOwnerID = 0;
-    Int64 schemaUID = getObjectTypeandOwner(cliInterface, TRAFODION_SYSCAT_LIT, backupSch.data(),
+    long schemaUID = getObjectTypeandOwner(cliInterface, TRAFODION_SYSCAT_LIT, backupSch.data(),
                                             SEABASE_SCHEMA_OBJECTNAME, objectType, schemaOwnerID);
     // doesn't exist
     if (schemaUID == -1) {
@@ -7868,7 +7868,7 @@ short CmpSeabaseDDL::checkBackupAuthIDs(ExeCliInterface *cliInterface) {
  */
 short CmpSeabaseDDL::fixBackupAuthIDs(ExeCliInterface *cliInterface, NAString &backupScheName,
                                       std::map<Int32, NAString> &unMatchedUserIDs) {
-  Lng32 cliRC = 0;
+  int cliRC = 0;
   char updateAuths[1024];
   // update _BACKUP_schema.OBJECT_PRIVILEGES, _BACKUP_schema.COLUMN_PRIVILEGES,
   // _BACKUP_schema.SCHEMA_PRIVILEGES, set GRANTEE_ID to a temporary value, because

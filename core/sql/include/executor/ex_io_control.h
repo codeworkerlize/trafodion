@@ -99,7 +99,7 @@ inline down_state &ControlInfo::getDownState() { return downState_; };
 
 inline ULng32 ControlInfo::getBufferSequenceNumber() { return downState_.requestValue; }
 
-inline void ControlInfo::setBufferSequenceNumber(ULng32 snum) { downState_.requestValue = (Lng32)snum; }
+inline void ControlInfo::setBufferSequenceNumber(ULng32 snum) { downState_.requestValue = (int)snum; }
 
 inline NABoolean ControlInfo::getIsDiagsAreaPresent() const { return (ciFlags_ & HAS_DIAGSAREA); }
 

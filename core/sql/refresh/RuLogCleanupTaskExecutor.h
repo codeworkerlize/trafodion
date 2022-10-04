@@ -101,7 +101,7 @@ class REFRESH_LIB_CLASS CRULogCleanupTaskExecutor : public CRUTaskExecutor {
   enum { SIZE_OF_PACK_BUFFER = 2000 };
 
   //-- Implementation of pure virtual
-  virtual Lng32 GetIpcBufferSize() const {
+  virtual int GetIpcBufferSize() const {
     return SIZE_OF_PACK_BUFFER;  // Initial size
   }
 

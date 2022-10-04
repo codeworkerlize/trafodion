@@ -138,8 +138,8 @@ void CtrlStmtComplexObject::dump() {
 // TransAttr definitions
 
 TransAttrComplexObject::TransAttrComplexObject(NAMemory *heap, TransMode::AccessMode mode,
-                                               TransMode::IsolationLevel isoLv, Lng32 diagSize,
-                                               TransMode::RollbackMode rollbackMode, Lng32 autoabortInterval)
+                                               TransMode::IsolationLevel isoLv, int diagSize,
+                                               TransMode::RollbackMode rollbackMode, int autoabortInterval)
     : mode_(mode),
       isoLv_(isoLv),
       diagSize_(diagSize),
@@ -148,8 +148,8 @@ TransAttrComplexObject::TransAttrComplexObject(NAMemory *heap, TransMode::Access
       ComplexObject(heap, TransAttrComplexObjectType) {}
 
 TransAttrComplexObject::TransAttrComplexObject(TransMode::AccessMode mode, TransMode::IsolationLevel isoLv,
-                                               Lng32 diagSize, TransMode::RollbackMode rollbackMode,
-                                               Lng32 autoabortInterval)
+                                               int diagSize, TransMode::RollbackMode rollbackMode,
+                                               int autoabortInterval)
     : mode_(mode),
       isoLv_(isoLv),
       diagSize_(diagSize),
@@ -208,9 +208,9 @@ TransMode::IsolationLevel TransAttrComplexObject::getIsolationLevel() { return i
 
 TransMode::RollbackMode TransAttrComplexObject::getRollbackMode() { return rollbackMode_; }
 
-Lng32 TransAttrComplexObject::getDiagSize() { return diagSize_; }
+int TransAttrComplexObject::getDiagSize() { return diagSize_; }
 
-Lng32 TransAttrComplexObject::getAutoabortInterval() { return autoabortInterval_; }
+int TransAttrComplexObject::getAutoabortInterval() { return autoabortInterval_; }
 
 void TransAttrComplexObject::setAccessMode(TransMode::AccessMode mode) { mode_ = mode; }
 
@@ -218,9 +218,9 @@ void TransAttrComplexObject::setRollbackMode(TransMode::RollbackMode rollbackMod
 
 void TransAttrComplexObject::setIsolationLevel(TransMode::IsolationLevel isoLv) { isoLv_ = isoLv; }
 
-void TransAttrComplexObject::setDiagSize(Lng32 diagSize) { diagSize_ = diagSize; }
+void TransAttrComplexObject::setDiagSize(int diagSize) { diagSize_ = diagSize; }
 
-void TransAttrComplexObject::setAutoabortInterval(Lng32 autoabortInterval) { autoabortInterval_ = autoabortInterval; }
+void TransAttrComplexObject::setAutoabortInterval(int autoabortInterval) { autoabortInterval_ = autoabortInterval; }
 
 void TransAttrComplexObject::dump() {
   cout << "TRANSACTION ";

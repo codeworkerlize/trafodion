@@ -157,7 +157,7 @@ void JBB::displayReductionPaths() {
 #ifndef NDEBUG
 void JBB::debugQueryGraph() {
   // get integer representing the reduction path to be built
-  Lng32 reductionPathString = 0;
+  int reductionPathString = 0;
 
   CANodeIdSet currentReductionPath;
   EstLogPropSharedPtr currentReductionPathProps;

@@ -97,7 +97,7 @@ void CRUDupElimResolver::ExecuteCQSOff() {
 //	Print the number of invocations of a statement
 //--------------------------------------------------------------------------//
 
-void CRUDupElimResolver::DumpStmtStatistics(CDSString &to, CDSString &stmt, Lng32 num) const {
+void CRUDupElimResolver::DumpStmtStatistics(CDSString &to, CDSString &stmt, int num) const {
   char buf[10];
 
   sprintf(buf, ": %d", num);

@@ -189,9 +189,9 @@ void PCodePredicateGroup::adjustCost(GROUPLIST &unit) {
 //
 void PCodePredicateGroup::setCost(GROUPLIST &unit, NABoolean isStatic) {
   CollIndex i;
-  Int64 totalSeen = 0;
-  Int64 totalTaken = 0;
-  Int64 totalCost = 0;
+  long totalSeen = 0;
+  long totalTaken = 0;
+  long totalCost = 0;
 
   // First determine how many times this unit was executed and set seenCount_
   // for the unit accordingly.  Because any predicate group can be the head of
@@ -209,8 +209,8 @@ void PCodePredicateGroup::setCost(GROUPLIST &unit, NABoolean isStatic) {
   // unit.
   for (totalSeen = seenCount_, i = 0; i < unit.entries(); i++) {
     // Old counts for this unit
-    Int64 seen = unit[i]->getSeenCount();
-    Int64 taken = unit[i]->getTakenCount();
+    long seen = unit[i]->getSeenCount();
+    long taken = unit[i]->getTakenCount();
 
     // Increment taken count for this unit
     totalTaken += taken;
@@ -219,7 +219,7 @@ void PCodePredicateGroup::setCost(GROUPLIST &unit, NABoolean isStatic) {
     double hitRatio = (seen == 0) ? 0 : ((float)taken / (float)seen);
 
     // New predicated taken counts for this unit
-    taken = (Int64)(hitRatio * (float)totalSeen);
+    taken = (long)(hitRatio * (float)totalSeen);
 
     // Increment cost for this unit
     totalCost += (unit[i]->getCost() * totalSeen);
@@ -234,9 +234,9 @@ void PCodePredicateGroup::setCost(GROUPLIST &unit, NABoolean isStatic) {
   // unit before an early exit.  As such, divide the total cost seen by 2.  If
   // dynamic, the weighted average is taken by refactoring in the seen count.
   if (isStatic)
-    cost_ = (Int64)((float)totalCost / (float)2);
+    cost_ = (long)((float)totalCost / (float)2);
   else
-    cost_ = (Int64)((float)totalCost / (float)seenCount_);
+    cost_ = (long)((float)totalCost / (float)seenCount_);
 
   // Always make cost_ a multiple of the second costliest PCODE instruction.
   // At minimum its cost should be 1.

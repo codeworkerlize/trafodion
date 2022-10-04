@@ -36,12 +36,12 @@
 double getDoubleValue(ConstValue *val, logLevel level);
 
 /**
- * Returns the Int64 value corresponding to the type of the ConstValue val.
+ * Returns the long value corresponding to the type of the ConstValue val.
  * val can be of any numeric, datetime, or interval type. The returned value
  * is used in the representation of a range of values implied by the predicates
  * of a query for an exact numeric, datetime, or interval type.
  *
- * @param val ConstValue that wraps the value to be represented as an Int64.
+ * @param val ConstValue that wraps the value to be represented as an long.
  * @param rangeColType The type of the column or expr the range is for.
  * @param [out] truncated TRUE returned if the value returned was the result of
  *                        truncating the input value. This can happen for floating
@@ -57,7 +57,7 @@ double getDoubleValue(ConstValue *val, logLevel level);
  * @param level Logging level to use in event of failure.
  * @return The rangespec internal representation of the input constant value.
  */
-static Int64 getInt64Value(ConstValue *val, const NAType *rangeColType, NABoolean &truncated, NABoolean &valWasNegative,
+static long getInt64Value(ConstValue *val, const NAType *rangeColType, NABoolean &truncated, NABoolean &valWasNegative,
                            logLevel level);
 
 OptRangeSpec::OptRangeSpec(QRDescGenerator *descGenerator, CollHeap *heap, logLevel ll)
@@ -319,7 +319,7 @@ ItemExpr *OptRangeSpec::getRangeExpr() const {
 // Exprs have been converted to a canonical form in which const is the 2nd operand.
 // NULL is returned if there is not a constant operand, or if the other operand
 // is not the one the range is being built for.
-ConstValue *OptRangeSpec::getConstOperand(ItemExpr *predExpr, Lng32 constInx) {
+ConstValue *OptRangeSpec::getConstOperand(ItemExpr *predExpr, int constInx) {
   QRTRACER("getConstOperand");
   ItemExpr *left = predExpr->child(0);
   ItemExpr *right = predExpr->child(constInx);
@@ -456,7 +456,7 @@ void OptRangeSpec::addSubrange(ConstValue *start, ConstValue *end, NABoolean sta
           (typeQual == NA_BOOLEAN_TYPE)) {
         // Fixed-point numeric subranges are normalized to be inclusive, to
         // simplify equivalence and subsumption checks.
-        Subrange<Int64> *sub = new (mvqrHeap_) Subrange<Int64>(logLevel_);
+        Subrange<long> *sub = new (mvqrHeap_) Subrange<long>(logLevel_);
         sub->setUnparsedStart(unparsedStart);
         sub->setUnparsedEnd(unparsedEnd);
         NABoolean valTruncated;
@@ -520,7 +520,7 @@ void OptRangeSpec::addSubrange(ConstValue *start, ConstValue *end, NABoolean sta
     // In some cases, constant folding of char expressions produces a varchar
     // constant, so we have to take a possible length field into account.
     case NA_CHARACTER_TYPE: {
-      Lng32 headerBytes;
+      int headerBytes;
       const NAType *startType = (start ? start->getType() : NULL);
       const NAType *endType = (end ? end->getType() : NULL);
 
@@ -686,9 +686,9 @@ void OptRangeSpec::intersectTypeConstraint(QRDescGenerator *descGen, ValueId col
     // because addSubrange (which looks at the type) is bypassed and we call
     // placeSubrange directly.
     typeRange = new (mvqrHeap_) OptRangeSpec(descGen, mvqrHeap_);
-    Int64 start, end;
+    long start, end;
     SubrangeBase::getExactNumericMinMax(colType, start, end, logLevel_);
-    Subrange<Int64> *numSubrange = new (mvqrHeap_) Subrange<Int64>(logLevel_);
+    Subrange<long> *numSubrange = new (mvqrHeap_) Subrange<long>(logLevel_);
     numSubrange->setUnparsedStart("");
     numSubrange->setUnparsedEnd("");
     numSubrange->start = start;
@@ -1028,17 +1028,17 @@ NABoolean OptRangeSpec::buildRange(ItemExpr *origPredExpr) {
 
 // Local helper function to cast int64, which, as the widest integral type is
 // used for rangespec processing, to the actual type of the column the rangespec
-// applies to. numBuf is declared as Int64* to ensure proper alignment for all
+// applies to. numBuf is declared as long* to ensure proper alignment for all
 // possible integral types.
-static void downcastRangespecInt(Int64 val, Lng32 scale, NAType *&type, Int64 *numBuf, NAMemory *heap) {
-  Lng32 precision = 0;  // Only used for non-integral exact numeric
+static void downcastRangespecInt(long val, int scale, NAType *&type, long *numBuf, NAMemory *heap) {
+  int precision = 0;  // Only used for non-integral exact numeric
 
   // For non-integer values with leading 0's, have to adjust precision to
   // equal scale. For example, the raw value 23 with a scale of 4 (.0023)
   // will initially be calculated to have precision 2 instead of 4.
   if (scale)  // non-integral value
   {
-    precision = (Lng32)log10(::abs((double)val)) + 1;
+    precision = (int)log10(::abs((double)val)) + 1;
     if (scale > precision) precision = scale;
   }
 
@@ -1059,14 +1059,14 @@ static void downcastRangespecInt(Int64 val, Lng32 scale, NAType *&type, Int64 *n
     if (scale == 0)
       type = new (heap) SQLLargeInt(heap, TRUE, FALSE);
     else
-      type = new (heap) SQLNumeric(heap, sizeof(Int64), precision, scale, TRUE, FALSE);
+      type = new (heap) SQLNumeric(heap, sizeof(long), precision, scale, TRUE, FALSE);
   }
 }
 
-// Instantiate a ConstValue using the actual type of the passed Int64 value.
+// Instantiate a ConstValue using the actual type of the passed long value.
 // The actual type is indicated by the type parameter, and could be any type
 // represented as an integer in a rangespec.
-ConstValue *OptRangeSpec::reconstituteInt64Value(NAType *type, Int64 val) const {
+ConstValue *OptRangeSpec::reconstituteInt64Value(NAType *type, long val) const {
   // Use these for the textual representation of a constant value, which is
   // passed to the ConstValue ctor.
   char constValTextBuffer[50];
@@ -1081,7 +1081,7 @@ ConstValue *OptRangeSpec::reconstituteInt64Value(NAType *type, Int64 val) const 
       assertLogAndThrow(CAT_SQL_COMP_RANGE, logLevel_, numType->isExact(), QRLogicException,
                         "Expecting exact numeric type in "
                         "reconstituteInt64Value");
-      Int64 numBuf;
+      long numBuf;
       NAType *constType = NULL;
       downcastRangespecInt(val, numType->getScale(), constType, &numBuf, mvqrHeap_);
       return new (mvqrHeap_) ConstValue(constType, &numBuf, constType->getNominalSize(), &constValTextStr, mvqrHeap_);
@@ -1115,7 +1115,7 @@ ConstValue *OptRangeSpec::reconstituteInt64Value(NAType *type, Int64 val) const 
           // of microseconds but by the numerator of the fraction having
           // denominator equal to 10^fractionPrecision.
           tsFieldValues[DatetimeValue::FRACTION] =
-              (ULng32)((val % 1000000) / (Int64)pow(10, 6 - dtType->getFractionPrecision()));
+              (ULng32)((val % 1000000) / (long)pow(10, 6 - dtType->getFractionPrecision()));
           val /= 1000000;
           tsFieldValues[DatetimeValue::SECOND] = (ULng32)(val % 60);
           val /= 60;
@@ -1124,7 +1124,7 @@ ConstValue *OptRangeSpec::reconstituteInt64Value(NAType *type, Int64 val) const 
           tsFieldValues[DatetimeValue::HOUR] = (ULng32)val;
           dtv.setValue(REC_DATE_HOUR, REC_DATE_SECOND, dtType->getFractionPrecision(), tsFieldValues);
           assertLogAndThrow(CAT_SQL_COMP_RANGE, logLevel_, dtv.isValid(), QRLogicException,
-                            "Invalid time value reconstructed from Int64 value");
+                            "Invalid time value reconstructed from long value");
           constValTextStr = dtv.getValueAsString(*dtType);
           return new (mvqrHeap_) ConstValue(new (mvqrHeap_) SQLTime(mvqrHeap_, FALSE, dtType->getFractionPrecision()),
                                             (void *)dtv.getValue(), dtv.getValueLen(), &constValTextStr, mvqrHeap_);
@@ -1152,9 +1152,9 @@ ConstValue *OptRangeSpec::reconstituteInt64Value(NAType *type, Int64 val) const 
     } break;
 
     case NA_INTERVAL_TYPE: {
-      Int64 origVal = val;  // Use this later to check for precision loss.
-      Int64 scaledVal;      // Compare to origVal to check precision loss.
-      Int64 scaleFactor;
+      long origVal = val;  // Use this later to check for precision loss.
+      long scaledVal;      // Compare to origVal to check precision loss.
+      long scaleFactor;
       IntervalType *intvlType = static_cast<IntervalType *>(type);
 
       // For rangespec analysis, all values are converted to months or
@@ -1187,7 +1187,7 @@ ConstValue *OptRangeSpec::reconstituteInt64Value(NAType *type, Int64 val) const 
           break;
 
         case REC_DATE_SECOND:
-          scaleFactor = (Int64)pow(10, 6 - intvlType->getFractionPrecision());
+          scaleFactor = (long)pow(10, 6 - intvlType->getFractionPrecision());
           val /= scaleFactor;
           scaledVal = val * scaleFactor;
           break;
@@ -1201,7 +1201,7 @@ ConstValue *OptRangeSpec::reconstituteInt64Value(NAType *type, Int64 val) const 
       // Calculate the leading field precision of the interval constant, when
       // converted to units of its end field.
       UInt32 leadingPrec = 0;
-      Int64 tempVal = (val >= 0 ? val : -val);  // abs has no overload for Int64
+      long tempVal = (val >= 0 ? val : -val);  // abs has no overload for long
       while (tempVal > 0) {
         leadingPrec++;
         tempVal /= 10;
@@ -1230,7 +1230,7 @@ ConstValue *OptRangeSpec::reconstituteInt64Value(NAType *type, Int64 val) const 
                          "interval end field = %d",
                          origVal, intvlType->getEndField());
 
-      // IntervalValue::setValue() will cast the Int64 value to the appropriate
+      // IntervalValue::setValue() will cast the long value to the appropriate
       // type if you pass the length of that type, but negative values seem
       // to be stored incorrectly unless they are 8 bytes (see bug 2773), so
       // we just use 8 bytes always.
@@ -1304,14 +1304,14 @@ ItemExpr *OptRangeSpec::makeSubrangeORBackbone(SubrangeBase *subrange, ItemExpr 
                          (typeQual == NA_NUMERIC_TYPE && static_cast<const NumericType *>(type)->isExact()),
                      QRDescriptorException, "Invalid type for makeSubrangeOrBackbone() -- %d", typeQual);
 
-  Subrange<Int64> *intSubrange = (Subrange<Int64> *)subrange;
-  Int64 startVal = intSubrange->start;
-  Int64 endVal = intSubrange->end;
+  Subrange<long> *intSubrange = (Subrange<long> *)subrange;
+  long startVal = intSubrange->start;
+  long endVal = intSubrange->end;
   ItemExpr *top = NULL;  // current top of backbone; eventual return value
   ItemExpr *eqExpr;      // construct each rangeitem=value pred here...
   ConstValue *cv;        // ...using equality to this constant
 
-  for (Int64 val = startVal; val <= endVal; val++) {
+  for (long val = startVal; val <= endVal; val++) {
     cv = reconstituteInt64Value(type, val);
     eqExpr = new (mvqrHeap_) BiRelat(ITM_EQUAL, subrangeItem, cv);
     eqExpr->synthTypeAndValueId();
@@ -1389,9 +1389,9 @@ ItemExpr *OptRangeSpec::makeSubrangeItemExpr(SubrangeBase *subrange, ItemExpr *s
     case NA_INTERVAL_TYPE:
       if (typeQual == NA_DATETIME_TYPE || typeQual == NA_INTERVAL_TYPE ||
           (typeQual == NA_NUMERIC_TYPE && static_cast<const NumericType *>(type)->isExact())) {
-        Subrange<Int64> *intSubrange = (Subrange<Int64> *)subrange;
-        Int64 startVal = intSubrange->start - intSubrange->getStartAdjustment();
-        Int64 endVal = intSubrange->end + intSubrange->getEndAdjustment();
+        Subrange<long> *intSubrange = (Subrange<long> *)subrange;
+        long startVal = intSubrange->start - intSubrange->getStartAdjustment();
+        long endVal = intSubrange->end + intSubrange->getEndAdjustment();
         if (parentOfStart) parentOfStart->child(1) = reconstituteInt64Value(type, startVal);
         if (parentOfEnd) parentOfEnd->child(1) = reconstituteInt64Value(type, endVal);
       } else {
@@ -1622,14 +1622,14 @@ void OptNormRangeSpec::unionRange(OptNormRangeSpec *other) {
 
 // Convert a date, time, or timestamp value to an integral form for use with
 // range specifications.
-static Int64 getInt64ValueFromDateTime(ConstValue *val, const DatetimeType *rangeColType, const DatetimeType *constType,
+static long getInt64ValueFromDateTime(ConstValue *val, const DatetimeType *rangeColType, const DatetimeType *constType,
                                        NABoolean &truncated, logLevel level) {
   char dateRep[11];
-  Int64 i64val;
+  long i64val;
   char *valPtr = (char *)val->getConstValue() + val->getType()->getSQLnullHdrSize();
-  Lng32 rangeColFracSecPrec = rangeColType->getFractionPrecision();
-  Lng32 constValueFracSecPrec = constType->getFractionPrecision();
-  Lng32 fracSec;
+  int rangeColFracSecPrec = rangeColType->getFractionPrecision();
+  int constValueFracSecPrec = constType->getFractionPrecision();
+  int fracSec;
 
   truncated = FALSE;
 
@@ -1645,7 +1645,7 @@ static Int64 getInt64ValueFromDateTime(ConstValue *val, const DatetimeType *rang
       i64val *= 1000000;  // in microseconds
       if (constValueFracSecPrec) {
         memcpy(&fracSec, valPtr + 3, 4);
-        i64val += fracSec * (Int64)pow(10, 6 - constValueFracSecPrec);
+        i64val += fracSec * (long)pow(10, 6 - constValueFracSecPrec);
       }
       break;
 
@@ -1664,8 +1664,8 @@ static Int64 getInt64ValueFromDateTime(ConstValue *val, const DatetimeType *rang
   // operator with the truncated value needs to be changed (e.g., t<time'12:00:00.4'
   // <--> t<=time'12:00:00', if t is time(0).
   if (constValueFracSecPrec > rangeColFracSecPrec) {
-    Int64 scaleFactor = (Int64)pow(10, 6 - rangeColFracSecPrec);
-    Int64 unscaledI64Val = i64val;
+    long scaleFactor = (long)pow(10, 6 - rangeColFracSecPrec);
+    long unscaledI64Val = i64val;
     i64val = i64val / scaleFactor * scaleFactor;
     truncated = (i64val != unscaledI64Val);
   }
@@ -1673,7 +1673,7 @@ static Int64 getInt64ValueFromDateTime(ConstValue *val, const DatetimeType *rang
   return i64val;
 }
 
-// Return an interval value as an Int64 for use with range specifications.
+// Return an interval value as an long for use with range specifications.
 // An interval value of either type (year-month or day-time) will be calculated
 // in terms of the least significant field of that type, regardless of the
 // actual fields used in the declaration. For example, an interval specified as
@@ -1686,13 +1686,13 @@ static Int64 getInt64ValueFromDateTime(ConstValue *val, const DatetimeType *rang
 // a second in the example). We scale such values to microseconds so that
 // everything is comparable. In the example above, the value used would be
 // 5100000 instead of the original internal integral value of 510.
-static Int64 getInt64ValueFromInterval(ConstValue *constVal, const IntervalType *colIntvlType, NABoolean &truncated,
+static long getInt64ValueFromInterval(ConstValue *constVal, const IntervalType *colIntvlType, NABoolean &truncated,
                                        NABoolean &valWasNegative, logLevel level) {
   const IntervalType *constIntvlType = static_cast<const IntervalType *>(constVal->getType());
-  Int64 i64val;
+  long i64val;
   char *val = (char *)constVal->getConstValue();
-  Lng32 storageSize = constVal->getStorageSize();
-  Lng32 nullHdrSize = constVal->getType()->getSQLnullHdrSize();
+  int storageSize = constVal->getStorageSize();
+  int nullHdrSize = constVal->getType()->getSQLnullHdrSize();
   val += nullHdrSize;
   storageSize -= nullHdrSize;
   switch (storageSize) {
@@ -1705,8 +1705,8 @@ static Int64 getInt64ValueFromInterval(ConstValue *constVal, const IntervalType 
       i64val = valx;
     } break;
     case 4: {
-      Lng32 valx;
-      memcpy(&valx, val, sizeof(Lng32));
+      int valx;
+      memcpy(&valx, val, sizeof(int));
       valWasNegative = (valx < 0);
       i64val = valx;
     } break;
@@ -1748,7 +1748,7 @@ static Int64 getInt64ValueFromInterval(ConstValue *constVal, const IntervalType 
       // as a number of microseconds to ensure comparability, so if the
       // fractional precision is less than the default (6), scale it to
       // microseconds.
-      i64val *= (Int64)pow(10, 6 - constIntvlType->getFractionPrecision());
+      i64val *= (long)pow(10, 6 - constIntvlType->getFractionPrecision());
       break;
     default:
       assertLogAndThrow1(CAT_SQL_COMP_RANGE, level, FALSE, QRDescriptorException,
@@ -1761,8 +1761,8 @@ static Int64 getInt64ValueFromInterval(ConstValue *constVal, const IntervalType 
   // constant is "interval'2-7'year to month", the constant is truncated to 2
   // years. We remember that this truncation occurred, as it may affect the
   // comparison operator used in the rangespec.
-  Int64 scaleFactor;
-  Int64 origI64Val = i64val;
+  long scaleFactor;
+  long origI64Val = i64val;
   switch (colIntvlType->getEndField()) {
     // Do integer division to scrape off any excess precision in the
     // constant value, then multipy by same to restore it as a number of
@@ -1788,7 +1788,7 @@ static Int64 getInt64ValueFromInterval(ConstValue *constVal, const IntervalType 
       break;
     case REC_DATE_SECOND:
       // Divide/multiply by 10 ** <unused frac secs>.
-      scaleFactor = (Int64)pow(10, 6 - colIntvlType->getFractionPrecision());
+      scaleFactor = (long)pow(10, 6 - colIntvlType->getFractionPrecision());
       i64val = i64val / scaleFactor * scaleFactor;
       break;
     default:
@@ -1801,7 +1801,7 @@ static Int64 getInt64ValueFromInterval(ConstValue *constVal, const IntervalType 
   return i64val;
 }
 
-Int64 getInt64Value(ConstValue *val, const NAType *rangeColType, NABoolean &truncated, NABoolean &valWasNegative,
+long getInt64Value(ConstValue *val, const NAType *rangeColType, NABoolean &truncated, NABoolean &valWasNegative,
                     logLevel level) {
   truncated = FALSE;
   valWasNegative = FALSE;
@@ -1819,22 +1819,22 @@ Int64 getInt64Value(ConstValue *val, const NAType *rangeColType, NABoolean &trun
   assertLogAndThrow1(CAT_SQL_COMP_RANGE, level, constValType->getTypeQualifier() == NA_NUMERIC_TYPE,
                      QRDescriptorException, "Unexpected date type -- %d", constValType->getTypeQualifier());
   const NumericType *constValNumType = static_cast<const NumericType *>(constValType);
-  Lng32 rangeColumnScale = rangeColType->getScale();
+  int rangeColumnScale = rangeColType->getScale();
   NABoolean isExactNumeric = val->isExactNumeric();
-  Lng32 constValueScale = (isExactNumeric ? constValNumType->getScale() : 0);
+  int constValueScale = (isExactNumeric ? constValNumType->getScale() : 0);
   char *valuePtr = (char *)val->getConstValue();
-  Lng32 storageSize = val->getStorageSize();
-  Lng32 nullHdrSize = constValNumType->getSQLnullHdrSize();
+  int storageSize = val->getStorageSize();
+  int nullHdrSize = constValNumType->getSQLnullHdrSize();
   valuePtr += nullHdrSize;
   storageSize -= nullHdrSize;
 
   // Scale factor for exact numeric constant values.
-  Int64 scaleFactor = 1;
-  if (constValueScale < rangeColumnScale) scaleFactor = (Int64)pow(10, rangeColumnScale - constValueScale);
+  long scaleFactor = 1;
+  if (constValueScale < rangeColumnScale) scaleFactor = (long)pow(10, rangeColumnScale - constValueScale);
 
   // Scale factor for approximate (floating-point) constant values.
   double dblScaleFactor = pow(10, rangeColumnScale);
-  Int64 i64val = 0;
+  long i64val = 0;
   Float64 flt64val = 0;
 
   if (constValNumType->isDecimal()) {
@@ -1844,7 +1844,7 @@ Int64 getInt64Value(ConstValue *val, const NAType *rangeColType, NABoolean &trun
     // digit. The value is negative if the upper nibble of the first byte is
     // 11 (0xB0 after masking off lower nibble).
     char *p = valuePtr;
-    for (Lng32 i = 0; i < storageSize; i++) (i64val *= 10) += (*p++ & 0x0F);
+    for (int i = 0; i < storageSize; i++) (i64val *= 10) += (*p++ & 0x0F);
     if ((*valuePtr & 0xF0) == 0xB0) {
       i64val *= -1;
       valWasNegative = TRUE;
@@ -1859,9 +1859,9 @@ Int64 getInt64Value(ConstValue *val, const NAType *rangeColType, NABoolean &trun
         memcpy(&i8val, valuePtr, storageSize);
         if (constValNumType->isSigned()) {
           valWasNegative = (i8val < 0);
-          i64val = (Int64)(i8val * scaleFactor);
+          i64val = (long)(i8val * scaleFactor);
         } else
-          i64val = (Int64)((UInt8)i8val * scaleFactor);
+          i64val = (long)((UInt8)i8val * scaleFactor);
       } break;
 
       case 2: {
@@ -1872,20 +1872,20 @@ Int64 getInt64Value(ConstValue *val, const NAType *rangeColType, NABoolean &trun
         memcpy(&i16val, valuePtr, storageSize);
         if (constValNumType->isSigned()) {
           valWasNegative = (i16val < 0);
-          i64val = (Int64)(i16val * scaleFactor);
+          i64val = (long)(i16val * scaleFactor);
         } else
-          i64val = (Int64)((UInt16)i16val * scaleFactor);
+          i64val = (long)((UInt16)i16val * scaleFactor);
       } break;
 
       case 4:
         if (isExactNumeric) {
-          Lng32 i32val;
+          int i32val;
           memcpy(&i32val, valuePtr, storageSize);
           if (constValNumType->isSigned()) {
             valWasNegative = (i32val < 0);
-            i64val = (Int64)(i32val * scaleFactor);
+            i64val = (long)(i32val * scaleFactor);
           } else
-            i64val = (Int64)((UInt32)i32val * scaleFactor);
+            i64val = (long)((UInt32)i32val * scaleFactor);
         } else {
           Float32 flt32val;
           memcpy(&flt32val, valuePtr, storageSize);
@@ -1896,7 +1896,7 @@ Int64 getInt64Value(ConstValue *val, const NAType *rangeColType, NABoolean &trun
           else if (flt64val > LLONG_MAX)
             i64val = LLONG_MAX;
           else
-            i64val = (Int64)flt64val;
+            i64val = (long)flt64val;
         }
         break;
 
@@ -1914,7 +1914,7 @@ Int64 getInt64Value(ConstValue *val, const NAType *rangeColType, NABoolean &trun
           else if (flt64val > LLONG_MAX)
             i64val = LLONG_MAX;
           else
-            i64val = (Int64)flt64val;
+            i64val = (long)flt64val;
         }
         break;
 
@@ -1931,7 +1931,7 @@ Int64 getInt64Value(ConstValue *val, const NAType *rangeColType, NABoolean &trun
   // is 0).
   if (isExactNumeric) {
     if (constValueScale > rangeColumnScale) {
-      scaleFactor = (Int64)pow(10, constValueScale - rangeColumnScale);
+      scaleFactor = (long)pow(10, constValueScale - rangeColumnScale);
       truncated = (i64val / scaleFactor * scaleFactor != i64val);
       return i64val / scaleFactor;
     } else
@@ -1950,8 +1950,8 @@ double getDoubleValue(ConstValue *val, logLevel level) {
   // properly, so we need to memcpy the value representation into a variable
   // of the appropriate type.
   const NAType *constValType = val->getType();
-  Lng32 nullHdrSize = constValType->getSQLnullHdrSize();
-  Lng32 valueStorageSize = val->getStorageSize() - nullHdrSize;
+  int nullHdrSize = constValType->getSQLnullHdrSize();
+  int valueStorageSize = val->getStorageSize() - nullHdrSize;
   void *valuePtr = (char *)val->getConstValue() + nullHdrSize;
 
   NABoolean isExactNumeric = val->isExactNumeric();
@@ -1964,8 +1964,8 @@ double getDoubleValue(ConstValue *val, logLevel level) {
     // digit. The value is negative if the upper nibble of the first byte is
     // 11 (0xB0 after masking off lower nibble).
     char *p = (char *)valuePtr;
-    Int64 i64val = 0;
-    for (Lng32 i = 0; i < valueStorageSize; i++) (i64val *= 10) += (*p++ & 0x0F);
+    long i64val = 0;
+    for (int i = 0; i < valueStorageSize; i++) (i64val *= 10) += (*p++ & 0x0F);
     if ((*(char *)valuePtr & 0xF0) == 0xB0) i64val *= -1;
     return i64val / scaleDivisor;
   }
@@ -1991,7 +1991,7 @@ double getDoubleValue(ConstValue *val, logLevel level) {
 
     case 4:  //  int
       if (isExactNumeric) {
-        Lng32 i32val;
+        int i32val;
         memcpy(&i32val, valuePtr, valueStorageSize);
         return i32val / scaleDivisor;
       } else {
@@ -2003,7 +2003,7 @@ double getDoubleValue(ConstValue *val, logLevel level) {
     case 8:  // largeint
       if (isExactNumeric) {
         // possible loss of data
-        Int64 i64val;
+        long i64val;
         memcpy(&i64val, valuePtr, valueStorageSize);
         return (double)(i64val / scaleDivisor);
       } else {

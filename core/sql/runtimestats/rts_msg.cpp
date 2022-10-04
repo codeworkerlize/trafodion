@@ -274,7 +274,7 @@ RtsQueryId::RtsQueryId(NAMemory *heap, char *nodeName, short cpu, pid_t pid, UIn
   subReqType_ = -1;
 }
 
-RtsQueryId::RtsQueryId(NAMemory *heap, char *nodeName, short cpu, pid_t pid, Int64 timeStamp, Lng32 queryNumber,
+RtsQueryId::RtsQueryId(NAMemory *heap, char *nodeName, short cpu, pid_t pid, long timeStamp, int queryNumber,
                        UInt16 statsMergeType, short activeQueryNum, short reqType)
     : RtsMessageObj(RTS_QUERY_ID, currRtsQueryIdVersionNumber, heap),
       cpu_(cpu),
@@ -355,7 +355,7 @@ void RtsCpuStatsReq::unpackObj(IpcMessageObjType objType, IpcMessageObjVersion o
   unpackBuffer(buffer, filter_);
 }
 
-void RtsExplainFrag::setExplainFrag(void *explainFrag, Lng32 len, Lng32 topNodeOffset) {
+void RtsExplainFrag::setExplainFrag(void *explainFrag, int len, int topNodeOffset) {
   if (explainFrag_ != NULL) {
     NADELETEBASIC((char *)explainFrag_, getHeap());
     explainFrag_ = NULL;
@@ -418,7 +418,7 @@ IpcMessageObjSize QueryStarted::packedLength() {
   return result;
 }
 
-RtsExplainReq::RtsExplainReq(const RtsHandle &h, NAMemory *heap, char *qid, Lng32 qidLen)
+RtsExplainReq::RtsExplainReq(const RtsHandle &h, NAMemory *heap, char *qid, int qidLen)
     : RtsMessageObj(RTS_MSG_EXPLAIN_REQ, currRtsExplainReqVersionNumber, heap) {
   setHandle(h);
   qid_ = new (heap) char[qidLen + 1];
@@ -718,7 +718,7 @@ void SecInvalidKeyRequest::unpackObj(IpcMessageObjType objType, IpcMessageObjVer
 }
 
 ObjectEpochChangeRequest::ObjectEpochChangeRequest(NAMemory *heap, Operation operation, Int32 objectNameLength,
-                                                   const char *objectName, Int64 redefTime, UInt64 key,
+                                                   const char *objectName, long redefTime, UInt64 key,
                                                    UInt32 expectedEpoch, UInt32 expectedFlags, UInt32 newEpoch,
                                                    UInt32 newFlags)
     : RtsMessageObj(OBJECT_EPOCH_CHANGE_REQ, CurrObjectEpochChangeReqVersionNumber, heap),
@@ -816,7 +816,7 @@ void ObjectEpochChangeReply::unpackObj(IpcMessageObjType objType, IpcMessageObjV
   unpackBuffer(buffer, maxExpectedFlagsFound_);
 }
 
-ObjectLockRequest::ObjectLockRequest(NAMemory *heap, const char *objectName, Lng32 objectNameLen,
+ObjectLockRequest::ObjectLockRequest(NAMemory *heap, const char *objectName, int objectNameLen,
                                      ComObjectType objectType, OpType opType, Int32 lockNid, Int32 lockPid,
                                      UInt32 maxRetries, UInt32 delay)
     : RtsMessageObj(OBJECT_LOCK_REQ, CurrObjectLockRequestVersionNumber, heap),

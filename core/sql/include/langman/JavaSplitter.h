@@ -66,7 +66,7 @@ class JavaSplitter {
   static jfloat CallNonvirtualFloatMethodV(JNIEnv *env, jobject obj, jclass clazz, jmethodID methodID, va_list args);
   static jdouble CallNonvirtualDoubleMethodV(JNIEnv *env, jobject obj, jclass clazz, jmethodID methodID, va_list args);
 
-  static Lng32 setupVersion(JNIEnv *env, ComDiagsArea *diags);
+  static int setupVersion(JNIEnv *env, ComDiagsArea *diags);
 };
 
 class JavaVirtual {

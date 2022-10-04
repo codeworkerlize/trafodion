@@ -68,7 +68,7 @@ class ESPTraceEntry {
  public:
   ESPTraceEntry(ex_globals *glob, char *t1);
 
-  ESPTraceEntry(ex_globals *glob, Lng32 espNum, Lng32 pid, Int64 currentTS, char *t1);
+  ESPTraceEntry(ex_globals *glob, int espNum, int pid, long currentTS, char *t1);
 
   ~ESPTraceEntry();
 
@@ -81,7 +81,7 @@ class ESPTraceEntry {
   pid_t pid_;
 
   // gotten from doing NA_JulianTimestamp()
-  Int64 timestamp_;
+  long timestamp_;
 
   // A message
   char *msgtext1_;
@@ -170,19 +170,19 @@ class ExExeStmtGlobals : public ex_globals {
 
   // simple method to get number of instances for my fragment id
   // (this method is rooted in the base class, ex_globals)
-  virtual Lng32 getNumOfInstances() const;
+  virtual int getNumOfInstances() const;
 
   // get the number of instances for a given fragment and get the process
   // id for one of the instances, or find out how many processes are
   // in the local node and which of them I am
-  virtual Lng32 getNumOfInstances(ExFragId fragId) const = 0;
-  virtual const IpcProcessId &getInstanceProcessId(ExFragId fragId, Lng32 instanceNum) const = 0;
-  virtual Lng32 getMyInstanceNumber() const = 0;
-  virtual void getMyNodeLocalInstanceNumber(Lng32 &myNodeLocalInstanceNumber, Lng32 &numOfLocalInstances) const = 0;
+  virtual int getNumOfInstances(ExFragId fragId) const = 0;
+  virtual const IpcProcessId &getInstanceProcessId(ExFragId fragId, int instanceNum) const = 0;
+  virtual int getMyInstanceNumber() const = 0;
+  virtual void getMyNodeLocalInstanceNumber(int &myNodeLocalInstanceNumber, int &numOfLocalInstances) const = 0;
 
   // Virtual methods to retrieve SeaMonster settings. These methods
   // will be implemented in the master and ESP subclasses.
-  virtual Int64 getSMQueryID() const = 0;
+  virtual long getSMQueryID() const = 0;
   virtual Int32 getSMTraceLevel() const = 0;
   virtual const char *getSMTraceFilePrefix() const = 0;
 
@@ -216,7 +216,7 @@ class ExExeStmtGlobals : public ex_globals {
 
   // This method adds a Condition to the statement's diags area
   // to complain about memory alloc errors.
-  void makeMemoryCondition(Lng32 errCode);
+  void makeMemoryCondition(int errCode);
 
   inline ContextCli *getContext() const { return cliGlobals_->currContext(); }
 
@@ -241,27 +241,27 @@ class ExExeStmtGlobals : public ex_globals {
   void incrementUdrNonTxMsgsOut();
   void decrementUdrNonTxMsgsOut();
 
-  Lng32 numUdrMsgsOut() const { return numUdrTxMsgsOut_ + numUdrNonTxMsgsOut_; }
-  Lng32 numUdrTxMsgsOut() const { return numUdrTxMsgsOut_; }
-  Lng32 numUdrNonTxMsgsOut() const { return numUdrNonTxMsgsOut_; }
+  int numUdrMsgsOut() const { return numUdrTxMsgsOut_ + numUdrNonTxMsgsOut_; }
+  int numUdrTxMsgsOut() const { return numUdrTxMsgsOut_; }
+  int numUdrNonTxMsgsOut() const { return numUdrNonTxMsgsOut_; }
 
-  inline Int64 &getTransid() { return transid_; }
+  inline long &getTransid() { return transid_; }
 
-  inline Int64 &getSavepointId() { return savepointId_; }
-  inline Int64 &getPSavepointId() { return pSavepointId_; }
+  inline long &getSavepointId() { return savepointId_; }
+  inline long &getPSavepointId() { return pSavepointId_; }
 
   ResolvedNameList *&resolvedNameList() { return resolvedNameList_; };
   // for accounting for unanswered send top messages sent.
   virtual void decrementSendTopMsgesOut();
   inline void incrementSendTopMsgesOut() { numSendTopMsgesOut_++; };
   inline NABoolean anySendTopMsgesOut() { return numSendTopMsgesOut_ != 0; }
-  inline Lng32 numSendTopMsgesOut() { return numSendTopMsgesOut_; }
+  inline int numSendTopMsgesOut() { return numSendTopMsgesOut_; }
 
   // for accounting for unanswered cancel messages sent thru IPC & ArkFs.
   void decrementCancelMsgesOut();
   inline void incrementCancelMsgesOut() { numCancelMsgesOut_++; };
   inline NABoolean anyCancelMsgesOut() { return numCancelMsgesOut_ != 0; }
-  inline Lng32 numCancelMsgesOut() { return numCancelMsgesOut_; }
+  inline int numCancelMsgesOut() { return numCancelMsgesOut_; }
 
   inline NABoolean noNewRequest() { return noNewRequest_; }
   inline virtual void setNoNewRequest(NABoolean n) { noNewRequest_ = n; }
@@ -270,7 +270,7 @@ class ExExeStmtGlobals : public ex_globals {
   NABoolean closeAllOpens() { return closeAllOpens_; }
 
   // return TRUE iff this timeout was set, and then put value in timeoutValue
-  inline NABoolean getLockTimeout(char *tableName, Lng32 &timeoutValue) {
+  inline NABoolean getLockTimeout(char *tableName, int &timeoutValue) {
     if (NULL == timeouts_) return FALSE;
     return timeouts_->getLockTimeout(tableName, timeoutValue);
   };
@@ -306,7 +306,7 @@ class ExExeStmtGlobals : public ex_globals {
 
   // getStreamTimeout: return TRUE (FALSE) if the stream-timeout was set (was
   // not set). If set, the timeoutValue parameter would return that value
-  virtual NABoolean getStreamTimeout(Lng32 &timeoutValue);
+  virtual NABoolean getStreamTimeout(int &timeoutValue);
 
   // Whenever a (prepared) statement is re-executed, the executionCount_
   // is incremented. Right now this counter is used only by the
@@ -325,7 +325,7 @@ class ExExeStmtGlobals : public ex_globals {
 
   ULng32 getExecutionCount() { return executionCount_; }
 
-  void cancelOperation(Int64 transId);
+  void cancelOperation(long transId);
 
   virtual void initSMGlobals();
 
@@ -351,26 +351,26 @@ class ExExeStmtGlobals : public ex_globals {
 
   // transaction identifier, if this statement is running under
   // a transaction. -1, if it is not.
-  Int64 transid_;
+  long transid_;
 
   // savepoint id, if dp2 savepoints are enabled and in use.
   // -1, if not.
-  Int64 savepointId_;
-  Int64 pSavepointId_;
+  long savepointId_;
+  long pSavepointId_;
 
   ResolvedNameList *resolvedNameList_;
 
   // Keep a count of unanswered send top messages.
-  Lng32 numSendTopMsgesOut_;
+  int numSendTopMsgesOut_;
 
   // Keep a count of unanswered cancel messages sent thru IPC & ArkFs.
-  Lng32 numCancelMsgesOut_;
+  int numCancelMsgesOut_;
 
   // Keep a count of unanswered transactional UDR messages
-  Lng32 numUdrTxMsgsOut_;
+  int numUdrTxMsgsOut_;
 
   // Keep a count of unanswered non-transactional UDR messages
-  Lng32 numUdrNonTxMsgsOut_;
+  int numUdrNonTxMsgsOut_;
 
   // Set when split bottom gets release transaction
   // Reset when split bottom gets work messge
@@ -443,14 +443,14 @@ class ExMasterStmtGlobals : public ExExeStmtGlobals {
   virtual IpcMessageObjSize getFragmentLength(ExFragId fragId) const;
   virtual ExFragKey getFragmentKey(ExFragId fragId) const;
   virtual ExFragId getMyFragId() const;
-  virtual Lng32 getNumOfInstances() const  // avoid warning - hidden virtual func
+  virtual int getNumOfInstances() const  // avoid warning - hidden virtual func
   {
     return ExExeStmtGlobals::getNumOfInstances();
   }
-  virtual Lng32 getNumOfInstances(ExFragId fragId) const;
-  virtual const IpcProcessId &getInstanceProcessId(ExFragId fragId, Lng32 instanceNum) const;
-  virtual Lng32 getMyInstanceNumber() const;
-  virtual void getMyNodeLocalInstanceNumber(Lng32 &myNodeLocalInstanceNumber, Lng32 &numOfLocalInstances) const;
+  virtual int getNumOfInstances(ExFragId fragId) const;
+  virtual const IpcProcessId &getInstanceProcessId(ExFragId fragId, int instanceNum) const;
+  virtual int getMyInstanceNumber() const;
+  virtual void getMyNodeLocalInstanceNumber(int &myNodeLocalInstanceNumber, int &numOfLocalInstances) const;
 
   // Virtual methods to retrieve SeaMonster settings
   //
@@ -458,13 +458,13 @@ class ExMasterStmtGlobals : public ExExeStmtGlobals {
   //  Query ID: from statement globals
   //  Trace level: from session defaults
   //  Trace file prefix: from session defaults
-  virtual Int64 getSMQueryID() const { return smQueryID_; }
+  virtual long getSMQueryID() const { return smQueryID_; }
   virtual Int32 getSMTraceLevel() const;
   virtual const char *getSMTraceFilePrefix() const;
 
   // In the master we allow root_tdb::build() to assign a SeaMonster
   // ID to the query
-  void setSMQueryID(Int64 id) { smQueryID_ = id; }
+  void setSMQueryID(long id) { smQueryID_ = id; }
 
   virtual const ExScratchFileOptions *getScratchFileOptions() const;
 
@@ -482,8 +482,8 @@ class ExMasterStmtGlobals : public ExExeStmtGlobals {
 
   NABoolean udrRuntimeOptionsChanged() const;
 
-  Int64 getRowsAffected() const { return rowsAffected_; }
-  void setRowsAffected(Int64 newRows) { rowsAffected_ = newRows; }
+  long getRowsAffected() const { return rowsAffected_; }
+  void setRowsAffected(long newRows) { rowsAffected_ = newRows; }
 
   inline Statement *getStatement() { return statement_; }
 
@@ -504,7 +504,7 @@ class ExMasterStmtGlobals : public ExExeStmtGlobals {
   ExRsInfo *getResultSetInfo(NABoolean createIfNecessary = FALSE);
   void deleteResultSetInfo();
   void acquireRSInfoFromParent(ULng32 &rsIndex,          // OUT
-                               Int64 &udrHandle,         // OUT
+                               long &udrHandle,         // OUT
                                ExUdrServer *&udrServer,  // OUT
                                IpcProcessId &pid,        // OUT
                                ExRsInfo *&rsInfo);       // OUT
@@ -514,7 +514,7 @@ class ExMasterStmtGlobals : public ExExeStmtGlobals {
   pid_t getPid() { return (cliGlobals_ ? cliGlobals_->myPin() : (short)0); }
   pid_t getTid() { return GETTID(); }
 
-  Lng32 myNodeNumber() { return (cliGlobals_ ? cliGlobals_->myNodeNumber() : (short)0); }
+  int myNodeNumber() { return (cliGlobals_ ? cliGlobals_->myNodeNumber() : (short)0); }
 
   inline NABoolean verifyESP() { return verifyESP_; }
   inline void setVerifyESP() { verifyESP_ = TRUE; }
@@ -525,7 +525,7 @@ class ExMasterStmtGlobals : public ExExeStmtGlobals {
   void insertExtractEsp(const IpcProcessId &);
   void insertExtractSecurityKey(const char *key);
   short getExtractEspCpu(ULng32 index) const;
-  Lng32 getExtractEspNodeNumber(ULng32 index) const;
+  int getExtractEspNodeNumber(ULng32 index) const;
   const char *getExtractEspPhandleText(ULng32 index) const;
   const char *getExtractSecurityKey() const;
 
@@ -551,7 +551,7 @@ class ExMasterStmtGlobals : public ExExeStmtGlobals {
 
   // rows affected during the execution of this statement.
   // Applies to rows updated/deleted/inserted ONLY.
-  Int64 rowsAffected_;
+  long rowsAffected_;
 
   // Used exclusively by asynchronous CLI cancel.
   CancelState cancelState_;
@@ -573,7 +573,7 @@ class ExMasterStmtGlobals : public ExExeStmtGlobals {
   struct ExExtractEspInfo {
     // Each ESP will be described by one instance of this struct
     short cpu_;
-    Lng32 nodeNumber_;
+    int nodeNumber_;
     char *phandleText_;
   };
   struct ExExtractProducerInfo {
@@ -590,7 +590,7 @@ class ExMasterStmtGlobals : public ExExeStmtGlobals {
   LIST(SMConnection *) allSMConnections_;
 
   // In the master we store the SeaMonster query ID here
-  Int64 smQueryID_;
+  long smQueryID_;
 
   // Let cli layer know that an NO ROLLBACK insert can be AQR'd.
   bool aqrWnrCleanedup_;
@@ -600,7 +600,7 @@ class ExEspStmtGlobals : public ExExeStmtGlobals {
  public:
   ExEspStmtGlobals(short num_temps, CliGlobals *cliGlobals, short create_gui_sched, Space *space, CollHeap *heap,
                    ExEspFragInstanceDir *espFragInstanceDir, int handle, ULng32 injectErrorAtExprFreq,
-                   NABoolean multiThreadedEsp, char *queryId = NULL, Lng32 queryIdLen = 0);
+                   NABoolean multiThreadedEsp, char *queryId = NULL, int queryIdLen = 0);
 
   virtual void deleteMe(NABoolean fatalError);
   virtual ExEspStmtGlobals *castToExEspStmtGlobals();
@@ -609,14 +609,14 @@ class ExEspStmtGlobals : public ExExeStmtGlobals {
   virtual IpcMessageObjSize getFragmentLength(ExFragId fragId) const;
   virtual ExFragKey getFragmentKey(ExFragId fragId) const;
   virtual ExFragId getMyFragId() const;
-  virtual Lng32 getNumOfInstances() const  // avoid warning - hidden virtual func
+  virtual int getNumOfInstances() const  // avoid warning - hidden virtual func
   {
     return ExExeStmtGlobals::getNumOfInstances();
   }
-  virtual Lng32 getNumOfInstances(ExFragId fragId) const;
-  virtual const IpcProcessId &getInstanceProcessId(ExFragId fragId, Lng32 instanceNum) const;
-  virtual Lng32 getMyInstanceNumber() const;
-  virtual void getMyNodeLocalInstanceNumber(Lng32 &myNodeLocalInstanceNumber, Lng32 &numOfLocalInstances) const;
+  virtual int getNumOfInstances(ExFragId fragId) const;
+  virtual const IpcProcessId &getInstanceProcessId(ExFragId fragId, int instanceNum) const;
+  virtual int getMyInstanceNumber() const;
+  virtual void getMyNodeLocalInstanceNumber(int &myNodeLocalInstanceNumber, int &numOfLocalInstances) const;
   int getMyFragInstanceHandle() const { return myHandle_; }
 
   // Virtual methods to retrieve SeaMonster settings
@@ -624,7 +624,7 @@ class ExEspStmtGlobals : public ExExeStmtGlobals {
   // In an ESP these settings come from an ExSMDownloadInfo object
   // that was sent with the fragment download message and is pointed
   // to by statement globals
-  virtual Int64 getSMQueryID() const;
+  virtual long getSMQueryID() const;
   virtual Int32 getSMTraceLevel() const;
   virtual const char *getSMTraceFilePrefix() const;
 
@@ -647,7 +647,7 @@ class ExEspStmtGlobals : public ExExeStmtGlobals {
 
   // set the reply tag that is associate with the transaction work request
   // for this instance
-  void setReplyTag(Int64 transid, Int64 savepointId, Int64 pSavepointId, short replyTag);
+  void setReplyTag(long transid, long savepointId, long pSavepointId, short replyTag);
 
   // restore the transid associated with this instance and return whether
   // this was possible (not possible if no current transaction work request)
@@ -683,7 +683,7 @@ class ExEspStmtGlobals : public ExExeStmtGlobals {
   void setIsAnESPAccess(NABoolean a) { isAnESPAccess_ = a; }
 
   char *getQueryId() { return queryId_; }
-  Lng32 getQueryIdLen() { return queryIdLen_; }
+  int getQueryIdLen() { return queryIdLen_; }
   inline StmtStats *getStmtStats() { return stmtStats_; }
   StmtStats *setStmtStats();
   void setMyFixupPriority(IpcPriority v) { myFixupPriority_ = v; }
@@ -726,7 +726,7 @@ class ExEspStmtGlobals : public ExExeStmtGlobals {
   IpcPriority myFixupPriority_;
 
   char *queryId_;
-  Lng32 queryIdLen_;
+  int queryIdLen_;
   StmtStats *stmtStats_;
   NAHeap *heap_;
 
@@ -739,7 +739,7 @@ class ExEspStmtGlobals : public ExExeStmtGlobals {
   NABoolean multiThreadedEsp_;
   ExEspInstanceThread *threadInfo_;
 
-  mutable Lng32 cachedMyInstanceNum_;
+  mutable int cachedMyInstanceNum_;
 
   mutable ULng32 cachedMyFragId_;
 };

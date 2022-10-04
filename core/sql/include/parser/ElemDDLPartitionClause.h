@@ -77,14 +77,14 @@ class ElemDDLPartitionClause : public ElemDDLNode {
 
   // accessors
   virtual Int32 getArity() const;
-  virtual ExprNode *getChild(Lng32 index);
+  virtual ExprNode *getChild(int index);
   inline ElemDDLNode *getPartitionDefBody() const;
   inline ElemDDLNode *getPartitionByOption() const;
   inline ComPartitioningScheme getPartitionType() const;
   inline ComBoolean getIsForSplit() const;
 
   // mutator
-  virtual void setChild(Lng32 index, ExprNode *pElemDDLNode);
+  virtual void setChild(int index, ExprNode *pElemDDLNode);
   inline void setIsForSplit(ComBoolean split);
 
   // method for tracing
@@ -143,7 +143,7 @@ class ElemDDLPartitionClauseV2 : public ElemDDLNode {
 
   // accessors
   virtual Int32 getArity() const;
-  virtual ExprNode *getChild(Lng32 index);
+  virtual ExprNode *getChild(int index);
   inline ElemDDLNode *getPartitionDefBody() const;
   inline ElemDDLNode *getPartitionColList() const;
   inline ElemDDLNode *getSubpartitionClause() const;
@@ -151,7 +151,7 @@ class ElemDDLPartitionClauseV2 : public ElemDDLNode {
   inline NABoolean isSubpartition() const { return isSubpartition_; }
 
   // mutator
-  virtual void setChild(Lng32 index, ExprNode *pElemDDLNode);
+  virtual void setChild(int index, ExprNode *pElemDDLNode);
 
   // method for tracing
   virtual const NAString getText() const;

@@ -48,7 +48,7 @@ class StmtDMLSetTransaction : public StmtNode {
   TransMode::IsolationLevel getIsolationLevel() const { return isolationLevel_; }
   ItemExpr *getDiagSizeNode() const { return diagSize_; }
   TransMode::RollbackMode getRollbackMode() const { return rollbackMode_; }
-  Lng32 getAutoAbortInterval() const { return autoabortInterval_; }
+  int getAutoAbortInterval() const { return autoabortInterval_; }
   TransMode::MultiCommit getMultiCommit() const { return multiCommit_; }
 
   ULng32 getMultiCommitSize() const { return multiCommitSize_; }
@@ -82,7 +82,7 @@ class StmtDMLSetTransaction : public StmtNode {
   TransMode::AccessMode accessMode_;
   TransMode::IsolationLevel isolationLevel_;
   TransMode::RollbackMode rollbackMode_;
-  Lng32 autoabortInterval_;
+  int autoabortInterval_;
   ULng32 multiCommitSize_;
   TransMode::MultiCommit multiCommit_;
   TransMode::AutoOption beginAO_;
@@ -128,11 +128,11 @@ class TxnRollbackModeItem : public ItemExpr {
 
 class TxnAutoabortIntervalItem : public ItemExpr {
  public:
-  TxnAutoabortIntervalItem(Lng32 val);
-  Lng32 getAutoabortInterval() const { return autoabortInterval_; }
+  TxnAutoabortIntervalItem(int val);
+  int getAutoabortInterval() const { return autoabortInterval_; }
 
  private:
-  Lng32 autoabortInterval_;
+  int autoabortInterval_;
 };
 
 class TxnMultiCommitItem : public ItemExpr {

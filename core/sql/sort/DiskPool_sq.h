@@ -69,8 +69,8 @@ enum SQDiskType { SQDT_UNKNOWN, SQDT_DEFAULT };
 
 struct DiskDetails : public NABasicObject {
   // common fields between platforms
-  Lng32 weight_;
-  Lng32 freeSpace_;
+  int weight_;
+  int freeSpace_;
   short numOpenScratchFiles_;
   //----------------------------------------------
   //  Since we are doing this under NT,

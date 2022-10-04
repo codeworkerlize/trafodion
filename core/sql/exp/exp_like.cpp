@@ -199,7 +199,7 @@ NABoolean LikePattern::matches(const char *text, UInt16 textLen, CharInfo::CharS
   Int32 number_bytes = 0;
   Int32 numChrInHeader = 0;
   Int32 numChrInRecord = 0;
-  Lng32 numOfChar = 0;
+  int numOfChar = 0;
   Int32 charToOffset = 0;
   Int32 headerMatchLen = 0;
   CollHeap *exHeap = getExHeap();
@@ -375,7 +375,7 @@ ex_expr::exp_return_type ExRegexpClauseBase::processNulls(char *op_data[], CollH
   //
   for (short i = 1; i < getNumOperands(); i++) {
     if (getOperand(i)->getNullFlag() && (NOT op_data[i])) {
-      *(Lng32 *)op_data[2 * MAX_OPERANDS] = -1;
+      *(int *)op_data[2 * MAX_OPERANDS] = -1;
       return ex_expr::EXPR_NULL;
     }
   }
@@ -393,7 +393,7 @@ ex_expr::exp_return_type ex_like_clause_base::processNulls(char *op_data[], Coll
   for (short i = 1; i < getNumOperands(); i++) {
     if (getOperand(i)->getNullFlag() && (NOT op_data[i])) {
       if (i == 3 && (NOT getAllowEscapeNull())) continue;
-      *(Lng32 *)op_data[2 * MAX_OPERANDS] = -1;
+      *(int *)op_data[2 * MAX_OPERANDS] = -1;
       return ex_expr::EXPR_NULL;
     }
   }
@@ -403,12 +403,12 @@ ex_expr::exp_return_type ex_like_clause_base::processNulls(char *op_data[], Coll
 
 ex_expr::exp_return_type ExRegexpClauseChar::eval(char *op_data[], CollHeap *exHeap, ComDiagsArea **diagsArea) {
   NABoolean matchFlag = true;
-  Lng32 len1 = getOperand(1)->getLength(op_data[-MAX_OPERANDS + 1]);
-  Lng32 len2 = getOperand(2)->getLength(op_data[-MAX_OPERANDS + 2]);
+  int len1 = getOperand(1)->getLength(op_data[-MAX_OPERANDS + 1]);
+  int len2 = getOperand(2)->getLength(op_data[-MAX_OPERANDS + 2]);
   char *pattern;
   regmatch_t pm[1];
   const size_t nmatch = 1;
-  Lng32 cflags, z = 0;
+  int cflags, z = 0;
   char *srcStr = new (exHeap) char[len1 + 1];
   char ebuf[128];
 
@@ -444,7 +444,7 @@ ex_expr::exp_return_type ExRegexpClauseChar::eval(char *op_data[], CollHeap *exH
     return ex_expr::EXPR_ERROR;
   }
 
-  *(Lng32 *)op_data[0] = (Lng32)matchFlag;
+  *(int *)op_data[0] = (int)matchFlag;
 
   NADELETEBASIC(pattern, exHeap);
   NADELETEBASIC(srcStr, exHeap);
@@ -457,9 +457,9 @@ ex_expr::exp_return_type ex_like_clause_char::eval(char *op_data[], CollHeap *ex
   if (cs == CharInfo::ISO88591) cs = ((SimpleType *)getOperand(1))->getIsoMapping();
 
   // get length of operands
-  Lng32 len1 = getOperand(1)->getLength(op_data[-MAX_OPERANDS + 1]);
-  Lng32 len2 = getOperand(2)->getLength(op_data[-MAX_OPERANDS + 2]);
-  Lng32 len3 = 0;
+  int len1 = getOperand(1)->getLength(op_data[-MAX_OPERANDS + 1]);
+  int len2 = getOperand(2)->getLength(op_data[-MAX_OPERANDS + 2]);
+  int len3 = 0;
   if (cs == CharInfo::UTF8) {
     Int32 prec1 = ((SimpleType *)getOperand(1))->getPrecision();
     len1 = Attributes::trimFillerSpaces(op_data[1], prec1, len1, cs);
@@ -551,15 +551,15 @@ ex_expr::exp_return_type ex_like_clause_char::eval(char *op_data[], CollHeap *ex
     return ex_expr::EXPR_ERROR;
   }
 
-  *(Lng32 *)op_data[0] = (Lng32)matchFlag;
+  *(int *)op_data[0] = (int)matchFlag;
 
   return ex_expr::EXPR_OK;
 }
 
 ex_expr::exp_return_type ex_like_clause_doublebyte::eval(char *op_data[], CollHeap *exHeap, ComDiagsArea **diagsArea) {
   // get length of operands
-  Lng32 len1 = getOperand(1)->getLength(op_data[-MAX_OPERANDS + 1]);
-  Lng32 len2 = getOperand(2)->getLength(op_data[-MAX_OPERANDS + 2]);
+  int len1 = getOperand(1)->getLength(op_data[-MAX_OPERANDS + 1]);
+  int len2 = getOperand(2)->getLength(op_data[-MAX_OPERANDS + 2]);
 
   NAWchar wPercentChar = 0;
   NAWchar wUnderScoreChar = 0;
@@ -617,7 +617,7 @@ ex_expr::exp_return_type ex_like_clause_doublebyte::eval(char *op_data[], CollHe
     return ex_expr::EXPR_ERROR;
   }
 
-  *(Lng32 *)op_data[0] = (Lng32)matchFlag;
+  *(int *)op_data[0] = (int)matchFlag;
 
   return ex_expr::EXPR_OK;
 }
@@ -628,7 +628,7 @@ NABoolean LikePatternHeader::matches(const char *text, Int32 &headerMatchLen, Ch
 
   LikePatternClause *clause = this;
 
-  Lng32 lenEncoded = getLength();
+  int lenEncoded = getLength();
   char *pattern = getPattern();
   unsigned char *encodedPattern = NULL;
 
@@ -793,7 +793,7 @@ NABoolean LikePatternClause::matches(const char *text) {
   if (getType() == LikePatternStringIterator::NON_WILDCARD) {
     CharInfo::Collation co = getCollation();
 
-    Lng32 clauseLength = getLength();
+    int clauseLength = getLength();
     unsigned char *pattern;
     UInt16 nPasses;
 

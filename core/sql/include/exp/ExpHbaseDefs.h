@@ -110,19 +110,19 @@ class HbaseAccessOptions : public NABasicObject {
  public:
   HbaseAccessOptions() : versions_(0), minTS_(-1), maxTS_(-1) {}
 
-  Lng32 getNumVersions() { return versions_; }
-  void setNumVersions(Lng32 v) { versions_ = v; }
+  int getNumVersions() { return versions_; }
+  void setNumVersions(int v) { versions_ = v; }
 
   NABoolean multiVersions() { return (versions_ != 0); }
 
   NABoolean isMaxVersions() { return (versions_ == -1); }
   NABoolean isAllVersions() { return (versions_ == -2); }
 
-  void setHbaseMinTS(Int64 minTS) { minTS_ = minTS; }
-  void setHbaseMaxTS(Int64 maxTS) { maxTS_ = maxTS; }
+  void setHbaseMinTS(long minTS) { minTS_ = minTS; }
+  void setHbaseMaxTS(long maxTS) { maxTS_ = maxTS; }
 
-  Int64 hbaseMinTS() { return minTS_; }
-  Int64 hbaseMaxTS() { return maxTS_; }
+  long hbaseMinTS() { return minTS_; }
+  long hbaseMaxTS() { return maxTS_; }
 
   NABoolean versionSpecified() { return (versions_ != 0); }
   NABoolean tsSpecified() { return ((minTS_ != -1) || (maxTS_ != -1)); }
@@ -132,12 +132,12 @@ class HbaseAccessOptions : public NABasicObject {
   // -1, return max versions
   // -2, return all versions.
   // N, return N versions.
-  Lng32 versions_;
+  int versions_;
   char filler_[4];
 
   // min/max values of timestamp range to be returned
-  Int64 minTS_;
-  Int64 maxTS_;
+  long minTS_;
+  long maxTS_;
 };
 
 typedef NAList<HbaseStr> HBASE_NAMELIST;

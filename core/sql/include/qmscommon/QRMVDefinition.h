@@ -31,7 +31,7 @@ class QRMVDefinition {
  public:
   QRMVDefinition(CollHeap *heap) : redefTimeString_(heap), refreshedTimeString_(heap) {}
 
-  QRMVDefinition(NABoolean hasIgnoreChanges, Int64 redefTime, Int64 refreshedTime, Int64 objectUID, CollHeap *heap)
+  QRMVDefinition(NABoolean hasIgnoreChanges, long redefTime, long refreshedTime, long objectUID, CollHeap *heap)
       : hasIgnoreChanges_(hasIgnoreChanges),
         redefTime_(redefTime),
         refreshedTime_(refreshedTime),
@@ -44,10 +44,10 @@ class QRMVDefinition {
 
   NABoolean hasIgnoreChanges_;
   NAString redefTimeString_;
-  Int64 redefTime_;
+  long redefTime_;
   NAString refreshedTimeString_;
-  Int64 refreshedTime_;
-  Int64 objectUID_;
+  long refreshedTime_;
+  long objectUID_;
 };
 
 #endif  // _QRMVDEFINITION_H_

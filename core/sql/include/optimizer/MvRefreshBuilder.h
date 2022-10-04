@@ -107,7 +107,7 @@ class MvRefreshBuilder : public NABasicObject {
   const CorrName &getMvCorrName() const { return mvCorrName_; }
   Refresh *getRefreshNode() const { return refreshNode_; }
   MVInfoForDML *getMvInfo() const { return mvInfo_; }
-  Lng32 getPhase() const { return phase_; }
+  int getPhase() const { return phase_; }
   const DeltaDefinitionPtrList *getDeltaDefList() const { return deltaDefList_; }
   void setDeltaDefList(const DeltaDefinitionPtrList *deltaDef) { deltaDefList_ = deltaDef; }
 
@@ -164,7 +164,7 @@ class MvRefreshBuilder : public NABasicObject {
 
   virtual ItemExpr *buildSelectionListForScanOnIudLog() const;
 
-  virtual ItemExpr *buildBaseTableColumnList(Lng32 specialFlags = 0) const;
+  virtual ItemExpr *buildBaseTableColumnList(int specialFlags = 0) const;
 
   // Have a uniform select list over the IUD log
   virtual RelRoot *buildRootOverIUDLog(RelExpr *topNode) const;
@@ -223,7 +223,7 @@ class MvRefreshBuilder : public NABasicObject {
   // The Delta Definitions of the logs used.
   const DeltaDefinitionPtrList *deltaDefList_;
   // Which phase of multi-delta refresh is this invocation?
-  Lng32 phase_;
+  int phase_;
   MVInfoForDML *mvInfo_;
   Refresh *refreshNode_;
   LogsInfo *logsInfo_;
@@ -738,7 +738,7 @@ class MultiDeltaRefreshMatrix : public NABasicObject {
   Int32 getNumOfRows() const { return numOfRows_; }
   Int32 getRowLength() const { return currentRowLength_; }
   NABoolean isLastPhase() const { return isLastPhase_; }
-  Lng32 getTableIndexFor(Int32 index) const { return tableIndexMapping_[index]; }
+  int getTableIndexFor(Int32 index) const { return tableIndexMapping_[index]; }
   Int32 getFirstRowForThisPhase() const { return firstRowForThisPhase_; }
   Int32 getNumOfRowsForThisPhase() const { return numOfRowsForThisPhase_; }
   void setPhasesSupported(NABoolean supported) { isPhasesSupported_ = supported; }
@@ -762,7 +762,7 @@ class MultiDeltaRefreshMatrix : public NABasicObject {
   ARRAY(MultiDeltaRefreshMatrixRow *) theMatrix_;
   // The mapping from the tableIndex to the array of used objects in MVInfo.
   // This mapping is created by the join graph algorithm.
-  ARRAY(Lng32) tableIndexMapping_;
+  ARRAY(int) tableIndexMapping_;
 
   // data members for division to phases.
   NABoolean isPhasesSupported_;      // Do we need to support divition to phases?

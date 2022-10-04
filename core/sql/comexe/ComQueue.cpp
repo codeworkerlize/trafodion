@@ -17,7 +17,7 @@ Long Q_EntryPtr::pack(void *space, short isSpacePtr) {
 }
 
 template <>
-Lng32 Q_EntryPtr::unpack(void *base) {
+int Q_EntryPtr::unpack(void *base) {
   // See note about in Q_EntryPtr::unpack().
   //
   return unpackShallow(base);
@@ -47,7 +47,7 @@ Long Q_Entry::pack(void *space) {
   return ((Space *)space)->convertToOffset((char *)this);
 }
 
-Lng32 Q_Entry::unpack(void *base) {
+int Q_Entry::unpack(void *base) {
   // See note in Q_Entry::pack().
   //
   if (entry.unpack(base)) return -1;
@@ -352,7 +352,7 @@ Long Queue::pack(void *space) {
   // return ((Space *)space)->convertToOffset((char *)this);
 }
 
-Lng32 Queue::unpack(void *base, void *reallocator) {
+int Queue::unpack(void *base, void *reallocator) {
   // Unpack my data members.
   if (head.unpack(base)) return -1;
   if (tail.unpack(base)) return -1;

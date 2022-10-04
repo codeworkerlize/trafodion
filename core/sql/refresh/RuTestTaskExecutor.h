@@ -79,7 +79,7 @@ class REFRESH_LIB_CLASS CRUTestTaskExecutor : public CRUTaskExecutor {
 
   Int32 GetGroupId() { return groupId_; }
 
-  virtual Lng32 GetIpcBufferSize() const { return 2000; }
+  virtual int GetIpcBufferSize() const { return 2000; }
 
  public:
   // These functions serialize/de-serialize the executor's context

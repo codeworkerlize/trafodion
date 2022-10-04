@@ -72,7 +72,7 @@ class REFRESH_LIB_CLASS CRUTableSyncTask : public CRULogProcessingTask {
   //	Public Memebers
   //---------------------------------------//
  public:
-  CRUTableSyncTask(Lng32 id, CRUTbl &table);
+  CRUTableSyncTask(int id, CRUTbl &table);
   virtual ~CRUTableSyncTask();
 
  public:

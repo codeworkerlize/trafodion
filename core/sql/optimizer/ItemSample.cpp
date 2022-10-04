@@ -146,7 +146,7 @@ NABoolean ItmBalance::isCovered(const ValueIdSet &newExternalInputs, const Group
                                 ValueIdSet &referencedInputs, ValueIdSet &coveredSubExpr,
                                 ValueIdSet &unCoveredExpr) const {
   ValueIdSet localSubExpr;
-  for (Lng32 i = 0; i < (Lng32)getArity(); i++) {
+  for (int i = 0; i < (int)getArity(); i++) {
     if (newRelExprAnchorGA.covers(child(i)->getValueId(), newExternalInputs, referencedInputs, &localSubExpr)) {
       coveredSubExpr += child(i)->getValueId();
     }
@@ -169,7 +169,7 @@ double ItmBalance::getSampleConstValue() const {
   CMPASSERT(negate == FALSE);
 
   double size = 0.0;
-  Lng32 scale;
+  int scale;
 
   if (sizeExpr && sizeExpr->canGetExactNumericValue()) {
     size = (double)sizeExpr->getExactNumericValue(scale);
@@ -185,7 +185,7 @@ double ItmBalance::getSkipConstValue() const {
   CMPASSERT(negate == FALSE);
 
   double skip = 0.0;
-  Lng32 scale;
+  int scale;
 
   if (skipExpr && skipExpr->canGetExactNumericValue()) {
     skip = (double)skipExpr->getExactNumericValue(scale);
@@ -201,7 +201,7 @@ double ItmBalance::getClusterConstValue() const {
   CMPASSERT(negate == FALSE);
 
   double cluster = 0.0;
-  Lng32 scale;
+  int scale;
 
   if (clusterExpr && clusterExpr->canGetExactNumericValue()) {
     cluster = (double)clusterExpr->getExactNumericValue(scale);
@@ -270,7 +270,7 @@ Int32 ItmBalance::checkErrors() {
       CMPASSERT(negate == FALSE);
       CMPASSERT(sizeExpr);
 
-      Lng32 scale;
+      int scale;
       sizeExpr->getExactNumericValue(scale);
 
       if (scale > 0) {
@@ -286,7 +286,7 @@ Int32 ItmBalance::checkErrors() {
       CMPASSERT(negate == FALSE);
       CMPASSERT(skipExpr);
 
-      Lng32 scale;
+      int scale;
       skipExpr->getExactNumericValue(scale);
 
       if (scale > 0) {
@@ -352,7 +352,7 @@ NABoolean NotCovered::isCovered(const ValueIdSet &newExternalInputs, const Group
                                 ValueIdSet &unCoveredExpr) const {
   NABoolean isAllChildConst = TRUE;
   ValueIdSet localSubExpr;
-  for (Lng32 i = 0; i < (Lng32)getArity(); i++) {
+  for (int i = 0; i < (int)getArity(); i++) {
     if (newRelExprAnchorGA.covers(child(i)->getValueId(), newExternalInputs, referencedInputs, &localSubExpr)) {
       coveredSubExpr += child(i)->getValueId();
     }

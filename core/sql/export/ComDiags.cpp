@@ -63,14 +63,14 @@ extern void releaseRTSSemaphore();  // Functions implemented in SqlStats.cpp
 // from the packedLength() routines.
 
 static inline void advanceSize(IpcMessageObjSize &size, const char *const buffPtr) {
-  const Int32 lenSize = sizeof(Lng32);
+  const Int32 lenSize = sizeof(int);
   size += lenSize;
   if (buffPtr != NULL) size += str_len(buffPtr) + 1;  // 1 is for the buffer's null-terminator
 }
 
 // UR2
 static inline void advanceSize(IpcMessageObjSize &size, const NAWchar *const buffPtr) {
-  const Int32 lenSize = sizeof(Lng32);
+  const Int32 lenSize = sizeof(int);
   size += lenSize;
   if (buffPtr != NULL) size += (na_wcslen(buffPtr) + 1) * sizeof(NAWchar);  // 1 is for null-terminator
 }
@@ -416,7 +416,7 @@ void ComCondition::unpackObj(IpcMessageObjType objType, IpcMessageObjVersion obj
   //   unpackBuffer(buffer,iso88591MappingCharSet_);
 
   if (usageMap_ & USED_NUM_STRING_PARAMS) {
-    Lng32 charSet;
+    int charSet;
 
     unpackBuffer(buffer, numStringParamsUsed_);
 
@@ -438,7 +438,7 @@ void ComCondition::unpackObj(IpcMessageObjType objType, IpcMessageObjVersion obj
   }
 
   if (usageMap_ & USED_NUM_INT_PARAMS) {
-    Lng32 dummy;
+    int dummy;
 
     unpackBuffer(buffer, numIntParamsUsed_);
 
@@ -508,7 +508,7 @@ void ComCondition::unpackObj32(IpcMessageObjType objType, IpcMessageObjVersion o
   //   unpackBuffer(buffer,iso88591MappingCharSet_);
 
   if (usageMap_ & USED_NUM_STRING_PARAMS) {
-    Lng32 charSet;
+    int charSet;
 
     unpackBuffer(buffer, numStringParamsUsed_);
 
@@ -530,7 +530,7 @@ void ComCondition::unpackObj32(IpcMessageObjType objType, IpcMessageObjVersion o
   }
 
   if (usageMap_ & USED_NUM_INT_PARAMS) {
-    Lng32 dummy;
+    int dummy;
 
     unpackBuffer(buffer, numIntParamsUsed_);
 
@@ -688,7 +688,7 @@ IpcMessageObjSize ComCondition::packedLength(void) {
         advanceSize(size, (char *)optionalString_[i]);
       else
         advanceSize(size, (NAWchar *)optionalString_[i]);
-      size += sizeof(Lng32);  // for optionalStringCharSet_[];
+      size += sizeof(int);  // for optionalStringCharSet_[];
     }
     if (numIntParamsUsed_ > i) {
       // this integer parameter needs to be sent
@@ -761,7 +761,7 @@ IpcMessageObjSize ComCondition::packObjIntoMessage(char *buffer, NABoolean swapB
       else
         size += packCharStarIntoBuffer(buffer, (NAWchar *)optionalString_[i], swapBytes);
 
-      size += packIntoBuffer(buffer, (Lng32)optionalStringCharSet_[i], swapBytes);
+      size += packIntoBuffer(buffer, (int)optionalStringCharSet_[i], swapBytes);
     }
   }
 
@@ -832,7 +832,7 @@ IpcMessageObjSize ComCondition::packObjIntoMessage32(char *buffer, NABoolean swa
       else
         size += packCharStarIntoBuffer(buffer, (NAWchar *)optionalString_[i], swapBytes);
 
-      size += packIntoBuffer(buffer, (Lng32)optionalStringCharSet_[i], swapBytes);
+      size += packIntoBuffer(buffer, (int)optionalStringCharSet_[i], swapBytes);
     }
   }
 
@@ -921,9 +921,9 @@ NABoolean ComCondition::checkObj(IpcMessageObjType objType, IpcMessageObjVersion
     if (!checkAndUnpackBuffer(buffer, sizeof(numParams), (char *)&numParams, lastByte)) return FALSE;
     if (!sameEndianness) swapFourBytes(numParams);
 
-    for (Lng32 i = 0; i < numParams; i++) {
+    for (int i = 0; i < numParams; i++) {
       if (!checkCharStarInBuffer(buffer, sameEndianness, lastByte)) return FALSE;
-      if (!checkBuffer(buffer, sizeof(Lng32), lastByte))  // character set
+      if (!checkBuffer(buffer, sizeof(int), lastByte))  // character set
         return FALSE;
     }
   }
@@ -934,8 +934,8 @@ NABoolean ComCondition::checkObj(IpcMessageObjType objType, IpcMessageObjVersion
     if (!checkAndUnpackBuffer(buffer, sizeof(numParams), (char *)&numParams, lastByte)) return FALSE;
     if (!sameEndianness) swapFourBytes(numParams);
 
-    for (Lng32 i = 0; i < numParams; i++)
-      if (!checkBuffer(buffer, sizeof(Lng32), lastByte)) return FALSE;
+    for (int i = 0; i < numParams; i++)
+      if (!checkBuffer(buffer, sizeof(int), lastByte)) return FALSE;
   }
 
   return TRUE;
@@ -1097,15 +1097,15 @@ void ComCondition::setSqlID(const char *const name) {
 
 void ComCondition::setConditionNumber(ComDiagBigInt newCondition) { conditionNumber_ = newCondition; }
 
-void ComCondition::setSQLCODE(Lng32 newSQLCODE) {
+void ComCondition::setSQLCODE(int newSQLCODE) {
   theSQLCODE_ = newSQLCODE;
 
   if (!(theSQLCODE_ < 0)) return;  // if not an error return
 
-  Lng32 theError = (theSQLCODE_ < 0) ? -theSQLCODE_ : theSQLCODE_;
+  int theError = (theSQLCODE_ < 0) ? -theSQLCODE_ : theSQLCODE_;
 
   char *reqErrorStr = NULL;  // user requested error to loop/abort on
-  Lng32 reqError = 0;
+  int reqError = 0;
 
   if (reqErrorStr = getenv("LOOP_ON_ERROR")) {
     reqError = strtol(reqErrorStr, (char **)NULL, 10);
@@ -1114,7 +1114,7 @@ void ComCondition::setSQLCODE(Lng32 newSQLCODE) {
     {
       UInt32 timeDelay = 3;  // 3 seconds
       short loopCount = 60;  // 60 * 3 seconds = 3 minutes
-      Lng32 loopError = 1;
+      int loopError = 1;
 
       while (loopError)  // To exit loop in gdb do: set var loopError=0
       {
@@ -1196,13 +1196,13 @@ void ComCondition::setSQLCODE(Lng32 newSQLCODE) {
   }
 }
 
-void ComCondition::setRowNumber(Lng32 newRowNumber) { rowNumber_ = newRowNumber; }
+void ComCondition::setRowNumber(int newRowNumber) { rowNumber_ = newRowNumber; }
 
-void ComCondition::setNskCode(Lng32 newNskCode) {
+void ComCondition::setNskCode(int newNskCode) {
   nskCode_ = newNskCode;
 
   char *reqErrorStr = NULL;
-  Lng32 reqError = 0;
+  int reqError = 0;
 
   if (reqErrorStr = getenv("LOOP_ON_NSK_ERROR")) {
     reqError = strtol(reqErrorStr, (char **)NULL, 10);
@@ -1211,7 +1211,7 @@ void ComCondition::setNskCode(Lng32 newNskCode) {
     {
       UInt32 timeDelay = 3;  // 3 seconds
       short loopCount = 60;  // 60 * 3 seconds = 3 minutes
-      Lng32 loopError = 1;
+      int loopError = 1;
 
       while (loopError)  // To exit loop in gdb do: set var loopError=0
       {
@@ -1243,7 +1243,7 @@ void ComCondition::setNskCode(Lng32 newNskCode) {
 
 // Getting and Setting the Optional Parameters
 
-Lng32 ComCondition::getOptionalInteger(Lng32 index) const {
+int ComCondition::getOptionalInteger(int index) const {
   assert(index < NumOptionalParms);
   // add the following to prevent false alarm on "index"
   // without considering the above assert
@@ -1251,7 +1251,7 @@ Lng32 ComCondition::getOptionalInteger(Lng32 index) const {
   return optionalInteger_[index];
 }
 
-void ComCondition::setOptionalInteger(Lng32 index, Lng32 newValue) {
+void ComCondition::setOptionalInteger(int index, int newValue) {
   assert(index < NumOptionalParms);
   // add the following to prevent false alarm on "index"
   // without considering the above assert
@@ -1259,7 +1259,7 @@ void ComCondition::setOptionalInteger(Lng32 index, Lng32 newValue) {
   optionalInteger_[index] = newValue;
 }
 
-CharInfo::CharSet ComCondition::getOptionalStringCharSet(Lng32 index) const {
+CharInfo::CharSet ComCondition::getOptionalStringCharSet(int index) const {
   assert(index < NumOptionalParms);
   // add the following to prevent false alarm on "index"
   // without considering the above assert
@@ -1267,13 +1267,13 @@ CharInfo::CharSet ComCondition::getOptionalStringCharSet(Lng32 index) const {
   return optionalStringCharSet_[index];
 }
 
-NABoolean ComCondition::hasOptionalString(Lng32 index) const {
+NABoolean ComCondition::hasOptionalString(int index) const {
   assert(index < NumOptionalParms);
 
   return optionalString_[index] != NULL;
 }
 
-const char *ComCondition::getOptionalString(Lng32 index) const {
+const char *ComCondition::getOptionalString(int index) const {
   assert(index < NumOptionalParms);
   // add the following to prevent false alarm on "index"
   // without considering the above assert
@@ -1282,7 +1282,7 @@ const char *ComCondition::getOptionalString(Lng32 index) const {
   return NULL;
 }
 
-const NAWchar *ComCondition::getOptionalWString(Lng32 index) const {
+const NAWchar *ComCondition::getOptionalWString(int index) const {
   assert(index < NumOptionalParms);
   // add the following to prevent false alarm on "index"
   // without considering the above assert
@@ -1292,7 +1292,7 @@ const NAWchar *ComCondition::getOptionalWString(Lng32 index) const {
   return NULL;
 }
 
-void ComCondition::setOptionalString(Lng32 index, const char *const source, CharInfo::CharSet cs) {
+void ComCondition::setOptionalString(int index, const char *const source, CharInfo::CharSet cs) {
   if (isSingleByteCharSet(cs)) {
     // Do NOT "assert(source != NULL);" -- it's ok to pass in a NULL string
     assert(index < NumOptionalParms);
@@ -1305,7 +1305,7 @@ void ComCondition::setOptionalString(Lng32 index, const char *const source, Char
     setOptionalWString(index, (NAWchar *)source);
 }
 
-void ComCondition::setOptionalWString(Lng32 index, const NAWchar *const source)
+void ComCondition::setOptionalWString(int index, const NAWchar *const source)
 // CharInfo::CharSet cs)		##hardcoded for now
 {
   CharInfo::CharSet cs = CharInfo::UNICODE;  // hardcoded
@@ -1416,15 +1416,15 @@ ComDiagsArea::~ComDiagsArea() {
 }
 
 void ComDiagsArea::enforceLengthLimit() {
-  const Lng32 currentCount = getNumber();
+  const int currentCount = getNumber();
   if ((lengthLimit_ != ComCondition::NO_LIMIT_ON_ERROR_CONDITIONS) && (currentCount > lengthLimit_)) {
-    Lng32 numToDiscard = currentCount - lengthLimit_;
+    int numToDiscard = currentCount - lengthLimit_;
     // soln:10-050204-4441 : maxDiagsId_ member needs to be updated so as to
     // maintain consistency between count(error) + count(warnings) and maxDiagsId_
     // upon exceeding lengthLimit_.This is done here as numToDiscard is modified
     // in this function.
     maxDiagsId_ = maxDiagsId_ - numToDiscard;
-    if (numToDiscard > (Lng32)warnings_.entries()) {
+    if (numToDiscard > (int)warnings_.entries()) {
       assert(errors_.entries() >= (numToDiscard - warnings_.entries()));
 
       // First, drop all warnings.
@@ -1718,8 +1718,8 @@ IpcMessageObjSize ComDiagsArea::packObjIntoMessage(char *buffer, NABoolean swapB
   size += packIntoBuffer(buffer, avgStreamWaitTime_, swapBytes);
   double tempCost = cost_;
   // Double scalar data type will not work with bswap_64
-  // hence doing it here by casting it Int64
-  if (swapBytes) tempCost = bswap_64((Int64)cost_);
+  // hence doing it here by casting it long
+  if (swapBytes) tempCost = bswap_64((long)cost_);
   size += packIntoBuffer(buffer, tempCost);
   size += packIntoBuffer(buffer, theSQLFunction_, swapBytes);
   size += packIntoBuffer(buffer, maxDiagsId_, swapBytes);
@@ -1804,8 +1804,8 @@ IpcMessageObjSize ComDiagsArea::packObjIntoMessage32(char *buffer, NABoolean swa
   size += packIntoBuffer(buffer, avgStreamWaitTime_, swapBytes);
   double tempCost = cost_;
   // Double scalar data type will not work with bswap_64
-  // hence doing it here by casting it Int64
-  if (swapBytes) tempCost = bswap_64((Int64)cost_);
+  // hence doing it here by casting it long
+  if (swapBytes) tempCost = bswap_64((long)cost_);
   size += packIntoBuffer(buffer, tempCost);
   size += packIntoBuffer(buffer, theSQLFunction_, swapBytes);
   size += packIntoBuffer(buffer, maxDiagsId_, swapBytes);
@@ -1934,9 +1934,9 @@ NABoolean ComDiagsArea::checkObj(IpcMessageObjType objType, IpcMessageObjVersion
 // This returns the sum of the number of
 // elements in errors_ and warnings_.
 
-Lng32 ComDiagsArea::getNumber() const { return errors_.entries() + warnings_.entries(); }
+int ComDiagsArea::getNumber() const { return errors_.entries() + warnings_.entries(); }
 
-Lng32 ComDiagsArea::getNumber(DgSqlCode::ErrorOrWarning type) const {
+int ComDiagsArea::getNumber(DgSqlCode::ErrorOrWarning type) const {
   switch (type) {
     case DgSqlCode::ERROR_:
       return errors_.entries();
@@ -1951,11 +1951,11 @@ NABoolean ComDiagsArea::areMore() const { return (areMore_ != ComCondition::NO_M
 
 NABoolean ComDiagsArea::canAcceptMoreErrors() const { return (areMore_ != ComCondition::MORE_ERRORS); }
 
-Int64 ComDiagsArea::getRowCount() const { return rowCount_; }
+long ComDiagsArea::getRowCount() const { return rowCount_; }
 
-void ComDiagsArea::addRowCount(Int64 newRowCount) { rowCount_ += newRowCount; }
+void ComDiagsArea::addRowCount(long newRowCount) { rowCount_ += newRowCount; }
 
-void ComDiagsArea::setRowCount(Int64 newRowCount) { rowCount_ = newRowCount; }
+void ComDiagsArea::setRowCount(long newRowCount) { rowCount_ = newRowCount; }
 
 ComDiagBigInt ComDiagsArea::getAvgStreamWaitTime() const { return avgStreamWaitTime_; }
 
@@ -1977,7 +1977,7 @@ void ComDiagsArea::setCost(double newCost) { cost_ = newCost; }
 void ComDiagsArea::setAllSqlID(char *sqlID) {
   if (!sqlID) return;
 
-  Lng32 errorCount = getNumber(DgSqlCode::ERROR_);
+  int errorCount = getNumber(DgSqlCode::ERROR_);
   Int32 i = 0;
   for (i = 0; i < errorCount; i++) {
     ComCondition *errCond = getErrorEntry(errorCount - i);
@@ -1986,7 +1986,7 @@ void ComDiagsArea::setAllSqlID(char *sqlID) {
     else
       break;
   }
-  Lng32 warnCount = getNumber(DgSqlCode::WARNING_);
+  int warnCount = getNumber(DgSqlCode::WARNING_);
   for (i = 0; i < warnCount; i++) {
     ComCondition *warnCond = getWarningEntry(warnCount - i);
     if (warnCond->getSqlID() == NULL)
@@ -1996,9 +1996,9 @@ void ComDiagsArea::setAllSqlID(char *sqlID) {
   }
 }
 
-void ComDiagsArea::setAllRowNumber(Lng32 rowNum, DgSqlCode::ErrorOrWarning errOrWarn) {
+void ComDiagsArea::setAllRowNumber(int rowNum, DgSqlCode::ErrorOrWarning errOrWarn) {
   if (errOrWarn != DgSqlCode::WARNING_) {
-    Lng32 errorCount = getNumber(DgSqlCode::ERROR_);
+    int errorCount = getNumber(DgSqlCode::ERROR_);
     for (Int32 i = 0; i < errorCount; i++) {
       ComCondition *errCond = getErrorEntry(errorCount - i);
       if (errCond->getRowNumber() < 0)
@@ -2007,7 +2007,7 @@ void ComDiagsArea::setAllRowNumber(Lng32 rowNum, DgSqlCode::ErrorOrWarning errOr
         break;
     }
   } else {
-    Lng32 warnCount = getNumber(DgSqlCode::WARNING_);
+    int warnCount = getNumber(DgSqlCode::WARNING_);
     for (Int32 i = 0; i < warnCount; i++) {
       ComCondition *warnCond = getWarningEntry(warnCount - i);
       if (warnCond->getRowNumber() < 0)
@@ -2018,9 +2018,9 @@ void ComDiagsArea::setAllRowNumber(Lng32 rowNum, DgSqlCode::ErrorOrWarning errOr
   }
 }
 
-Lng32 ComDiagsArea::getNextRowNumber(Lng32 indexValue) const {
-  Lng32 errorCount = getNumber(DgSqlCode::ERROR_);
-  Lng32 nextRowNumber = ComCondition::INVALID_ROWNUMBER;
+int ComDiagsArea::getNextRowNumber(int indexValue) const {
+  int errorCount = getNumber(DgSqlCode::ERROR_);
+  int nextRowNumber = ComCondition::INVALID_ROWNUMBER;
 
   for (Int32 i = 0; i < errorCount; i++) {
     ComCondition *errCond = ((ComDiagsArea *)this)->getErrorEntry(i + 1);
@@ -2035,19 +2035,19 @@ Lng32 ComDiagsArea::getNextRowNumber(Lng32 indexValue) const {
 
 NABoolean ComDiagsArea::hasValidRowsetRowCountArray() const { return (rowsetRowCountArray_ != NULL); }
 
-Lng32 ComDiagsArea::numEntriesInRowsetRowCountArray() const {
+int ComDiagsArea::numEntriesInRowsetRowCountArray() const {
   if (rowsetRowCountArray_)
-    return (Lng32)rowsetRowCountArray_->entries();
+    return (int)rowsetRowCountArray_->entries();
   else
     return 0;
 }
 
-void ComDiagsArea::insertIntoRowsetRowCountArray(Lng32 index, Int64 value, Lng32 arraySize, CollHeap *heapPtr) {
+void ComDiagsArea::insertIntoRowsetRowCountArray(int index, long value, int arraySize, CollHeap *heapPtr) {
   if (rowsetRowCountArray_ == NULL) {
     if (heapPtr)
-      rowsetRowCountArray_ = new (heapPtr) NAArray<Int64>(heapPtr, arraySize);
+      rowsetRowCountArray_ = new (heapPtr) NAArray<long>(heapPtr, arraySize);
     else
-      rowsetRowCountArray_ = new (collHeapPtr_) NAArray<Int64>(collHeapPtr_, arraySize);
+      rowsetRowCountArray_ = new (collHeapPtr_) NAArray<long>(collHeapPtr_, arraySize);
   }
   // index is assumed to be zero based. It is also assumed to be non-negative
   // it is OK if index is > arraySize, though this should
@@ -2055,7 +2055,7 @@ void ComDiagsArea::insertIntoRowsetRowCountArray(Lng32 index, Int64 value, Lng32
   rowsetRowCountArray_->insertAt((CollIndex)index, value);
 }
 
-Int64 ComDiagsArea::getValueFromRowsetRowCountArray(Lng32 index) const {
+long ComDiagsArea::getValueFromRowsetRowCountArray(int index) const {
   if ((rowsetRowCountArray_ == NULL) || (index < 0) || (!((rowsetRowCountArray_->used((CollIndex)index))))) {
     return -1;
   }
@@ -2155,9 +2155,9 @@ ComDiagsArea::DiagsCondition::~DiagsCondition() {}
 
 // And for the set/get methods:
 
-void ComDiagsArea::DiagsCondition::setDiagsId(Lng32 newDiagsId) { diagsId_ = newDiagsId; }
+void ComDiagsArea::DiagsCondition::setDiagsId(int newDiagsId) { diagsId_ = newDiagsId; }
 
-Lng32 ComDiagsArea::DiagsCondition::getDiagsId() const { return diagsId_; }
+int ComDiagsArea::DiagsCondition::getDiagsId() const { return diagsId_; }
 
 // Finally, the IPC methods:
 
@@ -2346,7 +2346,7 @@ void ComDiagsArea::acceptNewCondition() {
 // (Contrast this behavior to mainSQLCode().)
 //
 
-ComCondition &ComDiagsArea::operator[](Lng32 index) const {
+ComCondition &ComDiagsArea::operator[](int index) const {
   CollIndex numErrors = errors_.entries();
   CollIndex numWarnings = warnings_.entries();
   assert(index > 0);
@@ -2368,7 +2368,7 @@ ComCondition &ComDiagsArea::operator[](Lng32 index) const {
   // the conditions as the order.
   CollIndex errorIdx = 0;
   CollIndex warnIdx = 0;
-  Lng32 pos = 0;
+  int pos = 0;
 
   while (pos < index) {
     if (errorIdx == numErrors)
@@ -2410,17 +2410,17 @@ ComCondition &ComDiagsArea::operator[](Lng32 index) const {
 // warnings_[index] or errors_[index]
 // index ranges from 1..getNumber(DgSqlCode::WARNING_ or ERROR_)
 // MARIA
-ComCondition *ComDiagsArea::getWarningEntry(Lng32 index) {
+ComCondition *ComDiagsArea::getWarningEntry(int index) {
   assert((warnings_.entries() >= (CollIndex)index) && (index > 0));
   return warnings_[--index];
 }
 
-ComCondition *ComDiagsArea::getErrorEntry(Lng32 index) {
+ComCondition *ComDiagsArea::getErrorEntry(int index) {
   assert((errors_.entries() >= (CollIndex)index) && (index > 0));
   return errors_[--index];
 }
 
-ComCondition *ComDiagsArea::findCondition(Lng32 sqlCode, Lng32 *entryNumber) {
+ComCondition *ComDiagsArea::findCondition(int sqlCode, int *entryNumber) {
   if (sqlCode == 0) return NULL;
 
   ComCondition *c = NULL;
@@ -2506,7 +2506,7 @@ const char *ComDiagsArea::getSignalSQLSTATE() const {
 // This value is what GET DIAGNOSTICS CONDITION_NUMBER=1 should return
 // (all other conditionNumber's are implementation-dependent, so can be random).
 
-Lng32 ComDiagsArea::mainSQLCODE() const {
+int ComDiagsArea::mainSQLCODE() const {
   if (errors_.entries() > 0) {
     if (containsError(-EXE_CANCELED))
       return -EXE_CANCELED;
@@ -2613,7 +2613,7 @@ void ComDiagsArea::negateCondition(CollIndex index) {
 // Replace avgStreamWaitTime_ with source's, if valid.
 
 void ComDiagsArea::mergeAfter(const ComDiagsArea &source) {
-  Lng32 nfMark = -1;
+  int nfMark = -1;
   if (this == &source) return;
 
   // if NAR errors are flowing up the tree avoid merging them if
@@ -2668,7 +2668,7 @@ void ComDiagsArea::mergeAfter(const ComDiagsArea &source) {
 
   assert((rowsetRowCountArray_ == NULL) || (source.rowsetRowCountArray_ == NULL));
   if (source.rowsetRowCountArray_) {
-    rowsetRowCountArray_ = new (collHeapPtr_) NAArray<Int64>(*(source.rowsetRowCountArray_), collHeapPtr_);
+    rowsetRowCountArray_ = new (collHeapPtr_) NAArray<long>(*(source.rowsetRowCountArray_), collHeapPtr_);
   }
 }
 
@@ -2723,7 +2723,7 @@ ComDiagsArea *ComDiagsArea::copy() {
   for (i = 0; i < errors_.entries(); i++) diagsArea->errors_.insert(errors_[i]->copy());
 
   if (rowsetRowCountArray_) {
-    diagsArea->rowsetRowCountArray_ = new (collHeapPtr_) NAArray<Int64>(*(rowsetRowCountArray_), collHeapPtr_);
+    diagsArea->rowsetRowCountArray_ = new (collHeapPtr_) NAArray<long>(*(rowsetRowCountArray_), collHeapPtr_);
   } else
     diagsArea->rowsetRowCountArray_ = NULL;
 
@@ -2738,7 +2738,7 @@ ComDiagsArea *ComDiagsArea::copy() {
 // that pointer is not NULL) then the returned value should be
 // maxDiagsId_ - 1.
 
-Lng32 ComDiagsArea::mark() const {
+int ComDiagsArea::mark() const {
   if (newCondition_ == NULL)
     return maxDiagsId_;
   else
@@ -2766,7 +2766,7 @@ Lng32 ComDiagsArea::mark() const {
 // is the stack.
 //
 
-void ComDiagsArea::rewind(Lng32 markValue, NABoolean decId) {
+void ComDiagsArea::rewind(int markValue, NABoolean decId) {
   CollIndex maxError = errors_.entries() - 1;
   while (maxError != -1 && errors_[maxError]->getDiagsId() > markValue) {
     errors_[maxError]->deAllocate();
@@ -2797,7 +2797,7 @@ void ComDiagsArea::rewind(Lng32 markValue, NABoolean decId) {
 // the ComConditions are always ordered by priority, with all errors before
 // all warnings.
 
-void ComDiagsArea::rewindAndMergeIfDifferent(Lng32 markValue, ComDiagsArea *destPtr) {
+void ComDiagsArea::rewindAndMergeIfDifferent(int markValue, ComDiagsArea *destPtr) {
   if (destPtr != NULL && destPtr != this) {
     CollIndex i;
     for (i = 0; i != errors_.entries(); i++)
@@ -2823,21 +2823,21 @@ void ComDiagsArea::rewindAndMergeIfDifferent(Lng32 markValue, ComDiagsArea *dest
   }
 }
 
-void ComDiagsArea::deleteWarning(Lng32 entryNumber) {
+void ComDiagsArea::deleteWarning(int entryNumber) {
   warnings_[entryNumber]->deAllocate();
   NABoolean removed = warnings_.removeAt(entryNumber);
   assert(removed);
   --maxDiagsId_;
 }
 
-void ComDiagsArea::deleteError(Lng32 entryNumber) {
+void ComDiagsArea::deleteError(int entryNumber) {
   errors_[entryNumber]->deAllocate();
   NABoolean removed = errors_.removeAt(entryNumber);
   assert(removed);
   --maxDiagsId_;
 }
 
-ComCondition *ComDiagsArea::removeError(Lng32 entryNumber) {
+ComCondition *ComDiagsArea::removeError(int entryNumber) {
   ComCondition *errCond = getErrorEntry(entryNumber + 1);
   NABoolean removed = errors_.removeAt(entryNumber);
   assert(removed);
@@ -2890,7 +2890,7 @@ void ComDiagsArea::removeLastErrorCondition() {
     return;
   }
 
-  deleteError((Lng32)i);
+  deleteError((int)i);
   return;
 }
 
@@ -2899,12 +2899,12 @@ void ComDiagsArea::removeLastErrorCondition() {
 // error SQLCode.
 // returns FALSE, otherwise.
 ///////////////////////////////////////////////////////////////
-NABoolean ComDiagsArea::contains(Lng32 SQLCode) const {
+NABoolean ComDiagsArea::contains(int SQLCode) const {
   return containsError(SQLCode) || containsWarning(SQLCode);
 
 }  // end of ComDiagsArea::contains
 
-NABoolean ComDiagsArea::containsError(Lng32 SQLCode) const {
+NABoolean ComDiagsArea::containsError(int SQLCode) const {
   for (CollIndex i = 0; i < errors_.entries(); i++) {
     if (errors_[i]->getSQLCODE() == SQLCode) {
       return TRUE;
@@ -2913,11 +2913,11 @@ NABoolean ComDiagsArea::containsError(Lng32 SQLCode) const {
   return FALSE;
 }
 
-NABoolean ComDiagsArea::containsWarning(Lng32 SQLCode) const { return containsWarning(0, SQLCode); }
+NABoolean ComDiagsArea::containsWarning(int SQLCode) const { return containsWarning(0, SQLCode); }
 
 // Check if warnings_ contains SQLCODE within the range [begin, warnings_.entries()).
 // Note begin is 0-based.
-NABoolean ComDiagsArea::containsWarning(CollIndex begin, Lng32 SQLCode) const {
+NABoolean ComDiagsArea::containsWarning(CollIndex begin, int SQLCode) const {
   for (CollIndex i = begin; i < warnings_.entries(); i++) {
     if (warnings_[i]->getSQLCODE() == SQLCode) {
       return TRUE;
@@ -2928,7 +2928,7 @@ NABoolean ComDiagsArea::containsWarning(CollIndex begin, Lng32 SQLCode) const {
 
 // returns TRUE, if diagsArea contains the fileName for error SQLCode.
 // returns FALSE, otherwise.
-NABoolean ComDiagsArea::containsForFile(Lng32 SqlCd, const char *fileName) {
+NABoolean ComDiagsArea::containsForFile(int SqlCd, const char *fileName) {
   ComDiagsArea *DA = ComDiagsArea::copy();
   if (!(*DA).contains(SqlCd)) return FALSE;
 
@@ -2936,7 +2936,7 @@ NABoolean ComDiagsArea::containsForFile(Lng32 SqlCd, const char *fileName) {
 
   // Loop through Diagnostic area to check if extFileSetName is
   // already present.
-  for (Lng32 j = 1; ((j <= (*DA).getNumber()) && (!(fileNameExists))); j++) {
+  for (int j = 1; ((j <= (*DA).getNumber()) && (!(fileNameExists))); j++) {
     if (((*DA)[j].getSQLCODE() == SqlCd) && ((strcmp(fileName, ((*DA)[j].getTableName()))) == 0)) {
       fileNameExists = TRUE;
     }
@@ -2951,7 +2951,7 @@ NABoolean ComDiagsArea::containsForFile(Lng32 SqlCd, const char *fileName) {
 // number of errors in this diagsarea. The CollIndex value returned is in a form suitable
 // to be used by a method like ComDiagsArea::negateCondition(CollIndex ), if it is
 // not equal to NULL_COLL_INDEX.
-CollIndex ComDiagsArea::returnIndex(Lng32 SQLCode) const {
+CollIndex ComDiagsArea::returnIndex(int SQLCode) const {
   CollIndex i;
   for (i = 0; i < errors_.entries(); i++) {
     if (errors_[i]->getSQLCODE() == SQLCode) {
@@ -2987,7 +2987,7 @@ void ComDiagsArea::removeLastNonFatalCondition() {
   return;
 }
 
-Lng32 ComDiagsArea::markDupNFConditions() {
+int ComDiagsArea::markDupNFConditions() {
   CollIndex lnfw = 0;
   DiagsCondition *warningMark = NULL;
 

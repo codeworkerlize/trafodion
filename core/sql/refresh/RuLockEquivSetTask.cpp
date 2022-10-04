@@ -51,7 +51,7 @@
 // and this way we will shorten the time of the lock
 //--------------------------------------------------------------------------//
 
-CRULockEquivSetTask::CRULockEquivSetTask(Lng32 id, const CRUTblList &tblList)
+CRULockEquivSetTask::CRULockEquivSetTask(int id, const CRUTblList &tblList)
     : CRUTask(id), tblList_(eItemsArentOwned) {
   DSListPosition pos = tblList.GetHeadPosition();
   while (NULL != pos) {

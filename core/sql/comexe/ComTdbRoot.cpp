@@ -90,19 +90,19 @@ ComTdbRoot::ComTdbRoot()
 
 void ComTdbRoot::init(
     ComTdb *child_tdb, ex_cri_desc *cri_desc, InputOutputExpr *input_expr, InputOutputExpr *output_expr,
-    Lng32 input_vars_size, ex_expr *pkey_expr, ULng32 pkey_len, ex_expr *pred_expr, ex_cri_desc *work_cri_desc,
+    int input_vars_size, ex_expr *pkey_expr, ULng32 pkey_len, ex_expr *pred_expr, ex_cri_desc *work_cri_desc,
     ExFragDir *fragDir, TransMode *transMode, char *fetchedCursorName, short fetchedCursorHvar, NABoolean delCurrOf,
-    Lng32 numUpdateCol, Lng32 *updateColList, NABoolean selectInto, short tableCount, Int64 firstNRows,
+    int numUpdateCol, int *updateColList, NABoolean selectInto, short tableCount, long firstNRows,
     NABoolean userInputVars, double cost, SqlTableOpenInfo **stoiList, LateNameInfoList *lateNameInfoList,
     Queue *viewStoiList, TrafQuerySimilarityInfo *qsi, Space *space,
-    Lng32 uniqueExecuteIdOffset,  // ++Triggers -
-    Lng32 triggersStatusOffset, short triggersCount, Int64 *triggersList, short tempTableCount,
+    int uniqueExecuteIdOffset,  // ++Triggers -
+    int triggersStatusOffset, short triggersCount, long *triggersList, short tempTableCount,
     short baseTablenamePosition, NABoolean updDelInsert, NABoolean retryableStmt, NABoolean streamScan,
-    NABoolean embeddedUpdateOrDelete, Int32 streamTimeout, Int64 explainPlanId, NABasicPtr qCacheInfo,
+    NABoolean embeddedUpdateOrDelete, Int32 streamTimeout, long explainPlanId, NABasicPtr qCacheInfo,
     Int32 cacheVarsSize, SqlTableOpenInfo **udrStoiList, short udrCount, short maxResultSets, NABasicPtr queryCostInfo,
     UninitializedMvName *uninitializedMvList, short uninitializedMvCount, NABasicPtr compilerStatsInfo,
-    NABasicPtr rwrsInfo, Int32 numObjectUIDs, Int64 *objectUIDs, CompilationStatsData *compilationStatsData,
-    Int64 sentryAuthExpirationTimeStamp, char *snapTmpLocation, Queue *listOfSnapshotscanTables, Int64 queryHash) {
+    NABasicPtr rwrsInfo, Int32 numObjectUIDs, long *objectUIDs, CompilationStatsData *compilationStatsData,
+    long sentryAuthExpirationTimeStamp, char *snapTmpLocation, Queue *listOfSnapshotscanTables, long queryHash) {
   rtFlags1_ = 0;
   rtFlags2_ = 0;
   rtFlags3_ = 0;
@@ -291,7 +291,7 @@ Long ComTdbRoot::pack(void *space) {
   return ComTdb::pack(space);
 }
 
-Lng32 ComTdbRoot::unpack(void *base, void *reallocator) {
+int ComTdbRoot::unpack(void *base, void *reallocator) {
   if (childTdb.isNull()) {
     // Check if the child tdb was null after code generation. If it was not
     // null then, something happened between then and now, when the plan
@@ -351,7 +351,7 @@ NABoolean ComTdbRoot::isUpdateCol(const ComTdbRoot *updateTdb) {
   Int32 numFound = 0;
 
   for (Int32 i = 0; i < updateTdb->numUpdateCol_; i++) {
-    Lng32 updateCol = updateTdb->updateColList_[i];
+    int updateCol = updateTdb->updateColList_[i];
 
     for (Int32 j = 0; j < numUpdateCol_; j++) {
       if (updateCol == updateColList_[j]) {
@@ -468,9 +468,9 @@ void ComTdbRoot::displayContents(Space *space, ULng32 flag) {
       space->allocateAndCopyToAlignedSpace(buf, str_len(buf), sizeof(short));
     }
 
-    Lng32 fragOffset;
-    Lng32 fragLen;
-    Lng32 topNodeOffset;
+    int fragOffset;
+    int fragLen;
+    int topNodeOffset;
     if (getFragDir()->getExplainFragDirEntry(fragOffset, fragLen, topNodeOffset) == 0) {
       char buf[64];
       str_sprintf(buf, "explain_plan_size = %d", fragLen);
@@ -494,7 +494,7 @@ NABoolean ComTdbRoot::containsUdrInteractions() const {
   return FALSE;
 }
 
-const char *ComTdbRoot::getQueryTypeText(Lng32 queryType) {
+const char *ComTdbRoot::getQueryTypeText(int queryType) {
   switch (queryType) {
     case SQL_OTHER:
       return "SQL_OTHER";
@@ -572,7 +572,7 @@ const char *ComTdbRoot::getSubqueryTypeText(Int16 subqueryType) {
   }
 }
 
-NABoolean ComTdbRoot::aqrEnabledForSqlcode(Lng32 sqlcode) {
+NABoolean ComTdbRoot::aqrEnabledForSqlcode(int sqlcode) {
   if ((rtFlags1_ & AQR_ENABLED) || (sqlcode == -CLI_INVALID_QUERY_PRIVS) || (sqlcode == -CLI_DDL_REDEFINED))
     return TRUE;
   else
@@ -602,7 +602,7 @@ Long SecurityInvKeyInfo::pack(void *space) {
   return NAVersionedObject::pack(space);
 }
 
-Lng32 SecurityInvKeyInfo::unpack(void *base, void *reallocator) {
+int SecurityInvKeyInfo::unpack(void *base, void *reallocator) {
   if (sikValues_.unpack(base)) return -1;
   return NAVersionedObject::unpack(base, reallocator);
 }

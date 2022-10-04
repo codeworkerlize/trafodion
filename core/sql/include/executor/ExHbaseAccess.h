@@ -72,7 +72,7 @@ class ExHbaseAccessTdb : public ComTdbHbaseAccess {
   // ---------------------------------------------------------------------
   virtual ex_tcb *build(ex_globals *globals);
 
-  Lng32 execStatementTrigger(bool isBefore);
+  int execStatementTrigger(bool isBefore);
   void setExMasterStmtGlobals(ExMasterStmtGlobals *master_glob) { master_glob_ = master_glob; }
   ExMasterStmtGlobals *getExMasterStmtGlobals() { return master_glob_; }
 
@@ -137,7 +137,7 @@ class ExHbaseAccessTcb : public ex_tcb {
   virtual const ex_tcb *getChild(Int32 /*pos*/) const { return NULL; }
   virtual NABoolean needStatsEntry();
   virtual ExOperStats *doAllocateStatsEntry(CollHeap *heap, ComTdb *tdb);
-  virtual ex_tcb_private_state *allocatePstates(Lng32 &numElems, Lng32 &pstateLength);
+  virtual ex_tcb_private_state *allocatePstates(int &numElems, int &pstateLength);
 
   ExHbaseAccessStats *getHbaseAccessStats() {
     if (getStatsEntry())
@@ -149,20 +149,20 @@ class ExHbaseAccessTcb : public ex_tcb {
   // Overridden by ExHbaseAccessSelectTcb, for which sampling may be used.
   virtual Float32 getSamplePercentage() const { return -1.0f; }
 
-  Lng32 numRowsInDirectBuffer() { return directBufferRowNum_; }
+  int numRowsInDirectBuffer() { return directBufferRowNum_; }
 
-  static void incrErrorCount(ExpHbaseInterface *ehi, Int64 &totalExceptionCount, const char *tabName,
+  static void incrErrorCount(ExpHbaseInterface *ehi, long &totalExceptionCount, const char *tabName,
                              const char *rowId);
 
-  static void getErrorCount(ExpHbaseInterface *ehi, Int64 &totalExceptionCount, const char *tabName, const char *rowId);
+  static void getErrorCount(ExpHbaseInterface *ehi, long &totalExceptionCount, const char *tabName, const char *rowId);
 
-  void handleException(NAHeap *heap, char *loggingDdata, Lng32 loggingDataLen, ComCondition *errorCond);
+  void handleException(NAHeap *heap, char *loggingDdata, int loggingDataLen, ComCondition *errorCond);
 
   static void buildLoggingPath(const char *loggingLocation, char *logId, const char *tableName,
                                char *currCmdLoggingLocation);
   static void buildLoggingFileName(NAHeap *heap, const char *currCmdLoggingLocation, const char *tableName,
-                                   const char *loggingFileNamePrefix, Lng32 instId, char *&loggingFileName);
-  static short setupError(NAHeap *heap, ex_queue_pair &qparent, Lng32 retcode, const char *str,
+                                   const char *loggingFileNamePrefix, int instId, char *&loggingFileName);
+  static short setupError(NAHeap *heap, ex_queue_pair &qparent, int retcode, const char *str,
                           const char *str2 = NULL);
 
   static void extractColNameFields(char *inValPtr, short &colNameLen, char *&colName);
@@ -233,29 +233,29 @@ class ExHbaseAccessTcb : public ex_tcb {
       return NULL;
   }
 
-  short allocateUpEntryTupps(Lng32 tupp1index, Lng32 tupp1length, Lng32 tupp2index, Lng32 tupp2length,
+  short allocateUpEntryTupps(int tupp1index, int tupp1length, int tupp2index, int tupp2length,
                              NABoolean isVarchar, short *rc);
 
-  short moveRowToUpQueue(const char *row, Lng32 len, short *rc, NABoolean isVarchar);
+  short moveRowToUpQueue(const char *row, int len, short *rc, NABoolean isVarchar);
   short moveRowToUpQueue(short *rc);
 
-  short raiseError(Lng32 errcode, Lng32 *intParam1 = NULL, const char *str1 = NULL, const char *str2 = NULL);
+  short raiseError(int errcode, int *intParam1 = NULL, const char *str1 = NULL, const char *str2 = NULL);
 
-  short setupError(Lng32 retcode, const char *str, const char *str2 = NULL);
+  short setupError(int retcode, const char *str, const char *str2 = NULL);
   short handleError(short &rc);
-  short handleDone(ExWorkProcRetcode &rc, Int64 rowsAffected = 0);
+  short handleDone(ExWorkProcRetcode &rc, long rowsAffected = 0);
   short createColumnwiseRow();
   short createRowwiseRow();
-  Lng32 createSQRowFromHbaseFormat(Int64 *lastestRowTimestamp = NULL);
-  Lng32 createSQRowFromHbaseFormatMulti();
-  Lng32 createSQRowFromAlignedFormat(Int64 *lastestRowTimestamp = NULL);
-  NABoolean missingValuesInAlignedFormatRow(ExpTupleDesc *tdesc, char *alignedRow, Lng32 alignedRowLen);
+  int createSQRowFromHbaseFormat(long *lastestRowTimestamp = NULL);
+  int createSQRowFromHbaseFormatMulti();
+  int createSQRowFromAlignedFormat(long *lastestRowTimestamp = NULL);
+  NABoolean missingValuesInAlignedFormatRow(ExpTupleDesc *tdesc, char *alignedRow, int alignedRowLen);
 
   short copyCell();
-  Lng32 createSQRowDirect(Int64 *lastestRowTimestamp = NULL);
-  Lng32 setupSQMultiVersionRow();
+  int createSQRowDirect(long *lastestRowTimestamp = NULL);
+  int setupSQMultiVersionRow();
 
-  short getColPos(char *colName, Lng32 colNameLen, Lng32 &idx);
+  short getColPos(char *colName, int colNameLen, int &idx);
   short applyPred(ex_expr *expr, UInt16 tuppIndex = 0, char *tuppRow = NULL);
   void setupPrevRowId();
   short evalKeyColValExpr(HbaseStr &columnToCheck, HbaseStr &colValToCheck);
@@ -269,10 +269,10 @@ class ExHbaseAccessTcb : public ex_tcb {
   short evalRowIdAsciiExpr(const char *inputRowIdVals,
                            char *rowIdBuf,         // input: buffer where rowid is created
                            char *&outputRowIdPtr,  // output: ptr to rowid.
-                           Lng32 excludeKey, Lng32 &outputRowIdLen);
-  Lng32 setupUniqueRowIdsAndCols(ComTdbHbaseAccess::HbaseGetRows *hgr);
-  Lng32 setupSubsetRowIdsAndCols(ComTdbHbaseAccess::HbaseScanRows *hsr);
-  Lng32 genAndAssignSyskey(UInt16 tuppIndex, char *tuppRow);
+                           int excludeKey, int &outputRowIdLen);
+  int setupUniqueRowIdsAndCols(ComTdbHbaseAccess::HbaseGetRows *hgr);
+  int setupSubsetRowIdsAndCols(ComTdbHbaseAccess::HbaseScanRows *hsr);
+  int genAndAssignSyskey(UInt16 tuppIndex, char *tuppRow);
 
   short createDirectAlignedRowBuffer(UInt16 tuppIndex, char *tuppRow, Queue *listOfColNames, NABoolean isUpdate,
                                      std::vector<UInt32> *posVec);
@@ -282,22 +282,22 @@ class ExHbaseAccessTcb : public ex_tcb {
   short createDirectRowBuffer(Text &colFamily, Text &colName, Text &colVal);
   short createDirectRowwiseBuffer(char *inputRow);
 
-  Lng32 initNextKeyRange(sql_buffer_pool *pool = NULL, atp_struct *atp = NULL);
-  Lng32 setupUniqueKeyAndCols(NABoolean doInit);
+  int initNextKeyRange(sql_buffer_pool *pool = NULL, atp_struct *atp = NULL);
+  int setupUniqueKeyAndCols(NABoolean doInit);
   keyRangeEx::getNextKeyRangeReturnType setupSubsetKeys(NABoolean fetchRangeHadRows = FALSE);
-  Lng32 setupSubsetKeysAndCols();
+  int setupSubsetKeysAndCols();
 
-  Lng32 setupListOfColNames(Queue *listOfColNames, LIST(HbaseStr) & columns);
-  Lng32 setupListOfColNames(Queue *listOfColNames, LIST(NAString) & columns);
+  int setupListOfColNames(Queue *listOfColNames, LIST(HbaseStr) & columns);
+  int setupListOfColNames(Queue *listOfColNames, LIST(NAString) & columns);
 
   short setupHbaseFilterPreds();
-  void setRowID(char *rowId, Lng32 rowIdLen);
+  void setRowID(char *rowId, int rowIdLen);
   void allocateDirectBufferForJNI(UInt32 rowLen);
   void allocateDirectRowBufferForJNI(short numCols, short maxRows = 1);
   short patchDirectRowBuffers();
   short patchDirectRowIDBuffers();
   void allocateDirectRowIDBufferForJNI(short maxRows = 1);
-  Lng32 copyColToDirectBuffer(BYTE *rowCurPtr, char *colName, short colNameLen, NABoolean prependNullVal, char nullVal,
+  int copyColToDirectBuffer(BYTE *rowCurPtr, char *colName, short colNameLen, NABoolean prependNullVal, char nullVal,
                               char *colVal, Int32 colValLen);
   short copyRowIDToDirectBuffer(HbaseStr &rowID);
 
@@ -312,14 +312,14 @@ class ExHbaseAccessTcb : public ex_tcb {
 
   void setLoadDataIntoMemoryTable(NABoolean v) { loadDataIntoMemoryTable_ = v; }
 
-  Lng32 createSQRowDirectFromMemoryTable();
+  int createSQRowDirectFromMemoryTable();
   /////////////////////////////////////////////////////
   //
   // Private data.
   /////////////////////////////////////////////////////
 
   ex_queue_pair qparent_;
-  Int64 matches_;
+  long matches_;
   atp_struct *workAtp_;
 
   //  ex_tcb defined pool_, use it
@@ -336,7 +336,7 @@ class ExHbaseAccessTcb : public ex_tcb {
   HbaseStr colName_;
 
   HbaseStr colVal_;
-  Int64 colTS_;
+  long colTS_;
 
   Text beginRowId_;
   Text endRowId_;
@@ -368,9 +368,9 @@ class ExHbaseAccessTcb : public ex_tcb {
   char *hbTagRow_;
 
   char *rowwiseRow_;
-  Lng32 rowwiseRowLen_;
+  int rowwiseRowLen_;
   HbaseStr prevRowId_;
-  Lng32 prevRowIdMaxLen_;
+  int prevRowIdMaxLen_;
   NABoolean isEOD_;
 
   ComTdbHbaseAccess::HbaseScanRows *hsr_;
@@ -381,14 +381,14 @@ class ExHbaseAccessTcb : public ex_tcb {
 
   ComEncryption::EncryptionInfo encryptionInfo_;
 
-  Lng32 currRowidIdx_;
+  int currRowidIdx_;
 
   HbaseStr rowID_;
 
   // length of aligned format row created by eval method.
   ULng32 insertRowlen_;
 
-  Lng32 rowIDAllocatedLen_;
+  int rowIDAllocatedLen_;
   char *rowIDAllocatedVal_;
   // Direct Buffer to store multiple rowIDs
   // Format for rowID direct buffer
@@ -399,7 +399,7 @@ class ExHbaseAccessTcb : public ex_tcb {
   //                '1' then the subsequent rowID is of length
   //                              = passed rowID len+1
   BYTE *directRowIDBuffer_;
-  Lng32 directRowIDBufferLen_;
+  int directRowIDBufferLen_;
   // Current row num in the Direct Buffers
   short directBufferRowNum_;
   // rowID of the current row
@@ -422,7 +422,7 @@ class ExHbaseAccessTcb : public ex_tcb {
   // swapped because column value is always interpreted in the JNI side.
   //
   BYTE *directRowBuffer_;
-  Lng32 directRowBufferLen_;
+  int directRowBufferLen_;
   short directBufferMaxRows_;
   // Structure to keep track of current row
   HbaseStr row_;
@@ -430,15 +430,15 @@ class ExHbaseAccessTcb : public ex_tcb {
   HbaseStr rows_;
 
   struct ColValVec {
-    Lng32 numVersions_;
+    int numVersions_;
     char **versionArray_;
-    Int64 *timestampArray_;
-    Int64 *versionNumArray_;
+    long *timestampArray_;
+    long *versionNumArray_;
   };
 
   ColValVec *colValVec_;
-  Lng32 colValVecSize_;
-  Lng32 colValEntry_;
+  int colValVecSize_;
+  int colValEntry_;
   Int16 asyncCompleteRetryCount_;
   NABoolean *resultArray_;
   NABoolean asyncOperation_;
@@ -446,7 +446,7 @@ class ExHbaseAccessTcb : public ex_tcb {
   ComDiagsArea *loggingErrorDiags_;
   char *loggingFileName_;
   NABoolean loggingFileCreated_;
-  Lng32 recordCostTh_;
+  int recordCostTh_;
   ExDDLValidator ddlValidator_;
 
   NABoolean loadDataIntoMemoryTable_;
@@ -467,10 +467,10 @@ class ExHbaseTaskTcb : public ExGod {
 
   // To allow cancel, some tasks will need to return to the
   // scheduler occasionally.
-  Lng32 batchSize_;
+  int batchSize_;
   NABoolean rowsetTcb_;
-  Lng32 remainingInBatch_;
-  Lng32 recordCostTh_;
+  int remainingInBatch_;
+  int recordCostTh_;
 
   // To validate DDL on a Trafodion/EsgynDB table if needed
   ExDDLValidator ddlValidator_;
@@ -529,7 +529,7 @@ class ExHbaseScanSQTaskTcb : public ExHbaseTaskTcb {
 
   virtual ExWorkProcRetcode work(short &retval);
 
-  Lng32 getProbeResult(char *&keyData);
+  int getProbeResult(char *&keyData);
 
   virtual void init();
 
@@ -700,7 +700,7 @@ class ExHbaseAccessMdamSelectTcb : public ExHbaseAccessSelectTcb {
   // have provided were non-empty; we keep track of that here
   NABoolean fetchRangeHadRows_;
 
-  Int64 matchesBeforeFetch_;
+  long matchesBeforeFetch_;
 };
 
 class ExHbaseAccessDeleteTcb : public ExHbaseAccessTcb {
@@ -787,7 +787,7 @@ class ExHbaseAccessInsertTcb : public ExHbaseAccessTcb {
   Text insColFam_;
   Text insColNam_;
   Text insColVal_;
-  const Int64 *insColTS_;
+  const long *insColTS_;
 };
 
 class ExHbaseAccessInsertRowwiseTcb : public ExHbaseAccessInsertTcb {
@@ -806,7 +806,7 @@ class ExHbaseAccessInsertSQTcb : public ExHbaseAccessInsertTcb {
   virtual ExWorkProcRetcode work();
 
  private:
-  Int64 insColTSval_;
+  long insColTSval_;
 };
 
 class ExHbaseAccessUpsertVsbbSQTcb : public ExHbaseAccessInsertTcb {
@@ -816,17 +816,17 @@ class ExHbaseAccessUpsertVsbbSQTcb : public ExHbaseAccessInsertTcb {
   virtual ExWorkProcRetcode work();
 
  protected:
-  Int64 insColTSval_;
-  Lng32 currRowNum_;
+  long insColTSval_;
+  int currRowNum_;
 
   queue_index prevTailIndex_;
   queue_index nextRequest_;  // next request in down queue
 
-  Lng32 numRetries_;
+  int numRetries_;
 
-  Lng32 rowsInserted_;
+  int rowsInserted_;
   int lastHandledStep_;
-  Lng32 numRowsInVsbbBuffer_;
+  int numRowsInVsbbBuffer_;
 };
 
 class ExHbaseUMDtrafSubsetTaskTcb : public ExHbaseTaskTcb {
@@ -936,7 +936,7 @@ class ExHbaseUMDtrafUniqueTaskTcb : public ExHbaseTaskTcb {
 
  protected:
   NABoolean rowUpdated_;
-  Int64 latestRowTimestamp_;
+  long latestRowTimestamp_;
   HbaseStr columnToCheck_;
   HbaseStr colValToCheck_;
 
@@ -1046,18 +1046,18 @@ class ExHbaseAccessSQRowsetTcb : public ExHbaseAccessTcb {
   ExHbaseAccessSQRowsetTcb(const ExHbaseAccessTdb &tdb, ex_globals *glob);
 
   virtual ExWorkProcRetcode work();
-  Lng32 setupRowIds();
-  Lng32 setupUniqueKey();
+  int setupRowIds();
+  int setupUniqueKey();
 
  private:
-  Lng32 currRowNum_;
+  int currRowNum_;
 
   queue_index prevTailIndex_;
   queue_index nextRequest_;  // next request in down queue
 
-  Lng32 numRetries_;
+  int numRetries_;
   int lastHandledStep_;
-  Lng32 numRowsInVsbbBuffer_;
+  int numRowsInVsbbBuffer_;
 };
 
 class ExHbaseAccessDDLTcb : public ExHbaseAccessTcb {
@@ -1155,7 +1155,7 @@ class ExHbaseCoProcAggrTcb : public ExHbaseAccessTcb {
   inline ExHbaseCoProcAggrTdb &hbaseAccessTdb() const { return (ExHbaseCoProcAggrTdb &)tdb; }
 
  private:
-  Lng32 aggrIdx_;
+  int aggrIdx_;
 };
 
 class ExHbaseAccessBulkLoadTaskTcb : public ExHbaseAccessTcb {

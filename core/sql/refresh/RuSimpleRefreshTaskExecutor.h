@@ -118,7 +118,7 @@ class REFRESH_LIB_CLASS CRUSimpleRefreshTaskExecutor : public CRURefreshTaskExec
   virtual void LogClosureMessage();
 
   // Overriding the defualt behavior
-  virtual void HandleSqlError(CDSException &ex, Lng32 errorCode, const char *errorArgument = NULL);
+  virtual void HandleSqlError(CDSException &ex, int errorCode, const char *errorArgument = NULL);
 
   CDMPreparedStatement *PrepareSingleDeltaRefresh();
   void ExecuteSingleDeltaRefresh(CDMPreparedStatement *stmt);
@@ -140,7 +140,7 @@ class REFRESH_LIB_CLASS CRUSimpleRefreshTaskExecutor : public CRURefreshTaskExec
   // The number of intenal refresh phases we already executed
   short GetNumOfPhases() const { return numOfPhases_; }
 
-  BOOL HasWarningCode(CDSException ex, Lng32 errorCode) const;
+  BOOL HasWarningCode(CDSException ex, int errorCode) const;
 
  private:
   //-- Prevent copying

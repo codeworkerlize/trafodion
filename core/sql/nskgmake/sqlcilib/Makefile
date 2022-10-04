@@ -35,6 +35,6 @@ LEX_PREFIX := sqlci
 
 SRCPATH := sqlci exp
 
+# /home/esoye/trafodion/core/sql/nskgmake/sqlcilib/linux/64bit/debug
+
 $(TARGOBJDIR)/$(LEX_PREFIX)/sqlci_lex.$(OBJSUFFIX) : $(TARGOBJDIR)/sqlci_yacc.h
-#$(TARGOBJDIR)/SqlCmd.$(OBJSUFFIX): tdm_sqlmxmsg_intl/$(TARGTYPE)/$(ARCHBITS)/$(FLAVOR)/sqlmxmsg_msg.h
-#$(TARGOBJDIR)/SqlciEnv.$(OBJSUFFIX): tdm_sqlmxmsg_intl/$(TARGTYPE)/$(ARCHBITS)/$(FLAVOR)/sqlmxmsg_msg.h

@@ -43,7 +43,7 @@
 
 #include "ExPackedRows.h"
 #include "ExSimpleSqlBuffer.h"
-#include "ex_error.h"
+#include "executor/ex_error.h"
 #include "exp/ExpError.h"
 
 //////////////////////////////////////////////////////////////////////////////
@@ -454,7 +454,7 @@ ExWorkProcRetcode ExUnPackRowsTcb::workUp() {
         processError(childAtp, FALSE, 0);
         continue;
       } else if (pEntryDown->downState.request == ex_queue::GET_N &&
-                 pEntryDown->downState.requestValue <= (Lng32)pState.matchCount_) {
+                 pEntryDown->downState.requestValue <= (int)pState.matchCount_) {
         qParent_.down->cancelRequest(qParent_.down->getHeadIndex());
         processCancel();
         continue;
@@ -508,7 +508,7 @@ ExWorkProcRetcode ExUnPackRowsTcb::workUp() {
           // Handle GET_N processing
           //
           if (pEntryDown->downState.request == ex_queue::GET_N &&
-              pEntryDown->downState.requestValue <= (Lng32)pState.matchCount_) {
+              pEntryDown->downState.requestValue <= (int)pState.matchCount_) {
             qParent_.down->cancelRequest(qParent_.down->getHeadIndex());
             processCancel();
             indexValue_ = pState.numRows_;
@@ -551,7 +551,7 @@ ExWorkProcRetcode ExUnPackRowsTcb::workUp() {
           // generate the proper values for the generated columns.
           //
 
-          Lng32 markValue = 0;
+          int markValue = 0;
           ComDiagsArea *da = workAtp_->getDiagsArea();
           if (da) markValue = da->mark();
 
@@ -659,7 +659,7 @@ ExWorkProcRetcode ExUnPackRowsTcb::workUp() {
   return WORK_OK;
 }
 
-void ExUnPackRowsTcb::processError(atp_struct *atp, NABoolean isNonFatalError, Lng32 markValue) {
+void ExUnPackRowsTcb::processError(atp_struct *atp, NABoolean isNonFatalError, int markValue) {
   ex_queue_entry *pEntryDown = qParent_.down->getHeadEntry();
   ex_queue_entry *pEntry = qParent_.up->getTailEntry();
   ExUnPackRowsPrivateState &pState = *((ExUnPackRowsPrivateState *)pEntryDown->pstate);

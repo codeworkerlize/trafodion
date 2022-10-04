@@ -20,9 +20,9 @@ typedef int Int32;
 typedef unsigned int UInt32;
 typedef short Int16;
 // #if defined(NA_64BIT)
-// typedef long Int64;
+// typedef long long;
 // #else
-// typedef long long int Int64;
+// typedef long long int long;
 // #endif
 
 #ifdef __cplusplus
@@ -1290,7 +1290,7 @@ enum PREPARE_FLAGS {
 };
 
 /* used to put and get DDL redefinition invalidation keys */
-typedef Int64 InvalidObjectUID;
+typedef long InvalidObjectUID;
 
 /* used to put and get security invalidation keys */
 typedef struct {
@@ -1391,8 +1391,8 @@ Int32 SQL_EXEC_ASSOCFILENUMBER(
     /*IN*/ short file_number);
 Int32 SQL_EXEC_GetDiskMaxSize(
     /*IN*/ char *volname,
-    /*OUT*/ Int64 *totalCapacity,
-    /*OUT*/ Int64 *totalFreespace);
+    /*OUT*/ long *totalCapacity,
+    /*OUT*/ long *totalFreespace);
 Int32 SQL_EXEC_GetListOfDisks(
     /*IN/OUT*/ char *diskBuf,
     /* OUT */ Int32 *numTSEs,
@@ -1621,7 +1621,7 @@ Int32 SQL_EXEC_FETCHMULTIPLE(/*IN*/ SQLSTMT_ID *statement_id,
 Int32 SQL_EXEC_Cancel(
     /*IN OPTIONAL*/ SQLSTMT_ID *statement_id);
 
-Int32 SQL_EXEC_CancelOperation(Int64 transid);
+Int32 SQL_EXEC_CancelOperation(long transid);
 
 Int32 SQL_EXEC_CANCEL(
     /*IN OPTIONAL*/ SQLSTMT_ID *statement_id);
@@ -1827,7 +1827,7 @@ Int32 SQL_EXEC_GetExplainData(
     /*INOUT*/ Int32 *ret_explain_len);
 
 Int32 SQL_EXEC_StoreExplainData(
-    /*IN*/ Int64 *exec_start_utc_ts,
+    /*IN*/ long *exec_start_utc_ts,
     /*IN*/ char *query_id,
     /*INOUT*/ char *explain_ptr,
     /*IN*/ Int32 explain_len);
@@ -2069,18 +2069,18 @@ Int32 SQL_EXEC_SetSecInvalidKeys(
     /* IN */ SQL_QIKEY siKeys[]);
 
 Int32 SQL_EXEC_GetSecInvalidKeys(
-    /* IN */ Int64 prevTimestamp,
+    /* IN */ long prevTimestamp,
     /* IN/OUT */ SQL_QIKEY siKeys[],
     /* IN */ Int32 maxNumSiKeys,
     /* IN/OUT */ Int32 *returnedNumSiKeys,
-    /* IN/OUT */ Int64 *maxTimestamp);
+    /* IN/OUT */ long *maxTimestamp);
 
 Int32 SQL_EXEC_SetObjectEpochEntry(
     /* IN */ Int32 operation,
     /* IN */ Int32 objectNameLength,
     /* IN */ const char *objectName,
-    /* IN */ Int64 redefTime,
-    /* IN */ Int64 key,
+    /* IN */ long redefTime,
+    /* IN */ long key,
     /* IN */ UInt32 expectedEpoch,
     /* IN */ UInt32 expectedFlags,
     /* IN */ UInt32 newEpoch,
@@ -2151,11 +2151,11 @@ Int32 SQL_EXEC_SetClientInfo(
 
 char *SQL_EXEC_GetClientInfo();
 
-Int32 SQL_EXEC_GetTransactionId(/*OUT*/ Int64 *trans_id);
+Int32 SQL_EXEC_GetTransactionId(/*OUT*/ long *trans_id);
 
 Int32 SQL_EXEC_GetStatementHeapSize(
     /*IN*/ SQLSTMT_ID *statement_id,
-    /*OUT*/ Int64 *heapSize);
+    /*OUT*/ long *heapSize);
 
 #ifdef __cplusplus
 }

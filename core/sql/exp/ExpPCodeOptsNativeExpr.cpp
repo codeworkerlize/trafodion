@@ -1645,7 +1645,7 @@ NABoolean PCodeCfg::canGenerateNativeExpr() {
     // performed.  Until we have 64-bit comparison support, we can only
     // do a little here.
     if (inst->getROps()[0]->isConst()) {
-      Int64 val = getIntConstValue(inst->getROps()[0]);
+      long val = getIntConstValue(inst->getROps()[0]);
       if (val < 0) return FALSE;
 
       // Positive value found that can be used in a MBIN32U comparison.
@@ -2364,7 +2364,7 @@ void PCodeCfg::setupClauseOperand(PCodeCfg *cfg, OPLIST &opList, PCodeOperand **
 // It is for this reason that the caller can use the returned jit_value_t
 // AS IF we had returned the value of the object.
 //
-jit_value_t PCodeCfg::IR_LoadRelativeWithType(IRBldr_t *Bldr, jit_value_t int8p, Int64 byteOffset,
+jit_value_t PCodeCfg::IR_LoadRelativeWithType(IRBldr_t *Bldr, jit_value_t int8p, long byteOffset,
                                               jit_type_t typeToLoad) {
 #if NExprDbgLvl > VV_NO
   char NExBuf[500];
@@ -2397,7 +2397,7 @@ jit_value_t PCodeCfg::IR_LoadRelativeWithType(IRBldr_t *Bldr, jit_value_t int8p,
 // value at a specified byte offset from where the specified pointer points.
 // The "typeToStore" argument specifies what kind of "store" to generate.
 //
-void PCodeCfg::IR_StoreRelativeWithType(IRBldr_t *Bldr, jit_value_t val, jit_value_t tgt8ByPtr, Int64 byteOffset,
+void PCodeCfg::IR_StoreRelativeWithType(IRBldr_t *Bldr, jit_value_t val, jit_value_t tgt8ByPtr, long byteOffset,
                                         jit_type_t typeToStore) {
 #if NExprDbgLvl > VV_NO
   char NExBuf[500];
@@ -2767,7 +2767,7 @@ jit_value_t PCodeOperand::getJitValue(PCodeCfg *cfg, IRBldr_t *Bldr, jit_type_t 
                              ? orig
                              : this;
 
-      Int64 val = cfg->getIntConstValue(op);
+      long val = cfg->getIntConstValue(op);
 
       //    jitValue_ = jit_value_create_long_constant(f, type, val);
       jitValue_ = ConstantInt::get(IRtype, val);
@@ -3681,7 +3681,7 @@ jit_value_t PCodeOperand::getJitValue(PCodeCfg *cfg, jit_function_t f, jit_type_
 
       PCodeOperand *op = ((getType() == PCIT::MFLT64) || (getType() == PCIT::MFLT32)) ? orig : this;
 
-      Int64 val = cfg->getIntConstValue(op);
+      long val = cfg->getIntConstValue(op);
 
       jitValue_ = jit_value_create_long_constant(f, type, val);
     } else if (getType() == PCIT::MPTR32) {
@@ -5786,7 +5786,7 @@ void PCodeCfg::layoutNativeCode() {
   ex_expr Ex_Expr;
 
   for (i = 0, j = 1; i < (CollIndex)pCode[0]; i++, j += 2) {
-    Int64 off1 = 0, off2 = 0;
+    long off1 = 0, off2 = 0;
 
     DPT3("VV90004: ", VV_XD, "INITIALIZING jitParams_[4+i == %d] where j=%d, pCode[0] = %d\n", 4 + i, j, pCode[0]);
 
@@ -5828,7 +5828,7 @@ void PCodeCfg::layoutNativeCode() {
   // those temps which usually don't fit within a native container - e.g.
   // strings and bignums.
   //
-  Int64 ConstantsOff = ((char *)&(Ex_Expr.constantsArea_)) - (char *)(&Ex_Expr);
+  long ConstantsOff = ((char *)&(Ex_Expr.constantsArea_)) - (char *)(&Ex_Expr);
 
   DPT1("VV90013: ", VV_VD, "SET ConstantsOff to %ld\n", ConstantsOff);
 
@@ -5837,7 +5837,7 @@ void PCodeCfg::layoutNativeCode() {
   DPT0("VV90020: ", VV_VD, "jitParams_[1] = IR_LoadRelativeWithType( Bldr, exprJitVal, ConstantsOff, int8PtrTy_ )\n");
   jitParams_[1] = IR_LoadRelativeWithType(Bldr, exprJitVal, ConstantsOff, int8PtrTy_);
 
-  Int64 TempsOff = ((char *)&(Ex_Expr.tempsArea_)) - (char *)(&Ex_Expr);
+  long TempsOff = ((char *)&(Ex_Expr.tempsArea_)) - (char *)(&Ex_Expr);
 
   DPT1("VV90022: ", VV_VD, "jitParams_[2] = IR_LoadRelativeWithType( Bldr, exprJitVal, TempsOff = %ld, int8PtrTy_ )\n",
        TempsOff);
@@ -8597,7 +8597,7 @@ void PCodeCfg::layoutNativeCode() {
     struct rusage endTime;
     (void)getrusage(RUSAGE_THREAD, &endTime);
 
-    Int64 totalTime = (endTime.ru_utime.tv_sec - begTime.ru_utime.tv_sec) * 1000000 +
+    long totalTime = (endTime.ru_utime.tv_sec - begTime.ru_utime.tv_sec) * 1000000 +
                       (endTime.ru_utime.tv_usec - begTime.ru_utime.tv_usec);
 
     DPT2("VVzzz99: ", VV_I0,
@@ -10429,7 +10429,7 @@ void PCodeCfg::layoutNativeCode(Space *showplanSpace = NULL) {
           hashTableJitVal = src2->getJitValue(this, f, src2->getJitType(), block);
           resJitVal = jit_insn_load_elem_address(f, hashTableJitVal, resJitVal, jit_type_ulong);
 
-          // End of table is basically "size" * "sizeof(Int64)".
+          // End of table is basically "size" * "sizeof(long)".
           tableEnd = jit_insn_add_relative(f, hashTableJitVal, 8 * inst->code[7]);
 
           // Load the 8 bytes associated with the source before the loop
@@ -10515,7 +10515,7 @@ void PCodeCfg::layoutNativeCode(Space *showplanSpace = NULL) {
           hashTableJitVal = src2->getJitValue(this, f, src2->getJitType(), block);
           resJitVal = jit_insn_load_elem_address(f, hashTableJitVal, resJitVal, jit_type_ulong);
 
-          // End of table is basically "size" * "sizeof(Int64)".
+          // End of table is basically "size" * "sizeof(long)".
           tableEnd = jit_insn_add_relative(f, hashTableJitVal, 8 * inst->code[10]);
 
           jit_insn_label(f, &startLoop);

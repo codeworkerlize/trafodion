@@ -615,13 +615,13 @@ inline Int32 Attributes::isNotAlwaysAligned() { return (flags_ & DATA_ALIGNMENT_
 ///////////////////////////////////////////////////////////////
 class SimpleType : public Attributes {
  public:
-  SimpleType(Lng32 length, short scale, Int32 precision) : length_(length), scale_(scale), precision_(precision) {
+  SimpleType(int length, short scale, Int32 precision) : length_(length), scale_(scale), precision_(precision) {
     setCollation(CharInfo::DefaultCollation);
     setClassID(SimpleTypeID);
     memset(fillers_, 0, sizeof(fillers_));
   }
 
-  SimpleType(Lng32 length, short scale, Int32 precision, short collation)
+  SimpleType(int length, short scale, Int32 precision, short collation)
       : length_(length), scale_(scale), precision_(precision), collation_(collation) {
     setClassID(SimpleTypeID);
     memset(fillers_, 0, sizeof(fillers_));

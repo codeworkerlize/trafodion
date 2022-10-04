@@ -43,7 +43,7 @@
 #include "conversionKSC5601.cpp"
 #include "DgBaseType.cpp"
 #include "ErrorCondition.cpp"
-#include "Int64.cpp"
+#include "long.cpp"
 #include "Ipc.cpp"
 #include "IpcGuardian.cpp"
 #include "IpcSockets.cpp"

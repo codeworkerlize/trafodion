@@ -183,7 +183,7 @@ void TriggerDB::removeTriggers(QualifiedName &subjectTable, ComOperation operati
   }
 }
 
-BeforeAndAfterTriggers *TriggerDB::getAllTriggers(QualifiedName &subjectTable, Int64 tableId, NABoolean useTrigger) {
+BeforeAndAfterTriggers *TriggerDB::getAllTriggers(QualifiedName &subjectTable, long tableId, NABoolean useTrigger) {
   if (useTrigger == FALSE) return NULL;
 
   BeforeAndAfterTriggers *triggers = NULL;
@@ -241,7 +241,7 @@ BeforeAndAfterTriggers *TriggerDB::getAllTriggers(QualifiedName &subjectTable, I
   ULng32 flagBits = GetCliGlobals()->currContext()->getSqlParserFlags();
   ;
   GetCliGlobals()->currContext()->setSqlParserFlags(0x20000);
-  Lng32 cliRC = cliInterface.fetchAllRows(objectsInfo, query, 0, FALSE, FALSE, TRUE);
+  int cliRC = cliInterface.fetchAllRows(objectsInfo, query, 0, FALSE, FALSE, TRUE);
   GetCliGlobals()->currContext()->assignSqlParserFlags(flagBits);
 
   if (cliRC < 0) {
@@ -255,11 +255,11 @@ BeforeAndAfterTriggers *TriggerDB::getAllTriggers(QualifiedName &subjectTable, I
   ncount++;
   for (int i = 0; i < objectsInfo->numEntries(); i++) {
     OutputInfo *oi = (OutputInfo *)objectsInfo->getNext();
-    Int64 triggerid = *(Int64 *)oi->get(0);
+    long triggerid = *(long *)oi->get(0);
     char *isafter = oi->get(1);
     char *isStatement = oi->get(2);
     char *sqlacc = oi->get(3);
-    Lng32 op = *(Lng32 *)oi->get(4);
+    int op = *(int *)oi->get(4);
 
     memset(query, 0, 8192);
     str_sprintf(query, "select text from %s.\"%s\".%s where text_uid = %ld", TRAFODION_SYSCAT_LIT, SEABASE_MD_SCHEMA,

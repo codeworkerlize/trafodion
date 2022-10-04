@@ -52,15 +52,15 @@
 #include <strstream>
 #endif
 
-#include "GetErrorMessage.h"
+#include "sqlmsg/GetErrorMessage.h"
 #include "common/str.h"
 #include "export/ComDiags.h"
-#include "copyright.h"
-#include "ErrorMessage.h"
+#include "common/copyright.h"
+#include "sqlmsg/ErrorMessage.h"
 #include "common/NAString.h"
 #include "common/nawstring.h"
 #include "common/NLSConversion.h"
-#include "SqlciError.h"
+#include "sqlci/SqlciError.h"
 #include "common/csconvert.h"
 
 // What comes next are two parallel declarations: some enum values
@@ -166,9 +166,9 @@ static inline void Encode36(char &dst, Int32 src) {
   dst = (tc < 10 ? '0' + tc : 'A' + tc - 10);
 }
 
-NABoolean GetSqlstateInfo(Lng32 sqlcode, char *sqlstate, NABoolean &fabricatedSqlstate);
-void AddSqlstateInfo(Lng32 sqlcode, char *sqlstate, NABoolean fabricatedSqlstate);
-NABoolean ComSQLSTATE(Lng32 theSQLCODE, char *theSQLSTATE) {
+NABoolean GetSqlstateInfo(int sqlcode, char *sqlstate, NABoolean &fabricatedSqlstate);
+void AddSqlstateInfo(int sqlcode, char *sqlstate, NABoolean fabricatedSqlstate);
+NABoolean ComSQLSTATE(int theSQLCODE, char *theSQLSTATE) {
   // ---------------------------------------------------------------------
   // Compute SQLSTATE value from SQLCODE.
   //
@@ -308,8 +308,8 @@ NABoolean ComSQLSTATE(Lng32 theSQLCODE, char *theSQLSTATE) {
 
 // split the SQLCODE value into a left and a right part at the 1000s boundary
 #define AZ09 36
-  Lng32 codeLeft;
-  Lng32 codeRight;
+  int codeLeft;
+  int codeRight;
   codeLeft = ABS(theSQLCODE);
   codeRight = codeLeft % 1000;
   codeLeft = codeLeft / 1000;
@@ -392,7 +392,7 @@ saveAndReturnSqlstate:
   return fabricatedSqlstate;
 }
 
-static const char *returnClassOrigin(Lng32 theSQLCODE, size_t offset) {
+static const char *returnClassOrigin(int theSQLCODE, size_t offset) {
   char sqlstate[6];
   ComSQLSTATE(theSQLCODE, sqlstate);
   // Classes and subclasses starting with letters '0' ... '4', 'A' ... 'H' are
@@ -404,12 +404,12 @@ static const char *returnClassOrigin(Lng32 theSQLCODE, size_t offset) {
     return "Apache Trafodion/EsgynDB";
 }
 
-const char *ComClassOrigin(Lng32 theSQLCODE) {
+const char *ComClassOrigin(int theSQLCODE) {
   // The class is stored in the first two characters of SQLSTATE.
   return returnClassOrigin(theSQLCODE, 0);
 }
 
-const char *ComSubClassOrigin(Lng32 theSQLCODE) {
+const char *ComSubClassOrigin(int theSQLCODE) {
   // The subclass is stored in the last three characters of SQLSTATE.
   return returnClassOrigin(theSQLCODE, 2);
 }
@@ -708,7 +708,7 @@ Int32 displayWCHAR(NAWchar *wstr, NAWchar *wend = NULL)  // for debugging
 //
 // ComCondition::getMessageEMSSeverity()
 //
-void ComEMSSeverity(Lng32 theSQLCODE, char *theEMSSeverity) {
+void ComEMSSeverity(int theSQLCODE, char *theEMSSeverity) {
   // this function should not have been called for these
   // sqlcodes but just in case
   // "UUUUU" is an undefined severity
@@ -742,7 +742,7 @@ void ComEMSSeverity(Lng32 theSQLCODE, char *theEMSSeverity) {
 //
 // ComCondition::getMessageEMSEventTarget()
 //
-void ComEMSEventTarget(Lng32 theSQLCODE, char *theEMSEventTarget, NABoolean forceDialout) {
+void ComEMSEventTarget(int theSQLCODE, char *theEMSEventTarget, NABoolean forceDialout) {
   Int32 numBytes = 0;
 
   // this function should not have been called for these
@@ -783,7 +783,7 @@ void ComEMSEventTarget(Lng32 theSQLCODE, char *theEMSEventTarget, NABoolean forc
 //
 // ComCondition::getMessageEMSExperienceLevel()
 //
-void ComEMSExperienceLevel(Lng32 theSQLCODE, char *theEMSExperienceLevel) {
+void ComEMSExperienceLevel(int theSQLCODE, char *theEMSExperienceLevel) {
   // this function should not have been called for these
   // sqlcodes but just in case
   // "UUUUUUUU" is an undefined experience level
@@ -1118,7 +1118,7 @@ const NAWchar *const ComCondition::getMessageText(NABoolean prefixAdded, CharInf
     ErrorMessageOverflowCheckW(messageText_, expandedBufferLen);
 
     FixCarriageReturn(messageText_);
-    messageLen_ = (Lng32)NAWstrlen(messageText_);
+    messageLen_ = (int)NAWstrlen(messageText_);
   }
 
   return messageText_;
@@ -1128,21 +1128,21 @@ const NAWchar *const ComCondition::getMessageText(NABoolean prefixAdded, CharInf
 // and giving a summary of its contents.
 
 ostream &operator<<(ostream &dest, const ComDiagsArea &da) {
-  char rowCount[21];  // for row count which is Int64
+  char rowCount[21];  // for row count which is long
   dest << "Function : " << da.getFunctionName() << endl;
   dest << "SQLCODE  : " << da.mainSQLCODE() << endl;
   dest << "number   : " << da.getNumber() << endl;
   dest << "are more?: " << ((da.areMore()) ? "Yes" : "No") << endl;
   convertInt64ToAscii(da.getRowCount(), rowCount);
   dest << "row count: " << rowCount << endl;
-  Lng32 i = 1;
+  int i = 1;
   while (i != da.getNumber() + 1) dest << (da[i++].getSQLCODE()) << endl;
   return dest;
 }
 
 //  stuff for error processing using variable argument list
 //
-void emitError(Lng32 ErrNum, char *stringType, Lng32 numArgs, ...) {
+void emitError(int ErrNum, char *stringType, int numArgs, ...) {
   va_list ap;
   ComCondition currentErr;
 
@@ -1167,7 +1167,7 @@ void emitError(Lng32 ErrNum, char *stringType, Lng32 numArgs, ...) {
         strIdx++;
       } else {
         assert(intIdx < 5);
-        currentErr.setOptionalInteger(intIdx, *(Lng32 *)va_arg(ap, UInt32 *));
+        currentErr.setOptionalInteger(intIdx, *(int *)va_arg(ap, UInt32 *));
         intIdx++;
       }
 

@@ -98,7 +98,7 @@ class MavRelRootBuilder : public NABasicObject {
  private:
   // These are initialized by the Ctor.
   CollHeap *heap_;
-  Lng32 posOfCountStar_;
+  int posOfCountStar_;
   const MVColumns &mavCols_;
   const CorrName deltaCorrName_;
   const CorrName mavCorrName_;

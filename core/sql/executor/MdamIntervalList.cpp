@@ -57,7 +57,7 @@
 
 // Constructor.
 #if defined(NA_MDAM_EXECUTOR_DEBUG_ILTF)
-MdamIntervalList::MdamIntervalList(const Lng32 callerTag)
+MdamIntervalList::MdamIntervalList(const int callerTag)
     : firstIntervalPtr_(0), lastIntervalPtr_(0), intervalListId_(NA_JulianTimestamp()) {
   logEvent(5, 0, -1, callerTag);
 }
@@ -100,8 +100,8 @@ MdamIntervalList &MdamIntervalList::append(MdamInterval *newIntervalPtr) {
 }
 
 #if defined(NA_MDAM_EXECUTOR_DEBUG_ILTF)
-Lng32 MdamIntervalList::countIntervals() const {
-  Lng32 intervalCount = 0;
+int MdamIntervalList::countIntervals() const {
+  int intervalCount = 0;
   MdamIntervalListIterator iterator(*this);
   while (iterator() != 0) {
     intervalCount++;
@@ -197,9 +197,9 @@ MdamIntervalList &MdamIntervalList::intersect(const MdamIntervalList &otherList,
 }
 
 #if defined(NA_MDAM_EXECUTOR_DEBUG_ILTF)
-void MdamIntervalList::logEvent(const Lng32 functionId, const Lng32 intervalCount, const Int64 otherListId,
-                                const Lng32 callerTag) const {
-  Int64 eventTimestamp = NA_JulianTimestamp();
+void MdamIntervalList::logEvent(const int functionId, const int intervalCount, const long otherListId,
+                                const int callerTag) const {
+  long eventTimestamp = NA_JulianTimestamp();
 
   printf("  %I64i  %I64i  %li  %li  %I64i  %li\n", eventTimestamp, intervalListId_, functionId, intervalCount,
          otherListId, callerTag);

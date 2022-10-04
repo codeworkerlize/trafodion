@@ -98,7 +98,7 @@ char *TmpBuffer::getNextRow(ComDiagsArea *&rowDiags, NABoolean singleRowFetchEna
       // Note that getWarningEntry() expects 1-based index value whereas
       // deleteWarning() takes 0-based values.
       const ComCondition *condFromCli = cliDiags_->getWarningEntry(1);
-      Lng32 rowNumberFromCli = condFromCli->getRowNumber();
+      int rowNumberFromCli = condFromCli->getRowNumber();
       if (rowNumberFromCli > rowNumber) {
         break;
       } else {
@@ -226,7 +226,7 @@ UdrResultSet::~UdrResultSet() {
 void UdrResultSet::deallocateUDRGeneratedFields() {
   SQLCTX_HANDLE prevContext = 0;
 
-  if (getContextHandle() != 0) SQL_EXEC_SwitchContext((Lng32)getContextHandle(), &prevContext);
+  if (getContextHandle() != 0) SQL_EXEC_SwitchContext((int)getContextHandle(), &prevContext);
 
   NAMemory *heap = collHeap();
 
@@ -437,7 +437,7 @@ SQLSTMT_ID *UdrResultSet::copyStatementID(SQLSTMT_ID *srcStmtID, NABoolean reset
 
   ComUInt32 module_charset_len = str_len(srcModuleID->charset);
   char *module_charset = new (collHeap()) char[module_charset_len + 1];
-  str_cpy_all(module_charset, srcModuleID->charset, (Lng32)module_charset_len);
+  str_cpy_all(module_charset, srcModuleID->charset, (int)module_charset_len);
   module_charset[module_charset_len] = '\0';
   module_id->charset = (const char *)module_charset;
 
@@ -451,7 +451,7 @@ SQLSTMT_ID *UdrResultSet::copyStatementID(SQLSTMT_ID *srcStmtID, NABoolean reset
   // Copy charset field
   ComUInt32 stmt_charset_len = str_len(srcStmtID->charset);
   char *stmt_charset = new (collHeap()) char[stmt_charset_len + 1];
-  str_cpy_all(stmt_charset, srcStmtID->charset, (Lng32)stmt_charset_len);
+  str_cpy_all(stmt_charset, srcStmtID->charset, (int)stmt_charset_len);
   stmt_charset[stmt_charset_len] = '\0';
   stmt_id->charset = (const char *)stmt_charset;
 
@@ -472,7 +472,7 @@ Int32 UdrResultSet::setContext(SQLCTX_HANDLE &oldCtx, ComDiagsArea &d) {
   if (lmResultSet_ == NULL || getContextHandle() == 0) return 0;
 
   SQLCTX_HANDLE tmpCtx;
-  Int32 result = SQL_EXEC_SwitchContext((Lng32)getContextHandle(), &tmpCtx);
+  Int32 result = SQL_EXEC_SwitchContext((int)getContextHandle(), &tmpCtx);
 
   if (result < 0) {
     d << DgSqlCode(-UDR_ERR_INTERNAL_CLI_ERROR) << DgString0("SQL_EXEC_SwitchContext") << DgInt0(result);
@@ -503,7 +503,7 @@ Int32 UdrResultSet::resetContext(SQLCTX_HANDLE ctxHandle, ComDiagsArea &d) {
 
 // populates proxySyntax_ field
 Int32 UdrResultSet::generateProxySyntax(ComDiagsArea &d) {
-  Lng32 retcode = 0;
+  int retcode = 0;
   ComUInt32 index = 0;
 
   if (lmResultSet_ && !lmResultSet_->isCliStmtAvailable()) {
@@ -559,7 +559,7 @@ Int32 UdrResultSet::generateProxySyntax(ComDiagsArea &d) {
 
   // Check how many columns there are in the output_desc
   ComUInt32 numColumns = 0;
-  retcode = SQL_EXEC_GetDescEntryCount(output_desc_, (Lng32 *)&numColumns);
+  retcode = SQL_EXEC_GetDescEntryCount(output_desc_, (int *)&numColumns);
   if (retcode < 0) {
     d << DgSqlCode(-UDR_ERR_INTERNAL_CLI_ERROR) << DgString0("SQL_EXEC_GetDescEntryCount") << DgInt0(retcode);
 
@@ -594,45 +594,45 @@ Int32 UdrResultSet::generateProxySyntax(ComDiagsArea &d) {
     // TBD: Not sure if it is okay for sqldesc_heading
     char *sqldesc_catalog_name = new (collHeap()) char[ComMAX_ANSI_IDENTIFIER_EXTERNAL_LEN];
     desc_items[startingPoint + 0].item_id = SQLDESC_CATALOG_NAME;
-    desc_items[startingPoint + 0].entry = (Lng32)index + 1;
+    desc_items[startingPoint + 0].entry = (int)index + 1;
     desc_items[startingPoint + 0].num_val_or_len = ComMAX_ANSI_IDENTIFIER_EXTERNAL_LEN;
     desc_items[startingPoint + 0].string_val = sqldesc_catalog_name;
 
     char *sqldesc_schema_name = new (collHeap()) char[ComMAX_ANSI_IDENTIFIER_EXTERNAL_LEN];
     desc_items[startingPoint + 1].item_id = SQLDESC_SCHEMA_NAME;
-    desc_items[startingPoint + 1].entry = (Lng32)index + 1;
+    desc_items[startingPoint + 1].entry = (int)index + 1;
     desc_items[startingPoint + 1].num_val_or_len = ComMAX_ANSI_IDENTIFIER_EXTERNAL_LEN;
     desc_items[startingPoint + 1].string_val = sqldesc_schema_name;
 
     char *sqldesc_table_name = new (collHeap()) char[ComMAX_ANSI_IDENTIFIER_EXTERNAL_LEN];
     desc_items[startingPoint + 2].item_id = SQLDESC_TABLE_NAME;
-    desc_items[startingPoint + 2].entry = (Lng32)index + 1;
+    desc_items[startingPoint + 2].entry = (int)index + 1;
     desc_items[startingPoint + 2].num_val_or_len = ComMAX_ANSI_IDENTIFIER_EXTERNAL_LEN;
     desc_items[startingPoint + 2].string_val = sqldesc_table_name;
 
     char *sqldesc_column_name = new (collHeap()) char[ComMAX_ANSI_IDENTIFIER_EXTERNAL_LEN];
     desc_items[startingPoint + 3].item_id = SQLDESC_NAME;
-    desc_items[startingPoint + 3].entry = (Lng32)index + 1;
+    desc_items[startingPoint + 3].entry = (int)index + 1;
     desc_items[startingPoint + 3].num_val_or_len = ComMAX_ANSI_IDENTIFIER_EXTERNAL_LEN;
     desc_items[startingPoint + 3].string_val = sqldesc_column_name;
 
     char *sqldesc_text_format = new (collHeap()) char[ComMAX_ANSI_IDENTIFIER_EXTERNAL_LEN];
     desc_items[startingPoint + 4].item_id = SQLDESC_TEXT_FORMAT;
-    desc_items[startingPoint + 4].entry = (Lng32)index + 1;
+    desc_items[startingPoint + 4].entry = (int)index + 1;
     desc_items[startingPoint + 4].num_val_or_len = ComMAX_ANSI_IDENTIFIER_EXTERNAL_LEN;
     desc_items[startingPoint + 4].string_val = sqldesc_text_format;
 
     char *sqldesc_heading = new (collHeap()) char[ComMAX_ANSI_IDENTIFIER_EXTERNAL_LEN];
     desc_items[startingPoint + 5].item_id = SQLDESC_HEADING;
-    desc_items[startingPoint + 5].entry = (Lng32)index + 1;
+    desc_items[startingPoint + 5].entry = (int)index + 1;
     desc_items[startingPoint + 5].num_val_or_len = ComMAX_ANSI_IDENTIFIER_EXTERNAL_LEN;
     desc_items[startingPoint + 5].string_val = sqldesc_heading;
 
     desc_items[startingPoint + 6].item_id = SQLDESC_NULLABLE;
-    desc_items[startingPoint + 6].entry = (Lng32)index + 1;
+    desc_items[startingPoint + 6].entry = (int)index + 1;
   }
 
-  retcode = SQL_EXEC_GetDescItems2(output_desc_, (Lng32)numColumns * NUMDESC_ITEMS, desc_items);
+  retcode = SQL_EXEC_GetDescItems2(output_desc_, (int)numColumns * NUMDESC_ITEMS, desc_items);
   if (retcode < 0) {
     d << DgSqlCode(-UDR_ERR_INTERNAL_CLI_ERROR) << DgString0("SQL_EXEC_GetDescItems2") << DgInt0(retcode);
 
@@ -756,7 +756,7 @@ void UdrResultSet::deallocateColumnDesc() {
 // rows copied so far will be returned.
 //
 //
-Lng32 UdrResultSet::fetchRows(UdrGlobals *udrGlob, SqlBuffer *requestBuffer, SqlBuffer *replyBuffer,
+int UdrResultSet::fetchRows(UdrGlobals *udrGlob, SqlBuffer *requestBuffer, SqlBuffer *replyBuffer,
                               ComDiagsArea &mainDiags, NAList<ComDiagsArea *> *rowDiagsList) {
   if (state_ != RS_LOADED && state_ != RS_FETCH && state_ != RS_REINITIATED && state_ != RS_EARLY_CLOSE) {
     mainDiags << DgSqlCode(-UDR_ERR_INVALID_RS_STATE) << DgString0("Fetch or Continue") << DgString1(stateString());
@@ -777,7 +777,7 @@ Lng32 UdrResultSet::fetchRows(UdrGlobals *udrGlob, SqlBuffer *requestBuffer, Sql
   if (requestBuffer) {
     down_state downState;
     tupp requestRow;
-    Lng32 retcode = requestBuffer->moveOutSendOrReplyData(TRUE,        // [IN] sending? (vs. replying)
+    int retcode = requestBuffer->moveOutSendOrReplyData(TRUE,        // [IN] sending? (vs. replying)
                                                           &downState,  // [OUT] queue state
                                                           requestRow,  // [OUT] new data tupp_descriptor
                                                           NULL,        // [OUT] new ControlInfo area
@@ -874,7 +874,7 @@ void UdrResultSet::fetchRowsFromJDBC(UdrGlobals *udrGlob, SqlBuffer *replyBuffer
     // and returns 1, if it succeeds. If in future it processes more than
     // one row and returns more than 1, then this function will require
     // changes too.
-    Lng32 numRows =
+    int numRows =
         lmResultSet_->fetchSpecialRows(tmpBuffer_->getBufferPtr(), rsColDescForLM_, numColumns_, mainDiags, diagsArea);
     if (numRows == -1) {
       needToCopyErrorRow_ = TRUE;
@@ -1010,20 +1010,20 @@ NABoolean UdrResultSet::setupQuadFields(ComDiagsArea &d) {
     }
 
     quad_fields_[index].var_ptr = (void *)(buf + dataOffset);
-    quad_fields_[index].var_layout = (Lng32)dataLayout;
+    quad_fields_[index].var_layout = (int)dataLayout;
 
     if (paramInfo.isNullable()) {
       ComUInt32 nullIndOffset = paramInfo.getNullIndicatorOffset();
       quad_fields_[index].ind_ptr = (void *)(buf + nullIndOffset);
-      quad_fields_[index].ind_layout = (Lng32)nullIndLayout;
+      quad_fields_[index].ind_layout = (int)nullIndLayout;
     }
   }
 
-  Lng32 rowsPerFetch = (Lng32)tmpBuffer_->getNumRowsPerFetch();
+  int rowsPerFetch = (int)tmpBuffer_->getNumRowsPerFetch();
 #ifdef UDR_DEBUG
   char *e = getenv("UDR_RS_FETCH_SIZE");
   if (e && e[0]) {
-    Lng32 fetchSize = atol(e);
+    int fetchSize = atol(e);
     if (fetchSize > 0 && fetchSize < rowsPerFetch) rowsPerFetch = fetchSize;
   }
 #endif
@@ -1032,9 +1032,9 @@ NABoolean UdrResultSet::setupQuadFields(ComDiagsArea &d) {
 
   UDR_DEBUG2("Fetch size for Result Set %p is set to %d.", this, rowsPerFetch);
 
-  Lng32 rowset_status[1];
+  int rowset_status[1];
   Int32 retcode =
-      SQL_EXEC_SETROWSETDESCPOINTERS(output_desc_, rowsPerFetch, rowset_status, 1, (Lng32)numColumns_, quad_fields_);
+      SQL_EXEC_SETROWSETDESCPOINTERS(output_desc_, rowsPerFetch, rowset_status, 1, (int)numColumns_, quad_fields_);
   if (retcode < 0) {
     d << DgSqlCode(-UDR_ERR_INTERNAL_CLI_ERROR) << DgString0("SQL_EXEC_SETROWSETDESCPOINTERS") << DgInt0(retcode);
 
@@ -1046,7 +1046,7 @@ NABoolean UdrResultSet::setupQuadFields(ComDiagsArea &d) {
 
 void UdrResultSet::fetchRowsFromCLI(UdrGlobals *udrGlob, SqlBuffer *replyBuffer, ComUInt32 &numBufferedRows,
                                     ComDiagsArea &mainDiags, NAList<ComDiagsArea *> *rowDiagsList) {
-  Lng32 retcode = 0;
+  int retcode = 0;
   const char *moduleName = "fetchRowsFromCLI";
 
   // First, setup quad fields to point to TmpBuffer so that CLI copies
@@ -1110,9 +1110,9 @@ void UdrResultSet::fetchRowsFromCLI(UdrGlobals *udrGlob, SqlBuffer *replyBuffer,
       ULng32 bufSize = 2048;
       char *bufForPackedDiags = (char *)h->allocateMemory(bufSize);
       ULng32 bufSizeNeeded = 0;
-      Lng32 messageObjType = 0;
-      Lng32 messageObjVersion = 0;
-      Lng32 fetchRetcode = retcode;
+      int messageObjType = 0;
+      int messageObjVersion = 0;
+      int fetchRetcode = retcode;
 
       retcode = SQL_EXEC_GetPackedDiagnostics_Internal(
           /*OUT*/ bufForPackedDiags,
@@ -1170,7 +1170,7 @@ void UdrResultSet::fetchRowsFromCLI(UdrGlobals *udrGlob, SqlBuffer *replyBuffer,
     }
 
     // Find the number of rows fetched.
-    Lng32 numRowsFetched = 0;
+    int numRowsFetched = 0;
     retcode = SQL_EXEC_GetDescItem(output_desc_, 1, SQLDESC_ROWSET_NUM_PROCESSED, &numRowsFetched, 0, 0, 0, 0);
     if (retcode < 0) {
       mainDiags << DgSqlCode(-UDR_ERR_INTERNAL_CLI_ERROR) << DgString0("SQL_EXEC_GetDescItem") << DgInt0(retcode);
@@ -1250,7 +1250,7 @@ void UdrResultSet::copyRowsIntoSqlBuffer(SqlBuffer *replyBuffer, queue_index que
     ControlInfo *newControlInfo = NULL;
 
     // Allocate a row in SqlBuffer.
-    NABoolean result = allocateReplyRow(getSPInfo()->getUdrGlobals(), *replyBuffer, queueIndex, (Lng32)exeRowSize_,
+    NABoolean result = allocateReplyRow(getSPInfo()->getUdrGlobals(), *replyBuffer, queueIndex, (int)exeRowSize_,
                                         rowPtr, newControlInfo, ex_queue::Q_OK_MMORE);
 
     if (result) {

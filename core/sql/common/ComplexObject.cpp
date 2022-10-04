@@ -318,7 +318,7 @@ IpcMessageObjSize CharPtrObjectContainer::packedStringLength() {
   // include the null-terminator
   //
   IpcMessageObjSize result;
-  result = sizeof(Lng32);
+  result = sizeof(int);
   char *s = *charPtr_;
   if (s) {
     result += str_len(s) + 1;
@@ -396,18 +396,18 @@ void IntegerObjectContainer::length(Lengther *lengther, LengtherInput *input, Le
 }
 
 // LongObjectContainer definitions
-LongObjectContainer::LongObjectContainer(Lng32 *value) : value_(value) {
+LongObjectContainer::LongObjectContainer(int *value) : value_(value) {
   BriefAssertion(value, "a pointer to int should not be NULL");
 }
 
 LongObjectContainer::~LongObjectContainer() {}
 
-Lng32 *LongObjectContainer::getValue() { return value_; }
+int *LongObjectContainer::getValue() { return value_; }
 
-void LongObjectContainer::setValue(Lng32 *value) { value_ = value; }
+void LongObjectContainer::setValue(int *value) { value_ = value; }
 
 void LongObjectContainer::pack(Packer *packer, PackerInput *input, PackerOutput *output) {
-  Lng32 data = *value_;
+  int data = *value_;
   char *bufferPtr = input->getBufferPtr();
   IpcMessageObjSize accMsgSize = input->getAccMsgSize();
   accMsgSize += packIntoBuffer(bufferPtr, data);
@@ -416,7 +416,7 @@ void LongObjectContainer::pack(Packer *packer, PackerInput *input, PackerOutput 
 }
 
 void LongObjectContainer::unPack(UnPacker *unPacker, UnPackerInput *input, UnPackerOutput *output) {
-  Lng32 data;
+  int data;
   const char *bufferPtr = input->getBufferPtr();
   ::unpackBuffer(bufferPtr, data);
   output->setBufferPtr((char *)bufferPtr);
